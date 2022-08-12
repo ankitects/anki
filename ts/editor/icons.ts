@@ -6,7 +6,6 @@
 export { default as incrementClozeIcon } from "../icons/contain-plus.svg";
 export { default as alertIcon } from "@mdi/svg/svg/alert.svg";
 export { default as chevronDown } from "@mdi/svg/svg/chevron-down.svg";
-export { default as chevronRight } from "@mdi/svg/svg/chevron-right.svg";
 export { default as chevronUp } from "@mdi/svg/svg/chevron-up.svg";
 export { default as plainTextIcon } from "@mdi/svg/svg/code-tags.svg";
 export { default as clozeIcon } from "@mdi/svg/svg/contain.svg";

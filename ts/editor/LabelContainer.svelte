@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Badge from "../components/Badge.svelte";
     import { directionKey } from "../lib/context-keys";
     import * as tr from "../lib/ftl";
-    import { chevronDown, chevronRight } from "./icons";
+    import { chevronDown } from "./icons";
 
     export let collapsed: boolean;
 
@@ -21,7 +21,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         dispatch("toggle");
     }
 
-    $: icon = collapsed ? chevronRight : chevronDown;
     $: tooltip = collapsed ? tr.editingExpandField() : tr.editingCollapseField();
 </script>
 
@@ -31,8 +30,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:mousedown|preventDefault
     on:click|stopPropagation={toggle}
 >
-    <span class="chevron">
-        <Badge {tooltip} iconSize={80} --icon-align="text-bottom">{@html icon}</Badge>
+    <span class="chevron" class:collapsed>
+        <Badge {tooltip} iconSize={80} --icon-align="text-bottom"
+            >{@html chevronDown}</Badge
+        >
     </span>
     <slot name="field-name" />
 
@@ -59,7 +60,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         .chevron {
             opacity: 0.4;
-            transition: opacity 0.2s ease-in-out;
+            transition: opacity 0.2s ease-in-out, transform 80ms ease-in;
+            &.collapsed {
+                transform: rotate(-90deg);
+            }
+        }
+        &.rtl .chevron.collapsed {
+            transform: rotate(90deg);
         }
         &:hover .chevron {
             opacity: 1;
