@@ -554,7 +554,7 @@ class Browser(QMainWindow):
         grid.addWidget(self.sidebar.searchBar, 0, 0)
         grid.addWidget(self.sidebar.toolbar, 0, 1)
         grid.addWidget(self.sidebar, 1, 0, 1, 2)
-        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setContentsMargins(8, 4, 0, 0)
         grid.setSpacing(0)
         w = QWidget()
         w.setLayout(grid)
