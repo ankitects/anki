@@ -62,7 +62,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { placeCaretAfterContent } from "../../domlib/place-caret";
     import ContentEditable from "../../editable/ContentEditable.svelte";
     import {
-        descriptionKey,
         directionKey,
         fontFamilyKey,
         fontSizeKey,
@@ -84,7 +83,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { focusedInput } = noteEditorContext.get();
     const { content, editingInputs } = editingAreaContext.get();
 
-    const description = getContext<Readable<string>>(descriptionKey);
     const fontFamily = getContext<Readable<string>>(fontFamilyKey);
     const fontSize = getContext<Readable<number>>(fontSizeKey);
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
@@ -215,17 +213,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="rich-text-input" {hidden} on:focusin={setFocus} on:focusout={removeFocus}>
-    {#if $content.length === 0}
-        <div
-            class="rich-text-placeholder"
-            style:font-family={$fontFamily}
-            style:font-size={$fontSize + "px"}
-            style:direction={$direction}
-        >
-            {$description}
-        </div>
-    {/if}
-
     <RichTextStyles
         color={$pageTheme.isDark ? "white" : "black"}
         fontFamily={$fontFamily}
@@ -257,19 +244,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .rich-text-input {
         position: relative;
-    }
-
-    .rich-text-placeholder {
-        position: absolute;
-        color: var(--disabled);
-
-        /* Adopts same size as the content editable element */
-        width: 100%;
-        height: 100%;
-        /* Keep text on single line and hide overflow */
-        white-space: nowrap;
-        overflow-x: hidden;
-        text-overflow: ellipsis;
+        padding: 6px;
     }
 
     .hidden {

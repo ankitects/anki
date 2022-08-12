@@ -32,15 +32,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style>
     .field-description {
         position: absolute;
-        top: 0;
-        left: 0;
+        inset: 0;
 
-        opacity: 0.4;
         cursor: text;
+        opacity: 0.4;
+
         /* same as in ContentEditable */
         padding: 6px;
+
         /* stay a on single line */
-        max-width: 95%;
         overflow-x: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
