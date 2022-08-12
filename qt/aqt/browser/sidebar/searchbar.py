@@ -29,9 +29,9 @@ class SidebarSearchBar(QLineEdit):
 
     def setup_style(self) -> None:
         styles = [
-            f"padding: 2px",
+            "padding: 2px",
             f"border: 1px solid {theme_manager.color(colors.BORDER)}",
-            f"border-radius: 5px",
+            "border-radius: 5px",
         ]
 
         self.setStyleSheet(
