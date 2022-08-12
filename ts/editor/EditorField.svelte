@@ -95,16 +95,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     <slot name="field-label" />
 
-    {#if !collapsed}
-        <EditingArea
-            {content}
-            fontFamily={field.fontFamily}
-            fontSize={field.fontSize}
-            api={editingArea}
-        >
-            <slot name="editing-inputs" />
-        </EditingArea>
-    {/if}
+    <EditingArea
+        {content}
+        fontFamily={field.fontFamily}
+        fontSize={field.fontSize}
+        api={editingArea}
+        hidden={collapsed}
+    >
+        <slot name="editing-inputs" />
+    </EditingArea>
 </div>
 
 <style lang="scss">
