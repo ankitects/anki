@@ -336,6 +336,8 @@ the AddCards dialog) should be implemented in the user of this component.
                                     if (!fieldsCollapsed[index]) {
                                         await tick();
                                         richTextInputs[index].api.refocus();
+                                    } else {
+                                        plainTextsHidden[index] = true;
                                     }
                                 }}
                             >
