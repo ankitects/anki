@@ -64,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Notification from "./Notification.svelte";
     import { PlainTextInput } from "./plain-text-input";
     import { editingInputIsRichText, RichTextInput } from "./rich-text-input";
-    import SecondaryInputBadge from "./SecondaryInputBadge.svelte";
+    import PlainTextBadge from "./PlainTextBadge.svelte";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -360,7 +360,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                     {#if cols[index] === "dupe"}
                                         <DuplicateLink />
                                     {/if}
-                                    <SecondaryInputBadge
+                                    <PlainTextBadge
                                         visible={!fieldsCollapsed[index] &&
                                             (fields[index] === $hoveredField ||
                                                 fields[index] === $focusedField)}

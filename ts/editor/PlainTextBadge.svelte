@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../lib/ftl";
     import { getPlatformString, registerShortcut } from "../lib/shortcuts";
     import { context as editorFieldContext } from "./EditorField.svelte";
-    import { plainTextIcon, richTextIcon } from "./icons";
+    import { plainTextIcon } from "./icons";
 
     const editorField = editorFieldContext.get();
     const keyCombination = "Control+Shift+X";
@@ -17,9 +17,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let visible = false;
     export let off = false;
-    export let defaultInput: "plain" | "rich" = "rich";
-
-    $: icon = defaultInput == "rich" ? plainTextIcon : richTextIcon;
 
     function toggle() {
         dispatch("toggle");
@@ -40,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     <Badge
         tooltip="{tr.editingToggleHtmlEditor()} ({getPlatformString(keyCombination)})"
-        iconSize={75}>{@html icon}</Badge
+        iconSize={75}>{@html plainTextIcon}</Badge
     >
 </span>
 
