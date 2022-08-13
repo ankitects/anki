@@ -360,6 +360,9 @@ the AddCards dialog) should be implemented in the user of this component.
                                         <DuplicateLink />
                                     {/if}
                                     <SecondaryInputBadge
+                                        visible={!fieldsCollapsed[index] &&
+                                            (fields[index] === $hoveredField ||
+                                                fields[index] === $focusedField)}
                                         bind:off={plainTextsHidden[index]}
                                         on:toggle={async () => {
                                             plainTextsHidden[index] =

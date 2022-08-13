@@ -15,6 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const keyCombination = "Control+Shift+X";
     const dispatch = createEventDispatcher();
 
+    export let visible = false;
     export let off = false;
     export let defaultInput: "plain" | "rich" = "rich";
 
@@ -33,6 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <span
     class="plain-text-badge"
+    class:visible
     class:highlighted={!off}
     on:click|stopPropagation={toggle}
 >
@@ -46,22 +48,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     span {
         cursor: pointer;
         opacity: 0;
+
+        &.visible {
+            opacity: 0.4;
+            &:hover {
+                opacity: 0.8;
+            }
+        }
         &.highlighted {
             opacity: 1;
-        }
-    }
-    :global(.editor-field) {
-        &:focus-within,
-        &:hover {
-            & span {
-                opacity: 0.4;
-                &:hover {
-                    opacity: 0.8;
-                }
-                &.highlighted {
-                    opacity: 1;
-                }
-            }
         }
     }
 </style>
