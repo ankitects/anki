@@ -202,6 +202,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         &:focus-within {
             outline: none;
+
+            /* This pseudo-element is required to display
+               the inset box-shadow above field contents */
             &::after {
                 content: "";
                 position: absolute;
