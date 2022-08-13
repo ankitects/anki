@@ -16,14 +16,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let isCollapsed = false;
 
     let style: string;
-    const setStyle = (el: HTMLElement) => {
+    function setStyle(el: HTMLElement) {
         height = el.clientHeight;
         style = `--collapse-height: -${height}px; --duration: ${Math.sqrt(
             height * 80,
         )}ms`;
-    };
+    }
 
-    const transition = async (collapse: boolean) => {
+    async function transition(collapse: boolean) {
         const inner = await element;
         isCollapsed = true;
 
@@ -42,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             inner.removeAttribute("hidden");
             isCollapsed = false;
         }
-    };
+    }
 
     $: transition(collapsed);
 </script>
