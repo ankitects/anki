@@ -41,22 +41,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         top: 0;
         z-index: 3;
         justify-content: space-between;
-        background-color: var(--label-color, transparent);
         padding-bottom: 1px;
+
+        &::before,
+        &::after {
+            content: "";
+            z-index: -1;
+            position: absolute;
+        }
 
         /* pseudo element wider than container
            to cover up field borders on scroll
            - sadly there is no :stuck pseudo class */
         &::before {
-            content: "";
-            z-index: -1;
-            position: absolute;
             top: -5px;
             bottom: 0;
             left: -2px;
             right: -2px;
-            background: var(--window-bg);
+            background: var(window-bg);
         }
+
+        /* pseudo element for duplicate background */
+        &::after {
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            background: var(--label-color, transparent);
+        }
+
         .clickable {
             cursor: pointer;
         }
