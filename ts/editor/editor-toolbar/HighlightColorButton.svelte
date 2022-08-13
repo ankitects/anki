@@ -3,18 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { onMount } from "svelte";
+
     import IconButton from "../../components/IconButton.svelte";
-    import type {
-        FormattingNode,
-        MatchType,
-        SurroundFormat,
-    } from "../../domlib/surround";
+    import type { FormattingNode, MatchType } from "../../domlib/surround";
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
     import { removeStyleProperties } from "../../lib/styling";
+    import { singleCallback } from "../../lib/typing";
     import { surrounder } from "../rich-text-input";
     import ColorPicker from "./ColorPicker.svelte";
-    import type { RemoveFormat } from "./EditorToolbar.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { arrowIcon, highlightColorIcon } from "./icons";
     import WithColorHelper from "./WithColorHelper.svelte";
@@ -77,28 +75,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return true;
     }
 
-    const format: SurroundFormat<string> = {
+    const key = "highlightColor";
+
+    const format = {
         matcher,
         merger,
         formatter,
     };
 
-    const namedFormat: RemoveFormat<string> = {
+    const namedFormat = {
+        key,
         name: tr.editingTextHighlightColor(),
         show: true,
         active: true,
-        format,
     };
 
     const { removeFormats } = editorToolbarContext.get();
     removeFormats.update((formats) => [...formats, namedFormat]);
 
-    let disabled: boolean;
-    surrounder.active.subscribe((value) => (disabled = !value));
-
     function setTextColor(): void {
-        surrounder.overwriteSurround(format);
+        surrounder.overwriteSurround(key);
     }
+
+    let disabled: boolean;
+
+    onMount(() =>
+        singleCallback(
+            surrounder.active.subscribe((value) => (disabled = !value)),
+            surrounder.registerFormat(key, format),
+        ),
+    );
 </script>
 
 <WithColorHelper {color} let:colorHelperIcon let:setColor>

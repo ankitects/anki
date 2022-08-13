@@ -3,6 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { onMount } from "svelte";
+
     import Checkbox from "../../components/CheckBox.svelte";
     import DropdownItem from "../../components/DropdownItem.svelte";
     import DropdownMenu from "../../components/DropdownMenu.svelte";
@@ -10,63 +12,64 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithDropdown from "../../components/WithDropdown.svelte";
-    import type { SurroundFormat } from "../../domlib/surround";
     import type { MatchType } from "../../domlib/surround";
     import * as tr from "../../lib/ftl";
     import { altPressed } from "../../lib/keys";
     import { getPlatformString } from "../../lib/shortcuts";
+    import { singleCallback } from "../../lib/typing";
     import { surrounder } from "../rich-text-input";
     import type { RemoveFormat } from "./EditorToolbar.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { eraserIcon } from "./icons";
     import { arrowIcon } from "./icons";
 
-    let disabled: boolean;
-    surrounder.active.subscribe((value) => (disabled = !value));
-
     const { removeFormats } = editorToolbarContext.get();
+
+    const surroundElement = document.createElement("span");
+
+    function matcher(element: HTMLElement | SVGElement, match: MatchType<never>): void {
+        if (
+            element.tagName === "SPAN" &&
+            element.className.length === 0 &&
+            element.style.cssText.length === 0
+        ) {
+            match.remove();
+        }
+    }
+
+    const key = "simple spans";
+    const format = {
+        matcher,
+        surroundElement,
+    };
 
     removeFormats.update((formats) =>
         formats.concat({
-            name: "simple spans",
+            key,
+            name: key,
             show: false,
             active: true,
-            format: {
-                matcher: (
-                    element: HTMLElement | SVGElement,
-                    match: MatchType<never>,
-                ): void => {
-                    if (
-                        element.tagName === "SPAN" &&
-                        element.className.length === 0 &&
-                        element.style.cssText.length === 0
-                    ) {
-                        match.remove();
-                    }
-                },
-                surroundElement: document.createElement("span"),
-            },
         }),
     );
 
-    let activeFormats: SurroundFormat<any>[];
-    $: activeFormats = $removeFormats
+    let activeKeys: string[];
+    $: activeKeys = $removeFormats
         .filter((format) => format.active)
-        .map((format) => format.format);
+        .map((format) => format.key);
 
-    let inactiveFormats: SurroundFormat<any>[];
-    $: inactiveFormats = $removeFormats
+    let inactiveKeys: string[];
+    $: inactiveKeys = $removeFormats
         .filter((format) => !format.active)
-        .map((format) => format.format);
+        .map((format) => format.key);
 
-    let showFormats: RemoveFormat<any>[];
+    let showFormats: RemoveFormat[];
     $: showFormats = $removeFormats.filter((format) => format.show);
 
     function remove(): void {
-        surrounder.remove(activeFormats, inactiveFormats);
+        surrounder.remove(activeKeys, inactiveKeys);
     }
 
-    function onItemClick<T>(event: MouseEvent, format: RemoveFormat<T>): void {
+    function onItemClick(event: MouseEvent, format: RemoveFormat): void {
         if (altPressed(event)) {
             for (const format of showFormats) {
                 format.active = false;
@@ -78,6 +81,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const keyCombination = "Control+R";
+
+    let disabled: boolean;
+
+    onMount(() =>
+        singleCallback(
+            surrounder.active.subscribe((value) => (disabled = !value)),
+            surrounder.registerFormat(key, format),
+        ),
+    );
 </script>
 
 <IconButton

@@ -61,11 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { placeCaretAfterContent } from "../../domlib/place-caret";
     import ContentEditable from "../../editable/ContentEditable.svelte";
-    import {
-        directionKey,
-        fontFamilyKey,
-        fontSizeKey,
-    } from "../../lib/context-keys";
+    import { directionKey, fontFamilyKey, fontSizeKey } from "../../lib/context-keys";
     import { promiseWithResolver } from "../../lib/promise";
     import { singleCallback } from "../../lib/typing";
     import useDOMMirror from "../../sveltelib/dom-mirror";
