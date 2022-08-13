@@ -44,6 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
+    import Collapsible from "../components/Collapsible.svelte";
     import { collapsedKey, descriptionKey, directionKey } from "../lib/context-keys";
     import { promiseWithResolver } from "../lib/promise";
     import type { Destroyable } from "./destroyable";
@@ -97,15 +98,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     <slot name="field-label" />
 
-    <EditingArea
-        {content}
-        fontFamily={field.fontFamily}
-        fontSize={field.fontSize}
-        api={editingArea}
-        {collapsed}
-    >
-        <slot name="editing-inputs" />
-    </EditingArea>
+    <Collapsible {collapsed}>
+        <EditingArea
+            {content}
+            fontFamily={field.fontFamily}
+            fontSize={field.fontSize}
+            api={editingArea}
+        >
+            <slot name="editing-inputs" />
+        </EditingArea>
+    </Collapsible>
 </div>
 
 <style lang="scss">

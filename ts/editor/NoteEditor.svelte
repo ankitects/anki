@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
 
+    import Collapsible from "../components/Collapsible.svelte";
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import type { EditorToolbarAPI } from "./editor-toolbar";
     import type { EditorFieldAPI } from "./EditorField.svelte";
@@ -379,25 +380,29 @@ the AddCards dialog) should be implemented in the user of this component.
                             </LabelContainer>
                         </svelte:fragment>
                         <svelte:fragment slot="editing-inputs">
-                            <RichTextInput
-                                hidden={richTextsHidden[index]}
-                                on:focusout={() => {
-                                    saveFieldNow();
-                                    $focusedInput = null;
-                                }}
-                                bind:this={richTextInputs[index]}
-                            >
-                                <ImageHandle maxWidth={250} maxHeight={125} />
-                                <MathjaxHandle />
-                            </RichTextInput>
-                            <PlainTextInput
-                                hidden={plainTextsHidden[index]}
-                                on:focusout={() => {
-                                    saveFieldNow();
-                                    $focusedInput = null;
-                                }}
-                                bind:this={plainTextInputs[index]}
-                            />
+                            <Collapsible collapsed={richTextsHidden[index]}>
+                                <RichTextInput
+                                    bind:hidden={richTextsHidden[index]}
+                                    on:focusout={() => {
+                                        saveFieldNow();
+                                        $focusedInput = null;
+                                    }}
+                                    bind:this={richTextInputs[index]}
+                                >
+                                    <ImageHandle maxWidth={250} maxHeight={125} />
+                                    <MathjaxHandle />
+                                </RichTextInput>
+                            </Collapsible>
+                            <Collapsible collapsed={plainTextsHidden[index]}>
+                                <PlainTextInput
+                                    bind:hidden={plainTextsHidden[index]}
+                                    on:focusout={() => {
+                                        saveFieldNow();
+                                        $focusedInput = null;
+                                    }}
+                                    bind:this={plainTextInputs[index]}
+                                />
+                            </Collapsible>
                         </svelte:fragment>
                     </EditorField>
                 {/each}

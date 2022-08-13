@@ -49,11 +49,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setContext as svelteSetContext, tick } from "svelte";
     import { writable } from "svelte/store";
 
-    import Collapsible from "../components/Collapsible.svelte";
     import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
     import FocusTrap from "./FocusTrap.svelte";
-
-    export let collapsed = false;
 
     export let fontFamily: string;
     const fontFamilyStore = writable(fontFamily);
@@ -180,11 +177,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <FocusTrap bind:this={focusTrap} on:focus={focusEditingInputInsteadIfAvailable} />
 
-<Collapsible {collapsed}>
-    <div bind:this={editingArea} class="editing-area" on:focusout={trapFocusOnBlurOut}>
-        <slot />
-    </div>
-</Collapsible>
+<div bind:this={editingArea} class="editing-area" on:focusout={trapFocusOnBlurOut}>
+    <slot />
+</div>
 
 <style lang="scss">
     .editing-area {

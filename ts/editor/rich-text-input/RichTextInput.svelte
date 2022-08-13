@@ -50,7 +50,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getAllContexts, getContext, onMount } from "svelte";
     import type { Readable } from "svelte/store";
 
-    import Collapsible from "../../components/Collapsible.svelte";
     import { placeCaretAfterContent } from "../../domlib/place-caret";
     import ContentEditable from "../../editable/ContentEditable.svelte";
     import {
@@ -201,48 +200,46 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setupLifecycleHooks(api);
 </script>
 
-<Collapsible collapsed={hidden}>
-    <div class="rich-text-input" on:focusin={setFocus}>
-        {#if $content.length === 0}
-            <div
-                class="rich-text-placeholder"
-                style:font-family={$fontFamily}
-                style:font-size={$fontSize + "px"}
-                style:direction={$direction}
-            >
-                {$description}
-            </div>
-        {/if}
-
-        <RichTextStyles
-            color={$pageTheme.isDark ? "white" : "black"}
-            fontFamily={$fontFamily}
-            fontSize={$fontSize}
-            direction={$direction}
-            callback={stylesResolve}
-            let:attachToShadow={attachStyles}
-            let:stylesDidLoad
+<div class="rich-text-input" on:focusin={setFocus}>
+    {#if $content.length === 0}
+        <div
+            class="rich-text-placeholder"
+            style:font-family={$fontFamily}
+            style:font-size={$fontSize + "px"}
+            style:direction={$direction}
         >
-            <div
-                bind:this={richTextDiv}
-                class={className}
-                class:night-mode={$pageTheme.isDark}
-                use:attachShadow
-                use:attachStyles
-                use:attachContentEditable={{ stylesDidLoad }}
-                on:focusin
-                on:focusout
-            />
+            {$description}
+        </div>
+    {/if}
 
-            {#await Promise.all([richTextPromise, stylesDidLoad]) then _}
-                <div class="rich-text-widgets">
-                    <slot />
-                </div>
-            {/await}
-        </RichTextStyles>
-        <slot name="plain-text-badge" />
-    </div>
-</Collapsible>
+    <RichTextStyles
+        color={$pageTheme.isDark ? "white" : "black"}
+        fontFamily={$fontFamily}
+        fontSize={$fontSize}
+        direction={$direction}
+        callback={stylesResolve}
+        let:attachToShadow={attachStyles}
+        let:stylesDidLoad
+    >
+        <div
+            bind:this={richTextDiv}
+            class={className}
+            class:night-mode={$pageTheme.isDark}
+            use:attachShadow
+            use:attachStyles
+            use:attachContentEditable={{ stylesDidLoad }}
+            on:focusin
+            on:focusout
+        />
+
+        {#await Promise.all([richTextPromise, stylesDidLoad]) then _}
+            <div class="rich-text-widgets">
+                <slot />
+            </div>
+        {/await}
+    </RichTextStyles>
+    <slot name="plain-text-badge" />
+</div>
 
 <style lang="scss">
     .rich-text-input {
