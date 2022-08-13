@@ -14,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
+        hoveredField: Writable<EditorFieldAPI | null>;
         focusedField: Writable<EditorFieldAPI | null>;
         focusedInput: Writable<EditingInputAPI | null>;
         toolbar: EditorToolbarAPI;
@@ -263,11 +264,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let apiPartial: Partial<NoteEditorAPI> = {};
     export { apiPartial as api };
 
+    const hoveredField: NoteEditorAPI["hoveredField"] = writable(null);
     const focusedField: NoteEditorAPI["focusedField"] = writable(null);
     const focusedInput: NoteEditorAPI["focusedInput"] = writable(null);
 
     const api: NoteEditorAPI = {
         ...apiPartial,
+        hoveredField,
         focusedField,
         focusedInput,
         toolbar: toolbar as EditorToolbarAPI,
@@ -321,6 +324,12 @@ the AddCards dialog) should be implemented in the user of this component.
                                     fieldStores[index],
                                 )}`,
                             );
+                        }}
+                        on:mouseenter={() => {
+                            $hoveredField = fields[index];
+                        }}
+                        on:mouseleave={() => {
+                            $hoveredField = null;
                         }}
                         collapsed={fieldsCollapsed[index]}
                         --label-color={cols[index] === "dupe"
