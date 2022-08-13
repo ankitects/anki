@@ -43,6 +43,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         background: var(--window-bg);
         cursor: pointer;
 
+        /* pseudo element wider than container
+           to cover up field borders on scroll
+           - sadly there is no :stuck pseudo class */
         &::before {
             content: "";
             z-index: -1;
