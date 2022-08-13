@@ -338,7 +338,7 @@ the AddCards dialog) should be implemented in the user of this component.
                     >
                         <svelte:fragment slot="field-label">
                             <LabelContainer
-                                bind:collapsed={fieldsCollapsed[index]}
+                                collapsed={fieldsCollapsed[index]}
                                 on:toggle={async () => {
                                     fieldsCollapsed[index] = !fieldsCollapsed[index];
 
