@@ -16,41 +16,49 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let isCollapsed = false;
 
     let style: string;
-    function setStyle(el: HTMLElement) {
-        height = el.clientHeight;
-        style = `--collapse-height: -${height}px; --duration: ${Math.sqrt(
-            height * 80,
-        )}ms`;
+    function setStyle(height: number, duration: number) {
+        style = `--collapse-height: -${height}px; --duration: ${duration}ms`;
     }
+
+    let transitioning = false;
 
     async function transition(collapse: boolean) {
         const inner = await element;
+        transitioning = true;
         isCollapsed = true;
 
-        if (collapse) {
-            setStyle(inner);
+        const height = inner.clientHeight;
+        const duration = Math.sqrt(height * 80);
 
-            inner.addEventListener(
-                "transitionend",
-                () => {
-                    // DOM-manipulation is required here
-                    inner.setAttribute("hidden", "");
-                },
-                { once: true },
-            );
+        if (collapse) {
+            setStyle(height, duration);
         } else {
             inner.removeAttribute("hidden");
             isCollapsed = false;
         }
+
+        inner.addEventListener(
+            "transitionend",
+            () => {
+                if (collapse) inner.setAttribute("hidden", "");
+                transitioning = false;
+            },
+            { once: true },
+        );
+
+        // fallback for initially collapsed items where transition isn't possible
+        setTimeout(() => {
+            transitioning = false;
+        }, duration);
     }
 
     $: transition(collapsed);
 </script>
 
-<div {id} class="collapsible-container {className}">
+<div {id} class="collapsible-container {className}" class:transitioning>
     <div
         class="collapsible-inner"
-        class:is-collapsed={isCollapsed}
+        class:collapsed={isCollapsed}
         use:elementResolve
         {style}
     >
@@ -61,12 +69,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .collapsible-container {
         position: relative;
-        overflow: hidden;
+        &.transitioning {
+            overflow: hidden;
+        }
     }
     .collapsible-inner {
         transition: margin-top var(--duration) ease-in;
 
-        &.is-collapsed {
+        &.collapsed {
             margin-top: var(--collapse-height);
         }
     }
