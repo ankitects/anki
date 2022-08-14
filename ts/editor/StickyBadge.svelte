@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { stickyIcon } from "./icons";
 
     export let active: boolean;
+    export let visible: boolean;
 
     const editorField = editorFieldContext.get();
     const keyCombination = "F9";
@@ -32,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => editorField.element.then(shortcut));
 </script>
 
-<span class:highlighted={active} on:click|stopPropagation={toggle}>
+<span class:highlighted={active} class:visible on:click|stopPropagation={toggle}>
     <Badge
         tooltip="{tr.editingToggleSticky()} ({getPlatformString(keyCombination)})"
         widthMultiplier={0.7}>{@html stickyIcon}</Badge
@@ -43,23 +44,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     span {
         cursor: pointer;
         opacity: 0;
+        &.visible {
+            transition: none;
+            opacity: 0.4;
+            &:hover {
+                opacity: 0.8;
+            }
+        }
         &.highlighted {
             opacity: 1;
-        }
-    }
-    :global(.editor-field) {
-        &:focus-within,
-        &:hover {
-            & span {
-                transition: none;
-                opacity: 0.4;
-                &:hover {
-                    opacity: 0.8;
-                }
-                &.highlighted {
-                    opacity: 1;
-                }
-            }
         }
     }
 </style>

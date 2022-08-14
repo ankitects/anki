@@ -45,7 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <NoteEditor bind:this={noteEditor} {api}>
-    <svelte:fragment slot="field-state" let:index>
-        <StickyBadge active={stickies[index]} {index} />
+    <svelte:fragment slot="field-state" let:index let:visible>
+        <StickyBadge active={stickies[index]} {index} {visible} />
     </svelte:fragment>
 </NoteEditor>

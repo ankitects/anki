@@ -375,7 +375,13 @@ the AddCards dialog) should be implemented in the user of this component.
                                             }
                                         }}
                                     />
-                                    <slot name="field-state" {field} {index} />
+                                    <slot
+                                        name="field-state"
+                                        {field}
+                                        {index}
+                                        visible={fields[index] === $hoveredField ||
+                                            fields[index] === $focusedField}
+                                    />
                                 </FieldState>
                             </LabelContainer>
                         </svelte:fragment>
