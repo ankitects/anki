@@ -157,7 +157,7 @@ def ask_user(
     text: str,
     callback: Callable[[bool], None],
     default_button: Literal["Yes", "No"] = "Yes",
-    **kwargs,
+    **kwargs: Any,
 ) -> MessageBox:
     "Shows a yes/no question, passes the answer to the callback function as a bool."
     return MessageBox(
@@ -175,7 +175,7 @@ def ask_user_dialog(
     callback: Callable[[str], None],
     buttons: list[str] = ["Yes", "No"],
     default_button: str = "Yes",
-    **kwargs,
+    **kwargs: Any,
 ) -> MessageBox:
     "Shows a question to the user, passes the answer to the callback function as a str."
     return MessageBox(
@@ -188,7 +188,7 @@ def ask_user_dialog(
     )
 
 
-def show_info(text: str, callback: Callable = None, **kwargs) -> MessageBox:
+def show_info(text: str, callback: Callable = None, **kwargs: Any) -> MessageBox:
     "Show a small info window with an OK button."
     if "icon" not in kwargs:
         kwargs["icon"] = QMessageBox.Icon.Information
@@ -199,12 +199,12 @@ def show_info(text: str, callback: Callable = None, **kwargs) -> MessageBox:
     )
 
 
-def show_warning(text: str, callback: Callable = None, **kwargs) -> MessageBox:
+def show_warning(text: str, callback: Callable = None, **kwargs: Any) -> MessageBox:
     "Show a small warning window with an OK button."
     return show_info(text, icon=QMessageBox.Icon.Warning, callback=callback, **kwargs)
 
 
-def show_critical(text: str, callback: Callable = None, **kwargs) -> MessageBox:
+def show_critical(text: str, callback: Callable = None, **kwargs: Any) -> MessageBox:
     "Show a small critical error window with an OK button."
     return show_info(text, icon=QMessageBox.Icon.Critical, callback=callback, **kwargs)
 
