@@ -148,7 +148,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 {#if activeImage && mathjaxElement}
-    <WithFloating reference={activeImage} closeOnInsideClick>
+    <WithFloating reference={activeImage} keepOnKeyup>
         <MathjaxMenu
             slot="floating"
             element={mathjaxElement}

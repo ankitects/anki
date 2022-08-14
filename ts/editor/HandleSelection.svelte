@@ -63,6 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     div {
         position: absolute;
+        z-index: -1;
 
         left: calc(var(--left, 0px) - var(--offsetX, 0px));
         top: calc(var(--top, 0px) - var(--offsetY, 0px));

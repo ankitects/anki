@@ -83,7 +83,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="editor-field"
     on:focusin
     on:focusout
-    on:click={() => editingArea.focus?.()}
+    on:click={() => {/* TODO This breaks editor fields without open inputs: what to do? editingArea.focus?.() */}}
 >
     <LabelContainer>
         <span>
