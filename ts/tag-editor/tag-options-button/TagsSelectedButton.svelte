@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithFloating from "../../components/WithFloating.svelte";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
+    import toggleable from "../../sveltelib/toggleable";
     import { dotsIcon } from "./icons";
 
     const dispatch = createEventDispatcher();
@@ -19,16 +20,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const allShortcut = "Control+A";
     const copyShortcut = "Control+C";
     const removeShortcut = "Backspace";
+    const show = toggleable(false);
 </script>
 
-<WithFloating placement="top">
+<WithFloating {show} placement="top" let:asReference>
     <div
         class="tags-selected-button"
-        slot="reference"
-        let:asReference
         use:asReference
-        let:toggle
-        on:click={toggle}
+        on:click={show.toggle}
     >
         <IconConstrain>{@html dotsIcon}</IconConstrain>
     </div>

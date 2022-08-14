@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
     import type { Writable } from "svelte/store";
 
-    import DropdownMenu from "../../components/DropdownMenu.svelte";
+    import Popover from "../../components/Popover.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import { placeCaretAfter } from "../../domlib/place-caret";
     import { pageTheme } from "../../sveltelib/theme";
@@ -23,21 +23,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const acceptShortcut = "Enter";
     const newlineShortcut = "Shift+Enter";
 
-    export let updateSelection: () => Promise<void>;
-    let dropdownApi: any;
-
-    export async function update() {
-        await updateSelection?.();
-        dropdownApi.update();
-    }
-
     const dispatch = createEventDispatcher();
 </script>
 
 <div class="mathjax-menu" class:light-theme={!$pageTheme.isDark}>
     <slot />
 
-    <DropdownMenu>
+    <Popover>
         <MathjaxEditor
             {acceptShortcut}
             {newlineShortcut}
@@ -69,18 +61,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 }}
             />
         </MathjaxEditor>
-    </DropdownMenu>
+    </Popover>
 </div>
 
 <style lang="scss">
-    .mathjax-menu :global(.dropdown-menu) {
-        border-color: var(--border);
-    }
+    /* .mathjax-menu :global(.dropdown-menu) { */
+    /*     border-color: var(--border); */
+    /* } */
 
     .light-theme {
-        :global(.dropdown-menu) {
-            background-color: var(--window-bg);
-        }
+        /* :global(.dropdown-menu) { */
+        /*     background-color: var(--window-bg); */
+        /* } */
 
         :global(.CodeMirror) {
             border-width: 1px 0;

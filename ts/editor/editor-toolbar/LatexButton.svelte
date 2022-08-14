@@ -3,8 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { writable } from "svelte/store";
-
     import DropdownItem from "../../components/DropdownItem.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import Popover from "../../components/Popover.svelte";
@@ -13,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { wrapInternal } from "../../lib/wrap";
+    import toggleable from "../../sveltelib/toggleable";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
@@ -63,22 +62,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: disabled = !editingInputIsRichText($focusedInput);
 
-    const showDropdown = writable(false);
+    const showDropdown = toggleable(false);
 
     $: if (disabled) {
         $showDropdown = false;
     }
 </script>
 
-<WithFloating show={showDropdown} closeOnInsideClick>
-    <span
-        class="latex-button"
-        slot="reference"
-        let:asReference
-        use:asReference
-        let:toggle
-    >
-        <IconButton slot="reference" {disabled} on:click={toggle}>
+<WithFloating show={showDropdown} closeOnInsideClick let:asReference>
+    <span class="latex-button" use:asReference>
+        <IconButton {disabled} on:click={showDropdown.toggle}>
             {@html functionIcon}
         </IconButton>
     </span>

@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onDestroy, onMount, tick } from "svelte";
     import { writable } from "svelte/store";
 
-    import WithDropdown from "../../components/WithDropdown.svelte";
+    import WithFloating from "../../components/WithFloating.svelte";
     import { escapeSomeEntities, unescapeSomeEntities } from "../../editable/mathjax";
     import { Mathjax } from "../../editable/mathjax-element";
     import { on } from "../../lib/events";
@@ -74,7 +74,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         allow();
     }
 
-    async function maybeShowHandle({ target }: Event): Promise<void> {
+    async function updateHandle({ target }: Event): Promise<void> {
         await resetHandle();
 
         if (target instanceof HTMLImageElement && target.dataset.anki === "mathjax") {
@@ -112,20 +112,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const container = await element;
 
         return singleCallback(
-            on(container, "click", maybeShowHandle),
+            on(container, "click", updateHandle),
             on(container, "movecaretafter" as any, showAutofocusHandle),
             on(container, "selectall" as any, showSelectAll),
         );
     });
 
-    let updateSelection: () => Promise<void>;
     let errorMessage: string;
-    let dropdownApi: any;
 
     async function onImageResize(): Promise<void> {
         errorMessage = activeImage!.title;
-        await updateSelection();
-        dropdownApi.update();
     }
 
     const resizeObserver = new ResizeObserver(onImageResize);
@@ -151,14 +147,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<WithDropdown drop="down" autoOpen autoClose={false} distance={4} let:createDropdown>
-    {#if activeImage && mathjaxElement}
+{#if activeImage && mathjaxElement}
+    <WithFloating reference={activeImage} closeOnInsideClick>
         <MathjaxMenu
+            slot="floating"
             element={mathjaxElement}
             {code}
             {selectAll}
             {position}
-            bind:updateSelection
             on:reset={resetHandle}
             on:moveoutstart={() => {
                 placeHandle(false);
@@ -173,14 +169,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <HandleSelection
                     image={activeImage}
                     {container}
-                    bind:updateSelection
-                    on:mount={(event) =>
-                        (dropdownApi = createDropdown(event.detail.selection))}
                 >
                     <HandleBackground tooltip={errorMessage} />
                     <HandleControl offsetX={1} offsetY={1} />
                 </HandleSelection>
             {/await}
         </MathjaxMenu>
-    {/if}
-</WithDropdown>
+    </WithFloating>
+{/if}

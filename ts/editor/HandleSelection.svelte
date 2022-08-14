@@ -5,6 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, onMount } from "svelte";
 
+    import { promiseWithResolver } from "../lib/promise";
+
     export let container: HTMLElement;
     export let image: HTMLImageElement;
 
@@ -30,10 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export function updateSelection(): Promise<void> {
-        let updateResolve: () => void;
-        const afterUpdate: Promise<void> = new Promise((resolve) => {
-            updateResolve = resolve;
-        });
+        const [afterUpdate, updateResolve] = promiseWithResolver<void>();
 
         setSelection();
         setTimeout(() => updateResolve());

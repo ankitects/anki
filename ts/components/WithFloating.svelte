@@ -15,20 +15,56 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import position from "../sveltelib/position";
     import subscribeTrigger from "../sveltelib/subscribe-trigger";
     import { pageTheme } from "../sveltelib/theme";
-    import toggleable from "../sveltelib/toggleable";
 
     export let placement: Placement = "bottom";
     export let closeOnInsideClick = false;
     export let keepOnKeyup = false;
 
     /** This may be passed in for more fine-grained control */
-    export let show = writable(false);
+    export let show = writable(true);
+
+    /**
+     * The reference element can either be passed in directly, or initialized via a slot.
+     * Using both at the same time leads to undefined behavior.
+     */
+    let referenceProp: HTMLElement | undefined = undefined;
+    export { referenceProp as reference};
 
     let reference: HTMLElement;
     let floating: HTMLElement;
     let arrow: HTMLElement;
 
-    const { toggle, on, off } = toggleable(show);
+    function asReference(element: HTMLElement) {
+        reference = element;
+    }
+
+    $: if (referenceProp) {
+        asReference(referenceProp);
+    }
+
+    let update: (args: PositionArgs) => void;
+    $: update?.(args);
+
+    let destroy: () => void;
+
+    function updatePositioningFromReference() {
+        const pos = position(reference, args);
+        update = pos.update;
+
+        destroy?.();
+        destroy = pos.destroy;
+
+        return {
+            destroy() {
+                pos.destroy();
+
+            },
+        };
+    }
+
+    $: if (reference) {
+        updatePositioningFromReference();
+    }
 
     let args: PositionArgs;
     $: args = {
@@ -36,21 +72,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         placement,
         arrow,
     };
-
-    let update: (args: PositionArgs) => void;
-    $: update?.(args);
-
-    function asReference(element: HTMLElement) {
-        const pos = position(element, args);
-        reference = element;
-        update = pos.update;
-
-        return {
-            destroy() {
-                pos.destroy();
-            },
-        };
-    }
 
     onMount(() => {
         const triggers = [
@@ -75,7 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<slot name="reference" {show} {toggle} {on} {off} {asReference} />
+<slot {asReference} />
 
 <div bind:this={floating} class="floating" hidden={!$show} use:portal>
     <slot name="floating" />
