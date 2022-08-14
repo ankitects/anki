@@ -156,7 +156,7 @@ class MessageBox(QMessageBox):
 def ask_user(
     text: str,
     callback: Callable[[bool], None],
-    default: Literal["Yes", "No"] = "Yes",
+    default_button: Literal["Yes", "No"] = "Yes",
     **kwargs,
 ) -> MessageBox:
     "Shows a yes/no question, passes the answer to the callback function as a bool."
@@ -165,7 +165,7 @@ def ask_user(
         callback=lambda response: callback(response == "Yes"),
         icon=QMessageBox.Icon.Question,
         buttons=["Yes", "No"],
-        defualt=default,
+        default_button=default_button,
         **kwargs,
     )
 
