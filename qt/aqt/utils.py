@@ -140,9 +140,9 @@ class MessageBox(QMessageBox):
         self.setWindowModality(Qt.WindowModality.WindowModal)
         self.setIcon(icon)
         self.setTextFormat(textFormat)
-        default_button = default_button or buttons[0]
         if buttons is None:
             buttons = [QMessageBox.StandardButton.Ok]
+        default_button = default_button or buttons[0]
         for button in buttons:
             if isinstance(button, str):
                 b = self.addButton(button, QMessageBox.ButtonRole.ActionRole)
@@ -152,7 +152,8 @@ class MessageBox(QMessageBox):
                 continue
             if callback is not None:
                 qconnect(
-                    b.clicked, partial(callback, str(b).removeprefix("StandardButton."))
+                    b.clicked,
+                    partial(callback, str(button).removeprefix("StandardButton.")),
                 )
             if button == default_button:
                 self.setDefaultButton(b)
@@ -183,7 +184,7 @@ def ask_user_dialog(
     text: str,
     callback: Callable[[str], None],
     buttons: list[str | QMessageBox.StandardButton] = None,
-    default_button: str = "Yes",
+    default_button: str | QMessageBox.StandardButton = QMessageBox.StandardButton.Yes,
     **kwargs: Any,
 ) -> MessageBox:
     "Shows a question to the user, passes the answer to the callback function as a str."
