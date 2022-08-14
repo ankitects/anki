@@ -11,7 +11,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let collapsed = false;
 
-    const [element, elementResolve] = promiseWithResolver<HTMLElement>();
+    const [outerPromise, outerResolve] = promiseWithResolver<HTMLElement>();
+    const [innerPromise, innerResolve] = promiseWithResolver<HTMLElement>();
+
     let isCollapsed = false;
 
     let style: string;
@@ -19,19 +21,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         style = `--collapse-height: -${height}px; --duration: ${duration}ms`;
     }
 
-    let transitioning = false;
+    /* The following two functions use synchronous DOM-manipulation,
+    because Editor field inputs would lose focus when using tick() */
+
+    function getRequiredHeight(el: HTMLElement): number {
+        el.style.setProperty("position", "absolute");
+        el.style.setProperty("visibility", "hidden");
+        el.removeAttribute("hidden");
+
+        const height = el.clientHeight;
+
+        el.setAttribute("hidden", "");
+        el.style.removeProperty("position");
+        el.style.removeProperty("visibility");
+
+        return height;
+    }
 
     async function transition(collapse: boolean) {
-        const inner = await element;
-        transitioning = true;
+        const outer = await outerPromise;
+        const inner = await innerPromise;
+
+        outer.style.setProperty("overflow", "hidden");
         isCollapsed = true;
 
-        const height = inner.clientHeight;
+        const height = collapse ? inner.clientHeight : getRequiredHeight(inner);
         const duration = Math.sqrt(height * 80);
 
-        if (collapse) {
-            setStyle(height, duration);
-        } else {
+        setStyle(height, duration);
+
+        if (!collapse) {
             inner.removeAttribute("hidden");
             isCollapsed = false;
         }
@@ -40,25 +59,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             "transitionend",
             () => {
                 if (collapse) inner.setAttribute("hidden", "");
-                transitioning = false;
+                outer.style.removeProperty("overflow");
             },
             { once: true },
         );
-
-        // fallback for initially collapsed items where transition isn't possible
-        setTimeout(() => {
-            transitioning = false;
-        }, duration);
     }
 
     $: transition(collapsed);
 </script>
 
-<div {id} class="collapsible-container {className}" class:transitioning>
+<div {id} class="collapsible-container {className}" use:outerResolve>
     <div
         class="collapsible-inner"
         class:collapsed={isCollapsed}
-        use:elementResolve
+        use:innerResolve
         {style}
     >
         <slot />
@@ -68,9 +82,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .collapsible-container {
         position: relative;
-        &.transitioning {
-            overflow: hidden;
-        }
     }
     .collapsible-inner {
         transition: margin-top var(--duration) ease-in;
