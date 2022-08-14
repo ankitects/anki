@@ -12,7 +12,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Mathjax } from "../../editable/mathjax-element";
     import { on } from "../../lib/events";
     import { noop } from "../../lib/functional";
+    import type { Callback } from "../../lib/typing";
     import { singleCallback } from "../../lib/typing";
+    import type { ResizeStore } from "../../sveltelib/resize-store"
+    import resizeStore from "../../sveltelib/resize-store"
+    import subscribeToUpdates from "../../sveltelib/subscribe-updates"
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
     import HandleSelection from "../HandleSelection.svelte";
@@ -120,32 +124,43 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let errorMessage: string;
 
-    async function onImageResize(): Promise<void> {
+    async function updateErrorMessage(): Promise<void> {
         errorMessage = activeImage!.title;
     }
 
-    const resizeObserver = new ResizeObserver(onImageResize);
-
-    let clearResize = noop;
-    async function handleImageResizing(activeImage: HTMLImageElement | null) {
+    async function getResizeStore() {
         const container = await element;
+        return resizeStore(container);
+    }
 
-        if (activeImage) {
-            resizeObserver.observe(container);
-            clearResize = on(activeImage, "resize", onImageResize);
-        } else {
-            resizeObserver.unobserve(container);
-            clearResize();
+    const onImageResizePromise = getResizeStore();
+
+    let cleanup = noop;
+    function handleImageResizing(
+        activeImage: HTMLImageElement,
+        onImageResize: ResizeStore,
+        callback: Callback,
+    ): Callback {
+        return singleCallback(
+            on(activeImage, "resize", callback),
+            subscribeToUpdates(onImageResize, callback),
+        );
+    }
+
+    async function updateImageResizing(image: HTMLImageElement | null) {
+        const onImageResize = await onImageResizePromise;
+        cleanup();
+
+        if (image) {
+            cleanup = handleImageResizing(image, onImageResize, updateErrorMessage);
         }
     }
 
-    $: handleImageResizing(activeImage);
+    $: updateImageResizing(activeImage);
 
-    onDestroy(() => {
-        resizeObserver.disconnect();
-        clearResize();
-    });
+    onDestroy(() => cleanup?.());
 </script>
+
 
 {#if activeImage && mathjaxElement}
     <WithFloating reference={activeImage} keepOnKeyup>
@@ -164,16 +179,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 placeHandle(true);
                 resetHandle();
             }}
-        >
-            {#await element then container}
-                <HandleSelection
-                    image={activeImage}
-                    {container}
-                >
-                    <HandleBackground tooltip={errorMessage} />
-                    <HandleControl offsetX={1} offsetY={1} />
-                </HandleSelection>
-            {/await}
-        </MathjaxMenu>
+        />
     </WithFloating>
+
+    <!-- TODO -->
+    {#await Promise.all([element, onImageResizePromise]) then [container, onImageResize]}
+        <HandleSelection
+            image={activeImage}
+            {container}
+            updater={(callback) => handleImageResizing(activeImage, onImageResize, callback)}
+        >
+            <HandleBackground tooltip={errorMessage} />
+            <HandleControl offsetX={1} offsetY={1} />
+        </HandleSelection>
+    {/await}
 {/if}
+

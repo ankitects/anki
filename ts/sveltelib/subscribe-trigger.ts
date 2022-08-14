@@ -8,7 +8,7 @@ import subscribeToUpdates from "./subscribe-updates";
 
 /**
  * The goal of this action is to turn itself inactive.
- * Once `active` is `true`, it will unsubscribe from `store`.
+ * Once `active` is `true`, it will unsubscribe from all stores.
  *
  * @param active: If `active` is `true`, all stores will be subscribed to.
  * @param stores: If any `store` updates to a true value, active will be set to false.

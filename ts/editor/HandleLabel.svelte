@@ -15,12 +15,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => dispatch("mount"));
 </script>
 
-<div class="image-handle-dimensions" class:is-rtl={$direction === "rtl"}>
+<div class="handle-label" class:is-rtl={$direction === "rtl"}>
     <slot />
 </div>
 
 <style lang="scss">
-    div {
+    .handle-label {
         position: absolute;
         width: fit-content;
 

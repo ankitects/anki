@@ -14,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div
+    class="handle-background"
     bind:this={background}
     title={tooltip}
     on:mousedown|preventDefault
@@ -22,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 />
 
 <style lang="scss">
-    div {
+    .handle-background {
         width: 100%;
         height: 100%;
         background-color: black;
