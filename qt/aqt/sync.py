@@ -135,7 +135,7 @@ def full_sync(
             tr.sync_cancel_button(),
         ]
 
-        def callback(choice):
+        def callback(choice: str) -> None:
             if choice == button_labels[0]:
                 full_upload(mw, on_done)
             elif choice == button_labels[1]:
