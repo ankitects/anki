@@ -129,8 +129,8 @@ class MessageBox(QMessageBox):
         icon: QMessageBox.Icon = QMessageBox.Icon.NoIcon,
         help: HelpPageArgument = None,
         title: str = "Anki",
-        buttons: list[str] = ["Ok"],
-        default_button: str = None,
+        buttons: list[str | QMessageBox.StandardButton] = None,
+        default_button: str | QMessageBox.StandardButton = None,
         textFormat: Qt.TextFormat = Qt.TextFormat.PlainText,
     ) -> None:
         parent = parent or aqt.mw.app.activeWindow() or aqt.mw
@@ -141,10 +141,19 @@ class MessageBox(QMessageBox):
         self.setIcon(icon)
         self.setTextFormat(textFormat)
         default_button = default_button or buttons[0]
+        if buttons is None:
+            buttons = [QMessageBox.StandardButton.Ok]
         for button in buttons:
-            b = self.addButton(button, QMessageBox.ButtonRole.ActionRole)
+            if isinstance(button, str):
+                b = self.addButton(button, QMessageBox.ButtonRole.ActionRole)
+            elif isinstance(button, QMessageBox.StandardButton):
+                b = self.addButton(button)
+            else:
+                continue
             if callback is not None:
-                qconnect(b.clicked, partial(callback, button))
+                qconnect(
+                    b.clicked, partial(callback, str(b).removeprefix("StandardButton."))
+                )
             if button == default_button:
                 self.setDefaultButton(b)
         if help is not None:
@@ -156,7 +165,7 @@ class MessageBox(QMessageBox):
 def ask_user(
     text: str,
     callback: Callable[[bool], None],
-    default_button: Literal["Yes", "No"] = "Yes",
+    default_button: QMessageBox.StandardButton = QMessageBox.StandardButton.Yes,
     **kwargs: Any,
 ) -> MessageBox:
     "Shows a yes/no question, passes the answer to the callback function as a bool."
@@ -164,7 +173,7 @@ def ask_user(
         text,
         callback=lambda response: callback(response == "Yes"),
         icon=QMessageBox.Icon.Question,
-        buttons=["Yes", "No"],
+        buttons=[QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.No],
         default_button=default_button,
         **kwargs,
     )
@@ -173,11 +182,13 @@ def ask_user(
 def ask_user_dialog(
     text: str,
     callback: Callable[[str], None],
-    buttons: list[str] = ["Yes", "No"],
+    buttons: list[str | QMessageBox.StandardButton] = None,
     default_button: str = "Yes",
     **kwargs: Any,
 ) -> MessageBox:
     "Shows a question to the user, passes the answer to the callback function as a str."
+    if buttons is None:
+        buttons = [QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.No]
     return MessageBox(
         text,
         callback=callback,

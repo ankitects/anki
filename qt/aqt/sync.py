@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import enum
 import os
 from concurrent.futures import Future
 from typing import Callable
@@ -129,7 +128,7 @@ def full_sync(
     elif out.required == out.FULL_UPLOAD:
         full_upload(mw, on_done)
     else:
-        button_labels = [
+        button_labels: list[str] = [
             tr.sync_upload_to_ankiweb(),
             tr.sync_download_from_ankiweb(),
             tr.sync_cancel_button(),
@@ -146,7 +145,7 @@ def full_sync(
         ask_user_dialog(
             tr.sync_conflict_explanation(),
             callback=callback,
-            buttons=button_labels,
+            buttons=button_labels,  # type: ignore
             default_button=button_labels[2],
         )
 
