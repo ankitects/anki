@@ -26,9 +26,14 @@ from aqt.qt import (
     QVBoxLayout,
     qconnect,
 )
-from aqt.utils import askUser, disable_help_button, showText, showWarning, tr
-
-from .utils import ask_user_dialog
+from aqt.utils import (
+    ask_user_dialog,
+    askUser,
+    disable_help_button,
+    showText,
+    showWarning,
+    tr,
+)
 
 
 def get_sync_status(
