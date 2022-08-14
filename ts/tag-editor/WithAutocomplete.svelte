@@ -124,14 +124,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<WithFloating keepOnKeyup {show} placement="top-start" let:toggle let:hide let:show>
+<WithFloating keepOnKeyup {show} placement="top-start" let:asReference>
     <span
         class="autocomplete-reference"
-        slot="reference"
-        let:asReference
         use:asReference
     >
-        <slot {createAutocomplete} {toggle} {hide} {show} />
+        <slot {createAutocomplete} />
     </span>
 
     <Popover slot="floating">
