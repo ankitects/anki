@@ -124,13 +124,13 @@ class MessageBox(QMessageBox):
     def __init__(
         self,
         text: str,
-        callback: Callable[[str], None] = None,
-        parent: QWidget = None,
+        callback: Callable[[str], None] | None = None,
+        parent: QWidget | None = None,
         icon: QMessageBox.Icon = QMessageBox.Icon.NoIcon,
-        help: HelpPageArgument = None,
+        help: HelpPageArgument | None = None,
         title: str = "Anki",
-        buttons: list[str | QMessageBox.StandardButton] = None,
-        default_button: str | QMessageBox.StandardButton = None,
+        buttons: list[str | QMessageBox.StandardButton] | None = None,
+        default_button: str | QMessageBox.StandardButton | None = None,
         textFormat: Qt.TextFormat = Qt.TextFormat.PlainText,
     ) -> None:
         parent = parent or aqt.mw.app.activeWindow() or aqt.mw
@@ -183,7 +183,7 @@ def ask_user(
 def ask_user_dialog(
     text: str,
     callback: Callable[[str], None],
-    buttons: list[str | QMessageBox.StandardButton] = None,
+    buttons: list[str | QMessageBox.StandardButton] | None = None,
     default_button: str | QMessageBox.StandardButton = QMessageBox.StandardButton.Yes,
     **kwargs: Any,
 ) -> MessageBox:
@@ -200,7 +200,7 @@ def ask_user_dialog(
     )
 
 
-def show_info(text: str, callback: Callable = None, **kwargs: Any) -> MessageBox:
+def show_info(text: str, callback: Callable | None = None, **kwargs: Any) -> MessageBox:
     "Show a small info window with an OK button."
     if "icon" not in kwargs:
         kwargs["icon"] = QMessageBox.Icon.Information
@@ -211,12 +211,16 @@ def show_info(text: str, callback: Callable = None, **kwargs: Any) -> MessageBox
     )
 
 
-def show_warning(text: str, callback: Callable = None, **kwargs: Any) -> MessageBox:
+def show_warning(
+    text: str, callback: Callable | None = None, **kwargs: Any
+) -> MessageBox:
     "Show a small warning window with an OK button."
     return show_info(text, icon=QMessageBox.Icon.Warning, callback=callback, **kwargs)
 
 
-def show_critical(text: str, callback: Callable = None, **kwargs: Any) -> MessageBox:
+def show_critical(
+    text: str, callback: Callable | None = None, **kwargs: Any
+) -> MessageBox:
     "Show a small critical error window with an OK button."
     return show_info(text, icon=QMessageBox.Icon.Critical, callback=callback, **kwargs)
 
