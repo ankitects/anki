@@ -270,6 +270,8 @@ class AnkiExporter(Exporter):
                 # scheduling not included, so reset deck settings to default
                 d = dict(d)
                 d["conf"] = 1
+                d["reviewLimit"] = d["newLimit"] = None
+                d["reviewLimitToday"] = d["newLimitToday"] = None
             self.dst.decks.update(d)
         # copy used deck confs
         for dc in self.src.decks.all_config():
@@ -311,7 +313,7 @@ class AnkiExporter(Exporter):
         # such as update the deck description
         pass
 
-    def removeSystemTags(self, tags: str) -> Any:
+    def removeSystemTags(self, tags: str) -> str:
         return self.src.tags.rem_from_str("marked leech", tags)
 
     def _modelHasMedia(self, model, fname) -> bool:
@@ -462,7 +464,7 @@ class AnkiCollectionPackage21bExporter(AnkiCollectionPackageExporter):
 
 
 def exporters(col: Collection) -> list[tuple[str, Any]]:
-    def id(obj):
+    def id(obj) -> tuple[str, Exporter]:
         if callable(obj.key):
             key_str = obj.key(col)
         else:

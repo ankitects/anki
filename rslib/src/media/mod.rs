@@ -52,31 +52,23 @@ impl MediaManager {
     /// appended to the name.
     ///
     /// Also notes the file in the media database.
-    #[allow(clippy::match_like_matches_macro)]
     pub fn add_file<'a>(
         &self,
         ctx: &mut MediaDatabaseContext,
         desired_name: &'a str,
         data: &[u8],
     ) -> Result<Cow<'a, str>> {
-        let pre_add_folder_mtime = mtime_as_i64(&self.media_folder)?;
-
-        // add file to folder
         let data_hash = sha1_of_data(data);
-        let chosen_fname =
-            add_data_to_folder_uniquely(&self.media_folder, desired_name, data, data_hash)?;
-        let file_mtime = mtime_as_i64(self.media_folder.join(chosen_fname.as_ref()))?;
-        let post_add_folder_mtime = mtime_as_i64(&self.media_folder)?;
 
-        // add to the media DB
-        ctx.transact(|ctx| {
+        self.transact(ctx, |ctx| {
+            let chosen_fname =
+                add_data_to_folder_uniquely(&self.media_folder, desired_name, data, data_hash)?;
+            let file_mtime = mtime_as_i64(self.media_folder.join(chosen_fname.as_ref()))?;
+
             let existing_entry = ctx.get_entry(&chosen_fname)?;
             let new_sha1 = Some(data_hash);
 
-            let entry_update_required = match existing_entry {
-                Some(existing) if existing.sha1 == new_sha1 => false,
-                _ => true,
-            };
+            let entry_update_required = existing_entry.map(|e| e.sha1 != new_sha1).unwrap_or(true);
 
             if entry_update_required {
                 ctx.set_entry(&MediaEntry {
@@ -87,34 +79,16 @@ impl MediaManager {
                 })?;
             }
 
-            let mut meta = ctx.get_meta()?;
-            if meta.folder_mtime == pre_add_folder_mtime {
-                // if media db was in sync with folder prior to this add,
-                // we can keep it in sync
-                meta.folder_mtime = post_add_folder_mtime;
-                ctx.set_meta(&meta)?;
-            } else {
-                // otherwise, leave it alone so that other pending changes
-                // get picked up later
-            }
-
-            Ok(())
-        })?;
-
-        Ok(chosen_fname)
+            Ok(chosen_fname)
+        })
     }
 
     pub fn remove_files<S>(&self, ctx: &mut MediaDatabaseContext, filenames: &[S]) -> Result<()>
     where
         S: AsRef<str> + std::fmt::Debug,
     {
-        let pre_remove_folder_mtime = mtime_as_i64(&self.media_folder)?;
-
-        remove_files(&self.media_folder, filenames)?;
-
-        let post_remove_folder_mtime = mtime_as_i64(&self.media_folder)?;
-
-        ctx.transact(|ctx| {
+        self.transact(ctx, |ctx| {
+            remove_files(&self.media_folder, filenames)?;
             for fname in filenames {
                 if let Some(mut entry) = ctx.get_entry(fname.as_ref())? {
                     entry.sha1 = None;
@@ -123,19 +97,50 @@ impl MediaManager {
                     ctx.set_entry(&entry)?;
                 }
             }
+            Ok(())
+        })
+    }
+
+    /// Opens a transaction and manages folder mtime, so user should perform not
+    /// only db ops, but also all file ops inside the closure.
+    pub(crate) fn transact<T>(
+        &self,
+        ctx: &mut MediaDatabaseContext,
+        func: impl FnOnce(&mut MediaDatabaseContext) -> Result<T>,
+    ) -> Result<T> {
+        let start_folder_mtime = mtime_as_i64(&self.media_folder)?;
+        ctx.transact(|ctx| {
+            let out = func(ctx)?;
 
             let mut meta = ctx.get_meta()?;
-            if meta.folder_mtime == pre_remove_folder_mtime {
+            if meta.folder_mtime == start_folder_mtime {
                 // if media db was in sync with folder prior to this add,
                 // we can keep it in sync
-                meta.folder_mtime = post_remove_folder_mtime;
+                meta.folder_mtime = mtime_as_i64(&self.media_folder)?;
                 ctx.set_meta(&meta)?;
             } else {
                 // otherwise, leave it alone so that other pending changes
                 // get picked up later
             }
 
-            Ok(())
+            Ok(out)
+        })
+    }
+
+    /// Set entry for a newly added file. Caller must ensure transaction.
+    pub(crate) fn add_entry(
+        &self,
+        ctx: &mut MediaDatabaseContext,
+        fname: impl Into<String>,
+        sha1: [u8; 20],
+    ) -> Result<()> {
+        let fname = fname.into();
+        let mtime = mtime_as_i64(self.media_folder.join(&fname))?;
+        ctx.set_entry(&MediaEntry {
+            fname,
+            mtime,
+            sha1: Some(sha1),
+            sync_required: true,
         })
     }
 
@@ -183,5 +188,18 @@ impl MediaManager {
         log: &Logger,
     ) -> Result<()> {
         ChangeTracker::new(&self.media_folder, progress, log).register_changes(&mut self.dbctx())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    impl MediaManager {
+        /// All checksums without registering changes first.
+        pub(crate) fn all_checksums_as_is(&self) -> HashMap<String, [u8; 20]> {
+            let mut dbctx = self.dbctx();
+            dbctx.all_checksums().unwrap()
+        }
     }
 }

@@ -97,9 +97,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="new_import_export">
+        <widget class="QCheckBox" name="legacy_import_export">
          <property name="text">
-          <string notr="true">New import/export handling (beta)</string>
+          <string notr="true">Legacy import/export handling</string>
          </property>
         </widget>
        </item>
@@ -684,7 +684,7 @@
   <tabstop>pastePNG</tabstop>
   <tabstop>paste_strips_formatting</tabstop>
   <tabstop>ignore_accents_in_search</tabstop>
-  <tabstop>new_import_export</tabstop>
+  <tabstop>legacy_import_export</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>

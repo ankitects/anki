@@ -22,7 +22,6 @@ from anki.tags import TagTreeNode
 from anki.types import assert_exhaustive
 from aqt import colors, gui_hooks
 from aqt.browser.find_and_replace import FindAndReplaceDialog
-from aqt.browser.sidebar import _want_right_border
 from aqt.browser.sidebar.item import SidebarItem, SidebarItemType
 from aqt.browser.sidebar.model import SidebarModel
 from aqt.browser.sidebar.searchbar import SidebarSearchBar
@@ -112,8 +111,6 @@ class SidebarTreeView(QTreeView):
             "border: 0",
             f"background: {bgcolor}",
         ]
-        if _want_right_border():
-            styles.append(f"border-right: 1px solid {border}")
 
         self.setStyleSheet("QTreeView { %s }" % ";".join(styles))
 
@@ -695,9 +692,9 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _flags_tree(self, root: SidebarItem) -> None:
-        icon_off = "icons:flag-off-outline.svg"
-        icon = "icons:flag.svg"
-        icon_outline = "icons:flag-outline.svg"
+        icon_off = "icons:flag-variant-off-outline.svg"
+        icon = "icons:flag-variant.svg"
+        icon_outline = "icons:flag-variant-outline.svg"
 
         root = self._section_root(
             root=root,

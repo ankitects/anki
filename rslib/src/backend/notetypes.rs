@@ -2,13 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::Backend;
-pub(super) use crate::backend_proto::notetypes_service::Service as NotetypesService;
+pub(super) use crate::pb::notetypes_service::Service as NotetypesService;
 use crate::{
-    backend_proto as pb,
     config::get_aux_notetype_config_key,
     notetype::{
         all_stock_notetypes, ChangeNotetypeInput, Notetype, NotetypeChangeInfo, NotetypeSchema11,
     },
+    pb,
     prelude::*,
 };
 

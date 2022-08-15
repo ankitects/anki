@@ -55,6 +55,7 @@ dependencies = [
  "coarsetime",
  "criterion",
  "csv 1.1.6 (git+https://github.com/ankitects/rust-csv.git?rev=1c9d3aab6f79a7d815c69f925a46a4590c115f90)",
+ "dissimilar",
  "env_logger",
  "flate2",
  "fluent",
@@ -585,6 +586,12 @@ dependencies = [
  "redox_users",
  "winapi",
 ]
+
+[[package]]
+name = "dissimilar"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8c97b9233581d84b8e1e689cdd3a47b6f69770084fc246e86a7f78b0d9c1d4a5"
 
 [[package]]
 name = "dtoa"

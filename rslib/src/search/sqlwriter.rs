@@ -578,8 +578,11 @@ impl SqlWriter<'_> {
         write!(
             self.sql,
             concat!(
-                "(select min(id) > {cutoff} from revlog where cid = c.id)",
-                "and c.id in (select cid from revlog where id > {cutoff})"
+                "(SELECT min(id) > {cutoff} FROM revlog WHERE cid = c.id ",
+                // Exclude manual reschedulings
+                "AND ease != 0) ",
+                // Logically redundant, speeds up query
+                "AND c.id IN (SELECT cid FROM revlog WHERE id > {cutoff})"
             ),
             cutoff = cutoff,
         )
@@ -781,8 +784,8 @@ mod test {
             s(ctx, "introduced:3").0,
             format!(
                 concat!(
-                    "((select min(id) > {cutoff} from revlog where cid = c.id)",
-                    "and c.id in (select cid from revlog where id > {cutoff}))"
+                    "((SELECT min(id) > {cutoff} FROM revlog WHERE cid = c.id AND ease != 0) ",
+                    "AND c.id IN (SELECT cid FROM revlog WHERE id > {cutoff}))"
                 ),
                 cutoff = (timing.next_day_at.0 - (86_400 * 3)) * 1_000,
             )

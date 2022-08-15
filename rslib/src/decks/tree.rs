@@ -14,10 +14,8 @@ use super::{
     limits::{remaining_limits_map, RemainingLimits},
     DueCounts,
 };
-pub use crate::backend_proto::set_deck_collapsed_request::Scope as DeckCollapseScope;
-use crate::{
-    backend_proto::DeckTreeNode, config::SchedulerVersion, ops::OpOutput, prelude::*, undo::Op,
-};
+pub use crate::pb::set_deck_collapsed_request::Scope as DeckCollapseScope;
+use crate::{config::SchedulerVersion, ops::OpOutput, pb::DeckTreeNode, prelude::*, undo::Op};
 
 fn deck_names_to_tree(names: impl Iterator<Item = (DeckId, String)>) -> DeckTreeNode {
     let mut top = DeckTreeNode::default();
@@ -34,7 +32,10 @@ fn add_child_nodes(
 ) {
     while let Some((id, name)) = names.peek() {
         let split_name: Vec<_> = name.split("::").collect();
-        match split_name.len() as u32 {
+        // protobuf refuses to decode messages with 100+ levels of nesting, and
+        // broken collections with such nesting have been found in the wild
+        let capped_len = split_name.len().min(99) as u32;
+        match capped_len {
             l if l <= parent.level => {
                 // next item is at a higher level
                 return;

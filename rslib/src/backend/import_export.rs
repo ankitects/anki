@@ -4,10 +4,10 @@
 use std::path::Path;
 
 use super::{progress::Progress, Backend};
-pub(super) use crate::backend_proto::importexport_service::Service as ImportExportService;
+pub(super) use crate::pb::importexport_service::Service as ImportExportService;
 use crate::{
-    backend_proto::{self as pb, export_limit, ExportLimit},
     import_export::{package::import_colpkg, ExportProgress, ImportProgress, NoteLog},
+    pb::{self as pb, export_limit, ExportLimit},
     prelude::*,
     search::SearchNode,
 };
@@ -86,11 +86,9 @@ impl ImportExportService for Backend {
 
     fn import_csv(&self, input: pb::ImportCsvRequest) -> Result<pb::ImportResponse> {
         self.with_col(|col| {
-            let dupe_resolution = input.dupe_resolution();
             col.import_csv(
                 &input.path,
                 input.metadata.unwrap_or_default(),
-                dupe_resolution,
                 self.import_progress_fn(),
             )
         })

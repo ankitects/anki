@@ -118,6 +118,7 @@ impl Collection {
             &field_map,
             card.template_idx,
             nt.is_cloze(),
+            browser,
             &self.tr,
         )?;
         Ok(RenderCardOutput {
@@ -160,19 +161,13 @@ impl Collection {
     }
 }
 
-fn flag_name(n: u8) -> &'static str {
-    match n {
-        1 => "flag1",
-        2 => "flag2",
-        3 => "flag3",
-        4 => "flag4",
-        _ => "",
-    }
+fn flag_name(n: u8) -> String {
+    format!("flag{n}")
 }
 
 fn fill_empty_fields(note: &mut Note, qfmt: &str, nt: &Notetype, tr: &I18n) {
     if let Ok(tmpl) = ParsedTemplate::from_text(qfmt) {
-        let cloze_fields = tmpl.cloze_fields();
+        let cloze_fields = tmpl.all_referenced_cloze_field_names();
 
         for (val, field) in note.fields_mut().iter_mut().zip(nt.fields.iter()) {
             if field_is_empty(val) {

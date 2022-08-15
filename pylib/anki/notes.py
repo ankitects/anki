@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import copy
-from typing import Any, NewType, Sequence
+from typing import NewType, Sequence
 
 import anki  # pylint: disable=unused-import
 import anki.cards
@@ -182,7 +182,7 @@ class Note(DeprecatedNamesMixin):
         "Add tag. Duplicates will be stripped on save."
         self.tags.append(tag)
 
-    def string_tags(self) -> Any:
+    def string_tags(self) -> str:
         return self.col.tags.join(self.tags)
 
     def set_tags_from_str(self, tags: str) -> None:

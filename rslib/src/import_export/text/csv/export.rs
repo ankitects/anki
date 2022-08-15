@@ -9,9 +9,9 @@ use regex::Regex;
 
 use super::metadata::Delimiter;
 use crate::{
-    backend_proto::ExportNoteCsvRequest,
     import_export::{ExportProgress, IncrementableProgress},
     notetype::RenderCardOutput,
+    pb::ExportNoteCsvRequest,
     prelude::*,
     search::{SearchNode, SortMode},
     template::RenderedNode,
@@ -53,16 +53,15 @@ impl Collection {
         progress.call(ExportProgress::File)?;
         let mut incrementor = progress.incrementor(ExportProgress::Notes);
 
-        self.search_notes_into_table(request.search_node())?;
-        let ctx = NoteContext::new(&request, self)?;
+        let guard = self.search_notes_into_table(request.search_node())?;
+        let ctx = NoteContext::new(&request, guard.col)?;
         let mut writer = note_file_writer_with_header(&request.out_path, &ctx)?;
-        self.storage.for_each_note_in_search(|note| {
+        guard.col.storage.for_each_note_in_search(|note| {
             incrementor.increment()?;
             writer.write_record(ctx.record(&note))?;
             Ok(())
         })?;
         writer.flush()?;
-        self.storage.clear_searched_notes_table()?;
 
         Ok(incrementor.count())
     }

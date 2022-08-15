@@ -597,10 +597,10 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@mdi/svg@^6.1.95":
-  version "6.6.95"
-  resolved "https://registry.yarnpkg.com/@mdi/svg/-/svg-6.6.95.tgz#334ef718a06889e6a02b6802020f4f35f0ad5adb"
-  integrity sha512-krWKPBPmDle424VI3cJzTEyZgL/DryScgYjmPoaMhv6cb50M7sjqPNBkE5H5fpru2fc+II2ICEWvlIM0sVW00w==
+"@mdi/svg@^7.0.96":
+  version "7.0.96"
+  resolved "https://registry.yarnpkg.com/@mdi/svg/-/svg-7.0.96.tgz#c7275a318da8594337243368c6b4dca6a90154f6"
+  integrity sha512-5DC+w7Kl2C82j4aTWCUf6wtHzgY60WBf1gT1qrpkLaMNcH6Vj9FpYPAXdSmtdkmSMvVMs8i1Rtv9cXWcHFQYpw==
 
 "@mdn/browser-compat-data@^3.3.14":
   version "3.3.14"
@@ -4726,9 +4726,9 @@ svelte2tsx@^0.4.6:
     pascal-case "^3.1.1"
 
 svelte@^3.25.0:
-  version "3.48.0"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.48.0.tgz#f98c866d45e155bad8e1e88f15f9c03cd28753d3"
-  integrity sha512-fN2YRm/bGumvjUpu6yI3BpvZnpIm9I6A7HR4oUNYd7ggYyIwSA/BX7DJ+UXXffLp6XNcUijyLvttbPVCYa/3xQ==
+  version "3.49.0"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.49.0.tgz#5baee3c672306de1070c3b7888fc2204e36a4029"
+  integrity sha512-+lmjic1pApJWDfPCpUUTc1m8azDqYCG1JN9YEngrx/hUyIcFJo6VZhj0A1Ai0wqoHcEIuQy+e9tk+4uDgdtsFA==
 
 symbol-tree@^3.2.4:
   version "3.2.4"

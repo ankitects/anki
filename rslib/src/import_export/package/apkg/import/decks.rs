@@ -163,6 +163,10 @@ impl NormalDeck {
         if other.config_id != 1 {
             self.config_id = other.config_id;
         }
+        self.review_limit = other.review_limit.or(self.review_limit);
+        self.new_limit = other.new_limit.or(self.new_limit);
+        self.review_limit_today = other.review_limit_today.or(self.review_limit_today);
+        self.new_limit_today = other.new_limit_today.or(self.new_limit_today);
     }
 }
 

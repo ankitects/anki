@@ -6,7 +6,7 @@ use std::{fs::File, io::Read};
 use prost::Message;
 use zip::ZipArchive;
 
-pub(super) use crate::backend_proto::{package_metadata::Version, PackageMetadata as Meta};
+pub(super) use crate::pb::{package_metadata::Version, PackageMetadata as Meta};
 use crate::{error::ImportError, prelude::*, storage::SchemaVersion};
 
 impl Version {

@@ -134,7 +134,7 @@ class MainWebView(AnkiWebView):
         paths = [url.toLocalFile() for url in mime.urls()]
         deck_paths = filter(lambda p: not p.endswith(".colpkg"), paths)
         for path in deck_paths:
-            if self.mw.pm.new_import_export():
+            if not self.mw.pm.legacy_import_export():
                 import_file(self.mw, path)
             else:
                 aqt.importing.importFile(self.mw, path)
@@ -214,7 +214,6 @@ class AnkiQt(QMainWindow):
         self.setupMenus()
         self.setupErrorHandler()
         self.setupSignals()
-        self.setupAutoUpdate()
         self.setupHooks()
         self.setup_timers()
         self.updateTitleBar()
@@ -282,8 +281,12 @@ class AnkiQt(QMainWindow):
         if not self.pm.name:
             # if there's a single profile, load it automatically
             profs = self.pm.profiles()
+            name = self.pm.last_loaded_profile_name()
             if len(profs) == 1:
                 self.pm.load(profs[0])
+            elif name in profs:
+                self.pm.load(name)
+
         if not self.pm.name:
             self.showProfileManager()
         else:
@@ -889,20 +892,28 @@ title="{}" {}>{}</button>""".format(
 
         if not self.safeMode:
             self.addonManager.loadAddons()
-            self.maybe_check_for_addon_updates()
 
-    def maybe_check_for_addon_updates(self) -> None:
+    def maybe_check_for_addon_updates(
+        self, on_done: Callable[[], None] | None = None
+    ) -> None:
         last_check = self.pm.last_addon_update_check()
         elap = int_time() - last_check
+
+        def wrap_on_updates_installed(log: list[DownloadLogEntry]) -> None:
+            self.on_updates_installed(log)
+            if on_done:
+                on_done()
 
         if elap > 86_400 or self.pm.last_run_version() != point_version():
             check_and_prompt_for_updates(
                 self,
                 self.addonManager,
-                self.on_updates_installed,
+                wrap_on_updates_installed,
                 requested_by_user=False,
             )
             self.pm.set_last_addon_update_check(int_time())
+        elif on_done:
+            on_done()
 
     def on_updates_installed(self, log: list[DownloadLogEntry]) -> None:
         if log:
@@ -974,10 +985,16 @@ title="{}" {}>{}</button>""".format(
 
     def maybe_auto_sync_on_open_close(self, after_sync: Callable[[], None]) -> None:
         "If disabled, after_sync() is called immediately."
-        if self.can_auto_sync():
-            self._sync_collection_and_media(after_sync)
-        else:
+
+        def after_sync_and_call_addon_update() -> None:
             after_sync()
+            if not self.safeMode:
+                self.maybe_check_for_addon_updates(self.setupAutoUpdate)
+
+        if self.can_auto_sync():
+            self._sync_collection_and_media(after_sync_and_call_addon_update)
+        else:
+            after_sync_and_call_addon_update()
 
     def maybe_auto_sync_media(self) -> None:
         if self.can_auto_sync():
@@ -1190,7 +1207,7 @@ title="{}" {}>{}</button>""".format(
             showInfo(tr.qt_misc_please_use_fileimport_to_import_this())
             return None
 
-        if self.pm.new_import_export():
+        if not self.pm.legacy_import_export():
             import_file(self, path)
         else:
             aqt.importing.importFile(self, path)
@@ -1199,7 +1216,7 @@ title="{}" {}>{}</button>""".format(
         "Importing triggered via File>Import."
         import aqt.importing
 
-        if self.pm.new_import_export():
+        if not self.pm.legacy_import_export():
             prompt_for_file_then_import(self)
         else:
             aqt.importing.onImport(self)
@@ -1207,7 +1224,7 @@ title="{}" {}>{}</button>""".format(
     def onExport(self, did: DeckId | None = None) -> None:
         import aqt.exporting
 
-        if self.pm.new_import_export():
+        if not self.pm.legacy_import_export():
             ExportDialog(self, did=did)
         else:
             aqt.exporting.ExportDialog(self, did=did)
@@ -1532,7 +1549,11 @@ title="{}" {}>{}</button>""".format(
             ).run_in_background()
 
         StudyDeck(
-            self, dyn=True, current=self.col.decks.current()["name"], callback=callback
+            self,
+            parent=self,
+            dyn=True,
+            current=self.col.decks.current()["name"],
+            callback=callback,
         )
 
     def onEmptyCards(self) -> None:

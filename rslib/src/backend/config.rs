@@ -4,11 +4,11 @@
 use serde_json::Value;
 
 use super::Backend;
-pub(super) use crate::backend_proto::config_service::Service as ConfigService;
+pub(super) use crate::pb::config_service::Service as ConfigService;
 use crate::{
-    backend_proto as pb,
-    backend_proto::config_key::{Bool as BoolKeyProto, String as StringKeyProto},
     config::{BoolKey, StringKey},
+    pb,
+    pb::config_key::{Bool as BoolKeyProto, String as StringKeyProto},
     prelude::*,
 };
 
@@ -36,6 +36,8 @@ impl From<BoolKeyProto> for BoolKey {
             BoolKeyProto::RestorePositionReviewer => BoolKey::RestorePositionReviewer,
             BoolKeyProto::ResetCountsBrowser => BoolKey::ResetCountsBrowser,
             BoolKeyProto::ResetCountsReviewer => BoolKey::ResetCountsReviewer,
+            BoolKeyProto::RandomOrderReposition => BoolKey::RandomOrderReposition,
+            BoolKeyProto::ShiftPositionOfExistingCards => BoolKey::ShiftPositionOfExistingCards,
         }
     }
 }

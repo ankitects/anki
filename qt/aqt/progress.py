@@ -219,7 +219,7 @@ class ProgressManager:
         self._max = max or 0
         self._win.form.progressBar.setMaximum(self._max)
         if self._max:
-            self._counter = value or (self._counter + 1)
+            self._counter = value if value is not None else (self._counter + 1)
             self._win.form.progressBar.setValue(self._counter)
 
     def finish(self) -> None:

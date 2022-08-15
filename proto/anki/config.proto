@@ -3,6 +3,8 @@
 
 syntax = "proto3";
 
+option java_multiple_files = true;
+
 package anki.config;
 
 import "anki/generic.proto";
@@ -45,6 +47,8 @@ message ConfigKey {
     RESTORE_POSITION_REVIEWER = 20;
     RESET_COUNTS_BROWSER = 21;
     RESET_COUNTS_REVIEWER = 22;
+    RANDOM_ORDER_REPOSITION = 23;
+    SHIFT_POSITION_OF_EXISTING_CARDS = 24;
   }
   enum String {
     SET_DUE_BROWSER = 0;

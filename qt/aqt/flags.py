@@ -61,7 +61,7 @@ class FlagManager:
 
     def _load_flags(self) -> None:
         labels = cast(dict[str, str], self.mw.col.get_config("flagLabels", {}))
-        icon = ColoredIcon(path="icons:flag.svg", color=colors.DISABLED)
+        icon = ColoredIcon(path="icons:flag-variant.svg", color=colors.DISABLED)
 
         self._flags = [
             Flag(

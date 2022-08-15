@@ -430,7 +430,7 @@ def getFile(
     title: str,
     # single file returned unless multi=True
     cb: Callable[[str | Sequence[str]], None] | None,
-    filter: str = "*.*",
+    filter: str = "*",
     dir: str | None = None,
     key: str | None = None,
     multi: bool = False,  # controls whether a single or multiple files is returned
@@ -905,12 +905,7 @@ def supportText() -> str:
 
     from aqt import mw
 
-    if is_win:
-        platname = f"Windows {platform.win32_ver()[0]}"
-    elif is_mac:
-        platname = f"Mac {platform.mac_ver()[0]}"
-    else:
-        platname = "Linux"
+    platname = platform.platform()
 
     def schedVer() -> str:
         try:
