@@ -6,7 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
 
     import { resetAllState, updateAllState } from "../../components/WithState.svelte";
-    import type { SurroundFormat } from "../../domlib/surround";
     import type { DefaultSlotInterface } from "../../sveltelib/dynamic-slotting";
 
     export function updateActiveButtons(event: Event) {
@@ -17,11 +16,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         resetAllState(false);
     }
 
-    export interface RemoveFormat<T> {
+    export interface RemoveFormat {
         name: string;
+        key: string;
         show: boolean;
         active: boolean;
-        format: SurroundFormat<T>;
     }
 
     export interface EditorToolbarAPI {
@@ -30,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         inlineButtons: DefaultSlotInterface;
         blockButtons: DefaultSlotInterface;
         templateButtons: DefaultSlotInterface;
-        removeFormats: Writable<RemoveFormat<any>[]>;
+        removeFormats: Writable<RemoveFormat[]>;
     }
 
     /* Our dynamic components */
@@ -69,7 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const inlineButtons = {} as DefaultSlotInterface;
     const blockButtons = {} as DefaultSlotInterface;
     const templateButtons = {} as DefaultSlotInterface;
-    const removeFormats = writable<RemoveFormat<any>[]>([]);
+    const removeFormats = writable<RemoveFormat[]>([]);
 
     let apiPartial: Partial<EditorToolbarAPI> = {};
     export { apiPartial as api };
