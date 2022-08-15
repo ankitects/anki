@@ -134,10 +134,10 @@ def full_sync(
             tr.sync_cancel_button(),
         ]
 
-        def callback(choice: str) -> None:
-            if choice == button_labels[0]:
+        def callback(choice: int) -> None:
+            if choice == 0:
                 full_upload(mw, on_done)
-            elif choice == button_labels[1]:
+            elif choice == 1:
                 full_download(mw, on_done)
             else:
                 on_done()
@@ -146,7 +146,7 @@ def full_sync(
             tr.sync_conflict_explanation(),
             callback=callback,
             buttons=button_labels,  # type: ignore
-            default_button=button_labels[2],
+            default_button=2,
         )
 
 
