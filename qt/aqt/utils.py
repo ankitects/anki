@@ -129,7 +129,10 @@ class MessageBox(QMessageBox):
         icon: QMessageBox.Icon = QMessageBox.Icon.NoIcon,
         help: HelpPageArgument | None = None,
         title: str = "Anki",
-        buttons: list[str | QMessageBox.StandardButton] | None = None,
+        buttons: list[str]
+        | list[QMessageBox.StandardButton]
+        | list[str | QMessageBox.StandardButton]
+        | None = None,
         default_button: int = 0,
         textFormat: Qt.TextFormat = Qt.TextFormat.PlainText,
     ) -> None:

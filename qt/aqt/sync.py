@@ -145,7 +145,7 @@ def full_sync(
         ask_user_dialog(
             tr.sync_conflict_explanation(),
             callback=callback,
-            buttons=button_labels,  # type: ignore
+            buttons=button_labels,
             default_button=2,
         )
 
