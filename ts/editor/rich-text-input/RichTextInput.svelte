@@ -6,9 +6,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
     import type { InputHandlerAPI } from "../../sveltelib/input-handler";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
+    import type { SurroundedAPI } from "../surround";
     import type CustomStyles from "./CustomStyles.svelte";
 
-    export interface RichTextInputAPI extends EditingInputAPI {
+    export interface RichTextInputAPI extends EditingInputAPI, SurroundedAPI {
         name: "rich-text";
         /** This is the contentEditable anki-editable element */
         element: Promise<HTMLElement>;
@@ -21,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         customStyles: Promise<CustomStyles>;
     }
 
-    export function editingInputIsRichText(
+    function editingInputIsRichText(
         editingInput: EditingInputAPI | null,
     ): editingInput is RichTextInputAPI {
         return editingInput?.name === "rich-text";
@@ -30,20 +31,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { registerPackage } from "../../lib/runtime-require";
     import contextProperty from "../../sveltelib/context-property";
     import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
+    import { Surrounder } from "../surround";
 
     const key = Symbol("richText");
     const [context, setContextProperty] = contextProperty<RichTextInputAPI>(key);
     const [globalInputHandler, setupGlobalInputHandler] = useInputHandler();
     const [lifecycle, instances, setupLifecycleHooks] =
         lifecycleHooks<RichTextInputAPI>();
+    const surrounder = Surrounder.make();
 
     registerPackage("anki/RichTextInput", {
         context,
+        surrounder,
         lifecycle,
         instances,
     });
 
-    export { context, globalInputHandler as inputHandler };
+    export {
+        context,
+        editingInputIsRichText,
+        globalInputHandler as inputHandler,
+        surrounder,
+    };
 </script>
 
 <script lang="ts">
@@ -52,12 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { placeCaretAfterContent } from "../../domlib/place-caret";
     import ContentEditable from "../../editable/ContentEditable.svelte";
-    import {
-        descriptionKey,
-        directionKey,
-        fontFamilyKey,
-        fontSizeKey,
-    } from "../../lib/context-keys";
+    import { directionKey, fontFamilyKey, fontSizeKey } from "../../lib/context-keys";
     import { promiseWithResolver } from "../../lib/promise";
     import { singleCallback } from "../../lib/typing";
     import useDOMMirror from "../../sveltelib/dom-mirror";
@@ -75,7 +79,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { focusedInput } = noteEditorContext.get();
     const { content, editingInputs } = editingAreaContext.get();
 
-    const description = getContext<Readable<string>>(descriptionKey);
     const fontFamily = getContext<Readable<string>>(fontFamilyKey);
     const fontSize = getContext<Readable<number>>(fontSizeKey);
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
@@ -173,11 +176,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function setFocus(): void {
         $focusedInput = api;
+        surrounder.enable(api);
 
         // We do not unset focusedInput here.
         // If we did, UI components for the input would react the store
         // being unset, even though most likely it will be set to some other
         // field right away.
+    }
+
+    function removeFocus(): void {
+        surrounder.disable();
     }
 
     $: pushUpdate(!hidden);
@@ -200,18 +208,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setupLifecycleHooks(api);
 </script>
 
-<div class="rich-text-input" on:focusin={setFocus}>
-    {#if $content.length === 0}
-        <div
-            class="rich-text-placeholder"
-            style:font-family={$fontFamily}
-            style:font-size={$fontSize + "px"}
-            style:direction={$direction}
-        >
-            {$description}
-        </div>
-    {/if}
-
+<div class="rich-text-input" on:focusin={setFocus} on:focusout={removeFocus}>
     <RichTextStyles
         color={$pageTheme.isDark ? "white" : "black"}
         fontFamily={$fontFamily}
@@ -244,19 +241,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .rich-text-input {
         position: relative;
-        margin: 6px;
+        padding: 6px;
     }
 
-    .rich-text-placeholder {
-        position: absolute;
-        color: var(--disabled);
-
-        /* Adopts same size as the content editable element */
-        width: 100%;
-        height: 100%;
-        /* Keep text on single line and hide overflow */
-        white-space: nowrap;
-        overflow-x: hidden;
-        text-overflow: ellipsis;
+    .hidden {
+        display: none;
     }
 </style>

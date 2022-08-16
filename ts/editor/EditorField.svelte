@@ -45,7 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
 
     import Collapsible from "../components/Collapsible.svelte";
-    import { collapsedKey, descriptionKey, directionKey } from "../lib/context-keys";
+    import { collapsedKey, directionKey } from "../lib/context-keys";
     import { promiseWithResolver } from "../lib/promise";
     import type { Destroyable } from "./destroyable";
     import EditingArea from "./EditingArea.svelte";
@@ -58,11 +58,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setContext(directionKey, directionStore);
 
     $: $directionStore = field.direction;
-
-    const descriptionStore = writable<string>();
-    setContext(descriptionKey, descriptionStore);
-
-    $: $descriptionStore = field.description;
 
     const collapsedStore = writable<boolean>();
     setContext(collapsedKey, collapsedStore);

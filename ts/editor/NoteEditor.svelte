@@ -51,20 +51,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DecoratedElements from "./DecoratedElements.svelte";
     import { clearableArray } from "./destroyable";
     import DuplicateLink from "./DuplicateLink.svelte";
-    import { EditorToolbar } from "./editor-toolbar";
+    import EditorToolbar from "./editor-toolbar";
     import type { FieldData } from "./EditorField.svelte";
     import EditorField from "./EditorField.svelte";
+    import FieldDescription from "./FieldDescription.svelte";
     import Fields from "./Fields.svelte";
     import FieldsEditor from "./FieldsEditor.svelte";
     import FrameElement from "./FrameElement.svelte";
     import { alertIcon } from "./icons";
-    import { ImageHandle } from "./image-overlay";
-    import { MathjaxHandle } from "./mathjax-overlay";
+    import ImageHandle from "./image-overlay";
+    import MathjaxHandle from "./mathjax-overlay";
     import MathjaxElement from "./MathjaxElement.svelte";
     import Notification from "./Notification.svelte";
-    import { PlainTextInput } from "./plain-text-input";
+    import PlainTextInput from "./plain-text-input";
     import PlainTextBadge from "./PlainTextBadge.svelte";
-    import { editingInputIsRichText, RichTextInput } from "./rich-text-input";
+    import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -310,9 +311,11 @@ the AddCards dialog) should be implemented in the user of this component.
         <Fields>
             <DecoratedElements>
                 {#each fieldsData as field, index}
+                    {@const content = fieldStores[index]}
+
                     <EditorField
                         {field}
-                        content={fieldStores[index]}
+                        {content}
                         api={fields[index]}
                         on:focusin={() => {
                             $focusedField = fields[index];
@@ -321,9 +324,7 @@ the AddCards dialog) should be implemented in the user of this component.
                         on:focusout={() => {
                             $focusedField = null;
                             bridgeCommand(
-                                `blur:${index}:${getNoteId()}:${get(
-                                    fieldStores[index],
-                                )}`,
+                                `blur:${index}:${getNoteId()}:${get(content)}`,
                             );
                         }}
                         on:mouseenter={() => {
@@ -397,8 +398,12 @@ the AddCards dialog) should be implemented in the user of this component.
                                 >
                                     <ImageHandle maxWidth={250} maxHeight={125} />
                                     <MathjaxHandle />
+                                    <FieldDescription>
+                                        {field.description}
+                                    </FieldDescription>
                                 </RichTextInput>
                             </Collapsible>
+
                             <Collapsible collapsed={plainTextsHidden[index]}>
                                 <PlainTextInput
                                     bind:hidden={plainTextsHidden[index]}
