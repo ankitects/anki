@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithDropdown from "../../components/WithDropdown.svelte";
     import type { MatchType } from "../../domlib/surround";
     import * as tr from "../../lib/ftl";
-    import { altPressed } from "../../lib/keys";
+    import { altPressed, shiftPressed } from "../../lib/keys";
     import { getPlatformString } from "../../lib/shortcuts";
     import { singleCallback } from "../../lib/typing";
     import { surrounder } from "../rich-text-input";
@@ -25,45 +25,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { removeFormats } = editorToolbarContext.get();
 
-    const surroundElement = document.createElement("span");
-
-    function matcher(element: HTMLElement | SVGElement, match: MatchType<never>): void {
-        if (
-            element.tagName === "SPAN" &&
-            element.className.length === 0 &&
-            element.style.cssText.length === 0
-        ) {
-            match.remove();
-        }
+    function filterForKeys(formats: RemoveFormat[], value: boolean): string[] {
+        return formats
+            .filter((format) => format.active === value)
+            .map((format) => format.key);
     }
 
-    const key = "simple spans";
-    const format = {
-        matcher,
-        surroundElement,
-    };
-
-    removeFormats.update((formats) =>
-        formats.concat({
-            key,
-            name: key,
-            show: false,
-            active: true,
-        }),
-    );
-
     let activeKeys: string[];
-    $: activeKeys = $removeFormats
-        .filter((format) => format.active)
-        .map((format) => format.key);
+    $: activeKeys = filterForKeys($removeFormats, true);
 
     let inactiveKeys: string[];
-    $: inactiveKeys = $removeFormats
-        .filter((format) => !format.active)
-        .map((format) => format.key);
+    $: inactiveKeys = filterForKeys($removeFormats, false);
 
     let showFormats: RemoveFormat[];
-    $: showFormats = $removeFormats.filter((format) => format.show);
+    $: showFormats = $removeFormats.filter((format: RemoveFormat): boolean => format.show);
 
     function remove(): void {
         surrounder.remove(activeKeys, inactiveKeys);
@@ -71,8 +46,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onItemClick(event: MouseEvent, format: RemoveFormat): void {
         if (altPressed(event)) {
+            const value = shiftPressed(event);
+
             for (const format of showFormats) {
-                format.active = false;
+                format.active = value;
             }
         }
 
@@ -84,12 +61,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let disabled: boolean;
 
-    onMount(() =>
-        singleCallback(
+    onMount(() => {
+        const surroundElement = document.createElement("span");
+
+        function matcher(element: HTMLElement | SVGElement, match: MatchType<never>): void {
+            if (
+                element.tagName === "SPAN" &&
+                element.className.length === 0 &&
+                element.style.cssText.length === 0
+            ) {
+                match.remove();
+            }
+        }
+
+        const simpleSpans = {
+            matcher,
+            surroundElement,
+        };
+
+        const key = "simple spans";
+
+        removeFormats.update((formats: RemoveFormat[]): RemoveFormat[] => ([...formats, {
+            key,
+            name: key,
+            show: false,
+            active: true,
+        }]));
+
+        return singleCallback(
             surrounder.active.subscribe((value) => (disabled = !value)),
-            surrounder.registerFormat(key, format),
-        ),
-    );
+            surrounder.registerFormat(key, simpleSpans),
+        );
+    });
 </script>
 
 <IconButton
