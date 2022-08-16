@@ -231,7 +231,10 @@ export class Surrounder<T = unknown> {
     /**
      * Update a surround format under a specific key.
      */
-    updateFormat(key: string, update: (format: SurroundFormat<T>) => SurroundFormat<T>): void {
+    updateFormat(
+        key: string,
+        update: (format: SurroundFormat<T>) => SurroundFormat<T>,
+    ): void {
         this.#formats.set(key, update(this.#formats.get(key)!));
     }
 

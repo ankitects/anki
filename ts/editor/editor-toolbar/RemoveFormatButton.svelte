@@ -38,7 +38,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: inactiveKeys = filterForKeys($removeFormats, false);
 
     let showFormats: RemoveFormat[];
-    $: showFormats = $removeFormats.filter((format: RemoveFormat): boolean => format.show);
+    $: showFormats = $removeFormats.filter(
+        (format: RemoveFormat): boolean => format.show,
+    );
 
     function remove(): void {
         surrounder.remove(activeKeys, inactiveKeys);
@@ -64,7 +66,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => {
         const surroundElement = document.createElement("span");
 
-        function matcher(element: HTMLElement | SVGElement, match: MatchType<never>): void {
+        function matcher(
+            element: HTMLElement | SVGElement,
+            match: MatchType<never>,
+        ): void {
             if (
                 element.tagName === "SPAN" &&
                 element.className.length === 0 &&
@@ -81,12 +86,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const key = "simple spans";
 
-        removeFormats.update((formats: RemoveFormat[]): RemoveFormat[] => ([...formats, {
-            key,
-            name: key,
-            show: false,
-            active: true,
-        }]));
+        removeFormats.update((formats: RemoveFormat[]): RemoveFormat[] => [
+            ...formats,
+            {
+                key,
+                name: key,
+                show: false,
+                active: true,
+            },
+        ]);
 
         return singleCallback(
             surrounder.active.subscribe((value) => (disabled = !value)),
