@@ -186,7 +186,33 @@ class ThemeManager:
         gui_hooks.theme_did_change()
 
     def _apply_style(self, app: QApplication) -> None:
-        buf = ""
+        buf = f"""
+QComboBox,
+QLineEdit {{
+    border: 1px solid {self.color(colors.BORDER)};
+    border-radius: 5px;
+    padding: 2px;
+}}
+QComboBox:focus,
+QLineEdit:focus {{
+    border: 1px solid {self.color(colors.FOCUS_BORDER)};
+}}
+QComboBox:on {{
+    border-bottom: none;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}}
+QComboBox::drop-down {{
+    border: 0px; /* This resets the arrow styles */
+    subcontrol-origin: padding;
+    padding: 4px;
+    subcontrol-position: top right;
+    width: 18px;
+}}
+QComboBox::down-arrow {{
+    image: url(icons:chevron-down.svg);
+}}
+        """
 
         if is_win and platform.release() == "10":
             # day mode is missing a bottom border; background must be
