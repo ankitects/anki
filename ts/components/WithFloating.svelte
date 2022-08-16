@@ -17,6 +17,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { pageTheme } from "../sveltelib/theme";
 
     export let placement: Placement = "bottom";
+    export let offset = 5;
+    export let shift = 5;
     export let closeOnInsideClick = false;
     export let keepOnKeyup = false;
 
@@ -70,6 +72,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: args = {
         floating: $show ? floating : null,
         placement,
+        offset,
+        shift,
         arrow,
     };
 

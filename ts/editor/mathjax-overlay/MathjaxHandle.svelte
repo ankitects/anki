@@ -163,7 +163,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 
 {#if activeImage && mathjaxElement}
-    <WithFloating reference={activeImage} keepOnKeyup>
+    <WithFloating reference={activeImage} offset={20} keepOnKeyup>
         <MathjaxMenu
             slot="floating"
             element={mathjaxElement}

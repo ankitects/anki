@@ -18,6 +18,8 @@ export interface PositionArgs {
     floating: HTMLElement | null;
     placement: Placement;
     arrow: HTMLElement;
+    shift: number,
+    offset: number,
 }
 
 function position(
@@ -33,8 +35,8 @@ function position(
             {
                 middleware: [
                     inline(),
-                    offset(5),
-                    shift({ padding: 5 }),
+                    offset(args.offset),
+                    shift({ padding: args.shift }),
                     arrow({ element: args.arrow, padding: 5 }),
                 ],
                 placement: args.placement,
