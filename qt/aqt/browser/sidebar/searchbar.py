@@ -7,7 +7,6 @@ import aqt
 import aqt.browser
 import aqt.gui_hooks
 from aqt import colors
-from aqt.browser.sidebar import _want_right_border
 from aqt.qt import *
 from aqt.theme import theme_manager
 
@@ -29,18 +28,20 @@ class SidebarSearchBar(QLineEdit):
         aqt.gui_hooks.theme_did_change.append(self.setup_style)
 
     def setup_style(self) -> None:
-        border = theme_manager.color(colors.MEDIUM_BORDER)
         styles = [
-            "padding: 1px",
-            "padding-left: 3px",
-            f"border-bottom: 1px solid {border}",
+            "padding: 2px",
+            f"border: 1px solid {theme_manager.color(colors.BORDER)}",
+            "border-radius: 5px",
         ]
-        if _want_right_border():
-            styles.append(
-                f"border-right: 1px solid {border}",
-            )
 
-        self.setStyleSheet("QLineEdit { %s }" % ";".join(styles))
+        self.setStyleSheet(
+            "QLineEdit { %s }" % ";".join(styles)
+            + f"""
+QLineEdit:focus {{
+    border: 1px solid {theme_manager.color(colors.FOCUS_BORDER)};
+}}
+            """
+        )
 
     def onTextChanged(self, text: str) -> None:
         if not self.timer.isActive():

@@ -14,8 +14,6 @@ class Switch(QAbstractButton):
     The suppoorted slots are toggle(), for an animated transition, and setChecked().
     """
 
-    _margin: int = 2
-
     def __init__(
         self,
         radius: int = 10,
@@ -33,9 +31,10 @@ class Switch(QAbstractButton):
         self._right_label = right_label
         self._left_color = left_color
         self._right_color = right_color
-        self._path_radius = radius - self._margin
-        self._knob_radius = self._left_position = self._position = radius
-        self._right_position = 3 * self._path_radius + self._margin
+        self._path_radius = radius
+        self._knob_radius = radius - 1
+        self._left_position = self._position = radius
+        self._right_position = 3 * self._path_radius
 
     @pyqtProperty(int)  # type: ignore
     def position(self) -> int:
@@ -65,8 +64,8 @@ class Switch(QAbstractButton):
 
     def sizeHint(self) -> QSize:
         return QSize(
-            4 * self._path_radius + 2 * self._margin,
-            2 * self._path_radius + 2 * self._margin,
+            4 * self._path_radius,
+            2 * self._path_radius,
         )
 
     def setChecked(self, checked: bool) -> None:
@@ -85,17 +84,17 @@ class Switch(QAbstractButton):
     def _paint_path(self, painter: QPainter) -> None:
         painter.setBrush(QBrush(self.path_color))
         rectangle = QRectF(
-            self._margin,
-            self._margin,
-            self.width() - 2 * self._margin,
-            self.height() - 2 * self._margin,
+            0,
+            0,
+            self.width(),
+            self.height(),
         )
         painter.drawRoundedRect(rectangle, self._path_radius, self._path_radius)
 
     def _current_knob_rectangle(self) -> QRectF:
         return QRectF(
             self.position - self._knob_radius,  # type: ignore
-            0,
+            1,
             2 * self._knob_radius,
             2 * self._knob_radius,
         )
