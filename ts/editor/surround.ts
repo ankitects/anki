@@ -158,7 +158,7 @@ export class Surrounder<T = unknown> {
         });
     }
 
-    async #toggleTriggerRemove<T>(
+    #toggleTriggerRemove<T>(
         base: HTMLElement,
         selection: Selection,
         formats: {
@@ -166,7 +166,7 @@ export class Surrounder<T = unknown> {
             trigger: TriggerItem<{ event: InputEvent; text: Text }>;
         }[],
         reformat: SurroundFormat<T>[] = [],
-    ): Promise<void> {
+    ): void {
         const remainingFormats = formats
             .filter(({ trigger }) => {
                 if (get(trigger.active)) {
