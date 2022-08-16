@@ -116,7 +116,6 @@ class SidebarTreeView(QTreeView):
 
     def cleanup(self) -> None:
         self.toolbar.cleanup()
-        self.searchBar.cleanup()
         gui_hooks.flag_label_did_change.remove(self.refresh)
         gui_hooks.theme_did_change.remove(self._setup_style)
 
