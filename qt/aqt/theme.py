@@ -251,6 +251,9 @@ QTabWidget {{ background-color: {}; }}
 
         if not self.night_mode:
             app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
+            self.default_palette.setColor(
+                QPalette.ColorRole.Window, self.qcolor(colors.WINDOW_BG)
+            )
             app.setPalette(self.default_palette)
             return
 

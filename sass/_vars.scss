@@ -1,81 +1,110 @@
 /* Copyright: Ankitects Pty Ltd and contributors
- * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+ * License: GNU AGPL, version 3 or later, http://www.gnu.org/licenses/agpl.html */
 
-:root {
-    --text-fg: black;
-    --window-bg: #ececec;
-    --frame-bg: white;
-    --border: #aaa;
-    --medium-border: #b6b6b6;
-    --faint-border: #e7e7e7;
-    --link: #00a;
-    --review-count: #0a0;
-    --new-count: #00a;
-    --learn-count: #c35617;
-    --zero-count: #ddd;
-    --slightly-grey-text: #333;
-    --highlight-bg: #77ccff;
-    --highlight-fg: black;
-    --disabled: #777;
-    --flag1-fg: #e25252;
-    --flag2-fg: #ffb347;
-    --flag3-fg: #54c414;
-    --flag4-fg: #578cff;
-    --flag5-fg: #ff82ee;
-    --flag6-fg: #00d1b5;
-    --flag7-fg: #9649dd;
-    --flag1-bg: #ff9b9b;
-    --flag2-bg: #ffb347;
-    --flag3-bg: #93e066;
-    --flag4-bg: #9dbcff;
-    --flag5-bg: #f5a8eb;
-    --flag6-bg: #7edbd7;
-    --flag7-bg: #cca3f1;
-    --buried-fg: #aaaa33;
-    --suspended-fg: #dd0;
-    --suspended-bg: #ffffb2;
-    --marked-bg: #cce;
-    --tooltip-bg: #fcfcfc;
-    --focus-border: #0969da;
-    --focus-shadow: rgba(9 105 218 / 0.3);
+@use "colors" as *;
+
+@function get($map, $keys...) {
+    @each $key in $keys {
+        $map: map-get($map, $key);
+    }
+    @return $map;
 }
 
-:root[class*="night-mode"] {
-    --text-fg: white;
-    --window-bg: #2f2f31;
-    --frame-bg: #3a3a3a;
-    --border: #777;
-    --medium-border: #444;
-    --faint-border: #29292b;
-    --link: #77ccff;
-    --review-count: #5ccc00;
-    --new-count: #77ccff;
-    --learn-count: #ff935b;
-    --zero-count: #444;
-    --slightly-grey-text: #ccc;
-    --highlight-bg: #77ccff;
-    --highlight-fg: white;
-    --disabled: #777;
-    --flag1-fg: #ff7b7b;
-    --flag2-fg: #f5aa41;
-    --flag3-fg: #86ce5d;
-    --flag4-fg: #6f9dff;
-    --flag5-fg: #f097e4;
-    --flag6-fg: #5ccfca;
-    --flag7-fg: #9f63d3;
-    --flag1-bg: #aa5555;
-    --flag2-bg: #ac653a;
-    --flag3-bg: #559238;
-    --flag4-bg: #506aa3;
-    --flag5-bg: #975d8f;
-    --flag6-bg: #399185;
-    --flag7-bg: #624b77;
-    --buried-fg: #777733;
-    --suspended-fg: #ffffb2;
-    --suspended-bg: #aaaa33;
-    --marked-bg: #77c;
-    --tooltip-bg: #272727;
-    --focus-border: #316dca;
-    --focus-shadow: #194380;
-    color-scheme: dark;
+$vars: (
+    props: (
+        border-radius-default: 5px,
+    ),
+    themes: (
+        light: (
+            text-fg: get($color, gray, 9),
+            window-bg: get($color, gray, 1),
+            frame-bg: white,
+            border: get($color, gray, 4),
+            faint-border: get($color, gray, 2),
+            link: get($color, blue, 9),
+            review-count: #0a0,
+            new-count: get($color, blue, 9),
+            learn-count: get($color, orange, 7),
+            zero-count: get($color, gray, 2),
+            slightly-grey-text: get($color, gray, 8),
+            highlight-bg: get($color, cyan, 2),
+            highlight-fg: black,
+            disabled: get($color, gray, 5),
+            flag1-fg: get($color, red, 6),
+            flag2-fg: get($color, orange, 5),
+            flag3-fg: get($color, green, 5),
+            flag4-fg: get($color, blue, 5),
+            flag5-fg: get($color, fuchsia, 4),
+            flag6-fg: get($color, teal, 5),
+            flag7-fg: get($color, purple, 6),
+            flag1-bg: get($color, red, 5),
+            flag2-bg: get($color, orange, 3),
+            flag3-bg: get($color, green, 3),
+            flag4-bg: get($color, blue, 3),
+            flag5-bg: get($color, fuchsia, 2),
+            flag6-bg: get($color, teal, 4),
+            flag7-bg: get($color, purple, 4),
+            buried-fg: get($color, amber, 5),
+            suspended-fg: get($color, yellow, 4),
+            suspended-bg: get($color, yellow, 1),
+            marked-bg: get($color, indigo, 2),
+            tooltip-bg: get($color, gray, 0),
+            focus-border: get($color, indigo, 6),
+        ),
+        dark: (
+            text-fg: get($color, gray, 0),
+            window-bg: get($color, gray, 7),
+            frame-bg: get($color, gray, 6),
+            border: get($color, gray, 9),
+            faint-border: get($color, gray, 8),
+            link: get($color, blue, 2),
+            review-count: get($color, green, 4),
+            new-count: get($color, blue, 2),
+            learn-count: get($color, red, 4),
+            zero-count: get($color, gray, 7),
+            slightly-grey-text: get($color, gray, 4),
+            highlight-bg: get($color, cyan, 2),
+            highlight-fg: white,
+            disabled: get($color, gray, 6),
+            flag1-fg: get($color, red, 4),
+            flag2-fg: get($color, orange, 4),
+            flag3-fg: get($color, green, 4),
+            flag4-fg: get($color, blue, 4),
+            flag5-fg: get($color, fuchsia, 3),
+            flag6-fg: get($color, teal, 4),
+            flag7-fg: get($color, purple, 5),
+            flag1-bg: get($color, red, 6),
+            flag2-bg: get($color, orange, 5),
+            flag3-bg: get($color, green, 5),
+            flag4-bg: get($color, blue, 5),
+            flag5-bg: get($color, fuchsia, 5),
+            flag6-bg: get($color, teal, 5),
+            flag7-bg: get($color, purple, 7),
+            buried-fg: get($color, amber, 8),
+            suspended-fg: get($color, yellow, 1),
+            suspended-bg: get($color, yellow, 5),
+            marked-bg: get($color, purple, 5),
+            tooltip-bg: get($color, gray, 8),
+            focus-border: get($color, indigo, 5),
+        ),
+    ),
+);
+
+:root {
+    @each $name, $value in get($vars, themes, light) {
+        --#{$name}: #{$value};
+    }
+    &.night-mode {
+        @each $name, $value in get($vars, themes, dark) {
+            --#{$name}: #{$value};
+        }
+        color-scheme: dark;
+    }
+}
+
+/* separate rule for cleaner dev tools appearance */
+:root {
+    @each $name, $value in get($vars, props) {
+        --#{$name}: #{$value};
+    }
 }

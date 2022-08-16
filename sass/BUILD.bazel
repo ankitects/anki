@@ -84,6 +84,6 @@ sass_library(
 )
 
 exports_files(
-    ["_vars.scss"],
+    ["_colors.scss", "_vars.scss"],
     visibility = ["//visibility:public"],
 )

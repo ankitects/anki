@@ -11,14 +11,15 @@ genrule(
 )
 
 genrule(
-    name = "extract_sass_colors",
+    name = "extract_sass_vars",
     srcs = [
+        "//sass:_colors.scss",
         "//sass:_vars.scss",
     ],
-    outs = ["colors.py"],
-    cmd = "$(location //qt:extract_sass_colors) $< $@",
+    outs = ["colors.py", "props.py"],
+    cmd = "$(location //qt:extract_sass_vars) $(SRCS) $(OUTS)",
     tools = [
-        "//qt:extract_sass_colors",
+        "//qt:extract_sass_vars",
     ],
 )
 
