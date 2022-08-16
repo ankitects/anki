@@ -104,6 +104,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .mathjax-editor {
         margin: 0 1px;
+        overflow: hidden;
 
         :global(.CodeMirror) {
             max-width: 28rem;
