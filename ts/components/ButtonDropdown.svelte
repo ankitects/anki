@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding: calc(var(--buttons-size) / 10) 0;
 
         background-color: var(--window-bg);
-        border-color: var(--medium-border);
+        border-color: var(--border);
 
         :global(.btn-group) {
             position: static;

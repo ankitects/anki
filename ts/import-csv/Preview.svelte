@@ -48,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         th {
-            background: var(--medium-border);
+            background: var(--border);
             text-align: center;
         }
 

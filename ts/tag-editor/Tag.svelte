@@ -61,7 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         font-size: var(--base-font-size);
         padding: 0;
 
-        --border-color: var(--medium-border);
+        --border-color: var(--border);
 
         border: 1px solid var(--border-color) !important;
         border-radius: 5px;

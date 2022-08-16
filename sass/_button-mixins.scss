@@ -23,7 +23,7 @@ $btn-base-color-day: white;
 @mixin btn-day-base {
     color: var(--text-fg);
     background-color: $btn-base-color-day;
-    border-color: var(--medium-border) !important;
+    border-color: var(--border) !important;
 }
 
 @mixin btn-day(

@@ -31,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         background: var(--sticky-bg, var(--window-bg));
         border-style: solid;
-        border-color: var(--sticky-border, var(--medium-border));
+        border-color: var(--sticky-border, var(--border));
         border-width: var(--sticky-borders, 0);
     }
 </style>

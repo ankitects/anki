@@ -104,7 +104,7 @@ class SidebarTreeView(QTreeView):
     def _setup_style(self) -> None:
         # match window background color and tweak style
         bgcolor = QPalette().window().color().name()
-        border = theme_manager.color(colors.MEDIUM_BORDER)
+        border = theme_manager.color(colors.BORDER)
         styles = [
             "padding: 3px",
             "padding-right: 0px",

@@ -15,7 +15,7 @@ $padding: 2px;
     color: var(--text-fg);
     font-size: calc($size * 0.6);
     background-color: $btn-base-color-day;
-    border: 1px solid var(--medium-border);
+    border: 1px solid var(--border);
     @include button.btn-border-radius;
     margin-left: -1px;
 
