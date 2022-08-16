@@ -211,7 +211,7 @@ export class Surrounder<T = unknown> {
     }
 
     /**
-     * Register a surround format under a certain name.
+     * Register a surround format under a certain key.
      * This name is then used with the surround functions to actually apply or
      * remove the given format.
      */
@@ -229,10 +229,10 @@ export class Surrounder<T = unknown> {
     }
 
     /**
-     * Modify a surround format under a certain name.
+     * Update a surround format under a specific key.
      */
-    modifyFormat(key: string, modify: (format: SurroundFormat<T>) => void): void {
-        modify(this.#formats.get(key)!);
+    updateFormat(key: string, update: (format: SurroundFormat<T>) => SurroundFormat<T>): void {
+        this.#formats.set(key, update(this.#formats.get(key)!));
     }
 
     /**
