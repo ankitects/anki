@@ -36,14 +36,27 @@ for line in open(colors_scss):
 
 # TODO: recursive extraction of arbitrarily nested Sass maps?
 reached_colors = False
+current_key = ""
 
 for line in open(vars_scss):
     line = line.strip()
-    if not line:
+
+    if not line or line == "props: (":
+        continue
+    if line == ":root {":
+        break
+    if line == "colors: (":
+        reached_colors = True
         continue
 
-    if line == "themes: (":
-        reached_colors = True
+    if m := re.match(r"^([^$]+): \(", line):
+        current_key = m.group(1)
+
+        if reached_colors:
+            colors[current_key] = {}
+        else:
+            props[current_key] = {}
+
         continue
 
     if reached_colors:
@@ -53,14 +66,14 @@ for line in open(vars_scss):
             line,
         )
 
-    if m := re.match(r"^(.+): ([^\(]+),$", line):
-        var = m.group(1)
+    if m := re.match(r"^(.+): (.+),$", line):
+        theme = m.group(1)
         val = m.group(2)
 
         if reached_colors:
-            colors.setdefault(var, []).append(val)
+            colors[current_key][theme] = val
         else:
-            props.setdefault(var, []).append(val)
+            props[current_key][theme] = val
 
 
 copyright_notice = """\
@@ -72,7 +85,10 @@ with open(colors_py, "w") as buf:
     buf.write(copyright_notice)
     buf.write("# this file is auto-generated from _vars.scss and _colors.scss\n")
 
-    for color, (day, night) in colors.items():
+    for color, val in colors.items():
+        day = val["light"] if "light" in val else val["default"]
+        night = val["dark"] if len(val) > 1 else day
+
         color = color.replace("-", "_").upper()
         buf.write(f'{color} = ("{day}", "{night}")\n')
 
@@ -82,8 +98,8 @@ with open(props_py, "w") as buf:
     buf.write("# this file is auto-generated from _vars.scss\n")
 
     for prop, val in props.items():
-        day = val[0]
-        night = val[1] if len(val) > 1 else day
+        day = val["light"] if "light" in val else val["default"]
+        night = val["dark"] if "dark" in val else day
 
         prop = prop.replace("-", "_").upper()
         buf.write(f'{prop} = ("{day}", "{night}")\n')

@@ -12,103 +12,189 @@
 
 $vars: (
     props: (
-        border-radius-default: 5px,
-    ),
-    themes: (
-        light: (
-            text-fg: get($color, gray, 9),
-            window-bg: get($color, gray, 1),
-            frame-bg: get($color, gray, 0),
-            border: get($color, gray, 3),
-            faint-border: get($color, gray, 2),
-            link: get($color, blue, 9),
-            review-count: #0a0,
-            new-count: get($color, blue, 9),
-            learn-count: get($color, orange, 7),
-            zero-count: get($color, gray, 2),
-            slightly-grey-text: get($color, gray, 7),
-            highlight-bg: get($color, cyan, 2),
-            highlight-fg: black,
-            disabled: get($color, gray, 5),
-            card-view-bg: get($color, blue, 5),
-            note-view-bg: get($color, green, 5),
-            flag1-fg: get($color, red, 6),
-            flag2-fg: get($color, orange, 5),
-            flag3-fg: get($color, green, 5),
-            flag4-fg: get($color, blue, 5),
-            flag5-fg: get($color, fuchsia, 4),
-            flag6-fg: get($color, teal, 5),
-            flag7-fg: get($color, purple, 6),
-            flag1-bg: get($color, red, 5),
-            flag2-bg: get($color, orange, 3),
-            flag3-bg: get($color, green, 3),
-            flag4-bg: get($color, blue, 3),
-            flag5-bg: get($color, fuchsia, 2),
-            flag6-bg: get($color, teal, 4),
-            flag7-bg: get($color, purple, 4),
-            buried-fg: get($color, amber, 5),
-            suspended-fg: get($color, yellow, 4),
-            suspended-bg: get($color, yellow, 1),
-            marked-bg: get($color, indigo, 2),
-            tooltip-bg: get($color, gray, 0),
-            focus-border: get($color, indigo, 6),
+        border-radius: (
+            default: 5px,
         ),
-        dark: (
-            text-fg: get($color, gray, 0),
-            window-bg: get($color, gray, 6),
-            frame-bg: get($color, gray, 7),
-            border: get($color, gray, 5),
-            faint-border: get($color, gray, 8),
-            link: get($color, blue, 2),
-            review-count: get($color, green, 4),
-            new-count: get($color, blue, 2),
-            learn-count: get($color, red, 4),
-            zero-count: get($color, gray, 7),
-            slightly-grey-text: get($color, gray, 4),
-            highlight-bg: get($color, cyan, 2),
-            highlight-fg: white,
-            disabled: get($color, gray, 6),
-            card-view-bg: get($color, blue, 4),
-            note-view-bg: get($color, green, 4),
-            flag1-fg: get($color, red, 4),
-            flag2-fg: get($color, orange, 4),
-            flag3-fg: get($color, green, 4),
-            flag4-fg: get($color, blue, 4),
-            flag5-fg: get($color, fuchsia, 3),
-            flag6-fg: get($color, teal, 4),
-            flag7-fg: get($color, purple, 5),
-            flag1-bg: get($color, red, 6),
-            flag2-bg: get($color, orange, 5),
-            flag3-bg: get($color, green, 5),
-            flag4-bg: get($color, blue, 5),
-            flag5-bg: get($color, fuchsia, 5),
-            flag6-bg: get($color, teal, 5),
-            flag7-bg: get($color, purple, 7),
-            buried-fg: get($color, amber, 8),
-            suspended-fg: get($color, yellow, 1),
-            suspended-bg: get($color, yellow, 5),
-            marked-bg: get($color, purple, 5),
-            tooltip-bg: get($color, gray, 8),
-            focus-border: get($color, indigo, 5),
+    ),
+    colors: (
+        text-fg: (
+            light: get($color, gray, 9),
+            dark: get($color, gray, 0),
+        ),
+        window-bg: (
+            light: get($color, gray, 1),
+            dark: get($color, gray, 6),
+        ),
+        frame-bg: (
+            light: get($color, gray, 0),
+            dark: get($color, gray, 7),
+        ),
+        border: (
+            light: get($color, gray, 3),
+            dark: get($color, gray, 5),
+        ),
+        faint-border: (
+            light: get($color, gray, 2),
+            dark: get($color, gray, 8),
+        ),
+        link: (
+            light: get($color, blue, 9),
+            dark: get($color, blue, 2),
+        ),
+        review-count: (
+            light: get($color, green, 7),
+            dark: get($color, green, 4),
+        ),
+        new-count: (
+            light: get($color, blue, 9),
+            dark: get($color, blue, 2),
+        ),
+        learn-count: (
+            light: get($color, orange, 7),
+            dark: get($color, red, 4),
+        ),
+        zero-count: (
+            light: get($color, gray, 2),
+            dark: get($color, gray, 7),
+        ),
+        slightly-grey-text: (
+            light: get($color, gray, 7),
+            dark: get($color, gray, 4),
+        ),
+        highlight-bg: (
+            light: get($color, cyan, 2),
+            dark: get($color, cyan, 2),
+        ),
+        highlight-fg: (
+            light: black,
+            dark: white,
+        ),
+        disabled: (
+            light: get($color, gray, 5),
+            dark: get($color, gray, 6),
+        ),
+        card-view-bg: (
+            light: get($color, blue, 5),
+            dark: get($color, blue, 4),
+        ),
+        note-view-bg: (
+            light: get($color, green, 5),
+            dark: get($color, green, 4),
+        ),
+        flag1-fg: (
+            light: get($color, red, 6),
+            dark: get($color, red, 4),
+        ),
+        flag2-fg: (
+            light: get($color, orange, 5),
+            dark: get($color, orange, 4),
+        ),
+        flag3-fg: (
+            light: get($color, green, 5),
+            dark: get($color, green, 4),
+        ),
+        flag4-fg: (
+            light: get($color, blue, 5),
+            dark: get($color, blue, 4),
+        ),
+        flag5-fg: (
+            light: get($color, fuchsia, 4),
+            dark: get($color, fuchsia, 3),
+        ),
+        flag6-fg: (
+            light: get($color, teal, 5),
+            dark: get($color, teal, 4),
+        ),
+        flag7-fg: (
+            light: get($color, purple, 6),
+            dark: get($color, purple, 5),
+        ),
+        flag1-bg: (
+            light: get($color, red, 5),
+            dark: get($color, red, 6),
+        ),
+        flag2-bg: (
+            light: get($color, orange, 3),
+            dark: get($color, orange, 5),
+        ),
+        flag3-bg: (
+            light: get($color, green, 3),
+            dark: get($color, green, 5),
+        ),
+        flag4-bg: (
+            light: get($color, blue, 3),
+            dark: get($color, blue, 5),
+        ),
+        flag5-bg: (
+            light: get($color, fuchsia, 2),
+            dark: get($color, fuchsia, 5),
+        ),
+        flag6-bg: (
+            light: get($color, teal, 4),
+            dark: get($color, teal, 5),
+        ),
+        flag7-bg: (
+            light: get($color, purple, 4),
+            dark: get($color, purple, 7),
+        ),
+        buried-fg: (
+            light: get($color, amber, 5),
+            dark: get($color, amber, 8),
+        ),
+        suspended-fg: (
+            light: get($color, yellow, 4),
+            dark: get($color, yellow, 1),
+        ),
+        suspended-bg: (
+            light: get($color, yellow, 1),
+            dark: get($color, yellow, 5),
+        ),
+        marked-bg: (
+            light: get($color, indigo, 2),
+            dark: get($color, purple, 5),
+        ),
+        tooltip-bg: (
+            light: get($color, gray, 0),
+            dark: get($color, gray, 8),
+        ),
+        focus-border: (
+            light: get($color, indigo, 6),
+            dark: get($color, indigo, 5),
         ),
     ),
 );
 
 :root {
-    @each $name, $value in get($vars, themes, light) {
-        --#{$name}: #{$value};
+    @each $name, $map in map-get($vars, colors) {
+        --#{$name}: #{map-get($map, light)};
     }
     &.night-mode {
-        @each $name, $value in get($vars, themes, dark) {
-            --#{$name}: #{$value};
+        @each $name, $map in get($vars, colors) {
+            --#{$name}: #{map-get($map, dark)};
         }
         color-scheme: dark;
     }
 }
 
-/* separate rule for cleaner dev tools appearance */
 :root {
-    @each $name, $value in get($vars, props) {
-        --#{$name}: #{$value};
+    @each $name, $map in map-get($vars, props) {
+        $val: map-get($map, default);
+        @if $val {
+            --#{$name}: #{$val};
+        }
+    }
+    @each $name, $map in map-get($vars, props) {
+        $val: map-get($map, light);
+        @if $val {
+            --#{$name}: #{$val};
+        }
+    }
+    &.night-mode {
+        @each $name, $map in map-get($vars, props) {
+            $val: map-get($map, dark);
+            @if $val {
+                --#{$name}: #{$val};
+            }
+        }
     }
 }
