@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { onMount } from "svelte";
 
-    import Checkbox from "../../components/CheckBox.svelte";
+    import CheckBox from "../../components/CheckBox.svelte";
     import DropdownItem from "../../components/DropdownItem.svelte";
     import DropdownMenu from "../../components/DropdownMenu.svelte";
     import { withButton } from "../../components/helpers";
@@ -117,7 +117,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <DropdownMenu on:mousedown={(event) => event.preventDefault()}>
             {#each showFormats as format (format.name)}
                 <DropdownItem on:click={(event) => onItemClick(event, format)}>
-                    <Checkbox bind:value={format.active} />
+                    <CheckBox bind:value={format.active} />
                     <span class="d-flex-inline ps-3">{format.name}</span>
                 </DropdownItem>
             {/each}
