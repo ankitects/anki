@@ -19,8 +19,8 @@ class Switch(QAbstractButton):
         radius: int = 10,
         left_label: str = "",
         right_label: str = "",
-        left_color: tuple[str, str] = colors.FLAG4_BG,
-        right_color: tuple[str, str] = colors.FLAG3_BG,
+        left_color: tuple[str, str] = colors.CARD_VIEW_BG,
+        right_color: tuple[str, str] = colors.NOTE_VIEW_BG,
         parent: QWidget = None,
     ) -> None:
         super().__init__(parent=parent)
@@ -108,7 +108,7 @@ class Switch(QAbstractButton):
         painter.drawEllipse(self._current_knob_rectangle())
 
     def _paint_label(self, painter: QPainter) -> None:
-        painter.setPen(theme_manager.qcolor(colors.SLIGHTLY_GREY_TEXT))
+        painter.setPen(theme_manager.qcolor(colors.TEXT_FG))
         font = painter.font()
         font.setPixelSize(int(1.2 * self._knob_radius))
         painter.setFont(font)
