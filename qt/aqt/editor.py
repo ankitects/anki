@@ -499,7 +499,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         ]
 
         flds = self.note.note_type()["flds"]
-        plain_texts = [fld.get("plain_text", False) for fld in flds]
+        plain_texts = [fld.get("plainText", False) for fld in flds]
         descriptions = [fld.get("description", "") for fld in flds]
 
         self.widget.show()

@@ -161,7 +161,7 @@ impl From<Notetype> for NotetypeSchema11 {
 
 /// See [crate::deckconfig::schema11::clear_other_duplicates()].
 fn clear_other_field_duplicates(other: &mut HashMap<String, Value>) {
-    for key in &["description", "plain_text"] {
+    for key in &["description", "plainText"] {
         other.remove(*key);
     }
 }
@@ -195,6 +195,7 @@ impl From<CardRequirement> for CardRequirementSchema11 {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct NoteFieldSchema11 {
     pub(crate) name: String,
     pub(crate) ord: Option<u16>,
