@@ -1,9 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { Placement } from "@floating-ui/dom";
+import type {
+    ComputePositionConfig,
+    Placement,
+    Middleware,
+    ReferenceElement,
+    FloatingElement,
+} from "@floating-ui/dom";
 import {
     arrow,
+    autoPlacement,
     autoUpdate,
     computePosition,
     inline,
@@ -15,15 +22,15 @@ export interface PositionArgs {
     /**
      * The floating element which is positioned relative to `reference`.
      */
-    floating: HTMLElement | null;
-    placement: Placement;
+    floating?: FloatingElement;
+    placement: Placement | 'auto';
     arrow: HTMLElement;
     shift: number,
     offset: number,
 }
 
 function position(
-    reference: HTMLElement,
+    reference: ReferenceElement,
     positionArgs: PositionArgs,
 ): { update(args: PositionArgs): void; destroy(): void } {
     let args = positionArgs;
@@ -45,19 +52,34 @@ function position(
             return;
         }
 
-        const { x, y, middlewareData } = await computePosition(
+        const middleware: Middleware[] = [
+            inline(),
+            offset(args.offset),
+            shift({ padding: args.shift }),
+            arrow({ element: args.arrow, padding: 5 }),
+        ];
+
+        const computeArgs: Partial<ComputePositionConfig> = {
+            middleware,
+        };
+
+        if (args.placement !== "auto") {
+            computeArgs.placement = args.placement;
+        } else {
+            middleware.push(autoPlacement())
+        }
+
+        const { x, y, middlewareData, placement } = await computePosition(
             reference,
             args.floating,
-            {
-                middleware: [
-                    inline(),
-                    offset(args.offset),
-                    shift({ padding: args.shift }),
-                    arrow({ element: args.arrow, padding: 5 }),
-                ],
-                placement: args.placement,
-            },
+            computeArgs
         );
+
+        console.log(await computePosition(
+            reference,
+            args.floating,
+            computeArgs
+        ));
 
         Object.assign(args.floating.style, {
             left: `${x}px`,
@@ -68,19 +90,19 @@ function position(
         let arrowX: number | undefined;
         let arrowY: number | undefined;
 
-        if (args.placement.startsWith("bottom")) {
+        if (placement.startsWith("bottom")) {
             rotation = 45;
             arrowX = middlewareData.arrow?.x;
             arrowY = -5;
-        } else if (args.placement.startsWith("left")) {
+        } else if (placement.startsWith("left")) {
             rotation = 135;
             arrowX = args.floating!.offsetWidth - 5;
             arrowY = middlewareData.arrow?.y;
-        } else if (args.placement.startsWith("top")) {
+        } else if (placement.startsWith("top")) {
             rotation = 225;
             arrowX = middlewareData.arrow?.x;
             arrowY = args.floating!.offsetHeight - 5;
-        } /* if (args.placement.startsWith("right")) */ else {
+        } /* if (placement.startsWith("right")) */ else {
             rotation = 315;
             arrowX = -5;
             arrowY = middlewareData.arrow?.y;

@@ -3,7 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { Placement } from "@floating-ui/dom";
+    import type {
+        Placement,
+        ReferenceElement,
+    } from "@floating-ui/dom";
     import { onMount } from "svelte";
     import { writable } from "svelte/store";
 
@@ -16,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import subscribeTrigger from "../sveltelib/subscribe-trigger";
     import { pageTheme } from "../sveltelib/theme";
 
-    export let placement: Placement = "bottom";
+    export let placement: Placement | "auto" = "bottom";
     export let offset = 5;
     export let shift = 5;
     export let closeOnInsideClick = false;
@@ -29,10 +32,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
      * The reference element can either be passed in directly, or initialized via a slot.
      * Using both at the same time leads to undefined behavior.
      */
-    let referenceProp: HTMLElement | undefined = undefined;
+    let referenceProp: ReferenceElement | undefined = undefined;
     export { referenceProp as reference};
 
-    let reference: HTMLElement;
+    let reference: ReferenceElement;
     let floating: HTMLElement;
     let arrow: HTMLElement;
 
