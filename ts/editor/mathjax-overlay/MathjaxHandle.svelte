@@ -178,6 +178,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {selectAll}
             {position}
             on:reset={resetHandle}
+            on:resize={() => {
+
+            }}
             on:moveoutstart={() => {
                 placeHandle(false);
                 resetHandle();

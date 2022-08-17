@@ -105,6 +105,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .block {
         display: block;
         margin: 1rem auto;
+        transform: scale(1.1);
     }
 
     .empty {

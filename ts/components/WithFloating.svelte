@@ -4,83 +4,74 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type {
+        FloatingElement,
         Placement,
         ReferenceElement,
     } from "@floating-ui/dom";
-    import { onMount } from "svelte";
     import { writable } from "svelte/store";
+    import type { ActionReturn } from "svelte/action";
 
+    import { singleCallback } from "../lib/typing";
+    import type { Callback } from "../lib/typing"
     import isClosingClick from "../sveltelib/closing-click";
     import isClosingKeyup from "../sveltelib/closing-keyup";
     import { documentClick, documentKeyup } from "../sveltelib/event-store";
     import portal from "../sveltelib/portal";
-    import type { PositionArgs } from "../sveltelib/position";
-    import position from "../sveltelib/position";
+    import type { PositioningCallback } from "../sveltelib/position/auto-update"
+    import autoUpdate from "../sveltelib/position/auto-update"
+    import type { PositionAlgorithm } from "../sveltelib/position/position-floating";
+    import positionFloating from "../sveltelib/position/position-floating";
     import subscribeTrigger from "../sveltelib/subscribe-trigger";
     import { pageTheme } from "../sveltelib/theme";
 
     export let placement: Placement | "auto" = "bottom";
     export let offset = 5;
     export let shift = 5;
+
+    let arrow: HTMLElement;
+
+    $: positionCurried = positionFloating({
+        placement,
+        offset,
+        shift,
+        arrow,
+    });
+
+    let actionReturn: ActionReturn = {};
+
+    $: {
+        positionCurried;
+        actionReturn.update?.(positioningCallback);
+    }
+
     export let closeOnInsideClick = false;
     export let keepOnKeyup = false;
 
     /** This may be passed in for more fine-grained control */
     export let show = writable(true);
 
-    /**
-     * The reference element can either be passed in directly, or initialized via a slot.
-     * Using both at the same time leads to undefined behavior.
-     */
-    let referenceProp: ReferenceElement | undefined = undefined;
-    export { referenceProp as reference};
+    export let reference: HTMLElement | undefined = undefined;
+    let floating: FloatingElement;
 
-    let reference: ReferenceElement;
-    let floating: HTMLElement;
-    let arrow: HTMLElement;
-
-    function asReference(element: HTMLElement) {
-        reference = element;
+    async function position(callback: (reference: HTMLElement, floating: FloatingElement, position: PositionAlgorithm) => void): Promise<void> {
+        if (reference && floating) {
+            return callback(reference, floating, positionCurried);
+        }
     }
 
-    $: if (referenceProp) {
-        asReference(referenceProp);
+    function asReference(referenceArgument: HTMLElement) {
+        reference = referenceArgument;
     }
 
-    let update: (args: PositionArgs) => void;
-    $: update?.(args);
-
-    let destroy: () => void;
-
-    function updatePositioningFromReference() {
-        const pos = position(reference, args);
-        update = pos.update;
-
-        destroy?.();
-        destroy = pos.destroy;
-
-        return {
-            destroy() {
-                pos.destroy();
-
-            },
-        };
+    function positioningCallback(reference: HTMLElement, callback: PositioningCallback): Callback {
+        return callback(reference, floating, () => positionCurried(reference, floating))
     }
 
-    $: if (reference) {
-        updatePositioningFromReference();
-    }
+    let cleanup: Callback;
 
-    let args: PositionArgs;
-    $: args = {
-        floating: $show ? floating : null,
-        placement,
-        offset,
-        shift,
-        arrow,
-    };
+    $: if (reference && floating) {
+        cleanup?.();
 
-    onMount(() => {
         const triggers = [
             isClosingClick(documentClick, {
                 reference,
@@ -99,15 +90,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             );
         }
 
-        subscribeTrigger(show, ...triggers);
-    });
+        actionReturn = autoUpdate(reference, positioningCallback);
+        cleanup = singleCallback(
+            subscribeTrigger(show, ...triggers),
+            actionReturn.destroy!,
+        );
+    }
 </script>
 
-<slot {asReference} />
+{#if floating && arrow}
+    <slot {position} {asReference} />
+{/if}
 
-<div bind:this={floating} class="floating" hidden={!$show} use:portal>
-    <slot name="floating" />
-    <div bind:this={arrow} class="arrow" class:dark={$pageTheme.isDark} />
+<div bind:this={floating} class="floating" use:portal>
+    {#if $show}
+        <slot name="floating" />
+    {/if}
+
+    <div bind:this={arrow} hidden={!$show} class="arrow" class:dark={$pageTheme.isDark} />
 </div>
 
 <style lang="scss">

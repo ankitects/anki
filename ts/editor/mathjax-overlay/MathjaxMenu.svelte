@@ -57,25 +57,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                     editor.replaceSelection(prefix + editor.getSelection() + suffix);
                 }}
+                on:resize
             />
         </MathjaxEditor>
     </Popover>
 </div>
 
 <style lang="scss">
-    /* .mathjax-menu :global(.dropdown-menu) { */
-    /*     border-color: var(--border); */
-    /* } */
-
-    .light-theme {
-        /* :global(.dropdown-menu) { */
-        /*     background-color: var(--window-bg); */
-        /* } */
-
-        :global(.CodeMirror) {
-            border-width: 1px 0;
-            border-style: solid;
-            border-color: var(--border);
-        }
+    .light-theme :global(.CodeMirror) {
+        border-width: 1px 0;
+        border-style: solid;
+        border-color: var(--border);
     }
 </style>
