@@ -139,6 +139,10 @@ class MessageBox(QMessageBox):
         self.setWindowTitle(title)
         self.setWindowModality(Qt.WindowModality.WindowModal)
         self.setIcon(icon)
+        if icon == QMessageBox.Icon.Question and theme_manager.night_mode:
+            img = self.iconPixmap().toImage()
+            img.invertPixels()
+            self.setIconPixmap(QPixmap(img))
         self.setTextFormat(textFormat)
         if buttons is None:
             buttons = [QMessageBox.StandardButton.Ok]
