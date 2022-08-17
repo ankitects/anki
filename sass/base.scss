@@ -32,6 +32,10 @@ $utilities: (
     flex-basis: 75%;
 }
 
+* {
+    overscroll-behavior: none;
+}
+
 .night-mode {
     @include scrollbar.night-mode;
 }
