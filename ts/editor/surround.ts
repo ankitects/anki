@@ -1,14 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { Writable } from "svelte/store";
-import { get, writable } from "svelte/store";
+import type { Readable } from "svelte/store";
+import { derived, get } from "svelte/store";
 
 import type { Matcher } from "../domlib/find-above";
 import { findClosest } from "../domlib/find-above";
 import type { SurroundFormat } from "../domlib/surround";
 import { boolMatcher, reformat, surround, unsurround } from "../domlib/surround";
 import { getRange, getSelection } from "../lib/cross-browser";
+import { asyncNoop } from "../lib/functional";
 import { registerPackage } from "../lib/runtime-require";
 import type { TriggerItem } from "../sveltelib/handler-list";
 import type { InputHandlerAPI } from "../sveltelib/input-handler";
@@ -67,52 +68,55 @@ export interface SurroundedAPI {
     inputHandler: InputHandlerAPI;
 }
 
+/**
+ * After calling disable, using any of the surrounding methods will throw an
+ * exception. Make sure to set the input before trying to use them again.
+ */
 export class Surrounder<T = unknown> {
-    static make<T>(): Surrounder<T> {
-        return new Surrounder();
+    #api?: SurroundedAPI;
+
+    #triggers: Map<string, TriggerItem<{ event: InputEvent; text: Text }>> = new Map();
+    #formats: Map<string, SurroundFormat<T>> = new Map();
+
+    active: Readable<boolean>;
+
+    private constructor(apiStore: Readable<SurroundedAPI | null>) {
+        this.active = derived(apiStore, (api) => Boolean(api));
+
+        apiStore.subscribe((api: SurroundedAPI | null): void => {
+            if (api) {
+                this.#api = api;
+
+                for (const key of this.#formats.keys()) {
+                    this.#triggers.set(
+                        key,
+                        api.inputHandler.insertText.trigger({ once: true }),
+                    );
+                }
+            } else {
+                this.#api = undefined;
+
+                for (const [key, trigger] of this.#triggers) {
+                    trigger.off();
+                    this.#triggers.delete(key);
+                }
+            }
+        });
     }
 
-    private api: SurroundedAPI | null = null;
-    private triggers: Map<string, TriggerItem<{ event: InputEvent; text: Text }>> =
-        new Map();
+    static make<T>(apiStore: Readable<SurroundedAPI | null>): Surrounder<T> {
+        return new Surrounder(apiStore);
+    }
 
-    active: Writable<boolean> = writable(false);
-
-    enable(api: SurroundedAPI): void {
-        this.api = api;
-        this.active.set(true);
-
-        for (const key of this.formats.keys()) {
-            this.triggers.set(
-                key,
-                this.api.inputHandler.insertText.trigger({ once: true }),
-            );
+    #getBaseElement(): Promise<HTMLElement> {
+        if (!this.#api) {
+            throw new Error("Surrounder: No api set");
         }
+
+        return this.#api.element;
     }
 
-    /**
-     * After calling disable, using any of the surrounding methods will throw an
-     * exception. Make sure to set the input before trying to use them again.
-     */
-    disable(): void {
-        this.api = null;
-        this.active.set(false);
-
-        for (const [key, trigger] of this.triggers) {
-            trigger.off();
-            this.triggers.delete(key);
-        }
-    }
-
-    private async _assert_base(): Promise<HTMLElement> {
-        if (!this.api) {
-            throw new Error("Surrounder: No input set");
-        }
-
-        return this.api.element;
-    }
-
-    private _toggleTrigger<T>(
+    #toggleTrigger<T>(
         base: HTMLElement,
         selection: Selection,
         matcher: Matcher,
@@ -135,7 +139,7 @@ export class Surrounder<T = unknown> {
         }
     }
 
-    private _toggleTriggerOverwrite<T>(
+    #toggleTriggerOverwrite<T>(
         base: HTMLElement,
         selection: Selection,
         format: SurroundFormat<T>,
@@ -154,51 +158,84 @@ export class Surrounder<T = unknown> {
         });
     }
 
-    private _toggleTriggerRemove<T>(
+    #toggleTriggerRemove<T>(
         base: HTMLElement,
         selection: Selection,
-        remove: SurroundFormat<T>[],
-        triggers: TriggerItem<{ event: InputEvent; text: Text }>[],
+        formats: {
+            format: SurroundFormat<T>;
+            trigger: TriggerItem<{ event: InputEvent; text: Text }>;
+        }[],
         reformat: SurroundFormat<T>[] = [],
     ): void {
-        triggers.map((trigger) =>
-            trigger.on(async ({ text }) => {
+        const remainingFormats = formats
+            .filter(({ trigger }) => {
+                if (get(trigger.active)) {
+                    // Deactivate active triggers for active formats.
+                    trigger.off();
+                    return false;
+                }
+
+                // Otherwise you are within the format. This is why we activate
+                // the trigger, so that the active button is set to inactive.
+                // We still need to remove the format however.
+                trigger.on(asyncNoop);
+                return true;
+            })
+            .map(({ format }) => format);
+
+        // Use an anonymous insertText handler instead of some trigger associated with a name
+        this.#api!.inputHandler.insertText.on(
+            async ({ text }) => {
                 const range = new Range();
                 range.selectNode(text);
 
-                const clearedRange = removeFormats(range, base, remove, reformat);
+                const clearedRange = removeFormats(
+                    range,
+                    base,
+                    remainingFormats,
+                    reformat,
+                );
                 selection.removeAllRanges();
                 selection.addRange(clearedRange);
                 selection.collapseToEnd();
-            }),
+            },
+            { once: true },
         );
-    }
-
-    private formats: Map<string, SurroundFormat<T>> = new Map();
-
-    /**
-     * Register a surround format under a certain name.
-     * This name is then used with the surround functions to actually apply or
-     * remove the given format
-     */
-    registerFormat(key: string, format: SurroundFormat<T>): () => void {
-        this.formats.set(key, format);
-
-        if (this.api) {
-            this.triggers.set(
-                key,
-                this.api.inputHandler.insertText.trigger({ once: true }),
-            );
-        }
-
-        return () => this.formats.delete(key);
     }
 
     /**
      * Check if a surround format under the given key is registered.
      */
     hasFormat(key: string): boolean {
-        return this.formats.has(key);
+        return this.#formats.has(key);
+    }
+
+    /**
+     * Register a surround format under a certain key.
+     * This name is then used with the surround functions to actually apply or
+     * remove the given format.
+     */
+    registerFormat(key: string, format: SurroundFormat<T>): () => void {
+        this.#formats.set(key, format);
+
+        if (this.#api) {
+            this.#triggers.set(
+                key,
+                this.#api.inputHandler.insertText.trigger({ once: true }),
+            );
+        }
+
+        return () => this.#formats.delete(key);
+    }
+
+    /**
+     * Update a surround format under a specific key.
+     */
+    updateFormat(
+        key: string,
+        update: (format: SurroundFormat<T>) => SurroundFormat<T>,
+    ): void {
+        this.#formats.set(key, update(this.#formats.get(key)!));
     }
 
     /**
@@ -206,11 +243,11 @@ export class Surrounder<T = unknown> {
      * If the range is already surrounded, it will unsurround instead.
      */
     async surround(formatName: string, exclusiveNames: string[] = []): Promise<void> {
-        const base = await this._assert_base();
+        const base = await this.#getBaseElement();
         const selection = getSelection(base)!;
         const range = getRange(selection);
-        const format = this.formats.get(formatName);
-        const trigger = this.triggers.get(formatName);
+        const format = this.#formats.get(formatName);
+        const trigger = this.#triggers.get(formatName);
 
         if (!format || !range || !trigger) {
             return;
@@ -219,11 +256,11 @@ export class Surrounder<T = unknown> {
         const matcher = boolMatcher(format);
 
         const exclusives = exclusiveNames
-            .map((name) => this.formats.get(name))
+            .map((name) => this.#formats.get(name))
             .filter(isValid);
 
         if (range.collapsed) {
-            return this._toggleTrigger(
+            return this.#toggleTrigger(
                 base,
                 selection,
                 matcher,
@@ -248,22 +285,22 @@ export class Surrounder<T = unknown> {
         formatName: string,
         exclusiveNames: string[] = [],
     ): Promise<void> {
-        const base = await this._assert_base();
+        const base = await this.#getBaseElement();
         const selection = getSelection(base)!;
         const range = getRange(selection);
-        const format = this.formats.get(formatName);
-        const trigger = this.triggers.get(formatName);
+        const format = this.#formats.get(formatName);
+        const trigger = this.#triggers.get(formatName);
 
         if (!format || !range || !trigger) {
             return;
         }
 
         const exclusives = exclusiveNames
-            .map((name) => this.formats.get(name))
+            .map((name) => this.#formats.get(name))
             .filter(isValid);
 
         if (range.collapsed) {
-            return this._toggleTriggerOverwrite(
+            return this.#toggleTriggerOverwrite(
                 base,
                 selection,
                 format,
@@ -285,13 +322,13 @@ export class Surrounder<T = unknown> {
      * text insert).
      */
     async isSurrounded(formatName: string): Promise<boolean> {
-        const base = await this._assert_base();
+        const base = await this.#getBaseElement();
         const selection = getSelection(base)!;
         const range = getRange(selection);
-        const format = this.formats.get(formatName);
-        const trigger = this.triggers.get(formatName);
+        const format = this.#formats.get(formatName);
+        const trigger = this.#triggers.get(formatName);
 
-        if (!format || !range || !trigger) {
+        if (!range || !format || !trigger) {
             return false;
         }
 
@@ -303,7 +340,7 @@ export class Surrounder<T = unknown> {
      * Clear/Reformat the provided formats in the current range.
      */
     async remove(formatNames: string[], reformatNames: string[] = []): Promise<void> {
-        const base = await this._assert_base();
+        const base = await this.#getBaseElement();
         const selection = getSelection(base)!;
         const range = getRange(selection);
 
@@ -311,29 +348,39 @@ export class Surrounder<T = unknown> {
             return;
         }
 
-        const formats = formatNames
-            .map((name) => this.formats.get(name))
-            .filter(isValid);
+        const activeFormats = formatNames
+            .map((name: string) => ({
+                name,
+                format: this.#formats.get(name)!,
+                trigger: this.#triggers.get(name)!,
+            }))
+            .filter(({ format, trigger }): boolean => {
+                if (!format || !trigger) {
+                    return false;
+                }
 
-        const triggers = formatNames
-            .map((name) => this.triggers.get(name))
-            .filter(isValid);
+                const isSurrounded = isSurroundedInner(
+                    range,
+                    base,
+                    boolMatcher(format),
+                );
+                return get(trigger.active) ? !isSurrounded : isSurrounded;
+            });
 
         const reformats = reformatNames
-            .map((name) => this.formats.get(name))
+            .map((name) => this.#formats.get(name))
             .filter(isValid);
 
         if (range.collapsed) {
-            return this._toggleTriggerRemove(
-                base,
-                selection,
-                formats,
-                triggers,
-                reformats,
-            );
+            return this.#toggleTriggerRemove(base, selection, activeFormats, reformats);
         }
 
-        const surroundedRange = removeFormats(range, base, formats, reformats);
+        const surroundedRange = removeFormats(
+            range,
+            base,
+            activeFormats.map(({ format }) => format),
+            reformats,
+        );
         selection.removeAllRanges();
         selection.addRange(surroundedRange);
     }

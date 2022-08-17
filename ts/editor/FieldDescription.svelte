@@ -32,10 +32,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style>
     .field-description {
         position: absolute;
-        inset: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
 
-        cursor: text;
         opacity: 0.4;
+        pointer-events: none;
 
         /* same as in ContentEditable */
         padding: 6px;

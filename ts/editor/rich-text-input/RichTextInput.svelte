@@ -3,6 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
+    import { writable } from "svelte/store";
+
     import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
     import type { InputHandlerAPI } from "../../sveltelib/input-handler";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
@@ -38,7 +40,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const [globalInputHandler, setupGlobalInputHandler] = useInputHandler();
     const [lifecycle, instances, setupLifecycleHooks] =
         lifecycleHooks<RichTextInputAPI>();
-    const surrounder = Surrounder.make();
+    const apiStore = writable<SurroundedAPI | null>(null);
+    const surrounder = Surrounder.make(apiStore);
 
     registerPackage("anki/RichTextInput", {
         context,
@@ -176,16 +179,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function setFocus(): void {
         $focusedInput = api;
-        surrounder.enable(api);
+        $apiStore = api;
+    }
 
+    function removeFocus(): void {
         // We do not unset focusedInput here.
         // If we did, UI components for the input would react the store
         // being unset, even though most likely it will be set to some other
         // field right away.
-    }
 
-    function removeFocus(): void {
-        surrounder.disable();
+        $apiStore = null;
     }
 
     $: pushUpdate(!hidden);
