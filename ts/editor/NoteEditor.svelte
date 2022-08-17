@@ -109,15 +109,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fieldNames = newFieldNames;
     }
 
-    let inputs: Array<"rich" | "plain"> = [];
+    let plainTexts: boolean[] = [];
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
 
-    export function setInputs(fs: Array<"rich" | "plain">): void {
-        inputs = fs;
-
-        richTextsHidden = Array.from(inputs, (v) => v === "plain");
-        plainTextsHidden = Array.from(inputs, (v) => v === "rich");
+    export function setPlainTexts(fs: boolean[]): void {
+        richTextsHidden = plainTexts = fs;
+        plainTextsHidden = Array.from(fs, (v) => !v);
     }
 
     let fieldDescriptions: string[] = [];
@@ -177,7 +175,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: fieldsData = fieldNames.map((name, index) => ({
         name,
-        input: inputs[index],
+        plainText: plainTexts[index],
         description: fieldDescriptions[index],
         fontFamily: quoteFontFamily(fonts[index][0]),
         fontSize: fonts[index][1],
@@ -246,7 +244,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         Object.assign(globalThis, {
             setFields,
-            setInputs,
+            setPlainTexts,
             setDescriptions,
             setFonts,
             focusField,

@@ -42,7 +42,7 @@ impl NoteField {
             config: NoteFieldConfig {
                 sticky: false,
                 rtl: false,
-                input: "rich".into(),
+                plain_text: false,
                 font_name: "Arial".into(),
                 font_size: 20,
                 description: "".into(),

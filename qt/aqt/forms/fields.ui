@@ -153,7 +153,7 @@
       </widget>
      </item>
      <item row="2" column="2">
-      <widget class="QCheckBox" name="plainInputByDefault">
+      <widget class="QCheckBox" name="plainTextByDefault">
        <property name="enabled">
         <bool>true</bool>
        </property>

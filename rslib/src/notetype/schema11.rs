@@ -164,7 +164,7 @@ fn clear_other_field_duplicates(other: &mut HashMap<String, Value>) {
     for key in &["description"] {
         other.remove(*key);
     }
-    for key in &["input"] {
+    for key in &["plain_text"] {
         other.remove(*key);
     }
 }
@@ -215,7 +215,7 @@ pub struct NoteFieldSchema11 {
     pub(crate) description: String,
 
     #[serde(default, deserialize_with = "default_on_invalid")]
-    pub(crate) input: String,
+    pub(crate) plain_text: bool,
 
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
@@ -228,7 +228,7 @@ impl Default for NoteFieldSchema11 {
             ord: None,
             sticky: false,
             rtl: false,
-            input: "rich".to_string(),
+            plain_text: false,
             font: "Arial".to_string(),
             size: 20,
             description: String::new(),
@@ -245,7 +245,7 @@ impl From<NoteFieldSchema11> for NoteField {
             config: NoteFieldConfig {
                 sticky: f.sticky,
                 rtl: f.rtl,
-                input: f.input,
+                plain_text: f.plain_text,
                 font_name: f.font,
                 font_size: f.size as u32,
                 description: f.description,
@@ -267,7 +267,7 @@ impl From<NoteField> for NoteFieldSchema11 {
             ord: p.ord.map(|o| o as u16),
             sticky: conf.sticky,
             rtl: conf.rtl,
-            input: conf.input,
+            plain_text: conf.plain_text,
             font: conf.font_name,
             size: conf.font_size as u16,
             description: conf.description,
