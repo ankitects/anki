@@ -128,28 +128,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         errorMessage = activeImage!.title;
     }
 
-    async function getResizeStore() {
-        const container = await element;
-        return resizeStore(container);
-    }
-
-    const onImageResizePromise = getResizeStore();
-
-    let cleanup = noop;
     function handleImageResizing(
         activeImage: HTMLImageElement,
         onImageResize: ResizeStore,
         callback: Callback,
     ): Callback {
         return singleCallback(
-            on(activeImage, "resize", callback),
             subscribeToUpdates(onImageResize, callback),
+            on(activeImage, "resize", callback),
         );
     }
 
+    async function getResizeStore() {
+        const container = await element;
+        return resizeStore(container);
+    }
+
+    const onImageResizePromise = getResizeStore();
+    let cleanup = noop;
+
     async function updateImageResizing(image: HTMLImageElement | null) {
         const onImageResize = await onImageResizePromise;
-        cleanup();
+
+        cleanup?.();
+        cleanup = null;
 
         if (image) {
             cleanup = handleImageResizing(image, onImageResize, updateErrorMessage);
@@ -182,7 +184,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         />
     </WithFloating>
 
-    <!-- TODO -->
+    <!-- TODO
     {#await Promise.all([element, onImageResizePromise]) then [container, onImageResize]}
         <HandleSelection
             image={activeImage}
@@ -193,5 +195,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <HandleControl offsetX={1} offsetY={1} />
         </HandleSelection>
     {/await}
+    -->
 {/if}
 
