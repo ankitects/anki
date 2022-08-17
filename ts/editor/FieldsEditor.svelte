@@ -11,8 +11,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         position: relative;
         display: flex;
         flex-direction: column;
-        gap: 5px;
         flex-grow: 1;
         overflow-x: hidden;
+
+        /* replace with "grid-gap: 5px" as soon as it's available */
+        > :global(*) {
+            margin: 5px 0;
+        }
     }
 </style>
