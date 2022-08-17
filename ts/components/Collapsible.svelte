@@ -65,7 +65,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
     }
 
-    $: transition(collapsed);
+    /* prevent transition on mount for performance reasons */
+    let blockTransition = true;
+
+    $: {
+        if (blockTransition) blockTransition = false;
+        else transition(collapsed);
+    }
 </script>
 
 <div {id} class="collapsible-container {className}" use:outerResolve>
