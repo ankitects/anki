@@ -1,12 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { Placement, MiddlewareData } from "@floating-ui/dom";
+import type { Placement } from "@floating-ui/dom";
 import {
     arrow,
     autoUpdate,
     computePosition,
-    hide,
     inline,
     offset,
     shift,
@@ -55,18 +54,15 @@ function position(
                     offset(args.offset),
                     shift({ padding: args.shift }),
                     arrow({ element: args.arrow, padding: 5 }),
-                    hide({ strategy: 'escaped' }),
-                    hide({ strategy: 'referenceHidden' }),
                 ],
                 placement: args.placement,
             },
         );
 
-        if (middlewareData.hide?.escaped || middlewareData.hide?.referenceHidden) {
-            destroy();
-            args.floating = null;
-            return;
-        }
+        Object.assign(args.floating.style, {
+            left: `${x}px`,
+            top: `${y}px`,
+        });
 
         let rotation: number;
         let arrowX: number | undefined;
@@ -94,11 +90,6 @@ function position(
             left: arrowX ? `${arrowX}px` : "",
             top: arrowY ? `${arrowY}px` : "",
             transform: `rotate(${rotation}deg)`,
-        });
-
-        Object.assign(args.floating.style, {
-            left: `${x}px`,
-            top: `${y}px`,
         });
     }
 
