@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flex-grow: 1;
         overflow-x: hidden;
 
-        /* replace with "grid-gap: 5px" as soon as it's available */
+        /* replace with "gap: 5px" as soon as it's available */
         > :global(*) {
             margin: 5px 0;
         }

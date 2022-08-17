@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         justify-content: flex;
         flex-grow: 1;
 
-        /* replace these global selectors with "grid-gap: 6px" ASAP */
+        /* replace with "gap: 6px" as soon as possible */
         > :global(*) {
             margin: 0 3px;
 
