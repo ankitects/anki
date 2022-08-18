@@ -20,6 +20,10 @@ function trimBreaks(text: string): string {
         .replace(/\n*$/, "");
 }
 
+export const mathjaxConfig = {
+    enabled: true,
+};
+
 export const Mathjax: DecoratedElementConstructor = class Mathjax
     extends HTMLElement
     implements DecoratedElement
@@ -41,6 +45,9 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
     }
 
     static toUndecorated(stored: string): string {
+        if (!mathjaxConfig.enabled) {
+            return stored;
+        }
         return stored
             .replace(mathjaxBlockDelimiterPattern, (_match: string, text: string) => {
                 const trimmed = trimBreaks(text);

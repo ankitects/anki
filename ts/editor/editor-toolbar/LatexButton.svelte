@@ -8,6 +8,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Popover from "../../components/Popover.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
+    import { mathjaxConfig } from "../../editable/mathjax-element";
+    import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { wrapInternal } from "../../lib/wrap";
@@ -49,6 +51,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         surround("[$$]", "[/$$]");
     }
 
+    function toggleShowMathjax(): void {
+        mathjaxConfig.enabled = !mathjaxConfig.enabled;
+        bridgeCommand("toggleMathjax");
+    }
+
     type LatexItem = [() => void, string, string];
 
     const dropdownItems: LatexItem[] = [
@@ -86,6 +93,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </DropdownItem>
             <Shortcut {keyCombination} on:action={callback} />
         {/each}
+        <DropdownItem on:click={toggleShowMathjax}>
+            <span>{tr.editingToggleMathjaxRendering()}</span>
+        </DropdownItem>
     </Popover>
 </WithFloating>
 
