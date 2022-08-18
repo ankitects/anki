@@ -501,6 +501,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         ]
 
         flds = self.note.note_type()["flds"]
+        plain_texts = [fld.get("plainText", False) for fld in flds]
         descriptions = [fld.get("description", "") for fld in flds]
 
         self.widget.show()
@@ -521,8 +522,19 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         text_color = self.mw.pm.profile.get("lastTextColor", "#00f")
         highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#00f")
 
-        js = "setFields({}); setDescriptions({}); setFonts({}); focusField({}); setNoteId({}); setColorButtons({}); setTags({}); setMathjaxEnabled({});".format(
+        js = """
+            setFields({});
+            setPlainTexts({});
+            setDescriptions({});
+            setFonts({});
+            focusField({});
+            setNoteId({});
+            setColorButtons({});
+            setTags({});
+            setMathjaxEnabled({});            
+            """.format(
             json.dumps(data),
+            json.dumps(plain_texts),
             json.dumps(descriptions),
             json.dumps(self.fonts()),
             json.dumps(focusTo),

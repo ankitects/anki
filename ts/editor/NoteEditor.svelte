@@ -109,6 +109,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fieldNames = newFieldNames;
     }
 
+    let plainTexts: boolean[] = [];
+    let richTextsHidden: boolean[] = [];
+    let plainTextsHidden: boolean[] = [];
+
+    export function setPlainTexts(fs: boolean[]): void {
+        richTextsHidden = plainTexts = fs;
+        plainTextsHidden = Array.from(fs, (v) => !v);
+    }
+
     function setMathjaxEnabled(enabled: boolean): void {
         mathjaxConfig.enabled = enabled;
     }
@@ -119,15 +128,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let fonts: [string, number, boolean][] = [];
-    let richTextsHidden: boolean[] = [];
-    let plainTextsHidden: boolean[] = [];
     const fields = clearableArray<EditorFieldAPI>();
 
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
-
-        richTextsHidden = fonts.map((_, index) => richTextsHidden[index] ?? false);
-        plainTextsHidden = fonts.map((_, index) => plainTextsHidden[index] ?? true);
     }
 
     export function focusField(index: number | null): void {
@@ -175,6 +179,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: fieldsData = fieldNames.map((name, index) => ({
         name,
+        plainText: plainTexts[index],
         description: fieldDescriptions[index],
         fontFamily: quoteFontFamily(fonts[index][0]),
         fontSize: fonts[index][1],
@@ -244,6 +249,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         Object.assign(globalThis, {
             setFields,
+            setPlainTexts,
             setDescriptions,
             setFonts,
             focusField,
