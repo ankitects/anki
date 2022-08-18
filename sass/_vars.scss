@@ -22,11 +22,11 @@ $vars: (
             dark: get($color, gray, 0),
         ),
         window-bg: (
-            light: get($color, gray, 1),
+            light: get($color, gray, 0),
             dark: get($color, gray, 6),
         ),
         frame-bg: (
-            light: get($color, gray, 0),
+            light: white,
             dark: get($color, gray, 7),
         ),
         border: (
