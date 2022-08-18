@@ -33,9 +33,6 @@ copy_mdi_icons(
         # tags
         "tag-outline.svg",
         "tag-off-outline.svg",
-
-        # QComboBox arrow
-        "chevron-down.svg",
     ],
 )
 
