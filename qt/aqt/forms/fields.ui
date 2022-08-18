@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>586</width>
-    <height>376</height>
+    <width>598</width>
+    <height>378</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -84,13 +84,6 @@
    </item>
    <item>
     <layout class="QGridLayout" name="_2">
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_font">
-       <property name="text">
-        <string>fields_editing_font</string>
-       </property>
-      </widget>
-     </item>
      <item row="3" column="1">
       <widget class="QCheckBox" name="rtl">
        <property name="text">
@@ -98,13 +91,27 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="QSpinBox" name="fontSize">
-       <property name="minimum">
-        <number>5</number>
+     <item row="1" column="1">
+      <widget class="QFontComboBox" name="fontFamily">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
        </property>
-       <property name="maximum">
-        <number>300</number>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_font">
+       <property name="text">
+        <string>fields_editing_font</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="QLineEdit" name="fieldDescription">
+       <property name="placeholderText">
+        <string>fields_description_placeholder</string>
        </property>
       </widget>
      </item>
@@ -112,13 +119,6 @@
       <widget class="QLabel" name="label_sort">
        <property name="text">
         <string>actions_options</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QRadioButton" name="sortField">
-       <property name="text">
-        <string>fields_sort_by_this_field_in_the</string>
        </property>
       </widget>
      </item>
@@ -135,20 +135,30 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QFontComboBox" name="fontFamily">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>25</height>
-        </size>
+     <item row="1" column="2">
+      <widget class="QSpinBox" name="fontSize">
+       <property name="minimum">
+        <number>5</number>
+       </property>
+       <property name="maximum">
+        <number>300</number>
        </property>
       </widget>
      </item>
-     <item row="0" column="1" colspan="2">
-      <widget class="QLineEdit" name="fieldDescription">
-       <property name="placeholderText">
-        <string>fields_description_placeholder</string>
+     <item row="2" column="1">
+      <widget class="QRadioButton" name="sortField">
+       <property name="text">
+        <string>fields_sort_by_this_field_in_the</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QCheckBox" name="plainTextByDefault">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>fields_html_by_default</string>
        </property>
       </widget>
      </item>
