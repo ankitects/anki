@@ -58,7 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         inner.addEventListener(
             "transitionend",
             () => {
-                if (collapse) inner.setAttribute("hidden", "");
+                inner.toggleAttribute("hidden", collapse);
                 outer.style.removeProperty("overflow");
             },
             { once: true },
@@ -68,9 +68,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /* prevent transition on mount for performance reasons */
     let blockTransition = true;
 
-    $: {
-        if (blockTransition) blockTransition = false;
-        else transition(collapsed);
+    $: if (blockTransition) {
+        blockTransition = false;
+    } else {
+        transition(collapsed);
     }
 </script>
 
