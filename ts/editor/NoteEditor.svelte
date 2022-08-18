@@ -113,22 +113,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fieldNames = newFieldNames;
     }
 
+    let plainTexts: boolean[] = [];
+    let richTextsHidden: boolean[] = [];
+    let plainTextsHidden: boolean[] = [];
+
+    export function setPlainTexts(fs: boolean[]): void {
+        richTextsHidden = plainTexts = fs;
+        plainTextsHidden = Array.from(fs, (v) => !v);
+    }
+
+    function setMathjaxEnabled(enabled: boolean): void {
+        mathjaxConfig.enabled = enabled;
+    }
+
     let fieldDescriptions: string[] = [];
     export function setDescriptions(fs: string[]): void {
         fieldDescriptions = fs;
     }
 
     let fonts: [string, number, boolean][] = [];
-    let richTextsHidden: boolean[] = [];
-    let plainTextsHidden: boolean[] = [];
     let fieldsCollapsed: boolean[] = [];
+
     const fields = clearableArray<EditorFieldAPI>();
 
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
-
-        richTextsHidden = fonts.map((_, index) => richTextsHidden[index] ?? false);
-        plainTextsHidden = fonts.map((_, index) => plainTextsHidden[index] ?? true);
         fieldsCollapsed = fonts.map((_, index) => fieldsCollapsed[index] ?? false);
     }
 
@@ -177,6 +186,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: fieldsData = fieldNames.map((name, index) => ({
         name,
+        plainText: plainTexts[index],
         description: fieldDescriptions[index],
         fontFamily: quoteFontFamily(fonts[index][0]),
         fontSize: fonts[index][1],
@@ -229,6 +239,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const toolbar: Partial<EditorToolbarAPI> = {};
 
+    import { mathjaxConfig } from "../editable/mathjax-element";
     import { wrapInternal } from "../lib/wrap";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
@@ -245,6 +256,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         Object.assign(globalThis, {
             setFields,
+            setPlainTexts,
             setDescriptions,
             setFonts,
             focusField,
@@ -256,6 +268,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             getNoteId,
             setNoteId,
             wrap,
+            setMathjaxEnabled,
             ...oldEditorAdapter,
         });
 
