@@ -125,6 +125,7 @@ class Editor:
         self.card: Card | None = None
         self._init_links()
         self.setupOuter()
+        self.add_webview()
         self.setupWeb()
         self.setupShortcuts()
         gui_hooks.editor_did_init(self)
@@ -139,11 +140,12 @@ class Editor:
         self.widget.setLayout(l)
         self.outerLayout = l
 
-    def setupWeb(self) -> None:
+    def add_webview(self) -> None:
         self.web = EditorWebView(self.widget, self)
         self.web.set_bridge_command(self.onBridgeCmd, self)
         self.outerLayout.addWidget(self.web, 1)
 
+    def setupWeb(self) -> None:
         if self.editorMode == EditorMode.ADD_CARDS:
             file = "note_creator"
         elif self.editorMode == EditorMode.BROWSER:
@@ -1135,6 +1137,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.mw.col.set_config(
             "renderMathjax", not self.mw.col.get_config("renderMathjax", False)
         )
+        # hackily redraw the page
+        self.setupWeb()
+        self.loadNoteKeepingFocus()
 
     # Links from HTML
     ######################################################################
