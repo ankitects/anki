@@ -125,6 +125,7 @@ class Editor:
         self.card: Card | None = None
         self._init_links()
         self.setupOuter()
+        self.add_webview()
         self.setupWeb()
         self.setupShortcuts()
         gui_hooks.editor_did_init(self)
@@ -139,11 +140,12 @@ class Editor:
         self.widget.setLayout(l)
         self.outerLayout = l
 
-    def setupWeb(self) -> None:
+    def add_webview(self) -> None:
         self.web = EditorWebView(self.widget, self)
         self.web.set_bridge_command(self.onBridgeCmd, self)
         self.outerLayout.addWidget(self.web, 1)
 
+    def setupWeb(self) -> None:
         if self.editorMode == EditorMode.ADD_CARDS:
             file = "note_creator"
         elif self.editorMode == EditorMode.BROWSER:
@@ -519,7 +521,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         text_color = self.mw.pm.profile.get("lastTextColor", "#00f")
         highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#00f")
 
-        js = "setFields({}); setDescriptions({}); setFonts({}); focusField({}); setNoteId({}); setColorButtons({}); setTags({}); ".format(
+        js = "setFields({}); setDescriptions({}); setFonts({}); focusField({}); setNoteId({}); setColorButtons({}); setTags({}); setMathjaxEnabled({});".format(
             json.dumps(data),
             json.dumps(descriptions),
             json.dumps(self.fonts()),
@@ -527,6 +529,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             json.dumps(self.note.id),
             json.dumps([text_color, highlight_color]),
             json.dumps(self.note.tags),
+            json.dumps(self.mw.col.get_config("renderMathjax", True)),
         )
 
         if self.addMode:
@@ -1130,6 +1133,14 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def insertMathjaxChemistry(self) -> None:
         self.web.eval("wrap('\\\\(\\\\ce{', '}\\\\)');")
 
+    def toggleMathjax(self) -> None:
+        self.mw.col.set_config(
+            "renderMathjax", not self.mw.col.get_config("renderMathjax", False)
+        )
+        # hackily redraw the page
+        self.setupWeb()
+        self.loadNoteKeepingFocus()
+
     # Links from HTML
     ######################################################################
 
@@ -1156,6 +1167,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             mathjaxInline=Editor.insertMathjaxInline,
             mathjaxBlock=Editor.insertMathjaxBlock,
             mathjaxChemistry=Editor.insertMathjaxChemistry,
+            toggleMathjax=Editor.toggleMathjax,
         )
 
 
