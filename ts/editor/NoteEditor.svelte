@@ -118,6 +118,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         plainTextsHidden = Array.from(fs, (v) => !v);
     }
 
+    function setMathjaxEnabled(enabled: boolean): void {
+        mathjaxConfig.enabled = enabled;
+    }
+
     let fieldDescriptions: string[] = [];
     export function setDescriptions(fs: string[]): void {
         fieldDescriptions = fs;
@@ -228,6 +232,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const toolbar: Partial<EditorToolbarAPI> = {};
 
+    import { mathjaxConfig } from "../editable/mathjax-element";
     import { wrapInternal } from "../lib/wrap";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
@@ -256,6 +261,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             getNoteId,
             setNoteId,
             wrap,
+            setMathjaxEnabled,
             ...oldEditorAdapter,
         });
 
