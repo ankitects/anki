@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import type { Writable } from "svelte/store";
 import type {
     ComputePositionConfig,
     FloatingElement,
@@ -11,6 +12,7 @@ import {
     arrow,
     autoPlacement,
     computePosition,
+    hide,
     inline,
     offset,
     shift,
@@ -26,6 +28,9 @@ export interface PositionFloatingArgs {
     arrow: HTMLElement;
     shift: number,
     offset: number,
+    hideIfEscaped: boolean,
+    hideIfReferenceHidden: boolean,
+    show: Writable<boolean>,
 }
 
 function positionFloating({
@@ -33,6 +38,9 @@ function positionFloating({
     arrow: arrowElement,
     shift: shiftArg,
     offset: offsetArg,
+    hideIfEscaped,
+    hideIfReferenceHidden,
+    show,
 }: PositionFloatingArgs): PositionAlgorithm {
     return async function(reference: HTMLElement, floating: FloatingElement): Promise<void> {
         const middleware: Middleware[] = [
@@ -52,11 +60,24 @@ function positionFloating({
             middleware.push(autoPlacement())
         }
 
+        if (hideIfEscaped) {
+            middleware.push(hide({ strategy: 'escaped' }));
+        }
+
+        if (hideIfReferenceHidden) {
+            middleware.push(hide({ strategy: 'referenceHidden' }));
+        }
+
+        console.log('abc', reference, floating, computeArgs)
         const { x, y, middlewareData, placement: computedPlacement } = await computePosition(
             reference,
             floating,
             computeArgs
         );
+
+        if (middlewareData.hide?.escaped || middlewareData.hide?.referenceHidden) {
+            show.set(false);
+        }
 
         Object.assign(floating.style, {
             left: `${x}px`,

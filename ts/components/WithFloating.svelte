@@ -8,11 +8,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         Placement,
         ReferenceElement,
     } from "@floating-ui/dom";
-    import { writable } from "svelte/store";
     import type { ActionReturn } from "svelte/action";
-
-    import { singleCallback } from "../lib/typing";
+    import { writable } from "svelte/store";
+    
     import type { Callback } from "../lib/typing"
+    import { singleCallback } from "../lib/typing";
     import isClosingClick from "../sveltelib/closing-click";
     import isClosingKeyup from "../sveltelib/closing-keyup";
     import { documentClick, documentKeyup } from "../sveltelib/event-store";
@@ -27,6 +27,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let placement: Placement | "auto" = "bottom";
     export let offset = 5;
     export let shift = 5;
+    export let hideIfEscaped = false;
+    export let hideIfReferenceHidden = false;
+
+    /** This may be passed in for more fine-grained control */
+    export let show = writable(true);
 
     let arrow: HTMLElement;
 
@@ -35,6 +40,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         offset,
         shift,
         arrow,
+        hideIfEscaped,
+        hideIfReferenceHidden,
+        show,
     });
 
     let actionReturn: ActionReturn = {};
@@ -46,9 +54,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let closeOnInsideClick = false;
     export let keepOnKeyup = false;
-
-    /** This may be passed in for more fine-grained control */
-    export let show = writable(true);
 
     export let reference: HTMLElement | undefined = undefined;
     let floating: FloatingElement;
@@ -64,14 +69,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function positioningCallback(reference: HTMLElement, callback: PositioningCallback): Callback {
-        return callback(reference, floating, () => positionCurried(reference, floating))
+        const innerFloating = floating;
+        return callback(reference, innerFloating, () => positionCurried(reference, innerFloating))
     }
 
-    let cleanup: Callback;
+    let cleanup: Callback = () => {};
 
-    $: if (reference && floating) {
-        cleanup?.();
+    function updateFloating(
+        reference: HTMLElement | undefined,
+        floating: FloatingElement,
+        isShowing: boolean
+    ) {
+        cleanup();
 
+        console.log('before updateFloating', cleanup)
+        if (!reference || !floating || !isShowing) {
+            return;
+        }
+
+        console.log('updateFloating')
         const triggers = [
             isClosingClick(documentClick, {
                 reference,
@@ -96,6 +112,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             actionReturn.destroy!,
         );
     }
+
+    $: updateFloating(reference, floating, $show);
 </script>
 
 {#if floating && arrow}
