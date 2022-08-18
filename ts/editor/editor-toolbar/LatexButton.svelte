@@ -101,7 +101,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Shortcut {keyCombination} on:action={callback} />
         {/each}
         <DropdownItem on:click={toggleShowMathjax}>
-            <span>Toggle MathJax Rendering</span>
+            <span>{tr.editingToggleMathjaxRendering()}</span>
         </DropdownItem>
     </Popover>
 </WithFloating>
