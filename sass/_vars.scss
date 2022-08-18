@@ -31,11 +31,19 @@ $vars: (
         ),
         border: (
             light: get($color, gray, 3),
-            dark: get($color, gray, 5),
+            dark: get($color, gray, 8),
         ),
         faint-border: (
             light: get($color, gray, 2),
-            dark: get($color, gray, 8),
+            dark: get($color, gray, 7),
+        ),
+        slightly-grey-text: (
+            light: get($color, gray, 7),
+            dark: get($color, gray, 4),
+        ),
+        disabled: (
+            light: get($color, gray, 5),
+            dark: get($color, gray, 6),
         ),
         link: (
             light: get($color, blue, 9),
@@ -57,10 +65,6 @@ $vars: (
             light: get($color, gray, 2),
             dark: get($color, gray, 7),
         ),
-        slightly-grey-text: (
-            light: get($color, gray, 7),
-            dark: get($color, gray, 4),
-        ),
         highlight-bg: (
             light: get($color, cyan, 2),
             dark: get($color, cyan, 2),
@@ -68,10 +72,6 @@ $vars: (
         highlight-fg: (
             light: black,
             dark: white,
-        ),
-        disabled: (
-            light: get($color, gray, 5),
-            dark: get($color, gray, 6),
         ),
         card-view-bg: (
             light: get($color, blue, 5),
