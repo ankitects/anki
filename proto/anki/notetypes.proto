@@ -72,6 +72,7 @@ message Notetype {
       string font_name = 3;
       uint32 font_size = 4;
       string description = 5;
+      bool plain_text = 6;
 
       bytes other = 255;
     }
