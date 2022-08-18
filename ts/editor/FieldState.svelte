@@ -12,7 +12,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         justify-content: flex;
         flex-grow: 1;
 
-        /* replace with "gap: 6px" as soon as possible */
+        /* replace with "gap: 5px" once it's available
+           - required: Chromium 84 (Qt6 only) and iOS 14.1 */
         > :global(*) {
             margin: 0 3px;
 
