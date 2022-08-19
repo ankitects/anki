@@ -38,6 +38,7 @@
     --tooltip-bg: #fcfcfc;
     --focus-border: #0969da;
     --focus-shadow: rgba(9 105 218 / 0.3);
+    --code-bg: white;
 }
 
 :root[class*="night-mode"] {
@@ -77,5 +78,6 @@
     --tooltip-bg: #272727;
     --focus-border: #316dca;
     --focus-shadow: #194380;
+    --code-bg: #272822;
     color-scheme: dark;
 }
