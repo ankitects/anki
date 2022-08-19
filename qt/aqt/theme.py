@@ -187,6 +187,126 @@ class ThemeManager:
 
     def _apply_style(self, app: QApplication) -> None:
         buf = ""
+        if not is_mac:
+            buf += f"""
+QComboBox,
+QLineEdit {{
+    border: 1px solid {self.color(colors.BORDER)};
+    border-radius: 5px;
+    padding: 2px;
+}}
+QComboBox:focus,
+QLineEdit:focus {{
+    border: 1px solid {self.color(colors.FOCUS_BORDER)};
+}}
+QComboBox:on {{
+    border-bottom: none;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}}
+QComboBox::drop-down {{
+    border: 0px; /* This resets the arrow styles */
+    subcontrol-origin: padding;
+    padding: 4px;
+    subcontrol-position: top right;
+    width: 18px;
+}}
+QComboBox::down-arrow {{
+    image: url(icons:chevron-down.svg);
+}}
+QPushButton {{
+    padding: 2px;
+    border-radius: 5px;
+    border: 1px solid #cfcbcb;
+    background: #fff;
+}}
+QPushButton:hover {{
+    background: #f9f8f8;
+    border-color: #afabac;
+}}
+QToolTip {{
+    border-radius: 5px;
+    border: 1px solid {self.color(colors.BORDER)};
+}}
+QFrame {{
+    border: none;
+    background: none;
+}}
+QLabel {{
+    background: transparent;
+    border-color: transparent;
+}}
+QToolTip {{
+    background: {self.color(colors.TOOLTIP_BG)};
+}}
+QTabWidget {{
+  border-radius: 5px;
+  background: none;
+  border: none;
+}}
+
+QTabWidget::pane {{
+  border: 1px solid {self.color(colors.BORDER)};
+  border-top-left-radius: 0px;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  background: {self.color(colors.FRAME_BG)};
+}}
+
+QTabBar::tab {{
+  background: none;
+  border: 1px solid {self.color(colors.BORDER)};
+  border-radius: 0px;
+  padding: 5px 10px;
+  margin-bottom: 0px;
+}}
+QTabBar::tab:selected {{
+  background: {self.color(colors.FRAME_BG)};
+  margin-bottom: -1px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px; 
+}}
+
+
+QTabWidget::tab-bar {{
+    top: 1px;
+}}
+
+
+QTabBar::tab:!selected:hover {{
+    background: {self.color(colors.FRAME_BG)};
+}}
+
+QTabBar::tab:!selected {{
+    margin-top: 5px;
+    background: {self.color(colors.WINDOW_BG)};
+}}
+
+
+QTabBar::tab {{
+    min-width: 8ex;
+    margin-right: -1px;
+    padding: 5px 10px 5px 10px;
+}}
+
+QTabBar::tab:selected {{
+    border-bottom-color: none;
+}}
+
+QTabBar::tab:bottom:selected {{
+    border-top-color: none;
+}}
+
+QTabBar::tab:first,
+QTabBar::tab:only-one {{
+    border-top-left-radius: 5px;
+}}
+QTabBar::tab:last,
+QTabBar::tab:only-one {{
+    border-top-right-radius: 5px;
+}}
+     """
 
         if is_win and platform.release() == "10":
             # day mode is missing a bottom border; background must be
