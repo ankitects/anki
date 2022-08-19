@@ -10,11 +10,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../lib/ftl";
     import { getPlatformString, registerShortcut } from "../lib/shortcuts";
     import { context as editorFieldContext } from "./EditorField.svelte";
-    import { stickyOff, stickyOn } from "./icons";
+    import { stickyIcon } from "./icons";
 
     export let active: boolean;
-
-    $: icon = active ? stickyOn : stickyOff;
+    export let visible: boolean;
 
     const editorField = editorFieldContext.get();
     const keyCombination = "F9";
@@ -34,23 +33,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => editorField.element.then(shortcut));
 </script>
 
-<span class:highlighted={active} on:click|stopPropagation={toggle}>
+<span class:highlighted={active} class:visible on:click|stopPropagation={toggle}>
     <Badge
         tooltip="{tr.editingToggleSticky()} ({getPlatformString(keyCombination)})"
-        widthMultiplier={0.7}
-        --icon-align="text-top">{@html icon}</Badge
+        widthMultiplier={0.7}>{@html stickyIcon}</Badge
     >
 </span>
 
 <style lang="scss">
     span {
-        opacity: 0.4;
-
+        cursor: pointer;
+        opacity: 0;
+        &.visible {
+            transition: none;
+            opacity: 0.4;
+            &:hover {
+                opacity: 0.8;
+            }
+        }
         &.highlighted {
             opacity: 1;
-        }
-        &:hover {
-            opacity: 0.8;
         }
     }
 </style>

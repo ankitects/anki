@@ -3,38 +3,54 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { getContext } from "svelte";
-    import type { Readable } from "svelte/store";
+    import { createEventDispatcher } from "svelte";
 
-    import { directionKey } from "../lib/context-keys";
+    import * as tr from "../lib/ftl";
+    import CollapseBadge from "./CollapseBadge.svelte";
 
-    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
+    export let collapsed: boolean;
+    let hovered = false;
+
+    $: tooltip = collapsed ? tr.editingExpandField() : tr.editingCollapseField();
+
+    const dispatch = createEventDispatcher();
+
+    function toggle() {
+        dispatch("toggle");
+    }
 </script>
 
-<div
-    class="label-container"
-    class:rtl={$direction === "rtl"}
-    on:mousedown|preventDefault
->
+<div class="label-container" on:mousedown|preventDefault>
+    <span
+        class="clickable"
+        title={tooltip}
+        on:click|stopPropagation={toggle}
+        on:mouseenter={() => (hovered = true)}
+        on:mouseleave={() => (hovered = false)}
+    >
+        <CollapseBadge {collapsed} highlighted={hovered} />
+        <slot name="field-name" />
+    </span>
     <slot />
 </div>
 
 <style lang="scss">
     .label-container {
         display: flex;
+        position: sticky;
         justify-content: space-between;
+        top: 0;
+        padding-bottom: 1px;
 
-        background-color: var(--label-color, transparent);
+        /* slightly wider than EditingArea
+           to cover field borders on scroll */
+        left: -1px;
+        right: -1px;
+        z-index: 3;
+        background: var(--label-color);
 
-        border-width: 0 0 1px;
-        border-style: dashed;
-        border-color: var(--border-color);
-        border-radius: 5px 5px 0 0;
-
-        padding: 0px 6px;
-    }
-
-    .rtl {
-        direction: rtl;
+        .clickable {
+            cursor: pointer;
+        }
     }
 </style>

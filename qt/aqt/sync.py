@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import enum
 import os
 from concurrent.futures import Future
 from typing import Callable
@@ -27,19 +26,13 @@ from aqt.qt import (
     qconnect,
 )
 from aqt.utils import (
+    ask_user_dialog,
     askUser,
-    askUserDialog,
     disable_help_button,
     showText,
     showWarning,
     tr,
 )
-
-
-class FullSyncChoice(enum.Enum):
-    CANCEL = 0
-    UPLOAD = 1
-    DOWNLOAD = 2
 
 
 def get_sync_status(
@@ -135,13 +128,26 @@ def full_sync(
     elif out.required == out.FULL_UPLOAD:
         full_upload(mw, on_done)
     else:
-        choice = ask_user_to_decide_direction()
-        if choice == FullSyncChoice.UPLOAD:
-            full_upload(mw, on_done)
-        elif choice == FullSyncChoice.DOWNLOAD:
-            full_download(mw, on_done)
-        else:
-            on_done()
+        button_labels: list[str] = [
+            tr.sync_upload_to_ankiweb(),
+            tr.sync_download_from_ankiweb(),
+            tr.sync_cancel_button(),
+        ]
+
+        def callback(choice: int) -> None:
+            if choice == 0:
+                full_upload(mw, on_done)
+            elif choice == 1:
+                full_download(mw, on_done)
+            else:
+                on_done()
+
+        ask_user_dialog(
+            tr.sync_conflict_explanation(),
+            callback=callback,
+            buttons=button_labels,
+            default_button=2,
+        )
 
 
 def confirm_full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
@@ -275,23 +281,6 @@ def sync_login(
         lambda: mw.col.sync_login(username=username, password=password),
         on_future_done,
     )
-
-
-def ask_user_to_decide_direction() -> FullSyncChoice:
-    button_labels = [
-        tr.sync_upload_to_ankiweb(),
-        tr.sync_download_from_ankiweb(),
-        tr.sync_cancel_button(),
-    ]
-    diag = askUserDialog(tr.sync_conflict_explanation(), button_labels)
-    diag.setDefault(2)
-    ret = diag.run()
-    if ret == button_labels[0]:
-        return FullSyncChoice.UPLOAD
-    elif ret == button_labels[1]:
-        return FullSyncChoice.DOWNLOAD
-    else:
-        return FullSyncChoice.CANCEL
 
 
 def get_id_and_pass_from_user(
