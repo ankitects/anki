@@ -214,7 +214,7 @@ pub struct NoteFieldSchema11 {
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) description: String,
 
-    #[serde(deserialize_with = "deserialize_bool_from_anything")]
+    #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) collapsed: bool,
 
     #[serde(flatten)]
