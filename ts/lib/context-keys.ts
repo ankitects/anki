@@ -5,3 +5,4 @@ export const fontFamilyKey = Symbol("fontFamily");
 export const fontSizeKey = Symbol("fontSize");
 export const directionKey = Symbol("direction");
 export const descriptionKey = Symbol("description");
+export const collapsedKey = Symbol("collapsed");
