@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { PositionAlgorithm } from "../sveltelib/position/position-algorithm";
     import positionFloating from "../sveltelib/position/position-floating";
     import subscribeTrigger from "../sveltelib/subscribe-trigger";
-    import { pageTheme } from "../sveltelib/theme";
+    import FloatingArrow from "./FloatingArrow.svelte"
 
     export let placement: Placement | "auto" = "bottom";
     export let offset = 5;
@@ -120,9 +120,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div bind:this={floating} class="floating" use:portal>
     {#if $show}
         <slot name="floating" />
+
     {/if}
 
-    <div bind:this={arrow} hidden={!$show} class="arrow" class:dark={$pageTheme.isDark} />
+    <div bind:this={arrow} class="floating-arrow" hidden={!$show}>
+        <FloatingArrow />
+    </div>
 </div>
 
 <style lang="scss">
@@ -134,31 +137,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         z-index: 90;
         @include elevation.elevation(8);
-    }
 
-    .arrow {
-        position: absolute;
-        background-color: var(--frame-bg);
-        width: 10px;
-        height: 10px;
-        z-index: 60;
-
-        /* outer border */
-        border: 1px solid #b6b6b6;
-
-        &.dark {
-            border-color: #060606;
-        }
-
-        /* Rotate the box to indicate the different directions */
-        border-right: none;
-        border-bottom: none;
-
-        /* inner border */
-        box-shadow: inset 1px 1px 0 0 #eeeeee;
-
-        &.dark {
-            box-shadow: inset 1px 1px 0 0 #565656;
+        &-arrow {
+            position: absolute;
         }
     }
 </style>
