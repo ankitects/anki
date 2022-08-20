@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { noop } from "../../lib/functional";
     import { getPlatformString } from "../../lib/shortcuts";
+    import { pageTheme } from "../../sveltelib/theme";
     import { baseOptions, focusAndSetCaret, latex } from "../code-mirror";
     import type { CodeMirrorAPI } from "../CodeMirror.svelte";
     import CodeMirror from "../CodeMirror.svelte";
@@ -89,7 +90,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<div class="mathjax-editor">
+<div class="mathjax-editor" class:light-theme={!$pageTheme.isDark}>
     <CodeMirror
         {code}
         {configuration}
@@ -110,6 +111,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             max-width: 28rem;
             min-width: 14rem;
             margin-bottom: 0.25rem;
+        }
+
+        &.light-theme :global(.CodeMirror) {
+            border-width: 1px 0;
+            border-style: solid;
+            border-color: var(--border);
         }
 
         :global(.CodeMirror-placeholder) {

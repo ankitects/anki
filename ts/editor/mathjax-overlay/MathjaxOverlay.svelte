@@ -7,17 +7,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount, tick } from "svelte";
     import { writable } from "svelte/store";
 
+    import Popover from "../../components/Popover.svelte";
+    import Shortcut from "../../components/Shortcut.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
     import WithOverlay from "../../components/WithOverlay.svelte";
+    import { placeCaretAfter } from "../../domlib/place-caret";
     import { escapeSomeEntities, unescapeSomeEntities } from "../../editable/mathjax";
     import { Mathjax } from "../../editable/mathjax-element";
+    import { hasBlockAttribute } from "../../lib/dom";
     import { on } from "../../lib/events";
     import { noop } from "../../lib/functional";
     import type { Callback } from "../../lib/typing";
     import { singleCallback } from "../../lib/typing";
     import HandleBackground from "../HandleBackground.svelte";
     import { context } from "../rich-text-input";
-    import MathjaxMenu from "./MathjaxMenu.svelte";
+    import MathjaxButtons from "./MathjaxButtons.svelte";
+    import MathjaxEditor from "./MathjaxEditor.svelte";
 
     const { editable, element, preventResubscription } = context.get();
 
@@ -137,6 +142,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on(container, "selectall" as any, showSelectAll),
         );
     });
+
+    let isBlock: boolean;
+    $: isBlock = activeImage ? hasBlockAttribute(activeImage) : false;
+
+    async function updateBlockAttribute(): Promise<void> {
+        activeImage.setAttribute("block", String(isBlock));
+
+        // We assume that by the end of this tick, the image will have
+        // adjusted its styling to either block or inline
+        await tick();
+    }
+
+    const acceptShortcut = "Enter";
+    const newlineShortcut = "Shift+Enter";
 </script>
 
 
@@ -145,7 +164,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reference={activeImage}
         padding={8}
         keepOnKeyup
-        let:position={doPositionOverlay}
+        let:position={positionOverlay}
     >
         <WithFloating
             reference={activeImage}
@@ -153,28 +172,62 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             offset={20}
             keepOnKeyup
             hideIfEscaped
-            let:position={doPositionFloating}
+            let:position={positionFloating}
         >
-            <MathjaxMenu
-                slot="floating"
-                element={mathjaxElement}
-                {code}
-                {selectAll}
-                {position}
-                on:reset={resetHandle}
-                on:resize={() => {
-                    doPositionFloating((reference, floating, position) => position(reference, floating));
-                    doPositionOverlay((reference, floating, position) => position(reference, floating));
-                }}
-                on:moveoutstart={() => {
-                    placeHandle(false);
-                    resetHandle();
-                }}
-                on:moveoutend={() => {
-                    placeHandle(true);
-                    resetHandle();
-                }}
-            />
+            <Popover slot="floating">
+                <MathjaxEditor
+                    {acceptShortcut}
+                    {newlineShortcut}
+                    {code}
+                    {selectAll}
+                    {position}
+                    on:blur={resetHandle}
+                    on:moveoutstart={() => {
+                        placeHandle(false);
+                        resetHandle();
+                    }}
+                    on:moveoutend={() => {
+                        placeHandle(true);
+                        resetHandle();
+                    }}
+                    let:editor={mathjaxEditor}
+                >
+                    <Shortcut
+                        keyCombination={acceptShortcut}
+                        on:action={() => {
+                            placeHandle(true);
+                            resetHandle();
+                        }}
+                    />
+
+                    <MathjaxButtons
+                        {isBlock}
+                        on:setinline={async () => {
+                            isBlock = false;
+                            await updateBlockAttribute();
+                            positionOverlay();
+                            positionFloating();
+                        }}
+                        on:setblock={async () => {
+                            isBlock = true;
+                            await updateBlockAttribute();
+                            positionOverlay();
+                            positionFloating();
+                        }}
+                        on:delete={() => {
+                            placeCaretAfter(activeImage);
+                            activeImage.remove();
+                            resetHandle();
+                        }}
+                        on:surround={async ({ detail }) => {
+                            const editor = await mathjaxEditor.editor;
+                            const { prefix, suffix } = detail;
+
+                            editor.replaceSelection(prefix + editor.getSelection() + suffix);
+                        }}
+                    />
+                </MathjaxEditor>
+            </Popover>
         </WithFloating>
 
         <svelte:fragment slot="overlay">
@@ -182,4 +235,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </svelte:fragment>
     </WithOverlay>
 {/if}
-
