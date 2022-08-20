@@ -26,7 +26,7 @@ pub struct ForeignData {
 #[serde(default)]
 pub struct ForeignNote {
     guid: String,
-    fields: Vec<String>,
+    fields: Vec<Option<String>>,
     tags: Vec<String>,
     notetype: NameOrId,
     deck: NameOrId,
@@ -82,7 +82,11 @@ impl ForeignNote {
     pub(crate) fn into_log_note(self) -> LogNote {
         LogNote {
             id: None,
-            fields: self.fields,
+            fields: self
+                .fields
+                .into_iter()
+                .map(Option::unwrap_or_default)
+                .collect(),
         }
     }
 }
