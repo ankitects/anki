@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type CodeMirrorLib from "codemirror";
-    import { onDestroy, onMount, tick } from "svelte";
+    import { onMount, tick } from "svelte";
     import { writable } from "svelte/store";
 
     import WithFloating from "../../components/WithFloating.svelte";
@@ -15,11 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { noop } from "../../lib/functional";
     import type { Callback } from "../../lib/typing";
     import { singleCallback } from "../../lib/typing";
-    import type { ResizeStore } from "../../sveltelib/resize-store"
-    import resizeStore from "../../sveltelib/resize-store"
-    import subscribeToUpdates from "../../sveltelib/subscribe-updates"
     import HandleBackground from "../HandleBackground.svelte";
-    import HandleControl from "../HandleControl.svelte";
     import { context } from "../rich-text-input";
     import MathjaxMenu from "./MathjaxMenu.svelte";
 
@@ -78,6 +74,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         allow();
     }
 
+    let errorMessage: string;
+    let cleanup: Callback | null = null;
+
+    async function updateErrorMessage(): Promise<void> {
+        errorMessage = activeImage!.title;
+    }
+
+    async function updateImageErrorCallback(image: HTMLImageElement | null) {
+        cleanup?.();
+        cleanup = null;
+
+        if (!image) {
+            return;
+        }
+
+        cleanup = on(image, "resize", updateErrorMessage);
+    }
+
+    $: updateImageErrorCallback(activeImage);
+
     async function updateHandle({ target }: Event): Promise<void> {
         await resetHandle();
 
@@ -121,26 +137,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on(container, "selectall" as any, showSelectAll),
         );
     });
-
-    let errorMessage: string;
-    let cleanup: Callback | null = null;
-
-    async function updateErrorMessage(): Promise<void> {
-        errorMessage = activeImage!.title;
-    }
-
-    async function updateImageErrorCallback(image: HTMLImageElement | null) {
-        cleanup?.();
-        cleanup = null;
-
-        if (!image) {
-            return;
-        }
-
-        cleanup = on(image, "resize", updateErrorMessage);
-    }
-
-    $: updateImageErrorCallback(activeImage);
 </script>
 
 
