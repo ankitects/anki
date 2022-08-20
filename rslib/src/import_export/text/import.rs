@@ -606,6 +606,25 @@ mod test {
     }
 
     #[test]
+    fn should_keep_old_field_content_if_no_new_one_is_supplied() {
+        let mut col = open_test_collection();
+        let mut data = ForeignData::with_defaults();
+        data.add_note(&["same", "unchanged"]);
+        data.add_note(&["same", "unchanged"]);
+        data.dupe_resolution = DupeResolution::Update;
+
+        data.clone().import(&mut col, |_, _| true).unwrap();
+        assert_eq!(col.storage.notes_table_len(), 2);
+
+        data.notes[0].fields[1] = None;
+        data.notes[1].fields.pop();
+        data.import(&mut col, |_, _| true).unwrap();
+        let notes = col.storage.get_all_notes();
+        assert_eq!(notes[0].fields(), &["same", "unchanged"]);
+        assert_eq!(notes[0].fields(), &["same", "unchanged"]);
+    }
+
+    #[test]
     fn should_recognize_normalized_duplicate_only_if_normalization_is_enabled() {
         let mut col = open_test_collection();
         col.add_new_note_with_fields("Basic", &["神", "old"]);
