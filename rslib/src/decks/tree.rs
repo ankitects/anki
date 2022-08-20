@@ -32,7 +32,10 @@ fn add_child_nodes(
 ) {
     while let Some((id, name)) = names.peek() {
         let split_name: Vec<_> = name.split("::").collect();
-        match split_name.len() as u32 {
+        // protobuf refuses to decode messages with 100+ levels of nesting, and
+        // broken collections with such nesting have been found in the wild
+        let capped_len = split_name.len().min(99) as u32;
+        match capped_len {
             l if l <= parent.level => {
                 // next item is at a higher level
                 return;

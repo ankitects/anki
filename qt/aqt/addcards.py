@@ -296,6 +296,11 @@ class AddCards(QMainWindow):
             showWarning(problem, help=HelpPage.ADDING_CARD_AND_NOTE)
             return False
 
+        optional_problems: list[str] = []
+        gui_hooks.add_cards_might_add_note(optional_problems, note)
+        if not all(askUser(op) for op in optional_problems):
+            return False
+
         return True
 
     def keyPressEvent(self, evt: QKeyEvent) -> None:

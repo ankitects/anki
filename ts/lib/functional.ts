@@ -5,6 +5,10 @@ export function noop(): void {
     /* noop */
 }
 
+export async function asyncNoop(): Promise<void> {
+    /* noop */
+}
+
 export function id<T>(t: T): T {
     return t;
 }

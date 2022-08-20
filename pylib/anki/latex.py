@@ -7,7 +7,6 @@ import html
 import os
 import re
 from dataclasses import dataclass
-from typing import Any
 
 import anki
 import anki.collection
@@ -168,7 +167,7 @@ def _save_latex_image(
         log.close()
 
 
-def _err_msg(col: anki.collection.Collection, type: str, texpath: str) -> Any:
+def _err_msg(col: anki.collection.Collection, type: str, texpath: str) -> str:
     msg = f"{col.tr.media_error_executing(val=type)}<br>"
     msg += f"{col.tr.media_generated_file(val=texpath)}<br>"
     try:

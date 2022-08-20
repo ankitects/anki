@@ -41,7 +41,14 @@ from aqt.qt import *
 from aqt.sound import av_player, play_clicked_audio, record_audio
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
-from aqt.utils import askUserDialog, downArrow, qtMenuShortcutWorkaround, tooltip, tr
+from aqt.utils import (
+    askUserDialog,
+    downArrow,
+    qtMenuShortcutWorkaround,
+    show_warning,
+    tooltip,
+    tr,
+)
 
 
 class RefreshNeeded(Enum):
@@ -136,6 +143,7 @@ class Reviewer:
     def show(self) -> None:
         if self.mw.col.sched_ver() == 1:
             self.mw.moveToState("deckBrowser")
+            show_warning(tr.scheduling_update_required())
             return
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
         self.web.set_bridge_command(self._linkHandler, self)

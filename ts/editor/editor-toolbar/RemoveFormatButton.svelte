@@ -3,84 +3,55 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Checkbox from "../../components/CheckBox.svelte";
+    import { onMount } from "svelte";
+
+    import CheckBox from "../../components/CheckBox.svelte";
     import DropdownItem from "../../components/DropdownItem.svelte";
     import DropdownMenu from "../../components/DropdownMenu.svelte";
     import { withButton } from "../../components/helpers";
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithDropdown from "../../components/WithDropdown.svelte";
-    import type { SurroundFormat } from "../../domlib/surround";
     import type { MatchType } from "../../domlib/surround";
     import * as tr from "../../lib/ftl";
-    import { altPressed } from "../../lib/keys";
+    import { altPressed, shiftPressed } from "../../lib/keys";
     import { getPlatformString } from "../../lib/shortcuts";
-    import { context as noteEditorContext } from "../NoteEditor.svelte";
-    import { editingInputIsRichText } from "../rich-text-input";
-    import { Surrounder } from "../surround";
+    import { singleCallback } from "../../lib/typing";
+    import { surrounder } from "../rich-text-input";
     import type { RemoveFormat } from "./EditorToolbar.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { eraserIcon } from "./icons";
     import { arrowIcon } from "./icons";
 
-    const { focusedInput } = noteEditorContext.get();
-    const surrounder = Surrounder.make();
-    let disabled: boolean;
-
-    $: if (editingInputIsRichText($focusedInput)) {
-        surrounder.richText = $focusedInput;
-        disabled = false;
-    } else {
-        surrounder.disable();
-        disabled = true;
-    }
-
     const { removeFormats } = editorToolbarContext.get();
 
-    removeFormats.update((formats) =>
-        formats.concat({
-            name: "simple spans",
-            show: false,
-            active: true,
-            format: {
-                matcher: (
-                    element: HTMLElement | SVGElement,
-                    match: MatchType<never>,
-                ): void => {
-                    if (
-                        element.tagName === "SPAN" &&
-                        element.className.length === 0 &&
-                        element.style.cssText.length === 0
-                    ) {
-                        match.remove();
-                    }
-                },
-                surroundElement: document.createElement("span"),
-            },
-        }),
-    );
-
-    let activeFormats: SurroundFormat<any>[];
-    $: activeFormats = $removeFormats
-        .filter((format) => format.active)
-        .map((format) => format.format);
-
-    let inactiveFormats: SurroundFormat<any>[];
-    $: inactiveFormats = $removeFormats
-        .filter((format) => !format.active)
-        .map((format) => format.format);
-
-    let showFormats: RemoveFormat<any>[];
-    $: showFormats = $removeFormats.filter((format) => format.show);
-
-    function remove(): void {
-        surrounder.remove(activeFormats, inactiveFormats);
+    function filterForKeys(formats: RemoveFormat[], value: boolean): string[] {
+        return formats
+            .filter((format) => format.active === value)
+            .map((format) => format.key);
     }
 
-    function onItemClick<T>(event: MouseEvent, format: RemoveFormat<T>): void {
+    let activeKeys: string[];
+    $: activeKeys = filterForKeys($removeFormats, true);
+
+    let inactiveKeys: string[];
+    $: inactiveKeys = filterForKeys($removeFormats, false);
+
+    let showFormats: RemoveFormat[];
+    $: showFormats = $removeFormats.filter(
+        (format: RemoveFormat): boolean => format.show,
+    );
+
+    function remove(): void {
+        surrounder.remove(activeKeys, inactiveKeys);
+    }
+
+    function onItemClick(event: MouseEvent, format: RemoveFormat): void {
         if (altPressed(event)) {
+            const value = shiftPressed(event);
+
             for (const format of showFormats) {
-                format.active = false;
+                format.active = value;
             }
         }
 
@@ -89,6 +60,47 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const keyCombination = "Control+R";
+
+    let disabled: boolean;
+
+    onMount(() => {
+        const surroundElement = document.createElement("span");
+
+        function matcher(
+            element: HTMLElement | SVGElement,
+            match: MatchType<never>,
+        ): void {
+            if (
+                element.tagName === "SPAN" &&
+                element.className.length === 0 &&
+                element.style.cssText.length === 0
+            ) {
+                match.remove();
+            }
+        }
+
+        const simpleSpans = {
+            matcher,
+            surroundElement,
+        };
+
+        const key = "simple spans";
+
+        removeFormats.update((formats: RemoveFormat[]): RemoveFormat[] => [
+            ...formats,
+            {
+                key,
+                name: key,
+                show: false,
+                active: true,
+            },
+        ]);
+
+        return singleCallback(
+            surrounder.active.subscribe((value) => (disabled = !value)),
+            surrounder.registerFormat(key, simpleSpans),
+        );
+    });
 </script>
 
 <IconButton
@@ -116,7 +128,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <DropdownMenu on:mousedown={(event) => event.preventDefault()}>
             {#each showFormats as format (format.name)}
                 <DropdownItem on:click={(event) => onItemClick(event, format)}>
-                    <Checkbox bind:value={format.active} />
+                    <CheckBox bind:value={format.active} />
                     <span class="d-flex-inline ps-3">{format.name}</span>
                 </DropdownItem>
             {/each}

@@ -11,6 +11,7 @@ fields-new-position-1 = New position (1...{ $val }):
 fields-notes-require-at-least-one-field = Notes require at least one field.
 fields-reverse-text-direction-rtl = Reverse text direction (RTL)
 fields-collapse-by-default = Collapse by default
+fields-html-by-default = Use HTML editor by default
 fields-size = Size:
 fields-sort-by-this-field-in-the = Sort by this field in the browser
 fields-that-field-name-is-already-used = That field name is already used.

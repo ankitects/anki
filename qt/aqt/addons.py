@@ -43,6 +43,7 @@ from aqt.utils import (
     saveGeom,
     saveSplitter,
     send_to_trash,
+    show_info,
     showInfo,
     showWarning,
     tooltip,
@@ -862,14 +863,14 @@ class AddonsDialog(QDialog):
     def onlyOneSelected(self) -> str | None:
         dirs = self.selectedAddons()
         if len(dirs) != 1:
-            showInfo(tr.addons_please_select_a_single_addon_first())
+            show_info(tr.addons_please_select_a_single_addon_first())
             return None
         return dirs[0]
 
     def selected_addon_meta(self) -> AddonMeta | None:
         idxs = [x.row() for x in self.form.addonList.selectedIndexes()]
         if len(idxs) != 1:
-            showInfo(tr.addons_please_select_a_single_addon_first())
+            show_info(tr.addons_please_select_a_single_addon_first())
             return None
         return self.addons[idxs[0]]
 

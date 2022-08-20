@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fontFamily: string;
         fontSize: number;
         direction: "ltr" | "rtl";
+        plainText: boolean;
         description: string;
         collapsed: boolean;
     }
@@ -45,26 +46,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
-    import { descriptionKey, directionKey } from "../lib/context-keys";
+    import Collapsible from "../components/Collapsible.svelte";
+    import { collapsedKey, directionKey } from "../lib/context-keys";
     import { promiseWithResolver } from "../lib/promise";
     import type { Destroyable } from "./destroyable";
     import EditingArea from "./EditingArea.svelte";
-    import FieldState from "./FieldState.svelte";
-    import LabelContainer from "./LabelContainer.svelte";
-    import LabelName from "./LabelName.svelte";
 
     export let content: Writable<string>;
     export let field: FieldData;
+    export let collapsed = false;
 
     const directionStore = writable<"ltr" | "rtl">();
     setContext(directionKey, directionStore);
 
     $: $directionStore = field.direction;
 
-    const descriptionStore = writable<string>();
-    setContext(descriptionKey, descriptionStore);
+    const collapsedStore = writable<boolean>();
+    setContext(collapsedKey, collapsedStore);
 
-    $: $descriptionStore = field.description;
+    $: $collapsedStore = collapsed;
 
     const editingArea: Partial<EditingAreaAPI> = {};
     const [element, elementResolve] = promiseWithResolver<HTMLElement>();
@@ -90,37 +90,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:focusin
     on:focusout
     on:click={() => editingArea.focus?.()}
+    on:mouseenter
+    on:mouseleave
 >
-    <LabelContainer>
-        <span>
-            <LabelName>
-                {field.name}
-            </LabelName>
-        </span>
-        <FieldState><slot name="field-state" /></FieldState>
-    </LabelContainer>
-    <EditingArea
-        {content}
-        fontFamily={field.fontFamily}
-        fontSize={field.fontSize}
-        api={editingArea}
-    >
-        <slot name="editing-inputs" />
-    </EditingArea>
+    <slot name="field-label" />
+
+    <Collapsible {collapsed}>
+        <EditingArea
+            {content}
+            fontFamily={field.fontFamily}
+            fontSize={field.fontSize}
+            api={editingArea}
+        >
+            <slot name="editing-inputs" />
+        </EditingArea>
+    </Collapsible>
 </div>
 
 <style lang="scss">
     .editor-field {
+        position: relative;
         --border-color: var(--border);
-
-        border-radius: 5px;
-        border: 1px solid var(--border-color);
-
-        &:focus-within {
-            --border-color: var(--focus-border);
-
-            outline: none;
-            box-shadow: 0 0 0 3px var(--focus-shadow);
-        }
     }
 </style>

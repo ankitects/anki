@@ -243,6 +243,7 @@ class FieldDialog(QDialog):
         f.fontSize.setValue(fld["size"])
         f.sortField.setChecked(self.model["sortf"] == fld["ord"])
         f.rtl.setChecked(fld["rtl"])
+        f.plainTextByDefault.setChecked(fld["plainText"])
         f.collapsedByDefault.setChecked(fld["collapsed"])
         f.fieldDescription.setText(fld.get("description", ""))
 
@@ -265,10 +266,13 @@ class FieldDialog(QDialog):
         if fld["rtl"] != rtl:
             fld["rtl"] = rtl
             self.change_tracker.mark_basic()
+        plain_text = f.plainTextByDefault.isChecked()
+        if fld["plainText"] != plain_text:
+            fld["plainText"] = plain_text
+            self.change_tracker.mark_basic()
         collapsed = f.collapsedByDefault.isChecked()
         if fld["collapsed"] != collapsed:
             fld["collapsed"] = collapsed
-            self.change_tracker.mark_basic()
         desc = f.fieldDescription.text()
         if fld.get("description", "") != desc:
             fld["description"] = desc
