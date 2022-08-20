@@ -5,7 +5,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type {
         FloatingElement,
-        Placement,
     } from "@floating-ui/dom";
     import type { ActionReturn } from "svelte/action";
     import { writable } from "svelte/store";
@@ -19,28 +18,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { PositioningCallback } from "../sveltelib/position/auto-update"
     import autoUpdate from "../sveltelib/position/auto-update"
     import type { PositionAlgorithm } from "../sveltelib/position/position-algorithm";
-    import positionFloating from "../sveltelib/position/position-floating";
+    import positionOverlay from "../sveltelib/position/position-overlay";
     import subscribeTrigger from "../sveltelib/subscribe-trigger";
-    import { pageTheme } from "../sveltelib/theme";
-
-    export let placement: Placement | "auto" = "bottom";
-    export let offset = 5;
-    export let shift = 5;
-    export let hideIfEscaped = false;
-    export let hideIfReferenceHidden = false;
 
     /** This may be passed in for more fine-grained control */
     export let show = writable(true);
 
     let arrow: HTMLElement;
 
-    $: positionCurried = positionFloating({
-        placement,
-        offset,
-        shift,
-        arrow,
-        hideIfEscaped,
-        hideIfReferenceHidden,
+    $: positionCurried = positionOverlay({
         show,
     });
 
@@ -117,48 +103,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <slot {position} {asReference} />
 {/if}
 
-<div bind:this={floating} class="floating" use:portal>
+<div bind:this={floating} class="overlay" use:portal>
     {#if $show}
-        <slot name="floating" />
+        <slot name="overlay" />
     {/if}
-
-    <div bind:this={arrow} hidden={!$show} class="arrow" class:dark={$pageTheme.isDark} />
 </div>
 
 <style lang="scss">
     @use "sass/elevation" as elevation;
 
-    .floating {
+    .overlay {
         position: absolute;
         border-radius: 5px;
 
         z-index: 90;
         @include elevation.elevation(8);
-    }
-
-    .arrow {
-        position: absolute;
-        background-color: var(--frame-bg);
-        width: 10px;
-        height: 10px;
-        z-index: 60;
-
-        /* outer border */
-        border: 1px solid #b6b6b6;
-
-        &.dark {
-            border-color: #060606;
-        }
-
-        /* Rotate the box to indicate the different directions */
-        border-right: none;
-        border-bottom: none;
-
-        /* inner border */
-        box-shadow: inset 1px 1px 0 0 #eeeeee;
-
-        &.dark {
-            box-shadow: inset 1px 1px 0 0 #565656;
-        }
     }
 </style>

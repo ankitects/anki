@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { Writable } from "svelte/store";
 import type {
     ComputePositionConfig,
     FloatingElement,
@@ -17,11 +16,9 @@ import {
     offset,
     shift,
 } from "@floating-ui/dom";
+import type { Writable } from "svelte/store";
 
-/**
- * The interface of a function that calls `computePosition` of floating-ui.
- */
-export type PositionAlgorithm = (reference: HTMLElement, floating: FloatingElement) => Promise<void>;
+import type { PositionAlgorithm } from "./position-algorithm"
 
 export interface PositionFloatingArgs {
     placement: Placement | 'auto';
@@ -68,7 +65,6 @@ function positionFloating({
             middleware.push(hide({ strategy: 'referenceHidden' }));
         }
 
-        console.log('abc', reference, floating, computeArgs)
         const { x, y, middlewareData, placement: computedPlacement } = await computePosition(
             reference,
             floating,

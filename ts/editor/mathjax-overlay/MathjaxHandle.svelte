@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
 
     import WithFloating from "../../components/WithFloating.svelte";
+    import WithOverlay from "../../components/WithOverlay.svelte";
     import { escapeSomeEntities, unescapeSomeEntities } from "../../editable/mathjax";
     import { Mathjax } from "../../editable/mathjax-element";
     import { on } from "../../lib/events";
@@ -19,7 +20,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import subscribeToUpdates from "../../sveltelib/subscribe-updates"
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
-    import HandleSelection from "../HandleSelection.svelte";
     import { context } from "../rich-text-input";
     import MathjaxMenu from "./MathjaxMenu.svelte";
 
@@ -164,46 +164,45 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 
 {#if activeImage && mathjaxElement}
-    <WithFloating
+    <WithOverlay
         reference={activeImage}
-        placement="auto"
-        offset={20}
         keepOnKeyup
-        hideIfEscaped
-        let:position={doPosition}
+        let:position={doPositionOverlay}
     >
-        <MathjaxMenu
-            slot="floating"
-            element={mathjaxElement}
-            {code}
-            {selectAll}
-            {position}
-            on:reset={resetHandle}
-            on:resize={() => doPosition((reference, floating, position) => (
-                position(reference, floating)
-            ))}
-            on:moveoutstart={() => {
-                placeHandle(false);
-                resetHandle();
-            }}
-            on:moveoutend={() => {
-                placeHandle(true);
-                resetHandle();
-            }}
-        />
-    </WithFloating>
-
-    <!-- TODO
-    {#await Promise.all([element, onImageResizePromise]) then [container, onImageResize]}
-        <HandleSelection
-            image={activeImage}
-            {container}
-            updater={(callback) => handleImageResizing(activeImage, onImageResize, callback)}
+        <WithFloating
+            reference={activeImage}
+            placement="auto"
+            offset={20}
+            keepOnKeyup
+            hideIfEscaped
+            let:position={doPositionFloating}
         >
+            <MathjaxMenu
+                slot="floating"
+                element={mathjaxElement}
+                {code}
+                {selectAll}
+                {position}
+                on:reset={resetHandle}
+                on:resize={() => {
+                    doPositionFloating((reference, floating, position) => position(reference, floating));
+                    doPositionOverlay((reference, floating, position) => position(reference, floating));
+                }}
+                on:moveoutstart={() => {
+                    placeHandle(false);
+                    resetHandle();
+                }}
+                on:moveoutend={() => {
+                    placeHandle(true);
+                    resetHandle();
+                }}
+            />
+        </WithFloating>
+
+        <svelte:fragment slot="overlay">
             <HandleBackground tooltip={errorMessage} />
             <HandleControl offsetX={1} offsetY={1} />
-        </HandleSelection>
-    {/await}
-    -->
+        </svelte:fragment>
+    </WithOverlay>
 {/if}
 
