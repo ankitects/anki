@@ -21,13 +21,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import positionOverlay from "../sveltelib/position/position-overlay";
     import subscribeTrigger from "../sveltelib/subscribe-trigger";
 
+    export let padding = 0;
+
     /** This may be passed in for more fine-grained control */
     export let show = writable(true);
 
-    let arrow: HTMLElement;
-
     $: positionCurried = positionOverlay({
         show,
+        padding,
     });
 
     let actionReturn: ActionReturn = {};
@@ -76,7 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 reference,
                 floating,
                 inside: closeOnInsideClick,
-                outside: true,
+                outside: false,
             }),
         ];
 
@@ -99,7 +100,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: updateFloating(reference, floating, $show);
 </script>
 
-{#if floating && arrow}
+{#if floating}
     <slot {position} {asReference} />
 {/if}
 
@@ -117,6 +118,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: 5px;
 
         z-index: 90;
-        @include elevation.elevation(8);
+        @include elevation.elevation(5);
     }
 </style>

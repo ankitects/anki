@@ -123,49 +123,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     let errorMessage: string;
+    let cleanup: Callback | null = null;
 
     async function updateErrorMessage(): Promise<void> {
         errorMessage = activeImage!.title;
     }
 
-    function handleImageResizing(
-        activeImage: HTMLImageElement,
-        onImageResize: ResizeStore,
-        callback: Callback,
-    ): Callback {
-        return singleCallback(
-            subscribeToUpdates(onImageResize, callback),
-            on(activeImage, "resize", callback),
-        );
-    }
-
-    async function getResizeStore() {
-        const container = await element;
-        return resizeStore(container);
-    }
-
-    const onImageResizePromise = getResizeStore();
-    let cleanup = noop;
-
-    async function updateImageResizing(image: HTMLImageElement | null) {
-        const onImageResize = await onImageResizePromise;
-
+    async function updateImageErrorCallback(image: HTMLImageElement | null) {
         cleanup?.();
+        cleanup = null;
 
-        if (image) {
-            cleanup = handleImageResizing(image, onImageResize, updateErrorMessage);
+        if (!image) {
+            return;
         }
+
+        cleanup = on(image, "resize", updateErrorMessage);
     }
 
-    $: updateImageResizing(activeImage);
-
-    onDestroy(() => cleanup?.());
+    $: updateImageErrorCallback(activeImage);
 </script>
 
 
 {#if activeImage && mathjaxElement}
     <WithOverlay
         reference={activeImage}
+        padding={8}
         keepOnKeyup
         let:position={doPositionOverlay}
     >
@@ -201,7 +183,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <svelte:fragment slot="overlay">
             <HandleBackground tooltip={errorMessage} />
-            <HandleControl offsetX={1} offsetY={1} />
         </svelte:fragment>
     </WithOverlay>
 {/if}

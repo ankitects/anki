@@ -18,7 +18,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .handle-background {
         width: 100%;
         height: 100%;
-        background-color: black;
+        background-color: var(--handle-background-color, #aaa);
+        border-radius: 5px;
         opacity: 0.2;
     }
 </style>

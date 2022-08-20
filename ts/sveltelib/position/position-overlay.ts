@@ -16,10 +16,12 @@ import type { PositionAlgorithm } from "./position-algorithm"
 
 export interface PositionOverlayArgs {
     show: Writable<boolean>,
+    padding: number,
 }
 
 function positionOverlay({
     show,
+    padding,
 }: PositionOverlayArgs): PositionAlgorithm {
     return async function(reference: HTMLElement, floating: FloatingElement): Promise<void> {
         const middleware: Middleware[] = [
@@ -43,10 +45,10 @@ function positionOverlay({
         }
 
         Object.assign(floating.style, {
-            left: `${x}px`,
-            top: `${y}px`,
-            width: `${width}px`,
-            height: `${height}px`,
+            left: `${x - padding}px`,
+            top: `${y - padding}px`,
+            width: `${width + 2 * padding}px`,
+            height: `${height + 2 * padding}px`,
         });
     }
 }
