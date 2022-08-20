@@ -117,7 +117,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export function setCollapsed(fs: boolean[]): void {
         fieldsCollapsed = fs;
     }
-    
+
     let plainTexts: boolean[] = [];
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
@@ -137,12 +137,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let fonts: [string, number, boolean][] = [];
-    
+
     const fields = clearableArray<EditorFieldAPI>();
 
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
-        
+
         richTextsHidden = fonts.map((_, index) =>
             fieldsCollapsed[index] ? true : richTextsHidden[index] ?? false,
         );

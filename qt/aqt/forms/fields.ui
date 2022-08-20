@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>598</width>
-    <height>378</height>
+    <width>567</width>
+    <height>438</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -97,27 +97,10 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1" colspan="2">
-      <widget class="QLineEdit" name="fieldDescription">
-       <property name="placeholderText">
-        <string>fields_description_placeholder</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_font">
        <property name="text">
         <string>fields_editing_font</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QFontComboBox" name="fontFamily">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>25</height>
-        </size>
        </property>
       </widget>
      </item>
@@ -138,10 +121,13 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QRadioButton" name="sortField">
-       <property name="text">
-        <string>fields_sort_by_this_field_in_the</string>
+     <item row="1" column="1">
+      <widget class="QFontComboBox" name="fontFamily">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
        </property>
       </widget>
      </item>
@@ -152,7 +138,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
+     <item row="4" column="1">
       <widget class="QCheckBox" name="plainTextByDefault">
        <property name="enabled">
         <bool>true</bool>
@@ -162,8 +148,22 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="2">
-      <widget class="QCheckBox" name="collapsedByDefault">
+     <item row="0" column="1" colspan="2">
+      <widget class="QLineEdit" name="fieldDescription">
+       <property name="placeholderText">
+        <string>fields_description_placeholder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QRadioButton" name="sortField">
+       <property name="text">
+        <string>fields_sort_by_this_field_in_the</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QCheckBox" name="collapseByDefault">
        <property name="enabled">
         <bool>true</bool>
        </property>

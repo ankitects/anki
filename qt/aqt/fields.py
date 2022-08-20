@@ -244,7 +244,7 @@ class FieldDialog(QDialog):
         f.sortField.setChecked(self.model["sortf"] == fld["ord"])
         f.rtl.setChecked(fld["rtl"])
         f.plainTextByDefault.setChecked(fld["plainText"])
-        f.collapsedByDefault.setChecked(fld["collapsed"])
+        f.collapseByDefault.setChecked(fld["collapsed"])
         f.fieldDescription.setText(fld.get("description", ""))
 
     def saveField(self) -> None:
@@ -270,7 +270,7 @@ class FieldDialog(QDialog):
         if fld["plainText"] != plain_text:
             fld["plainText"] = plain_text
             self.change_tracker.mark_basic()
-        collapsed = f.collapsedByDefault.isChecked()
+        collapsed = f.collapseByDefault.isChecked()
         if fld["collapsed"] != collapsed:
             fld["collapsed"] = collapsed
         desc = f.fieldDescription.text()
