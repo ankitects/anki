@@ -6,11 +6,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type {
         FloatingElement,
         Placement,
-        ReferenceElement,
     } from "@floating-ui/dom";
     import type { ActionReturn } from "svelte/action";
     import { writable } from "svelte/store";
-    
+
     import type { Callback } from "../lib/typing"
     import { singleCallback } from "../lib/typing";
     import isClosingClick from "../sveltelib/closing-click";
@@ -82,12 +81,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ) {
         cleanup();
 
-        console.log('before updateFloating', cleanup)
         if (!reference || !floating || !isShowing) {
             return;
         }
 
-        console.log('updateFloating')
         const triggers = [
             isClosingClick(documentClick, {
                 reference,
