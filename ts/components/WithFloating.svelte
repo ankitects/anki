@@ -57,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let reference: HTMLElement | undefined = undefined;
     let floating: FloatingElement;
 
-    async function position(callback: (reference: HTMLElement, floating: FloatingElement, position: PositionAlgorithm) => void): Promise<void> {
+    async function position(callback: (reference: HTMLElement, floating: FloatingElement, position: PositionAlgorithm) => Promise<void>): Promise<void> {
         if (reference && floating) {
             return callback(reference, floating, positionCurried);
         }

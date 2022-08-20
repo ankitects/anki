@@ -151,7 +151,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const onImageResize = await onImageResizePromise;
 
         cleanup?.();
-        cleanup = null;
 
         if (image) {
             cleanup = handleImageResizing(image, onImageResize, updateErrorMessage);
@@ -171,6 +170,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         offset={20}
         keepOnKeyup
         hideIfEscaped
+        let:position={doPosition}
     >
         <MathjaxMenu
             slot="floating"
@@ -179,9 +179,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {selectAll}
             {position}
             on:reset={resetHandle}
-            on:resize={() => {
-
-            }}
+            on:resize={() => doPosition((reference, floating, position) => (
+                position(reference, floating)
+            ))}
             on:moveoutstart={() => {
                 placeHandle(false);
                 resetHandle();
