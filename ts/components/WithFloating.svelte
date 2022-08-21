@@ -130,9 +130,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => cleanup?.())
 </script>
 
-{#if floating && arrow}
-    <slot {position} {asReference} />
-{/if}
+<slot {position} {asReference} />
 
 <div bind:this={floating} class="floating" use:portal>
     {#if show}

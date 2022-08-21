@@ -115,9 +115,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: updateFloating(reference, floating, show);
 </script>
 
-{#if floating}
-    <slot {position} {asReference} />
-{/if}
+<slot {position} {asReference} />
 
 <div bind:this={floating} class="overlay" use:portal>
     {#if show}
