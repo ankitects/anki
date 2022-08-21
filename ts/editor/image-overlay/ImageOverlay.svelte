@@ -5,15 +5,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { onMount, tick } from "svelte";
 
-    import ButtonDropdown from "../../components/ButtonDropdown.svelte";
-    import WithDropdown from "../../components/WithDropdown.svelte";
+    import Popover from "../../components/Popover.svelte";
+    import WithFloating from "../../components/WithFloating.svelte";
+    import WithOverlay from "../../components/WithOverlay.svelte";
     import { on } from "../../lib/events";
     import * as tr from "../../lib/ftl";
     import { singleCallback } from "../../lib/typing";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
     import HandleLabel from "../HandleLabel.svelte";
-    import HandleSelection from "../HandleSelection.svelte";
     import { context } from "../rich-text-input";
     import FloatButtons from "./FloatButtons.svelte";
     import SizeSelect from "./SizeSelect.svelte";
@@ -232,81 +232,73 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         : widthObserver.disconnect();
 </script>
 
-<WithDropdown
-    drop="down"
-    autoOpen={true}
-    autoClose={false}
-    distance={3}
-    let:createDropdown
-    let:dropdownObject
->
-    {#if activeImage}
-        {#await element then container}
-            <HandleSelection
-                bind:updateSelection
-                {container}
-                image={activeImage}
-                on:mount={(event) => createDropdown(event.detail.selection)}
-            >
-                <HandleBackground
-                    on:dblclick={() => {
-                        if (shrinkingDisabled) {
-                            return;
-                        }
+{#if activeImage}
+    <WithOverlay
+        reference={activeImage}
+        keepOnKeyup
+        let:position={positionOverlay}
+    >
+        <WithFloating
+            reference={activeImage}
+            placement="auto"
+            offset={20}
+            keepOnKeyup
+            hideIfEscaped
+            let:position={positionFloating}
+        >
+            <Popover slot="floating">
+                <FloatButtons image={activeImage} />
+
+                <SizeSelect
+                    {shrinkingDisabled}
+                    {restoringDisabled}
+                    {isSizeConstrained}
+                    on:imagetoggle={() => {
                         toggleActualSize();
-                        updateSizesWithDimensions();
-                        dropdownObject.update();
+                    }}
+                    on:imageclear={() => {
+                        clearActualSize();
                     }}
                 />
+            </Popover>
+        </WithFloating>
 
-                <HandleLabel on:mount={updateDimensions}>
-                    {#if isSizeConstrained}
-                        <span>{tr.editingDoubleClickToExpand()}</span>
-                    {:else}
-                        <span>{actualWidth}&times;{actualHeight}</span>
-                        {#if customDimensions}
-                            <span>(Original: {naturalWidth}&times;{naturalHeight})</span
-                            >
-                        {/if}
-                    {/if}
-                </HandleLabel>
-
-                <HandleControl
-                    active={!isSizeConstrained}
-                    activeSize={8}
-                    offsetX={5}
-                    offsetY={5}
-                    on:pointerclick={(event) => {
-                        if (!isSizeConstrained) {
-                            setPointerCapture(event);
-                        }
-                    }}
-                    on:pointermove={(event) => {
-                        resize(event);
-                        updateSizesWithDimensions();
-                        dropdownObject.update();
-                    }}
-                />
-            </HandleSelection>
-        {/await}
-
-        <ButtonDropdown on:click={updateSizesWithDimensions}>
-            <FloatButtons image={activeImage} on:update={dropdownObject.update} />
-            <SizeSelect
-                {shrinkingDisabled}
-                {restoringDisabled}
-                {isSizeConstrained}
-                on:imagetoggle={() => {
+        <svelte:fragment slot="overlay">
+            <HandleBackground
+                on:dblclick={() => {
+                    if (shrinkingDisabled) {
+                        return;
+                    }
                     toggleActualSize();
-                    updateSizesWithDimensions();
-                    dropdownObject.update();
-                }}
-                on:imageclear={() => {
-                    clearActualSize();
-                    updateSizesWithDimensions();
-                    dropdownObject.update();
                 }}
             />
-        </ButtonDropdown>
-    {/if}
-</WithDropdown>
+
+            <HandleLabel>
+                {#if isSizeConstrained}
+                    <span>{tr.editingDoubleClickToExpand()}</span>
+                {:else}
+                    <span>{actualWidth}&times;{actualHeight}</span>
+                    {#if customDimensions}
+                        <span>(Original: {naturalWidth}&times;{naturalHeight})</span
+                        >
+                    {/if}
+                {/if}
+            </HandleLabel>
+
+            <HandleControl
+                active={!isSizeConstrained}
+                activeSize={8}
+                offsetX={5}
+                offsetY={5}
+                on:pointerclick={(event) => {
+                    if (!isSizeConstrained) {
+                        setPointerCapture(event);
+                    }
+                }}
+                on:pointermove={(event) => {
+                    resize(event);
+                }}
+            />
+        </svelte:fragment>
+    </WithOverlay>
+{/if}
