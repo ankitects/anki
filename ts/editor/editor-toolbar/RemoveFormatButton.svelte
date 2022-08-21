@@ -7,11 +7,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import CheckBox from "../../components/CheckBox.svelte";
     import DropdownItem from "../../components/DropdownItem.svelte";
-    import DropdownMenu from "../../components/DropdownMenu.svelte";
     import { withButton } from "../../components/helpers";
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
-    import WithDropdown from "../../components/WithDropdown.svelte";
     import type { MatchType } from "../../domlib/surround";
     import * as tr from "../../lib/ftl";
     import { altPressed, shiftPressed } from "../../lib/keys";
@@ -22,6 +20,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { eraserIcon } from "./icons";
     import { arrowIcon } from "./icons";
+    import Popover from "../../components/Popover.svelte";
+    import WithFloating from "../../components/WithFloating.svelte";
 
     const { removeFormats } = editorToolbarContext.get();
 
@@ -62,6 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const keyCombination = "Control+R";
 
     let disabled: boolean;
+    let showFloating = false;
 
     onMount(() => {
         const surroundElement = document.createElement("span");
@@ -114,34 +115,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <Shortcut {keyCombination} on:action={remove} />
 
-<div class="hide-after">
-    <WithDropdown autoClose="outside" let:createDropdown --border-right-radius="5px">
+<WithFloating
+    show={showFloating && !disabled}
+    closeOnInsideClick
+    inline
+    on:close={() => (showFloating = false)}
+    let:asReference
+>
+    <span use:asReference class="remove-format-button">
         <IconButton
             tooltip={tr.editingSelectRemoveFormatting()}
             {disabled}
             widthMultiplier={0.5}
-            on:mount={withButton(createDropdown)}
+            --border-right-radius="5px"
+            on:click={() => (showFloating = !showFloating)}
         >
             {@html arrowIcon}
         </IconButton>
+    </span>
 
-        <DropdownMenu on:mousedown={(event) => event.preventDefault()}>
-            {#each showFormats as format (format.name)}
-                <DropdownItem on:click={(event) => onItemClick(event, format)}>
-                    <CheckBox bind:value={format.active} />
-                    <span class="d-flex-inline ps-3">{format.name}</span>
-                </DropdownItem>
-            {/each}
-        </DropdownMenu>
-    </WithDropdown>
-</div>
+    <Popover slot="floating">
+        {#each showFormats as format (format.name)}
+            <DropdownItem on:click={(event) => onItemClick(event, format)}>
+                <CheckBox bind:value={format.active} />
+                <span class="d-flex-inline ps-3">{format.name}</span>
+            </DropdownItem>
+        {/each}
+    </Popover>
+</WithFloating>
 
 <style lang="scss">
-    .hide-after {
-        display: contents;
-
-        :global(.dropdown-toggle::after) {
-            display: none;
-        }
+    .remove-format-button {
+        line-height: 1;
     }
 </style>
