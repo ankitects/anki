@@ -32,31 +32,37 @@ function isClosingClick(
     store: Readable<MouseEvent>,
     { reference, floating, inside, outside }: ClosingClickArgs,
 ): Readable<symbol> {
-    function isTriggerClick(path: EventTarget[]): boolean {
-        return (
-            // Reference element was clicked, e.g. the button.
-            // The reference element needs to handle opening/closing itself.
-            !path.includes(reference) &&
-            ((inside && path.includes(floating)) ||
-                (outside && !path.includes(floating)))
-        );
-    }
-
-    function shouldClose(event: MouseEvent): boolean {
-        if (isSecondaryButton(event)) {
-            return true;
+    function isTriggerClick(path: EventTarget[]): string | false {
+        // Reference element was clicked, e.g. the button.
+        // The reference element needs to handle opening/closing itself.
+        if (path.includes(reference)) {
+            return false;
         }
 
-        if (isTriggerClick(event.composedPath())) {
-            return true;
+        if (inside && path.includes(floating)) {
+            return "insideClick";
+        }
+
+        if (outside && !path.includes(floating)) {
+            return "outsideClick";
         }
 
         return false;
     }
 
+    function shouldClose(event: MouseEvent): string | false {
+        if (isSecondaryButton(event)) {
+            return "secondaryButton";
+        }
+
+        return isTriggerClick(event.composedPath());
+    }
+
     return derived(store, (event: MouseEvent, set: (value: symbol) => void): void => {
-        if (shouldClose(event)) {
-            set(Symbol());
+        const reason = shouldClose(event);
+
+        if (reason) {
+            set(Symbol(reason));
         }
     });
 }

@@ -26,20 +26,22 @@ function isClosingKeyup(
     // TODO there needs to be special treatment, whether the keyup happens
     // inside the floating element or outside, but I'll defer until we actually
     // use this for a popover with an input field
-    function shouldClose(event: KeyboardEvent) {
+    function shouldClose(event: KeyboardEvent): string | false {
         if (event.key === "Tab") {
             // Allow Tab navigation.
             return false;
         }
 
-        return true;
+        return "keyup";
     }
 
     return derived(
         store,
         (event: KeyboardEvent, set: (value: symbol) => void): void => {
-            if (shouldClose(event)) {
-                set(Symbol());
+            const reason = shouldClose(event);
+
+            if (reason) {
+                set(Symbol(reason));
             }
         },
     );
