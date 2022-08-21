@@ -22,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             tooltip={tr.editingMathjaxInline()}
             active={!isBlock}
-            on:click={() => dispatch("setInline")}
+            on:click={() => dispatch("setinline")}
             --border-left-radius="5px"
         >
             {@html inlineIcon}

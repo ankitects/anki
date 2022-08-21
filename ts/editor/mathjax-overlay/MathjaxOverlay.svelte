@@ -144,10 +144,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     let isBlock: boolean;
-    $: isBlock = activeImage ? hasBlockAttribute(activeImage) : false;
+    $: isBlock = mathjaxElement ? hasBlockAttribute(mathjaxElement) : false;
 
     async function updateBlockAttribute(): Promise<void> {
-        activeImage.setAttribute("block", String(isBlock));
+        mathjaxElement!.setAttribute("block", String(isBlock));
 
         // We assume that by the end of this tick, the image will have
         // adjusted its styling to either block or inline
@@ -162,7 +162,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {#if activeImage && mathjaxElement}
     <WithOverlay
         reference={activeImage}
-        padding={8}
+        padding={isBlock ? 10 : 3}
         keepOnKeyup
         let:position={positionOverlay}
     >
