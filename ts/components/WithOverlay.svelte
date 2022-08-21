@@ -117,6 +117,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <slot {position} {asReference} />
 
+{#if $$slots.reference}
+    <div class="overlay-reference" use:asReference>
+        <slot name="reference" />
+    </div>
+{/if}
+
 <div bind:this={floating} class="overlay" use:portal>
     {#if show}
         <slot name="overlay" />

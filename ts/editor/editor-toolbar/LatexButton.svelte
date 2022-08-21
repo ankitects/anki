@@ -69,23 +69,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: disabled = !editingInputIsRichText($focusedInput);
 
     let showFloating = false;
-
-    $: if (disabled) {
-        showFloating = false;
-    }
 </script>
 
-<WithFloating show={showFloating} closeOnInsideClick let:asReference>
-    <span class="latex-button" use:asReference>
-        <IconButton {disabled} on:click={() => showFloating = !showFloating}>
-            {@html functionIcon}
-        </IconButton>
-    </span>
+<WithFloating
+    show={showFloating && !disabled}
+    closeOnInsideClick
+    let:asReference
+    on:close={() => (showFloating = false)}
+>
+    <IconButton
+        slot="reference"
+        {disabled}
+        on:click={() => (showFloating = !showFloating)}
+    >
+        {@html functionIcon}
+    </IconButton>
 
     <Popover slot="floating">
         {#each dropdownItems as [callback, keyCombination, label]}
             <DropdownItem on:click={callback}>
-                {label}
+                <span>{label}</span>
                 <span class="ms-auto ps-2 shortcut"
                     >{getPlatformString(keyCombination)}</span
                 >
@@ -99,10 +102,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </WithFloating>
 
 <style lang="scss">
-    .latex-button {
-        line-height: 1;
-    }
-
     .shortcut {
         font: Verdana;
     }

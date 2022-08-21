@@ -132,10 +132,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <slot {position} {asReference} />
 
+{#if $$slots.reference}
+    <div class="floating-reference" use:asReference>
+        <slot name="reference" />
+    </div>
+{/if}
+
 <div bind:this={floating} class="floating" use:portal>
     {#if show}
         <slot name="floating" />
-
     {/if}
 
     <div bind:this={arrow} class="floating-arrow" hidden={!show}>
