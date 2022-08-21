@@ -6,8 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type {
         FloatingElement,
     } from "@floating-ui/dom";
-    import type { ActionReturn } from "svelte/action";
     import { createEventDispatcher } from "svelte";
+    import type { ActionReturn } from "svelte/action";
 
     import type { Callback } from "../lib/typing"
     import { singleCallback } from "../lib/typing";

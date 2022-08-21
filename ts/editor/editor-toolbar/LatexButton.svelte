@@ -13,7 +13,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { wrapInternal } from "../../lib/wrap";
-    import toggleable from "../../sveltelib/toggleable";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
@@ -69,16 +68,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: disabled = !editingInputIsRichText($focusedInput);
 
-    const showDropdown = toggleable(false);
+    let showFloating = false;
 
     $: if (disabled) {
-        $showDropdown = false;
+        showFloating = false;
     }
 </script>
 
-<WithFloating show={showDropdown} closeOnInsideClick let:asReference>
+<WithFloating show={showFloating} closeOnInsideClick let:asReference>
     <span class="latex-button" use:asReference>
-        <IconButton {disabled} on:click={showDropdown.toggle}>
+        <IconButton {disabled} on:click={() => showFloating = !showFloating}>
             {@html functionIcon}
         </IconButton>
     </span>

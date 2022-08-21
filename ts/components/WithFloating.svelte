@@ -7,9 +7,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         FloatingElement,
         Placement,
     } from "@floating-ui/dom";
-    import type { ActionReturn } from "svelte/action";
-    import { writable } from "svelte/store";
     import { createEventDispatcher, onDestroy } from "svelte";
+    import type { ActionReturn } from "svelte/action";
 
     import type { Callback } from "../lib/typing"
     import { singleCallback } from "../lib/typing";
@@ -85,7 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return callback(reference, innerFloating, () => positionCurried(reference, innerFloating))
     }
 
-    let cleanup: Callback;
+    let cleanup: Callback | null = null;
 
     function updateFloating(
         reference: HTMLElement | undefined,
@@ -93,6 +92,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         isShowing: boolean
     ) {
         cleanup?.();
+        cleanup = null;
 
         if (!reference || !floating || !isShowing) {
             return;
