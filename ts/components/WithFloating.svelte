@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "@floating-ui/dom";
     import type { ActionReturn } from "svelte/action";
     import { writable } from "svelte/store";
+    import { createEventDispatcher, onDestroy } from "svelte";
 
     import type { Callback } from "../lib/typing"
     import { singleCallback } from "../lib/typing";
@@ -20,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import autoUpdate from "../sveltelib/position/auto-update"
     import type { PositionAlgorithm } from "../sveltelib/position/position-algorithm";
     import positionFloating from "../sveltelib/position/position-floating";
-    import subscribeTrigger from "../sveltelib/subscribe-trigger";
+    import subscribeToUpdates from "../sveltelib/subscribe-updates";
     import FloatingArrow from "./FloatingArrow.svelte"
 
     export let placement: Placement | "auto" = "bottom";
@@ -30,7 +31,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let hideIfReferenceHidden = false;
 
     /** This may be passed in for more fine-grained control */
-    export let show = writable(true);
+    export let show = true;
+
+    const dispatch = createEventDispatcher();
 
     let arrow: HTMLElement;
 
@@ -41,14 +44,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         arrow,
         hideIfEscaped,
         hideIfReferenceHidden,
-        show,
+        hideCallback: (reason: symbol) => dispatch("close", reason),
     });
 
-    let actionReturn: ActionReturn = {};
+    let autoAction: ActionReturn = {};
 
     $: {
         positionCurried;
-        actionReturn.update?.(positioningCallback);
+        autoAction.update?.(positioningCallback);
     }
 
     export let closeOnInsideClick = false;
@@ -95,32 +98,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
-        const triggers = [
-            isClosingClick(documentClick, {
-                reference,
-                floating,
-                inside: closeOnInsideClick,
-                outside: true,
-            }),
+        const closingClick = isClosingClick(documentClick, {
+            reference,
+            floating,
+            inside: closeOnInsideClick,
+            outside: true,
+        });
+
+        const subscribers = [
+            subscribeToUpdates(closingClick, (reason: symbol): void => dispatch("close", reason)),
         ];
 
         if (!keepOnKeyup) {
-            triggers.push(
-                isClosingKeyup(documentKeyup, {
-                    reference,
-                    floating,
-                }),
-            );
+            const closingKeyup = isClosingKeyup(documentKeyup, {
+                reference,
+                floating,
+            });
+
+            subscribers.push(subscribeToUpdates(closingKeyup, (reason: symbol): void => dispatch("close", reason)));
         }
 
-        actionReturn = autoUpdate(reference, positioningCallback);
+        autoAction = autoUpdate(reference, positioningCallback);
         cleanup = singleCallback(
-            subscribeTrigger(show, ...triggers),
-            actionReturn.destroy!,
+            ...subscribers,
+            autoAction.destroy!,
         );
     }
 
-    $: updateFloating(reference, floating, $show);
+    $: updateFloating(reference, floating, show);
+
+    onDestroy(() => cleanup?.())
 </script>
 
 {#if floating && arrow}
@@ -128,12 +135,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {/if}
 
 <div bind:this={floating} class="floating" use:portal>
-    {#if $show}
+    {#if show}
         <slot name="floating" />
 
     {/if}
 
-    <div bind:this={arrow} class="floating-arrow" hidden={!$show}>
+    <div bind:this={arrow} class="floating-arrow" hidden={!show}>
         <FloatingArrow />
     </div>
 </div>

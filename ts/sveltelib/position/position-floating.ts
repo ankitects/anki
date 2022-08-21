@@ -16,7 +16,6 @@ import {
     offset,
     shift,
 } from "@floating-ui/dom";
-import type { Writable } from "svelte/store";
 
 import type { PositionAlgorithm } from "./position-algorithm"
 
@@ -27,7 +26,7 @@ export interface PositionFloatingArgs {
     offset: number,
     hideIfEscaped: boolean,
     hideIfReferenceHidden: boolean,
-    show: Writable<boolean>,
+    hideCallback: (reason: symbol) => void,
 }
 
 function positionFloating({
@@ -37,7 +36,7 @@ function positionFloating({
     offset: offsetArg,
     hideIfEscaped,
     hideIfReferenceHidden,
-    show,
+    hideCallback,
 }: PositionFloatingArgs): PositionAlgorithm {
     return async function(reference: HTMLElement, floating: FloatingElement): Promise<void> {
         const middleware: Middleware[] = [
@@ -71,8 +70,12 @@ function positionFloating({
             computeArgs
         );
 
-        if (middlewareData.hide?.escaped || middlewareData.hide?.referenceHidden) {
-            show.set(false);
+        if (middlewareData.hide?.escaped) {
+            return hideCallback(Symbol("escaped"));
+        }
+
+        if (middlewareData.hide?.referenceHidden) {
+            return hideCallback(Symbol("referenceHidden"));
         }
 
         Object.assign(floating.style, {

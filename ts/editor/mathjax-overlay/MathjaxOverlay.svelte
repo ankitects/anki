@@ -31,6 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let allow = noop;
     let unsubscribe = noop;
 
+    let show = true;
     let selectAll = false;
     let position: CodeMirrorLib.Position | undefined = undefined;
 
@@ -40,7 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
      */
     const code = writable("");
 
-    function showHandle(image: HTMLImageElement, pos?: CodeMirrorLib.Position): void {
+    function showOverlay(image: HTMLImageElement, pos?: CodeMirrorLib.Position): void {
         allow = preventResubscription();
         position = pos;
 
@@ -53,6 +54,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         unsubscribe = code.subscribe((value: string) => {
             mathjaxElement!.dataset.mathjax = escapeSomeEntities(value);
         });
+
+        show = true;
     }
 
     function placeHandle(after: boolean): void {
@@ -99,15 +102,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: updateImageErrorCallback(activeImage);
 
-    async function updateHandle({ target }: Event): Promise<void> {
-        await resetHandle();
-
+    async function showOverlayIfMathjax({ target }: Event): Promise<void> {
         if (target instanceof HTMLImageElement && target.dataset.anki === "mathjax") {
-            showHandle(target);
+            showOverlay(target);
         }
     }
 
-    async function showAutofocusHandle({
+    async function showOnAutofocus({
         detail,
     }: CustomEvent<{
         image: HTMLImageElement;
@@ -122,7 +123,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             position = { line, ch };
         }
 
-        showHandle(detail.image, position);
+        showOverlay(detail.image, position);
     }
 
     async function showSelectAll({
@@ -130,15 +131,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }: CustomEvent<HTMLImageElement>): Promise<void> {
         await resetHandle();
         selectAll = true;
-        showHandle(detail);
+        showOverlay(detail);
     }
 
     onMount(async () => {
         const container = await element;
 
         return singleCallback(
-            on(container, "click", updateHandle),
-            on(container, "movecaretafter" as any, showAutofocusHandle),
+            on(container, "click", showOverlayIfMathjax),
+            on(container, "movecaretafter" as any, showOnAutofocus),
             on(container, "selectall" as any, showSelectAll),
         );
     });
@@ -162,17 +163,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {#if activeImage && mathjaxElement}
     <WithOverlay
         reference={activeImage}
+        {show}
         padding={isBlock ? 10 : 3}
         keepOnKeyup
         let:position={positionOverlay}
     >
         <WithFloating
             reference={activeImage}
+            {show}
             placement="auto"
             offset={20}
             keepOnKeyup
             hideIfEscaped
             let:position={positionFloating}
+            on:close={() => (show = false)}
         >
             <Popover slot="floating">
                 <MathjaxEditor
@@ -181,7 +185,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {code}
                     {selectAll}
                     {position}
-                    on:blur={resetHandle}
                     on:moveoutstart={() => {
                         placeHandle(false);
                         resetHandle();

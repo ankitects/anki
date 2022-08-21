@@ -10,18 +10,17 @@ import {
     computePosition,
     inline,
 } from "@floating-ui/dom";
-import type { Writable } from "svelte/store";
 
 import type { PositionAlgorithm } from "./position-algorithm"
 
 export interface PositionOverlayArgs {
-    show: Writable<boolean>,
     padding: number,
+    hideCallback: (reason: symbol) => void,
 }
 
 function positionOverlay({
-    show,
     padding,
+    hideCallback,
 }: PositionOverlayArgs): PositionAlgorithm {
     return async function(reference: HTMLElement, floating: FloatingElement): Promise<void> {
         const middleware: Middleware[] = [
@@ -38,11 +37,16 @@ function positionOverlay({
             computeArgs
         );
 
-        const { x, y, width, height } = reference.getBoundingClientRect();
-
-        if (middlewareData.hide?.escaped || middlewareData.hide?.referenceHidden) {
-            show.set(false);
+        if (middlewareData.hide?.escaped) {
+            hideCallback(Symbol("escaped"));
         }
+
+        if (middlewareData.hide?.referenceHidden) {
+            hideCallback(Symbol("referenceHidden"));
+        }
+
+
+        const { x, y, width, height } = reference.getBoundingClientRect();
 
         Object.assign(floating.style, {
             left: `${x - padding}px`,

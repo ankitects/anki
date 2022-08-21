@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         FloatingElement,
     } from "@floating-ui/dom";
     import type { ActionReturn } from "svelte/action";
-    import { writable } from "svelte/store";
+    import { createEventDispatcher } from "svelte";
 
     import type { Callback } from "../lib/typing"
     import { singleCallback } from "../lib/typing";
@@ -19,23 +19,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import autoUpdate from "../sveltelib/position/auto-update"
     import type { PositionAlgorithm } from "../sveltelib/position/position-algorithm";
     import positionOverlay from "../sveltelib/position/position-overlay";
-    import subscribeTrigger from "../sveltelib/subscribe-trigger";
+    import subscribeToUpdates from "../sveltelib/subscribe-updates";
 
     export let padding = 0;
 
     /** This may be passed in for more fine-grained control */
-    export let show = writable(true);
+    export let show = true;
+
+    const dispatch = createEventDispatcher();
 
     $: positionCurried = positionOverlay({
-        show,
         padding,
+        hideCallback: (reason: symbol) => dispatch("close", reason),
     });
 
-    let actionReturn: ActionReturn = {};
+    let autoAction: ActionReturn = {};
 
     $: {
         positionCurried;
-        actionReturn.update?.(positioningCallback);
+        autoAction.update?.(positioningCallback);
     }
 
     export let closeOnInsideClick = false;
@@ -82,32 +84,35 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
-        const triggers = [
-            isClosingClick(documentClick, {
-                reference,
-                floating,
-                inside: closeOnInsideClick,
-                outside: false,
-            }),
+        const closingClick = isClosingClick(documentClick, {
+            reference,
+            floating,
+            inside: closeOnInsideClick,
+            outside: false,
+        });
+
+        const subscribers = [
+            subscribeToUpdates(closingClick, (reason: symbol): void => dispatch("close", reason)),
         ];
 
         if (!keepOnKeyup) {
-            triggers.push(
-                isClosingKeyup(documentKeyup, {
-                    reference,
-                    floating,
-                }),
-            );
+            const closingKeyup = isClosingKeyup(documentKeyup, {
+                reference,
+                floating,
+            });
+
+            subscribers.push(subscribeToUpdates(closingKeyup, (reason: symbol): void => dispatch("close", reason)));
         }
 
-        actionReturn = autoUpdate(reference, positioningCallback);
+
+        autoAction = autoUpdate(reference, positioningCallback);
         cleanup = singleCallback(
-            subscribeTrigger(show, ...triggers),
-            actionReturn.destroy!,
+            ...subscribers,
+            autoAction.destroy!,
         );
     }
 
-    $: updateFloating(reference, floating, $show);
+    $: updateFloating(reference, floating, show);
 </script>
 
 {#if floating}
@@ -115,7 +120,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {/if}
 
 <div bind:this={floating} class="overlay" use:portal>
-    {#if $show}
+    {#if show}
         <slot name="overlay" />
     {/if}
 </div>
