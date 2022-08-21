@@ -96,7 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {configuration}
         bind:api={codeMirror}
         on:change={({ detail: mathjaxText }) => code.set(mathjaxText)}
-        on:blur
+        on:tab
     />
 </div>
 

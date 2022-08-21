@@ -116,8 +116,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }>): Promise<void> {
         let position: CodeMirrorLib.Position | undefined = undefined;
 
-        await resetHandle();
-
         if (detail.position) {
             const [line, ch] = detail.position;
             position = { line, ch };
@@ -129,7 +127,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function showSelectAll({
         detail,
     }: CustomEvent<HTMLImageElement>): Promise<void> {
-        await resetHandle();
         selectAll = true;
         showOverlay(detail);
     }
@@ -176,7 +173,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             keepOnKeyup
             hideIfEscaped
             let:position={positionFloating}
-            on:close={() => (show = false)}
+            on:close={resetHandle}
         >
             <Popover slot="floating">
                 <MathjaxEditor
@@ -191,6 +188,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     }}
                     on:moveoutend={() => {
                         placeHandle(true);
+                        resetHandle();
+                    }}
+                    on:tab={() => {
+                        // Instead of resetting on blur, we reset on tab
+                        // Otherwise, when clicking from Mathjax element to another,
+                        // the user has to click twice (focus is called before blur?)
                         resetHandle();
                     }}
                     let:editor={mathjaxEditor}
