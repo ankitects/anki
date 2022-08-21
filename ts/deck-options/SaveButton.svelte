@@ -3,19 +3,20 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type Dropdown from "bootstrap/js/dist/dropdown";
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, tick } from "svelte";
 
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import DropdownDivider from "../components/DropdownDivider.svelte";
     import DropdownItem from "../components/DropdownItem.svelte";
-    import DropdownMenu from "../components/DropdownMenu.svelte";
+    import IconButton from "../components/IconButton.svelte";
     import LabelButton from "../components/LabelButton.svelte";
+    import Popover from "../components/Popover.svelte";
     import Shortcut from "../components/Shortcut.svelte";
-    import WithDropdown from "../components/WithDropdown.svelte";
+    import WithFloating from "../components/WithFloating.svelte";
     import * as tr from "../lib/ftl";
     import { withCollapsedWhitespace } from "../lib/i18n";
     import { getPlatformString } from "../lib/shortcuts";
+    import { chevronDown } from "./icons";
     import type { DeckOptionsState } from "./lib";
 
     const dispatch = createEventDispatcher();
@@ -28,27 +29,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function removeConfig(): void {
+    async function removeConfig(): Promise<void> {
         // show pop-up after dropdown has gone away
-        setTimeout(() => {
-            if (state.defaultConfigSelected()) {
-                alert(tr.schedulingTheDefaultConfigurationCantBeRemoved());
-                return;
+        await tick();
+
+        if (state.defaultConfigSelected()) {
+            alert(tr.schedulingTheDefaultConfigurationCantBeRemoved());
+            return;
+        }
+
+        const msg =
+            (state.removalWilLForceFullSync()
+                ? tr.deckConfigWillRequireFullSync() + " "
+                : "") +
+            tr.deckConfigConfirmRemoveName({ name: state.getCurrentName() });
+
+        if (confirm(withCollapsedWhitespace(msg))) {
+            try {
+                state.removeCurrentConfig();
+                dispatch("remove");
+            } catch (err) {
+                alert(err);
             }
-            const msg =
-                (state.removalWilLForceFullSync()
-                    ? tr.deckConfigWillRequireFullSync() + " "
-                    : "") +
-                tr.deckConfigConfirmRemoveName({ name: state.getCurrentName() });
-            if (confirm(withCollapsedWhitespace(msg))) {
-                try {
-                    state.removeCurrentConfig();
-                    dispatch("remove");
-                } catch (err) {
-                    alert(err);
-                }
-            }
-        }, 100);
+        }
     }
 
     function save(applyToChildDecks: boolean): void {
@@ -56,8 +59,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         state.save(applyToChildDecks);
     }
 
-    let dropdown: Dropdown;
     const saveKeyCombination = "Control+Enter";
+
+    let showFloating = false;
 </script>
 
 <ButtonGroup>
@@ -69,12 +73,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
     <Shortcut keyCombination={saveKeyCombination} on:action={() => save(false)} />
 
-    <WithDropdown let:createDropdown --border-right-radius="5px">
-        <LabelButton
-            on:click={() => dropdown.toggle()}
-            on:mount={(event) => (dropdown = createDropdown(event.detail.button))}
-        />
-        <DropdownMenu>
+    <WithFloating
+        show={showFloating}
+        closeOnInsideClick
+        inline
+        on:close={() => (showFloating = false)}
+        let:asReference
+    >
+        <IconButton
+            slot="reference"
+            widthMultiplier={0.5}
+            iconSize={120}
+            --border-right-radius="5px"
+            on:click={() => (showFloating = !showFloating)}
+        >
+            {@html chevronDown}
+        </IconButton>
+
+        <Popover slot="floating">
             <DropdownItem on:click={() => dispatch("add")}
                 >{tr.deckConfigAddGroup()}</DropdownItem
             >
@@ -91,6 +107,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <DropdownItem on:click={() => save(true)}>
                 {tr.deckConfigSaveToAllSubdecks()}
             </DropdownItem>
-        </DropdownMenu>
-    </WithDropdown>
+        </Popover>
+    </WithFloating>
 </ButtonGroup>

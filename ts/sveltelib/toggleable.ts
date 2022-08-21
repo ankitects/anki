@@ -19,7 +19,6 @@ function toggleable(defaultValue: boolean): Toggleable {
 
     store.toggle = toggle;
 
-
     function on(): void {
         store.set(true);
     }

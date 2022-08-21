@@ -156,7 +156,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const newlineShortcut = "Shift+Enter";
 </script>
 
-
 {#if activeImage && mathjaxElement}
     <WithOverlay
         reference={activeImage}
@@ -229,7 +228,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             const editor = await mathjaxEditor.editor;
                             const { prefix, suffix } = detail;
 
-                            editor.replaceSelection(prefix + editor.getSelection() + suffix);
+                            editor.replaceSelection(
+                                prefix + editor.getSelection() + suffix,
+                            );
                         }}
                     />
                 </MathjaxEditor>

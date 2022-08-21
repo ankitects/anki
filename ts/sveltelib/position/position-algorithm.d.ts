@@ -8,5 +8,5 @@ import type { FloatingElement } from "@floating-ui/dom";
  */
 export type PositionAlgorithm = (
     reference: HTMLElement,
-    floating: FloatingElement
+    floating: FloatingElement,
 ) => Promise<void>;

@@ -233,11 +233,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 {#if activeImage}
-    <WithOverlay
-        reference={activeImage}
-        keepOnKeyup
-        let:position={positionOverlay}
-    >
+    <WithOverlay reference={activeImage} keepOnKeyup let:position={positionOverlay}>
         <WithFloating
             reference={activeImage}
             placement="auto"
@@ -279,8 +275,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {:else}
                     <span>{actualWidth}&times;{actualHeight}</span>
                     {#if customDimensions}
-                        <span>(Original: {naturalWidth}&times;{naturalHeight})</span
-                        >
+                        <span>(Original: {naturalWidth}&times;{naturalHeight})</span>
                     {/if}
                 {/if}
             </HandleLabel>

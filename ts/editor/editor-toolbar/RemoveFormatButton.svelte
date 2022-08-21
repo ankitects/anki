@@ -7,21 +7,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import CheckBox from "../../components/CheckBox.svelte";
     import DropdownItem from "../../components/DropdownItem.svelte";
-    import { withButton } from "../../components/helpers";
     import IconButton from "../../components/IconButton.svelte";
+    import Popover from "../../components/Popover.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
+    import WithFloating from "../../components/WithFloating.svelte";
     import type { MatchType } from "../../domlib/surround";
     import * as tr from "../../lib/ftl";
     import { altPressed, shiftPressed } from "../../lib/keys";
     import { getPlatformString } from "../../lib/shortcuts";
     import { singleCallback } from "../../lib/typing";
+    import { chevronDown } from "../icons";
     import { surrounder } from "../rich-text-input";
     import type { RemoveFormat } from "./EditorToolbar.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { eraserIcon } from "./icons";
-    import { arrowIcon } from "./icons";
-    import Popover from "../../components/Popover.svelte";
-    import WithFloating from "../../components/WithFloating.svelte";
 
     const { removeFormats } = editorToolbarContext.get();
 
@@ -127,10 +126,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             tooltip={tr.editingSelectRemoveFormatting()}
             {disabled}
             widthMultiplier={0.5}
+            iconSize={120}
             --border-right-radius="5px"
             on:click={() => (showFloating = !showFloating)}
         >
-            {@html arrowIcon}
+            {@html chevronDown}
         </IconButton>
     </span>
 

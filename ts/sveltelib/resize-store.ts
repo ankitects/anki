@@ -20,15 +20,16 @@ export type ResizeStore = Readable<ResizeObserverArgs>;
  * @remarks
  * Should probably always be used in conjunction with `subscribeToUpdates`.
  */
-function resizeStore(
-    target: Element,
-): ResizeStore {
+function resizeStore(target: Element): ResizeStore {
     let setter: (args: ResizeObserverArgs) => void;
 
-    const observer = new ResizeObserver((entries: ResizeObserverEntry[], observer: ResizeObserver): void => setter({
-        entries,
-        observer,
-    }));
+    const observer = new ResizeObserver(
+        (entries: ResizeObserverEntry[], observer: ResizeObserver): void =>
+            setter({
+                entries,
+                observer,
+            }),
+    );
 
     return readable(
         { entries: [], observer },

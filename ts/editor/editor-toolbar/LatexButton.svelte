@@ -79,10 +79,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let:asReference
 >
     <span class="latex-button" use:asReference>
-        <IconButton
-            {disabled}
-            on:click={() => (showFloating = !showFloating)}
-        >
+        <IconButton {disabled} on:click={() => (showFloating = !showFloating)}>
             {@html functionIcon}
         </IconButton>
     </span>

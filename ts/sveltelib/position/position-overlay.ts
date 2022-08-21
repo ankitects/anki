@@ -6,17 +6,14 @@ import type {
     FloatingElement,
     Middleware,
 } from "@floating-ui/dom";
-import {
-    computePosition,
-    inline,
-} from "@floating-ui/dom";
+import { computePosition, inline } from "@floating-ui/dom";
 
-import type { PositionAlgorithm } from "./position-algorithm"
+import type { PositionAlgorithm } from "./position-algorithm";
 
 export interface PositionOverlayArgs {
-    padding: number,
-    inline: boolean,
-    hideCallback: (reason: symbol) => void,
+    padding: number;
+    inline: boolean;
+    hideCallback: (reason: symbol) => void;
 }
 
 function positionOverlay({
@@ -24,7 +21,10 @@ function positionOverlay({
     inline: inlineArg,
     hideCallback,
 }: PositionOverlayArgs): PositionAlgorithm {
-    return async function(reference: HTMLElement, floating: FloatingElement): Promise<void> {
+    return async function (
+        reference: HTMLElement,
+        floating: FloatingElement,
+    ): Promise<void> {
         const middleware: Middleware[] = inlineArg ? [inline()] : [];
 
         const computeArgs: Partial<ComputePositionConfig> = {
@@ -34,7 +34,7 @@ function positionOverlay({
         const { middlewareData } = await computePosition(
             reference,
             floating,
-            computeArgs
+            computeArgs,
         );
 
         if (middlewareData.hide?.escaped) {
@@ -45,7 +45,6 @@ function positionOverlay({
             hideCallback(Symbol("referenceHidden"));
         }
 
-
         const { x, y, width, height } = reference.getBoundingClientRect();
 
         Object.assign(floating.style, {
@@ -54,7 +53,7 @@ function positionOverlay({
             width: `${width + 2 * padding}px`,
             height: `${height + 2 * padding}px`,
         });
-    }
+    };
 }
 
 export default positionOverlay;

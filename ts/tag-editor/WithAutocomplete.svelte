@@ -124,11 +124,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<WithFloating keepOnKeyup {show} placement="top-start" let:asReference>
-    <span
-        class="autocomplete-reference"
-        use:asReference
-    >
+<WithFloating
+    keepOnKeyup
+    show={$show}
+    placement="top-start"
+    let:asReference
+    on:close={() => show.set(false)}
+>
+    <span class="autocomplete-reference" use:asReference>
         <slot {createAutocomplete} />
     </span>
 

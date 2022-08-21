@@ -24,11 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <WithFloating {show} placement="top" let:asReference>
-    <div
-        class="tags-selected-button"
-        use:asReference
-        on:click={show.toggle}
-    >
+    <div class="tags-selected-button" use:asReference on:click={show.toggle}>
         <IconConstrain>{@html dotsIcon}</IconConstrain>
     </div>
 

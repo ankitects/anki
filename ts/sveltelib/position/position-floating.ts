@@ -17,17 +17,17 @@ import {
     shift,
 } from "@floating-ui/dom";
 
-import type { PositionAlgorithm } from "./position-algorithm"
+import type { PositionAlgorithm } from "./position-algorithm";
 
 export interface PositionFloatingArgs {
-    placement: Placement | 'auto';
+    placement: Placement | "auto";
     arrow: HTMLElement;
-    shift: number,
-    offset: number,
-    inline: boolean,
-    hideIfEscaped: boolean,
-    hideIfReferenceHidden: boolean,
-    hideCallback: (reason: symbol) => void,
+    shift: number;
+    offset: number;
+    inline: boolean;
+    hideIfEscaped: boolean;
+    hideIfReferenceHidden: boolean;
+    hideCallback: (reason: symbol) => void;
 }
 
 function positionFloating({
@@ -40,7 +40,10 @@ function positionFloating({
     hideIfReferenceHidden,
     hideCallback,
 }: PositionFloatingArgs): PositionAlgorithm {
-    return async function(reference: HTMLElement, floating: FloatingElement): Promise<void> {
+    return async function (
+        reference: HTMLElement,
+        floating: FloatingElement,
+    ): Promise<void> {
         const middleware: Middleware[] = [
             offset(offsetArg),
             shift({ padding: shiftArg }),
@@ -48,7 +51,7 @@ function positionFloating({
         ];
 
         if (inlineArg) {
-            middleware.unshift(inline())
+            middleware.unshift(inline());
         }
 
         const computeArgs: Partial<ComputePositionConfig> = {
@@ -58,22 +61,23 @@ function positionFloating({
         if (placement !== "auto") {
             computeArgs.placement = placement;
         } else {
-            middleware.push(autoPlacement())
+            middleware.push(autoPlacement());
         }
 
         if (hideIfEscaped) {
-            middleware.push(hide({ strategy: 'escaped' }));
+            middleware.push(hide({ strategy: "escaped" }));
         }
 
         if (hideIfReferenceHidden) {
-            middleware.push(hide({ strategy: 'referenceHidden' }));
+            middleware.push(hide({ strategy: "referenceHidden" }));
         }
 
-        const { x, y, middlewareData, placement: computedPlacement } = await computePosition(
-            reference,
-            floating,
-            computeArgs
-        );
+        const {
+            x,
+            y,
+            middlewareData,
+            placement: computedPlacement,
+        } = await computePosition(reference, floating, computeArgs);
 
         if (middlewareData.hide?.escaped) {
             return hideCallback(Symbol("escaped"));
@@ -115,7 +119,7 @@ function positionFloating({
             top: arrowY ? `${arrowY}px` : "",
             transform: `rotate(${rotation}deg)`,
         });
-    }
+    };
 }
 
 export default positionFloating;

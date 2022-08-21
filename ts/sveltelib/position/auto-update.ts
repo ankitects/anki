@@ -2,12 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { FloatingElement } from "@floating-ui/dom";
-import {
-    autoUpdate as floatingUiAutoUpdate,
-} from "@floating-ui/dom";
+import { autoUpdate as floatingUiAutoUpdate } from "@floating-ui/dom";
 import type { ActionReturn } from "svelte/action";
 
-import type { Callback } from "../../lib/typing"
+import type { Callback } from "../../lib/typing";
 
 /**
  * The interface of `autoUpdate` of floating-ui.
@@ -19,12 +17,19 @@ import type { Callback } from "../../lib/typing"
  *     callback();
  * })`
  */
-export type PositioningCallback = (reference: HTMLElement, floating: FloatingElement, position: Callback) => Callback;
+export type PositioningCallback = (
+    reference: HTMLElement,
+    floating: FloatingElement,
+    position: Callback,
+) => Callback;
 
 /**
  * The interface of a function that calls `computePosition` of floating-ui.
  */
-export type PositionFunc = (reference: HTMLElement, callback: PositioningCallback) => Callback;
+export type PositionFunc = (
+    reference: HTMLElement,
+    callback: PositioningCallback,
+) => Callback;
 
 function autoUpdate(
     reference: HTMLElement,
@@ -41,10 +46,10 @@ function autoUpdate(
 
     function update(position: PositionFunc): void {
         destroy();
-        cleanup = position(reference, floatingUiAutoUpdate)
+        cleanup = position(reference, floatingUiAutoUpdate);
     }
 
-    update(position)
+    update(position);
 
     return { destroy, update };
 }
