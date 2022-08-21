@@ -15,17 +15,17 @@ import type { PositionAlgorithm } from "./position-algorithm"
 
 export interface PositionOverlayArgs {
     padding: number,
+    inline: boolean,
     hideCallback: (reason: symbol) => void,
 }
 
 function positionOverlay({
     padding,
+    inline: inlineArg,
     hideCallback,
 }: PositionOverlayArgs): PositionAlgorithm {
     return async function(reference: HTMLElement, floating: FloatingElement): Promise<void> {
-        const middleware: Middleware[] = [
-            inline(),
-        ];
+        const middleware: Middleware[] = inlineArg ? [inline()] : [];
 
         const computeArgs: Partial<ComputePositionConfig> = {
             middleware,

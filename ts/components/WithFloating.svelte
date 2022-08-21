@@ -26,6 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let placement: Placement | "auto" = "bottom";
     export let offset = 5;
     export let shift = 5;
+    export let inline = false;
     export let hideIfEscaped = false;
     export let hideIfReferenceHidden = false;
 
@@ -40,6 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         placement,
         offset,
         shift,
+        inline,
         arrow,
         hideIfEscaped,
         hideIfReferenceHidden,
@@ -133,9 +135,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <slot {position} {asReference} />
 
 {#if $$slots.reference}
-    <div class="floating-reference" use:asReference>
-        <slot name="reference" />
-    </div>
+    {#if inline}
+        <span class="floating-reference" use:asReference>
+            <slot name="reference" />
+        </span>
+    {:else}
+        <div class="floating-reference" use:asReference>
+            <slot name="reference" />
+        </div>
+    {/if}
 {/if}
 
 <div bind:this={floating} class="floating" use:portal>

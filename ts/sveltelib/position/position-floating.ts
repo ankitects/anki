@@ -24,6 +24,7 @@ export interface PositionFloatingArgs {
     arrow: HTMLElement;
     shift: number,
     offset: number,
+    inline: boolean,
     hideIfEscaped: boolean,
     hideIfReferenceHidden: boolean,
     hideCallback: (reason: symbol) => void,
@@ -34,17 +35,21 @@ function positionFloating({
     arrow: arrowElement,
     shift: shiftArg,
     offset: offsetArg,
+    inline: inlineArg,
     hideIfEscaped,
     hideIfReferenceHidden,
     hideCallback,
 }: PositionFloatingArgs): PositionAlgorithm {
     return async function(reference: HTMLElement, floating: FloatingElement): Promise<void> {
         const middleware: Middleware[] = [
-            inline(),
             offset(offsetArg),
             shift({ padding: shiftArg }),
             arrow({ element: arrowElement, padding: 5 }),
         ];
+
+        if (inlineArg) {
+            middleware.unshift(inline())
+        }
 
         const computeArgs: Partial<ComputePositionConfig> = {
             middleware,

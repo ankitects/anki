@@ -22,6 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import subscribeToUpdates from "../sveltelib/subscribe-updates";
 
     export let padding = 0;
+    export let inline = false;
 
     /** This may be passed in for more fine-grained control */
     export let show = true;
@@ -30,6 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: positionCurried = positionOverlay({
         padding,
+        inline,
         hideCallback: (reason: symbol) => dispatch("close", reason),
     });
 
