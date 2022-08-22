@@ -20,6 +20,7 @@ impl Collection {
     ) -> Result<(Vec<String>, bool)> {
         self.canonify_tags_inner(tags, usn, true)
     }
+
     pub(crate) fn canonify_tags_without_registering(
         &mut self,
         tags: Vec<String>,

@@ -328,19 +328,19 @@ impl<'a> Context<'a> {
                 ctx.global_tags.iter().chain(ctx.updated_tags.iter()),
             );
 
-            if dupe.identical {
-                log.duplicate.push(dupe.note.into_log_note());
-            } else {
+            if !dupe.identical {
                 self.prepare_note(&mut note, &ctx.notetype)?;
                 self.col.update_note_undoable(&note, &dupe.note)?;
-                if dupe.first_field_match {
-                    log.first_field_match.push(dupe.note.into_log_note());
-                } else {
-                    log.updated.push(dupe.note.into_log_note());
-                }
             }
-
             self.add_cards(&mut cards, &note, ctx.deck_id, ctx.notetype.clone())?;
+
+            if dupe.identical {
+                log.duplicate.push(dupe.note.into_log_note());
+            } else if dupe.first_field_match {
+                log.first_field_match.push(note.into_log_note());
+            } else {
+                log.updated.push(note.into_log_note());
+            }
         }
 
         Ok(())
