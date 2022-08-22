@@ -167,14 +167,13 @@ impl ColumnContext {
         }
     }
 
-    fn gather_tags(&self, record: &csv::StringRecord) -> Vec<String> {
-        self.tags_column
-            .and_then(|i| record.get(i - 1))
-            .unwrap_or_default()
-            .split_whitespace()
-            .filter(|s| !s.is_empty())
-            .map(ToString::to_string)
-            .collect()
+    fn gather_tags(&self, record: &csv::StringRecord) -> Option<Vec<String>> {
+        self.tags_column.and_then(|i| record.get(i - 1)).map(|s| {
+            s.split_whitespace()
+                .filter(|s| !s.is_empty())
+                .map(ToString::to_string)
+                .collect()
+        })
     }
 
     fn gather_note_fields(&self, record: &csv::StringRecord) -> Vec<Option<String>> {
@@ -356,7 +355,7 @@ mod test {
         let mut metadata = CsvMetadata::defaults_for_testing();
         metadata.tags_column = 3;
         let notes = import!(metadata, "front,back,foo bar\n");
-        assert_eq!(notes[0].tags, &["foo", "bar"]);
+        assert_eq!(notes[0].tags.as_ref().unwrap(), &["foo", "bar"]);
     }
 
     #[test]

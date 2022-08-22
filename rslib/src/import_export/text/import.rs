@@ -401,8 +401,10 @@ impl Collection {
     }
 
     fn canonify_foreign_tags(&mut self, note: &mut ForeignNote, usn: Usn) -> Result<()> {
-        let tags = std::mem::take(&mut note.tags);
-        note.tags = self.canonify_tags_without_registering(tags, usn)?;
+        if let Some(tags) = note.tags.take() {
+            note.tags
+                .replace(self.canonify_tags_without_registering(tags, usn)?);
+        }
         Ok(())
     }
 
@@ -434,8 +436,10 @@ impl ForeignNote {
         if !self.guid.is_empty() {
             note.guid = self.guid;
         }
-        note.tags
-            .extend(self.tags.into_iter().chain(extra_tags.into_iter().cloned()));
+        if let Some(tags) = self.tags {
+            note.tags = tags;
+        }
+        note.tags.extend(extra_tags.into_iter().cloned());
         note.fields_mut()
             .iter_mut()
             .zip(self.fields.into_iter())
@@ -467,7 +471,7 @@ impl ForeignNote {
 
     /// Expects normalized form.
     fn equal_fields_and_tags(&self, other: &Note) -> bool {
-        self.tags == other.tags
+        self.tags.as_ref().map_or(true, |tags| *tags == other.tags)
             && self
                 .fields
                 .iter()
@@ -648,7 +652,7 @@ mod test {
         let mut col = open_test_collection();
         let mut data = ForeignData::with_defaults();
         data.add_note(&["foo"]);
-        data.notes[0].tags = vec![String::from("bar")];
+        data.notes[0].tags.replace(vec![String::from("bar")]);
         data.global_tags = vec![String::from("baz")];
 
         data.import(&mut col, |_, _| true).unwrap();
@@ -660,7 +664,7 @@ mod test {
         let mut col = open_test_collection();
         let mut data = ForeignData::with_defaults();
         data.add_note(&["foo"]);
-        data.notes[0].tags = vec![String::from("bar")];
+        data.notes[0].tags.replace(vec![String::from("bar")]);
         data.global_tags = vec![String::from("baz")];
 
         data.import(&mut col, |_, _| true).unwrap();

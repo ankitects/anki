@@ -27,7 +27,7 @@ pub struct ForeignData {
 pub struct ForeignNote {
     guid: String,
     fields: Vec<Option<String>>,
-    tags: Vec<String>,
+    tags: Option<Vec<String>>,
     notetype: NameOrId,
     deck: NameOrId,
     cards: Vec<ForeignCard>,
