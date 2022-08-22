@@ -10,7 +10,24 @@ if TYPE_CHECKING:
     import anki.collection
 
 
-class LocalizedError(Exception):
+class AnkiException(Exception):
+    """
+    General Anki exception that all custom exceptions raised by Anki should
+    inherit from. Allows add-ons to easily identify Anki-native exceptions.
+
+    When inheriting from a Python built-in exception other than `Exception`,
+    please supply `AnkiException` as an additional inheritance:
+
+    ```
+    class MyNewAnkiException(ValueError, AnkiException):
+        pass
+    ```
+    """
+
+    pass
+
+
+class LocalizedError(AnkiException):
     "An error with a localized description."
 
     def __init__(self, localized: str) -> None:
@@ -29,7 +46,7 @@ class DocumentedError(LocalizedError):
         super().__init__(localized)
 
 
-class Interrupted(Exception):
+class Interrupted(AnkiException):
     pass
 
 
@@ -68,7 +85,7 @@ class TemplateError(LocalizedError):
     pass
 
 
-class NotFoundError(Exception):
+class NotFoundError(AnkiException):
     pass
 
 
@@ -76,11 +93,11 @@ class DeletedError(LocalizedError):
     pass
 
 
-class ExistsError(Exception):
+class ExistsError(AnkiException):
     pass
 
 
-class UndoEmpty(Exception):
+class UndoEmpty(AnkiException):
     pass
 
 
@@ -96,7 +113,7 @@ class SearchError(LocalizedError):
     pass
 
 
-class AbortSchemaModification(Exception):
+class AbortSchemaModification(AnkiException):
     pass
 
 
