@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         min-width: 1rem;
         max-width: 95vw;
 
-        padding: 0.5rem 0;
+        padding: 5px;
         font-size: 1rem;
         color: var(--text-fg);
 

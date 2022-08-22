@@ -88,7 +88,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <ButtonGroupItem>
             <WithFloating
                 show={showFloating && !disabled}
-                closeOnInsideClick
                 inline
                 on:close={() => (showFloating = false)}
                 let:asReference

@@ -5,12 +5,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { onMount, tick } from "svelte";
 
+    import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
     import WithOverlay from "../../components/WithOverlay.svelte";
     import { on } from "../../lib/events";
     import * as tr from "../../lib/ftl";
-    import { singleCallback } from "../../lib/typing";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
     import HandleLabel from "../HandleLabel.svelte";
@@ -45,8 +45,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function maybeShowHandle(event: Event): Promise<void> {
-        await resetHandle();
-
         if (event.target instanceof HTMLImageElement) {
             const image = event.target;
 
@@ -205,12 +203,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         container.style.setProperty("--editor-shrink-max-width", `${maxWidth}px`);
         container.style.setProperty("--editor-shrink-max-height", `${maxHeight}px`);
 
-        return singleCallback(
-            on(container, "click", maybeShowHandle),
-            on(container, "blur", resetHandle),
-            on(container, "key" as any, resetHandle),
-            on(container, "paste", resetHandle),
-        );
+        return on(container, "click", maybeShowHandle);
     });
 
     let shrinkingDisabled: boolean;
@@ -233,29 +226,45 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 {#if activeImage}
-    <WithOverlay reference={activeImage} keepOnKeyup let:position={positionOverlay}>
+    <WithOverlay
+        reference={activeImage}
+        inline
+        let:position={positionOverlay}
+    >
         <WithFloating
             reference={activeImage}
             placement="auto"
             offset={20}
-            keepOnKeyup
+            inline
             hideIfEscaped
+            hideIfReferenceHidden
             let:position={positionFloating}
+            on:close={resetHandle}
         >
             <Popover slot="floating">
-                <FloatButtons image={activeImage} />
+                <ButtonToolbar>
+                    <FloatButtons
+                        image={activeImage}
+                        on:update={async () => {
+                            positionOverlay();
+                            positionFloating();
+                        }}
+                    />
 
-                <SizeSelect
-                    {shrinkingDisabled}
-                    {restoringDisabled}
-                    {isSizeConstrained}
-                    on:imagetoggle={() => {
-                        toggleActualSize();
-                    }}
-                    on:imageclear={() => {
-                        clearActualSize();
-                    }}
-                />
+                    <SizeSelect
+                        {shrinkingDisabled}
+                        {restoringDisabled}
+                        {isSizeConstrained}
+                        on:imagetoggle={() => {
+                            toggleActualSize();
+                            positionOverlay();
+                        }}
+                        on:imageclear={() => {
+                            clearActualSize();
+                            positionOverlay();
+                        }}
+                    />
+                </ButtonToolbar>
             </Popover>
         </WithFloating>
 
@@ -266,6 +275,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         return;
                     }
                     toggleActualSize();
+                    positionOverlay();
                 }}
             />
 
