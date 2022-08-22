@@ -24,8 +24,6 @@ class AnkiException(Exception):
     ```
     """
 
-    pass
-
 
 class LocalizedError(AnkiException):
     "An error with a localized description."
