@@ -351,6 +351,15 @@
     "description": "Diff library with semantic cleanup, based on Google's diff-match-patch"
   },
   {
+    "name": "doc-comment",
+    "version": "0.3.3",
+    "authors": "Guillaume Gomez <guillaume1.gomez@gmail.com>",
+    "repository": "https://github.com/GuillaumeGomez/doc-comment",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Macro to generate doc comments"
+  },
+  {
     "name": "either",
     "version": "1.6.1",
     "authors": "bluss",
@@ -650,6 +659,15 @@
   {
     "name": "heck",
     "version": "0.3.3",
+    "authors": "Without Boats <woboats@gmail.com>",
+    "repository": "https://github.com/withoutboats/heck",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "heck is a case conversion library."
+  },
+  {
+    "name": "heck",
+    "version": "0.4.0",
     "authors": "Without Boats <woboats@gmail.com>",
     "repository": "https://github.com/withoutboats/heck",
     "license": "Apache-2.0 OR MIT",
@@ -1924,6 +1942,24 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "'Small vector' optimization: store up to a small number of items on the stack"
+  },
+  {
+    "name": "snafu",
+    "version": "0.7.1",
+    "authors": "Jake Goulding <jake.goulding@gmail.com>",
+    "repository": "https://github.com/shepmaster/snafu",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "An ergonomic error handling library"
+  },
+  {
+    "name": "snafu-derive",
+    "version": "0.7.1",
+    "authors": "Jake Goulding <jake.goulding@gmail.com>",
+    "repository": "https://github.com/shepmaster/snafu",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "An ergonomic error handling library"
   },
   {
     "name": "snowflake",

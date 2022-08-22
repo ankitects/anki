@@ -490,6 +490,15 @@ alias(
 )
 
 alias(
+    name = "snafu",
+    actual = "@raze__snafu__0_7_1//:snafu",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "strum",
     actual = "@raze__strum__0_23_0//:strum",
     tags = [

@@ -443,6 +443,16 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "raze__doc_comment__0_3_3",
+        url = "https://crates.io/api/v1/crates/doc-comment/0.3.3/download",
+        type = "tar.gz",
+        sha256 = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10",
+        strip_prefix = "doc-comment-0.3.3",
+        build_file = Label("//cargo/remote:BUILD.doc-comment-0.3.3.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "raze__dtoa__0_4_8",
         url = "https://crates.io/api/v1/crates/dtoa/0.4.8/download",
         type = "tar.gz",
@@ -819,6 +829,16 @@ def raze_fetch_remote_crates():
         sha256 = "6d621efb26863f0e9924c6ac577e8275e5e6b77455db64ffa6c65c904e9e132c",
         strip_prefix = "heck-0.3.3",
         build_file = Label("//cargo/remote:BUILD.heck-0.3.3.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__heck__0_4_0",
+        url = "https://crates.io/api/v1/crates/heck/0.4.0/download",
+        type = "tar.gz",
+        sha256 = "2540771e65fc8cb83cd6e8a237f70c319bd5c29f78ed1084ba5d50eeac86f7f9",
+        strip_prefix = "heck-0.4.0",
+        build_file = Label("//cargo/remote:BUILD.heck-0.4.0.bazel"),
     )
 
     maybe(
@@ -2389,6 +2409,26 @@ def raze_fetch_remote_crates():
         sha256 = "f2dd574626839106c320a323308629dcb1acfc96e32a8cba364ddc61ac23ee83",
         strip_prefix = "smallvec-1.8.0",
         build_file = Label("//cargo/remote:BUILD.smallvec-1.8.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__snafu__0_7_1",
+        url = "https://crates.io/api/v1/crates/snafu/0.7.1/download",
+        type = "tar.gz",
+        sha256 = "5177903bf45656592d9eb5c0e22f408fc023aae51dbe2088889b71633ba451f2",
+        strip_prefix = "snafu-0.7.1",
+        build_file = Label("//cargo/remote:BUILD.snafu-0.7.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__snafu_derive__0_7_1",
+        url = "https://crates.io/api/v1/crates/snafu-derive/0.7.1/download",
+        type = "tar.gz",
+        sha256 = "410b26ed97440d90ced3e2488c868d56a86e2064f5d7d6f417909b286afe25e5",
+        strip_prefix = "snafu-derive-0.7.1",
+        build_file = Label("//cargo/remote:BUILD.snafu-derive-0.7.1.bazel"),
     )
 
     maybe(
