@@ -402,7 +402,7 @@ impl Collection {
 
     fn canonify_foreign_tags(&mut self, note: &mut ForeignNote, usn: Usn) -> Result<()> {
         let tags = std::mem::take(&mut note.tags);
-        note.tags = self.canonify_tags_without_resgistering(tags, usn)?;
+        note.tags = self.canonify_tags_without_registering(tags, usn)?;
         Ok(())
     }
 
