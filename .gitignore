@@ -6,5 +6,6 @@ target
 .dmypy.json
 node_modules
 /.idea/
+/.vscode/
 /.bazel
 /windows.bazelrc
