@@ -1,5 +1,14 @@
 [
   {
+    "name": "addr2line",
+    "version": "0.17.0",
+    "authors": null,
+    "repository": "https://github.com/gimli-rs/addr2line",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A cross-platform symbolication library written in Rust, using `gimli`"
+  },
+  {
     "name": "adler",
     "version": "1.0.2",
     "authors": "Jonas Schievink <jonasschievink@gmail.com>",
@@ -124,6 +133,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Automatic cfg for Rust compiler features"
+  },
+  {
+    "name": "backtrace",
+    "version": "0.3.66",
+    "authors": "The Rust Project Developers",
+    "repository": "https://github.com/rust-lang/backtrace-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A library to acquire a stack trace (backtrace) at runtime in a Rust program."
   },
   {
     "name": "base64",
@@ -630,6 +648,15 @@
     "description": "A small cross-platform library for retrieving random data from system source"
   },
   {
+    "name": "gimli",
+    "version": "0.26.2",
+    "authors": null,
+    "repository": "https://github.com/gimli-rs/gimli",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A library for reading and writing the DWARF debugging format."
+  },
+  {
     "name": "h2",
     "version": "0.3.12",
     "authors": "Carl Lerche <me@carllerche.com>|Sean McArthur <sean@seanmonstar.com>",
@@ -1044,6 +1071,15 @@
     "description": "DEFLATE compression and decompression library rewritten in Rust based on miniz"
   },
   {
+    "name": "miniz_oxide",
+    "version": "0.5.3",
+    "authors": "Frommi <daniil.liferenko@gmail.com>|oyvindln <oyvindln@users.noreply.github.com>",
+    "repository": "https://github.com/Frommi/miniz_oxide/tree/master/miniz_oxide",
+    "license": "Apache-2.0 OR MIT OR Zlib",
+    "license_file": null,
+    "description": "DEFLATE compression and decompression library rewritten in Rust based on miniz"
+  },
+  {
     "name": "mio",
     "version": "0.8.1",
     "authors": "Carl Lerche <me@carllerche.com>|Thomas de Zeeuw <thomasdezeeuw@gmail.com>|Tokio Contributors <team@tokio.rs>",
@@ -1177,6 +1213,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A minimal library that determines the number of running threads for the current process."
+  },
+  {
+    "name": "object",
+    "version": "0.29.0",
+    "authors": null,
+    "repository": "https://github.com/gimli-rs/object",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A unified interface for reading and writing object file formats."
   },
   {
     "name": "once_cell",
@@ -1663,6 +1708,15 @@
     "license": "MIT",
     "license_file": null,
     "description": "Ergonomic wrapper for SQLite"
+  },
+  {
+    "name": "rustc-demangle",
+    "version": "0.1.21",
+    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "repository": "https://github.com/alexcrichton/rustc-demangle",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Rust compiler symbol demangling."
   },
   {
     "name": "rustc-hash",

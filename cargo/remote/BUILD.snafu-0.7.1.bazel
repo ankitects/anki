@@ -35,6 +35,8 @@ rust_library(
     name = "snafu",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "backtrace",
+        "backtraces",
         "default",
         "rust_1_46",
         "std",
@@ -56,6 +58,7 @@ rust_library(
     version = "0.7.1",
     # buildifier: leave-alone
     deps = [
+        "@raze__backtrace__0_3_66//:backtrace",
         "@raze__doc_comment__0_3_3//:doc_comment",
     ],
 )
