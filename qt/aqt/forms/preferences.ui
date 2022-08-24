@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>518</height>
+    <height>530</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -93,6 +93,13 @@
         <widget class="QCheckBox" name="ignore_accents_in_search">
          <property name="text">
           <string>preferences_ignore_accents_in_search</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="legacy_import_export">
+         <property name="text">
+          <string notr="true">Legacy import/export handling</string>
          </property>
         </widget>
        </item>
@@ -677,6 +684,7 @@
   <tabstop>pastePNG</tabstop>
   <tabstop>paste_strips_formatting</tabstop>
   <tabstop>ignore_accents_in_search</tabstop>
+  <tabstop>legacy_import_export</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>

@@ -5,7 +5,6 @@
 
 pub mod adding;
 pub mod backend;
-mod backend_proto;
 pub mod browser_table;
 pub mod card;
 pub mod card_rendering;
@@ -28,6 +27,7 @@ pub mod media;
 pub mod notes;
 pub mod notetype;
 pub mod ops;
+pub mod pb;
 mod preferences;
 pub mod prelude;
 pub mod revlog;
@@ -43,6 +43,7 @@ pub mod template_filters;
 pub(crate) mod tests;
 pub mod text;
 pub mod timestamp;
+mod typeanswer;
 pub mod types;
 pub mod undo;
 pub mod version;

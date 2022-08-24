@@ -6,7 +6,10 @@
 use std::{collections::HashSet, fs::File, io::Write};
 
 use crate::{
-    media::files::sha1_of_data, prelude::*, search::SearchNode, tests::open_fs_test_collection,
+    media::{files::sha1_of_data, MediaManager},
+    prelude::*,
+    search::SearchNode,
+    tests::open_fs_test_collection,
 };
 
 const SAMPLE_JPG: &str = "sample.jpg";
@@ -132,9 +135,13 @@ impl Collection {
     fn assert_note_and_media(&mut self, note: &Note) {
         let sha1 = sha1_of_data(MP3_DATA);
         let new_mp3_name = format!("sample-{}.mp3", hex::encode(&sha1));
+        let csums = MediaManager::new(&self.media_folder, &self.media_db)
+            .unwrap()
+            .all_checksums_as_is();
 
         for file in [SAMPLE_JPG, SAMPLE_JS, &new_mp3_name] {
-            assert!(self.media_folder.join(file).exists())
+            assert!(self.media_folder.join(file).exists());
+            assert!(*csums.get(file).unwrap() != [0; 20]);
         }
 
         let imported_note = self.storage.get_note(note.id).unwrap().unwrap();

@@ -8,7 +8,7 @@ import pprint
 import re
 import sys
 import time
-from typing import Any, Callable
+from typing import Callable
 
 from anki import media_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated_keywords
@@ -142,7 +142,7 @@ class MediaManager(DeprecatedNamesMixin):
                     files.append(fname)
         return files
 
-    def transform_names(self, txt: str, func: Callable) -> Any:
+    def transform_names(self, txt: str, func: Callable) -> str:
         for reg in self.regexps:
             txt = re.sub(reg, func, txt)
         return txt

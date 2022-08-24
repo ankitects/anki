@@ -3,12 +3,9 @@
 
 from __future__ import annotations
 
-import difflib
-import html
 import json
 import random
 import re
-import unicodedata as ucd
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Any, Callable, Literal, Match, Sequence, cast
@@ -24,7 +21,6 @@ from anki.scheduler.v3 import CardAnswer, NextStates, QueuedCards
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
-from anki.utils import strip_html
 from aqt import AnkiQt, gui_hooks
 from aqt.browser.card_info import PreviousReviewerCardInfo, ReviewerCardInfo
 from aqt.deckoptions import confirm_deck_then_display_options
@@ -45,7 +41,14 @@ from aqt.qt import *
 from aqt.sound import av_player, play_clicked_audio, record_audio
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
-from aqt.utils import askUserDialog, downArrow, qtMenuShortcutWorkaround, tooltip, tr
+from aqt.utils import (
+    askUserDialog,
+    downArrow,
+    qtMenuShortcutWorkaround,
+    show_warning,
+    tooltip,
+    tr,
+)
 
 
 class RefreshNeeded(Enum):
@@ -140,6 +143,7 @@ class Reviewer:
     def show(self) -> None:
         if self.mw.col.sched_ver() == 1:
             self.mw.moveToState("deckBrowser")
+            show_warning(tr.scheduling_update_required())
             return
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
         self.web.set_bridge_command(self._linkHandler, self)
@@ -313,6 +317,9 @@ class Reviewer:
             ],
             context=self,
         )
+        # block default drag & drop behavior while allowing drop events to be received by JS handlers
+        self.web.allow_drops = True
+        self.web.eval("_blockDefaultDragDropBehavior();")
         # show answer / ease buttons
         self.bottom.web.show()
         self.bottom.web.stdHtml(
@@ -594,26 +601,19 @@ class Reviewer:
         buf = buf.replace("<hr id=answer>", "")
         hadHR = len(buf) != origSize
         # munge correct value
-        cor = self.mw.col.media.strip(self.typeCorrect)
-        cor = re.sub("(\n|<br ?/?>|</?div>)+", " ", cor)
-        cor = strip_html(cor)
-        # ensure we don't chomp multiple whitespace
-        cor = cor.replace(" ", "&nbsp;")
-        cor = html.unescape(cor)
-        cor = cor.replace("\xa0", " ")
-        cor = cor.strip()
-        given = self.typedAnswer
+        expected = self.typeCorrect
+        provided = self.typedAnswer
         # compare with typed answer
-        res = self.correct(given, cor, showBad=False)
+        output = self.mw.col.compare_answer(expected, provided)
         # and update the type answer area
         def repl(match: Match) -> str:
             # can't pass a string in directly, and can't use re.escape as it
             # escapes too much
             s = """
-<span style="font-family: '{}'; font-size: {}px">{}</span>""".format(
+<div style="font-family: '{}'; font-size: {}px">{}</div>""".format(
                 self.typeFont,
                 self.typeSize,
-                res,
+                output,
             )
             if hadHR:
                 # a hack to ensure the q/a separator falls before the answer
@@ -640,84 +640,6 @@ class Reviewer:
         else:
             txt = ", ".join(matches)
         return txt
-
-    def tokenizeComparison(
-        self, given: str, correct: str
-    ) -> tuple[list[tuple[bool, str]], list[tuple[bool, str]]]:
-        # compare in NFC form so accents appear correct
-        given = ucd.normalize("NFC", given)
-        correct = ucd.normalize("NFC", correct)
-        s = difflib.SequenceMatcher(None, given, correct, autojunk=False)
-        givenElems: list[tuple[bool, str]] = []
-        correctElems: list[tuple[bool, str]] = []
-        givenPoint = 0
-        correctPoint = 0
-        offby = 0
-
-        def logBad(old: int, new: int, s: str, array: list[tuple[bool, str]]) -> None:
-            if old != new:
-                array.append((False, s[old:new]))
-
-        def logGood(
-            start: int, cnt: int, s: str, array: list[tuple[bool, str]]
-        ) -> None:
-            if cnt:
-                array.append((True, s[start : start + cnt]))
-
-        for x, y, cnt in s.get_matching_blocks():
-            # if anything was missed in correct, pad given
-            if cnt and y - offby > x:
-                givenElems.append((False, "-" * (y - x - offby)))
-                offby = y - x
-            # log any proceeding bad elems
-            logBad(givenPoint, x, given, givenElems)
-            logBad(correctPoint, y, correct, correctElems)
-            givenPoint = x + cnt
-            correctPoint = y + cnt
-            # log the match
-            logGood(x, cnt, given, givenElems)
-            logGood(y, cnt, correct, correctElems)
-        return givenElems, correctElems
-
-    def correct(self, given: str, correct: str, showBad: bool = True) -> str:
-        "Diff-corrects the typed-in answer."
-        givenElems, correctElems = self.tokenizeComparison(given, correct)
-
-        def good(s: str) -> str:
-            return f"<span class=typeGood>{html.escape(s)}</span>"
-
-        def bad(s: str) -> str:
-            return f"<span class=typeBad>{html.escape(s)}</span>"
-
-        def missed(s: str) -> str:
-            return f"<span class=typeMissed>{html.escape(s)}</span>"
-
-        if given == correct:
-            res = good(given)
-        else:
-            res = ""
-            for ok, txt in givenElems:
-                txt = self._noLoneMarks(txt)
-                if ok:
-                    res += good(txt)
-                else:
-                    res += bad(txt)
-            res += "<br><span id=typearrow>&darr;</span><br>"
-            for ok, txt in correctElems:
-                txt = self._noLoneMarks(txt)
-                if ok:
-                    res += good(txt)
-                else:
-                    res += missed(txt)
-        res = f"<div><code id=typeans>{res}</code></div>"
-        return res
-
-    def _noLoneMarks(self, s: str) -> str:
-        # ensure a combining character at the start does not join to
-        # previous text
-        if s and ucd.category(s[0]).startswith("M"):
-            return f"\xa0{s}"
-        return s
 
     def _getTypedAnswer(self) -> None:
         self.web.evalWithCallback("getTypedAnswer();", self._onTypedAnswer)
@@ -930,7 +852,11 @@ time = %(time)d;
                 ],
             ],
             [tr.studying_bury_card(), "-", self.bury_current_card],
-            [tr.actions_forget_card(), "Ctrl+Alt+N", self.forget_current_card],
+            [
+                tr.actions_with_ellipsis(action=tr.actions_forget_card()),
+                "Ctrl+Alt+N",
+                self.forget_current_card,
+            ],
             [
                 tr.actions_with_ellipsis(action=tr.actions_set_due_date()),
                 "Ctrl+Shift+D",
@@ -1044,23 +970,27 @@ time = %(time)d;
             op.run_in_background()
 
     def suspend_current_note(self) -> None:
+        gui_hooks.reviewer_will_suspend_note(self.card.nid)
         suspend_note(
             parent=self.mw,
             note_ids=[self.card.nid],
         ).success(lambda _: tooltip(tr.studying_note_suspended())).run_in_background()
 
     def suspend_current_card(self) -> None:
+        gui_hooks.reviewer_will_suspend_card(self.card.id)
         suspend_cards(
             parent=self.mw,
             card_ids=[self.card.id],
         ).success(lambda _: tooltip(tr.studying_card_suspended())).run_in_background()
 
     def bury_current_note(self) -> None:
+        gui_hooks.reviewer_will_bury_note(self.card.nid)
         bury_notes(parent=self.mw, note_ids=[self.card.nid],).success(
             lambda res: tooltip(tr.studying_cards_buried(count=res.count))
         ).run_in_background()
 
     def bury_current_card(self) -> None:
+        gui_hooks.reviewer_will_bury_card(self.card.id)
         bury_cards(parent=self.mw, card_ids=[self.card.id],).success(
             lambda res: tooltip(tr.studying_cards_buried(count=res.count))
         ).run_in_background()
@@ -1095,6 +1025,9 @@ time = %(time)d;
         record_audio(self.mw, self.mw, False, after_record)
 
     def onReplayRecorded(self) -> None:
+        self._recordedAudio = gui_hooks.reviewer_will_replay_recording(
+            self._recordedAudio
+        )
         if not self._recordedAudio:
             tooltip(tr.studying_you_havent_recorded_your_voice_yet())
             return

@@ -165,7 +165,7 @@ scheduling-set-due-date-prompt =
     }
 scheduling-set-due-date-prompt-hint =
     0 = today
-    1! = tomorrow+reset review interval
+    1! = tomorrow + change interval to 1
     3-7 = random choice of 3-7 days
 scheduling-set-due-date-done =
     { $cards ->

@@ -5,12 +5,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
 
+    import Collapsible from "../components/Collapsible.svelte";
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import type { EditorToolbarAPI } from "./editor-toolbar";
     import type { EditorFieldAPI } from "./EditorField.svelte";
+    import FieldState from "./FieldState.svelte";
+    import LabelContainer from "./LabelContainer.svelte";
+    import LabelName from "./LabelName.svelte";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
+        hoveredField: Writable<EditorFieldAPI | null>;
         focusedField: Writable<EditorFieldAPI | null>;
         focusedInput: Writable<EditingInputAPI | null>;
         toolbar: EditorToolbarAPI;
@@ -39,27 +44,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
+    import StickyContainer from "../components/StickyContainer.svelte";
     import { bridgeCommand } from "../lib/bridgecommand";
+    import { TagEditor } from "../tag-editor";
     import { ChangeTimer } from "./change-timer";
     import DecoratedElements from "./DecoratedElements.svelte";
     import { clearableArray } from "./destroyable";
     import DuplicateLink from "./DuplicateLink.svelte";
-    import { EditorToolbar } from "./editor-toolbar";
+    import EditorToolbar from "./editor-toolbar";
     import type { FieldData } from "./EditorField.svelte";
     import EditorField from "./EditorField.svelte";
+    import FieldDescription from "./FieldDescription.svelte";
     import Fields from "./Fields.svelte";
     import FieldsEditor from "./FieldsEditor.svelte";
     import FrameElement from "./FrameElement.svelte";
     import { alertIcon } from "./icons";
-    import { ImageHandle } from "./image-overlay";
-    import { MathjaxHandle } from "./mathjax-overlay";
+    import ImageHandle from "./image-overlay";
+    import MathjaxHandle from "./mathjax-overlay";
     import MathjaxElement from "./MathjaxElement.svelte";
     import Notification from "./Notification.svelte";
-    import { PlainTextInput } from "./plain-text-input";
+    import PlainTextInput from "./plain-text-input";
     import PlainTextBadge from "./PlainTextBadge.svelte";
-    import { editingInputIsRichText, RichTextInput } from "./rich-text-input";
-    import RichTextBadge from "./RichTextBadge.svelte";
-    import { TagEditor } from "./tag-editor";
+    import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -107,21 +113,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fieldNames = newFieldNames;
     }
 
+    let plainTexts: boolean[] = [];
+    let richTextsHidden: boolean[] = [];
+    let plainTextsHidden: boolean[] = [];
+
+    export function setPlainTexts(fs: boolean[]): void {
+        richTextsHidden = plainTexts = fs;
+        plainTextsHidden = Array.from(fs, (v) => !v);
+    }
+
+    function setMathjaxEnabled(enabled: boolean): void {
+        mathjaxConfig.enabled = enabled;
+    }
+
     let fieldDescriptions: string[] = [];
     export function setDescriptions(fs: string[]): void {
         fieldDescriptions = fs;
     }
 
     let fonts: [string, number, boolean][] = [];
-    let richTextsHidden: boolean[] = [];
-    let plainTextsHidden: boolean[] = [];
+    let fieldsCollapsed: boolean[] = [];
+
     const fields = clearableArray<EditorFieldAPI>();
 
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
-
-        richTextsHidden = fonts.map((_, index) => richTextsHidden[index] ?? false);
-        plainTextsHidden = fonts.map((_, index) => plainTextsHidden[index] ?? true);
+        fieldsCollapsed = fonts.map((_, index) => fieldsCollapsed[index] ?? false);
     }
 
     export function focusField(index: number | null): void {
@@ -169,6 +186,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: fieldsData = fieldNames.map((name, index) => ({
         name,
+        plainText: plainTexts[index],
         description: fieldDescriptions[index],
         fontFamily: quoteFontFamily(fonts[index][0]),
         fontSize: fonts[index][1],
@@ -221,6 +239,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const toolbar: Partial<EditorToolbarAPI> = {};
 
+    import { mathjaxConfig } from "../editable/mathjax-element";
     import { wrapInternal } from "../lib/wrap";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
@@ -237,6 +256,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         Object.assign(globalThis, {
             setFields,
+            setPlainTexts,
             setDescriptions,
             setFonts,
             focusField,
@@ -245,8 +265,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setClozeHint,
             saveNow: saveFieldNow,
             focusIfField,
+            getNoteId,
             setNoteId,
             wrap,
+            setMathjaxEnabled,
             ...oldEditorAdapter,
         });
 
@@ -257,11 +279,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let apiPartial: Partial<NoteEditorAPI> = {};
     export { apiPartial as api };
 
+    const hoveredField: NoteEditorAPI["hoveredField"] = writable(null);
     const focusedField: NoteEditorAPI["focusedField"] = writable(null);
     const focusedInput: NoteEditorAPI["focusedInput"] = writable(null);
 
     const api: NoteEditorAPI = {
         ...apiPartial,
+        hoveredField,
         focusedField,
         focusedInput,
         toolbar: toolbar as EditorToolbarAPI,
@@ -300,9 +324,11 @@ the AddCards dialog) should be implemented in the user of this component.
         <Fields>
             <DecoratedElements>
                 {#each fieldsData as field, index}
+                    {@const content = fieldStores[index]}
+
                     <EditorField
                         {field}
-                        content={fieldStores[index]}
+                        {content}
                         api={fields[index]}
                         on:focusin={() => {
                             $focusedField = fields[index];
@@ -311,64 +337,96 @@ the AddCards dialog) should be implemented in the user of this component.
                         on:focusout={() => {
                             $focusedField = null;
                             bridgeCommand(
-                                `blur:${index}:${getNoteId()}:${get(
-                                    fieldStores[index],
-                                )}`,
+                                `blur:${index}:${getNoteId()}:${get(content)}`,
                             );
                         }}
+                        on:mouseenter={() => {
+                            $hoveredField = fields[index];
+                        }}
+                        on:mouseleave={() => {
+                            $hoveredField = null;
+                        }}
+                        collapsed={fieldsCollapsed[index]}
                         --label-color={cols[index] === "dupe"
                             ? "var(--flag1-bg)"
-                            : "transparent"}
+                            : "var(--window-bg)"}
                     >
-                        <svelte:fragment slot="field-state">
-                            {#if cols[index] === "dupe"}
-                                <DuplicateLink />
-                            {/if}
-                            <RichTextBadge
-                                bind:off={richTextsHidden[index]}
-                                on:toggle={() => {
-                                    richTextsHidden[index] = !richTextsHidden[index];
+                        <svelte:fragment slot="field-label">
+                            <LabelContainer
+                                collapsed={fieldsCollapsed[index]}
+                                on:toggle={async () => {
+                                    fieldsCollapsed[index] = !fieldsCollapsed[index];
 
-                                    if (!richTextsHidden[index]) {
+                                    if (!fieldsCollapsed[index]) {
+                                        await tick();
                                         richTextInputs[index].api.refocus();
+                                    } else {
+                                        plainTextsHidden[index] = true;
                                     }
                                 }}
-                            />
-                            <PlainTextBadge
-                                bind:off={plainTextsHidden[index]}
-                                on:toggle={() => {
-                                    plainTextsHidden[index] = !plainTextsHidden[index];
-
-                                    if (!plainTextsHidden[index]) {
-                                        plainTextInputs[index].api.refocus();
-                                    }
-                                }}
-                            />
-
-                            <slot name="field-state" {field} {index} />
-                        </svelte:fragment>
-
-                        <svelte:fragment slot="editing-inputs">
-                            <RichTextInput
-                                hidden={richTextsHidden[index]}
-                                on:focusout={() => {
-                                    saveFieldNow();
-                                    $focusedInput = null;
-                                }}
-                                bind:this={richTextInputs[index]}
                             >
-                                <ImageHandle maxWidth={250} maxHeight={125} />
-                                <MathjaxHandle />
-                            </RichTextInput>
+                                <svelte:fragment slot="field-name">
+                                    <LabelName>
+                                        {field.name}
+                                    </LabelName>
+                                </svelte:fragment>
+                                <FieldState>
+                                    {#if cols[index] === "dupe"}
+                                        <DuplicateLink />
+                                    {/if}
+                                    <PlainTextBadge
+                                        visible={!fieldsCollapsed[index] &&
+                                            (fields[index] === $hoveredField ||
+                                                fields[index] === $focusedField)}
+                                        bind:off={plainTextsHidden[index]}
+                                        on:toggle={async () => {
+                                            plainTextsHidden[index] =
+                                                !plainTextsHidden[index];
 
-                            <PlainTextInput
-                                hidden={plainTextsHidden[index]}
-                                on:focusout={() => {
-                                    saveFieldNow();
-                                    $focusedInput = null;
-                                }}
-                                bind:this={plainTextInputs[index]}
-                            />
+                                            if (!plainTextsHidden[index]) {
+                                                await tick();
+                                                plainTextInputs[index].api.refocus();
+                                            }
+                                        }}
+                                    />
+                                    <slot
+                                        name="field-state"
+                                        {field}
+                                        {index}
+                                        visible={fields[index] === $hoveredField ||
+                                            fields[index] === $focusedField}
+                                    />
+                                </FieldState>
+                            </LabelContainer>
+                        </svelte:fragment>
+                        <svelte:fragment slot="editing-inputs">
+                            <Collapsible collapsed={richTextsHidden[index]}>
+                                <RichTextInput
+                                    bind:hidden={richTextsHidden[index]}
+                                    on:focusout={() => {
+                                        saveFieldNow();
+                                        $focusedInput = null;
+                                    }}
+                                    bind:this={richTextInputs[index]}
+                                >
+                                    <ImageHandle maxWidth={250} maxHeight={125} />
+                                    <MathjaxHandle />
+                                    <FieldDescription>
+                                        {field.description}
+                                    </FieldDescription>
+                                </RichTextInput>
+                            </Collapsible>
+
+                            <Collapsible collapsed={plainTextsHidden[index]}>
+                                <PlainTextInput
+                                    bind:hidden={plainTextsHidden[index]}
+                                    on:focusout={() => {
+                                        saveFieldNow();
+                                        $focusedInput = null;
+                                    }}
+                                    bind:this={plainTextInputs[index]}
+                                />
+                            </Collapsible>
                         </svelte:fragment>
                     </EditorField>
                 {/each}
@@ -379,7 +437,9 @@ the AddCards dialog) should be implemented in the user of this component.
         </Fields>
     </FieldsEditor>
 
-    <TagEditor {tags} on:tagsupdate={saveTags} />
+    <StickyContainer --gutter-block="0.1rem" --sticky-borders="1px 0 0" class="d-flex">
+        <TagEditor {tags} on:tagsupdate={saveTags} />
+    </StickyContainer>
 </div>
 
 <style lang="scss">

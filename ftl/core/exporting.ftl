@@ -38,3 +38,6 @@ exporting-processed-media-files =
         [one] Processed { $count } media file...
        *[other] Processed { $count } media files...
     }
+exporting-include-deck = Include deck name
+exporting-include-notetype = Include notetype name
+exporting-include-guid = Include unique identifier

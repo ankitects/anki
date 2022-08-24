@@ -67,6 +67,24 @@ alias(
 )
 
 alias(
+    name = "csv",
+    actual = "@raze__csv__1_1_6//:csv",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "dissimilar",
+    actual = "@raze__dissimilar__1_0_4//:dissimilar",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "env_logger",
     actual = "@raze__env_logger__0_9_0//:env_logger",
     tags = [
@@ -338,7 +356,7 @@ alias(
 
 alias(
     name = "regex",
-    actual = "@raze__regex__1_5_5//:regex",
+    actual = "@raze__regex__1_5_6//:regex",
     tags = [
         "cargo-raze",
         "manual",

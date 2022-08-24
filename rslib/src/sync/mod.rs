@@ -16,7 +16,6 @@ use serde_tuple::Serialize_tuple;
 pub(crate) use server::{LocalServer, SyncServer};
 
 use crate::{
-    backend_proto::{sync_status_response, SyncStatusResponse},
     card::{Card, CardQueue, CardType},
     deckconfig::DeckConfSchema11,
     decks::DeckSchema11,
@@ -24,6 +23,7 @@ use crate::{
     io::atomic_rename,
     notes::Note,
     notetype::{Notetype, NotetypeSchema11},
+    pb::{sync_status_response, SyncStatusResponse},
     prelude::*,
     revlog::RevlogEntry,
     serde::{default_on_invalid, deserialize_int_from_number},

@@ -35,6 +35,17 @@ deck-config-limit-new-bound-by-reviews =
 deck-config-limit-interday-bound-by-reviews =
     The review limit also affects interday learning cards. When applying the limit,
     interday learning cards are fetched first, then reviews, and finally new cards.
+deck-config-tab-description =
+    - `Preset`: The limit is shared with all decks using this preset.
+    - `This deck`: The limit is specific to this deck.
+    - `Today only`: Make a temporary change to this deck's limit.
+
+## Daily limit tabs: please try to keep these as short as the English version,
+## as longer text will not fit on small screens.
+
+deck-config-shared-preset = Preset
+deck-config-deck-only = This deck
+deck-config-today-only = Today only
 
 ## New Cards section
 

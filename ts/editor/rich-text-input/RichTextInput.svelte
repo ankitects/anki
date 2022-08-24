@@ -3,57 +3,78 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
+    import { writable } from "svelte/store";
+
     import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
-    import { singleCallback } from "../../lib/typing";
-    import useContextProperty from "../../sveltelib/context-property";
-    import useDOMMirror from "../../sveltelib/dom-mirror";
     import type { InputHandlerAPI } from "../../sveltelib/input-handler";
-    import useInputHandler from "../../sveltelib/input-handler";
-    import { pageTheme } from "../../sveltelib/theme";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
+    import type { SurroundedAPI } from "../surround";
     import type CustomStyles from "./CustomStyles.svelte";
 
-    export interface RichTextInputAPI extends EditingInputAPI {
+    export interface RichTextInputAPI extends EditingInputAPI, SurroundedAPI {
         name: "rich-text";
+        /** This is the contentEditable anki-editable element */
         element: Promise<HTMLElement>;
         moveCaretToEnd(): void;
         toggle(): boolean;
         preventResubscription(): () => void;
         inputHandler: InputHandlerAPI;
+        /** The API exposed by the editable component */
         editable: ContentEditableAPI;
+        customStyles: Promise<CustomStyles>;
     }
 
-    export function editingInputIsRichText(
+    function editingInputIsRichText(
         editingInput: EditingInputAPI | null,
     ): editingInput is RichTextInputAPI {
         return editingInput?.name === "rich-text";
     }
 
-    export interface RichTextInputContextAPI {
-        styles: CustomStyles;
-        container: HTMLElement;
-        api: RichTextInputAPI;
-    }
+    import { registerPackage } from "../../lib/runtime-require";
+    import contextProperty from "../../sveltelib/context-property";
+    import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
+    import { Surrounder } from "../surround";
 
     const key = Symbol("richText");
-    const [context, setContextProperty] =
-        useContextProperty<RichTextInputContextAPI>(key);
+    const [context, setContextProperty] = contextProperty<RichTextInputAPI>(key);
     const [globalInputHandler, setupGlobalInputHandler] = useInputHandler();
+    const [lifecycle, instances, setupLifecycleHooks] =
+        lifecycleHooks<RichTextInputAPI>();
+    const apiStore = writable<SurroundedAPI | null>(null);
+    const surrounder = Surrounder.make(apiStore);
 
-    export { context, globalInputHandler as inputHandler };
+    registerPackage("anki/RichTextInput", {
+        context,
+        surrounder,
+        lifecycle,
+        instances,
+    });
+
+    export {
+        context,
+        editingInputIsRichText,
+        globalInputHandler as inputHandler,
+        surrounder,
+    };
 </script>
 
 <script lang="ts">
-    import { getAllContexts, onMount } from "svelte";
+    import { getAllContexts, getContext, onMount } from "svelte";
+    import type { Readable } from "svelte/store";
 
     import { placeCaretAfterContent } from "../../domlib/place-caret";
     import ContentEditable from "../../editable/ContentEditable.svelte";
+    import { directionKey, fontFamilyKey, fontSizeKey } from "../../lib/context-keys";
+    import { promiseWithResolver } from "../../lib/promise";
+    import { singleCallback } from "../../lib/typing";
+    import useDOMMirror from "../../sveltelib/dom-mirror";
+    import useInputHandler from "../../sveltelib/input-handler";
+    import { pageTheme } from "../../sveltelib/theme";
     import { context as editingAreaContext } from "../EditingArea.svelte";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import getNormalizingNodeStore from "./normalizing-node-store";
     import useRichTextResolve from "./rich-text-resolve";
     import RichTextStyles from "./RichTextStyles.svelte";
-    import SetContext from "./SetContext.svelte";
     import { fragmentToStored, storedToFragment } from "./transform";
 
     export let hidden: boolean;
@@ -61,10 +82,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { focusedInput } = noteEditorContext.get();
     const { content, editingInputs } = editingAreaContext.get();
 
+    const fontFamily = getContext<Readable<string>>(fontFamilyKey);
+    const fontSize = getContext<Readable<number>>(fontSizeKey);
+    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
+
     const nodes = getNormalizingNodeStore();
     const [richTextPromise, resolve] = useRichTextResolve();
     const { mirror, preventResubscription } = useDOMMirror();
     const [inputHandler, setupInputHandler] = useInputHandler();
+    const [customStyles, stylesResolve] = promiseWithResolver<CustomStyles>();
 
     export function attachShadow(element: Element): void {
         element.attachShadow({ mode: "open" });
@@ -72,6 +98,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function moveCaretToEnd(): Promise<void> {
         const richText = await richTextPromise;
+        if (richText.textContent?.length === 0) {
+            // Calling this method when richText is empty will cause the first keystroke of
+            // ibus-based input methods with candidates to go double. For example, if you
+            // type "a" it becomes "aa". This problem exists in many linux distributions.
+            // When richText is empty, there is no need to place the caret, just return.
+            return;
+        }
+
         placeCaretAfterContent(richText);
     }
 
@@ -115,6 +149,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         preventResubscription,
         inputHandler,
         editable: {} as ContentEditableAPI,
+        customStyles,
     };
 
     const allContexts = getAllContexts();
@@ -142,6 +177,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $editingInputs = $editingInputs;
     }
 
+    function setFocus(): void {
+        $focusedInput = api;
+        $apiStore = api;
+    }
+
+    function removeFocus(): void {
+        // We do not unset focusedInput here.
+        // If we did, UI components for the input would react the store
+        // being unset, even though most likely it will be set to some other
+        // field right away.
+
+        $apiStore = null;
+    }
+
     $: pushUpdate(!hidden);
 
     onMount(() => {
@@ -157,19 +206,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ),
         );
     });
+
+    setContextProperty(api);
+    setupLifecycleHooks(api);
 </script>
 
-<div class="rich-text-input" on:focusin={() => ($focusedInput = api)}>
+<div class="rich-text-input" on:focusin={setFocus} on:focusout={removeFocus}>
     <RichTextStyles
         color={$pageTheme.isDark ? "white" : "black"}
+        fontFamily={$fontFamily}
+        fontSize={$fontSize}
+        direction={$direction}
+        callback={stylesResolve}
         let:attachToShadow={attachStyles}
-        let:promise={stylesPromise}
         let:stylesDidLoad
     >
         <div
             bind:this={richTextDiv}
             class={className}
-            class:hidden
             class:night-mode={$pageTheme.isDark}
             use:attachShadow
             use:attachStyles
@@ -178,20 +232,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:focusout
         />
 
-        <div class="rich-text-widgets">
-            {#await Promise.all( [richTextPromise, stylesPromise], ) then [container, styles]}
-                <SetContext
-                    setter={setContextProperty}
-                    value={{ container, styles, api }}
-                >
-                    <slot />
-                </SetContext>
-            {/await}
-        </div>
+        {#await Promise.all([richTextPromise, stylesDidLoad]) then _}
+            <div class="rich-text-widgets">
+                <slot />
+            </div>
+        {/await}
     </RichTextStyles>
+    <slot name="plain-text-badge" />
 </div>
 
 <style lang="scss">
+    .rich-text-input {
+        position: relative;
+        padding: 6px;
+    }
+
     .hidden {
         display: none;
     }

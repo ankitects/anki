@@ -5,9 +5,9 @@ mod answering;
 mod states;
 
 use super::Backend;
-pub(super) use crate::backend_proto::scheduler_service::Service as SchedulerService;
+pub(super) use crate::pb::scheduler_service::Service as SchedulerService;
 use crate::{
-    backend_proto as pb,
+    pb,
     prelude::*,
     scheduler::{
         new::NewCardDueOrder,
@@ -155,6 +155,10 @@ impl SchedulerService for Backend {
             col.sort_cards(&cids, start, step, order, shift)
                 .map(Into::into)
         })
+    }
+
+    fn reposition_defaults(&self, _input: pb::Empty) -> Result<pb::RepositionDefaultsResponse> {
+        self.with_col(|col| Ok(col.reposition_defaults()))
     }
 
     fn sort_deck(&self, input: pb::SortDeckRequest) -> Result<pb::OpChangesWithCount> {

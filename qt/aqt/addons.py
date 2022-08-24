@@ -43,6 +43,7 @@ from aqt.utils import (
     saveGeom,
     saveSplitter,
     send_to_trash,
+    show_info,
     showInfo,
     showWarning,
     tooltip,
@@ -177,7 +178,7 @@ def package_name_valid(name: str) -> bool:
 # fixme: this class should not have any GUI code in it
 class AddonManager:
 
-    ext: str = ".ankiaddon"
+    exts: list[str] = [".ankiaddon", ".zip"]
     _manifest_schema: dict = {
         "type": "object",
         "properties": {
@@ -774,8 +775,8 @@ class AddonsDialog(QDialog):
         if not mime.hasUrls():
             return None
         urls = mime.urls()
-        ext = self.mgr.ext
-        if all(url.toLocalFile().endswith(ext) for url in urls):
+        exts = self.mgr.exts
+        if all(any(url.toLocalFile().endswith(ext) for ext in exts) for url in urls):
             event.acceptProposedAction()
 
     def dropEvent(self, event: QDropEvent) -> None:
@@ -862,14 +863,14 @@ class AddonsDialog(QDialog):
     def onlyOneSelected(self) -> str | None:
         dirs = self.selectedAddons()
         if len(dirs) != 1:
-            showInfo(tr.addons_please_select_a_single_addon_first())
+            show_info(tr.addons_please_select_a_single_addon_first())
             return None
         return dirs[0]
 
     def selected_addon_meta(self) -> AddonMeta | None:
         idxs = [x.row() for x in self.form.addonList.selectedIndexes()]
         if len(idxs) != 1:
-            showInfo(tr.addons_please_select_a_single_addon_first())
+            show_info(tr.addons_please_select_a_single_addon_first())
             return None
         return self.addons[idxs[0]]
 
@@ -932,9 +933,11 @@ class AddonsDialog(QDialog):
 
     def onInstallFiles(self, paths: list[str] | None = None) -> bool | None:
         if not paths:
-            key = f"{tr.addons_packaged_anki_addon()} (*{self.mgr.ext})"
+            filter = f"{tr.addons_packaged_anki_addon()} " + "({})".format(
+                " ".join(f"*{ext}" for ext in self.mgr.exts)
+            )
             paths_ = getFile(
-                self, tr.addons_install_addons(), None, key, key="addons", multi=True
+                self, tr.addons_install_addons(), None, filter, key="addons", multi=True
             )
             paths = paths_  # type: ignore
             if not paths:

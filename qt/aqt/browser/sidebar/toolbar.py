@@ -30,7 +30,7 @@ class SidebarToolbar(QToolBar):
         self._action_group = QActionGroup(self)
         qconnect(self._action_group.triggered, self._on_action_group_triggered)
         self._setup_tools()
-        self.setIconSize(QSize(16, 16))
+        self.setIconSize(QSize(18, 18))
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.setStyle(QStyleFactory.create("fusion"))
         aqt.gui_hooks.theme_did_change.append(self._update_icons)

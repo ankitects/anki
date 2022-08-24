@@ -149,8 +149,8 @@ class ProfileManager:
     # Profile load/save
     ######################################################################
 
-    def profiles(self) -> list:
-        def names() -> list:
+    def profiles(self) -> list[str]:
+        def names() -> list[str]:
             return self.db.list("select name from profiles where name != '_global'")
 
         n = names()
@@ -220,6 +220,7 @@ class ProfileManager:
             print("resetting corrupt profile")
             self.profile = profileConf.copy()
             self.save()
+        self.set_last_loaded_profile_name(name)
         return True
 
     def save(self) -> None:
@@ -538,11 +539,17 @@ create table if not exists profiles
     def dark_mode_widgets(self) -> bool:
         return self.meta.get("dark_mode_widgets", False)
 
-    def new_import_export(self) -> bool:
-        return self.meta.get("new_import_export", False)
+    def legacy_import_export(self) -> bool:
+        return self.meta.get("legacy_import", False)
 
-    def set_new_import_export(self, enabled: bool) -> None:
-        self.meta["new_import_export"] = enabled
+    def set_legacy_import_export(self, enabled: bool) -> None:
+        self.meta["legacy_import"] = enabled
+
+    def last_loaded_profile_name(self) -> str | None:
+        return self.meta.get("last_loaded_profile_name")
+
+    def set_last_loaded_profile_name(self, name: str) -> None:
+        self.meta["last_loaded_profile_name"] = name
 
     # Profile-specific
     ######################################################################

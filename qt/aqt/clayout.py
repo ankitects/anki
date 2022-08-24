@@ -355,6 +355,8 @@ class CardLayout(QDialog):
             ],
             context=self,
         )
+        self.preview_web.allow_drops = True
+        self.preview_web.eval("_blockDefaultDragDropBehavior();")
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)
 
         if self._isCloze():
@@ -569,7 +571,7 @@ class CardLayout(QDialog):
         hadHR = origLen != len(txt)
 
         def answerRepl(match: Match) -> str:
-            res = self.mw.reviewer.correct("exomple", "an example")
+            res = self.mw.col.compare_answer("example", "sample")
             if hadHR:
                 res = f"<hr id=answer>{res}"
             return res
@@ -577,7 +579,7 @@ class CardLayout(QDialog):
         repl: Union[str, Callable]
 
         if type == "q":
-            repl = "<input id='typeans' type=text value='exomple' readonly='readonly'>"
+            repl = "<input id='typeans' type=text value='example' readonly='readonly'>"
             repl = f"<center>{repl}</center>"
         else:
             repl = answerRepl

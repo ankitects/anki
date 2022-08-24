@@ -98,6 +98,10 @@ class ExportDialog(QDialog):
             self.frm.includeHTML.setVisible(False)
         # show deck list?
         self.frm.deck.setVisible(not self.isVerbatim)
+        # used by the new export screen
+        self.frm.includeDeck.setVisible(False)
+        self.frm.includeNotetype.setVisible(False)
+        self.frm.includeGuid.setVisible(False)
 
     def accept(self) -> None:
         self.exporter.includeSched = self.frm.includeSched.isChecked()
@@ -192,6 +196,7 @@ class ExportDialog(QDialog):
                 else:
                     self.on_export_finished()
 
+            gui_hooks.legacy_exporter_will_export(self.exporter)
             if self.isVerbatim:
                 gui_hooks.collection_will_temporarily_close(self.mw.col)
             self.mw.progress.start()
@@ -209,6 +214,7 @@ class ExportDialog(QDialog):
                 msg = tr.exporting_note_exported(count=self.exporter.count)
             else:
                 msg = tr.exporting_card_exported(count=self.exporter.count)
+        gui_hooks.legacy_exporter_did_export(self.exporter)
         tooltip(msg, period=3000)
         QDialog.reject(self)
 

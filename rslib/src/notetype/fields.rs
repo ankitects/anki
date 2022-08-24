@@ -3,8 +3,8 @@
 
 use super::{NoteFieldConfig, NoteFieldProto};
 use crate::{
-    backend_proto::UInt32,
     error::{AnkiError, Result},
+    pb::UInt32,
 };
 
 #[derive(Debug, PartialEq, Clone)]
@@ -42,6 +42,7 @@ impl NoteField {
             config: NoteFieldConfig {
                 sticky: false,
                 rtl: false,
+                plain_text: false,
                 font_name: "Arial".into(),
                 font_size: 20,
                 description: "".into(),

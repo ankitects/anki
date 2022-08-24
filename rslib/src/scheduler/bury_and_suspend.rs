@@ -3,14 +3,14 @@
 
 use super::timing::SchedTimingToday;
 use crate::{
-    backend_proto::{
+    card::CardQueue,
+    config::SchedulerVersion,
+    pb::{
         bury_or_suspend_cards_request::Mode as BuryOrSuspendMode,
         unbury_deck_request::Mode as UnburyDeckMode,
     },
-    card::CardQueue,
-    config::SchedulerVersion,
     prelude::*,
-    search::{JoinSearches, SearchNode, SortMode, StateKind},
+    search::{JoinSearches, SearchNode, StateKind},
 };
 
 impl Card {
@@ -42,32 +42,29 @@ impl Collection {
     /// Unbury cards from the previous day.
     /// Done automatically, and does not mark the cards as modified.
     pub(crate) fn unbury_on_day_rollover(&mut self, today: u32) -> Result<()> {
-        self.search_cards_into_table("is:buried", SortMode::NoOrder)?;
-        self.storage.for_each_card_in_search(|mut card| {
+        self.for_each_card_in_search(StateKind::Buried, |col, mut card| {
             card.restore_queue_after_bury_or_suspend();
-            self.storage.update_card(&card)
+            col.storage.update_card(&card)
         })?;
-        self.storage.clear_searched_cards_table()?;
         self.set_last_unburied_day(today)
     }
 
-    /// Unsuspend/unbury cards in search table, and clear it.
-    /// Marks the cards as modified.
-    fn unsuspend_or_unbury_searched_cards(&mut self) -> Result<()> {
+    /// Unsuspend/unbury cards. Marks the cards as modified.
+    fn unsuspend_or_unbury_searched_cards(&mut self, cards: Vec<Card>) -> Result<()> {
         let usn = self.usn()?;
-        for original in self.storage.all_searched_cards()? {
+        for original in cards {
             let mut card = original.clone();
             if card.restore_queue_after_bury_or_suspend() {
                 self.update_card_inner(&mut card, original, usn)?;
             }
         }
-        self.storage.clear_searched_cards_table()
+        Ok(())
     }
 
     pub fn unbury_or_unsuspend_cards(&mut self, cids: &[CardId]) -> Result<OpOutput<()>> {
         self.transact(Op::UnburyUnsuspend, |col| {
-            col.storage.set_search_table_to_card_ids(cids, false)?;
-            col.unsuspend_or_unbury_searched_cards()
+            let cards = col.all_cards_for_ids(cids, false)?;
+            col.unsuspend_or_unbury_searched_cards(cards)
         })
     }
 
@@ -78,17 +75,19 @@ impl Collection {
             UnburyDeckMode::SchedOnly => StateKind::SchedBuried,
         };
         self.transact(Op::UnburyUnsuspend, |col| {
-            col.search_cards_into_table(
-                SearchNode::DeckIdWithChildren(deck_id).and(state),
-                SortMode::NoOrder,
-            )?;
-            col.unsuspend_or_unbury_searched_cards()
+            let cards =
+                col.all_cards_for_search(SearchNode::DeckIdWithChildren(deck_id).and(state))?;
+            col.unsuspend_or_unbury_searched_cards(cards)
         })
     }
 
     /// Bury/suspend cards in search table, and clear it.
     /// Marks the cards as modified.
-    fn bury_or_suspend_searched_cards(&mut self, mode: BuryOrSuspendMode) -> Result<usize> {
+    fn bury_or_suspend_cards_inner(
+        &mut self,
+        cards: Vec<Card>,
+        mode: BuryOrSuspendMode,
+    ) -> Result<usize> {
         let mut count = 0;
         let usn = self.usn()?;
         let sched = self.scheduler_version();
@@ -105,7 +104,7 @@ impl Collection {
             }
         };
 
-        for original in self.storage.all_searched_cards()? {
+        for original in cards {
             let mut card = original.clone();
             if card.queue != desired_queue {
                 // do not bury suspended cards as that would unsuspend them
@@ -121,8 +120,6 @@ impl Collection {
             }
         }
 
-        self.storage.clear_searched_cards_table()?;
-
         Ok(count)
     }
 
@@ -136,8 +133,8 @@ impl Collection {
             BuryOrSuspendMode::BurySched | BuryOrSuspendMode::BuryUser => Op::Bury,
         };
         self.transact(op, |col| {
-            col.storage.set_search_table_to_card_ids(cids, false)?;
-            col.bury_or_suspend_searched_cards(mode)
+            let cards = col.all_cards_for_ids(cids, false)?;
+            col.bury_or_suspend_cards_inner(cards, mode)
         })
     }
 
@@ -149,14 +146,14 @@ impl Collection {
         include_reviews: bool,
         include_day_learn: bool,
     ) -> Result<usize> {
-        self.storage.search_siblings_for_bury(
+        let cards = self.storage.all_siblings_for_bury(
             cid,
             nid,
             include_new,
             include_reviews,
             include_day_learn,
         )?;
-        self.bury_or_suspend_searched_cards(BuryOrSuspendMode::BurySched)
+        self.bury_or_suspend_cards_inner(cards, BuryOrSuspendMode::BurySched)
     }
 }
 

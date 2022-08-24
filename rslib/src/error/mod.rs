@@ -49,7 +49,10 @@ pub enum AnkiError {
     MediaCheckRequired,
     CustomStudyError(CustomStudyError),
     ImportError(ImportError),
+    InvalidId,
 }
+
+impl std::error::Error for AnkiError {}
 
 impl Display for AnkiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -103,6 +106,7 @@ impl AnkiError {
             AnkiError::CustomStudyError(err) => err.localized_description(tr),
             AnkiError::ImportError(err) => err.localized_description(tr),
             AnkiError::Deleted => tr.browsing_row_deleted().into(),
+            AnkiError::InvalidId => tr.errors_invalid_ids().into(),
             AnkiError::IoError(_)
             | AnkiError::JsonError(_)
             | AnkiError::ProtoError(_)
@@ -185,6 +189,12 @@ impl From<regex::Error> for AnkiError {
     }
 }
 
+impl From<csv::Error> for AnkiError {
+    fn from(err: csv::Error) -> Self {
+        AnkiError::InvalidInput(err.to_string())
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct CardTypeError {
     pub notetype: String,
@@ -207,6 +217,7 @@ pub enum ImportError {
     Corrupt,
     TooNew,
     MediaImportFailed(String),
+    NoFieldColumn,
 }
 
 impl ImportError {
@@ -215,6 +226,7 @@ impl ImportError {
             ImportError::Corrupt => tr.importing_the_provided_file_is_not_a(),
             ImportError::TooNew => tr.errors_collection_too_new(),
             ImportError::MediaImportFailed(err) => tr.importing_failed_to_import_media_file(err),
+            ImportError::NoFieldColumn => tr.importing_file_must_contain_field_column(),
         }
         .into()
     }

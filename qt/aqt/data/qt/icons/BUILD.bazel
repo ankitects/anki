@@ -14,9 +14,9 @@ copy_mdi_icons(
         "circle-outline.svg",
 
         # flags
-        "flag.svg",
-        "flag-outline.svg",
-        "flag-off-outline.svg",
+        "flag-variant.svg",
+        "flag-variant-outline.svg",
+        "flag-variant-off-outline.svg",
 
         # decks
         "book-outline.svg",

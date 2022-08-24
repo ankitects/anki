@@ -13,12 +13,11 @@ import aqt.forms
 import aqt.modelchooser
 from anki.importing.anki2 import MediaMapInvalid, V2ImportIntoV1
 from anki.importing.apkg import AnkiPackageImporter
-from aqt.import_export.importing import import_collection_package
+from aqt.import_export.importing import ColpkgImporter
 from aqt.main import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
     HelpPage,
-    askUser,
     disable_help_button,
     getFile,
     getText,
@@ -437,11 +436,5 @@ def setupApkgImport(mw: AnkiQt, importer: AnkiPackageImporter) -> bool:
     if not full:
         # adding
         return True
-    if askUser(
-        tr.importing_this_will_delete_your_existing_collection(),
-        msgfunc=QMessageBox.warning,
-        defaultno=True,
-    ):
-        import_collection_package(mw, importer.file)
-
+    ColpkgImporter.do_import(mw, importer.file)
     return False

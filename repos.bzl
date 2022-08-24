@@ -115,12 +115,12 @@ def register_repos():
     ################
 
     core_i18n_repo = "anki-core-i18n"
-    core_i18n_commit = "f404191d521051946b824d7974b14aff35932016"
-    core_i18n_zip_csum = "da823e153ff55ca1bb46d8e1eb5b74ca723f596abf85fb530f2457d17d0ffa05"
+    core_i18n_commit = "86d2edc647c030827a69790225efde23e720bccf"
+    core_i18n_zip_csum = "d9f51d4baea7ee79a05e35852eefece29646397f8e89608382794b00eac8aab7"
 
     qtftl_i18n_repo = "anki-desktop-ftl"
-    qtftl_i18n_commit = "51724fbb327815358d6f896a4f79cf9cb2303562"
-    qtftl_i18n_zip_csum = "e8f4723eb6d20432754b08c19164fbaafd43ff8222779e2a7cd1fb835f41c7b5"
+    qtftl_i18n_commit = "fbe70aa7b3a0ce8ffb7d34f7392e00f71af541bf"
+    qtftl_i18n_zip_csum = "a1a01f6822ee048fa7c570a27410c44c8a5cca76cba97d4bbff84ed6cfbf75a6"
 
     i18n_build_content = """
 filegroup(
@@ -209,9 +209,9 @@ exports_files(["l10n.toml"])
         name = "audio_mac_amd64",
         build_file_content = " ",
         urls = [
-            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/audio-mac-amd64.tar.gz",
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-05-26/audio-mac-amd64.tar.gz",
         ],
-        sha256 = "d9310cbd6bed09d6d36deb8b7611bffbd161628512b1bf8d7becfdf78b5cd1dd",
+        sha256 = "ecbb3c878805cdd58b1a0b8e3fd8c753b8ce3ad36c8b5904a79111f9db29ff42",
     )
 
     maybe(
@@ -219,9 +219,9 @@ exports_files(["l10n.toml"])
         name = "audio_mac_arm64",
         build_file_content = " ",
         urls = [
-            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/audio-mac-arm64.tar.gz",
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-05-26/audio-mac-arm64.tar.gz",
         ],
-        sha256 = "c30a772132a16fa79d9a1e60f5dce2f91fe8077e2709a8f39ef499d49f6a4b0e",
+        sha256 = "f6c4af9be59ae1c82a16f5c6307f13cbf31b49ad7b69ce1cb6e0e7b403cfdb8f",
     )
 
     maybe(
@@ -229,9 +229,9 @@ exports_files(["l10n.toml"])
         name = "pyqt6.3_mac_bundle_amd64",
         build_file_content = " ",
         urls = [
-            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-04-20/pyqt6.3-mac-amd64.tar.gz",
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-06-18/pyqt6.3-mac-amd64.tar.gz",
         ],
-        sha256 = "949d403c26036cd13a4a0c86c9416f32ac6d2aa58c6946be93ab949ee6cf9b11",
+        sha256 = "cfbf9a763567bb7425a1eab1e6708e997c75f512bcb338bec6adffe86536e334",
     )
 
     maybe(
@@ -239,9 +239,9 @@ exports_files(["l10n.toml"])
         name = "pyqt6.3_mac_bundle_arm64",
         build_file_content = " ",
         urls = [
-            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-04-20/pyqt6.3-mac-arm64.tar.gz",
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-06-18/pyqt6.3-mac-arm64.tar.gz",
         ],
-        sha256 = "c7df555623cdbd8f6981c15b4bfc58665b8e92d91fb43a7082bcfa1852ede10d",
+        sha256 = "a4a39ccb845e99f7bca6b1c65a7ec3645d0f614c2ea88c6a657152d15c0e200a",
     )
 
     maybe(

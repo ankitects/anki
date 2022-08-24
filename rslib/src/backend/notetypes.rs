@@ -2,13 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::Backend;
-pub(super) use crate::backend_proto::notetypes_service::Service as NotetypesService;
+pub(super) use crate::pb::notetypes_service::Service as NotetypesService;
 use crate::{
-    backend_proto as pb,
     config::get_aux_notetype_config_key,
     notetype::{
         all_stock_notetypes, ChangeNotetypeInput, Notetype, NotetypeChangeInfo, NotetypeSchema11,
     },
+    pb,
     prelude::*,
 };
 
@@ -168,8 +168,14 @@ impl NotetypesService for Backend {
                 .map(Into::into)
         })
     }
+
     fn change_notetype(&self, input: pb::ChangeNotetypeRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| col.change_notetype_of_notes(input.into()).map(Into::into))
+    }
+
+    fn get_field_names(&self, input: pb::NotetypeId) -> Result<pb::StringList> {
+        self.with_col(|col| col.storage.get_field_names(input.into()))
+            .map(Into::into)
     }
 }
 

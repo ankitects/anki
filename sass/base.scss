@@ -32,12 +32,7 @@ $utilities: (
     flex-basis: 75%;
 }
 
-html,
 body {
-    height: 100%;
-}
-
-* {
     overscroll-behavior: none;
 }
 
@@ -74,4 +69,8 @@ samp {
         /* flip <select>'s arrow */
         background-position: left 0.75rem center;
     }
+}
+
+.night-mode .form-select:disabled {
+    background-color: var(--disabled);
 }

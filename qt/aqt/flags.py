@@ -55,9 +55,13 @@ class FlagManager:
         self.mw.col.set_config("flagLabels", labels)
         gui_hooks.flag_label_did_change()
 
+    def require_refresh(self) -> None:
+        "Discard cached labels."
+        self._flags = None
+
     def _load_flags(self) -> None:
         labels = cast(dict[str, str], self.mw.col.get_config("flagLabels", {}))
-        icon = ColoredIcon(path="icons:flag.svg", color=colors.DISABLED)
+        icon = ColoredIcon(path="icons:flag-variant.svg", color=colors.DISABLED)
 
         self._flags = [
             Flag(

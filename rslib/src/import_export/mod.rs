@@ -4,10 +4,18 @@
 mod gather;
 mod insert;
 pub mod package;
+pub mod text;
 
 use std::marker::PhantomData;
 
-use crate::prelude::*;
+pub use crate::pb::import_response::{Log as NoteLog, Note as LogNote};
+use crate::{
+    prelude::*,
+    text::{
+        newlines_to_spaces, strip_html_preserving_media_filenames, truncate_to_char_boundary,
+        CowMapping,
+    },
+};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ImportProgress {
@@ -24,6 +32,7 @@ pub enum ExportProgress {
     File,
     Gathering,
     Notes(usize),
+    Cards(usize),
     Media(usize),
 }
 
@@ -93,5 +102,29 @@ impl<'f, F: 'f + FnMut(usize) -> Result<()>> Incrementor<'f, F> {
             return Ok(());
         }
         (self.update_fn)(self.count)
+    }
+
+    pub(crate) fn count(&self) -> usize {
+        self.count
+    }
+}
+
+impl Note {
+    pub(crate) fn into_log_note(self) -> LogNote {
+        LogNote {
+            id: Some(self.id.into()),
+            fields: self
+                .into_fields()
+                .into_iter()
+                .map(|field| {
+                    let mut reduced = strip_html_preserving_media_filenames(&field)
+                        .map_cow(newlines_to_spaces)
+                        .get_owned()
+                        .unwrap_or(field);
+                    truncate_to_char_boundary(&mut reduced, 80);
+                    reduced
+                })
+                .collect(),
+        }
     }
 }

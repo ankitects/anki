@@ -7,11 +7,11 @@ use futures::future::AbortHandle;
 
 use super::Backend;
 use crate::{
-    backend_proto as pb,
     dbcheck::DatabaseCheckProgress,
     i18n::I18n,
     import_export::{ExportProgress, ImportProgress},
     media::sync::MediaSyncProgress,
+    pb,
     sync::{FullSyncProgress, NormalSyncProgress, SyncStage},
 };
 
@@ -122,6 +122,7 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Pr
                     ExportProgress::File => tr.exporting_exporting_file(),
                     ExportProgress::Media(n) => tr.exporting_processed_media_files(n),
                     ExportProgress::Notes(n) => tr.importing_processed_notes(n),
+                    ExportProgress::Cards(n) => tr.importing_processed_cards(n),
                     ExportProgress::Gathering => tr.importing_gathering(),
                 }
                 .into(),

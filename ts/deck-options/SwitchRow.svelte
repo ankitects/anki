@@ -5,9 +5,9 @@
 <script lang="ts">
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
+    import Switch from "../components/Switch.svelte";
     import Label from "./Label.svelte";
     import RevertButton from "./RevertButton.svelte";
-    import Switch from "./Switch.svelte";
     import TooltipLabel from "./TooltipLabel.svelte";
 
     export let value: boolean;

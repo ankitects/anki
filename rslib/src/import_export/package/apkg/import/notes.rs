@@ -13,14 +13,10 @@ use sha1::Sha1;
 use super::{media::MediaUseMap, Context};
 use crate::{
     import_export::{
-        package::{media::safe_normalized_file_name, LogNote, NoteLog},
-        ImportProgress, IncrementableProgress,
+        package::media::safe_normalized_file_name, ImportProgress, IncrementableProgress, NoteLog,
     },
     prelude::*,
-    text::{
-        newlines_to_spaces, replace_media_refs, strip_html_preserving_media_filenames,
-        truncate_to_char_boundary, CowMapping,
-    },
+    text::replace_media_refs,
 };
 
 struct NoteContext<'a> {
@@ -62,26 +58,6 @@ impl NoteImports {
 
     fn log_conflicting(&mut self, note: Note) {
         self.log.conflicting.push(note.into_log_note());
-    }
-}
-
-impl Note {
-    fn into_log_note(self) -> LogNote {
-        LogNote {
-            id: Some(self.id.into()),
-            fields: self
-                .into_fields()
-                .into_iter()
-                .map(|field| {
-                    let mut reduced = strip_html_preserving_media_filenames(&field)
-                        .map_cow(newlines_to_spaces)
-                        .get_owned()
-                        .unwrap_or(field);
-                    truncate_to_char_boundary(&mut reduced, 80);
-                    reduced
-                })
-                .collect(),
-        }
     }
 }
 

@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, ptr};
+use std::borrow::Cow;
 
 use lazy_static::lazy_static;
 use pct_str::{IriReserved, PctStr, PctString};
@@ -134,12 +134,8 @@ lazy_static! {
 
     static ref PERSISTENT_HTML_SPACERS: Regex = Regex::new(r#"(?i)<br\s*/?>|<div>|\n"#).unwrap();
 
-    static ref UNPRINTABLE_TAGS: Regex = Regex::new(
-        r"(?xs)
-        \[sound:[^]]+\]
-        |
-        \[\[type:[^]]+\]\]
-    ").unwrap();
+    static ref TYPE_TAG: Regex = Regex::new(r"\[\[type:[^]]+\]\]").unwrap();
+    static ref SOUND_TAG: Regex = Regex::new(r"\[sound:([^]]+)\]").unwrap();
 
     /// Files included in CSS with a leading underscore.
     static ref UNDERSCORED_CSS_IMPORTS: Regex = Regex::new(
@@ -172,11 +168,21 @@ lazy_static! {
     "#).unwrap();
 }
 
-pub fn html_to_text_line(html: &str) -> Cow<str> {
+pub fn is_html(text: impl AsRef<str>) -> bool {
+    HTML.is_match(text.as_ref())
+}
+
+pub fn html_to_text_line(html: &str, preserve_media_filenames: bool) -> Cow<str> {
+    let (html_stripper, sound_rep): (fn(&str) -> Cow<str>, _) = if preserve_media_filenames {
+        (strip_html_preserving_media_filenames, "$1")
+    } else {
+        (strip_html, "")
+    };
     PERSISTENT_HTML_SPACERS
         .replace_all(html, " ")
-        .map_cow(|s| UNPRINTABLE_TAGS.replace_all(s, ""))
-        .map_cow(strip_html_preserving_media_filenames)
+        .map_cow(|s| TYPE_TAG.replace_all(s, ""))
+        .map_cow(|s| SOUND_TAG.replace_all(s, sound_rep))
+        .map_cow(html_stripper)
         .trim()
 }
 
@@ -322,16 +328,9 @@ pub(crate) fn extract_underscored_references(text: &str) -> Vec<&str> {
 }
 
 pub fn strip_html_preserving_media_filenames(html: &str) -> Cow<str> {
-    let without_fnames = HTML_MEDIA_TAGS.replace_all(html, r" ${1}${2}${3} ");
-    let without_html = strip_html(&without_fnames);
-    // no changes?
-    if let Cow::Borrowed(b) = without_html {
-        if ptr::eq(b, html) {
-            return Cow::Borrowed(html);
-        }
-    }
-    // make borrow checker happy
-    without_html.into_owned().into()
+    HTML_MEDIA_TAGS
+        .replace_all(html, r" ${1}${2}${3} ")
+        .map_cow(strip_html)
 }
 
 #[allow(dead_code)]

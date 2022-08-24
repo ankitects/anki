@@ -33,7 +33,11 @@ OpChangesAfterUndo = collection_pb2.OpChangesAfterUndo
 BrowserRow = search_pb2.BrowserRow
 BrowserColumns = search_pb2.BrowserColumns
 StripHtmlMode = card_rendering_pb2.StripHtmlRequest
-ImportLogWithChanges = import_export_pb2.ImportAnkiPackageResponse
+ImportLogWithChanges = import_export_pb2.ImportResponse
+ImportCsvRequest = import_export_pb2.ImportCsvRequest
+CsvMetadata = import_export_pb2.CsvMetadata
+DupeResolution = CsvMetadata.DupeResolution
+Delimiter = import_export_pb2.CsvMetadata.Delimiter
 
 import copy
 import os
@@ -102,7 +106,12 @@ class NoteIdsLimit:
     note_ids: Sequence[NoteId]
 
 
-ExportLimit = Union[DeckIdLimit, NoteIdsLimit, None]
+@dataclass
+class CardIdsLimit:
+    card_ids: Sequence[CardId]
+
+
+ExportLimit = Union[DeckIdLimit, NoteIdsLimit, CardIdsLimit, None]
 
 
 class Collection(DeprecatedNamesMixin):
@@ -306,6 +315,8 @@ class Collection(DeprecatedNamesMixin):
             )
         self.db = DBProxy(weakref.proxy(self._backend))
         self.db.begin()
+        if after_full_sync:
+            self._load_scheduler()
 
     def set_schema_modified(self) -> None:
         self.db.execute("update col set scm=?", int_time(1000))
@@ -389,19 +400,61 @@ class Collection(DeprecatedNamesMixin):
         with_media: bool,
         legacy_support: bool,
     ) -> int:
-        request = import_export_pb2.ExportAnkiPackageRequest(
+        return self._backend.export_anki_package(
             out_path=out_path,
             with_scheduling=with_scheduling,
             with_media=with_media,
             legacy=legacy_support,
+            limit=pb_export_limit(limit),
         )
-        if isinstance(limit, DeckIdLimit):
-            request.deck_id = limit.deck_id
-        elif isinstance(limit, NoteIdsLimit):
-            request.note_ids.note_ids.extend(limit.note_ids)
-        else:
-            request.whole_collection.SetInParent()
-        return self._backend.export_anki_package(request)
+
+    def get_csv_metadata(self, path: str, delimiter: Delimiter.V | None) -> CsvMetadata:
+        request = import_export_pb2.CsvMetadataRequest(path=path, delimiter=delimiter)
+        return self._backend.get_csv_metadata(request)
+
+    def import_csv(self, request: ImportCsvRequest) -> ImportLogWithChanges:
+        log = self._backend.import_csv_raw(request.SerializeToString())
+        return ImportLogWithChanges.FromString(log)
+
+    def export_note_csv(
+        self,
+        *,
+        out_path: str,
+        limit: ExportLimit,
+        with_html: bool,
+        with_tags: bool,
+        with_deck: bool,
+        with_notetype: bool,
+        with_guid: bool,
+    ) -> int:
+        return self._backend.export_note_csv(
+            out_path=out_path,
+            with_html=with_html,
+            with_tags=with_tags,
+            with_deck=with_deck,
+            with_notetype=with_notetype,
+            with_guid=with_guid,
+            limit=pb_export_limit(limit),
+        )
+
+    def export_card_csv(
+        self,
+        *,
+        out_path: str,
+        limit: ExportLimit,
+        with_html: bool,
+    ) -> int:
+        return self._backend.export_card_csv(
+            out_path=out_path,
+            with_html=with_html,
+            limit=pb_export_limit(limit),
+        )
+
+    def import_json_file(self, path: str) -> ImportLogWithChanges:
+        return self._backend.import_json_file(path)
+
+    def import_json_string(self, json: str) -> ImportLogWithChanges:
+        return self._backend.import_json_string(json)
 
     # Object helpers
     ##########################################################################
@@ -1160,6 +1213,9 @@ class Collection(DeprecatedNamesMixin):
         "Not intended for public consumption at this time."
         return self._backend.render_markdown(markdown=text, sanitize=sanitize)
 
+    def compare_answer(self, expected: str, provided: str) -> str:
+        return self._backend.compare_answer(expected=expected, provided=provided)
+
     # Timeboxing
     ##########################################################################
     # fixme: there doesn't seem to be a good reason why this code is in main.py
@@ -1277,3 +1333,16 @@ class _ReviewsUndo:
 
 
 _UndoInfo = Union[_ReviewsUndo, LegacyCheckpoint, None]
+
+
+def pb_export_limit(limit: ExportLimit) -> import_export_pb2.ExportLimit:
+    message = import_export_pb2.ExportLimit()
+    if isinstance(limit, DeckIdLimit):
+        message.deck_id = limit.deck_id
+    elif isinstance(limit, NoteIdsLimit):
+        message.note_ids.note_ids.extend(limit.note_ids)
+    elif isinstance(limit, CardIdsLimit):
+        message.card_ids.cids.extend(limit.card_ids)
+    else:
+        message.whole_collection.SetInParent()
+    return message

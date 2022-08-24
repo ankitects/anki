@@ -173,6 +173,16 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "raze__bstr__0_2_17",
+        url = "https://crates.io/api/v1/crates/bstr/0.2.17/download",
+        type = "tar.gz",
+        sha256 = "ba3569f383e8f1598449f1a423e72e99569137b47740b1da11ef19af3d5c3223",
+        strip_prefix = "bstr-0.2.17",
+        build_file = Label("//cargo/remote:BUILD.bstr-0.2.17.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "raze__bumpalo__3_9_1",
         url = "https://crates.io/api/v1/crates/bumpalo/3.9.1/download",
         type = "tar.gz",
@@ -362,6 +372,26 @@ def raze_fetch_remote_crates():
     )
 
     maybe(
+        new_git_repository,
+        name = "raze__csv__1_1_6",
+        remote = "https://github.com/ankitects/rust-csv.git",
+        shallow_since = "1654675287 +1000",
+        commit = "1c9d3aab6f79a7d815c69f925a46a4590c115f90",
+        build_file = Label("//cargo/remote:BUILD.csv-1.1.6.bazel"),
+        init_submodules = True,
+    )
+
+    maybe(
+        new_git_repository,
+        name = "raze__csv_core__0_1_10",
+        remote = "https://github.com/ankitects/rust-csv.git",
+        shallow_since = "1654675287 +1000",
+        commit = "1c9d3aab6f79a7d815c69f925a46a4590c115f90",
+        build_file = Label("//cargo/remote:BUILD.csv-core-0.1.10.bazel"),
+        init_submodules = True,
+    )
+
+    maybe(
         http_archive,
         name = "raze__derive_more__0_99_17",
         url = "https://crates.io/api/v1/crates/derive_more/0.99.17/download",
@@ -399,6 +429,16 @@ def raze_fetch_remote_crates():
         sha256 = "4ebda144c4fe02d1f7ea1a7d9641b6fc6b580adcfa024ae48797ecdeb6825b4d",
         strip_prefix = "dirs-sys-next-0.1.2",
         build_file = Label("//cargo/remote:BUILD.dirs-sys-next-0.1.2.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__dissimilar__1_0_4",
+        url = "https://crates.io/api/v1/crates/dissimilar/1.0.4/download",
+        type = "tar.gz",
+        sha256 = "8c97b9233581d84b8e1e689cdd3a47b6f69770084fc246e86a7f78b0d9c1d4a5",
+        strip_prefix = "dissimilar-1.0.4",
+        build_file = Label("//cargo/remote:BUILD.dissimilar-1.0.4.bazel"),
     )
 
     maybe(
@@ -1923,22 +1963,32 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__regex__1_5_5",
-        url = "https://crates.io/api/v1/crates/regex/1.5.5/download",
+        name = "raze__regex__1_5_6",
+        url = "https://crates.io/api/v1/crates/regex/1.5.6/download",
         type = "tar.gz",
-        sha256 = "1a11647b6b25ff05a515cb92c365cec08801e83423a235b51e231e1808747286",
-        strip_prefix = "regex-1.5.5",
-        build_file = Label("//cargo/remote:BUILD.regex-1.5.5.bazel"),
+        sha256 = "d83f127d94bdbcda4c8cc2e50f6f84f4b611f69c902699ca385a39c3a75f9ff1",
+        strip_prefix = "regex-1.5.6",
+        build_file = Label("//cargo/remote:BUILD.regex-1.5.6.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "raze__regex_syntax__0_6_25",
-        url = "https://crates.io/api/v1/crates/regex-syntax/0.6.25/download",
+        name = "raze__regex_automata__0_1_10",
+        url = "https://crates.io/api/v1/crates/regex-automata/0.1.10/download",
         type = "tar.gz",
-        sha256 = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b",
-        strip_prefix = "regex-syntax-0.6.25",
-        build_file = Label("//cargo/remote:BUILD.regex-syntax-0.6.25.bazel"),
+        sha256 = "6c230d73fb8d8c1b9c0b3135c5142a8acee3a0558fb8db5cf1cb65f8d7862132",
+        strip_prefix = "regex-automata-0.1.10",
+        build_file = Label("//cargo/remote:BUILD.regex-automata-0.1.10.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__regex_syntax__0_6_26",
+        url = "https://crates.io/api/v1/crates/regex-syntax/0.6.26/download",
+        type = "tar.gz",
+        sha256 = "49b3de9ec5dc0a3417da371aab17d729997c15010e7fd24ff707773a33bddb64",
+        strip_prefix = "regex-syntax-0.6.26",
+        build_file = Label("//cargo/remote:BUILD.regex-syntax-0.6.26.bazel"),
     )
 
     maybe(

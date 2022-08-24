@@ -3,6 +3,10 @@
 
 syntax = "proto3";
 
+option java_multiple_files = true;
+// the DeckConfig message clashes with the name of the file
+option java_outer_classname = "DeckConf";
+
 package anki.deckconfig;
 
 import "anki/generic.proto";
@@ -140,9 +144,20 @@ message DeckConfigsForUpdate {
     uint32 use_count = 2;
   }
   message CurrentDeck {
+    message Limits {
+      optional uint32 review = 1;
+      optional uint32 new = 2;
+      optional uint32 review_today = 3;
+      optional uint32 new_today = 4;
+      // Whether review_today applies to today or a past day.
+      bool review_today_active = 5;
+      // Whether new_today applies to today or a past day.
+      bool new_today_active = 6;
+    }
     string name = 1;
     int64 config_id = 2;
     repeated int64 parent_config_ids = 3;
+    Limits limits = 4;
   }
 
   repeated ConfigWithExtra all_config = 1;
@@ -163,4 +178,5 @@ message UpdateDeckConfigsRequest {
   repeated int64 removed_config_ids = 3;
   bool apply_to_children = 4;
   string card_state_customizer = 5;
+  DeckConfigsForUpdate.CurrentDeck.Limits limits = 6;
 }

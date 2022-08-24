@@ -105,10 +105,19 @@ pub fn write_backend_proto_rs() {
             "Deck.Filtered.SearchTerm.Order",
             "#[derive(strum::EnumIter)]",
         )
+        .type_attribute(
+            "Deck.Normal.DayLimit",
+            "#[derive(Copy, serde_derive::Deserialize, serde_derive::Serialize)]",
+        )
         .type_attribute("HelpPageLinkRequest.HelpPage", "#[derive(strum::EnumIter)]")
+        .type_attribute("CsvMetadata.Delimiter", "#[derive(strum::EnumIter)]")
         .type_attribute(
             "Preferences.BackupLimits",
             "#[derive(Copy, serde_derive::Deserialize, serde_derive::Serialize)]",
+        )
+        .type_attribute(
+            "CsvMetadata.DupeResolution",
+            "#[derive(serde_derive::Deserialize, serde_derive::Serialize)]",
         )
         .compile_protos(paths.as_slice(), &[proto_dir])
         .unwrap();

@@ -9,15 +9,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../lib/ftl";
     import { getPlatformString, registerShortcut } from "../lib/shortcuts";
     import { context as editorFieldContext } from "./EditorField.svelte";
-    import { htmlOff, htmlOn } from "./icons";
+    import { plainTextIcon } from "./icons";
 
     const editorField = editorFieldContext.get();
     const keyCombination = "Control+Shift+X";
     const dispatch = createEventDispatcher();
 
+    export let visible = false;
     export let off = false;
-
-    $: icon = off ? htmlOff : htmlOn;
 
     function toggle() {
         dispatch("toggle");
@@ -32,25 +31,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <span
     class="plain-text-badge"
+    class:visible
     class:highlighted={!off}
     on:click|stopPropagation={toggle}
 >
     <Badge
         tooltip="{tr.editingToggleHtmlEditor()} ({getPlatformString(keyCombination)})"
-        iconSize={80}
-        --icon-align="text-top">{@html icon}</Badge
+        iconSize={80}>{@html plainTextIcon}</Badge
     >
 </span>
 
 <style lang="scss">
     span {
-        opacity: 0.4;
+        cursor: pointer;
+        opacity: 0;
 
+        &.visible {
+            opacity: 0.4;
+            &:hover {
+                opacity: 0.8;
+            }
+        }
         &.highlighted {
             opacity: 1;
-        }
-        &:hover {
-            opacity: 0.8;
         }
     }
 </style>

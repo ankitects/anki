@@ -7,6 +7,7 @@ import enum
 import platform
 import subprocess
 from dataclasses import dataclass
+from typing import Callable, List, Tuple
 
 import aqt
 from anki.utils import is_lin, is_mac, is_win
@@ -354,27 +355,58 @@ def get_macos_dark_mode() -> bool:
 
 def get_linux_dark_mode() -> bool:
     """True if Linux system is in dark mode.
-    This only works if the GTK theme name contains '-dark'"""
+    Only works if D-Bus is installed and system uses org.freedesktop.appearance
+    color-scheme to indicate dark mode preference OR if GNOME theme has
+    '-dark' in the name."""
     if not is_lin:
         return False
-    try:
-        process = subprocess.run(
-            ["gsettings", "get", "org.gnome.desktop.interface", "gtk-theme"],
-            check=True,
-            capture_output=True,
-            encoding="utf8",
-        )
-    except FileNotFoundError as e:
-        # swallow exceptions, as gsettings may not be installed
-        print(e)
-        return False
 
-    except subprocess.CalledProcessError as e:
-        # gsettings is installed, but cannot return a value
-        print(e)
-        return False
+    def parse_stdout_dbus_send(stdout: str) -> bool:
+        dbus_response = stdout.split()
+        if len(dbus_response) != 4:
+            return False
 
-    return "-dark" in process.stdout.lower()
+        # https://github.com/flatpak/xdg-desktop-portal/blob/main/data/org.freedesktop.impl.portal.Settings.xml#L40
+        PREFER_DARK = "1"
+
+        return dbus_response[-1] == PREFER_DARK
+
+    dark_mode_detection_strategies: List[Tuple[str, Callable[[str], bool]]] = [
+        (
+            "dbus-send --session --print-reply=literal --reply-timeout=1000 "
+            "--dest=org.freedesktop.portal.Desktop /org/freedesktop/portal/desktop "
+            "org.freedesktop.portal.Settings.Read string:'org.freedesktop.appearance' "
+            "string:'color-scheme'",
+            parse_stdout_dbus_send,
+        ),
+        (
+            "gsettings get org.gnome.desktop.interface gtk-theme",
+            lambda stdout: "-dark" in stdout.lower(),
+        ),
+    ]
+
+    for cmd, parse_stdout in dark_mode_detection_strategies:
+        try:
+            process = subprocess.run(
+                cmd,
+                shell=True,
+                check=True,
+                capture_output=True,
+                encoding="utf8",
+            )
+        except FileNotFoundError as e:
+            # detection strategy failed, missing program
+            print(e)
+            continue
+
+        except subprocess.CalledProcessError as e:
+            # detection strategy failed, command returned error
+            print(e)
+            continue
+
+        return parse_stdout(process.stdout)
+
+    return False  # all dark mode detection strategies failed
 
 
 theme_manager = ThemeManager()

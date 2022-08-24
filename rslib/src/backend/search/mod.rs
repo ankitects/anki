@@ -7,11 +7,11 @@ mod search_node;
 use std::{str::FromStr, sync::Arc};
 
 use super::{notes::to_note_ids, Backend};
-pub(super) use crate::backend_proto::search_service::Service as SearchService;
+pub(super) use crate::pb::search_service::Service as SearchService;
 use crate::{
-    backend_proto as pb,
-    backend_proto::sort_order::Value as SortOrderProto,
     browser_table::Column,
+    pb,
+    pb::sort_order::Value as SortOrderProto,
     prelude::*,
     search::{replace_search_node, JoinSearches, Node, SortMode},
 };

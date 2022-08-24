@@ -40,7 +40,7 @@ impl Collection {
 
     /// Saves in the undo queue, and commits to DB.
     /// No validation, card generation or normalization is done.
-    pub(super) fn update_note_undoable(&mut self, note: &Note, original: &Note) -> Result<()> {
+    pub(crate) fn update_note_undoable(&mut self, note: &Note, original: &Note) -> Result<()> {
         self.save_undo(UndoableNoteChange::Updated(Box::new(original.clone())));
         self.storage.update_note(note)?;
 

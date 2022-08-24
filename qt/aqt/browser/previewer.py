@@ -52,6 +52,7 @@ class Previewer(QDialog):
         self.mw = mw
         disable_help_button(self)
         setWindowIcon(self)
+        gui_hooks.previewer_did_init(self)
 
     def card(self) -> Card | None:
         raise NotImplementedError
@@ -131,6 +132,8 @@ class Previewer(QDialog):
             ],
             context=self,
         )
+        self._web.allow_drops = True
+        self._web.eval("_blockDefaultDragDropBehavior();")
         self._web.set_bridge_command(self._on_bridge_cmd, self)
 
     def _on_bridge_cmd(self, cmd: str) -> Any:

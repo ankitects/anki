@@ -219,7 +219,7 @@ class ProgressManager:
         self._max = max or 0
         self._win.form.progressBar.setMaximum(self._max)
         if self._max:
-            self._counter = value or (self._counter + 1)
+            self._counter = value if value is not None else (self._counter + 1)
             self._win.form.progressBar.setValue(self._counter)
 
     def finish(self) -> None:
@@ -287,6 +287,11 @@ class ProgressManager:
         return self._levels
 
     def _on_show_timer(self) -> None:
+        if self.mw.app.focusWindow() is None:
+            # if no window is focused (eg app is minimized), defer display
+            self._show_timer.start(10)
+            return
+
         self._show_timer = None
         self._showWin()
 
