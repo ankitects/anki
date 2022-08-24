@@ -19,7 +19,7 @@ use crate::{i18n::I18n, links::HelpPage};
 
 pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub enum AnkiError {
     InvalidInput(String),
     InvalidInputError(InvalidInputError),

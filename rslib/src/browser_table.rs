@@ -312,12 +312,9 @@ impl RowContext {
         if notes_mode {
             note = col
                 .get_note_maybe_with_fields(NoteId(id), with_card_render)
-                .map_err(|e| {
-                    if e == AnkiError::NotFound {
-                        AnkiError::Deleted
-                    } else {
-                        e
-                    }
+                .map_err(|err| match err {
+                    AnkiError::NotFound => AnkiError::Deleted,
+                    _ => err,
                 })?;
             cards = col.storage.all_cards_of_note(note.id)?;
             if cards.is_empty() {
