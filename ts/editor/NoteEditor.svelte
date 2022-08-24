@@ -452,6 +452,8 @@ the AddCards dialog) should be implemented in the user of this component.
                         <svelte:fragment slot="plain-text-input">
                                 <PlainTextInput
                                     bind:hidden={plainTextsHidden[index]}
+                                    isDefault={plainTextDefaults[index]}
+                                    richTextHidden={richTextsHidden[index]}
                                     on:focusout={() => {
                                         saveFieldNow();
                                         $focusedInput = null;
