@@ -66,12 +66,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     /* prevent transition on mount for performance reasons */
-    let blockTransition = true;
+    let firstTransition = true;
 
-    $: if (blockTransition) {
-        blockTransition = false;
-    } else {
+    $: {
         transition(collapsed);
+        firstTransition = false;
     }
 </script>
 
@@ -79,6 +78,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div
         class="collapsible-inner"
         class:collapsed={isCollapsed}
+        class:no-transition={firstTransition}
         use:innerResolve
         {style}
     >
@@ -95,6 +95,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         &.collapsed {
             margin-top: var(--collapse-height);
+        }
+        &.no-transition {
+            transition: none;
         }
     }
 </style>
