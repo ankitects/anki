@@ -336,6 +336,7 @@ the AddCards dialog) should be implemented in the user of this component.
                     <EditorField
                         {field}
                         {content}
+                        flipInputs={plainTextDefaults[index]}
                         api={fields[index]}
                         on:focusin={() => {
                             $focusedField = fields[index];
@@ -428,8 +429,8 @@ the AddCards dialog) should be implemented in the user of this component.
                                 </FieldState>
                             </LabelContainer>
                         </svelte:fragment>
-                        <svelte:fragment slot="editing-inputs">
                             <Collapsible collapsed={richTextsHidden[index]}>
+                        <svelte:fragment slot="rich-text-input">
                                 <RichTextInput
                                     bind:hidden={richTextsHidden[index]}
                                     on:focusout={() => {
@@ -447,6 +448,8 @@ the AddCards dialog) should be implemented in the user of this component.
                             </Collapsible>
 
                             <Collapsible collapsed={plainTextsHidden[index]}>
+                        </svelte:fragment>
+                        <svelte:fragment slot="plain-text-input">
                                 <PlainTextInput
                                     bind:hidden={plainTextsHidden[index]}
                                     on:focusout={() => {
