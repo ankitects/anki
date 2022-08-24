@@ -13,18 +13,18 @@ impl AnkiError {
         let localized = self.localized_description(tr);
         let help_page = self.help_page().map(|page| page as i32);
         let kind = match self {
-            AnkiError::InvalidInput(_) => Kind::InvalidInput,
+            AnkiError::InvalidInput(_) | AnkiError::InvalidInputError(_) => Kind::InvalidInput,
             AnkiError::TemplateError(_) => Kind::TemplateParse,
             AnkiError::IoError(_) => Kind::IoError,
             AnkiError::DbError(_) => Kind::DbError,
             AnkiError::NetworkError(_) => Kind::NetworkError,
-            AnkiError::SyncError(err) => err.kind.into(),
+            AnkiError::SyncError(ref err) => err.kind.into(),
             AnkiError::Interrupted => Kind::Interrupted,
             AnkiError::CollectionNotOpen => Kind::InvalidInput,
             AnkiError::CollectionAlreadyOpen => Kind::InvalidInput,
             AnkiError::JsonError(_) => Kind::JsonError,
             AnkiError::ProtoError(_) => Kind::ProtoError,
-            AnkiError::NotFound => Kind::NotFoundError,
+            AnkiError::NotFound | AnkiError::NotFoundError(_) => Kind::NotFoundError,
             AnkiError::Deleted => Kind::Deleted,
             AnkiError::Existing => Kind::Exists,
             AnkiError::FilteredDeckError(_) => Kind::FilteredDeckError,
@@ -46,6 +46,7 @@ impl AnkiError {
             kind: kind as i32,
             localized,
             help_page,
+            backtrace: self.backtrace(),
         }
     }
 }

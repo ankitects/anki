@@ -72,4 +72,5 @@ message BackendError {
   Kind kind = 2;
   // optional page in the manual
   optional links.HelpPageLinkRequest.HelpPage help_page = 3;
+  string backtrace = 4;
 }

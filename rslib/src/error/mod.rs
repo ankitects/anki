@@ -12,7 +12,7 @@ pub use db::{DbError, DbErrorKind};
 pub use filtered::{CustomStudyError, FilteredDeckError};
 pub use network::{NetworkError, NetworkErrorKind, SyncError, SyncErrorKind};
 pub use search::{ParseError, SearchErrorKind};
-use snafu::Snafu;
+use snafu::{Backtrace, ErrorCompat, Snafu};
 use tempfile::PathPersistError;
 
 use crate::{i18n::I18n, links::HelpPage};
@@ -22,6 +22,7 @@ pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 #[derive(Debug, PartialEq)]
 pub enum AnkiError {
     InvalidInput(String),
+    InvalidInputError(InvalidInputError),
     TemplateError(String),
     CardTypeError(CardTypeError),
     IoError(String),
@@ -36,6 +37,7 @@ pub enum AnkiError {
     CollectionNotOpen,
     CollectionAlreadyOpen,
     NotFound,
+    NotFoundError(NotFoundError),
     /// Indicates an absent card or note, but (unlike [AnkiError::NotFound]) in
     /// a non-critical context like the browser table, where deleted ids are
     /// deliberately not removed.
@@ -93,7 +95,8 @@ impl AnkiError {
             }
             AnkiError::DbError(err) => err.localized_description(tr),
             AnkiError::SearchError(kind) => kind.localized_description(tr),
-            AnkiError::InvalidInput(info) => {
+            AnkiError::InvalidInput(info)
+            | AnkiError::InvalidInputError(InvalidInputError { message: info, .. }) => {
                 if info.is_empty() {
                     tr.errors_invalid_input_empty().into()
                 } else {
@@ -117,6 +120,7 @@ impl AnkiError {
             | AnkiError::CollectionNotOpen
             | AnkiError::CollectionAlreadyOpen
             | AnkiError::NotFound
+            | AnkiError::NotFoundError(_)
             | AnkiError::Existing
             | AnkiError::UndoEmpty => format!("{:?}", self),
             AnkiError::FileIoError(err) => {
@@ -138,6 +142,45 @@ impl AnkiError {
             }),
             _ => None,
         }
+    }
+
+    pub fn backtrace(&self) -> String {
+        if let AnkiError::InvalidInputError(ref err) = self {
+            if let Some(bt) = ErrorCompat::backtrace(err) {
+                return bt.to_string();
+            }
+        }
+        if let AnkiError::NotFoundError(ref err) = self {
+            if let Some(bt) = ErrorCompat::backtrace(err) {
+                return bt.to_string();
+            }
+        }
+        String::new()
+    }
+}
+
+#[derive(Debug, Snafu)]
+#[snafu(visibility(pub), whatever)]
+pub struct InvalidInputError {
+    pub message: String,
+    pub backtrace: Backtrace,
+}
+
+impl PartialEq for InvalidInputError {
+    fn eq(&self, other: &Self) -> bool {
+        self.message == other.message
+    }
+}
+
+#[derive(Debug, Snafu)]
+#[snafu(visibility(pub))]
+pub struct NotFoundError {
+    pub backtrace: Backtrace,
+}
+
+impl PartialEq for NotFoundError {
+    fn eq(&self, _other: &Self) -> bool {
+        true
     }
 }
 

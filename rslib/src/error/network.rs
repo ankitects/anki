@@ -26,7 +26,7 @@ pub struct SyncError {
     pub kind: SyncErrorKind,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum SyncErrorKind {
     Conflict,
     ServerError,

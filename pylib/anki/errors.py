@@ -44,6 +44,14 @@ class DocumentedError(LocalizedError):
         super().__init__(localized)
 
 
+class BacktracedError(AnkiException):
+    """An error with a backtrace."""
+
+    def __init__(self, *args, backtrace: str, **kwargs) -> None:
+        self.backtrace = backtrace
+        super().__init__(*args, **kwargs)
+
+
 class Interrupted(AnkiException):
     pass
 
@@ -83,7 +91,7 @@ class TemplateError(LocalizedError):
     pass
 
 
-class NotFoundError(AnkiException):
+class NotFoundError(BacktracedError):
     pass
 
 
@@ -103,7 +111,7 @@ class FilteredDeckError(LocalizedError):
     pass
 
 
-class InvalidInput(LocalizedError):
+class InvalidInput(BacktracedError, LocalizedError):
     pass
 
 

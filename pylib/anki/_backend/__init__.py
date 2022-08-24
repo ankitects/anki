@@ -197,13 +197,13 @@ def backend_exception_to_pylib(err: backend_pb2.BackendError) -> Exception:
         return TemplateError(err.localized)
 
     elif val == kind.INVALID_INPUT:
-        return InvalidInput(err.localized)
+        return InvalidInput(err.localized, backtrace=err.backtrace)
 
     elif val == kind.JSON_ERROR:
         return LocalizedError(err.localized)
 
     elif val == kind.NOT_FOUND_ERROR:
-        return NotFoundError()
+        return NotFoundError(err.localized, backtrace=err.backtrace)
 
     elif val == kind.EXISTS:
         return ExistsError()

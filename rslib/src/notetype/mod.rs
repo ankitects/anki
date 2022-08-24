@@ -44,8 +44,8 @@ pub use crate::pb::{
 use crate::{
     define_newtype,
     error::{
-        CardTypeError, CardTypeErrorDetails, CardTypeSnafu, MissingClozeSnafu, NoFrontFieldSnafu,
-        NoSuchFieldSnafu,
+        CardTypeError, CardTypeErrorDetails, CardTypeSnafu, InvalidInputError, MissingClozeSnafu,
+        NoFrontFieldSnafu, NoSuchFieldSnafu,
     },
     prelude::*,
     search::{JoinSearches, Node, SearchNode},
@@ -476,19 +476,8 @@ impl Notetype {
         existing: Option<&Notetype>,
         skip_checks: bool,
     ) -> Result<()> {
-        if self.fields.is_empty() {
-            return Err(AnkiError::invalid_input("1 field required"));
-        }
-        if self.templates.is_empty() {
-            return Err(AnkiError::invalid_input("1 template required"));
-        }
-        let bad_chars = |c| c == '"';
-        if self.name.contains(bad_chars) {
-            self.name = self.name.replace(bad_chars, "");
-        }
-        if self.name.is_empty() {
-            return Err(AnkiError::invalid_input("Empty note type name"));
-        }
+        self.ensure_unempty_values()
+            .map_err(AnkiError::InvalidInputError)?;
         self.normalize_names();
         self.fix_field_names()?;
         self.fix_template_names()?;
@@ -510,6 +499,17 @@ impl Notetype {
             self.check_templates(parsed_templates)?;
         }
 
+        Ok(())
+    }
+
+    fn ensure_unempty_values(&mut self) -> Result<(), InvalidInputError> {
+        let bad_chars = |c| c == '"';
+        if self.name.contains(bad_chars) {
+            self.name = self.name.replace(bad_chars, "");
+        }
+        ensure_whatever!(!self.name.is_empty(), "Empty note type name");
+        ensure_whatever!(!self.fields.is_empty(), "1 field required");
+        ensure_whatever!(!self.templates.is_empty(), "1 template required");
         Ok(())
     }
 
