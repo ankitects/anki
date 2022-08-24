@@ -4,7 +4,6 @@
 use std::{
     borrow::Cow,
     collections::{HashMap, HashSet},
-    mem,
     sync::Arc,
 };
 
@@ -16,8 +15,9 @@ use crate::{
         text::{
             DupeResolution, ForeignCard, ForeignData, ForeignNote, ForeignNotetype, ForeignTemplate,
         },
-        ImportProgress, IncrementableProgress, LogNote, NoteLog,
+        ImportProgress, IncrementableProgress, NoteLog,
     },
+    notes::{field_checksum, normalize_field},
     notetype::{CardGenContext, CardTemplate, NoteField, NotetypeConfig},
     prelude::*,
     text::strip_html_preserving_media_filenames,
@@ -78,13 +78,13 @@ struct DeckIdsByNameOrId {
     default: Option<DeckId>,
 }
 
-struct NoteContext {
-    /// Prepared and with canonified tags.
-    note: Note,
+struct NoteContext<'a> {
+    note: ForeignNote,
     dupes: Vec<Duplicate>,
-    cards: Vec<Card>,
     notetype: Arc<Notetype>,
     deck_id: DeckId,
+    global_tags: &'a [String],
+    updated_tags: &'a [String],
 }
 
 struct Duplicate {
@@ -94,8 +94,8 @@ struct Duplicate {
 }
 
 impl Duplicate {
-    fn new(dupe: Note, original: &Note, first_field_match: bool) -> Self {
-        let identical = dupe.equal_fields_and_tags(original);
+    fn new(dupe: Note, original: &ForeignNote, first_field_match: bool) -> Self {
+        let identical = original.equal_fields_and_tags(&dupe);
         Self {
             note: dupe,
             identical,
@@ -190,14 +190,20 @@ impl<'a> Context<'a> {
         let mut log = NoteLog::new(self.dupe_resolution, notes.len() as u32);
         for foreign in notes {
             incrementor.increment()?;
-            if foreign.first_field_is_empty() {
+            if foreign.first_field_is_the_empty_string() {
                 log.empty_first_field.push(foreign.into_log_note());
                 continue;
             }
             if let Some(notetype) = self.notetype_for_note(&foreign)? {
                 if let Some(deck_id) = self.deck_ids.get(&foreign.deck) {
-                    let ctx = self.build_note_context(foreign, notetype, deck_id, global_tags)?;
-                    self.import_note(ctx, updated_tags, &mut log)?;
+                    let ctx = self.build_note_context(
+                        foreign,
+                        notetype,
+                        deck_id,
+                        global_tags,
+                        updated_tags,
+                    )?;
+                    self.import_note(ctx, &mut log)?;
                 } else {
                     log.missing_deck.push(foreign.into_log_note());
                 }
@@ -208,41 +214,45 @@ impl<'a> Context<'a> {
         Ok(log)
     }
 
-    fn build_note_context(
+    fn build_note_context<'tags>(
         &mut self,
-        foreign: ForeignNote,
+        mut note: ForeignNote,
         notetype: Arc<Notetype>,
         deck_id: DeckId,
-        global_tags: &[String],
-    ) -> Result<NoteContext> {
-        let (mut note, cards) = foreign.into_native(&notetype, deck_id, self.today, global_tags);
-        note.prepare_for_update(&notetype, self.normalize_notes)?;
-        self.col.canonify_note_tags(&mut note, self.usn)?;
+        global_tags: &'tags [String],
+        updated_tags: &'tags [String],
+    ) -> Result<NoteContext<'tags>> {
+        self.prepare_foreign_note(&mut note)?;
         let dupes = self.find_duplicates(&notetype, &note)?;
-
         Ok(NoteContext {
             note,
             dupes,
-            cards,
             notetype,
             deck_id,
+            global_tags,
+            updated_tags,
         })
     }
 
-    fn find_duplicates(&self, notetype: &Notetype, note: &Note) -> Result<Vec<Duplicate>> {
-        let checksum = note
-            .checksum
-            .ok_or_else(|| AnkiError::invalid_input("note unprepared"))?;
+    fn prepare_foreign_note(&mut self, note: &mut ForeignNote) -> Result<()> {
+        note.normalize_fields(self.normalize_notes);
+        self.col.canonify_foreign_tags(note, self.usn)
+    }
+
+    fn find_duplicates(&self, notetype: &Notetype, note: &ForeignNote) -> Result<Vec<Duplicate>> {
         if let Some(nid) = self.existing_guids.get(&note.guid) {
             self.get_guid_dupe(*nid, note).map(|dupe| vec![dupe])
-        } else if let Some(nids) = self.existing_checksums.get(&(notetype.id, checksum)) {
+        } else if let Some(nids) = note
+            .checksum()
+            .and_then(|csum| self.existing_checksums.get(&(notetype.id, csum)))
+        {
             self.get_first_field_dupes(note, nids)
         } else {
             Ok(Vec::new())
         }
     }
 
-    fn get_guid_dupe(&self, nid: NoteId, original: &Note) -> Result<Duplicate> {
+    fn get_guid_dupe(&self, nid: NoteId, original: &ForeignNote) -> Result<Duplicate> {
         self.col
             .storage
             .get_note(nid)?
@@ -250,7 +260,7 @@ impl<'a> Context<'a> {
             .map(|dupe| Duplicate::new(dupe, original, false))
     }
 
-    fn get_first_field_dupes(&self, note: &Note, nids: &[NoteId]) -> Result<Vec<Duplicate>> {
+    fn get_first_field_dupes(&self, note: &ForeignNote, nids: &[NoteId]) -> Result<Vec<Duplicate>> {
         Ok(self
             .col
             .get_full_duplicates(note, nids)?
@@ -259,26 +269,36 @@ impl<'a> Context<'a> {
             .collect())
     }
 
-    fn import_note(
-        &mut self,
-        ctx: NoteContext,
-        updated_tags: &[String],
-        log: &mut NoteLog,
-    ) -> Result<()> {
+    fn import_note(&mut self, ctx: NoteContext, log: &mut NoteLog) -> Result<()> {
         match self.dupe_resolution {
-            _ if ctx.dupes.is_empty() => self.add_note(ctx, &mut log.new)?,
-            DupeResolution::Add => self.add_note(ctx, &mut log.first_field_match)?,
-            DupeResolution::Update => self.update_with_note(ctx, updated_tags, log)?,
+            _ if ctx.dupes.is_empty() => self.add_note(ctx, log, false)?,
+            DupeResolution::Add => self.add_note(ctx, log, true)?,
+            DupeResolution::Update => self.update_with_note(ctx, log)?,
             DupeResolution::Ignore => log.first_field_match.push(ctx.note.into_log_note()),
         }
         Ok(())
     }
 
-    fn add_note(&mut self, mut ctx: NoteContext, log_queue: &mut Vec<LogNote>) -> Result<()> {
-        ctx.note.usn = self.usn;
-        self.col.add_note_only_undoable(&mut ctx.note)?;
-        self.add_cards(&mut ctx.cards, &ctx.note, ctx.deck_id, ctx.notetype)?;
-        log_queue.push(ctx.note.into_log_note());
+    fn add_note(&mut self, ctx: NoteContext, log: &mut NoteLog, dupe: bool) -> Result<()> {
+        if !ctx.note.first_field_is_unempty() {
+            log.empty_first_field.push(ctx.note.into_log_note());
+            return Ok(());
+        }
+
+        let mut note = Note::new(&ctx.notetype);
+        let mut cards = ctx
+            .note
+            .into_native(&mut note, ctx.deck_id, self.today, ctx.global_tags);
+        self.prepare_note(&mut note, &ctx.notetype)?;
+        self.col.add_note_only_undoable(&mut note)?;
+        self.add_cards(&mut cards, &note, ctx.deck_id, ctx.notetype)?;
+
+        if dupe {
+            log.first_field_match.push(note.into_log_note());
+        } else {
+            log.new.push(note.into_log_note());
+        }
+
         Ok(())
     }
 
@@ -293,60 +313,43 @@ impl<'a> Context<'a> {
         self.generate_missing_cards(notetype, deck_id, note)
     }
 
-    fn update_with_note(
-        &mut self,
-        mut ctx: NoteContext,
-        updated_tags: &[String],
-        log: &mut NoteLog,
-    ) -> Result<()> {
-        self.prepare_note_for_update(&mut ctx.note, updated_tags)?;
-        for dupe in mem::take(&mut ctx.dupes) {
-            self.maybe_update_dupe(dupe, &mut ctx, log)?;
+    fn update_with_note(&mut self, ctx: NoteContext, log: &mut NoteLog) -> Result<()> {
+        for dupe in ctx.dupes {
+            if dupe.note.notetype_id != ctx.notetype.id {
+                log.conflicting.push(dupe.note.into_log_note());
+                continue;
+            }
+
+            let mut note = dupe.note.clone();
+            let mut cards = ctx.note.clone().into_native(
+                &mut note,
+                ctx.deck_id,
+                self.today,
+                ctx.global_tags.iter().chain(ctx.updated_tags.iter()),
+            );
+
+            if !dupe.identical {
+                self.prepare_note(&mut note, &ctx.notetype)?;
+                self.col.update_note_undoable(&note, &dupe.note)?;
+            }
+            self.add_cards(&mut cards, &note, ctx.deck_id, ctx.notetype.clone())?;
+
+            if dupe.identical {
+                log.duplicate.push(dupe.note.into_log_note());
+            } else if dupe.first_field_match {
+                log.first_field_match.push(note.into_log_note());
+            } else {
+                log.updated.push(note.into_log_note());
+            }
         }
+
         Ok(())
     }
 
-    fn prepare_note_for_update(&mut self, note: &mut Note, updated_tags: &[String]) -> Result<()> {
-        if !updated_tags.is_empty() {
-            note.tags.extend(updated_tags.iter().cloned());
-            self.col.canonify_note_tags(note, self.usn)?;
-        }
+    fn prepare_note(&mut self, note: &mut Note, notetype: &Notetype) -> Result<()> {
+        note.prepare_for_update(notetype, self.normalize_notes)?;
+        self.col.canonify_note_tags(note, self.usn)?;
         note.set_modified(self.usn);
-        Ok(())
-    }
-
-    fn maybe_update_dupe(
-        &mut self,
-        dupe: Duplicate,
-        ctx: &mut NoteContext,
-        log: &mut NoteLog,
-    ) -> Result<()> {
-        if dupe.note.notetype_id != ctx.notetype.id {
-            log.conflicting.push(dupe.note.into_log_note());
-            return Ok(());
-        }
-        if dupe.identical {
-            log.duplicate.push(dupe.note.into_log_note());
-        } else {
-            self.update_dupe(dupe, ctx, log)?;
-        }
-        self.add_cards(&mut ctx.cards, &ctx.note, ctx.deck_id, ctx.notetype.clone())
-    }
-
-    fn update_dupe(
-        &mut self,
-        dupe: Duplicate,
-        ctx: &mut NoteContext,
-        log: &mut NoteLog,
-    ) -> Result<()> {
-        ctx.note.id = dupe.note.id;
-        ctx.note.guid = dupe.note.guid.clone();
-        self.col.update_note_undoable(&ctx.note, &dupe.note)?;
-        if dupe.first_field_match {
-            log.first_field_match.push(dupe.note.into_log_note());
-        } else {
-            log.updated.push(dupe.note.into_log_note());
-        }
         Ok(())
     }
 
@@ -397,8 +400,18 @@ impl Collection {
         }
     }
 
-    fn get_full_duplicates(&self, note: &Note, dupe_ids: &[NoteId]) -> Result<Vec<Note>> {
-        let first_field = note.first_field_stripped();
+    fn canonify_foreign_tags(&mut self, note: &mut ForeignNote, usn: Usn) -> Result<()> {
+        if let Some(tags) = note.tags.take() {
+            note.tags
+                .replace(self.canonify_tags_without_registering(tags, usn)?);
+        }
+        Ok(())
+    }
+
+    fn get_full_duplicates(&self, note: &ForeignNote, dupe_ids: &[NoteId]) -> Result<Vec<Note>> {
+        let first_field = note
+            .first_field_stripped()
+            .ok_or_else(|| AnkiError::invalid_input("no first field"))?;
         dupe_ids
             .iter()
             .filter_map(|&dupe_id| self.storage.get_note(dupe_id).transpose())
@@ -411,35 +424,72 @@ impl Collection {
 }
 
 impl ForeignNote {
-    fn into_native(
+    /// Updates a native note with the foreign data and returns its new cards.
+    fn into_native<'tags>(
         self,
-        notetype: &Notetype,
+        note: &mut Note,
         deck_id: DeckId,
         today: u32,
-        extra_tags: &[String],
-    ) -> (Note, Vec<Card>) {
+        extra_tags: impl IntoIterator<Item = &'tags String>,
+    ) -> Vec<Card> {
         // TODO: Handle new and learning cards
-        let mut note = Note::new(notetype);
         if !self.guid.is_empty() {
             note.guid = self.guid;
         }
-        note.tags = self.tags;
-        note.tags.extend(extra_tags.iter().cloned());
+        if let Some(tags) = self.tags {
+            note.tags = tags;
+        }
+        note.tags.extend(extra_tags.into_iter().cloned());
         note.fields_mut()
             .iter_mut()
             .zip(self.fields.into_iter())
-            .for_each(|(field, value)| *field = value);
-        let cards = self
-            .cards
+            .for_each(|(field, new)| {
+                if let Some(s) = new {
+                    *field = s;
+                }
+            });
+        self.cards
             .into_iter()
             .enumerate()
             .map(|(idx, c)| c.into_native(NoteId(0), idx as u16, deck_id, today))
-            .collect();
-        (note, cards)
+            .collect()
     }
 
-    fn first_field_is_empty(&self) -> bool {
-        self.fields.get(0).map(String::is_empty).unwrap_or(true)
+    fn first_field_is_the_empty_string(&self) -> bool {
+        matches!(self.fields.get(0), Some(Some(s)) if s.is_empty())
+    }
+
+    fn first_field_is_unempty(&self) -> bool {
+        matches!(self.fields.get(0), Some(Some(s)) if !s.is_empty())
+    }
+
+    fn normalize_fields(&mut self, normalize_text: bool) {
+        for field in self.fields.iter_mut().flatten() {
+            normalize_field(field, normalize_text);
+        }
+    }
+
+    /// Expects normalized form.
+    fn equal_fields_and_tags(&self, other: &Note) -> bool {
+        self.tags.as_ref().map_or(true, |tags| *tags == other.tags)
+            && self
+                .fields
+                .iter()
+                .zip(other.fields())
+                .all(|(opt, field)| opt.as_ref().map(|s| s == field).unwrap_or(true))
+    }
+
+    fn first_field_stripped(&self) -> Option<Cow<str>> {
+        self.fields
+            .get(0)
+            .and_then(|s| s.as_ref())
+            .map(|field| strip_html_preserving_media_filenames(field.as_str()))
+    }
+
+    /// If the first field is set, returns its checksum. Field is expected to be normalized.
+    fn checksum(&self) -> Option<u32> {
+        self.first_field_stripped()
+            .map(|field| field_checksum(&field))
     }
 }
 
@@ -493,12 +543,6 @@ impl ForeignTemplate {
     }
 }
 
-impl Note {
-    fn equal_fields_and_tags(&self, other: &Self) -> bool {
-        self.fields() == other.fields() && self.tags == other.tags
-    }
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -515,7 +559,7 @@ mod test {
 
         fn add_note(&mut self, fields: &[&str]) {
             self.notes.push(ForeignNote {
-                fields: fields.iter().map(ToString::to_string).collect(),
+                fields: fields.iter().map(ToString::to_string).map(Some).collect(),
                 ..Default::default()
             });
         }
@@ -543,7 +587,7 @@ mod test {
         data.clone().import(&mut col, |_, _| true).unwrap();
         assert_eq!(col.storage.notes_table_len(), 1);
 
-        data.notes[0].fields[1] = "new".to_string();
+        data.notes[0].fields[1].replace("new".to_string());
         data.import(&mut col, |_, _| true).unwrap();
         let notes = col.storage.get_all_notes();
         assert_eq!(notes.len(), 1);
@@ -560,9 +604,28 @@ mod test {
         data.clone().import(&mut col, |_, _| true).unwrap();
         assert_eq!(col.storage.notes_table_len(), 1);
 
-        data.notes[0].fields[1] = "new".to_string();
+        data.notes[0].fields[1].replace("new".to_string());
         data.import(&mut col, |_, _| true).unwrap();
         assert_eq!(col.storage.get_all_notes()[0].fields()[1], "new");
+    }
+
+    #[test]
+    fn should_keep_old_field_content_if_no_new_one_is_supplied() {
+        let mut col = open_test_collection();
+        let mut data = ForeignData::with_defaults();
+        data.add_note(&["same", "unchanged"]);
+        data.add_note(&["same", "unchanged"]);
+        data.dupe_resolution = DupeResolution::Update;
+
+        data.clone().import(&mut col, |_, _| true).unwrap();
+        assert_eq!(col.storage.notes_table_len(), 2);
+
+        data.notes[0].fields[1] = None;
+        data.notes[1].fields.pop();
+        data.import(&mut col, |_, _| true).unwrap();
+        let notes = col.storage.get_all_notes();
+        assert_eq!(notes[0].fields(), &["same", "unchanged"]);
+        assert_eq!(notes[0].fields(), &["same", "unchanged"]);
     }
 
     #[test]
@@ -589,7 +652,7 @@ mod test {
         let mut col = open_test_collection();
         let mut data = ForeignData::with_defaults();
         data.add_note(&["foo"]);
-        data.notes[0].tags = vec![String::from("bar")];
+        data.notes[0].tags.replace(vec![String::from("bar")]);
         data.global_tags = vec![String::from("baz")];
 
         data.import(&mut col, |_, _| true).unwrap();
@@ -601,7 +664,7 @@ mod test {
         let mut col = open_test_collection();
         let mut data = ForeignData::with_defaults();
         data.add_note(&["foo"]);
-        data.notes[0].tags = vec![String::from("bar")];
+        data.notes[0].tags.replace(vec![String::from("bar")]);
         data.global_tags = vec![String::from("baz")];
 
         data.import(&mut col, |_, _| true).unwrap();
