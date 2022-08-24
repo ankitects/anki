@@ -788,18 +788,18 @@ mod test {
         );
 
         // escaping parentheses is optional (only) inside quotes
-        assert_eq!(parse(r#""\)\(""#), parse(r#"")(""#));
+        assert_eq!(parse(r#""\)\(""#)?, parse(r#"")(""#)?);
 
         // escaping : is optional if it is preceded by another :
-        assert_eq!(parse("field:val:ue"), parse(r"field:val\:ue"));
-        assert_eq!(parse(r#""field:val:ue""#), parse(r"field:val\:ue"));
-        assert_eq!(parse(r#"field:"val:ue""#), parse(r"field:val\:ue"));
+        assert_eq!(parse("field:val:ue")?, parse(r"field:val\:ue")?);
+        assert_eq!(parse(r#""field:val:ue""#)?, parse(r"field:val\:ue")?);
+        assert_eq!(parse(r#"field:"val:ue""#)?, parse(r"field:val\:ue")?);
 
         // escaping - is optional if it cannot be mistaken for a negator
-        assert_eq!(parse("-"), parse(r"\-"));
-        assert_eq!(parse("A-"), parse(r"A\-"));
-        assert_eq!(parse(r#""-A""#), parse(r"\-A"));
-        assert_ne!(parse("-A"), parse(r"\-A"));
+        assert_eq!(parse("-")?, parse(r"\-")?);
+        assert_eq!(parse("A-")?, parse(r"A\-")?);
+        assert_eq!(parse(r#""-A""#)?, parse(r"\-A")?);
+        assert_ne!(parse("-A")?, parse(r"\-A")?);
 
         // any character should be escapable on the right side of re:
         assert_eq!(
@@ -883,7 +883,7 @@ mod test {
         use crate::error::AnkiError;
 
         fn assert_err_kind(input: &str, kind: FailKind) {
-            assert_eq!(parse(input), Err(AnkiError::SearchError(kind)));
+            assert!(matches!(parse(input), Err(AnkiError::SearchError(k)) if k == kind));
         }
 
         fn failkind(input: &str) -> SearchErrorKind {

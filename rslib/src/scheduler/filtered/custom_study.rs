@@ -346,7 +346,7 @@ mod test {
             tags_to_include: vec!["2::two".to_string()],
             tags_to_exclude: vec!["3".to_string()],
         };
-        assert_eq!(
+        assert!(matches!(
             col.custom_study(CustomStudyRequest {
                 deck_id: 1,
                 value: Some(Value::Cram(cram.clone())),
@@ -354,7 +354,7 @@ mod test {
             Err(AnkiError::CustomStudyError(
                 CustomStudyError::NoMatchingCards
             ))
-        );
+        ));
         assert_eq!(
             &get_defaults(&mut col)?,
             &[

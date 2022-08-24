@@ -88,11 +88,10 @@ fn normalization_check_on_export() -> Result<()> {
     let colpkg_name = dir.join("normalize.colpkg");
     // manually write a file in the wrong encoding.
     std::fs::write(col.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
-    assert_eq!(
-        col.export_colpkg(&colpkg_name, true, false, |_, _| true,)
-            .unwrap_err(),
-        AnkiError::MediaCheckRequired
-    );
+    assert!(matches!(
+        col.export_colpkg(&colpkg_name, true, false, |_, _| true,),
+        Err(AnkiError::MediaCheckRequired)
+    ));
     // file should have been cleaned up
     assert!(!colpkg_name.exists());
 
