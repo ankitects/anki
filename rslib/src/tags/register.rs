@@ -18,13 +18,37 @@ impl Collection {
         tags: Vec<String>,
         usn: Usn,
     ) -> Result<(Vec<String>, bool)> {
+        self.canonify_tags_inner(tags, usn, true)
+    }
+
+    pub(crate) fn canonify_tags_without_registering(
+        &mut self,
+        tags: Vec<String>,
+        usn: Usn,
+    ) -> Result<Vec<String>> {
+        self.canonify_tags_inner(tags, usn, false)
+            .map(|(tags, _)| tags)
+    }
+
+    /// Like [canonify_tags()], but doesn't save new tags. As a consequence, new
+    /// parents are not canonified.
+    fn canonify_tags_inner(
+        &mut self,
+        tags: Vec<String>,
+        usn: Usn,
+        register: bool,
+    ) -> Result<(Vec<String>, bool)> {
         let mut seen = HashSet::new();
         let mut added = false;
 
         let tags: Vec<_> = tags.iter().flat_map(|t| split_tags(t)).collect();
         for tag in tags {
             let mut tag = Tag::new(tag.to_string(), usn);
-            added |= self.register_tag(&mut tag)?;
+            if register {
+                added |= self.register_tag(&mut tag)?;
+            } else {
+                self.prepare_tag_for_registering(&mut tag)?;
+            }
             seen.insert(UniCase::new(tag.name));
         }
 
