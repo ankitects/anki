@@ -66,6 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import PlainTextInput from "./plain-text-input";
     import PlainTextBadge from "./PlainTextBadge.svelte";
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
+    import RichTextBadge from "./RichTextBadge.svelte";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -118,13 +119,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fieldsCollapsed = fs;
     }
 
-    let plainTexts: boolean[] = [];
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
+    let plainTextDefaults: boolean[] = [];
 
     export function setPlainTexts(fs: boolean[]): void {
-        richTextsHidden = plainTexts = fs;
+        richTextsHidden = fs;
         plainTextsHidden = Array.from(fs, (v) => !v);
+        plainTextDefaults = [...richTextsHidden];
     }
 
     function setMathjaxEnabled(enabled: boolean): void {
@@ -142,13 +144,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
-
-        richTextsHidden = fonts.map((_, index) =>
-            fieldsCollapsed[index] ? true : richTextsHidden[index] ?? false,
-        );
-        plainTextsHidden = fonts.map((_, index) =>
-            fieldsCollapsed[index] ? true : plainTextsHidden[index] ?? true,
-        );
     }
 
     export function focusField(index: number | null): void {
@@ -196,7 +191,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: fieldsData = fieldNames.map((name, index) => ({
         name,
-        plainText: plainTexts[index],
+        plainText: plainTextDefaults[index],
         description: fieldDescriptions[index],
         fontFamily: quoteFontFamily(fonts[index][0]),
         fontSize: fonts[index][1],
@@ -386,21 +381,43 @@ the AddCards dialog) should be implemented in the user of this component.
                                     {#if cols[index] === "dupe"}
                                         <DuplicateLink />
                                     {/if}
-                                    <PlainTextBadge
-                                        visible={!fieldsCollapsed[index] &&
-                                            (fields[index] === $hoveredField ||
-                                                fields[index] === $focusedField)}
-                                        bind:off={plainTextsHidden[index]}
-                                        on:toggle={async () => {
-                                            plainTextsHidden[index] =
-                                                !plainTextsHidden[index];
+                                    {#if plainTextDefaults[index]}
+                                        <RichTextBadge
+                                            visible={!fieldsCollapsed[index] &&
+                                                (fields[index] === $hoveredField ||
+                                                    fields[index] === $focusedField)}
+                                            bind:off={richTextsHidden[index]}
+                                            on:toggle={async () => {
+                                                richTextsHidden[index] =
+                                                    !richTextsHidden[index];
 
-                                            if (!plainTextsHidden[index]) {
-                                                await tick();
-                                                plainTextInputs[index].api.refocus();
-                                            }
-                                        }}
-                                    />
+                                                if (!richTextsHidden[index]) {
+                                                    await tick();
+                                                    await tick();
+                                                    richTextInputs[index].api.refocus();
+                                                }
+                                            }}
+                                        />
+                                    {:else}
+                                        <PlainTextBadge
+                                            visible={!fieldsCollapsed[index] &&
+                                                (fields[index] === $hoveredField ||
+                                                    fields[index] === $focusedField)}
+                                            bind:off={plainTextsHidden[index]}
+                                            on:toggle={async () => {
+                                                plainTextsHidden[index] =
+                                                    !plainTextsHidden[index];
+
+                                                if (!plainTextsHidden[index]) {
+                                                    await tick();
+                                                    await tick();
+                                                    plainTextInputs[
+                                                        index
+                                                    ].api.refocus();
+                                                }
+                                            }}
+                                        />
+                                    {/if}
                                     <slot
                                         name="field-state"
                                         {field}
