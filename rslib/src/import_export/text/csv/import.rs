@@ -56,7 +56,7 @@ impl CsvMetadata {
             .ok_or_else(|| AnkiError::invalid_input("notetype oneof not set"))
     }
 
-    fn field_source_columns(&self) -> Result<Vec<Option<usize>>> {
+    fn field_source_columns(&self) -> Result<FieldSourceColumns> {
         Ok(match self.notetype()? {
             CsvNotetype::GlobalNotetype(global) => global
                 .field_columns
@@ -115,8 +115,7 @@ struct ColumnContext {
     guid_column: Option<usize>,
     deck_column: Option<usize>,
     notetype_column: Option<usize>,
-    /// Source column indices for the fields of a notetype, identified by its
-    /// name or id as string. The empty string corresponds to the default notetype.
+    /// Source column indices for the fields of a notetype
     field_source_columns: FieldSourceColumns,
     /// How fields are converted to strings. Used for escaping HTML if appropriate.
     stringify: fn(&str) -> String,
@@ -168,22 +167,20 @@ impl ColumnContext {
         }
     }
 
-    fn gather_tags(&self, record: &csv::StringRecord) -> Vec<String> {
-        self.tags_column
-            .and_then(|i| record.get(i - 1))
-            .unwrap_or_default()
-            .split_whitespace()
-            .filter(|s| !s.is_empty())
-            .map(ToString::to_string)
-            .collect()
+    fn gather_tags(&self, record: &csv::StringRecord) -> Option<Vec<String>> {
+        self.tags_column.and_then(|i| record.get(i - 1)).map(|s| {
+            s.split_whitespace()
+                .filter(|s| !s.is_empty())
+                .map(ToString::to_string)
+                .collect()
+        })
     }
 
-    fn gather_note_fields(&self, record: &csv::StringRecord) -> Vec<String> {
+    fn gather_note_fields(&self, record: &csv::StringRecord) -> Vec<Option<String>> {
         let stringify = self.stringify;
         self.field_source_columns
             .iter()
-            .map(|opt| opt.and_then(|idx| record.get(idx - 1)).unwrap_or_default())
-            .map(stringify)
+            .map(|opt| opt.and_then(|idx| record.get(idx - 1)).map(stringify))
             .collect()
     }
 }
@@ -253,7 +250,19 @@ mod test {
         ($metadata:expr, $csv:expr, $expected:expr) => {
             let notes = import!(&$metadata, $csv);
             let fields: Vec<_> = notes.into_iter().map(|note| note.fields).collect();
-            assert_eq!(fields, $expected);
+            assert_eq!(fields.len(), $expected.len());
+            for (note_fields, note_expected) in fields.iter().zip($expected.iter()) {
+                assert_field_eq!(note_fields, note_expected);
+            }
+        };
+    }
+
+    macro_rules! assert_field_eq {
+        ($fields:expr, $expected:expr) => {
+            assert_eq!($fields.len(), $expected.len());
+            for (field, expected) in $fields.iter().zip($expected.iter()) {
+                assert_eq!(&field.as_ref().map(String::as_str), expected);
+            }
         };
     }
 
@@ -283,20 +292,28 @@ mod test {
     #[test]
     fn should_allow_missing_columns() {
         let metadata = CsvMetadata::defaults_for_testing();
-        assert_imported_fields!(metadata, "foo\n", &[&["foo", ""]]);
+        assert_imported_fields!(metadata, "foo\n", [[Some("foo"), None]]);
     }
 
     #[test]
     fn should_respect_custom_delimiter() {
         let mut metadata = CsvMetadata::defaults_for_testing();
         metadata.set_delimiter(Delimiter::Pipe);
-        assert_imported_fields!(metadata, "fr,ont|ba,ck\n", &[&["fr,ont", "ba,ck"]]);
+        assert_imported_fields!(
+            metadata,
+            "fr,ont|ba,ck\n",
+            [[Some("fr,ont"), Some("ba,ck")]]
+        );
     }
 
     #[test]
     fn should_ignore_first_line_starting_with_tags() {
         let metadata = CsvMetadata::defaults_for_testing();
-        assert_imported_fields!(metadata, "tags:foo\nfront,back\n", &[&["front", "back"]]);
+        assert_imported_fields!(
+            metadata,
+            "tags:foo\nfront,back\n",
+            [[Some("front"), Some("back")]]
+        );
     }
 
     #[test]
@@ -308,21 +325,29 @@ mod test {
                 id: 1,
                 field_columns: vec![3, 1],
             }));
-        assert_imported_fields!(metadata, "front,foo,back\n", &[&["back", "front"]]);
+        assert_imported_fields!(
+            metadata,
+            "front,foo,back\n",
+            [[Some("back"), Some("front")]]
+        );
     }
 
     #[test]
     fn should_ignore_lines_starting_with_number_sign() {
         let metadata = CsvMetadata::defaults_for_testing();
-        assert_imported_fields!(metadata, "#foo\nfront,back\n#bar\n", &[&["front", "back"]]);
+        assert_imported_fields!(
+            metadata,
+            "#foo\nfront,back\n#bar\n",
+            [[Some("front"), Some("back")]]
+        );
     }
 
     #[test]
     fn should_escape_html_entities_if_csv_is_html() {
         let mut metadata = CsvMetadata::defaults_for_testing();
-        assert_imported_fields!(metadata, "<hr>\n", &[&["&lt;hr&gt;", ""]]);
+        assert_imported_fields!(metadata, "<hr>\n", [[Some("&lt;hr&gt;"), None]]);
         metadata.is_html = true;
-        assert_imported_fields!(metadata, "<hr>\n", &[&["<hr>", ""]]);
+        assert_imported_fields!(metadata, "<hr>\n", [[Some("<hr>"), None]]);
     }
 
     #[test]
@@ -330,7 +355,7 @@ mod test {
         let mut metadata = CsvMetadata::defaults_for_testing();
         metadata.tags_column = 3;
         let notes = import!(metadata, "front,back,foo bar\n");
-        assert_eq!(notes[0].tags, &["foo", "bar"]);
+        assert_eq!(notes[0].tags.as_ref().unwrap(), &["foo", "bar"]);
     }
 
     #[test]
@@ -347,9 +372,9 @@ mod test {
         metadata.notetype.replace(CsvNotetype::NotetypeColumn(1));
         metadata.column_labels.push("".to_string());
         let notes = import!(metadata, "Basic,front,back\nCloze,foo,bar\n");
-        assert_eq!(notes[0].fields, &["front", "back"]);
+        assert_field_eq!(notes[0].fields, [Some("front"), Some("back")]);
         assert_eq!(notes[0].notetype, NameOrId::Name(String::from("Basic")));
-        assert_eq!(notes[1].fields, &["foo", "bar"]);
+        assert_field_eq!(notes[1].fields, [Some("foo"), Some("bar")]);
         assert_eq!(notes[1].notetype, NameOrId::Name(String::from("Cloze")));
     }
 }
