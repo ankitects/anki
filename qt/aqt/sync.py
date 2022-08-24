@@ -95,6 +95,8 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
 
     def on_future_done(fut: Future) -> None:
         mw.col.db.begin()
+        # scheduler version may have changed
+        mw.col._load_scheduler()
         timer.stop()
         try:
             out: SyncOutput = fut.result()
