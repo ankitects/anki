@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     import anki.collection
@@ -47,7 +47,7 @@ class DocumentedError(LocalizedError):
 class BacktracedError(AnkiException):
     """An error with a backtrace."""
 
-    def __init__(self, *args, backtrace: str, **kwargs) -> None:
+    def __init__(self, *args: Any, backtrace: str = "", **kwargs: Any) -> None:
         self.backtrace = backtrace
         super().__init__(*args, **kwargs)
 
