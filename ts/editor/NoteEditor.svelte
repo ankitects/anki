@@ -365,11 +365,18 @@ the AddCards dialog) should be implemented in the user of this component.
                                 on:toggle={async () => {
                                     fieldsCollapsed[index] = !fieldsCollapsed[index];
 
+                                    const defaultInput = !plainTextDefaults[index]
+                                        ? richTextInputs[index]
+                                        : plainTextInputs[index];
+
                                     if (!fieldsCollapsed[index]) {
                                         await tick();
-                                        richTextInputs[index].api.refocus();
-                                    } else {
+                                        await tick();
+                                        defaultInput.api.refocus();
+                                    } else if (!plainTextDefaults[index]) {
                                         plainTextsHidden[index] = true;
+                                    } else {
+                                        richTextsHidden[index] = true;
                                     }
                                 }}
                             >
@@ -429,10 +436,10 @@ the AddCards dialog) should be implemented in the user of this component.
                                 </FieldState>
                             </LabelContainer>
                         </svelte:fragment>
-                            <Collapsible collapsed={richTextsHidden[index]}>
                         <svelte:fragment slot="rich-text-input">
+                            <Collapsible collapsed={richTextsHidden[index]} let:hidden>
                                 <RichTextInput
-                                    bind:hidden={richTextsHidden[index]}
+                                    {hidden}
                                     on:focusout={() => {
                                         saveFieldNow();
                                         $focusedInput = null;
@@ -446,12 +453,11 @@ the AddCards dialog) should be implemented in the user of this component.
                                     </FieldDescription>
                                 </RichTextInput>
                             </Collapsible>
-
-                            <Collapsible collapsed={plainTextsHidden[index]}>
                         </svelte:fragment>
                         <svelte:fragment slot="plain-text-input">
+                            <Collapsible collapsed={plainTextsHidden[index]} let:hidden>
                                 <PlainTextInput
-                                    bind:hidden={plainTextsHidden[index]}
+                                    {hidden}
                                     isDefault={plainTextDefaults[index]}
                                     richTextHidden={richTextsHidden[index]}
                                     on:focusout={() => {

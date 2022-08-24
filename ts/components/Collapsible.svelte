@@ -10,11 +10,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let collapsed = false;
+    let isCollapsed = false;
+    let hidden = collapsed;
 
     const [outerPromise, outerResolve] = promiseWithResolver<HTMLElement>();
     const [innerPromise, innerResolve] = promiseWithResolver<HTMLElement>();
-
-    let isCollapsed = false;
 
     let style: string;
     function setStyle(height: number, duration: number) {
@@ -60,6 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             () => {
                 inner.toggleAttribute("hidden", collapse);
                 outer.style.removeProperty("overflow");
+                hidden = collapse;
             },
             { once: true },
         );
@@ -82,7 +83,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         use:innerResolve
         {style}
     >
-        <slot />
+        <slot {hidden} />
     </div>
 </div>
 
