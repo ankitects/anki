@@ -576,6 +576,7 @@ class CardLayout(QDialog):
                 res = f"<hr id=answer>{res}"
             return res
 
+        type_filter = r"\[\[type:.+?\]\]"
         repl: Union[str, Callable]
 
         if type == "q":
@@ -583,7 +584,10 @@ class CardLayout(QDialog):
             repl = f"<center>{repl}</center>"
         else:
             repl = answerRepl
-        return re.sub(r"\[\[type:.+?\]\]", repl, txt)
+        out = re.sub(type_filter, repl, txt, count=1)
+
+        warning = f"<center><b>{tr.card_templates_type_boxes_warning()}</center><b>"
+        return re.sub(type_filter, warning, out)
 
     # Card operations
     ######################################################################
