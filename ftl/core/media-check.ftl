@@ -22,6 +22,7 @@ media-check-oversize-header = Files over 100MB can not be synced with AnkiWeb.
 media-check-subfolder-header = Folders inside the media folder are not supported.
 media-check-missing-header = The following files are referenced by cards, but were not found in the media folder:
 media-check-unused-header = The following files were found in the media folder, but do not appear to be used on any cards:
+media-check-template-refs-header = Files referenced by templates directly will not be considered in use, unless their names start with an underscore. Referencing templates:
 
 ## Shown once for each file
 
@@ -30,6 +31,11 @@ media-check-oversize-file = Over 100MB: { $filename }
 media-check-subfolder-file = Folder: { $filename }
 media-check-missing-file = Missing: { $filename }
 media-check-unused-file = Unused: { $filename }
+
+##
+
+# Eg "Basic: Card 1 (Front Template)"
+media-check-notetype-template = { $notetype }: { $card_type } ({ $side })
 
 ## Progress
 

@@ -333,6 +333,10 @@ pub fn strip_html_preserving_media_filenames(html: &str) -> Cow<str> {
         .map_cow(strip_html)
 }
 
+pub fn contains_media_tag(html: &str) -> bool {
+    HTML_MEDIA_TAGS.is_match(html)
+}
+
 #[allow(dead_code)]
 pub(crate) fn sanitize_html(html: &str) -> String {
     ammonia::clean(html)
