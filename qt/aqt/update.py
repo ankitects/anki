@@ -70,7 +70,7 @@ def askAndUpdate(mw: aqt.AnkiQt, ver: str) -> None:
         # ignore this update
         mw.pm.meta["suppressUpdate"] = ver
     elif ret == QMessageBox.StandardButton.Yes:
-        openLink(aqt.appWebsite)
+        openLink(aqt.appWebsiteDownloadSection)
 
 
 def showMessages(mw: aqt.AnkiQt, data: dict) -> None:
