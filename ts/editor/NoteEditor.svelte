@@ -247,6 +247,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { mathjaxConfig } from "../editable/mathjax-element";
     import { wrapInternal } from "../lib/wrap";
+    import { refocusInput } from "./helpers";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
     onMount(() => {
@@ -370,9 +371,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                         : plainTextInputs[index];
 
                                     if (!fieldsCollapsed[index]) {
-                                        await tick();
-                                        await tick();
-                                        defaultInput.api.refocus();
+                                        refocusInput(defaultInput.api);
                                     } else if (!plainTextDefaults[index]) {
                                         plainTextsHidden[index] = true;
                                     } else {
@@ -400,9 +399,9 @@ the AddCards dialog) should be implemented in the user of this component.
                                                     !richTextsHidden[index];
 
                                                 if (!richTextsHidden[index]) {
-                                                    await tick();
-                                                    await tick();
-                                                    richTextInputs[index].api.refocus();
+                                                    refocusInput(
+                                                        richTextInputs[index].api,
+                                                    );
                                                 }
                                             }}
                                         />
@@ -417,11 +416,9 @@ the AddCards dialog) should be implemented in the user of this component.
                                                     !plainTextsHidden[index];
 
                                                 if (!plainTextsHidden[index]) {
-                                                    await tick();
-                                                    await tick();
-                                                    plainTextInputs[
-                                                        index
-                                                    ].api.refocus();
+                                                    refocusInput(
+                                                        plainTextInputs[index].api,
+                                                    );
                                                 }
                                             }}
                                         />
