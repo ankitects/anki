@@ -27,10 +27,13 @@ impl<'d> DeckContext<'d> {
 }
 
 impl Context<'_> {
-    pub(super) fn import_decks_and_configs(&mut self) -> Result<HashMap<DeckId, DeckId>> {
+    pub(super) fn import_decks_and_configs(
+        &mut self,
+        keep_filtered: bool,
+    ) -> Result<HashMap<DeckId, DeckId>> {
         let mut ctx = DeckContext::new(self.target_col, self.usn);
         ctx.import_deck_configs(mem::take(&mut self.data.deck_configs))?;
-        ctx.import_decks(mem::take(&mut self.data.decks))?;
+        ctx.import_decks(mem::take(&mut self.data.decks), keep_filtered)?;
         Ok(ctx.imported_decks)
     }
 }
@@ -44,19 +47,19 @@ impl DeckContext<'_> {
         Ok(())
     }
 
-    fn import_decks(&mut self, mut decks: Vec<Deck>) -> Result<()> {
+    fn import_decks(&mut self, mut decks: Vec<Deck>, keep_filtered: bool) -> Result<()> {
         // ensure parents are seen before children
         decks.sort_unstable_by_key(|deck| deck.level());
         for deck in &mut decks {
-            self.prepare_deck(deck);
+            self.prepare_deck(deck, keep_filtered);
             self.import_deck(deck)?;
         }
         Ok(())
     }
 
-    fn prepare_deck(&mut self, deck: &mut Deck) {
+    fn prepare_deck(&self, deck: &mut Deck, keep_filtered: bool) {
         self.maybe_reparent(deck);
-        if deck.is_filtered() {
+        if !keep_filtered && deck.is_filtered() {
             deck.kind = DeckKind::Normal(NormalDeck {
                 config_id: 1,
                 ..Default::default()
@@ -194,7 +197,7 @@ mod test {
             new_deck_with_machine_name("NEW PARENT\x1fchild", false),
             new_deck_with_machine_name("new parent", false),
         ];
-        ctx.import_decks(imports).unwrap();
+        ctx.import_decks(imports, false).unwrap();
         let existing_decks: HashSet<_> = ctx
             .target_col
             .get_all_deck_names(true)

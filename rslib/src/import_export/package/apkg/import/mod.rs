@@ -6,7 +6,7 @@ mod decks;
 mod media;
 mod notes;
 
-use std::{fs::File, io, path::Path};
+use std::{collections::HashSet, fs::File, io, path::Path};
 
 pub(crate) use notes::NoteMeta;
 use rusqlite::OptionalExtension;
@@ -15,6 +15,7 @@ use zip::ZipArchive;
 use zstd::stream::copy_decode;
 
 use crate::{
+    card::CardQueue,
     collection::CollectionBuilder,
     import_export::{
         gather::ExchangeData, package::Meta, ImportProgress, IncrementableProgress, NoteLog,
@@ -82,8 +83,9 @@ impl<'a> Context<'a> {
     fn import(&mut self) -> Result<NoteLog> {
         let mut media_map = self.prepare_media()?;
         let note_imports = self.import_notes_and_notetypes(&mut media_map)?;
-        let imported_decks = self.import_decks_and_configs()?;
-        self.import_cards_and_revlog(&note_imports.id_map, &imported_decks)?;
+        let keep_filtered = self.data.enables_filtered_decks();
+        let imported_decks = self.import_decks_and_configs(keep_filtered)?;
+        self.import_cards_and_revlog(&note_imports.id_map, &imported_decks, keep_filtered)?;
         self.copy_media(&mut media_map)?;
         Ok(note_imports.log)
     }
@@ -106,6 +108,26 @@ impl ExchangeData {
         data.gather_data(&mut col, search, with_scheduling)?;
 
         Ok(data)
+    }
+
+    fn enables_filtered_decks(&self) -> bool {
+        // Earlier versions relied on the importer handling filtered decks by converting
+        // them into regular ones, so there is no guarantee that all original decks
+        // are included.
+        self.contains_scheduling() && self.contains_all_original_decks()
+    }
+
+    fn contains_scheduling(&self) -> bool {
+        self.cards.iter().any(|c| c.queue != CardQueue::New)
+    }
+
+    fn contains_all_original_decks(&self) -> bool {
+        let deck_ids: HashSet<_> = self.decks.iter().map(|d| d.id).collect();
+        self.cards.iter().all(|c| {
+            c.original_deck_id.0 == 0
+                || c.original_deck_id.0 == 1
+                || deck_ids.contains(&c.original_deck_id)
+        })
     }
 }
 

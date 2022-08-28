@@ -70,6 +70,7 @@ impl Context<'_> {
         &mut self,
         imported_notes: &HashMap<NoteId, NoteId>,
         imported_decks: &HashMap<DeckId, DeckId>,
+        keep_filtered: bool,
     ) -> Result<()> {
         let mut ctx = CardContext::new(
             self.usn,
@@ -78,16 +79,16 @@ impl Context<'_> {
             imported_notes,
             imported_decks,
         )?;
-        ctx.import_cards(mem::take(&mut self.data.cards))?;
+        ctx.import_cards(mem::take(&mut self.data.cards), keep_filtered)?;
         ctx.import_revlog(mem::take(&mut self.data.revlog))
     }
 }
 
 impl CardContext<'_> {
-    fn import_cards(&mut self, mut cards: Vec<Card>) -> Result<()> {
+    fn import_cards(&mut self, mut cards: Vec<Card>, keep_filtered: bool) -> Result<()> {
         for card in &mut cards {
             if self.map_to_imported_note(card) && !self.card_ordinal_already_exists(card) {
-                self.add_card(card)?;
+                self.add_card(card, keep_filtered)?;
             }
             // TODO: could update existing card
         }
@@ -119,11 +120,13 @@ impl CardContext<'_> {
             .contains(&(card.note_id, card.template_idx))
     }
 
-    fn add_card(&mut self, card: &mut Card) -> Result<()> {
+    fn add_card(&mut self, card: &mut Card, keep_filtered: bool) -> Result<()> {
         card.usn = self.usn;
         self.remap_deck_id(card);
         card.shift_collection_relative_dates(self.collection_delta);
-        card.maybe_remove_from_filtered_deck(self.scheduler_version);
+        if !keep_filtered {
+            card.maybe_remove_from_filtered_deck(self.scheduler_version);
+        }
         let old_id = self.uniquify_card_id(card);
 
         self.target_col.add_card_if_unique_undoable(card)?;
