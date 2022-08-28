@@ -129,6 +129,11 @@ impl DeckIdsByNameOrId {
             NameOrId::Name(name) => self.names.get(name).copied(),
         }
     }
+
+    fn insert(&mut self, deck_id: DeckId, name: String) {
+        self.ids.insert(deck_id);
+        self.names.insert(name, deck_id);
+    }
 }
 
 impl<'a> Context<'a> {
@@ -195,7 +200,7 @@ impl<'a> Context<'a> {
                 continue;
             }
             if let Some(notetype) = self.notetype_for_note(&foreign)? {
-                if let Some(deck_id) = self.deck_ids.get(&foreign.deck) {
+                if let Some(deck_id) = self.get_or_create_deck_id(&foreign.deck)? {
                     let ctx = self.build_note_context(
                         foreign,
                         notetype,
@@ -212,6 +217,20 @@ impl<'a> Context<'a> {
             }
         }
         Ok(log)
+    }
+
+    fn get_or_create_deck_id(&mut self, deck: &NameOrId) -> Result<Option<DeckId>> {
+        Ok(if let Some(did) = self.deck_ids.get(deck) {
+            Some(did)
+        } else if let NameOrId::Name(name) = deck {
+            let mut deck = Deck::new_normal();
+            deck.name = NativeDeckName::from_human_name(name);
+            self.col.add_deck_inner(&mut deck, self.usn)?;
+            self.deck_ids.insert(deck.id, deck.human_name());
+            Some(deck.id)
+        } else {
+            None
+        })
     }
 
     fn build_note_context<'tags>(
