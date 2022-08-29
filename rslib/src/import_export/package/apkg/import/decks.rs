@@ -69,16 +69,14 @@ impl DeckContext<'_> {
 
     fn import_deck(&mut self, deck: &mut Deck) -> Result<()> {
         if let Some(original) = self.get_deck_by_name(deck)? {
-            if original.is_filtered() {
-                self.uniquify_name(deck);
-                self.add_deck(deck)
+            if original.is_same_kind(deck) {
+                return self.update_deck(deck, original);
             } else {
-                self.update_deck(deck, original)
+                self.uniquify_name(deck);
             }
-        } else {
-            self.ensure_valid_first_existing_parent(deck)?;
-            self.add_deck(deck)
         }
+        self.ensure_valid_first_existing_parent(deck)?;
+        self.add_deck(deck)
     }
 
     fn maybe_reparent(&self, deck: &mut Deck) {
@@ -116,10 +114,16 @@ impl DeckContext<'_> {
         Ok(())
     }
 
-    /// Caller must ensure decks are normal.
+    /// Caller must ensure decks are of the same kind.
     fn update_deck(&mut self, deck: &Deck, original: Deck) -> Result<()> {
         let mut new_deck = original.clone();
-        new_deck.normal_mut()?.update_with_other(deck.normal()?);
+        if let (Ok(new), Ok(old)) = (new_deck.normal_mut(), deck.normal()) {
+            new.update_with_other(old);
+        } else if let (Ok(new), Ok(old)) = (new_deck.filtered_mut(), deck.filtered()) {
+            *new = old.clone();
+        } else {
+            return Err(AnkiError::invalid_input("decks have different kinds"));
+        }
         self.imported_decks.insert(deck.id, new_deck.id);
         self.target_col
             .update_deck_inner(&mut new_deck, original, self.usn)
@@ -154,6 +158,10 @@ impl Deck {
 
     fn level(&self) -> usize {
         self.name.components().count()
+    }
+
+    fn is_same_kind(&self, other: &Self) -> bool {
+        self.is_filtered() == other.is_filtered()
     }
 }
 
