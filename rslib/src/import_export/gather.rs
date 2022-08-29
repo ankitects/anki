@@ -42,7 +42,7 @@ impl ExchangeData {
         self.notes = notes;
         let (cards, guard) = guard.col.gather_cards()?;
         self.cards = cards;
-        self.decks = guard.col.gather_decks()?;
+        self.decks = guard.col.gather_decks(with_scheduling)?;
         self.notetypes = guard.col.gather_notetypes()?;
         self.check_ids()?;
 
@@ -191,8 +191,12 @@ impl Collection {
             .map(|cards| (cards, guard))
     }
 
-    fn gather_decks(&mut self) -> Result<Vec<Deck>> {
-        let decks = self.storage.get_decks_for_search_cards()?;
+    fn gather_decks(&mut self, with_original: bool) -> Result<Vec<Deck>> {
+        let decks = if with_original {
+            self.storage.get_decks_and_original_for_search_cards()
+        } else {
+            self.storage.get_decks_for_search_cards()
+        }?;
         let parents = self.get_parent_decks(&decks)?;
         Ok(decks
             .into_iter()
