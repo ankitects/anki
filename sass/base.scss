@@ -1,10 +1,10 @@
 @use "vars";
 @use "scrollbar";
 
-$body-color: var(--text-fg);
-$body-bg: var(--window-bg);
+$body-color: var(--fg-default);
+$body-bg: var(--canvas-default);
 
-$link-hover-color: var(--link);
+$link-hover-color: var(--accent-link);
 $link-hover-decoration: none;
 
 $utilities: (
@@ -72,5 +72,5 @@ samp {
 }
 
 .night-mode .form-select:disabled {
-    background-color: var(--disabled);
+    background-color: var(--fg-disabled);
 }

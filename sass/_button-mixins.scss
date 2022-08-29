@@ -21,9 +21,9 @@
 $btn-base-color-day: white;
 
 @mixin btn-day-base {
-    color: var(--text-fg);
+    color: var(--fg-default);
     background-color: $btn-base-color-day;
-    border-color: var(--border) !important;
+    border-color: var(--border-default) !important;
 }
 
 @mixin btn-day(
@@ -70,7 +70,7 @@ $btn-base-color-day: white;
 $btn-base-color-night: fusion-vars.$button-border;
 
 @mixin btn-night-base {
-    color: var(--text-fg);
+    color: var(--fg-default);
     background: linear-gradient(
         0deg,
         fusion-vars.$button-gradient-start 0%,

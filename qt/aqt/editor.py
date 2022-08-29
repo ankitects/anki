@@ -667,7 +667,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.tags = aqt.tagedit.TagEdit(self.widget)
         qconnect(self.tags.lostFocus, self.on_tag_focus_lost)
         self.tags.setToolTip(shortcut(tr.editing_jump_to_tags_with_ctrlandshiftandt()))
-        border = theme_manager.color(colors.BORDER)
+        border = theme_manager.color(colors.BORDER_DEFAULT)
         self.tags.setStyleSheet(f"border: 1px solid {border}")
         tb.addWidget(self.tags, 1, 1)
         g.setLayout(tb)

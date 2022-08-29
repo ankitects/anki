@@ -58,7 +58,7 @@
         margin-top: 1rem;
         margin-bottom: 0.5rem;
         list-style: none;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid var(--border-default);
     }
 
     span {
@@ -69,15 +69,15 @@
         padding: 0.25rem 1rem;
         cursor: pointer;
         margin: 0 8px -1px 0;
-        color: var(--slightly-grey-text);
+        color: var(--fg-subtle);
     }
 
     li.active > span {
-        border-color: var(--border) var(--border) var(--window-bg);
-        color: var(--text-fg);
+        border-color: var(--border-default) var(--border-default) var(--canvas-default);
+        color: var(--fg-default);
     }
 
     span:hover {
-        color: var(--text-fg);
+        color: var(--fg-default);
     }
 </style>

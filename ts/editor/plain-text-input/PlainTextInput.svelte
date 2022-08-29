@@ -160,8 +160,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         :global(.CodeMirror) {
             border-radius: 0 0 5px 5px;
-            border-top: 1px solid var(--border);
-            background: var(--code-bg);
+            border-top: 1px solid var(--border-default);
+            background: var(--canvas-inset);
         }
         :global(.CodeMirror-lines) {
             padding: 8px 0;

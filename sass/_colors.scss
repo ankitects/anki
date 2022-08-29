@@ -1,13 +1,11 @@
 /* Copyright: Ankitects Pty Ltd and contributors
- * License: GNU AGPL, version 3 or later, http://www.gnu.org/licenses/agpl.html */
-
-/*
- *  Anki Color Palette
- *  custom gray, rest from Tailwind CSS v3 palette
+ * License: GNU AGPL, version 3 or later, http://www.gnu.org/licenses/agpl.html 
  *
- *  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ * Anki Color Palette
+ * custom gray, rest from Tailwind CSS v3 palette
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-$color: (
+$colors: (
     gray: (
         0: #FFFFFF,
         1: #F6F6F6,

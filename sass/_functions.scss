@@ -1,0 +1,25 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+ 
+ @use "sass:map";
+ @use "colors" as *;
+
+ @function color($key, $shade) {
+    $color: map.get($colors, $key);
+    @return map.get($color, $shade);
+}
+
+@function vars-from-map($map, $theme, $name: "-", $output: ()) {
+    @each $key, $value in $map {
+        @if $key == $theme {
+            @return map.set($output, $name, map.get($map, $key));
+        }
+        @if type-of($value) == "map" {
+            $output: map-merge(
+                $output,
+                vars-from-map($value, $theme, #{$name}-#{$key}, $output)
+            );
+        }
+    }
+    @return $output;
+}

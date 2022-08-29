@@ -100,8 +100,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .default-colors {
-        background-color: var(--window-bg);
-        color: var(--text-fg);
+        background-color: var(--canvas-default);
+        color: var(--fg-default);
     }
 
     .invert {

@@ -13,6 +13,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .select-option {
-        background-color: var(--frame-bg);
+        background-color: var(--canvas-outset);
     }
 </style>

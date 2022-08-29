@@ -28,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <StickyContainer
     --sticky-top={ctx === MapContext.Template ? "-1px" : "0"}
-    --sticky-border="var(--border)"
+    --sticky-border="var(--border-default)"
     --sticky-borders="0px 0 1px"
 >
     <h1>

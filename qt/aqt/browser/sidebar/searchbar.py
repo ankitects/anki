@@ -30,7 +30,7 @@ class SidebarSearchBar(QLineEdit):
     def setup_style(self) -> None:
         styles = [
             "padding: 2px",
-            f"border: 1px solid {theme_manager.color(colors.BORDER)}",
+            f"border: 1px solid {theme_manager.color(colors.BORDER_DEFAULT)}",
             "border-radius: 5px",
         ]
 
@@ -38,7 +38,7 @@ class SidebarSearchBar(QLineEdit):
             "QLineEdit { %s }" % ";".join(styles)
             + f"""
 QLineEdit:focus {{
-    border: 1px solid {theme_manager.color(colors.FOCUS_BORDER)};
+    border: 1px solid {theme_manager.color(colors.BORDER_FOCUS)};
 }}
             """
         )

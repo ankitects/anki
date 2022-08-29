@@ -193,15 +193,15 @@ class ThemeManager:
             # also set for border to apply
             buf += f"""
 QMenuBar {{
-  border-bottom: 1px solid {self.color(colors.BORDER)};
-  background: {self.color(colors.WINDOW_BG) if self.night_mode else "white"};
+  border-bottom: 1px solid {self.color(colors.BORDER_DEFAULT)};
+  background: {self.color(colors.CANVAS_DEFAULT) if self.night_mode else "white"};
 }}
 """
             # qt bug? setting the above changes the browser sidebar
             # to white as well, so set it back
             buf += f"""
 QTreeWidget {{
-  background: {self.color(colors.WINDOW_BG)};
+  background: {self.color(colors.CANVAS_DEFAULT)};
 }}
             """
 
@@ -235,10 +235,10 @@ QScrollBar::sub-line {{
 
 QTabWidget {{ background-color: {}; }}
 """.format(
-                    self.color(colors.WINDOW_BG),
+                    self.color(colors.CANVAS_DEFAULT),
                     # fushion-button-hover-bg
                     "#656565",
-                    self.color(colors.WINDOW_BG),
+                    self.color(colors.CANVAS_DEFAULT),
                 )
 
         # allow addons to modify the styling
@@ -252,7 +252,7 @@ QTabWidget {{ background-color: {}; }}
         if not self.night_mode:
             app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
             self.default_palette.setColor(
-                QPalette.ColorRole.Window, self.qcolor(colors.WINDOW_BG)
+                QPalette.ColorRole.Window, self.qcolor(colors.CANVAS_DEFAULT)
             )
             app.setPalette(self.default_palette)
             return
@@ -262,11 +262,11 @@ QTabWidget {{ background-color: {}; }}
 
         palette = QPalette()
 
-        text_fg = self.qcolor(colors.TEXT_FG)
-        palette.setColor(QPalette.ColorRole.WindowText, text_fg)
-        palette.setColor(QPalette.ColorRole.ToolTipText, text_fg)
-        palette.setColor(QPalette.ColorRole.Text, text_fg)
-        palette.setColor(QPalette.ColorRole.ButtonText, text_fg)
+        TEXT = self.qcolor(colors.FG_DEFAULT)
+        palette.setColor(QPalette.ColorRole.WindowText, TEXT)
+        palette.setColor(QPalette.ColorRole.ToolTipText, TEXT)
+        palette.setColor(QPalette.ColorRole.Text, TEXT)
+        palette.setColor(QPalette.ColorRole.ButtonText, TEXT)
 
         hlbg = self.qcolor(colors.HIGHLIGHT_BG)
         hlbg.setAlpha(64)
@@ -275,21 +275,21 @@ QTabWidget {{ background-color: {}; }}
         )
         palette.setColor(QPalette.ColorRole.Highlight, hlbg)
 
-        window_bg = self.qcolor(colors.WINDOW_BG)
-        palette.setColor(QPalette.ColorRole.Window, window_bg)
-        palette.setColor(QPalette.ColorRole.AlternateBase, window_bg)
+        CANVAS_DEFAULT = self.qcolor(colors.CANVAS_DEFAULT)
+        palette.setColor(QPalette.ColorRole.Window, CANVAS_DEFAULT)
+        palette.setColor(QPalette.ColorRole.AlternateBase, CANVAS_DEFAULT)
 
         palette.setColor(QPalette.ColorRole.Button, QColor("#454545"))
 
-        frame_bg = self.qcolor(colors.FRAME_BG)
-        palette.setColor(QPalette.ColorRole.Base, frame_bg)
-        palette.setColor(QPalette.ColorRole.ToolTipBase, frame_bg)
+        CANVAS_INSET = self.qcolor(colors.CANVAS_INSET)
+        palette.setColor(QPalette.ColorRole.Base, CANVAS_INSET)
+        palette.setColor(QPalette.ColorRole.ToolTipBase, CANVAS_INSET)
 
         palette.setColor(
-            QPalette.ColorRole.PlaceholderText, self.qcolor(colors.SLIGHTLY_GREY_TEXT)
+            QPalette.ColorRole.PlaceholderText, self.qcolor(colors.FG_SUBTLE)
         )
 
-        disabled_color = self.qcolor(colors.DISABLED)
+        disabled_color = self.qcolor(colors.FG_DISABLED)
         palette.setColor(
             QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color
         )
@@ -302,7 +302,7 @@ QTabWidget {{ background-color: {}; }}
             disabled_color,
         )
 
-        palette.setColor(QPalette.ColorRole.Link, self.qcolor(colors.LINK))
+        palette.setColor(QPalette.ColorRole.Link, self.qcolor(colors.ACCENT_LINK))
 
         palette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
 
@@ -311,11 +311,11 @@ QTabWidget {{ background-color: {}; }}
     def _update_stat_colors(self) -> None:
         import anki.stats as s
 
-        s.colLearn = self.color(colors.NEW_COUNT)
-        s.colRelearn = self.color(colors.LEARN_COUNT)
-        s.colCram = self.color(colors.SUSPENDED_BG)
-        s.colSusp = self.color(colors.SUSPENDED_BG)
-        s.colMature = self.color(colors.REVIEW_COUNT)
+        s.colLearn = self.color(colors.STATE_NEW)
+        s.colRelearn = self.color(colors.STATE_LEARN)
+        s.colCram = self.color(colors.STATE_SUSPENDED)
+        s.colSusp = self.color(colors.STATE_SUSPENDED)
+        s.colMature = self.color(colors.STATE_REVIEW)
         s._legacy_nightmode = self._night_mode_preference
 
 

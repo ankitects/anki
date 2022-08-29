@@ -48,20 +48,22 @@ for line in open(vars_scss):
     if line == "colors: (":
         reached_colors = True
         continue
+    if line == "),":
+        if "_" in current_key:
+            current_key = re.sub(r"_.+?$", "", current_key)
+        else:
+            current_key = ""
 
     if m := re.match(r"^([^$]+): \(", line):
-        current_key = m.group(1)
-
-        if reached_colors:
-            colors[current_key] = {}
+        if current_key == "":
+            current_key = m.group(1)
         else:
-            props[current_key] = {}
-
+            current_key = "_".join([current_key, m.group(1)])
         continue
 
     if reached_colors:
         line = re.sub(
-            r"get\(\$color, (.+), (\d)\)",
+            r"color\((.+), (\d)\)",
             lambda m: palette[m.group(1)][m.group(2)],
             line,
         )
@@ -71,8 +73,12 @@ for line in open(vars_scss):
         val = m.group(2)
 
         if reached_colors:
+            if not current_key in colors:
+                colors[current_key] = {}
             colors[current_key][theme] = val
         else:
+            if not current_key in props:
+                props[current_key] = {}
             props[current_key][theme] = val
 
 

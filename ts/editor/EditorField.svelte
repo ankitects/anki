@@ -109,6 +109,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .editor-field {
         position: relative;
-        --border-color: var(--border);
+        --border-color: var(--border-default);
     }
 </style>
