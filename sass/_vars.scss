@@ -19,15 +19,15 @@ $vars: (
     colors: (
         text-fg: (
             light: get($color, gray, 9),
-            dark: get($color, gray, 0),
+            dark: get($color, gray, 1),
         ),
         window-bg: (
-            light: get($color, gray, 0),
-            dark: get($color, gray, 6),
+            light: get($color, gray, 1),
+            dark: get($color, gray, 7),
         ),
         frame-bg: (
-            light: white,
-            dark: get($color, gray, 7),
+            light: get($color, gray, 0),
+            dark: get($color, gray, 5),
         ),
         border: (
             light: get($color, gray, 3),
@@ -39,11 +39,11 @@ $vars: (
         ),
         slightly-grey-text: (
             light: get($color, gray, 7),
-            dark: get($color, gray, 4),
+            dark: get($color, gray, 3),
         ),
         disabled: (
             light: get($color, gray, 5),
-            dark: get($color, gray, 6),
+            dark: get($color, gray, 5),
         ),
         link: (
             light: get($color, blue, 9),
@@ -51,19 +51,19 @@ $vars: (
         ),
         review-count: (
             light: get($color, green, 7),
-            dark: get($color, green, 4),
+            dark: get($color, green, 5),
         ),
         new-count: (
             light: get($color, blue, 9),
-            dark: get($color, blue, 2),
+            dark: get($color, blue, 3),
         ),
         learn-count: (
             light: get($color, orange, 7),
-            dark: get($color, red, 4),
+            dark: get($color, red, 5),
         ),
         zero-count: (
             light: get($color, gray, 2),
-            dark: get($color, gray, 7),
+            dark: get($color, gray, 8),
         ),
         highlight-bg: (
             light: get($color, cyan, 2),
@@ -162,8 +162,8 @@ $vars: (
             dark: get($color, indigo, 5),
         ),
         code-bg: (
-            light: white,
-            dark: #272822,
+            light: get($color, gray, 0),
+            dark: get($color, gray, 7),
         ),
     ),
 );
