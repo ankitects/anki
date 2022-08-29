@@ -69,7 +69,7 @@
         padding: 0.25rem 1rem;
         cursor: pointer;
         margin: 0 8px -1px 0;
-        color: var(--disabled);
+        color: var(--slightly-grey-text);
     }
 
     li.active > span {
