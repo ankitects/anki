@@ -122,7 +122,7 @@ impl CardContext<'_> {
 
     fn add_card(&mut self, card: &mut Card, keep_filtered: bool) -> Result<()> {
         card.usn = self.usn;
-        self.remap_deck_id(card);
+        self.remap_deck_ids(card);
         card.shift_collection_relative_dates(self.collection_delta);
         if !keep_filtered {
             card.maybe_remove_from_filtered_deck(self.scheduler_version);
@@ -144,9 +144,12 @@ impl CardContext<'_> {
         original
     }
 
-    fn remap_deck_id(&self, card: &mut Card) {
+    fn remap_deck_ids(&self, card: &mut Card) {
         if let Some(did) = self.remapped_decks.get(&card.deck_id) {
             card.deck_id = *did;
+        }
+        if let Some(did) = self.remapped_decks.get(&card.original_deck_id) {
+            card.original_deck_id = *did;
         }
     }
 }
