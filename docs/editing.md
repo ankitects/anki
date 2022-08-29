@@ -1,8 +1,7 @@
 # Editing/IDEs
 
 Visual Studio Code is recommended, since it provides decent support for all the languages
-Anki uses. If you open the root of this repo in VS Code, it will suggest some extensions
-for you to install.
+Anki uses. To set up the recommended workspace settings for VS Code, please see below.
 
 For editing Python, PyCharm/IntelliJ's type checking/completion is a bit nicer than
 VS Code, but VS Code has improved considerably in a short span of time.
@@ -35,6 +34,20 @@ run 'rustup install nightly'.
 Code completion partly depends on files that are generated as part of the
 regular build process, so for things to work correctly, use './run' or
 'tools/build' prior to using code completion.
+
+## Visual Studio Code
+
+### Setting up Recommended Workspace Settings
+
+To start off with some default workspace settings that are optimized for Anki development, please head to the project root and then run:
+
+```
+cp -r .vscode.dist .vscode
+```
+
+### Installing Recommended Extensions
+
+Once the workspace settings are set up, open the root of the repo in VS Code to see and install a number of recommended extensions.
 
 ## PyCharm/IntelliJ
 

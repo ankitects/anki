@@ -161,6 +161,10 @@ $vars: (
             light: get($color, indigo, 6),
             dark: get($color, indigo, 5),
         ),
+        code-bg: (
+            light: white,
+            dark: #272822,
+        ),
     ),
 );
 

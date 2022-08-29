@@ -143,7 +143,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     class="plain-text-input"
     class:light-theme={!$pageTheme.isDark}
-    class:hidden
     on:focusin={() => ($focusedInput = api)}
 >
     <CodeMirror
@@ -161,18 +160,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         :global(.CodeMirror) {
             border-radius: 0 0 5px 5px;
+            border-top: 1px solid var(--border);
+            background: var(--code-bg);
         }
-
         :global(.CodeMirror-lines) {
-            padding: 6px 0;
+            padding: 8px 0;
         }
-
-        &.hidden {
-            display: none;
-        }
-    }
-
-    .light-theme :global(.CodeMirror) {
-        border-top: 1px solid #ddd;
     }
 </style>

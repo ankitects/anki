@@ -211,7 +211,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setupLifecycleHooks(api);
 </script>
 
-<div class="rich-text-input" {hidden} on:focusin={setFocus} on:focusout={removeFocus}>
+<div class="rich-text-input" on:focusin={setFocus} on:focusout={removeFocus}>
     <RichTextStyles
         color={$pageTheme.isDark ? "white" : "black"}
         fontFamily={$fontFamily}
@@ -238,6 +238,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </div>
         {/await}
     </RichTextStyles>
+    <slot name="plain-text-badge" />
 </div>
 
 <style lang="scss">
