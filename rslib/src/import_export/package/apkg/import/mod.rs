@@ -15,7 +15,6 @@ use zip::ZipArchive;
 use zstd::stream::copy_decode;
 
 use crate::{
-    card::CardQueue,
     collection::CollectionBuilder,
     import_export::{
         gather::ExchangeData, package::Meta, ImportProgress, IncrementableProgress, NoteLog,
@@ -118,7 +117,7 @@ impl ExchangeData {
     }
 
     fn contains_scheduling(&self) -> bool {
-        self.cards.iter().any(|c| c.queue != CardQueue::New)
+        !(self.revlog.is_empty() && self.deck_configs.is_empty())
     }
 
     fn contains_all_original_decks(&self) -> bool {
