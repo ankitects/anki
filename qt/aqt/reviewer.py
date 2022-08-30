@@ -230,8 +230,7 @@ class Reviewer:
             self.mw.moveToState("overview")
             return
 
-        if self._reps is None or self._reps % 100 == 0:
-            # we recycle the webview periodically so webkit can free memory
+        if self._reps is None:
             self._initWeb()
 
         self._showQuestion()
