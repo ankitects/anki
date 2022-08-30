@@ -63,7 +63,7 @@ for line in open(vars_scss):
 
     if reached_colors:
         line = re.sub(
-            r"color\((.+), (\d)\)",
+            r"palette\((.+), (\d)\)",
             lambda m: palette[m.group(1)][m.group(2)],
             line,
         )

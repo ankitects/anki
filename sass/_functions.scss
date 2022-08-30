@@ -1,15 +1,10 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
- 
- @use "sass:map";
- @use "colors" as *;
 
- @function color($key, $shade) {
-    $color: map.get($colors, $key);
-    @return map.get($color, $shade);
-}
+@use "sass:map";
+@use "sass:list";
 
-@function vars-from-map($map, $theme, $name: "-", $output: ()) {
+@function create-vars-from-map($map, $theme, $name: "-", $output: ()) {
     @each $key, $value in $map {
         @if $key == $theme {
             @return map.set($output, $name, map.get($map, $key));
@@ -17,9 +12,37 @@
         @if type-of($value) == "map" {
             $output: map-merge(
                 $output,
-                vars-from-map($value, $theme, #{$name}-#{$key}, $output)
+                create-vars-from-map($value, $theme, #{$name}-#{$key}, $output)
             );
         }
     }
     @return $output;
+}
+
+@function map-deep-get($map, $keys) {
+    @each $key in $keys {
+        $map: map-get($map, $key);
+    }
+    @return $map;
+}
+
+@function get-var-from-map($map, $keyword, $theme: default, $keys: ()) {
+    $i: str-index($keyword, "-");
+
+    @if $i {
+        @while $i {
+            $sub: str-slice($keyword, 0, $i - 1);
+
+            @if list.length($keys) == 0 {
+                $keys: ($sub);
+            } @else {
+                $keys: list.append($keys, $sub);
+            }
+            $keyword: str-slice($keyword, $i + 1, -1);
+            $i: str-index($keyword, "-");
+        }
+    }
+    $keys: list.join($keys, ($keyword, $theme));
+    
+    @return map-deep-get($map, $keys);
 }

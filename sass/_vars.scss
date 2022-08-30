@@ -3,6 +3,12 @@
 
 @use "sass:map";
 @use "functions" as *;
+@use "colors" as *;
+
+@function palette($key, $shade) {
+    $color: map.get($colors, $key);
+    @return map.get($color, $shade);
+}
 
 $vars: (
     props: (
@@ -13,142 +19,151 @@ $vars: (
     colors: (
         canvas: (
             default: (
-                light: color(gray, 0),
-                dark: color(gray, 6),
+                light: palette(gray, 0),
+                dark: palette(gray, 6),
             ),
             outset: (
                 light: white,
-                dark: color(gray, 5),
+                dark: palette(gray, 5),
             ),
             inset: (
-                light: color(gray, 1),
-                dark: color(gray, 7),
+                light: palette(gray, 1),
+                dark: palette(gray, 7),
             ),
             overlay: (
                 light: white,
-                dark: color(gray, 9),
+                dark: palette(gray, 9),
             ),
         ),
         border: (
             default: (
-                light: color(gray, 3),
-                dark: color(gray, 8),
+                light: palette(gray, 3),
+                dark: palette(gray, 8),
             ),
             subtle: (
-                light: color(gray, 3),
-                dark: color(gray, 7),
+                light: palette(gray, 2),
+                dark: palette(gray, 7),
             ),
             focus: (
-                light: color(indigo, 5),
-                dark: color(indigo, 5),
+                light: palette(indigo, 5),
+                dark: palette(indigo, 5),
+            ),
+        ),
+        button: (
+            focus: (
+                light: palette(cyan, 2),
+                dark: palette(cyan, 4),
             ),
         ),
         fg: (
             default: (
-                light: color(gray, 9),
-                dark: color(gray, 1),
+                light: palette(gray, 9),
+                dark: palette(gray, 1),
             ),
             subtle: (
-                light: color(gray, 7),
-                dark: color(gray, 3),
+                light: palette(gray, 7),
+                dark: palette(gray, 3),
             ),
             disabled: (
-                light: color(gray, 5),
-                dark: color(gray, 5),
+                light: palette(gray, 5),
+                dark: palette(gray, 5),
             ),
             faint: (
-                light: color(gray, 2),
-                dark: color(gray, 8),
+                light: palette(gray, 2),
+                dark: palette(gray, 8),
             ),
         ),
         shadow: (
             default: (
-                light: color(gray, 3),
-                dark: color(gray, 8),
+                light: palette(gray, 3),
+                dark: palette(gray, 8),
             ),
             inset: (
-                light: color(gray, 2),
-                dark: color(gray, 7),
+                light: palette(gray, 2),
+                dark: palette(gray, 7),
+            ),
+            focus: (
+                default: palette(indigo, 5),
             ),
         ),
         accent: (
             card: (
-                light: color(blue, 5),
-                dark: color(blue, 4),
+                light: palette(blue, 5),
+                dark: palette(blue, 4),
             ),
             note: (
-                light: color(green, 5),
-                dark: color(green, 4),
+                light: palette(green, 5),
+                dark: palette(green, 4),
             ),
             link: (
-                light: color(blue, 9),
-                dark: color(blue, 2),
+                light: palette(blue, 9),
+                dark: palette(blue, 2),
             ),
             danger: (
-                light: color(red, 5),
-                dark: color(red, 4),
+                light: palette(red, 5),
+                dark: palette(red, 4),
             ),
         ),
         flag: (
             1: (
-                light: color(red, 6),
-                dark: color(red, 4),
+                light: palette(red, 6),
+                dark: palette(red, 4),
             ),
             2: (
-                light: color(orange, 5),
-                dark: color(orange, 4),
+                light: palette(orange, 5),
+                dark: palette(orange, 4),
             ),
             3: (
-                light: color(green, 5),
-                dark: color(green, 4),
+                light: palette(green, 5),
+                dark: palette(green, 4),
             ),
             4: (
-                light: color(blue, 6),
-                dark: color(blue, 5),
+                light: palette(blue, 6),
+                dark: palette(blue, 5),
             ),
             5: (
-                light: color(fuchsia, 5),
-                dark: color(fuchsia, 4),
+                light: palette(fuchsia, 5),
+                dark: palette(fuchsia, 4),
             ),
             6: (
-                light: color(teal, 5),
-                dark: color(teal, 4),
+                light: palette(teal, 5),
+                dark: palette(teal, 4),
             ),
             7: (
-                light: color(purple, 6),
-                dark: color(purple, 5),
+                light: palette(purple, 6),
+                dark: palette(purple, 5),
             ),
         ),
         state: (
             new: (
-                light: color(blue, 5),
-                dark: color(blue, 3),
+                light: palette(blue, 5),
+                dark: palette(blue, 3),
             ),
             learn: (
-                light: color(red, 6),
-                dark: color(red, 4),
+                light: palette(red, 6),
+                dark: palette(red, 4),
             ),
             review: (
-                light: color(green, 6),
-                dark: color(green, 5),
+                light: palette(green, 6),
+                dark: palette(green, 5),
             ),
             buried: (
-                light: color(amber, 5),
-                dark: color(amber, 8),
+                light: palette(amber, 5),
+                dark: palette(amber, 8),
             ),
             suspended: (
-                light: color(yellow, 4),
-                dark: color(yellow, 1),
+                light: palette(yellow, 4),
+                dark: palette(yellow, 1),
             ),
             marked: (
-                light: color(indigo, 2),
-                dark: color(purple, 5),
+                light: palette(indigo, 2),
+                dark: palette(purple, 5),
             ),
         ),
         highlight: (
             bg: (
-                light: color(cyan, 4),
-                dark: color(cyan, 2),
+                light: palette(cyan, 4),
+                dark: palette(cyan, 2),
             ),
             fg: (
                 light: black,
@@ -158,14 +173,24 @@ $vars: (
     ),
 );
 
+@function color($keyword, $theme) {
+    $colors: map.get($vars, colors);
+    @return get-var-from-map($colors, $keyword, $theme);
+}
+
+@function prop($keyword, $theme) {
+    $props: map.get($vars, props);
+    @return get-var-from-map($props, $keyword, $theme);
+}
+
 :root {
     $colors: map.get($vars, colors);
-    @each $name, $val in vars-from-map($colors, light) {
+    @each $name, $val in create-vars-from-map($colors, light) {
         #{$name}: #{$val};
     }
     color-scheme: light;
     &.night-mode {
-        @each $name, $val in vars-from-map($colors, dark) {
+        @each $name, $val in create-vars-from-map($colors, dark) {
             #{$name}: #{$val};
         }
         color-scheme: dark;
@@ -174,15 +199,14 @@ $vars: (
 
 :root {
     $props: map.get($vars, props);
-
-    @each $name, $val in vars-from-map($props, default) {
+    @each $name, $val in create-vars-from-map($props, default) {
         #{$name}: #{$val};
     }
-    @each $name, $val in vars-from-map($props, light) {
+    @each $name, $val in create-vars-from-map($props, light) {
         #{$name}: #{$val};
     }
     &.night-mode {
-        @each $name, $val in vars-from-map($props, dark) {
+        @each $name, $val in create-vars-from-map($props, dark) {
             #{$name}: #{$val};
         }
     }
