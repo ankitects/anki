@@ -4,6 +4,8 @@ sass_library(
     name = "base_lib",
     srcs = [
         "_fusion-vars.scss",
+        "_functions.scss",
+        "_colors.scss",
         "_vars.scss",
         "base.scss",
         "bootstrap-dark.scss",
