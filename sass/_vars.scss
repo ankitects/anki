@@ -13,19 +13,19 @@ $vars: (
     colors: (
         canvas: (
             default: (
-                light: color(gray, 1),
-                dark: color(gray, 7),
+                light: color(gray, 0),
+                dark: color(gray, 6),
             ),
             outset: (
-                light: color(gray, 0),
+                light: white,
                 dark: color(gray, 5),
             ),
             inset: (
                 light: color(gray, 1),
-                dark: color(gray, 8),
+                dark: color(gray, 7),
             ),
             overlay: (
-                light: color(gray, 0),
+                light: white,
                 dark: color(gray, 9),
             ),
         ),
@@ -35,11 +35,11 @@ $vars: (
                 dark: color(gray, 8),
             ),
             subtle: (
-                light: color(gray, 2),
+                light: color(gray, 3),
                 dark: color(gray, 7),
             ),
             focus: (
-                light: color(indigo, 6),
+                light: color(indigo, 5),
                 dark: color(indigo, 5),
             ),
         ),
@@ -59,6 +59,16 @@ $vars: (
             faint: (
                 light: color(gray, 2),
                 dark: color(gray, 8),
+            ),
+        ),
+        shadow: (
+            default: (
+                light: color(gray, 3),
+                dark: color(gray, 8),
+            ),
+            inset: (
+                light: color(gray, 2),
+                dark: color(gray, 7),
             ),
         ),
         accent: (

@@ -190,25 +190,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         position: relative;
         background: var(--canvas-outset);
         border-radius: 5px;
-        border: 1px solid var(--border-default);
 
-        box-shadow: 0px 0px 2px 0px var(--border-default);
         transition: box-shadow 80ms cubic-bezier(0.33, 1, 0.68, 1);
+
+        /* This pseudo-element is required to display
+               the inset box-shadow above field contents */
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            pointer-events: none;
+            border-radius: 5px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: inset 0 0 1px 1px var(--shadow-inset);
+        }
 
         &:focus-within {
             outline: none;
-
-            /* This pseudo-element is required to display
-               the inset box-shadow above field contents */
             &::after {
-                content: "";
-                position: absolute;
-                top: -1px;
-                right: -1px;
-                bottom: -1px;
-                left: -1px;
-                pointer-events: none;
-                border-radius: 5px;
                 box-shadow: inset 0 0 0 2px var(--border-focus);
             }
         }
