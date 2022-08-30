@@ -51,6 +51,7 @@ $vars: (
         ),
         button: (
             focus: (
+                default: palette(cyan, 3),
                 light: palette(cyan, 2),
                 dark: palette(cyan, 4),
             ),
@@ -173,12 +174,12 @@ $vars: (
     ),
 );
 
-@function color($keyword, $theme) {
+@function color($keyword, $theme: default) {
     $colors: map.get($vars, colors);
     @return get-var-from-map($colors, $keyword, $theme);
 }
 
-@function prop($keyword, $theme) {
+@function prop($keyword, $theme: default) {
     $props: map.get($vars, props);
     @return get-var-from-map($props, $keyword, $theme);
 }
