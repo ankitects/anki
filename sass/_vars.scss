@@ -20,7 +20,7 @@ $vars: (
         canvas: (
             default: (
                 light: palette(gray, 0),
-                dark: palette(gray, 6),
+                dark: palette(gray, 7),
             ),
             outset: (
                 light: white,
@@ -28,7 +28,7 @@ $vars: (
             ),
             inset: (
                 light: palette(gray, 1),
-                dark: palette(gray, 7),
+                dark: palette(gray, 8),
             ),
             overlay: (
                 light: white,
@@ -38,11 +38,11 @@ $vars: (
         border: (
             default: (
                 light: palette(gray, 5),
-                dark: palette(gray, 8),
+                dark: palette(gray, 9),
             ),
             subtle: (
                 light: palette(gray, 3),
-                dark: palette(gray, 7),
+                dark: palette(gray, 6),
             ),
             focus: (
                 light: palette(indigo, 5),
