@@ -1,8 +1,9 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+@use "vars" as *;
 
 hr {
-    background-color: #ccc;
+    background-color: palette(gray, 4);
 }
 
 body {

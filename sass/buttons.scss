@@ -1,7 +1,8 @@
+@use "vars" as *;
 @use "fusion-vars";
 
 :root {
-    --focus-color: #0078d7;
+    --focus-color: color(button-focus);
 
     .isMac {
         --focus-color: rgba(0 103 244 / 0.247);

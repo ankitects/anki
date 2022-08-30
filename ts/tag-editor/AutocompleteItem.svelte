@@ -37,6 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </button>
 
 <style lang="scss">
+    @use "sass/vars" as *;
     @use "sass/button-mixins" as button;
 
     .autocomplete-item {
@@ -74,8 +75,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         color: black;
 
         &.selected {
-            background-color: #e9ecef;
-            border-color: #e9ecef;
+            background-color: palette(gray, 1);
+            border-color: palette(gray, 1);
         }
     }
 

@@ -1,5 +1,6 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+@use "vars" as *;
 @use "fusion-vars";
 
 @import "bootstrap/scss/functions";
@@ -131,8 +132,7 @@ $btn-base-color-night: fusion-vars.$button-border;
     }
 }
 
-// should be similar to -webkit-focus-ring-color
-$focus-color: rgba(21 97 174);
+$focus-color: color(shadow-focus, default);
 
 @function down-arrow($color) {
     @return url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='transparent' stroke='#{$color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
