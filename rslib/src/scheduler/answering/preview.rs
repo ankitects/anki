@@ -92,6 +92,7 @@ mod test {
             rating: Rating::Again,
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
+            meta: String::new(),
         })?;
 
         c = col.storage.get_card(c.id)?.unwrap();
@@ -106,6 +107,7 @@ mod test {
             rating: Rating::Hard,
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
+            meta: String::new(),
         })?;
         c = col.storage.get_card(c.id)?.unwrap();
         assert_eq!(c.queue, CardQueue::PreviewRepeat);
@@ -119,6 +121,7 @@ mod test {
             rating: Rating::Good,
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
+            meta: String::new(),
         })?;
         c = col.storage.get_card(c.id)?.unwrap();
         assert_eq!(c.queue, CardQueue::PreviewRepeat);
@@ -132,6 +135,7 @@ mod test {
             rating: Rating::Easy,
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
+            meta: String::new(),
         })?;
         c = col.storage.get_card(c.id)?.unwrap();
         assert_eq!(c.queue, CardQueue::DayLearn);

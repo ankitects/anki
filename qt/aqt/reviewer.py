@@ -82,11 +82,14 @@ class V3CardInfo:
 
     queued_cards: QueuedCards
     next_states: NextStates
+    meta: str
 
     @staticmethod
     def from_queue(queued_cards: QueuedCards) -> V3CardInfo:
         return V3CardInfo(
-            queued_cards=queued_cards, next_states=queued_cards.cards[0].next_states
+            queued_cards=queued_cards,
+            next_states=queued_cards.cards[0].next_states,
+            meta=queued_cards.cards[0].card.meta,
         )
 
     def top_card(self) -> QueuedCards.QueuedCard:
@@ -272,10 +275,19 @@ class Reviewer:
         if v3 := self._v3:
             v3.next_states = states
 
+    def get_card_meta(self) -> str | None:
+        if v3 := self._v3:
+            return v3.meta
+        return None
+
+    def set_card_meta(self, key: str, meta: str) -> None:
+        if key == self._state_mutation_key and (v3 := self._v3):
+            v3.meta = meta
+
     def _run_state_mutation_hook(self) -> None:
         if self._v3 and (js := self._state_mutation_js):
             self.web.eval(
-                f"anki.mutateNextCardStates('{self._state_mutation_key}', (states) => {{ {js} }})"
+                f"anki.mutateNextCardStates('{self._state_mutation_key}', (states, meta) => {{ {js} }})"
             )
 
     # Audio
@@ -431,7 +443,10 @@ class Reviewer:
 
         if (v3 := self._v3) and (sched := cast(V3Scheduler, self.mw.col.sched)):
             answer = sched.build_answer(
-                card=self.card, states=v3.next_states, rating=v3.rating_from_ease(ease)
+                card=self.card,
+                states=v3.next_states,
+                meta=v3.meta,
+                rating=v3.rating_from_ease(ease),
             )
 
             def after_answer(changes: OpChanges) -> None:

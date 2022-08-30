@@ -92,6 +92,7 @@ class Card(DeprecatedNamesMixin):
         self.original_position = (
             card.original_position if card.HasField("original_position") else None
         )
+        self.meta = card.meta
 
     def _to_backend_card(self) -> cards_pb2.Card:
         # mtime & usn are set by backend
@@ -114,6 +115,7 @@ class Card(DeprecatedNamesMixin):
             original_position=self.original_position
             if self.original_position is not None
             else None,
+            meta=self.meta,
         )
 
     def flush(self) -> None:

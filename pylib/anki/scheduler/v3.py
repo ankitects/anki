@@ -61,7 +61,7 @@ class Scheduler(SchedulerBaseWithLegacy):
     ##########################################################################
 
     def build_answer(
-        self, *, card: Card, states: NextStates, rating: CardAnswer.Rating.V
+        self, *, card: Card, states: NextStates, meta: str, rating: CardAnswer.Rating.V
     ) -> CardAnswer:
         "Build input for answer_card()."
         if rating == CardAnswer.AGAIN:
@@ -79,6 +79,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             card_id=card.id,
             current_state=states.current,
             new_state=new_state,
+            meta=meta,
             rating=rating,
             answered_at_millis=int_time(1000),
             milliseconds_taken=card.time_taken(capped=False),
@@ -163,7 +164,7 @@ class Scheduler(SchedulerBaseWithLegacy):
 
         states = self.col._backend.get_next_card_states(card.id)
         changes = self.answer_card(
-            self.build_answer(card=card, states=states, rating=rating)
+            self.build_answer(card=card, states=states, meta=card.meta, rating=rating)
         )
 
         # tests assume card will be mutated, so we need to reload it

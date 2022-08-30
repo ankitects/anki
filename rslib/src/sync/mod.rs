@@ -28,7 +28,7 @@ use crate::{
     revlog::RevlogEntry,
     serde::{default_on_invalid, deserialize_int_from_number},
     storage::{
-        card::data::{card_data_string, original_position_from_card_data},
+        card::data::{card_data_string, CardData},
         open_and_check_sqlite_file, SchemaVersion,
     },
     tags::{join_tags, split_tags, Tag},
@@ -1081,6 +1081,10 @@ impl Collection {
 
 impl From<CardEntry> for Card {
     fn from(e: CardEntry) -> Self {
+        let CardData {
+            original_position,
+            meta,
+        } = CardData::from_str(&e.data);
         Card {
             id: e.id,
             note_id: e.nid,
@@ -1099,7 +1103,8 @@ impl From<CardEntry> for Card {
             original_due: e.odue,
             original_deck_id: e.odid,
             flags: e.flags,
-            original_position: original_position_from_card_data(&e.data),
+            original_position,
+            meta,
         }
     }
 }

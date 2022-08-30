@@ -427,6 +427,19 @@ def set_next_card_states() -> bytes:
     return b""
 
 
+def get_card_meta() -> bytes:
+    if meta := aqt.mw.reviewer.get_card_meta():
+        return bytes(meta, "utf8")
+    return b"{}"
+
+
+def set_card_meta() -> bytes:
+    key = request.headers.get("key", "")
+    data = request.data.decode("utf8")
+    aqt.mw.reviewer.set_card_meta(key, data)
+    return b""
+
+
 def change_notetype() -> bytes:
     data = request.data
 
@@ -457,6 +470,8 @@ post_handler_list = [
     update_deck_configs,
     next_card_states,
     set_next_card_states,
+    get_card_meta,
+    set_card_meta,
     change_notetype,
     import_csv,
 ]

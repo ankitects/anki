@@ -18,11 +18,22 @@ async function setNextStates(
     await postRequest("/_anki/setNextCardStates", data, { key });
 }
 
+async function getCardMeta(): Promise<Record<string, unknown>> {
+    const bytes = await postRequest("/_anki/getCardMeta", "");
+    const str = new TextDecoder().decode(bytes);
+    return JSON.parse(str);
+}
+
+async function setCardMeta(key: string, meta: Record<string, unknown>): Promise<void> {
+    const bytes = new TextEncoder().encode(JSON.stringify(meta));
+    await postRequest("/_anki/setCardMeta", bytes, { key });
+}
+
 export async function mutateNextCardStates(
     key: string,
-    mutator: (states: Scheduler.NextCardStates) => void,
+    mutator: (states: Scheduler.NextCardStates, meta: Record<string, unknown>) => void,
 ): Promise<void> {
-    const states = await getNextStates();
-    mutator(states);
-    await setNextStates(key, states);
+    const [states, meta] = await Promise.all([getNextStates(), getCardMeta()]);
+    mutator(states, meta);
+    await Promise.all([setNextStates(key, states), setCardMeta(key, meta)]);
 }

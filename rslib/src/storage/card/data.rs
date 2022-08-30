@@ -12,20 +12,30 @@ use crate::{prelude::*, serde::default_on_invalid};
 /// Helper for serdeing the card data column.
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[serde(default)]
-pub(super) struct CardData {
+pub(crate) struct CardData {
     #[serde(
         skip_serializing_if = "Option::is_none",
         rename = "pos",
         deserialize_with = "default_on_invalid"
     )]
     pub(crate) original_position: Option<u32>,
+    #[serde(
+        skip_serializing_if = "meta_is_empty",
+        deserialize_with = "default_on_invalid"
+    )]
+    pub(crate) meta: String,
 }
 
 impl CardData {
-    pub(super) fn from_card(card: &Card) -> Self {
+    pub(crate) fn from_card(card: &Card) -> Self {
         Self {
             original_position: card.original_position,
+            meta: card.meta.clone(),
         }
+    }
+
+    pub(crate) fn from_str(s: &str) -> Self {
+        serde_json::from_str(s).unwrap_or_default()
     }
 }
 
@@ -53,8 +63,6 @@ pub(crate) fn card_data_string(card: &Card) -> String {
     serde_json::to_string(&CardData::from_card(card)).unwrap()
 }
 
-/// Extract original position from JSON `data`.
-pub(crate) fn original_position_from_card_data(card_data: &str) -> Option<u32> {
-    let data: CardData = serde_json::from_str(card_data).unwrap_or_default();
-    data.original_position
+fn meta_is_empty(s: &str) -> bool {
+    matches!(s, "" | "{}")
 }
