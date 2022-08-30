@@ -290,17 +290,21 @@ impl<'a> Context<'a> {
 
     fn import_note(&mut self, ctx: NoteContext, log: &mut NoteLog) -> Result<()> {
         match self.dupe_resolution {
-            _ if ctx.dupes.is_empty() => self.add_note(ctx, log, false)?,
-            DupeResolution::Add => self.add_note(ctx, log, true)?,
+            _ if ctx.dupes.is_empty() => self.add_note(ctx, log)?,
+            DupeResolution::Add => self.add_note(ctx, log)?,
             DupeResolution::Update => self.update_with_note(ctx, log)?,
             DupeResolution::Ignore => log.first_field_match.push(ctx.note.into_log_note()),
         }
         Ok(())
     }
 
-    fn add_note(&mut self, ctx: NoteContext, log: &mut NoteLog, dupe: bool) -> Result<()> {
+    fn add_note(&mut self, ctx: NoteContext, log: &mut NoteLog) -> Result<()> {
         if !ctx.note.first_field_is_unempty() {
             log.empty_first_field.push(ctx.note.into_log_note());
+            return Ok(());
+        }
+        if ctx.dupes.iter().any(|d| d.note.guid == ctx.note.guid) {
+            log.duplicate.push(ctx.note.into_log_note());
             return Ok(());
         }
 
@@ -312,10 +316,10 @@ impl<'a> Context<'a> {
         self.col.add_note_only_undoable(&mut note)?;
         self.add_cards(&mut cards, &note, ctx.deck_id, ctx.notetype)?;
 
-        if dupe {
-            log.first_field_match.push(note.into_log_note());
-        } else {
+        if ctx.dupes.is_empty() {
             log.new.push(note.into_log_note());
+        } else {
+            log.first_field_match.push(note.into_log_note());
         }
 
         Ok(())
