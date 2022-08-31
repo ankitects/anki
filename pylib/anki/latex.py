@@ -17,7 +17,18 @@ from anki.utils import call, is_mac, namedtmp, tmpdir
 
 pngCommands = [
     ["latex", "-interaction=nonstopmode", "tmp.tex"],
-    ["dvipng", "-D", "200", "-T", "tight", "tmp.dvi", "-o", "tmp.png"],
+    [
+        "dvipng",
+        "-bg",
+        "Transparent",
+        "-D",
+        "200",
+        "-T",
+        "tight",
+        "tmp.dvi",
+        "-o",
+        "tmp.png",
+    ],
 ]
 
 svgCommands = [
