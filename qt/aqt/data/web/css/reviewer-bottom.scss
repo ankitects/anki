@@ -5,7 +5,7 @@
  @use "sass/card-counts";
 
 :root {
-    --focus-color: color(button-focus);
+    --focus-color: #{palette-of(button-focus)};
 
     .isMac {
         --focus-color: rgba(0 103 244 / 0.247);
