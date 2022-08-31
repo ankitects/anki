@@ -174,14 +174,17 @@ $vars: (
     ),
 );
 
-@function color($keyword, $theme: default) {
-    $colors: map.get($vars, colors);
-    @return get-var-from-map($colors, $keyword, $theme);
+@function color($keyword) {
+    @return var(--#{$keyword});
 }
 
-@function prop($keyword, $theme: default) {
-    $props: map.get($vars, props);
-    @return get-var-from-map($props, $keyword, $theme);
+@function palette-of($keyword, $theme: default) {
+    $colors: map.get($vars, colors);
+    @return get-value-from-map($colors, $keyword, $theme);
+}
+
+@function prop($keyword) {
+    @return var(--#{$keyword});
 }
 
 :root {
