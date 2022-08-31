@@ -66,6 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import PlainTextInput from "./plain-text-input";
     import PlainTextBadge from "./PlainTextBadge.svelte";
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
+    import RichTextBadge from "./RichTextBadge.svelte";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -113,13 +114,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fieldNames = newFieldNames;
     }
 
-    let plainTexts: boolean[] = [];
+    let fieldsCollapsed: boolean[] = [];
+    export function setCollapsed(fs: boolean[]): void {
+        fieldsCollapsed = fs;
+    }
+
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
+    let plainTextDefaults: boolean[] = [];
 
     export function setPlainTexts(fs: boolean[]): void {
-        richTextsHidden = plainTexts = fs;
+        richTextsHidden = fs;
         plainTextsHidden = Array.from(fs, (v) => !v);
+        plainTextDefaults = [...richTextsHidden];
     }
 
     function setMathjaxEnabled(enabled: boolean): void {
@@ -133,13 +140,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let fonts: [string, number, boolean][] = [];
 
-    let fieldsCollapsed: boolean[] = [];
-
     const fields = clearableArray<EditorFieldAPI>();
 
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
-        fieldsCollapsed = fonts.map((_, index) => fieldsCollapsed[index] ?? false);
     }
 
     export function focusField(index: number | null): void {
@@ -187,11 +191,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: fieldsData = fieldNames.map((name, index) => ({
         name,
-        plainText: plainTexts[index],
+        plainText: plainTextDefaults[index],
         description: fieldDescriptions[index],
         fontFamily: quoteFontFamily(fonts[index][0]),
         fontSize: fonts[index][1],
         direction: fonts[index][2] ? "rtl" : "ltr",
+        collapsed: fieldsCollapsed[index],
     })) as FieldData[];
 
     function saveTags({ detail }: CustomEvent): void {
@@ -242,6 +247,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { mathjaxConfig } from "../editable/mathjax-element";
     import { wrapInternal } from "../lib/wrap";
+    import { refocusInput } from "./helpers";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
     onMount(() => {
@@ -257,6 +263,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         Object.assign(globalThis, {
             setFields,
+            setCollapsed,
             setPlainTexts,
             setDescriptions,
             setFonts,
@@ -330,6 +337,7 @@ the AddCards dialog) should be implemented in the user of this component.
                     <EditorField
                         {field}
                         {content}
+                        flipInputs={plainTextDefaults[index]}
                         api={fields[index]}
                         on:focusin={() => {
                             $focusedField = fields[index];
@@ -358,11 +366,16 @@ the AddCards dialog) should be implemented in the user of this component.
                                 on:toggle={async () => {
                                     fieldsCollapsed[index] = !fieldsCollapsed[index];
 
+                                    const defaultInput = !plainTextDefaults[index]
+                                        ? richTextInputs[index]
+                                        : plainTextInputs[index];
+
                                     if (!fieldsCollapsed[index]) {
-                                        await tick();
-                                        richTextInputs[index].api.refocus();
-                                    } else {
+                                        refocusInput(defaultInput.api);
+                                    } else if (!plainTextDefaults[index]) {
                                         plainTextsHidden[index] = true;
+                                    } else {
+                                        richTextsHidden[index] = true;
                                     }
                                 }}
                             >
@@ -375,21 +388,41 @@ the AddCards dialog) should be implemented in the user of this component.
                                     {#if cols[index] === "dupe"}
                                         <DuplicateLink />
                                     {/if}
-                                    <PlainTextBadge
-                                        visible={!fieldsCollapsed[index] &&
-                                            (fields[index] === $hoveredField ||
-                                                fields[index] === $focusedField)}
-                                        bind:off={plainTextsHidden[index]}
-                                        on:toggle={async () => {
-                                            plainTextsHidden[index] =
-                                                !plainTextsHidden[index];
+                                    {#if plainTextDefaults[index]}
+                                        <RichTextBadge
+                                            visible={!fieldsCollapsed[index] &&
+                                                (fields[index] === $hoveredField ||
+                                                    fields[index] === $focusedField)}
+                                            bind:off={richTextsHidden[index]}
+                                            on:toggle={async () => {
+                                                richTextsHidden[index] =
+                                                    !richTextsHidden[index];
 
-                                            if (!plainTextsHidden[index]) {
-                                                await tick();
-                                                plainTextInputs[index].api.refocus();
-                                            }
-                                        }}
-                                    />
+                                                if (!richTextsHidden[index]) {
+                                                    refocusInput(
+                                                        richTextInputs[index].api,
+                                                    );
+                                                }
+                                            }}
+                                        />
+                                    {:else}
+                                        <PlainTextBadge
+                                            visible={!fieldsCollapsed[index] &&
+                                                (fields[index] === $hoveredField ||
+                                                    fields[index] === $focusedField)}
+                                            bind:off={plainTextsHidden[index]}
+                                            on:toggle={async () => {
+                                                plainTextsHidden[index] =
+                                                    !plainTextsHidden[index];
+
+                                                if (!plainTextsHidden[index]) {
+                                                    refocusInput(
+                                                        plainTextInputs[index].api,
+                                                    );
+                                                }
+                                            }}
+                                        />
+                                    {/if}
                                     <slot
                                         name="field-state"
                                         {field}
@@ -400,10 +433,10 @@ the AddCards dialog) should be implemented in the user of this component.
                                 </FieldState>
                             </LabelContainer>
                         </svelte:fragment>
-                        <svelte:fragment slot="editing-inputs">
-                            <Collapsible collapsed={richTextsHidden[index]}>
+                        <svelte:fragment slot="rich-text-input">
+                            <Collapsible collapsed={richTextsHidden[index]} let:hidden>
                                 <RichTextInput
-                                    bind:hidden={richTextsHidden[index]}
+                                    {hidden}
                                     on:focusout={() => {
                                         saveFieldNow();
                                         $focusedInput = null;
@@ -417,10 +450,13 @@ the AddCards dialog) should be implemented in the user of this component.
                                     </FieldDescription>
                                 </RichTextInput>
                             </Collapsible>
-
-                            <Collapsible collapsed={plainTextsHidden[index]}>
+                        </svelte:fragment>
+                        <svelte:fragment slot="plain-text-input">
+                            <Collapsible collapsed={plainTextsHidden[index]} let:hidden>
                                 <PlainTextInput
-                                    bind:hidden={plainTextsHidden[index]}
+                                    {hidden}
+                                    isDefault={plainTextDefaults[index]}
+                                    richTextHidden={richTextsHidden[index]}
                                     on:focusout={() => {
                                         saveFieldNow();
                                         $focusedInput = null;

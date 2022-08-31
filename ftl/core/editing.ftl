@@ -53,6 +53,7 @@ editing-text-color = Text color
 editing-text-highlight-color = Text highlight color
 editing-to-make-a-cloze-deletion-on = To make a cloze deletion on an existing note, you need to change it to a cloze type first, via 'Notes>Change Note Type'
 editing-toggle-html-editor = Toggle HTML Editor
+editing-toggle-visual-editor = Toggle Visual Editor
 editing-toggle-sticky = Toggle sticky
 editing-expand-field = Expand field
 editing-collapse-field = Collapse field

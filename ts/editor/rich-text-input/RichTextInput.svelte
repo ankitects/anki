@@ -244,7 +244,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .rich-text-input {
         position: relative;
-        padding: 6px;
+        margin: 6px;
     }
 
     .hidden {
