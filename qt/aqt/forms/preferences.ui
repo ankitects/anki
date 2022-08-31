@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>530</height>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,9 +54,6 @@
           <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
          </property>
         </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="theme"/>
        </item>
        <item>
         <widget class="QComboBox" name="video_driver"/>
@@ -132,6 +129,16 @@
         </widget>
        </item>
        <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>preferences_appearance</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="theme"/>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
           <widget class="QLabel" name="label_2">
@@ -168,6 +175,19 @@
             </size>
            </property>
           </spacer>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox">
+           <property name="toolTip">
+            <string>preferences_animations_label</string>
+           </property>
+           <property name="text">
+            <string>preferences_animations</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -677,7 +697,6 @@
  </widget>
  <tabstops>
   <tabstop>lang</tabstop>
-  <tabstop>theme</tabstop>
   <tabstop>video_driver</tabstop>
   <tabstop>showPlayButtons</tabstop>
   <tabstop>interrupt_audio</tabstop>
@@ -687,6 +706,7 @@
   <tabstop>legacy_import_export</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
+  <tabstop>theme</tabstop>
   <tabstop>uiScale</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
@@ -703,11 +723,11 @@
   <tabstop>fullSync</tabstop>
   <tabstop>syncDeauth</tabstop>
   <tabstop>media_log</tabstop>
-  <tabstop>tabWidget</tabstop>
   <tabstop>minutes_between_backups</tabstop>
   <tabstop>daily_backups</tabstop>
   <tabstop>weekly_backups</tabstop>
   <tabstop>monthly_backups</tabstop>
+  <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>
