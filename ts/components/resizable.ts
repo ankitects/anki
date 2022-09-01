@@ -66,7 +66,6 @@ export function resizable(
     }
 
     function stop(fullDimension: number, amount: number): void {
-        console.log("stop", fullDimension, amount);
         paneSize.set((dimension / fullDimension) * amount * baseSize);
         resizesDimension.set(false);
         resizes.set(false);
