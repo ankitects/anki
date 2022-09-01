@@ -109,13 +109,13 @@ some documentation.
 
 ### Rust
 
-Anki uses the [protobuf crate](https://docs.rs/protobuf/latest/protobuf/index.html).
-Its documentation is not particularly useful, but it doesn't have to: From within
-`anki/rslib` run `cargo doc --open --document-private-items`. Inside the `pb` module
-you will find all generated Rust types and their implementations.
+Anki uses the [prost crate](https://docs.rs/prost/latest/prost/).
+Its documentation has some useful hints, but for working with the generated code,
+there is a better option: From within `anki/rslib` run `cargo doc --open --document-private-items`.
+Inside the `pb` module you will find all generated Rust types and their implementations.
 
--   Enum variants arrive as `i32`s and must be mapped to the generated variants
-    with `MyEnum::from_i32()`.
+-   Given an enum field `Foo foo = 1;`, `message.foo` is an `i32`. Use the accessor
+    `message.foo()` instead to avoid having to manually convert to a `Foo`.
 -   Protobuf does not guarantee any oneof field to be set or an enum field to contain
     a valid variant, so the Rust code needs to deal with a lot of `Option`s. As we
     don't expect other parts of Anki to send invalid messages, using an `InvalidInput`
