@@ -11,9 +11,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import { directionKey } from "../../lib/context-keys";
     import * as tr from "../../lib/ftl";
+    import { removeStyleProperties } from "../../lib/styling";
     import { floatLeftIcon, floatNoneIcon, floatRightIcon } from "./icons";
 
     export let image: HTMLImageElement;
+
+    $: floatStyle = getComputedStyle(image).float;
 
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
     const [inlineStartIcon, inlineEndIcon] =
@@ -27,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ButtonGroup size={1.6} wrap={false}>
     <IconButton
         tooltip={tr.editingFloatLeft()}
-        active={image.style.float === "left"}
+        active={floatStyle === "left"}
         flipX={$direction === "rtl"}
         on:click={() => {
             image.style.float = "left";
@@ -38,22 +41,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <IconButton
         tooltip={tr.editingFloatNone()}
-        active={image.style.float === "" || image.style.float === "none"}
+        active={floatStyle === "none"}
         flipX={$direction === "rtl"}
         on:click={() => {
-            image.style.removeProperty("float");
-
-            if (image.getAttribute("style")?.length === 0) {
-                image.removeAttribute("style");
-            }
-
+            // We shortly set to none, because simply unsetting float will not
+            // trigger floatStyle being reset
+            image.style.float = "none";
+            removeStyleProperties(image, "float");
             setTimeout(() => dispatch("update"));
         }}>{@html floatNoneIcon}</IconButton
     >
 
     <IconButton
         tooltip={tr.editingFloatRight()}
-        active={image.style.float === "right"}
+        active={floatStyle === "right"}
         flipX={$direction === "rtl"}
         on:click={() => {
             image.style.float = "right";

@@ -17,6 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context } from "../rich-text-input";
     import FloatButtons from "./FloatButtons.svelte";
     import SizeSelect from "./SizeSelect.svelte";
+    import { removeStyleProperties } from "../../lib/styling";
 
     export let maxWidth: number;
     export let maxHeight: number;
@@ -174,12 +175,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
          * image.[dimension], there would be no visible effect on the image.
          * To avoid confusion with users we'll clear image.style.[dimension] (for now).
          */
-        activeImage!.style.removeProperty("width");
-        activeImage!.style.removeProperty("height");
-        if (activeImage!.getAttribute("style")?.length === 0) {
-            activeImage!.removeAttribute("style");
-        }
-
+        removeStyleProperties(activeImage!, "width", "height");
         activeImage!.width = width;
     }
 
