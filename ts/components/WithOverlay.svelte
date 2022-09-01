@@ -27,10 +27,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
+    function notify(reason: symbol) {
+        dispatch("close", reason);
+    }
+
     $: positionCurried = positionOverlay({
         padding,
         inline,
-        hideCallback: (reason: symbol) => dispatch("close", reason),
+        hideCallback: notify,
     });
 
     let autoAction: ActionReturn = {};
@@ -100,11 +104,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             outside: false,
         });
 
-        const subscribers = [
-            subscribeToUpdates(closingClick, (reason: symbol): void => {
-                dispatch("close", reason);
-            }),
-        ];
+        const subscribers = [subscribeToUpdates(closingClick, notify)];
 
         if (!keepOnKeyup) {
             const closingKeyup = isClosingKeyup(documentKeyup, {
@@ -112,11 +112,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 floating,
             });
 
-            subscribers.push(
-                subscribeToUpdates(closingKeyup, (reason: symbol): void => {
-                    dispatch("close", reason);
-                }),
-            );
+            subscribers.push(subscribeToUpdates(closingKeyup, notify));
         }
 
         autoAction = autoUpdate(reference, positioningCallback);
