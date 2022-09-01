@@ -11,9 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         flex-direction: column;
         flex-grow: 1;
-
-        padding: 10px;
-
+        
         overflow: hidden;
         overflow-y: auto;
     }
