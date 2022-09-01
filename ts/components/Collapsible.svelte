@@ -49,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         /* This function practically caps the maximum time at around 200ms,
            but still allows to differentiate between small and large contents */
-        const duration = Math.pow(height, 1/4) * 25;
+        const duration = Math.pow(height, 1 / 4) * 25;
 
         setStyle(height, duration);
 
