@@ -16,9 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /* set height to 100% for rich text widgets */
         height: 100%;
 
-        /* moves the scrollbar inside the editor */
-        overflow-x: hidden;
-
         > :global(:last-child) {
             /* bottom padding is eaten by overflow-x */
             margin-bottom: 5px;

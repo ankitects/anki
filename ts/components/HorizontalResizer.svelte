@@ -6,6 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { on } from "../lib/events";
     import { Callback, singleCallback } from "../lib/typing";
     import type { HeightResizable } from "./resizable";
+    import { horizontalHandle } from "./icons";
+    import IconConstrain from "./IconConstrain.svelte";
 
     export let components: HeightResizable[];
     export let index = 0;
@@ -26,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    const minHeight = 9;
+    let minHeight: number;
 
     function releasePointer(this: Window): void {
         destroy();
@@ -57,24 +59,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<hr
+<div
+    bind:clientHeight={minHeight}
     class="horizontal-resizer"
-    style:--min-height="{minHeight}px"
     on:pointerdown|preventDefault={lockPointer}
-/>
+>
+    <div class="drag-handle">
+        <IconConstrain iconSize={80}>{@html horizontalHandle}</IconConstrain>
+    </div>
+</div>
 
 <style lang="scss">
-    @use "sass/elevation" as elevation;
     @use "panes" as panes;
 
     .horizontal-resizer {
-        min-height: var(--min-height);
+        width: 100%;
         cursor: row-resize;
+        position: relative;
+        text-align: center;
 
-        @include panes.reset-hr();
-
-        $horizontal-bars: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="10"><path d="M0 2 h30 M0 5 h30 M0 8 h30" fill="none" stroke="black"/></svg>';
-        @include panes.resize-handle-background($horizontal-bars);
         z-index: 20;
+        .drag-handle {
+            opacity: 0.4;
+        }
+
+        &:hover .drag-handle {
+            opacity: 0.8;
+        }
     }
 </style>

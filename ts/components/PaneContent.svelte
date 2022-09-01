@@ -2,7 +2,59 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<div class="pane-content">
+<script lang="ts">
+    import { promiseWithResolver } from "../lib/promise";
+
+    const [element, elementResolve] = promiseWithResolver<HTMLElement>();
+
+    let clientWidth = 0;
+    let clientHeight = 0;
+    let scrollWidth = 0;
+    let scrollHeight = 0;
+    let scrollTop = 0;
+    let scrollLeft = 0;
+
+    $: overflowY = scrollHeight > clientHeight;
+    $: overflowX = scrollWidth > clientWidth;
+
+    $: overflowTop = overflowY && scrollTop < scrollHeight;
+    $: overflowBottom = overflowY && scrollTop > 0;
+    $: overflowLeft = overflowX && scrollLeft < scrollWidth;
+    $: overflowRight = overflowX && scrollLeft > 0;
+
+    $: shadows = {
+        top: overflowTop ? "0 -5px" : null,
+        bottom: overflowBottom ? "0 5px" : null,
+        left: overflowLeft ? "-5px 0" : null,
+        right: overflowRight ? "5px 0" : null,
+    };
+    const rest = "5px -5px var(--shadow)";
+
+    $: shadow = Array.from(Object.values(shadows).filter((v) => v), (v) => `inset ${v} ${rest}`).join(
+        ", ",
+    );
+
+    $: console.log(shadow);
+    async function updateScrollState(): Promise<void> {
+        console.log("scrolled")
+        const el = await element;
+        scrollHeight = el.scrollHeight;
+        scrollWidth = el.scrollWidth;
+        scrollTop = el.scrollTop;
+        scrollLeft = el.scrollLeft;
+    }
+</script>
+
+<div
+    class="pane-content"
+    style:--box-shadow={shadow}
+    style:--client-height="{clientHeight}px"
+    use:elementResolve
+    bind:clientHeight
+    bind:clientWidth
+    on:scroll={updateScrollState}
+    on:resize={updateScrollState}
+>
     <slot />
 </div>
 
@@ -11,8 +63,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         flex-direction: column;
         flex-grow: 1;
-        
-        overflow: hidden;
-        overflow-y: auto;
+
+        overflow: auto;
+
+        /* force box-shadow to be rendered above children */
+        &::before {
+            content: "";
+            position: fixed;
+            pointer-events: none;
+            left: 0;
+            right: 0;
+            z-index: 4;
+            height: var(--client-height);
+            box-shadow: var(--box-shadow);
+            transition: box-shadow 0.1s ease-in-out;
+        }
     }
 </style>

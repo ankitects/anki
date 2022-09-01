@@ -192,9 +192,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: 5px;
         border: 1px solid var(--border);
 
-        box-shadow: 0px 0px 2px 0px var(--border);
-        transition: box-shadow 80ms cubic-bezier(0.33, 1, 0.68, 1);
-
+        &::after {
+            transition: box-shadow 80ms cubic-bezier(0.33, 1, 0.68, 1);
+        }
         &:focus-within {
             outline: none;
 

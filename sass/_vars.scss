@@ -39,6 +39,7 @@
     --focus-border: #0969da;
     --focus-shadow: rgba(9 105 218 / 0.3);
     --code-bg: white;
+    --shadow: #4b4b4b;
 }
 
 :root[class*="night-mode"] {
@@ -79,5 +80,6 @@
     --focus-border: #316dca;
     --focus-shadow: #194380;
     --code-bg: #272822;
+    --shadow: #1d1d1d;
     color-scheme: dark;
 }

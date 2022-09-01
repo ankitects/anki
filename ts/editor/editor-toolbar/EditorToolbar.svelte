@@ -85,7 +85,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setContextProperty(api);
 </script>
 
-<StickyContainer --gutter-block="0.1rem" --sticky-borders="0 0 1px">
+<StickyContainer --gutter-block="0.1rem">
     <ButtonToolbar {size} {wrap}>
         <DynamicallySlottable slotHost={Item} api={toolbar}>
             <Item id="notetype">
