@@ -177,9 +177,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         :global(.CodeMirror) {
             background: var(--code-bg);
         }
-        :global(.CodeMirror-wrap pre) {
-            word-break: break-word;
-        }
         :global(.CodeMirror-lines) {
             padding: 8px 0;
         }
