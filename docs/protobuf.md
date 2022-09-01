@@ -10,7 +10,7 @@ For information about Protobuf's types and syntax, please see the official [lang
 
 ### Names
 
-Generated code follows the naming conventions of the targetd language. So to access
+Generated code follows the naming conventions of the targeted language. So to access
 the message field `foo_bar` you need to use `fooBar` in Typescript and the
 namespace created by the message `FooBar` is called `foo_bar` in Rust.
 
@@ -86,7 +86,7 @@ Field numbers larger than 15 need an additional byte to encode, so `repeated` fi
 should preferrably be assigned a number between 1 and 15. If a message contains
 `reserved` fields, this is usually to accomodate potential future `repeated` fields.
 
-## Implementation-specific Notes
+## Implementation-Specific Notes
 
 ### Python
 
@@ -110,7 +110,7 @@ some documentation.
 ### Rust
 
 Anki uses the [protobuf crate](https://docs.rs/protobuf/latest/protobuf/index.html).
-It's documentation is not particularly useful, but it doesn't have to: From within
+Its documentation is not particularly useful, but it doesn't have to: From within
 `anki/rslib` run `cargo doc --open --document-private-items`. Inside the `pb` module
 you will find all generated Rust types and their implementations.
 
