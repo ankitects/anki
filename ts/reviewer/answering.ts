@@ -4,29 +4,18 @@
 import { postRequest } from "../lib/postrequest";
 import { Scheduler } from "../lib/proto";
 
-async function getNextStates(): Promise<Scheduler.NextCardStates> {
-    return Scheduler.NextCardStates.decode(
-        await postRequest("/_anki/nextCardStates", ""),
+async function getCustomScheduling(): Promise<Scheduler.CustomScheduling> {
+    return Scheduler.CustomScheduling.decode(
+        await postRequest("/_anki/getCustomScheduling", ""),
     );
 }
 
-async function setNextStates(
+async function setCustomScheduling(
     key: string,
-    states: Scheduler.NextCardStates,
+    scheduling: Scheduler.CustomScheduling,
 ): Promise<void> {
-    const data: Uint8Array = Scheduler.NextCardStates.encode(states).finish();
-    await postRequest("/_anki/setNextCardStates", data, { key });
-}
-
-async function getCardMeta(): Promise<Record<string, unknown>> {
-    const bytes = await postRequest("/_anki/getCardMeta", "");
-    const str = new TextDecoder().decode(bytes);
-    return JSON.parse(str);
-}
-
-async function setCardMeta(key: string, meta: Record<string, unknown>): Promise<void> {
-    const bytes = new TextEncoder().encode(JSON.stringify(meta));
-    await postRequest("/_anki/setCardMeta", bytes, { key });
+    const bytes = Scheduler.CustomScheduling.encode(scheduling).finish();
+    await postRequest("/_anki/setCustomScheduling", bytes, { key });
 }
 
 export async function mutateNextCardStates(
@@ -36,7 +25,17 @@ export async function mutateNextCardStates(
         customData: Record<string, unknown>,
     ) => void,
 ): Promise<void> {
-    const [states, customData] = await Promise.all([getNextStates(), getCardMeta()]);
-    mutator(states, customData);
-    await Promise.all([setNextStates(key, states), setCardMeta(key, customData)]);
+    const scheduling = await getCustomScheduling();
+    let customData = {};
+    try {
+        customData = JSON.parse(scheduling.customData);
+    } catch {
+        // can't be parsed
+    }
+
+    mutator(scheduling.states!, customData);
+
+    scheduling.customData = JSON.stringify(customData);
+
+    await setCustomScheduling(key, scheduling);
 }

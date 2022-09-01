@@ -17,7 +17,7 @@ from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.scheduler.base import ScheduleCardsAsNew
-from anki.scheduler.v3 import CardAnswer, NextStates, QueuedCards
+from anki.scheduler.v3 import CardAnswer, CustomScheduling, NextStates, QueuedCards
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
@@ -262,27 +262,19 @@ class Reviewer:
         self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)
         self.card.start_timer()
 
-    def get_next_states(self) -> NextStates | None:
+    def get_custom_scheduling(self) -> CustomScheduling | None:
         if v3 := self._v3:
-            return v3.next_states
+            return CustomScheduling(states=v3.next_states, custom_data=v3.custom_data)
         else:
             return None
 
-    def set_next_states(self, key: str, states: NextStates) -> None:
+    def set_custom_scheduling(self, key: str, scheduling: CustomScheduling) -> None:
         if key != self._state_mutation_key:
             return
 
         if v3 := self._v3:
-            v3.next_states = states
-
-    def get_card_meta(self) -> str | None:
-        if v3 := self._v3:
-            return v3.custom_data
-        return None
-
-    def set_card_meta(self, key: str, meta: str) -> None:
-        if key == self._state_mutation_key and (v3 := self._v3):
-            v3.custom_data = meta
+            v3.next_states = scheduling.states
+            v3.custom_data = scheduling.custom_data
 
     def _run_state_mutation_hook(self) -> None:
         if self._v3 and (js := self._state_mutation_js):
