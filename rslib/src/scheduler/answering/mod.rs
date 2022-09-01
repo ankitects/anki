@@ -275,6 +275,7 @@ impl Collection {
         let timing = updater.timing;
         let mut card = updater.into_card();
         card.custom_data = answer.custom_data.clone();
+        card.validate_custom_data()?;
         self.update_card_inner(&mut card, original, usn)?;
         if answer.new_state.leeched() {
             self.add_leech_tag(card.note_id)?;

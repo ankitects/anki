@@ -1,11 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashMap;
+
 use rusqlite::{
     types::{FromSql, FromSqlError, ToSqlOutput, ValueRef},
     ToSql,
 };
 use serde_derive::{Deserialize, Serialize};
+use serde_json::Value;
 
 use crate::{prelude::*, serde::default_on_invalid};
 
@@ -65,4 +68,43 @@ pub(crate) fn card_data_string(card: &Card) -> String {
 
 fn meta_is_empty(s: &str) -> bool {
     matches!(s, "" | "{}")
+}
+
+fn validate_custom_data(json_str: &str) -> Result<()> {
+    if !meta_is_empty(json_str) {
+        let object: HashMap<&str, Value> = serde_json::from_str(json_str)
+            .map_err(|e| AnkiError::invalid_input(format!("custom data not an object: {e}")))?;
+        if object.keys().any(|k| k.as_bytes().len() > 8) {
+            return Err(AnkiError::invalid_input(
+                "custom data keys must be <= 8 bytes",
+            ));
+        }
+        if json_str.len() > 100 {
+            return Err(AnkiError::invalid_input(
+                "serialized custom data must be under 100 bytes",
+            ));
+        }
+    }
+    Ok(())
+}
+
+impl Card {
+    pub(crate) fn validate_custom_data(&self) -> Result<()> {
+        validate_custom_data(&self.custom_data)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn validation() {
+        assert!(validate_custom_data("").is_ok());
+        assert!(validate_custom_data("{}").is_ok());
+        assert!(validate_custom_data(r#"{"foo": 5}"#).is_ok());
+        assert!(validate_custom_data(r#"["foo"]"#).is_err());
+        assert!(validate_custom_data(r#"{"日": 5}"#).is_ok());
+        assert!(validate_custom_data(r#"{"日本語": 5}"#).is_err());
+        assert!(validate_custom_data(&format!(r#"{{"foo": "{}"}}"#, "x".repeat(100))).is_err());
+    }
 }

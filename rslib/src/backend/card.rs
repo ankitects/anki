@@ -26,6 +26,9 @@ impl CardsService for Backend {
                 .into_iter()
                 .map(TryInto::try_into)
                 .collect::<Result<Vec<Card>, AnkiError>>()?;
+            for card in &cards {
+                card.validate_custom_data()?;
+            }
             col.update_cards_maybe_undoable(cards, !input.skip_undo_entry)
         })
         .map(Into::into)
