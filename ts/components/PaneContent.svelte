@@ -14,13 +14,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let scrollTop = 0;
     let scrollLeft = 0;
 
-    $: overflowY = scrollHeight > clientHeight;
-    $: overflowX = scrollWidth > clientWidth;
-
-    $: overflowTop = overflowY && scrollTop > 0;
-    $: overflowBottom = overflowY && scrollTop < scrollHeight - clientHeight;
-    $: overflowLeft = overflowX && scrollLeft > 0;
-    $: overflowRight = overflowX && scrollLeft < scrollWidth - clientWidth;
+    $: overflowTop = scrollTop > 0;
+    $: overflowBottom = scrollTop < scrollHeight - clientHeight;
+    $: overflowLeft = scrollLeft > 0;
+    $: overflowRight = scrollLeft < scrollWidth - clientWidth;
 
     $: shadows = {
         top: overflowTop ? "0 5px" : null,
@@ -36,7 +33,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ).join(", ");
 
     async function updateScrollState(): Promise<void> {
-        console.log("scrolled");
         const el = await element;
         scrollHeight = el.scrollHeight;
         scrollWidth = el.scrollWidth;
