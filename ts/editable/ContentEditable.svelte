@@ -61,9 +61,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:focus {
             outline: none;
         }
-        & :global(pre) {
-            white-space: pre-wrap;
-        }
     }
 
     /* editable-base.scss contains styling targeting user HTML */

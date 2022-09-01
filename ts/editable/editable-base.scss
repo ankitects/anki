@@ -21,3 +21,7 @@ p {
 :host(.night-mode) {
     @include scrollbar.night-mode;
 }
+
+pre {
+    white-space: pre-wrap;
+}
