@@ -46,7 +46,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         isCollapsed = true;
 
         const height = collapse ? inner.clientHeight : getRequiredHeight(inner);
-        const duration = Math.sqrt(height * 80);
+
+        /* This function practically caps the maximum time at around 200ms,
+           but still allows to differentiate between small and large contents */
+        const duration = Math.pow(height, 1/4) * 25;
 
         setStyle(height, duration);
 
