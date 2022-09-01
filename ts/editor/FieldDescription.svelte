@@ -40,9 +40,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         opacity: 0.4;
         pointer-events: none;
 
-        /* same as in ContentEditable */
-        padding: 6px;
-
         /* stay a on single line */
         overflow-x: hidden;
         white-space: nowrap;

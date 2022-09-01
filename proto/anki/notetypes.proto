@@ -73,6 +73,7 @@ message Notetype {
       uint32 font_size = 4;
       string description = 5;
       bool plain_text = 6;
+      bool collapsed = 7;
 
       bytes other = 255;
     }

@@ -501,6 +501,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         ]
 
         flds = self.note.note_type()["flds"]
+        collapsed = [fld["collapsed"] for fld in flds]
         plain_texts = [fld.get("plainText", False) for fld in flds]
         descriptions = [fld.get("description", "") for fld in flds]
 
@@ -524,6 +525,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         js = """
             setFields({});
+            setCollapsed({});
             setPlainTexts({});
             setDescriptions({});
             setFonts({});
@@ -534,6 +536,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setMathjaxEnabled({});            
             """.format(
             json.dumps(data),
+            json.dumps(collapsed),
             json.dumps(plain_texts),
             json.dumps(descriptions),
             json.dumps(self.fonts()),
