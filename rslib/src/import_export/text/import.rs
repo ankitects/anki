@@ -291,7 +291,13 @@ impl<'a> Context<'a> {
 
     fn import_note(&mut self, ctx: NoteContext, log: &mut NoteLog) -> Result<()> {
         match self.dupe_resolution {
-            _ if ctx.dupes.is_empty() => self.add_note(ctx, log)?,
+            _ if !ctx.is_dupe() => self.add_note(ctx, log)?,
+            DupeResolution::Add if ctx.is_guid_dupe() => {
+                log.duplicate.push(ctx.note.into_log_note())
+            }
+            DupeResolution::Add if !ctx.has_first_field() => {
+                log.empty_first_field.push(ctx.note.into_log_note())
+            }
             DupeResolution::Add => self.add_note(ctx, log)?,
             DupeResolution::Update => self.update_with_note(ctx, log)?,
             DupeResolution::Ignore => log.first_field_match.push(ctx.note.into_log_note()),
@@ -300,15 +306,6 @@ impl<'a> Context<'a> {
     }
 
     fn add_note(&mut self, ctx: NoteContext, log: &mut NoteLog) -> Result<()> {
-        if !ctx.note.first_field_is_unempty() {
-            log.empty_first_field.push(ctx.note.into_log_note());
-            return Ok(());
-        }
-        if ctx.dupes.iter().any(|d| d.note.guid == ctx.note.guid) {
-            log.duplicate.push(ctx.note.into_log_note());
-            return Ok(());
-        }
-
         let mut note = Note::new(&ctx.notetype);
         let mut cards = ctx
             .note
@@ -397,6 +394,22 @@ impl<'a> Context<'a> {
             .or_insert_with(|| CardGenContext::new(notetype, Some(deck_id), self.usn));
         self.col
             .generate_cards_for_existing_note(card_gen_context, note)
+    }
+}
+
+impl NoteContext<'_> {
+    fn is_dupe(&self) -> bool {
+        !self.dupes.is_empty()
+    }
+
+    fn is_guid_dupe(&self) -> bool {
+        self.dupes
+            .get(0)
+            .map_or(false, |d| d.note.guid == self.note.guid)
+    }
+
+    fn has_first_field(&self) -> bool {
+        self.note.first_field_is_unempty()
     }
 }
 
