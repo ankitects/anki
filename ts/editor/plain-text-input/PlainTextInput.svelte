@@ -174,9 +174,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             border: none;
             border-radius: 5px;
         }
-
         :global(.CodeMirror) {
             background: var(--code-bg);
+        }
+        :global(.CodeMirror-wrap pre) {
+            word-break: break-word;
         }
         :global(.CodeMirror-lines) {
             padding: 8px 0;
