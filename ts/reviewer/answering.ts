@@ -31,9 +31,12 @@ async function setCardMeta(key: string, meta: Record<string, unknown>): Promise<
 
 export async function mutateNextCardStates(
     key: string,
-    mutator: (states: Scheduler.NextCardStates, meta: Record<string, unknown>) => void,
+    mutator: (
+        states: Scheduler.NextCardStates,
+        customData: Record<string, unknown>,
+    ) => void,
 ): Promise<void> {
-    const [states, meta] = await Promise.all([getNextStates(), getCardMeta()]);
-    mutator(states, meta);
-    await Promise.all([setNextStates(key, states), setCardMeta(key, meta)]);
+    const [states, customData] = await Promise.all([getNextStates(), getCardMeta()]);
+    mutator(states, customData);
+    await Promise.all([setNextStates(key, states), setCardMeta(key, customData)]);
 }

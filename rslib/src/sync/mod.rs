@@ -1083,7 +1083,7 @@ impl From<CardEntry> for Card {
     fn from(e: CardEntry) -> Self {
         let CardData {
             original_position,
-            meta,
+            custom_data,
         } = CardData::from_str(&e.data);
         Card {
             id: e.id,
@@ -1104,7 +1104,7 @@ impl From<CardEntry> for Card {
             original_deck_id: e.odid,
             flags: e.flags,
             original_position,
-            meta,
+            custom_data,
         }
     }
 }

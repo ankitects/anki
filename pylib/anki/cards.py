@@ -92,7 +92,7 @@ class Card(DeprecatedNamesMixin):
         self.original_position = (
             card.original_position if card.HasField("original_position") else None
         )
-        self.meta = card.meta
+        self.custom_data = card.custom_data
 
     def _to_backend_card(self) -> cards_pb2.Card:
         # mtime & usn are set by backend
@@ -112,10 +112,8 @@ class Card(DeprecatedNamesMixin):
             original_due=self.odue,
             original_deck_id=self.odid,
             flags=self.flags,
-            original_position=self.original_position
-            if self.original_position is not None
-            else None,
-            meta=self.meta,
+            original_position=self.original_position,
+            custom_data=self.custom_data,
         )
 
     def flush(self) -> None:

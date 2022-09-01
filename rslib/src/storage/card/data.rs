@@ -19,18 +19,18 @@ pub(crate) struct CardData {
         deserialize_with = "default_on_invalid"
     )]
     pub(crate) original_position: Option<u32>,
-    #[serde(
-        skip_serializing_if = "meta_is_empty",
-        deserialize_with = "default_on_invalid"
-    )]
-    pub(crate) meta: String,
+    /// A string representation of a JSON object storing optional data
+    /// associated with the card, so v3 custom scheduling code can persist
+    /// state.
+    #[serde(default, rename = "cd", skip_serializing_if = "meta_is_empty")]
+    pub(crate) custom_data: String,
 }
 
 impl CardData {
     pub(crate) fn from_card(card: &Card) -> Self {
         Self {
             original_position: card.original_position,
-            meta: card.meta.clone(),
+            custom_data: card.custom_data.clone(),
         }
     }
 

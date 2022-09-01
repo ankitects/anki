@@ -87,7 +87,7 @@ impl TryFrom<pb::Card> for Card {
             original_deck_id: DeckId(c.original_deck_id),
             flags: c.flags as u8,
             original_position: c.original_position,
-            meta: c.meta,
+            custom_data: c.custom_data,
         })
     }
 }
@@ -113,7 +113,7 @@ impl From<Card> for pb::Card {
             original_deck_id: c.original_deck_id.0,
             flags: c.flags as u32,
             original_position: c.original_position.map(Into::into),
-            meta: c.meta,
+            custom_data: c.custom_data,
         }
     }
 }

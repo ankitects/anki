@@ -240,7 +240,7 @@ message CardAnswer {
   Rating rating = 4;
   int64 answered_at_millis = 5;
   uint32 milliseconds_taken = 6;
-  string meta = 7;
+  string custom_data = 7;
 }
 
 message CustomStudyRequest {
