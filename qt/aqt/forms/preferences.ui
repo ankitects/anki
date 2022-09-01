@@ -177,7 +177,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox">
+          <widget class="QCheckBox" name="animations">
            <property name="toolTip">
             <string>preferences_animations_label</string>
            </property>

@@ -518,6 +518,13 @@ create table if not exists profiles
     def setUiScale(self, scale: float) -> None:
         self.meta["uiScale"] = scale
 
+    def animations_disabled(self) -> bool:
+        disabled = self.meta.get("animations", False)
+        return disabled
+
+    def set_animations(self, off: bool) -> None:
+        self.meta["animations"] = off
+
     def last_addon_update_check(self) -> int:
         return self.meta.get("last_addon_update_check", 0)
 

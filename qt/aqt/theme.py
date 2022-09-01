@@ -122,7 +122,7 @@ class ThemeManager:
         return cache.setdefault(path, icon)
 
     def body_class(self, night_mode: bool | None = None) -> str:
-        "Returns space-separated class list for platform/theme."
+        "Returns space-separated class list for platform/theme/global settings."
         classes = []
         if is_win:
             classes.append("isWin")
@@ -137,6 +137,8 @@ class ThemeManager:
             classes.extend(["nightMode", "night_mode"])
             if self.macos_dark_mode():
                 classes.append("macos-dark-mode")
+        if aqt.mw.pm.animations_disabled():
+            classes.append("animations-off")
         return " ".join(classes)
 
     def body_classes_for_card_ord(
