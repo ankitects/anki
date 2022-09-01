@@ -48,5 +48,4 @@ preferences-monthly-backups = Monthly backups to keep:
 preferences-minutes-between-backups = Minutes between automatic backups:
 preferences-appearance = <b>Appearance</b>
 preferences-animations = Animations
-preferences-animations-label =
-    Animations and transitions for various UI elements (e.g. fields sliding in and out of view)
+preferences-animations-label = Animations and transitions for various UI elements (e.g. fields sliding in and out of view)
