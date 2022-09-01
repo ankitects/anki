@@ -259,16 +259,17 @@ impl<'a> Context<'a> {
     }
 
     fn find_duplicates(&self, notetype: &Notetype, note: &ForeignNote) -> Result<Vec<Duplicate>> {
-        if let Some(nid) = self.existing_guids.get(&note.guid) {
-            self.get_guid_dupe(*nid, note).map(|dupe| vec![dupe])
-        } else if let Some(nids) = note
-            .checksum()
-            .and_then(|csum| self.existing_checksums.get(&(notetype.id, csum)))
-        {
-            self.get_first_field_dupes(note, nids)
-        } else {
-            Ok(Vec::new())
+        if note.guid.is_empty() {
+            if let Some(nids) = note
+                .checksum()
+                .and_then(|csum| self.existing_checksums.get(&(notetype.id, csum)))
+            {
+                return self.get_first_field_dupes(note, nids);
+            }
+        } else if let Some(nid) = self.existing_guids.get(&note.guid) {
+            return self.get_guid_dupe(*nid, note).map(|dupe| vec![dupe]);
         }
+        Ok(Vec::new())
     }
 
     fn get_guid_dupe(&self, nid: NoteId, original: &ForeignNote) -> Result<Duplicate> {
