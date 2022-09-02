@@ -24,7 +24,7 @@ $vars: (
             ),
             outset: (
                 light: white,
-                dark: palette(gray, 5),
+                dark: palette(gray, 8),
             ),
             inset: (
                 light: palette(gray, 2),
@@ -38,7 +38,7 @@ $vars: (
         border: (
             default: (
                 light: palette(gray, 3),
-                dark: palette(gray, 9),
+                dark: palette(gray, 8),
             ),
             subtle: (
                 light: palette(gray, 2),
@@ -77,11 +77,11 @@ $vars: (
         shadow: (
             default: (
                 light: palette(gray, 5),
-                dark: palette(gray, 8),
+                dark: palette(gray, 9),
             ),
             inset: (
-                light: palette(gray, 4),
-                dark: palette(gray, 7),
+                light: palette(gray, 3),
+                dark: palette(gray, 9),
             ),
             focus: (
                 default: palette(indigo, 5),
