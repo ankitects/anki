@@ -22,7 +22,9 @@ media-check-oversize-header = Files over 100MB can not be synced with AnkiWeb.
 media-check-subfolder-header = Folders inside the media folder are not supported.
 media-check-missing-header = The following files are referenced by cards, but were not found in the media folder:
 media-check-unused-header = The following files were found in the media folder, but do not appear to be used on any cards:
-media-check-template-refs-header = Files referenced by templates directly will not be considered in use, unless their names start with an underscore. Referencing templates:
+media-check-template-references-field-header = Anki can not detect used files when you use { "{{Field}}" } references in media/LaTeX tags. The media/LaTeX tags should be placed on individual notes instead.
+
+Referencing templates:
 
 ## Shown once for each file
 
