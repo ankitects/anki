@@ -24,7 +24,7 @@ impl MediaService for Backend {
                 let mut output = checker.check()?;
 
                 let mut report = checker.summarize_output(&mut output);
-                ctx.report_media_referencing_templates(&mut report)?;
+                ctx.report_media_field_referencing_templates(&mut report)?;
 
                 Ok(pb::CheckMediaResponse {
                     unused: output.unused,

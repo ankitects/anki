@@ -4,33 +4,81 @@
 use std::{borrow::Cow, fmt::Write, ops::Deref};
 
 use anki_i18n::without_unicode_isolation;
+use lazy_static::lazy_static;
+use regex::Regex;
 
 use super::CardTemplate;
-use crate::{prelude::*, text::contains_media_tag};
+use crate::prelude::*;
 
+#[derive(Debug, PartialEq)]
 struct Template<'a> {
     notetype: &'a str,
     card_type: &'a str,
     front: bool,
 }
 
+lazy_static! {
+    static ref MEDIA_FIELD_REFERENCE: Regex = Regex::new(
+        r#"(?xsi)
+            # an image, audio, or object tag
+            <\b(?:img|audio|object)\b[^>]+\b(?:src|data)\b=
+            (?:
+                    # 1: double-quoted
+                    "
+                    \{\{.+?\}\}
+                    "
+                    [^>]*>                    
+                |
+                    # 2: single-quoted
+                    '
+                    \{\{.+?\}\}
+                    '
+                    [^>]*>
+                |
+                    # 3: unquoted
+                    \{\{.+?\}\}
+                    (?:
+                        # then either a space and the rest
+                        \x20[^>]*>
+                        |
+                        # or the tag immediately ends
+                        >
+                    )
+            )
+        |
+            # an Anki sound tag
+            \[sound:\{\{.+?\}\}\]
+        |
+            # standard latex
+            \[latex\]\{\{.+?\}\}\[/latex\]
+        |
+            # inline math
+            \[\$\]\{\{.+?\}\}\[/\$\]
+        |
+            # math environment
+            \[\$\$\]\{\{.+?\}\}\[/\$\$\]
+        "#
+    )
+    .unwrap();
+}
+
 impl Collection {
-    pub fn report_media_referencing_templates(&mut self, buf: &mut String) -> Result<()> {
+    pub fn report_media_field_referencing_templates(&mut self, buf: &mut String) -> Result<()> {
         let notetypes = self.get_all_notetypes()?;
-        let templates = media_referencing_templates(notetypes.values().map(Deref::deref));
+        let templates = media_field_referencing_templates(notetypes.values().map(Deref::deref));
         write_template_report(buf, &templates, &self.tr);
         Ok(())
     }
 }
 
-fn media_referencing_templates<'a>(
+fn media_field_referencing_templates<'a>(
     notetypes: impl Iterator<Item = &'a Notetype>,
 ) -> Vec<Template<'a>> {
     notetypes
         .flat_map(|notetype| {
             notetype.templates.iter().flat_map(|card_type| {
                 card_type.sides().into_iter().filter_map(|(format, front)| {
-                    contains_media_tag(format)
+                    references_media_field(format)
                         .then(|| Template::new(&notetype.name, &card_type.name, front))
                 })
             })
@@ -38,11 +86,20 @@ fn media_referencing_templates<'a>(
         .collect()
 }
 
+fn references_media_field(format: &str) -> bool {
+    MEDIA_FIELD_REFERENCE.is_match(format)
+}
+
 fn write_template_report(buf: &mut String, templates: &[Template], tr: &I18n) {
     if templates.is_empty() {
         return;
     }
-    writeln!(buf, "\n{}", &tr.media_check_template_refs_header()).unwrap();
+    writeln!(
+        buf,
+        "\n{}",
+        &tr.media_check_template_references_field_header()
+    )
+    .unwrap();
     for template in templates {
         writeln!(buf, "{}", template.as_str(tr)).unwrap();
     }
@@ -85,25 +142,28 @@ impl CardTemplate {
 
 #[cfg(test)]
 mod test {
+    use std::iter::once;
+
     use super::*;
-    use crate::collection::open_test_collection;
 
     #[test]
-    fn should_report_media_referencing_template() {
-        let mut col = open_test_collection();
+    fn should_report_media_field_referencing_template() {
+        let notetype = "foo";
+        let card_type = "bar";
         let mut nt = Notetype {
-            name: String::from("foo"),
+            name: notetype.into(),
             ..Default::default()
         };
         nt.add_field("baz");
-        nt.add_template("bar", "{{baz}}", "<img src={{baz}}>");
-        col.add_notetype(&mut nt, true).unwrap();
+        nt.add_template(card_type, "<img src=baz>", "<img src={{baz}}>");
 
-        let mut buf = String::new();
-        col.report_media_referencing_templates(&mut buf).unwrap();
+        let templates = media_field_referencing_templates(once(&nt));
 
-        let mut templates = buf.trim().lines().skip(1);
-        assert_eq!(templates.next(), Some("foo: bar (Back Template)"));
-        assert!(templates.next().is_none());
+        let expected = Template {
+            notetype,
+            card_type,
+            front: false,
+        };
+        assert_eq!(templates, &[expected]);
     }
 }
