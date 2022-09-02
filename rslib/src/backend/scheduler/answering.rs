@@ -19,6 +19,7 @@ impl From<pb::CardAnswer> for CardAnswer {
             new_state: answer.new_state.unwrap_or_default().into(),
             answered_at: TimestampMillis(answer.answered_at_millis),
             milliseconds_taken: answer.milliseconds_taken,
+            custom_data: answer.custom_data,
         }
     }
 }

@@ -17,7 +17,7 @@ from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.scheduler.base import ScheduleCardsAsNew
-from anki.scheduler.v3 import CardAnswer, NextStates, QueuedCards
+from anki.scheduler.v3 import CardAnswer, CustomScheduling, NextStates, QueuedCards
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
@@ -82,11 +82,14 @@ class V3CardInfo:
 
     queued_cards: QueuedCards
     next_states: NextStates
+    custom_data: str
 
     @staticmethod
     def from_queue(queued_cards: QueuedCards) -> V3CardInfo:
         return V3CardInfo(
-            queued_cards=queued_cards, next_states=queued_cards.cards[0].next_states
+            queued_cards=queued_cards,
+            next_states=queued_cards.cards[0].next_states,
+            custom_data=queued_cards.cards[0].card.custom_data,
         )
 
     def top_card(self) -> QueuedCards.QueuedCard:
@@ -259,23 +262,24 @@ class Reviewer:
         self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)
         self.card.start_timer()
 
-    def get_next_states(self) -> NextStates | None:
+    def get_custom_scheduling(self) -> CustomScheduling | None:
         if v3 := self._v3:
-            return v3.next_states
+            return CustomScheduling(states=v3.next_states, custom_data=v3.custom_data)
         else:
             return None
 
-    def set_next_states(self, key: str, states: NextStates) -> None:
+    def set_custom_scheduling(self, key: str, scheduling: CustomScheduling) -> None:
         if key != self._state_mutation_key:
             return
 
         if v3 := self._v3:
-            v3.next_states = states
+            v3.next_states = scheduling.states
+            v3.custom_data = scheduling.custom_data
 
     def _run_state_mutation_hook(self) -> None:
         if self._v3 and (js := self._state_mutation_js):
             self.web.eval(
-                f"anki.mutateNextCardStates('{self._state_mutation_key}', (states) => {{ {js} }})"
+                f"anki.mutateNextCardStates('{self._state_mutation_key}', (states, customData) => {{ {js} }})"
             )
 
     # Audio
@@ -431,7 +435,10 @@ class Reviewer:
 
         if (v3 := self._v3) and (sched := cast(V3Scheduler, self.mw.col.sched)):
             answer = sched.build_answer(
-                card=self.card, states=v3.next_states, rating=v3.rating_from_ease(ease)
+                card=self.card,
+                states=v3.next_states,
+                custom_data=v3.custom_data,
+                rating=v3.rating_from_ease(ease),
             )
 
             def after_answer(changes: OpChanges) -> None:
