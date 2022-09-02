@@ -88,7 +88,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    .code-mirror :global(.CodeMirror) {
-        height: auto;
+    .code-mirror {
+        :global(.CodeMirror) {
+            height: auto;
+        }
+        :global(.CodeMirror-wrap pre) {
+            word-break: break-word;
+        }
     }
 </style>
