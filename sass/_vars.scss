@@ -89,7 +89,7 @@ $vars: (
         ),
         accent: (
             card: (
-                light: palette(blue, 5),
+                light: palette(blue, 4),
                 dark: palette(blue, 4),
             ),
             note: (
@@ -107,32 +107,25 @@ $vars: (
         ),
         flag: (
             1: (
-                light: palette(red, 6),
-                dark: palette(red, 4),
+                default: palette(red, 5),
             ),
             2: (
-                light: palette(orange, 5),
-                dark: palette(orange, 4),
+                default: palette(orange, 4),
             ),
             3: (
-                light: palette(green, 5),
-                dark: palette(green, 4),
+                default: palette(green, 4),
             ),
             4: (
-                light: palette(blue, 6),
-                dark: palette(blue, 5),
+                default: palette(blue, 5),
             ),
             5: (
-                light: palette(fuchsia, 5),
-                dark: palette(fuchsia, 4),
+                default: palette(fuchsia, 4),
             ),
             6: (
-                light: palette(teal, 5),
-                dark: palette(teal, 4),
+                default: palette(teal, 4),
             ),
             7: (
-                light: palette(purple, 6),
-                dark: palette(purple, 5),
+                default: palette(purple, 5),
             ),
         ),
         state: (
