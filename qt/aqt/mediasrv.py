@@ -27,7 +27,7 @@ from anki import hooks
 from anki._vendor import stringcase
 from anki.collection import OpChanges
 from anki.decks import DeckConfigsForUpdate, UpdateDeckConfigs
-from anki.scheduler.v3 import CustomScheduling
+from anki.scheduler.v3 import NextCustomScheduling
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
@@ -421,7 +421,7 @@ def get_custom_scheduling() -> bytes:
 
 def set_custom_scheduling() -> bytes:
     key = request.headers.get("key", "")
-    input = CustomScheduling()
+    input = NextCustomScheduling()
     input.ParseFromString(request.data)
     aqt.mw.reviewer.set_custom_scheduling(key, input)
     return b""

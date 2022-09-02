@@ -8,7 +8,7 @@ import random
 import re
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Callable, Literal, Match, Sequence, cast
+from typing import Any, Callable, Literal, Match, Sequence, Tuple, cast
 
 import aqt
 import aqt.browser
@@ -17,7 +17,13 @@ from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.scheduler.base import ScheduleCardsAsNew
-from anki.scheduler.v3 import CardAnswer, CustomScheduling, NextStates, QueuedCards
+from anki.scheduler.v3 import (
+    CardAnswer,
+    CurrentCustomScheduling,
+    NextCustomScheduling,
+    NextStates,
+    QueuedCards,
+)
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
@@ -82,14 +88,18 @@ class V3CardInfo:
 
     queued_cards: QueuedCards
     next_states: NextStates
-    custom_data: str
+    custom_data_states: None | Tuple[
+        str,
+        str,
+        str,
+        str,
+    ] = None
 
     @staticmethod
     def from_queue(queued_cards: QueuedCards) -> V3CardInfo:
         return V3CardInfo(
             queued_cards=queued_cards,
             next_states=queued_cards.cards[0].next_states,
-            custom_data=queued_cards.cards[0].card.custom_data,
         )
 
     def top_card(self) -> QueuedCards.QueuedCard:
@@ -121,6 +131,14 @@ class V3CardInfo:
             return CardAnswer.GOOD
         else:
             return CardAnswer.EASY
+
+    def current_custom_data(self) -> str:
+        return self.top_card().card.custom_data
+
+    def next_custom_data(self, ease: Literal[1, 2, 3, 4]) -> str:
+        if self.custom_data_states:
+            return self.custom_data_states[ease - 1]
+        return self.current_custom_data()
 
 
 class Reviewer:
@@ -262,19 +280,26 @@ class Reviewer:
         self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)
         self.card.start_timer()
 
-    def get_custom_scheduling(self) -> CustomScheduling | None:
+    def get_custom_scheduling(self) -> CurrentCustomScheduling | None:
         if v3 := self._v3:
-            return CustomScheduling(states=v3.next_states, custom_data=v3.custom_data)
+            return CurrentCustomScheduling(
+                states=v3.next_states, custom_data=v3.current_custom_data()
+            )
         else:
             return None
 
-    def set_custom_scheduling(self, key: str, scheduling: CustomScheduling) -> None:
+    def set_custom_scheduling(self, key: str, scheduling: NextCustomScheduling) -> None:
         if key != self._state_mutation_key:
             return
 
         if v3 := self._v3:
             v3.next_states = scheduling.states
-            v3.custom_data = scheduling.custom_data
+            v3.custom_data_states = (
+                scheduling.again_custom_data,
+                scheduling.hard_custom_data,
+                scheduling.good_custom_data,
+                scheduling.easy_custom_data,
+            )
 
     def _run_state_mutation_hook(self) -> None:
         if self._v3 and (js := self._state_mutation_js):
@@ -437,7 +462,7 @@ class Reviewer:
             answer = sched.build_answer(
                 card=self.card,
                 states=v3.next_states,
-                custom_data=v3.custom_data,
+                custom_data=v3.next_custom_data(ease),
                 rating=v3.rating_from_ease(ease),
             )
 

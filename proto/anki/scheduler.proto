@@ -305,8 +305,19 @@ message RepositionDefaultsResponse {
   bool shift = 2;
 }
 
-// Data required to support the v3 scheduler's custom scheduling feature
-message CustomScheduling {
+// Data required to support the v3 scheduler's custom scheduling feature.
+// Consumed by the custom scheduling mutator.
+message CurrentCustomScheduling {
   NextCardStates states = 1;
   string custom_data = 2;
+}
+
+// Data required to support the v3 scheduler's custom scheduling feature.enum
+// Returned by the custom scheduling mutator.
+message NextCustomScheduling {
+  NextCardStates states = 1;
+  string again_custom_data = 2;
+  string hard_custom_data = 3;
+  string good_custom_data = 4;
+  string easy_custom_data = 5;
 }

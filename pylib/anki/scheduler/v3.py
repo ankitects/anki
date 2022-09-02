@@ -31,7 +31,8 @@ QueuedCards = scheduler_pb2.QueuedCards
 SchedulingState = scheduler_pb2.SchedulingState
 NextStates = scheduler_pb2.NextCardStates
 CardAnswer = scheduler_pb2.CardAnswer
-CustomScheduling = scheduler_pb2.CustomScheduling
+CurrentCustomScheduling = scheduler_pb2.CurrentCustomScheduling
+NextCustomScheduling = scheduler_pb2.NextCustomScheduling
 
 
 class Scheduler(SchedulerBaseWithLegacy):

@@ -19,6 +19,7 @@ typescript(
         "//ts/lib",
         "@npm//css-browser-selector",
         "@npm//jquery",
+        "@npm//lodash-es",
     ],
 )
 
