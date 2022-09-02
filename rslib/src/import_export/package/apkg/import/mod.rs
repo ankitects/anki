@@ -122,11 +122,9 @@ impl ExchangeData {
 
     fn contains_all_original_decks(&self) -> bool {
         let deck_ids: HashSet<_> = self.decks.iter().map(|d| d.id).collect();
-        self.cards.iter().all(|c| {
-            c.original_deck_id.0 == 0
-                || c.original_deck_id.0 == 1
-                || deck_ids.contains(&c.original_deck_id)
-        })
+        self.cards
+            .iter()
+            .all(|c| c.original_deck_id.0 == 0 || deck_ids.contains(&c.original_deck_id))
     }
 }
 
