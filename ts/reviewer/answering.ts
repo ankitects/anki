@@ -4,25 +4,38 @@
 import { postRequest } from "../lib/postrequest";
 import { Scheduler } from "../lib/proto";
 
-async function getNextStates(): Promise<Scheduler.NextCardStates> {
-    return Scheduler.NextCardStates.decode(
-        await postRequest("/_anki/nextCardStates", ""),
+async function getCustomScheduling(): Promise<Scheduler.CustomScheduling> {
+    return Scheduler.CustomScheduling.decode(
+        await postRequest("/_anki/getCustomScheduling", ""),
     );
 }
 
-async function setNextStates(
+async function setCustomScheduling(
     key: string,
-    states: Scheduler.NextCardStates,
+    scheduling: Scheduler.CustomScheduling,
 ): Promise<void> {
-    const data: Uint8Array = Scheduler.NextCardStates.encode(states).finish();
-    await postRequest("/_anki/setNextCardStates", data, { key });
+    const bytes = Scheduler.CustomScheduling.encode(scheduling).finish();
+    await postRequest("/_anki/setCustomScheduling", bytes, { key });
 }
 
 export async function mutateNextCardStates(
     key: string,
-    mutator: (states: Scheduler.NextCardStates) => void,
+    mutator: (
+        states: Scheduler.NextCardStates,
+        customData: Record<string, unknown>,
+    ) => void,
 ): Promise<void> {
-    const states = await getNextStates();
-    mutator(states);
-    await setNextStates(key, states);
+    const scheduling = await getCustomScheduling();
+    let customData = {};
+    try {
+        customData = JSON.parse(scheduling.customData);
+    } catch {
+        // can't be parsed
+    }
+
+    mutator(scheduling.states!, customData);
+
+    scheduling.customData = JSON.stringify(customData);
+
+    await setCustomScheduling(key, scheduling);
 }

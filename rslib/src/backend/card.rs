@@ -26,6 +26,9 @@ impl CardsService for Backend {
                 .into_iter()
                 .map(TryInto::try_into)
                 .collect::<Result<Vec<Card>, AnkiError>>()?;
+            for card in &cards {
+                card.validate_custom_data()?;
+            }
             col.update_cards_maybe_undoable(cards, !input.skip_undo_entry)
         })
         .map(Into::into)
@@ -87,6 +90,7 @@ impl TryFrom<pb::Card> for Card {
             original_deck_id: DeckId(c.original_deck_id),
             flags: c.flags as u8,
             original_position: c.original_position,
+            custom_data: c.custom_data,
         })
     }
 }
@@ -112,6 +116,7 @@ impl From<Card> for pb::Card {
             original_deck_id: c.original_deck_id.0,
             flags: c.flags as u32,
             original_position: c.original_position.map(Into::into),
+            custom_data: c.custom_data,
         }
     }
 }
