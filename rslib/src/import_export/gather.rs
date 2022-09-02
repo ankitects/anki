@@ -204,8 +204,8 @@ impl Collection {
         let parents = self.get_parent_decks(&decks)?;
         Ok(decks
             .into_iter()
-            .filter(|deck| with_scheduling || deck.id != DeckId(1))
             .chain(parents)
+            .filter(|deck| with_scheduling || deck.id != DeckId(1))
             .collect())
     }
 
