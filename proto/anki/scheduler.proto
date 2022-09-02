@@ -240,6 +240,7 @@ message CardAnswer {
   Rating rating = 4;
   int64 answered_at_millis = 5;
   uint32 milliseconds_taken = 6;
+  string custom_data = 7;
 }
 
 message CustomStudyRequest {
@@ -302,4 +303,10 @@ message CustomStudyDefaultsResponse {
 message RepositionDefaultsResponse {
   bool random = 1;
   bool shift = 2;
+}
+
+// Data required to support the v3 scheduler's custom scheduling feature
+message CustomScheduling {
+  NextCardStates states = 1;
+  string custom_data = 2;
 }
