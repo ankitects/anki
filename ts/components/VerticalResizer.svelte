@@ -70,20 +70,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    @use "sass/elevation" as elevation;
-    @use "panes" as panes;
-
     .vertical-resizer {
         height: 100%;
         cursor: col-resize;
         position: relative;
-        line-height: 100%;
 
         z-index: 20;
         .drag-handle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             opacity: 0.4;
         }
 
+        &::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            left: -5px;
+            top: 0;
+            height: 100%;
+        }
         &:hover .drag-handle {
             opacity: 0.8;
         }
