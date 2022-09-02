@@ -75,7 +75,7 @@ samp {
     background-color: var(--disabled);
 }
 
-.animations-off * {
+.reduced-motion * {
     transition: none !important;
     animation: none !important;
 }

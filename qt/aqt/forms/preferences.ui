@@ -43,6 +43,9 @@
         <number>12</number>
        </property>
        <item>
+        <widget class="QComboBox" name="theme"/>
+       </item>
+       <item>
         <widget class="QComboBox" name="lang">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -129,14 +132,30 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label">
+        <widget class="QCheckBox" name="reduce_motion">
+         <property name="toolTip">
+          <string>preferences_reduce_motion_tooltip</string>
+         </property>
          <property name="text">
-          <string>preferences_appearance</string>
+          <string>preferences_reduce_motion</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="theme"/>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -176,36 +195,7 @@
            </property>
           </spacer>
          </item>
-         <item>
-          <widget class="QCheckBox" name="animations">
-           <property name="toolTip">
-            <string>preferences_animations_label</string>
-           </property>
-           <property name="text">
-            <string>preferences_animations</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
         </layout>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>
@@ -696,6 +686,7 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>theme</tabstop>
   <tabstop>lang</tabstop>
   <tabstop>video_driver</tabstop>
   <tabstop>showPlayButtons</tabstop>
@@ -706,7 +697,7 @@
   <tabstop>legacy_import_export</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
-  <tabstop>theme</tabstop>
+  <tabstop>reduce_motion</tabstop>
   <tabstop>uiScale</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>

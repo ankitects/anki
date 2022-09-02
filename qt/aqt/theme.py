@@ -137,8 +137,8 @@ class ThemeManager:
             classes.extend(["nightMode", "night_mode"])
             if self.macos_dark_mode():
                 classes.append("macos-dark-mode")
-        if aqt.mw.pm.animations_disabled():
-            classes.append("animations-off")
+        if aqt.mw.pm.reduced_motion():
+            classes.append("reduced-motion")
         return " ".join(classes)
 
     def body_classes_for_card_ord(
