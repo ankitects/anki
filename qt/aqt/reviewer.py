@@ -87,15 +87,8 @@ class V3CardInfo:
     @staticmethod
     def from_queue(queued_cards: QueuedCards) -> V3CardInfo:
         top_card = queued_cards.cards[0]
-        # currently AnkiWeb and AnkiDroid don't implement custom scheduling,
-        # so we fill these in here as well to ensure that custom_data doesn't
-        # get cleared out if the JS mutation routine fails to run
         states = top_card.states
         states.current.custom_data = top_card.card.custom_data
-        states.again.custom_data = top_card.card.custom_data
-        states.hard.custom_data = top_card.card.custom_data
-        states.good.custom_data = top_card.card.custom_data
-        states.easy.custom_data = top_card.card.custom_data
         return V3CardInfo(
             queued_cards=queued_cards,
             states=states,

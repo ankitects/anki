@@ -8,8 +8,6 @@ mod relearning;
 mod review;
 mod revlog;
 
-use std::mem;
-
 use rand::{prelude::*, rngs::StdRng};
 use revlog::RevlogEntryPartial;
 
@@ -43,7 +41,7 @@ pub struct CardAnswer {
     pub rating: Rating,
     pub answered_at: TimestampMillis,
     pub milliseconds_taken: u32,
-    pub custom_data: String,
+    pub custom_data: Option<String>,
 }
 
 impl CardAnswer {
@@ -276,8 +274,10 @@ impl Collection {
         self.maybe_bury_siblings(&original, &updater.config)?;
         let timing = updater.timing;
         let mut card = updater.into_card();
-        card.custom_data = mem::take(&mut answer.custom_data);
-        card.validate_custom_data()?;
+        if let Some(data) = answer.custom_data.take() {
+            card.custom_data = data;
+            card.validate_custom_data()?;
+        }
         self.update_card_inner(&mut card, original, usn)?;
         if answer.new_state.leeched() {
             self.add_leech_tag(card.note_id)?;
@@ -424,7 +424,7 @@ pub mod test_helpers {
                 rating,
                 answered_at: TimestampMillis::now(),
                 milliseconds_taken: 0,
-                custom_data: String::new(),
+                custom_data: None,
             })?;
             Ok(PostAnswerState {
                 card_id: queued.card.id,

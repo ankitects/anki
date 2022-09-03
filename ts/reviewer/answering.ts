@@ -34,10 +34,10 @@ function unpackCustomData(states: Scheduler.SchedulingStates): CustomDataStates 
         }
     };
     return {
-        again: toObject(states.again!.customData),
-        hard: toObject(states.hard!.customData),
-        good: toObject(states.good!.customData),
-        easy: toObject(states.easy!.customData),
+        again: toObject(states.current!.customData!),
+        hard: toObject(states.current!.customData!),
+        good: toObject(states.current!.customData!),
+        easy: toObject(states.current!.customData!),
     };
 }
 

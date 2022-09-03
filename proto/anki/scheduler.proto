@@ -93,8 +93,9 @@ message SchedulingState {
     Filtered filtered = 2;
   }
   // The backend does not populate this field in GetQueuedCards; the front-end
-  // is expected to populate it based on the provided Card.
-  string custom_data = 3;
+  // is expected to populate it based on the provided Card. If it's not set when
+  // answering a card, the existing custom data will not be updated.
+  optional string custom_data = 3;
 }
 
 message QueuedCards {

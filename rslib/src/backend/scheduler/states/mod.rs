@@ -46,7 +46,7 @@ impl From<CardState> for pb::SchedulingState {
                 CardState::Normal(state) => pb::scheduling_state::Value::Normal(state.into()),
                 CardState::Filtered(state) => pb::scheduling_state::Value::Filtered(state.into()),
             }),
-            custom_data: String::new(),
+            custom_data: None,
         }
     }
 }
