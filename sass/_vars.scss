@@ -107,25 +107,32 @@ $vars: (
         ),
         flag: (
             1: (
-                default: palette(red, 5),
+                light: palette(red, 5),
+                dark: palette(red, 4),
             ),
             2: (
-                default: palette(orange, 4),
+                light: palette(orange, 4),
+                dark: palette(orange, 3),
             ),
             3: (
-                default: palette(green, 4),
+                light: palette(green, 4),
+                dark: palette(green, 3),
             ),
             4: (
-                default: palette(blue, 5),
+                light: palette(blue, 5),
+                dark: palette(blue, 4),
             ),
             5: (
-                default: palette(fuchsia, 4),
+                light: palette(fuchsia, 4),
+                dark: palette(fuchsia, 3),
             ),
             6: (
-                default: palette(teal, 4),
+                light: palette(teal, 4),
+                dark: palette(teal, 3),
             ),
             7: (
-                default: palette(purple, 5),
+                light: palette(purple, 5),
+                dark: palette(purple, 4),
             ),
         ),
         state: (
