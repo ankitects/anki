@@ -104,6 +104,16 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="reduce_motion">
+         <property name="toolTip">
+          <string>preferences_reduce_motion_tooltip</string>
+         </property>
+         <property name="text">
+          <string>preferences_reduce_motion</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QComboBox" name="useCurrent">
          <item>
           <property name="text">
@@ -130,32 +140,6 @@
           <string>preferences_default_search_text_example</string>
          </property>
         </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="reduce_motion">
-         <property name="toolTip">
-          <string>preferences_reduce_motion_tooltip</string>
-         </property>
-         <property name="text">
-          <string>preferences_reduce_motion</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -196,6 +180,22 @@
           </spacer>
          </item>
         </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
@@ -695,9 +695,9 @@
   <tabstop>paste_strips_formatting</tabstop>
   <tabstop>ignore_accents_in_search</tabstop>
   <tabstop>legacy_import_export</tabstop>
+  <tabstop>reduce_motion</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
-  <tabstop>reduce_motion</tabstop>
   <tabstop>uiScale</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
