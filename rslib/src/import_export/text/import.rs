@@ -129,6 +129,11 @@ impl DeckIdsByNameOrId {
             NameOrId::Name(name) => self.names.get(name).copied(),
         }
     }
+
+    fn insert(&mut self, deck_id: DeckId, name: String) {
+        self.ids.insert(deck_id);
+        self.names.insert(name, deck_id);
+    }
 }
 
 impl<'a> Context<'a> {
@@ -195,7 +200,7 @@ impl<'a> Context<'a> {
                 continue;
             }
             if let Some(notetype) = self.notetype_for_note(&foreign)? {
-                if let Some(deck_id) = self.deck_ids.get(&foreign.deck) {
+                if let Some(deck_id) = self.get_or_create_deck_id(&foreign.deck)? {
                     let ctx = self.build_note_context(
                         foreign,
                         notetype,
@@ -212,6 +217,20 @@ impl<'a> Context<'a> {
             }
         }
         Ok(log)
+    }
+
+    fn get_or_create_deck_id(&mut self, deck: &NameOrId) -> Result<Option<DeckId>> {
+        Ok(if let Some(did) = self.deck_ids.get(deck) {
+            Some(did)
+        } else if let NameOrId::Name(name) = deck {
+            let mut deck = Deck::new_normal();
+            deck.name = NativeDeckName::from_human_name(name);
+            self.col.add_deck_inner(&mut deck, self.usn)?;
+            self.deck_ids.insert(deck.id, deck.human_name());
+            Some(deck.id)
+        } else {
+            None
+        })
     }
 
     fn build_note_context<'tags>(
@@ -240,16 +259,17 @@ impl<'a> Context<'a> {
     }
 
     fn find_duplicates(&self, notetype: &Notetype, note: &ForeignNote) -> Result<Vec<Duplicate>> {
-        if let Some(nid) = self.existing_guids.get(&note.guid) {
-            self.get_guid_dupe(*nid, note).map(|dupe| vec![dupe])
-        } else if let Some(nids) = note
-            .checksum()
-            .and_then(|csum| self.existing_checksums.get(&(notetype.id, csum)))
-        {
-            self.get_first_field_dupes(note, nids)
-        } else {
-            Ok(Vec::new())
+        if note.guid.is_empty() {
+            if let Some(nids) = note
+                .checksum()
+                .and_then(|csum| self.existing_checksums.get(&(notetype.id, csum)))
+            {
+                return self.get_first_field_dupes(note, nids);
+            }
+        } else if let Some(nid) = self.existing_guids.get(&note.guid) {
+            return self.get_guid_dupe(*nid, note).map(|dupe| vec![dupe]);
         }
+        Ok(Vec::new())
     }
 
     fn get_guid_dupe(&self, nid: NoteId, original: &ForeignNote) -> Result<Duplicate> {
@@ -271,20 +291,21 @@ impl<'a> Context<'a> {
 
     fn import_note(&mut self, ctx: NoteContext, log: &mut NoteLog) -> Result<()> {
         match self.dupe_resolution {
-            _ if ctx.dupes.is_empty() => self.add_note(ctx, log, false)?,
-            DupeResolution::Add => self.add_note(ctx, log, true)?,
+            _ if !ctx.is_dupe() => self.add_note(ctx, log)?,
+            DupeResolution::Add if ctx.is_guid_dupe() => {
+                log.duplicate.push(ctx.note.into_log_note())
+            }
+            DupeResolution::Add if !ctx.has_first_field() => {
+                log.empty_first_field.push(ctx.note.into_log_note())
+            }
+            DupeResolution::Add => self.add_note(ctx, log)?,
             DupeResolution::Update => self.update_with_note(ctx, log)?,
             DupeResolution::Ignore => log.first_field_match.push(ctx.note.into_log_note()),
         }
         Ok(())
     }
 
-    fn add_note(&mut self, ctx: NoteContext, log: &mut NoteLog, dupe: bool) -> Result<()> {
-        if !ctx.note.first_field_is_unempty() {
-            log.empty_first_field.push(ctx.note.into_log_note());
-            return Ok(());
-        }
-
+    fn add_note(&mut self, ctx: NoteContext, log: &mut NoteLog) -> Result<()> {
         let mut note = Note::new(&ctx.notetype);
         let mut cards = ctx
             .note
@@ -293,10 +314,10 @@ impl<'a> Context<'a> {
         self.col.add_note_only_undoable(&mut note)?;
         self.add_cards(&mut cards, &note, ctx.deck_id, ctx.notetype)?;
 
-        if dupe {
-            log.first_field_match.push(note.into_log_note());
-        } else {
+        if ctx.dupes.is_empty() {
             log.new.push(note.into_log_note());
+        } else {
+            log.first_field_match.push(note.into_log_note());
         }
 
         Ok(())
@@ -373,6 +394,22 @@ impl<'a> Context<'a> {
             .or_insert_with(|| CardGenContext::new(notetype, Some(deck_id), self.usn));
         self.col
             .generate_cards_for_existing_note(card_gen_context, note)
+    }
+}
+
+impl NoteContext<'_> {
+    fn is_dupe(&self) -> bool {
+        !self.dupes.is_empty()
+    }
+
+    fn is_guid_dupe(&self) -> bool {
+        self.dupes
+            .get(0)
+            .map_or(false, |d| d.note.guid == self.note.guid)
+    }
+
+    fn has_first_field(&self) -> bool {
+        self.note.first_field_is_unempty()
     }
 }
 
