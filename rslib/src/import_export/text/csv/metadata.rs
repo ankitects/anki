@@ -67,7 +67,6 @@ impl Collection {
         maybe_set_fallback_columns(&mut metadata)?;
         self.maybe_set_fallback_notetype(&mut metadata, notetype_id)?;
         self.maybe_init_notetype_map(&mut metadata)?;
-        maybe_set_tags_column(&mut metadata);
         self.maybe_set_fallback_deck(&mut metadata)?;
 
         Ok(metadata)
@@ -222,6 +221,7 @@ impl Collection {
                 );
             }
             ensure_first_field_is_mapped(&mut global.field_columns, column_len, &meta_columns)?;
+            maybe_set_tags_column(metadata, &meta_columns);
         }
         Ok(())
     }
@@ -388,12 +388,15 @@ fn maybe_set_fallback_delimiter(
     Ok(())
 }
 
-fn maybe_set_tags_column(metadata: &mut CsvMetadata) {
+fn maybe_set_tags_column(metadata: &mut CsvMetadata, meta_columns: &HashSet<usize>) {
     if metadata.tags_column == 0 {
         if let Some(CsvNotetype::GlobalNotetype(ref global)) = metadata.notetype {
             let max_field = global.field_columns.iter().max().copied().unwrap_or(0);
-            if max_field < metadata.column_labels.len() as u32 {
-                metadata.tags_column = max_field + 1;
+            for idx in (max_field + 1) as usize..metadata.column_labels.len() {
+                if !meta_columns.contains(&idx) {
+                    metadata.tags_column = max_field + 1;
+                    break;
+                }
             }
         }
     }
