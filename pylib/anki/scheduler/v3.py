@@ -31,8 +31,6 @@ QueuedCards = scheduler_pb2.QueuedCards
 SchedulingState = scheduler_pb2.SchedulingState
 SchedulingStates = scheduler_pb2.SchedulingStates
 CardAnswer = scheduler_pb2.CardAnswer
-CurrentCustomScheduling = scheduler_pb2.CurrentCustomScheduling
-NextCustomScheduling = scheduler_pb2.NextCustomScheduling
 
 
 class Scheduler(SchedulerBaseWithLegacy):
@@ -67,7 +65,6 @@ class Scheduler(SchedulerBaseWithLegacy):
         *,
         card: Card,
         states: SchedulingStates,
-        custom_data: str,
         rating: CardAnswer.Rating.V,
     ) -> CardAnswer:
         "Build input for answer_card()."
@@ -86,7 +83,6 @@ class Scheduler(SchedulerBaseWithLegacy):
             card_id=card.id,
             current_state=states.current,
             new_state=new_state,
-            custom_data=custom_data,
             rating=rating,
             answered_at_millis=int_time(1000),
             milliseconds_taken=card.time_taken(capped=False),
@@ -171,9 +167,7 @@ class Scheduler(SchedulerBaseWithLegacy):
 
         states = self.col._backend.get_scheduling_states(card.id)
         changes = self.answer_card(
-            self.build_answer(
-                card=card, states=states, custom_data=card.custom_data, rating=rating
-            )
+            self.build_answer(card=card, states=states, rating=rating)
         )
 
         # tests assume card will be mutated, so we need to reload it

@@ -92,6 +92,9 @@ message SchedulingState {
     Normal normal = 1;
     Filtered filtered = 2;
   }
+  // The backend does not populate this field in GetQueuedCards; the front-end
+  // is expected to populate it based on the provided Card.
+  string custom_data = 3;
 }
 
 message QueuedCards {
@@ -240,7 +243,6 @@ message CardAnswer {
   Rating rating = 4;
   int64 answered_at_millis = 5;
   uint32 milliseconds_taken = 6;
-  string custom_data = 7;
 }
 
 message CustomStudyRequest {
@@ -303,21 +305,4 @@ message CustomStudyDefaultsResponse {
 message RepositionDefaultsResponse {
   bool random = 1;
   bool shift = 2;
-}
-
-// Data required to support the v3 scheduler's custom scheduling feature.
-// Consumed by the custom scheduling mutator.
-message CurrentCustomScheduling {
-  SchedulingStates states = 1;
-  string custom_data = 2;
-}
-
-// Data required to support the v3 scheduler's custom scheduling feature.enum
-// Returned by the custom scheduling mutator.
-message NextCustomScheduling {
-  SchedulingStates states = 1;
-  string again_custom_data = 2;
-  string hard_custom_data = 3;
-  string good_custom_data = 4;
-  string easy_custom_data = 5;
 }

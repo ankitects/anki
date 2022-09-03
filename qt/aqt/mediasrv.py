@@ -27,7 +27,7 @@ from anki import hooks
 from anki._vendor import stringcase
 from anki.collection import OpChanges
 from anki.decks import DeckConfigsForUpdate, UpdateDeckConfigs
-from anki.scheduler.v3 import NextCustomScheduling
+from anki.scheduler_pb2 import SchedulingStates
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
@@ -412,18 +412,18 @@ def update_deck_configs() -> bytes:
     return b""
 
 
-def get_custom_scheduling() -> bytes:
-    if scheduling := aqt.mw.reviewer.get_custom_scheduling():
-        return scheduling.SerializeToString()
+def get_scheduling_states() -> bytes:
+    if states := aqt.mw.reviewer.get_scheduling_states():
+        return states.SerializeToString()
     else:
         return b""
 
 
-def set_custom_scheduling() -> bytes:
+def set_scheduling_states() -> bytes:
     key = request.headers.get("key", "")
-    input = NextCustomScheduling()
-    input.ParseFromString(request.data)
-    aqt.mw.reviewer.set_custom_scheduling(key, input)
+    states = SchedulingStates()
+    states.ParseFromString(request.data)
+    aqt.mw.reviewer.set_scheduling_states(key, states)
     return b""
 
 
@@ -455,8 +455,8 @@ post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
     update_deck_configs,
-    get_custom_scheduling,
-    set_custom_scheduling,
+    get_scheduling_states,
+    set_scheduling_states,
     change_notetype,
     import_csv,
 ]

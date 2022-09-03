@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { cloneDeep } from "lodash-es";
-
 import { postRequest } from "../lib/postrequest";
 import { Scheduler } from "../lib/proto";
 
@@ -13,56 +11,53 @@ interface CustomDataStates {
     easy: Record<string, unknown>;
 }
 
-async function getCustomScheduling(): Promise<Scheduler.CurrentCustomScheduling> {
-    return Scheduler.CurrentCustomScheduling.decode(
-        await postRequest("/_anki/getCustomScheduling", ""),
+async function getSchedulingStates(): Promise<Scheduler.SchedulingStates> {
+    return Scheduler.SchedulingStates.decode(
+        await postRequest("/_anki/getSchedulingStates", ""),
     );
 }
 
-async function setCustomScheduling(
+async function setSchedulingStates(
     key: string,
-    scheduling: Scheduler.NextCustomScheduling,
+    states: Scheduler.SchedulingStates,
 ): Promise<void> {
-    const bytes = Scheduler.NextCustomScheduling.encode(scheduling).finish();
-    await postRequest("/_anki/setCustomScheduling", bytes, { key });
+    const bytes = Scheduler.SchedulingStates.encode(states).finish();
+    await postRequest("/_anki/setSchedulingStates", bytes, { key });
 }
 
-function buildCustomDataStates(serializedCustomData: string): CustomDataStates {
-    let currentCustomData = {};
-    try {
-        currentCustomData = JSON.parse(serializedCustomData);
-    } catch {
-        // can't be parsed
-    }
-    const customData = {
-        again: cloneDeep(currentCustomData),
-        hard: cloneDeep(currentCustomData),
-        good: cloneDeep(currentCustomData),
-        easy: currentCustomData,
+function unpackCustomData(states: Scheduler.SchedulingStates): CustomDataStates {
+    const toObject = (s: string): Record<string, unknown> => {
+        try {
+            return JSON.parse(s);
+        } catch {
+            return {};
+        }
     };
-    return customData;
+    return {
+        again: toObject(states.again!.customData),
+        hard: toObject(states.hard!.customData),
+        good: toObject(states.good!.customData),
+        easy: toObject(states.easy!.customData),
+    };
 }
 
-function buildNextCustomScheduling(
+function packCustomData(
     states: Scheduler.SchedulingStates,
     customData: CustomDataStates,
-): Scheduler.NextCustomScheduling {
-    return Scheduler.NextCustomScheduling.create({
-        states,
-        againCustomData: JSON.stringify(customData.again),
-        hardCustomData: JSON.stringify(customData.hard),
-        goodCustomData: JSON.stringify(customData.good),
-        easyCustomData: JSON.stringify(customData.easy),
-    });
+) {
+    states.again!.customData = JSON.stringify(customData.again);
+    states.hard!.customData = JSON.stringify(customData.hard);
+    states.good!.customData = JSON.stringify(customData.good);
+    states.easy!.customData = JSON.stringify(customData.easy);
 }
 
 export async function mutateNextCardStates(
     key: string,
     mutator: (states: Scheduler.SchedulingStates, customData: CustomDataStates) => void,
 ): Promise<void> {
-    const scheduling = await getCustomScheduling();
-    const customData = buildCustomDataStates(scheduling.customData);
-    mutator(scheduling.states!, customData);
-    const nextScheduling = buildNextCustomScheduling(scheduling.states!, customData);
-    await setCustomScheduling(key, nextScheduling);
+    const states = await getSchedulingStates();
+    const customData = unpackCustomData(states);
+    mutator(states, customData);
+    packCustomData(states, customData);
+    await setSchedulingStates(key, states);
 }

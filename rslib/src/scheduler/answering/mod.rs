@@ -8,6 +8,8 @@ mod relearning;
 mod review;
 mod revlog;
 
+use std::mem;
+
 use rand::{prelude::*, rngs::StdRng};
 use revlog::RevlogEntryPartial;
 
@@ -274,7 +276,7 @@ impl Collection {
         self.maybe_bury_siblings(&original, &updater.config)?;
         let timing = updater.timing;
         let mut card = updater.into_card();
-        card.custom_data = answer.custom_data.clone();
+        card.custom_data = mem::take(&mut answer.custom_data);
         card.validate_custom_data()?;
         self.update_card_inner(&mut card, original, usn)?;
         if answer.new_state.leeched() {

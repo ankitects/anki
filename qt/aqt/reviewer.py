@@ -8,7 +8,7 @@ import random
 import re
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Callable, Literal, Match, Sequence, Tuple, cast
+from typing import Any, Callable, Literal, Match, Sequence, cast
 
 import aqt
 import aqt.browser
@@ -17,12 +17,7 @@ from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.scheduler.base import ScheduleCardsAsNew
-from anki.scheduler.v3 import (
-    CardAnswer,
-    CurrentCustomScheduling,
-    NextCustomScheduling,
-    QueuedCards,
-)
+from anki.scheduler.v3 import CardAnswer, QueuedCards
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.scheduler.v3 import SchedulingStates
 from anki.tags import MARKED_TAG
@@ -80,26 +75,30 @@ def replay_audio(card: Card, question_side: bool) -> None:
 
 @dataclass
 class V3CardInfo:
-    """2021 test scheduler info.
+    """Stores the top of the card queue for the v3 scheduler.
 
-    next_states is copied from the top card on initialization, and can be
-    mutated to alter the default scheduling.
+    This includes current and potential next states of the displayed card,
+    which may be mutated by a user's custom scheduling.
     """
 
     queued_cards: QueuedCards
     states: SchedulingStates
-    custom_data_states: None | Tuple[
-        str,
-        str,
-        str,
-        str,
-    ] = None
 
     @staticmethod
     def from_queue(queued_cards: QueuedCards) -> V3CardInfo:
+        top_card = queued_cards.cards[0]
+        # currently AnkiWeb and AnkiDroid don't implement custom scheduling,
+        # so we fill these in here as well to ensure that custom_data doesn't
+        # get cleared out if the JS mutation routine fails to run
+        states = top_card.states
+        states.current.custom_data = top_card.card.custom_data
+        states.again.custom_data = top_card.card.custom_data
+        states.hard.custom_data = top_card.card.custom_data
+        states.good.custom_data = top_card.card.custom_data
+        states.easy.custom_data = top_card.card.custom_data
         return V3CardInfo(
             queued_cards=queued_cards,
-            states=queued_cards.cards[0].states,
+            states=states,
         )
 
     def top_card(self) -> QueuedCards.QueuedCard:
@@ -131,14 +130,6 @@ class V3CardInfo:
             return CardAnswer.GOOD
         else:
             return CardAnswer.EASY
-
-    def current_custom_data(self) -> str:
-        return self.top_card().card.custom_data
-
-    def next_custom_data(self, ease: Literal[1, 2, 3, 4]) -> str:
-        if self.custom_data_states:
-            return self.custom_data_states[ease - 1]
-        return self.current_custom_data()
 
 
 class Reviewer:
@@ -280,26 +271,18 @@ class Reviewer:
         self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)
         self.card.start_timer()
 
-    def get_custom_scheduling(self) -> CurrentCustomScheduling | None:
+    def get_scheduling_states(self) -> SchedulingStates | None:
         if v3 := self._v3:
-            return CurrentCustomScheduling(
-                states=v3.states, custom_data=v3.current_custom_data()
-            )
+            return v3.states
         else:
             return None
 
-    def set_custom_scheduling(self, key: str, scheduling: NextCustomScheduling) -> None:
+    def set_scheduling_states(self, key: str, states: SchedulingStates) -> None:
         if key != self._state_mutation_key:
             return
 
         if v3 := self._v3:
-            v3.states = scheduling.states
-            v3.custom_data_states = (
-                scheduling.again_custom_data,
-                scheduling.hard_custom_data,
-                scheduling.good_custom_data,
-                scheduling.easy_custom_data,
-            )
+            v3.states = states
 
     def _run_state_mutation_hook(self) -> None:
         if self._v3 and (js := self._state_mutation_js):
@@ -462,7 +445,6 @@ class Reviewer:
             answer = sched.build_answer(
                 card=self.card,
                 states=v3.states,
-                custom_data=v3.next_custom_data(ease),
                 rating=v3.rating_from_ease(ease),
             )
 
