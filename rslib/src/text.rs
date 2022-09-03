@@ -91,7 +91,7 @@ lazy_static! {
         "#
     ).unwrap();
 
-    static ref HTML_MEDIA_TAGS: Regex = Regex::new(
+    pub(crate) static ref HTML_MEDIA_TAGS: Regex = Regex::new(
         r#"(?xsi)
             # the start of the image, audio, or object tag
             <\b(?:img|audio|object)\b[^>]+\b(?:src|data)\b=
@@ -135,7 +135,7 @@ lazy_static! {
     static ref PERSISTENT_HTML_SPACERS: Regex = Regex::new(r#"(?i)<br\s*/?>|<div>|\n"#).unwrap();
 
     static ref TYPE_TAG: Regex = Regex::new(r"\[\[type:[^]]+\]\]").unwrap();
-    static ref SOUND_TAG: Regex = Regex::new(r"\[sound:([^]]+)\]").unwrap();
+    pub(crate) static ref SOUND_TAG: Regex = Regex::new(r"\[sound:([^]]+)\]").unwrap();
 
     /// Files included in CSS with a leading underscore.
     static ref UNDERSCORED_CSS_IMPORTS: Regex = Regex::new(

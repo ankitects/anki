@@ -5,10 +5,14 @@ use std::{borrow::Cow, fmt::Write, ops::Deref};
 
 use anki_i18n::without_unicode_isolation;
 use lazy_static::lazy_static;
-use regex::Regex;
+use regex::{Captures, Match, Regex};
 
 use super::CardTemplate;
-use crate::prelude::*;
+use crate::{
+    latex::LATEX,
+    prelude::*,
+    text::{HTML_MEDIA_TAGS, SOUND_TAG},
+};
 
 #[derive(Debug, PartialEq)]
 struct Template<'a> {
@@ -18,48 +22,7 @@ struct Template<'a> {
 }
 
 lazy_static! {
-    static ref MEDIA_FIELD_REFERENCE: Regex = Regex::new(
-        r#"(?xsi)
-            # an image, audio, or object tag
-            <\b(?:img|audio|object)\b[^>]+\b(?:src|data)\b=
-            (?:
-                    # 1: double-quoted
-                    "
-                    \{\{.+?\}\}
-                    "
-                    [^>]*>                    
-                |
-                    # 2: single-quoted
-                    '
-                    \{\{.+?\}\}
-                    '
-                    [^>]*>
-                |
-                    # 3: unquoted
-                    \{\{.+?\}\}
-                    (?:
-                        # then either a space and the rest
-                        \x20[^>]*>
-                        |
-                        # or the tag immediately ends
-                        >
-                    )
-            )
-        |
-            # an Anki sound tag
-            \[sound:\{\{.+?\}\}\]
-        |
-            # standard latex
-            \[latex\]\{\{.+?\}\}\[/latex\]
-        |
-            # inline math
-            \[\$\]\{\{.+?\}\}\[/\$\]
-        |
-            # math environment
-            \[\$\$\]\{\{.+?\}\}\[/\$\$\]
-        "#
-    )
-    .unwrap();
+    static ref FIELD_REPLACEMENT: Regex = Regex::new(r"\{\{.+\}\}").unwrap();
 }
 
 impl Collection {
@@ -87,7 +50,25 @@ fn media_field_referencing_templates<'a>(
 }
 
 fn references_media_field(format: &str) -> bool {
-    MEDIA_FIELD_REFERENCE.is_match(format)
+    for regex in [&*HTML_MEDIA_TAGS, &*SOUND_TAG, &*LATEX] {
+        if regex
+            .captures_iter(format)
+            .any(captures_contain_field_replacement)
+        {
+            return true;
+        }
+    }
+    false
+}
+
+fn captures_contain_field_replacement(caps: Captures) -> bool {
+    caps.iter()
+        .skip(1)
+        .any(|opt| opt.map_or(false, match_contains_field_replacement))
+}
+
+fn match_contains_field_replacement(m: Match) -> bool {
+    FIELD_REPLACEMENT.is_match(m.as_str())
 }
 
 fn write_template_report(buf: &mut String, templates: &[Template], tr: &I18n) {
