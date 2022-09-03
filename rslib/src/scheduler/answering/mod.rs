@@ -13,7 +13,7 @@ use revlog::RevlogEntryPartial;
 
 use super::{
     states::{
-        steps::LearningSteps, CardState, FilteredState, NextCardStates, NormalState, StateContext,
+        steps::LearningSteps, CardState, FilteredState, NormalState, SchedulingStates, StateContext,
     },
     timespan::answer_button_time_collapsible,
     timing::SchedTimingToday,
@@ -189,7 +189,7 @@ impl Rating {
 
 impl Collection {
     /// Return the next states that will be applied for each answer button.
-    pub fn get_next_card_states(&mut self, cid: CardId) -> Result<NextCardStates> {
+    pub fn get_scheduling_states(&mut self, cid: CardId) -> Result<SchedulingStates> {
         let card = self.storage.get_card(cid)?.ok_or(AnkiError::NotFound)?;
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
@@ -198,7 +198,7 @@ impl Collection {
     }
 
     /// Describe the next intervals, to display on the answer buttons.
-    pub fn describe_next_states(&mut self, choices: NextCardStates) -> Result<Vec<String>> {
+    pub fn describe_next_states(&mut self, choices: SchedulingStates) -> Result<Vec<String>> {
         let collapse_time = self.learn_ahead_secs();
         let now = TimestampSecs::now();
         let timing = self.timing_for_timestamp(now)?;
@@ -411,13 +411,13 @@ pub mod test_helpers {
 
         fn answer<F>(&mut self, get_state: F, rating: Rating) -> Result<PostAnswerState>
         where
-            F: FnOnce(&NextCardStates) -> CardState,
+            F: FnOnce(&SchedulingStates) -> CardState,
         {
             let queued = self.get_next_card()?.unwrap();
-            let new_state = get_state(&queued.next_states);
+            let new_state = get_state(&queued.states);
             self.answer_card(&mut CardAnswer {
                 card_id: queued.card.id,
-                current_state: queued.next_states.current,
+                current_state: queued.states.current,
                 new_state,
                 rating,
                 answered_at: TimestampMillis::now(),
@@ -456,7 +456,7 @@ mod test {
     };
 
     fn current_state(col: &mut Collection, card_id: CardId) -> CardState {
-        col.get_next_card_states(card_id).unwrap().current
+        col.get_scheduling_states(card_id).unwrap().current
     }
 
     // make sure the 'current' state for a card matches the

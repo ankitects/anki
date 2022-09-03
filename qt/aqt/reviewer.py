@@ -21,10 +21,10 @@ from anki.scheduler.v3 import (
     CardAnswer,
     CurrentCustomScheduling,
     NextCustomScheduling,
-    NextStates,
     QueuedCards,
 )
 from anki.scheduler.v3 import Scheduler as V3Scheduler
+from anki.scheduler.v3 import SchedulingStates
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
 from aqt import AnkiQt, gui_hooks
@@ -87,7 +87,7 @@ class V3CardInfo:
     """
 
     queued_cards: QueuedCards
-    next_states: NextStates
+    states: SchedulingStates
     custom_data_states: None | Tuple[
         str,
         str,
@@ -99,7 +99,7 @@ class V3CardInfo:
     def from_queue(queued_cards: QueuedCards) -> V3CardInfo:
         return V3CardInfo(
             queued_cards=queued_cards,
-            next_states=queued_cards.cards[0].next_states,
+            states=queued_cards.cards[0].states,
         )
 
     def top_card(self) -> QueuedCards.QueuedCard:
@@ -283,7 +283,7 @@ class Reviewer:
     def get_custom_scheduling(self) -> CurrentCustomScheduling | None:
         if v3 := self._v3:
             return CurrentCustomScheduling(
-                states=v3.next_states, custom_data=v3.current_custom_data()
+                states=v3.states, custom_data=v3.current_custom_data()
             )
         else:
             return None
@@ -293,7 +293,7 @@ class Reviewer:
             return
 
         if v3 := self._v3:
-            v3.next_states = scheduling.states
+            v3.states = scheduling.states
             v3.custom_data_states = (
                 scheduling.again_custom_data,
                 scheduling.hard_custom_data,
@@ -461,7 +461,7 @@ class Reviewer:
         if (v3 := self._v3) and (sched := cast(V3Scheduler, self.mw.col.sched)):
             answer = sched.build_answer(
                 card=self.card,
-                states=v3.next_states,
+                states=v3.states,
                 custom_data=v3.next_custom_data(ease),
                 rating=v3.rating_from_ease(ease),
             )
@@ -796,7 +796,7 @@ time = %(time)d;
 
         if v3 := self._v3:
             assert isinstance(self.mw.col.sched, V3Scheduler)
-            labels = self.mw.col.sched.describe_next_states(v3.next_states)
+            labels = self.mw.col.sched.describe_next_states(v3.states)
         else:
             labels = None
 

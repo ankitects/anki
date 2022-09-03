@@ -44,7 +44,7 @@ function buildCustomDataStates(serializedCustomData: string): CustomDataStates {
 }
 
 function buildNextCustomScheduling(
-    states: Scheduler.NextCardStates,
+    states: Scheduler.SchedulingStates,
     customData: CustomDataStates,
 ): Scheduler.NextCustomScheduling {
     return Scheduler.NextCustomScheduling.create({
@@ -58,7 +58,7 @@ function buildNextCustomScheduling(
 
 export async function mutateNextCardStates(
     key: string,
-    mutator: (states: Scheduler.NextCardStates, customData: CustomDataStates) => void,
+    mutator: (states: Scheduler.SchedulingStates, customData: CustomDataStates) => void,
 ): Promise<void> {
     const scheduling = await getCustomScheduling();
     const customData = buildCustomDataStates(scheduling.customData);

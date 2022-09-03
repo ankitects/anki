@@ -15,7 +15,7 @@ pub(crate) use learning::LearningQueueEntry;
 pub(crate) use main::{MainQueueEntry, MainQueueEntryKind};
 
 use self::undo::QueueUpdate;
-use super::{states::NextCardStates, timing::SchedTimingToday};
+use super::{states::SchedulingStates, timing::SchedTimingToday};
 use crate::{prelude::*, timestamp::TimestampSecs};
 
 #[derive(Debug)]
@@ -49,7 +49,7 @@ impl Counts {
 pub struct QueuedCard {
     pub card: Card,
     pub kind: QueueEntryKind,
-    pub next_states: NextCardStates,
+    pub states: SchedulingStates,
 }
 
 #[derive(Debug)]
@@ -96,11 +96,11 @@ impl Collection {
                 }
 
                 // fixme: pass in card instead of id
-                let next_states = self.get_next_card_states(card.id)?;
+                let next_states = self.get_scheduling_states(card.id)?;
 
                 Ok(QueuedCard {
                     card,
-                    next_states,
+                    states: next_states,
                     kind: entry.kind(),
                 })
             })

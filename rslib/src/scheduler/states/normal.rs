@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{
-    interval_kind::IntervalKind, LearnState, NewState, NextCardStates, RelearnState, ReviewState,
+    interval_kind::IntervalKind, LearnState, NewState, RelearnState, ReviewState, SchedulingStates,
     StateContext,
 };
 use crate::revlog::RevlogReviewKind;
@@ -34,7 +34,7 @@ impl NormalState {
         }
     }
 
-    pub(crate) fn next_states(self, ctx: &StateContext) -> NextCardStates {
+    pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
         match self {
             NormalState::New(_) => {
                 // New state acts like answering a failed learning card
@@ -44,7 +44,7 @@ impl NormalState {
                 }
                 .next_states(ctx);
                 // .. but with current as New, not Learning
-                NextCardStates {
+                SchedulingStates {
                     current: self.into(),
                     ..next_states
                 }
