@@ -10,7 +10,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="handle-background"
     title={tooltip}
     on:mousedown|preventDefault
-    on:click|stopPropagation
     on:dblclick
 />
 
