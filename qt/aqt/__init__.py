@@ -347,7 +347,7 @@ class AnkiApp(QApplication):
 
     def eventFilter(self, src: Any, evt: QEvent) -> bool:
         if evt.type() == QEvent.Type.HoverEnter:
-            if type(src) == QPushButton:
+            if isinstance(src, QPushButton):
                 # TODO: apply drop-shadow with setGraphicsEffect(QGraphicsDropShadowEffect)
                 # issue: can't access attributes of QClassProxy (Qt5-compat)
                 self.setOverrideCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -355,7 +355,7 @@ class AnkiApp(QApplication):
                 self.restoreOverrideCursor()
             return False
 
-        elif evt.type() == QEvent.Type.HoverLeave or evt.type() == QCloseEvent:
+        elif evt.type() == QEvent.Type.HoverLeave or isinstance(evt, QCloseEvent):
             self.restoreOverrideCursor()
             return False
 
