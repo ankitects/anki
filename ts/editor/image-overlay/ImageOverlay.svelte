@@ -11,13 +11,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithOverlay from "../../components/WithOverlay.svelte";
     import { on } from "../../lib/events";
     import * as tr from "../../lib/ftl";
+    import { removeStyleProperties } from "../../lib/styling";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
     import HandleLabel from "../HandleLabel.svelte";
     import { context } from "../rich-text-input";
     import FloatButtons from "./FloatButtons.svelte";
     import SizeSelect from "./SizeSelect.svelte";
-    import { removeStyleProperties } from "../../lib/styling";
 
     export let maxWidth: number;
     export let maxHeight: number;

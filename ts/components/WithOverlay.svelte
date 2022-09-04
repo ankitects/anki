@@ -7,11 +7,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
     import type { ActionReturn } from "svelte/action";
 
-    import type { EventPredicateResult } from "../sveltelib/event-predicate";
     import type { Callback } from "../lib/typing";
     import { singleCallback } from "../lib/typing";
     import isClosingClick from "../sveltelib/closing-click";
     import isClosingKeyup from "../sveltelib/closing-keyup";
+    import type { EventPredicateResult } from "../sveltelib/event-predicate";
     import { documentClick, documentKeyup } from "../sveltelib/event-store";
     import type { PositioningCallback } from "../sveltelib/position/auto-update";
     import autoUpdate from "../sveltelib/position/auto-update";
