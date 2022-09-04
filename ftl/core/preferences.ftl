@@ -46,3 +46,5 @@ preferences-daily-backups = Daily backups to keep:
 preferences-weekly-backups = Weekly backups to keep:
 preferences-monthly-backups = Monthly backups to keep:
 preferences-minutes-between-backups = Minutes between automatic backups:
+preferences-reduce-motion = Reduce motion
+preferences-reduce-motion-tooltip = Disable various animations and transitions of the user interface

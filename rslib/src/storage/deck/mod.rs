@@ -131,6 +131,18 @@ impl SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn get_decks_and_original_for_search_cards(&self) -> Result<Vec<Deck>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get_deck.sql"),
+                " WHERE id IN (",
+                include_str!("all_decks_and_original_of_search_cards.sql"),
+                ")",
+            ))?
+            .query_and_then([], row_to_deck)?
+            .collect()
+    }
+
     /// Returns the deck id of the first existing card of every searched note.
     pub(crate) fn all_decks_of_search_notes(&self) -> Result<HashMap<NoteId, DeckId>> {
         self.db
