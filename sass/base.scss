@@ -34,10 +34,7 @@ $utilities: (
 
 body {
     overscroll-behavior: none;
-}
-
-.night-mode {
-    @include scrollbar.night-mode;
+    @include scrollbar.custom;
 }
 
 button {

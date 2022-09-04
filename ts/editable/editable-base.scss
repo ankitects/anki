@@ -18,6 +18,6 @@ p {
     display: none;
 }
 
-:host(.night-mode) {
-    @include scrollbar.night-mode;
+:host(body) {
+    @include scrollbar.custom;
 }

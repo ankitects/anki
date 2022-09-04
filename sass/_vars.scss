@@ -48,6 +48,7 @@
     --button-pressed-border: #8f8f8f;
     --scrollbar-bg: #d8d8d8;
     --scrollbar-hover-bg: #d0d0d0;
+    --scrollbar-active-bg: #c8c8c8;
 }
 
 :root[class*="night-mode"] {
@@ -97,5 +98,6 @@
     --button-pressed-border: #0a0a0a;
     --scrollbar-bg: #434343;
     --scrollbar-hover-bg: #4e4e4e;
+    --scrollbar-active-bg: #464646;
     color-scheme: dark;
 }
