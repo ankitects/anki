@@ -92,13 +92,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     >{getPlatformString(keyCombination)}</span
                 >
             </DropdownItem>
-            <Shortcut {keyCombination} on:action={callback} />
         {/each}
+
         <DropdownItem on:click={toggleShowMathjax}>
             <span>{tr.editingToggleMathjaxRendering()}</span>
         </DropdownItem>
     </Popover>
 </WithFloating>
+
+{#each dropdownItems as [callback, keyCombination]}
+    <Shortcut {keyCombination} on:action={callback} />
+{/each}
 
 <style lang="scss">
     .shortcut {
