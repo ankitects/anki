@@ -19,19 +19,19 @@ $vars: (
     colors: (
         canvas: (
             default: (
-                light: palette(gray, 0),
+                light: palette(gray, 1),
                 dark: palette(gray, 7),
             ),
             elevated: (
                 light: white,
-                dark: palette(gray, 8),
+                dark: palette(gray, 5),
             ),
             inset: (
                 light: palette(gray, 2),
                 dark: palette(gray, 8),
             ),
             overlay: (
-                light: white,
+                light: palette(gray, 0),
                 dark: palette(gray, 9),
             ),
         ),
