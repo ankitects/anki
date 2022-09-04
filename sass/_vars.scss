@@ -39,12 +39,16 @@
     --focus-border: #0969da;
     --focus-shadow: rgba(9 105 218 / 0.3);
     --code-bg: white;
+    --button-primary-gradient-start: #69b3fa;
+    --button-primary-gradient-end: #087fff;
+    --button-primary-hover-gradient-start: #69b3fa;
+    --button-primary-hover-gradient-end: #087fff;
     --button-gradient-start: white;
     --button-gradient-end: #f6f6f6;
-    --button-hover-gradient-start: #f4f4f4;
-    --button-hover-gradient-end: #efefef;
+    --button-hover-gradient-start: #fefefe;
+    --button-hover-gradient-end: #f1f1f1;
     --button-pressed-shadow: #555;
-    --button-border: #aaa;
+    --button-border: #666;
     --button-pressed-border: #8f8f8f;
     --scrollbar-bg: #d8d8d8;
     --scrollbar-hover-bg: #d0d0d0;
@@ -55,7 +59,7 @@
     --text-fg: white;
     --window-bg: #2f2f31;
     --frame-bg: #3a3a3a;
-    --border: #4a4a4a;
+    --border: #1f1f1f;
     --medium-border: #444;
     --faint-border: #29292b;
     --link: #77ccff;
@@ -64,7 +68,7 @@
     --learn-count: #ff935b;
     --zero-count: #444;
     --slightly-grey-text: #ccc;
-    --highlight-bg: #77ccff;
+    --highlight-bg: #1e95df;
     --highlight-fg: white;
     --disabled: #777;
     --flag1-fg: #ff7b7b;
@@ -89,6 +93,10 @@
     --focus-border: #316dca;
     --focus-shadow: #194380;
     --code-bg: #272822;
+    --button-primary-gradient-start: #1769e2;
+    --button-primary-gradient-end: #014996;
+    --button-primary-hover-gradient-start: #2877c2;
+    --button-primary-hover-gradient-end: #0d5db3;
     --button-gradient-start: #3f3f3f;
     --button-gradient-end: #363636;
     --button-hover-gradient-start: #434343;

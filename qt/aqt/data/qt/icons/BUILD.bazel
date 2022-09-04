@@ -34,7 +34,7 @@ copy_mdi_icons(
         "tag-outline.svg",
         "tag-off-outline.svg",
 
-        # QComboBox and QSpinBox arrows
+        # QHeaderView arrows
         "menu-up.svg",
         "menu-down.svg",
     ],
