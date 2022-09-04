@@ -6,12 +6,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { cubicOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
 
+    import { removeStyleProperties } from "../lib/styling";
+
     export let duration = 300;
 
     export let collapse = false;
     let collapsed = false;
 
-    const size = tweened(undefined, {
+    const size = tweened<number>(undefined, {
         duration,
         easing: cubicOut,
     });
@@ -34,12 +36,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         collapsibleElement.style.overflow = "hidden";
 
         if (percentage === 1) {
-            collapsibleElement.style.removeProperty("height");
-            collapsibleElement.style.removeProperty("overflow");
+            removeStyleProperties(collapsibleElement, "height", "overflow");
         } else if (percentage === 0) {
             collapsed = true;
-            collapsibleElement.style.removeProperty("height");
-            collapsibleElement.style.removeProperty("overflow");
+            removeStyleProperties(collapsibleElement, "height", "overflow");
         } else {
             collapsibleElement.style.height = `${percentage * clientHeight}px`;
         }
