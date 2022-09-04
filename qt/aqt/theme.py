@@ -198,19 +198,17 @@ class ThemeManager:
         )
 
         buf = ""
-
-        if not is_mac:
-            buf += "".join(
-                [
-                    general_styles(self, buf),
-                    button_styles(self, buf),
-                    combobox_styles(self, buf),
-                    tabwidget_styles(self, buf),
-                    table_styles(self, buf),
-                    spinbox_styles(self, buf),
-                    scrollbar_styles(self, buf),
-                ]
-            )
+        buf += "".join(
+            [
+                general_styles(self, buf),
+                button_styles(self, buf),
+                combobox_styles(self, buf),
+                tabwidget_styles(self, buf),
+                table_styles(self, buf),
+                spinbox_styles(self, buf),
+                scrollbar_styles(self, buf),
+            ]
+        )
 
         if is_win and platform.release() == "10":
             buf += win10_styles(self, buf)
