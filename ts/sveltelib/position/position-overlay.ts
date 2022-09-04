@@ -13,7 +13,7 @@ import type { PositionAlgorithm } from "./position-algorithm";
 export interface PositionOverlayArgs {
     padding: number;
     inline: boolean;
-    hideCallback: (reason: symbol) => void;
+    hideCallback: (reason: string) => void;
 }
 
 function positionOverlay({
@@ -21,7 +21,7 @@ function positionOverlay({
     inline: inlineArg,
     hideCallback,
 }: PositionOverlayArgs): PositionAlgorithm {
-    return async function(
+    return async function (
         reference: HTMLElement,
         floating: FloatingElement,
     ): Promise<void> {
@@ -29,9 +29,11 @@ function positionOverlay({
 
         const { width, height } = reference.getBoundingClientRect();
 
-        middleware.push(offset({
-            mainAxis: -(height + padding),
-        }));
+        middleware.push(
+            offset({
+                mainAxis: -(height + padding),
+            }),
+        );
 
         const computeArgs: Partial<ComputePositionConfig> = {
             middleware,
@@ -46,13 +48,12 @@ function positionOverlay({
         // console.log(x, y)
 
         if (middlewareData.hide?.escaped) {
-            hideCallback(Symbol("escaped"));
+            hideCallback("escaped");
         }
 
         if (middlewareData.hide?.referenceHidden) {
-            hideCallback(Symbol("referenceHidden"));
+            hideCallback("referenceHidden");
         }
-
 
         Object.assign(floating.style, {
             left: `${x}px`,

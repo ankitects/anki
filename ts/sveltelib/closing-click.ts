@@ -4,6 +4,8 @@
 import type { Readable } from "svelte/store";
 import { derived } from "svelte/store";
 
+import type { EventPredicateResult } from "./event-predicate";
+
 /**
  * Typically the right-sided mouse button.
  */
@@ -31,7 +33,7 @@ interface ClosingClickArgs {
 function isClosingClick(
     store: Readable<MouseEvent>,
     { reference, floating, inside, outside }: ClosingClickArgs,
-): Readable<symbol> {
+): Readable<EventPredicateResult> {
     function isTriggerClick(path: EventTarget[]): string | false {
         // Reference element was clicked, e.g. the button.
         // The reference element needs to handle opening/closing itself.
@@ -58,13 +60,16 @@ function isClosingClick(
         return isTriggerClick(event.composedPath());
     }
 
-    return derived(store, (event: MouseEvent, set: (value: symbol) => void): void => {
-        const reason = shouldClose(event);
+    return derived(
+        store,
+        (event: MouseEvent, set: (value: EventPredicateResult) => void): void => {
+            const reason = shouldClose(event);
 
-        if (reason) {
-            set(Symbol(reason));
-        }
-    });
+            if (reason) {
+                set({ reason, originalEvent: event });
+            }
+        },
+    );
 }
 
 export default isClosingClick;

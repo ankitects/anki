@@ -26,7 +26,8 @@ export const mathjaxConfig = {
 
 export const Mathjax: DecoratedElementConstructor = class Mathjax
     extends HTMLElement
-    implements DecoratedElement {
+    implements DecoratedElement
+{
     static tagName = "anki-mathjax";
 
     static toStored(undecorated: string): string {

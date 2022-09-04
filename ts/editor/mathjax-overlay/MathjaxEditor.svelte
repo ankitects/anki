@@ -83,12 +83,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
 
         setTimeout(() => {
-            focusAndSetCaret(editor, position)
+            focusAndSetCaret(editor, position);
 
             if (selectAll) {
                 editor.execCommand("selectAll");
             }
-        })
+        });
     });
 </script>
 

@@ -27,7 +27,7 @@ export interface PositionFloatingArgs {
     inline: boolean;
     hideIfEscaped: boolean;
     hideIfReferenceHidden: boolean;
-    hideCallback: (reason: symbol) => void;
+    hideCallback: (reason: string) => void;
 }
 
 function positionFloating({
@@ -40,7 +40,7 @@ function positionFloating({
     hideIfReferenceHidden,
     hideCallback,
 }: PositionFloatingArgs): PositionAlgorithm {
-    return async function(
+    return async function (
         reference: HTMLElement,
         floating: FloatingElement,
     ): Promise<void> {
@@ -80,11 +80,11 @@ function positionFloating({
         } = await computePosition(reference, floating, computeArgs);
 
         if (middlewareData.hide?.escaped) {
-            return hideCallback(Symbol("escaped"));
+            return hideCallback("escaped");
         }
 
         if (middlewareData.hide?.referenceHidden) {
-            return hideCallback(Symbol("referenceHidden"));
+            return hideCallback("referenceHidden");
         }
 
         Object.assign(floating.style, {

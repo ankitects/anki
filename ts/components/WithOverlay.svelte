@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
     import type { ActionReturn } from "svelte/action";
 
+    import type { EventPredicateResult } from "../sveltelib/event-predicate";
     import type { Callback } from "../lib/typing";
     import { singleCallback } from "../lib/typing";
     import isClosingClick from "../sveltelib/closing-click";
@@ -26,14 +27,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
-    function notify(reason: symbol) {
-        dispatch("close", reason);
-    }
-
     $: positionCurried = positionOverlay({
         padding,
         inline,
-        hideCallback: notify,
+        hideCallback: (reason: string) => dispatch("close", { reason }),
     });
 
     let autoAction: ActionReturn = {};
@@ -103,7 +100,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             outside: false,
         });
 
-        const subscribers = [subscribeToUpdates(closingClick, notify)];
+        const subscribers = [
+            subscribeToUpdates(closingClick, (event: EventPredicateResult) =>
+                dispatch("close", event),
+            ),
+        ];
 
         if (!keepOnKeyup) {
             const closingKeyup = isClosingKeyup(documentKeyup, {
@@ -111,7 +112,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 floating,
             });
 
-            subscribers.push(subscribeToUpdates(closingKeyup, notify));
+            subscribers.push(
+                subscribeToUpdates(closingKeyup, (event: EventPredicateResult) =>
+                    dispatch("close", event),
+                ),
+            );
         }
 
         autoAction = autoUpdate(reference, positioningCallback);
