@@ -128,6 +128,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     keepOnKeyup
     show={$show}
     placement="top-start"
+    portalTarget={document.body}
     let:asReference
     on:close={() => show.set(false)}
 >

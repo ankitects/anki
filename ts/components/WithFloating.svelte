@@ -13,12 +13,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import isClosingKeyup from "../sveltelib/closing-keyup";
     import type { EventPredicateResult } from "../sveltelib/event-predicate";
     import { documentClick, documentKeyup } from "../sveltelib/event-store";
+    import portal from "../sveltelib/portal";
     import type { PositioningCallback } from "../sveltelib/position/auto-update";
     import autoUpdate from "../sveltelib/position/auto-update";
     import type { PositionAlgorithm } from "../sveltelib/position/position-algorithm";
     import positionFloating from "../sveltelib/position/position-floating";
     import subscribeToUpdates from "../sveltelib/subscribe-updates";
     import FloatingArrow from "./FloatingArrow.svelte";
+
+    export let portalTarget: HTMLElement | null = null;
 
     export let placement: Placement | "auto" = "bottom";
     export let offset = 5;
@@ -155,7 +158,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/if}
 {/if}
 
-<div bind:this={floating} class="floating">
+<div bind:this={floating} class="floating" use:portal={portalTarget}>
     {#if show}
         <slot name="floating" />
     {/if}
