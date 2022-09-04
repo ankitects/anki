@@ -25,6 +25,7 @@ FilteredDeckConfig = decks_pb2.Deck.Filtered
 DeckCollapseScope = decks_pb2.SetDeckCollapsedRequest.Scope
 DeckConfigsForUpdate = deckconfig_pb2.DeckConfigsForUpdate
 UpdateDeckConfigs = deckconfig_pb2.UpdateDeckConfigsRequest
+Deck = decks_pb2.Deck
 
 # type aliases until we can move away from dicts
 DeckDict = dict[str, Any]
@@ -104,9 +105,9 @@ class DeckManager(DeprecatedNamesMixin):
         if id := self.col.decks.id_for_name(name):
             return OpChangesWithId(id=id)
         else:
-            deck = self.col.decks.new_deck_legacy(filtered=False)
-            deck["name"] = name
-            return self.add_deck_legacy(deck)
+            deck = self.col.decks.new_deck()
+            deck.name = name
+            return self.add_deck(deck)
 
     def add_deck_legacy(self, deck: DeckDict) -> OpChangesWithId:
         "Add a deck created with new_deck_legacy(). Must have id of 0."
@@ -160,6 +161,13 @@ class DeckManager(DeprecatedNamesMixin):
 
     def get_all_legacy(self) -> list[DeckDict]:
         return list(from_json_bytes(self.col._backend.get_all_decks_legacy()).values())
+
+    def new_deck(self) -> Deck:
+        "Return a new normal deck. It must be added with .add_deck() after a name assigned."
+        return self.col._backend.new_deck()
+
+    def add_deck(self, deck: Deck) -> OpChangesWithId:
+        return self.col._backend.add_deck(message=deck)
 
     def new_deck_legacy(self, filtered: bool) -> DeckDict:
         deck = from_json_bytes(self.col._backend.new_deck_legacy(filtered))
