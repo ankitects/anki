@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import sys
+from typing import Any
 
 if sys.version_info[0] < 3 or sys.version_info[1] < 9:
     raise Exception("Anki requires Python 3.9+")
@@ -344,7 +345,7 @@ class AnkiApp(QApplication):
     # Global cursor: pointer for Qt buttons
     ##################################################
 
-    def eventFilter(self, src, evt):
+    def eventFilter(self, src: Any, evt: QEvent) -> bool:
         if evt.type() == QEvent.Type.HoverEnter:
             if type(src) == QPushButton:
                 # TODO: apply drop-shadow with setGraphicsEffect(QGraphicsDropShadowEffect)
