@@ -186,16 +186,8 @@ impl Note {
             )));
         }
 
-        for field in &mut self.fields {
-            if field.contains(invalid_char_for_field) {
-                *field = field.replace(invalid_char_for_field, "");
-            }
-        }
-
-        if normalize_text {
-            for field in &mut self.fields {
-                ensure_string_in_nfc(field);
-            }
+        for field in self.fields_mut() {
+            normalize_field(field, normalize_text);
         }
 
         let field1_nohtml = strip_html_preserving_media_filenames(&self.fields()[0]);
@@ -262,6 +254,16 @@ impl Note {
                 .unwrap()
                 .push_str(&format!("; {}", last));
         }
+    }
+}
+
+/// Remove invalid characters and optionally ensure nfc normalization.
+pub(crate) fn normalize_field(field: &mut String, normalize_text: bool) {
+    if field.contains(invalid_char_for_field) {
+        *field = field.replace(invalid_char_for_field, "");
+    }
+    if normalize_text {
+        ensure_string_in_nfc(field);
     }
 }
 

@@ -79,6 +79,8 @@ pub struct Card {
     pub(crate) flags: u8,
     /// The position in the new queue before leaving it.
     pub(crate) original_position: Option<u32>,
+    /// JSON object or empty; exposed through the reviewer for persisting custom state
+    pub(crate) custom_data: String,
 }
 
 impl Default for Card {
@@ -102,6 +104,7 @@ impl Default for Card {
             original_deck_id: DeckId(0),
             flags: 0,
             original_position: None,
+            custom_data: String::new(),
         }
     }
 }

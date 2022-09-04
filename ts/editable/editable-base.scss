@@ -21,3 +21,7 @@ p {
 :host(body) {
     @include scrollbar.custom;
 }
+
+pre {
+    white-space: pre-wrap;
+}

@@ -144,8 +144,8 @@ class Toolbar:
         self.link_handlers[label] = self._syncLinkHandler
 
         return f"""
-<a class=hitem tabindex="-1" aria-label="{name}" title="{title}" id="{label}" href=# onclick="return pycmd('{label}')">{name}
-<img id=sync-spinner src='/_anki/imgs/refresh.svg'>        
+<a class=hitem tabindex="-1" aria-label="{name}" title="{title}" id="{label}" href=# onclick="return pycmd('{label}')"
+>{name}<img id=sync-spinner src='/_anki/imgs/refresh.svg'>
 </a>"""
 
     def set_sync_active(self, active: bool) -> None:
