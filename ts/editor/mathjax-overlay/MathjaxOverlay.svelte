@@ -160,89 +160,91 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const newlineShortcut = "Shift+Enter";
 </script>
 
-{#if activeImage && mathjaxElement}
-    <WithOverlay
-        reference={activeImage}
-        {show}
-        padding={isBlock ? 10 : 3}
-        keepOnKeyup
-        let:position={positionOverlay}
-    >
-        <WithFloating
+<div class="mathjax-overlay">
+    {#if activeImage && mathjaxElement}
+        <WithOverlay
             reference={activeImage}
             {show}
-            placement="auto"
-            offset={20}
+            padding={isBlock ? 10 : 3}
             keepOnKeyup
-            hideIfEscaped
-            let:position={positionFloating}
-            on:close={resetHandle}
+            let:position={positionOverlay}
         >
-            <Popover slot="floating">
-                <MathjaxEditor
-                    {acceptShortcut}
-                    {newlineShortcut}
-                    {code}
-                    {selectAll}
-                    {position}
-                    on:moveoutstart={async () => {
-                        placeHandle(false);
-                        await resetHandle();
-                    }}
-                    on:moveoutend={async () => {
-                        placeHandle(true);
-                        await resetHandle();
-                    }}
-                    on:tab={async () => {
-                        // Instead of resetting on blur, we reset on tab
-                        // Otherwise, when clicking from Mathjax element to another,
-                        // the user has to click twice (focus is called before blur?)
-                        await resetHandle();
-                    }}
-                    let:editor={mathjaxEditor}
-                >
-                    <Shortcut
-                        keyCombination={acceptShortcut}
-                        on:action={async () => {
+            <WithFloating
+                reference={activeImage}
+                {show}
+                placement="auto"
+                offset={20}
+                keepOnKeyup
+                hideIfEscaped
+                let:position={positionFloating}
+                on:close={resetHandle}
+            >
+                <Popover slot="floating">
+                    <MathjaxEditor
+                        {acceptShortcut}
+                        {newlineShortcut}
+                        {code}
+                        {selectAll}
+                        {position}
+                        on:moveoutstart={async () => {
+                            placeHandle(false);
+                            await resetHandle();
+                        }}
+                        on:moveoutend={async () => {
                             placeHandle(true);
                             await resetHandle();
                         }}
-                    />
-
-                    <MathjaxButtons
-                        {isBlock}
-                        on:setinline={async () => {
-                            isBlock = false;
-                            await updateBlockAttribute();
-                            positionOverlay();
-                            positionFloating();
-                        }}
-                        on:setblock={async () => {
-                            isBlock = true;
-                            await updateBlockAttribute();
-                            positionOverlay();
-                            positionFloating();
-                        }}
-                        on:delete={async () => {
-                            placeCaretAfter(activeImage);
-                            activeImage.remove();
+                        on:tab={async () => {
+                            // Instead of resetting on blur, we reset on tab
+                            // Otherwise, when clicking from Mathjax element to another,
+                            // the user has to click twice (focus is called before blur?)
                             await resetHandle();
                         }}
-                        on:surround={async ({ detail }) => {
-                            const editor = await mathjaxEditor.editor;
-                            const { prefix, suffix } = detail;
+                        let:editor={mathjaxEditor}
+                    >
+                        <Shortcut
+                            keyCombination={acceptShortcut}
+                            on:action={async () => {
+                                placeHandle(true);
+                                await resetHandle();
+                            }}
+                        />
 
-                            editor.replaceSelection(
-                                prefix + editor.getSelection() + suffix,
-                            );
-                        }}
-                    />
-                </MathjaxEditor>
-            </Popover>
-        </WithFloating>
+                        <MathjaxButtons
+                            {isBlock}
+                            on:setinline={async () => {
+                                isBlock = false;
+                                await updateBlockAttribute();
+                                positionOverlay();
+                                positionFloating();
+                            }}
+                            on:setblock={async () => {
+                                isBlock = true;
+                                await updateBlockAttribute();
+                                positionOverlay();
+                                positionFloating();
+                            }}
+                            on:delete={async () => {
+                                placeCaretAfter(activeImage);
+                                activeImage.remove();
+                                await resetHandle();
+                            }}
+                            on:surround={async ({ detail }) => {
+                                const editor = await mathjaxEditor.editor;
+                                const { prefix, suffix } = detail;
 
-        <svelte:fragment slot="overlay">
-            <HandleBackground tooltip={errorMessage} />
-        </svelte:fragment>
-    </WithOverlay>
-{/if}
+                                editor.replaceSelection(
+                                    prefix + editor.getSelection() + suffix,
+                                );
+                            }}
+                        />
+                    </MathjaxEditor>
+                </Popover>
+            </WithFloating>
+
+            <svelte:fragment slot="overlay">
+                <HandleBackground tooltip={errorMessage} />
+            </svelte:fragment>
+        </WithOverlay>
+    {/if}
+</div>

@@ -219,83 +219,100 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
               attributeFilter: ["width"],
           })
         : widthObserver.disconnect();
+
+    let imageOverlay: HTMLElement;
 </script>
 
-{#if activeImage}
-    <WithOverlay reference={activeImage} inline let:position={positionOverlay}>
-        <WithFloating
-            reference={activeImage}
-            placement="auto"
-            offset={20}
-            inline
-            hideIfEscaped
-            hideIfReferenceHidden
-            let:position={positionFloating}
-            on:close={resetHandle}
-        >
-            <Popover slot="floating">
-                <ButtonToolbar>
-                    <FloatButtons
-                        image={activeImage}
-                        on:update={async () => {
-                            positionOverlay();
-                            positionFloating();
-                        }}
-                    />
+<div bind:this={imageOverlay} class="image-overlay">
+    {#if activeImage}
+        <WithOverlay reference={activeImage} inline let:position={positionOverlay}>
+            <WithFloating
+                reference={activeImage}
+                placement="auto"
+                offset={20}
+                inline
+                hideIfEscaped
+                hideIfReferenceHidden
+                let:position={positionFloating}
+                on:close={async ({ detail }) => {
+                    const { reason, originalEvent } = detail;
 
-                    <SizeSelect
-                        {shrinkingDisabled}
-                        {restoringDisabled}
-                        {isSizeConstrained}
-                        on:imagetoggle={() => {
-                            toggleActualSize();
-                            positionOverlay();
-                        }}
-                        on:imageclear={() => {
-                            clearActualSize();
-                            positionOverlay();
-                        }}
-                    />
-                </ButtonToolbar>
-            </Popover>
-        </WithFloating>
-
-        <svelte:fragment slot="overlay">
-            <HandleBackground
-                on:dblclick={() => {
-                    if (shrinkingDisabled) {
-                        return;
+                    if (reason === "outsideClick") {
+                        // If the click is still in the overlay, we do not want
+                        // to reset the handle either
+                        if (!originalEvent.path.includes(imageOverlay)) {
+                            await resetHandle();
+                        }
+                    } else {
+                        await resetHandle();
                     }
-                    toggleActualSize();
-                    positionOverlay();
                 }}
-            />
+            >
+                <Popover slot="floating">
+                    <ButtonToolbar>
+                        <FloatButtons
+                            image={activeImage}
+                            on:update={async () => {
+                                positionOverlay();
+                                positionFloating();
+                            }}
+                        />
 
-            <HandleLabel>
-                {#if isSizeConstrained}
-                    <span>{tr.editingDoubleClickToExpand()}</span>
-                {:else}
-                    <span>{actualWidth}&times;{actualHeight}</span>
-                    {#if customDimensions}
-                        <span>(Original: {naturalWidth}&times;{naturalHeight})</span>
+                        <SizeSelect
+                            {shrinkingDisabled}
+                            {restoringDisabled}
+                            {isSizeConstrained}
+                            on:imagetoggle={() => {
+                                toggleActualSize();
+                                positionOverlay();
+                            }}
+                            on:imageclear={() => {
+                                clearActualSize();
+                                positionOverlay();
+                            }}
+                        />
+                    </ButtonToolbar>
+                </Popover>
+            </WithFloating>
+
+            <svelte:fragment slot="overlay">
+                <HandleBackground
+                    on:dblclick={() => {
+                        if (shrinkingDisabled) {
+                            return;
+                        }
+                        toggleActualSize();
+                        positionOverlay();
+                    }}
+                />
+
+                <HandleLabel>
+                    {#if isSizeConstrained}
+                        <span>{tr.editingDoubleClickToExpand()}</span>
+                    {:else}
+                        <span>{actualWidth}&times;{actualHeight}</span>
+                        {#if customDimensions}
+                            <span>(Original: {naturalWidth}&times;{naturalHeight})</span
+                            >
+                        {/if}
                     {/if}
-                {/if}
-            </HandleLabel>
+                </HandleLabel>
 
-            <HandleControl
-                active={!isSizeConstrained}
-                activeSize={8}
-                offsetX={5}
-                offsetY={5}
-                on:pointerclick={(event) => {
-                    if (!isSizeConstrained) {
-                        setPointerCapture(event);
-                    }
-                }}
-                on:pointermove={(event) => {
-                    resize(event);
-                }}
-            />
-        </svelte:fragment>
-    </WithOverlay>
-{/if}
+                <HandleControl
+                    active={!isSizeConstrained}
+                    activeSize={8}
+                    offsetX={5}
+                    offsetY={5}
+                    on:pointerclick={(event) => {
+                        if (!isSizeConstrained) {
+                            setPointerCapture(event);
+                        }
+                    }}
+                    on:pointermove={(event) => {
+                        resize(event);
+                    }}
+                />
+            </svelte:fragment>
+        </WithOverlay>
+    {/if}
+</div>
