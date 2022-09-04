@@ -13,10 +13,10 @@ $padding: 2px;
     width: $size;
     height: $size;
     padding: $padding;
-    color: var(--text-fg);
+    color: var(--fg-default);
     font-size: calc($size * 0.6);
     background-color: $btn-base-color-day;
-    border: 1px solid var(--medium-border);
+    border: 1px solid var(--border-default);
     @include button.btn-border-radius;
     &:hover {
         background-color: color.scale($btn-base-color-day, $lightness: -20%);

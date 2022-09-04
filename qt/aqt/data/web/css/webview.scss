@@ -12,8 +12,8 @@
 }
 
 body {
-    color: var(--text-fg);
-    background: var(--window-bg);
+    color: var(--fg-default);
+    background: var(--canvas-default);
     transition: opacity 0.5s ease-out;
     margin: 2em;
     overscroll-behavior: none;
@@ -21,7 +21,7 @@ body {
 }
 
 a {
-    color: var(--link);
+    color: var(--accent-link);
     text-decoration: none;
 }
 

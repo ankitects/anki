@@ -58,15 +58,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             isCollapsed = false;
         }
 
-        inner.addEventListener(
-            "transitionend",
-            () => {
-                inner.toggleAttribute("hidden", collapse);
-                outer.style.removeProperty("overflow");
-                hidden = collapse;
-            },
-            { once: true },
-        );
+        const update = () => {
+            inner.toggleAttribute("hidden", collapse);
+            outer.style.removeProperty("overflow");
+            hidden = collapse;
+        };
+
+        /* fallback required because transition only triggers if the height changes */
+        if (height) {
+            inner.addEventListener("transitionend", update, { once: true });
+        } else {
+            update();
+        }
     }
 
     /* prevent transition on mount for performance reasons */

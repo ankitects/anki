@@ -1,10 +1,11 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use "sass/card-counts";
+ @use "vars" as *;
+ @use "sass/card-counts";
 
 :root {
-    --focus-color: #0078d7;
+    --focus-color: #{palette-of(button-focus)};
 
     .isMac {
         --focus-color: rgba(0 103 244 / 0.247);
@@ -73,13 +74,13 @@ button {
 }
 
 #outer {
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--border-default);
     /* Better compatibility with graphics pad/touchscreen */
     -webkit-user-select: none;
 }
 
 .nightMode {
     #outer {
-        border-top-color: var(--faint-border);
+        border-top-color: var(--border-subtle);
     }
 }

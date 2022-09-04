@@ -1,6 +1,8 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+@use "vars" as *;
+
 $tooltip-padding-y: 0.45rem;
 $tooltip-padding-x: 0.65rem;
 $tooltip-max-width: 300px;
@@ -19,7 +21,7 @@ $tooltip-max-width: 300px;
     // the default code color in tooltips is difficult to read; we'll probably
     // want to add more of our own styling in the future
     code {
-        color: #ffaaaa;
+        color: palette(red, 0);
         direction: inherit;
     }
 }

@@ -50,9 +50,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         margin: 0;
         padding: 0.25rem;
 
-        background: var(--window-bg);
+        background: var(--canvas-default);
         border-style: solid none none;
-        border-color: var(--border);
+        border-color: var(--border-default);
         border-width: thin;
     }
 </style>

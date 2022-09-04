@@ -1,7 +1,8 @@
+@use "vars" as *;
 @use "fusion-vars";
 
 :root {
-    --focus-color: #0078d7;
+    --focus-color: #{palette-of(button-focus)};
 
     .isMac {
         --focus-color: rgba(0 103 244 / 0.247);
@@ -27,14 +28,14 @@
         -webkit-appearance: none;
         border-radius: 5px;
         padding: 5px;
-        border: 1px solid var(--border);
+        border: 1px solid var(--border-default);
     }
 }
 
 .nightMode {
     button {
         -webkit-appearance: none;
-        color: var(--text-fg);
+        color: var(--fg-default);
 
         /* match the fusion button gradient */
         background: linear-gradient(

@@ -31,8 +31,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         min-width: 0;
         padding: calc(var(--buttons-size) / 10) 0;
 
-        background-color: var(--window-bg);
-        border-color: var(--medium-border);
+        background-color: var(--canvas-default);
+        border-color: var(--border-default);
 
         :global(.btn-group) {
             position: static;

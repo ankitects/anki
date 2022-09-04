@@ -19,8 +19,8 @@ class Switch(QAbstractButton):
         radius: int = 10,
         left_label: str = "",
         right_label: str = "",
-        left_color: tuple[str, str] = colors.FLAG4_BG,
-        right_color: tuple[str, str] = colors.FLAG3_BG,
+        left_color: tuple[str, str] = colors.ACCENT_CARD,
+        right_color: tuple[str, str] = colors.ACCENT_NOTE,
         parent: QWidget = None,
     ) -> None:
         super().__init__(parent=parent)
@@ -103,12 +103,12 @@ class Switch(QAbstractButton):
         if theme_manager.night_mode:
             color = QColor(theme_manager.DARK_MODE_BUTTON_BG_MIDPOINT)
         else:
-            color = theme_manager.qcolor(colors.FRAME_BG)
+            color = theme_manager.qcolor(colors.CANVAS_OUTSET)
         painter.setBrush(QBrush(color))
         painter.drawEllipse(self._current_knob_rectangle())
 
     def _paint_label(self, painter: QPainter) -> None:
-        painter.setPen(theme_manager.qcolor(colors.SLIGHTLY_GREY_TEXT))
+        painter.setPen(theme_manager.qcolor(colors.FG_DEFAULT))
         font = painter.font()
         font.setPixelSize(int(1.2 * self._knob_radius))
         painter.setFont(font)
