@@ -308,7 +308,9 @@ QSpinBox::down-arrow {{
 QSpinBox::up-arrow,
 QSpinBox::down-arrow,
 QSpinBox::up-arrow:pressed,
-QSpinBox::down-arrow:pressed {{
+QSpinBox::down-arrow:pressed,
+QSpinBox::up-arrow:disabled:hover, QSpinBox::up-arrow:off:hover,
+QSpinBox::down-arrow:disabled:hover, QSpinBox::down-arrow:off:hover {{
     width: 16px;
     height: 16px;
 }}
@@ -316,6 +318,10 @@ QSpinBox::up-arrow:hover,
 QSpinBox::down-arrow:hover {{
     width: 20px;
     height: 20px;
+}}
+QSpinBox::up-button:disabled, QSpinBox::up-button:off,
+QSpinBox::down-button:disabled, QSpinBox::down-button:off {{
+   background: {tm.color(colors.BUTTON_PRIMARY_DISABLED)};
 }}
      """
     return buf
