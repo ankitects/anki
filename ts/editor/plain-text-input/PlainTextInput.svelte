@@ -148,6 +148,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:is-default={isDefault}
     class:alone={richTextHidden}
     on:focusin={() => ($focusedInput = api)}
+    {hidden}
 >
     <CodeMirror
         {configuration}
@@ -160,8 +161,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .plain-text-input {
-        overflow: hidden;
-
         border-top: 1px solid var(--border);
         border-radius: 0 0 5px 5px;
 
@@ -170,13 +169,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             border-bottom: 1px solid var(--border);
             border-radius: 5px 5px 0 0;
         }
+
         &.alone {
             border: none;
             border-radius: 5px;
         }
+
         :global(.CodeMirror) {
             background: var(--code-bg);
         }
+
         :global(.CodeMirror-lines) {
             padding: 8px 0;
         }

@@ -101,6 +101,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         :global(.CodeMirror) {
             height: auto;
         }
+
         :global(.CodeMirror-wrap pre) {
             word-break: break-word;
         }
