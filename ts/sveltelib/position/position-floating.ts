@@ -40,7 +40,7 @@ function positionFloating({
     hideIfReferenceHidden,
     hideCallback,
 }: PositionFloatingArgs): PositionAlgorithm {
-    return async function (
+    return async function(
         reference: HTMLElement,
         floating: FloatingElement,
     ): Promise<void> {

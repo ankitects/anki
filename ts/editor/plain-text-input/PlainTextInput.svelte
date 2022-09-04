@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { storedToUndecorated, undecoratedToStored } from "./transform";
 
     export let isDefault: boolean;
-    export let hidden: boolean;
+    export let hidden = false;
     export let richTextHidden: boolean;
 
     const configuration = {

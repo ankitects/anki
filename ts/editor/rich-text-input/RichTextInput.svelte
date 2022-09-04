@@ -77,7 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextStyles from "./RichTextStyles.svelte";
     import { fragmentToStored, storedToFragment } from "./transform";
 
-    export let hidden: boolean;
+    export let hidden = false;
 
     const { focusedInput } = noteEditorContext.get();
     const { content, editingInputs } = editingAreaContext.get();
