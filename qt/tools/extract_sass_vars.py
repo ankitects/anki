@@ -50,7 +50,7 @@ for line in open(vars_scss):
         continue
     if line == "),":
         if "_" in current_key:
-            current_key = re.sub(r"_.+?$", "", current_key)
+            current_key = re.sub(r"_[^_]+?$", "", current_key)
         else:
             current_key = ""
 
