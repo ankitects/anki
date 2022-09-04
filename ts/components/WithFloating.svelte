@@ -168,7 +168,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         position: absolute;
         border-radius: 5px;
 
-        z-index: 90;
+        z-index: 890;
         @include elevation.elevation(8);
 
         &-arrow {

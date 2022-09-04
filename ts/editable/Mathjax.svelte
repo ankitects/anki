@@ -110,9 +110,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .empty {
+        vertical-align: text-bottom;
+
         width: var(--font-size);
         height: var(--font-size);
-
-        vertical-align: sub;
     }
 </style>
