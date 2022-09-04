@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .dropdown-menu {
         border-radius: 5px;
-        background-color: var(--canvas-outset);
+        background-color: var(--canvas-elevated);
         border-color: var(--border-default);
         min-width: 1rem;
     }

@@ -7,7 +7,7 @@
 @mixin night-mode {
     input,
     select {
-        background-color: var(--canvas-outset);
+        background-color: var(--canvas-elevated);
         border-color: var(--border-default);
 
         &:focus {

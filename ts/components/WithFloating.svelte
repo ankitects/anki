@@ -95,7 +95,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .arrow {
         position: absolute;
-        background-color: var(--canvas-outset);
+        background-color: var(--canvas-elevated);
         width: 10px;
         height: 10px;
         z-index: 60;

@@ -188,7 +188,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /* grid-template-columns: repeat(2, 1fr); */
 
         position: relative;
-        background: var(--canvas-outset);
+        background: var(--canvas-elevated);
         border-radius: 5px;
 
         /* Pseudo-element required to display

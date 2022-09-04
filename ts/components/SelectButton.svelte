@@ -61,7 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         &.btn-day {
             /* Hide default arrow for consistency */
-            background: var(--canvas-outset);
+            background: var(--canvas-elevated);
         }
     }
 

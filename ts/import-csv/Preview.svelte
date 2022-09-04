@@ -54,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         tr {
             &:nth-child(even) {
-                background: var(--canvas-outset);
+                background: var(--canvas-elevated);
             }
         }
 

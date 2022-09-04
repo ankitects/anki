@@ -41,7 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .nightMode:not(:checked) {
-        background-color: var(--canvas-outset);
+        background-color: var(--canvas-elevated);
         border-color: var(--border-default);
     }
 </style>

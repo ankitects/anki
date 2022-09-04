@@ -42,7 +42,7 @@ body {
 }
 
 .isMac.nightMode #header {
-    border-bottom-color: var(--canvas-outset);
+    border-bottom-color: var(--canvas-elevated);
 }
 
 @keyframes spin {
