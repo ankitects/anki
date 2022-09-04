@@ -31,7 +31,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let allow = noop;
     let unsubscribe = noop;
 
-    let show = true;
     let selectAll = false;
     let position: CodeMirrorLib.Position | undefined = undefined;
 
@@ -54,8 +53,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         unsubscribe = code.subscribe((value: string) => {
             mathjaxElement!.dataset.mathjax = escapeSomeEntities(value);
         });
-
-        show = true;
     }
 
     function placeHandle(after: boolean): void {
@@ -164,18 +161,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {#if activeImage && mathjaxElement}
         <WithOverlay
             reference={activeImage}
-            {show}
             padding={isBlock ? 10 : 3}
             keepOnKeyup
             let:position={positionOverlay}
         >
             <WithFloating
                 reference={activeImage}
-                {show}
                 placement="auto"
                 offset={20}
                 keepOnKeyup
-                hideIfEscaped
                 let:position={positionFloating}
                 on:close={resetHandle}
             >
