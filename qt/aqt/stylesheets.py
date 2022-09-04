@@ -17,7 +17,6 @@ QListView {{
     border: 1px solid {tm.color(colors.BORDER)};
     border-radius: 5px;
 }}
-QComboBox,
 QLineEdit {{
     padding: 2px;
 }}
@@ -75,6 +74,9 @@ QComboBox:!editable:pressed {{
 
 def combobox_styles(tm: ThemeManager, buf: str) -> str:
     buf += f"""
+QComboBox {{
+    padding: 1px 4px 2px 6px;
+}}
 QComboBox:editable:on,
 QComboBox:editable:focus,
 QComboBox::drop-down:focus:editable,
@@ -101,8 +103,8 @@ QComboBox::item::icon:selected {{
 QComboBox::drop-down {{
     margin: -1px;
     subcontrol-origin: padding;
-    padding: 4px;
-    width: 18px;
+    padding: 2px;
+    width: 16px;
     subcontrol-position: top right;
     border: 1px solid {tm.color(colors.BUTTON_BORDER)};
     border-top-right-radius: 5px;
