@@ -45,12 +45,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(async () => {
         const editor = await codeMirror.editor;
 
-        focusAndSetCaret(editor, position);
-
-        if (selectAll) {
-            editor.execCommand("selectAll");
-        }
-
         let direction: "start" | "end" | undefined = undefined;
 
         editor.on(
@@ -87,6 +81,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 direction = undefined;
             },
         );
+
+        setTimeout(() => {
+            focusAndSetCaret(editor, position)
+
+            if (selectAll) {
+                editor.execCommand("selectAll");
+            }
+        })
     });
 </script>
 

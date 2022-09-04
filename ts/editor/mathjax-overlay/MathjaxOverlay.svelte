@@ -78,8 +78,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             mathjaxElement = null;
         }
 
-        await tick();
         allow();
+
+        // Wait for a tick, so that moving from one Mathjax element to
+        // another will remount the MathjaxEditor
+        await tick();
     }
 
     let errorMessage: string;
@@ -102,8 +105,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: updateImageErrorCallback(activeImage);
 
-    async function showOverlayIfMathjax({ target }: Event): Promise<void> {
+    async function showOverlayIfMathjaxClicked({ target }: Event): Promise<void> {
         if (target instanceof HTMLImageElement && target.dataset.anki === "mathjax") {
+            await resetHandle();
             showOverlay(target);
         }
     }
@@ -135,7 +139,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const container = await element;
 
         return singleCallback(
-            on(container, "click", showOverlayIfMathjax),
+            on(container, "click", showOverlayIfMathjaxClicked),
             on(container, "movecaretafter" as any, showOnAutofocus),
             on(container, "selectall" as any, showSelectAll),
         );
@@ -181,27 +185,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {code}
                     {selectAll}
                     {position}
-                    on:moveoutstart={() => {
+                    on:moveoutstart={async () => {
                         placeHandle(false);
-                        resetHandle();
+                        await resetHandle();
                     }}
-                    on:moveoutend={() => {
+                    on:moveoutend={async () => {
                         placeHandle(true);
-                        resetHandle();
+                        await resetHandle();
                     }}
-                    on:tab={() => {
+                    on:tab={async () => {
                         // Instead of resetting on blur, we reset on tab
                         // Otherwise, when clicking from Mathjax element to another,
                         // the user has to click twice (focus is called before blur?)
-                        resetHandle();
+                        await resetHandle();
                     }}
                     let:editor={mathjaxEditor}
                 >
                     <Shortcut
                         keyCombination={acceptShortcut}
-                        on:action={() => {
+                        on:action={async () => {
                             placeHandle(true);
-                            resetHandle();
+                            await resetHandle();
                         }}
                     />
 
@@ -219,10 +223,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             positionOverlay();
                             positionFloating();
                         }}
-                        on:delete={() => {
+                        on:delete={async () => {
                             placeCaretAfter(activeImage);
                             activeImage.remove();
-                            resetHandle();
+                            await resetHandle();
                         }}
                         on:surround={async ({ detail }) => {
                             const editor = await mathjaxEditor.editor;
