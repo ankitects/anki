@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>530</height>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,6 +43,9 @@
         <number>12</number>
        </property>
        <item>
+        <widget class="QComboBox" name="theme"/>
+       </item>
+       <item>
         <widget class="QComboBox" name="lang">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -54,9 +57,6 @@
           <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
          </property>
         </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="theme"/>
        </item>
        <item>
         <widget class="QComboBox" name="video_driver"/>
@@ -100,6 +100,16 @@
         <widget class="QCheckBox" name="legacy_import_export">
          <property name="text">
           <string notr="true">Legacy import/export handling</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="reduce_motion">
+         <property name="toolTip">
+          <string>preferences_reduce_motion_tooltip</string>
+         </property>
+         <property name="text">
+          <string>preferences_reduce_motion</string>
          </property>
         </widget>
        </item>
@@ -676,8 +686,8 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>lang</tabstop>
   <tabstop>theme</tabstop>
+  <tabstop>lang</tabstop>
   <tabstop>video_driver</tabstop>
   <tabstop>showPlayButtons</tabstop>
   <tabstop>interrupt_audio</tabstop>
@@ -685,6 +695,7 @@
   <tabstop>paste_strips_formatting</tabstop>
   <tabstop>ignore_accents_in_search</tabstop>
   <tabstop>legacy_import_export</tabstop>
+  <tabstop>reduce_motion</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>
@@ -703,11 +714,11 @@
   <tabstop>fullSync</tabstop>
   <tabstop>syncDeauth</tabstop>
   <tabstop>media_log</tabstop>
-  <tabstop>tabWidget</tabstop>
   <tabstop>minutes_between_backups</tabstop>
   <tabstop>daily_backups</tabstop>
   <tabstop>weekly_backups</tabstop>
   <tabstop>monthly_backups</tabstop>
+  <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>
