@@ -6,7 +6,7 @@ import type {
     FloatingElement,
     Middleware,
 } from "@floating-ui/dom";
-import { computePosition, inline } from "@floating-ui/dom";
+import { computePosition, inline, offset } from "@floating-ui/dom";
 
 import type { PositionAlgorithm } from "./position-algorithm";
 
@@ -21,21 +21,29 @@ function positionOverlay({
     inline: inlineArg,
     hideCallback,
 }: PositionOverlayArgs): PositionAlgorithm {
-    return async function (
+    return async function(
         reference: HTMLElement,
         floating: FloatingElement,
     ): Promise<void> {
         const middleware: Middleware[] = inlineArg ? [inline()] : [];
 
+        const { width, height } = reference.getBoundingClientRect();
+
+        middleware.push(offset({
+            mainAxis: -(height + padding),
+        }));
+
         const computeArgs: Partial<ComputePositionConfig> = {
             middleware,
         };
 
-        const { middlewareData } = await computePosition(
+        const { x, y, middlewareData } = await computePosition(
             reference,
             floating,
             computeArgs,
         );
+
+        // console.log(x, y)
 
         if (middlewareData.hide?.escaped) {
             hideCallback(Symbol("escaped"));
@@ -45,11 +53,10 @@ function positionOverlay({
             hideCallback(Symbol("referenceHidden"));
         }
 
-        const { x, y, width, height } = reference.getBoundingClientRect();
 
         Object.assign(floating.style, {
-            left: `${x - padding}px`,
-            top: `${y - padding}px`,
+            left: `${x}px`,
+            top: `${y}px`,
             width: `${width + 2 * padding}px`,
             height: `${height + 2 * padding}px`,
         });

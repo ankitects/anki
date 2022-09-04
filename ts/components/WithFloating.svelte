@@ -151,7 +151,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/if}
 {/if}
 
-<div bind:this={floating} class="floating" use:portal>
+<div bind:this={floating} class="floating">
     {#if show}
         <slot name="floating" />
     {/if}

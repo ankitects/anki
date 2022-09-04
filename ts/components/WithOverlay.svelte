@@ -136,7 +136,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/if}
 {/if}
 
-<div bind:this={floating} class="overlay" use:portal>
+<div bind:this={floating} class="overlay">
     {#if show}
         <slot name="overlay" />
     {/if}
