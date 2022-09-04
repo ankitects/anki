@@ -74,3 +74,8 @@ samp {
 .night-mode .form-select:disabled {
     background-color: var(--disabled);
 }
+
+.reduced-motion * {
+    transition: none !important;
+    animation: none !important;
+}

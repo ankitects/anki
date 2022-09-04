@@ -207,6 +207,7 @@ class Preferences(QDialog):
 
     def setup_global(self) -> None:
         "Setup options global to all profiles."
+        self.form.reduce_motion.setChecked(self.mw.pm.reduced_motion())
         self.form.uiScale.setValue(int(self.mw.pm.uiScale() * 100))
         themes = [
             tr.preferences_theme_label(theme=theme)
@@ -235,6 +236,8 @@ class Preferences(QDialog):
         if newScale != self.mw.pm.uiScale():
             self.mw.pm.setUiScale(newScale)
             restart_required = True
+
+        self.mw.pm.set_reduced_motion(self.form.reduce_motion.isChecked())
 
         self.mw.pm.set_legacy_import_export(self.form.legacy_import_export.isChecked())
 

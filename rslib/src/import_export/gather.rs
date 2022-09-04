@@ -42,7 +42,7 @@ impl ExchangeData {
         self.notes = notes;
         let (cards, guard) = guard.col.gather_cards()?;
         self.cards = cards;
-        self.decks = guard.col.gather_decks()?;
+        self.decks = guard.col.gather_decks(with_scheduling)?;
         self.notetypes = guard.col.gather_notetypes()?;
         self.check_ids()?;
 
@@ -191,13 +191,21 @@ impl Collection {
             .map(|cards| (cards, guard))
     }
 
-    fn gather_decks(&mut self) -> Result<Vec<Deck>> {
-        let decks = self.storage.get_decks_for_search_cards()?;
+    /// If with_scheduling, also gather all original decks of cards in filtered
+    /// decks, so they don't have to be converted to regular decks on import.
+    /// If not with_scheduling, skip exporting the default deck to avoid changing
+    /// the importing client's defaults.
+    fn gather_decks(&mut self, with_scheduling: bool) -> Result<Vec<Deck>> {
+        let decks = if with_scheduling {
+            self.storage.get_decks_and_original_for_search_cards()
+        } else {
+            self.storage.get_decks_for_search_cards()
+        }?;
         let parents = self.get_parent_decks(&decks)?;
         Ok(decks
             .into_iter()
-            .filter(|deck| deck.id != DeckId(1))
             .chain(parents)
+            .filter(|deck| with_scheduling || deck.id != DeckId(1))
             .collect())
     }
 
@@ -243,7 +251,6 @@ impl Collection {
             .iter()
             .filter_map(|deck| deck.config_id())
             .unique()
-            .filter(|config_id| *config_id != DeckConfigId(1))
             .map(|config_id| {
                 self.storage
                     .get_deck_config(config_id)?
