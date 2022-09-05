@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { FloatingElement, Placement } from "@floating-ui/dom";
-    import { createEventDispatcher, onDestroy } from "svelte";
+    import type { FloatingElement } from "@floating-ui/dom";
+    import { createEventDispatcher } from "svelte";
     import type { ActionReturn } from "svelte/action";
 
     import type { Callback } from "../lib/typing";
@@ -13,38 +13,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import isClosingKeyup from "../sveltelib/closing-keyup";
     import type { EventPredicateResult } from "../sveltelib/event-predicate";
     import { documentClick, documentKeyup } from "../sveltelib/event-store";
-    import portal from "../sveltelib/portal";
     import type { PositioningCallback } from "../sveltelib/position/auto-update";
     import autoUpdate from "../sveltelib/position/auto-update";
     import type { PositionAlgorithm } from "../sveltelib/position/position-algorithm";
-    import positionFloating from "../sveltelib/position/position-floating";
+    import positionOverlay from "../sveltelib/position/position-overlay";
     import subscribeToUpdates from "../sveltelib/subscribe-updates";
-    import FloatingArrow from "./FloatingArrow.svelte";
 
-    export let portalTarget: HTMLElement | null = null;
-
-    export let placement: Placement | "auto" = "bottom";
-    export let offset = 5;
-    export let shift = 5;
+    export let padding = 0;
     export let inline = false;
-    export let hideIfEscaped = false;
-    export let hideIfReferenceHidden = false;
 
     /** This may be passed in for more fine-grained control */
     export let show = true;
 
     const dispatch = createEventDispatcher();
 
-    let arrow: HTMLElement;
-
-    $: positionCurried = positionFloating({
-        placement,
-        offset,
-        shift,
+    $: positionCurried = positionOverlay({
+        padding,
         inline,
-        arrow,
-        hideIfEscaped,
-        hideIfReferenceHidden,
         hideCallback: (reason: string) => dispatch("close", { reason }),
     });
 
@@ -95,7 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
     }
 
-    let cleanup: Callback | null = null;
+    let cleanup: Callback;
 
     function updateFloating(
         reference: HTMLElement | undefined,
@@ -103,7 +88,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         isShowing: boolean,
     ) {
         cleanup?.();
-        cleanup = null;
 
         if (!reference || !floating || !isShowing) {
             return;
@@ -113,7 +97,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             reference,
             floating,
             inside: closeOnInsideClick,
-            outside: true,
+            outside: false,
         });
 
         const subscribers = [
@@ -140,46 +124,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: updateFloating(reference, floating, show);
-
-    onDestroy(() => cleanup?.());
 </script>
 
 <slot {position} {asReference} />
 
 {#if $$slots.reference}
     {#if inline}
-        <span class="floating-reference" use:asReference>
+        <span class="overlay-reference" use:asReference>
             <slot name="reference" />
         </span>
     {:else}
-        <div class="floating-reference" use:asReference>
+        <div class="overlay-reference" use:asReference>
             <slot name="reference" />
         </div>
     {/if}
 {/if}
 
-<div bind:this={floating} class="floating" use:portal={portalTarget}>
+<div bind:this={floating} class="overlay">
     {#if show}
-        <slot name="floating" />
+        <slot name="overlay" />
     {/if}
-
-    <div bind:this={arrow} class="floating-arrow" hidden={!show}>
-        <FloatingArrow />
-    </div>
 </div>
 
 <style lang="scss">
     @use "sass/elevation" as elevation;
 
-    .floating {
+    .overlay {
         position: absolute;
         border-radius: 5px;
 
-        z-index: 890;
-        @include elevation.elevation(8);
-
-        &-arrow {
-            position: absolute;
-        }
+        z-index: 40;
+        @include elevation.elevation(5);
     }
 </style>

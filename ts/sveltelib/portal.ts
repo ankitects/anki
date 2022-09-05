@@ -9,10 +9,15 @@ function portal(
     element: HTMLElement,
     targetElement: Element = document.body,
 ): { update(target: Element): void; destroy(): void } {
-    let target: Element = targetElement;
+    let target: Element;
 
     async function update(newTarget: Element) {
         target = newTarget;
+
+        if (!target) {
+            return;
+        }
+
         target.append(element);
     }
 
@@ -20,7 +25,7 @@ function portal(
         element.remove();
     }
 
-    update(target);
+    update(targetElement);
 
     return {
         update,

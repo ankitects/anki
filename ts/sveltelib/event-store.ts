@@ -21,7 +21,7 @@ function eventStore<T extends EventTarget, K extends keyof EventTargetToMap<T>>(
     target: T,
     eventType: Exclude<K, symbol | number>,
     /**
-     * Store need an initial value. This should probably be a freshly
+     * Store needs an initial value. This should probably be a freshly
      * constructed event, e.g. `new MouseEvent("click")`.
      */
     constructor: Init<EventTargetToMap<T>[K]>,

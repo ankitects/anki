@@ -4,6 +4,8 @@
 import type { Readable } from "svelte/store";
 import { derived } from "svelte/store";
 
+import type { EventPredicateResult } from "./event-predicate";
+
 interface ClosingKeyupArgs {
     /**
      * Clicking on the reference element should not close.
@@ -22,24 +24,26 @@ interface ClosingKeyupArgs {
 function isClosingKeyup(
     store: Readable<KeyboardEvent>,
     _args: ClosingKeyupArgs,
-): Readable<symbol> {
+): Readable<EventPredicateResult> {
     // TODO there needs to be special treatment, whether the keyup happens
     // inside the floating element or outside, but I'll defer until we actually
     // use this for a popover with an input field
-    function shouldClose(event: KeyboardEvent) {
+    function shouldClose(event: KeyboardEvent): string | false {
         if (event.key === "Tab") {
             // Allow Tab navigation.
             return false;
         }
 
-        return true;
+        return "keyup";
     }
 
     return derived(
         store,
-        (event: KeyboardEvent, set: (value: symbol) => void): void => {
-            if (shouldClose(event)) {
-                set(Symbol());
+        (event: KeyboardEvent, set: (value: EventPredicateResult) => void): void => {
+            const reason = shouldClose(event);
+
+            if (reason) {
+                set({ reason, originalEvent: event });
             }
         },
     );

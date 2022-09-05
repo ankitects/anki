@@ -84,7 +84,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     src="data:image/svg+xml,{encoded}"
     class:block
     class:empty
-    style="--vertical-center: {verticalCenter}px;"
+    style:--vertical-center="{verticalCenter}px"
+    style:--font-size="{fontSize}px"
     alt="Mathjax"
     {title}
     data-anki="mathjax"
@@ -105,9 +106,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .block {
         display: block;
         margin: 1rem auto;
+        transform: scale(1.1);
     }
 
     .empty {
-        vertical-align: sub;
+        vertical-align: text-bottom;
+
+        width: var(--font-size);
+        height: var(--font-size);
     }
 </style>

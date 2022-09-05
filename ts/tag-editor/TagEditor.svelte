@@ -426,7 +426,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         splitTag(index, detail.chosen.length, detail.chosen.length);
                     }}
                     let:createAutocomplete
-                    let:hide
                 >
                     <TagInput
                         id={tag.id}
@@ -441,7 +440,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         on:keydown={onKeydown}
                         on:keyup={() => {
                             if (activeName.length === 0) {
-                                hide?.();
+                                show?.set(false);
                             }
                         }}
                         on:taginput={() => updateTagName(tag)}
