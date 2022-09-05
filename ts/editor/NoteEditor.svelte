@@ -175,6 +175,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         noteId = ntid;
     }
 
+    let insertSymbols = false;
+
+    function setInsertSymbolsEnabled() {
+        insertSymbols = true;
+    }
+
     function getNoteId(): number | null {
         return noteId;
     }
@@ -277,6 +283,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setNoteId,
             wrap,
             setMathjaxEnabled,
+            setInsertSymbolsEnabled,
             ...oldEditorAdapter,
         });
 
