@@ -14,10 +14,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { removeStyleProperties } from "../../lib/styling";
     import { singleCallback } from "../../lib/typing";
     import { withFontColor } from "../helpers";
+    import { chevronDown } from "../icons";
     import { surrounder } from "../rich-text-input";
     import ColorPicker from "./ColorPicker.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
-    import { arrowIcon, textColorIcon } from "./icons";
+    import { textColorIcon } from "./icons";
     import WithColorHelper from "./WithColorHelper.svelte";
 
     export let color: string;
@@ -140,8 +141,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tooltip="{tr.editingChangeColor()} ({getPlatformString(pickCombination)})"
         {disabled}
         widthMultiplier={0.5}
+        iconSize={120}
     >
-        {@html arrowIcon}
+        {@html chevronDown}
         <ColorPicker
             keyCombination={pickCombination}
             on:input={(event) => {

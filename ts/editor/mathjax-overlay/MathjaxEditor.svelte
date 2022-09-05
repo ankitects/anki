@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { noop } from "../../lib/functional";
     import { getPlatformString } from "../../lib/shortcuts";
+    import { pageTheme } from "../../sveltelib/theme";
     import { baseOptions, focusAndSetCaret, latex } from "../code-mirror";
     import type { CodeMirrorAPI } from "../CodeMirror.svelte";
     import CodeMirror from "../CodeMirror.svelte";
@@ -43,12 +44,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     onMount(async () => {
         const editor = await codeMirror.editor;
-
-        focusAndSetCaret(editor, position);
-
-        if (selectAll) {
-            editor.execCommand("selectAll");
-        }
 
         let direction: "start" | "end" | undefined = undefined;
 
@@ -86,16 +81,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 direction = undefined;
             },
         );
+
+        setTimeout(() => {
+            focusAndSetCaret(editor, position);
+
+            if (selectAll) {
+                editor.execCommand("selectAll");
+            }
+        });
     });
 </script>
 
-<div class="mathjax-editor">
+<div class="mathjax-editor" class:light-theme={!$pageTheme.isDark}>
     <CodeMirror
         {code}
         {configuration}
         bind:api={codeMirror}
         on:change={({ detail: mathjaxText }) => code.set(mathjaxText)}
-        on:blur
+        on:tab
     />
 </div>
 
@@ -103,10 +106,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .mathjax-editor {
+        margin: 0 1px;
+        overflow: hidden;
+
         :global(.CodeMirror) {
             max-width: 28rem;
             min-width: 14rem;
             margin-bottom: 0.25rem;
+        }
+
+        &.light-theme :global(.CodeMirror) {
+            border-width: 1px 0;
+            border-style: solid;
+            border-color: var(--border);
         }
 
         :global(.CodeMirror-placeholder) {

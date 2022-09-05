@@ -12,16 +12,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         grid-auto-rows: min-content;
         grid-gap: 6px;
 
-        padding: 0 3px;
-        /* set height to 100% for rich text widgets */
-        height: 100%;
-
-        /* moves the scrollbar inside the editor */
-        overflow-x: hidden;
-
-        > :global(:last-child) {
-            /* bottom padding is eaten by overflow-x */
-            margin-bottom: 5px;
-        }
+        padding: 0 3px 5px;
     }
 </style>

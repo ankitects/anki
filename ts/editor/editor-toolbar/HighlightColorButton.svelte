@@ -11,10 +11,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { removeStyleProperties } from "../../lib/styling";
     import { singleCallback } from "../../lib/typing";
+    import { chevronDown } from "../icons";
     import { surrounder } from "../rich-text-input";
     import ColorPicker from "./ColorPicker.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
-    import { arrowIcon, highlightColorIcon } from "./icons";
+    import { highlightColorIcon } from "./icons";
     import WithColorHelper from "./WithColorHelper.svelte";
 
     export let color: string;
@@ -121,9 +122,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tooltip={tr.editingChangeColor()}
         {disabled}
         widthMultiplier={0.5}
+        iconSize={120}
         --border-right-radius="5px"
     >
-        {@html arrowIcon}
+        {@html chevronDown}
         <ColorPicker
             on:input={(event) => {
                 color = setColor(event);

@@ -8,18 +8,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroup from "../../components/ButtonGroup.svelte";
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import IconButton from "../../components/IconButton.svelte";
-    import { hasBlockAttribute } from "../../lib/dom";
     import * as tr from "../../lib/ftl";
     import ClozeButtons from "../ClozeButtons.svelte";
     import { blockIcon, deleteIcon, inlineIcon } from "./icons";
 
-    export let element: Element;
-
-    $: isBlock = hasBlockAttribute(element);
-
-    function updateBlock() {
-        element.setAttribute("block", String(isBlock));
-    }
+    export let isBlock: boolean;
 
     const dispatch = createEventDispatcher();
 </script>
@@ -29,24 +22,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             tooltip={tr.editingMathjaxInline()}
             active={!isBlock}
-            on:click={() => {
-                isBlock = false;
-                updateBlock();
-            }}
-            on:click
-            --border-left-radius="5px">{@html inlineIcon}</IconButton
+            on:click={() => dispatch("setinline")}
+            --border-left-radius="5px"
         >
+            {@html inlineIcon}
+        </IconButton>
 
         <IconButton
             tooltip={tr.editingMathjaxBlock()}
             active={isBlock}
-            on:click={() => {
-                isBlock = true;
-                updateBlock();
-            }}
-            on:click
-            --border-right-radius="5px">{@html blockIcon}</IconButton
+            on:click={() => dispatch("setblock")}
+            --border-right-radius="5px"
         >
+            {@html blockIcon}
+        </IconButton>
     </ButtonGroup>
 
     <ClozeButtons on:surround />

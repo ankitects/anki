@@ -29,6 +29,7 @@ _ts_deps = [
     "@npm//@fluent",
     "@npm//@popperjs",
     "@npm//@types/jest",
+    "@npm//@mdi",
     "@npm//bootstrap-icons",
     "@npm//bootstrap",
     "@npm//lodash-es",
