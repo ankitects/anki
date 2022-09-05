@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let query: string | null = null;
     let enabled = false;
 
-    function showOverlay(selection: Selection): void {
+    function maybeShowOverlay(selection: Selection): void {
         if (!isSelectionCollapsed(selection)) {
             return;
         }
@@ -37,10 +37,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    function updateQuery(selection: Selection, text: Text): void {
+        const currentRange = getRange(selection)!;
+        const offset = currentRange.startOffset;
+
+        if (text.data === ":") {
+            text.replaceData(0, text.length, "😊");
+            enabled = false;
+        } else {
+            query += text.data;
+        }
+    }
+
     function onInsertText({ event, text }): void {
         const selection = getSelection(event.target)!;
 
-        showOverlay(selection);
+        if (enabled) {
+            updateQuery(selection, text);
+        } else {
+            maybeShowOverlay(selection);
+        }
 
         const range = new Range();
         range.selectNode(text);
