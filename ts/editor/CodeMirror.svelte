@@ -65,8 +65,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const editor = await editorPromise;
         setupCodeMirror(editor, code);
         editor.on("change", () => dispatch("change", editor.getValue()));
-        editor.on("focus", () => dispatch("focus"));
-        editor.on("blur", () => dispatch("blur"));
+        editor.on("focus", (codeMirror, event) =>
+            dispatch("focus", { codeMirror, event }),
+        );
+        editor.on("blur", (codeMirror, event) =>
+            dispatch("blur", { codeMirror, event }),
+        );
+        editor.on("keydown", (codeMirror, event) => {
+            if (event.code === "Tab") {
+                dispatch("tab", { codeMirror, event });
+            }
+        });
     });
 </script>
 
@@ -92,6 +101,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         :global(.CodeMirror) {
             height: auto;
         }
+
         :global(.CodeMirror-wrap pre) {
             word-break: break-word;
         }

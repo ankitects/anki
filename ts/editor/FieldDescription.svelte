@@ -40,8 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         opacity: 0.4;
         pointer-events: none;
 
-        /* stay a on single line */
-        overflow-x: hidden;
+        /* Stay a on single line */
         white-space: nowrap;
         text-overflow: ellipsis;
     }

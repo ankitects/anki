@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{
-    interval_kind::IntervalKind, CardState, LearnState, NextCardStates, ReviewState, StateContext,
+    interval_kind::IntervalKind, CardState, LearnState, ReviewState, SchedulingStates, StateContext,
 };
 use crate::revlog::RevlogReviewKind;
 
@@ -21,8 +21,8 @@ impl RelearnState {
         RevlogReviewKind::Relearning
     }
 
-    pub(crate) fn next_states(self, ctx: &StateContext) -> NextCardStates {
-        NextCardStates {
+    pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
+        SchedulingStates {
             current: self.into(),
             again: self.answer_again(ctx),
             hard: self.answer_hard(ctx),

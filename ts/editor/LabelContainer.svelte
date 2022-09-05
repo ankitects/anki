@@ -46,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
            to cover field borders on scroll */
         left: -1px;
         right: -1px;
-        z-index: 3;
+        z-index: 10;
         background: var(--label-color);
 
         .clickable {

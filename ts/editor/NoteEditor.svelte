@@ -434,7 +434,10 @@ the AddCards dialog) should be implemented in the user of this component.
                             </LabelContainer>
                         </svelte:fragment>
                         <svelte:fragment slot="rich-text-input">
-                            <Collapsible collapsed={richTextsHidden[index]} let:hidden>
+                            <Collapsible
+                                collapse={richTextsHidden[index]}
+                                let:collapsed={hidden}
+                            >
                                 <RichTextInput
                                     {hidden}
                                     on:focusout={() => {
@@ -452,7 +455,10 @@ the AddCards dialog) should be implemented in the user of this component.
                             </Collapsible>
                         </svelte:fragment>
                         <svelte:fragment slot="plain-text-input">
-                            <Collapsible collapsed={plainTextsHidden[index]} let:hidden>
+                            <Collapsible
+                                collapse={plainTextsHidden[index]}
+                                let:collapsed={hidden}
+                            >
                                 <PlainTextInput
                                     {hidden}
                                     isDefault={plainTextDefaults[index]}

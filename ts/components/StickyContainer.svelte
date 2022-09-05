@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bottom: 0;
         left: 0;
         right: 0;
-        z-index: 10;
+        z-index: 50;
 
         background: var(--sticky-bg, var(--canvas-default));
         border-style: solid;

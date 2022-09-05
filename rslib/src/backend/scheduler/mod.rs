@@ -11,7 +11,7 @@ use crate::{
     prelude::*,
     scheduler::{
         new::NewCardDueOrder,
-        states::{CardState, NextCardStates},
+        states::{CardState, SchedulingStates},
     },
     stats::studied_today,
 };
@@ -168,14 +168,14 @@ impl SchedulerService for Backend {
         })
     }
 
-    fn get_next_card_states(&self, input: pb::CardId) -> Result<pb::NextCardStates> {
+    fn get_scheduling_states(&self, input: pb::CardId) -> Result<pb::SchedulingStates> {
         let cid: CardId = input.into();
-        self.with_col(|col| col.get_next_card_states(cid))
+        self.with_col(|col| col.get_scheduling_states(cid))
             .map(Into::into)
     }
 
-    fn describe_next_states(&self, input: pb::NextCardStates) -> Result<pb::StringList> {
-        let states: NextCardStates = input.into();
+    fn describe_next_states(&self, input: pb::SchedulingStates) -> Result<pb::StringList> {
+        let states: SchedulingStates = input.into();
         self.with_col(|col| col.describe_next_states(states))
             .map(Into::into)
     }
