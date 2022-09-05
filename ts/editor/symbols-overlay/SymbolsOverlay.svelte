@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { onMount } from "svelte";
 
+    import WithFloating from "../../components/WithFloating.svelte";
     import {
         getRange,
         getSelection,
@@ -71,6 +72,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="symbols-overlay">
     {#if enabled}
-        <div>Query: {query}</div>
+        <WithFloating reference={referenceRange} placement="auto" keepOnKeyup on:close>
+            <div>Query: {query}</div>
+        </WithFloating>
     {/if}
 </div>

@@ -5,6 +5,7 @@ import type {
     ComputePositionConfig,
     FloatingElement,
     Middleware,
+    ReferenceElement,
 } from "@floating-ui/dom";
 import { computePosition, inline, offset } from "@floating-ui/dom";
 
@@ -21,8 +22,8 @@ function positionOverlay({
     inline: inlineArg,
     hideCallback,
 }: PositionOverlayArgs): PositionAlgorithm {
-    return async function (
-        reference: HTMLElement,
+    return async function(
+        reference: ReferenceElement,
         floating: FloatingElement,
     ): Promise<void> {
         const middleware: Middleware[] = inlineArg ? [inline()] : [];

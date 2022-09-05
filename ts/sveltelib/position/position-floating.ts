@@ -6,6 +6,7 @@ import type {
     FloatingElement,
     Middleware,
     Placement,
+    ReferenceElement,
 } from "@floating-ui/dom";
 import {
     arrow,
@@ -40,8 +41,8 @@ function positionFloating({
     hideIfReferenceHidden,
     hideCallback,
 }: PositionFloatingArgs): PositionAlgorithm {
-    return async function (
-        reference: HTMLElement,
+    return async function(
+        reference: ReferenceElement,
         floating: FloatingElement,
     ): Promise<void> {
         const middleware: Middleware[] = [
