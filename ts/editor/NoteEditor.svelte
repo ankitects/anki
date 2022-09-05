@@ -321,7 +321,7 @@ the AddCards dialog) should be implemented in the user of this component.
         {#if hint}
             <Absolute bottom right --margin="10px">
                 <Notification>
-                    <Badge --badge-color="var(--accent-danger)" --icon-align="top"
+                    <Badge --badge-color="tomato" --icon-align="top"
                         >{@html alertIcon}</Badge
                     >
                     <span>{@html hint}</span>
@@ -357,8 +357,8 @@ the AddCards dialog) should be implemented in the user of this component.
                         }}
                         collapsed={fieldsCollapsed[index]}
                         --label-color={cols[index] === "dupe"
-                            ? "var(--flag-1)"
-                            : "var(--canvas-default)"}
+                            ? "var(--flag1-bg)"
+                            : "var(--window-bg)"}
                     >
                         <svelte:fragment slot="field-label">
                             <LabelContainer

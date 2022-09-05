@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let heading: string;
 </script>
 
-<StickyContainer --sticky-border="var(--border-default)" --sticky-borders="0px 0 1px">
+<StickyContainer --sticky-border="var(--border)" --sticky-borders="0px 0 1px">
     <h1>
         {heading}
     </h1>

@@ -42,19 +42,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         td {
             text-overflow: ellipsis;
             overflow: hidden;
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--faint-border);
             padding: 0.25rem 0.5rem;
             max-width: 15em;
         }
 
         th {
-            background: var(--border-default);
+            background: var(--medium-border);
             text-align: center;
         }
 
         tr {
             &:nth-child(even) {
-                background: var(--canvas-outset);
+                background: var(--frame-bg);
             }
         }
 

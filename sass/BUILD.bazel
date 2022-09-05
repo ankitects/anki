@@ -3,23 +3,14 @@ load("@io_bazel_rules_sass//:defs.bzl", "sass_library")
 sass_library(
     name = "base_lib",
     srcs = [
+        "_fusion-vars.scss",
+        "_vars.scss",
         "base.scss",
         "bootstrap-dark.scss",
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "vars_lib",
         "//sass/bootstrap",
-    ],
-)
-
-sass_library(
-    name = "vars_lib",
-    srcs = [
-        "_colors.scss",
-        "_functions.scss",
-        "_fusion-vars.scss",
-        "_vars.scss",
     ],
 )
 
@@ -73,9 +64,6 @@ sass_library(
         "_button-mixins.scss",
         "_fusion-vars.scss",
     ],
-    deps = [
-        "vars_lib",
-    ],
     visibility = ["//visibility:public"],
 )
 
@@ -96,6 +84,6 @@ sass_library(
 )
 
 exports_files(
-    ["_colors.scss", "_vars.scss"],
+    ["_vars.scss"],
     visibility = ["//visibility:public"],
 )

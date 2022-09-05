@@ -228,9 +228,6 @@ class ThemeManager:
 
         if not self.night_mode:
             app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
-            self.default_palette.setColor(
-                QPalette.ColorRole.Window, self.qcolor(colors.CANVAS_DEFAULT)
-            )
             app.setPalette(self.default_palette)
             return
 
@@ -239,11 +236,11 @@ class ThemeManager:
 
         palette = QPalette()
 
-        TEXT = self.qcolor(colors.FG_DEFAULT)
-        palette.setColor(QPalette.ColorRole.WindowText, TEXT)
-        palette.setColor(QPalette.ColorRole.ToolTipText, TEXT)
-        palette.setColor(QPalette.ColorRole.Text, TEXT)
-        palette.setColor(QPalette.ColorRole.ButtonText, TEXT)
+        text_fg = self.qcolor(colors.TEXT_FG)
+        palette.setColor(QPalette.ColorRole.WindowText, text_fg)
+        palette.setColor(QPalette.ColorRole.ToolTipText, text_fg)
+        palette.setColor(QPalette.ColorRole.Text, text_fg)
+        palette.setColor(QPalette.ColorRole.ButtonText, text_fg)
 
         hlbg = self.qcolor(colors.HIGHLIGHT_BG)
         hlbg.setAlpha(64)
@@ -252,21 +249,18 @@ class ThemeManager:
         )
         palette.setColor(QPalette.ColorRole.Highlight, hlbg)
 
-        CANVAS_DEFAULT = self.qcolor(colors.CANVAS_DEFAULT)
-        palette.setColor(QPalette.ColorRole.Window, CANVAS_DEFAULT)
-        palette.setColor(QPalette.ColorRole.AlternateBase, CANVAS_DEFAULT)
+        window_bg = self.qcolor(colors.WINDOW_BG)
+        palette.setColor(QPalette.ColorRole.Window, window_bg)
+        palette.setColor(QPalette.ColorRole.AlternateBase, window_bg)
 
         palette.setColor(QPalette.ColorRole.Button, QColor("#454545"))
 
-        CANVAS_INSET = self.qcolor(colors.CANVAS_INSET)
-        palette.setColor(QPalette.ColorRole.Base, CANVAS_INSET)
-        palette.setColor(QPalette.ColorRole.ToolTipBase, CANVAS_INSET)
+        frame_bg = self.qcolor(colors.FRAME_BG)
+        palette.setColor(QPalette.ColorRole.Base, frame_bg)
+        palette.setColor(QPalette.ColorRole.ToolTipBase, frame_bg)
 
-        palette.setColor(
-            QPalette.ColorRole.PlaceholderText, self.qcolor(colors.FG_SUBTLE)
-        )
-
-        disabled_color = self.qcolor(colors.FG_DISABLED)
+        disabled_color = self.qcolor(colors.DISABLED)
+        palette.setColor(QPalette.ColorRole.PlaceholderText, disabled_color)
         palette.setColor(
             QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color
         )
@@ -279,7 +273,7 @@ class ThemeManager:
             disabled_color,
         )
 
-        palette.setColor(QPalette.ColorRole.Link, self.qcolor(colors.ACCENT_LINK))
+        palette.setColor(QPalette.ColorRole.Link, self.qcolor(colors.LINK))
 
         palette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
 
@@ -288,11 +282,11 @@ class ThemeManager:
     def _update_stat_colors(self) -> None:
         import anki.stats as s
 
-        s.colLearn = self.color(colors.STATE_NEW)
-        s.colRelearn = self.color(colors.STATE_LEARN)
-        s.colCram = self.color(colors.STATE_SUSPENDED)
-        s.colSusp = self.color(colors.STATE_SUSPENDED)
-        s.colMature = self.color(colors.STATE_REVIEW)
+        s.colLearn = self.color(colors.NEW_COUNT)
+        s.colRelearn = self.color(colors.LEARN_COUNT)
+        s.colCram = self.color(colors.SUSPENDED_BG)
+        s.colSusp = self.color(colors.SUSPENDED_BG)
+        s.colMature = self.color(colors.REVIEW_COUNT)
         s._legacy_nightmode = self._night_mode_preference
 
 

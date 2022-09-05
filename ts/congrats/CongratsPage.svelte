@@ -70,7 +70,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         font-size: var(--base-font-size);
 
         :global(a) {
-            color: var(--accent-link);
+            color: var(--link);
             text-decoration: none;
         }
 
@@ -80,7 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .description {
-        border: 1px solid var(--border-default);
+        border: 1px solid var(--border);
         padding: 1em;
     }
 </style>

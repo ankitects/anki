@@ -7,11 +7,11 @@
 @mixin night-mode {
     input,
     select {
-        background-color: var(--canvas-outset);
-        border-color: var(--border-default);
+        background-color: var(--frame-bg);
+        border-color: var(--border);
 
         &:focus {
-            background-color: var(--canvas-default);
+            background-color: var(--window-bg);
         }
     }
 }

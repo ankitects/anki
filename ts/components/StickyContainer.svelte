@@ -29,9 +29,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         right: 0;
         z-index: 10;
 
-        background: var(--sticky-bg, var(--canvas-default));
+        background: var(--sticky-bg, var(--window-bg));
         border-style: solid;
-        border-color: var(--sticky-border, var(--border-default));
+        border-color: var(--sticky-border, var(--medium-border));
         border-width: var(--sticky-borders, 0);
     }
 </style>

@@ -1,6 +1,5 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
-@use "vars" as *;
 @use "fusion-vars";
 @use "sass:color";
 
@@ -23,9 +22,9 @@
 $btn-base-color-day: white;
 
 @mixin btn-day-base {
-    color: var(--fg-default);
+    color: var(--text-fg);
     background-color: $btn-base-color-day;
-    border-color: var(--border-default) !important;
+    border-color: var(--medium-border) !important;
 }
 
 @mixin btn-day($with-hover: true, $with-active: true, $with-disabled: true) {
@@ -63,7 +62,7 @@ $btn-base-color-day: white;
 $btn-base-color-night: fusion-vars.$button-border;
 
 @mixin btn-night-base {
-    color: var(--fg-default);
+    color: var(--text-fg);
     background: linear-gradient(
         180deg,
         fusion-vars.$button-gradient-start 0%,
@@ -114,7 +113,8 @@ $btn-base-color-night: fusion-vars.$button-border;
     }
 }
 
-$focus-color: color(shadow-focus);
+// should be similar to -webkit-focus-ring-color
+$focus-color: rgba(21 97 174);
 
 @function down-arrow($color) {
     @return url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='transparent' stroke='#{$color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");

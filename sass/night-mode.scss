@@ -2,10 +2,10 @@
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
 @mixin input {
-    background-color: var(--canvas-outset);
-    border-color: var(--border-default);
+    background-color: var(--frame-bg);
+    border-color: var(--border);
 
     &:focus {
-        background-color: var(--canvas-default);
+        background-color: var(--window-bg);
     }
 }

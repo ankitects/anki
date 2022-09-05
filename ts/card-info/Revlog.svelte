@@ -177,16 +177,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .revlog-learn {
-        color: var(--state-new);
+        color: var(--new-count);
     }
 
     .revlog-review {
-        color: var(--state-review);
+        color: var(--review-count);
     }
 
     .revlog-relearn,
     .revlog-ease1 {
-        color: var(--state-learn);
+        color: var(--learn-count);
     }
 
     @media only screen and (max-device-width: 480px) and (orientation: portrait) {

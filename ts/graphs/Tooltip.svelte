@@ -51,8 +51,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.3s;
-        color: var(--fg-default);
-        background: var(--canvas-overlay);
+        color: var(--text-fg);
+        background: var(--tooltip-bg);
 
         :global(table) {
             border-spacing: 1em 0;

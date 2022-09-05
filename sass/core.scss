@@ -8,14 +8,14 @@
 }
 
 body {
-    color: var(--fg-default);
-    background: var(--canvas-default);
+    color: var(--text-fg);
+    background: var(--window-bg);
     margin: 1em;
     transition: opacity 0.5s ease-out;
     overscroll-behavior: none;
 }
 
 a {
-    color: var(--accent-link);
+    color: var(--link);
     text-decoration: none;
 }

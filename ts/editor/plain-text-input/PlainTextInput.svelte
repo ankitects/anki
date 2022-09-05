@@ -175,9 +175,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             border-radius: 5px;
         }
         :global(.CodeMirror) {
-            border-radius: 0 0 5px 5px;
-            border-top: 1px solid var(--border-default);
-            background: var(--canvas-inset);
+            background: var(--code-bg);
         }
         :global(.CodeMirror-lines) {
             padding: 8px 0;

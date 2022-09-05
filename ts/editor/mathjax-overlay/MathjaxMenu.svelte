@@ -74,18 +74,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .mathjax-menu :global(.dropdown-menu) {
-        border-color: var(--border-default);
+        border-color: var(--border);
     }
 
     .light-theme {
         :global(.dropdown-menu) {
-            background-color: var(--canvas-default);
+            background-color: var(--window-bg);
         }
 
         :global(.CodeMirror) {
             border-width: 1px 0;
             border-style: solid;
-            border-color: var(--border-default);
+            border-color: var(--border);
         }
     }
 </style>

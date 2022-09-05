@@ -1,22 +1,21 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
-@use "vars" as *;
 
 hr {
-    background-color: palette(gray, 4);
+    background-color: #ccc;
 }
 
 body {
     margin: 20px;
     overflow-wrap: break-word;
-    background-color: var(--canvas-default);
+    background-color: var(--window-bg);
 }
 
 // explicit nightMode definition required
 // to override default .card styling
 body.nightMode {
-    background-color: var(--canvas-default);
-    color: var(--fg-default);
+    background-color: var(--window-bg);
+    color: var(--text-fg);
 }
 
 img {

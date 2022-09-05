@@ -1,21 +1,21 @@
 .review-count {
-    color: var(--state-review);
+    color: var(--review-count);
 }
 
 .new-count {
-    color: var(--state-new);
+    color: var(--new-count);
 }
 
 .learn-count {
-    color: var(--state-learn);
+    color: var(--learn-count);
 }
 
 .zero-count {
-    color: var(--fg-faint);
+    color: var(--zero-count);
 }
 
 .bury-count {
-    color: var(--fg-disabled);
+    color: var(--disabled);
     font-weight: bold;
     margin-inline-start: 2px;
 

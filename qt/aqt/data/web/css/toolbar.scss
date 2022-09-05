@@ -4,7 +4,7 @@
 #header {
     padding: 3px;
     font-weight: bold;
-    border-bottom: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--border);
 }
 
 .tdcenter {
@@ -26,7 +26,7 @@ body {
     padding-right: 12px;
     padding-left: 12px;
     text-decoration: none;
-    color: var(--fg-default);
+    color: var(--text-fg);
 }
 
 .hitem:hover {
@@ -38,11 +38,11 @@ body {
 }
 
 .nightMode #header {
-    border-bottom-color: var(--border-subtle);
+    border-bottom-color: var(--faint-border);
 }
 
 .isMac.nightMode #header {
-    border-bottom-color: var(--canvas-outset);
+    border-bottom-color: var(--frame-bg);
 }
 
 @keyframes spin {
@@ -71,9 +71,9 @@ body {
 }
 
 .normal-sync {
-    color: var(--state-new);
+    color: var(--new-count);
 }
 
 .full-sync {
-    color: var(--state-learn);
+    color: var(--learn-count);
 }

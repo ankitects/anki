@@ -13,7 +13,6 @@ from anki.collection import BrowserColumns as Columns
 from anki.collection import BrowserRow
 from anki.notes import NoteId
 from aqt import colors
-from aqt.qt import QColor
 from aqt.utils import tr
 
 Column = Columns.Column
@@ -77,38 +76,25 @@ class CellRow:
 
 
 def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> tuple[str, str] | None:
-    temp_color = None
-
     if color == BrowserRow.COLOR_MARKED:
-        temp_color = colors.STATE_MARKED
+        return colors.MARKED_BG
     if color == BrowserRow.COLOR_SUSPENDED:
-        temp_color = colors.STATE_SUSPENDED
+        return colors.SUSPENDED_BG
     if color == BrowserRow.COLOR_FLAG_RED:
-        temp_color = colors.FLAG_1
+        return colors.FLAG1_BG
     if color == BrowserRow.COLOR_FLAG_ORANGE:
-        temp_color = colors.FLAG_2
+        return colors.FLAG2_BG
     if color == BrowserRow.COLOR_FLAG_GREEN:
-        temp_color = colors.FLAG_3
+        return colors.FLAG3_BG
     if color == BrowserRow.COLOR_FLAG_BLUE:
-        temp_color = colors.FLAG_4
+        return colors.FLAG4_BG
     if color == BrowserRow.COLOR_FLAG_PINK:
-        temp_color = colors.FLAG_5
+        return colors.FLAG5_BG
     if color == BrowserRow.COLOR_FLAG_TURQUOISE:
-        temp_color = colors.FLAG_6
+        return colors.FLAG6_BG
     if color == BrowserRow.COLOR_FLAG_PURPLE:
-        temp_color = colors.FLAG_7
-
-    return adjusted_bg_color(temp_color)
-
-
-def adjusted_bg_color(color: tuple[str, str]) -> tuple[str, str]:
-    if color:
-        return (
-            QColor(color[0]).lighter(150).name(),
-            QColor(color[1]).darker(150).name(),
-        )
-    else:
-        return None
+        return colors.FLAG7_BG
+    return None
 
 
 from .model import DataModel

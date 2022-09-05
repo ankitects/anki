@@ -6,7 +6,7 @@
 
 @mixin custom {
     ::-webkit-scrollbar {
-        background-color: var(--canvas-default);
+        background-color: var(--window-bg);
 
         &:horizontal {
             height: 12px;
@@ -39,7 +39,7 @@
     }
 
     ::-webkit-scrollbar-corner {
-        background-color: var(--canvas-default);
+        background-color: var(--window-bg);
     }
 
     ::-webkit-scrollbar-track {

@@ -104,7 +104,7 @@ class SidebarTreeView(QTreeView):
     def _setup_style(self) -> None:
         # match window background color and tweak style
         bgcolor = QPalette().window().color().name()
-        border = theme_manager.color(colors.BORDER_DEFAULT)
+        border = theme_manager.color(colors.MEDIUM_BORDER)
         styles = [
             "padding: 3px",
             "padding-right: 0px",
@@ -303,7 +303,7 @@ class SidebarTreeView(QTreeView):
     ) -> None:
         if self.current_search and (item := self.model().item_for_index(idx)):
             if item.is_highlighted():
-                brush = QBrush(theme_manager.qcolor(colors.STATE_SUSPENDED))
+                brush = QBrush(theme_manager.qcolor(colors.SUSPENDED_BG))
                 painter.save()
                 painter.fillRect(options.rect, brush)
                 painter.restore()
@@ -653,36 +653,36 @@ class SidebarTreeView(QTreeView):
             type=SidebarItemType.CARD_STATE_ROOT,
         )
         type = SidebarItemType.CARD_STATE
-        colored_icon = ColoredIcon(path=icon, color=colors.FG_DISABLED)
+        colored_icon = ColoredIcon(path=icon, color=colors.DISABLED)
 
         root.add_simple(
             tr.actions_new(),
-            icon=colored_icon.with_color(colors.STATE_NEW),
+            icon=colored_icon.with_color(colors.NEW_COUNT),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_NEW),
         )
 
         root.add_simple(
             name=tr.scheduling_learning(),
-            icon=colored_icon.with_color(colors.STATE_LEARN),
+            icon=colored_icon.with_color(colors.LEARN_COUNT),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_LEARN),
         )
         root.add_simple(
             name=tr.scheduling_review(),
-            icon=colored_icon.with_color(colors.STATE_REVIEW),
+            icon=colored_icon.with_color(colors.REVIEW_COUNT),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_REVIEW),
         )
         root.add_simple(
             name=tr.browsing_suspended(),
-            icon=colored_icon.with_color(colors.STATE_SUSPENDED),
+            icon=colored_icon.with_color(colors.SUSPENDED_FG),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_SUSPENDED),
         )
         root.add_simple(
             name=tr.browsing_buried(),
-            icon=colored_icon.with_color(colors.STATE_BURIED),
+            icon=colored_icon.with_color(colors.BURIED_FG),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_BURIED),
         )

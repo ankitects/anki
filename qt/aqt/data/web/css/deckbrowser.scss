@@ -4,7 +4,7 @@
 @use "sass/card-counts";
 
 a.deck {
-    color: var(--fg-default);
+    color: var(--text-fg);
     text-decoration: none;
     min-width: 5em;
     display: inline-block;
@@ -15,7 +15,7 @@ a.deck:hover {
 }
 
 tr.deck td {
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--faint-border);
 }
 
 tr.top-level-drag-row td {
@@ -27,7 +27,7 @@ td {
 }
 
 tr.drag-hover td {
-    border-bottom: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--border);
 }
 
 body {
@@ -36,7 +36,7 @@ body {
 }
 
 .current {
-    background-color: var(--canvas-outset);
+    background-color: var(--faint-border);
 }
 
 .decktd {
@@ -55,14 +55,14 @@ body {
 }
 
 .collapse {
-    color: var(--fg-default);
+    color: var(--text-fg);
     text-decoration: none;
     display: inline-block;
     width: 1em;
 }
 
 .filtered {
-    color: var(--accent-link) !important;
+    color: var(--link) !important;
 }
 
 .gears {
@@ -79,7 +79,7 @@ body {
 }
 
 .callout {
-    background: var(--border-default);
+    background: var(--medium-border);
     padding: 1em;
     margin: 1em;
 
