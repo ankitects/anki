@@ -61,13 +61,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { alertIcon } from "./icons";
     import ImageHandle from "./image-overlay";
     import MathjaxHandle from "./mathjax-overlay";
-    import SymbolsOverlay from "./symbols-overlay";
     import MathjaxElement from "./MathjaxElement.svelte";
     import Notification from "./Notification.svelte";
     import PlainTextInput from "./plain-text-input";
     import PlainTextBadge from "./PlainTextBadge.svelte";
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
+    import SymbolsOverlay from "./symbols-overlay";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
