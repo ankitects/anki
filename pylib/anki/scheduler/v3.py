@@ -29,9 +29,8 @@ from anki.utils import int_time
 
 QueuedCards = scheduler_pb2.QueuedCards
 SchedulingState = scheduler_pb2.SchedulingState
-NextStates = scheduler_pb2.NextCardStates
+SchedulingStates = scheduler_pb2.SchedulingStates
 CardAnswer = scheduler_pb2.CardAnswer
-CustomScheduling = scheduler_pb2.CustomScheduling
 
 
 class Scheduler(SchedulerBaseWithLegacy):
@@ -54,7 +53,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             fetch_limit=fetch_limit, intraday_learning_only=intraday_learning_only
         )
 
-    def describe_next_states(self, next_states: NextStates) -> Sequence[str]:
+    def describe_next_states(self, next_states: SchedulingStates) -> Sequence[str]:
         "Labels for each of the answer buttons."
         return self.col._backend.describe_next_states(next_states)
 
@@ -65,8 +64,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         self,
         *,
         card: Card,
-        states: NextStates,
-        custom_data: str,
+        states: SchedulingStates,
         rating: CardAnswer.Rating.V,
     ) -> CardAnswer:
         "Build input for answer_card()."
@@ -85,7 +83,6 @@ class Scheduler(SchedulerBaseWithLegacy):
             card_id=card.id,
             current_state=states.current,
             new_state=new_state,
-            custom_data=custom_data,
             rating=rating,
             answered_at_millis=int_time(1000),
             milliseconds_taken=card.time_taken(capped=False),
@@ -150,7 +147,7 @@ class Scheduler(SchedulerBaseWithLegacy):
 
     def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> str:
         "Return the next interval for CARD as a string."
-        states = self.col._backend.get_next_card_states(card.id)
+        states = self.col._backend.get_scheduling_states(card.id)
         return self.col._backend.describe_next_states(states)[ease - 1]
 
     # Answering a card (legacy API)
@@ -168,11 +165,9 @@ class Scheduler(SchedulerBaseWithLegacy):
         else:
             raise Exception("invalid ease")
 
-        states = self.col._backend.get_next_card_states(card.id)
+        states = self.col._backend.get_scheduling_states(card.id)
         changes = self.answer_card(
-            self.build_answer(
-                card=card, states=states, custom_data=card.custom_data, rating=rating
-            )
+            self.build_answer(card=card, states=states, rating=rating)
         )
 
         # tests assume card will be mutated, so we need to reload it
@@ -224,7 +219,7 @@ class Scheduler(SchedulerBaseWithLegacy):
 
     def nextIvl(self, card: Card, ease: int) -> Any:
         "Don't use this - it is only required by tests, and will be moved in the future."
-        states = self.col._backend.get_next_card_states(card.id)
+        states = self.col._backend.get_scheduling_states(card.id)
         if ease == BUTTON_ONE:
             new_state = states.again
         elif ease == BUTTON_TWO:

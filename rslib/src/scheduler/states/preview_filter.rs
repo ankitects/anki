@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{IntervalKind, NextCardStates, StateContext};
+use super::{IntervalKind, SchedulingStates, StateContext};
 use crate::revlog::RevlogReviewKind;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -19,8 +19,8 @@ impl PreviewState {
         RevlogReviewKind::Filtered
     }
 
-    pub(crate) fn next_states(self, ctx: &StateContext) -> NextCardStates {
-        NextCardStates {
+    pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
+        SchedulingStates {
             current: self.into(),
             again: PreviewState {
                 scheduled_secs: ctx.preview_step * 60,

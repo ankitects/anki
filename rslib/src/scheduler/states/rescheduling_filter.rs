@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{
-    interval_kind::IntervalKind, normal::NormalState, CardState, NextCardStates, StateContext,
+    interval_kind::IntervalKind, normal::NormalState, CardState, SchedulingStates, StateContext,
 };
 use crate::revlog::RevlogReviewKind;
 
@@ -20,10 +20,10 @@ impl ReschedulingFilterState {
         self.original_state.revlog_kind()
     }
 
-    pub(crate) fn next_states(self, ctx: &StateContext) -> NextCardStates {
+    pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
         let normal = self.original_state.next_states(ctx);
         if ctx.in_filtered_deck {
-            NextCardStates {
+            SchedulingStates {
                 current: self.into(),
                 again: maybe_wrap(normal.again),
                 hard: maybe_wrap(normal.hard),

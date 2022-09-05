@@ -4,38 +4,60 @@
 import { postRequest } from "../lib/postrequest";
 import { Scheduler } from "../lib/proto";
 
-async function getCustomScheduling(): Promise<Scheduler.CustomScheduling> {
-    return Scheduler.CustomScheduling.decode(
-        await postRequest("/_anki/getCustomScheduling", ""),
+interface CustomDataStates {
+    again: Record<string, unknown>;
+    hard: Record<string, unknown>;
+    good: Record<string, unknown>;
+    easy: Record<string, unknown>;
+}
+
+async function getSchedulingStates(): Promise<Scheduler.SchedulingStates> {
+    return Scheduler.SchedulingStates.decode(
+        await postRequest("/_anki/getSchedulingStates", ""),
     );
 }
 
-async function setCustomScheduling(
+async function setSchedulingStates(
     key: string,
-    scheduling: Scheduler.CustomScheduling,
+    states: Scheduler.SchedulingStates,
 ): Promise<void> {
-    const bytes = Scheduler.CustomScheduling.encode(scheduling).finish();
-    await postRequest("/_anki/setCustomScheduling", bytes, { key });
+    const bytes = Scheduler.SchedulingStates.encode(states).finish();
+    await postRequest("/_anki/setSchedulingStates", bytes, { key });
+}
+
+function unpackCustomData(states: Scheduler.SchedulingStates): CustomDataStates {
+    const toObject = (s: string): Record<string, unknown> => {
+        try {
+            return JSON.parse(s);
+        } catch {
+            return {};
+        }
+    };
+    return {
+        again: toObject(states.current!.customData!),
+        hard: toObject(states.current!.customData!),
+        good: toObject(states.current!.customData!),
+        easy: toObject(states.current!.customData!),
+    };
+}
+
+function packCustomData(
+    states: Scheduler.SchedulingStates,
+    customData: CustomDataStates,
+) {
+    states.again!.customData = JSON.stringify(customData.again);
+    states.hard!.customData = JSON.stringify(customData.hard);
+    states.good!.customData = JSON.stringify(customData.good);
+    states.easy!.customData = JSON.stringify(customData.easy);
 }
 
 export async function mutateNextCardStates(
     key: string,
-    mutator: (
-        states: Scheduler.NextCardStates,
-        customData: Record<string, unknown>,
-    ) => void,
+    mutator: (states: Scheduler.SchedulingStates, customData: CustomDataStates) => void,
 ): Promise<void> {
-    const scheduling = await getCustomScheduling();
-    let customData = {};
-    try {
-        customData = JSON.parse(scheduling.customData);
-    } catch {
-        // can't be parsed
-    }
-
-    mutator(scheduling.states!, customData);
-
-    scheduling.customData = JSON.stringify(customData);
-
-    await setCustomScheduling(key, scheduling);
+    const states = await getSchedulingStates();
+    const customData = unpackCustomData(states);
+    mutator(states, customData);
+    packCustomData(states, customData);
+    await setSchedulingStates(key, states);
 }
