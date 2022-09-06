@@ -22,14 +22,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { inputHandler, editable } = context.get();
 
-    let referenceRange: Range | null = null;
+    let referenceRange: Range | undefined = undefined;
     let cleanup;
     let query: string | null = null;
 
     let foundSymbols: SymbolsTable = [];
 
     function unsetReferenceRange() {
-        referenceRange = null;
+        referenceRange = undefined;
         cleanup?.();
     }
 
@@ -46,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         const currentRange = getRange(selection)!;
-        const offset = currentRange.startOffset;
+        const offset = currentRange.endOffset;
 
         if (!(currentRange.commonAncestorContainer instanceof Text) || offset < 2) {
             return;
@@ -54,14 +54,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const wholeText = currentRange.commonAncestorContainer.wholeText;
 
-        if (wholeText[offset - 2] === SYMBOLS_DELIMITER) {
-            referenceRange = currentRange;
-            query = wholeText.substring(offset - 1, offset) + event.data;
-            foundSymbols = await getSymbols(query);
+        for (let index = offset - 1; index >= 0; index--) {
+            const currentCharacter = wholeText[index];
 
-            cleanup = editable.focusHandler.blur.on(unsetReferenceRange, {
-                once: true,
-            });
+            if (currentCharacter === " ") {
+                return;
+            } else if (currentCharacter === SYMBOLS_DELIMITER) {
+                const possibleQuery = wholeText.substring(index + 1, offset) + event.data;
+
+                if (possibleQuery.length < 2) {
+                    return;
+                }
+
+                query = possibleQuery;
+                referenceRange = currentRange;
+                foundSymbols = await getSymbols(query);
+
+                cleanup = editable.focusHandler.blur.on(unsetReferenceRange, {
+                    once: true,
+                });
+                return;
+            }
         }
     }
 
@@ -88,7 +101,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const replacementLength =
             commonAncestor.data
-                .substring(0, referenceRange!.startOffset)
+                .substring(0, referenceRange!.endOffset)
                 .split("")
                 .reverse()
                 .join("")
@@ -132,7 +145,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
 
             const currentRange = getRange(selection)!;
-            const offset = currentRange.startOffset;
+            const offset = currentRange.endOffset;
 
             if (!(currentRange.commonAncestorContainer instanceof Text) || offset < 2) {
                 return unsetReferenceRange();
@@ -142,14 +155,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             const replacementLength =
                 commonAncestor.data
-                    .substring(0, currentRange.startOffset)
+                    .substring(0, currentRange.endOffset)
                     .split("")
                     .reverse()
                     .join("")
                     .indexOf(SYMBOLS_DELIMITER) + 1;
 
             commonAncestor.deleteData(
-                currentRange.startOffset - replacementLength,
+                currentRange.endOffset - replacementLength,
                 replacementLength,
             );
 
