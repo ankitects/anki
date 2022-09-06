@@ -12,8 +12,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         isSelectionCollapsed,
     } from "../../lib/cross-browser";
     import { context } from "../rich-text-input";
+    import { getSymbols } from "./data-provider.ts";
 
     const { inputHandler } = context.get();
+    const symbolsTable = getSymbols();
 
     let referenceRange: Range | null = null;
     let query: string | null = null;
@@ -78,7 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 startOfReplacement,
             );
 
-            inputHandler.insertText.on(({ text }) => replaceText(selection, text), {
+            inputHandler.insertText.on(async ({ text }) => replaceText(selection, text), {
                 once: true,
             });
         } else if (query) {
