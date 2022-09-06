@@ -13,7 +13,9 @@ interface SymbolsEntry {
 export type SymbolsTable = SymbolsEntry[];
 
 export async function getSymbols(query: string): Promise<SymbolsTable> {
-    return symbolsTable.filter(({ names }) => names.some((name) => name.includes(query)));
+    return symbolsTable.filter(({ names }) =>
+        names.some((name) => name.includes(query)),
+    );
 }
 
 export async function getSymbolExact(query: string): Promise<string | null> {

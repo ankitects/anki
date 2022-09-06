@@ -243,42 +243,53 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             offset={10}
         >
             <Popover slot="floating" --popover-padding-inline="0">
-                {#each foundSymbols as found, index (found.symbol)}
-                    <DropdownItem
-                        active={index === activeItem}
-                        on:click={() => replaceTextOnDemand(found.symbol)}
-                    >
-                        <div class="symbol-entry">
+                <div class="symbols-menu">
+                    {#each foundSymbols as found, index (found.symbol)}
+                        <DropdownItem
+                            active={index === activeItem}
+                            on:click={() => replaceTextOnDemand(found.symbol)}
+                        >
                             <div class="symbol">{found.symbol}</div>
                             <div class="description">
                                 {#each found.names as name}
-                                    <span class="delimiter">{SYMBOLS_DELIMITER}</span
-                                    ><span class="name">{name}</span><span
-                                        class="delimiter">{SYMBOLS_DELIMITER}</span
-                                    >
+                                    <span class="name">
+                                        {SYMBOLS_DELIMITER}{name}{SYMBOLS_DELIMITER}
+                                    </span>
                                 {/each}
                             </div>
-                        </div>
-                    </DropdownItem>
-                {/each}
+                        </DropdownItem>
+                    {/each}
+                </div>
             </Popover>
         </WithFloating>
     {/if}
 </div>
 
 <style lang="scss">
-    .symbol-entry {
+    .symbols-menu {
         display: flex;
+        flex-flow: column nowrap;
+
         min-width: 140px;
-        font-size: 12px;
+        max-height: 15rem;
+
+        font-size: 13px;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+        overflow-y: auto;
     }
 
     .symbol {
         font-size: 150%;
-        margin-right: 10px;
+        /* The widest emojis I could find were couple_with_heart_ */
+        width: 38px;
     }
 
     .description {
         align-self: center;
+    }
+
+    .name {
+        margin-left: 3px;
     }
 </style>

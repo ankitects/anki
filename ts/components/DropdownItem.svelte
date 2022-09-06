@@ -9,13 +9,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className = "";
     export { className as class };
 
+    let buttonRef: HTMLButtonElement;
+
     export let tooltip: string | undefined = undefined;
 
     export let active = false;
+
+    $: if (buttonRef && active) {
+        console.log("wactive!");
+        /* buttonRef.scrollIntoView({ behavior: "smooth", block: "start" }); */
+        /* TODO will not work on Gecko */
+        (buttonRef as any).scrollIntoViewIfNeeded({
+            behavior: "smooth",
+            block: "start",
+        });
+    }
+
     export let tabbable = false;
 </script>
 
 <button
+    bind:this={buttonRef}
     {id}
     tabindex={tabbable ? 0 : -1}
     class="dropdown-item {className}"
@@ -39,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         justify-content: start;
 
-        font-size: calc(var(--base-font-size) * 0.8);
+        font-size: var(--dropdown-font-size, var(--base-font-size));
 
         background: none;
         box-shadow: none !important;

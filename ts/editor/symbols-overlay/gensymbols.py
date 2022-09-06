@@ -39,10 +39,14 @@ def load_html_entities():
 
             symbol = html_entities[symbol_name_full]['characters']
 
-            output.append({
-                              'names': [symbol_name],
-                              'symbol': symbol,
-                          })
+            try:
+                duplicate = next(item for item in output if item["symbol"] == symbol)
+                duplicate['names'].append(symbol_name)
+            except StopIteration:
+                output.append({
+                                  'names': [symbol_name],
+                                  'symbol': symbol,
+                              })
 
     return output
 
