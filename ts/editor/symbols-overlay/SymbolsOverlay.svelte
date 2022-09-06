@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context } from "../rich-text-input";
     import type { SymbolsTable } from "./data-provider";
     import { getSymbolExact, getSymbols } from "./data-provider";
+    import { singleCallback } from "../../lib/typing";
 
     const SYMBOLS_DELIMITER = ":";
 
@@ -174,11 +175,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    onMount(() => inputHandler.beforeInput.on(onBeforeInput));
+    $: showSymbolsOverlay = referenceRange && foundSymbols.length > 0;
+
+    async function onSpecialKey({ event, action }): Promise<void> {
+        if (!showSymbolsOverlay) {
+            return;
+        } else {
+            event.preventDefault();
+        }
+    }
+
+    onMount(() =>
+        singleCallback(
+            inputHandler.beforeInput.on(onBeforeInput),
+            inputHandler.specialKey.on(onSpecialKey),
+        ),
+    );
 </script>
 
 <div class="symbols-overlay">
-    {#if referenceRange && foundSymbols.length > 0}
+    {#if showSymbolsOverlay}
         <WithFloating
             reference={referenceRange}
             placement={["top", "bottom"]}
