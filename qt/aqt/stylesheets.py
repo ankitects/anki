@@ -145,9 +145,6 @@ QTabWidget::pane {{
   border-radius: 5px;
   background: {tm.color(colors.FRAME_BG)};
 }}
-QTabWidget::tab-bar {{
-    alignment: center;
-}}
 QTabBar::tab {{
   background: none;
   border-top-left-radius: 5px;
