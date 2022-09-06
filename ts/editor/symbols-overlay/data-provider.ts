@@ -24,3 +24,9 @@ const symbolsTable = [
 export async function getSymbols(query: string): Promise<SymbolsTable> {
     return symbolsTable.filter(({ name }) => name.includes(query));
 }
+
+export async function getSymbolExact(query: string): Promise<string | null> {
+    const found = symbolsTable.find(({ name }) => name === query);
+
+    return found ? found.symbol : null;
+}

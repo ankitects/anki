@@ -116,6 +116,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <WithFloating
     show={showFloating && !disabled}
+    placement="bottom"
     inline
     on:close={() => (showFloating = false)}
     let:asReference
@@ -133,7 +134,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </IconButton>
     </span>
 
-    <Popover slot="floating">
+    <Popover slot="floating" --popover-padding-inline="0">
         {#each showFormats as format (format.name)}
             <DropdownItem on:click={(event) => onItemClick(event, format)}>
                 <CheckBox bind:value={format.active} />

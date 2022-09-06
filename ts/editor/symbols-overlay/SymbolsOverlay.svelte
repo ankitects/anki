@@ -15,9 +15,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "../../lib/cross-browser";
     import { context } from "../rich-text-input";
     import type { SymbolsTable } from "./data-provider";
-    import { getSymbols } from "./data-provider";
+    import { getSymbolExact, getSymbols } from "./data-provider";
 
     const { inputHandler } = context.get();
+    const SYMBOLS_DELIMITER = ":";
 
     let referenceRange: Range | null = null;
     let query: string | null = null;
@@ -45,15 +46,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const wholeText = currentRange.commonAncestorContainer.wholeText;
 
-        if (wholeText[offset - 2] === ":") {
+        if (wholeText[offset - 2] === SYMBOLS_DELIMITER) {
             referenceRange = currentRange;
             query = wholeText.substring(offset - 1, offset) + event.data;
             foundSymbols = await getSymbols(query);
         }
     }
 
-    async function replaceText(selection: Selection, text: Text): Promise<void> {
-        text.replaceData(0, text.length, "😊");
+    async function replaceText(
+        selection: Selection,
+        text: Text,
+        symbolCharacter: string,
+    ): Promise<void> {
+        text.replaceData(0, text.length, symbolCharacter);
         referenceRange = null;
 
         // Place caret behind it
@@ -75,7 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 .split("")
                 .reverse()
                 .join("")
-                .indexOf(":") + 1;
+                .indexOf(SYMBOLS_DELIMITER) + 1;
 
         const newOffset = referenceRange!.endOffset - replacementLength + 1;
 
@@ -109,7 +114,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const data = event.data;
         referenceRange = getRange(selection)!;
 
-        if (data === ":") {
+        if (data === SYMBOLS_DELIMITER && query) {
+            const symbol = await getSymbolExact(query);
+
+            if (!symbol) {
+                referenceRange = null;
+                return;
+            }
+
             const currentRange = getRange(selection)!;
             const offset = currentRange.startOffset;
 
@@ -126,7 +138,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     .split("")
                     .reverse()
                     .join("")
-                    .indexOf(":") + 1;
+                    .indexOf(SYMBOLS_DELIMITER) + 1;
 
             commonAncestor.deleteData(
                 currentRange.startOffset - replacementLength,
@@ -134,7 +146,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             );
 
             inputHandler.insertText.on(
-                async ({ text }) => replaceText(selection, text),
+                async ({ text }) => replaceText(selection, text, symbol),
                 {
                     once: true,
                 },
@@ -165,13 +177,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             placement={["top", "bottom"]}
             offset={10}
         >
-            <Popover slot="floating">
+            <Popover slot="floating" --popover-padding-inline="0">
                 {#each foundSymbols as found (found.name)}
                     <DropdownItem on:click={() => replaceTextViaMenu(found.symbol)}>
-                        <span>{found.symbol} :{found.name}:</span>
+                        <div class="symbol-entry">
+                            <div class="symbol">{found.symbol}</div>
+                            <div class="description">
+                                <span class="delimiter">{SYMBOLS_DELIMITER}</span><span
+                                    class="name">{found.name}</span
+                                ><span class="delimiter">{SYMBOLS_DELIMITER}</span>
+                            </div>
+                        </div>
                     </DropdownItem>
                 {/each}
             </Popover>
         </WithFloating>
     {/if}
 </div>
+
+<style lang="scss">
+    .symbol-entry {
+        display: flex;
+        min-width: 140px;
+        font-size: 12px;
+    }
+
+    .symbol {
+        font-size: 150%;
+        margin-right: 10px;
+    }
+
+    .description {
+        align-self: center;
+    }
+</style>

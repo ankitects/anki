@@ -88,6 +88,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <ButtonGroupItem>
             <WithFloating
                 show={showFloating && !disabled}
+                placement="bottom"
                 inline
                 on:close={() => (showFloating = false)}
                 let:asReference
@@ -101,7 +102,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </IconButton>
                 </span>
 
-                <Popover slot="floating">
+                <Popover slot="floating"--popover-padding-inline="0">
                     <ButtonToolbar wrap={false}>
                         <ButtonGroup>
                             <CommandIconButton
