@@ -24,12 +24,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let referenceRange: Range | undefined = undefined;
     let cleanup;
-    let query: string | null = null;
+    let query: string = "";
+    let activeItem = 0;
 
     let foundSymbols: SymbolsTable = [];
 
     function unsetReferenceRange() {
         referenceRange = undefined;
+        activeItem = 0;
         cleanup?.();
     }
 
@@ -37,19 +39,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         selection: Selection,
         event: InputEvent,
     ): Promise<void> {
-        if (event.inputType !== "insertText") {
-            return;
-        }
-
-        if (!isSelectionCollapsed(selection)) {
-            return;
+        if (
+            event.inputType !== "insertText"
+            || event.data === SYMBOLS_DELIMITER
+            || !isSelectionCollapsed(selection)
+        ) {
+            return unsetReferenceRange();
         }
 
         const currentRange = getRange(selection)!;
         const offset = currentRange.endOffset;
 
         if (!(currentRange.commonAncestorContainer instanceof Text) || offset < 2) {
-            return;
+            return unsetReferenceRange();
         }
 
         const wholeText = currentRange.commonAncestorContainer.wholeText;
@@ -58,12 +60,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             const currentCharacter = wholeText[index];
 
             if (currentCharacter === " ") {
-                return;
+                return unsetReferenceRange();
             } else if (currentCharacter === SYMBOLS_DELIMITER) {
+
                 const possibleQuery = wholeText.substring(index + 1, offset) + event.data;
 
                 if (possibleQuery.length < 2) {
-                    return;
+                    return unsetReferenceRange();
                 }
 
                 query = possibleQuery;
@@ -95,7 +98,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         selection.collapseToEnd();
     }
 
-    function replaceTextViaMenu(symbolCharacter: string): void {
+    function replaceTextOnDemand(symbolCharacter: string): void {
         const commonAncestor = referenceRange!.commonAncestorContainer as Text;
         const selection = getSelection(commonAncestor)!;
 
@@ -193,8 +196,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function onSpecialKey({ event, action }): Promise<void> {
         if (!showSymbolsOverlay) {
             return;
-        } else {
-            event.preventDefault();
+        }
+
+        if (["caretLeft", "caretRight"].includes(action)) {
+            return unsetReferenceRange();
+        }
+
+        event.preventDefault();
+
+        if (action === "caretUp") {
+            if (activeItem === 0) {
+                activeItem = foundSymbols.length - 1;
+            } else {
+                activeItem--;
+            }
+        } else if (action === "caretDown") {
+            if (activeItem >= foundSymbols.length - 1) {
+                activeItem = 0;
+            } else {
+                activeItem++;
+            }
+        } else if (action === "enter") {
+            replaceTextOnDemand(foundSymbols[activeItem].symbol);
+        } else if (action === "escape") {
+            unsetReferenceRange();
         }
     }
 
@@ -212,11 +237,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             reference={referenceRange}
             placement={["top", "bottom"]}
             offset={10}
-            on:close={console.log}
         >
             <Popover slot="floating" --popover-padding-inline="0">
-                {#each foundSymbols as found (found.name)}
-                    <DropdownItem on:click={() => replaceTextViaMenu(found.symbol)}>
+                {#each foundSymbols as found, index (found.name)}
+                    <DropdownItem
+                        active={index === activeItem}
+                        on:click={() => replaceTextOnDemand(found.symbol)}
+                    >
                         <div class="symbol-entry">
                             <div class="symbol">{found.symbol}</div>
                             <div class="description">

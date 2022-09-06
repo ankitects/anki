@@ -10,13 +10,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let tooltip: string | undefined = undefined;
-    export let tabbable: boolean = false;
+
+    export let active = false;
+    export let tabbable = false;
 </script>
 
 <button
     {id}
     tabindex={tabbable ? 0 : -1}
-    class="dropdown-item btn {className}"
+    class="dropdown-item {className}"
+    class:active
     class:btn-day={!$pageTheme.isDark}
     class:btn-night={$pageTheme.isDark}
     title={tooltip}
