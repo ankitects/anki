@@ -15,8 +15,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { inputHandler } = context.get();
 
+    let referenceRange: Range | null = null;
     let query: string | null = null;
-    let enabled = false;
 
     function maybeShowOverlay(selection: Selection): void {
         if (!isSelectionCollapsed(selection)) {
@@ -33,27 +33,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const wholeText = currentRange.commonAncestorContainer.wholeText;
 
         if (wholeText[offset - 2] === ":") {
+            referenceRange = currentRange;
             query = wholeText.substring(offset - 1, offset + 1);
-            enabled = true;
         }
     }
 
     function updateQuery(selection: Selection, text: Text): void {
-        const currentRange = getRange(selection)!;
-        const offset = currentRange.startOffset;
+        referenceRange = getRange(selection)!;
 
         if (text.data === ":") {
             text.replaceData(0, text.length, "😊");
-            enabled = false;
         } else {
             query += text.data;
         }
     }
 
-    function onInsertText({ event, text }): void {
+    async function onInsertText({ event, text }): Promise<void> {
         const selection = getSelection(event.target)!;
 
-        if (enabled) {
+        if (referenceRange) {
             updateQuery(selection, text);
         } else {
             maybeShowOverlay(selection);
@@ -71,9 +69,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="symbols-overlay">
-    {#if enabled}
+    {#if referenceRange}
         <WithFloating reference={referenceRange} placement="auto" keepOnKeyup on:close>
-            <div>Query: {query}</div>
+            <div slot="floating">Query: {query}</div>
         </WithFloating>
     {/if}
 </div>
