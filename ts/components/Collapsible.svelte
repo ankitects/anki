@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             await new Promise(requestAnimationFrame);
             await new Promise(requestAnimationFrame);
             expandHeight = collapsibleElement.clientHeight;
-            
+
             animating = true;
             size.set(1, {
                 duration: duration || dynamicDuration(expandHeight, 25),
@@ -52,7 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: animating = $size > 0 && !(collapsed || expanded);
 
     $: height = $size * expandHeight;
-    $: measuring = !(collapsed || animating || expanded)
+    $: measuring = !(collapsed || animating || expanded);
 </script>
 
 <div
