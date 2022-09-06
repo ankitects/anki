@@ -188,35 +188,33 @@ class ThemeManager:
         gui_hooks.theme_did_change()
 
     def _apply_style(self, app: QApplication) -> None:
-        from aqt.stylesheets import (
-            button_styles,
-            combobox_styles,
-            general_styles,
-            scrollbar_styles,
-            spinbox_styles,
-            table_styles,
-            tabwidget_styles,
-            win10_styles,
-        )
+        if not is_mac:
+            from aqt.stylesheets import (
+                button_styles,
+                combobox_styles,
+                general_styles,
+                scrollbar_styles,
+                spinbox_styles,
+                table_styles,
+                tabwidget_styles,
+                win10_styles,
+            )
 
-        buf = ""
-        buf += "".join(
-            [
-                general_styles(self, buf),
-                button_styles(self, buf),
-                combobox_styles(self, buf),
-                tabwidget_styles(self, buf),
-                table_styles(self, buf),
-                spinbox_styles(self, buf),
-                scrollbar_styles(self, buf),
-            ]
-        )
+            buf = ""
+            buf += "".join(
+                [
+                    general_styles(self, buf),
+                    button_styles(self, buf),
+                    combobox_styles(self, buf),
+                    tabwidget_styles(self, buf),
+                    table_styles(self, buf),
+                    spinbox_styles(self, buf),
+                    scrollbar_styles(self, buf),
+                ]
+            )
 
         if is_win and platform.release() == "10":
             buf += win10_styles(self, buf)
-
-            if not self.macos_dark_mode():
-                buf += scrollbar_styles(self, buf)
 
         # allow addons to modify the styling
         buf = gui_hooks.style_did_init(buf)
