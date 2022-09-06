@@ -21,7 +21,7 @@ import {
 import type { PositionAlgorithm } from "./position-algorithm";
 
 export interface PositionFloatingArgs {
-    placement: Placement | "auto";
+    placement: Placement | Placement[] | "auto";
     arrow: HTMLElement;
     shift: number;
     offset: number;
@@ -59,10 +59,15 @@ function positionFloating({
             middleware,
         };
 
-        if (placement !== "auto") {
-            computeArgs.placement = placement;
-        } else {
+
+        if (Array.isArray(placement)) {
+            const allowedPlacements = placement;
+
+            middleware.push(autoPlacement({ allowedPlacements }));
+        } else if (placement === "auto") {
             middleware.push(autoPlacement());
+        } else {
+            computeArgs.placement = placement;
         }
 
         if (hideIfEscaped) {

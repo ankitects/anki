@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let portalTarget: HTMLElement | undefined = undefined;
 
-    export let placement: Placement | "auto" = "bottom";
+    export let placement: Placement | Placement[] | "auto" = "bottom";
     export let offset = 5;
     export let shift = 5;
     export let inline = false;
@@ -113,6 +113,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
+        autoAction = autoUpdate(reference, positioningCallback);
+
+        // For virtual references, we cannot provide any
+        // default closing behavior
+        if (!(reference instanceof EventTarget)) {
+            cleanup = autoAction.destroy!;
+            return;
+        }
+
         const closingClick = isClosingClick(documentClick, {
             reference,
             floating,
@@ -139,7 +148,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             );
         }
 
-        autoAction = autoUpdate(reference, positioningCallback);
         cleanup = singleCallback(...subscribers, autoAction.destroy!);
     }
 

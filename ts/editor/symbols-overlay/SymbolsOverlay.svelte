@@ -38,25 +38,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function updateQuery(selection: Selection, text: Text): void {
-        referenceRange = getRange(selection)!;
+    async function replaceText(selection: Selection, text: Text): Promise<void> {
+        text.replaceData(0, text.length, "😊");
+        referenceRange = null;
 
-        if (text.data === ":") {
-            text.replaceData(0, text.length, "😊");
-        } else {
-            query += text.data;
-        }
-    }
-
-    async function onInsertText({ event, text }): Promise<void> {
-        const selection = getSelection(event.target)!;
-
-        if (referenceRange) {
-            updateQuery(selection, text);
-        } else {
-            maybeShowOverlay(selection);
-        }
-
+        // Place caret behind it
         const range = new Range();
         range.selectNode(text);
 
@@ -65,12 +51,57 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         selection.collapseToEnd();
     }
 
-    onMount(() => inputHandler.insertText.on(onInsertText));
+    function updateOverlay(selection: Selection, event: InputEvent): void {
+        const data = event.data;
+        referenceRange = getRange(selection)!;
+
+        if (data === ":") {
+            const currentRange = getRange(selection)!;
+            const offset = currentRange.startOffset;
+
+            if (!(currentRange.commonAncestorContainer instanceof Text) || offset < 2) {
+                referenceRange = null;
+                return;
+            }
+
+            const commonAncestor = currentRange.commonAncestorContainer;
+
+            const startOfReplacement = commonAncestor.data
+                .substring(0, currentRange.startOffset)
+                .split("")
+                .reverse()
+                .join("")
+                .indexOf(":") + 1;
+
+            commonAncestor.deleteData(
+                currentRange.startOffset - startOfReplacement,
+                startOfReplacement,
+            );
+
+            inputHandler.insertText.on(({ text }) => replaceText(selection, text), {
+                once: true,
+            });
+        } else if (query) {
+            query += data!;
+        }
+    }
+
+    async function onBeforeInput({ event }): Promise<void> {
+        const selection = getSelection(event.target)!;
+
+        if (referenceRange) {
+            updateOverlay(selection, event);
+        } else {
+            maybeShowOverlay(selection);
+        }
+    }
+
+    onMount(() => inputHandler.beforeInput.on(onBeforeInput));
 </script>
 
 <div class="symbols-overlay">
     {#if referenceRange}
-        <WithFloating reference={referenceRange} placement="auto" keepOnKeyup on:close>
+        <WithFloating reference={referenceRange} placement={["top", "bottom"]} offset={10}>
             <div slot="floating">Query: {query}</div>
         </WithFloating>
     {/if}
