@@ -13,17 +13,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         getSelection,
         isSelectionCollapsed,
     } from "../../lib/cross-browser";
+    import type { Callback } from "../../lib/typing";
+    import { singleCallback } from "../../lib/typing";
     import { context } from "../rich-text-input";
     import type { SymbolsTable } from "./data-provider";
     import { getSymbolExact, getSymbols } from "./data-provider";
-    import { singleCallback } from "../../lib/typing";
 
     const SYMBOLS_DELIMITER = ":";
 
     const { inputHandler, editable } = context.get();
 
     let referenceRange: Range | undefined = undefined;
-    let cleanup;
+    let cleanup: Callback;
     let query: string = "";
     let activeItem = 0;
 
@@ -40,9 +41,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         event: InputEvent,
     ): Promise<void> {
         if (
-            event.inputType !== "insertText"
-            || event.data === SYMBOLS_DELIMITER
-            || !isSelectionCollapsed(selection)
+            event.inputType !== "insertText" ||
+            event.data === SYMBOLS_DELIMITER ||
+            !isSelectionCollapsed(selection)
         ) {
             return unsetReferenceRange();
         }
@@ -62,8 +63,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             if (currentCharacter === " ") {
                 return unsetReferenceRange();
             } else if (currentCharacter === SYMBOLS_DELIMITER) {
-
-                const possibleQuery = wholeText.substring(index + 1, offset) + event.data;
+                const possibleQuery =
+                    wholeText.substring(index + 1, offset) + event.data;
 
                 if (possibleQuery.length < 2) {
                     return unsetReferenceRange();
@@ -73,9 +74,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 referenceRange = currentRange;
                 foundSymbols = await getSymbols(query);
 
-                cleanup = editable.focusHandler.blur.on(unsetReferenceRange, {
-                    once: true,
-                });
+                cleanup = editable.focusHandler.blur.on(
+                    async () => unsetReferenceRange(),
+                    {
+                        once: true,
+                    },
+                );
                 return;
             }
         }

@@ -41,7 +41,7 @@ function positionFloating({
     hideIfReferenceHidden,
     hideCallback,
 }: PositionFloatingArgs): PositionAlgorithm {
-    return async function(
+    return async function (
         reference: ReferenceElement,
         floating: FloatingElement,
     ): Promise<void> {
@@ -58,7 +58,6 @@ function positionFloating({
         const computeArgs: Partial<ComputePositionConfig> = {
             middleware,
         };
-
 
         if (Array.isArray(placement)) {
             const allowedPlacements = placement;

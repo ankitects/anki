@@ -1,9 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { isArrowDown, isArrowUp, isArrowRight, isArrowLeft } from "../lib/keys";
 import { getRange, getSelection } from "../lib/cross-browser";
 import { on } from "../lib/events";
+import { isArrowDown, isArrowLeft, isArrowRight, isArrowUp } from "../lib/keys";
 import { singleCallback } from "../lib/typing";
 import { HandlerList } from "./handler-list";
 
@@ -20,7 +20,13 @@ export interface InsertTextParams {
     text: Text;
 }
 
-type SpecialKeyAction = 'caretUp' | 'caretDown' | 'caretLeft' | 'caretRight' | "enter" | "tab";
+type SpecialKeyAction =
+    | "caretUp"
+    | "caretDown"
+    | "caretLeft"
+    | "caretRight"
+    | "enter"
+    | "tab";
 
 export interface SpecialKeyParams {
     event: KeyboardEvent;
@@ -76,17 +82,17 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
 
     async function onKeyDown(this: Element, event: KeyboardEvent): Promise<void> {
         if (isArrowDown(event)) {
-            specialKey.dispatch({ event, action: "caretDown" })
+            specialKey.dispatch({ event, action: "caretDown" });
         } else if (isArrowUp(event)) {
-            specialKey.dispatch({ event, action: "caretUp" })
+            specialKey.dispatch({ event, action: "caretUp" });
         } else if (isArrowRight(event)) {
-            specialKey.dispatch({ event, action: "caretRight" })
+            specialKey.dispatch({ event, action: "caretRight" });
         } else if (isArrowLeft(event)) {
-            specialKey.dispatch({ event, action: "caretLeft" })
+            specialKey.dispatch({ event, action: "caretLeft" });
         } else if (event.code === "Enter" || event.code === "NumpadEnter") {
-            specialKey.dispatch({ event, action: "enter" })
+            specialKey.dispatch({ event, action: "enter" });
         } else if (event.code === "Tab") {
-            specialKey.dispatch({ event, action: "tab" })
+            specialKey.dispatch({ event, action: "tab" });
         }
     }
 

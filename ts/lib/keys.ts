@@ -34,30 +34,30 @@ export function keyboardEventIsPrintableKey(event: KeyboardEvent): boolean {
 
 export const checkModifiers =
     (required: Modifier[], optional: Modifier[] = []) =>
-        (event: KeyboardEvent): boolean => {
-            return allModifiers.reduce(
-                (
-                    matches: boolean,
-                    currentModifier: Modifier,
-                    currentIndex: number,
-                ): boolean =>
-                    matches &&
-                    (optional.includes(currentModifier as Modifier) ||
-                        event.getModifierState(platformModifiers[currentIndex]) ===
+    (event: KeyboardEvent): boolean => {
+        return allModifiers.reduce(
+            (
+                matches: boolean,
+                currentModifier: Modifier,
+                currentIndex: number,
+            ): boolean =>
+                matches &&
+                (optional.includes(currentModifier as Modifier) ||
+                    event.getModifierState(platformModifiers[currentIndex]) ===
                         required.includes(currentModifier)),
-                true,
-            );
-        };
+            true,
+        );
+    };
 
 const modifierPressed =
     (modifier: Modifier) =>
-        (event: MouseEvent | KeyboardEvent): boolean => {
-            const translated = translateModifierToPlatform(modifier);
-            const state = event.getModifierState(translated);
-            return event.type === "keyup"
-                ? state && (event as KeyboardEvent).key !== translated
-                : state;
-        };
+    (event: MouseEvent | KeyboardEvent): boolean => {
+        const translated = translateModifierToPlatform(modifier);
+        const state = event.getModifierState(translated);
+        return event.type === "keyup"
+            ? state && (event as KeyboardEvent).key !== translated
+            : state;
+    };
 
 export const controlPressed = modifierPressed("Control");
 export const shiftPressed = modifierPressed("Shift");

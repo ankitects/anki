@@ -22,7 +22,7 @@ function positionOverlay({
     inline: inlineArg,
     hideCallback,
 }: PositionOverlayArgs): PositionAlgorithm {
-    return async function(
+    return async function (
         reference: ReferenceElement,
         floating: FloatingElement,
     ): Promise<void> {

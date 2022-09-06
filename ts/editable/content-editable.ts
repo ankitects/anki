@@ -53,7 +53,6 @@ export interface FocusHandlerAPI {
 export function useFocusHandler(): [FocusHandlerAPI, SetupFocusHandlerAction] {
     let latestLocation: SelectionLocation | null = null;
     let offFocus: Callback | null;
-    let offBlur: Callback | null;
     let offPointerDown: Callback | null;
     let flush = false;
 
