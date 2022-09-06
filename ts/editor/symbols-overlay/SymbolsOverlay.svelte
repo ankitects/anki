@@ -65,6 +65,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         selection.collapseToEnd();
     }
 
+    function replaceTextViaMenu(symbolCharacter: string): void {
+        const commonAncestor = referenceRange!.commonAncestorContainer as Text;
+        const selection = getSelection(commonAncestor)!;
+
+        const replacementLength =
+            commonAncestor.data
+                .substring(0, referenceRange!.startOffset)
+                .split("")
+                .reverse()
+                .join("")
+                .indexOf(":") + 1;
+
+        const newOffset = referenceRange!.endOffset - replacementLength + 1;
+
+        commonAncestor.replaceData(
+            referenceRange!.endOffset - replacementLength,
+            replacementLength + 1,
+            symbolCharacter,
+        );
+
+        // Place caret behind it
+        const range = new Range();
+        range.setEnd(commonAncestor, newOffset);
+        range.collapse(false);
+
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        referenceRange = null;
+    }
+
     async function updateOverlay(
         selection: Selection,
         event: InputEvent,
@@ -128,7 +159,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="symbols-overlay">
-    {#if referenceRange}
+    {#if referenceRange && foundSymbols.length > 0}
         <WithFloating
             reference={referenceRange}
             placement={["top", "bottom"]}
@@ -136,7 +167,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         >
             <Popover slot="floating">
                 {#each foundSymbols as found (found.name)}
-                    <DropdownItem>
+                    <DropdownItem on:click={() => replaceTextViaMenu(found.symbol)}>
                         <span>{found.symbol} :{found.name}:</span>
                     </DropdownItem>
                 {/each}
