@@ -102,7 +102,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </IconButton>
                 </span>
 
-                <Popover slot="floating"--popover-padding-inline="0">
+                <Popover slot="floating" --popover-padding-inline="0">
                     <ButtonToolbar wrap={false}>
                         <ButtonGroup>
                             <CommandIconButton

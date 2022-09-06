@@ -136,7 +136,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <slot {createAutocomplete} />
     </span>
 
-    <Popover slot="floating"--popover-padding-inline="0">
+    <Popover slot="floating" --popover-padding-inline="0">
         <div class="autocomplete-menu">
             {#each suggestionsItems as suggestion, index}
                 {#if index === selected}

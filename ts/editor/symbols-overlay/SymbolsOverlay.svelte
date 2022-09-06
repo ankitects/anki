@@ -58,7 +58,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             query = wholeText.substring(offset - 1, offset) + event.data;
             foundSymbols = await getSymbols(query);
 
-            cleanup = editable.focusHandler.blur.on(unsetReferenceRange, { once: true })
+            cleanup = editable.focusHandler.blur.on(unsetReferenceRange, {
+                once: true,
+            });
         }
     }
 
