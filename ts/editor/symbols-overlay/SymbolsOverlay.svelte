@@ -89,7 +89,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             const commonAncestor = currentRange.commonAncestorContainer;
 
-            const startOfReplacement =
+            const replacementLength =
                 commonAncestor.data
                     .substring(0, currentRange.startOffset)
                     .split("")
@@ -98,8 +98,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     .indexOf(":") + 1;
 
             commonAncestor.deleteData(
-                currentRange.startOffset - startOfReplacement,
-                startOfReplacement,
+                currentRange.startOffset - replacementLength,
+                replacementLength,
             );
 
             inputHandler.insertText.on(
@@ -111,7 +111,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } else if (query) {
             query += data!;
             foundSymbols = await getSymbols(query);
-            console.log("query", query);
         }
     }
 
