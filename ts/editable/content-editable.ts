@@ -44,11 +44,16 @@ export interface FocusHandlerAPI {
      * Executed upon focus event of editable.
      */
     focus: HandlerList<{ event: FocusEvent }>;
+    /**
+     * Executed upon blur event of editable.
+     */
+    blur: HandlerList<{ event: FocusEvent }>;
 }
 
 export function useFocusHandler(): [FocusHandlerAPI, SetupFocusHandlerAction] {
     let latestLocation: SelectionLocation | null = null;
     let offFocus: Callback | null;
+    let offBlur: Callback | null;
     let offPointerDown: Callback | null;
     let flush = false;
 
@@ -57,6 +62,7 @@ export function useFocusHandler(): [FocusHandlerAPI, SetupFocusHandlerAction] {
     }
 
     const focus = new HandlerList<{ event: FocusEvent }>();
+    const blur = new HandlerList<{ event: FocusEvent }>();
 
     function prepareFocusHandling(
         editable: HTMLElement,
@@ -79,6 +85,7 @@ export function useFocusHandler(): [FocusHandlerAPI, SetupFocusHandlerAction] {
             },
             { once: true },
         );
+
         offPointerDown?.();
         offPointerDown = on(
             editable,
@@ -94,8 +101,9 @@ export function useFocusHandler(): [FocusHandlerAPI, SetupFocusHandlerAction] {
     /**
      * Must execute before DOMMirror.
      */
-    function onBlur(this: HTMLElement): void {
+    function onBlur(this: HTMLElement, event: FocusEvent): void {
         prepareFocusHandling(this, saveSelection(this));
+        blur.dispatch({ event });
     }
 
     function setupFocusHandler(editable: HTMLElement): { destroy(): void } {
@@ -115,6 +123,7 @@ export function useFocusHandler(): [FocusHandlerAPI, SetupFocusHandlerAction] {
         {
             flushCaret,
             focus,
+            blur,
         },
         setupFocusHandler,
     ];

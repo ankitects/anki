@@ -17,13 +17,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { SymbolsTable } from "./data-provider";
     import { getSymbolExact, getSymbols } from "./data-provider";
 
-    const { inputHandler } = context.get();
     const SYMBOLS_DELIMITER = ":";
 
+    const { inputHandler, editable } = context.get();
+
     let referenceRange: Range | null = null;
+    let cleanup;
     let query: string | null = null;
 
     let foundSymbols: SymbolsTable = [];
+
+    function unsetReferenceRange() {
+        referenceRange = null;
+        cleanup?.();
+    }
 
     async function maybeShowOverlay(
         selection: Selection,
@@ -50,6 +57,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             referenceRange = currentRange;
             query = wholeText.substring(offset - 1, offset) + event.data;
             foundSymbols = await getSymbols(query);
+
+            cleanup = editable.focusHandler.blur.on(unsetReferenceRange, { once: true })
         }
     }
 
@@ -59,7 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         symbolCharacter: string,
     ): Promise<void> {
         text.replaceData(0, text.length, symbolCharacter);
-        referenceRange = null;
+        unsetReferenceRange();
 
         // Place caret behind it
         const range = new Range();
@@ -98,17 +107,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         selection.removeAllRanges();
         selection.addRange(range);
 
-        referenceRange = null;
+        unsetReferenceRange();
     }
 
     async function updateOverlay(
         selection: Selection,
         event: InputEvent,
     ): Promise<void> {
-        console.log(event);
         if (event.inputType !== "insertText") {
-            referenceRange = null;
-            return;
+            return unsetReferenceRange();
         }
 
         const data = event.data;
@@ -118,16 +125,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             const symbol = await getSymbolExact(query);
 
             if (!symbol) {
-                referenceRange = null;
-                return;
+                return unsetReferenceRange();
             }
 
             const currentRange = getRange(selection)!;
             const offset = currentRange.startOffset;
 
             if (!(currentRange.commonAncestorContainer instanceof Text) || offset < 2) {
-                referenceRange = null;
-                return;
+                return unsetReferenceRange();
             }
 
             const commonAncestor = currentRange.commonAncestorContainer;
@@ -176,6 +181,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             reference={referenceRange}
             placement={["top", "bottom"]}
             offset={10}
+            on:close={console.log}
         >
             <Popover slot="floating" --popover-padding-inline="0">
                 {#each foundSymbols as found (found.name)}
