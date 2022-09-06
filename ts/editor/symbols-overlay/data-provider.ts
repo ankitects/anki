@@ -11,6 +11,7 @@ interface SymbolsEntry {
 export type SymbolsTable = SymbolsEntry[];
 
 // For emojis, we can generate from here https://api.github.com/emojis
+// For other characters, we can generate from here https://html.spec.whatwg.org/entities.json
 
 const symbolsTable = [
     { name: "blush", symbol: "😊" },
@@ -19,6 +20,10 @@ const symbolsTable = [
     { name: "joy", symbol: "😂" },
     { name: "omega", symbol: "ω" },
     { name: "Omega", symbol: "Ω" },
+    { name: "omicron", symbol: "ο" },
+    { name: "Omicron", symbol: "Ο" },
+    { name: "rarr", symbol: "→" },
+    { name: "->", symbol: "→" },
 ];
 
 export async function getSymbols(query: string): Promise<SymbolsTable> {
