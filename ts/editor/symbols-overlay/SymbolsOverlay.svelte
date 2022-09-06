@@ -243,7 +243,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             offset={10}
         >
             <Popover slot="floating" --popover-padding-inline="0">
-                {#each foundSymbols as found, index (found.name)}
+                {#each foundSymbols as found, index (found.symbol)}
                     <DropdownItem
                         active={index === activeItem}
                         on:click={() => replaceTextOnDemand(found.symbol)}
@@ -251,9 +251,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <div class="symbol-entry">
                             <div class="symbol">{found.symbol}</div>
                             <div class="description">
-                                <span class="delimiter">{SYMBOLS_DELIMITER}</span><span
-                                    class="name">{found.name}</span
-                                ><span class="delimiter">{SYMBOLS_DELIMITER}</span>
+                                {#each found.names as name}
+                                    <span class="delimiter">{SYMBOLS_DELIMITER}</span
+                                    ><span class="name">{name}</span><span
+                                        class="delimiter">{SYMBOLS_DELIMITER}</span
+                                    >
+                                {/each}
                             </div>
                         </div>
                     </DropdownItem>

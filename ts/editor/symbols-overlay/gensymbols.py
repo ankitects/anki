@@ -10,25 +10,14 @@ import urllib.request
 def load_github_symbols():
     output = []
 
-    with urllib.request.urlopen('https://api.github.com/emojis') as response:
+    with urllib.request.urlopen('https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json') as response:
         github_symbols = json.load(response)
 
-    for symbol_name in github_symbols:
-        url = github_symbols[symbol_name]
-
-        if "unicode" not in url:
-            continue
-
-        symbol_code_string = url.removeprefix('https://github.githubassets.com/images/icons/emoji/unicode/').removesuffix('.png?v8')
-        symbol_code_points = symbol_code_string.split('-')
-
-        stringified = [chr(int(code_point, 16)) for code_point in symbol_code_points]
-        symbol = "\u200d".join(stringified)
-
-        output.append({
-                          'name': symbol_name,
-                          'symbol': symbol,
-                      })
+        for entry in github_symbols:
+            output.append({
+                              'names': entry["aliases"],
+                              'symbol': entry["emoji"],
+                          })
 
     return output
 
@@ -51,7 +40,7 @@ def load_html_entities():
             symbol = html_entities[symbol_name_full]['characters']
 
             output.append({
-                              'name': symbol_name,
+                              'names': [symbol_name],
                               'symbol': symbol,
                           })
 

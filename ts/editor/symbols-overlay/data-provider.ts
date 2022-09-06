@@ -4,7 +4,7 @@
 import symbolsTable from "./symbols";
 
 interface SymbolsEntry {
-    name: string;
+    names: string[];
     symbol: string;
     containsHTML?: boolean;
     autoInsert?: boolean;
@@ -13,11 +13,11 @@ interface SymbolsEntry {
 export type SymbolsTable = SymbolsEntry[];
 
 export async function getSymbols(query: string): Promise<SymbolsTable> {
-    return symbolsTable.filter(({ name }) => name.includes(query));
+    return symbolsTable.filter(({ names }) => names.some((name) => name.includes(query)));
 }
 
 export async function getSymbolExact(query: string): Promise<string | null> {
-    const found = symbolsTable.find(({ name }) => name === query);
+    const found = symbolsTable.find(({ names }) => names.includes(query));
 
     return found ? found.symbol : null;
 }
