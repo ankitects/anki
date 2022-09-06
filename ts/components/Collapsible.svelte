@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { cubicIn, cubicOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
 
-    export let duration: number;
+    export let duration = 200;
 
     function dynamicDuration(height: number, factor: number): number {
         return 100 + Math.pow(height, 1 / 4) * factor;
