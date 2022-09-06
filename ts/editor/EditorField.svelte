@@ -85,18 +85,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => api?.destroy());
 </script>
 
-<div
-    use:elementResolve
-    class="editor-field"
-    on:focusin
-    on:focusout
-    on:click={() => editingArea.focus?.()}
-    on:mouseenter
-    on:mouseleave
->
-    <slot name="field-label" />
+<slot name="field-label" />
 
-    <Collapsible {collapsed}>
+<Collapsible collapse={collapsed} let:collapsed={hidden}>
+    <div
+        use:elementResolve
+        class="editor-field"
+        on:focusin
+        on:focusout
+        on:mouseenter
+        on:mouseleave
+        {hidden}
+    >
         <EditingArea
             {content}
             fontFamily={field.fontFamily}
@@ -111,8 +111,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <slot name="plain-text-input" />
             {/if}
         </EditingArea>
-    </Collapsible>
-</div>
+    </div>
+</Collapsible>
 
 <style lang="scss">
     .editor-field {

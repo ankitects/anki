@@ -13,6 +13,15 @@ use crate::{
 };
 
 impl DecksService for Backend {
+    fn new_deck(&self, _input: pb::Empty) -> Result<pb::Deck> {
+        Ok(Deck::new_normal().into())
+    }
+
+    fn add_deck(&self, deck: pb::Deck) -> Result<pb::OpChangesWithId> {
+        let mut deck: Deck = deck.try_into()?;
+        self.with_col(|col| Ok(col.add_deck(&mut deck)?.map(|_| deck.id.0).into()))
+    }
+
     fn add_deck_legacy(&self, input: pb::Json) -> Result<pb::OpChangesWithId> {
         let schema11: DeckSchema11 = serde_json::from_slice(&input.json)?;
         let mut deck: Deck = schema11.into();

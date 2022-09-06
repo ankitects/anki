@@ -16,20 +16,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
+    let show = false;
+
     const allShortcut = "Control+A";
     const copyShortcut = "Control+C";
     const removeShortcut = "Backspace";
 </script>
 
-<WithFloating placement="top">
-    <div
-        class="tags-selected-button"
-        slot="reference"
-        let:asReference
-        use:asReference
-        let:toggle
-        on:click={toggle}
-    >
+<WithFloating {show} placement="top" let:asReference>
+    <div class="tags-selected-button" use:asReference on:click={() => (show = !show)}>
         <IconConstrain>{@html dotsIcon}</IconConstrain>
     </div>
 

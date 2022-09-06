@@ -6,6 +6,7 @@ export function assertUnreachable(x: never): never {
 }
 
 export type Callback = () => void;
+export type AsyncCallback = () => Promise<void>;
 
 export function singleCallback(...callbacks: Callback[]): Callback {
     return () => {

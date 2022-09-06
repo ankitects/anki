@@ -2,7 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{
-    interval_kind::IntervalKind, CardState, LearnState, NextCardStates, RelearnState, StateContext,
+    interval_kind::IntervalKind, CardState, LearnState, RelearnState, SchedulingStates,
+    StateContext,
 };
 use crate::revlog::RevlogReviewKind;
 
@@ -52,10 +53,10 @@ impl ReviewState {
         }
     }
 
-    pub(crate) fn next_states(self, ctx: &StateContext) -> NextCardStates {
+    pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
         let (hard_interval, good_interval, easy_interval) = self.passing_review_intervals(ctx);
 
-        NextCardStates {
+        SchedulingStates {
             current: self.into(),
             again: self.answer_again(ctx),
             hard: self.answer_hard(hard_interval).into(),

@@ -5,15 +5,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { onMount, tick } from "svelte";
 
-    import ButtonDropdown from "../../components/ButtonDropdown.svelte";
-    import WithDropdown from "../../components/WithDropdown.svelte";
+    import ButtonToolbar from "../../components/ButtonToolbar.svelte";
+    import Popover from "../../components/Popover.svelte";
+    import WithFloating from "../../components/WithFloating.svelte";
+    import WithOverlay from "../../components/WithOverlay.svelte";
     import { on } from "../../lib/events";
     import * as tr from "../../lib/ftl";
-    import { singleCallback } from "../../lib/typing";
+    import { removeStyleProperties } from "../../lib/styling";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
     import HandleLabel from "../HandleLabel.svelte";
-    import HandleSelection from "../HandleSelection.svelte";
     import { context } from "../rich-text-input";
     import FloatButtons from "./FloatButtons.svelte";
     import SizeSelect from "./SizeSelect.svelte";
@@ -45,8 +46,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function maybeShowHandle(event: Event): Promise<void> {
-        await resetHandle();
-
         if (event.target instanceof HTMLImageElement) {
             const image = event.target;
 
@@ -176,12 +175,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
          * image.[dimension], there would be no visible effect on the image.
          * To avoid confusion with users we'll clear image.style.[dimension] (for now).
          */
-        activeImage!.style.removeProperty("width");
-        activeImage!.style.removeProperty("height");
-        if (activeImage!.getAttribute("style")?.length === 0) {
-            activeImage!.removeAttribute("style");
-        }
-
+        removeStyleProperties(activeImage!, "width", "height");
         activeImage!.width = width;
     }
 
@@ -205,12 +199,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         container.style.setProperty("--editor-shrink-max-width", `${maxWidth}px`);
         container.style.setProperty("--editor-shrink-max-height", `${maxHeight}px`);
 
-        return singleCallback(
-            on(container, "click", maybeShowHandle),
-            on(container, "blur", resetHandle),
-            on(container, "key" as any, resetHandle),
-            on(container, "paste", resetHandle),
-        );
+        return on(container, "click", maybeShowHandle);
     });
 
     let shrinkingDisabled: boolean;
@@ -230,36 +219,73 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
               attributeFilter: ["width"],
           })
         : widthObserver.disconnect();
+
+    let imageOverlay: HTMLElement;
 </script>
 
-<WithDropdown
-    drop="down"
-    autoOpen={true}
-    autoClose={false}
-    distance={3}
-    let:createDropdown
-    let:dropdownObject
->
+<div bind:this={imageOverlay} class="image-overlay">
     {#if activeImage}
-        {#await element then container}
-            <HandleSelection
-                bind:updateSelection
-                {container}
-                image={activeImage}
-                on:mount={(event) => createDropdown(event.detail.selection)}
+        <WithOverlay reference={activeImage} inline let:position={positionOverlay}>
+            <WithFloating
+                reference={activeImage}
+                placement="auto"
+                offset={20}
+                inline
+                hideIfReferenceHidden
+                let:position={positionFloating}
+                on:close={async ({ detail }) => {
+                    const { reason, originalEvent } = detail;
+
+                    if (reason === "outsideClick") {
+                        // If the click is still in the overlay, we do not want
+                        // to reset the handle either
+                        if (!originalEvent.path.includes(imageOverlay)) {
+                            await resetHandle();
+                        }
+                    } else {
+                        await resetHandle();
+                    }
+                }}
             >
+                <Popover slot="floating">
+                    <ButtonToolbar>
+                        <FloatButtons
+                            image={activeImage}
+                            on:update={async () => {
+                                positionOverlay();
+                                positionFloating();
+                            }}
+                        />
+
+                        <SizeSelect
+                            {shrinkingDisabled}
+                            {restoringDisabled}
+                            {isSizeConstrained}
+                            on:imagetoggle={() => {
+                                toggleActualSize();
+                                positionOverlay();
+                            }}
+                            on:imageclear={() => {
+                                clearActualSize();
+                                positionOverlay();
+                            }}
+                        />
+                    </ButtonToolbar>
+                </Popover>
+            </WithFloating>
+
+            <svelte:fragment slot="overlay">
                 <HandleBackground
                     on:dblclick={() => {
                         if (shrinkingDisabled) {
                             return;
                         }
                         toggleActualSize();
-                        updateSizesWithDimensions();
-                        dropdownObject.update();
+                        positionOverlay();
                     }}
                 />
 
-                <HandleLabel on:mount={updateDimensions}>
+                <HandleLabel>
                     {#if isSizeConstrained}
                         <span>{tr.editingDoubleClickToExpand()}</span>
                     {:else}
@@ -283,30 +309,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     }}
                     on:pointermove={(event) => {
                         resize(event);
-                        updateSizesWithDimensions();
-                        dropdownObject.update();
                     }}
                 />
-            </HandleSelection>
-        {/await}
-
-        <ButtonDropdown on:click={updateSizesWithDimensions}>
-            <FloatButtons image={activeImage} on:update={dropdownObject.update} />
-            <SizeSelect
-                {shrinkingDisabled}
-                {restoringDisabled}
-                {isSizeConstrained}
-                on:imagetoggle={() => {
-                    toggleActualSize();
-                    updateSizesWithDimensions();
-                    dropdownObject.update();
-                }}
-                on:imageclear={() => {
-                    clearActualSize();
-                    updateSizesWithDimensions();
-                    dropdownObject.update();
-                }}
-            />
-        </ButtonDropdown>
+            </svelte:fragment>
+        </WithOverlay>
     {/if}
-</WithDropdown>
+</div>

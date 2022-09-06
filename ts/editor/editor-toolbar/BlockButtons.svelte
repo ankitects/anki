@@ -3,17 +3,18 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ButtonDropdown from "../../components/ButtonDropdown.svelte";
     import ButtonGroup from "../../components/ButtonGroup.svelte";
     import ButtonGroupItem, {
         createProps,
         setSlotHostContext,
         updatePropsList,
     } from "../../components/ButtonGroupItem.svelte";
+    import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import IconButton from "../../components/IconButton.svelte";
+    import Popover from "../../components/Popover.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
-    import WithDropdown from "../../components/WithDropdown.svelte";
+    import WithFloating from "../../components/WithFloating.svelte";
     import { execCommand } from "../../domlib";
     import { getListItem } from "../../lib/dom";
     import * as tr from "../../lib/ftl";
@@ -54,7 +55,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const { focusedInput } = context.get();
+
     $: disabled = !editingInputIsRichText($focusedInput);
+
+    let showFloating = false;
 </script>
 
 <ButtonGroup>
@@ -82,80 +86,95 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </ButtonGroupItem>
 
         <ButtonGroupItem>
-            <WithDropdown let:createDropdown>
-                <IconButton
-                    {disabled}
-                    on:mount={(event) => createDropdown(event.detail.button)}
-                >
-                    {@html listOptionsIcon}
-                </IconButton>
+            <WithFloating
+                show={showFloating && !disabled}
+                inline
+                on:close={() => (showFloating = false)}
+                let:asReference
+            >
+                <span class="block-buttons" use:asReference>
+                    <IconButton
+                        {disabled}
+                        on:click={() => (showFloating = !showFloating)}
+                    >
+                        {@html listOptionsIcon}
+                    </IconButton>
+                </span>
 
-                <ButtonDropdown>
-                    <ButtonGroup>
-                        <CommandIconButton
-                            key="justifyLeft"
-                            tooltip={tr.editingAlignLeft()}
-                            --border-left-radius="5px"
-                            --border-right-radius="0px"
-                            >{@html justifyLeftIcon}</CommandIconButton
-                        >
+                <Popover slot="floating">
+                    <ButtonToolbar wrap={false}>
+                        <ButtonGroup>
+                            <CommandIconButton
+                                key="justifyLeft"
+                                tooltip={tr.editingAlignLeft()}
+                                --border-left-radius="5px"
+                                --border-right-radius="0px"
+                                >{@html justifyLeftIcon}</CommandIconButton
+                            >
 
-                        <CommandIconButton
-                            key="justifyCenter"
-                            tooltip={tr.editingCenter()}
-                            >{@html justifyCenterIcon}</CommandIconButton
-                        >
+                            <CommandIconButton
+                                key="justifyCenter"
+                                tooltip={tr.editingCenter()}
+                                >{@html justifyCenterIcon}</CommandIconButton
+                            >
 
-                        <CommandIconButton
-                            key="justifyRight"
-                            tooltip={tr.editingAlignRight()}
-                            >{@html justifyRightIcon}</CommandIconButton
-                        >
+                            <CommandIconButton
+                                key="justifyRight"
+                                tooltip={tr.editingAlignRight()}
+                                >{@html justifyRightIcon}</CommandIconButton
+                            >
 
-                        <CommandIconButton
-                            key="justifyFull"
-                            tooltip={tr.editingJustify()}
-                            --border-right-radius="5px"
-                            >{@html justifyFullIcon}</CommandIconButton
-                        >
-                    </ButtonGroup>
+                            <CommandIconButton
+                                key="justifyFull"
+                                tooltip={tr.editingJustify()}
+                                --border-right-radius="5px"
+                                >{@html justifyFullIcon}</CommandIconButton
+                            >
+                        </ButtonGroup>
 
-                    <ButtonGroup>
-                        <IconButton
-                            tooltip="{tr.editingOutdent()} ({getPlatformString(
-                                outdentKeyCombination,
-                            )})"
-                            {disabled}
-                            on:click={outdentListItem}
-                            --border-left-radius="5px"
-                            --border-right-radius="0px"
-                        >
-                            {@html outdentIcon}
-                        </IconButton>
+                        <ButtonGroup>
+                            <IconButton
+                                tooltip="{tr.editingOutdent()} ({getPlatformString(
+                                    outdentKeyCombination,
+                                )})"
+                                {disabled}
+                                on:click={outdentListItem}
+                                --border-left-radius="5px"
+                                --border-right-radius="0px"
+                            >
+                                {@html outdentIcon}
+                            </IconButton>
 
-                        <Shortcut
-                            keyCombination={outdentKeyCombination}
-                            on:action={outdentListItem}
-                        />
+                            <Shortcut
+                                keyCombination={outdentKeyCombination}
+                                on:action={outdentListItem}
+                            />
 
-                        <IconButton
-                            tooltip="{tr.editingIndent()} ({getPlatformString(
-                                indentKeyCombination,
-                            )})"
-                            {disabled}
-                            on:click={indentListItem}
-                            --border-right-radius="5px"
-                        >
-                            {@html indentIcon}
-                        </IconButton>
+                            <IconButton
+                                tooltip="{tr.editingIndent()} ({getPlatformString(
+                                    indentKeyCombination,
+                                )})"
+                                {disabled}
+                                on:click={indentListItem}
+                                --border-right-radius="5px"
+                            >
+                                {@html indentIcon}
+                            </IconButton>
 
-                        <Shortcut
-                            keyCombination={indentKeyCombination}
-                            on:action={indentListItem}
-                        />
-                    </ButtonGroup>
-                </ButtonDropdown>
-            </WithDropdown>
+                            <Shortcut
+                                keyCombination={indentKeyCombination}
+                                on:action={indentListItem}
+                            />
+                        </ButtonGroup>
+                    </ButtonToolbar>
+                </Popover>
+            </WithFloating>
         </ButtonGroupItem>
     </DynamicallySlottable>
 </ButtonGroup>
+
+<style lang="scss">
+    .block-buttons {
+        line-height: 1;
+    }
+</style>

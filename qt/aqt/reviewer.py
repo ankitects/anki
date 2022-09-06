@@ -17,8 +17,9 @@ from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.scheduler.base import ScheduleCardsAsNew
-from anki.scheduler.v3 import CardAnswer, CustomScheduling, NextStates, QueuedCards
+from anki.scheduler.v3 import CardAnswer, QueuedCards
 from anki.scheduler.v3 import Scheduler as V3Scheduler
+from anki.scheduler.v3 import SchedulingStates
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
 from aqt import AnkiQt, gui_hooks
@@ -74,22 +75,23 @@ def replay_audio(card: Card, question_side: bool) -> None:
 
 @dataclass
 class V3CardInfo:
-    """2021 test scheduler info.
+    """Stores the top of the card queue for the v3 scheduler.
 
-    next_states is copied from the top card on initialization, and can be
-    mutated to alter the default scheduling.
+    This includes current and potential next states of the displayed card,
+    which may be mutated by a user's custom scheduling.
     """
 
     queued_cards: QueuedCards
-    next_states: NextStates
-    custom_data: str
+    states: SchedulingStates
 
     @staticmethod
     def from_queue(queued_cards: QueuedCards) -> V3CardInfo:
+        top_card = queued_cards.cards[0]
+        states = top_card.states
+        states.current.custom_data = top_card.card.custom_data
         return V3CardInfo(
             queued_cards=queued_cards,
-            next_states=queued_cards.cards[0].next_states,
-            custom_data=queued_cards.cards[0].card.custom_data,
+            states=states,
         )
 
     def top_card(self) -> QueuedCards.QueuedCard:
@@ -262,19 +264,18 @@ class Reviewer:
         self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)
         self.card.start_timer()
 
-    def get_custom_scheduling(self) -> CustomScheduling | None:
+    def get_scheduling_states(self) -> SchedulingStates | None:
         if v3 := self._v3:
-            return CustomScheduling(states=v3.next_states, custom_data=v3.custom_data)
+            return v3.states
         else:
             return None
 
-    def set_custom_scheduling(self, key: str, scheduling: CustomScheduling) -> None:
+    def set_scheduling_states(self, key: str, states: SchedulingStates) -> None:
         if key != self._state_mutation_key:
             return
 
         if v3 := self._v3:
-            v3.next_states = scheduling.states
-            v3.custom_data = scheduling.custom_data
+            v3.states = states
 
     def _run_state_mutation_hook(self) -> None:
         if self._v3 and (js := self._state_mutation_js):
@@ -436,8 +437,7 @@ class Reviewer:
         if (v3 := self._v3) and (sched := cast(V3Scheduler, self.mw.col.sched)):
             answer = sched.build_answer(
                 card=self.card,
-                states=v3.next_states,
-                custom_data=v3.custom_data,
+                states=v3.states,
                 rating=v3.rating_from_ease(ease),
             )
 
@@ -771,7 +771,7 @@ time = %(time)d;
 
         if v3 := self._v3:
             assert isinstance(self.mw.col.sched, V3Scheduler)
-            labels = self.mw.col.sched.describe_next_states(v3.next_states)
+            labels = self.mw.col.sched.describe_next_states(v3.states)
         else:
             labels = None
 

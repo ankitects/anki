@@ -3,11 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { createEventDispatcher, getContext, onMount } from "svelte";
-
     import { pageTheme } from "../sveltelib/theme";
-    import { dropdownKey } from "./context-keys";
-    import type { DropdownProps } from "./dropdown";
     import IconConstrain from "./IconConstrain.svelte";
 
     export let id: string | undefined = undefined;
@@ -22,25 +18,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let iconSize = 75;
     export let widthMultiplier = 1;
     export let flipX = false;
-
-    let buttonRef: HTMLButtonElement;
-
-    const dropdownProps = getContext<DropdownProps>(dropdownKey) ?? { dropdown: false };
-
-    const dispatch = createEventDispatcher();
-    onMount(() => dispatch("mount", { button: buttonRef }));
 </script>
 
 <button
-    bind:this={buttonRef}
     {id}
     class="icon-button btn {className}"
     class:active
-    class:dropdown-toggle={dropdownProps.dropdown}
     class:btn-day={!$pageTheme.isDark}
     class:btn-night={$pageTheme.isDark}
     title={tooltip}
-    {...dropdownProps}
     {disabled}
     tabindex={tabbable ? 0 : -1}
     on:click
@@ -64,8 +50,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     @include button.btn-day;
     @include button.btn-night;
-
-    .dropdown-toggle::after {
-        margin-right: 0.25rem;
-    }
 </style>
