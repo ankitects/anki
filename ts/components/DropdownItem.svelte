@@ -16,7 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let active = false;
 
     $: if (buttonRef && active) {
-        console.log("wactive!");
         /* buttonRef.scrollIntoView({ behavior: "smooth", block: "start" }); */
         /* TODO will not work on Gecko */
         (buttonRef as any).scrollIntoViewIfNeeded({
