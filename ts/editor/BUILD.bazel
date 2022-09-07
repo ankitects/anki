@@ -5,25 +5,6 @@ load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
 
-py_binary(
-    name = "gensymbols",
-    srcs = [
-        "symbols-overlay/gensymbols.py",
-    ],
-    deps = [],
-)
-
-genrule(
-    name = "symbols_gen",
-    outs = [
-        "symbols-overlay/symbols.ts",
-    ],
-    cmd = "$(location gensymbols) $(OUTS)",
-    tools = [
-        "gensymbols",
-    ],
-)
-
 compile_sass(
     srcs = [
         "editor-base.scss",
@@ -50,6 +31,8 @@ _ts_deps = [
     "@npm//@types/codemirror",
     "@npm//codemirror",
     "@npm//svelte",
+    "@npm//character-entities",
+    "@npm//gemoji",
 ]
 
 compile_svelte(
@@ -59,9 +42,6 @@ compile_svelte(
 
 typescript(
     name = "editor",
-    generated = [
-        ":symbols-overlay/symbols.ts",
-    ],
     deps = _ts_deps + [
         ":svelte",
     ],
