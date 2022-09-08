@@ -52,7 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         justify-content: start;
 
-        font-size: var(--dropdown-font-size, var(--base-font-size));
+        font-size: var(--dropdown-font-size, calc(0.8 * var(--base-font-size)));
 
         background: none;
         box-shadow: none !important;
