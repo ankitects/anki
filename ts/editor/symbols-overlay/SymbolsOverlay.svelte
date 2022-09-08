@@ -149,17 +149,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 .join("")
                 .indexOf(SYMBOLS_DELIMITER) + 1;
 
-        const newOffset = referenceRange!.endOffset - replacementLength + 1;
-
-        commonAncestor.replaceData(
+        commonAncestor.deleteData(
             referenceRange!.endOffset - replacementLength,
             replacementLength + 1,
-            symbolCharacter,
         );
 
-        // Place caret behind it
+        const text = new Text(symbolCharacter);
+        commonAncestor.after(text);
+
         const range = new Range();
-        range.setEnd(commonAncestor, newOffset);
+        range.setEndAfter(text);
         range.collapse(false);
 
         selection.removeAllRanges();
