@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Callback } from "../../lib/typing";
     import { singleCallback } from "../../lib/typing";
     import { context } from "../rich-text-input";
-    import type { SymbolsTable } from "./symbols-table";
+    import type { SymbolsTable, SymbolsEntry } from "./symbols-table";
     import { getExactSymbol, getAutoInsertSymbol, findSymbols } from "./symbols-table";
     import { fontFamilyKey } from "../../lib/context-keys";
 
@@ -41,28 +41,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         cleanup?.();
     }
 
-    function replaceText(
-        selection: Selection,
-        text: Text,
-        symbolCharacter: string,
-    ): void {
-        text.replaceData(0, text.length, symbolCharacter);
+    function replaceText(selection: Selection, text: Text, nodes: Node[]): void {
+        text.deleteData(0, text.length);
+        text.after(...nodes);
+
         unsetReferenceRange();
 
         // Place caret behind it
         const range = new Range();
-        range.selectNode(text);
+        range.setEndAfter(nodes[nodes.length - 1]);
+        range.collapse(false);
 
         selection.removeAllRanges();
         selection.addRange(range);
-        selection.collapseToEnd();
+    }
+
+    const parser = new DOMParser();
+    import { createDummyDoc } from "../../lib/parsing";
+
+    function symbolsEntryToReplacement(entry: SymbolsEntry): Node[] {
+        if (entry.containsHTML) {
+            const doc = parser.parseFromString(
+                createDummyDoc(entry.symbol),
+                "text/html",
+            );
+            return [...doc.body.childNodes];
+        } else {
+            return [new Text(entry.symbol)];
+        }
     }
 
     function tryAutoInsert(selection: Selection, range: Range, query: string): boolean {
         if (query.length >= 2) {
-            const symbol = getAutoInsertSymbol(query);
+            const symbolEntry = getAutoInsertSymbol(query);
 
-            if (symbol) {
+            if (symbolEntry) {
                 const commonAncestor = range.commonAncestorContainer as Text;
                 const replacementLength = query.length;
 
@@ -72,7 +85,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 );
 
                 inputHandler.insertText.on(
-                    async ({ text }) => replaceText(selection, text, symbol),
+                    async ({ text }) =>
+                        replaceText(
+                            selection,
+                            text,
+                            symbolsEntryToReplacement(symbolEntry),
+                        ),
                     {
                         once: true,
                     },
@@ -99,7 +117,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const currentRange = getRange(selection)!;
         const offset = currentRange.endOffset;
 
-        if (!(currentRange.commonAncestorContainer instanceof Text) || offset < 2) {
+        if (!(currentRange.commonAncestorContainer instanceof Text)) {
             return unsetReferenceRange();
         }
 
@@ -137,7 +155,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function replaceTextOnDemand(symbolCharacter: string): void {
+    function replaceTextOnDemand(entry: SymbolsEntry): void {
         const commonAncestor = referenceRange!.commonAncestorContainer as Text;
         const selection = getSelection(commonAncestor)!;
 
@@ -154,11 +172,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             replacementLength + 1,
         );
 
-        const text = new Text(symbolCharacter);
-        commonAncestor.after(text);
+        const nodes = symbolsEntryToReplacement(entry);
+        commonAncestor.after(...nodes);
 
         const range = new Range();
-        range.setEndAfter(text);
+        range.setEndAfter(nodes[nodes.length - 1]);
         range.collapse(false);
 
         selection.removeAllRanges();
@@ -176,9 +194,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         referenceRange = getRange(selection)!;
 
         if (data === SYMBOLS_DELIMITER && searchQuery) {
-            const symbol = getExactSymbol(searchQuery);
+            const symbolEntry = getExactSymbol(searchQuery);
 
-            if (!symbol) {
+            if (!symbolEntry) {
                 return unsetReferenceRange();
             }
 
@@ -205,7 +223,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             );
 
             inputHandler.insertText.on(
-                async ({ text }) => replaceText(selection, text, symbol),
+                async ({ text }) =>
+                    replaceText(
+                        selection,
+                        text,
+                        symbolsEntryToReplacement(symbolEntry),
+                    ),
                 {
                     once: true,
                 },
@@ -252,7 +275,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 activeItem++;
             }
         } else if (action === "enter" || action === "tab") {
-            replaceTextOnDemand(foundSymbols[activeItem].symbol);
+            replaceTextOnDemand(foundSymbols[activeItem]);
         } else if (action === "escape") {
             unsetReferenceRange();
         }
@@ -279,7 +302,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {#each foundSymbols as found, index (found.symbol)}
                         <DropdownItem
                             active={index === activeItem}
-                            on:click={() => replaceTextOnDemand(found.symbol)}
+                            on:click={() => replaceTextOnDemand(found)}
                         >
                             <div class="symbol" style:font-family={$fontFamily}>
                                 {found.symbol}

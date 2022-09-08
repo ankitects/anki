@@ -5,7 +5,7 @@ import { characterEntities } from "character-entities";
 import Fuse from "fuse.js";
 import { gemoji } from "gemoji";
 
-interface SymbolsEntry {
+export interface SymbolsEntry {
     symbol: string;
     /**
      * Used for searching and direct insertion
@@ -61,6 +61,7 @@ for (const { emoji, names, tags } of gemoji) {
     });
 }
 
+
 const symbolsFuse = new Fuse(symbolsTable, {
     threshold: 0.2,
     minMatchCharLength: 2,
@@ -86,17 +87,17 @@ export function findSymbols(query: string): SymbolsTable {
     return symbolsFuse.search(query).map(({ item }) => item);
 }
 
-export function getExactSymbol(query: string): string | null {
+export function getExactSymbol(query: string): SymbolsEntry | null {
     const [found] = symbolsFuse.search({ names: `=${query}` }, { limit: 1 });
 
-    return found ? found.item.symbol : null;
+    return found ? found.item : null;
 }
 
-export function getAutoInsertSymbol(query: string): string | null {
+export function getAutoInsertSymbol(query: string): SymbolsEntry | null {
     const [found] = symbolsFuse.search({
         names: `=${query}`,
         autoInsert: "=autoInsert",
     });
 
-    return found ? found.item.symbol : null;
+    return found ? found.item : null;
 }
