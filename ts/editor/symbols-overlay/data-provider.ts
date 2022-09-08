@@ -62,11 +62,11 @@ const symbolsFuse = new Fuse(symbolsTable, {
     ]
 });
 
-export async function getSymbols(query: string): Promise<SymbolsTable> {
+export function getSymbols(query: string): SymbolsTable {
     return symbolsFuse.search(query).map(({ item }) => item);
 }
 
-export async function getSymbolExact(query: string): Promise<string | null> {
+export function getSymbolExact(query: string): string | null {
     const found = symbolsTable.find(({ names }) => names.includes(query));
 
     return found ? found.symbol : null;

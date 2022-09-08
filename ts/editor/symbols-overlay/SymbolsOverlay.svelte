@@ -36,10 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         cleanup?.();
     }
 
-    async function maybeShowOverlay(
-        selection: Selection,
-        event: InputEvent,
-    ): Promise<void> {
+    function maybeShowOverlay(selection: Selection, event: InputEvent): void {
         if (
             event.inputType !== "insertText" ||
             event.data === SYMBOLS_DELIMITER ||
@@ -72,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                 query = possibleQuery;
                 referenceRange = currentRange;
-                foundSymbols = await getSymbols(query);
+                foundSymbols = getSymbols(query);
 
                 cleanup = editable.focusHandler.blur.on(
                     async () => unsetReferenceRange(),
@@ -85,7 +82,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    async function replaceText(
+    function replaceText(
         selection: Selection,
         text: Text,
         symbolCharacter: string,
@@ -133,10 +130,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         unsetReferenceRange();
     }
 
-    async function updateOverlay(
-        selection: Selection,
-        event: InputEvent,
-    ): Promise<void> {
+    function updateOverlay(selection: Selection, event: InputEvent): void {
         if (event.inputType !== "insertText") {
             return unsetReferenceRange();
         }
@@ -145,7 +139,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         referenceRange = getRange(selection)!;
 
         if (data === SYMBOLS_DELIMITER && query) {
-            const symbol = await getSymbolExact(query);
+            const symbol = getSymbolExact(query);
 
             if (!symbol) {
                 return unsetReferenceRange();
@@ -181,23 +175,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             );
         } else if (query) {
             query += data!;
-            foundSymbols = await getSymbols(query);
+            foundSymbols = getSymbols(query);
         }
     }
 
-    async function onBeforeInput({ event }): Promise<void> {
+    function onBeforeInput({ event }): void {
         const selection = getSelection(event.target)!;
 
         if (referenceRange) {
-            await updateOverlay(selection, event);
+            updateOverlay(selection, event);
         } else {
-            await maybeShowOverlay(selection, event);
+            maybeShowOverlay(selection, event);
         }
     }
 
     $: showSymbolsOverlay = referenceRange && foundSymbols.length > 0;
 
-    async function onSpecialKey({ event, action }): Promise<void> {
+    function onSpecialKey({ event, action }): void {
         if (!showSymbolsOverlay) {
             return;
         }
