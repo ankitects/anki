@@ -8,7 +8,7 @@ import { gemoji } from "gemoji";
 interface SymbolsEntry {
     symbol: string;
     /**
-     * Used for searching and direct replacement
+     * Used for searching and direct insertion
      */
     names: string[];
     /**
@@ -20,11 +20,12 @@ interface SymbolsEntry {
      */
     containsHTML?: boolean;
     /**
-     * Symbols can be directly inserted, when you enter a full name within delimiters.
-     * If you enable auto replacement, you can use direction replacement without
+     * Symbols can be automak inserted, when you enter a full name within delimiters.
+     * If you enable auto insertion, you can use direction insertion without
      * using the delimiter and triggering the search dropdown.
+     * To falicitate interacting with fuse.js this is a string value rather than a boolean.
      */
-    autoReplace?: boolean;
+    autoInsert?: "autoInsert";
 }
 
 export type SymbolsTable = SymbolsEntry[];
@@ -63,15 +64,20 @@ for (const { emoji, names, tags } of gemoji) {
 const symbolsFuse = new Fuse(symbolsTable, {
     threshold: 0.2,
     minMatchCharLength: 2,
+    useExtendedSearch: true,
     isCaseSensitive: true,
     keys: [
         {
             name: "names",
-            weight: 0.7,
+            weight: 7,
         },
         {
             name: "tags",
-            weight: 0.3,
+            weight: 3,
+        },
+        {
+            name: "autoInsert",
+            weight: 0.1,
         },
     ],
 });
@@ -81,7 +87,16 @@ export function findSymbols(query: string): SymbolsTable {
 }
 
 export function getExactSymbol(query: string): string | null {
-    const found = symbolsTable.find(({ names }) => names.includes(query));
+    const [found] = symbolsFuse.search({ names: `=${query}` }, { limit: 1 });
 
-    return found ? found.symbol : null;
+    return found ? found.item.symbol : null;
+}
+
+export function getAutoInsertSymbol(query: string): string | null {
+    const [found] = symbolsFuse.search({
+        names: `=${query}`,
+        autoInsert: "=autoInsert",
+    });
+
+    return found ? found.item.symbol : null;
 }

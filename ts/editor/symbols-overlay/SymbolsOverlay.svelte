@@ -18,17 +18,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { singleCallback } from "../../lib/typing";
     import { context } from "../rich-text-input";
     import type { SymbolsTable } from "./symbols-table";
-    import { getExactSymbol, findSymbols } from "./symbols-table";
+    import { getExactSymbol, getAutoInsertSymbol, findSymbols } from "./symbols-table";
     import { fontFamilyKey } from "../../lib/context-keys";
 
     const SYMBOLS_DELIMITER = ":";
+    const whitespaceCharacters = [" ", "\u00a0"];
 
     const { inputHandler, editable } = context.get();
     const fontFamily = getContext<Readable<string>>(fontFamilyKey);
 
     let referenceRange: Range | undefined = undefined;
     let cleanup: Callback;
-    let query: string = "";
+
+    let searchQuery: string = "";
     let activeItem = 0;
 
     let foundSymbols: SymbolsTable = [];
@@ -39,10 +41,56 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         cleanup?.();
     }
 
+    function replaceText(
+        selection: Selection,
+        text: Text,
+        symbolCharacter: string,
+    ): void {
+        text.replaceData(0, text.length, symbolCharacter);
+        unsetReferenceRange();
+
+        // Place caret behind it
+        const range = new Range();
+        range.selectNode(text);
+
+        selection.removeAllRanges();
+        selection.addRange(range);
+        selection.collapseToEnd();
+    }
+
+    function tryAutoInsert(selection: Selection, range: Range, query: string): boolean {
+        if (query.length >= 2) {
+            const symbol = getAutoInsertSymbol(query);
+
+            if (symbol) {
+                const commonAncestor = range.commonAncestorContainer as Text;
+                const replacementLength = query.length;
+
+                commonAncestor.deleteData(
+                    range.endOffset - replacementLength + 1,
+                    replacementLength,
+                );
+
+                inputHandler.insertText.on(
+                    async ({ text }) => replaceText(selection, text, symbol),
+                    {
+                        once: true,
+                    },
+                );
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     function maybeShowOverlay(selection: Selection, event: InputEvent): void {
         if (
             event.inputType !== "insertText" ||
+            !event.data ||
             event.data === SYMBOLS_DELIMITER ||
+            whitespaceCharacters.includes(event.data) ||
             !isSelectionCollapsed(selection)
         ) {
             return unsetReferenceRange();
@@ -56,23 +104,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         const wholeText = currentRange.commonAncestorContainer.wholeText;
+        let possibleQuery = event.data;
 
         for (let index = offset - 1; index >= 0; index--) {
             const currentCharacter = wholeText[index];
 
-            if (currentCharacter === " ") {
+            if (whitespaceCharacters.includes(currentCharacter)) {
                 return unsetReferenceRange();
             } else if (currentCharacter === SYMBOLS_DELIMITER) {
-                const possibleQuery =
-                    wholeText.substring(index + 1, offset) + event.data;
-
                 if (possibleQuery.length < 2) {
                     return unsetReferenceRange();
                 }
 
-                query = possibleQuery;
+                searchQuery = possibleQuery;
                 referenceRange = currentRange;
-                foundSymbols = findSymbols(query);
+                foundSymbols = findSymbols(searchQuery);
 
                 cleanup = editable.focusHandler.blur.on(
                     async () => unsetReferenceRange(),
@@ -82,24 +128,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 );
                 return;
             }
+
+            possibleQuery = currentCharacter + possibleQuery;
+
+            if (tryAutoInsert(selection, currentRange, possibleQuery)) {
+                return;
+            }
         }
-    }
-
-    function replaceText(
-        selection: Selection,
-        text: Text,
-        symbolCharacter: string,
-    ): Promise<void> {
-        text.replaceData(0, text.length, symbolCharacter);
-        unsetReferenceRange();
-
-        // Place caret behind it
-        const range = new Range();
-        range.selectNode(text);
-
-        selection.removeAllRanges();
-        selection.addRange(range);
-        selection.collapseToEnd();
     }
 
     function replaceTextOnDemand(symbolCharacter: string): void {
@@ -141,8 +176,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const data = event.data;
         referenceRange = getRange(selection)!;
 
-        if (data === SYMBOLS_DELIMITER && query) {
-            const symbol = getExactSymbol(query);
+        if (data === SYMBOLS_DELIMITER && searchQuery) {
+            const symbol = getExactSymbol(searchQuery);
 
             if (!symbol) {
                 return unsetReferenceRange();
@@ -176,9 +211,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     once: true,
                 },
             );
-        } else if (query) {
-            query += data!;
-            foundSymbols = findSymbols(query);
+        } else if (searchQuery) {
+            searchQuery += data!;
+            foundSymbols = findSymbols(searchQuery);
         }
     }
 
