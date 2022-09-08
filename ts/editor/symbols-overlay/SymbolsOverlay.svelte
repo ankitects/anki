@@ -231,6 +231,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         singleCallback(
             inputHandler.beforeInput.on(onBeforeInput),
             inputHandler.specialKey.on(onSpecialKey),
+            inputHandler.pointerDown.on(unsetReferenceRange),
         ),
     );
 </script>

@@ -36,6 +36,7 @@ export interface SpecialKeyParams {
 export interface InputHandlerAPI {
     readonly beforeInput: HandlerList<InputEventParams>;
     readonly insertText: HandlerList<InsertTextParams>;
+    readonly pointerDown: HandlerList<{ event: PointerEvent }>;
     readonly specialKey: HandlerList<SpecialKeyParams>;
 }
 
@@ -74,8 +75,15 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
         range.commonAncestorContainer.normalize();
     }
 
+    const pointerDown = new HandlerList<{ event: PointerEvent }>();
+
     function clearInsertText(): void {
         insertText.clear();
+    }
+
+    function onPointerDown(event: PointerEvent): void {
+        pointerDown.dispatch({ event })
+        clearInsertText();
     }
 
     const specialKey = new HandlerList<SpecialKeyParams>();
@@ -100,9 +108,9 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
         const destroy = singleCallback(
             on(element, "beforeinput", onBeforeInput),
             on(element, "blur", clearInsertText),
-            on(element, "pointerdown", clearInsertText),
-            on(document, "selectionchange", clearInsertText),
+            on(element, "pointerdown", onPointerDown),
             on(element, "keydown", onKeyDown),
+            on(document, "selectionchange", clearInsertText),
         );
 
         return { destroy };
@@ -113,6 +121,7 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
             beforeInput,
             insertText,
             specialKey,
+            pointerDown,
         },
         setupHandler,
     ];
