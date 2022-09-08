@@ -17,8 +17,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Callback } from "../../lib/typing";
     import { singleCallback } from "../../lib/typing";
     import { context } from "../rich-text-input";
-    import type { SymbolsTable } from "./data-provider";
-    import { getSymbolExact, getSymbols } from "./data-provider";
+    import type { SymbolsTable } from "./symbols-table";
+    import { getSymbolExact, getSymbols } from "./symbols-table";
     import { fontFamilyKey } from "../../lib/context-keys";
 
     const SYMBOLS_DELIMITER = ":";
