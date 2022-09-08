@@ -82,7 +82,7 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
     }
 
     function onPointerDown(event: PointerEvent): void {
-        pointerDown.dispatch({ event })
+        pointerDown.dispatch({ event });
         clearInsertText();
     }
 
