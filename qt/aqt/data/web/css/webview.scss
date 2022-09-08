@@ -17,6 +17,7 @@ body {
     transition: opacity 0.5s ease-out;
     margin: 2em;
     overscroll-behavior: none;
+    @include scrollbar.custom;
 }
 
 a {
@@ -26,8 +27,4 @@ a {
 
 h1 {
     margin-bottom: 0.2em;
-}
-
-.night-mode {
-    @include scrollbar.night-mode;
 }
