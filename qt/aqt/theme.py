@@ -60,7 +60,7 @@ class ThemeManager:
     DARK_MODE_BUTTON_BG_MIDPOINT = "#555555"
 
     def macos_dark_mode(self) -> bool:
-        "True if the user has night mode on, and has forced native widgets."
+        "True if the user has night mode on."
         if not is_mac:
             return False
 
@@ -70,9 +70,7 @@ class ThemeManager:
         if self._dark_mode_available is None:
             self._dark_mode_available = set_macos_dark_mode(True)
 
-        from aqt import mw
-
-        return self._dark_mode_available and mw.pm.dark_mode_widgets()
+        return self._dark_mode_available
 
     def get_night_mode(self) -> bool:
         return self._night_mode_preference
