@@ -305,7 +305,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             on:click={() => replaceTextOnDemand(found)}
                         >
                             <div class="symbol" style:font-family={$fontFamily}>
-                                {found.symbol}
+                                {#if found.containsHTML}
+                                    {@html found.symbol}
+                                {:else}
+                                    {found.symbol}
+                                {/if}
                             </div>
                             <div class="description">
                                 {#each found.names as name}
