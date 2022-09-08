@@ -7,10 +7,24 @@ import { gemoji } from "gemoji";
 
 interface SymbolsEntry {
     symbol: string;
+    /**
+     * Used for searching and direct replacement
+     */
     names: string[];
+    /**
+     * Used for searching
+     */
     tags: string[];
+    /**
+     * If symbols contain HTML, they need to be treated specially.
+     */
     containsHTML?: boolean;
-    autoInsert?: boolean;
+    /**
+     * Symbols can be directly inserted, when you enter a full name within delimiters.
+     * If you enable auto replacement, you can use direction replacement without
+     * using the delimiter and triggering the search dropdown.
+     */
+    autoReplace?: boolean;
 }
 
 export type SymbolsTable = SymbolsEntry[];
@@ -62,11 +76,11 @@ const symbolsFuse = new Fuse(symbolsTable, {
     ],
 });
 
-export function getSymbols(query: string): SymbolsTable {
+export function findSymbols(query: string): SymbolsTable {
     return symbolsFuse.search(query).map(({ item }) => item);
 }
 
-export function getSymbolExact(query: string): string | null {
+export function getExactSymbol(query: string): string | null {
     const found = symbolsTable.find(({ names }) => names.includes(query));
 
     return found ? found.symbol : null;

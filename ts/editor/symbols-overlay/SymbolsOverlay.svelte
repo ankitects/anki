@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { singleCallback } from "../../lib/typing";
     import { context } from "../rich-text-input";
     import type { SymbolsTable } from "./symbols-table";
-    import { getSymbolExact, getSymbols } from "./symbols-table";
+    import { getExactSymbol, findSymbols } from "./symbols-table";
     import { fontFamilyKey } from "../../lib/context-keys";
 
     const SYMBOLS_DELIMITER = ":";
@@ -72,7 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                 query = possibleQuery;
                 referenceRange = currentRange;
-                foundSymbols = getSymbols(query);
+                foundSymbols = findSymbols(query);
 
                 cleanup = editable.focusHandler.blur.on(
                     async () => unsetReferenceRange(),
@@ -142,7 +142,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         referenceRange = getRange(selection)!;
 
         if (data === SYMBOLS_DELIMITER && query) {
-            const symbol = getSymbolExact(query);
+            const symbol = getExactSymbol(query);
 
             if (!symbol) {
                 return unsetReferenceRange();
@@ -178,7 +178,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             );
         } else if (query) {
             query += data!;
-            foundSymbols = getSymbols(query);
+            foundSymbols = findSymbols(query);
         }
     }
 
