@@ -18,6 +18,9 @@ const symbolsTable: SymbolsTable = [];
 
 const characterTable: Record<string, string[]> = {};
 
+// Not all characters work well in the editor field
+delete characterEntities["Tab"];
+
 for (const [name, character] of Object.entries(characterEntities)) {
     if (character in characterTable) {
         characterTable[character].push(name);

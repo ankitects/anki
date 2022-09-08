@@ -220,7 +220,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             } else {
                 activeItem++;
             }
-        } else if (action === "enter") {
+        } else if (action === "enter" || action === "tab") {
             replaceTextOnDemand(foundSymbols[activeItem].symbol);
         } else if (action === "escape") {
             unsetReferenceRange();
