@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { characterEntities } from "character-entities";
-import Fuse from "fuse.js"
+import Fuse from "fuse.js";
 import { gemoji } from "gemoji";
 
 interface SymbolsEntry {
@@ -52,14 +52,14 @@ const symbolsFuse = new Fuse(symbolsTable, {
     isCaseSensitive: true,
     keys: [
         {
-            name: 'names',
-            weight: 0.7
+            name: "names",
+            weight: 0.7,
         },
         {
-            name: 'tags',
-            weight: 0.3
+            name: "tags",
+            weight: 0.3,
         },
-    ]
+    ],
 });
 
 export function getSymbols(query: string): SymbolsTable {

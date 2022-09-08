@@ -3,7 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { getContext, onMount } from "svelte";
+    import type { Readable } from "svelte/store";
 
     import DropdownItem from "../../components/DropdownItem.svelte";
     import Popover from "../../components/Popover.svelte";
@@ -18,10 +19,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context } from "../rich-text-input";
     import type { SymbolsTable } from "./data-provider";
     import { getSymbolExact, getSymbols } from "./data-provider";
+    import { fontFamilyKey } from "../../lib/context-keys";
 
     const SYMBOLS_DELIMITER = ":";
 
     const { inputHandler, editable } = context.get();
+    const fontFamily = getContext<Readable<string>>(fontFamilyKey);
 
     let referenceRange: Range | undefined = undefined;
     let cleanup: Callback;
@@ -244,7 +247,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             active={index === activeItem}
                             on:click={() => replaceTextOnDemand(found.symbol)}
                         >
-                            <div class="symbol">{found.symbol}</div>
+                            <div class="symbol" style:font-family={$fontFamily}>
+                                {found.symbol}
+                            </div>
                             <div class="description">
                                 {#each found.names as name}
                                     <span class="name">
@@ -278,6 +283,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         transform: scale(1.1);
         font-size: 150%;
         /* The widest emojis I could find were couple_with_heart_ */
+        /* We should make sure it can still be properly displayed */
         width: 38px;
     }
 
