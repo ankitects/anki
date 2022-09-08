@@ -188,6 +188,7 @@ class ThemeManager:
         gui_hooks.theme_did_change()
 
     def _apply_style(self, app: QApplication) -> None:
+        buf = ""
         if not is_mac:
             from aqt.stylesheets import (
                 button_styles,
@@ -200,7 +201,6 @@ class ThemeManager:
                 win10_styles,
             )
 
-            buf = ""
             buf += "".join(
                 [
                     general_styles(self, buf),
