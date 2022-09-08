@@ -274,13 +274,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         min-width: 140px;
         max-height: 15rem;
 
-        font-size: 13px;
+        font-size: 12px;
         overflow-x: hidden;
         text-overflow: ellipsis;
         overflow-y: auto;
     }
 
     .symbol {
+        transform: scale(1.1);
         font-size: 150%;
         /* The widest emojis I could find were couple_with_heart_ */
         width: 38px;
