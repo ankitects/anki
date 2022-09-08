@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { characterEntities } from "character-entities";
+import Fuse from "fuse.js"
 import { gemoji } from "gemoji";
 
 interface SymbolsEntry {
@@ -45,12 +46,24 @@ for (const { emoji, names, tags } of gemoji) {
     });
 }
 
+const symbolsFuse = new Fuse(symbolsTable, {
+    threshold: 0.2,
+    minMatchCharLength: 2,
+    isCaseSensitive: true,
+    keys: [
+        {
+            name: 'names',
+            weight: 0.7
+        },
+        {
+            name: 'tags',
+            weight: 0.3
+        },
+    ]
+});
+
 export async function getSymbols(query: string): Promise<SymbolsTable> {
-    return symbolsTable.filter(
-        ({ names, tags }) =>
-            names.some((name) => name.includes(query)) ||
-            tags.some((tag) => tag.includes(query)),
-    );
+    return symbolsFuse.search(query).map(({ item }) => item);
 }
 
 export async function getSymbolExact(query: string): Promise<string | null> {
