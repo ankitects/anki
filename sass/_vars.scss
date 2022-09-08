@@ -45,15 +45,95 @@ $vars: (
                 dark: palette(gray, 8),
             ),
             focus: (
-                light: palette(indigo, 5),
-                dark: palette(indigo, 5),
+                light: palette(blue, 5),
+                dark: palette(blue, 5),
             ),
         ),
         button: (
+            border: (
+                light: #666,
+                dark: #2f2f31,
+            ),
             focus: (
                 default: palette(cyan, 3),
                 light: palette(cyan, 2),
                 dark: palette(cyan, 4),
+            ),
+            pressed: (
+                shadow: (
+                    light: palette(gray, 4),
+                    dark: palette(gray, 8),
+                ),
+                border: (
+                    light: palette(gray, 4),
+                    dark: palette(gray, 9),
+                ),
+            ),
+            gradient: (
+                start: (
+                    light: white,
+                    dark: palette(gray, 5),
+                ),
+                end: (
+                    light: palette(gray, 0),
+                    dark: palette(gray, 6),
+                ),
+            ),
+            hover: (
+                gradient: (
+                    start: (
+                        light: white,
+                        dark: palette(gray, 4),
+                    ),
+                    end: (
+                        light: #f1f1f1,
+                        dark: palette(gray, 5),
+                    ),
+                ),
+            ),
+            primary: (
+                gradient: (
+                    start: (
+                        light: palette(blue, 4),
+                        dark: palette(blue, 6),
+                    ),
+                    end: (
+                        light: palette(blue, 6),
+                        dark: palette(blue, 8),
+                    ),
+                ),
+                hover: (
+                    gradient: (
+                        start: (
+                            light: palette(blue, 3),
+                            dark: palette(blue, 5),
+                        ),
+                        end: (
+                            light: palette(blue, 5),
+                            dark: palette(blue, 7),
+                        ),
+                    ),
+                ),
+                disabled: (
+                    light: palette(blue, 3),
+                    dark: palette(blue, 5),
+                ),
+            ),
+        ),
+        scrollbar: (
+            bg: (
+                idle: (
+                    light: palette(gray, 3),
+                    dark: palette(gray, 5),
+                ),
+                hover: (
+                    light: palette(gray, 4),
+                    dark: palette(gray, 4),
+                ),
+                active: (
+                    light: palette(gray, 6),
+                    dark: palette(gray, 4),
+                ),
             ),
         ),
         fg: (
@@ -163,8 +243,8 @@ $vars: (
         ),
         highlight: (
             bg: (
-                light: palette(cyan, 4),
-                dark: palette(cyan, 2),
+                d light: palette(blue, 3),
+                dark: palette(blue, 5),
             ),
             fg: (
                 light: black,

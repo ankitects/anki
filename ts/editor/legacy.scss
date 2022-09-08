@@ -1,6 +1,7 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 @use "fusion-vars";
+@use "sass:color";
 @use "sass/button-mixins" as button;
 
 $btn-base-color-day: white;
@@ -17,10 +18,8 @@ $padding: 2px;
     background-color: $btn-base-color-day;
     border: 1px solid var(--border-default);
     @include button.btn-border-radius;
-    margin-left: -1px;
-
     &:hover {
-        background-color: darken($btn-base-color-day, 8%);
+        background-color: color.scale($btn-base-color-day, $lightness: -20%);
     }
 
     &:active,
@@ -29,7 +28,6 @@ $padding: 2px;
     }
 
     .nightMode & {
-        box-shadow: 0 0 3px fusion-vars.$button-outline;
         border: 1px solid fusion-vars.$button-border;
         -webkit-appearance: none;
         background: linear-gradient(
@@ -43,15 +41,15 @@ $padding: 2px;
         &:hover {
             background: linear-gradient(
                 0deg,
-                lighten(fusion-vars.$button-gradient-start, 8%) 0%,
-                lighten(fusion-vars.$button-gradient-end, 8%) 100%
+                color.scale(fusion-vars.$button-gradient-start, $lightness: 20%) 0%,
+                color.scale(fusion-vars.$button-gradient-end, $lightness: 20%) 100%
             );
-            border-color: lighten(fusion-vars.$button-border, 8%);
+            border-color: color.scale(fusion-vars.$button-border, $lightness: 20%);
         }
 
         &:active {
             @include button.impressed-shadow(0.35);
-            border-color: darken($btn-base-color-night, 8%);
+            border-color: color.scale($btn-base-color-night, $lightness: -20%);
         }
     }
 }

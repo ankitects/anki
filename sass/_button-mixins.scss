@@ -2,6 +2,7 @@
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 @use "vars" as *;
 @use "fusion-vars";
+@use "sass:color";
 
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";
@@ -27,12 +28,7 @@ $btn-base-color-day: white;
     border-color: var(--border-default) !important;
 }
 
-@mixin btn-day(
-    $with-hover: true,
-    $with-active: true,
-    $with-disabled: true,
-    $with-margin: true
-) {
+@mixin btn-day($with-hover: true, $with-active: true, $with-disabled: true) {
     .btn-day {
         @include btn-day-base;
         @content ($btn-base-color-day);
@@ -40,7 +36,7 @@ $btn-base-color-day: white;
         @if ($with-hover) {
             &:hover,
             &.hover {
-                background-color: darken($btn-base-color-day, 8%);
+                background-color: color.scale($btn-base-color-day, $lightness: -20%);
             }
         }
 
@@ -61,10 +57,6 @@ $btn-base-color-day: white;
                 box-shadow: none !important;
             }
         }
-
-        @if ($with-margin) {
-            margin-left: -1px;
-        }
     }
 }
 
@@ -73,23 +65,17 @@ $btn-base-color-night: fusion-vars.$button-border;
 @mixin btn-night-base {
     color: var(--fg-default);
     background: linear-gradient(
-        0deg,
+        180deg,
         fusion-vars.$button-gradient-start 0%,
         fusion-vars.$button-gradient-end 100%
     );
 }
 
-@mixin btn-night(
-    $with-hover: true,
-    $with-active: true,
-    $with-disabled: true,
-    $with-margin: true
-) {
+@mixin btn-night($with-hover: true, $with-active: true, $with-disabled: true) {
     .btn-night {
         @include btn-night-base;
         @content ($btn-base-color-night);
 
-        box-shadow: 0 0 3px fusion-vars.$button-outline;
         border: 1px solid fusion-vars.$button-border;
         -webkit-appearance: none;
 
@@ -97,11 +83,11 @@ $btn-base-color-night: fusion-vars.$button-border;
             &:hover,
             &.hover {
                 background: linear-gradient(
-                    0deg,
-                    lighten(fusion-vars.$button-gradient-start, 8%) 0%,
-                    lighten(fusion-vars.$button-gradient-end, 8%) 100%
+                    180deg,
+                    color.scale(fusion-vars.$button-gradient-start, $lightness: 20%) 0%,
+                    color.scale(fusion-vars.$button-gradient-end, $lightness: 20%) 100%
                 );
-                border-color: lighten(fusion-vars.$button-border, 8%);
+                border-color: color.scale(fusion-vars.$button-border, $lightness: 20%);
             }
         }
 
@@ -109,7 +95,7 @@ $btn-base-color-night: fusion-vars.$button-border;
             &:active,
             &.active {
                 @include impressed-shadow(0.35);
-                border-color: darken($btn-base-color-night, 8%);
+                border-color: color.scale($btn-base-color-night, $lightness: -20%);
             }
 
             &:active.active {
@@ -124,10 +110,6 @@ $btn-base-color-night: fusion-vars.$button-border;
                 box-shadow: none !important;
                 border-color: $btn-base-color-night !important;
             }
-        }
-
-        @if ($with-margin) {
-            margin-left: 1px;
         }
     }
 }
