@@ -551,7 +551,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             sticky = [field["sticky"] for field in self.note.note_type()["flds"]]
             js += " setSticky(%s);" % json.dumps(sticky)
 
-        print(os.getenv("ANKI_EDITOR_INSERT_SYMBOLS"))
         if os.getenv("ANKI_EDITOR_INSERT_SYMBOLS"):
             js += " setInsertSymbolsEnabled();"
 
