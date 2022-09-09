@@ -8,7 +8,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { tweened } from "svelte/motion";
 
     export let collapse = false;
-    export let duration = 200;
     export let animated = !document.body.classList.contains("reduced-motion");
 
     let collapsed = false;
