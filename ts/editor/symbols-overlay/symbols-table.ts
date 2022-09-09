@@ -18,7 +18,7 @@ export interface SymbolsEntry {
     /**
      * If symbols contain HTML, they need to be treated specially.
      */
-    containsHTML?: boolean;
+    containsHTML?: "containsHTML";
     /**
      * Symbols can be automak inserted, when you enter a full name within delimiters.
      * If you enable auto insertion, you can use direction insertion without
@@ -80,6 +80,10 @@ const symbolsFuse = new Fuse(symbolsTable, {
             name: "autoInsert",
             weight: 0.1,
         },
+        {
+            name: "containsHTML",
+            weight: 0.1,
+        },
     ],
 });
 
@@ -88,14 +92,14 @@ export function findSymbols(query: string): SymbolsTable {
 }
 
 export function getExactSymbol(query: string): SymbolsEntry | null {
-    const [found] = symbolsFuse.search({ names: `=${query}` }, { limit: 1 });
+    const [found] = symbolsFuse.search({ names: `="${query}"` }, { limit: 1 });
 
     return found ? found.item : null;
 }
 
 export function getAutoInsertSymbol(query: string): SymbolsEntry | null {
     const [found] = symbolsFuse.search({
-        names: `=${query}`,
+        names: `="${query}"`,
         autoInsert: "=autoInsert",
     });
 
