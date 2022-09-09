@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { tweened } from "svelte/motion";
 
     export let duration = 200;
+    export let animated = true;
 
     function dynamicDuration(height: number, factor: number): number {
         return 100 + Math.pow(height, 1 / 4) * factor;
@@ -33,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             await new Promise(requestAnimationFrame);
             expandHeight = collapsibleElement.clientHeight;
 
-            animating = true;
+            transitioning = true;
             size.set(1, {
                 duration: duration || dynamicDuration(expandHeight, 25),
                 easing: cubicIn,
@@ -42,24 +43,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: if (collapsibleElement) {
-        doCollapse(collapse);
+        if (animated) {
+            doCollapse(collapse);
+        } else {
+            collapsed = collapse;
+        }
     }
 
     let collapsibleElement: HTMLElement;
 
     $: collapsed = $size === 0;
     $: expanded = $size === 1;
-    $: animating = $size > 0 && !(collapsed || expanded);
+    $: transitioning = $size > 0 && !(collapsed || expanded);
 
     $: height = $size * expandHeight;
-    $: measuring = !(collapsed || animating || expanded);
+    $: measuring = !(collapsed || transitioning || expanded);
 </script>
 
 <div
     bind:this={collapsibleElement}
     class="collapsible"
     class:measuring
-    class:animating
+    class:animated
+    class:transitioning
     class:expanded
     style:--height="{height}px"
 >
@@ -72,12 +78,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {/if}
 
 <style lang="scss">
-    .collapsible {
+    .collapsible.animated {
         &.measuring {
             position: absolute;
             opacity: 0;
         }
-        &.animating {
+        &.transitioning {
             overflow: hidden;
             height: var(--height);
             &.expanded {

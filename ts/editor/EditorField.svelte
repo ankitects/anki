@@ -42,12 +42,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { onDestroy, setContext } from "svelte";
+    import { getContext, onDestroy, setContext } from "svelte";
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
     import Collapsible from "../components/Collapsible.svelte";
-    import { collapsedKey, directionKey } from "../lib/context-keys";
+    import { collapsedKey, directionKey, reducedMotionKey } from "../lib/context-keys";
     import { promiseWithResolver } from "../lib/promise";
     import type { Destroyable } from "./destroyable";
     import EditingArea from "./EditingArea.svelte";
@@ -66,6 +66,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setContext(collapsedKey, collapsedStore);
 
     $: $collapsedStore = collapsed;
+
+    const reducedMotion = getContext<Readable<boolean>>(reducedMotionKey);
 
     const editingArea: Partial<EditingAreaAPI> = {};
     const [element, elementResolve] = promiseWithResolver<HTMLElement>();
@@ -88,7 +90,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="field-container">
     <slot name="field-label" />
 
-    <Collapsible collapse={collapsed} let:collapsed={hidden}>
+    <Collapsible collapse={collapsed} animated={!$reducedMotion} let:collapsed={hidden}>
         <div
             use:elementResolve
             class="editor-field"
