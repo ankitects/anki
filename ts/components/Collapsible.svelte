@@ -3,40 +3,39 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { tick } from "svelte";
     import { cubicIn, cubicOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
 
-    export let duration = 200;
-    export let animated = true;
-
-    function dynamicDuration(height: number, factor: number): number {
-        return 100 + Math.pow(height, 1 / 4) * factor;
-    }
-
     export let collapse = false;
+    export let animated = true;
+    export let duration = 200;
+
     let collapsed = false;
-    let expandHeight: number;
+    let contentHeight = 0;
+
+    function dynamicDuration(height: number): number {
+        return 100 + Math.pow(height, 1 / 4) * 25;
+    }
+    $: duration = dynamicDuration(contentHeight);
 
     const size = tweened<number>(undefined);
 
-    async function doCollapse(collapse: boolean): Promise<void> {
+    async function transition(collapse: boolean): Promise<void> {
         if (collapse) {
-            expandHeight = collapsibleElement.clientHeight;
+            contentHeight = collapsibleElement.clientHeight;
             size.set(0, {
-                duration: duration || dynamicDuration(expandHeight, 25),
+                duration: duration,
                 easing: cubicOut,
             });
         } else {
+            /* Tell content to show and await response */
             collapsed = false;
-
-            /* Measure height to tween to */
-            await new Promise(requestAnimationFrame);
-            await new Promise(requestAnimationFrame);
-            expandHeight = collapsibleElement.clientHeight;
-
-            transitioning = true;
+            await tick();
+            /* Measure content height to tween to */
+            contentHeight = collapsibleElement.clientHeight;
             size.set(1, {
-                duration: duration || dynamicDuration(expandHeight, 25),
+                duration: duration,
                 easing: cubicIn,
             });
         }
@@ -44,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: if (collapsibleElement) {
         if (animated) {
-            doCollapse(collapse);
+            transition(collapse);
         } else {
             collapsed = collapse;
         }
@@ -54,27 +53,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: collapsed = $size === 0;
     $: expanded = $size === 1;
+    $: height = $size * contentHeight;
     $: transitioning = $size > 0 && !(collapsed || expanded);
-
-    $: height = $size * expandHeight;
     $: measuring = !(collapsed || transitioning || expanded);
 </script>
 
 <div
     bind:this={collapsibleElement}
     class="collapsible"
-    class:measuring
     class:animated
-    class:transitioning
     class:expanded
+    class:measuring
+    class:transitioning
     style:--height="{height}px"
 >
     <slot {collapsed} />
 </div>
 
 {#if measuring}
-    <!-- Placeholder while element is absolutely positioned during measurement -->
-    <div class="dummy" />
+    <!-- Maintain document flow while collapsible height is measured -->
+    <div class="collapsible-placeholder" />
 {/if}
 
 <style lang="scss">
