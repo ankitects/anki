@@ -32,15 +32,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const fontFamily = getContext<Readable<string>>(fontFamilyKey);
 
     let referenceRange: Range | undefined = undefined;
-    let cleanup: Callback;
-
-    let searchQuery: string = "";
+    let searchQuery = "";
     let activeItem = 0;
+    let cleanup: Callback;
 
     let foundSymbols: SymbolsTable = [];
 
     function unsetReferenceRange() {
         referenceRange = undefined;
+        searchQuery = "";
         activeItem = 0;
         cleanup?.();
     }
@@ -109,7 +109,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function maybeShowOverlay(selection: Selection, event: InputEvent): void {
         if (
-            event.inputType !== "insertText" ||
             !event.data ||
             event.data === SYMBOLS_DELIMITER ||
             whitespaceCharacters.includes(event.data) ||
@@ -126,6 +125,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         const wholeText = currentRange.commonAncestorContainer.wholeText;
+
+        // The input event opening the overlay or triggering the auto-insert
+        // must be an insertion.
         let possibleQuery = event.data;
 
         for (let index = offset - 1; index >= 0; index--) {
@@ -189,57 +191,61 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         unsetReferenceRange();
     }
 
-    function updateOverlay(selection: Selection, event: InputEvent): void {
-        if (event.inputType !== "insertText") {
+
+    function prepareInsertion(selection: Selection): void {
+        const symbolEntry = getExactSymbol(searchQuery);
+
+        if (!symbolEntry) {
             return unsetReferenceRange();
         }
 
-        const data = event.data;
+        const currentRange = getRange(selection)!;
+        const offset = currentRange.endOffset;
+
+        if (!(currentRange.commonAncestorContainer instanceof Text) || offset < 2) {
+            return unsetReferenceRange();
+        }
+
+        const commonAncestor = currentRange.commonAncestorContainer;
+
+        const replacementLength =
+            commonAncestor.data
+                .substring(0, currentRange.endOffset)
+                .split("")
+                .reverse()
+                .join("")
+                .indexOf(SYMBOLS_DELIMITER) + 1;
+
+        commonAncestor.deleteData(
+            currentRange.endOffset - replacementLength,
+            replacementLength,
+        );
+
+        inputHandler.insertText.on(
+            async ({ text }) =>
+                replaceText(
+                    selection,
+                    text,
+                    symbolsEntryToReplacement(symbolEntry),
+                ),
+            {
+                once: true,
+            },
+        );
+    }
+
+    function updateOverlay(selection: Selection, event: InputEvent): void {
         referenceRange = getRange(selection)!;
 
-        if (data === SYMBOLS_DELIMITER && searchQuery) {
-            const symbolEntry = getExactSymbol(searchQuery);
-
-            if (!symbolEntry) {
-                return unsetReferenceRange();
-            }
-
-            const currentRange = getRange(selection)!;
-            const offset = currentRange.endOffset;
-
-            if (!(currentRange.commonAncestorContainer instanceof Text) || offset < 2) {
-                return unsetReferenceRange();
-            }
-
-            const commonAncestor = currentRange.commonAncestorContainer;
-
-            const replacementLength =
-                commonAncestor.data
-                    .substring(0, currentRange.endOffset)
-                    .split("")
-                    .reverse()
-                    .join("")
-                    .indexOf(SYMBOLS_DELIMITER) + 1;
-
-            commonAncestor.deleteData(
-                currentRange.endOffset - replacementLength,
-                replacementLength,
-            );
-
-            inputHandler.insertText.on(
-                async ({ text }) =>
-                    replaceText(
-                        selection,
-                        text,
-                        symbolsEntryToReplacement(symbolEntry),
-                    ),
-                {
-                    once: true,
-                },
-            );
+        if (event.data === SYMBOLS_DELIMITER) {
+            prepareInsertion(selection);
         } else if (searchQuery) {
-            searchQuery += data!;
+            searchQuery += event.data!;
             foundSymbols = findSymbols(searchQuery);
+
+            if (foundSymbols.length === 0) {
+                unsetReferenceRange();
+            }
         }
     }
 
