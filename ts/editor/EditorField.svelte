@@ -87,19 +87,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => api?.destroy());
 </script>
 
-<div class="field-container">
+<div class="field-container" on:mouseenter on:mouseleave>
     <slot name="field-label" />
 
     <Collapsible collapse={collapsed} animated={!$reducedMotion} let:collapsed={hidden}>
-        <div
-            use:elementResolve
-            class="editor-field"
-            on:focusin
-            on:focusout
-            on:mouseenter
-            on:mouseleave
-            {hidden}
-        >
+        <div use:elementResolve class="editor-field" on:focusin on:focusout {hidden}>
             <EditingArea
                 {content}
                 fontFamily={field.fontFamily}
