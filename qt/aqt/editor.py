@@ -534,7 +534,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setColorButtons({});
             setTags({});
             setMathjaxEnabled({});
-            setReducedMotion({});
             """.format(
             json.dumps(data),
             json.dumps(collapsed),
@@ -546,7 +545,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             json.dumps([text_color, highlight_color]),
             json.dumps(self.note.tags),
             json.dumps(self.mw.col.get_config("renderMathjax", True)),
-            json.dumps(self.mw.pm.reduced_motion()),
         )
 
         if self.addMode:

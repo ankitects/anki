@@ -6,4 +6,3 @@ export const fontSizeKey = Symbol("fontSize");
 export const directionKey = Symbol("direction");
 export const descriptionKey = Symbol("description");
 export const collapsedKey = Symbol("collapsed");
-export const reducedMotionKey = Symbol("reducedMotion");

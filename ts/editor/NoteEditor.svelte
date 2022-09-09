@@ -39,14 +39,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { onMount, setContext, tick } from "svelte";
+    import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
 
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
     import StickyContainer from "../components/StickyContainer.svelte";
     import { bridgeCommand } from "../lib/bridgecommand";
-    import { reducedMotionKey } from "../lib/context-keys";
     import { TagEditor } from "../tag-editor";
     import { ChangeTimer } from "./change-timer";
     import DecoratedElements from "./DecoratedElements.svelte";
@@ -129,15 +128,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         plainTextsHidden = Array.from(fs, (v) => !v);
         plainTextDefaults = [...richTextsHidden];
     }
-
-    let reducedMotion = false;
-    function setReducedMotion(enabled: boolean): void {
-        reducedMotion = enabled;
-    }
-
-    const reducedMotionStore = writable<boolean>();
-    setContext(reducedMotionKey, reducedMotionStore);
-    $: $reducedMotionStore = reducedMotion;
 
     function setMathjaxEnabled(enabled: boolean): void {
         mathjaxConfig.enabled = enabled;
@@ -287,7 +277,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setNoteId,
             wrap,
             setMathjaxEnabled,
-            setReducedMotion,
             ...oldEditorAdapter,
         });
 
@@ -447,7 +436,6 @@ the AddCards dialog) should be implemented in the user of this component.
                         <svelte:fragment slot="rich-text-input">
                             <Collapsible
                                 collapse={richTextsHidden[index]}
-                                animated={!reducedMotion}
                                 let:collapsed={hidden}
                             >
                                 <RichTextInput
@@ -469,7 +457,6 @@ the AddCards dialog) should be implemented in the user of this component.
                         <svelte:fragment slot="plain-text-input">
                             <Collapsible
                                 collapse={plainTextsHidden[index]}
-                                animated={!reducedMotion}
                                 let:collapsed={hidden}
                             >
                                 <PlainTextInput

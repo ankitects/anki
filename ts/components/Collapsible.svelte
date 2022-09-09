@@ -8,11 +8,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { tweened } from "svelte/motion";
 
     export let collapse = false;
-    export let animated = true;
     export let duration = 200;
 
     let collapsed = false;
     let contentHeight = 0;
+
+    let animated = !document.body.classList.contains("reduced-motion");
 
     function dynamicDuration(height: number): number {
         return 100 + Math.pow(height, 1 / 4) * 25;
