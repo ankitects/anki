@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DropdownItem from "../../components/DropdownItem.svelte";
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
+    import { fontFamilyKey } from "../../lib/context-keys";
     import {
         getRange,
         getSelection,
@@ -17,9 +18,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Callback } from "../../lib/typing";
     import { singleCallback } from "../../lib/typing";
     import { context } from "../rich-text-input";
-    import type { SymbolsTable, SymbolsEntry } from "./symbols-table";
-    import { getExactSymbol, getAutoInsertSymbol, findSymbols } from "./symbols-table";
-    import { fontFamilyKey } from "../../lib/context-keys";
+    import type {
+        SymbolsEntry as SymbolsEntryType,
+        SymbolsTable,
+    } from "./symbols-table";
+    import { findSymbols, getAutoInsertSymbol, getExactSymbol } from "./symbols-table";
+    import SymbolsEntry from "./SymbolsEntry.svelte";
 
     const SYMBOLS_DELIMITER = ":";
     const whitespaceCharacters = [" ", "\u00a0"];
@@ -59,7 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const parser = new DOMParser();
     import { createDummyDoc } from "../../lib/parsing";
 
-    function symbolsEntryToReplacement(entry: SymbolsEntry): Node[] {
+    function symbolsEntryToReplacement(entry: SymbolsEntryType): Node[] {
         if (entry.containsHTML) {
             const doc = parser.parseFromString(
                 createDummyDoc(entry.symbol),
@@ -155,7 +159,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function replaceTextOnDemand(entry: SymbolsEntry): void {
+    function replaceTextOnDemand(entry: SymbolsEntryType): void {
         const commonAncestor = referenceRange!.commonAncestorContainer as Text;
         const selection = getSelection(commonAncestor)!;
 
@@ -304,20 +308,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             active={index === activeItem}
                             on:click={() => replaceTextOnDemand(found)}
                         >
-                            <div class="symbol" style:font-family={$fontFamily}>
-                                {#if found.containsHTML}
-                                    {@html found.symbol}
-                                {:else}
-                                    {found.symbol}
-                                {/if}
-                            </div>
-                            <div class="description">
-                                {#each found.names as name}
-                                    <span class="name">
-                                        {SYMBOLS_DELIMITER}{name}{SYMBOLS_DELIMITER}
-                                    </span>
-                                {/each}
-                            </div>
+                            <SymbolsEntry
+                                let:symbolName
+                                symbol={found.symbol}
+                                names={found.names}
+                                containsHTML={Boolean(found.containsHTML)}
+                                fontFamily={$fontFamily}
+                            >
+                                {SYMBOLS_DELIMITER}{symbolName}{SYMBOLS_DELIMITER}
+                            </SymbolsEntry>
                         </DropdownItem>
                     {/each}
                 </div>
@@ -338,21 +337,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         overflow-x: hidden;
         text-overflow: ellipsis;
         overflow-y: auto;
-    }
-
-    .symbol {
-        transform: scale(1.1);
-        font-size: 150%;
-        /* The widest emojis I could find were couple_with_heart_ */
-        /* We should make sure it can still be properly displayed */
-        width: 38px;
-    }
-
-    .description {
-        align-self: center;
-    }
-
-    .name {
-        margin-left: 3px;
     }
 </style>
