@@ -542,9 +542,6 @@ create table if not exists profiles
     def set_theme(self, theme: Theme) -> None:
         self.meta["theme"] = theme.value
 
-    def dark_mode_widgets(self) -> bool:
-        return self.meta.get("dark_mode_widgets", False)
-
     def legacy_import_export(self) -> bool:
         return self.meta.get("legacy_import", False)
 
