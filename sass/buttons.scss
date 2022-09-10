@@ -1,5 +1,4 @@
 @use "vars" as *;
-@use "fusion-vars";
 
 :root {
     --focus-color: #{palette-of(button-focus)};
@@ -21,50 +20,30 @@
     }
 }
 
-.isLin {
-    button {
-        font-size: 14px;
+button {
+    -webkit-appearance: none;
+    color: var(--fg);
 
-        -webkit-appearance: none;
-        border-radius: 5px;
-        padding: 5px;
-        border: 1px solid var(--border);
+    background: linear-gradient(
+        0deg,
+        var(--button-gradient-start) 0%,
+        var(--button-gradient-end) 100%
+    );
+    border: 1px solid var(--button-border);
+
+    border-radius: 5px;
+    padding: 3px 10px 3px;
+
+    &:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--focus-color);
     }
 }
 
-.nightMode {
-    button {
-        -webkit-appearance: none;
-        color: var(--fg);
-
-        /* match the fusion button gradient */
-        background: linear-gradient(
-            0deg,
-            fusion-vars.$button-gradient-start 0%,
-            fusion-vars.$button-gradient-end 100%
-        );
-        border: 1px solid fusion-vars.$button-border;
-
-        border-radius: 5px;
-        padding: 3px 10px 3px;
-
-        &:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px var(--focus-color);
-        }
-    }
-
-    button:hover {
-        background: fusion-vars.$button-hover-bg;
-    }
-}
-
-/* imitate standard macOS dark mode buttons */
-.isMac.nightMode.macos-dark-mode button:not(.linkb) {
-    background: #656565;
-    box-shadow: 0 1px 2px #222222;
-    border-top-color: #848484;
-    border-width: 0.5px 0 0;
-    padding: 2px 15px;
-    color: #e5e5e5;
+button:hover {
+    background: linear-gradient(
+        0deg,
+        var(--button-hover-gradient-start) 0%,
+        var(--button-hover-gradient-end) 100%
+    );
 }

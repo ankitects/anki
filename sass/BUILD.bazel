@@ -18,7 +18,6 @@ sass_library(
     srcs = [
         "_colors.scss",
         "_functions.scss",
-        "_fusion-vars.scss",
         "_vars.scss",
     ],
     visibility = ["//visibility:public"],
@@ -27,7 +26,6 @@ sass_library(
 sass_library(
     name = "buttons_lib",
     srcs = [
-        "_fusion-vars.scss",
         "buttons.scss",
     ],
     visibility = ["//visibility:public"],
@@ -72,7 +70,6 @@ sass_library(
     name = "button_mixins_lib",
     srcs = [
         "_button-mixins.scss",
-        "_fusion-vars.scss",
     ],
     deps = [
         "vars_lib",
