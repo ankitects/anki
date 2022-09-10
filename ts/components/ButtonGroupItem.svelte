@@ -67,44 +67,35 @@
     export let id: string | undefined = undefined;
     export let hostProps: ButtonSlotHostProps | undefined = undefined;
 
-    let style: string;
-
     if (!context.available()) {
         console.log("ButtonGroupItem: should always have a slotHostContext");
     }
 
     const { detach, position } = hostProps ?? context.get().getProps();
-    const radius = "5px";
 
-    function updateButtonStyle(position: ButtonPosition) {
-        switch (position) {
-            case ButtonPosition.Standalone:
-                style = `--border-left-radius: ${radius}; --border-right-radius: ${radius}; `;
-                break;
-            case ButtonPosition.InlineStart:
-                style = `--border-left-radius: ${radius}; --border-right-radius: 0; `;
-                break;
-            case ButtonPosition.Center:
-                style = "--border-left-radius: 0; --border-right-radius: 0; ";
-                break;
-            case ButtonPosition.InlineEnd:
-                style = `--border-left-radius: 0; --border-right-radius: ${radius}; `;
-                break;
-        }
-    }
-
-    $: updateButtonStyle($position);
+    $: leftRadius =
+        $position == ButtonPosition.Standalone ||
+        $position == ButtonPosition.InlineStart
+            ? "5px"
+            : "0";
+    $: rightRadius =
+        $position == ButtonPosition.Standalone || $position == ButtonPosition.InlineEnd
+            ? "5px"
+            : "0";
+    $: marginLeft =
+        $position == ButtonPosition.Center || $position == ButtonPosition.InlineEnd
+            ? "-1px"
+            : "0";
 </script>
 
-<!-- div is necessary to preserve item position -->
-<div class="button-group-item" {id} {style}>
+<div
+    class="button-group-item"
+    {id}
+    style:--border-left-radius={leftRadius}
+    style:--border-right-radius={rightRadius}
+    style:margin-left={marginLeft}
+>
     {#if !$detach}
         <slot />
     {/if}
 </div>
-
-<style lang="scss">
-    .button-group-item {
-        display: contents;
-    }
-</style>
