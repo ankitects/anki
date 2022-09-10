@@ -473,9 +473,9 @@ the AddCards dialog) should be implemented in the user of this component.
         </DecoratedElements>
     </Fields>
 
-    <StickyContainer --gutter-block="0.1rem" --sticky-borders="1px 0 0" class="d-flex">
+    <div class="note-editor-tag-editor">
         <TagEditor {tags} on:tagsupdate={saveTags} />
-    </StickyContainer>
+    </div>
 </div>
 
 <style lang="scss">
@@ -483,5 +483,13 @@ the AddCards dialog) should be implemented in the user of this component.
         display: flex;
         flex-direction: column;
         height: 100%;
+    }
+
+    .note-editor-tag-editor {
+        padding: 2px 0 0;
+
+        border-width: thin 0 0;
+        border-style: solid;
+        border-color: var(--medium-border);
     }
 </style>
