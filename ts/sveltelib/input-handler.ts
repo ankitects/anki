@@ -62,7 +62,11 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
 
         await beforeInput.dispatch({ event });
 
-        if (!range || !event.inputType.startsWith("insert") || insertText.length === 0) {
+        if (
+            !range ||
+            !event.inputType.startsWith("insert") ||
+            insertText.length === 0
+        ) {
             return;
         }
 

@@ -11,8 +11,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithFloating from "../../components/WithFloating.svelte";
     import { fontFamilyKey } from "../../lib/context-keys";
     import { getRange, getSelection } from "../../lib/cross-browser";
+    import { createDummyDoc } from "../../lib/parsing";
     import type { Callback } from "../../lib/typing";
     import { singleCallback } from "../../lib/typing";
+    import type { SpecialKeyParams } from "../../sveltelib/input-handler";
     import { context } from "../rich-text-input";
     import { findSymbols, getAutoInsertSymbol, getExactSymbol } from "./symbols-table";
     import type {
@@ -58,7 +60,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const parser = new DOMParser();
-    import { createDummyDoc } from "../../lib/parsing";
 
     function symbolsEntryToReplacement(entry: SymbolsEntryType): Node[] {
         if (entry.containsHTML) {
@@ -209,7 +210,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         once: true,
                     }),
                     inputHandler.pointerDown.on(async () => unsetReferenceRange()),
-                    inputHandler.specialKey.on(onSpecialKey),
+                    inputHandler.specialKey.on(async (input: SpecialKeyParams) =>
+                        onSpecialKey(input),
+                    ),
                 );
             }
         }
@@ -299,7 +302,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         // We have to wait for afterInput to update the symbols, because we also
         // want to update in the case of a deletion
         inputHandler.afterInput.on(
-            () => {
+            async (): Promise<void> => {
                 const currentRange = getRange(selection)!;
                 const query = findValidSearchQuery(selection, currentRange);
 
@@ -329,7 +332,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    onMount(() => inputHandler.beforeInput.on(onBeforeInput));
+    onMount(() =>
+        inputHandler.beforeInput.on(
+            async (input: { event: Event }): Promise<void> => onBeforeInput(input),
+        ),
+    );
 </script>
 
 <div class="symbols-overlay">
