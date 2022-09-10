@@ -51,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.3s;
-        color: var(--fg-default);
+        color: var(--fg);
         background: var(--canvas-overlay);
 
         :global(table) {

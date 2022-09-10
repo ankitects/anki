@@ -3,20 +3,20 @@
 @use "vars" as *;
 
 hr {
-    background-color: palette(gray, 4);
+    background-color: palette(darkgray, 0);
 }
 
 body {
     margin: 20px;
     overflow-wrap: break-word;
-    background-color: var(--canvas-default);
+    background-color: var(--canvas);
 }
 
 // explicit nightMode definition required
 // to override default .card styling
 body.nightMode {
-    background-color: var(--canvas-default);
-    color: var(--fg-default);
+    background-color: var(--canvas);
+    color: var(--fg);
 }
 
 img {

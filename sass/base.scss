@@ -1,8 +1,8 @@
 @use "vars";
 @use "scrollbar";
 
-$body-color: var(--fg-default);
-$body-bg: var(--canvas-default);
+$body-color: var(--fg);
+$body-bg: var(--canvas);
 
 $link-hover-color: var(--accent-link);
 $link-hover-decoration: none;

@@ -21,6 +21,7 @@ sass_library(
         "_fusion-vars.scss",
         "_vars.scss",
     ],
+    visibility = ["//visibility:public"],
 )
 
 sass_library(

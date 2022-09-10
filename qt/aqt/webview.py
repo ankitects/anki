@@ -234,7 +234,7 @@ class AnkiWebView(QWebEngineView):
         self._page = AnkiWebPage(self._onBridgeCmd)
         # reduce flicker
         self._page.setBackgroundColor(
-            QColor(theme_manager.color(colors.CANVAS_DEFAULT))
+            QColor(theme_manager.var(colors.CANVAS))
         )
 
         # in new code, use .set_bridge_command() instead of setting this directly
@@ -451,11 +451,11 @@ div[contenteditable="true"]:focus {{
         zoom = self.app_zoom_factor()
 
         return f"""
-body {{ zoom: {zoom}; background-color: var(--canvas-default); }}
+body {{ zoom: {zoom}; background-color: var(--canvas); }}
 html {{ {font} }}
 {button_style}
-:root {{ --canvas-default: {colors.CANVAS_DEFAULT[0]} }}
-:root[class*=night-mode] {{ --canvas-default: {colors.CANVAS_DEFAULT[1]} }}
+:root {{ --canvas: {colors.CANVAS[0]} }}
+:root[class*=night-mode] {{ --canvas: {colors.CANVAS[1]} }}
 """
 
     def stdHtml(
@@ -700,9 +700,9 @@ html {{ {font} }}
     def on_theme_did_change(self) -> None:
         # avoid flashes if page reloaded
         self._page.setBackgroundColor(
-            QColor(colors.CANVAS_DEFAULT[1])
+            QColor(colors.CANVAS[1])
             if theme_manager.night_mode
-            else QColor(colors.CANVAS_DEFAULT[0])
+            else QColor(colors.CANVAS[0])
         )
         # update night-mode class, and legacy nightMode/night-mode body classes
         self.eval(

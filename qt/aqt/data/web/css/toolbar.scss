@@ -4,7 +4,7 @@
 #header {
     padding: 3px;
     font-weight: bold;
-    border-bottom: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--border);
 }
 
 .tdcenter {
@@ -26,7 +26,7 @@ body {
     padding-right: 12px;
     padding-left: 12px;
     text-decoration: none;
-    color: var(--fg-default);
+    color: var(--fg);
 }
 
 .hitem:hover {

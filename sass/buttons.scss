@@ -28,14 +28,14 @@
         -webkit-appearance: none;
         border-radius: 5px;
         padding: 5px;
-        border: 1px solid var(--border-default);
+        border: 1px solid var(--border);
     }
 }
 
 .nightMode {
     button {
         -webkit-appearance: none;
-        color: var(--fg-default);
+        color: var(--fg);
 
         /* match the fusion button gradient */
         background: linear-gradient(

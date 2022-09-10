@@ -36,6 +36,7 @@ _py_srcs_and_forms = _py_srcs + [
 
 aqt_core_data = [
     "colors.py",
+    "props.py",
     "py.typed",
     ":hooks_gen",
 ]

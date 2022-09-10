@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .no-data {
         rect {
-            fill: var(--canvas-default);
+            fill: var(--canvas);
         }
 
         text {

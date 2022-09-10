@@ -108,7 +108,7 @@ class Switch(QAbstractButton):
         painter.drawEllipse(self._current_knob_rectangle())
 
     def _paint_label(self, painter: QPainter) -> None:
-        painter.setPen(theme_manager.qcolor(colors.FG_DEFAULT))
+        painter.setPen(theme_manager.qcolor(colors.FG))
         font = painter.font()
         font.setPixelSize(int(1.2 * self._knob_radius))
         painter.setFont(font)

@@ -8,10 +8,10 @@
     input,
     select {
         background-color: var(--canvas-elevated);
-        border-color: var(--border-default);
+        border-color: var(--border);
 
         &:focus {
-            background-color: var(--canvas-default);
+            background-color: var(--canvas);
         }
     }
 }

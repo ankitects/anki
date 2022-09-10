@@ -36,6 +36,7 @@ for line in open(colors_scss):
 
 # TODO: recursive extraction of arbitrarily nested Sass maps?
 reached_colors = False
+inside_default = False
 current_key = ""
 
 for line in open(vars_scss):
@@ -49,7 +50,9 @@ for line in open(vars_scss):
         reached_colors = True
         continue
     if line == "),":
-        if "_" in current_key:
+        if inside_default:
+            inside_default = False
+        elif "_" in current_key:
             current_key = re.sub(r"_[^_]+?$", "", current_key)
         else:
             current_key = ""
@@ -57,8 +60,10 @@ for line in open(vars_scss):
     if m := re.match(r"^([^$]+): \(", line):
         if current_key == "":
             current_key = m.group(1)
-        else:
+        elif m.group(1) != "default":
             current_key = "_".join([current_key, m.group(1)])
+        else:
+            inside_default = True
         continue
 
     if reached_colors:

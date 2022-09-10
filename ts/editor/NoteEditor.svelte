@@ -358,7 +358,7 @@ the AddCards dialog) should be implemented in the user of this component.
                         collapsed={fieldsCollapsed[index]}
                         --label-color={cols[index] === "dupe"
                             ? "var(--flag-1)"
-                            : "var(--canvas-default)"}
+                            : "var(--canvas)"}
                     >
                         <svelte:fragment slot="field-label">
                             <LabelContainer

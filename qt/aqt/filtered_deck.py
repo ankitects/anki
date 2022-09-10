@@ -84,8 +84,8 @@ class FilteredDeckConfigDialog(QDialog):
         qconnect(self.form.search_button.clicked, self.on_search_button)
         qconnect(self.form.search_button_2.clicked, self.on_search_button_2)
         qconnect(self.form.hint_button.clicked, self.on_hint_button)
-        blue = theme_manager.color(colors.ACCENT_LINK)
-        grey = theme_manager.color(colors.FG_DISABLED)
+        blue = theme_manager.var(colors.ACCENT_LINK)
+        grey = theme_manager.var(colors.FG_DISABLED)
         self.setStyleSheet(
             f"""QPushButton[label] {{ padding: 0; border: 0 }}
             QPushButton[label]:hover {{ text-decoration: underline }}

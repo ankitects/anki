@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding: 6px;
 
         font-size: 1rem;
-        color: var(--fg-default);
+        color: var(--fg);
 
         /* outer border */
         border: 1px solid #b6b6b6;

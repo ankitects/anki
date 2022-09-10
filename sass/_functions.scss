@@ -10,10 +10,17 @@
             @return map.set($output, $name, map.get($map, $key));
         }
         @if type-of($value) == "map" {
-            $output: map-merge(
-                $output,
-                create-vars-from-map($value, $theme, #{$name}-#{$key}, $output)
-            );
+            @if $key == "default" {
+                $output: map-merge(
+                    $output,
+                    create-vars-from-map($value, $theme, #{$name}, $output)
+                );
+            } @else {
+                $output: map-merge(
+                    $output,
+                    create-vars-from-map($value, $theme, #{$name}-#{$key}, $output)
+                );
+            }
         }
     }
     @return $output;
@@ -43,6 +50,6 @@
         }
     }
     $keys: list.join($keys, ($keyword, $theme));
-    
+
     @return map-deep-get($map, $keys);
 }

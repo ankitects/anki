@@ -58,7 +58,7 @@
         margin-top: 1rem;
         margin-bottom: 0.5rem;
         list-style: none;
-        border-bottom: 1px solid var(--border-default);
+        border-bottom: 1px solid var(--border);
     }
 
     span {
@@ -73,11 +73,11 @@
     }
 
     li.active > span {
-        border-color: var(--border-default) var(--border-default) var(--canvas-default);
-        color: var(--fg-default);
+        border-color: var(--border) var(--border) var(--canvas);
+        color: var(--fg);
     }
 
     span:hover {
-        color: var(--fg-default);
+        color: var(--fg);
     }
 </style>

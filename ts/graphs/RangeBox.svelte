@@ -117,8 +117,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         z-index: 1;
         top: 0;
         width: 100%;
-        color: var(--fg-default);
-        background: var(--canvas-default);
+        color: var(--fg);
+        background: var(--canvas);
         padding: 0.5em;
 
         @media print {
