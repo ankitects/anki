@@ -93,12 +93,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <StickyContainer --gutter-block="0.5rem" --sticky-borders="0 0 1px" breakpoint="sm">
     <ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
         <ButtonGroup class="flex-grow-1">
-            <SelectButton
-                class="flex-grow-1"
-                on:change={blur}
-                --border-left-radius="5px"
-                --border-right-radius="5px"
-            >
+            <SelectButton class="flex-grow-1" on:change={blur}>
                 {#each $configList as entry}
                     <SelectOption value={String(entry.idx)} selected={entry.current}>
                         {configLabel(entry)}

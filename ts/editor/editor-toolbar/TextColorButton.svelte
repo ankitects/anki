@@ -5,6 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { onMount } from "svelte";
 
+    import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import ButtonGroupItem from "../../components/ButtonGroupItem.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import type { FormattingNode, MatchType } from "../../domlib/surround";
@@ -126,31 +128,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <WithColorHelper {color} let:colorHelperIcon let:setColor>
-    <IconButton
-        tooltip="{tr.editingTextColor()} ({getPlatformString(setCombination)})"
-        {disabled}
-        on:click={setTextColor}
-        --border-left-radius="5px"
-    >
-        {@html textColorIcon}
-        {@html colorHelperIcon}
-    </IconButton>
-    <Shortcut keyCombination={setCombination} on:action={setTextColor} />
-
-    <IconButton
-        tooltip="{tr.editingChangeColor()} ({getPlatformString(pickCombination)})"
-        {disabled}
-        widthMultiplier={0.5}
-        iconSize={120}
-    >
-        {@html chevronDown}
-        <ColorPicker
-            keyCombination={pickCombination}
-            on:input={(event) => {
-                color = setColor(event);
-                bridgeCommand(`lastTextColor:${color}`);
-            }}
-            on:change={() => setTextColor()}
-        />
-    </IconButton>
+    <ButtonGroup>
+        <ButtonGroupItem>
+            <IconButton
+                tooltip="{tr.editingTextColor()} ({getPlatformString(setCombination)})"
+                {disabled}
+                on:click={setTextColor}
+            >
+                {@html textColorIcon}
+                {@html colorHelperIcon}
+            </IconButton>
+        </ButtonGroupItem>
+        <Shortcut keyCombination={setCombination} on:action={setTextColor} />
+        <ButtonGroupItem>
+            <IconButton
+                tooltip="{tr.editingChangeColor()} ({getPlatformString(
+                    pickCombination,
+                )})"
+                {disabled}
+                widthMultiplier={0.5}
+                iconSize={120}
+            >
+                {@html chevronDown}
+                <ColorPicker
+                    keyCombination={pickCombination}
+                    on:input={(event) => {
+                        color = setColor(event);
+                        bridgeCommand(`lastTextColor:${color}`);
+                    }}
+                    on:change={() => setTextColor()}
+                />
+            </IconButton>
+        </ButtonGroupItem>
+    </ButtonGroup>
 </WithColorHelper>

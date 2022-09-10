@@ -29,9 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <LabelButton
                     theme="primary"
                     tooltip={getPlatformString(keyCombination)}
-                    on:click={onImport}
-                    --border-left-radius="5px"
-                    --border-right-radius="5px">{tr.actionsImport()}</LabelButton
+                    on:click={onImport}>{tr.actionsImport()}</LabelButton
                 >
                 <Shortcut {keyCombination} on:action={onImport} />
             </ButtonGroup></Col

@@ -5,6 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { onMount } from "svelte";
 
+    import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import ButtonGroupItem from "../../components/ButtonGroupItem.svelte";
     import CheckBox from "../../components/CheckBox.svelte";
     import DropdownItem from "../../components/DropdownItem.svelte";
     import IconButton from "../../components/IconButton.svelte";
@@ -103,46 +105,50 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<IconButton
-    tooltip="{tr.editingRemoveFormatting()} ({getPlatformString(keyCombination)})"
-    {disabled}
-    on:click={remove}
-    --border-left-radius="5px"
->
-    {@html eraserIcon}
-</IconButton>
-
-<Shortcut {keyCombination} on:action={remove} />
-
-<WithFloating
-    show={showFloating && !disabled}
-    placement="bottom"
-    inline
-    on:close={() => (showFloating = false)}
-    let:asReference
->
-    <span use:asReference class="remove-format-button">
+<ButtonGroup>
+    <ButtonGroupItem>
         <IconButton
-            tooltip={tr.editingSelectRemoveFormatting()}
+            tooltip="{tr.editingRemoveFormatting()} ({getPlatformString(
+                keyCombination,
+            )})"
             {disabled}
-            widthMultiplier={0.5}
-            iconSize={120}
-            --border-right-radius="5px"
-            on:click={() => (showFloating = !showFloating)}
+            on:click={remove}
         >
-            {@html chevronDown}
+            {@html eraserIcon}
         </IconButton>
-    </span>
+    </ButtonGroupItem>
+    <Shortcut {keyCombination} on:action={remove} />
+    <ButtonGroupItem>
+        <WithFloating
+            show={showFloating && !disabled}
+            placement="bottom"
+            inline
+            on:close={() => (showFloating = false)}
+            let:asReference
+        >
+            <span use:asReference class="remove-format-button">
+                <IconButton
+                    tooltip={tr.editingSelectRemoveFormatting()}
+                    {disabled}
+                    widthMultiplier={0.5}
+                    iconSize={120}
+                    on:click={() => (showFloating = !showFloating)}
+                >
+                    {@html chevronDown}
+                </IconButton>
+            </span>
 
-    <Popover slot="floating" --popover-padding-inline="0">
-        {#each showFormats as format (format.name)}
-            <DropdownItem on:click={(event) => onItemClick(event, format)}>
-                <CheckBox bind:value={format.active} />
-                <span class="d-flex-inline ps-3">{format.name}</span>
-            </DropdownItem>
-        {/each}
-    </Popover>
-</WithFloating>
+            <Popover slot="floating" --popover-padding-inline="0">
+                {#each showFormats as format (format.name)}
+                    <DropdownItem on:click={(event) => onItemClick(event, format)}>
+                        <CheckBox bind:value={format.active} />
+                        <span class="d-flex-inline ps-3">{format.name}</span>
+                    </DropdownItem>
+                {/each}
+            </Popover>
+        </WithFloating>
+    </ButtonGroupItem>
+</ButtonGroup>
 
 <style lang="scss">
     .remove-format-button {

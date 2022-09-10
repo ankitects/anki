@@ -4,13 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import ButtonGroup from "../../components/ButtonGroup.svelte";
-    import ButtonGroupItem, {
-        createProps,
-        setSlotHostContext,
-        updatePropsList,
-    } from "../../components/ButtonGroupItem.svelte";
+    import ButtonGroupItem from "../../components/ButtonGroupItem.svelte";
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
-    import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import Popover from "../../components/Popover.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
@@ -61,103 +56,94 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let showFloating = false;
 </script>
 
-<ButtonGroup>
-    <DynamicallySlottable
-        slotHost={ButtonGroupItem}
-        {createProps}
-        {updatePropsList}
-        {setSlotHostContext}
-        {api}
-    >
-        <ButtonGroupItem>
-            <CommandIconButton
-                key="insertUnorderedList"
-                tooltip={tr.editingUnorderedList()}
-                shortcut="Control+,">{@html ulIcon}</CommandIconButton
-            >
-        </ButtonGroupItem>
+<ButtonGroup {api}>
+    <ButtonGroupItem>
+        <CommandIconButton
+            key="insertUnorderedList"
+            tooltip={tr.editingUnorderedList()}
+            shortcut="Control+,">{@html ulIcon}</CommandIconButton
+        >
+    </ButtonGroupItem>
 
-        <ButtonGroupItem>
-            <CommandIconButton
-                key="insertOrderedList"
-                tooltip={tr.editingOrderedList()}
-                shortcut="Control+.">{@html olIcon}</CommandIconButton
-            >
-        </ButtonGroupItem>
+    <ButtonGroupItem>
+        <CommandIconButton
+            key="insertOrderedList"
+            tooltip={tr.editingOrderedList()}
+            shortcut="Control+.">{@html olIcon}</CommandIconButton
+        >
+    </ButtonGroupItem>
 
-        <ButtonGroupItem>
-            <WithFloating
-                show={showFloating && !disabled}
-                placement="bottom"
-                inline
-                on:close={() => (showFloating = false)}
-                let:asReference
-            >
-                <span class="block-buttons" use:asReference>
-                    <IconButton
-                        {disabled}
-                        on:click={() => (showFloating = !showFloating)}
-                    >
-                        {@html listOptionsIcon}
-                    </IconButton>
-                </span>
+    <ButtonGroupItem>
+        <WithFloating
+            show={showFloating && !disabled}
+            placement="bottom"
+            inline
+            on:close={() => (showFloating = false)}
+            let:asReference
+        >
+            <span class="block-buttons" use:asReference>
+                <IconButton {disabled} on:click={() => (showFloating = !showFloating)}>
+                    {@html listOptionsIcon}
+                </IconButton>
+            </span>
 
-                <Popover slot="floating" --popover-padding-inline="0">
-                    <ButtonToolbar wrap={false}>
-                        <ButtonGroup>
+            <Popover slot="floating" --popover-padding-inline="0">
+                <ButtonToolbar wrap={false}>
+                    <ButtonGroup>
+                        <ButtonGroupItem>
                             <CommandIconButton
                                 key="justifyLeft"
                                 tooltip={tr.editingAlignLeft()}
-                                --border-left-radius="5px"
-                                --border-right-radius="0px"
                                 >{@html justifyLeftIcon}</CommandIconButton
                             >
-
+                        </ButtonGroupItem>
+                        <ButtonGroupItem>
                             <CommandIconButton
                                 key="justifyCenter"
                                 tooltip={tr.editingCenter()}
                                 >{@html justifyCenterIcon}</CommandIconButton
                             >
-
+                        </ButtonGroupItem>
+                        <ButtonGroupItem>
                             <CommandIconButton
                                 key="justifyRight"
                                 tooltip={tr.editingAlignRight()}
                                 >{@html justifyRightIcon}</CommandIconButton
                             >
-
+                        </ButtonGroupItem>
+                        <ButtonGroupItem>
                             <CommandIconButton
                                 key="justifyFull"
                                 tooltip={tr.editingJustify()}
-                                --border-right-radius="5px"
                                 >{@html justifyFullIcon}</CommandIconButton
                             >
-                        </ButtonGroup>
+                        </ButtonGroupItem>
+                    </ButtonGroup>
 
-                        <ButtonGroup>
+                    <ButtonGroup>
+                        <ButtonGroupItem>
                             <IconButton
                                 tooltip="{tr.editingOutdent()} ({getPlatformString(
                                     outdentKeyCombination,
                                 )})"
                                 {disabled}
                                 on:click={outdentListItem}
-                                --border-left-radius="5px"
-                                --border-right-radius="0px"
                             >
                                 {@html outdentIcon}
                             </IconButton>
-
                             <Shortcut
                                 keyCombination={outdentKeyCombination}
                                 on:action={outdentListItem}
                             />
+                        </ButtonGroupItem>
 
+                        <ButtonGroupItem>
                             <IconButton
                                 tooltip="{tr.editingIndent()} ({getPlatformString(
                                     indentKeyCombination,
                                 )})"
                                 {disabled}
                                 on:click={indentListItem}
-                                --border-right-radius="5px"
                             >
                                 {@html indentIcon}
                             </IconButton>
@@ -166,12 +152,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 keyCombination={indentKeyCombination}
                                 on:action={indentListItem}
                             />
-                        </ButtonGroup>
-                    </ButtonToolbar>
-                </Popover>
-            </WithFloating>
-        </ButtonGroupItem>
-    </DynamicallySlottable>
+                        </ButtonGroupItem>
+                    </ButtonGroup>
+                </ButtonToolbar>
+            </Popover>
+        </WithFloating>
+    </ButtonGroupItem>
 </ButtonGroup>
 
 <style lang="scss">

@@ -41,7 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         createInterface,
     );
 
-    export let api: Partial<Record<string, unknown>>;
+    export let api: Partial<Record<string, unknown>> = {};
 
     Object.assign(api, slotsInterface);
 </script>

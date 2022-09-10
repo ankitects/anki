@@ -5,6 +5,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { onMount } from "svelte";
 
+    import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import ButtonGroupItem, {
+        createProps,
+        setSlotHostContext,
+        updatePropsList,
+    } from "../../components/ButtonGroupItem.svelte";
+    import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import type { FormattingNode, MatchType } from "../../domlib/surround";
     import { bridgeCommand } from "../../lib/bridgecommand";
@@ -109,29 +116,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <WithColorHelper {color} let:colorHelperIcon let:setColor>
-    <IconButton
-        tooltip={tr.editingTextHighlightColor()}
-        {disabled}
-        on:click={setTextColor}
-    >
-        {@html highlightColorIcon}
-        {@html colorHelperIcon}
-    </IconButton>
-
-    <IconButton
-        tooltip={tr.editingChangeColor()}
-        {disabled}
-        widthMultiplier={0.5}
-        iconSize={120}
-        --border-right-radius="5px"
-    >
-        {@html chevronDown}
-        <ColorPicker
-            on:input={(event) => {
-                color = setColor(event);
-                bridgeCommand(`lastHighlightColor:${color}`);
-            }}
-            on:change={() => setTextColor()}
-        />
-    </IconButton>
+    <ButtonGroup>
+        <DynamicallySlottable
+            slotHost={ButtonGroupItem}
+            {createProps}
+            {updatePropsList}
+            {setSlotHostContext}
+        >
+            <ButtonGroupItem>
+                <IconButton
+                    tooltip={tr.editingTextHighlightColor()}
+                    {disabled}
+                    on:click={setTextColor}
+                >
+                    {@html highlightColorIcon}
+                    {@html colorHelperIcon}
+                </IconButton>
+            </ButtonGroupItem>
+            <ButtonGroupItem>
+                <IconButton
+                    tooltip={tr.editingChangeColor()}
+                    {disabled}
+                    widthMultiplier={0.5}
+                    iconSize={120}
+                >
+                    {@html chevronDown}
+                    <ColorPicker
+                        on:input={(event) => {
+                            color = setColor(event);
+                            bridgeCommand(`lastHighlightColor:${color}`);
+                        }}
+                        on:change={() => setTextColor()}
+                    />
+                </IconButton>
+            </ButtonGroupItem>
+        </DynamicallySlottable>
+    </ButtonGroup>
 </WithColorHelper>

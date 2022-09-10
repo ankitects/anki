@@ -26,9 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <LabelButton
         theme="primary"
         tooltip={getPlatformString(keyCombination)}
-        on:click={save}
-        --border-left-radius="5px"
-        --border-right-radius="5px">{tr.actionsSave()}</LabelButton
+        on:click={save}>{tr.actionsSave()}</LabelButton
     >
     <Shortcut {keyCombination} on:action={save} />
 </ButtonGroup>

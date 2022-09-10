@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import ButtonGroupItem from "../../components/ButtonGroupItem.svelte";
     import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import Item from "../../components/Item.svelte";
     import BoldButton from "./BoldButton.svelte";
@@ -30,29 +31,45 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <DynamicallySlottable slotHost={Item} {api}>
     <Item>
         <ButtonGroup>
-            <BoldButton --border-left-radius="5px" />
-            <ItalicButton />
-            <UnderlineButton --border-right-radius="5px" />
+            <ButtonGroupItem>
+                <BoldButton />
+            </ButtonGroupItem>
+            <ButtonGroupItem>
+                <ItalicButton />
+            </ButtonGroupItem>
+            <ButtonGroupItem>
+                <UnderlineButton />
+            </ButtonGroupItem>
         </ButtonGroup>
     </Item>
 
     <Item>
         <ButtonGroup>
-            <SuperscriptButton --border-left-radius="5px" />
-            <SubscriptButton --border-right-radius="5px" />
+            <ButtonGroupItem>
+                <SuperscriptButton />
+            </ButtonGroupItem>
+            <ButtonGroupItem>
+                <SubscriptButton />
+            </ButtonGroupItem>
         </ButtonGroup>
     </Item>
 
     <Item>
         <ButtonGroup>
-            <TextColorButton color={textColor} />
-            <HighlightColorButton color={highlightColor} />
+            <ButtonGroupItem>
+                <TextColorButton color={textColor} />
+            </ButtonGroupItem>
+            <ButtonGroupItem>
+                <HighlightColorButton color={highlightColor} />
+            </ButtonGroupItem>
         </ButtonGroup>
     </Item>
 
     <Item>
         <ButtonGroup>
-            <RemoveFormatButton />
+            <ButtonGroupItem>
+                <RemoveFormatButton />
+            </ButtonGroupItem>
         </ButtonGroup>
     </Item>
 </DynamicallySlottable>

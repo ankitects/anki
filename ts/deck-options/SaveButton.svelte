@@ -69,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         theme="primary"
         on:click={() => save(false)}
         tooltip={getPlatformString(saveKeyCombination)}
-        --border-left-radius="5px">{tr.deckConfigSaveButton()}</LabelButton
+        >{tr.deckConfigSaveButton()}</LabelButton
     >
     <Shortcut keyCombination={saveKeyCombination} on:action={() => save(false)} />
 
@@ -83,7 +83,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             slot="reference"
             widthMultiplier={0.5}
             iconSize={120}
-            --border-right-radius="5px"
             on:click={() => (showFloating = !showFloating)}
         >
             {@html chevronDown}
