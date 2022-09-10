@@ -6,6 +6,7 @@ import type {
     FloatingElement,
     Middleware,
     Placement,
+    ReferenceElement,
 } from "@floating-ui/dom";
 import {
     arrow,
@@ -20,7 +21,7 @@ import {
 import type { PositionAlgorithm } from "./position-algorithm";
 
 export interface PositionFloatingArgs {
-    placement: Placement | "auto";
+    placement: Placement | Placement[] | "auto";
     arrow: HTMLElement;
     shift: number;
     offset: number;
@@ -41,7 +42,7 @@ function positionFloating({
     hideCallback,
 }: PositionFloatingArgs): PositionAlgorithm {
     return async function (
-        reference: HTMLElement,
+        reference: ReferenceElement,
         floating: FloatingElement,
     ): Promise<void> {
         const middleware: Middleware[] = [
@@ -58,10 +59,14 @@ function positionFloating({
             middleware,
         };
 
-        if (placement !== "auto") {
-            computeArgs.placement = placement;
-        } else {
+        if (Array.isArray(placement)) {
+            const allowedPlacements = placement;
+
+            middleware.push(autoPlacement({ allowedPlacements }));
+        } else if (placement === "auto") {
             middleware.push(autoPlacement());
+        } else {
+            computeArgs.placement = placement;
         }
 
         if (hideIfEscaped) {

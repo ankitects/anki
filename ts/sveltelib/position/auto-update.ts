@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { FloatingElement } from "@floating-ui/dom";
+import type { FloatingElement, ReferenceElement } from "@floating-ui/dom";
 import { autoUpdate as floatingUiAutoUpdate } from "@floating-ui/dom";
 import type { ActionReturn } from "svelte/action";
 
@@ -18,7 +18,7 @@ import type { Callback } from "../../lib/typing";
  * })`
  */
 export type PositioningCallback = (
-    reference: HTMLElement,
+    reference: ReferenceElement,
     floating: FloatingElement,
     position: Callback,
 ) => Callback;
@@ -27,12 +27,12 @@ export type PositioningCallback = (
  * The interface of a function that calls `computePosition` of floating-ui.
  */
 export type PositionFunc = (
-    reference: HTMLElement,
+    reference: ReferenceElement,
     callback: PositioningCallback,
 ) => Callback;
 
 function autoUpdate(
-    reference: HTMLElement,
+    reference: ReferenceElement,
     /**
      * The method to position the floating element.
      */
