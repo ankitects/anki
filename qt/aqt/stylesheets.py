@@ -43,6 +43,7 @@ QToolTip {{
 def button_styles(tm: ThemeManager, buf: str) -> str:
     buf += f"""
 QPushButton,
+QTabBar::tab:!selected,
 QComboBox:!editable {{
     background: qlineargradient(
         spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
@@ -52,6 +53,7 @@ QComboBox:!editable {{
 
 }}
 QPushButton:hover,
+QTabBar::tab:hover,
 QComboBox:!editable:hover {{
     background: qlineargradient(
         spread:pad, x1:0.5, y1:0, x2:0.5, y2:1.25,
@@ -137,47 +139,44 @@ def tabwidget_styles(tm: ThemeManager, buf: str) -> str:
     buf += f"""
 QTabWidget {{
   border-radius: {tm.var(props.BORDER_RADIUS)};
-  border: none;
   background: none;
 }}
 QTabWidget::pane {{
-  border: 1px solid {tm.var(colors.CANVAS_ELEVATED)};
-  border-radius: {tm.var(props.BORDER_RADIUS)};
+  top: -15px;
+  padding-top: 1em;
   background: {tm.var(colors.CANVAS_ELEVATED)};
+  border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+  border-radius: {tm.var(props.BORDER_RADIUS)};
+}}
+QTabWidget::tab-bar {{
+    alignment: center;
 }}
 QTabBar::tab {{
   background: none;
-  border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
-  border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
-  padding: 5px 10px;
-  margin-bottom: 0px;
-}}
-QTabBar::tab:!selected:hover,
-QTabBar::tab:selected {{
-    background: {tm.var(colors.CANVAS_ELEVATED)};
-}}
-QTabBar::tab:selected {{
-  margin-bottom: -1px;
-}}
-QTabBar::tab:!selected {{
-    margin-top: 5px;
-    background: {tm.var(colors.CANVAS)};
+  padding: 4px 8px;
+  min-width: 8ex;
 }}
 QTabBar::tab {{
-    min-width: 8ex;
-    padding: 5px 10px 5px 10px;
+  border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+}}
+QTabBar::tab:first {{
+  border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
+  border-bottom-left-radius: {tm.var(props.BORDER_RADIUS)};
+}}
+QTabBar::tab:!first {{
+  margin-left: -1px;
+}}
+QTabBar::tab:last {{
+  border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
+  border-bottom-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QTabBar::tab:selected {{
-    border-bottom-color: none;
-}}
-QTabBar::tab:bottom:selected {{
-    border-top-color: none;
-}}
-QTabBar::tab:previous-selected {{
-    border-top-left-radius: 0;
-}}
-QTabBar::tab:next-selected {{
-    border-top-right-radius: 0;
+    color: white;
+    background: qlineargradient(
+        spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
+        stop:0 {tm.var(colors.BUTTON_PRIMARY_GRADIENT_START)},
+        stop:1 {tm.var(colors.BUTTON_PRIMARY_GRADIENT_END)}
+    );
 }}
     """
     return buf
