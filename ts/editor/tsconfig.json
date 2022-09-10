@@ -4,6 +4,7 @@
         "*",
         "image-overlay/*",
         "mathjax-overlay/*",
+        "symbols-overlay/*",
         "plain-text-input/*",
         "rich-text-input/*",
         "editor-toolbar/*"

@@ -67,6 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import PlainTextBadge from "./PlainTextBadge.svelte";
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
+    import SymbolsOverlay from "./symbols-overlay";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -175,6 +176,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         noteId = ntid;
     }
 
+    let insertSymbols = false;
+
+    function setInsertSymbolsEnabled() {
+        insertSymbols = true;
+    }
+
     function getNoteId(): number | null {
         return noteId;
     }
@@ -277,6 +284,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setNoteId,
             wrap,
             setMathjaxEnabled,
+            setInsertSymbolsEnabled,
             ...oldEditorAdapter,
         });
 
@@ -448,6 +456,9 @@ the AddCards dialog) should be implemented in the user of this component.
                                 >
                                     <ImageHandle maxWidth={250} maxHeight={125} />
                                     <MathjaxHandle />
+                                    {#if insertSymbols}
+                                        <SymbolsOverlay />
+                                    {/if}
                                     <FieldDescription>
                                         {field.description}
                                     </FieldDescription>

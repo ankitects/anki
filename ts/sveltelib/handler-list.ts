@@ -51,6 +51,11 @@ interface HandlerOptions {
 export class HandlerList<T> {
     #list: HandlerAccess<T>[] = [];
 
+    /**
+     * Returns a `TriggerItem`, which can be used to attach event handlers.
+     * This TriggerItem exposes an additional `active` store. This can be
+     * useful, if other components need to react to the input handler being active.
+     */
     trigger(options?: Partial<HandlerOptions>): TriggerItem<T> {
         const once = options?.once ?? false;
         let handler: Handler<T> | null = null;
@@ -84,6 +89,11 @@ export class HandlerList<T> {
         );
     }
 
+    /**
+     * Attaches an event handler.
+     * @returns a callback, which removes the event handler. Alternatively,
+     * you can call `off` on the HandlerList.
+     */
     on(handler: Handler<T>, options?: Partial<HandlerOptions>): Callback {
         const once = options?.once ?? false;
         let offHandler: Handler<T> | null = null;
