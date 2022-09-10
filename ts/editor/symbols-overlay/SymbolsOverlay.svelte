@@ -10,11 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
     import { fontFamilyKey } from "../../lib/context-keys";
-    import {
-        getRange,
-        getSelection,
-        isSelectionCollapsed,
-    } from "../../lib/cross-browser";
+    import { getRange, getSelection } from "../../lib/cross-browser";
     import type { Callback } from "../../lib/typing";
     import { singleCallback } from "../../lib/typing";
     import { context } from "../rich-text-input";
@@ -81,18 +77,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 const commonAncestor = range.commonAncestorContainer as Text;
                 const replacementLength = query.length;
 
+                commonAncestor.parentElement?.normalize();
                 commonAncestor.deleteData(
                     range.endOffset - replacementLength + 1,
                     replacementLength,
                 );
 
                 inputHandler.insertText.on(
-                    async ({ text }) =>
+                    async ({ text }) => {
                         replaceText(
                             selection,
                             text,
                             symbolsEntryToReplacement(symbolEntry),
-                        ),
+                        );
+                    },
                     {
                         once: true,
                     },
@@ -174,22 +172,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function maybeShowOverlay(selection: Selection, event: InputEvent): void {
-        if (
-            !event.data ||
-            event.data === SYMBOLS_DELIMITER ||
-            whitespaceCharacters.includes(event.data) ||
-            !isSelectionCollapsed(selection)
-        ) {
+        if (!event.data) {
             return;
         }
 
         const currentRange = getRange(selection)!;
+
         // The input event opening the overlay or triggering the auto-insert
-        // must be an insertion, so event.data must be a string
+        // must be an insertion, so event.data must be a string.
+        // If the inputType is insertCompositionText, the event.data will
+        // contain the current composition, but the document will also
+        // contain the whole composition except the last character.
+        // So we only take the last character from event.data and retrieve the
+        // rest from the document
+        const startQuery = event.data[event.data.length - 1];
         const query = findValidSearchQuery(
             selection,
             currentRange,
-            event.data,
+            startQuery,
             tryAutoInsert,
         );
 

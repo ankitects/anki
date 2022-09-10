@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     // This could be done better with Intl.Segmenter once it has wider support:
     // const segmenter = new Intl.Segmenter();
     // const displayInTwoRows = [...segmenter.segment(symbol)].length;
-    $: displayInTwoRows = symbol.length >= 6;
+    $: displayInTwoRows = symbol.length > 6;
 </script>
 
 <div class="symbols-entry" style:flex-direction={displayInTwoRows ? "column" : "row"}>
