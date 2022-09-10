@@ -21,7 +21,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "./symbols-types";
     import SymbolsEntry from "./SymbolsEntry.svelte";
 
-    const SYMBOLS_DELIMITER = ":";
+    const symbolsDelimiter = ":";
+    const queryMinLength = 2;
+    const autoInsertQueryMaxLength = 5;
+
     const whitespaceCharacters = [" ", "\u00a0"];
 
     const { editable, inputHandler } = context.get();
@@ -70,7 +73,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function tryAutoInsert(selection: Selection, range: Range, query: string): boolean {
-        if (query.length >= 2) {
+        if (
+            query.length >= queryMinLength &&
+            query.length <= autoInsertQueryMaxLength
+        ) {
             const symbolEntry = getAutoInsertSymbol(query);
 
             if (symbolEntry) {
@@ -127,8 +133,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             if (whitespaceCharacters.includes(currentCharacter)) {
                 return null;
-            } else if (currentCharacter === SYMBOLS_DELIMITER) {
-                if (query.length < 2) {
+            } else if (currentCharacter === symbolsDelimiter) {
+                if (query.length < queryMinLength) {
                     return null;
                 }
 
@@ -219,7 +225,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 .split("")
                 .reverse()
                 .join("")
-                .indexOf(SYMBOLS_DELIMITER) + 1;
+                .indexOf(symbolsDelimiter) + 1;
 
         commonAncestor.deleteData(
             referenceRange!.endOffset - replacementLength,
@@ -249,7 +255,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const currentRange = getRange(selection)!;
         const offset = currentRange.endOffset;
 
-        if (!(currentRange.commonAncestorContainer instanceof Text) || offset < 2) {
+        if (
+            !(currentRange.commonAncestorContainer instanceof Text) ||
+            offset < queryMinLength
+        ) {
             return unsetReferenceRange();
         }
 
@@ -261,7 +270,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 .split("")
                 .reverse()
                 .join("")
-                .indexOf(SYMBOLS_DELIMITER) + 1;
+                .indexOf(symbolsDelimiter) + 1;
 
         commonAncestor.deleteData(
             currentRange.endOffset - replacementLength,
@@ -278,7 +287,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function updateOverlay(selection: Selection, event: InputEvent): void {
-        if (event.data === SYMBOLS_DELIMITER) {
+        if (event.data === symbolsDelimiter) {
             const query = findValidSearchQuery(selection, getRange(selection)!);
 
             if (query) {
@@ -344,7 +353,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 containsHTML={Boolean(found.containsHTML)}
                                 fontFamily={$fontFamily}
                             >
-                                {SYMBOLS_DELIMITER}{symbolName}{SYMBOLS_DELIMITER}
+                                {symbolsDelimiter}{symbolName}{symbolsDelimiter}
                             </SymbolsEntry>
                         </DropdownItem>
                     {/each}
