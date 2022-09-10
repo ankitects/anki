@@ -70,8 +70,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         background-color: inherit;
     }
 
-    /* extra specificity bc of global CSS reset above */
-    button {
-        @include button.btn;
-    }
+    @include button.button;
 </style>

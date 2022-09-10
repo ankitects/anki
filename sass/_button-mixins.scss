@@ -19,8 +19,12 @@
     border-bottom-right-radius: var(--border-right-radius);
 }
 
-@mixin btn($with-hover: true, $with-active: true, $with-disabled: true) {
-    .btn {
+@mixin button($with-hover: true, $with-active: true, $with-disabled: true) {
+    button,
+    /* legacy classes */
+    .btn-day,
+    .btn-night,
+    .linkb {
         -webkit-appearance: none;
         border: 1px solid var(--button-border);
 
@@ -31,14 +35,13 @@
             var(--button-gradient-end) 100%
         );
 
-
         @if ($with-hover) {
             &:hover,
             &.hover {
                 background: linear-gradient(
                     180deg,
                     var(--button-hover-gradient-start) 0%,
-                    var(--button-hovergradient-end) 100%
+                    var(--button-hover-gradient-end) 100%
                 );
                 border-color: var(--button-hover-border);
             }

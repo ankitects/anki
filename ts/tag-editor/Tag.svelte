@@ -82,5 +82,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    @include button.btn($with-active: false, $with-disabled: false);
+    @include button.button($with-active: false, $with-disabled: false);
 </style>

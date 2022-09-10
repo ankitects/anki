@@ -11,11 +11,11 @@ $padding: 2px;
     width: $size;
     height: $size;
     padding: $padding;
-    color: var(--fg);
     font-size: calc($size * 0.6);
-    border: 1px solid var(--border);
-    @include button.btn;
 }
+
+@include button.button;
+
 img.topbut {
     max-width: calc($size - 2 * $padding);
     max-height: calc($size - 2 * $padding);
