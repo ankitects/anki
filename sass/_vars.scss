@@ -90,23 +90,27 @@ $vars: (
             gradient: (
                 start: (
                     light: white,
-                    dark: palette(darkgray, 2),
+                    dark: palette(darkgray, 3),
                 ),
                 end: (
                     light: palette(lightgray, 1),
-                    dark: palette(darkgray, 3),
+                    dark: palette(darkgray, 4),
                 ),
             ),
             hover: (
                 gradient: (
                     start: (
                         light: palette(lightgray, 1),
-                        dark: palette(darkgray, 1),
+                        dark: palette(darkgray, 2),
                     ),
                     end: (
                         light: palette(lightgray, 3),
-                        dark: palette(darkgray, 2),
+                        dark: palette(darkgray, 3),
                     ),
+                ),
+                border: (
+                    light: palette(lightgray, 8),
+                    dark: palette(darkgray, 8),
                 ),
             ),
             primary: (
