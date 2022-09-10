@@ -82,20 +82,33 @@
         $position == ButtonPosition.Standalone || $position == ButtonPosition.InlineEnd
             ? "5px"
             : "0";
-    $: marginLeft =
+    $: notFirst =
         $position == ButtonPosition.Center || $position == ButtonPosition.InlineEnd
             ? "-1px"
             : "0";
 </script>
 
 <div
-    class="button-group-item"
     {id}
+    class="button-group-item"
+    class:not-first={notFirst}
     style:--border-left-radius={leftRadius}
     style:--border-right-radius={rightRadius}
-    style:margin-left={marginLeft}
 >
     {#if !$detach}
         <slot />
     {/if}
 </div>
+
+<style lang="scss">
+    .button-group-item {
+        display: contents;
+    }
+    /* replace with gap once available */
+    .not-first > :global(*) {
+        margin-left: -1px;
+    }
+    :global([dir="rtl"]) .not-first > :global(*) {
+        margin-right: -1px;
+    }
+</style>
