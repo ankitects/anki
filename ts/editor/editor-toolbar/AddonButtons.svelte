@@ -5,7 +5,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import ButtonGroup from "../../components/ButtonGroup.svelte";
     import ButtonGroupItem from "../../components/ButtonGroupItem.svelte";
-    import IconButton from "../../components/IconButton.svelte";
 
     export let buttons: string[];
 </script>
@@ -13,7 +12,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ButtonGroup>
     {#each buttons as button}
         <ButtonGroupItem>
-            <IconButton>{@html button}</IconButton>
+            <div>{@html button}</div>
         </ButtonGroupItem>
     {/each}
 </ButtonGroup>
+
+<style lang="scss">
+    @use "sass/button-mixins" as button;
+    div {
+        @include button.btn-border-radius;
+    }
+</style>
