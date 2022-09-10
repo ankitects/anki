@@ -44,7 +44,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
-    import StickyContainer from "../components/StickyContainer.svelte";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { TagEditor } from "../tag-editor";
     import { ChangeTimer } from "./change-timer";
@@ -407,7 +406,31 @@ the AddCards dialog) should be implemented in the user of this component.
                                             }
                                         }}
                                     />
+                                {:else}
+                                    <PlainTextBadge
+                                        visible={!fieldsCollapsed[index] &&
+                                            (fields[index] === $hoveredField ||
+                                                fields[index] === $focusedField)}
+                                        bind:off={plainTextsHidden[index]}
+                                        on:toggle={async () => {
+                                            plainTextsHidden[index] =
+                                                !plainTextsHidden[index];
+
+                                            if (!plainTextsHidden[index]) {
+                                                refocusInput(
+                                                    plainTextInputs[index].api,
+                                                );
+                                            }
+                                        }}
+                                    />
                                 {/if}
+                                <slot
+                                    name="field-state"
+                                    {field}
+                                    {index}
+                                    visible={fields[index] === $hoveredField ||
+                                        fields[index] === $focusedField}
+                                />
                             </FieldState>
                         </LabelContainer>
                     </svelte:fragment>
