@@ -48,6 +48,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @include button.btn-border-radius;
     }
 
-    @include button.btn-day;
-    @include button.btn-night;
+    @include button.btn;
 </style>

@@ -71,20 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     /* extra specificity bc of global CSS reset above */
-    button.btn-day {
-        color: black;
-
-        &.selected {
-            background-color: palette(gray, 1);
-            border-color: palette(gray, 1);
-        }
-    }
-
-    button.btn-night {
-        color: white;
-
-        &.selected {
-            @include button.btn-night-base;
-        }
+    button {
+        @include button.btn;
     }
 </style>

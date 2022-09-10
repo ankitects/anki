@@ -82,7 +82,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    @include button.btn-day($with-active: false, $with-disabled: false);
-
-    @include button.btn-night($with-active: false, $with-disabled: false);
+    @include button.btn($with-active: false, $with-disabled: false);
 </style>
