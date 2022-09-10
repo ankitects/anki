@@ -33,6 +33,10 @@ copy_mdi_icons(
         # tags
         "tag-outline.svg",
         "tag-off-outline.svg",
+
+        # QHeaderView arrows
+        "menu-up.svg",
+        "menu-down.svg",
     ],
 )
 
