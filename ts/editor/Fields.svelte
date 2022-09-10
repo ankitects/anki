@@ -16,7 +16,8 @@ Contains the fields. This contains the scrollable area.
         grid-auto-rows: min-content;
         grid-gap: 6px;
 
-        padding: 0 3px 5px;
+        /* Add space after the last field and the start of the tag editor */
+        padding-bottom: 5px;
 
         /* If the fields are to big for the window, this element should have a scrollbar */
         overflow-y: auto;
