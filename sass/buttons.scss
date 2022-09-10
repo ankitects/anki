@@ -22,16 +22,16 @@
 
 button {
     -webkit-appearance: none;
-    color: var(--fg);
+    color: color(fg);
 
     background: linear-gradient(
         0deg,
-        var(--button-gradient-start) 0%,
-        var(--button-gradient-end) 100%
+        color(button-gradient-start) 0%,
+        color(button-gradient-end) 100%
     );
-    border: 1px solid var(--button-border);
+    border: 1px solid color(button-border);
 
-    border-radius: 5px;
+    border-radius: prop(border-radius);
     padding: 3px 10px 3px;
 
     &:focus {
@@ -43,7 +43,7 @@ button {
 button:hover {
     background: linear-gradient(
         0deg,
-        var(--button-hover-gradient-start) 0%,
-        var(--button-hover-gradient-end) 100%
+        color(button-hover-gradient-start) 0%,
+        color(button-hover-gradient-end) 100%
     );
 }
