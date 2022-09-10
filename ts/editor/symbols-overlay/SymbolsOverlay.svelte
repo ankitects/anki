@@ -18,29 +18,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Callback } from "../../lib/typing";
     import { singleCallback } from "../../lib/typing";
     import { context } from "../rich-text-input";
+    import { findSymbols, getAutoInsertSymbol, getExactSymbol } from "./symbols-table";
     import type {
         SymbolsEntry as SymbolsEntryType,
         SymbolsTable,
-    } from "./symbols-table";
-    import { findSymbols, getAutoInsertSymbol, getExactSymbol } from "./symbols-table";
+    } from "./symbols-types";
     import SymbolsEntry from "./SymbolsEntry.svelte";
 
     const SYMBOLS_DELIMITER = ":";
     const whitespaceCharacters = [" ", "\u00a0"];
 
-    const { inputHandler, editable } = context.get();
+    const { editable, inputHandler } = context.get();
     const fontFamily = getContext<Readable<string>>(fontFamilyKey);
-
-    let referenceRange: Range | undefined = undefined;
-    let searchQuery = "";
-    let activeItem = 0;
-    let cleanup: Callback;
 
     let foundSymbols: SymbolsTable = [];
 
+    let referenceRange: Range | undefined = undefined;
+    let activeItem = 0;
+    let cleanup: Callback;
+
     function unsetReferenceRange() {
         referenceRange = undefined;
-        searchQuery = "";
         activeItem = 0;
         cleanup?.();
     }
@@ -107,6 +105,74 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return false;
     }
 
+    function findValidSearchQuery(
+        selection: Selection,
+        range: Range,
+        startQuery = "",
+        shouldFinishEarly: (
+            selection: Selection,
+            range: Range,
+            query: string,
+        ) => boolean = () => false,
+    ): string | null {
+        const offset = range.endOffset;
+        const commonAncestorContainer = range.commonAncestorContainer;
+
+        if (!(commonAncestorContainer instanceof Text)) {
+            return null;
+        }
+
+        let query = startQuery;
+
+        for (let index = offset - 1; index >= 0; index--) {
+            const currentCharacter = commonAncestorContainer.wholeText[index];
+
+            if (whitespaceCharacters.includes(currentCharacter)) {
+                return null;
+            } else if (currentCharacter === SYMBOLS_DELIMITER) {
+                if (query.length < 2) {
+                    return null;
+                }
+
+                return query;
+            }
+
+            query = currentCharacter + query;
+
+            if (shouldFinishEarly(selection, range, query)) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    function onSpecialKey({ event, action }): void {
+        if (["caretLeft", "caretRight"].includes(action)) {
+            return unsetReferenceRange();
+        }
+
+        event.preventDefault();
+
+        if (action === "caretUp") {
+            if (activeItem === 0) {
+                activeItem = foundSymbols.length - 1;
+            } else {
+                activeItem--;
+            }
+        } else if (action === "caretDown") {
+            if (activeItem >= foundSymbols.length - 1) {
+                activeItem = 0;
+            } else {
+                activeItem++;
+            }
+        } else if (action === "enter" || action === "tab") {
+            replaceTextOnDemand(foundSymbols[activeItem]);
+        } else if (action === "escape") {
+            unsetReferenceRange();
+        }
+    }
+
     function maybeShowOverlay(selection: Selection, event: InputEvent): void {
         if (
             !event.data ||
@@ -114,49 +180,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             whitespaceCharacters.includes(event.data) ||
             !isSelectionCollapsed(selection)
         ) {
-            return unsetReferenceRange();
+            return;
         }
 
         const currentRange = getRange(selection)!;
-        const offset = currentRange.endOffset;
-
-        if (!(currentRange.commonAncestorContainer instanceof Text)) {
-            return unsetReferenceRange();
-        }
-
-        const wholeText = currentRange.commonAncestorContainer.wholeText;
-
         // The input event opening the overlay or triggering the auto-insert
-        // must be an insertion.
-        let possibleQuery = event.data;
+        // must be an insertion, so event.data must be a string
+        const query = findValidSearchQuery(
+            selection,
+            currentRange,
+            event.data,
+            tryAutoInsert,
+        );
 
-        for (let index = offset - 1; index >= 0; index--) {
-            const currentCharacter = wholeText[index];
+        if (query) {
+            foundSymbols = findSymbols(query);
 
-            if (whitespaceCharacters.includes(currentCharacter)) {
-                return unsetReferenceRange();
-            } else if (currentCharacter === SYMBOLS_DELIMITER) {
-                if (possibleQuery.length < 2) {
-                    return unsetReferenceRange();
-                }
-
-                searchQuery = possibleQuery;
+            if (foundSymbols.length > 0) {
                 referenceRange = currentRange;
-                foundSymbols = findSymbols(searchQuery);
-
-                cleanup = editable.focusHandler.blur.on(
-                    async () => unsetReferenceRange(),
-                    {
+                cleanup = singleCallback(
+                    editable.focusHandler.blur.on(async () => unsetReferenceRange(), {
                         once: true,
-                    },
+                    }),
+                    inputHandler.pointerDown.on(async () => unsetReferenceRange()),
+                    inputHandler.specialKey.on(onSpecialKey),
                 );
-                return;
-            }
-
-            possibleQuery = currentCharacter + possibleQuery;
-
-            if (tryAutoInsert(selection, currentRange, possibleQuery)) {
-                return;
             }
         }
     }
@@ -191,9 +239,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         unsetReferenceRange();
     }
 
-
-    function prepareInsertion(selection: Selection): void {
-        const symbolEntry = getExactSymbol(searchQuery);
+    function prepareInsertion(selection: Selection, query: string): void {
+        const symbolEntry = getExactSymbol(query);
 
         if (!symbolEntry) {
             return unsetReferenceRange();
@@ -223,11 +270,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         inputHandler.insertText.on(
             async ({ text }) =>
-                replaceText(
-                    selection,
-                    text,
-                    symbolsEntryToReplacement(symbolEntry),
-                ),
+                replaceText(selection, text, symbolsEntryToReplacement(symbolEntry)),
             {
                 once: true,
             },
@@ -235,18 +278,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function updateOverlay(selection: Selection, event: InputEvent): void {
-        referenceRange = getRange(selection)!;
-
         if (event.data === SYMBOLS_DELIMITER) {
-            prepareInsertion(selection);
-        } else if (searchQuery) {
-            searchQuery += event.data!;
-            foundSymbols = findSymbols(searchQuery);
+            const query = findValidSearchQuery(selection, getRange(selection)!);
 
-            if (foundSymbols.length === 0) {
+            if (query) {
+                prepareInsertion(selection, query);
+            } else {
                 unsetReferenceRange();
             }
         }
+        // We have to wait for afterInput to update the symbols, because we also
+        // want to update in the case of a deletion
+        inputHandler.afterInput.on(
+            () => {
+                const currentRange = getRange(selection)!;
+                const query = findValidSearchQuery(selection, currentRange);
+
+                if (!query) {
+                    return unsetReferenceRange();
+                }
+
+                foundSymbols = findSymbols(query);
+
+                if (foundSymbols.length === 0) {
+                    unsetReferenceRange();
+                } else {
+                    referenceRange = currentRange;
+                }
+            },
+            { once: true },
+        );
     }
 
     function onBeforeInput({ event }): void {
@@ -259,49 +320,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    $: showSymbolsOverlay = referenceRange && foundSymbols.length > 0;
-
-    function onSpecialKey({ event, action }): void {
-        if (!showSymbolsOverlay) {
-            return;
-        }
-
-        if (["caretLeft", "caretRight"].includes(action)) {
-            return unsetReferenceRange();
-        }
-
-        event.preventDefault();
-
-        if (action === "caretUp") {
-            if (activeItem === 0) {
-                activeItem = foundSymbols.length - 1;
-            } else {
-                activeItem--;
-            }
-        } else if (action === "caretDown") {
-            if (activeItem >= foundSymbols.length - 1) {
-                activeItem = 0;
-            } else {
-                activeItem++;
-            }
-        } else if (action === "enter" || action === "tab") {
-            replaceTextOnDemand(foundSymbols[activeItem]);
-        } else if (action === "escape") {
-            unsetReferenceRange();
-        }
-    }
-
-    onMount(() =>
-        singleCallback(
-            inputHandler.beforeInput.on(onBeforeInput),
-            inputHandler.specialKey.on(onSpecialKey),
-            inputHandler.pointerDown.on(async () => unsetReferenceRange()),
-        ),
-    );
+    onMount(() => inputHandler.beforeInput.on(onBeforeInput));
 </script>
 
 <div class="symbols-overlay">
-    {#if showSymbolsOverlay}
+    {#if referenceRange}
         <WithFloating
             reference={referenceRange}
             placement={["top", "bottom"]}

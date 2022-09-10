@@ -7,10 +7,7 @@ import characterEntities from "./character-entities";
 import gemoji from "./gemoji";
 import type { SymbolsEntry, SymbolsTable } from "./symbols-types";
 
-const symbolsTable: SymbolsTable = [
-    ...characterEntities,
-    ...gemoji,
-];
+const symbolsTable: SymbolsTable = [...characterEntities, ...gemoji];
 
 const symbolsFuse = new Fuse(symbolsTable, {
     threshold: 0.2,
