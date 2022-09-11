@@ -9,14 +9,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className = "";
     export { className as class };
 
+    let buttonRef: HTMLButtonElement;
+
     export let tooltip: string | undefined = undefined;
-    export let tabbable: boolean = false;
+
+    export let active = false;
+
+    $: if (buttonRef && active) {
+        /* buttonRef.scrollIntoView({ behavior: "smooth", block: "start" }); */
+        /* TODO will not work on Gecko */
+        (buttonRef as any).scrollIntoViewIfNeeded({
+            behavior: "smooth",
+            block: "start",
+        });
+    }
+
+    export let tabbable = false;
 </script>
 
 <button
+    bind:this={buttonRef}
     {id}
     tabindex={tabbable ? 0 : -1}
-    class="dropdown-item btn {className}"
+    class="dropdown-item {className}"
+    class:active
     class:btn-day={!$pageTheme.isDark}
     class:btn-night={$pageTheme.isDark}
     title={tooltip}
@@ -36,7 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         justify-content: start;
 
-        font-size: calc(var(--base-font-size) * 0.8);
+        font-size: var(--dropdown-font-size, calc(0.8 * var(--base-font-size)));
 
         background: none;
         box-shadow: none !important;

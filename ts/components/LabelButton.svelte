@@ -3,11 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { createEventDispatcher, getContext, onMount } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
 
     import { pageTheme } from "../sveltelib/theme";
-    import { dropdownKey } from "./context-keys";
-    import type { DropdownProps } from "./dropdown";
 
     export let id: string | undefined = undefined;
     let className: string = "";
@@ -23,8 +21,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let disabled = false;
     export let tabbable = false;
 
-    const dropdownProps = getContext<DropdownProps>(dropdownKey) ?? { dropdown: false };
-
     let buttonRef: HTMLButtonElement;
 
     const dispatch = createEventDispatcher();
@@ -36,11 +32,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {id}
     class="label-button {extendClassName(className, theme)}"
     class:active
-    class:dropdown-toggle={dropdownProps.dropdown}
     class:btn-day={theme === "anki" && !$pageTheme.isDark}
     class:btn-night={theme === "anki" && $pageTheme.isDark}
     title={tooltip}
-    {...dropdownProps}
     {disabled}
     tabindex={tabbable ? 0 : -1}
     on:click

@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
 
     import { execCommand } from "../domlib";
+    import { isArrowDown, isArrowUp } from "../lib/keys";
     import { Tags, tags as tagsService } from "../lib/proto";
     import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";
@@ -257,17 +258,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onKeydown(event: KeyboardEvent): void {
+        if (isArrowUp(event)) {
+            autocomplete.selectPrevious();
+            event.preventDefault();
+            return;
+        } else if (isArrowDown(event)) {
+            autocomplete.selectNext();
+            event.preventDefault();
+            return;
+        }
+
         switch (event.code) {
-            case "ArrowUp":
-                autocomplete.selectPrevious();
-                event.preventDefault();
-                break;
-
-            case "ArrowDown":
-                autocomplete.selectNext();
-                event.preventDefault();
-                break;
-
             case "Tab":
                 if (!$show) {
                     break;

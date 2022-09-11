@@ -17,8 +17,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         min-width: 1rem;
         max-width: 95vw;
 
-        /* Needs enough space for FloatingArrow to be positioned */
-        padding: 6px;
+        /* Needs this much space for FloatingArrow to be positioned */
+        padding: var(--popover-padding-block, 6px) var(--popover-padding-inline, 6px);
 
         font-size: 1rem;
         color: var(--fg);
