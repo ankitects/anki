@@ -32,9 +32,9 @@ class ColoredIcon:
 
     def current_color(self, night_mode: bool) -> str:
         if night_mode:
-            return self.var[1]
+            return self.color[1]
         else:
-            return self.var[0]
+            return self.color[0]
 
     def with_color(self, color: tuple[str, str]) -> ColoredIcon:
         return ColoredIcon(path=self.path, color=color)
