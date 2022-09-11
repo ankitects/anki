@@ -186,13 +186,16 @@ def table_styles(tm: ThemeManager, buf: str) -> str:
     buf += f"""
 QTableView {{
     background: none;
-    border: none;
+    top: 2px;
+    border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     border-radius: {tm.var(props.BORDER_RADIUS)};
     gridline-color: {tm.var(colors.BORDER_SUBTLE)}; 
 }}
+QHeaderView {{
+    background: {tm.var(colors.CANVAS)};
+}}
 QHeaderView::section {{
-    border: 2px solid {tm.var(colors.BORDER_SUBTLE)};
-    margin: -1px;
+    border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     background: qlineargradient(
         spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
         stop:0 {tm.var(colors.BUTTON_GRADIENT_START)},
@@ -217,16 +220,17 @@ QHeaderView::section:hover {{
     );
 }}
 QHeaderView::section:first {{
-    border-top: 2px solid {tm.var(colors.CANVAS)};
-    border-left: 2px solid {tm.var(colors.CANVAS)};
+    margin-left: -1px;
+    border-top: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
+    border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
     border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QHeaderView::section:!first {{
     border-left: none;
 }}
 QHeaderView::section:last {{
-    border-top: 2px solid {tm.var(colors.CANVAS)};
-    border-right: 2px solid {tm.var(colors.CANVAS)};
+    border-top: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
+    border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
     border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QHeaderView::section:next-selected {{
@@ -236,9 +240,9 @@ QHeaderView::section:previous-selected {{
     border-left: none;
 }}
 QHeaderView::section:only-one {{
-    border-left: 2px solid {tm.var(colors.CANVAS)};
-    border-top: 2px solid {tm.var(colors.CANVAS)};
-    border-right: 2px solid {tm.var(colors.CANVAS)};
+    border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
+    border-top: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
+    border-right: 1px solid {tm.var(colors.CANVAS)};
     border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
     border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
