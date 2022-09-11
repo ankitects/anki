@@ -1,6 +1,6 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
-@use "vars" as *;
+@use "vars";
 @use "sass:color";
 
 @import "bootstrap/scss/functions";
@@ -19,12 +19,8 @@
     border-bottom-right-radius: var(--border-right-radius);
 }
 
-@mixin button($with-hover: true, $with-active: true, $with-disabled: true) {
-    button,
-    /* legacy classes */
-    .btn-day,
-    .btn-night,
-    .linkb {
+@mixin base($selector: button, $with-hover: true, $with-active: true, $with-disabled: true) {
+    #{$selector} {
         -webkit-appearance: none;
         border: 1px solid var(--button-border);
 
@@ -36,8 +32,7 @@
         );
 
         @if ($with-hover) {
-            &:hover,
-            &.hover {
+            &:hover {
                 background: linear-gradient(
                     180deg,
                     var(--button-hover-gradient-start) 0%,
@@ -48,12 +43,8 @@
         }
 
         @if ($with-active) {
-            &:active,
-            &.active {
+            &:active {
                 @include impressed-shadow(0.35);
-            }
-
-            &:active.active {
                 box-shadow: none;
                 border-color: var(--button-border);
             }
@@ -70,7 +61,7 @@
     }
 }
 
-$focus-color: color(shadow-focus);
+$focus-color: vars.color(shadow-focus);
 
 @function down-arrow($color) {
     @return url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='transparent' stroke='#{$color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");

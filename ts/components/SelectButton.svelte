@@ -41,7 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     @use "sass/button-mixins" as button;
-    @include button.button($with-hover: false);
+    @include button.base($selector: "select", $with-hover: false);
 
     select {
         height: var(--buttons-size);

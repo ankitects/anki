@@ -1,6 +1,6 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
-@use "sass/vars" as *;
+@use "sass/vars";
 @use "sass:color";
 @use "sass/button-mixins" as button;
 
@@ -14,7 +14,7 @@ $padding: 2px;
     font-size: calc($size * 0.6);
 }
 
-@include button.button;
+@include button.base($selector: ".linkb");
 
 img.topbut {
     max-width: calc($size - 2 * $padding);
