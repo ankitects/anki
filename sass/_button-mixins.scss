@@ -19,7 +19,13 @@
     border-bottom-right-radius: var(--border-right-radius);
 }
 
-@mixin base($selector: button, $with-hover: true, $with-active: true, $with-disabled: true) {
+@mixin base(
+    $selector: button,
+    $with-primary: false,
+    $with-hover: true,
+    $with-active: true,
+    $with-disabled: true
+) {
     #{$selector} {
         -webkit-appearance: none;
         border: 1px solid var(--button-border);
@@ -38,7 +44,26 @@
                     var(--button-hover-gradient-start) 0%,
                     var(--button-hover-gradient-end) 100%
                 );
+
                 border-color: var(--button-hover-border);
+            }
+        }
+
+        @if ($with-primary) {
+            &.btn-primary {
+                color: white;
+                background: linear-gradient(
+                    180deg,
+                    var(--button-primary-gradient-start) 0%,
+                    var(--button-primary-gradient-end) 100%
+                );
+                &:hover {
+                    background: linear-gradient(
+                        180deg,
+                        var(--button-primary-hover-gradient-start) 0%,
+                        var(--button-primary-hover-gradient-end) 100%
+                    );
+                }
             }
         }
 
