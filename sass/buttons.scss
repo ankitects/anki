@@ -1,7 +1,7 @@
 @use "vars" as *;
 
 :root {
-    --focus-color: #{palette-of(button-focus)};
+    --focus-color: #{palette-of(shadow-focus)};
 
     .isMac {
         --focus-color: rgba(0 103 244 / 0.247);
@@ -36,7 +36,7 @@ button {
 
     &:focus {
         outline: none;
-        box-shadow: 0 0 0 2px var(--focus-color);
+        box-shadow: 0 0 0 1px var(--focus-color);
     }
 }
 
