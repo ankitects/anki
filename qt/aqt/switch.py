@@ -100,10 +100,7 @@ class Switch(QAbstractButton):
         )
 
     def _paint_knob(self, painter: QPainter) -> None:
-        if theme_manager.night_mode:
-            color = QColor(theme_manager.DARK_MODE_BUTTON_BG_MIDPOINT)
-        else:
-            color = theme_manager.qcolor(colors.CANVAS_ELEVATED)
+        color = theme_manager.qcolor(colors.BUTTON_GRADIENT_START)
         painter.setBrush(QBrush(color))
         painter.drawEllipse(self._current_knob_rectangle())
 

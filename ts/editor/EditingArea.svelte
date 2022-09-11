@@ -199,7 +199,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             inset: 0;
             pointer-events: none;
             border-radius: 5px;
-            box-shadow: 0 0 2px 0 var(--border-subtle), inset 0 0 0 1px var(--border);
+            box-shadow: 0 0 2px 1px var(--shadow);
             transition: box-shadow 80ms cubic-bezier(0.33, 1, 0.68, 1);
         }
 

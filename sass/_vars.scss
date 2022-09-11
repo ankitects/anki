@@ -146,26 +146,30 @@ $vars: (
             bg: (
                 default: (
                     light: palette(lightgray, 7),
-                    dark: palette(darkgray, 2),
+                    dark: palette(darkgray, 4),
                 ),
                 hover: (
                     light: palette(lightgray, 8),
-                    dark: palette(darkgray, 1),
+                    dark: palette(darkgray, 3),
                 ),
                 active: (
                     light: palette(lightgray, 9),
-                    dark: palette(darkgray, 0),
+                    dark: palette(darkgray, 1),
                 ),
             ),
         ),
         shadow: (
             default: (
                 light: palette(lightgray, 8),
-                dark: palette(darkgray, 8),
+                dark: palette(darkgray, 7),
             ),
             inset: (
                 light: palette(lightgray, 9),
                 dark: palette(darkgray, 7),
+            ),
+            subtle: (
+                light: palette(lightgray, 5),
+                dark: palette(darkgray, 6),
             ),
             focus: (
                 default: palette(indigo, 5),
@@ -248,10 +252,10 @@ $vars: (
         highlight: (
             bg: (
                 light: palette(blue, 3),
-                dark: palette(blue, 5),
+                dark: palette(blue, 4),
             ),
             fg: (
-                light: black,
+                default: black,
                 dark: white,
             ),
         ),
