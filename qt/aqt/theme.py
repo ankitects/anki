@@ -187,7 +187,7 @@ class ThemeManager:
 
     def _apply_style(self, app: QApplication) -> None:
         buf = ""
-        
+
         if not is_mac:
             from aqt.stylesheets import (
                 button_styles,
