@@ -25,7 +25,7 @@ button {
     color: color(fg);
 
     background: linear-gradient(
-        0deg,
+        180deg,
         color(button-gradient-start) 0%,
         color(button-gradient-end) 100%
     );
@@ -42,7 +42,7 @@ button {
 
 button:hover {
     background: linear-gradient(
-        0deg,
+        180deg,
         color(button-hover-gradient-start) 0%,
         color(button-hover-gradient-end) 100%
     );
