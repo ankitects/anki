@@ -678,7 +678,7 @@ class AnkiQt(QMainWindow):
             self.bottomWeb.show()
         gui_hooks.state_did_change(state, oldState)
 
-    def _deckBrowserState(self, oldState: str) -> None:
+    def _deckBrowserState(self, oldState: MainWindowState) -> None:
         self.deckBrowser.show()
 
     def _selectedDeck(self) -> DeckDict | None:
@@ -688,15 +688,15 @@ class AnkiQt(QMainWindow):
             return None
         return self.col.decks.get(did)
 
-    def _overviewState(self, oldState: str) -> None:
+    def _overviewState(self, oldState: MainWindowState) -> None:
         if not self._selectedDeck():
             return self.moveToState("deckBrowser")
         self.overview.show()
 
-    def _reviewState(self, oldState: str) -> None:
+    def _reviewState(self, oldState: MainWindowState) -> None:
         self.reviewer.show()
 
-    def _reviewCleanup(self, newState: str) -> None:
+    def _reviewCleanup(self, newState: MainWindowState) -> None:
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
 
