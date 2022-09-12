@@ -25,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import subscribeToUpdates from "../sveltelib/subscribe-updates";
     import FloatingArrow from "./FloatingArrow.svelte";
 
-    export let portalTarget: HTMLElement | undefined = undefined;
+    export let portalTarget: HTMLElement | null = null;
 
     export let placement: Placement | Placement[] | "auto" = "bottom";
     export let offset = 5;
