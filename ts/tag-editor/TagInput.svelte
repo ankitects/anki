@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, onMount, tick } from "svelte";
 
+    import { isArrowLeft, isArrowRight } from "../lib/keys";
     import { registerShortcut } from "../lib/shortcuts";
     import {
         delimChar,
@@ -168,27 +169,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     onDelete(event);
                 }
                 break;
-
-            case "ArrowLeft":
-                if (isEmpty()) {
-                    joinWithPreviousTag(event);
-                } else if (caretAtStart()) {
-                    dispatch("tagmoveprevious");
-                    event.preventDefault();
-                }
-                break;
-
-            case "ArrowRight":
-                if (isEmpty()) {
-                    joinWithNextTag(event);
-                } else if (caretAtEnd()) {
-                    dispatch("tagmovenext");
-                    event.preventDefault();
-                }
-                break;
         }
 
-        if (event.key === " ") {
+        if (isArrowLeft(event)) {
+            if (isEmpty()) {
+                joinWithPreviousTag(event);
+            } else if (caretAtStart()) {
+                dispatch("tagmoveprevious");
+                event.preventDefault();
+            }
+        } else if (isArrowRight(event)) {
+            if (isEmpty()) {
+                joinWithNextTag(event);
+            } else if (caretAtEnd()) {
+                dispatch("tagmovenext");
+                event.preventDefault();
+            }
+        } else if (event.key === " ") {
             onDelimiter(event, false);
         } else if (event.key === ":") {
             onDelimiter(event, true);

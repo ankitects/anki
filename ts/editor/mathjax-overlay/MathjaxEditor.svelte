@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import * as tr from "../../lib/ftl";
     import { noop } from "../../lib/functional";
+    import { isArrowLeft, isArrowRight } from "../../lib/keys";
     import { getPlatformString } from "../../lib/shortcuts";
     import { pageTheme } from "../../sveltelib/theme";
     import { baseOptions, focusAndSetCaret, latex } from "../code-mirror";
@@ -50,9 +51,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         editor.on(
             "keydown",
             (_instance: CodeMirrorLib.Editor, event: KeyboardEvent): void => {
-                if (event.key === "ArrowLeft") {
+                if (isArrowLeft(event)) {
                     direction = "start";
-                } else if (event.key === "ArrowRight") {
+                } else if (isArrowRight(event)) {
                     direction = "end";
                 }
             },

@@ -62,6 +62,7 @@ const modifierPressed =
 export const controlPressed = modifierPressed("Control");
 export const shiftPressed = modifierPressed("Shift");
 export const altPressed = modifierPressed("Alt");
+export const metaPressed = modifierPressed("Meta");
 
 export function modifiersToPlatformString(modifiers: string[]): string {
     const displayModifiers = isApplePlatform()
@@ -89,4 +90,36 @@ export function keyToPlatformString(key: string): string {
         default:
             return key;
     }
+}
+
+export function isArrowLeft(event: KeyboardEvent): boolean {
+    if (event.code === "ArrowLeft") {
+        return true;
+    }
+
+    return isApplePlatform() && metaPressed(event) && event.code === "KeyB";
+}
+
+export function isArrowRight(event: KeyboardEvent): boolean {
+    if (event.code === "ArrowRight") {
+        return true;
+    }
+
+    return isApplePlatform() && metaPressed(event) && event.code === "KeyF";
+}
+
+export function isArrowUp(event: KeyboardEvent): boolean {
+    if (event.code === "ArrowUp") {
+        return true;
+    }
+
+    return isApplePlatform() && metaPressed(event) && event.code === "KeyP";
+}
+
+export function isArrowDown(event: KeyboardEvent): boolean {
+    if (event.code === "ArrowDown") {
+        return true;
+    }
+
+    return isApplePlatform() && metaPressed(event) && event.code === "KeyN";
 }

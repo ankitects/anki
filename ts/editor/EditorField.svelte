@@ -111,6 +111,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .editor-field {
         position: relative;
+        padding: 0 3px;
         --border-color: var(--border);
     }
 </style>
