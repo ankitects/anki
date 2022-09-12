@@ -304,6 +304,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 unsetReferenceRange();
             }
         }
+
         // We have to wait for afterInput to update the symbols, because we also
         // want to update in the case of a deletion
         inputHandler.afterInput.on(
