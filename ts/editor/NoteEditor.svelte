@@ -323,53 +323,51 @@ the AddCards dialog) should be implemented in the user of this component.
         <slot slot="notetypeButtons" name="notetypeButtons" />
     </EditorToolbar>
 
-        {#if hint}
-            <Absolute bottom right --margin="10px">
-                <Notification>
-                    <Badge --badge-color="var(--accent-danger)" --icon-align="top"
-                        >{@html alertIcon}</Badge
-                    >
-                    <span>{@html hint}</span>
-                </Notification>
-            </Absolute>
-        {/if}
+    {#if hint}
+        <Absolute bottom right --margin="10px">
+            <Notification>
+                <Badge --badge-color="var(--accent-danger)" --icon-align="top"
+                    >{@html alertIcon}</Badge
+                >
+                <span>{@html hint}</span>
+            </Notification>
+        </Absolute>
+    {/if}
 
     <Fields>
         <DecoratedElements>
             {#each fieldsData as field, index}
                 {@const content = fieldStores[index]}
 
-                    <EditorField
-                        {field}
-                        {content}
-                        flipInputs={plainTextDefaults[index]}
-                        api={fields[index]}
-                        on:focusin={() => {
-                            $focusedField = fields[index];
-                            bridgeCommand(`focus:${index}`);
-                        }}
-                        on:focusout={() => {
-                            $focusedField = null;
-                            bridgeCommand(
-                                `blur:${index}:${getNoteId()}:${get(content)}`,
-                            );
-                        }}
-                        on:mouseenter={() => {
-                            $hoveredField = fields[index];
-                        }}
-                        on:mouseleave={() => {
-                            $hoveredField = null;
-                        }}
-                        collapsed={fieldsCollapsed[index]}
-                        --label-color={cols[index] === "dupe"
-                            ? "var(--flag-1)"
-                            : "var(--canvas)"}
-                    >
-                        <svelte:fragment slot="field-label">
-                            <LabelContainer
-                                collapsed={fieldsCollapsed[index]}
-                                on:toggle={async () => {
-                                    fieldsCollapsed[index] = !fieldsCollapsed[index];
+                <EditorField
+                    {field}
+                    {content}
+                    flipInputs={plainTextDefaults[index]}
+                    api={fields[index]}
+                    on:focusin={() => {
+                        $focusedField = fields[index];
+                        bridgeCommand(`focus:${index}`);
+                    }}
+                    on:focusout={() => {
+                        $focusedField = null;
+                        bridgeCommand(`blur:${index}:${getNoteId()}:${get(content)}`);
+                    }}
+                    on:mouseenter={() => {
+                        $hoveredField = fields[index];
+                    }}
+                    on:mouseleave={() => {
+                        $hoveredField = null;
+                    }}
+                    collapsed={fieldsCollapsed[index]}
+                    --label-color={cols[index] === "dupe"
+                        ? "var(--flag-1)"
+                        : "var(--canvas)"}
+                >
+                    <svelte:fragment slot="field-label">
+                        <LabelContainer
+                            collapsed={fieldsCollapsed[index]}
+                            on:toggle={async () => {
+                                fieldsCollapsed[index] = !fieldsCollapsed[index];
 
                                 const defaultInput = !plainTextDefaults[index]
                                     ? richTextInputs[index]
