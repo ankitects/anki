@@ -120,6 +120,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             query: string,
         ) => boolean = () => false,
     ): string | null {
+        if (
+            whitespaceCharacters.includes(startQuery) ||
+            startQuery === symbolsDelimiter
+        ) {
+            return null;
+        }
+
         const offset = range.endOffset;
 
         if (!(range.commonAncestorContainer instanceof Text)) {
