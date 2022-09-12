@@ -42,6 +42,10 @@ function adjustOutputFragment(fragment: DocumentFragment): void {
     ) {
         fragment.lastChild!.remove();
     }
+
+    for (const divElement of fragment.querySelectorAll('div:empty')) {
+        divElement.remove();
+    }
 }
 
 function adjustOutputHTML(html: string): string {
