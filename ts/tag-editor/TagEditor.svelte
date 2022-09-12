@@ -382,7 +382,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
 </script>
 
-<div class="tag-editor-area" on:focusout={deselectIfLeave} bind:offsetHeight={height}>
+<div class="tag-editor" on:focusout={deselectIfLeave} bind:offsetHeight={height}>
     <TagOptionsButton
         bind:badgeHeight
         tagsSelected={anyTagsSelected}
@@ -483,13 +483,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    .tag-editor-area {
+    .tag-editor {
         display: flex;
         flex-flow: row wrap;
         align-items: flex-end;
-        padding: 0 1px 1px;
-        overflow: hidden;
-        margin-bottom: 3px;
     }
 
     .tag-relative {

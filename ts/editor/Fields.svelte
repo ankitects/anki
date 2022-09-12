@@ -2,6 +2,10 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<!--
+@component
+Contains the fields. This contains the scrollable area.
+-->
 <div class="fields">
     <slot />
 </div>
@@ -12,6 +16,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         grid-auto-rows: min-content;
         grid-gap: 6px;
 
-        padding: 0 3px 5px;
+        /* Add space after the last field and the start of the tag editor */
+        padding-bottom: 5px;
+
+        /* Move the scrollbar for the NoteEditor into this element */
+        overflow-y: auto;
+
+        /* Push the tag editor to the bottom of the note editor */
+        flex-grow: 1;
     }
 </style>
