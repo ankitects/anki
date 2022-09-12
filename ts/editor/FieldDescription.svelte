@@ -43,5 +43,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /* Stay a on single line */
         white-space: nowrap;
         text-overflow: ellipsis;
+
+        /* The field description is placed absolutely on top of the editor field */
+        /* So we need to make sure it does not escape the editor field if the */
+        /* description is too long */
+        overflow: hidden;
     }
 </style>
