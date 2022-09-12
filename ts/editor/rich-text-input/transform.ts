@@ -43,7 +43,7 @@ function adjustOutputFragment(fragment: DocumentFragment): void {
         fragment.lastChild.remove();
     }
 
-    for (const divElement of fragment.querySelectorAll('div:empty')) {
+    for (const divElement of fragment.querySelectorAll("div:empty")) {
         divElement.remove();
     }
 }
