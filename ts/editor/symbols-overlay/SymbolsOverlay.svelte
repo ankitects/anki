@@ -121,12 +121,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ) => boolean = () => false,
     ): string | null {
         const offset = range.endOffset;
-        const commonAncestorContainer = range.commonAncestorContainer;
 
-        if (!(commonAncestorContainer instanceof Text)) {
+        if (!(range.commonAncestorContainer instanceof Text)) {
             return null;
         }
 
+        if (range.commonAncestorContainer.parentElement) {
+            // This call can change range.commonAncestor
+            range.commonAncestorContainer.parentElement.normalize();
+        }
+
+        const commonAncestorContainer = range.commonAncestorContainer;
         let query = startQuery;
 
         for (let index = offset - 1; index >= 0; index--) {
