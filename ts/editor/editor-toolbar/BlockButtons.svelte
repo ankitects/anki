@@ -56,7 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { focusedInput } = context.get();
 
-    $: disabled = !editingInputIsRichText($focusedInput);
+    $: disabled = !$focusedInput || !editingInputIsRichText($focusedInput);
 
     let showFloating = false;
 </script>

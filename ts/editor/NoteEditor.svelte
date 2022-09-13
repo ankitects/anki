@@ -57,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Fields from "./Fields.svelte";
     import FrameElement from "./FrameElement.svelte";
     import { alertIcon } from "./icons";
-    import ImageHandle from "./image-overlay";
+    import ImageOverlay from "./image-overlay";
     import MathjaxOverlay from "./mathjax-overlay";
     import MathjaxElement from "./MathjaxElement.svelte";
     import Notification from "./Notification.svelte";
@@ -447,7 +447,6 @@ the AddCards dialog) should be implemented in the user of this component.
                                 }}
                                 bind:this={richTextInputs[index]}
                             >
-                                <ImageHandle maxWidth={250} maxHeight={125} />
                                 {#if insertSymbols}
                                     <SymbolsOverlay />
                                 {/if}
@@ -483,6 +482,7 @@ the AddCards dialog) should be implemented in the user of this component.
     </Fields>
 
     <MathjaxOverlay />
+    <ImageOverlay maxWidth={250} maxHeight={125} />
 
     <div class="note-editor-tag-editor">
         <TagEditor {tags} on:tagsupdate={saveTags} />

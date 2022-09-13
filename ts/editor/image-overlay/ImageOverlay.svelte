@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount, tick } from "svelte";
+    import { tick } from "svelte";
 
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import Popover from "../../components/Popover.svelte";
@@ -12,17 +12,52 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { on } from "../../lib/events";
     import * as tr from "../../lib/ftl";
     import { removeStyleProperties } from "../../lib/styling";
+    import type { Callback } from "../../lib/typing";
+    import type { EditingInputAPI } from "../EditingArea.svelte";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
     import HandleLabel from "../HandleLabel.svelte";
-    import { context } from "../rich-text-input";
+    import { context } from "../NoteEditor.svelte";
+    import type { RichTextInputAPI } from "../rich-text-input";
+    import {
+        editingInputIsRichText,
+        lifecycle as richTextLifecycle,
+    } from "../rich-text-input";
     import FloatButtons from "./FloatButtons.svelte";
     import SizeSelect from "./SizeSelect.svelte";
 
     export let maxWidth: number;
     export let maxHeight: number;
 
-    const { element } = context.get();
+    richTextLifecycle.onMount(({ element }: RichTextInputAPI): void => {
+        (async () => {
+            const container = await element;
+
+            container.style.setProperty("--editor-shrink-max-width", `${maxWidth}px`);
+            container.style.setProperty("--editor-shrink-max-height", `${maxHeight}px`);
+        })();
+    });
+
+    const { focusedInput } = context.get();
+
+    let cleanup: Callback;
+    let richTextInput: RichTextInputAPI | null = null;
+
+    async function initialize(input: EditingInputAPI | null): Promise<void> {
+        cleanup?.();
+
+        if (!input || !editingInputIsRichText(input)) {
+            richTextInput = null;
+            return;
+        }
+
+        const container = await input.element;
+
+        cleanup = on(container, "click", maybeShowHandle);
+        richTextInput = input;
+    }
+
+    $: initialize($focusedInput);
 
     let activeImage: HTMLImageElement | null = null;
 
@@ -101,7 +136,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: observes = Boolean(activeImage);
 
     async function toggleResizeObserver(observes: boolean) {
-        const container = await element;
+        const container = await richTextInput!.element;
 
         if (observes) {
             resizeObserver.observe(container);
@@ -192,15 +227,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function clearActualSize(): void {
         activeImage!.removeAttribute("width");
     }
-
-    onMount(async () => {
-        const container = await element;
-
-        container.style.setProperty("--editor-shrink-max-width", `${maxWidth}px`);
-        container.style.setProperty("--editor-shrink-max-height", `${maxHeight}px`);
-
-        return on(container, "click", maybeShowHandle);
-    });
 
     let shrinkingDisabled: boolean;
     $: shrinkingDisabled =
