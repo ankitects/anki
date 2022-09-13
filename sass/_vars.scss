@@ -2,6 +2,7 @@
  * License: GNU AGPL, version 3 or later, http://www.gnu.org/licenses/agpl.html */
 
 @use "sass:map";
+@use "sass:color";
 @use "functions" as *;
 @use "colors" as *;
 
@@ -117,28 +118,28 @@ $vars: (
                 gradient: (
                     start: (
                         light: palette(blue, 4),
-                        dark: palette(blue, 6),
+                        dark: color.scale(palette(blue, 6), $saturation: -10%),
                     ),
                     end: (
                         light: palette(blue, 6),
-                        dark: palette(blue, 8),
+                        dark: color.scale(palette(blue, 8), $saturation: -10%),
                     ),
                 ),
                 hover: (
                     gradient: (
                         start: (
                             light: palette(blue, 3),
-                            dark: palette(blue, 5),
+                            dark: color.scale(palette(blue, 5), $saturation: -10%),
                         ),
                         end: (
                             light: palette(blue, 5),
-                            dark: palette(blue, 7),
+                            dark: color.scale(palette(blue, 7), $saturation: -10%),
                         ),
                     ),
                 ),
                 disabled: (
                     light: palette(blue, 3),
-                    dark: palette(blue, 5),
+                    dark: color.scale(palette(blue, 5), $saturation: -10%),
                 ),
             ),
         ),
