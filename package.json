@@ -71,6 +71,7 @@
         "eslint-plugin-import": "^2.25.4",
         "eslint-plugin-simple-import-sort": "^7.0.0",
         "eslint-plugin-svelte3": "^3.4.0",
+        "fuse.js": "^6.6.2",
         "gemoji": "^7.1.0",
         "intl-pluralrules": "^1.2.2",
         "jquery": "^3.5.1",
