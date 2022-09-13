@@ -233,7 +233,7 @@ class AnkiWebView(QWebEngineView):
         self.set_title(title)
         self._page = AnkiWebPage(self._onBridgeCmd)
         # reduce flicker
-        self._page.setBackgroundColor(QColor(theme_manager.var(colors.CANVAS)))
+        self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
 
         # in new code, use .set_bridge_command() instead of setting this directly
         self.onBridgeCmd: Callable[[str], Any] = self.defaultOnBridgeCmd
@@ -697,11 +697,7 @@ html {{ {font} }}
 
     def on_theme_did_change(self) -> None:
         # avoid flashes if page reloaded
-        self._page.setBackgroundColor(
-            QColor(colors.CANVAS[1])
-            if theme_manager.night_mode
-            else QColor(colors.CANVAS[0])
-        )
+        self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
         # update night-mode class, and legacy nightMode/night-mode body classes
         self.eval(
             f"""
