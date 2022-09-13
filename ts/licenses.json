@@ -1005,6 +1005,15 @@
         "path": "node_modules/functional-red-black-tree",
         "licenseFile": "node_modules/functional-red-black-tree/LICENSE"
     },
+    "fuse.js@6.6.2": {
+        "licenses": "Apache-2.0",
+        "repository": "https://github.com/krisk/Fuse",
+        "publisher": "Kiro Risk",
+        "email": "kirollos@gmail.com",
+        "url": "http://kiro.me",
+        "path": "node_modules/fuse.js",
+        "licenseFile": "node_modules/fuse.js/LICENSE"
+    },
     "gemoji@7.1.0": {
         "licenses": "MIT",
         "repository": "https://github.com/wooorm/gemoji",
