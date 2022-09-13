@@ -25,9 +25,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function editingInputIsRichText(
-        editingInput: EditingInputAPI | null,
+        editingInput: EditingInputAPI,
     ): editingInput is RichTextInputAPI {
-        return editingInput?.name === "rich-text";
+        return editingInput.name === "rich-text";
     }
 
     import { registerPackage } from "../../lib/runtime-require";

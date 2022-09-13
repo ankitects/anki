@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type CodeMirrorLib from "codemirror";
-    import { onMount, tick } from "svelte";
+    import { tick } from "svelte";
     import { writable } from "svelte/store";
 
     import Popover from "../../components/Popover.svelte";
@@ -19,12 +19,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { noop } from "../../lib/functional";
     import type { Callback } from "../../lib/typing";
     import { singleCallback } from "../../lib/typing";
+    import type { EditingInputAPI } from "../EditingArea.svelte";
     import HandleBackground from "../HandleBackground.svelte";
-    import { context } from "../rich-text-input";
+    import { context } from "../NoteEditor.svelte";
+    import type { RichTextInputAPI } from "../rich-text-input";
+    import { editingInputIsRichText } from "../rich-text-input";
     import MathjaxButtons from "./MathjaxButtons.svelte";
     import MathjaxEditor from "./MathjaxEditor.svelte";
 
-    const { editable, element, preventResubscription } = context.get();
+    const { focusedInput } = context.get();
+
+    let cleanup: Callback;
+    let richTextInput: RichTextInputAPI | null = null;
+
+    async function initialize(input: EditingInputAPI | null): Promise<void> {
+        cleanup?.();
+
+        if (!input || !editingInputIsRichText(input)) {
+            richTextInput = null;
+            return;
+        }
+
+        const container = await input.element;
+
+        cleanup = singleCallback(
+            on(container, "click", showOverlayIfMathjaxClicked),
+            on(container, "movecaretafter" as any, showOnAutofocus),
+            on(container, "selectall" as any, showSelectAll),
+        );
+        richTextInput = input;
+    }
+
+    $: initialize($focusedInput);
 
     let activeImage: HTMLImageElement | null = null;
     let mathjaxElement: HTMLElement | null = null;
@@ -41,7 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const code = writable("");
 
     function showOverlay(image: HTMLImageElement, pos?: CodeMirrorLib.Position): void {
-        allow = preventResubscription();
+        allow = richTextInput!.preventResubscription();
         position = pos;
 
         /* Setting the activeImage and mathjaxElement to a non-nullish value is
@@ -56,7 +82,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function placeHandle(after: boolean): void {
-        editable.focusHandler.flushCaret();
+        richTextInput!.editable.focusHandler.flushCaret();
 
         if (after) {
             (mathjaxElement as any).placeCaretAfter();
@@ -83,21 +109,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let errorMessage: string;
-    let cleanup: Callback | null = null;
+    let cleanupImageError: Callback | null = null;
 
     async function updateErrorMessage(): Promise<void> {
         errorMessage = activeImage!.title;
     }
 
     async function updateImageErrorCallback(image: HTMLImageElement | null) {
-        cleanup?.();
-        cleanup = null;
+        cleanupImageError?.();
+        cleanupImageError = null;
 
         if (!image) {
             return;
         }
 
-        cleanup = on(image, "resize", updateErrorMessage);
+        cleanupImageError = on(image, "resize", updateErrorMessage);
     }
 
     $: updateImageErrorCallback(activeImage);
@@ -131,16 +157,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         selectAll = true;
         showOverlay(detail);
     }
-
-    onMount(async () => {
-        const container = await element;
-
-        return singleCallback(
-            on(container, "click", showOverlayIfMathjaxClicked),
-            on(container, "movecaretafter" as any, showOnAutofocus),
-            on(container, "selectall" as any, showSelectAll),
-        );
-    });
 
     let isBlock: boolean;
     $: isBlock = mathjaxElement ? hasBlockAttribute(mathjaxElement) : false;
