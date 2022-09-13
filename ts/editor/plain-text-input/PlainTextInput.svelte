@@ -164,19 +164,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-top: 1px solid var(--border);
         border-radius: 0 0 5px 5px;
 
+        :global(.CodeMirror) {
+            background: var(--code-bg);
+            border-radius: 0 0 5px 5px;
+        }
+
         &.is-default {
             border-top: none;
             border-bottom: 1px solid var(--border);
             border-radius: 5px 5px 0 0;
+
+            :global(.CodeMirror) {
+                border-radius: 5px 5px 0 0;
+            }
         }
 
         &.alone {
             border: none;
             border-radius: 5px;
-        }
 
-        :global(.CodeMirror) {
-            background: var(--code-bg);
+            :global(.CodeMirror) {
+                border-radius: 5px;
+            }
         }
 
         :global(.CodeMirror-lines) {
