@@ -3,6 +3,22 @@ load("@py_deps//:requirements.bzl", "requirement")
 load("@rules_python//python:packaging.bzl", "py_package", "py_wheel")
 load("//:defs.bzl", "anki_version")
 
+load("//ts:copy.bzl", "copy_files_into_group")
+load("//ts:compile_sass.bzl", "compile_sass")
+
+genrule(
+    name = "copy_vars",
+    srcs = ["//sass:_vars.scss"],
+    outs = ["_vars.scss"],
+    cmd = "cp $(SRCS) $(RULEDIR)",
+)
+
+compile_sass(
+    srcs = ["_vars.scss"],
+    group = "vars",
+    visibility = ["//visibility:private"],
+)
+
 genrule(
     name = "hooks_gen",
     outs = ["hooks_gen.py"],
@@ -13,8 +29,7 @@ genrule(
 genrule(
     name = "extract_sass_vars",
     srcs = [
-        "//sass:_colors.scss",
-        "//sass:_vars.scss",
+        ":_vars.css",
     ],
     outs = ["colors.py", "props.py"],
     cmd = "$(location //qt:extract_sass_vars) $(SRCS) $(OUTS)",

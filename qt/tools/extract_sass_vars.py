@@ -7,84 +7,44 @@ import re
 import sys
 
 # bazel genrule "srcs"
-colors_scss = sys.argv[1]
-vars_scss = sys.argv[2]
+vars_css = sys.argv[1]
 
 # bazel genrule "outs"
-colors_py = sys.argv[3]
-props_py = sys.argv[4]
+colors_py = sys.argv[2]
+props_py = sys.argv[3]
 
-palette = {}
 colors = {}
 props = {}
+reached_props = False
 
-color = ""
-
-
-for line in open(colors_scss):
+for line in re.split(r"[;\{\}]", open(vars_css).read()):
     line = line.strip()
+
     if not line:
         continue
+    if "props" in line:
+        reached_props = True
 
-    if m := re.match(r"^([a-z]+): \($", line):
-        color = m.group(1)
-        palette[color] = {}
+    m = re.match(r"--(.+):(.+)$", line)
 
-    elif m := re.match(r"(\d): (.+),$", line):
-        palette[color][m.group(1)] = m.group(2)
-
-
-# TODO: recursive extraction of arbitrarily nested Sass maps?
-reached_colors = False
-inside_default = False
-current_key = ""
-
-for line in open(vars_scss):
-    line = line.strip()
-
-    if not line or line == "props: (":
-        continue
-    if line == ":root {":
-        break
-    if line == "colors: (":
-        reached_colors = True
-        continue
-    if line == "),":
-        if inside_default:
-            inside_default = False
-        elif "_" in current_key:
-            current_key = re.sub(r"_[^_]+?$", "", current_key)
-        else:
-            current_key = ""
-
-    if m := re.match(r"^([^$]+): \(", line):
-        if current_key == "":
-            current_key = m.group(1)
-        elif m.group(1) != "default":
-            current_key = "_".join([current_key, m.group(1)])
-        else:
-            inside_default = True
+    if not m:
+        if (
+            line != "}"
+            and not ":root" in line
+            and "Copyright" not in line
+            and "License" not in line
+            and "color-scheme" not in line
+        ):
+            print("failed to match", line)
         continue
 
-    if reached_colors:
-        line = re.sub(
-            r"palette\((.+), (\d)\)",
-            lambda m: palette[m.group(1)][m.group(2)],
-            line,
-        )
+    var = m.group(1)
+    val = m.group(2)
 
-    if m := re.match(r"^(.+): (.+),$", line):
-        theme = m.group(1)
-        val = m.group(2)
-
-        if reached_colors:
-            if not current_key in colors:
-                colors[current_key] = {}
-            colors[current_key][theme] = val
-        else:
-            if not current_key in props:
-                props[current_key] = {}
-            props[current_key][theme] = val
+    if reached_props:
+        props.setdefault(var, []).append(val)
+    else:
+        colors.setdefault(var, []).append(val)
 
 
 copyright_notice = """\
@@ -97,8 +57,8 @@ with open(colors_py, "w") as buf:
     buf.write("# this file is auto-generated from _vars.scss and _colors.scss\n")
 
     for color, val in colors.items():
-        day = val["light"] if "light" in val else val["default"]
-        night = val["dark"] if len(val) > 1 else day
+        day = val[0]
+        night = val[1] if len(val) > 1 else day
 
         color = color.replace("-", "_").upper()
         buf.write(f'{color} = ("{day}", "{night}")\n')
@@ -109,8 +69,8 @@ with open(props_py, "w") as buf:
     buf.write("# this file is auto-generated from _vars.scss\n")
 
     for prop, val in props.items():
-        day = val["light"] if "light" in val else val["default"]
-        night = val["dark"] if "dark" in val else day
+        day = val[0]
+        night = val[1] if len(val) > 1 else day
 
         prop = prop.replace("-", "_").upper()
         buf.write(f'{prop} = ("{day}", "{night}")\n')

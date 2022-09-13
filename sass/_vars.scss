@@ -275,6 +275,7 @@ $vars: (
     @return var(--#{$keyword});
 }
 
+/*! colors */
 :root {
     $colors: map.get($vars, colors);
     @each $name, $val in create-vars-from-map($colors, light) {
@@ -289,6 +290,7 @@ $vars: (
     }
 }
 
+/*! props */
 :root {
     $props: map.get($vars, props);
     @each $name, $val in create-vars-from-map($props, default) {
@@ -298,6 +300,9 @@ $vars: (
         #{$name}: #{$val};
     }
     &.night-mode {
+        @each $name, $val in create-vars-from-map($props, default) {
+            #{$name}: #{$val};
+        }
         @each $name, $val in create-vars-from-map($props, dark) {
             #{$name}: #{$val};
         }
