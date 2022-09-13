@@ -3,32 +3,40 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { getContext, onMount } from "svelte";
+    import type { Readable } from "svelte/store";
 
     import DropdownItem from "../../components/DropdownItem.svelte";
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
-    import {
-        getRange,
-        getSelection,
-        isSelectionCollapsed,
-    } from "../../lib/cross-browser";
+    import { fontFamilyKey } from "../../lib/context-keys";
+    import { getRange, getSelection } from "../../lib/cross-browser";
+    import { createDummyDoc } from "../../lib/parsing";
     import type { Callback } from "../../lib/typing";
     import { singleCallback } from "../../lib/typing";
+    import type { SpecialKeyParams } from "../../sveltelib/input-handler";
     import { context } from "../rich-text-input";
-    import type { SymbolsTable } from "./data-provider";
-    import { getSymbolExact, getSymbols } from "./data-provider";
+    import { findSymbols, getAutoInsertSymbol, getExactSymbol } from "./symbols-table";
+    import type {
+        SymbolsEntry as SymbolsEntryType,
+        SymbolsTable,
+    } from "./symbols-types";
+    import SymbolsEntry from "./SymbolsEntry.svelte";
 
-    const SYMBOLS_DELIMITER = ":";
+    const symbolsDelimiter = ":";
+    const queryMinLength = 2;
+    const autoInsertQueryMaxLength = 5;
 
-    const { inputHandler, editable } = context.get();
+    const whitespaceCharacters = [" ", "\u00a0"];
 
-    let referenceRange: Range | undefined = undefined;
-    let cleanup: Callback;
-    let query: string = "";
-    let activeItem = 0;
+    const { editable, inputHandler } = context.get();
+    const fontFamily = getContext<Readable<string>>(fontFamilyKey);
 
     let foundSymbols: SymbolsTable = [];
+
+    let referenceRange: Range | undefined = undefined;
+    let activeItem = 0;
+    let cleanup: Callback;
 
     function unsetReferenceRange() {
         referenceRange = undefined;
@@ -36,172 +44,127 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         cleanup?.();
     }
 
-    async function maybeShowOverlay(
-        selection: Selection,
-        event: InputEvent,
-    ): Promise<void> {
-        if (
-            event.inputType !== "insertText" ||
-            event.data === SYMBOLS_DELIMITER ||
-            !isSelectionCollapsed(selection)
-        ) {
-            return unsetReferenceRange();
-        }
+    function replaceText(selection: Selection, text: Text, nodes: Node[]): void {
+        text.deleteData(0, text.length);
+        text.after(...nodes);
 
-        const currentRange = getRange(selection)!;
-        const offset = currentRange.endOffset;
-
-        if (!(currentRange.commonAncestorContainer instanceof Text) || offset < 2) {
-            return unsetReferenceRange();
-        }
-
-        const wholeText = currentRange.commonAncestorContainer.wholeText;
-
-        for (let index = offset - 1; index >= 0; index--) {
-            const currentCharacter = wholeText[index];
-
-            if (currentCharacter === " ") {
-                return unsetReferenceRange();
-            } else if (currentCharacter === SYMBOLS_DELIMITER) {
-                const possibleQuery =
-                    wholeText.substring(index + 1, offset) + event.data;
-
-                if (possibleQuery.length < 2) {
-                    return unsetReferenceRange();
-                }
-
-                query = possibleQuery;
-                referenceRange = currentRange;
-                foundSymbols = await getSymbols(query);
-
-                cleanup = editable.focusHandler.blur.on(
-                    async () => unsetReferenceRange(),
-                    {
-                        once: true,
-                    },
-                );
-                return;
-            }
-        }
-    }
-
-    async function replaceText(
-        selection: Selection,
-        text: Text,
-        symbolCharacter: string,
-    ): Promise<void> {
-        text.replaceData(0, text.length, symbolCharacter);
         unsetReferenceRange();
 
         // Place caret behind it
         const range = new Range();
-        range.selectNode(text);
-
-        selection.removeAllRanges();
-        selection.addRange(range);
-        selection.collapseToEnd();
-    }
-
-    function replaceTextOnDemand(symbolCharacter: string): void {
-        const commonAncestor = referenceRange!.commonAncestorContainer as Text;
-        const selection = getSelection(commonAncestor)!;
-
-        const replacementLength =
-            commonAncestor.data
-                .substring(0, referenceRange!.endOffset)
-                .split("")
-                .reverse()
-                .join("")
-                .indexOf(SYMBOLS_DELIMITER) + 1;
-
-        const newOffset = referenceRange!.endOffset - replacementLength + 1;
-
-        commonAncestor.replaceData(
-            referenceRange!.endOffset - replacementLength,
-            replacementLength + 1,
-            symbolCharacter,
-        );
-
-        // Place caret behind it
-        const range = new Range();
-        range.setEnd(commonAncestor, newOffset);
+        range.setEndAfter(nodes[nodes.length - 1]);
         range.collapse(false);
 
         selection.removeAllRanges();
         selection.addRange(range);
-
-        unsetReferenceRange();
     }
 
-    async function updateOverlay(
-        selection: Selection,
-        event: InputEvent,
-    ): Promise<void> {
-        if (event.inputType !== "insertText") {
-            return unsetReferenceRange();
-        }
+    const parser = new DOMParser();
 
-        const data = event.data;
-        referenceRange = getRange(selection)!;
-
-        if (data === SYMBOLS_DELIMITER && query) {
-            const symbol = await getSymbolExact(query);
-
-            if (!symbol) {
-                return unsetReferenceRange();
-            }
-
-            const currentRange = getRange(selection)!;
-            const offset = currentRange.endOffset;
-
-            if (!(currentRange.commonAncestorContainer instanceof Text) || offset < 2) {
-                return unsetReferenceRange();
-            }
-
-            const commonAncestor = currentRange.commonAncestorContainer;
-
-            const replacementLength =
-                commonAncestor.data
-                    .substring(0, currentRange.endOffset)
-                    .split("")
-                    .reverse()
-                    .join("")
-                    .indexOf(SYMBOLS_DELIMITER) + 1;
-
-            commonAncestor.deleteData(
-                currentRange.endOffset - replacementLength,
-                replacementLength,
+    function symbolsEntryToReplacement(entry: SymbolsEntryType): Node[] {
+        if (entry.containsHTML) {
+            const doc = parser.parseFromString(
+                createDummyDoc(entry.symbol),
+                "text/html",
             );
-
-            inputHandler.insertText.on(
-                async ({ text }) => replaceText(selection, text, symbol),
-                {
-                    once: true,
-                },
-            );
-        } else if (query) {
-            query += data!;
-            foundSymbols = await getSymbols(query);
-        }
-    }
-
-    async function onBeforeInput({ event }): Promise<void> {
-        const selection = getSelection(event.target)!;
-
-        if (referenceRange) {
-            await updateOverlay(selection, event);
+            return [...doc.body.childNodes];
         } else {
-            await maybeShowOverlay(selection, event);
+            return [new Text(entry.symbol)];
         }
     }
 
-    $: showSymbolsOverlay = referenceRange && foundSymbols.length > 0;
+    function tryAutoInsert(selection: Selection, range: Range, query: string): boolean {
+        if (
+            query.length >= queryMinLength &&
+            query.length <= autoInsertQueryMaxLength
+        ) {
+            const symbolEntry = getAutoInsertSymbol(query);
 
-    async function onSpecialKey({ event, action }): Promise<void> {
-        if (!showSymbolsOverlay) {
-            return;
+            if (symbolEntry) {
+                const commonAncestor = range.commonAncestorContainer as Text;
+                const replacementLength = query.length;
+
+                commonAncestor.parentElement?.normalize();
+                commonAncestor.deleteData(
+                    range.endOffset - replacementLength + 1,
+                    replacementLength,
+                );
+
+                inputHandler.insertText.on(
+                    async ({ text }) => {
+                        replaceText(
+                            selection,
+                            text,
+                            symbolsEntryToReplacement(symbolEntry),
+                        );
+                    },
+                    {
+                        once: true,
+                    },
+                );
+
+                return true;
+            }
         }
 
+        return false;
+    }
+
+    function findValidSearchQuery(
+        selection: Selection,
+        range: Range,
+        startQuery = "",
+        shouldFinishEarly: (
+            selection: Selection,
+            range: Range,
+            query: string,
+        ) => boolean = () => false,
+    ): string | null {
+        if (
+            whitespaceCharacters.includes(startQuery) ||
+            startQuery === symbolsDelimiter
+        ) {
+            return null;
+        }
+
+        const offset = range.endOffset;
+
+        if (!(range.commonAncestorContainer instanceof Text)) {
+            return null;
+        }
+
+        if (range.commonAncestorContainer.parentElement) {
+            // This call can change range.commonAncestor
+            range.commonAncestorContainer.parentElement.normalize();
+        }
+
+        const commonAncestorContainer = range.commonAncestorContainer;
+        let query = startQuery;
+
+        for (let index = offset - 1; index >= 0; index--) {
+            const currentCharacter = commonAncestorContainer.wholeText[index];
+
+            if (whitespaceCharacters.includes(currentCharacter)) {
+                return null;
+            } else if (currentCharacter === symbolsDelimiter) {
+                if (query.length < queryMinLength) {
+                    return null;
+                }
+
+                return query;
+            }
+
+            query = currentCharacter + query;
+
+            if (shouldFinishEarly(selection, range, query)) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    function onSpecialKey({ event, action }): void {
         if (["caretLeft", "caretRight"].includes(action)) {
             return unsetReferenceRange();
         }
@@ -221,23 +184,176 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 activeItem++;
             }
         } else if (action === "enter" || action === "tab") {
-            replaceTextOnDemand(foundSymbols[activeItem].symbol);
+            replaceTextOnDemand(foundSymbols[activeItem]);
         } else if (action === "escape") {
             unsetReferenceRange();
         }
     }
 
+    function maybeShowOverlay(selection: Selection, event: InputEvent): void {
+        if (!event.data) {
+            return;
+        }
+
+        const currentRange = getRange(selection)!;
+
+        // The input event opening the overlay or triggering the auto-insert
+        // must be an insertion, so event.data must be a string.
+        // If the inputType is insertCompositionText, the event.data will
+        // contain the current composition, but the document will also
+        // contain the whole composition except the last character.
+        // So we only take the last character from event.data and retrieve the
+        // rest from the document
+        const startQuery = event.data[event.data.length - 1];
+        const query = findValidSearchQuery(
+            selection,
+            currentRange,
+            startQuery,
+            tryAutoInsert,
+        );
+
+        if (query) {
+            foundSymbols = findSymbols(query);
+
+            if (foundSymbols.length > 0) {
+                referenceRange = currentRange;
+                cleanup = singleCallback(
+                    editable.focusHandler.blur.on(async () => unsetReferenceRange(), {
+                        once: true,
+                    }),
+                    inputHandler.pointerDown.on(async () => unsetReferenceRange()),
+                    inputHandler.specialKey.on(async (input: SpecialKeyParams) =>
+                        onSpecialKey(input),
+                    ),
+                );
+            }
+        }
+    }
+
+    function replaceTextOnDemand(entry: SymbolsEntryType): void {
+        const commonAncestor = referenceRange!.commonAncestorContainer as Text;
+        const selection = getSelection(commonAncestor)!;
+
+        const replacementLength =
+            commonAncestor.data
+                .substring(0, referenceRange!.endOffset)
+                .split("")
+                .reverse()
+                .join("")
+                .indexOf(symbolsDelimiter) + 1;
+
+        commonAncestor.deleteData(
+            referenceRange!.endOffset - replacementLength,
+            replacementLength + 1,
+        );
+
+        const nodes = symbolsEntryToReplacement(entry);
+        commonAncestor.after(...nodes);
+
+        const range = new Range();
+        range.setEndAfter(nodes[nodes.length - 1]);
+        range.collapse(false);
+
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        unsetReferenceRange();
+    }
+
+    function prepareInsertion(selection: Selection, query: string): void {
+        const symbolEntry = getExactSymbol(query);
+
+        if (!symbolEntry) {
+            return unsetReferenceRange();
+        }
+
+        const currentRange = getRange(selection)!;
+        const offset = currentRange.endOffset;
+
+        if (
+            !(currentRange.commonAncestorContainer instanceof Text) ||
+            offset < queryMinLength
+        ) {
+            return unsetReferenceRange();
+        }
+
+        const commonAncestor = currentRange.commonAncestorContainer;
+
+        const replacementLength =
+            commonAncestor.data
+                .substring(0, currentRange.endOffset)
+                .split("")
+                .reverse()
+                .join("")
+                .indexOf(symbolsDelimiter) + 1;
+
+        commonAncestor.deleteData(
+            currentRange.endOffset - replacementLength,
+            replacementLength,
+        );
+
+        inputHandler.insertText.on(
+            async ({ text }) =>
+                replaceText(selection, text, symbolsEntryToReplacement(symbolEntry)),
+            {
+                once: true,
+            },
+        );
+    }
+
+    function updateOverlay(selection: Selection, event: InputEvent): void {
+        if (event.data === symbolsDelimiter) {
+            const query = findValidSearchQuery(selection, getRange(selection)!);
+
+            if (query) {
+                prepareInsertion(selection, query);
+            } else {
+                unsetReferenceRange();
+            }
+        }
+
+        // We have to wait for afterInput to update the symbols, because we also
+        // want to update in the case of a deletion
+        inputHandler.afterInput.on(
+            async (): Promise<void> => {
+                const currentRange = getRange(selection)!;
+                const query = findValidSearchQuery(selection, currentRange);
+
+                if (!query) {
+                    return unsetReferenceRange();
+                }
+
+                foundSymbols = findSymbols(query);
+
+                if (foundSymbols.length === 0) {
+                    unsetReferenceRange();
+                } else {
+                    referenceRange = currentRange;
+                }
+            },
+            { once: true },
+        );
+    }
+
+    function onBeforeInput({ event }): void {
+        const selection = getSelection(event.target)!;
+
+        if (referenceRange) {
+            updateOverlay(selection, event);
+        } else {
+            maybeShowOverlay(selection, event);
+        }
+    }
+
     onMount(() =>
-        singleCallback(
-            inputHandler.beforeInput.on(onBeforeInput),
-            inputHandler.specialKey.on(onSpecialKey),
-            inputHandler.pointerDown.on(async () => unsetReferenceRange()),
+        inputHandler.beforeInput.on(
+            async (input: { event: Event }): Promise<void> => onBeforeInput(input),
         ),
     );
 </script>
 
 <div class="symbols-overlay">
-    {#if showSymbolsOverlay}
+    {#if referenceRange}
         <WithFloating
             reference={referenceRange}
             placement={["top", "bottom"]}
@@ -248,16 +364,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {#each foundSymbols as found, index (found.symbol)}
                         <DropdownItem
                             active={index === activeItem}
-                            on:click={() => replaceTextOnDemand(found.symbol)}
+                            on:click={() => replaceTextOnDemand(found)}
                         >
-                            <div class="symbol">{found.symbol}</div>
-                            <div class="description">
-                                {#each found.names as name}
-                                    <span class="name">
-                                        {SYMBOLS_DELIMITER}{name}{SYMBOLS_DELIMITER}
-                                    </span>
-                                {/each}
-                            </div>
+                            <SymbolsEntry
+                                let:symbolName
+                                symbol={found.symbol}
+                                names={found.names}
+                                containsHTML={Boolean(found.containsHTML)}
+                                fontFamily={$fontFamily}
+                            >
+                                {symbolsDelimiter}{symbolName}{symbolsDelimiter}
+                            </SymbolsEntry>
                         </DropdownItem>
                     {/each}
                 </div>
@@ -278,20 +395,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         overflow-x: hidden;
         text-overflow: ellipsis;
         overflow-y: auto;
-    }
-
-    .symbol {
-        transform: scale(1.1);
-        font-size: 150%;
-        /* The widest emojis I could find were couple_with_heart_ */
-        width: 38px;
-    }
-
-    .description {
-        align-self: center;
-    }
-
-    .name {
-        margin-left: 3px;
     }
 </style>

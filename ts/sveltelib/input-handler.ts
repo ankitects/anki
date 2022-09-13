@@ -15,6 +15,10 @@ export interface InputEventParams {
     event: InputEvent;
 }
 
+export interface EventParams {
+    event: Event;
+}
+
 export interface InsertTextParams {
     event: InputEvent;
     text: Text;
@@ -36,6 +40,7 @@ export interface SpecialKeyParams {
 export interface InputHandlerAPI {
     readonly beforeInput: HandlerList<InputEventParams>;
     readonly insertText: HandlerList<InsertTextParams>;
+    readonly afterInput: HandlerList<EventParams>;
     readonly pointerDown: HandlerList<{ event: PointerEvent }>;
     readonly specialKey: HandlerList<SpecialKeyParams>;
 }
@@ -49,6 +54,7 @@ export interface InputHandlerAPI {
 function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
     const beforeInput = new HandlerList<InputEventParams>();
     const insertText = new HandlerList<InsertTextParams>();
+    const afterInput = new HandlerList<EventParams>();
 
     async function onBeforeInput(this: Element, event: InputEvent): Promise<void> {
         const selection = getSelection(this)!;
@@ -56,7 +62,11 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
 
         await beforeInput.dispatch({ event });
 
-        if (!range || event.inputType !== "insertText" || insertText.length === 0) {
+        if (
+            !range ||
+            !event.inputType.startsWith("insert") ||
+            insertText.length === 0
+        ) {
             return;
         }
 
@@ -73,6 +83,14 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
         await insertText.dispatch({ event, text });
 
         range.commonAncestorContainer.normalize();
+
+        // We emulate the after input event here, because we prevent
+        // the default behavior earlier
+        await afterInput.dispatch({ event });
+    }
+
+    async function onInput(this: Element, event: Event): Promise<void> {
+        await afterInput.dispatch({ event });
     }
 
     const pointerDown = new HandlerList<{ event: PointerEvent }>();
@@ -107,6 +125,7 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
     function setupHandler(element: HTMLElement): { destroy(): void } {
         const destroy = singleCallback(
             on(element, "beforeinput", onBeforeInput),
+            on(element, "input", onInput),
             on(element, "blur", clearInsertText),
             on(element, "pointerdown", onPointerDown),
             on(element, "keydown", onKeyDown),
@@ -120,6 +139,7 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
         {
             beforeInput,
             insertText,
+            afterInput,
             specialKey,
             pointerDown,
         },

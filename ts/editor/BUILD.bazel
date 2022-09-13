@@ -33,6 +33,7 @@ _ts_deps = [
     "@npm//svelte",
     "@npm//character-entities",
     "@npm//gemoji",
+    "@npm//fuse.js",
 ]
 
 compile_svelte(

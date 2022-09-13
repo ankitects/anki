@@ -84,7 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </IconButton>
     </span>
 
-    <Popover slot="floating">
+    <Popover slot="floating" --popover-padding-inline="0">
         {#each dropdownItems as [callback, keyCombination, label]}
             <DropdownItem on:click={callback}>
                 <span>{label}</span>
