@@ -447,9 +447,6 @@ the AddCards dialog) should be implemented in the user of this component.
                                 }}
                                 bind:this={richTextInputs[index]}
                             >
-                                {#if insertSymbols}
-                                    <SymbolsOverlay />
-                                {/if}
                                 <FieldDescription>
                                     {field.description}
                                 </FieldDescription>
@@ -483,6 +480,9 @@ the AddCards dialog) should be implemented in the user of this component.
 
     <MathjaxOverlay />
     <ImageOverlay maxWidth={250} maxHeight={125} />
+    {#if insertSymbols}
+        <SymbolsOverlay />
+    {/if}
 
     <div class="note-editor-tag-editor">
         <TagEditor {tags} on:tagsupdate={saveTags} />
