@@ -115,9 +115,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </Collapsible>
 
 <style lang="scss">
+    @use "sass/elevation" as elevation;
+
     .editor-field {
-        position: relative;
-        padding: 0 3px;
+        overflow: hidden;
+        margin: 0 3px;
+
         --border-color: var(--border);
+
+        border-radius: 5px;
+        border: 1px solid var(--border);
+
+        @include elevation.elevation-transition;
+        @include elevation.elevation(1);
+
+        &:focus-within {
+            @include elevation.elevation(
+                2,
+                $color: rgb(59 130 246),
+                $opacity-boost: 0.2
+            );
+        }
     }
 </style>
