@@ -157,7 +157,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .plain-text-input {
+        height: 100%;
+
         :global(.CodeMirror) {
+            height: 100%;
             background: var(--code-bg);
         }
 

@@ -243,6 +243,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .rich-text-input {
+        height: 100%;
+
         background-color: white;
         padding: 6px;
     }
