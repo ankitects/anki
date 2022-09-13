@@ -41,20 +41,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { focusedInput } = context.get();
 
     let cleanup: Callback;
-    let richTextInput: RichTextInputAPI | null = null;
 
     async function initialize(input: EditingInputAPI | null): Promise<void> {
         cleanup?.();
 
         if (!input || !editingInputIsRichText(input)) {
-            richTextInput = null;
             return;
         }
 
-        const container = await input.element;
-
-        cleanup = on(container, "click", maybeShowHandle);
-        richTextInput = input;
+        cleanup = on(await input.element, "click", maybeShowHandle);
     }
 
     $: initialize($focusedInput);
@@ -80,23 +75,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await tick();
     }
 
-    async function maybeShowHandle(event: Event): Promise<void> {
-        if (event.target instanceof HTMLImageElement) {
-            const image = event.target;
-
-            if (!image.dataset.anki) {
-                activeImage = image;
-            }
-        }
-    }
-
-    $: naturalWidth = activeImage?.naturalWidth;
-    $: naturalHeight = activeImage?.naturalHeight;
-    $: aspectRatio = naturalWidth && naturalHeight ? naturalWidth / naturalHeight : NaN;
-
-    let customDimensions: boolean = false;
-    let actualWidth = "";
-    let actualHeight = "";
+    let naturalWidth: number;
+    let naturalHeight: number;
+    let aspectRatio: number;
 
     function updateDimensions() {
         /* we do not want the actual width, but rather the intended display width */
@@ -121,31 +102,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    let updateSelection: () => Promise<void>;
+    async function maybeShowHandle(event: Event): Promise<void> {
+        if (event.target instanceof HTMLImageElement) {
+            const image = event.target;
 
-    async function updateSizesWithDimensions() {
-        await updateSelection?.();
-        updateDimensions();
-    }
+            if (!image.dataset.anki) {
+                activeImage = image;
 
-    /* window resizing */
-    const resizeObserver = new ResizeObserver(async () => {
-        await updateSizesWithDimensions();
-    });
+                naturalWidth = activeImage?.naturalWidth;
+                naturalHeight = activeImage?.naturalHeight;
+                aspectRatio =
+                    naturalWidth && naturalHeight ? naturalWidth / naturalHeight : NaN;
 
-    $: observes = Boolean(activeImage);
-
-    async function toggleResizeObserver(observes: boolean) {
-        const container = await richTextInput!.element;
-
-        if (observes) {
-            resizeObserver.observe(container);
-        } else {
-            resizeObserver.unobserve(container);
+                updateDimensions();
+            }
         }
     }
 
-    $: toggleResizeObserver(observes);
+    let customDimensions: boolean = false;
+    let actualWidth = "";
+    let actualHeight = "";
 
     /* memoized position of image on resize start
      * prevents frantic behavior when image shift into the next/previous line */
@@ -235,9 +211,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let restoringDisabled: boolean;
     $: restoringDisabled = !activeImage?.hasAttribute("width") ?? true;
 
-    const widthObserver = new MutationObserver(
-        () => (restoringDisabled = !activeImage!.hasAttribute("width")),
-    );
+    const widthObserver = new MutationObserver(() => {
+        restoringDisabled = !activeImage!.hasAttribute("width");
+        updateDimensions();
+    });
 
     $: activeImage
         ? widthObserver.observe(activeImage, {
