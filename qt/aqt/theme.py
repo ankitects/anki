@@ -236,11 +236,11 @@ class ThemeManager:
 
         palette = QPalette()
 
-        TEXT = self.qcolor(colors.FG)
-        palette.setColor(QPalette.ColorRole.WindowText, TEXT)
-        palette.setColor(QPalette.ColorRole.ToolTipText, TEXT)
-        palette.setColor(QPalette.ColorRole.Text, TEXT)
-        palette.setColor(QPalette.ColorRole.ButtonText, TEXT)
+        text = self.qcolor(colors.FG)
+        palette.setColor(QPalette.ColorRole.WindowText, text)
+        palette.setColor(QPalette.ColorRole.ToolTipText, text)
+        palette.setColor(QPalette.ColorRole.Text, text)
+        palette.setColor(QPalette.ColorRole.ButtonText, text)
 
         hlbg = self.qcolor(colors.HIGHLIGHT_BG)
         hlbg.setAlpha(64)
@@ -249,15 +249,15 @@ class ThemeManager:
         )
         palette.setColor(QPalette.ColorRole.Highlight, hlbg)
 
-        CANVAS = self.qcolor(colors.CANVAS)
-        palette.setColor(QPalette.ColorRole.Window, CANVAS)
-        palette.setColor(QPalette.ColorRole.AlternateBase, CANVAS)
+        canvas = self.qcolor(colors.CANVAS)
+        palette.setColor(QPalette.ColorRole.Window, canvas)
+        palette.setColor(QPalette.ColorRole.AlternateBase, canvas)
 
         palette.setColor(QPalette.ColorRole.Button, QColor("#454545"))
 
-        CANVAS_INSET = self.qcolor(colors.CANVAS_INSET)
-        palette.setColor(QPalette.ColorRole.Base, CANVAS_INSET)
-        palette.setColor(QPalette.ColorRole.ToolTipBase, CANVAS_INSET)
+        canvas_inset = self.qcolor(colors.CANVAS_INSET)
+        palette.setColor(QPalette.ColorRole.Base, canvas_inset)
+        palette.setColor(QPalette.ColorRole.ToolTipBase, canvas_inset)
 
         palette.setColor(
             QPalette.ColorRole.PlaceholderText, self.qcolor(colors.FG_SUBTLE)
