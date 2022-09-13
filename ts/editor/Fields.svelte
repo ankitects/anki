@@ -12,7 +12,6 @@ Contains the fields. This contains the scrollable area.
 
 <style lang="scss">
     .fields {
-        padding-top: 5px;
         display: grid;
         grid-auto-rows: min-content;
         grid-gap: 6px;
