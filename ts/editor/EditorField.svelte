@@ -85,34 +85,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => api?.destroy());
 </script>
 
-<slot name="field-label" />
+<div class="field-container" on:mouseenter on:mouseleave>
+    <slot name="field-label" />
 
-<Collapsible collapse={collapsed} let:collapsed={hidden}>
-    <div
-        use:elementResolve
-        class="editor-field"
-        on:focusin
-        on:focusout
-        on:mouseenter
-        on:mouseleave
-        {hidden}
-    >
-        <EditingArea
-            {content}
-            fontFamily={field.fontFamily}
-            fontSize={field.fontSize}
-            api={editingArea}
-        >
-            {#if flipInputs}
-                <slot name="plain-text-input" />
-                <slot name="rich-text-input" />
-            {:else}
-                <slot name="rich-text-input" />
-                <slot name="plain-text-input" />
-            {/if}
-        </EditingArea>
-    </div>
-</Collapsible>
+    <Collapsible collapse={collapsed} let:collapsed={hidden}>
+        <div use:elementResolve class="editor-field" on:focusin on:focusout {hidden}>
+            <EditingArea
+                {content}
+                fontFamily={field.fontFamily}
+                fontSize={field.fontSize}
+                api={editingArea}
+            >
+                {#if flipInputs}
+                    <slot name="plain-text-input" />
+                    <slot name="rich-text-input" />
+                {:else}
+                    <slot name="rich-text-input" />
+                    <slot name="plain-text-input" />
+                {/if}
+            </EditingArea>
+        </div>
+    </Collapsible>
+</div>
 
 <style lang="scss">
     .editor-field {
