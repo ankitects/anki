@@ -387,6 +387,7 @@ the AddCards dialog) should be implemented in the user of this component.
                             {#if cols[index] === "dupe"}
                                 <DuplicateLink />
                             {/if}
+
                             {#if plainTextDefaults[index]}
                                 <RichTextBadge
                                     visible={!fieldsCollapsed[index] &&
@@ -418,6 +419,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                     }}
                                 />
                             {/if}
+
                             <slot
                                 name="field-state"
                                 {field}

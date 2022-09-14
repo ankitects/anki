@@ -50,8 +50,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-{#if !collapsed}
-    <div bind:this={collapsibleElement} class="collapsible" bind:clientHeight>
-        <slot />
-    </div>
-{/if}
+<div bind:this={collapsibleElement} class="collapsible" bind:clientHeight>
+    <slot {collapsed} />
+</div>

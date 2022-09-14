@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import { writable } from "svelte/store";
 
     import { singleCallback } from "../../lib/typing";
@@ -38,6 +38,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import removeProhibitedTags from "./remove-prohibited";
     import { storedToUndecorated, undecoratedToStored } from "./transform";
+
+    export let hidden = false;
 
     const configuration = {
         mode: htmlanki,
@@ -69,6 +71,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         moveCaretToEnd();
     }
 
+    function toggle(): boolean {
+        hidden = !hidden;
+        return hidden;
+    }
+
     async function getInputAPI(target: EventTarget): Promise<FocusableInputAPI | null> {
         const editor = (await codeMirror.editor) as any;
 
@@ -82,15 +89,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const api: PlainTextInputAPI = {
         name: "plain-text",
         focus,
+        focusable: !hidden,
         moveCaretToEnd,
         refocus,
-        focusable: true,
-        toggle() {
-            return true;
-        },
+        toggle,
         getInputAPI,
         codeMirror,
     };
+
+    /**
+     * Communicate to editing area that input is not focusable
+     */
+    function pushUpdate(isFocusable: boolean): void {
+        api.focusable = isFocusable;
+        $editingInputs = $editingInputs;
+    }
+
+    async function refresh(): Promise<void> {
+        const editor = await codeMirror.editor;
+        editor.refresh();
+    }
+
+    $: {
+        pushUpdate(!hidden);
+        tick().then(refresh);
+    }
 
     function onChange({ detail: html }: CustomEvent<string>): void {
         code.set(removeProhibitedTags(html));
@@ -111,7 +134,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             code.subscribe((html: string): void =>
                 content.set(undecoratedToStored(html)),
             ),
-            () => $editingInputs.splice($editingInputs.indexOf(api), 1),
         );
     });
 
@@ -122,8 +144,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="plain-text-input"
     class:light-theme={!$pageTheme.isDark}
     on:focusin={() => ($focusedInput = api)}
+    {hidden}
 >
-    <CodeMirror {configuration} {code} bind:api={codeMirror} on:change={onChange} />
+    <CodeMirror
+        {configuration}
+        {code}
+        {hidden}
+        bind:api={codeMirror}
+        on:change={onChange}
+    />
 </div>
 
 <style lang="scss">
