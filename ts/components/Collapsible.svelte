@@ -3,53 +3,89 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { cubicOut } from "svelte/easing";
+    import { tick } from "svelte";
+    import { cubicIn, cubicOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
 
-    import { removeStyleProperties } from "../lib/styling";
-
-    export let duration = 300;
-
     export let collapse = false;
+    export let animated = !document.body.classList.contains("reduced-motion");
+
     let collapsed = false;
+    let contentHeight = 0;
 
-    const size = tweened<number>(undefined, {
-        duration,
-        easing: cubicOut,
-    });
-
-    function doCollapse(collapse: boolean): void {
-        if (collapse) {
-            size.set(0);
-        } else {
-            collapsed = false;
-            size.set(1, { duration: 0 });
-        }
+    function dynamicDuration(height: number): number {
+        return 100 + Math.pow(height, 1 / 4) * 25;
     }
+    $: duration = dynamicDuration(contentHeight);
 
-    $: doCollapse(collapse);
+    const size = tweened<number>(undefined);
 
-    let collapsibleElement: HTMLElement;
-    let clientHeight: number;
-
-    function updateHeight(percentage: number): void {
-        collapsibleElement.style.overflow = "hidden";
-
-        if (percentage === 1) {
-            removeStyleProperties(collapsibleElement, "height", "overflow");
-        } else if (percentage === 0) {
-            collapsed = true;
-            removeStyleProperties(collapsibleElement, "height", "overflow");
+    async function transition(collapse: boolean): Promise<void> {
+        if (collapse) {
+            contentHeight = collapsibleElement.clientHeight;
+            size.set(0, {
+                duration: duration,
+                easing: cubicOut,
+            });
         } else {
-            collapsibleElement.style.height = `${percentage * clientHeight}px`;
+            /* Tell content to show and await response */
+            collapsed = false;
+            await tick();
+            /* Measure content height to tween to */
+            contentHeight = collapsibleElement.clientHeight;
+            size.set(1, {
+                duration: duration,
+                easing: cubicIn,
+            });
         }
     }
 
     $: if (collapsibleElement) {
-        updateHeight($size);
+        if (animated) {
+            transition(collapse);
+        } else {
+            collapsed = collapse;
+        }
     }
+
+    let collapsibleElement: HTMLElement;
+
+    $: collapsed = $size === 0;
+    $: expanded = $size === 1;
+    $: height = $size * contentHeight;
+    $: transitioning = $size > 0 && !(collapsed || expanded);
+    $: measuring = !(collapsed || transitioning || expanded);
 </script>
 
-<div bind:this={collapsibleElement} class="collapsible" bind:clientHeight>
+<div
+    bind:this={collapsibleElement}
+    class="collapsible"
+    class:animated
+    class:expanded
+    class:measuring
+    class:transitioning
+    style:--height="{height}px"
+>
     <slot {collapsed} />
 </div>
+
+{#if measuring}
+    <!-- Maintain document flow while collapsible height is measured -->
+    <div class="collapsible-placeholder" />
+{/if}
+
+<style lang="scss">
+    .collapsible.animated {
+        &.measuring {
+            position: absolute;
+            opacity: 0;
+        }
+        &.transitioning {
+            overflow: hidden;
+            height: var(--height);
+            &.expanded {
+                overflow: visible;
+            }
+        }
+    }
+</style>
