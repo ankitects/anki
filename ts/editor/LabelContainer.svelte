@@ -20,7 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<div class="label-container" on:mousedown|preventDefault>
+<div class="label-container">
     <span
         class="clickable"
         title={tooltip}
