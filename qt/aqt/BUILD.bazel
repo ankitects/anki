@@ -29,7 +29,7 @@ genrule(
 genrule(
     name = "extract_sass_vars",
     srcs = [
-        ":_vars.css",
+        "_vars.css",
     ],
     outs = ["colors.py", "props.py"],
     cmd = "$(location //qt:extract_sass_vars) $(SRCS) $(OUTS)",
