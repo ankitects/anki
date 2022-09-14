@@ -59,13 +59,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let foundSymbols: SymbolsTable = [];
 
-    let referenceRange: Range | undefined = undefined;
-    let activeItem = 0;
+    let referenceRange: Range | null = null;
+    let activeItem: number | null = null;
     let cleanupReferenceRange: Callback;
 
     function unsetReferenceRange() {
-        referenceRange = undefined;
-        activeItem = 0;
+        referenceRange = null;
+        activeItem = null;
         cleanupReferenceRange?.();
     }
 
@@ -242,6 +242,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             if (foundSymbols.length > 0) {
                 referenceRange = currentRange;
+                activeItem = 0;
+
                 cleanupReferenceRange = singleCallback(
                     richTextInput!.editable.focusHandler.blur.on(
                         async () => unsetReferenceRange(),
@@ -416,8 +418,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         max-height: 15rem;
 
         font-size: 12px;
-        overflow-x: hidden;
+        overflow: hidden auto;
         text-overflow: ellipsis;
-        overflow-y: auto;
     }
 </style>

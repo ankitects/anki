@@ -20,6 +20,7 @@ Contains the fields. This contains the scrollable area.
         padding-bottom: 5px;
 
         /* Move the scrollbar for the NoteEditor into this element */
+        position: relative;
         overflow-y: auto;
 
         /* Push the tag editor to the bottom of the note editor */

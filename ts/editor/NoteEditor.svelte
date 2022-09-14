@@ -466,13 +466,13 @@ the AddCards dialog) should be implemented in the user of this component.
                 </svelte:fragment>
             </EditorField>
         {/each}
-    </Fields>
 
-    <MathjaxOverlay />
-    <ImageOverlay maxWidth={250} maxHeight={125} />
-    {#if insertSymbols}
-        <SymbolsOverlay />
-    {/if}
+        <MathjaxOverlay />
+        <ImageOverlay maxWidth={250} maxHeight={125} />
+        {#if insertSymbols}
+            <SymbolsOverlay />
+        {/if}
+    </Fields>
 
     <div class="note-editor-tag-editor">
         <TagEditor {tags} on:tagsupdate={saveTags} />
