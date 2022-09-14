@@ -500,6 +500,6 @@ the AddCards dialog) should be implemented in the user of this component.
 
         border-width: thin 0 0;
         border-style: solid;
-        border-color: var(--border);
+        border-color: var(--border-subtle);
     }
 </style>
