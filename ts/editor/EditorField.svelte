@@ -129,6 +129,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 $color: rgb(59 130 246),
                 $opacity-boost: 0.8
             );
+
+            border-color: var(--focus-border);
         }
     }
 </style>
