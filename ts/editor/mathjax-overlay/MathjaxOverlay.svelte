@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Mathjax } from "../../editable/mathjax-element";
     import { hasBlockAttribute } from "../../lib/dom";
     import { on } from "../../lib/events";
-    import { noop } from "../../lib/functional";
+    import { promiseWithResolver } from "../../lib/promise";
     import type { Callback } from "../../lib/typing";
     import { singleCallback } from "../../lib/typing";
     import type { EditingInputAPI } from "../EditingArea.svelte";
@@ -31,22 +31,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let cleanup: Callback;
     let richTextInput: RichTextInputAPI | null = null;
+    let allowPromise = Promise.resolve();
 
     async function initialize(input: EditingInputAPI | null): Promise<void> {
         cleanup?.();
 
-        if (!input || !editingInputIsRichText(input)) {
+        const isRichText = input && editingInputIsRichText(input);
+
+        // Setup the new field, so that clicking from one mathjax to another
+        // will immediately open the overlay
+        if (isRichText) {
+            const container = await input.element;
+
+            cleanup = singleCallback(
+                on(container, "click", showOverlayIfMathjaxClicked),
+                on(container, "movecaretafter" as any, showOnAutofocus),
+                on(container, "selectall" as any, showSelectAll),
+            );
+        }
+
+        // Wait if the mathjax overlay is still active
+        await allowPromise;
+
+        if (!isRichText) {
             richTextInput = null;
             return;
         }
 
-        const container = await input.element;
-
-        cleanup = singleCallback(
-            on(container, "click", showOverlayIfMathjaxClicked),
-            on(container, "movecaretafter" as any, showOnAutofocus),
-            on(container, "selectall" as any, showSelectAll),
-        );
         richTextInput = input;
     }
 
@@ -54,8 +65,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let activeImage: HTMLImageElement | null = null;
     let mathjaxElement: HTMLElement | null = null;
-    let allow = noop;
-    let unsubscribe = noop;
+
+    let allowResubscription: Callback;
+    let unsubscribe: Callback;
 
     let selectAll = false;
     let position: CodeMirrorLib.Position | undefined = undefined;
@@ -66,8 +78,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
      */
     const code = writable("");
 
-    function showOverlay(image: HTMLImageElement, pos?: CodeMirrorLib.Position): void {
-        allow = richTextInput!.preventResubscription();
+    function showOverlay(image: HTMLImageElement, pos?: CodeMirrorLib.Position) {
+        const [promise, allowResolve] = promiseWithResolver<void>();
+
+        allowPromise = promise;
+        allowResubscription = singleCallback(
+            richTextInput!.preventResubscription(),
+            allowResolve,
+        );
+
         position = pos;
 
         /* Setting the activeImage and mathjaxElement to a non-nullish value is
@@ -91,21 +110,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    async function resetHandle(): Promise<void> {
+    function resetHandle(): void {
         selectAll = false;
         position = undefined;
+
+        allowResubscription?.();
 
         if (activeImage && mathjaxElement) {
             unsubscribe();
             activeImage = null;
             mathjaxElement = null;
         }
-
-        allow();
-
-        // Wait for a tick, so that moving from one Mathjax element to
-        // another will remount the MathjaxEditor
-        await tick();
     }
 
     let errorMessage: string;
@@ -130,7 +145,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function showOverlayIfMathjaxClicked({ target }: Event): Promise<void> {
         if (target instanceof HTMLImageElement && target.dataset.anki === "mathjax") {
-            await resetHandle();
+            resetHandle();
             showOverlay(target);
         }
     }
@@ -196,27 +211,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         {code}
                         {selectAll}
                         {position}
-                        on:moveoutstart={async () => {
+                        on:moveoutstart={() => {
                             placeHandle(false);
-                            await resetHandle();
+                            resetHandle();
                         }}
-                        on:moveoutend={async () => {
+                        on:moveoutend={() => {
                             placeHandle(true);
-                            await resetHandle();
+                            resetHandle();
                         }}
                         on:tab={async () => {
                             // Instead of resetting on blur, we reset on tab
                             // Otherwise, when clicking from Mathjax element to another,
                             // the user has to click twice (focus is called before blur?)
-                            await resetHandle();
+                            resetHandle();
                         }}
                         let:editor={mathjaxEditor}
                     >
                         <Shortcut
                             keyCombination={acceptShortcut}
-                            on:action={async () => {
+                            on:action={() => {
                                 placeHandle(true);
-                                await resetHandle();
+                                resetHandle();
                             }}
                         />
 
