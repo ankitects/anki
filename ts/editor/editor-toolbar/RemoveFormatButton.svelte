@@ -107,7 +107,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     tooltip="{tr.editingRemoveFormatting()} ({getPlatformString(keyCombination)})"
     {disabled}
     on:click={remove}
-    --border-left-radius="5px"
 >
     {@html eraserIcon}
 </IconButton>
@@ -127,7 +126,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {disabled}
             widthMultiplier={0.5}
             iconSize={120}
-            --border-right-radius="5px"
             on:click={() => (showFloating = !showFloating)}
         >
             {@html chevronDown}

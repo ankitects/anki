@@ -30,16 +30,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <DynamicallySlottable slotHost={Item} {api}>
     <Item>
         <ButtonGroup>
-            <BoldButton --border-left-radius="5px" />
+            <BoldButton />
             <ItalicButton />
-            <UnderlineButton --border-right-radius="5px" />
+            <UnderlineButton />
         </ButtonGroup>
     </Item>
 
     <Item>
         <ButtonGroup>
-            <SuperscriptButton --border-left-radius="5px" />
-            <SubscriptButton --border-right-radius="5px" />
+            <SuperscriptButton />
+            <SubscriptButton />
         </ButtonGroup>
     </Item>
 

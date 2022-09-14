@@ -130,7 +130,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tooltip="{tr.editingTextColor()} ({getPlatformString(setCombination)})"
         {disabled}
         on:click={setTextColor}
-        --border-left-radius="5px"
     >
         {@html textColorIcon}
         {@html colorHelperIcon}

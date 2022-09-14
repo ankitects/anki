@@ -123,7 +123,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {disabled}
         widthMultiplier={0.5}
         iconSize={120}
-        --border-right-radius="5px"
     >
         {@html chevronDown}
         <ColorPicker

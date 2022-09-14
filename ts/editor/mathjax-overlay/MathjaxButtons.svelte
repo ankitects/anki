@@ -23,7 +23,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             tooltip={tr.editingMathjaxInline()}
             active={!isBlock}
             on:click={() => dispatch("setinline")}
-            --border-left-radius="5px"
         >
             {@html inlineIcon}
         </IconButton>
@@ -32,7 +31,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             tooltip={tr.editingMathjaxBlock()}
             active={isBlock}
             on:click={() => dispatch("setblock")}
-            --border-right-radius="5px"
         >
             {@html blockIcon}
         </IconButton>
@@ -44,8 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             tooltip={tr.actionsDelete()}
             on:click={() => dispatch("delete")}
-            --border-left-radius="5px"
-            --border-right-radius="5px">{@html deleteIcon}</IconButton
+        >{@html deleteIcon}</IconButton
         >
     </ButtonGroup>
 </ButtonToolbar>

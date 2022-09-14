@@ -10,24 +10,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let size: number | undefined = undefined;
     export let wrap: boolean | undefined = undefined;
 
-    $: buttonSize = size ? `--buttons-size: ${size}rem; ` : "";
-    let buttonWrap: string;
-    $: if (wrap === undefined) {
-        buttonWrap = "";
-    } else {
-        buttonWrap = wrap ? `--buttons-wrap: wrap; ` : `--buttons-wrap: nowrap; `;
-    }
-
-    $: style = buttonSize + buttonWrap;
+    console.log(wrap);
 </script>
 
-<div {id} class="button-group btn-group {className}" {style} dir="ltr" role="group">
+<div
+    {id}
+    class="button-group {className}"
+    dir="ltr"
+    style:--button-size="{size}rem"
+    role="group"
+>
     <slot />
 </div>
 
 <style lang="scss">
     .button-group {
-        display: flex;
-        flex-flow: row var(--buttons-wrap);
+        border: 1px solid var(--medium-border);
+        border-radius: 5px;
+
+        display: grid;
+        grid-auto-flow: column;
+        grid-gap: 1px;
+
+        background-color: var(--medium-border);
+        overflow: hidden;
     }
 </style>

@@ -96,8 +96,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <SelectButton
                 class="flex-grow-1"
                 on:change={blur}
-                --border-left-radius="5px"
-                --border-right-radius="5px"
             >
                 {#each $configList as entry}
                     <SelectOption value={String(entry.idx)} selected={entry.current}>

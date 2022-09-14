@@ -36,7 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             image.style.float = "left";
             setTimeout(() => dispatch("update"));
         }}
-        --border-left-radius="5px">{@html inlineStartIcon}</IconButton
+        >{@html inlineStartIcon}</IconButton
     >
 
     <IconButton
@@ -60,6 +60,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             image.style.float = "right";
             setTimeout(() => dispatch("update"));
         }}
-        --border-right-radius="5px">{@html inlineEndIcon}</IconButton
+        >{@html inlineEndIcon}</IconButton
     >
 </ButtonGroup>

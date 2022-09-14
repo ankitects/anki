@@ -6,10 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { pageTheme } from "../sveltelib/theme";
     import IconConstrain from "./IconConstrain.svelte";
 
-    export let id: string | undefined = undefined;
-    let className = "";
-    export { className as class };
-
     export let tooltip: string | undefined = undefined;
     export let active = false;
     export let disabled = false;
@@ -21,11 +17,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <button
-    {id}
-    class="icon-button btn {className}"
+    class="icon-button"
     class:active
-    class:btn-day={!$pageTheme.isDark}
-    class:btn-night={$pageTheme.isDark}
     title={tooltip}
     {disabled}
     tabindex={tabbable ? 0 : -1}
@@ -38,16 +31,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </button>
 
 <style lang="scss">
-    @use "sass/button-mixins" as button;
-
     .icon-button {
         padding: 0;
         font-size: var(--base-font-size);
         height: var(--buttons-size);
 
-        @include button.btn-border-radius;
+        border: none;
+        appearance: none;
+        background-color: white;
     }
-
-    @include button.btn-day;
-    @include button.btn-night;
 </style>
