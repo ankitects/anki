@@ -32,8 +32,8 @@ $vars: (
                 dark: palette(lightgray, 6),
             ),
             faint: (
-                light: palette(darkgray, 1),
-                dark: palette(lightgray, 8),
+                light: palette(lightgray, 7),
+                dark: palette(darkgray, 2),
             ),
         ),
         canvas: (
@@ -52,6 +52,10 @@ $vars: (
             overlay: (
                 light: white,
                 dark: black,
+            ),
+            code: (
+                light: white,
+                dark: palette(darkgray, 6),
             ),
         ),
         border: (
@@ -255,7 +259,7 @@ $vars: (
                 dark: palette(blue, 4),
             ),
             fg: (
-                default: black,
+                light: black,
                 dark: white,
             ),
         ),

@@ -165,7 +165,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: 0 0 5px 5px;
 
         :global(.CodeMirror) {
-            background: var(--code-bg);
+            background: var(--canvas-code);
             border-radius: 0 0 5px 5px;
         }
 
@@ -184,7 +184,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             border-radius: 5px;
 
             :global(.CodeMirror) {
-                background: var(--canvas-inset);
                 border-radius: 5px;
             }
         }
