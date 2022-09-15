@@ -297,11 +297,11 @@ def get_windows_dark_mode() -> bool:
         QueryValueEx,
     )
 
-    key = OpenKey(
-        HKEY_CURRENT_USER,
-        r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
-    )
     try:
+        key = OpenKey(
+            HKEY_CURRENT_USER,
+            r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
+        )
         return not QueryValueEx(key, "AppsUseLightTheme")[0]
     except Exception as err:
         # key reportedly missing or set to wrong type on some systems
