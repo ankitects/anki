@@ -1374,9 +1374,19 @@ class EditorWebView(AnkiWebView):
         mime = clip.mimeData()
         if not mime.hasHtml():
             return
-        html = mime.html()
-        mime.setHtml(f"<!--anki-->{html}")
-        aqt.mw.progress.timer(10, lambda: clip.setMimeData(mime), False, parent=self)
+        html = f"<!--anki-->{mime.html()}"
+
+        def after_delay() -> None:
+            # utilities that modify the clipboard can invalidate our existing
+            # mime handle in the time it takes for the timer to fire, so we need
+            # to fetch the data again
+            mime = clip.mimeData()
+            mime.setHtml(html)
+            clip.setMimeData(mime)
+
+        # Mutter bugs out if the clipboard data is mutated in the clipboard change
+        # hook, so we need to do it after a small delay
+        aqt.mw.progress.timer(10, after_delay, False, parent=self)
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)
