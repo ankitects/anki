@@ -16,6 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     h1 {
-        border-bottom: 1px solid var(--medium-border);
+        border-bottom: 1px solid var(--border);
     }
 </style>

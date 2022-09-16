@@ -37,6 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </button>
 
 <style lang="scss">
+    @use "sass/vars";
     @use "sass/button-mixins" as button;
 
     .autocomplete-item {
@@ -48,42 +49,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: 0;
     }
 
-    button {
-        display: flex;
-        justify-content: space-between;
-
-        font-size: calc(var(--buttons-size) / 2.3);
-
-        background: none;
-        box-shadow: none !important;
-        border: none;
-
-        &.active {
-            background-color: button.$focus-color !important;
-            color: white !important;
-        }
-    }
-
-    /* reset global CSS from buttons.scss */
-    :global(.nightMode) button:hover {
-        background-color: inherit;
-    }
-
-    /* extra specificity bc of global CSS reset above */
-    button.btn-day {
-        color: black;
-
-        &.selected {
-            background-color: #e9ecef;
-            border-color: #e9ecef;
-        }
-    }
-
-    button.btn-night {
-        color: white;
-
-        &.selected {
-            @include button.btn-night-base;
-        }
-    }
+    @include button.base($with-disabled: false);
 </style>

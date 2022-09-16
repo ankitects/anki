@@ -2,16 +2,15 @@
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
 @use "vars";
-@use "fusion-vars";
 
 @mixin night-mode {
     input,
     select {
-        background-color: var(--frame-bg);
+        background-color: var(--canvas-elevated);
         border-color: var(--border);
 
         &:focus {
-            background-color: var(--window-bg);
+            background-color: var(--canvas);
         }
     }
 }

@@ -118,6 +118,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         border-width: 0 0 thin;
         border-style: solid;
-        border-color: var(--medium-border);
+        border-color: var(--border-subtle);
     }
 </style>
