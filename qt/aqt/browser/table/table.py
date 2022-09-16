@@ -375,7 +375,7 @@ class Table:
             )
         elif theme_manager.macos_dark_mode():
             self._view.setStyleSheet(
-                f"QTableView {{ gridline-color: {colors.FRAME_BG} }}"
+                f"QTableView {{ gridline-color: {colors.CANVAS_INSET} }}"
             )
         else:
             self._view.setStyleSheet("")

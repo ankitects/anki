@@ -145,13 +145,13 @@ class ThemeManager:
         "Returns body classes used when showing a card."
         return f"card card{card_ord+1} {self.body_class(night_mode)}"
 
-    def color(self, colors: tuple[str, str]) -> str:
-        """Given day/night colors, return the correct one for the current theme."""
+    def var(self, vars: tuple[str, str]) -> str:
+        """Given day/night colors/props, return the correct one for the current theme."""
         idx = 1 if self.night_mode else 0
-        return colors[idx]
+        return vars[idx]
 
     def qcolor(self, colors: tuple[str, str]) -> QColor:
-        return QColor(self.color(colors))
+        return QColor(self.var(colors))
 
     def _determine_night_mode(self) -> bool:
         theme = aqt.mw.pm.theme()
@@ -187,6 +187,7 @@ class ThemeManager:
 
     def _apply_style(self, app: QApplication) -> None:
         buf = ""
+
         if not is_mac:
             from aqt.stylesheets import (
                 button_styles,
@@ -224,6 +225,9 @@ class ThemeManager:
 
         if not self.night_mode:
             app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
+            self.default_palette.setColor(
+                QPalette.ColorRole.Window, self.qcolor(colors.CANVAS)
+            )
             app.setPalette(self.default_palette)
             return
 
@@ -232,11 +236,11 @@ class ThemeManager:
 
         palette = QPalette()
 
-        text_fg = self.qcolor(colors.TEXT_FG)
-        palette.setColor(QPalette.ColorRole.WindowText, text_fg)
-        palette.setColor(QPalette.ColorRole.ToolTipText, text_fg)
-        palette.setColor(QPalette.ColorRole.Text, text_fg)
-        palette.setColor(QPalette.ColorRole.ButtonText, text_fg)
+        text = self.qcolor(colors.FG)
+        palette.setColor(QPalette.ColorRole.WindowText, text)
+        palette.setColor(QPalette.ColorRole.ToolTipText, text)
+        palette.setColor(QPalette.ColorRole.Text, text)
+        palette.setColor(QPalette.ColorRole.ButtonText, text)
 
         hlbg = self.qcolor(colors.HIGHLIGHT_BG)
         hlbg.setAlpha(64)
@@ -245,18 +249,21 @@ class ThemeManager:
         )
         palette.setColor(QPalette.ColorRole.Highlight, hlbg)
 
-        window_bg = self.qcolor(colors.WINDOW_BG)
-        palette.setColor(QPalette.ColorRole.Window, window_bg)
-        palette.setColor(QPalette.ColorRole.AlternateBase, window_bg)
+        canvas = self.qcolor(colors.CANVAS)
+        palette.setColor(QPalette.ColorRole.Window, canvas)
+        palette.setColor(QPalette.ColorRole.AlternateBase, canvas)
 
         palette.setColor(QPalette.ColorRole.Button, QColor("#454545"))
 
-        frame_bg = self.qcolor(colors.FRAME_BG)
-        palette.setColor(QPalette.ColorRole.Base, frame_bg)
-        palette.setColor(QPalette.ColorRole.ToolTipBase, frame_bg)
+        canvas_inset = self.qcolor(colors.CANVAS_INSET)
+        palette.setColor(QPalette.ColorRole.Base, canvas_inset)
+        palette.setColor(QPalette.ColorRole.ToolTipBase, canvas_inset)
 
-        disabled_color = self.qcolor(colors.DISABLED)
-        palette.setColor(QPalette.ColorRole.PlaceholderText, disabled_color)
+        palette.setColor(
+            QPalette.ColorRole.PlaceholderText, self.qcolor(colors.FG_SUBTLE)
+        )
+
+        disabled_color = self.qcolor(colors.FG_DISABLED)
         palette.setColor(
             QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color
         )
@@ -269,7 +276,7 @@ class ThemeManager:
             disabled_color,
         )
 
-        palette.setColor(QPalette.ColorRole.Link, self.qcolor(colors.LINK))
+        palette.setColor(QPalette.ColorRole.Link, self.qcolor(colors.ACCENT_LINK))
 
         palette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
 
@@ -278,11 +285,11 @@ class ThemeManager:
     def _update_stat_colors(self) -> None:
         import anki.stats as s
 
-        s.colLearn = self.color(colors.NEW_COUNT)
-        s.colRelearn = self.color(colors.LEARN_COUNT)
-        s.colCram = self.color(colors.SUSPENDED_BG)
-        s.colSusp = self.color(colors.SUSPENDED_BG)
-        s.colMature = self.color(colors.REVIEW_COUNT)
+        s.colLearn = self.var(colors.STATE_NEW)
+        s.colRelearn = self.var(colors.STATE_LEARN)
+        s.colCram = self.var(colors.STATE_SUSPENDED)
+        s.colSusp = self.var(colors.STATE_SUSPENDED)
+        s.colMature = self.var(colors.STATE_REVIEW)
         s._legacy_nightmode = self._night_mode_preference
 
 

@@ -1,10 +1,11 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+@use "vars";
 @use "sass/card-counts";
 
 :root {
-    --focus-color: #0078d7;
+    --focus-color: #{vars.palette-of(button-focus)};
 
     .isMac {
         --focus-color: rgba(0 103 244 / 0.247);
@@ -80,6 +81,6 @@ button {
 
 .nightMode {
     #outer {
-        border-top-color: var(--faint-border);
+        border-top-color: var(--border-subtle);
     }
 }

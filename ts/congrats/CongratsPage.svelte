@@ -70,7 +70,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         font-size: var(--base-font-size);
 
         :global(a) {
-            color: var(--link);
+            color: var(--accent-link);
             text-decoration: none;
         }
 

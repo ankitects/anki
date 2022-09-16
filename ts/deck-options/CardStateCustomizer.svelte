@@ -36,8 +36,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .card-state-customizer {
-        color: var(--text-fg);
-        background-color: var(--frame-bg);
+        color: var(--fg);
+        background-color: var(--canvas-elevated);
 
         width: 100%;
         height: 10em;
