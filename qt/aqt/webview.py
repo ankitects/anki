@@ -293,9 +293,8 @@ class AnkiWebView(QWebEngineView):
                     w.close()
                 else:
                     # in the main window, removes focus from type in area
-                    parent = self.parent()
-                    assert isinstance(parent, QWidget)
-                    parent.setFocus()
+                    if mw.state == "review":
+                        mw.reviewer.unfocus_typing_box()
                 break
             w = w.parent()
 
