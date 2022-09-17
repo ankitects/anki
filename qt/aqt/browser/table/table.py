@@ -12,7 +12,7 @@ from anki.collection import Collection, Config, OpChanges
 from anki.consts import *
 from anki.notes import Note, NoteId
 from anki.utils import is_win
-from aqt import colors, gui_hooks
+from aqt import gui_hooks
 from aqt.browser.table import Columns, ItemId, SearchContext
 from aqt.browser.table.model import DataModel
 from aqt.browser.table.state import CardState, ItemState, NoteState
