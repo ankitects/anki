@@ -190,6 +190,8 @@ QTableView {{
     border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     border-radius: {tm.var(props.BORDER_RADIUS)};
     gridline-color: {tm.var(colors.BORDER_SUBTLE)}; 
+    selection-background-color: {tm.var(colors.SELECTION_BG)};
+    selection-color: {tm.var(colors.SELECTION_FG)};
 }}
 QHeaderView {{
     background: {tm.var(colors.CANVAS)};

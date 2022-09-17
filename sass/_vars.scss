@@ -263,6 +263,16 @@ $vars: (
                 dark: white,
             ),
         ),
+        selection: (
+            bg: (
+                light: color.scale(palette(lightgray, 5), $alpha: -50%),
+                dark: color.scale(palette(blue, 3), $alpha: -50%),
+            ),
+            fg: (
+                light: black,
+                dark: white,
+            ),
+        ),
     ),
 );
 
