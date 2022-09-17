@@ -60,8 +60,8 @@ $vars: (
         ),
         border: (
             default: (
-                light: palette(lightgray, 7),
-                dark: palette(darkgray, 7),
+                light: palette(lightgray, 6),
+                dark: palette(darkgray, 6),
             ),
             subtle: (
                 light: palette(lightgray, 5),
@@ -108,7 +108,7 @@ $vars: (
                         dark: palette(darkgray, 2),
                     ),
                     end: (
-                        light: palette(lightgray, 3),
+                        light: palette(lightgray, 4),
                         dark: palette(darkgray, 3),
                     ),
                 ),
@@ -149,15 +149,15 @@ $vars: (
         scrollbar: (
             bg: (
                 default: (
-                    light: palette(lightgray, 6),
+                    light: palette(lightgray, 5),
                     dark: palette(darkgray, 4),
                 ),
                 hover: (
-                    light: palette(lightgray, 7),
+                    light: palette(lightgray, 6),
                     dark: palette(darkgray, 3),
                 ),
                 active: (
-                    light: palette(lightgray, 8),
+                    light: palette(lightgray, 7),
                     dark: palette(darkgray, 1),
                 ),
             ),
