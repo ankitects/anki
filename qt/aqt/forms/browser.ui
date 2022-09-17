@@ -46,7 +46,7 @@
        </sizepolicy>
       </property>
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Horizontal</enum>
       </property>
       <widget class="QWidget" name="widget" native="true">
        <property name="sizePolicy">

@@ -126,6 +126,7 @@ class Browser(QMainWindow):
         restoreGeom(self, "editor", 0)
         restoreSplitter(self.form.splitter, "editor3")
         self.form.splitter.setChildrenCollapsible(False)
+        self.form.splitter.setOrientation(self.mw.pm.browser_orientation())
         # set if exactly 1 row is selected; used by the previewer
         self.card: Card | None = None
         self.current_card: Card | None = None
