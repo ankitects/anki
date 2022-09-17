@@ -305,6 +305,7 @@
     <addaction name="action_toggle_mode"/>
     <addaction name="separator"/>
     <addaction name="actionFullScreen"/>
+    <addaction name="actionToggleOrientation"/>
     <addaction name="separator"/>
     <addaction name="actionZoomIn"/>
     <addaction name="actionZoomOut"/>
@@ -679,6 +680,11 @@
   <action name="actionFullScreen">
    <property name="text">
     <string>qt_accel_full_screen</string>
+   </property>
+  </action>
+  <action name="actionToggleOrientation">
+   <property name="text">
+    <string>qt_accel_toggle_orientation</string>
    </property>
   </action>
   <action name="actionZoomIn">

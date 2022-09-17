@@ -33,6 +33,7 @@ qt-accel-set-due-date = Set &Due Date...
 qt-accel-forget = &Forget
 qt-accel-view = &View
 qt-accel-full-screen = Toggle &Full Screen
+qt-accel-toggle-orientation = Toggle Orientation
 qt-accel-zoom-in = Zoom &In
 qt-accel-zoom-out = Zoom &Out
 qt-accel-reset-zoom = &Reset Zoom

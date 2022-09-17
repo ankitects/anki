@@ -180,6 +180,16 @@ class Browser(QMainWindow):
             self.table.redraw_cells()
             self.sidebar.refresh_if_needed()
 
+    def on_toggle_orientation(self) -> None:
+        orientation = self.form.splitter.orientation()
+
+        if orientation == Qt.Orientation.Horizontal:
+            self.form.splitter.setOrientation(Qt.Orientation.Vertical)
+            self.mw.pm.set_vertical_browser(True)
+        else:
+            self.form.splitter.setOrientation(Qt.Orientation.Horizontal)
+            self.mw.pm.set_vertical_browser(False)
+
     def setupMenus(self) -> None:
         # actions
         f = self.form
@@ -196,6 +206,7 @@ class Browser(QMainWindow):
 
         # view
         qconnect(f.actionFullScreen.triggered, self.mw.on_toggle_full_screen)
+        qconnect(f.actionToggleOrientation.triggered, self.on_toggle_orientation)
         qconnect(
             f.actionZoomIn.triggered,
             lambda: self.editor.web.setZoomFactor(self.editor.web.zoomFactor() + 0.1),

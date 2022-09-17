@@ -548,6 +548,9 @@ create table if not exists profiles
         else:
             return Qt.Orientation.Horizontal
 
+    def set_vertical_browser(self, vertical: bool) -> None:
+        self.meta["vertical_browser"] = vertical
+
     def legacy_import_export(self) -> bool:
         return self.meta.get("legacy_import", False)
 
