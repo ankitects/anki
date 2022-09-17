@@ -57,8 +57,17 @@ QToolTip {{
 QSlider::handle,
 QSplitter::handle,
 QMainWindow::separator {{
-    image: url(icons:drag-vertical.svg);
     height: 16px;
+}}
+QSlider::handle:vertical,
+QSplitter::handle:vertical,
+QMainWindow::separator:horizontal {{
+    image: url(icons:drag-horizontal.svg);
+}}
+QSlider::handle:horizontal,
+QSplitter::handle:horizontal,
+QMainWindow::separator:vertical {{
+    image: url(icons:drag-vertical.svg);
 }}
     """
     return buf
