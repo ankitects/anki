@@ -3,6 +3,7 @@
 
 /// <reference types="../../lib/image-import" />
 
+export { default as cogIcon } from "@mdi/svg/svg/cog.svg";
 export { default as colorHelperIcon } from "@mdi/svg/svg/color-helper.svg";
 export { default as highlightColorIcon } from "@mdi/svg/svg/format-color-highlight.svg";
 export { default as textColorIcon } from "@mdi/svg/svg/format-color-text.svg";

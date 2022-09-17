@@ -534,6 +534,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setColorButtons({});
             setTags({});
             setMathjaxEnabled({});
+            setShrinkImages({});
             """.format(
             json.dumps(data),
             json.dumps(collapsed),
@@ -545,6 +546,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             json.dumps([text_color, highlight_color]),
             json.dumps(self.note.tags),
             json.dumps(self.mw.col.get_config("renderMathjax", True)),
+            json.dumps(self.mw.col.get_config("shrinkEditorImages", True)),
         )
 
         if self.addMode:
@@ -1159,6 +1161,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.setupWeb()
         self.loadNoteKeepingFocus()
 
+    def toggleShrinkImages(self) -> None:
+        self.mw.col.set_config(
+            "shrinkEditorImages",
+            not self.mw.col.get_config("shrinkEditorImages", True),
+        )
+
     # Links from HTML
     ######################################################################
 
@@ -1186,6 +1194,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             mathjaxBlock=Editor.insertMathjaxBlock,
             mathjaxChemistry=Editor.insertMathjaxChemistry,
             toggleMathjax=Editor.toggleMathjax,
+            toggleShrinkImages=Editor.toggleShrinkImages,
         )
 
 

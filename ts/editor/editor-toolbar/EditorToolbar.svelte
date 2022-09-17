@@ -56,6 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import BlockButtons from "./BlockButtons.svelte";
     import InlineButtons from "./InlineButtons.svelte";
     import NotetypeButtons from "./NotetypeButtons.svelte";
+    import OptionsButton from "./OptionsButton.svelte";
     import RichTextClozeButtons from "./RichTextClozeButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
 
@@ -107,6 +108,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             <Item id="cloze">
                 <RichTextClozeButtons />
+            </Item>
+
+            <Item id="options">
+                <OptionsButton />
             </Item>
         </DynamicallySlottable>
     </ButtonToolbar>
