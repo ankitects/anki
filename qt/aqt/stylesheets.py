@@ -54,6 +54,12 @@ QSpinBox {{
 QToolTip {{
     background: {tm.var(colors.CANVAS_OVERLAY)};
 }}
+QSlider::handle,
+QSplitter::handle,
+QMainWindow::separator {{
+    image: url(icons:drag-vertical.svg);
+    height: 16px;
+}}
     """
     return buf
 
