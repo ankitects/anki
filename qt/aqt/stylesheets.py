@@ -207,11 +207,8 @@ QTabBar::tab:selected {{
 def table_styles(tm: ThemeManager, buf: str) -> str:
     buf += f"""
 QTableView {{
-    background: none;
-    top: 2px;
-    border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     border-radius: {tm.var(props.BORDER_RADIUS)};
-    gridline-color: {tm.var(colors.BORDER_SUBTLE)}; 
+    gridline-color: {tm.var(colors.BORDER)};
     selection-background-color: {tm.var(colors.SELECTION_BG)};
     selection-color: {tm.var(colors.SELECTION_FG)};
 }}
@@ -247,8 +244,6 @@ QHeaderView::section:hover {{
     };
 }}
 QHeaderView::section:first {{
-    margin-left: -1px;
-    border-top: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
     border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
     border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
 }}
@@ -256,20 +251,12 @@ QHeaderView::section:!first {{
     border-left: none;
 }}
 QHeaderView::section:last {{
-    border-top: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
     border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
     border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
-QHeaderView::section:next-selected {{
-    border-right: none;
-}}
-QHeaderView::section:previous-selected {{
-    border-left: none;
-}}
 QHeaderView::section:only-one {{
     border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
-    border-top: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
-    border-right: 1px solid {tm.var(colors.CANVAS)};
+    border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
     border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
@@ -367,7 +354,8 @@ QAbstractScrollArea::corner {{
     border: none;
 }}
 QScrollBar {{
-    background-color: {tm.var(colors.CANVAS)};
+    subcontrol-origin: content;
+    background-color: transparent;
 }}
 QScrollBar::handle {{
     border-radius: {tm.var(props.BORDER_RADIUS)};
@@ -383,13 +371,13 @@ QScrollBar:horizontal {{
     height: 12px;
 }}
 QScrollBar::handle:horizontal {{
-    min-width: 50px;
+    min-width: 60px;
 }} 
 QScrollBar:vertical {{
     width: 12px;
 }}
 QScrollBar::handle:vertical {{
-    min-height: 50px;
+    min-height: 60px;
 }} 
 QScrollBar::add-line {{
       border: none;
