@@ -3,6 +3,7 @@
 from aqt import colors, props
 from aqt.theme import ThemeManager
 
+
 def button_gradient(start: str, end: str) -> str:
     return f"""
 qlineargradient(
@@ -11,6 +12,8 @@ qlineargradient(
     stop:1 {end}
 );
     """
+
+
 def button_pressed_gradient(start: str, end: str, shadow: str) -> str:
     return f"""
 qlineargradient(
@@ -21,6 +24,7 @@ qlineargradient(
     stop:1 {shadow}
 );
     """
+
 
 def general_styles(tm: ThemeManager, buf: str) -> str:
     buf += f"""
