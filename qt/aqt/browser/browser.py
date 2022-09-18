@@ -226,7 +226,7 @@ class Browser(QMainWindow):
 
         self.mw.pm.set_browser_orientation(mode)
 
-    def auto_toggle_orientation(self, aspect_ratio: int, force=False) -> None:
+    def auto_toggle_orientation(self, aspect_ratio: float, force: bool = False) -> None:
 
         if force or math.floor(aspect_ratio) != math.floor(self.aspect_ratio):
             if aspect_ratio < 1:
@@ -234,7 +234,7 @@ class Browser(QMainWindow):
             else:
                 self.set_orientation(False)
 
-    def resizeEvent(self, event: QEvent) -> None:
+    def resizeEvent(self, event: QResizeEvent) -> None:
         aspect_ratio = self.width() / self.height()
 
         if self.auto_orientation:
