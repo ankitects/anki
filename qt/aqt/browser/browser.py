@@ -286,6 +286,7 @@ class Browser(QMainWindow):
         self.orientationWidgetLayout.addWidget(QLabel(tr.qt_accel_orientation()))
         self.orientationWidgetLayout.addWidget(self.orientationSwitch)
         self.orientationWidgetAction.setDefaultWidget(self.orientationWidget)
+        f.menuqt_accel_view.addSeparator()
         f.menuqt_accel_view.addAction(self.orientationWidgetAction)
         qconnect(self.orientationSwitch.currentChanged, self.on_toggle_orientation)
 
