@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from typing import Callable, Sequence
 
@@ -137,6 +138,8 @@ class Browser(QMainWindow):
         self.setupMenus()
         self.setupHooks()
         self.setupEditor()
+        # for responsive orientation
+        self.aspect_ratio = self.width() / self.height()
         # disable undo/redo
         self.on_undo_state_change(mw.undo_actions_info())
         # legacy alias
@@ -180,15 +183,31 @@ class Browser(QMainWindow):
             self.table.redraw_cells()
             self.sidebar.refresh_if_needed()
 
-    def on_toggle_orientation(self) -> None:
-        orientation = self.form.splitter.orientation()
-
-        if orientation == Qt.Orientation.Horizontal:
+    def set_orientation(self, vertical: bool) -> None:
+        if vertical:
             self.form.splitter.setOrientation(Qt.Orientation.Vertical)
             self.mw.pm.set_vertical_browser(True)
         else:
             self.form.splitter.setOrientation(Qt.Orientation.Horizontal)
             self.mw.pm.set_vertical_browser(False)
+
+    def on_toggle_orientation(self) -> None:
+        self.set_orientation(
+            self.form.splitter.orientation() == Qt.Orientation.Horizontal
+        )
+
+    def resizeEvent(self, event):
+        aspect_ratio = self.width() / self.height()
+
+        if math.floor(aspect_ratio) != math.floor(self.aspect_ratio):
+            if aspect_ratio < 1:
+                self.set_orientation(True)
+            else:
+                self.set_orientation(False)
+
+            self.aspect_ratio = aspect_ratio
+
+        QMainWindow.resizeEvent(self, event)
 
     def setupMenus(self) -> None:
         # actions
