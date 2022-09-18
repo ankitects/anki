@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import math
 import re
+from enum import Enum
 from typing import Callable, Sequence
 
 import aqt
@@ -44,7 +45,9 @@ from aqt.operations.tag import (
 )
 from aqt.qt import *
 from aqt.sound import av_player
+from aqt.stylesheets import tab_action_styles
 from aqt.switch import Switch
+from aqt.theme import theme_manager
 from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
@@ -64,6 +67,7 @@ from aqt.utils import (
     saveState,
     showWarning,
     skip_if_selection_is_empty,
+    tooltip,
     tr,
 )
 
@@ -94,6 +98,12 @@ class MockModel:
     def reset(self) -> None:
         self.browser.begin_reset()
         self.browser.end_reset()
+
+
+class Orientation(Enum):
+    VERTICAL = 0
+    AUTO = 1
+    HORIZONTAL = 2
 
 
 class Browser(QMainWindow):
@@ -127,7 +137,6 @@ class Browser(QMainWindow):
         restoreGeom(self, "editor", 0)
         restoreSplitter(self.form.splitter, "editor3")
         self.form.splitter.setChildrenCollapsible(False)
-        self.form.splitter.setOrientation(self.mw.pm.browser_orientation())
         # set if exactly 1 row is selected; used by the previewer
         self.card: Card | None = None
         self.current_card: Card | None = None
@@ -138,8 +147,18 @@ class Browser(QMainWindow):
         self.setupMenus()
         self.setupHooks()
         self.setupEditor()
-        # for responsive orientation
+        # responsive orientation
         self.aspect_ratio = self.width() / self.height()
+        self.auto_orientation = (
+            self.mw.pm.browser_orientation() == Orientation.AUTO.value
+        )
+        if self.auto_orientation:
+            self.auto_toggle_orientation(self.aspect_ratio, True)
+        else:
+            if self.mw.pm.browser_orientation() == Orientation.VERTICAL.value:
+                self.form.splitter.setOrientation(Qt.Orientation.Vertical)
+            else:
+                self.form.splitter.setOrientation(Qt.Orientation.Horizontal)
         # disable undo/redo
         self.on_undo_state_change(mw.undo_actions_info())
         # legacy alias
@@ -186,26 +205,42 @@ class Browser(QMainWindow):
     def set_orientation(self, vertical: bool) -> None:
         if vertical:
             self.form.splitter.setOrientation(Qt.Orientation.Vertical)
-            self.mw.pm.set_vertical_browser(True)
         else:
             self.form.splitter.setOrientation(Qt.Orientation.Horizontal)
-            self.mw.pm.set_vertical_browser(False)
 
     def on_toggle_orientation(self) -> None:
-        self.set_orientation(
-            self.form.splitter.orientation() == Qt.Orientation.Horizontal
-        )
+        mode = self.orientationSwitch.currentIndex()
 
-    def resizeEvent(self, event):
-        aspect_ratio = self.width() / self.height()
+        if mode == Orientation.AUTO.value:
+            self.auto_orientation = True
+            self.auto_toggle_orientation(self.aspect_ratio, True)
+            tooltip(tr.qt_accel_orientation_auto_enabled())
+        else:
+            self.auto_orientation = False
+            if mode == Orientation.VERTICAL.value:
+                self.set_orientation(True)
+                tooltip(tr.qt_accel_orientation_vertical_enabled())
+            else:
+                self.set_orientation(False)
+                tooltip(tr.qt_accel_orientation_horizontal_enabled())
 
-        if math.floor(aspect_ratio) != math.floor(self.aspect_ratio):
+        self.mw.pm.set_browser_orientation(mode)
+
+    def auto_toggle_orientation(self, aspect_ratio: int, force=False) -> None:
+
+        if force or math.floor(aspect_ratio) != math.floor(self.aspect_ratio):
             if aspect_ratio < 1:
                 self.set_orientation(True)
             else:
                 self.set_orientation(False)
 
-            self.aspect_ratio = aspect_ratio
+    def resizeEvent(self, event: QEvent) -> None:
+        aspect_ratio = self.width() / self.height()
+
+        if self.auto_orientation:
+            self.auto_toggle_orientation(aspect_ratio)
+
+        self.aspect_ratio = aspect_ratio
 
         QMainWindow.resizeEvent(self, event)
 
@@ -225,7 +260,6 @@ class Browser(QMainWindow):
 
         # view
         qconnect(f.actionFullScreen.triggered, self.mw.on_toggle_full_screen)
-        qconnect(f.actionToggleOrientation.triggered, self.on_toggle_orientation)
         qconnect(
             f.actionZoomIn.triggered,
             lambda: self.editor.web.setZoomFactor(self.editor.web.zoomFactor() + 0.1),
@@ -238,6 +272,22 @@ class Browser(QMainWindow):
             f.actionResetZoom.triggered,
             lambda: self.editor.web.setZoomFactor(1),
         )
+        # orientation switch: tab widget with invisible panes
+        self.orientationWidgetAction = QWidgetAction(self)
+        self.orientationWidget = QWidget()
+        self.orientationWidget.setStyleSheet(tab_action_styles(theme_manager))
+        self.orientationWidgetLayout = QHBoxLayout(self.orientationWidget)
+        self.orientationWidgetLayout.setContentsMargins(29, 10, 10, 10)
+        self.orientationSwitch = QTabWidget(self)
+        self.orientationSwitch.addTab(QWidget(), tr.qt_accel_orientation_vertical())
+        self.orientationSwitch.addTab(QWidget(), tr.qt_accel_orientation_auto())
+        self.orientationSwitch.addTab(QWidget(), tr.qt_accel_orientation_horizontal())
+        self.orientationSwitch.setCurrentIndex(self.mw.pm.browser_orientation())
+        self.orientationWidgetLayout.addWidget(QLabel(tr.qt_accel_orientation()))
+        self.orientationWidgetLayout.addWidget(self.orientationSwitch)
+        self.orientationWidgetAction.setDefaultWidget(self.orientationWidget)
+        f.menuqt_accel_view.addAction(self.orientationWidgetAction)
+        qconnect(self.orientationSwitch.currentChanged, self.on_toggle_orientation)
 
         # notes
         qconnect(f.actionAdd.triggered, self.mw.onAddCard)

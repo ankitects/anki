@@ -542,14 +542,11 @@ create table if not exists profiles
     def set_theme(self, theme: Theme) -> None:
         self.meta["theme"] = theme.value
 
-    def browser_orientation(self) -> Qt.Orientation:
-        if self.meta.get("vertical_browser", False):
-            return Qt.Orientation.Vertical
-        else:
-            return Qt.Orientation.Horizontal
+    def browser_orientation(self) -> int:
+        return self.meta.get("browser_orientation", 1)
 
-    def set_vertical_browser(self, vertical: bool) -> None:
-        self.meta["vertical_browser"] = vertical
+    def set_browser_orientation(self, mode: int) -> None:
+        self.meta["browser_orientation"] = mode
 
     def legacy_import_export(self) -> bool:
         return self.meta.get("legacy_import", False)
