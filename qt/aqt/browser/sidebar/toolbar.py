@@ -8,6 +8,7 @@ from enum import Enum, auto
 import aqt
 import aqt.browser
 import aqt.gui_hooks
+from aqt import colors
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import tr
@@ -20,8 +21,16 @@ class SidebarTool(Enum):
 
 class SidebarToolbar(QToolBar):
     _tools: tuple[tuple[SidebarTool, str, Callable[[], str]], ...] = (
-        (SidebarTool.SEARCH, "icons:magnifying_glass.svg", tr.actions_search),
-        (SidebarTool.SELECT, "icons:select.svg", tr.actions_select),
+        (
+            SidebarTool.SEARCH,
+            theme_manager.svg("icons:magnify.svg", colors.FG),
+            tr.actions_search,
+        ),
+        (
+            SidebarTool.SELECT,
+            theme_manager.svg("icons:selection-drag.svg", colors.FG),
+            tr.actions_select,
+        ),
     )
 
     def __init__(self, sidebar: aqt.browser.sidebar.SidebarTreeView) -> None:
