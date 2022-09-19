@@ -58,21 +58,6 @@ QSpinBox {{
 QToolTip {{
     background: {tm.var(colors.CANVAS_OVERLAY)};
 }}
-QSlider::handle,
-QSplitter::handle,
-QMainWindow::separator {{
-    height: 16px;
-}}
-QSlider::handle:vertical,
-QSplitter::handle:vertical,
-QMainWindow::separator:horizontal {{
-    image: url(icons:drag-horizontal.svg);
-}}
-QSlider::handle:horizontal,
-QSplitter::handle:horizontal,
-QMainWindow::separator:vertical {{
-    image: url(icons:drag-vertical.svg);
-}}
     """
     return buf
 
@@ -111,6 +96,24 @@ QComboBox:!editable:pressed {{
     };
 }}
     """
+    return buf
+
+
+def splitter_styles(tm: ThemeManager, buf: str) -> str:
+    buf += """
+QSplitter::handle,
+QMainWindow::separator {
+    height: 16px;
+}
+QSplitter::handle:vertical,
+QMainWindow::separator:horizontal {
+    image: url(icons:drag-horizontal.svg);
+}
+QSplitter::handle:horizontal,
+QMainWindow::separator:vertical {
+    image: url(icons:drag-vertical.svg);
+}
+"""
     return buf
 
 
