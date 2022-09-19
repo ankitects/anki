@@ -4,7 +4,10 @@
 from __future__ import annotations
 
 import enum
+import os
 import platform
+import re
+import stat
 import subprocess
 from dataclasses import dataclass
 from typing import Callable, List, Tuple
@@ -14,6 +17,7 @@ from anki.utils import is_lin, is_mac, is_win
 from aqt import QApplication, colors, gui_hooks
 from aqt.qt import (
     QColor,
+    QDir,
     QGuiApplication,
     QIcon,
     QPainter,
@@ -81,8 +85,28 @@ class ThemeManager:
 
     night_mode = property(get_night_mode, set_night_mode)
 
+    def svg(self, path: str, color: tuple[str, str]) -> None:
+        from aqt.utils import aqt_data_folder
+
+        path = os.path.join(aqt_data_folder(), "qt", path.replace(":", "/"))
+        # set read and write permission
+        os.chmod(path, stat.S_IREAD | stat.S_IWRITE)
+
+        with open(path, "r") as file:
+            data = file.read()
+
+        if "fill" in data:
+            data = re.sub(r"fill=\"#.+?\"", f'fill="{self.var(color)}"', data)
+        else:
+            data = re.sub(r"<svg", f'<svg fill="{self.var(color)}" ', data, 1)
+
+        with open(path, "w") as file:
+            file.write(data)
+
+        return path
+
     def icon_from_resources(self, path: str | ColoredIcon) -> QIcon:
-        "Fetch icon from Qt resources, and invert if in night mode."
+        "Fetch icon from Qt resources."
         if self.night_mode:
             cache = self._icon_cache_light
         else:
@@ -99,11 +123,8 @@ class ThemeManager:
 
         if isinstance(path, str):
             # default black/white
-            icon = QIcon(path)
-            if self.night_mode:
-                img = icon.pixmap(self._icon_size, self._icon_size).toImage()
-                img.invertPixels()
-                icon = QIcon(QPixmap(img))
+            icon = QIcon(self.svg(path, colors.FG))
+
         else:
             # specified colours
             icon = QIcon(path.path)
