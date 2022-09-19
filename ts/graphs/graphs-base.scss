@@ -1,1 +1,7 @@
 @use "sass/base";
+
+label,
+input[type="radio"],
+input[type="checkbox"] {
+    cursor: pointer;
+}
