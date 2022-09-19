@@ -37,6 +37,10 @@ copy_mdi_icons(
         # QHeaderView arrows
         "menu-up.svg",
         "menu-down.svg",
+
+        # drag handle
+        "drag-vertical.svg",
+        "drag-horizontal.svg",
     ],
 )
 
