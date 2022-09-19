@@ -156,21 +156,21 @@ QComboBox::drop-down {{
     border-bottom-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QComboBox::down-arrow {{
-    image: url({tm.svg("icons:chevron-down.svg", colors.WHITE)});
+    image: url({tm.svg("icons:chevron-down.svg", colors.FG)});
 }}
 QComboBox::drop-down {{
     background: {
         button_gradient(
-            tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
-            tm.var(colors.BUTTON_PRIMARY_GRADIENT_END)
+            tm.var(colors.BUTTON_GRADIENT_START),
+            tm.var(colors.BUTTON_GRADIENT_END)
         )
     };
 }}
 QComboBox::drop-down:hover {{
     background: {
         button_gradient(
-            tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_START),
-            tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_END)
+            tm.var(colors.BUTTON_HOVER_GRADIENT_START),
+            tm.var(colors.BUTTON_HOVER_GRADIENT_END)
         )
     };
 }}
@@ -306,8 +306,8 @@ QSpinBox::down-button {{
     border: 1px solid {tm.var(colors.BUTTON_BORDER)};
     background: {
         button_gradient(
-            tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
-            tm.var(colors.BUTTON_PRIMARY_GRADIENT_END)
+            tm.var(colors.BUTTON_GRADIENT_START),
+            tm.var(colors.BUTTON_GRADIENT_END)
         )
     };
 }}
@@ -316,8 +316,8 @@ QSpinBox::down-button:pressed {{
     border: 1px solid {tm.var(colors.BUTTON_PRESSED_BORDER)};
     background: {
         button_pressed_gradient(
-            tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
-            tm.var(colors.BUTTON_PRIMARY_GRADIENT_END),
+            tm.var(colors.BUTTON_GRADIENT_START),
+            tm.var(colors.BUTTON_GRADIENT_END),
             tm.var(colors.BUTTON_PRESSED_SHADOW)
         )
     }
@@ -326,8 +326,8 @@ QSpinBox::up-button:hover,
 QSpinBox::down-button:hover {{
     background: {
         button_gradient(
-            tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_START),
-            tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_END)
+            tm.var(colors.BUTTON_HOVER_GRADIENT_START),
+            tm.var(colors.BUTTON_HOVER_GRADIENT_END)
         )
     };
 }}
@@ -342,10 +342,10 @@ QSpinBox::down-button {{
     border-bottom-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QSpinBox::up-arrow {{
-    image: url({tm.svg("icons:chevron-up.svg", colors.WHITE)});
+    image: url({tm.svg("icons:chevron-up.svg", colors.FG)});
 }}
 QSpinBox::down-arrow {{
-    image: url({tm.svg("icons:chevron-down.svg", colors.WHITE)});
+    image: url({tm.svg("icons:chevron-down.svg", colors.FG)});
 }}
 QSpinBox::up-arrow,
 QSpinBox::down-arrow,
@@ -363,7 +363,11 @@ QSpinBox::down-arrow:hover {{
 }}
 QSpinBox::up-button:disabled, QSpinBox::up-button:off,
 QSpinBox::down-button:disabled, QSpinBox::down-button:off {{
-   background: {tm.var(colors.BUTTON_PRIMARY_DISABLED)};
+   background: {tm.var(colors.BUTTON_DISABLED)};
+}}
+QSpinBox::up-arrow:off,
+QSpinBox::down-arrow:off {{
+    image: url({tm.svg("icons:chevron-down.svg", colors.FG_DISABLED)});
 }}
      """
     return buf

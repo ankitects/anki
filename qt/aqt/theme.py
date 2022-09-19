@@ -52,6 +52,7 @@ class Theme(enum.IntEnum):
 
 class ThemeManager:
     _night_mode_preference = False
+    _svg_cache: dict[str, str] = {}
     _icon_cache_light: dict[str, QIcon] = {}
     _icon_cache_dark: dict[str, QIcon] = {}
     _icon_size = 128
@@ -85,14 +86,24 @@ class ThemeManager:
 
     night_mode = property(get_night_mode, set_night_mode)
 
-    def svg(self, path: str, color: tuple[str, str]) -> None:
+    def svg(self, path: str, color: tuple[str, str]) -> str:
+        "Create SVG copy with specified fill color."
         from aqt.utils import aqt_data_folder
+        cache = self._svg_cache
 
-        path = os.path.join(aqt_data_folder(), "qt", path.replace(":", "/"))
-        # set read and write permission
-        os.chmod(path, stat.S_IREAD | stat.S_IWRITE)
+        if m:=  re.match(r"(?:icons:)(.+)(?:\.svg)", path):
+            name = m.group(1)
+        else:
+            return path
 
-        with open(path, "r") as file:
+        key = f'{name}-{color[1 if self.night_mode else 0]}'
+
+        existing_path = cache.get(key)
+        if existing_path:
+            return existing_path
+
+        src_path = os.path.join(aqt_data_folder(), "qt", re.sub(r":", "/", path))
+        with open(src_path, "r") as file:
             data = file.read()
 
         if "fill" in data:
@@ -100,10 +111,12 @@ class ThemeManager:
         else:
             data = re.sub(r"<svg", f'<svg fill="{self.var(color)}" ', data, 1)
 
-        with open(path, "w") as file:
+        copy_path = os.path.join(os.path.join(aqt_data_folder(), "qt", "icons"), f"{key}.svg")
+        # create copy with specified fill color
+        with open(copy_path, "w") as file:
             file.write(data)
 
-        return path
+        return cache.setdefault(key, copy_path)
 
     def icon_from_resources(self, path: str | ColoredIcon) -> QIcon:
         "Fetch icon from Qt resources."

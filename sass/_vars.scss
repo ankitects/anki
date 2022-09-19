@@ -34,8 +34,8 @@ $vars: (
                 dark: palette(lightgray, 3),
             ),
             disabled: (
-                light: palette(darkgray, 3),
-                dark: palette(lightgray, 6),
+                light: palette(darkgray, 2),
+                dark: palette(lightgray, 8),
             ),
             faint: (
                 light: palette(lightgray, 7),
@@ -96,6 +96,10 @@ $vars: (
                     light: palette(lightgray, 9),
                     dark: palette(darkgray, 9),
                 ),
+            ),
+            disabled: (
+                light: color.scale(palette(lightgray, 5), $alpha: -50%),
+                dark: color.scale(palette(darkgray, 3), $alpha: -50%),
             ),
             gradient: (
                 start: (
