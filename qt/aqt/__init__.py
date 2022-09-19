@@ -347,23 +347,32 @@ class AnkiApp(QApplication):
     def eventFilter(self, src: Any, evt: QEvent) -> bool:
         if evt.type() == QEvent.Type.HoverEnter:
             if (
-                isinstance(
-                    src,
-                    (
-                        QPushButton,
-                        QCheckBox,
-                        # classes with PyQt5 compatibility proxy
-                        QToolButton._without_compat_wrapper(),
-                        QTabBar._without_compat_wrapper(),
-                    ),
+                (
+                    isinstance(
+                        src,
+                        (
+                            QPushButton,
+                            QCheckBox,
+                            # classes with PyQt5 compatibility proxy
+                            QToolButton._without_compat_wrapper(),
+                            QTabBar._without_compat_wrapper(),
+                        ),
+                    )
                 )
-            ) and src.isEnabled():
+                and src.isEnabled()
+                or (
+                    isinstance(src, QComboBox._without_compat_wrapper())
+                    and not src.isEditable()
+                )
+            ):
                 self.setOverrideCursor(QCursor(Qt.CursorShape.PointingHandCursor))
             else:
                 self.restoreOverrideCursor()
             return False
 
-        elif evt.type() == QEvent.Type.HoverLeave or isinstance(evt, QCloseEvent):
+        elif evt.type() in [QEvent.Type.HoverLeave, QEvent.Type.Leave] or isinstance(
+            evt, QCloseEvent
+        ):
             self.restoreOverrideCursor()
             return False
 
