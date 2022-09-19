@@ -30,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <SpinBoxRow
                 bind:value={$config.capAnswerTimeToSecs}
                 defaultValue={defaults.capAnswerTimeToSecs}
-                min={30}
+                min={1}
                 max={7200}
                 markdownTooltip={tr.deckConfigMaximumAnswerSecsTooltip()}
             >
