@@ -666,7 +666,7 @@
      </widget>
     </widget>
    </item>
-   <item>
+   <item alignment="Qt::AlignCenter">
     <widget class="QLabel" name="label_21">
      <property name="text">
       <string>preferences_some_settings_will_take_effect_after</string>
