@@ -4,6 +4,28 @@ from aqt import colors, props
 from aqt.theme import ThemeManager
 
 
+def button_gradient(start: str, end: str) -> str:
+    return f"""
+qlineargradient(
+    spread:pad, x1:0.5, y1:0, x2:0.5, y2:1.25,
+    stop:0 {start},
+    stop:1 {end}
+);
+    """
+
+
+def button_pressed_gradient(start: str, end: str, shadow: str) -> str:
+    return f"""
+qlineargradient(
+    spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
+    stop:0 {shadow},
+    stop:0.1 {start},
+    stop:0.9 {end},
+    stop:1 {shadow}
+);
+    """
+
+
 def general_styles(tm: ThemeManager, buf: str) -> str:
     buf += f"""
 QFrame {{
@@ -45,34 +67,53 @@ def button_styles(tm: ThemeManager, buf: str) -> str:
 QPushButton,
 QTabBar::tab:!selected,
 QComboBox:!editable {{
-    background: qlineargradient(
-        spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
-        stop:0 {tm.var(colors.BUTTON_GRADIENT_START)},
-        stop:1 {tm.var(colors.BUTTON_GRADIENT_END)}
-    );
-
+    background: {
+        button_gradient(
+            tm.var(colors.BUTTON_GRADIENT_START),
+            tm.var(colors.BUTTON_GRADIENT_END)
+        )
+    };
 }}
 QPushButton:hover,
 QTabBar::tab:hover,
 QComboBox:!editable:hover {{
-    background: qlineargradient(
-        spread:pad, x1:0.5, y1:0, x2:0.5, y2:1.25,
-        stop:0 {tm.var(colors.BUTTON_HOVER_GRADIENT_START)},
-        stop:1 {tm.var(colors.BUTTON_HOVER_GRADIENT_END)}
-    );
+    background: {
+        button_gradient(
+            tm.var(colors.BUTTON_HOVER_GRADIENT_START),
+            tm.var(colors.BUTTON_HOVER_GRADIENT_END)
+        )
+    };
 }}
 QPushButton:pressed,
 QComboBox:!editable:pressed {{
     border: 1px solid {tm.var(colors.BUTTON_PRESSED_BORDER)};
-    background: qlineargradient(
-        spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
-        stop:0 {tm.var(colors.BUTTON_PRESSED_SHADOW)},
-        stop:0.1 {tm.var(colors.BUTTON_GRADIENT_START)},
-        stop:0.9 {tm.var(colors.BUTTON_GRADIENT_END)},
-        stop:1 {tm.var(colors.BUTTON_PRESSED_SHADOW)},
-    );
+    background: {
+        button_pressed_gradient(
+            tm.var(colors.BUTTON_GRADIENT_START),
+            tm.var(colors.BUTTON_GRADIENT_END),
+            tm.var(colors.BUTTON_PRESSED_SHADOW)
+        )
+    };
 }}
     """
+    return buf
+
+
+def splitter_styles(tm: ThemeManager, buf: str) -> str:
+    buf += """
+QSplitter::handle,
+QMainWindow::separator {
+    height: 16px;
+}
+QSplitter::handle:vertical,
+QMainWindow::separator:horizontal {
+    image: url(icons:drag-horizontal.svg);
+}
+QSplitter::handle:horizontal,
+QMainWindow::separator:vertical {
+    image: url(icons:drag-vertical.svg);
+}
+"""
     return buf
 
 
@@ -118,18 +159,20 @@ QComboBox::down-arrow {{
     image: url(icons:chevron-down.svg);
 }}
 QComboBox::drop-down {{
-    background: qlineargradient(
-        spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
-        stop:0 {tm.var(colors.BUTTON_PRIMARY_GRADIENT_START)},
-        stop:1 {tm.var(colors.BUTTON_PRIMARY_GRADIENT_END)}
-    );
+    background: {
+        button_gradient(
+            tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
+            tm.var(colors.BUTTON_PRIMARY_GRADIENT_END)
+        )
+    };
 }}
 QComboBox::drop-down:hover {{
-    background: qlineargradient(
-        spread:pad, x1:0.5, y1:0, x2:0.5, y2:1.25,
-        stop:0 {tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_START)},
-        stop:1 {tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_END)}
-    );
+    background: {
+        button_gradient(
+            tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_START),
+            tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_END)
+        )
+    };
 }}
     """
     return buf
@@ -145,7 +188,7 @@ QTabWidget::pane {{
   top: -15px;
   padding-top: 1em;
   background: {tm.var(colors.CANVAS_ELEVATED)};
-  border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+  border: 1px solid {tm.var(colors.BORDER)};
   border-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QTabWidget::tab-bar {{
@@ -157,7 +200,7 @@ QTabBar::tab {{
   min-width: 8ex;
 }}
 QTabBar::tab {{
-  border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+  border: 1px solid {tm.var(colors.BORDER)};
 }}
 QTabBar::tab:first {{
   border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
@@ -172,11 +215,12 @@ QTabBar::tab:last {{
 }}
 QTabBar::tab:selected {{
     color: white;
-    background: qlineargradient(
-        spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
-        stop:0 {tm.var(colors.BUTTON_PRIMARY_GRADIENT_START)},
-        stop:1 {tm.var(colors.BUTTON_PRIMARY_GRADIENT_END)}
-    );
+    background: {
+        button_gradient(
+            tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
+            tm.var(colors.BUTTON_PRIMARY_GRADIENT_END)
+        )
+    };
 }}
     """
     return buf
@@ -185,43 +229,43 @@ QTabBar::tab:selected {{
 def table_styles(tm: ThemeManager, buf: str) -> str:
     buf += f"""
 QTableView {{
-    background: none;
-    top: 2px;
-    border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     border-radius: {tm.var(props.BORDER_RADIUS)};
-    gridline-color: {tm.var(colors.BORDER_SUBTLE)}; 
+    gridline-color: {tm.var(colors.BORDER)};
+    selection-background-color: {tm.var(colors.SELECTION_BG)};
+    selection-color: {tm.var(colors.SELECTION_FG)};
 }}
 QHeaderView {{
     background: {tm.var(colors.CANVAS)};
 }}
 QHeaderView::section {{
     border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-    background: qlineargradient(
-        spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
-        stop:0 {tm.var(colors.BUTTON_GRADIENT_START)},
-        stop:1 {tm.var(colors.BUTTON_GRADIENT_END)}
-    );
+    background: {
+        button_gradient(
+            tm.var(colors.BUTTON_GRADIENT_START),
+            tm.var(colors.BUTTON_GRADIENT_END)
+        )
+    };
 }}
-QHeaderView::section:pressed {{
+QHeaderView::section:pressed,
+QHeaderView::section:pressed:!first {{
     border: 1px solid {tm.var(colors.BUTTON_PRESSED_BORDER)};
-    background: qlineargradient(
-        spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
-        stop:0 {tm.var(colors.BUTTON_PRESSED_SHADOW)},
-        stop:0.1 {tm.var(colors.BUTTON_GRADIENT_START)},
-        stop:0.9 {tm.var(colors.BUTTON_GRADIENT_END)},
-        stop:1 {tm.var(colors.BUTTON_PRESSED_SHADOW)},
-    );
+    background: {
+        button_pressed_gradient(
+            tm.var(colors.BUTTON_GRADIENT_START),
+            tm.var(colors.BUTTON_GRADIENT_END),
+            tm.var(colors.BUTTON_PRESSED_SHADOW)
+        )
+    }
 }}
 QHeaderView::section:hover {{
-    background: qlineargradient(
-        spread:pad, x1:0.5, y1:0, x2:0.5, y2:1.25,
-        stop:0 {tm.var(colors.BUTTON_HOVER_GRADIENT_START)},
-        stop:1 {tm.var(colors.BUTTON_HOVER_GRADIENT_END)}
-    );
+    background: {
+        button_gradient(
+            tm.var(colors.BUTTON_HOVER_GRADIENT_START),
+            tm.var(colors.BUTTON_HOVER_GRADIENT_END)
+        )
+    };
 }}
 QHeaderView::section:first {{
-    margin-left: -1px;
-    border-top: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
     border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
     border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
 }}
@@ -229,20 +273,12 @@ QHeaderView::section:!first {{
     border-left: none;
 }}
 QHeaderView::section:last {{
-    border-top: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
     border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
     border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
-QHeaderView::section:next-selected {{
-    border-right: none;
-}}
-QHeaderView::section:previous-selected {{
-    border-left: none;
-}}
 QHeaderView::section:only-one {{
     border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
-    border-top: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
-    border-right: 1px solid {tm.var(colors.CANVAS)};
+    border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
     border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
@@ -268,30 +304,32 @@ QSpinBox::down-button {{
     subcontrol-origin: border;
     width: 16px;
     border: 1px solid {tm.var(colors.BUTTON_BORDER)};
-    background: qlineargradient(
-        spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
-        stop:0 {tm.var(colors.BUTTON_PRIMARY_GRADIENT_START)},
-        stop:1 {tm.var(colors.BUTTON_PRIMARY_GRADIENT_END)}
-    );
+    background: {
+        button_gradient(
+            tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
+            tm.var(colors.BUTTON_PRIMARY_GRADIENT_END)
+        )
+    };
 }}
 QSpinBox::up-button:pressed,
 QSpinBox::down-button:pressed {{
     border: 1px solid {tm.var(colors.BUTTON_PRESSED_BORDER)};
-    background: qlineargradient(
-        spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
-        stop:0 {tm.var(colors.BUTTON_PRESSED_SHADOW)},
-        stop:0.1 {tm.var(colors.BUTTON_PRIMARY_GRADIENT_START)},
-        stop:0.9 {tm.var(colors.BUTTON_PRIMARY_GRADIENT_END)},
-        stop:1 {tm.var(colors.BUTTON_PRESSED_SHADOW)},
-    );
+    background: {
+        button_pressed_gradient(
+            tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
+            tm.var(colors.BUTTON_PRIMARY_GRADIENT_END),
+            tm.var(colors.BUTTON_PRESSED_SHADOW)
+        )
+    }
 }}
 QSpinBox::up-button:hover,
 QSpinBox::down-button:hover {{
-    background: qlineargradient(
-        spread:pad, x1:0.5, y1:0, x2:0.5, y2:1.25,
-        stop:0 {tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_START)},
-        stop:1 {tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_END)}
-    );
+    background: {
+        button_gradient(
+            tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_START),
+            tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_END)
+        )
+    };
 }}
 QSpinBox::up-button {{
     margin-bottom: -1px;
@@ -338,7 +376,8 @@ QAbstractScrollArea::corner {{
     border: none;
 }}
 QScrollBar {{
-    background-color: {tm.var(colors.CANVAS)};
+    subcontrol-origin: content;
+    background-color: transparent;
 }}
 QScrollBar::handle {{
     border-radius: {tm.var(props.BORDER_RADIUS)};
@@ -354,13 +393,13 @@ QScrollBar:horizontal {{
     height: 12px;
 }}
 QScrollBar::handle:horizontal {{
-    min-width: 50px;
+    min-width: 60px;
 }} 
 QScrollBar:vertical {{
     width: 12px;
 }}
 QScrollBar::handle:vertical {{
-    min-height: 50px;
+    min-height: 60px;
 }} 
 QScrollBar::add-line {{
       border: none;

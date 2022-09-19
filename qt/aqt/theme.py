@@ -186,7 +186,9 @@ class ThemeManager:
         gui_hooks.theme_did_change()
 
     def _apply_style(self, app: QApplication) -> None:
-        buf = ""
+        from aqt.stylesheets import splitter_styles
+
+        buf = splitter_styles(self, "")
 
         if not is_mac:
             from aqt.stylesheets import (

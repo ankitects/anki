@@ -60,8 +60,8 @@ $vars: (
         ),
         border: (
             default: (
-                light: palette(lightgray, 7),
-                dark: palette(darkgray, 7),
+                light: palette(lightgray, 6),
+                dark: palette(darkgray, 6),
             ),
             subtle: (
                 light: palette(lightgray, 5),
@@ -108,7 +108,7 @@ $vars: (
                         dark: palette(darkgray, 2),
                     ),
                     end: (
-                        light: palette(lightgray, 3),
+                        light: palette(lightgray, 4),
                         dark: palette(darkgray, 3),
                     ),
                 ),
@@ -149,15 +149,15 @@ $vars: (
         scrollbar: (
             bg: (
                 default: (
-                    light: palette(lightgray, 6),
+                    light: palette(lightgray, 5),
                     dark: palette(darkgray, 4),
                 ),
                 hover: (
-                    light: palette(lightgray, 7),
+                    light: palette(lightgray, 6),
                     dark: palette(darkgray, 3),
                 ),
                 active: (
-                    light: palette(lightgray, 8),
+                    light: palette(lightgray, 7),
                     dark: palette(darkgray, 1),
                 ),
             ),
@@ -257,6 +257,16 @@ $vars: (
             bg: (
                 light: palette(blue, 3),
                 dark: palette(blue, 4),
+            ),
+            fg: (
+                light: black,
+                dark: white,
+            ),
+        ),
+        selection: (
+            bg: (
+                light: color.scale(palette(lightgray, 5), $alpha: -50%),
+                dark: color.scale(palette(blue, 3), $alpha: -50%),
             ),
             fg: (
                 light: black,
