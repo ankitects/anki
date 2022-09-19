@@ -21,6 +21,7 @@ from anki.lang import without_unicode_isolation
 from anki.sync import SyncAuth
 from anki.utils import int_time, is_mac, is_win, point_version
 from aqt import appHelpSite
+from aqt.enums import BrowserLayout
 from aqt.qt import *
 from aqt.theme import Theme
 from aqt.utils import disable_help_button, send_to_trash, showWarning, tr
@@ -542,11 +543,11 @@ create table if not exists profiles
     def set_theme(self, theme: Theme) -> None:
         self.meta["theme"] = theme.value
 
-    def browser_orientation(self) -> int:
-        return self.meta.get("browser_orientation", 1)
+    def browser_layout(self) -> BrowserLayout:
+        return BrowserLayout(self.meta.get("browser_layout", "auto"))
 
-    def set_browser_orientation(self, mode: int) -> None:
-        self.meta["browser_orientation"] = mode
+    def set_browser_layout(self, layout: BrowserLayout) -> None:
+        self.meta["browser_layout"] = layout.value
 
     def legacy_import_export(self) -> bool:
         return self.meta.get("legacy_import", False)

@@ -6,7 +6,6 @@ from __future__ import annotations
 import json
 import math
 import re
-from enum import Enum
 from typing import Callable, Sequence
 
 import aqt
@@ -26,6 +25,7 @@ from anki.tags import MARKED_TAG
 from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
+from aqt.enums import BrowserLayout
 from aqt.exporting import ExportDialog as LegacyExportDialog
 from aqt.import_export.exporting import ExportDialog
 from aqt.operations.card import set_card_deck, set_card_flag
@@ -45,9 +45,7 @@ from aqt.operations.tag import (
 )
 from aqt.qt import *
 from aqt.sound import av_player
-from aqt.stylesheets import tab_action_styles
 from aqt.switch import Switch
-from aqt.theme import theme_manager
 from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
@@ -100,12 +98,6 @@ class MockModel:
         self.browser.end_reset()
 
 
-class Orientation(Enum):
-    VERTICAL = 0
-    AUTO = 1
-    HORIZONTAL = 2
-
-
 class Browser(QMainWindow):
     mw: AnkiQt
     col: Collection
@@ -147,18 +139,9 @@ class Browser(QMainWindow):
         self.setupMenus()
         self.setupHooks()
         self.setupEditor()
-        # responsive orientation
+        # responsive layout
         self.aspect_ratio = self.width() / self.height()
-        self.auto_orientation = (
-            self.mw.pm.browser_orientation() == Orientation.AUTO.value
-        )
-        if self.auto_orientation:
-            self.auto_toggle_orientation(self.aspect_ratio, True)
-        else:
-            if self.mw.pm.browser_orientation() == Orientation.VERTICAL.value:
-                self.form.splitter.setOrientation(Qt.Orientation.Vertical)
-            else:
-                self.form.splitter.setOrientation(Qt.Orientation.Horizontal)
+        self.set_layout(self.mw.pm.browser_layout(), True)
         # disable undo/redo
         self.on_undo_state_change(mw.undo_actions_info())
         # legacy alias
@@ -202,43 +185,47 @@ class Browser(QMainWindow):
             self.table.redraw_cells()
             self.sidebar.refresh_if_needed()
 
-    def set_orientation(self, vertical: bool) -> None:
-        if vertical:
-            self.form.splitter.setOrientation(Qt.Orientation.Vertical)
+    def set_layout(self, mode: BrowserLayout, init: bool = False) -> None:
+        self.mw.pm.set_browser_layout(mode)
+
+        if mode == BrowserLayout.AUTO:
+            self.auto_layout = True
+            self.maybe_update_layout(self.aspect_ratio, True)
+            self.form.actionLayoutAuto.setChecked(True)
+            self.form.actionLayoutVertical.setChecked(False)
+            self.form.actionLayoutHorizontal.setChecked(False)
+            if not init:
+                tooltip(tr.qt_accel_layout_auto_enabled())
         else:
-            self.form.splitter.setOrientation(Qt.Orientation.Horizontal)
+            self.auto_layout = False
+            self.form.actionLayoutAuto.setChecked(False)
 
-    def on_toggle_orientation(self) -> None:
-        mode = self.orientationSwitch.currentIndex()
+            if mode == BrowserLayout.VERTICAL:
+                self.form.splitter.setOrientation(Qt.Orientation.Vertical)
+                self.form.actionLayoutVertical.setChecked(True)
+                self.form.actionLayoutHorizontal.setChecked(False)
+                if not init:
+                    tooltip(tr.qt_accel_layout_vertical_enabled())
 
-        if mode == Orientation.AUTO.value:
-            self.auto_orientation = True
-            self.auto_toggle_orientation(self.aspect_ratio, True)
-            tooltip(tr.qt_accel_orientation_auto_enabled())
-        else:
-            self.auto_orientation = False
-            if mode == Orientation.VERTICAL.value:
-                self.set_orientation(True)
-                tooltip(tr.qt_accel_orientation_vertical_enabled())
-            else:
-                self.set_orientation(False)
-                tooltip(tr.qt_accel_orientation_horizontal_enabled())
+            elif mode == BrowserLayout.HORIZONTAL:
+                self.form.splitter.setOrientation(Qt.Orientation.Horizontal)
+                self.form.actionLayoutHorizontal.setChecked(True)
+                self.form.actionLayoutVertical.setChecked(False)
+                if not init:
+                    tooltip(tr.qt_accel_layout_horizontal_enabled())
 
-        self.mw.pm.set_browser_orientation(mode)
-
-    def auto_toggle_orientation(self, aspect_ratio: float, force: bool = False) -> None:
-
+    def maybe_update_layout(self, aspect_ratio: float, force: bool = False) -> None:
         if force or math.floor(aspect_ratio) != math.floor(self.aspect_ratio):
             if aspect_ratio < 1:
-                self.set_orientation(True)
+                self.form.splitter.setOrientation(Qt.Orientation.Vertical)
             else:
-                self.set_orientation(False)
+                self.form.splitter.setOrientation(Qt.Orientation.Horizontal)
 
     def resizeEvent(self, event: QResizeEvent) -> None:
         aspect_ratio = self.width() / self.height()
 
-        if self.auto_orientation:
-            self.auto_toggle_orientation(aspect_ratio)
+        if self.auto_layout:
+            self.maybe_update_layout(aspect_ratio)
 
         self.aspect_ratio = aspect_ratio
 
@@ -272,23 +259,18 @@ class Browser(QMainWindow):
             f.actionResetZoom.triggered,
             lambda: self.editor.web.setZoomFactor(1),
         )
-        # orientation switch: tab widget with invisible panes
-        self.orientationWidgetAction = QWidgetAction(self)
-        self.orientationWidget = QWidget()
-        self.orientationWidget.setStyleSheet(tab_action_styles(theme_manager))
-        self.orientationWidgetLayout = QHBoxLayout(self.orientationWidget)
-        self.orientationWidgetLayout.setContentsMargins(29, 10, 10, 10)
-        self.orientationSwitch = QTabWidget(self)
-        self.orientationSwitch.addTab(QWidget(), tr.qt_accel_orientation_vertical())
-        self.orientationSwitch.addTab(QWidget(), tr.qt_accel_orientation_auto())
-        self.orientationSwitch.addTab(QWidget(), tr.qt_accel_orientation_horizontal())
-        self.orientationSwitch.setCurrentIndex(self.mw.pm.browser_orientation())
-        self.orientationWidgetLayout.addWidget(QLabel(tr.qt_accel_orientation()))
-        self.orientationWidgetLayout.addWidget(self.orientationSwitch)
-        self.orientationWidgetAction.setDefaultWidget(self.orientationWidget)
-        f.menuqt_accel_view.addSeparator()
-        f.menuqt_accel_view.addAction(self.orientationWidgetAction)
-        qconnect(self.orientationSwitch.currentChanged, self.on_toggle_orientation)
+        qconnect(
+            self.form.actionLayoutAuto.triggered,
+            lambda: self.set_layout(BrowserLayout.AUTO),
+        )
+        qconnect(
+            self.form.actionLayoutVertical.triggered,
+            lambda: self.set_layout(BrowserLayout.VERTICAL),
+        )
+        qconnect(
+            self.form.actionLayoutHorizontal.triggered,
+            lambda: self.set_layout(BrowserLayout.HORIZONTAL),
+        )
 
         # notes
         qconnect(f.actionAdd.triggered, self.mw.onAddCard)
