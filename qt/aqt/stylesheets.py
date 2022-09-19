@@ -100,19 +100,19 @@ QComboBox:!editable:pressed {{
 
 
 def splitter_styles(tm: ThemeManager, buf: str) -> str:
-    buf += """
+    buf += f"""
 QSplitter::handle,
-QMainWindow::separator {
+QMainWindow::separator {{
     height: 16px;
-}
+}}
 QSplitter::handle:vertical,
-QMainWindow::separator:horizontal {
-    image: url(icons:drag-horizontal.svg);
-}
+QMainWindow::separator:horizontal {{
+    image: url({tm.svg("icons:drag-horizontal.svg", colors.FG_SUBTLE)});
+}}
 QSplitter::handle:horizontal,
-QMainWindow::separator:vertical {
-    image: url(icons:drag-vertical.svg);
-}
+QMainWindow::separator:vertical {{
+    image: url({tm.svg("icons:drag-vertical.svg", colors.FG_SUBTLE)});
+}}
 """
     return buf
 
@@ -156,7 +156,7 @@ QComboBox::drop-down {{
     border-bottom-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QComboBox::down-arrow {{
-    image: url(icons:chevron-down.svg);
+    image: url({tm.svg("icons:chevron-down.svg", colors.WHITE)});
 }}
 QComboBox::drop-down {{
     background: {
@@ -288,10 +288,10 @@ QHeaderView::down-arrow {{
     height: 20px;
 }}
 QHeaderView::up-arrow {{
-    image: url(icons:menu-up.svg);
+    image: url({tm.svg("icons:menu-up.svg", colors.FG)});
 }}
 QHeaderView::down-arrow {{
-    image: url(icons:menu-down.svg);
+    image: url({tm.svg("icons:menu-down.svg", colors.FG)});
 }}
     """
     return buf
@@ -342,10 +342,10 @@ QSpinBox::down-button {{
     border-bottom-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QSpinBox::up-arrow {{
-    image: url(icons:chevron-up.svg);
+    image: url({tm.svg("icons:chevron-up.svg", colors.WHITE)});
 }}
 QSpinBox::down-arrow {{
-    image: url(icons:chevron-down.svg);
+    image: url({tm.svg("icons:chevron-down.svg", colors.WHITE)});
 }}
 QSpinBox::up-arrow,
 QSpinBox::down-arrow,
