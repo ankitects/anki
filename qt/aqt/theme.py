@@ -7,7 +7,6 @@ import enum
 import os
 import platform
 import re
-import stat
 import subprocess
 from dataclasses import dataclass
 from typing import Callable, List, Tuple
@@ -15,17 +14,7 @@ from typing import Callable, List, Tuple
 import aqt
 from anki.utils import is_lin, is_mac, is_win
 from aqt import QApplication, colors, gui_hooks
-from aqt.qt import (
-    QColor,
-    QDir,
-    QGuiApplication,
-    QIcon,
-    QPainter,
-    QPalette,
-    QPixmap,
-    QStyleFactory,
-    Qt,
-)
+from aqt.qt import QColor, QGuiApplication, QIcon, QPainter, QPalette, QStyleFactory, Qt
 
 
 @dataclass
@@ -89,21 +78,22 @@ class ThemeManager:
     def svg(self, path: str, color: tuple[str, str]) -> str:
         "Create SVG copy with specified fill color."
         from aqt.utils import aqt_data_folder
+
         cache = self._svg_cache
 
-        if m:=  re.match(r"(?:icons:)(.+)(?:\.svg)", path):
+        if m := re.match(r"(?:icons:)(.+)(?:\.svg)", path):
             name = m.group(1)
         else:
             return path
 
-        key = f'{name}-{color[1 if self.night_mode else 0]}'
+        key = f"{name}-{color[1 if self.night_mode else 0]}"
 
         existing_path = cache.get(key)
         if existing_path:
             return existing_path
 
         src_path = os.path.join(aqt_data_folder(), "qt", re.sub(r":", "/", path))
-        with open(src_path, "r") as file:
+        with open(src_path, "r", encoding="UTF-8") as file:
             data = file.read()
 
         if "fill" in data:
@@ -111,9 +101,11 @@ class ThemeManager:
         else:
             data = re.sub(r"<svg", f'<svg fill="{self.var(color)}" ', data, 1)
 
-        copy_path = os.path.join(os.path.join(aqt_data_folder(), "qt", "icons"), f"{key}.svg")
+        copy_path = os.path.join(
+            os.path.join(aqt_data_folder(), "qt", "icons"), f"{key}.svg"
+        )
         # create copy with specified fill color
-        with open(copy_path, "w") as file:
+        with open(copy_path, "w", encoding="UTF-8") as file:
             file.write(data)
 
         return cache.setdefault(key, copy_path)
