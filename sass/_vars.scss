@@ -18,6 +18,12 @@ $vars: (
         ),
     ),
     colors: (
+        white: (
+            default: white,
+        ),
+        black: (
+            default: black,
+        ),
         fg: (
             default: (
                 light: palette(darkgray, 9),
