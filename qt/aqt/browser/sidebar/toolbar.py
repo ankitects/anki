@@ -22,12 +22,12 @@ class SidebarToolbar(QToolBar):
     _tools: tuple[tuple[SidebarTool, str, Callable[[], str]], ...] = (
         (
             SidebarTool.SEARCH,
-            "icons:magnify.svg",
+            "mdi:magnify",
             tr.actions_search,
         ),
         (
             SidebarTool.SELECT,
-            "icons:selection-drag.svg",
+            "mdi:selection-drag",
             tr.actions_select,
         ),
     )

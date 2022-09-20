@@ -107,11 +107,11 @@ QMainWindow::separator {{
 }}
 QSplitter::handle:vertical,
 QMainWindow::separator:horizontal {{
-    image: url({tm.svg("icons:drag-horizontal.svg", colors.FG_SUBTLE)});
+    image: url({tm.themed_icon("mdi:drag-horizontal-FG_SUBTLE")});
 }}
 QSplitter::handle:horizontal,
 QMainWindow::separator:vertical {{
-    image: url({tm.svg("icons:drag-vertical.svg", colors.FG_SUBTLE)});
+    image: url({tm.themed_icon("mdi:drag-vertical-FG_SUBTLE")});
 }}
 """
     return buf
@@ -156,7 +156,7 @@ QComboBox::drop-down {{
     border-bottom-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QComboBox::down-arrow {{
-    image: url({tm.svg("icons:chevron-down.svg")});
+    image: url({tm.themed_icon("mdi:chevron-down")});
 }}
 QComboBox::drop-down {{
     background: {
@@ -288,10 +288,10 @@ QHeaderView::down-arrow {{
     height: 20px;
 }}
 QHeaderView::up-arrow {{
-    image: url({tm.svg("icons:menu-up.svg")});
+    image: url({tm.themed_icon("mdi:menu-up")});
 }}
 QHeaderView::down-arrow {{
-    image: url({tm.svg("icons:menu-down.svg")});
+    image: url({tm.themed_icon("mdi:menu-down")});
 }}
     """
     return buf
@@ -342,10 +342,10 @@ QSpinBox::down-button {{
     border-bottom-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QSpinBox::up-arrow {{
-    image: url({tm.svg("icons:chevron-up.svg")});
+    image: url({tm.themed_icon("mdi:chevron-up")});
 }}
 QSpinBox::down-arrow {{
-    image: url({tm.svg("icons:chevron-down.svg")});
+    image: url({tm.themed_icon("mdi:chevron-down")});
 }}
 QSpinBox::up-arrow,
 QSpinBox::down-arrow,
@@ -367,7 +367,7 @@ QSpinBox::down-button:disabled, QSpinBox::down-button:off {{
 }}
 QSpinBox::up-arrow:off,
 QSpinBox::down-arrow:off {{
-    image: url({tm.svg("icons:chevron-down.svg", colors.FG_DISABLED)});
+    image: url({tm.themed_icon("mdi:chevron-down-FG_DISABLED")});
 }}
      """
     return buf
@@ -393,10 +393,10 @@ QCheckBox::indicator:checked:hover {{
     height: 14px;
 }}
 QCheckBox::indicator:checked {{
-    image: url({tm.svg("icons:check.svg")});
+    image: url({tm.themed_icon("mdi:check")});
 }}
 QCheckBox::indicator:indeterminate {{
-    image: url({tm.svg("icons:minus-thick.svg")});
+    image: url({tm.themed_icon("mdi:minus-thick")});
 }}
     """
     return buf

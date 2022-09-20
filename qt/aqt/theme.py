@@ -14,7 +14,16 @@ from typing import Callable, List, Tuple
 import aqt
 from anki.utils import is_lin, is_mac, is_win
 from aqt import QApplication, colors, gui_hooks
-from aqt.qt import QColor, QGuiApplication, QIcon, QPainter, QPalette, QStyleFactory, Qt
+from aqt.qt import (
+    QColor,
+    QGuiApplication,
+    QIcon,
+    QPainter,
+    QPalette,
+    QPixmap,
+    QStyleFactory,
+    Qt,
+)
 
 
 @dataclass
@@ -41,7 +50,6 @@ class Theme(enum.IntEnum):
 
 class ThemeManager:
     _night_mode_preference = False
-    _svg_cache: dict[str, str] = {}
     _icon_cache_light: dict[str, QIcon] = {}
     _icon_cache_dark: dict[str, QIcon] = {}
     _icon_size = 128
@@ -75,40 +83,18 @@ class ThemeManager:
 
     night_mode = property(get_night_mode, set_night_mode)
 
-    def svg(self, path: str, color: tuple[str, str] = colors.FG) -> str:
-        "Create SVG copy with specified fill color."
+    def themed_icon(self, path: str) -> str:
+        "Fetch themed version of svg."
         from aqt.utils import aqt_data_folder
 
-        cache = self._svg_cache
-
-        if m := re.match(r"(?:icons:)(.+)(?:\.svg)", path):
+        if m := re.match(r"(?:mdi:)(.+)$", path):
             name = m.group(1)
         else:
             return path
 
-        key = f"{name}-{color[1 if self.night_mode else 0]}"
+        filename = f"{name}-{'dark' if self.night_mode else 'light'}.svg"
 
-        existing_path = cache.get(key)
-        if existing_path:
-            return existing_path
-
-        src_path = os.path.join(aqt_data_folder(), "qt", re.sub(r":", "/", path))
-        with open(src_path, "r", encoding="UTF-8") as file:
-            data = file.read()
-
-        if "fill" in data:
-            data = re.sub(r"fill=\"#.+?\"", f'fill="{self.var(color)}"', data)
-        else:
-            data = re.sub(r"<svg", f'<svg fill="{self.var(color)}" ', data, 1)
-
-        copy_path = os.path.join(
-            os.path.join(aqt_data_folder(), "qt", "icons"), f"{key}.svg"
-        )
-        # create copy with specified fill color
-        with open(copy_path, "w", encoding="UTF-8") as file:
-            file.write(data)
-
-        return cache.setdefault(key, copy_path)
+        return os.path.join(aqt_data_folder(), "qt", "icons", filename)
 
     def icon_from_resources(self, path: str | ColoredIcon) -> QIcon:
         "Fetch icon from Qt resources."
@@ -128,8 +114,14 @@ class ThemeManager:
 
         if isinstance(path, str):
             # default black/white
-            icon = QIcon(self.svg(path, colors.FG))
-
+            if "mdi:" in path:
+                icon = QIcon(self.themed_icon(path))
+            else:
+                icon = QIcon(path)
+                if self.night_mode:
+                    img = icon.pixmap(self._icon_size, self._icon_size).toImage()
+                    img.invertPixels()
+                    icon = QIcon(QPixmap(img))
         else:
             # specified colours
             icon = QIcon(path.path)

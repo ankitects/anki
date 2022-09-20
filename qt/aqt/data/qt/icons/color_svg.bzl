@@ -1,12 +1,29 @@
-def color_svg(name, color = "FG", visibility = ["//qt:__submodules__"]):
+def color_svg(name, extra_colors = [], visibility = ["//qt:__submodules__"]):
     native.genrule(
         name = name,
-        srcs = ["mdi-icons"],
+        srcs = ["mdi-themed"],
         outs = [
-            name + "-dark.svg",
-            name + "-light.svg",
-        ],
-        cmd = "$(location color_svg) {} {}.svg $(OUTS) $(SRCS)".format(color, name),
+                name + "-light.svg",
+            ] + [
+                # additional light colors
+                "{}{}{}".format(
+                    name,
+                    "-{}".format(color),
+                    "-light.svg"
+                ) for color in extra_colors
+            ] + [
+                name + "-dark.svg",
+            ] + [
+                # additional dark colors
+                "{}{}{}".format(
+                    name,
+                    "-{}".format(color),
+                    "-dark.svg"
+                ) for color in extra_colors
+            ],
+        cmd = "$(location color_svg) {}.svg {} $(OUTS) $(SRCS)".format(
+                name, ":".join(["FG"] + extra_colors)
+            ),
         tools = [
             "color_svg",
         ],
