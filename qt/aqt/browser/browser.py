@@ -195,7 +195,7 @@ class Browser(QMainWindow):
             self.form.actionLayoutVertical.setChecked(False)
             self.form.actionLayoutHorizontal.setChecked(False)
             if not init:
-                tooltip(tr.qt_accel_layout_auto_enabled())
+                tooltip(tr.qt_misc_layout_auto_enabled())
         else:
             self.auto_layout = False
             self.form.actionLayoutAuto.setChecked(False)
@@ -205,14 +205,14 @@ class Browser(QMainWindow):
                 self.form.actionLayoutVertical.setChecked(True)
                 self.form.actionLayoutHorizontal.setChecked(False)
                 if not init:
-                    tooltip(tr.qt_accel_layout_vertical_enabled())
+                    tooltip(tr.qt_misc_layout_vertical_enabled())
 
             elif mode == BrowserLayout.HORIZONTAL:
                 self.form.splitter.setOrientation(Qt.Orientation.Horizontal)
                 self.form.actionLayoutHorizontal.setChecked(True)
                 self.form.actionLayoutVertical.setChecked(False)
                 if not init:
-                    tooltip(tr.qt_accel_layout_horizontal_enabled())
+                    tooltip(tr.qt_misc_layout_horizontal_enabled())
 
     def maybe_update_layout(self, aspect_ratio: float, force: bool = False) -> None:
         if force or math.floor(aspect_ratio) != math.floor(self.aspect_ratio):
