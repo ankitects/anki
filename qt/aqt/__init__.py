@@ -354,14 +354,14 @@ class AnkiApp(QApplication):
                             QPushButton,
                             QCheckBox,
                             # classes with PyQt5 compatibility proxy
-                            QToolButton._without_compat_wrapper(),
-                            QTabBar._without_compat_wrapper(),
+                            without_qt5_compat_wrapper(QToolButton),
+                            without_qt5_compat_wrapper(QTabBar),
                         ),
                     )
                 )
                 and src.isEnabled()
                 or (
-                    isinstance(src, QComboBox._without_compat_wrapper())
+                    isinstance(src, without_qt5_compat_wrapper(QComboBox))
                     and not src.isEditable()
                 )
             ):
