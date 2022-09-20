@@ -49,6 +49,10 @@ copy_mdi_icons(
         # drag handle
         "drag-vertical.svg",
         "drag-horizontal.svg",
+
+        # checkbox
+        "check.svg",
+        "minus-thick.svg",
     ],
 )
 

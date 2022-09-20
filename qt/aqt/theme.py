@@ -75,7 +75,7 @@ class ThemeManager:
 
     night_mode = property(get_night_mode, set_night_mode)
 
-    def svg(self, path: str, color: tuple[str, str]) -> str:
+    def svg(self, path: str, color: tuple[str, str] = colors.FG) -> str:
         "Create SVG copy with specified fill color."
         from aqt.utils import aqt_data_folder
 
@@ -219,6 +219,7 @@ class ThemeManager:
         if not is_mac:
             from aqt.stylesheets import (
                 button_styles,
+                checkbox_styles,
                 combobox_styles,
                 general_styles,
                 scrollbar_styles,
@@ -236,6 +237,7 @@ class ThemeManager:
                     tabwidget_styles(self, buf),
                     table_styles(self, buf),
                     spinbox_styles(self, buf),
+                    checkbox_styles(self, buf),
                     scrollbar_styles(self, buf),
                 ]
             )

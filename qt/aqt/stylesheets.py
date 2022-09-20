@@ -156,7 +156,7 @@ QComboBox::drop-down {{
     border-bottom-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QComboBox::down-arrow {{
-    image: url({tm.svg("icons:chevron-down.svg", colors.FG)});
+    image: url({tm.svg("icons:chevron-down.svg")});
 }}
 QComboBox::drop-down {{
     background: {
@@ -288,10 +288,10 @@ QHeaderView::down-arrow {{
     height: 20px;
 }}
 QHeaderView::up-arrow {{
-    image: url({tm.svg("icons:menu-up.svg", colors.FG)});
+    image: url({tm.svg("icons:menu-up.svg")});
 }}
 QHeaderView::down-arrow {{
-    image: url({tm.svg("icons:menu-down.svg", colors.FG)});
+    image: url({tm.svg("icons:menu-down.svg")});
 }}
     """
     return buf
@@ -342,10 +342,10 @@ QSpinBox::down-button {{
     border-bottom-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QSpinBox::up-arrow {{
-    image: url({tm.svg("icons:chevron-up.svg", colors.FG)});
+    image: url({tm.svg("icons:chevron-up.svg")});
 }}
 QSpinBox::down-arrow {{
-    image: url({tm.svg("icons:chevron-down.svg", colors.FG)});
+    image: url({tm.svg("icons:chevron-down.svg")});
 }}
 QSpinBox::up-arrow,
 QSpinBox::down-arrow,
@@ -370,6 +370,35 @@ QSpinBox::down-arrow:off {{
     image: url({tm.svg("icons:chevron-down.svg", colors.FG_DISABLED)});
 }}
      """
+    return buf
+
+
+def checkbox_styles(tm: ThemeManager, buf: str) -> str:
+    buf += f"""
+QCheckBox {{
+    spacing: 8px;
+    margin: 2px 0;
+}}
+QCheckBox::indicator {{
+    border: 1px solid {tm.var(colors.BUTTON_BORDER)};
+    border-radius: {tm.var(props.BORDER_RADIUS)};
+    background: {tm.var(colors.CANVAS_INSET)};
+    width: 16px;
+    height: 16px;
+}}
+QCheckBox::indicator:hover,
+QCheckBox::indicator:checked:hover {{
+    border: 2px solid {tm.var(colors.BORDER_STRONG)};
+    width: 14px;
+    height: 14px;
+}}
+QCheckBox::indicator:checked {{
+    image: url({tm.svg("icons:check.svg")});
+}}
+QCheckBox::indicator:indeterminate {{
+    image: url({tm.svg("icons:minus-thick.svg")});
+}}
+    """
     return buf
 
 
