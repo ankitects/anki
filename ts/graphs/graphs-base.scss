@@ -1,1 +1,10 @@
 @use "sass/base";
+@use "sass/button-mixins" as button;
+
+label,
+input[type="radio"],
+input[type="checkbox"] {
+    cursor: pointer;
+}
+
+@include button.base;

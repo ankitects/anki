@@ -14,7 +14,7 @@
    <string>custom_study_selective_study</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
+   <item alignment="Qt::AlignLeft">
     <widget class="QCheckBox" name="activeCheck">
      <property name="text">
       <string>custom_study_require_one_or_more_of_these</string>
