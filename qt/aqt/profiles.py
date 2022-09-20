@@ -10,7 +10,7 @@ import shutil
 import traceback
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import anki.lang
 import aqt.forms
@@ -24,6 +24,10 @@ from aqt import appHelpSite
 from aqt.qt import *
 from aqt.theme import Theme
 from aqt.utils import disable_help_button, send_to_trash, showWarning, tr
+
+if TYPE_CHECKING:
+    from aqt.browser.layout import BrowserLayout
+
 
 # Profile handling
 ##########################################################################
@@ -541,6 +545,14 @@ create table if not exists profiles
 
     def set_theme(self, theme: Theme) -> None:
         self.meta["theme"] = theme.value
+
+    def browser_layout(self) -> BrowserLayout:
+        from aqt.browser.layout import BrowserLayout
+
+        return BrowserLayout(self.meta.get("browser_layout", "auto"))
+
+    def set_browser_layout(self, layout: BrowserLayout) -> None:
+        self.meta["browser_layout"] = layout.value
 
     def legacy_import_export(self) -> bool:
         return self.meta.get("legacy_import", False)
