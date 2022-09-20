@@ -1,4 +1,5 @@
 load("//ts:vendor.bzl", "copy_mdi_icons")
+load("color_svg.bzl", "color_svg")
 
 copy_mdi_icons(
     name = "mdi-icons",
@@ -56,9 +57,32 @@ copy_mdi_icons(
     ],
 )
 
+py_binary(
+    name = "color_svg",
+    srcs = [
+        "color_svg.py",
+        "//qt/aqt:colors",
+    ],
+    imports = ["."],
+    visibility = [":__subpackages__"],
+)
+
+color_svg(
+    name = "chevron-down",
+)
+
+color_svg(
+    name = "drag-horizontal",
+    color = "FG_SUBTLE",
+)
+
 filegroup(
     name = "icons",
-    srcs = ["mdi-icons"] + glob([
+    srcs = [
+        "mdi-icons",
+        "chevron-down",
+        "drag-horizontal",
+    ] + glob([
         "*.svg",
         "*.png",
     ]),
