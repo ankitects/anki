@@ -23,6 +23,7 @@
 button {
     -webkit-appearance: none;
     color: vars.color(fg);
+    cursor: pointer;
 
     background: linear-gradient(
         180deg,

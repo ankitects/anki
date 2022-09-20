@@ -17,14 +17,14 @@
    <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
-   <item>
+   <item alignment="Qt::AlignLeft">
     <widget class="QCheckBox" name="restore_position">
      <property name="text">
       <string>scheduling_restore_position</string>
      </property>
     </widget>
    </item>
-   <item>
+   <item alignment="Qt::AlignLeft">
     <widget class="QCheckBox" name="reset_counts">
      <property name="text">
       <string>scheduling_reset_counts</string>
