@@ -46,7 +46,7 @@
        </sizepolicy>
       </property>
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Horizontal</enum>
       </property>
       <widget class="QWidget" name="widget" native="true">
        <property name="sizePolicy">
@@ -302,6 +302,15 @@
     <property name="title">
      <string>qt_accel_view</string>
     </property>
+    <widget class="QMenu" name="menuLayout">
+     <property name="title">
+      <string>qt_accel_layout</string>
+     </property>
+     <addaction name="actionLayoutAuto"/>
+     <addaction name="separator"/>
+     <addaction name="actionLayoutVertical"/>
+     <addaction name="actionLayoutHorizontal"/>
+    </widget>
     <addaction name="action_toggle_mode"/>
     <addaction name="separator"/>
     <addaction name="actionFullScreen"/>
@@ -309,6 +318,8 @@
     <addaction name="actionZoomIn"/>
     <addaction name="actionZoomOut"/>
     <addaction name="actionResetZoom"/>
+    <addaction name="separator"/>
+    <addaction name="menuLayout"/>
    </widget>
    <addaction name="menuEdit"/>
    <addaction name="menuqt_accel_view"/>
@@ -697,6 +708,30 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+0</string>
+   </property>
+  </action>
+  <action name="actionLayoutAuto">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>qt_accel_layout_auto</string>
+   </property>
+  </action>
+  <action name="actionLayoutVertical">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>qt_accel_layout_vertical</string>
+   </property>
+  </action>
+  <action name="actionLayoutHorizontal">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>qt_accel_layout_horizontal</string>
    </property>
   </action>
   <action name="actionbrowsing_toggle_showing_cards_notes">
