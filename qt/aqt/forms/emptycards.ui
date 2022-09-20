@@ -55,7 +55,7 @@
      <property name="bottomMargin">
       <number>12</number>
      </property>
-     <item>
+     <item  alignment="Qt::AlignLeft">
       <widget class="QCheckBox" name="keep_notes">
        <property name="text">
         <string notr="true">KEEP_NOTES</string>

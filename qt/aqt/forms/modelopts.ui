@@ -27,7 +27,7 @@
        <string>editing_latex</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="latexsvg">
          <property name="text">
           <string>notetypes_create_scalable_images_with_dvisvgm</string>

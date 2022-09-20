@@ -270,7 +270,10 @@ _enum_map = (
             ("QHeaderView", ("ResizeMode",)),
             ("QLayout", ("SizeConstraint",)),
             ("QLineEdit", ("EchoMode",)),
-            ("QListView", ("Flow", "LayoutMode", "ResizeMode", "Movement", "ViewMode")),
+            (
+                "QListView",
+                ("Flow", "BrowserLayout", "ResizeMode", "Movement", "ViewMode"),
+            ),
             ("QListWidgetItem", ("ItemType",)),
             ("QMessageBox", ("StandardButton", "Icon", "ButtonRole")),
             ("QPlainTextEdit", ("LineWrapMode",)),
