@@ -73,6 +73,7 @@ from aqt.qt import (
     qconnect,
     qtmajor,
     qtminor,
+    qVersion,
     traceback,
 )
 from aqt.theme import theme_manager
@@ -1089,7 +1090,7 @@ Add-ons, last update check: {}
 """.format(
         version_with_build(),
         platform.python_version(),
-        QT_VERSION_STR,
+        qVersion(),
         PYQT_VERSION_STR,
         platname,
         getattr(sys, "frozen", False),
