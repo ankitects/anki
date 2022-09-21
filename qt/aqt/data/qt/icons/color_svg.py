@@ -37,9 +37,7 @@ with open(input_svg, "r") as f:
             elif f"{prefix}-dark.svg" in path:
                 dark_svg = path
 
-        for (idx, (label, filename)) in enumerate(
-            (("light", light_svg), ("dark", dark_svg))
-        ):
+        for (idx, filename) in enumerate((light_svg, dark_svg)):
             data = svg_data
             if "fill" in data:
                 data = re.sub(r"fill=\"#.+?\"", f'fill="{color[idx]}"', data)
