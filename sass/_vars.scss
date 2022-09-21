@@ -18,6 +18,12 @@ $vars: (
         ),
     ),
     colors: (
+        white: (
+            default: white,
+        ),
+        black: (
+            default: black,
+        ),
         fg: (
             default: (
                 light: palette(darkgray, 9),
@@ -28,8 +34,8 @@ $vars: (
                 dark: palette(lightgray, 3),
             ),
             disabled: (
-                light: palette(darkgray, 3),
-                dark: palette(lightgray, 6),
+                light: palette(darkgray, 2),
+                dark: palette(lightgray, 8),
             ),
             faint: (
                 light: palette(lightgray, 7),
@@ -67,6 +73,10 @@ $vars: (
                 light: palette(lightgray, 5),
                 dark: palette(darkgray, 4),
             ),
+            strong: (
+                light: palette(lightgray, 9),
+                dark: palette(darkgray, 1),
+            ),
             focus: (
                 light: palette(blue, 5),
                 dark: palette(blue, 5),
@@ -90,6 +100,10 @@ $vars: (
                     light: palette(lightgray, 9),
                     dark: palette(darkgray, 9),
                 ),
+            ),
+            disabled: (
+                light: color.scale(palette(lightgray, 5), $alpha: -50%),
+                dark: color.scale(palette(darkgray, 3), $alpha: -50%),
             ),
             gradient: (
                 start: (

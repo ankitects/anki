@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import enum
+import os
 import platform
+import re
 import subprocess
 from dataclasses import dataclass
 from typing import Callable, List, Tuple
@@ -81,8 +83,21 @@ class ThemeManager:
 
     night_mode = property(get_night_mode, set_night_mode)
 
+    def themed_icon(self, path: str) -> str:
+        "Fetch themed version of svg."
+        from aqt.utils import aqt_data_folder
+
+        if m := re.match(r"(?:mdi:)(.+)$", path):
+            name = m.group(1)
+        else:
+            return path
+
+        filename = f"{name}-{'dark' if self.night_mode else 'light'}.svg"
+
+        return os.path.join(aqt_data_folder(), "qt", "icons", filename)
+
     def icon_from_resources(self, path: str | ColoredIcon) -> QIcon:
-        "Fetch icon from Qt resources, and invert if in night mode."
+        "Fetch icon from Qt resources."
         if self.night_mode:
             cache = self._icon_cache_light
         else:
@@ -99,11 +114,14 @@ class ThemeManager:
 
         if isinstance(path, str):
             # default black/white
-            icon = QIcon(path)
-            if self.night_mode:
-                img = icon.pixmap(self._icon_size, self._icon_size).toImage()
-                img.invertPixels()
-                icon = QIcon(QPixmap(img))
+            if "mdi:" in path:
+                icon = QIcon(self.themed_icon(path))
+            else:
+                icon = QIcon(path)
+                if self.night_mode:
+                    img = icon.pixmap(self._icon_size, self._icon_size).toImage()
+                    img.invertPixels()
+                    icon = QIcon(QPixmap(img))
         else:
             # specified colours
             icon = QIcon(path.path)
@@ -193,6 +211,7 @@ class ThemeManager:
         if not is_mac:
             from aqt.stylesheets import (
                 button_styles,
+                checkbox_styles,
                 combobox_styles,
                 general_styles,
                 scrollbar_styles,
@@ -210,6 +229,7 @@ class ThemeManager:
                     tabwidget_styles(self, buf),
                     table_styles(self, buf),
                     spinbox_styles(self, buf),
+                    checkbox_styles(self, buf),
                     scrollbar_styles(self, buf),
                 ]
             )

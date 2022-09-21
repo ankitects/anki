@@ -1,4 +1,5 @@
 load("//ts:vendor.bzl", "copy_mdi_icons")
+load("color_svg.bzl", "color_svg")
 
 copy_mdi_icons(
     name = "mdi-icons",
@@ -33,6 +34,19 @@ copy_mdi_icons(
         # tags
         "tag-outline.svg",
         "tag-off-outline.svg",
+    ],
+)
+
+copy_mdi_icons(
+    name = "mdi-themed",
+    icons = [
+        # sidebar tools
+        "magnify.svg",
+        "selection-drag.svg",
+
+        # QComboBox arrows
+        "chevron-up.svg",
+        "chevron-down.svg",
 
         # QHeaderView arrows
         "menu-up.svg",
@@ -41,12 +55,73 @@ copy_mdi_icons(
         # drag handle
         "drag-vertical.svg",
         "drag-horizontal.svg",
+
+        # checkbox
+        "check.svg",
+        "minus-thick.svg",
     ],
+)
+
+py_binary(
+    name = "color_svg",
+    srcs = [
+        "color_svg.py",
+        "//qt/aqt:colors",
+    ],
+    imports = ["."],
+    visibility = [":__subpackages__"],
+)
+
+color_svg(
+    name = "magnify",
+)
+color_svg(
+    name = "selection-drag",
+)
+color_svg(
+    name = "chevron-up",
+    extra_colors = ["FG_DISABLED"],
+)
+color_svg(
+    name = "chevron-down",
+    extra_colors = ["FG_DISABLED"],
+)
+color_svg(
+    name = "menu-up",
+)
+color_svg(
+    name = "menu-down",
+)
+color_svg(
+    name = "drag-vertical",
+    extra_colors = ["FG_SUBTLE"],
+)
+color_svg(
+    name = "drag-horizontal",
+    extra_colors = ["FG_SUBTLE"],
+)
+color_svg(
+    name = "check",
+)
+color_svg(
+    name = "minus-thick",
 )
 
 filegroup(
     name = "icons",
-    srcs = ["mdi-icons"] + glob([
+    srcs = [
+        "mdi-icons",
+        "magnify",
+        "selection-drag",
+        "chevron-up",
+        "chevron-down",
+        "menu-up",
+        "menu-down",
+        "drag-vertical",
+        "drag-horizontal",
+        "check",
+        "minus-thick",
+    ] + glob([
         "*.svg",
         "*.png",
     ]),
