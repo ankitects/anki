@@ -45,9 +45,10 @@ if os.environ.get("DEBUG"):
 
     sys.excepthook = info
 
-qtmajor = (QT_VERSION & 0xFF0000) >> 16
-qtminor = (QT_VERSION & 0x00FF00) >> 8
-qtpoint = QT_VERSION & 0xFF
+_version = QLibraryInfo.version()
+qtmajor = _version.majorVersion()
+qtminor = _version.minorVersion()
+qtpoint = _version.microVersion()
 
 if qtmajor < 5 or (qtmajor == 5 and qtminor < 14):
     raise Exception("Anki does not support your Qt version.")
