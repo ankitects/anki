@@ -100,19 +100,19 @@ QComboBox:!editable:pressed {{
 
 
 def splitter_styles(tm: ThemeManager, buf: str) -> str:
-    buf += """
+    buf += f"""
 QSplitter::handle,
-QMainWindow::separator {
+QMainWindow::separator {{
     height: 16px;
-}
+}}
 QSplitter::handle:vertical,
-QMainWindow::separator:horizontal {
-    image: url(icons:drag-horizontal.svg);
-}
+QMainWindow::separator:horizontal {{
+    image: url({tm.themed_icon("mdi:drag-horizontal-FG_SUBTLE")});
+}}
 QSplitter::handle:horizontal,
-QMainWindow::separator:vertical {
-    image: url(icons:drag-vertical.svg);
-}
+QMainWindow::separator:vertical {{
+    image: url({tm.themed_icon("mdi:drag-vertical-FG_SUBTLE")});
+}}
 """
     return buf
 
@@ -156,21 +156,21 @@ QComboBox::drop-down {{
     border-bottom-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QComboBox::down-arrow {{
-    image: url(icons:chevron-down.svg);
+    image: url({tm.themed_icon("mdi:chevron-down")});
 }}
 QComboBox::drop-down {{
     background: {
         button_gradient(
-            tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
-            tm.var(colors.BUTTON_PRIMARY_GRADIENT_END)
+            tm.var(colors.BUTTON_GRADIENT_START),
+            tm.var(colors.BUTTON_GRADIENT_END)
         )
     };
 }}
 QComboBox::drop-down:hover {{
     background: {
         button_gradient(
-            tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_START),
-            tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_END)
+            tm.var(colors.BUTTON_HOVER_GRADIENT_START),
+            tm.var(colors.BUTTON_HOVER_GRADIENT_END)
         )
     };
 }}
@@ -288,10 +288,10 @@ QHeaderView::down-arrow {{
     height: 20px;
 }}
 QHeaderView::up-arrow {{
-    image: url(icons:menu-up.svg);
+    image: url({tm.themed_icon("mdi:menu-up")});
 }}
 QHeaderView::down-arrow {{
-    image: url(icons:menu-down.svg);
+    image: url({tm.themed_icon("mdi:menu-down")});
 }}
     """
     return buf
@@ -306,8 +306,8 @@ QSpinBox::down-button {{
     border: 1px solid {tm.var(colors.BUTTON_BORDER)};
     background: {
         button_gradient(
-            tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
-            tm.var(colors.BUTTON_PRIMARY_GRADIENT_END)
+            tm.var(colors.BUTTON_GRADIENT_START),
+            tm.var(colors.BUTTON_GRADIENT_END)
         )
     };
 }}
@@ -316,8 +316,8 @@ QSpinBox::down-button:pressed {{
     border: 1px solid {tm.var(colors.BUTTON_PRESSED_BORDER)};
     background: {
         button_pressed_gradient(
-            tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
-            tm.var(colors.BUTTON_PRIMARY_GRADIENT_END),
+            tm.var(colors.BUTTON_GRADIENT_START),
+            tm.var(colors.BUTTON_GRADIENT_END),
             tm.var(colors.BUTTON_PRESSED_SHADOW)
         )
     }
@@ -326,8 +326,8 @@ QSpinBox::up-button:hover,
 QSpinBox::down-button:hover {{
     background: {
         button_gradient(
-            tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_START),
-            tm.var(colors.BUTTON_PRIMARY_HOVER_GRADIENT_END)
+            tm.var(colors.BUTTON_HOVER_GRADIENT_START),
+            tm.var(colors.BUTTON_HOVER_GRADIENT_END)
         )
     };
 }}
@@ -342,10 +342,10 @@ QSpinBox::down-button {{
     border-bottom-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QSpinBox::up-arrow {{
-    image: url(icons:chevron-up.svg);
+    image: url({tm.themed_icon("mdi:chevron-up")});
 }}
 QSpinBox::down-arrow {{
-    image: url(icons:chevron-down.svg);
+    image: url({tm.themed_icon("mdi:chevron-down")});
 }}
 QSpinBox::up-arrow,
 QSpinBox::down-arrow,
@@ -363,9 +363,42 @@ QSpinBox::down-arrow:hover {{
 }}
 QSpinBox::up-button:disabled, QSpinBox::up-button:off,
 QSpinBox::down-button:disabled, QSpinBox::down-button:off {{
-   background: {tm.var(colors.BUTTON_PRIMARY_DISABLED)};
+   background: {tm.var(colors.BUTTON_DISABLED)};
+}}
+QSpinBox::up-arrow:off,
+QSpinBox::down-arrow:off {{
+    image: url({tm.themed_icon("mdi:chevron-down-FG_DISABLED")});
 }}
      """
+    return buf
+
+
+def checkbox_styles(tm: ThemeManager, buf: str) -> str:
+    buf += f"""
+QCheckBox {{
+    spacing: 8px;
+    margin: 2px 0;
+}}
+QCheckBox::indicator {{
+    border: 1px solid {tm.var(colors.BUTTON_BORDER)};
+    border-radius: {tm.var(props.BORDER_RADIUS)};
+    background: {tm.var(colors.CANVAS_INSET)};
+    width: 16px;
+    height: 16px;
+}}
+QCheckBox::indicator:hover,
+QCheckBox::indicator:checked:hover {{
+    border: 2px solid {tm.var(colors.BORDER_STRONG)};
+    width: 14px;
+    height: 14px;
+}}
+QCheckBox::indicator:checked {{
+    image: url({tm.themed_icon("mdi:check")});
+}}
+QCheckBox::indicator:indeterminate {{
+    image: url({tm.themed_icon("mdi:minus-thick")});
+}}
+    """
     return buf
 
 

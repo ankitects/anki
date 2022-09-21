@@ -22,6 +22,9 @@
                 );
             }
         }
+        @else if $key == "default" {
+            @return map.set($output, $name, map.get($map, $key));
+        }
     }
     @return $output;
 }
