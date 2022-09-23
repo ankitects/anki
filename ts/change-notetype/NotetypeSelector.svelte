@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import LabelButton from "../components/LabelButton.svelte";
-    import SelectButton from "../components/SelectButton.svelte";
+    import Select from "../components/Select.svelte";
     import SelectOption from "../components/SelectOption.svelte";
     import StickyContainer from "../components/StickyContainer.svelte";
     import { arrowLeftIcon, arrowRightIcon } from "./icons";
@@ -17,12 +17,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: ChangeNotetypeState;
     const notetypes = state.notetypes;
     const info = state.info;
+    let value: number = 0;
 
-    async function blur(event: Event): Promise<void> {
-        await state.setTargetNotetypeIndex(
-            parseInt((event.target! as HTMLSelectElement).value),
-        );
-    }
+    $: state.setTargetNotetypeIndex(value);
+    $: options = Array.from($notetypes, (notetype) => notetype.name);
 </script>
 
 <StickyContainer
@@ -42,13 +40,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {/if}
         </Badge>
         <ButtonGroup class="flex-grow-1">
-            <SelectButton class="flex-grow-1" on:change={blur}>
-                {#each $notetypes as entry}
-                    <SelectOption value={String(entry.idx)} selected={entry.current}>
-                        {entry.name}
+            <Select
+                class="flex-grow-1"
+                current={options[value]}
+            >
+                {#each options as option, idx}
+                    <SelectOption on:select={() => (value = idx)}
+                        >{option}
                     </SelectOption>
                 {/each}
-            </SelectButton>
+            </Select>
         </ButtonGroup>
 
         <SaveButton {state} />

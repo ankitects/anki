@@ -3,16 +3,21 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    export let value: string | undefined = undefined;
-    export let selected = false;
+    import { createEventDispatcher } from "svelte";
+    import DropdownItem from "../components/DropdownItem.svelte";
+
+    export let disabled = false;
+
+    const dispatch = createEventDispatcher();
+    let element: HTMLButtonElement;
+
+    function onSelect(): void {
+        if (!disabled) {
+            dispatch("select");
+        }
+    }
 </script>
 
-<option class="select-option" {value} {selected}>
+<DropdownItem {disabled} on:click={onSelect} bind:buttonRef={element}>
     <slot />
-</option>
-
-<style lang="scss">
-    .select-option {
-        background-color: var(--canvas-elevated);
-    }
-</style>
+</DropdownItem>

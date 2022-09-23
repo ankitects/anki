@@ -61,6 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let closeOnInsideClick = false;
     export let keepOnKeyup = false;
+    export let hideArrow = false;
 
     export let reference: ReferenceElement | undefined = undefined;
     let floating: FloatingElement;
@@ -176,7 +177,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/if}
 
     <div bind:this={arrow} class="floating-arrow" hidden={!show}>
-        <FloatingArrow />
+        {#if !hideArrow}
+            <FloatingArrow />
+        {/if}
     </div>
 </div>
 

@@ -2,19 +2,28 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script>
+<script lang="ts">
+    import { slide } from "svelte/transition";
     import { pageTheme } from "../sveltelib/theme";
+
+    export let scrollable = false;
 </script>
 
-<div class="popover" class:dark={$pageTheme.isDark} on:mousedown|preventDefault>
+<div
+    class="popover"
+    class:scrollable
+    class:dark={$pageTheme.isDark}
+    transition:slide={{ duration: 200 }}
+>
     <slot />
 </div>
 
 <style lang="scss">
+    @use "sass/vars";
     .popover {
         border-radius: 5px;
         background-color: var(--canvas-elevated);
-        min-width: 1rem;
+        min-width: var(--popover-width, 1rem);
         max-width: 95vw;
 
         /* Needs this much space for FloatingArrow to be positioned */
@@ -24,17 +33,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         color: var(--fg);
 
         /* outer border */
-        border: 1px solid #b6b6b6;
+        border: 1px solid vars.palette(lightgray, 6);
 
         &.dark {
-            border-color: #060606;
+            border-color: vars.palette(darkgray, 9);
         }
 
         /* inner border */
-        box-shadow: inset 0 0 0 1px #eeeeee;
+        box-shadow: inset 0 0 0 1px vars.palette(lightgray, 3);
 
         &.dark {
-            box-shadow: inset 0 0 0 1px #565656;
+            box-shadow: inset 0 0 0 1px vars.palette(darkgray, 2);
+        }
+        &.scrollable {
+            max-height: 80vh;
+            overflow: hidden auto;
         }
     }
 </style>
