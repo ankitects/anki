@@ -21,8 +21,7 @@
                     create-vars-from-map($value, $theme, #{$name}-#{$key}, $output)
                 );
             }
-        }
-        @else if $key == "default" {
+        } @else if $key == "default" {
             @return map.set($output, $name, map.get($map, $key));
         }
     }

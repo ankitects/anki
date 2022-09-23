@@ -10,7 +10,7 @@ $padding: 2px;
 .linkb {
     @include button.base;
     @include button.border-radius;
-    
+
     width: $size;
     height: $size;
     padding: $padding;

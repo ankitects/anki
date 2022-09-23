@@ -40,10 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {/if}
         </Badge>
         <ButtonGroup class="flex-grow-1">
-            <Select
-                class="flex-grow-1"
-                current={options[value]}
-            >
+            <Select class="flex-grow-1" current={options[value]}>
                 {#each options as option, idx}
                     <SelectOption on:select={() => (value = idx)}
                         >{option}

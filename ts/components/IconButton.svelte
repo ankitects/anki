@@ -49,5 +49,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height: var(--buttons-size);
         min-width: calc(var(--buttons-size) * 0.75);
     }
-
 </style>

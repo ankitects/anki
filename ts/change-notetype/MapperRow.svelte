@@ -25,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Col --col-size={1}>
         <!-- svelte-ignore a11y-no-onchange -->
         <Select current={options[oldIndex]}>
-            {#each  options as name, idx}
+            {#each options as name, idx}
                 <SelectOption on:select={() => (oldIndex = idx)}>{name}</SelectOption>
             {/each}
         </Select>
