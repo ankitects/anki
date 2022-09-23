@@ -23,7 +23,6 @@ if __name__ == "__main__":
     else:
         mypy_path = ".:../pylib:" + pyqt_folder
 
-    os.environ["MYPYPATH"] = mypy_path
     os.environ["EXTRA_SITE_PACKAGES"] = extra_site
 
     args = [
