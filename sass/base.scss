@@ -1,5 +1,6 @@
 @use "vars";
 @use "scrollbar";
+@use "button-mixins" as button;
 
 $body-color: var(--fg);
 $body-bg: var(--canvas);
@@ -68,6 +69,11 @@ samp {
         background-position: left 0.75rem center;
     }
 }
+.form-select:focus {
+    outline: none;
+    border: 1px solid var(--border-focus);
+    box-shadow: none !important;
+}
 
 .night-mode .form-select:disabled {
     background-color: var(--fg-disabled);
@@ -76,4 +82,21 @@ samp {
 .reduced-motion * {
     transition: none !important;
     animation: none !important;
+}
+
+select {
+    @include button.background;
+    @include button.border-radius;
+
+    cursor: pointer;
+    outline: none;
+
+    &:focus,
+    &.focus {
+        border: 1px solid var(--border-focus);
+    }
+    option {
+        background: var(--canvas-elevated);
+        color: var(--fg);
+    }
 }

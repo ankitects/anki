@@ -11,7 +11,7 @@
         rgba(black, $intensity);
 }
 
-@mixin btn-border-radius {
+@mixin border-radius {
     border-top-left-radius: var(--border-left-radius);
     border-bottom-left-radius: var(--border-left-radius);
 
@@ -19,74 +19,81 @@
     border-bottom-right-radius: var(--border-right-radius);
 }
 
-@mixin base(
-    $selector: button,
-    $with-primary: false,
-    $with-hover: true,
-    $with-active: true,
-    $with-disabled: true
-) {
-    #{$selector} {
-        -webkit-appearance: none;
-        border: 1px solid var(--button-border);
-
-        color: var(--fg);
+@mixin background($primary: false) {
+    @if $primary {
+        background: linear-gradient(
+            180deg,
+            var(--button-primary-gradient-start) 0%,
+            var(--button-primary-gradient-end) 100%
+        );
+        &:hover {
+            background: linear-gradient(
+                180deg,
+                var(--button-primary-hover-gradient-start) 0%,
+                var(--button-primary-hover-gradient-end) 100%
+            );
+            border-color: var(--button-hover-border);
+        }
+    } @else {
         background: linear-gradient(
             180deg,
             var(--button-gradient-start) 0%,
             var(--button-gradient-end) 100%
         );
-
-        @if ($with-hover) {
-            &:hover {
-                background: linear-gradient(
-                    180deg,
-                    var(--button-hover-gradient-start) 0%,
-                    var(--button-hover-gradient-end) 100%
-                );
-
-                border-color: var(--button-hover-border);
-            }
-        }
-
-        @if ($with-primary) {
-            &.btn-primary {
-                color: white;
-                background: linear-gradient(
-                    180deg,
-                    var(--button-primary-gradient-start) 0%,
-                    var(--button-primary-gradient-end) 100%
-                );
-                &:hover {
-                    background: linear-gradient(
-                        180deg,
-                        var(--button-primary-hover-gradient-start) 0%,
-                        var(--button-primary-hover-gradient-end) 100%
-                    );
-                }
-            }
-        }
-
-        @if ($with-active) {
-            &:active {
-                @include impressed-shadow(0.35);
-                box-shadow: none;
-                border-color: var(--button-border);
-            }
-        }
-
-        @if ($with-disabled) {
-            &[disabled] {
-                color: var(--fg-disabled);
-                background-color: var(--button-gradient-end) !important;
-                box-shadow: none !important;
-                border-color: var(--button-gradient-end) !important;
-            }
+        &:hover {
+            background: linear-gradient(
+                180deg,
+                var(--button-hover-gradient-start) 0%,
+                var(--button-hover-gradient-end) 100%
+            );
+            border-color: var(--button-hover-border);
         }
     }
 }
 
-$focus-color: vars.color(shadow-focus);
+@mixin base(
+    $primary: false,
+    $border: true,
+    $with-hover: true,
+    $with-active: true,
+    $with-disabled: true
+) {
+    -webkit-appearance: none;
+    cursor: pointer;
+    @if $border {
+        border: 1px solid var(--button-border);
+    } @else {
+        border: none;
+    }
+    @include background($primary);
+
+    @if ($primary) {
+        color: white;
+    } @else {
+        color: var(--fg);
+    }
+
+    @if ($with-active) {
+        &:active,
+        &.active {
+            @include impressed-shadow(0.35);
+            border-color: var(--button-border);
+        }
+    }
+
+    @if ($with-disabled) {
+        &[disabled],
+        &[disabled]:hover {
+            cursor: initial;
+            color: var(--fg-disabled);
+            box-shadow: none !important;
+            background-color: var(--button-gradient-end);
+            border-color: var(--border-subtle);
+        }
+    }
+}
+
+$focus-color: var(--shadow-focus);
 
 @function down-arrow($color) {
     @return url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='transparent' stroke='#{$color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");

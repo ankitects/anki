@@ -47,6 +47,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "sass/button-mixins" as button;
 
     button {
+        @include button.base;
+        &.btn-primary {
+            @include button.base($primary: true);
+        }
+        @include button.border-radius;
+
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -54,9 +60,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         font-size: var(--base-font-size);
         width: auto;
         height: var(--buttons-size);
-
-        @include button.btn-border-radius;
     }
-
-    @include button.base($with-primary: true);
 </style>

@@ -48,6 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flex-grow: 1;
         border-radius: 0;
     }
-
-    @include button.base($with-disabled: false);
+    button {
+        @include button.base($with-disabled: false);
+    }
 </style>

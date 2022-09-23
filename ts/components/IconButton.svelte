@@ -41,12 +41,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "sass/button-mixins" as button;
 
     .icon-button {
+        @include button.base;
+        @include button.border-radius;
+
         padding: 0;
         font-size: var(--base-font-size);
         height: var(--buttons-size);
-
-        @include button.btn-border-radius;
+        min-width: calc(var(--buttons-size) * 0.75);
     }
 
-    @include button.base(".icon-button");
 </style>

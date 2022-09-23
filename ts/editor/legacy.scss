@@ -8,13 +8,14 @@ $size: var(--buttons-size);
 $padding: 2px;
 
 .linkb {
+    @include button.base;
+    @include button.border-radius;
+    
     width: $size;
     height: $size;
     padding: $padding;
     font-size: calc($size * 0.6);
 }
-
-@include button.base($selector: ".linkb");
 
 img.topbut {
     max-width: calc($size - 2 * $padding);
