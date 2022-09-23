@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let oldIndex = $info.getOldIndex(ctx, newIndex);
 
-    let options = $info.getOldNamesIncludingNothing(ctx);
+    const options = $info.getOldNamesIncludingNothing(ctx);
     $: state.setOldIndex(ctx, newIndex, oldIndex);
 </script>
 
