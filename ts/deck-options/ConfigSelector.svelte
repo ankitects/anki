@@ -105,7 +105,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <StickyContainer --gutter-block="0.5rem" --sticky-borders="0 0 1px" breakpoint="sm">
     <ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
         <ButtonGroup class="flex-grow-1">
-            <Select class="flex-grow-1" {options} current={options[value]}>
+            <Select class="flex-grow-1" current={options[value]}>
                 {#each options as option, idx}
                     <SelectOption on:select={() => (value = idx)}
                         >{option}
