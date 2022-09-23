@@ -3,4 +3,5 @@
 
 /// <reference types="../lib/image-import" />
 
+export { default as chevronUp } from "@mdi/svg/svg/chevron-up.svg";
 export { default as chevronDown } from "@mdi/svg/svg/chevron-down.svg";

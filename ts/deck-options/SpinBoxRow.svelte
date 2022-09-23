@@ -5,8 +5,8 @@
 <script lang="ts">
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
+    import SpinBox from "../components/SpinBox.svelte";
     import RevertButton from "./RevertButton.svelte";
-    import SpinBox from "./SpinBox.svelte";
     import TooltipLabel from "./TooltipLabel.svelte";
 
     export let value: any;
