@@ -82,7 +82,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             slot="reference"
             widthMultiplier={0.5}
-            iconSize={120}
+            iconSize={140}
             --border-right-radius="5px"
             on:click={() => (showFloating = !showFloating)}
         >
