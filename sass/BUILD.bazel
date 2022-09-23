@@ -1,4 +1,5 @@
 load("@io_bazel_rules_sass//:defs.bzl", "sass_library")
+load("//ts:compile_sass.bzl", "compile_sass")
 
 sass_library(
     name = "base_lib",
@@ -71,10 +72,10 @@ sass_library(
     srcs = [
         "_button-mixins.scss",
     ],
+    visibility = ["//visibility:public"],
     deps = [
         "vars_lib",
     ],
-    visibility = ["//visibility:public"],
 )
 
 sass_library(
@@ -93,7 +94,8 @@ sass_library(
     visibility = ["//visibility:public"],
 )
 
-exports_files(
-    ["_vars.scss"],
+compile_sass(
+    srcs = ["_vars.scss"],
+    group = "vars_css",
     visibility = ["//visibility:public"],
 )
