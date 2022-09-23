@@ -171,7 +171,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/if}
 {/if}
 
-<div bind:this={floating} class="floating" use:portal={portalTarget}>
+<div bind:this={floating} class="floating" class:show use:portal={portalTarget}>
     {#if show}
         <slot name="floating" />
     {/if}
@@ -191,7 +191,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: 5px;
 
         z-index: 890;
-        @include elevation.elevation(8);
+        &.show {
+            @include elevation.elevation(8);
+        }
 
         &-arrow {
             position: absolute;
