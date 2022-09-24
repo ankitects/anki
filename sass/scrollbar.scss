@@ -4,9 +4,8 @@
 @use "vars";
 
 @mixin custom {
-    .isWin,
-    .isLin {
-        ::-webkit-scrollbar {
+    body:not(.isMac) {
+        &::-webkit-scrollbar {
             background-color: vars.color(canvas);
 
             &:horizontal {
@@ -18,7 +17,7 @@
             }
         }
 
-        ::-webkit-scrollbar-thumb {
+        &::-webkit-scrollbar-thumb {
             background: vars.color(scrollbar-bg);
             border-radius: vars.prop(border-radius);
 
@@ -39,11 +38,11 @@
             }
         }
 
-        ::-webkit-scrollbar-corner {
+        &::-webkit-scrollbar-corner {
             background-color: vars.color(canvas);
         }
 
-        ::-webkit-scrollbar-track {
+        &::-webkit-scrollbar-track {
             border-radius: 5px;
             background-color: transparent;
         }
