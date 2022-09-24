@@ -43,7 +43,7 @@ fn initial_db_setup(db: &mut Connection) -> Result<()> {
     Ok(())
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct MediaEntry {
     pub fname: String,
     /// If None, file has been deleted
@@ -54,7 +54,7 @@ pub struct MediaEntry {
     pub sync_required: bool,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct MediaDatabaseMetadata {
     /// The syncing code no longer uses this; files are scanned for
     /// indiscriminately. After this has been in production for a while

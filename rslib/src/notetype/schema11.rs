@@ -20,7 +20,7 @@ use crate::{
     types::Usn,
 };
 
-#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone)]
+#[derive(Serialize_repr, Deserialize_repr, PartialEq, Eq, Debug, Clone)]
 #[repr(u8)]
 pub enum NotetypeKind {
     Standard = 0,

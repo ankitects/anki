@@ -73,7 +73,7 @@ mod test {
 
     use super::*;
 
-    #[derive(Deserialize, Debug, PartialEq)]
+    #[derive(Deserialize, Debug, PartialEq, Eq)]
     struct MaybeInvalid {
         #[serde(deserialize_with = "default_on_invalid", default)]
         field: Option<usize>,

@@ -8,13 +8,13 @@ use nom::error::{ErrorKind as NomErrorKind, ParseError as NomParseError};
 
 use super::AnkiError;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum ParseError<'a> {
     Anki(&'a str, SearchErrorKind),
     Nom(&'a str, NomErrorKind),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum SearchErrorKind {
     MisplacedAnd,
     MisplacedOr,

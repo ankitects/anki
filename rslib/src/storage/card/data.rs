@@ -13,7 +13,7 @@ use serde_json::Value;
 use crate::{prelude::*, serde::default_on_invalid};
 
 /// Helper for serdeing the card data column.
-#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub(crate) struct CardData {
     #[serde(

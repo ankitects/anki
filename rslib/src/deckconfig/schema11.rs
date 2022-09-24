@@ -80,7 +80,7 @@ pub struct NewConfSchema11 {
     other: HashMap<String, Value>,
 }
 
-#[derive(Serialize_tuple, Debug, PartialEq, Clone)]
+#[derive(Serialize_tuple, Debug, PartialEq, Eq, Clone)]
 pub struct NewCardIntervals {
     good: u16,
     easy: u16,
@@ -120,7 +120,7 @@ where
         .unwrap_or_default())
 }
 
-#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Clone)]
+#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, Clone)]
 #[repr(u8)]
 pub enum NewCardOrderSchema11 {
     Random = 0,
@@ -154,7 +154,7 @@ pub struct RevConfSchema11 {
     other: HashMap<String, Value>,
 }
 
-#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Clone)]
+#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, Clone)]
 #[repr(u8)]
 pub enum LeechAction {
     Suspend = 0,

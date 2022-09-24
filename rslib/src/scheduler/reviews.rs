@@ -55,7 +55,7 @@ impl Card {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct DueDateSpecifier {
     min: u32,
     max: u32,

@@ -19,7 +19,7 @@ use crate::{
     timestamp::{TimestampMillis, TimestampSecs},
 };
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, Default, PartialEq, Eq)]
 pub struct CheckDatabaseOutput {
     card_properties_invalid: usize,
     card_position_too_high: usize,
