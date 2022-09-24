@@ -34,9 +34,10 @@ $utilities: (
 
 body {
     overscroll-behavior: none;
+    &:not(.isMac) {
+        @include scrollbar.custom;
+    }
 }
-
-@include scrollbar.custom;
 
 button {
     /* override transition for instant hover response */
