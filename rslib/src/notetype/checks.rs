@@ -14,7 +14,7 @@ use crate::{
     text::{HTML_MEDIA_TAGS, SOUND_TAG},
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 struct Template<'a> {
     notetype: &'a str,
     card_type: &'a str,

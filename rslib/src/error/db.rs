@@ -8,13 +8,13 @@ use rusqlite::{types::FromSqlError, Error};
 
 use super::AnkiError;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct DbError {
     pub info: String,
     pub kind: DbErrorKind,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum DbErrorKind {
     FileTooNew,
     FileTooOld,

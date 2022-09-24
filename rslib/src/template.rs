@@ -175,7 +175,7 @@ fn legacy_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> 
 // Parsing
 //----------------------------------------
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 enum ParsedNode {
     Text(String),
     Replacement {
@@ -371,7 +371,7 @@ fn template_is_empty(
 // Rendering
 //----------------------------------------
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum RenderedNode {
     Text {
         text: String,
@@ -632,7 +632,7 @@ fn cloze_is_empty(field_map: &HashMap<&str, Cow<str>>, card_ord: u16) -> bool {
 // Field requirements
 //----------------------------------------
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FieldRequirements {
     Any(HashSet<u16>),
     All(HashSet<u16>),

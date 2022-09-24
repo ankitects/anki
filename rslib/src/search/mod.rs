@@ -25,13 +25,13 @@ use crate::{
     prelude::AnkiError,
 };
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ReturnItemType {
     Cards,
     Notes,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum SortMode {
     NoOrder,
     Builtin { column: Column, reverse: bool },

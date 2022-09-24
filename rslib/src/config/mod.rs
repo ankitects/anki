@@ -67,7 +67,7 @@ pub(crate) enum ConfigKey {
     SchedulerVersion,
 }
 
-#[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, Serialize_repr, Deserialize_repr, Clone, Copy, Debug)]
 #[repr(u8)]
 pub enum SchedulerVersion {
     V1 = 1,
@@ -298,7 +298,7 @@ impl Default for NewReviewMix {
     }
 }
 
-#[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy)]
+#[derive(PartialEq, Eq, Serialize_repr, Deserialize_repr, Clone, Copy)]
 #[repr(u8)]
 pub(crate) enum Weekday {
     Sunday = 0,

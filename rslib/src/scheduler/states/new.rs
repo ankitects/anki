@@ -4,7 +4,7 @@
 use super::interval_kind::IntervalKind;
 use crate::revlog::RevlogReviewKind;
 
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct NewState {
     pub position: u32,
 }

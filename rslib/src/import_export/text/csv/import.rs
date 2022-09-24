@@ -61,7 +61,7 @@ impl CsvMetadata {
             CsvNotetype::GlobalNotetype(global) => global
                 .field_columns
                 .iter()
-                .map(|&i| (i > 0).then(|| i as usize))
+                .map(|&i| (i > 0).then_some(i as usize))
                 .collect(),
             CsvNotetype::NotetypeColumn(_) => {
                 let meta_columns = self.meta_columns();
@@ -124,8 +124,8 @@ struct ColumnContext {
 impl ColumnContext {
     fn new(metadata: &CsvMetadata) -> Result<Self> {
         Ok(Self {
-            tags_column: (metadata.tags_column > 0).then(|| metadata.tags_column as usize),
-            guid_column: (metadata.guid_column > 0).then(|| metadata.guid_column as usize),
+            tags_column: (metadata.tags_column > 0).then_some(metadata.tags_column as usize),
+            guid_column: (metadata.guid_column > 0).then_some(metadata.guid_column as usize),
             deck_column: metadata.deck()?.column(),
             notetype_column: metadata.notetype()?.column(),
             field_source_columns: metadata.field_source_columns()?,

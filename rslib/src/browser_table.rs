@@ -17,7 +17,7 @@ use crate::{
     text::html_to_text_line,
 };
 
-#[derive(Debug, PartialEq, Clone, Copy, Display, EnumIter, EnumString)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Display, EnumIter, EnumString)]
 #[strum(serialize_all = "camelCase")]
 pub enum Column {
     #[strum(serialize = "")]

@@ -33,7 +33,7 @@ pub(crate) fn contains_latex(text: &str) -> bool {
     LATEX.is_match(text)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct ExtractedLatex {
     pub fname: String,
     pub latex: String,

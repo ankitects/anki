@@ -133,7 +133,7 @@ impl Backend {
         let guard = self.col.lock().unwrap();
         guard
             .is_some()
-            .then(|| guard)
+            .then_some(guard)
             .ok_or(AnkiError::CollectionNotOpen)
     }
 
@@ -141,7 +141,7 @@ impl Backend {
         let guard = self.col.lock().unwrap();
         guard
             .is_none()
-            .then(|| guard)
+            .then_some(guard)
             .ok_or(AnkiError::CollectionAlreadyOpen)
     }
 

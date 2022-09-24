@@ -32,7 +32,7 @@ impl From<TimestampMillis> for RevlogId {
     }
 }
 
-#[derive(Serialize_tuple, Deserialize, Debug, Default, PartialEq)]
+#[derive(Serialize_tuple, Deserialize, Debug, Default, PartialEq, Eq)]
 pub struct RevlogEntry {
     pub id: RevlogId,
     pub cid: CardId,
@@ -57,7 +57,7 @@ pub struct RevlogEntry {
     pub review_kind: RevlogReviewKind,
 }
 
-#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, TryFromPrimitive, Clone, Copy)]
+#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, TryFromPrimitive, Clone, Copy)]
 #[repr(u8)]
 pub enum RevlogReviewKind {
     Learning = 0,

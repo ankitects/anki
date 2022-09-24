@@ -5,7 +5,7 @@ use anki_i18n::I18n;
 
 use super::AnkiError;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum FilteredDeckError {
     MustBeLeafNode,
     CanNotMoveCardsInto,
@@ -33,7 +33,7 @@ impl From<FilteredDeckError> for AnkiError {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum CustomStudyError {
     NoMatchingCards,
     ExistingDeck,
