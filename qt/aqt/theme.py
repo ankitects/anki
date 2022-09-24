@@ -206,7 +206,7 @@ class ThemeManager:
     def _apply_style(self, app: QApplication) -> None:
         from aqt.stylesheets import splitter_styles
 
-        buf = splitter_styles(self, "")
+        buf = splitter_styles(self)
 
         if not is_mac:
             from aqt.stylesheets import (
@@ -223,19 +223,19 @@ class ThemeManager:
 
             buf += "".join(
                 [
-                    general_styles(self, buf),
-                    button_styles(self, buf),
-                    combobox_styles(self, buf),
-                    tabwidget_styles(self, buf),
-                    table_styles(self, buf),
-                    spinbox_styles(self, buf),
-                    checkbox_styles(self, buf),
-                    scrollbar_styles(self, buf),
+                    general_styles(self),
+                    button_styles(self),
+                    combobox_styles(self),
+                    tabwidget_styles(self),
+                    table_styles(self),
+                    spinbox_styles(self),
+                    checkbox_styles(self),
+                    scrollbar_styles(self),
                 ]
             )
 
         if is_win and platform.release() == "10":
-            buf += win10_styles(self, buf)
+            buf += win10_styles(self)
 
         # allow addons to modify the styling
         buf = gui_hooks.style_did_init(buf)
