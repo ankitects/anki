@@ -74,7 +74,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
         ): [
-            "@raze__security_framework__2_6_1//:security_framework",
+            "@raze__security_framework__2_7_0//:security_framework",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -82,7 +82,7 @@ rust_library(
         (
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@raze__schannel__0_1_19//:schannel",
+            "@raze__schannel__0_1_20//:schannel",
         ],
         "//conditions:default": [],
     }),

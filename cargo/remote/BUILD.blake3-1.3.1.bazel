@@ -93,6 +93,6 @@ rust_library(
         "@raze__arrayvec__0_7_2//:arrayvec",
         "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__constant_time_eq__0_1_5//:constant_time_eq",
-        "@raze__digest__0_10_3//:digest",
+        "@raze__digest__0_10_5//:digest",
     ],
 )

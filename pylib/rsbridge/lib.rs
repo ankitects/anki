@@ -1,9 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-// Can remove after update to pyo3 0.17
-#![allow(clippy::borrow_deref_ref)]
-
 use anki::backend::{init_backend, Backend as RustBackend};
 use anki::log::default_logger;
 use pyo3::exceptions::PyException;
