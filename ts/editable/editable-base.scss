@@ -18,7 +18,8 @@ p {
     display: none;
 }
 
-:host(body) {
+:host(body),
+:host(body) * {
     @include scrollbar.custom;
 }
 

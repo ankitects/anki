@@ -17,7 +17,10 @@ body {
     transition: opacity 0.5s ease-out;
     margin: 2em;
     overscroll-behavior: none;
-    @include scrollbar.custom;
+    &:not(.isMac),
+    &:not(.isMac) * {
+        @include scrollbar.custom;
+    }
 }
 
 a {

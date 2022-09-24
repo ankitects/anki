@@ -34,7 +34,8 @@ $utilities: (
 
 body {
     overscroll-behavior: none;
-    &:not(.isMac) {
+    &:not(.isMac),
+    &:not(.isMac) * {
         @include scrollbar.custom;
     }
 }
