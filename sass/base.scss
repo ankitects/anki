@@ -32,6 +32,15 @@ $utilities: (
     flex-basis: 75%;
 }
 
+html,
+body {
+    height: 100%;
+}
+
+html {
+    overflow-x: hidden;
+}
+
 body {
     overscroll-behavior: none;
     &:not(.isMac),
