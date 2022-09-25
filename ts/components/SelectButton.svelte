@@ -41,9 +41,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     @use "sass/button-mixins" as button;
-    @include button.base($selector: "select", $with-hover: false);
 
     select {
+        @include button.base;
+
         height: var(--buttons-size);
         /* Long option name can create overflow */
         text-overflow: ellipsis;

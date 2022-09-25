@@ -78,3 +78,12 @@ $ambient-opacity: 0.12;
 @mixin elevation($level, $other: ()) {
     box-shadow: list.join(box-shadow($level), $other);
 }
+
+@mixin inset {
+    /** Could be extended to a map if we need different depths */
+    box-shadow: inset 1px 1px 5px 1px rgba(black, 0.35);
+}
+
+@mixin reset {
+    box-shadow: none;
+}

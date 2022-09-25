@@ -61,7 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         &:active,
         &.active {
-            background-color: button.$focus-color;
+            background-color: var(--shadow-focus);
             color: white;
         }
     }

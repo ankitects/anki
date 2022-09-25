@@ -24,15 +24,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/vars" as vars;
+
     .button-group {
-        border: 1px solid var(--medium-border);
-        border-radius: 5px;
+        border: 1px solid var(--button-border);
+        border-radius: var(--border-radius);
 
         display: grid;
         grid-auto-flow: column;
         grid-gap: 1px;
 
-        background-color: var(--medium-border);
+        background-color: var(--button-border);
         overflow: hidden;
     }
 </style>

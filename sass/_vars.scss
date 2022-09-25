@@ -96,10 +96,6 @@ $vars: (
                     light: palette(lightgray, 7),
                     dark: palette(darkgray, 7),
                 ),
-                border: (
-                    light: palette(lightgray, 9),
-                    dark: palette(darkgray, 9),
-                ),
             ),
             disabled: (
                 light: color.scale(palette(lightgray, 5), $alpha: -50%),
@@ -125,10 +121,6 @@ $vars: (
                         light: palette(lightgray, 4),
                         dark: palette(darkgray, 3),
                     ),
-                ),
-                border: (
-                    light: palette(lightgray, 8),
-                    dark: palette(darkgray, 8),
                 ),
             ),
             primary: (

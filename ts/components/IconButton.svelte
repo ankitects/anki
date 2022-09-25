@@ -41,5 +41,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border: none;
         appearance: none;
         background-color: white;
+
+        @include button.base;
+        @include button.active(".active");
+        @include button.hover;
+        @include button.disabled;
     }
 </style>

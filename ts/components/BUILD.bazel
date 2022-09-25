@@ -13,8 +13,17 @@ _ts_deps = [
     "@npm//svelte",
 ]
 
+_sass_deps = [
+    "//sass:base_lib",
+    "//sass:button_mixins_lib",
+    "//sass:scrollbar_lib",
+    "//sass:breakpoints_lib",
+    "//sass:elevation_lib",
+    "//sass/bootstrap",
+]
+
 compile_svelte(
-    deps = _ts_deps + ["//sass/bootstrap"],
+    deps = _ts_deps + _sass_deps,
 )
 
 typescript(
@@ -36,13 +45,7 @@ svelte_check(
     srcs = glob([
         "*.ts",
         "*.svelte",
-    ]) + [
-        "//sass:base_lib",
-        "//sass:button_mixins_lib",
-        "//sass:scrollbar_lib",
-        "//sass:breakpoints_lib",
-        "//sass:elevation_lib",
-        "//sass/bootstrap",
+    ]) + _sass_deps + [
         "@npm//@types/bootstrap",
         "//ts/lib:lib_pkg",
         "//ts/sveltelib:sveltelib_pkg",

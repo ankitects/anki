@@ -12,9 +12,9 @@ $padding: 2px;
     height: $size;
     padding: $padding;
     font-size: calc($size * 0.6);
-}
 
-@include button.base($selector: ".linkb");
+    @include button.base;
+}
 
 img.topbut {
     max-width: calc($size - 2 * $padding);
