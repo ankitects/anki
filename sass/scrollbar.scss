@@ -4,48 +4,45 @@
 @use "vars";
 
 @mixin custom {
-    .isWin,
-    .isLin {
-        ::-webkit-scrollbar {
-            background-color: vars.color(canvas);
+    &::-webkit-scrollbar {
+        background-color: vars.color(canvas);
 
-            &:horizontal {
-                height: 12px;
-            }
-
-            &:vertical {
-                width: 12px;
-            }
+        &:horizontal {
+            height: 12px;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: vars.color(scrollbar-bg);
-            border-radius: vars.prop(border-radius);
+        &:vertical {
+            width: 12px;
+        }
+    }
 
-            &:horizontal {
-                min-width: 50px;
-            }
+    &::-webkit-scrollbar-thumb {
+        background: vars.color(scrollbar-bg);
+        border-radius: vars.prop(border-radius);
 
-            &:vertical {
-                min-height: 50px;
-            }
-
-            &:hover {
-                background: vars.color(scrollbar-bg-hover);
-            }
-
-            &:active {
-                background: vars.color(scrollbar-bg-active);
-            }
+        &:horizontal {
+            min-width: 50px;
         }
 
-        ::-webkit-scrollbar-corner {
-            background-color: vars.color(canvas);
+        &:vertical {
+            min-height: 50px;
         }
 
-        ::-webkit-scrollbar-track {
-            border-radius: 5px;
-            background-color: transparent;
+        &:hover {
+            background: vars.color(scrollbar-bg-hover);
         }
+
+        &:active {
+            background: vars.color(scrollbar-bg-active);
+        }
+    }
+
+    &::-webkit-scrollbar-corner {
+        background-color: vars.color(canvas);
+    }
+
+    &::-webkit-scrollbar-track {
+        border-radius: 5px;
+        background-color: transparent;
     }
 }
