@@ -21,7 +21,6 @@
 
 @mixin base(
     $selector: button,
-    $with-primary: false,
     $with-hover: true,
     $with-active: true,
     $with-disabled: true
@@ -46,24 +45,6 @@
                 );
 
                 border-color: var(--button-hover-border);
-            }
-        }
-
-        @if ($with-primary) {
-            &.btn-primary {
-                color: white;
-                background: linear-gradient(
-                    180deg,
-                    var(--button-primary-gradient-start) 0%,
-                    var(--button-primary-gradient-end) 100%
-                );
-                &:hover {
-                    background: linear-gradient(
-                        180deg,
-                        var(--button-primary-hover-gradient-start) 0%,
-                        var(--button-primary-hover-gradient-end) 100%
-                    );
-                }
             }
         }
 
