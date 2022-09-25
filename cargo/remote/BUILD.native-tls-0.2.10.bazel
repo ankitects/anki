@@ -63,6 +63,7 @@ cargo_build_script(
             "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
+            "@rules_rust//rust/platform:aarch64-apple-ios-sim",
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
             "@raze__security_framework_sys__2_6_1//:security_framework_sys",
@@ -121,6 +122,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
+            "@rules_rust//rust/platform:aarch64-apple-ios-sim",
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
             "@raze__lazy_static__1_4_0//:lazy_static",
