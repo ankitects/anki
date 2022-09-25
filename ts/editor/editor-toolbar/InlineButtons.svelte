@@ -14,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SuperscriptButton from "./SuperscriptButton.svelte";
     import TextColorButton from "./TextColorButton.svelte";
     import UnderlineButton from "./UnderlineButton.svelte";
+    import { surrounder } from "../rich-text-input";
 
     export let api = {};
 
@@ -24,35 +25,39 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         highlightColor = highlightClr;
     }
 
+    let disabled: boolean;
+    surrounder.active.subscribe((value) => (disabled = !value));
+    $: console.log('disabled', disabled);
+
     Object.assign(globalThis, { setColorButtons });
 </script>
 
 <DynamicallySlottable slotHost={Item} {api}>
     <Item>
-        <ButtonGroup>
-            <BoldButton />
-            <ItalicButton />
-            <UnderlineButton />
+        <ButtonGroup {disabled}>
+            <BoldButton {disabled} />
+            <ItalicButton {disabled} />
+            <UnderlineButton {disabled} />
         </ButtonGroup>
     </Item>
 
     <Item>
-        <ButtonGroup>
-            <SuperscriptButton />
-            <SubscriptButton />
+        <ButtonGroup {disabled}>
+            <SuperscriptButton {disabled} />
+            <SubscriptButton {disabled} />
         </ButtonGroup>
     </Item>
 
     <Item>
-        <ButtonGroup>
-            <TextColorButton color={textColor} />
-            <HighlightColorButton color={highlightColor} />
+        <ButtonGroup {disabled}>
+            <TextColorButton {disabled} color={textColor} />
+            <HighlightColorButton {disabled} color={highlightColor} />
         </ButtonGroup>
     </Item>
 
     <Item>
-        <ButtonGroup>
-            <RemoveFormatButton />
+        <ButtonGroup {disabled}>
+            <RemoveFormatButton {disabled} />
         </ButtonGroup>
     </Item>
 </DynamicallySlottable>

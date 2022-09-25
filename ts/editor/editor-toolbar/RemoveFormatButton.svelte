@@ -15,12 +15,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { altPressed, shiftPressed } from "../../lib/keys";
     import { getPlatformString } from "../../lib/shortcuts";
-    import { singleCallback } from "../../lib/typing";
     import { chevronDown } from "../icons";
     import { surrounder } from "../rich-text-input";
     import type { RemoveFormat } from "./EditorToolbar.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { eraserIcon } from "./icons";
+
+    export let disabled: boolean;
 
     const { removeFormats } = editorToolbarContext.get();
 
@@ -60,7 +61,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const keyCombination = "Control+R";
 
-    let disabled: boolean;
     let showFloating = false;
 
     onMount(() => {
@@ -96,10 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             },
         ]);
 
-        return singleCallback(
-            surrounder.active.subscribe((value) => (disabled = !value)),
-            surrounder.registerFormat(key, simpleSpans),
-        );
+        return surrounder.registerFormat(key, simpleSpans);
     });
 </script>
 

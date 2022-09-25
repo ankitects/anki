@@ -24,30 +24,6 @@
     appearance: none;
 }
 
-/**
- * This is the style that is applied to the button is `active`. This usually means
- * that the button is pressed down, or its supposed effect is already applied.
- *
- * @example A bold button should be styled active, if the selection is already bold
- */
-@mixin active(
-    $selector: null
-) {
-    &:active {
-        @include shadow.inset;
-    }
-
-    @if ($selector) {
-        &#{$selector} {
-            @include shadow.inset;
-        }
-
-        // If you press the bold button in a bold selection, you want the visual effect reversed
-        &#{$selector}:active {
-            @include shadow.reset;
-        }
-    }
-}
 
 /**
  * The style applied on hover.
@@ -75,6 +51,36 @@
 }
 
 /**
+ * This is the style that is applied when the button is "active". This usually means
+ * that the button is pressed down, or its supposed effect is already applied.
+ *
+ * @example A bold button should be styled active, if the selection is already bold
+ */
+@mixin active(
+    $selector: null
+) {
+    &:active {
+        background: var(--button-pressed);
+    }
+
+    @if ($selector) {
+        &#{$selector} {
+            background: var(--button-pressed);
+        }
+
+        // If you press the bold button in a bold selection, you want the visual effect reversed
+        &#{$selector}:active {
+            background: linear-gradient(
+                180deg,
+                var(--button-gradient-start) 0%,
+                var(--button-gradient-end) 100%
+            );
+        }
+    }
+}
+
+
+/**
  * The style applied on disabled.
  */
 @mixin disabled(
@@ -82,13 +88,13 @@
 ) {
     &[disabled] {
         color: var(--fg-disabled);
-        background-color: var(--button-disabled);
+        background: var(--button-disabled);
     }
 
     @if ($selector) {
         &#{selector} {
             color: var(--fg-disabled);
-            background-color: var(--button-disabled);
+            background: var(--button-disabled);
         }
     }
 }

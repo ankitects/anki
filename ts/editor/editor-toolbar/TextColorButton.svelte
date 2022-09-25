@@ -12,7 +12,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { removeStyleProperties } from "../../lib/styling";
-    import { singleCallback } from "../../lib/typing";
     import { withFontColor } from "../helpers";
     import { chevronDown } from "../icons";
     import { surrounder } from "../rich-text-input";
@@ -22,6 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithColorHelper from "./WithColorHelper.svelte";
 
     export let color: string;
+    export let disabled: boolean;
 
     $: transformedColor = transformColor(color);
 
@@ -115,14 +115,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const setCombination = "F7";
     const pickCombination = "F8";
 
-    let disabled: boolean;
-
-    onMount(() =>
-        singleCallback(
-            surrounder.active.subscribe((value) => (disabled = !value)),
-            surrounder.registerFormat(key, format),
-        ),
-    );
+    onMount(() => surrounder.registerFormat(key, format));
 </script>
 
 <WithColorHelper {color} let:colorHelperIcon let:setColor>

@@ -10,12 +10,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let size: number | undefined = undefined;
     export let wrap: boolean | undefined = undefined;
 
-    console.log(wrap);
+    export let disabled = false;
 </script>
 
 <div
     {id}
     class="button-group {className}"
+    class:disabled
     dir="ltr"
     style:--button-size="{size}rem"
     role="group"
@@ -36,5 +37,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         background-color: var(--button-border);
         overflow: hidden;
+
+        &.disabled {
+            opacity: 0.5;
+        }
     }
 </style>

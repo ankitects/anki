@@ -8,6 +8,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let tooltip: string | undefined = undefined;
     export let active = false;
+
+    /**
+     * Makes the button unclickable, but will not apply adequate styling.
+     * To achieve styling, pass disabled to the ButtonGroup as well.
+     */ 
     export let disabled = false;
     export let tabbable = false;
 
@@ -38,13 +43,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         font-size: var(--base-font-size);
         height: var(--buttons-size);
 
-        border: none;
-        appearance: none;
-        background-color: white;
-
         @include button.base;
         @include button.active(".active");
         @include button.hover;
-        @include button.disabled;
     }
 </style>

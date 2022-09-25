@@ -92,10 +92,8 @@ $vars: (
                 dark: palette(cyan, 4),
             ),
             pressed: (
-                shadow: (
-                    light: palette(lightgray, 7),
-                    dark: palette(darkgray, 7),
-                ),
+                light: palette(lightgray, 7),
+                dark: palette(darkgray, 7),
             ),
             disabled: (
                 light: color.scale(palette(lightgray, 5), $alpha: -50%),

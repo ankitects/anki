@@ -58,6 +58,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .tag {
+        @include button.base;
+
         font-size: var(--base-font-size);
         padding: 0;
 
@@ -81,6 +83,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             --border-color: var(--border-focus);
         }
     }
-
-    @include button.base($with-disabled: false);
 </style>

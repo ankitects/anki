@@ -10,7 +10,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
     import { removeStyleProperties } from "../../lib/styling";
-    import { singleCallback } from "../../lib/typing";
     import { chevronDown } from "../icons";
     import { surrounder } from "../rich-text-input";
     import ColorPicker from "./ColorPicker.svelte";
@@ -19,6 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithColorHelper from "./WithColorHelper.svelte";
 
     export let color: string;
+    export let disabled: boolean;
 
     $: transformedColor = transformColor(color);
 
@@ -98,14 +98,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         surrounder.overwriteSurround(key);
     }
 
-    let disabled: boolean;
-
-    onMount(() =>
-        singleCallback(
-            surrounder.active.subscribe((value) => (disabled = !value)),
-            surrounder.registerFormat(key, format),
-        ),
-    );
+    onMount(() => surrounder.registerFormat(key, format));
 </script>
 
 <WithColorHelper {color} let:colorHelperIcon let:setColor>

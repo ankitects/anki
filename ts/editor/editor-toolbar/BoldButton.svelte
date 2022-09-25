@@ -12,10 +12,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { removeStyleProperties } from "../../lib/styling";
-    import { singleCallback } from "../../lib/typing";
     import { surrounder } from "../rich-text-input";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { boldIcon } from "./icons";
+
+    export let disabled = false;
 
     const surroundElement = document.createElement("b");
 
@@ -64,14 +65,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const keyCombination = "Control+B";
 
-    let disabled: boolean;
-
-    onMount(() =>
-        singleCallback(
-            surrounder.active.subscribe((value) => (disabled = !value)),
-            surrounder.registerFormat(key, format),
-        ),
-    );
+    onMount(() => surrounder.registerFormat(key, format));
 </script>
 
 <WithState {key} update={updateStateFromActiveInput} let:state={active} let:updateState>
