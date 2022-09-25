@@ -41,8 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     @use "sass/button-mixins" as button;
-    @include button.btn-day($with-hover: false);
-    @include button.btn-night($with-hover: false);
+    @include button.base($selector: "select", $with-hover: false);
 
     select {
         height: var(--buttons-size);
@@ -61,7 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         &.btn-day {
             /* Hide default arrow for consistency */
-            background: var(--frame-bg);
+            background: var(--canvas-elevated);
         }
     }
 

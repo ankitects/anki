@@ -69,15 +69,15 @@
         padding: 0.25rem 1rem;
         cursor: pointer;
         margin: 0 8px -1px 0;
-        color: var(--disabled);
+        color: var(--fg-subtle);
     }
 
     li.active > span {
-        border-color: var(--border) var(--border) var(--window-bg);
-        color: var(--text-fg);
+        border-color: var(--border) var(--border) var(--canvas);
+        color: var(--fg);
     }
 
     span:hover {
-        color: var(--text-fg);
+        color: var(--fg);
     }
 </style>

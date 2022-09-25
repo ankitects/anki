@@ -72,10 +72,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .btn-night {
         color: white;
-
-        &:hover,
-        &:focus {
-            @include button.btn-night-base;
-        }
     }
 </style>

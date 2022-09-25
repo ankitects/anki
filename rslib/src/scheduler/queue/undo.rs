@@ -146,7 +146,7 @@ mod test {
             let deck = col.get_deck(DeckId(1))?.unwrap();
             assert_eq!(deck.common.review_studied, 1);
 
-            assert!(!col.get_next_card()?.is_some());
+            assert!(col.get_next_card()?.is_none());
 
             Ok(())
         };

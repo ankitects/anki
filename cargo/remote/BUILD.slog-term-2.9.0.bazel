@@ -66,7 +66,7 @@ rust_library(
         "@raze__slog__2_7_0//:slog",
         "@raze__term__0_7_0//:term",
         "@raze__thread_local__1_1_4//:thread_local",
-        "@raze__time__0_3_7//:time",
+        "@raze__time__0_3_14//:time",
     ],
 )
 

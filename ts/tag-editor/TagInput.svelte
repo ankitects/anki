@@ -262,7 +262,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .tag-input {
         width: 100%;
-        color: var(--text-fg);
+        color: var(--fg);
         background: none;
         resize: none;
         appearance: none;

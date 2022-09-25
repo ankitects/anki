@@ -263,7 +263,7 @@ impl<'n> NoteContext<'n> {
         Ok(())
     }
 
-    fn replace_media_refs(&mut self, field: &mut String) -> Option<String> {
+    fn replace_media_refs(&mut self, field: &mut str) -> Option<String> {
         replace_media_refs(field, |name| {
             if let Ok(normalized) = safe_normalized_file_name(name) {
                 if let Some(entry) = self.media_map.use_entry(&normalized) {

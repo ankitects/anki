@@ -115,20 +115,20 @@ fn prepare_provided(provided: &str) -> String {
     normalize_to_nfc(provided).into()
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 enum DiffTokenKind {
     Good,
     Bad,
     Missing,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 struct DiffToken<'a> {
     kind: DiffTokenKind,
     text: Cow<'a, str>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 struct DiffOutput<'a> {
     provided: Vec<DiffToken<'a>>,
     expected: Vec<DiffToken<'a>>,

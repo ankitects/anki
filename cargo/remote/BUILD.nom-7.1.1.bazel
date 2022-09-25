@@ -61,7 +61,7 @@ rust_library(
     version = "7.1.1",
     # buildifier: leave-alone
     deps = [
-        "@raze__memchr__2_4_1//:memchr",
+        "@raze__memchr__2_5_0//:memchr",
         "@raze__minimal_lexical__0_2_1//:minimal_lexical",
     ],
 )

@@ -20,8 +20,16 @@ class SidebarTool(Enum):
 
 class SidebarToolbar(QToolBar):
     _tools: tuple[tuple[SidebarTool, str, Callable[[], str]], ...] = (
-        (SidebarTool.SEARCH, "icons:magnifying_glass.svg", tr.actions_search),
-        (SidebarTool.SELECT, "icons:select.svg", tr.actions_select),
+        (
+            SidebarTool.SEARCH,
+            "mdi:magnify",
+            tr.actions_search,
+        ),
+        (
+            SidebarTool.SELECT,
+            "mdi:selection-drag",
+            tr.actions_select,
+        ),
     )
 
     def __init__(self, sidebar: aqt.browser.sidebar.SidebarTreeView) -> None:

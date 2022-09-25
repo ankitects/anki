@@ -20,7 +20,7 @@ fn ords_changed(ords: &[Option<u32>], previous_len: usize) -> bool {
             .any(|(idx, &ord)| ord != Some(idx as u32))
 }
 
-#[derive(Default, PartialEq, Debug)]
+#[derive(Default, PartialEq, Eq, Debug)]
 struct TemplateOrdChanges {
     added: Vec<u32>,
     removed: Vec<u16>,

@@ -31,6 +31,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </button>
 
 <style lang="scss">
+    @use "sass/button-mixins" as button;
+
     .icon-button {
         padding: 0;
         font-size: var(--base-font-size);
@@ -40,4 +42,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         appearance: none;
         background-color: white;
     }
+
+    @include button.base(".icon-button");
 </style>

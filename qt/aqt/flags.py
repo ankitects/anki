@@ -61,55 +61,55 @@ class FlagManager:
 
     def _load_flags(self) -> None:
         labels = cast(dict[str, str], self.mw.col.get_config("flagLabels", {}))
-        icon = ColoredIcon(path="icons:flag-variant.svg", color=colors.DISABLED)
+        icon = ColoredIcon(path="icons:flag-variant.svg", color=colors.FG_DISABLED)
 
         self._flags = [
             Flag(
                 1,
                 labels["1"] if "1" in labels else tr.actions_flag_red(),
-                icon.with_color(colors.FLAG1_FG),
+                icon.with_color(colors.FLAG_1),
                 SearchNode(flag=SearchNode.FLAG_RED),
                 "actionRed_Flag",
             ),
             Flag(
                 2,
                 labels["2"] if "2" in labels else tr.actions_flag_orange(),
-                icon.with_color(colors.FLAG2_FG),
+                icon.with_color(colors.FLAG_2),
                 SearchNode(flag=SearchNode.FLAG_ORANGE),
                 "actionOrange_Flag",
             ),
             Flag(
                 3,
                 labels["3"] if "3" in labels else tr.actions_flag_green(),
-                icon.with_color(colors.FLAG3_FG),
+                icon.with_color(colors.FLAG_3),
                 SearchNode(flag=SearchNode.FLAG_GREEN),
                 "actionGreen_Flag",
             ),
             Flag(
                 4,
                 labels["4"] if "4" in labels else tr.actions_flag_blue(),
-                icon.with_color(colors.FLAG4_FG),
+                icon.with_color(colors.FLAG_4),
                 SearchNode(flag=SearchNode.FLAG_BLUE),
                 "actionBlue_Flag",
             ),
             Flag(
                 5,
                 labels["5"] if "5" in labels else tr.actions_flag_pink(),
-                icon.with_color(colors.FLAG5_FG),
+                icon.with_color(colors.FLAG_5),
                 SearchNode(flag=SearchNode.FLAG_PINK),
                 "actionPink_Flag",
             ),
             Flag(
                 6,
                 labels["6"] if "6" in labels else tr.actions_flag_turquoise(),
-                icon.with_color(colors.FLAG6_FG),
+                icon.with_color(colors.FLAG_6),
                 SearchNode(flag=SearchNode.FLAG_TURQUOISE),
                 "actionTurquoise_Flag",
             ),
             Flag(
                 7,
                 labels["7"] if "7" in labels else tr.actions_flag_purple(),
-                icon.with_color(colors.FLAG7_FG),
+                icon.with_color(colors.FLAG_7),
                 SearchNode(flag=SearchNode.FLAG_PURPLE),
                 "actionPurple_Flag",
             ),

@@ -61,49 +61,49 @@
        <item>
         <widget class="QComboBox" name="video_driver"/>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="showPlayButtons">
          <property name="text">
           <string>preferences_show_play_buttons_on_cards_with</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="interrupt_audio">
          <property name="text">
           <string>preferences_interrupt_current_audio_when_answering</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="pastePNG">
          <property name="text">
           <string>preferences_paste_clipboard_images_as_png</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="paste_strips_formatting">
          <property name="text">
           <string>preferences_paste_without_shift_key_strips_formatting</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="ignore_accents_in_search">
          <property name="text">
           <string>preferences_ignore_accents_in_search</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="legacy_import_export">
          <property name="text">
           <string notr="true">Legacy import/export handling</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="reduce_motion">
          <property name="toolTip">
           <string>preferences_reduce_motion_tooltip</string>
@@ -204,35 +204,35 @@
        <string>preferences_scheduling</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="showEstimates">
          <property name="text">
           <string>preferences_show_next_review_time_above_answer</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="showProgress">
          <property name="text">
           <string>preferences_show_remaining_card_count_during_review</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="dayLearnFirst">
          <property name="text">
           <string>preferences_show_learning_cards_with_larger_steps</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="legacy_timezone">
          <property name="text">
           <string>preferences_legacy_timezone_handling</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="sched2021">
          <property name="toolTip">
           <string notr="true"/>
@@ -382,28 +382,28 @@
              </property>
             </widget>
            </item>
-           <item>
+           <item alignment="Qt::AlignLeft">
             <widget class="QCheckBox" name="syncMedia">
              <property name="text">
               <string>preferences_synchronize_audio_and_images_too</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item alignment="Qt::AlignLeft">
             <widget class="QCheckBox" name="syncOnProgramOpen">
              <property name="text">
               <string>preferences_automatically_sync_on_profile_openclose</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item alignment="Qt::AlignLeft">
             <widget class="QCheckBox" name="autoSyncMedia">
              <property name="text">
               <string>preferences_periodically_sync_media</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item alignment="Qt::AlignLeft">
             <widget class="QCheckBox" name="fullSync">
              <property name="text">
               <string>preferences_on_next_sync_force_changes_in</string>
@@ -666,7 +666,7 @@
      </widget>
     </widget>
    </item>
-   <item>
+   <item alignment="Qt::AlignCenter">
     <widget class="QLabel" name="label_21">
      <property name="text">
       <string>preferences_some_settings_will_take_effect_after</string>

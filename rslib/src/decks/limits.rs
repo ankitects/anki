@@ -38,11 +38,11 @@ impl NormalDeck {
 
 impl DayLimit {
     pub fn limit(&self, today: u32) -> Option<u32> {
-        (self.today == today).then(|| self.limit)
+        (self.today == today).then_some(self.limit)
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct RemainingLimits {
     pub review: u32,
     pub new: u32,

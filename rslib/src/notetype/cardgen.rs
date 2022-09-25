@@ -16,7 +16,7 @@ use crate::{
 };
 
 /// Info about an existing card required when generating new cards
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct AlreadyGeneratedCardInfo {
     pub id: CardId,
     pub nid: NoteId,
@@ -178,7 +178,7 @@ pub(super) fn group_generated_cards_by_note(
     out
 }
 
-#[derive(Debug, PartialEq, Default)]
+#[derive(Debug, PartialEq, Eq, Default)]
 pub(crate) struct ExtractedCardInfo {
     // if set, the due position new cards should be given
     pub due: Option<u32>,

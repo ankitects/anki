@@ -46,7 +46,7 @@ pub struct NormalSyncProgress {
     pub remote_remove: usize,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SyncStage {
     Connecting,
     Syncing,
@@ -176,14 +176,14 @@ pub struct SanityCheckResponse {
     pub server: Option<SanityCheckCounts>,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 pub enum SanityCheckStatus {
     Ok,
     Bad,
 }
 
-#[derive(Serialize_tuple, Deserialize, Debug, PartialEq)]
+#[derive(Serialize_tuple, Deserialize, Debug, PartialEq, Eq)]
 pub struct SanityCheckCounts {
     pub counts: SanityCheckDueCounts,
     pub cards: u32,
@@ -196,7 +196,7 @@ pub struct SanityCheckCounts {
     pub deck_config: u32,
 }
 
-#[derive(Serialize_tuple, Deserialize, Debug, Default, PartialEq)]
+#[derive(Serialize_tuple, Deserialize, Debug, Default, PartialEq, Eq)]
 pub struct SanityCheckDueCounts {
     pub new: u32,
     pub learn: u32,
@@ -209,7 +209,7 @@ pub struct FullSyncProgress {
     pub total_bytes: usize,
 }
 
-#[derive(PartialEq, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub enum SyncActionRequired {
     NoChanges,
     FullSyncRequired { upload_ok: bool, download_ok: bool },
