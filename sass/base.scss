@@ -32,11 +32,22 @@ $utilities: (
     flex-basis: 75%;
 }
 
+html,
 body {
-    overscroll-behavior: none;
+    height: 100%;
 }
 
-@include scrollbar.custom;
+html {
+    overflow-x: hidden;
+}
+
+body {
+    overscroll-behavior: none;
+    &:not(.isMac),
+    &:not(.isMac) * {
+        @include scrollbar.custom;
+    }
+}
 
 button {
     /* override transition for instant hover response */
