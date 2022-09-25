@@ -2,6 +2,12 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<script lang="ts" context="module">
+    import { writable } from "svelte/store";
+
+    export const shrinkImagesByDefault = writable(true);
+</script>
+
 <script lang="ts">
     import { onMount, tick } from "svelte";
 
@@ -27,18 +33,47 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let activeImage: HTMLImageElement | null = null;
 
     /**
-     * For element dataset attributes which work like the contenteditable attribute
+     * Returns the value if set, otherwise null.
      */
-    function isDatasetAttributeFlagSet(
+    function getBooleanDatasetAttribute(
         element: HTMLElement | SVGElement,
         attribute: string,
-    ): boolean {
-        return attribute in element.dataset && element.dataset[attribute] !== "false";
+    ): boolean | null {
+        return attribute in element.dataset
+            ? element.dataset[attribute] !== "false"
+            : null;
     }
 
-    $: isSizeConstrained = activeImage
-        ? isDatasetAttributeFlagSet(activeImage, "editorShrink")
-        : false;
+    let isSizeConstrained = false;
+    $: {
+        if (activeImage) {
+            isSizeConstrained =
+                getBooleanDatasetAttribute(activeImage, "editorShrink") ??
+                $shrinkImagesByDefault;
+        }
+    }
+
+    $: {
+        if ($shrinkImagesByDefault) {
+            document.documentElement.style.setProperty(
+                "--editor-default-max-width",
+                `${maxWidth}px`,
+            );
+            document.documentElement.style.setProperty(
+                "--editor-default-max-height",
+                `${maxHeight}px`,
+            );
+        } else {
+            document.documentElement.style.setProperty(
+                "--editor-default-max-width",
+                "inherit",
+            );
+            document.documentElement.style.setProperty(
+                "--editor-default-max-height",
+                "inherit",
+            );
+        }
+    }
 
     async function resetHandle(): Promise<void> {
         activeImage = null;
@@ -181,7 +216,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function toggleActualSize(): void {
         if (isSizeConstrained) {
-            delete activeImage!.dataset.editorShrink;
+            activeImage!.dataset.editorShrink = "false";
         } else {
             activeImage!.dataset.editorShrink = "true";
         }

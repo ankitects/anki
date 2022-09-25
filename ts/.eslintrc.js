@@ -14,6 +14,7 @@ module.exports = {
             "warn",
             { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
         ],
+        "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
         "import/newline-after-import": "warn",
         "import/no-useless-path-segments": "warn",
         "simple-import-sort/imports": "warn",
