@@ -3,7 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { pageTheme } from "../sveltelib/theme";
     import IconConstrain from "./IconConstrain.svelte";
 
     export let tooltip: string | undefined = undefined;
@@ -12,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /**
      * Makes the button unclickable, but will not apply adequate styling.
      * To achieve styling, pass disabled to the ButtonGroup as well.
-     */ 
+     */
     export let disabled = false;
     export let tabbable = false;
 
@@ -44,7 +43,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height: var(--buttons-size);
 
         @include button.base;
-        @include button.active(".active");
+        @include button.pressed;
         @include button.hover;
+        @include button.active(".active");
     }
 </style>

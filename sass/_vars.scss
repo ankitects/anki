@@ -78,26 +78,16 @@ $vars: (
                 dark: palette(darkgray, 1),
             ),
             focus: (
-                light: palette(blue, 5),
-                dark: palette(blue, 5),
+                default: palette(blue, 5),
             ),
         ),
         button: (
             border: (
-                light: palette(lightgray, 6),
+                light: palette(lightgray, 8),
                 dark: palette(darkgray, 6),
             ),
             focus: (
-                light: palette(cyan, 3),
-                dark: palette(cyan, 4),
-            ),
-            pressed: (
-                light: palette(lightgray, 7),
-                dark: palette(darkgray, 7),
-            ),
-            disabled: (
-                light: color.scale(palette(lightgray, 5), $alpha: -50%),
-                dark: color.scale(palette(darkgray, 3), $alpha: -50%),
+                default: palette(blue, 5),
             ),
             gradient: (
                 start: (
