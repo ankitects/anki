@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     @use "sass/button-mixins" as button;
 
-    button {
+    .label-button {
         padding: 0 calc(var(--buttons-size) / 3);
         font-size: var(--base-font-size);
         height: var(--buttons-size);
@@ -39,6 +39,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         overflow: hidden;
         text-overflow: ellipsis;
     }
-
-    @include button.base($with-primary: true);
 </style>
