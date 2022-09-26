@@ -27,18 +27,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     placement="bottom"
     inline
     on:close={() => (showFloating = false)}
-    let:asReference
 >
-    <span use:asReference>
-        <IconButton
-            tooltip={tr.actionsOptions()}
-            --border-left-radius="5px"
-            --border-right-radius="5px"
-            on:click={() => (showFloating = !showFloating)}
-        >
-            {@html cogIcon}
-        </IconButton>
-    </span>
+    <IconButton
+        slot="reference"
+        tooltip={tr.actionsOptions()}
+        --border-left-radius="5px"
+        --border-right-radius="5px"
+        on:click={() => (showFloating = !showFloating)}
+    >
+        {@html cogIcon}
+    </IconButton>
 
     <Popover slot="floating" --popover-padding-inline="0">
         <DropdownItem on:click={toggleShrinkImages}>
