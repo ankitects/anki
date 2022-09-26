@@ -3,102 +3,89 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { promiseWithResolver } from "../lib/promise";
+    import { tick } from "svelte";
+    import { cubicIn, cubicOut } from "svelte/easing";
+    import { tweened } from "svelte/motion";
 
-    export let id: string | undefined = undefined;
-    let className: string = "";
-    export { className as class };
+    export let collapse = false;
+    export let animated = !document.body.classList.contains("reduced-motion");
 
-    export let collapsed = false;
-    let isCollapsed = false;
-    let hidden = collapsed;
+    let collapsed = false;
+    let contentHeight = 0;
 
-    const [outerPromise, outerResolve] = promiseWithResolver<HTMLElement>();
-    const [innerPromise, innerResolve] = promiseWithResolver<HTMLElement>();
-
-    let style: string;
-    function setStyle(height: number, duration: number) {
-        style = `--collapse-height: -${height}px; --duration: ${duration}ms`;
+    function dynamicDuration(height: number): number {
+        return 100 + Math.pow(height, 1 / 4) * 25;
     }
+    $: duration = dynamicDuration(contentHeight);
 
-    /* The following two functions use synchronous DOM-manipulation,
-    because Editor field inputs would lose focus when using tick() */
+    const size = tweened<number>(undefined);
 
-    function getRequiredHeight(el: HTMLElement): number {
-        el.style.setProperty("position", "absolute");
-        el.style.setProperty("visibility", "hidden");
-        el.removeAttribute("hidden");
-
-        const height = el.clientHeight;
-
-        el.setAttribute("hidden", "");
-        el.style.removeProperty("position");
-        el.style.removeProperty("visibility");
-
-        return height;
-    }
-
-    async function transition(collapse: boolean) {
-        const outer = await outerPromise;
-        const inner = await innerPromise;
-
-        outer.style.setProperty("overflow", "hidden");
-        isCollapsed = true;
-
-        const height = collapse ? inner.clientHeight : getRequiredHeight(inner);
-        const duration = Math.sqrt(height * 80);
-
-        setStyle(height, duration);
-
-        if (!collapse) {
-            inner.removeAttribute("hidden");
-            isCollapsed = false;
+    async function transition(collapse: boolean): Promise<void> {
+        if (collapse) {
+            contentHeight = collapsibleElement.clientHeight;
+            size.set(0, {
+                duration: duration,
+                easing: cubicOut,
+            });
+        } else {
+            /* Tell content to show and await response */
+            collapsed = false;
+            await tick();
+            /* Measure content height to tween to */
+            contentHeight = collapsibleElement.clientHeight;
+            size.set(1, {
+                duration: duration,
+                easing: cubicIn,
+            });
         }
-
-        inner.addEventListener(
-            "transitionend",
-            () => {
-                inner.toggleAttribute("hidden", collapse);
-                outer.style.removeProperty("overflow");
-                hidden = collapse;
-            },
-            { once: true },
-        );
     }
 
-    /* prevent transition on mount for performance reasons */
-    let firstTransition = true;
-
-    $: {
-        transition(collapsed);
-        firstTransition = false;
+    $: if (collapsibleElement) {
+        if (animated) {
+            transition(collapse);
+        } else {
+            collapsed = collapse;
+        }
     }
+
+    let collapsibleElement: HTMLElement;
+
+    $: collapsed = $size === 0;
+    $: expanded = $size === 1;
+    $: height = $size * contentHeight;
+    $: transitioning = $size > 0 && !(collapsed || expanded);
+    $: measuring = !(collapsed || transitioning || expanded);
 </script>
 
-<div {id} class="collapsible-container {className}" use:outerResolve>
-    <div
-        class="collapsible-inner"
-        class:collapsed={isCollapsed}
-        class:no-transition={firstTransition}
-        use:innerResolve
-        {style}
-    >
-        <slot {hidden} />
-    </div>
+<div
+    bind:this={collapsibleElement}
+    class="collapsible"
+    class:animated
+    class:expanded
+    class:measuring
+    class:transitioning
+    style:--height="{height}px"
+>
+    <slot {collapsed} />
 </div>
 
-<style lang="scss">
-    .collapsible-container {
-        position: relative;
-    }
-    .collapsible-inner {
-        transition: margin-top var(--duration) ease-in;
+{#if measuring}
+    <!-- Maintain document flow while collapsible height is measured -->
+    <div class="collapsible-placeholder" />
+{/if}
 
-        &.collapsed {
-            margin-top: var(--collapse-height);
+<style lang="scss">
+    .collapsible.animated {
+        &.measuring {
+            position: absolute;
+            opacity: 0;
         }
-        &.no-transition {
-            transition: none;
+        &.transitioning {
+            overflow: hidden;
+            height: var(--height);
+            &.expanded {
+                overflow: visible;
+            }
         }
     }
 </style>

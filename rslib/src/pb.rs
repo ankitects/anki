@@ -4,6 +4,7 @@
 macro_rules! protobuf {
     ($ident:ident) => {
         pub mod $ident {
+            #![allow(clippy::derive_partial_eq_without_eq)]
             include!(concat!(
                 env!("OUT_DIR"),
                 concat!("/anki.", stringify!($ident), ".rs")

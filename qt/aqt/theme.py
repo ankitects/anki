@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import enum
+import os
 import platform
+import re
 import subprocess
 from dataclasses import dataclass
 from typing import Callable, List, Tuple
@@ -60,7 +62,7 @@ class ThemeManager:
     DARK_MODE_BUTTON_BG_MIDPOINT = "#555555"
 
     def macos_dark_mode(self) -> bool:
-        "True if the user has night mode on, and has forced native widgets."
+        "True if the user has night mode on."
         if not is_mac:
             return False
 
@@ -70,9 +72,7 @@ class ThemeManager:
         if self._dark_mode_available is None:
             self._dark_mode_available = set_macos_dark_mode(True)
 
-        from aqt import mw
-
-        return self._dark_mode_available and mw.pm.dark_mode_widgets()
+        return self._dark_mode_available
 
     def get_night_mode(self) -> bool:
         return self._night_mode_preference
@@ -83,8 +83,21 @@ class ThemeManager:
 
     night_mode = property(get_night_mode, set_night_mode)
 
+    def themed_icon(self, path: str) -> str:
+        "Fetch themed version of svg."
+        from aqt.utils import aqt_data_folder
+
+        if m := re.match(r"(?:mdi:)(.+)$", path):
+            name = m.group(1)
+        else:
+            return path
+
+        filename = f"{name}-{'dark' if self.night_mode else 'light'}.svg"
+
+        return os.path.join(aqt_data_folder(), "qt", "icons", filename)
+
     def icon_from_resources(self, path: str | ColoredIcon) -> QIcon:
-        "Fetch icon from Qt resources, and invert if in night mode."
+        "Fetch icon from Qt resources."
         if self.night_mode:
             cache = self._icon_cache_light
         else:
@@ -101,11 +114,14 @@ class ThemeManager:
 
         if isinstance(path, str):
             # default black/white
-            icon = QIcon(path)
-            if self.night_mode:
-                img = icon.pixmap(self._icon_size, self._icon_size).toImage()
-                img.invertPixels()
-                icon = QIcon(QPixmap(img))
+            if "mdi:" in path:
+                icon = QIcon(self.themed_icon(path))
+            else:
+                icon = QIcon(path)
+                if self.night_mode:
+                    img = icon.pixmap(self._icon_size, self._icon_size).toImage()
+                    img.invertPixels()
+                    icon = QIcon(QPixmap(img))
         else:
             # specified colours
             icon = QIcon(path.path)
@@ -122,7 +138,7 @@ class ThemeManager:
         return cache.setdefault(path, icon)
 
     def body_class(self, night_mode: bool | None = None) -> str:
-        "Returns space-separated class list for platform/theme."
+        "Returns space-separated class list for platform/theme/global settings."
         classes = []
         if is_win:
             classes.append("isWin")
@@ -137,6 +153,8 @@ class ThemeManager:
             classes.extend(["nightMode", "night_mode"])
             if self.macos_dark_mode():
                 classes.append("macos-dark-mode")
+        if aqt.mw.pm.reduced_motion():
+            classes.append("reduced-motion")
         return " ".join(classes)
 
     def body_classes_for_card_ord(
@@ -145,13 +163,13 @@ class ThemeManager:
         "Returns body classes used when showing a card."
         return f"card card{card_ord+1} {self.body_class(night_mode)}"
 
-    def color(self, colors: tuple[str, str]) -> str:
-        """Given day/night colors, return the correct one for the current theme."""
+    def var(self, vars: tuple[str, str]) -> str:
+        """Given day/night colors/props, return the correct one for the current theme."""
         idx = 1 if self.night_mode else 0
-        return colors[idx]
+        return vars[idx]
 
     def qcolor(self, colors: tuple[str, str]) -> QColor:
-        return QColor(self.color(colors))
+        return QColor(self.var(colors))
 
     def _determine_night_mode(self) -> bool:
         theme = aqt.mw.pm.theme()
@@ -186,60 +204,38 @@ class ThemeManager:
         gui_hooks.theme_did_change()
 
     def _apply_style(self, app: QApplication) -> None:
-        buf = ""
+        from aqt.stylesheets import splitter_styles
+
+        buf = splitter_styles(self)
+
+        if not is_mac:
+            from aqt.stylesheets import (
+                button_styles,
+                checkbox_styles,
+                combobox_styles,
+                general_styles,
+                scrollbar_styles,
+                spinbox_styles,
+                table_styles,
+                tabwidget_styles,
+                win10_styles,
+            )
+
+            buf += "".join(
+                [
+                    general_styles(self),
+                    button_styles(self),
+                    combobox_styles(self),
+                    tabwidget_styles(self),
+                    table_styles(self),
+                    spinbox_styles(self),
+                    checkbox_styles(self),
+                    scrollbar_styles(self),
+                ]
+            )
 
         if is_win and platform.release() == "10":
-            # day mode is missing a bottom border; background must be
-            # also set for border to apply
-            buf += f"""
-QMenuBar {{
-  border-bottom: 1px solid {self.color(colors.BORDER)};
-  background: {self.color(colors.WINDOW_BG) if self.night_mode else "white"};
-}}
-"""
-            # qt bug? setting the above changes the browser sidebar
-            # to white as well, so set it back
-            buf += f"""
-QTreeWidget {{
-  background: {self.color(colors.WINDOW_BG)};
-}}
-            """
-
-        if self.night_mode:
-            buf += """
-QToolTip {
-  border: 0;
-}
-            """
-
-            if not self.macos_dark_mode():
-                buf += """
-QScrollBar {{ background-color: {}; }}
-QScrollBar::handle {{ background-color: {}; border-radius: 5px; }} 
-
-QScrollBar:horizontal {{ height: 12px; }}
-QScrollBar::handle:horizontal {{ min-width: 50px; }} 
-
-QScrollBar:vertical {{ width: 12px; }}
-QScrollBar::handle:vertical {{ min-height: 50px; }} 
-    
-QScrollBar::add-line {{
-      border: none;
-      background: none;
-}}
-
-QScrollBar::sub-line {{
-      border: none;
-      background: none;
-}}
-
-QTabWidget {{ background-color: {}; }}
-""".format(
-                    self.color(colors.WINDOW_BG),
-                    # fushion-button-hover-bg
-                    "#656565",
-                    self.color(colors.WINDOW_BG),
-                )
+            buf += win10_styles(self)
 
         # allow addons to modify the styling
         buf = gui_hooks.style_did_init(buf)
@@ -251,6 +247,9 @@ QTabWidget {{ background-color: {}; }}
 
         if not self.night_mode:
             app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
+            self.default_palette.setColor(
+                QPalette.ColorRole.Window, self.qcolor(colors.CANVAS)
+            )
             app.setPalette(self.default_palette)
             return
 
@@ -259,11 +258,11 @@ QTabWidget {{ background-color: {}; }}
 
         palette = QPalette()
 
-        text_fg = self.qcolor(colors.TEXT_FG)
-        palette.setColor(QPalette.ColorRole.WindowText, text_fg)
-        palette.setColor(QPalette.ColorRole.ToolTipText, text_fg)
-        palette.setColor(QPalette.ColorRole.Text, text_fg)
-        palette.setColor(QPalette.ColorRole.ButtonText, text_fg)
+        text = self.qcolor(colors.FG)
+        palette.setColor(QPalette.ColorRole.WindowText, text)
+        palette.setColor(QPalette.ColorRole.ToolTipText, text)
+        palette.setColor(QPalette.ColorRole.Text, text)
+        palette.setColor(QPalette.ColorRole.ButtonText, text)
 
         hlbg = self.qcolor(colors.HIGHLIGHT_BG)
         hlbg.setAlpha(64)
@@ -272,18 +271,21 @@ QTabWidget {{ background-color: {}; }}
         )
         palette.setColor(QPalette.ColorRole.Highlight, hlbg)
 
-        window_bg = self.qcolor(colors.WINDOW_BG)
-        palette.setColor(QPalette.ColorRole.Window, window_bg)
-        palette.setColor(QPalette.ColorRole.AlternateBase, window_bg)
+        canvas = self.qcolor(colors.CANVAS)
+        palette.setColor(QPalette.ColorRole.Window, canvas)
+        palette.setColor(QPalette.ColorRole.AlternateBase, canvas)
 
         palette.setColor(QPalette.ColorRole.Button, QColor("#454545"))
 
-        frame_bg = self.qcolor(colors.FRAME_BG)
-        palette.setColor(QPalette.ColorRole.Base, frame_bg)
-        palette.setColor(QPalette.ColorRole.ToolTipBase, frame_bg)
+        canvas_inset = self.qcolor(colors.CANVAS_INSET)
+        palette.setColor(QPalette.ColorRole.Base, canvas_inset)
+        palette.setColor(QPalette.ColorRole.ToolTipBase, canvas_inset)
 
-        disabled_color = self.qcolor(colors.DISABLED)
-        palette.setColor(QPalette.ColorRole.PlaceholderText, disabled_color)
+        palette.setColor(
+            QPalette.ColorRole.PlaceholderText, self.qcolor(colors.FG_SUBTLE)
+        )
+
+        disabled_color = self.qcolor(colors.FG_DISABLED)
         palette.setColor(
             QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color
         )
@@ -296,7 +298,7 @@ QTabWidget {{ background-color: {}; }}
             disabled_color,
         )
 
-        palette.setColor(QPalette.ColorRole.Link, self.qcolor(colors.LINK))
+        palette.setColor(QPalette.ColorRole.Link, self.qcolor(colors.ACCENT_LINK))
 
         palette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
 
@@ -305,11 +307,11 @@ QTabWidget {{ background-color: {}; }}
     def _update_stat_colors(self) -> None:
         import anki.stats as s
 
-        s.colLearn = self.color(colors.NEW_COUNT)
-        s.colRelearn = self.color(colors.LEARN_COUNT)
-        s.colCram = self.color(colors.SUSPENDED_BG)
-        s.colSusp = self.color(colors.SUSPENDED_BG)
-        s.colMature = self.color(colors.REVIEW_COUNT)
+        s.colLearn = self.var(colors.STATE_NEW)
+        s.colRelearn = self.var(colors.STATE_LEARN)
+        s.colCram = self.var(colors.STATE_SUSPENDED)
+        s.colSusp = self.var(colors.STATE_SUSPENDED)
+        s.colMature = self.var(colors.STATE_REVIEW)
         s._legacy_nightmode = self._night_mode_preference
 
 
@@ -324,11 +326,11 @@ def get_windows_dark_mode() -> bool:
         QueryValueEx,
     )
 
-    key = OpenKey(
-        HKEY_CURRENT_USER,
-        r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
-    )
     try:
+        key = OpenKey(
+            HKEY_CURRENT_USER,
+            r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
+        )
         return not QueryValueEx(key, "AppsUseLightTheme")[0]
     except Exception as err:
         # key reportedly missing or set to wrong type on some systems

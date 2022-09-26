@@ -4,25 +4,60 @@
 import { postRequest } from "../lib/postrequest";
 import { Scheduler } from "../lib/proto";
 
-async function getNextStates(): Promise<Scheduler.NextCardStates> {
-    return Scheduler.NextCardStates.decode(
-        await postRequest("/_anki/nextCardStates", ""),
+interface CustomDataStates {
+    again: Record<string, unknown>;
+    hard: Record<string, unknown>;
+    good: Record<string, unknown>;
+    easy: Record<string, unknown>;
+}
+
+async function getSchedulingStates(): Promise<Scheduler.SchedulingStates> {
+    return Scheduler.SchedulingStates.decode(
+        await postRequest("/_anki/getSchedulingStates", ""),
     );
 }
 
-async function setNextStates(
+async function setSchedulingStates(
     key: string,
-    states: Scheduler.NextCardStates,
+    states: Scheduler.SchedulingStates,
 ): Promise<void> {
-    const data: Uint8Array = Scheduler.NextCardStates.encode(states).finish();
-    await postRequest("/_anki/setNextCardStates", data, { key });
+    const bytes = Scheduler.SchedulingStates.encode(states).finish();
+    await postRequest("/_anki/setSchedulingStates", bytes, { key });
+}
+
+function unpackCustomData(states: Scheduler.SchedulingStates): CustomDataStates {
+    const toObject = (s: string): Record<string, unknown> => {
+        try {
+            return JSON.parse(s);
+        } catch {
+            return {};
+        }
+    };
+    return {
+        again: toObject(states.current!.customData!),
+        hard: toObject(states.current!.customData!),
+        good: toObject(states.current!.customData!),
+        easy: toObject(states.current!.customData!),
+    };
+}
+
+function packCustomData(
+    states: Scheduler.SchedulingStates,
+    customData: CustomDataStates,
+) {
+    states.again!.customData = JSON.stringify(customData.again);
+    states.hard!.customData = JSON.stringify(customData.hard);
+    states.good!.customData = JSON.stringify(customData.good);
+    states.easy!.customData = JSON.stringify(customData.easy);
 }
 
 export async function mutateNextCardStates(
     key: string,
-    mutator: (states: Scheduler.NextCardStates) => void,
+    mutator: (states: Scheduler.SchedulingStates, customData: CustomDataStates) => void,
 ): Promise<void> {
-    const states = await getNextStates();
-    mutator(states);
-    await setNextStates(key, states);
+    const states = await getSchedulingStates();
+    const customData = unpackCustomData(states);
+    mutator(states, customData);
+    packCustomData(states, customData);
+    await setSchedulingStates(key, states);
 }

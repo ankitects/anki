@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::mem;
+
 use crate::{
     pb,
     prelude::*,
@@ -11,14 +13,17 @@ use crate::{
 };
 
 impl From<pb::CardAnswer> for CardAnswer {
-    fn from(answer: pb::CardAnswer) -> Self {
+    fn from(mut answer: pb::CardAnswer) -> Self {
+        let mut new_state = mem::take(&mut answer.new_state).unwrap_or_default();
+        let custom_data = mem::take(&mut new_state.custom_data);
         CardAnswer {
             card_id: CardId(answer.card_id),
             rating: answer.rating().into(),
             current_state: answer.current_state.unwrap_or_default().into(),
-            new_state: answer.new_state.unwrap_or_default().into(),
+            new_state: new_state.into(),
             answered_at: TimestampMillis(answer.answered_at_millis),
             milliseconds_taken: answer.milliseconds_taken,
+            custom_data,
         }
     }
 }
@@ -38,7 +43,7 @@ impl From<QueuedCard> for pb::queued_cards::QueuedCard {
     fn from(queued_card: QueuedCard) -> Self {
         Self {
             card: Some(queued_card.card.into()),
-            next_states: Some(queued_card.next_states.into()),
+            states: Some(queued_card.states.into()),
             queue: match queued_card.kind {
                 crate::scheduler::queue::QueueEntryKind::New => pb::queued_cards::Queue::New,
                 crate::scheduler::queue::QueueEntryKind::Review => pb::queued_cards::Queue::Review,

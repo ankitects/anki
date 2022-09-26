@@ -61,7 +61,7 @@ impl CsvMetadata {
             CsvNotetype::GlobalNotetype(global) => global
                 .field_columns
                 .iter()
-                .map(|&i| (i > 0).then(|| i as usize))
+                .map(|&i| (i > 0).then_some(i as usize))
                 .collect(),
             CsvNotetype::NotetypeColumn(_) => {
                 let meta_columns = self.meta_columns();
@@ -124,8 +124,8 @@ struct ColumnContext {
 impl ColumnContext {
     fn new(metadata: &CsvMetadata) -> Result<Self> {
         Ok(Self {
-            tags_column: (metadata.tags_column > 0).then(|| metadata.tags_column as usize),
-            guid_column: (metadata.guid_column > 0).then(|| metadata.guid_column as usize),
+            tags_column: (metadata.tags_column > 0).then_some(metadata.tags_column as usize),
+            guid_column: (metadata.guid_column > 0).then_some(metadata.guid_column as usize),
             deck_column: metadata.deck()?.column(),
             notetype_column: metadata.notetype()?.column(),
             field_source_columns: metadata.field_source_columns()?,
@@ -158,10 +158,10 @@ impl ColumnContext {
 
     fn foreign_note_from_record(&self, record: &csv::StringRecord) -> ForeignNote {
         ForeignNote {
-            notetype: str_from_record_column(self.notetype_column, record).into(),
+            notetype: name_or_id_from_record_column(self.notetype_column, record),
             fields: self.gather_note_fields(record),
             tags: self.gather_tags(record),
-            deck: str_from_record_column(self.deck_column, record).into(),
+            deck: name_or_id_from_record_column(self.deck_column, record),
             guid: str_from_record_column(self.guid_column, record),
             ..Default::default()
         }
@@ -190,6 +190,10 @@ fn str_from_record_column(column: Option<usize>, record: &csv::StringRecord) -> 
         .and_then(|i| record.get(i - 1))
         .unwrap_or_default()
         .to_string()
+}
+
+fn name_or_id_from_record_column(column: Option<usize>, record: &csv::StringRecord) -> NameOrId {
+    NameOrId::parse(column.and_then(|i| record.get(i - 1)).unwrap_or_default())
 }
 
 pub(super) fn build_csv_reader(

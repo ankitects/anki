@@ -233,9 +233,7 @@ class AnkiWebView(QWebEngineView):
         self.set_title(title)
         self._page = AnkiWebPage(self._onBridgeCmd)
         # reduce flicker
-        self._page.setBackgroundColor(
-            self.get_window_bg_color(theme_manager.night_mode)
-        )
+        self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
 
         # in new code, use .set_bridge_command() instead of setting this directly
         self.onBridgeCmd: Callable[[str], Any] = self.defaultOnBridgeCmd
@@ -295,9 +293,8 @@ class AnkiWebView(QWebEngineView):
                     w.close()
                 else:
                     # in the main window, removes focus from type in area
-                    parent = self.parent()
-                    assert isinstance(parent, QWidget)
-                    parent.setFocus()
+                    if mw.state == "review":
+                        mw.reviewer.unfocus_typing_box()
                 break
             w = w.parent()
 
@@ -404,15 +401,6 @@ class AnkiWebView(QWebEngineView):
         else:
             return 3
 
-    def get_window_bg_color(self, night_mode: bool) -> QColor:
-        if night_mode:
-            return QColor(colors.WINDOW_BG[1])
-        elif is_mac:
-            # standard palette does not return correct window color on macOS
-            return QColor("#ececec")
-        else:
-            return theme_manager.default_palette.color(QPalette.ColorRole.Window)
-
     def standard_css(self) -> str:
         palette = theme_manager.default_palette
         color_hl = palette.color(QPalette.ColorRole.Highlight).name()
@@ -459,15 +447,12 @@ div[contenteditable="true"]:focus {{
 
         zoom = self.app_zoom_factor()
 
-        window_bg_day = self.get_window_bg_color(False).name()
-        window_bg_night = self.get_window_bg_color(True).name()
-
         return f"""
-body {{ zoom: {zoom}; background-color: var(--window-bg); }}
+body {{ zoom: {zoom}; background-color: var(--canvas); }}
 html {{ {font} }}
 {button_style}
-:root {{ --window-bg: {window_bg_day} }}
-:root[class*=night-mode] {{ --window-bg: {window_bg_night} }}
+:root {{ --canvas: {colors.CANVAS[0]} }}
+:root[class*=night-mode] {{ --canvas: {colors.CANVAS[1]} }}
 """
 
     def stdHtml(
@@ -711,9 +696,7 @@ html {{ {font} }}
 
     def on_theme_did_change(self) -> None:
         # avoid flashes if page reloaded
-        self._page.setBackgroundColor(
-            self.get_window_bg_color(theme_manager.night_mode)
-        )
+        self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
         # update night-mode class, and legacy nightMode/night-mode body classes
         self.eval(
             f"""
@@ -731,31 +714,4 @@ html {{ {font} }}
     }}
 }})();
 """
-        )
-
-    def _fix_editor_background_color_and_show(self) -> None:
-        # The editor does not use our standard CSS, which takes care of matching the background
-        # colour of the webview to the window we're showing it in. This causes a difference in
-        # shades on Windows/Linux in day mode, that we need to work around. This is a temporary
-        # fix before the 2.1.50 release; with more time there may be a better way to do this.
-
-        if theme_manager.night_mode:
-            # The styling changes are not required for night mode, and hiding+showing the
-            # webview causes a flash of black.
-            return
-
-        self.hide()
-
-        window_bg_day = self.get_window_bg_color(False).name()
-        css = f":root {{ --window-bg: {window_bg_day} }}"
-        self.evalWithCallback(
-            f"""
-(function(){{
-    const style = document.createElement('style');
-    style.innerHTML = `{css}`;
-    document.head.appendChild(style);
-}})();
-""",
-            # avoids FOUC
-            lambda _: self.show(),
         )

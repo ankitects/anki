@@ -11,6 +11,8 @@ import "anki/generic.proto";
 import "anki/collection.proto";
 
 service DecksService {
+  rpc NewDeck(generic.Empty) returns (Deck);
+  rpc AddDeck(Deck) returns (collection.OpChangesWithId);
   rpc AddDeckLegacy(generic.Json) returns (collection.OpChangesWithId);
   rpc AddOrUpdateDeckLegacy(AddOrUpdateDeckLegacyRequest) returns (DeckId);
   rpc DeckTree(DeckTreeRequest) returns (DeckTreeNode);

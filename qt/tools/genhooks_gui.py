@@ -531,18 +531,27 @@ hooks = [
     # these refer to things like deckbrowser, overview and reviewer state,
     Hook(
         name="state_will_change",
-        args=["new_state: str", "old_state: str"],
+        args=[
+            "new_state: aqt.main.MainWindowState",
+            "old_state: aqt.main.MainWindowState",
+        ],
         legacy_hook="beforeStateChange",
     ),
     Hook(
         name="state_did_change",
-        args=["new_state: str", "old_state: str"],
+        args=[
+            "new_state: aqt.main.MainWindowState",
+            "old_state: aqt.main.MainWindowState",
+        ],
         legacy_hook="afterStateChange",
     ),
     # different sig to original
     Hook(
         name="state_shortcuts_will_change",
-        args=["state: str", "shortcuts: list[tuple[str, Callable]]"],
+        args=[
+            "state: aqt.main.MainWindowState",
+            "shortcuts: list[tuple[str, Callable]]",
+        ],
     ),
     # UI state/refreshing
     ###################

@@ -188,28 +188,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /* grid-template-columns: repeat(2, 1fr); */
 
         position: relative;
-        background: var(--frame-bg);
+        background: var(--canvas-elevated);
         border-radius: 5px;
-        border: 1px solid var(--border);
 
+        /* Pseudo-element required to display
+           inset focus box-shadow above field contents */
         &::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            border-radius: 5px;
+            box-shadow: 0 0 2px 1px var(--shadow);
             transition: box-shadow 80ms cubic-bezier(0.33, 1, 0.68, 1);
         }
+
         &:focus-within {
             outline: none;
-
-            /* This pseudo-element is required to display
-               the inset box-shadow above field contents */
             &::after {
-                content: "";
-                position: absolute;
-                top: -1px;
-                right: -1px;
-                bottom: -1px;
-                left: -1px;
-                pointer-events: none;
-                border-radius: 5px;
-                box-shadow: inset 0 0 0 2px var(--focus-border);
+                border: none;
+                inset: 1px;
+                box-shadow: 0 0 0 2px var(--border-focus);
             }
         }
     }

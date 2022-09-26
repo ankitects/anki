@@ -361,6 +361,15 @@
         "path": "node_modules/chalk",
         "licenseFile": "node_modules/chalk/license"
     },
+    "character-entities@2.0.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/wooorm/character-entities",
+        "publisher": "Titus Wormer",
+        "email": "tituswormer@gmail.com",
+        "url": "https://wooorm.com",
+        "path": "node_modules/character-entities",
+        "licenseFile": "node_modules/character-entities/license"
+    },
     "codemirror@5.65.2": {
         "licenses": "MIT",
         "repository": "https://github.com/codemirror/CodeMirror",
@@ -995,6 +1004,24 @@
         "publisher": "Mikola Lysenko",
         "path": "node_modules/functional-red-black-tree",
         "licenseFile": "node_modules/functional-red-black-tree/LICENSE"
+    },
+    "fuse.js@6.6.2": {
+        "licenses": "Apache-2.0",
+        "repository": "https://github.com/krisk/Fuse",
+        "publisher": "Kiro Risk",
+        "email": "kirollos@gmail.com",
+        "url": "http://kiro.me",
+        "path": "node_modules/fuse.js",
+        "licenseFile": "node_modules/fuse.js/LICENSE"
+    },
+    "gemoji@7.1.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/wooorm/gemoji",
+        "publisher": "Titus Wormer",
+        "email": "tituswormer@gmail.com",
+        "url": "https://wooorm.com",
+        "path": "node_modules/gemoji",
+        "licenseFile": "node_modules/gemoji/license"
     },
     "get-intrinsic@1.1.1": {
         "licenses": "MIT",

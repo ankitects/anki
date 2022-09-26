@@ -18,6 +18,11 @@ p {
     display: none;
 }
 
-:host(.night-mode) {
-    @include scrollbar.night-mode;
+:host(body),
+:host(body) * {
+    @include scrollbar.custom;
+}
+
+pre {
+    white-space: pre-wrap;
 }

@@ -17,8 +17,9 @@ from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.scheduler.base import ScheduleCardsAsNew
-from anki.scheduler.v3 import CardAnswer, NextStates, QueuedCards
+from anki.scheduler.v3 import CardAnswer, QueuedCards
 from anki.scheduler.v3 import Scheduler as V3Scheduler
+from anki.scheduler.v3 import SchedulingStates
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
 from aqt import AnkiQt, gui_hooks
@@ -74,19 +75,23 @@ def replay_audio(card: Card, question_side: bool) -> None:
 
 @dataclass
 class V3CardInfo:
-    """2021 test scheduler info.
+    """Stores the top of the card queue for the v3 scheduler.
 
-    next_states is copied from the top card on initialization, and can be
-    mutated to alter the default scheduling.
+    This includes current and potential next states of the displayed card,
+    which may be mutated by a user's custom scheduling.
     """
 
     queued_cards: QueuedCards
-    next_states: NextStates
+    states: SchedulingStates
 
     @staticmethod
     def from_queue(queued_cards: QueuedCards) -> V3CardInfo:
+        top_card = queued_cards.cards[0]
+        states = top_card.states
+        states.current.custom_data = top_card.card.custom_data
         return V3CardInfo(
-            queued_cards=queued_cards, next_states=queued_cards.cards[0].next_states
+            queued_cards=queued_cards,
+            states=states,
         )
 
     def top_card(self) -> QueuedCards.QueuedCard:
@@ -259,23 +264,23 @@ class Reviewer:
         self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)
         self.card.start_timer()
 
-    def get_next_states(self) -> NextStates | None:
+    def get_scheduling_states(self) -> SchedulingStates | None:
         if v3 := self._v3:
-            return v3.next_states
+            return v3.states
         else:
             return None
 
-    def set_next_states(self, key: str, states: NextStates) -> None:
+    def set_scheduling_states(self, key: str, states: SchedulingStates) -> None:
         if key != self._state_mutation_key:
             return
 
         if v3 := self._v3:
-            v3.next_states = states
+            v3.states = states
 
     def _run_state_mutation_hook(self) -> None:
         if self._v3 and (js := self._state_mutation_js):
             self.web.eval(
-                f"anki.mutateNextCardStates('{self._state_mutation_key}', (states) => {{ {js} }})"
+                f"anki.mutateNextCardStates('{self._state_mutation_key}', (states, customData) => {{ {js} }})"
             )
 
     # Audio
@@ -431,7 +436,9 @@ class Reviewer:
 
         if (v3 := self._v3) and (sched := cast(V3Scheduler, self.mw.col.sched)):
             answer = sched.build_answer(
-                card=self.card, states=v3.next_states, rating=v3.rating_from_ease(ease)
+                card=self.card,
+                states=v3.states,
+                rating=v3.rating_from_ease(ease),
             )
 
             def after_answer(changes: OpChanges) -> None:
@@ -646,6 +653,12 @@ class Reviewer:
     def _onTypedAnswer(self, val: None) -> None:
         self.typedAnswer = val or ""
         self._showAnswer()
+        self.unfocus_typing_box()
+
+    def unfocus_typing_box(self) -> None:
+        # shifting focus to the bottom area works around a WebEngine/IME bug
+        # https://github.com/ankitects/anki/issues/1952
+        self.bottom.web.setFocus()
 
     # Bottom bar
     ##########################################################################
@@ -764,7 +777,7 @@ time = %(time)d;
 
         if v3 := self._v3:
             assert isinstance(self.mw.col.sched, V3Scheduler)
-            labels = self.mw.col.sched.describe_next_states(v3.next_states)
+            labels = self.mw.col.sched.describe_next_states(v3.states)
         else:
             labels = None
 

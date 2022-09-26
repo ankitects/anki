@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
 
     import { execCommand } from "../domlib";
+    import { isArrowDown, isArrowUp } from "../lib/keys";
     import { Tags, tags as tagsService } from "../lib/proto";
     import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";
@@ -257,17 +258,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onKeydown(event: KeyboardEvent): void {
+        if (isArrowUp(event)) {
+            autocomplete.selectPrevious();
+            event.preventDefault();
+            return;
+        } else if (isArrowDown(event)) {
+            autocomplete.selectNext();
+            event.preventDefault();
+            return;
+        }
+
         switch (event.code) {
-            case "ArrowUp":
-                autocomplete.selectPrevious();
-                event.preventDefault();
-                break;
-
-            case "ArrowDown":
-                autocomplete.selectNext();
-                event.preventDefault();
-                break;
-
             case "Tab":
                 if (!$show) {
                     break;
@@ -381,7 +382,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
 </script>
 
-<div class="tag-editor-area" on:focusout={deselectIfLeave} bind:offsetHeight={height}>
+<div class="tag-editor" on:focusout={deselectIfLeave} bind:offsetHeight={height}>
     <TagOptionsButton
         bind:badgeHeight
         tagsSelected={anyTagsSelected}
@@ -426,7 +427,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         splitTag(index, detail.chosen.length, detail.chosen.length);
                     }}
                     let:createAutocomplete
-                    let:hide
                 >
                     <TagInput
                         id={tag.id}
@@ -441,7 +441,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         on:keydown={onKeydown}
                         on:keyup={() => {
                             if (activeName.length === 0) {
-                                hide?.();
+                                show?.set(false);
                             }
                         }}
                         on:taginput={() => updateTagName(tag)}
@@ -483,13 +483,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    .tag-editor-area {
+    .tag-editor {
         display: flex;
         flex-flow: row wrap;
         align-items: flex-end;
-        padding: 0 1px 1px;
-        overflow: hidden;
-        margin-bottom: 3px;
     }
 
     .tag-relative {

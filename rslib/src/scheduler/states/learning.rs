@@ -1,10 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{interval_kind::IntervalKind, CardState, NextCardStates, ReviewState, StateContext};
+use super::{interval_kind::IntervalKind, CardState, ReviewState, SchedulingStates, StateContext};
 use crate::revlog::RevlogReviewKind;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct LearnState {
     pub remaining_steps: u32,
     pub scheduled_secs: u32,
@@ -19,8 +19,8 @@ impl LearnState {
         RevlogReviewKind::Learning
     }
 
-    pub(crate) fn next_states(self, ctx: &StateContext) -> NextCardStates {
-        NextCardStates {
+    pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
+        SchedulingStates {
             current: self.into(),
             again: self.answer_again(ctx).into(),
             hard: self.answer_hard(ctx),

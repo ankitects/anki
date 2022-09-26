@@ -4,23 +4,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { getContext } from "svelte";
-    import { createEventDispatcher, onMount } from "svelte";
     import type { Readable } from "svelte/store";
 
     import { directionKey } from "../lib/context-keys";
 
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
-    const dispatch = createEventDispatcher();
-
-    onMount(() => dispatch("mount"));
 </script>
 
-<div class="image-handle-dimensions" class:is-rtl={$direction === "rtl"}>
+<div class="handle-label" class:is-rtl={$direction === "rtl"}>
     <slot />
 </div>
 
 <style lang="scss">
-    div {
+    .handle-label {
         position: absolute;
         width: fit-content;
 
@@ -33,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         font-size: 13px;
         color: white;
-        background-color: rgba(0 0 0 / 0.3);
+        background-color: rgba(0 0 0 / 0.4);
         border-color: black;
         border-radius: 5px;
         padding: 0 5px;

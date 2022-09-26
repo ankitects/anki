@@ -9,7 +9,7 @@ use regex::{Captures, Regex};
 use crate::{cloze::expand_clozes_to_reveal_latex, media::files::sha1_of_data, text::strip_html};
 
 lazy_static! {
-    static ref LATEX: Regex = Regex::new(
+    pub(crate) static ref LATEX: Regex = Regex::new(
         r#"(?xsi)
             \[latex\](.+?)\[/latex\]     # 1 - standard latex
             |
@@ -33,7 +33,7 @@ pub(crate) fn contains_latex(text: &str) -> bool {
     LATEX.is_match(text)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct ExtractedLatex {
     pub fname: String,
     pub latex: String,

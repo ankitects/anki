@@ -282,6 +282,7 @@ class AnkiApp(QApplication):
 
     def __init__(self, argv: list[str]) -> None:
         QApplication.__init__(self, argv)
+        self.installEventFilter(self)
         self._argv = argv
 
     def secondInstance(self) -> bool:
@@ -339,6 +340,43 @@ class AnkiApp(QApplication):
             self.appMsg.emit(evt.file() or "raise")  # type: ignore
             return True
         return QApplication.event(self, evt)
+
+    # Global cursor: pointer for Qt buttons
+    ##################################################
+
+    def eventFilter(self, src: Any, evt: QEvent) -> bool:
+        if evt.type() == QEvent.Type.HoverEnter:
+            if (
+                (
+                    isinstance(
+                        src,
+                        (
+                            QPushButton,
+                            QCheckBox,
+                            # classes with PyQt5 compatibility proxy
+                            without_qt5_compat_wrapper(QToolButton),
+                            without_qt5_compat_wrapper(QTabBar),
+                        ),
+                    )
+                )
+                and src.isEnabled()
+                or (
+                    isinstance(src, without_qt5_compat_wrapper(QComboBox))
+                    and not src.isEditable()
+                )
+            ):
+                self.setOverrideCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+            else:
+                self.restoreOverrideCursor()
+            return False
+
+        elif evt.type() in [QEvent.Type.HoverLeave, QEvent.Type.Leave] or isinstance(
+            evt, QCloseEvent
+        ):
+            self.restoreOverrideCursor()
+            return False
+
+        return False
 
 
 def parseArgs(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:

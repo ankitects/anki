@@ -138,8 +138,8 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
         ): [
-            "@raze__libc__0_2_120//:libc",
-            "@raze__once_cell__1_10_0//:once_cell",
+            "@raze__libc__0_2_133//:libc",
+            "@raze__once_cell__1_15_0//:once_cell",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

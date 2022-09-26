@@ -37,16 +37,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .label-container {
         display: flex;
-        position: sticky;
         justify-content: space-between;
-        top: 0;
-        padding-bottom: 1px;
+        padding: 0 3px 1px;
 
-        /* slightly wider than EditingArea
-           to cover field borders on scroll */
-        left: -1px;
-        right: -1px;
-        z-index: 3;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+
         background: var(--label-color);
 
         .clickable {

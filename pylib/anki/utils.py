@@ -16,7 +16,7 @@ import tempfile
 import time
 from contextlib import contextmanager
 from hashlib import sha1
-from typing import Any, Iterable, Iterator, no_type_check
+from typing import Any, Callable, Iterable, Iterator, no_type_check
 
 from anki._legacy import DeprecatedNamesMixinForModule
 from anki.dbproxy import DBProxy
@@ -27,11 +27,14 @@ try:
     # pylint: disable=c-extension-no-member
     import orjson
 
-    to_json_bytes = orjson.dumps
+    to_json_bytes: Callable[[Any], bytes] = orjson.dumps
     from_json_bytes = orjson.loads
 except:
     print("orjson is missing; DB operations will be slower")
-    to_json_bytes = lambda obj: _json.dumps(obj).encode("utf8")  # type: ignore
+
+    def to_json_bytes(obj: Any) -> bytes:
+        return _json.dumps(obj).encode("utf8")
+
     from_json_bytes = _json.loads
 
 

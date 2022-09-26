@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>610</width>
-    <height>348</height>
+    <width>550</width>
+    <height>200</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -57,7 +57,7 @@
    </item>
    <item>
     <layout class="QVBoxLayout">
-     <item>
+     <item alignment="Qt::AlignLeft">
       <widget class="QCheckBox" name="includeSched">
        <property name="text">
         <string>exporting_include_scheduling_information</string>
@@ -67,7 +67,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item alignment="Qt::AlignLeft">
       <widget class="QCheckBox" name="includeMedia">
        <property name="text">
         <string>exporting_include_media</string>
@@ -77,14 +77,14 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item alignment="Qt::AlignLeft">
       <widget class="QCheckBox" name="includeHTML">
        <property name="text">
         <string>exporting_include_html_and_media_references</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item alignment="Qt::AlignLeft">
       <widget class="QCheckBox" name="includeTags">
        <property name="text">
         <string>exporting_include_tags</string>
@@ -94,7 +94,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item alignment="Qt::AlignLeft">
       <widget class="QCheckBox" name="includeDeck">
        <property name="enabled">
         <bool>true</bool>
@@ -104,7 +104,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item alignment="Qt::AlignLeft">
       <widget class="QCheckBox" name="includeNotetype">
        <property name="enabled">
         <bool>true</bool>
@@ -114,14 +114,14 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item alignment="Qt::AlignLeft">
       <widget class="QCheckBox" name="includeGuid">
        <property name="text">
         <string>exporting_include_guid</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item alignment="Qt::AlignLeft">
       <widget class="QCheckBox" name="legacy_support">
        <property name="text">
         <string>exporting_support_older_anki_versions</string>

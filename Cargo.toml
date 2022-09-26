@@ -28,12 +28,16 @@ targets = [
     "x86_64-unknown-linux-gnu",
     "aarch64-apple-darwin",
     "aarch64-apple-ios",
+    "aarch64-apple-ios-sim",
     "aarch64-unknown-linux-gnu",
 ]
 genmode = "Remote"
 default_gen_buildrs = true
 
 [package.metadata.raze.crates.pyo3.'*']
+compile_data_attr = "glob([\"**/*.md\"])"
+
+[package.metadata.raze.crates.prost.'*']
 compile_data_attr = "glob([\"**/*.md\"])"
 
 [package.metadata.raze.crates.ring.'*']

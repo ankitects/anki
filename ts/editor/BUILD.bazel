@@ -31,6 +31,9 @@ _ts_deps = [
     "@npm//@types/codemirror",
     "@npm//codemirror",
     "@npm//svelte",
+    "@npm//character-entities",
+    "@npm//gemoji",
+    "@npm//fuse.js",
 ]
 
 compile_svelte(

@@ -18,7 +18,7 @@ use crate::{i18n::I18n, links::HelpPage};
 
 pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum AnkiError {
     InvalidInput(String),
     TemplateError(String),
@@ -138,7 +138,7 @@ impl AnkiError {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum TemplateError {
     NoClosingBrackets(String),
     ConditionalNotClosed(String),
@@ -195,14 +195,14 @@ impl From<csv::Error> for AnkiError {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct CardTypeError {
     pub notetype: String,
     pub ordinal: usize,
     pub details: CardTypeErrorDetails,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum CardTypeErrorDetails {
     TemplateError,
     Duplicate(usize),
@@ -212,7 +212,7 @@ pub enum CardTypeErrorDetails {
     ExtraneousCloze,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum ImportError {
     Corrupt,
     TooNew,
@@ -232,7 +232,7 @@ impl ImportError {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 
 pub struct FileIoError {
     pub path: String,

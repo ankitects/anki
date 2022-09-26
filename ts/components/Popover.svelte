@@ -1,8 +1,6 @@
 <!--
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
-Alternative to DropdownMenu that avoids Bootstrap
 -->
 <script>
     import { pageTheme } from "../sveltelib/theme";
@@ -15,13 +13,15 @@ Alternative to DropdownMenu that avoids Bootstrap
 <style lang="scss">
     .popover {
         border-radius: 5px;
-        background-color: var(--frame-bg);
+        background-color: var(--canvas-elevated);
         min-width: 1rem;
         max-width: 95vw;
 
-        padding: 0.5rem 0;
+        /* Needs this much space for FloatingArrow to be positioned */
+        padding: var(--popover-padding-block, 6px) var(--popover-padding-inline, 6px);
+
         font-size: 1rem;
-        color: var(--text-fg);
+        color: var(--fg);
 
         /* outer border */
         border: 1px solid #b6b6b6;

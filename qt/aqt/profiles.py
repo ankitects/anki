@@ -10,11 +10,12 @@ import shutil
 import traceback
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import anki.lang
 import aqt.forms
 import aqt.sound
+from anki._legacy import deprecated
 from anki.collection import Collection
 from anki.db import DB
 from anki.lang import without_unicode_isolation
@@ -22,8 +23,12 @@ from anki.sync import SyncAuth
 from anki.utils import int_time, is_mac, is_win, point_version
 from aqt import appHelpSite
 from aqt.qt import *
-from aqt.theme import Theme
+from aqt.theme import Theme, theme_manager
 from aqt.utils import disable_help_button, send_to_trash, showWarning, tr
+
+if TYPE_CHECKING:
+    from aqt.browser.layout import BrowserLayout
+
 
 # Profile handling
 ##########################################################################
@@ -518,17 +523,21 @@ create table if not exists profiles
     def setUiScale(self, scale: float) -> None:
         self.meta["uiScale"] = scale
 
+    def reduced_motion(self) -> bool:
+        return self.meta.get("reduced_motion", False)
+
+    def set_reduced_motion(self, on: bool) -> None:
+        self.meta["reduced_motion"] = on
+
     def last_addon_update_check(self) -> int:
         return self.meta.get("last_addon_update_check", 0)
 
     def set_last_addon_update_check(self, secs: int) -> None:
         self.meta["last_addon_update_check"] = secs
 
+    @deprecated(info="use theme_manager.night_mode")
     def night_mode(self) -> bool:
-        return self.meta.get("night_mode", False)
-
-    def set_night_mode(self, on: bool) -> None:
-        self.meta["night_mode"] = on
+        return theme_manager.night_mode
 
     def theme(self) -> Theme:
         return Theme(self.meta.get("theme", 0))
@@ -536,8 +545,13 @@ create table if not exists profiles
     def set_theme(self, theme: Theme) -> None:
         self.meta["theme"] = theme.value
 
-    def dark_mode_widgets(self) -> bool:
-        return self.meta.get("dark_mode_widgets", False)
+    def browser_layout(self) -> BrowserLayout:
+        from aqt.browser.layout import BrowserLayout
+
+        return BrowserLayout(self.meta.get("browser_layout", "auto"))
+
+    def set_browser_layout(self, layout: BrowserLayout) -> None:
+        self.meta["browser_layout"] = layout.value
 
     def legacy_import_export(self) -> bool:
         return self.meta.get("legacy_import", False)

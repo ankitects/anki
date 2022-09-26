@@ -1,10 +1,9 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
-@use "fusion-vars";
+@use "sass/vars";
+@use "sass:color";
 @use "sass/button-mixins" as button;
 
-$btn-base-color-day: white;
-$btn-base-color-night: fusion-vars.$button-border;
 $size: var(--buttons-size);
 $padding: 2px;
 
@@ -12,49 +11,10 @@ $padding: 2px;
     width: $size;
     height: $size;
     padding: $padding;
-    color: var(--text-fg);
     font-size: calc($size * 0.6);
-    background-color: $btn-base-color-day;
-    border: 1px solid var(--medium-border);
-    @include button.btn-border-radius;
-    margin-left: -1px;
-
-    &:hover {
-        background-color: darken($btn-base-color-day, 8%);
-    }
-
-    &:active,
-    &:active:hover {
-        @include button.impressed-shadow(0.25);
-    }
-
-    .nightMode & {
-        box-shadow: 0 0 3px fusion-vars.$button-outline;
-        border: 1px solid fusion-vars.$button-border;
-        -webkit-appearance: none;
-        background: linear-gradient(
-            0deg,
-            fusion-vars.$button-gradient-start 0%,
-            fusion-vars.$button-gradient-end 100%
-        );
-        border: 1px solid fusion-vars.$button-border;
-        margin-left: 1px;
-
-        &:hover {
-            background: linear-gradient(
-                0deg,
-                lighten(fusion-vars.$button-gradient-start, 8%) 0%,
-                lighten(fusion-vars.$button-gradient-end, 8%) 100%
-            );
-            border-color: lighten(fusion-vars.$button-border, 8%);
-        }
-
-        &:active {
-            @include button.impressed-shadow(0.35);
-            border-color: darken($btn-base-color-night, 8%);
-        }
-    }
 }
+
+@include button.base($selector: ".linkb");
 
 img.topbut {
     max-width: calc($size - 2 * $padding);

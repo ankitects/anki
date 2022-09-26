@@ -58,10 +58,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import EditorField from "./EditorField.svelte";
     import FieldDescription from "./FieldDescription.svelte";
     import Fields from "./Fields.svelte";
-    import FieldsEditor from "./FieldsEditor.svelte";
     import FrameElement from "./FrameElement.svelte";
     import { alertIcon } from "./icons";
     import ImageHandle from "./image-overlay";
+    import { shrinkImagesByDefault } from "./image-overlay/ImageOverlay.svelte";
     import MathjaxHandle from "./mathjax-overlay";
     import MathjaxElement from "./MathjaxElement.svelte";
     import Notification from "./Notification.svelte";
@@ -69,6 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import PlainTextBadge from "./PlainTextBadge.svelte";
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
+    import SymbolsOverlay from "./symbols-overlay";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -177,6 +178,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         noteId = ntid;
     }
 
+    let insertSymbols = false;
+
+    function setInsertSymbolsEnabled() {
+        insertSymbols = true;
+    }
+
     function getNoteId(): number | null {
         return noteId;
     }
@@ -207,9 +214,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const fieldSave = new ChangeTimer();
 
+    function transformContentBeforeSave(content: string): string {
+        return content.replace(/ data-editor-shrink="(true|false)"/g, "");
+    }
+
     function updateField(index: number, content: string): void {
         fieldSave.schedule(
-            () => bridgeCommand(`key:${index}:${getNoteId()}:${content}`),
+            () =>
+                bridgeCommand(
+                    `key:${index}:${getNoteId()}:${transformContentBeforeSave(
+                        content,
+                    )}`,
+                ),
             600,
         );
     }
@@ -247,6 +263,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const toolbar: Partial<EditorToolbarAPI> = {};
 
+    function setShrinkImages(shrinkByDefault: boolean) {
+        $shrinkImagesByDefault = shrinkByDefault;
+    }
+
     import { mathjaxConfig } from "../editable/mathjax-element";
     import { wrapInternal } from "../lib/wrap";
     import { refocusInput } from "./helpers";
@@ -279,6 +299,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setNoteId,
             wrap,
             setMathjaxEnabled,
+            setInsertSymbolsEnabled,
+            setShrinkImages,
             ...oldEditorAdapter,
         });
 
@@ -512,8 +534,16 @@ the AddCards dialog) should be implemented in the user of this component.
 
 <style lang="scss">
     .note-editor {
-        height: 100%;
         display: flex;
         flex-direction: column;
+        height: 100%;
+    }
+
+    .note-editor-tag-editor {
+        padding: 2px 0 0;
+
+        border-width: thin 0 0;
+        border-style: solid;
+        border-color: var(--border-subtle);
     }
 </style>

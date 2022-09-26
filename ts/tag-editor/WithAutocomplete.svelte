@@ -124,17 +124,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<WithFloating keepOnKeyup {show} placement="top-start" let:toggle let:hide let:show>
-    <span
-        class="autocomplete-reference"
-        slot="reference"
-        let:asReference
-        use:asReference
-    >
-        <slot {createAutocomplete} {toggle} {hide} {show} />
+<WithFloating
+    keepOnKeyup
+    show={$show}
+    placement="top-start"
+    portalTarget={document.body}
+    let:asReference
+    on:close={() => show.set(false)}
+>
+    <span class="autocomplete-reference" use:asReference>
+        <slot {createAutocomplete} />
     </span>
 
-    <Popover slot="floating">
+    <Popover slot="floating" --popover-padding-inline="0">
         <div class="autocomplete-menu">
             {#each suggestionsItems as suggestion, index}
                 {#if index === selected}

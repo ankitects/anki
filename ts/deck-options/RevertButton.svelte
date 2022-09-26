@@ -3,15 +3,14 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type Dropdown from "bootstrap/js/dist/dropdown";
     import { cloneDeep, isEqual as isEqualLodash } from "lodash-es";
     import { getContext } from "svelte";
 
     import Badge from "../components/Badge.svelte";
     import { touchDeviceKey } from "../components/context-keys";
     import DropdownItem from "../components/DropdownItem.svelte";
-    import DropdownMenu from "../components/DropdownMenu.svelte";
-    import WithDropdown from "../components/WithDropdown.svelte";
+    import Popover from "../components/Popover.svelte";
+    import WithFloating from "../components/WithFloating.svelte";
     import * as tr from "../lib/ftl";
     import { revertIcon } from "./icons";
 
@@ -35,40 +34,45 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let modified: boolean;
     $: modified = !isEqual(value, defaultValue);
 
-    let dropdown: Dropdown;
+    let showFloating = false;
 
     const isTouchDevice = getContext<boolean>(touchDeviceKey);
 
     function revert(): void {
         value = cloneDeep(defaultValue);
-        dropdown.hide();
+        showFloating = false;
     }
 </script>
 
-<WithDropdown let:createDropdown>
-    <div class:hide={!modified}>
+<WithFloating
+    show={showFloating}
+    closeOnInsideClick
+    inline
+    on:close={() => (showFloating = false)}
+    let:asReference
+>
+    <div class:hide={!modified} use:asReference>
         <Badge
             class="p-1"
-            on:mount={(event) => (dropdown = createDropdown(event.detail.span))}
             on:click={() => {
                 if (modified) {
-                    dropdown.toggle();
+                    showFloating = !showFloating;
                 }
             }}
         >
             {@html revertIcon}
         </Badge>
-
-        <DropdownMenu>
-            <DropdownItem
-                class={`spinner ${isTouchDevice ? "spin-always" : ""}`}
-                on:click={() => revert()}
-            >
-                {tr.deckConfigRevertButtonTooltip()}<Badge>{@html revertIcon}</Badge>
-            </DropdownItem>
-        </DropdownMenu>
     </div>
-</WithDropdown>
+
+    <Popover slot="floating">
+        <DropdownItem
+            class={`spinner ${isTouchDevice ? "spin-always" : ""}`}
+            on:click={() => revert()}
+        >
+            {tr.deckConfigRevertButtonTooltip()}<Badge>{@html revertIcon}</Badge>
+        </DropdownItem>
+    </Popover>
+</WithFloating>
 
 <style lang="scss">
     :global(.spinner:hover .badge, .spinner.spin-always .badge) {
@@ -83,6 +87,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         100% {
             transform: rotate(0deg);
         }
+    }
+
+    :global(.badge) {
+        cursor: pointer;
     }
 
     .hide :global(.badge) {

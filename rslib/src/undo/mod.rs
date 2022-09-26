@@ -30,7 +30,7 @@ impl UndoableOp {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 enum UndoMode {
     NormalOp,
     Undoing,

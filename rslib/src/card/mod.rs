@@ -30,7 +30,7 @@ impl CardId {
     }
 }
 
-#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, TryFromPrimitive, Clone, Copy)]
+#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, TryFromPrimitive, Clone, Copy)]
 #[repr(u8)]
 pub enum CardType {
     New = 0,
@@ -39,7 +39,7 @@ pub enum CardType {
     Relearn = 3,
 }
 
-#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, TryFromPrimitive, Clone, Copy)]
+#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, TryFromPrimitive, Clone, Copy)]
 #[repr(i8)]
 pub enum CardQueue {
     /// due is the order cards are shown in
@@ -58,7 +58,7 @@ pub enum CardQueue {
     UserBuried = -3,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Card {
     pub(crate) id: CardId,
     pub(crate) note_id: NoteId,
@@ -79,6 +79,8 @@ pub struct Card {
     pub(crate) flags: u8,
     /// The position in the new queue before leaving it.
     pub(crate) original_position: Option<u32>,
+    /// JSON object or empty; exposed through the reviewer for persisting custom state
+    pub(crate) custom_data: String,
 }
 
 impl Default for Card {
@@ -102,6 +104,7 @@ impl Default for Card {
             original_deck_id: DeckId(0),
             flags: 0,
             original_position: None,
+            custom_data: String::new(),
         }
     }
 }
@@ -174,7 +177,7 @@ impl Card {
             .unwrap_or(new_steps.len())
             // (re)learning card must have at least 1 step remaining
             .max(1) as u32;
-        (remaining != new_remaining).then(|| new_remaining)
+        (remaining != new_remaining).then_some(new_remaining)
     }
 }
 

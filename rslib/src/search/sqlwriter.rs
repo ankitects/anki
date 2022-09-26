@@ -612,7 +612,7 @@ impl SqlWriter<'_> {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum RequiredTable {
     Notes,
     Cards,

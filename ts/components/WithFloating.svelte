@@ -3,83 +3,181 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { Placement } from "@floating-ui/dom";
-    import { onMount } from "svelte";
-    import { writable } from "svelte/store";
+    import type {
+        FloatingElement,
+        Placement,
+        ReferenceElement,
+    } from "@floating-ui/dom";
+    import { createEventDispatcher, onDestroy } from "svelte";
+    import type { ActionReturn } from "svelte/action";
 
+    import type { Callback } from "../lib/typing";
+    import { singleCallback } from "../lib/typing";
     import isClosingClick from "../sveltelib/closing-click";
     import isClosingKeyup from "../sveltelib/closing-keyup";
+    import type { EventPredicateResult } from "../sveltelib/event-predicate";
     import { documentClick, documentKeyup } from "../sveltelib/event-store";
     import portal from "../sveltelib/portal";
-    import type { PositionArgs } from "../sveltelib/position";
-    import position from "../sveltelib/position";
-    import subscribeTrigger from "../sveltelib/subscribe-trigger";
-    import { pageTheme } from "../sveltelib/theme";
-    import toggleable from "../sveltelib/toggleable";
+    import type { PositioningCallback } from "../sveltelib/position/auto-update";
+    import autoUpdate from "../sveltelib/position/auto-update";
+    import type { PositionAlgorithm } from "../sveltelib/position/position-algorithm";
+    import positionFloating from "../sveltelib/position/position-floating";
+    import subscribeToUpdates from "../sveltelib/subscribe-updates";
+    import FloatingArrow from "./FloatingArrow.svelte";
 
-    export let placement: Placement = "bottom";
+    export let portalTarget: HTMLElement | null = null;
+
+    export let placement: Placement | Placement[] | "auto" = "bottom";
+    export let offset = 5;
+    export let shift = 5;
+    export let inline = false;
+    export let hideIfEscaped = false;
+    export let hideIfReferenceHidden = false;
+
+    /** This may be passed in for more fine-grained control */
+    export let show = true;
+
+    const dispatch = createEventDispatcher();
+
+    let arrow: HTMLElement;
+
+    $: positionCurried = positionFloating({
+        placement,
+        offset,
+        shift,
+        inline,
+        arrow,
+        hideIfEscaped,
+        hideIfReferenceHidden,
+        hideCallback: (reason: string) => dispatch("close", { reason }),
+    });
+
+    let autoAction: ActionReturn = {};
+
+    $: {
+        positionCurried;
+        autoAction.update?.(positioningCallback);
+    }
+
     export let closeOnInsideClick = false;
     export let keepOnKeyup = false;
 
-    /** This may be passed in for more fine-grained control */
-    export let show = writable(false);
+    export let reference: ReferenceElement | undefined = undefined;
+    let floating: FloatingElement;
 
-    let reference: HTMLElement;
-    let floating: HTMLElement;
-    let arrow: HTMLElement;
-
-    const { toggle, on, off } = toggleable(show);
-
-    let args: PositionArgs;
-    $: args = {
-        floating: $show ? floating : null,
-        placement,
-        arrow,
-    };
-
-    let update: (args: PositionArgs) => void;
-    $: update?.(args);
-
-    function asReference(element: HTMLElement) {
-        const pos = position(element, args);
-        reference = element;
-        update = pos.update;
-
-        return {
-            destroy() {
-                pos.destroy();
-            },
-        };
+    function applyPosition(
+        reference: ReferenceElement,
+        floating: FloatingElement,
+        position: PositionAlgorithm,
+    ): Promise<void> {
+        return position(reference, floating);
     }
 
-    onMount(() => {
-        const triggers = [
-            isClosingClick(documentClick, {
-                reference,
-                floating,
-                inside: closeOnInsideClick,
-                outside: true,
-            }),
+    async function position(
+        callback: (
+            reference: ReferenceElement,
+            floating: FloatingElement,
+            position: PositionAlgorithm,
+        ) => Promise<void> = applyPosition,
+    ): Promise<void> {
+        if (reference && floating) {
+            return callback(reference, floating, positionCurried);
+        }
+    }
+
+    function asReference(referenceArgument: Element) {
+        reference = referenceArgument;
+    }
+
+    function positioningCallback(
+        reference: ReferenceElement,
+        callback: PositioningCallback,
+    ): Callback {
+        const innerFloating = floating;
+        return callback(reference, innerFloating, () =>
+            positionCurried(reference, innerFloating),
+        );
+    }
+
+    let cleanup: Callback | null = null;
+
+    function updateFloating(
+        reference: ReferenceElement | undefined,
+        floating: FloatingElement,
+        isShowing: boolean,
+    ) {
+        cleanup?.();
+        cleanup = null;
+
+        if (!reference || !floating || !isShowing) {
+            return;
+        }
+
+        autoAction = autoUpdate(reference, positioningCallback);
+
+        // For virtual references, we cannot provide any
+        // default closing behavior
+        if (!(reference instanceof EventTarget)) {
+            cleanup = autoAction.destroy!;
+            return;
+        }
+
+        const closingClick = isClosingClick(documentClick, {
+            reference,
+            floating,
+            inside: closeOnInsideClick,
+            outside: true,
+        });
+
+        const subscribers = [
+            subscribeToUpdates(closingClick, (event: EventPredicateResult) =>
+                dispatch("close", event),
+            ),
         ];
 
         if (!keepOnKeyup) {
-            triggers.push(
-                isClosingKeyup(documentKeyup, {
-                    reference,
-                    floating,
-                }),
+            const closingKeyup = isClosingKeyup(documentKeyup, {
+                reference,
+                floating,
+            });
+
+            subscribers.push(
+                subscribeToUpdates(closingKeyup, (event: EventPredicateResult) =>
+                    dispatch("close", event),
+                ),
             );
         }
 
-        subscribeTrigger(show, ...triggers);
-    });
+        cleanup = singleCallback(...subscribers, autoAction.destroy!);
+    }
+
+    $: updateFloating(reference, floating, show);
+
+    onDestroy(() => cleanup?.());
 </script>
 
-<slot name="reference" {show} {toggle} {on} {off} {asReference} />
+<slot {position} {asReference} />
 
-<div bind:this={floating} class="floating" hidden={!$show} use:portal>
-    <slot name="floating" />
-    <div bind:this={arrow} class="arrow" class:dark={$pageTheme.isDark} />
+{#if $$slots.reference}
+    {#if inline}
+        <span class="floating-reference" use:asReference>
+            <slot name="reference" />
+        </span>
+    {:else}
+        <div class="floating-reference" use:asReference>
+            <slot name="reference" />
+        </div>
+    {/if}
+{/if}
+
+<div bind:this={floating} class="floating" use:portal={portalTarget}>
+    {#if show}
+        <slot name="floating" />
+    {/if}
+
+    <div bind:this={arrow} class="floating-arrow" hidden={!show}>
+        <FloatingArrow />
+    </div>
 </div>
 
 <style lang="scss">
@@ -89,33 +187,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         position: absolute;
         border-radius: 5px;
 
-        z-index: 90;
+        z-index: 890;
         @include elevation.elevation(8);
-    }
 
-    .arrow {
-        position: absolute;
-        background-color: var(--frame-bg);
-        width: 10px;
-        height: 10px;
-        z-index: 60;
-
-        /* outer border */
-        border: 1px solid #b6b6b6;
-
-        &.dark {
-            border-color: #060606;
-        }
-
-        /* Rotate the box to indicate the different directions */
-        border-right: none;
-        border-bottom: none;
-
-        /* inner border */
-        box-shadow: inset 1px 1px 0 0 #eeeeee;
-
-        &.dark {
-            box-shadow: inset 1px 1px 0 0 #565656;
+        &-arrow {
+            position: absolute;
         }
     }
 </style>

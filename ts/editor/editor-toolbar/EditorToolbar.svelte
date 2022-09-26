@@ -53,10 +53,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import Item from "../../components/Item.svelte";
-    import StickyContainer from "../../components/StickyContainer.svelte";
     import BlockButtons from "./BlockButtons.svelte";
     import InlineButtons from "./InlineButtons.svelte";
     import NotetypeButtons from "./NotetypeButtons.svelte";
+    import OptionsButton from "./OptionsButton.svelte";
     import RichTextClozeButtons from "./RichTextClozeButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
 
@@ -85,7 +85,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setContextProperty(api);
 </script>
 
-<StickyContainer --gutter-block="0.1rem">
+<div class="editor-toolbar">
     <ButtonToolbar {size} {wrap}>
         <DynamicallySlottable slotHost={Item} api={toolbar}>
             <Item id="notetype">
@@ -109,6 +109,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Item id="cloze">
                 <RichTextClozeButtons />
             </Item>
+
+            <Item id="options">
+                <OptionsButton />
+            </Item>
         </DynamicallySlottable>
     </ButtonToolbar>
-</StickyContainer>
+</div>
+
+<style lang="scss">
+    .editor-toolbar {
+        padding: 0 0 2px;
+
+        border-width: 0 0 thin;
+        border-style: solid;
+        border-color: var(--border-subtle);
+    }
+</style>

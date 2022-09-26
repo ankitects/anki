@@ -211,7 +211,7 @@ impl NoteContext {
     }
 
     fn guid_column(&self) -> Option<usize> {
-        self.with_guid.then(|| 1)
+        self.with_guid.then_some(1)
     }
 
     fn notetype_column(&self) -> Option<usize> {

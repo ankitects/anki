@@ -97,7 +97,7 @@ pub enum PropertyKind {
     Rated(i32, RatingKind),
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum StateKind {
     New,
     Review,
@@ -109,13 +109,13 @@ pub enum StateKind {
     Suspended,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum TemplateKind {
     Ordinal(u16),
     Name(String),
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum RatingKind {
     AnswerButton(u8),
     AnyAnswerButton,

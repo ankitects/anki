@@ -198,7 +198,7 @@
       <string>actions_options</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0" colspan="2">
+      <item row="0" column="0" colspan="2" alignment="Qt::AlignLeft">
        <widget class="QCheckBox" name="resched">
         <property name="text">
          <string>decks_reschedule_cards_based_on_my_answers</string>
@@ -208,7 +208,7 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="2" column="0" alignment="Qt::AlignLeft">
        <widget class="QCheckBox" name="secondFilter">
         <property name="text">
          <string>decks_enable_second_filter</string>
@@ -248,7 +248,7 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="3" column="0" alignment="Qt::AlignLeft">
        <widget class="QCheckBox" name="stepsOn">
         <property name="text">
          <string>decks_custom_steps_in_minutes</string>

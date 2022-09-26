@@ -56,3 +56,4 @@ card-templates-this-will-create-card-proceed =
         [one] This will create { $count } card. Proceed?
        *[other] This will create { $count } cards. Proceed?
     }
+card-templates-type-boxes-warning = Only one typing box per card template is supported.

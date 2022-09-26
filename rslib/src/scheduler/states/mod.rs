@@ -47,7 +47,7 @@ impl CardState {
         }
     }
 
-    pub(crate) fn next_states(self, ctx: &StateContext) -> NextCardStates {
+    pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
         match self {
             CardState::Normal(state) => state.next_states(ctx),
             CardState::Filtered(state) => state.next_states(ctx),
@@ -139,7 +139,7 @@ impl<'a> StateContext<'a> {
 }
 
 #[derive(Debug, Clone)]
-pub struct NextCardStates {
+pub struct SchedulingStates {
     pub current: CardState,
     pub again: CardState,
     pub hard: CardState,

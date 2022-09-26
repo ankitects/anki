@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>530</height>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,6 +43,9 @@
         <number>12</number>
        </property>
        <item>
+        <widget class="QComboBox" name="theme"/>
+       </item>
+       <item>
         <widget class="QComboBox" name="lang">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -56,50 +59,57 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="theme"/>
-       </item>
-       <item>
         <widget class="QComboBox" name="video_driver"/>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="showPlayButtons">
          <property name="text">
           <string>preferences_show_play_buttons_on_cards_with</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="interrupt_audio">
          <property name="text">
           <string>preferences_interrupt_current_audio_when_answering</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="pastePNG">
          <property name="text">
           <string>preferences_paste_clipboard_images_as_png</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="paste_strips_formatting">
          <property name="text">
           <string>preferences_paste_without_shift_key_strips_formatting</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="ignore_accents_in_search">
          <property name="text">
           <string>preferences_ignore_accents_in_search</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="legacy_import_export">
          <property name="text">
           <string notr="true">Legacy import/export handling</string>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignLeft">
+        <widget class="QCheckBox" name="reduce_motion">
+         <property name="toolTip">
+          <string>preferences_reduce_motion_tooltip</string>
+         </property>
+         <property name="text">
+          <string>preferences_reduce_motion</string>
          </property>
         </widget>
        </item>
@@ -194,35 +204,35 @@
        <string>preferences_scheduling</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="showEstimates">
          <property name="text">
           <string>preferences_show_next_review_time_above_answer</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="showProgress">
          <property name="text">
           <string>preferences_show_remaining_card_count_during_review</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="dayLearnFirst">
          <property name="text">
           <string>preferences_show_learning_cards_with_larger_steps</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="legacy_timezone">
          <property name="text">
           <string>preferences_legacy_timezone_handling</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="sched2021">
          <property name="toolTip">
           <string notr="true"/>
@@ -372,28 +382,28 @@
              </property>
             </widget>
            </item>
-           <item>
+           <item alignment="Qt::AlignLeft">
             <widget class="QCheckBox" name="syncMedia">
              <property name="text">
               <string>preferences_synchronize_audio_and_images_too</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item alignment="Qt::AlignLeft">
             <widget class="QCheckBox" name="syncOnProgramOpen">
              <property name="text">
               <string>preferences_automatically_sync_on_profile_openclose</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item alignment="Qt::AlignLeft">
             <widget class="QCheckBox" name="autoSyncMedia">
              <property name="text">
               <string>preferences_periodically_sync_media</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item alignment="Qt::AlignLeft">
             <widget class="QCheckBox" name="fullSync">
              <property name="text">
               <string>preferences_on_next_sync_force_changes_in</string>
@@ -656,7 +666,7 @@
      </widget>
     </widget>
    </item>
-   <item>
+   <item alignment="Qt::AlignCenter">
     <widget class="QLabel" name="label_21">
      <property name="text">
       <string>preferences_some_settings_will_take_effect_after</string>
@@ -676,8 +686,8 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>lang</tabstop>
   <tabstop>theme</tabstop>
+  <tabstop>lang</tabstop>
   <tabstop>video_driver</tabstop>
   <tabstop>showPlayButtons</tabstop>
   <tabstop>interrupt_audio</tabstop>
@@ -685,6 +695,7 @@
   <tabstop>paste_strips_formatting</tabstop>
   <tabstop>ignore_accents_in_search</tabstop>
   <tabstop>legacy_import_export</tabstop>
+  <tabstop>reduce_motion</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>
@@ -703,11 +714,11 @@
   <tabstop>fullSync</tabstop>
   <tabstop>syncDeauth</tabstop>
   <tabstop>media_log</tabstop>
-  <tabstop>tabWidget</tabstop>
   <tabstop>minutes_between_backups</tabstop>
   <tabstop>daily_backups</tabstop>
   <tabstop>weekly_backups</tabstop>
   <tabstop>monthly_backups</tabstop>
+  <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>

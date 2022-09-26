@@ -126,9 +126,9 @@ rust_library(
     deps = [
         "@raze__bstr__0_2_17//:bstr",
         "@raze__csv_core__0_1_10//:csv_core",
-        "@raze__itoa__1_0_1//:itoa",
-        "@raze__ryu__1_0_9//:ryu",
-        "@raze__serde__1_0_136//:serde",
+        "@raze__itoa__1_0_3//:itoa",
+        "@raze__ryu__1_0_11//:ryu",
+        "@raze__serde__1_0_145//:serde",
     ],
 )
 

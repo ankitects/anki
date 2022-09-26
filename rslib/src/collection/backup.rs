@@ -119,7 +119,7 @@ fn datetime_from_file_name(file_name: &str) -> Option<DateTime<Local>> {
         .and_then(|datetime| Local.from_local_datetime(&datetime).latest())
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 struct Backup {
     path: PathBuf,
     datetime: DateTime<Local>,
@@ -167,7 +167,7 @@ struct BackupFilter {
     obsolete: Vec<Backup>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum BackupStage {
     Daily,
     Weekly,

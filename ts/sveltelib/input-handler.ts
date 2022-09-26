@@ -3,6 +3,8 @@
 
 import { getRange, getSelection } from "../lib/cross-browser";
 import { on } from "../lib/events";
+import { isArrowDown, isArrowLeft, isArrowRight, isArrowUp } from "../lib/keys";
+import { singleCallback } from "../lib/typing";
 import { HandlerList } from "./handler-list";
 
 const nbsp = "\xa0";
@@ -12,14 +14,35 @@ export type SetupInputHandlerAction = (element: HTMLElement) => { destroy(): voi
 export interface InputEventParams {
     event: InputEvent;
 }
+
+export interface EventParams {
+    event: Event;
+}
+
 export interface InsertTextParams {
     event: InputEvent;
     text: Text;
 }
 
+type SpecialKeyAction =
+    | "caretUp"
+    | "caretDown"
+    | "caretLeft"
+    | "caretRight"
+    | "enter"
+    | "tab";
+
+export interface SpecialKeyParams {
+    event: KeyboardEvent;
+    action: SpecialKeyAction;
+}
+
 export interface InputHandlerAPI {
     readonly beforeInput: HandlerList<InputEventParams>;
     readonly insertText: HandlerList<InsertTextParams>;
+    readonly afterInput: HandlerList<EventParams>;
+    readonly pointerDown: HandlerList<{ event: PointerEvent }>;
+    readonly specialKey: HandlerList<SpecialKeyParams>;
 }
 
 /**
@@ -31,6 +54,7 @@ export interface InputHandlerAPI {
 function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
     const beforeInput = new HandlerList<InputEventParams>();
     const insertText = new HandlerList<InsertTextParams>();
+    const afterInput = new HandlerList<EventParams>();
 
     async function onBeforeInput(this: Element, event: InputEvent): Promise<void> {
         const selection = getSelection(this)!;
@@ -38,7 +62,11 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
 
         await beforeInput.dispatch({ event });
 
-        if (!range || event.inputType !== "insertText" || insertText.length === 0) {
+        if (
+            !range ||
+            !event.inputType.startsWith("insert") ||
+            insertText.length === 0
+        ) {
             return;
         }
 
@@ -55,33 +83,65 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
         await insertText.dispatch({ event, text });
 
         range.commonAncestorContainer.normalize();
+
+        // We emulate the after input event here, because we prevent
+        // the default behavior earlier
+        await afterInput.dispatch({ event });
     }
+
+    async function onInput(this: Element, event: Event): Promise<void> {
+        await afterInput.dispatch({ event });
+    }
+
+    const pointerDown = new HandlerList<{ event: PointerEvent }>();
 
     function clearInsertText(): void {
         insertText.clear();
     }
 
+    function onPointerDown(event: PointerEvent): void {
+        pointerDown.dispatch({ event });
+        clearInsertText();
+    }
+
+    const specialKey = new HandlerList<SpecialKeyParams>();
+
+    async function onKeyDown(this: Element, event: KeyboardEvent): Promise<void> {
+        if (isArrowDown(event)) {
+            specialKey.dispatch({ event, action: "caretDown" });
+        } else if (isArrowUp(event)) {
+            specialKey.dispatch({ event, action: "caretUp" });
+        } else if (isArrowRight(event)) {
+            specialKey.dispatch({ event, action: "caretRight" });
+        } else if (isArrowLeft(event)) {
+            specialKey.dispatch({ event, action: "caretLeft" });
+        } else if (event.code === "Enter" || event.code === "NumpadEnter") {
+            specialKey.dispatch({ event, action: "enter" });
+        } else if (event.code === "Tab") {
+            specialKey.dispatch({ event, action: "tab" });
+        }
+    }
+
     function setupHandler(element: HTMLElement): { destroy(): void } {
-        const beforeInputOff = on(element, "beforeinput", onBeforeInput);
+        const destroy = singleCallback(
+            on(element, "beforeinput", onBeforeInput),
+            on(element, "input", onInput),
+            on(element, "blur", clearInsertText),
+            on(element, "pointerdown", onPointerDown),
+            on(element, "keydown", onKeyDown),
+            on(document, "selectionchange", clearInsertText),
+        );
 
-        const blurOff = on(element, "blur", clearInsertText);
-        const pointerDownOff = on(element, "pointerdown", clearInsertText);
-        const selectionChangeOff = on(document, "selectionchange", clearInsertText);
-
-        return {
-            destroy() {
-                beforeInputOff();
-                blurOff();
-                pointerDownOff();
-                selectionChangeOff();
-            },
-        };
+        return { destroy };
     }
 
     return [
         {
             beforeInput,
             insertText,
+            afterInput,
+            specialKey,
+            pointerDown,
         },
         setupHandler,
     ];

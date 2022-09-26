@@ -28,7 +28,7 @@ use crate::{
     revlog::RevlogEntry,
     serde::{default_on_invalid, deserialize_int_from_number},
     storage::{
-        card::data::{card_data_string, original_position_from_card_data},
+        card::data::{card_data_string, CardData},
         open_and_check_sqlite_file, SchemaVersion,
     },
     tags::{join_tags, split_tags, Tag},
@@ -46,7 +46,7 @@ pub struct NormalSyncProgress {
     pub remote_remove: usize,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SyncStage {
     Connecting,
     Syncing,
@@ -176,14 +176,14 @@ pub struct SanityCheckResponse {
     pub server: Option<SanityCheckCounts>,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 pub enum SanityCheckStatus {
     Ok,
     Bad,
 }
 
-#[derive(Serialize_tuple, Deserialize, Debug, PartialEq)]
+#[derive(Serialize_tuple, Deserialize, Debug, PartialEq, Eq)]
 pub struct SanityCheckCounts {
     pub counts: SanityCheckDueCounts,
     pub cards: u32,
@@ -196,7 +196,7 @@ pub struct SanityCheckCounts {
     pub deck_config: u32,
 }
 
-#[derive(Serialize_tuple, Deserialize, Debug, Default, PartialEq)]
+#[derive(Serialize_tuple, Deserialize, Debug, Default, PartialEq, Eq)]
 pub struct SanityCheckDueCounts {
     pub new: u32,
     pub learn: u32,
@@ -209,7 +209,7 @@ pub struct FullSyncProgress {
     pub total_bytes: usize,
 }
 
-#[derive(PartialEq, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub enum SyncActionRequired {
     NoChanges,
     FullSyncRequired { upload_ok: bool, download_ok: bool },
@@ -1081,6 +1081,10 @@ impl Collection {
 
 impl From<CardEntry> for Card {
     fn from(e: CardEntry) -> Self {
+        let CardData {
+            original_position,
+            custom_data,
+        } = CardData::from_str(&e.data);
         Card {
             id: e.id,
             note_id: e.nid,
@@ -1099,7 +1103,8 @@ impl From<CardEntry> for Card {
             original_due: e.odue,
             original_deck_id: e.odid,
             flags: e.flags,
-            original_position: original_position_from_card_data(&e.data),
+            original_position,
+            custom_data,
         }
     }
 }
