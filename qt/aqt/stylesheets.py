@@ -375,24 +375,34 @@ QSpinBox::down-arrow:off {{
 
 def checkbox_styles(tm: ThemeManager, buf: str) -> str:
     buf += f"""
-QCheckBox {{
+QCheckBox,
+QRadioButton {{
     spacing: 8px;
     margin: 2px 0;
 }}
-QCheckBox::indicator {{
+QCheckBox::indicator,
+QRadioButton::indicator {{
     border: 1px solid {tm.var(colors.BUTTON_BORDER)};
-    border-radius: {tm.var(props.BORDER_RADIUS)};
     background: {tm.var(colors.CANVAS_INSET)};
     width: 16px;
     height: 16px;
 }}
+QCheckBox::indicator {{
+    border-radius: {tm.var(props.BORDER_RADIUS)};
+}}
+QRadioButton::indicator {{
+    border-radius: 8px;
+}}
 QCheckBox::indicator:hover,
-QCheckBox::indicator:checked:hover {{
+QCheckBox::indicator:checked:hover,
+QRadioButton::indicator:hover,
+QRadioButton::indicator:checked:hover {{
     border: 2px solid {tm.var(colors.BORDER_STRONG)};
     width: 14px;
     height: 14px;
 }}
-QCheckBox::indicator:checked {{
+QCheckBox::indicator:checked,
+QRadioButton::indicator:checked {{
     image: url({tm.themed_icon("mdi:check")});
 }}
 QCheckBox::indicator:indeterminate {{
