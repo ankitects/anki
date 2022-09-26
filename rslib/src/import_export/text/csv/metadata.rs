@@ -404,12 +404,9 @@ fn maybe_set_tags_column(metadata: &mut CsvMetadata, meta_columns: &HashSet<usiz
 
 fn delimiter_from_value(value: &str) -> Option<Delimiter> {
     let normed = value.to_ascii_lowercase();
-    for delimiter in Delimiter::iter() {
-        if normed.trim() == delimiter.name() || normed.as_bytes() == [delimiter.byte()] {
-            return Some(delimiter);
-        }
-    }
-    None
+    Delimiter::iter().find(|&delimiter| {
+        normed.trim() == delimiter.name() || normed.as_bytes() == [delimiter.byte()]
+    })
 }
 
 fn delimiter_from_reader(mut reader: impl Read) -> Result<Delimiter> {

@@ -76,8 +76,8 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__lazy_static__1_4_0//:lazy_static",
-        "@raze__memchr__2_4_1//:memchr",
+        "@raze__memchr__2_5_0//:memchr",
         "@raze__regex_automata__0_1_10//:regex_automata",
-        "@raze__serde__1_0_136//:serde",
+        "@raze__serde__1_0_145//:serde",
     ],
 )

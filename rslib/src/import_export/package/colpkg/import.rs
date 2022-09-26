@@ -71,7 +71,7 @@ fn check_collection_and_mod_schema(col_path: &Path) -> Result<()> {
                 .pragma_query_value(None, "integrity_check", |row| row.get::<_, String>(0))
                 .ok()
         })
-        .and_then(|s| (s == "ok").then(|| ()))
+        .and_then(|s| (s == "ok").then_some(()))
         .ok_or(AnkiError::ImportError(ImportError::Corrupt))
 }
 

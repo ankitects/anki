@@ -6,13 +6,13 @@ use reqwest::StatusCode;
 
 use super::AnkiError;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct NetworkError {
     pub info: String,
     pub kind: NetworkErrorKind,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum NetworkErrorKind {
     Offline,
     Timeout,
@@ -20,13 +20,13 @@ pub enum NetworkErrorKind {
     Other,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct SyncError {
     pub info: String,
     pub kind: SyncErrorKind,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum SyncErrorKind {
     Conflict,
     ServerError,

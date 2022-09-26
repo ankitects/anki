@@ -79,7 +79,7 @@ enum LocalState {
     InDbAndPending,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 enum RequiredChange {
     // none also covers the case where we'll later upload
     None,

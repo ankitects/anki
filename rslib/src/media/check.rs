@@ -27,7 +27,7 @@ use crate::{
     text::{extract_media_refs, normalize_to_nfc, MediaRef, REMOTE_FILENAME},
 };
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct MediaCheckOutput {
     pub unused: Vec<String>,
     pub missing: Vec<String>,
@@ -38,7 +38,7 @@ pub struct MediaCheckOutput {
     pub trash_bytes: u64,
 }
 
-#[derive(Debug, PartialEq, Default)]
+#[derive(Debug, PartialEq, Eq, Default)]
 struct MediaFolderCheck {
     files: Vec<String>,
     renamed: HashMap<String, String>,

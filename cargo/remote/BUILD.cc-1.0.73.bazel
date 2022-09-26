@@ -55,7 +55,7 @@ rust_binary(
     # buildifier: leave-alone
     deps = [
         ":cc",
-        "@raze__jobserver__0_1_24//:jobserver",
+        "@raze__jobserver__0_1_25//:jobserver",
     ],
 )
 
@@ -80,7 +80,7 @@ rust_library(
     version = "1.0.73",
     # buildifier: leave-alone
     deps = [
-        "@raze__jobserver__0_1_24//:jobserver",
+        "@raze__jobserver__0_1_25//:jobserver",
     ],
 )
 

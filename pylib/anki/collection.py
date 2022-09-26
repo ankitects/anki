@@ -1108,7 +1108,7 @@ class Collection(DeprecatedNamesMixin):
         previewing = conf["dyn"] and not conf["resched"]
         if not previewing:
             last = self.db.scalar(
-                "select id from revlog where cid = ? " "order by id desc limit 1",
+                "select id from revlog where cid = ? order by id desc limit 1",
                 card.id,
             )
             self.db.execute("delete from revlog where id = ?", last)

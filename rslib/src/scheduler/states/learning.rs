@@ -4,7 +4,7 @@
 use super::{interval_kind::IntervalKind, CardState, ReviewState, SchedulingStates, StateContext};
 use crate::revlog::RevlogReviewKind;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct LearnState {
     pub remaining_steps: u32,
     pub scheduled_secs: u32,

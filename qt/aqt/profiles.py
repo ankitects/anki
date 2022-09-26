@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any
 import anki.lang
 import aqt.forms
 import aqt.sound
+from anki._legacy import deprecated
 from anki.collection import Collection
 from anki.db import DB
 from anki.lang import without_unicode_isolation
@@ -22,7 +23,7 @@ from anki.sync import SyncAuth
 from anki.utils import int_time, is_mac, is_win, point_version
 from aqt import appHelpSite
 from aqt.qt import *
-from aqt.theme import Theme
+from aqt.theme import Theme, theme_manager
 from aqt.utils import disable_help_button, send_to_trash, showWarning, tr
 
 if TYPE_CHECKING:
@@ -534,11 +535,9 @@ create table if not exists profiles
     def set_last_addon_update_check(self, secs: int) -> None:
         self.meta["last_addon_update_check"] = secs
 
+    @deprecated(info="use theme_manager.night_mode")
     def night_mode(self) -> bool:
-        return self.meta.get("night_mode", False)
-
-    def set_night_mode(self, on: bool) -> None:
-        self.meta["night_mode"] = on
+        return theme_manager.night_mode
 
     def theme(self) -> Theme:
         return Theme(self.meta.get("theme", 0))

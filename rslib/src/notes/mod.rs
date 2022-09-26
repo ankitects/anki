@@ -37,7 +37,7 @@ pub(crate) struct TransformNoteOutput {
     pub update_tags: bool,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Note {
     pub id: NoteId,
     pub guid: String,
@@ -108,7 +108,7 @@ impl Collection {
 
 /// Information required for updating tags while leaving note content alone.
 /// Tags are stored in their DB form, separated by spaces.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub(crate) struct NoteTags {
     pub id: NoteId,
     pub mtime: TimestampSecs,
@@ -747,7 +747,7 @@ mod test {
                 col.storage.db_scalar::<u32>("select count() from graves")?,
                 0
             );
-            assert!(!col.get_next_card()?.is_some());
+            assert!(col.get_next_card()?.is_none());
             Ok(())
         };
 
@@ -786,7 +786,7 @@ mod test {
                 col.storage.db_scalar::<u32>("select count() from graves")?,
                 3
             );
-            assert!(!col.get_next_card()?.is_some());
+            assert!(col.get_next_card()?.is_none());
             Ok(())
         };
 

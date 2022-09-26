@@ -33,7 +33,7 @@ pub struct NotetypeChangeInfo {
     pub new_template_names: Vec<String>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct TemplateMap {
     pub removed: Vec<usize>,
     pub remapped: HashMap<usize, usize>,

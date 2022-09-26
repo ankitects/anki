@@ -57,9 +57,9 @@ cargo_build_script(
     version = "0.27.2",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__proc_macro2__1_0_36//:proc_macro2",
-        "@raze__quote__1_0_15//:quote",
-        "@raze__syn__1_0_88//:syn",
+        "@raze__proc_macro2__1_0_43//:proc_macro2",
+        "@raze__quote__1_0_21//:quote",
+        "@raze__syn__1_0_100//:syn",
     ],
 )
 
@@ -90,6 +90,6 @@ rust_library(
         "@raze__itoa__0_4_8//:itoa",
         "@raze__matches__0_1_9//:matches",
         "@raze__phf__0_8_0//:phf",
-        "@raze__smallvec__1_8_0//:smallvec",
+        "@raze__smallvec__1_9_0//:smallvec",
     ],
 )

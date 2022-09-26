@@ -4,7 +4,7 @@
 use super::{IntervalKind, SchedulingStates, StateContext};
 use crate::revlog::RevlogReviewKind;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PreviewState {
     pub scheduled_secs: u32,
     pub finished: bool,

@@ -26,8 +26,8 @@ qlineargradient(
     """
 
 
-def general_styles(tm: ThemeManager, buf: str) -> str:
-    buf += f"""
+def general_styles(tm: ThemeManager) -> str:
+    return f"""
 QFrame {{
     background: none;
 }}
@@ -59,11 +59,10 @@ QToolTip {{
     background: {tm.var(colors.CANVAS_OVERLAY)};
 }}
     """
-    return buf
 
 
-def button_styles(tm: ThemeManager, buf: str) -> str:
-    buf += f"""
+def button_styles(tm: ThemeManager) -> str:
+    return f"""
 QPushButton,
 QTabBar::tab:!selected,
 QComboBox:!editable {{
@@ -96,11 +95,10 @@ QComboBox:!editable:pressed {{
     };
 }}
     """
-    return buf
 
 
-def splitter_styles(tm: ThemeManager, buf: str) -> str:
-    buf += f"""
+def splitter_styles(tm: ThemeManager) -> str:
+    return f"""
 QSplitter::handle,
 QMainWindow::separator {{
     height: 16px;
@@ -114,11 +112,10 @@ QMainWindow::separator:vertical {{
     image: url({tm.themed_icon("mdi:drag-vertical-FG_SUBTLE")});
 }}
 """
-    return buf
 
 
-def combobox_styles(tm: ThemeManager, buf: str) -> str:
-    buf += f"""
+def combobox_styles(tm: ThemeManager) -> str:
+    return f"""
 QComboBox {{
     padding: 1px 4px 2px 6px;
 }}
@@ -175,11 +172,10 @@ QComboBox::drop-down:hover {{
     };
 }}
     """
-    return buf
 
 
-def tabwidget_styles(tm: ThemeManager, buf: str) -> str:
-    buf += f"""
+def tabwidget_styles(tm: ThemeManager) -> str:
+    return f"""
 QTabWidget {{
   border-radius: {tm.var(props.BORDER_RADIUS)};
   background: none;
@@ -223,11 +219,10 @@ QTabBar::tab:selected {{
     };
 }}
     """
-    return buf
 
 
-def table_styles(tm: ThemeManager, buf: str) -> str:
-    buf += f"""
+def table_styles(tm: ThemeManager) -> str:
+    return f"""
 QTableView {{
     border-radius: {tm.var(props.BORDER_RADIUS)};
     gridline-color: {tm.var(colors.BORDER)};
@@ -294,11 +289,10 @@ QHeaderView::down-arrow {{
     image: url({tm.themed_icon("mdi:menu-down")});
 }}
     """
-    return buf
 
 
-def spinbox_styles(tm: ThemeManager, buf: str) -> str:
-    buf += f"""
+def spinbox_styles(tm: ThemeManager) -> str:
+    return f"""
 QSpinBox::up-button,
 QSpinBox::down-button {{
     subcontrol-origin: border;
@@ -370,11 +364,10 @@ QSpinBox::down-arrow:off {{
     image: url({tm.themed_icon("mdi:chevron-down-FG_DISABLED")});
 }}
      """
-    return buf
 
 
-def checkbox_styles(tm: ThemeManager, buf: str) -> str:
-    buf += f"""
+def checkbox_styles(tm: ThemeManager) -> str:
+    return f"""
 QCheckBox,
 QRadioButton {{
     spacing: 8px;
@@ -409,11 +402,10 @@ QCheckBox::indicator:indeterminate {{
     image: url({tm.themed_icon("mdi:minus-thick")});
 }}
     """
-    return buf
 
 
-def scrollbar_styles(tm: ThemeManager, buf: str) -> str:
-    buf += f"""
+def scrollbar_styles(tm: ThemeManager) -> str:
+    return f"""
 QAbstractScrollArea::corner {{
     background: none;
     border: none;
@@ -453,32 +445,28 @@ QScrollBar::sub-line {{
       background: none;
 }}
     """
-    return buf
 
 
-def win10_styles(tm: ThemeManager, buf: str) -> str:
-
-    # day mode is missing a bottom border; background must be
-    # also set for border to apply
-    buf += f"""
+def win10_styles(tm: ThemeManager) -> str:
+    styles = f"""
+/* day mode is missing a bottom border; background must be
+   also set for border to apply */
 QMenuBar {{
   border-bottom: 1px solid {tm.var(colors.BORDER)};
   background: {tm.var(colors.CANVAS) if tm.night_mode else "white"};
 }}
-    """
 
-    # qt bug? setting the above changes the browser sidebar
-    # to white as well, so set it back
-    buf += f"""
+/* qt bug? setting the above changes the browser sidebar
+   to white as well, so set it back */
 QTreeWidget {{
   background: {tm.var(colors.CANVAS)};
 }}
     """
 
     if tm.night_mode:
-        buf += """
+        styles += """
 QToolTip {
   border: 0;
 }
         """
-    return buf
+    return styles
