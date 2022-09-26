@@ -70,28 +70,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "panes" as panes;
+
     .horizontal-resizer {
         width: 100%;
         cursor: row-resize;
         position: relative;
+        text-align: center;
 
         z-index: 20;
         .drag-handle {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
             opacity: 0.4;
         }
 
-        &::before {
-            content: "";
-            position: absolute;
-            height: 10px;
-            top: -5px;
-            left: 0;
-            width: 100%;
-        }
         &:hover .drag-handle {
             opacity: 0.8;
         }
