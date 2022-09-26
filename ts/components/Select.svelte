@@ -62,11 +62,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </WithFloating>
 
 <style lang="scss">
-    @use "sass/input-mixins" as input;
+    @use "sass/button-mixins" as button;
     .select-container {
-        @include input.select($with-disabled: false);
+        @include button.select($with-disabled: false);
         padding: 0.2rem 2rem 0.2rem 0.75rem;
-
+        line-height: 1.5;
+        height: var(--buttons-size, 100%);
         position: relative;
     }
 

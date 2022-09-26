@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let tooltip: string | undefined = undefined;
-    export let primary = false
+    export let primary = false;
     export let active = false;
     export let disabled = false;
     export let tabbable = false;
