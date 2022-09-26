@@ -28,17 +28,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         dispatchPresetChange();
     }
 
-    let options: string[] = [];
-    let initial = 0;
-
-    $: $configList.forEach((entry, i) => {
-        options[i] = configLabel(entry);
-        if (entry.current) {
-            initial = i;
-        }
-    });
-
-    let value: number = initial;
+    $: options = Array.from($configList, (entry) => configLabel(entry));
+    $: value = $configList.find((entry) => entry.current)?.idx || 0
 
     function configLabel(entry: ConfigListEntry): string {
         const count = tr.deckConfigUsedByDecks({ decks: entry.useCount });
