@@ -22,7 +22,7 @@ from anki.sync import SyncAuth
 from anki.utils import int_time, is_mac, is_win, point_version
 from aqt import appHelpSite
 from aqt.qt import *
-from aqt.theme import Theme
+from aqt.theme import Theme, theme_manager
 from aqt.utils import disable_help_button, send_to_trash, showWarning, tr
 
 if TYPE_CHECKING:
@@ -535,10 +535,7 @@ create table if not exists profiles
         self.meta["last_addon_update_check"] = secs
 
     def night_mode(self) -> bool:
-        return self.meta.get("night_mode", False)
-
-    def set_night_mode(self, on: bool) -> None:
-        self.meta["night_mode"] = on
+        return theme_manager.night_mode
 
     def theme(self) -> Theme:
         return Theme(self.meta.get("theme", 0))
