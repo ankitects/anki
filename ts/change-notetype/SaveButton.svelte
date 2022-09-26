@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonGroup>
     <LabelButton
-        theme="primary"
+        primary
         tooltip={getPlatformString(keyCombination)}
         on:click={save}
         --border-left-radius="5px"

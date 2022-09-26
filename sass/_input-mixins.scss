@@ -8,6 +8,7 @@
     @include button.border-radius;
     padding: 0.2rem 0.75rem;
     line-height: 1.5;
+    height: var(--buttons-size, 100%);
 }
 
 @mixin select($with-disabled: true) {

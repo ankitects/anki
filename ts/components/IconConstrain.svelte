@@ -22,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         vertical-align: var(--icon-align, middle);
 
         /* constrain icon */
-        width: calc((var(--buttons-size, 22px) - 2px) * var(--width-multiplier));
+        min-width: calc((var(--buttons-size, 22px) - 2px) * var(--width-multiplier));
         height: calc(var(--buttons-size, 22px) - 2px);
 
         & > :global(svg),
