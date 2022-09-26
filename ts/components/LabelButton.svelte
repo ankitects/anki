@@ -47,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "sass/button-mixins" as button;
 
     button {
-        @include button.base;
+        @include button.base($active-class: active);
         &.btn-primary {
             @include button.base($primary: true);
         }

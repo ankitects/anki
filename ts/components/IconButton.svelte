@@ -41,7 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "sass/button-mixins" as button;
 
     .icon-button {
-        @include button.base;
+        @include button.base($active-class: active);
         @include button.border-radius;
 
         padding: 0;

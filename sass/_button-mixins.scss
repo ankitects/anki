@@ -56,6 +56,7 @@
     $border: true,
     $with-hover: true,
     $with-active: true,
+    $active-class: "",
     $with-disabled: true
 ) {
     -webkit-appearance: none;
@@ -74,10 +75,15 @@
     }
 
     @if ($with-active) {
-        &:active,
-        &.active {
+        &:active {
             @include impressed-shadow(0.35);
             border-color: var(--button-border);
+        }
+        @if ($active-class != "") {
+            &.#{$active-class} {
+                @include impressed-shadow(0.35);
+                border-color: var(--button-border);
+            }
         }
     }
 

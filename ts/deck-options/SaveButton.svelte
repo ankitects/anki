@@ -112,7 +112,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         overflow: hidden;
         border-radius: var(--border-radius);
         button {
-            @include button.base;
+            @include button.base($with-disabled: false);
             border-left: 1px var(--border);
         }
     }
