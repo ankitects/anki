@@ -5,10 +5,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, tick } from "svelte";
 
-    import ButtonGroup from "../components/ButtonGroup.svelte";
     import DropdownDivider from "../components/DropdownDivider.svelte";
     import DropdownItem from "../components/DropdownItem.svelte";
-    import IconButton from "../components/IconButton.svelte";
+    import IconConstrain from "../components/IconConstrain.svelte";
     import LabelButton from "../components/LabelButton.svelte";
     import Popover from "../components/Popover.svelte";
     import Shortcut from "../components/Shortcut.svelte";
@@ -64,12 +63,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let showFloating = false;
 </script>
 
-<ButtonGroup>
+<div class="save-button">
     <LabelButton
         theme="primary"
         on:click={() => save(false)}
         tooltip={getPlatformString(saveKeyCombination)}
-        --border-left-radius="5px">{tr.deckConfigSaveButton()}</LabelButton
+        >{tr.deckConfigSaveButton()}</LabelButton
     >
     <Shortcut keyCombination={saveKeyCombination} on:action={() => save(false)} />
 
@@ -79,15 +78,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         inline
         on:close={() => (showFloating = false)}
     >
-        <IconButton
-            slot="reference"
-            widthMultiplier={0.5}
-            iconSize={140}
-            --border-right-radius="5px"
-            on:click={() => (showFloating = !showFloating)}
-        >
-            {@html chevronDown}
-        </IconButton>
+        <button slot="reference" on:click={() => (showFloating = !showFloating)}>
+            <IconConstrain iconSize={80}>
+                {@html chevronDown}
+            </IconConstrain>
+        </button>
 
         <Popover slot="floating">
             <DropdownItem on:click={() => dispatch("add")}
@@ -108,4 +103,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </DropdownItem>
         </Popover>
     </WithFloating>
-</ButtonGroup>
+</div>
+
+<style lang="scss">
+    @use "sass/button-mixins" as button;
+
+    .save-button {
+        overflow: hidden;
+        border-radius: var(--border-radius);
+        button {
+            @include button.base;
+            border-left: 1px var(--border);
+        }
+    }
+</style>

@@ -3,15 +3,17 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { chevronDown, chevronUp } from "./icons";
+    import IconConstrain from "./IconConstrain.svelte";
+    import { chevronLeft, chevronRight } from "./icons";
 
     export let value = 1;
     export let step = 1;
     export let min = 1;
     export let max = 9999;
 
+    const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
+
     let input: HTMLInputElement;
-    let clientHeight: number;
     let focused = false;
 
     function decimalPlaces(value: number) {
@@ -39,7 +41,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<div class="spin-box" bind:clientHeight on:wheel={handleWheel}>
+<div class="spin-box" on:wheel={handleWheel}>
+    <button
+        class="left"
+        disabled={rtl ? value == max : value == min}
+        on:click={() => {
+            input.focus();
+            if (rtl && value < max) {
+                value += step;
+            } else if (value > min) {
+                value -= step;
+            }
+        }}
+    >
+        <IconConstrain>
+            {@html chevronLeft}
+        </IconConstrain>
+    </button>
     <input
         type="number"
         pattern="[0-9]*"
@@ -53,30 +71,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:focusin={() => (focused = true)}
         on:focusout={() => (focused = false)}
     />
-    <div
-        class="spinner"
-        style:--half-height="{clientHeight / 2}px"
-        on:click={() => input.focus()}
+    <button
+        class="right"
+        disabled={rtl ? value == min : value == max}
+        on:click={() => {
+            input.focus();
+            if (rtl && value > min) {
+                value -= step;
+            } else if (value < max) {
+                value += step;
+            }
+        }}
     >
-        <div
-            class="up"
-            disabled={value == max || null}
-            on:click={() => {
-                if (value < max) value += step;
-            }}
-        >
-            {@html chevronUp}
-        </div>
-        <div
-            class="down"
-            disabled={value == min || null}
-            on:click={() => {
-                if (value > min) value -= step;
-            }}
-        >
-            {@html chevronDown}
-        </div>
-    </div>
+        <IconConstrain>
+            {@html chevronRight}
+        </IconConstrain>
+    </button>
 </div>
 
 <style lang="scss">
@@ -92,46 +102,35 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         input {
             width: 100%;
-            padding: 0.2rem 0.75rem;
+            padding: 0.2rem 1.5rem 0.2rem 0.75rem;
             border: none;
             outline: none;
+            text-align: center;
             &::-webkit-inner-spin-button {
                 display: none;
             }
         }
-        &:hover {
-            .spinner {
+
+        &:hover,
+        &:focus-within {
+            button {
                 opacity: 1;
             }
         }
     }
-    .spinner {
+    button {
         opacity: 0;
-        cursor: pointer;
         position: absolute;
-        inset: 0 0 0 auto;
-        border-left: 1px solid var(--border);
-        :global(svg) {
-            fill: currentColor;
-            vertical-align: top;
-            height: var(--half-height);
-            width: 16px;
-        }
-        .up,
-        .down {
-            @include button.base($border: false, $with-active: false);
-            width: 100%;
-            height: 50%;
-        }
-        .up {
-            border-bottom: 1px solid var(--border);
-        }
-    }
-    :global([dir="rtl"]) {
-        .spinner {
+        @include button.base($border: false);
+
+        &.left {
             inset: 0 auto 0 0;
-            border-left: none;
             border-right: 1px solid var(--border);
+        }
+        &.right {
+            position: absolute;
+            inset: 0 0 0 auto;
+            border-left: 1px solid var(--border);
         }
     }
 </style>

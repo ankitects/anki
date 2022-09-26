@@ -29,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: options = Array.from($configList, (entry) => configLabel(entry));
-    $: value = $configList.find((entry) => entry.current)?.idx || 0
+    $: value = $configList.find((entry) => entry.current)?.idx || 0;
 
     function configLabel(entry: ConfigListEntry): string {
         const count = tr.deckConfigUsedByDecks({ decks: entry.useCount });

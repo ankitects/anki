@@ -51,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
         {current}
         <div class="chevron">
-            <IconConstrain iconSize={100} widthMultiplier={0.8}>
+            <IconConstrain iconSize={80}>
                 {@html chevronDown}
             </IconConstrain>
         </div>
@@ -65,11 +65,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "sass/input-mixins" as input;
     .select-container {
         @include input.select($with-disabled: false);
+        padding: 0.2rem 2rem 0.2rem 0.75rem;
+
         position: relative;
     }
 
     .chevron {
-        min-width: 16px;
         position: absolute;
         inset: 0 0 0 auto;
         border-left: 1px solid var(--button-border);
