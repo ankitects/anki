@@ -84,11 +84,10 @@
     @if ($with-disabled) {
         &[disabled],
         &[disabled]:hover {
-            cursor: initial;
+            cursor: not-allowed;
             color: var(--fg-disabled);
             box-shadow: none !important;
             background-color: var(--button-gradient-end);
-            border-color: var(--border-subtle);
         }
     }
 }
