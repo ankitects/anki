@@ -6,9 +6,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { marked } from "marked";
 
     import Col from "../components/Col.svelte";
-    import StickyContainer from "../components/StickyContainer.svelte";
     import Container from "../components/Container.svelte";
     import Row from "../components/Row.svelte";
+    import StickyContainer from "../components/StickyContainer.svelte";
     import * as tr from "../lib/ftl";
     import { ChangeNotetypeState, MapContext } from "./lib";
     import Mapper from "./Mapper.svelte";
