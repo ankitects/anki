@@ -3,10 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Popover from "../components/Popover.svelte";
-    import WithFloating from "../components/WithFloating.svelte";
     import IconConstrain from "./IconConstrain.svelte";
     import { chevronDown } from "./icons";
+    import Popover from "./Popover.svelte";
+    import WithFloating from "./WithFloating.svelte";
 
     export let id: string | undefined = undefined;
     let className = "";
