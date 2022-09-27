@@ -7,7 +7,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Callback, singleCallback } from "../lib/typing";
     import IconConstrain from "./IconConstrain.svelte";
     import { horizontalHandle } from "./icons";
-    import Pane from "./Pane.svelte";
     import type { HeightResizable } from "./resizable";
 
     type Pane = {

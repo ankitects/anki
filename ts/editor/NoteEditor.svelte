@@ -335,11 +335,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         minHeight = 0;
         maxHeight = Infinity;
     }
-    let toolbarPane = new ResizablePane();
     let fieldsPane = new ResizablePane();
     let tagsPane = new ResizablePane();
 
-    let upperResizer: HorizontalResizer;
     let lowerResizer: HorizontalResizer;
 </script>
 
@@ -352,30 +350,9 @@ Functionality exclusive to specifc note-editing views (e.g. in the browser or
 the AddCards dialog) should be implemented in the user of this component.
 -->
 <div class="note-editor" bind:clientHeight>
-    <Pane
-        bind:this={toolbarPane.resizable}
-        on:resize={(e) => (toolbarPane.height = e.detail.height)}
-    >
-        <PaneContent scroll={false}>
-            <EditorToolbar
-                {size}
-                {wrap}
-                api={toolbar}
-                on:heightChange={(e) => {
-                    toolbarPane.maxHeight = e.detail.height;
-                    upperResizer.move([toolbarPane, fieldsPane], toolbarPane.maxHeight);
-                }}
-            >
-                <slot slot="notetypeButtons" name="notetypeButtons" />
-            </EditorToolbar>
-        </PaneContent>
-    </Pane>
-
-    <HorizontalResizer
-        panes={[toolbarPane, fieldsPane]}
-        {clientHeight}
-        bind:this={upperResizer}
-    />
+    <EditorToolbar {size} {wrap} api={toolbar}>
+        <slot slot="notetypeButtons" name="notetypeButtons" />
+    </EditorToolbar>
 
     {#if hint}
         <Absolute bottom right --margin="10px">
@@ -392,7 +369,7 @@ the AddCards dialog) should be implemented in the user of this component.
         bind:this={fieldsPane.resizable}
         on:resize={(e) => (fieldsPane.height = e.detail.height)}
     >
-        <PaneContent>
+        <PaneContent forceTopShadow>
             <Fields>
                 <DecoratedElements>
                     {#each fieldsData as field, index}
@@ -563,7 +540,7 @@ the AddCards dialog) should be implemented in the user of this component.
         bind:this={tagsPane.resizable}
         on:resize={(e) => (tagsPane.height = e.detail.height)}
     >
-        <PaneContent>
+        <PaneContent scroll={false}>
             <TagEditor
                 {tags}
                 on:tagsupdate={saveTags}

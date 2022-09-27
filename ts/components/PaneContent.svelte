@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let scroll = true;
     const [element, elementResolve] = promiseWithResolver<HTMLElement>();
 
+    export let forceTopShadow = false;
     let clientWidth = 0;
     let clientHeight = 0;
     let scrollWidth = 0;
@@ -21,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: overflowRight = scrollLeft < scrollWidth - clientWidth;
 
     $: shadows = {
-        top: overflowTop ? "0 5px" : null,
+        top: forceTopShadow || overflowTop ? "0 5px" : null,
         bottom: overflowBottom ? "0 -5px" : null,
         left: overflowLeft ? "5px 0" : null,
         right: overflowRight ? "-5px 0" : null,
