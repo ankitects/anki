@@ -348,6 +348,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let tagEditor: TagEditor;
 
     $: tagAmount = $tags.length;
+
+    function collapseTags(): void {
+        lowerResizer.move([tagsPane, fieldsPane], tagsPane.minHeight);
+        bridgeCommand("collapseTags");
+    }
+
+    function expandTags(): void {
+        lowerResizer.move([tagsPane, fieldsPane], tagsPane.maxHeight);
+        bridgeCommand("expandTags");
+    }
 </script>
 
 <!--
@@ -546,8 +556,9 @@ the AddCards dialog) should be implemented in the user of this component.
                     tagEditor.appendEmptyTag();
                 }}
                 keyCombination="Control+Shift+T"
-                >{@html tagAmount > 0 ? `${tagAmount} Tags` : ""}</TagAddButton
             >
+                {@html tagAmount > 0 ? `${tagAmount} Tags` : ""}
+            </TagAddButton>
         </div>
     {/if}
 
@@ -558,13 +569,12 @@ the AddCards dialog) should be implemented in the user of this component.
         bind:this={lowerResizer}
         on:dblclick={() => {
             if ($tagsCollapsed) {
-                lowerResizer.move([tagsPane, fieldsPane], tagsPane.maxHeight);
+                expandTags();
                 $tagsCollapsed = false;
             } else {
-                lowerResizer.move([tagsPane, fieldsPane], tagsPane.minHeight);
+                collapseTags();
                 $tagsCollapsed = true;
             }
-            bridgeCommand(`${$tagsCollapsed ? "collapse" : "expand"}Tags`);
         }}
     />
 
@@ -582,14 +592,13 @@ the AddCards dialog) should be implemented in the user of this component.
                 bind:this={tagEditor}
                 on:tagsupdate={saveTags}
                 on:tagsFocused={() => {
-                    lowerResizer.move([tagsPane, fieldsPane], tagsPane.maxHeight);
-                    bridgeCommand("expandTags");
+                    expandTags();
                     $tagsCollapsed = false;
                 }}
                 on:heightChange={(e) => {
                     tagsPane.maxHeight = e.detail.height;
                     if (!$tagsCollapsed) {
-                        lowerResizer.move([tagsPane, fieldsPane], tagsPane.maxHeight);
+                        expandTags();
                     }
                 }}
             />
