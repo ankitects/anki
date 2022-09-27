@@ -5,16 +5,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, onMount } from "svelte";
 
-    import { pageTheme } from "../sveltelib/theme";
-
     export let id: string | undefined = undefined;
     let className: string = "";
     export { className as class };
-    export let theme = "anki";
-
-    function extendClassName(className: string, theme: string): string {
-        return `btn ${theme !== "anki" ? `btn-${theme}` : ""}${className}`;
-    }
+    export let primary = false;
 
     export let tooltip: string | undefined = undefined;
     export let active = false;
@@ -30,10 +24,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <button
     bind:this={buttonRef}
     {id}
-    class="label-button {extendClassName(className, theme)}"
+    class="label-button {className}"
     class:active
-    class:btn-day={theme === "anki" && !$pageTheme.isDark}
-    class:btn-night={theme === "anki" && $pageTheme.isDark}
+    class:primary
     title={tooltip}
     {disabled}
     tabindex={tabbable ? 0 : -1}
@@ -47,6 +40,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "sass/button-mixins" as button;
 
     button {
+        @include button.base($active-class: active);
+        &.primary {
+            @include button.base($primary: true);
+        }
+        @include button.border-radius;
+
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -54,9 +53,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         font-size: var(--base-font-size);
         width: auto;
         height: var(--buttons-size);
-
-        @include button.btn-border-radius;
     }
-
-    @include button.base($with-primary: true);
 </style>

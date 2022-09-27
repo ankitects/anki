@@ -140,7 +140,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/if}
 {/if}
 
-<div bind:this={floating} class="overlay">
+<div bind:this={floating} class="overlay" class:show>
     {#if show}
         <slot name="overlay" />
     {/if}
@@ -154,6 +154,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: 5px;
 
         z-index: 40;
-        @include elevation.elevation(5);
+        &.show {
+            @include elevation.elevation(5);
+        }
     }
 </style>

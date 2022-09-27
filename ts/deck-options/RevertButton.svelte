@@ -95,5 +95,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .hide :global(.badge) {
         opacity: 0;
+        cursor: initial;
     }
 </style>

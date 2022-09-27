@@ -11,6 +11,7 @@ _ts_deps = [
     "@npm//@floating-ui/dom",
     "@npm//bootstrap",
     "@npm//svelte",
+    "@npm//@mdi",
 ]
 
 compile_svelte(
