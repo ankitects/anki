@@ -7,27 +7,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Callback, singleCallback } from "../lib/typing";
     import IconConstrain from "./IconConstrain.svelte";
     import { horizontalHandle } from "./icons";
-    import type { HeightResizable } from "./resizable";
+    import type { ResizablePane } from "./types";
 
-    type Pane = {
-        resizable: HeightResizable;
-        height: number;
-        minHeight: number;
-        maxHeight: number;
-    };
-    export let panes: Pane[];
+    export let panes: ResizablePane[];
     export let index = 0;
     export let clientHeight: number;
 
     let destroy: Callback;
 
-    let before: Pane;
-    let after: Pane;
+    let before: ResizablePane;
+    let after: ResizablePane;
 
     $: resizerAmount = panes.length - 1;
     $: componentsHeight = clientHeight - resizerHeight * resizerAmount;
 
-    export function move(targets: Pane[], targetHeight: number): void {
+    export function move(targets: ResizablePane[], targetHeight: number): void {
         const [resizeTarget, resizePartner] = targets;
         if (targetHeight <= resizeTarget.maxHeight) {
             resizeTarget.resizable.height.setSize(targetHeight);
@@ -35,13 +29,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    export function collapse(target: Pane) {
+    export function collapse(target: ResizablePane) {
         target.resizable.height.setSize(target.minHeight);
         target.height = target.minHeight;
     }
 
     // not yet safe to use for Infinity sized panes
-    export function expand(target: Pane) {
+    export function expand(target: ResizablePane) {
         target.resizable.height.setSize(target.maxHeight);
         target.height = target.maxHeight;
     }
@@ -120,7 +114,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         cursor: row-resize;
         position: relative;
         height: 10px;
-        border-top: 1px solid var(--border-subtle);
+        border-top: 1px solid var(--border);
 
         z-index: 20;
         .drag-handle {

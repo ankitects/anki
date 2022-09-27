@@ -70,6 +70,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
     import SymbolsOverlay from "./symbols-overlay";
+    import { ResizablePane } from "../components/types";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -329,12 +330,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let clientHeight: number;
 
-    class ResizablePane {
-        resizable = {} as Pane;
-        height = 0;
-        minHeight = 0;
-        maxHeight = Infinity;
-    }
     let fieldsPane = new ResizablePane();
     let tagsPane = new ResizablePane();
 
@@ -369,7 +364,7 @@ the AddCards dialog) should be implemented in the user of this component.
         bind:this={fieldsPane.resizable}
         on:resize={(e) => (fieldsPane.height = e.detail.height)}
     >
-        <PaneContent forceTopShadow>
+        <PaneContent>
             <Fields>
                 <DecoratedElements>
                     {#each fieldsData as field, index}
