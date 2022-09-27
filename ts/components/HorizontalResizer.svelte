@@ -30,17 +30,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    export function collapse(target: ResizablePane) {
-        target.resizable.height.setSize(target.minHeight);
-        target.height = target.minHeight;
-    }
-
-    // not yet safe to use for Infinity sized panes
-    export function expand(target: ResizablePane) {
-        target.resizable.height.setSize(target.maxHeight);
-        target.height = target.maxHeight;
-    }
-
     function onMove(this: Window, { movementY }: PointerEvent): void {
         if (movementY < 0) {
             if (after.height - movementY <= after.maxHeight) {
@@ -75,27 +64,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function lockPointer(this: HTMLDivElement) {
-        try {
-            this.requestPointerLock();
+        this.requestPointerLock();
 
-            before = panes[index];
-            after = panes[index + 1];
+        before = panes[index];
+        after = panes[index + 1];
 
-            for (const pane of panes) {
-                pane.resizable.height.start();
-            }
-
-            destroy = singleCallback(
-                on(window, "pointermove", onMove),
-                on(window, "pointerup", releasePointer),
-            );
-        } catch (e) {
-            if (e instanceof DOMException) {
-                return;
-            } else {
-                throw e;
-            }
+        for (const pane of panes) {
+            pane.resizable.height.start();
         }
+
+        destroy = singleCallback(
+            on(window, "pointermove", onMove),
+            on(window, "pointerup", releasePointer),
+        );
     }
 </script>
 

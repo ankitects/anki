@@ -174,7 +174,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export function setTagsCollapsed(collapsed: boolean): void {
         $tagsCollapsed = collapsed;
         if (collapsed) {
-            lowerResizer.collapse(tagsPane);
+            lowerResizer.move([tagsPane, fieldsPane], tagsPane.minHeight);
         }
     }
 
@@ -219,6 +219,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     })) as FieldData[];
 
     function saveTags({ detail }: CustomEvent): void {
+        tagAmount = detail.tags.filter((tag: string) => tag != "").length;
         bridgeCommand(`saveTags:${JSON.stringify(detail.tags)}`);
     }
 
@@ -345,6 +346,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let lowerResizer: HorizontalResizer;
     let tagEditor: TagEditor;
+
+    $: tagAmount = $tags.length;
 </script>
 
 <!--
@@ -537,12 +540,15 @@ the AddCards dialog) should be implemented in the user of this component.
     </Pane>
 
     {#if $tagsCollapsed}
-        <TagAddButton
-            on:tagappend={() => {
-                tagEditor.appendEmptyTag();
-            }}
-            keyCombination="Control+Shift+T"
-        />
+        <div class="tags-expander">
+            <TagAddButton
+                on:tagappend={() => {
+                    tagEditor.appendEmptyTag();
+                }}
+                keyCombination="Control+Shift+T"
+                >{@html tagAmount > 0 ? `${tagAmount} Tags` : ""}</TagAddButton
+            >
+        </div>
     {/if}
 
     <HorizontalResizer
@@ -552,10 +558,10 @@ the AddCards dialog) should be implemented in the user of this component.
         bind:this={lowerResizer}
         on:click={() => {
             if ($tagsCollapsed) {
-                lowerResizer.expand(tagsPane);
+                lowerResizer.move([tagsPane, fieldsPane], tagsPane.maxHeight);
                 $tagsCollapsed = false;
             } else {
-                lowerResizer.collapse(tagsPane);
+                lowerResizer.move([tagsPane, fieldsPane], tagsPane.minHeight);
                 $tagsCollapsed = true;
             }
             bridgeCommand(`${$tagsCollapsed ? "collapse" : "expand"}Tags`);
@@ -577,7 +583,7 @@ the AddCards dialog) should be implemented in the user of this component.
                 on:tagsupdate={saveTags}
                 on:tagsFocused={() => {
                     lowerResizer.move([tagsPane, fieldsPane], tagsPane.maxHeight);
-                    bridgeCommand("expandTags")
+                    bridgeCommand("expandTags");
                     $tagsCollapsed = false;
                 }}
                 on:heightChange={(e) => {
@@ -596,5 +602,8 @@ the AddCards dialog) should be implemented in the user of this component.
         display: flex;
         flex-direction: column;
         height: 100%;
+    }
+    .tags-expander {
+        margin-top: 0.5rem;
     }
 </style>
