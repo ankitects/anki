@@ -85,7 +85,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     title={tip}
     bind:clientHeight={resizerHeight}
     on:pointerdown|preventDefault={lockPointer}
-    on:click
+    on:dblclick
 >
     <div class="drag-handle">
         <IconConstrain iconSize={80}>{@html horizontalHandle}</IconConstrain>

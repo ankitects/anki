@@ -553,10 +553,10 @@ the AddCards dialog) should be implemented in the user of this component.
 
     <HorizontalResizer
         panes={[fieldsPane, tagsPane]}
-        tip={$tagsCollapsed ? "Expand tags" : "Collapse tags"}
+        tip={`Double click to ${$tagsCollapsed ? "expand" : "collapse"} tag editor`}
         {clientHeight}
         bind:this={lowerResizer}
-        on:click={() => {
+        on:dblclick={() => {
             if ($tagsCollapsed) {
                 lowerResizer.move([tagsPane, fieldsPane], tagsPane.maxHeight);
                 $tagsCollapsed = false;
