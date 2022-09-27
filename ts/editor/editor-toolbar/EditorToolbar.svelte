@@ -48,6 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
     import { writable } from "svelte/store";
 
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
@@ -83,9 +84,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } as EditorToolbarAPI);
 
     setContextProperty(api);
+
+    const dispatch = createEventDispatcher();
+
+    let clientHeight: number;
+    $: dispatch("heightChange", { height: clientHeight });
 </script>
 
-<div class="editor-toolbar">
+<div class="editor-toolbar" bind:clientHeight>
     <ButtonToolbar {size} {wrap}>
         <DynamicallySlottable slotHost={Item} api={toolbar}>
             <Item id="notetype">
@@ -120,9 +126,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .editor-toolbar {
         padding: 0 0 2px;
-
-        border-width: 0 0 thin;
-        border-style: solid;
-        border-color: var(--border-subtle);
     }
 </style>

@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { promiseWithResolver } from "../lib/promise";
 
+    export let scroll = true;
     const [element, elementResolve] = promiseWithResolver<HTMLElement>();
 
     let clientWidth = 0;
@@ -14,29 +15,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let scrollTop = 0;
     let scrollLeft = 0;
 
-    $: overflowY = scrollHeight > clientHeight;
-    $: overflowX = scrollWidth > clientWidth;
-
-    $: overflowTop = overflowY && scrollTop < scrollHeight;
-    $: overflowBottom = overflowY && scrollTop > 0;
-    $: overflowLeft = overflowX && scrollLeft < scrollWidth;
-    $: overflowRight = overflowX && scrollLeft > 0;
+    $: overflowTop = scrollTop > 0;
+    $: overflowBottom = scrollTop < scrollHeight - clientHeight;
+    $: overflowLeft = scrollLeft > 0;
+    $: overflowRight = scrollLeft < scrollWidth - clientWidth;
 
     $: shadows = {
-        top: overflowTop ? "0 -5px" : null,
-        bottom: overflowBottom ? "0 5px" : null,
-        left: overflowLeft ? "-5px 0" : null,
-        right: overflowRight ? "5px 0" : null,
+        top: overflowTop ? "0 5px" : null,
+        bottom: overflowBottom ? "0 -5px" : null,
+        left: overflowLeft ? "5px 0" : null,
+        right: overflowRight ? "-5px 0" : null,
     };
     const rest = "5px -5px var(--shadow)";
 
-    $: shadow = Array.from(Object.values(shadows).filter((v) => v), (v) => `inset ${v} ${rest}`).join(
-        ", ",
-    );
+    $: shadow = Array.from(
+        Object.values(shadows).filter((v) => v != null),
+        (v) => `inset ${v} ${rest}`,
+    ).join(", ");
 
-    $: console.log(shadow);
     async function updateScrollState(): Promise<void> {
-        console.log("scrolled")
         const el = await element;
         scrollHeight = el.scrollHeight;
         scrollWidth = el.scrollWidth;
@@ -47,6 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div
     class="pane-content"
+    class:scroll
     style:--box-shadow={shadow}
     style:--client-height="{clientHeight}px"
     use:elementResolve
@@ -63,9 +61,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         flex-direction: column;
         flex-grow: 1;
-
-        overflow: auto;
-
+        overflow: hidden;
+        &.scroll {
+            overflow: auto;
+        }
         /* force box-shadow to be rendered above children */
         &::before {
             content: "";

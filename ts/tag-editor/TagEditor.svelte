@@ -380,6 +380,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: assumedRows = Math.floor(height / badgeHeight);
     $: shortenTags = shortenTags || assumedRows > 2;
     $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
+
+    $: dispatch("heightChange", { height: height });
 </script>
 
 <div class="tag-editor" on:focusout={deselectIfLeave} bind:offsetHeight={height}>

@@ -9,6 +9,7 @@ $btn-disabled-opacity: 0.4;
 @import "sass/bootstrap/scss/dropdown";
 @import "sass/bootstrap-tooltip";
 
-html {
+html,
+body {
     overflow: hidden;
 }

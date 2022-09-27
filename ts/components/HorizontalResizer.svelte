@@ -5,62 +5,108 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { on } from "../lib/events";
     import { Callback, singleCallback } from "../lib/typing";
-    import type { HeightResizable } from "./resizable";
-    import { horizontalHandle } from "./icons";
     import IconConstrain from "./IconConstrain.svelte";
+    import { horizontalHandle } from "./icons";
+    import Pane from "./Pane.svelte";
+    import type { HeightResizable } from "./resizable";
 
-    export let components: HeightResizable[];
+    type Pane = {
+        resizable: HeightResizable;
+        height: number;
+        minHeight: number;
+        maxHeight: number;
+    };
+    export let panes: Pane[];
     export let index = 0;
     export let clientHeight: number;
 
     let destroy: Callback;
 
-    let before: HeightResizable;
-    let after: HeightResizable;
+    let before: Pane;
+    let after: Pane;
 
-    function onMove(this: Window, { movementY }: PointerEvent): void {
-        if (movementY < 0) {
-            const resized = before.height.resize(movementY);
-            after.height.resize(-resized);
-        } else if (movementY > 0) {
-            const resized = after.height.resize(-movementY);
-            before.height.resize(-resized);
+    $: resizerAmount = panes.length - 1;
+    $: componentsHeight = clientHeight - resizerHeight * resizerAmount;
+
+    export function move(targets: Pane[], targetHeight: number): void {
+        const [resizeTarget, resizePartner] = targets;
+        if (targetHeight <= resizeTarget.maxHeight) {
+            resizeTarget.resizable.height.setSize(targetHeight);
+            resizePartner.resizable.height.setSize(componentsHeight - targetHeight);
         }
     }
 
-    let minHeight: number;
+    export function collapse(target: Pane) {
+        target.resizable.height.setSize(target.minHeight);
+        target.height = target.minHeight;
+    }
+
+    // not yet safe to use for Infinity sized panes
+    export function expand(target: Pane) {
+        target.resizable.height.setSize(target.maxHeight);
+        target.height = target.maxHeight;
+    }
+
+    function onMove(this: Window, { movementY }: PointerEvent): void {
+        if (movementY < 0) {
+            if (after.height - movementY <= after.maxHeight) {
+                const resized = before.resizable.height.resize(movementY);
+                after.resizable.height.resize(-resized);
+            } else {
+                const resized = before.resizable.height.resize(
+                    after.height - after.maxHeight,
+                );
+                after.resizable.height.resize(-resized);
+            }
+        } else if (before.height + movementY <= before.maxHeight) {
+            const resized = after.resizable.height.resize(-movementY);
+            before.resizable.height.resize(-resized);
+        } else {
+            const resized = after.resizable.height.resize(
+                before.height - before.maxHeight,
+            );
+            before.resizable.height.resize(-resized);
+        }
+    }
+
+    let resizerHeight: number;
 
     function releasePointer(this: Window): void {
         destroy();
         document.exitPointerLock();
 
-        const resizerAmount = components.length - 1;
-        const componentsHeight = clientHeight - minHeight * resizerAmount;
-
-        for (const component of components) {
-            component.height.stop(componentsHeight, components.length);
+        for (const pane of panes) {
+            pane.resizable.height.stop(componentsHeight, panes.length);
         }
     }
 
-    function lockPointer(this: HTMLHRElement) {
-        this.requestPointerLock();
+    function lockPointer(this: HTMLDivElement) {
+        try {
+            this.requestPointerLock();
 
-        before = components[index];
-        after = components[index + 1];
+            before = panes[index];
+            after = panes[index + 1];
 
-        for (const component of components) {
-            component.height.start();
+            for (const pane of panes) {
+                pane.resizable.height.start();
+            }
+
+            destroy = singleCallback(
+                on(window, "pointermove", onMove),
+                on(window, "pointerup", releasePointer),
+            );
+        } catch (e) {
+            if (e instanceof DOMException) {
+                return;
+            } else {
+                throw e;
+            }
         }
-
-        destroy = singleCallback(
-            on(window, "pointermove", onMove),
-            on(window, "pointerup", releasePointer),
-        );
     }
 </script>
 
 <div
-    bind:clientHeight={minHeight}
+    bind:clientHeight={resizerHeight}
     class="horizontal-resizer"
     on:pointerdown|preventDefault={lockPointer}
 >
@@ -70,19 +116,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    @use "panes" as panes;
-
     .horizontal-resizer {
         width: 100%;
         cursor: row-resize;
         position: relative;
-        text-align: center;
+        height: 10px;
+        border-top: 1px solid var(--border-subtle);
 
         z-index: 20;
         .drag-handle {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
             opacity: 0.4;
         }
-
         &:hover .drag-handle {
             opacity: 0.8;
         }

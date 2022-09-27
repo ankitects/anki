@@ -9,6 +9,7 @@ export interface Resizer {
      * no resize can be applied anymore.
      */
     resize(increment: number): number;
+    setSize(size: number): void;
     stop(fullWidth: number, amount: number): void;
 }
 
@@ -65,8 +66,11 @@ export function resizable(
         return increment;
     }
 
+    function setSize(size = 0): void {
+        paneSize.set(size);
+    }
+
     function stop(fullDimension: number, amount: number): void {
-        console.log("stop", fullDimension, amount);
         paneSize.set((dimension / fullDimension) * amount * baseSize);
         resizesDimension.set(false);
         resizes.set(false);
@@ -75,7 +79,7 @@ export function resizable(
     return [
         { resizesDimension, resizedDimension },
         resizeAction,
-        { start, resize, stop },
+        { start, resize, setSize, stop },
     ];
 }
 

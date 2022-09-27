@@ -3,7 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
     import { writable } from "svelte/store";
+
     import { resizable } from "./resizable";
 
     export let baseSize = 600;
@@ -21,6 +23,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         heightAction,
         height,
     ] = resizable(baseSize, resizes, paneSize);
+
+    const dispatch = createEventDispatcher();
+
+    $: resizeArgs = { width: $resizedWidth, height: $resizedHeight };
+    $: dispatch("resize", resizeArgs);
 
     export { height, width };
 </script>
