@@ -49,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    @use "panes" as panes;
+    @use "sass/panes" as panes;
 
     .pane {
         @include panes.resizable(column, true, true);
