@@ -7,4 +7,6 @@ input[type="checkbox"] {
     cursor: pointer;
 }
 
-@include button.base;
+button {
+    @include button.base;
+}

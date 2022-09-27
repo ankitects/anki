@@ -3,7 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { pageTheme } from "../sveltelib/theme";
     import IconConstrain from "./IconConstrain.svelte";
 
     export let id: string | undefined = undefined;
@@ -11,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let tooltip: string | undefined = undefined;
+    export let primary = false;
     export let active = false;
     export let disabled = false;
     export let tabbable = false;
@@ -22,10 +22,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <button
     {id}
-    class="icon-button btn {className}"
+    class="icon-button {className}"
     class:active
-    class:btn-day={!$pageTheme.isDark}
-    class:btn-night={$pageTheme.isDark}
+    class:primary
     title={tooltip}
     {disabled}
     tabindex={tabbable ? 0 : -1}
@@ -41,12 +40,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "sass/button-mixins" as button;
 
     .icon-button {
+        @include button.base($active-class: active);
+        &.primary {
+            @include button.base($primary: true);
+        }
+        @include button.border-radius;
+
         padding: 0;
         font-size: var(--base-font-size);
         height: var(--buttons-size);
-
-        @include button.btn-border-radius;
+        min-width: calc(var(--buttons-size) * 0.75);
     }
-
-    @include button.base(".icon-button");
 </style>

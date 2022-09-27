@@ -34,7 +34,7 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
+        <item alignment="Qt::AlignLeft">
          <widget class="QRadioButton" name="preview_front">
           <property name="text">
            <string notr="true">FRONT</string>
@@ -44,7 +44,7 @@
           </property>
          </widget>
         </item>
-        <item>
+        <item alignment="Qt::AlignLeft">
          <widget class="QRadioButton" name="preview_back">
           <property name="text">
            <string notr="true">BACK</string>
