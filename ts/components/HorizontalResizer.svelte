@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let panes: ResizablePane[];
     export let index = 0;
+    export let tip = "";
     export let clientHeight: number;
 
     let destroy: Callback;
@@ -99,9 +100,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div
-    bind:clientHeight={resizerHeight}
     class="horizontal-resizer"
+    title={tip}
+    bind:clientHeight={resizerHeight}
     on:pointerdown|preventDefault={lockPointer}
+    on:click
 >
     <div class="drag-handle">
         <IconConstrain iconSize={80}>{@html horizontalHandle}</IconConstrain>

@@ -334,6 +334,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let tagsPane = new ResizablePane();
 
     let lowerResizer: HorizontalResizer;
+
+    let tagsCollapsed = false;
 </script>
 
 <!--
@@ -527,13 +529,26 @@ the AddCards dialog) should be implemented in the user of this component.
 
     <HorizontalResizer
         panes={[fieldsPane, tagsPane]}
+        tip={tagsCollapsed ? "Expand tags" : "Collapse tags"}
         {clientHeight}
         bind:this={lowerResizer}
+        on:click={() => {
+            if (tagsCollapsed) {
+                lowerResizer.expand(tagsPane);
+                tagsCollapsed = false;
+            } else {
+                lowerResizer.collapse(tagsPane);
+                tagsCollapsed = true;
+            }
+        }}
     />
 
     <Pane
         bind:this={tagsPane.resizable}
-        on:resize={(e) => (tagsPane.height = e.detail.height)}
+        on:resize={(e) => {
+            tagsPane.height = e.detail.height;
+            tagsCollapsed = tagsPane.height == 0;
+        }}
     >
         <PaneContent scroll={false}>
             <TagEditor
@@ -541,7 +556,9 @@ the AddCards dialog) should be implemented in the user of this component.
                 on:tagsupdate={saveTags}
                 on:heightChange={(e) => {
                     tagsPane.maxHeight = e.detail.height;
-                    lowerResizer.move([tagsPane, fieldsPane], tagsPane.maxHeight);
+                    if (!tagsCollapsed) {
+                        lowerResizer.move([tagsPane, fieldsPane], tagsPane.maxHeight);
+                    }
                 }}
             />
         </PaneContent>
