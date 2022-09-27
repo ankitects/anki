@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ><Col --col-size={4}>{basename(path)}</Col><Col --col-justify="end">
             <ButtonGroup size={2}>
                 <LabelButton
-                    theme="primary"
+                    primary
                     tooltip={getPlatformString(keyCombination)}
                     on:click={onImport}
                     --border-left-radius="5px"

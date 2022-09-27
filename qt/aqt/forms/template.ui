@@ -52,7 +52,7 @@
       </property>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
+        <item alignment="Qt::AlignLeft">
          <widget class="QRadioButton" name="front_button">
           <property name="toolTip">
            <string notr="true"/>
@@ -65,7 +65,7 @@
           </property>
          </widget>
         </item>
-        <item>
+        <item alignment="Qt::AlignLeft">
          <widget class="QRadioButton" name="back_button">
           <property name="toolTip">
            <string notr="true"/>
@@ -75,7 +75,7 @@
           </property>
          </widget>
         </item>
-        <item>
+        <item alignment="Qt::AlignLeft">
          <widget class="QRadioButton" name="style_button">
           <property name="toolTip">
            <string notr="true"/>

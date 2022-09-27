@@ -74,7 +74,7 @@
         <string/>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
+        <item alignment="Qt::AlignLeft">
          <widget class="QRadioButton" name="groups">
           <property name="text">
            <string notr="true">deck</string>
@@ -84,7 +84,7 @@
           </property>
          </widget>
         </item>
-        <item>
+        <item alignment="Qt::AlignLeft">
          <widget class="QRadioButton" name="all">
           <property name="text">
            <string notr="true">collection</string>
@@ -100,7 +100,7 @@
         <string/>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
+        <item alignment="Qt::AlignLeft">
          <widget class="QRadioButton" name="month">
           <property name="text">
            <string notr="true">1 month</string>
@@ -110,14 +110,14 @@
           </property>
          </widget>
         </item>
-        <item>
+        <item alignment="Qt::AlignLeft">
          <widget class="QRadioButton" name="year">
           <property name="text">
            <string notr="true">1 year</string>
           </property>
          </widget>
         </item>
-        <item>
+        <item alignment="Qt::AlignLeft">
          <widget class="QRadioButton" name="life">
           <property name="text">
            <string notr="true">deck life</string>

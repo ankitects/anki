@@ -233,7 +233,7 @@ QHeaderView {{
     background: {tm.var(colors.CANVAS)};
 }}
 QHeaderView::section {{
-    border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+    border: 1px solid {tm.var(colors.BORDER)};
     background: {
         button_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
@@ -261,19 +261,19 @@ QHeaderView::section:hover {{
     };
 }}
 QHeaderView::section:first {{
-    border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
+    border-left: 1px solid {tm.var(colors.BORDER)}; 
     border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QHeaderView::section:!first {{
     border-left: none;
 }}
 QHeaderView::section:last {{
-    border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
+    border-right: 1px solid {tm.var(colors.BORDER)}; 
     border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QHeaderView::section:only-one {{
-    border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
-    border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+    border-left: 1px solid {tm.var(colors.BORDER)}; 
+    border-right: 1px solid {tm.var(colors.BORDER)};
     border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
     border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
@@ -368,24 +368,34 @@ QSpinBox::down-arrow:off {{
 
 def checkbox_styles(tm: ThemeManager) -> str:
     return f"""
-QCheckBox {{
+QCheckBox,
+QRadioButton {{
     spacing: 8px;
     margin: 2px 0;
 }}
-QCheckBox::indicator {{
+QCheckBox::indicator,
+QRadioButton::indicator {{
     border: 1px solid {tm.var(colors.BUTTON_BORDER)};
-    border-radius: {tm.var(props.BORDER_RADIUS)};
     background: {tm.var(colors.CANVAS_INSET)};
     width: 16px;
     height: 16px;
 }}
+QCheckBox::indicator {{
+    border-radius: {tm.var(props.BORDER_RADIUS)};
+}}
+QRadioButton::indicator {{
+    border-radius: 8px;
+}}
 QCheckBox::indicator:hover,
-QCheckBox::indicator:checked:hover {{
+QCheckBox::indicator:checked:hover,
+QRadioButton::indicator:hover,
+QRadioButton::indicator:checked:hover {{
     border: 2px solid {tm.var(colors.BORDER_STRONG)};
     width: 14px;
     height: 14px;
 }}
-QCheckBox::indicator:checked {{
+QCheckBox::indicator:checked,
+QRadioButton::indicator:checked {{
     image: url({tm.themed_icon("mdi:check")});
 }}
 QCheckBox::indicator:indeterminate {{
