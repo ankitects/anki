@@ -42,6 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
 
+    import TagAddButton from "../tag-editor/tag-options-button/TagAddButton.svelte";
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
     import HorizontalResizer from "../components/HorizontalResizer.svelte";
@@ -169,6 +170,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $tags = ts;
     }
 
+    const tagsCollapsed = writable<boolean>();
+    export function setTagsCollapsed(collapsed: boolean): void {
+        $tagsCollapsed = collapsed;
+        if (collapsed) {
+            lowerResizer.collapse(tagsPane);
+        }
+    }
+
     let noteId: number | null = null;
     export function setNoteId(ntid: number): void {
         // TODO this is a hack, because it requires the NoteEditor to know implementation details of the PlainTextInput.
@@ -292,6 +301,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setFonts,
             focusField,
             setTags,
+            setTagsCollapsed,
             setBackgrounds,
             setClozeHint,
             saveNow: saveFieldNow,
@@ -334,8 +344,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let tagsPane = new ResizablePane();
 
     let lowerResizer: HorizontalResizer;
-
-    let tagsCollapsed = false;
+    let tagEditor: TagEditor;
 </script>
 
 <!--
@@ -527,19 +536,29 @@ the AddCards dialog) should be implemented in the user of this component.
         </PaneContent>
     </Pane>
 
+    {#if $tagsCollapsed}
+        <TagAddButton
+            on:tagappend={() => {
+                tagEditor.appendEmptyTag();
+            }}
+            keyCombination="Control+Shift+T"
+        />
+    {/if}
+
     <HorizontalResizer
         panes={[fieldsPane, tagsPane]}
-        tip={tagsCollapsed ? "Expand tags" : "Collapse tags"}
+        tip={$tagsCollapsed ? "Expand tags" : "Collapse tags"}
         {clientHeight}
         bind:this={lowerResizer}
         on:click={() => {
-            if (tagsCollapsed) {
+            if ($tagsCollapsed) {
                 lowerResizer.expand(tagsPane);
-                tagsCollapsed = false;
+                $tagsCollapsed = false;
             } else {
                 lowerResizer.collapse(tagsPane);
-                tagsCollapsed = true;
+                $tagsCollapsed = true;
             }
+            bridgeCommand(`${$tagsCollapsed ? "collapse" : "expand"}Tags`);
         }}
     />
 
@@ -547,16 +566,23 @@ the AddCards dialog) should be implemented in the user of this component.
         bind:this={tagsPane.resizable}
         on:resize={(e) => {
             tagsPane.height = e.detail.height;
-            tagsCollapsed = tagsPane.height == 0;
+            $tagsCollapsed = tagsPane.height == 0;
+            bridgeCommand(`${$tagsCollapsed ? "collapse" : "expand"}Tags`);
         }}
     >
         <PaneContent scroll={false}>
             <TagEditor
                 {tags}
+                bind:this={tagEditor}
                 on:tagsupdate={saveTags}
+                on:tagsFocused={() => {
+                    lowerResizer.move([tagsPane, fieldsPane], tagsPane.maxHeight);
+                    bridgeCommand("expandTags")
+                    $tagsCollapsed = false;
+                }}
                 on:heightChange={(e) => {
                     tagsPane.maxHeight = e.detail.height;
-                    if (!tagsCollapsed) {
+                    if (!$tagsCollapsed) {
                         lowerResizer.move([tagsPane, fieldsPane], tagsPane.maxHeight);
                     }
                 }}

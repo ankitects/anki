@@ -111,7 +111,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function appendEmptyTag(): void {
+    export function appendEmptyTag(): void {
         // used by tag badge and tag spacer
         deselect();
         const lastTag = tagTypes[tagTypes.length - 1];
@@ -437,6 +437,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         bind:name={activeName}
                         bind:input={activeInput}
                         on:focus={() => {
+                            dispatch("tagsFocused");
                             activeName = tag.name;
                             autocomplete = createAutocomplete();
                         }}
