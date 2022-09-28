@@ -28,6 +28,7 @@ from aqt.utils import disable_help_button, send_to_trash, showWarning, tr
 
 if TYPE_CHECKING:
     from aqt.browser.layout import BrowserLayout
+    from aqt.editor import EditorMode
 
 
 # Profile handling
@@ -552,6 +553,21 @@ create table if not exists profiles
 
     def set_browser_layout(self, layout: BrowserLayout) -> None:
         self.meta["browser_layout"] = layout.value
+
+    def editor_key(self, mode: EditorMode) -> str:
+        from aqt.editor import EditorMode
+
+        return {
+            EditorMode.ADD_CARDS: "add",
+            EditorMode.BROWSER: "browser",
+            EditorMode.EDIT_CURRENT: "current",
+        }[mode]
+
+    def tags_collapsed(self, mode: EditorMode) -> bool:
+        return self.meta.get(f"{self.editor_key(mode)}TagsCollapsed", False)
+
+    def set_tags_collapsed(self, mode: EditorMode, collapsed: bool) -> None:
+        self.meta[f"{self.editor_key(mode)}TagsCollapsed"] = collapsed
 
     def legacy_import_export(self) -> bool:
         return self.meta.get("legacy_import", False)

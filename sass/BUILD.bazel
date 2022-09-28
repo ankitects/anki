@@ -60,6 +60,14 @@ sass_library(
 )
 
 sass_library(
+    name = "panes_lib",
+    srcs = [
+        "panes.scss",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+sass_library(
     name = "breakpoints_lib",
     srcs = [
         "breakpoints.scss",
