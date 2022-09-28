@@ -381,7 +381,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: shortenTags = shortenTags || assumedRows > 2;
     $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
 
-    $: dispatch("heightChange", { height: height });
+    $: dispatch("heightChange", { height: height * 1.15 });
 </script>
 
 <div class="tag-editor" on:focusout={deselectIfLeave} bind:offsetHeight={height}>
