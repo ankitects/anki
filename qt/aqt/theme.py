@@ -94,7 +94,11 @@ class ThemeManager:
 
         filename = f"{name}-{'dark' if self.night_mode else 'light'}.svg"
 
-        return os.path.join(aqt_data_folder(), "qt", "icons", filename)
+        return (
+            os.path.join(aqt_data_folder(), "qt", "icons", filename)
+            .replace("\\\\?\\", "")
+            .replace("\\", "/")
+        )
 
     def icon_from_resources(self, path: str | ColoredIcon) -> QIcon:
         "Fetch icon from Qt resources."
