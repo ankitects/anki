@@ -185,7 +185,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     @use "sass/elevation" as elevation;
-
+    span.floating-reference {
+        line-height: 1;
+    }
     .floating {
         position: absolute;
         border-radius: 5px;

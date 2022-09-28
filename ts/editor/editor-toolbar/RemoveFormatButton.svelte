@@ -119,20 +119,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     placement="bottom"
     inline
     on:close={() => (showFloating = false)}
-    let:asReference
 >
-    <span use:asReference class="remove-format-button">
-        <IconButton
-            tooltip={tr.editingSelectRemoveFormatting()}
-            {disabled}
-            widthMultiplier={0.5}
-            iconSize={120}
-            --border-right-radius="5px"
-            on:click={() => (showFloating = !showFloating)}
-        >
-            {@html chevronDown}
-        </IconButton>
-    </span>
+    <IconButton
+        slot="reference"
+        class="remove-format-button"
+        tooltip={tr.editingSelectRemoveFormatting()}
+        {disabled}
+        widthMultiplier={0.5}
+        iconSize={120}
+        --border-right-radius="5px"
+        on:click={() => (showFloating = !showFloating)}
+    >
+        {@html chevronDown}
+    </IconButton>
 
     <Popover slot="floating" --popover-padding-inline="0">
         {#each showFormats as format (format.name)}
@@ -143,9 +142,3 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/each}
     </Popover>
 </WithFloating>
-
-<style lang="scss">
-    .remove-format-button {
-        line-height: 1;
-    }
-</style>
