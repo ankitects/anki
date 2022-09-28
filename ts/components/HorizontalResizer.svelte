@@ -25,30 +25,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export function move(targets: ResizablePane[], targetHeight: number): void {
         const [resizeTarget, resizePartner] = targets;
         if (targetHeight <= resizeTarget.maxHeight) {
-            resizeTarget.resizable.height.setSize(targetHeight);
-            resizePartner.resizable.height.setSize(componentsHeight - targetHeight);
+            resizeTarget.resizable.getHeightResizer().setSize(targetHeight);
+            resizePartner.resizable
+                .getHeightResizer()
+                .setSize(componentsHeight - targetHeight);
         }
     }
 
     function onMove(this: Window, { movementY }: PointerEvent): void {
         if (movementY < 0) {
             if (after.height - movementY <= after.maxHeight) {
-                const resized = before.resizable.height.resize(movementY);
-                after.resizable.height.resize(-resized);
+                const resized = before.resizable.getHeightResizer().resize(movementY);
+                after.resizable.getHeightResizer().resize(-resized);
             } else {
-                const resized = before.resizable.height.resize(
-                    after.height - after.maxHeight,
-                );
-                after.resizable.height.resize(-resized);
+                const resized = before.resizable
+                    .getHeightResizer()
+                    .resize(after.height - after.maxHeight);
+                after.resizable.getHeightResizer().resize(-resized);
             }
         } else if (before.height + movementY <= before.maxHeight) {
-            const resized = after.resizable.height.resize(-movementY);
-            before.resizable.height.resize(-resized);
+            const resized = after.resizable.getHeightResizer().resize(-movementY);
+            before.resizable.getHeightResizer().resize(-resized);
         } else {
-            const resized = after.resizable.height.resize(
-                before.height - before.maxHeight,
-            );
-            before.resizable.height.resize(-resized);
+            const resized = after.resizable
+                .getHeightResizer()
+                .resize(before.height - before.maxHeight);
+            before.resizable.getHeightResizer().resize(-resized);
         }
     }
 
@@ -59,7 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         document.exitPointerLock();
 
         for (const pane of panes) {
-            pane.resizable.height.stop(componentsHeight, panes.length);
+            pane.resizable.getHeightResizer().stop(componentsHeight, panes.length);
         }
     }
 
@@ -70,7 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         after = panes[index + 1];
 
         for (const pane of panes) {
-            pane.resizable.height.start();
+            pane.resizable.getHeightResizer().start();
         }
 
         destroy = singleCallback(

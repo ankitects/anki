@@ -7,24 +7,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Callback, singleCallback } from "../lib/typing";
     import IconConstrain from "./IconConstrain.svelte";
     import { verticalHandle } from "./icons";
-    import type { WidthResizable } from "./resizable";
+    import type { ResizablePane } from "./types";
 
-    export let components: WidthResizable[];
+    export let components: ResizablePane[];
     export let index = 0;
     export let clientWidth: number;
 
     let destroy: Callback;
 
-    let before: WidthResizable;
-    let after: WidthResizable;
+    let before: ResizablePane;
+    let after: ResizablePane;
 
     function onMove(this: Window, { movementX }: PointerEvent): void {
         if (movementX < 0) {
-            const resized = before.width.resize(movementX);
-            after.width.resize(-resized);
+            const resized = before.resizable.getWidthResizer().resize(movementX);
+            after.resizable.getWidthResizer().resize(-resized);
         } else if (movementX > 0) {
-            const resized = after.width.resize(-movementX);
-            before.width.resize(-resized);
+            const resized = after.resizable.getWidthResizer().resize(-movementX);
+            before.resizable.getWidthResizer().resize(-resized);
         }
     }
 
@@ -38,7 +38,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const componentsWidth = clientWidth - minWidth * resizerAmount;
 
         for (const component of components) {
-            component.width.stop(componentsWidth, components.length);
+            component.resizable
+                .getWidthResizer()
+                .stop(componentsWidth, components.length);
         }
     }
 
@@ -49,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         after = components[index + 1];
 
         for (const component of components) {
-            component.width.start();
+            component.resizable.getWidthResizer().start();
         }
 
         destroy = singleCallback(

@@ -82,11 +82,3 @@ export function resizable(
         { start, resize, setSize, stop },
     ];
 }
-
-export interface WidthResizable {
-    width: Resizer;
-}
-
-export interface HeightResizable {
-    height: Resizer;
-}

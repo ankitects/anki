@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
     import { writable } from "svelte/store";
 
-    import { resizable } from "./resizable";
+    import { resizable, Resizer } from "./resizable";
 
     export let baseSize = 600;
 
@@ -16,12 +16,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const [
         { resizesDimension: resizesWidth, resizedDimension: resizedWidth },
         widthAction,
-        width,
+        widthResizer,
     ] = resizable(baseSize, resizes, paneSize);
     const [
         { resizesDimension: resizesHeight, resizedDimension: resizedHeight },
         heightAction,
-        height,
+        heightResizer,
     ] = resizable(baseSize, resizes, paneSize);
 
     const dispatch = createEventDispatcher();
@@ -29,7 +29,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: resizeArgs = { width: $resizedWidth, height: $resizedHeight };
     $: dispatch("resize", resizeArgs);
 
-    export { height, width };
+    export function getHeightResizer(): Resizer {
+        return heightResizer;
+    }
+
+    export function getWidthResizer(): Resizer {
+        return widthResizer;
+    }
 </script>
 
 <div

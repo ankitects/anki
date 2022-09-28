@@ -42,14 +42,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
 
-    import TagAddButton from "../tag-editor/tag-options-button/TagAddButton.svelte";
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
     import HorizontalResizer from "../components/HorizontalResizer.svelte";
     import Pane from "../components/Pane.svelte";
     import PaneContent from "../components/PaneContent.svelte";
+    import { ResizablePane } from "../components/types";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { TagEditor } from "../tag-editor";
+    import TagAddButton from "../tag-editor/tag-options-button/TagAddButton.svelte";
     import { ChangeTimer } from "./change-timer";
     import DecoratedElements from "./DecoratedElements.svelte";
     import { clearableArray } from "./destroyable";
@@ -71,7 +72,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
     import SymbolsOverlay from "./symbols-overlay";
-    import { ResizablePane } from "../components/types";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
