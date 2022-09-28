@@ -351,12 +351,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function collapseTags(): void {
         lowerResizer.move([tagsPane, fieldsPane], tagsPane.minHeight);
-        bridgeCommand("collapseTags");
     }
 
     function expandTags(): void {
         lowerResizer.move([tagsPane, fieldsPane], tagsPane.maxHeight);
-        bridgeCommand("expandTags");
     }
 </script>
 
@@ -570,9 +568,11 @@ the AddCards dialog) should be implemented in the user of this component.
         on:dblclick={() => {
             if ($tagsCollapsed) {
                 expandTags();
+                bridgeCommand("expandTags");
                 $tagsCollapsed = false;
             } else {
                 collapseTags();
+                bridgeCommand("collapseTags");
                 $tagsCollapsed = true;
             }
         }}
