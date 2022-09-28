@@ -341,8 +341,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let clientHeight: number;
 
-    let fieldsPane = new ResizablePane();
-    let tagsPane = new ResizablePane();
+    const fieldsPane = new ResizablePane();
+    const tagsPane = new ResizablePane();
 
     let lowerResizer: HorizontalResizer;
     let tagEditor: TagEditor;

@@ -556,6 +556,7 @@ create table if not exists profiles
 
     def editor_key(self, mode: EditorMode) -> str:
         from aqt.editor import EditorMode
+
         return {
             EditorMode.ADD_CARDS: "add",
             EditorMode.BROWSER: "browser",
