@@ -583,7 +583,6 @@ the AddCards dialog) should be implemented in the user of this component.
         on:resize={(e) => {
             tagsPane.height = e.detail.height;
             $tagsCollapsed = tagsPane.height == 0;
-            bridgeCommand(`${$tagsCollapsed ? "collapse" : "expand"}Tags`);
         }}
     >
         <PaneContent scroll={false}>
