@@ -41,6 +41,7 @@ svelte_check(
         "//sass:base_lib",
         "//sass:button_mixins_lib",
         "//sass:scrollbar_lib",
+        "//sass:panes_lib",
         "//sass:breakpoints_lib",
         "//sass:elevation_lib",
         "//sass/bootstrap",
