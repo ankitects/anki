@@ -717,8 +717,6 @@ html {{ {font} }}
 """
         )
 
-    @deprecated(
-        info="webview.get_window_bg_color() is deprecated. Use theme_manager.qcolor() instead"
-    )
+    @deprecated(info="use theme_manager.qcolor() instead")
     def get_window_bg_color(self, night_mode: Optional[bool] = None) -> QColor:
         return theme_manager.qcolor(colors.CANVAS)
