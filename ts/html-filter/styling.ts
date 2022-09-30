@@ -16,13 +16,17 @@ function filterStyling(
 ): (element: HTMLElement) => void {
     return (element: HTMLElement): void => {
         // jsdom does not support @@iterator, so manually iterate
+        const toRemove = [] as string[];
         for (let i = 0; i < element.style.length; i++) {
             const key = element.style.item(i);
             const value = element.style.getPropertyValue(key);
             const predicate = exceptions[key] ?? defaultPredicate;
             if (!predicate(key, value)) {
-                element.style.removeProperty(key);
+                toRemove.push(key);
             }
+        }
+        for (const key of toRemove) {
+            element.style.removeProperty(key);
         }
     };
 }
