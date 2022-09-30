@@ -76,13 +76,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     closeOnInsideClick
     inline
     on:close={() => (showFloating = false)}
-    let:asReference
 >
-    <span class="latex-button" use:asReference>
-        <IconButton {disabled} on:click={() => (showFloating = !showFloating)}>
-            {@html functionIcon}
-        </IconButton>
-    </span>
+    <IconButton
+        slot="reference"
+        {disabled}
+        on:click={() => (showFloating = !showFloating)}
+    >
+        {@html functionIcon}
+    </IconButton>
 
     <Popover slot="floating" --popover-padding-inline="0">
         {#each dropdownItems as [callback, keyCombination, label]}
@@ -107,9 +108,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .shortcut {
         font: Verdana;
-    }
-
-    .latex-button {
-        line-height: 1;
     }
 </style>

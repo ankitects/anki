@@ -56,8 +56,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .tags-selected-button {
-        line-height: 1;
-
         :global(svg) {
             padding-bottom: 2px;
             cursor: pointer;
