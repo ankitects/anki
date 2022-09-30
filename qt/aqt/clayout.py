@@ -586,7 +586,7 @@ class CardLayout(QDialog):
             repl = answerRepl
         out = re.sub(type_filter, repl, txt, count=1)
 
-        warning = f"<center><b>{tr.card_templates_type_boxes_warning()}</center><b>"
+        warning = f"<center><b>{tr.card_templates_type_boxes_warning()}</b></center>"
         return re.sub(type_filter, warning, out)
 
     # Card operations
