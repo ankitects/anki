@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export const parsingInstructions: string[] = [];
+    export const closeHTMLTags = writable(true);
 
     const [lifecycle, instances, setupLifecycleHooks] =
         lifecycleHooks<PlainTextInputAPI>();
@@ -43,10 +44,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let hidden = false;
     export let richTextHidden: boolean;
 
-    const configuration = {
+    $: configuration = {
         mode: htmlanki,
         ...baseOptions,
         ...gutterOptions,
+        ...{ autoCloseTags: $closeHTMLTags },
     };
 
     const { focusedInput } = noteEditorContext.get();
