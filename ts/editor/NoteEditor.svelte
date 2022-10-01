@@ -416,9 +416,9 @@ the AddCards dialog) should be implemented in the user of this component.
                                 $hoveredField = null;
                             }}
                             collapsed={fieldsCollapsed[index]}
-                            --label-color={cols[index] === "dupe"
-                                ? "palette-of(flag-1)"
-                                : "palette-of(canvas)"}
+                            --dupes-color={cols[index] === "dupe"
+                                ? "var(--accent-danger)"
+                                : "transparent"}
                         >
                             <svelte:fragment slot="field-label">
                                 <LabelContainer
