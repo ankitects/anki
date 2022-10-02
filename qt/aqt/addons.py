@@ -45,6 +45,7 @@ from aqt.utils import (
     send_to_trash,
     show_info,
     showInfo,
+    showText,
     showWarning,
     tooltip,
     tr,
@@ -246,11 +247,15 @@ class AddonManager:
             except AbortAddonImport:
                 pass
             except:
-                showWarning(
-                    tr.addons_failed_to_load(
-                        name=addon.human_name(),
-                        traceback=traceback.format_exc(),
-                    )
+                error = tr.addons_failed_to_load(
+                    name=addon.human_name(),
+                    traceback=traceback.format_exc(),
+                )
+                txt = f"<h1>{tr.qt_misc_error()}</h1><div style='white-space: pre-wrap'>{error}</div>"
+                showText(
+                    txt,
+                    type="html",
+                    copyBtn=True,
                 )
 
     def onAddonsDialog(self) -> None:
