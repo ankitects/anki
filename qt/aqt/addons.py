@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import html
 import io
 import json
 import os
@@ -247,9 +248,11 @@ class AddonManager:
             except AbortAddonImport:
                 pass
             except:
-                error = tr.addons_failed_to_load(
-                    name=addon.human_name(),
-                    traceback=traceback.format_exc(),
+                error = html.escape(
+                    tr.addons_failed_to_load(
+                        name=addon.human_name(),
+                        traceback=traceback.format_exc(),
+                    )
                 )
                 txt = f"<h1>{tr.qt_misc_error()}</h1><div style='white-space: pre-wrap'>{error}</div>"
                 showText(
