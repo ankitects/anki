@@ -9,6 +9,7 @@ from typing import Any, Callable, Optional, Sequence, cast
 
 import anki
 import anki.lang
+from anki._legacy import deprecated
 from anki.lang import is_rtl
 from anki.utils import is_lin, is_mac, is_win
 from aqt import colors, gui_hooks
@@ -715,3 +716,7 @@ html {{ {font} }}
 }})();
 """
         )
+
+    @deprecated(info="use theme_manager.qcolor() instead")
+    def get_window_bg_color(self, night_mode: Optional[bool] = None) -> QColor:
+        return theme_manager.qcolor(colors.CANVAS)
