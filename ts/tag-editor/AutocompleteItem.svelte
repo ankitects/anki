@@ -3,8 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { pageTheme } from "../sveltelib/theme";
-
     export let selected = false;
     export let active = false;
 
@@ -23,9 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <button
     bind:this={buttonRef}
     tabindex="-1"
-    class="autocomplete-item btn"
-    class:btn-day={!$pageTheme.isDark}
-    class:btn-night={$pageTheme.isDark}
+    class="autocomplete-item"
     class:selected
     class:active
     on:mousedown|preventDefault
@@ -41,14 +37,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "sass/button-mixins" as button;
 
     .autocomplete-item {
+        @include button.base($with-disabled: false, $active-class: active);
         padding: 1px 7px 2px;
 
         text-align: start;
         white-space: nowrap;
         flex-grow: 1;
         border-radius: 0;
-    }
-    button {
-        @include button.base($with-disabled: false, $active-class: active);
+
+        &.selected {
+            @include button.base(
+                $primary: true,
+                $with-disabled: false,
+                $active-class: active
+            );
+        }
     }
 </style>
