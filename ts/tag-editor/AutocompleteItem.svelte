@@ -46,7 +46,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: 0;
 
         &.selected {
-            @include button.base($primary: true, $with-disabled: false, $active-class: active);
+            @include button.base(
+                $primary: true,
+                $with-disabled: false,
+                $active-class: active
+            );
         }
     }
 </style>
