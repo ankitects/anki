@@ -68,6 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import MathjaxElement from "./MathjaxElement.svelte";
     import Notification from "./Notification.svelte";
     import PlainTextInput from "./plain-text-input";
+    import { closeHTMLTags } from "./plain-text-input/PlainTextInput.svelte";
     import PlainTextBadge from "./PlainTextBadge.svelte";
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
@@ -278,6 +279,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $shrinkImagesByDefault = shrinkByDefault;
     }
 
+    function setCloseHTMLTags(closeTags: boolean) {
+        $closeHTMLTags = closeTags;
+    }
+
     import { mathjaxConfig } from "../editable/mathjax-element";
     import { wrapInternal } from "../lib/wrap";
     import { refocusInput } from "./helpers";
@@ -313,6 +318,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setMathjaxEnabled,
             setInsertSymbolsEnabled,
             setShrinkImages,
+            setCloseHTMLTags,
             ...oldEditorAdapter,
         });
 

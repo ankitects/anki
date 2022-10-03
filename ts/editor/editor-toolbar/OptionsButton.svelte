@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
     import { shrinkImagesByDefault } from "../image-overlay/ImageOverlay.svelte";
+    import { closeHTMLTags } from "../plain-text-input/PlainTextInput.svelte";
     import { cogIcon } from "./icons";
 
     let showFloating = false;
@@ -18,6 +19,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function toggleShrinkImages(_evt: MouseEvent): void {
         $shrinkImagesByDefault = !$shrinkImagesByDefault;
         bridgeCommand("toggleShrinkImages");
+        showFloating = false;
+    }
+
+    function toggleCloseHTMLTags(_evt: MouseEvent): void {
+        $closeHTMLTags = !$closeHTMLTags;
+        bridgeCommand("toggleCloseHTMLTags");
         showFloating = false;
     }
 </script>
@@ -42,6 +49,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <DropdownItem on:click={toggleShrinkImages}>
             <CheckBox value={$shrinkImagesByDefault} />
             <span class="d-flex-inline ps-3">{tr.editingShrinkImages()}</span>
+        </DropdownItem>
+        <DropdownItem on:click={toggleCloseHTMLTags}>
+            <CheckBox value={$closeHTMLTags} />
+            <span class="d-flex-inline ps-3">{tr.editingCloseHtmlTags()}</span>
         </DropdownItem>
     </Popover>
 </WithFloating>

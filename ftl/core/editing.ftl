@@ -62,6 +62,7 @@ editing-unordered-list = Unordered list
 editing-warning-cloze-deletions-will-not-work = Warning, cloze deletions will not work until you switch the type at the top to Cloze.
 editing-toggle-mathjax-rendering = Toggle MathJax Rendering
 editing-shrink-images = Shrink Images
+editing-close-html-tags = Auto-close HTML tags
 
 ## You don't need to translate these strings, as they will be replaced with different ones soon.
 
