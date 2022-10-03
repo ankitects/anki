@@ -10,12 +10,14 @@ use std::{fs::File, io, path::Path};
 
 pub(crate) use notes::NoteMeta;
 use rusqlite::OptionalExtension;
+use snafu::ResultExt;
 use tempfile::NamedTempFile;
 use zip::ZipArchive;
 use zstd::stream::copy_decode;
 
 use crate::{
     collection::CollectionBuilder,
+    error::{FileIoSnafu, FileOp},
     import_export::{
         gather::ExchangeData, package::Meta, ImportProgress, IncrementableProgress, NoteLog,
     },
@@ -113,11 +115,15 @@ fn collection_to_tempfile(meta: &Meta, archive: &mut ZipArchive<File>) -> Result
     let mut zip_file = archive.by_name(meta.collection_filename())?;
     let mut tempfile = NamedTempFile::new()?;
     if meta.zstd_compressed() {
-        copy_decode(zip_file, &mut tempfile)
+        copy_decode(&mut zip_file, &mut tempfile)
     } else {
         io::copy(&mut zip_file, &mut tempfile).map(|_| ())
     }
-    .map_err(|err| AnkiError::file_io_error(err, tempfile.path()))?;
+    .with_context(|_| FileIoSnafu {
+        path: tempfile.path(),
+        op: FileOp::copy(zip_file.name()),
+    })
+    .map_err(AnkiError::FileIoError)?;
 
     Ok(tempfile)
 }

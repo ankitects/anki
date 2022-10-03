@@ -3,15 +3,24 @@
 
 use std::path::{Component, Path};
 
+use snafu::ResultExt;
 use tempfile::NamedTempFile;
 
-use crate::prelude::*;
+use crate::{
+    error::{FileIoSnafu, FileOp},
+    prelude::*,
+};
 
 pub(crate) fn tempfile_in_parent_of(file: &Path) -> Result<NamedTempFile> {
     let dir = file
         .parent()
         .ok_or_else(|| AnkiError::invalid_input("not a file path"))?;
-    NamedTempFile::new_in(dir).map_err(|err| AnkiError::file_io_error(err, dir))
+    NamedTempFile::new_in(dir)
+        .context(FileIoSnafu {
+            path: dir,
+            op: FileOp::Create,
+        })
+        .map_err(AnkiError::FileIoError)
 }
 
 /// Atomically replace the target path with the provided temp file.
@@ -25,7 +34,12 @@ pub(crate) fn atomic_rename(file: NamedTempFile, target: &Path, fsync: bool) -> 
         file.as_file().sync_all()?;
     }
     file.persist(&target)
-        .map_err(|err| AnkiError::IoError(format!("write {target:?} failed: {err}")))?;
+        .map_err(|e| e.error)
+        .context(FileIoSnafu {
+            path: target,
+            op: FileOp::Write,
+        })
+        .map_err(AnkiError::FileIoError)?;
     #[cfg(not(windows))]
     if fsync {
         if let Some(parent) = target.parent() {

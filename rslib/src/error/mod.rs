@@ -6,7 +6,7 @@ mod filtered;
 mod network;
 mod search;
 
-use std::{fmt::Display, io, path::Path};
+use std::{fmt::Display, io, path::PathBuf};
 
 pub use db::{DbError, DbErrorKind};
 pub use filtered::{CustomStudyError, FilteredDeckError};
@@ -123,9 +123,7 @@ impl AnkiError {
             | AnkiError::NotFoundError(_)
             | AnkiError::Existing
             | AnkiError::UndoEmpty => format!("{:?}", self),
-            AnkiError::FileIoError(err) => {
-                format!("{}: {}", err.path, err.error)
-            }
+            AnkiError::FileIoError(err) => err.message(),
         }
     }
 
@@ -280,24 +278,44 @@ impl ImportError {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
-
+#[derive(Debug, Snafu)]
+#[snafu(visibility(pub(crate)))]
 pub struct FileIoError {
-    pub path: String,
-    pub error: String,
+    pub path: PathBuf,
+    pub op: FileOp,
+    pub source: std::io::Error,
 }
 
-impl AnkiError {
-    pub(crate) fn file_io_error<P: AsRef<Path>>(err: std::io::Error, path: P) -> Self {
-        AnkiError::FileIoError(FileIoError::new(err, path.as_ref()))
+#[derive(Debug, PartialEq, Clone)]
+pub enum FileOp {
+    Open,
+    Create,
+    Write,
+    CopyFrom(String),
+}
+
+impl FileOp {
+    pub fn copy(from: &str) -> Self {
+        Self::CopyFrom(from.to_owned())
+    }
+
+    fn verb(&self) -> String {
+        match self {
+            Self::Open => "read".into(),
+            Self::Create => "create file in".into(),
+            Self::Write => "write".into(),
+            Self::CopyFrom(s) => format!("copy from {s} to"),
+        }
     }
 }
 
 impl FileIoError {
-    pub fn new(err: std::io::Error, path: &Path) -> FileIoError {
-        FileIoError {
-            path: path.to_string_lossy().to_string(),
-            error: err.to_string(),
-        }
+    fn message(&self) -> String {
+        format!(
+            "failed to {} {}: {:?}",
+            self.op.verb(),
+            self.path.to_string_lossy(),
+            self.source
+        )
     }
 }

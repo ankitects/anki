@@ -7,12 +7,13 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use snafu::ResultExt;
 use zip::{read::ZipFile, ZipArchive};
 use zstd::{self, stream::copy_decode};
 
 use crate::{
     collection::CollectionBuilder,
-    error::ImportError,
+    error::{FileIoSnafu, FileOp, ImportError},
     import_export::{
         package::{
             media::{extract_media_entries, SafeMediaEntry},
@@ -122,15 +123,19 @@ fn maybe_restore_media_file(
     Ok(())
 }
 
-fn restore_media_file(meta: &Meta, zip_file: &mut ZipFile, path: &Path) -> Result<()> {
+fn restore_media_file(meta: &Meta, mut zip_file: &mut ZipFile, path: &Path) -> Result<()> {
     let mut tempfile = tempfile_in_parent_of(path)?;
 
     if meta.zstd_compressed() {
-        copy_decode(zip_file, &mut tempfile)
+        copy_decode(&mut zip_file, &mut tempfile)
     } else {
-        io::copy(zip_file, &mut tempfile).map(|_| ())
+        io::copy(&mut zip_file, &mut tempfile).map(|_| ())
     }
-    .map_err(|err| AnkiError::file_io_error(err, path))?;
+    .with_context(|_| FileIoSnafu {
+        path: tempfile.path(),
+        op: FileOp::copy(zip_file.name()),
+    })
+    .map_err(AnkiError::FileIoError)?;
 
     atomic_rename(tempfile, path, false)
 }
