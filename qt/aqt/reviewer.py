@@ -653,12 +653,6 @@ class Reviewer:
     def _onTypedAnswer(self, val: None) -> None:
         self.typedAnswer = val or ""
         self._showAnswer()
-        self.unfocus_typing_box()
-
-    def unfocus_typing_box(self) -> None:
-        # shifting focus to the bottom area works around a WebEngine/IME bug
-        # https://github.com/ankitects/anki/issues/1952
-        self.bottom.web.setFocus()
 
     # Bottom bar
     ##########################################################################
