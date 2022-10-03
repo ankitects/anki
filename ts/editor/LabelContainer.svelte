@@ -44,8 +44,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         top: 0;
         z-index: 10;
 
-        background: var(--label-color);
-
         .clickable {
             cursor: pointer;
         }
