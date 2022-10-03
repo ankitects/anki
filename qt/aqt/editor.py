@@ -536,6 +536,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setTagsCollapsed({});
             setMathjaxEnabled({});
             setShrinkImages({});
+            setCloseHTMLTags({});
             """.format(
             json.dumps(data),
             json.dumps(collapsed),
@@ -549,6 +550,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             json.dumps(self.mw.pm.tags_collapsed(self.editorMode)),
             json.dumps(self.mw.col.get_config("renderMathjax", True)),
             json.dumps(self.mw.col.get_config("shrinkEditorImages", True)),
+            json.dumps(self.mw.col.get_config("closeHTMLTags", True)),
         )
 
         if self.addMode:
@@ -1169,6 +1171,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             not self.mw.col.get_config("shrinkEditorImages", True),
         )
 
+    def toggleCloseHTMLTags(self) -> None:
+        self.mw.col.set_config(
+            "closeHTMLTags",
+            not self.mw.col.get_config("closeHTMLTags", True),
+        )
+
     def collapseTags(self) -> None:
         aqt.mw.pm.set_tags_collapsed(self.editorMode, True)
 
@@ -1203,6 +1211,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             mathjaxChemistry=Editor.insertMathjaxChemistry,
             toggleMathjax=Editor.toggleMathjax,
             toggleShrinkImages=Editor.toggleShrinkImages,
+            toggleCloseHTMLTags=Editor.toggleCloseHTMLTags,
             expandTags=Editor.expandTags,
             collapseTags=Editor.collapseTags,
         )
