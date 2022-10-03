@@ -237,3 +237,17 @@ export function _blockDefaultDragDropBehavior(): void {
     document.ondragover = handler;
     document.ondrop = handler;
 }
+
+// work around WebEngine/IME bug in Qt6
+// https://github.com/ankitects/anki/issues/1952
+const dummyButton = document.createElement("button");
+dummyButton.style.position = "absolute";
+dummyButton.style.left = "-9999px";
+document.addEventListener("focusout", (event) => {
+    const target = event.target;
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+        document.body.appendChild(dummyButton);
+        dummyButton.focus();
+        document.body.removeChild(dummyButton);
+    }
+});
