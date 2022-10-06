@@ -134,8 +134,7 @@ fn restore_media_file(meta: &Meta, mut zip_file: &mut ZipFile, path: &Path) -> R
     .with_context(|_| FileIoSnafu {
         path: tempfile.path(),
         op: FileOp::copy(zip_file.name()),
-    })
-    .map_err(AnkiError::FileIoError)?;
+    })?;
 
     atomic_rename(tempfile, path, false)
 }

@@ -20,7 +20,7 @@ pub(crate) fn tempfile_in_parent_of(file: &Path) -> Result<NamedTempFile> {
             path: dir,
             op: FileOp::Create,
         })
-        .map_err(AnkiError::FileIoError)
+        .map_err(Into::into)
 }
 
 /// Atomically replace the target path with the provided temp file.
@@ -38,8 +38,7 @@ pub(crate) fn atomic_rename(file: NamedTempFile, target: &Path, fsync: bool) -> 
         .context(FileIoSnafu {
             path: target,
             op: FileOp::Write,
-        })
-        .map_err(AnkiError::FileIoError)?;
+        })?;
     #[cfg(not(windows))]
     if fsync {
         if let Some(parent) = target.parent() {

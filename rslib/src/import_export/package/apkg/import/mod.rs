@@ -122,8 +122,7 @@ fn collection_to_tempfile(meta: &Meta, archive: &mut ZipArchive<File>) -> Result
     .with_context(|_| FileIoSnafu {
         path: tempfile.path(),
         op: FileOp::copy(zip_file.name()),
-    })
-    .map_err(AnkiError::FileIoError)?;
+    })?;
 
     Ok(tempfile)
 }

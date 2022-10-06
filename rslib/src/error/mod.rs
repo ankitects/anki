@@ -319,3 +319,9 @@ impl FileIoError {
         )
     }
 }
+
+impl From<FileIoError> for AnkiError {
+    fn from(err: FileIoError) -> Self {
+        Self::FileIoError(err)
+    }
+}
