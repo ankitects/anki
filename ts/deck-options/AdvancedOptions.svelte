@@ -62,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <SpinBoxFloatRow
                 bind:value={$config.intervalMultiplier}
                 defaultValue={defaults.intervalMultiplier}
-                min={0.5}
+                min={0.1}
                 max={2}
                 markdownTooltip={tr.deckConfigIntervalModifierTooltip()}
             >
