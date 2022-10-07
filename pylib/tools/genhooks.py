@@ -104,7 +104,7 @@ hooks = [
     ),
     Hook(
         name="importing_importers",
-        args=["importers: list[tuple[str, Any]]"],
+        args=["importers: list[tuple[str, type[anki.importing.base.Importer]]]"],
         doc="""Allows updating the list of importers.
         The resulting list is not saved and should be changed each time the
         filter is called.
