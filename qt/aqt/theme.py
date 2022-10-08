@@ -59,7 +59,7 @@ class ThemeManager:
     default_palette: QPalette | None = None
     _default_style: str | None = None
 
-    def rtl(self) -> None:
+    def rtl(self) -> bool:
         return is_rtl(anki.lang.current_lang)
 
     def left(self) -> str:
