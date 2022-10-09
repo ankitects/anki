@@ -62,7 +62,7 @@ QToolTip {{
     """
 
 
-def menu_styles(tm: ThemeManager()) -> str:
+def menu_styles(tm: ThemeManager) -> str:
     return f"""
 QMenuBar {{
     background-color: {tm.var(colors.CANVAS)};
