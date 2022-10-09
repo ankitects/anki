@@ -73,7 +73,6 @@ QMenu::item {{
     background-color: transparent;
     padding: 3px 10px;
     margin-bottom: 4px;
-    min-width: 120px;
 }}
 QMenu::item:selected {{
     background-color: {tm.var(colors.HIGHLIGHT_BG)};
