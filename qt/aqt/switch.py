@@ -8,7 +8,7 @@ from aqt.theme import theme_manager
 
 
 class Switch(QAbstractButton):
-    """A horizontal slider to toggle between two states which can be denoted by short strings.
+    """A horizontal slider to toggle between two states which can be denoted by strings and/or QIcons.
 
     The left state is the default and corresponds to isChecked()=False.
     The suppoorted slots are toggle(), for an animated transition, and setChecked().
@@ -33,8 +33,11 @@ class Switch(QAbstractButton):
         self._right_color = right_color
         self._path_radius = radius
         self._knob_radius = radius - 1
-        self._left_position = self._position = radius
-        self._right_position = 3 * self._path_radius
+        self._label_padding = 4
+        self._left_knob_position = self._position = radius
+        self._right_knob_position = self.width - self._path_radius
+        self._left_label_position = self._label_padding / 2
+        self._right_label_position = 2 * self._knob_radius
 
     @pyqtProperty(int)  # type: ignore
     def position(self) -> int:
@@ -47,11 +50,15 @@ class Switch(QAbstractButton):
 
     @property
     def start_position(self) -> int:
-        return self._left_position if self.isChecked() else self._right_position
+        return (
+            self._left_knob_position if self.isChecked() else self._right_knob_position
+        )
 
     @property
     def end_position(self) -> int:
-        return self._right_position if self.isChecked() else self._left_position
+        return (
+            self._right_knob_position if self.isChecked() else self._left_knob_position
+        )
 
     @property
     def label(self) -> str:
@@ -62,10 +69,31 @@ class Switch(QAbstractButton):
         color = self._right_color if self.isChecked() else self._left_color
         return theme_manager.qcolor(color)
 
+    @property
+    def label_width(self) -> int:
+        font = QFont()
+        font.setPixelSize(int(self._path_radius))
+        fm = QFontMetrics(font)
+        return (
+            max(
+                fm.horizontalAdvance(self._left_label),
+                fm.horizontalAdvance(self._right_label),
+            )
+            + 2 * self._label_padding
+        )
+
+    @property
+    def width(self) -> int:
+        return self.label_width + 2 * self._path_radius
+
+    @property
+    def height(self) -> int:
+        return 2 * self._path_radius
+
     def sizeHint(self) -> QSize:
         return QSize(
-            4 * self._path_radius,
-            2 * self._path_radius,
+            self.width,
+            self.height,
         )
 
     def setChecked(self, checked: bool) -> None:
@@ -78,18 +106,26 @@ class Switch(QAbstractButton):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         painter.setPen(Qt.PenStyle.NoPen)
         self._paint_path(painter)
-        self._paint_knob(painter)
         self._paint_label(painter)
+        self._paint_knob(painter)
 
-    def _paint_path(self, painter: QPainter) -> None:
-        painter.setBrush(QBrush(self.path_color))
-        rectangle = QRectF(
+    def _current_path_rectangle(self) -> QRectF:
+        return QRectF(
             0,
             0,
-            self.width(),
-            self.height(),
+            self.width,
+            self.height,
         )
-        painter.drawRoundedRect(rectangle, self._path_radius, self._path_radius)
+
+    def _current_label_rectangle(self) -> QRectF:
+        return QRectF(
+            self._left_label_position
+            if self.isChecked()
+            else self._right_label_position,
+            0,
+            self.label_width,
+            self.height,
+        )
 
     def _current_knob_rectangle(self) -> QRectF:
         return QRectF(
@@ -99,18 +135,25 @@ class Switch(QAbstractButton):
             2 * self._knob_radius,
         )
 
+    def _paint_path(self, painter: QPainter) -> None:
+        painter.setBrush(QBrush(self.path_color))
+        painter.drawRoundedRect(
+            self._current_path_rectangle(), self._path_radius, self._path_radius
+        )
+
     def _paint_knob(self, painter: QPainter) -> None:
         color = theme_manager.qcolor(colors.BUTTON_GRADIENT_START)
+        painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(QBrush(color))
         painter.drawEllipse(self._current_knob_rectangle())
 
     def _paint_label(self, painter: QPainter) -> None:
-        painter.setPen(theme_manager.qcolor(colors.FG))
+        painter.setPen(theme_manager.qcolor(colors.CANVAS))
         font = painter.font()
-        font.setPixelSize(int(1.2 * self._knob_radius))
+        font.setPixelSize(int(self._path_radius))
         painter.setFont(font)
         painter.drawText(
-            self._current_knob_rectangle(), Qt.AlignmentFlag.AlignCenter, self.label
+            self._current_label_rectangle(), Qt.AlignmentFlag.AlignCenter, self.label
         )
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
