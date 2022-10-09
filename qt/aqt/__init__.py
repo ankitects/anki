@@ -345,7 +345,7 @@ class AnkiApp(QApplication):
     ##################################################
 
     def eventFilter(self, src: Any, evt: QEvent) -> bool:
-        if evt.type() == QEvent.Type.HoverEnter:
+        if evt.type() in [QEvent.Type.Enter, QEvent.Type.HoverEnter]:
             if (
                 (
                     isinstance(
@@ -354,6 +354,7 @@ class AnkiApp(QApplication):
                             QPushButton,
                             QCheckBox,
                             QRadioButton,
+                            QMenu,
                             # classes with PyQt5 compatibility proxy
                             without_qt5_compat_wrapper(QToolButton),
                             without_qt5_compat_wrapper(QTabBar),
