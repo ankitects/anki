@@ -32,7 +32,7 @@ class Switch(QAbstractButton):
         self._left_color = left_color
         self._right_color = right_color
         self._path_radius = radius
-        self._knob_radius = radius - 1
+        self._knob_radius = radius - 2
         self._label_padding = 4
         self._left_knob_position = self._position = radius
         self._right_knob_position = self.width - self._path_radius
@@ -130,7 +130,7 @@ class Switch(QAbstractButton):
     def _current_knob_rectangle(self) -> QRectF:
         return QRectF(
             self.position - self._knob_radius,  # type: ignore
-            1,
+            2,
             2 * self._knob_radius,
             2 * self._knob_radius,
         )
