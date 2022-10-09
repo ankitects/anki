@@ -72,7 +72,8 @@ class Switch(QAbstractButton):
     @property
     def label_width(self) -> int:
         font = QFont()
-        font.setPixelSize(int(self._path_radius))
+        font.setPixelSize(int(self._knob_radius))
+        font.setWeight(QFont.Weight.Bold)
         fm = QFontMetrics(font)
         return (
             max(
@@ -150,7 +151,8 @@ class Switch(QAbstractButton):
     def _paint_label(self, painter: QPainter) -> None:
         painter.setPen(theme_manager.qcolor(colors.CANVAS))
         font = painter.font()
-        font.setPixelSize(int(self._path_radius))
+        font.setPixelSize(int(self._knob_radius))
+        font.setWeight(QFont.Weight.Bold)
         painter.setFont(font)
         painter.drawText(
             self._current_label_rectangle(), Qt.AlignmentFlag.AlignCenter, self.label
