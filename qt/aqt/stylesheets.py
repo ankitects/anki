@@ -64,6 +64,19 @@ QToolTip {{
 
 def menu_styles(tm: ThemeManager()) -> str:
     return f"""
+QMenuBar {{
+    background-color: {tm.var(colors.CANVAS)};
+    border-bottom: 1px solid {tm.var(colors.BORDER)};
+}}
+QMenuBar::item {{
+    background-color: transparent;
+    padding: 6px;
+    margin: 2px;
+}}
+QMenuBar::item:selected {{
+    background-color: {tm.var(colors.HIGHLIGHT_BG)};
+    border-radius: {tm.var(props.BORDER_RADIUS)};
+}}
 QMenu {{
     background-color: {tm.var(colors.CANVAS_OVERLAY)};
     border: 1px solid {tm.var(colors.BORDER)};
