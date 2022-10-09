@@ -345,27 +345,19 @@ class AnkiApp(QApplication):
     ##################################################
 
     def eventFilter(self, src: Any, evt: QEvent) -> bool:
+        pointer_classes = (
+            QPushButton,
+            QCheckBox,
+            QRadioButton,
+            QMenu,
+            # classes with PyQt5 compatibility proxy
+            without_qt5_compat_wrapper(QToolButton),
+            without_qt5_compat_wrapper(QTabBar),
+        )
         if evt.type() in [QEvent.Type.Enter, QEvent.Type.HoverEnter]:
-            if (
-                (
-                    isinstance(
-                        src,
-                        (
-                            QPushButton,
-                            QCheckBox,
-                            QRadioButton,
-                            QMenu,
-                            # classes with PyQt5 compatibility proxy
-                            without_qt5_compat_wrapper(QToolButton),
-                            without_qt5_compat_wrapper(QTabBar),
-                        ),
-                    )
-                )
-                and src.isEnabled()
-                or (
-                    isinstance(src, without_qt5_compat_wrapper(QComboBox))
-                    and not src.isEditable()
-                )
+            if (isinstance(src, pointer_classes) and src.isEnabled()) or (
+                isinstance(src, without_qt5_compat_wrapper(QComboBox))
+                and not src.isEditable()
             ):
                 self.setOverrideCursor(QCursor(Qt.CursorShape.PointingHandCursor))
             else:
