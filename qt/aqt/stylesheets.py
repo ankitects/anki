@@ -28,7 +28,8 @@ qlineargradient(
 
 def general_styles(tm: ThemeManager) -> str:
     return f"""
-QFrame {{
+QFrame,
+QWidget {{
     background: none;
 }}
 QPushButton,
@@ -57,6 +58,36 @@ QSpinBox {{
 }}
 QToolTip {{
     background: {tm.var(colors.CANVAS_OVERLAY)};
+}}
+    """
+
+
+def menu_styles(tm: ThemeManager()) -> str:
+    return f"""
+QMenu {{
+    background-color: {tm.var(colors.CANVAS_OVERLAY)};
+    border: 1px solid {tm.var(colors.BORDER)};
+    padding: 4px;
+}}
+QMenu::item {{
+    background-color: transparent;
+    padding: 3px 10px;
+    margin-bottom: 4px;
+    min-width: 120px;
+}}
+QMenu::item:selected {{
+    background-color: {tm.var(colors.HIGHLIGHT_BG)};
+    color: {tm.var(colors.HIGHLIGHT_FG)};
+    border-radius: {tm.var(props.BORDER_RADIUS)};
+}}
+QMenu::separator {{
+    height: 1px;
+    background: {tm.var(colors.BORDER)};
+    margin: 0 8px 4px 8px;
+}}
+QMenu::indicator {{
+    border-color: {tm.var(colors.BORDER_STRONG)};
+    margin-left: 2px;
 }}
     """
 
@@ -374,16 +405,16 @@ QRadioButton {{
     margin: 2px 0;
 }}
 QCheckBox::indicator,
-QRadioButton::indicator {{
+QRadioButton::indicator,
+QMenu::indicator {{
     border: 1px solid {tm.var(colors.BUTTON_BORDER)};
+    border-radius: {tm.var(props.BORDER_RADIUS)};
     background: {tm.var(colors.CANVAS_INSET)};
     width: 16px;
     height: 16px;
 }}
-QCheckBox::indicator {{
-    border-radius: {tm.var(props.BORDER_RADIUS)};
-}}
-QRadioButton::indicator {{
+QRadioButton::indicator,
+QMenu::indicator:exclusive {{
     border-radius: 8px;
 }}
 QCheckBox::indicator:hover,
@@ -395,7 +426,8 @@ QRadioButton::indicator:checked:hover {{
     height: 14px;
 }}
 QCheckBox::indicator:checked,
-QRadioButton::indicator:checked {{
+QRadioButton::indicator:checked,
+QMenu::indicator:checked {{
     image: url({tm.themed_icon("mdi:check")});
 }}
 QCheckBox::indicator:indeterminate {{

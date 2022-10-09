@@ -218,6 +218,7 @@ class ThemeManager:
                 checkbox_styles,
                 combobox_styles,
                 general_styles,
+                menu_styles,
                 scrollbar_styles,
                 spinbox_styles,
                 table_styles,
@@ -229,11 +230,12 @@ class ThemeManager:
                 [
                     general_styles(self),
                     button_styles(self),
+                    checkbox_styles(self),
+                    menu_styles(self),
                     combobox_styles(self),
                     tabwidget_styles(self),
                     table_styles(self),
                     spinbox_styles(self),
-                    checkbox_styles(self),
                     scrollbar_styles(self),
                 ]
             )

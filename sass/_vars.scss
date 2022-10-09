@@ -56,8 +56,8 @@ $vars: (
                 dark: palette(darkgray, 6),
             ),
             overlay: (
-                light: white,
-                dark: black,
+                light: palette(lightgray, 0),
+                dark: palette(darkgray, 5),
             ),
             code: (
                 light: white,
