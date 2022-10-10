@@ -58,8 +58,8 @@ impl Variant {
 
     fn qt_repo(&self) -> &str {
         match self {
-            Variant::StandardX86 => "pyqt6.3_mac_bundle_amd64",
-            Variant::StandardArm => "pyqt6.3_mac_bundle_arm64",
+            Variant::StandardX86 => "pyqt6.4_mac_bundle_amd64",
+            Variant::StandardArm => "pyqt6.4_mac_bundle_arm64",
             Variant::AlternateX86 => "pyqt5.14_mac_bundle_amd64",
         }
     }
