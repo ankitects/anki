@@ -269,8 +269,8 @@ $vars: (
         ),
         highlight: (
             bg: (
-                light: palette(blue, 3),
-                dark: palette(blue, 4),
+                light: color.scale(palette(blue, 3), $alpha: -33%),
+                dark: color.scale(palette(blue, 4), $alpha: -33%),
             ),
             fg: (
                 light: black,
