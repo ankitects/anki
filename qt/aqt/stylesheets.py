@@ -488,28 +488,3 @@ QScrollBar::sub-line {{
       background: none;
 }}
     """
-
-
-def win10_styles(tm: ThemeManager) -> str:
-    styles = f"""
-/* day mode is missing a bottom border; background must be
-   also set for border to apply */
-QMenuBar {{
-  border-bottom: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-  background: {tm.var(colors.CANVAS) if tm.night_mode else "white"};
-}}
-
-/* qt bug? setting the above changes the browser sidebar
-   to white as well, so set it back */
-QTreeWidget {{
-  background: {tm.var(colors.CANVAS)};
-}}
-    """
-
-    if tm.night_mode:
-        styles += """
-QToolTip {
-  border: 0;
-}
-        """
-    return styles

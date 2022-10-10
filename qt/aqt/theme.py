@@ -234,7 +234,6 @@ class ThemeManager:
                 spinbox_styles,
                 table_styles,
                 tabwidget_styles,
-                win10_styles,
             )
 
             buf += "".join(
@@ -250,9 +249,6 @@ class ThemeManager:
                     scrollbar_styles(self),
                 ]
             )
-
-        if is_win and platform.release() == "10":
-            buf += win10_styles(self)
 
         # allow addons to modify the styling
         buf = gui_hooks.style_did_init(buf)
