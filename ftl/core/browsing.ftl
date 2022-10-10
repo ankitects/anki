@@ -12,6 +12,7 @@ browsing-browser-appearance = Browser Appearance
 browsing-browser-options = Browser Options
 browsing-buried = Buried
 browsing-card = Card
+browsing-cards = Cards
 # Exactly one character representing 'Cards'; should differ from browsing-note-initial.
 browsing-card-initial = C
 browsing-card-list = Card List
@@ -59,6 +60,7 @@ browsing-new-note-type = New note type:
 browsing-no-flag = No Flag
 browsing-no-selection = No cards or notes selected.
 browsing-note = Note
+browsing-notes = Notes
 # Exactly one character representing 'Notes'; should differ from browsing-card-initial.
 browsing-note-initial = N
 browsing-optional-filter = Optional filter:
