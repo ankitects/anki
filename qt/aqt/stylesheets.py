@@ -63,6 +63,9 @@ QToolTip {{
 
 def button_styles(tm: ThemeManager) -> str:
     return f"""
+QPushButton {{
+    min-width: 75px;
+}}
 QPushButton,
 QTabBar::tab:!selected,
 QComboBox:!editable {{
