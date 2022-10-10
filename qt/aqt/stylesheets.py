@@ -85,7 +85,6 @@ QMenu::separator {{
     margin: 0 8px 4px 8px;
 }}
 QMenu::indicator {{
-    border-color: {tm.var(colors.BORDER_STRONG)};
     margin-left: 2px;
 }}
     """
