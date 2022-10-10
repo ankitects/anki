@@ -63,6 +63,9 @@ QToolTip {{
 
 def button_styles(tm: ThemeManager) -> str:
     return f"""
+QPushButton {{
+    min-width: 75px;
+}}
 QPushButton,
 QTabBar::tab:!selected,
 QComboBox:!editable {{
@@ -117,7 +120,7 @@ QMainWindow::separator:vertical {{
 def combobox_styles(tm: ThemeManager) -> str:
     return f"""
 QComboBox {{
-    padding: 1px 4px 2px 6px;
+    padding: {"1px 6px 2px 4px" if tm.rtl() else "1px 4px 2px 6px"};
 }}
 QComboBox:editable:on,
 QComboBox:editable:focus,
@@ -149,8 +152,8 @@ QComboBox::drop-down {{
     width: 16px;
     subcontrol-position: top right;
     border: 1px solid {tm.var(colors.BUTTON_BORDER)};
-    border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
-    border-bottom-right-radius: {tm.var(props.BORDER_RADIUS)};
+    border-top-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
+    border-bottom-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QComboBox::down-arrow {{
     image: url({tm.themed_icon("mdi:chevron-down")});
@@ -199,15 +202,15 @@ QTabBar::tab {{
   border: 1px solid {tm.var(colors.BORDER)};
 }}
 QTabBar::tab:first {{
-  border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
-  border-bottom-left-radius: {tm.var(props.BORDER_RADIUS)};
+  border-top-{tm.left()}-radius: {tm.var(props.BORDER_RADIUS)};
+  border-bottom-{tm.left()}-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QTabBar::tab:!first {{
-  margin-left: -1px;
+  margin-{tm.left()}: -1px;
 }}
 QTabBar::tab:last {{
-  border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
-  border-bottom-right-radius: {tm.var(props.BORDER_RADIUS)};
+  border-top-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
+  border-bottom-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QTabBar::tab:selected {{
     color: white;
@@ -328,12 +331,12 @@ QSpinBox::down-button:hover {{
 QSpinBox::up-button {{
     margin-bottom: -1px;
     subcontrol-position: top right;
-    border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
+    border-top-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QSpinBox::down-button {{
     margin-top: -1px;
     subcontrol-position: bottom right;
-    border-bottom-right-radius: {tm.var(props.BORDER_RADIUS)};
+    border-bottom-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QSpinBox::up-arrow {{
     image: url({tm.themed_icon("mdi:chevron-up")});

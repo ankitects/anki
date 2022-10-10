@@ -28,6 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     show={showFloating}
     placement="bottom"
     offset={0}
+    shift={0}
     hideArrow
     inline
     closeOnInsideClick

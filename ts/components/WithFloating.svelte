@@ -29,7 +29,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let placement: Placement | Placement[] | "auto" = "bottom";
     export let offset = 5;
-    export let shift = 5;
+    /* 30px box shadow from elevation(8) */
+    export let shift = 30;
     export let inline = false;
     export let hideIfEscaped = false;
     export let hideIfReferenceHidden = false;
