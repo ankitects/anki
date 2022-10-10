@@ -22,11 +22,11 @@ bazel query @pyoxidizer//:*
 if [[ "$OSTYPE" == "darwin"* ]]; then
   if [ $(uname -m) != "arm64" ]; then
     bazel query @audio_mac_amd64//:* > /dev/null
-    bazel query @pyqt6.3_mac_bundle_amd64//:* > /dev/null
+    bazel query @pyqt6.4_mac_bundle_amd64//:* > /dev/null
     bazel query @pyqt5.14_mac_bundle_amd64//:* > /dev/null
   else
     bazel query @audio_mac_arm64//:* > /dev/null
-    bazel query @pyqt6.3_mac_bundle_arm64//:* > /dev/null
+    bazel query @pyqt6.4_mac_bundle_arm64//:* > /dev/null
     bazel query @protobuf_wheel_mac_arm64//:* > /dev/null
 
   fi

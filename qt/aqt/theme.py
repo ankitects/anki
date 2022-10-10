@@ -11,7 +11,9 @@ import subprocess
 from dataclasses import dataclass
 from typing import Callable, List, Tuple
 
+import anki.lang
 import aqt
+from anki.lang import is_rtl
 from anki.utils import is_lin, is_mac, is_win
 from aqt import QApplication, colors, gui_hooks
 from aqt.qt import (
@@ -56,6 +58,15 @@ class ThemeManager:
     _dark_mode_available: bool | None = None
     default_palette: QPalette | None = None
     _default_style: str | None = None
+
+    def rtl(self) -> bool:
+        return is_rtl(anki.lang.current_lang)
+
+    def left(self) -> str:
+        return "right" if self.rtl() else "left"
+
+    def right(self) -> str:
+        return "left" if self.rtl() else "right"
 
     # Qt applies a gradient to the buttons in dark mode
     # from about #505050 to #606060.

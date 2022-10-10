@@ -7,7 +7,7 @@
 		<key>CFBundleShortVersionString</key>
 		<string>2.1.46</string>
 		<key>LSMinimumSystemVersion</key>
-		<string>10.13.4</string>
+		<string>10.14.0</string>
 		<key>CFBundleDocumentTypes</key>
 		<array>
 			<dict>
