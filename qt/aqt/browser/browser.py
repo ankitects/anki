@@ -496,7 +496,7 @@ class Browser(QMainWindow):
     def setup_table(self) -> None:
         self.table = Table(self)
         self.table.set_view(self.form.tableView)
-        switch = Switch(11, tr.browsing_card_initial(), tr.browsing_note_initial())
+        switch = Switch(12, tr.browsing_cards(), tr.browsing_notes())
         switch.setChecked(self.table.is_notes_mode())
         switch.setToolTip(tr.browsing_toggle_showing_cards_notes())
         qconnect(self.form.action_toggle_mode.triggered, switch.toggle)
