@@ -75,7 +75,7 @@ QMenu {{
 }}
 QMenu::item {{
     background-color: transparent;
-    padding: 3px 10px;
+    padding: 3px 14px;
     margin-bottom: 4px;
 }}
 QMenu::item:selected {{
@@ -89,7 +89,8 @@ QMenu::separator {{
     margin: 0 8px 4px 8px;
 }}
 QMenu::indicator {{
-    margin-left: 2px;
+    margin-left: 6px;
+    margin-right: -6px;
 }}
     """
 
