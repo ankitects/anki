@@ -33,11 +33,11 @@ def register_repos():
     maybe(
         http_archive,
         name = "rules_rust",
-        strip_prefix = "rules_rust-f0cdcedc2a68ffdb3048a8510b380e64eb9a1d72",
+        strip_prefix = "rules_rust-7ffe0a5556a35f8c11bf9a9ae8bc4020dd44ea13",
         urls = [
-            "https://github.com/bazelbuild/rules_rust/archive/f0cdcedc2a68ffdb3048a8510b380e64eb9a1d72.zip",
+            "https://github.com/bazelbuild/rules_rust/archive/7ffe0a5556a35f8c11bf9a9ae8bc4020dd44ea13.zip",
         ],
-        sha256 = "cc14a14ca5df2dd52f7d8b1a545f11cb42e9fae7861b4d5b83e883a8cc0f96bd",
+        sha256 = "9ba9617de8d21fe49366695240d9c6c0a0750559ea7a8565397dcf7fb64f9f9d",
     )
 
     # maybe(
