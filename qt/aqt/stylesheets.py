@@ -64,6 +64,9 @@ QToolTip {{
 
 def menu_styles(tm: ThemeManager) -> str:
     return f"""
+QMenuBar {{
+    border-bottom: 1px solid {tm.var(colors.BORDER_FAINT)};
+}}
 QMenuBar::item {{
     background-color: transparent;
     padding: 2px 4px;
