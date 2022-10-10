@@ -67,15 +67,19 @@ $vars: (
         border: (
             default: (
                 light: palette(lightgray, 6),
-                dark: palette(darkgray, 7),
-            ),
-            subtle: (
-                light: palette(lightgray, 5),
-                dark: palette(darkgray, 6),
+                dark: palette(darkgray, 4),
             ),
             strong: (
                 light: palette(lightgray, 9),
                 dark: palette(darkgray, 1),
+            ),
+            subtle: (
+                light: palette(lightgray, 5),
+                dark: palette(darkgray, 7),
+            ),
+            faint: (
+                light: palette(lightgray, 3),
+                dark: palette(darkgray, 6),
             ),
             focus: (
                 light: palette(blue, 5),
