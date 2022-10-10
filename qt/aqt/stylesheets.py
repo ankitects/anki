@@ -39,7 +39,7 @@ QLineEdit,
 QListWidget,
 QTreeWidget,
 QListView {{
-    border: 1px solid {tm.var(colors.BORDER)};
+    border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     border-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QLineEdit {{
@@ -64,13 +64,17 @@ QToolTip {{
 
 def menu_styles(tm: ThemeManager) -> str:
     return f"""
-QMenuBar::item:selected {{
-    background-color: {tm.var(colors.HIGHLIGHT_BG)};
+QMenuBar::item {{
+    background-color: transparent;
+    padding: 2px 4px;
     border-radius: {tm.var(props.BORDER_RADIUS)};
+}}
+QMenuBar::item:selected {{
+    background-color: {tm.var(colors.CANVAS_ELEVATED)};
 }}
 QMenu {{
     background-color: {tm.var(colors.CANVAS_OVERLAY)};
-    border: 1px solid {tm.var(colors.BORDER)};
+    border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     padding: 4px;
 }}
 QMenu::item {{
@@ -79,16 +83,17 @@ QMenu::item {{
     margin-bottom: 4px;
 }}
 QMenu::item:selected {{
-    background-color: {tm.var(colors.HIGHLIGHT_BG)};
+    background-color: {tm.var(colors.CANVAS_INSET)};
     color: {tm.var(colors.HIGHLIGHT_FG)};
     border-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QMenu::separator {{
     height: 1px;
-    background: {tm.var(colors.BORDER)};
+    background: {tm.var(colors.BORDER_SUBTLE)};
     margin: 0 8px 4px 8px;
 }}
 QMenu::indicator {{
+    border: 1px solid {tm.var(colors.BORDER)};
     margin-left: 6px;
     margin-right: -6px;
 }}
@@ -221,7 +226,7 @@ QTabWidget::pane {{
   top: -15px;
   padding-top: 1em;
   background: {tm.var(colors.CANVAS_ELEVATED)};
-  border: 1px solid {tm.var(colors.BORDER)};
+  border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
   border-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QTabWidget::tab-bar {{
@@ -233,7 +238,7 @@ QTabBar::tab {{
   min-width: 8ex;
 }}
 QTabBar::tab {{
-  border: 1px solid {tm.var(colors.BORDER)};
+  border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
 }}
 QTabBar::tab:first {{
   border-top-{tm.left()}-radius: {tm.var(props.BORDER_RADIUS)};
@@ -262,7 +267,7 @@ def table_styles(tm: ThemeManager) -> str:
     return f"""
 QTableView {{
     border-radius: {tm.var(props.BORDER_RADIUS)};
-    gridline-color: {tm.var(colors.BORDER)};
+    gridline-color: {tm.var(colors.BORDER_SUBTLE)};
     selection-background-color: {tm.var(colors.SELECTION_BG)};
     selection-color: {tm.var(colors.SELECTION_FG)};
 }}
@@ -270,7 +275,7 @@ QHeaderView {{
     background: {tm.var(colors.CANVAS)};
 }}
 QHeaderView::section {{
-    border: 1px solid {tm.var(colors.BORDER)};
+    border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     background: {
         button_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
@@ -298,19 +303,19 @@ QHeaderView::section:hover {{
     };
 }}
 QHeaderView::section:first {{
-    border-left: 1px solid {tm.var(colors.BORDER)}; 
+    border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
     border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QHeaderView::section:!first {{
     border-left: none;
 }}
 QHeaderView::section:last {{
-    border-right: 1px solid {tm.var(colors.BORDER)}; 
+    border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
     border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QHeaderView::section:only-one {{
-    border-left: 1px solid {tm.var(colors.BORDER)}; 
-    border-right: 1px solid {tm.var(colors.BORDER)};
+    border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
+    border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
     border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
 }}
@@ -490,7 +495,7 @@ def win10_styles(tm: ThemeManager) -> str:
 /* day mode is missing a bottom border; background must be
    also set for border to apply */
 QMenuBar {{
-  border-bottom: 1px solid {tm.var(colors.BORDER)};
+  border-bottom: 1px solid {tm.var(colors.BORDER_SUBTLE)};
   background: {tm.var(colors.CANVAS) if tm.night_mode else "white"};
 }}
 
