@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import enum
 import os
-import platform
 import re
 import subprocess
 from dataclasses import dataclass
