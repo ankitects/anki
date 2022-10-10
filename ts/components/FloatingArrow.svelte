@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "sass/elevation" as elevation;
 
     .arrow {
-        background-color: var(--frame-bg);
+        background-color: var(--canvas-elevated);
         width: 10px;
         height: 10px;
         z-index: 60;
