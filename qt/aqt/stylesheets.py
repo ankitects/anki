@@ -55,11 +55,6 @@ QComboBox,
 QSpinBox {{
     padding: 2px 6px;
 }}
-QToolTip {{
-    border: 1px solid {tm.var(colors.BORDER_STRONG)};
-    border-radius: {tm.var(props.BORDER_RADIUS)};
-    color: {tm.var(colors.FG)};
-}}
     """
 
 
