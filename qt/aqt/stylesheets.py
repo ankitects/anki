@@ -55,9 +55,6 @@ QComboBox,
 QSpinBox {{
     padding: 2px 6px;
 }}
-QToolTip {{
-    background: {tm.var(colors.CANVAS_OVERLAY)};
-}}
     """
 
 
@@ -451,7 +448,7 @@ QScrollBar::sub-line {{
 
 
 def win10_styles(tm: ThemeManager) -> str:
-    styles = f"""
+    return f"""
 /* day mode is missing a bottom border; background must be
    also set for border to apply */
 QMenuBar {{
@@ -465,11 +462,3 @@ QTreeWidget {{
   background: {tm.var(colors.CANVAS)};
 }}
     """
-
-    if tm.night_mode:
-        styles += """
-QToolTip {
-  border: 0;
-}
-        """
-    return styles
