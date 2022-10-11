@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount } from "svelte";
 
     import IconButton from "../../components/IconButton.svelte";
+    import IconConstrain from "../../components/IconConstrain.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import type { FormattingNode, MatchType } from "../../domlib/surround";
     import { bridgeCommand } from "../../lib/bridgecommand";
@@ -124,8 +125,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {disabled}
         on:click={setTextColor}
     >
-        {@html textColorIcon}
-        {@html colorHelperIcon}
+        <IconConstrain>
+            {@html textColorIcon}
+            {@html colorHelperIcon}
+        </IconConstrain>
     </IconButton>
     <Shortcut keyCombination={setCombination} on:action={setTextColor} />
 

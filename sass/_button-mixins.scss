@@ -24,54 +24,6 @@
     appearance: none;
 }
 
-
-/**
- * The style applied on hover.
- */
-@mixin hover(
-    $selector: null
-) {
-    &:hover {
-        background: linear-gradient(
-            180deg,
-            var(--button-hover-gradient-start) 0%,
-            var(--button-hover-gradient-end) 100%
-        );
-    }
-
-    @if ($selector) {
-        &#{selector} {
-            background: linear-gradient(
-                180deg,
-                var(--button-hover-gradient-start) 0%,
-                var(--button-hover-gradient-end) 100%
-            );
-        }
-    }
-}
-
-/**
- * This is the style that is applied when the button is pressed.
- */
-@mixin pressed(
-    $selector: null
-) {
-    &:active {
-        @include shadow.inset;
-    }
-
-    @if ($selector) {
-        &#{$selector} {
-            @include shadow.inset;
-        }
-
-        // If you press the bold button in a bold selection, you want the visual effect reversed
-        &#{$selector}:active {
-            @include shadow.reset;
-        }
-    }
-}
-
 /**
  * This is the style that is applied when the button is "active". This usually means
  * that the button is pressed down, or its supposed effect is already applied.
@@ -82,26 +34,90 @@
     $selector,
 ) {
     &#{$selector} {
-        color: var(--button-focus);
+        color: var(--button-active-fg);
+        background: linear-gradient(
+            180deg,
+            var(--button-active-gradient-start) 0%,
+            var(--button-active-gradient-end) 100%
+        );
+    }
+}
+
+/**
+ * The style applied on hover.
+ */
+@mixin hover(
+    $selector: null
+) {
+    &:hover {
+        /** This must have higher priority than button.active */
+        background: linear-gradient(
+            180deg,
+            var(--button-hover-gradient-start) 0%,
+            var(--button-hover-gradient-end) 100%
+        ) !important;
+    }
+
+    @if ($selector) {
+        &#{selector} {
+            background: linear-gradient(
+                180deg,
+                var(--button-hover-gradient-start) 0%,
+                var(--button-hover-gradient-end) 100%
+            ) !important;
+        }
     }
 }
 
 
 /**
- * The style applied on disabled.
+ * The style applied on pressed.
+ */
+@mixin pressed(
+    $selector: null
+) {
+    &:active, &:hover:active {
+        background: linear-gradient(
+            180deg,
+            var(--button-pressed-gradient-start) 0%,
+            var(--button-pressed-gradient-end) 100%
+        );
+    }
+
+    @if ($selector) {
+        &#{selector} {
+            background: linear-gradient(
+                180deg,
+                var(--button-pressed-gradient-start) 0%,
+                var(--button-pressed-gradient-end) 100%
+            );
+        }
+    }
+}
+
+/**
+ * The style applied on disabled. The opacity change is applied via the button group.
  */
 @mixin disabled(
     $selector: null
 ) {
     &[disabled] {
         color: var(--fg-disabled);
-        background: var(--button-disabled);
+        background: linear-gradient(
+            180deg,
+            var(--button-gradient-start) 0%,
+            var(--button-gradient-end) 100%
+        );
     }
 
     @if ($selector) {
         &#{selector} {
             color: var(--fg-disabled);
-            background: var(--button-disabled);
+            background: linear-gradient(
+                180deg,
+                var(--button-gradient-start) 0%,
+                var(--button-gradient-end) 100%
+            );
         }
     }
 }

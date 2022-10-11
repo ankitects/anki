@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import LabelButton from "../components/LabelButton.svelte";
+    import Button from "../components/IconButton.svelte";
     import Shortcut from "../components/Shortcut.svelte";
     import { bridgeCommand } from "../lib/bridgecommand";
     import * as tr from "../lib/ftl";
@@ -27,12 +27,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<LabelButton
+<Button
     tooltip={tr.browsingPreviewSelectedCard({ val: getPlatformString(keyCombination) })}
     active={$active}
     on:click={preview}
 >
     {tr.actionsPreview()}
-</LabelButton>
+</Button>
 
 <Shortcut keyCombination="Control+Shift+P" on:action={preview} />

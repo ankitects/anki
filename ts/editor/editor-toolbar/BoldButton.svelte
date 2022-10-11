@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount } from "svelte";
 
     import IconButton from "../../components/IconButton.svelte";
+    import IconConstrain from "../../components/IconConstrain.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithState from "../../components/WithState.svelte";
     import type { MatchType } from "../../domlib/surround";

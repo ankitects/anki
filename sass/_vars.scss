@@ -81,14 +81,9 @@ $vars: (
                 default: palette(blue, 5),
             ),
         ),
+
         button: (
-            border: (
-                light: palette(lightgray, 8),
-                dark: palette(darkgray, 6),
-            ),
-            focus: (
-                default: palette(blue, 5),
-            ),
+            /** Base color is applied as a gradient */
             gradient: (
                 start: (
                     light: white,
@@ -99,6 +94,35 @@ $vars: (
                     dark: palette(darkgray, 4),
                 ),
             ),
+
+            /** Applied to a button if it active, e.g. a bold button is active if the caret is in a bold selection */
+            active: (
+                fg: (
+                    default: palette(blue, 5),
+                ),
+                gradient: (
+                    start: (
+                        light: palette(lightgray, 1),
+                        dark: palette(darkgray, 2),
+                    ),
+                    end: (
+                        light: palette(lightgray, 3),
+                        dark: palette(darkgray, 2),
+                    ),
+                ),
+            ),
+
+
+            /** The button border is applied in the button group in TS */
+            border: (
+                light: palette(lightgray, 8),
+                dark: palette(darkgray, 6),
+            ),
+
+            focus: (
+                default: palette(blue, 5),
+            ),
+
             hover: (
                 gradient: (
                     start: (
@@ -111,6 +135,37 @@ $vars: (
                     ),
                 ),
             ),
+
+            pressed: (
+                gradient: (
+                    start: (
+                        light: palette(lightgray, 3),
+                        dark: palette(darkgray, 5),
+                    ),
+                    end: (
+                        light: palette(lightgray, 6),
+                        dark: palette(darkgray, 5),
+                    ),
+                ),
+
+                /** Only used in Qt */
+                shadow: (
+                    light: palette(lightgray, 7),
+                    dark: palette(darkgray, 7),
+                ),
+                border: (
+                    light: palette(lightgray, 9),
+                    dark: palette(darkgray, 9),
+                ),
+            ),
+
+            /** Only used in Qt, in TS we disable by applying a decreased opacity on the button group */
+            disabled: (
+                light: color.scale(palette(lightgray, 5), $alpha: -50%),
+                dark: color.scale(palette(darkgray, 3), $alpha: -50%),
+            ),
+
+            /** Only used in Qt */
             primary: (
                 gradient: (
                     start: (

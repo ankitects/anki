@@ -3,8 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import IconConstrain from "./IconConstrain.svelte";
-
     export let tooltip: string | undefined = undefined;
     export let active = false;
 
@@ -14,14 +12,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
      */
     export let disabled = false;
     export let tabbable = false;
-
-    export let iconSize = 75;
-    export let widthMultiplier = 1;
-    export let flipX = false;
 </script>
 
 <button
-    class="icon-button"
+    class="button"
     class:active
     title={tooltip}
     {disabled}
@@ -29,16 +23,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:click
     on:mousedown|preventDefault
 >
-    <IconConstrain {flipX} {widthMultiplier} {iconSize}>
-        <slot />
-    </IconConstrain>
+    <slot />
 </button>
 
 <style lang="scss">
     @use "sass/button-mixins" as button;
 
-    .icon-button {
-        padding: 0;
+    .button {
+        position: relative;
+        padding: 3px var(--padding-inline, 3px);
+
         font-size: var(--base-font-size);
         height: var(--buttons-size);
 
@@ -46,5 +40,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @include button.pressed;
         @include button.hover;
         @include button.active(".active");
+        @include button.disabled;
+
+        > :global(svg) {
+            width: 100%;
+            height: 100%
+        }
     }
 </style>

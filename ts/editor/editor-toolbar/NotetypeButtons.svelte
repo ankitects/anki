@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         updatePropsList,
     } from "../../components/ButtonGroupItem.svelte";
     import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
-    import LabelButton from "../../components/LabelButton.svelte";
+    import Button from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
@@ -30,23 +30,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {api}
     >
         <ButtonGroupItem>
-            <LabelButton
+            <Button
                 tooltip={tr.editingCustomizeFields()}
                 on:click={() => bridgeCommand("fields")}
             >
                 {tr.editingFields()}...
-            </LabelButton>
+            </Button>
         </ButtonGroupItem>
 
         <ButtonGroupItem>
-            <LabelButton
+            <Button
                 tooltip="{tr.editingCustomizeCardTemplates()} ({getPlatformString(
                     keyCombination,
                 )})"
                 on:click={() => bridgeCommand("cards")}
             >
                 {tr.editingCards()}...
-            </LabelButton>
+            </Button>
             <Shortcut {keyCombination} on:action={() => bridgeCommand("cards")} />
         </ButtonGroupItem>
 

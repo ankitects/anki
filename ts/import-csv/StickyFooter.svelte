@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import Col from "../components/Col.svelte";
-    import LabelButton from "../components/LabelButton.svelte";
+    import Button from "../components/IconButton.svelte";
     import Row from "../components/Row.svelte";
     import Shortcut from "../components/Shortcut.svelte";
     import * as tr from "../lib/ftl";
@@ -26,11 +26,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Row --cols={5}
         ><Col --col-size={4}>{basename(path)}</Col><Col --col-justify="end">
             <ButtonGroup size={2}>
-                <LabelButton
+                <Button
                     theme="primary"
                     tooltip={getPlatformString(keyCombination)}
-                    on:click={onImport}
-                    >{tr.actionsImport()}</LabelButton
+                    on:click={onImport}>{tr.actionsImport()}</Button
                 >
                 <Shortcut {keyCombination} on:action={onImport} />
             </ButtonGroup></Col

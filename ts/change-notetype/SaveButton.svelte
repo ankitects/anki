@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import ButtonGroup from "../components/ButtonGroup.svelte";
-    import LabelButton from "../components/LabelButton.svelte";
+    import Button from "../components/IconButton.svelte";
     import Shortcut from "../components/Shortcut.svelte";
     import * as tr from "../lib/ftl";
     import { getPlatformString } from "../lib/shortcuts";
@@ -23,11 +23,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ButtonGroup>
-    <LabelButton
+    <Button
         theme="primary"
         tooltip={getPlatformString(keyCombination)}
         on:click={save}
-        >{tr.actionsSave()}</LabelButton
+        >{tr.actionsSave()}</Button
     >
     <Shortcut {keyCombination} on:action={save} />
 </ButtonGroup>

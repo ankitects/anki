@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Badge from "../components/Badge.svelte";
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
-    import LabelButton from "../components/LabelButton.svelte";
+    import Button from "../components/IconButton.svelte";
     import SelectButton from "../components/SelectButton.svelte";
     import SelectOption from "../components/SelectOption.svelte";
     import StickyContainer from "../components/StickyContainer.svelte";
@@ -31,9 +31,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     --sticky-borders="0 0 1px"
 >
     <ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
-        <LabelButton disabled={true}>
+        <Button disabled={true}>
             {$info.oldNotetypeName}
-        </LabelButton>
+        </Button>
         <Badge iconSize={70}>
             {#if window.getComputedStyle(document.body).direction == "rtl"}
                 {@html arrowLeftIcon}

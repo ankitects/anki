@@ -8,8 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import DropdownDivider from "../components/DropdownDivider.svelte";
     import DropdownItem from "../components/DropdownItem.svelte";
-    import IconButton from "../components/IconButton.svelte";
-    import LabelButton from "../components/LabelButton.svelte";
+    import Button from "../components/IconButton.svelte";
     import Popover from "../components/Popover.svelte";
     import Shortcut from "../components/Shortcut.svelte";
     import WithFloating from "../components/WithFloating.svelte";
@@ -65,11 +64,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ButtonGroup>
-    <LabelButton
+    <Button
         theme="primary"
         on:click={() => save(false)}
         tooltip={getPlatformString(saveKeyCombination)}
-        >{tr.deckConfigSaveButton()}</LabelButton
+        >{tr.deckConfigSaveButton()}</Button
     >
     <Shortcut keyCombination={saveKeyCombination} on:action={() => save(false)} />
 
@@ -79,14 +78,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         inline
         on:close={() => (showFloating = false)}
     >
-        <IconButton
+        <Button
             slot="reference"
             widthMultiplier={0.5}
             iconSize={120}
             on:click={() => (showFloating = !showFloating)}
         >
             {@html chevronDown}
-        </IconButton>
+        </Button>
 
         <Popover slot="floating">
             <DropdownItem on:click={() => dispatch("add")}
