@@ -26,15 +26,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onMathjaxInline(): void {
-        surround("<anki-mathjax focusonmount>", "</anki-mathjax>");
+        if (mathjaxConfig.enabled) {
+            surround("<anki-mathjax focusonmount>", "</anki-mathjax>");
+        } else {
+            surround("\\(", "\\)");
+        }
     }
 
     function onMathjaxBlock(): void {
-        surround('<anki-mathjax block="true" focusonmount>', "</anki-matjax>");
+        if (mathjaxConfig.enabled) {
+            surround('<anki-mathjax block="true" focusonmount>', "</anki-matjax>");
+        } else {
+            surround("\\[", "\\]");
+        }
     }
 
     function onMathjaxChemistry(): void {
-        surround('<anki-mathjax focusonmount="0,4">\\ce{', "}</anki-mathjax>");
+        if (mathjaxConfig.enabled) {
+            surround('<anki-mathjax focusonmount="0,4">\\ce{', "}</anki-mathjax>");
+        } else {
+            surround("\\(\\ce{", "}\\)");
+        }
     }
 
     function onLatex(): void {
