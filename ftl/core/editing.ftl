@@ -60,7 +60,7 @@ editing-collapse-field = Collapse field
 editing-underline-text = Underline text
 editing-unordered-list = Unordered list
 editing-warning-cloze-deletions-will-not-work = Warning, cloze deletions will not work until you switch the type at the top to Cloze.
-editing-toggle-mathjax-rendering = Toggle MathJax Rendering
+editing-mathjax-preview = MathJax Preview
 editing-shrink-images = Shrink Images
 editing-close-html-tags = Auto-close HTML tags
 
