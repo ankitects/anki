@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconConstrain from "./IconConstrain.svelte";
     import { chevronLeft, chevronRight } from "./icons";
 
-    export let value = 1;
+    export let value: number;
     export let step = 1;
     export let min = 1;
     export let max = 9999;
@@ -22,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let stringValue: string;
-    $: stringValue = value.toFixed(decimalPlaces(step));
+    $: if (value) stringValue = value.toFixed(decimalPlaces(step));
 
     function update(this: HTMLInputElement): void {
         value = Math.min(max, Math.max(min, parseFloat(this.value)));
