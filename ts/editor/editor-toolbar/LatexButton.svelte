@@ -9,7 +9,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Shortcut from "../../components/Shortcut.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
     import { mathjaxConfig } from "../../editable/mathjax-element";
-    import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { wrapInternal } from "../../lib/wrap";
@@ -27,15 +26,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onMathjaxInline(): void {
-        surround("<anki-mathjax focusonmount>", "</anki-mathjax>");
+        if (mathjaxConfig.enabled) {
+            surround("<anki-mathjax focusonmount>", "</anki-mathjax>");
+        } else {
+            surround("\\(", "\\)");
+        }
     }
 
     function onMathjaxBlock(): void {
-        surround('<anki-mathjax block="true" focusonmount>', "</anki-matjax>");
+        if (mathjaxConfig.enabled) {
+            surround('<anki-mathjax block="true" focusonmount>', "</anki-matjax>");
+        } else {
+            surround("\\[", "\\]");
+        }
     }
 
     function onMathjaxChemistry(): void {
-        surround('<anki-mathjax focusonmount="0,4">\\ce{', "}</anki-mathjax>");
+        if (mathjaxConfig.enabled) {
+            surround('<anki-mathjax focusonmount="0,4">\\ce{', "}</anki-mathjax>");
+        } else {
+            surround("\\(\\ce{", "}\\)");
+        }
     }
 
     function onLatex(): void {
@@ -48,11 +59,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onLatexMathEnv(): void {
         surround("[$$]", "[/$$]");
-    }
-
-    function toggleShowMathjax(): void {
-        mathjaxConfig.enabled = !mathjaxConfig.enabled;
-        bridgeCommand("toggleMathjax");
     }
 
     type LatexItem = [() => void, string, string];
@@ -94,10 +100,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
             </DropdownItem>
         {/each}
-
-        <DropdownItem on:click={toggleShowMathjax}>
-            <span>{tr.editingToggleMathjaxRendering()}</span>
-        </DropdownItem>
     </Popover>
 </WithFloating>
 
