@@ -367,7 +367,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $tagsCollapsed = snapTags = false;
     }
 
-    window.addEventListener("resize", (e) => snapResizer(snapTags));
+    window.addEventListener("resize", () => snapResizer(snapTags));
 
     function snapResizer(collapse: boolean): void {
         if (collapse) {
