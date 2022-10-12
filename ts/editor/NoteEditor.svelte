@@ -602,11 +602,13 @@ the AddCards dialog) should be implemented in the user of this component.
                 snapTags = tagsPane.height < tagsPane.maxHeight / 2;
             }
         }}
-        --opacity={!$tagsCollapsed
-            ? 1
-            : snapTags
-            ? tagsPane.height / tagsPane.maxHeight
-            : 1}
+        --opacity={(() => {
+            if (!$tagsCollapsed) {
+                return 1;
+            } else {
+                return snapTags ? tagsPane.height / tagsPane.maxHeight : 1;
+            }
+        })()}
     >
         <PaneContent scroll={false}>
             <TagEditor
