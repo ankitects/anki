@@ -355,12 +355,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: tagAmount = $tags.length;
 
+    let snapTags = $tagsCollapsed;
+
     function collapseTags(): void {
         lowerResizer.move([tagsPane, fieldsPane], tagsPane.minHeight);
+        $tagsCollapsed = snapTags = true;
     }
 
     function expandTags(): void {
         lowerResizer.move([tagsPane, fieldsPane], tagsPane.maxHeight);
+        $tagsCollapsed = snapTags = false;
+    }
+
+    function snapResizer(collapse: boolean): void {
+        if (collapse) {
+            collapseTags();
+            bridgeCommand("collapseTags");
+        } else {
+            expandTags();
+            bridgeCommand("expandTags");
+        }
     }
 </script>
 
@@ -390,7 +404,9 @@ the AddCards dialog) should be implemented in the user of this component.
 
     <Pane
         bind:this={fieldsPane.resizable}
-        on:resize={(e) => (fieldsPane.height = e.detail.height)}
+        on:resize={(e) => {
+            fieldsPane.height = e.detail.height;
+        }}
     >
         <PaneContent>
             <Fields>
@@ -553,7 +569,17 @@ the AddCards dialog) should be implemented in the user of this component.
         </PaneContent>
     </Pane>
 
-    {#if $tagsCollapsed}
+    <HorizontalResizer
+        panes={[fieldsPane, tagsPane]}
+        showIndicator={$tagsCollapsed || snapTags}
+        tip={`Double click to ${$tagsCollapsed ? "expand" : "collapse"} tag editor`}
+        {clientHeight}
+        bind:this={lowerResizer}
+        on:dblclick={() => snapResizer(!$tagsCollapsed)}
+        on:release={() => {
+            snapResizer(snapTags);
+        }}
+    >
         <div class="tags-expander">
             <TagAddButton
                 on:tagappend={() => {
@@ -564,36 +590,26 @@ the AddCards dialog) should be implemented in the user of this component.
                 {@html tagAmount > 0 ? `${tagAmount} Tags` : ""}
             </TagAddButton>
         </div>
-    {/if}
-
-    <HorizontalResizer
-        panes={[fieldsPane, tagsPane]}
-        tip={`Double click to ${$tagsCollapsed ? "expand" : "collapse"} tag editor`}
-        {clientHeight}
-        bind:this={lowerResizer}
-        on:dblclick={() => {
-            if ($tagsCollapsed) {
-                expandTags();
-                bridgeCommand("expandTags");
-                $tagsCollapsed = false;
-            } else {
-                collapseTags();
-                bridgeCommand("collapseTags");
-                $tagsCollapsed = true;
-            }
-        }}
-    />
+    </HorizontalResizer>
 
     <Pane
         bind:this={tagsPane.resizable}
         on:resize={(e) => {
             tagsPane.height = e.detail.height;
-            $tagsCollapsed = tagsPane.height == 0;
+            if (tagsPane.maxHeight > 0) {
+                snapTags = tagsPane.height < tagsPane.maxHeight / 2;
+            }
         }}
+        --opacity={!$tagsCollapsed
+            ? 1
+            : snapTags
+            ? tagsPane.height / tagsPane.maxHeight
+            : 1}
     >
         <PaneContent scroll={false}>
             <TagEditor
                 {tags}
+                --button-opacity={snapTags ? 0 : 1}
                 bind:this={tagEditor}
                 on:tagsupdate={saveTags}
                 on:tagsFocused={() => {
@@ -616,8 +632,5 @@ the AddCards dialog) should be implemented in the user of this component.
         display: flex;
         flex-direction: column;
         height: 100%;
-    }
-    .tags-expander {
-        margin-top: 0.5rem;
     }
 </style>
