@@ -490,6 +490,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         flex-flow: row wrap;
         align-items: flex-end;
+        background: var(--canvas-inset);
+        border-radius: var(--border-radius);
+        padding: 6px;
     }
 
     .tag-relative {
