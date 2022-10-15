@@ -226,6 +226,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Nicholas Flint",
             "Daniel Vieira Memoria10X",
             "Luka Warren",
+            "Christos Longros",
         )
     )
 
