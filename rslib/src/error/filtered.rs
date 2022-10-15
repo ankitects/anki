@@ -2,10 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anki_i18n::I18n;
+use snafu::Snafu;
 
-use super::AnkiError;
-
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Snafu)]
 pub enum FilteredDeckError {
     MustBeLeafNode,
     CanNotMoveCardsInto,
@@ -27,13 +26,7 @@ impl FilteredDeckError {
     }
 }
 
-impl From<FilteredDeckError> for AnkiError {
-    fn from(e: FilteredDeckError) -> Self {
-        AnkiError::FilteredDeckError { source: e }
-    }
-}
-
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Snafu)]
 pub enum CustomStudyError {
     NoMatchingCards,
     ExistingDeck,
@@ -46,11 +39,5 @@ impl CustomStudyError {
             Self::ExistingDeck => tr.custom_study_must_rename_deck(),
         }
         .into()
-    }
-}
-
-impl From<CustomStudyError> for AnkiError {
-    fn from(e: CustomStudyError) -> Self {
-        AnkiError::CustomStudyError { source: e }
     }
 }

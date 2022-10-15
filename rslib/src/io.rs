@@ -25,7 +25,7 @@ pub(crate) fn atomic_rename(file: NamedTempFile, target: &Path, fsync: bool) -> 
         file.as_file().sync_all()?;
     }
     file.persist(&target).map_err(|err| AnkiError::IoError {
-        source: format!("write {target:?} failed: {err}"),
+        info: format!("write {target:?} failed: {err}"),
     })?;
     #[cfg(not(windows))]
     if fsync {

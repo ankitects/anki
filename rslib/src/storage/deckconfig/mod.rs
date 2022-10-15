@@ -177,7 +177,7 @@ impl SqliteStorage {
                             serde_json::from_value(conf)
                         })
                         .map_err(|e| AnkiError::JsonError {
-                            source: format!("decoding deck config: {}", e),
+                            info: format!("decoding deck config: {}", e),
                         })
                 })?;
         for (id, mut conf) in conf.into_iter() {

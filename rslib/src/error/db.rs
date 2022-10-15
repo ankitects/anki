@@ -5,10 +5,11 @@ use std::str::Utf8Error;
 
 use anki_i18n::I18n;
 use rusqlite::{types::FromSqlError, Error};
+use snafu::Snafu;
 
 use super::AnkiError;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Snafu)]
 pub struct DbError {
     pub info: String,
     pub kind: DbErrorKind,
@@ -49,7 +50,7 @@ impl From<Error> for AnkiError {
             }
             if reason.contains("regex parse error") {
                 return AnkiError::InvalidRegex {
-                    source: reason.to_owned(),
+                    info: reason.to_owned(),
                 };
             }
         }

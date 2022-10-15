@@ -425,7 +425,7 @@ pub(super) fn data_for_file(media_folder: &Path, fname: &str) -> Result<Option<V
                 return Ok(None);
             } else {
                 return Err(AnkiError::IoError {
-                    source: format!("unable to read {}: {}", fname, e),
+                    info: format!("unable to read {}: {}", fname, e),
                 });
             }
         }

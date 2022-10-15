@@ -5,6 +5,7 @@ use std::num::ParseIntError;
 
 use anki_i18n::I18n;
 use nom::error::{ErrorKind as NomErrorKind, ParseError as NomParseError};
+use snafu::Snafu;
 
 use super::AnkiError;
 
@@ -14,7 +15,7 @@ pub enum ParseError<'a> {
     Nom(&'a str, NomErrorKind),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Snafu)]
 pub enum SearchErrorKind {
     MisplacedAnd,
     MisplacedOr,
@@ -24,17 +25,17 @@ pub enum SearchErrorKind {
     EmptyQuote,
     UnclosedQuote,
     MissingKey,
-    UnknownEscape(String),
-    InvalidState(String),
+    UnknownEscape { provided: String },
+    InvalidState { provided: String },
     InvalidFlag,
-    InvalidPropProperty(String),
-    InvalidPropOperator(String),
+    InvalidPropProperty { provided: String },
+    InvalidPropOperator { provided: String },
     InvalidNumber { provided: String, context: String },
     InvalidWholeNumber { provided: String, context: String },
     InvalidPositiveWholeNumber { provided: String, context: String },
     InvalidNegativeWholeNumber { provided: String, context: String },
     InvalidAnswerButton { provided: String, context: String },
-    Other(Option<String>),
+    Other { info: Option<String> },
 }
 
 impl From<ParseError<'_>> for AnkiError {
@@ -42,7 +43,7 @@ impl From<ParseError<'_>> for AnkiError {
         match err {
             ParseError::Anki(_, kind) => AnkiError::SearchError { source: kind },
             ParseError::Nom(_, _) => AnkiError::SearchError {
-                source: SearchErrorKind::Other(None),
+                source: SearchErrorKind::Other { info: None },
             },
         }
     }
@@ -54,7 +55,7 @@ impl From<nom::Err<ParseError<'_>>> for AnkiError {
             nom::Err::Error(e) => e.into(),
             nom::Err::Failure(e) => e.into(),
             nom::Err::Incomplete(_) => AnkiError::SearchError {
-                source: SearchErrorKind::Other(None),
+                source: SearchErrorKind::Other { info: None },
             },
         }
     }
@@ -87,20 +88,22 @@ impl SearchErrorKind {
             SearchErrorKind::EmptyQuote => tr.search_empty_quote(),
             SearchErrorKind::UnclosedQuote => tr.search_unclosed_quote(),
             SearchErrorKind::MissingKey => tr.search_missing_key(),
-            SearchErrorKind::UnknownEscape(ctx) => tr.search_unknown_escape(ctx.replace('`', "'")),
-            SearchErrorKind::InvalidState(state) => {
-                tr.search_invalid_argument("is:", state.replace('`', "'"))
+            SearchErrorKind::UnknownEscape { provided } => {
+                tr.search_unknown_escape(provided.replace('`', "'"))
+            }
+            SearchErrorKind::InvalidState { provided } => {
+                tr.search_invalid_argument("is:", provided.replace('`', "'"))
             }
 
             SearchErrorKind::InvalidFlag => tr.search_invalid_flag_2(),
-            SearchErrorKind::InvalidPropProperty(prop) => {
-                tr.search_invalid_argument("prop:", prop.replace('`', "'"))
+            SearchErrorKind::InvalidPropProperty { provided } => {
+                tr.search_invalid_argument("prop:", provided.replace('`', "'"))
             }
-            SearchErrorKind::InvalidPropOperator(ctx) => {
-                tr.search_invalid_prop_operator(ctx.as_str())
+            SearchErrorKind::InvalidPropOperator { provided } => {
+                tr.search_invalid_prop_operator(provided.as_str())
             }
-            SearchErrorKind::Other(Some(info)) => info.into(),
-            SearchErrorKind::Other(None) => tr.search_invalid_other(),
+            SearchErrorKind::Other { info: Some(info) } => info.into(),
+            SearchErrorKind::Other { info: None } => tr.search_invalid_other(),
             SearchErrorKind::InvalidNumber { provided, context } => {
                 tr.search_invalid_number(context.replace('`', "'"), provided.replace('`', "'"))
             }

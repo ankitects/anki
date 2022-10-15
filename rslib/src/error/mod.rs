@@ -6,49 +6,55 @@ mod filtered;
 mod network;
 mod search;
 
-use std::{fmt::Display, io, path::Path};
+use std::{io, path::Path};
 
 pub use db::{DbError, DbErrorKind};
 pub use filtered::{CustomStudyError, FilteredDeckError};
 pub use network::{NetworkError, NetworkErrorKind, SyncError, SyncErrorKind};
 pub use search::{ParseError, SearchErrorKind};
+use snafu::Snafu;
 use tempfile::PathPersistError;
 
 use crate::{i18n::I18n, links::HelpPage};
 
 pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Snafu)]
 pub enum AnkiError {
     InvalidInput {
-        source: String,
+        info: String,
     },
     TemplateError {
-        source: String,
+        info: String,
     },
+    #[snafu(context(false))]
     CardTypeError {
         source: CardTypeError,
     },
     IoError {
-        source: String,
+        info: String,
     },
+    #[snafu(context(false))]
     FileIoError {
         source: FileIoError,
     },
+    #[snafu(context(false))]
     DbError {
         source: DbError,
     },
+    #[snafu(context(false))]
     NetworkError {
         source: NetworkError,
     },
+    #[snafu(context(false))]
     SyncError {
         source: SyncError,
     },
     JsonError {
-        source: String,
+        info: String,
     },
     ProtoError {
-        source: String,
+        info: String,
     },
     ParseNumError,
     Interrupted,
@@ -60,47 +66,43 @@ pub enum AnkiError {
     /// deliberately not removed.
     Deleted,
     Existing,
+    #[snafu(context(false))]
     FilteredDeckError {
         source: FilteredDeckError,
     },
+    #[snafu(context(false))]
     SearchError {
         source: SearchErrorKind,
     },
     InvalidRegex {
-        source: String,
+        info: String,
     },
     UndoEmpty,
     MultipleNotetypesSelected,
     DatabaseCheckRequired,
     MediaCheckRequired,
+    #[snafu(context(false))]
     CustomStudyError {
         source: CustomStudyError,
     },
+    #[snafu(context(false))]
     ImportError {
         source: ImportError,
     },
     InvalidId,
 }
 
-impl std::error::Error for AnkiError {}
-
-impl Display for AnkiError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
 // error helpers
 impl AnkiError {
     pub(crate) fn invalid_input<S: Into<String>>(s: S) -> AnkiError {
-        AnkiError::InvalidInput { source: s.into() }
+        AnkiError::InvalidInput { info: s.into() }
     }
 
     pub fn localized_description(&self, tr: &I18n) -> String {
         match self {
             AnkiError::SyncError { source } => source.localized_description(tr),
             AnkiError::NetworkError { source } => source.localized_description(tr),
-            AnkiError::TemplateError { source } => {
+            AnkiError::TemplateError { info: source } => {
                 // already localized
                 source.into()
             }
@@ -120,7 +122,7 @@ impl AnkiError {
             }
             AnkiError::DbError { source } => source.localized_description(tr),
             AnkiError::SearchError { source } => source.localized_description(tr),
-            AnkiError::InvalidInput { source } => {
+            AnkiError::InvalidInput { info: source } => {
                 if source.is_empty() {
                     tr.errors_invalid_input_empty().into()
                 } else {
@@ -129,7 +131,7 @@ impl AnkiError {
             }
             AnkiError::ParseNumError => tr.errors_parse_number_fail().into(),
             AnkiError::FilteredDeckError { source } => source.localized_description(tr),
-            AnkiError::InvalidRegex { source } => format!("<pre>{}</pre>", source),
+            AnkiError::InvalidRegex { info: source } => format!("<pre>{}</pre>", source),
             AnkiError::MultipleNotetypesSelected => tr.errors_multiple_notetypes_selected().into(),
             AnkiError::DatabaseCheckRequired => tr.errors_please_check_database().into(),
             AnkiError::MediaCheckRequired => tr.errors_please_check_media().into(),
@@ -188,7 +190,7 @@ pub enum TemplateError {
 impl From<io::Error> for AnkiError {
     fn from(err: io::Error) -> Self {
         AnkiError::IoError {
-            source: format!("{:?}", err),
+            info: format!("{:?}", err),
         }
     }
 }
@@ -196,7 +198,7 @@ impl From<io::Error> for AnkiError {
 impl From<serde_json::Error> for AnkiError {
     fn from(err: serde_json::Error) -> Self {
         AnkiError::JsonError {
-            source: err.to_string(),
+            info: err.to_string(),
         }
     }
 }
@@ -204,7 +206,7 @@ impl From<serde_json::Error> for AnkiError {
 impl From<prost::EncodeError> for AnkiError {
     fn from(err: prost::EncodeError) -> Self {
         AnkiError::ProtoError {
-            source: err.to_string(),
+            info: err.to_string(),
         }
     }
 }
@@ -212,7 +214,7 @@ impl From<prost::EncodeError> for AnkiError {
 impl From<prost::DecodeError> for AnkiError {
     fn from(err: prost::DecodeError) -> Self {
         AnkiError::ProtoError {
-            source: err.to_string(),
+            info: err.to_string(),
         }
     }
 }
@@ -220,7 +222,7 @@ impl From<prost::DecodeError> for AnkiError {
 impl From<PathPersistError> for AnkiError {
     fn from(e: PathPersistError) -> Self {
         AnkiError::IoError {
-            source: e.to_string(),
+            info: e.to_string(),
         }
     }
 }
@@ -228,7 +230,7 @@ impl From<PathPersistError> for AnkiError {
 impl From<regex::Error> for AnkiError {
     fn from(err: regex::Error) -> Self {
         AnkiError::InvalidRegex {
-            source: err.to_string(),
+            info: err.to_string(),
         }
     }
 }
@@ -236,12 +238,12 @@ impl From<regex::Error> for AnkiError {
 impl From<csv::Error> for AnkiError {
     fn from(err: csv::Error) -> Self {
         AnkiError::InvalidInput {
-            source: err.to_string(),
+            info: err.to_string(),
         }
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Snafu)]
 pub struct CardTypeError {
     pub notetype: String,
     pub ordinal: usize,
@@ -258,11 +260,11 @@ pub enum CardTypeErrorDetails {
     ExtraneousCloze,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Snafu)]
 pub enum ImportError {
     Corrupt,
     TooNew,
-    MediaImportFailed(String),
+    MediaImportFailed { info: String },
     NoFieldColumn,
 }
 
@@ -271,15 +273,16 @@ impl ImportError {
         match self {
             ImportError::Corrupt => tr.importing_the_provided_file_is_not_a(),
             ImportError::TooNew => tr.errors_collection_too_new(),
-            ImportError::MediaImportFailed(err) => tr.importing_failed_to_import_media_file(err),
+            ImportError::MediaImportFailed { info } => {
+                tr.importing_failed_to_import_media_file(info)
+            }
             ImportError::NoFieldColumn => tr.importing_file_must_contain_field_column(),
         }
         .into()
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
-
+#[derive(Debug, PartialEq, Eq, Clone, Snafu)]
 pub struct FileIoError {
     pub path: String,
     pub error: String,

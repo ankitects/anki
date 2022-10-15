@@ -3,10 +3,11 @@
 
 use anki_i18n::I18n;
 use reqwest::StatusCode;
+use snafu::Snafu;
 
 use super::AnkiError;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Snafu)]
 pub struct NetworkError {
     pub info: String,
     pub kind: NetworkErrorKind,
@@ -20,7 +21,7 @@ pub enum NetworkErrorKind {
     Other,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Snafu)]
 pub struct SyncError {
     pub info: String,
     pub kind: SyncErrorKind,
