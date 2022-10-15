@@ -63,7 +63,6 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
-            "@rules_rust//rust/platform:aarch64-apple-ios-sim",
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
             "@raze__core_foundation_sys__0_8_3//:core_foundation_sys",

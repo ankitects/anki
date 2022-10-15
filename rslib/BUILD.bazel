@@ -110,6 +110,7 @@ rust_library(
         "//rslib/cargo:slog_async",
         "//rslib/cargo:slog_envlogger",
         "//rslib/cargo:slog_term",
+        "//rslib/cargo:snafu",
         "//rslib/cargo:strum",
         "//rslib/cargo:tempfile",
         "//rslib/cargo:tokio",

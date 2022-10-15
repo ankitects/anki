@@ -31,41 +31,40 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "values" with type "example" omitted
+# Unsupported target "bench" with type "bench" omitted
+
+# Unsupported target "dwarf-validate" with type "example" omitted
+
+# Unsupported target "dwarfdump" with type "example" omitted
+
+# Unsupported target "simple" with type "example" omitted
+
+# Unsupported target "simple_line" with type "example" omitted
 
 rust_library(
-    name = "num_cpus",
+    name = "gimli",
     srcs = glob(["**/*.rs"]),
-    aliases = {
-    },
     crate_features = [
+        "read",
+        "read-core",
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=num_cpus",
+        "crate-name=gimli",
         "manual",
     ],
-    version = "1.13.1",
+    version = "0.26.2",
     # buildifier: leave-alone
     deps = [
-    ] + selects.with_or({
-        # cfg(not(windows))
-        (
-            "@rules_rust//rust/platform:x86_64-apple-darwin",
-            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:aarch64-apple-darwin",
-            "@rules_rust//rust/platform:aarch64-apple-ios",
-            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-apple-ios",
-        ): [
-            "@raze__libc__0_2_133//:libc",
-        ],
-        "//conditions:default": [],
-    }),
+    ],
 )
+
+# Unsupported target "convert_self" with type "test" omitted
+
+# Unsupported target "parse_self" with type "test" omitted

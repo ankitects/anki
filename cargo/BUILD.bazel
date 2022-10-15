@@ -490,6 +490,15 @@ alias(
 )
 
 alias(
+    name = "snafu",
+    actual = "@raze__snafu__0_7_2//:snafu",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "strum",
     actual = "@raze__strum__0_24_1//:strum",
     tags = [
@@ -608,19 +617,9 @@ alias(
 
 # Export file for Stardoc support
 exports_files(
-    glob([
-        "**/*.bazel",
-        "**/*.bzl",
-    ]),
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "srcs",
-    srcs = glob([
-        "**/*.bazel",
-        "**/*.bzl",
-    ]),
+    [
+        "crates.bzl",
+    ],
     visibility = ["//visibility:public"],
 )
 

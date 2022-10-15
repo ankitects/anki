@@ -38,11 +38,12 @@ load(
 )
 
 cargo_build_script(
-    name = "getrandom_build_script",
+    name = "backtrace_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
+        "default",
         "std",
     ],
     crate_root = "build.rs",
@@ -55,32 +56,24 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.16",
+    version = "0.3.66",
     visibility = ["//visibility:private"],
     deps = [
-    ] + selects.with_or({
-        # cfg(unix)
-        (
-            "@rules_rust//rust/platform:x86_64-apple-darwin",
-            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:aarch64-apple-darwin",
-            "@rules_rust//rust/platform:aarch64-apple-ios",
-            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-apple-ios",
-        ): [
-        ],
-        "//conditions:default": [],
-    }),
+        "@raze__cc__1_0_73//:cc",
+    ],
 )
 
-# Unsupported target "mod" with type "bench" omitted
+# Unsupported target "benchmarks" with type "bench" omitted
+
+# Unsupported target "backtrace" with type "example" omitted
+
+# Unsupported target "raw" with type "example" omitted
 
 rust_library(
-    name = "getrandom",
+    name = "backtrace",
     srcs = glob(["**/*.rs"]),
-    aliases = {
-    },
     crate_features = [
+        "default",
         "std",
     ],
     crate_root = "src/lib.rs",
@@ -91,28 +84,28 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=getrandom",
+        "crate-name=backtrace",
         "manual",
     ],
-    version = "0.1.16",
+    version = "0.3.66",
     # buildifier: leave-alone
     deps = [
-        ":getrandom_build_script",
+        ":backtrace_build_script",
+        "@raze__addr2line__0_17_0//:addr2line",
         "@raze__cfg_if__1_0_0//:cfg_if",
-    ] + selects.with_or({
-        # cfg(unix)
-        (
-            "@rules_rust//rust/platform:x86_64-apple-darwin",
-            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:aarch64-apple-darwin",
-            "@rules_rust//rust/platform:aarch64-apple-ios",
-            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-apple-ios",
-        ): [
-            "@raze__libc__0_2_133//:libc",
-        ],
-        "//conditions:default": [],
-    }),
+        "@raze__libc__0_2_133//:libc",
+        "@raze__miniz_oxide__0_5_4//:miniz_oxide",
+        "@raze__object__0_29_0//:object",
+        "@raze__rustc_demangle__0_1_21//:rustc_demangle",
+    ],
 )
 
-# Unsupported target "common" with type "test" omitted
+# Unsupported target "accuracy" with type "test" omitted
+
+# Unsupported target "concurrent-panics" with type "test" omitted
+
+# Unsupported target "long_fn_name" with type "test" omitted
+
+# Unsupported target "skip_inner_frames" with type "test" omitted
+
+# Unsupported target "smoke" with type "test" omitted
