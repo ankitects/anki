@@ -109,12 +109,13 @@ impl AnkiError {
             AnkiError::CardTypeError { source } => {
                 let header =
                     tr.card_templates_invalid_template_number(source.ordinal + 1, &source.notetype);
-                let details = match source.details {
-                    CardTypeErrorDetails::TemplateError | CardTypeErrorDetails::NoSuchField => {
-                        tr.card_templates_see_preview()
-                    }
+                let details = match source.source {
+                    CardTypeErrorDetails::TemplateParseError
+                    | CardTypeErrorDetails::NoSuchField => tr.card_templates_see_preview(),
                     CardTypeErrorDetails::NoFrontField => tr.card_templates_no_front_field(),
-                    CardTypeErrorDetails::Duplicate(i) => tr.card_templates_identical_front(i + 1),
+                    CardTypeErrorDetails::Duplicate { index } => {
+                        tr.card_templates_identical_front(index + 1)
+                    }
                     CardTypeErrorDetails::MissingCloze => tr.card_templates_missing_cloze(),
                     CardTypeErrorDetails::ExtraneousCloze => tr.card_templates_extraneous_cloze(),
                 };
@@ -157,12 +158,12 @@ impl AnkiError {
     pub fn help_page(&self) -> Option<HelpPage> {
         match self {
             Self::CardTypeError {
-                source: CardTypeError { details, .. },
-            } => Some(match details {
-                CardTypeErrorDetails::TemplateError | CardTypeErrorDetails::NoSuchField => {
+                source: CardTypeError { source, .. },
+            } => Some(match source {
+                CardTypeErrorDetails::TemplateParseError | CardTypeErrorDetails::NoSuchField => {
                     HelpPage::CardTypeTemplateError
                 }
-                CardTypeErrorDetails::Duplicate(_) => HelpPage::CardTypeDuplicate,
+                CardTypeErrorDetails::Duplicate { .. } => HelpPage::CardTypeDuplicate,
                 CardTypeErrorDetails::NoFrontField => HelpPage::CardTypeNoFrontField,
                 CardTypeErrorDetails::MissingCloze => HelpPage::CardTypeMissingCloze,
                 CardTypeErrorDetails::ExtraneousCloze => HelpPage::CardTypeExtraneousCloze,
@@ -244,16 +245,18 @@ impl From<csv::Error> for AnkiError {
 }
 
 #[derive(Debug, PartialEq, Eq, Snafu)]
+#[snafu(visibility(pub))]
 pub struct CardTypeError {
     pub notetype: String,
     pub ordinal: usize,
-    pub details: CardTypeErrorDetails,
+    pub source: CardTypeErrorDetails,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Snafu)]
+#[snafu(visibility(pub))]
 pub enum CardTypeErrorDetails {
-    TemplateError,
-    Duplicate(usize),
+    TemplateParseError,
+    Duplicate { index: usize },
     NoFrontField,
     NoSuchField,
     MissingCloze,
