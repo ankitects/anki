@@ -141,8 +141,9 @@ where
             }
 
             // add entry to the list
-            let data = sha1_of_file(&dentry.path())
-                .map_err(|e| AnkiError::IoError(format!("unable to read {}: {}", fname, e)))?;
+            let data = sha1_of_file(&dentry.path()).map_err(|e| AnkiError::IoError {
+                source: format!("unable to read {}: {}", fname, e),
+            })?;
             let sha1 = Some(data);
             added_or_changed.push(FilesystemEntry {
                 fname: fname.to_string(),

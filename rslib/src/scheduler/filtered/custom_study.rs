@@ -181,7 +181,12 @@ impl Collection {
         self.add_or_update_filtered_deck_inner(deck)
             .map(|_| ())
             .map_err(|err| {
-                if err == AnkiError::FilteredDeckError(FilteredDeckError::SearchReturnedNoCards) {
+                if matches!(
+                    err,
+                    AnkiError::FilteredDeckError {
+                        source: FilteredDeckError::SearchReturnedNoCards
+                    }
+                ) {
                     CustomStudyError::NoMatchingCards.into()
                 } else {
                     err
@@ -352,9 +357,9 @@ mod test {
                 deck_id: 1,
                 value: Some(Value::Cram(cram.clone())),
             }),
-            Err(AnkiError::CustomStudyError(
-                CustomStudyError::NoMatchingCards
-            ))
+            Err(AnkiError::CustomStudyError {
+                source: CustomStudyError::NoMatchingCards
+            })
         );
         assert_eq!(
             &get_defaults(&mut col)?,

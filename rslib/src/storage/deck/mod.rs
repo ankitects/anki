@@ -382,7 +382,9 @@ impl SqliteStorage {
         let usn = self.usn(server)?;
         let decks = self
             .get_schema11_decks()
-            .map_err(|e| AnkiError::JsonError(format!("decoding decks: {}", e)))?;
+            .map_err(|e| AnkiError::JsonError {
+                source: format!("decoding decks: {}", e),
+            })?;
         let mut names = HashSet::new();
         for (_id, deck) in decks {
             let oldname = deck.name().to_string();

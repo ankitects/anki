@@ -40,8 +40,10 @@ pub enum SearchErrorKind {
 impl From<ParseError<'_>> for AnkiError {
     fn from(err: ParseError) -> Self {
         match err {
-            ParseError::Anki(_, kind) => AnkiError::SearchError(kind),
-            ParseError::Nom(_, _) => AnkiError::SearchError(SearchErrorKind::Other(None)),
+            ParseError::Anki(_, kind) => AnkiError::SearchError { source: kind },
+            ParseError::Nom(_, _) => AnkiError::SearchError {
+                source: SearchErrorKind::Other(None),
+            },
         }
     }
 }
@@ -51,7 +53,9 @@ impl From<nom::Err<ParseError<'_>>> for AnkiError {
         match err {
             nom::Err::Error(e) => e.into(),
             nom::Err::Failure(e) => e.into(),
-            nom::Err::Incomplete(_) => AnkiError::SearchError(SearchErrorKind::Other(None)),
+            nom::Err::Incomplete(_) => AnkiError::SearchError {
+                source: SearchErrorKind::Other(None),
+            },
         }
     }
 }

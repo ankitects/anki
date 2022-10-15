@@ -371,11 +371,13 @@ impl Notetype {
         for (index, card) in self.templates.iter().enumerate() {
             if let Some(old_index) = map.insert(&card.config.q_format, index) {
                 if !CARD_TAG.is_match(&card.config.q_format) {
-                    return Err(AnkiError::CardTypeError(CardTypeError {
-                        notetype: self.name.clone(),
-                        ordinal: index,
-                        details: CardTypeErrorDetails::Duplicate(old_index),
-                    }));
+                    return Err(AnkiError::CardTypeError {
+                        source: CardTypeError {
+                            notetype: self.name.clone(),
+                            ordinal: index,
+                            details: CardTypeErrorDetails::Duplicate(old_index),
+                        },
+                    });
                 }
             }
         }
@@ -407,11 +409,13 @@ impl Notetype {
                 }
             })
         {
-            Err(AnkiError::CardTypeError(CardTypeError {
-                notetype: self.name.clone(),
-                ordinal: invalid_index,
-                details,
-            }))
+            Err(AnkiError::CardTypeError {
+                source: CardTypeError {
+                    notetype: self.name.clone(),
+                    ordinal: invalid_index,
+                    details,
+                },
+            })
         } else {
             Ok(())
         }
@@ -437,11 +441,13 @@ impl Notetype {
         parsed_templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
     ) -> Result<()> {
         if self.is_cloze() && missing_cloze_filter(parsed_templates) {
-            return Err(AnkiError::CardTypeError(CardTypeError {
-                notetype: self.name.clone(),
-                ordinal: 0,
-                details: CardTypeErrorDetails::MissingCloze,
-            }));
+            return Err(AnkiError::CardTypeError {
+                source: CardTypeError {
+                    notetype: self.name.clone(),
+                    ordinal: 0,
+                    details: CardTypeErrorDetails::MissingCloze,
+                },
+            });
         }
         Ok(())
     }

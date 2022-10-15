@@ -72,7 +72,9 @@ fn check_collection_and_mod_schema(col_path: &Path) -> Result<()> {
                 .ok()
         })
         .and_then(|s| (s == "ok").then_some(()))
-        .ok_or(AnkiError::ImportError(ImportError::Corrupt))
+        .ok_or(AnkiError::ImportError {
+            source: ImportError::Corrupt,
+        })
 }
 
 fn restore_media(
@@ -140,9 +142,12 @@ fn copy_collection(
     writer: &mut impl Write,
     meta: &Meta,
 ) -> Result<()> {
-    let mut file = archive
-        .by_name(meta.collection_filename())
-        .map_err(|_| AnkiError::ImportError(ImportError::Corrupt))?;
+    let mut file =
+        archive
+            .by_name(meta.collection_filename())
+            .map_err(|_| AnkiError::ImportError {
+                source: ImportError::Corrupt,
+            })?;
     if !meta.zstd_compressed() {
         io::copy(&mut file, writer)?;
     } else {

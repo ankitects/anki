@@ -58,7 +58,9 @@ impl SafeMediaEntry {
                 });
             }
         }
-        Err(AnkiError::ImportError(ImportError::Corrupt))
+        Err(AnkiError::ImportError {
+            source: ImportError::Corrupt,
+        })
     }
 
     pub(super) fn from_legacy(legacy_entry: (&str, String)) -> Result<Self> {
@@ -131,7 +133,9 @@ pub(super) fn extract_media_entries(
 
 pub(super) fn safe_normalized_file_name(name: &str) -> Result<Cow<str>> {
     if !filename_is_safe(name) {
-        Err(AnkiError::ImportError(ImportError::Corrupt))
+        Err(AnkiError::ImportError {
+            source: ImportError::Corrupt,
+        })
     } else {
         Ok(normalize_filename(name))
     }

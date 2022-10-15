@@ -400,10 +400,12 @@ mod test {
 
         assert!(matches!(
             syncer.login("nosuchuser", "nosuchpass").await,
-            Err(AnkiError::SyncError(SyncError {
-                kind: SyncErrorKind::AuthFailed,
-                ..
-            }))
+            Err(AnkiError::SyncError {
+                source: SyncError {
+                    kind: SyncErrorKind::AuthFailed,
+                    ..
+                }
+            })
         ));
 
         assert!(syncer.login(&username, &password).await.is_ok());
@@ -413,10 +415,12 @@ mod test {
         // aborting before a start is a conflict
         assert!(matches!(
             syncer.abort().await,
-            Err(AnkiError::SyncError(SyncError {
-                kind: SyncErrorKind::Conflict,
-                ..
-            }))
+            Err(AnkiError::SyncError {
+                source: SyncError {
+                    kind: SyncErrorKind::Conflict,
+                    ..
+                }
+            })
         ));
 
         let _graves = syncer.start(Usn(1), true, None).await?;

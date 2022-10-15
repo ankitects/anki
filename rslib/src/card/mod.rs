@@ -272,9 +272,9 @@ impl Collection {
 
     pub fn set_deck(&mut self, cards: &[CardId], deck_id: DeckId) -> Result<OpOutput<usize>> {
         let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
-        let config_id = deck.config_id().ok_or(AnkiError::FilteredDeckError(
-            FilteredDeckError::CanNotMoveCardsInto,
-        ))?;
+        let config_id = deck.config_id().ok_or(AnkiError::FilteredDeckError {
+            source: FilteredDeckError::CanNotMoveCardsInto,
+        })?;
         let config = self.get_deck_config(config_id, true)?.unwrap();
         let mut steps_adjuster = RemainingStepsAdjuster::new(&config);
         let sched = self.scheduler_version();

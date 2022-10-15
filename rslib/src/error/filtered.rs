@@ -29,7 +29,7 @@ impl FilteredDeckError {
 
 impl From<FilteredDeckError> for AnkiError {
     fn from(e: FilteredDeckError) -> Self {
-        AnkiError::FilteredDeckError(e)
+        AnkiError::FilteredDeckError { source: e }
     }
 }
 
@@ -51,6 +51,6 @@ impl CustomStudyError {
 
 impl From<CustomStudyError> for AnkiError {
     fn from(e: CustomStudyError) -> Self {
-        AnkiError::CustomStudyError(e)
+        AnkiError::CustomStudyError { source: e }
     }
 }

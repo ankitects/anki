@@ -176,7 +176,9 @@ impl SqliteStorage {
                             let conf: Value = serde_json::from_str(text)?;
                             serde_json::from_value(conf)
                         })
-                        .map_err(|e| AnkiError::JsonError(format!("decoding deck config: {}", e)))
+                        .map_err(|e| AnkiError::JsonError {
+                            source: format!("decoding deck config: {}", e),
+                        })
                 })?;
         for (id, mut conf) in conf.into_iter() {
             // buggy clients may have failed to set inner id to match hash key

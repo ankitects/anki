@@ -304,11 +304,8 @@ fn write_media_files(
 }
 
 fn normalized_unicode_file_name(filename: &OsStr) -> Result<String> {
-    let filename = filename.to_str().ok_or_else(|| {
-        AnkiError::IoError(format!(
-            "non-unicode file name: {}",
-            filename.to_string_lossy()
-        ))
+    let filename = filename.to_str().ok_or_else(|| AnkiError::IoError {
+        source: format!("non-unicode file name: {}", filename.to_string_lossy()),
     })?;
     filename_if_normalized(filename)
         .map(Cow::into_owned)

@@ -27,10 +27,12 @@ pub enum DbErrorKind {
 
 impl AnkiError {
     pub(crate) fn db_error(info: impl Into<String>, kind: DbErrorKind) -> Self {
-        AnkiError::DbError(DbError {
-            info: info.into(),
-            kind,
-        })
+        AnkiError::DbError {
+            source: DbError {
+                info: info.into(),
+                kind,
+            },
+        }
     }
 }
 
@@ -38,19 +40,25 @@ impl From<Error> for AnkiError {
     fn from(err: Error) -> Self {
         if let Error::SqliteFailure(error, Some(reason)) = &err {
             if error.code == rusqlite::ErrorCode::DatabaseBusy {
-                return AnkiError::DbError(DbError {
-                    info: "".to_string(),
-                    kind: DbErrorKind::Locked,
-                });
+                return AnkiError::DbError {
+                    source: DbError {
+                        info: "".to_string(),
+                        kind: DbErrorKind::Locked,
+                    },
+                };
             }
             if reason.contains("regex parse error") {
-                return AnkiError::InvalidRegex(reason.to_owned());
+                return AnkiError::InvalidRegex {
+                    source: reason.to_owned(),
+                };
             }
         }
-        AnkiError::DbError(DbError {
-            info: format!("{:?}", err),
-            kind: DbErrorKind::Other,
-        })
+        AnkiError::DbError {
+            source: DbError {
+                info: format!("{:?}", err),
+                kind: DbErrorKind::Other,
+            },
+        }
     }
 }
 
@@ -58,16 +66,20 @@ impl From<FromSqlError> for AnkiError {
     fn from(err: FromSqlError) -> Self {
         if let FromSqlError::Other(ref err) = err {
             if let Some(_err) = err.downcast_ref::<Utf8Error>() {
-                return AnkiError::DbError(DbError {
-                    info: "".to_string(),
-                    kind: DbErrorKind::Utf8,
-                });
+                return AnkiError::DbError {
+                    source: DbError {
+                        info: "".to_string(),
+                        kind: DbErrorKind::Utf8,
+                    },
+                };
             }
         }
-        AnkiError::DbError(DbError {
-            info: format!("{:?}", err),
-            kind: DbErrorKind::Other,
-        })
+        AnkiError::DbError {
+            source: DbError {
+                info: format!("{:?}", err),
+                kind: DbErrorKind::Other,
+            },
+        }
     }
 }
 

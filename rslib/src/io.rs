@@ -24,14 +24,17 @@ pub(crate) fn atomic_rename(file: NamedTempFile, target: &Path, fsync: bool) -> 
     if fsync {
         file.as_file().sync_all()?;
     }
-    file.persist(&target)
-        .map_err(|err| AnkiError::IoError(format!("write {target:?} failed: {err}")))?;
+    file.persist(&target).map_err(|err| AnkiError::IoError {
+        source: format!("write {target:?} failed: {err}"),
+    })?;
     #[cfg(not(windows))]
     if fsync {
         if let Some(parent) = target.parent() {
             std::fs::File::open(parent)
                 .and_then(|file| file.sync_all())
-                .map_err(|err| AnkiError::IoError(format!("sync {parent:?} failed: {err}")))?;
+                .map_err(|err| AnkiError::IoError {
+                    source: format!("sync {parent:?} failed: {err}"),
+                })?;
         }
     }
     Ok(())

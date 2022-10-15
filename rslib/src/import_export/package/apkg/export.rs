@@ -39,10 +39,9 @@ impl Collection {
         progress.call(ExportProgress::File)?;
         let temp_apkg = tempfile_in_parent_of(out_path.as_ref())?;
         let mut temp_col = NamedTempFile::new()?;
-        let temp_col_path = temp_col
-            .path()
-            .to_str()
-            .ok_or_else(|| AnkiError::IoError("tempfile with non-unicode name".into()))?;
+        let temp_col_path = temp_col.path().to_str().ok_or_else(|| AnkiError::IoError {
+            source: "tempfile with non-unicode name".into(),
+        })?;
         let meta = if legacy {
             Meta::new_legacy()
         } else {

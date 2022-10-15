@@ -53,7 +53,9 @@ impl Meta {
         let meta = if let Some(bytes) = meta_bytes {
             let meta: Meta = Message::decode(&*bytes)?;
             if meta.version() == Version::Unknown {
-                return Err(AnkiError::ImportError(ImportError::TooNew));
+                return Err(AnkiError::ImportError {
+                    source: ImportError::TooNew,
+                });
             }
             meta
         } else {

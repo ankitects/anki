@@ -344,10 +344,13 @@ where
                         self.col.storage.rollback_trx()?;
                         let _ = self.remote.abort().await;
 
-                        if let AnkiError::SyncError(SyncError {
-                            info,
-                            kind: SyncErrorKind::DatabaseCheckRequired,
-                        }) = &e
+                        if let AnkiError::SyncError {
+                            source:
+                                SyncError {
+                                    info,
+                                    kind: SyncErrorKind::DatabaseCheckRequired,
+                                },
+                        } = &e
                         {
                             debug!(self.col.log, "sanity check failed:\n{}", info);
                         }

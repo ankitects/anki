@@ -883,11 +883,11 @@ mod test {
         use crate::error::AnkiError;
 
         fn assert_err_kind(input: &str, kind: FailKind) {
-            assert_eq!(parse(input), Err(AnkiError::SearchError(kind)));
+            assert_eq!(parse(input), Err(AnkiError::SearchError { source: kind }));
         }
 
         fn failkind(input: &str) -> SearchErrorKind {
-            if let Err(AnkiError::SearchError(err)) = parse(input) {
+            if let Err(AnkiError::SearchError { source: err }) = parse(input) {
                 err
             } else {
                 panic!("expected search error");

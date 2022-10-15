@@ -20,16 +20,36 @@ pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum AnkiError {
-    InvalidInput(String),
-    TemplateError(String),
-    CardTypeError(CardTypeError),
-    IoError(String),
-    FileIoError(FileIoError),
-    DbError(DbError),
-    NetworkError(NetworkError),
-    SyncError(SyncError),
-    JsonError(String),
-    ProtoError(String),
+    InvalidInput {
+        source: String,
+    },
+    TemplateError {
+        source: String,
+    },
+    CardTypeError {
+        source: CardTypeError,
+    },
+    IoError {
+        source: String,
+    },
+    FileIoError {
+        source: FileIoError,
+    },
+    DbError {
+        source: DbError,
+    },
+    NetworkError {
+        source: NetworkError,
+    },
+    SyncError {
+        source: SyncError,
+    },
+    JsonError {
+        source: String,
+    },
+    ProtoError {
+        source: String,
+    },
     ParseNumError,
     Interrupted,
     CollectionNotOpen,
@@ -40,15 +60,25 @@ pub enum AnkiError {
     /// deliberately not removed.
     Deleted,
     Existing,
-    FilteredDeckError(FilteredDeckError),
-    SearchError(SearchErrorKind),
-    InvalidRegex(String),
+    FilteredDeckError {
+        source: FilteredDeckError,
+    },
+    SearchError {
+        source: SearchErrorKind,
+    },
+    InvalidRegex {
+        source: String,
+    },
     UndoEmpty,
     MultipleNotetypesSelected,
     DatabaseCheckRequired,
     MediaCheckRequired,
-    CustomStudyError(CustomStudyError),
-    ImportError(ImportError),
+    CustomStudyError {
+        source: CustomStudyError,
+    },
+    ImportError {
+        source: ImportError,
+    },
     InvalidId,
 }
 
@@ -63,21 +93,21 @@ impl Display for AnkiError {
 // error helpers
 impl AnkiError {
     pub(crate) fn invalid_input<S: Into<String>>(s: S) -> AnkiError {
-        AnkiError::InvalidInput(s.into())
+        AnkiError::InvalidInput { source: s.into() }
     }
 
     pub fn localized_description(&self, tr: &I18n) -> String {
         match self {
-            AnkiError::SyncError(err) => err.localized_description(tr),
-            AnkiError::NetworkError(err) => err.localized_description(tr),
-            AnkiError::TemplateError(info) => {
+            AnkiError::SyncError { source } => source.localized_description(tr),
+            AnkiError::NetworkError { source } => source.localized_description(tr),
+            AnkiError::TemplateError { source } => {
                 // already localized
-                info.into()
+                source.into()
             }
-            AnkiError::CardTypeError(err) => {
+            AnkiError::CardTypeError { source } => {
                 let header =
-                    tr.card_templates_invalid_template_number(err.ordinal + 1, &err.notetype);
-                let details = match err.details {
+                    tr.card_templates_invalid_template_number(source.ordinal + 1, &source.notetype);
+                let details = match source.details {
                     CardTypeErrorDetails::TemplateError | CardTypeErrorDetails::NoSuchField => {
                         tr.card_templates_see_preview()
                     }
@@ -88,43 +118,45 @@ impl AnkiError {
                 };
                 format!("{}<br>{}", header, details)
             }
-            AnkiError::DbError(err) => err.localized_description(tr),
-            AnkiError::SearchError(kind) => kind.localized_description(tr),
-            AnkiError::InvalidInput(info) => {
-                if info.is_empty() {
+            AnkiError::DbError { source } => source.localized_description(tr),
+            AnkiError::SearchError { source } => source.localized_description(tr),
+            AnkiError::InvalidInput { source } => {
+                if source.is_empty() {
                     tr.errors_invalid_input_empty().into()
                 } else {
-                    tr.errors_invalid_input_details(info.as_str()).into()
+                    tr.errors_invalid_input_details(source.as_str()).into()
                 }
             }
             AnkiError::ParseNumError => tr.errors_parse_number_fail().into(),
-            AnkiError::FilteredDeckError(err) => err.localized_description(tr),
-            AnkiError::InvalidRegex(err) => format!("<pre>{}</pre>", err),
+            AnkiError::FilteredDeckError { source } => source.localized_description(tr),
+            AnkiError::InvalidRegex { source } => format!("<pre>{}</pre>", source),
             AnkiError::MultipleNotetypesSelected => tr.errors_multiple_notetypes_selected().into(),
             AnkiError::DatabaseCheckRequired => tr.errors_please_check_database().into(),
             AnkiError::MediaCheckRequired => tr.errors_please_check_media().into(),
-            AnkiError::CustomStudyError(err) => err.localized_description(tr),
-            AnkiError::ImportError(err) => err.localized_description(tr),
+            AnkiError::CustomStudyError { source } => source.localized_description(tr),
+            AnkiError::ImportError { source } => source.localized_description(tr),
             AnkiError::Deleted => tr.browsing_row_deleted().into(),
             AnkiError::InvalidId => tr.errors_invalid_ids().into(),
-            AnkiError::IoError(_)
-            | AnkiError::JsonError(_)
-            | AnkiError::ProtoError(_)
+            AnkiError::IoError { .. }
+            | AnkiError::JsonError { .. }
+            | AnkiError::ProtoError { .. }
             | AnkiError::Interrupted
             | AnkiError::CollectionNotOpen
             | AnkiError::CollectionAlreadyOpen
             | AnkiError::NotFound
             | AnkiError::Existing
             | AnkiError::UndoEmpty => format!("{:?}", self),
-            AnkiError::FileIoError(err) => {
-                format!("{}: {}", err.path, err.error)
+            AnkiError::FileIoError { source } => {
+                format!("{}: {}", source.path, source.error)
             }
         }
     }
 
     pub fn help_page(&self) -> Option<HelpPage> {
         match self {
-            Self::CardTypeError(CardTypeError { details, .. }) => Some(match details {
+            Self::CardTypeError {
+                source: CardTypeError { details, .. },
+            } => Some(match details {
                 CardTypeErrorDetails::TemplateError | CardTypeErrorDetails::NoSuchField => {
                     HelpPage::CardTypeTemplateError
                 }
@@ -155,43 +187,57 @@ pub enum TemplateError {
 
 impl From<io::Error> for AnkiError {
     fn from(err: io::Error) -> Self {
-        AnkiError::IoError(format!("{:?}", err))
+        AnkiError::IoError {
+            source: format!("{:?}", err),
+        }
     }
 }
 
 impl From<serde_json::Error> for AnkiError {
     fn from(err: serde_json::Error) -> Self {
-        AnkiError::JsonError(err.to_string())
+        AnkiError::JsonError {
+            source: err.to_string(),
+        }
     }
 }
 
 impl From<prost::EncodeError> for AnkiError {
     fn from(err: prost::EncodeError) -> Self {
-        AnkiError::ProtoError(err.to_string())
+        AnkiError::ProtoError {
+            source: err.to_string(),
+        }
     }
 }
 
 impl From<prost::DecodeError> for AnkiError {
     fn from(err: prost::DecodeError) -> Self {
-        AnkiError::ProtoError(err.to_string())
+        AnkiError::ProtoError {
+            source: err.to_string(),
+        }
     }
 }
 
 impl From<PathPersistError> for AnkiError {
     fn from(e: PathPersistError) -> Self {
-        AnkiError::IoError(e.to_string())
+        AnkiError::IoError {
+            source: e.to_string(),
+        }
     }
 }
 
 impl From<regex::Error> for AnkiError {
     fn from(err: regex::Error) -> Self {
-        AnkiError::InvalidRegex(err.to_string())
+        AnkiError::InvalidRegex {
+            source: err.to_string(),
+        }
     }
 }
 
 impl From<csv::Error> for AnkiError {
     fn from(err: csv::Error) -> Self {
-        AnkiError::InvalidInput(err.to_string())
+        AnkiError::InvalidInput {
+            source: err.to_string(),
+        }
     }
 }
 
@@ -241,7 +287,9 @@ pub struct FileIoError {
 
 impl AnkiError {
     pub(crate) fn file_io_error<P: AsRef<Path>>(err: std::io::Error, path: P) -> Self {
-        AnkiError::FileIoError(FileIoError::new(err, path.as_ref()))
+        AnkiError::FileIoError {
+            source: FileIoError::new(err, path.as_ref()),
+        }
     }
 }
 

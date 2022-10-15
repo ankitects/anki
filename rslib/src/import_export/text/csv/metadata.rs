@@ -346,8 +346,9 @@ fn ensure_first_field_is_mapped(
     if field_columns[0] == 0 {
         field_columns[0] = (1..column_len + 1)
             .find(|i| !meta_columns.contains(i))
-            .ok_or(AnkiError::ImportError(ImportError::NoFieldColumn))?
-            as u32;
+            .ok_or(AnkiError::ImportError {
+                source: ImportError::NoFieldColumn,
+            })? as u32;
     }
     Ok(())
 }
@@ -430,7 +431,9 @@ fn map_single_record<T>(
         .delimiter(delimiter.byte())
         .from_reader(line.as_bytes())
         .headers()
-        .map_err(|_| AnkiError::ImportError(ImportError::Corrupt))
+        .map_err(|_| AnkiError::ImportError {
+            source: ImportError::Corrupt,
+        })
         .map(op)
 }
 
