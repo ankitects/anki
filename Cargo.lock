@@ -118,6 +118,7 @@ dependencies = [
  "unicase",
  "unicode-normalization",
  "utime",
+ "which",
  "zip",
  "zstd",
 ]
