@@ -137,14 +137,17 @@ fn maybe_add_protobuf_to_path() {
     if which::which("protoc").is_ok() {
         return;
     }
-    let base = Path::new("../.bazel/out/../external");
-    let subpath = if cfg!(target_os = "windows") {
-        "protoc_bin_windows/bin/protoc.exe"
-    } else if cfg!(target_os = "macos") {
-        "protoc_bin_macos/bin/protoc"
+    let path = if cfg!(target_os = "windows") {
+        let base = std::fs::read_link("../.bazel/out").unwrap();
+        base.join("../external/protoc_bin_windows/bin/protoc.exe")
     } else {
-        "protoc_bin_linux_x86_64/bin/protoc"
+        let base = Path::new("../.bazel/out/../external");
+        let subpath = if cfg!(target_os = "macos") {
+            "protoc_bin_macos/bin/protoc"
+        } else {
+            "protoc_bin_linux_x86_64/bin/protoc"
+        };
+        base.join(subpath)
     };
-    let path = base.join(subpath);
     std::env::set_var("PROTOC", path.to_str().unwrap());
 }
