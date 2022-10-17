@@ -24,7 +24,7 @@ impl AnkiError {
             AnkiError::CollectionAlreadyOpen => Kind::InvalidInput,
             AnkiError::JsonError { .. } => Kind::JsonError,
             AnkiError::ProtoError { .. } => Kind::ProtoError,
-            AnkiError::NotFound => Kind::NotFoundError,
+            AnkiError::NotFound { .. } => Kind::NotFoundError,
             AnkiError::Deleted => Kind::Deleted,
             AnkiError::Existing => Kind::Exists,
             AnkiError::FilteredDeckError { .. } => Kind::FilteredDeckError,

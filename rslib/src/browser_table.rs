@@ -250,7 +250,7 @@ impl Collection {
         } else {
             self.storage.get_note_without_fields(id)?
         }
-        .ok_or(AnkiError::NotFound)
+        .ok_or_not_found(id)
     }
 }
 
@@ -312,12 +312,9 @@ impl RowContext {
         if notes_mode {
             note = col
                 .get_note_maybe_with_fields(NoteId(id), with_card_render)
-                .map_err(|e| {
-                    if e == AnkiError::NotFound {
-                        AnkiError::Deleted
-                    } else {
-                        e
-                    }
+                .map_err(|e| match e {
+                    AnkiError::NotFound { .. } => AnkiError::Deleted,
+                    _ => e,
                 })?;
             cards = col.storage.all_cards_of_note(note.id)?;
             if cards.is_empty() {
@@ -332,12 +329,14 @@ impl RowContext {
         }
         let notetype = col
             .get_notetype(note.notetype_id)?
-            .ok_or(AnkiError::NotFound)?;
-        let deck = col.get_deck(cards[0].deck_id)?.ok_or(AnkiError::NotFound)?;
+            .ok_or_not_found(note.notetype_id)?;
+        let deck = col
+            .get_deck(cards[0].deck_id)?
+            .ok_or_not_found(cards[0].deck_id)?;
         let original_deck = if cards[0].original_deck_id.0 != 0 {
             Some(
                 col.get_deck(cards[0].original_deck_id)?
-                    .ok_or(AnkiError::NotFound)?,
+                    .ok_or_not_found(cards[0].original_deck_id)?,
             )
         } else {
             None

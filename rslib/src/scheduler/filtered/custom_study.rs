@@ -26,14 +26,14 @@ impl Collection {
         deck_id: DeckId,
     ) -> Result<pb::CustomStudyDefaultsResponse> {
         // daily counts
-        let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
+        let deck = self.get_deck(deck_id)?.ok_or_not_found(deck_id)?;
         let normal = deck.normal()?;
         let extend_new = normal.extend_new;
         let extend_review = normal.extend_review;
         let subtree = self
             .deck_tree(Some(TimestampSecs::now()))?
             .get_deck(deck_id)
-            .ok_or(AnkiError::NotFound)?;
+            .ok_or_not_found(deck_id)?;
         let v3 = self.get_config_bool(BoolKey::Sched2021);
         let available_new_including_children = subtree.sum(|node| node.new_uncapped);
         let available_review_including_children = subtree.sum(|node| node.review_uncapped);
@@ -99,14 +99,14 @@ impl Collection {
         let mut deck = self
             .storage
             .get_deck(input.deck_id.into())?
-            .ok_or(AnkiError::NotFound)?;
+            .ok_or_not_found(input.deck_id)?;
 
         match input.value.invalid_input_context("missing oneof value")? {
             CustomStudyValue::NewLimitDelta(delta) => {
                 let today = self.current_due_day(0)?;
                 self.extend_limits(today, self.usn()?, deck.id, delta, 0)?;
                 if delta > 0 {
-                    deck = self.storage.get_deck(deck.id)?.ok_or(AnkiError::NotFound)?;
+                    deck = self.storage.get_deck(deck.id)?.ok_or_not_found(deck.id)?;
                     let original = deck.clone();
                     deck.normal_mut()?.extend_new = delta as u32;
                     self.update_deck_inner(&mut deck, original, self.usn()?)?;
@@ -117,7 +117,7 @@ impl Collection {
                 let today = self.current_due_day(0)?;
                 self.extend_limits(today, self.usn()?, deck.id, 0, delta)?;
                 if delta > 0 {
-                    deck = self.storage.get_deck(deck.id)?.ok_or(AnkiError::NotFound)?;
+                    deck = self.storage.get_deck(deck.id)?.ok_or_not_found(deck.id)?;
                     let original = deck.clone();
                     deck.normal_mut()?.extend_review = delta as u32;
                     self.update_deck_inner(&mut deck, original, self.usn()?)?;
@@ -159,11 +159,7 @@ impl Collection {
         let human_name = self.tr.custom_study_custom_study_session().to_string();
 
         if let Some(did) = self.get_deck_id(&human_name)? {
-            if !self
-                .get_deck(did)?
-                .ok_or(AnkiError::NotFound)?
-                .is_filtered()
-            {
+            if !self.get_deck(did)?.ok_or_not_found(did)?.is_filtered() {
                 return Err(CustomStudyError::ExistingDeck.into());
             }
             id = did;

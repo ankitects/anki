@@ -5,6 +5,7 @@ mod db;
 mod filtered;
 mod invalid_input;
 mod network;
+mod not_found;
 mod search;
 
 use std::{io, path::Path};
@@ -16,7 +17,10 @@ pub use search::{ParseError, SearchErrorKind};
 use snafu::Snafu;
 use tempfile::PathPersistError;
 
-pub use self::invalid_input::{InvalidInputContext, InvalidInputError};
+pub use self::{
+    invalid_input::{InvalidInputContext, InvalidInputError},
+    not_found::{NotFoundError, OkOrNotFound},
+};
 use crate::{i18n::I18n, links::HelpPage};
 
 pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
@@ -63,7 +67,10 @@ pub enum AnkiError {
     Interrupted,
     CollectionNotOpen,
     CollectionAlreadyOpen,
-    NotFound,
+    #[snafu(context(false))]
+    NotFound {
+        source: NotFoundError,
+    },
     /// Indicates an absent card or note, but (unlike [AnkiError::NotFound]) in
     /// a non-critical context like the browser table, where deleted ids are
     /// deliberately not removed.
@@ -140,13 +147,13 @@ impl AnkiError {
             AnkiError::ImportError { source } => source.localized_description(tr),
             AnkiError::Deleted => tr.browsing_row_deleted().into(),
             AnkiError::InvalidId => tr.errors_invalid_ids().into(),
+            AnkiError::NotFound { source } => source.message.clone(),
             AnkiError::IoError { .. }
             | AnkiError::JsonError { .. }
             | AnkiError::ProtoError { .. }
             | AnkiError::Interrupted
             | AnkiError::CollectionNotOpen
             | AnkiError::CollectionAlreadyOpen
-            | AnkiError::NotFound
             | AnkiError::Existing
             | AnkiError::UndoEmpty => format!("{:?}", self),
             AnkiError::FileIoError { source } => {

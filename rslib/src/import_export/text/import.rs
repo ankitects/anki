@@ -276,7 +276,7 @@ impl<'a> Context<'a> {
         self.col
             .storage
             .get_note(nid)?
-            .ok_or(AnkiError::NotFound)
+            .ok_or_not_found(nid)
             .map(|dupe| Duplicate::new(dupe, original, false))
     }
 

@@ -206,7 +206,7 @@ impl Collection {
         if let Some(CsvNotetype::GlobalNotetype(ref mut global)) = metadata.notetype {
             let notetype = self
                 .get_notetype(NotetypeId(global.id))?
-                .ok_or(AnkiError::NotFound)?;
+                .ok_or_not_found(NotetypeId(global.id))?;
             global.field_columns = vec![0; notetype.fields.len()];
             global.field_columns[0] = 1;
             let column_len = metadata.column_labels.len();
@@ -233,7 +233,7 @@ impl Collection {
             self.storage
                 .get_all_notetype_names()?
                 .first()
-                .ok_or(AnkiError::NotFound)?
+                .invalid_input_context("collection has no notetypes")?
                 .0
         })
     }

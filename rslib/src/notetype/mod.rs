@@ -131,7 +131,7 @@ impl Notetype {
             self.templates.get(card_ord as usize)
         };
 
-        template.ok_or(AnkiError::NotFound)
+        template.ok_or_not_found(card_ord)
     }
 }
 
@@ -163,7 +163,7 @@ impl Collection {
             let original = col
                 .storage
                 .get_notetype(notetype.id)?
-                .ok_or(AnkiError::NotFound)?;
+                .ok_or_not_found(notetype.id)?;
             let usn = col.usn()?;
             notetype.set_modified(usn);
             col.add_or_update_notetype_with_existing_id_inner(
@@ -245,15 +245,13 @@ impl Collection {
     /// Return the notetype used by `note_ids`, or an error if not exactly 1
     /// notetype is in use.
     pub fn get_single_notetype_of_notes(&mut self, note_ids: &[NoteId]) -> Result<NotetypeId> {
-        if note_ids.is_empty() {
-            return Err(AnkiError::NotFound);
-        }
+        ensure_valid_input!(!note_ids.is_empty(), "no note id provided");
 
         let nids_node: Node = SearchNode::NoteIds(comma_separated_ids(note_ids)).into();
         let note1 = self
             .storage
             .get_note(*note_ids.first().unwrap())?
-            .ok_or(AnkiError::NotFound)?;
+            .ok_or_not_found(note_ids[0])?;
 
         if self
             .search_notes_unordered(note1.notetype_id.and(nids_node))?

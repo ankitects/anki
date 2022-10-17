@@ -11,10 +11,11 @@ use crate::{
 
 impl CardsService for Backend {
     fn get_card(&self, input: pb::CardId) -> Result<pb::Card> {
+        let cid = input.into();
         self.with_col(|col| {
             col.storage
-                .get_card(input.into())
-                .and_then(|opt| opt.ok_or(AnkiError::NotFound))
+                .get_card(cid)
+                .and_then(|opt| opt.ok_or_not_found(cid))
                 .map(Into::into)
         })
     }

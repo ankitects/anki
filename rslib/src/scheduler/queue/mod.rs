@@ -88,7 +88,7 @@ impl Collection {
                 let card = self
                     .storage
                     .get_card(entry.card_id())?
-                    .ok_or(AnkiError::NotFound)?;
+                    .ok_or_not_found(entry.card_id())?;
                 ensure_valid_input!(
                     card.mtime == entry.mtime(),
                     "bug: card modified without updating queue",

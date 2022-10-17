@@ -13,15 +13,16 @@ use crate::{
 
 impl NotesService for Backend {
     fn new_note(&self, input: pb::NotetypeId) -> Result<pb::Note> {
+        let ntid = input.into();
         self.with_col(|col| {
-            let nt = col.get_notetype(input.into())?.ok_or(AnkiError::NotFound)?;
+            let nt = col.get_notetype(ntid)?.ok_or_not_found(ntid)?;
             Ok(nt.new_note().into())
         })
     }
 
     fn add_note(&self, input: pb::AddNoteRequest) -> Result<pb::AddNoteResponse> {
         self.with_col(|col| {
-            let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
+            let mut note: Note = input.note.invalid_input_context("no note provided")?.into();
             let changes = col.add_note(&mut note, DeckId(input.deck_id))?;
             Ok(pb::AddNoteResponse {
                 note_id: note.id.0,
@@ -62,10 +63,11 @@ impl NotesService for Backend {
     }
 
     fn get_note(&self, input: pb::NoteId) -> Result<pb::Note> {
+        let nid = input.into();
         self.with_col(|col| {
             col.storage
-                .get_note(input.into())?
-                .ok_or(AnkiError::NotFound)
+                .get_note(nid)?
+                .ok_or_not_found(nid)
                 .map(Into::into)
         })
     }

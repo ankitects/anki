@@ -86,7 +86,10 @@ impl CardRenderingService for Backend {
         &self,
         input: pb::RenderUncommittedCardRequest,
     ) -> Result<pb::RenderCardResponse> {
-        let template = input.template.ok_or(AnkiError::NotFound)?.into();
+        let template = input
+            .template
+            .invalid_input_context("missing template")?
+            .into();
         let mut note = input.note.invalid_input_context("missing note")?.into();
         let ord = input.card_ord as u16;
         let fill_empty = input.fill_empty;

@@ -80,20 +80,22 @@ impl NotetypesService for Backend {
     }
 
     fn get_notetype(&self, input: pb::NotetypeId) -> Result<pb::Notetype> {
+        let ntid = input.into();
         self.with_col(|col| {
             col.storage
-                .get_notetype(input.into())?
-                .ok_or(AnkiError::NotFound)
+                .get_notetype(ntid)?
+                .ok_or_not_found(ntid)
                 .map(Into::into)
         })
     }
 
     fn get_notetype_legacy(&self, input: pb::NotetypeId) -> Result<pb::Json> {
+        let ntid = input.into();
         self.with_col(|col| {
             let schema11: NotetypeSchema11 = col
                 .storage
-                .get_notetype(input.into())?
-                .ok_or(AnkiError::NotFound)?
+                .get_notetype(ntid)?
+                .ok_or_not_found(ntid)?
                 .into();
             Ok(serde_json::to_vec(&schema11)?).map(Into::into)
         })
@@ -131,7 +133,7 @@ impl NotetypesService for Backend {
         self.with_col(|col| {
             col.storage
                 .get_notetype_id(&input.val)
-                .and_then(|nt| nt.ok_or(AnkiError::NotFound))
+                .and_then(|nt| nt.ok_or_not_found(input))
                 .map(|ntid| pb::NotetypeId { ntid: ntid.0 })
         })
     }

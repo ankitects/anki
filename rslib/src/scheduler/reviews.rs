@@ -117,11 +117,8 @@ impl Collection {
                 let ease_factor = match decks_initial_ease.get(&deck_id) {
                     Some(ease) => *ease,
                     None => {
-                        let config_id = col
-                            .get_deck(deck_id)?
-                            .ok_or(AnkiError::NotFound)?
-                            .config_id()
-                            .ok_or(AnkiError::NotFound)?;
+                        let deck = col.get_deck(deck_id)?.ok_or_not_found(deck_id)?;
+                        let config_id = deck.config_id().ok_or_not_found(deck.config_id())?;
                         let ease = col
                             .get_deck_config(config_id, true)?
                             // just for compiler; get_deck_config() is guaranteed to return a value
