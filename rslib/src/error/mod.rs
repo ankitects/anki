@@ -3,6 +3,7 @@
 
 mod db;
 mod filtered;
+mod invalid_input;
 mod network;
 mod search;
 
@@ -15,14 +16,16 @@ pub use search::{ParseError, SearchErrorKind};
 use snafu::Snafu;
 use tempfile::PathPersistError;
 
+pub use self::invalid_input::{InvalidInputContext, InvalidInputError};
 use crate::{i18n::I18n, links::HelpPage};
 
 pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 
 #[derive(Debug, PartialEq, Eq, Snafu)]
 pub enum AnkiError {
+    #[snafu(context(false))]
     InvalidInput {
-        info: String,
+        source: InvalidInputError,
     },
     TemplateError {
         info: String,
@@ -94,10 +97,6 @@ pub enum AnkiError {
 
 // error helpers
 impl AnkiError {
-    pub(crate) fn invalid_input<S: Into<String>>(s: S) -> AnkiError {
-        AnkiError::InvalidInput { info: s.into() }
-    }
-
     pub fn localized_description(&self, tr: &I18n) -> String {
         match self {
             AnkiError::SyncError { source } => source.localized_description(tr),
@@ -123,11 +122,12 @@ impl AnkiError {
             }
             AnkiError::DbError { source } => source.localized_description(tr),
             AnkiError::SearchError { source } => source.localized_description(tr),
-            AnkiError::InvalidInput { info: source } => {
-                if source.is_empty() {
+            AnkiError::InvalidInput { source } => {
+                if source.message.is_empty() {
                     tr.errors_invalid_input_empty().into()
                 } else {
-                    tr.errors_invalid_input_details(source.as_str()).into()
+                    tr.errors_invalid_input_details(source.message.as_str())
+                        .into()
                 }
             }
             AnkiError::ParseNumError => tr.errors_parse_number_fail().into(),
@@ -231,14 +231,6 @@ impl From<PathPersistError> for AnkiError {
 impl From<regex::Error> for AnkiError {
     fn from(err: regex::Error) -> Self {
         AnkiError::InvalidRegex {
-            info: err.to_string(),
-        }
-    }
-}
-
-impl From<csv::Error> for AnkiError {
-    fn from(err: csv::Error) -> Self {
-        AnkiError::InvalidInput {
             info: err.to_string(),
         }
     }

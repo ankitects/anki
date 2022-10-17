@@ -60,11 +60,7 @@ impl Note {
     }
 
     pub fn set_field(&mut self, idx: usize, text: impl Into<String>) -> Result<()> {
-        if idx >= self.fields.len() {
-            return Err(AnkiError::invalid_input(
-                "field idx out of range".to_string(),
-            ));
-        }
+        ensure_valid_input!(idx < self.fields.len(), "field idx out of range");
 
         self.fields[idx] = text.into();
         self.mark_dirty();
@@ -78,7 +74,7 @@ impl Collection {
         self.transact(Op::AddNote, |col| {
             let nt = col
                 .get_notetype(note.notetype_id)?
-                .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
+                .invalid_input_context("missing note type")?;
             let last_deck = col.get_last_deck_added_to_for_notetype(note.notetype_id);
             let ctx = CardGenContext::new(nt.as_ref(), last_deck, col.usn()?);
             let norm = col.get_config_bool(BoolKey::NormalizeNoteText);
@@ -178,13 +174,11 @@ impl Note {
     pub(crate) fn prepare_for_update(&mut self, nt: &Notetype, normalize_text: bool) -> Result<()> {
         assert!(nt.id == self.notetype_id);
         let notetype_field_count = nt.fields.len().max(1);
-        if notetype_field_count != self.fields.len() {
-            return Err(AnkiError::invalid_input(format!(
-                "note has {} fields, expected {}",
-                self.fields.len(),
-                notetype_field_count
-            )));
-        }
+        ensure_valid_input!(
+            notetype_field_count == self.fields.len(),
+            "note has {} fields, expected {notetype_field_count}",
+            self.fields.len()
+        );
 
         for field in self.fields_mut() {
             normalize_field(field, normalize_text);
@@ -397,7 +391,7 @@ impl Collection {
         }
         let nt = self
             .get_notetype(note.notetype_id)?
-            .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
+            .invalid_input_context("missing note type")?;
         let last_deck = self.get_last_deck_added_to_for_notetype(note.notetype_id);
         let ctx = CardGenContext::new(nt.as_ref(), last_deck, self.usn()?);
         let norm = self.get_config_bool(BoolKey::NormalizeNoteText);
@@ -495,7 +489,7 @@ impl Collection {
         for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
             let nt = self
                 .get_notetype(ntid)?
-                .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
+                .invalid_input_context("missing note type")?;
 
             let mut genctx = None;
             for (_, nid) in group {

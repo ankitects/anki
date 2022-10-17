@@ -82,9 +82,11 @@ impl SafeMediaEntry {
     }
 
     pub(super) fn fetch_file<'a>(&self, archive: &'a mut ZipArchive<File>) -> Result<ZipFile<'a>> {
-        archive
-            .by_name(&self.index.to_string())
-            .map_err(|_| AnkiError::invalid_input(&format!("{} missing from archive", self.index)))
+        Ok(invalid_input!(
+            archive.by_name(&self.index.to_string()),
+            "{} missing from archive",
+            self.index
+        ))
     }
 
     pub(super) fn has_checksum_equal_to(

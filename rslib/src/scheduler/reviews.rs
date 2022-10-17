@@ -80,7 +80,7 @@ pub fn parse_due_date_str(s: &str) -> Result<DueDateSpecifier> {
         )
         .unwrap();
     }
-    let caps = RE.captures(s).ok_or_else(|| AnkiError::invalid_input(s))?;
+    let caps = RE.captures(s).invalid_input_context(s)?;
     let min: u32 = caps.name("min").unwrap().as_str().parse()?;
     let max = if let Some(max) = caps.name("max") {
         max.as_str().parse()?

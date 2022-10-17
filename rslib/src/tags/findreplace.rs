@@ -18,11 +18,10 @@ impl Collection {
         regex: bool,
         match_case: bool,
     ) -> Result<OpOutput<usize>> {
-        if replacement.contains(is_tag_separator) {
-            return Err(AnkiError::invalid_input(
-                "replacement name can not contain a space",
-            ));
-        }
+        ensure_valid_input!(
+            !replacement.contains(is_tag_separator),
+            "replacement name cannot contain a space",
+        );
 
         let mut search = if regex {
             Cow::from(search)

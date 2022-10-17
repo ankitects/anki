@@ -47,13 +47,13 @@ impl CsvMetadata {
     fn deck(&self) -> Result<&CsvDeck> {
         self.deck
             .as_ref()
-            .ok_or_else(|| AnkiError::invalid_input("deck oneof not set"))
+            .invalid_input_context("deck oneof not set")
     }
 
     fn notetype(&self) -> Result<&CsvNotetype> {
         self.notetype
             .as_ref()
-            .ok_or_else(|| AnkiError::invalid_input("notetype oneof not set"))
+            .invalid_input_context("notetype oneof not set")
     }
 
     fn field_source_columns(&self) -> Result<FieldSourceColumns> {
@@ -150,7 +150,7 @@ impl ColumnContext {
             .records()
             .into_iter()
             .map(|res| {
-                res.map_err(Into::into)
+                res.invalid_input_context("invalid csv")
                     .map(|record| self.foreign_note_from_record(&record))
             })
             .collect()

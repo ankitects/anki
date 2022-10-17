@@ -291,9 +291,7 @@ fn write_media_files(
         zip.start_file(index.to_string(), file_options_stored())?;
 
         let mut file = File::open(&path)?;
-        let file_name = path
-            .file_name()
-            .ok_or_else(|| AnkiError::invalid_input("not a file path"))?;
+        let file_name = path.file_name().invalid_input_context("not a file path")?;
         let name = normalized_unicode_file_name(file_name)?;
 
         let (size, sha1) = copier.copy(&mut file, zip)?;

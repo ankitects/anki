@@ -21,7 +21,7 @@ impl Collection {
                 let current = self
                     .storage
                     .get_deck(deck.id)?
-                    .ok_or_else(|| AnkiError::invalid_input("deck disappeared"))?;
+                    .invalid_input_context("deck disappeared")?;
                 self.update_single_deck_undoable(&mut *deck, current)
             }
             UndoableDeckChange::Removed(deck) => self.restore_deleted_deck(*deck),

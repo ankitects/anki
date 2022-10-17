@@ -223,7 +223,7 @@ impl Collection {
         let orig = self
             .storage
             .get_card(cid)?
-            .ok_or_else(|| AnkiError::invalid_input("no such card"))?;
+            .invalid_input_context("no such card")?;
         let mut card = orig.clone();
         func(&mut card)?;
         self.update_card_inner(&mut card, orig, self.usn()?)?;
@@ -242,9 +242,7 @@ impl Collection {
     }
 
     pub(crate) fn add_card(&mut self, card: &mut Card) -> Result<()> {
-        if card.id.0 != 0 {
-            return Err(AnkiError::invalid_input("card id already set"));
-        }
+        ensure_valid_input!(card.id.0 == 0, "card id already set");
         card.mtime = TimestampSecs::now();
         card.usn = self.usn()?;
         self.add_card_undoable(card)
@@ -296,9 +294,7 @@ impl Collection {
     }
 
     pub fn set_card_flag(&mut self, cards: &[CardId], flag: u32) -> Result<OpOutput<usize>> {
-        if flag > 7 {
-            return Err(AnkiError::invalid_input("invalid flag"));
-        }
+        ensure_valid_input!(flag < 8, "invalid flag");
         let flag = flag as u8;
 
         let usn = self.usn()?;

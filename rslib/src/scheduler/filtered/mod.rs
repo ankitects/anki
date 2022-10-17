@@ -241,14 +241,13 @@ impl TryFrom<Deck> for FilteredDeckForUpdate {
 
     fn try_from(value: Deck) -> Result<Self, Self::Error> {
         let human_name = value.human_name();
-        if let DeckKind::Filtered(filtered) = value.kind {
-            Ok(FilteredDeckForUpdate {
+        match value.kind {
+            DeckKind::Filtered(filtered) => Ok(FilteredDeckForUpdate {
                 id: value.id,
                 human_name,
                 config: filtered,
-            })
-        } else {
-            Err(AnkiError::invalid_input("not filtered"))
+            }),
+            _ => invalid_input!("not filtered"),
         }
     }
 }

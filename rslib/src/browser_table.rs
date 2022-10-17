@@ -236,7 +236,7 @@ impl Collection {
             self.state
                 .active_browser_columns
                 .as_ref()
-                .ok_or_else(|| AnkiError::invalid_input("Active browser columns not set."))?,
+                .invalid_input_context("Active browser columns not set.")?,
         );
         RowContext::new(self, id, notes_mode, card_render_required(&columns))?.browser_row(&columns)
     }

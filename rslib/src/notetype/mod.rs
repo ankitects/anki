@@ -477,19 +477,13 @@ impl Notetype {
         existing: Option<&Notetype>,
         skip_checks: bool,
     ) -> Result<()> {
-        if self.fields.is_empty() {
-            return Err(AnkiError::invalid_input("1 field required"));
-        }
-        if self.templates.is_empty() {
-            return Err(AnkiError::invalid_input("1 template required"));
-        }
+        ensure_valid_input!(!self.fields.is_empty(), "1 field required");
+        ensure_valid_input!(!self.templates.is_empty(), "1 template required");
         let bad_chars = |c| c == '"';
         if self.name.contains(bad_chars) {
             self.name = self.name.replace(bad_chars, "");
         }
-        if self.name.is_empty() {
-            return Err(AnkiError::invalid_input("Empty note type name"));
-        }
+        ensure_valid_input!(!self.name.is_empty(), "Empty notetype name");
         self.normalize_names();
         self.fix_field_names()?;
         self.fix_template_names()?;

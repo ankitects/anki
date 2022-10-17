@@ -256,7 +256,7 @@ fn collect_preview_records(
         .into_iter()
         .take(PREVIEW_LENGTH)
         .collect::<csv::Result<_>>()
-        .map_err(Into::into)
+        .invalid_input_context("invalid csv")
 }
 
 fn set_preview(metadata: &mut CsvMetadata, records: &[csv::StringRecord]) -> Result<()> {

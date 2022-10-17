@@ -266,8 +266,10 @@ fn row_to_name_and_checksum(row: &Row) -> Result<(String, Sha1Hash)> {
     let file_name = row.get(0)?;
     let sha1_str: String = row.get(1)?;
     let mut sha1 = [0; 20];
-    hex::decode_to_slice(sha1_str, &mut sha1)
-        .map_err(|_| AnkiError::invalid_input(format!("bad media checksum: {file_name}")))?;
+    invalid_input!(
+        hex::decode_to_slice(sha1_str, &mut sha1),
+        "bad media checksum: {file_name}"
+    );
     Ok((file_name, sha1))
 }
 

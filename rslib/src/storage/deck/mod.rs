@@ -167,9 +167,7 @@ impl SqliteStorage {
     }
 
     pub(crate) fn update_deck(&self, deck: &Deck) -> Result<()> {
-        if deck.id.0 == 0 {
-            return Err(AnkiError::invalid_input("deck with id 0"));
-        }
+        ensure_valid_input!(deck.id.0 != 0, "deck with id 0");
         let mut stmt = self.db.prepare_cached(include_str!("update_deck.sql"))?;
         let mut common = vec![];
         deck.common.encode(&mut common)?;
@@ -187,21 +185,14 @@ impl SqliteStorage {
             deck.id
         ])?;
 
-        if count == 0 {
-            Err(AnkiError::invalid_input(
-                "update_deck() called with non-existent deck",
-            ))
-        } else {
-            Ok(())
-        }
+        ensure_valid_input!(count != 0, "update_deck() called with non-existent deck");
+        Ok(())
     }
 
     /// Used for syncing&undo; will keep existing ID. Shouldn't be used to add
     /// new decks locally, since it does not allocate an id.
     pub(crate) fn add_or_update_deck_with_existing_id(&self, deck: &Deck) -> Result<()> {
-        if deck.id.0 == 0 {
-            return Err(AnkiError::invalid_input("deck with id 0"));
-        }
+        ensure_valid_input!(deck.id.0 != 0, "deck with id 0");
         let mut stmt = self
             .db
             .prepare_cached(include_str!("add_or_update_deck.sql"))?;

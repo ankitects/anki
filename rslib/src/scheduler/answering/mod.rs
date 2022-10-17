@@ -116,9 +116,7 @@ impl CardStateUpdater {
                 if let CardState::Filtered(filtered) = &current {
                     match filtered {
                         FilteredState::Preview(_) => {
-                            return Err(AnkiError::invalid_input(
-                                "should set finished=true, not return different state",
-                            ));
+                            invalid_input!("should set finished=true, not return different state")
                         }
                         FilteredState::Rescheduling(_) => {
                             // card needs to be removed from normal filtered deck, then scheduled normally
@@ -166,13 +164,11 @@ impl CardStateUpdater {
     }
 
     fn ensure_filtered(&self) -> Result<()> {
-        if self.card.original_deck_id.0 == 0 {
-            Err(AnkiError::invalid_input(
-                "card answering can't transition into filtered state",
-            ))
-        } else {
-            Ok(())
-        }
+        ensure_valid_input!(
+            self.card.original_deck_id.0 != 0,
+            "card answering can't transition into filtered state",
+        );
+        Ok(())
     }
 }
 
@@ -261,12 +257,12 @@ impl Collection {
         let mut updater = self.card_state_updater(card)?;
         answer.cap_answer_secs(updater.config.inner.cap_answer_time_to_secs);
         let current_state = updater.current_card_state();
-        if current_state != answer.current_state {
-            return Err(AnkiError::invalid_input(format!(
-                "card was modified: {:#?} {:#?}",
-                current_state, answer.current_state,
-            )));
-        }
+        ensure_valid_input!(
+            current_state == answer.current_state,
+            "card was modified: {current_state:#?} {:#?}",
+            answer.current_state,
+        );
+
         let revlog_partial = updater.apply_study_state(current_state, answer.new_state)?;
         self.add_partial_revlog(revlog_partial, usn, answer)?;
 

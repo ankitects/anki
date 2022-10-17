@@ -273,10 +273,7 @@ impl TryFrom<pb::Deck> for Deck {
             mtime_secs: TimestampSecs(d.mtime_secs),
             usn: Usn(d.usn),
             common: d.common.unwrap_or_default(),
-            kind: d
-                .kind
-                .ok_or_else(|| AnkiError::invalid_input("missing kind"))?
-                .into(),
+            kind: d.kind.invalid_input_context("missing kind")?.into(),
         })
     }
 }
