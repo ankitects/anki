@@ -31,7 +31,45 @@ pub(crate) fn write_file(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> 
     })
 }
 
-pub(crate) fn tempfile_in_parent_of(file: &Path) -> Result<NamedTempFile> {
+/// See [std::fs::create_dir].
+pub(crate) fn create_dir(path: impl AsRef<Path>) -> Result<()> {
+    std::fs::create_dir(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Create,
+    })
+}
+
+/// See [std::fs::create_dir_all].
+pub(crate) fn create_dir_all(path: impl AsRef<Path>) -> Result<()> {
+    std::fs::create_dir_all(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Create,
+    })
+}
+
+/// See [std::fs::read].
+pub(crate) fn read_file(path: impl AsRef<Path>) -> Result<Vec<u8>> {
+    std::fs::read(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Read,
+    })
+}
+
+pub(crate) fn new_tempfile() -> Result<NamedTempFile> {
+    NamedTempFile::new().context(FileIoSnafu {
+        path: std::env::temp_dir(),
+        op: FileOp::Create,
+    })
+}
+
+pub(crate) fn new_tempfile_in(dir: impl AsRef<Path>) -> Result<NamedTempFile> {
+    NamedTempFile::new_in(&dir).context(FileIoSnafu {
+        path: dir.as_ref(),
+        op: FileOp::Create,
+    })
+}
+
+pub(crate) fn new_tempfile_in_parent(file: &Path) -> Result<NamedTempFile> {
     let dir = file.parent().unwrap_or(file);
     NamedTempFile::new_in(dir).context(FileIoSnafu {
         path: dir,
@@ -66,8 +104,13 @@ pub(crate) fn atomic_rename(file: NamedTempFile, target: &Path, fsync: bool) -> 
 }
 
 /// Like [std::fs::read_dir], but only yielding files. [Err]s are not filtered.
-pub(crate) fn read_dir_files(path: impl AsRef<Path>) -> std::io::Result<ReadDirFiles> {
-    std::fs::read_dir(path).map(ReadDirFiles)
+pub(crate) fn read_dir_files(path: impl AsRef<Path>) -> Result<ReadDirFiles> {
+    std::fs::read_dir(&path)
+        .map(ReadDirFiles)
+        .context(FileIoSnafu {
+            path: path.as_ref(),
+            op: FileOp::Read,
+        })
 }
 
 /// True if name does not contain any path separators.

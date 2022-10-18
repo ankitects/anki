@@ -1579,14 +1579,14 @@ mod test {
     //     use std::fs;
     //     use tempfile::NamedTempFile;
 
-    //     let client_col_file = NamedTempFile::new()?;
+    //     let client_col_file = new_named_tempfile()?;
     //     let client_col_name = client_col_file
     //         .path()
     //         .file_name()
     //         .unwrap()
     //         .to_string_lossy();
     //     fs::copy(client_fname, client_col_file.path())?;
-    //     let server_col_file = NamedTempFile::new()?;
+    //     let server_col_file = new_named_tempfile()?;
     //     let server_col_name = server_col_file
     //         .path()
     //         .file_name()

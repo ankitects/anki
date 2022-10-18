@@ -17,7 +17,7 @@ use unicode_normalization::{is_nfc, UnicodeNormalization};
 
 use crate::{
     error::{FileIoError, FileIoSnafu, FileOp},
-    io::{open_file, write_file},
+    io::{create_dir, open_file, write_file},
     prelude::*,
 };
 
@@ -356,10 +356,10 @@ where
 
 pub(super) fn trash_folder(media_folder: &Path) -> Result<PathBuf> {
     let trash_folder = media_folder.with_file_name("media.trash");
-    match fs::create_dir(&trash_folder) {
+    match create_dir(&trash_folder) {
         Ok(()) => Ok(trash_folder),
         Err(e) => {
-            if e.kind() == io::ErrorKind::AlreadyExists {
+            if e.source.kind() == io::ErrorKind::AlreadyExists {
                 Ok(trash_folder)
             } else {
                 Err(e.into())

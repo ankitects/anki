@@ -520,7 +520,7 @@ pub(crate) mod test {
     use crate::{
         collection::{Collection, CollectionBuilder},
         error::Result,
-        io::write_file,
+        io::{create_dir, write_file},
         media::{
             check::{MediaCheckOutput, MediaChecker},
             files::trash_folder,
@@ -531,7 +531,7 @@ pub(crate) mod test {
     fn common_setup() -> Result<(TempDir, MediaManager, Collection)> {
         let dir = tempdir()?;
         let media_folder = dir.path().join("media");
-        fs::create_dir(&media_folder)?;
+        create_dir(&media_folder)?;
         let media_db = dir.path().join("media.db");
         let col_path = dir.path().join("col.anki2");
         write_file(&col_path, MEDIACHECK_ANKI2)?;
@@ -550,7 +550,7 @@ pub(crate) mod test {
 
         // add some test files
         write_file(&mgr.media_folder.join("zerobytes"), "")?;
-        fs::create_dir(&mgr.media_folder.join("folder"))?;
+        create_dir(&mgr.media_folder.join("folder"))?;
         write_file(&mgr.media_folder.join("normal.jpg"), "normal")?;
         write_file(&mgr.media_folder.join("foo[.jpg"), "foo")?;
         write_file(&mgr.media_folder.join("_under.jpg"), "foo")?;

@@ -10,14 +10,13 @@ use std::{
 };
 
 use prost::Message;
-use tempfile::NamedTempFile;
 use zip::{read::ZipFile, ZipArchive};
 use zstd::stream::copy_decode;
 
 use super::{colpkg::export::MediaCopier, MediaEntries, MediaEntry, Meta};
 use crate::{
     error::ImportError,
-    io::{atomic_rename, filename_is_safe},
+    io::{atomic_rename, filename_is_safe, new_tempfile_in},
     media::files::normalize_filename,
     prelude::*,
 };
@@ -109,7 +108,7 @@ impl SafeMediaEntry {
         copier: &mut MediaCopier,
     ) -> Result<()> {
         let mut file = self.fetch_file(archive)?;
-        let mut tempfile = NamedTempFile::new_in(target_folder)?;
+        let mut tempfile = new_tempfile_in(target_folder)?;
         if self.sha1.is_none() {
             let (_, sha1) = copier.copy(&mut file, &mut tempfile)?;
             self.sha1 = Some(sha1);

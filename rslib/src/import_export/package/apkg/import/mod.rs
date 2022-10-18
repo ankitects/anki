@@ -19,7 +19,7 @@ use crate::{
     import_export::{
         gather::ExchangeData, package::Meta, ImportProgress, IncrementableProgress, NoteLog,
     },
-    io::open_file,
+    io::{new_tempfile, open_file},
     media::MediaManager,
     prelude::*,
     search::SearchNode,
@@ -135,7 +135,7 @@ impl ExchangeData {
 
 fn collection_to_tempfile(meta: &Meta, archive: &mut ZipArchive<File>) -> Result<NamedTempFile> {
     let mut zip_file = archive.by_name(meta.collection_filename())?;
-    let mut tempfile = NamedTempFile::new()?;
+    let mut tempfile = new_tempfile()?;
     meta.copy(&mut zip_file, &mut tempfile)
         .with_context(|_| FileIoSnafu {
             path: tempfile.path(),

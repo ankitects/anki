@@ -4,6 +4,7 @@
 use std::{collections::HashMap, path::Path, time};
 
 use crate::{
+    io::read_dir_files,
     log::{debug, Logger},
     media::{
         database::{MediaDatabaseContext, MediaEntry},
@@ -85,13 +86,8 @@ where
         let mut added_or_changed = vec![];
 
         // loop through on-disk files
-        for dentry in self.media_folder.read_dir()? {
+        for dentry in read_dir_files(self.media_folder)? {
             let dentry = dentry?;
-
-            // skip folders
-            if dentry.file_type()?.is_dir() {
-                continue;
-            }
 
             // if the filename is not valid unicode, skip it
             let fname_os = dentry.file_name();
@@ -238,7 +234,7 @@ mod test {
 
     use crate::{
         error::Result,
-        io::write_file,
+        io::{create_dir, write_file},
         media::{
             changetracker::ChangeTracker, database::MediaEntry, files::sha1_of_data, MediaManager,
         },
@@ -259,7 +255,7 @@ mod test {
     fn change_tracking() -> Result<()> {
         let dir = tempdir()?;
         let media_dir = dir.path().join("media");
-        std::fs::create_dir(&media_dir)?;
+        create_dir(&media_dir)?;
         let media_db = dir.path().join("media.db");
 
         let mgr = MediaManager::new(&media_dir, media_db)?;

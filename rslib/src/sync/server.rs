@@ -9,6 +9,7 @@ use tempfile::NamedTempFile;
 use super::ChunkableIds;
 use crate::{
     collection::CollectionBuilder,
+    io::new_tempfile,
     prelude::*,
     storage::{open_and_check_sqlite_file, SchemaVersion},
     sync::{
@@ -193,7 +194,7 @@ impl SyncServer for LocalServer {
         // create a copy if necessary
         let new_file: NamedTempFile;
         if !can_consume {
-            new_file = NamedTempFile::new()?;
+            new_file = new_tempfile()?;
             fs::copy(col_path, &new_file.path())?;
             col_path = new_file.path();
         }
@@ -224,7 +225,7 @@ impl SyncServer for LocalServer {
         self.col.close(Some(SchemaVersion::V11))?;
 
         // copy file and return path
-        let temp_file = NamedTempFile::new()?;
+        let temp_file = new_tempfile()?;
         fs::copy(&col_path, temp_file.path())?;
 
         Ok(temp_file)

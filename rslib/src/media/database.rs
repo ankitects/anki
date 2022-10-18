@@ -275,16 +275,15 @@ fn row_to_name_and_checksum(row: &Row) -> Result<(String, Sha1Hash)> {
 
 #[cfg(test)]
 mod test {
-    use tempfile::NamedTempFile;
-
     use crate::{
         error::Result,
+        io::new_tempfile,
         media::{database::MediaEntry, files::sha1_of_data, MediaManager},
     };
 
     #[test]
     fn database() -> Result<()> {
-        let db_file = NamedTempFile::new()?;
+        let db_file = new_tempfile()?;
         let db_file_path = db_file.path().to_str().unwrap();
         let mut mgr = MediaManager::new("/dummy", db_file_path)?;
         let mut ctx = mgr.dbctx();
