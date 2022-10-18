@@ -1,15 +1,42 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::path::{Component, Path};
+use std::{
+    fs::File,
+    path::{Component, Path},
+};
 
 use tempfile::NamedTempFile;
 
-use crate::prelude::*;
+use crate::{
+    error::{FileIoError, FileIoSnafu, FileOp},
+    prelude::*,
+};
+
+pub(crate) type Result<T, E = FileIoError> = std::result::Result<T, E>;
+
+/// See [std::fs::File::open].
+pub(crate) fn open_file(path: impl AsRef<Path>) -> Result<File> {
+    File::open(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Open,
+    })
+}
+
+/// See [std::fs::write].
+pub(crate) fn write_file(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> Result<()> {
+    std::fs::write(&path, contents).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Write,
+    })
+}
 
 pub(crate) fn tempfile_in_parent_of(file: &Path) -> Result<NamedTempFile> {
-    let dir = file.parent().invalid_input_context("not a file path")?;
-    NamedTempFile::new_in(dir).map_err(|err| AnkiError::file_io_error(err, dir))
+    let dir = file.parent().unwrap_or(file);
+    NamedTempFile::new_in(dir).context(FileIoSnafu {
+        path: dir,
+        op: FileOp::Create,
+    })
 }
 
 /// Atomically replace the target path with the provided temp file.
@@ -20,19 +47,19 @@ pub(crate) fn tempfile_in_parent_of(file: &Path) -> Result<NamedTempFile> {
 /// op, but it can be considerably slower.
 pub(crate) fn atomic_rename(file: NamedTempFile, target: &Path, fsync: bool) -> Result<()> {
     if fsync {
-        file.as_file().sync_all()?;
+        file.as_file().sync_all().context(FileIoSnafu {
+            path: file.path(),
+            op: FileOp::Sync,
+        })?;
     }
-    file.persist(&target).map_err(|err| AnkiError::IoError {
-        info: format!("write {target:?} failed: {err}"),
-    })?;
+    file.persist(&target)?;
     #[cfg(not(windows))]
     if fsync {
         if let Some(parent) = target.parent() {
-            std::fs::File::open(parent)
-                .and_then(|file| file.sync_all())
-                .map_err(|err| AnkiError::IoError {
-                    source: format!("sync {parent:?} failed: {err}"),
-                })?;
+            open_file(parent)?.sync_all().context(FileIoSnafu {
+                path: parent,
+                op: FileOp::Sync,
+            })?;
         }
     }
     Ok(())

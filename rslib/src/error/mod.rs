@@ -2,22 +2,21 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod db;
+mod file_io;
 mod filtered;
 mod invalid_input;
 mod network;
 mod not_found;
 mod search;
 
-use std::{io, path::Path};
-
 pub use db::{DbError, DbErrorKind};
 pub use filtered::{CustomStudyError, FilteredDeckError};
 pub use network::{NetworkError, NetworkErrorKind, SyncError, SyncErrorKind};
 pub use search::{ParseError, SearchErrorKind};
 use snafu::Snafu;
-use tempfile::PathPersistError;
 
 pub use self::{
+    file_io::{FileIoError, FileIoSnafu, FileOp},
     invalid_input::{InvalidInputContext, InvalidInputError},
     not_found::{NotFoundError, OkOrNotFound},
 };
@@ -37,9 +36,6 @@ pub enum AnkiError {
     #[snafu(context(false))]
     CardTypeError {
         source: CardTypeError,
-    },
-    IoError {
-        info: String,
     },
     #[snafu(context(false))]
     FileIoError {
@@ -148,17 +144,14 @@ impl AnkiError {
             AnkiError::Deleted => tr.browsing_row_deleted().into(),
             AnkiError::InvalidId => tr.errors_invalid_ids().into(),
             AnkiError::NotFound { source } => source.message.clone(),
-            AnkiError::IoError { .. }
-            | AnkiError::JsonError { .. }
+            AnkiError::JsonError { .. }
             | AnkiError::ProtoError { .. }
             | AnkiError::Interrupted
             | AnkiError::CollectionNotOpen
             | AnkiError::CollectionAlreadyOpen
             | AnkiError::Existing
             | AnkiError::UndoEmpty => format!("{:?}", self),
-            AnkiError::FileIoError { source } => {
-                format!("{}: {}", source.path, source.error)
-            }
+            AnkiError::FileIoError { source } => source.message(),
         }
     }
 
@@ -195,14 +188,6 @@ pub enum TemplateError {
     NoSuchConditional(String),
 }
 
-impl From<io::Error> for AnkiError {
-    fn from(err: io::Error) -> Self {
-        AnkiError::IoError {
-            info: format!("{:?}", err),
-        }
-    }
-}
-
 impl From<serde_json::Error> for AnkiError {
     fn from(err: serde_json::Error) -> Self {
         AnkiError::JsonError {
@@ -227,11 +212,15 @@ impl From<prost::DecodeError> for AnkiError {
     }
 }
 
-impl From<PathPersistError> for AnkiError {
-    fn from(e: PathPersistError) -> Self {
-        AnkiError::IoError {
-            info: e.to_string(),
-        }
+impl From<tempfile::PathPersistError> for AnkiError {
+    fn from(e: tempfile::PathPersistError) -> Self {
+        FileIoError::from(e).into()
+    }
+}
+
+impl From<tempfile::PersistError> for AnkiError {
+    fn from(e: tempfile::PersistError) -> Self {
+        FileIoError::from(e).into()
     }
 }
 
@@ -240,6 +229,19 @@ impl From<regex::Error> for AnkiError {
         AnkiError::InvalidRegex {
             info: err.to_string(),
         }
+    }
+}
+
+// stopgap; implicit mapping should be phased out in favor of manual
+// context attachment
+impl From<std::io::Error> for AnkiError {
+    fn from(source: std::io::Error) -> Self {
+        FileIoError {
+            path: std::path::PathBuf::new(),
+            op: FileOp::Open,
+            source,
+        }
+        .into()
     }
 }
 
@@ -281,28 +283,5 @@ impl ImportError {
             ImportError::NoFieldColumn => tr.importing_file_must_contain_field_column(),
         }
         .into()
-    }
-}
-
-#[derive(Debug, PartialEq, Eq, Clone, Snafu)]
-pub struct FileIoError {
-    pub path: String,
-    pub error: String,
-}
-
-impl AnkiError {
-    pub(crate) fn file_io_error<P: AsRef<Path>>(err: std::io::Error, path: P) -> Self {
-        AnkiError::FileIoError {
-            source: FileIoError::new(err, path.as_ref()),
-        }
-    }
-}
-
-impl FileIoError {
-    pub fn new(err: std::io::Error, path: &Path) -> FileIoError {
-        FileIoError {
-            path: path.to_string_lossy().to_string(),
-            error: err.to_string(),
-        }
     }
 }

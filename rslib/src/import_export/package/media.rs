@@ -116,7 +116,9 @@ impl SafeMediaEntry {
         } else {
             io::copy(&mut file, &mut tempfile)?;
         }
-        atomic_rename(tempfile, &self.file_path(target_folder), false)
+        atomic_rename(tempfile, &self.file_path(target_folder), false)?;
+
+        Ok(())
     }
 }
 

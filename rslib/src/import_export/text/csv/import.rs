@@ -1,10 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    fs::File,
-    io::{BufRead, BufReader, Read, Seek, SeekFrom},
-};
+use std::io::{BufRead, BufReader, Read, Seek, SeekFrom};
 
 use crate::{
     import_export::{
@@ -14,6 +11,7 @@ use crate::{
         },
         ImportProgress, NoteLog,
     },
+    io::open_file,
     prelude::*,
 };
 
@@ -24,7 +22,7 @@ impl Collection {
         metadata: CsvMetadata,
         progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
     ) -> Result<OpOutput<NoteLog>> {
-        let file = File::open(path)?;
+        let file = open_file(path)?;
         let default_deck = metadata.deck()?.name_or_id();
         let default_notetype = metadata.notetype()?.name_or_id();
         let mut ctx = ColumnContext::new(&metadata)?;

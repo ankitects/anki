@@ -81,13 +81,15 @@ fn roundtrip() -> Result<()> {
 #[test]
 #[cfg(not(target_vendor = "apple"))]
 fn normalization_check_on_export() -> Result<()> {
+    use crate::io::write_file;
+
     let _dir = tempdir()?;
     let dir = _dir.path();
 
     let col = collection_with_media(dir, "normalize")?;
     let colpkg_name = dir.join("normalize.colpkg");
     // manually write a file in the wrong encoding.
-    std::fs::write(col.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
+    write_file(col.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
     assert_eq!(
         col.export_colpkg(&colpkg_name, true, false, |_, _| true,)
             .unwrap_err(),

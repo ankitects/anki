@@ -15,7 +15,11 @@ use sha1::Sha1;
 use unic_ucd_category::GeneralCategory;
 use unicode_normalization::{is_nfc, UnicodeNormalization};
 
-use crate::prelude::*;
+use crate::{
+    error::{FileIoError, FileIoSnafu, FileOp},
+    io::{open_file, write_file},
+    prelude::*,
+};
 
 /// The maximum length we allow a filename to be. When combined
 /// with the rest of the path, the full path needs to be under ~240 chars
@@ -162,7 +166,7 @@ pub fn add_data_to_folder_uniquely<'a, P>(
     desired_name: &'a str,
     data: &[u8],
     sha1: Sha1Hash,
-) -> io::Result<Cow<'a, str>>
+) -> Result<Cow<'a, str>, FileIoError>
 where
     P: AsRef<Path>,
 {
@@ -173,7 +177,7 @@ where
     let existing_file_hash = existing_file_sha1(&target_path)?;
     if existing_file_hash.is_none() {
         // no file with that name exists yet
-        fs::write(&target_path, data)?;
+        write_file(&target_path, data)?;
         return Ok(normalized_name);
     }
 
@@ -186,7 +190,7 @@ where
     let hashed_name = add_hash_suffix_to_file_stem(normalized_name.as_ref(), &sha1);
     target_path.set_file_name(&hashed_name);
 
-    fs::write(&target_path, data)?;
+    write_file(&target_path, data)?;
     Ok(hashed_name.into())
 }
 
@@ -264,40 +268,33 @@ fn truncated_to_char_boundary(s: &str, mut max: usize) -> &str {
 }
 
 /// Return the SHA1 of a file if it exists, or None.
-fn existing_file_sha1(path: &Path) -> io::Result<Option<Sha1Hash>> {
+fn existing_file_sha1(path: &Path) -> Result<Option<Sha1Hash>, FileIoError> {
     match sha1_of_file(path) {
         Ok(o) => Ok(Some(o)),
-        Err(e) => {
-            if e.kind() == io::ErrorKind::NotFound {
-                Ok(None)
-            } else {
-                Err(e)
-            }
-        }
+        Err(e) if e.is_not_found() => Ok(None),
+        Err(e) => Err(e),
     }
 }
 
 /// Return the SHA1 of a file, failing if it doesn't exist.
-pub(crate) fn sha1_of_file(path: &Path) -> io::Result<Sha1Hash> {
-    let mut file = fs::File::open(path)?;
-    sha1_of_reader(&mut file)
+pub(crate) fn sha1_of_file(path: &Path) -> Result<Sha1Hash, FileIoError> {
+    let mut file = open_file(path)?;
+    sha1_of_reader(&mut file).context(FileIoSnafu {
+        path,
+        op: FileOp::Read,
+    })
 }
 
 /// Return the SHA1 of a stream.
-pub(crate) fn sha1_of_reader(reader: &mut impl Read) -> io::Result<Sha1Hash> {
+pub(crate) fn sha1_of_reader(reader: &mut impl Read) -> std::io::Result<Sha1Hash> {
     let mut hasher = Sha1::new();
     let mut buf = [0; 64 * 1024];
     loop {
         match reader.read(&mut buf) {
             Ok(0) => break,
             Ok(n) => hasher.update(&buf[0..n]),
-            Err(e) => {
-                if e.kind() == io::ErrorKind::Interrupted {
-                    continue;
-                } else {
-                    return Err(e);
-                }
-            }
+            Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
+            Err(e) => return Err(e),
         };
     }
     Ok(hasher.digest().bytes())
@@ -395,7 +392,7 @@ pub(super) fn add_file_from_ankiweb(
     let (renamed_from, path) = if let Cow::Borrowed(_) = normalized {
         let path = media_folder.join(normalized.as_ref());
         debug!(log, "write"; "fname" => normalized.as_ref());
-        fs::write(&path, data)?;
+        write_file(&path, data)?;
         (None, path)
     } else {
         // ankiweb sent us a non-normalized filename, so we'll rename it
@@ -418,17 +415,9 @@ pub(super) fn add_file_from_ankiweb(
 }
 
 pub(super) fn data_for_file(media_folder: &Path, fname: &str) -> Result<Option<Vec<u8>>> {
-    let mut file = match fs::File::open(&media_folder.join(fname)) {
-        Ok(file) => file,
-        Err(e) => {
-            if e.kind() == io::ErrorKind::NotFound {
-                return Ok(None);
-            } else {
-                return Err(AnkiError::IoError {
-                    info: format!("unable to read {}: {}", fname, e),
-                });
-            }
-        }
+    let mut file = match open_file(&media_folder.join(fname)) {
+        Err(e) if e.is_not_found() => return Ok(None),
+        res => res?,
     };
     let mut buf = vec![];
     file.read_to_end(&mut buf)?;

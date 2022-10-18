@@ -15,7 +15,6 @@ impl AnkiError {
         let kind = match self {
             AnkiError::InvalidInput { .. } => Kind::InvalidInput,
             AnkiError::TemplateError { .. } => Kind::TemplateParse,
-            AnkiError::IoError { .. } => Kind::IoError,
             AnkiError::DbError { .. } => Kind::DbError,
             AnkiError::NetworkError { .. } => Kind::NetworkError,
             AnkiError::SyncError { source } => source.kind.into(),

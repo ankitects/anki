@@ -3,7 +3,6 @@
 
 use std::{
     collections::{HashMap, HashSet},
-    fs::File,
     io::{BufRead, BufReader, Read, Seek, SeekFrom},
 };
 
@@ -21,6 +20,7 @@ use crate::{
     config::I32ConfigKey,
     error::ImportError,
     import_export::text::NameOrId,
+    io::open_file,
     notetype::NoteField,
     pb::StringList,
     prelude::*,
@@ -40,7 +40,7 @@ impl Collection {
         notetype_id: Option<NotetypeId>,
         is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
-        let mut reader = File::open(path)?;
+        let mut reader = open_file(path)?;
         self.get_reader_metadata(&mut reader, delimiter, notetype_id, is_html)
     }
 
