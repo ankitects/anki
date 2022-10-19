@@ -12,6 +12,7 @@ errors-please-check-database = Please use the Check Database action, then try ag
 errors-please-check-media = Please use the Check Media action, then try again.
 errors-collection-too-new = This collection requires a newer version of Anki to open.
 errors-invalid-ids = This deck contains timestamps in the future. Please contact the deck author and ask them to fix the issue.
+errors-inconsistent-db-state = Your database appears to be in an inconsistent state. Please use the Check Database action.
 
 ## Card Rendering
 

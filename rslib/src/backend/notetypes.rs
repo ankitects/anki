@@ -133,7 +133,7 @@ impl NotetypesService for Backend {
         self.with_col(|col| {
             col.storage
                 .get_notetype_id(&input.val)
-                .and_then(|nt| nt.ok_or_not_found(input))
+                .and_then(|nt| nt.ok_or_not_found(input.val))
                 .map(|ntid| pb::NotetypeId { ntid: ntid.0 })
         })
     }

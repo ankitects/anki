@@ -118,7 +118,9 @@ impl Collection {
                     Some(ease) => *ease,
                     None => {
                         let deck = col.get_deck(deck_id)?.ok_or_not_found(deck_id)?;
-                        let config_id = deck.config_id().ok_or_not_found(deck.config_id())?;
+                        let config_id = deck
+                            .config_id()
+                            .invalid_input_context("home deck is filtered")?;
                         let ease = col
                             .get_deck_config(config_id, true)?
                             // just for compiler; get_deck_config() is guaranteed to return a value

@@ -5,6 +5,8 @@ use std::path::PathBuf;
 
 use snafu::Snafu;
 
+/// Wrapper for [std::io::Error] with additional information on the attempted
+/// operation.
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub))]
 pub struct FileIoError {
@@ -30,32 +32,32 @@ pub enum FileOp {
     CopyFrom(PathBuf),
     Persist,
     Sync,
+    /// For legacy errors without any context.
+    Unknown,
 }
 
 impl FileOp {
     pub fn copy(from: impl Into<PathBuf>) -> Self {
         Self::CopyFrom(from.into())
     }
-
-    fn verb(&self) -> String {
-        match self {
-            Self::Open => "open".into(),
-            Self::Read => "read".into(),
-            Self::Create => "create file in".into(),
-            Self::Write => "write".into(),
-            Self::CopyFrom(p) => format!("copy from {} to", p.to_string_lossy()),
-            Self::Persist => "persist".into(),
-            Self::Sync => "sync".into(),
-        }
-    }
 }
 
 impl FileIoError {
     pub fn message(&self) -> String {
         format!(
-            "failed to {} {}",
-            self.op.verb(),
+            "Failed to {} '{}':<br>{}",
+            match &self.op {
+                FileOp::Unknown => return format!("{}", self.source),
+                FileOp::Open => "open".into(),
+                FileOp::Read => "read".into(),
+                FileOp::Create => "create file in".into(),
+                FileOp::Write => "write".into(),
+                FileOp::CopyFrom(p) => format!("copy from '{}' to", p.to_string_lossy()),
+                FileOp::Persist => "persist".into(),
+                FileOp::Sync => "sync".into(),
+            },
             self.path.to_string_lossy(),
+            self.source
         )
     }
 

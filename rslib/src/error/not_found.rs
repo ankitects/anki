@@ -7,37 +7,46 @@ use snafu::{Backtrace, OptionExt, Snafu};
 
 use crate::prelude::*;
 
+/// Something was unexpectedly missing from the database.
 #[derive(Debug, Snafu)]
-#[snafu(visibility(pub), display("{message}"))]
+#[snafu(visibility(pub))]
 pub struct NotFoundError {
-    pub message: String,
+    pub type_name: &'static str,
+    pub identifier: String,
     pub backtrace: Option<Backtrace>,
+}
+
+impl NotFoundError {
+    pub fn message(&self, tr: &I18n) -> String {
+        tr.errors_inconsistent_db_state().into()
+    }
+
+    pub fn context(&self) -> String {
+        format!("No such {}: '{}'", self.type_name, self.identifier)
+    }
 }
 
 impl PartialEq for NotFoundError {
     fn eq(&self, other: &Self) -> bool {
-        self.message == other.message
+        self.type_name == other.type_name && self.identifier == other.identifier
     }
 }
 
 impl Eq for NotFoundError {}
 
-/// Allows generating [AnkiError::NotFound] from [Option::None] and the
-/// typical [core::result::Result::Err].
+/// Allows generating [AnkiError::NotFound] from [Option::None].
 pub trait OkOrNotFound {
     type Value;
-    fn ok_or_not_found(self, identifier: impl fmt::Debug) -> Result<Self::Value>;
+    fn ok_or_not_found(self, identifier: impl fmt::Display) -> Result<Self::Value>;
 }
 
 impl<T> OkOrNotFound for Option<T> {
     type Value = T;
 
-    fn ok_or_not_found(self, identifier: impl fmt::Debug) -> Result<Self::Value> {
+    fn ok_or_not_found(self, identifier: impl fmt::Display) -> Result<Self::Value> {
         self.with_context(|| NotFoundSnafu {
-            message: format!(
-                "no such {}: {identifier:?}",
-                any::type_name::<Self::Value>()
-            ),
+            type_name: any::type_name::<Self::Value>(),
+            identifier: format!("{identifier}"),
         })
         .map_err(Into::into)
     }

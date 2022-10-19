@@ -12,6 +12,8 @@ impl AnkiError {
     pub(super) fn into_protobuf(self, tr: &I18n) -> pb::BackendError {
         let localized = self.localized_description(tr);
         let help_page = self.help_page().map(|page| page as i32);
+        let context = self.context();
+        let backtrace = self.backtrace();
         let kind = match self {
             AnkiError::InvalidInput { .. } => Kind::InvalidInput,
             AnkiError::TemplateError { .. } => Kind::TemplateParse,
@@ -45,6 +47,8 @@ impl AnkiError {
             kind: kind as i32,
             localized,
             help_page,
+            context,
+            backtrace,
         }
     }
 }

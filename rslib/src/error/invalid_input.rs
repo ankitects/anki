@@ -5,6 +5,8 @@ use snafu::{Backtrace, OptionExt, ResultExt, Snafu};
 
 use crate::prelude::*;
 
+/// General-purpose error for unexpected [Err]s, [None]s, and other
+/// violated constraints.
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub), display("{message}"), whatever)]
 pub struct InvalidInputError {
@@ -12,6 +14,20 @@ pub struct InvalidInputError {
     #[snafu(source(from(Box<dyn std::error::Error + Send + Sync>, Some)))]
     source: Option<Box<dyn std::error::Error + Send + Sync>>,
     pub backtrace: Option<Backtrace>,
+}
+
+impl InvalidInputError {
+    pub fn message(&self) -> String {
+        self.message.clone()
+    }
+
+    pub fn context(&self) -> String {
+        if let Some(source) = &self.source {
+            format!("{}", source)
+        } else {
+            String::new()
+        }
+    }
 }
 
 impl PartialEq for InvalidInputError {

@@ -370,7 +370,7 @@ impl Collection {
                 .ok_or_not_found(home_deck_id)?;
             home_deck
                 .config_id()
-                .ok_or_not_found(home_deck.config_id())?
+                .invalid_input_context("home deck is filtered")?
         };
 
         Ok(self.storage.get_deck_config(config_id)?.unwrap_or_default())

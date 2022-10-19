@@ -125,14 +125,6 @@ impl AnkiError {
             }
             AnkiError::DbError { source } => source.localized_description(tr),
             AnkiError::SearchError { source } => source.localized_description(tr),
-            AnkiError::InvalidInput { source } => {
-                if source.message.is_empty() {
-                    tr.errors_invalid_input_empty().into()
-                } else {
-                    tr.errors_invalid_input_details(source.message.as_str())
-                        .into()
-                }
-            }
             AnkiError::ParseNumError => tr.errors_parse_number_fail().into(),
             AnkiError::FilteredDeckError { source } => source.localized_description(tr),
             AnkiError::InvalidRegex { info: source } => format!("<pre>{}</pre>", source),
@@ -143,7 +135,6 @@ impl AnkiError {
             AnkiError::ImportError { source } => source.localized_description(tr),
             AnkiError::Deleted => tr.browsing_row_deleted().into(),
             AnkiError::InvalidId => tr.errors_invalid_ids().into(),
-            AnkiError::NotFound { source } => source.message.clone(),
             AnkiError::JsonError { .. }
             | AnkiError::ProtoError { .. }
             | AnkiError::Interrupted
@@ -152,6 +143,8 @@ impl AnkiError {
             | AnkiError::Existing
             | AnkiError::UndoEmpty => format!("{:?}", self),
             AnkiError::FileIoError { source } => source.message(),
+            AnkiError::InvalidInput { source } => source.message(),
+            AnkiError::NotFound { source } => source.message(tr),
         }
     }
 
@@ -171,6 +164,37 @@ impl AnkiError {
             _ => None,
         }
     }
+
+    pub fn context(&self) -> String {
+        match self {
+            Self::InvalidInput { source } => source.context(),
+            Self::NotFound { source } => source.context(),
+            _ => String::new(),
+        }
+    }
+
+    pub fn backtrace(&self) -> String {
+        match self {
+            Self::InvalidInput { source } => {
+                if let Some(bt) = snafu::ErrorCompat::backtrace(source) {
+                    return format!("{bt}");
+                }
+            }
+            Self::NotFound { source } => {
+                if let Some(bt) = snafu::ErrorCompat::backtrace(source) {
+                    return format!("{bt}");
+                }
+            }
+            _ => (),
+        }
+        String::new()
+    }
+}
+
+trait InnerAnkiError {
+    fn message(&self, tr: &I18n) -> String;
+    fn context(&self) -> String;
+    fn backtrace(&self) -> String;
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -238,7 +262,7 @@ impl From<std::io::Error> for AnkiError {
     fn from(source: std::io::Error) -> Self {
         FileIoError {
             path: std::path::PathBuf::new(),
-            op: FileOp::Open,
+            op: FileOp::Unknown,
             source,
         }
         .into()

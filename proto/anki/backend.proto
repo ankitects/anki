@@ -72,4 +72,8 @@ message BackendError {
   Kind kind = 2;
   // optional page in the manual
   optional links.HelpPageLinkRequest.HelpPage help_page = 3;
+  // additional information about the context in which the error occured
+  string context = 4;
+  // a backtrace of the underlying error; requires RUST_BACKTRACE to be set
+  string backtrace = 5;
 }
