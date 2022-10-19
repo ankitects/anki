@@ -11,7 +11,7 @@ from anki.cards import Card, CardId
 from anki.collection import BrowserColumns as Columns
 from anki.collection import Collection
 from anki.consts import *
-from anki.errors import LocalizedError, NotFoundError
+from anki.errors import BackendError, NotFoundError
 from anki.notes import Note, NoteId
 from aqt import gui_hooks
 from aqt.browser.table import Cell, CellRow, Column, ItemId, SearchContext
@@ -101,7 +101,7 @@ class DataModel(QAbstractTableModel):
     def _fetch_row_from_backend(self, item: ItemId) -> CellRow:
         try:
             row = CellRow(*self.col.browser_row_for_id(item))
-        except LocalizedError as e:
+        except BackendError as e:
             return CellRow.disabled(self.len_columns(), str(e))
         except Exception as e:
             return CellRow.disabled(
