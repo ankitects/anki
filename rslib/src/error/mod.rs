@@ -191,12 +191,6 @@ impl AnkiError {
     }
 }
 
-trait InnerAnkiError {
-    fn message(&self, tr: &I18n) -> String;
-    fn context(&self) -> String;
-    fn backtrace(&self) -> String;
-}
-
 #[derive(Debug, PartialEq, Eq)]
 pub enum TemplateError {
     NoClosingBrackets(String),
