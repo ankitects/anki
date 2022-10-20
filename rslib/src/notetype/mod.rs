@@ -26,7 +26,6 @@ pub use notetypechange::{ChangeNotetypeInput, NotetypeChangeInfo};
 use regex::Regex;
 pub(crate) use render::RenderCardOutput;
 pub use schema11::{CardTemplateSchema11, NoteFieldSchema11, NotetypeSchema11};
-use snafu::prelude::*;
 pub use stock::all_stock_notetypes;
 pub use templates::CardTemplate;
 use unicase::UniCase;
@@ -44,10 +43,7 @@ pub use crate::pb::{
 };
 use crate::{
     define_newtype,
-    error::{
-        CardTypeError, CardTypeErrorDetails, CardTypeSnafu, MissingClozeSnafu, NoFrontFieldSnafu,
-        NoSuchFieldSnafu,
-    },
+    error::{CardTypeError, CardTypeErrorDetails, CardTypeSnafu, MissingClozeSnafu},
     prelude::*,
     search::{JoinSearches, Node, SearchNode},
     storage::comma_separated_ids,
@@ -407,11 +403,12 @@ impl Notetype {
     ) -> Result<(), CardTypeErrorDetails> {
         if let (Some(q), Some(a)) = sides {
             let q_fields = q.all_referenced_field_names();
-            ensure!(!q_fields.is_empty(), NoFrontFieldSnafu);
-            ensure!(
-                !self.unknown_field_name(q_fields.union(&a.all_referenced_field_names())),
-                NoSuchFieldSnafu
-            );
+            if q_fields.is_empty() {
+                return Err(CardTypeErrorDetails::NoFrontField);
+            }
+            if self.unknown_field_name(q_fields.union(&a.all_referenced_field_names())) {
+                return Err(CardTypeErrorDetails::NoSuchField);
+            }
             Ok(())
         } else {
             Err(CardTypeErrorDetails::TemplateParseError)
