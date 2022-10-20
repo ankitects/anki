@@ -3,6 +3,7 @@
 
 use std::{any, fmt};
 
+use convert_case::{Case, Casing};
 use snafu::{Backtrace, OptionExt, Snafu};
 
 use crate::prelude::*;
@@ -11,7 +12,7 @@ use crate::prelude::*;
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub))]
 pub struct NotFoundError {
-    pub type_name: &'static str,
+    pub type_name: String,
     pub identifier: String,
     pub backtrace: Option<Backtrace>,
 }
@@ -45,9 +46,30 @@ impl<T> OrNotFound for Option<T> {
 
     fn or_not_found(self, identifier: impl fmt::Display) -> Result<Self::Value> {
         self.with_context(|| NotFoundSnafu {
-            type_name: any::type_name::<Self::Value>(),
+            type_name: unqualified_lowercase_type_name::<Self::Value>(),
             identifier: format!("{identifier}"),
         })
         .map_err(Into::into)
+    }
+}
+
+fn unqualified_lowercase_type_name<T: ?Sized>() -> String {
+    any::type_name::<T>()
+        .split("::")
+        .last()
+        .unwrap_or_default()
+        .to_case(Case::Lower)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_unqualified_lowercase_type_name() {
+        assert_eq!(
+            unqualified_lowercase_type_name::<crate::card::CardId>(),
+            "card id"
+        );
     }
 }
