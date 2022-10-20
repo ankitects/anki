@@ -1,6 +1,6 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
-@use "sass/base";
+@use "root-vars";
 @use "sass/vars" as *;
 @use "sass/card-counts";
 
@@ -38,6 +38,9 @@ body {
 
 .current {
     background-color: color(shadow-subtle);
+    .gears {
+        visibility: visible;
+    }
 }
 
 .decktd {
@@ -72,6 +75,11 @@ body {
     opacity: 0.5;
     padding-top: 0.2em;
     cursor: pointer;
+    visibility: hidden;
+}
+
+tr:hover .gears {
+    visibility: visible;
 }
 
 .nightMode {
