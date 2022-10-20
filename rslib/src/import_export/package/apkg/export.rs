@@ -16,7 +16,7 @@ use crate::{
         },
         ExportProgress, IncrementableProgress,
     },
-    io::{atomic_rename, new_tempfile, new_tempfile_in_parent},
+    io::{atomic_rename, new_tempfile, new_tempfile_in_parent_of},
     prelude::*,
 };
 
@@ -35,7 +35,7 @@ impl Collection {
     ) -> Result<usize> {
         let mut progress = IncrementableProgress::new(progress_fn);
         progress.call(ExportProgress::File)?;
-        let temp_apkg = new_tempfile_in_parent(out_path.as_ref())?;
+        let temp_apkg = new_tempfile_in_parent_of(out_path.as_ref())?;
         let mut temp_col = new_tempfile()?;
         let temp_col_path = temp_col
             .path()

@@ -23,7 +23,7 @@ use super::super::{MediaEntries, MediaEntry, Meta, Version};
 use crate::{
     collection::CollectionBuilder,
     import_export::{ExportProgress, IncrementableProgress},
-    io::{atomic_rename, new_tempfile, new_tempfile_in_parent, open_file, read_dir_files},
+    io::{atomic_rename, new_tempfile, new_tempfile_in_parent_of, open_file, read_dir_files},
     media::files::filename_if_normalized,
     prelude::*,
     storage::SchemaVersion,
@@ -45,7 +45,7 @@ impl Collection {
         let mut progress = IncrementableProgress::new(progress_fn);
         progress.call(ExportProgress::File)?;
         let colpkg_name = out_path.as_ref();
-        let temp_colpkg = new_tempfile_in_parent(colpkg_name)?;
+        let temp_colpkg = new_tempfile_in_parent_of(colpkg_name)?;
         let src_path = self.col_path.clone();
         let src_media_folder = if include_media {
             Some(self.media_folder.clone())

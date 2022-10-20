@@ -69,7 +69,7 @@ pub(crate) fn new_tempfile_in(dir: impl AsRef<Path>) -> Result<NamedTempFile> {
     })
 }
 
-pub(crate) fn new_tempfile_in_parent(file: &Path) -> Result<NamedTempFile> {
+pub(crate) fn new_tempfile_in_parent_of(file: &Path) -> Result<NamedTempFile> {
     let dir = file.parent().unwrap_or(file);
     NamedTempFile::new_in(dir).context(FileIoSnafu {
         path: dir,

@@ -20,7 +20,7 @@ use crate::{
         },
         ImportProgress, IncrementableProgress,
     },
-    io::{atomic_rename, create_dir_all, new_tempfile_in_parent, open_file},
+    io::{atomic_rename, create_dir_all, new_tempfile_in_parent_of, open_file},
     media::MediaManager,
     prelude::*,
 };
@@ -36,7 +36,7 @@ pub fn import_colpkg(
     let mut progress = IncrementableProgress::new(progress_fn);
     progress.call(ImportProgress::File)?;
     let col_path = PathBuf::from(target_col_path);
-    let mut tempfile = new_tempfile_in_parent(&col_path)?;
+    let mut tempfile = new_tempfile_in_parent_of(&col_path)?;
 
     let backup_file = open_file(colpkg_path)?;
     let mut archive = ZipArchive::new(backup_file)?;
@@ -127,7 +127,7 @@ fn maybe_restore_media_file(
 }
 
 fn restore_media_file(meta: &Meta, zip_file: &mut ZipFile, path: &Path) -> Result<()> {
-    let mut tempfile = new_tempfile_in_parent(path)?;
+    let mut tempfile = new_tempfile_in_parent_of(path)?;
     meta.copy(zip_file, &mut tempfile)
         .with_context(|_| FileIoSnafu {
             path: tempfile.path(),
