@@ -62,7 +62,7 @@ QSpinBox {{
 def menu_styles(tm: ThemeManager) -> str:
     return f"""
 QMenuBar {{
-    border-bottom: 1px solid {tm.var(colors.BORDER_FAINT)};
+    border-bottom: 1px solid {tm.var(colors.BORDER_SUBTLE)};
 }}
 QMenuBar::item {{
     background-color: transparent;

@@ -1,6 +1,8 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+@use "root-vars";
+@use "sass/vars" as *;
 @use "sass/card-counts";
 
 .smallLink {
@@ -13,7 +15,7 @@ h3 {
 
 .descfont {
     padding: 1em;
-    color: var(--fg-subtle);
+    color: color(fg-subtle);
 }
 
 .description {

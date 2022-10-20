@@ -19,20 +19,22 @@
     border-bottom-right-radius: var(--border-right-radius);
 }
 
-@mixin background($primary: false) {
+@mixin background($primary: false, $hover: true) {
     @if $primary {
         background: linear-gradient(
             180deg,
             var(--button-primary-gradient-start) 0%,
             var(--button-primary-gradient-end) 100%
         );
-        &:hover {
-            background: linear-gradient(
-                180deg,
-                var(--button-primary-hover-gradient-start) 0%,
-                var(--button-primary-hover-gradient-end) 100%
-            );
-            border-color: var(--button-hover-border);
+        @if $hover {
+            &:hover {
+                background: linear-gradient(
+                    180deg,
+                    var(--button-primary-hover-gradient-start) 0%,
+                    var(--button-primary-hover-gradient-end) 100%
+                );
+                border-color: var(--button-hover-border);
+            }
         }
     } @else {
         background: linear-gradient(
@@ -40,13 +42,15 @@
             var(--button-gradient-start) 0%,
             var(--button-gradient-end) 100%
         );
-        &:hover {
-            background: linear-gradient(
-                180deg,
-                var(--button-hover-gradient-start) 0%,
-                var(--button-hover-gradient-end) 100%
-            );
-            border-color: var(--button-hover-border);
+        @if $hover {
+            &:hover {
+                background: linear-gradient(
+                    180deg,
+                    var(--button-hover-gradient-start) 0%,
+                    var(--button-hover-gradient-end) 100%
+                );
+                border-color: var(--button-hover-border);
+            }
         }
     }
 }
@@ -66,7 +70,7 @@
     } @else {
         border: none;
     }
-    @include background($primary);
+    @include background($primary, $hover: $with-hover);
 
     @if ($primary) {
         color: white;
