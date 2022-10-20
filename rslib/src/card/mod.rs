@@ -239,7 +239,7 @@ impl Collection {
     }
 
     pub(crate) fn add_card(&mut self, card: &mut Card) -> Result<()> {
-        ensure_valid_input!(card.id.0 == 0, "card id already set");
+        require!(card.id.0 == 0, "card id already set");
         card.mtime = TimestampSecs::now();
         card.usn = self.usn()?;
         self.add_card_undoable(card)
@@ -291,7 +291,7 @@ impl Collection {
     }
 
     pub fn set_card_flag(&mut self, cards: &[CardId], flag: u32) -> Result<OpOutput<usize>> {
-        ensure_valid_input!(flag < 8, "invalid flag");
+        require!(flag < 8, "invalid flag");
         let flag = flag as u8;
 
         let usn = self.usn()?;

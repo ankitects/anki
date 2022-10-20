@@ -51,7 +51,7 @@ impl NoteField {
 
     /// Fix the name of the field if it's valid. Otherwise explain why it's not.
     pub(crate) fn fix_name(&mut self) -> Result<()> {
-        ensure_valid_input!(!self.name.is_empty(), "Empty field name");
+        require!(!self.name.is_empty(), "Empty field name");
         let bad_chars = |c| c == ':' || c == '{' || c == '}' || c == '"';
         if self.name.contains(bad_chars) {
             self.name = self.name.replace(bad_chars, "");
@@ -59,7 +59,7 @@ impl NoteField {
         // and leading/trailing whitespace and special chars
         let bad_start_chars = |c: char| c == '#' || c == '/' || c == '^' || c.is_whitespace();
         let trimmed = self.name.trim().trim_start_matches(bad_start_chars);
-        ensure_valid_input!(!trimmed.is_empty(), "Field name: {}", self.name);
+        require!(!trimmed.is_empty(), "Field name: {}", self.name);
         if trimmed.len() != self.name.len() {
             self.name = trimmed.into();
         }

@@ -245,7 +245,7 @@ impl Collection {
     /// Return the notetype used by `note_ids`, or an error if not exactly 1
     /// notetype is in use.
     pub fn get_single_notetype_of_notes(&mut self, note_ids: &[NoteId]) -> Result<NotetypeId> {
-        ensure_valid_input!(!note_ids.is_empty(), "no note id provided");
+        require!(!note_ids.is_empty(), "no note id provided");
 
         let nids_node: Node = SearchNode::NoteIds(comma_separated_ids(note_ids)).into();
         let note1 = self
@@ -475,13 +475,13 @@ impl Notetype {
         existing: Option<&Notetype>,
         skip_checks: bool,
     ) -> Result<()> {
-        ensure_valid_input!(!self.fields.is_empty(), "1 field required");
-        ensure_valid_input!(!self.templates.is_empty(), "1 template required");
+        require!(!self.fields.is_empty(), "1 field required");
+        require!(!self.templates.is_empty(), "1 template required");
         let bad_chars = |c| c == '"';
         if self.name.contains(bad_chars) {
             self.name = self.name.replace(bad_chars, "");
         }
-        ensure_valid_input!(!self.name.is_empty(), "Empty notetype name");
+        require!(!self.name.is_empty(), "Empty notetype name");
         self.normalize_names();
         self.fix_field_names()?;
         self.fix_template_names()?;

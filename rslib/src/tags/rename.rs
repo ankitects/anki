@@ -16,11 +16,11 @@ impl Collection {
 
 impl Collection {
     fn rename_tag_inner(&mut self, old_prefix: &str, new_prefix: &str) -> Result<usize> {
-        ensure_valid_input!(
+        require!(
             !new_prefix.contains(is_tag_separator),
             "replacement name can not contain a space",
         );
-        ensure_valid_input!(
+        require!(
             !new_prefix.trim().is_empty(),
             "replacement name must not be empty",
         );

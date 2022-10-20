@@ -74,11 +74,11 @@ fn validate_custom_data(json_str: &str) -> Result<()> {
     if !meta_is_empty(json_str) {
         let object: HashMap<&str, Value> =
             serde_json::from_str(json_str).ok_or_invalid("custom data not an object")?;
-        ensure_valid_input!(
+        require!(
             object.keys().all(|k| k.as_bytes().len() <= 8),
             "custom data keys must be <= 8 bytes"
         );
-        ensure_valid_input!(
+        require!(
             json_str.len() <= 100,
             "serialized custom data must be under 100 bytes"
         );

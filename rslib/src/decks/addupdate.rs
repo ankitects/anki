@@ -43,7 +43,7 @@ impl Collection {
     }
 
     pub(crate) fn add_deck_inner(&mut self, deck: &mut Deck, usn: Usn) -> Result<()> {
-        ensure_valid_input!(deck.id.0 == 0, "deck to add must have id 0");
+        require!(deck.id.0 == 0, "deck to add must have id 0");
         self.prepare_deck_for_update(deck, usn)?;
         deck.set_modified(usn);
         self.match_or_create_parents(deck, usn)?;
@@ -151,7 +151,7 @@ impl Collection {
         machine_name: &str,
         recursion_level: usize,
     ) -> Result<Option<Deck>> {
-        ensure_valid_input!(recursion_level < 11, "deck nesting level too deep");
+        require!(recursion_level < 11, "deck nesting level too deep");
         if let Some(parent_name) = immediate_parent_name(machine_name) {
             if let Some(parent_did) = self.storage.get_deck_id(parent_name)? {
                 self.storage.get_deck(parent_did)

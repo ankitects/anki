@@ -216,7 +216,7 @@ impl SqliteStorage {
 
     /// Notetype should have an existing id, and will be added if missing.
     fn update_notetype_core(&self, nt: &Notetype) -> Result<()> {
-        ensure_valid_input!(nt.id.0 != 0, "notetype with id 0 passed in as existing");
+        require!(nt.id.0 != 0, "notetype with id 0 passed in as existing");
         let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
         let mut config_bytes = vec![];
         nt.config.encode(&mut config_bytes)?;

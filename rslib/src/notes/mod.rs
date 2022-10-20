@@ -56,7 +56,7 @@ impl Note {
     }
 
     pub fn set_field(&mut self, idx: usize, text: impl Into<String>) -> Result<()> {
-        ensure_valid_input!(idx < self.fields.len(), "field idx out of range");
+        require!(idx < self.fields.len(), "field idx out of range");
 
         self.fields[idx] = text.into();
         self.mark_dirty();
@@ -170,7 +170,7 @@ impl Note {
     pub(crate) fn prepare_for_update(&mut self, nt: &Notetype, normalize_text: bool) -> Result<()> {
         assert!(nt.id == self.notetype_id);
         let notetype_field_count = nt.fields.len().max(1);
-        ensure_valid_input!(
+        require!(
             notetype_field_count == self.fields.len(),
             "note has {} fields, expected {notetype_field_count}",
             self.fields.len()

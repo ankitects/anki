@@ -326,7 +326,7 @@ fn write_order(
         ReturnItemType::Cards => card_order_from_sort_column(column),
         ReturnItemType::Notes => note_order_from_sort_column(column),
     };
-    ensure_valid_input!(!order.is_empty(), "Can't sort {item_type:?} by {column:?}.");
+    require!(!order.is_empty(), "Can't sort {item_type:?} by {column:?}.");
     if reverse {
         sql.push_str(
             &order

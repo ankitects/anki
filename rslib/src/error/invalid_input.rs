@@ -90,7 +90,7 @@ macro_rules! invalid_input {
 
 /// Returns an [AnkiError::InvalidInput] unless the condition is true.
 #[macro_export]
-macro_rules! ensure_valid_input {
+macro_rules! require {
     ($condition:expr, $fmt:literal$(, $($arg:expr),* $(,)?)?) => {
         if !$condition {
             return core::result::Result::Err({ $crate::error::AnkiError::InvalidInput {

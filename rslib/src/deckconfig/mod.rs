@@ -169,7 +169,7 @@ impl Collection {
 
     /// Remove a deck configuration. This will force a full sync.
     pub(crate) fn remove_deck_config_inner(&mut self, dcid: DeckConfigId) -> Result<()> {
-        ensure_valid_input!(dcid.0 != 1, "can't delete default conf");
+        require!(dcid.0 != 1, "can't delete default conf");
         let conf = self.storage.get_deck_config(dcid)?.ok_or_not_found(dcid)?;
         self.set_schema_modified()?;
         self.remove_deck_config_undoable(conf)

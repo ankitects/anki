@@ -18,7 +18,7 @@ impl Collection {
         regex: bool,
         match_case: bool,
     ) -> Result<OpOutput<usize>> {
-        ensure_valid_input!(
+        require!(
             !replacement.contains(is_tag_separator),
             "replacement name cannot contain a space",
         );

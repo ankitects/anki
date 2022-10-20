@@ -104,7 +104,7 @@ impl SqliteStorage {
         &self,
         conf: &DeckConfig,
     ) -> Result<()> {
-        ensure_valid_input!(conf.id.0 != 0, "deck with id 0");
+        require!(conf.id.0 != 0, "deck with id 0");
         let mut conf_bytes = vec![];
         conf.inner.encode(&mut conf_bytes)?;
         self.db

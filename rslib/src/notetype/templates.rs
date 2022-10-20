@@ -99,9 +99,9 @@ impl CardTemplate {
     /// Return whether the name is valid. Remove quote characters if it leads to a valid name.
     pub(crate) fn fix_name(&mut self) -> Result<()> {
         let bad_chars = |c| c == '"';
-        ensure_valid_input!(!self.name.is_empty(), "Empty template name");
+        require!(!self.name.is_empty(), "Empty template name");
         let trimmed = self.name.replace(bad_chars, "");
-        ensure_valid_input!(!trimmed.is_empty(), "Template name contains only quotes");
+        require!(!trimmed.is_empty(), "Template name contains only quotes");
         if self.name.len() != trimmed.len() {
             self.name = trimmed;
         }

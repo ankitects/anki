@@ -119,7 +119,7 @@ impl Collection {
     }
 
     fn update_deck_configs_inner(&mut self, mut input: UpdateDeckConfigsRequest) -> Result<()> {
-        ensure_valid_input!(!input.configs.is_empty(), "config not provided");
+        require!(!input.configs.is_empty(), "config not provided");
         let configs_before_update = self.storage.get_deck_config_map()?;
         let mut configs_after_update = configs_before_update.clone();
 

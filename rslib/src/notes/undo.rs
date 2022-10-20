@@ -92,7 +92,7 @@ impl Collection {
 
     /// Add a note, not adding any cards. Caller guarantees id is unique.
     pub(crate) fn add_note_only_with_id_undoable(&mut self, note: &mut Note) -> Result<()> {
-        ensure_valid_input!(self.storage.add_note_if_unique(note)?, "note id existed");
+        require!(self.storage.add_note_if_unique(note)?, "note id existed");
         self.save_undo(UndoableNoteChange::Added(Box::new(note.clone())));
         Ok(())
     }

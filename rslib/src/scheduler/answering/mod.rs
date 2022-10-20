@@ -164,7 +164,7 @@ impl CardStateUpdater {
     }
 
     fn ensure_filtered(&self) -> Result<()> {
-        ensure_valid_input!(
+        require!(
             self.card.original_deck_id.0 != 0,
             "card answering can't transition into filtered state",
         );
@@ -257,7 +257,7 @@ impl Collection {
         let mut updater = self.card_state_updater(card)?;
         answer.cap_answer_secs(updater.config.inner.cap_answer_time_to_secs);
         let current_state = updater.current_card_state();
-        ensure_valid_input!(
+        require!(
             current_state == answer.current_state,
             "card was modified: {current_state:#?} {:#?}",
             answer.current_state,
