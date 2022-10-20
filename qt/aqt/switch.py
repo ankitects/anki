@@ -6,6 +6,7 @@ from aqt import colors
 from aqt.qt import *
 from aqt.theme import theme_manager
 
+
 class Switch(QAbstractButton):
     """A horizontal slider to toggle between two states which can be denoted by strings and/or QIcons.
 

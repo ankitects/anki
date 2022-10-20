@@ -49,7 +49,7 @@ class CellRow:
     ) -> None:
         self.refreshed_at: float = time.time()
         self.cells: tuple[Cell, ...] = tuple(Cell(*cell) for cell in cells)
-        self.color: tuple[str, str] | None = backend_color_to_aqt_color(color)
+        self.color: dict[str, str] | None = backend_color_to_aqt_color(color)
         self.font_name: str = font_name or "arial"
         self.font_size: int = font_size if font_size > 0 else 12
 

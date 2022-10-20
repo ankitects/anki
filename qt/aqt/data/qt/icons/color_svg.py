@@ -44,8 +44,6 @@ with open(input_svg, "r") as f:
                 data = re.sub(r"<svg", f'<svg fill="{color[mode]}"', data, 1)
             with open(filename, "w") as f:
                 f.write(data)
-    
+
         substitute(svg_data, light_svg, "light")
         substitute(svg_data, dark_svg, "dark")
-
-

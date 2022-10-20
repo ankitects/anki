@@ -4,7 +4,6 @@
 import json
 import re
 import sys
-import pprint
 
 # bazel genrule "srcs"
 root_vars_css = sys.argv[1]
@@ -75,7 +74,7 @@ with open(colors_py, "w") as buf:
         if not "dark" in val:
             val["dark"] = val.light
 
-        buf.write(f'{color} = {pprint.pformat(val, width=50, sort_dicts=False)}\n')
+        buf.write(re.sub(r'\"\n', '",\n', f"{color} = {json.dumps(val, indent=4)}\n"))
 
 
 with open(props_py, "w") as buf:
@@ -86,4 +85,4 @@ with open(props_py, "w") as buf:
         if not "dark" in val:
             val["dark"] = val.light
 
-        buf.write(f'{prop} = {pprint.pformat(val, width=50, sort_dicts=False)}\n')
+        buf.write(re.sub(r'\"\n', '",\n', f"{prop} = {json.dumps(val, indent=4)}\n"))
