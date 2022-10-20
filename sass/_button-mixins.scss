@@ -62,7 +62,7 @@
     -webkit-appearance: none;
     cursor: pointer;
     @if $border {
-        border: 1px solid var(--button-border);
+        border: 1px solid var(--border-subtle);
     } @else {
         border: none;
     }
@@ -77,12 +77,12 @@
     @if ($with-active) {
         &:active {
             @include impressed-shadow(0.35);
-            border-color: var(--button-border);
+            border-color: var(--border-subtle);
         }
         @if ($active-class != "") {
             &.#{$active-class} {
                 @include impressed-shadow(0.35);
-                border-color: var(--button-border);
+                border-color: var(--border-subtle);
             }
         }
     }

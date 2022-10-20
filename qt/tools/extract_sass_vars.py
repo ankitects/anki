@@ -13,14 +13,6 @@ root_vars_css = sys.argv[1]
 colors_py = sys.argv[2]
 props_py = sys.argv[3]
 
-class Var(str):
-    def __new__(self, value: str, comment: str):
-        self.comment = comment
-        return str.__new__(self, value)
-
-    def comment(self):
-        return self.comment
-
 colors = {}
 props = {}
 reached_props = False

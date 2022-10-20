@@ -311,7 +311,7 @@ class ThemeManager:
             disabled_color,
         )
 
-        palette.setColor(QPalette.ColorRole.Link, self.qcolor(colors.ACCENT_LINK))
+        palette.setColor(QPalette.ColorRole.Link, self.qcolor(colors.FG_LINK))
 
         palette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
 
