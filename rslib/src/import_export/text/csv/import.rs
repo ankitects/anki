@@ -43,15 +43,13 @@ impl Collection {
 
 impl CsvMetadata {
     fn deck(&self) -> Result<&CsvDeck> {
-        self.deck
-            .as_ref()
-            .invalid_input_context("deck oneof not set")
+        self.deck.as_ref().ok_or_invalid("deck oneof not set")
     }
 
     fn notetype(&self) -> Result<&CsvNotetype> {
         self.notetype
             .as_ref()
-            .invalid_input_context("notetype oneof not set")
+            .ok_or_invalid("notetype oneof not set")
     }
 
     fn field_source_columns(&self) -> Result<FieldSourceColumns> {
@@ -148,7 +146,7 @@ impl ColumnContext {
             .records()
             .into_iter()
             .map(|res| {
-                res.invalid_input_context("invalid csv")
+                res.ok_or_invalid("invalid csv")
                     .map(|record| self.foreign_note_from_record(&record))
             })
             .collect()

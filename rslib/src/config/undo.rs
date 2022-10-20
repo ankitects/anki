@@ -19,7 +19,7 @@ impl Collection {
                 let current = self
                     .storage
                     .get_config_entry(&entry.key)?
-                    .invalid_input_context("config disappeared")?;
+                    .ok_or_invalid("config disappeared")?;
                 self.update_config_entry_undoable(entry, current)
                     .map(|_| ())
             }

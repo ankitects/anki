@@ -20,7 +20,7 @@ impl Collection {
                 let current = self
                     .storage
                     .get_tag(&tag.name)?
-                    .invalid_input_context("tag disappeared")?;
+                    .ok_or_invalid("tag disappeared")?;
                 self.update_tag_undoable(&tag, current)
             }
         }

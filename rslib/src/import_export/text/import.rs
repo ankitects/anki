@@ -448,7 +448,7 @@ impl Collection {
     fn get_full_duplicates(&self, note: &ForeignNote, dupe_ids: &[NoteId]) -> Result<Vec<Note>> {
         let first_field = note
             .first_field_stripped()
-            .invalid_input_context("no first field")?;
+            .ok_or_invalid("no first field")?;
         dupe_ids
             .iter()
             .filter_map(|&dupe_id| self.storage.get_note(dupe_id).transpose())

@@ -70,7 +70,7 @@ impl Collection {
         self.transact(Op::AddNote, |col| {
             let nt = col
                 .get_notetype(note.notetype_id)?
-                .invalid_input_context("missing note type")?;
+                .ok_or_invalid("missing note type")?;
             let last_deck = col.get_last_deck_added_to_for_notetype(note.notetype_id);
             let ctx = CardGenContext::new(nt.as_ref(), last_deck, col.usn()?);
             let norm = col.get_config_bool(BoolKey::NormalizeNoteText);
@@ -387,7 +387,7 @@ impl Collection {
         }
         let nt = self
             .get_notetype(note.notetype_id)?
-            .invalid_input_context("missing note type")?;
+            .ok_or_invalid("missing note type")?;
         let last_deck = self.get_last_deck_added_to_for_notetype(note.notetype_id);
         let ctx = CardGenContext::new(nt.as_ref(), last_deck, self.usn()?);
         let norm = self.get_config_bool(BoolKey::NormalizeNoteText);
@@ -485,7 +485,7 @@ impl Collection {
         for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
             let nt = self
                 .get_notetype(ntid)?
-                .invalid_input_context("missing note type")?;
+                .ok_or_invalid("missing note type")?;
 
             let mut genctx = None;
             for (_, nid) in group {

@@ -19,22 +19,19 @@ pub struct RenderCardOutput {
 impl Collection {
     /// Render an existing card saved in the database.
     pub fn render_existing_card(&mut self, cid: CardId, browser: bool) -> Result<RenderCardOutput> {
-        let card = self
-            .storage
-            .get_card(cid)?
-            .invalid_input_context("no such card")?;
+        let card = self.storage.get_card(cid)?.ok_or_invalid("no such card")?;
         let note = self
             .storage
             .get_note(card.note_id)?
-            .invalid_input_context("no such note")?;
+            .ok_or_invalid("no such note")?;
         let nt = self
             .get_notetype(note.notetype_id)?
-            .invalid_input_context("no such notetype")?;
+            .ok_or_invalid("no such notetype")?;
         let template = match nt.config.kind() {
             NotetypeKind::Normal => nt.templates.get(card.template_idx as usize),
             NotetypeKind::Cloze => nt.templates.get(0),
         }
-        .invalid_input_context("missing template")?;
+        .ok_or_invalid("missing template")?;
 
         self.render_card(&note, &card, &nt, template, browser)
     }
@@ -52,7 +49,7 @@ impl Collection {
         let card = self.existing_or_synthesized_card(note.id, template.ord, card_ord)?;
         let nt = self
             .get_notetype(note.notetype_id)?
-            .invalid_input_context("no such notetype")?;
+            .ok_or_invalid("no such notetype")?;
 
         if fill_empty {
             fill_empty_fields(note, &template.config.q_format, &nt, &self.tr);

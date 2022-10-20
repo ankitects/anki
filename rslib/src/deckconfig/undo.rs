@@ -22,7 +22,7 @@ impl Collection {
                 let current = self
                     .storage
                     .get_deck_config(config.id)?
-                    .invalid_input_context("deck config disappeared")?;
+                    .ok_or_invalid("deck config disappeared")?;
                 self.update_deck_config_undoable(&config, current)
             }
             UndoableDeckConfigChange::Removed(config) => self.restore_deleted_deck_config(*config),

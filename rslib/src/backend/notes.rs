@@ -22,7 +22,7 @@ impl NotesService for Backend {
 
     fn add_note(&self, input: pb::AddNoteRequest) -> Result<pb::AddNoteResponse> {
         self.with_col(|col| {
-            let mut note: Note = input.note.invalid_input_context("no note provided")?.into();
+            let mut note: Note = input.note.ok_or_invalid("no note provided")?.into();
             let changes = col.add_note(&mut note, DeckId(input.deck_id))?;
             Ok(pb::AddNoteResponse {
                 note_id: note.id.0,

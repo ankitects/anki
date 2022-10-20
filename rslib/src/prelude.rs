@@ -12,7 +12,7 @@ pub use crate::{
     deckconfig::{DeckConfig, DeckConfigId},
     decks::{Deck, DeckId, DeckKind, NativeDeckName},
     ensure_valid_input,
-    error::{AnkiError, InvalidInputContext, OkOrNotFound, Result},
+    error::{AnkiError, OkOrInvalid, OkOrNotFound, Result},
     i18n::I18n,
     invalid_input,
     media::Sha1Hash,

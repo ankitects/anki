@@ -220,10 +220,7 @@ impl Collection {
     where
         F: FnOnce(&mut Card) -> Result<T>,
     {
-        let orig = self
-            .storage
-            .get_card(cid)?
-            .invalid_input_context("no such card")?;
+        let orig = self.storage.get_card(cid)?.ok_or_invalid("no such card")?;
         let mut card = orig.clone();
         func(&mut card)?;
         self.update_card_inner(&mut card, orig, self.usn()?)?;

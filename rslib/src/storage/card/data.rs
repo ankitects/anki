@@ -73,7 +73,7 @@ fn meta_is_empty(s: &str) -> bool {
 fn validate_custom_data(json_str: &str) -> Result<()> {
     if !meta_is_empty(json_str) {
         let object: HashMap<&str, Value> =
-            serde_json::from_str(json_str).invalid_input_context("custom data not an object")?;
+            serde_json::from_str(json_str).ok_or_invalid("custom data not an object")?;
         ensure_valid_input!(
             object.keys().all(|k| k.as_bytes().len() <= 8),
             "custom data keys must be <= 8 bytes"

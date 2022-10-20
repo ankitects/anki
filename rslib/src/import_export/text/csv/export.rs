@@ -39,7 +39,7 @@ impl Collection {
             incrementor.increment()?;
             writer
                 .write_record(self.card_record(card, with_html)?)
-                .invalid_input_context("invalid csv")?;
+                .ok_or_invalid("invalid csv")?;
         }
         writer.flush()?;
 
@@ -62,7 +62,7 @@ impl Collection {
             incrementor.increment()?;
             writer
                 .write_record(ctx.record(&note))
-                .invalid_input_context("invalid csv")?;
+                .ok_or_invalid("invalid csv")?;
             Ok(())
         })?;
         writer.flush()?;

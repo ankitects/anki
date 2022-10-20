@@ -149,7 +149,7 @@ impl UndoManager {
                 }
             })
             .next()
-            .invalid_input_context("target undo op not found")?;
+            .ok_or_invalid("target undo op not found")?;
         let mut removed = vec![];
         for _ in 0..target_idx {
             removed.push(self.undo_steps.pop_front().unwrap());

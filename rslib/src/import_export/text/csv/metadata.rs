@@ -233,7 +233,7 @@ impl Collection {
             self.storage
                 .get_all_notetype_names()?
                 .first()
-                .invalid_input_context("collection has no notetypes")?
+                .ok_or_invalid("collection has no notetypes")?
                 .0
         })
     }
@@ -256,7 +256,7 @@ fn collect_preview_records(
         .into_iter()
         .take(PREVIEW_LENGTH)
         .collect::<csv::Result<_>>()
-        .invalid_input_context("invalid csv")
+        .ok_or_invalid("invalid csv")
 }
 
 fn set_preview(metadata: &mut CsvMetadata, records: &[csv::StringRecord]) -> Result<()> {

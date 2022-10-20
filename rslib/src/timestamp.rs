@@ -36,7 +36,7 @@ impl TimestampSecs {
         std::panic::catch_unwind(|| Local.timestamp(self.0, 0))
             // discard error as it doesn't satisfiy trait bounds
             .ok()
-            .invalid_input_context("invalid date")
+            .ok_or_invalid("invalid date")
     }
 
     #[cfg(not(windows))]

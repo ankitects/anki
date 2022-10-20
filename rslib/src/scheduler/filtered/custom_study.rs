@@ -101,7 +101,7 @@ impl Collection {
             .get_deck(input.deck_id.into())?
             .ok_or_not_found(input.deck_id)?;
 
-        match input.value.invalid_input_context("missing oneof value")? {
+        match input.value.ok_or_invalid("missing oneof value")? {
             CustomStudyValue::NewLimitDelta(delta) => {
                 let today = self.current_due_day(0)?;
                 self.extend_limits(today, self.usn()?, deck.id, delta, 0)?;
