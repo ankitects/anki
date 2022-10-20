@@ -270,6 +270,15 @@
     "description": "Compares two equal-sized byte strings in constant time."
   },
   {
+    "name": "convert_case",
+    "version": "0.6.0",
+    "authors": "Rutrum <dave@rutrum.net>",
+    "repository": "https://github.com/rutrum/convert-case",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Convert strings into any case"
+  },
+  {
     "name": "core-foundation",
     "version": "0.9.3",
     "authors": "The Servo Project Developers",
@@ -2365,6 +2374,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "This crate provides functions for normalization of Unicode strings, including Canonical and Compatible Decomposition and Recomposition, as described in Unicode Standard Annex #15."
+  },
+  {
+    "name": "unicode-segmentation",
+    "version": "1.10.0",
+    "authors": "kwantam <kwantam@gmail.com>|Manish Goregaokar <manishsmail@gmail.com>",
+    "repository": "https://github.com/unicode-rs/unicode-segmentation",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "This crate provides Grapheme Cluster, Word and Sentence boundaries according to Unicode Standard Annex #29 rules."
   },
   {
     "name": "unicode-width",

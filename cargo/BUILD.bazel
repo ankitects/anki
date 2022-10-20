@@ -67,6 +67,15 @@ alias(
 )
 
 alias(
+    name = "convert_case",
+    actual = "@raze__convert_case__0_6_0//:convert_case",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "csv",
     actual = "@raze__csv__1_1_6//:csv",
     tags = [

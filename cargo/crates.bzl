@@ -323,6 +323,16 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "raze__convert_case__0_6_0",
+        url = "https://crates.io/api/v1/crates/convert_case/0.6.0/download",
+        type = "tar.gz",
+        sha256 = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca",
+        strip_prefix = "convert_case-0.6.0",
+        build_file = Label("//cargo/remote:BUILD.convert_case-0.6.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "raze__core_foundation__0_9_3",
         url = "https://crates.io/api/v1/crates/core-foundation/0.9.3/download",
         type = "tar.gz",
@@ -3039,6 +3049,16 @@ def raze_fetch_remote_crates():
         sha256 = "5c5713f0fc4b5db668a2ac63cdb7bb4469d8c9fed047b1d0292cc7b0ce2ba921",
         strip_prefix = "unicode-normalization-0.1.22",
         build_file = Label("//cargo/remote:BUILD.unicode-normalization-0.1.22.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__unicode_segmentation__1_10_0",
+        url = "https://crates.io/api/v1/crates/unicode-segmentation/1.10.0/download",
+        type = "tar.gz",
+        sha256 = "0fdbf052a0783de01e944a6ce7a8cb939e295b1e7be835a1112c3b9a7f047a5a",
+        strip_prefix = "unicode-segmentation-1.10.0",
+        build_file = Label("//cargo/remote:BUILD.unicode-segmentation-1.10.0.bazel"),
     )
 
     maybe(
