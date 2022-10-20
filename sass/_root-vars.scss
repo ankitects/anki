@@ -9,11 +9,13 @@
 :root {
     $colors: map.get($vars, colors);
     @each $name, $val in create-vars-from-map($colors, light) {
+        /*! #{$name} */
         #{$name}: #{$val};
     }
     color-scheme: light;
     &.night-mode {
         @each $name, $val in create-vars-from-map($colors, dark) {
+            /*! #{$name} */
             #{$name}: #{$val};
         }
         color-scheme: dark;
@@ -24,10 +26,12 @@
 :root {
     $props: map.get($vars, props);
     @each $name, $val in create-vars-from-map($props, light) {
-        #{$name}: #{$val}; /*! #{$name} */
+        /*! #{$name} */
+        #{$name}: #{$val};
     }
     &.night-mode {
         @each $name, $val in create-vars-from-map($props, dark) {
+            /*! #{$name} */
             #{$name}: #{$val};
         }
     }

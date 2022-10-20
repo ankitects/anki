@@ -6,7 +6,6 @@ from aqt import colors
 from aqt.qt import *
 from aqt.theme import theme_manager
 
-
 class Switch(QAbstractButton):
     """A horizontal slider to toggle between two states which can be denoted by strings and/or QIcons.
 
@@ -19,8 +18,8 @@ class Switch(QAbstractButton):
         radius: int = 10,
         left_label: str = "",
         right_label: str = "",
-        left_color: tuple[str, str] = colors.ACCENT_CARD,
-        right_color: tuple[str, str] = colors.ACCENT_NOTE,
+        left_color: dict[str, str] = colors.ACCENT_CARD,
+        right_color: dict[str, str] = colors.ACCENT_NOTE,
         parent: QWidget = None,
     ) -> None:
         super().__init__(parent=parent)

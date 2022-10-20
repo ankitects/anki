@@ -101,12 +101,11 @@ def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> tuple[str, str] | N
     return adjusted_bg_color(temp_color)
 
 
-def adjusted_bg_color(color: tuple[str, str]) -> tuple[str, str]:
+def adjusted_bg_color(color: dict[str, str]) -> dict:
     if color:
-        return (
-            QColor(color[0]).lighter(150).name(),
-            QColor(color[1]).darker(150).name(),
-        )
+        color.day = color.day.lighter(150).name()
+        color.night = color.night.darker(150).name()
+        return color
     else:
         return None
 

@@ -31,16 +31,15 @@ from aqt.qt import (
 @dataclass
 class ColoredIcon:
     path: str
-    # (day, night)
-    color: tuple[str, str]
+    color: dict[str, str]
 
     def current_color(self, night_mode: bool) -> str:
         if night_mode:
-            return self.color[1]
+            return self.color.get("dark", "")
         else:
-            return self.color[0]
+            return self.color.get("light", "")
 
-    def with_color(self, color: tuple[str, str]) -> ColoredIcon:
+    def with_color(self, color: dict[str, str]) -> ColoredIcon:
         return ColoredIcon(path=self.path, color=color)
 
 
@@ -178,12 +177,11 @@ class ThemeManager:
         "Returns body classes used when showing a card."
         return f"card card{card_ord+1} {self.body_class(night_mode)}"
 
-    def var(self, vars: tuple[str, str]) -> str:
+    def var(self, vars: dict[str, str]) -> str:
         """Given day/night colors/props, return the correct one for the current theme."""
-        idx = 1 if self.night_mode else 0
-        return vars[idx]
+        return vars["dark" if self.night_mode else "light"]
 
-    def qcolor(self, colors: tuple[str, str]) -> QColor:
+    def qcolor(self, colors: dict[str, str]) -> QColor:
         return QColor(self.var(colors))
 
     def _determine_night_mode(self) -> bool:

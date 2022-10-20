@@ -453,8 +453,8 @@ div[contenteditable="true"]:focus {{
 body {{ zoom: {zoom}; background-color: var(--canvas); }}
 html {{ {font} }}
 {button_style}
-:root {{ --canvas: {colors.CANVAS[0]} }}
-:root[class*=night-mode] {{ --canvas: {colors.CANVAS[1]} }}
+:root {{ --canvas: {colors.CANVAS["light"]} }}
+:root[class*=night-mode] {{ --canvas: {colors.CANVAS["dark"]} }}
 """
 
     def stdHtml(
