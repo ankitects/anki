@@ -15,7 +15,7 @@ impl NotesService for Backend {
     fn new_note(&self, input: pb::NotetypeId) -> Result<pb::Note> {
         let ntid = input.into();
         self.with_col(|col| {
-            let nt = col.get_notetype(ntid)?.ok_or_not_found(ntid)?;
+            let nt = col.get_notetype(ntid)?.or_not_found(ntid)?;
             Ok(nt.new_note().into())
         })
     }
@@ -64,12 +64,7 @@ impl NotesService for Backend {
 
     fn get_note(&self, input: pb::NoteId) -> Result<pb::Note> {
         let nid = input.into();
-        self.with_col(|col| {
-            col.storage
-                .get_note(nid)?
-                .ok_or_not_found(nid)
-                .map(Into::into)
-        })
+        self.with_col(|col| col.storage.get_note(nid)?.or_not_found(nid).map(Into::into))
     }
 
     fn remove_notes(&self, input: pb::RemoveNotesRequest) -> Result<pb::OpChangesWithCount> {

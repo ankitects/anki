@@ -380,7 +380,7 @@ impl Collection {
     }
 
     pub(crate) fn update_note_inner(&mut self, note: &mut Note) -> Result<()> {
-        let mut existing_note = self.storage.get_note(note.id)?.ok_or_not_found(note.id)?;
+        let mut existing_note = self.storage.get_note(note.id)?.or_not_found(note.id)?;
         if !note_differs_from_db(&mut existing_note, note) {
             // nothing to do
             return Ok(());
@@ -574,7 +574,7 @@ impl Collection {
     fn field_cloze_check(&mut self, note: &Note) -> Result<NoteFieldsState> {
         let notetype = self
             .get_notetype(note.notetype_id)?
-            .ok_or_not_found(note.notetype_id)?;
+            .or_not_found(note.notetype_id)?;
         let cloze_fields = notetype.cloze_fields();
         let mut has_cloze = false;
         let extraneous_cloze = note.fields.iter().enumerate().find_map(|(i, field)| {

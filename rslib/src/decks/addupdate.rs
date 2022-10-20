@@ -14,7 +14,7 @@ impl Collection {
 
     pub fn update_deck(&mut self, deck: &mut Deck) -> Result<OpOutput<()>> {
         self.transact(Op::UpdateDeck, |col| {
-            let existing_deck = col.storage.get_deck(deck.id)?.ok_or_not_found(deck.id)?;
+            let existing_deck = col.storage.get_deck(deck.id)?.or_not_found(deck.id)?;
             col.update_deck_inner(deck, existing_deck, col.usn()?)
         })
     }

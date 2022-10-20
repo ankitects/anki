@@ -210,11 +210,11 @@ impl<'n> NoteContext<'n> {
     }
 
     fn get_expected_notetype(&mut self, ntid: NotetypeId) -> Result<Arc<Notetype>> {
-        self.target_col.get_notetype(ntid)?.ok_or_not_found(ntid)
+        self.target_col.get_notetype(ntid)?.or_not_found(ntid)
     }
 
     fn get_expected_note(&mut self, nid: NoteId) -> Result<Note> {
-        self.target_col.storage.get_note(nid)?.ok_or_not_found(nid)
+        self.target_col.storage.get_note(nid)?.or_not_found(nid)
     }
 
     fn maybe_update_note(&mut self, note: Note, meta: NoteMeta) -> Result<()> {

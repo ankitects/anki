@@ -15,7 +15,7 @@ impl CardsService for Backend {
         self.with_col(|col| {
             col.storage
                 .get_card(cid)
-                .and_then(|opt| opt.ok_or_not_found(cid))
+                .and_then(|opt| opt.or_not_found(cid))
                 .map(Into::into)
         })
     }

@@ -254,7 +254,7 @@ impl SqliteStorage {
     }
 
     pub(crate) fn deck_with_children(&self, deck_id: DeckId) -> Result<Vec<Deck>> {
-        let deck = self.get_deck(deck_id)?.ok_or_not_found(deck_id)?;
+        let deck = self.get_deck(deck_id)?.or_not_found(deck_id)?;
         let prefix_start = format!("{}\x1f", deck.name);
         let prefix_end = format!("{}\x20", deck.name);
         iter::once(Ok(deck))

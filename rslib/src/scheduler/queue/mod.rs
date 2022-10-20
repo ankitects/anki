@@ -88,7 +88,7 @@ impl Collection {
                 let card = self
                     .storage
                     .get_card(entry.card_id())?
-                    .ok_or_not_found(entry.card_id())?;
+                    .or_not_found(entry.card_id())?;
                 require!(
                     card.mtime == entry.mtime(),
                     "bug: card modified without updating queue",

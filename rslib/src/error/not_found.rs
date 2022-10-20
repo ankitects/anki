@@ -35,15 +35,15 @@ impl PartialEq for NotFoundError {
 impl Eq for NotFoundError {}
 
 /// Allows generating [AnkiError::NotFound] from [Option::None].
-pub trait OkOrNotFound {
+pub trait OrNotFound {
     type Value;
-    fn ok_or_not_found(self, identifier: impl fmt::Display) -> Result<Self::Value>;
+    fn or_not_found(self, identifier: impl fmt::Display) -> Result<Self::Value>;
 }
 
-impl<T> OkOrNotFound for Option<T> {
+impl<T> OrNotFound for Option<T> {
     type Value = T;
 
-    fn ok_or_not_found(self, identifier: impl fmt::Display) -> Result<Self::Value> {
+    fn or_not_found(self, identifier: impl fmt::Display) -> Result<Self::Value> {
         self.with_context(|| NotFoundSnafu {
             type_name: any::type_name::<Self::Value>(),
             identifier: format!("{identifier}"),

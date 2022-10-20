@@ -206,7 +206,7 @@ impl Collection {
         if let Some(CsvNotetype::GlobalNotetype(ref mut global)) = metadata.notetype {
             let notetype = self
                 .get_notetype(NotetypeId(global.id))?
-                .ok_or_not_found(NotetypeId(global.id))?;
+                .or_not_found(NotetypeId(global.id))?;
             global.field_columns = vec![0; notetype.fields.len()];
             global.field_columns[0] = 1;
             let column_len = metadata.column_labels.len();

@@ -131,7 +131,7 @@ impl Notetype {
             self.templates.get(card_ord as usize)
         };
 
-        template.ok_or_not_found(card_ord)
+        template.or_not_found(card_ord)
     }
 }
 
@@ -163,7 +163,7 @@ impl Collection {
             let original = col
                 .storage
                 .get_notetype(notetype.id)?
-                .ok_or_not_found(notetype.id)?;
+                .or_not_found(notetype.id)?;
             let usn = col.usn()?;
             notetype.set_modified(usn);
             col.add_or_update_notetype_with_existing_id_inner(
@@ -251,7 +251,7 @@ impl Collection {
         let note1 = self
             .storage
             .get_note(*note_ids.first().unwrap())?
-            .ok_or_not_found(note_ids[0])?;
+            .or_not_found(note_ids[0])?;
 
         if self
             .search_notes_unordered(note1.notetype_id.and(nids_node))?

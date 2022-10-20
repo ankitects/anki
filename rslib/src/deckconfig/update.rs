@@ -88,7 +88,7 @@ impl Collection {
     }
 
     fn get_current_deck_for_update(&mut self, deck: DeckId) -> Result<CurrentDeck> {
-        let deck = self.get_deck(deck)?.ok_or_not_found(deck)?;
+        let deck = self.get_deck(deck)?.or_not_found(deck)?;
         let normal = deck.normal()?;
         let today = self.timing_today()?.days_elapsed;
 
@@ -140,7 +140,7 @@ impl Collection {
             let deck = self
                 .storage
                 .get_deck(input.target_deck_id)?
-                .ok_or_not_found(input.target_deck_id)?;
+                .or_not_found(input.target_deck_id)?;
             self.storage
                 .child_decks(&deck)?
                 .iter()

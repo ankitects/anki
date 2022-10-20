@@ -250,7 +250,7 @@ impl Collection {
         } else {
             self.storage.get_note_without_fields(id)?
         }
-        .ok_or_not_found(id)
+        .or_not_found(id)
     }
 }
 
@@ -329,14 +329,14 @@ impl RowContext {
         }
         let notetype = col
             .get_notetype(note.notetype_id)?
-            .ok_or_not_found(note.notetype_id)?;
+            .or_not_found(note.notetype_id)?;
         let deck = col
             .get_deck(cards[0].deck_id)?
-            .ok_or_not_found(cards[0].deck_id)?;
+            .or_not_found(cards[0].deck_id)?;
         let original_deck = if cards[0].original_deck_id.0 != 0 {
             Some(
                 col.get_deck(cards[0].original_deck_id)?
-                    .ok_or_not_found(cards[0].original_deck_id)?,
+                    .or_not_found(cards[0].original_deck_id)?,
             )
         } else {
             None

@@ -117,7 +117,7 @@ impl Collection {
                 let ease_factor = match decks_initial_ease.get(&deck_id) {
                     Some(ease) => *ease,
                     None => {
-                        let deck = col.get_deck(deck_id)?.ok_or_not_found(deck_id)?;
+                        let deck = col.get_deck(deck_id)?.or_not_found(deck_id)?;
                         let config_id = deck.config_id().ok_or_invalid("home deck is filtered")?;
                         let ease = col
                             .get_deck_config(config_id, true)?

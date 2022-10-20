@@ -80,16 +80,14 @@ impl DecksService for Backend {
 
     fn get_deck_id_by_name(&self, input: pb::String) -> Result<pb::DeckId> {
         self.with_col(|col| {
-            col.get_deck_id(&input.val).and_then(|d| {
-                d.ok_or_not_found(input.val)
-                    .map(|d| pb::DeckId { did: d.0 })
-            })
+            col.get_deck_id(&input.val)
+                .and_then(|d| d.or_not_found(input.val).map(|d| pb::DeckId { did: d.0 }))
         })
     }
 
     fn get_deck(&self, input: pb::DeckId) -> Result<pb::Deck> {
         let did = input.into();
-        self.with_col(|col| Ok(col.storage.get_deck(did)?.ok_or_not_found(did)?.into()))
+        self.with_col(|col| Ok(col.storage.get_deck(did)?.or_not_found(did)?.into()))
     }
 
     fn update_deck(&self, input: pb::Deck) -> Result<pb::OpChanges> {
@@ -110,7 +108,7 @@ impl DecksService for Backend {
     fn get_deck_legacy(&self, input: pb::DeckId) -> Result<pb::Json> {
         let did = input.into();
         self.with_col(|col| {
-            let deck: DeckSchema11 = col.storage.get_deck(did)?.ok_or_not_found(did)?.into();
+            let deck: DeckSchema11 = col.storage.get_deck(did)?.or_not_found(did)?.into();
             serde_json::to_vec(&deck)
                 .map_err(Into::into)
                 .map(Into::into)
