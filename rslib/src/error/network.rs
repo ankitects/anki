@@ -162,7 +162,7 @@ impl From<zip::result::ZipError> for AnkiError {
 }
 
 impl SyncError {
-    pub fn localized_description(&self, tr: &I18n) -> String {
+    pub fn message(&self, tr: &I18n) -> String {
         match self.kind {
             SyncErrorKind::ServerMessage => self.info.clone().into(),
             SyncErrorKind::Other => self.info.clone().into(),
@@ -181,7 +181,7 @@ impl SyncError {
 }
 
 impl NetworkError {
-    pub fn localized_description(&self, tr: &I18n) -> String {
+    pub fn message(&self, tr: &I18n) -> String {
         let summary = match self.kind {
             NetworkErrorKind::Offline => tr.network_offline(),
             NetworkErrorKind::Timeout => tr.network_timeout(),

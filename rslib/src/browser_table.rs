@@ -264,7 +264,7 @@ impl RenderContext {
                 question: rendered_nodes_to_str(&render.qnodes),
                 answer_nodes: render.anodes,
             },
-            Err(err) => RenderContext::Err(err.localized_description(&col.tr)),
+            Err(err) => RenderContext::Err(err.message(&col.tr)),
         }
     }
 

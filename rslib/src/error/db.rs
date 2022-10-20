@@ -85,7 +85,7 @@ impl From<FromSqlError> for AnkiError {
 }
 
 impl DbError {
-    pub fn localized_description(&self, _tr: &I18n) -> String {
+    pub fn message(&self, _tr: &I18n) -> String {
         match self.kind {
             DbErrorKind::Corrupt => self.info.clone(),
             // fixme: i18n

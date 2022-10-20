@@ -10,7 +10,7 @@ use crate::{
 
 impl AnkiError {
     pub(super) fn into_protobuf(self, tr: &I18n) -> pb::BackendError {
-        let localized = self.localized_description(tr);
+        let message = self.message(tr);
         let help_page = self.help_page().map(|page| page as i32);
         let context = self.context();
         let backtrace = self.backtrace();
@@ -45,7 +45,7 @@ impl AnkiError {
 
         pb::BackendError {
             kind: kind as i32,
-            localized,
+            message,
             help_page,
             context,
             backtrace,

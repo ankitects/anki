@@ -66,8 +66,8 @@ message BackendError {
     CARD_TYPE_ERROR = 18;
   }
 
-  // localized error description suitable for displaying to the user
-  string localized = 1;
+  // error description, usually localized, suitable for displaying to the user
+  string message = 1;
   // the error subtype
   Kind kind = 2;
   // optional page in the manual

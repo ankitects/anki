@@ -13,7 +13,7 @@ pub enum FilteredDeckError {
 }
 
 impl FilteredDeckError {
-    pub fn localized_description(&self, tr: &I18n) -> String {
+    pub fn message(&self, tr: &I18n) -> String {
         match self {
             FilteredDeckError::MustBeLeafNode => tr.errors_filtered_parent_deck(),
             FilteredDeckError::CanNotMoveCardsInto => {
@@ -33,7 +33,7 @@ pub enum CustomStudyError {
 }
 
 impl CustomStudyError {
-    pub fn localized_description(&self, tr: &I18n) -> String {
+    pub fn message(&self, tr: &I18n) -> String {
         match self {
             Self::NoMatchingCards => tr.custom_study_no_cards_matched_the_criteria_you(),
             Self::ExistingDeck => tr.custom_study_must_rename_deck(),

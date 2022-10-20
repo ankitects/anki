@@ -100,10 +100,10 @@ pub enum AnkiError {
 
 // error helpers
 impl AnkiError {
-    pub fn localized_description(&self, tr: &I18n) -> String {
+    pub fn message(&self, tr: &I18n) -> String {
         match self {
-            AnkiError::SyncError { source } => source.localized_description(tr),
-            AnkiError::NetworkError { source } => source.localized_description(tr),
+            AnkiError::SyncError { source } => source.message(tr),
+            AnkiError::NetworkError { source } => source.message(tr),
             AnkiError::TemplateError { info: source } => {
                 // already localized
                 source.into()
@@ -123,16 +123,16 @@ impl AnkiError {
                 };
                 format!("{}<br>{}", header, details)
             }
-            AnkiError::DbError { source } => source.localized_description(tr),
-            AnkiError::SearchError { source } => source.localized_description(tr),
+            AnkiError::DbError { source } => source.message(tr),
+            AnkiError::SearchError { source } => source.message(tr),
             AnkiError::ParseNumError => tr.errors_parse_number_fail().into(),
-            AnkiError::FilteredDeckError { source } => source.localized_description(tr),
+            AnkiError::FilteredDeckError { source } => source.message(tr),
             AnkiError::InvalidRegex { info: source } => format!("<pre>{}</pre>", source),
             AnkiError::MultipleNotetypesSelected => tr.errors_multiple_notetypes_selected().into(),
             AnkiError::DatabaseCheckRequired => tr.errors_please_check_database().into(),
             AnkiError::MediaCheckRequired => tr.errors_please_check_media().into(),
-            AnkiError::CustomStudyError { source } => source.localized_description(tr),
-            AnkiError::ImportError { source } => source.localized_description(tr),
+            AnkiError::CustomStudyError { source } => source.message(tr),
+            AnkiError::ImportError { source } => source.message(tr),
             AnkiError::Deleted => tr.browsing_row_deleted().into(),
             AnkiError::InvalidId => tr.errors_invalid_ids().into(),
             AnkiError::JsonError { .. }
@@ -297,7 +297,7 @@ pub enum ImportError {
 }
 
 impl ImportError {
-    fn localized_description(&self, tr: &I18n) -> String {
+    fn message(&self, tr: &I18n) -> String {
         match self {
             ImportError::Corrupt => tr.importing_the_provided_file_is_not_a(),
             ImportError::TooNew => tr.errors_collection_too_new(),

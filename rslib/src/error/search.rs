@@ -78,7 +78,7 @@ impl From<ParseIntError> for AnkiError {
 }
 
 impl SearchErrorKind {
-    pub fn localized_description(&self, tr: &I18n) -> String {
+    pub fn message(&self, tr: &I18n) -> String {
         let reason = match self {
             SearchErrorKind::MisplacedAnd => tr.search_misplaced_and(),
             SearchErrorKind::MisplacedOr => tr.search_misplaced_or(),
