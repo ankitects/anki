@@ -580,6 +580,15 @@ alias(
 )
 
 alias(
+    name = "which",
+    actual = "@raze__which__4_3_0//:which",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "zip",
     actual = "@raze__zip__0_6_2//:zip",
     tags = [

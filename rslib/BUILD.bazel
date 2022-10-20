@@ -31,6 +31,7 @@ cargo_build_script(
     ],
     deps = [
         "//rslib/cargo:prost_build",
+        "//rslib/cargo:which",
     ],
 )
 

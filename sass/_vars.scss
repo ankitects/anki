@@ -89,11 +89,14 @@ $vars: (
                 ),
             ),
             overlay: (
-                "Background of floating elements (menus, tooltips)",
+                <<<<<<< HEAD "Background of floating elements (menus, tooltips)",
                 (
                     light: white,
                     dark: black,
                 ),
+                ======= light: palette(lightgray, 0),
+                dark: palette(darkgray, 5),
+                >>>>>>> main,
             ),
             code: (
                 "Background of code editors",
@@ -105,7 +108,8 @@ $vars: (
         ),
         border: (
             default: (
-                "Border color with medium contrast against window background",
+                <<<<<<< HEAD
+                    "Border color with medium contrast against window background",
                 (
                     light: palette(lightgray, 6),
                     dark: palette(darkgray, 7),
@@ -117,6 +121,9 @@ $vars: (
                     light: palette(lightgray, 5),
                     dark: palette(darkgray, 6),
                 ),
+                ======= light: palette(lightgray, 6),
+                dark: palette(darkgray, 4),
+                >>>>>>> main,
             ),
             strong: (
                 "Border color with high contrast against window background",
@@ -124,6 +131,14 @@ $vars: (
                     light: palette(lightgray, 9),
                     dark: palette(darkgray, 1),
                 ),
+            ),
+            subtle: (
+                light: palette(lightgray, 5),
+                dark: palette(darkgray, 7),
+            ),
+            faint: (
+                light: palette(lightgray, 4),
+                dark: palette(darkgray, 6),
             ),
             focus: (
                 "Border color of focused input elements",
@@ -402,8 +417,8 @@ $vars: (
             bg: (
                 "Background color of highlighted items",
                 (
-                    light: palette(blue, 3),
-                    dark: palette(blue, 4),
+                    light: color.scale(palette(blue, 3), $alpha: -33%),
+                    dark: color.scale(palette(blue, 4), $alpha: -33%),
                 ),
             ),
             fg: (

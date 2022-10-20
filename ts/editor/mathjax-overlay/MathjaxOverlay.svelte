@@ -65,14 +65,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    function clear(): void {
+        unsubscribe();
+        activeImage = null;
+        mathjaxElement = null;
+    }
+
     async function resetHandle(): Promise<void> {
         selectAll = false;
         position = undefined;
 
         if (activeImage && mathjaxElement) {
-            unsubscribe();
-            activeImage = null;
-            mathjaxElement = null;
+            clear();
         }
 
         allow();
@@ -188,10 +192,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             placeHandle(true);
                             await resetHandle();
                         }}
-                        on:tab={async () => {
-                            // Instead of resetting on blur, we reset on tab
-                            // Otherwise, when clicking from Mathjax element to another,
-                            // the user has to click twice (focus is called before blur?)
+                        on:blur={async () => {
                             await resetHandle();
                         }}
                         let:editor={mathjaxEditor}
@@ -220,8 +221,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             }}
                             on:delete={async () => {
                                 placeCaretAfter(activeImage);
-                                activeImage.remove();
-                                await resetHandle();
+                                mathjaxElement?.remove();
+                                clear();
                             }}
                             on:surround={async ({ detail }) => {
                                 const editor = await mathjaxEditor.editor;

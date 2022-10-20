@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
+    import { mathjaxConfig } from "../../editable/mathjax-element";
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
     import { shrinkImagesByDefault } from "../image-overlay/ImageOverlay.svelte";
@@ -20,6 +21,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $shrinkImagesByDefault = !$shrinkImagesByDefault;
         bridgeCommand("toggleShrinkImages");
         showFloating = false;
+    }
+
+    function toggleShowMathjax(_evt: MouseEvent): void {
+        mathjaxConfig.enabled = !mathjaxConfig.enabled;
+        bridgeCommand("toggleMathjax");
     }
 
     function toggleCloseHTMLTags(_evt: MouseEvent): void {
@@ -49,6 +55,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <DropdownItem on:click={toggleShrinkImages}>
             <CheckBox value={$shrinkImagesByDefault} />
             <span class="d-flex-inline ps-3">{tr.editingShrinkImages()}</span>
+        </DropdownItem>
+        <DropdownItem on:click={toggleShowMathjax}>
+            <CheckBox value={mathjaxConfig.enabled} />
+            <span class="d-flex-inline ps-3">{tr.editingMathjaxPreview()}</span>
         </DropdownItem>
         <DropdownItem on:click={toggleCloseHTMLTags}>
             <CheckBox value={$closeHTMLTags} />

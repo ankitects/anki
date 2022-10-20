@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let selected = false;
     export let active = false;
 
-    let buttonRef: HTMLButtonElement;
+    let buttonRef: HTMLElement;
 
     $: if (selected && buttonRef) {
         /* buttonRef.scrollIntoView({ behavior: "smooth", block: "start" }); */
@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<button
+<div
     bind:this={buttonRef}
     tabindex="-1"
     class="autocomplete-item"
@@ -30,20 +30,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:mouseleave
 >
     <slot />
-</button>
+</div>
 
 <style lang="scss">
     @use "sass/button-mixins" as button;
 
     .autocomplete-item {
-        @include button.base($with-disabled: false, $active-class: active);
-        padding: 1px 7px 2px;
+        padding: 4px 8px;
 
         text-align: start;
         white-space: nowrap;
         flex-grow: 1;
         border-radius: 0;
+        border: 1px solid transparent;
+        &:not(:first-child) {
+            border-top-color: var(--border-subtle);
+        }
 
+        &:hover {
+            @include button.base($with-disabled: false, $active-class: active);
+        }
         &.selected {
             @include button.base(
                 $primary: true,
