@@ -1,11 +1,12 @@
-@use "vars";
+@use "vars" as *;
+@use "root-vars";
 @use "scrollbar";
 @use "button-mixins" as button;
 
-$body-color: var(--fg);
-$body-bg: var(--canvas);
+$body-color: color(fg);
+$body-bg: color(canvas);
 
-$link-hover-color: var(--accent-link);
+$link-hover-color: color(accent-link);
 $link-hover-decoration: none;
 
 $utilities: (
@@ -53,6 +54,7 @@ body {
 button {
     /* override transition for instant hover response */
     transition: color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+    border-radius: prop(border-radius);
 }
 
 pre,
@@ -82,12 +84,12 @@ samp {
 }
 .form-select:focus {
     outline: none;
-    border: 1px solid var(--border-focus);
+    border: 1px solid color(border-focus);
     box-shadow: none !important;
 }
 
 .night-mode .form-select:disabled {
-    background-color: var(--fg-disabled);
+    background-color: color(fg-disabled);
 }
 
 .reduced-motion * {
@@ -104,10 +106,10 @@ select {
 
     &:focus,
     &.focus {
-        border: 1px solid var(--border-focus);
+        border: 1px solid color(border-focus);
     }
     option {
-        background: var(--canvas-elevated);
-        color: var(--fg);
+        background: color(canvas-elevated);
+        color: color(fg);
     }
 }

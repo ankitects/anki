@@ -4,10 +4,10 @@
 @use "sass:map";
 @use "sass:color";
 @use "functions" as *;
-@use "colors" as *;
+@use "color-palette" as *;
 
 @function palette($key, $shade) {
-    $color: map.get($colors, $key);
+    $color: map.get($color-palette, $key);
     @return map.get($color, $shade);
 }
 
@@ -290,6 +290,10 @@ $vars: (
     ),
 );
 
+@function prop($keyword) {
+    @return var(--#{$keyword});
+}
+
 @function color($keyword) {
     @return var(--#{$keyword});
 }
@@ -297,42 +301,4 @@ $vars: (
 @function palette-of($keyword, $theme: default) {
     $colors: map.get($vars, colors);
     @return get-value-from-map($colors, $keyword, $theme);
-}
-
-@function prop($keyword) {
-    @return var(--#{$keyword});
-}
-
-/*! colors */
-:root {
-    $colors: map.get($vars, colors);
-    @each $name, $val in create-vars-from-map($colors, light) {
-        #{$name}: #{$val};
-    }
-    color-scheme: light;
-    &.night-mode {
-        @each $name, $val in create-vars-from-map($colors, dark) {
-            #{$name}: #{$val};
-        }
-        color-scheme: dark;
-    }
-}
-
-/*! props */
-:root {
-    $props: map.get($vars, props);
-    @each $name, $val in create-vars-from-map($props, default) {
-        #{$name}: #{$val};
-    }
-    @each $name, $val in create-vars-from-map($props, light) {
-        #{$name}: #{$val};
-    }
-    &.night-mode {
-        @each $name, $val in create-vars-from-map($props, default) {
-            #{$name}: #{$val};
-        }
-        @each $name, $val in create-vars-from-map($props, dark) {
-            #{$name}: #{$val};
-        }
-    }
 }

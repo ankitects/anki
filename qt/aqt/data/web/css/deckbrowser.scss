@@ -1,11 +1,11 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
-
-@use "sass/vars";
+@use "sass/base";
+@use "sass/vars" as *;
 @use "sass/card-counts";
 
 a.deck {
-    color: var(--fg);
+    color: color(fg);
     text-decoration: none;
     min-width: 5em;
     display: inline-block;
@@ -16,7 +16,7 @@ a.deck:hover {
 }
 
 tr.deck td {
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid color(border-subtle);
 }
 
 tr.top-level-drag-row td {
@@ -28,7 +28,7 @@ td {
 }
 
 tr.drag-hover td {
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid color(border);
 }
 
 body {
@@ -37,7 +37,7 @@ body {
 }
 
 .current {
-    background-color: var(--shadow-subtle);
+    background-color: color(shadow-subtle);
 }
 
 .decktd {
@@ -56,14 +56,14 @@ body {
 }
 
 .collapse {
-    color: var(--fg);
+    color: color(fg);
     text-decoration: none;
     display: inline-block;
     width: 1em;
 }
 
 .filtered {
-    color: var(--accent-link) !important;
+    color: color(accent-link) !important;
 }
 
 .gears {
@@ -81,7 +81,7 @@ body {
 }
 
 .callout {
-    background: var(--border);
+    background: color(border);
     padding: 1em;
     margin: 1em;
 

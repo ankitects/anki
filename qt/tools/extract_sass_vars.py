@@ -7,7 +7,7 @@ import re
 import sys
 
 # bazel genrule "srcs"
-vars_css = sys.argv[1]
+root_vars_css = sys.argv[1]
 
 # bazel genrule "outs"
 colors_py = sys.argv[2]
@@ -17,7 +17,7 @@ colors = {}
 props = {}
 reached_props = False
 
-for line in re.split(r"[;\{\}]", open(vars_css).read()):
+for line in re.split(r"[;\{\}]", open(root_vars_css).read()):
     line = line.strip()
 
     if not line:
@@ -54,7 +54,7 @@ copyright_notice = """\
 
 with open(colors_py, "w") as buf:
     buf.write(copyright_notice)
-    buf.write("# this file is auto-generated from _vars.scss and _colors.scss\n")
+    buf.write("# this file is auto-generated from _root-vars.scss\n")
 
     for color, val in colors.items():
         day = val[0]
@@ -66,7 +66,7 @@ with open(colors_py, "w") as buf:
 
 with open(props_py, "w") as buf:
     buf.write(copyright_notice)
-    buf.write("# this file is auto-generated from _vars.scss\n")
+    buf.write("# this file is auto-generated from _root-vars.scss\n")
 
     for prop, val in props.items():
         day = val[0]

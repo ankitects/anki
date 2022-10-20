@@ -1,0 +1,34 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later, http://www.gnu.org/licenses/agpl.html */
+
+@use "sass:map";
+@use "vars" as *;
+@use "functions" as *;
+
+/*! colors */
+:root {
+    $colors: map.get($vars, colors);
+    @each $name, $val in create-vars-from-map($colors, light) {
+        #{$name}: #{$val};
+    }
+    color-scheme: light;
+    &.night-mode {
+        @each $name, $val in create-vars-from-map($colors, dark) {
+            #{$name}: #{$val};
+        }
+        color-scheme: dark;
+    }
+}
+
+/*! props */
+:root {
+    $props: map.get($vars, props);
+    @each $name, $val in create-vars-from-map($props, light) {
+        #{$name}: #{$val}; /*! #{$name} */
+    }
+    &.night-mode {
+        @each $name, $val in create-vars-from-map($props, dark) {
+            #{$name}: #{$val};
+        }
+    }
+}
