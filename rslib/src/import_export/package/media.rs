@@ -81,11 +81,10 @@ impl SafeMediaEntry {
     }
 
     pub(super) fn fetch_file<'a>(&self, archive: &'a mut ZipArchive<File>) -> Result<ZipFile<'a>> {
-        Ok(invalid_input!(
-            archive.by_name(&self.index.to_string()),
-            "{} missing from archive",
-            self.index
-        ))
+        match archive.by_name(&self.index.to_string()) {
+            Ok(file) => Ok(file),
+            Err(err) => invalid_input!(err, "{} missing from archive", self.index),
+        }
     }
 
     pub(super) fn has_checksum_equal_to(

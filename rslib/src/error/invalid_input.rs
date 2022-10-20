@@ -63,7 +63,8 @@ impl<T, E: std::error::Error + Send + Sync + 'static> OkOrInvalid for Result<T, 
     }
 }
 
-/// Like [snafu::whatever], but returning an [AnkiError].
+/// Returns an [AnkiError::InvalidInput] with the provided format string and an
+/// optional underlying error.
 #[macro_export]
 macro_rules! invalid_input {
     ($fmt:literal$(, $($arg:expr),* $(,)?)?) => {
@@ -74,17 +75,12 @@ macro_rules! invalid_input {
         }})
     };
     ($source:expr, $fmt:literal$(, $($arg:expr),* $(,)?)?) => {
-        match $source {
-            core::result::Result::Ok(v) => v,
-            core::result::Result::Err(e) => {
-                return core::result::Result::Err({ $crate::error::AnkiError::InvalidInput {
-                    source: snafu::FromString::with_source(
-                        core::convert::Into::into(e),
-                        format!($fmt$(, $($arg),*)*),
-                    )
-                }});
-            }
-        }
+        return core::result::Result::Err({ $crate::error::AnkiError::InvalidInput {
+            source: snafu::FromString::with_source(
+                core::convert::Into::into($source),
+                format!($fmt$(, $($arg),*)*),
+            )
+        }})
     };
 }
 
