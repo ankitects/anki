@@ -40,24 +40,24 @@ impl Eq for InvalidInputError {}
 
 /// Allows generating [AnkiError::InvalidInput] from [Option::None] and the
 /// typical [core::result::Result::Err].
-pub trait OkOrInvalid {
+pub trait OrInvalid {
     type Value;
-    fn ok_or_invalid(self, message: impl Into<String>) -> Result<Self::Value>;
+    fn or_invalid(self, message: impl Into<String>) -> Result<Self::Value>;
 }
 
-impl<T> OkOrInvalid for Option<T> {
+impl<T> OrInvalid for Option<T> {
     type Value = T;
 
-    fn ok_or_invalid(self, message: impl Into<String>) -> Result<T> {
+    fn or_invalid(self, message: impl Into<String>) -> Result<T> {
         self.whatever_context::<_, InvalidInputError>(message)
             .map_err(Into::into)
     }
 }
 
-impl<T, E: std::error::Error + Send + Sync + 'static> OkOrInvalid for Result<T, E> {
+impl<T, E: std::error::Error + Send + Sync + 'static> OrInvalid for Result<T, E> {
     type Value = T;
 
-    fn ok_or_invalid(self, message: impl Into<String>) -> Result<T> {
+    fn or_invalid(self, message: impl Into<String>) -> Result<T> {
         self.whatever_context::<_, InvalidInputError>(message)
             .map_err(Into::into)
     }

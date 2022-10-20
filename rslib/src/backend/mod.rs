@@ -120,7 +120,7 @@ impl Backend {
         input: &[u8],
     ) -> result::Result<Vec<u8>, Vec<u8>> {
         pb::ServiceIndex::from_i32(service as i32)
-            .ok_or_invalid("invalid service")
+            .or_invalid("invalid service")
             .and_then(|service| match service {
                 pb::ServiceIndex::Scheduler => SchedulerService::run_method(self, method, input),
                 pb::ServiceIndex::Decks => DecksService::run_method(self, method, input),

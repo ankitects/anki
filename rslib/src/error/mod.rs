@@ -17,7 +17,7 @@ use snafu::Snafu;
 
 pub use self::{
     file_io::{FileIoError, FileIoSnafu, FileOp},
-    invalid_input::{InvalidInputError, OkOrInvalid},
+    invalid_input::{InvalidInputError, OrInvalid},
     not_found::{NotFoundError, OrNotFound},
 };
 use crate::{i18n::I18n, links::HelpPage};

@@ -11,7 +11,7 @@ pub use crate::{
     config::BoolKey,
     deckconfig::{DeckConfig, DeckConfigId},
     decks::{Deck, DeckId, DeckKind, NativeDeckName},
-    error::{AnkiError, OkOrInvalid, OrNotFound, Result},
+    error::{AnkiError, OrInvalid, OrNotFound, Result},
     i18n::I18n,
     invalid_input,
     media::Sha1Hash,

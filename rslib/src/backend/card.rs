@@ -68,8 +68,8 @@ impl TryFrom<pb::Card> for Card {
     type Error = AnkiError;
 
     fn try_from(c: pb::Card) -> Result<Self, Self::Error> {
-        let ctype = CardType::try_from(c.ctype as u8).ok_or_invalid("invalid card type")?;
-        let queue = CardQueue::try_from(c.queue as i8).ok_or_invalid("invalid card queue")?;
+        let ctype = CardType::try_from(c.ctype as u8).or_invalid("invalid card type")?;
+        let queue = CardQueue::try_from(c.queue as i8).or_invalid("invalid card queue")?;
         Ok(Card {
             id: CardId(c.id),
             note_id: NoteId(c.note_id),

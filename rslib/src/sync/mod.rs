@@ -674,7 +674,7 @@ impl Collection {
 
     pub(crate) async fn full_download_inner(self, server: Box<dyn SyncServer>) -> Result<()> {
         let col_path = self.col_path.clone();
-        let col_folder = col_path.parent().ok_or_invalid("couldn't get col_folder")?;
+        let col_folder = col_path.parent().or_invalid("couldn't get col_folder")?;
         self.close(None)?;
         let out_file = server.full_download(Some(col_folder)).await?;
         // check file ok
@@ -965,7 +965,7 @@ impl Collection {
             let mut note: Note = entry.into();
             let nt = self
                 .get_notetype(note.notetype_id)?
-                .ok_or_invalid("note missing notetype")?;
+                .or_invalid("note missing notetype")?;
             note.prepare_for_update(&nt, false)?;
             self.storage.add_or_update_note(&note)?;
         }

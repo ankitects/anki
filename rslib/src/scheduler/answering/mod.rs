@@ -368,9 +368,7 @@ impl Collection {
                 .storage
                 .get_deck(home_deck_id)?
                 .or_not_found(home_deck_id)?;
-            home_deck
-                .config_id()
-                .ok_or_invalid("home deck is filtered")?
+            home_deck.config_id().or_invalid("home deck is filtered")?
         };
 
         Ok(self.storage.get_deck_config(config_id)?.unwrap_or_default())

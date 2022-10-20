@@ -293,7 +293,7 @@ fn write_media_files(
         zip.start_file(index.to_string(), file_options_stored())?;
 
         let mut file = open_file(&path)?;
-        let file_name = path.file_name().ok_or_invalid("not a file path")?;
+        let file_name = path.file_name().or_invalid("not a file path")?;
         let name = normalized_unicode_file_name(file_name)?;
 
         let (size, sha1) = copier.copy(&mut file, zip)?;
@@ -304,7 +304,7 @@ fn write_media_files(
 }
 
 fn normalized_unicode_file_name(filename: &OsStr) -> Result<String> {
-    let filename = filename.to_str().ok_or_invalid("non-unicode filename")?;
+    let filename = filename.to_str().or_invalid("non-unicode filename")?;
     filename_if_normalized(filename)
         .map(Cow::into_owned)
         .ok_or(AnkiError::MediaCheckRequired)

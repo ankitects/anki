@@ -40,7 +40,7 @@ impl Collection {
         let temp_col_path = temp_col
             .path()
             .to_str()
-            .ok_or_invalid("non-unicode filename")?;
+            .or_invalid("non-unicode filename")?;
         let meta = if legacy {
             Meta::new_legacy()
         } else {

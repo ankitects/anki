@@ -57,7 +57,7 @@ impl SqliteStorage {
         while let Some(row) = rows.next()? {
             let oid: i64 = row.get(0)?;
             let kind =
-                GraveKind::try_from(row.get::<_, u8>(1)?).ok_or_invalid("invalid grave kind")?;
+                GraveKind::try_from(row.get::<_, u8>(1)?).or_invalid("invalid grave kind")?;
             match kind {
                 GraveKind::Card => graves.cards.push(CardId(oid)),
                 GraveKind::Note => graves.notes.push(NoteId(oid)),

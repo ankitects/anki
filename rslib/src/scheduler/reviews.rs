@@ -80,7 +80,7 @@ pub fn parse_due_date_str(s: &str) -> Result<DueDateSpecifier> {
         )
         .unwrap();
     }
-    let caps = RE.captures(s).ok_or_invalid(s)?;
+    let caps = RE.captures(s).or_invalid(s)?;
     let min: u32 = caps.name("min").unwrap().as_str().parse()?;
     let max = if let Some(max) = caps.name("max") {
         max.as_str().parse()?
@@ -118,7 +118,7 @@ impl Collection {
                     Some(ease) => *ease,
                     None => {
                         let deck = col.get_deck(deck_id)?.or_not_found(deck_id)?;
-                        let config_id = deck.config_id().ok_or_invalid("home deck is filtered")?;
+                        let config_id = deck.config_id().or_invalid("home deck is filtered")?;
                         let ease = col
                             .get_deck_config(config_id, true)?
                             // just for compiler; get_deck_config() is guaranteed to return a value

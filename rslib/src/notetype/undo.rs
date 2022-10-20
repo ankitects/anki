@@ -19,7 +19,7 @@ impl Collection {
                 let current = self
                     .storage
                     .get_notetype(nt.id)?
-                    .ok_or_invalid("notetype disappeared")?;
+                    .or_invalid("notetype disappeared")?;
                 self.update_notetype_undoable(&nt, current)
             }
             UndoableNotetypeChange::Removed(nt) => self.restore_deleted_notetype(*nt),

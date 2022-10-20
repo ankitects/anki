@@ -236,7 +236,7 @@ impl Collection {
             self.state
                 .active_browser_columns
                 .as_ref()
-                .ok_or_invalid("Active browser columns not set.")?,
+                .or_invalid("Active browser columns not set.")?,
         );
         RowContext::new(self, id, notes_mode, card_render_required(&columns))?.browser_row(&columns)
     }

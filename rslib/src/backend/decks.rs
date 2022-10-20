@@ -263,7 +263,7 @@ impl TryFrom<pb::Deck> for Deck {
             mtime_secs: TimestampSecs(d.mtime_secs),
             usn: Usn(d.usn),
             common: d.common.unwrap_or_default(),
-            kind: d.kind.ok_or_invalid("missing kind")?.into(),
+            kind: d.kind.or_invalid("missing kind")?.into(),
         })
     }
 }

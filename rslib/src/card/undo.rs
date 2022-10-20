@@ -20,7 +20,7 @@ impl Collection {
                 let current = self
                     .storage
                     .get_card(card.id)?
-                    .ok_or_invalid("card disappeared")?;
+                    .or_invalid("card disappeared")?;
                 self.update_card_undoable(&mut *card, current)
             }
             UndoableCardChange::Removed(card) => self.restore_deleted_card(*card),
