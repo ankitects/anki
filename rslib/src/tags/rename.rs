@@ -16,16 +16,14 @@ impl Collection {
 
 impl Collection {
     fn rename_tag_inner(&mut self, old_prefix: &str, new_prefix: &str) -> Result<usize> {
-        if new_prefix.contains(is_tag_separator) {
-            return Err(AnkiError::invalid_input(
-                "replacement name can not contain a space",
-            ));
-        }
-        if new_prefix.trim().is_empty() {
-            return Err(AnkiError::invalid_input(
-                "replacement name must not be empty",
-            ));
-        }
+        require!(
+            !new_prefix.contains(is_tag_separator),
+            "replacement name can not contain a space",
+        );
+        require!(
+            !new_prefix.trim().is_empty(),
+            "replacement name must not be empty",
+        );
 
         let usn = self.usn()?;
 

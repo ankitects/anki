@@ -9,13 +9,12 @@ use unicase::UniCase;
 
 use super::{ids_to_string, SqliteStorage};
 use crate::{
-    error::{AnkiError, DbErrorKind, Result},
-    notes::NoteId,
+    error::DbErrorKind,
     notetype::{
         AlreadyGeneratedCardInfo, CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig,
-        Notetype, NotetypeConfig, NotetypeId, NotetypeSchema11,
+        NotetypeConfig, NotetypeSchema11,
     },
-    timestamp::TimestampMillis,
+    prelude::*,
 };
 
 fn row_to_notetype_core(row: &Row) -> Result<Notetype> {
@@ -217,11 +216,7 @@ impl SqliteStorage {
 
     /// Notetype should have an existing id, and will be added if missing.
     fn update_notetype_core(&self, nt: &Notetype) -> Result<()> {
-        if nt.id.0 == 0 {
-            return Err(AnkiError::invalid_input(
-                "notetype with id 0 passed in as existing",
-            ));
-        }
+        require!(nt.id.0 != 0, "notetype with id 0 passed in as existing");
         let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
         let mut config_bytes = vec![];
         nt.config.encode(&mut config_bytes)?;
@@ -330,7 +325,9 @@ impl SqliteStorage {
     pub(crate) fn upgrade_notetypes_to_schema15(&self) -> Result<()> {
         let nts = self
             .get_schema11_notetypes()
-            .map_err(|e| AnkiError::JsonError(format!("decoding models: {}", e)))?;
+            .map_err(|e| AnkiError::JsonError {
+                info: format!("decoding models: {}", e),
+            })?;
         let mut names = HashSet::new();
         for (mut ntid, nt) in nts {
             let mut nt = Notetype::from(nt);

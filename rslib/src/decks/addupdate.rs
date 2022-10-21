@@ -14,7 +14,7 @@ impl Collection {
 
     pub fn update_deck(&mut self, deck: &mut Deck) -> Result<OpOutput<()>> {
         self.transact(Op::UpdateDeck, |col| {
-            let existing_deck = col.storage.get_deck(deck.id)?.ok_or(AnkiError::NotFound)?;
+            let existing_deck = col.storage.get_deck(deck.id)?.or_not_found(deck.id)?;
             col.update_deck_inner(deck, existing_deck, col.usn()?)
         })
     }
@@ -43,9 +43,7 @@ impl Collection {
     }
 
     pub(crate) fn add_deck_inner(&mut self, deck: &mut Deck, usn: Usn) -> Result<()> {
-        if deck.id.0 != 0 {
-            return Err(AnkiError::invalid_input("deck to add must have id 0"));
-        }
+        require!(deck.id.0 == 0, "deck to add must have id 0");
         self.prepare_deck_for_update(deck, usn)?;
         deck.set_modified(usn);
         self.match_or_create_parents(deck, usn)?;
@@ -153,9 +151,7 @@ impl Collection {
         machine_name: &str,
         recursion_level: usize,
     ) -> Result<Option<Deck>> {
-        if recursion_level > 10 {
-            return Err(AnkiError::invalid_input("deck nesting level too deep"));
-        }
+        require!(recursion_level < 11, "deck nesting level too deep");
         if let Some(parent_name) = immediate_parent_name(machine_name) {
             if let Some(parent_did) = self.storage.get_deck_id(parent_name)? {
                 self.storage.get_deck(parent_did)

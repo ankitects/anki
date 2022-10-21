@@ -2,10 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anki_i18n::I18n;
+use snafu::Snafu;
 
-use super::AnkiError;
-
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Snafu)]
 pub enum FilteredDeckError {
     MustBeLeafNode,
     CanNotMoveCardsInto,
@@ -14,7 +13,7 @@ pub enum FilteredDeckError {
 }
 
 impl FilteredDeckError {
-    pub fn localized_description(&self, tr: &I18n) -> String {
+    pub fn message(&self, tr: &I18n) -> String {
         match self {
             FilteredDeckError::MustBeLeafNode => tr.errors_filtered_parent_deck(),
             FilteredDeckError::CanNotMoveCardsInto => {
@@ -27,30 +26,18 @@ impl FilteredDeckError {
     }
 }
 
-impl From<FilteredDeckError> for AnkiError {
-    fn from(e: FilteredDeckError) -> Self {
-        AnkiError::FilteredDeckError(e)
-    }
-}
-
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Snafu)]
 pub enum CustomStudyError {
     NoMatchingCards,
     ExistingDeck,
 }
 
 impl CustomStudyError {
-    pub fn localized_description(&self, tr: &I18n) -> String {
+    pub fn message(&self, tr: &I18n) -> String {
         match self {
             Self::NoMatchingCards => tr.custom_study_no_cards_matched_the_criteria_you(),
             Self::ExistingDeck => tr.custom_study_must_rename_deck(),
         }
         .into()
-    }
-}
-
-impl From<CustomStudyError> for AnkiError {
-    fn from(e: CustomStudyError) -> Self {
-        AnkiError::CustomStudyError(e)
     }
 }

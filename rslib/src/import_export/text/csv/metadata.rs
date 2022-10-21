@@ -3,7 +3,6 @@
 
 use std::{
     collections::{HashMap, HashSet},
-    fs::File,
     io::{BufRead, BufReader, Read, Seek, SeekFrom},
 };
 
@@ -21,6 +20,7 @@ use crate::{
     config::I32ConfigKey,
     error::ImportError,
     import_export::text::NameOrId,
+    io::open_file,
     notetype::NoteField,
     pb::StringList,
     prelude::*,
@@ -40,7 +40,7 @@ impl Collection {
         notetype_id: Option<NotetypeId>,
         is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
-        let mut reader = File::open(path)?;
+        let mut reader = open_file(path)?;
         self.get_reader_metadata(&mut reader, delimiter, notetype_id, is_html)
     }
 
@@ -206,7 +206,7 @@ impl Collection {
         if let Some(CsvNotetype::GlobalNotetype(ref mut global)) = metadata.notetype {
             let notetype = self
                 .get_notetype(NotetypeId(global.id))?
-                .ok_or(AnkiError::NotFound)?;
+                .or_not_found(NotetypeId(global.id))?;
             global.field_columns = vec![0; notetype.fields.len()];
             global.field_columns[0] = 1;
             let column_len = metadata.column_labels.len();
@@ -233,7 +233,7 @@ impl Collection {
             self.storage
                 .get_all_notetype_names()?
                 .first()
-                .ok_or(AnkiError::NotFound)?
+                .or_invalid("collection has no notetypes")?
                 .0
         })
     }
@@ -256,7 +256,7 @@ fn collect_preview_records(
         .into_iter()
         .take(PREVIEW_LENGTH)
         .collect::<csv::Result<_>>()
-        .map_err(Into::into)
+        .or_invalid("invalid csv")
 }
 
 fn set_preview(metadata: &mut CsvMetadata, records: &[csv::StringRecord]) -> Result<()> {
@@ -346,8 +346,9 @@ fn ensure_first_field_is_mapped(
     if field_columns[0] == 0 {
         field_columns[0] = (1..column_len + 1)
             .find(|i| !meta_columns.contains(i))
-            .ok_or(AnkiError::ImportError(ImportError::NoFieldColumn))?
-            as u32;
+            .ok_or(AnkiError::ImportError {
+                source: ImportError::NoFieldColumn,
+            })? as u32;
     }
     Ok(())
 }
@@ -430,7 +431,9 @@ fn map_single_record<T>(
         .delimiter(delimiter.byte())
         .from_reader(line.as_bytes())
         .headers()
-        .map_err(|_| AnkiError::ImportError(ImportError::Corrupt))
+        .map_err(|_| AnkiError::ImportError {
+            source: ImportError::Corrupt,
+        })
         .map(op)
 }
 

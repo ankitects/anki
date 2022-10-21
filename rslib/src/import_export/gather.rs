@@ -258,7 +258,7 @@ impl Collection {
             .map(|config_id| {
                 self.storage
                     .get_deck_config(config_id)?
-                    .ok_or(AnkiError::NotFound)
+                    .or_not_found(config_id)
             })
             .collect()
     }

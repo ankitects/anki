@@ -344,10 +344,13 @@ where
                         self.col.storage.rollback_trx()?;
                         let _ = self.remote.abort().await;
 
-                        if let AnkiError::SyncError(SyncError {
-                            info,
-                            kind: SyncErrorKind::DatabaseCheckRequired,
-                        }) = &e
+                        if let AnkiError::SyncError {
+                            source:
+                                SyncError {
+                                    info,
+                                    kind: SyncErrorKind::DatabaseCheckRequired,
+                                },
+                        } = &e
                         {
                             debug!(self.col.log, "sanity check failed:\n{}", info);
                         }
@@ -671,9 +674,7 @@ impl Collection {
 
     pub(crate) async fn full_download_inner(self, server: Box<dyn SyncServer>) -> Result<()> {
         let col_path = self.col_path.clone();
-        let col_folder = col_path
-            .parent()
-            .ok_or_else(|| AnkiError::invalid_input("couldn't get col_folder"))?;
+        let col_folder = col_path.parent().or_invalid("couldn't get col_folder")?;
         self.close(None)?;
         let out_file = server.full_download(Some(col_folder)).await?;
         // check file ok
@@ -964,7 +965,7 @@ impl Collection {
             let mut note: Note = entry.into();
             let nt = self
                 .get_notetype(note.notetype_id)?
-                .ok_or_else(|| AnkiError::invalid_input("note missing notetype"))?;
+                .or_invalid("note missing notetype")?;
             note.prepare_for_update(&nt, false)?;
             self.storage.add_or_update_note(&note)?;
         }
@@ -1576,14 +1577,14 @@ mod test {
     //     use std::fs;
     //     use tempfile::NamedTempFile;
 
-    //     let client_col_file = NamedTempFile::new()?;
+    //     let client_col_file = new_named_tempfile()?;
     //     let client_col_name = client_col_file
     //         .path()
     //         .file_name()
     //         .unwrap()
     //         .to_string_lossy();
     //     fs::copy(client_fname, client_col_file.path())?;
-    //     let server_col_file = NamedTempFile::new()?;
+    //     let server_col_file = new_named_tempfile()?;
     //     let server_col_name = server_col_file
     //         .path()
     //         .file_name()

@@ -66,10 +66,14 @@ message BackendError {
     CARD_TYPE_ERROR = 18;
   }
 
-  // localized error description suitable for displaying to the user
-  string localized = 1;
+  // error description, usually localized, suitable for displaying to the user
+  string message = 1;
   // the error subtype
   Kind kind = 2;
   // optional page in the manual
   optional links.HelpPageLinkRequest.HelpPage help_page = 3;
+  // additional information about the context in which the error occured
+  string context = 4;
+  // a backtrace of the underlying error; requires RUST_BACKTRACE to be set
+  string backtrace = 5;
 }

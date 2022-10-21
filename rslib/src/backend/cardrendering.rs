@@ -86,11 +86,8 @@ impl CardRenderingService for Backend {
         &self,
         input: pb::RenderUncommittedCardRequest,
     ) -> Result<pb::RenderCardResponse> {
-        let template = input.template.ok_or(AnkiError::NotFound)?.into();
-        let mut note = input
-            .note
-            .ok_or_else(|| AnkiError::invalid_input("missing note"))?
-            .into();
+        let template = input.template.or_invalid("missing template")?.into();
+        let mut note = input.note.or_invalid("missing note")?.into();
         let ord = input.card_ord as u16;
         let fill_empty = input.fill_empty;
         self.with_col(|col| {
@@ -105,10 +102,7 @@ impl CardRenderingService for Backend {
     ) -> Result<pb::RenderCardResponse> {
         let schema11: CardTemplateSchema11 = serde_json::from_slice(&input.template)?;
         let template = schema11.into();
-        let mut note = input
-            .note
-            .ok_or_else(|| AnkiError::invalid_input("missing note"))?
-            .into();
+        let mut note = input.note.or_invalid("missing note")?.into();
         let ord = input.card_ord as u16;
         let fill_empty = input.fill_empty;
         self.with_col(|col| {

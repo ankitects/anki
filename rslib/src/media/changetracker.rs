@@ -4,6 +4,7 @@
 use std::{collections::HashMap, path::Path, time};
 
 use crate::{
+    io::read_dir_files,
     log::{debug, Logger},
     media::{
         database::{MediaDatabaseContext, MediaEntry},
@@ -85,13 +86,8 @@ where
         let mut added_or_changed = vec![];
 
         // loop through on-disk files
-        for dentry in self.media_folder.read_dir()? {
+        for dentry in read_dir_files(self.media_folder)? {
             let dentry = dentry?;
-
-            // skip folders
-            if dentry.file_type()?.is_dir() {
-                continue;
-            }
 
             // if the filename is not valid unicode, skip it
             let fname_os = dentry.file_name();
@@ -141,8 +137,7 @@ where
             }
 
             // add entry to the list
-            let data = sha1_of_file(&dentry.path())
-                .map_err(|e| AnkiError::IoError(format!("unable to read {}: {}", fname, e)))?;
+            let data = sha1_of_file(&dentry.path())?;
             let sha1 = Some(data);
             added_or_changed.push(FilesystemEntry {
                 fname: fname.to_string(),
@@ -239,6 +234,7 @@ mod test {
 
     use crate::{
         error::Result,
+        io::{create_dir, write_file},
         media::{
             changetracker::ChangeTracker, database::MediaEntry, files::sha1_of_data, MediaManager,
         },
@@ -259,7 +255,7 @@ mod test {
     fn change_tracking() -> Result<()> {
         let dir = tempdir()?;
         let media_dir = dir.path().join("media");
-        std::fs::create_dir(&media_dir)?;
+        create_dir(&media_dir)?;
         let media_db = dir.path().join("media.db");
 
         let mgr = MediaManager::new(&media_dir, media_db)?;
@@ -269,7 +265,7 @@ mod test {
 
         // add a file and check it's picked up
         let f1 = media_dir.join("file.jpg");
-        fs::write(&f1, "hello")?;
+        write_file(&f1, "hello")?;
 
         change_mtime(&media_dir);
 
@@ -304,7 +300,7 @@ mod test {
             assert!(ctx.get_pending_uploads(1)?.is_empty());
 
             // modify it
-            fs::write(&f1, "hello1")?;
+            write_file(&f1, "hello1")?;
             change_mtime(&f1);
 
             change_mtime(&media_dir);

@@ -23,7 +23,7 @@ impl Collection {
         card_ordinal: usize,
         key: &str,
     ) -> Result<String> {
-        let nt = self.get_notetype(ntid)?.ok_or(AnkiError::NotFound)?;
+        let nt = self.get_notetype(ntid)?.or_not_found(ntid)?;
         let ordinal = if matches!(nt.config.kind(), NotetypeKind::Cloze) {
             0
         } else {

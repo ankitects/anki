@@ -6,8 +6,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use tempfile::NamedTempFile;
-
 use crate::{
     collection::CollectionBuilder,
     import_export::{
@@ -18,7 +16,7 @@ use crate::{
         },
         ExportProgress, IncrementableProgress,
     },
-    io::{atomic_rename, tempfile_in_parent_of},
+    io::{atomic_rename, new_tempfile, new_tempfile_in_parent_of},
     prelude::*,
 };
 
@@ -37,12 +35,12 @@ impl Collection {
     ) -> Result<usize> {
         let mut progress = IncrementableProgress::new(progress_fn);
         progress.call(ExportProgress::File)?;
-        let temp_apkg = tempfile_in_parent_of(out_path.as_ref())?;
-        let mut temp_col = NamedTempFile::new()?;
+        let temp_apkg = new_tempfile_in_parent_of(out_path.as_ref())?;
+        let mut temp_col = new_tempfile()?;
         let temp_col_path = temp_col
             .path()
             .to_str()
-            .ok_or_else(|| AnkiError::IoError("tempfile with non-unicode name".into()))?;
+            .or_invalid("non-unicode filename")?;
         let meta = if legacy {
             Meta::new_legacy()
         } else {

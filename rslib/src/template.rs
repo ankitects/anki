@@ -268,12 +268,12 @@ fn template_error_to_anki_error(
     };
     let details = htmlescape::encode_minimal(&localized_template_error(tr, err));
     let more_info = tr.card_template_rendering_more_info();
-    let info = format!(
+    let source = format!(
         "{}<br>{}<br><a href='{}'>{}</a>",
         header, details, TEMPLATE_ERROR_LINK, more_info
     );
 
-    AnkiError::TemplateError(info)
+    AnkiError::TemplateError { info: source }
 }
 
 fn localized_template_error(tr: &I18n, err: TemplateError) -> String {

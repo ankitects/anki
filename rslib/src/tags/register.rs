@@ -180,7 +180,7 @@ pub(super) fn normalize_tag_name(name: &str) -> Result<Cow<str>> {
     };
     if normalized_name.is_empty() {
         // this should not be possible
-        Err(AnkiError::invalid_input("blank tag"))
+        invalid_input!("blank tag");
     } else {
         Ok(normalized_name)
     }

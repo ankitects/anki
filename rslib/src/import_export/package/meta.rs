@@ -1,10 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{fs::File, io::Read};
+use std::{
+    fs::File,
+    io::{self, Read},
+};
 
 use prost::Message;
 use zip::ZipArchive;
+use zstd::stream::copy_decode;
 
 pub(super) use crate::pb::{package_metadata::Version, PackageMetadata as Meta};
 use crate::{error::ImportError, prelude::*, storage::SchemaVersion};
@@ -53,7 +57,9 @@ impl Meta {
         let meta = if let Some(bytes) = meta_bytes {
             let meta: Meta = Message::decode(&*bytes)?;
             if meta.version() == Version::Unknown {
-                return Err(AnkiError::ImportError(ImportError::TooNew));
+                return Err(AnkiError::ImportError {
+                    source: ImportError::TooNew,
+                });
             }
             meta
         } else {
@@ -88,5 +94,17 @@ impl Meta {
 
     fn is_legacy(&self) -> bool {
         matches!(self.version(), Version::Legacy1 | Version::Legacy2)
+    }
+
+    pub(super) fn copy(
+        &self,
+        reader: &mut impl io::Read,
+        writer: &mut impl io::Write,
+    ) -> io::Result<()> {
+        if self.zstd_compressed() {
+            copy_decode(reader, writer)
+        } else {
+            io::copy(reader, writer).map(|_| ())
+        }
     }
 }

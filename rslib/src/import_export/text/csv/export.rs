@@ -37,7 +37,9 @@ impl Collection {
         cards.sort_unstable();
         for &card in &cards {
             incrementor.increment()?;
-            writer.write_record(self.card_record(card, with_html)?)?;
+            writer
+                .write_record(self.card_record(card, with_html)?)
+                .or_invalid("invalid csv")?;
         }
         writer.flush()?;
 
@@ -58,7 +60,9 @@ impl Collection {
         let mut writer = note_file_writer_with_header(&request.out_path, &ctx)?;
         guard.col.storage.for_each_note_in_search(|note| {
             incrementor.increment()?;
-            writer.write_record(ctx.record(&note))?;
+            writer
+                .write_record(ctx.record(&note))
+                .or_invalid("invalid csv")?;
             Ok(())
         })?;
         writer.flush()?;
