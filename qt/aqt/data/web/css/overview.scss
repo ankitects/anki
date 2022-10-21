@@ -4,6 +4,7 @@
 @use "root-vars";
 @use "sass/vars" as *;
 @use "sass/card-counts";
+@use "sass/button-mixins" as button;
 
 .smallLink {
     font-size: 10px;
@@ -34,4 +35,8 @@ h3 {
 
 .dyn {
     text-align: center;
+}
+
+#study {
+    @include button.base($primary: true);
 }

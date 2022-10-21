@@ -74,7 +74,7 @@ with open(colors_py, "w") as buf:
         if not "dark" in val:
             val["dark"] = val.light
 
-        buf.write(re.sub(r'\"\n', '",\n', f"{color} = {json.dumps(val, indent=4)}\n"))
+        buf.write(re.sub(r"\"\n", '",\n', f"{color} = {json.dumps(val, indent=4)}\n"))
 
 
 with open(props_py, "w") as buf:
@@ -85,4 +85,4 @@ with open(props_py, "w") as buf:
         if not "dark" in val:
             val["dark"] = val.light
 
-        buf.write(re.sub(r'\"\n', '",\n', f"{prop} = {json.dumps(val, indent=4)}\n"))
+        buf.write(re.sub(r"\"\n", '",\n', f"{prop} = {json.dumps(val, indent=4)}\n"))
