@@ -26,11 +26,16 @@ from aqt.qt import (
     Qt,
 )
 
+@dataclass
+class AnkiVariable:
+    light: str
+    dark: str
+    comment: str
 
 @dataclass
 class ColoredIcon:
     path: str
-    color: dict[str, str]
+    color: AnkiVariable
 
     def current_color(self, night_mode: bool) -> str:
         if night_mode:
@@ -38,7 +43,7 @@ class ColoredIcon:
         else:
             return self.color.get("light", "")
 
-    def with_color(self, color: dict[str, str]) -> ColoredIcon:
+    def with_color(self, color: AnkiVariable) -> ColoredIcon:
         return ColoredIcon(path=self.path, color=color)
 
 
@@ -176,11 +181,11 @@ class ThemeManager:
         "Returns body classes used when showing a card."
         return f"card card{card_ord+1} {self.body_class(night_mode)}"
 
-    def var(self, vars: dict[str, str]) -> str:
+    def var(self, vars: AnkiVariable) -> str:
         """Given day/night colors/props, return the correct one for the current theme."""
         return vars["dark" if self.night_mode else "light"]
 
-    def qcolor(self, colors: dict[str, str]) -> QColor:
+    def qcolor(self, colors: AnkiVariable) -> QColor:
         return QColor(self.var(colors))
 
     def _determine_night_mode(self) -> bool:

@@ -14,6 +14,7 @@ from anki.collection import BrowserRow
 from anki.notes import NoteId
 from aqt import colors
 from aqt.qt import QColor
+from aqt.theme import AnkiVariable
 from aqt.utils import tr
 
 Column = Columns.Column
@@ -49,7 +50,7 @@ class CellRow:
     ) -> None:
         self.refreshed_at: float = time.time()
         self.cells: tuple[Cell, ...] = tuple(Cell(*cell) for cell in cells)
-        self.color: dict[str, str] | None = backend_color_to_aqt_color(color)
+        self.color: AnkiVariable | None = backend_color_to_aqt_color(color)
         self.font_name: str = font_name or "arial"
         self.font_size: int = font_size if font_size > 0 else 12
 
@@ -76,8 +77,8 @@ class CellRow:
         return row
 
 
-def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> dict[str, str] | None:
-    temp_color = {}
+def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> AnkiVariable | None:
+    temp_color = None
 
     if color == BrowserRow.COLOR_MARKED:
         temp_color = colors.STATE_MARKED
@@ -101,8 +102,8 @@ def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> dict[str, str] | No
     return adjusted_bg_color(temp_color)
 
 
-def adjusted_bg_color(color: dict[str, str]) -> dict[str, str]:
-    if "light" in color and "dark" in color:
+def adjusted_bg_color(color: AnkiVariable) -> AnkiVariable:
+    if color:
         color.light = color.light.lighter(150).name()
         color.dark = color.dark.darker(150).name()
         return color
