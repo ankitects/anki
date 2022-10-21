@@ -663,12 +663,11 @@ class Reviewer:
 <table id=innertable width=100%% cellspacing=0 cellpadding=0>
 <tr>
 <td align=left width=50 valign=top class=stat>
-<br>
 <button title="%(editkey)s" onclick="pycmd('edit');">%(edit)s</button></td>
 <td align=center valign=top id=middle>
 </td>
 <td width=50 align=right valign=top class=stat><span id=time class=stattxt>
-</span><br>
+</span>
 <button onclick="pycmd('more');">%(more)s %(downArrow)s</button>
 </td>
 </tr>
@@ -688,7 +687,7 @@ time = %(time)d;
 
     def _showAnswerButton(self) -> None:
         middle = """
-<span class=stattxt>{}</span><br>
+<span class=stattxt>{}</span>
 <button title="{}" id="ansbut" onclick='pycmd("ans");'>{}</button>""".format(
             self._remaining(),
             tr.actions_shortcut_key(val=tr.studying_space()),
