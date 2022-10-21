@@ -4,22 +4,7 @@ extension-pkg-whitelist=PyQt6
 ignore = forms,hooks_gen.py
 
 [TYPECHECK]
-ignored-modules=win32file,pywintypes,socket,win32pipe,winrt,pyaudio
-ignored-classes=
-  BrowserColumns,
-  BrowserRow,
-  SearchNode,
-  ConfigKey,
-  OpChanges,
-  UnburyDeckRequest,
-  CardAnswer,
-  QueuedCards,
-  ChangeNotetypeRequest,
-  CustomStudyRequest,
-  Cram,
-  ScheduleCardsAsNewRequest,
-  CsvColumn,
-  CsvMetadata,
+ignored-modules=win32file,pywintypes,socket,win32pipe,winrt,pyaudio,anki.scheduler_pb2
 
 [REPORTS]
 output-format=colorized
