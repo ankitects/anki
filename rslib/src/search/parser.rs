@@ -26,7 +26,7 @@ fn parse_failure(input: &str, kind: FailKind) -> nom::Err<ParseError<'_>> {
 }
 
 fn parse_error(input: &str) -> nom::Err<ParseError<'_>> {
-    nom::Err::Error(ParseError::Anki(input, FailKind::Other(None)))
+    nom::Err::Error(ParseError::Anki(input, FailKind::Other { info: None }))
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -256,13 +256,20 @@ fn unquoted_term(s: &str) -> IResult<Node> {
             if let nom::Err::Error((c, NomErrorKind::NoneOf)) = err {
                 Err(parse_failure(
                     s,
-                    FailKind::UnknownEscape(format!("\\{}", c)),
+                    FailKind::UnknownEscape {
+                        provided: format!("\\{}", c),
+                    },
                 ))
             } else if "\"() \u{3000}".contains(s.chars().next().unwrap()) {
                 Err(parse_error(s))
             } else {
                 // input ends in an odd number of backslashes
-                Err(parse_failure(s, FailKind::UnknownEscape('\\'.to_string())))
+                Err(parse_failure(
+                    s,
+                    FailKind::UnknownEscape {
+                        provided: '\\'.to_string(),
+                    },
+                ))
             }
         }
     }
@@ -394,7 +401,9 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
     .map_err(|_| {
         parse_failure(
             prop_clause,
-            FailKind::InvalidPropProperty(prop_clause.into()),
+            FailKind::InvalidPropProperty {
+                provided: prop_clause.into(),
+            },
         )
     })?;
 
@@ -406,7 +415,14 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
         tag("<"),
         tag(">"),
     ))(tail)
-    .map_err(|_| parse_failure(prop_clause, FailKind::InvalidPropOperator(prop.to_string())))?;
+    .map_err(|_| {
+        parse_failure(
+            prop_clause,
+            FailKind::InvalidPropOperator {
+                provided: prop.to_string(),
+            },
+        )
+    })?;
 
     let kind = match prop {
         "ease" => PropertyKind::Ease(parse_f32(num, prop_clause)?),
@@ -556,7 +572,12 @@ fn parse_state(s: &str) -> ParseResult<SearchNode> {
         "buried-manually" => UserBuried,
         "buried-sibling" => SchedBuried,
         "suspended" => Suspended,
-        _ => return Err(parse_failure(s, FailKind::InvalidState(s.into()))),
+        _ => {
+            return Err(parse_failure(
+                s,
+                FailKind::InvalidState { provided: s.into() },
+            ))
+        }
     }))
 }
 
@@ -580,10 +601,9 @@ fn check_id_list<'a, 'b>(s: &'a str, context: &'b str) -> ParseResult<'a, &'a st
         Err(parse_failure(
             s,
             // id lists are undocumented, so no translation
-            FailKind::Other(Some(format!(
-                "expected only digits and commas in {}:",
-                context
-            ))),
+            FailKind::Other {
+                info: Some(format!("expected only digits and commas in {}:", context)),
+            },
         ))
     }
 }
@@ -601,7 +621,9 @@ fn parse_dupe(s: &str) -> ParseResult<SearchNode> {
         // this is an undocumented keyword, so no translation/help
         Err(parse_failure(
             s,
-            FailKind::Other(Some("invalid 'dupe:' search".into())),
+            FailKind::Other {
+                info: Some("invalid 'dupe:' search".into()),
+            },
         ))
     }
 }
@@ -643,7 +665,10 @@ fn unescape_quotes_and_backslashes(s: &str) -> String {
 /// Unescape chars with special meaning to the parser.
 fn unescape(txt: &str) -> ParseResult<String> {
     if let Some(seq) = invalid_escape_sequence(txt) {
-        Err(parse_failure(txt, FailKind::UnknownEscape(seq)))
+        Err(parse_failure(
+            txt,
+            FailKind::UnknownEscape { provided: seq },
+        ))
     } else {
         Ok(if is_parser_escape(txt) {
             lazy_static! {
@@ -883,11 +908,11 @@ mod test {
         use crate::error::AnkiError;
 
         fn assert_err_kind(input: &str, kind: FailKind) {
-            assert_eq!(parse(input), Err(AnkiError::SearchError(kind)));
+            assert_eq!(parse(input), Err(AnkiError::SearchError { source: kind }));
         }
 
         fn failkind(input: &str) -> SearchErrorKind {
-            if let Err(AnkiError::SearchError(err)) = parse(input) {
+            if let Err(AnkiError::SearchError { source: err }) = parse(input) {
                 err
             } else {
                 panic!("expected search error");
@@ -927,12 +952,42 @@ mod test {
         assert_err_kind(":foo", MissingKey);
         assert_err_kind(r#":"foo""#, MissingKey);
 
-        assert_err_kind(r"\", UnknownEscape(r"\".to_string()));
-        assert_err_kind(r"\%", UnknownEscape(r"\%".to_string()));
-        assert_err_kind(r"foo\", UnknownEscape(r"\".to_string()));
-        assert_err_kind(r"\foo", UnknownEscape(r"\f".to_string()));
-        assert_err_kind(r"\ ", UnknownEscape(r"\".to_string()));
-        assert_err_kind(r#""\ ""#, UnknownEscape(r"\ ".to_string()));
+        assert_err_kind(
+            r"\",
+            UnknownEscape {
+                provided: r"\".to_string(),
+            },
+        );
+        assert_err_kind(
+            r"\%",
+            UnknownEscape {
+                provided: r"\%".to_string(),
+            },
+        );
+        assert_err_kind(
+            r"foo\",
+            UnknownEscape {
+                provided: r"\".to_string(),
+            },
+        );
+        assert_err_kind(
+            r"\foo",
+            UnknownEscape {
+                provided: r"\f".to_string(),
+            },
+        );
+        assert_err_kind(
+            r"\ ",
+            UnknownEscape {
+                provided: r"\".to_string(),
+            },
+        );
+        assert_err_kind(
+            r#""\ ""#,
+            UnknownEscape {
+                provided: r"\ ".to_string(),
+            },
+        );
 
         for term in &[
             "nid:1_2,3",
@@ -944,14 +999,39 @@ mod test {
             "cid:,2,3",
             "cid:1,2,",
         ] {
-            assert!(matches!(failkind(term), SearchErrorKind::Other(_)));
+            assert!(matches!(failkind(term), SearchErrorKind::Other { .. }));
         }
 
-        assert_err_kind("is:foo", InvalidState("foo".into()));
-        assert_err_kind("is:DUE", InvalidState("DUE".into()));
-        assert_err_kind("is:New", InvalidState("New".into()));
-        assert_err_kind("is:", InvalidState("".into()));
-        assert_err_kind(r#""is:learn ""#, InvalidState("learn ".into()));
+        assert_err_kind(
+            "is:foo",
+            InvalidState {
+                provided: "foo".into(),
+            },
+        );
+        assert_err_kind(
+            "is:DUE",
+            InvalidState {
+                provided: "DUE".into(),
+            },
+        );
+        assert_err_kind(
+            "is:New",
+            InvalidState {
+                provided: "New".into(),
+            },
+        );
+        assert_err_kind(
+            "is:",
+            InvalidState {
+                provided: "".into(),
+            },
+        );
+        assert_err_kind(
+            r#""is:learn ""#,
+            InvalidState {
+                provided: "learn ".into(),
+            },
+        );
 
         assert_err_kind(r#""flag: ""#, InvalidFlag);
         assert_err_kind("flag:-0", InvalidFlag);
@@ -1008,13 +1088,43 @@ mod test {
             SearchErrorKind::InvalidWholeNumber { .. }
         ));
 
-        assert_err_kind("prop:", InvalidPropProperty("".into()));
-        assert_err_kind("prop:=1", InvalidPropProperty("=1".into()));
-        assert_err_kind("prop:DUE<5", InvalidPropProperty("DUE<5".into()));
+        assert_err_kind(
+            "prop:",
+            InvalidPropProperty {
+                provided: "".into(),
+            },
+        );
+        assert_err_kind(
+            "prop:=1",
+            InvalidPropProperty {
+                provided: "=1".into(),
+            },
+        );
+        assert_err_kind(
+            "prop:DUE<5",
+            InvalidPropProperty {
+                provided: "DUE<5".into(),
+            },
+        );
 
-        assert_err_kind("prop:lapses", InvalidPropOperator("lapses".to_string()));
-        assert_err_kind("prop:pos~1", InvalidPropOperator("pos".to_string()));
-        assert_err_kind("prop:reps10", InvalidPropOperator("reps".to_string()));
+        assert_err_kind(
+            "prop:lapses",
+            InvalidPropOperator {
+                provided: "lapses".to_string(),
+            },
+        );
+        assert_err_kind(
+            "prop:pos~1",
+            InvalidPropOperator {
+                provided: "pos".to_string(),
+            },
+        );
+        assert_err_kind(
+            "prop:reps10",
+            InvalidPropOperator {
+                provided: "reps".to_string(),
+            },
+        );
 
         // unsigned
 

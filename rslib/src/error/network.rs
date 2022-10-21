@@ -3,10 +3,11 @@
 
 use anki_i18n::I18n;
 use reqwest::StatusCode;
+use snafu::Snafu;
 
 use super::AnkiError;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Snafu)]
 pub struct NetworkError {
     pub info: String,
     pub kind: NetworkErrorKind,
@@ -20,7 +21,7 @@ pub enum NetworkErrorKind {
     Other,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Snafu)]
 pub struct SyncError {
     pub info: String,
     pub kind: SyncErrorKind,
@@ -43,10 +44,12 @@ pub enum SyncErrorKind {
 
 impl AnkiError {
     pub(crate) fn sync_error(info: impl Into<String>, kind: SyncErrorKind) -> Self {
-        AnkiError::SyncError(SyncError {
-            info: info.into(),
-            kind,
-        })
+        AnkiError::SyncError {
+            source: SyncError {
+                info: info.into(),
+                kind,
+            },
+        }
     }
 
     pub(crate) fn server_message<S: Into<String>>(msg: S) -> AnkiError {
@@ -62,10 +65,12 @@ impl From<reqwest::Error> for AnkiError {
         let info = str_err.replace(url, "");
 
         if err.is_timeout() {
-            AnkiError::NetworkError(NetworkError {
-                info,
-                kind: NetworkErrorKind::Timeout,
-            })
+            AnkiError::NetworkError {
+                source: NetworkError {
+                    info,
+                    kind: NetworkErrorKind::Timeout,
+                },
+            }
         } else if err.is_status() {
             error_for_status_code(info, err.status().unwrap())
         } else {
@@ -77,36 +82,50 @@ impl From<reqwest::Error> for AnkiError {
 fn error_for_status_code(info: String, code: StatusCode) -> AnkiError {
     use reqwest::StatusCode as S;
     match code {
-        S::PROXY_AUTHENTICATION_REQUIRED => AnkiError::NetworkError(NetworkError {
-            info,
-            kind: NetworkErrorKind::ProxyAuth,
-        }),
-        S::CONFLICT => AnkiError::SyncError(SyncError {
-            info,
-            kind: SyncErrorKind::Conflict,
-        }),
-        S::FORBIDDEN => AnkiError::SyncError(SyncError {
-            info,
-            kind: SyncErrorKind::AuthFailed,
-        }),
-        S::NOT_IMPLEMENTED => AnkiError::SyncError(SyncError {
-            info,
-            kind: SyncErrorKind::ClientTooOld,
-        }),
-        S::INTERNAL_SERVER_ERROR | S::BAD_GATEWAY | S::GATEWAY_TIMEOUT | S::SERVICE_UNAVAILABLE => {
-            AnkiError::SyncError(SyncError {
+        S::PROXY_AUTHENTICATION_REQUIRED => AnkiError::NetworkError {
+            source: NetworkError {
                 info,
-                kind: SyncErrorKind::ServerError,
-            })
+                kind: NetworkErrorKind::ProxyAuth,
+            },
+        },
+        S::CONFLICT => AnkiError::SyncError {
+            source: SyncError {
+                info,
+                kind: SyncErrorKind::Conflict,
+            },
+        },
+        S::FORBIDDEN => AnkiError::SyncError {
+            source: SyncError {
+                info,
+                kind: SyncErrorKind::AuthFailed,
+            },
+        },
+        S::NOT_IMPLEMENTED => AnkiError::SyncError {
+            source: SyncError {
+                info,
+                kind: SyncErrorKind::ClientTooOld,
+            },
+        },
+        S::INTERNAL_SERVER_ERROR | S::BAD_GATEWAY | S::GATEWAY_TIMEOUT | S::SERVICE_UNAVAILABLE => {
+            AnkiError::SyncError {
+                source: SyncError {
+                    info,
+                    kind: SyncErrorKind::ServerError,
+                },
+            }
         }
-        S::BAD_REQUEST => AnkiError::SyncError(SyncError {
-            info,
-            kind: SyncErrorKind::DatabaseCheckRequired,
-        }),
-        _ => AnkiError::NetworkError(NetworkError {
-            info,
-            kind: NetworkErrorKind::Other,
-        }),
+        S::BAD_REQUEST => AnkiError::SyncError {
+            source: SyncError {
+                info,
+                kind: SyncErrorKind::DatabaseCheckRequired,
+            },
+        },
+        _ => AnkiError::NetworkError {
+            source: NetworkError {
+                info,
+                kind: NetworkErrorKind::Other,
+            },
+        },
     }
 }
 
@@ -131,7 +150,9 @@ fn guess_reqwest_error(mut info: String) -> AnkiError {
 
         NetworkErrorKind::Other
     };
-    AnkiError::NetworkError(NetworkError { info, kind })
+    AnkiError::NetworkError {
+        source: NetworkError { info, kind },
+    }
 }
 
 impl From<zip::result::ZipError> for AnkiError {
@@ -141,7 +162,7 @@ impl From<zip::result::ZipError> for AnkiError {
 }
 
 impl SyncError {
-    pub fn localized_description(&self, tr: &I18n) -> String {
+    pub fn message(&self, tr: &I18n) -> String {
         match self.kind {
             SyncErrorKind::ServerMessage => self.info.clone().into(),
             SyncErrorKind::Other => self.info.clone().into(),
@@ -160,7 +181,7 @@ impl SyncError {
 }
 
 impl NetworkError {
-    pub fn localized_description(&self, tr: &I18n) -> String {
+    pub fn message(&self, tr: &I18n) -> String {
         let summary = match self.kind {
             NetworkErrorKind::Offline => tr.network_offline(),
             NetworkErrorKind::Timeout => tr.network_timeout(),

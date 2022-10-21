@@ -116,9 +116,7 @@ impl CardStateUpdater {
                 if let CardState::Filtered(filtered) = &current {
                     match filtered {
                         FilteredState::Preview(_) => {
-                            return Err(AnkiError::invalid_input(
-                                "should set finished=true, not return different state",
-                            ));
+                            invalid_input!("should set finished=true, not return different state")
                         }
                         FilteredState::Rescheduling(_) => {
                             // card needs to be removed from normal filtered deck, then scheduled normally
@@ -166,13 +164,11 @@ impl CardStateUpdater {
     }
 
     fn ensure_filtered(&self) -> Result<()> {
-        if self.card.original_deck_id.0 == 0 {
-            Err(AnkiError::invalid_input(
-                "card answering can't transition into filtered state",
-            ))
-        } else {
-            Ok(())
-        }
+        require!(
+            self.card.original_deck_id.0 != 0,
+            "card answering can't transition into filtered state",
+        );
+        Ok(())
     }
 }
 
@@ -190,7 +186,7 @@ impl Rating {
 impl Collection {
     /// Return the next states that will be applied for each answer button.
     pub fn get_scheduling_states(&mut self, cid: CardId) -> Result<SchedulingStates> {
-        let card = self.storage.get_card(cid)?.ok_or(AnkiError::NotFound)?;
+        let card = self.storage.get_card(cid)?.or_not_found(cid)?;
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
         let state_ctx = ctx.state_context();
@@ -254,19 +250,19 @@ impl Collection {
         let card = self
             .storage
             .get_card(answer.card_id)?
-            .ok_or(AnkiError::NotFound)?;
+            .or_not_found(answer.card_id)?;
         let original = card.clone();
         let usn = self.usn()?;
 
         let mut updater = self.card_state_updater(card)?;
         answer.cap_answer_secs(updater.config.inner.cap_answer_time_to_secs);
         let current_state = updater.current_card_state();
-        if current_state != answer.current_state {
-            return Err(AnkiError::invalid_input(format!(
-                "card was modified: {:#?} {:#?}",
-                current_state, answer.current_state,
-            )));
-        }
+        require!(
+            current_state == answer.current_state,
+            "card was modified: {current_state:#?} {:#?}",
+            answer.current_state,
+        );
+
         let revlog_partial = updater.apply_study_state(current_state, answer.new_state)?;
         self.add_partial_revlog(revlog_partial, usn, answer)?;
 
@@ -348,7 +344,7 @@ impl Collection {
         let deck = self
             .storage
             .get_deck(card.deck_id)?
-            .ok_or(AnkiError::NotFound)?;
+            .or_not_found(card.deck_id)?;
         let config = self.home_deck_config(deck.config_id(), card.original_deck_id)?;
         Ok(CardStateUpdater {
             fuzz_seed: get_fuzz_seed(&card),
@@ -371,8 +367,8 @@ impl Collection {
             let home_deck = self
                 .storage
                 .get_deck(home_deck_id)?
-                .ok_or(AnkiError::NotFound)?;
-            home_deck.config_id().ok_or(AnkiError::NotFound)?
+                .or_not_found(home_deck_id)?;
+            home_deck.config_id().or_invalid("home deck is filtered")?
         };
 
         Ok(self.storage.get_deck_config(config_id)?.unwrap_or_default())

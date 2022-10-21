@@ -73,10 +73,10 @@ impl Collection {
     ) -> Result<NotetypeChangeInfo> {
         let old_notetype = self
             .get_notetype(old_notetype_id)?
-            .ok_or(AnkiError::NotFound)?;
+            .or_not_found(old_notetype_id)?;
         let new_notetype = self
             .get_notetype(new_notetype_id)?
-            .ok_or(AnkiError::NotFound)?;
+            .or_not_found(new_notetype_id)?;
 
         let current_schema = self.storage.get_collection_timestamps()?.schema_change;
         let old_notetype_name = &old_notetype.name;
@@ -206,16 +206,17 @@ fn default_field_map(current_notetype: &Notetype, new_notetype: &Notetype) -> Ve
 
 impl Collection {
     fn change_notetype_of_notes_inner(&mut self, input: ChangeNotetypeInput) -> Result<()> {
-        if input.current_schema != self.storage.get_collection_timestamps()?.schema_change {
-            return Err(AnkiError::invalid_input("schema changed"));
-        }
+        require!(
+            input.current_schema == self.storage.get_collection_timestamps()?.schema_change,
+            "schema changed"
+        );
 
         let usn = self.usn()?;
         self.set_schema_modified()?;
         if let Some(new_templates) = input.new_templates {
             let old_notetype = self
                 .get_notetype(input.old_notetype_id)?
-                .ok_or(AnkiError::NotFound)?;
+                .or_not_found(input.old_notetype_id)?;
             self.update_cards_for_new_notetype(
                 &input.note_ids,
                 old_notetype.templates.len(),
@@ -253,12 +254,12 @@ impl Collection {
     ) -> Result<()> {
         let notetype = self
             .get_notetype(new_notetype_id)?
-            .ok_or(AnkiError::NotFound)?;
+            .or_not_found(new_notetype_id)?;
         let last_deck = self.get_last_deck_added_to_for_notetype(notetype.id);
         let ctx = CardGenContext::new(notetype.as_ref(), last_deck, usn);
 
         for nid in note_ids {
-            let mut note = self.storage.get_note(*nid)?.ok_or(AnkiError::NotFound)?;
+            let mut note = self.storage.get_note(*nid)?.or_not_found(nid)?;
             let original = note.clone();
             remap_fields(note.fields_mut(), new_fields);
             note.notetype_id = new_notetype_id;
@@ -335,7 +336,7 @@ impl Collection {
         notetype_id: NotetypeId,
         usn: Usn,
     ) -> Result<()> {
-        let notetype = self.get_notetype(notetype_id)?.ok_or(AnkiError::NotFound)?;
+        let notetype = self.get_notetype(notetype_id)?.or_not_found(notetype_id)?;
 
         if notetype.config.kind() == NotetypeKind::Normal {
             // cloze -> normal change requires clean up

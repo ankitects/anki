@@ -190,7 +190,7 @@ impl Collection {
         if undoable {
             self.transact(Op::UpdateCard, |col| {
                 for mut card in cards {
-                    let existing = col.storage.get_card(card.id)?.ok_or(AnkiError::NotFound)?;
+                    let existing = col.storage.get_card(card.id)?.or_not_found(card.id)?;
                     col.update_card_inner(&mut card, existing, col.usn()?)?
                 }
                 Ok(())
@@ -198,7 +198,7 @@ impl Collection {
         } else {
             self.transact_no_undo(|col| {
                 for mut card in cards {
-                    let existing = col.storage.get_card(card.id)?.ok_or(AnkiError::NotFound)?;
+                    let existing = col.storage.get_card(card.id)?.or_not_found(card.id)?;
                     col.update_card_inner(&mut card, existing, col.usn()?)?;
                 }
                 Ok(OpOutput {
@@ -220,10 +220,7 @@ impl Collection {
     where
         F: FnOnce(&mut Card) -> Result<T>,
     {
-        let orig = self
-            .storage
-            .get_card(cid)?
-            .ok_or_else(|| AnkiError::invalid_input("no such card"))?;
+        let orig = self.storage.get_card(cid)?.or_invalid("no such card")?;
         let mut card = orig.clone();
         func(&mut card)?;
         self.update_card_inner(&mut card, orig, self.usn()?)?;
@@ -242,9 +239,7 @@ impl Collection {
     }
 
     pub(crate) fn add_card(&mut self, card: &mut Card) -> Result<()> {
-        if card.id.0 != 0 {
-            return Err(AnkiError::invalid_input("card id already set"));
-        }
+        require!(card.id.0 == 0, "card id already set");
         card.mtime = TimestampSecs::now();
         card.usn = self.usn()?;
         self.add_card_undoable(card)
@@ -271,10 +266,10 @@ impl Collection {
     }
 
     pub fn set_deck(&mut self, cards: &[CardId], deck_id: DeckId) -> Result<OpOutput<usize>> {
-        let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
-        let config_id = deck.config_id().ok_or(AnkiError::FilteredDeckError(
-            FilteredDeckError::CanNotMoveCardsInto,
-        ))?;
+        let deck = self.get_deck(deck_id)?.or_not_found(deck_id)?;
+        let config_id = deck.config_id().ok_or(AnkiError::FilteredDeckError {
+            source: FilteredDeckError::CanNotMoveCardsInto,
+        })?;
         let config = self.get_deck_config(config_id, true)?.unwrap();
         let mut steps_adjuster = RemainingStepsAdjuster::new(&config);
         let sched = self.scheduler_version();
@@ -296,9 +291,7 @@ impl Collection {
     }
 
     pub fn set_card_flag(&mut self, cards: &[CardId], flag: u32) -> Result<OpOutput<usize>> {
-        if flag > 7 {
-            return Err(AnkiError::invalid_input("invalid flag"));
-        }
+        require!(flag < 8, "invalid flag");
         let flag = flag as u8;
 
         let usn = self.usn()?;

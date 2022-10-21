@@ -16,14 +16,7 @@ use rusqlite::{params_from_iter, types::FromSql};
 use sqlwriter::{RequiredTable, SqlWriter};
 pub use writer::replace_search_node;
 
-use crate::{
-    browser_table::Column,
-    card::{Card, CardId, CardType},
-    collection::Collection,
-    error::Result,
-    notes::NoteId,
-    prelude::AnkiError,
-};
+use crate::{browser_table::Column, card::CardType, prelude::*};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ReturnItemType {
@@ -333,12 +326,7 @@ fn write_order(
         ReturnItemType::Cards => card_order_from_sort_column(column),
         ReturnItemType::Notes => note_order_from_sort_column(column),
     };
-    if order.is_empty() {
-        return Err(AnkiError::invalid_input(format!(
-            "Can't sort {:?} by {:?}.",
-            item_type, column
-        )));
-    }
+    require!(!order.is_empty(), "Can't sort {item_type:?} by {column:?}.");
     if reverse {
         sql.push_str(
             &order

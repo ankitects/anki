@@ -167,9 +167,7 @@ impl SqliteStorage {
     }
 
     pub(crate) fn update_deck(&self, deck: &Deck) -> Result<()> {
-        if deck.id.0 == 0 {
-            return Err(AnkiError::invalid_input("deck with id 0"));
-        }
+        require!(deck.id.0 != 0, "deck with id 0");
         let mut stmt = self.db.prepare_cached(include_str!("update_deck.sql"))?;
         let mut common = vec![];
         deck.common.encode(&mut common)?;
@@ -187,21 +185,14 @@ impl SqliteStorage {
             deck.id
         ])?;
 
-        if count == 0 {
-            Err(AnkiError::invalid_input(
-                "update_deck() called with non-existent deck",
-            ))
-        } else {
-            Ok(())
-        }
+        require!(count != 0, "update_deck() called with non-existent deck");
+        Ok(())
     }
 
     /// Used for syncing&undo; will keep existing ID. Shouldn't be used to add
     /// new decks locally, since it does not allocate an id.
     pub(crate) fn add_or_update_deck_with_existing_id(&self, deck: &Deck) -> Result<()> {
-        if deck.id.0 == 0 {
-            return Err(AnkiError::invalid_input("deck with id 0"));
-        }
+        require!(deck.id.0 != 0, "deck with id 0");
         let mut stmt = self
             .db
             .prepare_cached(include_str!("add_or_update_deck.sql"))?;
@@ -263,7 +254,7 @@ impl SqliteStorage {
     }
 
     pub(crate) fn deck_with_children(&self, deck_id: DeckId) -> Result<Vec<Deck>> {
-        let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
+        let deck = self.get_deck(deck_id)?.or_not_found(deck_id)?;
         let prefix_start = format!("{}\x1f", deck.name);
         let prefix_end = format!("{}\x20", deck.name);
         iter::once(Ok(deck))
@@ -382,7 +373,9 @@ impl SqliteStorage {
         let usn = self.usn(server)?;
         let decks = self
             .get_schema11_decks()
-            .map_err(|e| AnkiError::JsonError(format!("decoding decks: {}", e)))?;
+            .map_err(|e| AnkiError::JsonError {
+                info: format!("decoding decks: {}", e),
+            })?;
         let mut names = HashSet::new();
         for (_id, deck) in decks {
             let oldname = deck.name().to_string();

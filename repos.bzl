@@ -115,12 +115,12 @@ def register_repos():
     ################
 
     core_i18n_repo = "anki-core-i18n"
-    core_i18n_commit = "b9d5c896f22fe6e79810194f41222d8638c13e16"
-    core_i18n_zip_csum = "8ef7888373cacf682c17f41056dc1f5348f60a15e1809c8db0f66f4072e7d5fb"
+    core_i18n_commit = "3817899a01a67c8d3a9426268af466b935d762b8"
+    core_i18n_zip_csum = "7146dac6b6f6b2dafe6b6a9e03a9126e2a7772abb9a16fe66ecb359ef5010675"
 
     qtftl_i18n_repo = "anki-desktop-ftl"
-    qtftl_i18n_commit = "a8bd0e284e2785421180af2ce10dd1d534b0033d"
-    qtftl_i18n_zip_csum = "f88398324a64be99521bd5cd7e79e7dda64c31a2cd4e568328a211c7765b23ac"
+    qtftl_i18n_commit = "f1f4859e6bcdd18f0b077ad4f9169a518d9634bf"
+    qtftl_i18n_zip_csum = "96fafee1fe6416586775fd33ce08d5656c7d41b3e09ef680eb62a1f486b8f35c"
 
     i18n_build_content = """
 filegroup(
@@ -192,16 +192,6 @@ exports_files(["l10n.toml"])
             "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/audio-win-amd64.tar.gz",
         ],
         sha256 = "0815a601baba05e03bc36b568cdc2332b1cf4aa17125fc33c69de125f8dd687f",
-    )
-
-    maybe(
-        http_archive,
-        name = "protobuf_wheel_mac_arm64",
-        build_file_content = " ",
-        urls = [
-            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/protobuf-wheel-mac-arm64.tar",
-        ],
-        sha256 = "401d1cd6d949af463b3945f0d5dc887185b27fa5478cb6847bf94f680ea797b4",
     )
 
     maybe(

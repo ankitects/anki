@@ -5,11 +5,7 @@ use std::{borrow::Cow, collections::HashMap};
 
 use super::{CardTemplate, Notetype, NotetypeKind};
 use crate::{
-    card::{Card, CardId},
-    collection::Collection,
-    error::{AnkiError, Result},
-    i18n::I18n,
-    notes::{Note, NoteId},
+    prelude::*,
     template::{field_is_empty, render_card, ParsedTemplate, RenderedNode},
 };
 
@@ -23,22 +19,19 @@ pub struct RenderCardOutput {
 impl Collection {
     /// Render an existing card saved in the database.
     pub fn render_existing_card(&mut self, cid: CardId, browser: bool) -> Result<RenderCardOutput> {
-        let card = self
-            .storage
-            .get_card(cid)?
-            .ok_or_else(|| AnkiError::invalid_input("no such card"))?;
+        let card = self.storage.get_card(cid)?.or_invalid("no such card")?;
         let note = self
             .storage
             .get_note(card.note_id)?
-            .ok_or_else(|| AnkiError::invalid_input("no such note"))?;
+            .or_invalid("no such note")?;
         let nt = self
             .get_notetype(note.notetype_id)?
-            .ok_or_else(|| AnkiError::invalid_input("no such notetype"))?;
+            .or_invalid("no such notetype")?;
         let template = match nt.config.kind() {
             NotetypeKind::Normal => nt.templates.get(card.template_idx as usize),
             NotetypeKind::Cloze => nt.templates.get(0),
         }
-        .ok_or_else(|| AnkiError::invalid_input("missing template"))?;
+        .or_invalid("missing template")?;
 
         self.render_card(&note, &card, &nt, template, browser)
     }
@@ -56,7 +49,7 @@ impl Collection {
         let card = self.existing_or_synthesized_card(note.id, template.ord, card_ord)?;
         let nt = self
             .get_notetype(note.notetype_id)?
-            .ok_or_else(|| AnkiError::invalid_input("no such notetype"))?;
+            .or_invalid("no such notetype")?;
 
         if fill_empty {
             fill_empty_fields(note, &template.config.q_format, &nt, &self.tr);

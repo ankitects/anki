@@ -28,7 +28,13 @@ use super::{
     Chunk, FullSyncProgress, Graves, SanityCheckCounts, SanityCheckResponse, SyncMeta,
     UnchunkedChanges, SYNC_VERSION_MAX,
 };
-use crate::{error::SyncErrorKind, notes::guid, prelude::*, version::sync_client_version};
+use crate::{
+    error::SyncErrorKind,
+    io::{new_tempfile, new_tempfile_in},
+    notes::guid,
+    prelude::*,
+    version::sync_client_version,
+};
 
 lazy_static! {
     // These limits are enforced server-side, but are made adjustable for users
@@ -167,9 +173,9 @@ impl SyncServer for HttpSyncClient {
         col_folder: Option<&Path>,
     ) -> Result<NamedTempFile> {
         let mut temp_file = if let Some(folder) = col_folder {
-            NamedTempFile::new_in(folder)
+            new_tempfile_in(folder)
         } else {
-            NamedTempFile::new()
+            new_tempfile()
         }?;
         let (size, mut stream) = self.download_inner().await?;
         let mut progress = FullSyncProgress {
@@ -400,10 +406,12 @@ mod test {
 
         assert!(matches!(
             syncer.login("nosuchuser", "nosuchpass").await,
-            Err(AnkiError::SyncError(SyncError {
-                kind: SyncErrorKind::AuthFailed,
-                ..
-            }))
+            Err(AnkiError::SyncError {
+                source: SyncError {
+                    kind: SyncErrorKind::AuthFailed,
+                    ..
+                }
+            })
         ));
 
         assert!(syncer.login(&username, &password).await.is_ok());
@@ -413,10 +421,12 @@ mod test {
         // aborting before a start is a conflict
         assert!(matches!(
             syncer.abort().await,
-            Err(AnkiError::SyncError(SyncError {
-                kind: SyncErrorKind::Conflict,
-                ..
-            }))
+            Err(AnkiError::SyncError {
+                source: SyncError {
+                    kind: SyncErrorKind::Conflict,
+                    ..
+                }
+            })
         ));
 
         let _graves = syncer.start(Usn(1), true, None).await?;

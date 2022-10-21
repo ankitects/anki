@@ -8,6 +8,7 @@ use tempfile::{tempdir, TempDir};
 use crate::{
     collection::{open_test_collection, CollectionBuilder},
     deckconfig::UpdateDeckConfigsRequest,
+    io::create_dir,
     media::MediaManager,
     pb::deck_configs_for_update::current_deck::Limits,
     prelude::*,
@@ -17,7 +18,7 @@ pub(crate) fn open_fs_test_collection(name: &str) -> (Collection, TempDir) {
     let tempdir = tempdir().unwrap();
     let dir = tempdir.path();
     let media_folder = dir.join(format!("{name}.media"));
-    std::fs::create_dir(&media_folder).unwrap();
+    create_dir(&media_folder).unwrap();
     let col = CollectionBuilder::new(dir.join(format!("{name}.anki2")))
         .set_media_paths(media_folder, dir.join(format!("{name}.mdb")))
         .build()

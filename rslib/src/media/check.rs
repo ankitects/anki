@@ -520,6 +520,7 @@ pub(crate) mod test {
     use crate::{
         collection::{Collection, CollectionBuilder},
         error::Result,
+        io::{create_dir, write_file},
         media::{
             check::{MediaCheckOutput, MediaChecker},
             files::trash_folder,
@@ -530,10 +531,10 @@ pub(crate) mod test {
     fn common_setup() -> Result<(TempDir, MediaManager, Collection)> {
         let dir = tempdir()?;
         let media_folder = dir.path().join("media");
-        fs::create_dir(&media_folder)?;
+        create_dir(&media_folder)?;
         let media_db = dir.path().join("media.db");
         let col_path = dir.path().join("col.anki2");
-        fs::write(&col_path, MEDIACHECK_ANKI2)?;
+        write_file(&col_path, MEDIACHECK_ANKI2)?;
 
         let mgr = MediaManager::new(&media_folder, media_db.clone())?;
         let col = CollectionBuilder::new(col_path)
@@ -548,12 +549,12 @@ pub(crate) mod test {
         let (_dir, mgr, mut col) = common_setup()?;
 
         // add some test files
-        fs::write(&mgr.media_folder.join("zerobytes"), "")?;
-        fs::create_dir(&mgr.media_folder.join("folder"))?;
-        fs::write(&mgr.media_folder.join("normal.jpg"), "normal")?;
-        fs::write(&mgr.media_folder.join("foo[.jpg"), "foo")?;
-        fs::write(&mgr.media_folder.join("_under.jpg"), "foo")?;
-        fs::write(&mgr.media_folder.join("unused.jpg"), "foo")?;
+        write_file(&mgr.media_folder.join("zerobytes"), "")?;
+        create_dir(&mgr.media_folder.join("folder"))?;
+        write_file(&mgr.media_folder.join("normal.jpg"), "normal")?;
+        write_file(&mgr.media_folder.join("foo[.jpg"), "foo")?;
+        write_file(&mgr.media_folder.join("_under.jpg"), "foo")?;
+        write_file(&mgr.media_folder.join("unused.jpg"), "foo")?;
 
         let progress = |_n| true;
 
@@ -623,7 +624,7 @@ Unused: unused.jpg
     fn trash_handling() -> Result<()> {
         let (_dir, mgr, mut col) = common_setup()?;
         let trash_folder = trash_folder(&mgr.media_folder)?;
-        fs::write(trash_folder.join("test.jpg"), "test")?;
+        write_file(trash_folder.join("test.jpg"), "test")?;
 
         let progress = |_n| true;
 
@@ -638,7 +639,7 @@ Unused: unused.jpg
         );
 
         // if we repeat the process, restoring should do the same thing if the contents are equal
-        fs::write(trash_folder.join("test.jpg"), "test")?;
+        write_file(trash_folder.join("test.jpg"), "test")?;
 
         let mut checker = MediaChecker::new(&mut col, &mgr, progress);
         checker.restore_trash()?;
@@ -650,7 +651,7 @@ Unused: unused.jpg
         );
 
         // but rename if required
-        fs::write(trash_folder.join("test.jpg"), "test2")?;
+        write_file(trash_folder.join("test.jpg"), "test2")?;
 
         let mut checker = MediaChecker::new(&mut col, &mgr, progress);
         checker.restore_trash()?;
@@ -671,7 +672,7 @@ Unused: unused.jpg
     fn unicode_normalization() -> Result<()> {
         let (_dir, mgr, mut col) = common_setup()?;
 
-        fs::write(&mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
+        write_file(&mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
 
         let progress = |_n| true;
 

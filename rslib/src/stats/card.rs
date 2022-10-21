@@ -10,18 +10,18 @@ use crate::{
 
 impl Collection {
     pub fn card_stats(&mut self, cid: CardId) -> Result<pb::CardStatsResponse> {
-        let card = self.storage.get_card(cid)?.ok_or(AnkiError::NotFound)?;
+        let card = self.storage.get_card(cid)?.or_not_found(cid)?;
         let note = self
             .storage
             .get_note(card.note_id)?
-            .ok_or(AnkiError::NotFound)?;
+            .or_not_found(card.note_id)?;
         let nt = self
             .get_notetype(note.notetype_id)?
-            .ok_or(AnkiError::NotFound)?;
+            .or_not_found(note.notetype_id)?;
         let deck = self
             .storage
             .get_deck(card.deck_id)?
-            .ok_or(AnkiError::NotFound)?;
+            .or_not_found(card.deck_id)?;
         let revlog = self.storage.get_revlog_entries_for_card(card.id)?;
 
         let (average_secs, total_secs) = average_and_total_secs_strings(&revlog);

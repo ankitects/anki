@@ -149,7 +149,7 @@ impl UndoManager {
                 }
             })
             .next()
-            .ok_or_else(|| AnkiError::invalid_input("target undo op not found"))?;
+            .or_invalid("target undo op not found")?;
         let mut removed = vec![];
         for _ in 0..target_idx {
             removed.push(self.undo_steps.pop_front().unwrap());

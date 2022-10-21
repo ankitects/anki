@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Optional, TextIO, cast
 from markdown import markdown
 
 import aqt
-from anki.errors import DocumentedError, Interrupted, LocalizedError
+from anki.errors import BackendError, Interrupted
 from aqt.qt import *
 from aqt.utils import showText, showWarning, supportText, tr
 
@@ -25,15 +25,19 @@ def show_exception(*, parent: QWidget, exception: Exception) -> None:
     if isinstance(exception, Interrupted):
         # nothing to do
         return
-    help_page = exception.help_page if isinstance(exception, DocumentedError) else None
-    if not isinstance(exception, LocalizedError):
+    if isinstance(exception, BackendError):
+        if exception.context:
+            print(exception.context)
+        if exception.backtrace:
+            print(exception.backtrace)
+        showWarning(str(exception), parent=parent, help=exception.help_page)
+    else:
         # if the error is not originating from the backend, dump
         # a traceback to the console to aid in debugging
         traceback.print_exception(
             None, exception, exception.__traceback__, file=sys.stdout
         )
-
-    showWarning(str(exception), parent=parent, help=help_page)
+        showWarning(str(exception), parent=parent)
 
 
 if not os.environ.get("DEBUG"):

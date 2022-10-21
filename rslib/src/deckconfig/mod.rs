@@ -19,14 +19,7 @@ pub use crate::pb::deck_config::{
 /// Old deck config and cards table store 250% as 2500.
 pub(crate) const INITIAL_EASE_FACTOR_THOUSANDS: u16 = (INITIAL_EASE_FACTOR * 1000.0) as u16;
 
-use crate::{
-    collection::Collection,
-    define_newtype,
-    error::{AnkiError, Result},
-    scheduler::states::review::INITIAL_EASE_FACTOR,
-    timestamp::{TimestampMillis, TimestampSecs},
-    types::Usn,
-};
+use crate::{define_newtype, prelude::*, scheduler::states::review::INITIAL_EASE_FACTOR};
 
 define_newtype!(DeckConfigId, i64);
 
@@ -121,7 +114,7 @@ impl Collection {
             let original = self
                 .storage
                 .get_deck_config(config.id)?
-                .ok_or(AnkiError::NotFound)?;
+                .or_not_found(config.id)?;
             self.update_deck_config_inner(config, original, usn)
         }
     }
@@ -176,13 +169,8 @@ impl Collection {
 
     /// Remove a deck configuration. This will force a full sync.
     pub(crate) fn remove_deck_config_inner(&mut self, dcid: DeckConfigId) -> Result<()> {
-        if dcid.0 == 1 {
-            return Err(AnkiError::invalid_input("can't delete default conf"));
-        }
-        let conf = self
-            .storage
-            .get_deck_config(dcid)?
-            .ok_or(AnkiError::NotFound)?;
+        require!(dcid.0 != 1, "can't delete default conf");
+        let conf = self.storage.get_deck_config(dcid)?.or_not_found(dcid)?;
         self.set_schema_modified()?;
         self.remove_deck_config_undoable(conf)
     }

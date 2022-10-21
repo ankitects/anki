@@ -60,13 +60,7 @@ use self::{
     sync::{SyncService, SyncState},
     tags::TagsService,
 };
-use crate::{
-    backend::dbproxy::db_command_bytes,
-    collection::Collection,
-    error::{AnkiError, Result},
-    i18n::I18n,
-    log, pb,
-};
+use crate::{backend::dbproxy::db_command_bytes, log, pb, prelude::*};
 
 pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,
@@ -126,7 +120,7 @@ impl Backend {
         input: &[u8],
     ) -> result::Result<Vec<u8>, Vec<u8>> {
         pb::ServiceIndex::from_i32(service as i32)
-            .ok_or_else(|| AnkiError::invalid_input("invalid service"))
+            .or_invalid("invalid service")
             .and_then(|service| match service {
                 pb::ServiceIndex::Scheduler => SchedulerService::run_method(self, method, input),
                 pb::ServiceIndex::Decks => DecksService::run_method(self, method, input),

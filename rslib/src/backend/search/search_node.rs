@@ -70,7 +70,7 @@ impl TryFrom<pb::SearchNode> for Node {
                 Filter::Negated(term) => Node::try_from(*term)?.negated(),
                 Filter::Group(mut group) => {
                     match group.nodes.len() {
-                        0 => return Err(AnkiError::invalid_input("empty group")),
+                        0 => invalid_input!("empty group"),
                         // a group of 1 doesn't need to be a group
                         1 => group.nodes.pop().unwrap().try_into()?,
                         // 2+ nodes
