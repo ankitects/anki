@@ -9,7 +9,7 @@ use crate::{
 };
 
 impl AnkiError {
-    pub(super) fn into_protobuf(self, tr: &I18n) -> pb::BackendError {
+    pub fn into_protobuf(self, tr: &I18n) -> pb::BackendError {
         let message = self.message(tr);
         let help_page = self.help_page().map(|page| page as i32);
         let context = self.context();
