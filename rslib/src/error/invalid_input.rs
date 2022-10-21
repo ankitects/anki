@@ -12,7 +12,7 @@ use crate::prelude::*;
 pub struct InvalidInputError {
     pub message: String,
     #[snafu(source(from(Box<dyn std::error::Error + Send + Sync>, Some)))]
-    source: Option<Box<dyn std::error::Error + Send + Sync>>,
+    pub source: Option<Box<dyn std::error::Error + Send + Sync>>,
     pub backtrace: Option<Backtrace>,
 }
 
