@@ -42,7 +42,7 @@ body {
 }
 
 .current,
-tr:hover {
+tr:hover:not(.top-level-drag-row) {
     td {
         background: color(canvas-inset);
         &:first-child {
