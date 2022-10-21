@@ -26,11 +26,13 @@ from aqt.qt import (
     Qt,
 )
 
+
 @dataclass
 class AnkiVariable:
     light: str
     dark: str
     comment: str
+
 
 @dataclass
 class ColoredIcon:
