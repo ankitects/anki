@@ -76,7 +76,7 @@ class CellRow:
         return row
 
 
-def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> tuple[str, str] | None:
+def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> dict[str, str] | None:
     temp_color = None
 
     if color == BrowserRow.COLOR_MARKED:
@@ -101,10 +101,10 @@ def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> tuple[str, str] | N
     return adjusted_bg_color(temp_color)
 
 
-def adjusted_bg_color(color: dict[str, str]) -> dict:
+def adjusted_bg_color(color: dict[str, str]) -> dict[str, str]:
     if color:
-        color.day = color.day.lighter(150).name()
-        color.night = color.night.darker(150).name()
+        color["day"] = color.day.lighter(150).name()
+        color["night"] = color.night.darker(150).name()
         return color
     else:
         return None
