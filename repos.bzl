@@ -196,16 +196,6 @@ exports_files(["l10n.toml"])
 
     maybe(
         http_archive,
-        name = "protobuf_wheel_mac_arm64",
-        build_file_content = " ",
-        urls = [
-            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/protobuf-wheel-mac-arm64.tar",
-        ],
-        sha256 = "401d1cd6d949af463b3945f0d5dc887185b27fa5478cb6847bf94f680ea797b4",
-    )
-
-    maybe(
-        http_archive,
         name = "audio_mac_amd64",
         build_file_content = " ",
         urls = [
