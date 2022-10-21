@@ -820,6 +820,7 @@ mod test {
 
     use crate::{
         error::Result,
+        io::{create_dir, write_file},
         media::{
             sync::{determine_required_change, LocalState, MediaSyncProgress, RequiredChange},
             MediaManager,
@@ -829,10 +830,10 @@ mod test {
     async fn test_sync(hkey: &str) -> Result<()> {
         let dir = tempdir()?;
         let media_dir = dir.path().join("media");
-        std::fs::create_dir(&media_dir)?;
+        create_dir(&media_dir)?;
         let media_db = dir.path().join("media.db");
 
-        std::fs::write(media_dir.join("test.file").as_path(), "hello")?;
+        write_file(media_dir.join("test.file").as_path(), "hello")?;
 
         let progress = |progress: MediaSyncProgress| {
             println!("got progress: {:?}", progress);

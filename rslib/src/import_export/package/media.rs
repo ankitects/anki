@@ -10,14 +10,13 @@ use std::{
 };
 
 use prost::Message;
-use tempfile::NamedTempFile;
 use zip::{read::ZipFile, ZipArchive};
 use zstd::stream::copy_decode;
 
 use super::{colpkg::export::MediaCopier, MediaEntries, MediaEntry, Meta};
 use crate::{
     error::ImportError,
-    io::{atomic_rename, filename_is_safe},
+    io::{atomic_rename, filename_is_safe, new_tempfile_in},
     media::files::normalize_filename,
     prelude::*,
 };
@@ -58,7 +57,9 @@ impl SafeMediaEntry {
                 });
             }
         }
-        Err(AnkiError::ImportError(ImportError::Corrupt))
+        Err(AnkiError::ImportError {
+            source: ImportError::Corrupt,
+        })
     }
 
     pub(super) fn from_legacy(legacy_entry: (&str, String)) -> Result<Self> {
@@ -80,9 +81,10 @@ impl SafeMediaEntry {
     }
 
     pub(super) fn fetch_file<'a>(&self, archive: &'a mut ZipArchive<File>) -> Result<ZipFile<'a>> {
-        archive
-            .by_name(&self.index.to_string())
-            .map_err(|_| AnkiError::invalid_input(&format!("{} missing from archive", self.index)))
+        match archive.by_name(&self.index.to_string()) {
+            Ok(file) => Ok(file),
+            Err(err) => invalid_input!(err, "{} missing from archive", self.index),
+        }
     }
 
     pub(super) fn has_checksum_equal_to(
@@ -105,14 +107,16 @@ impl SafeMediaEntry {
         copier: &mut MediaCopier,
     ) -> Result<()> {
         let mut file = self.fetch_file(archive)?;
-        let mut tempfile = NamedTempFile::new_in(target_folder)?;
+        let mut tempfile = new_tempfile_in(target_folder)?;
         if self.sha1.is_none() {
             let (_, sha1) = copier.copy(&mut file, &mut tempfile)?;
             self.sha1 = Some(sha1);
         } else {
             io::copy(&mut file, &mut tempfile)?;
         }
-        atomic_rename(tempfile, &self.file_path(target_folder), false)
+        atomic_rename(tempfile, &self.file_path(target_folder), false)?;
+
+        Ok(())
     }
 }
 
@@ -131,7 +135,9 @@ pub(super) fn extract_media_entries(
 
 pub(super) fn safe_normalized_file_name(name: &str) -> Result<Cow<str>> {
     if !filename_is_safe(name) {
-        Err(AnkiError::ImportError(ImportError::Corrupt))
+        Err(AnkiError::ImportError {
+            source: ImportError::Corrupt,
+        })
     } else {
         Ok(normalize_filename(name))
     }

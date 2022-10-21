@@ -12,7 +12,7 @@ use zstd::{self, stream::copy_decode};
 
 use crate::{
     collection::CollectionBuilder,
-    error::ImportError,
+    error::{FileIoSnafu, FileOp, ImportError},
     import_export::{
         package::{
             media::{extract_media_entries, SafeMediaEntry},
@@ -20,7 +20,7 @@ use crate::{
         },
         ImportProgress, IncrementableProgress,
     },
-    io::{atomic_rename, tempfile_in_parent_of},
+    io::{atomic_rename, create_dir_all, new_tempfile_in_parent_of, open_file},
     media::MediaManager,
     prelude::*,
 };
@@ -36,9 +36,9 @@ pub fn import_colpkg(
     let mut progress = IncrementableProgress::new(progress_fn);
     progress.call(ImportProgress::File)?;
     let col_path = PathBuf::from(target_col_path);
-    let mut tempfile = tempfile_in_parent_of(&col_path)?;
+    let mut tempfile = new_tempfile_in_parent_of(&col_path)?;
 
-    let backup_file = File::open(colpkg_path)?;
+    let backup_file = open_file(colpkg_path)?;
     let mut archive = ZipArchive::new(backup_file)?;
     let meta = Meta::from_archive(&mut archive)?;
 
@@ -56,7 +56,9 @@ pub fn import_colpkg(
         log,
     )?;
 
-    atomic_rename(tempfile, &col_path, true)
+    atomic_rename(tempfile, &col_path, true)?;
+
+    Ok(())
 }
 
 fn check_collection_and_mod_schema(col_path: &Path) -> Result<()> {
@@ -72,7 +74,9 @@ fn check_collection_and_mod_schema(col_path: &Path) -> Result<()> {
                 .ok()
         })
         .and_then(|s| (s == "ok").then_some(()))
-        .ok_or(AnkiError::ImportError(ImportError::Corrupt))
+        .ok_or(AnkiError::ImportError {
+            source: ImportError::Corrupt,
+        })
 }
 
 fn restore_media(
@@ -88,7 +92,7 @@ fn restore_media(
         return Ok(());
     }
 
-    std::fs::create_dir_all(media_folder)?;
+    create_dir_all(media_folder)?;
     let media_manager = MediaManager::new(media_folder, media_db)?;
     let mut media_comparer = MediaComparer::new(meta, progress, &media_manager, log)?;
 
@@ -123,16 +127,14 @@ fn maybe_restore_media_file(
 }
 
 fn restore_media_file(meta: &Meta, zip_file: &mut ZipFile, path: &Path) -> Result<()> {
-    let mut tempfile = tempfile_in_parent_of(path)?;
-
-    if meta.zstd_compressed() {
-        copy_decode(zip_file, &mut tempfile)
-    } else {
-        io::copy(zip_file, &mut tempfile).map(|_| ())
-    }
-    .map_err(|err| AnkiError::file_io_error(err, path))?;
-
-    atomic_rename(tempfile, path, false)
+    let mut tempfile = new_tempfile_in_parent_of(path)?;
+    meta.copy(zip_file, &mut tempfile)
+        .with_context(|_| FileIoSnafu {
+            path: tempfile.path(),
+            op: FileOp::copy(zip_file.name()),
+        })?;
+    atomic_rename(tempfile, path, false)?;
+    Ok(())
 }
 
 fn copy_collection(
@@ -140,9 +142,12 @@ fn copy_collection(
     writer: &mut impl Write,
     meta: &Meta,
 ) -> Result<()> {
-    let mut file = archive
-        .by_name(meta.collection_filename())
-        .map_err(|_| AnkiError::ImportError(ImportError::Corrupt))?;
+    let mut file =
+        archive
+            .by_name(meta.collection_filename())
+            .map_err(|_| AnkiError::ImportError {
+                source: ImportError::Corrupt,
+            })?;
     if !meta.zstd_compressed() {
         io::copy(&mut file, writer)?;
     } else {

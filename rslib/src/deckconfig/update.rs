@@ -88,7 +88,7 @@ impl Collection {
     }
 
     fn get_current_deck_for_update(&mut self, deck: DeckId) -> Result<CurrentDeck> {
-        let deck = self.get_deck(deck)?.ok_or(AnkiError::NotFound)?;
+        let deck = self.get_deck(deck)?.or_not_found(deck)?;
         let normal = deck.normal()?;
         let today = self.timing_today()?.days_elapsed;
 
@@ -119,9 +119,7 @@ impl Collection {
     }
 
     fn update_deck_configs_inner(&mut self, mut input: UpdateDeckConfigsRequest) -> Result<()> {
-        if input.configs.is_empty() {
-            return Err(AnkiError::invalid_input("config not provided"));
-        }
+        require!(!input.configs.is_empty(), "config not provided");
         let configs_before_update = self.storage.get_deck_config_map()?;
         let mut configs_after_update = configs_before_update.clone();
 
@@ -142,7 +140,7 @@ impl Collection {
             let deck = self
                 .storage
                 .get_deck(input.target_deck_id)?
-                .ok_or(AnkiError::NotFound)?;
+                .or_not_found(input.target_deck_id)?;
             self.storage
                 .child_decks(&deck)?
                 .iter()

@@ -194,7 +194,7 @@ class NoteState(ItemState):
     def get_card(self, item: ItemId) -> Card:
         if cards := self.get_note(item).cards():
             return cards[0]
-        raise NotFoundError
+        raise NotFoundError("card not found", None, None, None)
 
     def get_note(self, item: ItemId) -> Note:
         return self.col.get_note(NoteId(item))

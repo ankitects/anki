@@ -42,7 +42,7 @@ impl Collection {
         let deck = if deck_id.0 == 0 {
             self.new_filtered_deck_for_adding()?
         } else {
-            self.storage.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?
+            self.storage.get_deck(deck_id)?.or_not_found(deck_id)?
         };
 
         deck.try_into()
@@ -71,7 +71,7 @@ impl Collection {
     // Unlike the old Python code, this also marks the cards as modified.
     pub fn rebuild_filtered_deck(&mut self, did: DeckId) -> Result<OpOutput<usize>> {
         self.transact(Op::RebuildFilteredDeck, |col| {
-            let deck = col.get_deck(did)?.ok_or(AnkiError::NotFound)?;
+            let deck = col.get_deck(did)?.or_not_found(did)?;
             col.rebuild_filtered_deck_inner(&deck, col.usn()?)
         })
     }
@@ -170,10 +170,7 @@ impl Collection {
             apply_update_to_filtered_deck(&mut deck, update);
             self.add_deck_inner(&mut deck, usn)?;
         } else {
-            let original = self
-                .storage
-                .get_deck(update.id)?
-                .ok_or(AnkiError::NotFound)?;
+            let original = self.storage.get_deck(update.id)?.or_not_found(update.id)?;
             deck = original.clone();
             apply_update_to_filtered_deck(&mut deck, update);
             self.update_deck_inner(&mut deck, original, usn)?;
@@ -241,14 +238,13 @@ impl TryFrom<Deck> for FilteredDeckForUpdate {
 
     fn try_from(value: Deck) -> Result<Self, Self::Error> {
         let human_name = value.human_name();
-        if let DeckKind::Filtered(filtered) = value.kind {
-            Ok(FilteredDeckForUpdate {
+        match value.kind {
+            DeckKind::Filtered(filtered) => Ok(FilteredDeckForUpdate {
                 id: value.id,
                 human_name,
                 config: filtered,
-            })
-        } else {
-            Err(AnkiError::invalid_input("not filtered"))
+            }),
+            _ => invalid_input!("not filtered"),
         }
     }
 }

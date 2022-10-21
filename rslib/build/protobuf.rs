@@ -32,7 +32,7 @@ pub trait Service {
     }
     buf.push_str(
         r#"
-            _ => Err(crate::error::AnkiError::invalid_input("invalid command")),
+            _ => crate::invalid_input!("invalid command"),
         }
     }
 "#,

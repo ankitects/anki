@@ -20,7 +20,7 @@ impl Collection {
                 let current = self
                     .storage
                     .get_tag(&tag.name)?
-                    .ok_or_else(|| AnkiError::invalid_input("tag disappeared"))?;
+                    .or_invalid("tag disappeared")?;
                 self.update_tag_undoable(&tag, current)
             }
         }

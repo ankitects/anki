@@ -11,10 +11,11 @@ use crate::{
 
 impl CardsService for Backend {
     fn get_card(&self, input: pb::CardId) -> Result<pb::Card> {
+        let cid = input.into();
         self.with_col(|col| {
             col.storage
-                .get_card(input.into())
-                .and_then(|opt| opt.ok_or(AnkiError::NotFound))
+                .get_card(cid)
+                .and_then(|opt| opt.or_not_found(cid))
                 .map(Into::into)
         })
     }
@@ -67,10 +68,8 @@ impl TryFrom<pb::Card> for Card {
     type Error = AnkiError;
 
     fn try_from(c: pb::Card) -> Result<Self, Self::Error> {
-        let ctype = CardType::try_from(c.ctype as u8)
-            .map_err(|_| AnkiError::invalid_input("invalid card type"))?;
-        let queue = CardQueue::try_from(c.queue as i8)
-            .map_err(|_| AnkiError::invalid_input("invalid card queue"))?;
+        let ctype = CardType::try_from(c.ctype as u8).or_invalid("invalid card type")?;
+        let queue = CardQueue::try_from(c.queue as i8).or_invalid("invalid card queue")?;
         Ok(Card {
             id: CardId(c.id),
             note_id: NoteId(c.note_id),

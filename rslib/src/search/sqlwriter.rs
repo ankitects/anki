@@ -687,12 +687,13 @@ impl SearchNode {
 
 #[cfg(test)]
 mod test {
-    use std::fs;
-
     use tempfile::tempdir;
 
     use super::{super::parser::parse, *};
-    use crate::collection::{Collection, CollectionBuilder};
+    use crate::{
+        collection::{Collection, CollectionBuilder},
+        io::write_file,
+    };
 
     // shortcut
     fn s(req: &mut Collection, search: &str) -> (String, Vec<String>) {
@@ -709,7 +710,7 @@ mod test {
         use crate::media::check::test::MEDIACHECK_ANKI2;
         let dir = tempdir().unwrap();
         let col_path = dir.path().join("col.anki2");
-        fs::write(&col_path, MEDIACHECK_ANKI2).unwrap();
+        write_file(&col_path, MEDIACHECK_ANKI2).unwrap();
 
         let mut col = CollectionBuilder::new(col_path).build().unwrap();
         let ctx = &mut col;

@@ -14,7 +14,8 @@ use itertools::Itertools;
 use log::error;
 
 use crate::{
-    import_export::package::export_colpkg_from_data, log, pb::preferences::BackupLimits, prelude::*,
+    import_export::package::export_colpkg_from_data, io::read_file, log,
+    pb::preferences::BackupLimits, prelude::*,
 };
 
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";
@@ -37,7 +38,7 @@ impl Collection {
             let log = self.log.clone();
             let tr = self.tr.clone();
             self.storage.checkpoint()?;
-            let col_data = std::fs::read(&self.col_path)?;
+            let col_data = read_file(&self.col_path)?;
             self.update_last_backup_timestamp()?;
             Ok(Some(thread::spawn(move || {
                 backup_inner(&col_data, &backup_folder, limits, log, &tr)

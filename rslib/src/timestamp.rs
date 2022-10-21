@@ -34,7 +34,9 @@ impl TimestampSecs {
     #[cfg(windows)]
     pub(crate) fn local_datetime(self) -> Result<DateTime<Local>> {
         std::panic::catch_unwind(|| Local.timestamp(self.0, 0))
-            .map_err(|_err| AnkiError::invalid_input("invalid date"))
+            // discard error as it doesn't satisfiy trait bounds
+            .ok()
+            .or_invalid("invalid date")
     }
 
     #[cfg(not(windows))]

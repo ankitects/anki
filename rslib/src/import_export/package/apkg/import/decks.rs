@@ -143,7 +143,7 @@ impl DeckContext<'_> {
         } else if let (Ok(new), Ok(old)) = (new_deck.filtered_mut(), deck.filtered()) {
             *new = old.clone();
         } else {
-            return Err(AnkiError::invalid_input("decks have different kinds"));
+            invalid_input!("decks have different kinds");
         }
         self.imported_decks.insert(deck.id, new_deck.id);
         self.target_col

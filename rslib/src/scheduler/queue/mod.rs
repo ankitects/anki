@@ -88,12 +88,11 @@ impl Collection {
                 let card = self
                     .storage
                     .get_card(entry.card_id())?
-                    .ok_or(AnkiError::NotFound)?;
-                if card.mtime != entry.mtime() {
-                    return Err(AnkiError::invalid_input(
-                        "bug: card modified without updating queue",
-                    ));
-                }
+                    .or_not_found(entry.card_id())?;
+                require!(
+                    card.mtime == entry.mtime(),
+                    "bug: card modified without updating queue",
+                );
 
                 // fixme: pass in card instead of id
                 let next_states = self.get_scheduling_states(card.id)?;
@@ -141,7 +140,7 @@ impl CardQueues {
         } else if self.main.front().filter(|e| e.id == id).is_some() {
             Ok(self.pop_main().unwrap().into())
         } else {
-            Err(AnkiError::invalid_input("not at top of queue"))
+            invalid_input!("not at top of queue")
         }
     }
 

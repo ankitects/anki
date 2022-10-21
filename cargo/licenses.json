@@ -1,5 +1,14 @@
 [
   {
+    "name": "addr2line",
+    "version": "0.17.0",
+    "authors": null,
+    "repository": "https://github.com/gimli-rs/addr2line",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A cross-platform symbolication library written in Rust, using `gimli`"
+  },
+  {
     "name": "adler",
     "version": "1.0.2",
     "authors": "Jonas Schievink <jonasschievink@gmail.com>",
@@ -135,6 +144,15 @@
     "description": "Automatic cfg for Rust compiler features"
   },
   {
+    "name": "backtrace",
+    "version": "0.3.66",
+    "authors": "The Rust Project Developers",
+    "repository": "https://github.com/rust-lang/backtrace-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A library to acquire a stack trace (backtrace) at runtime in a Rust program."
+  },
+  {
     "name": "base64",
     "version": "0.13.0",
     "authors": "Alice Maz <alice@alicemaz.com>|Marshall Pierce <marshall@mpierce.org>",
@@ -252,6 +270,15 @@
     "description": "Compares two equal-sized byte strings in constant time."
   },
   {
+    "name": "convert_case",
+    "version": "0.6.0",
+    "authors": "Rutrum <dave@rutrum.net>",
+    "repository": "https://github.com/rutrum/convert-case",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Convert strings into any case"
+  },
+  {
     "name": "core-foundation",
     "version": "0.9.3",
     "authors": "The Servo Project Developers",
@@ -358,6 +385,15 @@
     "license": "Apache-2.0",
     "license_file": null,
     "description": "Diff library with semantic cleanup, based on Google's diff-match-patch"
+  },
+  {
+    "name": "doc-comment",
+    "version": "0.3.3",
+    "authors": "Guillaume Gomez <guillaume1.gomez@gmail.com>",
+    "repository": "https://github.com/GuillaumeGomez/doc-comment",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Macro to generate doc comments"
   },
   {
     "name": "either",
@@ -619,6 +655,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A small cross-platform library for retrieving random data from system source"
+  },
+  {
+    "name": "gimli",
+    "version": "0.26.2",
+    "authors": null,
+    "repository": "https://github.com/gimli-rs/gimli",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A library for reading and writing the DWARF debugging format."
   },
   {
     "name": "h2",
@@ -1143,6 +1188,15 @@
     "description": "A minimal library that determines the number of running threads for the current process."
   },
   {
+    "name": "object",
+    "version": "0.29.0",
+    "authors": null,
+    "repository": "https://github.com/gimli-rs/object",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A unified interface for reading and writing object file formats."
+  },
+  {
     "name": "once_cell",
     "version": "1.15.0",
     "authors": "Aleksey Kladov <aleksey.kladov@gmail.com>",
@@ -1566,6 +1620,15 @@
     "description": "Ergonomic wrapper for SQLite"
   },
   {
+    "name": "rustc-demangle",
+    "version": "0.1.21",
+    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "repository": "https://github.com/alexcrichton/rustc-demangle",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Rust compiler symbol demangling."
+  },
+  {
     "name": "rustc-hash",
     "version": "1.1.0",
     "authors": "The Rust Project Developers",
@@ -1843,6 +1906,24 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "'Small vector' optimization: store up to a small number of items on the stack"
+  },
+  {
+    "name": "snafu",
+    "version": "0.7.2",
+    "authors": "Jake Goulding <jake.goulding@gmail.com>",
+    "repository": "https://github.com/shepmaster/snafu",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "An ergonomic error handling library"
+  },
+  {
+    "name": "snafu-derive",
+    "version": "0.7.2",
+    "authors": "Jake Goulding <jake.goulding@gmail.com>",
+    "repository": "https://github.com/shepmaster/snafu",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "An ergonomic error handling library"
   },
   {
     "name": "snowflake",
@@ -2293,6 +2374,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "This crate provides functions for normalization of Unicode strings, including Canonical and Compatible Decomposition and Recomposition, as described in Unicode Standard Annex #15."
+  },
+  {
+    "name": "unicode-segmentation",
+    "version": "1.10.0",
+    "authors": "kwantam <kwantam@gmail.com>|Manish Goregaokar <manishsmail@gmail.com>",
+    "repository": "https://github.com/unicode-rs/unicode-segmentation",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "This crate provides Grapheme Cluster, Word and Sentence boundaries according to Unicode Standard Annex #29 rules."
   },
   {
     "name": "unicode-width",

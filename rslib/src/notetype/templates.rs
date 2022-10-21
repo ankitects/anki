@@ -2,14 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{CardTemplateConfig, CardTemplateProto};
-use crate::{
-    decks::DeckId,
-    error::{AnkiError, Result},
-    pb::UInt32,
-    template::ParsedTemplate,
-    timestamp::TimestampSecs,
-    types::Usn,
-};
+use crate::{pb::UInt32, prelude::*, template::ParsedTemplate};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct CardTemplate {
@@ -106,15 +99,9 @@ impl CardTemplate {
     /// Return whether the name is valid. Remove quote characters if it leads to a valid name.
     pub(crate) fn fix_name(&mut self) -> Result<()> {
         let bad_chars = |c| c == '"';
-        if self.name.is_empty() {
-            return Err(AnkiError::invalid_input("Empty template name"));
-        }
+        require!(!self.name.is_empty(), "Empty template name");
         let trimmed = self.name.replace(bad_chars, "");
-        if trimmed.is_empty() {
-            return Err(AnkiError::invalid_input(
-                "Template name contain only quotes",
-            ));
-        }
+        require!(!trimmed.is_empty(), "Template name contains only quotes");
         if self.name.len() != trimmed.len() {
             self.name = trimmed;
         }
