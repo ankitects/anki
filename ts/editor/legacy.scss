@@ -11,7 +11,7 @@ $padding: 2px;
     @include button.base;
     @include button.border-radius;
 
-    width: $size;
+    min-width: $size;
     height: $size;
     padding: $padding;
     font-size: calc($size * 0.6);
