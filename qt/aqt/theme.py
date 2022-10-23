@@ -286,6 +286,8 @@ class ThemeManager:
         palette.setColor(QPalette.ColorRole.Window, canvas)
         palette.setColor(QPalette.ColorRole.AlternateBase, canvas)
 
+        palette.setColor(QPalette.ColorRole.Button, self.qcolor(colors.BUTTON_GRADIENT_START))
+
         input_base = self.qcolor(colors.CANVAS_CODE)
         palette.setColor(QPalette.ColorRole.Base, input_base)
         palette.setColor(QPalette.ColorRole.ToolTipBase, input_base)
