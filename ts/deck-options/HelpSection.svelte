@@ -13,13 +13,24 @@
 </script>
 
 <Row>
-    <h2>{@html section.title}</h2>
+    <h2>
+        {#if section.url}
+            <a
+                href={section.url}
+                title={tr.helpOpenManualChapter({ name: section.title })}
+            >
+                {@html section.title}
+            </a>
+        {:else}
+            {@html section.title}
+        {/if}
+    </h2>
     {#if section.help}
         {@html marked(section.help)}
     {:else}
         {@html marked(
             tr.helpNoExplanation({
-                gitHub: "[GitHub](https://github.com/ankitects/anki)",
+                link: "[GitHub](https://github.com/ankitects/anki)",
             }),
         )}
     {/if}
@@ -29,9 +40,9 @@
     <Row>
         {@html marked(
             tr.helpForMoreInfo({
-                chapter: `<a href="${
-                    section.url
-                }" title="${tr.helpOpenManualChapter()}">${section.title}</a>`,
+                link: `<a href="${section.url}" title="${tr.helpOpenManualChapter({
+                    name: section.title,
+                })}">${section.title}</a>`,
             }),
         )}
     </Row>
@@ -40,6 +51,14 @@
 <style lang="scss">
     h2 {
         margin-bottom: 1em;
-        border-bottom: 1px solid var(--border);
+        a {
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            text-decoration: none;
+            color: var(--fg);
+            &:hover {
+                border-color: var(--fg);
+            }
+        }
     }
 </style>

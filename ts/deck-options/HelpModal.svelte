@@ -67,7 +67,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title" id="modalLabel">
-                    <a href={chapter} title={tr.helpOpenManualChapter()}>{title}</a>
+                    <a
+                        href={chapter}
+                        title={tr.helpOpenManualChapter({
+                            name: title,
+                        })}>{title}</a
+                    >
                 </h1>
                 <button
                     type="button"
