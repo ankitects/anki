@@ -13,16 +13,8 @@ from tests.shared import getEmptyCol
 
 
 def encode_attribute(s):
-    cmap = {
-        "\"": "&quot;",
-        "&": "&amp;",
-        "\n": "&NewLine;",
-        "<": "&lt;",
-        ">": "&gt;"
-    }
-    return "".join(
-        c if not c in cmap.keys() else cmap[c] for c in s
-    )
+    cmap = {'"': "&quot;", "&": "&amp;", "\n": "&NewLine;", "<": "&lt;", ">": "&gt;"}
+    return "".join(c if not c in cmap.keys() else cmap[c] for c in s)
 
 
 def test_modelDelete():
@@ -195,7 +187,10 @@ def test_cloze():
         f'hello <span class="cloze active" data-cloze="{encode_attribute("world")}" data-ordinal="1">[...]</span>'
         in note.cards()[0].question()
     )
-    assert 'hello <span class="cloze active" data-ordinal="1">world</span>' in note.cards()[0].answer()
+    assert (
+        'hello <span class="cloze active" data-ordinal="1">world</span>'
+        in note.cards()[0].answer()
+    )
     # and with a comment
     note = col.new_note(m)
     note["Text"] = "hello {{c1::world::typical}}"
@@ -204,7 +199,10 @@ def test_cloze():
         f'<span class="cloze active" data-cloze="{encode_attribute("world")}" data-ordinal="1">[typical]</span>'
         in note.cards()[0].question()
     )
-    assert '<span class="cloze active" data-ordinal="1">world</span>' in note.cards()[0].answer()
+    assert (
+        '<span class="cloze active" data-ordinal="1">world</span>'
+        in note.cards()[0].answer()
+    )
     # and with 2 clozes
     note = col.new_note(m)
     note["Text"] = "hello {{c1::world}} {{c2::bar}}"
@@ -214,19 +212,26 @@ def test_cloze():
         f'<span class="cloze active" data-cloze="{encode_attribute("world")}" data-ordinal="1">[...]</span> <span class="cloze active" data-ordinal="2">bar</span>'
         in c1.question()
     )
-    assert '<span class="cloze active" data-ordinal="1">world</span> <span class="cloze active" data-ordinal="2">bar</span>' in c1.answer()
+    assert (
+        '<span class="cloze active" data-ordinal="1">world</span> <span class="cloze active" data-ordinal="2">bar</span>'
+        in c1.answer()
+    )
     assert (
         f'<span class="cloze" data-ordinal="1">world</span> <span class="cloze active" data-cloze="{encode_attribute("bar")}" data-ordinal="2">[...]</span>'
         in c2.question()
     )
-    assert '<span class="cloze" data-ordinal="1">world</span> <span class="cloze active" data-ordinal="2">bar</span>' in c2.answer()
+    assert (
+        '<span class="cloze" data-ordinal="1">world</span> <span class="cloze active" data-ordinal="2">bar</span>'
+        in c2.answer()
+    )
     # if there are multiple answers for a single cloze, they are given in a
     # list
     note = col.new_note(m)
     note["Text"] = "a {{c1::b}} {{c1::c}}"
     assert col.addNote(note) == 1
-    assert '<span class="cloze active" data-ordinal="1">b</span> <span class="cloze active" data-ordinal="1">c</span>' in (
-        note.cards()[0].answer()
+    assert (
+        '<span class="cloze active" data-ordinal="1">b</span> <span class="cloze active" data-ordinal="1">c</span>'
+        in (note.cards()[0].answer())
     )
     # if we add another cloze, a card should be generated
     cnt = col.card_count()
@@ -287,7 +292,9 @@ def test_cloze_mathjax():
     assert (
         note.cards()[0]
         .question()
-        .endswith(r'\(a\) <span class="cloze active" data-cloze="b" data-ordinal="1">[...]</span> \[ [...] \]')
+        .endswith(
+            r'\(a\) <span class="cloze active" data-cloze="b" data-ordinal="1">[...]</span> \[ [...] \]'
+        )
     )
 
 
