@@ -5,13 +5,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { Breakpoint } from "./types";
 
+    let className: string = "";
+    export { className as class };
+
     /* flex-basis: 100% if viewport < breakpoint otherwise
      * as specified by --cols and --col-size */
     export let breakpoint: Breakpoint = "xs";
 </script>
 
 <div
-    class="col"
+    class="col {className}"
     class:col-xs={breakpoint === "xs"}
     class:col-sm={breakpoint === "sm"}
     class:col-md={breakpoint === "md"}

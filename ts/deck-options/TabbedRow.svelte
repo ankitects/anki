@@ -7,10 +7,16 @@
     activated, its last used value is applied to its provided setter and the
     component's value. Whenever it's deactivated, its setter is called with its
     disabledValue. */
+    import Col from "../components/Col.svelte";
+    import Row from "../components/Row.svelte";
+    import SpinBox from "../components/SpinBox.svelte";
+    import ConfigInput from "./ConfigInput.svelte";
     import type { ValueTab } from "./lib";
+    import RevertButton from "./RevertButton.svelte";
 
     export let tabs: ValueTab[];
     export let value: number;
+    export let defaultValue: number;
 
     let activeTab = lastSetTab();
     $: onTabChanged(activeTab);
@@ -42,41 +48,50 @@
     const handleClick = (tabValue: number) => () => (activeTab = tabValue);
 </script>
 
-<ul>
-    {#each tabs as tab, idx}
-        <li class={activeTab === idx ? "active" : ""}>
-            <span on:click={handleClick(idx)}>{tab.title}</span>
-        </li>
-    {/each}
-</ul>
+<Row --cols={13}>
+    <Col --col-size={7} breakpoint="xs" class="mb-2">
+        <slot />
+    </Col>
+    <Col --col-size={6} breakpoint="xs">
+        <Row class="flex-grow-1">
+            <ul>
+                {#each tabs as tab, idx}
+                    <li class:active={activeTab === idx}>
+                        <span on:click={handleClick(idx)}>{tab.title}</span>
+                    </li>
+                {/each}
+            </ul>
+            <ConfigInput>
+                <SpinBox bind:value />
+                <RevertButton slot="revert" bind:value {defaultValue} />
+            </ConfigInput>
+        </Row>
+    </Col>
+</Row>
 
 <style lang="scss">
     ul {
+        width: 100%;
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        justify-content: space-between;
         padding-left: 0;
-        margin-top: 1rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
         list-style: none;
-        border-bottom: 1px solid var(--border);
     }
 
     span {
-        border: 1px solid transparent;
-        border-top-left-radius: 0.25rem;
-        border-top-right-radius: 0.25rem;
         display: block;
-        padding: 0.25rem 1rem;
+        white-space: nowrap;
         cursor: pointer;
-        margin: 0 8px -1px 0;
         color: var(--fg-subtle);
     }
 
     li.active > span {
-        border-color: var(--border) var(--border) var(--canvas);
         color: var(--fg);
+        border-bottom: 4px solid var(--border-focus);
+        margin-bottom: -2px;
     }
-
     span:hover {
         color: var(--fg);
     }

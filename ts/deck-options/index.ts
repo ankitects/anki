@@ -17,6 +17,7 @@ import { DeckOptionsState } from "./lib";
 
 const i18n = setupI18n({
     modules: [
+        ModuleName.HELP,
         ModuleName.SCHEDULING,
         ModuleName.ACTIONS,
         ModuleName.DECK_CONFIG,

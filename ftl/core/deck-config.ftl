@@ -101,9 +101,14 @@ deck-config-bury-title = Burying
 deck-config-bury-new-siblings = Bury new siblings
 deck-config-bury-review-siblings = Bury review siblings
 deck-config-bury-interday-learning-siblings = Bury interday learning siblings
-deck-config-bury-tooltip =
-    Whether other cards of the same note (eg reverse cards, adjacent
+deck-config-bury-new-tooltip =
+    Whether other `new` cards of the same note (eg reverse cards, adjacent
     cloze deletions) will be delayed until the next day.
+deck-config-bury-review-tooltip =
+    Whether other `review` cards of the same note will be delayed until the next day.
+deck-config-bury-interday-learning-tooltip =
+    Whether other `learning` cards of the same note with intervals > 1 day
+    will be delayed until the next day.
 
 ## Ordering section
 
@@ -202,6 +207,9 @@ deck-config-show-answer-timer-tooltip =
 
 deck-config-audio-title = Audio
 deck-config-disable-autoplay = Don't play audio automatically
+deck-config-disable-autoplay-tooltip =
+    If you check this setting, Anki will not play audio
+    until you press the replay audio key, r or F5.
 deck-config-skip-question-when-replaying = Skip question when replaying answer
 deck-config-always-include-question-audio-tooltip =
     Whether the question audio should be included when the Replay action is
