@@ -402,7 +402,7 @@ $vars: (
             bg: (
                 "Background color of highlighted items",
                 (
-                    light: color.scale(palette(blue, 6), $alpha: -40%),
+                    light: color.scale(palette(blue, 6), $alpha: -50%),
                     dark: color.scale(palette(blue, 3), $alpha: -50%),
                 ),
             ),
