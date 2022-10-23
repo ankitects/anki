@@ -44,7 +44,6 @@ export const filterStylingLightMode = filterStyling(discard, {
     ...nightModeExceptions,
 });
 export const filterStylingInternal = filterStyling(keep, {
-    "background-color": discard,
     "font-size": discard,
     "font-family": discard,
     width: discard,

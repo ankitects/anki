@@ -35,9 +35,13 @@ describe("filterHTML", () => {
         expect(
             filterHTML('<span style="background-color: blue;">x</span>', false, false),
         ).toBe("x");
-        // or if it's an internal paste
+        // no filtering on internal paste
         expect(
-            filterHTML('<span style="background-color: blue;"></span>', true, true),
-        ).toBe('<span style=""></span>');
+            filterHTML(
+                '<span style="background-color: transparent;"></span>',
+                true,
+                true,
+            ),
+        ).toBe('<span style="background-color: transparent;"></span>');
     });
 });
