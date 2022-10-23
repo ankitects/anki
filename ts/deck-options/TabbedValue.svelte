@@ -7,16 +7,10 @@
     activated, its last used value is applied to its provided setter and the
     component's value. Whenever it's deactivated, its setter is called with its
     disabledValue. */
-    import Col from "../components/Col.svelte";
-    import Row from "../components/Row.svelte";
-    import SpinBox from "../components/SpinBox.svelte";
-    import ConfigInput from "./ConfigInput.svelte";
     import type { ValueTab } from "./lib";
-    import RevertButton from "./RevertButton.svelte";
 
     export let tabs: ValueTab[];
     export let value: number;
-    export let defaultValue: number;
 
     let activeTab = lastSetTab();
     $: onTabChanged(activeTab);
@@ -48,26 +42,13 @@
     const handleClick = (tabValue: number) => () => (activeTab = tabValue);
 </script>
 
-<Row --cols={13}>
-    <Col --col-size={7} breakpoint="xs" class="mb-2">
-        <slot />
-    </Col>
-    <Col --col-size={6} breakpoint="xs">
-        <Row class="flex-grow-1">
-            <ul>
-                {#each tabs as tab, idx}
-                    <li class:active={activeTab === idx}>
-                        <span on:click={handleClick(idx)}>{tab.title}</span>
-                    </li>
-                {/each}
-            </ul>
-            <ConfigInput>
-                <SpinBox bind:value />
-                <RevertButton slot="revert" bind:value {defaultValue} />
-            </ConfigInput>
-        </Row>
-    </Col>
-</Row>
+<ul>
+    {#each tabs as tab, idx}
+        <li class:active={activeTab === idx}>
+            <span on:click={handleClick(idx)}>{tab.title}</span>
+        </li>
+    {/each}
+</ul>
 
 <style lang="scss">
     ul {

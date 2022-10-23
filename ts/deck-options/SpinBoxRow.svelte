@@ -20,9 +20,12 @@
         <slot />
     </Col>
     <Col --col-size={6} breakpoint="xs">
-        <ConfigInput>
-            <SpinBox bind:value {min} {max} />
-            <RevertButton slot="revert" bind:value {defaultValue} />
-        </ConfigInput>
+        <Row class="flex-grow-1">
+            <slot name="tabs" />
+            <ConfigInput>
+                <SpinBox bind:value {min} {max} />
+                <RevertButton slot="revert" bind:value {defaultValue} />
+            </ConfigInput>
+        </Row>
     </Col>
 </Row>

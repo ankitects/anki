@@ -13,7 +13,8 @@
     import type { DeckOptionsState } from "./lib";
     import { ValueTab } from "./lib";
     import SettingTitle from "./SettingTitle.svelte";
-    import TabbedRow from "./TabbedRow.svelte";
+    import SpinBoxRow from "./SpinBoxRow.svelte";
+    import TabbedValue from "./TabbedValue.svelte";
     import TitledContainer from "./TitledContainer.svelte";
     import type { DeckOption } from "./types";
     import Warning from "./Warning.svelte";
@@ -164,35 +165,28 @@
     />
     <DynamicallySlottable slotHost={Item} {api}>
         <Item>
-            <TabbedRow
-                tabs={newTabs}
-                bind:value={newValue}
-                defaultValue={defaults.newPerDay}
-            >
+            <SpinBoxRow bind:value={newValue} defaultValue={defaults.newPerDay}>
+                <TabbedValue slot="tabs" tabs={newTabs} bind:value={newValue} />
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("newLimit"))}
                     >{settings.newLimit.title}</SettingTitle
                 >
-            </TabbedRow>
+            </SpinBoxRow>
         </Item>
 
         <Item>
             <Warning warning={newCardsGreaterThanParent} />
         </Item>
-
         <Item>
-            <TabbedRow
-                tabs={reviewTabs}
-                bind:value={reviewsValue}
-                defaultValue={defaults.reviewsPerDay}
-            >
+            <SpinBoxRow bind:value={reviewsValue} defaultValue={defaults.reviewsPerDay}>
+                <TabbedValue slot="tabs" tabs={reviewTabs} bind:value={reviewsValue} />
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("reviewLimit"))}
                     >{settings.reviewLimit.title}</SettingTitle
                 >
-            </TabbedRow>
+            </SpinBoxRow>
         </Item>
 
         <Item>
