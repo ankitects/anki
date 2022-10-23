@@ -19,7 +19,6 @@ lazy_static! {
     .unwrap();
 }
 
-
 mod mathjax_caps {
     pub const OPENING_TAG: usize = 1;
     pub const INNER_TEXT: usize = 2;
@@ -124,7 +123,7 @@ pub fn encode_attribute(text: &str) -> Cow<str> {
             _ => out.push(c),
         }
     }
-    
+
     Cow::from(out)
 }
 
@@ -145,7 +144,7 @@ fn reveal_clozes(text: &str, cloze_ord: u16, question: bool, cloze_only: bool) -
             State::Open => stack.push(Cloze::new_from(c)),
             State::Close => {
                 current_found |= close(&mut state, &mut stack, cloze_only, cloze_ord, question);
-            },
+            }
             State::Abandon => abandon(&mut state, &mut stack, c),
             _ => {
                 let last = stack.last_mut().unwrap();
@@ -155,17 +154,21 @@ fn reveal_clozes(text: &str, cloze_ord: u16, question: bool, cloze_only: bool) -
                         if !cloze_only {
                             last.text.push(c);
                         }
-                    },
-                    State::Open2 => if old_state == State::Open2 {shift_open(&mut stack)},
+                    }
+                    State::Open2 => {
+                        if old_state == State::Open2 {
+                            shift_open(&mut stack)
+                        }
+                    }
                     State::Ord => last.ord_str.push(c),
                     State::Text => last.text.push(c),
                     State::Hint => last.hint.push(c),
-                    _ => {},
+                    _ => {}
                 }
             }
         }
     }
-    
+
     if !current_found {
         return Cow::Borrowed("");
     }
@@ -192,7 +195,7 @@ fn reveal_clozes(text: &str, cloze_ord: u16, question: bool, cloze_only: bool) -
         stack: &mut Vec<Cloze>,
         cloze_only: bool,
         cloze_ord: u16,
-        question: bool
+        question: bool,
     ) -> bool {
         let cloze = stack.pop().unwrap();
         *state = if stack.len() > 1 {
@@ -208,7 +211,7 @@ fn reveal_clozes(text: &str, cloze_ord: u16, question: bool, cloze_only: bool) -
             cloze_only,
             question,
             ordinal == cloze_ord,
-            cloze.hint.is_empty()
+            cloze.hint.is_empty(),
         ) {
             // Cloze text only
             (true, true, true, true) => last.text.push_str(", ..."),
@@ -217,8 +220,8 @@ fn reveal_clozes(text: &str, cloze_ord: u16, question: bool, cloze_only: bool) -
 
             // Full cloze
             // Question - active cloze, no hint
-            (false, true, true, true) => last.text.push_str(
-                &format!(r#"<span class="cloze active" data-text="{}" data-ordinal="{}">[...]</span>"#,
+            (false, true, true, true) => last.text.push_str(&format!(
+                r#"<span class="cloze active" data-text="{}" data-ordinal="{}">[...]</span>"#,
                 encode_attribute(cloze.text.as_str()),
                 ordinal
             )),
@@ -230,9 +233,11 @@ fn reveal_clozes(text: &str, cloze_ord: u16, question: bool, cloze_only: bool) -
                 &cloze.hint
             )),
             // Question - inactive cloze
-            (false, true, false, _) => last.text.push_str(
-                &format!(r#"<span class="cloze" data-ordinal="{}">{}</span>"#,
-                ordinal, cloze.text.as_str())),
+            (false, true, false, _) => last.text.push_str(&format!(
+                r#"<span class="cloze" data-ordinal="{}">{}</span>"#,
+                ordinal,
+                cloze.text.as_str()
+            )),
             // Answer - active cloze
             (false, false, true, _) => last.text.push_str(&format!(
                 r#"<span class="cloze active" data-ordinal="{}">{}</span>"#,
@@ -244,7 +249,7 @@ fn reveal_clozes(text: &str, cloze_ord: u16, question: bool, cloze_only: bool) -
                 r#"<span class="cloze" data-ordinal="{}">{}</span>"#,
                 ordinal,
                 cloze.text.as_str()
-            ))
+            )),
         }
 
         ordinal == cloze_ord
@@ -304,7 +309,7 @@ pub(crate) fn contains_cloze(text: &str) -> bool {
             _ => {}
         }
     }
-    
+
     false
 }
 
@@ -333,7 +338,11 @@ pub fn add_cloze_numbers_in_string(field: &str, set: &mut HashSet<u16>) {
     // Close cloze and set state, return ordinal
     fn close(state: &mut State, stack: &mut Vec<String>) -> u16 {
         let ord_str = stack.pop().unwrap();
-        *state = if stack.len() > 0 { State::Text } else { State::Root }; 
+        *state = if stack.is_empty() {
+            State::Root
+        } else {
+            State::Text
+        }; 
         ord_str.parse::<u16>().unwrap()
     }
     // Abandon cloze and set state
