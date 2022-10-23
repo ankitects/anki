@@ -221,13 +221,13 @@ fn reveal_clozes(text: &str, cloze_ord: u16, question: bool, cloze_only: bool) -
             // Full cloze
             // Question - active cloze, no hint
             (false, true, true, true) => last.text.push_str(&format!(
-                r#"<span class="cloze active" data-text="{}" data-ordinal="{}">[...]</span>"#,
+                r#"<span class="cloze active" data-cloze="{}" data-ordinal="{}">[...]</span>"#,
                 encode_attribute(cloze.text.as_str()),
                 ordinal
             )),
             // Question - active cloze, hint
             (false, true, true, false) => last.text.push_str(&format!(
-                r#"<span class="cloze active" data-text="{}" data-ordinal="{}">[{}]</span>"#,
+                r#"<span class="cloze active" data-cloze="{}" data-ordinal="{}">[{}]</span>"#,
                 encode_attribute(cloze.text.as_str()),
                 ordinal,
                 &cloze.hint
@@ -462,7 +462,7 @@ mod test {
         );
         assert_eq!(
             reveal_cloze_text("foo {{c1::bar &lt;{{c2::baz}}}}", 1, true),
-            r#"foo <span class="cloze active" data-text="bar &amp;lt;&lt;span class=&quot;cloze&quot; data-ordinal=&quot;2&quot;&gt;baz&lt;/span&gt;" data-ordinal="1">[...]</span>"#
+            r#"foo <span class="cloze active" data-cloze="bar &amp;lt;&lt;span class=&quot;cloze&quot; data-ordinal=&quot;2&quot;&gt;baz&lt;/span&gt;" data-ordinal="1">[...]</span>"#
         );
         assert_eq!(
             reveal_cloze_text("foo {{c1::bar &lt;{{c2::baz}}}}", 1, false),
@@ -470,7 +470,7 @@ mod test {
         );
         assert_eq!(
             reveal_cloze_text("foo {{c1::bar {{c2::baz}}::qux}}", 2, true),
-            r#"foo <span class="cloze" data-ordinal="1">bar <span class="cloze active" data-text="baz" data-ordinal="2">[...]</span></span>"#
+            r#"foo <span class="cloze" data-ordinal="1">bar <span class="cloze active" data-cloze="baz" data-ordinal="2">[...]</span></span>"#
         );
         assert_eq!(
             reveal_cloze_text("foo {{c1::bar {{c2::baz}}::qux}}", 2, false),
@@ -478,7 +478,7 @@ mod test {
         );
         assert_eq!(
             reveal_cloze_text("foo {{c1::bar {{c2::baz}}::qux}}", 1, true),
-            r#"foo <span class="cloze active" data-text="bar &lt;span class=&quot;cloze&quot; data-ordinal=&quot;2&quot;&gt;baz&lt;/span&gt;" data-ordinal="1">[qux]</span>"#
+            r#"foo <span class="cloze active" data-cloze="bar &lt;span class=&quot;cloze&quot; data-ordinal=&quot;2&quot;&gt;baz&lt;/span&gt;" data-ordinal="1">[qux]</span>"#
         );
         assert_eq!(
             reveal_cloze_text("foo {{c1::bar {{c2::baz}}::qux}}", 1, false),

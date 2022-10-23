@@ -256,7 +256,7 @@ field</a>
         assert_eq!(strip_html(&cloze_filter(text, &ctx)).as_ref(), "[...] two");
         assert_eq!(
             cloze_filter(text, &ctx),
-            r#"<span class="cloze active" data-text="one" data-ordinal="1">[...]</span> <span class="cloze" data-ordinal="2">two</span>"#
+            r#"<span class="cloze active" data-cloze="one" data-ordinal="1">[...]</span> <span class="cloze" data-ordinal="2">two</span>"#
         );
 
         ctx.card_ord = 1;
