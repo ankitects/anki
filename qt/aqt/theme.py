@@ -185,7 +185,6 @@ class ThemeManager:
 
         if m:= re.match(r"rgba\((\d+),\s*(\d+),\s*(\d+),\s*(\d+\.*\d+?)\)", self.var(colors)):
             return QColor(int(m.group(1)), int(m.group(2)), int(m.group(3)), 255 * float(m.group(4)))
-            
         return QColor(self.var(colors))
 
     def _determine_night_mode(self) -> bool:
@@ -260,19 +259,10 @@ class ThemeManager:
     def _apply_palette(self, app: QApplication) -> None:
         set_macos_dark_mode(self.night_mode)
 
-        if not self.night_mode:
-            app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
-            self.default_palette.setColor(
-                QPalette.ColorRole.Window, self.qcolor(colors.CANVAS)
-            )
-            app.setPalette(self.default_palette)
-            return
-
         if not self.macos_dark_mode():
             app.setStyle(QStyleFactory.create("fusion"))  # type: ignore
 
         palette = QPalette()
-
         text = self.qcolor(colors.FG)
         palette.setColor(QPalette.ColorRole.WindowText, text)
         palette.setColor(QPalette.ColorRole.ToolTipText, text)
@@ -289,11 +279,9 @@ class ThemeManager:
         palette.setColor(QPalette.ColorRole.Window, canvas)
         palette.setColor(QPalette.ColorRole.AlternateBase, canvas)
 
-        palette.setColor(QPalette.ColorRole.Button, QColor("#454545"))
-
-        canvas_inset = self.qcolor(colors.CANVAS_INSET)
-        palette.setColor(QPalette.ColorRole.Base, canvas_inset)
-        palette.setColor(QPalette.ColorRole.ToolTipBase, canvas_inset)
+        input_base = self.qcolor(colors.CANVAS_CODE)
+        palette.setColor(QPalette.ColorRole.Base, input_base)
+        palette.setColor(QPalette.ColorRole.ToolTipBase, input_base)
 
         palette.setColor(
             QPalette.ColorRole.PlaceholderText, self.qcolor(colors.FG_SUBTLE)
