@@ -4,7 +4,7 @@ from typing import cast
 
 from aqt import colors
 from aqt.qt import *
-from aqt.theme import AnkiVariable, theme_manager
+from aqt.theme import theme_manager
 
 
 class Switch(QAbstractButton):
@@ -19,8 +19,8 @@ class Switch(QAbstractButton):
         radius: int = 10,
         left_label: str = "",
         right_label: str = "",
-        left_color: AnkiVariable = colors.ACCENT_CARD,
-        right_color: AnkiVariable = colors.ACCENT_NOTE,
+        left_color: dict[str, str] = colors.ACCENT_CARD | {},
+        right_color: dict[str, str] = colors.ACCENT_NOTE | {},
         parent: QWidget = None,
     ) -> None:
         super().__init__(parent=parent)
