@@ -183,8 +183,15 @@ class ThemeManager:
     def qcolor(self, colors: dict[str, str]) -> QColor:
         """Create QColor instance from CSS string for the current theme."""
 
-        if m:= re.match(r"rgba\((\d+),\s*(\d+),\s*(\d+),\s*(\d+\.*\d+?)\)", self.var(colors)):
-            return QColor(int(m.group(1)), int(m.group(2)), int(m.group(3)), 255 * float(m.group(4)))
+        if m := re.match(
+            r"rgba\((\d+),\s*(\d+),\s*(\d+),\s*(\d+\.*\d+?)\)", self.var(colors)
+        ):
+            return QColor(
+                int(m.group(1)),
+                int(m.group(2)),
+                int(m.group(3)),
+                255 * float(m.group(4)),
+            )
         return QColor(self.var(colors))
 
     def _determine_night_mode(self) -> bool:
