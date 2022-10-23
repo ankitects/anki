@@ -102,6 +102,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         input {
             width: 100%;
             padding: 0.2rem 1.5rem 0.2rem 0.75rem;
+            background: var(--canvas-elevated);
+            color: var(--fg);
             border: none;
             outline: none;
             text-align: center;
@@ -120,7 +122,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     button {
         opacity: 0;
         position: absolute;
-        @include button.base($border: false);
+        @include button.base($border: false, $elevation: 0);
 
         &.left {
             inset: 0 auto 0 0;

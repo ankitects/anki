@@ -1,6 +1,6 @@
 @use "vars";
 @use "button-mixins" as button;
-@use "elevation";
+@use "elevation" as *;
 
 :root {
     --focus-color: #{vars.palette-of(shadow-focus)};
@@ -25,7 +25,7 @@
 button {
     outline: none;
     @include button.base;
-    @include elevation.elevation(2);
+    @include elevation(2);
     border-radius: var(--border-radius-large);
     padding: 6px 12px;
     font-weight: 500;

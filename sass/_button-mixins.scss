@@ -2,6 +2,7 @@
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 @use "vars";
 @use "sass:color";
+@use "sass/elevation" as *;
 
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";
@@ -19,7 +20,11 @@
     border-bottom-right-radius: var(--border-right-radius);
 }
 
-@mixin background($primary: false, $hover: true) {
+@mixin background($primary: false, $elevation: 1, $hover: true) {
+    @if $elevation != 0 {
+        @include elevation($elevation);
+    }
+
     @if $primary {
         background: linear-gradient(
             180deg,
@@ -61,7 +66,8 @@
     $with-hover: true,
     $with-active: true,
     $active-class: "",
-    $with-disabled: true
+    $with-disabled: true,
+    $elevation: 1
 ) {
     -webkit-appearance: none;
     cursor: pointer;
@@ -70,7 +76,7 @@
     } @else {
         border: none;
     }
-    @include background($primary, $hover: $with-hover);
+    @include background($primary, $elevation, $hover: $with-hover);
 
     @if ($primary) {
         color: white;
