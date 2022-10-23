@@ -181,6 +181,11 @@ class ThemeManager:
         return vars["dark" if self.night_mode else "light"]
 
     def qcolor(self, colors: dict[str, str]) -> QColor:
+        """Create QColor instance from CSS string for the current theme."""
+
+        if m:= re.match(r"rgba\((\d+),\s*(\d+),\s*(\d+),\s*(\d+\.*\d+?)\)", self.var(colors)):
+            return QColor(int(m.group(1)), int(m.group(2)), int(m.group(3)), 255 * float(m.group(4)))
+            
         return QColor(self.var(colors))
 
     def _determine_night_mode(self) -> bool:
@@ -275,7 +280,6 @@ class ThemeManager:
         palette.setColor(QPalette.ColorRole.ButtonText, text)
 
         hlbg = self.qcolor(colors.HIGHLIGHT_BG)
-        hlbg.setAlpha(64)
         palette.setColor(
             QPalette.ColorRole.HighlightedText, self.qcolor(colors.HIGHLIGHT_FG)
         )
