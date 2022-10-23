@@ -59,8 +59,7 @@ pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str>
 
         let text = caps.get(cloze_caps::TEXT).unwrap().as_str().to_owned();
         if captured_ord != cloze_ord {
-            // other cloze deletions are unchanged
-            return text;
+            return format!(r#"<span class="cloze-inactive">{text}</span>"#);
         } else {
             cloze_ord_was_in_text = true;
         }

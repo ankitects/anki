@@ -204,15 +204,21 @@ def test_cloze():
     assert col.addNote(note) == 2
     (c1, c2) = note.cards()
     assert (
-        f'<span class="cloze" data-cloze="{encode_attribute("world")}">[...]</span> bar'
+        f'<span class="cloze" data-cloze="{encode_attribute("world")}">[...]</span> <span class="cloze-inactive">bar</span>'
         in c1.question()
     )
-    assert '<span class="cloze">world</span> bar' in c1.answer()
     assert (
-        f'world <span class="cloze" data-cloze="{encode_attribute("bar")}">[...]</span>'
+        '<span class="cloze">world</span> <span class="cloze-inactive">bar</span>'
+        in c1.answer()
+    )
+    assert (
+        f'<span class="cloze-inactive">world</span> <span class="cloze" data-cloze="{encode_attribute("bar")}">[...]</span>'
         in c2.question()
     )
-    assert 'world <span class="cloze">bar</span>' in c2.answer()
+    assert (
+        '<span class="cloze-inactive">world</span> <span class="cloze">bar</span>'
+        in c2.answer()
+    )
     # if there are multiple answers for a single cloze, they are given in a
     # list
     note = col.new_note(m)
