@@ -83,6 +83,7 @@ sass_library(
     visibility = ["//visibility:public"],
     deps = [
         "vars_lib",
+        "elevation_lib",
     ],
 )
 
