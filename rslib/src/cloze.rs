@@ -342,7 +342,7 @@ pub fn add_cloze_numbers_in_string(field: &str, set: &mut HashSet<u16>) {
             State::Root
         } else {
             State::Text
-        }; 
+        };
         ord_str.parse::<u16>().unwrap()
     }
     // Abandon cloze and set state
