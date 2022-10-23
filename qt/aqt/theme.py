@@ -190,7 +190,7 @@ class ThemeManager:
                 int(m.group(1)),
                 int(m.group(2)),
                 int(m.group(3)),
-                255 * float(m.group(4)),
+                int(255 * float(m.group(4))),
             )
         return QColor(self.var(colors))
 
