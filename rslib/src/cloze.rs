@@ -160,7 +160,7 @@ fn reveal_clozes(text: &str, cloze_ord: u16, question: bool, cloze_only: bool) -
         }
     }
     
-    if !current_found { return Cow::Borrowed("".into()) }
+    if !current_found { return Cow::Borrowed("") }
     if cloze_only { return stack.last().unwrap().text[2..].to_owned().into() }
 
     if stack.len() > 1 {
@@ -228,11 +228,11 @@ fn reveal_clozes(text: &str, cloze_ord: u16, question: bool, cloze_only: bool) -
 }
 
 pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str> {
-    return reveal_clozes(text, cloze_ord, question, false);
+    reveal_clozes(text, cloze_ord, question, false)
 }
 
 pub fn reveal_cloze_text_only(text: &str, cloze_ord: u16, question: bool) -> Cow<str> {
-    return reveal_clozes(text, cloze_ord, question, true);
+    reveal_clozes(text, cloze_ord, question, true)
 }
 
 /// If text contains any LaTeX tags, render the front and back
@@ -287,7 +287,7 @@ pub fn add_cloze_numbers_in_string(field: &str, set: &mut HashSet<u16>) {
         match state {
             State::Open => stack.push(String::new()),
             State::Ord => stack.last_mut().unwrap().push(c),
-            State::Close => drop(set.insert(close(&mut state, &mut stack))),
+            State::Close => _ = set.insert(close(&mut state, &mut stack)),
             State::Abandon => abandon(&mut state, &mut stack),
             _ => {}
         }
@@ -302,7 +302,7 @@ pub fn add_cloze_numbers_in_string(field: &str, set: &mut HashSet<u16>) {
     // Abandon cloze and set state
     fn abandon(state: &mut State, stack: &mut Vec<String>) {
         stack.pop();
-        *state = if stack.len() > 0 { State::Text } else { State::Root };
+        *state = if stack.is_empty() { State::Root } else { State::Text };
     }
 }
 
