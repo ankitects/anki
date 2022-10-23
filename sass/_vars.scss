@@ -162,14 +162,14 @@ $vars: (
                     start: (
                         "Start value of default button gradient in hover state",
                         (
-                            light: palette(lightgray, 0),
+                            light: palette(lightgray, 1),
                             dark: palette(darkgray, 3),
                         ),
                     ),
                     end: (
                         "End value of default button gradient in hover state",
                         (
-                            light: palette(lightgray, 1),
+                            light: palette(lightgray, 2),
                             dark: palette(darkgray, 4),
                         ),
                     ),
