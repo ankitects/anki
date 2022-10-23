@@ -209,11 +209,11 @@ def test_cloze():
     assert col.addNote(note) == 2
     (c1, c2) = note.cards()
     assert (
-        f'<span class="cloze active" data-cloze="{encode_attribute("world")}" data-ordinal="1">[...]</span> <span class="cloze active" data-ordinal="2">bar</span>'
+        f'<span class="cloze active" data-cloze="{encode_attribute("world")}" data-ordinal="1">[...]</span> <span class="cloze" data-ordinal="2">bar</span>'
         in c1.question()
     )
     assert (
-        '<span class="cloze active" data-ordinal="1">world</span> <span class="cloze active" data-ordinal="2">bar</span>'
+        '<span class="cloze active" data-ordinal="1">world</span> <span class="cloze" data-ordinal="2">bar</span>'
         in c1.answer()
     )
     assert (
