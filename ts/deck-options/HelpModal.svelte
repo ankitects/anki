@@ -26,8 +26,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const modals = getContext<Map<string, Modal>>(modalsKey);
 
-    export let modal: Modal;
-    export let carousel: Carousel;
+    let modal: Modal;
+    let carousel: Carousel;
 
     let modalRef: HTMLDivElement;
     let carouselRef: HTMLDivElement;
