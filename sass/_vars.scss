@@ -146,14 +146,14 @@ $vars: (
                     "Start value of default button gradient",
                     (
                         light: white,
-                        dark: palette(darkgray, 3),
+                        dark: palette(darkgray, 4),
                     ),
                 ),
                 end: (
                     "End value of default button gradient",
                     (
                         light: palette(lightgray, 1),
-                        dark: palette(darkgray, 4),
+                        dark: palette(darkgray, 5),
                     ),
                 ),
             ),
@@ -163,14 +163,14 @@ $vars: (
                         "Start value of default button gradient in hover state",
                         (
                             light: palette(lightgray, 1),
-                            dark: palette(darkgray, 2),
+                            dark: palette(darkgray, 3),
                         ),
                     ),
                     end: (
                         "End value of default button gradient in hover state",
                         (
                             light: palette(lightgray, 4),
-                            dark: palette(darkgray, 3),
+                            dark: palette(darkgray, 4),
                         ),
                     ),
                 ),
@@ -402,8 +402,8 @@ $vars: (
             bg: (
                 "Background color of highlighted items",
                 (
-                    light: color.scale(palette(blue, 3), $alpha: -33%),
-                    dark: color.scale(palette(blue, 4), $alpha: -33%),
+                    light: color.scale(palette(blue, 3), $alpha: -50%),
+                    dark: color.scale(palette(blue, 4), $alpha: -50%),
                 ),
             ),
             fg: (
