@@ -343,7 +343,7 @@ def test_chained_mods():
         in note.cards()[0].question()
     )
     assert (
-        f'This <span class="cloze active" data-ordinal="1">{a1}</span> demonstrates <span class="cloze active" data-ordinal="1">{a2}</span> clozes.'
+        'This <span class="cloze active" data-ordinal="1">phrase</span> demonstrates <span class="cloze active" data-ordinal="1">en chaine</span> clozes.'
         in note.cards()[0].answer()
     )
 
