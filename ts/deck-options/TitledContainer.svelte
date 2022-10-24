@@ -51,6 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         color: var(--fg-faint);
         transition: color 0.2s linear;
         &:hover {
+            transition: none;
             color: var(--fg);
         }
     }
