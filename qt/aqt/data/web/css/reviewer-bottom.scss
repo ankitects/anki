@@ -58,12 +58,7 @@ button {
 }
 
 :focus {
-    outline: 1px auto color(focus-color);
-
-    .nightMode & {
-        outline: none;
-        box-shadow: 0 0 0 2px color(focus-color);
-    }
+    border-color: color(border-focus);
 }
 
 .nobold,

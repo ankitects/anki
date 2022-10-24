@@ -412,7 +412,7 @@ class AnkiWebView(QWebEngineView):
             family = tr.qt_misc_segoe_ui()
             button_style = f"""
 button {{ font-family: {family}; }}
-button:focus {{ outline: 5px auto {color_hl}; }}"""
+            """
             font = f"font-size:12px;font-family:{family};"
         elif is_mac:
             family = "Helvetica"
@@ -423,7 +423,7 @@ button:focus {{ outline: 5px auto {color_hl}; }}"""
             button_style = (
                 """
 button { -webkit-appearance: none; %s
-border-radius:5px; font-family: Helvetica }"""
+border-radius: var(--border-radius); font-family: Helvetica }"""
                 % color
             )
         else:
@@ -433,9 +433,8 @@ border-radius:5px; font-family: Helvetica }"""
             button_style = """
 /* Buttons */
 button{{ 
-        font-family:"{family}", sans-serif; }}
-button:focus{{ border-color: {color_hl} }}
-button:active, button:active:hover {{ background-color: {color_hl}; color: {color_hl_txt};}}
+    font-family: "{family}", sans-serif;
+}}
 /* Input field focus outline */
 textarea:focus, input:focus, input[type]:focus, .uneditable-input:focus,
 div[contenteditable="true"]:focus {{   
@@ -444,7 +443,6 @@ div[contenteditable="true"]:focus {{
 }}""".format(
                 family=family,
                 color_hl=color_hl,
-                color_hl_txt=color_hl_txt,
             )
 
         zoom = self.app_zoom_factor()

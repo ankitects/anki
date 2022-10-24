@@ -23,7 +23,7 @@
 }
 
 button {
-    outline: none;
+    outline: none !important;
     @include button.base;
     @include elevation(2);
     border-radius: var(--border-radius-large);
