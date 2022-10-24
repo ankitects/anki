@@ -804,7 +804,7 @@ time = %(time)d;
             txt = v3_labels[i - 1]
         else:
             txt = self.mw.col.sched.nextIvlStr(self.card, i, True) or "&nbsp;"
-        return f"<span class=nobold>{txt}</span><br>"
+        return f"<span class=nobold>{txt}</span>"
 
     # Leeches
     ##########################################################################

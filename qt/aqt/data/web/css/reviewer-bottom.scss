@@ -17,6 +17,15 @@ body {
     padding: 0;
 }
 
+#innertable {
+    padding-top: 10px;
+}
+
+#middle td[align="center"] {
+    padding-top: 10px;
+    position: relative;
+}
+
 button {
     min-width: 60px;
     white-space: nowrap;
@@ -36,13 +45,11 @@ button {
 }
 
 .stat2 {
-    padding-top: 3px;
+    padding-top: 10px;
     font-weight: normal;
 }
 
 .stattxt {
-    padding-left: 5px;
-    padding-right: 5px;
     white-space: nowrap;
 }
 
@@ -59,10 +66,14 @@ button {
     }
 }
 
-.nobold {
+.nobold,
+.stattxt {
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
     font-weight: normal;
     display: inline-block;
-    padding-top: 4px;
 }
 
 .spacer {
