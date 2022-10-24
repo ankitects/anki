@@ -207,8 +207,8 @@ deck-config-show-answer-timer-tooltip =
 deck-config-audio-title = Audio
 deck-config-disable-autoplay = Don't play audio automatically
 deck-config-disable-autoplay-tooltip =
-   When enabled, Anki will not play audio
-    automatically. It can be played manually by clicking/tapping on an audio icon, or by using the replay audio action.
+    When enabled, Anki will not play audio automatically.
+    It can be played manually by clicking/tapping on an audio icon, or by using the replay audio action.
 deck-config-skip-question-when-replaying = Skip question when replaying answer
 deck-config-always-include-question-audio-tooltip =
     Whether the question audio should be included when the Replay action is
