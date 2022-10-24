@@ -149,7 +149,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .modal-content {
-        padding: 0.5rem 1.5rem;
+        padding-top: 0.5rem;
         background-color: var(--canvas);
         color: var(--fg);
         border-radius: var(--border-radius-large, 10px);

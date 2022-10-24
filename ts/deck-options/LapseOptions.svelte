@@ -133,7 +133,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 bind:value={$config.leechAction}
                 defaultValue={defaults.leechAction}
                 choices={leechChoices}
-                breakpoint="xs"
+                breakpoint="md"
             >
                 <SettingTitle
                     on:click={() =>
