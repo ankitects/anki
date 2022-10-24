@@ -4,24 +4,27 @@
 @use "sass:color";
 @use "sass/button-mixins" as button;
 
-$size: var(--buttons-size);
-$padding: 2px;
-
 .linkb {
+    $size: var(--buttons-size);
+
     @include button.base;
     @include button.border-radius;
 
-    width: $size;
+    min-width: $size;
     height: $size;
-    padding: $padding;
     font-size: calc($size * 0.6);
-}
+    position: relative;
 
-img.topbut {
-    max-width: calc($size - 2 * $padding);
-    max-height: calc($size - 2 * $padding);
-    vertical-align: baseline;
-    .nightMode & {
-        filter: invert(1);
+    img.topbut {
+        $padding: 4px;
+        $icon-size: calc(100% - 2 * $padding);
+
+        position: absolute;
+        height: $icon-size;
+        width: $icon-size;
+        inset: $padding;
+        .nightMode & {
+            filter: invert(1);
+        }
     }
 }
