@@ -50,7 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.deckConfigBuryTitle()}>
     <HelpModal
         title={tr.deckConfigBuryTitle()}
-        chapter="https://docs.ankiweb.net/studying.html#siblings-and-burying"
+        url="https://docs.ankiweb.net/studying.html#siblings-and-burying"
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {

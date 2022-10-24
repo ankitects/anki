@@ -155,7 +155,7 @@
 <TitledContainer title={tr.deckConfigDailyLimits()}>
     <HelpModal
         title={tr.deckConfigDailyLimits()}
-        chapter="https://docs.ankiweb.net/deck-options.html#daily-limits"
+        url="https://docs.ankiweb.net/deck-options.html#daily-limits"
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {

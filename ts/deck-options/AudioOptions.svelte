@@ -46,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.deckConfigAudioTitle()}>
     <HelpModal
         title={tr.deckConfigAudioTitle()}
-        chapter="https://docs.ankiweb.net/deck-options.html#audio"
+        url="https://docs.ankiweb.net/deck-options.html#audio"
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {

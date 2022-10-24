@@ -90,8 +90,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.schedulingNewCards()}>
     <HelpModal
         title={tr.schedulingNewCards()}
+        url="https://docs.ankiweb.net/deck-options.html#new-cards"
         slot="tooltip"
-        chapter="https://docs.ankiweb.net/deck-options.html#new-cards"
         {helpSections}
         on:mount={(e) => {
             modal = e.detail.modal;

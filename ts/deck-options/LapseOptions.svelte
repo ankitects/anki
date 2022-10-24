@@ -74,7 +74,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.schedulingLapses()}>
     <HelpModal
         title={tr.schedulingLapses()}
-        chapter="https://docs.ankiweb.net/deck-options.html#lapses"
+        url="https://docs.ankiweb.net/deck-options.html#lapses"
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {

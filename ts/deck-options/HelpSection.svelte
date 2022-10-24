@@ -37,7 +37,7 @@
 </Row>
 {#if section.url}
     <hr />
-    <Row>
+    <div class="chapter-redirect">
         {@html marked(
             tr.helpForMoreInfo({
                 link: `<a href="${section.url}" title="${tr.helpOpenManualChapter({
@@ -45,7 +45,7 @@
                 })}">${section.title}</a>`,
             }),
         )}
-    </Row>
+    </div>
 {/if}
 
 <style lang="scss">
@@ -60,5 +60,11 @@
                 border-color: var(--fg);
             }
         }
+    }
+
+    .chapter-redirect {
+        width: 100%;
+        color: var(--fg-subtle);
+        font-size: small;
     }
 </style>

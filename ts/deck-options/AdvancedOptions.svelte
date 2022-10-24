@@ -76,7 +76,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.deckConfigAdvancedTitle()}>
     <HelpModal
         title={tr.deckConfigAdvancedTitle()}
-        chapter="https://docs.ankiweb.net/deck-options.html#advanced"
+        url="https://docs.ankiweb.net/deck-options.html#advanced"
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {

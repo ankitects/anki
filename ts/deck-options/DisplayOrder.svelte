@@ -127,7 +127,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.deckConfigOrderingTitle()}>
     <HelpModal
         title={tr.deckConfigOrderingTitle()}
-        chapter="https://docs.ankiweb.net/deck-options.html#display-order"
+        url="https://docs.ankiweb.net/deck-options.html#display-order"
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {

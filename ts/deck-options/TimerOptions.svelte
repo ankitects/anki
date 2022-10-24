@@ -53,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.deckConfigTimerTitle()}>
     <HelpModal
         title={tr.deckConfigTimerTitle()}
-        chapter="https://docs.ankiweb.net/deck-options.html#timer"
+        url="https://docs.ankiweb.net/deck-options.html#timer"
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {

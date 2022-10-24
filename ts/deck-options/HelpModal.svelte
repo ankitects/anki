@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckOption } from "./types";
 
     export let title: string;
-    export let chapter: string;
+    export let url: string;
     export let startIndex = 0;
     export let helpSections: DeckOption[];
 
@@ -67,12 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title" id="modalLabel">
-                    <a
-                        href={chapter}
-                        title={tr.helpOpenManualChapter({
-                            name: title,
-                        })}>{title}</a
-                    >
+                    {title}
                 </h1>
                 <button
                     type="button"
@@ -81,6 +76,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     data-bs-dismiss="modal"
                     aria-label="Close"
                 />
+                {#if url}
+                    <div class="chapter-redirect">
+                        {@html tr.helpViewChapterInManual({
+                            chapter: `<a href="${url}" title="${tr.helpOpenManualChapter(
+                                { name: title },
+                            )}">${tr.helpChapter()}</a>`,
+                        })}
+                    </div>
+                {/if}
             </div>
             <div class="modal-body">
                 <Row --cols={4}>
@@ -134,15 +138,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    h1 {
-        a {
-            text-decoration: none;
-            color: var(--fg);
-            cursor: pointer;
-            &:hover {
-                text-decoration: underline;
-            }
-        }
+    .modal-header {
+        align-items: unset;
+        flex-wrap: wrap;
+    }
+    .chapter-redirect {
+        width: 100%;
+        color: var(--fg-subtle);
+        font-size: small;
     }
     #nav {
         margin-bottom: 1.5rem;
