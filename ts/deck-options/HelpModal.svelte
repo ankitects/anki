@@ -152,7 +152,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding: 0.5rem 1.5rem;
         background-color: var(--canvas);
         color: var(--fg);
-        border-radius: var(--border-radius-large, 15px);
+        border-radius: var(--border-radius-large, 10px);
     }
 
     .invert {
