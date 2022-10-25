@@ -3,15 +3,21 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type Carousel from "bootstrap/js/dist/carousel";
+    import type Modal from "bootstrap/js/dist/modal";
+
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
     import * as tr from "../lib/ftl";
     import { DeckConfig } from "../lib/proto";
     import EnumSelectorRow from "./EnumSelectorRow.svelte";
+    import HelpModal from "./HelpModal.svelte";
     import type { DeckOptionsState } from "./lib";
+    import SettingTitle from "./SettingTitle.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import StepsInputRow from "./StepsInputRow.svelte";
     import TitledContainer from "./TitledContainer.svelte";
+    import type { DeckOption } from "./types";
     import Warning from "./Warning.svelte";
 
     export let state: DeckOptionsState;
@@ -47,17 +53,62 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             DeckConfig.DeckConfig.Config.NewCardInsertOrder.NEW_CARD_INSERT_ORDER_RANDOM
             ? tr.deckConfigNewInsertionOrderRandomWithV3()
             : "";
+
+    const settings = {
+        learningSteps: {
+            title: tr.deckConfigLearningSteps(),
+            help: tr.deckConfigLearningStepsTooltip(),
+            url: "https://docs.ankiweb.net/deck-options.html#learning-steps",
+        },
+        graduatingInterval: {
+            title: tr.schedulingGraduatingInterval(),
+            help: tr.deckConfigGraduatingIntervalTooltip(),
+            url: "https://docs.ankiweb.net/deck-options.html#graduating-interval",
+        },
+        easyInterval: {
+            title: tr.schedulingEasyInterval(),
+            help: tr.deckConfigEasyIntervalTooltip(),
+            url: "https://docs.ankiweb.net/deck-options.html#easy-interval",
+        },
+        insertionOrder: {
+            title: tr.deckConfigNewInsertionOrder(),
+            help: tr.deckConfigNewInsertionOrderTooltip(),
+            url: "https://docs.ankiweb.net/deck-options.html#insertion-order",
+        },
+    };
+    const helpSections = Object.values(settings) as DeckOption[];
+
+    let modal: Modal;
+    let carousel: Carousel;
+
+    function openHelpModal(index: number): void {
+        modal.show();
+        carousel.to(index);
+    }
 </script>
 
 <TitledContainer title={tr.schedulingNewCards()}>
+    <HelpModal
+        title={tr.schedulingNewCards()}
+        url="https://docs.ankiweb.net/deck-options.html#new-cards"
+        slot="tooltip"
+        {helpSections}
+        on:mount={(e) => {
+            modal = e.detail.modal;
+            carousel = e.detail.carousel;
+        }}
+    />
     <DynamicallySlottable slotHost={Item} {api}>
         <Item>
             <StepsInputRow
                 bind:value={$config.learnSteps}
                 defaultValue={defaults.learnSteps}
-                markdownTooltip={tr.deckConfigLearningStepsTooltip()}
             >
-                {tr.deckConfigLearningSteps()}
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(Object.keys(settings).indexOf("learningSteps"))}
+                    >{settings.learningSteps.title}</SettingTitle
+                >
             </StepsInputRow>
         </Item>
 
@@ -65,9 +116,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <SpinBoxRow
                 bind:value={$config.graduatingIntervalGood}
                 defaultValue={defaults.graduatingIntervalGood}
-                markdownTooltip={tr.deckConfigGraduatingIntervalTooltip()}
             >
-                {tr.schedulingGraduatingInterval()}
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(
+                            Object.keys(settings).indexOf("graduatingInterval"),
+                        )}>{settings.graduatingInterval.title}</SettingTitle
+                >
             </SpinBoxRow>
         </Item>
 
@@ -79,9 +134,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <SpinBoxRow
                 bind:value={$config.graduatingIntervalEasy}
                 defaultValue={defaults.graduatingIntervalEasy}
-                markdownTooltip={tr.deckConfigEasyIntervalTooltip()}
             >
-                {tr.schedulingEasyInterval()}
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(Object.keys(settings).indexOf("easyInterval"))}
+                    >{settings.easyInterval.title}</SettingTitle
+                >
             </SpinBoxRow>
         </Item>
 
@@ -95,9 +153,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 defaultValue={defaults.newCardInsertOrder}
                 choices={newInsertOrderChoices}
                 breakpoint={"md"}
-                markdownTooltip={tr.deckConfigNewInsertionOrderTooltip()}
             >
-                {tr.deckConfigNewInsertionOrder()}
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(Object.keys(settings).indexOf("insertionOrder"))}
+                    >{settings.insertionOrder.title}</SettingTitle
+                >
             </EnumSelectorRow>
         </Item>
 

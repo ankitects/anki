@@ -18,6 +18,7 @@ compile_sass(
         "//sass:breakpoints_lib",
         "//sass:scrollbar_lib",
         "//sass:night_mode_lib",
+        "//sass:elevation_lib",
         "//sass/bootstrap",
     ],
 )
@@ -43,6 +44,7 @@ compile_svelte(
         "//sass:breakpoints_lib",
         "//sass:scrollbar_lib",
         "//sass:night_mode_lib",
+        "//sass:elevation_lib",
         "//sass/bootstrap",
     ],
 )
@@ -88,6 +90,7 @@ svelte_check(
         "//sass:scrollbar_lib",
         "//sass:breakpoints_lib",
         "//sass:night_mode_lib",
+        "//sass:elevation_lib",
         "//sass/bootstrap",
         "//ts/components",
         "//ts/sveltelib:sveltelib_pkg",
