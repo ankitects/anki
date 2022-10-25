@@ -266,8 +266,15 @@ class ThemeManager:
     def _apply_palette(self, app: QApplication) -> None:
         set_macos_dark_mode(self.night_mode)
 
-        if not self.macos_dark_mode():
-            app.setStyle(QStyleFactory.create("fusion"))  # type: ignore
+        if is_mac:
+            app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
+            self.default_palette.setColor(
+                QPalette.ColorRole.Window, self.qcolor(colors.CANVAS)
+            )
+            app.setPalette(self.default_palette)
+            return
+
+        app.setStyle(QStyleFactory.create("fusion"))  # type: ignore
 
         palette = QPalette()
         text = self.qcolor(colors.FG)
