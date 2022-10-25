@@ -9,8 +9,6 @@ help-chapter = chapter
 
 # Tooltip for links to the manual
 help-open-manual-chapter = Open chapter { $name } in Anki manual
-# Displayed underneath chapter title
-help-view-chapter-in-manual = View the { $chapter } on this topic in the official manual.
 
 ## Body
 
