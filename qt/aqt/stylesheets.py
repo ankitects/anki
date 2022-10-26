@@ -272,6 +272,8 @@ QHeaderView {{
     background: {tm.var(colors.CANVAS)};
 }}
 QHeaderView::section {{
+    padding-left: 0px;
+    padding-right: 10px;
     border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     background: {tm.var(colors.BUTTON_BG)};
 }}
