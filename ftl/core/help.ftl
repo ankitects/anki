@@ -1,14 +1,10 @@
 ### Text shown in Help pages
 
 
-## Basic terminology
-
-help-chapter = chapter
-
 ## Header
 
 # Tooltip for links to the manual
-help-open-manual-chapter = Open chapter { $name } in Anki manual
+help-open-manual-chapter = Open { $name } in the manual
 
 ## Body
 
