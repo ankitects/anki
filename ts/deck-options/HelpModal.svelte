@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../lib/ftl";
     import { pageTheme } from "../sveltelib/theme";
     import HelpSection from "./HelpSection.svelte";
-    import { infoCircle } from "./icons";
+    import { infoCircle, manualIcon } from "./icons";
     import type { DeckOption } from "./types";
 
     export let title: string;
@@ -69,6 +69,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <h1 class="modal-title" id="modalLabel">
                     {title}
                 </h1>
+                {#if url}
+                    <a class="manual-badge" href={url}>
+                        <Badge
+                            iconSize={120}
+                            tooltip={tr.helpOpenManualChapter({ name: title })}
+                        >
+                            {@html manualIcon}
+                        </Badge>
+                    </a>
+                {/if}
                 <button
                     type="button"
                     class="btn-close"
@@ -76,15 +86,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     data-bs-dismiss="modal"
                     aria-label="Close"
                 />
-                {#if url}
-                    <div class="chapter-redirect">
-                        {@html tr.helpViewChapterInManual({
-                            chapter: `<a href="${url}" title="${tr.helpOpenManualChapter(
-                                { name: title },
-                            )}">${tr.helpChapter()}</a>`,
-                        })}
-                    </div>
-                {/if}
             </div>
             <div class="modal-body">
                 <Row --cols={4}>
@@ -138,21 +139,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    .modal-header {
-        align-items: unset;
-        flex-wrap: wrap;
-    }
-    .chapter-redirect {
-        width: 100%;
-        color: var(--fg-subtle);
-        font-size: small;
-    }
     #nav {
         margin-bottom: 1.5rem;
     }
 
+    .modal-title {
+        margin-right: 0.75rem;
+    }
+
+    .manual-badge {
+        text-decoration: none;
+        color: var(--fg-subtle);
+        &:hover {
+            color: var(--fg);
+        }
+    }
+
     .modal-content {
-        padding-top: 0.5rem;
         background-color: var(--canvas);
         color: var(--fg);
         border-radius: var(--border-radius-large, 10px);
