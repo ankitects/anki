@@ -109,28 +109,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    @use "sass/elevation" as elevation;
+    @use "sass/elevation" as *;
 
     .editor-field {
         overflow: hidden;
         margin: 0 3px;
 
-        --border-color: var(--border);
-
         border-radius: 5px;
         border: 1px solid var(--border);
 
-        @include elevation.elevation-transition;
-        @include elevation.elevation(1);
+        @include elevation-transition;
+        @include elevation(1);
 
         &:focus-within {
-            @include elevation.elevation(
-                2,
-                $color: rgb(59 130 246),
-                $opacity-boost: 0.8
-            );
-
-            border-color: var(--focus-border);
+            border-color: var(--border-focus);
         }
     }
 </style>
