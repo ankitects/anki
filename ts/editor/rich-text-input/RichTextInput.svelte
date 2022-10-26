@@ -245,7 +245,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .rich-text-input {
         height: 100%;
 
-        background-color: var(--frame-bg);
+        background-color: var(--canvas-elevated);
         padding: 6px;
     }
 
