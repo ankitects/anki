@@ -25,7 +25,7 @@
 button {
     outline: none !important;
     @include button.base;
-    @include elevation(2);
+    @include elevation(1);
     border-radius: var(--border-radius-large);
     padding: 8px 10px;
     font-weight: 500;
