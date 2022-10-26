@@ -4,12 +4,14 @@ from aqt import colors, props
 from aqt.theme import ThemeManager
 
 
-def button_gradient(start: str, end: str) -> str:
+def button_gradient(start: str, end: str, shadow: str) -> str:
     return f"""
 qlineargradient(
-    spread:pad, x1:0.5, y1:0, x2:0.5, y2:1.25,
+    spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
     stop:0 {start},
-    stop:1 {end}
+    stop:0.92 {end},
+    stop:0.98 {shadow}
+    stop:1 {shadow}
 );
     """
 
@@ -111,7 +113,9 @@ QComboBox:!editable {{
     background: {
         button_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END)
+            tm.var(colors.BUTTON_GRADIENT_END),
+            tm.var(colors.SHADOW)
+
         )
     };
 }}
@@ -121,7 +125,8 @@ QComboBox:!editable:hover {{
     background: {
         button_gradient(
             tm.var(colors.BUTTON_HOVER_GRADIENT_START),
-            tm.var(colors.BUTTON_HOVER_GRADIENT_END)
+            tm.var(colors.BUTTON_HOVER_GRADIENT_END),
+            tm.var(colors.SHADOW)
         )
     };
 }}
@@ -201,7 +206,8 @@ QComboBox::drop-down {{
     background: {
         button_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END)
+            tm.var(colors.BUTTON_GRADIENT_END),
+            tm.var(colors.SHADOW)
         )
     };
 }}
@@ -209,7 +215,8 @@ QComboBox::drop-down:hover {{
     background: {
         button_gradient(
             tm.var(colors.BUTTON_HOVER_GRADIENT_START),
-            tm.var(colors.BUTTON_HOVER_GRADIENT_END)
+            tm.var(colors.BUTTON_HOVER_GRADIENT_END),
+            tm.var(colors.SHADOW)
         )
     };
 }}
@@ -256,7 +263,8 @@ QTabBar::tab:selected {{
     background: {
         button_gradient(
             tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
-            tm.var(colors.BUTTON_PRIMARY_GRADIENT_END)
+            tm.var(colors.BUTTON_PRIMARY_GRADIENT_END),
+            tm.var(colors.SHADOW)
         )
     };
 }}
@@ -279,7 +287,8 @@ QHeaderView::section {{
     background: {
         button_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END)
+            tm.var(colors.BUTTON_GRADIENT_END),
+            tm.var(colors.SHADOW)
         )
     };
 }}
@@ -298,7 +307,8 @@ QHeaderView::section:hover {{
     background: {
         button_gradient(
             tm.var(colors.BUTTON_HOVER_GRADIENT_START),
-            tm.var(colors.BUTTON_HOVER_GRADIENT_END)
+            tm.var(colors.BUTTON_HOVER_GRADIENT_END),
+            tm.var(colors.SHADOW)
         )
     };
 }}
@@ -343,7 +353,8 @@ QSpinBox::down-button {{
     background: {
         button_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END)
+            tm.var(colors.BUTTON_GRADIENT_END),
+            tm.var(colors.SHADOW)
         )
     };
 }}
@@ -363,7 +374,8 @@ QSpinBox::down-button:hover {{
     background: {
         button_gradient(
             tm.var(colors.BUTTON_HOVER_GRADIENT_START),
-            tm.var(colors.BUTTON_HOVER_GRADIENT_END)
+            tm.var(colors.BUTTON_HOVER_GRADIENT_END),
+            tm.var(colors.SHADOW)
         )
     };
 }}
