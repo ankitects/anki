@@ -1,4 +1,5 @@
 // Heavily inspired by https://github.com/material-components/material-components-web/tree/master/packages/mdc-elevation
+@use "sass:color";
 @use "sass:map";
 @use "sass:list";
 
@@ -59,22 +60,22 @@ $umbra-opacity: 0.2;
 $penumbra-opacity: 0.14;
 $ambient-opacity: 0.12;
 
-@function box-shadow($level, $opacity-boost: 0, $color: black) {
+@function box-shadow($level, $opacity-boost, $color: black) {
     $umbra-z-value: map.get($umbra-map, $level);
     $penumbra-z-value: map.get($penumbra-map, $level);
     $ambient-z-value: map.get($ambient-map, $level);
 
-    $umbra-color: rgba($color, $umbra-opacity + $opacity-boost);
-    $penumbra-color: rgba($color, $penumbra-opacity + $opacity-boost);
-    $ambient-color: rgba($color, $ambient-opacity + $opacity-boost);
+    $umbra-color: color.adjust(rgba($color, $umbra-opacity), $alpha: $opacity-boost);
+    $penumbra-color: color.adjust(rgba($color, $penumbra-opacity), $alpha:  $opacity-boost);
+    $ambient-color: color.adjust(rgba($color, $ambient-opacity),  $alpha: $opacity-boost);
 
     @return (
-        #{"#{$umbra-z-value} #{$umbra-color}"},
-        #{"#{$penumbra-z-value} #{$penumbra-color}"},
+        #{$umbra-z-value} $umbra-color,
+        #{$penumbra-z-value} $penumbra-color,
         #{$ambient-z-value} $ambient-color
     );
 }
 
-@mixin elevation($level, $other: ()) {
-    box-shadow: list.join(box-shadow($level), $other);
+@mixin elevation($level, $opacity-boost: 0) {
+    box-shadow: box-shadow($level, $opacity-boost);
 }

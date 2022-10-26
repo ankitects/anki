@@ -21,10 +21,6 @@
 }
 
 @mixin background($primary: false, $elevation: 1, $hover: true) {
-    @if $elevation != 0 {
-        @include elevation($elevation);
-    }
-
     @if $primary {
         background: linear-gradient(
             180deg,
@@ -40,6 +36,9 @@
                 );
                 border-color: var(--button-hover-border);
             }
+        }
+        @if $elevation != 0 {
+            @include elevation($elevation, 0.2);
         }
     } @else {
         background: linear-gradient(
@@ -57,6 +56,9 @@
                 border-color: var(--button-hover-border);
             }
         }
+        @if $elevation != 0 {
+            @include elevation($elevation);
+        }
     }
 }
 
@@ -73,7 +75,7 @@
     cursor: pointer;
     @if $border {
         @if $primary {
-            border: 1px solid var(--border-strong);
+            border: none;
         }
         @else {
             border: 1px solid var(--border-subtle);
