@@ -72,7 +72,12 @@
     -webkit-appearance: none;
     cursor: pointer;
     @if $border {
-        border: 1px solid var(--border-subtle);
+        @if $primary {
+            border: 1px solid var(--border-strong);
+        }
+        @else {
+            border: 1px solid var(--border-subtle);
+        }
     } @else {
         border: none;
     }
