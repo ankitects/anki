@@ -108,9 +108,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /* grid-template-columns: repeat(2, 1fr); */
 
         /* This defines the border between inputs */
-        > *:not(:first-child) {
-            margin-top: 1px;
-        }
+        grid-gap: 1px;
         background-color: var(--border);
     }
 </style>
