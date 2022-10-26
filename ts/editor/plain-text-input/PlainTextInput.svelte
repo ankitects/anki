@@ -40,9 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import removeProhibitedTags from "./remove-prohibited";
     import { storedToUndecorated, undecoratedToStored } from "./transform";
 
-    export let isDefault: boolean;
     export let hidden = false;
-    export let richTextHidden: boolean;
 
     $: configuration = {
         mode: htmlanki,
@@ -147,8 +145,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     class="plain-text-input"
     class:light-theme={!$pageTheme.isDark}
-    class:is-default={isDefault}
-    class:alone={richTextHidden}
     on:focusin={() => ($focusedInput = api)}
     {hidden}
 >
@@ -163,31 +159,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .plain-text-input {
-        border-top: 1px solid var(--border);
-        border-radius: 0 0 5px 5px;
+        height: 100%;
 
         :global(.CodeMirror) {
+            height: 100%;
             background: var(--canvas-code);
-            border-radius: 0 0 5px 5px;
-        }
-
-        &.is-default {
-            border-top: none;
-            border-bottom: 1px solid var(--border);
-            border-radius: 5px 5px 0 0;
-
-            :global(.CodeMirror) {
-                border-radius: 5px 5px 0 0;
-            }
-        }
-
-        &.alone {
-            border: none;
-            border-radius: 5px;
-
-            :global(.CodeMirror) {
-                border-radius: 5px;
-            }
         }
 
         :global(.CodeMirror-lines) {

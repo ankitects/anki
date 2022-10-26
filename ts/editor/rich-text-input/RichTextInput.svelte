@@ -25,9 +25,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function editingInputIsRichText(
-        editingInput: EditingInputAPI | null,
+        editingInput: EditingInputAPI,
     ): editingInput is RichTextInputAPI {
-        return editingInput?.name === "rich-text";
+        return editingInput.name === "rich-text";
     }
 
     import { registerPackage } from "../../lib/runtime-require";
@@ -54,6 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         context,
         editingInputIsRichText,
         globalInputHandler as inputHandler,
+        lifecycle,
         surrounder,
     };
 </script>
@@ -126,7 +127,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return hidden;
     }
 
-    const className = "rich-text-editable";
     let richTextDiv: HTMLElement;
 
     async function getInputAPI(target: EventTarget): Promise<FocusableInputAPI | null> {
@@ -221,29 +221,35 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         let:attachToShadow={attachStyles}
         let:stylesDidLoad
     >
-        <div
-            bind:this={richTextDiv}
-            class={className}
-            class:night-mode={$pageTheme.isDark}
-            use:attachShadow
-            use:attachStyles
-            use:attachContentEditable={{ stylesDidLoad }}
-            on:focusin
-            on:focusout
-        />
+        <div class="rich-text-relative">
+            <div
+                class="rich-text-editable"
+                bind:this={richTextDiv}
+                use:attachShadow
+                use:attachStyles
+                use:attachContentEditable={{ stylesDidLoad }}
+                on:focusin
+                on:focusout
+            />
 
-        {#await Promise.all([richTextPromise, stylesDidLoad]) then _}
-            <div class="rich-text-widgets">
-                <slot />
-            </div>
-        {/await}
+            {#await Promise.all([richTextPromise, stylesDidLoad]) then _}
+                <div class="rich-text-widgets">
+                    <slot />
+                </div>
+            {/await}
+        </div>
     </RichTextStyles>
-    <slot name="plain-text-badge" />
 </div>
 
 <style lang="scss">
     .rich-text-input {
+        height: 100%;
+
+        background-color: var(--canvas-elevated);
+        padding: 6px;
+    }
+
+    .rich-text-relative {
         position: relative;
-        margin: 6px;
     }
 </style>

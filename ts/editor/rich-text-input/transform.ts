@@ -7,7 +7,7 @@ import {
     nodeIsElement,
 } from "../../lib/dom";
 import { createDummyDoc } from "../../lib/parsing";
-import { decoratedElements } from "../DecoratedElements.svelte";
+import { decoratedElements } from "../decorated-elements";
 
 function adjustInputHTML(html: string): string {
     for (const component of decoratedElements) {
