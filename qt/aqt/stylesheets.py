@@ -315,6 +315,7 @@ QHeaderView::up-arrow,
 QHeaderView::down-arrow {{
     width: 20px;
     height: 20px;
+    margin-left: -20px;
 }}
 QHeaderView::up-arrow {{
     image: url({tm.themed_icon("mdi:menu-up")});
