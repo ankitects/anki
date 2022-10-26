@@ -541,8 +541,6 @@ the AddCards dialog) should be implemented in the user of this component.
                             >
                                 <PlainTextInput
                                     {hidden}
-                                    isDefault={plainTextDefaults[index]}
-                                    richTextHidden={richTextsHidden[index]}
                                     on:focusout={() => {
                                         saveFieldNow();
                                         $focusedInput = null;
