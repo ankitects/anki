@@ -61,8 +61,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Fields from "./Fields.svelte";
     import { alertIcon } from "./icons";
     import ImageOverlay from "./image-overlay";
-    import MathjaxOverlay from "./mathjax-overlay";
     import { shrinkImagesByDefault } from "./image-overlay/ImageOverlay.svelte";
+    import MathjaxOverlay from "./mathjax-overlay";
     import Notification from "./Notification.svelte";
     import PlainTextInput from "./plain-text-input";
     import { closeHTMLTags } from "./plain-text-input/PlainTextInput.svelte";
@@ -517,6 +517,7 @@ the AddCards dialog) should be implemented in the user of this component.
                             <Collapsible
                                 collapse={richTextsHidden[index]}
                                 let:collapsed={hidden}
+                                toggleDisplay
                             >
                                 <RichTextInput
                                     {hidden}
@@ -536,6 +537,7 @@ the AddCards dialog) should be implemented in the user of this component.
                             <Collapsible
                                 collapse={plainTextsHidden[index]}
                                 let:collapsed={hidden}
+                                toggleDisplay
                             >
                                 <PlainTextInput
                                     {hidden}

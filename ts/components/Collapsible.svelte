@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { tweened } from "svelte/motion";
 
     export let collapse = false;
+    export let toggleDisplay = false;
     export let animated = !document.body.classList.contains("reduced-motion");
 
     let collapsed = false;
@@ -62,6 +63,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="collapsible"
     class:animated
     class:expanded
+    class:full-hide={toggleDisplay}
+    class:collapsed={!expanded}
     class:measuring
     class:transitioning
     style:--height="{height}px"
@@ -75,8 +78,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {/if}
 
 <style lang="scss">
+    .collapsible.full-hide {
+        &.collapsed {
+            display: none;
+        }
+        &.transitioning {
+            display: initial;
+        }
+    }
+
     .collapsible.animated {
         &.measuring {
+            display: unset;
             position: absolute;
             opacity: 0;
         }
