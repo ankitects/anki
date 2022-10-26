@@ -186,7 +186,7 @@
          <item row="1" column="1" colspan="2">
           <widget class="QComboBox" name="newOrder"/>
          </item>
-         <item row="6" column="0" colspan="3">
+         <item row="6" column="0" colspan="3"  alignment="Qt::AlignLeft">
           <widget class="QCheckBox" name="bury">
            <property name="text">
             <string>scheduling_bury_related_new_cards_until_the</string>
@@ -355,7 +355,7 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="0" colspan="3">
+         <item row="5" column="0" colspan="3"  alignment="Qt::AlignLeft">
           <widget class="QCheckBox" name="buryRev">
            <property name="text">
             <string>scheduling_bury_related_reviews_until_the_next</string>
@@ -604,21 +604,21 @@
          </item>
         </layout>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="showTimer">
          <property name="text">
           <string>scheduling_show_answer_timer</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="autoplaySounds">
          <property name="text">
           <string>scheduling_automatically_play_audio</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="replayQuestion">
          <property name="text">
           <string>scheduling_always_include_question_side_when_replaying</string>

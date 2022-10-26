@@ -87,7 +87,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <Shortcut
         keyCombination={incrementKeyCombination}
-        {event}
+        event="keydown"
         on:action={onIncrementCloze}
     />
 

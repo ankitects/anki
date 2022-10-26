@@ -3,14 +3,20 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type Carousel from "bootstrap/js/dist/carousel";
+    import type Modal from "bootstrap/js/dist/modal";
+
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
     import * as tr from "../lib/ftl";
+    import HelpModal from "./HelpModal.svelte";
     import type { DeckOptionsState } from "./lib";
     import { ValueTab } from "./lib";
+    import SettingTitle from "./SettingTitle.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import TabbedValue from "./TabbedValue.svelte";
     import TitledContainer from "./TitledContainer.svelte";
+    import type { DeckOption } from "./types";
     import Warning from "./Warning.svelte";
 
     export let state: DeckOptionsState;
@@ -120,35 +126,66 @@
             : [],
     );
 
-    let reviewsValue: number;
     let newValue: number;
+    let reviewsValue: number;
+
+    const settings = {
+        newLimit: {
+            title: tr.schedulingNewCardsday(),
+            help: tr.deckConfigNewLimitTooltip() + v3Extra,
+            url: "https://docs.ankiweb.net/deck-options.html#new-cardsday",
+        },
+        reviewLimit: {
+            title: tr.schedulingMaximumReviewsday(),
+            help: tr.deckConfigReviewLimitTooltip() + v3Extra,
+            url: "https://docs.ankiweb.net/deck-options.html#maximum-reviewsday",
+        },
+    };
+    const helpSections = Object.values(settings) as DeckOption[];
+
+    let modal: Modal;
+    let carousel: Carousel;
+
+    function openHelpModal(index: number): void {
+        modal.show();
+        carousel.to(index);
+    }
 </script>
 
 <TitledContainer title={tr.deckConfigDailyLimits()}>
+    <HelpModal
+        title={tr.deckConfigDailyLimits()}
+        url="https://docs.ankiweb.net/deck-options.html#daily-limits"
+        slot="tooltip"
+        {helpSections}
+        on:mount={(e) => {
+            modal = e.detail.modal;
+            carousel = e.detail.carousel;
+        }}
+    />
     <DynamicallySlottable slotHost={Item} {api}>
-        <TabbedValue tabs={newTabs} bind:value={newValue} />
         <Item>
-            <SpinBoxRow
-                bind:value={newValue}
-                defaultValue={defaults.newPerDay}
-                markdownTooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
-            >
-                {tr.schedulingNewCardsday()}
+            <SpinBoxRow bind:value={newValue} defaultValue={defaults.newPerDay}>
+                <TabbedValue slot="tabs" tabs={newTabs} bind:value={newValue} />
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(Object.keys(settings).indexOf("newLimit"))}
+                    >{settings.newLimit.title}</SettingTitle
+                >
             </SpinBoxRow>
         </Item>
 
         <Item>
             <Warning warning={newCardsGreaterThanParent} />
         </Item>
-
-        <TabbedValue tabs={reviewTabs} bind:value={reviewsValue} />
         <Item>
-            <SpinBoxRow
-                bind:value={reviewsValue}
-                defaultValue={defaults.reviewsPerDay}
-                markdownTooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
-            >
-                {tr.schedulingMaximumReviewsday()}
+            <SpinBoxRow bind:value={reviewsValue} defaultValue={defaults.reviewsPerDay}>
+                <TabbedValue slot="tabs" tabs={reviewTabs} bind:value={reviewsValue} />
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(Object.keys(settings).indexOf("reviewLimit"))}
+                    >{settings.reviewLimit.title}</SettingTitle
+                >
             </SpinBoxRow>
         </Item>
 

@@ -80,21 +80,14 @@ impl DecksService for Backend {
 
     fn get_deck_id_by_name(&self, input: pb::String) -> Result<pb::DeckId> {
         self.with_col(|col| {
-            col.get_deck_id(&input.val).and_then(|d| {
-                d.ok_or(AnkiError::NotFound)
-                    .map(|d| pb::DeckId { did: d.0 })
-            })
+            col.get_deck_id(&input.val)
+                .and_then(|d| d.or_not_found(input.val).map(|d| pb::DeckId { did: d.0 }))
         })
     }
 
     fn get_deck(&self, input: pb::DeckId) -> Result<pb::Deck> {
-        self.with_col(|col| {
-            Ok(col
-                .storage
-                .get_deck(input.into())?
-                .ok_or(AnkiError::NotFound)?
-                .into())
-        })
+        let did = input.into();
+        self.with_col(|col| Ok(col.storage.get_deck(did)?.or_not_found(did)?.into()))
     }
 
     fn update_deck(&self, input: pb::Deck) -> Result<pb::OpChanges> {
@@ -113,12 +106,9 @@ impl DecksService for Backend {
     }
 
     fn get_deck_legacy(&self, input: pb::DeckId) -> Result<pb::Json> {
+        let did = input.into();
         self.with_col(|col| {
-            let deck: DeckSchema11 = col
-                .storage
-                .get_deck(input.into())?
-                .ok_or(AnkiError::NotFound)?
-                .into();
+            let deck: DeckSchema11 = col.storage.get_deck(did)?.or_not_found(did)?.into();
             serde_json::to_vec(&deck)
                 .map_err(Into::into)
                 .map(Into::into)
@@ -273,10 +263,7 @@ impl TryFrom<pb::Deck> for Deck {
             mtime_secs: TimestampSecs(d.mtime_secs),
             usn: Usn(d.usn),
             common: d.common.unwrap_or_default(),
-            kind: d
-                .kind
-                .ok_or_else(|| AnkiError::invalid_input("missing kind"))?
-                .into(),
+            kind: d.kind.or_invalid("missing kind")?.into(),
         })
     }
 }

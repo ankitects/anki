@@ -48,6 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
     import { writable } from "svelte/store";
 
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
@@ -56,6 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import BlockButtons from "./BlockButtons.svelte";
     import InlineButtons from "./InlineButtons.svelte";
     import NotetypeButtons from "./NotetypeButtons.svelte";
+    import OptionsButton from "./OptionsButton.svelte";
     import RichTextClozeButtons from "./RichTextClozeButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
 
@@ -82,9 +84,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } as EditorToolbarAPI);
 
     setContextProperty(api);
+
+    const dispatch = createEventDispatcher();
+
+    let clientHeight: number;
+    $: dispatch("heightChange", { height: clientHeight });
 </script>
 
-<div class="editor-toolbar">
+<div class="editor-toolbar" bind:clientHeight>
     <ButtonToolbar {size} {wrap}>
         <DynamicallySlottable slotHost={Item} api={toolbar}>
             <Item id="notetype">
@@ -108,16 +115,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Item id="cloze">
                 <RichTextClozeButtons />
             </Item>
+
+            <Item id="options">
+                <OptionsButton />
+            </Item>
         </DynamicallySlottable>
     </ButtonToolbar>
 </div>
 
 <style lang="scss">
     .editor-toolbar {
-        padding: 0 0 2px;
-
-        border-width: 0 0 thin;
-        border-style: solid;
-        border-color: var(--medium-border);
+        padding: 0 0 4px;
+        border-bottom: 1px solid var(--border);
     }
 </style>

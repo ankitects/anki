@@ -5,11 +5,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, tick } from "svelte";
 
-    import ButtonGroup from "../components/ButtonGroup.svelte";
     import DropdownDivider from "../components/DropdownDivider.svelte";
     import DropdownItem from "../components/DropdownItem.svelte";
+    import LabelButton from "../components/IconButton.svelte";
     import IconButton from "../components/IconButton.svelte";
-    import LabelButton from "../components/LabelButton.svelte";
     import Popover from "../components/Popover.svelte";
     import Shortcut from "../components/Shortcut.svelte";
     import WithFloating from "../components/WithFloating.svelte";
@@ -64,48 +63,52 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let showFloating = false;
 </script>
 
-<ButtonGroup>
-    <LabelButton
-        theme="primary"
-        on:click={() => save(false)}
-        tooltip={getPlatformString(saveKeyCombination)}
-        --border-left-radius="5px">{tr.deckConfigSaveButton()}</LabelButton
-    >
-    <Shortcut keyCombination={saveKeyCombination} on:action={() => save(false)} />
+<LabelButton
+    primary
+    on:click={() => save(false)}
+    tooltip={getPlatformString(saveKeyCombination)}
+    --border-left-radius="var(--border-radius)"
+>
+    <div class="save">{tr.deckConfigSaveButton()}</div>
+</LabelButton>
+<Shortcut keyCombination={saveKeyCombination} on:action={() => save(false)} />
 
-    <WithFloating
-        show={showFloating}
-        closeOnInsideClick
-        inline
-        on:close={() => (showFloating = false)}
+<WithFloating
+    show={showFloating}
+    closeOnInsideClick
+    inline
+    on:close={() => (showFloating = false)}
+>
+    <IconButton
+        class="chevron"
+        slot="reference"
+        on:click={() => (showFloating = !showFloating)}
+        --border-right-radius="var(--border-radius)"
+        iconSize={80}
     >
-        <IconButton
-            slot="reference"
-            widthMultiplier={0.5}
-            iconSize={120}
-            --border-right-radius="5px"
-            on:click={() => (showFloating = !showFloating)}
+        {@html chevronDown}
+    </IconButton>
+    <Popover slot="floating">
+        <DropdownItem on:click={() => dispatch("add")}
+            >{tr.deckConfigAddGroup()}</DropdownItem
         >
-            {@html chevronDown}
-        </IconButton>
+        <DropdownItem on:click={() => dispatch("clone")}
+            >{tr.deckConfigCloneGroup()}</DropdownItem
+        >
+        <DropdownItem on:click={() => dispatch("rename")}>
+            {tr.deckConfigRenameGroup()}
+        </DropdownItem>
+        <DropdownItem on:click={removeConfig}>{tr.deckConfigRemoveGroup()}</DropdownItem
+        >
+        <DropdownDivider />
+        <DropdownItem on:click={() => save(true)}>
+            {tr.deckConfigSaveToAllSubdecks()}
+        </DropdownItem>
+    </Popover>
+</WithFloating>
 
-        <Popover slot="floating">
-            <DropdownItem on:click={() => dispatch("add")}
-                >{tr.deckConfigAddGroup()}</DropdownItem
-            >
-            <DropdownItem on:click={() => dispatch("clone")}
-                >{tr.deckConfigCloneGroup()}</DropdownItem
-            >
-            <DropdownItem on:click={() => dispatch("rename")}>
-                {tr.deckConfigRenameGroup()}
-            </DropdownItem>
-            <DropdownItem on:click={removeConfig}
-                >{tr.deckConfigRemoveGroup()}</DropdownItem
-            >
-            <DropdownDivider />
-            <DropdownItem on:click={() => save(true)}>
-                {tr.deckConfigSaveToAllSubdecks()}
-            </DropdownItem>
-        </Popover>
-    </WithFloating>
-</ButtonGroup>
+<style lang="scss">
+    .save {
+        margin: 0.2rem 0.75rem;
+    }
+</style>

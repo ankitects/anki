@@ -19,6 +19,7 @@ from anki.dbproxy import ValueForDB
 from anki.utils import from_json_bytes, to_json_bytes
 
 from ..errors import (
+    BackendError,
     BackendIOError,
     CardTypeError,
     CustomStudyError,
@@ -27,7 +28,6 @@ from ..errors import (
     FilteredDeckError,
     Interrupted,
     InvalidInput,
-    LocalizedError,
     NetworkError,
     NotFoundError,
     SearchError,
@@ -172,58 +172,64 @@ class Translations(GeneratedTranslations):
 def backend_exception_to_pylib(err: backend_pb2.BackendError) -> Exception:
     kind = backend_pb2.BackendError
     val = err.kind
+    help_page = err.help_page if err.HasField("help_page") else None
+    context = err.context if err.context else None
+    backtrace = err.backtrace if err.backtrace else None
+
     if val == kind.INTERRUPTED:
-        return Interrupted()
+        return Interrupted(err.message, help_page, context, backtrace)
 
     elif val == kind.NETWORK_ERROR:
-        return NetworkError(err.localized)
+        return NetworkError(err.message, help_page, context, backtrace)
 
     elif val == kind.SYNC_AUTH_ERROR:
-        return SyncError(err.localized, SyncErrorKind.AUTH)
+        return SyncError(err.message, help_page, context, backtrace, SyncErrorKind.AUTH)
 
     elif val == kind.SYNC_OTHER_ERROR:
-        return SyncError(err.localized, SyncErrorKind.OTHER)
+        return SyncError(
+            err.message, help_page, context, backtrace, SyncErrorKind.OTHER
+        )
 
     elif val == kind.IO_ERROR:
-        return BackendIOError(err.localized)
+        return BackendIOError(err.message, help_page, context, backtrace)
 
     elif val == kind.DB_ERROR:
-        return DBError(err.localized)
+        return DBError(err.message, help_page, context, backtrace)
 
     elif val == kind.CARD_TYPE_ERROR:
-        return CardTypeError(err.localized, err.help_page)
+        return CardTypeError(err.message, help_page, context, backtrace)
 
     elif val == kind.TEMPLATE_PARSE:
-        return TemplateError(err.localized)
+        return TemplateError(err.message, help_page, context, backtrace)
 
     elif val == kind.INVALID_INPUT:
-        return InvalidInput(err.localized)
+        return InvalidInput(err.message, help_page, context, backtrace)
 
     elif val == kind.JSON_ERROR:
-        return LocalizedError(err.localized)
+        return BackendError(err.message, help_page, context, backtrace)
 
     elif val == kind.NOT_FOUND_ERROR:
-        return NotFoundError()
+        return NotFoundError(err.message, help_page, context, backtrace)
 
     elif val == kind.EXISTS:
-        return ExistsError()
+        return ExistsError(err.message, help_page, context, backtrace)
 
     elif val == kind.FILTERED_DECK_ERROR:
-        return FilteredDeckError(err.localized)
+        return FilteredDeckError(err.message, help_page, context, backtrace)
 
     elif val == kind.PROTO_ERROR:
-        return LocalizedError(err.localized)
+        return BackendError(err.message, help_page, context, backtrace)
 
     elif val == kind.SEARCH_ERROR:
-        return SearchError(markdown(err.localized))
+        return SearchError(markdown(err.message), help_page, context, backtrace)
 
     elif val == kind.UNDO_EMPTY:
-        return UndoEmpty()
+        return UndoEmpty(err.message, help_page, context, backtrace)
 
     elif val == kind.CUSTOM_STUDY_ERROR:
-        return CustomStudyError(err.localized)
+        return CustomStudyError(err.message, help_page, context, backtrace)
 
     else:
         # sadly we can't do exhaustiveness checking on protobuf enums
         # assert_exhaustive(val)
-        return LocalizedError(err.localized)
+        return BackendError(err.message, help_page, context, backtrace)

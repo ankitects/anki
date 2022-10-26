@@ -175,7 +175,7 @@ fn legacy_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> 
 // Parsing
 //----------------------------------------
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 enum ParsedNode {
     Text(String),
     Replacement {
@@ -268,12 +268,12 @@ fn template_error_to_anki_error(
     };
     let details = htmlescape::encode_minimal(&localized_template_error(tr, err));
     let more_info = tr.card_template_rendering_more_info();
-    let info = format!(
+    let source = format!(
         "{}<br>{}<br><a href='{}'>{}</a>",
         header, details, TEMPLATE_ERROR_LINK, more_info
     );
 
-    AnkiError::TemplateError(info)
+    AnkiError::TemplateError { info: source }
 }
 
 fn localized_template_error(tr: &I18n, err: TemplateError) -> String {
@@ -371,7 +371,7 @@ fn template_is_empty(
 // Rendering
 //----------------------------------------
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum RenderedNode {
     Text {
         text: String,
@@ -632,7 +632,7 @@ fn cloze_is_empty(field_map: &HashMap<&str, Cow<str>>, card_ord: u16) -> bool {
 // Field requirements
 //----------------------------------------
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FieldRequirements {
     Any(HashSet<u16>),
     All(HashSet<u16>),

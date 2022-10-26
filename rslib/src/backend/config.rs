@@ -57,7 +57,7 @@ impl ConfigService for Backend {
     fn get_config_json(&self, input: pb::String) -> Result<pb::Json> {
         self.with_col(|col| {
             let val: Option<Value> = col.get_config_optional(input.val.as_str());
-            val.ok_or(AnkiError::NotFound)
+            val.or_not_found(input.val)
                 .and_then(|v| serde_json::to_vec(&v).map_err(Into::into))
                 .map(Into::into)
         })

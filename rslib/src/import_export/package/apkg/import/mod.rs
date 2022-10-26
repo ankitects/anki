@@ -6,19 +6,20 @@ mod decks;
 mod media;
 mod notes;
 
-use std::{collections::HashSet, fs::File, io, path::Path};
+use std::{collections::HashSet, fs::File, path::Path};
 
 pub(crate) use notes::NoteMeta;
 use rusqlite::OptionalExtension;
 use tempfile::NamedTempFile;
 use zip::ZipArchive;
-use zstd::stream::copy_decode;
 
 use crate::{
     collection::CollectionBuilder,
+    error::{FileIoSnafu, FileOp},
     import_export::{
         gather::ExchangeData, package::Meta, ImportProgress, IncrementableProgress, NoteLog,
     },
+    io::{new_tempfile, open_file},
     media::MediaManager,
     prelude::*,
     search::SearchNode,
@@ -40,7 +41,7 @@ impl Collection {
         path: impl AsRef<Path>,
         progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
     ) -> Result<OpOutput<NoteLog>> {
-        let file = File::open(path)?;
+        let file = open_file(path)?;
         let archive = ZipArchive::new(file)?;
 
         self.transact(Op::Import, |col| {
@@ -83,7 +84,8 @@ impl<'a> Context<'a> {
         let mut media_map = self.prepare_media()?;
         let note_imports = self.import_notes_and_notetypes(&mut media_map)?;
         let keep_filtered = self.data.enables_filtered_decks();
-        let imported_decks = self.import_decks_and_configs(keep_filtered)?;
+        let contains_scheduling = self.data.contains_scheduling();
+        let imported_decks = self.import_decks_and_configs(keep_filtered, contains_scheduling)?;
         self.import_cards_and_revlog(&note_imports.id_map, &imported_decks, keep_filtered)?;
         self.copy_media(&mut media_map)?;
         Ok(note_imports.log)
@@ -112,12 +114,15 @@ impl ExchangeData {
     fn enables_filtered_decks(&self) -> bool {
         // Earlier versions relied on the importer handling filtered decks by converting
         // them into regular ones, so there is no guarantee that all original decks
-        // are included.
-        self.contains_scheduling() && self.contains_all_original_decks()
+        // are included. And the legacy exporter included the default deck config, so we
+        // can't use it to determine if scheduling is included.
+        self.contains_scheduling()
+            && self.contains_all_original_decks()
+            && !self.deck_configs.is_empty()
     }
 
     fn contains_scheduling(&self) -> bool {
-        !(self.revlog.is_empty() && self.deck_configs.is_empty())
+        !self.revlog.is_empty()
     }
 
     fn contains_all_original_decks(&self) -> bool {
@@ -130,13 +135,12 @@ impl ExchangeData {
 
 fn collection_to_tempfile(meta: &Meta, archive: &mut ZipArchive<File>) -> Result<NamedTempFile> {
     let mut zip_file = archive.by_name(meta.collection_filename())?;
-    let mut tempfile = NamedTempFile::new()?;
-    if meta.zstd_compressed() {
-        copy_decode(zip_file, &mut tempfile)
-    } else {
-        io::copy(&mut zip_file, &mut tempfile).map(|_| ())
-    }
-    .map_err(|err| AnkiError::file_io_error(err, tempfile.path()))?;
+    let mut tempfile = new_tempfile()?;
+    meta.copy(&mut zip_file, &mut tempfile)
+        .with_context(|_| FileIoSnafu {
+            path: tempfile.path(),
+            op: FileOp::copy(zip_file.name()),
+        })?;
 
     Ok(tempfile)
 }

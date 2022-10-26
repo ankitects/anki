@@ -1,0 +1,29 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+@mixin resizable($direction, $width-resizable, $height-resizable) {
+    display: flex;
+    flex-flow: #{$direction} nowrap;
+
+    flex-basis: 0;
+    flex-grow: var(--pane-size);
+
+    overflow: hidden;
+    overflow-y: auto;
+
+    &.resize {
+        flex-basis: auto;
+
+        @if $width-resizable {
+            &.resize-width {
+                width: var(--resized-width);
+            }
+        }
+
+        @if $height-resizable {
+            &.resize-height {
+                height: var(--resized-height);
+            }
+        }
+    }
+}

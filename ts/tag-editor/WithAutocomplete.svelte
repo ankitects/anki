@@ -186,9 +186,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flex-flow: column nowrap;
 
         width: 80vw;
-        max-height: 7rem;
+        max-height: 30vh;
 
-        font-size: 11px;
+        font-size: 13px;
         overflow-x: hidden;
         text-overflow: ellipsis;
         overflow-y: auto;

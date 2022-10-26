@@ -37,11 +37,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         .form-switch & {
             width: 3em;
             margin-left: 1.5em;
+            cursor: pointer;
         }
     }
 
     .nightMode:not(:checked) {
-        background-color: var(--frame-bg);
+        background-color: var(--canvas-elevated);
         border-color: var(--border);
     }
 </style>

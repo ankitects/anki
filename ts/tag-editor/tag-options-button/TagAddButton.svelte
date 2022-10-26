@@ -31,6 +31,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {@html tagIcon}
         {@html addTagIcon}
     </IconConstrain>
+    <span class="tags-info">
+        <slot />
+    </span>
 </div>
 
 <Shortcut {keyCombination} on:action={() => dispatch("tagappend")} />
@@ -63,5 +66,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         :global(svg:hover) {
             opacity: 1;
         }
+        .tags-info {
+            cursor: pointer;
+            color: var(--fg-subtle);
+            margin-left: 0.75rem;
+        }
+    }
+    :global([dir="rtl"]) .tags-info {
+        margin-right: 0.75rem;
     }
 </style>

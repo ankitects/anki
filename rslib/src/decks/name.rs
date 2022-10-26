@@ -6,7 +6,7 @@ use itertools::Itertools;
 
 use crate::{prelude::*, text::normalize_to_nfc};
 
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct NativeDeckName(String);
 
 impl NativeDeckName {
@@ -111,7 +111,7 @@ impl Collection {
 
     pub fn rename_deck(&mut self, did: DeckId, new_human_name: &str) -> Result<OpOutput<()>> {
         self.transact(Op::RenameDeck, |col| {
-            let existing_deck = col.storage.get_deck(did)?.ok_or(AnkiError::NotFound)?;
+            let existing_deck = col.storage.get_deck(did)?.or_not_found(did)?;
             let mut deck = existing_deck.clone();
             deck.name = NativeDeckName::from_human_name(new_human_name);
             col.update_deck_inner(&mut deck, existing_deck, col.usn()?)
@@ -242,7 +242,7 @@ mod test {
     fn drag_drop() {
         // use custom separator to make the tests easier to read
         fn n(s: &str) -> NativeDeckName {
-            NativeDeckName(s.replace(":", "\x1f"))
+            NativeDeckName(s.replace(':', "\x1f"))
         }
 
         #[allow(clippy::unnecessary_wraps)]

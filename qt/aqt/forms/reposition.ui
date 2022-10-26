@@ -62,14 +62,14 @@
      </item>
     </layout>
    </item>
-   <item>
+   <item alignment="Qt::AlignLeft">
     <widget class="QCheckBox" name="randomize">
      <property name="text">
       <string>browsing_randomize_order</string>
      </property>
     </widget>
    </item>
-   <item>
+   <item alignment="Qt::AlignLeft">
     <widget class="QCheckBox" name="shift">
      <property name="text">
       <string>browsing_shift_position_of_existing_cards</string>

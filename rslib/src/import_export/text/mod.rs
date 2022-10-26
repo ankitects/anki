@@ -22,7 +22,7 @@ pub struct ForeignData {
     updated_tags: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ForeignNote {
     guid: String,
@@ -43,7 +43,7 @@ pub struct ForeignCard {
     pub lapses: u32,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ForeignNotetype {
     name: String,
     fields: Vec<String>,
@@ -52,7 +52,7 @@ pub struct ForeignNotetype {
     is_cloze: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ForeignTemplate {
     name: String,
     qfmt: String,

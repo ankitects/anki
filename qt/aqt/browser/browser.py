@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from typing import Callable, Sequence
 
@@ -63,12 +64,14 @@ from aqt.utils import (
     saveState,
     showWarning,
     skip_if_selection_is_empty,
+    tooltip,
     tr,
 )
 
 from ..changenotetype import change_notetype_dialog
 from .card_info import BrowserCardInfo
 from .find_and_replace import FindAndReplaceDialog
+from .layout import BrowserLayout
 from .previewer import BrowserPreviewer as PreviewDialog
 from .previewer import Previewer
 from .sidebar import SidebarTreeView
@@ -123,19 +126,25 @@ class Browser(QMainWindow):
         self._closeEventHasCleanedUp = False
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
-        restoreGeom(self, "editor", 0)
-        restoreSplitter(self.form.splitter, "editor3")
         self.form.splitter.setChildrenCollapsible(False)
         # set if exactly 1 row is selected; used by the previewer
         self.card: Card | None = None
         self.current_card: Card | None = None
         self.setupSidebar()
-        # make sure to call restoreState() after QDockWidget is attached to QMainWindow
-        restoreState(self, "editor")
         self.setup_table()
         self.setupMenus()
         self.setupHooks()
         self.setupEditor()
+
+        # restoreXXX() should be called after all child widgets have been created
+        # and attached to QMainWindow
+        restoreGeom(self, "editor", 0)
+        restoreSplitter(self.form.splitter, "editor3")
+        restoreState(self, "editor")
+
+        # responsive layout
+        self.aspect_ratio = self.width() / self.height()
+        self.set_layout(self.mw.pm.browser_layout(), True)
         # disable undo/redo
         self.on_undo_state_change(mw.undo_actions_info())
         # legacy alias
@@ -179,6 +188,52 @@ class Browser(QMainWindow):
             self.table.redraw_cells()
             self.sidebar.refresh_if_needed()
 
+    def set_layout(self, mode: BrowserLayout, init: bool = False) -> None:
+        self.mw.pm.set_browser_layout(mode)
+
+        if mode == BrowserLayout.AUTO:
+            self.auto_layout = True
+            self.maybe_update_layout(self.aspect_ratio, True)
+            self.form.actionLayoutAuto.setChecked(True)
+            self.form.actionLayoutVertical.setChecked(False)
+            self.form.actionLayoutHorizontal.setChecked(False)
+            if not init:
+                tooltip(tr.qt_misc_layout_auto_enabled())
+        else:
+            self.auto_layout = False
+            self.form.actionLayoutAuto.setChecked(False)
+
+            if mode == BrowserLayout.VERTICAL:
+                self.form.splitter.setOrientation(Qt.Orientation.Vertical)
+                self.form.actionLayoutVertical.setChecked(True)
+                self.form.actionLayoutHorizontal.setChecked(False)
+                if not init:
+                    tooltip(tr.qt_misc_layout_vertical_enabled())
+
+            elif mode == BrowserLayout.HORIZONTAL:
+                self.form.splitter.setOrientation(Qt.Orientation.Horizontal)
+                self.form.actionLayoutHorizontal.setChecked(True)
+                self.form.actionLayoutVertical.setChecked(False)
+                if not init:
+                    tooltip(tr.qt_misc_layout_horizontal_enabled())
+
+    def maybe_update_layout(self, aspect_ratio: float, force: bool = False) -> None:
+        if force or math.floor(aspect_ratio) != math.floor(self.aspect_ratio):
+            if aspect_ratio < 1:
+                self.form.splitter.setOrientation(Qt.Orientation.Vertical)
+            else:
+                self.form.splitter.setOrientation(Qt.Orientation.Horizontal)
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        aspect_ratio = self.width() / self.height()
+
+        if self.auto_layout:
+            self.maybe_update_layout(aspect_ratio)
+
+        self.aspect_ratio = aspect_ratio
+
+        QMainWindow.resizeEvent(self, event)
+
     def setupMenus(self) -> None:
         # actions
         f = self.form
@@ -206,6 +261,18 @@ class Browser(QMainWindow):
         qconnect(
             f.actionResetZoom.triggered,
             lambda: self.editor.web.setZoomFactor(1),
+        )
+        qconnect(
+            self.form.actionLayoutAuto.triggered,
+            lambda: self.set_layout(BrowserLayout.AUTO),
+        )
+        qconnect(
+            self.form.actionLayoutVertical.triggered,
+            lambda: self.set_layout(BrowserLayout.VERTICAL),
+        )
+        qconnect(
+            self.form.actionLayoutHorizontal.triggered,
+            lambda: self.set_layout(BrowserLayout.HORIZONTAL),
         )
 
         # notes
@@ -432,7 +499,7 @@ class Browser(QMainWindow):
     def setup_table(self) -> None:
         self.table = Table(self)
         self.table.set_view(self.form.tableView)
-        switch = Switch(11, tr.browsing_card_initial(), tr.browsing_note_initial())
+        switch = Switch(12, tr.browsing_cards(), tr.browsing_notes())
         switch.setChecked(self.table.is_notes_mode())
         switch.setToolTip(tr.browsing_toggle_showing_cards_notes())
         qconnect(self.form.action_toggle_mode.triggered, switch.toggle)

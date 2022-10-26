@@ -43,7 +43,7 @@ pub use crate::pb::{
 };
 use crate::{
     define_newtype,
-    error::{CardTypeError, CardTypeErrorDetails},
+    error::{CardTypeError, CardTypeErrorDetails, CardTypeSnafu, MissingClozeSnafu},
     prelude::*,
     search::{JoinSearches, Node, SearchNode},
     storage::comma_separated_ids,
@@ -127,7 +127,7 @@ impl Notetype {
             self.templates.get(card_ord as usize)
         };
 
-        template.ok_or(AnkiError::NotFound)
+        template.or_not_found(card_ord)
     }
 }
 
@@ -159,7 +159,7 @@ impl Collection {
             let original = col
                 .storage
                 .get_notetype(notetype.id)?
-                .ok_or(AnkiError::NotFound)?;
+                .or_not_found(notetype.id)?;
             let usn = col.usn()?;
             notetype.set_modified(usn);
             col.add_or_update_notetype_with_existing_id_inner(
@@ -241,15 +241,13 @@ impl Collection {
     /// Return the notetype used by `note_ids`, or an error if not exactly 1
     /// notetype is in use.
     pub fn get_single_notetype_of_notes(&mut self, note_ids: &[NoteId]) -> Result<NotetypeId> {
-        if note_ids.is_empty() {
-            return Err(AnkiError::NotFound);
-        }
+        require!(!note_ids.is_empty(), "no note id provided");
 
         let nids_node: Node = SearchNode::NoteIds(comma_separated_ids(note_ids)).into();
         let note1 = self
             .storage
             .get_note(*note_ids.first().unwrap())?
-            .ok_or(AnkiError::NotFound)?;
+            .or_not_found(note_ids[0])?;
 
         if self
             .search_notes_unordered(note1.notetype_id.and(nids_node))?
@@ -362,7 +360,7 @@ impl Notetype {
             });
     }
 
-    fn ensure_template_fronts_unique(&self) -> Result<()> {
+    fn ensure_template_fronts_unique(&self) -> Result<(), CardTypeError> {
         lazy_static! {
             static ref CARD_TAG: Regex = Regex::new(r"\{\{\s*Card\s*\}\}").unwrap();
         }
@@ -371,11 +369,11 @@ impl Notetype {
         for (index, card) in self.templates.iter().enumerate() {
             if let Some(old_index) = map.insert(&card.config.q_format, index) {
                 if !CARD_TAG.is_match(&card.config.q_format) {
-                    return Err(AnkiError::CardTypeError(CardTypeError {
+                    return Err(CardTypeError {
                         notetype: self.name.clone(),
                         ordinal: index,
-                        details: CardTypeErrorDetails::Duplicate(old_index),
-                    }));
+                        source: CardTypeErrorDetails::Duplicate { index: old_index },
+                    });
                 }
             }
         }
@@ -388,32 +386,32 @@ impl Notetype {
     fn ensure_valid_parsed_templates(
         &self,
         templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
-    ) -> Result<()> {
-        if let Some((invalid_index, details)) =
-            templates.iter().enumerate().find_map(|(index, sides)| {
-                if let (Some(q), Some(a)) = sides {
-                    let q_fields = q.all_referenced_field_names();
-                    if q_fields.is_empty() {
-                        Some((index, CardTypeErrorDetails::NoFrontField))
-                    } else if self
-                        .unknown_field_name(q_fields.union(&a.all_referenced_field_names()))
-                    {
-                        Some((index, CardTypeErrorDetails::NoSuchField))
-                    } else {
-                        None
-                    }
-                } else {
-                    Some((index, CardTypeErrorDetails::TemplateError))
-                }
-            })
-        {
-            Err(AnkiError::CardTypeError(CardTypeError {
-                notetype: self.name.clone(),
-                ordinal: invalid_index,
-                details,
-            }))
-        } else {
+    ) -> Result<(), CardTypeError> {
+        for (ordinal, sides) in templates.iter().enumerate() {
+            self.ensure_valid_parsed_card_templates(sides)
+                .context(CardTypeSnafu {
+                    notetype: &self.name,
+                    ordinal,
+                })?;
+        }
+        Ok(())
+    }
+
+    fn ensure_valid_parsed_card_templates(
+        &self,
+        sides: &(Option<ParsedTemplate>, Option<ParsedTemplate>),
+    ) -> Result<(), CardTypeErrorDetails> {
+        if let (Some(q), Some(a)) = sides {
+            let q_fields = q.all_referenced_field_names();
+            if q_fields.is_empty() {
+                return Err(CardTypeErrorDetails::NoFrontField);
+            }
+            if self.unknown_field_name(q_fields.union(&a.all_referenced_field_names())) {
+                return Err(CardTypeErrorDetails::NoSuchField);
+            }
             Ok(())
+        } else {
+            Err(CardTypeErrorDetails::TemplateParseError)
         }
     }
 
@@ -435,15 +433,15 @@ impl Notetype {
     fn ensure_cloze_if_cloze_notetype(
         &self,
         parsed_templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
-    ) -> Result<()> {
+    ) -> Result<(), CardTypeError> {
         if self.is_cloze() && missing_cloze_filter(parsed_templates) {
-            return Err(AnkiError::CardTypeError(CardTypeError {
-                notetype: self.name.clone(),
-                ordinal: 0,
-                details: CardTypeErrorDetails::MissingCloze,
-            }));
+            MissingClozeSnafu.fail().context(CardTypeSnafu {
+                notetype: &self.name,
+                ordinal: 0usize,
+            })
+        } else {
+            Ok(())
         }
-        Ok(())
     }
 
     pub(crate) fn normalize_names(&mut self) {
@@ -474,19 +472,13 @@ impl Notetype {
         existing: Option<&Notetype>,
         skip_checks: bool,
     ) -> Result<()> {
-        if self.fields.is_empty() {
-            return Err(AnkiError::invalid_input("1 field required"));
-        }
-        if self.templates.is_empty() {
-            return Err(AnkiError::invalid_input("1 template required"));
-        }
+        require!(!self.fields.is_empty(), "1 field required");
+        require!(!self.templates.is_empty(), "1 template required");
         let bad_chars = |c| c == '"';
         if self.name.contains(bad_chars) {
             self.name = self.name.replace(bad_chars, "");
         }
-        if self.name.is_empty() {
-            return Err(AnkiError::invalid_input("Empty note type name"));
-        }
+        require!(!self.name.is_empty(), "Empty notetype name");
         self.normalize_names();
         self.fix_field_names()?;
         self.fix_template_names()?;
@@ -505,11 +497,19 @@ impl Notetype {
         }
         self.config.reqs = reqs;
         if !skip_checks {
-            self.ensure_template_fronts_unique()?;
-            self.ensure_valid_parsed_templates(&parsed_templates)?;
-            self.ensure_cloze_if_cloze_notetype(&parsed_templates)?;
+            self.check_templates(parsed_templates)?;
         }
 
+        Ok(())
+    }
+
+    fn check_templates(
+        &self,
+        parsed_templates: Vec<(Option<ParsedTemplate>, Option<ParsedTemplate>)>,
+    ) -> Result<()> {
+        self.ensure_template_fronts_unique()
+            .and(self.ensure_valid_parsed_templates(&parsed_templates))
+            .and(self.ensure_cloze_if_cloze_notetype(&parsed_templates))?;
         Ok(())
     }
 

@@ -16,7 +16,7 @@ use crate::{
 };
 
 /// Info about an existing card required when generating new cards
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct AlreadyGeneratedCardInfo {
     pub id: CardId,
     pub nid: NoteId,
@@ -178,7 +178,7 @@ pub(super) fn group_generated_cards_by_note(
     out
 }
 
-#[derive(Debug, PartialEq, Default)]
+#[derive(Debug, PartialEq, Eq, Default)]
 pub(crate) struct ExtractedCardInfo {
     // if set, the due position new cards should be given
     pub due: Option<u32>,
@@ -339,7 +339,7 @@ impl Collection {
     fn default_deck_conf(&mut self) -> Result<(DeckId, DeckConfigId)> {
         // currently hard-coded to 1, we could create this as needed in the future
         self.deck_conf_if_normal(DeckId(1))?
-            .ok_or_else(|| AnkiError::invalid_input("invalid default deck"))
+            .or_invalid("invalid default deck")
     }
 
     /// If deck exists and and is a normal deck, return its ID and config

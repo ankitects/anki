@@ -44,7 +44,7 @@ impl Collection {
         did: DeckId,
     ) -> Result<pb::CountsForDeckTodayResponse> {
         let today = self.current_due_day(0)?;
-        let mut deck = self.storage.get_deck(did)?.ok_or(AnkiError::NotFound)?;
+        let mut deck = self.storage.get_deck(did)?.or_not_found(did)?;
         deck.reset_stats_if_day_changed(today);
         Ok(pb::CountsForDeckTodayResponse {
             new: deck.common.new_studied,

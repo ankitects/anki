@@ -7,6 +7,7 @@ use zip::ZipArchive;
 
 use super::Context;
 use crate::{
+    error::{FileIoSnafu, FileOp},
     import_export::{
         package::{
             colpkg::export::MediaCopier,
@@ -122,7 +123,10 @@ impl SafeMediaEntry {
     fn ensure_sha1_set(&mut self, archive: &mut ZipArchive<File>) -> Result<()> {
         if self.sha1.is_none() {
             let mut reader = self.fetch_file(archive)?;
-            self.sha1 = Some(sha1_of_reader(&mut reader)?);
+            self.sha1 = Some(sha1_of_reader(&mut reader).context(FileIoSnafu {
+                path: &self.name,
+                op: FileOp::Read,
+            })?);
         }
         Ok(())
     }

@@ -43,7 +43,7 @@ fn initial_db_setup(db: &mut Connection) -> Result<()> {
     Ok(())
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct MediaEntry {
     pub fname: String,
     /// If None, file has been deleted
@@ -54,8 +54,12 @@ pub struct MediaEntry {
     pub sync_required: bool,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct MediaDatabaseMetadata {
+    /// The syncing code no longer uses this; files are scanned for
+    /// indiscriminately. After this has been in production for a while
+    /// without reports of speed regressions, we should remove the rest
+    /// of the code that refers to this.
     pub folder_mtime: i64,
     pub last_sync_usn: i32,
 }
@@ -262,23 +266,23 @@ fn row_to_name_and_checksum(row: &Row) -> Result<(String, Sha1Hash)> {
     let file_name = row.get(0)?;
     let sha1_str: String = row.get(1)?;
     let mut sha1 = [0; 20];
-    hex::decode_to_slice(sha1_str, &mut sha1)
-        .map_err(|_| AnkiError::invalid_input(format!("bad media checksum: {file_name}")))?;
+    if let Err(err) = hex::decode_to_slice(sha1_str, &mut sha1) {
+        invalid_input!(err, "bad media checksum: {file_name}");
+    }
     Ok((file_name, sha1))
 }
 
 #[cfg(test)]
 mod test {
-    use tempfile::NamedTempFile;
-
     use crate::{
         error::Result,
+        io::new_tempfile,
         media::{database::MediaEntry, files::sha1_of_data, MediaManager},
     };
 
     #[test]
     fn database() -> Result<()> {
-        let db_file = NamedTempFile::new()?;
+        let db_file = new_tempfile()?;
         let db_file_path = db_file.path().to_str().unwrap();
         let mut mgr = MediaManager::new("/dummy", db_file_path)?;
         let mut ctx = mgr.dbctx();

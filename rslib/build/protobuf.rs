@@ -1,7 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{env, fmt::Write, path::PathBuf};
+use std::{
+    env,
+    fmt::Write,
+    path::{Path, PathBuf},
+};
 
 struct CustomGenerator {}
 
@@ -28,7 +32,7 @@ pub trait Service {
     }
     buf.push_str(
         r#"
-            _ => Err(crate::error::AnkiError::invalid_input("invalid command")),
+            _ => crate::invalid_input!("invalid command"),
         }
     }
 "#,
@@ -71,6 +75,7 @@ fn service_generator() -> Box<dyn prost_build::ServiceGenerator> {
 }
 
 pub fn write_backend_proto_rs() {
+    maybe_add_protobuf_to_path();
     let proto_dir = if let Ok(proto) = env::var("PROTO_TOP") {
         PathBuf::from(proto).parent().unwrap().to_owned()
     } else {
@@ -121,4 +126,28 @@ pub fn write_backend_proto_rs() {
         )
         .compile_protos(paths.as_slice(), &[proto_dir])
         .unwrap();
+}
+
+/// If PROTOC is not defined, and protoc is not on path, use the protoc
+/// fetched by Bazel so that Rust Analyzer does not fail.
+fn maybe_add_protobuf_to_path() {
+    if std::env::var("PROTOC").is_ok() {
+        return;
+    }
+    if which::which("protoc").is_ok() {
+        return;
+    }
+    let path = if cfg!(target_os = "windows") {
+        let base = std::fs::read_link("../.bazel/out").unwrap();
+        base.join("../external/protoc_bin_windows/bin/protoc.exe")
+    } else {
+        let base = Path::new("../.bazel/out/../external");
+        let subpath = if cfg!(target_os = "macos") {
+            "protoc_bin_macos/bin/protoc"
+        } else {
+            "protoc_bin_linux_x86_64/bin/protoc"
+        };
+        base.join(subpath)
+    };
+    std::env::set_var("PROTOC", path.to_str().unwrap());
 }

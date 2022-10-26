@@ -58,10 +58,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .tag {
+        @include button.base($with-active: false, $with-disabled: false);
+
         font-size: var(--base-font-size);
         padding: 0;
 
-        --border-color: var(--medium-border);
+        --border-color: var(--border);
 
         border: 1px solid var(--border-color) !important;
         border-radius: 5px;
@@ -77,12 +79,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         &.selected {
-            box-shadow: 0 0 0 2px var(--focus-shadow);
-            --border-color: var(--focus-border);
+            box-shadow: 0 0 0 2px var(--border-focus);
+            --border-color: var(--border-focus);
         }
     }
-
-    @include button.btn-day($with-active: false, $with-disabled: false);
-
-    @include button.btn-night($with-active: false, $with-disabled: false);
 </style>

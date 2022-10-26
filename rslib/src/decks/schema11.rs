@@ -77,7 +77,7 @@ fn is_false(b: &bool) -> bool {
     !b
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 pub struct DeckCommonSchema11 {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub(crate) id: DeckId,
@@ -105,7 +105,7 @@ pub struct DeckCommonSchema11 {
     other: HashMap<String, Value>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct NormalDeckSchema11 {
     #[serde(flatten)]
@@ -149,7 +149,7 @@ pub struct FilteredDeckSchema11 {
     #[serde(default)]
     preview_delay: u32,
 }
-#[derive(Serialize, Deserialize, Debug, PartialEq, Default, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Default, Clone)]
 pub struct DeckTodaySchema11 {
     #[serde(rename = "lrnToday")]
     pub(crate) lrn: TodayAmountSchema11,
@@ -161,7 +161,7 @@ pub struct DeckTodaySchema11 {
     pub(crate) time: TodayAmountSchema11,
 }
 
-#[derive(Serialize_tuple, Deserialize, Debug, PartialEq, Default, Clone)]
+#[derive(Serialize_tuple, Deserialize, Debug, PartialEq, Eq, Default, Clone)]
 #[serde(from = "Vec<Value>")]
 pub struct TodayAmountSchema11 {
     day: i32,
@@ -178,7 +178,7 @@ impl From<Vec<Value>> for TodayAmountSchema11 {
         }
     }
 }
-#[derive(Serialize_tuple, Deserialize, Debug, PartialEq, Clone)]
+#[derive(Serialize_tuple, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct FilteredSearchTermSchema11 {
     search: String,
     #[serde(deserialize_with = "deserialize_number_from_string")]

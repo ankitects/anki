@@ -33,11 +33,11 @@ def register_repos():
     maybe(
         http_archive,
         name = "rules_rust",
-        strip_prefix = "rules_rust-adf2790f3ff063d909acd70aacdd2832756113a5",
+        strip_prefix = "rules_rust-7ffe0a5556a35f8c11bf9a9ae8bc4020dd44ea13",
         urls = [
-            "https://github.com/bazelbuild/rules_rust/archive/adf2790f3ff063d909acd70aacdd2832756113a5.zip",
+            "https://github.com/bazelbuild/rules_rust/archive/7ffe0a5556a35f8c11bf9a9ae8bc4020dd44ea13.zip",
         ],
-        sha256 = "7277e9e58ec157c233fa571e27f684402c1c0711370ef8bf379af63bd31cbe8b",
+        sha256 = "9ba9617de8d21fe49366695240d9c6c0a0750559ea7a8565397dcf7fb64f9f9d",
     )
 
     # maybe(
@@ -115,12 +115,12 @@ def register_repos():
     ################
 
     core_i18n_repo = "anki-core-i18n"
-    core_i18n_commit = "d8673a9e101ca90381d5822bd51766239ee52cc9"
-    core_i18n_zip_csum = "54b33e668d867bfc26b541cc2ca014441ae82e1e12865028fa6ad19192d52453"
+    core_i18n_commit = "3817899a01a67c8d3a9426268af466b935d762b8"
+    core_i18n_zip_csum = "7146dac6b6f6b2dafe6b6a9e03a9126e2a7772abb9a16fe66ecb359ef5010675"
 
     qtftl_i18n_repo = "anki-desktop-ftl"
-    qtftl_i18n_commit = "77881685cf615888c8ce0fe8aed6f3ae665bcfc5"
-    qtftl_i18n_zip_csum = "c5d48ea05038009d390351c63ecd7b67fe7177b8a66db6087c3b8a8bcc28a85c"
+    qtftl_i18n_commit = "f1f4859e6bcdd18f0b077ad4f9169a518d9634bf"
+    qtftl_i18n_zip_csum = "96fafee1fe6416586775fd33ce08d5656c7d41b3e09ef680eb62a1f486b8f35c"
 
     i18n_build_content = """
 filegroup(
@@ -196,16 +196,6 @@ exports_files(["l10n.toml"])
 
     maybe(
         http_archive,
-        name = "protobuf_wheel_mac_arm64",
-        build_file_content = " ",
-        urls = [
-            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/protobuf-wheel-mac-arm64.tar",
-        ],
-        sha256 = "401d1cd6d949af463b3945f0d5dc887185b27fa5478cb6847bf94f680ea797b4",
-    )
-
-    maybe(
-        http_archive,
         name = "audio_mac_amd64",
         build_file_content = " ",
         urls = [
@@ -226,22 +216,22 @@ exports_files(["l10n.toml"])
 
     maybe(
         http_archive,
-        name = "pyqt6.3_mac_bundle_amd64",
+        name = "pyqt6.4_mac_bundle_amd64",
         build_file_content = " ",
         urls = [
-            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-06-18/pyqt6.3-mac-amd64.tar.gz",
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-10-10/pyqt6.4-mac-amd64.tar.gz",
         ],
-        sha256 = "cfbf9a763567bb7425a1eab1e6708e997c75f512bcb338bec6adffe86536e334",
+        sha256 = "6da02be0ffbbbdb5db80c1c65d01bdbf0207c04378019fcf6109796adc97916e",
     )
 
     maybe(
         http_archive,
-        name = "pyqt6.3_mac_bundle_arm64",
+        name = "pyqt6.4_mac_bundle_arm64",
         build_file_content = " ",
         urls = [
-            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-06-18/pyqt6.3-mac-arm64.tar.gz",
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-10-10/pyqt6.4-mac-arm64.tar.gz",
         ],
-        sha256 = "a4a39ccb845e99f7bca6b1c65a7ec3645d0f614c2ea88c6a657152d15c0e200a",
+        sha256 = "96f5b3e64f3eeebbb8c60f85d547bbe21a3e8dfbc1135286fcd37482c8c4d87b",
     )
 
     maybe(

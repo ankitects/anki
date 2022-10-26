@@ -110,17 +110,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function resetHandle(): void {
+    async function resetHandle(): Promise<void> {
         selectAll = false;
         position = undefined;
 
         allowResubscription?.();
 
         if (activeImage && mathjaxElement) {
-            unsubscribe();
-            activeImage = null;
-            mathjaxElement = null;
+            clear();
         }
+    }
+
+    function clear(): void {
+        unsubscribe();
+        activeImage = null;
+        mathjaxElement = null;
     }
 
     let errorMessage: string;
@@ -251,8 +255,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             }}
                             on:delete={async () => {
                                 placeCaretAfter(activeImage);
-                                activeImage.remove();
-                                await resetHandle();
+                                mathjaxElement?.remove();
+                                clear();
                             }}
                             on:surround={async ({ detail }) => {
                                 const editor = await mathjaxEditor.editor;

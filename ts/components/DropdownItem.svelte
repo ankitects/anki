@@ -3,17 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { pageTheme } from "../sveltelib/theme";
-
     export let id: string | undefined = undefined;
     let className = "";
     export { className as class };
 
-    let buttonRef: HTMLButtonElement;
+    export let buttonRef: HTMLButtonElement | undefined = undefined;
 
     export let tooltip: string | undefined = undefined;
 
     export let active = false;
+    export let disabled = false;
 
     $: if (buttonRef && active) {
         setTimeout(() => buttonRef.scrollIntoView({
@@ -31,8 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     tabindex={tabbable ? 0 : -1}
     class="dropdown-item {className}"
     class:active
-    class:btn-day={!$pageTheme.isDark}
-    class:btn-night={$pageTheme.isDark}
+    class:disabled
     title={tooltip}
     on:mouseenter
     on:focus
@@ -44,11 +42,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </button>
 
 <style lang="scss">
-    @use "sass/button-mixins" as button;
-
     button {
         display: flex;
         justify-content: start;
+        width: 100%;
 
         font-size: var(--dropdown-font-size, calc(0.8 * var(--base-font-size)));
 
@@ -56,24 +53,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         box-shadow: none !important;
         border: none;
         border-radius: 0;
+        color: var(--fg);
 
-        &:active,
-        &.active {
-            background-color: button.$focus-color;
-            color: white;
-        }
-    }
-
-    .btn-day {
-        color: black;
-    }
-
-    .btn-night {
-        color: white;
-
-        &:hover,
-        &:focus {
-            @include button.btn-night-base;
+        &:hover {
+            background: var(--highlight-bg);
+            color: var(--highlight-fg);
         }
     }
 </style>

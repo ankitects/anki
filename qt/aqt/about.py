@@ -108,7 +108,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     abouttext += f"<p>{tr.about_version(val=version_with_build())}<br>"
     abouttext += ("Python %s Qt %s PyQt %s<br>") % (
         platform.python_version(),
-        QT_VERSION_STR,
+        qVersion(),
         PYQT_VERSION_STR,
     )
     abouttext += (
@@ -226,6 +226,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Nicholas Flint",
             "Daniel Vieira Memoria10X",
             "Luka Warren",
+            "Christos Longros",
         )
     )
 

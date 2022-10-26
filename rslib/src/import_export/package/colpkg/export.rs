@@ -23,7 +23,7 @@ use super::super::{MediaEntries, MediaEntry, Meta, Version};
 use crate::{
     collection::CollectionBuilder,
     import_export::{ExportProgress, IncrementableProgress},
-    io::{atomic_rename, read_dir_files, tempfile_in_parent_of},
+    io::{atomic_rename, new_tempfile, new_tempfile_in_parent_of, open_file, read_dir_files},
     media::files::filename_if_normalized,
     prelude::*,
     storage::SchemaVersion,
@@ -45,7 +45,7 @@ impl Collection {
         let mut progress = IncrementableProgress::new(progress_fn);
         progress.call(ExportProgress::File)?;
         let colpkg_name = out_path.as_ref();
-        let temp_colpkg = tempfile_in_parent_of(colpkg_name)?;
+        let temp_colpkg = new_tempfile_in_parent_of(colpkg_name)?;
         let src_path = self.col_path.clone();
         let src_media_folder = if include_media {
             Some(self.media_folder.clone())
@@ -67,7 +67,9 @@ impl Collection {
             &tr,
             &mut progress,
         )?;
-        atomic_rename(temp_colpkg, colpkg_name, true)
+        atomic_rename(temp_colpkg, colpkg_name, true)?;
+
+        Ok(())
     }
 }
 
@@ -113,7 +115,7 @@ fn export_collection_file(
     } else {
         Meta::new()
     };
-    let mut col_file = File::open(col_path)?;
+    let mut col_file = open_file(col_path)?;
     let col_size = col_file.metadata()?.len() as usize;
     let media = if let Some(path) = media_dir {
         MediaIter::from_folder(&path)?
@@ -199,7 +201,7 @@ fn write_dummy_collection(zip: &mut ZipWriter<File>, tr: &I18n) -> Result<()> {
 }
 
 fn create_dummy_collection_file(tr: &I18n) -> Result<NamedTempFile> {
-    let tempfile = NamedTempFile::new()?;
+    let tempfile = new_tempfile()?;
     let mut dummy_col = CollectionBuilder::new(tempfile.path()).build()?;
     dummy_col.add_dummy_note(tr)?;
     dummy_col
@@ -290,10 +292,8 @@ fn write_media_files(
 
         zip.start_file(index.to_string(), file_options_stored())?;
 
-        let mut file = File::open(&path)?;
-        let file_name = path
-            .file_name()
-            .ok_or_else(|| AnkiError::invalid_input("not a file path"))?;
+        let mut file = open_file(&path)?;
+        let file_name = path.file_name().or_invalid("not a file path")?;
         let name = normalized_unicode_file_name(file_name)?;
 
         let (size, sha1) = copier.copy(&mut file, zip)?;
@@ -304,12 +304,7 @@ fn write_media_files(
 }
 
 fn normalized_unicode_file_name(filename: &OsStr) -> Result<String> {
-    let filename = filename.to_str().ok_or_else(|| {
-        AnkiError::IoError(format!(
-            "non-unicode file name: {}",
-            filename.to_string_lossy()
-        ))
-    })?;
+    let filename = filename.to_str().or_invalid("non-unicode filename")?;
     filename_if_normalized(filename)
         .map(Cow::into_owned)
         .ok_or(AnkiError::MediaCheckRequired)

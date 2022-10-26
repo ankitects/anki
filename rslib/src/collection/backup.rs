@@ -14,7 +14,8 @@ use itertools::Itertools;
 use log::error;
 
 use crate::{
-    import_export::package::export_colpkg_from_data, log, pb::preferences::BackupLimits, prelude::*,
+    import_export::package::export_colpkg_from_data, io::read_file, log,
+    pb::preferences::BackupLimits, prelude::*,
 };
 
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";
@@ -37,7 +38,7 @@ impl Collection {
             let log = self.log.clone();
             let tr = self.tr.clone();
             self.storage.checkpoint()?;
-            let col_data = std::fs::read(&self.col_path)?;
+            let col_data = read_file(&self.col_path)?;
             self.update_last_backup_timestamp()?;
             Ok(Some(thread::spawn(move || {
                 backup_inner(&col_data, &backup_folder, limits, log, &tr)
@@ -119,7 +120,7 @@ fn datetime_from_file_name(file_name: &str) -> Option<DateTime<Local>> {
         .and_then(|datetime| Local.from_local_datetime(&datetime).latest())
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 struct Backup {
     path: PathBuf,
     datetime: DateTime<Local>,
@@ -167,7 +168,7 @@ struct BackupFilter {
     obsolete: Vec<Backup>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum BackupStage {
     Daily,
     Weekly,

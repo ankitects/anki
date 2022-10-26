@@ -33,9 +33,9 @@ def setup_protobuf_binary(name):
         http_archive,
         name = "protoc_bin_macos",
         urls = [
-            "https://github.com/protocolbuffers/protobuf/releases/download/v3.19.4/protoc-3.19.4-osx-x86_64.zip",
+            "https://github.com/protocolbuffers/protobuf/releases/download/v21.8/protoc-21.8-osx-universal_binary.zip",
         ],
-        sha256 = "d8b55cf1e887917dd43c447d77bd5bd213faff1e18ac3a176b35558d86f7ffff",
+        sha256 = "e3324d3bc2e9bc967a0bec2472e0ec73b26f952c7c87f2403197414f780c3c6c",
         build_file_content = """exports_files(["bin/protoc"])""",
     )
 
@@ -43,9 +43,9 @@ def setup_protobuf_binary(name):
         http_archive,
         name = "protoc_bin_linux_x86_64",
         urls = [
-            "https://github.com/protocolbuffers/protobuf/releases/download/v3.19.4/protoc-3.19.4-linux-x86_64.zip",
+            "https://github.com/protocolbuffers/protobuf/releases/download/v21.8/protoc-21.8-linux-x86_64.zip",
         ],
-        sha256 = "058d29255a08f8661c8096c92961f3676218704cbd516d3916ec468e139cbd87",
+        sha256 = "f90d0dd59065fef94374745627336d622702b67f0319f96cee894d41a974d47a",
         build_file_content = """exports_files(["bin/protoc"])""",
     )
 
@@ -53,9 +53,9 @@ def setup_protobuf_binary(name):
         http_archive,
         name = "protoc_bin_linux_arm64",
         urls = [
-            "https://github.com/protocolbuffers/protobuf/releases/download/v3.19.4/protoc-3.19.4-linux-aarch_64.zip",
+            "https://github.com/protocolbuffers/protobuf/releases/download/v21.8/protoc-21.8-linux-aarch_64.zip",
         ],
-        sha256 = "95584939e733bdd6ffb8245616b2071f565cd4c28163b6c21c8f936a9ee20861",
+        sha256 = "f3d8eb5839d6186392d8c7b54fbeabbb6fcdd90618a500b77cb2e24faa245cad",
         build_file_content = """exports_files(["bin/protoc"])""",
     )
 
@@ -63,9 +63,9 @@ def setup_protobuf_binary(name):
         http_archive,
         name = "protoc_bin_windows",
         urls = [
-            "https://github.com/protocolbuffers/protobuf/releases/download/v3.19.4/protoc-3.19.4-win64.zip",
+            "https://github.com/protocolbuffers/protobuf/releases/download/v21.8/protoc-21.8-win64.zip",
         ],
-        sha256 = "828d2bdfe410e988cfc46462bcabd34ffdda8cc172867989ec647eadc55b03b5",
+        sha256 = "3657053024faa439ff5f8c1dd2ee06bac0f9b9a3d660e99944f015a7451e87ec",
         build_file_content = """exports_files(["bin/protoc.exe"])""",
     )
 

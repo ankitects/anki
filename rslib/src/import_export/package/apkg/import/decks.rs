@@ -30,10 +30,15 @@ impl Context<'_> {
     pub(super) fn import_decks_and_configs(
         &mut self,
         keep_filtered: bool,
+        contains_scheduling: bool,
     ) -> Result<HashMap<DeckId, DeckId>> {
         let mut ctx = DeckContext::new(self.target_col, self.usn);
         ctx.import_deck_configs(mem::take(&mut self.data.deck_configs))?;
-        ctx.import_decks(mem::take(&mut self.data.decks), keep_filtered)?;
+        ctx.import_decks(
+            mem::take(&mut self.data.decks),
+            keep_filtered,
+            contains_scheduling,
+        )?;
         Ok(ctx.imported_decks)
     }
 }
@@ -47,23 +52,39 @@ impl DeckContext<'_> {
         Ok(())
     }
 
-    fn import_decks(&mut self, mut decks: Vec<Deck>, keep_filtered: bool) -> Result<()> {
+    fn import_decks(
+        &mut self,
+        mut decks: Vec<Deck>,
+        keep_filtered: bool,
+        contains_scheduling: bool,
+    ) -> Result<()> {
         // ensure parents are seen before children
         decks.sort_unstable_by_key(|deck| deck.level());
         for deck in &mut decks {
-            self.prepare_deck(deck, keep_filtered);
+            self.prepare_deck(deck, keep_filtered, contains_scheduling);
             self.import_deck(deck)?;
         }
         Ok(())
     }
 
-    fn prepare_deck(&self, deck: &mut Deck, keep_filtered: bool) {
+    fn prepare_deck(&self, deck: &mut Deck, keep_filtered: bool, contains_scheduling: bool) {
         self.maybe_reparent(deck);
         if !keep_filtered && deck.is_filtered() {
             deck.kind = DeckKind::Normal(NormalDeck {
                 config_id: 1,
                 ..Default::default()
             });
+        } else if !contains_scheduling {
+            // reset things like today's study count and collapse state
+            deck.common = Default::default();
+            deck.kind = match &mut deck.kind {
+                DeckKind::Normal(normal) => DeckKind::Normal(NormalDeck {
+                    config_id: 1,
+                    description: mem::take(&mut normal.description),
+                    ..Default::default()
+                }),
+                DeckKind::Filtered(_) => unreachable!(),
+            }
         }
     }
 
@@ -122,7 +143,7 @@ impl DeckContext<'_> {
         } else if let (Ok(new), Ok(old)) = (new_deck.filtered_mut(), deck.filtered()) {
             *new = old.clone();
         } else {
-            return Err(AnkiError::invalid_input("decks have different kinds"));
+            invalid_input!("decks have different kinds");
         }
         self.imported_decks.insert(deck.id, new_deck.id);
         self.target_col
@@ -205,7 +226,7 @@ mod test {
             new_deck_with_machine_name("NEW PARENT\x1fchild", false),
             new_deck_with_machine_name("new parent", false),
         ];
-        ctx.import_decks(imports, false).unwrap();
+        ctx.import_decks(imports, false, false).unwrap();
         let existing_decks: HashSet<_> = ctx
             .target_col
             .get_all_deck_names(true)

@@ -210,16 +210,11 @@ impl<'n> NoteContext<'n> {
     }
 
     fn get_expected_notetype(&mut self, ntid: NotetypeId) -> Result<Arc<Notetype>> {
-        self.target_col
-            .get_notetype(ntid)?
-            .ok_or(AnkiError::NotFound)
+        self.target_col.get_notetype(ntid)?.or_not_found(ntid)
     }
 
     fn get_expected_note(&mut self, nid: NoteId) -> Result<Note> {
-        self.target_col
-            .storage
-            .get_note(nid)?
-            .ok_or(AnkiError::NotFound)
+        self.target_col.storage.get_note(nid)?.or_not_found(nid)
     }
 
     fn maybe_update_note(&mut self, note: Note, meta: NoteMeta) -> Result<()> {
@@ -263,7 +258,7 @@ impl<'n> NoteContext<'n> {
         Ok(())
     }
 
-    fn replace_media_refs(&mut self, field: &mut String) -> Option<String> {
+    fn replace_media_refs(&mut self, field: &mut str) -> Option<String> {
         replace_media_refs(field, |name| {
             if let Ok(normalized) = safe_normalized_file_name(name) {
                 if let Some(entry) = self.media_map.use_entry(&normalized) {

@@ -22,7 +22,7 @@ impl Collection {
                 let current = self
                     .storage
                     .get_note(note.id)?
-                    .ok_or_else(|| AnkiError::invalid_input("note disappeared"))?;
+                    .or_invalid("note disappeared")?;
                 self.update_note_undoable(&note, &current)
             }
             UndoableNoteChange::Removed(note) => self.restore_deleted_note(*note),
@@ -32,7 +32,7 @@ impl Collection {
                 let current = self
                     .storage
                     .get_note_tags_by_id(note_tags.id)?
-                    .ok_or_else(|| AnkiError::invalid_input("note disappeared"))?;
+                    .or_invalid("note disappeared")?;
                 self.update_note_tags_undoable(&note_tags, current)
             }
         }
@@ -92,12 +92,9 @@ impl Collection {
 
     /// Add a note, not adding any cards. Caller guarantees id is unique.
     pub(crate) fn add_note_only_with_id_undoable(&mut self, note: &mut Note) -> Result<()> {
-        if self.storage.add_note_if_unique(note)? {
-            self.save_undo(UndoableNoteChange::Added(Box::new(note.clone())));
-            Ok(())
-        } else {
-            Err(AnkiError::invalid_input("note id existed"))
-        }
+        require!(self.storage.add_note_if_unique(note)?, "note id existed");
+        self.save_undo(UndoableNoteChange::Added(Box::new(note.clone())));
+        Ok(())
     }
 
     pub(crate) fn update_note_tags_undoable(

@@ -1,6 +1,6 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
-@use "fusion-vars";
+@use "vars";
 @use "sass:color";
 
 @import "bootstrap/scss/functions";
@@ -11,7 +11,7 @@
         rgba(black, $intensity);
 }
 
-@mixin btn-border-radius {
+@mixin border-radius {
     border-top-left-radius: var(--border-left-radius);
     border-bottom-left-radius: var(--border-left-radius);
 
@@ -19,103 +19,100 @@
     border-bottom-right-radius: var(--border-right-radius);
 }
 
-$btn-base-color-day: white;
-
-@mixin btn-day-base {
-    color: var(--text-fg);
-    background-color: $btn-base-color-day;
-    border-color: var(--medium-border) !important;
-}
-
-@mixin btn-day($with-hover: true, $with-active: true, $with-disabled: true) {
-    .btn-day {
-        @include btn-day-base;
-        @content ($btn-base-color-day);
-
-        @if ($with-hover) {
-            &:hover,
-            &.hover {
-                background-color: color.scale($btn-base-color-day, $lightness: -20%);
-            }
+@mixin background($primary: false) {
+    @if $primary {
+        background: linear-gradient(
+            180deg,
+            var(--button-primary-gradient-start) 0%,
+            var(--button-primary-gradient-end) 100%
+        );
+        &:hover {
+            background: linear-gradient(
+                180deg,
+                var(--button-primary-hover-gradient-start) 0%,
+                var(--button-primary-hover-gradient-end) 100%
+            );
+            border-color: var(--button-hover-border);
         }
-
-        @if ($with-active) {
-            &:active,
-            &.active {
-                @include impressed-shadow(0.25);
-            }
-
-            &:active.active {
-                box-shadow: none;
-            }
-        }
-
-        @if ($with-disabled) {
-            &[disabled] {
-                background-color: $btn-base-color-day !important;
-                box-shadow: none !important;
-            }
+    } @else {
+        background: linear-gradient(
+            180deg,
+            var(--button-gradient-start) 0%,
+            var(--button-gradient-end) 100%
+        );
+        &:hover {
+            background: linear-gradient(
+                180deg,
+                var(--button-hover-gradient-start) 0%,
+                var(--button-hover-gradient-end) 100%
+            );
+            border-color: var(--button-hover-border);
         }
     }
 }
 
-$btn-base-color-night: fusion-vars.$button-border;
+@mixin base(
+    $primary: false,
+    $border: true,
+    $with-hover: true,
+    $with-active: true,
+    $active-class: "",
+    $with-disabled: true
+) {
+    -webkit-appearance: none;
+    cursor: pointer;
+    @if $border {
+        border: 1px solid var(--button-border);
+    } @else {
+        border: none;
+    }
+    @include background($primary);
 
-@mixin btn-night-base {
-    color: var(--text-fg);
-    background: linear-gradient(
-        180deg,
-        fusion-vars.$button-gradient-start 0%,
-        fusion-vars.$button-gradient-end 100%
-    );
-}
+    @if ($primary) {
+        color: white;
+    } @else {
+        color: var(--fg);
+    }
 
-@mixin btn-night($with-hover: true, $with-active: true, $with-disabled: true) {
-    .btn-night {
-        @include btn-night-base;
-        @content ($btn-base-color-night);
-
-        border: 1px solid fusion-vars.$button-border;
-        -webkit-appearance: none;
-
-        @if ($with-hover) {
-            &:hover,
-            &.hover {
-                background: linear-gradient(
-                    180deg,
-                    color.scale(fusion-vars.$button-gradient-start, $lightness: 20%) 0%,
-                    color.scale(fusion-vars.$button-gradient-end, $lightness: 20%) 100%
-                );
-                border-color: color.scale(fusion-vars.$button-border, $lightness: 20%);
-            }
+    @if ($with-active) {
+        &:active {
+            @include impressed-shadow(0.35);
+            border-color: var(--button-border);
         }
-
-        @if ($with-active) {
-            &:active,
-            &.active {
+        @if ($active-class != "") {
+            &.#{$active-class} {
                 @include impressed-shadow(0.35);
-                border-color: color.scale($btn-base-color-night, $lightness: -20%);
-            }
-
-            &:active.active {
-                box-shadow: none;
-                border-color: $btn-base-color-night;
+                border-color: var(--button-border);
             }
         }
+    }
 
-        @if ($with-disabled) {
-            &[disabled] {
-                background-color: $btn-base-color-night !important;
-                box-shadow: none !important;
-                border-color: $btn-base-color-night !important;
-            }
+    @if ($with-disabled) {
+        &[disabled],
+        &[disabled]:hover {
+            cursor: not-allowed;
+            color: var(--fg-disabled);
+            box-shadow: none !important;
+            background-color: var(--button-gradient-end);
         }
     }
 }
 
-// should be similar to -webkit-focus-ring-color
-$focus-color: rgba(21 97 174);
+$focus-color: var(--shadow-focus);
 
-@function down-arrow($color) {
-    @return url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='transparent' stroke='#{$color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+@mixin select($with-disabled: true) {
+    width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    pointer-events: all;
+    cursor: pointer;
+
+    @include base($with-disabled: $with-disabled);
+
+    border-radius: var(--border-radius);
+
+    &.rtl {
+        direction: rtl;
+    }
 }

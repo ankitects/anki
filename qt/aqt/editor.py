@@ -164,7 +164,7 @@ class Editor:
             context=self,
             default_css=False,
         )
-        self.web._fix_editor_background_color_and_show()
+        self.web.show()
 
         lefttopbtns: list[str] = []
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
@@ -533,7 +533,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setNoteId({});
             setColorButtons({});
             setTags({});
+            setTagsCollapsed({});
             setMathjaxEnabled({});
+            setShrinkImages({});
+            setCloseHTMLTags({});
             """.format(
             json.dumps(data),
             json.dumps(collapsed),
@@ -544,7 +547,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             json.dumps(self.note.id),
             json.dumps([text_color, highlight_color]),
             json.dumps(self.note.tags),
+            json.dumps(self.mw.pm.tags_collapsed(self.editorMode)),
             json.dumps(self.mw.col.get_config("renderMathjax", True)),
+            json.dumps(self.mw.col.get_config("shrinkEditorImages", True)),
+            json.dumps(self.mw.col.get_config("closeHTMLTags", True)),
         )
 
         if self.addMode:
@@ -673,7 +679,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.tags = aqt.tagedit.TagEdit(self.widget)
         qconnect(self.tags.lostFocus, self.on_tag_focus_lost)
         self.tags.setToolTip(shortcut(tr.editing_jump_to_tags_with_ctrlandshiftandt()))
-        border = theme_manager.color(colors.BORDER)
+        border = theme_manager.var(colors.BORDER)
         self.tags.setStyleSheet(f"border: 1px solid {border}")
         tb.addWidget(self.tags, 1, 1)
         g.setLayout(tb)
@@ -1159,6 +1165,24 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.setupWeb()
         self.loadNoteKeepingFocus()
 
+    def toggleShrinkImages(self) -> None:
+        self.mw.col.set_config(
+            "shrinkEditorImages",
+            not self.mw.col.get_config("shrinkEditorImages", True),
+        )
+
+    def toggleCloseHTMLTags(self) -> None:
+        self.mw.col.set_config(
+            "closeHTMLTags",
+            not self.mw.col.get_config("closeHTMLTags", True),
+        )
+
+    def collapseTags(self) -> None:
+        aqt.mw.pm.set_tags_collapsed(self.editorMode, True)
+
+    def expandTags(self) -> None:
+        aqt.mw.pm.set_tags_collapsed(self.editorMode, False)
+
     # Links from HTML
     ######################################################################
 
@@ -1186,6 +1210,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             mathjaxBlock=Editor.insertMathjaxBlock,
             mathjaxChemistry=Editor.insertMathjaxChemistry,
             toggleMathjax=Editor.toggleMathjax,
+            toggleShrinkImages=Editor.toggleShrinkImages,
+            toggleCloseHTMLTags=Editor.toggleCloseHTMLTags,
+            expandTags=Editor.expandTags,
+            collapseTags=Editor.collapseTags,
         )
 
 
@@ -1374,9 +1402,19 @@ class EditorWebView(AnkiWebView):
         mime = clip.mimeData()
         if not mime.hasHtml():
             return
-        html = mime.html()
-        mime.setHtml(f"<!--anki-->{html}")
-        aqt.mw.progress.timer(10, lambda: clip.setMimeData(mime), False, parent=self)
+        html = f"<!--anki-->{mime.html()}"
+
+        def after_delay() -> None:
+            # utilities that modify the clipboard can invalidate our existing
+            # mime handle in the time it takes for the timer to fire, so we need
+            # to fetch the data again
+            mime = clip.mimeData()
+            mime.setHtml(html)
+            clip.setMimeData(mime)
+
+        # Mutter bugs out if the clipboard data is mutated in the clipboard change
+        # hook, so we need to do it after a small delay
+        aqt.mw.progress.timer(10, after_delay, False, parent=self)
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)

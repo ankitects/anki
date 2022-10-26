@@ -19,7 +19,7 @@ function adjustInputHTML(html: string): string {
 
 function adjustInputFragment(fragment: DocumentFragment): void {
     if (nodeContainsInlineContent(fragment)) {
-        fragment.append(document.createElement("br"));
+        fragment.appendChild(document.createElement("br"));
     }
 }
 
@@ -35,16 +35,12 @@ export function storedToFragment(storedHTML: string): DocumentFragment {
 
 function adjustOutputFragment(fragment: DocumentFragment): void {
     if (
+        fragment.hasChildNodes() &&
+        nodeIsElement(fragment.lastChild!) &&
         nodeContainsInlineContent(fragment) &&
-        fragment.lastChild &&
-        nodeIsElement(fragment.lastChild) &&
-        fragment.lastChild.tagName === "BR"
+        fragment.lastChild!.tagName === "BR"
     ) {
-        fragment.lastChild.remove();
-    }
-
-    for (const divElement of fragment.querySelectorAll("div:empty")) {
-        divElement.remove();
+        fragment.lastChild!.remove();
     }
 }
 

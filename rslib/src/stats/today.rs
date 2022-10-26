@@ -34,7 +34,7 @@ mod test {
         // temporary test of fluent term handling
         let tr = I18n::template_only();
         assert_eq!(
-            &studied_today(3, 13.0, &tr).replace("\n", " "),
+            &studied_today(3, 13.0, &tr).replace('\n', " "),
             "Studied 3 cards in 13 seconds today (4.33s/card)"
         );
     }

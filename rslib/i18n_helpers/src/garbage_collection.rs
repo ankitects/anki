@@ -81,15 +81,11 @@ fn strip_unused_ftl_messages_and_terms(ftl_root: &str, used_ftls: &HashSet<Strin
         let mut ast = parser::parse(ftl.as_str()).expect("failed to parse ftl");
         let num_entries = ast.body.len();
 
-        ast.body = ast
-            .body
-            .into_iter()
-            .filter(|entry| match entry {
-                ast::Entry::Message(msg) => used_ftls.contains(msg.id.name),
-                ast::Entry::Term(term) => used_ftls.contains(term.id.name),
-                _ => true,
-            })
-            .collect();
+        ast.body.retain(|entry| match entry {
+            ast::Entry::Message(msg) => used_ftls.contains(msg.id.name),
+            ast::Entry::Term(term) => used_ftls.contains(term.id.name),
+            _ => true,
+        });
 
         if ast.body.len() < num_entries {
             fs::write(entry.path(), serialize::serialize(&ast)).expect("failed to write file");

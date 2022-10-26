@@ -16,9 +16,9 @@ py_binary(
 )
 
 py_binary(
-    name = "extract_sass_colors",
+    name = "extract_sass_vars",
     srcs = [
-        "tools/extract_sass_colors.py",
+        "tools/extract_sass_vars.py",
     ],
     imports = ["."],
     visibility = [":__subpackages__"],

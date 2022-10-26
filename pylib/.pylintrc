@@ -3,30 +3,6 @@ ignore-patterns=.*_pb2.*
 persistent = no
 extension-pkg-whitelist=orjson
 
-[TYPECHECK]
-ignored-classes=
-  BrowserColumns,
-  BrowserRow,
-  HelpPage,
-  FormatTimespanRequest,
-  CardAnswer,
-  QueuedCards,
-  UnburyDeckRequest,
-  BuryOrSuspendCardsRequest,
-  NoteFieldsCheckResponse,
-  BackendError,
-  SetDeckCollapsedRequest,
-  ConfigKey,
-  HelpPageLinkRequest,
-  StripHtmlRequest,
-  CustomStudyRequest,
-  Cram,
-  ScheduleCardsAsNewRequest,
-  ExportLimit,
-  CsvColumn,
-  CsvMetadata,
-  ImportCsvRequest,
-
 [REPORTS]
 output-format=colorized
 
@@ -64,3 +40,6 @@ good-names =
   db,
   ok,
   ip,
+
+[IMPORTS]
+ignored-modules = anki.*_pb2, anki.sync_pb2

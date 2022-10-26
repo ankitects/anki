@@ -19,9 +19,11 @@ use crate::{
 
 impl Card {
     pub(crate) fn original_or_current_due(&self) -> i32 {
-        self.is_filtered()
-            .then(|| self.original_due)
-            .unwrap_or(self.due)
+        if self.is_filtered() {
+            self.original_due
+        } else {
+            self.due
+        }
     }
 
     pub(crate) fn last_position(&self) -> Option<u32> {
@@ -77,7 +79,7 @@ pub(crate) struct NewCardSorter {
     position: HashMap<NoteId, u32>,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
 pub enum NewCardDueOrder {
     NoteId,
     Random,

@@ -210,7 +210,7 @@ export function _showAnswer(a: string, bodyclass: string): void {
 export function _drawFlag(flag: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7): void {
     const elem = document.getElementById("_flag")!;
     elem.toggleAttribute("hidden", flag === 0);
-    elem.style.color = `var(--flag${flag}-fg)`;
+    elem.style.color = `var(--flag-${flag})`;
 }
 
 export function _drawMark(mark: boolean): void {
@@ -237,3 +237,17 @@ export function _blockDefaultDragDropBehavior(): void {
     document.ondragover = handler;
     document.ondrop = handler;
 }
+
+// work around WebEngine/IME bug in Qt6
+// https://github.com/ankitects/anki/issues/1952
+const dummyButton = document.createElement("button");
+dummyButton.style.position = "absolute";
+dummyButton.style.left = "-9999px";
+document.addEventListener("focusout", (event) => {
+    const target = event.target;
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+        document.body.appendChild(dummyButton);
+        dummyButton.focus();
+        document.body.removeChild(dummyButton);
+    }
+});

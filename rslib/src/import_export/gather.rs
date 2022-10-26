@@ -124,14 +124,18 @@ impl ExchangeData {
 
     fn check_ids(&self) -> Result<()> {
         let now = TimestampMillis::now().0;
-        self.cards
+        if self
+            .cards
             .iter()
             .map(|card| card.id.0)
             .chain(self.notes.iter().map(|note| note.id.0))
             .chain(self.revlog.iter().map(|entry| entry.id.0))
             .any(|timestamp| timestamp > now)
-            .then(|| Err(AnkiError::InvalidId))
-            .unwrap_or(Ok(()))
+        {
+            Err(AnkiError::InvalidId)
+        } else {
+            Ok(())
+        }
     }
 }
 
@@ -254,7 +258,7 @@ impl Collection {
             .map(|config_id| {
                 self.storage
                     .get_deck_config(config_id)?
-                    .ok_or(AnkiError::NotFound)
+                    .or_not_found(config_id)
             })
             .collect()
     }

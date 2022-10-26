@@ -8,14 +8,18 @@ use std::path::Path;
 use tempfile::tempdir;
 
 use crate::{
-    collection::CollectionBuilder, import_export::package::import_colpkg, log::terminal,
-    media::MediaManager, prelude::*,
+    collection::CollectionBuilder,
+    import_export::package::import_colpkg,
+    io::{create_dir, create_dir_all, read_file},
+    log::terminal,
+    media::MediaManager,
+    prelude::*,
 };
 
 fn collection_with_media(dir: &Path, name: &str) -> Result<Collection> {
     let name = format!("{name}_src");
     let media_folder = dir.join(format!("{name}.media"));
-    std::fs::create_dir(&media_folder)?;
+    create_dir(&media_folder)?;
     // add collection with sentinel note
     let mut col = CollectionBuilder::new(dir.join(format!("{name}.anki2")))
         .set_media_paths(media_folder, dir.join(format!("{name}.mdb")))
@@ -49,7 +53,7 @@ fn roundtrip() -> Result<()> {
             .to_string_lossy()
             .into_owned();
         let import_media_dir = dir.join(format!("{name}.media"));
-        std::fs::create_dir_all(&import_media_dir)?;
+        create_dir_all(&import_media_dir)?;
         let import_media_db = dir.join(format!("{name}.mdb"));
         MediaManager::new(&import_media_dir, &import_media_db)?;
         import_colpkg(
@@ -68,9 +72,9 @@ fn roundtrip() -> Result<()> {
             1
         );
         // confirm media imported correctly
-        assert_eq!(std::fs::read(import_media_dir.join("1"))?, b"1");
-        assert_eq!(std::fs::read(import_media_dir.join("2"))?, b"2");
-        assert_eq!(std::fs::read(import_media_dir.join("3"))?, b"3");
+        assert_eq!(read_file(import_media_dir.join("1"))?, b"1");
+        assert_eq!(read_file(import_media_dir.join("2"))?, b"2");
+        assert_eq!(read_file(import_media_dir.join("3"))?, b"3");
     }
 
     Ok(())
@@ -81,13 +85,15 @@ fn roundtrip() -> Result<()> {
 #[test]
 #[cfg(not(target_vendor = "apple"))]
 fn normalization_check_on_export() -> Result<()> {
+    use crate::io::write_file;
+
     let _dir = tempdir()?;
     let dir = _dir.path();
 
     let col = collection_with_media(dir, "normalize")?;
     let colpkg_name = dir.join("normalize.colpkg");
     // manually write a file in the wrong encoding.
-    std::fs::write(col.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
+    write_file(col.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
     assert_eq!(
         col.export_colpkg(&colpkg_name, true, false, |_, _| true,)
             .unwrap_err(),

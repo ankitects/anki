@@ -75,7 +75,7 @@ struct TtsDirective<'a> {
     options: HashMap<&'a str, &'a str>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 struct OtherDirective<'a> {
     name: &'a str,
     content: &'a str,

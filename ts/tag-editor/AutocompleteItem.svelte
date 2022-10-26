@@ -3,12 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { pageTheme } from "../sveltelib/theme";
-
     export let selected = false;
     export let active = false;
 
-    let buttonRef: HTMLButtonElement;
+    let buttonRef: HTMLElement;
 
     $: if (selected && buttonRef) {
         /* buttonRef.scrollIntoView({ behavior: "smooth", block: "start" }); */
@@ -20,12 +18,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<button
+<div
     bind:this={buttonRef}
     tabindex="-1"
-    class="autocomplete-item btn"
-    class:btn-day={!$pageTheme.isDark}
-    class:btn-night={$pageTheme.isDark}
+    class="autocomplete-item"
     class:selected
     class:active
     on:mousedown|preventDefault
@@ -34,56 +30,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:mouseleave
 >
     <slot />
-</button>
+</div>
 
 <style lang="scss">
+    @use "sass/vars";
     @use "sass/button-mixins" as button;
 
     .autocomplete-item {
-        padding: 1px 7px 2px;
+        padding: 4px 8px;
 
         text-align: start;
         white-space: nowrap;
         flex-grow: 1;
         border-radius: 0;
-    }
-
-    button {
-        display: flex;
-        justify-content: space-between;
-
-        font-size: calc(var(--buttons-size) / 2.3);
-
-        background: none;
-        box-shadow: none !important;
-        border: none;
-
-        &.active {
-            background-color: button.$focus-color !important;
-            color: white !important;
+        border: 1px solid transparent;
+        &:not(:first-child) {
+            border-top-color: var(--border-subtle);
         }
-    }
 
-    /* reset global CSS from buttons.scss */
-    :global(.nightMode) button:hover {
-        background-color: inherit;
-    }
-
-    /* extra specificity bc of global CSS reset above */
-    button.btn-day {
-        color: black;
-
-        &.selected {
-            background-color: #e9ecef;
-            border-color: #e9ecef;
+        &:hover {
+            @include button.base($with-disabled: false, $active-class: active);
         }
-    }
-
-    button.btn-night {
-        color: white;
-
         &.selected {
-            @include button.btn-night-base;
+            @include button.base(
+                $primary: true,
+                $with-disabled: false,
+                $active-class: active
+            );
         }
     }
 </style>

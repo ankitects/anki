@@ -19,7 +19,7 @@ use crate::{
     timestamp::{TimestampMillis, TimestampSecs},
 };
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, Default, PartialEq, Eq)]
 pub struct CheckDatabaseOutput {
     card_properties_invalid: usize,
     card_position_too_high: usize,
@@ -304,10 +304,13 @@ impl Collection {
         match self.storage.get_note(nid) {
             Ok(note) => Ok(note.unwrap()),
             Err(err) => match err {
-                AnkiError::DbError(DbError {
-                    kind: DbErrorKind::Utf8,
-                    ..
-                }) => {
+                AnkiError::DbError {
+                    source:
+                        DbError {
+                            kind: DbErrorKind::Utf8,
+                            ..
+                        },
+                } => {
                     // fix note then fetch again
                     self.storage.fix_invalid_utf8_in_note(nid)?;
                     out.invalid_utf8 += 1;

@@ -1,12 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{fs, path::PathBuf};
+use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
 use super::{Chunk, Graves, SanityCheckCounts, UnchunkedChanges};
-use crate::{pb::sync_server_method_request::Method, prelude::*};
+use crate::{io::read_file, pb::sync_server_method_request::Method, prelude::*};
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub enum SyncRequest {
@@ -44,7 +44,7 @@ impl SyncRequest {
             SyncRequest::Abort => ("abort", b"{}".to_vec()),
             SyncRequest::FullUpload(v) => {
                 // fixme: stream in the data instead, in a different call
-                ("upload", fs::read(&v)?)
+                ("upload", read_file(&v)?)
             }
             SyncRequest::FullDownload => ("download", b"{}".to_vec()),
         })

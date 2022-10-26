@@ -99,7 +99,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {configuration}
         bind:api={codeMirror}
         on:change={({ detail: mathjaxText }) => code.set(mathjaxText)}
-        on:tab
+        on:blur
     />
 </div>
 
@@ -126,7 +126,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             font-family: sans-serif;
             font-size: 55%;
             text-align: center;
-            color: var(--slightly-grey-text);
+            color: var(--fg-subtle);
         }
     }
 </style>

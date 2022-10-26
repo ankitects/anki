@@ -3,6 +3,7 @@
 
 use crate::{
     import_export::{text::ForeignData, ImportProgress, NoteLog},
+    io::read_file,
     prelude::*,
 };
 
@@ -13,7 +14,7 @@ impl Collection {
         mut progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
     ) -> Result<OpOutput<NoteLog>> {
         progress_fn(ImportProgress::Gathering, false);
-        let slice = std::fs::read(path)?;
+        let slice = read_file(path)?;
         let data: ForeignData = serde_json::from_slice(&slice)?;
         data.import(self, progress_fn)
     }

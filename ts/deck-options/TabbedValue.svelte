@@ -44,7 +44,7 @@
 
 <ul>
     {#each tabs as tab, idx}
-        <li class={activeTab === idx ? "active" : ""}>
+        <li class:active={activeTab === idx}>
             <span on:click={handleClick(idx)}>{tab.title}</span>
         </li>
     {/each}
@@ -52,32 +52,28 @@
 
 <style lang="scss">
     ul {
+        width: 100%;
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        justify-content: space-between;
         padding-left: 0;
-        margin-top: 1rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
         list-style: none;
-        border-bottom: 1px solid var(--border);
     }
 
     span {
-        border: 1px solid transparent;
-        border-top-left-radius: 0.25rem;
-        border-top-right-radius: 0.25rem;
         display: block;
-        padding: 0.25rem 1rem;
+        white-space: nowrap;
         cursor: pointer;
-        margin: 0 8px -1px 0;
-        color: var(--disabled);
+        color: var(--fg-subtle);
     }
 
     li.active > span {
-        border-color: var(--border) var(--border) var(--window-bg);
-        color: var(--text-fg);
+        color: var(--fg);
+        border-bottom: 4px solid var(--border-focus);
+        margin-bottom: -2px;
     }
-
     span:hover {
-        color: var(--text-fg);
+        color: var(--fg);
     }
 </style>

@@ -276,7 +276,7 @@ impl<'a> Context<'a> {
         self.col
             .storage
             .get_note(nid)?
-            .ok_or(AnkiError::NotFound)
+            .or_not_found(nid)
             .map(|dupe| Duplicate::new(dupe, original, false))
     }
 
@@ -446,9 +446,7 @@ impl Collection {
     }
 
     fn get_full_duplicates(&self, note: &ForeignNote, dupe_ids: &[NoteId]) -> Result<Vec<Note>> {
-        let first_field = note
-            .first_field_stripped()
-            .ok_or_else(|| AnkiError::invalid_input("no first field"))?;
+        let first_field = note.first_field_stripped().or_invalid("no first field")?;
         dupe_ids
             .iter()
             .filter_map(|&dupe_id| self.storage.get_note(dupe_id).transpose())

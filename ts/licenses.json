@@ -443,7 +443,7 @@
         "path": "node_modules/css-browser-selector",
         "licenseFile": "node_modules/css-browser-selector/README.mkdn"
     },
-    "d3-array@3.1.1": {
+    "d3-array@3.2.0": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-array",
         "publisher": "Mike Bostock",
@@ -475,7 +475,7 @@
         "path": "node_modules/d3-chord",
         "licenseFile": "node_modules/d3-chord/LICENSE"
     },
-    "d3-color@3.0.1": {
+    "d3-color@3.1.0": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-color",
         "publisher": "Mike Bostock",
@@ -483,7 +483,7 @@
         "path": "node_modules/d3-color",
         "licenseFile": "node_modules/d3-color/LICENSE"
     },
-    "d3-contour@3.0.1": {
+    "d3-contour@4.0.0": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-contour",
         "publisher": "Mike Bostock",
@@ -563,7 +563,7 @@
         "path": "node_modules/d3-geo",
         "licenseFile": "node_modules/d3-geo/LICENSE"
     },
-    "d3-hierarchy@3.1.1": {
+    "d3-hierarchy@3.1.2": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-hierarchy",
         "publisher": "Mike Bostock",
@@ -683,7 +683,7 @@
         "path": "node_modules/d3-zoom",
         "licenseFile": "node_modules/d3-zoom/LICENSE"
     },
-    "d3@7.3.0": {
+    "d3@7.6.1": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3",
         "publisher": "Mike Bostock",
