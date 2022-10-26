@@ -38,6 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .label-container {
         display: flex;
         justify-content: space-between;
+        background: var(--canvas);
         padding: 0 3px 1px;
 
         position: sticky;
