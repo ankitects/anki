@@ -66,8 +66,14 @@ $ambient-opacity: 0.12;
     $ambient-z-value: map.get($ambient-map, $level);
 
     $umbra-color: color.adjust(rgba($color, $umbra-opacity), $alpha: $opacity-boost);
-    $penumbra-color: color.adjust(rgba($color, $penumbra-opacity), $alpha:  $opacity-boost);
-    $ambient-color: color.adjust(rgba($color, $ambient-opacity),  $alpha: $opacity-boost);
+    $penumbra-color: color.adjust(
+        rgba($color, $penumbra-opacity),
+        $alpha: $opacity-boost
+    );
+    $ambient-color: color.adjust(
+        rgba($color, $ambient-opacity),
+        $alpha: $opacity-boost
+    );
 
     @return (
         #{$umbra-z-value} $umbra-color,
