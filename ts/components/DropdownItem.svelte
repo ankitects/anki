@@ -15,10 +15,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let disabled = false;
 
     $: if (buttonRef && active) {
-        setTimeout(() => buttonRef.scrollIntoView({
-            behavior: "smooth",
-            block: "nearest",
-        }));
+        setTimeout(() =>
+            buttonRef.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+            }),
+        );
     }
 
     export let tabbable = false;

@@ -2,11 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { CustomElementArray } from "../editable/decorated";
-import { Mathjax } from "../editable/mathjax-element";
-import { parsingInstructions } from "./plain-text-input";
-import { BLOCK_ELEMENTS } from "../lib/dom";
 import { FrameElement } from "../editable/frame-element";
 import { FrameEnd, FrameStart } from "../editable/frame-handle";
+import { Mathjax } from "../editable/mathjax-element";
+import { BLOCK_ELEMENTS } from "../lib/dom";
+import { parsingInstructions } from "./plain-text-input";
 
 const decoratedElements = new CustomElementArray();
 
