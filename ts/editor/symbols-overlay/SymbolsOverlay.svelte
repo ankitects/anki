@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { getContext, onMount } from "svelte";
+    import { getContext } from "svelte";
     import type { Readable } from "svelte/store";
 
     import DropdownItem from "../../components/DropdownItem.svelte";
@@ -15,7 +15,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Callback } from "../../lib/typing";
     import { singleCallback } from "../../lib/typing";
     import type { SpecialKeyParams } from "../../sveltelib/input-handler";
-    import { context } from "../rich-text-input";
+    import type { EditingInputAPI } from "../EditingArea.svelte";
+    import { context } from "../NoteEditor.svelte";
+    import {
+        editingInputIsRichText,
+        RichTextInputAPI,
+    } from "../rich-text-input/RichTextInput.svelte";
     import { findSymbols, getAutoInsertSymbol, getExactSymbol } from "./symbols-table";
     import type {
         SymbolsEntry as SymbolsEntryType,
@@ -29,19 +34,39 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const whitespaceCharacters = [" ", "\u00a0"];
 
-    const { editable, inputHandler } = context.get();
+    const { focusedInput } = context.get();
+
+    let cleanup: Callback;
+    let richTextInput: RichTextInputAPI | null = null;
+
+    async function initialize(input: EditingInputAPI | null): Promise<void> {
+        cleanup?.();
+
+        if (!input || !editingInputIsRichText(input)) {
+            richTextInput = null;
+            return;
+        }
+
+        cleanup = input.inputHandler.beforeInput.on(
+            async (input: { event: Event }): Promise<void> => onBeforeInput(input),
+        );
+        richTextInput = input;
+    }
+
+    $: initialize($focusedInput);
+
     const fontFamily = getContext<Readable<string>>(fontFamilyKey);
 
     let foundSymbols: SymbolsTable = [];
 
-    let referenceRange: Range | undefined = undefined;
-    let activeItem = 0;
-    let cleanup: Callback;
+    let referenceRange: Range | null = null;
+    let activeItem: number | null = null;
+    let cleanupReferenceRange: Callback;
 
     function unsetReferenceRange() {
-        referenceRange = undefined;
-        activeItem = 0;
-        cleanup?.();
+        referenceRange = null;
+        activeItem = null;
+        cleanupReferenceRange?.();
     }
 
     function replaceText(selection: Selection, text: Text, nodes: Node[]): void {
@@ -90,7 +115,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     replacementLength,
                 );
 
-                inputHandler.insertText.on(
+                richTextInput!.inputHandler.insertText.on(
                     async ({ text }) => {
                         replaceText(
                             selection,
@@ -217,13 +242,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             if (foundSymbols.length > 0) {
                 referenceRange = currentRange;
-                cleanup = singleCallback(
-                    editable.focusHandler.blur.on(async () => unsetReferenceRange(), {
-                        once: true,
-                    }),
-                    inputHandler.pointerDown.on(async () => unsetReferenceRange()),
-                    inputHandler.specialKey.on(async (input: SpecialKeyParams) =>
-                        onSpecialKey(input),
+                activeItem = 0;
+
+                cleanupReferenceRange = singleCallback(
+                    richTextInput!.editable.focusHandler.blur.on(
+                        async () => unsetReferenceRange(),
+                        {
+                            once: true,
+                        },
+                    ),
+                    richTextInput!.inputHandler.pointerDown.on(async () =>
+                        unsetReferenceRange(),
+                    ),
+                    richTextInput!.inputHandler.specialKey.on(
+                        async (input: SpecialKeyParams) => onSpecialKey(input),
                     ),
                 );
             }
@@ -292,7 +324,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             replacementLength,
         );
 
-        inputHandler.insertText.on(
+        richTextInput!.inputHandler.insertText.on(
             async ({ text }) =>
                 replaceText(selection, text, symbolsEntryToReplacement(symbolEntry)),
             {
@@ -314,7 +346,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         // We have to wait for afterInput to update the symbols, because we also
         // want to update in the case of a deletion
-        inputHandler.afterInput.on(
+        richTextInput!.inputHandler.afterInput.on(
             async (): Promise<void> => {
                 const currentRange = getRange(selection)!;
                 const query = findValidSearchQuery(selection, currentRange);
@@ -344,12 +376,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             maybeShowOverlay(selection, event);
         }
     }
-
-    onMount(() =>
-        inputHandler.beforeInput.on(
-            async (input: { event: Event }): Promise<void> => onBeforeInput(input),
-        ),
-    );
 </script>
 
 <div class="symbols-overlay">
@@ -392,8 +418,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         max-height: 15rem;
 
         font-size: 12px;
-        overflow-x: hidden;
+        overflow: hidden auto;
         text-overflow: ellipsis;
-        overflow-y: auto;
     }
 </style>

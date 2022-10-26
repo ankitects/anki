@@ -59,7 +59,7 @@ $umbra-opacity: 0.2;
 $penumbra-opacity: 0.14;
 $ambient-opacity: 0.12;
 
-@function box-shadow($level, $opacity-boost: 0, $color: black) {
+@function box-shadow($level, $opacity-boost, $color) {
     $umbra-z-value: map.get($umbra-map, $level);
     $penumbra-z-value: map.get($penumbra-map, $level);
     $ambient-z-value: map.get($ambient-map, $level);
@@ -75,6 +75,10 @@ $ambient-opacity: 0.12;
     );
 }
 
-@mixin elevation($level, $other: ()) {
-    box-shadow: list.join(box-shadow($level), $other);
+@mixin elevation($level, $opacity-boost: 0, $color: black) {
+    box-shadow: box-shadow($level, $opacity-boost, $color);
+}
+
+@mixin elevation-transition() {
+    transition: box-shadow 80ms cubic-bezier(0.33, 1, 0.68, 1);
 }

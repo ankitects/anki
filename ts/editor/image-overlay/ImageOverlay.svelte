@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { onMount, tick } from "svelte";
+    import { tick } from "svelte";
 
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import Popover from "../../components/Popover.svelte";
@@ -18,17 +18,47 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { on } from "../../lib/events";
     import * as tr from "../../lib/ftl";
     import { removeStyleProperties } from "../../lib/styling";
+    import type { Callback } from "../../lib/typing";
+    import type { EditingInputAPI } from "../EditingArea.svelte";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
     import HandleLabel from "../HandleLabel.svelte";
-    import { context } from "../rich-text-input";
+    import { context } from "../NoteEditor.svelte";
+    import type { RichTextInputAPI } from "../rich-text-input";
+    import {
+        editingInputIsRichText,
+        lifecycle as richTextLifecycle,
+    } from "../rich-text-input";
     import FloatButtons from "./FloatButtons.svelte";
     import SizeSelect from "./SizeSelect.svelte";
 
     export let maxWidth: number;
     export let maxHeight: number;
 
-    const { element } = context.get();
+    richTextLifecycle.onMount(({ element }: RichTextInputAPI): void => {
+        (async () => {
+            const container = await element;
+
+            container.style.setProperty("--editor-shrink-max-width", `${maxWidth}px`);
+            container.style.setProperty("--editor-shrink-max-height", `${maxHeight}px`);
+        })();
+    });
+
+    const { focusedInput } = context.get();
+
+    let cleanup: Callback;
+
+    async function initialize(input: EditingInputAPI | null): Promise<void> {
+        cleanup?.();
+
+        if (!input || !editingInputIsRichText(input)) {
+            return;
+        }
+
+        cleanup = on(await input.element, "click", maybeShowHandle);
+    }
+
+    $: initialize($focusedInput);
 
     let activeImage: HTMLImageElement | null = null;
 
@@ -80,23 +110,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await tick();
     }
 
-    async function maybeShowHandle(event: Event): Promise<void> {
-        if (event.target instanceof HTMLImageElement) {
-            const image = event.target;
-
-            if (!image.dataset.anki) {
-                activeImage = image;
-            }
-        }
-    }
-
-    $: naturalWidth = activeImage?.naturalWidth;
-    $: naturalHeight = activeImage?.naturalHeight;
-    $: aspectRatio = naturalWidth && naturalHeight ? naturalWidth / naturalHeight : NaN;
-
-    let customDimensions: boolean = false;
-    let actualWidth = "";
-    let actualHeight = "";
+    let naturalWidth: number;
+    let naturalHeight: number;
+    let aspectRatio: number;
 
     function updateDimensions() {
         /* we do not want the actual width, but rather the intended display width */
@@ -121,31 +137,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    let updateSelection: () => Promise<void>;
+    async function maybeShowHandle(event: Event): Promise<void> {
+        if (event.target instanceof HTMLImageElement) {
+            const image = event.target;
 
-    async function updateSizesWithDimensions() {
-        await updateSelection?.();
-        updateDimensions();
-    }
+            if (!image.dataset.anki) {
+                activeImage = image;
 
-    /* window resizing */
-    const resizeObserver = new ResizeObserver(async () => {
-        await updateSizesWithDimensions();
-    });
+                naturalWidth = activeImage?.naturalWidth;
+                naturalHeight = activeImage?.naturalHeight;
+                aspectRatio =
+                    naturalWidth && naturalHeight ? naturalWidth / naturalHeight : NaN;
 
-    $: observes = Boolean(activeImage);
-
-    async function toggleResizeObserver(observes: boolean) {
-        const container = await element;
-
-        if (observes) {
-            resizeObserver.observe(container);
-        } else {
-            resizeObserver.unobserve(container);
+                updateDimensions();
+            }
         }
     }
 
-    $: toggleResizeObserver(observes);
+    let customDimensions: boolean = false;
+    let actualWidth = "";
+    let actualHeight = "";
 
     /* memoized position of image on resize start
      * prevents frantic behavior when image shift into the next/previous line */
@@ -228,15 +239,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeImage!.removeAttribute("width");
     }
 
-    onMount(async () => {
-        const container = await element;
-
-        container.style.setProperty("--editor-shrink-max-width", `${maxWidth}px`);
-        container.style.setProperty("--editor-shrink-max-height", `${maxHeight}px`);
-
-        return on(container, "click", maybeShowHandle);
-    });
-
     let shrinkingDisabled: boolean;
     $: shrinkingDisabled =
         Number(actualWidth) <= maxWidth && Number(actualHeight) <= maxHeight;
@@ -244,9 +246,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let restoringDisabled: boolean;
     $: restoringDisabled = !activeImage?.hasAttribute("width") ?? true;
 
-    const widthObserver = new MutationObserver(
-        () => (restoringDisabled = !activeImage!.hasAttribute("width")),
-    );
+    const widthObserver = new MutationObserver(() => {
+        restoringDisabled = !activeImage!.hasAttribute("width");
+        updateDimensions();
+    });
 
     $: activeImage
         ? widthObserver.observe(activeImage, {

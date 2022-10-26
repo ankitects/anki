@@ -15,12 +15,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let disabled = false;
 
     $: if (buttonRef && active) {
-        /* buttonRef.scrollIntoView({ behavior: "smooth", block: "start" }); */
-        /* TODO will not work on Gecko */
-        (buttonRef as any).scrollIntoViewIfNeeded({
-            behavior: "smooth",
-            block: "start",
-        });
+        setTimeout(() =>
+            buttonRef.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+            }),
+        );
     }
 
     export let tabbable = false;
