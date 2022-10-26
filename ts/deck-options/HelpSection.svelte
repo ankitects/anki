@@ -15,12 +15,7 @@
 <Row>
     <h2>
         {#if section.url}
-            <a
-                href={section.url}
-                title={tr.helpOpenManualChapter({ name: section.title })}
-            >
-                {@html section.title}
-            </a>
+            {@html section.title}
         {:else}
             {@html section.title}
         {/if}
@@ -51,15 +46,6 @@
 <style lang="scss">
     h2 {
         margin-bottom: 1em;
-        a {
-            cursor: pointer;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--fg);
-            &:hover {
-                border-color: var(--fg);
-            }
-        }
     }
 
     .chapter-redirect {
