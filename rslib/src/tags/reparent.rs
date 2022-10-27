@@ -92,8 +92,10 @@ fn old_to_new_names(
 /// Returns None if new parent is a child of the tag to be reparented.
 fn reparented_name(existing_name: &str, new_parent: Option<&str>) -> Option<String> {
     let existing_base = existing_name.rsplit("::").next().unwrap();
+    let existing_root = existing_name.split("::").next().unwrap();
     if let Some(new_parent) = new_parent {
-        if new_parent.starts_with(existing_name) {
+        let new_parent_root = new_parent.split("::").next().unwrap();
+        if new_parent_root == existing_root {
             // foo onto foo::bar, or foo onto itself -> no-op
             None
         } else {
