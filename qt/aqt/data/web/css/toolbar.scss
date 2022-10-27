@@ -32,12 +32,18 @@ body {
 
 .hitem {
     font-weight: bold;
-    padding: 6px 12px;
+    padding: 8px 14px;
     text-decoration: none;
     color: color(fg);
     display: inline-block;
     @include button.base($elevation: 0);
     border: none;
+    &:first-child {
+        padding-left: 18px;
+    }
+    &:last-child {
+        padding-right: 18px;
+    }
 }
 
 .hitem:focus {
