@@ -152,7 +152,7 @@ $vars: (
                 end: (
                     "End value of default button gradient",
                     (
-                        light: palette(lightgray, 1),
+                        light: palette(lightgray, 3),
                         dark: palette(darkgray, 5),
                     ),
                 ),
@@ -255,8 +255,8 @@ $vars: (
             default: (
                 "Default box-shadow color",
                 (
-                    light: palette(darkgray, 4),
-                    dark: palette(darkgray, 8),
+                    light: palette(lightgray, 6),
+                    dark: palette(darkgray, 7),
                 ),
             ),
             inset: (

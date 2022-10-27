@@ -9,8 +9,7 @@ def button_gradient(start: str, end: str, shadow: str) -> str:
 qlineargradient(
     spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
     stop:0 {start},
-    stop:0.92 {end},
-    stop:0.98 {shadow}
+    stop:0.94 {end}
     stop:1 {shadow}
 );
     """
@@ -115,9 +114,9 @@ QComboBox:!editable {{
             tm.var(colors.BUTTON_GRADIENT_START),
             tm.var(colors.BUTTON_GRADIENT_END),
             tm.var(colors.SHADOW)
-
         )
     };
+    border-bottom: 1px solid {tm.var(colors.SHADOW)};
 }}
 QPushButton:hover,
 QTabBar::tab:hover,
@@ -210,6 +209,7 @@ QComboBox::drop-down {{
             tm.var(colors.SHADOW)
         )
     };
+    border-bottom: 1px solid {tm.var(colors.SHADOW)};
 }}
 QComboBox::drop-down:hover {{
     background: {
@@ -219,6 +219,7 @@ QComboBox::drop-down:hover {{
             tm.var(colors.SHADOW)
         )
     };
+    border-bottom: 1px solid {tm.var(colors.SHADOW)};
 }}
     """
 
@@ -246,6 +247,7 @@ QTabBar::tab {{
 }}
 QTabBar::tab {{
   border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+  border-bottom-color: {tm.var(colors.SHADOW)};
 }}
 QTabBar::tab:first {{
   border-top-{tm.left()}-radius: {tm.var(props.BORDER_RADIUS)};
