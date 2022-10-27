@@ -129,6 +129,8 @@ mod test {
         let mut col = open_test_collection();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         for tag in &[
+            "a",
+            "ab",
             "another",
             "parent1::child1::grandchild1",
             "parent1::child1",
@@ -151,6 +153,8 @@ mod test {
         assert_eq!(
             alltags(&col),
             &[
+                "a",
+                "ab",
                 "parent1",
                 "parent1::another",
                 "parent1::child1",
@@ -168,6 +172,8 @@ mod test {
         assert_eq!(
             alltags(&col),
             &[
+                "a",
+                "ab",
                 "parent1",
                 "parent1::another",
                 "parent2",
@@ -182,6 +188,43 @@ mod test {
         assert_eq!(
             alltags(&col),
             &[
+                "a",
+                "ab",
+                "another",
+                "parent1",
+                "parent2",
+                "parent2::child1",
+                "parent2::child1::grandchild1",
+            ]
+        );
+
+        // parent1 onto parent1::child1 -> no-op
+        col.reparent_tags(
+            &["parent1".to_string()],
+            Some("parent1::child1".to_string()),
+        )?;
+
+        assert_eq!(
+            alltags(&col),
+            &[
+                "a",
+                "ab",
+                "another",
+                "parent1",
+                "parent2",
+                "parent2::child1",
+                "parent2::child1::grandchild1",
+            ]
+        );
+
+        // tags that are prefixes of the new parent are handled correctly
+        col.reparent_tags(&["a".to_string()], Some("ab".to_string()))?;
+
+        assert_eq!(
+            alltags(&col),
+            &[
+                "ab",
+                "ab::a",
                 "another",
                 "parent1",
                 "parent2",
