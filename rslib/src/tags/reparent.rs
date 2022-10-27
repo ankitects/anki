@@ -38,7 +38,9 @@ impl Collection {
         let usn = self.usn()?;
         let mut matcher = TagMatcher::new(&join_tags(tags_to_reparent))?;
         let old_to_new_names = old_to_new_names(tags_to_reparent, new_parent);
-
+        if old_to_new_names.is_empty() {
+            return Ok(0);
+        }
         let matched_notes = self
             .storage
             .get_note_tags_by_predicate(|tags| matcher.is_match(tags))?;
