@@ -12,7 +12,7 @@ import anki.lang
 from anki._legacy import deprecated
 from anki.lang import is_rtl
 from anki.utils import is_lin, is_mac, is_win
-from aqt import colors, gui_hooks, props
+from aqt import colors, gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import askUser, is_gesture_or_zoom_event, openLink, showInfo, tr
@@ -446,6 +446,7 @@ div[contenteditable="true"]:focus {{
             )
 
         zoom = self.app_zoom_factor()
+
         return f"""
 body {{ zoom: {zoom}; background-color: var(--canvas); }}
 html {{ {font} }}
@@ -453,23 +454,6 @@ html {{ {font} }}
 :root {{ --canvas: {colors.CANVAS["light"]} }}
 :root[class*=night-mode] {{ --canvas: {colors.CANVAS["dark"]} }}
 """
-
-    def css_vars(self) -> str:
-        br = "\n  "
-        return f"""
-:root {{
-  {br.join([f"/* {color['comment']} */{br}--{name.lower().replace('_', '-')}: {color['light']};" for name, color in colors.__dict__.items() if name != "__builtins__" and isinstance(color, dict)])}
-}}
-:root[class*=night-mode] {{
-  {br.join([f"/* {color['comment']} */{br}--{name.lower().replace('_', '-')}: {color['dark']};" for name, color in colors.__dict__.items() if name != "__builtins__" and isinstance(color, dict)])}
-}}
-:root {{
-  {br.join([f"/* {prop['comment']} */{br}--{name.lower().replace('_', '-')}: {prop['light']};" for name, prop in props.__dict__.items() if name != "__builtins__" and isinstance(prop, dict)])}
-}}
-:root[class*=night-mode] {{
-  {br.join([f"/* {prop['comment']} */{br}--{name.lower().replace('_', '-')}: {prop['dark']};" for name, prop in props.__dict__.items() if name != "__builtins__" and isinstance(prop, dict)])}
-}}
-        """
 
     def stdHtml(
         self,
@@ -492,13 +476,13 @@ html {{ {font} }}
 
         gui_hooks.webview_will_set_content(web_content, context)
 
-        csstxt = f'<style id="vars">{self.css_vars()}</style>'
+        csstxt = ""
         if "css/webview.css" in css:
             # we want our dynamic styling to override the defaults in
             # css/webview.css, but come before user-provided stylesheets so that
             # they can override us if necessary
             web_content.css.remove("css/webview.css")
-            csstxt += self.bundledCSS("css/webview.css")
+            csstxt = self.bundledCSS("css/webview.css")
             csstxt += f"<style>{self.standard_css()}</style>"
 
         csstxt += "\n".join(self.bundledCSS(fname) for fname in web_content.css)
