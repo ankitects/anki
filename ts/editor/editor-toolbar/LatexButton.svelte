@@ -72,7 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         [onLatexMathEnv, "Control+T, M", tr.editingLatexMathEnv()],
     ];
 
-    $: disabled = !editingInputIsRichText($focusedInput);
+    $: disabled = !$focusedInput || !editingInputIsRichText($focusedInput);
 
     let showFloating = false;
 </script>

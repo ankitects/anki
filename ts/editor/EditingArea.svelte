@@ -46,11 +46,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { setContext as svelteSetContext, tick } from "svelte";
+    import { setContext as svelteSetContext } from "svelte";
     import { writable } from "svelte/store";
 
     import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
-    import FocusTrap from "./FocusTrap.svelte";
 
     export let fontFamily: string;
     const fontFamilyStore = writable(fontFamily);
@@ -65,7 +64,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let content: Writable<string>;
 
     let editingArea: HTMLElement;
-    let focusTrap: FocusTrap;
 
     const inputsStore = writable<EditingInputAPI[]>([]);
     $: editingInputs = $inputsStore;
@@ -74,39 +72,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return editingInputs.find((input) => input.focusable);
     }
 
-    function focusEditingInputIfAvailable(): boolean {
-        const availableInput = getAvailableInput();
-
-        if (availableInput) {
-            availableInput.focus();
-            return true;
-        }
-
-        return false;
-    }
-
-    function focusEditingInputIfFocusTrapFocused(): void {
-        if (focusTrap && focusTrap.isFocusTrap(document.activeElement!)) {
-            focusEditingInputIfAvailable();
-        }
-    }
-
-    $: {
-        $inputsStore;
-        /**
-         * Triggers when all editing inputs are hidden,
-         * the editor field has focus, and then some
-         * editing input is shown
-         */
-        focusEditingInputIfFocusTrapFocused();
-    }
-
     function focus(): void {
-        if (editingArea.contains(document.activeElement)) {
-            // do nothing
-        } else if (!focusEditingInputIfAvailable()) {
-            focusTrap.focus();
-        }
+        editingArea.contains(document.activeElement);
     }
 
     function refocus(): void {
@@ -114,51 +81,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         if (availableInput) {
             availableInput.refocus();
-        } else {
-            focusTrap.blur();
-            focusTrap.focus();
-        }
-    }
-
-    function focusEditingInputInsteadIfAvailable(event: FocusEvent): void {
-        if (focusEditingInputIfAvailable()) {
-            event.preventDefault();
-        }
-    }
-
-    // Prevents editor field being entirely deselected when
-    // closing active field.
-    async function trapFocusOnBlurOut(event: FocusEvent): Promise<void> {
-        if (event.relatedTarget) {
-            return;
-        }
-
-        event.preventDefault();
-
-        const oldInputElement = event.target;
-
-        await tick();
-
-        let focusableInput: FocusableInputAPI | null = null;
-
-        const focusableInputs = editingInputs.filter(
-            (input: EditingInputAPI): boolean => input.focusable,
-        );
-
-        if (oldInputElement) {
-            for (const input of focusableInputs) {
-                focusableInput = await input.getInputAPI(oldInputElement);
-
-                if (focusableInput) {
-                    break;
-                }
-            }
-        }
-
-        if (focusableInput || (focusableInput = focusableInputs[0])) {
-            focusableInput.focus();
-        } else {
-            focusTrap.focus();
         }
     }
 
@@ -175,9 +97,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setContextProperty(api);
 </script>
 
-<FocusTrap bind:this={focusTrap} on:focus={focusEditingInputInsteadIfAvailable} />
-
-<div bind:this={editingArea} class="editing-area" on:focusout={trapFocusOnBlurOut}>
+<div bind:this={editingArea} class="editing-area">
     <slot />
 </div>
 
@@ -187,29 +107,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /* TODO allow configuration of grid #1503 */
         /* grid-template-columns: repeat(2, 1fr); */
 
-        position: relative;
-        background: var(--canvas-elevated);
-        border-radius: 5px;
-
-        /* Pseudo-element required to display
-           inset focus box-shadow above field contents */
-        &::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            border-radius: 5px;
-            box-shadow: 0 0 0 3px var(--dupes-color), 0 0 2px 1px var(--shadow);
-            transition: box-shadow 80ms cubic-bezier(0.33, 1, 0.68, 1);
-        }
-
-        &:focus-within {
-            outline: none;
-            &::after {
-                border: none;
-                inset: 1px;
-                box-shadow: 0 0 0 3px var(--dupes-color), 0 0 0 2px var(--border-focus);
-            }
-        }
+        /* This defines the border between inputs */
+        grid-gap: 1px;
+        background-color: var(--border);
     }
 </style>

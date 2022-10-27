@@ -109,9 +109,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/elevation" as *;
+
     .editor-field {
-        position: relative;
-        padding: 0 3px;
-        --border-color: var(--border);
+        overflow: hidden;
+        margin: 0 3px;
+
+        border-radius: 5px;
+        border: 1px solid var(--border);
+
+        @include elevation-transition;
+        @include elevation(1);
+
+        &:focus-within {
+            border-color: var(--border-focus);
+        }
     }
 </style>
