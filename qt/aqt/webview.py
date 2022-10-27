@@ -662,7 +662,7 @@ html {{ {font} }}
 
     def inject_dynamic_style_and_show(self) -> None:
         "Add dynamic styling, and reveal."
-        css = self.css_vars() + self.standard_css()
+        css = self.standard_css()
 
         def after_style(arg: Any) -> None:
             gui_hooks.webview_did_inject_style_into_page(self)
