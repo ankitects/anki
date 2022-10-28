@@ -116,7 +116,7 @@ To run all tests, use `//...` instead.
 To run a single Rust unit test with output, eg 'unbury':
 
 ```
-bazel run rslib:unit_tests -- --nocapture unbury
+bazel run rslib:anki_tests -- --nocapture unbury
 ```
 
 To run a single Python library test, eg test_bury:
