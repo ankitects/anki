@@ -97,7 +97,7 @@ fn reparented_name(existing_name: &str, new_parent: Option<&str>) -> Option<Stri
     let existing_root = existing_name.split("::").next().unwrap();
     if let Some(new_parent) = new_parent {
         let new_parent_root = new_parent.split("::").next().unwrap();
-        if new_parent_root == existing_root {
+        if new_parent.starts_with(existing_name) && new_parent_root == existing_root {
             // foo onto foo::bar, or foo onto itself -> no-op
             None
         } else {
@@ -230,6 +230,25 @@ mod test {
                 "parent2",
                 "parent2::child1",
                 "parent2::child1::grandchild1",
+            ]
+        );
+
+        // grandchildren can be reparented under the same root
+        col.reparent_tags(
+            &["parent2::child1::grandchild1".to_string()],
+            Some("parent2".to_string()),
+        )?;
+
+        assert_eq!(
+            alltags(&col),
+            &[
+                "ab",
+                "ab::a",
+                "another",
+                "parent1",
+                "parent2",
+                "parent2::child1",
+                "parent2::grandchild1",
             ]
         );
 
