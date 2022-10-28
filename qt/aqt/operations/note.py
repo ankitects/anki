@@ -26,6 +26,12 @@ def update_note(*, parent: QWidget, note: Note) -> CollectionOp[OpChanges]:
     return CollectionOp(parent, lambda col: col.update_note(note))
 
 
+def update_notes(*, parent: QWidget, notes: Sequence[Note]) -> CollectionOp[OpChanges]:
+    return CollectionOp(parent, lambda col: col.update_notes(notes)).success(
+        lambda _: tooltip(tr.browsing_cards_updated(count=len(notes)))
+    )
+
+
 def remove_notes(
     *,
     parent: QWidget,
