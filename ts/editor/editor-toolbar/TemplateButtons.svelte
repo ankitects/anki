@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString } from "../../lib/shortcuts";
     import { context } from "../NoteEditor.svelte";
     import { setFormat } from "../old-editor-adapter";
-    import { editingInputIsRichText } from "../rich-text-input";
+    import { editingInputIsRichText, RichTextInputAPI } from "../rich-text-input";
     import { micIcon, paperclipIcon } from "./icons";
     import LatexButton from "./LatexButton.svelte";
 
@@ -35,12 +35,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function attachMediaOnFocus(): void {
-        if (!editingInputIsRichText($focusedInput)) {
+        if (disabled) {
             return;
         }
 
         [mediaPromise, resolve] = promiseWithResolver<string>();
-        $focusedInput.editable.focusHandler.focus.on(
+        ($focusedInput as RichTextInputAPI).editable.focusHandler.focus.on(
             async () => setFormat("inserthtml", await mediaPromise),
             { once: true },
         );
@@ -55,12 +55,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const recordCombination = "F5";
 
     function attachRecordingOnFocus(): void {
-        if (!editingInputIsRichText($focusedInput)) {
+        if (disabled) {
             return;
         }
 
         [mediaPromise, resolve] = promiseWithResolver<string>();
-        $focusedInput.editable.focusHandler.focus.on(
+        ($focusedInput as RichTextInputAPI).editable.focusHandler.focus.on(
             async () => setFormat("inserthtml", await mediaPromise),
             { once: true },
         );
@@ -68,7 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bridgeCommand("record");
     }
 
-    $: disabled = !editingInputIsRichText($focusedInput);
+    $: disabled = !$focusedInput || !editingInputIsRichText($focusedInput);
 
     export let api = {};
 </script>

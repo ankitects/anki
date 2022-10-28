@@ -98,6 +98,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .code-mirror {
+        height: 100%;
+
         :global(.CodeMirror) {
             height: auto;
         }
