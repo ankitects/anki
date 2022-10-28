@@ -416,14 +416,18 @@ button {{ font-family: {family}; }}
             font = f"font-size:12px;font-family:{family};"
         elif is_mac:
             family = "Helvetica"
-            font = f'font-size:15px;font-family:"{family}";'
+            font = f'font-size:14px;font-family:"{family}";'
             color = ""
             if not theme_manager.night_mode:
                 color = "background: #fff; border: 1px solid #ccc;"
             button_style = (
                 """
 button { -webkit-appearance: none; %s
-border-radius: var(--border-radius); font-family: Helvetica }"""
+border-radius: var(--border-radius);
+padding: 3px 12px;
+border: 0.5px solid var(--border);
+box-shadow: 0px 1px 3px var(--border-subtle);
+font-family: Helvetica }"""
                 % color
             )
         else:
