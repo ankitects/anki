@@ -61,8 +61,10 @@ impl NativeDeckName {
     /// The returned name should be used to replace `self`.
     pub(crate) fn reparented_name(&self, target: Option<&NativeDeckName>) -> Option<Self> {
         let dragged_base = self.0.rsplit('\x1f').next().unwrap();
+        let dragged_root = self.components().next().unwrap();
         if let Some(target) = target {
-            if target.0.starts_with(&self.0) {
+            let target_root = target.components().next().unwrap();
+            if target.0.starts_with(&self.0) && target_root == dragged_root {
                 // foo onto foo::bar, or foo onto itself -> no-op
                 None
             } else {
@@ -273,5 +275,7 @@ mod test {
         assert_eq!(reparented_name("drag", Some("drag:child:grandchild")), None);
         // name doesn't change when deck dropped on itself
         assert_eq!(reparented_name("foo:bar", Some("foo:bar")), None);
+        // names that are prefixes of the target are handled correctly
+        assert_eq!(reparented_name("a", Some("ab")), n_opt("ab:a"));
     }
 }
