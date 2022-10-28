@@ -66,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .congrats {
-        margin-top: 25vh;
+        margin-top: 2em;
         max-width: 30em;
         font-size: var(--base-font-size);
 
