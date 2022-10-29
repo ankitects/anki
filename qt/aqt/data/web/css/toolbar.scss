@@ -1,14 +1,23 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+@use "root-vars";
+@use "sass/vars" as *;
+@use "sass/elevation";
+@use "sass/button-mixins" as button;
+
 #header {
-    padding: 3px;
-    font-weight: bold;
-    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
 }
 
 .tdcenter {
     white-space: nowrap;
+    border-radius: prop(border-radius);
+    border-bottom-left-radius: prop(border-radius-large);
+    border-bottom-right-radius: prop(border-radius-large);
+    @include button.base($with-hover: false);
+    @include elevation.elevation(2);
+    overflow: hidden;
 }
 
 body {
@@ -23,26 +32,23 @@ body {
 }
 
 .hitem {
-    padding-right: 12px;
-    padding-left: 12px;
+    font-weight: bold;
+    padding: 8px 14px;
     text-decoration: none;
-    color: var(--fg);
-}
-
-.hitem:hover {
-    text-decoration: underline;
+    color: color(fg);
+    display: inline-block;
+    @include button.base($elevation: 0);
+    border: none;
+    &:first-child {
+        padding-left: 18px;
+    }
+    &:last-child {
+        padding-right: 18px;
+    }
 }
 
 .hitem:focus {
     outline: 0;
-}
-
-.nightMode #header {
-    border-bottom-color: var(--border-subtle);
-}
-
-.isMac.nightMode #header {
-    border-bottom-color: var(--canvas-elevated);
 }
 
 @keyframes spin {
@@ -55,25 +61,27 @@ body {
 }
 
 .spin {
+    width: 16px;
     animation: spin;
     animation-duration: 2s;
     animation-iteration-count: infinite;
     display: inline-block;
     visibility: visible !important;
     animation-timing-function: linear;
+    transition: all 0.2s ease-in;
 }
 
 #sync-spinner {
-    width: 16px;
     height: 16px;
     margin-bottom: -3px;
     visibility: hidden;
+    width: 0;
 }
 
 .normal-sync {
-    color: var(--state-new);
+    color: color(state-new);
 }
 
 .full-sync {
-    color: var(--state-learn);
+    color: color(state-learn);
 }

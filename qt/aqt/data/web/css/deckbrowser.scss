@@ -1,11 +1,11 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
-
-@use "sass/vars";
+@use "root-vars";
+@use "sass/vars" as *;
 @use "sass/card-counts";
 
 a.deck {
-    color: var(--fg);
+    color: color(fg);
     text-decoration: none;
     min-width: 5em;
     display: inline-block;
@@ -15,8 +15,13 @@ a.deck:hover {
     text-decoration: underline;
 }
 
+th {
+    border-bottom: 1px solid color(border-subtle);
+    padding-bottom: 5px;
+}
+
 tr.deck td {
-    border-bottom: 1px solid var(--border-faint);
+    padding: 5px 12px;
 }
 
 tr.top-level-drag-row td {
@@ -28,16 +33,30 @@ td {
 }
 
 tr.drag-hover td {
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid color(border);
 }
 
 body {
-    margin: 1em;
+    margin: 2em 1em 1em 1em;
     -webkit-user-select: none;
 }
 
-.current {
-    background-color: var(--shadow-subtle);
+.current,
+tr:hover:not(.top-level-drag-row) {
+    td {
+        background: color(canvas-inset);
+        &:first-child {
+            border-top-left-radius: prop(border-radius-large);
+            border-bottom-left-radius: prop(border-radius-large);
+        }
+        &:last-child {
+            border-top-right-radius: prop(border-radius-large);
+            border-bottom-right-radius: prop(border-radius-large);
+        }
+        .gears {
+            visibility: visible;
+        }
+    }
 }
 
 .decktd {
@@ -56,14 +75,14 @@ body {
 }
 
 .collapse {
-    color: var(--fg);
+    color: color(fg);
     text-decoration: none;
     display: inline-block;
     width: 1em;
 }
 
 .filtered {
-    color: var(--accent-link) !important;
+    color: color(fg-link) !important;
 }
 
 .gears {
@@ -72,6 +91,7 @@ body {
     opacity: 0.5;
     padding-top: 0.2em;
     cursor: pointer;
+    visibility: hidden;
 }
 
 .nightMode {
@@ -81,11 +101,15 @@ body {
 }
 
 .callout {
-    background: var(--border);
+    background: color(border);
     padding: 1em;
     margin: 1em;
 
     div {
         margin: 1em;
     }
+}
+
+#studiedToday {
+    margin: 2em 0;
 }

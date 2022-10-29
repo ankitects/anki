@@ -4,295 +4,438 @@
 @use "sass:map";
 @use "sass:color";
 @use "functions" as *;
-@use "colors" as *;
+@use "color-palette" as *;
 
 @function palette($key, $shade) {
-    $color: map.get($colors, $key);
+    $color: map.get($color-palette, $key);
     @return map.get($color, $shade);
 }
 
 $vars: (
     props: (
         border-radius: (
-            default: 5px,
+            default: (
+                "Used to round corners of various UI elements",
+                (
+                    default: 5px,
+                ),
+            ),
+            large: (
+                "Used for big centered buttons",
+                (
+                    default: 15px,
+                ),
+            ),
         ),
     ),
     colors: (
-        white: (
-            default: white,
-        ),
-        black: (
-            default: black,
-        ),
         fg: (
             default: (
-                light: palette(darkgray, 9),
-                dark: palette(lightgray, 0),
+                "Default text/icon color",
+                (
+                    light: palette(darkgray, 9),
+                    dark: palette(lightgray, 0),
+                ),
             ),
             subtle: (
-                light: palette(darkgray, 6),
-                dark: palette(lightgray, 3),
+                "Placeholder text, icons in idle state",
+                (
+                    light: palette(darkgray, 6),
+                    dark: palette(lightgray, 3),
+                ),
             ),
             disabled: (
-                light: palette(lightgray, 9),
-                dark: palette(darkgray, 0),
+                "Foreground color of disabled UI elements",
+                (
+                    light: palette(lightgray, 9),
+                    dark: palette(darkgray, 0),
+                ),
             ),
             faint: (
-                light: palette(lightgray, 7),
-                dark: palette(darkgray, 2),
+                "Foreground color that barely stands out against canvas",
+                (
+                    light: palette(lightgray, 7),
+                    dark: palette(darkgray, 2),
+                ),
+            ),
+            link: (
+                "Hyperlink foreground color",
+                (
+                    light: palette(blue, 7),
+                    dark: palette(blue, 2),
+                ),
             ),
         ),
         canvas: (
             default: (
-                light: palette(lightgray, 3),
-                dark: palette(darkgray, 5),
+                "Window background",
+                (
+                    light: palette(lightgray, 2),
+                    dark: palette(darkgray, 5),
+                ),
             ),
             elevated: (
-                light: white,
-                dark: palette(darkgray, 4),
+                "Slightly brighter than window background",
+                (
+                    light: white,
+                    dark: palette(darkgray, 4),
+                ),
             ),
             inset: (
-                light: palette(lightgray, 4),
-                dark: palette(darkgray, 6),
+                "Slightly darker than window background",
+                (
+                    light: palette(lightgray, 3),
+                    dark: palette(darkgray, 6),
+                ),
             ),
             overlay: (
-                light: palette(lightgray, 0),
-                dark: palette(darkgray, 5),
+                "Background of floating elements (menus, tooltips)",
+                (
+                    light: palette(lightgray, 0),
+                    dark: palette(darkgray, 5),
+                ),
             ),
             code: (
-                light: white,
-                dark: palette(darkgray, 6),
+                "Background of code editors",
+                (
+                    light: white,
+                    dark: palette(darkgray, 6),
+                ),
             ),
         ),
         border: (
             default: (
-                light: palette(lightgray, 6),
-                dark: palette(darkgray, 4),
-            ),
-            strong: (
-                light: palette(lightgray, 9),
-                dark: palette(darkgray, 1),
-            ),
-            subtle: (
-                light: palette(lightgray, 5),
-                dark: palette(darkgray, 7),
-            ),
-            faint: (
-                light: palette(lightgray, 4),
-                dark: palette(darkgray, 6),
-            ),
-            focus: (
-                light: palette(blue, 5),
-                dark: palette(blue, 5),
-            ),
-        ),
-        button: (
-            border: (
-                light: palette(lightgray, 6),
-                dark: palette(darkgray, 6),
-            ),
-            focus: (
-                light: palette(cyan, 3),
-                dark: palette(cyan, 4),
-            ),
-            pressed: (
-                shadow: (
-                    light: palette(lightgray, 7),
+                "Border color with medium contrast against window background",
+                (
+                    light: palette(lightgray, 6),
                     dark: palette(darkgray, 7),
                 ),
-                border: (
+            ),
+            subtle: (
+                "Border color with low contrast against window background",
+                (
+                    light: palette(lightgray, 4),
+                    dark: palette(darkgray, 6),
+                ),
+            ),
+            strong: (
+                "Border color with high contrast against window background",
+                (
                     light: palette(lightgray, 9),
                     dark: palette(darkgray, 9),
                 ),
             ),
+            focus: (
+                "Border color of focused input elements",
+                (
+                    light: palette(blue, 5),
+                    dark: palette(blue, 5),
+                ),
+            ),
+        ),
+        button: (
             disabled: (
-                light: color.scale(palette(lightgray, 5), $alpha: -50%),
-                dark: color.scale(palette(darkgray, 3), $alpha: -50%),
+                "Background color of disabled buttons",
+                (
+                    light: color.scale(palette(lightgray, 5), $alpha: -50%),
+                    dark: color.scale(palette(darkgray, 3), $alpha: -50%),
+                ),
             ),
             gradient: (
                 start: (
-                    light: white,
-                    dark: palette(darkgray, 3),
+                    "Start value of default button gradient",
+                    (
+                        light: white,
+                        dark: palette(darkgray, 4),
+                    ),
                 ),
                 end: (
-                    light: palette(lightgray, 1),
-                    dark: palette(darkgray, 4),
+                    "End value of default button gradient",
+                    (
+                        light: palette(lightgray, 3),
+                        dark: palette(darkgray, 5),
+                    ),
                 ),
             ),
             hover: (
                 gradient: (
                     start: (
-                        light: palette(lightgray, 1),
-                        dark: palette(darkgray, 2),
+                        "Start value of default button gradient in hover state",
+                        (
+                            light: palette(lightgray, 1),
+                            dark: palette(darkgray, 3),
+                        ),
                     ),
                     end: (
-                        light: palette(lightgray, 4),
-                        dark: palette(darkgray, 3),
+                        "End value of default button gradient in hover state",
+                        (
+                            light: palette(lightgray, 2),
+                            dark: palette(darkgray, 4),
+                        ),
                     ),
                 ),
                 border: (
-                    light: palette(lightgray, 8),
-                    dark: palette(darkgray, 8),
+                    "Border color of default button in hover state",
+                    (
+                        light: palette(lightgray, 8),
+                        dark: palette(darkgray, 8),
+                    ),
                 ),
             ),
             primary: (
                 gradient: (
                     start: (
-                        light: palette(blue, 4),
-                        dark: color.scale(palette(blue, 6), $saturation: -10%),
+                        "Start value of primary button gradient",
+                        (
+                            light: palette(blue, 4),
+                            dark: color.scale(palette(blue, 6), $saturation: -10%),
+                        ),
                     ),
                     end: (
-                        light: palette(blue, 6),
-                        dark: color.scale(palette(blue, 8), $saturation: -10%),
+                        "End value of primary button gradient",
+                        (
+                            light: palette(blue, 6),
+                            dark: color.scale(palette(blue, 8), $saturation: -10%),
+                        ),
                     ),
                 ),
                 hover: (
                     gradient: (
                         start: (
-                            light: palette(blue, 3),
-                            dark: color.scale(palette(blue, 5), $saturation: -10%),
+                            "Start value of primary button gradient in hover state",
+                            (
+                                light: palette(blue, 3),
+                                dark: color.scale(palette(blue, 5), $saturation: -10%),
+                            ),
                         ),
                         end: (
-                            light: palette(blue, 5),
-                            dark: color.scale(palette(blue, 7), $saturation: -10%),
+                            "End value of primary button gradient in hover state",
+                            (
+                                light: palette(blue, 5),
+                                dark: color.scale(palette(blue, 7), $saturation: -10%),
+                            ),
                         ),
                     ),
                 ),
                 disabled: (
-                    light: palette(blue, 3),
-                    dark: color.scale(palette(blue, 5), $saturation: -10%),
+                    "Background of primary button in disabled state",
+                    (
+                        light: palette(blue, 3),
+                        dark: color.scale(palette(blue, 5), $saturation: -10%),
+                    ),
                 ),
             ),
         ),
         scrollbar: (
             bg: (
                 default: (
-                    light: palette(lightgray, 5),
-                    dark: palette(darkgray, 4),
+                    "Background of scrollbar in idle state (Win/Lin only)",
+                    (
+                        light: palette(lightgray, 5),
+                        dark: palette(darkgray, 4),
+                    ),
                 ),
                 hover: (
-                    light: palette(lightgray, 6),
-                    dark: palette(darkgray, 3),
+                    "Background of scrollbar in hover state (Win/Lin only)",
+                    (
+                        light: palette(lightgray, 6),
+                        dark: palette(darkgray, 3),
+                    ),
                 ),
                 active: (
-                    light: palette(lightgray, 7),
-                    dark: palette(darkgray, 1),
+                    "Background of scrollbar in pressed state (Win/Lin only)",
+                    (
+                        light: palette(lightgray, 7),
+                        dark: palette(darkgray, 1),
+                    ),
                 ),
             ),
         ),
         shadow: (
             default: (
-                light: palette(lightgray, 8),
-                dark: palette(darkgray, 7),
+                "Default box-shadow color",
+                (
+                    light: palette(lightgray, 6),
+                    dark: palette(darkgray, 7),
+                ),
             ),
             inset: (
-                light: palette(lightgray, 9),
-                dark: palette(darkgray, 7),
+                "Inset box-shadow color",
+                (
+                    light: palette(darkgray, 3),
+                    dark: palette(darkgray, 7),
+                ),
             ),
             subtle: (
-                light: palette(lightgray, 5),
-                dark: palette(darkgray, 6),
+                "Box-shadow color with lower contrast against window background",
+                (
+                    light: palette(darkgray, 0),
+                    dark: palette(darkgray, 4),
+                ),
             ),
             focus: (
-                default: palette(indigo, 5),
+                "Box-shadow color for elements in focused state",
+                (
+                    default: palette(indigo, 5),
+                ),
             ),
         ),
         accent: (
             card: (
-                light: palette(blue, 4),
-                dark: palette(blue, 3),
+                "Accent color for cards",
+                (
+                    light: palette(blue, 4),
+                    dark: palette(blue, 3),
+                ),
             ),
             note: (
-                light: palette(green, 5),
-                dark: palette(green, 4),
-            ),
-            link: (
-                light: palette(blue, 7),
-                dark: palette(blue, 2),
+                "Accent color for notes",
+                (
+                    light: palette(green, 5),
+                    dark: palette(green, 4),
+                ),
             ),
             danger: (
-                light: palette(red, 5),
-                dark: palette(red, 4),
+                "Saturated accent color to grab attention",
+                (
+                    light: palette(red, 5),
+                    dark: palette(red, 4),
+                ),
             ),
         ),
         flag: (
             1: (
-                light: palette(red, 5),
-                dark: palette(red, 4),
+                "Flag 1 (red)",
+                (
+                    light: palette(red, 5),
+                    dark: palette(red, 4),
+                ),
             ),
             2: (
-                light: palette(orange, 4),
-                dark: palette(orange, 3),
+                "Flag 2 (orange)",
+                (
+                    light: palette(orange, 4),
+                    dark: palette(orange, 3),
+                ),
             ),
             3: (
-                light: palette(green, 4),
-                dark: palette(green, 3),
+                "Flag 3 (green)",
+                (
+                    light: palette(green, 4),
+                    dark: palette(green, 3),
+                ),
             ),
             4: (
-                light: palette(blue, 5),
-                dark: palette(blue, 4),
+                "Flag 4 (blue)",
+                (
+                    light: palette(blue, 5),
+                    dark: palette(blue, 4),
+                ),
             ),
             5: (
-                light: palette(fuchsia, 4),
-                dark: palette(fuchsia, 3),
+                "Flag 5 (pink)",
+                (
+                    light: palette(fuchsia, 4),
+                    dark: palette(fuchsia, 3),
+                ),
             ),
             6: (
-                light: palette(teal, 4),
-                dark: palette(teal, 3),
+                "Flag 6 (turquoise)",
+                (
+                    light: palette(teal, 4),
+                    dark: palette(teal, 3),
+                ),
             ),
             7: (
-                light: palette(purple, 5),
-                dark: palette(purple, 4),
+                "Flag 7 (purple)",
+                (
+                    light: palette(purple, 5),
+                    dark: palette(purple, 4),
+                ),
             ),
         ),
         state: (
             new: (
-                light: palette(blue, 5),
-                dark: palette(blue, 3),
+                "Accent color for new cards",
+                (
+                    light: palette(blue, 5),
+                    dark: palette(blue, 3),
+                ),
             ),
             learn: (
-                light: palette(red, 6),
-                dark: palette(red, 4),
+                "Accent color for cards in learning state",
+                (
+                    light: palette(red, 6),
+                    dark: palette(red, 4),
+                ),
             ),
             review: (
-                light: palette(green, 6),
-                dark: palette(green, 5),
+                "Accent color for cards in review state",
+                (
+                    light: palette(green, 6),
+                    dark: palette(green, 5),
+                ),
             ),
             buried: (
-                light: palette(amber, 5),
-                dark: palette(amber, 8),
+                "Accent color for buried cards",
+                (
+                    light: palette(amber, 5),
+                    dark: palette(amber, 8),
+                ),
             ),
             suspended: (
-                light: palette(yellow, 4),
-                dark: palette(yellow, 1),
+                "Accent color for suspended cards",
+                (
+                    light: palette(yellow, 4),
+                    dark: palette(yellow, 1),
+                ),
             ),
             marked: (
-                light: palette(indigo, 2),
-                dark: palette(purple, 5),
+                "Accent color for marked cards",
+                (
+                    light: palette(indigo, 2),
+                    dark: palette(purple, 5),
+                ),
             ),
         ),
         highlight: (
             bg: (
-                light: color.scale(palette(blue, 3), $alpha: -33%),
-                dark: color.scale(palette(blue, 4), $alpha: -33%),
+                "Background color of highlighted items",
+                (
+                    light: color.scale(palette(blue, 6), $alpha: -50%),
+                    dark: color.scale(palette(blue, 3), $alpha: -50%),
+                ),
             ),
             fg: (
-                light: black,
-                dark: white,
+                "Foreground color of highlighted items",
+                (
+                    light: black,
+                    dark: white,
+                ),
             ),
         ),
-        selection: (
+        selected: (
             bg: (
-                light: color.scale(palette(lightgray, 5), $alpha: -50%),
-                dark: color.scale(palette(blue, 3), $alpha: -50%),
+                "Background color of selected text",
+                (
+                    light: color.scale(palette(lightgray, 5), $alpha: -50%),
+                    dark: color.scale(palette(blue, 3), $alpha: -50%),
+                ),
             ),
             fg: (
-                light: black,
-                dark: white,
+                "Foreground color of selected text",
+                (
+                    light: black,
+                    dark: white,
+                ),
             ),
         ),
     ),
 );
+
+@function prop($keyword) {
+    @return var(--#{$keyword});
+}
 
 @function color($keyword) {
     @return var(--#{$keyword});
@@ -301,42 +444,4 @@ $vars: (
 @function palette-of($keyword, $theme: default) {
     $colors: map.get($vars, colors);
     @return get-value-from-map($colors, $keyword, $theme);
-}
-
-@function prop($keyword) {
-    @return var(--#{$keyword});
-}
-
-/*! colors */
-:root {
-    $colors: map.get($vars, colors);
-    @each $name, $val in create-vars-from-map($colors, light) {
-        #{$name}: #{$val};
-    }
-    color-scheme: light;
-    &.night-mode {
-        @each $name, $val in create-vars-from-map($colors, dark) {
-            #{$name}: #{$val};
-        }
-        color-scheme: dark;
-    }
-}
-
-/*! props */
-:root {
-    $props: map.get($vars, props);
-    @each $name, $val in create-vars-from-map($props, default) {
-        #{$name}: #{$val};
-    }
-    @each $name, $val in create-vars-from-map($props, light) {
-        #{$name}: #{$val};
-    }
-    &.night-mode {
-        @each $name, $val in create-vars-from-map($props, default) {
-            #{$name}: #{$val};
-        }
-        @each $name, $val in create-vars-from-map($props, dark) {
-            #{$name}: #{$val};
-        }
-    }
 }

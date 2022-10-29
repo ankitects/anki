@@ -14,7 +14,7 @@ genrule(
 genrule(
     name = "extract_sass_vars",
     srcs = [
-        "//sass:_vars.css",
+        "//sass:_root-vars.css",
     ],
     outs = [
         "colors.py",

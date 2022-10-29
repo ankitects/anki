@@ -9,7 +9,7 @@ compile_sass(
     group = "css_local",
     visibility = ["//visibility:private"],
     deps = [
-        "//sass:vars_lib",
+        "//sass:base_lib",
         "//sass:buttons_lib",
         "//sass:card_counts_lib",
         "//sass:scrollbar_lib",

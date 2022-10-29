@@ -2,13 +2,14 @@
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 @use "vars";
 @use "sass:color";
+@use "sass/elevation" as *;
 
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";
 
 @mixin impressed-shadow($intensity) {
-    box-shadow: inset 0 calc(var(--buttons-size) / 15) calc(var(--buttons-size) / 5)
-        rgba(black, $intensity);
+    box-shadow: inset 0 calc(var(--buttons-size, 10px) / 15)
+        calc(var(--buttons-size, 10px) / 5) rgba(black, $intensity);
 }
 
 @mixin border-radius {
@@ -19,20 +20,25 @@
     border-bottom-right-radius: var(--border-right-radius);
 }
 
-@mixin background($primary: false) {
+@mixin background($primary: false, $elevation: 1, $hover: true) {
     @if $primary {
         background: linear-gradient(
             180deg,
             var(--button-primary-gradient-start) 0%,
             var(--button-primary-gradient-end) 100%
         );
-        &:hover {
-            background: linear-gradient(
-                180deg,
-                var(--button-primary-hover-gradient-start) 0%,
-                var(--button-primary-hover-gradient-end) 100%
-            );
-            border-color: var(--button-hover-border);
+        @if $hover {
+            &:hover {
+                background: linear-gradient(
+                    180deg,
+                    var(--button-primary-hover-gradient-start) 0%,
+                    var(--button-primary-hover-gradient-end) 100%
+                );
+                border-color: var(--button-hover-border);
+            }
+        }
+        @if $elevation != 0 {
+            @include elevation($elevation, 0.2);
         }
     } @else {
         background: linear-gradient(
@@ -40,13 +46,18 @@
             var(--button-gradient-start) 0%,
             var(--button-gradient-end) 100%
         );
-        &:hover {
-            background: linear-gradient(
-                180deg,
-                var(--button-hover-gradient-start) 0%,
-                var(--button-hover-gradient-end) 100%
-            );
-            border-color: var(--button-hover-border);
+        @if $hover {
+            &:hover {
+                background: linear-gradient(
+                    180deg,
+                    var(--button-hover-gradient-start) 0%,
+                    var(--button-hover-gradient-end) 100%
+                );
+                border-color: var(--button-hover-border);
+            }
+        }
+        @if $elevation != 0 {
+            @include elevation($elevation);
         }
     }
 }
@@ -57,16 +68,21 @@
     $with-hover: true,
     $with-active: true,
     $active-class: "",
-    $with-disabled: true
+    $with-disabled: true,
+    $elevation: 1
 ) {
     -webkit-appearance: none;
     cursor: pointer;
     @if $border {
-        border: 1px solid var(--button-border);
+        @if $primary {
+            border: none;
+        } @else {
+            border: 1px solid var(--border-subtle);
+        }
     } @else {
         border: none;
     }
-    @include background($primary);
+    @include background($primary, $elevation, $hover: $with-hover);
 
     @if ($primary) {
         color: white;
@@ -77,12 +93,12 @@
     @if ($with-active) {
         &:active {
             @include impressed-shadow(0.35);
-            border-color: var(--button-border);
+            border-color: var(--border-subtle);
         }
         @if ($active-class != "") {
             &.#{$active-class} {
                 @include impressed-shadow(0.35);
-                border-color: var(--button-border);
+                border-color: var(--border);
             }
         }
     }

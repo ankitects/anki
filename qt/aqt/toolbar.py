@@ -196,7 +196,7 @@ class Toolbar:
 
     _body = """
 <center id=outer>
-<table id=header width=100%%>
+<table id=header>
 <tr>
 <td class=tdcenter align=center>%s</td>
 </tr></table>

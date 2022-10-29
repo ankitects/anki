@@ -75,13 +75,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .chevron {
         position: absolute;
         inset: 0 0 0 auto;
-        border-left: 1px solid var(--button-border);
+        border-left: 1px solid var(--border-subtle);
     }
     :global([dir="rtl"]) {
         .chevron {
             inset: 0 auto 0 0;
             border-left: none;
-            border-right: 1px solid var(--button-border);
+            border-right: 1px solid var(--border-subtle);
         }
     }
 </style>
