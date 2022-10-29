@@ -108,8 +108,8 @@ struct Cloze<'a> {
 impl<'a> Cloze<'a> {
     fn new(open_str: &'a str, ordinal: u16) -> Self {
         Self {
-            open_str: &open_str,
-            ordinal: ordinal,
+            open_str,
+            ordinal,
             content: vec![],
             hint: false,
             hint_content: vec![],
@@ -212,9 +212,8 @@ pub fn reveal_cloze_text_only(text: &str, cloze_ord: u16, question: bool) -> Cow
     for token in tokens {
         if stack.is_empty() {
             // At root level, only valid token is open cloze
-            match token {
-                Token::Open(raw, ordinal) => stack.push(Cloze::new(raw, *ordinal)),
-                _ => {}
+            if let Token::Open(raw, ordinal) = token {
+                stack.push(Cloze::new(raw, *ordinal));
             }
         } else {
             let mut current = stack.last_mut().unwrap();
@@ -287,13 +286,16 @@ pub(crate) fn contains_cloze(text: &str) -> bool {
 
     for token in tokens {
         let (in_root, in_hint) = match stack.last() {
-            Some(Cloze { in_hint, ordinal }) => (false, *in_hint),
+            Some(Cloze {
+                in_hint,
+                ordinal: _,
+            }) => (false, *in_hint),
             None => (true, false),
         };
         match (token, in_root, in_hint) {
             (Token::Open(_, ordinal), _, false) => stack.push(Cloze {
                 in_hint: false,
-                ordinal: ordinal,
+                ordinal,
             }),
             (Token::Hint(_), false, false) => stack.last_mut().unwrap().in_hint = true,
             (Token::Close(_), false, _) => {
@@ -333,7 +335,7 @@ pub fn add_cloze_numbers_in_string(field: &str, set: &mut HashSet<u16>) {
         match (token, in_root, in_hint) {
             (Token::Open(_, ordinal), _, false) => stack.push(Cloze {
                 in_hint: false,
-                ordinal: ordinal,
+                ordinal,
             }),
             (Token::Hint(_), false, false) => stack.last_mut().unwrap().in_hint = true,
             (Token::Close(_), false, _) => {
