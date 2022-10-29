@@ -412,30 +412,32 @@ class AnkiWebView(QWebEngineView):
             family = tr.qt_misc_segoe_ui()
             button_style = f"""
 button {{ font-family: {family}; }}
-button:focus {{ outline: 5px auto {color_hl}; }}"""
+            """
             font = f"font-size:12px;font-family:{family};"
         elif is_mac:
             family = "Helvetica"
-            font = f'font-size:15px;font-family:"{family}";'
-            color = ""
-            if not theme_manager.night_mode:
-                color = "background: #fff; border: 1px solid #ccc;"
-            button_style = (
-                """
-button { -webkit-appearance: none; %s
-border-radius:5px; font-family: Helvetica }"""
-                % color
-            )
+            font = f'font-size:14px;font-family:"{family}";'
+            button_style = """
+button {
+    --canvas: #fff;
+    -webkit-appearance: none;
+    background: var(--canvas);
+    border-radius: var(--border-radius);
+    padding: 3px 12px;
+    border: 0.5px solid var(--border);
+    box-shadow: 0px 1px 3px var(--border-subtle);
+    font-family: Helvetica
+}
+.night-mode button { --canvas: #606060; --fg: #eee; }
+"""
         else:
             family = self.font().family()
-            color_hl_txt = palette.color(QPalette.ColorRole.HighlightedText).name()
             font = f'font-size:14px;font-family:"{family}", sans-serif;'
             button_style = """
 /* Buttons */
 button{{ 
-        font-family:"{family}", sans-serif; }}
-button:focus{{ border-color: {color_hl} }}
-button:active, button:active:hover {{ background-color: {color_hl}; color: {color_hl_txt};}}
+    font-family: "{family}", sans-serif;
+}}
 /* Input field focus outline */
 textarea:focus, input:focus, input[type]:focus, .uneditable-input:focus,
 div[contenteditable="true"]:focus {{   
@@ -444,7 +446,6 @@ div[contenteditable="true"]:focus {{
 }}""".format(
                 family=family,
                 color_hl=color_hl,
-                color_hl_txt=color_hl_txt,
             )
 
         zoom = self.app_zoom_factor()
@@ -453,8 +454,8 @@ div[contenteditable="true"]:focus {{
 body {{ zoom: {zoom}; background-color: var(--canvas); }}
 html {{ {font} }}
 {button_style}
-:root {{ --canvas: {colors.CANVAS[0]} }}
-:root[class*=night-mode] {{ --canvas: {colors.CANVAS[1]} }}
+:root {{ --canvas: {colors.CANVAS["light"]} }}
+:root[class*=night-mode] {{ --canvas: {colors.CANVAS["dark"]} }}
 """
 
     def stdHtml(

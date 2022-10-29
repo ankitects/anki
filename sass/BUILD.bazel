@@ -17,7 +17,7 @@ sass_library(
 sass_library(
     name = "vars_lib",
     srcs = [
-        "_colors.scss",
+        "_color-palette.scss",
         "_functions.scss",
         "_vars.scss",
     ],
@@ -104,7 +104,7 @@ sass_library(
 )
 
 compile_sass(
-    srcs = ["_vars.scss"],
+    srcs = ["_root-vars.scss"],
     group = "vars_css",
     visibility = ["//visibility:public"],
 )

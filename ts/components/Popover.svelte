@@ -20,10 +20,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    @use "sass/vars";
+    @use "sass/vars" as *;
     .popover {
         border-radius: 5px;
-        background-color: var(--canvas-elevated);
+        background-color: color(canvas-elevated);
         min-width: var(--popover-width, 1rem);
         max-width: 95vw;
 
@@ -31,20 +31,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding: var(--popover-padding-block, 6px) var(--popover-padding-inline, 6px);
 
         font-size: 1rem;
-        color: var(--fg);
+        color: color(fg);
 
         /* outer border */
-        border: 1px solid vars.palette(lightgray, 6);
+        border: 1px solid palette(lightgray, 6);
 
         &.dark {
-            border-color: vars.palette(darkgray, 9);
+            border-color: palette(darkgray, 9);
         }
 
         /* inner border */
-        box-shadow: inset 0 0 0 1px vars.palette(lightgray, 3);
+        box-shadow: inset 0 0 0 1px palette(lightgray, 3);
 
         &.dark {
-            box-shadow: inset 0 0 0 1px vars.palette(darkgray, 2);
+            box-shadow: inset 0 0 0 1px palette(darkgray, 2);
         }
         &.scrollable {
             max-height: 80vh;

@@ -37,11 +37,13 @@ with open(input_svg, "r") as f:
             elif f"{prefix}-dark.svg" in path:
                 dark_svg = path
 
-        for (idx, filename) in enumerate((light_svg, dark_svg)):
-            data = svg_data
+        def substitute(data: str, filename: str, mode: str) -> None:
             if "fill" in data:
-                data = re.sub(r"fill=\"#.+?\"", f'fill="{color[idx]}"', data)
+                data = re.sub(r"fill=\"#.+?\"", f'fill="{color[mode]}"', data)
             else:
-                data = re.sub(r"<svg", f'<svg fill="{color[idx]}"', data, 1)
+                data = re.sub(r"<svg", f'<svg fill="{color[mode]}"', data, 1)
             with open(filename, "w") as f:
                 f.write(data)
+
+        substitute(svg_data, light_svg, "light")
+        substitute(svg_data, dark_svg, "dark")
