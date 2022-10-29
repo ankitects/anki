@@ -417,22 +417,21 @@ button {{ font-family: {family}; }}
         elif is_mac:
             family = "Helvetica"
             font = f'font-size:14px;font-family:"{family}";'
-            color = ""
-            if not theme_manager.night_mode:
-                color = "background: #fff; border: 1px solid #ccc;"
-            button_style = (
-                """
-button { -webkit-appearance: none; %s
-border-radius: var(--border-radius);
-padding: 3px 12px;
-border: 0.5px solid var(--border);
-box-shadow: 0px 1px 3px var(--border-subtle);
-font-family: Helvetica }"""
-                % color
-            )
+            button_style = """
+button {
+    --canvas: #fff;
+    -webkit-appearance: none;
+    background: var(--canvas);
+    border-radius: var(--border-radius);
+    padding: 3px 12px;
+    border: 0.5px solid var(--border);
+    box-shadow: 0px 1px 3px var(--border-subtle);
+    font-family: Helvetica
+}
+.night-mode button { --canvas: #606060; --fg: #eee; }
+"""
         else:
             family = self.font().family()
-            color_hl_txt = palette.color(QPalette.ColorRole.HighlightedText).name()
             font = f'font-size:14px;font-family:"{family}", sans-serif;'
             button_style = """
 /* Buttons */
