@@ -201,8 +201,7 @@ def test_cloze():
         in note.cards()[0].question()
     )
     assert (
-        '<span class="cloze" data-ordinal="1">world</span>'
-        in note.cards()[0].answer()
+        '<span class="cloze" data-ordinal="1">world</span>' in note.cards()[0].answer()
     )
     # and with 2 clozes
     note = col.new_note(m)
