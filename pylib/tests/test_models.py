@@ -339,7 +339,7 @@ def test_chained_mods():
     assert col.addNote(note) == 1
     assert (
         'This <span class="cloze" data-cloze="phrase" data-ordinal="1">[sentence]</span>'
-        ' demonstrates <span class="cloze" data-cloze="en chaine" data-ordinal="1">[chained]</span> clozes.'
+        f' demonstrates <span class="cloze" data-cloze="{encode_attribute("en chaine")}" data-ordinal="1">[chained]</span> clozes.'
         in note.cards()[0].question()
     )
     assert (
