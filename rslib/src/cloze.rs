@@ -37,8 +37,8 @@ mod mathjax_caps {
 enum Token<'a> {
     Open(&'a str, u16),
     Text(&'a str),
-    Hint(&'a str),
-    Close(&'a str),
+    Hint,
+    Close,
 }
 
 /// Tokenize string
@@ -82,12 +82,12 @@ fn tokenize(txt: &str) -> Vec<Token> {
 
     /// Match Token::Hint
     fn hint(txt: &str) -> IResult<&str, Token> {
-        map(tag("::"), |_| Token::Hint(&txt[..2]))(txt)
+        map(tag("::"), |_| Token::Hint)(txt)
     }
 
     /// Match Token::Close
     fn close(txt: &str) -> IResult<&str, Token> {
-        map(tag("}}"), |_| Token::Close(&txt[..2]))(txt)
+        map(tag("}}"), |_| Token::Close)(txt)
     }
 
     let (remaining, tokens) = many0(alt((open, close, hint, text)))(txt).unwrap();
@@ -129,18 +129,18 @@ pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str>
             match token {
                 Token::Open(raw, ordinal) => stack.push(Cloze::new(raw, *ordinal)),
                 Token::Text(text) => output.push(text.to_string()),
-                Token::Hint(raw) => output.push(raw.to_string()),
-                Token::Close(raw) => output.push(raw.to_string()),
+                Token::Hint => output.push("::".to_string()),
+                Token::Close => output.push("}}".to_string()),
             }
         } else {
             let mut current = stack.last_mut().unwrap();
             match (token, current.hint) {
                 (Token::Open(raw, ordinal), false) => stack.push(Cloze::new(raw, *ordinal)),
                 (Token::Open(raw, _), true) => current.hint_content.push(raw),
-                (Token::Hint(_), _) => current.hint = true,
+                (Token::Hint, _) => current.hint = true,
                 (Token::Text(text), false) => current.content.push(text.to_string()),
                 (Token::Text(text), true) => current.hint_content.push(text),
-                (Token::Close(_), _) => {
+                (Token::Close, _) => {
                     let cloze = stack.pop().unwrap();
                     cloze_found |= cloze.ordinal == cloze_ord;
                     let content = cloze.content.join("");
@@ -225,10 +225,10 @@ pub fn reveal_cloze_text_only(text: &str, cloze_ord: u16, question: bool) -> Cow
             ) {
                 (Token::Open(raw, ordinal), false, _) => stack.push(Cloze::new(raw, *ordinal)),
                 (Token::Open(raw, _), true, true) => current.hint_content.push(raw),
-                (Token::Hint(_), _, _) => current.hint = true,
+                (Token::Hint, _, _) => current.hint = true,
                 (Token::Text(text), false, _) => current.content.push(text.to_string()),
                 (Token::Text(text), true, _) => current.hint_content.push(text),
-                (Token::Close(_), _, _) => {
+                (Token::Close, _, _) => {
                     let cloze = stack.pop().unwrap();
                     cloze_found |= cloze.ordinal == cloze_ord;
                     let content = cloze.content.join(", ");
@@ -287,8 +287,8 @@ pub(crate) fn contains_cloze(text: &str) -> bool {
         };
         match (token, in_root, in_hint) {
             (Token::Open(_, _), _, false) => cloze_in_hint.push(false),
-            (Token::Hint(_), false, false) => *cloze_in_hint.last_mut().unwrap() = true,
-            (Token::Close(_), false, _) => {
+            (Token::Hint, false, false) => *cloze_in_hint.last_mut().unwrap() = true,
+            (Token::Close, false, _) => {
                 return true;
             }
             _ => {}
@@ -327,8 +327,8 @@ pub fn add_cloze_numbers_in_string(field: &str, set: &mut HashSet<u16>) {
                 in_hint: false,
                 ordinal,
             }),
-            (Token::Hint(_), false, false) => stack.last_mut().unwrap().in_hint = true,
-            (Token::Close(_), false, _) => {
+            (Token::Hint, false, false) => stack.last_mut().unwrap().in_hint = true,
+            (Token::Close, false, _) => {
                 let current = stack.pop().unwrap();
                 set.insert(current.ordinal);
             }
