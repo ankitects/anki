@@ -624,12 +624,15 @@ class AnkiQt(QMainWindow):
 
         try:
             if not corrupt and not dev_mode and not self.restoring_backup:
-                # default 5 minute throttle
-                self.col.create_backup(
-                    backup_folder=self.pm.backupFolder(),
-                    force=False,
-                    wait_for_completion=False,
-                )
+                try:
+                    # default 5 minute throttle
+                    self.col.create_backup(
+                        backup_folder=self.pm.backupFolder(),
+                        force=False,
+                        wait_for_completion=False,
+                    )
+                except:
+                    print("backup on close failed")
             self.col.close(downgrade=False)
         except Exception as e:
             print(e)

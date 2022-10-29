@@ -143,7 +143,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .search-link:hover {
         cursor: pointer;
-        color: var(--accent-link);
+        color: var(--fg-link);
         text-decoration: underline;
     }
 </style>

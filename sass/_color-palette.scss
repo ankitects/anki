@@ -5,7 +5,7 @@
  * custom gray, rest from Tailwind CSS v3 palette
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-$colors: (
+$color-palette: (
     lightgray: (
         0: #fcfcfc,
         1: #fafafa,
@@ -26,7 +26,7 @@ $colors: (
         4: #363636,
         5: #2c2c2c,
         6: #252525,
-        7: #1f1f1f,
+        7: #202020,
         8: #141414,
         9: #020202,
     ),

@@ -49,7 +49,7 @@ class CellRow:
     ) -> None:
         self.refreshed_at: float = time.time()
         self.cells: tuple[Cell, ...] = tuple(Cell(*cell) for cell in cells)
-        self.color: tuple[str, str] | None = backend_color_to_aqt_color(color)
+        self.color: dict[str, str] | None = backend_color_to_aqt_color(color)
         self.font_name: str = font_name or "arial"
         self.font_size: int = font_size if font_size > 0 else 12
 
@@ -76,7 +76,7 @@ class CellRow:
         return row
 
 
-def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> tuple[str, str] | None:
+def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> dict[str, str] | None:
     temp_color = None
 
     if color == BrowserRow.COLOR_MARKED:
@@ -101,12 +101,11 @@ def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> tuple[str, str] | N
     return adjusted_bg_color(temp_color)
 
 
-def adjusted_bg_color(color: tuple[str, str]) -> tuple[str, str]:
+def adjusted_bg_color(color: dict[str, str]) -> dict[str, str]:
     if color:
-        return (
-            QColor(color[0]).lighter(150).name(),
-            QColor(color[1]).darker(150).name(),
-        )
+        color["light"] = QColor(color["light"]).lighter(150).name()
+        color["dark"] = QColor(color["dark"]).darker(150).name()
+        return color
     else:
         return None
 
