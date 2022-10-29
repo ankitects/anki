@@ -1,17 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, collections::HashSet};
-use nom::{
-    branch::alt,
-    multi::many0,
-    bytes::complete::{take_while, tag},
-    combinator::map,
-    IResult
-};
 use htmlescape::encode_attribute;
 use lazy_static::lazy_static;
+use nom::{
+    branch::alt,
+    bytes::complete::{tag, take_while},
+    combinator::map,
+    multi::many0,
+    IResult,
+};
 use regex::{Captures, Regex};
+use std::{borrow::Cow, collections::HashSet};
 
 use crate::{latex::contains_latex, template::RenderContext, text::strip_html_preserving_entities};
 
@@ -61,7 +61,7 @@ fn tokenize(txt: &str) -> Vec<Token> {
         };
         // ::
         let (tail, _colons) = tag("::")(tail)?;
-        Ok((tail, Token::Open(&txt[..5+digits.len()], ordinal)))
+        Ok((tail, Token::Open(&txt[..5 + digits.len()], ordinal)))
     }
 
     /// Match a run of txt until an open/hint/close is encountered.
@@ -103,16 +103,16 @@ struct Cloze<'a> {
     ordinal: u16,
     content: Vec<String>,
     hint: bool,
-    hint_content: Vec<&'a str>
+    hint_content: Vec<&'a str>,
 }
-impl <'a>Cloze<'a> {
+impl<'a> Cloze<'a> {
     fn new(open_str: &'a str, ordinal: u16) -> Self {
         Self {
             open_str: &open_str,
             ordinal: ordinal,
             content: vec![],
             hint: false,
-            hint_content: vec![]
+            hint_content: vec![],
         }
     }
 }
@@ -130,7 +130,7 @@ pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str>
                 Token::Open(raw, ordinal) => stack.push(Cloze::new(raw, *ordinal)),
                 Token::Text(text) => output.push(text.to_string()),
                 Token::Hint(raw) => output.push(raw.to_string()),
-                Token::Close(raw) => output.push(raw.to_string())
+                Token::Close(raw) => output.push(raw.to_string()),
             }
         } else {
             let mut current = stack.last_mut().unwrap();
@@ -146,11 +146,7 @@ pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str>
                     let content = cloze.content.join("");
                     let hint = cloze.hint_content.join("");
 
-                    let out = match (
-                        question,
-                        cloze.ordinal == cloze_ord,
-                        hint.is_empty(),
-                    ) {
+                    let out = match (question, cloze.ordinal == cloze_ord, hint.is_empty()) {
                         // Question, active close, no hint
                         (true, true, true) => format!(
                             r#"<span class="cloze" data-cloze="{}" data-ordinal="{}">[...]</span>"#,
@@ -167,20 +163,17 @@ pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str>
                         // Question - inactive cloze
                         (true, false, _) => format!(
                             r#"<span class="cloze-inactive" data-ordinal="{}">{}</span>"#,
-                            cloze.ordinal,
-                            content
+                            cloze.ordinal, content
                         ),
                         // Answer - active cloze
                         (false, true, _) => format!(
                             r#"<span class="cloze" data-ordinal="{}">{}</span>"#,
-                            cloze.ordinal,
-                            content
+                            cloze.ordinal, content
                         ),
                         // Answer - inactive cloze
                         (false, false, _) => format!(
                             r#"<span class="cloze-inactive" data-ordinal="{}">{}</span>"#,
-                            cloze.ordinal,
-                            content
+                            cloze.ordinal, content
                         ),
                     };
                     if stack.is_empty() {
@@ -188,12 +181,14 @@ pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str>
                     } else {
                         stack.last_mut().unwrap().content.push(out)
                     }
-                },
+                }
             }
         }
     }
 
-    if !cloze_found { return Cow::from("") }
+    if !cloze_found {
+        return Cow::from("");
+    }
 
     // Add any remaining (unclosed) clozes as text
     for rest in stack {
@@ -224,7 +219,11 @@ pub fn reveal_cloze_text_only(text: &str, cloze_ord: u16, question: bool) -> Cow
         } else {
             let mut current = stack.last_mut().unwrap();
             // Only store hints on question and active cloze
-            match (token, current.hint, question && current.ordinal == cloze_ord) {
+            match (
+                token,
+                current.hint,
+                question && current.ordinal == cloze_ord,
+            ) {
                 (Token::Open(raw, ordinal), false, _) => stack.push(Cloze::new(raw, *ordinal)),
                 (Token::Open(raw, _), true, true) => current.hint_content.push(raw),
                 (Token::Hint(_), _, _) => current.hint = true,
@@ -235,12 +234,11 @@ pub fn reveal_cloze_text_only(text: &str, cloze_ord: u16, question: bool) -> Cow
                     cloze_found |= cloze.ordinal == cloze_ord;
                     let content = cloze.content.join(", ");
                     let mut hint = cloze.hint_content.join("");
-                    if hint.is_empty() { hint += "..." }
+                    if hint.is_empty() {
+                        hint += "..."
+                    }
 
-                    match (
-                        question && cloze.ordinal == cloze_ord,
-                        stack.is_empty()
-                    ) {
+                    match (question && cloze.ordinal == cloze_ord, stack.is_empty()) {
                         // Question and active cloze
                         (true, true) => output.push(hint),
                         (true, false) => stack.last_mut().unwrap().content.push(hint),
@@ -248,13 +246,15 @@ pub fn reveal_cloze_text_only(text: &str, cloze_ord: u16, question: bool) -> Cow
                         (false, true) => output.push(content),
                         (false, false) => stack.last_mut().unwrap().content.push(content),
                     };
-                },
+                }
                 (_, _, _) => {}
             }
         }
     }
 
-    if !cloze_found { return Cow::from("") }
+    if !cloze_found {
+        return Cow::from("");
+    }
 
     Cow::from(output.join(", "))
 }
@@ -279,7 +279,7 @@ pub fn expand_clozes_to_reveal_latex(text: &str) -> String {
 pub(crate) fn contains_cloze(text: &str) -> bool {
     struct Cloze {
         in_hint: bool,
-        ordinal: u16
+        ordinal: u16,
     }
 
     let tokens = tokenize(text);
@@ -287,15 +287,18 @@ pub(crate) fn contains_cloze(text: &str) -> bool {
 
     for token in tokens {
         let (in_root, in_hint) = match stack.last() {
-            Some(Cloze {in_hint, ordinal}) => (false, *in_hint),
-            None => (true, false)
+            Some(Cloze { in_hint, ordinal }) => (false, *in_hint),
+            None => (true, false),
         };
         match (token, in_root, in_hint) {
-            (Token::Open(_, ordinal), _, false) => stack.push(Cloze {in_hint: false, ordinal: ordinal}),
+            (Token::Open(_, ordinal), _, false) => stack.push(Cloze {
+                in_hint: false,
+                ordinal: ordinal,
+            }),
             (Token::Hint(_), false, false) => stack.last_mut().unwrap().in_hint = true,
             (Token::Close(_), false, _) => {
                 return true;
-            },
+            }
             _ => {}
         }
     }
@@ -313,7 +316,7 @@ pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
 pub fn add_cloze_numbers_in_string(field: &str, set: &mut HashSet<u16>) {
     struct Cloze {
         in_hint: bool,
-        ordinal: u16
+        ordinal: u16,
     }
 
     let tokens = tokenize(field);
@@ -321,16 +324,22 @@ pub fn add_cloze_numbers_in_string(field: &str, set: &mut HashSet<u16>) {
 
     for token in tokens {
         let (in_root, in_hint) = match stack.last() {
-            Some(Cloze {in_hint, ordinal: _}) => (false, *in_hint),
-            None => (true, false)
+            Some(Cloze {
+                in_hint,
+                ordinal: _,
+            }) => (false, *in_hint),
+            None => (true, false),
         };
         match (token, in_root, in_hint) {
-            (Token::Open(_, ordinal), _, false) => stack.push(Cloze {in_hint: false, ordinal: ordinal}),
+            (Token::Open(_, ordinal), _, false) => stack.push(Cloze {
+                in_hint: false,
+                ordinal: ordinal,
+            }),
             (Token::Hint(_), false, false) => stack.last_mut().unwrap().in_hint = true,
             (Token::Close(_), false, _) => {
                 let current = stack.pop().unwrap();
                 set.insert(current.ordinal);
-            },
+            }
             _ => {}
         }
     }
@@ -442,7 +451,12 @@ mod test {
         );
         assert_eq!(
             reveal_cloze_text("foo {{c1::bar {{c2::baz}}}}", 1, true),
-            format!(r#"foo <span class="cloze" data-cloze="{}" data-ordinal="1">[...]</span>"#, htmlescape::encode_attribute(r#"bar <span class="cloze-inactive" data-ordinal="2">baz</span>"#))
+            format!(
+                r#"foo <span class="cloze" data-cloze="{}" data-ordinal="1">[...]</span>"#,
+                htmlescape::encode_attribute(
+                    r#"bar <span class="cloze-inactive" data-ordinal="2">baz</span>"#
+                )
+            )
         );
         assert_eq!(
             reveal_cloze_text("foo {{c1::bar {{c2::baz}}}}", 1, false),
@@ -458,7 +472,12 @@ mod test {
         );
         assert_eq!(
             reveal_cloze_text("foo {{c1::bar {{c2::baz}}::qux}}", 1, true),
-            format!(r#"foo <span class="cloze" data-cloze="{}" data-ordinal="1">[qux]</span>"#, htmlescape::encode_attribute(r#"bar <span class="cloze-inactive" data-ordinal="2">baz</span>"#))
+            format!(
+                r#"foo <span class="cloze" data-cloze="{}" data-ordinal="1">[qux]</span>"#,
+                htmlescape::encode_attribute(
+                    r#"bar <span class="cloze-inactive" data-ordinal="2">baz</span>"#
+                )
+            )
         );
         assert_eq!(
             reveal_cloze_text("foo {{c1::bar {{c2::baz}}::qux}}", 1, false),
