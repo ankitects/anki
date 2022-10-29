@@ -276,28 +276,18 @@ pub fn expand_clozes_to_reveal_latex(text: &str) -> String {
 }
 
 pub(crate) fn contains_cloze(text: &str) -> bool {
-    struct Cloze {
-        in_hint: bool,
-        ordinal: u16,
-    }
-
     let tokens = tokenize(text);
-    let mut stack: Vec<Cloze> = vec![];
+    // We should only "recurse" on Token::Open when not inside hint
+    let mut cloze_in_hint: Vec<bool> = vec![];
 
     for token in tokens {
-        let (in_root, in_hint) = match stack.last() {
-            Some(Cloze {
-                in_hint,
-                ordinal: _,
-            }) => (false, *in_hint),
+        let (in_root, in_hint) = match cloze_in_hint.last() {
+            Some(in_hint) => (false, *in_hint),
             None => (true, false),
         };
         match (token, in_root, in_hint) {
-            (Token::Open(_, ordinal), _, false) => stack.push(Cloze {
-                in_hint: false,
-                ordinal,
-            }),
-            (Token::Hint(_), false, false) => stack.last_mut().unwrap().in_hint = true,
+            (Token::Open(_, _), _, false) => cloze_in_hint.push(false),
+            (Token::Hint(_), false, false) => *cloze_in_hint.last_mut().unwrap() = true,
             (Token::Close(_), false, _) => {
                 return true;
             }
