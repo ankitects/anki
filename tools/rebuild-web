@@ -1,0 +1,12 @@
+#!/bin/bash
+# Copyright: Ankitects Pty Ltd and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+# Manually trigger a rebuild and reload of Anki's web stack
+
+set -e
+
+PARENT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+bazel build "//qt/aqt:aqt_with_data" 
+"$PARENT_DIR/reload_webviews.py"
