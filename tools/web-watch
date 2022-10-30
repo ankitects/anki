@@ -7,11 +7,19 @@
 
 set -e
 
-PARENT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+MONITORED_FOLDERS=("ts/" "sass/" "qt/aqt/data/web/")
+MONITORED_EVENTS=("Created" "Updated" "Removed")
 
-on_change_detected="printf \\033c\\n; \"$PARENT_DIR/rebuild-web\""
+parent_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+on_change_detected="printf \\033c\\n; \"$parent_dir/rebuild-web\""
+
+event_args=""
+for event in "${MONITORED_EVENTS[@]}"; do
+    event_args+="--event ${event} "
+done
 
 # poll_monitor comes with a slight performance penalty, but seems to more
 # reliably identify file system events across both macOS and Linux
-fswatch -r -o -m poll_monitor --event Created --event Updated --event Removed \
-    qt/aqt/data/web/ ts/ sass/ | xargs -n1 -I{} sh -c "$on_change_detected"
+fswatch -r -o -m poll_monitor ${event_args[@]} \
+    "${MONITORED_FOLDERS[@]}" | xargs -n1 -I{} sh -c "$on_change_detected"
