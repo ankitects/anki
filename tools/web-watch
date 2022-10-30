@@ -14,4 +14,4 @@ on_change_detected="printf \\033c\\n; \"$PARENT_DIR/rebuild-web\""
 # poll_monitor comes with a slight performance penalty, but seems to more
 # reliably identify file system events across both macOS and Linux
 fswatch -r -o -m poll_monitor --event Created --event Updated --event Removed \
-    qt/aqt/data/web/ ts/ | xargs -n1 -I{} sh -c "$on_change_detected"
+    qt/aqt/data/web/ ts/ sass/ | xargs -n1 -I{} sh -c "$on_change_detected"
