@@ -8,11 +8,17 @@ Remote Debugging interface.
 """
 
 import argparse
+import sys
 
 import PyChromeDevTools
 
 DEFAULT_HOST = "localhost"
 DEFAULT_PORT = 8080
+
+
+def print_error(message: str):
+    print(f"Error: {message}", file=sys.stderr)
+
 
 parser = argparse.ArgumentParser("reload_webviews")
 parser.add_argument(
@@ -31,10 +37,16 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-chrome = PyChromeDevTools.ChromeInterface(host=args.host, port=args.port)
+try:
+    chrome = PyChromeDevTools.ChromeInterface(host=args.host, port=args.port)
+except Exception as e:
+    print_error(
+        f"Could not establish connection to Chromium remote debugger. Exception:\n{e}"
+    )
+    exit(1)
 
 if chrome.tabs is None:
-    print("Could not establish connection to Chromium remote debugger")
+    print_error("Was unable to get active web views.")
     exit(1)
 
 for tab_index, tab_data in enumerate(chrome.tabs):
