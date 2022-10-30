@@ -8,5 +8,5 @@ set -e
 
 PARENT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-bazel build "//qt/aqt:aqt_with_data" 
+bazel build "//qt/aqt/data/web" 
 "$PARENT_DIR/reload_webviews.py"
