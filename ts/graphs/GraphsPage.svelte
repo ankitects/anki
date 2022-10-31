@@ -54,6 +54,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     div {
+        display: grid;
+        gap: 1.5em;
+        grid-template-columns: 50% 50%;
+        @media only screen and (max-width: 1200px) {
+            grid-template-columns: 100%;
+        }
         @media only screen and (max-width: 600px) {
             font-size: 12px;
         }

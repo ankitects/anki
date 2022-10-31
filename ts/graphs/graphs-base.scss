@@ -1,11 +1,10 @@
 @use "root-vars";
 @import "sass/base";
 
-label,
-input[type="radio"],
-input[type="checkbox"] {
-    cursor: pointer;
+body {
+    padding: 0 1em 1em 1em;
 }
 
 button {
+    margin-bottom: 5px;
 }
