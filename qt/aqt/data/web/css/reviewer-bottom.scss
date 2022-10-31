@@ -65,6 +65,7 @@ button {
 .nobold,
 .stattxt {
     position: absolute;
+    white-space: nowrap;
     top: -5px;
     left: 50%;
     transform: translateX(-50%);
