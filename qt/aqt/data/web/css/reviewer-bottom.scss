@@ -31,6 +31,7 @@ button {
     min-width: 60px;
     white-space: nowrap;
     margin: 0.5em;
+    position: relative;
 }
 
 .hitem {
@@ -50,10 +51,6 @@ button {
     font-weight: normal;
 }
 
-.stattxt {
-    white-space: nowrap;
-}
-
 #ansbut {
     margin-bottom: 1em;
 }
@@ -66,9 +63,10 @@ button {
 .stattxt {
     position: absolute;
     white-space: nowrap;
-    top: -5px;
+    font-size: medium;
+    top: -3px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -100%);
     font-weight: normal;
     display: inline-block;
 }
