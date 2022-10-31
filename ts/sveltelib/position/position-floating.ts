@@ -12,6 +12,7 @@ import {
     arrow,
     autoPlacement,
     computePosition,
+    flip,
     hide,
     inline,
     offset,
@@ -46,6 +47,7 @@ function positionFloating({
         floating: FloatingElement,
     ): Promise<void> {
         const middleware: Middleware[] = [
+            flip(),
             offset(offsetArg),
             shift({ padding: shiftArg }),
             arrow({ element: arrowElement, padding: 5 }),
