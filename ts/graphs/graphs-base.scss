@@ -1,5 +1,5 @@
 @use "root-vars";
-@use "sass/button-mixins" as button;
+@import "sass/base";
 
 label,
 input[type="radio"],
@@ -8,5 +8,4 @@ input[type="checkbox"] {
 }
 
 button {
-    @include button.base;
 }
