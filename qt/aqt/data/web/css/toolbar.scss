@@ -3,7 +3,7 @@
 
 @use "root-vars";
 @use "sass/vars" as *;
-@use "sass/elevation";
+@use "sass/elevation" as *;
 @use "sass/button-mixins" as button;
 
 #header {
@@ -18,9 +18,9 @@
     @include button.base($with-hover: false, $with-active: false);
     overflow: hidden;
     padding: 0;
-    @include elevation.elevation(1, $opacity-boost: -0.08);
+    @include elevation(1, $opacity-boost: -0.08);
     &:hover {
-        @include elevation.elevation(2);
+        @include elevation(2);
         transition: box-shadow 0.2s linear;
     }
 }
