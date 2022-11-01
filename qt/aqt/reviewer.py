@@ -782,14 +782,14 @@ time = %(time)d;
                 extra = ""
             due = self._buttonTime(i, v3_labels=labels)
             return """
-<td align=center>%s<button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
-%s</button></td>""" % (
-                due,
+<td align=center><button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
+%s%s</button></td>""" % (
                 extra,
                 tr.actions_shortcut_key(val=i),
                 i,
                 i,
                 label,
+                due,
             )
 
         buf = "<center><table cellpading=0 cellspacing=0><tr>"
