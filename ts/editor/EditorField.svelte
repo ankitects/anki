@@ -113,7 +113,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .editor-field {
         overflow: hidden;
-        margin: 0 3px;
+        margin: 1px 3px 0 3px;
 
         border-radius: 5px;
         border: 1px solid var(--border);
@@ -121,7 +121,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @include elevation(1);
 
         &:focus-within {
-            border-color: var(--border-focus);
+            outline: 2px solid var(--border-focus);
+            outline-offset: -1px;
         }
     }
 </style>
