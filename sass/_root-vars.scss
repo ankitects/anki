@@ -7,7 +7,6 @@
 
 /*! Colors in HEX or RGBA format */
 :root {
-    color: red;
     $colors: map.get($vars, colors);
     @each $name, $val in create-vars-from-map($colors, light) {
         @if str-index($name, "comment") == 1 {
