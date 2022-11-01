@@ -121,7 +121,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @include elevation(1);
 
         &:focus-within {
-            outline: 2px solid var(--border-focus);
+            /* --focus-color set in NoteEditor.svelte */
+            outline: 2px solid var(--focus-color);
             outline-offset: -1px;
         }
     }
