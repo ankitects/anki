@@ -5,7 +5,7 @@
 @use "vars" as *;
 @use "functions" as *;
 
-/*! Colors in HEX or RGBA format */
+/*! colors */
 :root {
     $colors: map.get($vars, colors);
     @each $name, $val in create-vars-from-map($colors, light) {
@@ -28,7 +28,7 @@
     }
 }
 
-/*! Properties like lengths or percentages */
+/*! props */
 :root {
     $props: map.get($vars, props);
     @each $name, $val in create-vars-from-map($props, light) {
