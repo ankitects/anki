@@ -7,7 +7,6 @@
     import Row from "../components/Row.svelte";
     import Switch from "../components/Switch.svelte";
     import ConfigInput from "./ConfigInput.svelte";
-    import Label from "./Label.svelte";
     import RevertButton from "./RevertButton.svelte";
 
     export let value: boolean;
@@ -17,7 +16,7 @@
 </script>
 
 <Row --cols={6}>
-    <Col --col-size={4}><Label for={id}><slot /></Label></Col>
+    <Col --col-size={4}><slot /></Col>
     <Col --col-justify="flex-end">
         <ConfigInput grow={false}>
             <Switch {id} bind:value />
