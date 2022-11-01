@@ -153,6 +153,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .range-box-pad {
-        height: 2em;
+        height: 1.5em;
     }
 </style>

@@ -24,19 +24,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<div>
-    <WithGraphData
-        {search}
-        {days}
-        let:loading
-        let:sourceData
-        let:preferences
-        let:revlogRange
-    >
-        {#if controller}
-            <svelte:component this={controller} {search} {days} {loading} />
-        {/if}
+<WithGraphData
+    {search}
+    {days}
+    let:loading
+    let:sourceData
+    let:preferences
+    let:revlogRange
+>
+    {#if controller}
+        <svelte:component this={controller} {search} {days} {loading} />
+    {/if}
 
+    <div class="graphs-container">
         {#if sourceData && preferences && revlogRange}
             {#each graphs as graph}
                 <svelte:component
@@ -49,19 +49,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 />
             {/each}
         {/if}
-    </WithGraphData>
-</div>
+    </div>
+    <div class="spacer" />
+</WithGraphData>
 
 <style lang="scss">
-    div {
+    .graphs-container {
         display: grid;
         gap: 1.5em;
         grid-template-columns: 50% 50%;
+
         @media only screen and (max-width: 1200px) {
             grid-template-columns: 100%;
         }
         @media only screen and (max-width: 600px) {
             font-size: 12px;
         }
+    }
+
+    .spacer {
+        height: 1.5em;
     }
 </style>
