@@ -39,6 +39,42 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             event.preventDefault();
         }
     }
+
+    function change(step: number): void {
+        value += step;
+        if (pressed) {
+            setTimeout(() => change(step), interval);
+        }
+    }
+
+    async function longPress(func: Function): Promise<void> {
+        pressed = true;
+        interval = 128;
+        pressTimer = setTimeout(func, 250);
+
+        interval = await new Promise((resolve) =>
+            setTimeout(() => resolve(pressed ? 64 : 128), 1500),
+        );
+        interval = await new Promise((resolve) =>
+            setTimeout(() => resolve(pressed ? 32 : 128), 1250),
+        );
+        interval = await new Promise((resolve) =>
+            setTimeout(() => resolve(pressed ? 16 : 128), 1000),
+        );
+        interval = await new Promise((resolve) =>
+            setTimeout(() => resolve(pressed ? 8 : 128), 750),
+        );
+        interval = await new Promise((resolve) =>
+            setTimeout(() => resolve(pressed ? 4 : 128), 500),
+        );
+        interval = await new Promise((resolve) =>
+            setTimeout(() => resolve(pressed ? 2 : 128), 250),
+        );
+    }
+
+    let pressed = false;
+    let interval: number;
+    let pressTimer: any;
 </script>
 
 <div class="spin-box" on:wheel={handleWheel}>
@@ -48,10 +84,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:click={() => {
             input.focus();
             if (rtl && value < max) {
-                value += step;
+                change(step);
             } else if (value > min) {
-                value -= step;
+                change(-step);
             }
+        }}
+        on:mousedown={() =>
+            longPress(() => {
+                if (rtl && value < max) {
+                    change(step);
+                } else if (value > min) {
+                    change(-step);
+                }
+            })}
+        on:mouseup={() => {
+            clearTimeout(pressTimer);
+            pressed = false;
         }}
     >
         <IconConstrain>
@@ -77,10 +125,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:click={() => {
             input.focus();
             if (rtl && value > min) {
-                value -= step;
+                change(-step);
             } else if (value < max) {
-                value += step;
+                change(step);
             }
+        }}
+        on:mousedown={() =>
+            longPress(() => {
+                if (rtl && value > min) {
+                    change(-step);
+                } else if (value < max) {
+                    change(step);
+                }
+            })}
+        on:mouseup={() => {
+            clearTimeout(pressTimer);
+            pressed = false;
         }}
     >
         <IconConstrain>
