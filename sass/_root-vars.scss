@@ -5,8 +5,9 @@
 @use "vars" as *;
 @use "functions" as *;
 
-/*! colors */
+/*! Colors in HEX or RGBA format */
 :root {
+    color: red;
     $colors: map.get($vars, colors);
     @each $name, $val in create-vars-from-map($colors, light) {
         @if str-index($name, "comment") == 1 {
@@ -28,7 +29,7 @@
     }
 }
 
-/*! props */
+/*! Properties like lengths or percentages */
 :root {
     $props: map.get($vars, props);
     @each $name, $val in create-vars-from-map($props, light) {
