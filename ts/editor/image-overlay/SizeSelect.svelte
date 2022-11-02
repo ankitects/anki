@@ -22,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
 </script>
 
-<ButtonGroup size={1.6}>
+<ButtonGroup size={1.5}>
     <IconButton
         disabled={shrinkingDisabled}
         flipX={$direction === "rtl"}
