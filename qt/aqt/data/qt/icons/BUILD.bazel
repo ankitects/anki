@@ -59,6 +59,9 @@ copy_mdi_icons(
         # checkbox
         "check.svg",
         "minus-thick.svg",
+
+        # QRadioButton
+        "circle-medium.svg",
     ],
 )
 
@@ -106,6 +109,9 @@ color_svg(
 color_svg(
     name = "minus-thick",
 )
+color_svg(
+    name = "circle-medium",
+)
 
 filegroup(
     name = "icons",
@@ -121,6 +127,7 @@ filegroup(
         "drag-horizontal",
         "check",
         "minus-thick",
+        "circle-medium",
     ] + glob([
         "*.svg",
         "*.png",
