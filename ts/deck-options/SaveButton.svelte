@@ -18,6 +18,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { chevronDown } from "./icons";
     import type { DeckOptionsState } from "./lib";
 
+    const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
+
     const dispatch = createEventDispatcher();
 
     export let state: DeckOptionsState;
@@ -67,7 +69,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     primary
     on:click={() => save(false)}
     tooltip={getPlatformString(saveKeyCombination)}
-    --border-left-radius="var(--border-radius)"
+    --border-left-radius={!rtl ? "var(--border-radius)" : "0"}
+    --border-right-radius={rtl ? "var(--border-radius)" : "0"}
 >
     <div class="save">{tr.deckConfigSaveButton()}</div>
 </LabelButton>
@@ -83,7 +86,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class="chevron"
         slot="reference"
         on:click={() => (showFloating = !showFloating)}
-        --border-right-radius="var(--border-radius)"
+        --border-right-radius={!rtl ? "var(--border-radius)" : "0"}
+        --border-left-radius={rtl ? "var(--border-radius)" : "0"}
         iconSize={80}
     >
         {@html chevronDown}
