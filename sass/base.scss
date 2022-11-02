@@ -44,6 +44,7 @@ html {
 }
 
 body {
+    --base-font-size: 13px;
     overscroll-behavior: none;
     &:not(.isMac),
     &:not(.isMac) * {
@@ -62,18 +63,6 @@ code,
 kbd,
 samp {
     unicode-bidi: normal !important;
-}
-
-.isWin {
-    --base-font-size: 12px;
-}
-
-.isMac {
-    --base-font-size: 13px;
-}
-
-.isLin {
-    --base-font-size: 14px;
 }
 
 [dir="rtl"] {
