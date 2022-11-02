@@ -58,6 +58,26 @@ tr:hover:not(.top-level-drag-row) {
         }
     }
 }
+[dir="rtl"] {
+    .current,
+    tr:hover:not(.top-level-drag-row) {
+        td {
+            background: color(canvas-inset);
+            &:first-child {
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+                border-top-right-radius: prop(border-radius-large);
+                border-bottom-right-radius: prop(border-radius-large);
+            }
+            &:last-child {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+                border-top-left-radius: prop(border-radius-large);
+                border-bottom-left-radius: prop(border-radius-large);
+            }
+        }
+    }
+}
 
 .decktd {
     min-width: 15em;
