@@ -46,6 +46,7 @@
 <style lang="scss">
     h2 {
         margin-bottom: 1em;
+        width: 100%;
     }
 
     .chapter-redirect {
