@@ -43,37 +43,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function change(step: number): void {
         value += step;
         if (pressed) {
-            setTimeout(() => change(step), interval);
+            setTimeout(() => change(step), timeout);
         }
     }
 
+    const progression = [1500, 1250, 1000, 750, 500, 250];
+
     async function longPress(func: Function): Promise<void> {
         pressed = true;
-        interval = 128;
+        timeout = 128;
         pressTimer = setTimeout(func, 250);
 
-        interval = await new Promise((resolve) =>
-            setTimeout(() => resolve(pressed ? 64 : 128), 1500),
-        );
-        interval = await new Promise((resolve) =>
-            setTimeout(() => resolve(pressed ? 32 : 128), 1250),
-        );
-        interval = await new Promise((resolve) =>
-            setTimeout(() => resolve(pressed ? 16 : 128), 1000),
-        );
-        interval = await new Promise((resolve) =>
-            setTimeout(() => resolve(pressed ? 8 : 128), 750),
-        );
-        interval = await new Promise((resolve) =>
-            setTimeout(() => resolve(pressed ? 4 : 128), 500),
-        );
-        interval = await new Promise((resolve) =>
-            setTimeout(() => resolve(pressed ? 2 : 128), 250),
-        );
+        for (const delay of progression) {
+            timeout = await new Promise((resolve) =>
+                setTimeout(() => resolve(pressed ? timeout / 2 : 128), delay),
+            );
+        }
     }
 
     let pressed = false;
-    let interval: number;
+    let timeout: number;
     let pressTimer: any;
 </script>
 
