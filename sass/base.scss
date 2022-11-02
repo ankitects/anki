@@ -56,6 +56,7 @@ button {
     /* override transition for instant hover response */
     transition: color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
     border-radius: prop(border-radius);
+    @include button.base;
 }
 
 pre,
@@ -100,5 +101,19 @@ select {
     option {
         background: color(canvas-elevated);
         color: color(fg);
+    }
+}
+
+label,
+input[type="radio"],
+input[type="checkbox"] {
+    cursor: pointer;
+}
+input[type="text"] {
+    border-radius: prop(border-radius);
+    outline: none;
+    border: 1px solid color(border);
+    &:focus {
+        border-color: color(border-focus);
     }
 }

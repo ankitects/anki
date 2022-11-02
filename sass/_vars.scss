@@ -40,8 +40,8 @@ $vars: (
             subtle: (
                 "Placeholder text, icons in idle state",
                 (
-                    light: palette(darkgray, 6),
-                    dark: palette(lightgray, 3),
+                    light: palette(darkgray, 0),
+                    dark: palette(lightgray, 9),
                 ),
             ),
             disabled: (
@@ -134,11 +134,11 @@ $vars: (
             ),
         ),
         button: (
-            disabled: (
-                "Background color of disabled buttons",
+            bg: (
+                "Background color of buttons",
                 (
-                    light: color.scale(palette(lightgray, 5), $alpha: -50%),
-                    dark: color.scale(palette(darkgray, 3), $alpha: -50%),
+                    light: white,
+                    dark: palette(darkgray, 4),
                 ),
             ),
             gradient: (
@@ -158,22 +158,6 @@ $vars: (
                 ),
             ),
             hover: (
-                gradient: (
-                    start: (
-                        "Start value of default button gradient in hover state",
-                        (
-                            light: palette(lightgray, 1),
-                            dark: palette(darkgray, 3),
-                        ),
-                    ),
-                    end: (
-                        "End value of default button gradient in hover state",
-                        (
-                            light: palette(lightgray, 2),
-                            dark: palette(darkgray, 4),
-                        ),
-                    ),
-                ),
                 border: (
                     "Border color of default button in hover state",
                     (
@@ -182,7 +166,21 @@ $vars: (
                     ),
                 ),
             ),
+            disabled: (
+                "Background color of disabled button",
+                (
+                    light: color.scale(palette(lightgray, 5), $alpha: -50%),
+                    dark: color.scale(palette(darkgray, 3), $alpha: -50%),
+                ),
+            ),
             primary: (
+                bg: (
+                    "Background color of primary button",
+                    (
+                        light: palette(blue, 4),
+                        dark: color.scale(palette(blue, 6), $saturation: -10%),
+                    ),
+                ),
                 gradient: (
                     start: (
                         "Start value of primary button gradient",
@@ -199,26 +197,8 @@ $vars: (
                         ),
                     ),
                 ),
-                hover: (
-                    gradient: (
-                        start: (
-                            "Start value of primary button gradient in hover state",
-                            (
-                                light: palette(blue, 3),
-                                dark: color.scale(palette(blue, 5), $saturation: -10%),
-                            ),
-                        ),
-                        end: (
-                            "End value of primary button gradient in hover state",
-                            (
-                                light: palette(blue, 5),
-                                dark: color.scale(palette(blue, 7), $saturation: -10%),
-                            ),
-                        ),
-                    ),
-                ),
                 disabled: (
-                    "Background of primary button in disabled state",
+                    "Background color of primary button in disabled state",
                     (
                         light: palette(blue, 3),
                         dark: color.scale(palette(blue, 5), $saturation: -10%),
