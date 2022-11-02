@@ -78,26 +78,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {/if}
 
 <style lang="scss">
-    .collapsible.full-hide {
-        &.collapsed {
-            display: none;
-        }
-        &.transitioning {
-            display: initial;
-        }
-    }
-
     .collapsible.animated {
         &.measuring {
             display: unset;
             position: absolute;
             opacity: 0;
         }
+
         &.transitioning {
             overflow: hidden;
             height: var(--height);
             &.expanded {
                 overflow: visible;
+            }
+        }
+
+        &.full-hide {
+            &.collapsed {
+                display: none;
+            }
+            &.transitioning {
+                display: initial;
             }
         }
     }
