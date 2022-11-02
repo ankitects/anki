@@ -82,8 +82,8 @@ sass_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "vars_lib",
         "elevation_lib",
+        "vars_lib",
     ],
 )
 
@@ -107,4 +107,5 @@ compile_sass(
     srcs = ["_root-vars.scss"],
     group = "vars_css",
     visibility = ["//visibility:public"],
+    deps = ["vars_lib"],
 )
