@@ -3,6 +3,8 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
+
     export let grow = true;
     let width = 0;
 </script>
@@ -12,7 +14,7 @@
     class:flex-grow-1={grow}
     style:--offset="-{width}px"
 >
-    <div class="revert" bind:clientWidth={width}>
+    <div class="revert" class:rtl bind:clientWidth={width}>
         <slot name="revert" />
     </div>
     <slot />
@@ -23,6 +25,10 @@
         position: absolute;
         right: var(--offset);
         color: var(--fg-faint);
+        &.rtl {
+            right: unset;
+            left: var(--offset);
+        }
     }
     .config-input {
         &:hover,
