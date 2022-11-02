@@ -39,6 +39,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             event.preventDefault();
         }
     }
+
+    function change(step: number): void {
+        value += step;
+        if (pressed) {
+            setTimeout(() => change(step), timeout);
+        }
+    }
+
+    const progression = [1500, 1250, 1000, 750, 500, 250];
+
+    async function longPress(func: Function): Promise<void> {
+        pressed = true;
+        timeout = 128;
+        pressTimer = setTimeout(func, 250);
+
+        for (const delay of progression) {
+            timeout = await new Promise((resolve) =>
+                setTimeout(() => resolve(pressed ? timeout / 2 : 128), delay),
+            );
+        }
+    }
+
+    let pressed = false;
+    let timeout: number;
+    let pressTimer: any;
 </script>
 
 <div class="spin-box" on:wheel={handleWheel}>
@@ -48,10 +73,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:click={() => {
             input.focus();
             if (rtl && value < max) {
-                value += step;
+                change(step);
             } else if (value > min) {
-                value -= step;
+                change(-step);
             }
+        }}
+        on:mousedown={() =>
+            longPress(() => {
+                if (rtl && value < max) {
+                    change(step);
+                } else if (value > min) {
+                    change(-step);
+                }
+            })}
+        on:mouseup={() => {
+            clearTimeout(pressTimer);
+            pressed = false;
         }}
     >
         <IconConstrain>
@@ -77,10 +114,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:click={() => {
             input.focus();
             if (rtl && value > min) {
-                value -= step;
+                change(-step);
             } else if (value < max) {
-                value += step;
+                change(step);
             }
+        }}
+        on:mousedown={() =>
+            longPress(() => {
+                if (rtl && value > min) {
+                    change(-step);
+                } else if (value < max) {
+                    change(step);
+                }
+            })}
+        on:mouseup={() => {
+            clearTimeout(pressTimer);
+            pressed = false;
         }}
     >
         <IconConstrain>
