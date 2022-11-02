@@ -662,13 +662,15 @@ class Reviewer:
 <center id=outer>
 <table id=innertable width=100%% cellspacing=0 cellpadding=0>
 <tr>
-<td align=left width=50 valign=top class=stat>
+<td align=left valign=top class=stat>
 <button title="%(editkey)s" onclick="pycmd('edit');">%(edit)s</button></td>
 <td align=center valign=top id=middle>
 </td>
-<td width=50 align=right valign=top class=stat><span id=time class=stattxt>
-</span>
-<button onclick="pycmd('more');">%(more)s %(downArrow)s</button>
+<td align=right valign=top class=stat>
+<button onclick="pycmd('more');">
+%(more)s %(downArrow)s
+<span id=time class=stattxt></span>
+</button>
 </td>
 </tr>
 </table>
@@ -687,11 +689,10 @@ time = %(time)d;
 
     def _showAnswerButton(self) -> None:
         middle = """
-<span class=stattxt>{}</span>
-<button title="{}" id="ansbut" onclick='pycmd("ans");'>{}</button>""".format(
-            self._remaining(),
+<button title="{}" id="ansbut" onclick='pycmd("ans");'>{}<span class=stattxt>{}</span></button>""".format(
             tr.actions_shortcut_key(val=tr.studying_space()),
             tr.studying_show_answer(),
+            self._remaining(),
         )
         # wrap it in a table so it has the same top margin as the ease buttons
         middle = (
@@ -781,14 +782,14 @@ time = %(time)d;
                 extra = ""
             due = self._buttonTime(i, v3_labels=labels)
             return """
-<td align=center>%s<button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
-%s</button></td>""" % (
-                due,
+<td align=center><button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
+%s%s</button></td>""" % (
                 extra,
                 tr.actions_shortcut_key(val=i),
                 i,
                 i,
                 label,
+                due,
             )
 
         buf = "<center><table cellpading=0 cellspacing=0><tr>"
