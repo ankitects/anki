@@ -95,8 +95,8 @@ QMenu::separator {{
 }}
 QMenu::indicator {{
     border: 1px solid {tm.var(colors.BORDER)};
-    margin-left: 6px;
-    margin-right: -6px;
+    margin-{tm.left()}: 6px;
+    margin-{tm.right()}: -6px;
 }}
     """
 
