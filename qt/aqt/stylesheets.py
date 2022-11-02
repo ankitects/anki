@@ -428,6 +428,9 @@ QRadioButton::indicator:checked,
 QMenu::indicator:checked {{
     image: url({tm.themed_icon("mdi:check")});
 }}
+QRadioButton::indicator:checked {{
+    image: url({tm.themed_icon("mdi:circle-medium")});
+}}
 QCheckBox::indicator:indeterminate {{
     image: url({tm.themed_icon("mdi:minus-thick")});
 }}

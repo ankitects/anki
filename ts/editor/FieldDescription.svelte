@@ -37,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         right: 0;
         bottom: 0;
 
-        opacity: 0.4;
+        color: var(--fg-subtle);
         pointer-events: none;
 
         /* Stay a on single line */
