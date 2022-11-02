@@ -8,6 +8,7 @@
 /*! colors */
 :root {
     $colors: map.get($vars, colors);
+
     @each $name, $val in create-vars-from-map($colors, light) {
         @if str-index($name, "comment") == 1 {
             /*! #{$val} */
@@ -16,6 +17,7 @@
         }
     }
     color-scheme: light;
+
     &.night-mode {
         @each $name, $val in create-vars-from-map($colors, dark) {
             @if str-index($name, "comment") == 1 {

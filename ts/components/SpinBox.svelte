@@ -122,7 +122,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     button {
         opacity: 0;
         position: absolute;
-        @include button.base($border: false, $elevation: 0);
+        @include button.base($border: false);
 
         &.left {
             inset: 0 auto 0 0;
