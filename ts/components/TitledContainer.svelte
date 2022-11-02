@@ -5,11 +5,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { pageTheme } from "../sveltelib/theme";
 
+    export let id: string | undefined = undefined;
+    let className: string = "";
+    export { className as class };
+
     export let title: string;
 </script>
 
 <div
-    class="container"
+    {id}
+    class="container {className}"
     class:light={!$pageTheme.isDark}
     class:dark={$pageTheme.isDark}
     style:--gutter-block="2px"

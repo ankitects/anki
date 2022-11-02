@@ -8,13 +8,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
+    import TitledContainer from "../components/TitledContainer.svelte";
     import * as tr from "../lib/ftl";
     import HelpModal from "./HelpModal.svelte";
     import type { DeckOptionsState } from "./lib";
     import SettingTitle from "./SettingTitle.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import SwitchRow from "./SwitchRow.svelte";
-    import TitledContainer from "./TitledContainer.svelte";
     import type { DeckOption } from "./types";
     import Warning from "./Warning.svelte";
 

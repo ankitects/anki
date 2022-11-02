@@ -1,12 +1,10 @@
 @use "root-vars";
-@use "sass/button-mixins" as button;
+@import "sass/base";
 
-label,
-input[type="radio"],
-input[type="checkbox"] {
-    cursor: pointer;
+body {
+    padding: 0 1em 1em 1em;
 }
 
 button {
-    @include button.base;
+    margin-bottom: 5px;
 }
