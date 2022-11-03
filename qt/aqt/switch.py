@@ -182,7 +182,7 @@ class Switch(QAbstractButton):
         self._hide_label = True
         self.update()
 
-        def on_animation_finished():
+        def on_animation_finished() -> None:
             self._hide_label = False
             self.update()
 
