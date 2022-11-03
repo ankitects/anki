@@ -140,9 +140,14 @@ class Browser(QMainWindow):
 
         # restoreXXX() should be called after all child widgets have been created
         # and attached to QMainWindow
-        restoreGeom(self, "editor", 0)
+        self._editor_state_key = (
+            "editorRTL"
+            if self.layoutDirection() == Qt.LayoutDirection.RightToLeft
+            else "editor"
+        )
+        restoreGeom(self, self._editor_state_key, 0)
         restoreSplitter(self.form.splitter, "editor3")
-        restoreState(self, "editor")
+        restoreState(self, self._editor_state_key)
 
         # responsive layout
         self.aspect_ratio = self.width() / self.height()
@@ -348,8 +353,8 @@ class Browser(QMainWindow):
         self.table.cleanup()
         self.sidebar.cleanup()
         saveSplitter(self.form.splitter, "editor3")
-        saveGeom(self, "editor")
-        saveState(self, "editor")
+        saveGeom(self, self._editor_state_key)
+        saveState(self, self._editor_state_key)
         self.teardownHooks()
         self.mw.maybeReset()
         aqt.dialogs.markClosed("Browser")
