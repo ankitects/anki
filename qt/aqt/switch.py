@@ -38,6 +38,7 @@ class Switch(QAbstractButton):
         self._right_knob_position = self.width - self._path_radius
         self._left_label_position = self._label_padding / 2
         self._right_label_position = 2 * self._knob_radius
+        self._hide_label: bool = False
 
     @pyqtProperty(int)  # type: ignore
     def position(self) -> int:
@@ -107,7 +108,8 @@ class Switch(QAbstractButton):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         painter.setPen(Qt.PenStyle.NoPen)
         self._paint_path(painter)
-        self._paint_label(painter)
+        if not self._hide_label:
+            self._paint_label(painter)
         self._paint_knob(painter)
 
     def _current_path_rectangle(self) -> QRectF:
@@ -176,5 +178,14 @@ class Switch(QAbstractButton):
         animation.setDuration(100)
         animation.setStartValue(self.start_position)
         animation.setEndValue(self.end_position)
+        # hide label during animation
+        self._hide_label = True
+        self.update()
+
+        def on_animation_finished():
+            self._hide_label = False
+            self.update()
+
+        qconnect(animation.finished, on_animation_finished)
         # make triggered events execute first so the animation runs smoothly afterwards
         QTimer.singleShot(50, animation.start)
