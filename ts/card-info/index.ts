@@ -11,11 +11,14 @@ const i18n = setupI18n({
     modules: [ModuleName.CARD_STATS, ModuleName.SCHEDULING, ModuleName.STATISTICS],
 });
 
-export async function setupCardInfo(target: HTMLElement): Promise<CardInfo> {
+export async function setupCardInfo(
+    target: HTMLElement,
+    props = {},
+): Promise<CardInfo> {
     checkNightMode();
     await i18n;
 
-    return new CardInfo({ target, props: {} });
+    return new CardInfo({ target, props });
 }
 
 if (window.location.hash.startsWith("#test")) {
