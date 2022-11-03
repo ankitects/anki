@@ -26,7 +26,7 @@ import aqt.operations
 from anki import hooks
 from anki._vendor import stringcase
 from anki.collection import OpChanges
-from anki.decks import DeckConfigsForUpdate, UpdateDeckConfigs
+from anki.decks import UpdateDeckConfigs
 from anki.scheduler_pb2 import SchedulingStates
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
@@ -385,10 +385,7 @@ def congrats_info() -> bytes:
 
 
 def get_deck_configs_for_update() -> bytes:
-    config_bytes = aqt.mw.col._backend.get_deck_configs_for_update_raw(request.data)
-    configs = DeckConfigsForUpdate.FromString(config_bytes)
-    configs.have_addons = aqt.mw.addonManager.dirty
-    return configs.SerializeToString()
+    return aqt.mw.col._backend.get_deck_configs_for_update_raw(request.data)
 
 
 def update_deck_configs() -> bytes:

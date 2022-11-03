@@ -39,7 +39,6 @@ export class DeckOptionsState {
     readonly defaults: DeckConfig.DeckConfig.Config;
     readonly addonComponents: Writable<DynamicSvelteComponent[]>;
     readonly v3Scheduler: boolean;
-    readonly haveAddons: boolean;
 
     private targetDeckId: number;
     private configs: ConfigWithCount[];
@@ -67,7 +66,6 @@ export class DeckOptionsState {
             this.configs.findIndex((c) => c.config.id === this.currentDeck.configId),
         );
         this.v3Scheduler = data.v3Scheduler;
-        this.haveAddons = data.haveAddons;
         this.cardStateCustomizer = writable(data.cardStateCustomizer);
         this.deckLimits = writable(data.currentDeck?.limits ?? createLimits());
 
