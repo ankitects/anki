@@ -47,6 +47,7 @@ function positionFloating({
         floating: FloatingElement,
     ): Promise<void> {
         const middleware: Middleware[] = [
+            // the .shift() lines below expect flip() to be first
             flip(),
             offset(offsetArg),
             shift({ padding: shiftArg }),
@@ -63,9 +64,11 @@ function positionFloating({
 
         if (Array.isArray(placement)) {
             const allowedPlacements = placement;
-
+            // flip() is incompatible with autoPlacement
+            middleware.shift();
             middleware.push(autoPlacement({ allowedPlacements }));
         } else if (placement === "auto") {
+            middleware.shift();
             middleware.push(autoPlacement());
         } else {
             computeArgs.placement = placement;
