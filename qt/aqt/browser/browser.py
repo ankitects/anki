@@ -71,7 +71,7 @@ from aqt.utils import (
 from ..changenotetype import change_notetype_dialog
 from .card_info import BrowserCardInfo
 from .find_and_replace import FindAndReplaceDialog
-from .layout import BrowserLayout
+from .layout import BrowserLayout, QSplitterHandleEventFilter
 from .previewer import BrowserPreviewer as PreviewDialog
 from .previewer import Previewer
 from .sidebar import SidebarTreeView
@@ -127,6 +127,8 @@ class Browser(QMainWindow):
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
         self.form.splitter.setChildrenCollapsible(False)
+        splitter_handle_event_filter = QSplitterHandleEventFilter(self.form.splitter)
+        self.form.splitter.handle(1).installEventFilter(splitter_handle_event_filter)
         # set if exactly 1 row is selected; used by the previewer
         self.card: Card | None = None
         self.current_card: Card | None = None
