@@ -264,6 +264,10 @@ def table_styles(tm: ThemeManager) -> str:
     return f"""
 QTableView {{
     border-radius: {tm.var(props.BORDER_RADIUS)};
+    border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+    border-bottom: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
     gridline-color: {tm.var(colors.BORDER_SUBTLE)};
     selection-background-color: {tm.var(colors.SELECTED_BG)};
     selection-color: {tm.var(colors.SELECTED_FG)};
@@ -273,9 +277,12 @@ QHeaderView {{
 }}
 QHeaderView::section {{
     padding-left: 0px;
-    padding-right: 10px;
+    padding-right: 15px;
     border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     background: {tm.var(colors.BUTTON_BG)};
+}}
+QHeaderView::section:first {{
+    margin-left: -1px;
 }}
 QHeaderView::section:pressed,
 QHeaderView::section:pressed:!first {{
