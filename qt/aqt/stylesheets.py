@@ -264,7 +264,7 @@ def table_styles(tm: ThemeManager) -> str:
     return f"""
 QTableView {{
     border-radius: {tm.var(props.BORDER_RADIUS)};
-    border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+    border-{tm.left()}: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     border-bottom: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -276,8 +276,8 @@ QHeaderView {{
     background: {tm.var(colors.CANVAS)};
 }}
 QHeaderView::section {{
-    padding-left: 0px;
-    padding-right: 15px;
+    padding-{tm.left()}: 0px;
+    padding-{tm.right()}: 15px;
     border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     background: {tm.var(colors.BUTTON_BG)};
 }}
@@ -324,7 +324,7 @@ QHeaderView::up-arrow,
 QHeaderView::down-arrow {{
     width: 20px;
     height: 20px;
-    margin-left: -20px;
+    margin-{tm.left()}: -20px;
 }}
 QHeaderView::up-arrow {{
     image: url({tm.themed_icon("mdi:menu-up")});
