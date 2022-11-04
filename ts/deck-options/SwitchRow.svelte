@@ -17,7 +17,7 @@
 </script>
 
 <Row --cols={6}>
-    <Col --col-size={4}><Label for={id}><slot /></Label></Col>
+    <Col --col-size={4}><Label for={id} preventMouseClick><slot /></Label></Col>
     <Col --col-justify="flex-end">
         <ConfigInput grow={false}>
             <Switch {id} bind:value />

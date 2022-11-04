@@ -9,7 +9,7 @@ import subprocess
 import sys
 from functools import partial, wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Literal, Sequence, Union, no_type_check
+from typing import TYPE_CHECKING, Any, Callable, Literal, Sequence, Union
 
 from send2trash import send2trash
 
@@ -1243,6 +1243,7 @@ class KeyboardModifiersPressed:
 _deprecated_names = DeprecatedNamesMixinForModule(globals())
 
 
-@no_type_check
-def __getattr__(name: str) -> Any:
-    return _deprecated_names.__getattr__(name)
+if not TYPE_CHECKING:
+
+    def __getattr__(name: str) -> Any:
+        return _deprecated_names.__getattr__(name)
