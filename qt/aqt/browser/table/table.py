@@ -367,9 +367,8 @@ class Table:
     def _setup_headers(self) -> None:
         vh = self._view.verticalHeader()
         hh = self._view.horizontalHeader()
-        if not is_win:
-            vh.hide()
-            hh.show()
+        vh.hide()
+        hh.show()
         hh.setHighlightSections(False)
         hh.setMinimumSectionSize(50)
         hh.setSectionsMovable(True)
