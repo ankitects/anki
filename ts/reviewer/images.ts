@@ -49,3 +49,17 @@ export function preloadAnswerImages(qHtml: string, aHtml: string): void {
         diff.forEach((src) => injectPreloadLink(src, "image"));
     }
 }
+
+export async function maybePreloadImages(html: string): Promise<void> {
+    const srcs = extractImageSrcs(html);
+    await Promise.race([
+        Promise.all(
+            srcs.map((src) => {
+                const img = new Image();
+                img.src = src;
+                return imageLoaded(img);
+            }),
+        ),
+        new Promise((r) => setTimeout(r, 100)),
+    ]);
+}

@@ -16,7 +16,7 @@ globalThis.anki.mutateNextCardStates = mutateNextCardStates;
 
 import { bridgeCommand } from "../lib/bridgecommand";
 import { maybePreloadExternalCss } from "./css";
-import { allImagesLoaded, preloadAnswerImages } from "./images";
+import { allImagesLoaded, maybePreloadImages, preloadAnswerImages } from "./images";
 
 declare const MathJax: any;
 
@@ -132,6 +132,9 @@ export async function _updateQA(
 
     // prevent flash of unstyled content when external css used
     await maybePreloadExternalCss(html);
+
+    // prevent flickering & layout shift on image load
+    await maybePreloadImages(html);
 
     qa.style.opacity = "0";
 
