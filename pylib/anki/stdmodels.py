@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, no_type_check
+from typing import TYPE_CHECKING, Any, Callable
 
 import anki.collection
 import anki.models
@@ -115,6 +115,7 @@ _deprecated_names.register_deprecated_attributes(
 )
 
 
-@no_type_check
-def __getattr__(name: str) -> Any:
-    return _deprecated_names.__getattr__(name)
+if not TYPE_CHECKING:
+
+    def __getattr__(name: str) -> Any:
+        return _deprecated_names.__getattr__(name)
