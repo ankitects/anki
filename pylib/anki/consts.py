@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import sys
-from typing import Any, NewType, no_type_check
+from typing import TYPE_CHECKING, Any, NewType
 
 from anki._legacy import DeprecatedNamesMixinForModule
 
@@ -132,6 +132,7 @@ def new_card_scheduling_labels(
 _deprecated_names = DeprecatedNamesMixinForModule(globals())
 
 
-@no_type_check
-def __getattr__(name: str) -> Any:
-    return _deprecated_names.__getattr__(name)
+if not TYPE_CHECKING:
+
+    def __getattr__(name: str) -> Any:
+        return _deprecated_names.__getattr__(name)
