@@ -56,6 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let field: FieldData;
     export let collapsed = false;
     export let flipInputs = false;
+    export let dupe = false;
 
     const directionStore = writable<"ltr" | "rtl">();
     setContext(directionKey, directionStore);
@@ -89,7 +90,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <slot name="field-label" />
 
     <Collapsible collapse={collapsed} let:collapsed={hidden}>
-        <div use:elementResolve class="editor-field" on:focusin on:focusout {hidden}>
+        <div
+            use:elementResolve
+            class="editor-field"
+            class:dupe
+            on:focusin
+            on:focusout
+            {hidden}
+        >
             <EditingArea
                 {content}
                 fontFamily={field.fontFamily}
@@ -120,10 +128,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         @include elevation(1);
 
+        outline-offset: -1px;
+        &.dupe,
+        &.dupe:focus-within {
+            outline: 2px solid var(--accent-danger);
+        }
         &:focus-within {
-            /* --focus-color set in NoteEditor.svelte */
-            outline: 2px solid var(--focus-color);
-            outline-offset: -1px;
+            outline: 2px solid var(--border-focus);
         }
     }
 </style>
