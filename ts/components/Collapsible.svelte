@@ -11,7 +11,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let toggleDisplay = false;
     export let animated = !document.body.classList.contains("reduced-motion");
 
-    let collapsed = false;
     let contentHeight = 0;
 
     function dynamicDuration(height: number): number {
@@ -56,6 +55,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: height = $size * contentHeight;
     $: transitioning = $size > 0 && !(collapsed || expanded);
     $: measuring = !(collapsed || transitioning || expanded);
+
+    let hidden = collapsed;
+
+    $: {
+        /* await changes dependent on collapsed state */
+        tick().then(() => (hidden = collapsed));
+    }
 </script>
 
 <div
@@ -64,9 +70,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:animated
     class:expanded
     class:full-hide={toggleDisplay}
-    class:collapsed={!expanded}
     class:measuring
     class:transitioning
+    class:hidden
     style:--height="{height}px"
 >
     <slot {collapsed} />
@@ -80,7 +86,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .collapsible.animated {
         &.measuring {
-            display: unset;
+            display: initial;
             position: absolute;
             opacity: 0;
         }
@@ -94,7 +100,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         &.full-hide {
-            &.collapsed {
+            &.hidden {
                 display: none;
             }
             &.transitioning {
