@@ -174,12 +174,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @include button.base($border: false);
 
         &.left {
-            inset: 0 auto 0 0;
+            top: 0;
+            right: auto;
+            bottom: 0;
+            left: 0;
             border-right: 1px solid var(--border);
         }
         &.right {
             position: absolute;
-            inset: 0 0 0 auto;
+            right: 0;
+            left: auto;
             border-left: 1px solid var(--border);
         }
     }
