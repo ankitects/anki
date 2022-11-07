@@ -7,7 +7,6 @@ use nom::{
     branch::alt,
     bytes::complete::{tag, take_while},
     combinator::map,
-    multi::many0,
     IResult,
 };
 use regex::{Captures, Regex};
@@ -190,7 +189,7 @@ fn reveal_cloze_text_in_nodes(
             }
         }
         for node in &cloze.nodes {
-            reveal_cloze_text_in_nodes(&node, cloze_ord, question, output);
+            reveal_cloze_text_in_nodes(node, cloze_ord, question, output);
         }
     }
 }
@@ -226,7 +225,6 @@ fn reveal_cloze(
                 cloze.ordinal,
                 cloze.hint()
             ));
-            return;
         }
         (false, true) => {
             buf.push_str(&format!(
@@ -242,7 +240,6 @@ fn reveal_cloze(
                 }
             }
             buf.push_str("</span>");
-            return;
         }
         (_, false) => {
             // question or answer side inactive cloze; text shown, children may be active
