@@ -49,8 +49,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         justify-content: start;
         width: 100%;
 
-        font-size: var(--dropdown-font-size, var(--base-font-size));
-
         background: none;
         box-shadow: none !important;
         border: none;
