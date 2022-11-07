@@ -25,9 +25,14 @@
 button {
     outline: none !important;
     @include button.base;
-    @include elevation(1);
     border-radius: var(--border-radius-large);
     padding: 8px 10px;
     font-weight: 500;
     margin: 0 4px;
+
+    @include elevation(1, $opacity-boost: -0.08);
+    &:hover {
+        @include elevation(2);
+        transition: box-shadow 0.2s linear;
+    }
 }

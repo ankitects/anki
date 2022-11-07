@@ -21,7 +21,13 @@
         position: absolute;
         height: $icon-size;
         width: $icon-size;
-        inset: $padding;
+
+        // replace with inset once Qt5 support is dropped
+        top: $padding;
+        right: $padding;
+        bottom: $padding;
+        left: $padding;
+
         .nightMode & {
             filter: invert(1);
         }

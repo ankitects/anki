@@ -165,9 +165,8 @@ message DeckConfigsForUpdate {
   DeckConfig defaults = 3;
   bool schema_modified = 4;
   bool v3_scheduler = 5;
-  bool have_addons = 6;
   // only applies to v3 scheduler
-  string card_state_customizer = 7;
+  string card_state_customizer = 6;
 }
 
 message UpdateDeckConfigsRequest {

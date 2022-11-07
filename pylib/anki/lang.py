@@ -6,7 +6,7 @@ from __future__ import annotations
 import locale
 import re
 import weakref
-from typing import Any, no_type_check
+from typing import TYPE_CHECKING, Any
 
 import anki
 import anki._backend
@@ -224,6 +224,7 @@ def with_collapsed_whitespace(string: str) -> str:
 _deprecated_names = DeprecatedNamesMixinForModule(globals())
 
 
-@no_type_check
-def __getattr__(name: str) -> Any:
-    return _deprecated_names.__getattr__(name)
+if not TYPE_CHECKING:
+
+    def __getattr__(name: str) -> Any:
+        return _deprecated_names.__getattr__(name)

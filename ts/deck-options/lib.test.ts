@@ -109,13 +109,13 @@ test("deck list", () => {
     expect(get(state.configList)).toStrictEqual([
         {
             current: true,
-            idx: 1,
+            idx: 0,
             name: "another one",
             useCount: 1,
         },
         {
             current: false,
-            idx: 0,
+            idx: 1,
             name: "Default",
             useCount: 1,
         },
@@ -150,13 +150,13 @@ test("deck list", () => {
         },
         {
             current: true,
-            idx: 2,
+            idx: 1,
             name: "hello",
             useCount: 1,
         },
         {
             current: false,
-            idx: 1,
+            idx: 2,
             name: "zzz",
             useCount: 0,
         },
@@ -174,13 +174,13 @@ test("deck list", () => {
         },
         {
             current: false,
-            idx: 2,
+            idx: 1,
             name: "hello",
             useCount: 0,
         },
         {
             current: false,
-            idx: 1,
+            idx: 2,
             name: "zzz",
             useCount: 0,
         },
@@ -230,7 +230,7 @@ test("parent counts", () => {
     expect(get(state.parentLimits)).toStrictEqual({ newCards: 10, reviews: 200 });
 
     // but adjusting the default config will, since the parent deck uses it
-    state.setCurrentIndex(0);
+    state.setCurrentIndex(1);
     state.currentConfig.update((c) => {
         c.newPerDay = 123;
         return c;
@@ -269,7 +269,7 @@ test("saving", () => {
     expect(out.removedConfigIds).toStrictEqual([]);
 
     // select the other non-default deck & remove
-    state.setCurrentIndex(1);
+    state.setCurrentIndex(0);
     state.removeCurrentConfig();
 
     // should be listed in removedConfigs, and modified should
@@ -287,7 +287,7 @@ test("aux data", () => {
     });
 
     // check default
-    state.setCurrentIndex(0);
+    state.setCurrentIndex(1);
     expect(get(state.currentAuxData)).toStrictEqual({
         new: {
             separate: true,

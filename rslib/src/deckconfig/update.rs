@@ -46,7 +46,6 @@ impl Collection {
                 .get_collection_timestamps()?
                 .schema_changed_since_sync(),
             v3_scheduler: self.get_config_bool(BoolKey::Sched2021),
-            have_addons: false,
             card_state_customizer: self.get_config_string(StringKey::CardStateCustomizer),
         })
     }

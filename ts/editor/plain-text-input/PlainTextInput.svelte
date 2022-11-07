@@ -164,10 +164,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         :global(.CodeMirror) {
             height: 100%;
             background: var(--canvas-code);
+            padding-inline: 4px;
         }
 
         :global(.CodeMirror-lines) {
             padding: 8px 0;
+        }
+
+        :global(.CodeMirror-gutters) {
+            background: var(--canvas-code);
         }
     }
 </style>

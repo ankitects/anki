@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
+    import TitledContainer from "../components/TitledContainer.svelte";
     import * as tr from "../lib/ftl";
     import CardStateCustomizer from "./CardStateCustomizer.svelte";
     import HelpModal from "./HelpModal.svelte";
@@ -15,7 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SettingTitle from "./SettingTitle.svelte";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
-    import TitledContainer from "./TitledContainer.svelte";
     import type { DeckOption } from "./types";
 
     export let state: DeckOptionsState;

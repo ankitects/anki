@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
+    import TitledContainer from "../components/TitledContainer.svelte";
     import * as tr from "../lib/ftl";
     import { DeckConfig } from "../lib/proto";
     import EnumSelectorRow from "./EnumSelectorRow.svelte";
@@ -15,7 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckOptionsState } from "./lib";
     import SettingTitle from "./SettingTitle.svelte";
     import { reviewMixChoices } from "./strings";
-    import TitledContainer from "./TitledContainer.svelte";
     import type { DeckOption } from "./types";
 
     export let state: DeckOptionsState;
