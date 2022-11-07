@@ -60,7 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .tag {
         @include button.base($with-active: false, $with-disabled: false);
 
-        font-size: var(--base-font-size);
+        font-size: var(--font-size);
         padding: 0;
 
         --border-color: var(--border);
