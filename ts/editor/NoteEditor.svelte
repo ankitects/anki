@@ -79,7 +79,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return fontFamily;
     }
 
-    const size = 1.5;
+    const size = 1.6;
     const wrap = true;
 
     const fieldStores: Writable<string>[] = [];
