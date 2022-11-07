@@ -366,6 +366,7 @@ class Table:
     def _setup_headers(self) -> None:
         vh = self._view.verticalHeader()
         hh = self._view.horizontalHeader()
+        vh.setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         vh.hide()
         hh.show()
         hh.setHighlightSections(False)
