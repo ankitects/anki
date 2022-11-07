@@ -11,11 +11,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as editorFieldContext } from "./EditorField.svelte";
     import { plainTextIcon } from "./icons";
 
+    const animated = !document.body.classList.contains("reduced-motion");
+
     const editorField = editorFieldContext.get();
     const keyCombination = "Control+Shift+X";
     const dispatch = createEventDispatcher();
 
-    export let visible = false;
+    export let show = false;
     export let off = false;
 
     function toggle() {
@@ -31,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <span
     class="plain-text-badge"
-    class:visible
+    class:visible={show || !animated}
     class:highlighted={!off}
     on:click|stopPropagation={toggle}
 >
