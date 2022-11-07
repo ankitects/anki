@@ -32,230 +32,262 @@ mod mathjax_caps {
     pub const CLOSING_TAG: usize = 3;
 }
 
-/// Contains raw string that represented the token
 #[derive(Debug)]
 enum Token<'a> {
-    Open(&'a str, u16),
+    OpenCloze(u16),
     Text(&'a str),
-    Hint,
-    Close,
+    CloseCloze,
 }
 
 /// Tokenize string
-fn tokenize(txt: &str) -> Vec<Token> {
-    /// Match Token::Open
-    fn open(txt: &str) -> IResult<&str, Token> {
+fn tokenize(mut text: &str) -> impl Iterator<Item = Token> {
+    fn open_cloze(text: &str) -> IResult<&str, Token> {
         // opening brackets and 'c'
-        let (tail, _opening_brackets_and_c) = tag("{{c")(txt)?;
-        // following ordinal
-        let (tail, digits) = take_while(|c: char| c.is_ascii_digit())(tail)?;
-        let ordinal: u16 = match digits.parse() {
+        let (text, _opening_brackets_and_c) = tag("{{c")(text)?;
+        // following number
+        let (text, digits) = take_while(|c: char| c.is_ascii_digit())(text)?;
+        let digits: u16 = match digits.parse() {
             Ok(digits) => digits,
             Err(_) => {
-                // not a valid ordinal; fail to recognize
+                // not a valid number; fail to recognize
                 return Err(nom::Err::Error(nom::error::make_error(
-                    tail,
+                    text,
                     nom::error::ErrorKind::Digit,
                 )));
             }
         };
         // ::
-        let (tail, _colons) = tag("::")(tail)?;
-        Ok((tail, Token::Open(&txt[..5 + digits.len()], ordinal)))
+        let (text, _colons) = tag("::")(text)?;
+        Ok((text, Token::OpenCloze(digits)))
     }
 
-    /// Match a run of txt until an open/hint/close is encountered.
-    fn text(txt: &str) -> IResult<&str, Token> {
-        if txt.is_empty() {
+    fn close_cloze(text: &str) -> IResult<&str, Token> {
+        map(tag("}}"), |_| Token::CloseCloze)(text)
+    }
+
+    /// Match a run of text until an open/close marker is encountered.
+    fn normal_text(text: &str) -> IResult<&str, Token> {
+        if text.is_empty() {
             return Err(nom::Err::Error(nom::error::make_error(
-                txt,
+                text,
                 nom::error::ErrorKind::Eof,
             )));
         }
         let mut index = 0;
-        let mut other_token = alt((open, close, hint));
-        while other_token(&txt[index..]).is_err() && index < txt.len() {
+        let mut other_token = alt((open_cloze, close_cloze));
+        while other_token(&text[index..]).is_err() && index < text.len() {
             index += 1;
         }
-        Ok((&txt[index..], Token::Text(&txt[0..index])))
+        Ok((&text[index..], Token::Text(&text[0..index])))
     }
 
-    /// Match Token::Hint
-    fn hint(txt: &str) -> IResult<&str, Token> {
-        map(tag("::"), |_| Token::Hint)(txt)
-    }
-
-    /// Match Token::Close
-    fn close(txt: &str) -> IResult<&str, Token> {
-        map(tag("}}"), |_| Token::Close)(txt)
-    }
-
-    let (remaining, tokens) = many0(alt((open, close, hint, text)))(txt).unwrap();
-    assert!(remaining.is_empty());
-
-    tokens
+    std::iter::from_fn(move || {
+        if text.is_empty() {
+            None
+        } else {
+            let (remaining_text, token) =
+                alt((open_cloze, close_cloze, normal_text))(text).unwrap();
+            text = remaining_text;
+            Some(token)
+        }
+    })
 }
 
-/// Struct representing a cloze
 #[derive(Debug)]
-struct Cloze<'a> {
-    open_str: &'a str, // Open token string
-    ordinal: u16,
-    content: Vec<String>,
-    hint: bool,
-    hint_content: Vec<&'a str>,
+enum TextOrCloze<'a> {
+    Text(&'a str),
+    Cloze(ExtractedCloze<'a>),
 }
-impl<'a> Cloze<'a> {
-    fn new(open_str: &'a str, ordinal: u16) -> Self {
-        Self {
-            open_str,
-            ordinal,
-            content: vec![],
-            hint: false,
-            hint_content: vec![],
+
+#[derive(Debug)]
+struct ExtractedCloze<'a> {
+    ordinal: u16,
+    nodes: Vec<TextOrCloze<'a>>,
+    hint: Option<&'a str>,
+}
+
+impl ExtractedCloze<'_> {
+    /// Return the cloze's hint, or "..." if none was provided.
+    fn hint(&self) -> &str {
+        self.hint.unwrap_or("...")
+    }
+
+    fn clozed_text(&self) -> Cow<str> {
+        // happy efficient path?
+        if self.nodes.len() == 1 {
+            if let TextOrCloze::Text(text) = self.nodes.last().unwrap() {
+                return (*text).into();
+            }
+        }
+
+        let mut buf = String::new();
+        for node in &self.nodes {
+            match node {
+                TextOrCloze::Text(text) => buf.push_str(text),
+                TextOrCloze::Cloze(cloze) => buf.push_str(&cloze.clozed_text()),
+            }
+        }
+
+        buf.into()
+    }
+}
+
+fn parse_text_with_clozes(text: &str) -> Vec<TextOrCloze<'_>> {
+    let mut open_clozes: Vec<ExtractedCloze> = vec![];
+    let mut output = vec![];
+    for token in tokenize(text) {
+        match token {
+            Token::OpenCloze(ordinal) => open_clozes.push(ExtractedCloze {
+                ordinal,
+                nodes: Vec::with_capacity(1), // common case
+                hint: None,
+            }),
+            Token::Text(mut text) => {
+                if let Some(cloze) = open_clozes.last_mut() {
+                    // extract hint if found
+                    if let Some((head, tail)) = text.split_once("::") {
+                        text = head;
+                        cloze.hint = Some(tail);
+                    }
+                    cloze.nodes.push(TextOrCloze::Text(text));
+                } else {
+                    output.push(TextOrCloze::Text(text));
+                }
+            }
+            Token::CloseCloze => {
+                // take the currently active cloze
+                if let Some(cloze) = open_clozes.pop() {
+                    let target = if let Some(outer_cloze) = open_clozes.last_mut() {
+                        // and place it into the cloze layer above
+                        &mut outer_cloze.nodes
+                    } else {
+                        // or the top level if no other clozes active
+                        &mut output
+                    };
+                    target.push(TextOrCloze::Cloze(cloze));
+                } else {
+                    // closing marker outside of any clozes
+                    output.push(TextOrCloze::Text("}}"))
+                }
+            }
+        }
+    }
+    output
+}
+
+fn reveal_cloze_text_in_nodes(
+    node: &TextOrCloze,
+    cloze_ord: u16,
+    question: bool,
+    output: &mut Vec<String>,
+) {
+    if let TextOrCloze::Cloze(cloze) = node {
+        if cloze.ordinal == cloze_ord {
+            if question {
+                output.push(cloze.hint().into())
+            } else {
+                output.push(cloze.clozed_text().into())
+            }
+        }
+        for node in &cloze.nodes {
+            reveal_cloze_text_in_nodes(&node, cloze_ord, question, output);
+        }
+    }
+}
+
+fn reveal_cloze(
+    cloze: &ExtractedCloze,
+    cloze_ord: u16,
+    question: bool,
+    active_cloze_found_in_text: &mut bool,
+    buf: &mut String,
+) {
+    let active = cloze.ordinal == cloze_ord;
+    *active_cloze_found_in_text |= active;
+    match (question, active) {
+        (true, true) => {
+            // question side with active cloze; all inner content is elided
+            let mut content_buf = String::new();
+            for node in &cloze.nodes {
+                match node {
+                    TextOrCloze::Text(text) => content_buf.push_str(text),
+                    TextOrCloze::Cloze(cloze) => {
+                        reveal_cloze(cloze, cloze_ord, question, active_cloze_found_in_text, &mut content_buf)
+                    }
+                }
+            }
+            buf.push_str(&format!(
+                r#"<span class="cloze" data-cloze="{}" data-ordinal="{}">[{}]</span>"#,
+                encode_attribute(&content_buf),
+                cloze.ordinal,
+                cloze.hint()
+            ));
+            return;
+        }
+        (false, true) => {
+            buf.push_str(&format!(
+                r#"<span class="cloze" data-ordinal="{}">"#,
+                cloze.ordinal
+            ));
+            for node in &cloze.nodes {
+                match node {
+                    TextOrCloze::Text(text) => buf.push_str(text),
+                    TextOrCloze::Cloze(cloze) => {
+                        reveal_cloze(cloze, cloze_ord, question, active_cloze_found_in_text, buf)
+                    }
+                }
+            }
+            buf.push_str("</span>");
+            return;
+        }
+        (_, false) => {
+            // question or answer side inactive cloze; text shown, children may be active
+            buf.push_str(&format!(
+                r#"<span class="cloze-inactive" data-ordinal="{}">"#,
+                cloze.ordinal
+            ));
+            for node in &cloze.nodes {
+                match node {
+                    TextOrCloze::Text(text) => buf.push_str(text),
+                    TextOrCloze::Cloze(cloze) => {
+                        reveal_cloze(cloze, cloze_ord, question, active_cloze_found_in_text, buf)
+                    }
+                }
+            }
+            buf.push_str("</span>")
         }
     }
 }
 
 pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str> {
-    let tokens = &tokenize(text);
-    let mut output: Vec<String> = vec![];
-    let mut stack: Vec<Cloze> = vec![];
-    let mut cloze_found = false;
-
-    for token in tokens {
-        if stack.is_empty() {
-            // At root level, only valid token is open cloze
-            match token {
-                Token::Open(raw, ordinal) => stack.push(Cloze::new(raw, *ordinal)),
-                Token::Text(text) => output.push(text.to_string()),
-                Token::Hint => output.push("::".to_string()),
-                Token::Close => output.push("}}".to_string()),
-            }
-        } else {
-            let mut current = stack.last_mut().unwrap();
-            match (token, current.hint) {
-                (Token::Open(raw, ordinal), false) => stack.push(Cloze::new(raw, *ordinal)),
-                (Token::Open(raw, _), true) => current.hint_content.push(raw),
-                (Token::Hint, _) => current.hint = true,
-                (Token::Text(text), false) => current.content.push(text.to_string()),
-                (Token::Text(text), true) => current.hint_content.push(text),
-                (Token::Close, _) => {
-                    let cloze = stack.pop().unwrap();
-                    cloze_found |= cloze.ordinal == cloze_ord;
-                    let content = cloze.content.join("");
-                    let hint = cloze.hint_content.join("");
-
-                    let out = match (question, cloze.ordinal == cloze_ord, hint.is_empty()) {
-                        // Question, active close, no hint
-                        (true, true, true) => format!(
-                            r#"<span class="cloze" data-cloze="{}" data-ordinal="{}">[...]</span>"#,
-                            encode_attribute(&content),
-                            cloze.ordinal
-                        ),
-                        // Question - active cloze, hint
-                        (true, true, false) => format!(
-                            r#"<span class="cloze" data-cloze="{}" data-ordinal="{}">[{}]</span>"#,
-                            encode_attribute(&content),
-                            cloze.ordinal,
-                            &hint
-                        ),
-                        // Question - inactive cloze
-                        (true, false, _) => format!(
-                            r#"<span class="cloze-inactive" data-ordinal="{}">{}</span>"#,
-                            cloze.ordinal, content
-                        ),
-                        // Answer - active cloze
-                        (false, true, _) => format!(
-                            r#"<span class="cloze" data-ordinal="{}">{}</span>"#,
-                            cloze.ordinal, content
-                        ),
-                        // Answer - inactive cloze
-                        (false, false, _) => format!(
-                            r#"<span class="cloze-inactive" data-ordinal="{}">{}</span>"#,
-                            cloze.ordinal, content
-                        ),
-                    };
-                    if stack.is_empty() {
-                        output.push(out);
-                    } else {
-                        stack.last_mut().unwrap().content.push(out)
-                    }
-                }
-            }
+    let mut buf = String::new();
+    let mut active_cloze_found_in_text = false;
+    for node in &parse_text_with_clozes(text) {
+        match node {
+            // top-level text is indiscriminately added
+            TextOrCloze::Text(text) => buf.push_str(text),
+            TextOrCloze::Cloze(cloze) => reveal_cloze(
+                cloze,
+                cloze_ord,
+                question,
+                &mut active_cloze_found_in_text,
+                &mut buf,
+            ),
         }
     }
-
-    if !cloze_found {
-        return Cow::from("");
+    if active_cloze_found_in_text {
+        buf.into()
+    } else {
+        Cow::from("")
     }
-
-    // Add any remaining (unclosed) clozes as text
-    for rest in stack {
-        output.push(rest.open_str.to_string());
-        output.push(rest.content.join(""));
-        if rest.hint {
-            output.push("::".to_string());
-            output.push(rest.hint_content.join(""));
-        }
-    }
-
-    Cow::from(output.join(""))
 }
 
 pub fn reveal_cloze_text_only(text: &str, cloze_ord: u16, question: bool) -> Cow<str> {
-    let tokens = &tokenize(text);
-    let mut output: Vec<String> = vec![];
-    let mut stack: Vec<Cloze> = vec![];
-    let mut cloze_found = false;
-
-    for token in tokens {
-        if stack.is_empty() {
-            // At root level, only valid token is open cloze
-            if let Token::Open(raw, ordinal) = token {
-                stack.push(Cloze::new(raw, *ordinal));
-            }
-        } else {
-            let mut current = stack.last_mut().unwrap();
-            // Only store hints on question and active cloze
-            match (
-                token,
-                current.hint,
-                question && current.ordinal == cloze_ord,
-            ) {
-                (Token::Open(raw, ordinal), false, _) => stack.push(Cloze::new(raw, *ordinal)),
-                (Token::Open(raw, _), true, true) => current.hint_content.push(raw),
-                (Token::Hint, _, _) => current.hint = true,
-                (Token::Text(text), false, _) => current.content.push(text.to_string()),
-                (Token::Text(text), true, _) => current.hint_content.push(text),
-                (Token::Close, _, _) => {
-                    let cloze = stack.pop().unwrap();
-                    cloze_found |= cloze.ordinal == cloze_ord;
-                    let content = cloze.content.join(", ");
-                    let mut hint = cloze.hint_content.join("");
-                    if hint.is_empty() {
-                        hint += "..."
-                    }
-
-                    match (question && cloze.ordinal == cloze_ord, stack.is_empty()) {
-                        // Question and active cloze
-                        (true, true) => output.push(hint),
-                        (true, false) => stack.last_mut().unwrap().content.push(hint),
-                        // Question and inactive or answer
-                        (false, true) => output.push(content),
-                        (false, false) => stack.last_mut().unwrap().content.push(content),
-                    };
-                }
-                (_, _, _) => {}
-            }
-        }
+    let mut output = Vec::new();
+    for node in &parse_text_with_clozes(text) {
+        reveal_cloze_text_in_nodes(node, cloze_ord, question, &mut output);
     }
-
-    if !cloze_found {
-        return Cow::from("");
-    }
-
-    Cow::from(output.join(", "))
+    output.join(", ").into()
 }
 
 /// If text contains any LaTeX tags, render the front and back
@@ -276,26 +308,9 @@ pub fn expand_clozes_to_reveal_latex(text: &str) -> String {
 }
 
 pub(crate) fn contains_cloze(text: &str) -> bool {
-    let tokens = tokenize(text);
-    // We should only "recurse" on Token::Open when not inside hint
-    let mut cloze_in_hint: Vec<bool> = vec![];
-
-    for token in tokens {
-        let (in_root, in_hint) = match cloze_in_hint.last() {
-            Some(in_hint) => (false, *in_hint),
-            None => (true, false),
-        };
-        match (token, in_root, in_hint) {
-            (Token::Open(_, _), _, false) => cloze_in_hint.push(false),
-            (Token::Hint, false, false) => *cloze_in_hint.last_mut().unwrap() = true,
-            (Token::Close, false, _) => {
-                return true;
-            }
-            _ => {}
-        }
-    }
-
-    false
+    parse_text_with_clozes(text)
+        .iter()
+        .any(|node| matches!(node, TextOrCloze::Cloze(_)))
 }
 
 pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
@@ -304,37 +319,18 @@ pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
     set
 }
 
-#[allow(clippy::implicit_hasher)]
-pub fn add_cloze_numbers_in_string(field: &str, set: &mut HashSet<u16>) {
-    struct Cloze {
-        in_hint: bool,
-        ordinal: u16,
-    }
-
-    let tokens = tokenize(field);
-    let mut stack: Vec<Cloze> = vec![];
-
-    for token in tokens {
-        let (in_root, in_hint) = match stack.last() {
-            Some(Cloze {
-                in_hint,
-                ordinal: _,
-            }) => (false, *in_hint),
-            None => (true, false),
-        };
-        match (token, in_root, in_hint) {
-            (Token::Open(_, ordinal), _, false) => stack.push(Cloze {
-                in_hint: false,
-                ordinal,
-            }),
-            (Token::Hint, false, false) => stack.last_mut().unwrap().in_hint = true,
-            (Token::Close, false, _) => {
-                let current = stack.pop().unwrap();
-                set.insert(current.ordinal);
-            }
-            _ => {}
+fn add_cloze_numbers_in_text_with_clozes(nodes: &[TextOrCloze], set: &mut HashSet<u16>) {
+    for node in nodes {
+        if let TextOrCloze::Cloze(cloze) = node {
+            set.insert(cloze.ordinal);
+            add_cloze_numbers_in_text_with_clozes(&cloze.nodes, set);
         }
     }
+}
+
+#[allow(clippy::implicit_hasher)]
+pub fn add_cloze_numbers_in_string(field: &str, set: &mut HashSet<u16>) {
+    add_cloze_numbers_in_text_with_clozes(&parse_text_with_clozes(field), set)
 }
 
 fn strip_html_inside_mathjax(text: &str) -> Cow<str> {
