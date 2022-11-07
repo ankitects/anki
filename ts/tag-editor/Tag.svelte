@@ -5,8 +5,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, onMount } from "svelte";
 
-    import { pageTheme } from "../sveltelib/theme";
-
     let className: string = "";
     export { className as class };
 
@@ -29,11 +27,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <button
     bind:this={button}
-    class="tag btn d-inline-flex align-items-center text-nowrap ps-2 pe-1 {className}"
+    class="tag d-inline-flex align-items-center text-nowrap ps-2 pe-1 {className}"
     class:selected
     class:flashing
-    class:btn-day={!$pageTheme.isDark}
-    class:btn-night={$pageTheme.isDark}
     tabindex="-1"
     title={tooltip}
     on:mousemove
