@@ -20,44 +20,30 @@
     border-bottom-right-radius: var(--border-right-radius);
 }
 
-@mixin background($primary: false, $elevation: 1, $hover: true) {
+@mixin background($primary: false, $hover: true) {
     @if $primary {
-        background: linear-gradient(
-            180deg,
-            var(--button-primary-gradient-start) 0%,
-            var(--button-primary-gradient-end) 100%
-        );
+        background: var(--button-primary-bg);
         @if $hover {
             &:hover {
                 background: linear-gradient(
                     180deg,
-                    var(--button-primary-hover-gradient-start) 0%,
-                    var(--button-primary-hover-gradient-end) 100%
+                    var(--button-primary-gradient-start) 0%,
+                    var(--button-primary-gradient-end) 100%
                 );
                 border-color: var(--button-hover-border);
             }
-        }
-        @if $elevation != 0 {
-            @include elevation($elevation, 0.2);
         }
     } @else {
-        background: linear-gradient(
-            180deg,
-            var(--button-gradient-start) 0%,
-            var(--button-gradient-end) 100%
-        );
+        background: var(--button-bg);
         @if $hover {
             &:hover {
                 background: linear-gradient(
                     180deg,
-                    var(--button-hover-gradient-start) 0%,
-                    var(--button-hover-gradient-end) 100%
+                    var(--button-gradient-start) 0%,
+                    var(--button-gradient-end) 100%
                 );
                 border-color: var(--button-hover-border);
             }
-        }
-        @if $elevation != 0 {
-            @include elevation($elevation);
         }
     }
 }
@@ -68,8 +54,7 @@
     $with-hover: true,
     $with-active: true,
     $active-class: "",
-    $with-disabled: true,
-    $elevation: 1
+    $with-disabled: true
 ) {
     -webkit-appearance: none;
     cursor: pointer;
@@ -78,11 +63,12 @@
             border: none;
         } @else {
             border: 1px solid var(--border-subtle);
+            border-bottom-color: var(--shadow);
         }
     } @else {
         border: none;
     }
-    @include background($primary, $elevation, $hover: $with-hover);
+    @include background($primary, $hover: $with-hover);
 
     @if ($primary) {
         color: white;
@@ -110,6 +96,7 @@
             color: var(--fg-disabled);
             box-shadow: none !important;
             background-color: var(--button-gradient-end);
+            border-bottom-color: var(--border-subtle);
         }
     }
 }

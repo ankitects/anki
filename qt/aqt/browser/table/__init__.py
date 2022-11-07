@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import copy
 import time
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Generator, Sequence, Union
@@ -103,9 +104,12 @@ def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> dict[str, str] | No
 
 def adjusted_bg_color(color: dict[str, str]) -> dict[str, str]:
     if color:
-        color["light"] = QColor(color["light"]).lighter(150).name()
-        color["dark"] = QColor(color["dark"]).darker(150).name()
-        return color
+        adjusted_color = copy.copy(color)
+        light = QColor(color["light"]).lighter(150)
+        adjusted_color["light"] = light.name()
+        dark = QColor(color["dark"]).darker(150)
+        adjusted_color["dark"] = dark.name()
+        return adjusted_color
     else:
         return None
 

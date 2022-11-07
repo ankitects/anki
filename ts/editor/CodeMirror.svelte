@@ -34,6 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const defaultConfiguration = {
         rtlMoveVisually: true,
+        lineNumbers: false,
     };
 
     const [editorPromise, resolve] = promiseWithResolver<CodeMirrorLib.Editor>();

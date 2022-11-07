@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import copy
-from typing import TYPE_CHECKING, Any, Iterable, NewType, Sequence, no_type_check
+from typing import TYPE_CHECKING, Any, Iterable, NewType, Sequence
 
 if TYPE_CHECKING:
     import anki
@@ -590,15 +590,18 @@ DeckManager.register_deprecated_aliases(
 )
 
 
-@no_type_check
-def __getattr__(name):
-    if name == "defaultDeck":
-        print_deprecation_warning(
-            "defaultDeck is deprecated; call decks.id() without it"
-        )
-        return 0
-    elif name == "defaultDynamicDeck":
-        print_deprecation_warning("defaultDynamicDeck is replaced with new_filtered()")
-        return 1
-    else:
-        raise AttributeError(f"module {__name__} has no attribute {name}")
+if not TYPE_CHECKING:
+
+    def __getattr__(name):
+        if name == "defaultDeck":
+            print_deprecation_warning(
+                "defaultDeck is deprecated; call decks.id() without it"
+            )
+            return 0
+        elif name == "defaultDynamicDeck":
+            print_deprecation_warning(
+                "defaultDynamicDeck is replaced with new_filtered()"
+            )
+            return 1
+        else:
+            raise AttributeError(f"module {__name__} has no attribute {name}")

@@ -3,11 +3,12 @@
 
 @use "root-vars";
 @use "sass/vars" as *;
-@use "sass/elevation";
+@use "sass/elevation" as *;
 @use "sass/button-mixins" as button;
 
 #header {
     padding-bottom: 4px;
+    margin-top: -3px;
 }
 
 .tdcenter {
@@ -15,9 +16,14 @@
     border-radius: prop(border-radius);
     border-bottom-left-radius: prop(border-radius-large);
     border-bottom-right-radius: prop(border-radius-large);
-    @include button.base($with-hover: false);
-    @include elevation.elevation(2);
+    @include button.base($with-hover: false, $with-active: false);
     overflow: hidden;
+    padding: 0;
+    @include elevation(1, $opacity-boost: -0.08);
+    &:hover {
+        @include elevation(2);
+        transition: box-shadow 0.2s linear;
+    }
 }
 
 body {
@@ -37,7 +43,7 @@ body {
     text-decoration: none;
     color: color(fg);
     display: inline-block;
-    @include button.base($elevation: 0);
+    @include button.base;
     border: none;
     &:first-child {
         padding-left: 18px;

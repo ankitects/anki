@@ -7,7 +7,7 @@ import functools
 import os
 import pathlib
 import traceback
-from typing import Any, Callable, Union, no_type_check
+from typing import TYPE_CHECKING, Any, Callable, Union
 
 from anki._vendor import stringcase
 
@@ -66,21 +66,20 @@ class DeprecatedNamesMixin:
     # deprecated name -> [new internal name, new name shown to user]
     _deprecated_attributes: dict[str, tuple[str, str | None]] = {}
 
-    # the @no_type_check lines are required to prevent mypy allowing arbitrary
-    # attributes on the consuming class
+    # TYPE_CHECKING check is required for https://github.com/python/mypy/issues/13319
+    if not TYPE_CHECKING:
 
-    @no_type_check
-    def __getattr__(self, name: str) -> Any:
-        try:
-            remapped, replacement = _get_remapped_and_replacement(self, name)
-            out = getattr(self, remapped)
-        except AttributeError:
-            raise AttributeError(
-                f"'{self.__class__.__name__}' object has no attribute '{name}'"
-            ) from None
+        def __getattr__(self, name: str) -> Any:
+            try:
+                remapped, replacement = _get_remapped_and_replacement(self, name)
+                out = getattr(self, remapped)
+            except AttributeError:
+                raise AttributeError(
+                    f"'{self.__class__.__name__}' object has no attribute '{name}'"
+                ) from None
 
-        _print_replacement_warning(name, replacement)
-        return out
+            _print_replacement_warning(name, replacement)
+            return out
 
     @classmethod
     def register_deprecated_aliases(cls, **kwargs: DeprecatedAliasTarget) -> None:
@@ -123,9 +122,9 @@ class DeprecatedNamesMixinForModule:
         _deprecated_names.register_deprecated_aliases(...
         _deprecated_names.register_deprecated_attributes(...
 
-        @no_type_check
-        def __getattr__(name: str) -> Any:
-            return _deprecated_names.__getattr__(name)
+        if not TYPE_CHECKING:
+            def __getattr__(name: str) -> Any:
+                return _deprecated_names.__getattr__(name)
     ```
     See DeprecatedNamesMixin for more documentation.
     """
@@ -135,19 +134,20 @@ class DeprecatedNamesMixinForModule:
         self._deprecated_aliases: dict[str, str] = {}
         self._deprecated_attributes: dict[str, tuple[str, str | None]] = {}
 
-    @no_type_check
-    def __getattr__(self, name: str) -> Any:
-        try:
-            remapped, replacement = _get_remapped_and_replacement(self, name)
-            out = self.module_globals[remapped]
-        except (AttributeError, KeyError):
-            raise AttributeError(
-                f"Module '{self.module_globals['__name__']}' has no attribute '{name}'"
-            ) from None
+    if not TYPE_CHECKING:
 
-        # skip an additional frame as we are called from the module `__getattr__`
-        _print_replacement_warning(name, replacement, frame=2)
-        return out
+        def __getattr__(self, name: str) -> Any:
+            try:
+                remapped, replacement = _get_remapped_and_replacement(self, name)
+                out = self.module_globals[remapped]
+            except (AttributeError, KeyError):
+                raise AttributeError(
+                    f"Module '{self.module_globals['__name__']}' has no attribute '{name}'"
+                ) from None
+
+            # skip an additional frame as we are called from the module `__getattr__`
+            _print_replacement_warning(name, replacement, frame=2)
+            return out
 
     def register_deprecated_aliases(self, **kwargs: DeprecatedAliasTarget) -> None:
         self._deprecated_aliases = {k: _target_to_string(v) for k, v in kwargs.items()}

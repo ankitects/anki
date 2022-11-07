@@ -4,13 +4,12 @@ from aqt import colors, props
 from aqt.theme import ThemeManager
 
 
-def button_gradient(start: str, end: str, shadow: str) -> str:
+def button_gradient(start: str, end: str) -> str:
     return f"""
 qlineargradient(
     spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
     stop:0 {start},
-    stop:0.94 {end}
-    stop:1 {shadow}
+    stop:1 {end}
 );
     """
 
@@ -95,8 +94,8 @@ QMenu::separator {{
 }}
 QMenu::indicator {{
     border: 1px solid {tm.var(colors.BORDER)};
-    margin-left: 6px;
-    margin-right: -6px;
+    margin-{tm.left()}: 6px;
+    margin-{tm.right()}: -6px;
 }}
     """
 
@@ -109,13 +108,7 @@ QPushButton {{
 QPushButton,
 QTabBar::tab:!selected,
 QComboBox:!editable {{
-    background: {
-        button_gradient(
-            tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END),
-            tm.var(colors.SHADOW)
-        )
-    };
+    background: {tm.var(colors.BUTTON_BG)};
     border-bottom: 1px solid {tm.var(colors.SHADOW)};
 }}
 QPushButton:hover,
@@ -123,9 +116,8 @@ QTabBar::tab:hover,
 QComboBox:!editable:hover {{
     background: {
         button_gradient(
-            tm.var(colors.BUTTON_HOVER_GRADIENT_START),
-            tm.var(colors.BUTTON_HOVER_GRADIENT_END),
-            tm.var(colors.SHADOW)
+            tm.var(colors.BUTTON_GRADIENT_START),
+            tm.var(colors.BUTTON_GRADIENT_END),
         )
     };
 }}
@@ -202,21 +194,14 @@ QComboBox::down-arrow {{
     image: url({tm.themed_icon("mdi:chevron-down")});
 }}
 QComboBox::drop-down {{
-    background: {
-        button_gradient(
-            tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END),
-            tm.var(colors.SHADOW)
-        )
-    };
+    background: {tm.var(colors.BUTTON_BG)};
     border-bottom: 1px solid {tm.var(colors.SHADOW)};
 }}
 QComboBox::drop-down:hover {{
     background: {
         button_gradient(
-            tm.var(colors.BUTTON_HOVER_GRADIENT_START),
-            tm.var(colors.BUTTON_HOVER_GRADIENT_END),
-            tm.var(colors.SHADOW)
+            tm.var(colors.BUTTON_GRADIENT_START),
+            tm.var(colors.BUTTON_GRADIENT_END),
         )
     };
     border-bottom: 1px solid {tm.var(colors.SHADOW)};
@@ -262,11 +247,13 @@ QTabBar::tab:last {{
 }}
 QTabBar::tab:selected {{
     color: white;
+    background: {tm.var(colors.BUTTON_PRIMARY_BG)};
+}}
+QTabBar::tab:selected:hover {{
     background: {
-        button_gradient(
+            button_gradient(
             tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
             tm.var(colors.BUTTON_PRIMARY_GRADIENT_END),
-            tm.var(colors.SHADOW)
         )
     };
 }}
@@ -277,6 +264,10 @@ def table_styles(tm: ThemeManager) -> str:
     return f"""
 QTableView {{
     border-radius: {tm.var(props.BORDER_RADIUS)};
+    border-{tm.left()}: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+    border-bottom: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
     gridline-color: {tm.var(colors.BORDER_SUBTLE)};
     selection-background-color: {tm.var(colors.SELECTED_BG)};
     selection-color: {tm.var(colors.SELECTED_FG)};
@@ -285,14 +276,13 @@ QHeaderView {{
     background: {tm.var(colors.CANVAS)};
 }}
 QHeaderView::section {{
+    padding-{tm.left()}: 0px;
+    padding-{tm.right()}: 15px;
     border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-    background: {
-        button_gradient(
-            tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END),
-            tm.var(colors.SHADOW)
-        )
-    };
+    background: {tm.var(colors.BUTTON_BG)};
+}}
+QHeaderView::section:first {{
+    margin-left: -1px;
 }}
 QHeaderView::section:pressed,
 QHeaderView::section:pressed:!first {{
@@ -308,9 +298,8 @@ QHeaderView::section:pressed:!first {{
 QHeaderView::section:hover {{
     background: {
         button_gradient(
-            tm.var(colors.BUTTON_HOVER_GRADIENT_START),
-            tm.var(colors.BUTTON_HOVER_GRADIENT_END),
-            tm.var(colors.SHADOW)
+            tm.var(colors.BUTTON_GRADIENT_START),
+            tm.var(colors.BUTTON_GRADIENT_END),
         )
     };
 }}
@@ -335,6 +324,7 @@ QHeaderView::up-arrow,
 QHeaderView::down-arrow {{
     width: 20px;
     height: 20px;
+    margin-{tm.left()}: -20px;
 }}
 QHeaderView::up-arrow {{
     image: url({tm.themed_icon("mdi:menu-up")});
@@ -352,13 +342,7 @@ QSpinBox::down-button {{
     subcontrol-origin: border;
     width: 16px;
     border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-    background: {
-        button_gradient(
-            tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END),
-            tm.var(colors.SHADOW)
-        )
-    };
+    background: {tm.var(colors.BUTTON_BG)};
 }}
 QSpinBox::up-button:pressed,
 QSpinBox::down-button:pressed {{
@@ -375,9 +359,8 @@ QSpinBox::up-button:hover,
 QSpinBox::down-button:hover {{
     background: {
         button_gradient(
-            tm.var(colors.BUTTON_HOVER_GRADIENT_START),
-            tm.var(colors.BUTTON_HOVER_GRADIENT_END),
-            tm.var(colors.SHADOW)
+            tm.var(colors.BUTTON_GRADIENT_START),
+            tm.var(colors.BUTTON_GRADIENT_END),
         )
     };
 }}
@@ -454,6 +437,9 @@ QCheckBox::indicator:checked,
 QRadioButton::indicator:checked,
 QMenu::indicator:checked {{
     image: url({tm.themed_icon("mdi:check")});
+}}
+QRadioButton::indicator:checked {{
+    image: url({tm.themed_icon("mdi:circle-medium")});
 }}
 QCheckBox::indicator:indeterminate {{
     image: url({tm.themed_icon("mdi:minus-thick")});

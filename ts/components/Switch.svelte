@@ -8,9 +8,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string | undefined;
     export let value: boolean;
     export let disabled = false;
+
+    const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
 </script>
 
-<div class="form-check form-switch">
+<div class="form-check form-switch" class:rtl>
     <input
         {id}
         type="checkbox"
@@ -30,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .form-check-input {
         -webkit-appearance: none;
-        height: 1.6em;
+        height: 1.5em;
         /* otherwise the switch circle shows slightly off-centered */
         margin-top: 0;
 
@@ -44,5 +46,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .nightMode:not(:checked) {
         background-color: var(--canvas-elevated);
         border-color: var(--border);
+    }
+
+    .form-switch.rtl {
+        padding-left: 0;
+        padding-right: 0.5em;
+        .form-check-input {
+            margin-left: 0;
+            margin-right: 1.5em;
+        }
     }
 </style>
