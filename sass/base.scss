@@ -44,7 +44,8 @@ html {
 }
 
 body {
-    --base-font-size: 13px;
+    --base-font-size: 14px;
+    font-size: var(--base-font-size);
     overscroll-behavior: none;
     &:not(.isMac),
     &:not(.isMac) * {
