@@ -456,6 +456,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                         richTextsHidden[index] = true;
                                     }
                                 }}
+                                --icon-align="bottom"
                             >
                                 <svelte:fragment slot="field-name">
                                     <LabelName>
