@@ -236,13 +236,9 @@ fn reveal_cloze(
             for node in &cloze.nodes {
                 match node {
                     TextOrCloze::Text(text) => buf.push_str(text),
-                    TextOrCloze::Cloze(cloze) => reveal_cloze(
-                        cloze,
-                        cloze_ord,
-                        question,
-                        active_cloze_found_in_text,
-                        buf,
-                    ),
+                    TextOrCloze::Cloze(cloze) => {
+                        reveal_cloze(cloze, cloze_ord, question, active_cloze_found_in_text, buf)
+                    }
                 }
             }
             buf.push_str("</span>");
@@ -257,13 +253,9 @@ fn reveal_cloze(
             for node in &cloze.nodes {
                 match node {
                     TextOrCloze::Text(text) => buf.push_str(text),
-                    TextOrCloze::Cloze(cloze) => reveal_cloze(
-                        cloze,
-                        cloze_ord,
-                        question,
-                        active_cloze_found_in_text,
-                        buf,
-                    ),
+                    TextOrCloze::Cloze(cloze) => {
+                        reveal_cloze(cloze, cloze_ord, question, active_cloze_found_in_text, buf)
+                    }
                 }
             }
             buf.push_str("</span>")
