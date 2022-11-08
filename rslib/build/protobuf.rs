@@ -104,6 +104,7 @@ pub fn write_backend_proto_rs() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let mut config = prost_build::Config::new();
     config
+        .protoc_arg("--experimental_allow_proto3_optional")
         .out_dir(&out_dir)
         .service_generator(service_generator())
         .type_attribute(
@@ -112,7 +113,7 @@ pub fn write_backend_proto_rs() {
         )
         .type_attribute(
             "Deck.Normal.DayLimit",
-            "#[derive(Copy, serde_derive::Deserialize, serde_derive::Serialize)]",
+            "#[derive(Copy, Eq, serde_derive::Deserialize, serde_derive::Serialize)]",
         )
         .type_attribute("HelpPageLinkRequest.HelpPage", "#[derive(strum::EnumIter)]")
         .type_attribute("CsvMetadata.Delimiter", "#[derive(strum::EnumIter)]")
