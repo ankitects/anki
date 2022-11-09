@@ -104,7 +104,6 @@ pub fn write_backend_proto_rs() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let mut config = prost_build::Config::new();
     config
-        .protoc_arg("--experimental_allow_proto3_optional")
         .out_dir(&out_dir)
         .service_generator(service_generator())
         .type_attribute(
