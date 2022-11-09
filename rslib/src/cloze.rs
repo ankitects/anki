@@ -10,7 +10,7 @@ use nom::{
     IResult,
 };
 use regex::{Captures, Regex};
-use std::{borrow::Cow, collections::HashSet};
+use std::{borrow::Cow, collections::HashSet, fmt::Write};
 
 use crate::{latex::contains_latex, template::RenderContext, text::strip_html_preserving_entities};
 
@@ -219,18 +219,20 @@ fn reveal_cloze(
                     ),
                 }
             }
-            buf.push_str(&format!(
+            write!(
+                buf,
                 r#"<span class="cloze" data-cloze="{}" data-ordinal="{}">[{}]</span>"#,
                 encode_attribute(&content_buf),
                 cloze.ordinal,
                 cloze.hint()
-            ));
+            ).unwrap();
         }
         (false, true) => {
-            buf.push_str(&format!(
+            write!(
+                buf,
                 r#"<span class="cloze" data-ordinal="{}">"#,
                 cloze.ordinal
-            ));
+            ).unwrap();
             for node in &cloze.nodes {
                 match node {
                     TextOrCloze::Text(text) => buf.push_str(text),
@@ -243,10 +245,11 @@ fn reveal_cloze(
         }
         (_, false) => {
             // question or answer side inactive cloze; text shown, children may be active
-            buf.push_str(&format!(
+            write!(
+                buf,
                 r#"<span class="cloze-inactive" data-ordinal="{}">"#,
                 cloze.ordinal
-            ));
+            ).unwrap();
             for node in &cloze.nodes {
                 match node {
                     TextOrCloze::Text(text) => buf.push_str(text),
