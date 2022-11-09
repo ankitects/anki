@@ -22,14 +22,14 @@ rust_rules_workspace_name = "rules_rust"
 # need to update platforms/, BUILD.request.bazel and pylib/anki/BUILD.bazel as
 # well.
 targets = [
-    "x86_64-apple-darwin",
-    "x86_64-apple-ios",
-    "x86_64-pc-windows-msvc",
-    "x86_64-unknown-linux-gnu",
-    "aarch64-apple-darwin",
-    "aarch64-apple-ios",
-    "aarch64-apple-ios-sim",
-    "aarch64-unknown-linux-gnu",
+  "x86_64-apple-darwin",
+  "x86_64-apple-ios",
+  "x86_64-pc-windows-msvc",
+  "x86_64-unknown-linux-gnu",
+  "aarch64-apple-darwin",
+  "aarch64-apple-ios",
+  "aarch64-apple-ios-sim",
+  "aarch64-unknown-linux-gnu",
 ]
 genmode = "Remote"
 default_gen_buildrs = true
@@ -62,4 +62,4 @@ compile_data_attr = "glob([\"**/*.md\"])"
 buildrs_additional_environment_variables = { "PYO3_NO_PYTHON" = "1" }
 
 [patch.crates-io]
-reqwest = { git="https://github.com/ankitects/reqwest.git", rev="7591444614de02b658ddab125efba7b2bb4e2335" }
+reqwest = { git = "https://github.com/ankitects/reqwest.git", rev = "7591444614de02b658ddab125efba7b2bb4e2335" }
