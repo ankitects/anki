@@ -112,7 +112,7 @@ pub fn write_backend_proto_rs() {
         )
         .type_attribute(
             "Deck.Normal.DayLimit",
-            "#[derive(Copy, serde_derive::Deserialize, serde_derive::Serialize)]",
+            "#[derive(Copy, Eq, serde_derive::Deserialize, serde_derive::Serialize)]",
         )
         .type_attribute("HelpPageLinkRequest.HelpPage", "#[derive(strum::EnumIter)]")
         .type_attribute("CsvMetadata.Delimiter", "#[derive(strum::EnumIter)]")

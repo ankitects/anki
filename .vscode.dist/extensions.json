@@ -1,5 +1,6 @@
 {
     "recommendations": [
+        "dprint.dprint",
         "esbenp.prettier-vscode",
         "bazelbuild.vscode-bazel",
         "ms-python.python",

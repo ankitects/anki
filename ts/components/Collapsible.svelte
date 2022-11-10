@@ -78,33 +78,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <slot {collapsed} />
 </div>
 
-{#if measuring}
+{#if animated && measuring}
     <!-- Maintain document flow while collapsible height is measured -->
     <div class="collapsible-placeholder" />
 {/if}
 
 <style lang="scss">
-    .collapsible.animated {
-        &.measuring {
-            display: initial;
-            position: absolute;
-            opacity: 0;
-        }
+    .collapsible {
+        &.animated {
+            &.measuring {
+                display: initial;
+                position: absolute;
+                opacity: 0;
+            }
 
-        &.transitioning {
-            overflow: hidden;
-            height: var(--height);
-            &.expanded {
-                overflow: visible;
+            &.transitioning {
+                overflow: hidden;
+                height: var(--height);
+                &.expanded {
+                    overflow: visible;
+                }
+                &.full-hide {
+                    display: initial;
+                }
             }
         }
-
         &.full-hide {
             &.hidden {
                 display: none;
-            }
-            &.transitioning {
-                display: initial;
             }
         }
     }

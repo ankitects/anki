@@ -1,8 +1,8 @@
 [package]
 name = "rsbridge"
 version = "0.0.0"
-edition = "2021"
 authors = ["Ankitects Pty Ltd and contributors <https://help.ankiweb.net>"]
+edition = "2021"
 license = "AGPL-3.0-or-later"
 description = "Anki's Rust library code Python bindings"
 
