@@ -225,14 +225,16 @@ fn reveal_cloze(
                 encode_attribute(&content_buf),
                 cloze.ordinal,
                 cloze.hint()
-            ).unwrap();
+            )
+            .unwrap();
         }
         (false, true) => {
             write!(
                 buf,
                 r#"<span class="cloze" data-ordinal="{}">"#,
                 cloze.ordinal
-            ).unwrap();
+            )
+            .unwrap();
             for node in &cloze.nodes {
                 match node {
                     TextOrCloze::Text(text) => buf.push_str(text),
@@ -249,7 +251,8 @@ fn reveal_cloze(
                 buf,
                 r#"<span class="cloze-inactive" data-ordinal="{}">"#,
                 cloze.ordinal
-            ).unwrap();
+            )
+            .unwrap();
             for node in &cloze.nodes {
                 match node {
                     TextOrCloze::Text(text) => buf.push_str(text),
