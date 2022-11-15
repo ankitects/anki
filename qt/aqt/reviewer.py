@@ -679,7 +679,6 @@ class Reviewer:
 time = %(time)d;
 </script>
 """ % dict(
-            rem=self._remaining(),
             edit=tr.studying_edit(),
             editkey=tr.actions_shortcut_key(val="E"),
             more=tr.studying_more(),
