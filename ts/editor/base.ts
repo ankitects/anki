@@ -11,7 +11,6 @@ import "../sveltelib/export-runtime";
 
 declare global {
     interface Selection {
-        modify(s: string, t: string, u: string): void;
         addRange(r: Range): void;
         removeAllRanges(): void;
         getRangeAt(n: number): Range;
