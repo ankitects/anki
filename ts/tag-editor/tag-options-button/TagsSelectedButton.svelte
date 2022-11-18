@@ -23,7 +23,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const removeShortcut = "Backspace";
 </script>
 
-<WithFloating {show} placement="top" let:asReference>
+<WithFloating
+    {show}
+    placement="top"
+    portalTarget={document.body}
+    shift={0}
+    let:asReference
+>
     <div class="tags-selected-button" use:asReference on:click={() => (show = !show)}>
         <IconConstrain>{@html dotsIcon}</IconConstrain>
     </div>
