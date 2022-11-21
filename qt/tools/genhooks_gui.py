@@ -519,6 +519,18 @@ hooks = [
         Every column in the dictionary will be toggleable by the user.
         """,
     ),
+    Hook(
+        name="browser_did_setup_hooks",
+        args=["browser: aqt.browser.Browser"],
+        doc="""Allows you to connect per-instance hook subscribers.
+        Executed after native hooks are connected and before browser is shown.""",
+    ),
+    Hook(
+        name="browser_did_teardown_hooks",
+        args=["browser: aqt.browser.Browser"],
+        doc="""Allows you to disconnect per-instance hook subscribers.
+        Executed after native hooks are disconnected and before browser is closed.""",
+    ),
     # Previewer
     ###################
     Hook(
