@@ -135,6 +135,8 @@ scheduling-new-options-group-name = New options group name:
 scheduling-options-group = Options group:
 scheduling-order = Order
 scheduling-parent-limit = (parent limit: { $val })
+scheduling-reset-counts = Reset repetition and lapse counts
+scheduling-restore-position = Restore original position where possible
 scheduling-review = Review
 scheduling-reviews = Reviews
 scheduling-seconds = seconds
@@ -163,7 +165,7 @@ scheduling-set-due-date-prompt =
     }
 scheduling-set-due-date-prompt-hint =
     0 = today
-    1! = tomorrow+reset review interval
+    1! = tomorrow + change interval to 1
     3-7 = random choice of 3-7 days
 scheduling-set-due-date-done =
     { $cards ->

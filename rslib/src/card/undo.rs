@@ -20,7 +20,7 @@ impl Collection {
                 let current = self
                     .storage
                     .get_card(card.id)?
-                    .ok_or_else(|| AnkiError::invalid_input("card disappeared"))?;
+                    .or_invalid("card disappeared")?;
                 self.update_card_undoable(&mut *card, current)
             }
             UndoableCardChange::Removed(card) => self.restore_deleted_card(*card),
@@ -35,10 +35,16 @@ impl Collection {
         Ok(())
     }
 
-    pub(super) fn update_card_undoable(&mut self, card: &mut Card, original: Card) -> Result<()> {
-        if card.id.0 == 0 {
-            return Err(AnkiError::invalid_input("card id not set"));
+    pub(crate) fn add_card_if_unique_undoable(&mut self, card: &Card) -> Result<bool> {
+        let added = self.storage.add_card_if_unique(card)?;
+        if added {
+            self.save_undo(UndoableCardChange::Added(Box::new(card.clone())));
         }
+        Ok(added)
+    }
+
+    pub(super) fn update_card_undoable(&mut self, card: &mut Card, original: Card) -> Result<()> {
+        require!(card.id.0 != 0, "card id not set");
         self.save_undo(UndoableCardChange::Updated(Box::new(original)));
         self.storage.update_card(card)
     }

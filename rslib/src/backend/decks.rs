@@ -4,15 +4,24 @@
 use std::convert::TryFrom;
 
 use super::Backend;
-pub(super) use crate::backend_proto::decks_service::Service as DecksService;
+pub(super) use crate::pb::decks_service::Service as DecksService;
 use crate::{
-    backend_proto::{self as pb},
     decks::{DeckSchema11, FilteredSearchOrder},
+    pb::{self as pb},
     prelude::*,
     scheduler::filtered::FilteredDeckForUpdate,
 };
 
 impl DecksService for Backend {
+    fn new_deck(&self, _input: pb::Empty) -> Result<pb::Deck> {
+        Ok(Deck::new_normal().into())
+    }
+
+    fn add_deck(&self, deck: pb::Deck) -> Result<pb::OpChangesWithId> {
+        let mut deck: Deck = deck.try_into()?;
+        self.with_col(|col| Ok(col.add_deck(&mut deck)?.map(|_| deck.id.0).into()))
+    }
+
     fn add_deck_legacy(&self, input: pb::Json) -> Result<pb::OpChangesWithId> {
         let schema11: DeckSchema11 = serde_json::from_slice(&input.json)?;
         let mut deck: Deck = schema11.into();
@@ -42,18 +51,13 @@ impl DecksService for Backend {
     }
 
     fn deck_tree(&self, input: pb::DeckTreeRequest) -> Result<pb::DeckTreeNode> {
-        let lim = if input.top_deck_id > 0 {
-            Some(DeckId(input.top_deck_id))
-        } else {
-            None
-        };
         self.with_col(|col| {
             let now = if input.now == 0 {
                 None
             } else {
                 Some(TimestampSecs(input.now))
             };
-            col.deck_tree(now, lim)
+            col.deck_tree(now)
         })
     }
 
@@ -76,21 +80,14 @@ impl DecksService for Backend {
 
     fn get_deck_id_by_name(&self, input: pb::String) -> Result<pb::DeckId> {
         self.with_col(|col| {
-            col.get_deck_id(&input.val).and_then(|d| {
-                d.ok_or(AnkiError::NotFound)
-                    .map(|d| pb::DeckId { did: d.0 })
-            })
+            col.get_deck_id(&input.val)
+                .and_then(|d| d.or_not_found(input.val).map(|d| pb::DeckId { did: d.0 }))
         })
     }
 
     fn get_deck(&self, input: pb::DeckId) -> Result<pb::Deck> {
-        self.with_col(|col| {
-            Ok(col
-                .storage
-                .get_deck(input.into())?
-                .ok_or(AnkiError::NotFound)?
-                .into())
-        })
+        let did = input.into();
+        self.with_col(|col| Ok(col.storage.get_deck(did)?.or_not_found(did)?.into()))
     }
 
     fn update_deck(&self, input: pb::Deck) -> Result<pb::OpChanges> {
@@ -109,12 +106,9 @@ impl DecksService for Backend {
     }
 
     fn get_deck_legacy(&self, input: pb::DeckId) -> Result<pb::Json> {
+        let did = input.into();
         self.with_col(|col| {
-            let deck: DeckSchema11 = col
-                .storage
-                .get_deck(input.into())?
-                .ok_or(AnkiError::NotFound)?
-                .into();
+            let deck: DeckSchema11 = col.storage.get_deck(did)?.or_not_found(did)?.into();
             serde_json::to_vec(&deck)
                 .map_err(Into::into)
                 .map(Into::into)
@@ -269,10 +263,7 @@ impl TryFrom<pb::Deck> for Deck {
             mtime_secs: TimestampSecs(d.mtime_secs),
             usn: Usn(d.usn),
             common: d.common.unwrap_or_default(),
-            kind: d
-                .kind
-                .ok_or_else(|| AnkiError::invalid_input("missing kind"))?
-                .into(),
+            kind: d.kind.or_invalid("missing kind")?.into(),
         })
     }
 }

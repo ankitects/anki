@@ -4,12 +4,12 @@
 use itertools::Itertools;
 
 use crate::{
-    backend_proto as pb,
+    pb,
     prelude::*,
     search::{
         parse_search, Negated, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind,
     },
-    text::escape_anki_wildcards_for_search_node,
+    text::{escape_anki_wildcards, escape_anki_wildcards_for_search_node},
 };
 
 impl TryFrom<pb::SearchNode> for Node {
@@ -70,7 +70,7 @@ impl TryFrom<pb::SearchNode> for Node {
                 Filter::Negated(term) => Node::try_from(*term)?.negated(),
                 Filter::Group(mut group) => {
                     match group.nodes.len() {
-                        0 => return Err(AnkiError::invalid_input("empty group")),
+                        0 => invalid_input!("empty group"),
                         // a group of 1 doesn't need to be a group
                         1 => group.nodes.pop().unwrap().try_into()?,
                         // 2+ nodes
@@ -97,6 +97,15 @@ impl TryFrom<pb::SearchNode> for Node {
                     } else {
                         Node::Group(nodes)
                     }
+                }
+                Filter::Field(field) => Node::Search(SearchNode::SingleField {
+                    field: escape_anki_wildcards(&field.field_name),
+                    text: escape_anki_wildcards(&field.text),
+                    is_re: field.is_re,
+                }),
+                Filter::LiteralText(text) => {
+                    let text = escape_anki_wildcards(&text);
+                    Node::Search(SearchNode::UnqualifiedText(text))
                 }
             }
         } else {

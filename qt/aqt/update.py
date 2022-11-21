@@ -40,7 +40,7 @@ class LatestVersionFinder(QThread):
         d["proto"] = 1
 
         try:
-            r = requests.post(aqt.appUpdate, data=d)
+            r = requests.post(aqt.appUpdate, data=d, timeout=60)
             r.raise_for_status()
             resp = r.json()
         except:
@@ -70,7 +70,7 @@ def askAndUpdate(mw: aqt.AnkiQt, ver: str) -> None:
         # ignore this update
         mw.pm.meta["suppressUpdate"] = ver
     elif ret == QMessageBox.StandardButton.Yes:
-        openLink(aqt.appWebsite)
+        openLink(aqt.appWebsiteDownloadSection)
 
 
 def showMessages(mw: aqt.AnkiQt, data: dict) -> None:

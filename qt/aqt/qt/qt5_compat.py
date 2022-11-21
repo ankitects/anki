@@ -270,7 +270,10 @@ _enum_map = (
             ("QHeaderView", ("ResizeMode",)),
             ("QLayout", ("SizeConstraint",)),
             ("QLineEdit", ("EchoMode",)),
-            ("QListView", ("Flow", "LayoutMode", "ResizeMode", "Movement", "ViewMode")),
+            (
+                "QListView",
+                ("Flow", "BrowserLayout", "ResizeMode", "Movement", "ViewMode"),
+            ),
             ("QListWidgetItem", ("ItemType",)),
             ("QMessageBox", ("StandardButton", "Icon", "ButtonRole")),
             ("QPlainTextEdit", ("LineWrapMode",)),
@@ -352,7 +355,9 @@ def _instrument_type(
     class QtClassProxy(
         type, metaclass=QtClassProxyType
     ):  # pylint: disable=invalid-metaclass
-        pass
+        @staticmethod
+        def _without_compat_wrapper():
+            return type
 
     setattr(module, type_name, QtClassProxy)
 

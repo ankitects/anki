@@ -4,11 +4,11 @@
 use serde_json::Value;
 
 use super::Backend;
-pub(super) use crate::backend_proto::config_service::Service as ConfigService;
+pub(super) use crate::pb::config_service::Service as ConfigService;
 use crate::{
-    backend_proto as pb,
-    backend_proto::config_key::{Bool as BoolKeyProto, String as StringKeyProto},
     config::{BoolKey, StringKey},
+    pb,
+    pb::config_key::{Bool as BoolKeyProto, String as StringKeyProto},
     prelude::*,
 };
 
@@ -32,6 +32,12 @@ impl From<BoolKeyProto> for BoolKey {
             BoolKeyProto::PasteStripsFormatting => BoolKey::PasteStripsFormatting,
             BoolKeyProto::NormalizeNoteText => BoolKey::NormalizeNoteText,
             BoolKeyProto::IgnoreAccentsInSearch => BoolKey::IgnoreAccentsInSearch,
+            BoolKeyProto::RestorePositionBrowser => BoolKey::RestorePositionBrowser,
+            BoolKeyProto::RestorePositionReviewer => BoolKey::RestorePositionReviewer,
+            BoolKeyProto::ResetCountsBrowser => BoolKey::ResetCountsBrowser,
+            BoolKeyProto::ResetCountsReviewer => BoolKey::ResetCountsReviewer,
+            BoolKeyProto::RandomOrderReposition => BoolKey::RandomOrderReposition,
+            BoolKeyProto::ShiftPositionOfExistingCards => BoolKey::ShiftPositionOfExistingCards,
         }
     }
 }
@@ -51,7 +57,7 @@ impl ConfigService for Backend {
     fn get_config_json(&self, input: pb::String) -> Result<pb::Json> {
         self.with_col(|col| {
             let val: Option<Value> = col.get_config_optional(input.val.as_str());
-            val.ok_or(AnkiError::NotFound)
+            val.or_not_found(input.val)
                 .and_then(|v| serde_json::to_vec(&v).map_err(Into::into))
                 .map(Into::into)
         })

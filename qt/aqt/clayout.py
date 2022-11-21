@@ -355,6 +355,8 @@ class CardLayout(QDialog):
             ],
             context=self,
         )
+        self.preview_web.allow_drops = True
+        self.preview_web.eval("_blockDefaultDragDropBehavior();")
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)
 
         if self._isCloze():
@@ -548,10 +550,16 @@ class CardLayout(QDialog):
                     audio = c.question_av_tags()
                 else:
                     audio = c.answer_av_tags()
-                av_player.play_tags(audio)
             else:
+                audio = []
                 self.preview_web.setPlaybackRequiresGesture(True)
-                av_player.clear_queue_and_maybe_interrupt()
+            side = "question" if self.pform.preview_front.isChecked() else "answer"
+            gui_hooks.av_player_will_play_tags(
+                audio,
+                side,
+                self,
+            )
+            av_player.play_tags(audio)
 
         self.updateCardNames()
 
@@ -563,19 +571,23 @@ class CardLayout(QDialog):
         hadHR = origLen != len(txt)
 
         def answerRepl(match: Match) -> str:
-            res = self.mw.reviewer.correct("exomple", "an example")
+            res = self.mw.col.compare_answer("example", "sample")
             if hadHR:
                 res = f"<hr id=answer>{res}"
             return res
 
+        type_filter = r"\[\[type:.+?\]\]"
         repl: Union[str, Callable]
 
         if type == "q":
-            repl = "<input id='typeans' type=text value='exomple' readonly='readonly'>"
+            repl = "<input id='typeans' type=text value='example' readonly='readonly'>"
             repl = f"<center>{repl}</center>"
         else:
             repl = answerRepl
-        return re.sub(r"\[\[type:.+?\]\]", repl, txt)
+        out = re.sub(type_filter, repl, txt, count=1)
+
+        warning = f"<center><b>{tr.card_templates_type_boxes_warning()}</b></center>"
+        return re.sub(type_filter, warning, out)
 
     # Card operations
     ######################################################################

@@ -54,21 +54,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const timerOptions = {};
     export const audioOptions = {};
     export const advancedOptions = {};
+
+    let onPresetChange: () => void;
 </script>
 
-<ConfigSelector {state} />
+<ConfigSelector {state} on:presetchange={onPresetChange} />
 
 <div class="deck-options-page">
     <Container
         breakpoint="sm"
         --gutter-inline="0.25rem"
-        --gutter-block="0.5rem"
+        --gutter-block="0.75rem"
         class="container-columns"
     >
         <DynamicallySlottable slotHost={Item} api={options}>
             <Item>
                 <Row class="row-columns">
-                    <DailyLimits {state} api={dailyLimits} />
+                    <DailyLimits {state} api={dailyLimits} bind:onPresetChange />
                 </Row>
             </Item>
 

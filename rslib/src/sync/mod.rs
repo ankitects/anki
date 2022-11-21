@@ -16,19 +16,20 @@ use serde_tuple::Serialize_tuple;
 pub(crate) use server::{LocalServer, SyncServer};
 
 use crate::{
-    backend_proto::{sync_status_response, SyncStatusResponse},
     card::{Card, CardQueue, CardType},
     deckconfig::DeckConfSchema11,
     decks::DeckSchema11,
     error::{SyncError, SyncErrorKind},
+    io::atomic_rename,
     notes::Note,
     notetype::{Notetype, NotetypeSchema11},
+    pb::{sync_status_response, SyncStatusResponse},
     prelude::*,
     revlog::RevlogEntry,
     serde::{default_on_invalid, deserialize_int_from_number},
     storage::{
-        card::data::{card_data_string, original_position_from_card_data},
-        open_and_check_sqlite_file,
+        card::data::{card_data_string, CardData},
+        open_and_check_sqlite_file, SchemaVersion,
     },
     tags::{join_tags, split_tags, Tag},
 };
@@ -45,7 +46,7 @@ pub struct NormalSyncProgress {
     pub remote_remove: usize,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SyncStage {
     Connecting,
     Syncing,
@@ -175,14 +176,14 @@ pub struct SanityCheckResponse {
     pub server: Option<SanityCheckCounts>,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 pub enum SanityCheckStatus {
     Ok,
     Bad,
 }
 
-#[derive(Serialize_tuple, Deserialize, Debug, PartialEq)]
+#[derive(Serialize_tuple, Deserialize, Debug, PartialEq, Eq)]
 pub struct SanityCheckCounts {
     pub counts: SanityCheckDueCounts,
     pub cards: u32,
@@ -195,7 +196,7 @@ pub struct SanityCheckCounts {
     pub deck_config: u32,
 }
 
-#[derive(Serialize_tuple, Deserialize, Debug, Default, PartialEq)]
+#[derive(Serialize_tuple, Deserialize, Debug, Default, PartialEq, Eq)]
 pub struct SanityCheckDueCounts {
     pub new: u32,
     pub learn: u32,
@@ -208,7 +209,7 @@ pub struct FullSyncProgress {
     pub total_bytes: usize,
 }
 
-#[derive(PartialEq, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub enum SyncActionRequired {
     NoChanges,
     FullSyncRequired { upload_ok: bool, download_ok: bool },
@@ -343,10 +344,13 @@ where
                         self.col.storage.rollback_trx()?;
                         let _ = self.remote.abort().await;
 
-                        if let AnkiError::SyncError(SyncError {
-                            info,
-                            kind: SyncErrorKind::DatabaseCheckRequired,
-                        }) = &e
+                        if let AnkiError::SyncError {
+                            source:
+                                SyncError {
+                                    info,
+                                    kind: SyncErrorKind::DatabaseCheckRequired,
+                                },
+                        } = &e
                         {
                             debug!(self.col.log, "sanity check failed:\n{}", info);
                         }
@@ -653,7 +657,7 @@ impl Collection {
     pub(crate) async fn full_upload_inner(mut self, server: Box<dyn SyncServer>) -> Result<()> {
         self.before_upload()?;
         let col_path = self.col_path.clone();
-        self.close(true)?;
+        self.close(Some(SchemaVersion::V11))?;
         server.full_upload(&col_path, false).await
     }
 
@@ -670,19 +674,15 @@ impl Collection {
 
     pub(crate) async fn full_download_inner(self, server: Box<dyn SyncServer>) -> Result<()> {
         let col_path = self.col_path.clone();
-        let col_folder = col_path
-            .parent()
-            .ok_or_else(|| AnkiError::invalid_input("couldn't get col_folder"))?;
-        self.close(false)?;
+        let col_folder = col_path.parent().or_invalid("couldn't get col_folder")?;
+        self.close(None)?;
         let out_file = server.full_download(Some(col_folder)).await?;
         // check file ok
         let db = open_and_check_sqlite_file(out_file.path())?;
         db.execute_batch("update col set ls=mod")?;
         drop(db);
-        // overwrite existing collection atomically
-        out_file
-            .persist(&col_path)
-            .map_err(|e| AnkiError::IoError(format!("download save failed: {}", e)))?;
+        atomic_rename(out_file, &col_path, true)?;
+
         Ok(())
     }
 
@@ -965,7 +965,7 @@ impl Collection {
             let mut note: Note = entry.into();
             let nt = self
                 .get_notetype(note.notetype_id)?
-                .ok_or_else(|| AnkiError::invalid_input("note missing notetype"))?;
+                .or_invalid("note missing notetype")?;
             note.prepare_for_update(&nt, false)?;
             self.storage.add_or_update_note(&note)?;
         }
@@ -1082,6 +1082,10 @@ impl Collection {
 
 impl From<CardEntry> for Card {
     fn from(e: CardEntry) -> Self {
+        let CardData {
+            original_position,
+            custom_data,
+        } = CardData::from_str(&e.data);
         Card {
             id: e.id,
             note_id: e.nid,
@@ -1100,7 +1104,8 @@ impl From<CardEntry> for Card {
             original_due: e.odue,
             original_deck_id: e.odid,
             flags: e.flags,
-            original_position: original_position_from_card_data(&e.data),
+            original_position,
+            custom_data,
         }
     }
 }
@@ -1547,6 +1552,7 @@ mod test {
         }
 
         // removing things like a notetype forces a full sync
+        std::thread::sleep(std::time::Duration::from_millis(1));
         col2.remove_notetype(ntid)?;
         let out = ctx.normal_sync(&mut col2).await;
         assert!(matches!(
@@ -1571,14 +1577,14 @@ mod test {
     //     use std::fs;
     //     use tempfile::NamedTempFile;
 
-    //     let client_col_file = NamedTempFile::new()?;
+    //     let client_col_file = new_named_tempfile()?;
     //     let client_col_name = client_col_file
     //         .path()
     //         .file_name()
     //         .unwrap()
     //         .to_string_lossy();
     //     fs::copy(client_fname, client_col_file.path())?;
-    //     let server_col_file = NamedTempFile::new()?;
+    //     let server_col_file = new_named_tempfile()?;
     //     let server_col_name = server_col_file
     //         .path()
     //         .file_name()

@@ -35,6 +35,7 @@ rust_library(
     name = "phf_shared",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
         "std",
     ],
     crate_root = "src/lib.rs",
@@ -51,6 +52,6 @@ rust_library(
     version = "0.10.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__siphasher__0_3_7//:siphasher",
+        "@raze__siphasher__0_3_10//:siphasher",
     ],
 )

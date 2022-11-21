@@ -16,42 +16,42 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="3" column="0">
+     <item row="3" column="0" alignment="Qt::AlignLeft">
       <widget class="QRadioButton" name="radioAhead">
        <property name="text">
         <string>custom_study_review_ahead</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
+     <item row="2" column="0" alignment="Qt::AlignLeft">
       <widget class="QRadioButton" name="radioForgot">
        <property name="text">
         <string>custom_study_review_forgotten_cards</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
+     <item row="0" column="0" alignment="Qt::AlignLeft">
       <widget class="QRadioButton" name="radioNew">
        <property name="text">
         <string>custom_study_increase_todays_new_card_limit</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="1" column="0" alignment="Qt::AlignLeft">
       <widget class="QRadioButton" name="radioRev">
        <property name="text">
         <string>custom_study_increase_todays_review_card_limit</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
+     <item row="5" column="0" alignment="Qt::AlignLeft">
       <widget class="QRadioButton" name="radioCram">
        <property name="text">
         <string>custom_study_study_by_card_state_or_tag</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
+     <item row="4" column="0" alignment="Qt::AlignLeft">
       <widget class="QRadioButton" name="radioPreview">
        <property name="text">
         <string>custom_study_preview_new_cards</string>

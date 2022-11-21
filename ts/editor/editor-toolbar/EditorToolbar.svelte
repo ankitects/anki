@@ -6,7 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
 
     import { resetAllState, updateAllState } from "../../components/WithState.svelte";
-    import type { SurroundFormat } from "../../domlib/surround";
     import type { DefaultSlotInterface } from "../../sveltelib/dynamic-slotting";
 
     export function updateActiveButtons(event: Event) {
@@ -17,11 +16,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         resetAllState(false);
     }
 
-    export interface RemoveFormat<T> {
+    export interface RemoveFormat {
         name: string;
+        key: string;
         show: boolean;
         active: boolean;
-        format: SurroundFormat<T>;
     }
 
     export interface EditorToolbarAPI {
@@ -30,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         inlineButtons: DefaultSlotInterface;
         blockButtons: DefaultSlotInterface;
         templateButtons: DefaultSlotInterface;
-        removeFormats: Writable<RemoveFormat<any>[]>;
+        removeFormats: Writable<RemoveFormat[]>;
     }
 
     /* Our dynamic components */
@@ -49,15 +48,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
     import { writable } from "svelte/store";
 
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import Item from "../../components/Item.svelte";
-    import StickyContainer from "../../components/StickyContainer.svelte";
     import BlockButtons from "./BlockButtons.svelte";
     import InlineButtons from "./InlineButtons.svelte";
     import NotetypeButtons from "./NotetypeButtons.svelte";
+    import OptionsButton from "./OptionsButton.svelte";
+    import RichTextClozeButtons from "./RichTextClozeButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
 
     export let size: number;
@@ -68,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const inlineButtons = {} as DefaultSlotInterface;
     const blockButtons = {} as DefaultSlotInterface;
     const templateButtons = {} as DefaultSlotInterface;
-    const removeFormats = writable<RemoveFormat<any>[]>([]);
+    const removeFormats = writable<RemoveFormat[]>([]);
 
     let apiPartial: Partial<EditorToolbarAPI> = {};
     export { apiPartial as api };
@@ -83,9 +84,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } as EditorToolbarAPI);
 
     setContextProperty(api);
+
+    const dispatch = createEventDispatcher();
+
+    let clientHeight: number;
+    $: dispatch("heightChange", { height: clientHeight });
 </script>
 
-<StickyContainer --gutter-block="0.1rem" --sticky-borders="0 0 1px">
+<div class="editor-toolbar" bind:clientHeight>
     <ButtonToolbar {size} {wrap}>
         <DynamicallySlottable slotHost={Item} api={toolbar}>
             <Item id="notetype">
@@ -105,6 +111,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Item id="template">
                 <TemplateButtons api={templateButtons} />
             </Item>
+
+            <Item id="cloze">
+                <RichTextClozeButtons />
+            </Item>
+
+            <Item id="options">
+                <OptionsButton />
+            </Item>
         </DynamicallySlottable>
     </ButtonToolbar>
-</StickyContainer>
+</div>
+
+<style lang="scss">
+    .editor-toolbar {
+        padding: 0 0 4px;
+        border-bottom: 1px solid var(--border);
+    }
+</style>

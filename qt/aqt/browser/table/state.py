@@ -8,6 +8,7 @@ from typing import Sequence, cast
 from anki.browser import BrowserConfig
 from anki.cards import Card, CardId
 from anki.collection import Collection
+from anki.errors import NotFoundError
 from anki.notes import Note, NoteId
 from anki.utils import ids2str
 from aqt.browser.table import Column, ItemId, ItemList
@@ -191,7 +192,9 @@ class NoteState(ItemState):
         self.col.set_browser_note_columns(self._active_columns)
 
     def get_card(self, item: ItemId) -> Card:
-        return self.get_note(item).cards()[0]
+        if cards := self.get_note(item).cards():
+            return cards[0]
+        raise NotFoundError("card not found", None, None, None)
 
     def get_note(self, item: ItemId) -> Note:
         return self.col.get_note(NoteId(item))

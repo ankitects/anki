@@ -4,6 +4,7 @@
 mod bool;
 mod deck;
 mod notetype;
+mod number;
 pub(crate) mod schema11;
 mod string;
 pub(crate) mod undo;
@@ -13,8 +14,11 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use slog::warn;
 use strum::IntoStaticStr;
 
-pub use self::{bool::BoolKey, notetype::get_aux_notetype_config_key, string::StringKey};
-use crate::prelude::*;
+pub use self::{
+    bool::BoolKey, deck::DeckConfigKey, notetype::get_aux_notetype_config_key,
+    number::I32ConfigKey, string::StringKey,
+};
+use crate::{pb::preferences::BackupLimits, prelude::*};
 
 /// Only used when updating/undoing.
 #[derive(Debug)]
@@ -43,6 +47,7 @@ pub(crate) enum ConfigKey {
     FirstDayOfWeek,
     LocalOffset,
     Rollover,
+    Backups,
 
     #[strum(to_string = "timeLim")]
     AnswerTimeLimitSecs,
@@ -62,7 +67,7 @@ pub(crate) enum ConfigKey {
     SchedulerVersion,
 }
 
-#[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, Serialize_repr, Deserialize_repr, Clone, Copy, Debug)]
 #[repr(u8)]
 pub enum SchedulerVersion {
     V1 = 1,
@@ -111,10 +116,10 @@ impl Collection {
     }
 
     // /// Get config item, returning default value if missing/invalid.
-    pub(crate) fn get_config_default<T, K>(&self, key: K) -> T
+    pub(crate) fn get_config_default<'a, T, K>(&self, key: K) -> T
     where
         T: DeserializeOwned + Default,
-        K: Into<&'static str>,
+        K: Into<&'a str>,
     {
         self.get_config_optional(key).unwrap_or_default()
     }
@@ -262,6 +267,22 @@ impl Collection {
         self.set_config(ConfigKey::LastUnburiedDay, &day)
             .map(|_| ())
     }
+
+    pub(crate) fn get_backup_limits(&self) -> BackupLimits {
+        self.get_config_optional(ConfigKey::Backups).unwrap_or(
+            // 2d + 12d + 10w + 9m ≈ 1y
+            BackupLimits {
+                daily: 12,
+                weekly: 10,
+                monthly: 9,
+                minimum_interval_mins: 30,
+            },
+        )
+    }
+
+    pub(crate) fn set_backup_limits(&mut self, limits: BackupLimits) -> Result<()> {
+        self.set_config(ConfigKey::Backups, &limits).map(|_| ())
+    }
 }
 
 // 2021 scheduler moves this into deck config
@@ -277,7 +298,7 @@ impl Default for NewReviewMix {
     }
 }
 
-#[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy)]
+#[derive(PartialEq, Eq, Serialize_repr, Deserialize_repr, Clone, Copy)]
 #[repr(u8)]
 pub(crate) enum Weekday {
     Sunday = 0,

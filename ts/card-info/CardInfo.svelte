@@ -6,20 +6,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Container from "../components/Container.svelte";
     import Row from "../components/Row.svelte";
     import type { Stats } from "../lib/proto";
-    import { stats as statsService } from "../lib/proto";
+    import { Cards, stats as statsService } from "../lib/proto";
     import CardInfoPlaceholder from "./CardInfoPlaceholder.svelte";
     import CardStats from "./CardStats.svelte";
     import Revlog from "./Revlog.svelte";
 
-    export let cardId: number | null = null;
     export let includeRevlog: boolean = true;
 
     let stats: Stats.CardStatsResponse | null = null;
     let revlog: Stats.CardStatsResponse.StatsRevlogEntry[] | null = null;
 
-    async function updateStats(cardId: number): Promise<void> {
+    export async function updateStats(cardId: number | null): Promise<void> {
         const requestedCardId = cardId;
-        const cardStats = await statsService.cardStats({ cid: requestedCardId });
+
+        if (cardId === null) {
+            stats = null;
+            revlog = null;
+            return;
+        }
+
+        const cardStats = await statsService.cardStats(
+            Cards.CardId.create({ cid: requestedCardId }),
+        );
 
         /* Skip if another update has been triggered in the meantime. */
         if (requestedCardId === cardId) {
@@ -29,13 +37,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 revlog = stats.revlog as Stats.CardStatsResponse.StatsRevlogEntry[];
             }
         }
-    }
-
-    $: if (cardId) {
-        updateStats(cardId);
-    } else {
-        stats = null;
-        revlog = null;
     }
 </script>
 

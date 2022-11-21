@@ -47,7 +47,7 @@ class Toolbar:
         self.web.stdHtml(
             self._body % self._centerLinks(),
             css=["css/toolbar.css"],
-            js=["js/webview.js", "js/vendor/jquery.min.js", "js/toolbar.js"],
+            js=["js/vendor/jquery.min.js", "js/toolbar.js"],
             context=web_context,
         )
         self.web.adjustHeightToFit()
@@ -144,8 +144,8 @@ class Toolbar:
         self.link_handlers[label] = self._syncLinkHandler
 
         return f"""
-<a class=hitem tabindex="-1" aria-label="{name}" title="{title}" id="{label}" href=# onclick="return pycmd('{label}')">{name}
-<img id=sync-spinner src='/_anki/imgs/refresh.svg'>        
+<a class=hitem tabindex="-1" aria-label="{name}" title="{title}" id="{label}" href=# onclick="return pycmd('{label}')"
+>{name}<img id=sync-spinner src='/_anki/imgs/refresh.svg'>
 </a>"""
 
     def set_sync_active(self, active: bool) -> None:
@@ -196,7 +196,7 @@ class Toolbar:
 
     _body = """
 <center id=outer>
-<table id=header width=100%%>
+<table id=header>
 <tr>
 <td class=tdcenter align=center>%s</td>
 </tr></table>

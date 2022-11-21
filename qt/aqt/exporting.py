@@ -15,6 +15,8 @@ from anki import hooks
 from anki.cards import CardId
 from anki.decks import DeckId
 from anki.exporting import Exporter, exporters
+from aqt import gui_hooks
+from aqt.errors import show_exception
 from aqt.qt import *
 from aqt.utils import (
     checkInvalidFilename,
@@ -38,6 +40,7 @@ class ExportDialog(QDialog):
         self.col = mw.col.weakref()
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
         self.frm.setupUi(self)
+        self.frm.legacy_support.setVisible(False)
         self.exporter: Exporter | None = None
         self.cids = cids
         disable_help_button(self)
@@ -95,6 +98,10 @@ class ExportDialog(QDialog):
             self.frm.includeHTML.setVisible(False)
         # show deck list?
         self.frm.deck.setVisible(not self.isVerbatim)
+        # used by the new export screen
+        self.frm.includeDeck.setVisible(False)
+        self.frm.includeNotetype.setVisible(False)
+        self.frm.includeGuid.setVisible(False)
 
     def accept(self) -> None:
         self.exporter.includeSched = self.frm.includeSched.isChecked()
@@ -157,12 +164,20 @@ class ExportDialog(QDialog):
             else:
                 os.unlink(file)
 
-            # progress handler
-            def exported_media(cnt: int) -> None:
+            # progress handler: old apkg exporter
+            def exported_media_count(cnt: int) -> None:
                 self.mw.taskman.run_on_main(
                     lambda: self.mw.progress.update(
                         label=tr.exporting_exported_media_file(count=cnt)
                     )
+                )
+
+            # progress handler: adaptor for new colpkg importer into old exporting screen.
+            # don't rename this; there's a hack in pylib/exporting.py that assumes this
+            # name
+            def exported_media(progress: str) -> None:
+                self.mw.taskman.run_on_main(
+                    lambda: self.mw.progress.update(label=progress)
                 )
 
             def do_export() -> None:
@@ -170,13 +185,23 @@ class ExportDialog(QDialog):
 
             def on_done(future: Future) -> None:
                 self.mw.progress.finish()
-                hooks.media_files_did_export.remove(exported_media)
-                # raises if exporter failed
-                future.result()
-                self.on_export_finished()
+                hooks.media_files_did_export.remove(exported_media_count)
+                hooks.legacy_export_progress.remove(exported_media)
+                try:
+                    # raises if exporter failed
+                    future.result()
+                except Exception as exc:
+                    show_exception(parent=self.mw, exception=exc)
+                    self.on_export_failed()
+                else:
+                    self.on_export_finished()
 
+            gui_hooks.legacy_exporter_will_export(self.exporter)
+            if self.isVerbatim:
+                gui_hooks.collection_will_temporarily_close(self.mw.col)
             self.mw.progress.start()
-            hooks.media_files_did_export.append(exported_media)
+            hooks.media_files_did_export.append(exported_media_count)
+            hooks.legacy_export_progress.append(exported_media)
 
             self.mw.taskman.run_in_background(do_export, on_done)
 
@@ -189,5 +214,11 @@ class ExportDialog(QDialog):
                 msg = tr.exporting_note_exported(count=self.exporter.count)
             else:
                 msg = tr.exporting_card_exported(count=self.exporter.count)
+        gui_hooks.legacy_exporter_did_export(self.exporter)
         tooltip(msg, period=3000)
+        QDialog.reject(self)
+
+    def on_export_failed(self) -> None:
+        if self.isVerbatim:
+            self.mw.reopen()
         QDialog.reject(self)

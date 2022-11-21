@@ -2,13 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    backend_proto::{
-        preferences::{scheduling::NewReviewMix as NewRevMixPB, Editing, Reviewing, Scheduling},
-        Preferences,
-    },
     collection::Collection,
     config::{BoolKey, StringKey},
     error::Result,
+    pb::{
+        preferences::{scheduling::NewReviewMix as NewRevMixPB, Editing, Reviewing, Scheduling},
+        Preferences,
+    },
     prelude::*,
     scheduler::timing::local_minutes_west_for_stamp,
 };
@@ -19,6 +19,7 @@ impl Collection {
             scheduling: Some(self.get_scheduling_preferences()?),
             reviewing: Some(self.get_reviewing_preferences()?),
             editing: Some(self.get_editing_preferences()?),
+            backups: Some(self.get_backup_limits()),
         })
     }
 
@@ -37,6 +38,9 @@ impl Collection {
         }
         if let Some(editing) = prefs.editing {
             self.set_editing_preferences(editing)?;
+        }
+        if let Some(backups) = prefs.backups {
+            self.set_backup_limits(backups)?;
         }
         Ok(())
     }

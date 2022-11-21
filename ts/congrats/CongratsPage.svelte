@@ -29,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <Container --gutter-block="1rem" --gutter-inline="2px" breakpoint="sm">
     <Col --col-justify="center">
         <div class="congrats">
-            <h3>{congrats}</h3>
+            <h1>{congrats}</h1>
 
             <p>{nextLearnMsg}</p>
 
@@ -66,16 +66,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .congrats {
+        margin-top: 2em;
         max-width: 30em;
         font-size: var(--base-font-size);
 
         :global(a) {
-            color: var(--link);
+            color: var(--fg-link);
             text-decoration: none;
-        }
-
-        h3 {
-            font-weight: bold;
         }
     }
 

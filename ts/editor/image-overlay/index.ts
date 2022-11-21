@@ -1,4 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-export { default as ImageHandle } from "./ImageHandle.svelte";
+import ImageOverlay from "./ImageOverlay.svelte";
+
+export default ImageOverlay;

@@ -116,7 +116,7 @@ To run all tests, use `//...` instead.
 To run a single Rust unit test with output, eg 'unbury':
 
 ```
-bazel run rslib:unit_tests -- --nocapture unbury
+bazel run rslib:anki_tests -- --nocapture unbury
 ```
 
 To run a single Python library test, eg test_bury:
@@ -139,6 +139,13 @@ that's causing the problem, and then run
 
 ```
 bazel run //ts:format
+```
+
+If you get complaints from eslint about unordered imports, run the following
+line first, then run ts:format:
+
+```
+bazel run eslint -- --fix
 ```
 
 For other packages, change to the folder and run

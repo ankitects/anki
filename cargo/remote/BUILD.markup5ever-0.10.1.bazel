@@ -58,7 +58,7 @@ cargo_build_script(
     visibility = ["//visibility:private"],
     deps = [
         "@raze__phf_codegen__0_8_0//:phf_codegen",
-        "@raze__string_cache_codegen__0_5_1//:string_cache_codegen",
+        "@raze__string_cache_codegen__0_5_2//:string_cache_codegen",
     ],
 )
 
@@ -82,9 +82,9 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":markup5ever_build_script",
-        "@raze__log__0_4_14//:log",
+        "@raze__log__0_4_17//:log",
         "@raze__phf__0_8_0//:phf",
-        "@raze__string_cache__0_8_2//:string_cache",
-        "@raze__tendril__0_4_2//:tendril",
+        "@raze__string_cache__0_8_4//:string_cache",
+        "@raze__tendril__0_4_3//:tendril",
     ],
 )

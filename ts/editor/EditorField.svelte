@@ -5,15 +5,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { Readable } from "svelte/store";
 
-    import contextProperty from "../sveltelib/context-property";
     import type { EditingAreaAPI } from "./EditingArea.svelte";
 
     export interface FieldData {
         name: string;
-        description: string;
         fontFamily: string;
         fontSize: number;
         direction: "ltr" | "rtl";
+        plainText: boolean;
+        description: string;
+        collapsed: boolean;
     }
 
     export interface EditorFieldAPI {
@@ -22,10 +23,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         editingArea: EditingAreaAPI;
     }
 
+    import { registerPackage } from "../lib/runtime-require";
+    import contextProperty from "../sveltelib/context-property";
+    import lifecycleHooks from "../sveltelib/lifecycle-hooks";
+
     const key = Symbol("editorField");
     const [context, setContextProperty] = contextProperty<EditorFieldAPI>(key);
+    const [lifecycle, instances, setupLifecycleHooks] =
+        lifecycleHooks<EditorFieldAPI>();
 
     export { context };
+
+    registerPackage("anki/EditorField", {
+        context,
+        lifecycle,
+        instances,
+    });
 </script>
 
 <script lang="ts">
@@ -33,22 +46,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
-    import { directionKey } from "../lib/context-keys";
+    import Collapsible from "../components/Collapsible.svelte";
+    import { collapsedKey, directionKey } from "../lib/context-keys";
     import { promiseWithResolver } from "../lib/promise";
     import type { Destroyable } from "./destroyable";
     import EditingArea from "./EditingArea.svelte";
-    import FieldState from "./FieldState.svelte";
-    import LabelContainer from "./LabelContainer.svelte";
-    import LabelDescription from "./LabelDescription.svelte";
-    import LabelName from "./LabelName.svelte";
 
     export let content: Writable<string>;
     export let field: FieldData;
+    export let collapsed = false;
+    export let flipInputs = false;
+    export let dupe = false;
 
     const directionStore = writable<"ltr" | "rtl">();
     setContext(directionKey, directionStore);
 
     $: $directionStore = field.direction;
+
+    const collapsedStore = writable<boolean>();
+    setContext(collapsedKey, collapsedStore);
+
+    $: $collapsedStore = collapsed;
 
     const editingArea: Partial<EditingAreaAPI> = {};
     const [element, elementResolve] = promiseWithResolver<HTMLElement>();
@@ -63,50 +81,60 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     setContextProperty(api);
+    setupLifecycleHooks(api);
 
     onDestroy(() => api?.destroy());
 </script>
 
-<div
-    use:elementResolve
-    class="editor-field"
-    on:focusin
-    on:focusout
-    on:click={() => editingArea.focus?.()}
->
-    <LabelContainer>
-        <span>
-            <LabelName>
-                {field.name}
-            </LabelName>
-            {#if field.description}
-                <LabelDescription description={field.description} />
-            {/if}
-        </span>
-        <FieldState><slot name="field-state" /></FieldState>
-    </LabelContainer>
-    <EditingArea
-        {content}
-        fontFamily={field.fontFamily}
-        fontSize={field.fontSize}
-        api={editingArea}
-    >
-        <slot name="editing-inputs" />
-    </EditingArea>
+<div class="field-container" on:mouseenter on:mouseleave>
+    <slot name="field-label" />
+
+    <Collapsible collapse={collapsed} let:collapsed={hidden}>
+        <div
+            use:elementResolve
+            class="editor-field"
+            class:dupe
+            on:focusin
+            on:focusout
+            {hidden}
+        >
+            <EditingArea
+                {content}
+                fontFamily={field.fontFamily}
+                fontSize={field.fontSize}
+                api={editingArea}
+            >
+                {#if flipInputs}
+                    <slot name="plain-text-input" />
+                    <slot name="rich-text-input" />
+                {:else}
+                    <slot name="rich-text-input" />
+                    <slot name="plain-text-input" />
+                {/if}
+            </EditingArea>
+        </div>
+    </Collapsible>
 </div>
 
 <style lang="scss">
+    @use "sass/elevation" as *;
+
     .editor-field {
-        --border-color: var(--border);
+        overflow: hidden;
+        margin: 1px 3px 0 3px;
 
         border-radius: 5px;
-        border: 1px solid var(--border-color);
+        border: 1px solid var(--border);
 
+        @include elevation(1);
+
+        outline-offset: -1px;
+        &.dupe,
+        &.dupe:focus-within {
+            outline: 2px solid var(--accent-danger);
+        }
         &:focus-within {
-            --border-color: var(--focus-border);
-
-            outline: none;
-            box-shadow: 0 0 0 3px var(--focus-shadow);
+            outline: 2px solid var(--border-focus);
         }
     }
 </style>

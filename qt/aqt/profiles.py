@@ -9,13 +9,13 @@ import random
 import shutil
 import traceback
 from enum import Enum
-from typing import Any
-
-from send2trash import send2trash
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 import anki.lang
 import aqt.forms
 import aqt.sound
+from anki._legacy import deprecated
 from anki.collection import Collection
 from anki.db import DB
 from anki.lang import without_unicode_isolation
@@ -23,8 +23,13 @@ from anki.sync import SyncAuth
 from anki.utils import int_time, is_mac, is_win, point_version
 from aqt import appHelpSite
 from aqt.qt import *
-from aqt.theme import Theme
-from aqt.utils import disable_help_button, showWarning, tr
+from aqt.theme import Theme, theme_manager
+from aqt.utils import disable_help_button, send_to_trash, showWarning, tr
+
+if TYPE_CHECKING:
+    from aqt.browser.layout import BrowserLayout
+    from aqt.editor import EditorMode
+
 
 # Profile handling
 ##########################################################################
@@ -39,28 +44,32 @@ class VideoDriver(Enum):
 
     @staticmethod
     def default_for_platform() -> VideoDriver:
-        if is_mac:
+        if is_mac or qtmajor > 5:
             return VideoDriver.OpenGL
         else:
             return VideoDriver.Software
 
     def constrained_to_platform(self) -> VideoDriver:
-        if self == VideoDriver.ANGLE and not is_win:
+        if self == VideoDriver.ANGLE and not VideoDriver.supports_angle():
             return VideoDriver.Software
         return self
 
     def next(self) -> VideoDriver:
         if self == VideoDriver.Software:
             return VideoDriver.OpenGL
-        elif self == VideoDriver.OpenGL and is_win:
+        elif self == VideoDriver.OpenGL and VideoDriver.supports_angle():
             return VideoDriver.ANGLE
         else:
             return VideoDriver.Software
 
     @staticmethod
+    def supports_angle() -> bool:
+        return is_win and qtmajor < 6
+
+    @staticmethod
     def all_for_platform() -> list[VideoDriver]:
         all = [VideoDriver.OpenGL]
-        if is_win:
+        if VideoDriver.supports_angle():
             all.append(VideoDriver.ANGLE)
         all.append(VideoDriver.Software)
         return all
@@ -70,7 +79,7 @@ metaConf = dict(
     ver=0,
     updates=True,
     created=int_time(),
-    id=random.randrange(0, 2 ** 63),
+    id=random.randrange(0, 2**63),
     lastMsg=-1,
     suppressUpdate=False,
     firstRun=True,
@@ -146,8 +155,8 @@ class ProfileManager:
     # Profile load/save
     ######################################################################
 
-    def profiles(self) -> list:
-        def names() -> list:
+    def profiles(self) -> list[str]:
+        def names() -> list[str]:
             return self.db.list("select name from profiles where name != '_global'")
 
         n = names()
@@ -217,6 +226,7 @@ class ProfileManager:
             print("resetting corrupt profile")
             self.profile = profileConf.copy()
             self.save()
+        self.set_last_loaded_profile_name(name)
         return True
 
     def save(self) -> None:
@@ -233,16 +243,14 @@ class ProfileManager:
         self.db.commit()
 
     def remove(self, name: str) -> None:
-        p = self.profileFolder()
-        if os.path.exists(p):
-            send2trash(p)
+        path = self.profileFolder(create=False)
+        send_to_trash(Path(path))
         self.db.execute("delete from profiles where name = ?", name)
         self.db.commit()
 
     def trashCollection(self) -> None:
-        p = self.collectionPath()
-        if os.path.exists(p):
-            send2trash(p)
+        path = self.collectionPath()
+        send_to_trash(Path(path))
 
     def rename(self, name: str) -> None:
         oldName = self.name
@@ -478,7 +486,11 @@ create table if not exists profiles
     ######################################################################
 
     def _gldriver_path(self) -> str:
-        return os.path.join(self.base, "gldriver")
+        if qtmajor < 6:
+            fname = "gldriver"
+        else:
+            fname = "gldriver6"
+        return os.path.join(self.base, fname)
 
     def video_driver(self) -> VideoDriver:
         path = self._gldriver_path()
@@ -512,17 +524,21 @@ create table if not exists profiles
     def setUiScale(self, scale: float) -> None:
         self.meta["uiScale"] = scale
 
+    def reduced_motion(self) -> bool:
+        return self.meta.get("reduced_motion", False)
+
+    def set_reduced_motion(self, on: bool) -> None:
+        self.meta["reduced_motion"] = on
+
     def last_addon_update_check(self) -> int:
         return self.meta.get("last_addon_update_check", 0)
 
     def set_last_addon_update_check(self, secs: int) -> None:
         self.meta["last_addon_update_check"] = secs
 
+    @deprecated(info="use theme_manager.night_mode")
     def night_mode(self) -> bool:
-        return self.meta.get("night_mode", False)
-
-    def set_night_mode(self, on: bool) -> None:
-        self.meta["night_mode"] = on
+        return theme_manager.night_mode
 
     def theme(self) -> Theme:
         return Theme(self.meta.get("theme", 0))
@@ -530,8 +546,40 @@ create table if not exists profiles
     def set_theme(self, theme: Theme) -> None:
         self.meta["theme"] = theme.value
 
-    def dark_mode_widgets(self) -> bool:
-        return self.meta.get("dark_mode_widgets", False)
+    def browser_layout(self) -> BrowserLayout:
+        from aqt.browser.layout import BrowserLayout
+
+        return BrowserLayout(self.meta.get("browser_layout", "auto"))
+
+    def set_browser_layout(self, layout: BrowserLayout) -> None:
+        self.meta["browser_layout"] = layout.value
+
+    def editor_key(self, mode: EditorMode) -> str:
+        from aqt.editor import EditorMode
+
+        return {
+            EditorMode.ADD_CARDS: "add",
+            EditorMode.BROWSER: "browser",
+            EditorMode.EDIT_CURRENT: "current",
+        }[mode]
+
+    def tags_collapsed(self, mode: EditorMode) -> bool:
+        return self.meta.get(f"{self.editor_key(mode)}TagsCollapsed", False)
+
+    def set_tags_collapsed(self, mode: EditorMode, collapsed: bool) -> None:
+        self.meta[f"{self.editor_key(mode)}TagsCollapsed"] = collapsed
+
+    def legacy_import_export(self) -> bool:
+        return self.meta.get("legacy_import", False)
+
+    def set_legacy_import_export(self, enabled: bool) -> None:
+        self.meta["legacy_import"] = enabled
+
+    def last_loaded_profile_name(self) -> str | None:
+        return self.meta.get("last_loaded_profile_name")
+
+    def set_last_loaded_profile_name(self, name: str) -> None:
+        self.meta["last_loaded_profile_name"] = name
 
     # Profile-specific
     ######################################################################

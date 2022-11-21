@@ -81,7 +81,7 @@ fn maybe_rotate_log(path: &str) -> io::Result<()> {
 }
 
 /// Get a logger, logging to a file if a path was provided, otherwise terminal.
-pub(crate) fn default_logger(path: Option<&str>) -> io::Result<Logger> {
+pub fn default_logger(path: Option<&str>) -> io::Result<Logger> {
     Ok(match path {
         Some(path) => file(path)?,
         None => terminal(),

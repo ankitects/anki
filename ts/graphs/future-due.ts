@@ -16,7 +16,7 @@ import {
     sum,
 } from "d3";
 
-import { CardQueue } from "../lib/cards";
+import { CardType } from "../lib/cards";
 import * as tr from "../lib/ftl";
 import { localizedNumber } from "../lib/i18n";
 import type { Cards, Stats } from "../lib/proto";
@@ -31,30 +31,26 @@ export interface GraphData {
 }
 
 export function gatherData(data: Stats.GraphsResponse): GraphData {
-    const isLearning = (card: Cards.Card): boolean =>
-        [CardQueue.Learn, CardQueue.PreviewRepeat].includes(card.queue);
-
+    const isIntradayLearning = (card: Cards.Card, due: number): boolean => {
+        return (
+            [CardType.Learn, CardType.Relearn].includes(card.ctype) &&
+            due > 1_000_000_000
+        );
+    };
     let haveBacklog = false;
     const due = (data.cards as Cards.Card[])
-        .filter((c: Cards.Card) => {
-            // reviews
-            return (
-                [CardQueue.Review, CardQueue.DayLearn].includes(c.queue) ||
-                // or learning cards
-                isLearning(c)
-            );
-        })
+        .filter((c: Cards.Card) => c.queue > 0)
         .map((c: Cards.Card) => {
-            let dueDay: number;
+            // - testing just odue fails on day 1
+            // - testing just odid fails on lapsed cards that
+            //   have due calculated at regraduation time
+            const due = c.originalDeckId && c.originalDue ? c.originalDue : c.due;
 
-            if (isLearning(c)) {
-                const offset = c.due - data.nextDayAtSecs;
+            let dueDay: number;
+            if (isIntradayLearning(c, due)) {
+                const offset = due - data.nextDayAtSecs;
                 dueDay = Math.floor(offset / 86_400) + 1;
             } else {
-                // - testing just odue fails on day 1
-                // - testing just odid fails on lapsed cards that
-                //   have due calculated at regraduation time
-                const due = c.originalDeckId && c.originalDue ? c.originalDue : c.due;
                 dueDay = due - data.daysElapsed;
             }
 

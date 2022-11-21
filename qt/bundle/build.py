@@ -35,7 +35,6 @@ cargo_target = output_root / f"target-{platform.machine()}"
 artifacts = output_root / "artifacts"
 pyo3_config = output_root / "pyo3-build-config-file.txt"
 pyoxidizer_folder = bazel_external / "pyoxidizer"
-arm64_protobuf_wheel = bazel_external / "protobuf_wheel_mac_arm64"
 pyoxidizer_binary = cargo_target / "release" / with_exe_extension("pyoxidizer")
 
 for path in dist_folder.glob("*.zst"):
@@ -64,7 +63,7 @@ elif sys.platform.startswith("darwin"):
     else:
         pyqt5_folder_name = "pyqt514"
         os.environ["TARGET"] = "x86_64-apple-darwin"
-        os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.13"
+        os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.14"
 else:
     is_lin = True
     if platform.machine() == "x86_64":
@@ -133,17 +132,8 @@ def install_wheels_into_venv():
         buf = f.read()
     with open(constraints, "w") as f:
         extracted = re.findall("^(\S+==\S+) ", buf, flags=re.M)
-        extracted = [
-            line for line in extracted if not arm64_mac or "protobuf" not in line
-        ]
+        extracted = [line for line in extracted if "protobuf" not in line]
         f.write("\n".join(extracted))
-    # pypi protobuf lacks C extension on darwin-arm64, so we have to use a version
-    # we built ourselves
-    if arm64_mac:
-        wheels = glob.glob(str(arm64_protobuf_wheel / "*.whl"))
-        subprocess.run(
-            [pip, "install", "--upgrade", "-c", constraints, *wheels], check=True
-        )
     # install wheels and upgrade any deps
     wheels = glob.glob(str(workspace / ".bazel" / "out" / "dist" / "*.whl"))
     subprocess.run(
@@ -343,13 +333,13 @@ def build_tarball(src_path: Path, variant: str) -> None:
     subprocess.run(
         [
             "tar",
-            "--zstd",
+            "-I",
+            "zstd -c --long -T0 -18",
             "-cf",
             dist_folder / (dest_path.name + ".tar.zst"),
             dest_path.name,
         ],
         check=True,
-        env=dict(ZSTD_CLEVEL="9"),
         cwd=dest_path.parent,
     )
 
@@ -389,7 +379,7 @@ if is_win:
     build_windows_installers()
 
 if is_mac:
-    print("outputs are in .bazel/out/build/{std,alt}")
+    print("outputs are in .bazel/out/build/app")
     print("dmg can be created with mac/finalize.py dmg")
 else:
     print("outputs are in .bazel/out/dist/")

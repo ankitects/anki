@@ -19,7 +19,7 @@ impl Collection {
                 let current = self
                     .storage
                     .get_notetype(nt.id)?
-                    .ok_or_else(|| AnkiError::invalid_input("notetype disappeared"))?;
+                    .or_invalid("notetype disappeared")?;
                 self.update_notetype_undoable(&nt, current)
             }
             UndoableNotetypeChange::Removed(nt) => self.restore_deleted_notetype(*nt),
@@ -38,6 +38,17 @@ impl Collection {
         notetype: &mut Notetype,
     ) -> Result<(), AnkiError> {
         self.storage.add_notetype(notetype)?;
+        self.save_undo(UndoableNotetypeChange::Added(Box::new(notetype.clone())));
+        Ok(())
+    }
+
+    /// Caller must ensure [NotetypeId] is unique.
+    pub(crate) fn add_notetype_with_unique_id_undoable(
+        &mut self,
+        notetype: &Notetype,
+    ) -> Result<()> {
+        self.storage
+            .add_or_update_notetype_with_existing_id(notetype)?;
         self.save_undo(UndoableNotetypeChange::Added(Box::new(notetype.clone())));
         Ok(())
     }

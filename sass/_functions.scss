@@ -1,0 +1,87 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+@use "sass:map";
+@use "sass:list";
+
+@function create-vars-from-map($map, $theme, $name: "-", $output: ()) {
+    @each $key, $value in $map {
+        @if $key ==
+            $theme or
+            (
+                $key ==
+                    "default" and
+                    type-of($value) !=
+                    "map" and
+                    type-of($value) !=
+                    "list"
+            )
+        {
+            @return map.set($output, $name, map.get($map, $key));
+        }
+        @if type-of($value) == "map" {
+            @if $key == "default" {
+                $output: map-merge(
+                    $output,
+                    create-vars-from-map($value, $theme, #{$name}, $output)
+                );
+            } @else {
+                $output: map-merge(
+                    $output,
+                    create-vars-from-map($value, $theme, #{$name}-#{$key}, $output)
+                );
+            }
+        } @else if type-of($value) == "list" and list.length($value) > 1 {
+            $next-name: #{$name}-#{$key};
+            @if $key == "default" {
+                $next-name: $name;
+            }
+            $output: map-merge(
+                $output,
+                (#{"comment"}#{$next-name}: list.nth($value, 1))
+            );
+            $output: map-merge(
+                $output,
+                create-vars-from-map(
+                    list.nth($value, 2),
+                    $theme,
+                    #{$next-name},
+                    $output
+                )
+            );
+        }
+    }
+    @return $output;
+}
+
+@function map-deep-get($map, $keys) {
+    @each $key in $keys {
+        @if type-of($map) == "list" and list.length($map) > 1 {
+            $map: map-get(list.nth($map, 2), $key);
+        } @else {
+            $map: map-get($map, $key);
+        }
+    }
+    @return $map;
+}
+
+@function get-value-from-map($map, $keyword, $theme, $keys: ()) {
+    $i: str-index($keyword, "-");
+
+    @if $i {
+        @while $i {
+            $sub: str-slice($keyword, 0, $i - 1);
+
+            @if list.length($keys) == 0 {
+                $keys: ($sub);
+            } @else {
+                $keys: list.append($keys, $sub);
+            }
+            $keyword: str-slice($keyword, $i + 1, -1);
+            $i: str-index($keyword, "-");
+        }
+    }
+    $keys: list.join($keys, ($keyword, $theme));
+
+    @return map-deep-get($map, $keys);
+}

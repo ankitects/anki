@@ -4,10 +4,10 @@
         "*",
         "image-overlay/*",
         "mathjax-overlay/*",
+        "symbols-overlay/*",
         "plain-text-input/*",
         "rich-text-input/*",
-        "editor-toolbar/*",
-        "tag-editor/*"
+        "editor-toolbar/*"
     ],
     "references": [
         { "path": "../components" },
@@ -15,6 +15,7 @@
         { "path": "../lib" },
         { "path": "../sveltelib" },
         { "path": "../editable" },
-        { "path": "../html-filter" }
+        { "path": "../html-filter" },
+        { "path": "../tag-editor" }
     ]
 }

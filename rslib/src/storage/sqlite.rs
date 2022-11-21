@@ -8,7 +8,10 @@ use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection};
 use unicase::UniCase;
 
-use super::upgrades::{SCHEMA_MAX_VERSION, SCHEMA_MIN_VERSION, SCHEMA_STARTING_VERSION};
+use super::{
+    upgrades::{SCHEMA_MAX_VERSION, SCHEMA_MIN_VERSION, SCHEMA_STARTING_VERSION},
+    SchemaVersion,
+};
 use crate::{
     config::schema11::schema11_config_as_string,
     error::{AnkiError, DbErrorKind, Result},
@@ -46,12 +49,16 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     db.pragma_update(None, "cache_size", &(-40 * 1024))?;
     db.pragma_update(None, "legacy_file_format", &false)?;
     db.pragma_update(None, "journal_mode", &"wal")?;
+    // Android has no /tmp folder, and fails in the default config.
+    #[cfg(target_os = "android")]
+    db.pragma_update(None, "temp_store", &"memory")?;
 
     db.set_prepared_statement_cache_capacity(50);
 
     add_field_index_function(&db)?;
     add_regexp_function(&db)?;
     add_regexp_fields_function(&db)?;
+    add_regexp_tags_function(&db)?;
     add_without_combining_function(&db)?;
     add_fnvhash_function(&db)?;
 
@@ -157,6 +164,26 @@ fn add_regexp_fields_function(db: &Connection) -> rusqlite::Result<()> {
     )
 }
 
+/// Adds sql function `regexp_tags(regex, tags) -> is_match`.
+fn add_regexp_tags_function(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "regexp_tags",
+        2,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
+
+            let re: Arc<Regex> = ctx
+                .get_or_create_aux(0, |vr| -> std::result::Result<_, BoxError> {
+                    Ok(Regex::new(vr.as_str()?)?)
+                })?;
+            let mut tags = ctx.get_raw(1).as_str()?.split(' ');
+
+            Ok(tags.any(|tag| re.is_match(tag)))
+        },
+    )
+}
+
 /// Fetch schema version from database.
 /// Return (must_create, version)
 fn schema_version(db: &Connection) -> Result<(bool, u8)> {
@@ -240,12 +267,37 @@ impl SqliteStorage {
         Ok(storage)
     }
 
-    pub(crate) fn close(self, downgrade: bool) -> Result<()> {
-        if downgrade {
-            self.downgrade_to_schema_11()?;
-            self.db.pragma_update(None, "journal_mode", &"delete")?;
+    pub(crate) fn close(self, desired_version: Option<SchemaVersion>) -> Result<()> {
+        if let Some(version) = desired_version {
+            self.downgrade_to(version)?;
+            if version.has_journal_mode_delete() {
+                self.db.pragma_update(None, "journal_mode", &"delete")?;
+            }
         }
         Ok(())
+    }
+
+    /// Flush data from WAL file into DB, so the DB is safe to copy. Caller must not call this
+    /// while there is an active transaction.
+    pub(crate) fn checkpoint(&self) -> Result<()> {
+        if !self.db.is_autocommit() {
+            return Err(AnkiError::db_error(
+                "active transaction",
+                DbErrorKind::Other,
+            ));
+        }
+        self.db
+            .query_row_and_then("pragma wal_checkpoint(truncate)", [], |row| {
+                let error_code: i64 = row.get(0)?;
+                if error_code != 0 {
+                    Err(AnkiError::db_error(
+                        "unable to checkpoint",
+                        DbErrorKind::Other,
+                    ))
+                } else {
+                    Ok(())
+                }
+            })
     }
 
     // Standard transaction start/stop

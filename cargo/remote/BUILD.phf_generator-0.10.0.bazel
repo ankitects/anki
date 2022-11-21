@@ -56,7 +56,7 @@ rust_binary(
     deps = [
         ":phf_generator",
         "@raze__phf_shared__0_10_0//:phf_shared",
-        "@raze__rand__0_8_4//:rand",
+        "@raze__rand__0_8_5//:rand",
     ],
 )
 
@@ -80,6 +80,6 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__phf_shared__0_10_0//:phf_shared",
-        "@raze__rand__0_8_4//:rand",
+        "@raze__rand__0_8_5//:rand",
     ],
 )

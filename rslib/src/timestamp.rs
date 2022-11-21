@@ -5,7 +5,7 @@ use std::time;
 
 use chrono::prelude::*;
 
-use crate::define_newtype;
+use crate::{define_newtype, prelude::*};
 
 define_newtype!(TimestampSecs, i64);
 define_newtype!(TimestampMillis, i64);
@@ -31,18 +31,35 @@ impl TimestampSecs {
         TimestampMillis(self.0 * 1000)
     }
 
+    #[cfg(windows)]
+    pub(crate) fn local_datetime(self) -> Result<DateTime<Local>> {
+        std::panic::catch_unwind(|| Local.timestamp(self.0, 0))
+            // discard error as it doesn't satisfiy trait bounds
+            .ok()
+            .or_invalid("invalid date")
+    }
+
+    #[cfg(not(windows))]
+    pub(crate) fn local_datetime(self) -> Result<DateTime<Local>> {
+        Ok(Local.timestamp(self.0, 0))
+    }
+
     /// YYYY-mm-dd
     pub(crate) fn date_string(self) -> String {
-        Local.timestamp(self.0, 0).format("%Y-%m-%d").to_string()
+        self.local_datetime()
+            .map(|dt| dt.format("%Y-%m-%d").to_string())
+            .unwrap_or_else(|_err| "invalid date".to_string())
     }
 
     /// HH-MM
     pub(crate) fn time_string(self) -> String {
-        Local.timestamp(self.0, 0).format("%H:%M").to_string()
+        self.local_datetime()
+            .map(|dt| dt.format("%H:%M").to_string())
+            .unwrap_or_else(|_err| "invalid date".to_string())
     }
 
-    pub fn local_utc_offset(self) -> FixedOffset {
-        *Local.timestamp(self.0, 0).offset()
+    pub fn local_utc_offset(self) -> Result<FixedOffset> {
+        Ok(*self.local_datetime()?.offset())
     }
 
     pub fn datetime(self, utc_offset: FixedOffset) -> DateTime<FixedOffset> {

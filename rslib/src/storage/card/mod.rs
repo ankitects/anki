@@ -4,7 +4,7 @@
 pub(crate) mod data;
 pub(crate) mod filtered;
 
-use std::{collections::HashSet, convert::TryFrom, result};
+use std::{collections::HashSet, convert::TryFrom, fmt, result};
 
 use rusqlite::{
     named_params, params,
@@ -69,6 +69,7 @@ fn row_to_card(row: &Row) -> result::Result<Card, rusqlite::Error> {
         original_deck_id: row.get(15)?,
         flags: row.get(16)?,
         original_position: data.original_position,
+        custom_data: data.custom_data,
     })
 }
 
@@ -145,6 +146,34 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    /// Add card if id is unique. True if card was added.
+    pub(crate) fn add_card_if_unique(&self, card: &Card) -> Result<bool> {
+        self.db
+            .prepare_cached(include_str!("add_card_if_unique.sql"))?
+            .execute(params![
+                card.id,
+                card.note_id,
+                card.deck_id,
+                card.template_idx,
+                card.mtime,
+                card.usn,
+                card.ctype as u8,
+                card.queue as i8,
+                card.due,
+                card.interval,
+                card.ease_factor,
+                card.reps,
+                card.lapses,
+                card.remaining_steps,
+                card.original_due,
+                card.original_deck_id,
+                card.flags,
+                CardData::from_card(card),
+            ])
+            .map(|n_rows| n_rows == 1)
+            .map_err(Into::into)
+    }
+
     /// Add or update card, using the provided ID. Used for syncing & undoing.
     pub(crate) fn add_or_update_card(&self, card: &Card) -> Result<()> {
         let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
@@ -216,7 +245,7 @@ impl super::SqliteStorage {
     where
         F: FnMut(DueCard) -> bool,
     {
-        let order_clause = review_order_sql(order);
+        let order_clause = review_order_sql(order, day_cutoff);
         let mut stmt = self.db.prepare_cached(&format!(
             "{} order by {}",
             include_str!("due_cards.sql"),
@@ -380,14 +409,15 @@ impl super::SqliteStorage {
         note_ids: &[NoteId],
         ordinal: usize,
     ) -> Result<Vec<Card>> {
-        self.set_search_table_to_note_ids(note_ids)?;
-        self.db
-            .prepare_cached(concat!(
-                include_str!("get_card.sql"),
-                " where nid in (select nid from search_nids) and ord > ?"
-            ))?
-            .query_and_then([ordinal as i64], |r| row_to_card(r).map_err(Into::into))?
-            .collect()
+        self.with_ids_in_searched_notes_table(note_ids, || {
+            self.db
+                .prepare_cached(concat!(
+                    include_str!("get_card.sql"),
+                    " where nid in (select nid from search_nids) and ord > ?"
+                ))?
+                .query_and_then([ordinal as i64], |r| row_to_card(r).map_err(Into::into))?
+                .collect()
+        })
     }
 
     pub(crate) fn all_card_ids_of_note_in_template_order(
@@ -397,6 +427,20 @@ impl super::SqliteStorage {
         self.db
             .prepare_cached("select id from cards where nid = ? order by ord")?
             .query_and_then([nid], |r| Ok(CardId(r.get(0)?)))?
+            .collect()
+    }
+
+    pub(crate) fn get_all_card_ids(&self) -> Result<HashSet<CardId>> {
+        self.db
+            .prepare("SELECT id FROM cards")?
+            .query_and_then([], |row| Ok(row.get(0)?))?
+            .collect()
+    }
+
+    pub(crate) fn all_cards_as_nid_and_ord(&self) -> Result<HashSet<(NoteId, u16)>> {
+        self.db
+            .prepare("SELECT nid, ord FROM cards")?
+            .query_and_then([], |r| Ok((NoteId(r.get(0)?), r.get(1)?)))?
             .collect()
     }
 
@@ -413,16 +457,14 @@ impl super::SqliteStorage {
         Ok(cids)
     }
 
-    /// Place matching card ids into the search table.
-    pub(crate) fn search_siblings_for_bury(
+    pub(crate) fn all_siblings_for_bury(
         &self,
         cid: CardId,
         nid: NoteId,
         include_new: bool,
         include_reviews: bool,
         include_day_learn: bool,
-    ) -> Result<()> {
-        self.setup_searched_cards_table()?;
+    ) -> Result<Vec<Card>> {
         let params = named_params! {
             ":card_id": cid,
             ":note_id": nid,
@@ -433,10 +475,27 @@ impl super::SqliteStorage {
             ":review_queue": CardQueue::Review as i8,
             ":daylearn_queue": CardQueue::DayLearn as i8,
         };
-        self.db
-            .prepare_cached(include_str!("siblings_for_bury.sql"))?
-            .execute(params)?;
-        Ok(())
+        self.with_searched_cards_table(false, || {
+            self.db
+                .prepare_cached(include_str!("siblings_for_bury.sql"))?
+                .execute(params)?;
+            self.all_searched_cards()
+        })
+    }
+
+    pub(crate) fn with_searched_cards_table<T>(
+        &self,
+        preserve_order: bool,
+        func: impl FnOnce() -> Result<T>,
+    ) -> Result<T> {
+        if preserve_order {
+            self.setup_searched_cards_table_to_preserve_order()?;
+        } else {
+            self.setup_searched_cards_table()?;
+        }
+        let result = func();
+        self.clear_searched_cards_table()?;
+        result
     }
 
     pub(crate) fn note_ids_of_cards(&self, cids: &[CardId]) -> Result<HashSet<NoteId>> {
@@ -453,6 +512,15 @@ impl super::SqliteStorage {
             }
         }
         Ok(nids)
+    }
+
+    /// Place the ids of cards with notes in 'search_nids' into 'search_cids'.
+    /// Returns number of added cards.
+    pub(crate) fn search_cards_of_notes_into_table(&self) -> Result<usize> {
+        self.db
+            .prepare(include_str!("search_cards_of_notes_into_table.sql"))?
+            .execute([])
+            .map_err(Into::into)
     }
 
     pub(crate) fn all_searched_cards(&self) -> Result<Vec<Card>> {
@@ -524,12 +592,13 @@ impl super::SqliteStorage {
             .unwrap()
     }
 
-    pub(crate) fn search_cards_at_or_above_position(&self, start: u32) -> Result<()> {
-        self.setup_searched_cards_table()?;
-        self.db
-            .prepare(include_str!("at_or_above_position.sql"))?
-            .execute([start, CardType::New as u32])?;
-        Ok(())
+    pub(crate) fn all_cards_at_or_above_position(&self, start: u32) -> Result<Vec<Card>> {
+        self.with_searched_cards_table(false, || {
+            self.db
+                .prepare(include_str!("at_or_above_position.sql"))?
+                .execute([start, CardType::New as u32])?;
+            self.all_searched_cards()
+        })
     }
 
     pub(crate) fn setup_searched_cards_table(&self) -> Result<()> {
@@ -551,24 +620,13 @@ impl super::SqliteStorage {
 
     /// Injects the provided card IDs into the search_cids table, for
     /// when ids have arrived outside of a search.
-    /// Clear with clear_searched_cards_table().
-    pub(crate) fn set_search_table_to_card_ids(
-        &mut self,
-        cards: &[CardId],
-        preserve_order: bool,
-    ) -> Result<()> {
-        if preserve_order {
-            self.setup_searched_cards_table_to_preserve_order()?;
-        } else {
-            self.setup_searched_cards_table()?;
-        }
+    pub(crate) fn set_search_table_to_card_ids(&self, cards: &[CardId]) -> Result<()> {
         let mut stmt = self
             .db
             .prepare_cached("insert into search_cids values (?)")?;
         for cid in cards {
             stmt.execute([cid])?;
         }
-
         Ok(())
     }
 
@@ -601,6 +659,17 @@ impl super::SqliteStorage {
 
         Ok(())
     }
+
+    #[cfg(test)]
+    pub(crate) fn get_all_cards(&self) -> Vec<Card> {
+        self.db
+            .prepare("SELECT * FROM cards")
+            .unwrap()
+            .query_and_then([], row_to_card)
+            .unwrap()
+            .collect::<rusqlite::Result<_>>()
+            .unwrap()
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -612,11 +681,13 @@ enum ReviewOrderSubclause {
     IntervalsDescending,
     EaseAscending,
     EaseDescending,
+    RelativeOverdueness { today: u32 },
 }
 
-impl ReviewOrderSubclause {
-    fn to_str(self) -> &'static str {
-        match self {
+impl fmt::Display for ReviewOrderSubclause {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let temp_string;
+        let clause = match self {
             ReviewOrderSubclause::Day => "due",
             ReviewOrderSubclause::Deck => "(select rowid from active_decks ad where ad.id = did)",
             ReviewOrderSubclause::Random => "fnvhash(id, mod)",
@@ -624,11 +695,16 @@ impl ReviewOrderSubclause {
             ReviewOrderSubclause::IntervalsDescending => "ivl desc",
             ReviewOrderSubclause::EaseAscending => "factor asc",
             ReviewOrderSubclause::EaseDescending => "factor desc",
-        }
+            ReviewOrderSubclause::RelativeOverdueness { today } => {
+                temp_string = format!("ivl / cast({today}-due+0.001 as real)", today = today);
+                &temp_string
+            }
+        };
+        write!(f, "{}", clause)
     }
 }
 
-fn review_order_sql(order: ReviewCardOrder) -> String {
+fn review_order_sql(order: ReviewCardOrder, today: u32) -> String {
     let mut subclauses = match order {
         ReviewCardOrder::Day => vec![ReviewOrderSubclause::Day],
         ReviewCardOrder::DayThenDeck => vec![ReviewOrderSubclause::Day, ReviewOrderSubclause::Deck],
@@ -637,12 +713,15 @@ fn review_order_sql(order: ReviewCardOrder) -> String {
         ReviewCardOrder::IntervalsDescending => vec![ReviewOrderSubclause::IntervalsDescending],
         ReviewCardOrder::EaseAscending => vec![ReviewOrderSubclause::EaseAscending],
         ReviewCardOrder::EaseDescending => vec![ReviewOrderSubclause::EaseDescending],
+        ReviewCardOrder::RelativeOverdueness => {
+            vec![ReviewOrderSubclause::RelativeOverdueness { today }]
+        }
     };
     subclauses.push(ReviewOrderSubclause::Random);
 
     let v: Vec<_> = subclauses
-        .into_iter()
-        .map(ReviewOrderSubclause::to_str)
+        .iter()
+        .map(ReviewOrderSubclause::to_string)
         .collect();
     v.join(", ")
 }

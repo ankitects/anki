@@ -2,13 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::Backend;
-pub(super) use crate::backend_proto::notetypes_service::Service as NotetypesService;
+pub(super) use crate::pb::notetypes_service::Service as NotetypesService;
 use crate::{
-    backend_proto as pb,
     config::get_aux_notetype_config_key,
     notetype::{
         all_stock_notetypes, ChangeNotetypeInput, Notetype, NotetypeChangeInfo, NotetypeSchema11,
     },
+    pb,
     prelude::*,
 };
 
@@ -80,21 +80,20 @@ impl NotetypesService for Backend {
     }
 
     fn get_notetype(&self, input: pb::NotetypeId) -> Result<pb::Notetype> {
+        let ntid = input.into();
         self.with_col(|col| {
             col.storage
-                .get_notetype(input.into())?
-                .ok_or(AnkiError::NotFound)
+                .get_notetype(ntid)?
+                .or_not_found(ntid)
                 .map(Into::into)
         })
     }
 
     fn get_notetype_legacy(&self, input: pb::NotetypeId) -> Result<pb::Json> {
+        let ntid = input.into();
         self.with_col(|col| {
-            let schema11: NotetypeSchema11 = col
-                .storage
-                .get_notetype(input.into())?
-                .ok_or(AnkiError::NotFound)?
-                .into();
+            let schema11: NotetypeSchema11 =
+                col.storage.get_notetype(ntid)?.or_not_found(ntid)?.into();
             Ok(serde_json::to_vec(&schema11)?).map(Into::into)
         })
     }
@@ -131,7 +130,7 @@ impl NotetypesService for Backend {
         self.with_col(|col| {
             col.storage
                 .get_notetype_id(&input.val)
-                .and_then(|nt| nt.ok_or(AnkiError::NotFound))
+                .and_then(|nt| nt.or_not_found(input.val))
                 .map(|ntid| pb::NotetypeId { ntid: ntid.0 })
         })
     }
@@ -168,8 +167,14 @@ impl NotetypesService for Backend {
                 .map(Into::into)
         })
     }
+
     fn change_notetype(&self, input: pb::ChangeNotetypeRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| col.change_notetype_of_notes(input.into()).map(Into::into))
+    }
+
+    fn get_field_names(&self, input: pb::NotetypeId) -> Result<pb::StringList> {
+        self.with_col(|col| col.storage.get_field_names(input.into()))
+            .map(Into::into)
     }
 }
 

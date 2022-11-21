@@ -125,6 +125,7 @@ class Editor:
         self.card: Card | None = None
         self._init_links()
         self.setupOuter()
+        self.add_webview()
         self.setupWeb()
         self.setupShortcuts()
         gui_hooks.editor_did_init(self)
@@ -139,11 +140,12 @@ class Editor:
         self.widget.setLayout(l)
         self.outerLayout = l
 
-    def setupWeb(self) -> None:
+    def add_webview(self) -> None:
         self.web = EditorWebView(self.widget, self)
         self.web.set_bridge_command(self.onBridgeCmd, self)
         self.outerLayout.addWidget(self.web, 1)
 
+    def setupWeb(self) -> None:
         if self.editorMode == EditorMode.ADD_CARDS:
             file = "note_creator"
         elif self.editorMode == EditorMode.BROWSER:
@@ -155,10 +157,14 @@ class Editor:
         self.web.stdHtml(
             "",
             css=[f"css/{file}.css"],
-            js=[f"js/{file}.js"],
+            js=[
+                "js/mathjax.js",
+                f"js/{file}.js",
+            ],
             context=self,
             default_css=False,
         )
+        self.web.show()
 
         lefttopbtns: list[str] = []
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
@@ -460,7 +466,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 self._save_current_note()
 
         elif cmd in self._links:
-            self._links[cmd](self)
+            return self._links[cmd](self)
 
         else:
             print("uncaught cmd", cmd)
@@ -495,6 +501,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         ]
 
         flds = self.note.note_type()["flds"]
+        collapsed = [fld["collapsed"] for fld in flds]
+        plain_texts = [fld.get("plainText", False) for fld in flds]
         descriptions = [fld.get("description", "") for fld in flds]
 
         self.widget.show()
@@ -515,19 +523,42 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         text_color = self.mw.pm.profile.get("lastTextColor", "#00f")
         highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#00f")
 
-        js = "setFields({}); setDescriptions({}); setFonts({}); focusField({}); setNoteId({}); setColorButtons({}); setTags({}); ".format(
+        js = """
+            setFields({});
+            setCollapsed({});
+            setPlainTexts({});
+            setDescriptions({});
+            setFonts({});
+            focusField({});
+            setNoteId({});
+            setColorButtons({});
+            setTags({});
+            setTagsCollapsed({});
+            setMathjaxEnabled({});
+            setShrinkImages({});
+            setCloseHTMLTags({});
+            """.format(
             json.dumps(data),
+            json.dumps(collapsed),
+            json.dumps(plain_texts),
             json.dumps(descriptions),
             json.dumps(self.fonts()),
             json.dumps(focusTo),
             json.dumps(self.note.id),
             json.dumps([text_color, highlight_color]),
             json.dumps(self.note.tags),
+            json.dumps(self.mw.pm.tags_collapsed(self.editorMode)),
+            json.dumps(self.mw.col.get_config("renderMathjax", True)),
+            json.dumps(self.mw.col.get_config("shrinkEditorImages", True)),
+            json.dumps(self.mw.col.get_config("closeHTMLTags", True)),
         )
 
         if self.addMode:
             sticky = [field["sticky"] for field in self.note.note_type()["flds"]]
             js += " setSticky(%s);" % json.dumps(sticky)
+
+        if os.getenv("ANKI_EDITOR_INSERT_SYMBOLS"):
+            js += " setInsertSymbolsEnabled();"
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
@@ -623,8 +654,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def cleanup(self) -> None:
         self.set_note(None)
         # prevent any remaining evalWithCallback() events from firing after C++ object deleted
-        self.web.cleanup()
-        self.web = None
+        if self.web:
+            self.web.cleanup()
+            self.web = None
 
     # legacy
 
@@ -647,7 +679,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.tags = aqt.tagedit.TagEdit(self.widget)
         qconnect(self.tags.lostFocus, self.on_tag_focus_lost)
         self.tags.setToolTip(shortcut(tr.editing_jump_to_tags_with_ctrlandshiftandt()))
-        border = theme_manager.color(colors.BORDER)
+        border = theme_manager.var(colors.BORDER)
         self.tags.setStyleSheet(f"border: 1px solid {border}")
         tb.addWidget(self.tags, 1, 1)
         g.setLayout(tb)
@@ -688,13 +720,15 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     ######################################################################
 
     def onAddMedia(self) -> None:
+        """Show a file selection screen, then add the selected media.
+        This expects initial setup to have been done by TemplateButtons.svelte."""
         extension_filter = " ".join(
             f"*.{extension}" for extension in sorted(itertools.chain(pics, audio))
         )
         filter = f"{tr.editing_media()} ({extension_filter})"
 
         def accept(file: str) -> None:
-            self.addMedia(file)
+            self.resolve_media(file)
 
         file = getFile(
             parent=self.widget,
@@ -703,16 +737,33 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             filter=filter,
             key="media",
         )
+
         self.parentWindow.activateWindow()
 
     def addMedia(self, path: str, canDelete: bool = False) -> None:
-        """canDelete is a legacy arg and is ignored."""
+        """Legacy routine used by add-ons to add a media file and update the current field.
+        canDelete is ignored."""
+
         try:
             html = self._addMedia(path)
         except Exception as e:
             showWarning(str(e))
             return
+
         self.web.eval(f"setFormat('inserthtml', {json.dumps(html)});")
+
+    def resolve_media(self, path: str) -> None:
+        """Finish inserting media into a field.
+        This expects initial setup to have been done by TemplateButtons.svelte."""
+        try:
+            html = self._addMedia(path)
+        except Exception as e:
+            showWarning(str(e))
+            return
+
+        self.web.eval(
+            f'require("anki/TemplateButtons").resolveMedia({json.dumps(html)})'
+        )
 
     def _addMedia(self, path: str, canDelete: bool = False) -> str:
         """Add to media folder and return local img or sound tag."""
@@ -729,7 +780,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             self.parentWindow,
             self.mw,
             True,
-            lambda file: self.addMedia(file, canDelete=True),
+            self.resolve_media,
         )
 
     # Media downloads
@@ -738,7 +789,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def urlToLink(self, url: str) -> str | None:
         fname = self.urlToFile(url)
         if not fname:
-            return None
+            return '<a href="{}">{}</a>'.format(
+                url, html.escape(urllib.parse.unquote(url))
+            )
         return self.fnameToLink(fname)
 
     def fnameToLink(self, fname: str) -> str:
@@ -1104,6 +1157,32 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def insertMathjaxChemistry(self) -> None:
         self.web.eval("wrap('\\\\(\\\\ce{', '}\\\\)');")
 
+    def toggleMathjax(self) -> None:
+        self.mw.col.set_config(
+            "renderMathjax", not self.mw.col.get_config("renderMathjax", False)
+        )
+        # hackily redraw the page
+        self.setupWeb()
+        self.loadNoteKeepingFocus()
+
+    def toggleShrinkImages(self) -> None:
+        self.mw.col.set_config(
+            "shrinkEditorImages",
+            not self.mw.col.get_config("shrinkEditorImages", True),
+        )
+
+    def toggleCloseHTMLTags(self) -> None:
+        self.mw.col.set_config(
+            "closeHTMLTags",
+            not self.mw.col.get_config("closeHTMLTags", True),
+        )
+
+    def collapseTags(self) -> None:
+        aqt.mw.pm.set_tags_collapsed(self.editorMode, True)
+
+    def expandTags(self) -> None:
+        aqt.mw.pm.set_tags_collapsed(self.editorMode, False)
+
     # Links from HTML
     ######################################################################
 
@@ -1130,6 +1209,11 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             mathjaxInline=Editor.insertMathjaxInline,
             mathjaxBlock=Editor.insertMathjaxBlock,
             mathjaxChemistry=Editor.insertMathjaxChemistry,
+            toggleMathjax=Editor.toggleMathjax,
+            toggleShrinkImages=Editor.toggleShrinkImages,
+            toggleCloseHTMLTags=Editor.toggleCloseHTMLTags,
+            expandTags=Editor.expandTags,
+            collapseTags=Editor.collapseTags,
         )
 
 
@@ -1241,7 +1325,7 @@ class EditorWebView(AnkiWebView):
             url = qurl.toString()
             # chrome likes to give us the URL twice with a \n
             url = url.splitlines()[0]
-            buf += self.editor.urlToLink(url) or ""
+            buf += self.editor.urlToLink(url)
 
         return buf
 
@@ -1259,16 +1343,9 @@ class EditorWebView(AnkiWebView):
                 if extended and token.startswith("data:image/"):
                     processed.append(self.editor.inlinedImageToLink(token))
                 elif extended and self.editor.isURL(token):
-                    # if the user is pasting an image or sound link, convert it to local
+                    # if the user is pasting an image or sound link, convert it to local, otherwise paste as a hyperlink
                     link = self.editor.urlToLink(token)
-                    if link:
-                        processed.append(link)
-                    else:
-                        # not media; add it as a normal link
-                        link = '<a href="{}">{}</a>'.format(
-                            token, html.escape(urllib.parse.unquote(token))
-                        )
-                        processed.append(link)
+                    processed.append(link)
                 else:
                     token = html.escape(token).replace("\t", " " * 4)
                     # if there's more than one consecutive space,
@@ -1311,6 +1388,10 @@ class EditorWebView(AnkiWebView):
     def flagAnkiText(self) -> None:
         # be ready to adjust when clipboard event fires
         self._markInternal = True
+        # workaround broken QClipboard.dataChanged() on recent Qt6 versions
+        # https://github.com/ankitects/anki/issues/1793
+        if is_win and qtmajor == 6:
+            self.editor.mw.progress.single_shot(300, self._flagAnkiText, True)
 
     def _flagAnkiText(self) -> None:
         # add a comment in the clipboard html so we can tell text is copied
@@ -1321,9 +1402,19 @@ class EditorWebView(AnkiWebView):
         mime = clip.mimeData()
         if not mime.hasHtml():
             return
-        html = mime.html()
-        mime.setHtml(f"<!--anki-->{html}")
-        clip.setMimeData(mime)
+        html = f"<!--anki-->{mime.html()}"
+
+        def after_delay() -> None:
+            # utilities that modify the clipboard can invalidate our existing
+            # mime handle in the time it takes for the timer to fire, so we need
+            # to fetch the data again
+            mime = clip.mimeData()
+            mime.setHtml(html)
+            clip.setMimeData(mime)
+
+        # Mutter bugs out if the clipboard data is mutated in the clipboard change
+        # hook, so we need to do it after a small delay
+        aqt.mw.progress.timer(10, after_delay, False, parent=self)
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)
@@ -1368,7 +1459,7 @@ def set_cloze_button(editor: Editor) -> None:
     action = "show" if editor.note.note_type()["type"] == MODEL_CLOZE else "hide"
     editor.web.eval(
         'require("anki/ui").loaded.then(() =>'
-        f'require("anki/NoteEditor").instances[0].toolbar.templateButtons.{action}("cloze")'
+        f'require("anki/NoteEditor").instances[0].toolbar.toolbar.{action}("cloze")'
         "); "
     )
 

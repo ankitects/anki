@@ -8,31 +8,23 @@ pub(crate) mod writer;
 
 use std::borrow::Cow;
 
-use rusqlite::{params_from_iter, types::FromSql};
-use sqlwriter::{RequiredTable, SqlWriter};
-
-pub use builder::{Negated, SearchBuilder};
+pub use builder::{JoinSearches, Negated, SearchBuilder};
 pub use parser::{
     parse as parse_search, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind,
 };
+use rusqlite::{params_from_iter, types::FromSql};
+use sqlwriter::{RequiredTable, SqlWriter};
 pub use writer::replace_search_node;
 
-use crate::{
-    browser_table::Column,
-    card::{CardId, CardType},
-    collection::Collection,
-    error::Result,
-    notes::NoteId,
-    prelude::AnkiError,
-};
+use crate::{browser_table::Column, card::CardType, prelude::*};
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ReturnItemType {
     Cards,
     Notes,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum SortMode {
     NoOrder,
     Builtin { column: Column, reverse: bool },
@@ -123,6 +115,32 @@ where
     }
 }
 
+pub struct CardTableGuard<'a> {
+    pub col: &'a mut Collection,
+    pub cards: usize,
+}
+
+impl Drop for CardTableGuard<'_> {
+    fn drop(&mut self) {
+        if let Err(err) = self.col.storage.clear_searched_cards_table() {
+            println!("{err:?}");
+        }
+    }
+}
+
+pub struct NoteTableGuard<'a> {
+    pub col: &'a mut Collection,
+    pub notes: usize,
+}
+
+impl Drop for NoteTableGuard<'_> {
+    fn drop(&mut self) {
+        if let Err(err) = self.col.storage.clear_searched_notes_table() {
+            println!("{err:?}");
+        }
+    }
+}
+
 impl Collection {
     pub fn search_cards<N>(&mut self, search: N, mode: SortMode) -> Result<Vec<CardId>>
     where
@@ -189,12 +207,14 @@ impl Collection {
     }
 
     /// Place the matched card ids into a temporary 'search_cids' table
-    /// instead of returning them. Use clear_searched_cards() to remove it.
-    /// Returns number of added cards.
-    pub(crate) fn search_cards_into_table<N>(&mut self, search: N, mode: SortMode) -> Result<usize>
-    where
-        N: TryIntoSearch,
-    {
+    /// instead of returning them. Returns a guard with a collection reference
+    /// and the number of added cards. When the guard is dropped, the temporary
+    /// table is cleaned up.
+    pub(crate) fn search_cards_into_table(
+        &mut self,
+        search: impl TryIntoSearch,
+        mode: SortMode,
+    ) -> Result<CardTableGuard> {
         let top_node = search.try_into_search()?;
         let writer = SqlWriter::new(self, ReturnItemType::Cards);
         let want_order = mode != SortMode::NoOrder;
@@ -210,11 +230,88 @@ impl Collection {
         }
         let sql = format!("insert into search_cids {}", sql);
 
-        self.storage
+        let cards = self
+            .storage
             .db
             .prepare(&sql)?
-            .execute(params_from_iter(args))
-            .map_err(Into::into)
+            .execute(params_from_iter(args))?;
+
+        Ok(CardTableGuard { cards, col: self })
+    }
+
+    pub(crate) fn all_cards_for_search(&mut self, search: impl TryIntoSearch) -> Result<Vec<Card>> {
+        let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
+        guard.col.storage.all_searched_cards()
+    }
+
+    pub(crate) fn all_cards_for_search_in_order(
+        &mut self,
+        search: impl TryIntoSearch,
+        mode: SortMode,
+    ) -> Result<Vec<Card>> {
+        let guard = self.search_cards_into_table(search, mode)?;
+        guard.col.storage.all_searched_cards_in_search_order()
+    }
+
+    pub(crate) fn all_cards_for_ids(
+        &self,
+        cards: &[CardId],
+        preserve_order: bool,
+    ) -> Result<Vec<Card>> {
+        self.storage.with_searched_cards_table(preserve_order, || {
+            self.storage.set_search_table_to_card_ids(cards)?;
+            if preserve_order {
+                self.storage.all_searched_cards_in_search_order()
+            } else {
+                self.storage.all_searched_cards()
+            }
+        })
+    }
+
+    pub(crate) fn for_each_card_in_search(
+        &mut self,
+        search: impl TryIntoSearch,
+        mut func: impl FnMut(&Collection, Card) -> Result<()>,
+    ) -> Result<()> {
+        let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
+        guard
+            .col
+            .storage
+            .for_each_card_in_search(|card| func(guard.col, card))
+    }
+
+    /// Place the matched card ids into a temporary 'search_nids' table
+    /// instead of returning them. Returns a guard with a collection reference
+    /// and the number of added notes. When the guard is dropped, the temporary
+    /// table is cleaned up.
+    pub(crate) fn search_notes_into_table(
+        &mut self,
+        search: impl TryIntoSearch,
+    ) -> Result<NoteTableGuard> {
+        let top_node = search.try_into_search()?;
+        let writer = SqlWriter::new(self, ReturnItemType::Notes);
+        let mode = SortMode::NoOrder;
+
+        let (sql, args) = writer.build_query(&top_node, mode.required_table())?;
+
+        self.storage.setup_searched_notes_table()?;
+        let sql = format!("insert into search_nids {}", sql);
+
+        let notes = self
+            .storage
+            .db
+            .prepare(&sql)?
+            .execute(params_from_iter(args))?;
+
+        Ok(NoteTableGuard { notes, col: self })
+    }
+
+    /// Place the ids of cards with notes in 'search_nids' into 'search_cids'.
+    /// Returns number of added cards.
+    pub(crate) fn search_cards_of_notes_into_table(&mut self) -> Result<CardTableGuard> {
+        self.storage.setup_searched_cards_table()?;
+        let cards = self.storage.search_cards_of_notes_into_table()?;
+        Ok(CardTableGuard { cards, col: self })
     }
 }
 
@@ -229,12 +326,7 @@ fn write_order(
         ReturnItemType::Cards => card_order_from_sort_column(column),
         ReturnItemType::Notes => note_order_from_sort_column(column),
     };
-    if order.is_empty() {
-        return Err(AnkiError::invalid_input(format!(
-            "Can't sort {:?} by {:?}.",
-            item_type, column
-        )));
-    }
+    require!(!order.is_empty(), "Can't sort {item_type:?} by {column:?}.");
     if reverse {
         sql.push_str(
             &order

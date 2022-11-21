@@ -67,6 +67,22 @@ impl SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn add_deck_conf_if_unique(&self, conf: &DeckConfig) -> Result<bool> {
+        let mut conf_bytes = vec![];
+        conf.inner.encode(&mut conf_bytes)?;
+        self.db
+            .prepare_cached(include_str!("add_if_unique.sql"))?
+            .execute(params![
+                conf.id,
+                conf.name,
+                conf.mtime_secs,
+                conf.usn,
+                conf_bytes,
+            ])
+            .map(|added| added == 1)
+            .map_err(Into::into)
+    }
+
     pub(crate) fn update_deck_conf(&self, conf: &DeckConfig) -> Result<()> {
         let mut conf_bytes = vec![];
         conf.inner.encode(&mut conf_bytes)?;
@@ -88,9 +104,7 @@ impl SqliteStorage {
         &self,
         conf: &DeckConfig,
     ) -> Result<()> {
-        if conf.id.0 == 0 {
-            return Err(AnkiError::invalid_input("deck with id 0"));
-        }
+        require!(conf.id.0 != 0, "deck with id 0");
         let mut conf_bytes = vec![];
         conf.inner.encode(&mut conf_bytes)?;
         self.db
@@ -160,7 +174,9 @@ impl SqliteStorage {
                             let conf: Value = serde_json::from_str(text)?;
                             serde_json::from_value(conf)
                         })
-                        .map_err(|e| AnkiError::JsonError(format!("decoding deck config: {}", e)))
+                        .map_err(|e| AnkiError::JsonError {
+                            info: format!("decoding deck config: {}", e),
+                        })
                 })?;
         for (id, mut conf) in conf.into_iter() {
             // buggy clients may have failed to set inner id to match hash key

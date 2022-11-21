@@ -11,10 +11,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { updateAllState } from "../components/WithState.svelte";
     import actionList from "../sveltelib/action-list";
-    import type { InputManagerAction } from "../sveltelib/input-manager";
-    import type { MirrorAction } from "../sveltelib/mirror-dom";
+    import type { MirrorAction } from "../sveltelib/dom-mirror";
+    import type { SetupInputHandlerAction } from "../sveltelib/input-handler";
     import type { ContentEditableAPI } from "./content-editable";
-    import { customFocusHandling, preventBuiltinShortcuts } from "./content-editable";
+    import {
+        fixRTLKeyboardNav,
+        preventBuiltinShortcuts,
+        useFocusHandler,
+    } from "./content-editable";
 
     export let resolve: (editable: HTMLElement) => void;
 
@@ -24,15 +28,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const mirrorAction = actionList(mirrors);
     const mirrorOptions = { store: nodes };
 
-    export let managers: InputManagerAction[];
+    export let inputHandlers: SetupInputHandlerAction[];
 
-    const managerAction = actionList(managers);
+    const inputHandlerAction = actionList(inputHandlers);
 
     export let api: Partial<ContentEditableAPI>;
 
-    const { setupFocusHandling, flushCaret } = customFocusHandling();
+    const [focusHandler, setupFocusHandling] = useFocusHandler();
 
-    Object.assign(api, { flushCaret });
+    Object.assign(api, { focusHandler });
 </script>
 
 <anki-editable
@@ -40,8 +44,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     use:resolve
     use:setupFocusHandling
     use:preventBuiltinShortcuts
+    use:fixRTLKeyboardNav
     use:mirrorAction={mirrorOptions}
-    use:managerAction={{}}
+    use:inputHandlerAction={{}}
     on:focus
     on:blur
     on:click={updateAllState}
@@ -51,7 +56,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     anki-editable {
         display: block;
-        padding: 6px;
+        position: relative;
+
         overflow: auto;
         overflow-wrap: anywhere;
         /* fallback for iOS */

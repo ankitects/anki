@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, ptr};
+use std::borrow::Cow;
 
 use lazy_static::lazy_static;
 use pct_str::{IriReserved, PctStr, PctString};
@@ -27,6 +27,31 @@ impl Trimming for Cow<'_, str> {
                     trimmed.to_string().into()
                 }
             }
+        }
+    }
+}
+
+pub(crate) trait CowMapping<'a, B: ?Sized + 'a + ToOwned> {
+    /// Returns [self]
+    /// - unchanged, if the given function returns [Cow::Borrowed]
+    /// - with the new value, if the given function returns [Cow::Owned]
+    fn map_cow(self, f: impl FnOnce(&B) -> Cow<B>) -> Self;
+    fn get_owned(self) -> Option<B::Owned>;
+}
+
+impl<'a, B: ?Sized + 'a + ToOwned> CowMapping<'a, B> for Cow<'a, B> {
+    fn map_cow(self, f: impl FnOnce(&B) -> Cow<B>) -> Self {
+        if let Cow::Owned(o) = f(&self) {
+            Cow::Owned(o)
+        } else {
+            self
+        }
+    }
+
+    fn get_owned(self) -> Option<B::Owned> {
+        match self {
+            Cow::Borrowed(_) => None,
+            Cow::Owned(s) => Some(s),
         }
     }
 }
@@ -66,7 +91,7 @@ lazy_static! {
         "#
     ).unwrap();
 
-    static ref HTML_MEDIA_TAGS: Regex = Regex::new(
+    pub(crate) static ref HTML_MEDIA_TAGS: Regex = Regex::new(
         r#"(?xsi)
             # the start of the image, audio, or object tag
             <\b(?:img|audio|object)\b[^>]+\b(?:src|data)\b=
@@ -109,40 +134,60 @@ lazy_static! {
 
     static ref PERSISTENT_HTML_SPACERS: Regex = Regex::new(r#"(?i)<br\s*/?>|<div>|\n"#).unwrap();
 
-    static ref UNPRINTABLE_TAGS: Regex = Regex::new(
-        r"(?xs)
-        \[sound:[^]]+\]
-        |
-        \[\[type:[^]]+\]\]
-    ").unwrap();
+    static ref TYPE_TAG: Regex = Regex::new(r"\[\[type:[^]]+\]\]").unwrap();
+    pub(crate) static ref SOUND_TAG: Regex = Regex::new(r"\[sound:([^]]+)\]").unwrap();
+
+    /// Files included in CSS with a leading underscore.
+    static ref UNDERSCORED_CSS_IMPORTS: Regex = Regex::new(
+        r#"(?xi)
+            (?:@import\s+           # import statement with a bare
+                "(_[^"]*.css)"      # double quoted
+                |                   # or
+                '(_[^']*.css)'      # single quoted css filename
+            )
+            |                       # or
+            (?:url\(\s*             # a url function with a
+                "(_[^"]+)"          # double quoted
+                |                   # or
+                '(_[^']+)'          # single quoted
+                |                   # or
+                (_.+)               # unquoted filename
+            \s*\))
+    "#).unwrap();
+
+    /// Strings, src and data attributes with a leading underscore.
+    static ref UNDERSCORED_REFERENCES: Regex = Regex::new(
+        r#"(?x)
+                "(_[^"]+)"        # double quoted
+            |                     # or
+                '(_[^']+)'        # single quoted string
+            |                     # or
+                \b(?:src|data)    # a 'src' or 'data' attribute
+                =                 # followed by
+                (_[^ >]+)         # an unquoted value
+    "#).unwrap();
 }
 
-pub fn html_to_text_line(html: &str) -> Cow<str> {
-    let mut out: Cow<str> = html.into();
-    if let Cow::Owned(o) = PERSISTENT_HTML_SPACERS.replace_all(&out, " ") {
-        out = o.into();
-    }
-    if let Cow::Owned(o) = UNPRINTABLE_TAGS.replace_all(&out, "") {
-        out = o.into();
-    }
-    if let Cow::Owned(o) = strip_html_preserving_media_filenames(&out) {
-        out = o.into();
-    }
-    out.trim()
+pub fn is_html(text: impl AsRef<str>) -> bool {
+    HTML.is_match(text.as_ref())
+}
+
+pub fn html_to_text_line(html: &str, preserve_media_filenames: bool) -> Cow<str> {
+    let (html_stripper, sound_rep): (fn(&str) -> Cow<str>, _) = if preserve_media_filenames {
+        (strip_html_preserving_media_filenames, "$1")
+    } else {
+        (strip_html, "")
+    };
+    PERSISTENT_HTML_SPACERS
+        .replace_all(html, " ")
+        .map_cow(|s| TYPE_TAG.replace_all(s, ""))
+        .map_cow(|s| SOUND_TAG.replace_all(s, sound_rep))
+        .map_cow(html_stripper)
+        .trim()
 }
 
 pub fn strip_html(html: &str) -> Cow<str> {
-    let mut out: Cow<str> = html.into();
-
-    if let Cow::Owned(o) = strip_html_preserving_entities(html) {
-        out = o.into();
-    }
-
-    if let Cow::Owned(o) = decode_entities(out.as_ref()) {
-        out = o.into();
-    }
-
-    out
+    strip_html_preserving_entities(html).map_cow(decode_entities)
 }
 
 pub fn strip_html_preserving_entities(html: &str) -> Cow<str> {
@@ -161,18 +206,29 @@ pub fn decode_entities(html: &str) -> Cow<str> {
     }
 }
 
+pub(crate) fn newlines_to_spaces(text: &str) -> Cow<str> {
+    if text.contains('\n') {
+        text.replace('\n', " ").into()
+    } else {
+        text.into()
+    }
+}
+
 pub fn strip_html_for_tts(html: &str) -> Cow<str> {
-    let mut out: Cow<str> = html.into();
+    HTML_LINEBREAK_TAGS
+        .replace_all(html, " ")
+        .map_cow(strip_html)
+}
 
-    if let Cow::Owned(o) = HTML_LINEBREAK_TAGS.replace_all(html, " ") {
-        out = o.into();
+/// Truncate a String on a valid UTF8 boundary.
+pub(crate) fn truncate_to_char_boundary(s: &mut String, mut max: usize) {
+    if max >= s.len() {
+        return;
     }
-
-    if let Cow::Owned(o) = strip_html(out.as_ref()) {
-        out = o.into();
+    while !s.is_char_boundary(max) {
+        max -= 1;
     }
-
-    out
+    s.truncate(max);
 }
 
 #[derive(Debug)]
@@ -216,17 +272,69 @@ pub(crate) fn extract_media_refs(text: &str) -> Vec<MediaRef> {
     out
 }
 
-pub fn strip_html_preserving_media_filenames(html: &str) -> Cow<str> {
-    let without_fnames = HTML_MEDIA_TAGS.replace_all(html, r" ${1}${2}${3} ");
-    let without_html = strip_html(&without_fnames);
-    // no changes?
-    if let Cow::Borrowed(b) = without_html {
-        if ptr::eq(b, html) {
-            return Cow::Borrowed(html);
+/// Calls `replacer` for every media reference in `text`, and optionally
+/// replaces it with something else. [None] if no reference was found.
+pub(crate) fn replace_media_refs(
+    text: &str,
+    mut replacer: impl FnMut(&str) -> Option<String>,
+) -> Option<String> {
+    let mut rep = |caps: &Captures| {
+        let whole_match = caps.get(0).unwrap().as_str();
+        let old_name = caps.iter().skip(1).find_map(|g| g).unwrap().as_str();
+        let old_name_decoded = decode_entities(old_name);
+
+        if let Some(mut new_name) = replacer(&old_name_decoded) {
+            if matches!(old_name_decoded, Cow::Owned(_)) {
+                new_name = htmlescape::encode_minimal(&new_name);
+            }
+            whole_match.replace(old_name, &new_name)
+        } else {
+            whole_match.to_owned()
         }
-    }
-    // make borrow checker happy
-    without_html.into_owned().into()
+    };
+
+    HTML_MEDIA_TAGS
+        .replace_all(text, &mut rep)
+        .map_cow(|s| AV_TAGS.replace_all(s, &mut rep))
+        .get_owned()
+}
+
+pub(crate) fn extract_underscored_css_imports(text: &str) -> Vec<&str> {
+    UNDERSCORED_CSS_IMPORTS
+        .captures_iter(text)
+        .map(|caps| {
+            caps.get(1)
+                .or_else(|| caps.get(2))
+                .or_else(|| caps.get(3))
+                .or_else(|| caps.get(4))
+                .or_else(|| caps.get(5))
+                .unwrap()
+                .as_str()
+        })
+        .collect()
+}
+
+pub(crate) fn extract_underscored_references(text: &str) -> Vec<&str> {
+    UNDERSCORED_REFERENCES
+        .captures_iter(text)
+        .map(|caps| {
+            caps.get(1)
+                .or_else(|| caps.get(2))
+                .or_else(|| caps.get(3))
+                .unwrap()
+                .as_str()
+        })
+        .collect()
+}
+
+pub fn strip_html_preserving_media_filenames(html: &str) -> Cow<str> {
+    HTML_MEDIA_TAGS
+        .replace_all(html, r" ${1}${2}${3} ")
+        .map_cow(strip_html)
+}
+
+pub fn contains_media_tag(html: &str) -> bool {
+    HTML_MEDIA_TAGS.is_match(html)
 }
 
 #[allow(dead_code)]
@@ -462,5 +570,55 @@ mod test {
         assert!(is_glob(r"\\\\_"));
         assert!(!is_glob(r"\\\_"));
         assert!(glob_matcher(r"foo\*bar*")("foo*bar123"));
+    }
+
+    #[test]
+    fn extracting() {
+        assert_eq!(
+            extract_underscored_css_imports(concat!(
+                "@IMPORT '_foo.css'\n",
+                "@import \"_bar.css\"\n",
+                "@import '_baz.css'\n",
+                "@import 'nope.css'\n",
+                "url(_foo.css)\n",
+                "URL(\"_bar.css\")\n",
+                "@import url('_baz.css')\n",
+                "url('nope.css')\n",
+            )),
+            vec!["_foo.css", "_bar.css", "_baz.css", "_foo.css", "_bar.css", "_baz.css",]
+        );
+        assert_eq!(
+            extract_underscored_references(concat!(
+                "<img src=\"_foo.jpg\">",
+                "<object data=\"_bar\">",
+                "\"_baz.js\"",
+                "\"nope.js\"",
+                "<img src=_foo.jpg>",
+                "<object data=_bar>",
+                "'_baz.js'",
+            )),
+            vec!["_foo.jpg", "_bar", "_baz.js", "_foo.jpg", "_bar", "_baz.js",]
+        );
+    }
+
+    #[test]
+    fn replacing() {
+        assert_eq!(
+            &replace_media_refs("<img src=foo.jpg>[sound:bar.mp3]<img src=baz.jpg>", |s| {
+                (s != "baz.jpg").then(|| "spam".to_string())
+            })
+            .unwrap(),
+            "<img src=spam>[sound:spam]<img src=baz.jpg>",
+        );
+    }
+
+    #[test]
+    fn truncate() {
+        let mut s = "日本語".to_string();
+        truncate_to_char_boundary(&mut s, 6);
+        assert_eq!(&s, "日本");
+        let mut s = "日本語".to_string();
+        truncate_to_char_boundary(&mut s, 1);
+        assert_eq!(&s, "");
     }
 }

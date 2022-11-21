@@ -3,7 +3,7 @@
 
 use std::collections::HashMap;
 
-use crate::{backend_proto as pb, prelude::*};
+use crate::{pb, prelude::*};
 
 mod parser;
 mod writer;
@@ -75,7 +75,7 @@ struct TtsDirective<'a> {
     options: HashMap<&'a str, &'a str>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 struct OtherDirective<'a> {
     name: &'a str,
     content: &'a str,

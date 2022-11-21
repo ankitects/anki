@@ -2,43 +2,53 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    backend_proto as pb,
-    backend_proto::backend_error::Kind,
     error::{AnkiError, SyncErrorKind},
+    pb,
+    pb::backend_error::Kind,
     prelude::*,
 };
 
 impl AnkiError {
-    pub(super) fn into_protobuf(self, tr: &I18n) -> pb::BackendError {
-        let localized = self.localized_description(tr);
+    pub fn into_protobuf(self, tr: &I18n) -> pb::BackendError {
+        let message = self.message(tr);
+        let help_page = self.help_page().map(|page| page as i32);
+        let context = self.context();
+        let backtrace = self.backtrace();
         let kind = match self {
-            AnkiError::InvalidInput(_) => Kind::InvalidInput,
-            AnkiError::TemplateError(_) => Kind::TemplateParse,
-            AnkiError::IoError(_) => Kind::IoError,
-            AnkiError::DbError(_) => Kind::DbError,
-            AnkiError::NetworkError(_) => Kind::NetworkError,
-            AnkiError::SyncError(err) => err.kind.into(),
+            AnkiError::InvalidInput { .. } => Kind::InvalidInput,
+            AnkiError::TemplateError { .. } => Kind::TemplateParse,
+            AnkiError::DbError { .. } => Kind::DbError,
+            AnkiError::NetworkError { .. } => Kind::NetworkError,
+            AnkiError::SyncError { source } => source.kind.into(),
             AnkiError::Interrupted => Kind::Interrupted,
             AnkiError::CollectionNotOpen => Kind::InvalidInput,
             AnkiError::CollectionAlreadyOpen => Kind::InvalidInput,
-            AnkiError::JsonError(_) => Kind::JsonError,
-            AnkiError::ProtoError(_) => Kind::ProtoError,
-            AnkiError::NotFound => Kind::NotFoundError,
+            AnkiError::JsonError { .. } => Kind::JsonError,
+            AnkiError::ProtoError { .. } => Kind::ProtoError,
+            AnkiError::NotFound { .. } => Kind::NotFoundError,
+            AnkiError::Deleted => Kind::Deleted,
             AnkiError::Existing => Kind::Exists,
-            AnkiError::FilteredDeckError(_) => Kind::FilteredDeckError,
-            AnkiError::SearchError(_) => Kind::SearchError,
-            AnkiError::TemplateSaveError(_) => Kind::TemplateParse,
+            AnkiError::FilteredDeckError { .. } => Kind::FilteredDeckError,
+            AnkiError::SearchError { .. } => Kind::SearchError,
+            AnkiError::CardTypeError { .. } => Kind::CardTypeError,
             AnkiError::ParseNumError => Kind::InvalidInput,
-            AnkiError::InvalidRegex(_) => Kind::InvalidInput,
+            AnkiError::InvalidRegex { .. } => Kind::InvalidInput,
             AnkiError::UndoEmpty => Kind::UndoEmpty,
             AnkiError::MultipleNotetypesSelected => Kind::InvalidInput,
             AnkiError::DatabaseCheckRequired => Kind::InvalidInput,
-            AnkiError::CustomStudyError(_) => Kind::CustomStudyError,
+            AnkiError::CustomStudyError { .. } => Kind::CustomStudyError,
+            AnkiError::ImportError { .. } => Kind::ImportError,
+            AnkiError::FileIoError { .. } => Kind::IoError,
+            AnkiError::MediaCheckRequired => Kind::InvalidInput,
+            AnkiError::InvalidId => Kind::InvalidInput,
         };
 
         pb::BackendError {
             kind: kind as i32,
-            localized,
+            message,
+            help_page,
+            context,
+            backtrace,
         }
     }
 }

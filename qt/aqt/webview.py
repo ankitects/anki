@@ -9,6 +9,7 @@ from typing import Any, Callable, Optional, Sequence, cast
 
 import anki
 import anki.lang
+from anki._legacy import deprecated
 from anki.lang import is_rtl
 from anki.utils import is_lin, is_mac, is_win
 from aqt import colors, gui_hooks
@@ -222,6 +223,8 @@ class WebContent:
 
 
 class AnkiWebView(QWebEngineView):
+    allow_drops = False
+
     def __init__(
         self,
         parent: Optional[QWidget] = None,
@@ -231,9 +234,7 @@ class AnkiWebView(QWebEngineView):
         self.set_title(title)
         self._page = AnkiWebPage(self._onBridgeCmd)
         # reduce flicker
-        self._page.setBackgroundColor(
-            self.get_window_bg_color(theme_manager.night_mode)
-        )
+        self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
 
         # in new code, use .set_bridge_command() instead of setting this directly
         self.onBridgeCmd: Callable[[str], Any] = self.defaultOnBridgeCmd
@@ -322,7 +323,8 @@ class AnkiWebView(QWebEngineView):
         m.popup(QCursor.pos())
 
     def dropEvent(self, evt: QDropEvent) -> None:
-        pass
+        if self.allow_drops:
+            super().dropEvent(evt)
 
     def setHtml(self, html: str) -> None:  #  type: ignore
         # discard any previous pending actions
@@ -330,6 +332,8 @@ class AnkiWebView(QWebEngineView):
         self._domDone = True
         self._queueAction("setHtml", html)
         self.set_open_links_externally(True)
+        self.setZoomFactor(1)
+        self.allow_drops = False
         self.show()
 
     def _setHtml(self, html: str) -> None:
@@ -356,6 +360,7 @@ class AnkiWebView(QWebEngineView):
     def load_url(self, url: QUrl) -> None:
         # allow queuing actions when loading url directly
         self._domDone = False
+        self.allow_drops = False
         super().load(url)
 
     def app_zoom_factor(self) -> float:
@@ -398,15 +403,6 @@ class AnkiWebView(QWebEngineView):
         else:
             return 3
 
-    def get_window_bg_color(self, night_mode: bool) -> QColor:
-        if night_mode:
-            return QColor(colors.WINDOW_BG[1])
-        elif is_mac:
-            # standard palette does not return correct window color on macOS
-            return QColor("#ececec")
-        else:
-            return theme_manager.default_palette.color(QPalette.ColorRole.Window)
-
     def standard_css(self) -> str:
         palette = theme_manager.default_palette
         color_hl = palette.color(QPalette.ColorRole.Highlight).name()
@@ -416,26 +412,32 @@ class AnkiWebView(QWebEngineView):
             family = tr.qt_misc_segoe_ui()
             button_style = f"""
 button {{ font-family: {family}; }}
-button:focus {{ outline: 5px auto {color_hl}; }}"""
+            """
             font = f"font-size:12px;font-family:{family};"
         elif is_mac:
             family = "Helvetica"
-            font = f'font-size:15px;font-family:"{family}";'
+            font = f'font-size:14px;font-family:"{family}";'
             button_style = """
-button { -webkit-appearance: none; background: #fff; border: 1px solid #ccc;
-border-radius:5px; font-family: Helvetica }"""
+button {
+    --canvas: #fff;
+    -webkit-appearance: none;
+    background: var(--canvas);
+    border-radius: var(--border-radius);
+    padding: 3px 12px;
+    border: 0.5px solid var(--border);
+    box-shadow: 0px 1px 3px var(--border-subtle);
+    font-family: Helvetica
+}
+.night-mode button { --canvas: #606060; --fg: #eee; }
+"""
         else:
             family = self.font().family()
-            color_hl_txt = palette.color(QPalette.ColorRole.HighlightedText).name()
-            color_btn = palette.color(QPalette.ColorRole.Button).name()
             font = f'font-size:14px;font-family:"{family}", sans-serif;'
             button_style = """
 /* Buttons */
 button{{ 
-        background-color: {color_btn};
-        font-family:"{family}", sans-serif; }}
-button:focus{{ border-color: {color_hl} }}
-button:active, button:active:hover {{ background-color: {color_hl}; color: {color_hl_txt};}}
+    font-family: "{family}", sans-serif;
+}}
 /* Input field focus outline */
 textarea:focus, input:focus, input[type]:focus, .uneditable-input:focus,
 div[contenteditable="true"]:focus {{   
@@ -443,22 +445,17 @@ div[contenteditable="true"]:focus {{
     border-color: {color_hl};
 }}""".format(
                 family=family,
-                color_btn=color_btn,
                 color_hl=color_hl,
-                color_hl_txt=color_hl_txt,
             )
 
         zoom = self.app_zoom_factor()
 
-        window_bg_day = self.get_window_bg_color(False).name()
-        window_bg_night = self.get_window_bg_color(True).name()
-
         return f"""
-body {{ zoom: {zoom}; background-color: var(--window-bg); }}
+body {{ zoom: {zoom}; background-color: var(--canvas); }}
 html {{ {font} }}
 {button_style}
-:root {{ --window-bg: {window_bg_day} }}
-:root[class*=night-mode] {{ --window-bg: {window_bg_night} }}
+:root {{ --canvas: {colors.CANVAS["light"]} }}
+:root[class*=night-mode] {{ --canvas: {colors.CANVAS["dark"]} }}
 """
 
     def stdHtml(
@@ -496,7 +493,7 @@ html {{ {font} }}
 
         from aqt import mw
 
-        head = mw.baseHTML() + csstxt + jstxt + web_content.head
+        head = mw.baseHTML() + csstxt + web_content.head
         body_class = theme_manager.body_class()
 
         if theme_manager.night_mode:
@@ -517,7 +514,9 @@ html {{ {font} }}
 {head}
 </head>
 
-<body class="{body_class}">{web_content.body}</body>
+<body class="{body_class}">
+{jstxt}
+{web_content.body}</body>
 </html>"""
         # print(html)
         self.setHtml(html)
@@ -676,6 +675,7 @@ html {{ {font} }}
         else:
             extra = ""
         self.hide_while_preserving_layout()
+        self.setZoomFactor(1)
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
         self.inject_dynamic_style_and_show()
 
@@ -695,12 +695,11 @@ html {{ {font} }}
 
         gui_hooks.theme_did_change.remove(self.on_theme_did_change)
         mw.mediaServer.clear_page_html(id(self))
+        self._page.deleteLater()
 
     def on_theme_did_change(self) -> None:
         # avoid flashes if page reloaded
-        self._page.setBackgroundColor(
-            self.get_window_bg_color(theme_manager.night_mode)
-        )
+        self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
         # update night-mode class, and legacy nightMode/night-mode body classes
         self.eval(
             f"""
@@ -709,13 +708,19 @@ html {{ {font} }}
     const body = document.body.classList;
     if ({1 if theme_manager.night_mode else 0}) {{
         doc.add("night-mode");
-        body.add("night-mode");
+        body.add("night_mode");
         body.add("nightMode");
+        {"body.add('macos-dark-mode');" if theme_manager.macos_dark_mode() else ""}
     }} else {{
         doc.remove("night-mode");
-        body.remove("night-mode");
+        body.remove("night_mode");
         body.remove("nightMode");
+        body.remove("macos-dark-mode");
     }}
 }})();
 """
         )
+
+    @deprecated(info="use theme_manager.qcolor() instead")
+    def get_window_bg_color(self, night_mode: Optional[bool] = None) -> QColor:
+        return theme_manager.qcolor(colors.CANVAS)

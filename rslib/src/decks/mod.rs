@@ -21,7 +21,7 @@ pub(crate) use name::immediate_parent_name;
 pub use name::NativeDeckName;
 pub use schema11::DeckSchema11;
 
-pub use crate::backend_proto::{
+pub use crate::pb::{
     deck::{
         filtered::{search_term::Order as FilteredSearchOrder, SearchTerm as FilteredSearchTerm},
         kind_container::Kind as DeckKind,
@@ -91,19 +91,17 @@ impl Deck {
 
     #[allow(dead_code)]
     pub(crate) fn normal(&self) -> Result<&NormalDeck> {
-        if let DeckKind::Normal(normal) = &self.kind {
-            Ok(normal)
-        } else {
-            Err(AnkiError::invalid_input("deck not normal"))
+        match &self.kind {
+            DeckKind::Normal(normal) => Ok(normal),
+            _ => invalid_input!("deck not normal"),
         }
     }
 
     #[allow(dead_code)]
     pub(crate) fn normal_mut(&mut self) -> Result<&mut NormalDeck> {
-        if let DeckKind::Normal(normal) = &mut self.kind {
-            Ok(normal)
-        } else {
-            Err(AnkiError::invalid_input("deck not normal"))
+        match &mut self.kind {
+            DeckKind::Normal(normal) => Ok(normal),
+            _ => invalid_input!("deck not normal"),
         }
     }
 

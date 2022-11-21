@@ -97,6 +97,14 @@ class Preferences(QDialog):
         form.pastePNG.setChecked(editing.paste_images_as_png)
         form.default_search_text.setText(editing.default_search_text)
 
+        form.backup_explanation.setText(
+            anki.lang.with_collapsed_whitespace(tr.preferences_backup_explanation())
+        )
+        form.daily_backups.setValue(self.prefs.backups.daily)
+        form.weekly_backups.setValue(self.prefs.backups.weekly)
+        form.monthly_backups.setValue(self.prefs.backups.monthly)
+        form.minutes_between_backups.setValue(self.prefs.backups.minimum_interval_mins)
+
     def update_collection(self, on_done: Callable[[], None]) -> None:
         form = self.form
 
@@ -123,6 +131,11 @@ class Preferences(QDialog):
             self.form.ignore_accents_in_search.isChecked()
         )
 
+        self.prefs.backups.daily = form.daily_backups.value()
+        self.prefs.backups.weekly = form.weekly_backups.value()
+        self.prefs.backups.monthly = form.monthly_backups.value()
+        self.prefs.backups.minimum_interval_mins = form.minutes_between_backups.value()
+
         def after_prefs_update(changes: OpChanges) -> None:
             self.mw.apply_collection_options()
             if scheduling.scheduler_version > 1:
@@ -142,11 +155,9 @@ class Preferences(QDialog):
     def setup_profile(self) -> None:
         "Setup options stored in the user profile."
         self.setup_network()
-        self.setup_backup()
 
     def update_profile(self) -> None:
         self.update_network()
-        self.update_backup()
 
     # Profile: network
     ######################################################################
@@ -191,20 +202,12 @@ class Preferences(QDialog):
         if self.form.fullSync.isChecked():
             self.mw.col.mod_schema(check=False)
 
-    # Profile: backup
-    ######################################################################
-
-    def setup_backup(self) -> None:
-        self.form.numBackups.setValue(self.prof["numBackups"])
-
-    def update_backup(self) -> None:
-        self.prof["numBackups"] = self.form.numBackups.value()
-
     # Global preferences
     ######################################################################
 
     def setup_global(self) -> None:
         "Setup options global to all profiles."
+        self.form.reduce_motion.setChecked(self.mw.pm.reduced_motion())
         self.form.uiScale.setValue(int(self.mw.pm.uiScale() * 100))
         themes = [
             tr.preferences_theme_label(theme=theme)
@@ -217,6 +220,7 @@ class Preferences(QDialog):
         self.form.theme.addItems(themes)
         self.form.theme.setCurrentIndex(self.mw.pm.theme().value)
         qconnect(self.form.theme.currentIndexChanged, self.on_theme_changed)
+        self.form.legacy_import_export.setChecked(self.mw.pm.legacy_import_export())
 
         self.setup_language()
         self.setup_video_driver()
@@ -232,6 +236,10 @@ class Preferences(QDialog):
         if newScale != self.mw.pm.uiScale():
             self.mw.pm.setUiScale(newScale)
             restart_required = True
+
+        self.mw.pm.set_reduced_motion(self.form.reduce_motion.isChecked())
+
+        self.mw.pm.set_legacy_import_export(self.form.legacy_import_export.isChecked())
 
         if restart_required:
             showInfo(tr.preferences_changes_will_take_effect_when_you())

@@ -5,3 +5,8 @@ py_binary(
     stamp = 1,
     visibility = ["//visibility:public"],
 )
+
+py_binary(
+    name = "cleanup_js",
+    srcs = ["cleanup_js.py"],
+)

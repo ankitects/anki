@@ -3,7 +3,7 @@
 
 use crate::prelude::*;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Op {
     Custom(String),
     AddDeck,
@@ -17,6 +17,7 @@ pub enum Op {
     CreateCustomStudy,
     EmptyFilteredDeck,
     FindAndReplace,
+    Import,
     RebuildFilteredDeck,
     RemoveDeck,
     RemoveNote,
@@ -29,6 +30,7 @@ pub enum Op {
     ScheduleAsNew,
     SetCardDeck,
     SetDueDate,
+    SetFlag,
     SortCards,
     Suspend,
     UnburyUnsuspend,
@@ -54,6 +56,7 @@ impl Op {
             Op::AnswerCard => tr.actions_answer_card(),
             Op::Bury => tr.studying_bury(),
             Op::CreateCustomStudy => tr.actions_custom_study(),
+            Op::Import => tr.actions_import(),
             Op::RemoveDeck => tr.decks_delete_deck(),
             Op::RemoveNote => tr.studying_delete_note(),
             Op::RenameDeck => tr.actions_rename_deck(),
@@ -67,6 +70,7 @@ impl Op {
             Op::UpdatePreferences => tr.preferences_preferences(),
             Op::UpdateTag => tr.actions_update_tag(),
             Op::SetCardDeck => tr.browsing_change_deck(),
+            Op::SetFlag => tr.actions_set_flag(),
             Op::FindAndReplace => tr.browsing_find_and_replace(),
             Op::ClearUnusedTags => tr.browsing_clear_unused_tags(),
             Op::SortCards => tr.browsing_reschedule(),
@@ -91,7 +95,7 @@ impl Op {
     }
 }
 
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Default, Clone, Copy)]
 pub struct StateChanges {
     pub card: bool,
     pub note: bool,
@@ -103,12 +107,13 @@ pub struct StateChanges {
     pub mtime: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct OpChanges {
     pub op: Op,
     pub changes: StateChanges,
 }
 
+#[derive(Debug, PartialEq, Eq)]
 pub struct OpOutput<T> {
     pub output: T,
     pub changes: OpChanges,
@@ -154,7 +159,7 @@ impl OpChanges {
 
     pub fn requires_study_queue_rebuild(&self) -> bool {
         let c = &self.changes;
-        c.card
+        (c.card && self.op != Op::SetFlag)
             || c.deck
             || (c.config && matches!(self.op, Op::SetCurrentDeck | Op::UpdatePreferences))
             || c.deck_config

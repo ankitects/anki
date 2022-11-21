@@ -3,6 +3,8 @@
 
 syntax = "proto3";
 
+option java_multiple_files = true;
+
 package anki.scheduler;
 
 import "anki/generic.proto";
@@ -30,14 +32,19 @@ service SchedulerService {
   rpc RebuildFilteredDeck(decks.DeckId) returns (collection.OpChangesWithCount);
   rpc ScheduleCardsAsNew(ScheduleCardsAsNewRequest)
       returns (collection.OpChanges);
+  rpc ScheduleCardsAsNewDefaults(ScheduleCardsAsNewDefaultsRequest)
+      returns (ScheduleCardsAsNewDefaultsResponse);
   rpc SetDueDate(SetDueDateRequest) returns (collection.OpChanges);
   rpc SortCards(SortCardsRequest) returns (collection.OpChangesWithCount);
   rpc SortDeck(SortDeckRequest) returns (collection.OpChangesWithCount);
-  rpc GetNextCardStates(cards.CardId) returns (NextCardStates);
-  rpc DescribeNextStates(NextCardStates) returns (generic.StringList);
+  rpc GetSchedulingStates(cards.CardId) returns (SchedulingStates);
+  rpc DescribeNextStates(SchedulingStates) returns (generic.StringList);
   rpc StateIsLeech(SchedulingState) returns (generic.Bool);
   rpc UpgradeScheduler(generic.Empty) returns (generic.Empty);
   rpc CustomStudy(CustomStudyRequest) returns (collection.OpChanges);
+  rpc CustomStudyDefaults(CustomStudyDefaultsRequest)
+      returns (CustomStudyDefaultsResponse);
+  rpc RepositionDefaults(generic.Empty) returns (RepositionDefaultsResponse);
 }
 
 message SchedulingState {
@@ -85,6 +92,10 @@ message SchedulingState {
     Normal normal = 1;
     Filtered filtered = 2;
   }
+  // The backend does not populate this field in GetQueuedCards; the front-end
+  // is expected to populate it based on the provided Card. If it's not set when
+  // answering a card, the existing custom data will not be updated.
+  optional string custom_data = 3;
 }
 
 message QueuedCards {
@@ -96,7 +107,7 @@ message QueuedCards {
   message QueuedCard {
     cards.Card card = 1;
     Queue queue = 2;
-    NextCardStates next_states = 3;
+    SchedulingStates states = 3;
   }
 
   repeated QueuedCard cards = 1;
@@ -172,8 +183,24 @@ message BuryOrSuspendCardsRequest {
 }
 
 message ScheduleCardsAsNewRequest {
+  enum Context {
+    BROWSER = 0;
+    REVIEWER = 1;
+  }
   repeated int64 card_ids = 1;
   bool log = 2;
+  bool restore_position = 3;
+  bool reset_counts = 4;
+  optional Context context = 5;
+}
+
+message ScheduleCardsAsNewDefaultsRequest {
+  ScheduleCardsAsNewRequest.Context context = 1;
+}
+
+message ScheduleCardsAsNewDefaultsResponse {
+  bool restore_position = 1;
+  bool reset_counts = 2;
 }
 
 message SetDueDateRequest {
@@ -195,7 +222,7 @@ message SortDeckRequest {
   bool randomize = 2;
 }
 
-message NextCardStates {
+message SchedulingStates {
   SchedulingState current = 1;
   SchedulingState again = 2;
   SchedulingState hard = 3;
@@ -239,17 +266,44 @@ message CustomStudyRequest {
     // cards must not match any of these
     repeated string tags_to_exclude = 4;
   }
+  int64 deck_id = 1;
   oneof value {
     // increase new limit by x
-    int32 new_limit_delta = 1;
+    int32 new_limit_delta = 2;
     // increase review limit by x
-    int32 review_limit_delta = 2;
+    int32 review_limit_delta = 3;
     // repeat cards forgotten in the last x days
-    uint32 forgot_days = 3;
+    uint32 forgot_days = 4;
     // review cards due in the next x days
-    uint32 review_ahead_days = 4;
+    uint32 review_ahead_days = 5;
     // preview new cards added in the last x days
-    uint32 preview_days = 5;
-    Cram cram = 6;
+    uint32 preview_days = 6;
+    Cram cram = 7;
   }
+}
+
+message CustomStudyDefaultsRequest {
+  int64 deck_id = 1;
+}
+
+message CustomStudyDefaultsResponse {
+  message Tag {
+    string name = 1;
+    bool include = 2;
+    bool exclude = 3;
+  }
+
+  repeated Tag tags = 1;
+  uint32 extend_new = 2;
+  uint32 extend_review = 3;
+  uint32 available_new = 4;
+  uint32 available_review = 5;
+  // in v3, counts for children are provided separately
+  uint32 available_new_in_children = 6;
+  uint32 available_review_in_children = 7;
+}
+
+message RepositionDefaultsResponse {
+  bool random = 1;
+  bool shift = 2;
 }

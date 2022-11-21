@@ -5,6 +5,7 @@ mod bulkadd;
 mod complete;
 mod findreplace;
 mod matcher;
+mod notes;
 mod register;
 mod remove;
 mod rename;
@@ -16,7 +17,7 @@ use unicase::UniCase;
 
 use crate::prelude::*;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Tag {
     pub name: String,
     pub usn: Usn,

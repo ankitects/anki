@@ -5,10 +5,10 @@
 
 use std::collections::HashMap;
 
-use super::{CardGenContext, Notetype};
+use super::{CardGenContext, CardTemplate, Notetype};
 use crate::{
     prelude::*,
-    search::{SortMode, TemplateKind},
+    search::{JoinSearches, TemplateKind},
 };
 
 /// True if any ordinals added, removed or reordered.
@@ -20,7 +20,7 @@ fn ords_changed(ords: &[Option<u32>], previous_len: usize) -> bool {
             .any(|(idx, &ord)| ord != Some(idx as u32))
 }
 
-#[derive(Default, PartialEq, Debug)]
+#[derive(Default, PartialEq, Eq, Debug)]
 struct TemplateOrdChanges {
     added: Vec<u32>,
     removed: Vec<u16>,
@@ -52,6 +52,10 @@ impl TemplateOrdChanges {
 
         changes
     }
+
+    fn is_empty(&self) -> bool {
+        *self == Self::default()
+    }
 }
 
 impl Collection {
@@ -69,6 +73,7 @@ impl Collection {
         if !ords_changed(&ords, previous_field_count) {
             if nt.config.sort_field_idx != previous_sort_idx {
                 // only need to update sort field
+                self.set_schema_modified()?;
                 let nids = self.search_notes_unordered(nt.id)?;
                 for nid in nids {
                     let mut note = self.storage.get_note(nid)?.unwrap();
@@ -129,53 +134,60 @@ impl Collection {
     pub(crate) fn update_cards_for_changed_templates(
         &mut self,
         nt: &Notetype,
-        previous_template_count: usize,
+        old_templates: &[CardTemplate],
     ) -> Result<()> {
-        let ords: Vec<_> = nt.templates.iter().map(|f| f.ord).collect();
-        if !ords_changed(&ords, previous_template_count) {
-            // nothing to do
-            return Ok(());
-        }
-
-        self.set_schema_modified()?;
         let usn = self.usn()?;
-        let changes = TemplateOrdChanges::new(ords, previous_template_count as u32);
+        let ords: Vec<_> = nt.templates.iter().map(|f| f.ord).collect();
+        let changes = TemplateOrdChanges::new(ords, old_templates.len() as u32);
+
+        if !changes.is_empty() {
+            self.set_schema_modified()?;
+        }
 
         // remove any cards where the template was deleted
         if !changes.removed.is_empty() {
-            let mut ords =
-                SearchBuilder::any(changes.removed.into_iter().map(TemplateKind::Ordinal));
-            self.search_cards_into_table(
-                SearchBuilder::from(nt.id).and_join(&mut ords),
-                SortMode::NoOrder,
-            )?;
-            for card in self.storage.all_searched_cards()? {
+            let ords =
+                SearchBuilder::any(changes.removed.iter().cloned().map(TemplateKind::Ordinal));
+            for card in self.all_cards_for_search(nt.id.and(ords))? {
                 self.remove_card_and_add_grave_undoable(card, usn)?;
             }
-            self.storage.clear_searched_cards_table()?;
         }
-
         // update ordinals for cards with a repositioned template
         if !changes.moved.is_empty() {
-            let mut ords =
-                SearchBuilder::any(changes.moved.keys().cloned().map(TemplateKind::Ordinal));
-            self.search_cards_into_table(
-                SearchBuilder::from(nt.id).and_join(&mut ords),
-                SortMode::NoOrder,
-            )?;
-            for mut card in self.storage.all_searched_cards()? {
+            let ords = SearchBuilder::any(changes.moved.keys().cloned().map(TemplateKind::Ordinal));
+            for mut card in self.all_cards_for_search(nt.id.and(ords))? {
                 let original = card.clone();
                 card.template_idx = *changes.moved.get(&card.template_idx).unwrap();
                 self.update_card_inner(&mut card, original, usn)?;
             }
-            self.storage.clear_searched_cards_table()?;
         }
 
-        let last_deck = self.get_last_deck_added_to_for_notetype(nt.id);
-        let ctx = CardGenContext::new(nt, last_deck, self.usn()?);
-        self.generate_cards_for_notetype(&ctx)?;
+        if should_generate_cards(&changes, nt, old_templates) {
+            let last_deck = self.get_last_deck_added_to_for_notetype(nt.id);
+            let ctx = CardGenContext::new(nt, last_deck, usn);
+            self.generate_cards_for_notetype(&ctx)?;
+        }
 
         Ok(())
+    }
+}
+
+fn should_generate_cards(
+    changes: &TemplateOrdChanges,
+    nt: &Notetype,
+    old_templates: &[CardTemplate],
+) -> bool {
+    // must regenerate if any front side has changed, but also in the (unlikely)
+    // case that a template has been replaced by one with an identical front
+    !(changes.added.is_empty() && nt.template_fronts_are_identical(old_templates))
+}
+
+impl Notetype {
+    fn template_fronts_are_identical(&self, other_templates: &[CardTemplate]) -> bool {
+        self.templates
+            .iter()
+            .map(|t| &t.config.q_format)
+            .eq(other_templates.iter().map(|t| &t.config.q_format))
     }
 }
 

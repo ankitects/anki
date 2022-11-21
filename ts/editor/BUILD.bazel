@@ -26,13 +26,20 @@ _ts_deps = [
     "//ts/lib",
     "//ts/domlib",
     "//ts/sveltelib",
+    "//ts/tag-editor",
     "@npm//@fluent",
     "@npm//@types/codemirror",
     "@npm//codemirror",
     "@npm//svelte",
+    "@npm//character-entities",
+    "@npm//gemoji",
+    "@npm//fuse.js",
 ]
 
-compile_svelte(deps = _ts_deps)
+compile_svelte(
+    visibility = ["//visibility:public"],
+    deps = _ts_deps,
+)
 
 typescript(
     name = "editor",
@@ -47,6 +54,7 @@ _esbuild_deps = [
     "//sass:button_mixins_lib",
     "@npm//@mdi",
     "@npm//bootstrap-icons",
+    "//ts/icons",
     "@npm//protobufjs",
 ]
 
@@ -99,6 +107,7 @@ svelte_check(
         "//sass:button_mixins_lib",
         "//sass/bootstrap",
         "//ts/components",
+        "//ts/tag-editor",
         "//ts/editable:editable_ts",
         "@npm//@types/bootstrap",
         "@npm//@types/codemirror",

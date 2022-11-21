@@ -70,7 +70,7 @@
         </item>
        </widget>
       </item>
-      <item>
+      <item alignment="Qt::AlignLeft">
        <widget class="QCheckBox" name="allowHTML">
         <property name="text">
          <string>importing_allow_html_in_fields</string>

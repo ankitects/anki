@@ -1,17 +1,44 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from __future__ import annotations
+
 import html
 import re
 import sys
 import traceback
-from typing import Optional, TextIO, cast
+from typing import TYPE_CHECKING, Optional, TextIO, cast
 
 from markdown import markdown
 
-from aqt import mw
-from aqt.main import AnkiQt
+import aqt
+from anki.errors import BackendError, Interrupted
 from aqt.qt import *
 from aqt.utils import showText, showWarning, supportText, tr
+
+if TYPE_CHECKING:
+    from aqt.main import AnkiQt
+
+
+def show_exception(*, parent: QWidget, exception: Exception) -> None:
+    "Present a caught exception to the user using a pop-up."
+    if isinstance(exception, Interrupted):
+        # nothing to do
+        return
+    if isinstance(exception, BackendError):
+        if exception.context:
+            print(exception.context)
+        if exception.backtrace:
+            print(exception.backtrace)
+        showWarning(str(exception), parent=parent, help=exception.help_page)
+    else:
+        # if the error is not originating from the backend, dump
+        # a traceback to the console to aid in debugging
+        traceback.print_exception(
+            None, exception, exception.__traceback__, file=sys.stdout
+        )
+        showWarning(str(exception), parent=parent)
+
 
 if not os.environ.get("DEBUG"):
 
@@ -27,6 +54,7 @@ if not os.environ.get("DEBUG"):
 class ErrorHandler(QObject):
     "Catch stderr and write into buffer."
     ivl = 100
+    fatal_error_encountered = False
 
     errorTimer = pyqtSignal()
 
@@ -68,6 +96,9 @@ class ErrorHandler(QObject):
         return tr.qt_misc_unable_to_access_anki_media_folder()
 
     def onTimeout(self) -> None:
+        if self.fatal_error_encountered:
+            # suppress follow-up errors caused by the poisoned lock
+            return
         error = html.escape(self.pool)
         self.pool = ""
         self.mw.progress.clear()
@@ -90,15 +121,19 @@ class ErrorHandler(QObject):
             showWarning(markdown(tr.errors_accessing_db()))
             return
 
-        must_close = False
         if "PanicException" in error:
-            must_close = True
+            self.fatal_error_encountered = True
             txt = markdown(
                 "**A fatal error occurred, and Anki must close. Please report this message on the forums.**"
             )
             error = f"{supportText() + self._addonText(error)}\n{error}"
         elif self.mw.addonManager.dirty:
-            txt = markdown(tr.errors_addons_active_popup())
+            # Older translations include a link to the old discussions site; rewrite it to a newer one
+            message = tr.errors_addons_active_popup().replace(
+                "https://help.ankiweb.net/discussions/add-ons/",
+                "https://forums.ankiweb.net/c/add-ons/11",
+            )
+            txt = markdown(message)
             error = f"{supportText() + self._addonText(error)}\n{error}"
         else:
             txt = markdown(tr.errors_standard_popup())
@@ -107,7 +142,7 @@ class ErrorHandler(QObject):
         # show dialog
         txt = f"{txt}<div style='white-space: pre-wrap'>{error}</div>"
         showText(txt, type="html", copyBtn=True)
-        if must_close:
+        if self.fatal_error_encountered:
             sys.exit(1)
 
     def _addonText(self, error: str) -> str:
@@ -116,7 +151,7 @@ class ErrorHandler(QObject):
             return ""
         # reverse to list most likely suspect first, dict to deduplicate:
         addons = [
-            mw.addonManager.addonName(i) for i in dict.fromkeys(reversed(matches))
+            aqt.mw.addonManager.addonName(i) for i in dict.fromkeys(reversed(matches))
         ]
         # highlight importance of first add-on:
         addons[0] = f"<b>{addons[0]}</b>"

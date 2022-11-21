@@ -5,23 +5,57 @@ use std::collections::{HashMap, HashSet};
 
 use rand::seq::SliceRandom;
 
+pub use crate::pb::scheduler::{
+    schedule_cards_as_new_request::Context as ScheduleAsNewContext, RepositionDefaultsResponse,
+    ScheduleCardsAsNewDefaultsResponse,
+};
 use crate::{
     card::{CardQueue, CardType},
-    config::SchedulerVersion,
+    config::{BoolKey, SchedulerVersion},
     deckconfig::NewCardInsertOrder,
     prelude::*,
-    search::{SearchNode, SortMode, StateKind},
+    search::{JoinSearches, SearchNode, SortMode, StateKind},
 };
 
 impl Card {
-    fn schedule_as_new(&mut self, position: u32) {
+    pub(crate) fn original_or_current_due(&self) -> i32 {
+        if self.is_filtered() {
+            self.original_due
+        } else {
+            self.due
+        }
+    }
+
+    pub(crate) fn last_position(&self) -> Option<u32> {
+        if self.ctype == CardType::New {
+            Some(self.original_or_current_due() as u32)
+        } else {
+            self.original_position
+        }
+    }
+
+    /// True if the provided position has been used.
+    /// (Always true, if restore_position is false.)
+    pub(crate) fn schedule_as_new(
+        &mut self,
+        position: u32,
+        reset_counts: bool,
+        restore_position: bool,
+    ) -> bool {
+        let last_position = restore_position.then(|| self.last_position()).flatten();
         self.remove_from_filtered_deck_before_reschedule();
-        self.due = position as i32;
+        self.due = last_position.unwrap_or(position) as i32;
         self.ctype = CardType::New;
         self.queue = CardQueue::New;
         self.interval = 0;
         self.ease_factor = 0;
         self.original_position = None;
+        if reset_counts {
+            self.reps = 0;
+            self.lapses = 0;
+        }
+
+        last_position.is_none()
     }
 
     /// If the card is new, change its position, and return true.
@@ -45,7 +79,7 @@ pub(crate) struct NewCardSorter {
     position: HashMap<NoteId, u32>,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
 pub enum NewCardDueOrder {
     NoteId,
     Random,
@@ -112,24 +146,60 @@ fn nids_in_preserved_order(cards: &[Card]) -> Vec<NoteId> {
 }
 
 impl Collection {
-    pub fn reschedule_cards_as_new(&mut self, cids: &[CardId], log: bool) -> Result<OpOutput<()>> {
+    pub fn reschedule_cards_as_new(
+        &mut self,
+        cids: &[CardId],
+        log: bool,
+        restore_position: bool,
+        reset_counts: bool,
+        context: Option<ScheduleAsNewContext>,
+    ) -> Result<OpOutput<()>> {
         let usn = self.usn()?;
         let mut position = self.get_next_card_position();
         self.transact(Op::ScheduleAsNew, |col| {
-            col.storage.set_search_table_to_card_ids(cids, true)?;
-            let cards = col.storage.all_searched_cards_in_search_order()?;
+            let cards = col.all_cards_for_ids(cids, true)?;
             for mut card in cards {
                 let original = card.clone();
-                card.schedule_as_new(position);
+                if card.schedule_as_new(position, reset_counts, restore_position) {
+                    position += 1;
+                }
                 if log {
                     col.log_manually_scheduled_review(&card, &original, usn)?;
                 }
                 col.update_card_inner(&mut card, original, usn)?;
-                position += 1;
             }
             col.set_next_card_position(position)?;
-            col.storage.clear_searched_cards_table()
+
+            match context {
+                Some(ScheduleAsNewContext::Browser) => {
+                    col.set_config_bool_inner(BoolKey::RestorePositionBrowser, restore_position)?;
+                    col.set_config_bool_inner(BoolKey::ResetCountsBrowser, reset_counts)?;
+                }
+                Some(ScheduleAsNewContext::Reviewer) => {
+                    col.set_config_bool_inner(BoolKey::RestorePositionReviewer, restore_position)?;
+                    col.set_config_bool_inner(BoolKey::ResetCountsReviewer, reset_counts)?;
+                }
+                None => (),
+            }
+
+            Ok(())
         })
+    }
+
+    pub fn reschedule_cards_as_new_defaults(
+        &self,
+        context: ScheduleAsNewContext,
+    ) -> ScheduleCardsAsNewDefaultsResponse {
+        match context {
+            ScheduleAsNewContext::Browser => ScheduleCardsAsNewDefaultsResponse {
+                restore_position: self.get_config_bool(BoolKey::RestorePositionBrowser),
+                reset_counts: self.get_config_bool(BoolKey::ResetCountsBrowser),
+            },
+            ScheduleAsNewContext::Reviewer => ScheduleCardsAsNewDefaultsResponse {
+                restore_position: self.get_config_bool(BoolKey::RestorePositionReviewer),
+                reset_counts: self.get_config_bool(BoolKey::ResetCountsReviewer),
+            },
+        }
     }
 
     pub fn sort_cards(
@@ -142,6 +212,11 @@ impl Collection {
     ) -> Result<OpOutput<usize>> {
         let usn = self.usn()?;
         self.transact(Op::SortCards, |col| {
+            col.set_config_bool_inner(
+                BoolKey::RandomOrderReposition,
+                order == NewCardDueOrder::Random,
+            )?;
+            col.set_config_bool_inner(BoolKey::ShiftPositionOfExistingCards, shift)?;
             col.sort_cards_inner(cids, starting_from, step, order, shift, usn)
         })
     }
@@ -159,8 +234,7 @@ impl Collection {
         if shift {
             self.shift_existing_cards(starting_from, step * cids.len() as u32, usn, v2)?;
         }
-        self.storage.set_search_table_to_card_ids(cids, true)?;
-        let cards = self.storage.all_searched_cards_in_search_order()?;
+        let cards = self.all_cards_for_ids(cids, true)?;
         let sorter = NewCardSorter::new(&cards, starting_from, step, order);
         let mut count = 0;
         for mut card in cards {
@@ -170,8 +244,14 @@ impl Collection {
                 self.update_card_inner(&mut card, original, usn)?;
             }
         }
-        self.storage.clear_searched_cards_table()?;
         Ok(count)
+    }
+
+    pub fn reposition_defaults(&self) -> RepositionDefaultsResponse {
+        RepositionDefaultsResponse {
+            random: self.get_config_bool(BoolKey::RandomOrderReposition),
+            shift: self.get_config_bool(BoolKey::ShiftPositionOfExistingCards),
+        }
     }
 
     /// This is handled by update_deck_configs() now; this function has been kept around
@@ -197,20 +277,18 @@ impl Collection {
         usn: Usn,
     ) -> Result<usize> {
         let cids = self.search_cards(
-            SearchBuilder::from(SearchNode::DeckIdWithoutChildren(deck)).and(StateKind::New),
+            SearchNode::DeckIdWithoutChildren(deck).and(StateKind::New),
             SortMode::NoOrder,
         )?;
         self.sort_cards_inner(&cids, 1, 1, order.into(), false, usn)
     }
 
     fn shift_existing_cards(&mut self, start: u32, by: u32, usn: Usn, v2: bool) -> Result<()> {
-        self.storage.search_cards_at_or_above_position(start)?;
-        for mut card in self.storage.all_searched_cards()? {
+        for mut card in self.storage.all_cards_at_or_above_position(start)? {
             let original = card.clone();
             card.set_new_position(card.due as u32 + by, v2);
             self.update_card_inner(&mut card, original, usn)?;
         }
-        self.storage.clear_searched_cards_table()?;
         Ok(())
     }
 }
@@ -251,6 +329,43 @@ mod test {
             }
         }
         unreachable!("not random");
+    }
+
+    #[test]
+    fn last_position() {
+        // new card
+        let mut card = Card::new(NoteId(0), 0, DeckId(1), 42);
+        assert_eq!(card.last_position(), Some(42));
+        // in filtered deck
+        card.original_deck_id.0 = 1;
+        card.deck_id.0 = 2;
+        card.original_due = 42;
+        card.due = 123456789;
+        card.queue = CardQueue::Review;
+        assert_eq!(card.last_position(), Some(42));
+
+        // graduated card
+        let mut card = Card::new(NoteId(0), 0, DeckId(1), 42);
+        card.queue = CardQueue::Review;
+        card.ctype = CardType::Review;
+        card.due = 123456789;
+        // only recent clients remember the original position
+        assert_eq!(card.last_position(), None);
+        card.original_position = Some(42);
+        assert_eq!(card.last_position(), Some(42));
+    }
+
+    #[test]
+    fn scheduling_as_new() {
+        let mut card = Card::new(NoteId(0), 0, DeckId(1), 42);
+        card.reps = 4;
+        card.lapses = 2;
+        // keep counts and position
+        card.schedule_as_new(1, false, true);
+        assert_eq!((card.due, card.reps, card.lapses), (42, 4, 2));
+        // complete reset
+        card.schedule_as_new(1, true, false);
+        assert_eq!((card.due, card.reps, card.lapses), (1, 0, 0));
     }
 }
 

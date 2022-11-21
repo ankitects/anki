@@ -65,7 +65,7 @@ impl Collection {
             return Ok(home_deck);
         }
         // default deck
-        self.get_deck(DeckId(1))?.ok_or(AnkiError::NotFound)
+        self.get_deck(DeckId(1))?.or_not_found(DeckId(1))
     }
 
     fn get_current_notetype_for_adding(&mut self) -> Result<Arc<Notetype>> {
@@ -79,7 +79,7 @@ impl Collection {
         if let Some((ntid, _)) = self.storage.get_all_notetype_names()?.first() {
             Ok(self.get_notetype(*ntid)?.unwrap())
         } else {
-            Err(AnkiError::NotFound)
+            invalid_input!("collection has no notetypes");
         }
     }
 

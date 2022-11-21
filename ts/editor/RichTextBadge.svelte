@@ -3,36 +3,59 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { createEventDispatcher, onMount } from "svelte";
+
     import Badge from "../components/Badge.svelte";
     import * as tr from "../lib/ftl";
-    import { richTextOff, richTextOn } from "./icons";
+    import { getPlatformString, registerShortcut } from "../lib/shortcuts";
+    import { context as editorFieldContext } from "./EditorField.svelte";
+    import { richTextIcon } from "./icons";
 
-    export let off: boolean;
+    const animated = !document.body.classList.contains("reduced-motion");
 
-    function toggle(): void {
-        off = !off;
+    const editorField = editorFieldContext.get();
+    const keyCombination = "Control+Shift+X";
+    const dispatch = createEventDispatcher();
+
+    export let show = false;
+    export let off = false;
+
+    function toggle() {
+        dispatch("toggle");
     }
 
-    $: icon = off ? richTextOff : richTextOn;
+    function shortcut(target: HTMLElement): () => void {
+        return registerShortcut(toggle, keyCombination, { target });
+    }
+
+    onMount(() => editorField.element.then(shortcut));
 </script>
 
-<span class="rich-text-badge" class:highlighted={off} on:click|stopPropagation={toggle}>
+<span
+    class="plain-text-badge"
+    class:visible={show || !animated}
+    class:highlighted={!off}
+    on:click|stopPropagation={toggle}
+>
     <Badge
-        tooltip={tr.editingToggleVisualEditor()}
-        iconSize={80}
-        --icon-align="text-top">{@html icon}</Badge
+        tooltip="{tr.editingToggleVisualEditor()} ({getPlatformString(keyCombination)})"
+        iconSize={80}>{@html richTextIcon}</Badge
     >
 </span>
 
 <style lang="scss">
     span {
-        opacity: 0.4;
+        cursor: pointer;
+        opacity: 0;
 
+        &.visible {
+            opacity: 0.4;
+            &:hover {
+                opacity: 0.8;
+            }
+        }
         &.highlighted {
             opacity: 1;
-        }
-        &:hover {
-            opacity: 0.8;
         }
     }
 </style>

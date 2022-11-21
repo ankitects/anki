@@ -70,7 +70,7 @@ mod test {
         col.add_or_update_deck(&mut filtered_deck)?;
         assert_eq!(col.rebuild_filtered_deck(filtered_deck.id)?.output, 1);
 
-        let next = col.get_next_card_states(c.id)?;
+        let next = col.get_scheduling_states(c.id)?;
         assert!(matches!(
             next.current,
             CardState::Filtered(FilteredState::Preview(_))
@@ -85,53 +85,57 @@ mod test {
         ));
 
         // use Again on the preview
-        col.answer_card(&CardAnswer {
+        col.answer_card(&mut CardAnswer {
             card_id: c.id,
             current_state: next.current,
             new_state: next.again,
             rating: Rating::Again,
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
+            custom_data: None,
         })?;
 
         c = col.storage.get_card(c.id)?.unwrap();
         assert_eq!(c.queue, CardQueue::PreviewRepeat);
 
         // hard
-        let next = col.get_next_card_states(c.id)?;
-        col.answer_card(&CardAnswer {
+        let next = col.get_scheduling_states(c.id)?;
+        col.answer_card(&mut CardAnswer {
             card_id: c.id,
             current_state: next.current,
             new_state: next.hard,
             rating: Rating::Hard,
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
+            custom_data: None,
         })?;
         c = col.storage.get_card(c.id)?.unwrap();
         assert_eq!(c.queue, CardQueue::PreviewRepeat);
 
         // good
-        let next = col.get_next_card_states(c.id)?;
-        col.answer_card(&CardAnswer {
+        let next = col.get_scheduling_states(c.id)?;
+        col.answer_card(&mut CardAnswer {
             card_id: c.id,
             current_state: next.current,
             new_state: next.good,
             rating: Rating::Good,
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
+            custom_data: None,
         })?;
         c = col.storage.get_card(c.id)?.unwrap();
         assert_eq!(c.queue, CardQueue::PreviewRepeat);
 
         // and then it should return to its old state once easy selected
-        let next = col.get_next_card_states(c.id)?;
-        col.answer_card(&CardAnswer {
+        let next = col.get_scheduling_states(c.id)?;
+        col.answer_card(&mut CardAnswer {
             card_id: c.id,
             current_state: next.current,
             new_state: next.easy,
             rating: Rating::Easy,
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
+            custom_data: None,
         })?;
         c = col.storage.get_card(c.id)?.unwrap();
         assert_eq!(c.queue, CardQueue::DayLearn);

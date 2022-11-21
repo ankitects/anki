@@ -3,25 +3,24 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import TitledContainer from "../components/TitledContainer.svelte";
+
     export let title: string;
     export let subtitle: string | null = null;
 </script>
 
-<div class="graph" tabindex="-1">
-    <h1>{title}</h1>
-
-    {#if subtitle}
-        <div class="subtitle">{subtitle}</div>
-    {/if}
-
-    <slot />
-</div>
+<TitledContainer {title}>
+    <div class="graph">
+        {#if subtitle}
+            <div class="subtitle">{subtitle}</div>
+        {/if}
+        <slot />
+    </div>
+</TitledContainer>
 
 <style lang="scss">
+    @use "sass/elevation" as *;
     .graph {
-        margin-left: auto;
-        margin-right: auto;
-        max-width: 60em;
         page-break-inside: avoid;
 
         /* See graph-styles.ts for constants referencing global styles */
@@ -61,13 +60,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:focus {
             outline: 0;
         }
-    }
-
-    h1 {
-        text-align: center;
-        margin-bottom: 0.25em;
-        margin-top: 1.5em;
-        font-weight: bold;
     }
 
     .subtitle {

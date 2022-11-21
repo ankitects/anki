@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>586</width>
-    <height>376</height>
+    <width>567</width>
+    <height>438</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -84,17 +84,23 @@
    </item>
    <item>
     <layout class="QGridLayout" name="_2">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_description">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>fields_description</string>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_font">
        <property name="text">
         <string>fields_editing_font</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QCheckBox" name="rtl">
-       <property name="text">
-        <string>fields_reverse_text_direction_rtl</string>
        </property>
       </widget>
      </item>
@@ -115,26 +121,6 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QRadioButton" name="sortField">
-       <property name="text">
-        <string>fields_sort_by_this_field_in_the</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_description">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>fields_description</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1">
       <widget class="QFontComboBox" name="fontFamily">
        <property name="minimumSize">
@@ -145,10 +131,44 @@
        </property>
       </widget>
      </item>
+     <item row="3" column="1" alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="rtl">
+       <property name="text">
+        <string>fields_reverse_text_direction_rtl</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1" alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="plainTextByDefault">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>fields_html_by_default</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="1" colspan="2">
       <widget class="QLineEdit" name="fieldDescription">
        <property name="placeholderText">
         <string>fields_description_placeholder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" alignment="Qt::AlignLeft">
+      <widget class="QRadioButton" name="sortField">
+       <property name="text">
+        <string>fields_sort_by_this_field_in_the</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1" alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="collapseByDefault">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>fields_collapse_by_default</string>
        </property>
       </widget>
      </item>

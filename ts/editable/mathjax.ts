@@ -5,6 +5,8 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import "mathjax/es5/tex-svg-full";
+
 import { mathIcon } from "./icons";
 
 const parser = new DOMParser();
@@ -34,6 +36,7 @@ export function convertMathjax(
     nightMode: boolean,
     fontSize: number,
 ): [string, string] {
+    input = revealClozeAnswers(input);
     const style = getStyle(getCSS(nightMode, fontSize));
 
     if (input.trim().length === 0) {
@@ -64,4 +67,21 @@ export function convertMathjax(
     }
 
     return [svg.outerHTML, title];
+}
+
+/**
+ * Escape characters which are technically legal in Mathjax, but confuse HTML.
+ */
+export function escapeSomeEntities(value: string): string {
+    return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+export function unescapeSomeEntities(value: string): string {
+    return value.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+}
+
+function revealClozeAnswers(input: string): string {
+    // one-line version of regex in cloze.rs
+    const regex = /\{\{c(\d+)::(.*?)(?:::(.*?))?\}\}/gis;
+    return input.replace(regex, "[$2]");
 }

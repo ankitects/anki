@@ -3,22 +3,24 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ButtonDropdown from "../../components/ButtonDropdown.svelte";
+    import { onMount } from "svelte";
+
     import ButtonGroup from "../../components/ButtonGroup.svelte";
     import ButtonGroupItem, {
         createProps,
         setSlotHostContext,
         updatePropsList,
     } from "../../components/ButtonGroupItem.svelte";
+    import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import IconButton from "../../components/IconButton.svelte";
-    import Item from "../../components/Item.svelte";
-    import Shortcut from "../../components/Shortcut.svelte";
-    import WithDropdown from "../../components/WithDropdown.svelte";
+    import Popover from "../../components/Popover.svelte";
+    import WithFloating from "../../components/WithFloating.svelte";
+    import { execCommand } from "../../domlib";
     import { getListItem } from "../../lib/dom";
+    import { preventDefault } from "../../lib/events";
     import * as tr from "../../lib/ftl";
-    import { getPlatformString } from "../../lib/shortcuts";
-    import { execCommand } from "../helpers";
+    import { getPlatformString, registerShortcut } from "../../lib/shortcuts";
     import { context } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
     import CommandIconButton from "./CommandIconButton.svelte";
@@ -54,8 +56,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    onMount(() => {
+        registerShortcut((event: KeyboardEvent) => {
+            preventDefault(event);
+            indentListItem();
+        }, indentKeyCombination);
+        registerShortcut((event: KeyboardEvent) => {
+            preventDefault(event);
+            outdentListItem();
+        }, outdentKeyCombination);
+    });
+
     const { focusedInput } = context.get();
-    $: disabled = !editingInputIsRichText($focusedInput);
+
+    $: disabled = !$focusedInput || !editingInputIsRichText($focusedInput);
+
+    let showFloating = false;
 </script>
 
 <ButtonGroup>
@@ -83,16 +99,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </ButtonGroupItem>
 
         <ButtonGroupItem>
-            <WithDropdown let:createDropdown>
-                <IconButton
-                    {disabled}
-                    on:mount={(event) => createDropdown(event.detail.button)}
-                >
-                    {@html listOptionsIcon}
-                </IconButton>
+            <WithFloating
+                show={showFloating && !disabled}
+                placement="bottom"
+                inline
+                on:close={() => (showFloating = false)}
+                let:asReference
+            >
+                <span class="block-buttons" use:asReference>
+                    <IconButton
+                        {disabled}
+                        on:click={() => (showFloating = !showFloating)}
+                    >
+                        {@html listOptionsIcon}
+                    </IconButton>
+                </span>
 
-                <ButtonDropdown>
-                    <Item id="justify">
+                <Popover slot="floating" --popover-padding-inline="0">
+                    <ButtonToolbar wrap={false}>
                         <ButtonGroup>
                             <CommandIconButton
                                 key="justifyLeft"
@@ -121,9 +145,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 >{@html justifyFullIcon}</CommandIconButton
                             >
                         </ButtonGroup>
-                    </Item>
 
-                    <Item id="indentation">
                         <ButtonGroup>
                             <IconButton
                                 tooltip="{tr.editingOutdent()} ({getPlatformString(
@@ -137,11 +159,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 {@html outdentIcon}
                             </IconButton>
 
-                            <Shortcut
-                                keyCombination={outdentKeyCombination}
-                                on:action={outdentListItem}
-                            />
-
                             <IconButton
                                 tooltip="{tr.editingIndent()} ({getPlatformString(
                                     indentKeyCombination,
@@ -152,15 +169,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             >
                                 {@html indentIcon}
                             </IconButton>
-
-                            <Shortcut
-                                keyCombination={indentKeyCombination}
-                                on:action={indentListItem}
-                            />
                         </ButtonGroup>
-                    </Item>
-                </ButtonDropdown>
-            </WithDropdown>
+                    </ButtonToolbar>
+                </Popover>
+            </WithFloating>
         </ButtonGroupItem>
     </DynamicallySlottable>
 </ButtonGroup>
+
+<style lang="scss">
+    .block-buttons {
+        line-height: 1;
+    }
+</style>

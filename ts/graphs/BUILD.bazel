@@ -14,12 +14,14 @@ compile_sass(
     visibility = ["//visibility:public"],
     deps = [
         "//sass:base_lib",
+        "//sass:button_mixins_lib",
         "//sass:scrollbar_lib",
     ],
 )
 
 _ts_deps = [
     "//ts/lib",
+    "//ts/components",
     "//ts/sveltelib",
     "@npm//@fluent",
     "@npm//@types/d3",
@@ -68,6 +70,7 @@ svelte_check(
         "*.ts",
         "*.svelte",
     ]) + [
+        "//sass:button_mixins_lib",
         "//ts/lib",
         "//ts/sveltelib",
     ],

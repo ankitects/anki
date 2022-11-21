@@ -144,10 +144,12 @@ export class ChangeNotetypeState {
         this.info_.input().newNotetypeId = this.notetypeNames.entries[idx].id!;
         this.notetypesSetter(this.buildNotetypeList());
         const { oldNotetypeId, newNotetypeId } = this.info_.input();
-        const newInfo = await notetypes.getChangeNotetypeInfo({
-            oldNotetypeId,
-            newNotetypeId,
-        });
+        const newInfo = await notetypes.getChangeNotetypeInfo(
+            Notetypes.GetChangeNotetypeInfoRequest.create({
+                oldNotetypeId,
+                newNotetypeId,
+            }),
+        );
 
         this.info_ = new ChangeNotetypeInfoWrapper(newInfo);
         this.info_.unusedItems(MapContext.Field);

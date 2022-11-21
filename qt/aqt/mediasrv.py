@@ -26,11 +26,12 @@ import aqt.operations
 from anki import hooks
 from anki._vendor import stringcase
 from anki.collection import OpChanges
-from anki.decks import DeckConfigsForUpdate, UpdateDeckConfigs
-from anki.scheduler.v3 import NextStates
+from anki.decks import UpdateDeckConfigs
+from anki.scheduler_pb2 import SchedulingStates
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
+from aqt.import_export.import_csv_dialog import ImportCsvDialog
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.qt import *
 
@@ -384,10 +385,7 @@ def congrats_info() -> bytes:
 
 
 def get_deck_configs_for_update() -> bytes:
-    config_bytes = aqt.mw.col._backend.get_deck_configs_for_update_raw(request.data)
-    configs = DeckConfigsForUpdate.FromString(config_bytes)
-    configs.have_addons = aqt.mw.addonManager.dirty
-    return configs.SerializeToString()
+    return aqt.mw.col._backend.get_deck_configs_for_update_raw(request.data)
 
 
 def update_deck_configs() -> bytes:
@@ -411,18 +409,18 @@ def update_deck_configs() -> bytes:
     return b""
 
 
-def next_card_states() -> bytes:
-    if states := aqt.mw.reviewer.get_next_states():
+def get_scheduling_states() -> bytes:
+    if states := aqt.mw.reviewer.get_scheduling_states():
         return states.SerializeToString()
     else:
         return b""
 
 
-def set_next_card_states() -> bytes:
+def set_scheduling_states() -> bytes:
     key = request.headers.get("key", "")
-    input = NextStates()
-    input.ParseFromString(request.data)
-    aqt.mw.reviewer.set_next_states(key, input)
+    states = SchedulingStates()
+    states.ParseFromString(request.data)
+    aqt.mw.reviewer.set_scheduling_states(key, states)
     return b""
 
 
@@ -438,20 +436,38 @@ def change_notetype() -> bytes:
     return b""
 
 
+def import_csv() -> bytes:
+    data = request.data
+
+    def handle_on_main() -> None:
+        window = aqt.mw.app.activeWindow()
+        if isinstance(window, ImportCsvDialog):
+            window.do_import(data)
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+    return b""
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
     update_deck_configs,
-    next_card_states,
-    set_next_card_states,
+    get_scheduling_states,
+    set_scheduling_states,
     change_notetype,
+    import_csv,
 ]
 
 
 exposed_backend_list = [
+    # DeckService
+    "get_deck_names",
     # I18nService
     "i18n_resources",
+    # ImportExportService
+    "get_csv_metadata",
     # NotesService
+    "get_field_names",
     "get_note",
     # NotetypesService
     "get_notetype_names",

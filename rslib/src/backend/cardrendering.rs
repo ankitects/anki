@@ -2,19 +2,20 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::Backend;
-pub(super) use crate::backend_proto::cardrendering_service::Service as CardRenderingService;
+pub(super) use crate::pb::cardrendering_service::Service as CardRenderingService;
 use crate::{
-    backend_proto as pb,
     card_rendering::{extract_av_tags, strip_av_tags},
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
     markdown::render_markdown,
     notetype::{CardTemplateSchema11, RenderCardOutput},
+    pb,
     prelude::*,
     template::RenderedNode,
     text::{
         decode_iri_paths, encode_iri_paths, sanitize_html_no_images, strip_html,
         strip_html_preserving_media_filenames,
     },
+    typeanswer::compare_answer,
 };
 
 impl CardRenderingService for Backend {
@@ -85,11 +86,8 @@ impl CardRenderingService for Backend {
         &self,
         input: pb::RenderUncommittedCardRequest,
     ) -> Result<pb::RenderCardResponse> {
-        let template = input.template.ok_or(AnkiError::NotFound)?.into();
-        let mut note = input
-            .note
-            .ok_or_else(|| AnkiError::invalid_input("missing note"))?
-            .into();
+        let template = input.template.or_invalid("missing template")?.into();
+        let mut note = input.note.or_invalid("missing note")?.into();
         let ord = input.card_ord as u16;
         let fill_empty = input.fill_empty;
         self.with_col(|col| {
@@ -104,10 +102,7 @@ impl CardRenderingService for Backend {
     ) -> Result<pb::RenderCardResponse> {
         let schema11: CardTemplateSchema11 = serde_json::from_slice(&input.template)?;
         let template = schema11.into();
-        let mut note = input
-            .note
-            .ok_or_else(|| AnkiError::invalid_input("missing note"))?
-            .into();
+        let mut note = input.note.or_invalid("missing note")?.into();
         let ord = input.card_ord as u16;
         let fill_empty = input.fill_empty;
         self.with_col(|col| {
@@ -146,6 +141,10 @@ impl CardRenderingService for Backend {
         }
         .to_string()
         .into())
+    }
+
+    fn compare_answer(&self, input: pb::CompareAnswerRequest) -> Result<pb::String> {
+        Ok(compare_answer(&input.expected, &input.provided).into())
     }
 }
 

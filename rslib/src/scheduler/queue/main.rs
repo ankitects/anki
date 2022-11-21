@@ -4,14 +4,14 @@
 use super::CardQueues;
 use crate::prelude::*;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct MainQueueEntry {
     pub id: CardId,
     pub mtime: TimestampSecs,
     pub kind: MainQueueEntryKind,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum MainQueueEntryKind {
     New,
     Review,

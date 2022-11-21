@@ -1,10 +1,12 @@
-@use "vars";
+@use "vars" as *;
+@use "root-vars";
 @use "scrollbar";
+@use "button-mixins" as button;
 
-$body-color: var(--text-fg);
-$body-bg: var(--window-bg);
+$body-color: color(fg);
+$body-bg: color(canvas);
 
-$link-hover-color: var(--link);
+$link-hover-color: color(fg-link);
 $link-hover-decoration: none;
 
 $utilities: (
@@ -37,17 +39,24 @@ body {
     height: 100%;
 }
 
-* {
-    overscroll-behavior: none;
+html {
+    overflow-x: hidden;
 }
 
-.night-mode {
-    @include scrollbar.night-mode;
+body {
+    --base-font-size: 13px;
+    overscroll-behavior: none;
+    &:not(.isMac),
+    &:not(.isMac) * {
+        @include scrollbar.custom;
+    }
 }
 
 button {
     /* override transition for instant hover response */
     transition: color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+    border-radius: prop(border-radius);
+    @include button.base;
 }
 
 pre,
@@ -57,21 +66,54 @@ samp {
     unicode-bidi: normal !important;
 }
 
-.isWin {
-    --base-font-size: 12px;
-}
-
-.isMac {
-    --base-font-size: 13px;
-}
-
-.isLin {
-    --base-font-size: 14px;
-}
-
 [dir="rtl"] {
     .form-select {
         /* flip <select>'s arrow */
         background-position: left 0.75rem center;
+    }
+}
+.form-select:focus {
+    outline: none;
+    border: 1px solid color(border-focus);
+    box-shadow: none !important;
+}
+
+.night-mode .form-select:disabled {
+    background-color: color(fg-disabled);
+}
+
+.reduced-motion * {
+    transition: none !important;
+    animation: none !important;
+}
+
+select {
+    @include button.background;
+    @include button.border-radius;
+
+    cursor: pointer;
+    outline: none;
+
+    &:focus,
+    &.focus {
+        border: 1px solid color(border-focus);
+    }
+    option {
+        background: color(canvas-elevated);
+        color: color(fg);
+    }
+}
+
+label,
+input[type="radio"],
+input[type="checkbox"] {
+    cursor: pointer;
+}
+input[type="text"] {
+    border-radius: prop(border-radius);
+    outline: none;
+    border: 1px solid color(border);
+    &:focus {
+        border-color: color(border-focus);
     }
 }

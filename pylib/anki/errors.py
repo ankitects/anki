@@ -4,24 +4,52 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import anki.collection
 
 
-class LocalizedError(Exception):
-    "An error with a localized description."
+class AnkiException(Exception):
+    """
+    General Anki exception that all custom exceptions raised by Anki should
+    inherit from. Allows add-ons to easily identify Anki-native exceptions.
 
-    def __init__(self, localized: str) -> None:
-        self._localized = localized
+    When inheriting from a Python built-in exception other than `Exception`,
+    please supply `AnkiException` as an additional inheritance:
+
+    ```
+    class MyNewAnkiException(ValueError, AnkiException):
+        pass
+    ```
+    """
+
+
+class BackendError(AnkiException):
+    "An error originating from Anki's backend."
+
+    def __init__(
+        self,
+        message: str,
+        help_page: anki.collection.HelpPage.V | None,
+        context: str | None,
+        backtrace: str | None,
+    ) -> None:
         super().__init__()
+        self._message = message
+        self.help_page = help_page
+        self.context = context
+        self.backtrace = backtrace
 
     def __str__(self) -> str:
-        return self._localized
+        return self._message
 
 
-class Interrupted(Exception):
+class Interrupted(BackendError):
     pass
 
 
-class NetworkError(LocalizedError):
+class NetworkError(BackendError):
     pass
 
 
@@ -30,53 +58,68 @@ class SyncErrorKind(Enum):
     OTHER = 2
 
 
-class SyncError(LocalizedError):
-    def __init__(self, localized: str, kind: SyncErrorKind):
+class SyncError(BackendError):
+    def __init__(
+        self,
+        message: str,
+        help_page: anki.collection.HelpPage.V | None,
+        context: str | None,
+        backtrace: str | None,
+        kind: SyncErrorKind,
+    ):
         self.kind = kind
-        super().__init__(localized)
+        super().__init__(message, help_page, context, backtrace)
 
 
-class BackendIOError(LocalizedError):
+class BackendIOError(BackendError):
     pass
 
 
-class CustomStudyError(LocalizedError):
+class CustomStudyError(BackendError):
     pass
 
 
-class DBError(LocalizedError):
+class DBError(BackendError):
     pass
 
 
-class TemplateError(LocalizedError):
+class CardTypeError(BackendError):
     pass
 
 
-class NotFoundError(Exception):
+class TemplateError(BackendError):
     pass
 
 
-class ExistsError(Exception):
+class NotFoundError(BackendError):
     pass
 
 
-class UndoEmpty(Exception):
+class DeletedError(BackendError):
     pass
 
 
-class FilteredDeckError(LocalizedError):
+class ExistsError(BackendError):
     pass
 
 
-class InvalidInput(LocalizedError):
+class UndoEmpty(BackendError):
     pass
 
 
-class SearchError(LocalizedError):
+class FilteredDeckError(BackendError):
     pass
 
 
-class AbortSchemaModification(Exception):
+class InvalidInput(BackendError):
+    pass
+
+
+class SearchError(BackendError):
+    pass
+
+
+class AbortSchemaModification(AnkiException):
     pass
 
 

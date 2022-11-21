@@ -11,7 +11,7 @@ import anki.collection
 import anki.decks
 import anki.notes
 import anki.template
-from anki import cards_pb2, generic_pb2, hooks
+from anki import cards_pb2, hooks
 from anki._legacy import DeprecatedNamesMixin, deprecated
 from anki.consts import *
 from anki.models import NotetypeDict, TemplateDict
@@ -90,8 +90,9 @@ class Card(DeprecatedNamesMixin):
         self.odid = anki.decks.DeckId(card.original_deck_id)
         self.flags = card.flags
         self.original_position = (
-            card.original_position.val if card.HasField("original_position") else None
+            card.original_position if card.HasField("original_position") else None
         )
+        self.custom_data = card.custom_data
 
     def _to_backend_card(self) -> cards_pb2.Card:
         # mtime & usn are set by backend
@@ -111,9 +112,8 @@ class Card(DeprecatedNamesMixin):
             original_due=self.odue,
             original_deck_id=self.odid,
             flags=self.flags,
-            original_position=generic_pb2.UInt32(val=self.original_position)
-            if self.original_position is not None
-            else None,
+            original_position=self.original_position,
+            custom_data=self.custom_data,
         )
 
     def flush(self) -> None:
@@ -190,10 +190,13 @@ class Card(DeprecatedNamesMixin):
             "autoplay"
         ]
 
-    def time_taken(self) -> int:
-        "Time taken to answer card, in integer MS."
+    def time_taken(self, capped: bool = True) -> int:
+        """Time taken since card timer started, in integer MS.
+        If `capped` is true, returned time is limited to deck preset setting."""
         total = int((time.time() - self.timer_started) * 1000)
-        return min(total, self.time_limit())
+        if capped:
+            total = min(total, self.time_limit())
+        return total
 
     def description(self) -> str:
         dict_copy = dict(self.__dict__)

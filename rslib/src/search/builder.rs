@@ -12,6 +12,19 @@ pub trait Negated {
     fn negated(self) -> Node;
 }
 
+pub trait JoinSearches {
+    /// Concatenates two sets of [Node]s, inserting [Node::And], and grouping, if appropriate.
+    fn and(self, other: impl Into<SearchBuilder>) -> SearchBuilder;
+    /// Concatenates two sets of [Node]s, inserting [Node::Or], and grouping, if appropriate.
+    fn or(self, other: impl Into<SearchBuilder>) -> SearchBuilder;
+    /// Concatenates two sets of [Node]s, inserting [Node::And] if appropriate,
+    /// but without grouping either set.
+    fn and_flat(self, other: impl Into<SearchBuilder>) -> SearchBuilder;
+    /// Concatenates two sets of [Node]s, inserting [Node::Or] if appropriate,
+    /// but without grouping either set.
+    fn or_flat(self, other: impl Into<SearchBuilder>) -> SearchBuilder;
+}
+
 impl<T: Into<Node>> Negated for T {
     fn negated(self) -> Node {
         let node: Node = self.into();
@@ -20,6 +33,24 @@ impl<T: Into<Node>> Negated for T {
         } else {
             Node::Not(Box::new(node))
         }
+    }
+}
+
+impl<T: Into<SearchBuilder>> JoinSearches for T {
+    fn and(self, other: impl Into<SearchBuilder>) -> SearchBuilder {
+        self.into().join_other(other.into(), Node::And, true)
+    }
+
+    fn or(self, other: impl Into<SearchBuilder>) -> SearchBuilder {
+        self.into().join_other(other.into(), Node::Or, true)
+    }
+
+    fn and_flat(self, other: impl Into<SearchBuilder>) -> SearchBuilder {
+        self.into().join_other(other.into(), Node::And, false)
+    }
+
+    fn or_flat(self, other: impl Into<SearchBuilder>) -> SearchBuilder {
+        self.into().join_other(other.into(), Node::Or, false)
     }
 }
 
@@ -59,19 +90,15 @@ impl SearchBuilder {
         self.0.len()
     }
 
-    pub fn and<N: Into<Node>>(mut self, node: N) -> Self {
-        if !self.is_empty() {
-            self.0.push(Node::And)
+    fn join_other(mut self, mut other: Self, joiner: Node, group: bool) -> Self {
+        if group {
+            self = self.group();
+            other = other.group();
         }
-        self.0.push(node.into());
-        self
-    }
-
-    pub fn or<N: Into<Node>>(mut self, node: N) -> Self {
-        if !self.is_empty() {
-            self.0.push(Node::Or)
+        if !(self.is_empty() || other.is_empty()) {
+            self.0.push(joiner);
         }
-        self.0.push(node.into());
+        self.0.append(&mut other.0);
         self
     }
 
@@ -83,28 +110,23 @@ impl SearchBuilder {
         self
     }
 
-    /// Concatenate [Node]s of `other`, inserting [Node::And] if appropriate.
-    /// No implicit grouping is done.
-    pub fn and_join(mut self, other: &mut Self) -> Self {
-        if !(self.is_empty() || other.is_empty()) {
-            self.0.push(Node::And);
-        }
-        self.0.append(&mut other.0);
-        self
-    }
-
-    /// Concatenate [Node]s of `other`, inserting [Node::Or] if appropriate.
-    /// No implicit grouping is done.
-    pub fn or_join(mut self, other: &mut Self) -> Self {
-        if !(self.is_empty() || other.is_empty()) {
-            self.0.push(Node::And);
-        }
-        self.0.append(&mut other.0);
-        self
-    }
-
     pub fn write(&self) -> String {
         write_nodes(&self.0)
+    }
+
+    /// Construct [SearchBuilder] matching any given deck, excluding children.
+    pub fn from_decks(decks: &[DeckId]) -> Self {
+        Self::any(decks.iter().copied().map(SearchNode::DeckIdWithoutChildren))
+    }
+
+    /// Construct [SearchBuilder] matching learning, but not relearning cards.
+    pub fn learning_cards() -> Self {
+        StateKind::Learning.and(StateKind::Review.negated())
+    }
+
+    /// Construct [SearchBuilder] matching relearning cards.
+    pub fn relearning_cards() -> Self {
+        StateKind::Learning.and(StateKind::Review)
     }
 }
 
@@ -127,6 +149,14 @@ impl Default for SearchBuilder {
 }
 
 impl SearchNode {
+    pub fn from_deck_id(did: impl Into<DeckId>, with_children: bool) -> Self {
+        if with_children {
+            Self::DeckIdWithChildren(did.into())
+        } else {
+            Self::DeckIdWithoutChildren(did.into())
+        }
+    }
+
     /// Construct [SearchNode] from an unescaped deck name.
     pub fn from_deck_name(name: &str) -> Self {
         Self::Deck(escape_anki_wildcards_for_search_node(name))
@@ -134,7 +164,10 @@ impl SearchNode {
 
     /// Construct [SearchNode] from an unescaped tag name.
     pub fn from_tag_name(name: &str) -> Self {
-        Self::Tag(escape_anki_wildcards_for_search_node(name))
+        Self::Tag {
+            tag: escape_anki_wildcards_for_search_node(name),
+            is_re: false,
+        }
     }
 
     /// Construct [SearchNode] from an unescaped notetype name.
@@ -147,6 +180,14 @@ impl SearchNode {
         Self::CardTemplate(TemplateKind::Name(escape_anki_wildcards_for_search_node(
             name,
         )))
+    }
+
+    pub fn from_note_ids<I: IntoIterator<Item = N>, N: Into<NoteId>>(ids: I) -> Self {
+        Self::NoteIds(ids.into_iter().map(Into::into).join(","))
+    }
+
+    pub fn from_card_ids<I: IntoIterator<Item = C>, C: Into<CardId>>(ids: I) -> Self {
+        Self::CardIds(ids.into_iter().map(Into::into).join(","))
     }
 }
 
@@ -197,5 +238,39 @@ mod test {
             StateKind::Due.negated(),
             Node::Not(Box::new(Node::Search(SearchNode::State(StateKind::Due))))
         )
+    }
+
+    #[test]
+    fn joining() {
+        assert_eq!(
+            StateKind::Due
+                .or(StateKind::New)
+                .and(SearchBuilder::any((1..4).map(SearchNode::Flag)))
+                .write(),
+            "(is:due OR is:new) (flag:1 OR flag:2 OR flag:3)"
+        );
+        assert_eq!(
+            StateKind::Due
+                .or(StateKind::New)
+                .and_flat(SearchBuilder::any((1..4).map(SearchNode::Flag)))
+                .write(),
+            "is:due OR is:new flag:1 OR flag:2 OR flag:3"
+        );
+        assert_eq!(
+            StateKind::Due
+                .or(StateKind::New)
+                .or(StateKind::Learning)
+                .or(StateKind::Review)
+                .write(),
+            "((is:due OR is:new) OR is:learn) OR is:review"
+        );
+        assert_eq!(
+            StateKind::Due
+                .or_flat(StateKind::New)
+                .or_flat(StateKind::Learning)
+                .or_flat(StateKind::Review)
+                .write(),
+            "is:due OR is:new OR is:learn OR is:review"
+        );
     }
 }

@@ -7,17 +7,17 @@ use itertools::Itertools;
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
 
 use crate::{
-    backend_proto as pb,
     card::{CardQueue, CardType},
     card_rendering::prettify_av_tags,
     notetype::{CardTemplate, NotetypeKind},
+    pb,
     prelude::*,
     scheduler::{timespan::time_span, timing::SchedTimingToday},
     template::RenderedNode,
     text::html_to_text_line,
 };
 
-#[derive(Debug, PartialEq, Clone, Copy, Display, EnumIter, EnumString)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Display, EnumIter, EnumString)]
 #[strum(serialize_all = "camelCase")]
 pub enum Column {
     #[strum(serialize = "")]
@@ -64,14 +64,18 @@ struct RowContext {
     original_deck: Option<Arc<Deck>>,
     tr: I18n,
     timing: SchedTimingToday,
-    render_context: Option<RenderContext>,
+    render_context: RenderContext,
 }
 
-/// The answer string needs the question string but not the other way around, so only build the
-/// answer string when needed.
-struct RenderContext {
-    question: String,
-    answer_nodes: Vec<RenderedNode>,
+enum RenderContext {
+    // The answer string needs the question string, but not the other way around,
+    // so only build the answer string when needed.
+    Ok {
+        question: String,
+        answer_nodes: Vec<RenderedNode>,
+    },
+    Err(String),
+    Unset,
 }
 
 fn card_render_required(columns: &[Column]) -> bool {
@@ -232,7 +236,7 @@ impl Collection {
             self.state
                 .active_browser_columns
                 .as_ref()
-                .ok_or_else(|| AnkiError::invalid_input("Active browser columns not set."))?,
+                .or_invalid("Active browser columns not set.")?,
         );
         RowContext::new(self, id, notes_mode, card_render_required(&columns))?.browser_row(&columns)
     }
@@ -246,38 +250,54 @@ impl Collection {
         } else {
             self.storage.get_note_without_fields(id)?
         }
-        .ok_or(AnkiError::NotFound)
+        .or_not_found(id)
     }
 }
 
 impl RenderContext {
-    fn new(col: &mut Collection, card: &Card, note: &Note, notetype: &Notetype) -> Result<Self> {
-        let render = col.render_card(
-            note,
-            card,
-            notetype,
-            notetype.get_template(card.template_idx)?,
-            true,
-        )?;
-        let qnodes_text = render
-            .qnodes
-            .iter()
-            .map(|node| match node {
-                RenderedNode::Text { text } => text,
-                RenderedNode::Replacement {
-                    field_name: _,
-                    current_text,
-                    filters: _,
-                } => current_text,
-            })
-            .join("");
-        let question = prettify_av_tags(qnodes_text);
-
-        Ok(RenderContext {
-            question,
-            answer_nodes: render.anodes,
-        })
+    fn new(col: &mut Collection, card: &Card, note: &Note, notetype: &Notetype) -> Self {
+        match notetype
+            .get_template(card.template_idx)
+            .and_then(|template| col.render_card(note, card, notetype, template, true))
+        {
+            Ok(render) => RenderContext::Ok {
+                question: rendered_nodes_to_str(&render.qnodes),
+                answer_nodes: render.anodes,
+            },
+            Err(err) => RenderContext::Err(err.message(&col.tr)),
+        }
     }
+
+    fn side_str(&self, is_answer: bool) -> String {
+        let back;
+        let html = match self {
+            Self::Ok {
+                question,
+                answer_nodes,
+            } => {
+                if is_answer {
+                    back = rendered_nodes_to_str(answer_nodes);
+                    back.strip_prefix(question).unwrap_or(&back)
+                } else {
+                    question
+                }
+            }
+            Self::Err(err) => err,
+            Self::Unset => "Invalid input: RenderContext unset",
+        };
+        html_to_text_line(html, true).into()
+    }
+}
+
+fn rendered_nodes_to_str(nodes: &[RenderedNode]) -> String {
+    let txt = nodes
+        .iter()
+        .map(|node| match node {
+            RenderedNode::Text { text } => text,
+            RenderedNode::Replacement { current_text, .. } => current_text,
+        })
+        .join("");
+    prettify_av_tags(txt)
 }
 
 impl RowContext {
@@ -290,7 +310,12 @@ impl RowContext {
         let cards;
         let note;
         if notes_mode {
-            note = col.get_note_maybe_with_fields(NoteId(id), with_card_render)?;
+            note = col
+                .get_note_maybe_with_fields(NoteId(id), with_card_render)
+                .map_err(|e| match e {
+                    AnkiError::NotFound { .. } => AnkiError::Deleted,
+                    _ => e,
+                })?;
             cards = col.storage.all_cards_of_note(note.id)?;
             if cards.is_empty() {
                 return Err(AnkiError::DatabaseCheckRequired);
@@ -299,26 +324,28 @@ impl RowContext {
             cards = vec![col
                 .storage
                 .get_card(CardId(id))?
-                .ok_or(AnkiError::NotFound)?];
+                .ok_or(AnkiError::Deleted)?];
             note = col.get_note_maybe_with_fields(cards[0].note_id, with_card_render)?;
         }
         let notetype = col
             .get_notetype(note.notetype_id)?
-            .ok_or(AnkiError::NotFound)?;
-        let deck = col.get_deck(cards[0].deck_id)?.ok_or(AnkiError::NotFound)?;
+            .or_not_found(note.notetype_id)?;
+        let deck = col
+            .get_deck(cards[0].deck_id)?
+            .or_not_found(cards[0].deck_id)?;
         let original_deck = if cards[0].original_deck_id.0 != 0 {
             Some(
                 col.get_deck(cards[0].original_deck_id)?
-                    .ok_or(AnkiError::NotFound)?,
+                    .or_not_found(cards[0].original_deck_id)?,
             )
         } else {
             None
         };
         let timing = col.timing_today()?;
         let render_context = if with_card_render {
-            Some(RenderContext::new(col, &cards[0], &note, &notetype)?)
+            RenderContext::new(col, &cards[0], &note, &notetype)
         } else {
-            None
+            RenderContext::Unset
         };
 
         Ok(RowContext {
@@ -355,8 +382,8 @@ impl RowContext {
 
     fn get_cell_text(&self, column: Column) -> Result<String> {
         Ok(match column {
-            Column::Question => self.question_str(),
-            Column::Answer => self.answer_str(),
+            Column::Question => self.render_context.side_str(false),
+            Column::Answer => self.render_context.side_str(true),
             Column::Deck => self.deck_str(),
             Column::Due => self.due_str(),
             Column::Ease => self.ease_str(),
@@ -380,7 +407,7 @@ impl RowContext {
 
     fn note_field_str(&self) -> String {
         let index = self.notetype.config.sort_field_idx as usize;
-        html_to_text_line(&self.note.fields()[index]).into()
+        html_to_text_line(&self.note.fields()[index], true).into()
     }
 
     fn get_is_rtl(&self, column: Column) -> bool {
@@ -395,31 +422,6 @@ impl RowContext {
 
     fn template(&self) -> Result<&CardTemplate> {
         self.notetype.get_template(self.cards[0].template_idx)
-    }
-
-    fn answer_str(&self) -> String {
-        let render_context = self.render_context.as_ref().unwrap();
-        let answer = render_context
-            .answer_nodes
-            .iter()
-            .map(|node| match node {
-                RenderedNode::Text { text } => text,
-                RenderedNode::Replacement {
-                    field_name: _,
-                    current_text,
-                    filters: _,
-                } => current_text,
-            })
-            .join("");
-        let answer = prettify_av_tags(answer);
-        html_to_text_line(
-            if let Some(stripped) = answer.strip_prefix(&render_context.question) {
-                stripped
-            } else {
-                &answer
-            },
-        )
-        .to_string()
     }
 
     fn due_str(&self) -> String {
@@ -505,7 +507,7 @@ impl RowContext {
             .iter()
             .map(|c| c.mtime)
             .max()
-            .unwrap()
+            .expect("cards missing from RowContext")
             .date_string()
     }
 
@@ -534,10 +536,6 @@ impl RowContext {
                 NotetypeKind::Cloze => format!("{} {}", name, self.cards[0].template_idx + 1),
             }
         })
-    }
-
-    fn question_str(&self) -> String {
-        html_to_text_line(&self.render_context.as_ref().unwrap().question).to_string()
     }
 
     fn get_row_font_name(&self) -> Result<String> {

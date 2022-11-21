@@ -14,26 +14,61 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Shortcut from "../../components/Shortcut.svelte";
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
+    import { promiseWithResolver } from "../../lib/promise";
+    import { registerPackage } from "../../lib/runtime-require";
     import { getPlatformString } from "../../lib/shortcuts";
     import { context } from "../NoteEditor.svelte";
-    import { editingInputIsRichText } from "../rich-text-input";
-    import ClozeButton from "./ClozeButton.svelte";
+    import { setFormat } from "../old-editor-adapter";
+    import { editingInputIsRichText, RichTextInputAPI } from "../rich-text-input";
     import { micIcon, paperclipIcon } from "./icons";
     import LatexButton from "./LatexButton.svelte";
 
     const { focusedInput } = context.get();
 
-    const attachmentKeyCombination = "F3";
-    function onAttachment(): void {
+    const attachmentCombination = "F3";
+
+    let mediaPromise: Promise<string>;
+    let resolve: (media: string) => void;
+
+    function resolveMedia(media: string): void {
+        resolve?.(media);
+    }
+
+    function attachMediaOnFocus(): void {
+        if (disabled) {
+            return;
+        }
+
+        [mediaPromise, resolve] = promiseWithResolver<string>();
+        ($focusedInput as RichTextInputAPI).editable.focusHandler.focus.on(
+            async () => setFormat("inserthtml", await mediaPromise),
+            { once: true },
+        );
+
         bridgeCommand("attach");
     }
 
-    const recordKeyCombination = "F5";
-    function onRecord(): void {
+    registerPackage("anki/TemplateButtons", {
+        resolveMedia,
+    });
+
+    const recordCombination = "F5";
+
+    function attachRecordingOnFocus(): void {
+        if (disabled) {
+            return;
+        }
+
+        [mediaPromise, resolve] = promiseWithResolver<string>();
+        ($focusedInput as RichTextInputAPI).editable.focusHandler.focus.on(
+            async () => setFormat("inserthtml", await mediaPromise),
+            { once: true },
+        );
+
         bridgeCommand("record");
     }
 
-    $: disabled = !editingInputIsRichText($focusedInput);
+    $: disabled = !$focusedInput || !editingInputIsRichText($focusedInput);
 
     export let api = {};
 </script>
@@ -49,36 +84,35 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <ButtonGroupItem>
             <IconButton
                 tooltip="{tr.editingAttachPicturesaudiovideo()} ({getPlatformString(
-                    attachmentKeyCombination,
+                    attachmentCombination,
                 )})"
                 iconSize={70}
                 {disabled}
-                on:click={onAttachment}
+                on:click={attachMediaOnFocus}
             >
                 {@html paperclipIcon}
             </IconButton>
             <Shortcut
-                keyCombination={attachmentKeyCombination}
-                on:action={onAttachment}
+                keyCombination={attachmentCombination}
+                on:action={attachMediaOnFocus}
             />
         </ButtonGroupItem>
 
         <ButtonGroupItem>
             <IconButton
                 tooltip="{tr.editingRecordAudio()} ({getPlatformString(
-                    recordKeyCombination,
+                    recordCombination,
                 )})"
                 iconSize={70}
                 {disabled}
-                on:click={onRecord}
+                on:click={attachRecordingOnFocus}
             >
                 {@html micIcon}
             </IconButton>
-            <Shortcut keyCombination={recordKeyCombination} on:action={onRecord} />
-        </ButtonGroupItem>
-
-        <ButtonGroupItem id="cloze">
-            <ClozeButton />
+            <Shortcut
+                keyCombination={recordCombination}
+                on:action={attachRecordingOnFocus}
+            />
         </ButtonGroupItem>
 
         <ButtonGroupItem>

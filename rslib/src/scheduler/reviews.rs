@@ -41,6 +41,7 @@ impl Card {
     }
 
     fn schedule_as_review(&mut self, interval: u32, due: i32, ease_factor: u16) {
+        self.original_position = self.last_position();
         self.remove_from_filtered_deck_before_reschedule();
         self.interval = interval.max(1);
         self.due = due;
@@ -54,7 +55,7 @@ impl Card {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct DueDateSpecifier {
     min: u32,
     max: u32,
@@ -79,7 +80,7 @@ pub fn parse_due_date_str(s: &str) -> Result<DueDateSpecifier> {
         )
         .unwrap();
     }
-    let caps = RE.captures(s).ok_or_else(|| AnkiError::invalid_input(s))?;
+    let caps = RE.captures(s).or_invalid(s)?;
     let min: u32 = caps.name("min").unwrap().as_str().parse()?;
     let max = if let Some(max) = caps.name("max") {
         max.as_str().parse()?
@@ -111,17 +112,13 @@ impl Collection {
         let distribution = Uniform::from(spec.min..=spec.max);
         let mut decks_initial_ease: HashMap<DeckId, f32> = HashMap::new();
         self.transact(Op::SetDueDate, |col| {
-            col.storage.set_search_table_to_card_ids(cids, false)?;
-            for mut card in col.storage.all_searched_cards()? {
+            for mut card in col.all_cards_for_ids(cids, false)? {
                 let deck_id = card.original_deck_id.or(card.deck_id);
                 let ease_factor = match decks_initial_ease.get(&deck_id) {
                     Some(ease) => *ease,
                     None => {
-                        let config_id = col
-                            .get_deck(deck_id)?
-                            .ok_or(AnkiError::NotFound)?
-                            .config_id()
-                            .ok_or(AnkiError::NotFound)?;
+                        let deck = col.get_deck(deck_id)?.or_not_found(deck_id)?;
+                        let config_id = deck.config_id().or_invalid("home deck is filtered")?;
                         let ease = col
                             .get_deck_config(config_id, true)?
                             // just for compiler; get_deck_config() is guaranteed to return a value
@@ -138,7 +135,6 @@ impl Collection {
                 col.log_manually_scheduled_review(&card, &original, usn)?;
                 col.update_card_inner(&mut card, original, usn)?;
             }
-            col.storage.clear_searched_cards_table()?;
             if let Some(key) = context {
                 col.set_config_string_inner(key, days)?;
             }

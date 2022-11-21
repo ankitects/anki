@@ -69,21 +69,12 @@ impl SqliteStorage {
 pub(crate) fn open_and_check_sqlite_file(path: &Path) -> Result<Connection> {
     let db = Connection::open(path)?;
     match db.pragma_query_value(None, "integrity_check", |row| row.get::<_, String>(0)) {
-        Ok(s) => {
-            if s != "ok" {
-                return Err(AnkiError::invalid_input(format!("corrupt: {}", s)));
-            }
-        }
+        Ok(s) => require!(s == "ok", "corrupt: {s}"),
         Err(e) => return Err(e.into()),
     };
     match db.pragma_query_value(None, "journal_mode", |row| row.get::<_, String>(0)) {
-        Ok(s) => {
-            if s == "delete" {
-                Ok(db)
-            } else {
-                Err(AnkiError::invalid_input(format!("corrupt: {}", s)))
-            }
-        }
+        Ok(s) if s == "delete" => Ok(db),
+        Ok(s) => invalid_input!("corrupt: {s}"),
         Err(e) => Err(e.into()),
     }
 }

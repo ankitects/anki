@@ -3,6 +3,8 @@
 
 syntax = "proto3";
 
+option java_multiple_files = true;
+
 package anki.cards;
 
 import "anki/generic.proto";
@@ -41,7 +43,8 @@ message Card {
   sint32 original_due = 15;
   int64 original_deck_id = 16;
   uint32 flags = 17;
-  generic.UInt32 original_position = 18;
+  optional uint32 original_position = 18;
+  string custom_data = 19;
 }
 
 message UpdateCardsRequest {

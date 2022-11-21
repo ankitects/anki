@@ -5,6 +5,7 @@
         { "path": "../components" },
         { "path": "../lib" },
         { "path": "../domlib" },
-        { "path": "../sveltelib" }
+        { "path": "../sveltelib" },
+        { "path": "../mathjax" }
     ]
 }

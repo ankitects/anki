@@ -2,19 +2,20 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::Backend;
-pub(super) use crate::backend_proto::cards_service::Service as CardsService;
+pub(super) use crate::pb::cards_service::Service as CardsService;
 use crate::{
-    backend_proto as pb,
     card::{CardQueue, CardType},
+    pb,
     prelude::*,
 };
 
 impl CardsService for Backend {
     fn get_card(&self, input: pb::CardId) -> Result<pb::Card> {
+        let cid = input.into();
         self.with_col(|col| {
             col.storage
-                .get_card(input.into())
-                .and_then(|opt| opt.ok_or(AnkiError::NotFound))
+                .get_card(cid)
+                .and_then(|opt| opt.or_not_found(cid))
                 .map(Into::into)
         })
     }
@@ -26,6 +27,9 @@ impl CardsService for Backend {
                 .into_iter()
                 .map(TryInto::try_into)
                 .collect::<Result<Vec<Card>, AnkiError>>()?;
+            for card in &cards {
+                card.validate_custom_data()?;
+            }
             col.update_cards_maybe_undoable(cards, !input.skip_undo_entry)
         })
         .map(Into::into)
@@ -64,10 +68,8 @@ impl TryFrom<pb::Card> for Card {
     type Error = AnkiError;
 
     fn try_from(c: pb::Card) -> Result<Self, Self::Error> {
-        let ctype = CardType::try_from(c.ctype as u8)
-            .map_err(|_| AnkiError::invalid_input("invalid card type"))?;
-        let queue = CardQueue::try_from(c.queue as i8)
-            .map_err(|_| AnkiError::invalid_input("invalid card queue"))?;
+        let ctype = CardType::try_from(c.ctype as u8).or_invalid("invalid card type")?;
+        let queue = CardQueue::try_from(c.queue as i8).or_invalid("invalid card queue")?;
         Ok(Card {
             id: CardId(c.id),
             note_id: NoteId(c.note_id),
@@ -86,7 +88,8 @@ impl TryFrom<pb::Card> for Card {
             original_due: c.original_due,
             original_deck_id: DeckId(c.original_deck_id),
             flags: c.flags as u8,
-            original_position: c.original_position.map(|pos| pos.val),
+            original_position: c.original_position,
+            custom_data: c.custom_data,
         })
     }
 }
@@ -112,6 +115,7 @@ impl From<Card> for pb::Card {
             original_deck_id: c.original_deck_id.0,
             flags: c.flags as u32,
             original_position: c.original_position.map(Into::into),
+            custom_data: c.custom_data,
         }
     }
 }

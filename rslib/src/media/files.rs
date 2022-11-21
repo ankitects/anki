@@ -16,8 +16,9 @@ use unic_ucd_category::GeneralCategory;
 use unicode_normalization::{is_nfc, UnicodeNormalization};
 
 use crate::{
-    error::{AnkiError, Result},
-    log::{debug, Logger},
+    error::{FileIoError, FileIoSnafu, FileOp},
+    io::{create_dir, open_file, write_file},
+    prelude::*,
 };
 
 /// The maximum length we allow a filename to be. When combined
@@ -133,7 +134,7 @@ pub(crate) fn normalize_nfc_filename(mut fname: Cow<str>) -> Cow<str> {
 /// but can be accessed as NFC. On these devices, if the filename
 /// is otherwise valid, the filename is returned as NFC.
 #[allow(clippy::collapsible_else_if)]
-pub(super) fn filename_if_normalized(fname: &str) -> Option<Cow<str>> {
+pub(crate) fn filename_if_normalized(fname: &str) -> Option<Cow<str>> {
     if cfg!(target_vendor = "apple") {
         if !is_nfc(fname) {
             let as_nfc = fname.chars().nfc().collect::<String>();
@@ -164,8 +165,8 @@ pub fn add_data_to_folder_uniquely<'a, P>(
     folder: P,
     desired_name: &'a str,
     data: &[u8],
-    sha1: [u8; 20],
-) -> io::Result<Cow<'a, str>>
+    sha1: Sha1Hash,
+) -> Result<Cow<'a, str>, FileIoError>
 where
     P: AsRef<Path>,
 {
@@ -176,7 +177,7 @@ where
     let existing_file_hash = existing_file_sha1(&target_path)?;
     if existing_file_hash.is_none() {
         // no file with that name exists yet
-        fs::write(&target_path, data)?;
+        write_file(&target_path, data)?;
         return Ok(normalized_name);
     }
 
@@ -189,12 +190,12 @@ where
     let hashed_name = add_hash_suffix_to_file_stem(normalized_name.as_ref(), &sha1);
     target_path.set_file_name(&hashed_name);
 
-    fs::write(&target_path, data)?;
+    write_file(&target_path, data)?;
     Ok(hashed_name.into())
 }
 
 /// Convert foo.jpg into foo-abcde12345679.jpg
-fn add_hash_suffix_to_file_stem(fname: &str, hash: &[u8; 20]) -> String {
+pub(crate) fn add_hash_suffix_to_file_stem(fname: &str, hash: &Sha1Hash) -> String {
     // when appending a hash to make unique, it will be 40 bytes plus the hyphen.
     let max_len = MAX_FILENAME_LENGTH - 40 - 1;
 
@@ -244,18 +245,18 @@ fn split_and_truncate_filename(fname: &str, max_bytes: usize) -> (&str, &str) {
     };
 
     // cap extension to 10 bytes so stem_len can't be negative
-    ext = truncate_to_char_boundary(ext, 10);
+    ext = truncated_to_char_boundary(ext, 10);
 
     // cap stem, allowing for the . and a trailing _
     let stem_len = max_bytes - ext.len() - 2;
-    stem = truncate_to_char_boundary(stem, stem_len);
+    stem = truncated_to_char_boundary(stem, stem_len);
 
     (stem, ext)
 }
 
-/// Trim a string on a valid UTF8 boundary.
+/// Return a substring on a valid UTF8 boundary.
 /// Based on a funtion in the Rust stdlib.
-fn truncate_to_char_boundary(s: &str, mut max: usize) -> &str {
+fn truncated_to_char_boundary(s: &str, mut max: usize) -> &str {
     if max >= s.len() {
         s
     } else {
@@ -267,42 +268,40 @@ fn truncate_to_char_boundary(s: &str, mut max: usize) -> &str {
 }
 
 /// Return the SHA1 of a file if it exists, or None.
-fn existing_file_sha1(path: &Path) -> io::Result<Option<[u8; 20]>> {
+fn existing_file_sha1(path: &Path) -> Result<Option<Sha1Hash>, FileIoError> {
     match sha1_of_file(path) {
         Ok(o) => Ok(Some(o)),
-        Err(e) => {
-            if e.kind() == io::ErrorKind::NotFound {
-                Ok(None)
-            } else {
-                Err(e)
-            }
-        }
+        Err(e) if e.is_not_found() => Ok(None),
+        Err(e) => Err(e),
     }
 }
 
 /// Return the SHA1 of a file, failing if it doesn't exist.
-pub(super) fn sha1_of_file(path: &Path) -> io::Result<[u8; 20]> {
-    let mut file = fs::File::open(path)?;
+pub(crate) fn sha1_of_file(path: &Path) -> Result<Sha1Hash, FileIoError> {
+    let mut file = open_file(path)?;
+    sha1_of_reader(&mut file).context(FileIoSnafu {
+        path,
+        op: FileOp::Read,
+    })
+}
+
+/// Return the SHA1 of a stream.
+pub(crate) fn sha1_of_reader(reader: &mut impl Read) -> std::io::Result<Sha1Hash> {
     let mut hasher = Sha1::new();
     let mut buf = [0; 64 * 1024];
     loop {
-        match file.read(&mut buf) {
+        match reader.read(&mut buf) {
             Ok(0) => break,
             Ok(n) => hasher.update(&buf[0..n]),
-            Err(e) => {
-                if e.kind() == io::ErrorKind::Interrupted {
-                    continue;
-                } else {
-                    return Err(e);
-                }
-            }
+            Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
+            Err(e) => return Err(e),
         };
     }
     Ok(hasher.digest().bytes())
 }
 
 /// Return the SHA1 of provided data.
-pub(crate) fn sha1_of_data(data: &[u8]) -> [u8; 20] {
+pub(crate) fn sha1_of_data(data: &[u8]) -> Sha1Hash {
     let mut hasher = Sha1::new();
     hasher.update(data);
     hasher.digest().bytes()
@@ -357,10 +356,10 @@ where
 
 pub(super) fn trash_folder(media_folder: &Path) -> Result<PathBuf> {
     let trash_folder = media_folder.with_file_name("media.trash");
-    match fs::create_dir(&trash_folder) {
+    match create_dir(&trash_folder) {
         Ok(()) => Ok(trash_folder),
         Err(e) => {
-            if e.kind() == io::ErrorKind::AlreadyExists {
+            if e.source.kind() == io::ErrorKind::AlreadyExists {
                 Ok(trash_folder)
             } else {
                 Err(e.into())
@@ -371,7 +370,7 @@ pub(super) fn trash_folder(media_folder: &Path) -> Result<PathBuf> {
 
 pub(super) struct AddedFile {
     pub fname: String,
-    pub sha1: [u8; 20],
+    pub sha1: Sha1Hash,
     pub mtime: i64,
     pub renamed_from: Option<String>,
 }
@@ -393,7 +392,7 @@ pub(super) fn add_file_from_ankiweb(
     let (renamed_from, path) = if let Cow::Borrowed(_) = normalized {
         let path = media_folder.join(normalized.as_ref());
         debug!(log, "write"; "fname" => normalized.as_ref());
-        fs::write(&path, data)?;
+        write_file(&path, data)?;
         (None, path)
     } else {
         // ankiweb sent us a non-normalized filename, so we'll rename it
@@ -416,18 +415,9 @@ pub(super) fn add_file_from_ankiweb(
 }
 
 pub(super) fn data_for_file(media_folder: &Path, fname: &str) -> Result<Option<Vec<u8>>> {
-    let mut file = match fs::File::open(&media_folder.join(fname)) {
-        Ok(file) => file,
-        Err(e) => {
-            if e.kind() == io::ErrorKind::NotFound {
-                return Ok(None);
-            } else {
-                return Err(AnkiError::IoError(format!(
-                    "unable to read {}: {}",
-                    fname, e
-                )));
-            }
-        }
+    let mut file = match open_file(&media_folder.join(fname)) {
+        Err(e) if e.is_not_found() => return Ok(None),
+        res => res?,
     };
     let mut buf = vec![];
     file.read_to_end(&mut buf)?;

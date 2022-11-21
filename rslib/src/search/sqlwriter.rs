@@ -113,6 +113,9 @@ impl SqlWriter<'_> {
         }
     }
 
+    // NOTE: when adding any new nodes in the future, make sure that they are either a single
+    // search term, or they wrap multiple terms in parentheses, as can be seen in the sql() unit
+    // test at the bottom of the file.
     fn write_search_node_to_sql(&mut self, node: &SearchNode) -> Result<()> {
         use normalize_to_nfc as norm;
         match node {
@@ -156,7 +159,7 @@ impl SqlWriter<'_> {
             SearchNode::Notetype(notetype) => self.write_notetype(&norm(notetype)),
             SearchNode::Rated { days, ease } => self.write_rated(">", -i64::from(*days), ease)?,
 
-            SearchNode::Tag(tag) => self.write_tag(&norm(tag)),
+            SearchNode::Tag { tag, is_re } => self.write_tag(&norm(tag), *is_re),
             SearchNode::State(state) => self.write_state(state)?,
             SearchNode::Flag(flag) => {
                 write!(self.sql, "(c.flags & 7) == {}", flag).unwrap();
@@ -199,17 +202,19 @@ impl SqlWriter<'_> {
         .unwrap();
     }
 
-    fn write_tag(&mut self, text: &str) {
-        if text.contains(' ') {
-            write!(self.sql, "false").unwrap();
+    fn write_tag(&mut self, tag: &str, is_re: bool) {
+        if is_re {
+            self.args.push(format!("(?i){tag}"));
+            write!(self.sql, "regexp_tags(?{}, n.tags)", self.args.len()).unwrap();
         } else {
-            match text {
+            match tag {
                 "none" => {
                     write!(self.sql, "n.tags = ''").unwrap();
                 }
                 "*" => {
                     write!(self.sql, "true").unwrap();
                 }
+                s if s.contains(' ') => write!(self.sql, "false").unwrap(),
                 text => {
                     write!(self.sql, "n.tags regexp ?").unwrap();
                     let re = &to_custom_re(text, r"\S");
@@ -573,8 +578,11 @@ impl SqlWriter<'_> {
         write!(
             self.sql,
             concat!(
-                "(select min(id) > {cutoff} from revlog where cid = c.id)",
-                "and c.id in (select cid from revlog where id > {cutoff})"
+                "(SELECT min(id) > {cutoff} FROM revlog WHERE cid = c.id ",
+                // Exclude manual reschedulings
+                "AND ease != 0) ",
+                // Logically redundant, speeds up query
+                "AND c.id IN (SELECT cid FROM revlog WHERE id > {cutoff})"
             ),
             cutoff = cutoff,
         )
@@ -604,7 +612,7 @@ impl SqlWriter<'_> {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum RequiredTable {
     Notes,
     Cards,
@@ -660,7 +668,7 @@ impl SearchNode {
 
             SearchNode::UnqualifiedText(_) => RequiredTable::Notes,
             SearchNode::SingleField { .. } => RequiredTable::Notes,
-            SearchNode::Tag(_) => RequiredTable::Notes,
+            SearchNode::Tag { .. } => RequiredTable::Notes,
             SearchNode::Duplicates { .. } => RequiredTable::Notes,
             SearchNode::Regex(_) => RequiredTable::Notes,
             SearchNode::NoCombining(_) => RequiredTable::Notes,
@@ -679,12 +687,13 @@ impl SearchNode {
 
 #[cfg(test)]
 mod test {
-    use std::fs;
-
     use tempfile::tempdir;
 
     use super::{super::parser::parse, *};
-    use crate::collection::{Collection, CollectionBuilder};
+    use crate::{
+        collection::{Collection, CollectionBuilder},
+        io::write_file,
+    };
 
     // shortcut
     fn s(req: &mut Collection, search: &str) -> (String, Vec<String>) {
@@ -701,7 +710,7 @@ mod test {
         use crate::media::check::test::MEDIACHECK_ANKI2;
         let dir = tempdir().unwrap();
         let col_path = dir.path().join("col.anki2");
-        fs::write(&col_path, MEDIACHECK_ANKI2).unwrap();
+        write_file(&col_path, MEDIACHECK_ANKI2).unwrap();
 
         let mut col = CollectionBuilder::new(col_path).build().unwrap();
         let ctx = &mut col;
@@ -776,8 +785,8 @@ mod test {
             s(ctx, "introduced:3").0,
             format!(
                 concat!(
-                    "((select min(id) > {cutoff} from revlog where cid = c.id)",
-                    "and c.id in (select cid from revlog where id > {cutoff}))"
+                    "((SELECT min(id) > {cutoff} FROM revlog WHERE cid = c.id AND ease != 0) ",
+                    "AND c.id IN (SELECT cid FROM revlog WHERE id > {cutoff}))"
                 ),
                 cutoff = (timing.next_day_at.0 - (86_400 * 3)) * 1_000,
             )
@@ -848,6 +857,13 @@ mod test {
         );
         assert_eq!(s(ctx, "tag:none"), ("(n.tags = '')".into(), vec![]));
         assert_eq!(s(ctx, "tag:*"), ("(true)".into(), vec![]));
+        assert_eq!(
+            s(ctx, "tag:re:.ne|tw."),
+            (
+                "(regexp_tags(?1, n.tags))".into(),
+                vec!["(?i).ne|tw.".into()]
+            )
+        );
 
         // state
         assert_eq!(

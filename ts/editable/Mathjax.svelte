@@ -23,13 +23,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { randomUUID } from "../lib/uuid";
     import { pageTheme } from "../sveltelib/theme";
-    import { convertMathjax } from "./mathjax";
+    import { convertMathjax, unescapeSomeEntities } from "./mathjax";
 
     export let mathjax: string;
     export let block: boolean;
     export let fontSize: number;
 
-    $: [converted, title] = convertMathjax(mathjax, $pageTheme.isDark, fontSize);
+    $: [converted, title] = convertMathjax(
+        unescapeSomeEntities(mathjax),
+        $pageTheme.isDark,
+        fontSize,
+    );
     $: empty = title === "MathJax";
     $: encoded = encodeURIComponent(converted);
 
@@ -41,11 +45,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let image: HTMLImageElement;
 
-    export function moveCaretAfter(): void {
+    export function moveCaretAfter(position?: [number, number]): void {
         // This should trigger a focusing of the Mathjax Handle
         image.dispatchEvent(
             new CustomEvent("movecaretafter", {
-                detail: image,
+                detail: { image, position },
                 bubbles: true,
                 composed: true,
             }),
@@ -80,7 +84,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     src="data:image/svg+xml,{encoded}"
     class:block
     class:empty
-    style="--vertical-center: {verticalCenter}px;"
+    style:--vertical-center="{verticalCenter}px"
+    style:--font-size="{fontSize}px"
     alt="Mathjax"
     {title}
     data-anki="mathjax"
@@ -101,9 +106,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .block {
         display: block;
         margin: 1rem auto;
+        transform: scale(1.1);
     }
 
     .empty {
-        vertical-align: sub;
+        vertical-align: text-bottom;
+
+        width: var(--font-size);
+        height: var(--font-size);
     }
 </style>

@@ -19,7 +19,7 @@ prefix = """\
 
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence, Literal
+from typing import Any, Callable, Sequence, Literal, Type
 
 import anki
 import aqt
@@ -63,6 +63,34 @@ hooks = [
 
             def on_overview_will_render_content(overview, content):
                 content.table += "\n<div>my html</div>"
+        """,
+    ),
+    Hook(
+        name="overview_will_render_bottom",
+        args=[
+            "link_handler: Callable[[str], bool]",
+            "links: list[list[str]]",
+        ],
+        return_type="Callable[[str], bool]",
+        doc="""Allows adding buttons to the Overview bottom bar.
+
+        Append a list of strings to 'links' argument to add new buttons.
+        - The first value is the shortcut to appear in the tooltip.
+        - The second value is the url to be triggered.
+        - The third value is the text of the new button.
+
+        Extend the callable 'link_handler' to handle new urls. This callable
+        accepts one argument: the triggered url.
+        Make a check of the triggered url, call any functions related to
+        that trigger, and return the new link_handler.
+
+        Example:
+        links.append(['H', 'hello', 'Click me!'])
+        def custom_link_handler(url):
+            if url == 'hello':
+                print('Hello World!')
+            return link_handler(url=url)
+        return custom_link_handler
         """,
     ),
     Hook(
@@ -163,6 +191,28 @@ hooks = [
         Note that this hook is called even when the `Automatically play audio`
         option is unchecked; This is so as to allow playing custom
         sounds regardless of that option.""",
+    ),
+    Hook(
+        name="reviewer_will_replay_recording",
+        args=["path: str"],
+        return_type="str",
+        doc="""Used to inspect and modify a recording recorded by "Record Own Voice" before replaying.""",
+    ),
+    Hook(
+        name="reviewer_will_suspend_note",
+        args=["nid: int"],
+    ),
+    Hook(
+        name="reviewer_will_suspend_card",
+        args=["id: int"],
+    ),
+    Hook(
+        name="reviewer_will_bury_note",
+        args=["nid: int"],
+    ),
+    Hook(
+        name="reviewer_will_bury_card",
+        args=["id: int"],
     ),
     # Debug
     ###################
@@ -424,11 +474,14 @@ hooks = [
          You can modify context.search to change the text that is sent to the
          searching backend.
          
-         If you set context.card_ids to a list of ids, the regular search will
+         If you set context.ids to a list of ids, the regular search will
          not be performed, and the provided ids will be used instead.
          
-         Your add-on should check if context.card_ids is not None, and return
+         Your add-on should check if context.ids is not None, and return
          without making changes if it has been set.
+
+         In versions of Anki lower than 2.1.45 the field to check is
+         context.card_ids rather than context.ids
          """,
     ),
     Hook(
@@ -466,23 +519,39 @@ hooks = [
         Every column in the dictionary will be toggleable by the user.
         """,
     ),
+    # Previewer
+    ###################
+    Hook(
+        name="previewer_did_init",
+        args=["previewer: aqt.browser.previewer.Previewer"],
+        doc="""Called after the previewer is initialized.""",
+    ),
     # Main window states
     ###################
     # these refer to things like deckbrowser, overview and reviewer state,
     Hook(
         name="state_will_change",
-        args=["new_state: str", "old_state: str"],
+        args=[
+            "new_state: aqt.main.MainWindowState",
+            "old_state: aqt.main.MainWindowState",
+        ],
         legacy_hook="beforeStateChange",
     ),
     Hook(
         name="state_did_change",
-        args=["new_state: str", "old_state: str"],
+        args=[
+            "new_state: aqt.main.MainWindowState",
+            "old_state: aqt.main.MainWindowState",
+        ],
         legacy_hook="afterStateChange",
     ),
     # different sig to original
     Hook(
         name="state_shortcuts_will_change",
-        args=["state: str", "shortcuts: list[tuple[str, Callable]]"],
+        args=[
+            "state: aqt.main.MainWindowState",
+            "shortcuts: list[tuple[str, Callable]]",
+        ],
     ),
     # UI state/refreshing
     ###################
@@ -689,6 +758,16 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     ),
     Hook(name="profile_will_close", legacy_hook="unloadProfile"),
     Hook(
+        name="collection_will_temporarily_close",
+        args=["col: anki.collection.Collection"],
+        doc="""Called before one-way syncs and colpkg imports/exports.""",
+    ),
+    Hook(
+        name="collection_did_temporarily_close",
+        args=["col: anki.collection.Collection"],
+        doc="""Called after one-way syncs and colpkg imports/exports.""",
+    ),
+    Hook(
         name="collection_did_load",
         args=["col: anki.collection.Collection"],
         legacy_hook="colLoading",
@@ -739,6 +818,62 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         Note that the media sync did not necessarily finish at this point.""",
     ),
     Hook(name="media_check_will_start", args=[]),
+    Hook(
+        name="media_check_did_finish",
+        args=["output: anki.media.CheckMediaResponse"],
+        doc="""Called after Media Check finishes.
+
+        `output` provides access to the unused/missing file lists and the text output that will be shown in the Check Media screen.""",
+    ),
+    # Importing/exporting data
+    ###################
+    Hook(
+        name="exporter_will_export",
+        args=[
+            "export_options: aqt.import_export.exporting.ExportOptions",
+            "exporter: aqt.import_export.exporting.Exporter",
+        ],
+        return_type="aqt.import_export.exporting.ExportOptions",
+        doc="""Called before collection and deck exports.
+        
+        Allows add-ons to be notified of impending deck exports and potentially
+        modify the export options. To perform the export unaltered, please return
+        `export_options` as is, e.g.:
+        
+            def on_exporter_will_export(export_options: ExportOptions, exporter: Exporter):
+                if not isinstance(exporter, ApkgExporter):
+                    return export_options
+                export_options.limit = ...
+                return export_options
+        """,
+    ),
+    Hook(
+        name="exporter_did_export",
+        args=[
+            "export_options: aqt.import_export.exporting.ExportOptions",
+            "exporter: aqt.import_export.exporting.Exporter",
+        ],
+        doc="""Called after collection and deck exports.""",
+    ),
+    Hook(
+        name="legacy_exporter_will_export",
+        args=["legacy_exporter: anki.exporting.Exporter"],
+        doc="""Called before collection and deck exports performed by legacy exporters.""",
+    ),
+    Hook(
+        name="legacy_exporter_did_export",
+        args=["legacy_exporter: anki.exporting.Exporter"],
+        doc="""Called after collection and deck exports performed by legacy exporters.""",
+    ),
+    Hook(
+        name="exporters_list_did_initialize",
+        args=["exporters: list[Type[aqt.import_export.exporting.Exporter]]"],
+        doc="""Called after the list of exporter classes is created.
+
+        Allows you to register custom exporters and/or replace existing ones by
+        modifying the exporter list.
+        """,
+    ),
     # Dialog Manager
     ###################
     Hook(
@@ -777,6 +912,26 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         was found, or None. If your filter wants to reject, it should
         replace return the reason to reject. Otherwise return the
         input.""",
+    ),
+    Hook(
+        name="add_cards_might_add_note",
+        args=["optional_problems: list[str]", "note: anki.notes.Note"],
+        doc="""
+            Allows you to provide an optional reason to reject a note. A
+            yes / no dialog will open displaying the problem, to which the
+            user can decide if they would like to add the note anyway.
+
+            optional_problems is a list containing the optional reasons for which
+            you might reject a note. If your add-on wants to add a reason,
+            it should append the reason to the list.
+
+            An example add-on that asks the user for confirmation before adding a
+            card without tags:
+
+            def might_reject_empty_tag(optional_problems, note):
+                if not any(note.tags):
+                    optional_problems.append("Add cards without tags?")
+        """,
     ),
     Hook(
         name="addcards_will_add_history_entry",
@@ -915,6 +1070,29 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         args=["player: aqt.sound.Player", "tag: anki.sound.AVTag"],
     ),
     Hook(name="av_player_did_end_playing", args=["player: aqt.sound.Player"]),
+    Hook(
+        name="av_player_will_play_tags",
+        args=[
+            "tags: list[anki.sound.AVTag]",
+            "side: str",
+            "context: Any",
+        ],
+        doc="""Called before playing a card side's sounds.
+
+        `tags` can be used to inspect and manipulate the sounds
+        that will be played (if any).
+
+        `side` can either be "question" or "answer".
+
+        `context` is the screen where the sounds will be played (e.g., Reviewer, Previewer, and CardLayout).
+
+        This won't be called when the user manually plays sounds
+        using `Replay Audio`.
+
+        Note that this hook is called even when the `Automatically play audio`
+        option is unchecked; This is so as to allow playing custom
+        sounds regardless of that option.""",
+    ),
     # Addon
     ###################
     Hook(

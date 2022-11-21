@@ -1,10 +1,12 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+@use "root-vars";
+@use "sass/vars" as *;
 @use "sass/card-counts";
 
 :root {
-    --focus-color: #0078d7;
+    --focus-color: #{palette-of(border-focus)};
 
     .isMac {
         --focus-color: rgba(0 103 244 / 0.247);
@@ -16,10 +18,20 @@ body {
     padding: 0;
 }
 
+#innertable {
+    padding-top: 10px;
+}
+
+#middle td[align="center"] {
+    padding-top: 10px;
+    position: relative;
+}
+
 button {
     min-width: 60px;
     white-space: nowrap;
     margin: 0.5em;
+    position: relative;
 }
 
 .hitem {
@@ -27,7 +39,7 @@ button {
 }
 
 .stat {
-    padding-top: 5px;
+    padding-top: 10px;
 
     @media (max-width: 583px) {
         display: none;
@@ -35,46 +47,28 @@ button {
 }
 
 .stat2 {
-    padding-top: 3px;
+    padding-top: 10px;
     font-weight: normal;
-}
-
-.stattxt {
-    padding-left: 5px;
-    padding-right: 5px;
-    white-space: nowrap;
 }
 
 #ansbut {
     margin-bottom: 1em;
 }
 
-/**
- * We use .focus to recreate the highlight on the good button
- * while the actual focus is actually in the main webview
- */
-:focus,
-.focus {
-    outline: 1px auto var(--focus-color);
-
-    .nightMode & {
-        outline: none;
-        box-shadow: 0 0 0 2px var(--focus-color);
-    }
+:focus {
+    border-color: color(border-focus);
 }
 
-#innertable:focus-within .focus:not(:focus) {
-    outline: none;
-
-    .nightMode & {
-        box-shadow: none;
-    }
-}
-
-.nobold {
+.nobold,
+.stattxt {
+    position: absolute;
+    white-space: nowrap;
+    font-size: medium;
+    top: -3px;
+    left: 50%;
+    transform: translate(-50%, -100%);
     font-weight: normal;
     display: inline-block;
-    padding-top: 4px;
 }
 
 .spacer {
@@ -86,17 +80,13 @@ button {
 }
 
 #outer {
-    border-top: 1px solid var(--border);
+    border-top: 1px solid color(border);
     /* Better compatibility with graphics pad/touchscreen */
     -webkit-user-select: none;
 }
 
-#innertable {
-    padding: 3px;
-}
-
 .nightMode {
     #outer {
-        border-top-color: var(--faint-border);
+        border-top-color: color(border-subtle);
     }
 }

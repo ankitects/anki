@@ -13,16 +13,16 @@ use revlog::RevlogEntryPartial;
 
 use super::{
     states::{
-        steps::LearningSteps, CardState, FilteredState, NextCardStates, NormalState, StateContext,
+        steps::LearningSteps, CardState, FilteredState, NormalState, SchedulingStates, StateContext,
     },
     timespan::answer_button_time_collapsible,
     timing::SchedTimingToday,
 };
 use crate::{
-    backend_proto,
     card::CardQueue,
     deckconfig::{DeckConfig, LeechAction},
     decks::Deck,
+    pb,
     prelude::*,
 };
 
@@ -41,6 +41,13 @@ pub struct CardAnswer {
     pub rating: Rating,
     pub answered_at: TimestampMillis,
     pub milliseconds_taken: u32,
+    pub custom_data: Option<String>,
+}
+
+impl CardAnswer {
+    fn cap_answer_secs(&mut self, max_secs: u32) {
+        self.milliseconds_taken = self.milliseconds_taken.min(max_secs * 1000);
+    }
 }
 
 /// Holds the information required to determine a given card's
@@ -109,9 +116,7 @@ impl CardStateUpdater {
                 if let CardState::Filtered(filtered) = &current {
                     match filtered {
                         FilteredState::Preview(_) => {
-                            return Err(AnkiError::invalid_input(
-                                "should set finished=true, not return different state",
-                            ));
+                            invalid_input!("should set finished=true, not return different state")
                         }
                         FilteredState::Rescheduling(_) => {
                             // card needs to be removed from normal filtered deck, then scheduled normally
@@ -159,13 +164,11 @@ impl CardStateUpdater {
     }
 
     fn ensure_filtered(&self) -> Result<()> {
-        if self.card.original_deck_id.0 == 0 {
-            Err(AnkiError::invalid_input(
-                "card answering can't transition into filtered state",
-            ))
-        } else {
-            Ok(())
-        }
+        require!(
+            self.card.original_deck_id.0 != 0,
+            "card answering can't transition into filtered state",
+        );
+        Ok(())
     }
 }
 
@@ -182,8 +185,8 @@ impl Rating {
 
 impl Collection {
     /// Return the next states that will be applied for each answer button.
-    pub fn get_next_card_states(&mut self, cid: CardId) -> Result<NextCardStates> {
-        let card = self.storage.get_card(cid)?.ok_or(AnkiError::NotFound)?;
+    pub fn get_scheduling_states(&mut self, cid: CardId) -> Result<SchedulingStates> {
+        let card = self.storage.get_card(cid)?.or_not_found(cid)?;
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
         let state_ctx = ctx.state_context();
@@ -191,7 +194,7 @@ impl Collection {
     }
 
     /// Describe the next intervals, to display on the answer buttons.
-    pub fn describe_next_states(&mut self, choices: NextCardStates) -> Result<Vec<String>> {
+    pub fn describe_next_states(&mut self, choices: SchedulingStates) -> Result<Vec<String>> {
         let collapse_time = self.learn_ahead_secs();
         let now = TimestampSecs::now();
         let timing = self.timing_for_timestamp(now)?;
@@ -238,26 +241,28 @@ impl Collection {
     }
 
     /// Answer card, writing its new state to the database.
-    pub fn answer_card(&mut self, answer: &CardAnswer) -> Result<OpOutput<()>> {
+    /// Provided [CardAnswer] has its answer time capped to deck preset.
+    pub fn answer_card(&mut self, answer: &mut CardAnswer) -> Result<OpOutput<()>> {
         self.transact(Op::AnswerCard, |col| col.answer_card_inner(answer))
     }
 
-    fn answer_card_inner(&mut self, answer: &CardAnswer) -> Result<()> {
+    fn answer_card_inner(&mut self, answer: &mut CardAnswer) -> Result<()> {
         let card = self
             .storage
             .get_card(answer.card_id)?
-            .ok_or(AnkiError::NotFound)?;
+            .or_not_found(answer.card_id)?;
         let original = card.clone();
         let usn = self.usn()?;
 
         let mut updater = self.card_state_updater(card)?;
+        answer.cap_answer_secs(updater.config.inner.cap_answer_time_to_secs);
         let current_state = updater.current_card_state();
-        if current_state != answer.current_state {
-            return Err(AnkiError::invalid_input(format!(
-                "card was modified: {:#?} {:#?}",
-                current_state, answer.current_state,
-            )));
-        }
+        require!(
+            current_state == answer.current_state,
+            "card was modified: {current_state:#?} {:#?}",
+            answer.current_state,
+        );
+
         let revlog_partial = updater.apply_study_state(current_state, answer.new_state)?;
         self.add_partial_revlog(revlog_partial, usn, answer)?;
 
@@ -265,6 +270,10 @@ impl Collection {
         self.maybe_bury_siblings(&original, &updater.config)?;
         let timing = updater.timing;
         let mut card = updater.into_card();
+        if let Some(data) = answer.custom_data.take() {
+            card.custom_data = data;
+            card.validate_custom_data()?;
+        }
         self.update_card_inner(&mut card, original, usn)?;
         if answer.new_state.leeched() {
             self.add_leech_tag(card.note_id)?;
@@ -321,7 +330,7 @@ impl Collection {
         self.update_deck_stats(
             updater.timing.days_elapsed,
             usn,
-            backend_proto::UpdateStatsRequest {
+            pb::UpdateStatsRequest {
                 deck_id: updater.deck.id.0,
                 new_delta,
                 review_delta,
@@ -335,7 +344,7 @@ impl Collection {
         let deck = self
             .storage
             .get_deck(card.deck_id)?
-            .ok_or(AnkiError::NotFound)?;
+            .or_not_found(card.deck_id)?;
         let config = self.home_deck_config(deck.config_id(), card.original_deck_id)?;
         Ok(CardStateUpdater {
             fuzz_seed: get_fuzz_seed(&card),
@@ -358,8 +367,8 @@ impl Collection {
             let home_deck = self
                 .storage
                 .get_deck(home_deck_id)?
-                .ok_or(AnkiError::NotFound)?;
-            home_deck.config_id().ok_or(AnkiError::NotFound)?
+                .or_not_found(home_deck_id)?;
+            home_deck.config_id().or_invalid("home deck is filtered")?
         };
 
         Ok(self.storage.get_deck_config(config_id)?.unwrap_or_default())
@@ -400,17 +409,18 @@ pub mod test_helpers {
 
         fn answer<F>(&mut self, get_state: F, rating: Rating) -> Result<PostAnswerState>
         where
-            F: FnOnce(&NextCardStates) -> CardState,
+            F: FnOnce(&SchedulingStates) -> CardState,
         {
             let queued = self.get_next_card()?.unwrap();
-            let new_state = get_state(&queued.next_states);
-            self.answer_card(&CardAnswer {
+            let new_state = get_state(&queued.states);
+            self.answer_card(&mut CardAnswer {
                 card_id: queued.card.id,
-                current_state: queued.next_states.current,
+                current_state: queued.states.current,
                 new_state,
                 rating,
                 answered_at: TimestampMillis::now(),
                 milliseconds_taken: 0,
+                custom_data: None,
             })?;
             Ok(PostAnswerState {
                 card_id: queued.card.id,
@@ -444,7 +454,7 @@ mod test {
     };
 
     fn current_state(col: &mut Collection, card_id: CardId) -> CardState {
-        col.get_next_card_states(card_id).unwrap().current
+        col.get_scheduling_states(card_id).unwrap().current
     }
 
     // make sure the 'current' state for a card matches the
@@ -579,7 +589,7 @@ mod test {
 
     macro_rules! assert_counts {
         ($col:ident, $new:expr, $learn:expr, $review:expr) => {{
-            let tree = $col.deck_tree(Some(TimestampSecs::now()), None).unwrap();
+            let tree = $col.deck_tree(Some(TimestampSecs::now())).unwrap();
             assert_eq!(tree.new_count, $new);
             assert_eq!(tree.learn_count, $learn);
             assert_eq!(tree.review_count, $review);
@@ -590,6 +600,7 @@ mod test {
         }};
     }
 
+    // FIXME: This fails between 3:50-4:00 GMT
     #[test]
     fn new_limited_by_reviews() -> Result<()> {
         let (mut col, cids) = v3_test_collection(4)?;

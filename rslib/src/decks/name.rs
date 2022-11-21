@@ -6,7 +6,7 @@ use itertools::Itertools;
 
 use crate::{prelude::*, text::normalize_to_nfc};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct NativeDeckName(String);
 
 impl NativeDeckName {
@@ -61,8 +61,10 @@ impl NativeDeckName {
     /// The returned name should be used to replace `self`.
     pub(crate) fn reparented_name(&self, target: Option<&NativeDeckName>) -> Option<Self> {
         let dragged_base = self.0.rsplit('\x1f').next().unwrap();
+        let dragged_root = self.components().next().unwrap();
         if let Some(target) = target {
-            if target.0.starts_with(&self.0) {
+            let target_root = target.components().next().unwrap();
+            if target.0.starts_with(&self.0) && target_root == dragged_root {
                 // foo onto foo::bar, or foo onto itself -> no-op
                 None
             } else {
@@ -111,7 +113,7 @@ impl Collection {
 
     pub fn rename_deck(&mut self, did: DeckId, new_human_name: &str) -> Result<OpOutput<()>> {
         self.transact(Op::RenameDeck, |col| {
-            let existing_deck = col.storage.get_deck(did)?.ok_or(AnkiError::NotFound)?;
+            let existing_deck = col.storage.get_deck(did)?.or_not_found(did)?;
             let mut deck = existing_deck.clone();
             deck.name = NativeDeckName::from_human_name(new_human_name);
             col.update_deck_inner(&mut deck, existing_deck, col.usn()?)
@@ -242,7 +244,7 @@ mod test {
     fn drag_drop() {
         // use custom separator to make the tests easier to read
         fn n(s: &str) -> NativeDeckName {
-            NativeDeckName(s.replace(":", "\x1f"))
+            NativeDeckName(s.replace(':', "\x1f"))
         }
 
         #[allow(clippy::unnecessary_wraps)]
@@ -273,5 +275,7 @@ mod test {
         assert_eq!(reparented_name("drag", Some("drag:child:grandchild")), None);
         // name doesn't change when deck dropped on itself
         assert_eq!(reparented_name("foo:bar", Some("foo:bar")), None);
+        // names that are prefixes of the target are handled correctly
+        assert_eq!(reparented_name("a", Some("ab")), n_opt("ab:a"));
     }
 }

@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import copy
 import time
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Generator, Sequence, Union
@@ -13,6 +14,7 @@ from anki.collection import BrowserColumns as Columns
 from anki.collection import BrowserRow
 from anki.notes import NoteId
 from aqt import colors
+from aqt.qt import QColor
 from aqt.utils import tr
 
 Column = Columns.Column
@@ -37,7 +39,7 @@ class Cell:
 
 
 class CellRow:
-    is_deleted: bool = False
+    is_disabled: bool = False
 
     def __init__(
         self,
@@ -48,7 +50,7 @@ class CellRow:
     ) -> None:
         self.refreshed_at: float = time.time()
         self.cells: tuple[Cell, ...] = tuple(Cell(*cell) for cell in cells)
-        self.color: tuple[str, str] | None = backend_color_to_aqt_color(color)
+        self.color: dict[str, str] | None = backend_color_to_aqt_color(color)
         self.font_name: str = font_name or "arial"
         self.font_size: int = font_size if font_size > 0 else 12
 
@@ -69,32 +71,47 @@ class CellRow:
         return CellRow.generic(length, "...")
 
     @staticmethod
-    def deleted(length: int) -> CellRow:
-        row = CellRow.generic(length, tr.browsing_row_deleted())
-        row.is_deleted = True
+    def disabled(length: int, cell_text: str) -> CellRow:
+        row = CellRow.generic(length, cell_text)
+        row.is_disabled = True
         return row
 
 
-def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> tuple[str, str] | None:
+def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> dict[str, str] | None:
+    temp_color = None
+
     if color == BrowserRow.COLOR_MARKED:
-        return colors.MARKED_BG
+        temp_color = colors.STATE_MARKED
     if color == BrowserRow.COLOR_SUSPENDED:
-        return colors.SUSPENDED_BG
+        temp_color = colors.STATE_SUSPENDED
     if color == BrowserRow.COLOR_FLAG_RED:
-        return colors.FLAG1_BG
+        temp_color = colors.FLAG_1
     if color == BrowserRow.COLOR_FLAG_ORANGE:
-        return colors.FLAG2_BG
+        temp_color = colors.FLAG_2
     if color == BrowserRow.COLOR_FLAG_GREEN:
-        return colors.FLAG3_BG
+        temp_color = colors.FLAG_3
     if color == BrowserRow.COLOR_FLAG_BLUE:
-        return colors.FLAG4_BG
+        temp_color = colors.FLAG_4
     if color == BrowserRow.COLOR_FLAG_PINK:
-        return colors.FLAG5_BG
+        temp_color = colors.FLAG_5
     if color == BrowserRow.COLOR_FLAG_TURQUOISE:
-        return colors.FLAG6_BG
+        temp_color = colors.FLAG_6
     if color == BrowserRow.COLOR_FLAG_PURPLE:
-        return colors.FLAG7_BG
-    return None
+        temp_color = colors.FLAG_7
+
+    return adjusted_bg_color(temp_color)
+
+
+def adjusted_bg_color(color: dict[str, str]) -> dict[str, str]:
+    if color:
+        adjusted_color = copy.copy(color)
+        light = QColor(color["light"]).lighter(150)
+        adjusted_color["light"] = light.name()
+        dark = QColor(color["dark"]).darker(150)
+        adjusted_color["dark"] = dark.name()
+        return adjusted_color
+    else:
+        return None
 
 
 from .model import DataModel

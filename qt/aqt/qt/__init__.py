@@ -7,7 +7,7 @@
 import os
 import sys
 import traceback
-from typing import Callable, Union
+from typing import Callable, TypeVar, Union
 
 try:
     import PyQt6
@@ -45,9 +45,10 @@ if os.environ.get("DEBUG"):
 
     sys.excepthook = info
 
-qtmajor = (QT_VERSION & 0xFF0000) >> 16
-qtminor = (QT_VERSION & 0x00FF00) >> 8
-qtpoint = QT_VERSION & 0xFF
+_version = QLibraryInfo.version()
+qtmajor = _version.majorVersion()
+qtminor = _version.minorVersion()
+qtpoint = _version.microVersion()
 
 if qtmajor < 5 or (qtmajor == 5 and qtminor < 14):
     raise Exception("Anki does not support your Qt version.")
@@ -58,3 +59,16 @@ def qconnect(
 ) -> None:
     """Helper to work around type checking not working with signal.connect(func)."""
     signal.connect(func)  # type: ignore
+
+
+_T = TypeVar("_T")
+
+
+def without_qt5_compat_wrapper(cls: _T) -> _T:
+    """Remove Qt5 compat wrapper from Qt class, if active.
+
+    Only needed for a few Qt APIs that deal with QVariants."""
+    if fn := getattr(cls, "_without_compat_wrapper", None):
+        return fn()
+    else:
+        return cls

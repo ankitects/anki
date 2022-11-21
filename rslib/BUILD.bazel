@@ -31,6 +31,7 @@ cargo_build_script(
     ],
     deps = [
         "//rslib/cargo:prost_build",
+        "//rslib/cargo:which",
     ],
 )
 
@@ -76,6 +77,9 @@ rust_library(
         "//rslib/cargo:bytes",
         "//rslib/cargo:chrono",
         "//rslib/cargo:coarsetime",
+        "//rslib/cargo:convert_case",
+        "//rslib/cargo:csv",
+        "//rslib/cargo:dissimilar",
         "//rslib/cargo:flate2",
         "//rslib/cargo:fluent",
         "//rslib/cargo:fnv",
@@ -87,6 +91,7 @@ rust_library(
         "//rslib/cargo:itertools",
         "//rslib/cargo:lazy_static",
         "//rslib/cargo:nom",
+        "//rslib/cargo:num_cpus",
         "//rslib/cargo:num_enum",
         "//rslib/cargo:num_integer",
         "//rslib/cargo:once_cell",
@@ -106,6 +111,7 @@ rust_library(
         "//rslib/cargo:slog_async",
         "//rslib/cargo:slog_envlogger",
         "//rslib/cargo:slog_term",
+        "//rslib/cargo:snafu",
         "//rslib/cargo:strum",
         "//rslib/cargo:tempfile",
         "//rslib/cargo:tokio",
@@ -116,6 +122,7 @@ rust_library(
         "//rslib/cargo:unic_ucd_category",
         "//rslib/cargo:utime",
         "//rslib/cargo:zip",
+        "//rslib/cargo:zstd",
         "//rslib/cargo:pct_str",
         "//rslib/i18n:anki_i18n",
     ] + select({

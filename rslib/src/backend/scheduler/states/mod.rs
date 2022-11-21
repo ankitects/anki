@@ -11,13 +11,13 @@ mod rescheduling;
 mod review;
 
 use crate::{
-    backend_proto as pb,
-    scheduler::states::{CardState, NewState, NextCardStates, NormalState},
+    pb,
+    scheduler::states::{CardState, NewState, NormalState, SchedulingStates},
 };
 
-impl From<NextCardStates> for pb::NextCardStates {
-    fn from(choices: NextCardStates) -> Self {
-        pb::NextCardStates {
+impl From<SchedulingStates> for pb::SchedulingStates {
+    fn from(choices: SchedulingStates) -> Self {
+        pb::SchedulingStates {
             current: Some(choices.current.into()),
             again: Some(choices.again.into()),
             hard: Some(choices.hard.into()),
@@ -27,9 +27,9 @@ impl From<NextCardStates> for pb::NextCardStates {
     }
 }
 
-impl From<pb::NextCardStates> for NextCardStates {
-    fn from(choices: pb::NextCardStates) -> Self {
-        NextCardStates {
+impl From<pb::SchedulingStates> for SchedulingStates {
+    fn from(choices: pb::SchedulingStates) -> Self {
+        SchedulingStates {
             current: choices.current.unwrap_or_default().into(),
             again: choices.again.unwrap_or_default().into(),
             hard: choices.hard.unwrap_or_default().into(),
@@ -46,6 +46,7 @@ impl From<CardState> for pb::SchedulingState {
                 CardState::Normal(state) => pb::scheduling_state::Value::Normal(state.into()),
                 CardState::Filtered(state) => pb::scheduling_state::Value::Filtered(state.into()),
             }),
+            custom_data: None,
         }
     }
 }

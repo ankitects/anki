@@ -1,6 +1,7 @@
 importing-failed-debug-info = Import failed. Debugging info:
 importing-aborted = Aborted: { $val }
 importing-added-duplicate-with-first-field = Added duplicate with first field: { $val }
+importing-all-supported-formats = All supported formats { $val }
 importing-allow-html-in-fields = Allow HTML in fields
 importing-anki-files-are-from-a-very = .anki files are from a very old version of Anki. You can import them with add-on 175027074 or with Anki 2.0, available on the Anki website.
 importing-anki2-files-are-not-directly-importable = .anki2 files are not directly importable - please import the .apkg or .zip file you have received instead.
@@ -10,9 +11,11 @@ importing-change = Change
 importing-colon = Colon
 importing-comma = Comma
 importing-empty-first-field = Empty first field: { $val }
+importing-field-separator = Field separator
 importing-field-mapping = Field mapping
 importing-field-of-file-is = Field <b>{ $val }</b> of file is:
 importing-fields-separated-by = Fields separated by: { $val }
+importing-file-must-contain-field-column = File must contain at least one column that can be mapped to a note field.
 importing-file-version-unknown-trying-import-anyway = File version unknown, trying import anyway.
 importing-first-field-matched = First field matched: { $val }
 importing-identical = Identical
@@ -36,6 +39,8 @@ importing-notes-that-could-not-be-imported = Notes that could not be imported as
 importing-notes-updated-as-file-had-newer = Notes updated, as file had newer version: { $val }
 importing-packaged-anki-deckcollection-apkg-colpkg-zip = Packaged Anki Deck/Collection (*.apkg *.colpkg *.zip)
 importing-pauker-18-lesson-paugz = Pauker 1.8 Lesson (*.pau.gz)
+# the '|' character
+importing-pipe = Pipe
 importing-rows-had-num1d-fields-expected-num2d = '{ $row }' had { $found } fields, expected { $expected }
 importing-selected-file-was-not-in-utf8 = Selected file was not in UTF-8 format. Please see the importing section of the manual.
 importing-semicolon = Semicolon
@@ -74,6 +79,32 @@ importing-note-updated =
     }
 importing-processed-media-file =
     { $count ->
-        [one] Processed { $count } media file
-       *[other] Processed { $count } media files
+        [one] Imported { $count } media file
+       *[other] Imported { $count } media files
     }
+importing-importing-collection = Importing collection...
+importing-importing-file = Importing file...
+importing-extracting = Extracting data...
+importing-gathering = Gathering data...
+importing-failed-to-import-media-file = Failed to import media file: { $debugInfo }
+importing-processed-notes =
+    { $count ->
+        [one] Processed { $count } note...
+       *[other] Processed { $count } notes...
+    }
+importing-processed-cards =
+    { $count ->
+        [one] Processed { $count } card...
+       *[other] Processed { $count } cards...
+    }
+importing-unable-to-import-filename = Unable to import { $filename }: file type not supported
+importing-existing-notes = Existing notes
+# "Existing notes: Duplicate" (verb)
+importing-duplicate = Duplicate
+# "Existing notes: Preserve" (verb)
+importing-preserve = Preserve
+# "Existing notes: Update" (verb)
+importing-update = Update
+importing-tag-all-notes = Tag all notes
+importing-tag-updated-notes = Tag updated notes
+importing-file = File

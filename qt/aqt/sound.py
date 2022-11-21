@@ -149,6 +149,14 @@ class AVPlayer:
         self._enqueued = tags[:]
         self._play_next_if_idle()
 
+    def append_tags(self, tags: list[AVTag]) -> None:
+        """Append provided tags to the queue, then start playing them if the current player is idle."""
+        self._enqueued.extend(tags)
+        self._play_next_if_idle()
+
+    def queue_is_empty(self) -> bool:
+        return bool(self._enqueued)
+
     def stop_and_clear_queue(self) -> None:
         self._enqueued = []
         self._stop_if_playing()
@@ -239,6 +247,8 @@ def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
 
     if is_win:
         packaged_path = Path(sys.prefix) / "audio" / (cmd[0] + ".exe")
+    elif is_mac:
+        packaged_path = Path(sys.prefix) / ".." / "Resources" / cmd[0]
     else:
         packaged_path = Path(sys.prefix) / cmd[0]
     if packaged_path.exists():

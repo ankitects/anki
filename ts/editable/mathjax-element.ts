@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import "mathjax/es5/tex-svg-full";
-
 import { placeCaretAfter, placeCaretBefore } from "../domlib/place-caret";
 import { on } from "../lib/events";
 import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
@@ -15,6 +13,17 @@ const mathjaxTagPattern =
 const mathjaxBlockDelimiterPattern = /\\\[(.*?)\\\]/gsu;
 const mathjaxInlineDelimiterPattern = /\\\((.*?)\\\)/gsu;
 
+function trimBreaks(text: string): string {
+    return text
+        .replace(/<br[ ]*\/?>/gsu, "\n")
+        .replace(/^\n*/, "")
+        .replace(/\n*$/, "");
+}
+
+export const mathjaxConfig = {
+    enabled: true,
+};
+
 export const Mathjax: DecoratedElementConstructor = class Mathjax
     extends HTMLElement
     implements DecoratedElement
@@ -22,28 +31,32 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
     static tagName = "anki-mathjax";
 
     static toStored(undecorated: string): string {
-        return undecorated.replace(
+        const stored = undecorated.replace(
             mathjaxTagPattern,
             (_match: string, block: string | undefined, text: string) => {
+                const trimmed = trimBreaks(text);
                 return typeof block === "string" && block !== "false"
-                    ? `\\[${text}\\]`
-                    : `\\(${text}\\)`;
+                    ? `\\[${trimmed}\\]`
+                    : `\\(${trimmed}\\)`;
             },
         );
+
+        return stored;
     }
 
     static toUndecorated(stored: string): string {
+        if (!mathjaxConfig.enabled) {
+            return stored;
+        }
         return stored
-            .replace(
-                mathjaxBlockDelimiterPattern,
-                (_match: string, text: string) =>
-                    `<${Mathjax.tagName} block="true">${text}</${Mathjax.tagName}>`,
-            )
-            .replace(
-                mathjaxInlineDelimiterPattern,
-                (_match: string, text: string) =>
-                    `<${Mathjax.tagName}>${text}</${Mathjax.tagName}>`,
-            );
+            .replace(mathjaxBlockDelimiterPattern, (_match: string, text: string) => {
+                const trimmed = trimBreaks(text);
+                return `<${Mathjax.tagName} block="true">${trimmed}</${Mathjax.tagName}>`;
+            })
+            .replace(mathjaxInlineDelimiterPattern, (_match: string, text: string) => {
+                const trimmed = trimBreaks(text);
+                return `<${Mathjax.tagName}>${trimmed}</${Mathjax.tagName}>`;
+            });
     }
 
     block = false;
@@ -76,6 +89,9 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
                 break;
 
             case "data-mathjax":
+                if (typeof newValue !== "string") {
+                    return;
+                }
                 this.component?.$set({ mathjax: newValue });
                 break;
         }
@@ -96,7 +112,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
             return;
         }
 
-        this.dataset.mathjax = this.innerText;
+        this.dataset.mathjax = this.innerHTML;
         this.innerHTML = "";
         this.style.whiteSpace = "normal";
 
@@ -110,7 +126,15 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
         });
 
         if (this.hasAttribute("focusonmount")) {
-            this.component.moveCaretAfter();
+            let position: [number, number] | undefined = undefined;
+
+            if (this.getAttribute("focusonmount")!.length > 0) {
+                position = this.getAttribute("focusonmount")!
+                    .split(",")
+                    .map(Number) as [number, number];
+            }
+
+            this.component.moveCaretAfter(position);
         }
 
         this.setAttribute("contentEditable", "false");

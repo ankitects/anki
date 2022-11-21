@@ -1,0 +1,87 @@
+// Heavily inspired by https://github.com/material-components/material-components-web/tree/master/packages/mdc-elevation
+@use "sass:color";
+@use "sass:map";
+@use "sass:list";
+
+/**
+ * The maps correspond to dp levels:
+ * 0: 0dp
+ * 1: 1dp
+ * 2: 2dp
+ * 3: 3dp
+ * 4: 4dp
+ * 5: 6dp
+ * 6: 8dp
+ * 7: 12dp
+ * 8: 16dp
+ * 9: 24dp
+ */
+
+$umbra-map: (
+    0: "0px 0px 0px 0px",
+    1: "0px 2px 1px -1px",
+    2: "0px 3px 1px -2px",
+    3: "0px 3px 3px -2px",
+    4: "0px 2px 4px -1px",
+    5: "0px 3px 5px -1px",
+    6: "0px 5px 5px -3px",
+    7: "0px 7px 8px -4px",
+    8: "0px 8px 10px -5px",
+    9: "0px 11px 15px -7px",
+);
+
+$penumbra-map: (
+    0: "0px 0px 0px 0px",
+    1: "0px 1px 1px 0px",
+    2: "0px 2px 2px 0px",
+    3: "0px 3px 4px 0px",
+    4: "0px 4px 5px 0px",
+    5: "0px 6px 10px 0px",
+    6: "0px 8px 10px 1px",
+    7: "0px 12px 17px 2px",
+    8: "0px 16px 24px 2px",
+    9: "0px 24px 38px 3px",
+);
+
+$ambient-map: (
+    0: "0px 0px 0px 0px",
+    1: "0px 1px 3px 0px",
+    2: "0px 1px 5px 0px",
+    3: "0px 1px 8px 0px",
+    4: "0px 1px 10px 0px",
+    5: "0px 1px 18px 0px",
+    6: "0px 3px 14px 2px",
+    7: "0px 5px 22px 4px",
+    8: "0px 6px 30px 5px",
+    9: "0px 9px 46px 8px",
+);
+
+$umbra-opacity: 0.2;
+$penumbra-opacity: 0.14;
+$ambient-opacity: 0.12;
+
+@function box-shadow($level, $opacity-boost, $color) {
+    $umbra-z-value: map.get($umbra-map, $level);
+    $penumbra-z-value: map.get($penumbra-map, $level);
+    $ambient-z-value: map.get($ambient-map, $level);
+
+    $umbra-color: color.adjust(rgba($color, $umbra-opacity), $alpha: $opacity-boost);
+    $penumbra-color: color.adjust(
+        rgba($color, $penumbra-opacity),
+        $alpha: $opacity-boost
+    );
+    $ambient-color: color.adjust(
+        rgba($color, $ambient-opacity),
+        $alpha: $opacity-boost
+    );
+
+    @return (
+        #{$umbra-z-value} $umbra-color,
+        #{$penumbra-z-value} $penumbra-color,
+        #{$ambient-z-value} $ambient-color
+    );
+}
+
+@mixin elevation($level, $opacity-boost: 0, $color: #141414) {
+    box-shadow: box-shadow($level, $opacity-boost, $color);
+}

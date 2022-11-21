@@ -22,7 +22,6 @@ from anki.tags import TagTreeNode
 from anki.types import assert_exhaustive
 from aqt import colors, gui_hooks
 from aqt.browser.find_and_replace import FindAndReplaceDialog
-from aqt.browser.sidebar import _want_right_border
 from aqt.browser.sidebar.item import SidebarItem, SidebarItemType
 from aqt.browser.sidebar.model import SidebarModel
 from aqt.browser.sidebar.searchbar import SidebarSearchBar
@@ -105,21 +104,18 @@ class SidebarTreeView(QTreeView):
     def _setup_style(self) -> None:
         # match window background color and tweak style
         bgcolor = QPalette().window().color().name()
-        border = theme_manager.color(colors.MEDIUM_BORDER)
+        border = theme_manager.var(colors.BORDER)
         styles = [
             "padding: 3px",
             "padding-right: 0px",
             "border: 0",
             f"background: {bgcolor}",
         ]
-        if _want_right_border():
-            styles.append(f"border-right: 1px solid {border}")
 
         self.setStyleSheet("QTreeView { %s }" % ";".join(styles))
 
     def cleanup(self) -> None:
         self.toolbar.cleanup()
-        self.searchBar.cleanup()
         gui_hooks.flag_label_did_change.remove(self.refresh)
         gui_hooks.theme_did_change.remove(self._setup_style)
 
@@ -307,7 +303,7 @@ class SidebarTreeView(QTreeView):
     ) -> None:
         if self.current_search and (item := self.model().item_for_index(idx)):
             if item.is_highlighted():
-                brush = QBrush(theme_manager.qcolor(colors.SUSPENDED_BG))
+                brush = QBrush(theme_manager.qcolor(colors.STATE_SUSPENDED))
                 painter.save()
                 painter.fillRect(options.rect, brush)
                 painter.restore()
@@ -657,36 +653,36 @@ class SidebarTreeView(QTreeView):
             type=SidebarItemType.CARD_STATE_ROOT,
         )
         type = SidebarItemType.CARD_STATE
-        colored_icon = ColoredIcon(path=icon, color=colors.DISABLED)
+        colored_icon = ColoredIcon(path=icon, color=colors.FG_DISABLED)
 
         root.add_simple(
             tr.actions_new(),
-            icon=colored_icon.with_color(colors.NEW_COUNT),
+            icon=colored_icon.with_color(colors.STATE_NEW),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_NEW),
         )
 
         root.add_simple(
             name=tr.scheduling_learning(),
-            icon=colored_icon.with_color(colors.LEARN_COUNT),
+            icon=colored_icon.with_color(colors.STATE_LEARN),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_LEARN),
         )
         root.add_simple(
             name=tr.scheduling_review(),
-            icon=colored_icon.with_color(colors.REVIEW_COUNT),
+            icon=colored_icon.with_color(colors.STATE_REVIEW),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_REVIEW),
         )
         root.add_simple(
             name=tr.browsing_suspended(),
-            icon=colored_icon.with_color(colors.SUSPENDED_FG),
+            icon=colored_icon.with_color(colors.STATE_SUSPENDED),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_SUSPENDED),
         )
         root.add_simple(
             name=tr.browsing_buried(),
-            icon=colored_icon.with_color(colors.BURIED_FG),
+            icon=colored_icon.with_color(colors.STATE_BURIED),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_BURIED),
         )
@@ -695,9 +691,9 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _flags_tree(self, root: SidebarItem) -> None:
-        icon_off = "icons:flag-off-outline.svg"
-        icon = "icons:flag.svg"
-        icon_outline = "icons:flag-outline.svg"
+        icon_off = "icons:flag-variant-off-outline.svg"
+        icon = "icons:flag-variant.svg"
+        icon_outline = "icons:flag-variant-outline.svg"
 
         root = self._section_root(
             root=root,

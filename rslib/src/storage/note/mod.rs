@@ -1,12 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use rusqlite::{params, Row};
 
 use crate::{
     error::Result,
+    import_export::package::NoteMeta,
     notes::{Note, NoteId, NoteTags},
     notetype::NotetypeId,
     tags::{join_tags, split_tags},
@@ -39,6 +40,13 @@ impl super::SqliteStorage {
             .query_and_then(params![nid], row_to_note)?
             .next()
             .transpose()
+    }
+
+    pub fn get_all_note_ids(&self) -> Result<HashSet<NoteId>> {
+        self.db
+            .prepare("SELECT id FROM notes")?
+            .query_and_then([], |row| Ok(row.get(0)?))?
+            .collect()
     }
 
     /// If fields have been modified, caller must call note.prepare_for_update() prior to calling this.
@@ -75,6 +83,24 @@ impl super::SqliteStorage {
         ])?;
         note.id.0 = self.db.last_insert_rowid();
         Ok(())
+    }
+
+    pub(crate) fn add_note_if_unique(&self, note: &Note) -> Result<bool> {
+        self.db
+            .prepare_cached(include_str!("add_if_unique.sql"))?
+            .execute(params![
+                note.id,
+                note.guid,
+                note.notetype_id,
+                note.mtime,
+                note.usn,
+                join_tags(&note.tags),
+                join_fields(note.fields()),
+                note.sort_field.as_ref().unwrap(),
+                note.checksum.unwrap(),
+            ])
+            .map(|added| added == 1)
+            .map_err(Into::into)
     }
 
     /// Add or update the provided note, preserving ID. Used by the syncing code.
@@ -147,6 +173,23 @@ impl super::SqliteStorage {
             .collect()
     }
 
+    /// Returns [(nid, field 0)] of notes with the same checksum.
+    /// The caller should strip the fields and compare to see if they actually
+    /// match.
+    pub(crate) fn all_notes_by_type_and_checksum(
+        &self,
+    ) -> Result<HashMap<(NotetypeId, u32), Vec<NoteId>>> {
+        let mut map = HashMap::new();
+        let mut stmt = self.db.prepare("SELECT mid, csum, id FROM notes")?;
+        let mut rows = stmt.query([])?;
+        while let Some(row) = rows.next()? {
+            map.entry((row.get(0)?, row.get(1)?))
+                .or_insert_with(Vec::new)
+                .push(row.get(2)?);
+        }
+        Ok(map)
+    }
+
     /// Return total number of notes. Slow.
     pub(crate) fn total_notes(&self) -> Result<u32> {
         self.db
@@ -179,21 +222,41 @@ impl super::SqliteStorage {
             .transpose()
     }
 
-    pub(crate) fn get_note_tags_by_id_list(
-        &mut self,
-        note_ids: &[NoteId],
-    ) -> Result<Vec<NoteTags>> {
-        self.set_search_table_to_note_ids(note_ids)?;
-        let out = self
+    pub(crate) fn get_note_tags_by_id_list(&self, note_ids: &[NoteId]) -> Result<Vec<NoteTags>> {
+        self.with_ids_in_searched_notes_table(note_ids, || {
+            self.db
+                .prepare_cached(&format!(
+                    "{} where id in (select nid from search_nids)",
+                    include_str!("get_tags.sql")
+                ))?
+                .query_and_then([], row_to_note_tags)?
+                .collect()
+        })
+    }
+
+    pub(crate) fn for_each_note_tag_in_searched_notes<F>(&self, mut func: F) -> Result<()>
+    where
+        F: FnMut(&str),
+    {
+        let mut stmt = self
             .db
-            .prepare_cached(&format!(
-                "{} where id in (select nid from search_nids)",
-                include_str!("get_tags.sql")
+            .prepare_cached("select tags from notes where id in (select nid from search_nids)")?;
+        let mut rows = stmt.query(params![])?;
+        while let Some(row) = rows.next()? {
+            func(row.get_ref(0)?.as_str()?);
+        }
+
+        Ok(())
+    }
+
+    pub(crate) fn all_searched_notes(&self) -> Result<Vec<Note>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get.sql"),
+                " WHERE id IN (SELECT nid FROM search_nids)"
             ))?
-            .query_and_then([], row_to_note_tags)?
-            .collect::<Result<Vec<_>>>()?;
-        self.clear_searched_notes_table()?;
-        Ok(out)
+            .query_and_then([], |r| row_to_note(r).map_err(Into::into))?
+            .collect()
     }
 
     pub(crate) fn get_note_tags_by_predicate<F>(&mut self, want: F) -> Result<Vec<NoteTags>>
@@ -219,7 +282,7 @@ impl super::SqliteStorage {
         Ok(())
     }
 
-    fn setup_searched_notes_table(&self) -> Result<()> {
+    pub(crate) fn setup_searched_notes_table(&self) -> Result<()> {
         self.db
             .execute_batch(include_str!("search_nids_setup.sql"))?;
         Ok(())
@@ -230,20 +293,71 @@ impl super::SqliteStorage {
         Ok(())
     }
 
-    /// Injects the provided card IDs into the search_nids table, for
-    /// when ids have arrived outside of a search.
-    /// Clear with clear_searched_notes_table().
+    /// Executes the closure with the note ids placed in the search_nids table.
     /// WARNING: the column name is nid, not id.
-    pub(crate) fn set_search_table_to_note_ids(&mut self, notes: &[NoteId]) -> Result<()> {
+    pub(crate) fn with_ids_in_searched_notes_table<T>(
+        &self,
+        note_ids: &[NoteId],
+        func: impl FnOnce() -> Result<T>,
+    ) -> Result<T> {
         self.setup_searched_notes_table()?;
         let mut stmt = self
             .db
             .prepare_cached("insert into search_nids values (?)")?;
-        for nid in notes {
+        for nid in note_ids {
             stmt.execute([nid])?;
+        }
+        let result = func();
+        self.clear_searched_notes_table()?;
+        result
+    }
+
+    /// Cards will arrive in card id order, not search order.
+    pub(crate) fn for_each_note_in_search(
+        &self,
+        mut func: impl FnMut(Note) -> Result<()>,
+    ) -> Result<()> {
+        let mut stmt = self.db.prepare_cached(concat!(
+            include_str!("get.sql"),
+            " WHERE id IN (SELECT nid FROM search_nids)"
+        ))?;
+        let mut rows = stmt.query([])?;
+        while let Some(row) = rows.next()? {
+            let note = row_to_note(row)?;
+            func(note)?
         }
 
         Ok(())
+    }
+
+    pub(crate) fn note_guid_map(&mut self) -> Result<HashMap<String, NoteMeta>> {
+        self.db
+            .prepare("SELECT guid, id, mod, mid FROM notes")?
+            .query_and_then([], row_to_note_meta)?
+            .collect()
+    }
+
+    pub(crate) fn all_notes_by_guid(&mut self) -> Result<HashMap<String, NoteId>> {
+        self.db
+            .prepare("SELECT guid, id FROM notes")?
+            .query_and_then([], |r| Ok((r.get(0)?, r.get(1)?)))?
+            .collect()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn get_all_notes(&mut self) -> Vec<Note> {
+        self.db
+            .prepare("SELECT * FROM notes")
+            .unwrap()
+            .query_and_then([], row_to_note)
+            .unwrap()
+            .collect::<Result<_>>()
+            .unwrap()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn notes_table_len(&mut self) -> usize {
+        self.db_scalar("SELECT COUNT(*) FROM notes").unwrap()
     }
 }
 
@@ -270,4 +384,11 @@ fn row_to_note_tags(row: &Row) -> Result<NoteTags> {
         usn: row.get(2)?,
         tags: row.get(3)?,
     })
+}
+
+fn row_to_note_meta(row: &Row) -> Result<(String, NoteMeta)> {
+    Ok((
+        row.get(0)?,
+        NoteMeta::new(row.get(1)?, row.get(2)?, row.get(3)?),
+    ))
 }

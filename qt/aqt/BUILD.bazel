@@ -2,6 +2,7 @@ load("@rules_python//python:defs.bzl", "py_library")
 load("@py_deps//:requirements.bzl", "requirement")
 load("@rules_python//python:packaging.bzl", "py_package", "py_wheel")
 load("//:defs.bzl", "anki_version")
+load("//ts:copy.bzl", "copy_files_into_group")
 
 genrule(
     name = "hooks_gen",
@@ -11,15 +12,24 @@ genrule(
 )
 
 genrule(
-    name = "extract_sass_colors",
+    name = "extract_sass_vars",
     srcs = [
-        "//sass:_vars.scss",
+        "//sass:_root-vars.css",
     ],
-    outs = ["colors.py"],
-    cmd = "$(location //qt:extract_sass_colors) $< $@",
+    outs = [
+        "colors.py",
+        "props.py",
+    ],
+    cmd = "$(location //qt:extract_sass_vars) $(SRCS) $(OUTS)",
     tools = [
-        "//qt:extract_sass_colors",
+        "//qt:extract_sass_vars",
     ],
+)
+
+py_library(
+    name = "colors",
+    srcs = [":colors.py"],
+    visibility = ["//qt:__subpackages__"],
 )
 
 _py_srcs = glob(
@@ -35,6 +45,7 @@ _py_srcs_and_forms = _py_srcs + [
 
 aqt_core_data = [
     "colors.py",
+    "props.py",
     "py.typed",
     ":hooks_gen",
 ]

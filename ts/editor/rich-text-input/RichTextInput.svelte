@@ -3,289 +3,253 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
+    import { writable } from "svelte/store";
+
     import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
-    import contextProperty from "../../sveltelib/context-property";
-    import type {
-        OnInputCallback,
-        OnInsertCallback,
-        Trigger,
-    } from "../../sveltelib/input-manager";
-    import { pageTheme } from "../../sveltelib/theme";
-    import type { EditingInputAPI } from "../EditingArea.svelte";
+    import type { InputHandlerAPI } from "../../sveltelib/input-handler";
+    import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
+    import type { SurroundedAPI } from "../surround";
     import type CustomStyles from "./CustomStyles.svelte";
 
-    export interface RichTextInputAPI extends EditingInputAPI, ContentEditableAPI {
+    export interface RichTextInputAPI extends EditingInputAPI, SurroundedAPI {
         name: "rich-text";
-        shadowRoot: Promise<ShadowRoot>;
+        /** This is the contentEditable anki-editable element */
         element: Promise<HTMLElement>;
         moveCaretToEnd(): void;
         toggle(): boolean;
         preventResubscription(): () => void;
-        getTriggerOnNextInsert(): Trigger<OnInsertCallback>;
-        getTriggerOnInput(): Trigger<OnInputCallback>;
-        getTriggerAfterInput(): Trigger<OnInputCallback>;
+        inputHandler: InputHandlerAPI;
+        /** The API exposed by the editable component */
+        editable: ContentEditableAPI;
+        customStyles: Promise<CustomStyles>;
     }
 
-    export function editingInputIsRichText(
-        editingInput: EditingInputAPI | null,
+    function editingInputIsRichText(
+        editingInput: EditingInputAPI,
     ): editingInput is RichTextInputAPI {
-        return editingInput?.name === "rich-text";
+        return editingInput.name === "rich-text";
     }
 
-    export interface RichTextInputContextAPI {
-        styles: CustomStyles;
-        container: HTMLElement;
-        api: RichTextInputAPI;
-    }
+    import { registerPackage } from "../../lib/runtime-require";
+    import contextProperty from "../../sveltelib/context-property";
+    import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
+    import { Surrounder } from "../surround";
 
     const key = Symbol("richText");
-    const [context, setContextProperty] = contextProperty<RichTextInputContextAPI>(key);
+    const [context, setContextProperty] = contextProperty<RichTextInputAPI>(key);
+    const [globalInputHandler, setupGlobalInputHandler] = useInputHandler();
+    const [lifecycle, instances, setupLifecycleHooks] =
+        lifecycleHooks<RichTextInputAPI>();
+    const apiStore = writable<SurroundedAPI | null>(null);
+    const surrounder = Surrounder.make(apiStore);
 
-    import getInputManager from "../../sveltelib/input-manager";
-    import getDOMMirror from "../../sveltelib/mirror-dom";
+    registerPackage("anki/RichTextInput", {
+        context,
+        surrounder,
+        lifecycle,
+        instances,
+    });
 
-    const {
-        manager: globalInputManager,
-        getTriggerAfterInput,
-        getTriggerOnInput,
-        getTriggerOnNextInsert,
-    } = getInputManager();
-
-    export { context, getTriggerAfterInput, getTriggerOnInput, getTriggerOnNextInsert };
+    export {
+        context,
+        editingInputIsRichText,
+        globalInputHandler as inputHandler,
+        lifecycle,
+        surrounder,
+    };
 </script>
 
 <script lang="ts">
-    import { getAllContexts, onMount } from "svelte";
+    import { getAllContexts, getContext, onMount } from "svelte";
+    import type { Readable } from "svelte/store";
 
     import { placeCaretAfterContent } from "../../domlib/place-caret";
     import ContentEditable from "../../editable/ContentEditable.svelte";
-    import type { DecoratedElement } from "../../editable/decorated";
-    import { bridgeCommand } from "../../lib/bridgecommand";
-    import {
-        fragmentToString,
-        nodeContainsInlineContent,
-        nodeIsElement,
-    } from "../../lib/dom";
-    import { on } from "../../lib/events";
+    import { directionKey, fontFamilyKey, fontSizeKey } from "../../lib/context-keys";
     import { promiseWithResolver } from "../../lib/promise";
-    import { nodeStore } from "../../sveltelib/node-store";
-    import { context as decoratedElementsContext } from "../DecoratedElements.svelte";
+    import { singleCallback } from "../../lib/typing";
+    import useDOMMirror from "../../sveltelib/dom-mirror";
+    import useInputHandler from "../../sveltelib/input-handler";
+    import { pageTheme } from "../../sveltelib/theme";
     import { context as editingAreaContext } from "../EditingArea.svelte";
+    import { context as noteEditorContext } from "../NoteEditor.svelte";
+    import getNormalizingNodeStore from "./normalizing-node-store";
+    import useRichTextResolve from "./rich-text-resolve";
     import RichTextStyles from "./RichTextStyles.svelte";
-    import SetContext from "./SetContext.svelte";
+    import { fragmentToStored, storedToFragment } from "./transform";
 
-    export let hidden: boolean;
+    export let hidden = false;
 
+    const { focusedInput } = noteEditorContext.get();
     const { content, editingInputs } = editingAreaContext.get();
-    const decoratedElements = decoratedElementsContext.get();
 
-    function normalizeFragment(fragment: DocumentFragment): void {
-        fragment.normalize();
+    const fontFamily = getContext<Readable<string>>(fontFamilyKey);
+    const fontSize = getContext<Readable<number>>(fontSizeKey);
+    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
 
-        for (const decorated of decoratedElements) {
-            for (const element of fragment.querySelectorAll(
-                decorated.tagName,
-            ) as NodeListOf<DecoratedElement>) {
-                element.undecorate();
-            }
-        }
+    const nodes = getNormalizingNodeStore();
+    const [richTextPromise, resolve] = useRichTextResolve();
+    const { mirror, preventResubscription } = useDOMMirror();
+    const [inputHandler, setupInputHandler] = useInputHandler();
+    const [customStyles, stylesResolve] = promiseWithResolver<CustomStyles>();
+
+    export function attachShadow(element: Element): void {
+        element.attachShadow({ mode: "open" });
     }
 
-    const nodes = nodeStore<DocumentFragment>(undefined, normalizeFragment);
-
-    function adjustInputHTML(html: string): string {
-        for (const component of decoratedElements) {
-            html = component.toUndecorated(html);
-        }
-
-        return html;
-    }
-
-    function adjustInputFragment(fragment: DocumentFragment): void {
-        if (nodeContainsInlineContent(fragment)) {
-            fragment.appendChild(document.createElement("br"));
-        }
-    }
-
-    function writeFromEditingArea(html: string): void {
-        /* We need .createContextualFragment so that customElements are initialized */
-        const fragment = document
-            .createRange()
-            .createContextualFragment(adjustInputHTML(html));
-        adjustInputFragment(fragment);
-        nodes.setUnprocessed(fragment);
-    }
-
-    function adjustOutputFragment(fragment: DocumentFragment): void {
-        if (
-            fragment.hasChildNodes() &&
-            nodeIsElement(fragment.lastChild!) &&
-            nodeContainsInlineContent(fragment) &&
-            fragment.lastChild!.tagName === "BR"
-        ) {
-            fragment.lastChild!.remove();
-        }
-    }
-
-    function adjustOutputHTML(html: string): string {
-        for (const component of decoratedElements) {
-            html = component.toStored(html);
+    async function moveCaretToEnd(): Promise<void> {
+        const richText = await richTextPromise;
+        if (richText.textContent?.length === 0) {
+            // Calling this method when richText is empty will cause the first keystroke of
+            // ibus-based input methods with candidates to go double. For example, if you
+            // type "a" it becomes "aa". This problem exists in many linux distributions.
+            // When richText is empty, there is no need to place the caret, just return.
+            return;
         }
 
-        return html;
+        placeCaretAfterContent(richText);
     }
 
-    function writeToEditingArea(fragment: DocumentFragment): void {
-        const clone = document.importNode(fragment, true);
-        adjustOutputFragment(clone);
-
-        const output = adjustOutputHTML(fragmentToString(clone));
-        content.set(output);
+    async function focus(): Promise<void> {
+        const richText = await richTextPromise;
+        richText.focus();
     }
 
-    const [shadowPromise, shadowResolve] = promiseWithResolver<ShadowRoot>();
-
-    function attachShadow(element: Element): void {
-        shadowResolve(element.attachShadow({ mode: "open" }));
+    async function refocus(): Promise<void> {
+        const richText = await richTextPromise;
+        richText.blur();
+        richText.focus();
+        moveCaretToEnd();
     }
 
-    const [richTextPromise, richTextResolve] = promiseWithResolver<HTMLElement>();
+    function toggle(): boolean {
+        hidden = !hidden;
+        return hidden;
+    }
 
-    function resolve(richTextInput: HTMLElement): { destroy: () => void } {
-        function onPaste(event: Event): void {
-            event.preventDefault();
-            bridgeCommand("paste");
+    let richTextDiv: HTMLElement;
+
+    async function getInputAPI(target: EventTarget): Promise<FocusableInputAPI | null> {
+        if (target === richTextDiv) {
+            return api;
         }
 
-        function onCutOrCopy(): void {
-            bridgeCommand("cutOrCopy");
-        }
-
-        const removePaste = on(richTextInput, "paste", onPaste);
-        const removeCopy = on(richTextInput, "copy", onCutOrCopy);
-        const removeCut = on(richTextInput, "cut", onCutOrCopy);
-        richTextResolve(richTextInput);
-
-        return {
-            destroy() {
-                removePaste();
-                removeCopy();
-                removeCut();
-            },
-        };
+        return null;
     }
 
-    const { mirror, preventResubscription } = getDOMMirror();
-    const localInputManager = getInputManager();
-
-    function moveCaretToEnd() {
-        richTextPromise.then(placeCaretAfterContent);
-    }
-
-    export const api = {
+    export const api: RichTextInputAPI = {
         name: "rich-text",
-        shadowRoot: shadowPromise,
         element: richTextPromise,
-        focus() {
-            richTextPromise.then((richText) => {
-                richText.focus();
-            });
-        },
-        refocus() {
-            richTextPromise.then((richText) => {
-                richText.blur();
-                richText.focus();
-                moveCaretToEnd();
-            });
-        },
+        focus,
+        refocus,
         focusable: !hidden,
-        toggle(): boolean {
-            hidden = !hidden;
-            return hidden;
-        },
+        toggle,
+        getInputAPI,
         moveCaretToEnd,
         preventResubscription,
-        getTriggerOnNextInsert: localInputManager.getTriggerOnNextInsert,
-        getTriggerOnInput: localInputManager.getTriggerOnInput,
-        getTriggerAfterInput: localInputManager.getTriggerAfterInput,
-    } as RichTextInputAPI;
+        inputHandler,
+        editable: {} as ContentEditableAPI,
+        customStyles,
+    };
 
     const allContexts = getAllContexts();
 
     function attachContentEditable(element: Element, { stylesDidLoad }): void {
-        stylesDidLoad.then(
-            () =>
-                new ContentEditable({
-                    target: element.shadowRoot!,
-                    props: {
-                        nodes,
-                        resolve,
-                        mirrors: [mirror],
-                        managers: [globalInputManager, localInputManager.manager],
-                        api,
-                    },
-                    context: allContexts,
-                }),
-        );
+        (async () => {
+            await stylesDidLoad;
+
+            new ContentEditable({
+                target: element.shadowRoot!,
+                props: {
+                    nodes,
+                    resolve,
+                    mirrors: [mirror],
+                    inputHandlers: [setupInputHandler, setupGlobalInputHandler],
+                    api: api.editable,
+                },
+                context: allContexts,
+            });
+        })();
     }
 
-    function pushUpdate(): void {
-        api.focusable = !hidden;
+    function pushUpdate(isFocusable: boolean): void {
+        api.focusable = isFocusable;
         $editingInputs = $editingInputs;
     }
 
-    $: {
-        hidden;
-        pushUpdate();
+    function setFocus(): void {
+        $focusedInput = api;
+        $apiStore = api;
     }
+
+    function removeFocus(): void {
+        // We do not unset focusedInput here.
+        // If we did, UI components for the input would react the store
+        // being unset, even though most likely it will be set to some other
+        // field right away.
+
+        $apiStore = null;
+    }
+
+    $: pushUpdate(!hidden);
 
     onMount(() => {
         $editingInputs.push(api);
         $editingInputs = $editingInputs;
 
-        const unsubscribeFromEditingArea = content.subscribe(writeFromEditingArea);
-        const unsubscribeToEditingArea = nodes.subscribe(writeToEditingArea);
-
-        return () => {
-            unsubscribeFromEditingArea();
-            unsubscribeToEditingArea();
-        };
+        return singleCallback(
+            content.subscribe((html: string): void =>
+                nodes.setUnprocessed(storedToFragment(html)),
+            ),
+            nodes.subscribe((fragment: DocumentFragment): void =>
+                content.set(fragmentToStored(fragment)),
+            ),
+        );
     });
+
+    setContextProperty(api);
+    setupLifecycleHooks(api);
 </script>
 
-<div class="rich-text-input">
+<div class="rich-text-input" on:focusin={setFocus} on:focusout={removeFocus} {hidden}>
     <RichTextStyles
         color={$pageTheme.isDark ? "white" : "black"}
+        fontFamily={$fontFamily}
+        fontSize={$fontSize}
+        direction={$direction}
+        callback={stylesResolve}
         let:attachToShadow={attachStyles}
-        let:promise={stylesPromise}
         let:stylesDidLoad
     >
-        <div
-            class="rich-text-editable"
-            class:hidden
-            class:night-mode={$pageTheme.isDark}
-            use:attachShadow
-            use:attachStyles
-            use:attachContentEditable={{ stylesDidLoad }}
-            on:focusin
-            on:focusout
-        />
+        <div class="rich-text-relative">
+            <div
+                class="rich-text-editable"
+                bind:this={richTextDiv}
+                use:attachShadow
+                use:attachStyles
+                use:attachContentEditable={{ stylesDidLoad }}
+                on:focusin
+                on:focusout
+            />
 
-        <div class="rich-text-widgets">
-            {#await Promise.all( [richTextPromise, stylesPromise], ) then [container, styles]}
-                <SetContext
-                    setter={setContextProperty}
-                    value={{ container, styles, api }}
-                >
+            {#await Promise.all([richTextPromise, stylesDidLoad]) then _}
+                <div class="rich-text-widgets">
                     <slot />
-                </SetContext>
+                </div>
             {/await}
         </div>
     </RichTextStyles>
 </div>
 
 <style lang="scss">
-    .hidden {
-        display: none;
+    .rich-text-input {
+        height: 100%;
+
+        background-color: var(--canvas-elevated);
+        padding: 6px;
+    }
+
+    .rich-text-relative {
+        position: relative;
     }
 </style>

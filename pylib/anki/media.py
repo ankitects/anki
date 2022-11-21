@@ -8,7 +8,7 @@ import pprint
 import re
 import sys
 import time
-from typing import Any, Callable
+from typing import Callable
 
 from anki import media_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated_keywords
@@ -34,13 +34,13 @@ class MediaManager(DeprecatedNamesMixin):
     sound_regexps = [r"(?i)(\[sound:(?P<fname>[^]]+)\])"]
     html_media_regexps = [
         # src element quoted case
-        r"(?i)(<[img|audio][^>]* src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
+        r"(?i)(<(?:img|audio)\b[^>]* src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
         # unquoted case
-        r"(?i)(<[img|audio][^>]* src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
+        r"(?i)(<(?:img|audio)\b[^>]* src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
         # src element quoted case
-        r"(?i)(<object[^>]* data=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
+        r"(?i)(<object\b[^>]* data=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
         # unquoted case
-        r"(?i)(<object[^>]* data=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
+        r"(?i)(<object\b[^>]* data=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
     ]
     regexps = sound_regexps + html_media_regexps
 
@@ -142,7 +142,7 @@ class MediaManager(DeprecatedNamesMixin):
                     files.append(fname)
         return files
 
-    def transform_names(self, txt: str, func: Callable) -> Any:
+    def transform_names(self, txt: str, func: Callable) -> str:
         for reg in self.regexps:
             txt = re.sub(reg, func, txt)
         return txt

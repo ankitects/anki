@@ -15,6 +15,7 @@ import DeckConfig = anki.deckconfig;
 import Decks = anki.decks;
 import Generic = anki.generic;
 import I18n = anki.i18n;
+import ImportExport = anki.import_export;
 import Notes = anki.notes;
 import Notetypes = anki.notetypes;
 import Scheduler = anki.scheduler;
@@ -23,7 +24,7 @@ import Tags = anki.tags;
 
 export { Cards, Collection, Decks, Generic, Notes };
 
-export const empty = Generic.Empty.encode(Generic.Empty.create()).finish();
+export const empty = Generic.Empty.create();
 
 async function serviceCallback(
     method: rpc.ServiceMethod<Message<any>, Message<any>>,
@@ -54,6 +55,8 @@ async function serviceCallback(
     }
 }
 
+export const decks = Decks.DecksService.create(serviceCallback as RPCImpl);
+
 export { DeckConfig };
 export const deckConfig = DeckConfig.DeckConfigService.create(
     serviceCallback as RPCImpl,
@@ -61,6 +64,11 @@ export const deckConfig = DeckConfig.DeckConfigService.create(
 
 export { I18n };
 export const i18n = I18n.I18nService.create(serviceCallback as RPCImpl);
+
+export { ImportExport };
+export const importExport = ImportExport.ImportExportService.create(
+    serviceCallback as RPCImpl,
+);
 
 export { Notetypes };
 export const notetypes = Notetypes.NotetypesService.create(serviceCallback as RPCImpl);
@@ -73,14 +81,3 @@ export const stats = Stats.StatsService.create(serviceCallback as RPCImpl);
 
 export { Tags };
 export const tags = Tags.TagsService.create(serviceCallback as RPCImpl);
-
-export function unwrapOptionalNumber(
-    msg: Generic.IInt64 | Generic.IUInt32 | Generic.IInt32 | null | undefined,
-): number | undefined {
-    if (msg && msg !== null) {
-        if (msg.val !== null) {
-            return msg.val;
-        }
-    }
-    return undefined;
-}

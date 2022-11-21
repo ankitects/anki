@@ -1,26 +1,31 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+@use "vars";
 
 hr {
-    background-color: #ccc;
+    background-color: vars.palette(darkgray, 0);
 }
 
 body {
     margin: 20px;
     overflow-wrap: break-word;
-    background-color: var(--window-bg);
+    background-color: var(--canvas);
 }
 
 // explicit nightMode definition required
 // to override default .card styling
 body.nightMode {
-    background-color: var(--window-bg);
-    color: var(--text-fg);
+    background-color: var(--canvas);
+    color: var(--fg);
 }
 
 img {
     max-width: 100%;
     max-height: 95vh;
+}
+
+li {
+    text-align: start;
 }
 
 #_flag {
@@ -48,9 +53,8 @@ img {
     box-sizing: border-box;
 }
 
-.night-mode #typeans {
-    background-color: var(--frame-bg);
-    color: var(--text-fg);
+code#typeans {
+    white-space: pre-wrap;
 }
 
 .typeGood {
@@ -66,6 +70,10 @@ img {
 .typeMissed {
     color: black;
     background: #ccc;
+}
+
+button {
+    margin: 1em 0.5em;
 }
 
 .replay-button {

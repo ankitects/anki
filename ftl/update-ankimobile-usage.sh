@@ -7,7 +7,7 @@
 set -e
 
 scriptRoot=$(realpath $(dirname $0)/..)
-sourceRoot=$(realpath $scriptRoot/../mob/src)
+sourceRoot=$(realpath $scriptRoot/../../mobile/ankimobile/src)
 
 bazel run //rslib/i18n_helpers:write_ftl_json $scriptRoot/ftl/usage/ankimobile.json \
     $sourceRoot

@@ -130,21 +130,21 @@ impl Collection {
     }
 
     fn upgrade_cards_to_v2(&mut self) -> Result<()> {
-        let count = self.search_cards_into_table(
+        let guard = self.search_cards_into_table(
             // can't add 'is:learn' here, as it matches on card type, not card queue
             "deck:filtered OR is:review",
             SortMode::NoOrder,
         )?;
-        if count > 0 {
-            let decks = self.storage.get_decks_map()?;
-            let configs = self.storage.get_deck_config_map()?;
-            self.storage.for_each_card_in_search(|mut card| {
+        if guard.cards > 0 {
+            let decks = guard.col.storage.get_decks_map()?;
+            let configs = guard.col.storage.get_deck_config_map()?;
+            guard.col.storage.for_each_card_in_search(|mut card| {
                 let filtered_info = get_filter_info_for_card(&card, &decks, &configs);
                 card.upgrade_to_v2(filtered_info);
-                self.storage.update_card(&card)
+                guard.col.storage.update_card(&card)
             })?;
         }
-        self.storage.clear_searched_cards_table()
+        Ok(())
     }
 }
 #[cfg(test)]

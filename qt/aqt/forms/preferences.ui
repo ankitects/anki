@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>480</height>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,6 +43,9 @@
         <number>12</number>
        </property>
        <item>
+        <widget class="QComboBox" name="theme"/>
+       </item>
+       <item>
         <widget class="QComboBox" name="lang">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -56,43 +59,57 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="theme"/>
-       </item>
-       <item>
         <widget class="QComboBox" name="video_driver"/>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="showPlayButtons">
          <property name="text">
           <string>preferences_show_play_buttons_on_cards_with</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="interrupt_audio">
          <property name="text">
           <string>preferences_interrupt_current_audio_when_answering</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="pastePNG">
          <property name="text">
           <string>preferences_paste_clipboard_images_as_png</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="paste_strips_formatting">
          <property name="text">
           <string>preferences_paste_without_shift_key_strips_formatting</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="ignore_accents_in_search">
          <property name="text">
           <string>preferences_ignore_accents_in_search</string>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignLeft">
+        <widget class="QCheckBox" name="legacy_import_export">
+         <property name="text">
+          <string notr="true">Legacy import/export handling</string>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignLeft">
+        <widget class="QCheckBox" name="reduce_motion">
+         <property name="toolTip">
+          <string>preferences_reduce_motion_tooltip</string>
+         </property>
+         <property name="text">
+          <string>preferences_reduce_motion</string>
          </property>
         </widget>
        </item>
@@ -187,35 +204,35 @@
        <string>preferences_scheduling</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="showEstimates">
          <property name="text">
           <string>preferences_show_next_review_time_above_answer</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="showProgress">
          <property name="text">
           <string>preferences_show_remaining_card_count_during_review</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="dayLearnFirst">
          <property name="text">
           <string>preferences_show_learning_cards_with_larger_steps</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="legacy_timezone">
          <property name="text">
           <string>preferences_legacy_timezone_handling</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignLeft">
         <widget class="QCheckBox" name="sched2021">
          <property name="toolTip">
           <string notr="true"/>
@@ -365,28 +382,28 @@
              </property>
             </widget>
            </item>
-           <item>
+           <item alignment="Qt::AlignLeft">
             <widget class="QCheckBox" name="syncMedia">
              <property name="text">
               <string>preferences_synchronize_audio_and_images_too</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item alignment="Qt::AlignLeft">
             <widget class="QCheckBox" name="syncOnProgramOpen">
              <property name="text">
               <string>preferences_automatically_sync_on_profile_openclose</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item alignment="Qt::AlignLeft">
             <widget class="QCheckBox" name="autoSyncMedia">
              <property name="text">
               <string>preferences_periodically_sync_media</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item alignment="Qt::AlignLeft">
             <widget class="QCheckBox" name="fullSync">
              <property name="text">
               <string>preferences_on_next_sync_force_changes_in</string>
@@ -491,9 +508,9 @@
         <number>12</number>
        </property>
        <item>
-        <widget class="QLabel" name="label_9">
+        <widget class="QLabel" name="backup_explanation">
          <property name="text">
-          <string>preferences_backupsanki_will_create_a_backup_of</string>
+          <string>preferences_backup_explanation</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -501,39 +518,107 @@
         </widget>
        </item>
        <item>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_10">
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="monthly_backups">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="daily_backups">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <spacer name="horizontalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_3">
            <property name="text">
-            <string>preferences_keep</string>
+            <string>preferences_daily_backups</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>preferences_monthly_backups</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="weekly_backups">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>preferences_weekly_backups</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>preferences_minutes_between_backups</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QSpinBox" name="numBackups">
-           <property name="minimumSize">
-            <size>
-             <width>60</width>
-             <height>0</height>
-            </size>
+          <widget class="QSpinBox" name="minutes_between_backups">
+           <property name="minimum">
+            <number>5</number>
            </property>
-           <property name="maximumSize">
-            <size>
-             <width>60</width>
-             <height>16777215</height>
-            </size>
+           <property name="maximum">
+            <number>9999</number>
            </property>
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>preferences_backups2</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="3">
-          <spacer name="horizontalSpacer">
+          <spacer name="horizontalSpacer_8">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -577,18 +662,15 @@
          </property>
         </spacer>
        </item>
-       <item>
-        <widget class="QLabel" name="label_21">
-         <property name="text">
-          <string>preferences_some_settings_will_take_effect_after</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item alignment="Qt::AlignCenter">
+    <widget class="QLabel" name="label_21">
+     <property name="text">
+      <string>preferences_some_settings_will_take_effect_after</string>
+     </property>
     </widget>
    </item>
    <item>
@@ -604,13 +686,16 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>lang</tabstop>
   <tabstop>theme</tabstop>
+  <tabstop>lang</tabstop>
   <tabstop>video_driver</tabstop>
   <tabstop>showPlayButtons</tabstop>
   <tabstop>interrupt_audio</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>paste_strips_formatting</tabstop>
+  <tabstop>ignore_accents_in_search</tabstop>
+  <tabstop>legacy_import_export</tabstop>
+  <tabstop>reduce_motion</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>
@@ -629,8 +714,11 @@
   <tabstop>fullSync</tabstop>
   <tabstop>syncDeauth</tabstop>
   <tabstop>media_log</tabstop>
+  <tabstop>minutes_between_backups</tabstop>
+  <tabstop>daily_backups</tabstop>
+  <tabstop>weekly_backups</tabstop>
+  <tabstop>monthly_backups</tabstop>
   <tabstop>tabWidget</tabstop>
-  <tabstop>numBackups</tabstop>
  </tabstops>
  <resources/>
  <connections>

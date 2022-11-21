@@ -25,6 +25,10 @@ class V2ImportIntoV1(Exception):
     pass
 
 
+class MediaMapInvalid(Exception):
+    pass
+
+
 class Anki2Importer(Importer):
 
     needMapper = False
@@ -311,7 +315,7 @@ class Anki2Importer(Importer):
         self._cards: dict[tuple[str, int], CardId] = {}
         existing = {}
         for guid, ord, cid in self.dst.db.execute(
-            "select f.guid, c.ord, c.id from cards c, notes f " "where c.nid = f.id"
+            "select f.guid, c.ord, c.id from cards c, notes f where c.nid = f.id"
         ):
             existing[cid] = True
             self._cards[(guid, ord)] = cid
@@ -322,7 +326,7 @@ class Anki2Importer(Importer):
         usn = self.dst.usn()
         aheadBy = self.src.sched.today - self.dst.sched.today
         for card in self.src.db.execute(
-            "select f.guid, f.mid, c.* from cards c, notes f " "where c.nid = f.id"
+            "select f.guid, f.mid, c.* from cards c, notes f where c.nid = f.id"
         ):
             guid = card[0]
             if guid in self._ignoredGuids:

@@ -222,23 +222,26 @@ class Overview:
     def _table(self) -> str | None:
         counts = list(self.mw.col.sched.counts())
         current_did = self.mw.col.decks.get_current_id()
-        deck_tree = self.mw.col.sched.deck_due_tree(current_did)
-        deck_node = self.mw.col.decks.find_deck_in_tree(deck_tree, current_did)
+        deck_node = self.mw.col.sched.deck_due_tree(current_did)
 
         but = self.mw.button
-        buried_new = deck_node.new_count - counts[0]
-        buried_learning = deck_node.learn_count - counts[1]
-        buried_review = deck_node.review_count - counts[2]
-        buried_label = tr.browsing_buried()
+        if self.mw.col.v3_scheduler():
+            buried_new = deck_node.new_count - counts[0]
+            buried_learning = deck_node.learn_count - counts[1]
+            buried_review = deck_node.review_count - counts[2]
+        else:
+            buried_new = buried_learning = buried_review = 0
+        buried_label = tr.studying_counts_differ()
 
         def number_row(title: str, klass: str, count: int, buried_count: int) -> str:
+            buried = f"{buried_count:+}" if buried_count else ""
             return f"""
 <tr>
     <td>{title}:</td>
     <td>
         <b>
             <span class={klass}>{count}</span>
-            <span class=bury-count title="{buried_label}">{buried_count or ""}</span>
+            <span class=bury-count title="{buried_label}">{buried}</span>
         </b>
     </td>
 </tr>
@@ -283,6 +286,12 @@ class Overview:
         if self.mw.col.sched.have_buried():
             links.append(["U", "unbury", tr.studying_unbury()])
         links.append(["", "description", tr.scheduling_description()])
+        link_handler = gui_hooks.overview_will_render_bottom(
+            self._linkHandler,
+            links,
+        )
+        if not callable(link_handler):
+            link_handler = self._linkHandler
         buf = ""
         for b in links:
             if b[0]:
@@ -292,7 +301,9 @@ class Overview:
                 b
             )
         self.bottom.draw(
-            buf=buf, link_handler=self._linkHandler, web_context=OverviewBottomBar(self)
+            buf=buf,
+            link_handler=link_handler,
+            web_context=OverviewBottomBar(self),
         )
 
     # Studying more
@@ -301,4 +312,4 @@ class Overview:
     def onStudyMore(self) -> None:
         import aqt.customstudy
 
-        aqt.customstudy.CustomStudy(self.mw)
+        aqt.customstudy.CustomStudy.fetch_data_and_show(self.mw)

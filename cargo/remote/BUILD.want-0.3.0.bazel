@@ -52,7 +52,7 @@ rust_library(
     version = "0.3.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__log__0_4_14//:log",
+        "@raze__log__0_4_17//:log",
         "@raze__try_lock__0_2_3//:try_lock",
     ],
 )

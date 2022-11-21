@@ -7,7 +7,6 @@ errors-standard-popup =
     
     If problems persist, please report the problem on our { -errors-support-site }.
     Please copy and paste the information below into your report.
--errors-addon-support-site = [add-on support site](https://help.ankiweb.net/discussions/add-ons/)
 errors-addons-active-popup =
     # Error
     
@@ -19,7 +18,7 @@ errors-addons-active-popup =
     repeating until you discover the add-on that is causing the problem.
     
     When you've discovered the add-on that is causing the problem, please
-    report the issue on the { -errors-addon-support-site }.
+    report the issue to the add-on author.
     
     Debug info:
 errors-accessing-db =
@@ -41,3 +40,6 @@ errors-unable-open-collection =
     
     Debug info:
 errors-windows-tts-runtime-error = The TTS service failed. Please ensure Windows updates are installed, try restarting your computer, and try using a different voice.
+
+## OBSOLETE; you do not need to translate this
+

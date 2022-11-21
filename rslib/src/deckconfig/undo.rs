@@ -22,7 +22,7 @@ impl Collection {
                 let current = self
                     .storage
                     .get_deck_config(config.id)?
-                    .ok_or_else(|| AnkiError::invalid_input("deck config disappeared"))?;
+                    .or_invalid("deck config disappeared")?;
                 self.update_deck_config_undoable(&config, current)
             }
             UndoableDeckConfigChange::Removed(config) => self.restore_deleted_deck_config(*config),
@@ -41,6 +41,13 @@ impl Collection {
     ) -> Result<(), AnkiError> {
         self.storage.add_deck_conf(config)?;
         self.save_undo(UndoableDeckConfigChange::Added(Box::new(config.clone())));
+        Ok(())
+    }
+
+    pub(crate) fn add_deck_config_if_unique_undoable(&mut self, config: &DeckConfig) -> Result<()> {
+        if self.storage.add_deck_conf_if_unique(config)? {
+            self.save_undo(UndoableDeckConfigChange::Added(Box::new(config.clone())));
+        }
         Ok(())
     }
 

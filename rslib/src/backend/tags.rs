@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{notes::to_note_ids, Backend};
-pub(super) use crate::backend_proto::tags_service::Service as TagsService;
-use crate::{backend_proto as pb, prelude::*};
+pub(super) use crate::pb::tags_service::Service as TagsService;
+use crate::{pb, prelude::*};
 
 impl TagsService for Backend {
     fn clear_unused_tags(&self, _input: pb::Empty) -> Result<pb::OpChangesWithCount> {

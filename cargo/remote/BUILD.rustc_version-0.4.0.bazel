@@ -50,7 +50,7 @@ rust_library(
     version = "0.4.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__semver__1_0_4//:semver",
+        "@raze__semver__1_0_14//:semver",
     ],
 )
 

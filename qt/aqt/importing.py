@@ -1,11 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import json
 import os
 import re
-import shutil
 import traceback
-import unicodedata
 import zipfile
 from concurrent.futures import Future
 from typing import Any, Optional
@@ -14,13 +11,13 @@ import anki.importing as importing
 import aqt.deckchooser
 import aqt.forms
 import aqt.modelchooser
-from anki.importing.anki2 import V2ImportIntoV1
+from anki.importing.anki2 import MediaMapInvalid, V2ImportIntoV1
 from anki.importing.apkg import AnkiPackageImporter
-from aqt import AnkiQt, gui_hooks
+from aqt.import_export.importing import ColpkgImporter
+from aqt.main import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
     HelpPage,
-    askUser,
     disable_help_button,
     getFile,
     getText,
@@ -375,12 +372,6 @@ def importFile(mw: AnkiQt, file: str) -> None:
     else:
         # if it's an apkg/zip, first test it's a valid file
         if isinstance(importer, AnkiPackageImporter):
-            try:
-                z = zipfile.ZipFile(importer.file)
-                z.getinfo("collection.anki2")
-            except:
-                showWarning(invalidZipMsg())
-                return
             # we need to ask whether to import/replace; if it's
             # a colpkg file then the rest of the import process
             # will happen in setupApkgImport()
@@ -396,6 +387,10 @@ def importFile(mw: AnkiQt, file: str) -> None:
                 future.result()
             except zipfile.BadZipfile:
                 showWarning(invalidZipMsg())
+            except MediaMapInvalid:
+                showWarning(
+                    "Unable to read file. It probably requires a newer version of Anki to import."
+                )
             except V2ImportIntoV1:
                 showWarning(
                     """\
@@ -441,74 +436,5 @@ def setupApkgImport(mw: AnkiQt, importer: AnkiPackageImporter) -> bool:
     if not full:
         # adding
         return True
-    if not mw.restoringBackup and not askUser(
-        tr.importing_this_will_delete_your_existing_collection(),
-        msgfunc=QMessageBox.warning,
-        defaultno=True,
-    ):
-        return False
-
-    replaceWithApkg(mw, importer.file, mw.restoringBackup)
+    ColpkgImporter.do_import(mw, importer.file)
     return False
-
-
-def replaceWithApkg(mw: aqt.AnkiQt, file: str, backup: bool) -> None:
-    mw.unloadCollection(lambda: _replaceWithApkg(mw, file, backup))
-
-
-def _replaceWithApkg(mw: aqt.AnkiQt, filename: str, backup: bool) -> None:
-    mw.progress.start(immediate=True)
-
-    def do_import() -> None:
-        z = zipfile.ZipFile(filename)
-
-        # v2 scheduler?
-        colname = "collection.anki21"
-        try:
-            z.getinfo(colname)
-        except KeyError:
-            colname = "collection.anki2"
-
-        with z.open(colname) as source, open(mw.pm.collectionPath(), "wb") as target:
-            # ignore appears related to https://github.com/python/typeshed/issues/4349
-            # see if can turn off once issue fix is merged in
-            shutil.copyfileobj(source, target)
-
-        d = os.path.join(mw.pm.profileFolder(), "collection.media")
-        for n, (cStr, file) in enumerate(
-            json.loads(z.read("media").decode("utf8")).items()
-        ):
-            mw.taskman.run_on_main(
-                lambda n=n: mw.progress.update(  # type: ignore
-                    tr.importing_processed_media_file(count=n)
-                )
-            )
-            size = z.getinfo(cStr).file_size
-            dest = os.path.join(d, unicodedata.normalize("NFC", file))
-            # if we have a matching file size
-            if os.path.exists(dest) and size == os.stat(dest).st_size:
-                continue
-            data = z.read(cStr)
-            with open(dest, "wb") as file:
-                file.write(data)
-
-        z.close()
-
-    def on_done(future: Future) -> None:
-        mw.progress.finish()
-
-        try:
-            future.result()
-        except Exception as e:
-            print(e)
-            showWarning(tr.importing_the_provided_file_is_not_a())
-            return
-
-        if not mw.loadCollection():
-            return
-        if backup:
-            mw.col.mod_schema(check=False)
-
-        tooltip(tr.importing_importing_complete())
-
-    mw.taskman.run_in_background(do_import, on_done)

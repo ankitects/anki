@@ -9,6 +9,7 @@ use serde_tuple::Serialize_tuple;
 
 use super::{DeckCommon, FilteredDeck, FilteredSearchTerm, NormalDeck};
 use crate::{
+    pb::decks::deck::normal::DayLimit,
     prelude::*,
     serde::{default_on_invalid, deserialize_bool_from_anything, deserialize_number_from_string},
 };
@@ -76,7 +77,7 @@ fn is_false(b: &bool) -> bool {
     !b
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 pub struct DeckCommonSchema11 {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub(crate) id: DeckId,
@@ -104,7 +105,7 @@ pub struct DeckCommonSchema11 {
     other: HashMap<String, Value>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct NormalDeckSchema11 {
     #[serde(flatten)]
@@ -116,6 +117,14 @@ pub struct NormalDeckSchema11 {
     extend_new: i32,
     #[serde(default, deserialize_with = "default_on_invalid")]
     extend_rev: i32,
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    review_limit: Option<u32>,
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    new_limit: Option<u32>,
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    review_limit_today: Option<DayLimit>,
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    new_limit_today: Option<DayLimit>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
@@ -140,7 +149,7 @@ pub struct FilteredDeckSchema11 {
     #[serde(default)]
     preview_delay: u32,
 }
-#[derive(Serialize, Deserialize, Debug, PartialEq, Default, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Default, Clone)]
 pub struct DeckTodaySchema11 {
     #[serde(rename = "lrnToday")]
     pub(crate) lrn: TodayAmountSchema11,
@@ -152,7 +161,7 @@ pub struct DeckTodaySchema11 {
     pub(crate) time: TodayAmountSchema11,
 }
 
-#[derive(Serialize_tuple, Deserialize, Debug, PartialEq, Default, Clone)]
+#[derive(Serialize_tuple, Deserialize, Debug, PartialEq, Eq, Default, Clone)]
 #[serde(from = "Vec<Value>")]
 pub struct TodayAmountSchema11 {
     day: i32,
@@ -169,7 +178,7 @@ impl From<Vec<Value>> for TodayAmountSchema11 {
         }
     }
 }
-#[derive(Serialize_tuple, Deserialize, Debug, PartialEq, Clone)]
+#[derive(Serialize_tuple, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct FilteredSearchTermSchema11 {
     search: String,
     #[serde(deserialize_with = "deserialize_number_from_string")]
@@ -226,6 +235,10 @@ impl Default for NormalDeckSchema11 {
             conf: 1,
             extend_new: 0,
             extend_rev: 0,
+            review_limit: None,
+            new_limit: None,
+            review_limit_today: None,
+            new_limit_today: None,
         }
     }
 }
@@ -298,6 +311,10 @@ impl From<NormalDeckSchema11> for NormalDeck {
             extend_review: deck.extend_rev.max(0) as u32,
             markdown_description: deck.common.markdown_description,
             description: deck.common.desc,
+            review_limit: deck.review_limit,
+            new_limit: deck.new_limit,
+            review_limit_today: deck.review_limit_today,
+            new_limit_today: deck.new_limit_today,
         }
     }
 }
@@ -332,6 +349,10 @@ impl From<Deck> for DeckSchema11 {
                 conf: norm.config_id,
                 extend_new: norm.extend_new as i32,
                 extend_rev: norm.extend_review as i32,
+                review_limit: norm.review_limit,
+                new_limit: norm.new_limit,
+                review_limit_today: norm.review_limit_today,
+                new_limit_today: norm.new_limit_today,
                 common: deck.into(),
             }),
             DeckKind::Filtered(ref filt) => DeckSchema11::Filtered(FilteredDeckSchema11 {
@@ -352,11 +373,12 @@ impl From<Deck> for DeckSchema11 {
 
 impl From<Deck> for DeckCommonSchema11 {
     fn from(deck: Deck) -> Self {
-        let other: HashMap<String, Value> = if deck.common.other.is_empty() {
+        let mut other: HashMap<String, Value> = if deck.common.other.is_empty() {
             Default::default()
         } else {
             serde_json::from_slice(&deck.common.other).unwrap_or_default()
         };
+        clear_other_duplicates(&mut other);
         DeckCommonSchema11 {
             id: deck.id,
             mtime: deck.mtime_secs,
@@ -380,6 +402,18 @@ impl From<Deck> for DeckCommonSchema11 {
             },
             other,
         }
+    }
+}
+
+/// See [crate::deckconfig::schema11::clear_other_duplicates()].
+fn clear_other_duplicates(other: &mut HashMap<String, Value>) {
+    for key in [
+        "reviewLimit",
+        "newLimit",
+        "reviewLimitToday",
+        "newLimitToday",
+    ] {
+        other.remove(key);
     }
 }
 

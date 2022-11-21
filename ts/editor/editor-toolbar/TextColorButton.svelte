@@ -3,24 +3,22 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ColorPicker from "../../components/ColorPicker.svelte";
+    import { onMount } from "svelte";
+
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
-    import type {
-        FormattingNode,
-        MatchType,
-        SurroundFormat,
-    } from "../../domlib/surround";
+    import type { FormattingNode, MatchType } from "../../domlib/surround";
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
+    import { removeStyleProperties } from "../../lib/styling";
+    import { singleCallback } from "../../lib/typing";
     import { withFontColor } from "../helpers";
-    import { context as noteEditorContext } from "../NoteEditor.svelte";
-    import { editingInputIsRichText } from "../rich-text-input";
-    import { removeEmptyStyle, Surrounder } from "../surround";
-    import type { RemoveFormat } from "./EditorToolbar.svelte";
+    import { chevronDown } from "../icons";
+    import { surrounder } from "../rich-text-input";
+    import ColorPicker from "./ColorPicker.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
-    import { arrowIcon, textColorIcon } from "./icons";
+    import { textColorIcon } from "./icons";
     import WithColorHelper from "./WithColorHelper.svelte";
 
     export let color: string;
@@ -59,9 +57,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         match.setCache(value);
         match.clear((): void => {
-            element.style.removeProperty("color");
-
-            if (removeEmptyStyle(element) && element.className.length === 0) {
+            if (
+                removeStyleProperties(element, "color") &&
+                element.className.length === 0
+            ) {
                 match.remove();
             }
         });
@@ -91,40 +90,39 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return true;
     }
 
-    const format: SurroundFormat<string> = {
+    const key = "textColor";
+
+    const format = {
         matcher,
         merger,
         formatter,
     };
 
-    const namedFormat: RemoveFormat<string> = {
+    const namedFormat = {
+        key,
         name: tr.editingTextColor(),
         show: true,
         active: true,
-        format,
     };
 
     const { removeFormats } = editorToolbarContext.get();
     removeFormats.update((formats) => [...formats, namedFormat]);
 
-    const { focusedInput } = noteEditorContext.get();
-    const surrounder = Surrounder.make();
-    let disabled: boolean;
-
-    $: if (editingInputIsRichText($focusedInput)) {
-        surrounder.richText = $focusedInput;
-        disabled = false;
-    } else {
-        surrounder.disable();
-        disabled = true;
-    }
-
     function setTextColor(): void {
-        surrounder.overwriteSurround(format);
+        surrounder.overwriteSurround(key);
     }
 
     const setCombination = "F7";
     const pickCombination = "F8";
+
+    let disabled: boolean;
+
+    onMount(() =>
+        singleCallback(
+            surrounder.active.subscribe((value) => (disabled = !value)),
+            surrounder.registerFormat(key, format),
+        ),
+    );
 </script>
 
 <WithColorHelper {color} let:colorHelperIcon let:setColor>
@@ -143,22 +141,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tooltip="{tr.editingChangeColor()} ({getPlatformString(pickCombination)})"
         {disabled}
         widthMultiplier={0.5}
+        iconSize={120}
     >
-        {@html arrowIcon}
+        {@html chevronDown}
         <ColorPicker
-            on:change={(event) => {
+            keyCombination={pickCombination}
+            on:input={(event) => {
                 color = setColor(event);
                 bridgeCommand(`lastTextColor:${color}`);
-                setTextColor();
             }}
+            on:change={() => setTextColor()}
         />
     </IconButton>
-    <Shortcut
-        keyCombination={pickCombination}
-        on:action={(event) => {
-            color = setColor(event);
-            bridgeCommand(`lastTextColor:${color}`);
-            setTextColor();
-        }}
-    />
 </WithColorHelper>

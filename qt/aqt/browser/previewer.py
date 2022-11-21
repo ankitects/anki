@@ -52,6 +52,7 @@ class Previewer(QDialog):
         self.mw = mw
         disable_help_button(self)
         setWindowIcon(self)
+        gui_hooks.previewer_did_init(self)
 
     def card(self) -> Card | None:
         raise NotImplementedError
@@ -106,7 +107,7 @@ class Previewer(QDialog):
 
     def _on_finished(self, ok: int) -> None:
         saveGeom(self, "preview")
-        self.mw.progress.single_shot(100, self._on_close)
+        self._on_close()
 
     def _on_replay_audio(self) -> None:
         if self._state == "question":
@@ -131,6 +132,8 @@ class Previewer(QDialog):
             ],
             context=self,
         )
+        self._web.allow_drops = True
+        self._web.eval("_blockDefaultDragDropBehavior();")
         self._web.set_bridge_command(self._on_bridge_cmd, self)
 
     def _on_bridge_cmd(self, cmd: str) -> Any:
@@ -216,11 +219,11 @@ class Previewer(QDialog):
                     audio = c.question_av_tags()
                 else:
                     audio = c.answer_av_tags()
-                av_player.play_tags(audio)
             else:
+                audio = []
                 self._web.setPlaybackRequiresGesture(True)
-                av_player.clear_queue_and_maybe_interrupt()
-
+            gui_hooks.av_player_will_play_tags(audio, self._state, self)
+            av_player.play_tags(audio)
             txt = self.mw.prepare_card_text_for_display(txt)
             txt = gui_hooks.card_will_show(txt, c, f"preview{self._state.capitalize()}")
             self._last_state = self._state_and_mod()

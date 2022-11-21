@@ -35,6 +35,17 @@ deck-config-limit-new-bound-by-reviews =
 deck-config-limit-interday-bound-by-reviews =
     The review limit also affects interday learning cards. When applying the limit,
     interday learning cards are fetched first, then reviews, and finally new cards.
+deck-config-tab-description =
+    - `Preset`: The limit is shared with all decks using this preset.
+    - `This deck`: The limit is specific to this deck.
+    - `Today only`: Make a temporary change to this deck's limit.
+
+## Daily limit tabs: please try to keep these as short as the English version,
+## as longer text will not fit on small screens.
+
+deck-config-shared-preset = Preset
+deck-config-deck-only = This deck
+deck-config-today-only = Today only
 
 ## New Cards section
 
@@ -90,9 +101,13 @@ deck-config-bury-title = Burying
 deck-config-bury-new-siblings = Bury new siblings
 deck-config-bury-review-siblings = Bury review siblings
 deck-config-bury-interday-learning-siblings = Bury interday learning siblings
-deck-config-bury-tooltip =
-    Whether other cards of the same note (eg reverse cards, adjacent
-    cloze deletions) will be delayed until the next day.
+deck-config-bury-new-tooltip =
+    Whether other `new` cards of the same note (eg reverse cards, adjacent cloze deletions)
+    will be delayed until the next day.
+deck-config-bury-review-tooltip = Whether other `review` cards of the same note will be delayed until the next day.
+deck-config-bury-interday-learning-tooltip =
+    Whether other `learning` cards of the same note with intervals > 1 day
+    will be delayed until the next day.
 
 ## Ordering section
 
@@ -122,28 +137,27 @@ deck-config-new-gather-priority-random-notes = Random notes
 deck-config-new-gather-priority-random-cards = Random cards
 deck-config-new-card-sort-order = New card sort order
 deck-config-new-card-sort-order-tooltip-2 =
-    `Card template`: Displays cards in card template order. If you have sibling burying
-    disabled, this will ensure all front->back cards are seen before any back->front cards.
+    `Card type`: Displays cards in order of card type number. If you have sibling burying
+    disabled, this will ensure all front→back cards are seen before any back→front cards.
+    This is useful to have all cards of the same note shown in the same session, but not
+    too close to one another.
     
     `Order gathered`: Shows cards exactly as they were gathered. If sibling burying is disabled,
     this will typically result in all cards of a note being seen one after the other.
     
-    `Card template, then random`: Like `Card template`, but shuffles the cards of each
-    template. When combined with an ascending position gather order, this can be used to show
-    the oldest cards in a random order for example.
+    `Card type, then random`: Like `Card type`, but shuffles the cards of each card
+    type number. If you use `Ascending position` to gather the oldest cards, you could use
+    this setting to see those cards in a random order, but still ensure cards of the same
+    note do not end up too close to one another.
     
-    `Random note, then card template`: Picks notes at random, then shows all of their siblings
+    `Random note, then card type`: Picks notes at random, then shows all of their siblings
     in order.
     
     `Random`: Fully shuffles the gathered cards.
-deck-config-sort-order-card-template-then-lowest-position = Card template, then ascending position
-deck-config-sort-order-card-template-then-highest-position = Card template, then descending position
-deck-config-sort-order-card-template-then-random = Card template, then random
-deck-config-sort-order-random-note-then-template = Random note, then card template
-deck-config-sort-order-lowest-position = Ascending position
-deck-config-sort-order-highest-position = Descending position
+deck-config-sort-order-card-template-then-random = Card type, then random
+deck-config-sort-order-random-note-then-template = Random note, then card type
 deck-config-sort-order-random = Random
-deck-config-sort-order-template-then-gather = Card template
+deck-config-sort-order-template-then-gather = Card type
 deck-config-sort-order-gather = Order gathered
 deck-config-new-review-priority = New/review order
 deck-config-new-review-priority-tooltip = When to show new cards in relation to review cards.
@@ -171,6 +185,7 @@ deck-config-sort-order-ascending-intervals = Ascending intervals
 deck-config-sort-order-descending-intervals = Descending intervals
 deck-config-sort-order-ascending-ease = Ascending ease
 deck-config-sort-order-descending-ease = Descending ease
+deck-config-sort-order-relative-overdueness = Relative overdueness
 deck-config-display-order-will-use-current-deck =
     Anki will use the display order from the deck you 
     select to study, and not any subdecks it may have.
@@ -191,6 +206,9 @@ deck-config-show-answer-timer-tooltip =
 
 deck-config-audio-title = Audio
 deck-config-disable-autoplay = Don't play audio automatically
+deck-config-disable-autoplay-tooltip =
+    When enabled, Anki will not play audio automatically.
+    It can be played manually by clicking/tapping on an audio icon, or by using the replay audio action.
 deck-config-skip-question-when-replaying = Skip question when replaying answer
 deck-config-always-include-question-audio-tooltip =
     Whether the question audio should be included when the Replay action is
@@ -265,6 +283,7 @@ deck-config-reviews-too-low =
 deck-config-learning-step-above-graduating-interval = The graduating interval should be at least as long as your final learning step.
 deck-config-good-above-easy = The easy interval should be at least as long as the graduating interval.
 deck-config-relearning-steps-above-minimum-interval = The minimum lapse interval should be at least as long as your final relearning step.
+deck-config-maximum-answer-secs-above-recommended = Anki can schedule your reviews more efficiently when you keep each question short.
 
 ## Selecting a deck
 
@@ -272,15 +291,3 @@ deck-config-which-deck = Which deck would you like?
 
 ## NO NEED TO TRANSLATE. These strings have been replaced with new versions, and will be removed in the future.
 
-deck-config-new-card-sort-order-tooltip =
-    How cards are sorted after they have been gathered. By default, Anki sorts
-    by card template first, to avoid multiple cards of the same note from being
-    shown in succession.
-deck-config-new-gather-priority-tooltip =
-    `Deck`: gathers cards from each subdeck in order, and stops when the
-    limit of the selected deck has been exceeded. This is faster, and allows you
-    to prioritize subdecks that are closer to the top.
-    
-    `Position`: gathers cards from all decks before they are sorted. This
-    ensures cards appear in strict position (due #) order, even if the parent limit is
-    not high enough to see cards from all decks.

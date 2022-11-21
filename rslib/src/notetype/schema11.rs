@@ -20,7 +20,7 @@ use crate::{
     types::Usn,
 };
 
-#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone)]
+#[derive(Serialize_repr, Deserialize_repr, PartialEq, Eq, Debug, Clone)]
 #[repr(u8)]
 pub enum NotetypeKind {
     Standard = 0,
@@ -159,9 +159,9 @@ impl From<Notetype> for NotetypeSchema11 {
     }
 }
 
+/// See [crate::deckconfig::schema11::clear_other_duplicates()].
 fn clear_other_field_duplicates(other: &mut HashMap<String, Value>) {
-    // see `clear_other_duplicates()` in `deckconfig/schema11.rs`
-    for key in &["description"] {
+    for key in &["description", "plainText", "collapsed"] {
         other.remove(*key);
     }
 }
@@ -195,6 +195,7 @@ impl From<CardRequirement> for CardRequirementSchema11 {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct NoteFieldSchema11 {
     pub(crate) name: String,
     pub(crate) ord: Option<u16>,
@@ -211,6 +212,12 @@ pub struct NoteFieldSchema11 {
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) description: String,
 
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    pub(crate) plain_text: bool,
+
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    pub(crate) collapsed: bool,
+
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
 }
@@ -222,9 +229,11 @@ impl Default for NoteFieldSchema11 {
             ord: None,
             sticky: false,
             rtl: false,
+            plain_text: false,
             font: "Arial".to_string(),
             size: 20,
             description: String::new(),
+            collapsed: false,
             other: Default::default(),
         }
     }
@@ -238,9 +247,11 @@ impl From<NoteFieldSchema11> for NoteField {
             config: NoteFieldConfig {
                 sticky: f.sticky,
                 rtl: f.rtl,
+                plain_text: f.plain_text,
                 font_name: f.font,
                 font_size: f.size as u32,
                 description: f.description,
+                collapsed: f.collapsed,
                 other: other_to_bytes(&f.other),
             },
         }
@@ -259,9 +270,11 @@ impl From<NoteField> for NoteFieldSchema11 {
             ord: p.ord.map(|o| o as u16),
             sticky: conf.sticky,
             rtl: conf.rtl,
+            plain_text: conf.plain_text,
             font: conf.font_name,
             size: conf.font_size as u16,
             description: conf.description,
+            collapsed: conf.collapsed,
             other,
         }
     }

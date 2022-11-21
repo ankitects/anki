@@ -1,13 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::NotetypeKind;
+use super::NotetypeConfig;
 use crate::{
-    backend_proto::stock_notetype::Kind,
     config::{ConfigEntry, ConfigKey},
     error::Result,
     i18n::I18n,
     notetype::Notetype,
+    pb::stock_notetype::Kind,
     storage::SqliteStorage,
     timestamp::TimestampSecs,
 };
@@ -112,6 +112,7 @@ pub(crate) fn basic_optional_reverse(tr: &I18n) -> Notetype {
 pub(crate) fn cloze(tr: &I18n) -> Notetype {
     let mut nt = Notetype {
         name: tr.notetypes_cloze_name().into(),
+        config: NotetypeConfig::new_cloze(),
         ..Default::default()
     };
     let text = tr.notetypes_text_field();
@@ -121,15 +122,5 @@ pub(crate) fn cloze(tr: &I18n) -> Notetype {
     let qfmt = format!("{{{{cloze:{}}}}}", text);
     let afmt = format!("{}<br>\n{{{{{}}}}}", qfmt, back_extra);
     nt.add_template(nt.name.clone(), qfmt, afmt);
-    nt.config.kind = NotetypeKind::Cloze as i32;
-    nt.config.css += "
-.cloze {
- font-weight: bold;
- color: blue;
-}
-.nightMode .cloze {
- color: lightblue;
-}
-";
     nt
 }

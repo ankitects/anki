@@ -13,6 +13,7 @@ import aqt.progress
 from anki.collection import Collection, SearchNode
 from anki.errors import Interrupted
 from anki.media import CheckMediaResponse
+from aqt import gui_hooks
 from aqt.operations import QueryOp
 from aqt.qt import *
 from aqt.utils import (
@@ -56,7 +57,7 @@ class MediaChecker:
 
     def _set_progress_enabled(self, enabled: bool) -> None:
         if self._progress_timer:
-            self._progress_timer.stop()
+            self._progress_timer.deleteLater()
             self._progress_timer = None
         if enabled:
             self._progress_timer = timer = QTimer()
@@ -96,6 +97,7 @@ class MediaChecker:
             return
 
         output: CheckMediaResponse = future.result()
+        gui_hooks.media_check_did_finish(output)
         report = output.report
 
         # show report and offer to delete

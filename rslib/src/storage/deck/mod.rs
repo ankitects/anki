@@ -74,6 +74,15 @@ impl SqliteStorage {
             .transpose()
     }
 
+    pub(crate) fn get_deck_by_name(&self, machine_name: &str) -> Result<Option<Deck>> {
+        self.db
+            .prepare_cached(concat!(include_str!("get_deck.sql"), " WHERE name = ?"))?
+            .query_and_then([machine_name], row_to_deck)?
+            .next()
+            .transpose()
+            .map_err(Into::into)
+    }
+
     pub(crate) fn get_all_decks(&self) -> Result<Vec<Deck>> {
         self.db
             .prepare(include_str!("get_deck.sql"))?
@@ -111,6 +120,37 @@ impl SqliteStorage {
             .map_err(Into::into)
     }
 
+    pub(crate) fn get_decks_for_search_cards(&self) -> Result<Vec<Deck>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get_deck.sql"),
+                " WHERE id IN (SELECT DISTINCT did FROM cards WHERE id IN",
+                " (SELECT cid FROM search_cids))",
+            ))?
+            .query_and_then([], row_to_deck)?
+            .collect()
+    }
+
+    pub(crate) fn get_decks_and_original_for_search_cards(&self) -> Result<Vec<Deck>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get_deck.sql"),
+                " WHERE id IN (",
+                include_str!("all_decks_and_original_of_search_cards.sql"),
+                ")",
+            ))?
+            .query_and_then([], row_to_deck)?
+            .collect()
+    }
+
+    /// Returns the deck id of the first existing card of every searched note.
+    pub(crate) fn all_decks_of_search_notes(&self) -> Result<HashMap<NoteId, DeckId>> {
+        self.db
+            .prepare_cached(include_str!("all_decks_of_search_notes.sql"))?
+            .query_and_then([], |r| Ok((r.get(0)?, r.get(1)?)))?
+            .collect()
+    }
+
     // caller should ensure name unique
     pub(crate) fn add_deck(&self, deck: &mut Deck) -> Result<()> {
         assert!(deck.id.0 == 0);
@@ -127,9 +167,7 @@ impl SqliteStorage {
     }
 
     pub(crate) fn update_deck(&self, deck: &Deck) -> Result<()> {
-        if deck.id.0 == 0 {
-            return Err(AnkiError::invalid_input("deck with id 0"));
-        }
+        require!(deck.id.0 != 0, "deck with id 0");
         let mut stmt = self.db.prepare_cached(include_str!("update_deck.sql"))?;
         let mut common = vec![];
         deck.common.encode(&mut common)?;
@@ -147,21 +185,14 @@ impl SqliteStorage {
             deck.id
         ])?;
 
-        if count == 0 {
-            Err(AnkiError::invalid_input(
-                "update_deck() called with non-existent deck",
-            ))
-        } else {
-            Ok(())
-        }
+        require!(count != 0, "update_deck() called with non-existent deck");
+        Ok(())
     }
 
     /// Used for syncing&undo; will keep existing ID. Shouldn't be used to add
     /// new decks locally, since it does not allocate an id.
     pub(crate) fn add_or_update_deck_with_existing_id(&self, deck: &Deck) -> Result<()> {
-        if deck.id.0 == 0 {
-            return Err(AnkiError::invalid_input("deck with id 0"));
-        }
+        require!(deck.id.0 != 0, "deck with id 0");
         let mut stmt = self
             .db
             .prepare_cached(include_str!("add_or_update_deck.sql"))?;
@@ -223,7 +254,7 @@ impl SqliteStorage {
     }
 
     pub(crate) fn deck_with_children(&self, deck_id: DeckId) -> Result<Vec<Deck>> {
-        let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
+        let deck = self.get_deck(deck_id)?.or_not_found(deck_id)?;
         let prefix_start = format!("{}\x1f", deck.name);
         let prefix_end = format!("{}\x20", deck.name);
         iter::once(Ok(deck))
@@ -265,10 +296,9 @@ impl SqliteStorage {
         sched: SchedulerVersion,
         day_cutoff: u32,
         learn_cutoff: u32,
-        top_deck: Option<&str>,
     ) -> Result<HashMap<DeckId, DueCounts>> {
         let sched_ver = sched as u8;
-        let mut params = named_params! {
+        let params = named_params! {
             ":new_queue": CardQueue::New as u8,
             ":review_queue": CardQueue::Review as u8,
             ":day_cutoff": day_cutoff,
@@ -279,30 +309,7 @@ impl SqliteStorage {
             ":preview_queue": CardQueue::PreviewRepeat as u8,
         }
         .to_vec();
-
-        let sql;
-        let prefix_start;
-        let prefix_end;
-        let top;
-        if let Some(top_inner) = top_deck {
-            // limited to deck node
-            top = top_inner;
-            prefix_start = format!("{}\x1f", top);
-            prefix_end = format!("{}\x20", top);
-            params.extend(named_params! {
-                ":top_deck": top,
-                ":prefix_start": prefix_start,
-                ":prefix_end": prefix_end,
-            });
-            sql = concat!(
-                include_str!("due_counts.sql"),
-                " where did in (select id from decks where name = :top_deck ",
-                "or (name >= :prefix_start and name < :prefix_end)) group by did "
-            );
-        } else {
-            // entire tree
-            sql = concat!(include_str!("due_counts.sql"), " group by did");
-        }
+        let sql = concat!(include_str!("due_counts.sql"), " group by did");
 
         self.db
             .prepare_cached(sql)?
@@ -366,7 +373,9 @@ impl SqliteStorage {
         let usn = self.usn(server)?;
         let decks = self
             .get_schema11_decks()
-            .map_err(|e| AnkiError::JsonError(format!("decoding decks: {}", e)))?;
+            .map_err(|e| AnkiError::JsonError {
+                info: format!("decoding decks: {}", e),
+            })?;
         let mut names = HashSet::new();
         for (_id, deck) in decks {
             let oldname = deck.name().to_string();

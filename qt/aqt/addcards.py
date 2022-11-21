@@ -21,6 +21,7 @@ from aqt.qt import *
 from aqt.sound import av_player
 from aqt.utils import (
     HelpPage,
+    add_close_shortcut,
     askUser,
     downArrow,
     openHelp,
@@ -48,6 +49,7 @@ class AddCards(QMainWindow):
         self.setup_choosers()
         self.setupEditor()
         self.setupButtons()
+        add_close_shortcut(self)
         self._load_new_note()
         self.history: list[NoteId] = []
         self._last_added_note: Optional[Note] = None
@@ -294,6 +296,11 @@ class AddCards(QMainWindow):
         problem = gui_hooks.add_cards_will_add_note(problem, note)
         if problem is not None:
             showWarning(problem, help=HelpPage.ADDING_CARD_AND_NOTE)
+            return False
+
+        optional_problems: list[str] = []
+        gui_hooks.add_cards_might_add_note(optional_problems, note)
+        if not all(askUser(op) for op in optional_problems):
             return False
 
         return True

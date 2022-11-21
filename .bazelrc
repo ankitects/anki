@@ -10,11 +10,18 @@ build:windows --build_python_zip=false
 # record version/build hash
 build --workspace_status_command='bash ./tools/status.sh'
 
+# support macOS 10.13+
+build:macos --action_env="MACOSX_DEPLOYMENT_TARGET=10.13"
+build:macos --macos_minimum_os=10.13
+
 # run clippy when compiling rust in test mode
 test --aspects=@rules_rust//rust:defs.bzl%rust_clippy_aspect --output_groups=+clippy_checks
 
 # print output when test fails
 test --test_output=errors
+
+# stop after one test failure
+test --notest_keep_going
 
 # don't add empty __init__.py files
 build --incompatible_default_to_explicit_init_py

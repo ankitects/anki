@@ -1,0 +1,11 @@
+{
+    "extends": "../tsconfig.json",
+    "include": ["*", "tag-options-button/*"],
+    "references": [
+        { "path": "../components" },
+        { "path": "../domlib" },
+        { "path": "../lib" },
+        { "path": "../sveltelib" }
+        // { "path": "../editable" },
+    ]
+}

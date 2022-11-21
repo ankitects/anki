@@ -38,15 +38,6 @@
     }
 
     onDestroy(() => tooltipObject?.dispose());
-
-    // hack to update field description tooltips
-    let previousTooltip: string = tooltip;
-    $: if (tooltip !== previousTooltip) {
-        previousTooltip = tooltip;
-        const element: HTMLElement = tooltipObject["_element"];
-        tooltipObject.dispose();
-        createTooltip(element);
-    }
 </script>
 
 <slot {createTooltip} {tooltipObject} />

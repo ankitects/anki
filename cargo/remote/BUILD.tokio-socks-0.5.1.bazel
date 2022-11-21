@@ -56,10 +56,10 @@ rust_library(
     version = "0.5.1",
     # buildifier: leave-alone
     deps = [
-        "@raze__either__1_6_1//:either",
-        "@raze__futures_util__0_3_19//:futures_util",
-        "@raze__thiserror__1_0_30//:thiserror",
-        "@raze__tokio__1_15_0//:tokio",
+        "@raze__either__1_8_0//:either",
+        "@raze__futures_util__0_3_24//:futures_util",
+        "@raze__thiserror__1_0_35//:thiserror",
+        "@raze__tokio__1_21_1//:tokio",
     ],
 )
 

@@ -1,63 +1,53 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-interface AllowPropertiesBlockValues {
-    [property: string]: string[];
-}
-
-type BlockProperties = string[];
-
+/// Keep property if true.
 type StylingPredicate = (property: string, value: string) => boolean;
 
-const stylingNightMode: AllowPropertiesBlockValues = {
-    "font-weight": [],
-    "font-style": [],
-    "text-decoration-line": [],
-};
+const keep = (_key: string, _value: string) => true;
+const discard = (_key: string, _value: string) => false;
 
-const stylingLightMode: AllowPropertiesBlockValues = {
-    color: [],
-    "background-color": ["transparent"],
-    ...stylingNightMode,
-};
-
-const stylingInternal: BlockProperties = [
-    "background-color",
-    "font-size",
-    "font-family",
-    "width",
-    "height",
-    "max-width",
-    "max-height",
-];
-
-const allowPropertiesBlockValues =
-    (allowBlock: AllowPropertiesBlockValues): StylingPredicate =>
-    (property: string, value: string): boolean =>
-        Object.prototype.hasOwnProperty.call(allowBlock, property) &&
-        !allowBlock[property].includes(value);
-
-const blockProperties =
-    (block: BlockProperties): StylingPredicate =>
-    (property: string): boolean =>
-        !block.includes(property);
-
-const filterStyling =
-    (predicate: (property: string, value: string) => boolean) =>
-    (element: HTMLElement): void => {
-        for (const property of [...element.style]) {
-            const value = element.style.getPropertyValue(property);
-
-            if (!predicate(property, value)) {
-                element.style.removeProperty(property);
+/// Return a function that filters out certain styles.
+/// - If the style is listed in `exceptions`, the provided predicate is used.
+/// - If the style is not listed, the default predicate is used instead.
+function filterStyling(
+    defaultPredicate: StylingPredicate,
+    exceptions: Record<string, StylingPredicate>,
+): (element: HTMLElement) => void {
+    return (element: HTMLElement): void => {
+        // jsdom does not support @@iterator, so manually iterate
+        const toRemove = [] as string[];
+        for (let i = 0; i < element.style.length; i++) {
+            const key = element.style.item(i);
+            const value = element.style.getPropertyValue(key);
+            const predicate = exceptions[key] ?? defaultPredicate;
+            if (!predicate(key, value)) {
+                toRemove.push(key);
             }
         }
+        for (const key of toRemove) {
+            element.style.removeProperty(key);
+        }
     };
+}
 
-export const filterStylingNightMode = filterStyling(
-    allowPropertiesBlockValues(stylingNightMode),
-);
-export const filterStylingLightMode = filterStyling(
-    allowPropertiesBlockValues(stylingLightMode),
-);
-export const filterStylingInternal = filterStyling(blockProperties(stylingInternal));
+const nightModeExceptions = {
+    "font-weight": keep,
+    "font-style": keep,
+    "text-decoration-line": keep,
+};
+
+export const filterStylingNightMode = filterStyling(discard, nightModeExceptions);
+export const filterStylingLightMode = filterStyling(discard, {
+    color: keep,
+    "background-color": (_key: string, value: string) => value != "transparent",
+    ...nightModeExceptions,
+});
+export const filterStylingInternal = filterStyling(keep, {
+    "font-size": discard,
+    "font-family": discard,
+    width: discard,
+    height: discard,
+    "max-width": discard,
+    "max-height": discard,
+});

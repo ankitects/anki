@@ -179,7 +179,7 @@ SectionEnd ; end the section
 ; Uninstaller
 
 function un.onInit
-   MessageBox MB_OKCANCEL "This will remove Anki's program files, but will not delete your card data. If you wish to delete your card data as well, you can do so via File>Switch Profile inside Anki first. Are you sure you wish to uninstall Anki?" IDOK next
+   MessageBox MB_OKCANCEL "This will remove Anki's program files, but will not delete your card data. If you wish to delete your card data as well, you can do so via File>Switch Profile inside Anki first. Are you sure you wish to uninstall Anki?" /SD IDOK IDOK next
       Quit
   next:
 functionEnd

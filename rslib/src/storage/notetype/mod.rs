@@ -9,13 +9,12 @@ use unicase::UniCase;
 
 use super::{ids_to_string, SqliteStorage};
 use crate::{
-    error::{AnkiError, DbErrorKind, Result},
-    notes::NoteId,
+    error::DbErrorKind,
     notetype::{
         AlreadyGeneratedCardInfo, CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig,
-        Notetype, NotetypeConfig, NotetypeId, NotetypeSchema11,
+        NotetypeConfig, NotetypeSchema11,
     },
-    timestamp::TimestampMillis,
+    prelude::*,
 };
 
 fn row_to_notetype_core(row: &Row) -> Result<Notetype> {
@@ -97,6 +96,32 @@ impl SqliteStorage {
             .query_row(params![name], |row| row.get(0))
             .optional()
             .map_err(Into::into)
+    }
+
+    pub(crate) fn get_notetypes_for_search_notes(&self) -> Result<Vec<Notetype>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get_notetype.sql"),
+                " WHERE id IN (SELECT DISTINCT mid FROM notes WHERE id IN",
+                " (SELECT nid FROM search_nids))",
+            ))?
+            .query_and_then([], |r| {
+                row_to_notetype_core(r).and_then(|mut nt| {
+                    nt.fields = self.get_notetype_fields(nt.id)?;
+                    nt.templates = self.get_notetype_templates(nt.id)?;
+                    Ok(nt)
+                })
+            })?
+            .collect()
+    }
+
+    pub(crate) fn all_notetypes_of_search_notes(&self) -> Result<Vec<NotetypeId>> {
+        self.db
+            .prepare_cached(
+                "SELECT DISTINCT mid FROM notes WHERE id IN (SELECT nid FROM search_nids)",
+            )?
+            .query_and_then([], |r| Ok(r.get(0)?))?
+            .collect()
     }
 
     pub fn get_all_notetype_names(&self) -> Result<Vec<(NotetypeId, String)>> {
@@ -191,11 +216,7 @@ impl SqliteStorage {
 
     /// Notetype should have an existing id, and will be added if missing.
     fn update_notetype_core(&self, nt: &Notetype) -> Result<()> {
-        if nt.id.0 == 0 {
-            return Err(AnkiError::invalid_input(
-                "notetype with id 0 passed in as existing",
-            ));
-        }
+        require!(nt.id.0 != 0, "notetype with id 0 passed in as existing");
         let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
         let mut config_bytes = vec![];
         nt.config.encode(&mut config_bytes)?;
@@ -304,7 +325,9 @@ impl SqliteStorage {
     pub(crate) fn upgrade_notetypes_to_schema15(&self) -> Result<()> {
         let nts = self
             .get_schema11_notetypes()
-            .map_err(|e| AnkiError::JsonError(format!("decoding models: {}", e)))?;
+            .map_err(|e| AnkiError::JsonError {
+                info: format!("decoding models: {}", e),
+            })?;
         let mut names = HashSet::new();
         for (mut ntid, nt) in nts {
             let mut nt = Notetype::from(nt);
@@ -356,5 +379,12 @@ impl SqliteStorage {
         let json = serde_json::to_string(&notetypes)?;
         self.db.execute("update col set models = ?", [json])?;
         Ok(())
+    }
+
+    pub(crate) fn get_field_names(&self, notetype_id: NotetypeId) -> Result<Vec<String>> {
+        self.db
+            .prepare_cached("SELECT name FROM fields WHERE ntid = ? ORDER BY ord")?
+            .query_and_then([notetype_id], |row| Ok(row.get(0)?))?
+            .collect()
     }
 }

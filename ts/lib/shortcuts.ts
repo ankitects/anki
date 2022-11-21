@@ -4,7 +4,7 @@
 import { on } from "./events";
 import type { Modifier } from "./keys";
 import {
-    checkIfInputKey,
+    checkIfModifierKey,
     checkModifiers,
     keyToPlatformString,
     modifiersToPlatformString,
@@ -135,18 +135,35 @@ function innerShortcut(
     function handler(event: KeyboardEvent): void {
         if (nextCheck(event)) {
             innerShortcut(target, event, callback, ...restChecks);
-        } else if (checkIfInputKey(event)) {
+        } else if (!checkIfModifierKey(event)) {
             // Any non-modifier key will cancel the shortcut sequence
             remove();
         }
     }
 }
 
+export interface RegisterShortcutRestParams {
+    target: EventTarget;
+    /// There might be no good reason to use `keyup` other
+    /// than to circumvent Qt bugs
+    event: "keydown" | "keyup";
+}
+
+const defaultRegisterShortcutRestParams = {
+    target: document,
+    event: "keydown" as const,
+};
+
 export function registerShortcut(
     callback: (event: KeyboardEvent) => void,
     keyCombinationString: string,
-    target: EventTarget | Document = document,
+    restParams: Partial<RegisterShortcutRestParams> = defaultRegisterShortcutRestParams,
 ): () => void {
+    const {
+        target = defaultRegisterShortcutRestParams.target,
+        event = defaultRegisterShortcutRestParams.event,
+    } = restParams;
+
     const [check, ...restChecks] =
         splitKeyCombinationString(keyCombinationString).map(keyCombinationToCheck);
 
@@ -156,7 +173,7 @@ export function registerShortcut(
         }
     }
 
-    return on(target, "keydown", handler);
+    return on(target, event, handler);
 }
 
 registerPackage("anki/shortcuts", {

@@ -27,6 +27,12 @@ pub enum BoolKey {
     PreviewBothSides,
     Sched2021,
     IgnoreAccentsInSearch,
+    RestorePositionBrowser,
+    RestorePositionReviewer,
+    ResetCountsBrowser,
+    ResetCountsReviewer,
+    RandomOrderReposition,
+    ShiftPositionOfExistingCards,
 
     #[strum(to_string = "normalize_note_text")]
     NormalizeNoteText,
@@ -55,6 +61,8 @@ impl Collection {
             | BoolKey::FutureDueShowBacklog
             | BoolKey::ShowRemainingDueCountsInStudy
             | BoolKey::CardCountsSeparateInactive
+            | BoolKey::RestorePositionBrowser
+            | BoolKey::RestorePositionReviewer
             | BoolKey::NormalizeNoteText => self.get_config_optional(key).unwrap_or(true),
 
             // other options default to false

@@ -6,6 +6,8 @@ _pages = [
     "deck-options",
     "change-notetype",
     "card-info",
+    "fields",
+    "import-csv",
 ]
 
 [copy_files_into_group(

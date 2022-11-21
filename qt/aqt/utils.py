@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 import subprocess
 import sys
-from functools import wraps
-from typing import TYPE_CHECKING, Any, Literal, Sequence, no_type_check
+from functools import partial, wraps
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Callable, Literal, Sequence, Union
+
+from send2trash import send2trash
 
 import aqt
 from anki._legacy import DeprecatedNamesMixinForModule
@@ -21,10 +25,61 @@ from anki.utils import (
     version_with_build,
 )
 from aqt.qt import *
+from aqt.qt import (
+    PYQT_VERSION_STR,
+    QT_VERSION_STR,
+    QAction,
+    QApplication,
+    QCheckBox,
+    QColor,
+    QComboBox,
+    QDesktopServices,
+    QDialog,
+    QDialogButtonBox,
+    QEvent,
+    QFileDialog,
+    QFrame,
+    QHeaderView,
+    QIcon,
+    QKeySequence,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QMainWindow,
+    QMenu,
+    QMessageBox,
+    QMouseEvent,
+    QNativeGestureEvent,
+    QOffscreenSurface,
+    QOpenGLContext,
+    QPalette,
+    QPixmap,
+    QPlainTextEdit,
+    QPoint,
+    QPushButton,
+    QShortcut,
+    QSize,
+    QSplitter,
+    QStandardPaths,
+    Qt,
+    QTextBrowser,
+    QTextOption,
+    QTimer,
+    QUrl,
+    QVBoxLayout,
+    QWheelEvent,
+    QWidget,
+    pyqtSlot,
+    qconnect,
+    qtmajor,
+    qtminor,
+    qVersion,
+    traceback,
+)
 from aqt.theme import theme_manager
 
 if TYPE_CHECKING:
-    TextFormat = Union[Literal["plain", "rich"]]
+    TextFormat = Literal["plain", "rich"]
 
 
 def aqt_data_folder() -> str:
@@ -66,10 +121,115 @@ def openLink(link: str | QUrl) -> None:
         QDesktopServices.openUrl(QUrl(link))
 
 
+class MessageBox(QMessageBox):
+    def __init__(
+        self,
+        text: str,
+        callback: Callable[[int], None] | None = None,
+        parent: QWidget | None = None,
+        icon: QMessageBox.Icon = QMessageBox.Icon.NoIcon,
+        help: HelpPageArgument | None = None,
+        title: str = "Anki",
+        buttons: Sequence[str | QMessageBox.StandardButton] | None = None,
+        default_button: int = 0,
+        textFormat: Qt.TextFormat = Qt.TextFormat.PlainText,
+    ) -> None:
+        parent = parent or aqt.mw.app.activeWindow() or aqt.mw
+        super().__init__(parent)
+        self.setText(text)
+        self.setWindowTitle(title)
+        self.setWindowModality(Qt.WindowModality.WindowModal)
+        self.setIcon(icon)
+        if icon == QMessageBox.Icon.Question and theme_manager.night_mode:
+            img = self.iconPixmap().toImage()
+            img.invertPixels()
+            self.setIconPixmap(QPixmap(img))
+        self.setTextFormat(textFormat)
+        if buttons is None:
+            buttons = [QMessageBox.StandardButton.Ok]
+        for i, button in enumerate(buttons):
+            if isinstance(button, str):
+                b = self.addButton(button, QMessageBox.ButtonRole.ActionRole)
+            elif isinstance(button, QMessageBox.StandardButton):
+                b = self.addButton(button)
+            else:
+                continue
+            if callback is not None:
+                qconnect(b.clicked, partial(callback, i))
+            if i == default_button:
+                self.setDefaultButton(b)
+        if help is not None:
+            b = self.addButton(QMessageBox.StandardButton.Help)
+            qconnect(b.clicked, lambda: openHelp(help))
+        self.open()
+
+
+def ask_user(
+    text: str,
+    callback: Callable[[bool], None],
+    defaults_yes: bool = True,
+    **kwargs: Any,
+) -> MessageBox:
+    "Shows a yes/no question, passes the answer to the callback function as a bool."
+    return MessageBox(
+        text,
+        callback=lambda response: callback(not response),
+        icon=QMessageBox.Icon.Question,
+        buttons=[QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.No],
+        default_button=not defaults_yes,
+        **kwargs,
+    )
+
+
+def ask_user_dialog(
+    text: str,
+    callback: Callable[[int], None],
+    buttons: Sequence[str | QMessageBox.StandardButton] | None = None,
+    default_button: int = 1,
+    **kwargs: Any,
+) -> MessageBox:
+    "Shows a question to the user, passes the index of the button clicked to the callback."
+    if buttons is None:
+        buttons = [QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.No]
+    return MessageBox(
+        text,
+        callback=callback,
+        icon=QMessageBox.Icon.Question,
+        buttons=buttons,
+        default_button=default_button,
+        **kwargs,
+    )
+
+
+def show_info(text: str, callback: Callable | None = None, **kwargs: Any) -> MessageBox:
+    "Show a small info window with an OK button."
+    if "icon" not in kwargs:
+        kwargs["icon"] = QMessageBox.Icon.Information
+    return MessageBox(
+        text,
+        callback=(lambda _: callback()) if callback is not None else None,
+        **kwargs,
+    )
+
+
+def show_warning(
+    text: str, callback: Callable | None = None, **kwargs: Any
+) -> MessageBox:
+    "Show a small warning window with an OK button."
+    return show_info(text, icon=QMessageBox.Icon.Warning, callback=callback, **kwargs)
+
+
+def show_critical(
+    text: str, callback: Callable | None = None, **kwargs: Any
+) -> MessageBox:
+    "Show a small critical error window with an OK button."
+    return show_info(text, icon=QMessageBox.Icon.Critical, callback=callback, **kwargs)
+
+
 def showWarning(
     text: str,
     parent: QWidget | None = None,
-    help: HelpPageArgument = "",
+    help: HelpPageArgument | None = None,
     title: str = "Anki",
     textFormat: TextFormat | None = None,
 ) -> int:
@@ -91,7 +251,7 @@ def showCritical(
 def showInfo(
     text: str,
     parent: QWidget | None = None,
-    help: HelpPageArgument = "",
+    help: HelpPageArgument | None = None,
     type: str = "info",
     title: str = "Anki",
     textFormat: TextFormat | None = None,
@@ -129,7 +289,7 @@ def showInfo(
     else:
         b = mb.addButton(QMessageBox.StandardButton.Ok)
         b.setDefault(True)
-    if help:
+    if help is not None:
         b = mb.addButton(QMessageBox.StandardButton.Help)
         qconnect(b.clicked, lambda: openHelp(help))
         b.setAutoDefault(False)
@@ -426,7 +586,7 @@ def getFile(
     title: str,
     # single file returned unless multi=True
     cb: Callable[[str | Sequence[str]], None] | None,
-    filter: str = "*.*",
+    filter: str = "*",
     dir: str | None = None,
     key: str | None = None,
     multi: bool = False,  # controls whether a single or multiple files is returned
@@ -689,6 +849,13 @@ def addCloseShortcut(widg: QDialog) -> None:
     setattr(widg, "_closeShortcut", shortcut)
 
 
+def add_close_shortcut(widg: QWidget) -> None:
+    if not is_mac:
+        return
+    shortcut = QShortcut(QKeySequence("Ctrl+W"), widg)
+    qconnect(shortcut.activated, widg.close)
+
+
 def downArrow() -> str:
     if is_win:
         return "▼"
@@ -701,6 +868,21 @@ def current_window() -> QWidget | None:
         return widget.window()
     else:
         return None
+
+
+def send_to_trash(path: Path) -> None:
+    "Place file/folder in recyling bin, or delete permanently on failure."
+    if not path.exists():
+        return
+    try:
+        send2trash(path)
+    except Exception as exc:
+        # Linux users may not have a trash folder set up
+        print("trash failure:", path, exc)
+        if path.is_dir:
+            shutil.rmtree(path)
+        else:
+            path.unlink()
 
 
 # Tooltips
@@ -852,6 +1034,23 @@ def qtMenuShortcutWorkaround(qmenu: QMenu) -> None:
 ######################################################################
 
 
+def disallow_full_screen() -> bool:
+    """Test for OpenGl on Windows, which is known to cause issues with full screen mode.
+    On Qt6, the driver is not detectable, so check if it has been set explicitly.
+    """
+    from aqt import mw
+    from aqt.profiles import VideoDriver
+
+    return is_win and (
+        (qtmajor == 5 and mw.pm.video_driver() == VideoDriver.OpenGL)
+        or (
+            qtmajor == 6
+            and not os.environ.get("ANKI_SOFTWAREOPENGL")
+            and os.environ.get("QT_OPENGL") != "software"
+        )
+    )
+
+
 def add_ellipsis_to_action_label(*actions: QAction) -> None:
     """Pass actions to add '...' to their labels, indicating that more input is
     required before they can be performed.
@@ -869,12 +1068,7 @@ def supportText() -> str:
 
     from aqt import mw
 
-    if is_win:
-        platname = f"Windows {platform.win32_ver()[0]}"
-    elif is_mac:
-        platname = f"Mac {platform.mac_ver()[0]}"
-    else:
-        platname = "Linux"
+    platname = platform.platform()
 
     def schedVer() -> str:
         try:
@@ -896,7 +1090,7 @@ Add-ons, last update check: {}
 """.format(
         version_with_build(),
         platform.python_version(),
-        QT_VERSION_STR,
+        qVersion(),
         PYQT_VERSION_STR,
         platname,
         getattr(sys, "frozen", False),
@@ -1049,6 +1243,7 @@ class KeyboardModifiersPressed:
 _deprecated_names = DeprecatedNamesMixinForModule(globals())
 
 
-@no_type_check
-def __getattr__(name: str) -> Any:
-    return _deprecated_names.__getattr__(name)
+if not TYPE_CHECKING:
+
+    def __getattr__(name: str) -> Any:
+        return _deprecated_names.__getattr__(name)

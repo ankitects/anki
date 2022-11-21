@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import contextProperty from "../sveltelib/context-property";
 
-    export interface EditingInputAPI {
+    export interface FocusableInputAPI {
         readonly name: string;
         focusable: boolean;
         /**
@@ -20,6 +20,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
          * into a neutral position, and/or clear selections.
          */
         refocus(): void;
+    }
+
+    export interface EditingInputAPI extends FocusableInputAPI {
+        /**
+         * Check whether blurred target belongs to an editing input.
+         * The editing area can then restore focus to this input.
+         *
+         * @returns An editing input api that is associated with the event target.
+         */
+        getInputAPI(target: EventTarget): Promise<FocusableInputAPI | null>;
     }
 
     export interface EditingAreaAPI {
@@ -40,7 +50,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
 
     import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
-    import FocusTrap from "./FocusTrap.svelte";
 
     export let fontFamily: string;
     const fontFamilyStore = writable(fontFamily);
@@ -55,7 +64,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let content: Writable<string>;
 
     let editingArea: HTMLElement;
-    let focusTrap: FocusTrap;
 
     const inputsStore = writable<EditingInputAPI[]>([]);
     $: editingInputs = $inputsStore;
@@ -64,39 +72,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return editingInputs.find((input) => input.focusable);
     }
 
-    function focusEditingInputIfAvailable(): boolean {
-        const availableInput = getAvailableInput();
-
-        if (availableInput) {
-            availableInput.focus();
-            return true;
-        }
-
-        return false;
-    }
-
-    function focusEditingInputIfFocusTrapFocused(): void {
-        if (focusTrap && focusTrap.isFocusTrap(document.activeElement!)) {
-            focusEditingInputIfAvailable();
-        }
-    }
-
-    $: {
-        $inputsStore;
-        /**
-         * Triggers when all editing inputs are hidden,
-         * the editor field has focus, and then some
-         * editing input is shown
-         */
-        focusEditingInputIfFocusTrapFocused();
-    }
-
     function focus(): void {
-        if (editingArea.contains(document.activeElement)) {
-            // do nothing
-        } else if (!focusEditingInputIfAvailable()) {
-            focusTrap.focus();
-        }
+        editingArea.contains(document.activeElement);
     }
 
     function refocus(): void {
@@ -104,24 +81,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         if (availableInput) {
             availableInput.refocus();
-        } else {
-            focusTrap.blur();
-            focusTrap.focus();
-        }
-    }
-
-    function focusEditingInputInsteadIfAvailable(event: FocusEvent): void {
-        if (focusEditingInputIfAvailable()) {
-            event.preventDefault();
-        }
-    }
-
-    // prevents editor field being entirely deselected when
-    // closing active field
-    function trapFocusOnBlurOut(event: FocusEvent): void {
-        if (!event.relatedTarget && editingInputs.every((input) => !input.focusable)) {
-            focusTrap.focus();
-            event.preventDefault();
         }
     }
 
@@ -138,9 +97,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setContextProperty(api);
 </script>
 
-<FocusTrap bind:this={focusTrap} on:focus={focusEditingInputInsteadIfAvailable} />
-
-<div bind:this={editingArea} class="editing-area" on:focusout={trapFocusOnBlurOut}>
+<div bind:this={editingArea} class="editing-area">
     <slot />
 </div>
 
@@ -150,12 +107,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /* TODO allow configuration of grid #1503 */
         /* grid-template-columns: repeat(2, 1fr); */
 
-        position: relative;
-        background: var(--frame-bg);
-        border-radius: 0 0 5px 5px;
-
-        &:focus {
-            outline: none;
-        }
+        /* This defines the border between inputs */
+        grid-gap: 1px;
+        background-color: var(--border);
     }
 </style>

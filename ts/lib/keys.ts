@@ -16,11 +16,16 @@ function translateModifierToPlatform(modifier: Modifier): string {
     return platformModifiers[allModifiers.indexOf(modifier)];
 }
 
-const GENERAL_KEY = 0;
-const NUMPAD_KEY = 3;
+export function checkIfModifierKey(event: KeyboardEvent): boolean {
+    // At least the web view on Desktop Anki gives out the wrong values for
+    // `event.location`, which is why we do it like this.
+    let isInputKey = false;
 
-export function checkIfInputKey(event: KeyboardEvent): boolean {
-    return event.location === GENERAL_KEY || event.location === NUMPAD_KEY;
+    for (const modifier of allModifiers) {
+        isInputKey ||= event.code.startsWith(modifier);
+    }
+
+    return isInputKey;
 }
 
 export function keyboardEventIsPrintableKey(event: KeyboardEvent): boolean {
@@ -57,6 +62,7 @@ const modifierPressed =
 export const controlPressed = modifierPressed("Control");
 export const shiftPressed = modifierPressed("Shift");
 export const altPressed = modifierPressed("Alt");
+export const metaPressed = modifierPressed("Meta");
 
 export function modifiersToPlatformString(modifiers: string[]): string {
     const displayModifiers = isApplePlatform()
@@ -84,4 +90,36 @@ export function keyToPlatformString(key: string): string {
         default:
             return key;
     }
+}
+
+export function isArrowLeft(event: KeyboardEvent): boolean {
+    if (event.code === "ArrowLeft") {
+        return true;
+    }
+
+    return isApplePlatform() && metaPressed(event) && event.code === "KeyB";
+}
+
+export function isArrowRight(event: KeyboardEvent): boolean {
+    if (event.code === "ArrowRight") {
+        return true;
+    }
+
+    return isApplePlatform() && metaPressed(event) && event.code === "KeyF";
+}
+
+export function isArrowUp(event: KeyboardEvent): boolean {
+    if (event.code === "ArrowUp") {
+        return true;
+    }
+
+    return isApplePlatform() && metaPressed(event) && event.code === "KeyP";
+}
+
+export function isArrowDown(event: KeyboardEvent): boolean {
+    if (event.code === "ArrowDown") {
+        return true;
+    }
+
+    return isApplePlatform() && metaPressed(event) && event.code === "KeyN";
 }

@@ -3,96 +3,110 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import { CodeMirror as CodeMirrorLib } from "./code-mirror";
+    import type CodeMirrorLib from "codemirror";
 
     export interface CodeMirrorAPI {
-        readonly editor: CodeMirrorLib.EditorFromTextArea;
+        readonly editor: Promise<CodeMirrorLib.Editor>;
+        setOption<T extends keyof CodeMirrorLib.EditorConfiguration>(
+            key: T,
+            value: CodeMirrorLib.EditorConfiguration[T],
+        ): Promise<void>;
     }
 </script>
 
 <script lang="ts">
-    import { createEventDispatcher, getContext } from "svelte";
+    import { createEventDispatcher, getContext, onMount } from "svelte";
     import type { Writable } from "svelte/store";
 
     import { directionKey } from "../lib/context-keys";
-    import storeSubscribe from "../sveltelib/store-subscribe";
+    import { promiseWithResolver } from "../lib/promise";
     import { pageTheme } from "../sveltelib/theme";
-    import { darkCodeMirrorTheme, lightCodeMirrorTheme } from "./code-mirror";
+    import {
+        darkTheme,
+        lightTheme,
+        openCodeMirror,
+        setupCodeMirror,
+    } from "./code-mirror";
 
     export let configuration: CodeMirrorLib.EditorConfiguration;
     export let code: Writable<string>;
+    export let hidden = false;
 
-    const direction = getContext<Writable<"ltr" | "rtl">>(directionKey);
     const defaultConfiguration = {
-        direction: $direction,
         rtlMoveVisually: true,
+        lineNumbers: false,
     };
 
-    let codeMirror: CodeMirrorLib.EditorFromTextArea;
-    $: codeMirror?.setOption("direction", $direction);
+    const [editorPromise, resolve] = promiseWithResolver<CodeMirrorLib.Editor>();
 
-    function setValue(content: string): void {
-        codeMirror.setValue(content);
+    /**
+     * Convenience function for editor.setOption.
+     */
+    async function setOption<T extends keyof CodeMirrorLib.EditorConfiguration>(
+        key: T,
+        value: CodeMirrorLib.EditorConfiguration[T],
+    ): Promise<void> {
+        const editor = await editorPromise;
+        editor.setOption(key, value);
     }
 
-    const { subscribe, unsubscribe } = storeSubscribe(code, setValue, false);
+    const direction = getContext<Writable<"ltr" | "rtl">>(directionKey);
+
+    let apiPartial: Partial<CodeMirrorAPI>;
+    export { apiPartial as api };
+
+    Object.assign(apiPartial, {
+        editor: editorPromise,
+        setOption,
+    });
+
     const dispatch = createEventDispatcher();
 
-    function openCodeMirror(textarea: HTMLTextAreaElement): void {
-        codeMirror = CodeMirrorLib.fromTextArea(textarea, {
-            ...defaultConfiguration,
-            ...configuration,
-        });
-
-        // TODO passing in the tabindex option does not do anything: bug?
-        codeMirror.getInputField().tabIndex = 0;
-
-        let ranges: CodeMirrorLib.Range[] | null = null;
-
-        codeMirror.on("change", () => dispatch("change", codeMirror.getValue()));
-        codeMirror.on("mousedown", () => {
-            ranges = null;
-        });
-        codeMirror.on("focus", () => {
-            if (ranges) {
-                try {
-                    codeMirror.setSelections(ranges);
-                } catch {
-                    ranges = null;
-                    codeMirror.setCursor(codeMirror.lineCount(), 0);
-                }
+    onMount(async () => {
+        const editor = await editorPromise;
+        setupCodeMirror(editor, code);
+        editor.on("change", () => dispatch("change", editor.getValue()));
+        editor.on("focus", (codeMirror, event) =>
+            dispatch("focus", { codeMirror, event }),
+        );
+        editor.on("blur", (codeMirror, event) =>
+            dispatch("blur", { codeMirror, event }),
+        );
+        editor.on("keydown", (codeMirror, event) => {
+            if (event.code === "Tab") {
+                dispatch("tab", { codeMirror, event });
             }
-            unsubscribe();
-            dispatch("focus");
         });
-        codeMirror.on("blur", () => {
-            ranges = codeMirror.listSelections();
-            subscribe();
-            dispatch("blur");
-        });
-
-        subscribe();
-    }
-
-    $: codeMirror?.setOption(
-        "theme",
-        $pageTheme.isDark ? darkCodeMirrorTheme : lightCodeMirrorTheme,
-    );
-
-    export const api = Object.create(
-        {},
-        {
-            editor: { get: () => codeMirror },
-        },
-    ) as CodeMirrorAPI;
+    });
 </script>
 
 <div class="code-mirror">
-    <textarea tabindex="-1" hidden use:openCodeMirror />
+    <textarea
+        tabindex="-1"
+        hidden
+        use:openCodeMirror={{
+            configuration: {
+                ...configuration,
+                ...defaultConfiguration,
+                direction: $direction,
+                theme: $pageTheme.isDark ? darkTheme : lightTheme,
+            },
+            resolve,
+            hidden,
+        }}
+    />
 </div>
 
 <style lang="scss">
-    .code-mirror :global(.CodeMirror) {
-        height: auto;
+    .code-mirror {
+        height: 100%;
+
+        :global(.CodeMirror) {
+            height: auto;
+        }
+
+        :global(.CodeMirror-wrap pre) {
+            word-break: break-word;
+        }
     }
 </style>

@@ -10,6 +10,7 @@ from anki import (
     collection_pb2,
     config_pb2,
     generic_pb2,
+    import_export_pb2,
     links_pb2,
     search_pb2,
     stats_pb2,
@@ -32,6 +33,11 @@ OpChangesAfterUndo = collection_pb2.OpChangesAfterUndo
 BrowserRow = search_pb2.BrowserRow
 BrowserColumns = search_pb2.BrowserColumns
 StripHtmlMode = card_rendering_pb2.StripHtmlRequest
+ImportLogWithChanges = import_export_pb2.ImportResponse
+ImportCsvRequest = import_export_pb2.ImportCsvRequest
+CsvMetadata = import_export_pb2.CsvMetadata
+DupeResolution = CsvMetadata.DupeResolution
+Delimiter = import_export_pb2.CsvMetadata.Delimiter
 
 import copy
 import os
@@ -88,6 +94,24 @@ class LegacyCheckpoint:
 
 
 LegacyUndoResult = Union[None, LegacyCheckpoint, LegacyReviewUndo]
+
+
+@dataclass
+class DeckIdLimit:
+    deck_id: DeckId
+
+
+@dataclass
+class NoteIdsLimit:
+    note_ids: Sequence[NoteId]
+
+
+@dataclass
+class CardIdsLimit:
+    card_ids: Sequence[CardId]
+
+
+ExportLimit = Union[DeckIdLimit, NoteIdsLimit, CardIdsLimit, None]
 
 
 class Collection(DeprecatedNamesMixin):
@@ -235,7 +259,11 @@ class Collection(DeprecatedNamesMixin):
         elif time.time() - self._last_checkpoint_at > 300:
             self.save()
 
-    def close(self, save: bool = True, downgrade: bool = False) -> None:
+    def close(
+        self,
+        save: bool = True,
+        downgrade: bool = False,
+    ) -> None:
         "Disconnect from DB."
         if self.db:
             if save:
@@ -243,7 +271,9 @@ class Collection(DeprecatedNamesMixin):
             else:
                 self.db.rollback()
             self._clear_caches()
-            self._backend.close_collection(downgrade_to_schema11=downgrade)
+            self._backend.close_collection(
+                downgrade_to_schema11=downgrade,
+            )
             self.db = None
 
     def close_for_full_sync(self) -> None:
@@ -285,6 +315,8 @@ class Collection(DeprecatedNamesMixin):
             )
         self.db = DBProxy(weakref.proxy(self._backend))
         self.db.begin()
+        if after_full_sync:
+            self._load_scheduler()
 
     def set_schema_modified(self) -> None:
         self.db.execute("update col set scm=?", int_time(1000))
@@ -306,6 +338,123 @@ class Collection(DeprecatedNamesMixin):
             return self.db.scalar("select usn from col")
         else:
             return -1
+
+    def legacy_checkpoint_pending(self) -> bool:
+        return (
+            self._have_outstanding_checkpoint()
+            and time.time() - self._last_checkpoint_at < 300
+        )
+
+    # Import/export
+    ##########################################################################
+
+    def create_backup(
+        self,
+        *,
+        backup_folder: str,
+        force: bool,
+        wait_for_completion: bool,
+    ) -> bool:
+        """Create a backup if enough time has elapsed, and rotate old backups.
+
+        If `force` is true, the user's configured backup interval is ignored.
+        Returns true if backup created. This may be false in the force=True case,
+        if no changes have been made to the collection.
+
+        Commits any outstanding changes, which clears any active legacy checkpoint.
+
+        Throws on failure of current backup, or the previous backup if it was not
+        awaited.
+        """
+        # ensure any pending transaction from legacy code/add-ons has been committed
+        self.save(trx=False)
+        created = self._backend.create_backup(
+            backup_folder=backup_folder,
+            force=force,
+            wait_for_completion=wait_for_completion,
+        )
+        self.db.begin()
+        return created
+
+    def await_backup_completion(self) -> None:
+        "Throws if backup creation failed."
+        self._backend.await_backup_completion()
+
+    def export_collection_package(
+        self, out_path: str, include_media: bool, legacy: bool
+    ) -> None:
+        self.close_for_full_sync()
+        self._backend.export_collection_package(
+            out_path=out_path, include_media=include_media, legacy=legacy
+        )
+
+    def import_anki_package(self, path: str) -> ImportLogWithChanges:
+        return self._backend.import_anki_package(package_path=path)
+
+    def export_anki_package(
+        self,
+        *,
+        out_path: str,
+        limit: ExportLimit,
+        with_scheduling: bool,
+        with_media: bool,
+        legacy_support: bool,
+    ) -> int:
+        return self._backend.export_anki_package(
+            out_path=out_path,
+            with_scheduling=with_scheduling,
+            with_media=with_media,
+            legacy=legacy_support,
+            limit=pb_export_limit(limit),
+        )
+
+    def get_csv_metadata(self, path: str, delimiter: Delimiter.V | None) -> CsvMetadata:
+        request = import_export_pb2.CsvMetadataRequest(path=path, delimiter=delimiter)
+        return self._backend.get_csv_metadata(request)
+
+    def import_csv(self, request: ImportCsvRequest) -> ImportLogWithChanges:
+        log = self._backend.import_csv_raw(request.SerializeToString())
+        return ImportLogWithChanges.FromString(log)
+
+    def export_note_csv(
+        self,
+        *,
+        out_path: str,
+        limit: ExportLimit,
+        with_html: bool,
+        with_tags: bool,
+        with_deck: bool,
+        with_notetype: bool,
+        with_guid: bool,
+    ) -> int:
+        return self._backend.export_note_csv(
+            out_path=out_path,
+            with_html=with_html,
+            with_tags=with_tags,
+            with_deck=with_deck,
+            with_notetype=with_notetype,
+            with_guid=with_guid,
+            limit=pb_export_limit(limit),
+        )
+
+    def export_card_csv(
+        self,
+        *,
+        out_path: str,
+        limit: ExportLimit,
+        with_html: bool,
+    ) -> int:
+        return self._backend.export_card_csv(
+            out_path=out_path,
+            with_html=with_html,
+            limit=pb_export_limit(limit),
+        )
+
+    def import_json_file(self, path: str) -> ImportLogWithChanges:
+        return self._backend.import_json_file(path)
+
+    def import_json_string(self, json: str) -> ImportLogWithChanges:
+        return self._backend.import_json_string(json)
 
     # Object helpers
     ##########################################################################
@@ -801,6 +950,12 @@ class Collection(DeprecatedNamesMixin):
         return CollectionStats(self)
 
     def card_stats_data(self, card_id: CardId) -> stats_pb2.CardStatsResponse:
+        """Returns the data required to show card stats.
+
+        If you wish to display the stats in a HTML table like Anki does,
+        you can use the .js file directly - see this add-on for an example:
+        https://ankiweb.net/shared/info/2179254157
+        """
         return self._backend.card_stats(card_id)
 
     def studied_today(self) -> str:
@@ -953,7 +1108,7 @@ class Collection(DeprecatedNamesMixin):
         previewing = conf["dyn"] and not conf["resched"]
         if not previewing:
             last = self.db.scalar(
-                "select id from revlog where cid = ? " "order by id desc limit 1",
+                "select id from revlog where cid = ? order by id desc limit 1",
                 card.id,
             )
             self.db.execute("delete from revlog where id = ?", last)
@@ -1057,6 +1212,9 @@ class Collection(DeprecatedNamesMixin):
     def render_markdown(self, text: str, sanitize: bool = True) -> str:
         "Not intended for public consumption at this time."
         return self._backend.render_markdown(markdown=text, sanitize=sanitize)
+
+    def compare_answer(self, expected: str, provided: str) -> str:
+        return self._backend.compare_answer(expected=expected, provided=provided)
 
     # Timeboxing
     ##########################################################################
@@ -1175,3 +1333,16 @@ class _ReviewsUndo:
 
 
 _UndoInfo = Union[_ReviewsUndo, LegacyCheckpoint, None]
+
+
+def pb_export_limit(limit: ExportLimit) -> import_export_pb2.ExportLimit:
+    message = import_export_pb2.ExportLimit()
+    if isinstance(limit, DeckIdLimit):
+        message.deck_id = limit.deck_id
+    elif isinstance(limit, NoteIdsLimit):
+        message.note_ids.note_ids.extend(limit.note_ids)
+    elif isinstance(limit, CardIdsLimit):
+        message.card_ids.cids.extend(limit.card_ids)
+    else:
+        message.whole_collection.SetInParent()
+    return message

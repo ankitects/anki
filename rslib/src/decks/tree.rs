@@ -14,10 +14,8 @@ use super::{
     limits::{remaining_limits_map, RemainingLimits},
     DueCounts,
 };
-pub use crate::backend_proto::set_deck_collapsed_request::Scope as DeckCollapseScope;
-use crate::{
-    backend_proto::DeckTreeNode, config::SchedulerVersion, ops::OpOutput, prelude::*, undo::Op,
-};
+pub use crate::pb::set_deck_collapsed_request::Scope as DeckCollapseScope;
+use crate::{config::SchedulerVersion, ops::OpOutput, pb::DeckTreeNode, prelude::*, undo::Op};
 
 fn deck_names_to_tree(names: impl Iterator<Item = (DeckId, String)>) -> DeckTreeNode {
     let mut top = DeckTreeNode::default();
@@ -34,7 +32,10 @@ fn add_child_nodes(
 ) {
     while let Some((id, name)) = names.peek() {
         let split_name: Vec<_> = name.split("::").collect();
-        match split_name.len() as u32 {
+        // protobuf refuses to decode messages with 100+ levels of nesting, and
+        // broken collections with such nesting have been found in the wild
+        let capped_len = split_name.len().min(99) as u32;
+        match capped_len {
             l if l <= parent.level => {
                 // next item is at a higher level
                 return;
@@ -244,17 +245,28 @@ fn hide_default_deck(node: &mut DeckTreeNode) {
     }
 }
 
-fn get_subnode(top: DeckTreeNode, target: DeckId) -> Option<DeckTreeNode> {
-    if top.deck_id == target.0 {
-        return Some(top);
-    }
-    for child in top.children {
-        if let Some(node) = get_subnode(child, target) {
-            return Some(node);
+impl DeckTreeNode {
+    /// Locate provided deck in tree, and return it.
+    pub fn get_deck(self, deck_id: DeckId) -> Option<DeckTreeNode> {
+        if self.deck_id == deck_id.0 {
+            return Some(self);
         }
+        for child in self.children {
+            if let Some(node) = child.get_deck(deck_id) {
+                return Some(node);
+            }
+        }
+
+        None
     }
 
-    None
+    pub(crate) fn sum<T: AddAssign>(&self, map: fn(&DeckTreeNode) -> T) -> T {
+        let mut output = map(self);
+        for child in &self.children {
+            output += child.sum(map);
+        }
+        output
+    }
 }
 
 #[derive(Serialize_tuple)]
@@ -287,14 +299,7 @@ impl Collection {
     /// - Buried cards from previous days will be unburied if necessary. Because
     ///   this does not happen for future stamps, future due numbers may not be
     ///   accurate.
-    /// - If top_deck_id is provided, only the node starting at the provided
-    ///   deck ID will have the counts populated. Currently the entire tree is
-    ///   returned in this case, but this may change in the future.
-    pub fn deck_tree(
-        &mut self,
-        timestamp: Option<TimestampSecs>,
-        top_deck_id: Option<DeckId>,
-    ) -> Result<DeckTreeNode> {
+    pub fn deck_tree(&mut self, timestamp: Option<TimestampSecs>) -> Result<DeckTreeNode> {
         let names = self.storage.get_all_deck_names()?;
         let mut tree = deck_names_to_tree(names.into_iter());
 
@@ -311,14 +316,12 @@ impl Collection {
             let timing_today = self.timing_today()?;
             self.unbury_if_day_rolled_over(timing_today)?;
 
-            let limit = top_deck_id
-                .and_then(|did| decks_map.get(&did).map(|deck| deck.name.as_native_str()));
             let timing_at_stamp = self.timing_for_timestamp(timestamp)?;
             let days_elapsed = timing_at_stamp.days_elapsed;
             let learn_cutoff = (timestamp.0 as u32) + self.learn_ahead_secs();
             let sched_ver = self.scheduler_version();
             let v3 = self.get_config_bool(BoolKey::Sched2021);
-            let counts = self.due_counts(days_elapsed, learn_cutoff, limit)?;
+            let counts = self.due_counts(days_elapsed, learn_cutoff)?;
             let dconf = self.storage.get_deck_config_map()?;
             add_counts(&mut tree, &counts);
             let limits = remaining_limits_map(decks_map.values(), &dconf, days_elapsed, v3);
@@ -338,8 +341,8 @@ impl Collection {
 
     pub fn current_deck_tree(&mut self) -> Result<Option<DeckTreeNode>> {
         let target = self.get_current_deck_id();
-        let tree = self.deck_tree(Some(TimestampSecs::now()), Some(target))?;
-        Ok(get_subnode(tree, target))
+        let tree = self.deck_tree(Some(TimestampSecs::now()))?;
+        Ok(tree.get_deck(target))
     }
 
     pub fn set_deck_collapsed(
@@ -365,7 +368,7 @@ impl Collection {
 
 impl Collection {
     pub(crate) fn legacy_deck_tree(&mut self) -> Result<LegacyDueCounts> {
-        let tree = self.deck_tree(Some(TimestampSecs::now()), None)?;
+        let tree = self.deck_tree(Some(TimestampSecs::now()))?;
         Ok(LegacyDueCounts::from(tree))
     }
 
@@ -404,7 +407,7 @@ mod test {
         col.get_or_create_normal_deck("2::c::A")?;
         col.get_or_create_normal_deck("3")?;
 
-        let tree = col.deck_tree(None, None)?;
+        let tree = col.deck_tree(None)?;
 
         assert_eq!(tree.children.len(), 3);
 
@@ -427,7 +430,7 @@ mod test {
         col.storage.remove_deck(col.get_deck_id("2")?.unwrap())?;
         col.storage.remove_deck(col.get_deck_id("2::3")?.unwrap())?;
 
-        let tree = col.deck_tree(None, None)?;
+        let tree = col.deck_tree(None)?;
         assert_eq!(tree.children.len(), 1);
 
         Ok(())
@@ -446,7 +449,7 @@ mod test {
         note.set_field(0, "{{c1::}} {{c2::}} {{c3::}} {{c4::}}")?;
         col.add_note(&mut note, child_deck.id)?;
 
-        let tree = col.deck_tree(Some(TimestampSecs::now()), None)?;
+        let tree = col.deck_tree(Some(TimestampSecs::now()))?;
         assert_eq!(tree.children[0].new_count, 4);
         assert_eq!(tree.children[0].children[0].new_count, 4);
 
@@ -457,7 +460,7 @@ mod test {
         col.add_or_update_deck(&mut parent_deck)?;
 
         // with the default limit of 20, there should still be 4 due
-        let tree = col.deck_tree(Some(TimestampSecs::now()), None)?;
+        let tree = col.deck_tree(Some(TimestampSecs::now()))?;
         assert_eq!(tree.children[0].new_count, 4);
         assert_eq!(tree.children[0].children[0].new_count, 4);
 
@@ -466,7 +469,7 @@ mod test {
         conf.inner.new_per_day = 4;
         col.add_or_update_deck_config(&mut conf)?;
 
-        let tree = col.deck_tree(Some(TimestampSecs::now()), None)?;
+        let tree = col.deck_tree(Some(TimestampSecs::now()))?;
         assert_eq!(tree.children[0].new_count, 3);
         assert_eq!(tree.children[0].children[0].new_count, 3);
 
@@ -505,7 +508,7 @@ mod test {
         note.id.0 = 0;
         col.add_note(&mut note, grandchild_2.id)?;
 
-        let parent = &col.deck_tree(Some(TimestampSecs::now()), None)?.children[0];
+        let parent = &col.deck_tree(Some(TimestampSecs::now()))?.children[0];
         // grandchildren: own cards, limited by own new limits
         assert_eq!(parent.children[0].children[0].new_count, 2);
         assert_eq!(parent.children[0].children[1].new_count, 1);

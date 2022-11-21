@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>295</width>
-    <height>223</height>
+    <width>550</width>
+    <height>200</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,7 +30,14 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QComboBox" name="format"/>
+      <widget class="QComboBox" name="format">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
@@ -40,13 +47,17 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QComboBox" name="deck"/>
+      <widget class="QComboBox" name="deck">
+       <property name="minimumContentsLength">
+        <number>50</number>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
    <item>
     <layout class="QVBoxLayout">
-     <item>
+     <item alignment="Qt::AlignLeft">
       <widget class="QCheckBox" name="includeSched">
        <property name="text">
         <string>exporting_include_scheduling_information</string>
@@ -56,7 +67,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item alignment="Qt::AlignLeft">
       <widget class="QCheckBox" name="includeMedia">
        <property name="text">
         <string>exporting_include_media</string>
@@ -66,7 +77,14 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="includeHTML">
+       <property name="text">
+        <string>exporting_include_html_and_media_references</string>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignLeft">
       <widget class="QCheckBox" name="includeTags">
        <property name="text">
         <string>exporting_include_tags</string>
@@ -76,10 +94,40 @@
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QCheckBox" name="includeHTML">
+     <item alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="includeDeck">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="text">
-        <string>exporting_include_html_and_media_references</string>
+        <string>exporting_include_deck</string>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="includeNotetype">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>exporting_include_notetype</string>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="includeGuid">
+       <property name="text">
+        <string>exporting_include_guid</string>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="legacy_support">
+       <property name="text">
+        <string>exporting_support_older_anki_versions</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

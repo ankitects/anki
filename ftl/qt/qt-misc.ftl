@@ -53,7 +53,6 @@ qt-misc-the-requested-change-will-require-a = The requested change will require 
 qt-misc-there-must-be-at-least-one = There must be at least one profile.
 qt-misc-this-file-exists-are-you-sure = This file exists. Are you sure you want to overwrite it?
 qt-misc-unable-to-access-anki-media-folder = Unable to access Anki media folder. The permissions on your system's temporary folder may be incorrect.
-qt-misc-unable-to-move-existing-file-to = Unable to move existing file to trash - please try restarting your computer.
 qt-misc-unexpected-response-code = Unexpected response code: { $val }
 qt-misc-would-you-like-to-download-it = Would you like to download it now?
 qt-misc-your-collection-file-appears-to-be = Your collection file appears to be corrupt. This can happen when the file is copied or moved while Anki is open, or when the collection is stored on a network or cloud drive. If problems persist after restarting your computer, please open an automatic backup from the profile screen.
@@ -70,6 +69,9 @@ qt-misc-second =
         [one] { $count } second
        *[other] { $count } seconds
     }
+qt-misc-layout-auto-enabled = Responsive layout enabled
+qt-misc-layout-vertical-enabled = Vertical layout enabled
+qt-misc-layout-horizontal-enabled = Horizontal layout enabled
 
 ## deprecated- these strings will be removed in the future, and do not need
 ## to be translated

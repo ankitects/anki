@@ -1,0 +1,52 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later, http://www.gnu.org/licenses/agpl.html */
+
+@use "sass:map";
+@use "vars" as *;
+@use "functions" as *;
+
+/*! colors */
+:root {
+    $colors: map.get($vars, colors);
+
+    @each $name, $val in create-vars-from-map($colors, light) {
+        @if str-index($name, "comment") == 1 {
+            /*! #{$val} */
+        } @else {
+            #{$name}: #{$val};
+        }
+    }
+    color-scheme: light;
+
+    &.night-mode {
+        @each $name, $val in create-vars-from-map($colors, dark) {
+            @if str-index($name, "comment") == 1 {
+                /*! #{$val} */
+            } @else {
+                #{$name}: #{$val};
+            }
+        }
+        color-scheme: dark;
+    }
+}
+
+/*! props */
+:root {
+    $props: map.get($vars, props);
+    @each $name, $val in create-vars-from-map($props, light) {
+        @if str-index($name, "comment") == 1 {
+            /*! #{$val} */
+        } @else {
+            #{$name}: #{$val};
+        }
+    }
+    &.night-mode {
+        @each $name, $val in create-vars-from-map($props, dark) {
+            @if str-index($name, "comment") == 1 {
+                /*! #{$val} */
+            } @else {
+                #{$name}: #{$val};
+            }
+        }
+    }
+}

@@ -5,13 +5,13 @@ mod answering;
 mod states;
 
 use super::Backend;
-pub(super) use crate::backend_proto::scheduler_service::Service as SchedulerService;
+pub(super) use crate::pb::scheduler_service::Service as SchedulerService;
 use crate::{
-    backend_proto::{self as pb},
+    pb,
     prelude::*,
     scheduler::{
         new::NewCardDueOrder,
-        states::{CardState, NextCardStates},
+        states::{CardState, SchedulingStates},
     },
     stats::studied_today,
 };
@@ -111,9 +111,24 @@ impl SchedulerService for Backend {
     fn schedule_cards_as_new(&self, input: pb::ScheduleCardsAsNewRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| {
             let cids = input.card_ids.into_newtype(CardId);
-            let log = input.log;
-            col.reschedule_cards_as_new(&cids, log).map(Into::into)
+            col.reschedule_cards_as_new(
+                &cids,
+                input.log,
+                input.restore_position,
+                input.reset_counts,
+                input
+                    .context
+                    .and_then(pb::schedule_cards_as_new_request::Context::from_i32),
+            )
+            .map(Into::into)
         })
+    }
+
+    fn schedule_cards_as_new_defaults(
+        &self,
+        input: pb::ScheduleCardsAsNewDefaultsRequest,
+    ) -> Result<pb::ScheduleCardsAsNewDefaultsResponse> {
+        self.with_col(|col| Ok(col.reschedule_cards_as_new_defaults(input.context())))
     }
 
     fn set_due_date(&self, input: pb::SetDueDateRequest) -> Result<pb::OpChanges> {
@@ -142,6 +157,10 @@ impl SchedulerService for Backend {
         })
     }
 
+    fn reposition_defaults(&self, _input: pb::Empty) -> Result<pb::RepositionDefaultsResponse> {
+        self.with_col(|col| Ok(col.reposition_defaults()))
+    }
+
     fn sort_deck(&self, input: pb::SortDeckRequest) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             col.sort_deck_legacy(input.deck_id.into(), input.randomize)
@@ -149,14 +168,14 @@ impl SchedulerService for Backend {
         })
     }
 
-    fn get_next_card_states(&self, input: pb::CardId) -> Result<pb::NextCardStates> {
+    fn get_scheduling_states(&self, input: pb::CardId) -> Result<pb::SchedulingStates> {
         let cid: CardId = input.into();
-        self.with_col(|col| col.get_next_card_states(cid))
+        self.with_col(|col| col.get_scheduling_states(cid))
             .map(Into::into)
     }
 
-    fn describe_next_states(&self, input: pb::NextCardStates) -> Result<pb::StringList> {
-        let states: NextCardStates = input.into();
+    fn describe_next_states(&self, input: pb::SchedulingStates) -> Result<pb::StringList> {
+        let states: SchedulingStates = input.into();
         self.with_col(|col| col.describe_next_states(states))
             .map(Into::into)
     }
@@ -167,7 +186,7 @@ impl SchedulerService for Backend {
     }
 
     fn answer_card(&self, input: pb::CardAnswer) -> Result<pb::OpChanges> {
-        self.with_col(|col| col.answer_card(&input.into()))
+        self.with_col(|col| col.answer_card(&mut input.into()))
             .map(Into::into)
     }
 
@@ -185,6 +204,13 @@ impl SchedulerService for Backend {
 
     fn custom_study(&self, input: pb::CustomStudyRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| col.custom_study(input)).map(Into::into)
+    }
+
+    fn custom_study_defaults(
+        &self,
+        input: pb::CustomStudyDefaultsRequest,
+    ) -> Result<pb::CustomStudyDefaultsResponse> {
+        self.with_col(|col| col.custom_study_defaults(input.deck_id.into()))
     }
 }
 

@@ -3,6 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { tick } from "svelte";
+
     export let html = "";
     export let x: number = 0;
     export let y: number = 0;
@@ -13,9 +15,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let adjustedX: number, adjustedY: number;
 
     let shiftLeftAmount = 0;
-    $: shiftLeftAmount = container
-        ? Math.round(container.clientWidth * 1.2 * (x / document.body.clientWidth))
-        : 0;
+    $: onXChange(x);
+
+    async function onXChange(xPos: number) {
+        await tick();
+        shiftLeftAmount = container
+            ? Math.round(
+                  container.clientWidth * 1.2 * (xPos / document.body.clientWidth),
+              )
+            : 0;
+    }
 
     $: {
         // move tooltip away from edge as user approaches right side
@@ -35,14 +44,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .tooltip {
         position: absolute;
+        white-space: nowrap;
         padding: 15px;
         border-radius: 5px;
         font-size: 15px;
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.3s;
-        color: var(--text-fg);
-        background: var(--tooltip-bg);
+        color: var(--fg);
+        background: var(--canvas-overlay);
 
         :global(table) {
             border-spacing: 1em 0;

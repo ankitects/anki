@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import json
+import math
+import re
 from typing import Callable, Sequence
 
 import aqt
@@ -18,11 +20,13 @@ from anki.consts import *
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
 from anki.notes import NoteId
+from anki.scheduler.base import ScheduleCardsAsNew
 from anki.tags import MARKED_TAG
 from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
-from aqt.exporting import ExportDialog
+from aqt.exporting import ExportDialog as LegacyExportDialog
+from aqt.import_export.exporting import ExportDialog
 from aqt.operations.card import set_card_deck, set_card_flag
 from aqt.operations.collection import redo, undo
 from aqt.operations.note import remove_notes
@@ -60,12 +64,14 @@ from aqt.utils import (
     saveState,
     showWarning,
     skip_if_selection_is_empty,
+    tooltip,
     tr,
 )
 
 from ..changenotetype import change_notetype_dialog
 from .card_info import BrowserCardInfo
 from .find_and_replace import FindAndReplaceDialog
+from .layout import BrowserLayout, QSplitterHandleEventFilter
 from .previewer import BrowserPreviewer as PreviewDialog
 from .previewer import Previewer
 from .sidebar import SidebarTreeView
@@ -120,10 +126,9 @@ class Browser(QMainWindow):
         self._closeEventHasCleanedUp = False
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
-        restoreGeom(self, "editor", 0)
-        restoreState(self, "editor")
-        restoreSplitter(self.form.splitter, "editor3")
         self.form.splitter.setChildrenCollapsible(False)
+        splitter_handle_event_filter = QSplitterHandleEventFilter(self.form.splitter)
+        self.form.splitter.handle(1).installEventFilter(splitter_handle_event_filter)
         # set if exactly 1 row is selected; used by the previewer
         self.card: Card | None = None
         self.current_card: Card | None = None
@@ -132,12 +137,27 @@ class Browser(QMainWindow):
         self.setupMenus()
         self.setupHooks()
         self.setupEditor()
+        gui_hooks.browser_will_show(self)
+
+        # restoreXXX() should be called after all child widgets have been created
+        # and attached to QMainWindow
+        self._editor_state_key = (
+            "editorRTL"
+            if self.layoutDirection() == Qt.LayoutDirection.RightToLeft
+            else "editor"
+        )
+        restoreGeom(self, self._editor_state_key, 0)
+        restoreSplitter(self.form.splitter, "editor3")
+        restoreState(self, self._editor_state_key)
+
+        # responsive layout
+        self.aspect_ratio = self.width() / self.height()
+        self.set_layout(self.mw.pm.browser_layout(), True)
         # disable undo/redo
         self.on_undo_state_change(mw.undo_actions_info())
         # legacy alias
         self.model = MockModel(self)
         self.setupSearch(card, search)
-        gui_hooks.browser_will_show(self)
         self.show()
 
     def on_operation_did_execute(
@@ -175,6 +195,52 @@ class Browser(QMainWindow):
             self.table.redraw_cells()
             self.sidebar.refresh_if_needed()
 
+    def set_layout(self, mode: BrowserLayout, init: bool = False) -> None:
+        self.mw.pm.set_browser_layout(mode)
+
+        if mode == BrowserLayout.AUTO:
+            self.auto_layout = True
+            self.maybe_update_layout(self.aspect_ratio, True)
+            self.form.actionLayoutAuto.setChecked(True)
+            self.form.actionLayoutVertical.setChecked(False)
+            self.form.actionLayoutHorizontal.setChecked(False)
+            if not init:
+                tooltip(tr.qt_misc_layout_auto_enabled())
+        else:
+            self.auto_layout = False
+            self.form.actionLayoutAuto.setChecked(False)
+
+            if mode == BrowserLayout.VERTICAL:
+                self.form.splitter.setOrientation(Qt.Orientation.Vertical)
+                self.form.actionLayoutVertical.setChecked(True)
+                self.form.actionLayoutHorizontal.setChecked(False)
+                if not init:
+                    tooltip(tr.qt_misc_layout_vertical_enabled())
+
+            elif mode == BrowserLayout.HORIZONTAL:
+                self.form.splitter.setOrientation(Qt.Orientation.Horizontal)
+                self.form.actionLayoutHorizontal.setChecked(True)
+                self.form.actionLayoutVertical.setChecked(False)
+                if not init:
+                    tooltip(tr.qt_misc_layout_horizontal_enabled())
+
+    def maybe_update_layout(self, aspect_ratio: float, force: bool = False) -> None:
+        if force or math.floor(aspect_ratio) != math.floor(self.aspect_ratio):
+            if aspect_ratio < 1:
+                self.form.splitter.setOrientation(Qt.Orientation.Vertical)
+            else:
+                self.form.splitter.setOrientation(Qt.Orientation.Horizontal)
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        aspect_ratio = self.width() / self.height()
+
+        if self.auto_layout:
+            self.maybe_update_layout(aspect_ratio)
+
+        self.aspect_ratio = aspect_ratio
+
+        QMainWindow.resizeEvent(self, event)
+
     def setupMenus(self) -> None:
         # actions
         f = self.form
@@ -202,6 +268,18 @@ class Browser(QMainWindow):
         qconnect(
             f.actionResetZoom.triggered,
             lambda: self.editor.web.setZoomFactor(1),
+        )
+        qconnect(
+            self.form.actionLayoutAuto.triggered,
+            lambda: self.set_layout(BrowserLayout.AUTO),
+        )
+        qconnect(
+            self.form.actionLayoutVertical.triggered,
+            lambda: self.set_layout(BrowserLayout.VERTICAL),
+        )
+        qconnect(
+            self.form.actionLayoutHorizontal.triggered,
+            lambda: self.set_layout(BrowserLayout.HORIZONTAL),
         )
 
         # notes
@@ -259,6 +337,7 @@ class Browser(QMainWindow):
         self.mw.maybeHideAccelerators(self)
 
         add_ellipsis_to_action_label(f.actionCopy)
+        add_ellipsis_to_action_label(f.action_forget)
 
     def closeEvent(self, evt: QCloseEvent) -> None:
         if self._closeEventHasCleanedUp:
@@ -274,8 +353,8 @@ class Browser(QMainWindow):
         self.table.cleanup()
         self.sidebar.cleanup()
         saveSplitter(self.form.splitter, "editor3")
-        saveGeom(self, "editor")
-        saveState(self, "editor")
+        saveGeom(self, self._editor_state_key)
+        saveState(self, self._editor_state_key)
         self.teardownHooks()
         self.mw.maybeReset()
         aqt.dialogs.markClosed("Browser")
@@ -352,6 +431,7 @@ class Browser(QMainWindow):
 
         self._lastSearchTxt = search
         prompt = search if prompt == None else prompt
+        self.form.searchEdit.setCurrentIndex(-1)
         self.form.searchEdit.lineEdit().setText(prompt)
         self.search()
 
@@ -426,7 +506,7 @@ class Browser(QMainWindow):
     def setup_table(self) -> None:
         self.table = Table(self)
         self.table.set_view(self.form.tableView)
-        switch = Switch(11, tr.browsing_card_initial(), tr.browsing_note_initial())
+        switch = Switch(12, tr.browsing_cards(), tr.browsing_notes())
         switch.setChecked(self.table.is_notes_mode())
         switch.setToolTip(tr.browsing_toggle_showing_cards_notes())
         qconnect(self.form.action_toggle_mode.triggered, switch.toggle)
@@ -548,7 +628,7 @@ class Browser(QMainWindow):
         grid.addWidget(self.sidebar.searchBar, 0, 0)
         grid.addWidget(self.sidebar.toolbar, 0, 1)
         grid.addWidget(self.sidebar, 1, 0, 1, 2)
-        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setContentsMargins(8, 4, 0, 0)
         grid.setSpacing(0)
         w = QWidget()
         w.setLayout(grid)
@@ -679,6 +759,7 @@ class Browser(QMainWindow):
         if focus != self.form.tableView:
             return
 
+        self.editor.set_note(None)
         nids = self.table.to_row_of_unselected_note()
         remove_notes(parent=self, note_ids=nids).run_in_background()
 
@@ -732,8 +813,12 @@ class Browser(QMainWindow):
         "Shows prompt if tags not provided."
         if not (tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_add())):
             return
+
+        space_separated_tags = re.sub(r"[ \n\t\v]+", " ", tags)
         add_tags_to_notes(
-            parent=self, note_ids=self.selected_notes(), space_separated_tags=tags
+            parent=self,
+            note_ids=self.selected_notes(),
+            space_separated_tags=space_separated_tags,
         ).run_in_background(initiator=self)
 
     @no_arg_trigger
@@ -790,8 +875,12 @@ class Browser(QMainWindow):
     @no_arg_trigger
     @skip_if_selection_is_empty
     def _on_export_notes(self) -> None:
-        cids = self.selectedNotesAsCards()
-        ExportDialog(self.mw, cids=list(cids))
+        if not self.mw.pm.legacy_import_export():
+            nids = self.selected_notes()
+            ExportDialog(self.mw, nids=nids)
+        else:
+            cids = self.selectedNotesAsCards()
+            LegacyExportDialog(self.mw, cids=list(cids))
 
     # Flags & Marking
     ######################################################################
@@ -862,10 +951,12 @@ class Browser(QMainWindow):
     @skip_if_selection_is_empty
     @ensure_editor_saved
     def forget_cards(self) -> None:
-        forget_cards(
+        if op := forget_cards(
             parent=self,
             card_ids=self.selected_cards(),
-        ).run_in_background()
+            context=ScheduleCardsAsNew.Context.BROWSER,
+        ):
+            op.run_in_background()
 
     # Edit: selection
     ######################################################################
@@ -893,6 +984,7 @@ class Browser(QMainWindow):
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         gui_hooks.focus_did_change.append(self.on_focus_change)
         gui_hooks.flag_label_did_change.append(self._update_flag_labels)
+        gui_hooks.collection_will_temporarily_close.append(self._on_temporary_close)
 
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.on_undo_state_change)
@@ -901,6 +993,11 @@ class Browser(QMainWindow):
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         gui_hooks.focus_did_change.remove(self.on_focus_change)
         gui_hooks.flag_label_did_change.remove(self._update_flag_labels)
+        gui_hooks.collection_will_temporarily_close.remove(self._on_temporary_close)
+
+    def _on_temporary_close(self, col: Collection) -> None:
+        # we could reload browser columns in the future; for now we just close
+        self.close()
 
     # Undo
     ######################################################################

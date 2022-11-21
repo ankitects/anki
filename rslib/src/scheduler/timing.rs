@@ -5,7 +5,7 @@ use chrono::{Date, Duration, FixedOffset, Local, TimeZone, Timelike};
 
 use crate::prelude::*;
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct SchedTimingToday {
     pub now: TimestampSecs,
     /// The number of days that have passed since the collection was created.

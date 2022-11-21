@@ -7,14 +7,7 @@ use num_enum::TryFromPrimitive;
 use rusqlite::params;
 
 use super::SqliteStorage;
-use crate::{
-    card::CardId,
-    decks::DeckId,
-    error::{AnkiError, Result},
-    notes::NoteId,
-    sync::Graves,
-    types::Usn,
-};
+use crate::{prelude::*, sync::Graves};
 
 #[derive(TryFromPrimitive)]
 #[repr(u8)]
@@ -63,8 +56,8 @@ impl SqliteStorage {
         let mut graves = Graves::default();
         while let Some(row) = rows.next()? {
             let oid: i64 = row.get(0)?;
-            let kind = GraveKind::try_from(row.get::<_, u8>(1)?)
-                .map_err(|_| AnkiError::invalid_input("invalid grave kind"))?;
+            let kind =
+                GraveKind::try_from(row.get::<_, u8>(1)?).or_invalid("invalid grave kind")?;
             match kind {
                 GraveKind::Card => graves.cards.push(CardId(oid)),
                 GraveKind::Note => graves.notes.push(NoteId(oid)),
