@@ -53,6 +53,15 @@ impl From<Error> for AnkiError {
                     info: reason.to_owned(),
                 };
             }
+        } else if let Error::FromSqlConversionFailure(_, _, err) = &err {
+            if let Some(_err) = err.downcast_ref::<Utf8Error>() {
+                return AnkiError::DbError {
+                    source: DbError {
+                        info: "".to_string(),
+                        kind: DbErrorKind::Utf8,
+                    },
+                };
+            }
         }
         AnkiError::DbError {
             source: DbError {
