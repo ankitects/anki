@@ -137,6 +137,7 @@ class Browser(QMainWindow):
         self.setupMenus()
         self.setupHooks()
         self.setupEditor()
+        gui_hooks.browser_will_show(self)
 
         # restoreXXX() should be called after all child widgets have been created
         # and attached to QMainWindow
@@ -156,7 +157,6 @@ class Browser(QMainWindow):
         self.on_undo_state_change(mw.undo_actions_info())
         # legacy alias
         self.model = MockModel(self)
-        gui_hooks.browser_will_show(self)
         self.setupSearch(card, search)
         self.show()
 
