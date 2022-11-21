@@ -49,6 +49,11 @@ fn prepare_translations(build: &mut Build) -> Result<()> {
 }
 
 fn build_rsbridge(build: &mut Build) -> Result<()> {
+    let features = if cfg!(target_os = "linux") {
+        "rustls"
+    } else {
+        "native-tls"
+    };
     build.add(
         "pylib/rsbridge",
         CargoBuild {
@@ -64,7 +69,7 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
             ],
             outputs: &[RustOutput::DynamicLib("rsbridge")],
             target: overriden_rust_target_triple(),
-            extra_args: "-p rsbridge",
+            extra_args: &format!("-p rsbridge --features {features}"),
             release_override: None,
         },
     )
