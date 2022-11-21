@@ -211,7 +211,6 @@ pub fn eslint(build: &mut Build, name: &str, folder: &str, deps: BuildInput) -> 
 
 fn build_and_check_pages(build: &mut Build) -> Result<()> {
     build.add_inputs_to_group("ts:tag-editor", inputs![glob!["ts/tag-editor/**"]]);
-    build.add_inputs_to_group("ts:editable", inputs![glob!["ts/editable/**"]]);
 
     let mut build_page = |name: &str, html: bool, deps: BuildInput| -> Result<()> {
         let group = format!("ts:pages:{name}");
@@ -309,6 +308,19 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
             ":sass"
         ],
     )?;
+    // we use the generated .css file separately
+    build_page(
+        "editable",
+        false,
+        inputs![
+            //
+            ":ts:lib",
+            ":ts:components",
+            ":ts:domlib",
+            ":ts:sveltelib",
+            ":sass"
+        ],
+    )?;
 
     Ok(())
 }
@@ -322,9 +334,8 @@ fn build_and_check_editor(build: &mut Build) -> Result<()> {
         ":ts:sveltelib",
         ":ts:tag-editor",
         ":ts:html-filter",
-        ":ts:editable",
         ":sass",
-        glob!(format!("ts/editor/**"))
+        glob!("ts/{editable,editor}/**")
     ];
 
     let mut build_editor_page = |name: &str, entrypoint: &str| -> Result<()> {

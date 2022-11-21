@@ -121,7 +121,11 @@ fn build_css(build: &mut Build) -> Result<()> {
         )?;
     }
     let other_ts_css = build.inputs_with_suffix(
-        inputs![":ts:editor", ":ts:editable", ":ts:reviewer:reviewer.css"],
+        inputs![
+            ":ts:editor",
+            ":ts:pages:editable",
+            ":ts:reviewer:reviewer.css"
+        ],
         ".css",
     );
     build.add(

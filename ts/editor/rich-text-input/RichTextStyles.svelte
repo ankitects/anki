@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { promiseWithResolver } from "@tslib/promise";
     
-    import type { StyleObject } from "./CustomStyles.svelte";
+    import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
     import CustomStyles from "./CustomStyles.svelte";
 
     export let callback: (styles: CustomStyles) => void;
@@ -37,12 +37,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: setStyling("direction", direction);
 
     const styles = [
-        // inlined in editor.css
-        // {
-        //     id: "rootStyle",
-        //     type: "link" as "link",
-        //     href: "./_anki/css/editable.css",
-        // } as StyleLinkType,
+        {
+            id: "rootStyle",
+            type: "link" as "link",
+            href: "./_anki/css/editable.css",
+        } as StyleLinkType,
     ];
 
     function attachToShadow(element: Element) {
