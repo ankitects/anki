@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+# separate build+run steps so build env doesn't leak into subprocesses
+if [ "$BUILD_ROOT" == "" ]; then
+    out=out
+else
+    out="$BUILD_ROOT"
+fi
+cargo build -p runner --target-dir=$out/rust
+
+exec $out/rust/debug/runner build $*

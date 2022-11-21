@@ -92,20 +92,20 @@ should preferrably be assigned a number between 1 and 15. If a message contains
 
 Protobuf has an official Python implementation with an extensive [reference](https://developers.google.com/protocol-buffers/docs/reference/python-generated).
 
--   Every message used in aqt or pylib must be added to the respective `.pylintrc`
-    to avoid failing type checks. The unqualified protobuf message's name must be
-    used, not an alias from `collection.py` for example. This should be taken into
-    account when choosing a message name in order to prevent skipping typechecking
-    a Python class of the same name.
+- Every message used in aqt or pylib must be added to the respective `.pylintrc`
+  to avoid failing type checks. The unqualified protobuf message's name must be
+  used, not an alias from `collection.py` for example. This should be taken into
+  account when choosing a message name in order to prevent skipping typechecking
+  a Python class of the same name.
 
 ### Typescript
 
 Anki uses [protobuf.js](https://protobufjs.github.io/protobuf.js/), which offers
 some documentation.
 
--   If using a message `Foo` as a type, make sure not to use the generated interface
-    `IFoo` instead. Their definitions are very similar, but the interface requires
-    null checks for every field.
+- If using a message `Foo` as a type, make sure not to use the generated interface
+  `IFoo` instead. Their definitions are very similar, but the interface requires
+  null checks for every field.
 
 ### Rust
 
@@ -114,9 +114,9 @@ Its documentation has some useful hints, but for working with the generated code
 there is a better option: From within `anki/rslib` run `cargo doc --open --document-private-items`.
 Inside the `pb` module you will find all generated Rust types and their implementations.
 
--   Given an enum field `Foo foo = 1;`, `message.foo` is an `i32`. Use the accessor
-    `message.foo()` instead to avoid having to manually convert to a `Foo`.
--   Protobuf does not guarantee any oneof field to be set or an enum field to contain
-    a valid variant, so the Rust code needs to deal with a lot of `Option`s. As we
-    don't expect other parts of Anki to send invalid messages, using an `InvalidInput`
-    error or `unwrap_or_default()` is usually fine.
+- Given an enum field `Foo foo = 1;`, `message.foo` is an `i32`. Use the accessor
+  `message.foo()` instead to avoid having to manually convert to a `Foo`.
+- Protobuf does not guarantee any oneof field to be set or an enum field to contain
+  a valid variant, so the Rust code needs to deal with a lot of `Option`s. As we
+  don't expect other parts of Anki to send invalid messages, using an `InvalidInput`
+  error or `unwrap_or_default()` is usually fine.

@@ -3,23 +3,24 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { fontFamilyKey } from "@tslib/context-keys";
+    import { getRange, getSelection } from "@tslib/cross-browser";
+    import { createDummyDoc } from "@tslib/parsing";
+    import type { Callback } from "@tslib/typing";
+    import { singleCallback } from "@tslib/typing";
     import { getContext } from "svelte";
     import type { Readable } from "svelte/store";
-
+    
     import DropdownItem from "../../components/DropdownItem.svelte";
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
-    import { fontFamilyKey } from "../../lib/context-keys";
-    import { getRange, getSelection } from "../../lib/cross-browser";
-    import { createDummyDoc } from "../../lib/parsing";
-    import type { Callback } from "../../lib/typing";
-    import { singleCallback } from "../../lib/typing";
     import type { SpecialKeyParams } from "../../sveltelib/input-handler";
     import type { EditingInputAPI } from "../EditingArea.svelte";
     import { context } from "../NoteEditor.svelte";
+    import type {
+        RichTextInputAPI} from "../rich-text-input/RichTextInput.svelte";
     import {
-        editingInputIsRichText,
-        RichTextInputAPI,
+        editingInputIsRichText
     } from "../rich-text-input/RichTextInput.svelte";
     import { findSymbols, getAutoInsertSymbol, getExactSymbol } from "./symbols-table";
     import type {
@@ -190,6 +191,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onSpecialKey({ event, action }): void {
+        if (!activeItem) {
+            return;
+        }
         if (["caretLeft", "caretRight"].includes(action)) {
             return unsetReferenceRange();
         }

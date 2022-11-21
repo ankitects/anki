@@ -18,10 +18,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { randomUUID } from "@tslib/uuid";
     import { onDestroy } from "svelte";
     import { writable } from "svelte/store";
-
-    import { randomUUID } from "../lib/uuid";
+    
     import { pageTheme } from "../sveltelib/theme";
     import { convertMathjax, unescapeSomeEntities } from "./mathjax";
 

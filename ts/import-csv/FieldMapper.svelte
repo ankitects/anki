@@ -3,9 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@tslib/ftl";
+    import type { ImportExport } from "@tslib/proto";
+    
     import Spacer from "../components/Spacer.svelte";
-    import * as tr from "../lib/ftl";
-    import type { ImportExport } from "../lib/proto";
     import type { ColumnOption } from "./lib";
     import { getNotetypeFields } from "./lib";
     import MapperRow from "./MapperRow.svelte";

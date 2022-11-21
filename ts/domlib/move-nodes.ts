@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsElement, nodeIsText } from "../lib/dom";
+import { nodeIsElement, nodeIsText } from "@tslib/dom";
+
 import { placeCaretAfter } from "./place-caret";
 
 export function moveChildOutOfElement(
@@ -19,10 +20,9 @@ export function moveChildOutOfElement(
         referenceNode = element.insertAdjacentElement(placement, child)!;
     } else if (nodeIsText(child)) {
         element.insertAdjacentText(placement, child.wholeText);
-        referenceNode =
-            placement === "beforebegin"
-                ? element.previousSibling!
-                : element.nextSibling!;
+        referenceNode = placement === "beforebegin"
+            ? element.previousSibling!
+            : element.nextSibling!;
     } else {
         throw "moveChildOutOfElement: unsupported";
     }
@@ -43,8 +43,8 @@ export function moveNodesInsertedOutside(element: Element, allowedChild: Node): 
 
     // Special treatment for pressing return after mathjax block
     if (
-        afterChildren.length === 2 &&
-        afterChildren.every((child) => (child as Element).tagName === "BR")
+        afterChildren.length === 2
+        && afterChildren.every((child) => (child as Element).tagName === "BR")
     ) {
         const first = afterChildren.pop();
         element.removeChild(first!);

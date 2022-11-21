@@ -1,1 +1,0 @@
-../../../.bazel/bin/qt/aqt/forms/addfield_qt6.py

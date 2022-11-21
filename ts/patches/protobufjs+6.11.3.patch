@@ -36,3 +36,19 @@ index df6f11f..112f9e8 100644
  
  /**
   * Handles a deferred declaring extension field by creating a sister field to represent it within its extended type.
+diff --git a/node_modules/protobufjs/src/util/minimal.js b/node_modules/protobufjs/src/util/minimal.js
+index 3c406de..91e079b 100644
+--- a/node_modules/protobufjs/src/util/minimal.js
++++ b/node_modules/protobufjs/src/util/minimal.js
+@@ -177,10 +177,7 @@ util.Array = typeof Uint8Array !== "undefined" ? Uint8Array /* istanbul ignore n
+  * Long.js's Long class if available.
+  * @type {Constructor<Long>}
+  */
+-util.Long = /* istanbul ignore next */ util.global.dcodeIO && /* istanbul ignore next */ util.global.dcodeIO.Long
+-         || /* istanbul ignore next */ util.global.Long
+-         || util.inquire("long");
+-
++util.Long = null;
+ /**
+  * Regular expression used to verify 2 bit (`bool`) map keys.
+  * @type {RegExp}

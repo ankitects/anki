@@ -13,7 +13,7 @@ dependencies = [
 
 [[package]]
 name = "anki"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "embed-resource",
  "jemallocator",
@@ -345,7 +345,6 @@ dependencies = [
 [[package]]
 name = "pyembed"
 version = "0.20.0-pre"
-source = "git+https://github.com/ankitects/PyOxidizer.git?rev=eb26dd7cd1290de6503869f3d719eabcec45e139#eb26dd7cd1290de6503869f3d719eabcec45e139"
 dependencies = [
  "anyhow",
  "dunce",
@@ -410,7 +409,6 @@ dependencies = [
 [[package]]
 name = "python-oxidized-importer"
 version = "0.5.0-pre"
-source = "git+https://github.com/ankitects/PyOxidizer.git?rev=eb26dd7cd1290de6503869f3d719eabcec45e139#eb26dd7cd1290de6503869f3d719eabcec45e139"
 dependencies = [
  "anyhow",
  "memmap",
@@ -426,7 +424,6 @@ dependencies = [
 [[package]]
 name = "python-packaging"
 version = "0.12.0-pre"
-source = "git+https://github.com/ankitects/PyOxidizer.git?rev=eb26dd7cd1290de6503869f3d719eabcec45e139#eb26dd7cd1290de6503869f3d719eabcec45e139"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -445,7 +442,6 @@ dependencies = [
 [[package]]
 name = "python-packed-resources"
 version = "0.9.0-pre"
-source = "git+https://github.com/ankitects/PyOxidizer.git?rev=eb26dd7cd1290de6503869f3d719eabcec45e139#eb26dd7cd1290de6503869f3d719eabcec45e139"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -555,12 +551,10 @@ dependencies = [
 [[package]]
 name = "tugger-file-manifest"
 version = "0.7.0-pre"
-source = "git+https://github.com/ankitects/PyOxidizer.git?rev=eb26dd7cd1290de6503869f3d719eabcec45e139#eb26dd7cd1290de6503869f3d719eabcec45e139"
 
 [[package]]
 name = "tugger-licensing"
 version = "0.6.0-pre"
-source = "git+https://github.com/ankitects/PyOxidizer.git?rev=eb26dd7cd1290de6503869f3d719eabcec45e139#eb26dd7cd1290de6503869f3d719eabcec45e139"
 dependencies = [
  "anyhow",
  "spdx",

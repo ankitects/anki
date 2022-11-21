@@ -1,0 +1,215 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+use camino::{Utf8Path, Utf8PathBuf};
+
+use crate::{
+    action::BuildAction, archives::with_exe, build::FilesHandle, input::BuildInput, inputs, Build,
+    Result,
+};
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum RustOutput<'a> {
+    Binary(&'a str),
+    StaticLib(&'a str),
+    DynamicLib(&'a str),
+    /// (group_name, fully qualified path)
+    Data(&'a str, &'a str),
+}
+
+impl RustOutput<'_> {
+    pub fn name(&self) -> &str {
+        match self {
+            RustOutput::Binary(pkg) => pkg,
+            RustOutput::StaticLib(pkg) => pkg,
+            RustOutput::DynamicLib(pkg) => pkg,
+            RustOutput::Data(name, _) => name,
+        }
+    }
+
+    pub fn path(&self, rust_base: &Utf8Path, target: Option<&str>, release: bool) -> String {
+        let filename = match *self {
+            RustOutput::Binary(package) => {
+                if cfg!(windows) {
+                    format!("{package}.exe")
+                } else {
+                    package.into()
+                }
+            }
+            RustOutput::StaticLib(package) => format!("lib{package}.a"),
+            RustOutput::DynamicLib(package) => {
+                if cfg!(windows) {
+                    format!("{package}.dll")
+                } else if cfg!(target_os = "macos") {
+                    format!("lib{package}.dylib")
+                } else {
+                    format!("lib{package}.so")
+                }
+            }
+            RustOutput::Data(_, path) => return path.to_string(),
+        };
+        let mut path: Utf8PathBuf = rust_base.into();
+        if let Some(target) = target {
+            path = path.join(target);
+        }
+        path = path
+            .join(if release { "release" } else { "debug" })
+            .join(filename);
+        path.to_string()
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct CargoBuild<'a> {
+    pub inputs: BuildInput,
+    pub outputs: &'a [RustOutput<'a>],
+    pub target: Option<&'static str>,
+    pub extra_args: &'a str,
+    pub release_override: Option<bool>,
+}
+
+impl BuildAction for CargoBuild<'_> {
+    fn command(&self) -> &str {
+        "cargo build $release_arg $target_arg $cargo_flags $extra_args"
+    }
+
+    fn files(&mut self, build: &mut impl FilesHandle) {
+        let release_build = self
+            .release_override
+            .unwrap_or_else(|| build.release_build());
+        let release_arg = if release_build { "--release" } else { "" };
+        let target_arg = if let Some(target) = self.target {
+            format!("--target {target}")
+        } else {
+            "".into()
+        };
+
+        build.add_inputs("", &self.inputs);
+        build.add_inputs(
+            "",
+            inputs![".cargo/config.toml", "rust-toolchain.toml", "Cargo.lock"],
+        );
+        build.add_variable("release_arg", release_arg);
+        build.add_variable("target_arg", target_arg);
+        build.add_variable("extra_args", self.extra_args);
+
+        let output_root = Utf8Path::new("$builddir/rust");
+        for output in self.outputs {
+            let name = output.name();
+            let path = output.path(output_root, self.target, release_build);
+            build.add_outputs_ext(name, vec![path], true);
+        }
+    }
+
+    fn check_output_timestamps(&self) -> bool {
+        true
+    }
+
+    fn on_first_instance(&self, build: &mut Build) -> Result<()> {
+        setup_flags(build)
+    }
+}
+
+fn setup_flags(build: &mut Build) -> Result<()> {
+    build.once_only("cargo_flags_and_pool", |build| {
+        build.variable("cargo_flags", "--locked");
+        Ok(())
+    })
+}
+
+pub struct CargoTest {
+    pub inputs: BuildInput,
+}
+
+impl BuildAction for CargoTest {
+    fn command(&self) -> &str {
+        "cargo nextest run --color=always --failure-output=final --status-level=none $cargo_flags"
+    }
+
+    fn files(&mut self, build: &mut impl FilesHandle) {
+        build.add_inputs("", &self.inputs);
+        build.add_inputs("", inputs![":cargo-nextest"]);
+        build.add_output_stamp("tests/cargo_test");
+    }
+
+    fn on_first_instance(&self, build: &mut Build) -> Result<()> {
+        build.add(
+            "cargo-nextest",
+            CargoInstall {
+                binary_name: "cargo-nextest",
+                args: "cargo-nextest --version 0.9.43",
+            },
+        )?;
+        setup_flags(build)
+    }
+}
+
+pub struct CargoClippy {
+    pub inputs: BuildInput,
+}
+
+impl BuildAction for CargoClippy {
+    fn command(&self) -> &str {
+        "cargo clippy $cargo_flags --tests -- -Dclippy::dbg_macro -Dwarnings"
+    }
+
+    fn files(&mut self, build: &mut impl FilesHandle) {
+        build.add_inputs(
+            "",
+            inputs![&self.inputs, "Cargo.lock", "rust-toolchain.toml"],
+        );
+        build.add_output_stamp("tests/cargo_clippy");
+    }
+
+    fn on_first_instance(&self, build: &mut Build) -> Result<()> {
+        setup_flags(build)
+    }
+}
+
+pub struct CargoFormat {
+    pub inputs: BuildInput,
+    pub check_only: bool,
+}
+
+impl BuildAction for CargoFormat {
+    fn command(&self) -> &str {
+        // the empty config file prevents warnings about nightly features
+        "cargo fmt $mode -- --config-path=.rustfmt-empty.toml --color always"
+    }
+
+    fn files(&mut self, build: &mut impl FilesHandle) {
+        build.add_inputs("", &self.inputs);
+        build.add_variable("mode", if self.check_only { "--check" } else { "" });
+        build.add_output_stamp(format!(
+            "tests/cargo_format.{}",
+            if self.check_only { "check" } else { "fmt" }
+        ));
+    }
+
+    fn on_first_instance(&self, build: &mut Build) -> Result<()> {
+        setup_flags(build)
+    }
+}
+
+/// Use Cargo to download and build a Rust binary. If `binary_name` is `foo`, a `$foo` variable
+/// will be defined with the path to the binary.
+pub struct CargoInstall {
+    pub binary_name: &'static str,
+    /// eg 'foo --version 1.3' or '--git git://...'
+    pub args: &'static str,
+}
+
+impl BuildAction for CargoInstall {
+    fn command(&self) -> &str {
+        "cargo install --color always $args --root $builddir"
+    }
+
+    fn files(&mut self, build: &mut impl FilesHandle) {
+        build.add_variable("args", self.args);
+        build.add_outputs("", vec![with_exe(&format!("bin/{}", self.binary_name))])
+    }
+
+    fn check_output_timestamps(&self) -> bool {
+        true
+    }
+}

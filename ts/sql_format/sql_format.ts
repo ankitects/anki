@@ -3,17 +3,8 @@
 
 import sqlFormatter from "@sqltools/formatter";
 import { createPatch } from "diff";
-import process from "process";
-import path from "path";
-import fs from "fs";
-
-const workspace = process.env.BUILD_WORKSPACE_DIRECTORY;
-const wantFix = workspace !== undefined;
-
-function fixFile(relpath: string, newText: string): void {
-    const workspacePath = path.join(workspace!, relpath);
-    fs.writeFileSync(workspacePath, newText);
-}
+import { argv } from "process";
+import { readFileSync, writeFileSync } from "fs";
 
 function formatText(text: string): string {
     let newText: string = sqlFormatter.format(text, {
@@ -30,13 +21,15 @@ function formatText(text: string): string {
     return newText;
 }
 
+const [_tsx, _script, mode, ...files] = argv;
+const wantFix = mode == "fix";
 let errorFound = false;
-for (const path of process.argv.slice(2)) {
-    const orig = fs.readFileSync(path).toString();
+for (const path of files) {
+    const orig = readFileSync(path).toString();
     const formatted = formatText(orig);
     if (orig !== formatted) {
         if (wantFix) {
-            fixFile(path, formatted);
+            writeFileSync(path, formatted);
             console.log(`Fixed ${path}`);
         } else {
             if (!errorFound) {
@@ -48,7 +41,5 @@ for (const path of process.argv.slice(2)) {
     }
 }
 if (errorFound) {
-    console.log("Use 'bazel run //rslib:sql_format' to fix.");
-    console.log(process.env.BUILD_WORKSPACE_DIRECTORY);
     process.exit(1);
 }

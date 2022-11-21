@@ -21,7 +21,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         toolbar: EditorToolbarAPI;
     }
 
-    import { registerPackage } from "../lib/runtime-require";
+    import { registerPackage } from "@tslib/runtime-require";
+    
     import contextProperty from "../sveltelib/context-property";
     import lifecycleHooks from "../sveltelib/lifecycle-hooks";
 
@@ -39,16 +40,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { bridgeCommand } from "@tslib/bridgecommand";
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
-
+    
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
     import HorizontalResizer from "../components/HorizontalResizer.svelte";
     import Pane from "../components/Pane.svelte";
     import PaneContent from "../components/PaneContent.svelte";
     import { ResizablePane } from "../components/types";
-    import { bridgeCommand } from "../lib/bridgecommand";
     import { TagEditor } from "../tag-editor";
     import TagAddButton from "../tag-editor/tag-options-button/TagAddButton.svelte";
     import { ChangeTimer } from "./change-timer";
@@ -280,8 +281,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $closeHTMLTags = closeTags;
     }
 
+    import { wrapInternal } from "@tslib/wrap";
+    
     import { mathjaxConfig } from "../editable/mathjax-element";
-    import { wrapInternal } from "../lib/wrap";
     import { refocusInput } from "./helpers";
     import * as oldEditorAdapter from "./old-editor-adapter";
 

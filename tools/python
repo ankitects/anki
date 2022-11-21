@@ -1,3 +1,0 @@
-#!/bin/bash
-
-bazel run python --ui_event_filters=-INFO -- $*

@@ -14,7 +14,7 @@ import anki.i18n_pb2 as _pb
 from anki._legacy import DeprecatedNamesMixinForModule
 
 # public exports
-TR = anki._backend.LegacyTranslationEnum
+TR = anki._fluent.LegacyTranslationEnum
 FormatTimeSpan = _pb.FormatTimespanRequest
 
 

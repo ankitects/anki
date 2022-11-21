@@ -39,4 +39,4 @@ fi
 # convert it to a read-only image
 rm -rf $dmg_path
 hdiutil convert /tmp/Anki-rw.dmg -ov -format ULFO -o $dmg_path
-rm -rf /tmp/Anki-rw.dmg $dist
+rm -rf /tmp/Anki-rw.dmg

@@ -2,7 +2,7 @@
     "extends": "../tsconfig.json",
     "include": ["*"],
     "references": [
-        { "path": "../lib" },
+        { "path": "@tslib" },
         { "path": "../sveltelib" },
         { "path": "../components" }
     ],

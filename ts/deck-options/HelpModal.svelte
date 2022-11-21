@@ -3,15 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@tslib/ftl";
     import Carousel from "bootstrap/js/dist/carousel";
     import Modal from "bootstrap/js/dist/modal";
     import { createEventDispatcher, getContext, onMount } from "svelte";
-
+    
     import Badge from "../components/Badge.svelte";
     import Col from "../components/Col.svelte";
     import { modalsKey } from "../components/context-keys";
     import Row from "../components/Row.svelte";
-    import * as tr from "../lib/ftl";
     import { pageTheme } from "../sveltelib/theme";
     import HelpSection from "./HelpSection.svelte";
     import { infoCircle, manualIcon } from "./icons";

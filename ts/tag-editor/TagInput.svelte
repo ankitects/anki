@@ -3,10 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { isArrowLeft, isArrowRight } from "@tslib/keys";
+    import { registerShortcut } from "@tslib/shortcuts";
     import { createEventDispatcher, onMount, tick } from "svelte";
-
-    import { isArrowLeft, isArrowRight } from "../lib/keys";
-    import { registerShortcut } from "../lib/shortcuts";
+    
     import {
         delimChar,
         normalizeTagname,

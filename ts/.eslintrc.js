@@ -21,6 +21,7 @@ module.exports = {
         "simple-import-sort/exports": "warn",
         "prefer-const": "warn",
         "no-nested-ternary": "warn",
+        "@typescript-eslint/consistent-type-imports": "error",
     },
     overrides: [
         {
@@ -43,7 +44,7 @@ module.exports = {
         },
     ],
     env: { browser: true },
-    ignorePatterns: ["backend_proto.d.ts", "*.svelte.d.ts"],
+    ignorePatterns: ["backend_proto.d.ts", "*.svelte.d.ts", "vendor"],
     globals: {
         globalThis: false,
         NodeListOf: false,

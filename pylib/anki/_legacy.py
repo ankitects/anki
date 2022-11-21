@@ -6,10 +6,13 @@ from __future__ import annotations
 import functools
 import os
 import pathlib
+import sys
 import traceback
 from typing import TYPE_CHECKING, Any, Callable, Union
 
-from anki._vendor import stringcase
+from anki._vendor import stringcase  # type: ignore
+
+sys.modules["stringcase"] = stringcase
 
 VariableTarget = tuple[Any, str]
 DeprecatedAliasTarget = Union[Callable, VariableTarget]

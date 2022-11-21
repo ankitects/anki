@@ -1,65 +1,50 @@
-[package]
-name = "anki_workspace"
+[workspace.package]
 version = "0.0.0"
-authors = ["Ankitects Pty Ltd and contributors"]
+authors = ["Ankitects Pty Ltd and contributors <https://help.ankiweb.net>"]
 license = "AGPL-3.0-or-later"
+rust-version = "1.64"
+edition = "2021"
 
 [workspace]
-members = ["rslib", "rslib/i18n", "rslib/i18n_helpers", "rslib/linkchecker", "pylib/rsbridge"]
-exclude = ["qt/bundle"]
-
-[lib]
-# dummy top level for tooling
-name = "anki"
-path = "rslib/empty.rs"
-
-[package.metadata.raze]
-workspace_path = "//cargo"
-package_aliases_dir = "cargo"
-rust_rules_workspace_name = "rules_rust"
-
-# pull requests that add other targets (eg Arm Linux, FreeBSD) welcome - you'll
-# need to update platforms/, BUILD.request.bazel and pylib/anki/BUILD.bazel as
-# well.
-targets = [
-  "x86_64-apple-darwin",
-  "x86_64-apple-ios",
-  "x86_64-pc-windows-msvc",
-  "x86_64-unknown-linux-gnu",
-  "aarch64-apple-darwin",
-  "aarch64-apple-ios",
-  "aarch64-apple-ios-sim",
-  "aarch64-unknown-linux-gnu",
+members = [
+  "rslib",
+  "rslib/i18n",
+  "rslib/i18n_helpers",
+  "rslib/linkchecker",
+  "pylib/rsbridge",
+  "build/configure",
+  "build/ninja_gen",
+  "build/archives",
+  "build/runner",
+  "tools/workspace-hack",
+  "qt/bundle/win",
+  "qt/bundle/mac",
 ]
-genmode = "Remote"
-default_gen_buildrs = true
-
-[package.metadata.raze.crates.pyo3.'*']
-compile_data_attr = "glob([\"**/*.md\"])"
-
-[package.metadata.raze.crates.prost.'*']
-compile_data_attr = "glob([\"**/*.md\"])"
-
-[package.metadata.raze.crates.ring.'*']
-compile_data_attr = "glob([\"src/**/*.der\"])"
-
-[package.metadata.raze.crates.webpki.'*']
-compile_data_attr = "glob([\"src/**/*.der\"])"
-
-[package.metadata.raze.crates.unic-ucd-version.'*']
-compile_data_attr = "glob([\"**/*.rsv\"])"
-
-[package.metadata.raze.crates.unic-ucd-category.'*']
-compile_data_attr = "glob([\"**/*.rsv\"])"
-
-[package.metadata.raze.crates.bstr.'*']
-compile_data_attr = "glob([\"**/*.dfa\"])"
-
-[package.metadata.raze.crates.snafu.'*']
-compile_data_attr = "glob([\"**/*.md\"])"
-
-[package.metadata.raze.crates.pyo3-build-config.'*']
-buildrs_additional_environment_variables = { "PYO3_NO_PYTHON" = "1" }
+exclude = ["qt/bundle"]
+resolver = "2"
 
 [patch.crates-io]
+# If updating rev, hakari.toml needs updating too.
 reqwest = { git = "https://github.com/ankitects/reqwest.git", rev = "7591444614de02b658ddab125efba7b2bb4e2335" }
+
+# Apply mild optimizations to our dependencies in dev mode, which among other things
+# improves sha2 performance by about 21x. Opt 1 chosen due to
+# https://doc.rust-lang.org/cargo/reference/profiles.html#overrides-and-generics. This
+# applies to the dependencies of unit tests as well.
+[profile.dev.package."*"]
+opt-level = 1
+debug = 0
+
+[profile.dev.package.anki_i18n]
+opt-level = 1
+debug = 0
+
+[profile.dev.package.runner]
+opt-level = 1
+
+# Debug info off by default, which speeds up incremental builds and produces a considerably
+# smaller library.
+[profile.dev.package.anki]
+debug = 0
+[profile.dev.package.rsbridge]
+debug = 0

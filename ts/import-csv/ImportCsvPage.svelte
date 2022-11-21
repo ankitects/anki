@@ -3,18 +3,20 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@tslib/ftl";
+    import type {
+        Decks,
+        Generic,
+        Notetypes} from "@tslib/proto";
+    import {
+        ImportExport,
+        importExport
+    } from "@tslib/proto";
+    
     import Col from "../components/Col.svelte";
     import Container from "../components/Container.svelte";
     import Row from "../components/Row.svelte";
     import Spacer from "../components/Spacer.svelte";
-    import * as tr from "../lib/ftl";
-    import {
-        Decks,
-        Generic,
-        ImportExport,
-        importExport,
-        Notetypes,
-    } from "../lib/proto";
     import DeckSelector from "./DeckSelector.svelte";
     import DelimiterSelector from "./DelimiterSelector.svelte";
     import DupeResolutionSelector from "./DupeResolutionSelector.svelte";

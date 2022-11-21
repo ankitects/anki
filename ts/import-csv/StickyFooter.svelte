@@ -3,13 +3,14 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@tslib/ftl";
+    import { getPlatformString } from "@tslib/shortcuts";
+    
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import Col from "../components/Col.svelte";
     import LabelButton from "../components/LabelButton.svelte";
     import Row from "../components/Row.svelte";
     import Shortcut from "../components/Shortcut.svelte";
-    import * as tr from "../lib/ftl";
-    import { getPlatformString } from "../lib/shortcuts";
 
     export let path: string;
     export let onImport: () => void;

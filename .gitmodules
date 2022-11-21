@@ -1,0 +1,11 @@
+[submodule "ftl/core-repo"]
+	path = ftl/core-repo
+	url = ../anki-core-i18n.git
+        shallow = true
+[submodule "ftl/qt-repo"]
+	path = ftl/qt-repo
+	url = ../anki-desktop-ftl.git
+        shallow = true
+[submodule "qt/bundle/PyOxidizer"]
+	path = qt/bundle/PyOxidizer
+	url = ../PyOxidizer.git

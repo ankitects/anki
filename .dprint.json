@@ -14,7 +14,19 @@
         "semi": true
     },
     "includes": ["**/*.{ts,tsx,js,jsx,cjs,mjs,json,md,toml,svelte}"],
-    "excludes": ["**/node_modules", "**/*-lock.json", "**/*.{ts,json,md,svelte}", "qt/aqt/data/web/js/vendor/*.js"],
+    "excludes": [
+        "**/node_modules",
+        "out/**",
+        "**/*-lock.json",
+        "**/*.{ts,toml,svelte}",
+        "qt/aqt/data/web/js/vendor/*.js",
+        "ftl/qt-repo",
+        "ftl/core-repo",
+        "ftl/usage",
+        "licenses.json",
+        ".dmypy.json",
+        "qt/bundle/PyOxidizer"
+    ],
     "plugins": [
         "https://plugins.dprint.dev/typescript-0.77.0.wasm",
         "https://plugins.dprint.dev/json-0.16.0.wasm",

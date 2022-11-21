@@ -1,1 +1,0 @@
-../../../.bazel/bin/qt/aqt/forms/setlang_qt6.py

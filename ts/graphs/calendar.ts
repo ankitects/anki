@@ -1,6 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import * as tr from "@tslib/ftl";
+import { localizedDate, weekdayLabel } from "@tslib/i18n";
+import { Stats } from "@tslib/proto";
 import type { CountableTimeInterval } from "d3";
 import {
     interpolateBlues,
@@ -16,15 +19,8 @@ import {
     timeYear,
 } from "d3";
 
-import * as tr from "../lib/ftl";
-import { localizedDate, weekdayLabel } from "../lib/i18n";
-import { Stats } from "../lib/proto";
-import {
-    GraphBounds,
-    RevlogRange,
-    SearchDispatch,
-    setDataAvailable,
-} from "./graph-helpers";
+import type { GraphBounds, SearchDispatch} from "./graph-helpers";
+import { RevlogRange, setDataAvailable } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
 import { hideTooltip, showTooltip } from "./tooltip";
 
@@ -184,7 +180,7 @@ export function renderCalendar(
         .filter((d: number) =>
             [Weekday.SUNDAY, Weekday.MONDAY, Weekday.FRIDAY, Weekday.SATURDAY].includes(
                 d,
-            ),
+            )
         )
         .on("click", (_event: MouseEvent, d: number) => setFirstDayOfWeek(d));
 
@@ -203,7 +199,7 @@ export function renderCalendar(
         })
         .on("mouseout", hideTooltip)
         .attr("class", (d: DayDatum): string => (d.count > 0 ? clickableClass : ""))
-        .on("click", function (_event: MouseEvent, d: DayDatum) {
+        .on("click", function(_event: MouseEvent, d: DayDatum) {
             if (d.count > 0) {
                 dispatch("search", { query: `"prop:rated=${d.day}"` });
             }

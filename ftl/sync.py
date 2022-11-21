@@ -8,7 +8,6 @@
 import os
 import re
 import subprocess
-import sys
 from dataclasses import dataclass
 from hashlib import sha256
 from typing import Optional, Tuple
@@ -54,7 +53,9 @@ def update_repo(module: Module):
 
 def clone_repo(module: Module):
     subprocess.run(
-        ["git", "clone", module.repo, module.folder_name], cwd=working_folder, check=True
+        ["git", "clone", module.repo, module.folder_name],
+        cwd=working_folder,
+        check=True,
     )
 
 
@@ -78,7 +79,7 @@ def git_url_to_zip_url(repo: str, commit: str) -> str:
 
 
 def get_zip_sha(zip_url: str) -> str:
-    resp = requests.get(zip_url)
+    resp = requests.get(zip_url, timeout=60)
     resp.raise_for_status()
     return sha256(resp.content).hexdigest()
 
@@ -110,7 +111,7 @@ def update_repos_bzl():
     out = []
     path = repos_bzl
     reg = re.compile(r'(\s+)(\S+_(?:commit|zip_csum)) = "(.*)"')
-    for line in open(path).readlines():
+    for line in open(path, encoding="utf8").readlines():
         if m := reg.match(line):
             (indent, key, _oldvalue) = m.groups()
             value = entries[key]
@@ -118,7 +119,7 @@ def update_repos_bzl():
             out.append(line)
         else:
             out.append(line)
-    open(path, "w").writelines(out)
+    open(path, "w", encoding="utf8").writelines(out)
 
     commit_if_changed(root, update_label="translations")
 

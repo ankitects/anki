@@ -1,3 +1,5 @@
+# type: ignore
+
 set_build_path(VARS.get("build"))
 
 excluded_source_prefixes = [
@@ -11,6 +13,9 @@ excluded_source_prefixes = [
     "win32com",
     "win32",
     "pythonwin",
+    "PyQt6",
+    "pip",
+    "setuptools",
 ]
 
 excluded_resource_suffixes = [
@@ -22,10 +27,12 @@ excluded_resource_suffixes = [
 included_resource_packages = [
     "anki",
     "aqt",
+    "_aqt",
     "lib2to3",
     "certifi",
     "jsonschema",
 ]
+
 
 def handle_resource(policy, resource):
     if type(resource) == "PythonModuleSource":
@@ -39,10 +46,10 @@ def handle_resource(policy, resource):
 
     elif type(resource) == "PythonExtensionModule":
         resource.add_include = True
-        if resource.name.startswith("win32"):
+        if resource.name.startswith("win32") or resource.name.startswith("PyQt6"):
             resource.add_include = False
 
-        #print("ext", resource.name, resource.add_include)
+        # print("ext", resource.name, resource.add_include)
 
     elif type(resource) == "PythonPackageResource":
         for prefix in included_resource_packages:
@@ -53,7 +60,7 @@ def handle_resource(policy, resource):
                 resource.add_include = False
 
         # aqt web resources can be stored in binary
-        if resource.package == "aqt":
+        if resource.package.endswith("aqt"):
             if not resource.name.startswith("data/web"):
                 resource.add_location = "filesystem-relative:lib"
 
@@ -61,7 +68,7 @@ def handle_resource(policy, resource):
         #     print("rsrc", resource.package, resource.name, resource.add_include)
 
     elif type(resource) == "PythonPackageDistributionResource":
-        #print("dist", resource.package, resource.name, resource.add_include)
+        # print("dist", resource.package, resource.name, resource.add_include)
         pass
 
         # elif type(resource) == "File":
@@ -69,16 +76,17 @@ def handle_resource(policy, resource):
 
     elif type(resource) == "File":
         if (
-            resource.path.startswith("win32") or
-            resource.path.startswith("pythonwin") or
-            resource.path.startswith("pywin32")
+            resource.path.startswith("win32")
+            or resource.path.startswith("pythonwin")
+            or resource.path.startswith("pywin32")
         ):
             exclude = (
-                "tests" in resource.path or
-                "benchmark" in resource.path or
-                "__pycache__" in resource.path
+                "tests" in resource.path
+                or "benchmark" in resource.path
+                or "__pycache__" in resource.path
             )
             if not exclude:
+                # print("add", resource.path)
                 resource.add_include = True
                 resource.add_location = "filesystem-relative:lib"
 
@@ -88,17 +96,18 @@ def handle_resource(policy, resource):
     else:
         print("unexpected type", type(resource))
 
+
 def make_exe():
     if BUILD_TARGET_TRIPLE == "aarch64-unknown-linux-gnu":
         dist = PythonDistribution(
-            url = "https://github.com/ankitects/python-build-standalone/releases/download/anki-2021-10-15/cpython-3.9.7-aarch64-unknown-linux-gnu-pgo-20211013T1538.tar.zst",
-            sha256 = "d25de2da9dc1b988350570c0ade9a79587cafeaad9ba1965fcec12c4ecaa9d98",
+            url="https://github.com/ankitects/python-build-standalone/releases/download/anki-2021-10-15/cpython-3.9.7-aarch64-unknown-linux-gnu-pgo-20211013T1538.tar.zst",
+            sha256="d25de2da9dc1b988350570c0ade9a79587cafeaad9ba1965fcec12c4ecaa9d98",
         )
 
     elif BUILD_TARGET_TRIPLE == "x86_64-unknown-linux-gnu":
         dist = PythonDistribution(
-            url = "https://github.com/ankitects/python-build-standalone/releases/download/anki-2022-02-18/cpython-3.9.10-x86_64-unknown-linux-gnu-pgo-20220218T1329.tar.zst",
-            sha256 = "83167967d09ada10554c0a1ed8228bcfac1117669880d2979578017565537400",
+            url="https://github.com/ankitects/python-build-standalone/releases/download/anki-2022-02-18/cpython-3.9.10-x86_64-unknown-linux-gnu-pgo-20220218T1329.tar.zst",
+            sha256="83167967d09ada10554c0a1ed8228bcfac1117669880d2979578017565537400",
         )
 
     else:
@@ -138,9 +147,9 @@ def make_exe():
     python_config.run_command = "import aqt; aqt.run()"
 
     exe = dist.to_python_executable(
-        name = "anki",
-        packaging_policy = policy,
-        config = python_config,
+        name="anki",
+        packaging_policy=policy,
+        config=python_config,
     )
 
     exe.windows_runtime_dlls_mode = "always"
@@ -148,22 +157,25 @@ def make_exe():
     # set in main.rs
     exe.windows_subsystem = "console"
 
-    venv_path = "venv"
-
     resources = exe.read_virtualenv(VARS.get("venv"))
     exe.add_python_resources(resources)
 
     return exe
 
+
 def make_embedded_resources(exe):
     return exe.to_embedded_resources()
+
 
 def make_install(exe):
     files = FileManifest()
     files.add_python_resource(".", exe)
     return files
 
+
 register_target("exe", make_exe)
-register_target("resources", make_embedded_resources, depends = ["exe"], default_build_script = True)
-register_target("install", make_install, depends = ["exe"], default = True)
+register_target(
+    "resources", make_embedded_resources, depends=["exe"], default_build_script=True
+)
+register_target("install", make_install, depends=["exe"], default=True)
 resolve_targets()

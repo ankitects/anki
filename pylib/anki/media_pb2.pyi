@@ -1,1 +1,0 @@
-../../.bazel/bin/pylib/anki/media_pb2.pyi

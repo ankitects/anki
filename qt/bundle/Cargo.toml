@@ -1,19 +1,19 @@
 [package]
 name = "anki"
-version = "0.1.0"
 build = "build.rs"
+version = "0.0.0"
+authors = ["Ankitects Pty Ltd and contributors <https://help.ankiweb.net>"]
+license = "AGPL-3.0-or-later"
+rust-version = "1.64"
 edition = "2021"
+
+[dependencies]
+pyembed = { path = "./PyOxidizer/pyembed", default-features = false }
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["wincon"] }
 libc = "0.2"
 libc-stdhandle = "=0.1.0"
-
-[dependencies.pyembed]
-git = "https://github.com/ankitects/PyOxidizer.git"
-# when changing this, pyoxidizer in /repos.bzl needs to be updated as well
-rev = "eb26dd7cd1290de6503869f3d719eabcec45e139"
-default-features = false
 
 [dependencies.jemallocator]
 version = "0.3"

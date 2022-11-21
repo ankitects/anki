@@ -30,7 +30,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return editingInput.name === "rich-text";
     }
 
-    import { registerPackage } from "../../lib/runtime-require";
+    import { registerPackage } from "@tslib/runtime-require";
+    
     import contextProperty from "../../sveltelib/context-property";
     import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
     import { Surrounder } from "../surround";
@@ -41,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const [lifecycle, instances, setupLifecycleHooks] =
         lifecycleHooks<RichTextInputAPI>();
     const apiStore = writable<SurroundedAPI | null>(null);
-    const surrounder = Surrounder.make(apiStore);
+    const surrounder = Surrounder.make<string>(apiStore);
 
     registerPackage("anki/RichTextInput", {
         context,
@@ -60,14 +61,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { directionKey, fontFamilyKey, fontSizeKey } from "@tslib/context-keys";
+    import { promiseWithResolver } from "@tslib/promise";
+    import { singleCallback } from "@tslib/typing";
     import { getAllContexts, getContext, onMount } from "svelte";
     import type { Readable } from "svelte/store";
-
+    
     import { placeCaretAfterContent } from "../../domlib/place-caret";
     import ContentEditable from "../../editable/ContentEditable.svelte";
-    import { directionKey, fontFamilyKey, fontSizeKey } from "../../lib/context-keys";
-    import { promiseWithResolver } from "../../lib/promise";
-    import { singleCallback } from "../../lib/typing";
     import useDOMMirror from "../../sveltelib/dom-mirror";
     import useInputHandler from "../../sveltelib/input-handler";
     import { pageTheme } from "../../sveltelib/theme";

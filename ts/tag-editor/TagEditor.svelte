@@ -3,13 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { isArrowDown, isArrowUp } from "@tslib/keys";
+    import { Tags, tags as tagsService } from "@tslib/proto";
     import { createEventDispatcher, tick } from "svelte";
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
-
+    
     import { execCommand } from "../domlib";
-    import { isArrowDown, isArrowUp } from "../lib/keys";
-    import { Tags, tags as tagsService } from "../lib/proto";
     import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";

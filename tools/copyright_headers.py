@@ -2,8 +2,12 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os
+import subprocess
 import sys
 from pathlib import Path
+
+want_fix = sys.argv[1] == "fix"
+checked_for_dirty = False
 
 nonstandard_header = {
     "pylib/anki/_vendor/stringcase.py",
@@ -12,6 +16,7 @@ nonstandard_header = {
     "pylib/anki/statsbg.py",
     "pylib/tools/protoc-gen-mypy.py",
     "python/pyqt/install.py",
+    "python/write_wheel.py",
     "qt/aqt/mpv.py",
     "qt/aqt/winpaths.py",
     "qt/bundle/build.rs",
@@ -19,18 +24,57 @@ nonstandard_header = {
 }
 
 ignored_folders = [
-    "bazel-",
-    "qt/forms",
+    "out",
     "node_modules",
+    "qt/forms",
+    "tools/workspace-hack",
+    "qt/bundle/PyOxidizer",
 ]
 
-if not os.path.exists("WORKSPACE"):
-    print("run from workspace root")
-    sys.exit(1)
+
+def fix(path: Path) -> None:
+    with open(path, "r", encoding="utf8") as f:
+        existing_text = f.read()
+    path_str = str(path)
+    if path_str.endswith(".py"):
+        header = """\
+# Copyright: Ankitects Pty Ltd and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+"""
+    elif (
+        path_str.endswith(".ts")
+        or path_str.endswith(".rs")
+        or path_str.endswith(".mjs")
+    ):
+        header = """\
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+"""
+    elif path_str.endswith(".svelte"):
+        header = """\
+<!--
+Copyright: Ankitects Pty Ltd and contributors
+License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+-->
+
+"""
+    with open(path, "w", encoding="utf8") as f:
+        f.write(header + existing_text)
+
 
 found = False
+if sys.platform == "win32":
+    ignored_folders = [f.replace("/", "\\") for f in ignored_folders]
+    nonstandard_header = {f.replace("/", "\\") for f in nonstandard_header}
+
 for dirpath, dirnames, fnames in os.walk("."):
     dir = Path(dirpath)
+
+    # avoid infinite recursion with old symlink
+    if ".bazel" in dirnames:
+        dirnames.remove(".bazel")
 
     ignore = False
     for folder in ignored_folders:
@@ -41,10 +85,10 @@ for dirpath, dirnames, fnames in os.walk("."):
         continue
 
     for fname in fnames:
-        for ext in ".py", ".ts", ".rs", ".svelte":
+        for ext in ".py", ".ts", ".rs", ".svelte", ".mjs":
             if fname.endswith(ext):
                 path = dir / fname
-                with open(path) as f:
+                with open(path, encoding="utf8") as f:
                     top = f.read(256)
                     if not top.strip():
                         continue
@@ -52,7 +96,16 @@ for dirpath, dirnames, fnames in os.walk("."):
                         continue
                     if fname.endswith(".d.ts"):
                         continue
-                    if "Ankitects Pty Ltd and contributors" not in top:
+                    missing = "Ankitects Pty Ltd and contributors" not in top
+                if missing:
+                    if want_fix:
+                        if not checked_for_dirty:
+                            if subprocess.getoutput("git diff"):
+                                print("stage any changes first")
+                                sys.exit(1)
+                            checked_for_dirty = True
+                        fix(path)
+                    else:
                         print("missing standard copyright header:", path)
                         found = True
 

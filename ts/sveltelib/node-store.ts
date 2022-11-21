@@ -1,9 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { noop } from "@tslib/functional";
 import type { Subscriber, Unsubscriber, Updater, Writable } from "svelte/store";
-
-import { noop } from "../lib/functional";
 
 export interface NodeStore<T extends Node> extends Writable<T> {
     setUnprocessed(node: T): void;

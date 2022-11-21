@@ -3,16 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { bridgeCommand } from "@tslib/bridgecommand";
+    import * as tr from "@tslib/ftl";
+    import { getPlatformString } from "@tslib/shortcuts";
+    import { removeStyleProperties } from "@tslib/styling";
+    import { singleCallback } from "@tslib/typing";
     import { onMount } from "svelte";
-
+    
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import type { FormattingNode, MatchType } from "../../domlib/surround";
-    import { bridgeCommand } from "../../lib/bridgecommand";
-    import * as tr from "../../lib/ftl";
-    import { getPlatformString } from "../../lib/shortcuts";
-    import { removeStyleProperties } from "../../lib/styling";
-    import { singleCallback } from "../../lib/typing";
     import { withFontColor } from "../helpers";
     import { chevronDown } from "../icons";
     import { surrounder } from "../rich-text-input";

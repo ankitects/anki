@@ -1,16 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import type { Identifier } from "@tslib/children-access";
+import type { ChildrenAccess } from "@tslib/children-access";
+import childrenAccess from "@tslib/children-access";
+import { nodeIsElement } from "@tslib/dom";
+import type { Callback } from "@tslib/helpers";
+import { removeItem } from "@tslib/helpers";
+import { promiseWithResolver } from "@tslib/promise";
 import type { SvelteComponent } from "svelte";
 import type { Readable, Writable } from "svelte/store";
 import { writable } from "svelte/store";
-
-import type { Identifier } from "../lib/children-access";
-import type { ChildrenAccess } from "../lib/children-access";
-import childrenAccess from "../lib/children-access";
-import { nodeIsElement } from "../lib/dom";
-import type { Callback } from "../lib/helpers";
-import { removeItem } from "../lib/helpers";
-import { promiseWithResolver } from "../lib/promise";
 
 export interface DynamicSvelteComponent {
     component: typeof SvelteComponent;
@@ -114,8 +113,7 @@ function dynamicSlotting<
         component: DynamicSvelteComponent,
         reinsert: (newElement: U, access: ChildrenAccess<U>) => number,
     ): Promise<{ destroy: Callback }> {
-        const [dynamicallySlottedMounted, resolveDynamicallySlotted] =
-            promiseWithResolver();
+        const [dynamicallySlottedMounted, resolveDynamicallySlotted] = promiseWithResolver();
         const access = await accessPromise;
         const hostProps = makeProps();
 
@@ -130,8 +128,8 @@ function dynamicSlotting<
             for (const mutation of mutations) {
                 for (const addedNode of mutation.addedNodes) {
                     if (
-                        !nodeIsElement(addedNode) ||
-                        !elementIsDynamicComponent(addedNode)
+                        !nodeIsElement(addedNode)
+                        || !elementIsDynamicComponent(addedNode)
                     ) {
                         continue;
                     }
@@ -247,8 +245,9 @@ export function defaultInterface<T extends SlotHostProps, U extends Element>({
         component: DynamicSvelteComponent,
         id: Identifier = 0,
     ): Promise<{ destroy: Callback }> {
-        return addComponent(component, (element: Element, access: ChildrenAccess<U>) =>
-            access.insertElement(element, id),
+        return addComponent(
+            component,
+            (element: Element, access: ChildrenAccess<U>) => access.insertElement(element, id),
         );
     }
 
@@ -256,8 +255,9 @@ export function defaultInterface<T extends SlotHostProps, U extends Element>({
         component: DynamicSvelteComponent,
         id: Identifier = -1,
     ): Promise<{ destroy: Callback }> {
-        return addComponent(component, (element: Element, access: ChildrenAccess<U>) =>
-            access.appendElement(element, id),
+        return addComponent(
+            component,
+            (element: Element, access: ChildrenAccess<U>) => access.appendElement(element, id),
         );
     }
 
@@ -294,7 +294,6 @@ export function defaultInterface<T extends SlotHostProps, U extends Element>({
 import contextProperty from "./context-property";
 
 const key = Symbol("dynamicSlotting");
-const [defaultSlotHostContext, setSlotHostContext] =
-    contextProperty<GetSlotHostProps<SlotHostProps>>(key);
+const [defaultSlotHostContext, setSlotHostContext] = contextProperty<GetSlotHostProps<SlotHostProps>>(key);
 
 export { defaultSlotHostContext, setSlotHostContext };

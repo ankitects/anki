@@ -1,4 +1,4 @@
-FROM python:3.9-slim-buster
+FROM python:3.9-slim-bullseye
 
 ARG DEBIAN_FRONTEND="noninteractive"
 
@@ -45,8 +45,8 @@ RUN apt-get update && apt install --yes gnupg ca-certificates && \
     python3-dev \
     rsync \
     zstd \
+    ninja-build \
     && rm -rf /var/lib/apt/lists/*
-
 
 RUN curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-linux-amd64 \
     -o /usr/local/bin/bazel \

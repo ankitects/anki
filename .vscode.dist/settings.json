@@ -11,7 +11,12 @@
         "**/node_modules/*/**": true,
         ".bazel/**": true
     },
-    "python.analysis.extraPaths": ["./pylib"],
+    "python.analysis.extraPaths": [
+        "./pylib",
+        "out/pylib",
+        "./pylib/anki/_vendor",
+        "out/qt"
+    ],
     "python.formatting.provider": "black",
     "python.linting.mypyEnabled": false,
     "python.analysis.diagnosticSeverityOverrides": {
@@ -25,7 +30,8 @@
     "rust-analyzer.rustfmt.extraArgs": ["+nightly"],
     "search.exclude": {
         "**/node_modules": true,
-        ".bazel/**": true
+        ".bazel/**": true,
+        "qt/bundle/PyOxidizer": true
     },
     "rust-analyzer.cargo.buildScripts.enable": true
 }

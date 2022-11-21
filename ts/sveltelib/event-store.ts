@@ -1,14 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import type { EventTargetToMap } from "@tslib/events";
+import { on } from "@tslib/events";
+import type { Callback } from "@tslib/typing";
 import type { Readable, Subscriber } from "svelte/store";
 import { readable } from "svelte/store";
 
-import type { EventTargetToMap } from "../lib/events";
-import { on } from "../lib/events";
-import type { Callback } from "../lib/typing";
-
-type Init<T> = { new (type: string): T; prototype: T };
+type Init<T> = { new(type: string): T; prototype: T };
 
 /**
  * A store wrapping an event. Automatically adds/removes event handler upon
@@ -29,8 +28,7 @@ function eventStore<T extends EventTarget, K extends keyof EventTargetToMap<T>>(
     const initEvent = new constructor(eventType);
     return readable(
         initEvent,
-        (set: Subscriber<EventTargetToMap<T>[K]>): Callback =>
-            on(target, eventType, set),
+        (set: Subscriber<EventTargetToMap<T>[K]>): Callback => on(target, eventType, set),
     );
 }
 

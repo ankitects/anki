@@ -12,12 +12,14 @@ root_vars_css = sys.argv[1]
 colors_py = sys.argv[2]
 props_py = sys.argv[3]
 
-colors = {}
-props = {}
+colors: dict[str, dict[str, str]] = {}
+props: dict[str, dict[str, str]] = {}
 reached_props = False
 comment = ""
 
-for line in re.split(r"[;\{\}]|\*\/", open(root_vars_css).read()):
+with open(root_vars_css) as f:
+    data = f.read()
+for line in re.split(r"[;\{\}]|\*\/", data):
     line = line.strip()
 
     if not line:
@@ -38,6 +40,7 @@ for line in re.split(r"[;\{\}]|\*\/", open(root_vars_css).read()):
             and "Copyright" not in line
             and "License" not in line
             and "color-scheme" not in line
+            and "sourceMappingURL" not in line
         ):
             print("failed to match", line)
         continue
@@ -72,7 +75,7 @@ with open(colors_py, "w") as buf:
 
     for color, val in colors.items():
         if not "dark" in val:
-            val["dark"] = val.light
+            val["dark"] = val["light"]
 
         buf.write(re.sub(r"\"\n", '",\n', f"{color} = {json.dumps(val, indent=4)}\n"))
 
@@ -83,6 +86,6 @@ with open(props_py, "w") as buf:
 
     for prop, val in props.items():
         if not "dark" in val:
-            val["dark"] = val.light
+            val["dark"] = val["light"]
 
         buf.write(re.sub(r"\"\n", '",\n', f"{prop} = {json.dumps(val, indent=4)}\n"))

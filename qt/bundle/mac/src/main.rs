@@ -1,107 +1,121 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+#![cfg(unix)]
+
 //! Munge the output of PyOxidizer into a macOS app bundle, and combine it
 //! with our other runtime dependencies.
 
-use std::{
-    os::unix::prelude::PermissionsExt,
-    path::{Path, PathBuf},
-    process::Command,
-    str::FromStr,
-};
+mod codesign;
+mod dmg;
+mod notarize;
 
-use anyhow::{bail, Context, Result};
+use std::{env, fs, os::unix::prelude::PermissionsExt, process::Command};
+
+use anyhow::{bail, Result};
 use apple_bundles::MacOsApplicationBundleBuilder;
+use camino::{Utf8Path, Utf8PathBuf};
+use clap::{Parser, Subcommand, ValueEnum};
+use codesign::{codesign_app, codesign_python_libs};
+use dmg::{make_dmgs, BuildDmgsArgs};
+use notarize::notarize_app;
 use plist::Value;
 use tugger_file_manifest::FileEntry;
 use walkdir::WalkDir;
 
-const CODESIGN_ARGS: &[&str] = &["-vvvv", "-o", "runtime", "-s", "Developer ID Application:"];
-
-#[derive(Clone, Copy, Debug)]
-enum Variant {
-    StandardX86,
-    StandardArm,
-    AlternateX86,
+#[derive(Clone, ValueEnum)]
+enum DistKind {
+    Standard,
+    Alternate,
 }
 
-impl FromStr for Variant {
-    type Err = anyhow::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "qt6_arm64" => Variant::StandardArm,
-            "qt6_amd64" => Variant::StandardX86,
-            "qt5_amd64" => Variant::AlternateX86,
-            other => bail!("unexpected variant: {other}"),
-        })
-    }
-}
-
-impl Variant {
-    fn output_base(&self) -> &str {
+impl DistKind {
+    fn folder_name(&self) -> &'static str {
         match self {
-            Variant::StandardX86 => "qt6_amd64",
-            Variant::StandardArm => "qt6_arm64",
-            Variant::AlternateX86 => "qt5_amd64",
+            DistKind::Standard => "std",
+            DistKind::Alternate => "alt",
         }
+    }
+
+    fn input_folder(&self) -> Utf8PathBuf {
+        Utf8Path::new("out/bundle").join(self.folder_name())
+    }
+
+    fn output_folder(&self) -> Utf8PathBuf {
+        Utf8Path::new("out/bundle/app")
+            .join(self.folder_name())
+            .join("Anki.app")
     }
 
     fn macos_min(&self) -> &str {
         match self {
-            Variant::StandardX86 => "10.14.4",
-            Variant::StandardArm => "11",
-            Variant::AlternateX86 => "10.13.4",
+            DistKind::Standard => {
+                if cfg!(target_arch = "aarch64") && env::var("MAC_X86").is_err() {
+                    "11"
+                } else {
+                    "10.14.4"
+                }
+            }
+            DistKind::Alternate => "10.13.14",
         }
     }
 
-    fn qt_repo(&self) -> &str {
-        match self {
-            Variant::StandardX86 => "pyqt6.4_mac_bundle_amd64",
-            Variant::StandardArm => "pyqt6.4_mac_bundle_arm64",
-            Variant::AlternateX86 => "pyqt5.14_mac_bundle_amd64",
-        }
+    fn qt_repo(&self) -> &Utf8Path {
+        Utf8Path::new(match self {
+            DistKind::Standard => {
+                if cfg!(target_arch = "aarch64") && env::var("MAC_X86").is_err() {
+                    "out/extracted/mac_arm_qt6"
+                } else {
+                    "out/extracted/mac_amd_qt6"
+                }
+            }
+            DistKind::Alternate => "out/extracted/mac_amd_qt5",
+        })
     }
+}
 
-    fn audio_repo(&self) -> &str {
-        match self {
-            Variant::StandardX86 | Variant::AlternateX86 => "audio_mac_amd64",
-            Variant::StandardArm => "audio_mac_arm64",
-        }
-    }
+#[derive(Parser)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    BuildApp {
+        version: String,
+        kind: DistKind,
+        stamp: Utf8PathBuf,
+    },
+    BuildDmgs(BuildDmgsArgs),
 }
 
 fn main() -> anyhow::Result<()> {
-    let args: Vec<_> = std::env::args().collect();
-    let variant: Variant = args.get(1).context("variant")?.parse()?;
-    let bundle_folder = PathBuf::from(args.get(2).context("bundle folder")?);
-    let anki_version = args.get(3).context("anki version")?;
-    let bazel_external = PathBuf::from(args.get(4).context("bazel external folder")?);
-
-    let plist = get_plist(anki_version);
-    make_app(variant, &bundle_folder, plist, &bazel_external)
+    match Cli::parse().command {
+        Commands::BuildApp {
+            version,
+            kind,
+            stamp,
+        } => {
+            let plist = get_plist(&version);
+            make_app(kind, plist, &stamp)
+        }
+        Commands::BuildDmgs(args) => make_dmgs(args),
+    }
 }
 
-fn make_app(
-    variant: Variant,
-    input_folder: &Path,
-    mut plist: plist::Dictionary,
-    bazel_external: &Path,
-) -> Result<()> {
-    let output_folder = input_folder
-        .with_file_name("app")
-        .join(variant.output_base())
-        .join("Anki.app");
+fn make_app(kind: DistKind, mut plist: plist::Dictionary, stamp: &Utf8Path) -> Result<()> {
+    let input_folder = kind.input_folder();
+    let output_folder = kind.output_folder();
     if output_folder.exists() {
-        std::fs::remove_dir_all(&output_folder)?;
+        fs::remove_dir_all(&output_folder)?;
     }
-    std::fs::create_dir_all(&output_folder)?;
+    fs::create_dir_all(&output_folder)?;
 
     let mut builder = MacOsApplicationBundleBuilder::new("Anki")?;
     plist.insert(
         "LSMinimumSystemVersion".into(),
-        Value::from(variant.macos_min()),
+        Value::from(kind.macos_min()),
     );
     builder.set_info_plist_from_dictionary(plist)?;
     builder.add_file_resources("Assets.car", &include_bytes!("../icon/Assets.car")[..])?;
@@ -127,27 +141,22 @@ fn make_app(
         }
     }
 
-    let dry_run = false;
-    if dry_run {
-        for file in builder.files().iter_files() {
-            println!("{}", file.path_string());
-        }
-    } else {
-        builder.files().materialize_files(&output_folder)?;
-        fix_rpath(output_folder.join("Contents/MacOS/anki"))?;
-        codesign_python_libs(&output_folder)?;
-        copy_in_audio(&output_folder, variant, bazel_external)?;
-        copy_in_qt(&output_folder, variant, bazel_external)?;
-        codesign_app(&output_folder)?;
-        fixup_perms(&output_folder)?;
-    }
+    builder.files().materialize_files(&output_folder)?;
+    fix_rpath(output_folder.join("Contents/MacOS/anki"))?;
+    codesign_python_libs(&output_folder)?;
+    copy_in_audio(&output_folder)?;
+    copy_in_qt(&output_folder, kind)?;
+    codesign_app(&output_folder)?;
+    fixup_perms(&output_folder)?;
+    notarize_app(&output_folder)?;
+    fs::write(stamp, b"")?;
 
     Ok(())
 }
 
 /// The bundle builder writes some files without world read/execute perms,
 /// which prevents them from being opened by a non-admin user.
-fn fixup_perms(dir: &Path) -> Result<()> {
+fn fixup_perms(dir: &Utf8Path) -> Result<()> {
     let status = Command::new("find")
         .arg(dir)
         .args(["-not", "-perm", "-a=r", "-exec", "chmod", "a+r", "{}", ";"])
@@ -155,7 +164,7 @@ fn fixup_perms(dir: &Path) -> Result<()> {
     if !status.success() {
         bail!("error setting perms");
     }
-    std::fs::set_permissions(
+    fs::set_permissions(
         dir.join("Contents/MacOS/anki"),
         PermissionsExt::from_mode(0o755),
     )?;
@@ -163,12 +172,10 @@ fn fixup_perms(dir: &Path) -> Result<()> {
 }
 
 /// Copy everything at the provided path into the Contents/ folder of our app.
-/// Excludes standard Bazel repo files.
-fn extend_app_contents(source: &Path, bundle_dir: &Path) -> Result<()> {
+fn extend_app_contents(source: &Utf8Path, bundle_dir: &Utf8Path) -> Result<()> {
     let status = Command::new("rsync")
         .arg("-a")
-        .args(["--exclude", "BUILD.bazel", "--exclude", "WORKSPACE"])
-        .arg(format!("{}/", source.to_string_lossy()))
+        .arg(format!("{}/", source.as_str()))
         .arg(bundle_dir.join("Contents/"))
         .status()?;
     if !status.success() {
@@ -177,53 +184,29 @@ fn extend_app_contents(source: &Path, bundle_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-fn copy_in_audio(bundle_dir: &Path, variant: Variant, bazel_external: &Path) -> Result<()> {
+fn copy_in_audio(bundle_dir: &Utf8Path) -> Result<()> {
     println!("Copying in audio...");
-    extend_app_contents(&bazel_external.join(variant.audio_repo()), bundle_dir)
+
+    let src_folder = Utf8Path::new(
+        if cfg!(target_arch = "aarch64") && env::var("MAC_X86").is_err() {
+            "out/extracted/mac_arm_audio"
+        } else {
+            "out/extracted/mac_amd_audio"
+        },
+    );
+    extend_app_contents(src_folder, bundle_dir)
 }
 
-fn copy_in_qt(bundle_dir: &Path, variant: Variant, bazel_external: &Path) -> Result<()> {
+fn copy_in_qt(bundle_dir: &Utf8Path, kind: DistKind) -> Result<()> {
     println!("Copying in Qt...");
-    extend_app_contents(&bazel_external.join(variant.qt_repo()), bundle_dir)
+    extend_app_contents(kind.qt_repo(), bundle_dir)
 }
 
-fn codesign_file(path: &Path, extra_args: &[&str]) -> Result<()> {
-    if option_env!("ANKI_CODESIGN").is_some() {
-        let status = Command::new("codesign")
-            .args(CODESIGN_ARGS)
-            .args(extra_args)
-            .arg(path.to_str().unwrap())
-            .status()?;
-        if !status.success() {
-            bail!("codesign failed");
-        }
-    }
-
-    Ok(())
-}
-
-fn codesign_python_libs(bundle_dir: &PathBuf) -> Result<()> {
-    for entry in glob::glob(
-        bundle_dir
-            .join("Contents/MacOS/lib/**/*.so")
-            .to_str()
-            .unwrap(),
-    )? {
-        let entry = entry?;
-        codesign_file(&entry, &[])?;
-    }
-    codesign_file(&bundle_dir.join("Contents/MacOS/libankihelper.dylib"), &[])
-}
-
-fn codesign_app(bundle_dir: &PathBuf) -> Result<()> {
-    codesign_file(bundle_dir, &["--entitlements", "entitlements.python.xml"])
-}
-
-fn fix_rpath(exe_path: PathBuf) -> Result<()> {
+fn fix_rpath(exe_path: Utf8PathBuf) -> Result<()> {
     let status = Command::new("install_name_tool")
         .arg("-add_rpath")
         .arg("@executable_path/../Frameworks")
-        .arg(exe_path.to_str().unwrap())
+        .arg(exe_path.as_str())
         .status()?;
     assert!(status.success());
     Ok(())

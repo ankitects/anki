@@ -1,0 +1,24 @@
+[package]
+name = "archives"
+version = "0.0.0"
+authors = ["Ankitects Pty Ltd"]
+edition = "2021"
+
+[dependencies]
+camino = "1.1.1"
+flate2 = "1.0.24"
+sha2 = { version = "0.10.6" }
+tar = "0.4.38"
+tokio = { version = "1.21.2", features = ["macros", "rt-multi-thread"] }
+workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }
+xz2 = "0.1.7"
+zip = "0.6.3"
+zstd = "0.11.2"
+
+[features]
+rustls = ["reqwest/rustls-tls", "reqwest/rustls-tls-native-roots"]
+native-tls = ["reqwest/native-tls"]
+
+[dependencies.reqwest]
+version = "0.11.3"
+default-features = false

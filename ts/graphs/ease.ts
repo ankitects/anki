@@ -5,20 +5,13 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import { CardType } from "@tslib/cards";
+import * as tr from "@tslib/ftl";
+import { localizedNumber } from "@tslib/i18n";
+import type { Cards, Stats } from "@tslib/proto";
 import type { Bin, ScaleLinear } from "d3";
-import {
-    extent,
-    histogram,
-    interpolateRdYlGn,
-    scaleLinear,
-    scaleSequential,
-    sum,
-} from "d3";
+import { bin, extent, interpolateRdYlGn, scaleLinear, scaleSequential, sum } from "d3";
 
-import { CardType } from "../lib/cards";
-import * as tr from "../lib/ftl";
-import { localizedNumber } from "../lib/i18n";
-import type { Cards, Stats } from "../lib/proto";
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import type { HistogramData } from "./histogram-graph";
 
@@ -86,7 +79,7 @@ export function prepareData(
 
     const [scale, ticks] = getAdjustedScaleAndTicks(xMin, xMax, desiredBars);
 
-    const bins = histogram()
+    const bins = bin()
         .domain(scale.domain() as [number, number])
         .thresholds(ticks)(allEases);
 

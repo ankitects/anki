@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { DebouncedFunc, throttle } from "lodash-es";
+import type { DebouncedFunc} from "lodash-es";
+import { throttle } from "lodash-es";
 
 import Tooltip from "./Tooltip.svelte";
 

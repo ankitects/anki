@@ -1,5 +1,6 @@
 from aqt.qt import qtmajor
+
 if qtmajor > 5:
-  from .changemodel_qt6 import *
+    from _aqt.forms.changemodel_qt6 import *
 else:
-  from .changemodel_qt5 import *  # type: ignore
+    from _aqt.forms.changemodel_qt5 import *  # type: ignore

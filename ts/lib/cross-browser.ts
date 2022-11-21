@@ -1,6 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+/* eslint
+@typescript-eslint/triple-slash-reference: "off",
+ */
+/// <reference path="shadow-dom.d.ts" />
+
 /**
  * Gecko has no .getSelection on ShadowRoot, only .activeElement
  */

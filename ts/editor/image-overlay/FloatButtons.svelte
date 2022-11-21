@@ -3,15 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { directionKey } from "@tslib/context-keys";
+    import * as tr from "@tslib/ftl";
+    import { removeStyleProperties } from "@tslib/styling";
     import { getContext } from "svelte";
     import { createEventDispatcher } from "svelte";
     import type { Readable } from "svelte/store";
-
+    
     import ButtonGroup from "../../components/ButtonGroup.svelte";
     import IconButton from "../../components/IconButton.svelte";
-    import { directionKey } from "../../lib/context-keys";
-    import * as tr from "../../lib/ftl";
-    import { removeStyleProperties } from "../../lib/styling";
     import { floatLeftIcon, floatNoneIcon, floatRightIcon } from "./icons";
 
     export let image: HTMLImageElement;

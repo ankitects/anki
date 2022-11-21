@@ -3,15 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@tslib/ftl";
+    import { isApplePlatform } from "@tslib/platform";
+    import { getPlatformString } from "@tslib/shortcuts";
     import { createEventDispatcher } from "svelte";
     import { get } from "svelte/store";
-
+    
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import IconButton from "../components/IconButton.svelte";
     import Shortcut from "../components/Shortcut.svelte";
-    import * as tr from "../lib/ftl";
-    import { isApplePlatform } from "../lib/platform";
-    import { getPlatformString } from "../lib/shortcuts";
     import { clozeIcon, incrementClozeIcon } from "./icons";
     import { context as noteEditorContext } from "./NoteEditor.svelte";
     import { editingInputIsRichText } from "./rich-text-input";

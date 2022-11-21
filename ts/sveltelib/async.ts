@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { Readable, readable } from "svelte/store";
+import type { Readable} from "svelte/store";
+import { readable } from "svelte/store";
 
 interface AsyncData<T, E> {
     value: Readable<T | null>;

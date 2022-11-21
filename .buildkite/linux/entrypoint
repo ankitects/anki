@@ -2,23 +2,14 @@
 
 set -e
 
+. /state/cargo/env
+
 # check author has added themselves to CONTRIBUTORS
 echo "--- Checking CONTRIBUTORS"
 .buildkite/linux/check_contributors
 
-BAZEL="bazel --output_user_root=/state/bazel --output_base=/state/bazel/anki"
-BUILDARGS="--config=ci --disk_cache=/state/bazel/disk --repository_cache=/state/bazel/repo"
-
 echo "+++ Building and testing"
+ln -sf out/node_modules .
+BUILD_ROOT=/state/build ./ninja pylib/anki qt/aqt check
 
-# move existing node_modules into tree
-test -e /state/node_modules && mv /state/node_modules .
-
-$BAZEL test $BUILDARGS ... //rslib/linkchecker
-
-echo "--- Running lints"
-python tools/copyright_headers.py
-
-echo "--- Cleanup"
-# if tests succeed, back up node_modules folder
-mv node_modules /state/
+# $BAZEL test $BUILDARGS ... //rslib/linkchecker

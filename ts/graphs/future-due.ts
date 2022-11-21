@@ -5,22 +5,14 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import { CardType } from "@tslib/cards";
+import * as tr from "@tslib/ftl";
+import { localizedNumber } from "@tslib/i18n";
+import type { Cards, Stats } from "@tslib/proto";
+import { dayLabel } from "@tslib/time";
 import type { Bin } from "d3";
-import {
-    extent,
-    histogram,
-    interpolateGreens,
-    rollup,
-    scaleLinear,
-    scaleSequential,
-    sum,
-} from "d3";
+import { bin, extent, interpolateGreens, rollup, scaleLinear, scaleSequential, sum } from "d3";
 
-import { CardType } from "../lib/cards";
-import * as tr from "../lib/ftl";
-import { localizedNumber } from "../lib/i18n";
-import type { Cards, Stats } from "../lib/proto";
-import { dayLabel } from "../lib/time";
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { GraphRange } from "./graph-helpers";
 import type { HistogramData } from "./histogram-graph";
@@ -33,8 +25,8 @@ export interface GraphData {
 export function gatherData(data: Stats.GraphsResponse): GraphData {
     const isIntradayLearning = (card: Cards.Card, due: number): boolean => {
         return (
-            [CardType.Learn, CardType.Relearn].includes(card.ctype) &&
-            due > 1_000_000_000
+            [CardType.Learn, CardType.Relearn].includes(card.ctype)
+            && due > 1_000_000_000
         );
     };
     let haveBacklog = false;
@@ -125,7 +117,7 @@ export function buildHistogram(
     const desiredBars = Math.min(70, xMax! - xMin!);
 
     const x = scaleLinear().domain([xMin!, xMax!]);
-    const bins = histogram()
+    const bins = bin()
         .value((m) => {
             return m[0];
         })
@@ -139,9 +131,7 @@ export function buildHistogram(
 
     const xTickFormat = (n: number): string => localizedNumber(n);
     const adjustedRange = scaleLinear().range([0.7, 0.3]);
-    const colourScale = scaleSequential((n) =>
-        interpolateGreens(adjustedRange(n)!),
-    ).domain([xMin!, xMax!]);
+    const colourScale = scaleSequential((n) => interpolateGreens(adjustedRange(n)!)).domain([xMin!, xMax!]);
 
     const total = sum(bins as any, binValue);
 

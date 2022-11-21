@@ -336,7 +336,7 @@ class FilteredDeckConfigDialog(QDialog):
                 continue
             try:
                 i = float(item)
-                if not i > 0:
+                if i <= 0:
                     raise Exception("0 invalid")
                 ret.append(i)
             except:
