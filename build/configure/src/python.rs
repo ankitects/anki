@@ -19,14 +19,12 @@ use ninja_gen::{
 fn python_archive(platform: Platform) -> OnlineArchive {
     match platform {
         Platform::LinuxX64 => {
-            // pending https://github.com/indygreg/python-build-standalone/issues/95
             OnlineArchive {
-                url: "https://github.com/ankitects/python-build-standalone/releases/download/anki-2022-02-18/cpython-3.9.10-x86_64-unknown-linux-gnu-install_only-20220218T1329.tar.gz",
-                sha256: "1f5d63c9099da6e51d121ca0eee8d32fb4f084bfc51643fad39be0c14dfbf530",
+                url: "https://github.com/indygreg/python-build-standalone/releases/download/20221106/cpython-3.9.15+20221106-x86_64_v2-unknown-linux-gnu-install_only.tar.gz",
+                sha256: "436c35bd809abdd028f386cc623ae020c77e6b544eaaca405098387c4daa444c",
             }
         }
         Platform::LinuxArm => {
-            // pending https://github.com/indygreg/python-build-standalone/issues/95
             OnlineArchive {
                 url: "https://github.com/ankitects/python-build-standalone/releases/download/anki-2022-02-18/cpython-3.9.10-aarch64-unknown-linux-gnu-install_only-20220218T1329.tar.gz",
                 sha256: "39070f9b9492dce3085c8c98916940434bb65663e6665b2c87bef86025532c1a",

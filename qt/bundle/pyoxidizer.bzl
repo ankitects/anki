@@ -98,16 +98,11 @@ def handle_resource(policy, resource):
 
 
 def make_exe():
-    if BUILD_TARGET_TRIPLE == "aarch64-unknown-linux-gnu":
+    # can drop this manual specification after updating to recent pyoxidizer
+    if BUILD_TARGET_TRIPLE == "x86_64-unknown-linux-gnu":
         dist = PythonDistribution(
-            url="https://github.com/ankitects/python-build-standalone/releases/download/anki-2021-10-15/cpython-3.9.7-aarch64-unknown-linux-gnu-pgo-20211013T1538.tar.zst",
-            sha256="d25de2da9dc1b988350570c0ade9a79587cafeaad9ba1965fcec12c4ecaa9d98",
-        )
-
-    elif BUILD_TARGET_TRIPLE == "x86_64-unknown-linux-gnu":
-        dist = PythonDistribution(
-            url="https://github.com/ankitects/python-build-standalone/releases/download/anki-2022-02-18/cpython-3.9.10-x86_64-unknown-linux-gnu-pgo-20220218T1329.tar.zst",
-            sha256="83167967d09ada10554c0a1ed8228bcfac1117669880d2979578017565537400",
+            url="https://github.com/indygreg/python-build-standalone/releases/download/20221106/cpython-3.9.15+20221106-x86_64_v2-unknown-linux-gnu-pgo-full.tar.zst",
+            sha256="a71b7e3415767bd74c17c53683aff88161be7eba00d281e8e3884ae87d6ea80b",
         )
 
     else:
