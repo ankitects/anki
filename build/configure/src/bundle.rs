@@ -252,7 +252,7 @@ fn build_pyoxidizer(build: &mut Build) -> Result<()> {
             )],
             target: None,
             extra_args: &format!(
-                "--manifest-path={} --target-dir={}",
+                "--manifest-path={} --target-dir={} -p pyoxidizer",
                 "qt/bundle/PyOxidizer/Cargo.toml", "$builddir/bundle/rust"
             ),
             release_override: Some(true),

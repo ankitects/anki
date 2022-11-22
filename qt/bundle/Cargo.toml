@@ -16,7 +16,7 @@ libc = "0.2"
 libc-stdhandle = "=0.1.0"
 
 [dependencies.jemallocator]
-version = "0.3"
+version = "0.5"
 optional = true
 
 [dependencies.mimalloc]

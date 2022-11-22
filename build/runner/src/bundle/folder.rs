@@ -132,6 +132,10 @@ fn copy_binary_and_pylibs(folder_root: &Utf8Path) {
         "-a",
         "--exclude",
         "PyQt6",
+        // misleading, as it misses the GPL PyQt, and our Rust/JS
+        // dependencies
+        "--exclude",
+        "COPYING.txt",
         &unix_path(&binary),
         &with_slash(unix_path(&extra_files)),
         &with_slash(unix_path(folder_root)),

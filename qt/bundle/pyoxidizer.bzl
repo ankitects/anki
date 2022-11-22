@@ -98,15 +98,7 @@ def handle_resource(policy, resource):
 
 
 def make_exe():
-    # can drop this manual specification after updating to recent pyoxidizer
-    if BUILD_TARGET_TRIPLE == "x86_64-unknown-linux-gnu":
-        dist = PythonDistribution(
-            url="https://github.com/indygreg/python-build-standalone/releases/download/20221106/cpython-3.9.15+20221106-x86_64_v2-unknown-linux-gnu-pgo-full.tar.zst",
-            sha256="a71b7e3415767bd74c17c53683aff88161be7eba00d281e8e3884ae87d6ea80b",
-        )
-
-    else:
-        dist = default_python_distribution()
+    dist = default_python_distribution(python_version="3.9")
 
     policy = dist.make_python_packaging_policy()
 
