@@ -337,10 +337,7 @@ mod test {
         // invalid json
         col.storage
             .db
-            .execute(
-                "update config set val=? where key='test'",
-                &[b"xx".as_ref()],
-            )
+            .execute("update config set val=? where key='test'", [b"xx".as_ref()])
             .unwrap();
         assert_eq!(col.get_config_optional::<i64, _>("test"), None,);
     }

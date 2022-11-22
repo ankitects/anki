@@ -144,7 +144,6 @@ mod test {
                 format!(
                     "[{}]",
                     tr.errors_bad_directive("anki:tts", tr.errors_option_not_set("lang"))
-                        .to_owned()
                 ),
                 vec![],
             ),

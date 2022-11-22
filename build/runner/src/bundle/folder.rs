@@ -67,7 +67,7 @@ fn copy_qt_from_venv(kind: DistKind, folder_root: &Utf8Path) {
 
 fn copy_linux_extras(kind: DistKind, folder_root: &Utf8Path) {
     // add README, installer, etc
-    run_silent(Command::new("rsync").args(["-a", "qt/bundle/lin/", &with_slash(&folder_root)]));
+    run_silent(Command::new("rsync").args(["-a", "qt/bundle/lin/", &with_slash(folder_root)]));
 
     // add extra IME plugins from download
     let lib_path = folder_root.join("lib");
@@ -88,13 +88,13 @@ fn copy_windows_extras(folder_root: &Utf8Path) {
     run_silent(Command::new("rsync").args([
         "-a",
         "out/extracted/win_amd64_audio/",
-        &with_slash(&folder_root),
+        &with_slash(folder_root),
     ]));
 }
 
 fn clean_top_level_files(folder_root: &Utf8Path) {
     let mut to_remove = vec![];
-    for entry in std::fs::read_dir(&folder_root).unwrap() {
+    for entry in std::fs::read_dir(folder_root).unwrap() {
         let entry = entry.unwrap();
         if entry.file_name() == "lib" {
             continue;

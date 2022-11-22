@@ -27,7 +27,7 @@ impl BuildAction for PythonEnvironment<'_> {
             vec![path]
         };
 
-        build.add_inputs("python_binary", &self.python_binary);
+        build.add_inputs("python_binary", self.python_binary);
         build.add_inputs("base_requirements", &self.base_requirements_txt);
         build.add_inputs("requirements", &self.requirements_txt);
         build.add_variable("pyenv_folder", self.folder);
@@ -80,7 +80,7 @@ impl BuildAction for PythonFormatSingle<'_> {
         build.add_inputs("in", &self.input);
         build.add_inputs("black", inputs![":pyenv:black"]);
         build.add_inputs("isort", inputs![":pyenv:isort"]);
-        build.add_inputs("isort_ini", &self.isort_ini);
+        build.add_inputs("isort_ini", self.isort_ini);
         build.add_variable(
             "check",
             if self.check_only {

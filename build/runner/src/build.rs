@@ -116,11 +116,11 @@ fn setup_build_root() -> &'static Utf8Path {
         };
         if create {
             println!("Switching build root to {}", new_target);
-            std::os::unix::fs::symlink(new_target, &build_root).unwrap();
+            std::os::unix::fs::symlink(new_target, build_root).unwrap();
         }
     }
 
-    fs::create_dir_all(&build_root).unwrap();
+    fs::create_dir_all(build_root).unwrap();
 
     build_root
 }
@@ -129,7 +129,7 @@ fn maybe_reconfigure_build(build_file: &Utf8Path, path: &str) {
     run_silent(
         Command::new("ninja")
             .arg("-f")
-            .arg(&build_file)
+            .arg(build_file)
             .arg("build_run_configure")
             .env("PATH", path),
     );

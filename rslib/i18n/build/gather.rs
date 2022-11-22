@@ -38,7 +38,7 @@ pub fn get_ftl_data() -> TranslationsByLang {
 /// For each .ftl file in the provided folder, add it to the translation map.
 fn add_folder(map: &mut TranslationsByLang, folder: &Path, lang: &str) {
     let map_entry = map.entry(lang.to_string()).or_default();
-    for entry in fs::read_dir(&folder).unwrap() {
+    for entry in fs::read_dir(folder).unwrap() {
         let entry = entry.unwrap();
         let fname = entry.file_name().to_string_lossy().to_string();
         if !fname.ends_with(".ftl") {

@@ -272,7 +272,7 @@ impl BuildAction for BuildArtifacts<'_> {
 
     fn files(&mut self, build: &mut impl ninja_gen::build::FilesHandle) {
         build.add_inputs("pyoxidizer_bin", inputs![":bundle:pyoxidizer:bin"]);
-        build.add_inputs("python_bin", &self.python_binary);
+        build.add_inputs("python_bin", self.python_binary);
         build.add_inputs("", inputs![PRIMARY_VENV.label_as_target("")]);
         build.add_inputs("", inputs![":bundle:add_wheels:qt6", glob!["qt/bundle/**"]]);
         build.add_variable("bundle_root", "$builddir/bundle");

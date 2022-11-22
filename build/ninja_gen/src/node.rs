@@ -236,7 +236,7 @@ impl BuildAction for Eslint<'_> {
         build.add_inputs("", inputs!["yarn.lock"]);
         build.add_variable("fix", if self.fix { "--fix" } else { "" });
         build.add_variable("folder", self.folder);
-        let hash = simple_hash(&self.folder);
+        let hash = simple_hash(self.folder);
         let kind = if self.fix { "fix" } else { "check" };
         build.add_output_stamp(format!("tests/eslint.{kind}.{hash}"));
     }
@@ -260,7 +260,7 @@ impl BuildAction for JestTest<'_> {
         build.add_inputs("config", &self.jest_rc);
         build.add_variable("env", if self.jsdom { "--env=jsdom" } else { "" });
         build.add_variable("folder", self.folder);
-        let hash = simple_hash(&self.folder);
+        let hash = simple_hash(self.folder);
         build.add_output_stamp(format!("tests/jest.{hash}"));
     }
 }
