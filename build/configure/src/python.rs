@@ -11,7 +11,7 @@ use ninja_gen::{
     glob, hashmap,
     input::BuildInput,
     inputs,
-    python::{python_format, PythonLint, PythonTypecheck},
+    python::{python_format, PythonEnvironment, PythonLint, PythonTypecheck},
     rsync::RsyncFiles,
     Build, Result, Utf8Path,
 };
@@ -78,6 +78,39 @@ pub fn setup_python(build: &mut Build) -> Result<BuildInput> {
         }
     };
     Ok(python_binary)
+}
+
+pub fn setup_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
+    let requirements_txt = if cfg!(windows) {
+        inputs![
+            "python/requirements.dev.txt",
+            "python/requirements.qt6.txt",
+            "python/requirements.win.txt",
+        ]
+    } else if cfg!(all(target_os = "linux", target_arch = "aarch64")) {
+        inputs!["python/requirements.dev.txt"]
+    } else {
+        inputs!["python/requirements.dev.txt", "python/requirements.qt6.txt",]
+    };
+    build.add(
+        "pyenv",
+        PythonEnvironment {
+            folder: "pyenv",
+            base_requirements_txt: inputs!["python/requirements.base.txt"],
+            requirements_txt,
+            python_binary,
+            extra_binary_exports: &[
+                "pip-compile",
+                "pip-sync",
+                "mypy",
+                "black",
+                "isort",
+                "pylint",
+                "pytest",
+                "protoc-gen-mypy",
+            ],
+        },
+    )
 }
 
 pub struct GenPythonProto {

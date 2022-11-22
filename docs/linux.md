@@ -18,7 +18,7 @@ Users on ARM64, see the notes at the bottom of this file before proceeding.
 **Ensure some basic tools are installed**:
 
 ```
-$ sudo apt install bash grep findutils curl gcc g++ git rsync
+$ sudo apt install bash grep findutils curl gcc g++ git rsync ninja-build
 ```
 
 The 'find' utility is 'findutils' on Debian.
@@ -44,8 +44,6 @@ To play and record audio during development, install mpv and lame.
 
 ## ARM64 support
 
-[todo: update for new build system]
-
 Other platforms download PyQt binary wheels from PyPI. There are no PyQt wheels available
 for ARM Linux, so you will need to rely on your system-provided libraries instead. As Anki
 requires Python 3.9, this means you will need a fairly up-to-date distro such as Debian 11.
@@ -55,17 +53,15 @@ find the place they are installed (eg '/usr/lib/python3/dist-packages'). Then be
 running any commands like './run', tell Anki where they can be found:
 
 ```
-export PYTHON_SITE_PACKAGES=/usr/lib/python3/dist-packages/
+export PYTHONPATH=/usr/lib/python3/dist-packages
 ```
-
-Note: the trailing slash at the end is required.
 
 There are a few things to be aware of:
 
 - You should use ./run and not tools/run-qt5\*, even if your system libraries are Qt5.
 - If your system libraries are Qt5, when creating an aqt wheel, the wheel will not work
   on Qt6 environments.
-- Some of the tests only work with PyQt6, and will show failures when run under PyQt5.
+- Some of the './ninja check' tests are broken on ARM Linux.
 
 ## More
 

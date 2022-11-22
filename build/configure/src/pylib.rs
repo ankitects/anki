@@ -2,15 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use ninja_gen::{
-    action::BuildAction,
-    archives::Platform,
-    command::RunCommand,
-    copy::LinkFile,
-    glob, hashmap,
-    input::BuildInput,
-    inputs,
-    python::{PythonEnvironment, PythonTest},
-    Build, Result,
+    action::BuildAction, archives::Platform, command::RunCommand, copy::LinkFile, glob, hashmap,
+    inputs, python::PythonTest, Build, Result,
 };
 
 use crate::{
@@ -18,9 +11,7 @@ use crate::{
     python::{BuildWheel, GenPythonProto},
 };
 
-pub fn build_pylib(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
-    setup_venv(build, python_binary)?;
-
+pub fn build_pylib(build: &mut Build) -> Result<()> {
     // generated files
     build.add(
         "pylib/anki:proto",
@@ -103,32 +94,6 @@ pub fn build_pylib(build: &mut Build, python_binary: &BuildInput) -> Result<()> 
         },
     )?;
     Ok(())
-}
-
-fn setup_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
-    build.add(
-        "pyenv",
-        PythonEnvironment {
-            folder: "pyenv",
-            base_requirements_txt: inputs!["python/requirements.base.txt"],
-            requirements_txt: if cfg!(windows) {
-                inputs!["python/requirements.dev.txt", "python/requirements.win.txt",]
-            } else {
-                inputs!["python/requirements.dev.txt"]
-            },
-            python_binary,
-            extra_binary_exports: &[
-                "pip-compile",
-                "pip-sync",
-                "mypy",
-                "black",
-                "isort",
-                "pylint",
-                "pytest",
-                "protoc-gen-mypy",
-            ],
-        },
-    )
 }
 
 pub fn check_pylib(build: &mut Build) -> Result<()> {

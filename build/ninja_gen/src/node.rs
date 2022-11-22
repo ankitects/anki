@@ -17,7 +17,10 @@ pub fn node_archive(platform: Platform) -> OnlineArchive {
             url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-linux-x64.tar.xz",
             sha256: "4481a34bf32ddb9a9ff9540338539401320e8c3628af39929b4211ea3552a19e",
         },
-        Platform::LinuxArm => todo!(),
+        Platform::LinuxArm => OnlineArchive {
+            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-linux-arm64.tar.xz",
+            sha256: "3904869935b7ecc51130b4b86486d2356539a174d11c9181180cab649f32cd2a",
+        },
         Platform::MacX64 => OnlineArchive {
             url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-darwin-x64.tar.xz",
             sha256: "6c88d462550a024661e74e9377371d7e023321a652eafb3d14d58a866e6ac002",

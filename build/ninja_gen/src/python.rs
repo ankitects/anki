@@ -13,7 +13,7 @@ pub struct PythonEnvironment<'a> {
 
 impl BuildAction for PythonEnvironment<'_> {
     fn command(&self) -> &str {
-        "$runner pyenv $python_binary $builddir/$pyenv_folder $base_requirements $requirements"
+        "$runner pyenv $python_binary $builddir/$pyenv_folder $system_pkgs $base_requirements $requirements"
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {

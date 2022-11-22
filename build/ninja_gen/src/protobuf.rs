@@ -48,7 +48,13 @@ fn clang_format_archive(platform: Platform) -> OnlineArchive {
                 sha256: "64060bc4dbca30d0d96aab9344e2783008b16e1cae019a2532f1126ca5ec5449",
             }
         }
-        Platform::LinuxArm => todo!(),
+        Platform::LinuxArm => {
+            // todo: replace with arm64 binary
+            OnlineArchive {
+                url: "https://github.com/ankitects/clang-format-binaries/releases/download/anki-2021-01-09/clang-format_linux_x86_64.zip",
+                sha256: "64060bc4dbca30d0d96aab9344e2783008b16e1cae019a2532f1126ca5ec5449",
+            }
+        }
         Platform::MacX64 | Platform::MacArm => {
             OnlineArchive {
                 url: "https://github.com/ankitects/clang-format-binaries/releases/download/anki-2021-01-09/clang-format_macos_x86_64.zip",

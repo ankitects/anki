@@ -76,7 +76,7 @@ pub fn run_build(args: BuildArgs) {
     }
 
     // run build
-    let status = command.status().unwrap();
+    let status = command.status().expect("ninja not installed");
     let mut stdout = StandardStream::stdout(ColorChoice::Always);
     if status.success() {
         stdout

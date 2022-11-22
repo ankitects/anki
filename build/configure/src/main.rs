@@ -14,7 +14,7 @@ use aqt::build_and_check_aqt;
 use bundle::build_bundle;
 use ninja_gen::{Build, Result};
 use pylib::{build_pylib, check_pylib};
-use python::{check_copyright, check_python, setup_python};
+use python::{check_copyright, check_python, setup_python, setup_venv};
 use rust::{build_rust, check_rust};
 use web::{build_and_check_web, check_sql};
 
@@ -29,9 +29,10 @@ fn main() -> Result<()> {
     let build = &mut build;
 
     let python_binary = setup_python(build)?;
+    setup_venv(build, &python_binary)?;
 
     build_rust(build)?;
-    build_pylib(build, &python_binary)?;
+    build_pylib(build)?;
     build_and_check_web(build)?;
     build_and_check_aqt(build)?;
     build_bundle(build, &python_binary)?;

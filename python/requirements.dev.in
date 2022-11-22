@@ -1,5 +1,4 @@
 -r requirements.bundle.txt
--r requirements.qt6.txt
 
 black
 compare-locales
