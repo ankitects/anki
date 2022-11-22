@@ -1,5 +1,5 @@
 pyqt6==6.4.0
-pyqt6-qt6==6.4.1
+pyqt6-qt6==6.4.0
 pyqt6-webengine==6.4.0
-pyqt6-webengine-qt6==6.4.1
+pyqt6-webengine-qt6==6.4.0
 pyqt6_sip==13.4.0
