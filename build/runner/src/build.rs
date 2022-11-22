@@ -36,7 +36,7 @@ pub fn run_build(args: BuildArgs) {
     // Ensure build file is up to date
     let build_file = build_root.join("build.ninja");
     if !build_file.exists() {
-        bootstrap_build(build_root);
+        bootstrap_build();
     } else {
         maybe_reconfigure_build(&build_file, &path);
     }
@@ -135,14 +135,9 @@ fn maybe_reconfigure_build(build_file: &Utf8Path, path: &str) {
     );
 }
 
-fn bootstrap_build(build_root: &Utf8Path) {
+fn bootstrap_build() {
     let status = Command::new("cargo")
-        .args([
-            "run",
-            "-p",
-            "configure",
-            &format!("--target-dir={}", build_root.join("rust").as_str()),
-        ])
+        .args(["run", "-p", "configure"])
         .status();
     assert!(status.expect("ninja").success());
 }

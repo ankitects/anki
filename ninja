@@ -2,12 +2,13 @@
 
 set -e
 
-# separate build+run steps so build env doesn't leak into subprocesses
 if [ "$BUILD_ROOT" == "" ]; then
-    out=out
+    out=$(pwd)/out
 else
     out="$BUILD_ROOT"
 fi
-cargo build -p runner --target-dir=$out/rust
+export CARGO_TARGET_DIR=$out/rust
 
+# separate build+run steps so build env doesn't leak into subprocesses
+cargo build -p runner
 exec $out/rust/debug/runner build $*

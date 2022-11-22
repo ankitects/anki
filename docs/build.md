@@ -23,16 +23,6 @@ The build/ folder is made up of 4 packages:
   - it provides a few helpers for multi-step processes that can't be easily
     described in a cross-platform manner thanks to differences on Windows.
 
-## Cleaning up build files
-
-Apart from submodule checkouts, most build files go into the `out/` folder (and
-`node_modules` on Windows). You can delete that folder for a clean build, or
-to free space.
-
-Cargo, yarn and pip all cache downloads of dependencies in a shared cache that
-other builds on your system may use as well. If you wish to clear up those caches,
-they can be found in `~/.rustup`, `~/.cargo` and `~/.cache/{yarn,pip}`.
-
 ## Tracing build problems
 
 If you run into trouble with the build process:

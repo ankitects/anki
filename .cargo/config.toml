@@ -5,8 +5,5 @@ PROTOC = { value = "out/extracted/protoc/bin/protoc", relative = true }
 PYO3_NO_PYTHON = "1"
 MACOSX_DEPLOYMENT_TARGET = "10.13.4"
 
-[build]
-target-dir = "out/rust"
-
 [term]
 color = "always"

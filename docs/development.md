@@ -141,6 +141,20 @@ or
 $ my/pyenv/bin/pip install pyqt5 pyqtwebengine
 ```
 
+## Cleaning up build files
+
+Apart from submodule checkouts, most build files go into the `out/` folder (and
+`node_modules` on Windows). You can delete that folder for a clean build, or
+to free space.
+
+Cargo, yarn and pip all cache downloads of dependencies in a shared cache that
+other builds on your system may use as well. If you wish to clear up those caches,
+they can be found in `~/.rustup`, `~/.cargo` and `~/.cache/{yarn,pip}`.
+
+If you invoke Rust outside of the build scripts (eg by running cargo, or
+with Rust Analyzer), output files will go into `target/` unless you have
+overriden the default output location.
+
 ## IDEs
 
 Please see [this separate page](./editing.md) for setting up an editor/IDE.
