@@ -31,7 +31,7 @@ to free space.
 
 Cargo, yarn and pip all cache downloads of dependencies in a shared cache that
 other builds on your system may use as well. If you wish to clear up those caches,
-they can be found in `~/.cargo` and `~/.cache/{yarn,pip}`.
+they can be found in `~/.rustup`, `~/.cargo` and `~/.cache/{yarn,pip}`.
 
 ## Tracing build problems
 
@@ -41,6 +41,6 @@ If you run into trouble with the build process:
 - You can see the output of successful commands by defining OUTPUT_SUCCESS=1
 - You can see what's triggering a rebuild of a target with e.g.
   `./ninja qt/anki -d explain`.
-- You can browse the build graph via `./ninja -- -t browse wheels`
+- You can browse the build graph via e.g. `./ninja -- -t browse wheels`
 - You can profile build performance with
   https://discourse.cmake.org/t/profiling-build-performance/2443/3.

@@ -26,9 +26,12 @@ in the provided commands, `--pre` tells pip to fetch alpha/beta versions. If you
 
 ## Building from source
 
-On all platforms, you will to install:
+On all platforms, you will need to install:
 
-- Rust (https://rustup.rs/, or from your distro if it has the latest Rust)
+- Rustup (https://rustup.rs/). The Rust version pinned in rust-toolchain.toml
+  will be automatically downloaded if not yet installed. If removing that file
+  to use a distro-provided Rust, newer Rust versions will typically work for
+  building but may fail tests; older Rust versions may not work at all.
 - Ninja (unzip from https://github.com/ninja-build/ninja/releases/tag/v1.11.1 and
   place on your path, or from your distro if it's 1.10+)
 
