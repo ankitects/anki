@@ -21,22 +21,22 @@ pub fn setup_pyenv(args: PyenvArgs) {
     let pyenv_folder = Utf8Path::new(&args.pyenv_folder);
 
     let pyenv_bin_folder = pyenv_folder.join(if cfg!(windows) { "scripts" } else { "bin" });
-    let pip = pyenv_bin_folder.join("pip");
+    let pyenv_python = pyenv_bin_folder.join("python");
     let pip_sync = pyenv_bin_folder.join("pip-sync");
 
-    if !pip.exists() {
+    if !pyenv_python.exists() {
         run_silent(Command::new(&args.python_bin).args(["-m", "venv", pyenv_folder.as_str()]));
 
         if cfg!(windows) {
             // the first install on Windows throws an error the first time pip is upgraded, so we install
             // it twice and swallow the first error
-            let _output = Command::new(&pip)
-                .args(["install", "-r", &args.initial_reqs])
+            let _output = Command::new(&pyenv_python)
+                .args(["-m", "pip", "install", "-r", &args.initial_reqs])
                 .output()
                 .unwrap();
         }
 
-        run_silent(Command::new(pip).args(["install", "-r", &args.initial_reqs]));
+        run_silent(Command::new(pyenv_python).args(["-m", "pip", "install", "-r", &args.initial_reqs]));
     }
 
     run_silent(Command::new(pip_sync).args(&args.reqs));
