@@ -2,17 +2,12 @@
 
 set -e
 
-# move existing node_modules into tree
-test -e /state/node_modules && mv /state/node_modules .
+export PATH="$PATH:/state/rust/cargo/bin"
+export BUILD_ROOT=/state/build
+export RELEASE=1
 
 if [ $(uname -m) = "aarch64" ]; then
-    ./tools/build
+    ./ninja wheels:anki
 else
-    ./tools/bundle
+    ./ninja bundle
 fi
-
-rm -rf /state/dist
-mv .bazel/out/dist /state
-
-# if tests succeed, back up node_modules folder
-mv node_modules /state/

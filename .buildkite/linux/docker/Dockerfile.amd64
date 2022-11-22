@@ -1,4 +1,4 @@
-FROM python:3.9-slim-bullseye
+FROM python:3.9-slim-buster
 
 ARG DEBIAN_FRONTEND="noninteractive"
 
@@ -44,14 +44,13 @@ RUN apt-get update && apt install --yes gnupg ca-certificates && \
     portaudio19-dev \
     python3-dev \
     rsync \
+    unzip \
     zstd \
-    ninja-build \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-linux-amd64 \
     -o /usr/local/bin/bazel \
     && chmod +x /usr/local/bin/bazel
-
 RUN ln -sf /usr/bin/python3 /usr/bin/python
 
 RUN mkdir -p /etc/buildkite-agent/hooks && chown -R user /etc/buildkite-agent
@@ -59,6 +58,19 @@ RUN mkdir -p /etc/buildkite-agent/hooks && chown -R user /etc/buildkite-agent
 COPY buildkite.cfg /etc/buildkite-agent/buildkite-agent.cfg
 COPY environment /etc/buildkite-agent/hooks/environment
 
+RUN curl -LO https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-linux.zip \
+    && unzip ninja-linux.zip \
+    && chmod +x ninja \
+    && mv ninja /usr/bin \
+    && rm ninja-linux.zip
+
+RUN mkdir /state/rust && chown user /state/rust
+
 USER user
+
+ENV CARGO_HOME=/state/rust/cargo
+ENV RUSTUP_HOME=/state/rust/rustup
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path --default-toolchain none
+
 WORKDIR /code/buildkite
 ENTRYPOINT ["/usr/bin/buildkite-agent", "start"]
