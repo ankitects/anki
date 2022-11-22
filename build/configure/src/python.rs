@@ -13,7 +13,7 @@ use ninja_gen::{
     inputs,
     python::{python_format, PythonLint, PythonTypecheck},
     rsync::RsyncFiles,
-    which, Build, Result,
+    Build, Result, Utf8Path,
 };
 
 fn python_archive(platform: Platform) -> OnlineArchive {
@@ -57,9 +57,14 @@ fn python_archive(platform: Platform) -> OnlineArchive {
 /// Downloads if missing.
 pub fn setup_python(build: &mut Build) -> Result<BuildInput> {
     // if changing this, make sure you remove out/pyenv
-    let binary_name = env::var("PYTHON_BINARY").unwrap_or_else(|_| "python3.9".into());
-    let python_binary = match which(&binary_name) {
-        Ok(path) => path.to_str().unwrap().to_owned().into(),
+    let python_binary = match env::var("PYTHON_BINARY") {
+        Ok(path) => {
+            assert!(
+                Utf8Path::new(&path).is_absolute(),
+                "PYTHON_BINARY must be absolute"
+            );
+            path.into()
+        }
         Err(_) => {
             download_and_extract(
                 build,
