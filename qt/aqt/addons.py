@@ -1601,7 +1601,7 @@ class ConfigEditor(QDialog):
 
     def accept(self) -> None:
         txt = self.form.editor.toPlainText()
-        txt = gui_hooks.addon_config_editor_will_save_json(txt)
+        txt = gui_hooks.addon_config_editor_will_save_json(txt, self.addon)
         try:
             new_conf = json.loads(txt)
             jsonschema.validate(new_conf, self.mgr._addon_schema(self.addon))
