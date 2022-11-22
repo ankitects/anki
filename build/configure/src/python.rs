@@ -40,8 +40,8 @@ fn python_archive(platform: Platform) -> OnlineArchive {
         }
         Platform::MacArm => {
             OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20221106/cpython-3.10.8+20221106-aarch64-apple-darwin-install_only.tar.gz",
-                sha256: "d52b03817bd245d28e0a8b2f715716cd0fcd112820ccff745636932c76afa20a",
+                url: "https://github.com/indygreg/python-build-standalone/releases/download/20221106/cpython-3.9.15+20221106-aarch64-apple-darwin-install_only.tar.gz",
+                sha256: "64dc7e1013481c9864152c3dd806c41144c79d5e9cd3140e185c6a5060bdc9ab",
             }
         }
         Platform::WindowsX64 => {
