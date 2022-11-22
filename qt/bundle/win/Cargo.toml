@@ -1,8 +1,8 @@
 [package]
-edition = "2021"
 name = "makeinstall"
 version = "0.1.0"
 authors = ["Ankitects Pty Ltd and contributors"]
+edition = "2021"
 license = "AGPL-3.0-or-later"
 
 [dependencies]

@@ -708,12 +708,14 @@ html {{ {font} }}
     const body = document.body.classList;
     if ({1 if theme_manager.night_mode else 0}) {{
         doc.add("night-mode");
-        body.add("night-mode");
+        body.add("night_mode");
         body.add("nightMode");
+        {"body.add('macos-dark-mode');" if theme_manager.macos_dark_mode() else ""}
     }} else {{
         doc.remove("night-mode");
-        body.remove("night-mode");
+        body.remove("night_mode");
         body.remove("nightMode");
+        body.remove("macos-dark-mode");
     }}
 }})();
 """

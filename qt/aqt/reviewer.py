@@ -667,7 +667,7 @@ class Reviewer:
 <td align=center valign=top id=middle>
 </td>
 <td align=right valign=top class=stat>
-<button onclick="pycmd('more');">
+<button title="%(morekey)s" onclick="pycmd('more');">
 %(more)s %(downArrow)s
 <span id=time class=stattxt></span>
 </button>
@@ -679,10 +679,10 @@ class Reviewer:
 time = %(time)d;
 </script>
 """ % dict(
-            rem=self._remaining(),
             edit=tr.studying_edit(),
             editkey=tr.actions_shortcut_key(val="E"),
             more=tr.studying_more(),
+            morekey=tr.actions_shortcut_key(val="M"),
             downArrow=downArrow(),
             time=self.card.time_taken() // 1000,
         )

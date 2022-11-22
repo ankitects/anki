@@ -469,7 +469,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                     {/if}
                                     {#if plainTextDefaults[index]}
                                         <RichTextBadge
-                                            visible={!fieldsCollapsed[index] &&
+                                            show={!fieldsCollapsed[index] &&
                                                 (fields[index] === $hoveredField ||
                                                     fields[index] === $focusedField)}
                                             bind:off={richTextsHidden[index]}
@@ -486,7 +486,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                         />
                                     {:else}
                                         <PlainTextBadge
-                                            visible={!fieldsCollapsed[index] &&
+                                            show={!fieldsCollapsed[index] &&
                                                 (fields[index] === $hoveredField ||
                                                     fields[index] === $focusedField)}
                                             bind:off={plainTextsHidden[index]}
@@ -506,7 +506,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                         name="field-state"
                                         {field}
                                         {index}
-                                        visible={fields[index] === $hoveredField ||
+                                        show={fields[index] === $hoveredField ||
                                             fields[index] === $focusedField}
                                     />
                                 </FieldState>

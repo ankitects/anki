@@ -150,7 +150,7 @@ impl super::SqliteStorage {
                     let fixed_flds: Vec<u8> = row.get(0)?;
                     let fixed_str = String::from_utf8_lossy(&fixed_flds);
                     self.db.execute(
-                        "update notes set flds = ? where id = ?",
+                        "update notes set flds = ?, sfld = '' where id = ?",
                         params![fixed_str, nid],
                     )
                 },
