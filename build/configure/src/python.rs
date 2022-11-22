@@ -108,7 +108,37 @@ pub fn setup_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
                 "protoc-gen-mypy",
             ],
         },
-    )
+    )?;
+
+    // optional venvs for testing with Qt5
+    build.add(
+        "pyenv-qt5.15",
+        PythonEnvironment {
+            folder: "pyenv-qt5.15",
+            base_requirements_txt: inputs!["python/requirements.base.txt"],
+            requirements_txt: inputs![
+                "python/requirements.bundle.txt",
+                "python/requirements.qt5_15.txt"
+            ],
+            python_binary,
+            extra_binary_exports: &[],
+        },
+    )?;
+    build.add(
+        "pyenv-qt5.14",
+        PythonEnvironment {
+            folder: "pyenv-qt5.14",
+            base_requirements_txt: inputs!["python/requirements.base.txt"],
+            requirements_txt: inputs![
+                "python/requirements.bundle.txt",
+                "python/requirements.qt5_14.txt"
+            ],
+            python_binary,
+            extra_binary_exports: &[],
+        },
+    )?;
+
+    Ok(())
 }
 
 pub struct GenPythonProto {
