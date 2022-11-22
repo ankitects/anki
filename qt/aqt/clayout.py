@@ -748,7 +748,6 @@ class CardLayout(QDialog):
         if t.get("bfont"):
             f.overrideFont.setChecked(True)
         f.font.setCurrentFont(QFont(t.get("bfont") or "Arial"))
-        f.fontSize.setValue(t.get("bsize") or 12)
         qconnect(f.buttonBox.accepted, lambda: self.onBrowserDisplayOk(f))
         d.exec()
 
@@ -759,8 +758,8 @@ class CardLayout(QDialog):
         t["bafmt"] = f.afmt.text().strip()
         if f.overrideFont.isChecked():
             t["bfont"] = f.font.currentFont().family()
-            t["bsize"] = f.fontSize.value()
         else:
+            # keep bsize for legacy notetypes
             for key in ("bfont", "bsize"):
                 if key in t:
                     del t[key]
