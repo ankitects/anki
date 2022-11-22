@@ -48,3 +48,5 @@ preferences-monthly-backups = Monthly backups to keep:
 preferences-minutes-between-backups = Minutes between automatic backups:
 preferences-reduce-motion = Reduce motion
 preferences-reduce-motion-tooltip = Disable various animations and transitions of the user interface
+preferences-browser-row-height = Browser row height
+preferences-browser-row-height-tooltip = Adjust the padding (= amount of pixels between text and separator) of browser rows
