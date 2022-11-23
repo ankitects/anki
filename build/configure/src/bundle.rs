@@ -460,12 +460,12 @@ impl BuildAction for BuildDmgs {
 
     fn files(&mut self, build: &mut impl ninja_gen::build::FilesHandle) {
         let version = anki_version();
-        let platform = if cfg!(target_arch = "aarch64") {
+        let platform = if targetting_macos_arm() {
             "apple"
         } else {
             "intel"
         };
-        let qt = if cfg!(target_arch = "aarch64") {
+        let qt = if targetting_macos_arm() {
             &["qt6"][..]
         } else {
             &["qt6", "qt5"]

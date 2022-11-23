@@ -109,7 +109,7 @@ fn make_app(kind: DistKind, mut plist: plist::Dictionary, stamp: &Utf8Path) -> R
     let output_folder = kind.output_folder();
     let output_variant = output_folder.parent().unwrap();
     if output_variant.exists() {
-        fs::remove_dir_all(&output_variant)?;
+        fs::remove_dir_all(output_variant)?;
     }
     fs::create_dir_all(&output_folder)?;
 
