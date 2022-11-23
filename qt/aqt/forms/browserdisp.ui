@@ -53,6 +53,13 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QSpinBox" name="fontSize">
+       <property name="minimum">
+        <number>6</number>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -84,6 +91,7 @@
   <tabstop>qfmt</tabstop>
   <tabstop>afmt</tabstop>
   <tabstop>font</tabstop>
+  <tabstop>fontSize</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>

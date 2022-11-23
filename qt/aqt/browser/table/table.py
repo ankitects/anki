@@ -348,10 +348,20 @@ class Table:
         self._view.setWordWrap(False)
         self._view.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self._view.horizontalScrollBar().setSingleStep(10)
-        self._view.verticalHeader().setDefaultSectionSize(12 + 2 * self.browser.mw.pm.browser_row_height())
+        self._update_font()
         self._view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         qconnect(self._view.customContextMenuRequested, self._on_context_menu)
 
+    def _update_font(self) -> None:
+        # we can't choose different line heights efficiently, so we need
+        # to pick a line height big enough for any card template
+        curmax = 16
+        for m in self.col.models.all():
+            for t in m["tmpls"]:
+                bsize = t.get("bsize", 0)
+                if bsize > curmax:
+                    curmax = bsize
+        self._view.verticalHeader().setDefaultSectionSize(curmax + 6)
 
     def _setup_headers(self) -> None:
         vh = self._view.verticalHeader()
