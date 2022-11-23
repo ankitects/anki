@@ -255,17 +255,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .rich-text-editable.empty::before {
+        position: absolute;
         color: var(--fg-subtle);
         content: var(--description-content);
         font-size: var(--description-font-size, 20px);
         cursor: text;
-
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-
         max-width: 95%;
         overflow-x: hidden;
         white-space: nowrap;
