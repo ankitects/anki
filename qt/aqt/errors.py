@@ -40,6 +40,109 @@ def show_exception(*, parent: QWidget, exception: Exception) -> None:
         showWarning(str(exception), parent=parent)
 
 
+def is_chromium_cert_error(error: str) -> bool:
+    """QtWebEngine sometimes spits out 'unknown error' messages to stderr on Windows.
+
+    They appear to be IDS_SETTINGS_CERTIFICATE_MANAGER_UNKNOWN_ERROR in
+    chrome/browser/ui/webui/certificates_handler.cc. At a guess, it's the
+    NetErrorToString() method.
+
+    The constant appears to get converted to an ID; the resources are found
+    in files like this:
+
+    chrome/app/resources/generated_resources_fr-CA.xtb
+    2258:<translation id="3380365263193509176">Erreur inconnue</translation>
+
+    List derived with:
+    qtwebengine-chromium% rg --no-heading --no-filename --no-line-number \
+        3380365263193509176  | perl -pe 's/.*>(.*)<.*/"$1",/' | sort | uniq
+
+    Judging by error reports, we can't assume the error falls on a separate line:
+    https://forums.ankiweb.net/t/topic/22036/
+    """
+    if not is_win:
+        return False
+    for msg in (
+        "알 수 없는 오류가 발생했습니다.",
+        "Bilinmeyen hata",
+        "Eroare necunoscută",
+        "Erreur inconnue",
+        "Erreur inconnue.",
+        "Erro descoñecido",
+        "Erro desconhecido",
+        "Error desconegut",
+        "Error desconocido",
+        "Errore ezezaguna",
+        "Errore sconosciuto",
+        "Gabim i panjohur",
+        "Hindi kilalang error",
+        "Hitilafu isiyojulikana",
+        "Iphutha elingaziwa",
+        "Ismeretlen hiba",
+        "Kesalahan tidak dikenal",
+        "Lỗi không xác định",
+        "Naməlum xəta",
+        "Nepoznata greška",
+        "Nepoznata pogreška",
+        "Nezināma kļūda",
+        "Nežinoma klaida",
+        "Neznáma chyba",
+        "Neznámá chyba",
+        "Neznana napaka",
+        "Nieznany błąd",
+        "Noma’lum xatolik",
+        "Okänt fel",
+        "Onbekende fout",
+        "Óþekkt villa",
+        "Ralat tidak diketahui",
+        "Tundmatu viga",
+        "Tuntematon virhe",
+        "Ukendt fejl",
+        "Ukjent feil",
+        "Unbekannter Fehler",
+        "Unknown error",
+        "Άγνωστο σφάλμα",
+        "Белгисиз ката",
+        "Белгісіз қате",
+        "Невідома помилка",
+        "Невядомая памылка",
+        "Неизвестна грешка",
+        "Неизвестная ошибка",
+        "Непозната грешка",
+        "Үл мэдэгдэх алдаа",
+        "უცნობი შეცდომა",
+        "Անհայտ սխալ",
+        "שגיאה לא ידועה",
+        "خطأ غير معروف",
+        "خطای ناشناس",
+        "نامعلوم خرابی",
+        "ያልታወቀ ስህተት",
+        "अज्ञात एरर",
+        "अज्ञात गड़बड़ी",
+        "अज्ञात त्रुटि",
+        "অজানা ত্রুটি",
+        "অজ্ঞাত আসোঁৱাহ",
+        "ਅਗਿਆਤ ਗੜਬੜ",
+        "અજ્ઞાત ભૂલ",
+        "ଅଜଣା ତୃଟି",
+        "அறியப்படாத பிழை",
+        "తెలియని ఎర్రర్",
+        "ಅಪರಿಚಿತ ದೋಷ",
+        "അജ്ഞാതമായ പിശക്",
+        "නොදන්නා දෝෂය",
+        "ข้อผิดพลาดที่ไม่รู้จัก",
+        "ຄວາມຜິດພາດທີ່ບໍ່ຮູ້ຈັກ",
+        "မသိရ အမှား",
+        "កំហុសឆ្គងមិនស្គាល់",
+        "不明なエラー",
+        "未知的錯誤",
+        "未知错误",
+    ):
+        if error.startswith(msg):
+            return True
+    return False
+
+
 if not os.environ.get("DEBUG"):
 
     def excepthook(etype, val, tb) -> None:  # type: ignore
@@ -119,6 +222,8 @@ class ErrorHandler(QObject):
             return
         if "disk I/O error" in error:
             showWarning(markdown(tr.errors_accessing_db()))
+            return
+        if is_chromium_cert_error(error):
             return
 
         if "PanicException" in error:
