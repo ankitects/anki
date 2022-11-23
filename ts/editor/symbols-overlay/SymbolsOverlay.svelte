@@ -382,7 +382,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {#if referenceRange}
         <WithFloating
             reference={referenceRange}
-            placement={["top", "bottom"]}
+            placement="top"
             offset={10}
         >
             <Popover slot="floating" --popover-padding-inline="0">

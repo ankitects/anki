@@ -266,7 +266,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <WithOverlay reference={activeImage} inline let:position={positionOverlay}>
             <WithFloating
                 reference={activeImage}
-                placement="auto"
+                placement="bottom"
                 offset={20}
                 inline
                 hideIfReferenceHidden
