@@ -83,8 +83,8 @@ const MAC_ARM_AUDIO: OnlineArchive = OnlineArchive {
 };
 
 const MAC_AMD_AUDIO: OnlineArchive = OnlineArchive {
-    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/audio-win-amd64.tar.gz",
-    sha256: "0815a601baba05e03bc36b568cdc2332b1cf4aa17125fc33c69de125f8dd687f",
+    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-05-26/audio-mac-amd64.tar.gz",
+    sha256: "ecbb3c878805cdd58b1a0b8e3fd8c753b8ce3ad36c8b5904a79111f9db29ff42",
 };
 
 const MAC_ARM_QT6: OnlineArchive = OnlineArchive {
