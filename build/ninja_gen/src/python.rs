@@ -155,7 +155,7 @@ pub struct PythonTest {
 
 impl BuildAction for PythonTest {
     fn command(&self) -> &str {
-        "$pytest $folder"
+        "$pytest -p no:cacheprovider $folder"
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
