@@ -38,6 +38,7 @@ scopeguard = { version = "1", features = ["use_std"] }
 serde = { version = "1", features = ["alloc", "derive", "rc", "serde_derive", "std"] }
 sha2 = { version = "0.10", features = ["std"] }
 slog = { version = "2", features = ["max_level_trace", "release_max_level_debug", "std"] }
+snafu = { version = "0.7", features = ["backtrace", "backtraces", "rust_1_39", "rust_1_46", "std"] }
 time = { version = "0.3", features = ["alloc", "formatting", "itoa", "local-offset", "macros", "parsing", "std", "time-macros"] }
 tokio = { version = "1", features = ["bytes", "fs", "full", "io-std", "io-util", "libc", "macros", "memchr", "mio", "net", "num_cpus", "parking_lot", "process", "rt", "rt-multi-thread", "signal", "signal-hook-registry", "socket2", "sync", "time", "tokio-macros"] }
 url = { version = "2", features = ["serde"] }

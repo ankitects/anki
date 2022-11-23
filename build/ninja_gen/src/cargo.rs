@@ -213,3 +213,24 @@ impl BuildAction for CargoInstall {
         true
     }
 }
+
+pub struct CargoRun {
+    pub binary_name: &'static str,
+    pub cargo_args: &'static str,
+    pub bin_args: &'static str,
+    pub deps: BuildInput,
+}
+
+impl BuildAction for CargoRun {
+    fn command(&self) -> &str {
+        "cargo run --bin $binary $cargo_args -- $bin_args"
+    }
+
+    fn files(&mut self, build: &mut impl FilesHandle) {
+        build.add_inputs("", &self.deps);
+        build.add_variable("binary", self.binary_name);
+        build.add_variable("cargo_args", self.cargo_args);
+        build.add_variable("bin_args", self.bin_args);
+        build.add_outputs("", vec!["phony"]);
+    }
+}

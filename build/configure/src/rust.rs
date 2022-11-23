@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use ninja_gen::{
-    cargo::{CargoBuild, CargoClippy, CargoFormat, CargoTest, RustOutput},
+    cargo::{CargoBuild, CargoClippy, CargoFormat, CargoRun, CargoTest, RustOutput},
     git::SyncSubmodule,
     glob, inputs, Build, Result,
 };
@@ -18,23 +18,26 @@ pub fn build_rust(build: &mut Build) -> Result<()> {
 fn prepare_translations(build: &mut Build) -> Result<()> {
     // ensure repos are checked out
     build.add(
-        "ftl/core-repo",
+        "ftl:repo:core",
         SyncSubmodule {
             path: "ftl/core-repo",
         },
     )?;
     build.add(
-        "ftl/qt-repo",
+        "ftl:repo:qt",
         SyncSubmodule {
             path: "ftl/qt-repo",
         },
     )?;
-    build.add_inputs_to_group("ftl/core-repo", inputs![glob!["ftl/{core,core-repo}/**"]]);
     // build anki_i18n and spit out strings.json
     build.add(
         "rslib/i18n",
         CargoBuild {
-            inputs: inputs![glob!["rslib/i18n/**"], ":ftl/core-repo", ":ftl/qt-repo"],
+            inputs: inputs![
+                glob!["rslib/i18n/**"],
+                glob!["ftl/{core,core-repo,qt,qt-repo}/**"],
+                ":ftl:repo",
+            ],
             outputs: &[RustOutput::Data(
                 "strings.json",
                 "$builddir/rslib/i18n/strings.json",
@@ -42,6 +45,16 @@ fn prepare_translations(build: &mut Build) -> Result<()> {
             target: None,
             extra_args: "-p anki_i18n",
             release_override: None,
+        },
+    )?;
+
+    build.add(
+        "ftl:sync",
+        CargoRun {
+            binary_name: "ftl-sync",
+            cargo_args: "-p ftl",
+            bin_args: "",
+            deps: inputs![":ftl:repo", glob!["ftl/{core,core-repo,qt,qt-repo}/**"]],
         },
     )?;
 

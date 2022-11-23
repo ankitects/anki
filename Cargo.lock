@@ -1057,6 +1057,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ftl"
+version = "0.0.0"
+dependencies = [
+ "camino",
+ "snafu",
+ "workspace-hack",
+]
+
+[[package]]
 name = "futf"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3272,9 +3281,9 @@ checksum = "2fd0db749597d91ff862fd1d55ea87f7855a744a8425a64695b6fca237d1dad1"
 
 [[package]]
 name = "snafu"
-version = "0.7.2"
+version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd726aec4ebad65756394ff89a9b9598793d4e30121cd71690244c1e497b3aee"
+checksum = "a152ba99b054b22972ee794cf04e5ef572da1229e33b65f3c57abbff0525a454"
 dependencies = [
  "backtrace",
  "doc-comment",
@@ -3283,9 +3292,9 @@ dependencies = [
 
 [[package]]
 name = "snafu-derive"
-version = "0.7.2"
+version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "712529e9b0b014eabaa345b38e06032767e3dc393e8b017e853b1d7247094e74"
+checksum = "d5e79cdebbabaebb06a9bdbaedc7f159b410461f63611d4d0e3fb0fab8fed850"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -4273,6 +4282,7 @@ dependencies = [
  "serde",
  "sha2 0.10.6",
  "slog",
+ "snafu",
  "syn",
  "time 0.3.14",
  "tokio",

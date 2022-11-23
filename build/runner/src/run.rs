@@ -68,13 +68,9 @@ fn split_args(args: Vec<String>) -> Vec<Vec<String>> {
 /// Log stdout/stderr and exit if command failed; return output on success.
 /// If OUTPUT_SUCCESS=1 is defined, output will be shown on success.
 pub fn run_silent(command: &mut Command) -> Output {
-    let output = command.output().unwrap_or_else(|e| {
-        panic!(
-            "failed to run command: {:?} {:?}: {e}",
-            command.get_program(),
-            command.get_args(),
-        )
-    });
+    let output = command
+        .output()
+        .unwrap_or_else(|e| panic!("failed to run command: {:?}: {e}", command));
     if !output.status.success() {
         println!(
             "Command failed: \n{}\n{}",

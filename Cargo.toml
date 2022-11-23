@@ -16,6 +16,7 @@ members = [
   "build/ninja_gen",
   "build/archives",
   "build/runner",
+  "ftl",
   "tools/workspace-hack",
   "qt/bundle/win",
   "qt/bundle/mac",
