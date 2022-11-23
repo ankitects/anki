@@ -272,7 +272,7 @@ hooks = [
         as possible, instead opting to append your own changes, e.g.:
         
             def on_deck_browser_will_render_content(deck_browser, content):
-                content.stats += "\n<div>my html</div>"
+                content.stats += "\\n<div>my html</div>"
         """,
     ),
     # Deck options (legacy screen)
@@ -1109,6 +1109,15 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     Hook(
         name="addon_config_editor_will_save_json",
         args=["text: str"],
+        return_type="str",
+        doc="""Deprecated. Use addon_config_editor_will_update_json instead.
+        Allows changing the text of the json configuration that was
+        received from the user before actually reading it. For
+        example, you can replace new line in strings by some "\\\\n".""",
+    ),
+    Hook(
+        name="addon_config_editor_will_update_json",
+        args=["text: str", "addon: str"],
         return_type="str",
         doc="""Allows changing the text of the json configuration that was
         received from the user before actually reading it. For
