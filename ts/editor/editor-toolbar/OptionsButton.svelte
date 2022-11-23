@@ -37,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <WithFloating
     show={showFloating}
-    placement="bottom"
+    preferredPlacement="bottom"
     inline
     on:close={() => (showFloating = false)}
 >
