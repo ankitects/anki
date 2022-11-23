@@ -251,6 +251,9 @@ impl BuildStatement<'_> {
         if action.generator() {
             stmt.rule_variables.push(("generator".into(), "1".into()));
         }
+        if let Some(pool) = action.concurrency_pool() {
+            stmt.rule_variables.push(("pool".into(), pool.into()));
+        }
 
         stmt
     }

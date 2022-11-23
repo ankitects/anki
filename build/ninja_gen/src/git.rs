@@ -18,4 +18,13 @@ impl BuildAction for SyncSubmodule {
         build.add_variable("path", self.path);
         build.add_output_stamp(format!("git/{}", self.path));
     }
+
+    fn on_first_instance(&self, build: &mut Build) -> Result<()> {
+        build.pool("git", 1);
+        Ok(())
+    }
+
+    fn concurrency_pool(&self) -> Option<&'static str> {
+        Some("git")
+    }
 }

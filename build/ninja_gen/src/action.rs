@@ -28,6 +28,10 @@ pub trait BuildAction {
         Ok(())
     }
 
+    fn concurrency_pool(&self) -> Option<&'static str> {
+        None
+    }
+
     fn name(&self) -> &'static str {
         std::any::type_name::<Self>().split("::").last().unwrap()
     }
