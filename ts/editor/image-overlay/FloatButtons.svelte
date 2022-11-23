@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
 </script>
 
-<ButtonGroup size={1.5} wrap={false}>
+<ButtonGroup size={1.6} wrap={false}>
     <IconButton
         tooltip={tr.editingFloatLeft()}
         active={floatStyle === "left"}

@@ -13,6 +13,11 @@
 
 $vars: (
     props: (
+        font: (
+            size: (
+                default: 15px,
+            ),
+        ),
         border-radius: (
             default: (
                 "Used to round corners of various UI elements",
@@ -177,8 +182,8 @@ $vars: (
                 bg: (
                     "Background color of primary button",
                     (
-                        light: palette(blue, 4),
-                        dark: color.scale(palette(blue, 6), $saturation: -10%),
+                        light: palette(blue, 5),
+                        dark: color.scale(palette(blue, 7), $saturation: -10%),
                     ),
                 ),
                 gradient: (

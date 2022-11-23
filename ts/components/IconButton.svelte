@@ -47,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @include button.border-radius;
 
         padding: 0 var(--padding-inline, 0);
-        font-size: var(--base-font-size);
+        font-size: var(--font-size);
         height: var(--buttons-size);
         min-width: calc(var(--buttons-size) * 0.75);
     }
