@@ -49,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         justify-content: start;
         width: 100%;
 
-        font-size: var(--dropdown-font-size, calc(0.8 * var(--base-font-size)));
+        font-size: var(--dropdown-font-size, var(--font-size));
 
         background: none;
         box-shadow: none !important;

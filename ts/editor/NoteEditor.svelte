@@ -78,7 +78,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return fontFamily;
     }
 
-    const size = 1.5;
+    const size = 1.6;
     const wrap = true;
 
     const fieldStores: Writable<string>[] = [];
@@ -457,6 +457,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                         richTextsHidden[index] = true;
                                     }
                                 }}
+                                --icon-align="bottom"
                             >
                                 <svelte:fragment slot="field-name">
                                     <LabelName>

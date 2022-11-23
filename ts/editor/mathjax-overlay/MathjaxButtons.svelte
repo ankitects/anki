@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
 </script>
 
-<ButtonToolbar size={1.5} wrap={false}>
+<ButtonToolbar size={1.6} wrap={false}>
     <ButtonGroup>
         <IconButton
             tooltip={tr.editingMathjaxInline()}

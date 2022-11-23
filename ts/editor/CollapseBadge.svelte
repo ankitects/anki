@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="collapse-badge" class:collapsed class:highlighted>
-    <Badge iconSize={80} --icon-align="text-bottom">{@html chevronDown}</Badge>
+    <Badge iconSize={80}>{@html chevronDown}</Badge>
 </div>
 
 <style lang="scss">

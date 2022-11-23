@@ -27,6 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {id}
     class="button-toolbar btn-toolbar {className}"
     class:nightMode={$pageTheme.isDark}
+    style:--icon-align="baseline"
     {style}
     role="toolbar"
     on:focusout

@@ -4,6 +4,7 @@
 @use "sass:map";
 @use "vars" as *;
 @use "functions" as *;
+@use "scrollbar";
 
 /*! colors */
 :root {
@@ -47,6 +48,18 @@
             } @else {
                 #{$name}: #{$val};
             }
+        }
+    }
+}
+
+/*! rest */
+:root {
+    font-size: prop(font-size);
+    body {
+        overscroll-behavior: none;
+        &:not(.isMac),
+        &:not(.isMac) * {
+            @include scrollbar.custom;
         }
     }
 }

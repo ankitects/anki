@@ -10,6 +10,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     label {
-        line-height: 1;
+        line-height: inherit;
     }
 </style>
