@@ -799,13 +799,14 @@ time = %(time)d;
         return buf
 
     def _buttonTime(self, i: int, v3_labels: Sequence[str] | None = None) -> str:
-        if not self.mw.col.conf["estTimes"]:
-            return "<div class=spacer></div>"
-        if v3_labels:
-            txt = v3_labels[i - 1]
+        if self.mw.col.conf["estTimes"]:
+            if v3_labels:
+                txt = v3_labels[i - 1]
+            else:
+                txt = self.mw.col.sched.nextIvlStr(self.card, i, True) or ""
+            return f"""<span class="nobold">{txt}</span>"""
         else:
-            txt = self.mw.col.sched.nextIvlStr(self.card, i, True) or "&nbsp;"
-        return f"<span class=nobold>{txt}</span>"
+            return ""
 
     # Leeches
     ##########################################################################
