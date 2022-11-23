@@ -107,8 +107,9 @@ fn main() -> anyhow::Result<()> {
 fn make_app(kind: DistKind, mut plist: plist::Dictionary, stamp: &Utf8Path) -> Result<()> {
     let input_folder = kind.input_folder();
     let output_folder = kind.output_folder();
-    if output_folder.exists() {
-        fs::remove_dir_all(&output_folder)?;
+    let output_variant = output_folder.parent().unwrap();
+    if output_variant.exists() {
+        fs::remove_dir_all(&output_variant)?;
     }
     fs::create_dir_all(&output_folder)?;
 

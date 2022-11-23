@@ -88,5 +88,9 @@ pub fn wait_then_staple_app(app: &Utf8Path, uuid: String) -> Result<()> {
         "staple"
     );
 
+    // clean up temporary files
+    fs::remove_file(app.with_extension("zip")).context("app.zip")?;
+    fs::remove_file(app.with_extension("uuid")).context("app.uuid")?;
+
     Ok(())
 }
