@@ -69,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .congrats {
         margin-top: 2em;
         max-width: 30em;
-        font-size: var(--base-font-size);
+        font-size: var(--font-size);
 
         :global(a) {
             color: var(--fg-link);

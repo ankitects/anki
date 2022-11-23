@@ -58,7 +58,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import EditorToolbar from "./editor-toolbar";
     import type { FieldData } from "./EditorField.svelte";
     import EditorField from "./EditorField.svelte";
-    import FieldDescription from "./FieldDescription.svelte";
     import Fields from "./Fields.svelte";
     import { alertIcon } from "./icons";
     import ImageOverlay from "./image-overlay";
@@ -80,7 +79,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return fontFamily;
     }
 
-    const size = 1.5;
+    const size = 1.6;
     const wrap = true;
 
     const fieldStores: Writable<string>[] = [];
@@ -439,6 +438,8 @@ the AddCards dialog) should be implemented in the user of this component.
                         }}
                         collapsed={fieldsCollapsed[index]}
                         dupe={cols[index] === "dupe"}
+                        --description-font-size="{field.fontSize}px"
+                        --description-content={`"${field.description}"`}
                     >
                         <svelte:fragment slot="field-label">
                             <LabelContainer
@@ -458,6 +459,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                         richTextsHidden[index] = true;
                                     }
                                 }}
+                                --icon-align="bottom"
                             >
                                 <svelte:fragment slot="field-name">
                                     <LabelName>
@@ -526,11 +528,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                         $focusedInput = null;
                                     }}
                                     bind:this={richTextInputs[index]}
-                                >
-                                    <FieldDescription>
-                                        {field.description}
-                                    </FieldDescription>
-                                </RichTextInput>
+                                />
                             </Collapsible>
                         </svelte:fragment>
                         <svelte:fragment slot="plain-text-input">

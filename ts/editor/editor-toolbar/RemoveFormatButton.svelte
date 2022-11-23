@@ -116,7 +116,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <WithFloating
     show={showFloating && !disabled}
-    placement="bottom"
     inline
     on:close={() => (showFloating = false)}
 >

@@ -267,7 +267,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         resize: none;
         appearance: none;
         font: inherit;
-        font-size: var(--base-font-size);
+        font-size: var(--font-size);
         outline: none;
         border: none;
         margin: 0;

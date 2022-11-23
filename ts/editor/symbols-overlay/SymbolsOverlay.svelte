@@ -384,11 +384,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="symbols-overlay">
     {#if referenceRange}
-        <WithFloating
-            reference={referenceRange}
-            placement={["top", "bottom"]}
-            offset={10}
-        >
+        <WithFloating reference={referenceRange} preferredPlacement="top" offset={10}>
             <Popover slot="floating" --popover-padding-inline="0">
                 <div class="symbols-menu">
                     {#each foundSymbols as found, index (found.symbol)}

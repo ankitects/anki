@@ -225,6 +225,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div class="rich-text-relative">
             <div
                 class="rich-text-editable"
+                class:empty={$content.length === 0}
                 bind:this={richTextDiv}
                 use:attachShadow
                 use:attachStyles
@@ -252,5 +253,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .rich-text-relative {
         position: relative;
+    }
+
+    .rich-text-editable.empty::before {
+        position: absolute;
+        color: var(--fg-subtle);
+        content: var(--description-content);
+        font-size: var(--description-font-size, 20px);
+        cursor: text;
+        max-width: 95%;
+        overflow-x: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 </style>

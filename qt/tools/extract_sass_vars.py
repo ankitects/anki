@@ -27,6 +27,8 @@ for line in re.split(r"[;\{\}]|\*\/", data):
     if line.startswith("/*!"):
         if "props" in line:
             reached_props = True
+        elif "rest" in line:
+            break
         else:
             comment = re.match(r"\/\*!\s*(.*)$", line)[1]
         continue

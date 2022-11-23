@@ -36,17 +36,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<WithFloating
-    show={showFloating}
-    placement="bottom"
-    inline
-    on:close={() => (showFloating = false)}
->
+<WithFloating show={showFloating} inline on:close={() => (showFloating = false)}>
     <IconButton
         slot="reference"
         tooltip={tr.actionsOptions()}
         --border-left-radius="5px"
         --border-right-radius="5px"
+        --padding-inline="8px"
         on:click={() => (showFloating = !showFloating)}
     >
         {@html cogIcon}

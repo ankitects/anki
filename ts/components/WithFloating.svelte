@@ -27,7 +27,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let portalTarget: HTMLElement | null = null;
 
-    export let placement: Placement | Placement[] | "auto" = "bottom";
+    let placement: Placement = "bottom";
+    export { placement as preferredPlacement };
     export let offset = 5;
     /* 30px box shadow from elevation(8) */
     export let shift = 30;

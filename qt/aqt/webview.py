@@ -413,10 +413,10 @@ class AnkiWebView(QWebEngineView):
             button_style = f"""
 button {{ font-family: {family}; }}
             """
-            font = f"font-size:12px;font-family:{family};"
+            font = f"font-family:{family};"
         elif is_mac:
             family = "Helvetica"
-            font = f'font-size:14px;font-family:"{family}";'
+            font = f'font-family:"{family}";'
             button_style = """
 button {
     --canvas: #fff;
@@ -432,7 +432,7 @@ button {
 """
         else:
             family = self.font().family()
-            font = f'font-size:14px;font-family:"{family}", sans-serif;'
+            font = f'font-family:"{family}", sans-serif;'
             button_style = """
 /* Buttons */
 button{{ 

@@ -1,6 +1,5 @@
 @use "vars" as *;
-@use "sass/root-vars";
-@use "scrollbar";
+@use "root-vars";
 @use "button-mixins" as button;
 
 $body-color: color(fg);
@@ -41,15 +40,6 @@ body {
 
 html {
     overflow-x: hidden;
-}
-
-body {
-    --base-font-size: 13px;
-    overscroll-behavior: none;
-    &:not(.isMac),
-    &:not(.isMac) * {
-        @include scrollbar.custom;
-    }
 }
 
 button {
