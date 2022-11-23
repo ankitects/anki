@@ -202,7 +202,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         >
             <WithFloating
                 reference={activeImage}
-                placement="auto"
                 offset={20}
                 keepOnKeyup
                 let:position={positionFloating}
