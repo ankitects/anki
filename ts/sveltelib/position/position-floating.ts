@@ -21,7 +21,7 @@ import {
 import type { PositionAlgorithm } from "./position-algorithm";
 
 export interface PositionFloatingArgs {
-    placement: Placement | Placement[] | "auto";
+    placement: Placement;
     arrow: HTMLElement;
     shift: number;
     offset: number;
@@ -46,7 +46,6 @@ function positionFloating({
         floating: FloatingElement,
     ): Promise<void> {
         const middleware: Middleware[] = [
-            // the .shift() lines below expect flip() to be first
             flip(),
             offset(offsetArg),
             shift({ padding: shiftArg }),
@@ -59,18 +58,8 @@ function positionFloating({
 
         const computeArgs: Partial<ComputePositionConfig> = {
             middleware,
+            placement,
         };
-
-        if (Array.isArray(placement)) {
-            const fallbackPlacements = placement;
-            middleware.shift();
-            middleware.push(flip({ fallbackPlacements }));
-        } else if (placement === "auto") {
-            middleware.shift();
-            middleware.push(flip());
-        } else {
-            computeArgs.placement = placement;
-        }
 
         if (hideIfEscaped) {
             middleware.push(hide({ strategy: "escaped" }));
