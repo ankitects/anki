@@ -10,7 +10,6 @@ import type {
 } from "@floating-ui/dom";
 import {
     arrow,
-    autoPlacement,
     computePosition,
     flip,
     hide,
@@ -63,13 +62,12 @@ function positionFloating({
         };
 
         if (Array.isArray(placement)) {
-            const allowedPlacements = placement;
-            // flip() is incompatible with autoPlacement
+            const fallbackPlacements = placement;
             middleware.shift();
-            middleware.push(autoPlacement({ allowedPlacements }));
+            middleware.push(flip({ fallbackPlacements }));
         } else if (placement === "auto") {
             middleware.shift();
-            middleware.push(autoPlacement());
+            middleware.push(flip());
         } else {
             computeArgs.placement = placement;
         }
