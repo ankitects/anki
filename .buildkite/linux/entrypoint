@@ -2,14 +2,15 @@
 
 set -e
 
-. /state/cargo/env
-
 # check author has added themselves to CONTRIBUTORS
 echo "--- Checking CONTRIBUTORS"
 .buildkite/linux/check_contributors
 
 echo "+++ Building and testing"
 ln -sf out/node_modules .
-BUILD_ROOT=/state/build ./ninja pylib/anki qt/aqt check
 
-# $BAZEL test $BUILDARGS ... //rslib/linkchecker
+export PATH="$PATH:/state/rust/cargo/bin"
+export BUILD_ROOT=/state/build
+export ONLINE_TESTS=1
+
+./ninja pylib/anki qt/aqt check
