@@ -209,7 +209,6 @@ class Preferences(QDialog):
         "Setup options global to all profiles."
         self.form.reduce_motion.setChecked(self.mw.pm.reduced_motion())
         self.form.uiScale.setValue(int(self.mw.pm.uiScale() * 100))
-        self.form.bRowHeight.setValue(int(self.mw.pm.browser_row_height()))
         themes = [
             tr.preferences_theme_label(theme=theme)
             for theme in (
@@ -238,8 +237,8 @@ class Preferences(QDialog):
             self.mw.pm.setUiScale(newScale)
             restart_required = True
 
-        self.mw.pm.set_browser_row_height(self.form.bRowHeight.value())
         self.mw.pm.set_reduced_motion(self.form.reduce_motion.isChecked())
+
         self.mw.pm.set_legacy_import_export(self.form.legacy_import_export.isChecked())
 
         if restart_required:

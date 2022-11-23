@@ -581,12 +581,6 @@ create table if not exists profiles
     def set_last_loaded_profile_name(self, name: str) -> None:
         self.meta["last_loaded_profile_name"] = name
 
-    def set_browser_row_height(self, height: int) -> None:
-        self.meta["browser_row_height"] = height
-
-    def browser_row_height(self) -> int:
-        return self.meta.get("browser_row_height", 8)
-
     # Profile-specific
     ######################################################################
 

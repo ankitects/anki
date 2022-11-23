@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>530</width>
-    <height>660</height>
+    <width>640</width>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -151,19 +151,6 @@
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <widget class="QSpinBox" name="uiScale">
            <property name="suffix">
             <string notr="true">%</string>
@@ -179,22 +166,8 @@
            </property>
           </widget>
          </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QLabel" name="label">
-           <property name="toolTip">
-            <string>preferences_browser_row_height_tooltip</string>
-           </property>
-           <property name="text">
-            <string>preferences_browser_row_height</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer">
+          <spacer name="horizontalSpacer_4">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -205,19 +178,6 @@
             </size>
            </property>
           </spacer>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="bRowHeight">
-           <property name="minimum">
-            <number>6</number>
-           </property>
-           <property name="maximum">
-            <number>18</number>
-           </property>
-           <property name="value">
-            <number>8</number>
-           </property>
-          </widget>
          </item>
         </layout>
        </item>
@@ -706,7 +666,7 @@
      </widget>
     </widget>
    </item>
-   <item>
+   <item alignment="Qt::AlignCenter">
     <widget class="QLabel" name="label_21">
      <property name="text">
       <string>preferences_some_settings_will_take_effect_after</string>
@@ -739,7 +699,6 @@
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>
-  <tabstop>bRowHeight</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
   <tabstop>dayLearnFirst</tabstop>

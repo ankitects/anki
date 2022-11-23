@@ -348,11 +348,10 @@ class Table:
         self._view.setWordWrap(False)
         self._view.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self._view.horizontalScrollBar().setSingleStep(10)
-        self._view.verticalHeader().setDefaultSectionSize(
-            12 + 2 * self.browser.mw.pm.browser_row_height()
-        )
+        self._view.verticalHeader().setDefaultSectionSize(12 + 2 * self.browser.mw.pm.browser_row_height())
         self._view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         qconnect(self._view.customContextMenuRequested, self._on_context_menu)
+
 
     def _setup_headers(self) -> None:
         vh = self._view.verticalHeader()
