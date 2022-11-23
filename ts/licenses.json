@@ -128,12 +128,6 @@
         "path": "node_modules/@types/lodash",
         "licenseFile": "node_modules/@types/lodash/LICENSE"
     },
-    "@types/long@4.0.1": {
-        "licenses": "MIT",
-        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
-        "path": "node_modules/@types/long",
-        "licenseFile": "node_modules/@types/long/LICENSE"
-    },
     "@types/marked@4.0.3": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
@@ -515,7 +509,7 @@
         "path": "node_modules/lodash-es",
         "licenseFile": "node_modules/lodash-es/LICENSE"
     },
-    "long@4.0.0": {
+    "long@5.2.1": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/dcodeIO/long.js",
         "publisher": "Daniel Wirtz",
@@ -536,7 +530,7 @@
         "path": "node_modules/mathjax",
         "licenseFile": "node_modules/mathjax/LICENSE"
     },
-    "protobufjs@6.11.3": {
+    "protobufjs@7.1.2": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/protobufjs/protobuf.js",
         "publisher": "Daniel Wirtz",

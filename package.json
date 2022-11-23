@@ -45,6 +45,7 @@
         "patch-package": "^6.4.7",
         "prettier": "2.4.1",
         "prettier-plugin-svelte": "2.6.0",
+        "protobufjs-cli": "^1.0.2",
         "sass": "1.43.5",
         "semver": "^7.3.4",
         "svelte": "^3.25.0",
@@ -82,12 +83,12 @@
         "lodash-es": "^4.17.21",
         "marked": "^4.0.0",
         "mathjax": "^3.1.2",
-        "protobufjs": "^6.11.3"
+        "protobufjs": "^7"
     },
     "resolutions": {
         "jsdoc/marked": "^4.0.0",
         "jsdoc/markdown-it": "^12.3.2",
-        "protobufjs": "^6.11.3",
+        "protobufjs": "^7",
         "sass": "=1.45.0",
         "caniuse-lite": "^1.0.30001431"
     },
