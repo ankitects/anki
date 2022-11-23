@@ -5,6 +5,7 @@ set -e
 export PATH="$PATH:/state/rust/cargo/bin"
 export BUILD_ROOT=/state/build
 export RELEASE=1
+ln -sf out/node_modules .
 
 if [ $(uname -m) = "aarch64" ]; then
     ./ninja wheels:anki
