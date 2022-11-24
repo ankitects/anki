@@ -12,7 +12,7 @@ export interface SurroundFormat<T = never> {
      */
     matcher: (element: HTMLElement | SVGElement, match: MatchType<T>) => void;
     /**
-     * @returns Whehter before or after are allowed to merge to a single
+     * @returns Whether before or after are allowed to merge to a single
      * FormattingNode range
      */
     merger?: (before: FormattingNode<T>, after: FormattingNode<T>) => boolean;

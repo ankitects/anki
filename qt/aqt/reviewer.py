@@ -792,7 +792,7 @@ time = %(time)d;
                 due,
             )
 
-        buf = "<center><table cellpading=0 cellspacing=0><tr>"
+        buf = "<center><table cellpadding=0 cellspacing=0><tr>"
         for ease, label in self._answerButtonList():
             buf += but(ease, label)
         buf += "</tr></table>"

@@ -255,7 +255,7 @@ fn split_and_truncate_filename(fname: &str, max_bytes: usize) -> (&str, &str) {
 }
 
 /// Return a substring on a valid UTF8 boundary.
-/// Based on a funtion in the Rust stdlib.
+/// Based on a function in the Rust stdlib.
 fn truncated_to_char_boundary(s: &str, mut max: usize) -> &str {
     if max >= s.len() {
         s

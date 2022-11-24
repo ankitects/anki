@@ -271,7 +271,7 @@ mod test {
         // with the current time being MST
         let now = mst.ymd(2019, 12, 26).and_hms(20, 0, 0).timestamp();
         assert_eq!(elap(crt, now, mdt_offset, mst_offset, 4), 507);
-        // the previous implementation generated a diferent elapsed number of days with a change
+        // the previous implementation generated a different elapsed number of days with a change
         // to DST, but the number shouldn't change
         assert_eq!(elap(crt, now, mdt_offset, mdt_offset, 4), 507);
 

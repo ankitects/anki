@@ -74,7 +74,7 @@ py_wheel(
         "//platforms:macos_x86_64": "macosx_10_13_x86_64",
         "//platforms:macos_arm64": "macosx_11_0_arm64",
         # the glibc versions below are set for the official builds;
-        # you can adjust them to suit your enviroment
+        # you can adjust them to suit your environment
         "//platforms:linux_x86_64": "manylinux_2_28_x86_64",
         "//platforms:linux_arm64": "manylinux_2_31_aarch64",
     }),

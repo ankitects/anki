@@ -95,7 +95,7 @@ about 6 gigabytes of temporary files. Once you've created the wheels, you can
 remove the other files to free up space if you wish.
 
 -   `bazel clean --expunge` will remove the generated Bazel files, freeing up
-    most of the space. The files are usualy stored in a subdir of
+    most of the space. The files are usually stored in a subdir of
     `~/.cache/bazel` or `\bazel\anki`
 -   `rm -rf ~/.cache/bazel*` or `\bazel\anki` will remove cached downloads as
     well, requiring them to be redownloaded if you want to build again.
