@@ -275,7 +275,7 @@ class Table:
 
     def _reset_selection(self) -> None:
         """Remove selection and focus without emitting signals.
-        If no selection change is triggerd afterwards, `browser.on_all_or_selected_rows_changed()`
+        If no selection change is triggered afterwards, `browser.on_all_or_selected_rows_changed()`
         and `browser.on_current_row_changed()` must be called.
         """
         self._view.selectionModel().reset()

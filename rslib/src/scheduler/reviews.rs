@@ -68,7 +68,7 @@ pub fn parse_due_date_str(s: &str) -> Result<DueDateSpecifier> {
             r#"(?x)^
             # a number
             (?P<min>\d+)
-            # an optional hypen and another number
+            # an optional hyphen and another number
             (?:
                 -
                 (?P<max>\d+)

@@ -120,7 +120,7 @@ def backslashcase(string):
     str1 = re.sub(r"_", r"\\", snakecase(string))
 
     return str1
-    # return re.sub(r"\\n", "", str1))  # TODO: make regex fot \t ...
+    # return re.sub(r"\\n", "", str1))  # TODO: make regex for \t ...
 
 
 def sentencecase(string):
@@ -249,7 +249,7 @@ def alphanumcase(string):
         string: String to convert.
 
     Returns:
-        string: String with cutted non-alphanumeric symbols.
+        string: String with cut non-alphanumeric symbols.
 
     """
     # return filter(str.isalnum, str(string))

@@ -52,7 +52,7 @@ def _get_platform(rctx):
         fail("unexpected platform", rctx.os.name)
 
 def _impl(rctx):
-    # bundled python overriden?
+    # bundled python overridden?
     if rctx.os.environ.get("PYO3_PYTHON"):
         path = rctx.os.environ.get("PYO3_PYTHON")
         rctx.symlink(path, "python")
