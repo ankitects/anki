@@ -194,7 +194,7 @@ write_wheel(
     metadata={
         "License": "AGPL-3",
         "Classifier": [
-            "License :: OSI Approved :: GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)",
+            "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
         ],
         "Requires-Python": ">=3.9",
         "_dependencies": all_requires,
