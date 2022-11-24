@@ -175,7 +175,7 @@ class WebContent:
 
     Important Notes:
         - When modifying the attributes specified above, please make sure your
-        changes only perform the minimum requried edits to make your add-on work.
+        changes only perform the minimum required edits to make your add-on work.
         You should avoid overwriting or interfering with existing data as much
         as possible, instead opting to append your own changes, e.g.:
 
