@@ -75,7 +75,7 @@ impl<N: Deref<Target = Notetype>> CardGenContext<N> {
     }
 
     /// If template[ord] generates a non-empty question given nonempty_fields, return the provided
-    /// deck id, or an overriden one. If question is empty, return None.
+    /// deck id, or an overridden one. If question is empty, return None.
     fn is_nonempty(&self, card_ord: usize, nonempty_fields: &HashSet<&str>) -> bool {
         let card = &self.cards[card_ord];
         let template = match card.template {

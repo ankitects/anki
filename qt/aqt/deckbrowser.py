@@ -129,7 +129,7 @@ class DeckBrowser:
 
     _body = """
 <center>
-<table cellspacing=0 cellpading=3>
+<table cellspacing=0 cellpadding=3>
 %(tree)s
 </table>
 

@@ -198,7 +198,7 @@ impl Collection {
                 cutoff_snapshot,
             }));
         } else {
-            // we currenly allow the queues to be empty for unit tests
+            // we currently allow the queues to be empty for unit tests
         }
 
         Ok(())

@@ -175,7 +175,7 @@ class WebContent:
 
     Important Notes:
         - When modifying the attributes specified above, please make sure your
-        changes only perform the minimum requried edits to make your add-on work.
+        changes only perform the minimum required edits to make your add-on work.
         You should avoid overwriting or interfering with existing data as much
         as possible, instead opting to append your own changes, e.g.:
 
@@ -647,11 +647,12 @@ html {{ {font} }}
         self.setSizePolicy(sp)
         self.hide()
 
-    def inject_dynamic_style_and_show(self) -> None:
-        "Add dynamic styling, and reveal."
+    def add_dynamic_css_and_classes_then_show(self) -> None:
+        "Add dynamic styling, set platform-specific body classes and reveal."
         css = self.standard_css()
+        body_classes = theme_manager.body_class().split(" ")
 
-        def after_style(arg: Any) -> None:
+        def after_injection(arg: Any) -> None:
             gui_hooks.webview_did_inject_style_into_page(self)
             self.show()
 
@@ -661,9 +662,10 @@ html {{ {font} }}
     const style = document.createElement('style');
     style.innerHTML = `{css}`;
     document.head.appendChild(style);
+    document.body.classList.add({", ".join([f'"{c}"' for c in body_classes])});
 }})();
 """,
-            after_style,
+            after_injection,
         )
 
     def load_ts_page(self, name: str) -> None:
@@ -677,7 +679,7 @@ html {{ {font} }}
         self.hide_while_preserving_layout()
         self.setZoomFactor(1)
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
-        self.inject_dynamic_style_and_show()
+        self.add_dynamic_css_and_classes_then_show()
 
     def force_load_hack(self) -> None:
         """Force process to initialize.

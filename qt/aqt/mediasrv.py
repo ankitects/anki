@@ -213,7 +213,7 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
 def _builtin_data(path: str) -> bytes:
     """Return data from file in aqt/data folder.
     Path must use forward slash separators."""
-    # overriden location?
+    # overridden location?
     if data_folder := os.getenv("ANKI_DATA_FOLDER"):
         full_path = os.path.join(data_folder, path)
         with open(full_path, "rb") as f:

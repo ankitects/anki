@@ -1,7 +1,7 @@
 # Protocol Buffers
 
 Anki uses [different implementations of Protocol Buffers](./architecture.md#protobuf)
-and each has its own pecularities. This document highlights some aspects relevant
+and each has its own peculiarities. This document highlights some aspects relevant
 to Anki and hopefully helps to avoid some common pitfalls.
 
 For information about Protobuf's types and syntax, please see the official [language guide](https://developers.google.com/protocol-buffers/docs/proto3).
@@ -83,8 +83,8 @@ when choosing _Downgrade_), does not make use of Protobuf messages.
 ### Field Numbers
 
 Field numbers larger than 15 need an additional byte to encode, so `repeated` fields
-should preferrably be assigned a number between 1 and 15. If a message contains
-`reserved` fields, this is usually to accomodate potential future `repeated` fields.
+should preferably be assigned a number between 1 and 15. If a message contains
+`reserved` fields, this is usually to accommodate potential future `repeated` fields.
 
 ## Implementation-Specific Notes
 
