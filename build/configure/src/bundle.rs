@@ -375,7 +375,7 @@ struct BuildTarball {
 
 impl BuildAction for BuildTarball {
     fn command(&self) -> &str {
-        "tar -I '$zstd' --transform $transform -cf $tarball -C $folder ."
+        "chmod -R a+r $folder && tar -I '$zstd' --transform $transform -cf $tarball -C $folder ."
     }
 
     fn files(&mut self, build: &mut impl ninja_gen::build::FilesHandle) {
