@@ -25,7 +25,8 @@
         "ftl/usage",
         "licenses.json",
         ".dmypy.json",
-        "qt/bundle/PyOxidizer"
+        "qt/bundle/PyOxidizer",
+        "target"
     ],
     "plugins": [
         "https://plugins.dprint.dev/typescript-0.77.0.wasm",
