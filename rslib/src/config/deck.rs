@@ -5,7 +5,7 @@ use strum::IntoStaticStr;
 
 use crate::prelude::*;
 
-/// Auxillary deck state, stored in the config table.
+/// Auxiliary deck state, stored in the config table.
 #[derive(Debug, Clone, Copy, IntoStaticStr)]
 #[strum(serialize_all = "camelCase")]
 pub enum DeckConfigKey {

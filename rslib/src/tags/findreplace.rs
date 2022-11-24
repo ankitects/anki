@@ -9,7 +9,7 @@ use super::{is_tag_separator, join_tags, split_tags};
 use crate::{notes::NoteTags, prelude::*};
 
 impl Collection {
-    /// Replace occurences of a search with a new value in tags.
+    /// Replace occurrences of a search with a new value in tags.
     pub fn find_and_replace_tag(
         &mut self,
         nids: &[NoteId],
