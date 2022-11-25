@@ -1,4 +1,5 @@
 module.exports = {
+    root: true,
     extends: ["eslint:recommended", "plugin:compat/recommended"],
     parser: "@typescript-eslint/parser",
     plugins: [
