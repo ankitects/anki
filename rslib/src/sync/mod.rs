@@ -1488,7 +1488,7 @@ mod test {
                     .map(|t| t.name)
                     .collect::<Vec<_>>()
             );
-
+            std::thread::sleep(std::time::Duration::from_millis(1));
             Ok(())
         };
 
