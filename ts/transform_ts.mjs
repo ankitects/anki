@@ -13,7 +13,7 @@ buildSync({
     bundle: false,
     entryPoints: [entrypoint],
     outfile: js_out,
-    minify: false,
+    minify: true,
     preserveSymlinks: true,
     target,
 });

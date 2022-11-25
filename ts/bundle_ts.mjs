@@ -12,10 +12,8 @@ const target = ["es6", "chrome77"];
 build({
     bundle: true,
     entryPoints: [entrypoint],
-    // globalName: "anki",
     outfile: bundle_js,
-    minify: false,
+    minify: true,
     preserveSymlinks: true,
     target,
-    // logLevel: "info",
 }).catch(() => process.exit(1));
