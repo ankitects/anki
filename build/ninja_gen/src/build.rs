@@ -216,6 +216,7 @@ struct BuildStatement<'a> {
     output_stamp: bool,
     env_vars: Vec<String>,
     release: bool,
+    bypass_runner: bool,
 }
 
 impl BuildStatement<'_> {
@@ -238,6 +239,7 @@ impl BuildStatement<'_> {
             output_stamp: false,
             env_vars: Default::default(),
             release,
+            bypass_runner: action.bypass_runner(),
         };
         action.files(&mut stmt);
 
@@ -279,6 +281,9 @@ impl BuildStatement<'_> {
     }
 
     fn prepare_command(&mut self, command: String) -> String {
+        if self.bypass_runner {
+            return command;
+        }
         if command.starts_with("$runner") {
             self.implicit_inputs.push("$runner".into());
             return command;

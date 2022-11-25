@@ -32,6 +32,10 @@ pub trait BuildAction {
         None
     }
 
+    fn bypass_runner(&self) -> bool {
+        false
+    }
+
     fn name(&self) -> &'static str {
         std::any::type_name::<Self>().split("::").last().unwrap()
     }
