@@ -10,7 +10,7 @@ import { argv } from "process";
 import sveltePreprocess from "svelte-preprocess";
 import { typescript } from "svelte-preprocess-esbuild";
 
-const [_tsx, _script, entrypoint, bundle_js, _bundle_css, page_html] = argv;
+const [_tsx, _script, entrypoint, bundle_js, bundle_css, page_html] = argv;
 
 if (page_html != null) {
     const template = readFileSync("ts/page.html", { encoding: "utf8" });
@@ -19,6 +19,7 @@ if (page_html != null) {
 
 // support Qt 5.14
 const target = ["es6", "chrome77"];
+const inlineCss = bundle_css == null;
 
 build({
     bundle: true,
@@ -32,6 +33,7 @@ build({
     plugins: [
         sassPlugin({ loadPaths: [".", "node_modules"] }),
         sveltePlugin({
+            compilerOptions: { css: inlineCss },
             preprocess: [
                 typescript({
                     target,
