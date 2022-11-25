@@ -3,8 +3,8 @@
 
 import sqlFormatter from "@sqltools/formatter";
 import { createPatch } from "diff";
-import { argv } from "process";
 import { readFileSync, writeFileSync } from "fs";
+import { argv } from "process";
 
 function formatText(text: string): string {
     let newText: string = sqlFormatter.format(text, {

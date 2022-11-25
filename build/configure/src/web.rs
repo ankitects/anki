@@ -183,11 +183,18 @@ fn declare_and_check_other_libraries(build: &mut Build) -> Result<()> {
         }
     }
 
+    eslint(
+        build,
+        "sql_format",
+        "ts/sql_format",
+        inputs![glob!("ts/sql_format/**")],
+    )?;
+
     Ok(())
 }
 
 pub fn eslint(build: &mut Build, name: &str, folder: &str, deps: BuildInput) -> Result<()> {
-    let eslint_rc = inputs!["ts/.eslintrc.js"];
+    let eslint_rc = inputs![".eslintrc.js"];
     build.add(
         format!("check:eslint:{name}"),
         Eslint {
