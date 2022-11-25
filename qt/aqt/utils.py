@@ -878,7 +878,7 @@ def current_window() -> QWidget | None:
 
 
 def send_to_trash(path: Path) -> None:
-    "Place file/folder in recyling bin, or delete permanently on failure."
+    "Place file/folder in recycling bin, or delete permanently on failure."
     if not path.exists():
         return
     try:

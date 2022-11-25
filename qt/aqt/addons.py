@@ -407,7 +407,7 @@ class AddonManager:
         force_enable: bool = False,
     ) -> InstallOk | InstallError:
         """Install add-on from path or file-like object. Metadata is read
-        from the manifest file, with keys overriden by supplying a 'manifest'
+        from the manifest file, with keys overridden by supplying a 'manifest'
         dictionary"""
         try:
             zfile = ZipFile(file)

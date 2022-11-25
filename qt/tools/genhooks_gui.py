@@ -513,7 +513,7 @@ hooks = [
         args=["columns: dict[str, aqt.browser.Column]"],
         doc="""Allows you to add custom columns to the browser.
         
-        columns is a dictionary of data obejcts. You can add an entry with a custom
+        columns is a dictionary of data objects. You can add an entry with a custom
         column to describe how it should be displayed in the browser or modify
         existing entries.
 

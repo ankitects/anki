@@ -26,7 +26,7 @@ interface ClosingClickArgs {
 
 /**
  * Returns a derived store, which translates `MouseEvent`s into a boolean
- * indicating whether they constitue a click that should close `floating`.
+ * indicating whether they constitute a click that should close `floating`.
  *
  * @param store: Should be an event store wrapping document.click.
  */

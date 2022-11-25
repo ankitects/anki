@@ -383,7 +383,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 Serves as a pre-slotted convenience component which combines all the common
 components and functionality for general note editing.
 
-Functionality exclusive to specifc note-editing views (e.g. in the browser or
+Functionality exclusive to specific note-editing views (e.g. in the browser or
 the AddCards dialog) should be implemented in the user of this component.
 -->
 <div class="note-editor" bind:clientHeight>

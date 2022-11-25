@@ -124,7 +124,7 @@ class ImportDialog(QDialog):
     def onDelimiter(self) -> None:
 
         # Open a modal dialog to enter an delimiter
-        # Todo/Idea Constrain the maximum width, so it doesnt take up that much screen space
+        # Todo/Idea Constrain the maximum width, so it doesn't take up that much screen space
         delim, ok = getText(
             tr.importing_by_default_anki_will_detect_the(),
             self,

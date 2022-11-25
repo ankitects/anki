@@ -87,7 +87,7 @@ impl TimestampMillis {
 
 fn elapsed() -> time::Duration {
     if *crate::PYTHON_UNIT_TESTS {
-        // shift clock around rollover time to accomodate Python tests that make bad assumptions.
+        // shift clock around rollover time to accommodate Python tests that make bad assumptions.
         // we should update the tests in the future and remove this hack.
         let mut elap = time::SystemTime::now()
             .duration_since(time::SystemTime::UNIX_EPOCH)
