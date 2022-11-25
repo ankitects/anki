@@ -7,7 +7,7 @@ use ninja_gen::{
     copy::CopyFiles,
     glob, hashmap, inputs,
     node::{CompileSass, EsbuildScript, TypescriptCheck},
-    python::PythonTest,
+    python::{python_format, PythonTest},
     Build, Result, Utf8Path, Utf8PathBuf,
 };
 
@@ -345,6 +345,12 @@ fn build_wheel(build: &mut Build) -> Result<()> {
 }
 
 fn check_python(build: &mut Build) -> Result<()> {
+    python_format(
+        build,
+        "qt",
+        inputs![glob!("qt/**/*.py", "qt/bundle/PyOxidizer/**")],
+    )?;
+
     build.add(
         "check:pytest:aqt",
         PythonTest {

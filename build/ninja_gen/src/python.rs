@@ -64,22 +64,25 @@ impl BuildAction for PythonTypecheck {
     }
 }
 
-struct PythonFormatSingle<'a> {
-    pub input: BuildInput,
+struct PythonFormat<'a> {
+    pub inputs: &'a BuildInput,
     pub check_only: bool,
     pub isort_ini: &'a BuildInput,
 }
 
-impl BuildAction for PythonFormatSingle<'_> {
+impl BuildAction for PythonFormat<'_> {
     fn command(&self) -> &str {
         "$black -t py39 -q $check --color $in && $
          $isort --color --settings-path $isort_ini $check $in"
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
-        build.add_inputs("in", &self.input);
+        build.add_inputs("in", self.inputs);
         build.add_inputs("black", inputs![":pyenv:black"]);
         build.add_inputs("isort", inputs![":pyenv:isort"]);
+
+        let hash = simple_hash(self.inputs);
+        build.add_env_var("BLACK_CACHE_DIR", "out/python/black.cache.{hash}");
         build.add_inputs("isort_ini", self.isort_ini);
         build.add_variable(
             "check",
@@ -90,7 +93,6 @@ impl BuildAction for PythonFormatSingle<'_> {
             },
         );
 
-        let hash = simple_hash(&self.input);
         build.add_output_stamp(format!(
             "tests/python_format.{}.{hash}",
             if self.check_only { "check" } else { "fix" }
@@ -98,27 +100,25 @@ impl BuildAction for PythonFormatSingle<'_> {
     }
 }
 
-pub fn python_format(build: &mut Build, inputs: BuildInput, isort_ini: BuildInput) -> Result<()> {
-    let input_files = build.expand_inputs(inputs);
-    for file in input_files {
-        build.add(
-            "check:format:python",
-            PythonFormatSingle {
-                input: inputs![file.as_str()],
-                check_only: true,
-                isort_ini: &isort_ini,
-            },
-        )?;
+pub fn python_format(build: &mut Build, group: &str, inputs: BuildInput) -> Result<()> {
+    let isort_ini = &inputs![".isort.cfg"];
+    build.add(
+        &format!("check:format:python:{group}"),
+        PythonFormat {
+            inputs: &inputs,
+            check_only: true,
+            isort_ini,
+        },
+    )?;
 
-        build.add(
-            "format:python",
-            PythonFormatSingle {
-                input: inputs![file],
-                check_only: false,
-                isort_ini: &isort_ini,
-            },
-        )?;
-    }
+    build.add(
+        &format!("format:python:{group}"),
+        PythonFormat {
+            inputs: &inputs,
+            check_only: false,
+            isort_ini,
+        },
+    )?;
     Ok(())
 }
 

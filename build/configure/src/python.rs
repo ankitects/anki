@@ -214,12 +214,9 @@ impl BuildAction for BuildWheel {
 }
 
 pub fn check_python(build: &mut Build) -> Result<()> {
-    let format_inputs = inputs![glob![
-        "{pylib,qt,ftl,tools}/**/*.py",
-        "qt/bundle/PyOxidizer/**"
-    ]];
-    let isort_ini = inputs![".isort.cfg"];
-    python_format(build, format_inputs, isort_ini)?;
+    python_format(build, "ftl", inputs![glob!("ftl/**/*.py")])?;
+    python_format(build, "tools", inputs![glob!("tools/**/*.py")])?;
+
     build.add(
         "check:mypy",
         PythonTypecheck {

@@ -2,8 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use ninja_gen::{
-    action::BuildAction, archives::Platform, command::RunCommand, copy::LinkFile, glob, hashmap,
-    inputs, python::PythonTest, Build, Result,
+    action::BuildAction,
+    archives::Platform,
+    command::RunCommand,
+    copy::LinkFile,
+    glob, hashmap, inputs,
+    python::{python_format, PythonTest},
+    Build, Result,
 };
 
 use crate::{
@@ -97,6 +102,8 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
 }
 
 pub fn check_pylib(build: &mut Build) -> Result<()> {
+    python_format(build, "pylib", inputs![glob!("pylib/**/*.py")])?;
+
     build.add(
         "check:pytest:pylib",
         PythonTest {
