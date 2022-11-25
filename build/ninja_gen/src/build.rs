@@ -96,7 +96,7 @@ impl Build {
         let action_name = action_name.to_string();
 
         // ensure separator is delivered to runner, not shell
-        let command = if cfg!(windows) {
+        let command = if cfg!(windows) || action.bypass_runner() {
             command.into()
         } else {
             command.replace("&&", "\"&&\"")
