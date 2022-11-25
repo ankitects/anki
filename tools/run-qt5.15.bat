@@ -1,5 +1,5 @@
 @echo off
-pushd "%~dp0"
+pushd "%~dp0\.."
 
 set PYTHONWARNINGS=default
 set PYTHONPYCACHEPREFIX=out\pycache

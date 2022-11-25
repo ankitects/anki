@@ -111,15 +111,17 @@ pub fn setup_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
     )?;
 
     // optional venvs for testing with Qt5
+    let mut reqs_qt5 = inputs!["python/requirements.bundle.txt"];
+    if cfg!(windows) {
+        reqs_qt5 = inputs![reqs_qt5, "python/requirements.win.txt"];
+    }
+
     build.add(
         "pyenv-qt5.15",
         PythonEnvironment {
             folder: "pyenv-qt5.15",
             base_requirements_txt: inputs!["python/requirements.base.txt"],
-            requirements_txt: inputs![
-                "python/requirements.bundle.txt",
-                "python/requirements.qt5_15.txt"
-            ],
+            requirements_txt: inputs![&reqs_qt5, "python/requirements.qt5_15.txt"],
             python_binary,
             extra_binary_exports: &[],
         },
@@ -129,10 +131,7 @@ pub fn setup_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
         PythonEnvironment {
             folder: "pyenv-qt5.14",
             base_requirements_txt: inputs!["python/requirements.base.txt"],
-            requirements_txt: inputs![
-                "python/requirements.bundle.txt",
-                "python/requirements.qt5_14.txt"
-            ],
+            requirements_txt: inputs![reqs_qt5, "python/requirements.qt5_14.txt"],
             python_binary,
             extra_binary_exports: &[],
         },
