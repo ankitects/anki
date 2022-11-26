@@ -66,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function updateSuggestions(): void {
         const activeTag = tagTypes[active!];
-        const activeName = activeTag.name;
+        const activeName = activeTag!.name;
 
         autocompleteDisabled = activeName.length === 0;
 
