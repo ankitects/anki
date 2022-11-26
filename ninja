@@ -8,6 +8,7 @@ else
     out="$BUILD_ROOT"
 fi
 export CARGO_TARGET_DIR=$out/rust
+export RECONFIGURE_KEY="${MAC_X86};"
 
 # separate build+run steps so build env doesn't leak into subprocesses
 cargo build -p runner

@@ -177,8 +177,8 @@ fn maybe_update_env_file(build_root: &Utf8Path) {
     let env_file = build_root.join("env");
     let build_root_env = env::var("BUILD_ROOT").unwrap_or_default();
     let release = env::var("RELEASE").unwrap_or_default();
-    let mac_x86 = env::var("MAC_X86").unwrap_or_default();
-    let current_env = format!("{build_root_env};{release};{mac_x86}");
+    let other_watched_env = env::var("RECONFIGURE_KEY").unwrap_or_default();
+    let current_env = format!("{build_root_env};{release};{other_watched_env}");
 
     write_if_changed(&env_file, &current_env);
 }
