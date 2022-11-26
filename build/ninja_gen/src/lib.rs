@@ -8,7 +8,6 @@ pub mod cargo;
 pub mod command;
 pub mod configure;
 pub mod copy;
-pub mod deno;
 pub mod git;
 pub mod hash;
 pub mod input;
