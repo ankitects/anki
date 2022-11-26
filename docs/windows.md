@@ -34,7 +34,8 @@ available some other way.
 **Source folder**:
 
 Anki's source files do not need to be in a specific location, but it's best to
-avoid long paths, as they can cause problems.
+avoid long paths, as they can cause problems. Spaces in the path may cause
+problems.
 
 ## Audio
 
