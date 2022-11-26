@@ -7,8 +7,6 @@ use camino::Utf8Path;
 use clap::Args;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
-use crate::run::run_silent;
-
 #[derive(Args)]
 pub struct BuildArgs {
     #[arg(trailing_var_arg = true)]
@@ -126,13 +124,18 @@ fn setup_build_root() -> &'static Utf8Path {
 }
 
 fn maybe_reconfigure_build(build_file: &Utf8Path, path: &str) {
-    run_silent(
-        Command::new("ninja")
-            .arg("-f")
-            .arg(build_file)
-            .arg("build_run_configure")
-            .env("PATH", path),
-    );
+    let output = Command::new("ninja")
+        .arg("-f")
+        .arg(build_file)
+        .arg("build_run_configure")
+        .env("PATH", path)
+        .output()
+        .expect("ninja installed");
+    if !output.status.success() {
+        fs::remove_file(build_file).expect("build file removal");
+        panic!("{}Reconfigure failed, which can happen when files are renamed/removed. Please try again.",
+        String::from_utf8(output.stderr).unwrap());
+    }
 }
 
 fn bootstrap_build() {
