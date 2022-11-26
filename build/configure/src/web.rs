@@ -463,7 +463,7 @@ fn build_and_check_mathjax(build: &mut Build) -> Result<()> {
             script: "ts/transform_ts.mjs".into(),
             entrypoint: "ts/mathjax/index.ts".into(),
             deps: files.clone(),
-            output_stem: "ts/mathjax",
+            output_stem: "ts/mathjax/mathjax",
             extra_exts: &[],
         },
     )?;
