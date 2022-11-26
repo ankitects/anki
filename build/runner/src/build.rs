@@ -124,17 +124,17 @@ fn setup_build_root() -> &'static Utf8Path {
 }
 
 fn maybe_reconfigure_build(build_file: &Utf8Path, path: &str) {
-    let output = Command::new("ninja")
+    let status = Command::new("ninja")
         .arg("-f")
         .arg(build_file)
         .arg("build_run_configure")
         .env("PATH", path)
-        .output()
+        .status()
         .expect("ninja installed");
-    if !output.status.success() {
-        fs::remove_file(build_file).expect("build file removal");
-        panic!("{}Reconfigure failed, which can happen when files are renamed/removed. Please try again.",
-        String::from_utf8(output.stderr).unwrap());
+    if !status.success() {
+        // The existing build.ninja may be invalid if files have been renamed/removed;
+        // resort to a slower cargo invocation instead to regenerate it.
+        bootstrap_build();
     }
 }
 
