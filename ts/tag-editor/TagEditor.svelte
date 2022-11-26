@@ -114,14 +114,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export function appendEmptyTag(): void {
         // used by tag badge and tag spacer
         deselect();
+        const tagsHadFocus = active === null;
+        active = null;
+
         const lastTag = tagTypes[tagTypes.length - 1];
 
         if (!lastTag || lastTag.name.length > 0) {
             appendTagAndFocusAt(tagTypes.length - 1, "");
         }
-
-        const tagsHadFocus = active === null;
-        active = null;
 
         if (tagsHadFocus) {
             decideNextActive();
@@ -152,11 +152,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const splitOff = activeName.slice(end);
 
         activeName = current;
+        active = null;
         // await tag to update its name, so it can normalize correctly
         await tick();
 
         appendTagAndFocusAt(index, splitOff);
-        active = null;
         await tick();
 
         if (index === active) {
