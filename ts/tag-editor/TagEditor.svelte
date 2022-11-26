@@ -381,7 +381,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: shortenTags = shortenTags || assumedRows > 2;
     $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
 
-    $: dispatch("heightChange", { height: height * 1.15 });
+    $: dispatch("heightChange", { height: height + 1 });
 </script>
 
 <div class="tag-editor" on:focusout={deselectIfLeave} bind:offsetHeight={height}>
@@ -393,6 +393,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:tagdelete={deleteSelectedTags}
         on:tagappend={appendEmptyTag}
         {keyCombination}
+        --icon-align="baseline"
     />
 
     {#each tagTypes as tag, index (tag.id)}
@@ -501,6 +502,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .hide-tag :global(.tag) {
-        opacity: 0;
+        visibility: hidden;
     }
 </style>

@@ -56,6 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .tag {
         @include button.base($with-active: false, $with-disabled: false);
 
+        vertical-align: middle;
         font-size: var(--font-size);
         padding: 0;
 
