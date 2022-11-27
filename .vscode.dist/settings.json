@@ -15,7 +15,8 @@
         "./pylib",
         "out/pylib",
         "./pylib/anki/_vendor",
-        "out/qt"
+        "out/qt",
+        "qt"
     ],
     "python.formatting.provider": "black",
     "python.linting.mypyEnabled": false,
@@ -33,5 +34,6 @@
         ".bazel/**": true,
         "qt/bundle/PyOxidizer": true
     },
-    "rust-analyzer.cargo.buildScripts.enable": true
+    "rust-analyzer.cargo.buildScripts.enable": true,
+    "python.analysis.typeCheckingMode": "off"
 }
