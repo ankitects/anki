@@ -49,6 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import PaneContent from "../components/PaneContent.svelte";
     import { ResizablePane } from "../components/types";
     import { bridgeCommand } from "../lib/bridgecommand";
+    import * as tr from "../lib/ftl";
     import { TagEditor } from "../tag-editor";
     import TagAddButton from "../tag-editor/tag-options-button/TagAddButton.svelte";
     import { ChangeTimer } from "./change-timer";
@@ -560,7 +561,9 @@ the AddCards dialog) should be implemented in the user of this component.
     <HorizontalResizer
         panes={[fieldsPane, tagsPane]}
         showIndicator={$tagsCollapsed || snapTags}
-        tip={`Double click to ${$tagsCollapsed ? "expand" : "collapse"} tag editor`}
+        tip={$tagsCollapsed
+            ? tr.editingDoubleClickToExpand()
+            : tr.editingDoubleClickToCollapse()}
         {clientHeight}
         bind:this={lowerResizer}
         on:dblclick={() => snapResizer(!$tagsCollapsed)}
@@ -575,7 +578,7 @@ the AddCards dialog) should be implemented in the user of this component.
                 }}
                 keyCombination="Control+Shift+T"
             >
-                {@html tagAmount > 0 ? `${tagAmount} Tags` : ""}
+                {@html tagAmount > 0 ? `${tagAmount} ${tr.editingTags()}` : ""}
             </TagAddButton>
         </div>
     </HorizontalResizer>
