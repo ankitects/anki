@@ -195,7 +195,7 @@ impl SyncServer for LocalServer {
         let new_file: NamedTempFile;
         if !can_consume {
             new_file = new_tempfile()?;
-            fs::copy(col_path, &new_file.path())?;
+            fs::copy(col_path, new_file.path())?;
             col_path = new_file.path();
         }
 

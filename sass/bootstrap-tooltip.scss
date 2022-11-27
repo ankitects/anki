@@ -7,7 +7,7 @@ $tooltip-padding-y: 0.45rem;
 $tooltip-padding-x: 0.65rem;
 $tooltip-max-width: 300px;
 
-@import "sass/bootstrap/scss/tooltip";
+@import "bootstrap/scss/tooltip";
 
 .tooltip-inner {
     text-align: start;

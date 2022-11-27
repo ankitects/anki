@@ -1,7 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# coding: utf-8
+from __future__ import annotations
 
 import os
 import tempfile
@@ -19,8 +19,7 @@ def getEmptyCol():
     return col
 
 
-col = None
-ds = None
+col: Collection | None = None
 testDir = os.path.dirname(__file__)
 
 
@@ -79,7 +78,7 @@ def test_export_anki():
     newname = str(newname)
     os.close(fd)
     os.unlink(newname)
-    e.did = 1
+    e.did = DeckId(1)
     e.exportInto(newname)
     col2 = aopen(newname)
     assert col2.card_count() == 1

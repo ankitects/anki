@@ -12,22 +12,14 @@ There are a few steps you'll want to take before you start using an IDE.
 
 ### Python Environment
 
-For code completion of external Python modules, you'll need to create a Python
-venv and install Anki's dependencies into it. For example:
-
-```
-$ python3.9 -m venv ~/pyenv
-$ ~/pyenv/bin/pip install -r python/requirements.txt
-$ ~/pyenv/bin/pip install pyqt6 pyqt6-webengine
-```
-
-After doing so, you can set your editor's Python path to ~/pyenv/bin/python, eg
-in VS Code, ctrl/cmd+shift+p, then 'python: select interpreter'.
+For code completion of external Python modules, you can use the venv that is
+generated as part of the build process. After building Anki, the venv will be in
+`out/pyenv`. In VS Code, use ctrl/cmd+shift+p, then 'python: select
+interpreter'.
 
 ### Rust
 
-If you're planning to edit Rust code, install [Rustup](https://rustup.rs/), then
-run 'rustup install nightly'.
+You'll need Rust to be installed, which is required as part of the build process.
 
 ### Build First
 
@@ -39,31 +31,31 @@ regular build process, so for things to work correctly, use './run' or
 
 ### Setting up Recommended Workspace Settings
 
-To start off with some default workspace settings that are optimized for Anki development, please head to the project root and then run:
+To start off with some default workspace settings that are optimized for Anki
+development, please head to the project root and then run:
 
 ```
-cp -r .vscode.dist .vscode
+mkdir .vscode && cd .vscode
+ln -sf ../.vscode.dist/* .
 ```
 
 ### Installing Recommended Extensions
 
-Once the workspace settings are set up, open the root of the repo in VS Code to see and install a number of recommended extensions.
+Once the workspace settings are set up, open the root of the repo in VS Code to
+see and install a number of recommended extensions.
 
 ## PyCharm/IntelliJ
 
-If you decide to use PyCharm instead of VS Code, there are somethings to be aware of.
+If you decide to use PyCharm instead of VS Code, there are somethings to be
+aware of.
 
 ### Slowdowns
 
-The build process links a large file tree into .bazel in the repo dir. JetBrains
-products will try to monitor this folder for changes, and index the files inside
-it, which will lead to bad performance. Excluding the folder in the project
-settings is [not sufficient unfortunately](https://youtrack.jetbrains.com/issue/IDEA-73309).
+Excluding the node_modules folder inside the editor may improve performance:
 
-A workaround is to add .bazel and node_modules to the IDE-global ignores:
 https://intellij-support.jetbrains.com/hc/en-us/community/posts/115000721750-Excluding-directories-globally
 
 ### Pylib References
 
-You'll need to use File>Project Structure to tell IntelliJ that pylib/ is a sources root, so it knows
-references to 'anki' in aqt are valid.
+You'll need to use File>Project Structure to tell IntelliJ that pylib/ is a
+sources root, so it knows references to 'anki' in aqt are valid.

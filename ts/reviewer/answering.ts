@@ -1,8 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { postRequest } from "../lib/postrequest";
-import { Scheduler } from "../lib/proto";
+import { postRequest } from "@tslib/postrequest";
+import { Scheduler } from "@tslib/proto";
 
 interface CustomDataStates {
     again: Record<string, unknown>;

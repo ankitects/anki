@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "../lib/ftl";
+    import * as tr from "@tslib/ftl";
 </script>
 
 <div class="card-info-placeholder">{tr.cardStatsNoCard()}</div>

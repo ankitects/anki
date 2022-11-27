@@ -6,7 +6,8 @@ import { Position } from "../../location";
 import { Match } from "../match-type";
 import type { SplitRange } from "../split-text";
 import type { SurroundFormat } from "../surround-format";
-import { ElementNode, FormattingNode } from "../tree";
+import type { ElementNode} from "../tree";
+import { FormattingNode } from "../tree";
 
 function nodeWithinRange(node: Node, range: Range): boolean {
     const nodeRange = new Range();

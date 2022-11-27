@@ -1,0 +1,12 @@
+[package]
+name = "configure"
+
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ninja_gen = { "path" = "../ninja_gen" }
+workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }

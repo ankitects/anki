@@ -1,17 +1,10 @@
 #!/bin/bash
 
-# note: 5.14 is not available on Windows for Python 3.9
-
 set -e
 
-# automatically switch to an x86_64 build on macOS, as this
-# Qt version does not work on arm64
-prefix=""
-if [[ $OSTYPE == 'darwin'* ]]; then
-    if [ $(uname -m) = arm64 ]; then
-        prefix="arch -arch x86_64"
-    fi
-fi
-
 export PYTHONWARNINGS=default
-$prefix bazel run $BUILDARGS //qt:runanki_qt514 -- $*
+export PYTHONPYCACHEPREFIX=out/pycache
+export ANKIDEV=1
+
+./ninja pylib/anki qt/aqt pyenv-qt5.14
+./out/pyenv-qt5.14/bin/python tools/run.py $*

@@ -5,8 +5,9 @@
 See pylib/tools/genhooks.py for more info.
 """
 
-import os
 import sys
+
+sys.path.append("pylib/tools")
 
 from hookslib import Hook, write_file
 

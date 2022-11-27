@@ -9,9 +9,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Shortcut from "../components/Shortcut.svelte";
     import { execCommand } from "../domlib";
-    import { tagActionsShortcutsKey } from "../lib/context-keys";
-    import { isArrowDown, isArrowUp } from "../lib/keys";
-    import { Tags, tags as tagsService } from "../lib/proto";
+    import { tagActionsShortcutsKey } from "@tslib/context-keys";
+    import { isArrowDown, isArrowUp } from "@tslib/keys";
+    import { Tags, tags as tagsService } from "@tslib/proto";
     import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";

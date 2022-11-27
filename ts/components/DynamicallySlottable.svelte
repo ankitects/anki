@@ -9,8 +9,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         defaultProps,
         setSlotHostContext as defaultContext,
     } from "../sveltelib/dynamic-slotting";
-    import type ButtonGroupItem from "./ButtonGroupItem.svelte";
-    import type Item from "./Item.svelte";
 
     function id<T>(value: T): T {
         return value;
@@ -22,7 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
      * its props via .getProps().
      * For a minimal example, have a look at `Item.svelte`.
      */
-    export let slotHost: typeof Item | typeof ButtonGroupItem;
+    export let slotHost: any; // typeof Item | typeof ButtonGroupItem;
 
     /**
      * We cannot properly type these right now.
@@ -31,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         defaultProps as any;
     export let updatePropsList: any /* <T extends SlotHostProps>(list: T[]) => T[] */ =
         id;
-    export let setSlotHostContext = defaultContext;
+    export let setSlotHostContext: any = defaultContext;
     export let createInterface = defaultInterface;
 
     const { slotsInterface, resolveSlotContainer, dynamicSlotted } = dynamicSlotting(

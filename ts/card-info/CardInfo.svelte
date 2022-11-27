@@ -3,10 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { Stats } from "@tslib/proto";
+    import { Cards, stats as statsService } from "@tslib/proto";
+    
     import Container from "../components/Container.svelte";
     import Row from "../components/Row.svelte";
-    import type { Stats } from "../lib/proto";
-    import { Cards, stats as statsService } from "../lib/proto";
     import CardInfoPlaceholder from "./CardInfoPlaceholder.svelte";
     import CardStats from "./CardStats.svelte";
     import Revlog from "./Revlog.svelte";

@@ -2,4 +2,4 @@
 
 set -e
 
-BUILDARGS="--config opt" $(dirname $0)/../run $*
+RELEASE=1 $(dirname $0)/../run $*

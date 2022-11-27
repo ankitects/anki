@@ -64,7 +64,9 @@ export function getPlatformString(keyCombinationString: string): string {
 }
 
 function checkKey(event: KeyboardEvent, key: number): boolean {
-    return event.which === key;
+    // avoid deprecation warning
+    const which = event["which" + ""]
+    return which === key;
 }
 
 function partition<T>(predicate: (t: T) => boolean, items: T[]): [T[], T[]] {

@@ -5,23 +5,14 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import { CardType } from "@tslib/cards";
+import * as tr from "@tslib/ftl";
+import { localizedNumber } from "@tslib/i18n";
+import type { Cards, Stats } from "@tslib/proto";
+import { timeSpan } from "@tslib/time";
 import type { Bin } from "d3";
-import {
-    extent,
-    histogram,
-    interpolateBlues,
-    mean,
-    quantile,
-    scaleLinear,
-    scaleSequential,
-    sum,
-} from "d3";
+import { bin, extent, interpolateBlues, mean, quantile, scaleLinear, scaleSequential, sum } from "d3";
 
-import { CardType } from "../lib/cards";
-import * as tr from "../lib/ftl";
-import { localizedNumber } from "../lib/i18n";
-import type { Cards, Stats } from "../lib/proto";
-import { timeSpan } from "../lib/time";
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import type { HistogramData } from "./histogram-graph";
 
@@ -125,7 +116,7 @@ export function prepareIntervalData(
         (niceNecessary ? prescale.nice() : prescale).domain().map(increment),
     );
 
-    const bins = histogram()
+    const bins = bin()
         .domain(scale.domain() as [number, number])
         .thresholds(scale.ticks(desiredBars).flatMap(adjustTicks))(allIntervals);
 
@@ -136,9 +127,7 @@ export function prepareIntervalData(
     }
 
     const adjustedRange = scaleLinear().range([0.7, 0.3]);
-    const colourScale = scaleSequential((n) =>
-        interpolateBlues(adjustedRange(n)!),
-    ).domain([xMax!, xMin!]);
+    const colourScale = scaleSequential((n) => interpolateBlues(adjustedRange(n)!)).domain([xMax!, xMin!]);
 
     function hoverText(
         bin: Bin<number, number>,

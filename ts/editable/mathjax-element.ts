@@ -1,14 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { on } from "@tslib/events";
+
 import { placeCaretAfter, placeCaretBefore } from "../domlib/place-caret";
-import { on } from "../lib/events";
 import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
 import { FrameElement, frameElement } from "./frame-element";
 import Mathjax_svelte from "./Mathjax.svelte";
 
-const mathjaxTagPattern =
-    /<anki-mathjax(?:[^>]*?block="(.*?)")?[^>]*?>(.*?)<\/anki-mathjax>/gsu;
+const mathjaxTagPattern = /<anki-mathjax(?:[^>]*?block="(.*?)")?[^>]*?>(.*?)<\/anki-mathjax>/gsu;
 
 const mathjaxBlockDelimiterPattern = /\\\[(.*?)\\\]/gsu;
 const mathjaxInlineDelimiterPattern = /\\\((.*?)\\\)/gsu;
@@ -24,10 +24,7 @@ export const mathjaxConfig = {
     enabled: true,
 };
 
-export const Mathjax: DecoratedElementConstructor = class Mathjax
-    extends HTMLElement
-    implements DecoratedElement
-{
+export const Mathjax: DecoratedElementConstructor = class Mathjax extends HTMLElement implements DecoratedElement {
     static tagName = "anki-mathjax";
 
     static toStored(undecorated: string): string {
@@ -171,9 +168,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
             () => this.component!.selectAll(),
         );
 
-        this.removeMoveInEnd = on(this, "moveinend" as keyof HTMLElementEventMap, () =>
-            this.component!.selectAll(),
-        );
+        this.removeMoveInEnd = on(this, "moveinend" as keyof HTMLElementEventMap, () => this.component!.selectAll());
     }
 
     removeEventListeners(): void {

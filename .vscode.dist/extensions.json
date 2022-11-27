@@ -1,9 +1,8 @@
 {
     "recommendations": [
         "dprint.dprint",
-        "esbenp.prettier-vscode",
-        "bazelbuild.vscode-bazel",
         "ms-python.python",
+        "ms-python.black-formatter",
         "rust-lang.rust-analyzer",
         "svelte.svelte-vscode",
         "zxh404.vscode-proto3",

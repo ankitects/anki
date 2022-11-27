@@ -20,9 +20,6 @@ from tests.shared import getEmptyCol, getUpgradeDeckPath
 
 testDir = os.path.dirname(__file__)
 
-srcNotes = None
-srcCards = None
-
 
 def clear_tempfile(tf):
     """https://stackoverflow.com/questions/23212435/permission-denied-to-write-to-my-temporary-file"""
@@ -107,12 +104,12 @@ def test_anki2_diffmodel_templates():
     # import the first version of the model
     col = getUpgradeDeckPath("diffmodeltemplates-1.apkg")
     imp = AnkiPackageImporter(dst, col)
-    imp.dupeOnSchemaChange = True
+    imp.dupeOnSchemaChange = True  # type: ignore
     imp.run()
     # then the version with updated template
     col = getUpgradeDeckPath("diffmodeltemplates-2.apkg")
     imp = AnkiPackageImporter(dst, col)
-    imp.dupeOnSchemaChange = True
+    imp.dupeOnSchemaChange = True  # type: ignore
     imp.run()
     # collection should contain the note we imported
     assert dst.note_count() == 1

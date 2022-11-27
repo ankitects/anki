@@ -1,9 +1,11 @@
 [package]
 name = "linkchecker"
-version = "0.0.0"
-authors = ["Ankitects Pty Ltd and contributors"]
-edition = "2021"
-license = "AGPL-3.0-or-later"
+
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 
 # [[test]]
 # name = "links"
@@ -13,10 +15,17 @@ license = "AGPL-3.0-or-later"
 anki = { path = ".." }
 
 linkcheck = { git = "https://github.com/ankitects/linkcheck.git", rev = "2f20798ce521cc594d510d4e417e76d5eac04d4b" }
-reqwest = { git = "https://github.com/ankitects/reqwest.git", rev = "7591444614de02b658ddab125efba7b2bb4e2335", default-features = false, features = ["json","socks","stream","multipart", # the Bazel build scripts separate these out by platform
-  "native-tls","rustls-tls","rustls-tls-webpki-roots","rustls-tls-native-roots",] }
 
 futures = "0.3.24"
 itertools = "0.10.5"
 strum = { version = "0.24.1", features = ["derive"] }
 tokio = { version = "1.21.1", features = ["full"] }
+workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }
+
+[features]
+rustls = ["reqwest/rustls-tls", "reqwest/rustls-tls-native-roots"]
+native-tls = ["reqwest/native-tls"]
+
+[dependencies.reqwest]
+version = "0.11.3"
+default-features = false

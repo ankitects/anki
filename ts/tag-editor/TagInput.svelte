@@ -5,9 +5,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, getContext, onMount, tick } from "svelte";
 
-    import { tagActionsShortcutsKey } from "../lib/context-keys";
-    import { isArrowLeft, isArrowRight } from "../lib/keys";
-    import { registerShortcut } from "../lib/shortcuts";
+    import { tagActionsShortcutsKey } from "@tslib/context-keys";
+    import { isArrowLeft, isArrowRight } from "@tslib/keys";
+    import { registerShortcut } from "@tslib/shortcuts";
     import {
         delimChar,
         normalizeTagname,

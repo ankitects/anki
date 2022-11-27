@@ -5,19 +5,12 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import * as tr from "@tslib/ftl";
+import type { Cards, Stats } from "@tslib/proto";
+import { dayLabel } from "@tslib/time";
 import type { Bin } from "d3";
-import {
-    extent,
-    histogram,
-    interpolateBlues,
-    scaleLinear,
-    scaleSequential,
-    sum,
-} from "d3";
+import { bin, extent, interpolateBlues, scaleLinear, scaleSequential, sum } from "d3";
 
-import * as tr from "../lib/ftl";
-import type { Cards, Stats } from "../lib/proto";
-import { dayLabel } from "../lib/time";
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { GraphRange } from "./graph-helpers";
 import type { HistogramData } from "./histogram-graph";
@@ -78,7 +71,7 @@ export function buildHistogram(
     const desiredBars = Math.min(70, Math.abs(xMin!));
 
     const scale = scaleLinear().domain([xMin!, xMax]);
-    const bins = histogram()
+    const bins = bin()
         .domain(scale.domain() as any)
         .thresholds(scale.ticks(desiredBars))(data.daysAdded);
 
@@ -88,9 +81,7 @@ export function buildHistogram(
     }
 
     const adjustedRange = scaleLinear().range([0.7, 0.3]);
-    const colourScale = scaleSequential((n) =>
-        interpolateBlues(adjustedRange(n)!),
-    ).domain([xMax!, xMin!]);
+    const colourScale = scaleSequential((n) => interpolateBlues(adjustedRange(n)!)).domain([xMax!, xMin!]);
 
     const totalInPeriod = sum(bins, (bin) => bin.length);
     const periodDays = Math.abs(xMin!);

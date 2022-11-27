@@ -1,9 +1,0 @@
-filegroup(
-    name = "imgs",
-    srcs = glob([
-        "**/*.ico",
-        "**/*.png",
-        "**/*.svg",
-    ]),
-    visibility = ["//qt:__subpackages__"],
-)

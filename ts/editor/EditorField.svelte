@@ -23,7 +23,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         editingArea: EditingAreaAPI;
     }
 
-    import { registerPackage } from "../lib/runtime-require";
+    import { registerPackage } from "@tslib/runtime-require";
+    
     import contextProperty from "../sveltelib/context-property";
     import lifecycleHooks from "../sveltelib/lifecycle-hooks";
 
@@ -42,13 +43,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { collapsedKey, directionKey } from "@tslib/context-keys";
+    import { promiseWithResolver } from "@tslib/promise";
     import { onDestroy, setContext } from "svelte";
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
-
+    
     import Collapsible from "../components/Collapsible.svelte";
-    import { collapsedKey, directionKey } from "../lib/context-keys";
-    import { promiseWithResolver } from "../lib/promise";
     import type { Destroyable } from "./destroyable";
     import EditingArea from "./EditingArea.svelte";
 

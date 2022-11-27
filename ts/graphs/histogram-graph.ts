@@ -5,22 +5,12 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import { localizedNumber } from "@tslib/i18n";
 import type { Bin, ScaleLinear, ScaleSequential } from "d3";
-import {
-    area,
-    axisBottom,
-    axisLeft,
-    axisRight,
-    cumsum,
-    curveBasis,
-    max,
-    pointer,
-    scaleLinear,
-    select,
-} from "d3";
+import { area, axisBottom, axisLeft, axisRight, cumsum, curveBasis, max, pointer, scaleLinear, select } from "d3";
 
-import { localizedNumber } from "../lib/i18n";
-import { GraphBounds, setDataAvailable } from "./graph-helpers";
+import type { GraphBounds} from "./graph-helpers";
+import { setDataAvailable } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
 import { hideTooltip, showTooltip } from "./tooltip";
 
@@ -66,7 +56,7 @@ export function histogramGraph(
                     .ticks(7)
                     .tickSizeOuter(0)
                     .tickFormat((data.xTickFormat ?? axisTickFormat) as any),
-            ),
+            )
         )
         .attr("direction", "ltr");
 
@@ -84,7 +74,7 @@ export function histogramGraph(
                     .ticks(bounds.height / 50)
                     .tickSizeOuter(0)
                     .tickFormat(axisTickFormat as any),
-            ),
+            )
         )
         .attr("direction", "ltr");
 
@@ -102,7 +92,7 @@ export function histogramGraph(
             .attr("x", (d: any) => x(d.x0))
             .attr("y", (d: any) => y(binValue(d))!)
             .attr("height", (d: any) => y(0)! - y(binValue(d))!)
-            .attr("fill", (d) => data.colourScale(d.x1));
+            .attr("fill", (d: any) => data.colourScale(d.x1));
     };
 
     svg.select("g.bars")
@@ -118,10 +108,7 @@ export function histogramGraph(
                     .attr("height", 0)
                     .call(updateBar),
             (update) => update.call(updateBar),
-            (remove) =>
-                remove.call((remove) =>
-                    remove.transition(trans).attr("height", 0).attr("y", y(0)!),
-                ),
+            (remove) => remove.call((remove) => remove.transition(trans).attr("height", 0).attr("y", y(0)!)),
         );
 
     // cumulative area
@@ -139,7 +126,7 @@ export function histogramGraph(
                         .ticks(bounds.height / 50)
                         .tickSizeOuter(0)
                         .tickFormat(axisTickFormat as any),
-                ),
+                )
             )
             .attr("direction", "ltr");
 

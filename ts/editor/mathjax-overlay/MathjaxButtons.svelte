@@ -3,12 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@tslib/ftl";
     import { createEventDispatcher } from "svelte";
-
+    
     import ButtonGroup from "../../components/ButtonGroup.svelte";
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import IconButton from "../../components/IconButton.svelte";
-    import * as tr from "../../lib/ftl";
     import ClozeButtons from "../ClozeButtons.svelte";
     import { blockIcon, deleteIcon, inlineIcon } from "./icons";
 

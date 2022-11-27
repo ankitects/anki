@@ -5,6 +5,10 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import { CardQueue, CardType } from "@tslib/cards";
+import * as tr from "@tslib/ftl";
+import { localizedNumber } from "@tslib/i18n";
+import type { Cards, Stats } from "@tslib/proto";
 import {
     arc,
     cumsum,
@@ -18,10 +22,6 @@ import {
     select,
 } from "d3";
 
-import { CardQueue, CardType } from "../lib/cards";
-import * as tr from "../lib/ftl";
-import { localizedNumber } from "../lib/i18n";
-import type { Cards, Stats } from "../lib/proto";
 import type { GraphBounds } from "./graph-helpers";
 
 type Count = [string, number, boolean, string];
@@ -32,13 +32,13 @@ export interface GraphData {
 }
 
 const barColours = [
-    schemeBlues[5][2] /* new */,
-    schemeOranges[5][2] /* learn */,
-    schemeReds[5][2] /* relearn */,
-    schemeGreens[5][2] /* young */,
-    schemeGreens[5][3] /* mature */,
-    "#FFDC41" /* suspended */,
-    "grey" /* buried */,
+    schemeBlues[5][2], /* new */
+    schemeOranges[5][2], /* learn */
+    schemeReds[5][2], /* relearn */
+    schemeGreens[5][2], /* young */
+    schemeGreens[5][3], /* mature */
+    "#FFDC41", /* suspended */
+    "grey", /* buried */
 ];
 
 function countCards(cards: Cards.ICard[], separateInactive: boolean): Count[] {
@@ -83,7 +83,7 @@ function countCards(cards: Cards.ICard[], separateInactive: boolean): Count[] {
         }
     }
 
-    const extraQuery = separateInactive ? 'AND -("is:buried" OR "is:suspended")' : "";
+    const extraQuery = separateInactive ? "AND -(\"is:buried\" OR \"is:suspended\")" : "";
 
     const counts: Count[] = [
         [tr.statisticsCountsNewCards(), newCards, true, `"is:new"${extraQuery}`],
@@ -115,9 +115,9 @@ function countCards(cards: Cards.ICard[], separateInactive: boolean): Count[] {
             tr.statisticsCountsSuspendedCards(),
             suspended,
             separateInactive,
-            '"is:suspended"',
+            "\"is:suspended\"",
         ],
-        [tr.statisticsCountsBuriedCards(), buried, separateInactive, '"is:buried"'],
+        [tr.statisticsCountsBuriedCards(), buried, separateInactive, "\"is:buried\""],
     ];
 
     return counts;
@@ -196,7 +196,7 @@ export function renderCards(
                         return barColours[idx];
                     })
                     .attr("d", arcGen as any),
-            function (update) {
+            function(update) {
                 return update.call((d) =>
                     d.transition(trans).attrTween("d", (d) => {
                         const interpolator = interpolate(
@@ -204,7 +204,7 @@ export function renderCards(
                             d,
                         );
                         return (t): string => arcGen(interpolator(t) as any) as string;
-                    }),
+                    })
                 );
             },
         );
@@ -215,12 +215,12 @@ export function renderCards(
         const percent = localizedNumber((d.count / xMax) * 100, 2);
         return d.show
             ? ({
-                  label: d.label,
-                  count: localizedNumber(d.count),
-                  percent: `${percent}%`,
-                  colour: barColours[idx],
-                  query: d.query,
-              } as TableDatum)
+                label: d.label,
+                count: localizedNumber(d.count),
+                percent: `${percent}%`,
+                colour: barColours[idx],
+                query: d.query,
+            } as TableDatum)
             : [];
     });
 

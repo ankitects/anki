@@ -5,6 +5,9 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import * as tr from "@tslib/ftl";
+import { localizedNumber } from "@tslib/i18n";
+import { Stats } from "@tslib/proto";
 import {
     area,
     axisBottom,
@@ -19,15 +22,8 @@ import {
     select,
 } from "d3";
 
-import * as tr from "../lib/ftl";
-import { localizedNumber } from "../lib/i18n";
-import { Stats } from "../lib/proto";
-import {
-    GraphBounds,
-    GraphRange,
-    millisecondCutoffForRange,
-    setDataAvailable,
-} from "./graph-helpers";
+import type { GraphBounds, GraphRange} from "./graph-helpers";
+import { millisecondCutoffForRange, setDataAvailable } from "./graph-helpers";
 import { oddTickClass } from "./graph-styles";
 import { hideTooltip, showTooltip } from "./tooltip";
 
@@ -96,9 +92,7 @@ export function renderHours(
         .range([bounds.marginLeft, bounds.width - bounds.marginRight])
         .paddingInner(0.1);
     svg.select<SVGGElement>(".x-ticks")
-        .call((selection) =>
-            selection.transition(trans).call(axisBottom(x).tickSizeOuter(0)),
-        )
+        .call((selection) => selection.transition(trans).call(axisBottom(x).tickSizeOuter(0)))
         .selectAll(".tick")
         .selectAll("text")
         .classed(oddTickClass, (d: any): boolean => d % 2 != 0)
@@ -124,7 +118,7 @@ export function renderHours(
                     .ticks(bounds.height / 50)
                     .tickSizeOuter(0)
                     .tickFormat(yTickFormat as any),
-            ),
+            )
         )
         .attr("direction", "ltr");
 
@@ -156,10 +150,7 @@ export function renderHours(
                     // .attr("opacity", 0.7)
                     .call(updateBar),
             (update) => update.call(updateBar),
-            (remove) =>
-                remove.call((remove) =>
-                    remove.transition(trans).attr("height", 0).attr("y", y(0)!),
-                ),
+            (remove) => remove.call((remove) => remove.transition(trans).attr("height", 0).attr("y", y(0)!)),
         );
 
     svg.select<SVGGElement>(".y2-ticks")
@@ -169,7 +160,7 @@ export function renderHours(
                     .ticks(bounds.height / 50)
                     .tickFormat((n: any) => `${Math.round(n * 100)}%`)
                     .tickSizeOuter(0),
-            ),
+            )
         )
         .attr("direction", "ltr");
 

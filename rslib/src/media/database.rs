@@ -18,9 +18,9 @@ pub(super) fn open_or_create<P: AsRef<Path>>(path: P) -> Result<Connection> {
         db.trace(Some(trace));
     }
 
-    db.pragma_update(None, "page_size", &4096)?;
-    db.pragma_update(None, "legacy_file_format", &false)?;
-    db.pragma_update_and_check(None, "journal_mode", &"wal", |_| Ok(()))?;
+    db.pragma_update(None, "page_size", 4096)?;
+    db.pragma_update(None, "legacy_file_format", false)?;
+    db.pragma_update_and_check(None, "journal_mode", "wal", |_| Ok(()))?;
 
     initial_db_setup(&mut db)?;
 

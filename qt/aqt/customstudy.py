@@ -134,7 +134,7 @@ class CustomStudy(QDialog):
         form.spin.setVisible(True)
         form.cardType.setVisible(show_cram_type)
         form.title.setText(title_text)
-        form.title.setVisible(not not title_text)
+        form.title.setVisible(bool(title_text))
         form.spin.setMinimum(min_spinner_value)
         form.spin.setMaximum(max_spinner_value)
         if max_spinner_value > 0:

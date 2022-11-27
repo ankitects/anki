@@ -8,6 +8,7 @@
         "lib": ["es2019", "dom", "dom.iterable"],
         "types": ["jquery", "jqueryui"],
         "strict": true,
+        "isolatedModules": false,
         "noImplicitAny": false,
         "strictNullChecks": false,
         "strictPropertyInitialization": false,

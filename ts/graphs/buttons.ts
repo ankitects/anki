@@ -5,6 +5,9 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import * as tr from "@tslib/ftl";
+import { localizedNumber } from "@tslib/i18n";
+import { Stats } from "@tslib/proto";
 import {
     axisBottom,
     axisLeft,
@@ -17,15 +20,8 @@ import {
     sum,
 } from "d3";
 
-import * as tr from "../lib/ftl";
-import { localizedNumber } from "../lib/i18n";
-import { Stats } from "../lib/proto";
-import {
-    GraphBounds,
-    GraphRange,
-    millisecondCutoffForRange,
-    setDataAvailable,
-} from "./graph-helpers";
+import type { GraphBounds, GraphRange} from "./graph-helpers";
+import { millisecondCutoffForRange, setDataAvailable } from "./graph-helpers";
 import { hideTooltip, showTooltip } from "./tooltip";
 
 type ButtonCounts = [number, number, number, number];
@@ -165,24 +161,26 @@ export function renderButtons(
         .call((selection) =>
             selection.transition(trans).call(
                 axisBottom(xGroup)
-                    .tickFormat(((d: GroupKind) => {
-                        let kind: string;
-                        switch (d) {
-                            case "learning":
-                                kind = tr.statisticsCountsLearningCards();
-                                break;
-                            case "young":
-                                kind = tr.statisticsCountsYoungCards();
-                                break;
-                            case "mature":
-                            default:
-                                kind = tr.statisticsCountsMatureCards();
-                                break;
-                        }
-                        return `${kind} \u200e(${totalCorrect(d).percent}%)`;
-                    }) as any)
+                    .tickFormat(
+                        ((d: GroupKind) => {
+                            let kind: string;
+                            switch (d) {
+                                case "learning":
+                                    kind = tr.statisticsCountsLearningCards();
+                                    break;
+                                case "young":
+                                    kind = tr.statisticsCountsYoungCards();
+                                    break;
+                                case "mature":
+                                default:
+                                    kind = tr.statisticsCountsMatureCards();
+                                    break;
+                            }
+                            return `${kind} \u200e(${totalCorrect(d).percent}%)`;
+                        }) as any,
+                    )
                     .tickSizeOuter(0),
-            ),
+            )
         )
         .attr("direction", "ltr");
 
@@ -207,7 +205,7 @@ export function renderButtons(
                     .ticks(bounds.height / 50)
                     .tickSizeOuter(0)
                     .tickFormat(yTickFormat as any),
-            ),
+            )
         )
         .attr("direction", "ltr");
 
@@ -237,17 +235,13 @@ export function renderButtons(
                     .attr("rx", 1)
                     .attr(
                         "x",
-                        (d: Datum) =>
-                            xGroup(d.group)! + xButton(d.buttonNum.toString())!,
+                        (d: Datum) => xGroup(d.group)! + xButton(d.buttonNum.toString())!,
                     )
                     .attr("y", y(0)!)
                     .attr("height", 0)
                     .call(updateBar),
             (update) => update.call(updateBar),
-            (remove) =>
-                remove.call((remove) =>
-                    remove.transition(trans).attr("height", 0).attr("y", y(0)!),
-                ),
+            (remove) => remove.call((remove) => remove.transition(trans).attr("height", 0).attr("y", y(0)!)),
         );
 
     // hover/tooltip

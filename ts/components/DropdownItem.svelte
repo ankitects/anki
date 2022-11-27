@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: if (buttonRef && active) {
         setTimeout(() =>
-            buttonRef.scrollIntoView({
+            buttonRef!.scrollIntoView({
                 behavior: "smooth",
                 block: "nearest",
             }),
