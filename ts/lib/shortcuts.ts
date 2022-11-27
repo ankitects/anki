@@ -3,12 +3,7 @@
 
 import { on } from "./events";
 import type { Modifier } from "./keys";
-import {
-    checkIfModifierKey,
-    checkModifiers,
-    keyToPlatformString,
-    modifiersToPlatformString,
-} from "./keys";
+import { checkIfModifierKey, checkModifiers, keyToPlatformString, modifiersToPlatformString } from "./keys";
 import { registerPackage } from "./runtime-require";
 
 const keyCodeLookup = {
@@ -65,7 +60,7 @@ export function getPlatformString(keyCombinationString: string): string {
 
 function checkKey(event: KeyboardEvent, key: number): boolean {
     // avoid deprecation warning
-    const which = event["which" + ""]
+    const which = event["which" + ""];
     return which === key;
 }
 
@@ -101,8 +96,8 @@ const check =
     (keyCode: number, requiredModifiers: Modifier[], optionalModifiers: Modifier[]) =>
     (event: KeyboardEvent): boolean => {
         return (
-            checkKey(event, keyCode) &&
-            checkModifiers(requiredModifiers, optionalModifiers)(event)
+            checkKey(event, keyCode)
+            && checkModifiers(requiredModifiers, optionalModifiers)(event)
         );
     };
 
@@ -166,8 +161,7 @@ export function registerShortcut(
         event = defaultRegisterShortcutRestParams.event,
     } = restParams;
 
-    const [check, ...restChecks] =
-        splitKeyCombinationString(keyCombinationString).map(keyCombinationToCheck);
+    const [check, ...restChecks] = splitKeyCombinationString(keyCombinationString).map(keyCombinationToCheck);
 
     function handler(event: KeyboardEvent): void {
         if (check(event)) {

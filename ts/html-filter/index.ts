@@ -1,11 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import {
-    filterElementBasic,
-    filterElementExtended,
-    filterElementInternal,
-} from "./element";
+import { filterElementBasic, filterElementExtended, filterElementInternal } from "./element";
 import { filterNode } from "./node";
 
 enum FilterMode {
@@ -31,8 +27,7 @@ function trim(value: string): string {
 }
 
 const outputHTMLProcessors: Record<FilterMode, (outputHTML: string) => string> = {
-    [FilterMode.Basic]: (outputHTML: string): string =>
-        trim(collapseWhitespace(outputHTML)),
+    [FilterMode.Basic]: (outputHTML: string): string => trim(collapseWhitespace(outputHTML)),
     [FilterMode.Extended]: trim,
     [FilterMode.Internal]: trim,
 };

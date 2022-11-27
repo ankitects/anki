@@ -19,9 +19,9 @@ function imageLoaded(img: HTMLImageElement): Promise<void> {
     return img.complete
         ? Promise.resolve()
         : new Promise((resolve) => {
-              img.addEventListener("load", () => resolve());
-              img.addEventListener("error", () => resolve());
-          });
+            img.addEventListener("load", () => resolve());
+            img.addEventListener("error", () => resolve());
+        });
 }
 
 function clearPreloadLinks(): void {

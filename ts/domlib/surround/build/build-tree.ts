@@ -62,9 +62,9 @@ function buildFromElement<T>(
 
         if (
             // blocking
-            only instanceof BlockNode ||
+            only instanceof BlockNode
             // ascension
-            (only instanceof FormattingNode && format.tryAscend(only, matchNode))
+            || (only instanceof FormattingNode && format.tryAscend(only, matchNode))
         ) {
             return [only];
         }

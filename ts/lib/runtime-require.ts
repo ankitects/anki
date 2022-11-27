@@ -52,17 +52,17 @@ export function registerPackage<
 >(name: T, entries: U, deprecation?: PackageDeprecation<U>): void {
     const pack = deprecation
         ? new Proxy(entries, {
-              set: prohibit,
-              defineProperty: prohibit,
-              deleteProperty: prohibit,
-              get: (target, name: string) => {
-                  if (name in deprecation) {
-                      console.log(`anki: ${name} is deprecated: ${deprecation[name]}`);
-                  }
+            set: prohibit,
+            defineProperty: prohibit,
+            deleteProperty: prohibit,
+            get: (target, name: string) => {
+                if (name in deprecation) {
+                    console.log(`anki: ${name} is deprecated: ${deprecation[name]}`);
+                }
 
-                  return target[name];
-              },
-          })
+                return target[name];
+            },
+        })
         : entries;
 
     registerPackageRaw(name, pack);

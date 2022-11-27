@@ -9,9 +9,8 @@ export function randomUUID(): string {
 
     return value.replace(/[018]/g, (character: string): string =>
         (
-            Number(character) ^
-            (crypto.getRandomValues(new Uint8Array(1))[0] &
-                (15 >> (Number(character) / 4)))
-        ).toString(16),
-    );
+            Number(character)
+            ^ (crypto.getRandomValues(new Uint8Array(1))[0]
+                & (15 >> (Number(character) / 4)))
+        ).toString(16));
 }

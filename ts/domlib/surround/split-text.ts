@@ -10,8 +10,8 @@ function length(node: Node): number {
     if (node instanceof CharacterData) {
         return node.length;
     } else if (
-        node.nodeType === Node.DOCUMENT_TYPE_NODE ||
-        node.nodeType === Node.ATTRIBUTE_NODE
+        node.nodeType === Node.DOCUMENT_TYPE_NODE
+        || node.nodeType === Node.ATTRIBUTE_NODE
     ) {
         return 0;
     }

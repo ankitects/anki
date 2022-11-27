@@ -3,18 +3,8 @@
 
 import type { Matcher } from "../find-above";
 import { findFarthest } from "../find-above";
-import {
-    apply,
-    ApplyFormat,
-    ReformatApplyFormat,
-    UnsurroundApplyFormat,
-} from "./apply";
-import {
-    build,
-    BuildFormat,
-    ReformatBuildFormat,
-    UnsurroundBuildFormat,
-} from "./build";
+import { apply, ApplyFormat, ReformatApplyFormat, UnsurroundApplyFormat } from "./apply";
+import { build, BuildFormat, ReformatBuildFormat, UnsurroundBuildFormat } from "./build";
 import { boolMatcher } from "./match-type";
 import { splitPartiallySelected } from "./split-text";
 import type { SurroundFormat } from "./surround-format";
@@ -53,7 +43,7 @@ function reformatInner<T>(
  * Assumes that there are no matching ancestor elements above
  * `range.commonAncestorContainer`. Make sure that the range is not placed
  * inside the format before using this.
- **/
+ */
 export function surround<T>(
     range: Range,
     base: Element,

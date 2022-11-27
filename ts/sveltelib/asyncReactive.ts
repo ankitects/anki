@@ -31,7 +31,7 @@ function useAsyncReactive<T, E>(
 
     const error = derived(
         promise,
-        ($promise, set: (error: E | null) => void): (() => void) => {
+        ($promise, set: (error: E | null) => void): () => void => {
             $promise?.catch((error: E) => set(error));
             return (): void => set(null);
         },
@@ -40,7 +40,7 @@ function useAsyncReactive<T, E>(
 
     const loading = derived(
         promise,
-        ($promise, set: (value: boolean) => void): (() => void) => {
+        ($promise, set: (value: boolean) => void): () => void => {
             $promise?.finally(() => set(false));
             return (): void => set(true);
         },

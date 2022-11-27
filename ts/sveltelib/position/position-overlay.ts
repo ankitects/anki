@@ -1,12 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type {
-    ComputePositionConfig,
-    FloatingElement,
-    Middleware,
-    ReferenceElement,
-} from "@floating-ui/dom";
+import type { ComputePositionConfig, FloatingElement, Middleware, ReferenceElement } from "@floating-ui/dom";
 import { computePosition, inline, offset } from "@floating-ui/dom";
 
 import type { PositionAlgorithm } from "./position-algorithm";
@@ -22,7 +17,7 @@ function positionOverlay({
     inline: inlineArg,
     hideCallback,
 }: PositionOverlayArgs): PositionAlgorithm {
-    return async function (
+    return async function(
         reference: ReferenceElement,
         floating: FloatingElement,
     ): Promise<void> {

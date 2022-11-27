@@ -14,24 +14,22 @@ function iterateElement(
     }
 }
 
-export const filterNode =
-    (elementFilter: (element: Element) => void) =>
-    (node: Node): void => {
-        switch (node.nodeType) {
-            case Node.COMMENT_NODE:
-                removeNode(node);
-                break;
+export const filterNode = (elementFilter: (element: Element) => void) => (node: Node): void => {
+    switch (node.nodeType) {
+        case Node.COMMENT_NODE:
+            removeNode(node);
+            break;
 
-            case Node.DOCUMENT_FRAGMENT_NODE:
-                iterateElement(filterNode(elementFilter), node as DocumentFragment);
-                break;
+        case Node.DOCUMENT_FRAGMENT_NODE:
+            iterateElement(filterNode(elementFilter), node as DocumentFragment);
+            break;
 
-            case Node.ELEMENT_NODE:
-                iterateElement(filterNode(elementFilter), node as Element);
-                elementFilter(node as Element);
-                break;
+        case Node.ELEMENT_NODE:
+            iterateElement(filterNode(elementFilter), node as Element);
+            elementFilter(node as Element);
+            break;
 
-            default:
+        default:
             // do nothing
-        }
-    };
+    }
+};
