@@ -230,7 +230,11 @@ pub fn check_python(build: &mut Build) -> Result<()> {
                 "python",
                 "tools",
             ],
-            deps: inputs![glob!["{pylib,ftl,qt}/**/*.{py,pyi}"], ":pylib/anki"],
+            deps: inputs![
+                glob!["{pylib,ftl,qt}/**/*.{py,pyi}"],
+                ":pylib/anki",
+                ":qt/aqt"
+            ],
         },
     )?;
 
@@ -285,6 +289,7 @@ fn add_pylint(build: &mut Build) -> Result<()> {
             pylint_ini: inputs![".pylintrc"],
             deps: inputs![
                 ":pylint/anki",
+                ":qt/aqt",
                 glob!("{pylib/tools,ftl,qt,python,tools}/**/*.py")
             ],
         },
