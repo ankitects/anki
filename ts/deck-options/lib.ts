@@ -4,7 +4,7 @@
 import { localeCompare } from "@tslib/i18n";
 import { DeckConfig, deckConfig } from "@tslib/proto";
 import { cloneDeep, isEqual } from "lodash-es";
-import type { Readable, Writable} from "svelte/store";
+import type { Readable, Writable } from "svelte/store";
 import { get, readable, writable } from "svelte/store";
 
 import type { DynamicSvelteComponent } from "../sveltelib/dynamicComponent";

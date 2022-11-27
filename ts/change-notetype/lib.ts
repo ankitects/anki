@@ -4,7 +4,7 @@
 import * as tr from "@tslib/ftl";
 import { Notetypes, notetypes } from "@tslib/proto";
 import { isEqual } from "lodash-es";
-import type { Readable} from "svelte/store";
+import type { Readable } from "svelte/store";
 import { readable } from "svelte/store";
 
 function nullToNegativeOne(list: (number | null)[]): number[] {

@@ -10,9 +10,11 @@ function normalizeFragment(fragment: DocumentFragment): void {
     fragment.normalize();
 
     for (const decorated of decoratedElements) {
-        for (const element of fragment.querySelectorAll(
-            decorated.tagName,
-        ) as NodeListOf<DecoratedElement>) {
+        for (
+            const element of fragment.querySelectorAll(
+                decorated.tagName,
+            ) as NodeListOf<DecoratedElement>
+        ) {
             element.undecorate();
         }
     }

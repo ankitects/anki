@@ -83,7 +83,7 @@ class FakeMatch implements MatchType<never> {
 export function boolMatcher<T>(
     format: SurroundFormat<T>,
 ): (element: Element) => boolean {
-    return function (element: Element): boolean {
+    return function(element: Element): boolean {
         const fake = new FakeMatch();
         format.matcher(element as HTMLElement | SVGElement, fake);
         return fake.value;

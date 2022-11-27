@@ -9,8 +9,7 @@ import * as tr from "@tslib/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import { Stats } from "@tslib/proto";
 import { dayLabel, timeSpan } from "@tslib/time";
-import type { Bin ,
-    ScaleSequential} from "d3";
+import type { Bin, ScaleSequential } from "d3";
 import {
     area,
     axisBottom,
@@ -32,7 +31,7 @@ import {
     sum,
 } from "d3";
 
-import type { GraphBounds,TableDatum } from "./graph-helpers";
+import type { GraphBounds, TableDatum } from "./graph-helpers";
 import { GraphRange, setDataAvailable } from "./graph-helpers";
 import { hideTooltip, showTooltip } from "./tooltip";
 

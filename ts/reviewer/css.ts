@@ -19,18 +19,16 @@ export async function maybePreloadExternalCss(html: string): Promise<void> {
 }
 
 function clearPreloadedCss(): void {
-    [...document.head.getElementsByClassName(preloadCssClassName)].forEach((css) =>
-        css.remove(),
-    );
+    [...document.head.getElementsByClassName(preloadCssClassName)].forEach((css) => css.remove());
 }
 
 function extractExternalCssElements(fragment: DocumentFragment): CssElementType[] {
-    return <CssElementType[]>(
+    return <CssElementType[]> (
         [...fragment.querySelectorAll("style, link")].filter(
             (css) =>
-                (css instanceof HTMLStyleElement &&
-                    css.innerHTML.includes("@import")) ||
-                (css instanceof HTMLLinkElement && css.rel === "stylesheet"),
+                (css instanceof HTMLStyleElement
+                    && css.innerHTML.includes("@import"))
+                || (css instanceof HTMLLinkElement && css.rel === "stylesheet"),
         )
     );
 }

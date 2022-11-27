@@ -19,7 +19,7 @@ import {
     timeYear,
 } from "d3";
 
-import type { GraphBounds, SearchDispatch} from "./graph-helpers";
+import type { GraphBounds, SearchDispatch } from "./graph-helpers";
 import { RevlogRange, setDataAvailable } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
 import { hideTooltip, showTooltip } from "./tooltip";

@@ -5,7 +5,6 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-
 import { DeckConfig } from "@tslib/proto";
 import { get } from "svelte/store";
 

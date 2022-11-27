@@ -22,7 +22,7 @@ import {
     select,
 } from "d3";
 
-import type { GraphBounds, GraphRange} from "./graph-helpers";
+import type { GraphBounds, GraphRange } from "./graph-helpers";
 import { millisecondCutoffForRange, setDataAvailable } from "./graph-helpers";
 import { oddTickClass } from "./graph-styles";
 import { hideTooltip, showTooltip } from "./tooltip";

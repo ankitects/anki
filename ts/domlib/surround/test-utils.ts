@@ -3,13 +3,11 @@
 
 import type { MatchType } from "./match-type";
 
-export const matchTagName =
-    (tagName: string) =>
-    <T>(element: Element, match: MatchType<T>): void => {
-        if (element.matches(tagName)) {
-            match.remove();
-        }
-    };
+export const matchTagName = (tagName: string) => <T>(element: Element, match: MatchType<T>): void => {
+    if (element.matches(tagName)) {
+        match.remove();
+    }
+};
 
 export const easyBold = {
     surroundElement: document.createElement("b"),
@@ -38,7 +36,7 @@ export function t(data: string): Text {
 }
 
 function element(tagName: string): (...childNodes: Node[]) => HTMLElement {
-    return function (...childNodes: Node[]): HTMLElement {
+    return function(...childNodes: Node[]): HTMLElement {
         const element = document.createElement(tagName);
         element.append(...childNodes);
         return element;

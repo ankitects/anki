@@ -6,7 +6,7 @@ import { Position } from "../../location";
 import { Match } from "../match-type";
 import type { SplitRange } from "../split-text";
 import type { SurroundFormat } from "../surround-format";
-import type { ElementNode} from "../tree";
+import type { ElementNode } from "../tree";
 import { FormattingNode } from "../tree";
 
 function nodeWithinRange(node: Node, range: Range): boolean {
@@ -14,9 +14,9 @@ function nodeWithinRange(node: Node, range: Range): boolean {
     nodeRange.selectNodeContents(node);
 
     return (
-        range.compareBoundaryPoints(Range.START_TO_START, nodeRange) !==
-            Position.After &&
-        range.compareBoundaryPoints(Range.END_TO_END, nodeRange) !== Position.Before
+        range.compareBoundaryPoints(Range.START_TO_START, nodeRange)
+            !== Position.After
+        && range.compareBoundaryPoints(Range.END_TO_END, nodeRange) !== Position.Before
     );
 }
 
