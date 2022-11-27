@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "@tslib/bridgecommand";
     import type { SvelteComponentDev } from "svelte/internal";
     import { writable } from "svelte/store";
-    
+
     import { pageTheme } from "../sveltelib/theme";
     import WithGraphData from "./WithGraphData.svelte";
 

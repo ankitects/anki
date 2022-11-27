@@ -10,18 +10,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { singleCallback } from "@tslib/typing";
     import { getContext } from "svelte";
     import type { Readable } from "svelte/store";
-    
+
     import DropdownItem from "../../components/DropdownItem.svelte";
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
     import type { SpecialKeyParams } from "../../sveltelib/input-handler";
     import type { EditingInputAPI } from "../EditingArea.svelte";
     import { context } from "../NoteEditor.svelte";
-    import type {
-        RichTextInputAPI} from "../rich-text-input/RichTextInput.svelte";
-    import {
-        editingInputIsRichText
-    } from "../rich-text-input/RichTextInput.svelte";
+    import type { RichTextInputAPI } from "../rich-text-input/RichTextInput.svelte";
+    import { editingInputIsRichText } from "../rich-text-input/RichTextInput.svelte";
     import { findSymbols, getAutoInsertSymbol, getExactSymbol } from "./symbols-table";
     import type {
         SymbolsEntry as SymbolsEntryType,

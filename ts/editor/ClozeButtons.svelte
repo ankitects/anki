@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString } from "@tslib/shortcuts";
     import { createEventDispatcher } from "svelte";
     import { get } from "svelte/store";
-    
+
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import IconButton from "../components/IconButton.svelte";
     import Shortcut from "../components/Shortcut.svelte";

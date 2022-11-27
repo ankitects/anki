@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@tslib/ftl";
     import type { Notetypes } from "@tslib/proto";
-    
+
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
 

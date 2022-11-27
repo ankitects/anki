@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { promiseWithResolver } from "@tslib/promise";
     import { registerPackage } from "@tslib/runtime-require";
     import { getPlatformString } from "@tslib/shortcuts";
-    
+
     import ButtonGroup from "../../components/ButtonGroup.svelte";
     import ButtonGroupItem, {
         createProps,

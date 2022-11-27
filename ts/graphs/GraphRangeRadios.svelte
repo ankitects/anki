@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@tslib/ftl";
     import { MONTH, timeSpan, YEAR } from "@tslib/time";
-    
+
     import { GraphRange, RevlogRange } from "./graph-helpers";
 
     export let revlogRange: RevlogRange;

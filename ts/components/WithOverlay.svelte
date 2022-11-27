@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { singleCallback } from "@tslib/typing";
     import { createEventDispatcher } from "svelte";
     import type { ActionReturn } from "svelte/action";
-    
+
     import isClosingClick from "../sveltelib/closing-click";
     import isClosingKeyup from "../sveltelib/closing-keyup";
     import type { EventPredicateResult } from "../sveltelib/event-predicate";

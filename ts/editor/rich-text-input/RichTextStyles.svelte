@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { promiseWithResolver } from "@tslib/promise";
-    
+
     import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
     import CustomStyles from "./CustomStyles.svelte";
 

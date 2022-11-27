@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@tslib/ftl";
-    
+
     import Badge from "../components/Badge.svelte";
     import Col from "../components/Col.svelte";
     import Container from "../components/Container.svelte";
@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import StickyContainer from "../components/StickyContainer.svelte";
     import Alert from "./Alert.svelte";
     import { exclamationIcon } from "./icons";
-    import type { ChangeNotetypeState} from "./lib";
+    import type { ChangeNotetypeState } from "./lib";
     import { MapContext } from "./lib";
 
     export let state: ChangeNotetypeState;

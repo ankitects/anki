@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { noop } from "@tslib/functional";
     import type Modal from "bootstrap/js/dist/modal";
     import { createEventDispatcher, getContext } from "svelte";
-    
+
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import { modalsKey } from "../components/context-keys";

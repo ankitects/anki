@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { empty, Stats, stats } from "@tslib/proto";
     import type { Writable } from "svelte/store";
-    
+
     import useAsync from "../sveltelib/async";
     import useAsyncReactive from "../sveltelib/asyncReactive";
     import type { PreferenceRaw } from "../sveltelib/preferences";
