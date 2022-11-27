@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
     import { getPlatformString, registerShortcut } from "@tslib/shortcuts";
     import { createEventDispatcher, onMount } from "svelte";
-    
+
     import Badge from "../components/Badge.svelte";
     import { context as editorFieldContext } from "./EditorField.svelte";
     import { plainTextIcon } from "./icons";

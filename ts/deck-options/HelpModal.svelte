@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Carousel from "bootstrap/js/dist/carousel";
     import Modal from "bootstrap/js/dist/modal";
     import { createEventDispatcher, getContext, onMount } from "svelte";
-    
+
     import Badge from "../components/Badge.svelte";
     import Col from "../components/Col.svelte";
     import { modalsKey } from "../components/context-keys";

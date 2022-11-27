@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getContext } from "svelte";
     import { createEventDispatcher } from "svelte";
     import type { Readable } from "svelte/store";
-    
+
     import ButtonGroup from "../../components/ButtonGroup.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import { floatLeftIcon, floatNoneIcon, floatRightIcon } from "./icons";

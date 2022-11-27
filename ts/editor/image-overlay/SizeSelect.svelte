@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
     import { createEventDispatcher, getContext } from "svelte";
     import type { Readable } from "svelte/store";
-    
+
     import ButtonGroup from "../../components/ButtonGroup.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import { sizeActual, sizeClear, sizeMinimized } from "./icons";

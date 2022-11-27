@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString } from "@tslib/shortcuts";
     import { singleCallback } from "@tslib/typing";
     import { onMount } from "svelte";
-    
+
     import CheckBox from "../../components/CheckBox.svelte";
     import DropdownItem from "../../components/DropdownItem.svelte";
     import IconButton from "../../components/IconButton.svelte";

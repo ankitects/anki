@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { withCollapsedWhitespace } from "@tslib/i18n";
     import { getPlatformString } from "@tslib/shortcuts";
     import { createEventDispatcher, tick } from "svelte";
-    
+
     import DropdownDivider from "../components/DropdownDivider.svelte";
     import DropdownItem from "../components/DropdownItem.svelte";
     import LabelButton from "../components/IconButton.svelte";

@@ -18,7 +18,7 @@
         "**/node_modules",
         "out/**",
         "**/*-lock.json",
-        "**/*.{ts,svelte}",
+        "**/*.{ts}",
         "qt/aqt/data/web/js/vendor/*.js",
         "ftl/qt-repo",
         "ftl/core-repo",

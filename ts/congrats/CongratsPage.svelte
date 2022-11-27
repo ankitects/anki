@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeLink } from "@tslib/bridgecommand";
     import * as tr from "@tslib/ftl";
     import type { Scheduler } from "@tslib/proto";
-    
+
     import Col from "../components/Col.svelte";
     import Container from "../components/Container.svelte";
     import { buildNextLearnMsg } from "./lib";

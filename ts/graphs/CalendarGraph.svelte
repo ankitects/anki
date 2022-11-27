@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
     import type { Stats } from "@tslib/proto";
     import { createEventDispatcher } from "svelte";
-    
+
     import type { PreferenceStore } from "../sveltelib/preferences";
     import AxisTicks from "./AxisTicks.svelte";
     import type { GraphData } from "./calendar";

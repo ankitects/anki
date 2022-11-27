@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@tslib/ftl";
-    
+
     import type { GraphBounds } from "./graph-helpers";
 
     export let bounds: GraphBounds;

@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { removeStyleProperties } from "@tslib/styling";
     import { singleCallback } from "@tslib/typing";
     import { onMount } from "svelte";
-    
+
     import IconButton from "../../components/IconButton.svelte";
     import type { FormattingNode, MatchType } from "../../domlib/surround";
     import { chevronDown } from "../icons";

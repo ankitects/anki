@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@tslib/ftl";
     import type { Stats } from "@tslib/proto";
-    
+
     import AxisTicks from "./AxisTicks.svelte";
     import { renderButtons } from "./buttons";
     import Graph from "./Graph.svelte";

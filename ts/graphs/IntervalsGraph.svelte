@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Stats } from "@tslib/proto";
     import { MONTH, timeSpan } from "@tslib/time";
     import { createEventDispatcher } from "svelte";
-    
+
     import type { PreferenceStore } from "../sveltelib/preferences";
     import Graph from "./Graph.svelte";
     import type { SearchEventMap, TableDatum } from "./graph-helpers";

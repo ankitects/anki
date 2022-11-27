@@ -5,7 +5,7 @@
 <script lang="ts">
     import * as tr from "@tslib/ftl";
     import { marked } from "marked";
-    
+
     import Row from "../components/Row.svelte";
     import type { DeckOption } from "./types";
 

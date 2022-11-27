@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@tslib/ftl";
     import { slide } from "svelte/transition";
-    
+
     import Badge from "../components/Badge.svelte";
     import { minusIcon, plusIcon } from "./icons";
     import { MapContext } from "./lib";

@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { isApplePlatform } from "@tslib/platform";
     import { createEventDispatcher, tick } from "svelte";
     import type { Writable } from "svelte/store";
-    
+
     import Popover from "../components/Popover.svelte";
     import WithFloating from "../components/WithFloating.svelte";
     import AutocompleteItem from "./AutocompleteItem.svelte";

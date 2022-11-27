@@ -6,7 +6,7 @@
     import * as tr from "@tslib/ftl";
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
-    
+
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
