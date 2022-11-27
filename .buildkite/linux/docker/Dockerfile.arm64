@@ -53,12 +53,6 @@ RUN apt-get update && apt install --yes gnupg ca-certificates && \
     # -- end only required for arm64/debian11    
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-arm64 \
-    -o /usr/local/bin/bazel \
-    && chmod +x /usr/local/bin/bazel
-
-RUN ln -sf /usr/bin/python3 /usr/bin/python
-
 RUN mkdir -p /etc/buildkite-agent/hooks && chown -R user /etc/buildkite-agent
 
 COPY buildkite.cfg /etc/buildkite-agent/buildkite-agent.cfg
