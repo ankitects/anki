@@ -78,7 +78,13 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
                 // changes to the ftl files trigger a rebuild
                 ":rslib/i18n",
                 // when env vars change the build hash gets updated
-                "$builddir/build.ninja"
+                "$builddir/build.ninja",
+                // building on Windows requires python3.lib
+                if cfg!(windows) {
+                    inputs![":extract:python"]
+                } else {
+                    inputs![]
+                }
             ],
             outputs: &[RustOutput::DynamicLib("rsbridge")],
             target: overriden_rust_target_triple(),

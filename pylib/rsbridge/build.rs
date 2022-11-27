@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::path::Path;
+
 fn main() {
     // macOS needs special link flags for PyO3
     if cfg!(target_os = "macos") {
@@ -9,10 +11,11 @@ fn main() {
         println!("cargo:rustc-link-arg=-mmacosx-version-min=10.13");
     }
 
-    // add a custom link path if required
-    if let Ok(path) = std::env::var("PYO3_PYTHON") {
-        println!("cargo:rerun-if-env-changed=PYO3_PYTHON");
-        let path = std::path::Path::new(&path).with_file_name("libs");
-        println!("cargo:rustc-link-search={}", path.to_str().unwrap());
+    // On Windows, we need to be able to link with python3.lib
+    if cfg!(windows) {
+        let lib_path = Path::new("../../out/extracted/python/libs")
+            .canonicalize()
+            .expect("libs");
+        println!("cargo:rustc-link-search={}", lib_path.display());
     }
 }

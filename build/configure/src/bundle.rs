@@ -47,7 +47,7 @@ pub fn build_bundle(build: &mut Build, python_binary: &BuildInput) -> Result<()>
 
     // bundle venv into output binary + extra_files
     build_pyoxidizer(build)?;
-    build_artifacts(build, python_binary)?;
+    build_artifacts(build)?;
     build_binary(build)?;
 
     // package up outputs with Qt/other deps
@@ -261,18 +261,15 @@ fn build_pyoxidizer(build: &mut Build) -> Result<()> {
     Ok(())
 }
 
-struct BuildArtifacts<'a> {
-    python_binary: &'a BuildInput,
-}
+struct BuildArtifacts {}
 
-impl BuildAction for BuildArtifacts<'_> {
+impl BuildAction for BuildArtifacts {
     fn command(&self) -> &str {
-        "$runner build-artifacts $bundle_root $pyoxidizer_bin $python_bin"
+        "$runner build-artifacts $bundle_root $pyoxidizer_bin"
     }
 
     fn files(&mut self, build: &mut impl ninja_gen::build::FilesHandle) {
         build.add_inputs("pyoxidizer_bin", inputs![":bundle:pyoxidizer:bin"]);
-        build.add_inputs("python_bin", self.python_binary);
         build.add_inputs("", inputs![PRIMARY_VENV.label_as_target("")]);
         build.add_inputs("", inputs![":bundle:add_wheels:qt6", glob!["qt/bundle/**"]]);
         build.add_variable("bundle_root", "$builddir/bundle");
@@ -288,8 +285,8 @@ impl BuildAction for BuildArtifacts<'_> {
     }
 }
 
-fn build_artifacts(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
-    build.add("bundle:artifacts", BuildArtifacts { python_binary })
+fn build_artifacts(build: &mut Build) -> Result<()> {
+    build.add("bundle:artifacts", BuildArtifacts {})
 }
 
 struct BuildBundle {}

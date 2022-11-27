@@ -62,17 +62,6 @@ pub fn run_build(args: BuildArgs) {
         // Updating svelte-check or its deps will likely remove the need for it.
         .env("NODE_OPTIONS", "--no-experimental-fetch");
 
-    if cfg!(windows) {
-        command.env(
-            "PYO3_PYTHON",
-            build_root
-                .canonicalize_utf8()
-                .unwrap()
-                .join("extracted/python/python.exe")
-                .as_str(),
-        );
-    }
-
     // run build
     let status = command.status().expect("ninja not installed");
     let mut stdout = StandardStream::stdout(ColorChoice::Always);

@@ -12,7 +12,6 @@ use crate::run::run_silent;
 pub struct BuildArtifactsArgs {
     bundle_root: Utf8PathBuf,
     pyoxidizer_bin: String,
-    python_bin: String,
 }
 
 pub fn build_artifacts(args: BuildArtifactsArgs) {
@@ -43,7 +42,6 @@ pub fn build_artifacts(args: BuildArtifactsArgs) {
             .env("OUT_DIR", &artifacts)
             .env("TARGET", env!("TARGET"))
             .env("MACOSX_DEPLOYMENT_TARGET", macos_deployment_target())
-            .env("PYO3_PYTHON", args.python_bin)
             .env("CARGO_BUILD_TARGET", env!("TARGET")),
     );
 }
