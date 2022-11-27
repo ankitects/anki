@@ -49,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Badge from "../components/Badge.svelte";
     import HorizontalResizer from "../components/HorizontalResizer.svelte";
     import Pane from "../components/Pane.svelte";
-    import PaneContent from "../components/PaneContent.svelte";
+    import ScrollArea from "../components/ScrollArea.svelte";
     import { ResizablePane } from "../components/types";
     import { TagEditor } from "../tag-editor";
     import TagAddButton from "../tag-editor/tag-options-button/TagAddButton.svelte";
@@ -409,7 +409,7 @@ the AddCards dialog) should be implemented in the user of this component.
             fieldsPane.height = e.detail.height;
         }}
     >
-        <PaneContent>
+        <ScrollArea>
             <Fields>
                 {#each fieldsData as field, index}
                     {@const content = fieldStores[index]}
@@ -557,7 +557,7 @@ the AddCards dialog) should be implemented in the user of this component.
                     <SymbolsOverlay />
                 {/if}
             </Fields>
-        </PaneContent>
+        </ScrollArea>
     </Pane>
 
     <HorizontalResizer
@@ -601,24 +601,22 @@ the AddCards dialog) should be implemented in the user of this component.
             }
         })()}
     >
-        <PaneContent scroll={false}>
-            <TagEditor
-                {tags}
-                --button-opacity={snapTags ? 0 : 1}
-                bind:this={tagEditor}
-                on:tagsupdate={saveTags}
-                on:tagsFocused={() => {
+        <TagEditor
+            {tags}
+            --button-opacity={snapTags ? 0 : 1}
+            bind:this={tagEditor}
+            on:tagsupdate={saveTags}
+            on:tagsFocused={() => {
+                expandTags();
+                $tagsCollapsed = false;
+            }}
+            on:heightChange={(e) => {
+                tagsPane.maxHeight = e.detail.height;
+                if (!$tagsCollapsed) {
                     expandTags();
-                    $tagsCollapsed = false;
-                }}
-                on:heightChange={(e) => {
-                    tagsPane.maxHeight = e.detail.height;
-                    if (!$tagsCollapsed) {
-                        expandTags();
-                    }
-                }}
-            />
-        </PaneContent>
+                }
+            }}
+        />
     </Pane>
 </div>
 

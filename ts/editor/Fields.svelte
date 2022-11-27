@@ -12,6 +12,8 @@ Contains the fields. This contains the scrollable area.
 
 <style lang="scss">
     .fields {
+        position: relative;
+
         margin-top: 5px;
         display: grid;
         grid-auto-rows: min-content;
@@ -19,10 +21,6 @@ Contains the fields. This contains the scrollable area.
 
         /* Add space after the last field and the start of the tag editor */
         padding-bottom: 5px;
-
-        /* Move the scrollbar for the NoteEditor into this element */
-        position: relative;
-        overflow-y: auto;
 
         /* Push the tag editor to the bottom of the note editor */
         flex-grow: 1;
