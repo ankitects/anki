@@ -1,11 +1,11 @@
 [package]
 name = "anki"
-build = "build.rs"
 version = "0.0.0"
 authors = ["Ankitects Pty Ltd and contributors <https://help.ankiweb.net>"]
+build = "build.rs"
+edition = "2021"
 license = "AGPL-3.0-or-later"
 rust-version = "1.64"
-edition = "2021"
 
 [dependencies]
 pyembed = { path = "./PyOxidizer/pyembed", default-features = false }
