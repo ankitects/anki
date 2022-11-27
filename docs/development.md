@@ -33,7 +33,7 @@ On all platforms, you will need to install:
   to use a distro-provided Rust, newer Rust versions will typically work for
   building but may fail tests; older Rust versions may not work at all.
 - Ninja (unzip from https://github.com/ninja-build/ninja/releases/tag/v1.11.1 and
-  place on your path, or from your distro if it's 1.10+)
+  place on your path, or from your distro/homebrew if it's 1.10+)
 
 Platform-specific requirements:
 

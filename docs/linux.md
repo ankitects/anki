@@ -3,7 +3,8 @@
 ## Requirements
 
 These instructions are written for Debian/Ubuntu; adjust for your distribution.
-Some extra notes have been provided by a forum member:
+Some extra notes have been provided by a forum member, though some of the things
+mentioned there no longer apply:
 https://forums.ankiweb.net/t/guide-how-to-build-and-run-anki-from-source-with-xubuntu-20-04/12865
 
 You can see a full list of buildtime and runtime requirements by looking at the
@@ -21,7 +22,10 @@ Users on ARM64, see the notes at the bottom of this file before proceeding.
 $ sudo apt install bash grep findutils curl gcc g++ git rsync ninja-build
 ```
 
-The 'find' utility is 'findutils' on Debian.
+- The 'find' utility is 'findutils' on Debian.
+- Your distro may call the package 'ninja' instead of 'ninja-build', or it
+  may not have a version new enough - if so, install from the zip mentioned in
+  development.md.
 
 ## Missing Libraries
 
@@ -62,6 +66,16 @@ There are a few things to be aware of:
 - If your system libraries are Qt5, when creating an aqt wheel, the wheel will not work
   on Qt6 environments.
 - Some of the './ninja check' tests are broken on ARM Linux.
+
+## Packaging considerations
+
+Python and node are downloaded as part of the build. You can optionally define
+PYTHON_BINARY as the full path to a Python binary, to use it instead of the downloaded
+version. A similar approach could be done with node in the future; a PR would be
+welcome.
+
+If rust-toolchain.toml is removed, newer Rust versions can be used. Older versions
+may or may not compile the code.
 
 ## More
 
