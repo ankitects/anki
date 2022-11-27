@@ -3,10 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { createEventDispatcher, getContext, onMount, tick } from "svelte";
+
+    import { tagActionsShortcutsKey } from "@tslib/context-keys";
     import { isArrowLeft, isArrowRight } from "@tslib/keys";
     import { registerShortcut } from "@tslib/shortcuts";
-    import { createEventDispatcher, onMount, tick } from "svelte";
-    
     import {
         delimChar,
         normalizeTagname,
@@ -234,8 +235,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    const { selectAllShortcut } =
+        getContext<Record<string, string>>(tagActionsShortcutsKey);
+
     onMount(() => {
-        registerShortcut(onSelectAll, "Control+A", { target: input });
+        registerShortcut(onSelectAll, selectAllShortcut, { target: input });
         input.focus();
     });
 </script>
@@ -276,6 +280,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .tag-input {
         /* recreates positioning of Tag component
          * so that the text does not move when accepting */
-        border-left: 1px solid transparent;
+        border: 1px solid transparent !important;
     }
 </style>
