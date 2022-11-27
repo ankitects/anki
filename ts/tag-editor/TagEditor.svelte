@@ -77,7 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function updateSuggestions(): void {
         const activeTag = tagTypes[active!];
-        const activeName = activeTag.name;
+        const activeName = activeTag!.name;
 
         autocompleteDisabled = activeName.length === 0;
 
@@ -125,14 +125,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export function appendEmptyTag(): void {
         // used by tag badge and tag spacer
         deselect();
+        const tagsHadFocus = active === null;
+        active = null;
+
         const lastTag = tagTypes[tagTypes.length - 1];
 
         if (!lastTag || lastTag.name.length > 0) {
             appendTagAndFocusAt(tagTypes.length - 1, "");
         }
-
-        const tagsHadFocus = active === null;
-        active = null;
 
         if (tagsHadFocus) {
             decideNextActive();
@@ -163,11 +163,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const splitOff = activeName.slice(end);
 
         activeName = current;
+        active = null;
         // await tag to update its name, so it can normalize correctly
         await tick();
 
         appendTagAndFocusAt(index, splitOff);
-        active = null;
         await tick();
 
         if (index === active) {
@@ -292,7 +292,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 break;
 
             case "Enter":
-                autocomplete.chooseSelected();
                 event.preventDefault();
                 break;
         }
@@ -392,7 +391,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: shortenTags = shortenTags || assumedRows > 2;
     $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
 
-    $: dispatch("heightChange", { height: height * 1.15 });
+    $: dispatch("heightChange", { height: height + 1 });
 </script>
 
 {#if anyTagsSelected}
@@ -410,6 +409,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:tagdelete={deleteSelectedTags}
         on:tagappend={appendEmptyTag}
         {keyCombination}
+        --icon-align="baseline"
     />
 
     {#each tagTypes as tag, index (tag.id)}
@@ -518,6 +518,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .hide-tag :global(.tag) {
-        opacity: 0;
+        visibility: hidden;
     }
 </style>
