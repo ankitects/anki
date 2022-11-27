@@ -13,7 +13,7 @@ from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.notes import Note
 from aqt import AnkiQt, gui_hooks
-from aqt.forms.browserdisp import Ui_Dialog
+from aqt.forms import browserdisp
 from aqt.operations.notetype import update_notetype_legacy
 from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
@@ -752,7 +752,7 @@ class CardLayout(QDialog):
         qconnect(f.buttonBox.accepted, lambda: self.onBrowserDisplayOk(f))
         d.exec()
 
-    def onBrowserDisplayOk(self, f: Ui_Dialog) -> None:
+    def onBrowserDisplayOk(self, f: browserdisp.Ui_Dialog) -> None:
         t = self.current_template()
         self.change_tracker.mark_basic()
         t["bqfmt"] = f.qfmt.text().strip()

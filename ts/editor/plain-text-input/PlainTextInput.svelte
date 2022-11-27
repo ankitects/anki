@@ -3,7 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import { registerPackage } from "../../lib/runtime-require";
+    import { registerPackage } from "@tslib/runtime-require";
+    
     import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
     import type { CodeMirrorAPI } from "../CodeMirror.svelte";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
@@ -28,10 +29,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { singleCallback } from "@tslib/typing";
     import { onMount, tick } from "svelte";
     import { writable } from "svelte/store";
-
-    import { singleCallback } from "../../lib/typing";
+    
     import { pageTheme } from "../../sveltelib/theme";
     import { baseOptions, gutterOptions, htmlanki } from "../code-mirror";
     import CodeMirror from "../CodeMirror.svelte";

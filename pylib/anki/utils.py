@@ -307,7 +307,7 @@ def version_with_build() -> str:
 def point_version() -> int:
     from anki.buildinfo import version
 
-    return int(version.split(".")[-1])
+    return int(version.rsplit(".", maxsplit=1)[-1])
 
 
 # keep the legacy alias around without a deprecation warning for now

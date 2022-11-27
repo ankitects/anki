@@ -1,13 +1,16 @@
 [package]
 name = "rsbridge"
-version = "0.0.0"
-authors = ["Ankitects Pty Ltd and contributors <https://help.ankiweb.net>"]
-edition = "2021"
-license = "AGPL-3.0-or-later"
 description = "Anki's Rust library code Python bindings"
+
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 anki = { path = "../../rslib" }
+workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }
 
 # /cargo/update.py needs to be run if updating the version below
 [dependencies.pyo3]
@@ -18,3 +21,7 @@ features = ["extension-module", "abi3", "abi3-py39"]
 name = "rsbridge"
 crate-type = ["cdylib"]
 path = "lib.rs"
+
+[features]
+rustls = ["anki/rustls"]
+native-tls = ["anki/native-tls"]

@@ -5,8 +5,8 @@ from __future__ import annotations
 
 from anki.collection import OpChanges, OpChangesWithId
 from anki.models import ChangeNotetypeRequest, NotetypeDict, NotetypeId
-from aqt import QWidget
 from aqt.operations import CollectionOp
+from aqt.qt import QWidget
 
 
 def add_notetype_legacy(

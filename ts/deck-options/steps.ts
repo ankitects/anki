@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { naturalWholeUnit, TimespanUnit, unitAmount, unitSeconds } from "../lib/time";
+import { naturalWholeUnit, TimespanUnit, unitAmount, unitSeconds } from "@tslib/time";
 
 function unitSuffix(unit: TimespanUnit): string {
     switch (unit) {

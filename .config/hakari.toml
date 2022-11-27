@@ -1,0 +1,8 @@
+hakari-package = "workspace-hack"
+dep-format-version = "2"
+resolver = "2"
+
+[traversal-excludes]
+third-party = [
+    { name = "reqwest", git = "https://github.com/ankitects/reqwest.git", rev = "7591444614de02b658ddab125efba7b2bb4e2335" }
+]

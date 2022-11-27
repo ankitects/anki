@@ -96,13 +96,13 @@ https://translating.ankiweb.net/anki/developers
 
 ## Tests Must Pass
 
-Please make sure 'bazel test //...' completes successfully before submitting code.
+Please make sure 'ninja check' completes successfully before submitting code.
 You can do this automatically by adding the following into
 .git/hooks/pre-commit or .git/hooks/pre-push and making it executable.
 
 ```sh
 #!/bin/bash
-bazel test //...
+./ninja check
 ```
 
 You may want to explicitly set PATH to your normal shell PATH in that script,

@@ -6,7 +6,7 @@ mod extract;
 mod gather;
 mod write_strings;
 
-use std::{fs, path::PathBuf};
+use std::fs;
 
 use check::check;
 use extract::get_modules;
@@ -22,9 +22,9 @@ fn main() {
     let modules = get_modules(&map);
     write_strings(&map, &modules);
 
-    // put a json file into OUT_DIR that the write_json tool can read
-    let meta_json = serde_json::to_string_pretty(&modules).unwrap();
-    let dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
-    let path = dir.join("strings.json");
-    fs::write(path, meta_json).unwrap();
+    // write strings.json file to requested path
+    if let Some(path) = option_env!("STRINGS_JSON") {
+        let meta_json = serde_json::to_string_pretty(&modules).unwrap();
+        fs::write(path, meta_json).unwrap();
+    }
 }

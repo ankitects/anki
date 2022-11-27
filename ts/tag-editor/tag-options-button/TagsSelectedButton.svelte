@@ -9,9 +9,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconConstrain from "../../components/IconConstrain.svelte";
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
-    import { tagActionsShortcutsKey } from "../../lib/context-keys";
-    import * as tr from "../../lib/ftl";
-    import { getPlatformString } from "../../lib/shortcuts";
+    import { tagActionsShortcutsKey } from "@tslib/context-keys";
+    import * as tr from "@tslib/ftl";
+    import { getPlatformString } from "@tslib/shortcuts";
     import { dotsIcon } from "./icons";
 
     const dispatch = createEventDispatcher();

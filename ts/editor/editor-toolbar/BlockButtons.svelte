@@ -3,6 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { getListItem } from "@tslib/dom";
+    import { preventDefault } from "@tslib/events";
+    import * as tr from "@tslib/ftl";
+    import { getPlatformString, registerShortcut } from "@tslib/shortcuts";
     import { onMount } from "svelte";
 
     import ButtonGroup from "../../components/ButtonGroup.svelte";
@@ -17,10 +21,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
     import { execCommand } from "../../domlib";
-    import { getListItem } from "../../lib/dom";
-    import { preventDefault } from "../../lib/events";
-    import * as tr from "../../lib/ftl";
-    import { getPlatformString, registerShortcut } from "../../lib/shortcuts";
     import { context } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
     import CommandIconButton from "./CommandIconButton.svelte";

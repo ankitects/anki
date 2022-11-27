@@ -1,1 +1,0 @@
-../../../.bazel/bin/qt/aqt/forms/modelopts_qt6.py

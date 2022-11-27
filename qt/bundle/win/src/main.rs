@@ -1,104 +1,101 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    fs,
-    io::prelude::*,
-    path::{Component, Path, PathBuf, Prefix},
-    process::Command,
-};
+use std::{fs, io::prelude::*, path::Path, process::Command};
 
 use anyhow::{bail, Context, Result};
+use camino::{Utf8Path, Utf8PathBuf};
+use clap::Parser;
 use slog::*;
 use tugger_windows_codesign::{CodeSigningCertificate, SigntoolSign, SystemStore, TimestampServer};
 use walkdir::WalkDir;
+
+#[derive(Parser)]
+struct Args {
+    version: String,
+    bundle_root: Utf8PathBuf,
+    qt6_setup_path: Utf8PathBuf,
+    qt5_setup_path: Utf8PathBuf,
+}
 
 fn main() -> anyhow::Result<()> {
     let plain = slog_term::PlainSyncDecorator::new(std::io::stdout());
     let logger = Logger::root(slog_term::FullFormat::new(plain).build().fuse(), o!());
 
-    let args: Vec<_> = std::env::args().collect();
-    let build_folder = PathBuf::from(args.get(1).context("build folder")?);
-    let bazel_external = PathBuf::from(args.get(2).context("bazel external")?);
-    // bundle/build.py folder
-    let build_py_folder = PathBuf::from(args.get(3).context("build_py_folder")?);
-    let version = args.get(4).context("version")?;
+    let args = Args::parse();
 
-    let std_folder = build_folder.join("std");
-    let alt_folder = build_folder.join("alt");
-    let folders = &[&std_folder, &alt_folder];
+    let src_win_folder = Utf8Path::new("qt/bundle/win");
+    let std_dist_folder = args.bundle_root.join("std");
+    let alt_dist_folder = args.bundle_root.join("alt");
+    // folder->installer
+    let dists = [
+        (&std_dist_folder, &args.qt6_setup_path),
+        (&alt_dist_folder, &args.qt5_setup_path),
+    ];
 
-    for folder in folders {
+    for (folder, _) in dists {
         fs::copy(
-            build_py_folder.join("win").join("anki-console.bat"),
+            src_win_folder.join("anki-console.bat"),
             folder.join("anki-console.bat"),
         )
         .context("anki-console")?;
     }
 
-    println!("--- Copy in audio");
-    copy_in_audio(&std_folder, &bazel_external)?;
-    copy_in_audio(&alt_folder, &bazel_external)?;
-
     println!("--- Build uninstaller");
-    build_installer(&std_folder, &build_folder, version, true).context("uninstaller")?;
+    build_installer(
+        &args.bundle_root,
+        &std_dist_folder,
+        &args.qt6_setup_path,
+        &args.version,
+        true,
+    )
+    .context("uninstaller")?;
 
     // sign the anki.exe and uninstaller.exe in std, then copy into alt
     println!("--- Sign binaries");
     codesign(
         &logger,
-        &[
-            &std_folder.join("anki.exe"),
-            &std_folder.join("uninstall.exe"),
+        [
+            &std_dist_folder.join("anki.exe"),
+            &std_dist_folder.join("uninstall.exe"),
         ],
     )?;
     for fname in &["anki.exe", "uninstall.exe"] {
-        fs::copy(std_folder.join(fname), alt_folder.join(fname))
+        fs::copy(std_dist_folder.join(fname), alt_dist_folder.join(fname))
             .with_context(|| format!("copy {fname}"))?;
     }
 
     println!("--- Build manifest");
-    for folder in folders {
+    for (folder, _) in dists {
         build_manifest(folder).context("manifest")?;
     }
 
-    let mut installer_paths = vec![];
-    for (folder, variant) in folders.iter().zip(&["qt6", "qt5"]) {
-        println!(
-            "--- Build installer for {}",
-            folder.file_name().unwrap().to_str().unwrap()
-        );
-        build_installer(folder, &build_folder, version, false)?;
-        let installer_filename = format!("anki-{version}-windows-{variant}.exe");
-        let installer_path = build_folder
-            .join("..")
-            .join("dist")
-            .join(installer_filename);
-
-        fs::rename(build_folder.join("anki-setup.exe"), &installer_path)
-            .context("rename installer")?;
-        installer_paths.push(installer_path);
+    for (folder, installer) in dists {
+        println!("--- Build {}", installer);
+        build_installer(&args.bundle_root, folder, installer, &args.version, false)?;
     }
 
     println!("--- Sign installers");
-    codesign(&logger, &installer_paths)?;
+    codesign(&logger, dists.iter().map(|tup| tup.1))?;
 
     Ok(())
 }
 
 fn build_installer(
-    variant_folder: &Path,
-    build_folder: &Path,
+    bundle_root: &Utf8Path,
+    dist_folder: &Utf8Path,
+    installer: &Utf8Path,
     version: &str,
     uninstaller: bool,
 ) -> Result<()> {
     let rendered_nsi = include_str!("../anki.template.nsi")
-        .replace("@@SRC@@", variant_folder.to_str().unwrap())
+        .replace("@@SRC@@", dist_folder.as_str())
+        .replace("@@INSTALLER@@", installer.as_str())
         .replace("@@VERSION@@", version);
-    let rendered_nsi_path = build_folder.join("anki.nsi");
+    let rendered_nsi_path = bundle_root.join("anki.nsi");
     fs::write(&rendered_nsi_path, rendered_nsi).context("anki.nsi")?;
     fs::write(
-        build_folder.join("fileassoc.nsh"),
+        bundle_root.join("fileassoc.nsh"),
         include_str!("../fileassoc.nsh"),
     )?;
     let mut cmd = Command::new("c:/program files (x86)/nsis/makensis.exe");
@@ -106,7 +103,7 @@ fn build_installer(
     if uninstaller {
         cmd.arg("-DWRITE_UNINSTALLER");
     };
-    if option_env!("NO_COMPRESS").is_some() {
+    if option_env!("RELEASE").is_none() {
         cmd.arg("-DNO_COMPRESS");
     }
     cmd.arg(rendered_nsi_path);
@@ -117,54 +114,13 @@ fn build_installer(
     Ok(())
 }
 
-/// Copy everything at the provided path into the bundle dir.
-/// Excludes standard Bazel repo files.
-fn extend_app_contents(source: &Path, bundle_dir: &Path) -> Result<()> {
-    let status = Command::new("rsync")
-        .arg("-a")
-        .args(["--exclude", "BUILD.bazel", "--exclude", "WORKSPACE"])
-        .arg(format!("{}/", path_for_rsync(source, true)?))
-        .arg(format!("{}/", path_for_rsync(bundle_dir, true)?))
-        .status()?;
-    if !status.success() {
-        bail!("error syncing {source:?}");
-    }
-    Ok(())
-}
-
-/// Munge path into a format rsync expects on Windows.
-fn path_for_rsync(path: &Path, trailing_slash: bool) -> Result<String> {
-    let mut components = path.components();
-    let mut drive = None;
-    if let Some(Component::Prefix(prefix)) = components.next() {
-        if let Prefix::Disk(letter) = prefix.kind() {
-            drive = Some(char::from(letter));
-        }
-    };
-    let drive = drive.context("missing drive letter")?;
-    let remaining_path: PathBuf = components.collect();
-    Ok(format!(
-        "/{}{}{}",
-        drive,
-        remaining_path
-            .to_str()
-            .context("remaining_path")?
-            .replace("\\", "/"),
-        if trailing_slash { "/" } else { "" }
-    ))
-}
-
-fn copy_in_audio(bundle_dir: &Path, bazel_external: &Path) -> Result<()> {
-    extend_app_contents(&bazel_external.join("audio_win_amd64"), bundle_dir)
-}
-
-fn codesign(logger: &Logger, paths: &[impl AsRef<Path>]) -> Result<()> {
+fn codesign(logger: &Logger, paths: impl IntoIterator<Item = impl AsRef<Path>>) -> Result<()> {
     if option_env!("ANKI_CODESIGN").is_none() {
         return Ok(());
     }
     let cert = CodeSigningCertificate::Sha1Thumbprint(
         SystemStore::My,
-        "60abdb9cb52b7dc13550e8838486a00e693770d9".into(),
+        "dccfc6d312fc0432197bb7be951478e5866eebf8".into(),
     );
     let mut sign = SigntoolSign::new(cert);
     sign.file_digest_algorithm("sha256")
@@ -173,14 +129,13 @@ fn codesign(logger: &Logger, paths: &[impl AsRef<Path>]) -> Result<()> {
             "sha256".into(),
         ))
         .verbose();
-    paths.iter().for_each(|path| {
+    paths.into_iter().for_each(|path| {
         sign.sign_file(path);
     });
     sign.run(logger)
 }
 
-// FIXME: check uninstall.exe required or not
-fn build_manifest(base_path: &Path) -> Result<()> {
+fn build_manifest(base_path: &Utf8Path) -> Result<()> {
     let mut buf = vec![];
     for entry in WalkDir::new(base_path)
         .min_depth(1)
@@ -198,25 +153,4 @@ fn build_manifest(base_path: &Path) -> Result<()> {
     }
     fs::write(base_path.join("anki.install-manifest"), buf)?;
     Ok(())
-}
-
-#[cfg(test)]
-mod test {
-    #[allow(unused_imports)]
-    use super::*;
-
-    #[test]
-    #[cfg(windows)]
-    fn test_path_for_rsync() -> Result<()> {
-        assert_eq!(
-            path_for_rsync(Path::new("c:\\foo\\bar"), false)?,
-            "/C/foo/bar"
-        );
-        assert_eq!(
-            path_for_rsync(Path::new("c:\\foo\\bar"), true)?,
-            "/C/foo/bar/"
-        );
-
-        Ok(())
-    }
 }

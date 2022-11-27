@@ -1,0 +1,17 @@
+[package]
+name = "ftl"
+
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "ftl-sync"
+path = "sync.rs"
+
+[dependencies]
+camino = "1.1.1"
+snafu = { version = "0.7.3" }
+workspace-hack = { version = "0.1", path = "../tools/workspace-hack" }

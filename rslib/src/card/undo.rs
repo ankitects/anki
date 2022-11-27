@@ -21,7 +21,7 @@ impl Collection {
                     .storage
                     .get_card(card.id)?
                     .or_invalid("card disappeared")?;
-                self.update_card_undoable(&mut *card, current)
+                self.update_card_undoable(&mut card, current)
             }
             UndoableCardChange::Removed(card) => self.restore_deleted_card(*card),
             UndoableCardChange::GraveAdded(e) => self.remove_card_grave(e.0, e.1),

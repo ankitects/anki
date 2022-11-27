@@ -1,1 +1,0 @@
-../../../.bazel/bin/qt/aqt/forms/preview_qt6.py

@@ -18,6 +18,15 @@
     "description": "A simple clean-room implementation of the Adler-32 checksum"
   },
   {
+    "name": "aes",
+    "version": "0.7.5",
+    "authors": "RustCrypto Developers",
+    "repository": "https://github.com/RustCrypto/block-ciphers",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Pure Rust implementation of the Advanced Encryption Standard (a.k.a. Rijndael) including support for AES in counter mode (a.k.a. AES-CTR)"
+  },
+  {
     "name": "ahash",
     "version": "0.7.6",
     "authors": "Tom Kaitchuck <Tom.Kaitchuck@gmail.com>",
@@ -56,7 +65,7 @@
   {
     "name": "anki",
     "version": "0.0.0",
-    "authors": "Ankitects Pty Ltd and contributors",
+    "authors": "Ankitects Pty Ltd and contributors <https://help.ankiweb.net>",
     "repository": null,
     "license": "AGPL-3.0-or-later",
     "license_file": null,
@@ -162,6 +171,15 @@
     "description": "encodes and decodes base64 as bytes or utf8"
   },
   {
+    "name": "base64ct",
+    "version": "1.5.3",
+    "authors": "RustCrypto Developers",
+    "repository": "https://github.com/RustCrypto/formats/tree/master/base64ct",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Pure Rust implementation of Base64 (RFC 4648) which avoids any usages of data-dependent branches/LUTs and thereby provides portable \"best effort\" constant-time operation and embedded-friendly no_std support"
+  },
+  {
     "name": "bitflags",
     "version": "1.3.2",
     "authors": "The Rust Project Developers",
@@ -225,6 +243,24 @@
     "description": "Types and traits for working with bytes"
   },
   {
+    "name": "bzip2",
+    "version": "0.4.3",
+    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "repository": "https://github.com/alexcrichton/bzip2-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Bindings to libbzip2 for bzip2 compression and decompression exposed as Reader/Writer streams."
+  },
+  {
+    "name": "bzip2-sys",
+    "version": "0.1.11+1.0.8",
+    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "repository": "https://github.com/alexcrichton/bzip2-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Bindings to libbzip2 for bzip2 compression and decompression exposed as Reader/Writer streams."
+  },
+  {
     "name": "cc",
     "version": "1.0.73",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
@@ -250,6 +286,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Date and time library for Rust"
+  },
+  {
+    "name": "cipher",
+    "version": "0.3.0",
+    "authors": "RustCrypto Developers",
+    "repository": "https://github.com/RustCrypto/traits",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Traits for describing block ciphers and stream ciphers"
   },
   {
     "name": "coarsetime",
@@ -295,6 +340,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Bindings to Core Foundation for macOS"
+  },
+  {
+    "name": "cpufeatures",
+    "version": "0.2.5",
+    "authors": "RustCrypto Developers",
+    "repository": "https://github.com/RustCrypto/utils",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Lightweight runtime CPU feature detection for x86/x86_64 and aarch64 with no_std support and support for mobile targets including Android and iOS"
   },
   {
     "name": "crc32fast",
@@ -718,6 +772,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Encoding and decoding data into/from hexadecimal representation."
+  },
+  {
+    "name": "hmac",
+    "version": "0.12.1",
+    "authors": "RustCrypto Developers",
+    "repository": "https://github.com/RustCrypto/MACs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Generic implementation of Hash-based Message Authentication Code (HMAC)"
   },
   {
     "name": "html5ever",
@@ -1153,7 +1216,7 @@
   },
   {
     "name": "num_cpus",
-    "version": "1.13.1",
+    "version": "1.14.0",
     "authors": "Sean McArthur <sean@seanmonstar.com>",
     "repository": "https://github.com/seanmonstar/num_cpus",
     "license": "Apache-2.0 OR MIT",
@@ -1204,6 +1267,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Single assignment cells and lazy values."
+  },
+  {
+    "name": "opaque-debug",
+    "version": "0.3.0",
+    "authors": "RustCrypto Developers",
+    "repository": "https://github.com/RustCrypto/utils",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Macro for opaque Debug trait implementation"
   },
   {
     "name": "openssl",
@@ -1258,6 +1330,24 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "An advanced API for creating custom synchronization primitives."
+  },
+  {
+    "name": "password-hash",
+    "version": "0.4.2",
+    "authors": "RustCrypto Developers",
+    "repository": "https://github.com/RustCrypto/traits/tree/master/password-hash",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Traits which describe the functionality of password hashing algorithms, as well as a `no_std`-friendly implementation of the PHC string format (a well-defined subset of the Modular Crypt Format a.k.a. MCF)"
+  },
+  {
+    "name": "pbkdf2",
+    "version": "0.11.0",
+    "authors": "RustCrypto Developers",
+    "repository": "https://github.com/RustCrypto/password-hashes/tree/master/pbkdf2",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Generic implementation of PBKDF2"
   },
   {
     "name": "pct-str",
@@ -1438,15 +1528,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Procedural macros in expression position"
-  },
-  {
-    "name": "proc-macro-nested",
-    "version": "0.1.7",
-    "authors": "David Tolnay <dtolnay@gmail.com>",
-    "repository": "https://github.com/dtolnay/proc-macro-hack",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Support for nested proc-macro-hack invocations"
   },
   {
     "name": "proc-macro2",
@@ -1729,7 +1810,7 @@
   },
   {
     "name": "serde",
-    "version": "1.0.145",
+    "version": "1.0.147",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/serde",
     "license": "Apache-2.0 OR MIT",
@@ -1747,7 +1828,7 @@
   },
   {
     "name": "serde_derive",
-    "version": "1.0.145",
+    "version": "1.0.147",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/serde",
     "license": "Apache-2.0 OR MIT",
@@ -1756,7 +1837,7 @@
   },
   {
     "name": "serde_json",
-    "version": "1.0.85",
+    "version": "1.0.88",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/json",
     "license": "Apache-2.0 OR MIT",
@@ -1809,6 +1890,15 @@
     "description": "Minimal dependency free implementation of SHA1 for Rust."
   },
   {
+    "name": "sha1",
+    "version": "0.10.5",
+    "authors": "RustCrypto Developers",
+    "repository": "https://github.com/RustCrypto/hashes",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "SHA-1 hash function"
+  },
+  {
     "name": "sha1_smol",
     "version": "1.0.0",
     "authors": "Armin Ronacher <armin.ronacher@active-4.com>",
@@ -1816,6 +1906,15 @@
     "license": "BSD-3-Clause",
     "license_file": null,
     "description": "Minimal dependency free implementation of SHA1 for Rust."
+  },
+  {
+    "name": "sha2",
+    "version": "0.10.6",
+    "authors": "RustCrypto Developers",
+    "repository": "https://github.com/RustCrypto/hashes",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Pure Rust implementation of the SHA-2 hash function family including SHA-224, SHA-256, SHA-384, and SHA-512."
   },
   {
     "name": "signal-hook-registry",
@@ -2134,7 +2233,7 @@
   },
   {
     "name": "tokio",
-    "version": "1.21.1",
+    "version": "1.21.2",
     "authors": "Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/tokio",
     "license": "MIT",
@@ -2673,8 +2772,17 @@
     "description": "Rust bindings to MS Windows Registry API"
   },
   {
+    "name": "workspace-hack",
+    "version": "0.1.0",
+    "authors": null,
+    "repository": null,
+    "license": null,
+    "license_file": null,
+    "description": "workspace-hack package, managed by hakari"
+  },
+  {
     "name": "zip",
-    "version": "0.6.2",
+    "version": "0.6.3",
     "authors": "Mathijs van de Nes <git@mathijs.vd-nes.nl>|Marli Frost <marli@frost.red>|Ryan Levick <ryan.levick@gmail.com>",
     "repository": "https://github.com/zip-rs/zip.git",
     "license": "MIT",

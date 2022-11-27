@@ -8,11 +8,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         Placement,
         ReferenceElement,
     } from "@floating-ui/dom";
+    import type { Callback } from "@tslib/typing";
+    import { singleCallback } from "@tslib/typing";
     import { createEventDispatcher, onDestroy } from "svelte";
     import type { ActionReturn } from "svelte/action";
-
-    import type { Callback } from "../lib/typing";
-    import { singleCallback } from "../lib/typing";
+    
     import isClosingClick from "../sveltelib/closing-click";
     import isClosingKeyup from "../sveltelib/closing-keyup";
     import type { EventPredicateResult } from "../sveltelib/event-predicate";

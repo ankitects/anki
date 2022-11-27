@@ -5,15 +5,20 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type { Bin } from "d3";
+import * as tr from "@tslib/ftl";
+import { localizedNumber } from "@tslib/i18n";
+import { Stats } from "@tslib/proto";
+import { dayLabel, timeSpan } from "@tslib/time";
+import type { Bin ,
+    ScaleSequential} from "d3";
 import {
     area,
     axisBottom,
     axisLeft,
     axisRight,
+    bin,
     cumsum,
     curveBasis,
-    histogram,
     interpolateGreens,
     interpolateOranges,
     interpolatePurples,
@@ -22,18 +27,13 @@ import {
     min,
     pointer,
     scaleLinear,
-    ScaleSequential,
     scaleSequential,
     select,
     sum,
 } from "d3";
 
-import * as tr from "../lib/ftl";
-import { localizedNumber } from "../lib/i18n";
-import { Stats } from "../lib/proto";
-import { dayLabel, timeSpan } from "../lib/time";
-import type { TableDatum } from "./graph-helpers";
-import { GraphBounds, GraphRange, setDataAvailable } from "./graph-helpers";
+import type { GraphBounds,TableDatum } from "./graph-helpers";
+import { GraphRange, setDataAvailable } from "./graph-helpers";
 import { hideTooltip, showTooltip } from "./tooltip";
 
 interface Reviews {
@@ -66,10 +66,8 @@ export function gatherData(data: Stats.GraphsResponse): GraphData {
         const day = Math.ceil(
             ((review.id as number) / 1000 - data.nextDayAtSecs) / 86400,
         );
-        const countEntry =
-            reviewCount.get(day) ?? reviewCount.set(day, { ...empty }).get(day)!;
-        const timeEntry =
-            reviewTime.get(day) ?? reviewTime.set(day, { ...empty }).get(day)!;
+        const countEntry = reviewCount.get(day) ?? reviewCount.set(day, { ...empty }).get(day)!;
+        const timeEntry = reviewTime.get(day) ?? reviewTime.set(day, { ...empty }).get(day)!;
 
         switch (review.reviewKind) {
             case ReviewKind.LEARNING:
@@ -158,7 +156,7 @@ export function renderReviews(
     x.domain([x.domain()[0], xMax]);
 
     const sourceMap = showTime ? sourceData.reviewTime : sourceData.reviewCount;
-    const bins = histogram()
+    const bins = bin()
         .value((m) => {
             return m[0];
         })
@@ -176,9 +174,7 @@ export function renderReviews(
 
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")
-        .call((selection) =>
-            selection.transition(trans).call(axisBottom(x).ticks(7).tickSizeOuter(0)),
-        )
+        .call((selection) => selection.transition(trans).call(axisBottom(x).ticks(7).tickSizeOuter(0)))
         .attr("direction", "ltr");
 
     // y scale
@@ -207,7 +203,7 @@ export function renderReviews(
                     .ticks(bounds.height / 50)
                     .tickSizeOuter(0)
                     .tickFormat(yTickFormat as any),
-            ),
+            )
         )
         .attr("direction", "ltr");
 
@@ -220,12 +216,8 @@ export function renderReviews(
 
     const cappedRange = scaleLinear().range([0.3, 0.5]);
     const shiftedRange = scaleLinear().range([0.4, 0.7]);
-    const darkerGreens = scaleSequential((n) =>
-        interpolateGreens(shiftedRange(n)!),
-    ).domain(x.domain() as any);
-    const lighterGreens = scaleSequential((n) =>
-        interpolateGreens(cappedRange(n)!),
-    ).domain(x.domain() as any);
+    const darkerGreens = scaleSequential((n) => interpolateGreens(shiftedRange(n)!)).domain(x.domain() as any);
+    const lighterGreens = scaleSequential((n) => interpolateGreens(cappedRange(n)!)).domain(x.domain() as any);
     const reds = scaleSequential((n) => interpolateReds(cappedRange(n)!)).domain(
         x.domain() as any,
     );
@@ -273,8 +265,8 @@ export function renderReviews(
             [null, tr.statisticsRunningTotal()],
         ];
         for (const [idx, label] of lines) {
-            let color;
-            let detail;
+            let color: string;
+            let detail: string;
             if (idx == null) {
                 color = "transparent";
                 detail = valueLabel(cumulative);
@@ -314,10 +306,7 @@ export function renderReviews(
                         .attr("height", 0)
                         .call((d) => updateBar(d, barNum)),
                 (update) => update.call((d) => updateBar(d, barNum)),
-                (remove) =>
-                    remove.call((remove) =>
-                        remove.transition(trans).attr("height", 0).attr("y", y(0)!),
-                    ),
+                (remove) => remove.call((remove) => remove.transition(trans).attr("height", 0).attr("y", y(0)!)),
             );
     }
 
@@ -337,7 +326,7 @@ export function renderReviews(
                         .ticks(bounds.height / 50)
                         .tickFormat(yTickFormat as any)
                         .tickSizeOuter(0),
-                ),
+                )
             )
             .attr("direction", "ltr");
 
@@ -400,7 +389,7 @@ export function renderReviews(
         averageAnswerTimeLabel = tr.statisticsAverageAnswerTimeLabel();
 
         // need to get total review count to calculate average time
-        const countBins = histogram()
+        const countBins = bin()
             .value((m) => {
                 return m[0];
             })

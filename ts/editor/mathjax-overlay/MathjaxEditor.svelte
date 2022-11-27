@@ -3,14 +3,14 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@tslib/ftl";
+    import { noop } from "@tslib/functional";
+    import { isArrowLeft, isArrowRight } from "@tslib/keys";
+    import { getPlatformString } from "@tslib/shortcuts";
     import type CodeMirrorLib from "codemirror";
     import { createEventDispatcher, onMount } from "svelte";
     import type { Writable } from "svelte/store";
-
-    import * as tr from "../../lib/ftl";
-    import { noop } from "../../lib/functional";
-    import { isArrowLeft, isArrowRight } from "../../lib/keys";
-    import { getPlatformString } from "../../lib/shortcuts";
+    
     import { pageTheme } from "../../sveltelib/theme";
     import { baseOptions, focusAndSetCaret, latex } from "../code-mirror";
     import type { CodeMirrorAPI } from "../CodeMirror.svelte";

@@ -715,7 +715,7 @@ class AnkiQt(QMainWindow):
         self._background_op_count -= 1
         if not self._background_op_count:
             gui_hooks.backend_did_block()
-        if not self._background_op_count >= 0:
+        if self._background_op_count < 0:
             raise Exception("no background ops active")
 
     def _synthesize_op_did_execute_from_reset(self) -> None:

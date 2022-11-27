@@ -3,8 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { on } from "../lib/events";
-    import { Callback, singleCallback } from "../lib/typing";
+    import { on } from "@tslib/events";
+    import type { Callback} from "@tslib/typing";
+    import { singleCallback } from "@tslib/typing";
+    
     import IconConstrain from "./IconConstrain.svelte";
     import { verticalHandle } from "./icons";
     import type { ResizablePane } from "./types";

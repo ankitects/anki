@@ -3,17 +3,17 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@tslib/ftl";
+    import { noop } from "@tslib/functional";
     import type Modal from "bootstrap/js/dist/modal";
     import { createEventDispatcher, getContext } from "svelte";
-
+    
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import { modalsKey } from "../components/context-keys";
     import Select from "../components/Select.svelte";
     import SelectOption from "../components/SelectOption.svelte";
     import StickyContainer from "../components/StickyContainer.svelte";
-    import * as tr from "../lib/ftl";
-    import { noop } from "../lib/functional";
     import type { ConfigListEntry, DeckOptionsState } from "./lib";
     import SaveButton from "./SaveButton.svelte";
     import TextInputModal from "./TextInputModal.svelte";

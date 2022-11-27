@@ -92,7 +92,7 @@ fn elapsed() -> time::Duration {
         let mut elap = time::SystemTime::now()
             .duration_since(time::SystemTime::UNIX_EPOCH)
             .unwrap();
-        let now = Utc::now();
+        let now = Local::now();
         if now.hour() >= 2 && now.hour() < 4 {
             elap -= time::Duration::from_secs(60 * 60 * 2);
         }

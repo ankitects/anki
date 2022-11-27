@@ -1,1 +1,0 @@
-../../../.bazel/bin/qt/aqt/forms/addonconf_qt6.py

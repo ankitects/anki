@@ -1,10 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import type { Callback } from "@tslib/typing";
 import type { Readable, Writable } from "svelte/store";
 import { writable } from "svelte/store";
-
-import type { Callback } from "../lib/typing";
 
 type Handler<T> = (args: T) => Promise<void>;
 

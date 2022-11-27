@@ -1,10 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import * as tr from "../lib/ftl";
-import { localizedNumber } from "../lib/i18n";
-import { Stats } from "../lib/proto";
-import { studiedToday } from "../lib/time";
+import * as tr from "@tslib/ftl";
+import { localizedNumber } from "@tslib/i18n";
+import { Stats } from "@tslib/proto";
+import { studiedToday } from "@tslib/time";
 
 export interface TodayData {
     title: string;
@@ -74,9 +74,11 @@ export function gatherData(data: Stats.GraphsResponse): TodayData {
         const studiedTodayText = studiedToday(answerCount, answerMillis / 1000);
         const againCount = answerCount - correctCount;
         let againCountText = tr.statisticsTodayAgainCount();
-        againCountText += ` ${againCount} (${localizedNumber(
-            (againCount / answerCount) * 100,
-        )}%)`;
+        againCountText += ` ${againCount} (${
+            localizedNumber(
+                (againCount / answerCount) * 100,
+            )
+        }%)`;
         const typeCounts = tr.statisticsTodayTypeCounts({
             learnCount,
             reviewCount,

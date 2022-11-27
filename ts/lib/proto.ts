@@ -7,7 +7,7 @@
 
 import type { Message, rpc, RPCImpl, RPCImplCallback } from "protobufjs";
 
-import { anki } from "./backend_proto";
+import { anki } from "../../out/ts/lib/backend_proto";
 
 import Cards = anki.cards;
 import Collection = anki.collection;

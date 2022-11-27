@@ -1,11 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { localeCompare } from "@tslib/i18n";
+import { DeckConfig, deckConfig } from "@tslib/proto";
 import { cloneDeep, isEqual } from "lodash-es";
-import { get, Readable, readable, Writable, writable } from "svelte/store";
+import type { Readable, Writable} from "svelte/store";
+import { get, readable, writable } from "svelte/store";
 
-import { localeCompare } from "../lib/i18n";
-import { DeckConfig, deckConfig } from "../lib/proto";
 import type { DynamicSvelteComponent } from "../sveltelib/dynamicComponent";
 
 export type DeckOptionsId = number;
@@ -178,8 +179,8 @@ export class DeckOptionsState {
             .map((c) => c.config)
             .filter((c, idx) => {
                 return (
-                    idx !== this.selectedIdx &&
-                    (c.id === 0 || this.modifiedConfigs.has(c.id))
+                    idx !== this.selectedIdx
+                    && (c.id === 0 || this.modifiedConfigs.has(c.id))
                 );
             });
         const configs = [
@@ -259,9 +260,7 @@ export class DeckOptionsState {
 
     private sortConfigs() {
         const currentConfigName = this.configs[this.selectedIdx].config.name;
-        this.configs.sort((a, b) =>
-            localeCompare(a.config.name, b.config.name, { sensitivity: "base" }),
-        );
+        this.configs.sort((a, b) => localeCompare(a.config.name, b.config.name, { sensitivity: "base" }));
         this.selectedIdx = this.configs.findIndex(
             (c) => c.config.name == currentConfigName,
         );
@@ -281,17 +280,13 @@ export class DeckOptionsState {
     }
 
     private getParentLimits(): ParentLimits {
-        const parentConfigs = this.configs.filter((c) =>
-            this.currentDeck.parentConfigIds.includes(c.config.id),
-        );
+        const parentConfigs = this.configs.filter((c) => this.currentDeck.parentConfigIds.includes(c.config.id));
         const newCards = parentConfigs.reduce(
-            (previous, current) =>
-                Math.min(previous, current.config.config?.newPerDay ?? 0),
+            (previous, current) => Math.min(previous, current.config.config?.newPerDay ?? 0),
             2 ** 31,
         );
         const reviews = parentConfigs.reduce(
-            (previous, current) =>
-                Math.min(previous, current.config.config?.reviewsPerDay ?? 0),
+            (previous, current) => Math.min(previous, current.config.config?.reviewsPerDay ?? 0),
             2 ** 31,
         );
         return {

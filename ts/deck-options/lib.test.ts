@@ -5,9 +5,10 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+
+import { DeckConfig } from "@tslib/proto";
 import { get } from "svelte/store";
 
-import { DeckConfig } from "../lib/proto";
 import { DeckOptionsState } from "./lib";
 
 const exampleData = {
@@ -304,9 +305,7 @@ test("aux data", () => {
     // ensure changes serialize
     const out = state.dataForSaving(true);
     expect(out.configs!.length).toBe(2);
-    const json = out.configs!.map((c) =>
-        JSON.parse(new TextDecoder().decode(c.config!.other)),
-    );
+    const json = out.configs!.map((c) => JSON.parse(new TextDecoder().decode(c.config!.other)));
     expect(json).toStrictEqual([
         // other deck comes first
         {

@@ -10,7 +10,9 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from operator import attrgetter
-from typing import List, Optional
+from typing import Optional
+
+sys.path.append("pylib/anki/_vendor")
 
 import stringcase
 

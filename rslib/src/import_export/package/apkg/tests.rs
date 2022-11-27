@@ -134,7 +134,7 @@ impl Collection {
 
     fn assert_note_and_media(&mut self, note: &Note) {
         let sha1 = sha1_of_data(MP3_DATA);
-        let new_mp3_name = format!("sample-{}.mp3", hex::encode(&sha1));
+        let new_mp3_name = format!("sample-{}.mp3", hex::encode(sha1));
         let csums = MediaManager::new(&self.media_folder, &self.media_db)
             .unwrap()
             .all_checksums_as_is();

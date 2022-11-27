@@ -1,1 +1,0 @@
-../../../.bazel/bin/qt/aqt/forms/fields_web_qt6.py

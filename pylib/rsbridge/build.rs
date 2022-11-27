@@ -1,12 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::path::Path;
+
 fn main() {
-    // this build script simply exists so we can extend the link path
-    // inside Bazel based on an env var, as we need to provide a custom
-    // path to Python on Windows.
-    if let Ok(path) = std::env::var("PYO3_PYTHON") {
-        let path = std::path::Path::new(&path).with_file_name("libs");
-        println!("cargo:rustc-link-search={}", path.to_str().unwrap());
+    // macOS needs special link flags for PyO3
+    if cfg!(target_os = "macos") {
+        println!("cargo:rustc-link-arg=-undefined");
+        println!("cargo:rustc-link-arg=dynamic_lookup");
+        println!("cargo:rustc-link-arg=-mmacosx-version-min=10.13");
+    }
+
+    // On Windows, we need to be able to link with python3.lib
+    if cfg!(windows) {
+        let lib_path = Path::new("../../out/extracted/python/libs")
+            .canonicalize()
+            .expect("libs");
+        println!("cargo:rustc-link-search={}", lib_path.display());
     }
 }

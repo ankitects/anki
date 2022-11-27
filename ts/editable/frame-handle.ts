@@ -1,11 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { getSelection, isSelectionCollapsed } from "@tslib/cross-browser";
+import { elementIsEmpty, nodeIsElement, nodeIsText } from "@tslib/dom";
+import { on } from "@tslib/events";
+
 import { moveChildOutOfElement } from "../domlib/move-nodes";
 import { placeCaretAfter } from "../domlib/place-caret";
-import { getSelection, isSelectionCollapsed } from "../lib/cross-browser";
-import { elementIsEmpty, nodeIsElement, nodeIsText } from "../lib/dom";
-import { on } from "../lib/events";
 import type { FrameElement } from "./frame-element";
 
 /**
@@ -33,9 +34,9 @@ function skippableNode(handleElement: FrameHandle, node: Node): boolean {
      * MutationRecords however might include nodes which were directly removed again
      */
     return (
-        (nodeIsText(node) &&
-            (node.data === spaceCharacter || node.data.length === 0)) ||
-        !Array.prototype.includes.call(handleElement.childNodes, node)
+        (nodeIsText(node)
+            && (node.data === spaceCharacter || node.data.length === 0))
+        || !Array.prototype.includes.call(handleElement.childNodes, node)
     );
 }
 
@@ -52,8 +53,7 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
             }
 
             const handleElement = target;
-            const placement =
-                handleElement instanceof FrameStart ? "beforebegin" : "afterend";
+            const placement = handleElement instanceof FrameStart ? "beforebegin" : "afterend";
             const frameElement = handleElement.parentElement as FrameElement;
 
             for (const node of mutation.addedNodes) {
@@ -62,10 +62,10 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
                 }
 
                 if (
-                    nodeIsElement(node) &&
-                    !elementIsEmpty(node) &&
-                    (node.textContent === spaceCharacter ||
-                        node.textContent?.length === 0)
+                    nodeIsElement(node)
+                    && !elementIsEmpty(node)
+                    && (node.textContent === spaceCharacter
+                        || node.textContent?.length === 0)
                 ) {
                     /**
                      * When we surround the spaceCharacter of the frame handle
@@ -81,16 +81,15 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
             }
         } else if (mutation.type === "characterData") {
             if (
-                !nodeIsText(target) ||
-                !isFrameHandle(target.parentElement) ||
-                skippableNode(target.parentElement, target)
+                !nodeIsText(target)
+                || !isFrameHandle(target.parentElement)
+                || skippableNode(target.parentElement, target)
             ) {
                 continue;
             }
 
             const handleElement = target.parentElement;
-            const placement =
-                handleElement instanceof FrameStart ? "beforebegin" : "afterend";
+            const placement = handleElement instanceof FrameStart ? "beforebegin" : "afterend";
             const frameElement = handleElement.parentElement! as FrameElement;
 
             const cleaned = target.data.replace(spaceRegex, "");
@@ -155,8 +154,8 @@ export abstract class FrameHandle extends HTMLElement {
 
     invalidSpace(): boolean {
         return (
-            !this.firstChild ||
-            !(nodeIsText(this.firstChild) && this.firstChild.data === spaceCharacter)
+            !this.firstChild
+            || !(nodeIsText(this.firstChild) && this.firstChild.data === spaceCharacter)
         );
     }
 
@@ -236,8 +235,10 @@ export class FrameStart extends FrameHandle {
     connectedCallback(): void {
         super.connectedCallback();
 
-        this.removeMoveIn = on(this, "movein" as keyof HTMLElementEventMap, () =>
-            this.parentElement?.dispatchEvent(new Event("moveinstart")),
+        this.removeMoveIn = on(
+            this,
+            "movein" as keyof HTMLElementEventMap,
+            () => this.parentElement?.dispatchEvent(new Event("moveinstart")),
         );
     }
 }
@@ -275,8 +276,10 @@ export class FrameEnd extends FrameHandle {
     connectedCallback(): void {
         super.connectedCallback();
 
-        this.removeMoveIn = on(this, "movein" as keyof HTMLElementEventMap, () =>
-            this.parentElement?.dispatchEvent(new Event("moveinend")),
+        this.removeMoveIn = on(
+            this,
+            "movein" as keyof HTMLElementEventMap,
+            () => this.parentElement?.dispatchEvent(new Event("moveinend")),
         );
     }
 }
@@ -288,10 +291,9 @@ function checkWhetherMovingIntoHandle(selection: Selection, handle: FrameHandle)
 }
 
 function checkWhetherSelectingHandle(selection: Selection, handle: FrameHandle): void {
-    handle.partiallySelected =
-        handle.firstChild && !isSelectionCollapsed(selection)
-            ? selection.containsNode(handle.firstChild)
-            : false;
+    handle.partiallySelected = handle.firstChild && !isSelectionCollapsed(selection)
+        ? selection.containsNode(handle.firstChild)
+        : false;
 }
 
 export function checkHandles(): void {

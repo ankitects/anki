@@ -7,8 +7,8 @@ from typing import Sequence
 
 from anki.collection import OpChanges, OpChangesWithCount
 from anki.notes import NoteId
-from aqt import QWidget
 from aqt.operations import CollectionOp
+from aqt.qt import QWidget
 from aqt.utils import showInfo, tooltip, tr
 
 

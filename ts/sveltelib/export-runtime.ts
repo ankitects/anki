@@ -5,10 +5,9 @@
 // If they were to bundle their own runtime, things like bindings and contexts
 // would not work.
 
+import { registerPackageRaw } from "@tslib/runtime-require";
 import * as svelteRuntime from "svelte/internal";
 import * as svelteStore from "svelte/store";
-
-import { registerPackageRaw } from "../lib/runtime-require";
 
 registerPackageRaw("svelte/internal", svelteRuntime);
 registerPackageRaw("svelte/store", svelteStore);

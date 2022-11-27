@@ -1,14 +1,19 @@
 [package]
 name = "makeinstall"
-version = "0.1.0"
-authors = ["Ankitects Pty Ltd and contributors"]
-edition = "2021"
-license = "AGPL-3.0-or-later"
+
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 anyhow = "1.0.53"
+camino = "1.1.1"
+clap = { version = "4.0.26", features = ["derive"] }
 glob = "0.3.0"
 slog = "2.7.0"
 slog-term = "2.8.0"
 tugger-windows-codesign = "0.6.0"
 walkdir = "2.3.2"
+workspace-hack = { version = "0.1", path = "../../../tools/workspace-hack" }

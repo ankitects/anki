@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import * as tr from "@tslib/ftl";
+import { Notetypes, notetypes } from "@tslib/proto";
 import { isEqual } from "lodash-es";
-import { Readable, readable } from "svelte/store";
-
-import * as tr from "../lib/ftl";
-import { Notetypes, notetypes } from "../lib/proto";
+import type { Readable} from "svelte/store";
+import { readable } from "svelte/store";
 
 function nullToNegativeOne(list: (number | null)[]): number[] {
     return list.map((val) => val ?? -1);
@@ -83,9 +83,9 @@ export class ChangeNotetypeInfoWrapper {
 
     unchanged(): boolean {
         return (
-            this.input().newNotetypeId === this.input().oldNotetypeId &&
-            isEqual(this.fields, [...Array(this.fields.length).keys()]) &&
-            isEqual(this.templates, [...Array(this.templates?.length ?? 0).keys()])
+            this.input().newNotetypeId === this.input().oldNotetypeId
+            && isEqual(this.fields, [...Array(this.fields.length).keys()])
+            && isEqual(this.templates, [...Array(this.templates?.length ?? 0).keys()])
         );
     }
 
@@ -190,12 +190,11 @@ export class ChangeNotetypeState {
     private buildNotetypeList(): NotetypeListEntry[] {
         const currentId = this.info_.input().newNotetypeId;
         return this.notetypeNames.entries.map(
-            (entry, idx) =>
-                ({
-                    idx,
-                    name: entry.name,
-                    current: entry.id === currentId,
-                } as NotetypeListEntry),
+            (entry, idx) => ({
+                idx,
+                name: entry.name,
+                current: entry.id === currentId,
+            } as NotetypeListEntry),
         );
     }
 }

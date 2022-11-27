@@ -1,15 +1,22 @@
 [package]
 name = "makeapp"
-version = "0.1.0"
-authors = ["Ankitects Pty Ltd and contributors"]
-edition = "2021"
-license = "AGPL-3.0-or-later"
+
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 anyhow = "1.0.53"
 apple-bundles = "0.6.0"
+camino = "1.1.1"
+clap = { version = "4.0.26", features = ["derive"] }
 glob = "0.3.0"
 lazy_static = "1.4.0"
 plist = "1.3.1"
+serde = { version = "1.0.147", features = ["derive"] }
+serde_json = "1.0.88"
 tugger-file-manifest = "0.6.0"
 walkdir = "2.3.2"
+workspace-hack = { version = "0.1", path = "../../../tools/workspace-hack" }

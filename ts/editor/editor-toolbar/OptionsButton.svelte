@@ -3,14 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { bridgeCommand } from "@tslib/bridgecommand";
+    import * as tr from "@tslib/ftl";
+    
     import CheckBox from "../../components/CheckBox.svelte";
     import DropdownItem from "../../components/DropdownItem.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
     import { mathjaxConfig } from "../../editable/mathjax-element";
-    import { bridgeCommand } from "../../lib/bridgecommand";
-    import * as tr from "../../lib/ftl";
     import { shrinkImagesByDefault } from "../image-overlay/ImageOverlay.svelte";
     import { closeHTMLTags } from "../plain-text-input/PlainTextInput.svelte";
     import { cogIcon } from "./icons";

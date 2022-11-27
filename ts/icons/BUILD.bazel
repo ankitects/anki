@@ -1,9 +1,0 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
-
-js_library(
-    name = "icons",
-    srcs = glob([
-        "*.svg",
-    ]),
-    visibility = ["//visibility:public"],
-)

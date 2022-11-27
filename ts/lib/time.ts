@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import * as tr from "./ftl";
+import * as tr from "@tslib/ftl";
 
 export const SECOND = 1.0;
 export const MINUTE = 60.0 * SECOND;
@@ -108,7 +108,7 @@ export function studiedToday(cards: number, secs: number): string {
 function i18nFuncForUnit(
     unit: TimespanUnit,
     short: boolean,
-): ({ amount: number }) => string {
+): (_: { amount: number }) => string {
     if (short) {
         switch (unit) {
             case TimespanUnit.Seconds:

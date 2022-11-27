@@ -4,18 +4,7 @@ set -e
 
 STATE=$(pwd)/../state/anki-ci
 mkdir -p $STATE
-BAZEL="bazel --output_user_root=$STATE/bazel --output_base=$STATE/bazel/anki"
-BUILDARGS="--config=ci --experimental_convenience_symlinks=ignore"
 
 echo "+++ Building and testing"
-
-# move existing node_modules into tree
-test -e $STATE/node_modules && mv $STATE/node_modules .
-
-$BAZEL test $BUILDARGS ...
-
-echo "--- Building wheels"
-$BAZEL build wheels
-
-# if tests succeed, back up node_modules folder
-mv node_modules $STATE/
+ln -sf out/node_modules .
+BUILD_ROOT=$STATE/build ./ninja pylib/anki qt/aqt wheels check

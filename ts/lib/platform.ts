@@ -2,8 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 export function isApplePlatform(): boolean {
+    // avoid deprecation warning
+    const platform = window.navigator["platform" + ""]
     return (
-        window.navigator.platform.startsWith("Mac") ||
-        window.navigator.platform.startsWith("iP")
+        platform.startsWith("Mac") ||
+        platform.startsWith("iP")
     );
 }

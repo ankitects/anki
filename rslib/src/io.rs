@@ -90,7 +90,7 @@ pub(crate) fn atomic_rename(file: NamedTempFile, target: &Path, fsync: bool) -> 
             op: FileOp::Sync,
         })?;
     }
-    file.persist(&target)?;
+    file.persist(target)?;
     #[cfg(not(windows))]
     if fsync {
         if let Some(parent) = target.parent() {
