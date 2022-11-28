@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { direction } from "@tslib/i18n";
-    
+
     import type { TableDatum } from "./graph-helpers";
 
     export let tableData: TableDatum[];

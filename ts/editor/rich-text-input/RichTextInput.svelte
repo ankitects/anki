@@ -31,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     import { registerPackage } from "@tslib/runtime-require";
-    
+
     import contextProperty from "../../sveltelib/context-property";
     import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
     import { Surrounder } from "../surround";
@@ -66,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { singleCallback } from "@tslib/typing";
     import { getAllContexts, getContext, onMount } from "svelte";
     import type { Readable } from "svelte/store";
-    
+
     import { placeCaretAfterContent } from "../../domlib/place-caret";
     import ContentEditable from "../../editable/ContentEditable.svelte";
     import useDOMMirror from "../../sveltelib/dom-mirror";

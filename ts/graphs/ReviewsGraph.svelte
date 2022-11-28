@@ -5,11 +5,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@tslib/ftl";
     import type { Stats } from "@tslib/proto";
-    
+
     import AxisTicks from "./AxisTicks.svelte";
     import CumulativeOverlay from "./CumulativeOverlay.svelte";
     import Graph from "./Graph.svelte";
-    import type { RevlogRange,TableDatum  } from "./graph-helpers";
+    import type { RevlogRange, TableDatum } from "./graph-helpers";
     import { defaultGraphBounds, GraphRange } from "./graph-helpers";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
     import HoverColumns from "./HoverColumns.svelte";

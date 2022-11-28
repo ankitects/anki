@@ -69,8 +69,7 @@ export class FlatRange {
         if (range.collapsed) {
             // If the range is collapsed to a single element, move the range inside the element.
             // This prevents putting the surround above the base element.
-            const selected =
-                range.commonAncestorContainer.childNodes[range.startOffset];
+            const selected = range.commonAncestorContainer.childNodes[range.startOffset];
 
             if (nodeIsElement(selected)) {
                 range.selectNode(selected);

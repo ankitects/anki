@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { directionKey, fontFamilyKey, fontSizeKey } from "@tslib/context-keys";
     import { getContext } from "svelte";
     import type { Readable } from "svelte/store";
-    
+
     import { context } from "./EditingArea.svelte";
 
     const { content } = context.get();

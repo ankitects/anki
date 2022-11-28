@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { Stats } from "@tslib/proto";
     import { Cards, stats as statsService } from "@tslib/proto";
-    
+
     import Container from "../components/Container.svelte";
     import Row from "../components/Row.svelte";
     import CardInfoPlaceholder from "./CardInfoPlaceholder.svelte";

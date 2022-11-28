@@ -22,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     import { registerPackage } from "@tslib/runtime-require";
-    
+
     import contextProperty from "../sveltelib/context-property";
     import lifecycleHooks from "../sveltelib/lifecycle-hooks";
 
@@ -44,7 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
-    
+
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
     import HorizontalResizer from "../components/HorizontalResizer.svelte";
@@ -282,7 +282,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     import { wrapInternal } from "@tslib/wrap";
-    
+
     import { mathjaxConfig } from "../editable/mathjax-element";
     import { refocusInput } from "./helpers";
     import * as oldEditorAdapter from "./old-editor-adapter";

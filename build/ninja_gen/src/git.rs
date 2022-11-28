@@ -54,7 +54,7 @@ fn locate_git_head() -> Option<BuildInput> {
                 .filter_map(|p| {
                     let head = p.unwrap().path().join("HEAD");
                     if head.exists() {
-                        Some(head.to_string())
+                        Some(head.as_str().replace(':', "$:"))
                     } else {
                         None
                     }

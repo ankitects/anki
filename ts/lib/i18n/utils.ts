@@ -12,18 +12,18 @@ import type { ModuleName } from "./modules";
 export function supportsVerticalText(): boolean {
     const firstLang = firstLanguage();
     return (
-        firstLang.startsWith("ja") ||
-        firstLang.startsWith("zh") ||
-        firstLang.startsWith("ko")
+        firstLang.startsWith("ja")
+        || firstLang.startsWith("zh")
+        || firstLang.startsWith("ko")
     );
 }
 
 export function direction(): string {
     const firstLang = firstLanguage();
     if (
-        firstLang.startsWith("ar") ||
-        firstLang.startsWith("he") ||
-        firstLang.startsWith("fa")
+        firstLang.startsWith("ar")
+        || firstLang.startsWith("he")
+        || firstLang.startsWith("fa")
     ) {
         return "rtl";
     } else {

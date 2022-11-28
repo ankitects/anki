@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type CodeMirrorLib from "codemirror";
     import { createEventDispatcher, onMount } from "svelte";
     import type { Writable } from "svelte/store";
-    
+
     import { pageTheme } from "../../sveltelib/theme";
     import { baseOptions, focusAndSetCaret, latex } from "../code-mirror";
     import type { CodeMirrorAPI } from "../CodeMirror.svelte";

@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@tslib/ftl";
     import { getPlatformString } from "@tslib/shortcuts";
-    
+
     import ButtonGroup from "../../components/ButtonGroup.svelte";
     import ButtonGroupItem, {
         createProps,

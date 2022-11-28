@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "@tslib/bridgecommand";
     import { registerShortcut } from "@tslib/shortcuts";
     import { onDestroy, onMount } from "svelte";
-    
+
     import type { NoteEditorAPI } from "./NoteEditor.svelte";
     import NoteEditor from "./NoteEditor.svelte";
     import StickyBadge from "./StickyBadge.svelte";

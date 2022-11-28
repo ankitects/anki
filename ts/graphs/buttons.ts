@@ -20,7 +20,7 @@ import {
     sum,
 } from "d3";
 
-import type { GraphBounds, GraphRange} from "./graph-helpers";
+import type { GraphBounds, GraphRange } from "./graph-helpers";
 import { millisecondCutoffForRange, setDataAvailable } from "./graph-helpers";
 import { hideTooltip, showTooltip } from "./tooltip";
 

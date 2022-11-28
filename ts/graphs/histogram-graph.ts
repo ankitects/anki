@@ -9,7 +9,7 @@ import { localizedNumber } from "@tslib/i18n";
 import type { Bin, ScaleLinear, ScaleSequential } from "d3";
 import { area, axisBottom, axisLeft, axisRight, cumsum, curveBasis, max, pointer, scaleLinear, select } from "d3";
 
-import type { GraphBounds} from "./graph-helpers";
+import type { GraphBounds } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
 import { hideTooltip, showTooltip } from "./tooltip";

@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
     import { getPlatformString } from "@tslib/shortcuts";
     import { wrapInternal } from "@tslib/wrap";
-    
+
     import DropdownItem from "../../components/DropdownItem.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import Popover from "../../components/Popover.svelte";
