@@ -21,6 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LapseOptions from "./LapseOptions.svelte";
     import type { DeckOptionsState } from "./lib";
     import NewOptions from "./NewOptions.svelte";
+    import Page from "../components/Page.svelte";
     import TimerOptions from "./TimerOptions.svelte";
 
     export let state: DeckOptionsState;
@@ -58,9 +59,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let onPresetChange: () => void;
 </script>
 
-<ConfigSelector {state} on:presetchange={onPresetChange} />
 
-<div class="deck-options-page">
+<Page class="deck-options-page">
+    <ConfigSelector slot="header" {state} on:presetchange={onPresetChange} />
+
     <Container
         breakpoint="sm"
         --gutter-inline="0.25rem"
@@ -125,13 +127,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Item>
         </DynamicallySlottable>
     </Container>
-</div>
+</Page>
 
 <style lang="scss">
     @use "sass/breakpoints" as bp;
 
-    .deck-options-page {
-        overflow-x: hidden;
+    :global(.deck-options-page) {
 
         @include bp.with-breakpoint("lg") {
             :global(.container) {
