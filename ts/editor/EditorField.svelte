@@ -120,6 +120,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     @use "sass/elevation" as *;
 
+    /* Make sure labels are readable on custom Qt backgrounds */
+    .field-container {
+        background: var(--canvas);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+
     .editor-field {
         overflow: hidden;
         margin: 1px 3px 0 3px;
