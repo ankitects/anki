@@ -73,10 +73,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flex-grow: 1;
         display: grid;
         gap: 1.5em;
-        grid-template-columns: 50% 50%;
+        grid-template-columns: 33.3% 33.3% 33.3%;
         padding-bottom: 1.5rem;
 
-        @media only screen and (max-width: 1200px) {
+        @media only screen and (max-width: 1400px) {
+            grid-template-columns: 50% 50%;
+        }
+        @media only screen and (max-width: 1200) {
             grid-template-columns: 100%;
         }
         @media only screen and (max-width: 600px) {
