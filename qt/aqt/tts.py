@@ -552,12 +552,12 @@ if is_win:
         tmppath = os.path.join(tmpdir(), "tts.wav")
 
         def import_voices(self) -> None:
-            import winrt.windows.media.speechsynthesis as speechsynthesis  # type: ignore
+            import winsdk.windows.media.speechsynthesis as speechsynthesis  # type: ignore
 
             try:
                 self.voice_list = speechsynthesis.SpeechSynthesizer.get_all_voices()
             except Exception as e:
-                print("winrt tts voices unavailable:", e)
+                print("winsdk tts voices unavailable:", e)
                 self.voice_list = []
 
         def get_available_voices(self) -> list[TTSVoice]:
@@ -600,8 +600,8 @@ if is_win:
             cb()
 
         async def speakText(self, tag: TTSTag, voice_id: Any) -> None:
-            import winrt.windows.media.speechsynthesis as speechsynthesis  # type: ignore
-            import winrt.windows.storage.streams as streams  # type: ignore
+            import winsdk.windows.media.speechsynthesis as speechsynthesis  # type: ignore
+            import winsdk.windows.storage.streams as streams  # type: ignore
 
             synthesizer = speechsynthesis.SpeechSynthesizer()
 
