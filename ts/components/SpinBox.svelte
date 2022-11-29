@@ -151,7 +151,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         input {
             width: 100%;
             padding: 0.2rem 1.5rem 0.2rem 0.75rem;
-            background: var(--canvas-elevated);
+            background: var(--canvas-inset);
             color: var(--fg);
             border: none;
             outline: none;

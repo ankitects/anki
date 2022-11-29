@@ -80,17 +80,17 @@ $vars: (
                 ),
             ),
             elevated: (
-                "Slightly brighter than window background",
+                "Background of containers",
                 (
                     light: white,
                     dark: palette(darkgray, 4),
                 ),
             ),
             inset: (
-                "Slightly darker than window background",
+                "Background of inputs inside containers",
                 (
-                    light: palette(lightgray, 3),
-                    dark: palette(darkgray, 6),
+                    light: white,
+                    dark: palette(darkgray, 5),
                 ),
             ),
             overlay: (
