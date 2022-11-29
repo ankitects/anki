@@ -44,4 +44,4 @@ good-names =
   ip,
 
 [IMPORTS]
-ignored-modules = anki.*_pb2, anki.sync_pb2, win32file,pywintypes,socket,win32pipe,winrt,pyaudio,anki.scheduler_pb2
+ignored-modules = anki.*_pb2, anki.sync_pb2, win32file,pywintypes,socket,win32pipe,winsdk,pyaudio,anki.scheduler_pb2

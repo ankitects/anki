@@ -15,10 +15,10 @@ Pre-built Python packages are available on PyPI. They are useful if you wish to:
 - Get code completion when developing add-ons
 - Make command line scripts that modify .anki2 files via Anki's Python libraries
 
-You will need the 64 bit version of Python 3.9 or 3.10 installed. 3.9 is
-recommended, as Anki has only received minimal testing on 3.10 so far, and some
-dependencies have not been fully updated yet. On Windows, currently only 3.9
-will work. You can install Python from python.org or from your distro.
+You will need the 64 bit version of Python 3.9 or later installed. 3.9 is
+recommended, as Anki has only received minimal testing on 3.10+ so far, and some
+dependencies have not been fully updated yet. You can install Python from python.org
+or from your distro.
 
 For further instructions, please see https://betas.ankiweb.net/#via-pypipip. Note that
 in the provided commands, `--pre` tells pip to fetch alpha/beta versions. If you remove
