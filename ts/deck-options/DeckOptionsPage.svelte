@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Container from "../components/Container.svelte";
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
+    import Page from "../components/Page.svelte";
     import Row from "../components/Row.svelte";
     import type { DynamicSvelteComponent } from "../sveltelib/dynamicComponent";
     import Addons from "./Addons.svelte";
@@ -21,7 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LapseOptions from "./LapseOptions.svelte";
     import type { DeckOptionsState } from "./lib";
     import NewOptions from "./NewOptions.svelte";
-    import Page from "../components/Page.svelte";
     import TimerOptions from "./TimerOptions.svelte";
 
     export let state: DeckOptionsState;
@@ -58,7 +58,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let onPresetChange: () => void;
 </script>
-
 
 <Page class="deck-options-page">
     <ConfigSelector slot="header" {state} on:presetchange={onPresetChange} />
@@ -133,8 +132,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "sass/breakpoints" as bp;
 
     :global(.deck-options-page) {
-
-        @include bp.with-breakpoint("lg") {
+        @include bp.with-breakpoint("xl") {
             :global(.container) {
                 display: block;
             }
