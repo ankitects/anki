@@ -19,14 +19,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const options = $info.getOldNamesIncludingNothing(ctx);
     $: state.setOldIndex(ctx, newIndex, oldIndex);
+    $: label = options[oldIndex];
 </script>
 
 <Row --cols={2}>
     <Col --col-size={1}>
-        <!-- svelte-ignore a11y-no-onchange -->
-        <Select current={options[oldIndex]}>
+        <Select bind:value={oldIndex} {label}>
             {#each options as name, idx}
-                <SelectOption on:select={() => (oldIndex = idx)}>{name}</SelectOption>
+                <SelectOption value={idx}>{name}</SelectOption>
             {/each}
         </Select>
     </Col>

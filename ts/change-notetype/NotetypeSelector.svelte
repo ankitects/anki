@@ -16,13 +16,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: ChangeNotetypeState;
     const notetypes = state.notetypes;
     const info = state.info;
-    let value: number = 0;
 
-    $: state.setTargetNotetypeIndex(value);
+    let value: number = 0;
     $: options = Array.from($notetypes, (notetype) => notetype.name);
+    $: label = options[value];
+
+    function blur(e: CustomEvent): void {
+        state.setTargetNotetypeIndex(e.detail.newIdx);
+    }
 </script>
 
-<ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
+<ButtonToolbar class="justify-content-between" wrap={false}>
     <LabelButton disabled={true}>
         {$info.oldNotetypeName}
     </LabelButton>
@@ -34,9 +38,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/if}
     </Badge>
     <ButtonGroup class="flex-grow-1">
-        <Select class="flex-grow-1" current={options[value]}>
+        <Select class="flex-grow-1" bind:value {label} on:change={blur}>
             {#each options as option, idx}
-                <SelectOption on:select={() => (value = idx)}>{option}</SelectOption>
+                <SelectOption value={idx}>{option}</SelectOption>
             {/each}
         </Select>
     </ButtonGroup>
