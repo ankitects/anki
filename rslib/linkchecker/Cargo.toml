@@ -1,5 +1,6 @@
 [package]
 name = "linkchecker"
+publish = false
 
 version.workspace = true
 authors.workspace = true

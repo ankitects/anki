@@ -1,6 +1,7 @@
 [package]
 name = "anki"
 build = "build/main.rs"
+publish = false
 description = "Anki's Rust library code"
 
 version.workspace = true

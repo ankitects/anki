@@ -1,5 +1,6 @@
 [package]
 name = "runner"
+publish = false
 
 version.workspace = true
 authors.workspace = true

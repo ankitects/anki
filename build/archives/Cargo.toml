@@ -1,8 +1,12 @@
 [package]
 name = "archives"
-version = "0.0.0"
-authors = ["Ankitects Pty Ltd"]
-edition = "2021"
+publish = false
+
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 camino = "1.1.1"

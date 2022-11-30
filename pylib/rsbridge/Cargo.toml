@@ -1,5 +1,6 @@
 [package]
 name = "rsbridge"
+publish = false
 description = "Anki's Rust library code Python bindings"
 
 version.workspace = true
