@@ -24,7 +24,7 @@
     @if $primary {
         background: var(--button-primary-bg);
         @if $hover {
-            &:hover:not[disabled] {
+            &:hover {
                 background: linear-gradient(
                     180deg,
                     var(--button-primary-gradient-start) 0%,
@@ -36,7 +36,7 @@
     } @else {
         background: var(--button-bg);
         @if $hover {
-            &:hover:not[disabled] {
+            &:hover {
                 background: linear-gradient(
                     180deg,
                     var(--button-gradient-start) 0%,
