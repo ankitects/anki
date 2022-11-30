@@ -47,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             box-shadow: inset 0 0 0 1px palette(darkgray, 2);
         }
         &.scrollable {
-            max-height: 80vh;
+            max-height: 400px;
             overflow: hidden auto;
         }
     }
