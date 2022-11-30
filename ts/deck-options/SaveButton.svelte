@@ -115,4 +115,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .save {
         margin: 0 0.75rem;
     }
+
+    /* Todo: find more elegant fix for misalignment */
+    :global(.chevron) {
+        height: 100% !important;
+    }
 </style>
