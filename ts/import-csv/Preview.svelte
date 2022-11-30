@@ -5,14 +5,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { Generic } from "@tslib/proto";
 
+    import ScrollArea from "../components/ScrollArea.svelte";
     import type { ColumnOption } from "./lib";
 
     export let columnOptions: ColumnOption[];
     export let preview: Generic.StringList[];
+
+    let offsetHeight: number;
 </script>
 
-<div class="outer">
-    <table class="preview">
+<ScrollArea scrollX --height="{offsetHeight}px">
+    <table class="preview" bind:offsetHeight>
         {#each columnOptions.slice(1) as { label, shortLabel }}
             <th>
                 {shortLabel || label}
@@ -26,15 +29,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </tr>
         {/each}
     </table>
-</div>
+</ScrollArea>
 
 <style lang="scss">
-    .outer {
-        // approximate size based on body max width + margins
-        width: min(90vw, 65em);
-        overflow: auto;
-    }
-
     .preview {
         border-collapse: collapse;
         white-space: nowrap;
