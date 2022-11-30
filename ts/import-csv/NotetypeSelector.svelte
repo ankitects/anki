@@ -8,9 +8,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
+    import Select from "../components/Select.svelte";
+    import SelectOption from "../components/SelectOption.svelte";
 
     export let notetypeNameIds: Notetypes.NotetypeNameId[];
     export let notetypeId: number;
+
+    $: label = notetypeNameIds.find((n) => n.id === notetypeId)?.name;
 </script>
 
 <Row --cols={2}>
@@ -18,11 +22,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {tr.notetypesNotetype()}
     </Col>
     <Col --col-size={1}>
-        <!-- svelte-ignore a11y-no-onchange -->
-        <select class="form-select" bind:value={notetypeId}>
+        <Select bind:value={notetypeId} {label}>
             {#each notetypeNameIds as { id, name }}
-                <option value={id}>{name}</option>
+                <SelectOption value={id}>{name}</SelectOption>
             {/each}
-        </select>
+        </Select>
     </Col>
 </Row>

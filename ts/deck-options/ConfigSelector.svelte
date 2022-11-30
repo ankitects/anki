@@ -8,12 +8,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type Modal from "bootstrap/js/dist/modal";
     import { createEventDispatcher, getContext } from "svelte";
 
-    import ButtonGroup from "../components/ButtonGroup.svelte";
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import { modalsKey } from "../components/context-keys";
+    import Row from "../components/Row.svelte";
     import Select from "../components/Select.svelte";
     import SelectOption from "../components/SelectOption.svelte";
-    import Container from "../components/Container.svelte";
     import type { ConfigListEntry, DeckOptionsState } from "./lib";
     import SaveButton from "./SaveButton.svelte";
     import TextInputModal from "./TextInputModal.svelte";
@@ -23,17 +22,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
     const dispatchPresetChange = () => dispatch("presetchange");
 
-    $: {
-        state.setCurrentIndex(value);
-        dispatchPresetChange();
-    }
-
-    $: options = Array.from($configList, (entry) => configLabel(entry));
-    $: value = $configList.find((entry) => entry.current)?.idx || 0;
+    $: label = configLabel($configList.find((entry) => entry.current)!);
 
     function configLabel(entry: ConfigListEntry): string {
         const count = tr.deckConfigUsedByDecks({ decks: entry.useCount });
         return `${entry.name} (${count})`;
+    }
+
+    function blur(e: CustomEvent): void {
+        state.setCurrentIndex(e.detail.newIdx);
+        dispatchPresetChange();
     }
 
     function onAddConfig(text: string): void {
@@ -85,32 +83,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<TextInputModal
-    title={modalTitle}
-    prompt={tr.deckConfigNamePrompt()}
-    value={modalStartingValue}
-    onOk={modalSuccess}
-    bind:modalKey
-/>
+<div class="config-selector">
+    <TextInputModal
+        title={modalTitle}
+        prompt={tr.deckConfigNamePrompt()}
+        value={modalStartingValue}
+        onOk={modalSuccess}
+        bind:modalKey
+    />
 
-<Container --gutter-block="0.5rem" breakpoint="sm">
-    <ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
-        <ButtonGroup class="flex-grow-1">
-            <Select class="flex-grow-1" current={options[value]}>
-                {#each options as option, idx}
-                    <SelectOption on:select={() => (value = idx)}
-                        >{option}
-                    </SelectOption>
+    <Row class="justify-content-center" --gutter-block="0.5rem">
+        <ButtonToolbar class="justify-content-between flex-grow-1" wrap={false}>
+            <Select class="flex-grow-1" {label} on:change={blur}>
+                {#each $configList as entry}
+                    <SelectOption value={entry.idx}>{configLabel(entry)}</SelectOption>
                 {/each}
             </Select>
-        </ButtonGroup>
 
-        <SaveButton
-            {state}
-            on:add={promptToAdd}
-            on:clone={promptToClone}
-            on:rename={promptToRename}
-            on:remove={dispatchPresetChange}
-        />
-    </ButtonToolbar>
-</Container>
+            <SaveButton
+                {state}
+                on:add={promptToAdd}
+                on:clone={promptToClone}
+                on:rename={promptToRename}
+                on:remove={dispatchPresetChange}
+            />
+        </ButtonToolbar>
+    </Row>
+</div>
+
+<style lang="scss">
+    .config-selector {
+        width: min(100%, 40em);
+        margin: 0 auto;
+    }
+</style>

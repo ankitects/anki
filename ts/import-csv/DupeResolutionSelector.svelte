@@ -8,6 +8,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
+    import Select from "../components/Select.svelte";
+    import SelectOption from "../components/SelectOption.svelte";
 
     export let dupeResolution: ImportExport.CsvMetadata.DupeResolution;
 
@@ -25,6 +27,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             label: tr.importingPreserve(),
         },
     ];
+
+    $: label = dupeResolutions.find((r) => r.value === dupeResolution)?.label;
 </script>
 
 <Row --cols={2}>
@@ -32,11 +36,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {tr.importingExistingNotes()}
     </Col>
     <Col --col-size={1}>
-        <!-- svelte-ignore a11y-no-onchange -->
-        <select class="form-select" bind:value={dupeResolution}>
+        <Select bind:value={dupeResolution} {label}>
             {#each dupeResolutions as { label, value }}
-                <option {value}>{label}</option>
+                <SelectOption {value}>{label}</SelectOption>
             {/each}
-        </select>
+        </Select>
     </Col>
 </Row>
