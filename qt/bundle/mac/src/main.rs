@@ -20,7 +20,7 @@ use codesign::{codesign_app, codesign_python_libs};
 use dmg::{make_dmgs, BuildDmgsArgs};
 use notarize::notarize_app;
 use plist::Value;
-use tugger_file_manifest::FileEntry;
+use simple_file_manifest::FileEntry;
 use walkdir::WalkDir;
 
 #[derive(Clone, ValueEnum)]

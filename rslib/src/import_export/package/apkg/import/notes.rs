@@ -8,7 +8,7 @@ use std::{
     sync::Arc,
 };
 
-use sha1::Sha1;
+use sha1::{Digest, Sha1};
 
 use super::{media::MediaUseMap, Context};
 use crate::{
@@ -285,7 +285,7 @@ impl Notetype {
         for template in &self.templates {
             hasher.update(template.name.as_bytes());
         }
-        hasher.digest().bytes()
+        hasher.finalize().into()
     }
 }
 

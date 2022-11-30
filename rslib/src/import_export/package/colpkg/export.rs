@@ -11,7 +11,7 @@ use std::{
 };
 
 use prost::Message;
-use sha1::Sha1;
+use sha1::{Digest, Sha1};
 use tempfile::NamedTempFile;
 use zip::{write::FileOptions, CompressionMethod, ZipWriter};
 use zstd::{
@@ -359,7 +359,7 @@ impl MediaCopier {
 
         self.encoder = wrapped_writer.finish()?;
 
-        Ok((size, hasher.digest().bytes()))
+        Ok((size, hasher.finalize().into()))
     }
 }
 
