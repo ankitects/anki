@@ -20,5 +20,5 @@ SKIP_RUN=1 ./run
 
 echo "--- Check Rust libs"
 cargo install cargo-deny
-cargo deny check -A multiple
+cargo deny check -A duplicate
 
