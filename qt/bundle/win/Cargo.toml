@@ -1,5 +1,6 @@
 [package]
 name = "makeinstall"
+publish = false
 
 version.workspace = true
 authors.workspace = true

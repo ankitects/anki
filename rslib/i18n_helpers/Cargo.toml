@@ -1,10 +1,13 @@
 [package]
 name = "anki_i18n_helpers"
-version = "0.0.0"
-authors = ["Ankitects Pty Ltd and contributors"]
-edition = "2021"
-license = "AGPL-3.0-or-later"
+publish = false
 description = "Helpers for Anki's i18n system"
+
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
 
 [lib]
 name = "anki_i18n_helpers"
