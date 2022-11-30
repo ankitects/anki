@@ -1,0 +1,84 @@
+# all-features = true
+# features = []
+no-default-features = false
+feature-depth = 1
+
+[advisories]
+db-path = "~/.cargo/advisory-db"
+db-urls = ["https://github.com/rustsec/advisory-db"]
+vulnerability = "deny"
+unmaintained = "warn"
+yanked = "warn"
+notice = "warn"
+ignore = [
+  # time 0.1, via chrono. Chrono no longer uses the vulnerable code path,
+  # and they plan to drop the dependency for the 0.5 release.
+  "RUSTSEC-2020-0071",
+  # atty: we don't use a custom allocator on Windows, and our deps haven't
+  # updated to alternatives yet
+  "RUSTSEC-2021-0145",
+  # xml-rs via apple-bundles: not used for untrusted input
+  "RUSTSEC-2022-0048",
+]
+
+[licenses]
+unlicensed = "deny"
+copyleft = "deny"
+allow-osi-fsf-free = "neither"
+default = "deny"
+allow = [
+  "MIT",
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "ISC",
+  "MPL-2.0",
+  "Unicode-DFS-2016",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "OpenSSL",
+  "CC0-1.0",
+]
+confidence-threshold = 0.8
+# eg { allow = ["Zlib"], name = "adler32", version = "*" },
+exceptions = []
+
+[[licenses.clarify]]
+name = "ring"
+version = "*"
+expression = "MIT AND ISC AND OpenSSL"
+license-files = [
+  { path = "LICENSE", hash = 0xbd0eed23 },
+]
+
+[licenses.private]
+ignore = true
+
+[sources]
+unknown-registry = "warn"
+unknown-git = "warn"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = [
+  # https://github.com/timothee-haudebourg/pct-str/issues/5
+  "https://github.com/timothee-haudebourg/pct-str.git",
+]
+
+[sources.allow-org]
+github = ["ankitects"]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "allow"
+highlight = "all"
+workspace-default-features = "allow"
+external-default-features = "allow"
+# eg { name = "ansi_term", version = "=0.11.0" },
+allow = []
+deny = []
+# Certain crates/versions that will be skipped when doing duplicate detection.
+skip = []
+# Similarly to `skip` allows you to skip certain crates during duplicate
+# detection. Unlike skip, it also includes the entire tree of transitive
+# dependencies starting at the specified crate, up to a certain depth, which is
+# by default infinite.
+# eg { name = "ansi_term", version = "=0.11.0", depth = 20 },
+skip-tree = []
