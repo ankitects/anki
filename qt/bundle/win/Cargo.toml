@@ -9,12 +9,12 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-anyhow = "1.0.53"
+anyhow = "1.0.66"
 camino = "1.1.1"
-clap = { version = "4.0.26", features = ["derive"] }
+clap = { version = "4.0.29", features = ["derive"] }
 glob = "0.3.0"
 slog = "2.7.0"
-slog-term = "2.8.0"
+slog-term = "2.9.0"
 tugger-windows-codesign = "0.6.0"
 walkdir = "2.3.2"
 workspace-hack = { version = "0.1", path = "../../../tools/workspace-hack" }
