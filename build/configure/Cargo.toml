@@ -1,5 +1,6 @@
 [package]
 name = "configure"
+publish = false
 
 version.workspace = true
 authors.workspace = true

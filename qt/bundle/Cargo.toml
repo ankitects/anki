@@ -5,6 +5,7 @@ authors = ["Ankitects Pty Ltd and contributors <https://help.ankiweb.net>"]
 build = "build.rs"
 edition = "2021"
 license = "AGPL-3.0-or-later"
+publish = false
 rust-version = "1.64"
 
 [dependencies]

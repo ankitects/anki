@@ -6,7 +6,6 @@ use std::{fs, io::prelude::*, path::Path, process::Command};
 use anyhow::{bail, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use clap::Parser;
-use slog::*;
 use tugger_windows_codesign::{CodeSigningCertificate, SigntoolSign, SystemStore, TimestampServer};
 use walkdir::WalkDir;
 
@@ -19,9 +18,6 @@ struct Args {
 }
 
 fn main() -> anyhow::Result<()> {
-    let plain = slog_term::PlainSyncDecorator::new(std::io::stdout());
-    let logger = Logger::root(slog_term::FullFormat::new(plain).build().fuse(), o!());
-
     let args = Args::parse();
 
     let src_win_folder = Utf8Path::new("qt/bundle/win");
@@ -53,13 +49,10 @@ fn main() -> anyhow::Result<()> {
 
     // sign the anki.exe and uninstaller.exe in std, then copy into alt
     println!("--- Sign binaries");
-    codesign(
-        &logger,
-        [
-            &std_dist_folder.join("anki.exe"),
-            &std_dist_folder.join("uninstall.exe"),
-        ],
-    )?;
+    codesign([
+        &std_dist_folder.join("anki.exe"),
+        &std_dist_folder.join("uninstall.exe"),
+    ])?;
     for fname in &["anki.exe", "uninstall.exe"] {
         fs::copy(std_dist_folder.join(fname), alt_dist_folder.join(fname))
             .with_context(|| format!("copy {fname}"))?;
@@ -76,7 +69,7 @@ fn main() -> anyhow::Result<()> {
     }
 
     println!("--- Sign installers");
-    codesign(&logger, dists.iter().map(|tup| tup.1))?;
+    codesign(dists.iter().map(|tup| tup.1))?;
 
     Ok(())
 }
@@ -114,7 +107,7 @@ fn build_installer(
     Ok(())
 }
 
-fn codesign(logger: &Logger, paths: impl IntoIterator<Item = impl AsRef<Path>>) -> Result<()> {
+fn codesign(paths: impl IntoIterator<Item = impl AsRef<Path>>) -> Result<()> {
     if option_env!("ANKI_CODESIGN").is_none() {
         return Ok(());
     }
@@ -132,7 +125,7 @@ fn codesign(logger: &Logger, paths: impl IntoIterator<Item = impl AsRef<Path>>) 
     paths.into_iter().for_each(|path| {
         sign.sign_file(path);
     });
-    sign.run(logger)
+    sign.run()
 }
 
 fn build_manifest(base_path: &Utf8Path) -> Result<()> {

@@ -1,5 +1,6 @@
 [package]
 name = "ninja_gen"
+publish = false
 
 version.workspace = true
 authors.workspace = true

@@ -10,6 +10,7 @@ use std::{
 
 use itertools::Itertools;
 use num_integer::Integer;
+use sha1::{Digest, Sha1};
 
 use crate::{
     cloze::contains_cloze,
@@ -290,7 +291,9 @@ impl From<pb::Note> for Note {
 /// Text must be passed to strip_html_preserving_media_filenames() by
 /// caller prior to passing in here.
 pub(crate) fn field_checksum(text: &str) -> u32 {
-    let digest = sha1::Sha1::from(text).digest().bytes();
+    let mut hash = Sha1::new();
+    hash.update(text);
+    let digest = hash.finalize();
     u32::from_be_bytes(digest[..4].try_into().unwrap())
 }
 
