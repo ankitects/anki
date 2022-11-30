@@ -391,7 +391,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: shortenTags = shortenTags || assumedRows > 2;
     $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
 
-    $: dispatch("heightChange", { height: height + 1 });
+    $: dispatch("heightChange", { height: height + 4 });
 </script>
 
 {#if anyTagsSelected}
@@ -505,6 +505,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .tag-editor {
         display: flex;
+        width: 100%;
         flex-flow: row wrap;
         align-items: flex-end;
         background: var(--canvas-inset);
