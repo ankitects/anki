@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div
     {id}
-    class="container {className}"
+    class="container d-flex flex-column {className}"
     class:light={!$pageTheme.isDark}
     class:dark={$pageTheme.isDark}
     class:rtl
@@ -36,7 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "sass/elevation" as *;
     .container {
         width: 100%;
-        background: var(--canvas-elevated);
+        background: var(--container-bg, var(--canvas-elevated));
         border: 1px solid var(--border-subtle);
         border-radius: var(--border-radius-large, 10px);
         padding: 1rem 1.75rem 0.75rem 1.25rem;
@@ -70,7 +70,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     .help-badge {
         right: 0;
-        bottom: 4px;
+        bottom: 12px;
         color: var(--fg-faint);
         transition: color 0.2s linear;
         &:hover {
