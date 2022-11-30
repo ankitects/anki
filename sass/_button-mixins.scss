@@ -24,7 +24,7 @@
     @if $primary {
         background: var(--button-primary-bg);
         @if $hover {
-            &:hover {
+            &:hover:not[disabled] {
                 background: linear-gradient(
                     180deg,
                     var(--button-primary-gradient-start) 0%,
@@ -36,7 +36,7 @@
     } @else {
         background: var(--button-bg);
         @if $hover {
-            &:hover {
+            &:hover:not[disabled] {
                 background: linear-gradient(
                     180deg,
                     var(--button-gradient-start) 0%,
@@ -59,12 +59,8 @@
     -webkit-appearance: none;
     cursor: pointer;
     @if $border {
-        @if $primary {
-            border: none;
-        } @else {
-            border: 1px solid var(--border-subtle);
-            border-bottom-color: var(--shadow);
-        }
+        border: 1px solid var(--border-subtle);
+        border-bottom-color: var(--shadow);
     } @else {
         border: none;
     }
