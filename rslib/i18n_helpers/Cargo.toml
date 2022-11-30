@@ -1,10 +1,13 @@
 [package]
 name = "anki_i18n_helpers"
-version = "0.0.0"
-authors = ["Ankitects Pty Ltd and contributors"]
-edition = "2021"
-license = "AGPL-3.0-or-later"
+publish = false
 description = "Helpers for Anki's i18n system"
+
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
 
 [lib]
 name = "anki_i18n_helpers"
@@ -15,7 +18,7 @@ path = "src/lib.rs"
 [dependencies]
 fluent-syntax = "0.11.0"
 lazy_static = "1.4.0"
-regex = "1.6.0"
-serde_json = "1.0.85"
+regex = "1.7.0"
+serde_json = "1.0.89"
 walkdir = "2"
 workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }

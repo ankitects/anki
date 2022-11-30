@@ -1,5 +1,6 @@
 [package]
 name = "runner"
+publish = false
 
 version.workspace = true
 authors.workspace = true
@@ -9,7 +10,7 @@ rust-version.workspace = true
 
 [dependencies]
 camino = "1.1.1"
-clap = { version = "4.0.25", features = ["derive"] }
+clap = { version = "4.0.29", features = ["derive"] }
 junction = "0.2.0"
 termcolor = "1.1.3"
 workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }

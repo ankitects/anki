@@ -15,5 +15,10 @@ export ONLINE_TESTS=1
 
 ./ninja pylib/anki qt/aqt check
 
-# ensure anki/aqt importable
+echo "--- Ensure libs importable"
 SKIP_RUN=1 ./run
+
+echo "--- Check Rust libs"
+cargo install cargo-deny
+cargo deny check -A duplicate
+
