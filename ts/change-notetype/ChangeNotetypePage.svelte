@@ -8,8 +8,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Col from "../components/Col.svelte";
     import Container from "../components/Container.svelte";
+    import Page from "../components/Page.svelte";
     import Row from "../components/Row.svelte";
-    import StickyContainer from "../components/StickyContainer.svelte";
     import type { ChangeNotetypeState } from "./lib";
     import { MapContext } from "./lib";
     import Mapper from "./Mapper.svelte";
@@ -18,21 +18,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let state: ChangeNotetypeState;
     $: info = state.info;
-    let offset: number;
 </script>
 
-<div bind:offsetHeight={offset}>
-    <StickyContainer
-        --gutter-block="0.1rem"
-        --gutter-inline="0.25rem"
-        --sticky-borders="0 0 1px"
-        --z-index="4"
-    >
-        <NotetypeSelector {state} />
-    </StickyContainer>
-</div>
+<Page>
+    <div slot="header">
+        <Container --gutter-block="0.1rem" --gutter-inline="0.25rem">
+            <NotetypeSelector {state} />
+        </Container>
+    </div>
 
-<div id="scrollArea" style="--offset: {offset}px; --gutter-inline: 0.25rem;">
     <Row class="gx-0" --cols={2}>
         <Col --col-size={1} breakpoint="md">
             <Container>
@@ -51,12 +45,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Container>
         </Col>
     </Row>
-</div>
-
-<style>
-    #scrollArea {
-        padding: 0;
-        overflow: hidden auto;
-        height: calc(100% - var(--offset));
-    }
-</style>
+</Page>
