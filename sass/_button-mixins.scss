@@ -105,8 +105,6 @@ $focus-color: var(--shadow-focus);
 
 @mixin select($with-disabled: true) {
     width: 100%;
-    white-space: nowrap;
-    text-overflow: ellipsis;
 
     pointer-events: all;
     cursor: pointer;
