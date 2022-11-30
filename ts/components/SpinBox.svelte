@@ -68,21 +68,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="spin-box" on:wheel={handleWheel}>
     <button
-        class="left"
-        disabled={rtl ? value == max : value == min}
+        class="decrement"
+        disabled={value == min}
+        tabindex="-1"
         on:click={() => {
             input.focus();
-            if (rtl && value < max) {
-                change(step);
-            } else if (value > min) {
+            if (value > min) {
                 change(-step);
             }
         }}
         on:mousedown={() =>
             longPress(() => {
-                if (rtl && value < max) {
-                    change(step);
-                } else if (value > min) {
+                if (value > min) {
                     change(-step);
                 }
             })}
@@ -92,7 +89,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }}
     >
         <IconConstrain>
-            {@html chevronLeft}
+            {@html rtl ? chevronRight : chevronLeft}
         </IconConstrain>
     </button>
     <input
@@ -109,21 +106,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:focusout={() => (focused = false)}
     />
     <button
-        class="right"
-        disabled={rtl ? value == min : value == max}
+        class="increment"
+        disabled={value == max}
+        tabindex="-1"
         on:click={() => {
             input.focus();
-            if (rtl && value > min) {
-                change(-step);
-            } else if (value < max) {
+            if (value < max) {
                 change(step);
             }
         }}
         on:mousedown={() =>
             longPress(() => {
-                if (rtl && value > min) {
-                    change(-step);
-                } else if (value < max) {
+                if (value < max) {
                     change(step);
                 }
             })}
@@ -133,7 +127,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }}
     >
         <IconConstrain>
-            {@html chevronRight}
+            {@html rtl ? chevronLeft : chevronRight}
         </IconConstrain>
     </button>
 </div>
@@ -143,19 +137,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .spin-box {
         width: 100%;
+        background: var(--canvas-inset);
         border: 1px solid var(--border);
         border-radius: var(--border-radius);
         overflow: hidden;
         position: relative;
+        display: flex;
+        justify-content: space-between;
 
         input {
-            width: 100%;
-            padding: 0.2rem 1.5rem 0.2rem 0.75rem;
-            background: var(--canvas-inset);
-            color: var(--fg);
+            flex-grow: 1;
             border: none;
             outline: none;
             text-align: center;
+            background: transparent;
             &::-webkit-inner-spin-button {
                 display: none;
             }
@@ -164,27 +159,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:hover,
         &:focus-within {
             button {
-                opacity: 1;
+                visibility: visible;
+            }
+            input {
+                border-left: 1px solid var(--border-subtle);
+                border-right: 1px solid var(--border-subtle);
             }
         }
     }
     button {
-        opacity: 0;
-        position: absolute;
+        visibility: hidden;
         @include button.base($border: false);
+        border-radius: 0;
+        height: 100%;
 
-        &.left {
-            top: 0;
-            right: auto;
-            bottom: 0;
-            left: 0;
-            border-right: 1px solid var(--border);
+        &.decrement {
+            align-self: flex-start;
         }
-        &.right {
-            position: absolute;
-            right: 0;
-            left: auto;
-            border-left: 1px solid var(--border);
+        &.increment {
+            align-self: flex-end;
         }
     }
 </style>
