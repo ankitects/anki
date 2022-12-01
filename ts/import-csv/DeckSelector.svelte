@@ -8,9 +8,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
+    import Select from "../components/Select.svelte";
+    import SelectOption from "../components/SelectOption.svelte";
 
     export let deckNameIds: Decks.DeckNameId[];
     export let deckId: number;
+
+    $: label = deckNameIds.find((d) => d.id === deckId)?.name.replace(/^.+::/, "...");
 </script>
 
 <Row --cols={2}>
@@ -18,11 +22,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {tr.decksDeck()}
     </Col>
     <Col --col-size={1}>
-        <!-- svelte-ignore a11y-no-onchange -->
-        <select class="form-select" bind:value={deckId}>
+        <Select bind:value={deckId} {label}>
             {#each deckNameIds as { id, name }}
-                <option value={id}>{name}</option>
+                <SelectOption value={id}>{name}</SelectOption>
             {/each}
-        </select>
+        </Select>
     </Col>
 </Row>

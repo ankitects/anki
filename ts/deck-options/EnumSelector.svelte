@@ -9,11 +9,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let options: string[] = [];
     export let disabled: number[] = [];
     export let value = 0;
+
+    $: label = options[value];
 </script>
 
-<Select current={options[value]}>
+<Select bind:value {label}>
     {#each options as option, idx}
-        <SelectOption disabled={disabled.includes(idx)} on:select={() => (value = idx)}
+        <SelectOption value={idx} disabled={disabled.includes(idx)}
             >{option}</SelectOption
         >
     {/each}

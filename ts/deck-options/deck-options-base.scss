@@ -14,3 +14,8 @@ $carousel-transition: 0.2s;
 @import "bootstrap/scss/badge";
 @import "sass/bootstrap-forms";
 @import "sass/bootstrap-tooltip";
+
+input[type="text"] {
+    padding-inline: 0.5rem;
+    background: var(--canvas-inset);
+}
