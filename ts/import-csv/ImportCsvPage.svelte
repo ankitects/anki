@@ -20,7 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getColumnOptions, getCsvMetadata } from "./lib";
     import NotetypeSelector from "./NotetypeSelector.svelte";
     import Preview from "./Preview.svelte";
-    import StickyFooter from "./StickyFooter.svelte";
+    import StickyHeader from "./StickyHeader.svelte";
     import Tags from "./Tags.svelte";
 
     export let path: string;
@@ -92,6 +92,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
+<StickyHeader {path} {onImport} />
+
 <Container class="csv-page">
     <Row --cols={2}>
         <Col --col-size={1} breakpoint="md">
@@ -128,7 +130,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Container>
         </Col>
     </Row>
-    <StickyFooter {path} {onImport} />
 </Container>
 
 <style lang="scss">
@@ -138,9 +139,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         :global(.row) {
             // rows have negative margins by default
             --bs-gutter-x: 0;
-            // ensure equal spacing between tall rows like
-            // dropdowns, and short rows like checkboxes
-            min-height: 3em;
+            margin-bottom: 0.5rem;
         }
     }
 </style>
