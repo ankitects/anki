@@ -68,6 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .popover {
+        @include elevation.elevation(8);
 
         align-self: flex-start;
         border-radius: var(--border-radius);

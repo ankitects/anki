@@ -147,15 +147,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    @use "sass/elevation" as elevation;
-
     .overlay {
         position: absolute;
-        border-radius: 5px;
+        border-radius: var(--border-radius);
 
         z-index: 40;
-        &.show {
-            @include elevation.elevation(5);
-        }
     }
 </style>
