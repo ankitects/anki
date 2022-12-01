@@ -10,10 +10,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
+    let element: HTMLElement;
+
     export let scrollX = false;
     export let scrollY = false;
-
-    const [element, elementResolve] = promiseWithResolver<HTMLElement>();
 
     let clientWidth = 0;
     let clientHeight = 0;
@@ -28,24 +28,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: overflowRight = scrollLeft < scrollWidth - clientWidth;
 
     async function updateScrollState(): Promise<void> {
-        const el = await element;
-        scrollHeight = el.scrollHeight;
-        scrollWidth = el.scrollWidth;
-        scrollTop = el.scrollTop;
-        scrollLeft = el.scrollLeft;
+        scrollHeight = element.scrollHeight;
+        scrollWidth = element.scrollWidth;
+        scrollTop = element.scrollTop;
+        scrollLeft = element.scrollLeft;
     }
 
     let scrollBarWidth = 0;
     let scrollBarHeight = 0;
-    let measuring = false;
+    let measuring = true;
 
     onMount(async function measureScrollbar() {
-        const el = await element;
-        measuring = true;
-        await tick();
-
-        scrollBarWidth = el.offsetWidth - el.clientWidth;
-        scrollBarHeight = el.offsetHeight - el.clientHeight;
+        scrollBarWidth = element.offsetWidth - element.clientWidth;
+        scrollBarHeight = element.offsetHeight - element.clientHeight;
 
         measuring = false;
     });
@@ -59,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             class:scroll-x={scrollX}
             class:scroll-y={scrollY}
             style:--scrollbar-height="{scrollBarHeight}px"
-            use:elementResolve
+            bind:this={element}
             bind:clientWidth
             bind:clientHeight
             on:scroll={updateScrollState}
