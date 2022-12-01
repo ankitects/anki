@@ -22,35 +22,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<div class="sticky-header">
-    <Row --cols={5}
-        ><Col --col-size={4}>{basename(path)}</Col><Col --col-justify="end">
-            <ButtonGroup size={2}>
-                <LabelButton
-                    primary
-                    tooltip={getPlatformString(keyCombination)}
-                    on:click={onImport}
-                    --border-left-radius="5px"
-                    --border-right-radius="5px">{tr.actionsImport()}</LabelButton
-                >
-                <Shortcut {keyCombination} on:action={onImport} />
-            </ButtonGroup></Col
-        ></Row
-    >
+<div class="sticky-header d-flex flex-row justify-content-between">
+    <div class="filename">{basename(path)}</div>
+    <div class="accept">
+        <LabelButton
+            primary
+            tooltip={getPlatformString(keyCombination)}
+            on:click={onImport}
+            --border-left-radius="5px"
+            --border-right-radius="5px"
+        >
+            <div class="import">{tr.actionsImport()}</div>
+        </LabelButton>
+        <Shortcut {keyCombination} on:action={onImport} />
+    </div>
 </div>
 
 <style lang="scss">
     .sticky-header {
-        position: sticky;
-        bottom: 0;
+        position: fixed;
+        top: 0;
         left: 0;
-        right: 0;
+        width: 100vw;
         z-index: 10;
 
         margin: 0;
-        padding: 0.25rem;
+        padding: 0.5rem;
 
         background: var(--canvas);
         border-bottom: 1px solid var(--border);
+
+        .import {
+            margin-inline: 0.75rem;
+        }
     }
 </style>
