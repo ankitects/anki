@@ -4,7 +4,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import Badge from "../components/Badge.svelte";
-    import ButtonGroup from "../components/ButtonGroup.svelte";
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import LabelButton from "../components/LabelButton.svelte";
     import Select from "../components/Select.svelte";
@@ -37,13 +36,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {@html arrowRightIcon}
         {/if}
     </Badge>
-    <ButtonGroup class="flex-grow-1">
-        <Select class="flex-grow-1" bind:value {label} on:change={blur}>
-            {#each options as option, idx}
-                <SelectOption value={idx}>{option}</SelectOption>
-            {/each}
-        </Select>
-    </ButtonGroup>
+    <Select class="flex-grow-1" bind:value {label} on:change={blur}>
+        {#each options as option, idx}
+            <SelectOption value={idx}>{option}</SelectOption>
+        {/each}
+    </Select>
 
     <SaveButton {state} />
 </ButtonToolbar>
