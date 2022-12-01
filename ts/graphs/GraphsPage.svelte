@@ -62,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @media only screen and (max-width: 1400px) {
             grid-template-columns: 50% 50%;
         }
-        @media only screen and (max-width: 1200) {
+        @media only screen and (max-width: 1200px) {
             grid-template-columns: 100%;
         }
         @media only screen and (max-width: 600px) {
