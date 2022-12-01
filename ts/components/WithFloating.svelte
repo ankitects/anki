@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { PositionAlgorithm } from "../sveltelib/position/position-algorithm";
     import positionFloating from "../sveltelib/position/position-floating";
     import subscribeToUpdates from "../sveltelib/subscribe-updates";
-    import { floatingPlacementKey } from "./context-keys";
+    import { floatingKey } from "./context-keys";
     import FloatingArrow from "./FloatingArrow.svelte";
 
     export let portalTarget: HTMLElement | null = null;
@@ -34,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     /* Used by Popover to set animation direction depending on placement */
     const placementPromise = writable(undefined as Promise<Placement> | undefined);
-    setContext(floatingPlacementKey, placementPromise);
+    setContext(floatingKey, placementPromise);
 
     export let offset = 5;
     /* 30px box shadow from elevation(8) */

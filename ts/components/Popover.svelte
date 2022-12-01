@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { slide } from "svelte/transition";
 
-    import { floatingPlacementKey } from "./context-keys";
+    import { floatingKey } from "./context-keys";
 
     export let scrollable = false;
     let element: HTMLDivElement;
@@ -20,7 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let placement: Placement;
 
     const placementStore =
-        getContext<Writable<Promise<Placement>>>(floatingPlacementKey);
+        getContext<Writable<Promise<Placement>>>(floatingKey);
 
     /* await computed placement of floating element to determine animation direction */
     $: if ($placementStore !== undefined) {
