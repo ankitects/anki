@@ -86,10 +86,6 @@ pub fn run_build(args: BuildArgs) {
         writeln!(&mut stdout, "\nBuild failed.").unwrap();
         stdout.reset().unwrap();
 
-        // One cause of build failures is when a source file that was included in a glob is
-        // removed. Automatically reconfigure on next run so this situation resolves itself.
-        fs::remove_file(build_file).expect("build file removal");
-
         std::process::exit(1);
     }
 }
