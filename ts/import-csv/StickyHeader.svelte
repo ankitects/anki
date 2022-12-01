@@ -37,10 +37,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .sticky-header {
-        position: fixed;
+        position: sticky;
         top: 0;
         left: 0;
-        width: 100vw;
+        right: 0;
         z-index: 10;
 
         margin: 0;
