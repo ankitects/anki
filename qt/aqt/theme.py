@@ -231,7 +231,7 @@ class ThemeManager:
 
         buf = splitter_styles(self)
 
-        if not is_mac:
+        if not is_mac and not os.getenv("FORCE_FUSION_STYLE"):
             from aqt.stylesheets import (
                 button_styles,
                 checkbox_styles,
@@ -266,7 +266,7 @@ class ThemeManager:
     def _apply_palette(self, app: QApplication) -> None:
         set_macos_dark_mode(self.night_mode)
 
-        if is_mac:
+        if is_mac and not os.getenv("FORCE_FUSION_STYLE"):
             app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
             self.default_palette.setColor(
                 QPalette.ColorRole.Window, self.qcolor(colors.CANVAS)
