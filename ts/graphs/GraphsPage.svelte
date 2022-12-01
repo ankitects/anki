@@ -56,9 +56,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .graphs-container {
         display: grid;
-        gap: 1.5em;
-        grid-template-columns: 50% 50%;
+        gap: 1em;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
 
+        @media only screen and (max-width: 1400px) {
+            grid-template-columns: 50% 50%;
+        }
         @media only screen and (max-width: 1200px) {
             grid-template-columns: 100%;
         }
