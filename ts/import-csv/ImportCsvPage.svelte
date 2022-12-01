@@ -140,7 +140,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @include bp.with-breakpoint("md") {
             :global(.container-columns) {
                 display: grid;
-                grid-template-columns: 50% 50%;
+                grid-template-columns: 1fr 1fr;
                 column-gap: 3em;
             }
         }
