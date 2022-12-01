@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import re
 import aqt
 import aqt.deckconf
 import aqt.main
@@ -47,7 +48,8 @@ class ImportCsvDialog(QDialog):
         self.setLayout(layout)
 
         self.web.eval(f"anki.setupImportCsvPage('{path}');")
-        self.setWindowTitle(tr.decks_import_file())
+        filename = re.split(r'[\\/]', path).pop()
+        self.setWindowTitle(f"{tr.decks_import_file()}: {filename}")
 
     def reject(self) -> None:
         self.web.cleanup()

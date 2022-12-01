@@ -17,7 +17,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import FieldMapper from "./FieldMapper.svelte";
     import HtmlSwitch from "./HtmlSwitch.svelte";
     import ImportFooter from "./ImportFooter.svelte";
-    import ImportHeader from "./ImportHeader.svelte";
     import { getColumnOptions, getCsvMetadata } from "./lib";
     import NotetypeSelector from "./NotetypeSelector.svelte";
     import Preview from "./Preview.svelte";
@@ -93,12 +92,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <Page class="import-csv-page">
-    <ImportHeader {path} slot="header" />
-
     <Container
         breakpoint="md"
         --gutter-inline="0.5rem"
-        --gutter-block="0.75rem"
+        --gutter-block="0.5rem"
         class="container-columns"
     >
         <Row class="row-columns" --grid-column="1 / span 2">
@@ -141,7 +138,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             :global(.container-columns) {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
-                column-gap: 3em;
+                column-gap: 2rem;
             }
         }
     }
