@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{env, fs, io::Write, process::Command};
+use std::{env, fs, io::Write, process::Command, time::Instant};
 
 use camino::Utf8Path;
 use clap::Args;
@@ -42,6 +42,7 @@ pub fn run_build(args: BuildArgs) {
     // automatically convert foo:bar references to foo_bar, as Ninja can not represent the former
     let ninja_args = args.args.into_iter().map(|a| a.replace(':', "_"));
 
+    let start_time = Instant::now();
     let mut command = Command::new("ninja");
     command
         .arg("-f")
@@ -63,7 +64,14 @@ pub fn run_build(args: BuildArgs) {
         .env("NODE_OPTIONS", "--no-experimental-fetch");
 
     // run build
-    let status = command.status().expect("ninja not installed");
+    let mut status = command.status().expect("ninja not installed");
+    if !status.success() && Instant::now().duration_since(start_time).as_secs() < 3 {
+        // if the build fails quickly, there's a reasonable chance that build.ninja references
+        // a file that has been renamed/deleted. We currently don't capture stderr, so we can't
+        // confirm, but in case that's the case, we regenerate the build.ninja file then try again.
+        bootstrap_build();
+        status = command.status().expect("ninja missing");
+    }
     let mut stdout = StandardStream::stdout(ColorChoice::Always);
     if status.success() {
         stdout
