@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { FloatingElement, ReferenceElement } from "@floating-ui/dom";
+import type { FloatingElement, Placement, ReferenceElement } from "@floating-ui/dom";
 
 /**
  * The interface of a function that calls `computePosition` of floating-ui.
@@ -9,4 +9,4 @@ import type { FloatingElement, ReferenceElement } from "@floating-ui/dom";
 export type PositionAlgorithm = (
     reference: ReferenceElement,
     floating: FloatingElement,
-) => Promise<void>;
+) => Promise<Placement>;

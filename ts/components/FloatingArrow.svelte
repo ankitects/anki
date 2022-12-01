@@ -18,18 +18,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         z-index: 60;
 
         /* outer border */
-        border: 1px solid #b6b6b6;
-
-        &.dark {
-            border-color: #060606;
-        }
+        border: 1px solid var(--border-subtle);
 
         /* Rotate the box to indicate the different directions */
         border-right: none;
         border-bottom: none;
-
-        /* inner border */
-        box-shadow: inset 1px 1px 0 0 #eeeeee;
 
         &.dark {
             box-shadow: inset 1px 1px 0 0 #565656;
