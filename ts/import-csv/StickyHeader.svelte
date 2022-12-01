@@ -22,8 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<div style:flex-grow="1" />
-<div class="sticky-footer">
+<div class="sticky-header">
     <Row --cols={5}
         ><Col --col-size={4}>{basename(path)}</Col><Col --col-justify="end">
             <ButtonGroup size={2}>
@@ -41,8 +40,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    .sticky-footer {
-        position: fixed;
+    .sticky-header {
+        position: sticky;
         bottom: 0;
         left: 0;
         right: 0;
@@ -52,8 +51,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding: 0.25rem;
 
         background: var(--canvas);
-        border-style: solid none none;
-        border-color: var(--border);
-        border-width: thin;
+        border-bottom: 1px solid var(--border);
     }
 </style>
