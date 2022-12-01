@@ -6,3 +6,4 @@ export const sectionKey = Symbol("section");
 export const buttonGroupKey = Symbol("buttonGroup");
 export const dropdownKey = Symbol("dropdown");
 export const modalsKey = Symbol("modals");
+export const floatingPlacementKey = Symbol("floatingPosition");

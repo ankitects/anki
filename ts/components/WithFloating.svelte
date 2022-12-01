@@ -10,8 +10,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "@floating-ui/dom";
     import type { Callback } from "@tslib/typing";
     import { singleCallback } from "@tslib/typing";
-    import { createEventDispatcher, onDestroy } from "svelte";
+    import { createEventDispatcher, onDestroy, setContext } from "svelte";
     import type { ActionReturn } from "svelte/action";
+    import { writable } from "svelte/store";
 
     import isClosingClick from "../sveltelib/closing-click";
     import isClosingKeyup from "../sveltelib/closing-keyup";
@@ -23,12 +24,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { PositionAlgorithm } from "../sveltelib/position/position-algorithm";
     import positionFloating from "../sveltelib/position/position-floating";
     import subscribeToUpdates from "../sveltelib/subscribe-updates";
+    import { floatingPlacementKey } from "./context-keys";
     import FloatingArrow from "./FloatingArrow.svelte";
 
     export let portalTarget: HTMLElement | null = null;
 
     let placement: Placement = "bottom";
     export { placement as preferredPlacement };
+
+    /* Used by Popover to set animation direction depending on placement */
+    const placementPromise = writable(undefined as Promise<Placement> | undefined);
+    setContext(floatingPlacementKey, placementPromise);
+
     export let offset = 5;
     /* 30px box shadow from elevation(8) */
     export let shift = 30;
@@ -72,8 +79,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reference: ReferenceElement,
         floating: FloatingElement,
         position: PositionAlgorithm,
-    ): Promise<void> {
-        return position(reference, floating);
+    ): Promise<Placement> {
+        const promise = position(reference, floating);
+        $placementPromise = promise;
+        return promise;
     }
 
     async function position(
@@ -81,8 +90,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             reference: ReferenceElement,
             floating: FloatingElement,
             position: PositionAlgorithm,
-        ) => Promise<void> = applyPosition,
-    ): Promise<void> {
+        ) => Promise<Placement> = applyPosition,
+    ): Promise<Placement | void> {
         if (reference && floating) {
             return callback(reference, floating, positionCurried);
         }
@@ -97,9 +106,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         callback: PositioningCallback,
     ): Callback {
         const innerFloating = floating;
-        return callback(reference, innerFloating, () =>
-            positionCurried(reference, innerFloating),
-        );
+        return callback(reference, innerFloating, () => {
+            $placementPromise = positionCurried(reference, innerFloating);
+        });
     }
 
     let cleanup: Callback | null = null;
