@@ -231,6 +231,7 @@ class ThemeManager:
             button_styles,
             checkbox_styles,
             combobox_styles,
+            fusion_styles,
             general_styles,
             menu_styles,
             scrollbar_styles,
@@ -238,7 +239,6 @@ class ThemeManager:
             splitter_styles,
             table_styles,
             tabwidget_styles,
-            fusion_styles,
         )
 
         # give splitters same icon as in webview

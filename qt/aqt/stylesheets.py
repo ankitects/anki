@@ -25,14 +25,17 @@ qlineargradient(
 );
     """
 
+
 def fusion_styles(tm: ThemeManager) -> str:
-    """ Imitation of respective Fusion styles to prevent glitches on theme switch """
-    return "".join(
-        [
-            combobox_styles(tm),
-            spinbox_styles(tm),
-        ]
-     ) + f"""
+    """Imitation of respective Fusion styles to prevent glitches on theme switch"""
+    return (
+        "".join(
+            [
+                combobox_styles(tm),
+                spinbox_styles(tm),
+            ]
+        )
+        + f"""
 QComboBox,
 QSpinBox {{
     border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
@@ -107,6 +110,8 @@ QSpinBox::down-arrow:off {{
     image: url({tm.themed_icon("mdi:menu-down-FG_SUBTLE")});
 }}
     """
+    )
+
 
 def general_styles(tm: ThemeManager) -> str:
     return f"""
