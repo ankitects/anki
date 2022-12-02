@@ -345,9 +345,6 @@ class AnkiApp(QApplication):
     ##################################################
 
     def eventFilter(self, src: Any, evt: QEvent) -> bool:
-        if os.getenv("FORCE_FUSION_STYLE"):
-            return False
-
         pointer_classes = (
             QPushButton,
             QCheckBox,

@@ -227,24 +227,24 @@ class ThemeManager:
         gui_hooks.theme_did_change()
 
     def _apply_style(self, app: QApplication) -> None:
-        from aqt.stylesheets import splitter_styles
+        from aqt.stylesheets import (
+            button_styles,
+            checkbox_styles,
+            combobox_styles,
+            general_styles,
+            menu_styles,
+            scrollbar_styles,
+            spinbox_styles,
+            splitter_styles,
+            table_styles,
+            tabwidget_styles,
+        )
 
+        # give splitters same icon as in webview
         buf = splitter_styles(self)
 
-        if not is_mac and not os.getenv("FORCE_FUSION_STYLE"):
-            from aqt.stylesheets import (
-                button_styles,
-                checkbox_styles,
-                combobox_styles,
-                general_styles,
-                menu_styles,
-                scrollbar_styles,
-                spinbox_styles,
-                table_styles,
-                tabwidget_styles,
-            )
-
-            buf += "".join(
+        if not is_mac or os.getenv("FORCE_CUSTOM_STYLE"):
+            buf = "".join(
                 [
                     general_styles(self),
                     button_styles(self),
@@ -266,7 +266,7 @@ class ThemeManager:
     def _apply_palette(self, app: QApplication) -> None:
         set_macos_dark_mode(self.night_mode)
 
-        if is_mac and not os.getenv("FORCE_FUSION_STYLE"):
+        if is_mac and not os.getenv("FORCE_CUSTOM_STYLE"):
             app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
             self.default_palette.setColor(
                 QPalette.ColorRole.Window, self.qcolor(colors.CANVAS)
