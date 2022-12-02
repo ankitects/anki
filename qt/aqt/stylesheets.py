@@ -83,8 +83,7 @@ QMenu::item {{
     margin-bottom: 4px;
 }}
 QMenu::item:selected {{
-    background-color: {tm.var(colors.CANVAS_INSET)};
-    color: {tm.var(colors.HIGHLIGHT_FG)};
+    background-color: {tm.var(colors.CANVAS_ELEVATED)};
     border-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QMenu::separator {{
