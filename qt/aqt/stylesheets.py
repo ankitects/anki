@@ -188,8 +188,9 @@ QPushButton {{
 }}
 QPushButton,
 QTabBar::tab:!selected,
-QComboBox:!editable {{
-    background: {tm.var(colors.BUTTON_BG)};
+QComboBox:!editable,
+QComboBox::drop-down:editable {{
+    background: {tm.var(colors.BUTTON_GRADIENT_END)};
     border-bottom: 1px solid {tm.var(colors.SHADOW)};
 }}
 QPushButton:hover,
@@ -202,8 +203,7 @@ QComboBox:!editable:hover {{
         )
     };
 }}
-QPushButton:pressed,
-QComboBox:!editable:pressed {{
+QPushButton:pressed {{
     background: {
         button_pressed_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
@@ -270,21 +270,20 @@ QComboBox::drop-down {{
     border-top-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
     border-bottom-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
 }}
+QComboBox::drop-down:!editable {{
+    background: none;
+    border-color: transparent;
+}}
 QComboBox::down-arrow {{
     image: url({tm.themed_icon("mdi:chevron-down")});
 }}
-QComboBox::drop-down {{
-    background: {tm.var(colors.BUTTON_BG)};
-    border-bottom: 1px solid {tm.var(colors.SHADOW)};
-}}
-QComboBox::drop-down:hover {{
+QComboBox::drop-down:hover:editable {{
     background: {
         button_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
             tm.var(colors.BUTTON_GRADIENT_END),
         )
     };
-    border-bottom: 1px solid {tm.var(colors.SHADOW)};
 }}
     """
 
