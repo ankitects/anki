@@ -238,12 +238,16 @@ class ThemeManager:
             splitter_styles,
             table_styles,
             tabwidget_styles,
+            fusion_styles,
         )
 
         # give splitters same icon as in webview
         buf = splitter_styles(self)
 
-        if not is_mac or os.getenv("FORCE_CUSTOM_STYLE"):
+        if os.getenv("FORCE_FUSION_STYLE"):
+            buf += fusion_styles(self)
+
+        elif not is_mac or os.getenv("FORCE_CUSTOM_STYLE"):
             buf = "".join(
                 [
                     general_styles(self),

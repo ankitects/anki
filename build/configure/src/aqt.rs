@@ -249,6 +249,8 @@ fn build_icons(build: &mut Build) -> Result<()> {
 
 fn build_themed_icons(build: &mut Build) -> Result<()> {
     let themed_icons_with_extra = hashmap! {
+        "menu-up" => &["FG_SUBTLE"],
+        "menu-down" => &["FG_SUBTLE"],
         "chevron-up" => &["FG_DISABLED"],
         "chevron-down" => &["FG_DISABLED"],
         "drag-vertical" => &["FG_SUBTLE"],

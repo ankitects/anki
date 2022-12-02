@@ -25,8 +25,14 @@ $vars: (
                     default: 5px,
                 ),
             ),
+            small: (
+                "Used for some Qt widgets",
+                (
+                    default: 2px,
+                ),
+            ),
             large: (
-                "Used for big centered buttons",
+                "Used for containers and large buttons",
                 (
                     default: 15px,
                 ),

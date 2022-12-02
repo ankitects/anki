@@ -10,7 +10,7 @@ qlineargradient(
     spread:pad, x1:0.5, y1:0, x2:0.5, y2:1,
     stop:0 {start},
     stop:1 {end}
-);
+)
     """
 
 
@@ -25,6 +25,88 @@ qlineargradient(
 );
     """
 
+def fusion_styles(tm: ThemeManager) -> str:
+    """ Imitation of respective Fusion styles to prevent glitches on theme switch """
+    return "".join(
+        [
+            combobox_styles(tm),
+            spinbox_styles(tm),
+        ]
+     ) + f"""
+QComboBox,
+QSpinBox {{
+    border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+    border-radius: {tm.var(props.BORDER_RADIUS)};
+}}
+QComboBox,
+QSpinBox {{
+    border-radius: {tm.var(props.BORDER_RADIUS_SMALL)};
+}}
+QComboBox::down-arrow {{
+    image: url({tm.themed_icon("mdi:menu-down-FG_SUBTLE")});
+}}
+QComboBox,
+QComboBox:!editable,
+QComboBox::drop-down,
+QSpinBox::up-button,
+QSpinBox::down-button {{
+    background: {
+        button_gradient(
+            "#525252" if tm.night_mode else "#fdfdfd",
+            "#464646" if tm.night_mode else "#fafafa",
+        )
+    };
+}}
+QComboBox:hover,
+QComboBox:!editable:hover,
+QComboBox::drop-down:hover,
+QComboBox:!editable:pressed,
+QComboBox::drop-down:pressed,
+QSpinBox::up-button:hover,
+QSpinBox::down-button:hover
+QSpinBox::up-button:pressed,
+QSpinBox::down-button:pressed {{
+    background: {
+        button_gradient(
+            "#545454" if tm.night_mode else "white",
+            "#464646" if tm.night_mode else "#fafafa",
+        )
+    };
+}}
+QComboBox::drop-down,
+QComboBox::drop-down:hover,
+QComboBox::drop-down:pressed,
+QSpinBox::up-button,
+QSpinBox::down-button,
+QSpinBox::up-button:hover,
+QSpinBox::down-button:hover,
+QSpinBox::up-button:pressed,
+QSpinBox::down-button:pressed {{
+    border-top-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS_SMALL)};
+    border-bottom-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS_SMALL)};
+}}
+QComboBox::drop-down:!editable,
+QComboBox::drop-down:!editable:hover,
+QComboBox::drop-down:!editable:pressed {{
+    background: none;
+    border-color: transparent;
+}}
+QSpinBox::up-arrow:hover,
+QSpinBox::down-arrow:hover {{
+    width: 16px;
+    height: 16px;
+}}
+QSpinBox::up-arrow {{
+    image: url({tm.themed_icon("mdi:menu-up")});
+}}
+QSpinBox::down-arrow {{
+    image: url({tm.themed_icon("mdi:menu-down")});
+}}
+QSpinBox::up-arrow:off,
+QSpinBox::down-arrow:off {{
+    image: url({tm.themed_icon("mdi:menu-down-FG_SUBTLE")});
+}}
+    """
 
 def general_styles(tm: ThemeManager) -> str:
     return f"""
