@@ -122,7 +122,6 @@ QComboBox:!editable:hover {{
 }}
 QPushButton:pressed,
 QComboBox:!editable:pressed {{
-    border: 1px solid {tm.var(colors.BORDER_STRONG)};
     background: {
         button_pressed_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
@@ -285,7 +284,6 @@ QHeaderView::section:first {{
 }}
 QHeaderView::section:pressed,
 QHeaderView::section:pressed:!first {{
-    border: 1px solid {tm.var(colors.BORDER_STRONG)};
     background: {
         button_pressed_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
@@ -345,7 +343,6 @@ QSpinBox::down-button {{
 }}
 QSpinBox::up-button:pressed,
 QSpinBox::down-button:pressed {{
-    border: 1px solid {tm.var(colors.BORDER_STRONG)};
     background: {
         button_pressed_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
