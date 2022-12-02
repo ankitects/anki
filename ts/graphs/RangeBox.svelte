@@ -115,7 +115,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         color: var(--fg);
         background: var(--canvas);
         padding: 0.5em;
-        border-bottom: 1px solid var(--border);
 
         @media print {
             position: absolute;
