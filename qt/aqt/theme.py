@@ -271,6 +271,9 @@ class ThemeManager:
             self.default_palette.setColor(
                 QPalette.ColorRole.Window, self.qcolor(colors.CANVAS)
             )
+            self.default_palette.setColor(
+                QPalette.ColorRole.AlternateBase, self.qcolor(colors.CANVAS)
+            )
             app.setPalette(self.default_palette)
             return
 
