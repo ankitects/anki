@@ -4,14 +4,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import IconConstrain from "./IconConstrain.svelte";
-    import { chevronLeft, chevronRight } from "./icons";
+    import { chevronDown, chevronUp } from "./icons";
 
     export let value: number;
     export let step = 1;
     export let min = 1;
     export let max = 9999;
-
-    const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
 
     let input: HTMLInputElement;
     let focused = false;
@@ -67,6 +65,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="spin-box" on:wheel={handleWheel}>
+    <input
+        type="number"
+        pattern="[0-9]*"
+        inputmode="numeric"
+        {min}
+        {max}
+        {step}
+        value={stringValue}
+        bind:this={input}
+        on:blur={update}
+        on:focusin={() => (focused = true)}
+        on:focusout={() => (focused = false)}
+    />
     <button
         class="decrement"
         disabled={value == min}
@@ -89,22 +100,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }}
     >
         <IconConstrain>
-            {@html rtl ? chevronRight : chevronLeft}
+            {@html chevronDown}
         </IconConstrain>
     </button>
-    <input
-        type="number"
-        pattern="[0-9]*"
-        inputmode="numeric"
-        {min}
-        {max}
-        {step}
-        value={stringValue}
-        bind:this={input}
-        on:blur={update}
-        on:focusin={() => (focused = true)}
-        on:focusout={() => (focused = false)}
-    />
     <button
         class="increment"
         disabled={value == max}
@@ -127,7 +125,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }}
     >
         <IconConstrain>
-            {@html rtl ? chevronLeft : chevronRight}
+            {@html chevronUp}
         </IconConstrain>
     </button>
 </div>
@@ -149,21 +147,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             flex-grow: 1;
             border: none;
             outline: none;
-            text-align: center;
             background: transparent;
             &::-webkit-inner-spin-button {
                 display: none;
             }
+            padding-left: 0.5em;
+            padding-right: 0.5em;
         }
 
         &:hover,
         &:focus-within {
             button {
                 visibility: visible;
-            }
-            input {
-                border-left: 1px solid var(--border-subtle);
-                border-right: 1px solid var(--border-subtle);
             }
         }
     }
@@ -173,11 +168,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: 0;
         height: 100%;
 
+        &.increment,
         &.decrement {
-            align-self: flex-start;
-        }
-        &.increment {
-            align-self: flex-end;
+            min-height: 2em;
         }
     }
 </style>
