@@ -519,7 +519,16 @@ class AnkiQt(QMainWindow):
         self.mediaServer.shutdown()
         # Rust background jobs are not awaited implicitly
         self.backend.await_backup_completion()
-        self.app.exit(0)
+        self.deleteLater()
+        app = self.app
+
+        def exit():
+            # try to ensure Qt objects are deleted in a logical order,
+            # to prevent crashes on shutdown
+            gc.collect()
+            app.exit(0)
+
+        self.progress.single_shot(100, exit, False)
 
     # Sound/video
     ##########################################################################
