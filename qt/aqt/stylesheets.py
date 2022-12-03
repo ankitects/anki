@@ -110,7 +110,7 @@ QComboBox:!editable,
 QComboBox::drop-down:editable,
 QSpinBox::up-button,
 QSpinBox::down-button {{
-    background: {tm.var(colors.BUTTON_GRADIENT_END)};
+    background: {tm.var(colors.BUTTON_BG)};
     border-bottom: 1px solid {tm.var(colors.SHADOW)};
 }}
 QPushButton:hover,

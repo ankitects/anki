@@ -143,7 +143,7 @@ $vars: (
                 "Background color of buttons",
                 (
                     light: palette(lightgray, 0),
-                    dark: palette(darkgray, 4),
+                    dark: color.scale(palette(darkgray, 4), $lightness: 5%),
                 ),
             ),
             gradient: (
