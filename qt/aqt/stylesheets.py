@@ -185,9 +185,10 @@ QComboBox::item::icon:selected {{
     position: absolute;
 }}
 QComboBox::drop-down {{
-    margin: -1px;
-    subcontrol-origin: padding;
+    subcontrol-origin: border;
     padding: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
     width: 16px;
     subcontrol-position: top right;
     border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
