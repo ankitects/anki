@@ -1382,7 +1382,13 @@ title="{}" {}>{}</button>""".format(
             True,
             parent=self,
         )
-        self.progress.timer(12 * 60 * 1000, self.refresh_certs, False, parent=self)
+        self.progress.timer(
+            12 * 60 * 1000,
+            self.refresh_certs,
+            repeat=True,
+            requiresCollection=False,
+            parent=self,
+        )
 
     def onRefreshTimer(self) -> None:
         if self.state == "deckBrowser":
