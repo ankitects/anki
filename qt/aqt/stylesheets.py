@@ -107,13 +107,17 @@ QPushButton {{
 QPushButton,
 QTabBar::tab:!selected,
 QComboBox:!editable,
-QComboBox::drop-down:editable {{
+QComboBox::drop-down:editable,
+QSpinBox::up-button,
+QSpinBox::down-button {{
     background: {tm.var(colors.BUTTON_GRADIENT_END)};
     border-bottom: 1px solid {tm.var(colors.SHADOW)};
 }}
 QPushButton:hover,
 QTabBar::tab:hover,
-QComboBox:!editable:hover {{
+QComboBox:!editable:hover,
+QSpinBox::up-button,
+QSpinBox::down-button {{
     background: {
         button_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
@@ -121,7 +125,9 @@ QComboBox:!editable:hover {{
         )
     };
 }}
-QPushButton:pressed {{
+QPushButton:pressed,
+QSpinBox::up-button,
+QSpinBox::down-button {{
     background: {
         button_pressed_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
@@ -337,27 +343,6 @@ QSpinBox::up-button,
 QSpinBox::down-button {{
     subcontrol-origin: border;
     width: 16px;
-    border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-    background: {tm.var(colors.BUTTON_BG)};
-}}
-QSpinBox::up-button:pressed,
-QSpinBox::down-button:pressed {{
-    background: {
-        button_pressed_gradient(
-            tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END),
-            tm.var(colors.SHADOW)
-        )
-    }
-}}
-QSpinBox::up-button:hover,
-QSpinBox::down-button:hover {{
-    background: {
-        button_gradient(
-            tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END),
-        )
-    };
 }}
 QSpinBox::up-button {{
     margin-bottom: -1px;
