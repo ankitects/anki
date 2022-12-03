@@ -24,10 +24,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let state: DeckOptionsState;
 
-    function commitEditing(): void {
+    /// Ensure blur handler has fired so changes get committed.
+    async function commitEditing(): Promise<void> {
         if (document.activeElement instanceof HTMLElement) {
             document.activeElement.blur();
         }
+        await tick();
     }
 
     async function removeConfig(): Promise<void> {
@@ -55,8 +57,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function save(applyToChildDecks: boolean): void {
-        commitEditing();
+    async function save(applyToChildDecks: boolean): Promise<void> {
+        await commitEditing();
         state.save(applyToChildDecks);
     }
 
