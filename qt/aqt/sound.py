@@ -404,6 +404,12 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         self.default_argv += [f"--config-dir={base_path}"]
         super().__init__(window_id=None, debug=False)
 
+    def bump_socket_mtime(self) -> None:
+        "Update mtime on socket to prevent temp file cleaners from removing it."
+        path = Path(self._sock_filename)
+        if path.exists():
+            os.utime(path, None)
+
     def on_init(self) -> None:
         # if mpv dies and is restarted, tell Anki the
         # current file is done
