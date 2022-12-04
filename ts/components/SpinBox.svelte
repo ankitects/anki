@@ -3,6 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { isDesktop } from "@tslib/platform";
+
     import IconConstrain from "./IconConstrain.svelte";
     import { chevronDown, chevronUp } from "./icons";
 
@@ -78,56 +80,58 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:focusin={() => (focused = true)}
         on:focusout={() => (focused = false)}
     />
-    <button
-        class="decrement"
-        disabled={value == min}
-        tabindex="-1"
-        on:click={() => {
-            input.focus();
-            if (value > min) {
-                change(-step);
-            }
-        }}
-        on:mousedown={() =>
-            longPress(() => {
+    {#if isDesktop()}
+        <button
+            class="decrement"
+            disabled={value == min}
+            tabindex="-1"
+            on:click={() => {
+                input.focus();
                 if (value > min) {
                     change(-step);
                 }
-            })}
-        on:mouseup={() => {
-            clearTimeout(pressTimer);
-            pressed = false;
-        }}
-    >
-        <IconConstrain>
-            {@html chevronDown}
-        </IconConstrain>
-    </button>
-    <button
-        class="increment"
-        disabled={value == max}
-        tabindex="-1"
-        on:click={() => {
-            input.focus();
-            if (value < max) {
-                change(step);
-            }
-        }}
-        on:mousedown={() =>
-            longPress(() => {
+            }}
+            on:mousedown={() =>
+                longPress(() => {
+                    if (value > min) {
+                        change(-step);
+                    }
+                })}
+            on:mouseup={() => {
+                clearTimeout(pressTimer);
+                pressed = false;
+            }}
+        >
+            <IconConstrain>
+                {@html chevronDown}
+            </IconConstrain>
+        </button>
+        <button
+            class="increment"
+            disabled={value == max}
+            tabindex="-1"
+            on:click={() => {
+                input.focus();
                 if (value < max) {
                     change(step);
                 }
-            })}
-        on:mouseup={() => {
-            clearTimeout(pressTimer);
-            pressed = false;
-        }}
-    >
-        <IconConstrain>
-            {@html chevronUp}
-        </IconConstrain>
-    </button>
+            }}
+            on:mousedown={() =>
+                longPress(() => {
+                    if (value < max) {
+                        change(step);
+                    }
+                })}
+            on:mouseup={() => {
+                clearTimeout(pressTimer);
+                pressed = false;
+            }}
+        >
+            <IconConstrain>
+                {@html chevronUp}
+            </IconConstrain>
+        </button>
+    {/if}
 </div>
 
 <style lang="scss">
