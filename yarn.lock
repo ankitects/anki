@@ -3991,9 +3991,9 @@ marked@^4.0.0, marked@^4.0.10:
   integrity sha512-hgibXWrEDNBWgGiK18j/4lkS6ihTe9sxtV4Q1OQppb/0zzyPSzoFANBa5MfsG/zgsWklmNnhm0XACZOH/0HBiQ==
 
 mathjax@^3.1.2:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/mathjax/-/mathjax-3.2.0.tgz#ea7c317f8c81776ecfc83b294fc313046bf7f726"
-  integrity sha512-PL+rdYRK4Wxif+SQ94zP/L0sv6/oW/1WdQiIx0Jvn9FZaU5W9E6nlIv8liYAXBNPL2Fw/i+o/mZ1212eSzn0Cw==
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/mathjax/-/mathjax-3.2.2.tgz#c754d7b46a679d7f3fa03543d6b8bf124ddf9f6b"
+  integrity sha512-Bt+SSVU8eBG27zChVewOicYs7Xsdt40qm4+UpHyX7k0/O9NliPc+x77k1/FEsPsjKPZGJvtRZM1vO+geW0OhGw==
 
 mdurl@^1.0.1:
   version "1.0.1"
