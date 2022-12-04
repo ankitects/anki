@@ -14,6 +14,7 @@ build({
     entryPoints: [entrypoint],
     outfile: bundle_js,
     minify: env.RELEASE && true,
+    sourcemap: env.SOURCEMAP ? "inline" : false,
     preserveSymlinks: true,
     target,
 }).catch(() => process.exit(1));
