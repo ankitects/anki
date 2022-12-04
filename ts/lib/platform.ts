@@ -9,3 +9,7 @@ export function isApplePlatform(): boolean {
         || platform.startsWith("iP")
     );
 }
+
+export function isDesktop(): boolean {
+    return !(/iphone|ipad|ipod|android/i.test(window.navigator.userAgent));
+}

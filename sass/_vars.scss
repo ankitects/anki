@@ -142,8 +142,8 @@ $vars: (
             bg: (
                 "Background color of buttons",
                 (
-                    light: white,
-                    dark: palette(darkgray, 4),
+                    light: palette(lightgray, 0),
+                    dark: color.scale(palette(darkgray, 4), $lightness: 5%),
                 ),
             ),
             gradient: (
@@ -151,14 +151,14 @@ $vars: (
                     "Start value of default button gradient",
                     (
                         light: white,
-                        dark: palette(darkgray, 4),
+                        dark: color.scale(palette(darkgray, 4), $lightness: 10%),
                     ),
                 ),
                 end: (
                     "End value of default button gradient",
                     (
-                        light: palette(lightgray, 3),
-                        dark: palette(darkgray, 5),
+                        light: palette(lightgray, 0),
+                        dark: color.scale(palette(darkgray, 4), $lightness: 5%),
                     ),
                 ),
             ),

@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { build } from "esbuild";
-import { argv } from "process";
+import { argv, env } from "process";
 
 const [_node, _script, entrypoint, bundle_js] = argv;
 
@@ -13,7 +13,8 @@ build({
     bundle: true,
     entryPoints: [entrypoint],
     outfile: bundle_js,
-    minify: true,
+    minify: env.RELEASE && true,
+    sourcemap: env.SOURCEMAP ? "inline" : false,
     preserveSymlinks: true,
     target,
 }).catch(() => process.exit(1));

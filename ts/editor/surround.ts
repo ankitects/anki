@@ -359,7 +359,13 @@ export class Surrounder<T = unknown> {
                     return false;
                 }
 
-                const isSurrounded = isSurroundedInner(
+                // This is confusing: when nothing is selected, we only
+                // include currently-active buttons, as otherwise inactive
+                // buttons get toggled on. But when something is selected,
+                // we include everything, since we want to remove formatting
+                // that may be in part of the selection, but not at the start/end.
+
+                const isSurrounded = !range.collapsed || isSurroundedInner(
                     range,
                     base,
                     boolMatcher(format),

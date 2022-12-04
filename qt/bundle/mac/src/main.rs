@@ -173,11 +173,11 @@ fn fixup_perms(dir: &Utf8Path) -> Result<()> {
 }
 
 /// Copy everything at the provided path into the Contents/ folder of our app.
-fn extend_app_contents(source: &Utf8Path, bundle_dir: &Utf8Path) -> Result<()> {
+fn extend_app_contents(source: &Utf8Path, target_dir: &Utf8Path) -> Result<()> {
     let status = Command::new("rsync")
         .arg("-a")
         .arg(format!("{}/", source.as_str()))
-        .arg(bundle_dir.join("Contents/"))
+        .arg(target_dir)
         .status()?;
     if !status.success() {
         bail!("error syncing {source:?}");
@@ -195,12 +195,12 @@ fn copy_in_audio(bundle_dir: &Utf8Path) -> Result<()> {
             "out/extracted/mac_amd_audio"
         },
     );
-    extend_app_contents(src_folder, bundle_dir)
+    extend_app_contents(src_folder, &bundle_dir.join("Contents/Resources"))
 }
 
 fn copy_in_qt(bundle_dir: &Utf8Path, kind: DistKind) -> Result<()> {
     println!("Copying in Qt...");
-    extend_app_contents(kind.qt_repo(), bundle_dir)
+    extend_app_contents(kind.qt_repo(), &bundle_dir.join("Contents"))
 }
 
 fn fix_rpath(exe_path: Utf8PathBuf) -> Result<()> {
