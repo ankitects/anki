@@ -171,10 +171,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @include button.base($border: false);
         border-radius: 0;
         height: 100%;
-
-        &.increment,
-        &.decrement {
-            min-height: 2em;
-        }
     }
 </style>
