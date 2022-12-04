@@ -121,12 +121,19 @@ impl Collection {
         mut position: i32,
     ) -> Result<i32> {
         let search = format!(
-            "{} -is:suspended -is:buried {}", // -deck:filtered
+            "{} -is:suspended -is:buried -deck:\"{}\" {}", // -deck:filtered
             if term.search.trim().is_empty() {
                 "".to_string()
             } else {
                 format!("({})", term.search)
             },
+            regex::escape(
+                self.storage
+                    .get_deck(ctx.target_deck)?
+                    .map(|d| d.name)
+                    .unwrap()
+                    .as_native_str(),
+            ),
             if ctx.scheduler == SchedulerVersion::V1 {
                 "-is:learn"
             } else {
