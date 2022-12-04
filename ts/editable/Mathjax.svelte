@@ -84,6 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     src="data:image/svg+xml,{encoded}"
     class:block
     class:empty
+    class="mathjax"
     style:--vertical-center="{verticalCenter}px"
     style:--font-size="{fontSize}px"
     alt="Mathjax"
