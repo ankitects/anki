@@ -539,14 +539,13 @@ pub const MATHJAX_FILES: &[&str] = &[
     "mathjax/es5/output/chtml/fonts/woff-v2/MathJax_Vector-Regular.woff",
     "mathjax/es5/output/chtml/fonts/woff-v2/MathJax_Zero.woff",
     "mathjax/es5/tex-chtml.js",
-    // these change to '.json' in the latest mathjax
-    "mathjax/es5/sre/mathmaps/de.js",
-    "mathjax/es5/sre/mathmaps/en.js",
-    "mathjax/es5/sre/mathmaps/es.js",
-    "mathjax/es5/sre/mathmaps/fr.js",
-    "mathjax/es5/sre/mathmaps/hi.js",
-    "mathjax/es5/sre/mathmaps/it.js",
-    "mathjax/es5/sre/mathmaps/nemeth.js",
+    "mathjax/es5/sre/mathmaps/de.json",
+    "mathjax/es5/sre/mathmaps/en.json",
+    "mathjax/es5/sre/mathmaps/es.json",
+    "mathjax/es5/sre/mathmaps/fr.json",
+    "mathjax/es5/sre/mathmaps/hi.json",
+    "mathjax/es5/sre/mathmaps/it.json",
+    "mathjax/es5/sre/mathmaps/nemeth.json",
 ];
 
 pub fn copy_mathjax() -> impl BuildAction {
