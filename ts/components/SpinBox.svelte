@@ -3,15 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { isDesktop } from "@tslib/platform";
+
     import IconConstrain from "./IconConstrain.svelte";
-    import { chevronLeft, chevronRight } from "./icons";
+    import { chevronDown, chevronUp } from "./icons";
 
     export let value: number;
     export let step = 1;
     export let min = 1;
     export let max = 9999;
-
-    const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
 
     let input: HTMLInputElement;
     let focused = false;
@@ -67,31 +67,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="spin-box" on:wheel={handleWheel}>
-    <button
-        class="decrement"
-        disabled={value == min}
-        tabindex="-1"
-        on:click={() => {
-            input.focus();
-            if (value > min) {
-                change(-step);
-            }
-        }}
-        on:mousedown={() =>
-            longPress(() => {
-                if (value > min) {
-                    change(-step);
-                }
-            })}
-        on:mouseup={() => {
-            clearTimeout(pressTimer);
-            pressed = false;
-        }}
-    >
-        <IconConstrain>
-            {@html rtl ? chevronRight : chevronLeft}
-        </IconConstrain>
-    </button>
     <input
         type="number"
         pattern="[0-9]*"
@@ -105,31 +80,58 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:focusin={() => (focused = true)}
         on:focusout={() => (focused = false)}
     />
-    <button
-        class="increment"
-        disabled={value == max}
-        tabindex="-1"
-        on:click={() => {
-            input.focus();
-            if (value < max) {
-                change(step);
-            }
-        }}
-        on:mousedown={() =>
-            longPress(() => {
+    {#if isDesktop()}
+        <button
+            class="decrement"
+            disabled={value == min}
+            tabindex="-1"
+            on:click={() => {
+                input.focus();
+                if (value > min) {
+                    change(-step);
+                }
+            }}
+            on:mousedown={() =>
+                longPress(() => {
+                    if (value > min) {
+                        change(-step);
+                    }
+                })}
+            on:mouseup={() => {
+                clearTimeout(pressTimer);
+                pressed = false;
+            }}
+        >
+            <IconConstrain>
+                {@html chevronDown}
+            </IconConstrain>
+        </button>
+        <button
+            class="increment"
+            disabled={value == max}
+            tabindex="-1"
+            on:click={() => {
+                input.focus();
                 if (value < max) {
                     change(step);
                 }
-            })}
-        on:mouseup={() => {
-            clearTimeout(pressTimer);
-            pressed = false;
-        }}
-    >
-        <IconConstrain>
-            {@html rtl ? chevronLeft : chevronRight}
-        </IconConstrain>
-    </button>
+            }}
+            on:mousedown={() =>
+                longPress(() => {
+                    if (value < max) {
+                        change(step);
+                    }
+                })}
+            on:mouseup={() => {
+                clearTimeout(pressTimer);
+                pressed = false;
+            }}
+        >
+            <IconConstrain>
+                {@html chevronUp}
+            </IconConstrain>
+        </button>
+    {/if}
 </div>
 
 <style lang="scss">
@@ -149,21 +151,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             flex-grow: 1;
             border: none;
             outline: none;
-            text-align: center;
             background: transparent;
             &::-webkit-inner-spin-button {
                 display: none;
             }
+            padding-left: 0.5em;
+            padding-right: 0.5em;
         }
 
-        &:hover,
-        &:focus-within {
+        &:hover {
             button {
                 visibility: visible;
-            }
-            input {
-                border-left: 1px solid var(--border-subtle);
-                border-right: 1px solid var(--border-subtle);
             }
         }
     }
@@ -172,12 +170,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @include button.base($border: false);
         border-radius: 0;
         height: 100%;
-
-        &.decrement {
-            align-self: flex-start;
-        }
-        &.increment {
-            align-self: flex-end;
-        }
     }
 </style>
