@@ -546,6 +546,12 @@ create table if not exists profiles
     def set_theme(self, theme: Theme) -> None:
         self.meta["theme"] = theme.value
 
+    def force_custom_styles(self) -> bool:
+        return self.meta.get("force_custom_styles", False)
+
+    def set_force_custom_styles(self, enabled: bool) -> None:
+        self.meta["force_custom_styles"] = enabled
+
     def browser_layout(self) -> BrowserLayout:
         from aqt.browser.layout import BrowserLayout
 
