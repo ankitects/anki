@@ -20,6 +20,27 @@ if (page_html != null) {
 // support Qt 5.14
 const target = ["es6", "chrome77"];
 const inlineCss = bundle_css == null;
+const sourcemap = env.SOURCEMAP && true;
+let sveltePlugins;
+
+if (!sourcemap) {
+    sveltePlugins = [
+        // use esbuild for faster typescript transpilation
+        typescript({
+            target,
+            define: {
+                "process.browser": "true",
+            },
+            tsconfig: "ts/tsconfig.json",
+        }),
+        sveltePreprocess({ typescript: false }),
+    ];
+} else {
+    sveltePlugins = [
+        // use tsc for more accurate sourcemaps
+        sveltePreprocess({ typescript: true, sourceMap: true }),
+    ];
+}
 
 build({
     bundle: true,
@@ -29,21 +50,12 @@ build({
     minify: env.RELEASE && true,
     loader: { ".svg": "text" },
     preserveSymlinks: true,
-    sourcemap: false,
+    sourcemap: sourcemap ? "inline" : false,
     plugins: [
         sassPlugin({ loadPaths: [".", "node_modules"] }),
         sveltePlugin({
             compilerOptions: { css: inlineCss },
-            preprocess: [
-                typescript({
-                    target,
-                    define: {
-                        "process.browser": "true",
-                    },
-                    tsconfig: "ts/tsconfig.json",
-                }),
-                sveltePreprocess({ typescript: false }),
-            ],
+            preprocess: sveltePlugins,
         }),
     ],
     target,
