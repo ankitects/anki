@@ -83,8 +83,7 @@ QMenu::item {{
     margin-bottom: 4px;
 }}
 QMenu::item:selected {{
-    background-color: {tm.var(colors.CANVAS_INSET)};
-    color: {tm.var(colors.HIGHLIGHT_FG)};
+    background-color: {tm.var(colors.CANVAS_ELEVATED)};
     border-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QMenu::separator {{
@@ -107,13 +106,18 @@ QPushButton {{
 }}
 QPushButton,
 QTabBar::tab:!selected,
-QComboBox:!editable {{
+QComboBox:!editable,
+QComboBox::drop-down:editable,
+QSpinBox::up-button,
+QSpinBox::down-button {{
     background: {tm.var(colors.BUTTON_BG)};
     border-bottom: 1px solid {tm.var(colors.SHADOW)};
 }}
 QPushButton:hover,
 QTabBar::tab:hover,
-QComboBox:!editable:hover {{
+QComboBox:!editable:hover,
+QSpinBox::up-button,
+QSpinBox::down-button {{
     background: {
         button_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
@@ -122,8 +126,8 @@ QComboBox:!editable:hover {{
     };
 }}
 QPushButton:pressed,
-QComboBox:!editable:pressed {{
-    border: 1px solid {tm.var(colors.BORDER_STRONG)};
+QSpinBox::up-button,
+QSpinBox::down-button {{
     background: {
         button_pressed_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
@@ -181,30 +185,30 @@ QComboBox::item::icon:selected {{
     position: absolute;
 }}
 QComboBox::drop-down {{
-    margin: -1px;
-    subcontrol-origin: padding;
+    subcontrol-origin: border;
     padding: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
     width: 16px;
     subcontrol-position: top right;
     border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     border-top-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
     border-bottom-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
 }}
+QComboBox::drop-down:!editable {{
+    background: none;
+    border-color: transparent;
+}}
 QComboBox::down-arrow {{
     image: url({tm.themed_icon("mdi:chevron-down")});
 }}
-QComboBox::drop-down {{
-    background: {tm.var(colors.BUTTON_BG)};
-    border-bottom: 1px solid {tm.var(colors.SHADOW)};
-}}
-QComboBox::drop-down:hover {{
+QComboBox::drop-down:hover:editable {{
     background: {
         button_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
             tm.var(colors.BUTTON_GRADIENT_END),
         )
     };
-    border-bottom: 1px solid {tm.var(colors.SHADOW)};
 }}
     """
 
@@ -286,7 +290,6 @@ QHeaderView::section:first {{
 }}
 QHeaderView::section:pressed,
 QHeaderView::section:pressed:!first {{
-    border: 1px solid {tm.var(colors.BORDER_STRONG)};
     background: {
         button_pressed_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
@@ -341,28 +344,6 @@ QSpinBox::up-button,
 QSpinBox::down-button {{
     subcontrol-origin: border;
     width: 16px;
-    border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-    background: {tm.var(colors.BUTTON_BG)};
-}}
-QSpinBox::up-button:pressed,
-QSpinBox::down-button:pressed {{
-    border: 1px solid {tm.var(colors.BORDER_STRONG)};
-    background: {
-        button_pressed_gradient(
-            tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END),
-            tm.var(colors.SHADOW)
-        )
-    }
-}}
-QSpinBox::up-button:hover,
-QSpinBox::down-button:hover {{
-    background: {
-        button_gradient(
-            tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END),
-        )
-    };
 }}
 QSpinBox::up-button {{
     margin-bottom: -1px;
