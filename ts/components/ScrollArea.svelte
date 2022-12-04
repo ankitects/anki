@@ -3,70 +3,92 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount, tick } from "svelte";
+    import { onMount } from "svelte";
 
     import { promiseWithResolver } from "../lib/promise";
 
     let className: string = "";
     export { className as class };
 
-    let element: HTMLElement;
+    const [element, elementResolve] = promiseWithResolver<HTMLDivElement>();
 
     export let scrollX = false;
     export let scrollY = false;
 
     let clientWidth = 0;
     let clientHeight = 0;
-    let scrollWidth = 0;
-    let scrollHeight = 0;
-    let scrollTop = 0;
-    let scrollLeft = 0;
-
-    $: overflowTop = scrollTop > 0;
-    $: overflowBottom = scrollTop < scrollHeight - clientHeight;
-    $: overflowLeft = scrollLeft > 0;
-    $: overflowRight = scrollLeft < scrollWidth - clientWidth;
-
-    async function updateScrollState(): Promise<void> {
-        scrollHeight = element.scrollHeight;
-        scrollWidth = element.scrollWidth;
-        scrollTop = element.scrollTop;
-        scrollLeft = element.scrollLeft;
-    }
 
     let scrollBarWidth = 0;
     let scrollBarHeight = 0;
     let measuring = true;
 
     onMount(async function measureScrollbar() {
-        scrollBarWidth = element.offsetWidth - element.clientWidth;
-        scrollBarHeight = element.offsetHeight - element.clientHeight;
+        const el = await element;
+        scrollBarWidth = el.offsetWidth - el.clientWidth;
+        scrollBarHeight = el.offsetHeight - el.clientHeight;
 
         measuring = false;
     });
+
+    const scrollStates = {
+        top: false,
+        right: false,
+        bottom: false,
+        left: false,
+    };
+
+    const callback = (entries: IntersectionObserverEntry[]) => {
+        entries.forEach((entry) => {
+            scrollStates[entry.target.getAttribute("data-edge")!] =
+                !entry.isIntersecting;
+        });
+    };
+
+    let observer: IntersectionObserver;
+
+    async function initObserver() {
+        observer = new IntersectionObserver(callback, { root: await element });
+    }
+
+    function observe(edge: HTMLDivElement) {
+        (async (edge) => {
+            if (!observer) {
+                await initObserver();
+            }
+            observer.observe(edge);
+        })(edge);
+    }
 </script>
 
 <div class="scroll-area-relative">
-    <div class="scroll-area {className}">
+    <div class="scroll-area-wrapper {className}">
         <div
-            class="scroll-area-content"
+            class="scroll-area"
             class:measuring
             class:scroll-x={scrollX}
             class:scroll-y={scrollY}
             style:--scrollbar-height="{scrollBarHeight}px"
-            bind:this={element}
             bind:clientWidth
             bind:clientHeight
-            on:scroll={updateScrollState}
-            on:resize={updateScrollState}
+            use:elementResolve
         >
-            <slot />
+            <div class="d-flex flex-column">
+                <div class="edge" data-edge="top" use:observe />
+                <div class="d-flex flex-row">
+                    <div class="edge" data-edge="left" use:observe />
+                    <div class="content flex-grow-1">
+                        <slot />
+                    </div>
+                    <div class="edge" data-edge="right" use:observe />
+                </div>
+                <div class="edge" data-edge="bottom" use:observe />
+            </div>
         </div>
 
-        {#if overflowTop} <div class="scroll-shadow top" /> {/if}
-        {#if overflowBottom} <div class="scroll-shadow bottom" /> {/if}
-        {#if overflowLeft} <div class="scroll-shadow left" /> {/if}
-        {#if overflowRight} <div class="scroll-shadow right" /> {/if}
+        {#if scrollStates.top} <div class="scroll-shadow top-0" /> {/if}
+        {#if scrollStates.bottom} <div class="scroll-shadow bottom-0" /> {/if}
+        {#if scrollStates.left} <div class="scroll-shadow start-0" /> {/if}
+        {#if scrollStates.right} <div class="scroll-shadow end-0" /> {/if}
     </div>
 </div>
 
@@ -76,27 +98,42 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $shadow-left: inset 5px 0 5px -5px var(--shadow);
     $shadow-right: inset -5px 0 5px -5px var(--shadow);
 
+    .edge {
+        position: sticky;
+        &[data-edge="left"],
+        &[data-edge="right"] {
+            top: 0;
+        }
+        &[data-edge="top"],
+        &[data-edge="bottom"] {
+            left: 0;
+        }
+    }
+
     .scroll-area-relative {
         height: calc(var(--height) + var(--scrollbar-height));
         flex-grow: 1;
         position: relative;
     }
 
-    .scroll-area-content {
+    .scroll-area {
         position: absolute;
         height: 100%;
         width: 100%;
         display: flex;
         flex-direction: column;
+        overscroll-behavior: none;
 
         overflow: auto;
         &.scroll-x {
             overflow-x: scroll;
             overflow-y: hidden;
+            overscroll-behavior-y: auto;
         }
         &.scroll-y {
             overflow-y: scroll;
             overflow-x: hidden;
+            overscroll-behavior-x: none;
         }
 
         &.measuring {
@@ -111,33 +148,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         // z-index between LabelContainer (editor) and FloatingArrow
         z-index: 55;
 
-        &.top,
-        &.bottom {
+        &.top-0,
+        &.bottom-0 {
             left: 0;
             right: 0;
             height: 5px;
         }
-        &.top {
-            top: 0;
-            box-shadow: $shadow-top;
-        }
-        &.bottom {
-            bottom: 0;
-            box-shadow: $shadow-bottom;
-        }
-        &.left,
-        &.right {
+        &.start-0,
+        &.end-0 {
             top: 0;
             bottom: 0;
             width: 5px;
         }
-
-        &.left {
-            left: 0;
+        &.top-0 {
+            box-shadow: $shadow-top;
+        }
+        &.bottom-0 {
+            box-shadow: $shadow-bottom;
+        }
+        &.start-0 {
             box-shadow: $shadow-left;
         }
-        &.right {
-            right: 0;
+        &.end-0 {
             box-shadow: $shadow-right;
         }
     }
