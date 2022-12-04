@@ -675,7 +675,6 @@ html {{ {font} }}
             extra = "#night"
         else:
             extra = ""
-        self.hide_while_preserving_layout()
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
         self.add_dynamic_css_and_classes_then_show()
 
