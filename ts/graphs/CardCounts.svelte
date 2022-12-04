@@ -48,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </InputBox>
 
     <div class="counts-outer">
-        <div class="svg-container" width={bounds.width} height={bounds.height}>
+        <div class="svg-container">
             <svg
                 bind:this={svg}
                 viewBox={`0 0 ${bounds.width} ${bounds.height}`}
@@ -94,6 +94,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         justify-content: center;
         margin: 0 4vw;
+        flex-wrap: wrap;
+        flex: 1;
 
         .svg-container {
             width: 225px;
@@ -116,27 +118,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         text-align: right;
                     }
                 }
-            }
-        }
-    }
-
-    /* On narrow devices, stack graph and table in a column */
-    @media only screen and (max-width: 600px) {
-        .counts-outer {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-
-            .svg-container {
-                width: 180px;
-
-                svg {
-                    margin-left: 4vw;
-                }
-            }
-
-            .counts-table table td {
-                padding: 0 min(6vw, 30px);
             }
         }
     }
