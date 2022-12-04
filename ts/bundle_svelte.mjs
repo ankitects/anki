@@ -6,7 +6,7 @@ import { sassPlugin } from "esbuild-sass-plugin";
 import sveltePlugin from "esbuild-svelte";
 import { readFileSync, writeFileSync } from "fs";
 import { basename } from "path";
-import { argv } from "process";
+import { argv, env } from "process";
 import sveltePreprocess from "svelte-preprocess";
 import { typescript } from "svelte-preprocess-esbuild";
 
@@ -26,7 +26,7 @@ build({
     entryPoints: [entrypoint],
     globalName: "anki",
     outfile: bundle_js,
-    minify: true,
+    minify: env.RELEASE && true,
     loader: { ".svg": "text" },
     preserveSymlinks: true,
     sourcemap: false,
