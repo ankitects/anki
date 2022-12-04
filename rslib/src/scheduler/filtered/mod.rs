@@ -121,7 +121,7 @@ impl Collection {
         mut position: i32,
     ) -> Result<i32> {
         let search = format!(
-            "{} -is:suspended -is:buried -deck:filtered {}",
+            "{} -is:suspended -is:buried {}", // -deck:filtered
             if term.search.trim().is_empty() {
                 "".to_string()
             } else {

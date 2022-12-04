@@ -27,15 +27,13 @@ impl Card {
 
     pub(crate) fn move_into_filtered_deck(&mut self, ctx: &DeckFilterContext, position: i32) {
         // filtered and v1 learning cards are excluded, so odue should be guaranteed to be zero
-        if self.original_due != 0 {
-            println!("bug: odue was set");
-            return;
+        if self.original_due == 0 {
+            // Case for non-Nested filtered decks only. Getting a card from filtered deck would imply odue and odid already being set - hence no need to touch them again
+            self.original_deck_id = self.deck_id;
+            self.original_due = self.due;
         }
 
-        self.original_deck_id = self.deck_id;
         self.deck_id = ctx.target_deck;
-
-        self.original_due = self.due;
 
         if ctx.scheduler == SchedulerVersion::V1 {
             if self.ctype == CardType::Review && self.due <= ctx.today as i32 {

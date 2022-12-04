@@ -210,7 +210,6 @@ class FilteredDeckConfigDialog(QDialog):
             SearchNode(card_state=SearchNode.CARD_STATE_SUSPENDED),
             SearchNode(card_state=SearchNode.CARD_STATE_BURIED),
             *self._learning_search_node(),
-            *self._filtered_search_node(),
         )
         manual_filter = self.col.group_searches(*manual_filters, joiner="OR")
         implicit_filter = self.col.group_searches(*implicit_filters, joiner="OR")
@@ -240,18 +239,6 @@ class FilteredDeckConfigDialog(QDialog):
                 )
             return (SearchNode(card_state=SearchNode.CARD_STATE_LEARN),)
         return ()
-
-    def _filtered_search_node(self) -> tuple[SearchNode]:
-        """Return a search node that matches cards in filtered decks, if applicable excluding those
-        in the deck being rebuild."""
-        if self.deck.id:
-            return (
-                self.col.group_searches(
-                    SearchNode(deck="filtered"),
-                    SearchNode(negated=SearchNode(deck=self.deck.name)),
-                ),
-            )
-        return (SearchNode(deck="filtered"),)
 
     def _onReschedToggled(self, _state: int) -> None:
         self.form.previewDelayWidget.setVisible(
