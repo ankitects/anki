@@ -159,8 +159,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             padding-right: 0.5em;
         }
 
-        &:hover,
-        &:focus-within {
+        &:hover {
             button {
                 visibility: visible;
             }
