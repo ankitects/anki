@@ -58,6 +58,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: grid;
         gap: 1em;
         grid-template-columns: repeat(3, minmax(0, 1fr));
+        // required on Safari to stretch whole width
+        width: 100vw;
 
         @media only screen and (max-width: 1400px) {
             grid-template-columns: 50% 50%;
