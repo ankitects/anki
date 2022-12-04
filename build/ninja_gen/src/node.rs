@@ -150,6 +150,7 @@ impl BuildAction for EsbuildScript<'_> {
         build.add_inputs("script", &self.script);
         build.add_inputs("entrypoint", &self.entrypoint);
         build.add_inputs("", inputs!["yarn.lock", ":node_modules", &self.deps]);
+        build.add_inputs("", inputs!["out/env"]);
         let stem = self.output_stem;
         let mut outs = vec![format!("{stem}.js")];
         outs.extend(self.extra_exts.iter().map(|ext| format!("{stem}.{ext}")));

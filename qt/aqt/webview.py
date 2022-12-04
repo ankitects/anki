@@ -332,7 +332,6 @@ class AnkiWebView(QWebEngineView):
         self._domDone = True
         self._queueAction("setHtml", html)
         self.set_open_links_externally(True)
-        self.setZoomFactor(1)
         self.allow_drops = False
         self.show()
 
@@ -676,8 +675,6 @@ html {{ {font} }}
             extra = "#night"
         else:
             extra = ""
-        self.hide_while_preserving_layout()
-        self.setZoomFactor(1)
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
         self.add_dynamic_css_and_classes_then_show()
 

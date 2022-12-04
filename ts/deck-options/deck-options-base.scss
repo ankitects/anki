@@ -19,3 +19,6 @@ input[type="text"] {
     padding-inline: 0.5rem;
     background: var(--canvas-inset);
 }
+
+// Setting 100% height causes the sticky element to hide as you scroll down on Safari.
+html { height: initial; }
