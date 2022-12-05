@@ -23,8 +23,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
 
     function setValue(v: number) {
-        dispatch("change", { oldIdx: value, newIdx: v });
         value = v;
+        dispatch("change", { value });
     }
 
     export let element: HTMLElement | undefined = undefined;
