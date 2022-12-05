@@ -524,7 +524,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#00f")
 
         js = """
+            saveSession();
             setFields({});
+            setNotetypeId({});
             setCollapsed({});
             setPlainTexts({});
             setDescriptions({});
@@ -539,6 +541,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setCloseHTMLTags({});
             """.format(
             json.dumps(data),
+            json.dumps(self.note.mid),
             json.dumps(collapsed),
             json.dumps(plain_texts),
             json.dumps(descriptions),

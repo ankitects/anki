@@ -71,6 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
     import SymbolsOverlay from "./symbols-overlay";
+    import type { SessionOptions } from "./types";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -82,6 +83,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const size = 1.6;
     const wrap = true;
+
+    const sessionOptions: SessionOptions = {};
+    export function saveSession(): void {
+        if (notetypeId) {
+            sessionOptions[notetypeId] = {
+                fieldsCollapsed,
+                fieldStates: {
+                    richTextsHidden,
+                    plainTextsHidden,
+                    plainTextDefaults,
+                },
+            };
+        }
+    }
 
     const fieldStores: Writable<string>[] = [];
     let fieldNames: string[] = [];
@@ -120,7 +135,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let fieldsCollapsed: boolean[] = [];
     export function setCollapsed(fs: boolean[]): void {
-        fieldsCollapsed = fs;
+        fieldsCollapsed = sessionOptions[notetypeId!]?.fieldsCollapsed ?? fs;
     }
 
     let richTextsHidden: boolean[] = [];
@@ -128,9 +143,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let plainTextDefaults: boolean[] = [];
 
     export function setPlainTexts(fs: boolean[]): void {
-        richTextsHidden = fs;
-        plainTextsHidden = Array.from(fs, (v) => !v);
-        plainTextDefaults = [...richTextsHidden];
+        const states = sessionOptions[notetypeId!]?.fieldStates;
+        if (states) {
+            richTextsHidden = states.richTextsHidden;
+            plainTextsHidden = states.plainTextsHidden;
+            plainTextDefaults = states.plainTextDefaults;
+        } else {
+            richTextsHidden = fs;
+            plainTextsHidden = Array.from(fs, (v) => !v);
+            plainTextDefaults = [...richTextsHidden];
+        }
     }
 
     function setMathjaxEnabled(enabled: boolean): void {
@@ -185,6 +207,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             pi.api.codeMirror.editor.then((editor) => editor.clearHistory());
         }
         noteId = ntid;
+    }
+
+    let notetypeId: number | null = null;
+    export function setNotetypeId(mid: number): void {
+        notetypeId = mid;
     }
 
     let insertSymbols = false;
@@ -299,6 +326,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         Object.assign(globalThis, {
+            saveSession,
             setFields,
             setCollapsed,
             setPlainTexts,
@@ -313,6 +341,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             focusIfField,
             getNoteId,
             setNoteId,
+            setNotetypeId,
             wrap,
             setMathjaxEnabled,
             setInsertSymbolsEnabled,
