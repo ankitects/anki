@@ -262,7 +262,9 @@ mod test {
             Backup {
                 datetime: Local
                     .from_local_datetime(
-                        &NaiveDate::from_num_days_from_ce($num_days_from_ce).and_hms(0, 0, 0),
+                        &NaiveDate::from_num_days_from_ce($num_days_from_ce)
+                            .and_hms_opt(0, 0, 0)
+                            .unwrap(),
                     )
                     .latest()
                     .unwrap(),
@@ -271,13 +273,16 @@ mod test {
         };
         ($year:expr, $month:expr, $day:expr) => {
             Backup {
-                datetime: Local.ymd($year, $month, $day).and_hms(0, 0, 0),
+                datetime: Local.ymd($year, $month, $day).and_hms_opt(0, 0, 0).unwrap(),
                 path: PathBuf::new(),
             }
         };
         ($year:expr, $month:expr, $day:expr, $hour:expr, $min:expr, $sec:expr) => {
             Backup {
-                datetime: Local.ymd($year, $month, $day).and_hms($hour, $min, $sec),
+                datetime: Local
+                    .ymd($year, $month, $day)
+                    .and_hms_opt($hour, $min, $sec)
+                    .unwrap(),
                 path: PathBuf::new(),
             }
         };

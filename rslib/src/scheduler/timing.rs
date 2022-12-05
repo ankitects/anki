@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use chrono::{Date, Duration, FixedOffset, Local, TimeZone, Timelike};
+use chrono::{Date, DateTime, Duration, FixedOffset, Local, TimeZone, Timelike};
 
 use crate::prelude::*;
 
@@ -33,7 +33,7 @@ pub fn sched_timing_today_v2_new(
     let today = now_datetime.date();
 
     // rollover
-    let rollover_today_datetime = today.and_hms(rollover_hour as u32, 0, 0);
+    let rollover_today_datetime = with_rollover_hour(today, rollover_hour);
     let rollover_passed = rollover_today_datetime <= now_datetime;
     let next_day_at = TimestampSecs(if rollover_passed {
         (rollover_today_datetime + Duration::days(1)).timestamp()
@@ -49,6 +49,11 @@ pub fn sched_timing_today_v2_new(
         days_elapsed,
         next_day_at,
     }
+}
+
+fn with_rollover_hour(date: Date<FixedOffset>, hour: u8) -> DateTime<FixedOffset> {
+    let hour = hour.min(23);
+    date.and_hms_opt(hour as u32, 0, 0).unwrap()
 }
 
 /// The number of times the day rolled over between two dates.
@@ -95,7 +100,7 @@ pub(crate) fn v1_creation_date() -> i64 {
 fn v1_creation_date_inner(now: TimestampSecs, mins_west: i32) -> i64 {
     let offset = fixed_offset_from_minutes(mins_west);
     let now_dt = offset.timestamp(now.0, 0);
-    let four_am_dt = now_dt.date().and_hms(4, 0, 0);
+    let four_am_dt = with_rollover_hour(now_dt.date(), 4);
     let four_am_stamp = four_am_dt.timestamp();
 
     if four_am_dt > now_dt {
@@ -111,11 +116,7 @@ pub(crate) fn v1_creation_date_adjusted_to_hour(crt: i64, hour: u8) -> i64 {
 }
 
 fn v1_creation_date_adjusted_to_hour_inner(crt: i64, hour: u8, offset: FixedOffset) -> i64 {
-    offset
-        .timestamp(crt, 0)
-        .date()
-        .and_hms(hour as u32, 0, 0)
-        .timestamp()
+    with_rollover_hour(offset.timestamp(crt, 0).date(), hour).timestamp()
 }
 
 fn sched_timing_today_v1(crt: TimestampSecs, now: TimestampSecs) -> SchedTimingToday {
@@ -134,18 +135,12 @@ fn sched_timing_today_v2_legacy(
     now: TimestampSecs,
     current_utc_offset: FixedOffset,
 ) -> SchedTimingToday {
-    let crt_at_rollover = crt
-        .datetime(current_utc_offset)
-        .date()
-        .and_hms(rollover as u32, 0, 0)
-        .timestamp();
+    let crt_at_rollover =
+        with_rollover_hour(crt.datetime(current_utc_offset).date(), rollover).timestamp();
     let days_elapsed = (now.0 - crt_at_rollover) / 86_400;
 
     let mut next_day_at = TimestampSecs(
-        now.datetime(current_utc_offset)
-            .date()
-            .and_hms(rollover as u32, 0, 0)
-            .timestamp(),
+        with_rollover_hour(now.datetime(current_utc_offset).date(), rollover).timestamp(),
     );
     if next_day_at < now {
         next_day_at = next_day_at.adding_secs(86_400);
@@ -238,7 +233,8 @@ mod test {
 
         let created_dt = FixedOffset::west(local_offset * 60)
             .ymd(2019, 12, 1)
-            .and_hms(2, 0, 0);
+            .and_hms_opt(2, 0, 0)
+            .unwrap();
         let crt = created_dt.timestamp();
 
         // days can't be negative
@@ -267,27 +263,54 @@ mod test {
         let mst_offset = mst.utc_minus_local() / 60;
 
         // a collection created @ midnight in MDT in the past
-        let crt = mdt.ymd(2018, 8, 6).and_hms(0, 0, 0).timestamp();
+        let crt = mdt
+            .ymd(2018, 8, 6)
+            .and_hms_opt(0, 0, 0)
+            .unwrap()
+            .timestamp();
         // with the current time being MST
-        let now = mst.ymd(2019, 12, 26).and_hms(20, 0, 0).timestamp();
+        let now = mst
+            .ymd(2019, 12, 26)
+            .and_hms_opt(20, 0, 0)
+            .unwrap()
+            .timestamp();
         assert_eq!(elap(crt, now, mdt_offset, mst_offset, 4), 507);
         // the previous implementation generated a different elapsed number of days with a change
         // to DST, but the number shouldn't change
         assert_eq!(elap(crt, now, mdt_offset, mdt_offset, 4), 507);
 
         // collection created at 3am on the 6th, so day 1 starts at 4am on the 7th, and day 3 on the 9th.
-        let crt = mdt.ymd(2018, 8, 6).and_hms(3, 0, 0).timestamp();
-        let now = mst.ymd(2018, 8, 9).and_hms(1, 59, 59).timestamp();
+        let crt = mdt
+            .ymd(2018, 8, 6)
+            .and_hms_opt(3, 0, 0)
+            .unwrap()
+            .timestamp();
+        let now = mst
+            .ymd(2018, 8, 9)
+            .and_hms_opt(1, 59, 59)
+            .unwrap()
+            .timestamp();
         assert_eq!(elap(crt, now, mdt_offset, mst_offset, 4), 2);
-        let now = mst.ymd(2018, 8, 9).and_hms(3, 59, 59).timestamp();
+        let now = mst
+            .ymd(2018, 8, 9)
+            .and_hms_opt(3, 59, 59)
+            .unwrap()
+            .timestamp();
         assert_eq!(elap(crt, now, mdt_offset, mst_offset, 4), 2);
-        let now = mst.ymd(2018, 8, 9).and_hms(4, 0, 0).timestamp();
+        let now = mst
+            .ymd(2018, 8, 9)
+            .and_hms_opt(4, 0, 0)
+            .unwrap()
+            .timestamp();
         assert_eq!(elap(crt, now, mdt_offset, mst_offset, 4), 3);
 
         // try a bunch of combinations of creation time, current time, and rollover hour
         let hours_of_interest = &[0, 1, 4, 12, 22, 23];
         for creation_hour in hours_of_interest {
-            let crt_dt = mdt.ymd(2018, 8, 6).and_hms(*creation_hour, 0, 0);
+            let crt_dt = mdt
+                .ymd(2018, 8, 6)
+                .and_hms_opt(*creation_hour, 0, 0)
+                .unwrap();
             let crt_stamp = crt_dt.timestamp();
             let crt_offset = mdt_offset;
 
@@ -296,7 +319,8 @@ mod test {
                     for rollover_hour in hours_of_interest {
                         let end_dt = mdt
                             .ymd(2018, 8, 6 + current_day)
-                            .and_hms(*current_hour, 0, 0);
+                            .and_hms_opt(*current_hour, 0, 0)
+                            .unwrap();
                         let end_stamp = end_dt.timestamp();
                         let end_offset = mdt_offset;
                         let elap_day = if *current_hour < *rollover_hour {
@@ -324,11 +348,11 @@ mod test {
     #[test]
     fn next_day_at() {
         let rollhour = 4;
-        let crt = Local.ymd(2019, 1, 1).and_hms(2, 0, 0);
+        let crt = Local.ymd(2019, 1, 1).and_hms_opt(2, 0, 0).unwrap();
 
         // before the rollover, the next day should be later on the same day
-        let now = Local.ymd(2019, 1, 3).and_hms(2, 0, 0);
-        let next_day_at = Local.ymd(2019, 1, 3).and_hms(rollhour, 0, 0);
+        let now = Local.ymd(2019, 1, 3).and_hms_opt(2, 0, 0).unwrap();
+        let next_day_at = Local.ymd(2019, 1, 3).and_hms_opt(rollhour, 0, 0).unwrap();
         let today = sched_timing_today_v2_new(
             TimestampSecs(crt.timestamp()),
             *crt.offset(),
@@ -339,8 +363,8 @@ mod test {
         assert_eq!(today.next_day_at.0, next_day_at.timestamp());
 
         // after the rollover, the next day should be the next day
-        let now = Local.ymd(2019, 1, 3).and_hms(rollhour, 0, 0);
-        let next_day_at = Local.ymd(2019, 1, 4).and_hms(rollhour, 0, 0);
+        let now = Local.ymd(2019, 1, 3).and_hms_opt(rollhour, 0, 0).unwrap();
+        let next_day_at = Local.ymd(2019, 1, 4).and_hms_opt(rollhour, 0, 0).unwrap();
         let today = sched_timing_today_v2_new(
             TimestampSecs(crt.timestamp()),
             *crt.offset(),
@@ -351,8 +375,11 @@ mod test {
         assert_eq!(today.next_day_at.0, next_day_at.timestamp());
 
         // after the rollover, the next day should be the next day
-        let now = Local.ymd(2019, 1, 3).and_hms(rollhour + 3, 0, 0);
-        let next_day_at = Local.ymd(2019, 1, 4).and_hms(rollhour, 0, 0);
+        let now = Local
+            .ymd(2019, 1, 3)
+            .and_hms_opt(rollhour + 3, 0, 0)
+            .unwrap();
+        let next_day_at = Local.ymd(2019, 1, 4).and_hms_opt(rollhour, 0, 0).unwrap();
         let today = sched_timing_today_v2_new(
             TimestampSecs(crt.timestamp()),
             *crt.offset(),
@@ -399,16 +426,36 @@ mod test {
     fn legacy_creation_stamp() {
         let offset = fixed_offset_from_minutes(AEST_MINS_WEST);
 
-        let now = TimestampSecs(offset.ymd(2020, 5, 10).and_hms(9, 30, 30).timestamp());
+        let now = TimestampSecs(
+            offset
+                .ymd(2020, 5, 10)
+                .and_hms_opt(9, 30, 30)
+                .unwrap()
+                .timestamp(),
+        );
         assert_eq!(
             v1_creation_date_inner(now, AEST_MINS_WEST),
-            offset.ymd(2020, 5, 10).and_hms(4, 0, 0).timestamp()
+            offset
+                .ymd(2020, 5, 10)
+                .and_hms_opt(4, 0, 0)
+                .unwrap()
+                .timestamp()
         );
 
-        let now = TimestampSecs(offset.ymd(2020, 5, 10).and_hms(1, 30, 30).timestamp());
+        let now = TimestampSecs(
+            offset
+                .ymd(2020, 5, 10)
+                .and_hms_opt(1, 30, 30)
+                .unwrap()
+                .timestamp(),
+        );
         assert_eq!(
             v1_creation_date_inner(now, AEST_MINS_WEST),
-            offset.ymd(2020, 5, 9).and_hms(4, 0, 0).timestamp()
+            offset
+                .ymd(2020, 5, 9)
+                .and_hms_opt(4, 0, 0)
+                .unwrap()
+                .timestamp()
         );
 
         let crt = v1_creation_date_inner(now, AEST_MINS_WEST);
