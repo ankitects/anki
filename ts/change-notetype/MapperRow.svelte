@@ -24,15 +24,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: label = $info.getOldNamesIncludingNothing(ctx)[oldIndex];
 </script>
 
-<Row --cols={2}>
-    <Col --col-size={1}>
+<Row>
+    <Col>
         <Select value={oldIndex} {label} on:change={onChange}>
             {#each $info.getOldNamesIncludingNothing(ctx) as name, idx}
                 <SelectOption value={idx}>{name}</SelectOption>
             {/each}
         </Select>
     </Col>
-    <Col --col-size={1}>
+    <Col>
         {$info.getNewName(ctx, newIndex)}
     </Col>
 </Row>
