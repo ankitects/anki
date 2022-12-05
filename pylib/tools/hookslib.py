@@ -33,7 +33,7 @@ class Hook:
     # if the hook replaces a deprecated one, add its name here
     replaces: Optional[str] = None
     # arguments that the hook being replaced took
-    replaced_hook_args: Optional[List[str]] = None
+    replaced_hook_args: Optional[list[str]] = None
     # docstring to add to hook class
     doc: Optional[str] = None
 
