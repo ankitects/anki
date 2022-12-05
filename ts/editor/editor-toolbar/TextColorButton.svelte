@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString } from "@tslib/shortcuts";
     import { removeStyleProperties } from "@tslib/styling";
     import { singleCallback } from "@tslib/typing";
+    import { setFormat } from "editor/old-editor-adapter";
     import { onMount } from "svelte";
 
     import IconButton from "../../components/IconButton.svelte";
@@ -109,7 +110,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     removeFormats.update((formats) => [...formats, namedFormat]);
 
     function setTextColor(): void {
-        surrounder.overwriteSurround(key);
+        setFormat("foreColor", transformedColor);
     }
 
     const setCombination = "F7";
