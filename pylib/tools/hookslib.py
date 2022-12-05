@@ -136,7 +136,7 @@ class {self.classname()}:
                 "The hook {self.replaces} is deprecated.\\n"
                 "Use {self.name} instead."
             )
-            {self.replaced_args()}
+        {self.replaced_args()}
 """
         elif self.legacy_hook:
             # don't run legacy hook if replaced hook exists
@@ -167,7 +167,7 @@ class {self.classname()}:
                 "The hook {self.replaces} is deprecated.\\n"
                 "Use {self.name} instead."
             )
-            {arg_names[0]} = {self.replaced_args()}
+        {arg_names[0]} = {self.replaced_args()}
 """
         elif self.legacy_hook:
             # don't run legacy hook if replaced hook exists
