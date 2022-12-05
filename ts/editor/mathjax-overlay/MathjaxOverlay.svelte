@@ -228,6 +228,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             // the user has to click twice (focus is called before blur?)
                             resetHandle();
                         }}
+                        on:close={resetHandle}
                         let:editor={mathjaxEditor}
                     >
                         <Shortcut
