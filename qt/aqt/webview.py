@@ -247,12 +247,6 @@ class AnkiWebView(QWebEngineView):
 
         self.resetHandlers()
         self._filterSet = False
-        QShortcut(  # type: ignore
-            QKeySequence("Esc"),
-            self,
-            context=Qt.ShortcutContext.WidgetWithChildrenShortcut,
-            activated=self.onEsc,
-        )
         gui_hooks.theme_did_change.append(self.on_theme_did_change)
 
     def set_title(self, title: str) -> None:
@@ -601,6 +595,8 @@ html {{ {font} }}
         if cmd == "domDone":
             self._domDone = True
             self._maybeRunActions()
+        elif cmd == "close":
+            self.onEsc()
         else:
             handled, result = gui_hooks.webview_did_receive_js_message(
                 (False, None), cmd, self._bridge_context
