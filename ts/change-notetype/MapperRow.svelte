@@ -5,6 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
+    import Select from "../components/Select.svelte";
+    import SelectOption from "../components/SelectOption.svelte";
     import type { ChangeNotetypeState, MapContext } from "./lib";
 
     export let state: ChangeNotetypeState;
@@ -12,24 +14,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let newIndex: number;
 
     const info = state.info;
+    $: oldIndex = $info.getOldIndex(ctx, newIndex);
 
-    function onChange(evt: Event) {
-        const oldIdx = parseInt((evt.target as HTMLSelectElement).value, 10);
-        state.setOldIndex(ctx, newIndex, oldIdx);
+    function onChange(evt: CustomEvent) {
+        oldIndex = evt.detail.value;
+        state.setOldIndex(ctx, newIndex, oldIndex);
     }
+
+    $: label = $info.getOldNamesIncludingNothing(ctx)[oldIndex];
 </script>
 
 <Row --cols={2}>
     <Col --col-size={1}>
-        <select
-            value={$info.getOldIndex(ctx, newIndex)}
-            class="form-select"
-            on:change={onChange}
-        >
+        <Select value={oldIndex} {label} on:change={onChange}>
             {#each $info.getOldNamesIncludingNothing(ctx) as name, idx}
-                <option value={idx}>{name}</option>
+                <SelectOption value={idx}>{name}</SelectOption>
             {/each}
-        </select>
+        </Select>
     </Col>
     <Col --col-size={1}>
         {$info.getNewName(ctx, newIndex)}
