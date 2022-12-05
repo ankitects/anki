@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const notetypes = state.notetypes;
     const info = state.info;
 
-    let value: number = 0;
+    let value = $notetypes.findIndex((e) => e.current);
     $: options = Array.from($notetypes, (notetype) => notetype.name);
     $: label = options[value];
 
