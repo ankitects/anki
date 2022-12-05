@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { createEventDispatcher, setContext } from "svelte";
+    import { writable } from "svelte/store";
 
     import { selectKey } from "./context-keys";
     import IconConstrain from "./IconConstrain.svelte";
@@ -44,7 +45,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    setContext(selectKey, setValue);
+    const selectStore = writable({ value, setValue });
+    $: $selectStore.value = value;
+    setContext(selectKey, selectStore);
 </script>
 
 <WithFloating
