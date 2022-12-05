@@ -89,7 +89,7 @@ The hook code is automatically generated using the definitions in
 pylib/tools/genhooks.py and qt/tools/genhooks_gui.py. Adding a new definition
 in one of those files will update the generated files.
 
-If you want to change an existing hook to, for example, recieve an additional
+If you want to change an existing hook to, for example, receive an additional
 argument, you must leave the existing hook unchanged to preserve backwards
 compatibility. Create a new definition for your hook with a similar name and
 include the properties `replaces="name_of_old_hook"` and
