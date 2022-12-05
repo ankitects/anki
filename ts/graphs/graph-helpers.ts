@@ -5,9 +5,8 @@
 @typescript-eslint/no-explicit-any: "off",
 @typescript-eslint/ban-ts-comment: "off" */
 
+import type { Cards, Stats } from "@tslib/proto";
 import type { Selection } from "d3";
-
-import type { Cards, Stats } from "../lib/proto";
 
 // amount of data to fetch from backend
 export enum RevlogRange {
@@ -69,7 +68,7 @@ export function millisecondCutoffForRange(
     range: GraphRange,
     nextDayAtSecs: number,
 ): number {
-    let days;
+    let days: number;
     switch (range) {
         case GraphRange.Month:
             days = 31;

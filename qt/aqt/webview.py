@@ -247,12 +247,6 @@ class AnkiWebView(QWebEngineView):
 
         self.resetHandlers()
         self._filterSet = False
-        QShortcut(  # type: ignore
-            QKeySequence("Esc"),
-            self,
-            context=Qt.ShortcutContext.WidgetWithChildrenShortcut,
-            activated=self.onEsc,
-        )
         gui_hooks.theme_did_change.append(self.on_theme_did_change)
 
     def set_title(self, title: str) -> None:
@@ -332,7 +326,6 @@ class AnkiWebView(QWebEngineView):
         self._domDone = True
         self._queueAction("setHtml", html)
         self.set_open_links_externally(True)
-        self.setZoomFactor(1)
         self.allow_drops = False
         self.show()
 
@@ -602,6 +595,8 @@ html {{ {font} }}
         if cmd == "domDone":
             self._domDone = True
             self._maybeRunActions()
+        elif cmd == "close":
+            self.onEsc()
         else:
             handled, result = gui_hooks.webview_did_receive_js_message(
                 (False, None), cmd, self._bridge_context
@@ -676,8 +671,6 @@ html {{ {font} }}
             extra = "#night"
         else:
             extra = ""
-        self.hide_while_preserving_layout()
-        self.setZoomFactor(1)
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
         self.add_dynamic_css_and_classes_then_show()
 

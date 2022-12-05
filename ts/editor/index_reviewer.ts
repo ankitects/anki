@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import { globalExport } from "../lib/globals";
-import { setupI18n } from "../lib/i18n";
-import { uiResolve } from "../lib/ui";
+import { globalExport } from "@tslib/globals";
+import { setupI18n } from "@tslib/i18n";
+import { uiResolve } from "@tslib/ui";
+
 import { editorModules } from "./base";
 import ReviewerEditor from "./ReviewerEditor.svelte";
 

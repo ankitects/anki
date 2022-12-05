@@ -1,5 +1,8 @@
 {
     "extends": "../tsconfig.json",
     "include": ["*"],
-    "references": [{ "path": "../lib" }]
+    "references": [{ "path": "../lib" }],
+    "compilerOptions": {
+        "types": ["node"]
+    }
 }

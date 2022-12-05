@@ -3,4 +3,8 @@
 set -e
 
 export PYTHONWARNINGS=default
-bazel run $BUILDARGS //qt:runanki -- $*
+export PYTHONPYCACHEPREFIX=out/pycache
+export ANKIDEV=1
+
+./ninja pylib/anki qt/aqt
+./out/pyenv/bin/python tools/run.py $*

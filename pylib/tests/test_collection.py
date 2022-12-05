@@ -5,6 +5,7 @@
 
 import os
 import tempfile
+from typing import Any
 
 from anki.collection import Collection as aopen
 from anki.dbproxy import emulate_named_args
@@ -163,7 +164,7 @@ def test_translate():
 
 def test_db_named_args(capsys):
     sql = "select a, 2+:test5 from b where arg =:foo and x = :test5"
-    args = []
+    args: tuple = tuple()
     kwargs = dict(test5=5, foo="blah")
 
     s, a = emulate_named_args(sql, args, kwargs)

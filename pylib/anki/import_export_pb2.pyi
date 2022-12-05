@@ -1,1 +1,0 @@
-../../.bazel/bin/pylib/anki/import_export_pb2.pyi

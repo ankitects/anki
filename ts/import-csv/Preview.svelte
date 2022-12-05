@@ -3,7 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { Generic } from "../lib/proto";
+    import type { Generic } from "@tslib/proto";
+
     import type { ColumnOption } from "./lib";
 
     export let columnOptions: ColumnOption[];
@@ -54,7 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         tr {
             &:nth-child(even) {
-                background: var(--canvas-elevated);
+                background: var(--canvas);
             }
         }
 

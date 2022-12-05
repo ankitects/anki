@@ -57,42 +57,9 @@ samp {
     unicode-bidi: normal !important;
 }
 
-[dir="rtl"] {
-    .form-select {
-        /* flip <select>'s arrow */
-        background-position: left 0.75rem center;
-    }
-}
-.form-select:focus {
-    outline: none;
-    border: 1px solid color(border-focus);
-    box-shadow: none !important;
-}
-
-.night-mode .form-select:disabled {
-    background-color: color(fg-disabled);
-}
-
 .reduced-motion * {
     transition: none !important;
     animation: none !important;
-}
-
-select {
-    @include button.background;
-    @include button.border-radius;
-
-    cursor: pointer;
-    outline: none;
-
-    &:focus,
-    &.focus {
-        border: 1px solid color(border-focus);
-    }
-    option {
-        background: color(canvas-elevated);
-        color: color(fg);
-    }
 }
 
 label,

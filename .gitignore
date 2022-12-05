@@ -4,8 +4,9 @@ anki.prof
 target
 /user.bazelrc
 .dmypy.json
-node_modules
 /.idea/
 /.vscode/
 /.bazel
 /windows.bazelrc
+/out
+node_modules

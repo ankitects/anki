@@ -1,1 +1,0 @@
-../../.bazel/bin/pylib/anki/search_pb2.pyi

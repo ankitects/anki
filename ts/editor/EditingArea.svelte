@@ -46,10 +46,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { fontFamilyKey, fontSizeKey } from "@tslib/context-keys";
     import { setContext as svelteSetContext } from "svelte";
     import { writable } from "svelte/store";
-
-    import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
 
     export let fontFamily: string;
     const fontFamilyStore = writable(fontFamily);

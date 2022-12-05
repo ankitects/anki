@@ -5,10 +5,12 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import "@tslib/i18n";
+
+import * as tr from "@tslib/ftl";
+import { Notetypes } from "@tslib/proto";
 import { get } from "svelte/store";
 
-import * as tr from "../lib/ftl";
-import { Notetypes } from "../lib/proto";
 import { ChangeNotetypeState, MapContext, negativeOneToNull } from "./lib";
 
 const exampleNames = {

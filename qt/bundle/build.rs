@@ -3,10 +3,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use {
-    embed_resource,
-    std::path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
+
+use embed_resource;
 
 const DEFAULT_PYTHON_CONFIG_FILENAME: &str = "default_python_config.rs";
 const DEFAULT_PYTHON_CONFIG: &str = "\
@@ -14,23 +13,6 @@ pub fn default_python_config<'a>() -> pyembed::OxidizedPythonInterpreterConfig<'
     pyembed::OxidizedPythonInterpreterConfig::default()
 }
 ";
-
-/// Build with PyOxidizer artifacts in a directory.
-fn build_with_artifacts_in_dir(path: &Path) {
-    println!("using pre-built artifacts from {}", path.display());
-    let config_path = path.join(DEFAULT_PYTHON_CONFIG_FILENAME);
-    if !config_path.exists() {
-        panic!(
-            "{} does not exist; is {} a valid artifacts directory?",
-            config_path.display(),
-            path.display()
-        );
-    }
-    println!(
-        "cargo:rustc-env=DEFAULT_PYTHON_CONFIG_RS={}",
-        config_path.display()
-    );
-}
 
 /// Build by calling a `pyoxidizer` executable to generate build artifacts.
 fn build_with_pyoxidizer_exe(exe: Option<String>, resolve_target: Option<&str>) {
@@ -83,18 +65,22 @@ fn main() {
             target.as_ref().map(|target| target.as_ref()),
         );
     } else if std::env::var("CARGO_FEATURE_BUILD_MODE_PREBUILT_ARTIFACTS").is_ok() {
-        let artifact_dir_env = std::env::var("PYOXIDIZER_ARTIFACT_DIR");
+        // relative to src/
+        let artifacts = Path::new("../../../out/bundle/artifacts/");
+        let config_rs = artifacts.join("default_python_config.rs");
+        println!(
+            "cargo:rustc-env=DEFAULT_PYTHON_CONFIG_RS={}",
+            config_rs.display()
+        );
+        let config_txt = artifacts.join("pyo3-build-config-file.txt");
+        println!("cargo:rustc-env=PYO3_CONFIG_FILE={}", config_txt.display());
 
-        let artifact_dir_path = match artifact_dir_env {
-            Ok(ref v) => PathBuf::from(v),
-            Err(_) => {
-                let out_dir = std::env::var("OUT_DIR").unwrap();
-                PathBuf::from(&out_dir)
-            }
+        let link_arg = if cfg!(target_os = "macos") {
+            "-rdynamic"
+        } else {
+            "-Wl,-export-dynamic"
         };
-
-        println!("cargo:rerun-if-env-changed=PYOXIDIZER_ARTIFACT_DIR");
-        build_with_artifacts_in_dir(&artifact_dir_path);
+        println!("cargo:rustc-link-arg={link_arg}");
     } else {
         panic!("build-mode-* feature not set");
     }

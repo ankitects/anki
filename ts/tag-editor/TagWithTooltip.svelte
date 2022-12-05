@@ -3,10 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { controlPressed, shiftPressed } from "@tslib/keys";
     import { createEventDispatcher } from "svelte";
 
     import WithTooltip from "../components/WithTooltip.svelte";
-    import { controlPressed, shiftPressed } from "../lib/keys";
     import { pageTheme } from "../sveltelib/theme";
     import Tag from "./Tag.svelte";
     import { delimChar } from "./tags";
@@ -63,7 +63,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <svelte:body on:keydown={setControlShift} on:keyup={setControlShift} />
 
-<div class:select-mode={selectMode} class:night-mode={$pageTheme.isDark}>
+<div
+    class:select-mode={selectMode}
+    class:night-mode={$pageTheme.isDark}
+    class:empty={name === ""}
+>
     {#if active}
         <Tag class={className} on:mousemove={setControlShift} on:click={onClick}>
             {name}
@@ -118,5 +122,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         .night-mode & {
             background-color: $white-translucent;
         }
+    }
+
+    .empty {
+        visibility: hidden;
     }
 </style>

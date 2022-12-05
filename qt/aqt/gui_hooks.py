@@ -8,4 +8,4 @@ See pylib/anki/hooks.py
 from __future__ import annotations
 
 # You can find the definitions in ../tools/genhooks_gui.py
-from aqt.hooks_gen import *
+from _aqt.hooks import *

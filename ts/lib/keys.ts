@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import * as tr from "./ftl";
+import * as tr from "@tslib/ftl";
+
 import { isApplePlatform } from "./platform";
 
 // those are the modifiers that Anki works with
@@ -32,32 +33,28 @@ export function keyboardEventIsPrintableKey(event: KeyboardEvent): boolean {
     return event.key.length === 1;
 }
 
-export const checkModifiers =
-    (required: Modifier[], optional: Modifier[] = []) =>
-    (event: KeyboardEvent): boolean => {
-        return allModifiers.reduce(
-            (
-                matches: boolean,
-                currentModifier: Modifier,
-                currentIndex: number,
-            ): boolean =>
-                matches &&
-                (optional.includes(currentModifier as Modifier) ||
-                    event.getModifierState(platformModifiers[currentIndex]) ===
-                        required.includes(currentModifier)),
-            true,
-        );
-    };
+export const checkModifiers = (required: Modifier[], optional: Modifier[] = []) => (event: KeyboardEvent): boolean => {
+    return allModifiers.reduce(
+        (
+            matches: boolean,
+            currentModifier: Modifier,
+            currentIndex: number,
+        ): boolean =>
+            matches
+            && (optional.includes(currentModifier as Modifier)
+                || event.getModifierState(platformModifiers[currentIndex])
+                    === required.includes(currentModifier)),
+        true,
+    );
+};
 
-const modifierPressed =
-    (modifier: Modifier) =>
-    (event: MouseEvent | KeyboardEvent): boolean => {
-        const translated = translateModifierToPlatform(modifier);
-        const state = event.getModifierState(translated);
-        return event.type === "keyup"
-            ? state && (event as KeyboardEvent).key !== translated
-            : state;
-    };
+const modifierPressed = (modifier: Modifier) => (event: MouseEvent | KeyboardEvent): boolean => {
+    const translated = translateModifierToPlatform(modifier);
+    const state = event.getModifierState(translated);
+    return event.type === "keyup"
+        ? state && (event as KeyboardEvent).key !== translated
+        : state;
+};
 
 export const controlPressed = modifierPressed("Control");
 export const shiftPressed = modifierPressed("Shift");

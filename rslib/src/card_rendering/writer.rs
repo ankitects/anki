@@ -91,7 +91,7 @@ trait Write {
     }
 
     fn write_directive_option(&mut self, buf: &mut String, key: &str, val: &str) {
-        if val.contains::<&[char]>(&[']', ' ', '\t', '\r', '\n']) {
+        if val.contains([']', ' ', '\t', '\r', '\n']) {
             write!(buf, " {}=\"{}\"", key, val).unwrap();
         } else {
             write!(buf, " {}={}", key, val).unwrap();

@@ -1,5 +1,10 @@
 {
     "extends": "../tsconfig.json",
     "include": ["*"],
-    "references": [{ "path": "../lib" }]
+    // "references": [{ "path": "../lib" }],
+    "compilerOptions": {
+        // css-browser-selector fails if our output bundle is strict
+        "alwaysStrict": false,
+        "composite": false
+    }
 }

@@ -3,9 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr2 from "../lib/ftl";
-    import { Stats } from "../lib/proto";
-    import { timeSpan, Timestamp } from "../lib/time";
+    import * as tr2 from "@tslib/ftl";
+    import { Stats } from "@tslib/proto";
+    import { timeSpan, Timestamp } from "@tslib/time";
 
     type StatsRevlogEntry = Stats.CardStatsResponse.StatsRevlogEntry;
 

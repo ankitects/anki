@@ -80,17 +80,17 @@ $vars: (
                 ),
             ),
             elevated: (
-                "Slightly brighter than window background",
+                "Background of containers",
                 (
                     light: white,
                     dark: palette(darkgray, 4),
                 ),
             ),
             inset: (
-                "Slightly darker than window background",
+                "Background of inputs inside containers",
                 (
-                    light: palette(lightgray, 3),
-                    dark: palette(darkgray, 6),
+                    light: white,
+                    dark: palette(darkgray, 5),
                 ),
             ),
             overlay: (
@@ -142,8 +142,8 @@ $vars: (
             bg: (
                 "Background color of buttons",
                 (
-                    light: white,
-                    dark: palette(darkgray, 4),
+                    light: palette(lightgray, 0),
+                    dark: color.scale(palette(darkgray, 4), $lightness: 5%),
                 ),
             ),
             gradient: (
@@ -151,14 +151,14 @@ $vars: (
                     "Start value of default button gradient",
                     (
                         light: white,
-                        dark: palette(darkgray, 4),
+                        dark: color.scale(palette(darkgray, 4), $lightness: 10%),
                     ),
                 ),
                 end: (
                     "End value of default button gradient",
                     (
-                        light: palette(lightgray, 3),
-                        dark: palette(darkgray, 5),
+                        light: palette(lightgray, 0),
+                        dark: color.scale(palette(darkgray, 4), $lightness: 5%),
                     ),
                 ),
             ),
@@ -217,14 +217,14 @@ $vars: (
                     "Background of scrollbar in idle state (Win/Lin only)",
                     (
                         light: palette(lightgray, 5),
-                        dark: palette(darkgray, 4),
+                        dark: palette(darkgray, 3),
                     ),
                 ),
                 hover: (
                     "Background of scrollbar in hover state (Win/Lin only)",
                     (
                         light: palette(lightgray, 6),
-                        dark: palette(darkgray, 3),
+                        dark: palette(darkgray, 2),
                     ),
                 ),
                 active: (
@@ -241,7 +241,7 @@ $vars: (
                 "Default box-shadow color",
                 (
                     light: palette(lightgray, 6),
-                    dark: palette(darkgray, 7),
+                    dark: palette(darkgray, 8),
                 ),
             ),
             inset: (

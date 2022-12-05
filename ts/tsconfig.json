@@ -1,6 +1,6 @@
 {
     "include": [],
-    "exclude": ["node_modules"],
+    "exclude": [],
     "references": [
         { "path": "components" },
         { "path": "congrats" },
@@ -18,6 +18,7 @@
     ],
     "compilerOptions": {
         "declaration": true,
+        "isolatedModules": true,
         "composite": true,
         "target": "es2019",
         "module": "es2020",
@@ -32,31 +33,29 @@
             "dom",
             "dom.iterable"
         ],
-        // uncomment for building with tsc directly
-        // "outDir": "dist",
+        "outDir": "../out",
         "rootDir": "..",
         "rootDirs": [
-            ".",
-            // for VS code and svelte-check
-            "../.bazel/bin/ts"
+            "..",
+            "../out"
         ],
         "baseUrl": ".",
-        "paths": {},
+        "paths": {
+            "@tslib/*": ["lib/*", "../out/ts/lib/*"]
+        },
         "types": [],
         "importsNotUsedAsValues": "error",
-        /* Strict Type-Checking Options */
-        "strict": true /* Enable all strict type-checking options. */,
-        "noImplicitAny": false /* Raise error on expressions and declarations with an implied 'any' type. */,
-        "strictNullChecks": true /* Enable strict null checks. */,
-        "strictFunctionTypes": true /* Enable strict checking of function types. */,
-        "strictBindCallApply": true /* Enable strict 'bind', 'call', and 'apply' methods on functions. */,
-        "strictPropertyInitialization": true /* Enable strict checking of property initialization in classes. */,
-        "noImplicitThis": true /* Raise error on 'this' expressions with an implied 'any' type. */,
-        "alwaysStrict": true /* Parse in strict mode and emit "use strict" for each source file. */,
-        /* Module Resolution Options */
-        "moduleResolution": "node" /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
-        "allowSyntheticDefaultImports": true /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */,
-        "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
+        "strict": true,
+        "noImplicitAny": false,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": true,
+        "noImplicitThis": true,
+        "alwaysStrict": true,
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
         "jsx": "react",
         "noEmitHelpers": true,
         "importHelpers": true

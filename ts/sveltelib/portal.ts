@@ -3,7 +3,7 @@
 
 /**
  * @param element: The element to be moved.
- * @param target DOM Element where element is going to be appended
+ * @param targetElement DOM Element where element is going to be appended
  */
 function portal(
     element: HTMLElement,

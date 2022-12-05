@@ -45,8 +45,8 @@ export function wrapInternal(
     }
 
     if (
-        wasCollapsed &&
-        /* ugly solution: treat <anki-mathjax> differently than other wraps */ !front.includes(
+        wasCollapsed
+        /* ugly solution: treat <anki-mathjax> differently than other wraps */ && !front.includes(
             "<anki-mathjax",
         )
     ) {

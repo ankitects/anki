@@ -22,7 +22,7 @@ impl Collection {
                     .storage
                     .get_deck(deck.id)?
                     .or_invalid("deck disappeared")?;
-                self.update_single_deck_undoable(&mut *deck, current)
+                self.update_single_deck_undoable(&mut deck, current)
             }
             UndoableDeckChange::Removed(deck) => self.restore_deleted_deck(*deck),
             UndoableDeckChange::GraveAdded(e) => self.remove_deck_grave(e.0, e.1),

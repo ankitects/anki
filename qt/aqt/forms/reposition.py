@@ -1,5 +1,6 @@
 from aqt.qt import qtmajor
+
 if qtmajor > 5:
-  from .reposition_qt6 import *
+    from _aqt.forms.reposition_qt6 import *
 else:
-  from .reposition_qt5 import *  # type: ignore
+    from _aqt.forms.reposition_qt5 import *  # type: ignore

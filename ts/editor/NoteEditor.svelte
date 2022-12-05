@@ -21,7 +21,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         toolbar: EditorToolbarAPI;
     }
 
-    import { registerPackage } from "../lib/runtime-require";
+    import { registerPackage } from "@tslib/runtime-require";
+
     import contextProperty from "../sveltelib/context-property";
     import lifecycleHooks from "../sveltelib/lifecycle-hooks";
 
@@ -39,6 +40,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { bridgeCommand } from "@tslib/bridgecommand";
+    import * as tr from "@tslib/ftl";
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
 
@@ -48,7 +51,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Pane from "../components/Pane.svelte";
     import PaneContent from "../components/PaneContent.svelte";
     import { ResizablePane } from "../components/types";
-    import { bridgeCommand } from "../lib/bridgecommand";
     import { TagEditor } from "../tag-editor";
     import TagAddButton from "../tag-editor/tag-options-button/TagAddButton.svelte";
     import { ChangeTimer } from "./change-timer";
@@ -279,8 +281,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $closeHTMLTags = closeTags;
     }
 
+    import { wrapInternal } from "@tslib/wrap";
+
     import { mathjaxConfig } from "../editable/mathjax-element";
-    import { wrapInternal } from "../lib/wrap";
     import { refocusInput } from "./helpers";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
@@ -560,7 +563,9 @@ the AddCards dialog) should be implemented in the user of this component.
     <HorizontalResizer
         panes={[fieldsPane, tagsPane]}
         showIndicator={$tagsCollapsed || snapTags}
-        tip={`Double click to ${$tagsCollapsed ? "expand" : "collapse"} tag editor`}
+        tip={$tagsCollapsed
+            ? tr.editingDoubleClickToExpand()
+            : tr.editingDoubleClickToCollapse()}
         {clientHeight}
         bind:this={lowerResizer}
         on:dblclick={() => snapResizer(!$tagsCollapsed)}
@@ -575,7 +580,7 @@ the AddCards dialog) should be implemented in the user of this component.
                 }}
                 keyCombination="Control+Shift+T"
             >
-                {@html tagAmount > 0 ? `${tagAmount} Tags` : ""}
+                {@html tagAmount > 0 ? `${tagAmount} ${tr.editingTags()}` : ""}
             </TagAddButton>
         </div>
     </HorizontalResizer>

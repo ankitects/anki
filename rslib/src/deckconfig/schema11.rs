@@ -355,7 +355,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             usn: c.usn,
             max_taken: i.cap_answer_time_to_secs as i32,
             autoplay: !i.disable_autoplay,
-            timer: if i.show_timer { 1 } else { 0 },
+            timer: i.show_timer.into(),
             replayq: !i.skip_question_when_replaying_answer,
             dynamic: false,
             new: NewConfSchema11 {
