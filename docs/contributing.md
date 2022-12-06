@@ -93,7 +93,9 @@ If you want to change an existing hook to, for example, receive an additional
 argument, you must leave the existing hook unchanged to preserve backwards
 compatibility. Create a new definition for your hook with a similar name and
 include the properties `replaces="name_of_old_hook"` and
-`replaced_hook_args=["..."]` in the definition of the new hook.
+`replaced_hook_args=["..."]` in the definition of the new hook. If the old hook
+has a legacy hook, you must not add the legacy hook to the definition of the
+new hook.
 
 ## Translations
 

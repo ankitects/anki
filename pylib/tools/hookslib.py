@@ -131,7 +131,12 @@ class {self.classname()}:
                 self._hooks.remove(hook)
                 raise
 """
-        if self.replaces:
+        if self.replaces and self.legacy_hook:
+            raise Exception(
+                f"Hook {self.name} replaces {self.replaces} and "
+                "must therefore not define a legacy hook."
+            )
+        elif self.replaces:
             out += f"""\
         if {self.replaces}.count() > 0:
             print(
@@ -162,7 +167,12 @@ class {self.classname()}:
                 self._hooks.remove(filter)
                 raise
 """
-        if self.replaces:
+        if self.replaces and self.legacy_hook:
+            raise Exception(
+                f"Hook {self.name} replaces {self.replaces} and "
+                "must therefore not define a legacy hook."
+            )
+        elif self.replaces:
             out += f"""\
         if {self.replaces}.count() > 0:
             print(
