@@ -249,6 +249,19 @@ class AnkiWebView(QWebEngineView):
         self._filterSet = False
         gui_hooks.theme_did_change.append(self.on_theme_did_change)
 
+        qconnect(self.loadFinished, self._on_load_finished)
+
+    def _on_load_finished(self) -> None:
+        self.eval(
+            """
+        document.addEventListener("keydown", function(evt) {
+            if (evt.keyCode === 27) {
+                pycmd("close");
+            }
+        });
+        """
+        )
+
     def set_title(self, title: str) -> None:
         self.title = title  # type: ignore[assignment]
 
