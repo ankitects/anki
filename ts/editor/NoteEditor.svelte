@@ -134,24 +134,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let fieldsCollapsed: boolean[] = [];
-    export function setCollapsed(fs: boolean[]): void {
-        fieldsCollapsed = sessionOptions[notetypeId!]?.fieldsCollapsed ?? fs;
+    export function setCollapsed(defaultCollapsed: boolean[]): void {
+        fieldsCollapsed =
+            sessionOptions[notetypeId!]?.fieldsCollapsed ?? defaultCollapsed;
     }
 
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
     let plainTextDefaults: boolean[] = [];
 
-    export function setPlainTexts(fs: boolean[]): void {
+    export function setPlainTexts(defaultPlainTexts: boolean[]): void {
         const states = sessionOptions[notetypeId!]?.fieldStates;
         if (states) {
             richTextsHidden = states.richTextsHidden;
             plainTextsHidden = states.plainTextsHidden;
             plainTextDefaults = states.plainTextDefaults;
         } else {
-            richTextsHidden = fs;
-            plainTextsHidden = Array.from(fs, (v) => !v);
-            plainTextDefaults = [...richTextsHidden];
+            plainTextDefaults = defaultPlainTexts;
+            richTextsHidden = defaultPlainTexts;
+            plainTextsHidden = Array.from(defaultPlainTexts, (v) => !v);
         }
     }
 
@@ -160,16 +161,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let fieldDescriptions: string[] = [];
-    export function setDescriptions(fs: string[]): void {
-        fieldDescriptions = fs;
+    export function setDescriptions(defaultDescriptions: string[]): void {
+        fieldDescriptions = defaultDescriptions;
     }
 
     let fonts: [string, number, boolean][] = [];
 
     const fields = clearableArray<EditorFieldAPI>();
 
-    export function setFonts(fs: [string, number, boolean][]): void {
-        fonts = fs;
+    export function setFonts(defaultFonts: [string, number, boolean][]): void {
+        fonts = defaultFonts;
     }
 
     export function focusField(index: number | null): void {
