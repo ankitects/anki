@@ -7,7 +7,7 @@ export type EditorOptions = {
         richTextsHidden: boolean[];
         plainTextsHidden: boolean[];
         plainTextDefaults: boolean[];
-    }
+    };
 };
 
 export type SessionOptions = {
