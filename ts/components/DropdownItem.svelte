@@ -17,12 +17,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
 
     $: if (buttonRef && active) {
-        setTimeout(() =>
-            buttonRef!.scrollIntoView({
-                behavior: "smooth",
-                block: "nearest",
-            }),
-        );
+        buttonRef!.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+        });
     }
 
     export let tabbable = false;
