@@ -161,16 +161,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let fieldDescriptions: string[] = [];
-    export function setDescriptions(defaultDescriptions: string[]): void {
-        fieldDescriptions = defaultDescriptions;
+    export function setDescriptions(descriptions: string[]): void {
+        fieldDescriptions = descriptions;
     }
 
     let fonts: [string, number, boolean][] = [];
 
     const fields = clearableArray<EditorFieldAPI>();
 
-    export function setFonts(defaultFonts: [string, number, boolean][]): void {
-        fonts = defaultFonts;
+    export function setFonts(fs: [string, number, boolean][]): void {
+        fonts = fs;
     }
 
     export function focusField(index: number | null): void {
