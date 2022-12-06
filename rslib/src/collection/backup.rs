@@ -262,7 +262,8 @@ mod test {
             Backup {
                 datetime: Local
                     .from_local_datetime(
-                        &NaiveDate::from_num_days_from_ce($num_days_from_ce)
+                        &NaiveDate::from_num_days_from_ce_opt($num_days_from_ce)
+                            .unwrap()
                             .and_hms_opt(0, 0, 0)
                             .unwrap(),
                     )
@@ -273,15 +274,18 @@ mod test {
         };
         ($year:expr, $month:expr, $day:expr) => {
             Backup {
-                datetime: Local.ymd($year, $month, $day).and_hms_opt(0, 0, 0).unwrap(),
+                datetime: Local
+                    .with_ymd_and_hms($year, $month, $day, 0, 0, 0)
+                    .latest()
+                    .unwrap(),
                 path: PathBuf::new(),
             }
         };
         ($year:expr, $month:expr, $day:expr, $hour:expr, $min:expr, $sec:expr) => {
             Backup {
                 datetime: Local
-                    .ymd($year, $month, $day)
-                    .and_hms_opt($hour, $min, $sec)
+                    .with_ymd_and_hms($year, $month, $day, $hour, $min, $sec)
+                    .latest()
                     .unwrap(),
                 path: PathBuf::new(),
             }
@@ -290,7 +294,10 @@ mod test {
 
     #[test]
     fn thinning_manual() {
-        let today = Local.ymd(2022, 2, 22);
+        let today = Local
+            .with_ymd_and_hms(2022, 2, 22, 0, 0, 0)
+            .latest()
+            .unwrap();
         let limits = BackupLimits {
             daily: 3,
             weekly: 2,
@@ -333,7 +340,10 @@ mod test {
 
     #[test]
     fn thinning_generic() {
-        let today = Local.ymd(2022, 1, 1);
+        let today = Local
+            .with_ymd_and_hms(2022, 1, 1, 0, 0, 0)
+            .latest()
+            .unwrap();
         let today_ce_days = today.num_days_from_ce();
         let limits = BackupLimits {
             // config defaults
@@ -362,7 +372,9 @@ mod test {
         // monthly backups from the last day of the month
         for _ in 0..limits.monthly {
             for backup in backup_iter.by_ref() {
-                if backup.datetime.date().month() != backup.datetime.date().succ().month() {
+                if backup.datetime.month()
+                    != backup.datetime.date_naive().succ_opt().unwrap().month()
+                {
                     break;
                 } else {
                     expected.push(backup.clone())

@@ -31,17 +31,11 @@ impl TimestampSecs {
         TimestampMillis(self.0 * 1000)
     }
 
-    #[cfg(windows)]
     pub(crate) fn local_datetime(self) -> Result<DateTime<Local>> {
-        std::panic::catch_unwind(|| Local.timestamp(self.0, 0))
-            // discard error as it doesn't satisfiy trait bounds
-            .ok()
-            .or_invalid("invalid date")
-    }
-
-    #[cfg(not(windows))]
-    pub(crate) fn local_datetime(self) -> Result<DateTime<Local>> {
-        Ok(Local.timestamp(self.0, 0))
+        Local
+            .timestamp_opt(self.0, 0)
+            .latest()
+            .or_invalid("invalid timestamp")
     }
 
     /// YYYY-mm-dd
@@ -62,8 +56,11 @@ impl TimestampSecs {
         Ok(*self.local_datetime()?.offset())
     }
 
-    pub fn datetime(self, utc_offset: FixedOffset) -> DateTime<FixedOffset> {
-        utc_offset.timestamp(self.0, 0)
+    pub fn datetime(self, utc_offset: FixedOffset) -> Result<DateTime<FixedOffset>> {
+        utc_offset
+            .timestamp_opt(self.0, 0)
+            .latest()
+            .or_invalid("invalid timestamp")
     }
 
     pub fn adding_secs(self, secs: i64) -> Self {
