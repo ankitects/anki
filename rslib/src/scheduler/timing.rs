@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use chrono::{Date, DateTime, Duration, FixedOffset, Local, TimeZone, Timelike};
+use chrono::{DateTime, Datelike, Duration, FixedOffset, Local, TimeZone, Timelike};
 
 use crate::prelude::*;
 
@@ -28,12 +28,11 @@ pub fn sched_timing_today_v2_new(
     rollover_hour: u8,
 ) -> SchedTimingToday {
     // get date(times) based on timezone offsets
-    let created_date = creation_secs.datetime(creation_utc_offset).date();
+    let created_datetime = creation_secs.datetime(creation_utc_offset);
     let now_datetime = current_secs.datetime(current_utc_offset);
-    let today = now_datetime.date();
 
     // rollover
-    let rollover_today_datetime = with_rollover_hour(today, rollover_hour);
+    let rollover_today_datetime = rollover_datetime(now_datetime, rollover_hour);
     let rollover_passed = rollover_today_datetime <= now_datetime;
     let next_day_at = TimestampSecs(if rollover_passed {
         (rollover_today_datetime + Duration::days(1)).timestamp()
@@ -42,7 +41,7 @@ pub fn sched_timing_today_v2_new(
     });
 
     // day count
-    let days_elapsed = days_elapsed(created_date, today, rollover_passed);
+    let days_elapsed = days_elapsed(created_datetime, now_datetime, rollover_passed);
 
     SchedTimingToday {
         now: current_secs,
@@ -51,18 +50,24 @@ pub fn sched_timing_today_v2_new(
     }
 }
 
-fn with_rollover_hour(date: Date<FixedOffset>, hour: u8) -> DateTime<FixedOffset> {
-    let hour = hour.min(23);
-    date.and_hms_opt(hour as u32, 0, 0).unwrap()
+fn rollover_datetime(date: DateTime<FixedOffset>, rollover_hour: u8) -> DateTime<FixedOffset> {
+    date.with_hour((rollover_hour % 24) as u32)
+        .unwrap()
+        .with_minute(0)
+        .unwrap()
+        .with_second(0)
+        .unwrap()
+        .with_nanosecond(0)
+        .unwrap()
 }
 
 /// The number of times the day rolled over between two dates.
 fn days_elapsed(
-    start_date: Date<FixedOffset>,
-    end_date: Date<FixedOffset>,
+    start_date: DateTime<FixedOffset>,
+    end_date: DateTime<FixedOffset>,
     rollover_passed: bool,
 ) -> u32 {
-    let days = (end_date - start_date).num_days();
+    let days = end_date.num_days_from_ce() - start_date.num_days_from_ce();
 
     // current day doesn't count before rollover time
     let days = if rollover_passed { days } else { days - 1 };
@@ -100,7 +105,7 @@ pub(crate) fn v1_creation_date() -> i64 {
 fn v1_creation_date_inner(now: TimestampSecs, mins_west: i32) -> i64 {
     let offset = fixed_offset_from_minutes(mins_west);
     let now_dt = offset.timestamp(now.0, 0);
-    let four_am_dt = with_rollover_hour(now_dt.date(), 4);
+    let four_am_dt = rollover_datetime(now_dt, 4);
     let four_am_stamp = four_am_dt.timestamp();
 
     if four_am_dt > now_dt {
@@ -116,7 +121,7 @@ pub(crate) fn v1_creation_date_adjusted_to_hour(crt: i64, hour: u8) -> i64 {
 }
 
 fn v1_creation_date_adjusted_to_hour_inner(crt: i64, hour: u8, offset: FixedOffset) -> i64 {
-    with_rollover_hour(offset.timestamp(crt, 0).date(), hour).timestamp()
+    rollover_datetime(offset.timestamp(crt, 0), hour).timestamp()
 }
 
 fn sched_timing_today_v1(crt: TimestampSecs, now: TimestampSecs) -> SchedTimingToday {
@@ -134,14 +139,11 @@ fn sched_timing_today_v2_legacy(
     rollover: u8,
     now: TimestampSecs,
     current_utc_offset: FixedOffset,
-) -> SchedTimingToday {
-    let crt_at_rollover =
-        with_rollover_hour(crt.datetime(current_utc_offset).date(), rollover).timestamp();
+    let crt_at_rollover = rollover_datetime(crt.datetime(current_utc_offset), rollover).timestamp();
     let days_elapsed = (now.0 - crt_at_rollover) / 86_400;
 
-    let mut next_day_at = TimestampSecs(
-        with_rollover_hour(now.datetime(current_utc_offset).date(), rollover).timestamp(),
-    );
+    let mut next_day_at =
+        TimestampSecs(rollover_datetime(now.datetime(current_utc_offset), rollover).timestamp());
     if next_day_at < now {
         next_day_at = next_day_at.adding_secs(86_400);
     }

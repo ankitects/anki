@@ -104,7 +104,7 @@ fn thin_backups<P: AsRef<Path>>(
 ) -> Result<()> {
     let backups =
         read_dir(backup_folder)?.filter_map(|entry| entry.ok().and_then(Backup::from_entry));
-    let obsolete_backups = BackupFilter::new(Local::today(), limits).obsolete_backups(backups);
+    let obsolete_backups = BackupFilter::new(Local::now(), limits).obsolete_backups(backups);
     for backup in obsolete_backups {
         if let Err(error) = remove_file(&backup.path) {
             error!(log, "failed to remove {:?}: {error:?}", &backup.path);
@@ -176,7 +176,7 @@ enum BackupStage {
 }
 
 impl BackupFilter {
-    fn new(today: Date<Local>, limits: BackupLimits) -> Self {
+    fn new(today: DateTime<Local>, limits: BackupLimits) -> Self {
         Self {
             yesterday: today.num_days_from_ce() - 1,
             last_kept_day: i32::MAX,
