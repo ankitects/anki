@@ -15,6 +15,7 @@
     },
     "includes": ["**/*.{ts,tsx,js,jsx,cjs,mjs,json,md,toml,svelte}"],
     "excludes": [
+        ".vscode",
         "**/node_modules",
         "out/**",
         "**/*-lock.json",
