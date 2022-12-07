@@ -30,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function blur(e: CustomEvent): void {
-        state.setCurrentIndex(e.detail.newIdx);
+        state.setCurrentIndex(e.detail.value);
         dispatchPresetChange();
     }
 

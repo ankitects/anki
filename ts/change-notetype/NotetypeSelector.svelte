@@ -20,9 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: options = Array.from($notetypes, (notetype) => notetype.name);
     $: label = options[value];
 
-    function blur(e: CustomEvent): void {
-        state.setTargetNotetypeIndex(e.detail.newIdx);
-    }
+    $: state.setTargetNotetypeIndex(value);
 </script>
 
 <ButtonToolbar class="justify-content-between" wrap={false}>
@@ -36,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {@html arrowRightIcon}
         {/if}
     </Badge>
-    <Select class="flex-grow-1" bind:value {label} on:change={blur}>
+    <Select class="flex-grow-1" bind:value {label}>
         {#each options as option, idx}
             <SelectOption value={idx}>{option}</SelectOption>
         {/each}
