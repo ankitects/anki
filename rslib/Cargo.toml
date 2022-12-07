@@ -54,7 +54,7 @@ ammonia = "3.3.0"
 async-trait = "0.1.59"
 blake3 = "1.3.3"
 bytes = "1.3.0"
-chrono = "0.4.23"
+chrono = { version = "0.4.23", default-features = false, features = ["std", "clock"] }
 coarsetime = "0.1.22"
 convert_case = "0.6.0"
 dissimilar = "1.0.4"

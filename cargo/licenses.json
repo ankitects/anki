@@ -2305,15 +2305,6 @@
   },
   {
     "name": "time",
-    "version": "0.1.45",
-    "authors": "The Rust Project Developers",
-    "repository": "https://github.com/time-rs/time",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Utilities for working with time-related functions in Rust."
-  },
-  {
-    "name": "time",
     "version": "0.3.17",
     "authors": "Jacob Pratt <open-source@jhpratt.dev>|Time contributors",
     "repository": "https://github.com/time-rs/time",
@@ -2698,15 +2689,6 @@
     "license": "MIT",
     "license_file": null,
     "description": "Detect when another Future wants a result."
-  },
-  {
-    "name": "wasi",
-    "version": "0.10.0+wasi-snapshot-preview1",
-    "authors": "The Cranelift Project Developers",
-    "repository": "https://github.com/bytecodealliance/wasi",
-    "license": "Apache-2.0 OR Apache-2.0 WITH LLVM-exception OR MIT",
-    "license_file": null,
-    "description": "Experimental WASI API bindings for Rust"
   },
   {
     "name": "wasi",
