@@ -104,7 +104,7 @@ fn thin_backups<P: AsRef<Path>>(
 ) -> Result<()> {
     let backups =
         read_dir(backup_folder)?.filter_map(|entry| entry.ok().and_then(Backup::from_entry));
-    let obsolete_backups = BackupFilter::new(Local::today(), limits).obsolete_backups(backups);
+    let obsolete_backups = BackupFilter::new(Local::now(), limits).obsolete_backups(backups);
     for backup in obsolete_backups {
         if let Err(error) = remove_file(&backup.path) {
             error!(log, "failed to remove {:?}: {error:?}", &backup.path);
@@ -176,7 +176,7 @@ enum BackupStage {
 }
 
 impl BackupFilter {
-    fn new(today: Date<Local>, limits: BackupLimits) -> Self {
+    fn new(today: DateTime<Local>, limits: BackupLimits) -> Self {
         Self {
             yesterday: today.num_days_from_ce() - 1,
             last_kept_day: i32::MAX,
@@ -262,7 +262,10 @@ mod test {
             Backup {
                 datetime: Local
                     .from_local_datetime(
-                        &NaiveDate::from_num_days_from_ce($num_days_from_ce).and_hms(0, 0, 0),
+                        &NaiveDate::from_num_days_from_ce_opt($num_days_from_ce)
+                            .unwrap()
+                            .and_hms_opt(0, 0, 0)
+                            .unwrap(),
                     )
                     .latest()
                     .unwrap(),
@@ -271,13 +274,19 @@ mod test {
         };
         ($year:expr, $month:expr, $day:expr) => {
             Backup {
-                datetime: Local.ymd($year, $month, $day).and_hms(0, 0, 0),
+                datetime: Local
+                    .with_ymd_and_hms($year, $month, $day, 0, 0, 0)
+                    .latest()
+                    .unwrap(),
                 path: PathBuf::new(),
             }
         };
         ($year:expr, $month:expr, $day:expr, $hour:expr, $min:expr, $sec:expr) => {
             Backup {
-                datetime: Local.ymd($year, $month, $day).and_hms($hour, $min, $sec),
+                datetime: Local
+                    .with_ymd_and_hms($year, $month, $day, $hour, $min, $sec)
+                    .latest()
+                    .unwrap(),
                 path: PathBuf::new(),
             }
         };
@@ -285,7 +294,10 @@ mod test {
 
     #[test]
     fn thinning_manual() {
-        let today = Local.ymd(2022, 2, 22);
+        let today = Local
+            .with_ymd_and_hms(2022, 2, 22, 0, 0, 0)
+            .latest()
+            .unwrap();
         let limits = BackupLimits {
             daily: 3,
             weekly: 2,
@@ -328,7 +340,10 @@ mod test {
 
     #[test]
     fn thinning_generic() {
-        let today = Local.ymd(2022, 1, 1);
+        let today = Local
+            .with_ymd_and_hms(2022, 1, 1, 0, 0, 0)
+            .latest()
+            .unwrap();
         let today_ce_days = today.num_days_from_ce();
         let limits = BackupLimits {
             // config defaults
@@ -357,7 +372,9 @@ mod test {
         // monthly backups from the last day of the month
         for _ in 0..limits.monthly {
             for backup in backup_iter.by_ref() {
-                if backup.datetime.date().month() != backup.datetime.date().succ().month() {
+                if backup.datetime.month()
+                    != backup.datetime.date_naive().succ_opt().unwrap().month()
+                {
                     break;
                 } else {
                     expected.push(backup.clone())
