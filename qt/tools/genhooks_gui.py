@@ -1119,6 +1119,8 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="addon_config_editor_will_update_json",
         args=["text: str", "addon: str"],
         return_type="str",
+        replaces="addon_config_editor_will_save_json",
+        replaced_hook_args=["text: str"],
         doc="""Allows changing the text of the json configuration that was
         received from the user before actually reading it. For
         example, you can replace new line in strings by some "\\\\n".""",
