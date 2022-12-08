@@ -40,7 +40,7 @@ class DeckOptionsDialog(QDialog):
         self.mw.garbage_collect_on_dialog_finish(self)
         self.setMinimumWidth(400)
         disable_help_button(self)
-        restoreGeom(self, self.TITLE)
+        restoreGeom(self, self.TITLE, default_size=(800, 800))
         addCloseShortcut(self)
 
         self.web = AnkiWebView(title=self.TITLE)
