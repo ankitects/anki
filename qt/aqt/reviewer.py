@@ -662,11 +662,11 @@ class Reviewer:
 <center id=outer>
 <table id=innertable width=100%% cellspacing=0 cellpadding=0>
 <tr>
-<td align=left valign=top class=stat>
+<td align=start valign=top class=stat>
 <button title="%(editkey)s" onclick="pycmd('edit');">%(edit)s</button></td>
 <td align=center valign=top id=middle>
 </td>
-<td align=right valign=top class=stat>
+<td align=end valign=top class=stat>
 <button title="%(morekey)s" onclick="pycmd('more');">
 %(more)s %(downArrow)s
 <span id=time class=stattxt></span>
