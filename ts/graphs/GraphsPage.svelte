@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const days = writable(initialDays);
 
     export let graphs: typeof SvelteComponentDev[];
-    export let controller: typeof SvelteComponentDev | null;
+    export let controller: typeof SvelteComponentDev;
 
     function browserSearch(event: CustomEvent) {
         bridgeCommand(`browserSearch: ${$search} ${event.detail.query}`);

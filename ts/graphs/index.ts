@@ -16,7 +16,7 @@ export async function setupGraphs(
     {
         search = "deck:current",
         days = 365,
-        controller = null as typeof SvelteComponentDev | null,
+        controller = {} as typeof SvelteComponentDev,
     } = {},
 ): Promise<GraphsPage> {
     checkNightMode();
