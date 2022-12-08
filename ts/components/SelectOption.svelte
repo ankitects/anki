@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { getContext } from "svelte";
+    import type { Writable } from "svelte/store";
 
     import { selectKey } from "./context-keys";
     import DropdownItem from "./DropdownItem.svelte";
@@ -39,11 +40,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    const setValue: Function = getContext(selectKey);
+    const selectContext: Writable<{ value: number; setValue: Function }> =
+        getContext(selectKey);
+    const setValue = $selectContext.setValue;
 </script>
 
 <DropdownItem
     {disabled}
+    active={value == $selectContext.value}
     on:click={() => setValue(value)}
     on:keydown={handleKey}
     bind:buttonRef={element}

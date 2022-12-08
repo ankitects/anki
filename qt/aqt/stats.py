@@ -41,7 +41,7 @@ class NewDeckStats(QDialog):
         f.setupUi(self)
         f.groupBox.setVisible(False)
         f.groupBox_2.setVisible(False)
-        restoreGeom(self, self.name)
+        restoreGeom(self, self.name, default_size=(800, 800))
         b = f.buttonBox.addButton(
             tr.statistics_save_pdf(), QDialogButtonBox.ButtonRole.ActionRole
         )

@@ -14,11 +14,10 @@ use super::{
 };
 use crate::{
     config::schema11::schema11_config_as_string,
-    error::{AnkiError, DbErrorKind, Result},
-    i18n::I18n,
+    error::DbErrorKind,
+    prelude::*,
     scheduler::timing::{local_minutes_west_for_stamp, v1_creation_date},
     text::without_combining,
-    timestamp::TimestampMillis,
 };
 
 fn unicase_compare(s1: &str, s2: &str) -> Ordering {
@@ -231,11 +230,11 @@ impl SqliteStorage {
         if create {
             db.execute_batch(include_str!("schema11.sql"))?;
             // start at schema 11, then upgrade below
-            let crt = v1_creation_date();
+            let crt = TimestampSecs(v1_creation_date());
             let offset = if server {
                 None
             } else {
-                Some(local_minutes_west_for_stamp(crt))
+                Some(local_minutes_west_for_stamp(crt)?)
             };
             db.execute(
                 "update col set crt=?, scm=?, ver=?, conf=?",

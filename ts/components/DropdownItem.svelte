@@ -14,13 +14,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let active = false;
     export let disabled = false;
 
+    const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
+
     $: if (buttonRef && active) {
-        setTimeout(() =>
-            buttonRef!.scrollIntoView({
-                behavior: "smooth",
-                block: "nearest",
-            }),
-        );
+        buttonRef!.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+        });
     }
 
     export let tabbable = false;
@@ -33,6 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="dropdown-item {className}"
     class:active
     class:disabled
+    class:rtl
     title={tooltip}
     on:mouseenter
     on:focus
@@ -60,6 +61,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:hover {
             background: var(--highlight-bg);
             color: var(--highlight-fg);
+        }
+
+        /* selection highlight */
+        &:not(.rtl) {
+            border-left: 3px solid transparent;
+        }
+        &.rtl {
+            border-right: 3px solid transparent;
+        }
+        &.active {
+            &:not(.rtl) {
+                border-left-color: var(--border-focus);
+            }
+            &.rtl {
+                border-right-color: var(--border-focus);
+            }
         }
     }
 </style>

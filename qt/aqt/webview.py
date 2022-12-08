@@ -249,6 +249,19 @@ class AnkiWebView(QWebEngineView):
         self._filterSet = False
         gui_hooks.theme_did_change.append(self.on_theme_did_change)
 
+        qconnect(self.loadFinished, self._on_load_finished)
+
+    def _on_load_finished(self) -> None:
+        self.eval(
+            """
+        document.addEventListener("keydown", function(evt) {
+            if (evt.keyCode === 27) {
+                pycmd("close");
+            }
+        });
+        """
+        )
+
     def set_title(self, title: str) -> None:
         self.title = title  # type: ignore[assignment]
 
@@ -651,6 +664,10 @@ html {{ {font} }}
             gui_hooks.webview_did_inject_style_into_page(self)
             self.show()
 
+        if theme_manager.night_mode:
+            night_mode = 'document.documentElement.classList.add("night-mode");'
+        else:
+            night_mode = ""
         self.evalWithCallback(
             f"""
 (function(){{
@@ -658,6 +675,7 @@ html {{ {font} }}
     style.innerHTML = `{css}`;
     document.head.appendChild(style);
     document.body.classList.add({", ".join([f'"{c}"' for c in body_classes])});
+    {night_mode}
 }})();
 """,
             after_injection,

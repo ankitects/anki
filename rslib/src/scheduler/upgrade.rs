@@ -122,7 +122,7 @@ impl Collection {
         // enable new timezone code by default
         let created = self.storage.creation_stamp()?;
         if self.get_creation_utc_offset().is_none() {
-            self.set_creation_utc_offset(Some(local_minutes_west_for_stamp(created.0)))?;
+            self.set_creation_utc_offset(Some(local_minutes_west_for_stamp(created)?))?;
         }
 
         // force full sync

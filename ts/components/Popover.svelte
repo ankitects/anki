@@ -22,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const placementStore = getContext<Writable<Promise<Placement>>>(floatingKey);
 
     /* await computed placement of floating element to determine animation direction */
-    $: if ($placementStore !== undefined) {
+    $: if ($placementStore !== undefined && hidden) {
         $placementStore.then((computedPlacement) => {
             if (placement != computedPlacement) {
                 placement = computedPlacement;
