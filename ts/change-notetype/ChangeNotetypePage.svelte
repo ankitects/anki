@@ -63,4 +63,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             grid-gap: 1rem;
         }
     }
+
+    :global(.row) {
+        // rows have negative margins by default
+        --bs-gutter-x: 0;
+    }
 </style>

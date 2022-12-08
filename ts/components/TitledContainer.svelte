@@ -20,9 +20,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:light={!$pageTheme.isDark}
     class:dark={$pageTheme.isDark}
     class:rtl
-    style:--gutter-block="2px"
-    style:--gutter-inline="2px"
-    style:--container-margin="0"
 >
     <div class="position-relative">
         <h1>{title}</h1>
@@ -36,6 +33,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     @use "sass/elevation" as *;
     .titled-container {
+        --gutter-block: 2px;
+        --gutter-inline: 2px;
+
         display: flex;
         flex-direction: column;
         flex-grow: 1;
