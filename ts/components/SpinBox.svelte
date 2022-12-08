@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@tslib/ftl";
     import { isDesktop } from "@tslib/platform";
 
     import IconConstrain from "./IconConstrain.svelte";
@@ -81,10 +82,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:focusout={() => (focused = false)}
     />
     {#if isDesktop()}
-        <button
-            class="decrement"
-            disabled={value == min}
+        <div
+            class="spinner decrement"
+            class:active={value > min}
             tabindex="-1"
+            title={tr.actionsDecrementValue()}
             on:click={() => {
                 input.focus();
                 if (value > min) {
@@ -105,11 +107,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <IconConstrain>
                 {@html chevronDown}
             </IconConstrain>
-        </button>
-        <button
-            class="increment"
-            disabled={value == max}
+        </div>
+        <div
+            class="spinner increment"
+            class:active={value < max}
             tabindex="-1"
+            title={tr.actionsIncrementValue()}
             on:click={() => {
                 input.focus();
                 if (value < max) {
@@ -130,13 +133,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <IconConstrain>
                 {@html chevronUp}
             </IconConstrain>
-        </button>
+        </div>
     {/if}
 </div>
 
 <style lang="scss">
-    @use "sass/button-mixins" as button;
-
     .spin-box {
         width: 100%;
         background: var(--canvas-inset);
@@ -159,16 +160,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             padding-right: 0.5em;
         }
 
-        &:hover {
-            button {
-                visibility: visible;
+        &:hover,
+        &:focus-within {
+            .spinner {
+                opacity: 0.1;
+                &.active {
+                    opacity: 0.4;
+                    cursor: pointer;
+                    &:hover {
+                        opacity: 1;
+                    }
+                }
             }
         }
     }
-    button {
-        visibility: hidden;
-        @include button.base($border: false);
-        border-radius: 0;
+    .spinner {
+        opacity: 0;
         height: 100%;
     }
 </style>
