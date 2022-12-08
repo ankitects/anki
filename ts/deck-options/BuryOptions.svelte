@@ -51,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <HelpModal
         title={tr.deckConfigBuryTitle()}
         url="https://docs.ankiweb.net/studying.html#siblings-and-burying"
-        slot="tooltip"
+        slot="badge"
         {helpSections}
         on:mount={(e) => {
             modal = e.detail.modal;

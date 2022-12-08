@@ -128,7 +128,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <HelpModal
         title={tr.deckConfigOrderingTitle()}
         url="https://docs.ankiweb.net/deck-options.html#display-order"
-        slot="tooltip"
+        slot="badge"
         {helpSections}
         on:mount={(e) => {
             modal = e.detail.modal;

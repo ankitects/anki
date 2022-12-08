@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div class="position-relative">
         <h1>{title}</h1>
         <div class="help-badge position-absolute" class:rtl>
-            <slot name="tooltip" />
+            <slot name="badge" />
         </div>
     </div>
     <slot />

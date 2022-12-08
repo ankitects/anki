@@ -54,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <HelpModal
         title={tr.deckConfigTimerTitle()}
         url="https://docs.ankiweb.net/deck-options.html#timer"
-        slot="tooltip"
+        slot="badge"
         {helpSections}
         on:mount={(e) => {
             modal = e.detail.modal;

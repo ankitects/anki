@@ -156,7 +156,7 @@
     <HelpModal
         title={tr.deckConfigDailyLimits()}
         url="https://docs.ankiweb.net/deck-options.html#daily-limits"
-        slot="tooltip"
+        slot="badge"
         {helpSections}
         on:mount={(e) => {
             modal = e.detail.modal;
