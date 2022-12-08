@@ -72,6 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     h1 {
         position: sticky;
+        text-align: var(--text-align, start);
         border-bottom: 1px solid var(--border);
     }
     .help-badge {

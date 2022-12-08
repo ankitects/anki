@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="fullscreen-wrapper" class:fullscreen on:dblclick={toggleFullscreen}>
-    <TitledContainer class="position-relative" {title}>
+    <TitledContainer class="position-relative" {title} --text-align="center">
         <Badge
             tooltip={tr.actionsToggleFullscreen()}
             slot="badge"
