@@ -29,7 +29,7 @@ pub fn run_build(args: BuildArgs) {
     };
 
     maybe_update_env_file(build_root);
-    maybe_update_buildhash(build_root, &path);
+    maybe_update_buildhash(build_root);
 
     // Ensure build file is up to date
     let build_file = build_root.join("build.ninja");
@@ -138,18 +138,17 @@ fn bootstrap_build() {
     assert!(status.expect("ninja").success());
 }
 
-fn maybe_update_buildhash(build_root: &Utf8Path, path_env: &str) {
+fn maybe_update_buildhash(build_root: &Utf8Path) {
     // only updated on release builds
     let path = build_root.join("buildhash");
     if env::var("RELEASE").is_ok() || !path.exists() {
-        write_if_changed(&path, &get_buildhash(path_env))
+        write_if_changed(&path, &get_buildhash())
     }
 }
 
-fn get_buildhash(path: &str) -> String {
+fn get_buildhash() -> String {
     let output = Command::new("git")
         .args(["rev-parse", "--short=8", "HEAD"])
-        .env("PATH", path)
         .output()
         .expect("git");
     assert!(output.status.success(), "git failed");

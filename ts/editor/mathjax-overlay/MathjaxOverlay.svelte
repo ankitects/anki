@@ -222,10 +222,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             placeHandle(true);
                             resetHandle();
                         }}
-                        on:tab={async () => {
-                            // Instead of resetting on blur, we reset on tab
-                            // Otherwise, when clicking from Mathjax element to another,
-                            // the user has to click twice (focus is called before blur?)
+                        on:blur={async () => {
                             resetHandle();
                         }}
                         on:close={resetHandle}

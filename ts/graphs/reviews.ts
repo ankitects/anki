@@ -254,7 +254,7 @@ export function renderReviews(
         const day = dayLabel(d.x0!, d.x1!);
         const totals = totalsForBin(d);
         const dayTotal = valueLabel(sum(totals));
-        let buf = `<table><tr><td>${day}</td><td align=right>${dayTotal}</td></tr>`;
+        let buf = `<table><tr><td>${day}</td><td align=end>${dayTotal}</td></tr>`;
         const lines: [BinIndex | null, string][] = [
             [BinIndex.Filtered, tr.statisticsCountsFilteredCards()],
             [BinIndex.Learn, tr.statisticsCountsLearningCards()],
@@ -275,7 +275,7 @@ export function renderReviews(
             }
             buf += `<tr>
             <td><span style="color: ${color};">■</span> ${label}</td>
-            <td align=right>${detail}</td>
+            <td align=end>${detail}</td>
             </tr>`;
         }
         return buf;

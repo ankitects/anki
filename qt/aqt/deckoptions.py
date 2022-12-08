@@ -33,23 +33,23 @@ class DeckOptionsDialog(QDialog):
         self.mw = mw
         self._deck = deck
         self._setup_ui()
-        self.show()
 
     def _setup_ui(self) -> None:
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.mw.garbage_collect_on_dialog_finish(self)
         self.setMinimumWidth(400)
         disable_help_button(self)
-        restoreGeom(self, self.TITLE)
+        restoreGeom(self, self.TITLE, default_size=(800, 800))
         addCloseShortcut(self)
 
         self.web = AnkiWebView(title=self.TITLE)
-        self.web.setVisible(False)
         self.web.load_ts_page("deck-options")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
         self.setLayout(layout)
+        self.show()
+        self.web.hide_while_preserving_layout()
 
         self.web.eval(
             f"""const $deckOptions = anki.setupDeckOptions({self._deck["id"]});"""

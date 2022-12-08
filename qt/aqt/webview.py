@@ -664,6 +664,10 @@ html {{ {font} }}
             gui_hooks.webview_did_inject_style_into_page(self)
             self.show()
 
+        if theme_manager.night_mode:
+            night_mode = 'document.documentElement.classList.add("night-mode");'
+        else:
+            night_mode = ""
         self.evalWithCallback(
             f"""
 (function(){{
@@ -671,6 +675,7 @@ html {{ {font} }}
     style.innerHTML = `{css}`;
     document.head.appendChild(style);
     document.body.classList.add({", ".join([f'"{c}"' for c in body_classes])});
+    {night_mode}
 }})();
 """,
             after_injection,
