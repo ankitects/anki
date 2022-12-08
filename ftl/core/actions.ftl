@@ -36,6 +36,7 @@ actions-select = Select
 actions-shortcut-key = Shortcut key: { $val }
 actions-suspend-card = Suspend Card
 actions-set-due-date = Set Due Date
+actions-toggle-fullscreen = Toggle Fullscreen
 actions-answer-card = Answer Card
 actions-unbury-unsuspend = Unbury/Unsuspend
 actions-add-deck = Add Deck

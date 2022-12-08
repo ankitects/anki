@@ -113,7 +113,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .range-box {
         width: 100vw;
         color: var(--fg);
-        background: var(--canvas);
 
         @media print {
             position: absolute;

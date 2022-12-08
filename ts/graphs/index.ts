@@ -9,7 +9,9 @@ import type { SvelteComponentDev } from "svelte/internal";
 
 import GraphsPage from "./GraphsPage.svelte";
 
-const i18n = setupI18n({ modules: [ModuleName.STATISTICS, ModuleName.SCHEDULING] });
+const i18n = setupI18n({
+    modules: [ModuleName.ACTIONS, ModuleName.STATISTICS, ModuleName.SCHEDULING],
+});
 
 export async function setupGraphs(
     graphs: typeof SvelteComponentDev[],

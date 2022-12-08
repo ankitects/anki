@@ -3,4 +3,11 @@
 
 button {
     margin-bottom: 5px;
+    overflow: hidden;
+}
+
+body.graphs-fullscreen {
+    .fullscreen-wrapper:not(.fullscreen) {
+        display: none;
+    }
 }
