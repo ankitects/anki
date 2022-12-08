@@ -33,6 +33,8 @@ module.exports = {
             ],
             rules: {
                 "@typescript-eslint/no-non-null-assertion": "off",
+                "simple-import-sort/imports": "off",
+                "simple-import-sort/exports": "off",
             },
         },
         {

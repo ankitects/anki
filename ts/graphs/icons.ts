@@ -3,5 +3,5 @@
 
 /// <reference types="../lib/image-import" />
 
-export { default as fullscreenIcon } from "@mdi/svg/svg/fullscreen.svg";
 export { default as fullscreenExitIcon } from "@mdi/svg/svg/fullscreen-exit.svg";
+export { default as fullscreenIcon } from "@mdi/svg/svg/fullscreen.svg";
