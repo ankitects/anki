@@ -241,7 +241,7 @@ class DeckBrowser:
         review = nonzeroColour(node.review_count, "review-count")
         learn = nonzeroColour(node.learn_count, "learn-count")
 
-        buf += ("<td align=right>%s</td>" * 3) % (
+        buf += ("<td align=end>%s</td>" * 3) % (
             nonzeroColour(node.new_count, "new-count"),
             learn,
             review,
