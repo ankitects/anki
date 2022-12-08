@@ -16,11 +16,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div
     {id}
-    class="container {className}"
+    class="titled-container {className}"
     class:light={!$pageTheme.isDark}
     class:dark={$pageTheme.isDark}
     class:rtl
     style:--gutter-block="2px"
+    style:--gutter-inline="2px"
     style:--container-margin="0"
 >
     <div class="position-relative">
@@ -34,9 +35,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     @use "sass/elevation" as *;
-    .container {
+    .titled-container {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
         width: 100%;
-        background: var(--canvas-elevated);
+        height: 100%;
+        background: var(--container-bg, var(--canvas-elevated));
         border: 1px solid var(--border-subtle);
         border-radius: var(--border-radius-large, 10px);
         padding: 1rem 1.75rem 0.75rem 1.25rem;
@@ -66,11 +71,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         transition: box-shadow 0.2s ease-in-out;
     }
     h1 {
+        position: sticky;
         border-bottom: 1px solid var(--border);
     }
     .help-badge {
         right: 0;
-        bottom: 4px;
+        bottom: 12px;
         color: var(--fg-faint);
         transition: color 0.2s linear;
         &:hover {

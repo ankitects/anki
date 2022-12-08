@@ -25,22 +25,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<ButtonToolbar class="justify-content-between" wrap={false}>
-    <LabelButton disabled={true}>
+<ButtonToolbar class="justify-content-between" wrap={false} --icon-align="middle">
+    <LabelButton class="flex-grow-1" disabled>
         {$info.oldNotetypeName}
     </LabelButton>
-    <Badge iconSize={70}>
+    <Badge class="h-100">
         {#if window.getComputedStyle(document.body).direction == "rtl"}
             {@html arrowLeftIcon}
         {:else}
             {@html arrowRightIcon}
         {/if}
     </Badge>
-    <Select class="flex-grow-1" bind:value {label} on:change={blur}>
-        {#each options as option, idx}
-            <SelectOption value={idx}>{option}</SelectOption>
-        {/each}
-    </Select>
+    <div class="notetype-selector">
+        <Select bind:value {label} on:change={blur}>
+            {#each options as option, idx}
+                <SelectOption value={idx}>{option}</SelectOption>
+            {/each}
+        </Select>
+    </div>
 
     <SaveButton {state} />
 </ButtonToolbar>
+
+<style lang="scss">
+    .notetype-selector {
+        flex-grow: 4;
+    }
+</style>

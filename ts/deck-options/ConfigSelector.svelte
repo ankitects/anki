@@ -12,7 +12,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { modalsKey } from "../components/context-keys";
     import Select from "../components/Select.svelte";
     import SelectOption from "../components/SelectOption.svelte";
-    import StickyContainer from "../components/StickyContainer.svelte";
     import type { ConfigListEntry, DeckOptionsState } from "./lib";
     import SaveButton from "./SaveButton.svelte";
     import TextInputModal from "./TextInputModal.svelte";
@@ -83,15 +82,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<TextInputModal
-    title={modalTitle}
-    prompt={tr.deckConfigNamePrompt()}
-    value={modalStartingValue}
-    onOk={modalSuccess}
-    bind:modalKey
-/>
+<div class="config-selector">
+    <TextInputModal
+        title={modalTitle}
+        prompt={tr.deckConfigNamePrompt()}
+        value={modalStartingValue}
+        onOk={modalSuccess}
+        bind:modalKey
+    />
 
-<StickyContainer --gutter-block="0.5rem" --sticky-borders="0 0 1px" breakpoint="sm">
     <ButtonToolbar class="justify-content-between flex-grow-1" wrap={false}>
         <Select class="flex-grow-1" {label} on:change={blur}>
             {#each $configList as entry}
@@ -107,4 +106,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:remove={dispatchPresetChange}
         />
     </ButtonToolbar>
-</StickyContainer>
+</div>
+
+<style lang="scss">
+    .config-selector {
+        width: min(100%, 50em);
+        margin: 0 auto;
+    }
+</style>

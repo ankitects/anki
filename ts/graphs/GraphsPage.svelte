@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { SvelteComponentDev } from "svelte/internal";
     import { writable } from "svelte/store";
 
+    import Page from "../components/Page.svelte";
     import { pageTheme } from "../sveltelib/theme";
     import WithGraphData from "./WithGraphData.svelte";
 
@@ -32,42 +33,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let:preferences
     let:revlogRange
 >
-    {#if controller}
-        <svelte:component this={controller} {search} {days} {loading} />
-    {/if}
-
-    <div class="graphs-container">
-        {#if sourceData && preferences && revlogRange}
-            {#each graphs as graph}
-                <svelte:component
-                    this={graph}
-                    {sourceData}
-                    {preferences}
-                    {revlogRange}
-                    nightMode={$pageTheme.isDark}
-                    on:search={browserSearch}
-                />
-            {/each}
-        {/if}
-    </div>
-    <div class="spacer" />
+    <Page class="graphs-page">
+        <svelte:component this={controller} slot="header" {search} {days} {loading} />
+        <div class="graphs-container">
+            {#if sourceData && preferences && revlogRange}
+                {#each graphs as graph}
+                    <svelte:component
+                        this={graph}
+                        {sourceData}
+                        {preferences}
+                        {revlogRange}
+                        nightMode={$pageTheme.isDark}
+                        on:search={browserSearch}
+                    />
+                {/each}
+            {/if}
+        </div>
+    </Page>
 </WithGraphData>
 
 <style lang="scss">
     .graphs-container {
+        flex-grow: 1;
         display: grid;
         gap: 1em;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        // required on Safari to stretch whole width
-        width: calc(100vw - 3em);
-        margin-left: 1em;
-        margin-right: 1em;
-
-        @media only screen and (max-width: 600px) {
-            width: calc(100vw - 1rem);
-            margin-left: 0.5rem;
-            margin-right: 0.5rem;
-        }
 
         @media only screen and (max-width: 1400px) {
             grid-template-columns: 1fr 1fr;
@@ -75,12 +65,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @media only screen and (max-width: 1200px) {
             grid-template-columns: 1fr;
         }
-        @media only screen and (max-width: 600px) {
-            font-size: 12px;
-        }
-    }
-
-    .spacer {
-        height: 1.5em;
     }
 </style>

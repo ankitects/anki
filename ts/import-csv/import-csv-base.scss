@@ -13,9 +13,6 @@
     @include bootstrap-dark.night-mode;
 }
 
-body {
-    height: 100vh;
-    width: min(100vw, 70em);
-    margin: 0 auto;
-    padding: 0 1em 1em 1em;
+html {
+    overflow: hidden;
 }

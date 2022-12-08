@@ -7,20 +7,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Decks, Generic, Notetypes } from "@tslib/proto";
     import { ImportExport, importExport } from "@tslib/proto";
 
-    import Col from "../components/Col.svelte";
-    import Container from "../components/Container.svelte";
-    import Row from "../components/Row.svelte";
-    import Spacer from "../components/Spacer.svelte";
+    import Page from "../components/Page.svelte";
+    import TitledContainer from "../components/TitledContainer.svelte";
     import DeckSelector from "./DeckSelector.svelte";
     import DelimiterSelector from "./DelimiterSelector.svelte";
     import DupeResolutionSelector from "./DupeResolutionSelector.svelte";
     import FieldMapper from "./FieldMapper.svelte";
-    import Header from "./Header.svelte";
     import HtmlSwitch from "./HtmlSwitch.svelte";
+    import ImportFooter from "./ImportFooter.svelte";
     import { getColumnOptions, getCsvMetadata } from "./lib";
     import NotetypeSelector from "./NotetypeSelector.svelte";
     import Preview from "./Preview.svelte";
-    import StickyHeader from "./StickyHeader.svelte";
     import Tags from "./Tags.svelte";
 
     export let path: string;
@@ -92,23 +89,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<StickyHeader {path} {onImport} />
-
-<Container class="csv-page">
-    <Row --cols={2}>
-        <Col --col-size={1} breakpoint="md">
-            <Container>
-                <Header heading={tr.importingFile()} />
-                <Spacer --height="1.5rem" />
+<Page class="import-csv-page">
+    <div class="layout">
+        <div class="h-100" style:grid-area="file">
+            <TitledContainer title={tr.importingFile()}>
                 <DelimiterSelector bind:delimiter disabled={forceDelimiter} />
                 <HtmlSwitch bind:isHtml disabled={forceIsHtml} />
                 <Preview {columnOptions} {preview} />
-            </Container>
-        </Col>
-        <Col --col-size={1} breakpoint="md">
-            <Container>
-                <Header heading={tr.importingImportOptions()} />
-                <Spacer --height="1.5rem" />
+            </TitledContainer>
+        </div>
+        <div class="h-100" style:grid-area="options">
+            <TitledContainer title={tr.importingImportOptions()}>
                 {#if globalNotetype}
                     <NotetypeSelector
                         {notetypeNameIds}
@@ -120,26 +111,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {/if}
                 <DupeResolutionSelector bind:dupeResolution />
                 <Tags bind:globalTags bind:updatedTags />
-            </Container>
-        </Col>
-        <Col --col-size={1} breakpoint="md">
-            <Container>
-                <Header heading={tr.importingFieldMapping()} />
-                <Spacer --height="1.5rem" />
+            </TitledContainer>
+        </div>
+        <div class="h-100" style:grid-area="mapping">
+            <TitledContainer title={tr.importingFieldMapping()}>
                 <FieldMapper {columnOptions} bind:globalNotetype bind:tagsColumn />
-            </Container>
-        </Col>
-    </Row>
-</Container>
+            </TitledContainer>
+        </div>
+    </div>
+
+    <ImportFooter slot="footer" {onImport} />
+</Page>
 
 <style lang="scss">
-    :global(.csv-page) {
-        --gutter-inline: 0.25rem;
+    @use "sass/breakpoints" as bp;
+    .layout {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-gap: 0.5rem;
 
-        :global(.row) {
-            // rows have negative margins by default
-            --bs-gutter-x: 0;
-            margin-bottom: 0.5rem;
+        grid-template:
+            "file"
+            "options"
+            "mapping";
+
+        @include bp.with-breakpoint("md") {
+            grid-template:
+                "file file" 1fr
+                "options mapping" 1fr / 1fr 1fr;
+            grid-gap: 1rem;
         }
     }
 </style>

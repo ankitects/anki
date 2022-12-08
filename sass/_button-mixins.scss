@@ -59,12 +59,8 @@
     -webkit-appearance: none;
     cursor: pointer;
     @if $border {
-        @if $primary {
-            border: none;
-        } @else {
-            border: 1px solid var(--border-subtle);
-            border-bottom-color: var(--shadow);
-        }
+        border: 1px solid var(--border-subtle);
+        border-bottom-color: var(--shadow);
     } @else {
         border: none;
     }

@@ -27,7 +27,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {id}
     class="button-toolbar btn-toolbar {className}"
     class:nightMode={$pageTheme.isDark}
-    style:--icon-align="baseline"
     {style}
     role="toolbar"
     on:focusout
@@ -43,7 +42,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         :global(.button-group) {
             /* TODO replace with gap once available */
             margin-right: 0.15rem;
-            margin-bottom: 0.15rem;
         }
     }
 </style>

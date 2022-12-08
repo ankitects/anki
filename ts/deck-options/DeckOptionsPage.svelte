@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Container from "../components/Container.svelte";
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
+    import Page from "../components/Page.svelte";
     import Row from "../components/Row.svelte";
     import type { DynamicSvelteComponent } from "../sveltelib/dynamicComponent";
     import Addons from "./Addons.svelte";
@@ -58,81 +59,87 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let onPresetChange: () => void;
 </script>
 
-<ConfigSelector {state} on:presetchange={onPresetChange} />
+<Page class="deck-options-page">
+    <ConfigSelector slot="header" {state} on:presetchange={onPresetChange} />
 
-<div class="deck-options-page">
-    <Container
-        breakpoint="sm"
-        --gutter-inline="0.25rem"
-        --gutter-block="0.75rem"
-        class="container-columns"
-    >
+    <Container breakpoint="sm" --gutter-block="0.5rem" class="container-columns">
         <DynamicallySlottable slotHost={Item} api={options}>
             <Item>
                 <Row class="row-columns">
-                    <DailyLimits {state} api={dailyLimits} bind:onPresetChange />
+                    <DailyLimits
+                        {state}
+                        api={dailyLimits}
+                        bind:onPresetChange
+                        --gutter-block="0.75rem"
+                    />
                 </Row>
             </Item>
 
             <Item>
                 <Row class="row-columns">
-                    <NewOptions {state} api={newOptions} />
+                    <NewOptions {state} api={newOptions} --gutter-block="0.75rem" />
                 </Row>
             </Item>
 
             <Item>
                 <Row class="row-columns">
-                    <LapseOptions {state} api={lapseOptions} />
+                    <LapseOptions {state} api={lapseOptions} --gutter-block="0.75rem" />
                 </Row>
             </Item>
 
             {#if state.v3Scheduler}
                 <Item>
                     <Row class="row-columns">
-                        <DisplayOrder {state} api={displayOrder} />
+                        <DisplayOrder
+                            {state}
+                            api={displayOrder}
+                            --gutter-block="0.75rem"
+                        />
                     </Row>
                 </Item>
             {/if}
 
             <Item>
                 <Row class="row-columns">
-                    <TimerOptions {state} api={timerOptions} />
+                    <TimerOptions {state} api={timerOptions} --gutter-block="0.75rem" />
                 </Row>
             </Item>
 
             <Item>
                 <Row class="row-columns">
-                    <BuryOptions {state} api={buryOptions} />
+                    <BuryOptions {state} api={buryOptions} --gutter-block="0.75rem" />
                 </Row>
             </Item>
 
             <Item>
                 <Row class="row-columns">
-                    <AudioOptions {state} api={audioOptions} />
+                    <AudioOptions {state} api={audioOptions} --gutter-block="0.75rem" />
                 </Row>
             </Item>
 
             <Item>
                 <Row class="row-columns">
-                    <Addons {state} />
+                    <Addons {state} --gutter-block="0.75rem" />
                 </Row>
             </Item>
 
             <Item>
                 <Row class="row-columns">
-                    <AdvancedOptions {state} api={advancedOptions} />
+                    <AdvancedOptions
+                        {state}
+                        api={advancedOptions}
+                        --gutter-block="0.75rem"
+                    />
                 </Row>
             </Item>
         </DynamicallySlottable>
     </Container>
-</div>
+</Page>
 
 <style lang="scss">
     @use "sass/breakpoints" as bp;
 
-    .deck-options-page {
-        overflow-x: hidden;
-
+    :global(.deck-options-page) {
         @include bp.with-breakpoint("lg") {
             :global(.container) {
                 display: block;
@@ -140,9 +147,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             :global(.container-columns) {
                 column-count: 2;
-                column-gap: 5em;
+                column-gap: 4rem;
 
-                :global(.container) {
+                :global(.titled-container) {
                     break-inside: avoid;
                 }
             }

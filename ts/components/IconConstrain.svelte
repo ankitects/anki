@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     span {
         display: inline-block;
         position: relative;
-        vertical-align: var(--icon-align, middle);
+        vertical-align: var(--icon-align, top);
 
         /* constrain icon */
         min-width: calc((var(--buttons-size, 22px) - 2px) * var(--width-multiplier));
