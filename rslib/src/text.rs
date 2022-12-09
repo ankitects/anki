@@ -3,8 +3,8 @@
 
 use std::borrow::Cow;
 
+use ascii_percent_encoding::{percent_decode_str, utf8_percent_encode, AsciiSet, CONTROLS};
 use lazy_static::lazy_static;
-use pct_str::{IriReserved, PctStr, PctString};
 use regex::{Captures, Regex};
 use unicase::eq as uni_eq;
 use unicode_normalization::{
@@ -487,25 +487,26 @@ lazy_static! {
     pub(crate) static ref REMOTE_FILENAME: Regex = Regex::new("(?i)^https?://").unwrap();
 }
 
+/// https://url.spec.whatwg.org/#fragment-percent-encode-set
+const FRAGMENT_QUERY_UNION: &AsciiSet = &CONTROLS
+    .add(b' ')
+    .add(b'"')
+    .add(b'<')
+    .add(b'>')
+    .add(b'`')
+    .add(b'#');
+
 /// IRI-encode unescaped local paths in HTML fragment.
 pub(crate) fn encode_iri_paths(unescaped_html: &str) -> Cow<str> {
     transform_html_paths(unescaped_html, |fname| {
-        PctString::encode(fname.chars(), IriReserved::Segment)
-            .into_string()
-            .into()
+        utf8_percent_encode(fname, FRAGMENT_QUERY_UNION).into()
     })
 }
 
 /// URI-decode escaped local paths in HTML fragment.
 pub(crate) fn decode_iri_paths(escaped_html: &str) -> Cow<str> {
     transform_html_paths(escaped_html, |fname| {
-        match PctStr::new(fname) {
-            Ok(s) => s.decode().into(),
-            Err(_e) => {
-                // invalid percent encoding; return unchanged
-                fname.into()
-            }
-        }
+        percent_decode_str(fname).decode_utf8_lossy()
     })
 }
 

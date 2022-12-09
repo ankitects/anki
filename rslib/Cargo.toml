@@ -41,9 +41,9 @@ features = ["json", "socks", "stream", "multipart"]
 
 [dependencies]
 anki_i18n = { path = "i18n" }
+ascii_percent_encoding = { path = "ascii_percent_encoding" }
 
 csv = { git = "https://github.com/ankitects/rust-csv.git", rev = "1c9d3aab6f79a7d815c69f925a46a4590c115f90" }
-pct-str = { git = "https://github.com/timothee-haudebourg/pct-str.git", rev = "4adccd8d4a222ab2672350a102f06ae832a0572d" }
 
 # pinned as any changes could invalidate sqlite indexes
 unicase = "=2.6.0"
