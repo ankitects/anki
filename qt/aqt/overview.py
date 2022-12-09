@@ -8,10 +8,12 @@ from typing import Any, Callable
 import aqt
 import aqt.operations
 from anki.collection import OpChanges
+from anki.decks import DeckDict
 from anki.scheduler import UnburyDeck
 from aqt import gui_hooks
 from aqt.deckdescription import DeckDescriptionDialog
 from aqt.deckoptions import display_options_for_deck
+from aqt.operations import QueryOp
 from aqt.operations.scheduling import (
     empty_filtered_deck,
     rebuild_filtered_deck,
@@ -285,7 +287,17 @@ class Overview:
             # links.append(["F", "cram", _("Filter/Cram")])
         if self.mw.col.sched.have_buried():
             links.append(["U", "unbury", tr.studying_unbury()])
-        links.append(["", "description", tr.scheduling_description()])
+
+        QueryOp(
+            parent=self.mw,
+            op=lambda col: col.decks.current(),
+            success=lambda deck: self._check_deck_and_draw(deck, links),
+        ).run_in_background()
+
+    def _check_deck_and_draw(self, deck: DeckDict, links) -> None:
+        if not deck["dyn"]:
+            links.append(["", "description", tr.scheduling_description()])
+
         link_handler = gui_hooks.overview_will_render_bottom(
             self._linkHandler,
             links,
