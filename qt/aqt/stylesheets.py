@@ -140,20 +140,20 @@ QSpinBox::down-button {{
 
 
 def splitter_styles(tm: ThemeManager) -> str:
-    return f"""
+    return """
 QSplitter::handle,
-QMainWindow::separator {{
+QMainWindow::separator {
     width: 1px;
     height: 1px;
-}}
+}
 QSplitter::handle:vertical,
-QMainWindow::separator:horizontal {{
+QMainWindow::separator:horizontal {
     image: none;
-}}
+}
 QSplitter::handle:horizontal,
-QMainWindow::separator:vertical {{
+QMainWindow::separator:vertical {
     image: none;
-}}
+}
 """
 
 
