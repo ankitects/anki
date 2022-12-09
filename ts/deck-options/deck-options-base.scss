@@ -20,4 +20,7 @@ input[type="text"] {
 }
 
 // Setting 100% height causes the sticky element to hide as you scroll down on Safari.
-html { height: initial; }
+html {
+    height: initial;
+    overflow: hidden;
+}
