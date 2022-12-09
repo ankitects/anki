@@ -9,7 +9,6 @@
     flex-grow: var(--pane-size);
 
     overflow: hidden;
-    overflow-y: auto;
 
     &.resize {
         flex-basis: auto;
