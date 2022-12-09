@@ -457,6 +457,11 @@ QScrollBar::handle:horizontal {{
     border-top: 6px solid transparent;
     border-bottom: 6px solid transparent;
 }}
+QScrollBar::handle:horizontal:hover {{
+    min-width: 60px;
+    border-top-width: 4px;
+    border-bottom-width: 4px;
+}}
 QScrollBar:vertical {{
     width: 12px;
 }}
@@ -464,6 +469,11 @@ QScrollBar::handle:vertical {{
     min-height: 60px;
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
+}}
+QScrollBar::handle:vertical:hover {{
+    min-height: 60px;
+    border-left-width: 4px;
+    border-right-width: 4px;
 }}
 QScrollBar::add-line {{
       border: none;

@@ -28,7 +28,6 @@
             border-top: 3px solid transparent;
             border-bottom: 3px solid transparent;
         }
-
         &:vertical {
             min-height: 50px;
             border-left: 3px solid transparent;
@@ -37,8 +36,16 @@
 
         &:hover {
             background-color: var(--scrollbar-bg-hover);
-        }
 
+            &:horizontal {
+                border-top-width: 2px;
+                border-bottom-width: 2px;
+            }
+            &:vertical {
+                border-left-width: 2px;
+                border-right-width: 2px;
+            }
+        }
         &:active {
             background-color: var(--scrollbar-bg-active);
         }
