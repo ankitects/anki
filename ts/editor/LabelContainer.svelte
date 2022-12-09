@@ -44,7 +44,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding: 0 3px 1px;
 
         position: sticky;
-        top: 0;
+        top: -1px;
+        margin-left: -1px;
+        margin-right: -1px;
         z-index: 50;
 
         .clickable {
