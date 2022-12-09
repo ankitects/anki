@@ -82,7 +82,8 @@ impl AsciiSet {
     }
 
     fn should_percent_encode(&self, byte: u8) -> bool {
-        !byte.is_ascii() || self.contains(byte)
+        // MODIFIED
+        byte.is_ascii() && self.contains(byte)
     }
 
     pub const fn add(&self, byte: u8) -> Self {
