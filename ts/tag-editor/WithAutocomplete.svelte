@@ -191,6 +191,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         font-size: 13px;
         overflow-x: hidden;
         text-overflow: ellipsis;
-        overflow-y: auto;
+        overflow-y: scroll;
     }
 </style>

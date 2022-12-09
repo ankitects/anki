@@ -82,7 +82,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         &.scrollable {
             max-height: 400px;
-            overflow: hidden auto;
+            overflow: hidden scroll;
         }
 
         &.hidden {

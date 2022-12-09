@@ -415,7 +415,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         max-height: 15rem;
 
         font-size: 12px;
-        overflow: hidden auto;
+        overflow: hidden scroll;
         text-overflow: ellipsis;
     }
 </style>

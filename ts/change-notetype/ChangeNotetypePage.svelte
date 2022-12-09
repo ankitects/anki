@@ -56,7 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style>
     #scrollArea {
         padding: 0;
-        overflow: hidden auto;
+        overflow: hidden scroll;
         height: calc(100% - var(--offset));
     }
 </style>
