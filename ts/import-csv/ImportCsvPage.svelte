@@ -92,9 +92,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<StickyHeader {path} {onImport} />
+<div class="csv-page">
+    <StickyHeader {path} {onImport} />
 
-<Container class="csv-page">
     <Row --cols={2}>
         <Col --col-size={1} breakpoint="md">
             <Container>
@@ -130,11 +130,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Container>
         </Col>
     </Row>
-</Container>
+</div>
 
 <style lang="scss">
-    :global(.csv-page) {
+    .csv-page {
         --gutter-inline: 0.25rem;
+        max-width: min(100vw, 70em);
+        margin: 0 auto;
 
         :global(.row) {
             // rows have negative margins by default
