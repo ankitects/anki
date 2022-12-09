@@ -23,6 +23,7 @@ Contains the fields. This contains the scrollable area.
         /* Move the scrollbar for the NoteEditor into this element */
         position: relative;
         overflow-y: auto;
+        overflow-x: hidden;
 
         /* Push the tag editor to the bottom of the note editor */
         flex-grow: 1;
