@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import ScrollArea from "./ScrollArea.svelte";
+    import { isDesktop } from "@tslib/platform";
 
     let className: string = "";
     export { className as class };
@@ -16,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </div>
     {/if}
     <ScrollArea class="flex-grow-1" scrollY>
-        <div class="page-content">
+        <div class="page-content" class:mobile={!isDesktop()}>
             <slot />
         </div>
     </ScrollArea>
@@ -53,6 +54,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 --gutter-block: 0.25rem;
                 --gutter-inline: 0;
                 font-size: 13px;
+            }
+            &.mobile {
+                margin-bottom: 50vh;
             }
         }
     }
