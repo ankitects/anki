@@ -6,8 +6,9 @@ button {
     overflow: hidden;
 }
 
-body.graphs-fullscreen {
+/* uncomment after 2.1.55 release
+ body.graphs-fullscreen {
     .fullscreen-wrapper:not(.fullscreen) {
         display: none;
     }
-}
+} */

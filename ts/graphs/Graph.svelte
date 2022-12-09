@@ -3,11 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "@tslib/ftl";
-
     import Badge from "../components/Badge.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
-    import { fullscreenExitIcon, fullscreenIcon } from "./icons";
 
     export let title: string;
     export let subtitle: string | null = null;
@@ -16,19 +13,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function toggleFullscreen(): void {
         fullscreen = !fullscreen;
-        document.body.classList.toggle("graphs-fullscreen", fullscreen);
+        // uncomment after 2.1.55 release
+        // document.body.classList.toggle("graphs-fullscreen", fullscreen);
     }
 </script>
 
 <div class="fullscreen-wrapper" class:fullscreen on:dblclick={toggleFullscreen}>
     <TitledContainer class="position-relative" {title} --text-align="center">
-        <Badge
-            tooltip={tr.actionsToggleFullscreen()}
-            slot="badge"
-            on:click={toggleFullscreen}
-        >
-            {@html fullscreen ? fullscreenExitIcon : fullscreenIcon}
-        </Badge>
+        <Badge slot="badge" on:click={toggleFullscreen} />
         <div class="graph d-flex flex-grow-1 flex-column justify-content-center">
             {#if subtitle}
                 <div class="subtitle">{subtitle}</div>
@@ -40,18 +32,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     @use "sass/elevation" as *;
-
-    .fullscreen {
-        position: absolute;
-        z-index: 100;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        display: flex;
-        background: var(--canvas);
-        border-radius: var(--border-radius-large);
-    }
 
     .graph {
         max-height: 100%;
