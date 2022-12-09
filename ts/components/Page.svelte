@@ -56,8 +56,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 --gutter-inline: 0;
                 font-size: 13px;
             }
+            /* mobile browsers truncate bottom */
             &.mobile {
-                margin-bottom: 50vh;
+                margin-bottom: 4em;
             }
         }
     }
