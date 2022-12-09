@@ -5,16 +5,15 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { CardType } from "@tslib/cards";
 import * as tr from "@tslib/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import type { Cards, Stats } from "@tslib/proto";
+import type { Stats } from "@tslib/proto";
 import { dayLabel } from "@tslib/time";
 import type { Bin } from "d3";
-import { bin, extent, interpolateGreens, rollup, scaleLinear, scaleSequential, sum } from "d3";
+import { bin, extent, interpolateGreens, scaleLinear, scaleSequential, sum } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
-import { GraphRange } from "./graph-helpers";
+import { getNumericMapBinValue, GraphRange, numericMap } from "./graph-helpers";
 import type { HistogramData } from "./histogram-graph";
 
 export interface GraphData {
@@ -23,44 +22,8 @@ export interface GraphData {
 }
 
 export function gatherData(data: Stats.GraphsResponse): GraphData {
-    const isIntradayLearning = (card: Cards.Card, due: number): boolean => {
-        return (
-            [CardType.Learn, CardType.Relearn].includes(card.ctype)
-            && due > 1_000_000_000
-        );
-    };
-    let haveBacklog = false;
-    const due = (data.cards as Cards.Card[])
-        .filter((c: Cards.Card) => c.queue > 0)
-        .map((c: Cards.Card) => {
-            // - testing just odue fails on day 1
-            // - testing just odid fails on lapsed cards that
-            //   have due calculated at regraduation time
-            const due = c.originalDeckId && c.originalDue ? c.originalDue : c.due;
-
-            let dueDay: number;
-            if (isIntradayLearning(c, due)) {
-                const offset = due - data.nextDayAtSecs;
-                dueDay = Math.floor(offset / 86_400) + 1;
-            } else {
-                dueDay = due - data.daysElapsed;
-            }
-
-            haveBacklog = haveBacklog || dueDay < 0;
-
-            return dueDay;
-        });
-
-    const dueCounts = rollup(
-        due,
-        (v) => v.length,
-        (d) => d,
-    );
-    return { dueCounts, haveBacklog };
-}
-
-function binValue(d: Bin<Map<number, number>, number>): number {
-    return sum(d, (d) => d[1]);
+    const msg = data.futureDue!;
+    return { dueCounts: numericMap(msg.futureDue), haveBacklog: msg.haveBacklog };
 }
 
 export interface FutureDueResponse {
@@ -133,7 +96,7 @@ export function buildHistogram(
     const adjustedRange = scaleLinear().range([0.7, 0.3]);
     const colourScale = scaleSequential((n) => interpolateGreens(adjustedRange(n)!)).domain([xMin!, xMax!]);
 
-    const total = sum(bins as any, binValue);
+    const total = sum(bins as any, getNumericMapBinValue);
 
     function hoverText(
         bin: Bin<number, number>,
@@ -142,7 +105,7 @@ export function buildHistogram(
     ): string {
         const days = dayLabel(bin.x0!, bin.x1!);
         const cards = tr.statisticsCardsDue({
-            cards: binValue(bin as any),
+            cards: getNumericMapBinValue(bin as any),
         });
         const totalLabel = tr.statisticsRunningTotal();
 
@@ -185,7 +148,7 @@ export function buildHistogram(
             onClick: browserLinksSupported ? onClick : null,
             showArea: true,
             colourScale,
-            binValue,
+            binValue: getNumericMapBinValue,
             xTickFormat,
         },
         tableData,

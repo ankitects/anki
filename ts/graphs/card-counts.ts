@@ -5,10 +5,9 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { CardQueue, CardType } from "@tslib/cards";
 import * as tr from "@tslib/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import type { Cards, Stats } from "@tslib/proto";
+import type { Stats } from "@tslib/proto";
 import {
     arc,
     cumsum,
@@ -20,6 +19,7 @@ import {
     schemeOranges,
     schemeReds,
     select,
+    sum,
 } from "d3";
 
 import type { GraphBounds } from "./graph-helpers";
@@ -41,83 +41,44 @@ const barColours = [
     "grey", /* buried */
 ];
 
-function countCards(cards: Cards.ICard[], separateInactive: boolean): Count[] {
-    let newCards = 0;
-    let learn = 0;
-    let relearn = 0;
-    let young = 0;
-    let mature = 0;
-    let suspended = 0;
-    let buried = 0;
-
-    for (const card of cards as Cards.Card[]) {
-        if (separateInactive) {
-            switch (card.queue) {
-                case CardQueue.Suspended:
-                    suspended += 1;
-                    continue;
-                case CardQueue.SchedBuried:
-                case CardQueue.UserBuried:
-                    buried += 1;
-                    continue;
-            }
-        }
-
-        switch (card.ctype) {
-            case CardType.New:
-                newCards += 1;
-                break;
-            case CardType.Learn:
-                learn += 1;
-                break;
-            case CardType.Review:
-                if (card.interval < 21) {
-                    young += 1;
-                } else {
-                    mature += 1;
-                }
-                break;
-            case CardType.Relearn:
-                relearn += 1;
-                break;
-        }
-    }
+function countCards(data: Stats.GraphsResponse, separateInactive: boolean): Count[] {
+    const countData = separateInactive ? data.cardCounts!.excludingInactive! : data.cardCounts!.includingInactive!;
 
     const extraQuery = separateInactive ? "AND -(\"is:buried\" OR \"is:suspended\")" : "";
 
     const counts: Count[] = [
-        [tr.statisticsCountsNewCards(), newCards, true, `"is:new"${extraQuery}`],
+        [tr.statisticsCountsNewCards(), countData.newCards, true, `"is:new"${extraQuery}`],
         [
             tr.statisticsCountsLearningCards(),
-            learn,
+            countData.learn,
             true,
             `(-"is:review" AND "is:learn")${extraQuery}`,
         ],
         [
             tr.statisticsCountsRelearningCards(),
-            relearn,
+            countData.relearn,
             true,
             `("is:review" AND "is:learn")${extraQuery}`,
         ],
         [
             tr.statisticsCountsYoungCards(),
-            young,
+            countData.young,
             true,
             `("is:review" AND -"is:learn") AND "prop:ivl<21"${extraQuery}`,
         ],
         [
             tr.statisticsCountsMatureCards(),
-            mature,
+            countData.mature,
             true,
             `("is:review" -"is:learn") AND "prop:ivl>=21"${extraQuery}`,
         ],
         [
             tr.statisticsCountsSuspendedCards(),
-            suspended,
+            countData.suspended,
             separateInactive,
             "\"is:suspended\"",
         ],
-        [tr.statisticsCountsBuriedCards(), buried, separateInactive, "\"is:buried\""],
+        [tr.statisticsCountsBuriedCards(), countData.buried, separateInactive, "\"is:buried\""],
     ];
 
     return counts;
@@ -127,8 +88,8 @@ export function gatherData(
     data: Stats.GraphsResponse,
     separateInactive: boolean,
 ): GraphData {
-    const totalCards = localizedNumber(data.cards.length);
-    const counts = countCards(data.cards, separateInactive);
+    const counts = countCards(data, separateInactive);
+    const totalCards = localizedNumber(sum(counts, e => e[1]));
 
     return {
         title: tr.statisticsCountsTitle(),

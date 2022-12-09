@@ -7,7 +7,7 @@
 
 import * as tr from "@tslib/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import { Stats } from "@tslib/proto";
+import type { Stats } from "@tslib/proto";
 import {
     area,
     axisBottom,
@@ -22,8 +22,8 @@ import {
     select,
 } from "d3";
 
-import type { GraphBounds, GraphRange } from "./graph-helpers";
-import { millisecondCutoffForRange, setDataAvailable } from "./graph-helpers";
+import type { GraphBounds } from "./graph-helpers";
+import { GraphRange, setDataAvailable } from "./graph-helpers";
 import { oddTickClass } from "./graph-styles";
 import { hideTooltip, showTooltip } from "./tooltip";
 
@@ -33,38 +33,22 @@ interface Hour {
     correctCount: number;
 }
 
-const ReviewKind = Stats.RevlogEntry.ReviewKind;
-
 function gatherData(data: Stats.GraphsResponse, range: GraphRange): Hour[] {
-    const hours = [...Array(24)].map((_n, idx: number) => {
-        return { hour: idx, totalCount: 0, correctCount: 0 } as Hour;
-    });
-    const cutoff = millisecondCutoffForRange(range, data.nextDayAtSecs);
-
-    for (const review of data.revlog as Stats.RevlogEntry[]) {
-        switch (review.reviewKind) {
-            case ReviewKind.LEARNING:
-            case ReviewKind.REVIEW:
-            case ReviewKind.RELEARNING:
-                break; // from switch
-            case ReviewKind.FILTERED:
-            case ReviewKind.MANUAL:
-                continue; // next loop iteration
-        }
-        if (cutoff && (review.id as number) < cutoff) {
-            continue;
-        }
-
-        const hour = Math.floor(
-            (((review.id as number) / 1000 + data.localOffsetSecs) / 3600) % 24,
-        );
-        hours[hour].totalCount += 1;
-        if (review.buttonChosen != 1) {
-            hours[hour].correctCount += 1;
-        }
+    function convert(hours: Stats.GraphsResponse.Hours.IHour[]): Hour[] {
+        return hours.map((e, idx) => {
+            return { hour: idx, totalCount: e.total!, correctCount: e.correct! };
+        });
     }
-
-    return hours;
+    switch (range) {
+        case GraphRange.Month:
+            return convert(data.hours!.oneMonth);
+        case GraphRange.ThreeMonths:
+            return convert(data.hours!.threeMonths);
+        case GraphRange.Year:
+            return convert(data.hours!.oneYear);
+        case GraphRange.AllTime:
+            return convert(data.hours!.allTime);
+    }
 }
 
 export function renderHours(

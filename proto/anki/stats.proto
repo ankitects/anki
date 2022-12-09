@@ -56,14 +56,90 @@ message GraphsRequest {
 }
 
 message GraphsResponse {
-  repeated cards.Card cards = 1;
-  repeated RevlogEntry revlog = 2;
-  uint32 days_elapsed = 3;
-  // Based on rollover hour
-  uint32 next_day_at_secs = 4;
-  uint32 scheduler_version = 5;
-  /// Seconds to add to UTC timestamps to get local time.
-  int32 local_offset_secs = 7;
+  message Added {
+    map<int32, uint32> added = 1;
+  }
+  message Intervals {
+    map<uint32, uint32> intervals = 1;
+  }
+  message Eases {
+    map<uint32, uint32> eases = 1;
+  }
+  message FutureDue {
+    map<int32, uint32> future_due = 1;
+    bool have_backlog = 2;
+  }
+  message Today {
+    uint32 answer_count = 1;
+    uint32 answer_millis = 2;
+    uint32 correct_count = 3;
+    uint32 mature_correct = 4;
+    uint32 mature_count = 5;
+    uint32 learn_count = 6;
+    uint32 review_count = 7;
+    uint32 relearn_count = 8;
+    uint32 early_review_count = 9;
+  }
+  // each bucket is a 24 element vec
+  message Hours {
+    message Hour {
+      uint32 total = 1;
+      uint32 correct = 2;
+    }
+    repeated Hour one_month = 1;
+    repeated Hour three_months = 2;
+    repeated Hour one_year = 3;
+    repeated Hour all_time = 4;
+  }
+  message ReviewCountsAndTimes {
+    message Reviews {
+      uint32 learn = 1;
+      uint32 relearn = 2;
+      uint32 young = 3;
+      uint32 mature = 4;
+      uint32 filtered = 5;
+    }
+    map<int32, Reviews> count = 1;
+    map<int32, Reviews> time = 2;
+  }
+  // 4 element vecs for buttons 1-4
+  message Buttons {
+    message ButtonCounts {
+      repeated uint32 learning = 1;
+      repeated uint32 young = 2;
+      repeated uint32 mature = 3;
+    }
+    ButtonCounts one_month = 1;
+    ButtonCounts three_months = 2;
+    ButtonCounts one_year = 3;
+    ButtonCounts all_time = 4;
+  }
+  message CardCounts {
+    message Counts {
+      uint32 newCards = 1;
+      uint32 learn = 2;
+      uint32 relearn = 3;
+      uint32 young = 4;
+      uint32 mature = 5;
+      uint32 suspended = 6;
+      uint32 buried = 7;
+    }
+    // Buried/suspended cards are included in counts; suspended/buried counts
+    // are 0.
+    Counts including_inactive = 1;
+    // Buried/suspended cards are counted separately.
+    Counts excluding_inactive = 2;
+  }
+
+  Buttons buttons = 1;
+  CardCounts card_counts = 2;
+  Hours hours = 3;
+  Today today = 4;
+  Eases eases = 5;
+  Intervals intervals = 6;
+  FutureDue future_due = 7;
+  Added added = 8;
+  ReviewCountsAndTimes reviews = 9;
 }
 
 message GraphPreferences {

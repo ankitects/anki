@@ -5,25 +5,22 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { CardType } from "@tslib/cards";
 import * as tr from "@tslib/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import type { Cards, Stats } from "@tslib/proto";
+import type { Stats } from "@tslib/proto";
 import type { Bin, ScaleLinear } from "d3";
 import { bin, extent, interpolateRdYlGn, scaleLinear, scaleSequential, sum } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
+import { getNumericMapBinValue, numericMap } from "./graph-helpers";
 import type { HistogramData } from "./histogram-graph";
 
 export interface GraphData {
-    eases: number[];
+    eases: Map<number, number>;
 }
 
 export function gatherData(data: Stats.GraphsResponse): GraphData {
-    const eases = (data.cards as Cards.Card[])
-        .filter((c) => [CardType.Review, CardType.Relearn].includes(c.ctype))
-        .map((c) => c.easeFactor / 10);
-    return { eases };
+    return { eases: numericMap(data.eases!.eases) };
 }
 
 function makeQuery(start: number, end: number): string {
@@ -68,11 +65,10 @@ export function prepareData(
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
     const allEases = data.eases;
-    if (!allEases.length) {
+    if (!allEases.size) {
         return [null, []];
     }
-    const total = allEases.length;
-    const [, origXMax] = extent(allEases);
+    const [, origXMax] = extent(allEases.keys());
     const xMin = 130;
     const xMax = origXMax! + 1;
     const desiredBars = 20;
@@ -80,8 +76,12 @@ export function prepareData(
     const [scale, ticks] = getAdjustedScaleAndTicks(xMin, xMax, desiredBars);
 
     const bins = bin()
+        .value((m) => {
+            return m[0];
+        })
         .domain(scale.domain() as [number, number])
-        .thresholds(ticks)(allEases);
+        .thresholds(ticks)(allEases.entries() as any);
+    const total = sum(bins as any, getNumericMapBinValue);
 
     const colourScale = scaleSequential(interpolateRdYlGn).domain([xMin, 300]);
 
@@ -90,7 +90,7 @@ export function prepareData(
         const maxPct = Math.floor(bin.x1!);
         const percent = maxPct - minPct <= 10 ? `${bin.x0}%` : `${bin.x0}%-${bin.x1}%`;
         return tr.statisticsCardEaseTooltip({
-            cards: bin.length,
+            cards: getNumericMapBinValue(bin as any),
             percent,
         });
     }
@@ -106,7 +106,7 @@ export function prepareData(
     const tableData = [
         {
             label: tr.statisticsAverageEase(),
-            value: xTickFormat(sum(allEases) / total),
+            value: xTickFormat(sum(Array.from(allEases.entries()).map(([k, v]) => k * v)) / total),
         },
     ];
 
@@ -119,6 +119,7 @@ export function prepareData(
             onClick: browserLinksSupported ? onClick : null,
             colourScale,
             showArea: false,
+            binValue: getNumericMapBinValue,
             xTickFormat,
         },
         tableData,
