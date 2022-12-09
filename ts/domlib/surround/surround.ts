@@ -9,7 +9,7 @@ import { boolMatcher } from "./match-type";
 import { splitPartiallySelected } from "./split-text";
 import type { SurroundFormat } from "./surround-format";
 
-function surroundInner<T>(
+function buildAndApply<T>(
     node: Node,
     buildFormat: BuildFormat<T>,
     applyFormat: ApplyFormat<T>,
@@ -19,30 +19,24 @@ function surroundInner<T>(
     return buildFormat.recreateRange();
 }
 
-function reformatInner<T>(
+function surroundOnCorrectNode<T>(
     range: Range,
     base: Element,
     build: BuildFormat<T>,
     apply: ApplyFormat<T>,
     matcher: Matcher,
 ): Range {
-    const farthestMatchingAncestor = findFarthest(
+    const node = findFarthest(
         range.commonAncestorContainer,
         base,
         matcher,
-    );
+    ) ?? range.commonAncestorContainer;
 
-    if (farthestMatchingAncestor) {
-        return surroundInner(farthestMatchingAncestor, build, apply);
-    } else {
-        return surroundInner(range.commonAncestorContainer, build, apply);
-    }
+    return buildAndApply(node, build, apply);
 }
 
 /**
- * Assumes that there are no matching ancestor elements above
- * `range.commonAncestorContainer`. Make sure that the range is not placed
- * inside the format before using this.
+ * Will surround the entire range, removing any contained formatting nodes in the process.
  */
 export function surround<T>(
     range: Range,
@@ -52,7 +46,7 @@ export function surround<T>(
     const splitRange = splitPartiallySelected(range);
     const build = new BuildFormat(format, base, range, splitRange);
     const apply = new ApplyFormat(format);
-    return surroundInner(range.commonAncestorContainer, build, apply);
+    return surroundOnCorrectNode(range, base, build, apply, boolMatcher(format));
 }
 
 /**
@@ -66,7 +60,7 @@ export function reformat<T>(
     const splitRange = splitPartiallySelected(range);
     const build = new ReformatBuildFormat(format, base, range, splitRange);
     const apply = new ReformatApplyFormat(format);
-    return reformatInner(range, base, build, apply, boolMatcher(format));
+    return surroundOnCorrectNode(range, base, build, apply, boolMatcher(format));
 }
 
 export function unsurround<T>(
@@ -77,5 +71,5 @@ export function unsurround<T>(
     const splitRange = splitPartiallySelected(range);
     const build = new UnsurroundBuildFormat(format, base, range, splitRange);
     const apply = new UnsurroundApplyFormat(format);
-    return reformatInner(range, base, build, apply, boolMatcher(format));
+    return surroundOnCorrectNode(range, base, build, apply, boolMatcher(format));
 }
