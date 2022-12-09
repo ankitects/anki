@@ -93,7 +93,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="editor-toolbar" bind:clientHeight>
-    <ButtonToolbar {size} {wrap}>
+    <ButtonToolbar class="ps-2" {size} {wrap}>
         <DynamicallySlottable slotHost={Item} api={toolbar}>
             <Item id="notetype">
                 <NotetypeButtons api={notetypeButtons}>

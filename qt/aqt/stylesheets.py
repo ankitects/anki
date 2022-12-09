@@ -143,15 +143,16 @@ def splitter_styles(tm: ThemeManager) -> str:
     return f"""
 QSplitter::handle,
 QMainWindow::separator {{
-    height: 16px;
+    width: 1px;
+    height: 1px;
 }}
 QSplitter::handle:vertical,
 QMainWindow::separator:horizontal {{
-    image: url({tm.themed_icon("mdi:drag-horizontal-FG_SUBTLE")});
+    image: none;
 }}
 QSplitter::handle:horizontal,
 QMainWindow::separator:vertical {{
-    image: url({tm.themed_icon("mdi:drag-vertical-FG_SUBTLE")});
+    image: none;
 }}
 """
 
@@ -453,13 +454,17 @@ QScrollBar:horizontal {{
 }}
 QScrollBar::handle:horizontal {{
     min-width: 60px;
-}} 
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+}}
 QScrollBar:vertical {{
     width: 12px;
 }}
 QScrollBar::handle:vertical {{
     min-height: 60px;
-}} 
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+}}
 QScrollBar::add-line {{
       border: none;
       background: none;

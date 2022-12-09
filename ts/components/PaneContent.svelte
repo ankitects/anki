@@ -5,6 +5,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { promiseWithResolver } from "@tslib/promise";
 
+    let className: string = "";
+    export { className as class };
+
     export let scroll = true;
     const [element, elementResolve] = promiseWithResolver<HTMLElement>();
 
@@ -43,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div
-    class="pane-content"
+    class="pane-content {className}"
     class:scroll
     style:--box-shadow={shadow}
     style:--client-height="{clientHeight}px"

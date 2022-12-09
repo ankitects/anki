@@ -5,44 +5,47 @@
 
 @mixin custom {
     &::-webkit-scrollbar {
-        background-color: vars.color(canvas);
+        z-index: 100;
+        background: transparent;
 
         &:horizontal {
             height: 12px;
         }
-
         &:vertical {
             width: 12px;
         }
     }
 
     &::-webkit-scrollbar-thumb {
-        background: vars.color(scrollbar-bg);
-        border-radius: vars.prop(border-radius);
+        background: var(--scrollbar-bg);
+        border-radius: var(--border-radius);
+
+        /* make thumb slimmer without reducing clickable area */
+        background-clip: padding-box;
 
         &:horizontal {
             min-width: 50px;
+            border-top: 3px solid transparent;
+            border-bottom: 3px solid transparent;
         }
 
         &:vertical {
             min-height: 50px;
+            border-left: 3px solid transparent;
+            border-right: 3px solid transparent;
         }
 
         &:hover {
-            background: vars.color(scrollbar-bg-hover);
+            background-color: var(--scrollbar-bg-hover);
         }
 
         &:active {
-            background: vars.color(scrollbar-bg-active);
+            background-color: var(--scrollbar-bg-active);
         }
     }
-
-    &::-webkit-scrollbar-corner {
-        background-color: vars.color(canvas);
-    }
-
+    
+    &::-webkit-scrollbar-corner,
     &::-webkit-scrollbar-track {
-        border-radius: 5px;
-        background-color: transparent;
+        background: transparent;
     }
 }

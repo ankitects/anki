@@ -21,18 +21,18 @@
     <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_3">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
      <number>12</number>
     </property>
     <property name="leftMargin">
-     <number>12</number>
+     <number>0</number>
     </property>
     <property name="topMargin">
      <number>6</number>
     </property>
     <property name="rightMargin">
-     <number>12</number>
+     <number>0</number>
     </property>
     <property name="bottomMargin">
      <number>12</number>
@@ -41,6 +41,12 @@
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
        <number>6</number>
+      </property>
+      <property name="leftMargin">
+       <number>12</number>
+      </property>
+      <property name="rightMargin">
+       <number>12</number>
       </property>
       <property name="bottomMargin">
        <number>0</number>
@@ -74,11 +80,24 @@
      </widget>
     </item>
     <item>
-     <widget class="QDialogButtonBox" name="buttonBox">
-      <property name="standardButtons">
-       <set>QDialogButtonBox::NoButton</set>
+     <layout class="QHBoxLayout" name="dialogLayout">
+      <property name="spacing">
+       <number>6</number>
       </property>
-     </widget>
+      <property name="leftMargin">
+       <number>12</number>
+      </property>
+      <property name="rightMargin">
+       <number>12</number>
+      </property>
+      <item>
+       <widget class="QDialogButtonBox" name="buttonBox">
+        <property name="standardButtons">
+         <set>QDialogButtonBox::NoButton</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
