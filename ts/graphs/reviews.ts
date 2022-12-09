@@ -7,7 +7,7 @@
 
 import * as tr from "@tslib/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import { Stats } from "@tslib/proto";
+import type { Stats } from "@tslib/proto";
 import { dayLabel, timeSpan } from "@tslib/time";
 import type { Bin, ScaleSequential } from "d3";
 import {
@@ -32,7 +32,7 @@ import {
 } from "d3";
 
 import type { GraphBounds, TableDatum } from "./graph-helpers";
-import { GraphRange, setDataAvailable } from "./graph-helpers";
+import { GraphRange, numericMap, setDataAvailable } from "./graph-helpers";
 import { hideTooltip, showTooltip } from "./tooltip";
 
 interface Reviews {
@@ -49,51 +49,10 @@ export interface GraphData {
     reviewTime: Map<number, Reviews>;
 }
 
-const ReviewKind = Stats.RevlogEntry.ReviewKind;
 type BinType = Bin<Map<number, Reviews[]>, number>;
 
 export function gatherData(data: Stats.GraphsResponse): GraphData {
-    const reviewCount = new Map<number, Reviews>();
-    const reviewTime = new Map<number, Reviews>();
-    const empty = { mature: 0, young: 0, learn: 0, relearn: 0, filtered: 0 };
-
-    for (const review of data.revlog as Stats.RevlogEntry[]) {
-        if (review.reviewKind == ReviewKind.MANUAL) {
-            // don't count days with only manual scheduling
-            continue;
-        }
-        const day = Math.ceil(
-            ((review.id as number) / 1000 - data.nextDayAtSecs) / 86400,
-        );
-        const countEntry = reviewCount.get(day) ?? reviewCount.set(day, { ...empty }).get(day)!;
-        const timeEntry = reviewTime.get(day) ?? reviewTime.set(day, { ...empty }).get(day)!;
-
-        switch (review.reviewKind) {
-            case ReviewKind.LEARNING:
-                countEntry.learn += 1;
-                timeEntry.learn += review.takenMillis;
-                break;
-            case ReviewKind.RELEARNING:
-                countEntry.relearn += 1;
-                timeEntry.relearn += review.takenMillis;
-                break;
-            case ReviewKind.REVIEW:
-                if (review.lastInterval < 21) {
-                    countEntry.young += 1;
-                    timeEntry.young += review.takenMillis;
-                } else {
-                    countEntry.mature += 1;
-                    timeEntry.mature += review.takenMillis;
-                }
-                break;
-            case ReviewKind.FILTERED:
-                countEntry.filtered += 1;
-                timeEntry.filtered += review.takenMillis;
-                break;
-        }
-    }
-
-    return { reviewCount, reviewTime };
+    return { reviewCount: numericMap(data.reviews!.count), reviewTime: numericMap(data.reviews!.time) };
 }
 
 enum BinIndex {

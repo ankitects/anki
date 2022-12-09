@@ -1,6 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod added;
+mod buttons;
+mod card_counts;
+mod eases;
+mod future_due;
+mod hours;
+mod intervals;
+mod reviews;
+mod today;
+
 use crate::{
     config::{BoolKey, Weekday},
     pb,
@@ -8,6 +18,14 @@ use crate::{
     revlog::RevlogEntry,
     search::SortMode,
 };
+
+struct GraphsContext {
+    revlog: Vec<RevlogEntry>,
+    cards: Vec<Card>,
+    next_day_start: TimestampSecs,
+    days_elapsed: u32,
+    local_offset_secs: i64,
+}
 
 impl Collection {
     pub(crate) fn graph_data_for_search(
@@ -29,26 +47,33 @@ impl Collection {
         } else {
             TimestampSecs(0)
         };
-
         let offset = self.local_utc_offset_for_user()?;
         let local_offset_secs = offset.local_minus_utc() as i64;
-
-        let cards = self.storage.all_searched_cards()?;
         let revlog = if all {
             self.storage.get_all_revlog_entries(revlog_start)?
         } else {
             self.storage
-                .get_pb_revlog_entries_for_searched_cards(revlog_start)?
+                .get_revlog_entries_for_searched_cards_after_stamp(revlog_start)?
         };
-
-        Ok(pb::stats::GraphsResponse {
-            cards: cards.into_iter().map(Into::into).collect(),
+        let ctx = GraphsContext {
             revlog,
             days_elapsed: timing.days_elapsed,
-            next_day_at_secs: timing.next_day_at.0 as u32,
-            scheduler_version: self.scheduler_version() as u32,
-            local_offset_secs: local_offset_secs as i32,
-        })
+            cards: self.storage.all_searched_cards()?,
+            next_day_start: timing.next_day_at,
+            local_offset_secs,
+        };
+        let resp = pb::stats::GraphsResponse {
+            added: Some(ctx.added_days()),
+            reviews: Some(ctx.review_counts_and_times()),
+            future_due: Some(ctx.future_due()),
+            intervals: Some(ctx.intervals()),
+            eases: Some(ctx.eases()),
+            today: Some(ctx.today()),
+            hours: Some(ctx.hours()),
+            buttons: Some(ctx.buttons()),
+            card_counts: Some(ctx.card_counts()),
+        };
+        Ok(resp)
     }
 
     pub(crate) fn get_graph_preferences(&self) -> pb::stats::GraphPreferences {
@@ -77,21 +102,5 @@ impl Collection {
         )?;
         self.set_config_bool_inner(BoolKey::FutureDueShowBacklog, prefs.future_due_show_backlog)?;
         Ok(())
-    }
-}
-
-impl From<RevlogEntry> for pb::stats::RevlogEntry {
-    fn from(e: RevlogEntry) -> Self {
-        pb::stats::RevlogEntry {
-            id: e.id.0,
-            cid: e.cid.0,
-            usn: e.usn.0,
-            button_chosen: e.button_chosen as u32,
-            interval: e.interval,
-            last_interval: e.last_interval,
-            ease_factor: e.ease_factor,
-            taken_millis: e.taken_millis,
-            review_kind: e.review_kind as i32,
-        }
     }
 }
