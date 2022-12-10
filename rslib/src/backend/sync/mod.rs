@@ -9,7 +9,7 @@ use futures::future::{AbortHandle, AbortRegistration, Abortable};
 use slog::warn;
 
 use super::{progress::AbortHandleSlot, Backend};
-pub(super) use crate::pb::sync_service::Service as SyncService;
+pub(super) use crate::pb::sync::sync_service::Service as SyncService;
 use crate::{
     media::MediaManager,
     pb,
@@ -30,47 +30,47 @@ pub(super) struct SyncState {
 #[derive(Default, Debug)]
 pub(super) struct RemoteSyncStatus {
     pub last_check: TimestampSecs,
-    pub last_response: pb::sync_status_response::Required,
+    pub last_response: pb::sync::sync_status_response::Required,
 }
 
 impl RemoteSyncStatus {
-    pub(super) fn update(&mut self, required: pb::sync_status_response::Required) {
+    pub(super) fn update(&mut self, required: pb::sync::sync_status_response::Required) {
         self.last_check = TimestampSecs::now();
         self.last_response = required
     }
 }
 
-impl From<SyncOutput> for pb::SyncCollectionResponse {
+impl From<SyncOutput> for pb::sync::SyncCollectionResponse {
     fn from(o: SyncOutput) -> Self {
-        pb::SyncCollectionResponse {
+        pb::sync::SyncCollectionResponse {
             host_number: o.host_number,
             server_message: o.server_message,
             required: match o.required {
                 SyncActionRequired::NoChanges => {
-                    pb::sync_collection_response::ChangesRequired::NoChanges as i32
+                    pb::sync::sync_collection_response::ChangesRequired::NoChanges as i32
                 }
                 SyncActionRequired::FullSyncRequired {
                     upload_ok,
                     download_ok,
                 } => {
                     if !upload_ok {
-                        pb::sync_collection_response::ChangesRequired::FullDownload as i32
+                        pb::sync::sync_collection_response::ChangesRequired::FullDownload as i32
                     } else if !download_ok {
-                        pb::sync_collection_response::ChangesRequired::FullUpload as i32
+                        pb::sync::sync_collection_response::ChangesRequired::FullUpload as i32
                     } else {
-                        pb::sync_collection_response::ChangesRequired::FullSync as i32
+                        pb::sync::sync_collection_response::ChangesRequired::FullSync as i32
                     }
                 }
                 SyncActionRequired::NormalSyncRequired => {
-                    pb::sync_collection_response::ChangesRequired::NormalSync as i32
+                    pb::sync::sync_collection_response::ChangesRequired::NormalSync as i32
                 }
             },
         }
     }
 }
 
-impl From<pb::SyncAuth> for SyncAuth {
-    fn from(a: pb::SyncAuth) -> Self {
+impl From<pb::sync::SyncAuth> for SyncAuth {
+    fn from(a: pb::sync::SyncAuth) -> Self {
         SyncAuth {
             hkey: a.hkey,
             host_number: a.host_number,
@@ -79,11 +79,11 @@ impl From<pb::SyncAuth> for SyncAuth {
 }
 
 impl SyncService for Backend {
-    fn sync_media(&self, input: pb::SyncAuth) -> Result<pb::Empty> {
+    fn sync_media(&self, input: pb::sync::SyncAuth) -> Result<pb::generic::Empty> {
         self.sync_media_inner(input).map(Into::into)
     }
 
-    fn abort_sync(&self, _input: pb::Empty) -> Result<pb::Empty> {
+    fn abort_sync(&self, _input: pb::generic::Empty) -> Result<pb::generic::Empty> {
         if let Some(handle) = self.sync_abort.lock().unwrap().take() {
             handle.abort();
         }
@@ -91,7 +91,7 @@ impl SyncService for Backend {
     }
 
     /// Abort the media sync. Does not wait for completion.
-    fn abort_media_sync(&self, _input: pb::Empty) -> Result<pb::Empty> {
+    fn abort_media_sync(&self, _input: pb::generic::Empty) -> Result<pb::generic::Empty> {
         let guard = self.state.lock().unwrap();
         if let Some(handle) = &guard.sync.media_sync_abort {
             handle.abort();
@@ -99,33 +99,39 @@ impl SyncService for Backend {
         Ok(().into())
     }
 
-    fn before_upload(&self, _input: pb::Empty) -> Result<pb::Empty> {
+    fn before_upload(&self, _input: pb::generic::Empty) -> Result<pb::generic::Empty> {
         self.with_col(|col| col.before_upload().map(Into::into))
     }
 
-    fn sync_login(&self, input: pb::SyncLoginRequest) -> Result<pb::SyncAuth> {
+    fn sync_login(&self, input: pb::sync::SyncLoginRequest) -> Result<pb::sync::SyncAuth> {
         self.sync_login_inner(input)
     }
 
-    fn sync_status(&self, input: pb::SyncAuth) -> Result<pb::SyncStatusResponse> {
+    fn sync_status(&self, input: pb::sync::SyncAuth) -> Result<pb::sync::SyncStatusResponse> {
         self.sync_status_inner(input)
     }
 
-    fn sync_collection(&self, input: pb::SyncAuth) -> Result<pb::SyncCollectionResponse> {
+    fn sync_collection(
+        &self,
+        input: pb::sync::SyncAuth,
+    ) -> Result<pb::sync::SyncCollectionResponse> {
         self.sync_collection_inner(input)
     }
 
-    fn full_upload(&self, input: pb::SyncAuth) -> Result<pb::Empty> {
+    fn full_upload(&self, input: pb::sync::SyncAuth) -> Result<pb::generic::Empty> {
         self.full_sync_inner(input, true)?;
         Ok(().into())
     }
 
-    fn full_download(&self, input: pb::SyncAuth) -> Result<pb::Empty> {
+    fn full_download(&self, input: pb::sync::SyncAuth) -> Result<pb::generic::Empty> {
         self.full_sync_inner(input, false)?;
         Ok(().into())
     }
 
-    fn sync_server_method(&self, input: pb::SyncServerMethodRequest) -> Result<pb::Json> {
+    fn sync_server_method(
+        &self,
+        input: pb::sync::SyncServerMethodRequest,
+    ) -> Result<pb::generic::Json> {
         let req = SyncRequest::from_method_and_data(input.method(), input.data)?;
         self.sync_server_method_inner(req).map(Into::into)
     }
@@ -160,7 +166,7 @@ impl Backend {
         Ok((guard, abort_reg))
     }
 
-    pub(super) fn sync_media_inner(&self, input: pb::SyncAuth) -> Result<()> {
+    pub(super) fn sync_media_inner(&self, input: pb::sync::SyncAuth) -> Result<()> {
         // mark media sync as active
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
         {
@@ -220,7 +226,10 @@ impl Backend {
         }
     }
 
-    pub(super) fn sync_login_inner(&self, input: pb::SyncLoginRequest) -> Result<pb::SyncAuth> {
+    pub(super) fn sync_login_inner(
+        &self,
+        input: pb::sync::SyncLoginRequest,
+    ) -> Result<pb::sync::SyncAuth> {
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
         let rt = self.runtime_handle();
@@ -230,16 +239,19 @@ impl Backend {
             Ok(sync_result) => sync_result,
             Err(_) => Err(AnkiError::Interrupted),
         };
-        ret.map(|a| pb::SyncAuth {
+        ret.map(|a| pb::sync::SyncAuth {
             hkey: a.hkey,
             host_number: a.host_number,
         })
     }
 
-    pub(super) fn sync_status_inner(&self, input: pb::SyncAuth) -> Result<pb::SyncStatusResponse> {
+    pub(super) fn sync_status_inner(
+        &self,
+        input: pb::sync::SyncAuth,
+    ) -> Result<pb::sync::SyncStatusResponse> {
         // any local changes mean we can skip the network round-trip
         let req = self.with_col(|col| col.get_local_sync_status())?;
-        if req != pb::sync_status_response::Required::NoChanges {
+        if req != pb::sync::sync_status_response::Required::NoChanges {
             return Ok(req.into());
         }
 
@@ -273,8 +285,8 @@ impl Backend {
 
     pub(super) fn sync_collection_inner(
         &self,
-        input: pb::SyncAuth,
-    ) -> Result<pb::SyncCollectionResponse> {
+        input: pb::sync::SyncAuth,
+    ) -> Result<pb::sync::SyncCollectionResponse> {
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
         let rt = self.runtime_handle();
@@ -314,7 +326,7 @@ impl Backend {
         Ok(output.into())
     }
 
-    pub(super) fn full_sync_inner(&self, input: pb::SyncAuth, upload: bool) -> Result<()> {
+    pub(super) fn full_sync_inner(&self, input: pb::sync::SyncAuth, upload: bool) -> Result<()> {
         self.abort_media_sync_and_wait();
 
         let rt = self.runtime_handle();
@@ -356,7 +368,7 @@ impl Backend {
                         .unwrap()
                         .sync
                         .remote_sync_status
-                        .update(pb::sync_status_response::Required::NoChanges);
+                        .update(pb::sync::sync_status_response::Required::NoChanges);
                 }
                 sync_result
             }

@@ -3,14 +3,16 @@
 
 use std::{
     fs::File,
-    io::{self, Read},
+    io::{
+        Read, {self},
+    },
 };
 
 use prost::Message;
 use zip::ZipArchive;
 use zstd::stream::copy_decode;
 
-pub(super) use crate::pb::{package_metadata::Version, PackageMetadata as Meta};
+pub(super) use crate::pb::import_export::{package_metadata::Version, PackageMetadata as Meta};
 use crate::{error::ImportError, prelude::*, storage::SchemaVersion};
 
 impl Version {

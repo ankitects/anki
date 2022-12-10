@@ -3,17 +3,17 @@
 
 use crate::{pb, scheduler::states::ReschedulingFilterState};
 
-impl From<pb::scheduling_state::ReschedulingFilter> for ReschedulingFilterState {
-    fn from(state: pb::scheduling_state::ReschedulingFilter) -> Self {
+impl From<pb::scheduler::scheduling_state::ReschedulingFilter> for ReschedulingFilterState {
+    fn from(state: pb::scheduler::scheduling_state::ReschedulingFilter) -> Self {
         ReschedulingFilterState {
             original_state: state.original_state.unwrap_or_default().into(),
         }
     }
 }
 
-impl From<ReschedulingFilterState> for pb::scheduling_state::ReschedulingFilter {
+impl From<ReschedulingFilterState> for pb::scheduler::scheduling_state::ReschedulingFilter {
     fn from(state: ReschedulingFilterState) -> Self {
-        pb::scheduling_state::ReschedulingFilter {
+        pb::scheduler::scheduling_state::ReschedulingFilter {
             original_state: Some(state.original_state.into()),
         }
     }

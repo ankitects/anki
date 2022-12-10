@@ -18,7 +18,7 @@ pub use self::{
     bool::BoolKey, deck::DeckConfigKey, notetype::get_aux_notetype_config_key,
     number::I32ConfigKey, string::StringKey,
 };
-use crate::{pb::preferences::BackupLimits, prelude::*};
+use crate::{pb::config::preferences::BackupLimits, prelude::*};
 
 /// Only used when updating/undoing.
 #[derive(Debug)]

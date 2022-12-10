@@ -5,7 +5,9 @@ use std::{
     ffi::OsStr,
     fs::{read_dir, remove_file, DirEntry},
     path::{Path, PathBuf},
-    thread::{self, JoinHandle},
+    thread::{
+        JoinHandle, {self},
+    },
     time::SystemTime,
 };
 
@@ -15,7 +17,7 @@ use log::error;
 
 use crate::{
     import_export::package::export_colpkg_from_data, io::read_file, log,
-    pb::preferences::BackupLimits, prelude::*,
+    pb::config::preferences::BackupLimits, prelude::*,
 };
 
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";

@@ -3,31 +3,30 @@
 
 use crate::{pb, scheduler::states::FilteredState};
 
-impl From<FilteredState> for pb::scheduling_state::Filtered {
+impl From<FilteredState> for pb::scheduler::scheduling_state::Filtered {
     fn from(state: FilteredState) -> Self {
-        pb::scheduling_state::Filtered {
+        pb::scheduler::scheduling_state::Filtered {
             value: Some(match state {
                 FilteredState::Preview(state) => {
-                    pb::scheduling_state::filtered::Value::Preview(state.into())
+                    pb::scheduler::scheduling_state::filtered::Value::Preview(state.into())
                 }
                 FilteredState::Rescheduling(state) => {
-                    pb::scheduling_state::filtered::Value::Rescheduling(state.into())
+                    pb::scheduler::scheduling_state::filtered::Value::Rescheduling(state.into())
                 }
             }),
         }
     }
 }
 
-impl From<pb::scheduling_state::Filtered> for FilteredState {
-    fn from(state: pb::scheduling_state::Filtered) -> Self {
-        match state
-            .value
-            .unwrap_or_else(|| pb::scheduling_state::filtered::Value::Preview(Default::default()))
-        {
-            pb::scheduling_state::filtered::Value::Preview(state) => {
+impl From<pb::scheduler::scheduling_state::Filtered> for FilteredState {
+    fn from(state: pb::scheduler::scheduling_state::Filtered) -> Self {
+        match state.value.unwrap_or_else(|| {
+            pb::scheduler::scheduling_state::filtered::Value::Preview(Default::default())
+        }) {
+            pb::scheduler::scheduling_state::filtered::Value::Preview(state) => {
                 FilteredState::Preview(state.into())
             }
-            pb::scheduling_state::filtered::Value::Rescheduling(state) => {
+            pb::scheduler::scheduling_state::filtered::Value::Rescheduling(state) => {
                 FilteredState::Rescheduling(state.into())
             }
         }

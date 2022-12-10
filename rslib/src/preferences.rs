@@ -5,7 +5,7 @@ use crate::{
     collection::Collection,
     config::{BoolKey, StringKey},
     error::Result,
-    pb::{
+    pb::config::{
         preferences::{scheduling::NewReviewMix as NewRevMixPB, Editing, Reviewing, Scheduling},
         Preferences,
     },

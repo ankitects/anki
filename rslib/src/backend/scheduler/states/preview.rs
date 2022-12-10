@@ -3,8 +3,8 @@
 
 use crate::{pb, scheduler::states::PreviewState};
 
-impl From<pb::scheduling_state::Preview> for PreviewState {
-    fn from(state: pb::scheduling_state::Preview) -> Self {
+impl From<pb::scheduler::scheduling_state::Preview> for PreviewState {
+    fn from(state: pb::scheduler::scheduling_state::Preview) -> Self {
         PreviewState {
             scheduled_secs: state.scheduled_secs,
             finished: state.finished,
@@ -12,9 +12,9 @@ impl From<pb::scheduling_state::Preview> for PreviewState {
     }
 }
 
-impl From<PreviewState> for pb::scheduling_state::Preview {
+impl From<PreviewState> for pb::scheduler::scheduling_state::Preview {
     fn from(state: PreviewState) -> Self {
-        pb::scheduling_state::Preview {
+        pb::scheduler::scheduling_state::Preview {
             scheduled_secs: state.scheduled_secs,
             finished: state.finished,
         }

@@ -23,7 +23,7 @@ use crate::{
     io::atomic_rename,
     notes::Note,
     notetype::{Notetype, NotetypeSchema11},
-    pb::{sync_status_response, SyncStatusResponse},
+    pb::sync::{sync_status_response, SyncStatusResponse},
     prelude::*,
     revlog::RevlogEntry,
     serde::{default_on_invalid, deserialize_int_from_number},

@@ -18,7 +18,7 @@ use crate::{
     notetype::{CardGenContext, NoteField},
     ops::StateChanges,
     pb,
-    pb::note_fields_check_response::State as NoteFieldsState,
+    pb::notes::note_fields_check_response::State as NoteFieldsState,
     prelude::*,
     template::field_is_empty,
     text::{ensure_string_in_nfc, normalize_to_nfc, strip_html_preserving_media_filenames},
@@ -258,9 +258,9 @@ pub(crate) fn normalize_field(field: &mut String, normalize_text: bool) {
     }
 }
 
-impl From<Note> for pb::Note {
+impl From<Note> for pb::notes::Note {
     fn from(n: Note) -> Self {
-        pb::Note {
+        pb::notes::Note {
             id: n.id.0,
             guid: n.guid,
             notetype_id: n.notetype_id.0,
@@ -272,8 +272,8 @@ impl From<Note> for pb::Note {
     }
 }
 
-impl From<pb::Note> for Note {
-    fn from(n: pb::Note) -> Self {
+impl From<pb::notes::Note> for Note {
+    fn from(n: pb::notes::Note) -> Self {
         Note {
             id: NoteId(n.id),
             guid: n.guid,
