@@ -712,7 +712,7 @@ fn zip_files<'a>(
     let buf = vec![];
     let mut invalid_entries = vec![];
 
-    let w = std::io::Cursor::new(buf);
+    let w = io::Cursor::new(buf);
     let mut zip = zip::ZipWriter::new(w);
 
     let options =

@@ -286,7 +286,7 @@ pub(crate) fn sha1_of_file(path: &Path) -> Result<Sha1Hash, FileIoError> {
 }
 
 /// Return the SHA1 of a stream.
-pub(crate) fn sha1_of_reader(reader: &mut impl Read) -> std::io::Result<Sha1Hash> {
+pub(crate) fn sha1_of_reader(reader: &mut impl Read) -> io::Result<Sha1Hash> {
     let mut hasher = Sha1::new();
     let mut buf = [0; 64 * 1024];
     loop {

@@ -81,7 +81,7 @@ struct BackendState {
     sync: SyncState,
 }
 
-pub fn init_backend(init_msg: &[u8], log: Option<Logger>) -> std::result::Result<Backend, String> {
+pub fn init_backend(init_msg: &[u8], log: Option<Logger>) -> result::Result<Backend, String> {
     let input: pb::backend::BackendInit = match pb::backend::BackendInit::decode(init_msg) {
         Ok(req) => req,
         Err(_) => return Err("couldn't decode init request".into()),
@@ -152,7 +152,7 @@ impl Backend {
             })
     }
 
-    pub fn run_db_command_bytes(&self, input: &[u8]) -> std::result::Result<Vec<u8>, Vec<u8>> {
+    pub fn run_db_command_bytes(&self, input: &[u8]) -> result::Result<Vec<u8>, Vec<u8>> {
         self.db_command(input).map_err(|err| {
             let backend_err = err.into_protobuf(&self.tr);
             let mut bytes = Vec::new();

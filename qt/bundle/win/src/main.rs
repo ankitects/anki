@@ -17,7 +17,7 @@ struct Args {
     qt5_setup_path: Utf8PathBuf,
 }
 
-fn main() -> anyhow::Result<()> {
+fn main() -> Result<()> {
     let args = Args::parse();
 
     let src_win_folder = Utf8Path::new("qt/bundle/win");

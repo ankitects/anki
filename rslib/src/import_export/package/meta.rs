@@ -100,7 +100,7 @@ impl Meta {
 
     pub(super) fn copy(
         &self,
-        reader: &mut impl io::Read,
+        reader: &mut impl Read,
         writer: &mut impl io::Write,
     ) -> io::Result<()> {
         if self.zstd_compressed() {

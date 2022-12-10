@@ -160,7 +160,7 @@ impl BuildAction for GenPythonProto {
         -Iproto $in"
     }
 
-    fn files(&mut self, build: &mut impl ninja_gen::build::FilesHandle) {
+    fn files(&mut self, build: &mut impl FilesHandle) {
         let proto_inputs = build.expand_inputs(&self.proto_files);
         let python_outputs: Vec<_> = proto_inputs
             .iter()

@@ -90,7 +90,7 @@ enum Commands {
     BuildDmgs(BuildDmgsArgs),
 }
 
-fn main() -> anyhow::Result<()> {
+fn main() -> Result<()> {
     match Cli::parse().command {
         Commands::BuildApp {
             version,
@@ -215,7 +215,7 @@ fn fix_rpath(exe_path: Utf8PathBuf) -> Result<()> {
 
 fn get_plist(anki_version: &str) -> plist::Dictionary {
     let reader = std::io::Cursor::new(include_bytes!("Info.plist"));
-    let mut plist = plist::Value::from_reader(reader)
+    let mut plist = Value::from_reader(reader)
         .unwrap()
         .into_dictionary()
         .unwrap();

@@ -29,7 +29,7 @@ use crate::{
 };
 
 impl FromSql for CardType {
-    fn column_result(value: ValueRef<'_>) -> std::result::Result<Self, FromSqlError> {
+    fn column_result(value: ValueRef<'_>) -> result::Result<Self, FromSqlError> {
         if let ValueRef::Integer(i) = value {
             Ok(Self::try_from(i as u8).map_err(|_| FromSqlError::InvalidType)?)
         } else {
@@ -39,7 +39,7 @@ impl FromSql for CardType {
 }
 
 impl FromSql for CardQueue {
-    fn column_result(value: ValueRef<'_>) -> std::result::Result<Self, FromSqlError> {
+    fn column_result(value: ValueRef<'_>) -> result::Result<Self, FromSqlError> {
         if let ValueRef::Integer(i) = value {
             Ok(Self::try_from(i as i8).map_err(|_| FromSqlError::InvalidType)?)
         } else {
