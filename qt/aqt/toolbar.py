@@ -34,6 +34,10 @@ class Toolbar:
         }
         self.web.setFixedHeight(0)
         self.web.requiresCol = False
+        self.web.hide_timer = QTimer()
+        self.web.hide_timer.setSingleShot(True)
+        self.web.hide_timer.setInterval(2000)
+        qconnect(self.web.hide_timer.timeout, lambda: self.mw.hide_toolbar_if_allowed())
 
     def draw(
         self,

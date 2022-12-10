@@ -285,6 +285,22 @@ class AnkiWebView(QWebEngineView):
                 self.onMiddleClickPaste()
                 return True
 
+        # Auto-hide toolbar in reviewer
+        if self.title == "main webview":
+            if evt.type() == QEvent.Type.Leave:
+                # Show toolbar when mouse moves above main webview
+                # and automatically hide it with delay after mouse leaves
+                if self.mapFromGlobal(QCursor.pos()).y() < self.geometry().y():
+                    self.mw.toolbarWeb.adjustHeightToFit()
+                    self.mw.toolbarWeb.hide_timer.start()
+                return True
+            if evt.type() == QEvent.Type.Enter:
+                self.mw.toolbarWeb.hide_timer.start()
+                return True
+        if self.title == "top toolbar" and evt.type() == QEvent.Type.Enter:
+            self.hide_timer.stop()
+            return True
+
         return False
 
     def set_open_links_externally(self, enable: bool) -> None:
@@ -629,6 +645,9 @@ html {{ {font} }}
 
     def adjustHeightToFit(self) -> None:
         self.evalWithCallback("document.documentElement.offsetHeight", self._onHeight)
+
+    def setHeight(self, height: int) -> None:
+        self._onHeight(height)
 
     def _onHeight(self, qvar: Optional[int]) -> None:
         from aqt import mw

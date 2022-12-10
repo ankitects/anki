@@ -707,10 +707,12 @@ class AnkiQt(QMainWindow):
 
     def _reviewState(self, oldState: MainWindowState) -> None:
         self.reviewer.show()
+        self.toolbarWeb.setHeight(0)
 
     def _reviewCleanup(self, newState: MainWindowState) -> None:
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
+            self.toolbarWeb.adjustHeightToFit()
 
     # Resetting state
     ##########################################################################
@@ -1331,6 +1333,10 @@ title="{}" {}>{}</button>""".format(
             window.setWindowState(
                 window.windowState() ^ Qt.WindowState.WindowFullScreen
             )
+
+    def hide_toolbar_if_allowed(self) -> None:
+        if self.state == "review":
+            self.toolbarWeb.setHeight(0)
 
     # Auto update
     ##########################################################################
