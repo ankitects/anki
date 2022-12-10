@@ -638,7 +638,16 @@ html {{ {font} }}
             mw.progress.single_shot(1000, mw.reset)
             return
 
-        self.setFixedHeight(int(qvar))
+        if mw.pm.reduced_motion():
+            self.setFixedHeight(int(qvar))
+        else:
+            self.setMinimumHeight(0)
+            self.animation = QPropertyAnimation(self, b"maximumHeight")
+            self.animation.setDuration(200)
+            self.animation.setStartValue(self.height())
+            self.animation.setEndValue(int(qvar))
+            self.animation.finished.connect(lambda: self.setFixedHeight(int(qvar)))
+            self.animation.start()
 
     def set_bridge_command(self, func: Callable[[str], Any], context: Any) -> None:
         """Set a handler for pycmd() messages received from Javascript.

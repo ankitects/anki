@@ -32,7 +32,7 @@ class Toolbar:
         self.link_handlers: dict[str, Callable] = {
             "study": self._studyLinkHandler,
         }
-        self.web.setFixedHeight(30)
+        self.web.setFixedHeight(0)
         self.web.requiresCol = False
 
     def draw(
