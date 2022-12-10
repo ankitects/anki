@@ -169,7 +169,7 @@ impl Note {
 
     /// Prepare note for saving to the database. Does not mark it as modified.
     pub(crate) fn prepare_for_update(&mut self, nt: &Notetype, normalize_text: bool) -> Result<()> {
-        assert!(nt.id == self.notetype_id);
+        assert_eq!(nt.id, self.notetype_id);
         let notetype_field_count = nt.fields.len().max(1);
         require!(
             notetype_field_count == self.fields.len(),
