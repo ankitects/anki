@@ -32,6 +32,7 @@ class ToolbarWebView(AnkiWebView):
         self.mw = mw
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.disable_zoom()
+        self.hidden = False
 
         # auto-hide timer
         self.hide_timer = QTimer()
@@ -46,6 +47,7 @@ class ToolbarWebView(AnkiWebView):
         # prevent auto-hide if pointer inside
         if evt.type() == QEvent.Type.Enter:
             self.hide_timer.stop()
+            self.hide_timer.setInterval(2000)
             return True
 
         return False
@@ -70,8 +72,13 @@ class ToolbarWebView(AnkiWebView):
             qconnect(self.animation.finished, lambda: self.setFixedHeight(int(qvar)))
             self.animation.start()
 
-    def setHeight(self, height: int) -> None:
-        self._onHeight(height)
+    def collapse(self) -> None:
+        self._onHeight(0)
+        self.hidden = True
+
+    def expand(self) -> None:
+        self.adjustHeightToFit()
+        self.hidden = False
 
 
 class Toolbar:

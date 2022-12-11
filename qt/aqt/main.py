@@ -153,8 +153,9 @@ class MainWebView(AnkiWebView):
             # Show toolbar when mouse moves above main webview
             # and automatically hide it with delay after mouse leaves
             if self.mapFromGlobal(QCursor.pos()).y() < self.geometry().y():
-                self.mw.toolbarWeb.adjustHeightToFit()
-                self.mw.toolbarWeb.hide_timer.start()
+                if self.mw.toolbarWeb.hidden:
+                    self.mw.toolbarWeb.expand()
+                    self.mw.toolbarWeb.hide_timer.start()
             return True
 
         if evt.type() == QEvent.Type.Enter:
@@ -727,12 +728,12 @@ class AnkiQt(QMainWindow):
 
     def _reviewState(self, oldState: MainWindowState) -> None:
         self.reviewer.show()
-        self.toolbarWeb.setHeight(0)
+        self.toolbarWeb.collapse()
 
     def _reviewCleanup(self, newState: MainWindowState) -> None:
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
-            self.toolbarWeb.adjustHeightToFit()
+            self.toolbarWeb.expand()
 
     # Resetting state
     ##########################################################################
@@ -1354,7 +1355,7 @@ title="{}" {}>{}</button>""".format(
 
     def hide_toolbar_if_allowed(self) -> None:
         if self.state == "review":
-            self.toolbarWeb.setHeight(0)
+            self.toolbarWeb.collapse()
 
     # Auto update
     ##########################################################################
