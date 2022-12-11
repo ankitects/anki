@@ -32,9 +32,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     tabindex={tabbable ? 0 : -1}
     class="dropdown-item {className}"
     class:active
-    class:disabled
     class:rtl
     title={tooltip}
+    {disabled}
     on:mouseenter
     on:focus
     on:keydown
