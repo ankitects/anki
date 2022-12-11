@@ -65,6 +65,22 @@ class Overview:
     def refresh(self) -> None:
         self._refresh_needed = False
         self.mw.col.reset()
+
+        def fetch_data(
+            col: Collection,
+        ) -> Tuple[bool, bool]:
+            is_dyn = col.decks.current()["dyn"]
+            have_buried = col.sched.have_buried()
+            return (is_dyn, have_buried)
+
+        QueryOp(
+            parent=self.mw,
+            op=fetch_data,
+            success=lambda data: self._render(data),
+        ).run_in_background()
+
+    def _render(self, data: Tuple[bool, bool]) -> None:
+        self._is_dyn, self._have_buried = data
         self._renderPage()
         self._renderBottom()
         self.mw.web.setFocus()
@@ -128,7 +144,7 @@ class Overview:
         ]
 
     def _current_deck_is_filtered(self) -> int:
-        return self.mw.col.decks.current()["dyn"]
+        return self._is_dyn
 
     def rebuild_current_filtered_deck(self) -> None:
         rebuild_filtered_deck(
@@ -205,7 +221,7 @@ class Overview:
         self.web.load_ts_page("congrats")
 
     def _desc(self, deck: dict[str, Any]) -> str:
-        if deck["dyn"]:
+        if self._is_dyn:
             desc = tr.studying_this_is_a_special_deck_for()
             desc += f" {tr.studying_cards_will_be_automatically_returned_to()}"
             desc += f" {tr.studying_deleting_this_deck_from_the_deck()}"
@@ -215,7 +231,7 @@ class Overview:
                 desc = self.mw.col.render_markdown(desc)
         if not desc:
             return "<p>"
-        if deck["dyn"]:
+        if self._is_dyn:
             dyn = "dyn"
         else:
             dyn = ""
@@ -279,23 +295,16 @@ class Overview:
         links = [
             ["O", "opts", tr.actions_options()],
         ]
-        if self.mw.col.decks.current()["dyn"]:
+        if self._is_dyn:
             links.append(["R", "refresh", tr.actions_rebuild()])
             links.append(["E", "empty", tr.studying_empty()])
         else:
             links.append(["C", "studymore", tr.actions_custom_study()])
             # links.append(["F", "cram", _("Filter/Cram")])
-        if self.mw.col.sched.have_buried():
+        if self._have_buried:
             links.append(["U", "unbury", tr.studying_unbury()])
 
-        QueryOp(
-            parent=self.mw,
-            op=lambda col: col.decks.current(),
-            success=lambda deck: self._check_deck_and_draw(deck, links),
-        ).run_in_background()
-
-    def _check_deck_and_draw(self, deck: DeckDict, links) -> None:
-        if not deck["dyn"]:
+        if not self._is_dyn:
             links.append(["", "description", tr.scheduling_description()])
 
         link_handler = gui_hooks.overview_will_render_bottom(
