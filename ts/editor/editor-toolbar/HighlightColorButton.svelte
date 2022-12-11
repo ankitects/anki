@@ -127,6 +127,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
         {@html chevronDown}
         <ColorPicker
+            value={color}
             on:input={(event) => {
                 color = setColor(event);
                 bridgeCommand(`lastHighlightColor:${color}`);
