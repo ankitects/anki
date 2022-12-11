@@ -35,7 +35,7 @@
      <number>0</number>
     </property>
     <property name="bottomMargin">
-     <number>12</number>
+     <number>0</number>
     </property>
     <item>
      <widget class="QSplitter" name="splitter">
