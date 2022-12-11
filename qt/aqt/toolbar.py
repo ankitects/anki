@@ -2,13 +2,14 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast, Optional
 
 import aqt
 from anki.sync import SyncStatus
-from aqt import gui_hooks
+from aqt import gui_hooks, props
 from aqt.qt import *
 from aqt.sync import get_sync_status
+from aqt.theme import theme_manager
 from aqt.utils import tr
 from aqt.webview import AnkiWebView
 
@@ -25,6 +26,54 @@ class BottomToolbar:
         self.toolbar = toolbar
 
 
+class ToolbarWebView(AnkiWebView):
+    def __init__(self, mw: aqt.AnkiQt, title: str) -> None:
+        AnkiWebView.__init__(self, mw, title=title)
+        self.mw = mw
+        self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
+        self.disable_zoom()
+
+        # auto-hide timer
+        self.hide_timer = QTimer()
+        self.hide_timer.setSingleShot(True)
+        self.hide_timer.setInterval(2000)
+        qconnect(self.hide_timer.timeout, self.mw.hide_toolbar_if_allowed)
+
+    def eventFilter(self, obj, evt):
+        if handled := super().eventFilter(obj, evt):
+            return handled
+
+        # prevent auto-hide if pointer inside
+        if evt.type() == QEvent.Type.Enter:
+            self.hide_timer.stop()
+            return True
+
+        return False
+
+    # Overwrite AnkiWebView _onHeight for dock animation
+    def _onHeight(self, qvar: Optional[int]) -> bool:
+        if qvar is None:
+            self.mw.progress.single_shot(1000, self.mw.reset)
+            return
+
+        if self.mw.pm.reduced_motion():
+            self.setFixedHeight(int(qvar))
+        else:
+            # Collapse/Expand animation
+            self.setMinimumHeight(0)
+            self.animation = QPropertyAnimation(
+                self, cast(QByteArray, b"maximumHeight")
+            )
+            self.animation.setDuration(int(theme_manager.var(props.TRANSITION)))
+            self.animation.setStartValue(self.height())
+            self.animation.setEndValue(int(qvar))
+            self.animation.finished.connect(lambda: self.setFixedHeight(int(qvar)))
+            self.animation.start()
+
+    def setHeight(self, height: int) -> None:
+        self._onHeight(height)
+
+
 class Toolbar:
     def __init__(self, mw: aqt.AnkiQt, web: AnkiWebView) -> None:
         self.mw = mw
@@ -34,10 +83,6 @@ class Toolbar:
         }
         self.web.setFixedHeight(0)
         self.web.requiresCol = False
-        self.web.hide_timer = QTimer()
-        self.web.hide_timer.setSingleShot(True)
-        self.web.hide_timer.setInterval(2000)
-        qconnect(self.web.hide_timer.timeout, lambda: self.mw.hide_toolbar_if_allowed())
 
     def draw(
         self,

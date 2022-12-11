@@ -66,6 +66,7 @@ from aqt.qt import sip
 from aqt.sync import sync_collection, sync_login
 from aqt.taskman import TaskManager
 from aqt.theme import Theme, theme_manager
+from aqt.toolbar import Toolbar, ToolbarWebView
 from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
@@ -142,6 +143,25 @@ class MainWebView(AnkiWebView):
             # importing continues after the above call returns, so it is not
             # currently safe for us to import more than one file at once
             return
+
+    # Main webview specific event handling
+    def eventFilter(self, obj, evt):
+        if handled := super().eventFilter(obj, evt):
+            return handled
+
+        if evt.type() == QEvent.Type.Leave:
+            # Show toolbar when mouse moves above main webview
+            # and automatically hide it with delay after mouse leaves
+            if self.mapFromGlobal(QCursor.pos()).y() < self.geometry().y():
+                self.mw.toolbarWeb.adjustHeightToFit()
+                self.mw.toolbarWeb.hide_timer.start()
+            return True
+
+        if evt.type() == QEvent.Type.Enter:
+            self.mw.toolbarWeb.hide_timer.start()
+            return True
+
+        return False
 
 
 class AnkiQt(QMainWindow):
@@ -846,10 +866,8 @@ title="{}" {}>{}</button>""".format(
         self.form = aqt.forms.main.Ui_MainWindow()
         self.form.setupUi(self)
         # toolbar
-        tweb = self.toolbarWeb = AnkiWebView(title="top toolbar")
-        tweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
-        tweb.disable_zoom()
-        self.toolbar = aqt.toolbar.Toolbar(self, tweb)
+        tweb = self.toolbarWeb = ToolbarWebView(self, title="top toolbar")
+        self.toolbar = Toolbar(self, tweb)
         # main area
         self.web = MainWebView(self)
         # bottom area

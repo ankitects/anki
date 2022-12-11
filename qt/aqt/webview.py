@@ -12,7 +12,7 @@ import anki.lang
 from anki._legacy import deprecated
 from anki.lang import is_rtl
 from anki.utils import is_lin, is_mac, is_win
-from aqt import colors, gui_hooks, props
+from aqt import colors, gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import askUser, is_gesture_or_zoom_event, openLink, showInfo, tr
@@ -284,22 +284,6 @@ class AnkiWebView(QWebEngineView):
             if evt.button() == Qt.MouseButton.MiddleButton and is_lin:
                 self.onMiddleClickPaste()
                 return True
-
-        # Auto-hide toolbar in reviewer
-        if self.title == "main webview":
-            if evt.type() == QEvent.Type.Leave:
-                # Show toolbar when mouse moves above main webview
-                # and automatically hide it with delay after mouse leaves
-                if self.mapFromGlobal(QCursor.pos()).y() < self.geometry().y():
-                    self.mw.toolbarWeb.adjustHeightToFit()
-                    self.mw.toolbarWeb.hide_timer.start()
-                return True
-            if evt.type() == QEvent.Type.Enter:
-                self.mw.toolbarWeb.hide_timer.start()
-                return True
-        if self.title == "top toolbar" and evt.type() == QEvent.Type.Enter:
-            self.hide_timer.stop()
-            return True
 
         return False
 
@@ -646,29 +630,14 @@ html {{ {font} }}
     def adjustHeightToFit(self) -> None:
         self.evalWithCallback("document.documentElement.offsetHeight", self._onHeight)
 
-    def setHeight(self, height: int) -> None:
-        self._onHeight(height)
-
-    def _onHeight(self, qvar: Optional[int]) -> None:
+    def _onHeight(self, qvar: Optional[int]) -> bool:
         from aqt import mw
 
         if qvar is None:
-
             mw.progress.single_shot(1000, mw.reset)
             return
 
-        if mw.pm.reduced_motion():
-            self.setFixedHeight(int(qvar))
-        else:
-            self.setMinimumHeight(0)
-            self.animation = QPropertyAnimation(
-                self, cast(QByteArray, b"maximumHeight")
-            )
-            self.animation.setDuration(int(theme_manager.var(props.TRANSITION)))
-            self.animation.setStartValue(self.height())
-            self.animation.setEndValue(int(qvar))
-            self.animation.finished.connect(lambda: self.setFixedHeight(int(qvar)))
-            self.animation.start()
+        self.setFixedHeight(int(qvar))
 
     def set_bridge_command(self, func: Callable[[str], Any], context: Any) -> None:
         """Set a handler for pycmd() messages received from Javascript.
