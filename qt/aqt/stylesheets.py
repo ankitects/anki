@@ -145,13 +145,6 @@ QSplitter::handle,
 QMainWindow::separator {
     width: 1px;
     height: 1px;
-}
-QSplitter::handle:vertical,
-QMainWindow::separator:horizontal {
-    image: none;
-}
-QSplitter::handle:horizontal,
-QMainWindow::separator:vertical {
     image: none;
 }
 """
@@ -450,30 +443,16 @@ QScrollBar::handle:pressed {{
     background-color: {tm.var(colors.SCROLLBAR_BG_ACTIVE)};
 }} 
 QScrollBar:horizontal {{
-    height: 12px;
+    height: 10px;
 }}
 QScrollBar::handle:horizontal {{
     min-width: 60px;
-    border-top: 6px solid transparent;
-    border-bottom: 6px solid transparent;
-}}
-QScrollBar::handle:horizontal:hover {{
-    min-width: 60px;
-    border-top-width: 4px;
-    border-bottom-width: 4px;
 }}
 QScrollBar:vertical {{
-    width: 12px;
+    width: 10px;
 }}
 QScrollBar::handle:vertical {{
     min-height: 60px;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-}}
-QScrollBar::handle:vertical:hover {{
-    min-height: 60px;
-    border-left-width: 4px;
-    border-right-width: 4px;
 }}
 QScrollBar::add-line {{
       border: none;
