@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any, Callable, Tuple
 
 import aqt
 import aqt.operations
-from anki.collection import OpChanges
-from anki.decks import DeckDict
+from anki.collection import Collection, OpChanges
 from anki.scheduler import UnburyDeck
 from aqt import gui_hooks
 from aqt.deckdescription import DeckDescriptionDialog
@@ -76,7 +75,7 @@ class Overview:
         QueryOp(
             parent=self.mw,
             op=fetch_data,
-            success=lambda data: self._render(data),
+            success=self._render,
         ).run_in_background()
 
     def _render(self, data: Tuple[bool, bool]) -> None:
