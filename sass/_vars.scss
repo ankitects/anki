@@ -182,7 +182,7 @@ $vars: (
                 bg: (
                     "Background color of primary button",
                     (
-                        light: palette(blue, 5),
+                        light: color.scale(palette(blue, 6), $lightness: 5%),
                         dark: color.scale(palette(blue, 7), $saturation: -10%),
                     ),
                 ),
@@ -190,15 +190,15 @@ $vars: (
                     start: (
                         "Start value of primary button gradient",
                         (
-                            light: palette(blue, 4),
+                            light: palette(blue, 5),
                             dark: color.scale(palette(blue, 6), $saturation: -10%),
                         ),
                     ),
                     end: (
                         "End value of primary button gradient",
                         (
-                            light: palette(blue, 6),
-                            dark: color.scale(palette(blue, 8), $saturation: -10%),
+                            light: color.scale(palette(blue, 6), $lightness: 5%),
+                            dark: color.scale(palette(blue, 7), $saturation: -10%),
                         ),
                     ),
                 ),
