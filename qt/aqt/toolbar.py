@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
-from typing import Any, cast, Optional
+from typing import Any, Optional, cast
 
 import aqt
 from anki.sync import SyncStatus
@@ -51,7 +51,7 @@ class ToolbarWebView(AnkiWebView):
         return False
 
     # Overwrite AnkiWebView _onHeight for dock animation
-    def _onHeight(self, qvar: Optional[int]) -> bool:
+    def _onHeight(self, qvar: Optional[int]) -> None:
         if qvar is None:
             self.mw.progress.single_shot(1000, self.mw.reset)
             return
@@ -67,7 +67,7 @@ class ToolbarWebView(AnkiWebView):
             self.animation.setDuration(int(theme_manager.var(props.TRANSITION)))
             self.animation.setStartValue(self.height())
             self.animation.setEndValue(int(qvar))
-            self.animation.finished.connect(lambda: self.setFixedHeight(int(qvar)))
+            qconnect(self.animation.finished, lambda: self.setFixedHeight(int(qvar)))
             self.animation.start()
 
     def setHeight(self, height: int) -> None:

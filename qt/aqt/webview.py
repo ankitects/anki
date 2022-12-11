@@ -630,7 +630,7 @@ html {{ {font} }}
     def adjustHeightToFit(self) -> None:
         self.evalWithCallback("document.documentElement.offsetHeight", self._onHeight)
 
-    def _onHeight(self, qvar: Optional[int]) -> bool:
+    def _onHeight(self, qvar: Optional[int]) -> None:
         from aqt import mw
 
         if qvar is None:
