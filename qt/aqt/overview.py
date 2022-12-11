@@ -8,6 +8,7 @@ from typing import Any, Callable, Tuple
 import aqt
 import aqt.operations
 from anki.collection import Collection, OpChanges
+from anki.decks import DeckDict, DeckId
 from anki.scheduler import UnburyDeck
 from aqt import gui_hooks
 from aqt.deckdescription import DeckDescriptionDialog
@@ -67,10 +68,11 @@ class Overview:
 
         def fetch_data(
             col: Collection,
-        ) -> Tuple[bool, bool]:
-            is_dyn = col.decks.current()["dyn"]
+        ) -> Tuple[DeckDict, DeckId, bool]:
+            deck = col.decks.current()
+            deck_id = col.decks.selected()
             have_buried = col.sched.have_buried()
-            return (is_dyn, have_buried)
+            return (deck, deck_id, have_buried)
 
         QueryOp(
             parent=self.mw,
@@ -78,8 +80,8 @@ class Overview:
             success=self._render,
         ).run_in_background()
 
-    def _render(self, data: Tuple[bool, bool]) -> None:
-        self._is_dyn, self._have_buried = data
+    def _render(self, data: Tuple[DeckDict, DeckId, bool]) -> None:
+        self._current_deck, self._deck_id, self._have_buried = data
         self._renderPage()
         self._renderBottom()
         self.mw.web.setFocus()
@@ -112,7 +114,7 @@ class Overview:
         elif url == "anki":
             print("anki menu")
         elif url == "opts":
-            display_options_for_deck(self.mw.col.decks.current())
+            display_options_for_deck(self._current_deck)
         elif url == "cram":
             aqt.dialogs.open("FilteredDeckConfigDialog", self.mw)
         elif url == "refresh":
@@ -135,7 +137,7 @@ class Overview:
 
     def _shortcutKeys(self) -> list[tuple[str, Callable]]:
         return [
-            ("o", lambda: display_options_for_deck(self.mw.col.decks.current())),
+            ("o", lambda: display_options_for_deck(self._current_deck)),
             ("r", self.rebuild_current_filtered_deck),
             ("e", self.empty_current_filtered_deck),
             ("c", self.onCustomStudyKey),
@@ -143,17 +145,13 @@ class Overview:
         ]
 
     def _current_deck_is_filtered(self) -> int:
-        return self._is_dyn
+        return self._current_deck["dyn"]
 
     def rebuild_current_filtered_deck(self) -> None:
-        rebuild_filtered_deck(
-            parent=self.mw, deck_id=self.mw.col.decks.selected()
-        ).run_in_background()
+        rebuild_filtered_deck(parent=self.mw, deck_id=self._deck_id).run_in_background()
 
     def empty_current_filtered_deck(self) -> None:
-        empty_filtered_deck(
-            parent=self.mw, deck_id=self.mw.col.decks.selected()
-        ).run_in_background()
+        empty_filtered_deck(parent=self.mw, deck_id=self._deck_id).run_in_background()
 
     def onCustomStudyKey(self) -> None:
         if not self._current_deck_is_filtered():
@@ -192,7 +190,7 @@ class Overview:
 
     def _renderPage(self) -> None:
         but = self.mw.button
-        deck = self.mw.col.decks.current()
+        deck = self._current_deck
         self.sid = deck.get("sharedFrom")
         if self.sid:
             self.sidVer = deck.get("ver", None)
@@ -220,7 +218,7 @@ class Overview:
         self.web.load_ts_page("congrats")
 
     def _desc(self, deck: dict[str, Any]) -> str:
-        if self._is_dyn:
+        if self._current_deck["dyn"]:
             desc = tr.studying_this_is_a_special_deck_for()
             desc += f" {tr.studying_cards_will_be_automatically_returned_to()}"
             desc += f" {tr.studying_deleting_this_deck_from_the_deck()}"
@@ -230,7 +228,7 @@ class Overview:
                 desc = self.mw.col.render_markdown(desc)
         if not desc:
             return "<p>"
-        if self._is_dyn:
+        if self._current_deck["dyn"]:
             dyn = "dyn"
         else:
             dyn = ""
@@ -294,7 +292,7 @@ class Overview:
         links = [
             ["O", "opts", tr.actions_options()],
         ]
-        if self._is_dyn:
+        if self._current_deck["dyn"]:
             links.append(["R", "refresh", tr.actions_rebuild()])
             links.append(["E", "empty", tr.studying_empty()])
         else:
@@ -303,7 +301,7 @@ class Overview:
         if self._have_buried:
             links.append(["U", "unbury", tr.studying_unbury()])
 
-        if not self._is_dyn:
+        if not self._current_deck["dyn"]:
             links.append(["", "description", tr.scheduling_description()])
 
         link_handler = gui_hooks.overview_will_render_bottom(
