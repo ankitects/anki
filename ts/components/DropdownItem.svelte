@@ -32,9 +32,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     tabindex={tabbable ? 0 : -1}
     class="dropdown-item {className}"
     class:active
-    class:disabled
     class:rtl
     title={tooltip}
+    {disabled}
     on:mouseenter
     on:focus
     on:keydown
@@ -59,9 +59,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: 0;
         color: var(--fg);
 
-        &:hover {
+        &:hover:not([disabled]) {
             background: var(--highlight-bg);
             color: var(--highlight-fg);
+        }
+
+        &[disabled] {
+            cursor: default;
+            color: var(--fg-disabled);
         }
 
         /* selection highlight */
