@@ -18,7 +18,7 @@ from anki.cards import Card, CardId
 from anki.collection import Collection, Config, OpChanges, SearchNode
 from anki.consts import *
 from anki.errors import NotFoundError
-from anki.lang import without_unicode_isolation
+from anki.lang import is_rtl, without_unicode_isolation
 from anki.notes import NoteId
 from anki.scheduler.base import ScheduleCardsAsNew
 from anki.tags import MARKED_TAG
@@ -628,7 +628,12 @@ class Browser(QMainWindow):
         grid.addWidget(self.sidebar.searchBar, 0, 0)
         grid.addWidget(self.sidebar.toolbar, 0, 1)
         grid.addWidget(self.sidebar, 1, 0, 1, 2)
-        grid.setContentsMargins(8, 4, 0, 0)
+        grid.setContentsMargins(
+            0 if is_rtl(anki.lang.current_lang) else 4,
+            4,
+            4 if is_rtl(anki.lang.current_lang) else 0,
+            0,
+        )
         grid.setSpacing(0)
         w = QWidget()
         w.setLayout(grid)
