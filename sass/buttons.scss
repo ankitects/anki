@@ -33,6 +33,6 @@ button {
     @include elevation(1, $opacity-boost: -0.08);
     &:hover {
         @include elevation(2);
-        transition: box-shadow 0.2s linear;
+        transition: box-shadow var(--transition) linear;
     }
 }

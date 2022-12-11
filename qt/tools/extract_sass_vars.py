@@ -47,8 +47,9 @@ for line in re.split(r"[;\{\}]|\*\/", data):
             print("failed to match", line)
         continue
 
+    # convert variables to Qt style
     var = m.group(1).replace("-", "_").upper()
-    val = m.group(2)
+    val = re.sub(r"^(\d+)ms$", r"\1", m.group(2))
 
     if reached_props:
         if not var in props:

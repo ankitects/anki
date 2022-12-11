@@ -15,7 +15,7 @@ table {
     &:hover {
         @include elevation(2);
     }
-    transition: box-shadow 0.2s ease-in-out;
+    transition: box-shadow var(--transition) ease-in-out;
 }
 
 a.deck {

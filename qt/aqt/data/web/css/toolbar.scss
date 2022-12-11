@@ -24,7 +24,7 @@
     &:hover {
         @include elevation(2);
     }
-    transition: box-shadow 0.2s ease-in-out;
+    transition: box-shadow var(--transition) ease-in-out;
 }
 
 body {
@@ -75,7 +75,7 @@ body {
     display: inline-block;
     visibility: visible !important;
     animation-timing-function: linear;
-    transition: all 0.2s ease-in;
+    transition: all var(--transition) ease-in;
 }
 
 #sync-spinner {

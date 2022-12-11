@@ -63,7 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 @include elevation(4);
             }
         }
-        transition: box-shadow 0.2s ease-in-out;
+        transition: box-shadow var(--transition) ease-in-out;
     }
     h1 {
         border-bottom: 1px solid var(--border);
@@ -72,7 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         right: 0;
         bottom: 4px;
         color: var(--fg-faint);
-        transition: color 0.2s linear;
+        transition: color var(--transition) linear;
         &:hover {
             transition: none;
             color: var(--fg);

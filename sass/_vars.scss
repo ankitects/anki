@@ -32,6 +32,26 @@ $vars: (
                 ),
             ),
         ),
+        transition: (
+            default: (
+                "Default duration of transitions in milliseconds",
+                (
+                    default: 150ms,
+                ),
+            ),
+            medium: (
+                "Slightly longer transition duration in milliseconds",
+                (
+                    default: 500ms,
+                ),
+            ),
+            slow: (
+                "Long transition duration in milliseconds",
+                (
+                    default: 1000ms,
+                ),
+            ),
+        ),
     ),
     colors: (
         fg: (

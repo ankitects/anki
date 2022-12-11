@@ -12,7 +12,7 @@ import anki.lang
 from anki._legacy import deprecated
 from anki.lang import is_rtl
 from anki.utils import is_lin, is_mac, is_win
-from aqt import colors, gui_hooks
+from aqt import colors, gui_hooks, props
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import askUser, is_gesture_or_zoom_event, openLink, showInfo, tr
@@ -661,8 +661,10 @@ html {{ {font} }}
             self.setFixedHeight(int(qvar))
         else:
             self.setMinimumHeight(0)
-            self.animation = QPropertyAnimation(self, b"maximumHeight")
-            self.animation.setDuration(200)
+            self.animation = QPropertyAnimation(
+                self, cast(QByteArray, b"maximumHeight")
+            )
+            self.animation.setDuration(int(theme_manager.var(props.TRANSITION)))
             self.animation.setStartValue(self.height())
             self.animation.setEndValue(int(qvar))
             self.animation.finished.connect(lambda: self.setFixedHeight(int(qvar)))
