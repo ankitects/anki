@@ -277,7 +277,8 @@ class Overview:
         links = [
             ["O", "opts", tr.actions_options()],
         ]
-        if self.mw.col.decks.current()["dyn"]:
+        is_dyn = self.mw.col.decks.current()["dyn"]
+        if is_dyn:
             links.append(["R", "refresh", tr.actions_rebuild()])
             links.append(["E", "empty", tr.studying_empty()])
         else:
@@ -285,7 +286,8 @@ class Overview:
             # links.append(["F", "cram", _("Filter/Cram")])
         if self.mw.col.sched.have_buried():
             links.append(["U", "unbury", tr.studying_unbury()])
-        links.append(["", "description", tr.scheduling_description()])
+        if not is_dyn:
+            links.append(["", "description", tr.scheduling_description()])
         link_handler = gui_hooks.overview_will_render_bottom(
             self._linkHandler,
             links,
