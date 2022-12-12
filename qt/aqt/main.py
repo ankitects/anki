@@ -149,18 +149,19 @@ class MainWebView(AnkiWebView):
         if handled := super().eventFilter(obj, evt):
             return handled
 
-        if evt.type() == QEvent.Type.Leave:
-            # Show toolbar when mouse moves above main webview
-            # and automatically hide it with delay after mouse leaves
-            if self.mapFromGlobal(QCursor.pos()).y() < self.geometry().y():
-                if self.mw.toolbarWeb.hidden:
-                    self.mw.toolbarWeb.expand()
-                    self.mw.toolbarWeb.hide_timer.start()
-            return True
+        if self.mw.pm.auto_hide_toolbar():
+            if evt.type() == QEvent.Type.Leave:
+                # Show toolbar when mouse moves above main webview
+                # and automatically hide it with delay after mouse leaves
+                if self.mapFromGlobal(QCursor.pos()).y() < self.geometry().y():
+                    if self.mw.toolbarWeb.hidden:
+                        self.mw.toolbarWeb.expand()
+                        self.mw.toolbarWeb.hide_timer.start()
+                return True
 
-        if evt.type() == QEvent.Type.Enter:
-            self.mw.toolbarWeb.hide_timer.start()
-            return True
+            if evt.type() == QEvent.Type.Enter:
+                self.mw.toolbarWeb.hide_timer.start()
+                return True
 
         return False
 
@@ -728,11 +729,13 @@ class AnkiQt(QMainWindow):
 
     def _reviewState(self, oldState: MainWindowState) -> None:
         self.reviewer.show()
-        self.toolbarWeb.collapse()
+        if self.pm.auto_hide_toolbar():
+            self.toolbarWeb.collapse()
 
     def _reviewCleanup(self, newState: MainWindowState) -> None:
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
+        if self.pm.auto_hide_toolbar():
             self.toolbarWeb.expand()
 
     # Resetting state
@@ -1354,7 +1357,7 @@ title="{}" {}>{}</button>""".format(
             )
 
     def hide_toolbar_if_allowed(self) -> None:
-        if self.state == "review":
+        if self.pm.auto_hide_toolbar() and self.state == "review":
             self.toolbarWeb.collapse()
 
     # Auto update
