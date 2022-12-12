@@ -439,7 +439,7 @@ the AddCards dialog) should be implemented in the user of this component.
             fieldsPane.height = e.detail.height;
         }}
     >
-        <PaneContent class="ps-2">
+        <PaneContent class="outer">
             <Fields>
                 {#each fieldsData as field, index}
                     {@const content = fieldStores[index]}
@@ -603,7 +603,7 @@ the AddCards dialog) should be implemented in the user of this component.
             snapResizer(snapTags);
         }}
     >
-        <div class="tags-expander ps-2">
+        <div class="tags-expander outer">
             <TagAddButton
                 on:tagappend={() => {
                     tagEditor.appendEmptyTag();
@@ -631,7 +631,7 @@ the AddCards dialog) should be implemented in the user of this component.
             }
         })()}
     >
-        <PaneContent scroll={false} class="px-2">
+        <PaneContent scroll={false} class="outer">
             <TagEditor
                 {tags}
                 --button-opacity={snapTags ? 0 : 1}

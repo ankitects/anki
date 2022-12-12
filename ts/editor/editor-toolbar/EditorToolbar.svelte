@@ -92,8 +92,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: dispatch("heightChange", { height: clientHeight });
 </script>
 
-<div class="editor-toolbar" bind:clientHeight>
-    <ButtonToolbar class="ps-2" {size} {wrap}>
+<div class="editor-toolbar outer" bind:clientHeight>
+    <ButtonToolbar {size} {wrap}>
         <DynamicallySlottable slotHost={Item} api={toolbar}>
             <Item id="notetype">
                 <NotetypeButtons api={notetypeButtons}>

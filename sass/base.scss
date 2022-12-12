@@ -75,3 +75,32 @@ input[type="text"] {
         border-color: color(border-focus);
     }
 }
+
+
+.outer {
+
+    padding-inline-start: 10px !important;
+    /* macOS overlays the scrollbar */
+    .isMac & {
+        padding-inline: 10px !important;
+    }
+}
+
+.outer {
+    /* scrollbar width = 10px
+     * any element with overflow: scroll
+     * has the same padding on inline-end */
+    padding-inline-end: calc(1em - 10px) !important;
+    padding-inline-start: 1em !important;
+    /* macOS overlays the scrollbar */
+    :global(.isMac) & {
+        padding-inline: 1em !important;
+    }
+    @media only screen and (max-width: 600px) {
+        padding-inline-end: calc(0.5em - 10px) !important;
+        padding-inline-start: 0.5em !important;
+        :global(.isMac) & {
+            padding-inline: 0.5em !important;
+        }
+    }
+}
