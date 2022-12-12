@@ -1,6 +1,13 @@
 @use "sass/root-vars";
 @import "sass/base";
 
+body {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-flow: column;
+}
+
 button {
     margin-bottom: 5px;
 }
