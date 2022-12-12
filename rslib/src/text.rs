@@ -622,4 +622,21 @@ mod test {
         truncate_to_char_boundary(&mut s, 1);
         assert_eq!(&s, "");
     }
+
+    #[test]
+    fn iri_encoding() {
+        for (input, output) in [
+            ("foo.jpg", "foo.jpg"),
+            ("bar baz", "bar%20baz"),
+            ("sub/path.jpg", "sub/path.jpg"),
+            ("日本語", "日本語"),
+            ("a=b", "a=b"),
+            ("a&b", "a&b"),
+        ] {
+            assert_eq!(
+                &encode_iri_paths(&format!("<img src=\"{input}\">")),
+                &format!("<img src=\"{output}\">")
+            );
+        }
+    }
 }
