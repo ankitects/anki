@@ -61,7 +61,7 @@ class Table:
             self._view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
             self._scrollbarLayout = QVBoxLayout()
             # make sure scrollbar doesn't overlap with table header
-            self._scrollbarLayout.addSpacing(28)
+            self._scrollbarLayout.addSpacing(27)
             scrollbar = self._view.verticalScrollBar()
             # need to manually handle visibility now
             def hide_if_not_needed() -> None:
