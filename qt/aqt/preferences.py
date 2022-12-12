@@ -208,7 +208,7 @@ class Preferences(QDialog):
     def setup_global(self) -> None:
         "Setup options global to all profiles."
         self.form.reduce_motion.setChecked(self.mw.pm.reduced_motion())
-        self.form.collapse_toolbar.setChecked(self.mw.pm.collapse_toolbar())
+        self.form.minimize_distractions.setChecked(self.mw.pm.minimize_distractions())
         self.form.uiScale.setValue(int(self.mw.pm.uiScale() * 100))
         themes = [
             tr.preferences_theme_label(theme=theme)
@@ -239,7 +239,7 @@ class Preferences(QDialog):
             restart_required = True
 
         self.mw.pm.set_reduced_motion(self.form.reduce_motion.isChecked())
-        self.mw.pm.set_collapse_toolbar(self.form.collapse_toolbar.isChecked())
+        self.mw.pm.set_minimize_distractions(self.form.minimize_distractions.isChecked())
         self.mw.pm.set_legacy_import_export(self.form.legacy_import_export.isChecked())
 
         if restart_required:

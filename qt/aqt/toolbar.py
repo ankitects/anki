@@ -32,7 +32,7 @@ class ToolbarWebView(AnkiWebView):
         self.mw = mw
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.disable_zoom()
-        self.hidden = False
+        self.collapsed = False
 
         # collapse timer
         self.hide_timer = QTimer()
@@ -74,11 +74,11 @@ class ToolbarWebView(AnkiWebView):
 
     def collapse(self) -> None:
         self._onHeight(0)
-        self.hidden = True
+        self.collapsed = True
 
     def expand(self) -> None:
         self.adjustHeightToFit()
-        self.hidden = False
+        self.collapsed = False
 
 
 class Toolbar:

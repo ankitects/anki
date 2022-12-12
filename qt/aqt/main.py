@@ -160,8 +160,9 @@ class MainWebView(AnkiWebView):
                 return True
 
             if evt.type() == QEvent.Type.Enter:
-                self.mw.toolbarWeb.hide_timer.start()
-                return True
+                if self.mw.pm.minimize_distractions():
+                    self.mw.toolbarWeb.hide_timer.start()
+                    return True
 
         return False
 
@@ -729,13 +730,13 @@ class AnkiQt(QMainWindow):
 
     def _reviewState(self, oldState: MainWindowState) -> None:
         self.reviewer.show()
-        if self.pm.collapse_toolbar():
+        if self.pm.minimize_distractions():
             self.toolbarWeb.collapse()
 
     def _reviewCleanup(self, newState: MainWindowState) -> None:
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
-        if self.pm.collapse_toolbar():
+        if self.pm.minimize_distractions():
             self.toolbarWeb.expand()
 
     # Resetting state
@@ -1357,7 +1358,7 @@ title="{}" {}>{}</button>""".format(
             )
 
     def collapse_toolbar_if_allowed(self) -> None:
-        if self.pm.collapse_toolbar() and self.state == "review":
+        if self.pm.minimize_distractions() and self.state == "review":
             self.toolbarWeb.collapse()
 
     # Auto update

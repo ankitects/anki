@@ -114,12 +114,12 @@
         </widget>
        </item>
        <item alignment="Qt::AlignLeft">
-        <widget class="QCheckBox" name="collapse_toolbar">
+        <widget class="QCheckBox" name="minimize_distractions">
          <property name="toolTip">
-          <string>preferences_collapse_toolbar_during_review_tooltip</string>
+          <string>preferences_minimize_distractions_tooltip</string>
          </property>
          <property name="text">
-          <string>preferences_collapse_toolbar_during_review</string>
+          <string>preferences_minimize_distractions</string>
          </property>
         </widget>
        </item>
@@ -706,7 +706,7 @@
   <tabstop>ignore_accents_in_search</tabstop>
   <tabstop>legacy_import_export</tabstop>
   <tabstop>reduce_motion</tabstop>
-  <tabstop>collapse_toolbar</tabstop>
+  <tabstop>minimize_distractions</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>
