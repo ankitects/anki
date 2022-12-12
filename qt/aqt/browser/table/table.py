@@ -59,12 +59,13 @@ class Table:
         if not is_mac or self.browser.mw.pm.force_custom_styles():
             # move scrollbar inside table by adding it into the same grid cell
             self._view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-            self._scrollbarLyout = QVBoxLayout()
+            self._scrollbarLayout = QVBoxLayout()
             # make sure scrollbar doesn't overlap with table header
-            self._scrollbarLyout.addSpacing(28)
-            self._scrollbarLyout.addWidget(self._view.verticalScrollBar())
+            self._scrollbarLayout.addSpacing(28)
+            scrollbar = self._view.verticalScrollBar()
+            self._scrollbarLayout.addWidget(scrollbar)
             self.browser.form.tableGridLayout.addLayout(
-                self._scrollbarLyout, 0, 0, Qt.AlignmentFlag.AlignRight
+                self._scrollbarLayout, 0, 0, Qt.AlignmentFlag.AlignRight
             )
         self._setup_view()
         self._setup_headers()
