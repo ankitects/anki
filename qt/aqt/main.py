@@ -149,20 +149,20 @@ class MainWebView(AnkiWebView):
         if handled := super().eventFilter(obj, evt):
             return handled
 
-        if self.mw.pm.collapse_toolbar():
-            if evt.type() == QEvent.Type.Leave:
+        if evt.type() == QEvent.Type.Leave:
+            if self.mw.pm.minimize_distractions():
                 # Expand toolbar when mouse moves above main webview
                 # and automatically collapse it with delay after mouse leaves
                 if self.mapFromGlobal(QCursor.pos()).y() < self.geometry().y():
-                    if self.mw.toolbarWeb.hidden:
+                    if self.mw.toolbarWeb.collapsed:
                         self.mw.toolbarWeb.expand()
                         self.mw.toolbarWeb.hide_timer.start()
                 return True
 
-            if evt.type() == QEvent.Type.Enter:
-                if self.mw.pm.minimize_distractions():
-                    self.mw.toolbarWeb.hide_timer.start()
-                    return True
+        if evt.type() == QEvent.Type.Enter:
+            if self.mw.pm.minimize_distractions():
+                self.mw.toolbarWeb.hide_timer.start()
+                return True
 
         return False
 
