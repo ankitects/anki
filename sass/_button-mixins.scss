@@ -30,7 +30,6 @@
                     var(--button-primary-gradient-start) 0%,
                     var(--button-primary-gradient-end) 100%
                 );
-                border-color: var(--button-hover-border);
             }
         }
     } @else {
@@ -42,7 +41,8 @@
                     var(--button-gradient-start) 0%,
                     var(--button-gradient-end) 100%
                 );
-                border-color: var(--button-hover-border);
+                /* Makes distinguishing hover state in light theme easier */
+                @include impressed-shadow(0.2);
             }
         }
     }
