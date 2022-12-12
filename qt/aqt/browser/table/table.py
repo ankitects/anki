@@ -63,6 +63,12 @@ class Table:
             # make sure scrollbar doesn't overlap with table header
             self._scrollbarLayout.addSpacing(28)
             scrollbar = self._view.verticalScrollBar()
+            # need to manually handle visibility now
+            def hide_if_not_needed() -> None:
+                scrollbar.setHidden(scrollbar.value() == scrollbar.maximum())
+
+            qconnect(scrollbar.rangeChanged, hide_if_not_needed)
+            hide_if_not_needed()
             self._scrollbarLayout.addWidget(scrollbar)
             self.browser.form.tableGridLayout.addLayout(
                 self._scrollbarLayout, 0, 0, Qt.AlignmentFlag.AlignRight
