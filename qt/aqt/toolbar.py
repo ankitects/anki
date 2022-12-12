@@ -34,17 +34,17 @@ class ToolbarWebView(AnkiWebView):
         self.disable_zoom()
         self.hidden = False
 
-        # auto-hide timer
+        # collapse timer
         self.hide_timer = QTimer()
         self.hide_timer.setSingleShot(True)
         self.hide_timer.setInterval(2000)
-        qconnect(self.hide_timer.timeout, self.mw.hide_toolbar_if_allowed)
+        qconnect(self.hide_timer.timeout, self.mw.collapse_toolbar_if_allowed)
 
     def eventFilter(self, obj, evt):
         if handled := super().eventFilter(obj, evt):
             return handled
 
-        # prevent auto-hide if pointer inside
+        # prevent collapse if pointer inside
         if evt.type() == QEvent.Type.Enter:
             self.hide_timer.stop()
             self.hide_timer.setInterval(2000)
