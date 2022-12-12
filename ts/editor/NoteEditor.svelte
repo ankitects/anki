@@ -631,7 +631,7 @@ the AddCards dialog) should be implemented in the user of this component.
             }
         })()}
     >
-        <PaneContent scroll={false} class="px-2 pb-2">
+        <PaneContent scroll={false} class="px-2">
             <TagEditor
                 {tags}
                 --button-opacity={snapTags ? 0 : 1}
