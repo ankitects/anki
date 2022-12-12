@@ -239,7 +239,9 @@ class Preferences(QDialog):
             restart_required = True
 
         self.mw.pm.set_reduced_motion(self.form.reduce_motion.isChecked())
-        self.mw.pm.set_minimize_distractions(self.form.minimize_distractions.isChecked())
+        self.mw.pm.set_minimize_distractions(
+            self.form.minimize_distractions.isChecked()
+        )
         self.mw.pm.set_legacy_import_export(self.form.legacy_import_export.isChecked())
 
         if restart_required:
