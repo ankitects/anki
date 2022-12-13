@@ -520,8 +520,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
 
-        text_color = self.mw.pm.profile.get("lastTextColor", "#00f")
-        highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#00f")
+        text_color = self.mw.pm.profile.get("lastTextColor", "#0000ff")
+        highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#0000ff")
 
         js = f"""
             saveSession();
