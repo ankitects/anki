@@ -94,8 +94,6 @@ profileConf: dict[str, Any] = dict(
     lastOptimize=int_time(),
     # editing
     searchHistory=[],
-    lastTextColor="#00f",
-    lastHighlightColor="#00f",
     # syncing
     syncKey=None,
     syncMedia=True,

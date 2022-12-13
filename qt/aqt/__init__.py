@@ -239,12 +239,11 @@ def setupLangAndBackend(
         lang = force or pm.meta["defaultLang"]
     lang = anki.lang.lang_to_disk_lang(lang)
 
-    if not firstTime:
-        # set active language
-        anki.lang.set_lang(lang)
+    # set active language
+    anki.lang.set_lang(lang)
 
     # switch direction for RTL languages
-    if anki.lang.is_rtl(lang) and not firstTime:
+    if anki.lang.is_rtl(lang):
         app.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
     else:
         app.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
