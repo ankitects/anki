@@ -171,7 +171,11 @@ const QT5_VENV: Venv = Venv {
 fn setup_primary_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
     let mut qt6_reqs = inputs![
         "python/requirements.bundle.txt",
-        "python/requirements.qt6.txt",
+        if cfg!(target_os = "macos") {
+            "python/requirements.qt6_3.txt"
+        } else {
+            "python/requirements.qt6_4.txt"
+        }
     ];
     if cfg!(windows) {
         qt6_reqs = inputs![qt6_reqs, "python/requirements.win.txt"];
