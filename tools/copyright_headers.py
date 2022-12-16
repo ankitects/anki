@@ -29,6 +29,7 @@ ignored_folders = [
     "qt/forms",
     "tools/workspace-hack",
     "qt/bundle/PyOxidizer",
+    "rslib/ascii_percent_encoding",
 ]
 
 

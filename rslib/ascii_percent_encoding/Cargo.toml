@@ -1,0 +1,19 @@
+[package]
+name = "ascii_percent_encoding"
+publish = false
+description = "Like percent_encoding, but does not encode non-ASCII characters."
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+authors = ["The rust-url developers"]
+license = "MIT OR Apache-2.0"
+
+[lib]
+name = "ascii_percent_encoding"
+path = "src/lib.rs"
+
+[features]
+default = ["alloc"]
+alloc = []
