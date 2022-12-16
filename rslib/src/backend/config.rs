@@ -4,11 +4,11 @@
 use serde_json::Value;
 
 use super::Backend;
-pub(super) use crate::pb::config_service::Service as ConfigService;
+pub(super) use crate::pb::config::config_service::Service as ConfigService;
 use crate::{
     config::{BoolKey, StringKey},
     pb,
-    pb::config_key::{Bool as BoolKeyProto, String as StringKeyProto},
+    pb::config::config_key::{Bool as BoolKeyProto, String as StringKeyProto},
     prelude::*,
 };
 
@@ -54,7 +54,7 @@ impl From<StringKeyProto> for StringKey {
 }
 
 impl ConfigService for Backend {
-    fn get_config_json(&self, input: pb::String) -> Result<pb::Json> {
+    fn get_config_json(&self, input: pb::generic::String) -> Result<pb::generic::Json> {
         self.with_col(|col| {
             let val: Option<Value> = col.get_config_optional(input.val.as_str());
             val.or_not_found(input.val)
@@ -63,7 +63,10 @@ impl ConfigService for Backend {
         })
     }
 
-    fn set_config_json(&self, input: pb::SetConfigJsonRequest) -> Result<pb::OpChanges> {
+    fn set_config_json(
+        &self,
+        input: pb::config::SetConfigJsonRequest,
+    ) -> Result<pb::collection::OpChanges> {
         self.with_col(|col| {
             let val: Value = serde_json::from_slice(&input.value_json)?;
             col.set_config_json(input.key.as_str(), &val, input.undoable)
@@ -71,7 +74,10 @@ impl ConfigService for Backend {
         .map(Into::into)
     }
 
-    fn set_config_json_no_undo(&self, input: pb::SetConfigJsonRequest) -> Result<pb::Empty> {
+    fn set_config_json_no_undo(
+        &self,
+        input: pb::config::SetConfigJsonRequest,
+    ) -> Result<pb::generic::Empty> {
         self.with_col(|col| {
             let val: Value = serde_json::from_slice(&input.value_json)?;
             col.transact_no_undo(|col| col.set_config(input.key.as_str(), &val).map(|_| ()))
@@ -79,12 +85,12 @@ impl ConfigService for Backend {
         .map(Into::into)
     }
 
-    fn remove_config(&self, input: pb::String) -> Result<pb::OpChanges> {
+    fn remove_config(&self, input: pb::generic::String) -> Result<pb::collection::OpChanges> {
         self.with_col(|col| col.remove_config(input.val.as_str()))
             .map(Into::into)
     }
 
-    fn get_all_config(&self, _input: pb::Empty) -> Result<pb::Json> {
+    fn get_all_config(&self, _input: pb::generic::Empty) -> Result<pb::generic::Json> {
         self.with_col(|col| {
             let conf = col.storage.get_all_config()?;
             serde_json::to_vec(&conf).map_err(Into::into)
@@ -92,37 +98,49 @@ impl ConfigService for Backend {
         .map(Into::into)
     }
 
-    fn get_config_bool(&self, input: pb::GetConfigBoolRequest) -> Result<pb::Bool> {
+    fn get_config_bool(
+        &self,
+        input: pb::config::GetConfigBoolRequest,
+    ) -> Result<pb::generic::Bool> {
         self.with_col(|col| {
-            Ok(pb::Bool {
+            Ok(pb::generic::Bool {
                 val: col.get_config_bool(input.key().into()),
             })
         })
     }
 
-    fn set_config_bool(&self, input: pb::SetConfigBoolRequest) -> Result<pb::OpChanges> {
+    fn set_config_bool(
+        &self,
+        input: pb::config::SetConfigBoolRequest,
+    ) -> Result<pb::collection::OpChanges> {
         self.with_col(|col| col.set_config_bool(input.key().into(), input.value, input.undoable))
             .map(Into::into)
     }
 
-    fn get_config_string(&self, input: pb::GetConfigStringRequest) -> Result<pb::String> {
+    fn get_config_string(
+        &self,
+        input: pb::config::GetConfigStringRequest,
+    ) -> Result<pb::generic::String> {
         self.with_col(|col| {
-            Ok(pb::String {
+            Ok(pb::generic::String {
                 val: col.get_config_string(input.key().into()),
             })
         })
     }
 
-    fn set_config_string(&self, input: pb::SetConfigStringRequest) -> Result<pb::OpChanges> {
+    fn set_config_string(
+        &self,
+        input: pb::config::SetConfigStringRequest,
+    ) -> Result<pb::collection::OpChanges> {
         self.with_col(|col| col.set_config_string(input.key().into(), &input.value, input.undoable))
             .map(Into::into)
     }
 
-    fn get_preferences(&self, _input: pb::Empty) -> Result<pb::Preferences> {
+    fn get_preferences(&self, _input: pb::generic::Empty) -> Result<pb::config::Preferences> {
         self.with_col(|col| col.get_preferences())
     }
 
-    fn set_preferences(&self, input: pb::Preferences) -> Result<pb::OpChanges> {
+    fn set_preferences(&self, input: pb::config::Preferences) -> Result<pb::collection::OpChanges> {
         self.with_col(|col| col.set_preferences(input))
             .map(Into::into)
     }

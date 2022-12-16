@@ -42,11 +42,11 @@ impl Collection {
     pub(crate) fn counts_for_deck_today(
         &mut self,
         did: DeckId,
-    ) -> Result<pb::CountsForDeckTodayResponse> {
+    ) -> Result<pb::scheduler::CountsForDeckTodayResponse> {
         let today = self.current_due_day(0)?;
         let mut deck = self.storage.get_deck(did)?.or_not_found(did)?;
         deck.reset_stats_if_day_changed(today);
-        Ok(pb::CountsForDeckTodayResponse {
+        Ok(pb::scheduler::CountsForDeckTodayResponse {
             new: deck.common.new_studied,
             review: deck.common.review_studied,
         })

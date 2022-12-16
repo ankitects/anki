@@ -8,7 +8,7 @@ pub mod text;
 
 use std::marker::PhantomData;
 
-pub use crate::pb::import_response::{Log as NoteLog, Note as LogNote};
+pub use crate::pb::import_export::import_response::{Log as NoteLog, Note as LogNote};
 use crate::{
     prelude::*,
     text::{

@@ -153,7 +153,7 @@ impl SqliteStorage {
 
     // caller should ensure name unique
     pub(crate) fn add_deck(&self, deck: &mut Deck) -> Result<()> {
-        assert!(deck.id.0 == 0);
+        assert_eq!(deck.id.0, 0);
         deck.id.0 = self
             .db
             .prepare(include_str!("alloc_id.sql"))?

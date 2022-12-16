@@ -113,7 +113,7 @@ impl SqliteStorage {
     pub(crate) fn get_pb_revlog_entries_for_searched_cards(
         &self,
         after: TimestampSecs,
-    ) -> Result<Vec<pb::RevlogEntry>> {
+    ) -> Result<Vec<pb::stats::RevlogEntry>> {
         self.db
             .prepare_cached(concat!(
                 include_str!("get.sql"),
@@ -137,7 +137,7 @@ impl SqliteStorage {
     pub(crate) fn get_all_revlog_entries(
         &self,
         after: TimestampSecs,
-    ) -> Result<Vec<pb::RevlogEntry>> {
+    ) -> Result<Vec<pb::stats::RevlogEntry>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " where id >= ?"))?
             .query_and_then([after.0 * 1000], |r| row_to_revlog_entry(r).map(Into::into))?

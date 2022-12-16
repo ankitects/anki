@@ -35,7 +35,7 @@ impl PartialEq for NotFoundError {
 
 impl Eq for NotFoundError {}
 
-/// Allows generating [AnkiError::NotFound] from [Option::None].
+/// Allows generating [AnkiError::NotFound] from [None].
 pub trait OrNotFound {
     type Value;
     fn or_not_found(self, identifier: impl fmt::Display) -> Result<Self::Value>;
@@ -67,9 +67,6 @@ mod test {
 
     #[test]
     fn test_unqualified_lowercase_type_name() {
-        assert_eq!(
-            unqualified_lowercase_type_name::<crate::card::CardId>(),
-            "card id"
-        );
+        assert_eq!(unqualified_lowercase_type_name::<CardId>(), "card id");
     }
 }

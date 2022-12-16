@@ -78,7 +78,7 @@ fn tokens<'a>(template: &'a str) -> Box<dyn Iterator<Item = TemplateResult<Token
 }
 
 fn new_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> {
-    std::iter::from_fn(move || {
+    iter::from_fn(move || {
         if data.is_empty() {
             return None;
         }
@@ -158,7 +158,7 @@ fn alternate_handlebar_token(s: &str) -> nom::IResult<&str, Token> {
 }
 
 fn legacy_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> {
-    std::iter::from_fn(move || {
+    iter::from_fn(move || {
         if data.is_empty() {
             return None;
         }

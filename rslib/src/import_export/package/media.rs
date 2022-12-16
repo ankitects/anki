@@ -4,7 +4,9 @@
 use std::{
     borrow::Cow,
     collections::HashMap,
-    fs::{self, File},
+    fs::{
+        File, {self},
+    },
     io,
     path::{Path, PathBuf},
 };

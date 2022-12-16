@@ -4,10 +4,13 @@
 use std::path::Path;
 
 use super::{progress::Progress, Backend};
-pub(super) use crate::pb::importexport_service::Service as ImportExportService;
+pub(super) use crate::pb::import_export::importexport_service::Service as ImportExportService;
 use crate::{
     import_export::{package::import_colpkg, ExportProgress, ImportProgress, NoteLog},
-    pb::{self as pb, export_limit, ExportLimit},
+    pb::{
+        import_export::{export_limit, ExportLimit},
+        {self as pb},
+    },
     prelude::*,
     search::SearchNode,
 };
@@ -15,8 +18,8 @@ use crate::{
 impl ImportExportService for Backend {
     fn export_collection_package(
         &self,
-        input: pb::ExportCollectionPackageRequest,
-    ) -> Result<pb::Empty> {
+        input: pb::import_export::ExportCollectionPackageRequest,
+    ) -> Result<pb::generic::Empty> {
         self.abort_media_sync_and_wait();
 
         let mut guard = self.lock_open_collection()?;
@@ -34,8 +37,8 @@ impl ImportExportService for Backend {
 
     fn import_collection_package(
         &self,
-        input: pb::ImportCollectionPackageRequest,
-    ) -> Result<pb::Empty> {
+        input: pb::import_export::ImportCollectionPackageRequest,
+    ) -> Result<pb::generic::Empty> {
         let _guard = self.lock_closed_collection()?;
 
         import_colpkg(
@@ -51,13 +54,16 @@ impl ImportExportService for Backend {
 
     fn import_anki_package(
         &self,
-        input: pb::ImportAnkiPackageRequest,
-    ) -> Result<pb::ImportResponse> {
+        input: pb::import_export::ImportAnkiPackageRequest,
+    ) -> Result<pb::import_export::ImportResponse> {
         self.with_col(|col| col.import_apkg(&input.package_path, self.import_progress_fn()))
             .map(Into::into)
     }
 
-    fn export_anki_package(&self, input: pb::ExportAnkiPackageRequest) -> Result<pb::UInt32> {
+    fn export_anki_package(
+        &self,
+        input: pb::import_export::ExportAnkiPackageRequest,
+    ) -> Result<pb::generic::UInt32> {
         self.with_col(|col| {
             col.export_apkg(
                 &input.out_path,
@@ -72,7 +78,10 @@ impl ImportExportService for Backend {
         .map(Into::into)
     }
 
-    fn get_csv_metadata(&self, input: pb::CsvMetadataRequest) -> Result<pb::CsvMetadata> {
+    fn get_csv_metadata(
+        &self,
+        input: pb::import_export::CsvMetadataRequest,
+    ) -> Result<pb::import_export::CsvMetadata> {
         let delimiter = input.delimiter.is_some().then(|| input.delimiter());
         self.with_col(|col| {
             col.get_csv_metadata(
@@ -84,7 +93,10 @@ impl ImportExportService for Backend {
         })
     }
 
-    fn import_csv(&self, input: pb::ImportCsvRequest) -> Result<pb::ImportResponse> {
+    fn import_csv(
+        &self,
+        input: pb::import_export::ImportCsvRequest,
+    ) -> Result<pb::import_export::ImportResponse> {
         self.with_col(|col| {
             col.import_csv(
                 &input.path,
@@ -95,12 +107,18 @@ impl ImportExportService for Backend {
         .map(Into::into)
     }
 
-    fn export_note_csv(&self, input: pb::ExportNoteCsvRequest) -> Result<pb::UInt32> {
+    fn export_note_csv(
+        &self,
+        input: pb::import_export::ExportNoteCsvRequest,
+    ) -> Result<pb::generic::UInt32> {
         self.with_col(|col| col.export_note_csv(input, self.export_progress_fn()))
             .map(Into::into)
     }
 
-    fn export_card_csv(&self, input: pb::ExportCardCsvRequest) -> Result<pb::UInt32> {
+    fn export_card_csv(
+        &self,
+        input: pb::import_export::ExportCardCsvRequest,
+    ) -> Result<pb::generic::UInt32> {
         self.with_col(|col| {
             col.export_card_csv(
                 &input.out_path,
@@ -112,12 +130,18 @@ impl ImportExportService for Backend {
         .map(Into::into)
     }
 
-    fn import_json_file(&self, input: pb::String) -> Result<pb::ImportResponse> {
+    fn import_json_file(
+        &self,
+        input: pb::generic::String,
+    ) -> Result<pb::import_export::ImportResponse> {
         self.with_col(|col| col.import_json_file(&input.val, self.import_progress_fn()))
             .map(Into::into)
     }
 
-    fn import_json_string(&self, input: pb::String) -> Result<pb::ImportResponse> {
+    fn import_json_string(
+        &self,
+        input: pb::generic::String,
+    ) -> Result<pb::import_export::ImportResponse> {
         self.with_col(|col| col.import_json_string(&input.val, self.import_progress_fn()))
             .map(Into::into)
     }
@@ -135,7 +159,7 @@ impl Backend {
     }
 }
 
-impl From<OpOutput<NoteLog>> for pb::ImportResponse {
+impl From<OpOutput<NoteLog>> for pb::import_export::ImportResponse {
     fn from(output: OpOutput<NoteLog>) -> Self {
         Self {
             changes: Some(output.changes.into()),
@@ -149,7 +173,7 @@ impl From<ExportLimit> for SearchNode {
         use export_limit::Limit;
         let limit = export_limit
             .limit
-            .unwrap_or(Limit::WholeCollection(pb::Empty {}));
+            .unwrap_or(Limit::WholeCollection(pb::generic::Empty {}));
         match limit {
             Limit::WholeCollection(_) => Self::WholeCollection,
             Limit::DeckId(did) => Self::from_deck_id(did, true),

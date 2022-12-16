@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{progress::Progress, Backend};
-pub(super) use crate::pb::media_service::Service as MediaService;
+pub(super) use crate::pb::media::media_service::Service as MediaService;
 use crate::{
     media::{check::MediaChecker, MediaManager},
     pb,
@@ -13,7 +13,7 @@ impl MediaService for Backend {
     // media
     //-----------------------------------------------
 
-    fn check_media(&self, _input: pb::Empty) -> Result<pb::CheckMediaResponse> {
+    fn check_media(&self, _input: pb::generic::Empty) -> Result<pb::media::CheckMediaResponse> {
         let mut handler = self.new_progress_handler();
         let progress_fn =
             move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
@@ -26,7 +26,7 @@ impl MediaService for Backend {
                 let mut report = checker.summarize_output(&mut output);
                 ctx.report_media_field_referencing_templates(&mut report)?;
 
-                Ok(pb::CheckMediaResponse {
+                Ok(pb::media::CheckMediaResponse {
                     unused: output.unused,
                     missing: output.missing,
                     report,
@@ -36,7 +36,10 @@ impl MediaService for Backend {
         })
     }
 
-    fn trash_media_files(&self, input: pb::TrashMediaFilesRequest) -> Result<pb::Empty> {
+    fn trash_media_files(
+        &self,
+        input: pb::media::TrashMediaFilesRequest,
+    ) -> Result<pb::generic::Empty> {
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
             let mut ctx = mgr.dbctx();
@@ -45,7 +48,7 @@ impl MediaService for Backend {
         .map(Into::into)
     }
 
-    fn add_media_file(&self, input: pb::AddMediaFileRequest) -> Result<pb::String> {
+    fn add_media_file(&self, input: pb::media::AddMediaFileRequest) -> Result<pb::generic::String> {
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
             let mut ctx = mgr.dbctx();
@@ -56,7 +59,7 @@ impl MediaService for Backend {
         })
     }
 
-    fn empty_trash(&self, _input: pb::Empty) -> Result<pb::Empty> {
+    fn empty_trash(&self, _input: pb::generic::Empty) -> Result<pb::generic::Empty> {
         let mut handler = self.new_progress_handler();
         let progress_fn =
             move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
@@ -69,7 +72,7 @@ impl MediaService for Backend {
         .map(Into::into)
     }
 
-    fn restore_trash(&self, _input: pb::Empty) -> Result<pb::Empty> {
+    fn restore_trash(&self, _input: pb::generic::Empty) -> Result<pb::generic::Empty> {
         let mut handler = self.new_progress_handler();
         let progress_fn =
             move |progress| handler.update(Progress::MediaCheck(progress as u32), true);

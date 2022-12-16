@@ -94,7 +94,7 @@ fn copy_windows_extras(folder_root: &Utf8Path) {
 
 fn clean_top_level_files(folder_root: &Utf8Path) {
     let mut to_remove = vec![];
-    for entry in std::fs::read_dir(folder_root).unwrap() {
+    for entry in fs::read_dir(folder_root).unwrap() {
         let entry = entry.unwrap();
         if entry.file_name() == "lib" {
             continue;
@@ -104,9 +104,9 @@ fn clean_top_level_files(folder_root: &Utf8Path) {
     }
     for path in to_remove {
         if path.is_dir() {
-            std::fs::remove_dir_all(path).unwrap()
+            fs::remove_dir_all(path).unwrap()
         } else {
-            std::fs::remove_file(path).unwrap()
+            fs::remove_file(path).unwrap()
         }
     }
 }
