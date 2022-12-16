@@ -2,15 +2,15 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: disable=unbalanced-tuple-unpacking
+
 import copy
-import json
 import os
 import re
-import shutil
 import sys
 
 from fluent.syntax import parse, serialize
-from fluent.syntax.ast import Identifier, Junk, Message, Pattern, TextElement
+from fluent.syntax.ast import Junk, Message
 
 # clone an existing ftl string as a new key
 # eg:
@@ -20,7 +20,7 @@ from fluent.syntax.ast import Identifier, Junk, Message, Pattern, TextElement
 #
 # after running, you'll need to copy the output template file into Anki's source
 
-src_filename, old_key, dst_filename, new_key = sys.argv[1:]
+(src_filename, old_key, dst_filename, new_key) = sys.argv[1:]
 
 # add file as prefix to key
 src_prefix = os.path.splitext(os.path.basename(src_filename))[0]
@@ -33,7 +33,7 @@ def get_entry(fname, key):
     if not os.path.exists(fname):
         return
 
-    with open(fname) as file:
+    with open(fname, encoding="utf8") as file:
         orig = file.read()
     obj = parse(orig)
     for ent in obj.body:
@@ -51,7 +51,7 @@ def write_entry(fname, key, entry):
     if not os.path.exists(fname):
         orig = ""
     else:
-        with open(fname) as file:
+        with open(fname, encoding="utf8") as file:
             orig = file.read()
     obj = parse(orig)
     for ent in obj.body:
@@ -70,7 +70,7 @@ def write_entry(fname, key, entry):
             raise Exception(f"introduced junk! {fname} {ent}")
 
     # it's ok, write it out
-    with open(fname, "w") as file:
+    with open(fname, "w", encoding="utf8") as file:
         file.write(modified)
 
 

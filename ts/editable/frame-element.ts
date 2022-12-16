@@ -1,24 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { getSelection, isSelectionCollapsed } from "@tslib/cross-browser";
+import { elementIsBlock, hasBlockAttribute, nodeIsElement, nodeIsText } from "@tslib/dom";
+import { on } from "@tslib/events";
+
 import { moveChildOutOfElement } from "../domlib/move-nodes";
 import { placeCaretAfter, placeCaretBefore } from "../domlib/place-caret";
-import { getSelection, isSelectionCollapsed } from "../lib/cross-browser";
-import {
-    elementIsBlock,
-    hasBlockAttribute,
-    nodeIsElement,
-    nodeIsText,
-} from "../lib/dom";
-import { on } from "../lib/events";
 import type { FrameHandle } from "./frame-handle";
-import {
-    checkHandles,
-    frameElementTagName,
-    FrameEnd,
-    FrameStart,
-    isFrameHandle,
-} from "./frame-handle";
+import { checkHandles, frameElementTagName, FrameEnd, FrameStart, isFrameHandle } from "./frame-handle";
 
 function restoreFrameHandles(mutations: MutationRecord[]): void {
     let referenceNode: Node | null = null;
@@ -54,8 +44,8 @@ function restoreFrameHandles(mutations: MutationRecord[]): void {
 
             if (
                 /* avoid triggering when (un)mounting whole frame */
-                mutations.length === 1 &&
-                !node.partiallySelected
+                mutations.length === 1
+                && !node.partiallySelected
             ) {
                 // Similar to a "movein", this could be considered a
                 // "deletein" event and could get some special treatment, e.g.
@@ -134,8 +124,8 @@ export class FrameElement extends HTMLElement {
         const handle = isFrameHandle(node)
             ? node
             : (document.createElement(
-                  start ? FrameStart.tagName : FrameEnd.tagName,
-              ) as FrameHandle);
+                start ? FrameStart.tagName : FrameEnd.tagName,
+            ) as FrameHandle);
 
         handle.dataset.frames = this.frames;
 
@@ -169,12 +159,16 @@ export class FrameElement extends HTMLElement {
     removeEnd?: () => void;
 
     addEventListeners(): void {
-        this.removeStart = on(this, "moveinstart" as keyof HTMLElementEventMap, () =>
-            this.framedElement?.dispatchEvent(new Event("moveinstart")),
+        this.removeStart = on(
+            this,
+            "moveinstart" as keyof HTMLElementEventMap,
+            () => this.framedElement?.dispatchEvent(new Event("moveinstart")),
         );
 
-        this.removeEnd = on(this, "moveinend" as keyof HTMLElementEventMap, () =>
-            this.framedElement?.dispatchEvent(new Event("moveinend")),
+        this.removeEnd = on(
+            this,
+            "moveinend" as keyof HTMLElementEventMap,
+            () => this.framedElement?.dispatchEvent(new Event("moveinend")),
         );
     }
 
@@ -201,25 +195,23 @@ export class FrameElement extends HTMLElement {
 
         if (offset === 0) {
             const previous = this.previousSibling;
-            const focus =
-                previous &&
-                (nodeIsText(previous) ||
-                    (nodeIsElement(previous) && !elementIsBlock(previous)))
-                    ? previous
-                    : this.insertAdjacentElement(
-                          "beforebegin",
-                          document.createElement("br"),
-                      );
+            const focus = previous
+                    && (nodeIsText(previous)
+                        || (nodeIsElement(previous) && !elementIsBlock(previous)))
+                ? previous
+                : this.insertAdjacentElement(
+                    "beforebegin",
+                    document.createElement("br"),
+                );
 
             placeCaretAfter(focus ?? this);
         } else if (offset === 1) {
             const next = this.nextSibling;
 
-            const focus =
-                next &&
-                (nodeIsText(next) || (nodeIsElement(next) && !elementIsBlock(next)))
-                    ? next
-                    : this.insertAdjacentElement("afterend", lineBreak);
+            const focus = next
+                    && (nodeIsText(next) || (nodeIsElement(next) && !elementIsBlock(next)))
+                ? next
+                : this.insertAdjacentElement("afterend", lineBreak);
 
             placeCaretBefore(focus ?? this);
         }
@@ -235,8 +227,8 @@ function checkIfInsertingLineBreakAdjacentToBlockFrame() {
         const selection = getSelection(frame)!;
 
         if (
-            selection.anchorNode === frame.framedElement &&
-            isSelectionCollapsed(selection)
+            selection.anchorNode === frame.framedElement
+            && isSelectionCollapsed(selection)
         ) {
             frame.insertLineBreak(selection.anchorOffset);
         }

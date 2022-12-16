@@ -8,7 +8,7 @@ import type { SymbolsTable } from "./symbols-types";
 // Not all characters work well in the editor field
 delete characterEntities["Tab"];
 
-// A single character entity can be present under differnet names
+// A single character entity can be present under different names
 // So we change the mapping to symbol => name[]
 const characterTable: Record<string, string[]> = {};
 

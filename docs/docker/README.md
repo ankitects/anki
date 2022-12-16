@@ -65,38 +65,38 @@ docker run --rm -it \
 
 Here is a breakdown of some of the arguments:
 
--   Mount the current user's `~/.local/share` directory onto the container. Anki saves things
-    into this directory, and if we don't mount it, we will lose any changes once the
-    container exits. We mount this as read-write (`rw`) because we want to make changes here.
+- Mount the current user's `~/.local/share` directory onto the container. Anki saves things
+  into this directory, and if we don't mount it, we will lose any changes once the
+  container exits. We mount this as read-write (`rw`) because we want to make changes here.
 
-    ```bash
-    --volume $HOME/.local/share:$HOME/.local/share:rw
-    ```
+  ```bash
+  --volume $HOME/.local/share:$HOME/.local/share:rw
+  ```
 
--   Mount `/etc/passwd` so we can enter the container as ourselves. We mount this as
-    read-only because we definitely do not want to modify this.
+- Mount `/etc/passwd` so we can enter the container as ourselves. We mount this as
+  read-only because we definitely do not want to modify this.
 
-    ```bash
-    --volume /etc/passwd:/etc/passwd:ro
-    ```
+  ```bash
+  --volume /etc/passwd:/etc/passwd:ro
+  ```
 
--   Enter the container with our user ID and group ID, so we stay as ourselves.
+- Enter the container with our user ID and group ID, so we stay as ourselves.
 
-    ```bash
-    --user $(id -u):$(id -g)
-    ```
+  ```bash
+  --user $(id -u):$(id -g)
+  ```
 
--   Mount the X11 directory that allows us to open displays.
+- Mount the X11 directory that allows us to open displays.
 
-    ```bash
-    --volume /tmp/.X11-unix:/tmp/.X11-unix:rw
-    ```
+  ```bash
+  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw
+  ```
 
--   Pass the `DISPLAY` variable to the container, so it knows where to display graphics.
+- Pass the `DISPLAY` variable to the container, so it knows where to display graphics.
 
-    ```bash
-    --env DISPLAY=$DISPLAY
-    ```
+  ```bash
+  --env DISPLAY=$DISPLAY
+  ```
 
 # Running Dockerized Anki easily from the command line
 

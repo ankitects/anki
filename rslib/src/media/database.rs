@@ -18,9 +18,9 @@ pub(super) fn open_or_create<P: AsRef<Path>>(path: P) -> Result<Connection> {
         db.trace(Some(trace));
     }
 
-    db.pragma_update(None, "page_size", &4096)?;
-    db.pragma_update(None, "legacy_file_format", &false)?;
-    db.pragma_update_and_check(None, "journal_mode", &"wal", |_| Ok(()))?;
+    db.pragma_update(None, "page_size", 4096)?;
+    db.pragma_update(None, "legacy_file_format", false)?;
+    db.pragma_update_and_check(None, "journal_mode", "wal", |_| Ok(()))?;
 
     initial_db_setup(&mut db)?;
 
@@ -56,10 +56,6 @@ pub struct MediaEntry {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct MediaDatabaseMetadata {
-    /// The syncing code no longer uses this; files are scanned for
-    /// indiscriminately. After this has been in production for a while
-    /// without reports of speed regressions, we should remove the rest
-    /// of the code that refers to this.
     pub folder_mtime: i64,
     pub last_sync_usn: i32,
 }

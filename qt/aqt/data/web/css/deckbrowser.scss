@@ -1,8 +1,22 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
-@use "root-vars";
+@use "sass/root-vars";
 @use "sass/vars" as *;
 @use "sass/card-counts";
+@use "sass/elevation" as *;
+
+table {
+    padding: 1rem;
+    background: var(--canvas-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--border-radius-large);
+
+    @include elevation(1, $opacity-boost: -0.08);
+    &:hover {
+        @include elevation(2);
+    }
+    transition: box-shadow 0.2s ease-in-out;
+}
 
 a.deck {
     color: color(fg);
@@ -21,7 +35,7 @@ th {
 }
 
 tr.deck td {
-    padding: 5px 12px;
+    padding: 4px 12px;
 }
 
 tr.top-level-drag-row td {
@@ -44,7 +58,7 @@ body {
 .current,
 tr:hover:not(.top-level-drag-row) {
     td {
-        background: color(canvas-inset);
+        background: color(border-subtle);
         &:first-child {
             border-top-left-radius: prop(border-radius-large);
             border-bottom-left-radius: prop(border-radius-large);

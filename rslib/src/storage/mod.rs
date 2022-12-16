@@ -77,16 +77,16 @@ mod test {
     #[test]
     fn ids_string() {
         let mut s = String::new();
-        ids_to_string(&mut s, &[0; 0]);
+        ids_to_string(&mut s, [0; 0]);
         assert_eq!(s, "()");
         s.clear();
-        ids_to_string(&mut s, &[7]);
+        ids_to_string(&mut s, [7]);
         assert_eq!(s, "(7)");
         s.clear();
-        ids_to_string(&mut s, &[7, 6]);
+        ids_to_string(&mut s, [7, 6]);
         assert_eq!(s, "(7,6)");
         s.clear();
-        ids_to_string(&mut s, &[7, 6, 5]);
+        ids_to_string(&mut s, [7, 6, 5]);
         assert_eq!(s, "(7,6,5)");
         s.clear();
     }

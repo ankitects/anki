@@ -1,0 +1,24 @@
+-r requirements.bundle.txt
+
+black
+compare-locales
+isort
+mock
+mypy
+mypy-protobuf
+pip-tools
+pylint
+pytest
+fluent.syntax
+types-decorator
+types-flask
+types-flask-cors
+types-markdown
+types-orjson
+types-protobuf
+types-requests
+types-waitress
+
+# transitive windows dependencies
+atomicwrites
+colorama

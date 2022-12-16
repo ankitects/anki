@@ -1,6 +1,7 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
-@use "vars";
+
+@use "sass/vars";
 
 hr {
     background-color: vars.palette(darkgray, 0);
@@ -30,7 +31,12 @@ li {
 
 #_flag {
     position: fixed;
-    right: 10px;
+    [dir="ltr"] & {
+        right: 10px;
+    }
+    [dir="rtl"] & {
+        left: 10px;
+    }
     top: 0;
     font-size: 30px;
     -webkit-text-stroke-width: 1px;
@@ -39,7 +45,12 @@ li {
 
 #_mark {
     position: fixed;
-    left: 10px;
+    [dir="ltr"] & {
+        left: 10px;
+    }
+    [dir="rtl"] & {
+        right: 10px;
+    }
     top: 0;
     font-size: 30px;
     color: yellow;

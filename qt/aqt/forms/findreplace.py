@@ -1,5 +1,6 @@
 from aqt.qt import qtmajor
+
 if qtmajor > 5:
-  from .findreplace_qt6 import *
+    from _aqt.forms.findreplace_qt6 import *
 else:
-  from .findreplace_qt5 import *  # type: ignore
+    from _aqt.forms.findreplace_qt5 import *  # type: ignore

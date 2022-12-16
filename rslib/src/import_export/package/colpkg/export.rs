@@ -6,12 +6,14 @@ use std::{
     collections::HashMap,
     ffi::OsStr,
     fs::File,
-    io::{self, Read, Write},
+    io::{
+        Read, Write, {self},
+    },
     path::{Path, PathBuf},
 };
 
 use prost::Message;
-use sha1::Sha1;
+use sha1::{Digest, Sha1};
 use tempfile::NamedTempFile;
 use zip::{write::FileOptions, CompressionMethod, ZipWriter};
 use zstd::{
@@ -268,7 +270,7 @@ fn write_media_map(
         buf
     };
     let size = encoded_bytes.len();
-    let mut cursor = std::io::Cursor::new(encoded_bytes);
+    let mut cursor = io::Cursor::new(encoded_bytes);
     if meta.zstd_compressed() {
         zstd_copy(&mut cursor, zip, size)?;
     } else {
@@ -359,7 +361,7 @@ impl MediaCopier {
 
         self.encoder = wrapped_writer.finish()?;
 
-        Ok((size, hasher.digest().bytes()))
+        Ok((size, hasher.finalize().into()))
     }
 }
 

@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
 use super::{Chunk, Graves, SanityCheckCounts, UnchunkedChanges};
-use crate::{io::read_file, pb::sync_server_method_request::Method, prelude::*};
+use crate::{io::read_file, pb::sync::sync_server_method_request::Method, prelude::*};
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub enum SyncRequest {

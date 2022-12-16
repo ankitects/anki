@@ -3,9 +3,10 @@
 
 //! Check the .ftl files at build time to ensure we don't get runtime load failures.
 
-use super::gather::TranslationsByLang;
 use fluent::{FluentBundle, FluentResource};
 use unic_langid::LanguageIdentifier;
+
+use super::gather::TranslationsByLang;
 
 pub fn check(lang_map: &TranslationsByLang) {
     for (lang, files_map) in lang_map {

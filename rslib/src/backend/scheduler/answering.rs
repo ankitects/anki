@@ -12,8 +12,8 @@ use crate::{
     },
 };
 
-impl From<pb::CardAnswer> for CardAnswer {
-    fn from(mut answer: pb::CardAnswer) -> Self {
+impl From<pb::scheduler::CardAnswer> for CardAnswer {
+    fn from(mut answer: pb::scheduler::CardAnswer) -> Self {
         let mut new_state = mem::take(&mut answer.new_state).unwrap_or_default();
         let custom_data = mem::take(&mut new_state.custom_data);
         CardAnswer {
@@ -28,34 +28,38 @@ impl From<pb::CardAnswer> for CardAnswer {
     }
 }
 
-impl From<pb::card_answer::Rating> for Rating {
-    fn from(rating: pb::card_answer::Rating) -> Self {
+impl From<pb::scheduler::card_answer::Rating> for Rating {
+    fn from(rating: pb::scheduler::card_answer::Rating) -> Self {
         match rating {
-            pb::card_answer::Rating::Again => Rating::Again,
-            pb::card_answer::Rating::Hard => Rating::Hard,
-            pb::card_answer::Rating::Good => Rating::Good,
-            pb::card_answer::Rating::Easy => Rating::Easy,
+            pb::scheduler::card_answer::Rating::Again => Rating::Again,
+            pb::scheduler::card_answer::Rating::Hard => Rating::Hard,
+            pb::scheduler::card_answer::Rating::Good => Rating::Good,
+            pb::scheduler::card_answer::Rating::Easy => Rating::Easy,
         }
     }
 }
 
-impl From<QueuedCard> for pb::queued_cards::QueuedCard {
+impl From<QueuedCard> for pb::scheduler::queued_cards::QueuedCard {
     fn from(queued_card: QueuedCard) -> Self {
         Self {
             card: Some(queued_card.card.into()),
             states: Some(queued_card.states.into()),
             queue: match queued_card.kind {
-                crate::scheduler::queue::QueueEntryKind::New => pb::queued_cards::Queue::New,
-                crate::scheduler::queue::QueueEntryKind::Review => pb::queued_cards::Queue::Review,
+                crate::scheduler::queue::QueueEntryKind::New => {
+                    pb::scheduler::queued_cards::Queue::New
+                }
+                crate::scheduler::queue::QueueEntryKind::Review => {
+                    pb::scheduler::queued_cards::Queue::Review
+                }
                 crate::scheduler::queue::QueueEntryKind::Learning => {
-                    pb::queued_cards::Queue::Learning
+                    pb::scheduler::queued_cards::Queue::Learning
                 }
             } as i32,
         }
     }
 }
 
-impl From<QueuedCards> for pb::QueuedCards {
+impl From<QueuedCards> for pb::scheduler::QueuedCards {
     fn from(queued_cards: QueuedCards) -> Self {
         Self {
             cards: queued_cards.cards.into_iter().map(Into::into).collect(),

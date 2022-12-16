@@ -1,1 +1,0 @@
-../../../.bazel/bin/qt/aqt/forms/browserdisp_qt6.py

@@ -63,7 +63,7 @@ class CardStats:
         self.txt += self.makeLine(k, v)
 
     def makeLine(self, k: str, v: str | int) -> str:
-        txt = "<tr><td align=left style='padding-right: 3px;'>"
+        txt = "<tr><td align=start style='padding-right: 3px;'>"
         txt += f"<b>{k}</b></td><td>{v}</td></tr>"
         return txt
 
@@ -909,12 +909,12 @@ when you answer "good" on a review."""
         colon = ":"
         if bold:
             i.append(
-                ("<tr><td width=200 align=right>%s%s</td><td><b>%s</b></td></tr>")
+                ("<tr><td width=200 align=start>%s%s</td><td><b>%s</b></td></tr>")
                 % (a, colon, b)
             )
         else:
             i.append(
-                ("<tr><td width=200 align=right>%s%s</td><td>%s</td></tr>")
+                ("<tr><td width=200 align=end>%s%s</td><td>%s</td></tr>")
                 % (a, colon, b)
             )
 

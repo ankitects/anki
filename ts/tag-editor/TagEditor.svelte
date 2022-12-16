@@ -3,13 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { createEventDispatcher, tick } from "svelte";
+    import { createEventDispatcher, setContext, tick } from "svelte";
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
+    import Shortcut from "../components/Shortcut.svelte";
     import { execCommand } from "../domlib";
-    import { isArrowDown, isArrowUp } from "../lib/keys";
-    import { Tags, tags as tagsService } from "../lib/proto";
+    import { tagActionsShortcutsKey } from "@tslib/context-keys";
+    import { isArrowDown, isArrowUp } from "@tslib/keys";
+    import { Tags, tags as tagsService } from "@tslib/proto";
     import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";
@@ -25,6 +27,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let tags: Writable<string[]>;
     export let keyCombination: string = "Control+Shift+T";
+
+    const selectAllShortcut = "Control+A";
+    const copyShortcut = "Control+C";
+    const removeShortcut = "Backspace";
+    setContext(tagActionsShortcutsKey, {
+        selectAllShortcut,
+        copyShortcut,
+        removeShortcut,
+    });
 
     let tagTypes: TagType[];
     function tagsToTagTypes(tags: string[]): void {
@@ -66,7 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function updateSuggestions(): void {
         const activeTag = tagTypes[active!];
-        const activeName = activeTag.name;
+        const activeName = activeTag!.name;
 
         autocompleteDisabled = activeName.length === 0;
 
@@ -381,8 +392,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: shortenTags = shortenTags || assumedRows > 2;
     $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
 
-    $: dispatch("heightChange", { height: height * 1.15 });
+    $: dispatch("heightChange", { height: height + 1 });
 </script>
+
+{#if anyTagsSelected}
+    <Shortcut keyCombination={selectAllShortcut} on:action={selectAllTags} />
+    <Shortcut keyCombination={copyShortcut} on:action={copySelectedTags} />
+    <Shortcut keyCombination={removeShortcut} on:action={deleteSelectedTags} />
+{/if}
 
 <div class="tag-editor" on:focusout={deselectIfLeave} bind:offsetHeight={height}>
     <TagOptionsButton
@@ -393,6 +410,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:tagdelete={deleteSelectedTags}
         on:tagappend={appendEmptyTag}
         {keyCombination}
+        --icon-align="baseline"
     />
 
     {#each tagTypes as tag, index (tag.id)}
@@ -501,6 +519,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .hide-tag :global(.tag) {
-        opacity: 0;
+        visibility: hidden;
     }
 </style>

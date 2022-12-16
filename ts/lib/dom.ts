@@ -99,8 +99,8 @@ export function elementIsEmpty(element: Element): boolean {
 export function nodeContainsInlineContent(node: Node): boolean {
     for (const child of node.childNodes) {
         if (
-            (nodeIsElement(child) && elementIsBlock(child)) ||
-            !nodeContainsInlineContent(child)
+            (nodeIsElement(child) && elementIsBlock(child))
+            || !nodeContainsInlineContent(child)
         ) {
             return false;
         }
@@ -122,8 +122,7 @@ export function fragmentToString(fragment: DocumentFragment): string {
 }
 
 const getAnchorParent =
-    <T extends Element>(predicate: (element: Element) => element is T) =>
-    (root: Node): T | null => {
+    <T extends Element>(predicate: (element: Element) => element is T) => (root: Node): T | null => {
         const anchor = getSelection(root)?.anchorNode;
 
         if (!anchor) {
@@ -143,12 +142,10 @@ const getAnchorParent =
 
 const isListItem = (element: Element): element is HTMLLIElement =>
     window.getComputedStyle(element).display === "list-item";
-const isParagraph = (element: Element): element is HTMLParamElement =>
-    element.tagName === "P";
+const isParagraph = (element: Element): element is HTMLParamElement => element.tagName === "P";
 const isBlockElement = (
     element: Element,
-): element is HTMLLIElement & HTMLParamElement =>
-    isListItem(element) || isParagraph(element);
+): element is HTMLLIElement & HTMLParamElement => isListItem(element) || isParagraph(element);
 
 export const getListItem = getAnchorParent(isListItem);
 export const getParagraph = getAnchorParent(isParagraph);

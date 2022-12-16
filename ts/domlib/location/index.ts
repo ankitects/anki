@@ -13,13 +13,6 @@ registerPackage("anki/location", {
     saveSelection,
 });
 
-export {
-    findNodeFromCoordinates,
-    getNodeCoordinates,
-    getRangeCoordinates,
-    Position,
-    restoreSelection,
-    saveSelection,
-};
+export { findNodeFromCoordinates, getNodeCoordinates, getRangeCoordinates, Position, restoreSelection, saveSelection };
 export type { RangeCoordinates } from "./range";
 export type { SelectionLocation } from "./selection";

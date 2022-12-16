@@ -1,5 +1,0 @@
-[profile.release]
-#opt-level = 3
-lto = false
-incremental = true
-codegen-units = 256

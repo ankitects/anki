@@ -520,38 +520,26 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
 
-        text_color = self.mw.pm.profile.get("lastTextColor", "#00f")
-        highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#00f")
+        text_color = self.mw.pm.profile.get("lastTextColor", "#0000ff")
+        highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#0000ff")
 
-        js = """
-            setFields({});
-            setCollapsed({});
-            setPlainTexts({});
-            setDescriptions({});
-            setFonts({});
-            focusField({});
-            setNoteId({});
-            setColorButtons({});
-            setTags({});
-            setTagsCollapsed({});
-            setMathjaxEnabled({});
-            setShrinkImages({});
-            setCloseHTMLTags({});
-            """.format(
-            json.dumps(data),
-            json.dumps(collapsed),
-            json.dumps(plain_texts),
-            json.dumps(descriptions),
-            json.dumps(self.fonts()),
-            json.dumps(focusTo),
-            json.dumps(self.note.id),
-            json.dumps([text_color, highlight_color]),
-            json.dumps(self.note.tags),
-            json.dumps(self.mw.pm.tags_collapsed(self.editorMode)),
-            json.dumps(self.mw.col.get_config("renderMathjax", True)),
-            json.dumps(self.mw.col.get_config("shrinkEditorImages", True)),
-            json.dumps(self.mw.col.get_config("closeHTMLTags", True)),
-        )
+        js = f"""
+            saveSession();
+            setFields({json.dumps(data)});
+            setNotetypeId({json.dumps(self.note.mid)});
+            setCollapsed({json.dumps(collapsed)});
+            setPlainTexts({json.dumps(plain_texts)});
+            setDescriptions({json.dumps(descriptions)});
+            setFonts({json.dumps(self.fonts())});
+            focusField({json.dumps(focusTo)});
+            setNoteId({json.dumps(self.note.id)});
+            setColorButtons({json.dumps([text_color, highlight_color])});
+            setTags({json.dumps(self.note.tags)});
+            setTagsCollapsed({json.dumps(self.mw.pm.tags_collapsed(self.editorMode))});
+            setMathjaxEnabled({json.dumps(self.mw.col.get_config("renderMathjax", True))});
+            setShrinkImages({json.dumps(self.mw.col.get_config("shrinkEditorImages", True))});
+            setCloseHTMLTags({json.dumps(self.mw.col.get_config("closeHTMLTags", True))});
+            """
 
         if self.addMode:
             sticky = [field["sticky"] for field in self.note.note_type()["flds"]]

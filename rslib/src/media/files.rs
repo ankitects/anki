@@ -11,7 +11,7 @@ use std::{
 
 use lazy_static::lazy_static;
 use regex::Regex;
-use sha1::Sha1;
+use sha1::{Digest, Sha1};
 use unic_ucd_category::GeneralCategory;
 use unicode_normalization::{is_nfc, UnicodeNormalization};
 
@@ -255,7 +255,7 @@ fn split_and_truncate_filename(fname: &str, max_bytes: usize) -> (&str, &str) {
 }
 
 /// Return a substring on a valid UTF8 boundary.
-/// Based on a funtion in the Rust stdlib.
+/// Based on a function in the Rust stdlib.
 fn truncated_to_char_boundary(s: &str, mut max: usize) -> &str {
     if max >= s.len() {
         s
@@ -286,7 +286,7 @@ pub(crate) fn sha1_of_file(path: &Path) -> Result<Sha1Hash, FileIoError> {
 }
 
 /// Return the SHA1 of a stream.
-pub(crate) fn sha1_of_reader(reader: &mut impl Read) -> std::io::Result<Sha1Hash> {
+pub(crate) fn sha1_of_reader(reader: &mut impl Read) -> io::Result<Sha1Hash> {
     let mut hasher = Sha1::new();
     let mut buf = [0; 64 * 1024];
     loop {
@@ -297,14 +297,14 @@ pub(crate) fn sha1_of_reader(reader: &mut impl Read) -> std::io::Result<Sha1Hash
             Err(e) => return Err(e),
         };
     }
-    Ok(hasher.digest().bytes())
+    Ok(hasher.finalize().into())
 }
 
 /// Return the SHA1 of provided data.
 pub(crate) fn sha1_of_data(data: &[u8]) -> Sha1Hash {
     let mut hasher = Sha1::new();
     hasher.update(data);
-    hasher.digest().bytes()
+    hasher.finalize().into()
 }
 
 pub(super) fn mtime_as_i64<P: AsRef<Path>>(path: P) -> io::Result<i64> {

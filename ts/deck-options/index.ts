@@ -6,12 +6,13 @@
  */
 
 import "../sveltelib/export-runtime";
-import "./deck-options-base.css";
+import "./deck-options-base.scss";
+
+import { ModuleName, setupI18n } from "@tslib/i18n";
+import { checkNightMode } from "@tslib/nightmode";
+import { deckConfig, Decks } from "@tslib/proto";
 
 import { modalsKey, touchDeviceKey } from "../components/context-keys";
-import { ModuleName, setupI18n } from "../lib/i18n";
-import { checkNightMode } from "../lib/nightmode";
-import { deckConfig, Decks } from "../lib/proto";
 import DeckOptionsPage from "./DeckOptionsPage.svelte";
 import { DeckOptionsState } from "./lib";
 

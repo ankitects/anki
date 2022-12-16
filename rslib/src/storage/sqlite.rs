@@ -14,11 +14,10 @@ use super::{
 };
 use crate::{
     config::schema11::schema11_config_as_string,
-    error::{AnkiError, DbErrorKind, Result},
-    i18n::I18n,
+    error::DbErrorKind,
+    prelude::*,
     scheduler::timing::{local_minutes_west_for_stamp, v1_creation_date},
     text::without_combining,
-    timestamp::TimestampMillis,
 };
 
 fn unicase_compare(s1: &str, s2: &str) -> Ordering {
@@ -44,11 +43,11 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
 
     db.busy_timeout(std::time::Duration::from_secs(0))?;
 
-    db.pragma_update(None, "locking_mode", &"exclusive")?;
-    db.pragma_update(None, "page_size", &4096)?;
-    db.pragma_update(None, "cache_size", &(-40 * 1024))?;
-    db.pragma_update(None, "legacy_file_format", &false)?;
-    db.pragma_update(None, "journal_mode", &"wal")?;
+    db.pragma_update(None, "locking_mode", "exclusive")?;
+    db.pragma_update(None, "page_size", 4096)?;
+    db.pragma_update(None, "cache_size", -40 * 1024)?;
+    db.pragma_update(None, "legacy_file_format", false)?;
+    db.pragma_update(None, "journal_mode", "wal")?;
     // Android has no /tmp folder, and fails in the default config.
     #[cfg(target_os = "android")]
     db.pragma_update(None, "temp_store", &"memory")?;
@@ -231,11 +230,11 @@ impl SqliteStorage {
         if create {
             db.execute_batch(include_str!("schema11.sql"))?;
             // start at schema 11, then upgrade below
-            let crt = v1_creation_date();
+            let crt = TimestampSecs(v1_creation_date());
             let offset = if server {
                 None
             } else {
-                Some(local_minutes_west_for_stamp(crt))
+                Some(local_minutes_west_for_stamp(crt)?)
             };
             db.execute(
                 "update col set crt=?, scm=?, ver=?, conf=?",
@@ -271,7 +270,7 @@ impl SqliteStorage {
         if let Some(version) = desired_version {
             self.downgrade_to(version)?;
             if version.has_journal_mode_delete() {
-                self.db.pragma_update(None, "journal_mode", &"delete")?;
+                self.db.pragma_update(None, "journal_mode", "delete")?;
             }
         }
         Ok(())

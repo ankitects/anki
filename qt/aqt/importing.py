@@ -124,7 +124,7 @@ class ImportDialog(QDialog):
     def onDelimiter(self) -> None:
 
         # Open a modal dialog to enter an delimiter
-        # Todo/Idea Constrain the maximum width, so it doesnt take up that much screen space
+        # Todo/Idea Constrain the maximum width, so it doesn't take up that much screen space
         delim, ok = getText(
             tr.importing_by_default_anki_will_detect_the(),
             self,
@@ -256,8 +256,7 @@ class ImportDialog(QDialog):
         self.mapwidget.setLayout(self.grid)
         self.grid.setContentsMargins(3, 3, 3, 3)
         self.grid.setSpacing(6)
-        fields = self.importer.fields()
-        for num in range(len(self.mapping)):
+        for num in range(len(self.mapping)):  # pylint: disable=consider-using-enumerate
             text = tr.importing_field_of_file_is(val=num + 1)
             self.grid.addWidget(QLabel(text), num, 0)
             if self.mapping[num] == "_tags":

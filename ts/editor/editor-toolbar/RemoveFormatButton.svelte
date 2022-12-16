@@ -3,6 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@tslib/ftl";
+    import { altPressed, shiftPressed } from "@tslib/keys";
+    import { getPlatformString } from "@tslib/shortcuts";
+    import { singleCallback } from "@tslib/typing";
     import { onMount } from "svelte";
 
     import CheckBox from "../../components/CheckBox.svelte";
@@ -12,10 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Shortcut from "../../components/Shortcut.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
     import type { MatchType } from "../../domlib/surround";
-    import * as tr from "../../lib/ftl";
-    import { altPressed, shiftPressed } from "../../lib/keys";
-    import { getPlatformString } from "../../lib/shortcuts";
-    import { singleCallback } from "../../lib/typing";
     import { chevronDown } from "../icons";
     import { surrounder } from "../rich-text-input";
     import type { RemoveFormat } from "./EditorToolbar.svelte";
@@ -116,7 +116,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <WithFloating
     show={showFloating && !disabled}
-    placement="bottom"
     inline
     on:close={() => (showFloating = false)}
 >

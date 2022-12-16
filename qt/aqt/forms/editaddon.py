@@ -1,5 +1,6 @@
 from aqt.qt import qtmajor
+
 if qtmajor > 5:
-  from .editaddon_qt6 import *
+    from _aqt.forms.editaddon_qt6 import *
 else:
-  from .editaddon_qt5 import *  # type: ignore
+    from _aqt.forms.editaddon_qt5 import *  # type: ignore

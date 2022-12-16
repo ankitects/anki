@@ -4,7 +4,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import Badge from "../components/Badge.svelte";
-    import ButtonGroup from "../components/ButtonGroup.svelte";
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import LabelButton from "../components/LabelButton.svelte";
     import Select from "../components/Select.svelte";
@@ -16,13 +15,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: ChangeNotetypeState;
     const notetypes = state.notetypes;
     const info = state.info;
-    let value: number = 0;
+
+    let value = $notetypes.findIndex((e) => e.current);
+    $: options = Array.from($notetypes, (notetype) => notetype.name);
+    $: label = options[value];
 
     $: state.setTargetNotetypeIndex(value);
-    $: options = Array.from($notetypes, (notetype) => notetype.name);
 </script>
 
-<ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
+<ButtonToolbar class="justify-content-between" wrap={false}>
     <LabelButton disabled={true}>
         {$info.oldNotetypeName}
     </LabelButton>
@@ -33,13 +34,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {@html arrowRightIcon}
         {/if}
     </Badge>
-    <ButtonGroup class="flex-grow-1">
-        <Select class="flex-grow-1" current={options[value]}>
-            {#each options as option, idx}
-                <SelectOption on:select={() => (value = idx)}>{option}</SelectOption>
-            {/each}
-        </Select>
-    </ButtonGroup>
+    <Select class="flex-grow-1" bind:value {label}>
+        {#each options as option, idx}
+            <SelectOption value={idx}>{option}</SelectOption>
+        {/each}
+    </Select>
 
     <SaveButton {state} />
 </ButtonToolbar>

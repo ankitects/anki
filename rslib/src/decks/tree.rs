@@ -14,8 +14,10 @@ use super::{
     limits::{remaining_limits_map, RemainingLimits},
     DueCounts,
 };
-pub use crate::pb::set_deck_collapsed_request::Scope as DeckCollapseScope;
-use crate::{config::SchedulerVersion, ops::OpOutput, pb::DeckTreeNode, prelude::*, undo::Op};
+pub use crate::pb::decks::set_deck_collapsed_request::Scope as DeckCollapseScope;
+use crate::{
+    config::SchedulerVersion, ops::OpOutput, pb::decks::DeckTreeNode, prelude::*, undo::Op,
+};
 
 fn deck_names_to_tree(names: impl Iterator<Item = (DeckId, String)>) -> DeckTreeNode {
     let mut top = DeckTreeNode::default();

@@ -16,7 +16,8 @@ from http import HTTPStatus
 from typing import Callable
 
 import flask
-import flask_cors  # type: ignore
+import flask_cors
+import stringcase
 from flask import Response, request
 from waitress.server import create_server
 
@@ -24,7 +25,6 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import hooks
-from anki._vendor import stringcase
 from anki.collection import OpChanges
 from anki.decks import UpdateDeckConfigs
 from anki.scheduler_pb2 import SchedulingStates
@@ -34,6 +34,7 @@ from aqt.deckoptions import DeckOptionsDialog
 from aqt.import_export.import_csv_dialog import ImportCsvDialog
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.qt import *
+from aqt.utils import aqt_data_path
 
 app = flask.Flask(__name__, root_path="/fake")
 flask_cors.CORS(app)
@@ -213,18 +214,14 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
 def _builtin_data(path: str) -> bytes:
     """Return data from file in aqt/data folder.
     Path must use forward slash separators."""
-    # overriden location?
-    if data_folder := os.getenv("ANKI_DATA_FOLDER"):
-        full_path = os.path.join(data_folder, path)
-        with open(full_path, "rb") as f:
-            return f.read()
-    else:
-        if is_win and not getattr(sys, "frozen", False):
-            # default Python resource loader expects backslashes on Windows
-            path = path.replace("/", "\\")
-        reader = aqt.__loader__.get_resource_reader("aqt")  # type: ignore
+    # packaged build?
+    if getattr(sys, "frozen", False):
+        reader = aqt.__loader__.get_resource_reader("_aqt")  # type: ignore
         with reader.open_resource(path) as f:
             return f.read()
+    else:
+        full_path = aqt_data_path() / ".." / path
+        return full_path.read_bytes()
 
 
 def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
@@ -235,6 +232,8 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
         data = _builtin_data(data_path)
         return Response(data, mimetype=mimetype)
     except FileNotFoundError:
+        if dev_mode:
+            print(f"404: {data_path}")
         return flask.make_response(
             f"Invalid path: {path}",
             HTTPStatus.NOT_FOUND,

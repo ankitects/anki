@@ -19,7 +19,7 @@ impl<'a> CardNodes<'a> {
         &self,
         question_side: bool,
         tr: &I18n,
-    ) -> (String, Vec<pb::AvTag>) {
+    ) -> (String, Vec<pb::card_rendering::AvTag>) {
         let mut extractor = AvExtractor::new(question_side, tr);
         (extractor.write(self), extractor.tags)
     }
@@ -91,7 +91,7 @@ trait Write {
     }
 
     fn write_directive_option(&mut self, buf: &mut String, key: &str, val: &str) {
-        if val.contains::<&[char]>(&[']', ' ', '\t', '\r', '\n']) {
+        if val.contains([']', ' ', '\t', '\r', '\n']) {
             write!(buf, " {}=\"{}\"", key, val).unwrap();
         } else {
             write!(buf, " {}={}", key, val).unwrap();
@@ -119,7 +119,7 @@ impl Write for AvStripper {
 
 struct AvExtractor<'a> {
     side: char,
-    tags: Vec<pb::AvTag>,
+    tags: Vec<pb::card_rendering::AvTag>,
     tr: &'a I18n,
 }
 
@@ -147,8 +147,8 @@ impl<'a> AvExtractor<'a> {
 impl Write for AvExtractor<'_> {
     fn write_sound(&mut self, buf: &mut String, resource: &str) {
         self.write_play_tag(buf);
-        self.tags.push(pb::AvTag {
-            value: Some(pb::av_tag::Value::SoundOrVideo(
+        self.tags.push(pb::card_rendering::AvTag {
+            value: Some(pb::card_rendering::av_tag::Value::SoundOrVideo(
                 decode_entities(resource).into(),
             )),
         });
@@ -161,18 +161,20 @@ impl Write for AvExtractor<'_> {
         }
 
         self.write_play_tag(buf);
-        self.tags.push(pb::AvTag {
-            value: Some(pb::av_tag::Value::Tts(pb::TtsTag {
-                field_text: self.transform_tts_content(directive),
-                lang: directive.lang.into(),
-                voices: directive.voices.iter().map(ToString::to_string).collect(),
-                speed: directive.speed,
-                other_args: directive
-                    .options
-                    .iter()
-                    .map(|(key, val)| format!("{}={}", key, val))
-                    .collect(),
-            })),
+        self.tags.push(pb::card_rendering::AvTag {
+            value: Some(pb::card_rendering::av_tag::Value::Tts(
+                pb::card_rendering::TtsTag {
+                    field_text: self.transform_tts_content(directive),
+                    lang: directive.lang.into(),
+                    voices: directive.voices.iter().map(ToString::to_string).collect(),
+                    speed: directive.speed,
+                    other_args: directive
+                        .options
+                        .iter()
+                        .map(|(key, val)| format!("{}={}", key, val))
+                        .collect(),
+                },
+            )),
         });
     }
 }

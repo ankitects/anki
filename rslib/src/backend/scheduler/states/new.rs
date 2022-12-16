@@ -3,17 +3,17 @@
 
 use crate::{pb, scheduler::states::NewState};
 
-impl From<pb::scheduling_state::New> for NewState {
-    fn from(state: pb::scheduling_state::New) -> Self {
+impl From<pb::scheduler::scheduling_state::New> for NewState {
+    fn from(state: pb::scheduler::scheduling_state::New) -> Self {
         NewState {
             position: state.position,
         }
     }
 }
 
-impl From<NewState> for pb::scheduling_state::New {
+impl From<NewState> for pb::scheduler::scheduling_state::New {
     fn from(state: NewState) -> Self {
-        pb::scheduling_state::New {
+        pb::scheduler::scheduling_state::New {
             position: state.position,
         }
     }

@@ -8,9 +8,9 @@ use crate::{
     undo::{UndoOutput, UndoStatus},
 };
 
-impl From<OpChanges> for pb::OpChanges {
+impl From<OpChanges> for pb::collection::OpChanges {
     fn from(c: OpChanges) -> Self {
-        pb::OpChanges {
+        pb::collection::OpChanges {
             card: c.changes.card,
             note: c.changes.note,
             deck: c.changes.deck,
@@ -28,8 +28,8 @@ impl From<OpChanges> for pb::OpChanges {
 }
 
 impl UndoStatus {
-    pub(crate) fn into_protobuf(self, tr: &I18n) -> pb::UndoStatus {
-        pb::UndoStatus {
+    pub(crate) fn into_protobuf(self, tr: &I18n) -> pb::collection::UndoStatus {
+        pb::collection::UndoStatus {
             undo: self.undo.map(|op| op.describe(tr)).unwrap_or_default(),
             redo: self.redo.map(|op| op.describe(tr)).unwrap_or_default(),
             last_step: self.last_step as u32,
@@ -37,24 +37,24 @@ impl UndoStatus {
     }
 }
 
-impl From<OpOutput<()>> for pb::OpChanges {
+impl From<OpOutput<()>> for pb::collection::OpChanges {
     fn from(o: OpOutput<()>) -> Self {
         o.changes.into()
     }
 }
 
-impl From<OpOutput<usize>> for pb::OpChangesWithCount {
+impl From<OpOutput<usize>> for pb::collection::OpChangesWithCount {
     fn from(out: OpOutput<usize>) -> Self {
-        pb::OpChangesWithCount {
+        pb::collection::OpChangesWithCount {
             count: out.output as u32,
             changes: Some(out.changes.into()),
         }
     }
 }
 
-impl From<OpOutput<i64>> for pb::OpChangesWithId {
+impl From<OpOutput<i64>> for pb::collection::OpChangesWithId {
     fn from(out: OpOutput<i64>) -> Self {
-        pb::OpChangesWithId {
+        pb::collection::OpChangesWithId {
             id: out.output,
             changes: Some(out.changes.into()),
         }
@@ -62,8 +62,8 @@ impl From<OpOutput<i64>> for pb::OpChangesWithId {
 }
 
 impl OpOutput<UndoOutput> {
-    pub(crate) fn into_protobuf(self, tr: &I18n) -> pb::OpChangesAfterUndo {
-        pb::OpChangesAfterUndo {
+    pub(crate) fn into_protobuf(self, tr: &I18n) -> pb::collection::OpChangesAfterUndo {
+        pb::collection::OpChangesAfterUndo {
             changes: Some(self.changes.into()),
             operation: self.output.undone_op.describe(tr),
             reverted_to_timestamp: self.output.reverted_to.0,

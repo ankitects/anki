@@ -1,11 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import "./change-notetype-base.css";
+import "./change-notetype-base.scss";
 
-import { ModuleName, setupI18n } from "../lib/i18n";
-import { checkNightMode } from "../lib/nightmode";
-import { empty, Notetypes, notetypes } from "../lib/proto";
+import { ModuleName, setupI18n } from "@tslib/i18n";
+import { checkNightMode } from "@tslib/nightmode";
+import { empty, Notetypes, notetypes } from "@tslib/proto";
+
 import ChangeNotetypePage from "./ChangeNotetypePage.svelte";
 import { ChangeNotetypeState } from "./lib";
 
@@ -37,6 +38,6 @@ export async function setupChangeNotetypePage(
 
 // use #testXXXX where XXXX is notetype ID to test
 if (window.location.hash.startsWith("#test")) {
-    const ntid = parseInt(window.location.hash.substr("#test".length), 10);
+    const ntid = parseInt(window.location.hash.substring("#test".length), 10);
     setupChangeNotetypePage(ntid, ntid);
 }

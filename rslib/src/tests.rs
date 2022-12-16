@@ -10,7 +10,7 @@ use crate::{
     deckconfig::UpdateDeckConfigsRequest,
     io::create_dir,
     media::MediaManager,
-    pb::deck_configs_for_update::current_deck::Limits,
+    pb::deckconfig::deck_configs_for_update::current_deck::Limits,
     prelude::*,
 };
 

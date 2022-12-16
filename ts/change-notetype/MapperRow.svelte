@@ -14,23 +14,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let newIndex: number;
 
     const info = state.info;
+    $: oldIndex = $info.getOldIndex(ctx, newIndex);
 
-    let oldIndex = $info.getOldIndex(ctx, newIndex);
+    function onChange(evt: CustomEvent) {
+        oldIndex = evt.detail.value;
+        state.setOldIndex(ctx, newIndex, oldIndex);
+    }
 
-    const options = $info.getOldNamesIncludingNothing(ctx);
-    $: state.setOldIndex(ctx, newIndex, oldIndex);
+    $: label = $info.getOldNamesIncludingNothing(ctx)[oldIndex];
 </script>
 
-<Row --cols={2}>
-    <Col --col-size={1}>
-        <!-- svelte-ignore a11y-no-onchange -->
-        <Select current={options[oldIndex]}>
-            {#each options as name, idx}
-                <SelectOption on:select={() => (oldIndex = idx)}>{name}</SelectOption>
+<Row>
+    <Col>
+        <Select value={oldIndex} {label} on:change={onChange}>
+            {#each $info.getOldNamesIncludingNothing(ctx) as name, idx}
+                <SelectOption value={idx}>{name}</SelectOption>
             {/each}
         </Select>
     </Col>
-    <Col --col-size={1}>
+    <Col>
         {$info.getNewName(ctx, newIndex)}
     </Col>
 </Row>

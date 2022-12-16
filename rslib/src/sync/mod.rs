@@ -23,7 +23,7 @@ use crate::{
     io::atomic_rename,
     notes::Note,
     notetype::{Notetype, NotetypeSchema11},
-    pb::{sync_status_response, SyncStatusResponse},
+    pb::sync::{sync_status_response, SyncStatusResponse},
     prelude::*,
     revlog::RevlogEntry,
     serde::{default_on_invalid, deserialize_int_from_number},
@@ -1488,7 +1488,7 @@ mod test {
                     .map(|t| t.name)
                     .collect::<Vec<_>>()
             );
-
+            std::thread::sleep(std::time::Duration::from_millis(1));
             Ok(())
         };
 
@@ -1533,6 +1533,7 @@ mod test {
         }
 
         // fixme: inconsistent usn arg
+        std::thread::sleep(std::time::Duration::from_millis(1));
         col1.remove_cards_and_orphaned_notes(&[cardid])?;
         let usn = col1.usn()?;
         col1.remove_note_only_undoable(noteid, usn)?;

@@ -5,23 +5,12 @@ use std::env;
 
 use lazy_static::lazy_static;
 
-fn buildinfo(key: &str) -> &'static str {
-    let buildinfo = include_str!(env!("BUILDINFO"));
-    for line in buildinfo.split('\n') {
-        let mut it = line.split(' ');
-        if it.next().unwrap() == key {
-            return it.next().unwrap();
-        }
-    }
-    unreachable!("{} not found", key);
-}
-
 pub fn version() -> &'static str {
-    buildinfo("STABLE_VERSION")
+    include_str!("../../.version").trim()
 }
 
 pub fn buildhash() -> &'static str {
-    buildinfo("STABLE_BUILDHASH")
+    option_env!("BUILDHASH").unwrap_or("dev").trim()
 }
 
 pub(crate) fn sync_client_version() -> &'static str {

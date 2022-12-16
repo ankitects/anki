@@ -1,10 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { getRange, getSelection } from "../lib/cross-browser";
-import { on } from "../lib/events";
-import { isArrowDown, isArrowLeft, isArrowRight, isArrowUp } from "../lib/keys";
-import { singleCallback } from "../lib/typing";
+import { getRange, getSelection } from "@tslib/cross-browser";
+import { on } from "@tslib/events";
+import { isArrowDown, isArrowLeft, isArrowRight, isArrowUp } from "@tslib/keys";
+import { singleCallback } from "@tslib/typing";
+
 import { HandlerList } from "./handler-list";
 
 const nbsp = "\xa0";
@@ -63,9 +64,9 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
         await beforeInput.dispatch({ event });
 
         if (
-            !range ||
-            !event.inputType.startsWith("insert") ||
-            insertText.length === 0
+            !range
+            || !event.inputType.startsWith("insert")
+            || insertText.length === 0
         ) {
             return;
         }

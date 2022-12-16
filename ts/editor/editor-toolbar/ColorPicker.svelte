@@ -6,11 +6,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Shortcut from "../../components/Shortcut.svelte";
 
     export let keyCombination: string | null = null;
+    export let value: string;
 
     let inputRef: HTMLInputElement;
 </script>
 
-<input bind:this={inputRef} tabindex="-1" type="color" on:input on:change />
+<input bind:this={inputRef} tabindex="-1" type="color" bind:value on:input on:change />
 
 {#if keyCombination}
     <Shortcut {keyCombination} on:action={() => inputRef.click()} />

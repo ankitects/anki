@@ -9,7 +9,8 @@ use crate::{
     media::{
         database::{MediaDatabaseContext, MediaEntry},
         files::{
-            filename_if_normalized, sha1_of_file, MEDIA_SYNC_FILESIZE_LIMIT, NONSYNCABLE_FILENAME,
+            filename_if_normalized, mtime_as_i64, sha1_of_file, MEDIA_SYNC_FILESIZE_LIMIT,
+            NONSYNCABLE_FILENAME,
         },
     },
     prelude::*,
@@ -59,7 +60,17 @@ where
 
     pub(super) fn register_changes(&mut self, ctx: &mut MediaDatabaseContext) -> Result<()> {
         ctx.transact(|ctx| {
-            debug!(self.log, "begin change check");
+            // folder mtime unchanged?
+            let dirmod = mtime_as_i64(self.media_folder)?;
+
+            let mut meta = ctx.get_meta()?;
+            debug!(self.log, "begin change check"; "folder_mod" => dirmod, "db_mod" => meta.folder_mtime);
+            if dirmod == meta.folder_mtime {
+                debug!(self.log, "skip check");
+                return Ok(());
+            } else {
+                meta.folder_mtime = dirmod;
+            }
 
             let mtimes = ctx.all_mtimes()?;
             self.checked += mtimes.len();
@@ -69,6 +80,8 @@ where
 
             self.add_updated_entries(ctx, changed)?;
             self.remove_deleted_files(ctx, removed)?;
+
+            ctx.set_meta(&meta)?;
 
             // unconditional fire at end of op for accurate counts
             self.fire_progress_cb()?;

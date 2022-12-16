@@ -7,7 +7,7 @@ use crate::{
     error::Result,
     i18n::I18n,
     notetype::Notetype,
-    pb::stock_notetype::Kind,
+    pb::notetypes::stock_notetype::Kind,
     storage::SqliteStorage,
     timestamp::TimestampSecs,
 };

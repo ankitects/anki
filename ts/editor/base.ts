@@ -4,21 +4,20 @@
 /**
  * Code that is shared among all entry points in /ts/editor
  */
-import "./legacy.css";
-import "./editor-base.css";
-import "../lib/runtime-require";
+import "./legacy.scss";
+import "./editor-base.scss";
+import "@tslib/runtime-require";
 import "../sveltelib/export-runtime";
 
 declare global {
     interface Selection {
-        modify(s: string, t: string, u: string): void;
         addRange(r: Range): void;
         removeAllRanges(): void;
         getRangeAt(n: number): Range;
     }
 }
 
-import { ModuleName } from "../lib/i18n";
+import { ModuleName } from "@tslib/i18n";
 
 export const editorModules = [
     ModuleName.EDITING,

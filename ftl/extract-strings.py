@@ -16,10 +16,10 @@ from fluent.syntax.serializer import serialize_element
 
 root = os.environ["BUILD_WORKSPACE_DIRECTORY"]
 ftl_files = glob.glob(os.path.join(root, "ftl", "core", "*.ftl"), recursive=True)
-keys_by_value = {}
+keys_by_value: dict[str, list[str]] = {}
 
 for path in ftl_files:
-    obj = parse(open(path).read(), with_spans=False)
+    obj = parse(open(path, encoding="utf8").read(), with_spans=False)
     for ent in obj.body:
         if isinstance(ent, Junk):
             raise Exception(f"file had junk! {path} {ent}")
@@ -30,5 +30,7 @@ for path in ftl_files:
                 print("duplicate found:", keys_by_value[val], key)
             keys_by_value.setdefault(val, []).append(key)
 
-json.dump(keys_by_value, open(os.path.join(root, "keys_by_value.json"), "w"))
+json.dump(
+    keys_by_value, open(os.path.join(root, "keys_by_value.json"), "w", encoding="utf8")
+)
 print("keys:", len(keys_by_value))

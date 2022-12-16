@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import inspect
 import os
 import re
 import shutil
@@ -82,23 +83,29 @@ if TYPE_CHECKING:
     TextFormat = Literal["plain", "rich"]
 
 
-def aqt_data_folder() -> str:
-    # running in Bazel on macOS?
-    if path := os.getenv("AQT_DATA_FOLDER"):
-        return path
+def aqt_data_path() -> Path:
     # packaged?
-    elif getattr(sys, "frozen", False):
-        path = os.path.join(sys.prefix, "lib/aqt/data")
-        if os.path.exists(path):
+    if getattr(sys, "frozen", False):
+        prefix = Path(sys.prefix)
+        path = prefix / "lib/_aqt/data"
+        if path.exists():
             return path
         else:
-            return os.path.join(sys.prefix, "../Resources/aqt/data")
-    elif os.path.exists(dir := os.path.join(os.path.dirname(__file__), "data")):
-        return os.path.abspath(dir)
+            return prefix / "../Resources/_aqt/data"
     else:
-        # should only happen when running unit tests
-        print("warning, data folder not found")
-        return "."
+        import _aqt.colors
+
+        data_folder = Path(inspect.getfile(_aqt.colors)).with_name("data")
+        if data_folder.exists():
+            return data_folder.absolute()
+        else:
+            # should only happen when running unit tests
+            print("warning, data folder not found")
+            return Path(".")
+
+
+def aqt_data_folder() -> str:
+    return str(aqt_data_path())
 
 
 # shortcut to access Fluent translations; set as
@@ -677,20 +684,25 @@ def saveGeom(widget: QWidget, key: str) -> None:
 
 
 def restoreGeom(
-    widget: QWidget, key: str, offset: int | None = None, adjustSize: bool = False
+    widget: QWidget,
+    key: str,
+    offset: int | None = None,
+    adjustSize: bool = False,
+    default_size: tuple[int, int] | None = None,
 ) -> None:
     key += "Geom"
-    if aqt.mw.pm.profile.get(key):
-        widget.restoreGeometry(aqt.mw.pm.profile[key])
+    if existing_geom := aqt.mw.pm.profile.get(key):
+        widget.restoreGeometry(existing_geom)
         if is_mac and offset:
             if qtmajor > 5 or qtminor > 6:
                 # bug in osx toolkit
                 s = widget.size()
                 widget.resize(s.width(), s.height() + offset * 2)
         ensureWidgetInScreenBoundaries(widget)
-    else:
-        if adjustSize:
-            widget.adjustSize()
+    elif adjustSize:
+        widget.adjustSize()
+    elif default_size:
+        widget.resize(*default_size)
 
 
 def ensureWidgetInScreenBoundaries(widget: QWidget) -> None:
@@ -871,7 +883,7 @@ def current_window() -> QWidget | None:
 
 
 def send_to_trash(path: Path) -> None:
-    "Place file/folder in recyling bin, or delete permanently on failure."
+    "Place file/folder in recycling bin, or delete permanently on failure."
     if not path.exists():
         return
     try:
@@ -1154,7 +1166,7 @@ def gfxDriverIsBroken() -> bool:
 
 def startup_info() -> Any:
     "Use subprocess.Popen(startupinfo=...) to avoid opening a console window."
-    if not sys.platform == "win32":
+    if sys.platform != "win32":
         return None
     si = subprocess.STARTUPINFO()  # pytype: disable=module-attr
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # pytype: disable=module-attr

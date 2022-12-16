@@ -1,21 +1,5 @@
 #!/bin/bash
 
 set -e
-
-test -e WORKSPACE || (
-    echo "Run from project root"
-    exit 1
-)
-
-cwd=$(pwd)
-build=.bazel/out/dist
-
-# we remove wheels between runs, so old builds
-# don't break 'pip install dist/*.whl'
-rm -rf ${build}/*.whl
-
-bazel build --config opt wheels
-mkdir -p $build
-cd $build && tar xf ${cwd}/.bazel/bin/wheels.tar
-
-echo "wheels are in .bazel/out/dist"
+RELEASE=1 ./ninja wheels
+echo "wheels are in out/wheels"

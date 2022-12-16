@@ -1,9 +1,5 @@
-@use "root-vars";
+@use "sass/root-vars";
 @import "sass/base";
-
-body {
-    padding: 0 1em 1em 1em;
-}
 
 button {
     margin-bottom: 5px;

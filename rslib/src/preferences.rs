@@ -5,7 +5,7 @@ use crate::{
     collection::Collection,
     config::{BoolKey, StringKey},
     error::Result,
-    pb::{
+    pb::config::{
         preferences::{scheduling::NewReviewMix as NewRevMixPB, Editing, Reviewing, Scheduling},
         Preferences,
     },
@@ -89,7 +89,7 @@ impl Collection {
 
         if s.new_timezone {
             if self.get_creation_utc_offset().is_none() {
-                self.set_creation_utc_offset(Some(local_minutes_west_for_stamp(created.0)))?;
+                self.set_creation_utc_offset(Some(local_minutes_west_for_stamp(created)?))?;
             }
         } else {
             self.set_creation_utc_offset(None)?;

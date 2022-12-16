@@ -10,7 +10,9 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from operator import attrgetter
-from typing import List, Optional
+from typing import Optional
+
+sys.path.append("pylib/anki/_vendor")
 
 import stringcase
 
@@ -28,6 +30,10 @@ class Hook:
     legacy_hook: Optional[str] = None
     # if legacy hook takes no arguments but the new hook does, set this
     legacy_no_args: bool = False
+    # if the hook replaces a deprecated one, add its name here
+    replaces: Optional[str] = None
+    # arguments that the hook being replaced took
+    replaced_hook_args: Optional[list[str]] = None
     # docstring to add to hook class
     doc: Optional[str] = None
 
@@ -41,9 +47,9 @@ class Hook:
         types_str = ", ".join(types)
         return f"Callable[[{types_str}], {self.return_type or 'None'}]"
 
-    def arg_names(self) -> list[str]:
+    def arg_names(self, args: Optional[list[str]]) -> list[str]:
         names = []
-        for arg in self.args or []:
+        for arg in args or []:
             if not arg:
                 continue
             (name, type) = arg.split(":")
@@ -106,10 +112,14 @@ class {self.classname()}:
             # hook name only
             return f'"{self.legacy_hook}"'
         else:
-            return ", ".join([f'"{self.legacy_hook}"'] + self.arg_names())
+            return ", ".join([f'"{self.legacy_hook}"'] + self.arg_names(self.args))
+
+    def replaced_args(self) -> str:
+        args = ", ".join(self.arg_names(self.replaced_hook_args))
+        return f"{self.replaces}({args})"
 
     def hook_fire_code(self) -> str:
-        arg_names = self.arg_names()
+        arg_names = self.arg_names(self.args)
         args_including_self = ["self"] + (self.args or [])
         out = f"""\
     def __call__({", ".join(args_including_self)}) -> None:
@@ -121,7 +131,23 @@ class {self.classname()}:
                 self._hooks.remove(hook)
                 raise
 """
-        if self.legacy_hook:
+        if self.replaces and self.legacy_hook:
+            raise Exception(
+                f"Hook {self.name} replaces {self.replaces} and "
+                "must therefore not define a legacy hook."
+            )
+        elif self.replaces:
+            out += f"""\
+        if {self.replaces}.count() > 0:
+            print(
+                "The hook {self.replaces} is deprecated.\\n"
+                "Use {self.name} instead."
+            )
+        {self.replaced_args()}
+"""
+        elif self.legacy_hook:
+            # don't run legacy hook if replaced hook exists
+            # otherwise the legacy hook will be run twice
             out += f"""\
         # legacy support
         anki.hooks.runHook({self.legacy_args()})
@@ -129,7 +155,7 @@ class {self.classname()}:
         return f"{out}\n\n"
 
     def filter_fire_code(self) -> str:
-        arg_names = self.arg_names()
+        arg_names = self.arg_names(self.args)
         args_including_self = ["self"] + (self.args or [])
         out = f"""\
     def __call__({", ".join(args_including_self)}) -> {self.return_type}:
@@ -141,7 +167,23 @@ class {self.classname()}:
                 self._hooks.remove(filter)
                 raise
 """
-        if self.legacy_hook:
+        if self.replaces and self.legacy_hook:
+            raise Exception(
+                f"Hook {self.name} replaces {self.replaces} and "
+                "must therefore not define a legacy hook."
+            )
+        elif self.replaces:
+            out += f"""\
+        if {self.replaces}.count() > 0:
+            print(
+                "The hook {self.replaces} is deprecated.\\n"
+                "Use {self.name} instead."
+            )
+        {arg_names[0]} = {self.replaced_args()}
+"""
+        elif self.legacy_hook:
+            # don't run legacy hook if replaced hook exists
+            # otherwise the legacy hook will be run twice
             out += f"""\
         # legacy support
         {arg_names[0]} = anki.hooks.runFilter({self.legacy_args()})

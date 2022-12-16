@@ -3,10 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { directionKey } from "@tslib/context-keys";
     import { getContext } from "svelte";
     import type { Readable } from "svelte/store";
-
-    import { directionKey } from "../lib/context-keys";
 
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
 </script>

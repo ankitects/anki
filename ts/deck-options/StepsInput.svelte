@@ -3,7 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { pageTheme } from "../sveltelib/theme";
     import { stepsToString, stringToSteps } from "./steps";
 
     export let value: number[];
@@ -16,18 +15,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<input
-    type="text"
-    value={stringValue}
-    class="form-control"
-    class:nightMode={$pageTheme.isDark}
-    on:blur={update}
-/>
+<input type="text" value={stringValue} on:blur={update} />
 
 <style lang="scss">
-    @use "sass/night-mode" as nightmode;
-
-    .nightMode {
-        @include nightmode.input;
+    input {
+        width: 100%;
     }
 </style>

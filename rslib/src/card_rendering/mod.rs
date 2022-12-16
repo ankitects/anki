@@ -18,7 +18,7 @@ pub fn extract_av_tags<S: Into<String> + AsRef<str>>(
     txt: S,
     question_side: bool,
     tr: &I18n,
-) -> (String, Vec<pb::AvTag>) {
+) -> (String, Vec<pb::card_rendering::AvTag>) {
     nodes_or_text_only(txt.as_ref())
         .map(|nodes| nodes.write_and_extract_av_tags(question_side, tr))
         .unwrap_or_else(|| (txt.into(), vec![]))
@@ -122,17 +122,21 @@ mod test {
             (
                 "foo [anki:play:q:0] baz [anki:play:q:1]",
                 vec![
-                    pb::AvTag {
-                        value: Some(pb::av_tag::Value::SoundOrVideo("bar.mp3".to_string()))
+                    pb::card_rendering::AvTag {
+                        value: Some(pb::card_rendering::av_tag::Value::SoundOrVideo(
+                            "bar.mp3".to_string()
+                        ))
                     },
-                    pb::AvTag {
-                        value: Some(pb::av_tag::Value::Tts(pb::TtsTag {
-                            field_text: tr.card_templates_blank().to_string(),
-                            lang: "en_US".to_string(),
-                            voices: vec![],
-                            speed: 1.0,
-                            other_args: vec![],
-                        }))
+                    pb::card_rendering::AvTag {
+                        value: Some(pb::card_rendering::av_tag::Value::Tts(
+                            pb::card_rendering::TtsTag {
+                                field_text: tr.card_templates_blank().to_string(),
+                                lang: "en_US".to_string(),
+                                voices: vec![],
+                                speed: 1.0,
+                                other_args: vec![],
+                            }
+                        ))
                     }
                 ],
             ),
@@ -144,7 +148,6 @@ mod test {
                 format!(
                     "[{}]",
                     tr.errors_bad_directive("anki:tts", tr.errors_option_not_set("lang"))
-                        .to_owned()
                 ),
                 vec![],
             ),

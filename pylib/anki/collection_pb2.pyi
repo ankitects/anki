@@ -1,1 +1,0 @@
-../../.bazel/bin/pylib/anki/collection_pb2.pyi

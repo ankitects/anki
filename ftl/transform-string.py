@@ -7,7 +7,6 @@ Tool to apply transform to an ftl string and its translations.
 """
 
 import glob
-import json
 import os
 
 from fluent.syntax import parse, serialize
@@ -28,7 +27,7 @@ target_repls = [
 
 
 def transform_string_in_file(path):
-    obj = parse(open(path).read(), with_spans=False)
+    obj = parse(open(path, encoding="utf8").read(), with_spans=False)
     changed = False
     for ent in obj.body:
         if isinstance(ent, Junk):

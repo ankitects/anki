@@ -3,6 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { hasBlockAttribute } from "@tslib/dom";
+    import { on } from "@tslib/events";
+    import { promiseWithResolver } from "@tslib/promise";
+    import type { Callback } from "@tslib/typing";
+    import { singleCallback } from "@tslib/typing";
     import type CodeMirrorLib from "codemirror";
     import { tick } from "svelte";
     import { writable } from "svelte/store";
@@ -14,11 +19,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { placeCaretAfter } from "../../domlib/place-caret";
     import { escapeSomeEntities, unescapeSomeEntities } from "../../editable/mathjax";
     import { Mathjax } from "../../editable/mathjax-element";
-    import { hasBlockAttribute } from "../../lib/dom";
-    import { on } from "../../lib/events";
-    import { promiseWithResolver } from "../../lib/promise";
-    import type { Callback } from "../../lib/typing";
-    import { singleCallback } from "../../lib/typing";
     import type { EditingInputAPI } from "../EditingArea.svelte";
     import HandleBackground from "../HandleBackground.svelte";
     import { context } from "../NoteEditor.svelte";
@@ -202,7 +202,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         >
             <WithFloating
                 reference={activeImage}
-                placement="auto"
                 offset={20}
                 keepOnKeyup
                 let:position={positionFloating}
@@ -223,12 +222,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             placeHandle(true);
                             resetHandle();
                         }}
-                        on:tab={async () => {
-                            // Instead of resetting on blur, we reset on tab
-                            // Otherwise, when clicking from Mathjax element to another,
-                            // the user has to click twice (focus is called before blur?)
-                            resetHandle();
+                        on:blur={async () => {
+                            await tick();
+                            await resetHandle();
                         }}
+                        on:close={resetHandle}
                         let:editor={mathjaxEditor}
                     >
                         <Shortcut
@@ -254,9 +252,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 positionFloating();
                             }}
                             on:delete={async () => {
-                                placeCaretAfter(activeImage);
-                                mathjaxElement?.remove();
-                                clear();
+                                if (activeImage) {
+                                    placeCaretAfter(activeImage);
+                                    mathjaxElement?.remove();
+                                    clear();
+                                }
                             }}
                             on:surround={async ({ detail }) => {
                                 const editor = await mathjaxEditor.editor;

@@ -519,7 +519,16 @@ class AnkiQt(QMainWindow):
         self.mediaServer.shutdown()
         # Rust background jobs are not awaited implicitly
         self.backend.await_backup_completion()
-        self.app.exit(0)
+        self.deleteLater()
+        app = self.app
+
+        def exit():
+            # try to ensure Qt objects are deleted in a logical order,
+            # to prevent crashes on shutdown
+            gc.collect()
+            app.exit(0)
+
+        self.progress.single_shot(100, exit, False)
 
     # Sound/video
     ##########################################################################
@@ -715,7 +724,7 @@ class AnkiQt(QMainWindow):
         self._background_op_count -= 1
         if not self._background_op_count:
             gui_hooks.backend_did_block()
-        if not self._background_op_count >= 0:
+        if self._background_op_count < 0:
             raise Exception("no background ops active")
 
     def _synthesize_op_did_execute_from_reset(self) -> None:
@@ -1373,7 +1382,13 @@ title="{}" {}>{}</button>""".format(
             True,
             parent=self,
         )
-        self.progress.timer(12 * 60 * 1000, self.refresh_certs, False, parent=self)
+        self.progress.timer(
+            12 * 60 * 1000,
+            self.refresh_certs,
+            repeat=True,
+            requiresCollection=False,
+            parent=self,
+        )
 
     def onRefreshTimer(self) -> None:
         if self.state == "deckBrowser":

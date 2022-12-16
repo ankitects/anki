@@ -407,7 +407,7 @@ class AddonManager:
         force_enable: bool = False,
     ) -> InstallOk | InstallError:
         """Install add-on from path or file-like object. Metadata is read
-        from the manifest file, with keys overriden by supplying a 'manifest'
+        from the manifest file, with keys overridden by supplying a 'manifest'
         dictionary"""
         try:
             zfile = ZipFile(file)
@@ -1601,7 +1601,7 @@ class ConfigEditor(QDialog):
 
     def accept(self) -> None:
         txt = self.form.editor.toPlainText()
-        txt = gui_hooks.addon_config_editor_will_save_json(txt)
+        txt = gui_hooks.addon_config_editor_will_update_json(txt, self.addon)
         try:
             new_conf = json.loads(txt)
             jsonschema.validate(new_conf, self.mgr._addon_schema(self.addon))
