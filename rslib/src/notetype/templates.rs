@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{CardTemplateConfig, CardTemplateProto};
-use crate::{pb::UInt32, prelude::*, template::ParsedTemplate};
+use crate::{pb::generic::UInt32, prelude::*, template::ParsedTemplate};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct CardTemplate {

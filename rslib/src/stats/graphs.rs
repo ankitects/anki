@@ -14,13 +14,13 @@ impl Collection {
         &mut self,
         search: &str,
         days: u32,
-    ) -> Result<pb::GraphsResponse> {
+    ) -> Result<pb::stats::GraphsResponse> {
         let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
         let all = search.trim().is_empty();
         guard.col.graph_data(all, days)
     }
 
-    fn graph_data(&mut self, all: bool, days: u32) -> Result<pb::GraphsResponse> {
+    fn graph_data(&mut self, all: bool, days: u32) -> Result<pb::stats::GraphsResponse> {
         let timing = self.timing_today()?;
         let revlog_start = if days > 0 {
             timing
@@ -41,7 +41,7 @@ impl Collection {
                 .get_pb_revlog_entries_for_searched_cards(revlog_start)?
         };
 
-        Ok(pb::GraphsResponse {
+        Ok(pb::stats::GraphsResponse {
             cards: cards.into_iter().map(Into::into).collect(),
             revlog,
             days_elapsed: timing.days_elapsed,
@@ -51,8 +51,8 @@ impl Collection {
         })
     }
 
-    pub(crate) fn get_graph_preferences(&self) -> pb::GraphPreferences {
-        pb::GraphPreferences {
+    pub(crate) fn get_graph_preferences(&self) -> pb::stats::GraphPreferences {
+        pb::stats::GraphPreferences {
             calendar_first_day_of_week: self.get_first_day_of_week() as i32,
             card_counts_separate_inactive: self
                 .get_config_bool(BoolKey::CardCountsSeparateInactive),
@@ -61,7 +61,10 @@ impl Collection {
         }
     }
 
-    pub(crate) fn set_graph_preferences(&mut self, prefs: pb::GraphPreferences) -> Result<()> {
+    pub(crate) fn set_graph_preferences(
+        &mut self,
+        prefs: pb::stats::GraphPreferences,
+    ) -> Result<()> {
         self.set_first_day_of_week(match prefs.calendar_first_day_of_week {
             1 => Weekday::Monday,
             5 => Weekday::Friday,
@@ -77,9 +80,9 @@ impl Collection {
     }
 }
 
-impl From<RevlogEntry> for pb::RevlogEntry {
+impl From<RevlogEntry> for pb::stats::RevlogEntry {
     fn from(e: RevlogEntry) -> Self {
-        pb::RevlogEntry {
+        pb::stats::RevlogEntry {
             id: e.id.0,
             cid: e.cid.0,
             usn: e.usn.0,

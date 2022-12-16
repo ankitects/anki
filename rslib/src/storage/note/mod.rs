@@ -51,7 +51,7 @@ impl super::SqliteStorage {
 
     /// If fields have been modified, caller must call note.prepare_for_update() prior to calling this.
     pub(crate) fn update_note(&self, note: &Note) -> Result<()> {
-        assert!(note.id.0 != 0);
+        assert_ne!(note.id.0, 0);
         let mut stmt = self.db.prepare_cached(include_str!("update.sql"))?;
         stmt.execute(params![
             note.guid,
@@ -68,7 +68,7 @@ impl super::SqliteStorage {
     }
 
     pub(crate) fn add_note(&self, note: &mut Note) -> Result<()> {
-        assert!(note.id.0 == 0);
+        assert_eq!(note.id.0, 0);
         let mut stmt = self.db.prepare_cached(include_str!("add.sql"))?;
         stmt.execute(params![
             TimestampMillis::now(),

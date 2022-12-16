@@ -15,7 +15,7 @@ use crate::{
 
 pub(crate) type Result<T, E = FileIoError> = std::result::Result<T, E>;
 
-/// See [std::fs::File::open].
+/// See [File::open].
 pub(crate) fn open_file(path: impl AsRef<Path>) -> Result<File> {
     File::open(&path).context(FileIoSnafu {
         path: path.as_ref(),

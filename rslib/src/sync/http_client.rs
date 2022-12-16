@@ -65,7 +65,7 @@ pub struct Timeouts {
 
 impl Timeouts {
     pub fn new() -> Self {
-        let io_secs = if std::env::var("LONG_IO_TIMEOUT").is_ok() {
+        let io_secs = if env::var("LONG_IO_TIMEOUT").is_ok() {
             3600
         } else {
             300
@@ -314,7 +314,7 @@ impl HttpSyncClient {
         usize,
         impl Stream<Item = std::result::Result<Bytes, reqwest::Error>>,
     )> {
-        let resp: reqwest::Response = self.request_bytes("download", b"{}", true).await?;
+        let resp: Response = self.request_bytes("download", b"{}", true).await?;
         let len = resp.content_length().unwrap_or_default();
         Ok((len as usize, resp.bytes_stream()))
     }
@@ -379,7 +379,7 @@ where
 }
 
 fn sync_endpoint(host_number: u32) -> String {
-    if let Ok(endpoint) = std::env::var("SYNC_ENDPOINT") {
+    if let Ok(endpoint) = env::var("SYNC_ENDPOINT") {
         endpoint
     } else {
         let suffix = if host_number > 0 {
@@ -484,13 +484,13 @@ mod test {
 
     #[test]
     fn http_client() -> Result<()> {
-        let user = match std::env::var("TEST_SYNC_USER") {
+        let user = match env::var("TEST_SYNC_USER") {
             Ok(s) => s,
             Err(_) => {
                 return Ok(());
             }
         };
-        let pass = std::env::var("TEST_SYNC_PASS").unwrap();
+        let pass = env::var("TEST_SYNC_PASS").unwrap();
         env_logger::init();
 
         let rt = Runtime::new().unwrap();

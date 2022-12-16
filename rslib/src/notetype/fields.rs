@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{NoteFieldConfig, NoteFieldProto};
-use crate::{pb::UInt32, prelude::*};
+use crate::{pb::generic::UInt32, prelude::*};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct NoteField {

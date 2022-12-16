@@ -38,8 +38,8 @@ impl PartialEq for InvalidInputError {
 
 impl Eq for InvalidInputError {}
 
-/// Allows generating [AnkiError::InvalidInput] from [Option::None] and the
-/// typical [core::result::Result::Err].
+/// Allows generating [AnkiError::InvalidInput] from [None] and the
+/// typical [Err].
 pub trait OrInvalid {
     type Value;
     fn or_invalid(self, message: impl Into<String>) -> Result<Self::Value>;

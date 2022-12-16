@@ -5,7 +5,7 @@ use super::timing::SchedTimingToday;
 use crate::{
     card::CardQueue,
     config::SchedulerVersion,
-    pb::{
+    pb::scheduler::{
         bury_or_suspend_cards_request::Mode as BuryOrSuspendMode,
         unbury_deck_request::Mode as UnburyDeckMode,
     },

@@ -141,7 +141,7 @@ impl Collection {
 
         for file in [SAMPLE_JPG, SAMPLE_JS, &new_mp3_name] {
             assert!(self.media_folder.join(file).exists());
-            assert!(*csums.get(file).unwrap() != [0; 20]);
+            assert_ne!(*csums.get(file).unwrap(), [0; 20]);
         }
 
         let imported_note = self.storage.get_note(note.id).unwrap().unwrap();

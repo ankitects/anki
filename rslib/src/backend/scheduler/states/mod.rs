@@ -15,9 +15,9 @@ use crate::{
     scheduler::states::{CardState, NewState, NormalState, SchedulingStates},
 };
 
-impl From<SchedulingStates> for pb::SchedulingStates {
+impl From<SchedulingStates> for pb::scheduler::SchedulingStates {
     fn from(choices: SchedulingStates) -> Self {
-        pb::SchedulingStates {
+        pb::scheduler::SchedulingStates {
             current: Some(choices.current.into()),
             again: Some(choices.again.into()),
             hard: Some(choices.hard.into()),
@@ -27,8 +27,8 @@ impl From<SchedulingStates> for pb::SchedulingStates {
     }
 }
 
-impl From<pb::SchedulingStates> for SchedulingStates {
-    fn from(choices: pb::SchedulingStates) -> Self {
+impl From<pb::scheduler::SchedulingStates> for SchedulingStates {
+    fn from(choices: pb::scheduler::SchedulingStates) -> Self {
         SchedulingStates {
             current: choices.current.unwrap_or_default().into(),
             again: choices.again.unwrap_or_default().into(),
@@ -39,24 +39,30 @@ impl From<pb::SchedulingStates> for SchedulingStates {
     }
 }
 
-impl From<CardState> for pb::SchedulingState {
+impl From<CardState> for pb::scheduler::SchedulingState {
     fn from(state: CardState) -> Self {
-        pb::SchedulingState {
+        pb::scheduler::SchedulingState {
             value: Some(match state {
-                CardState::Normal(state) => pb::scheduling_state::Value::Normal(state.into()),
-                CardState::Filtered(state) => pb::scheduling_state::Value::Filtered(state.into()),
+                CardState::Normal(state) => {
+                    pb::scheduler::scheduling_state::Value::Normal(state.into())
+                }
+                CardState::Filtered(state) => {
+                    pb::scheduler::scheduling_state::Value::Filtered(state.into())
+                }
             }),
             custom_data: None,
         }
     }
 }
 
-impl From<pb::SchedulingState> for CardState {
-    fn from(state: pb::SchedulingState) -> Self {
+impl From<pb::scheduler::SchedulingState> for CardState {
+    fn from(state: pb::scheduler::SchedulingState) -> Self {
         if let Some(value) = state.value {
             match value {
-                pb::scheduling_state::Value::Normal(normal) => CardState::Normal(normal.into()),
-                pb::scheduling_state::Value::Filtered(filtered) => {
+                pb::scheduler::scheduling_state::Value::Normal(normal) => {
+                    CardState::Normal(normal.into())
+                }
+                pb::scheduler::scheduling_state::Value::Filtered(filtered) => {
                     CardState::Filtered(filtered.into())
                 }
             }

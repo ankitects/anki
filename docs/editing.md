@@ -49,12 +49,6 @@ see and install a number of recommended extensions.
 If you decide to use PyCharm instead of VS Code, there are somethings to be
 aware of.
 
-### Slowdowns
-
-Excluding the node_modules folder inside the editor may improve performance:
-
-https://intellij-support.jetbrains.com/hc/en-us/community/posts/115000721750-Excluding-directories-globally
-
 ### Pylib References
 
 You'll need to use File>Project Structure to tell IntelliJ that pylib/ is a

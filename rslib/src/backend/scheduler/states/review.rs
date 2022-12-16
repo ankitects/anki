@@ -3,8 +3,8 @@
 
 use crate::{pb, scheduler::states::ReviewState};
 
-impl From<pb::scheduling_state::Review> for ReviewState {
-    fn from(state: pb::scheduling_state::Review) -> Self {
+impl From<pb::scheduler::scheduling_state::Review> for ReviewState {
+    fn from(state: pb::scheduler::scheduling_state::Review) -> Self {
         ReviewState {
             scheduled_days: state.scheduled_days,
             elapsed_days: state.elapsed_days,
@@ -15,9 +15,9 @@ impl From<pb::scheduling_state::Review> for ReviewState {
     }
 }
 
-impl From<ReviewState> for pb::scheduling_state::Review {
+impl From<ReviewState> for pb::scheduler::scheduling_state::Review {
     fn from(state: ReviewState) -> Self {
-        pb::scheduling_state::Review {
+        pb::scheduler::scheduling_state::Review {
             scheduled_days: state.scheduled_days,
             elapsed_days: state.elapsed_days,
             ease_factor: state.ease_factor,
