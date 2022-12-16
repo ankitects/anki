@@ -29,7 +29,7 @@
 //! # Examples
 //!
 //! ```
-//! use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+//! use ascii_percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 //!
 //! /// https://url.spec.whatwg.org/#fragment-percent-encode-set
 //! const FRAGMENT: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'<').add(b'>').add(b'`');
@@ -57,7 +57,7 @@ use core::{fmt, mem, slice, str};
 /// Use the `add` method of an existing set to define a new set. For example:
 ///
 /// ```
-/// use percent_encoding::{AsciiSet, CONTROLS};
+/// use ascii_percent_encoding::{AsciiSet, CONTROLS};
 ///
 /// /// https://url.spec.whatwg.org/#fragment-percent-encode-set
 /// const FRAGMENT: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'<').add(b'>').add(b'`');
@@ -176,7 +176,7 @@ pub const NON_ALPHANUMERIC: &AsciiSet = &CONTROLS
 /// # Examples
 ///
 /// ```
-/// use percent_encoding::percent_encode_byte;
+/// use ascii_percent_encoding::percent_encode_byte;
 ///
 /// assert_eq!("foo bar".bytes().map(percent_encode_byte).collect::<String>(),
 ///            "%66%6F%6F%20%62%61%72");
@@ -216,7 +216,7 @@ pub fn percent_encode_byte(byte: u8) -> &'static str {
 /// # Examples
 ///
 /// ```
-/// use percent_encoding::{percent_encode, NON_ALPHANUMERIC};
+/// use ascii_percent_encoding::{percent_encode, NON_ALPHANUMERIC};
 ///
 /// assert_eq!(percent_encode(b"foo bar?", NON_ALPHANUMERIC).to_string(), "foo%20bar%3F");
 /// ```
@@ -235,7 +235,7 @@ pub fn percent_encode<'a>(input: &'a [u8], ascii_set: &'static AsciiSet) -> Perc
 /// # Examples
 ///
 /// ```
-/// use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
+/// use ascii_percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 ///
 /// assert_eq!(utf8_percent_encode("foo bar?", NON_ALPHANUMERIC).to_string(), "foo%20bar%3F");
 /// ```
@@ -339,7 +339,7 @@ pub fn percent_decode_str(input: &str) -> PercentDecode<'_> {
 /// # Examples
 ///
 /// ```
-/// use percent_encoding::percent_decode;
+/// use ascii_percent_encoding::percent_decode;
 ///
 /// assert_eq!(percent_decode(b"foo%20bar%3f").decode_utf8().unwrap(), "foo bar?");
 /// ```
