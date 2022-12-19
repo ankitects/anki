@@ -228,6 +228,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Luka Warren",
             "Christos Longros",
             "hafatsat anki",
+            "Carlos Duarte",
         )
     )
 
