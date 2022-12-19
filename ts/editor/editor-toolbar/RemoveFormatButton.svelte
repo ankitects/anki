@@ -62,6 +62,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let disabled: boolean;
     let showFloating = false;
+    $: if (disabled) {
+        showFloating = false;
+    }
 
     onMount(() => {
         const surroundElement = document.createElement("span");
@@ -114,11 +117,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <Shortcut {keyCombination} on:action={remove} />
 
-<WithFloating
-    show={showFloating && !disabled}
-    inline
-    on:close={() => (showFloating = false)}
->
+<WithFloating show={showFloating} inline on:close={() => (showFloating = false)}>
     <IconButton
         slot="reference"
         class="remove-format-button"
