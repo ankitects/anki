@@ -73,13 +73,12 @@ fn tokenize(mut text: &str) -> impl Iterator<Item = Token> {
                 nom::error::ErrorKind::Eof,
             )));
         }
-        let mut index = 0;
         let mut other_token = alt((open_cloze, close_cloze));
-        while other_token(&text[index..]).is_err() && index < text.len() {
-            if let Some(next_char) = text[index..].chars().next() {
-                // advance index by one scalar char
-                index += next_char.len_utf8();
-            } else {
+        // start with the no-match case
+        let mut index = text.len();
+        for (idx, _) in text.char_indices() {
+            if other_token(&text[idx..]).is_ok() {
+                index = idx;
                 break;
             }
         }
