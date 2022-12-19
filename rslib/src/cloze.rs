@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::{borrow::Cow, collections::HashSet, fmt::Write};
+
 use htmlescape::encode_attribute;
 use lazy_static::lazy_static;
 use nom::{
@@ -10,7 +12,6 @@ use nom::{
     IResult,
 };
 use regex::{Captures, Regex};
-use std::{borrow::Cow, collections::HashSet, fmt::Write};
 
 use crate::{latex::contains_latex, template::RenderContext, text::strip_html_preserving_entities};
 
@@ -75,7 +76,12 @@ fn tokenize(mut text: &str) -> impl Iterator<Item = Token> {
         let mut index = 0;
         let mut other_token = alt((open_cloze, close_cloze));
         while other_token(&text[index..]).is_err() && index < text.len() {
-            index += 1;
+            if let Some(next_char) = text[index..].chars().next() {
+                // advance index by one scalar char
+                index += next_char.len_utf8();
+            } else {
+                break;
+            }
         }
         Ok((&text[index..], Token::Text(&text[0..index])))
     }
@@ -487,5 +493,10 @@ mod test {
             strip_html_inside_mathjax(r"\(<foo>&lt;&gt;</foo>\)"),
             r"\(&lt;&gt;\)"
         );
+    }
+
+    #[test]
+    fn non_latin() {
+        assert!(cloze_numbers_in_string("öaöaöööaö").is_empty());
     }
 }
