@@ -161,6 +161,9 @@ def combobox_styles(tm: ThemeManager) -> str:
 QComboBox {{
     padding: {"1px 6px 2px 4px" if tm.rtl() else "1px 4px 2px 6px"};
 }}
+QComboBox:focus {{
+    border-color: {tm.var(colors.BORDER_FOCUS)};
+}}
 QComboBox:editable:on,
 QComboBox:editable:focus,
 QComboBox::drop-down:focus:editable,
