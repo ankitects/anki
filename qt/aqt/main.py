@@ -1408,9 +1408,9 @@ title="{}" {}>{}</button>""".format(
         # The requests library copies the certs into a temporary folder on startup,
         # and chokes when the file is later missing due to temp file cleaners.
         # Work around the issue by accessing them once every 12 hours.
-        import certifi
+        from requests.certs import where  # type: ignore[attr-defined]
 
-        with open(certifi.where(), "rb") as f:
+        with open(where(), "rb") as f:
             f.read()
 
     # Backups
