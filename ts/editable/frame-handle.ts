@@ -53,7 +53,6 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
             }
 
             const handleElement = target;
-            const placement = handleElement instanceof FrameStart ? "beforebegin" : "afterend";
             const frameElement = handleElement.parentElement as FrameElement;
 
             for (const node of mutation.addedNodes) {
@@ -75,7 +74,7 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
                     referenceNode = moveChildOutOfElement(
                         frameElement,
                         node,
-                        placement,
+                        handleElement.placement,
                     );
                 }
             }
@@ -114,6 +113,8 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
 const handleObserver = new MutationObserver(restoreHandleContent);
 const handles: Set<FrameHandle> = new Set();
 
+type Placement = Extract<InsertPosition, "beforebegin" | "afterend">;
+
 export abstract class FrameHandle extends HTMLElement {
     static get observedAttributes(): string[] {
         return ["data-frames"];
@@ -128,6 +129,7 @@ export abstract class FrameHandle extends HTMLElement {
      */
     partiallySelected = false;
     frames?: string;
+    abstract placement: Placement;
 
     constructor() {
         super();
@@ -204,6 +206,12 @@ export abstract class FrameHandle extends HTMLElement {
 
 export class FrameStart extends FrameHandle {
     static tagName = "frame-start";
+    placement: Placement;
+
+    constructor() {
+        super();
+        this.placement = "beforebegin";
+    }
 
     getFrameRange(): Range {
         const range = new Range();
@@ -245,6 +253,12 @@ export class FrameStart extends FrameHandle {
 
 export class FrameEnd extends FrameHandle {
     static tagName = "frame-end";
+    placement: Placement;
+
+    constructor() {
+        super();
+        this.placement = "afterend";
+    }
 
     getFrameRange(): Range {
         const range = new Range();
