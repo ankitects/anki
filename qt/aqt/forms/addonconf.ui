@@ -33,7 +33,7 @@
        <enum>QPlainTextEdit::NoWrap</enum>
       </property>
      </widget>
-     <widget class="AnkiWebView" name="label" native="true">
+     <widget class="AnkiWebView" name="help" native="true">
       <property name="url" stdset="0">
        <url>
         <string>about:blank</string>

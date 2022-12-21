@@ -1575,9 +1575,9 @@ class ConfigEditor(QDialog):
     def updateHelp(self) -> None:
         txt = self.mgr.addonConfigHelp(self.addon)
         if txt:
-            self.form.label.stdHtml(txt, js=[], context=self)
+            self.form.help.stdHtml(txt, js=[], css=["css/addonconf.css"], context=self)
         else:
-            self.form.scrollArea.setVisible(False)
+            self.form.help.setVisible(False)
 
     def updateText(self, conf: dict[str, Any]) -> None:
         text = json.dumps(
