@@ -1574,7 +1574,7 @@ class ConfigEditor(QDialog):
     def updateHelp(self) -> None:
         txt = self.mgr.addonConfigHelp(self.addon)
         if txt:
-            self.form.label.setText(txt)
+            self.form.label.stdHtml(txt, js=[], context=self)
         else:
             self.form.scrollArea.setVisible(False)
 

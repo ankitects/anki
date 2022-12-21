@@ -69,24 +69,11 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="textFormat">
-           <enum>Qt::RichText</enum>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-          <property name="openExternalLinks">
-           <bool>true</bool>
-          </property>
-          <property name="textInteractionFlags">
-           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+         <widget class="AnkiWebView" name="label" native="true">
+          <property name="url" stdset="0">
+            <url>
+             <string notr="true">about:blank</string>
+            </url>
           </property>
          </widget>
         </item>
@@ -107,6 +94,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+    <class>AnkiWebView</class>
+    <extends>QWidget</extends>
+    <header location="global">aqt/webview</header>
+    <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
