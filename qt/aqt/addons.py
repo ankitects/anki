@@ -1550,6 +1550,7 @@ class ConfigEditor(QDialog):
         self.updateHelp()
         self.updateText(self.conf)
         restoreGeom(self, "addonconf")
+        self.form.splitter.setSizes([2 * self.width() // 3, self.width() // 3])
         restoreSplitter(self.form.splitter, "addonconf")
         self.setWindowTitle(
             without_unicode_isolation(
