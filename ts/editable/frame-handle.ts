@@ -87,21 +87,7 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
                 continue;
             }
 
-            const handleElement = target.parentElement;
-            const placement = handleElement instanceof FrameStart ? "beforebegin" : "afterend";
-            const frameElement = handleElement.parentElement! as FrameElement;
-
-            const cleaned = target.data.replace(spaceRegex, "");
-            const text = new Text(cleaned);
-
-            if (placement === "beforebegin") {
-                frameElement.before(text);
-            } else {
-                frameElement.after(text);
-            }
-
-            handleElement.refreshSpace();
-            referenceNode = text;
+            referenceNode = target.parentElement.moveTextOutOfFrame();
         }
     }
 
@@ -202,6 +188,20 @@ export abstract class FrameHandle extends HTMLElement {
     }
 
     abstract notifyMoveIn(offset: number): void;
+
+    moveTextOutOfFrame(): Text {
+        const frameElement = this.parentElement! as FrameElement;
+        const cleaned = this.innerHTML.replace(spaceRegex, "");
+        const text = new Text(cleaned);
+
+        if (this.placement === "beforebegin") {
+            frameElement.before(text);
+        } else if (this.placement === "afterend") {
+            frameElement.after(text);
+        }
+        this.refreshSpace();
+        return text;
+    }
 }
 
 export class FrameStart extends FrameHandle {
