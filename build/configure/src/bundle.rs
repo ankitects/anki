@@ -394,7 +394,7 @@ impl BuildAction for BuildTarball {
 
         build.add_inputs("", inputs![input_folder_target]);
         build.add_variable("zstd", "zstd -c --long -T0 -18");
-        build.add_variable("transform", format!("s%^.%{output_folder_base}%"));
+        build.add_variable("transform", format!("s%^.%{output_folder_base}%S"));
         build.add_variable("folder", input_folder_path);
         build.add_outputs("tarball", vec![output_tarball]);
     }
