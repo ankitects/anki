@@ -83,7 +83,7 @@ QMenu::item {{
     margin-bottom: 4px;
 }}
 QMenu::item:selected {{
-    background-color: {tm.var(colors.CANVAS_ELEVATED)};
+    background-color: {tm.var(colors.HIGHLIGHT_BG)};
     border-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QMenu::separator {{
@@ -160,6 +160,9 @@ def combobox_styles(tm: ThemeManager) -> str:
     return f"""
 QComboBox {{
     padding: {"1px 6px 2px 4px" if tm.rtl() else "1px 4px 2px 6px"};
+}}
+QComboBox:focus {{
+    border-color: {tm.var(colors.BORDER_FOCUS)};
 }}
 QComboBox:editable:on,
 QComboBox:editable:focus,
