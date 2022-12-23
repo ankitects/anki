@@ -1405,7 +1405,7 @@
   },
   {
     "name": "openssl",
-    "version": "0.10.44",
+    "version": "0.10.45",
     "authors": "Steven Fackler <sfackler@gmail.com>",
     "repository": "https://github.com/sfackler/rust-openssl",
     "license": "Apache-2.0",
@@ -1432,7 +1432,7 @@
   },
   {
     "name": "openssl-sys",
-    "version": "0.9.79",
+    "version": "0.9.80",
     "authors": "Alex Crichton <alex@alexcrichton.com>|Steven Fackler <sfackler@gmail.com>",
     "repository": "https://github.com/sfackler/rust-openssl",
     "license": "MIT",
@@ -1675,7 +1675,7 @@
   },
   {
     "name": "prost-build",
-    "version": "0.11.3",
+    "version": "0.11.4",
     "authors": "Dan Burkert <dan@danburkert.com>|Lucio Franco <luciofranco14@gmail.com>|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/prost",
     "license": "Apache-2.0",
