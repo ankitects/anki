@@ -99,10 +99,6 @@ impl SyncService for Backend {
         Ok(().into())
     }
 
-    fn before_upload(&self, _input: pb::generic::Empty) -> Result<pb::generic::Empty> {
-        self.with_col(|col| col.before_upload().map(Into::into))
-    }
-
     fn sync_login(&self, input: pb::sync::SyncLoginRequest) -> Result<pb::sync::SyncAuth> {
         self.sync_login_inner(input)
     }
