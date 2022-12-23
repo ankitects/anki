@@ -6,7 +6,12 @@ pub(crate) mod timestamps;
 mod transact;
 pub(crate) mod undo;
 
-use std::{collections::HashMap, path::PathBuf, sync::Arc};
+use std::{
+    collections::HashMap,
+    fmt::{Debug, Formatter},
+    path::PathBuf,
+    sync::Arc,
+};
 
 use crate::{
     browser_table,
@@ -115,6 +120,14 @@ pub struct Collection {
     pub(crate) tr: I18n,
     pub(crate) server: bool,
     pub(crate) state: CollectionState,
+}
+
+impl Debug for Collection {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Collection")
+            .field("col_path", &self.col_path)
+            .finish()
+    }
 }
 
 impl Collection {
