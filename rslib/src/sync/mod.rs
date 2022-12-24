@@ -14,6 +14,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_tuple::Serialize_tuple;
 pub(crate) use server::{LocalServer, SyncServer};
+use tracing::debug;
 
 use crate::{
     card::{Card, CardQueue, CardType},
@@ -323,10 +324,10 @@ where
     }
 
     pub async fn sync(&mut self) -> Result<SyncOutput> {
-        debug!(self.col.log, "fetching meta...");
+        debug!("fetching meta...");
         self.fire_progress_cb(false);
         let state: SyncState = self.get_sync_state().await?;
-        debug!(self.col.log, "fetched"; "state"=>?&state);
+        debug!(?state, "fetched");
         match state.required {
             SyncActionRequired::NoChanges => Ok(state.into()),
             SyncActionRequired::FullSyncRequired { .. } => Ok(state.into()),
@@ -352,7 +353,7 @@ where
                                 },
                         } = &e
                         {
-                            debug!(self.col.log, "sanity check failed:\n{}", info);
+                            debug!("sanity check failed:\n{}", info);
                         }
 
                         Err(e)
@@ -364,9 +365,9 @@ where
 
     async fn get_sync_state(&self) -> Result<SyncState> {
         let remote: SyncMeta = self.remote.meta().await?;
-        debug!(self.col.log, "remote {:?}", &remote);
+        debug!("remote {:?}", &remote);
         if !remote.should_continue {
-            debug!(self.col.log, "server says abort"; "message"=>&remote.server_message);
+            debug!(remote.server_message, "server says abort");
             return Err(AnkiError::sync_error(
                 remote.server_message,
                 SyncErrorKind::ServerMessage,
@@ -374,10 +375,10 @@ where
         }
 
         let local = self.col.sync_meta()?;
-        debug!(self.col.log, "local {:?}", &local);
+        debug!("local {:?}", &local);
         let delta = remote.current_time.0 - local.current_time.0;
         if delta.abs() > 300 {
-            debug!(self.col.log, "clock off"; "delta"=>delta);
+            debug!(delta, "clock off");
             return Err(AnkiError::sync_error("", SyncErrorKind::ClockIncorrect));
         }
 
@@ -390,21 +391,21 @@ where
         self.progress.stage = SyncStage::Syncing;
         self.fire_progress_cb(false);
 
-        debug!(self.col.log, "start");
+        debug!("start");
         self.start_and_process_deletions(&state).await?;
-        debug!(self.col.log, "unchunked changes");
+        debug!("unchunked changes");
         self.process_unchunked_changes(&state).await?;
-        debug!(self.col.log, "begin stream from server");
+        debug!("begin stream from server");
         self.process_chunks_from_server(&state).await?;
-        debug!(self.col.log, "begin stream to server");
+        debug!("begin stream to server");
         self.send_chunks_to_server(&state).await?;
 
         self.progress.stage = SyncStage::Finalizing;
         self.fire_progress_cb(false);
 
-        debug!(self.col.log, "sanity check");
+        debug!("sanity check");
         self.sanity_check().await?;
-        debug!(self.col.log, "finalize");
+        debug!("finalize");
         self.finalize(&state).await?;
         state.required = SyncActionRequired::NoChanges;
         Ok(state.into())
@@ -418,23 +419,27 @@ where
             .start(state.usn_at_last_sync, state.local_is_newer, None)
             .await?;
 
-        debug!(self.col.log, "removed on remote";
-            "cards"=>remote.cards.len(),
-            "notes"=>remote.notes.len(),
-            "decks"=>remote.decks.len());
+        debug!(
+            cards = remote.cards.len(),
+            notes = remote.notes.len(),
+            decks = remote.decks.len(),
+            "removed on remote"
+        );
 
         let mut local = self.col.storage.pending_graves(state.pending_usn)?;
         if let Some(new_usn) = state.new_usn {
             self.col.storage.update_pending_grave_usns(new_usn)?;
         }
 
-        debug!(self.col.log, "locally removed  ";
-            "cards"=>local.cards.len(),
-            "notes"=>local.notes.len(),
-            "decks"=>local.decks.len());
+        debug!(
+            cards = local.cards.len(),
+            notes = local.notes.len(),
+            decks = local.decks.len(),
+            "locally removed  "
+        );
 
         while let Some(chunk) = local.take_chunk() {
-            debug!(self.col.log, "sending graves chunk");
+            debug!("sending graves chunk");
             self.progress.local_remove += chunk.cards.len() + chunk.notes.len() + chunk.decks.len();
             self.remote.apply_graves(chunk).await?;
             self.fire_progress_cb(true);
@@ -443,7 +448,7 @@ where
         self.progress.remote_remove = remote.cards.len() + remote.notes.len() + remote.decks.len();
         self.col.apply_graves(remote, state.latest_usn)?;
         self.fire_progress_cb(true);
-        debug!(self.col.log, "applied server graves");
+        debug!("applied server graves");
 
         Ok(())
     }
@@ -453,18 +458,19 @@ where
     // in the future, like other objects. Syncing tags explicitly is also probably of limited
     // usefulness.
     async fn process_unchunked_changes(&mut self, state: &SyncState) -> Result<()> {
-        debug!(self.col.log, "gathering local changes");
+        debug!("gathering local changes");
         let local = self.col.local_unchunked_changes(
             state.pending_usn,
             state.new_usn,
             state.local_is_newer,
         )?;
 
-        debug!(self.col.log, "sending";
-            "notetypes"=>local.notetypes.len(),
-            "decks"=>local.decks_and_config.decks.len(),
-            "deck config"=>local.decks_and_config.config.len(),
-            "tags"=>local.tags.len(),
+        debug!(
+            notetypes = local.notetypes.len(),
+            decks = local.decks_and_config.decks.len(),
+            deck_config = local.decks_and_config.config.len(),
+            tags = local.tags.len(),
+            "sending"
         );
 
         self.progress.local_update += local.notetypes.len()
@@ -474,11 +480,12 @@ where
         let remote = self.remote.apply_changes(local).await?;
         self.fire_progress_cb(true);
 
-        debug!(self.col.log, "received";
-            "notetypes"=>remote.notetypes.len(),
-            "decks"=>remote.decks_and_config.decks.len(),
-            "deck config"=>remote.decks_and_config.config.len(),
-            "tags"=>remote.tags.len(),
+        debug!(
+            notetypes = remote.notetypes.len(),
+            decks = remote.decks_and_config.decks.len(),
+            deck_config = remote.decks_and_config.config.len(),
+            tags = remote.tags.len(),
+            "received"
         );
 
         self.progress.remote_update += remote.notetypes.len()
@@ -495,11 +502,12 @@ where
         loop {
             let chunk: Chunk = self.remote.chunk().await?;
 
-            debug!(self.col.log, "received";
-                "done"=>chunk.done,
-                "cards"=>chunk.cards.len(),
-                "notes"=>chunk.notes.len(),
-                "revlog"=>chunk.revlog.len(),
+            debug!(
+                done = chunk.done,
+                cards = chunk.cards.len(),
+                notes = chunk.notes.len(),
+                revlog = chunk.revlog.len(),
+                "received"
             );
 
             self.progress.remote_update +=
@@ -523,11 +531,12 @@ where
             let chunk: Chunk = self.col.get_chunk(&mut ids, state.new_usn)?;
             let done = chunk.done;
 
-            debug!(self.col.log, "sending";
-                "done"=>chunk.done,
-                "cards"=>chunk.cards.len(),
-                "notes"=>chunk.notes.len(),
-                "revlog"=>chunk.revlog.len(),
+            debug!(
+                done = chunk.done,
+                cards = chunk.cards.len(),
+                notes = chunk.notes.len(),
+                revlog = chunk.revlog.len(),
+                "sending"
             );
 
             self.progress.local_update +=
@@ -548,12 +557,9 @@ where
         let mut local_counts = self.col.storage.sanity_check_info()?;
         self.col.add_due_counts(&mut local_counts.counts)?;
 
-        debug!(
-            self.col.log,
-            "gathered local counts; waiting for server reply"
-        );
+        debug!("gathered local counts; waiting for server reply");
         let out: SanityCheckResponse = self.remote.sanity_check(local_counts).await?;
-        debug!(self.col.log, "got server reply");
+        debug!("got server reply");
         if out.status != SanityCheckStatus::Ok {
             Err(AnkiError::sync_error(
                 format!("local {:?}\nremote {:?}", out.client, out.server),

@@ -3,7 +3,7 @@
 
 use std::sync::MutexGuard;
 
-use slog::error;
+use tracing::error;
 
 use super::{progress::Progress, Backend};
 pub(super) use crate::pb::collection::collection_service::Service as CollectionService;
@@ -37,11 +37,6 @@ impl CollectionService for Backend {
             .set_media_paths(input.media_folder_path, input.media_db_path)
             .set_server(self.server)
             .set_tr(self.tr.clone());
-        if !input.log_path.is_empty() {
-            builder.set_log_file(&input.log_path)?;
-        } else {
-            builder.set_logger(self.log.clone());
-        }
 
         *guard = Some(builder.build()?);
 
@@ -63,7 +58,7 @@ impl CollectionService for Backend {
         let col_inner = guard.take().unwrap();
 
         if let Err(e) = col_inner.close(desired_version) {
-            error!(self.log, " failed: {:?}", e);
+            error!(" failed: {:?}", e);
         }
 
         Ok(().into())

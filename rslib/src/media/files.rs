@@ -12,6 +12,7 @@ use std::{
 use lazy_static::lazy_static;
 use regex::Regex;
 use sha1::{Digest, Sha1};
+use tracing::debug;
 use unic_ucd_category::GeneralCategory;
 use unicode_normalization::{is_nfc, UnicodeNormalization};
 
@@ -383,7 +384,6 @@ pub(super) fn add_file_from_ankiweb(
     media_folder: &Path,
     fname: &str,
     data: &[u8],
-    log: &Logger,
 ) -> Result<AddedFile> {
     let sha1 = sha1_of_data(data);
     let normalized = normalize_filename(fname);
@@ -391,13 +391,17 @@ pub(super) fn add_file_from_ankiweb(
     // if the filename is already valid, we can write the file directly
     let (renamed_from, path) = if let Cow::Borrowed(_) = normalized {
         let path = media_folder.join(normalized.as_ref());
-        debug!(log, "write"; "fname" => normalized.as_ref());
+        debug!(fname = normalized.as_ref(), "write");
         write_file(&path, data)?;
         (None, path)
     } else {
         // ankiweb sent us a non-normalized filename, so we'll rename it
         let new_name = add_data_to_folder_uniquely(media_folder, fname, data, sha1)?;
-        debug!(log, "non-normalized filename received"; "fname"=>&fname, "rename_to"=>new_name.as_ref());
+        debug!(
+            fname,
+            rename_to = new_name.as_ref(),
+            "non-normalized filename received"
+        );
         (
             Some(fname.to_string()),
             media_folder.join(new_name.as_ref()),

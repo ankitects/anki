@@ -14,8 +14,8 @@ use bytes::Bytes;
 use reqwest::{multipart, Client, Response};
 use serde_derive::{Deserialize, Serialize};
 use serde_tuple::Serialize_tuple;
-use slog::{debug, Logger};
 use time::Duration;
+use tracing::debug;
 use version::sync_client_version;
 
 use crate::{
@@ -56,7 +56,6 @@ where
     progress_cb: P,
     progress: MediaSyncProgress,
     endpoint: String,
-    log: Logger,
 }
 
 #[derive(Debug, Deserialize)]
@@ -159,12 +158,7 @@ impl<P> MediaSyncer<'_, P>
 where
     P: FnMut(MediaSyncProgress) -> bool,
 {
-    pub fn new(
-        mgr: &MediaManager,
-        progress_cb: P,
-        host_number: u32,
-        log: Logger,
-    ) -> MediaSyncer<'_, P> {
+    pub fn new(mgr: &MediaManager, progress_cb: P, host_number: u32) -> MediaSyncer<'_, P> {
         let timeouts = Timeouts::new();
         let client = Client::builder()
             .connect_timeout(Duration::from_secs(timeouts.connect_secs))
@@ -182,7 +176,6 @@ where
             progress_cb,
             progress: Default::default(),
             endpoint,
-            log,
         }
     }
 
@@ -192,7 +185,7 @@ where
 
     pub async fn sync(&mut self, hkey: &str) -> Result<()> {
         self.sync_inner(hkey).await.map_err(|e| {
-            debug!(self.log, "sync error: {:?}", e);
+            debug!("sync error: {:?}", e);
             e
         })
     }
@@ -204,19 +197,16 @@ where
         let meta = self.ctx.get_meta()?;
         let client_usn = meta.last_sync_usn;
 
-        debug!(self.log, "begin media sync");
+        debug!("begin media sync");
         let (sync_key, server_usn) = self.sync_begin(hkey).await?;
         self.skey = Some(sync_key);
-        debug!(self.log, "server usn was {}", server_usn);
+        debug!("server usn was {}", server_usn);
 
         let mut actions_performed = false;
 
         // need to fetch changes from server?
         if client_usn != server_usn {
-            debug!(
-                self.log,
-                "differs from local usn {}, fetching changes", client_usn
-            );
+            debug!("differs from local usn {}, fetching changes", client_usn);
             self.fetch_changes(meta).await?;
             actions_performed = true;
         }
@@ -234,7 +224,7 @@ where
 
         self.fire_progress_cb()?;
 
-        debug!(self.log, "media sync complete");
+        debug!("media sync complete");
 
         Ok(())
     }
@@ -250,7 +240,7 @@ where
             (progress_cb)(*progress)
         };
 
-        ChangeTracker::new(self.mgr.media_folder.as_path(), progress, &self.log)
+        ChangeTracker::new(self.mgr.media_folder.as_path(), progress)
             .register_changes(&mut self.ctx)
     }
 
@@ -277,15 +267,11 @@ where
     async fn fetch_changes(&mut self, mut meta: MediaDatabaseMetadata) -> Result<()> {
         let mut last_usn = meta.last_sync_usn;
         loop {
-            debug!(
-                self.log,
-                "fetching record batch";
-                 "start_usn"=>last_usn
-            );
+            debug!(start_usn = last_usn, "fetching record batch");
 
             let batch = self.fetch_record_batch(last_usn).await?;
             if batch.is_empty() {
-                debug!(self.log, "empty batch, done");
+                debug!("empty batch, done");
                 break;
             }
             last_usn = batch.last().unwrap().usn;
@@ -294,7 +280,7 @@ where
             self.fire_progress_cb()?;
 
             let (to_download, to_delete, to_remove_pending) =
-                determine_required_changes(&mut self.ctx, &batch, &self.log)?;
+                determine_required_changes(&mut self.ctx, &batch)?;
 
             // file removal
             self.mgr.remove_files(&mut self.ctx, to_delete.as_slice())?;
@@ -311,12 +297,9 @@ where
                     .map(ToOwned::to_owned)
                     .collect();
                 let zip_data = self.fetch_zip(batch.as_slice()).await?;
-                let download_batch = extract_into_media_folder(
-                    self.mgr.media_folder.as_path(),
-                    zip_data,
-                    &self.log,
-                )?
-                .into_iter();
+                let download_batch =
+                    extract_into_media_folder(self.mgr.media_folder.as_path(), zip_data)?
+                        .into_iter();
                 let len = download_batch.len();
                 dl_fnames = &dl_fnames[len..];
                 downloaded.extend(download_batch);
@@ -327,11 +310,10 @@ where
 
             // then update the DB
             let dirmod = mtime_as_i64(&self.mgr.media_folder)?;
-            let log = &self.log;
             self.ctx.transact(|ctx| {
-                record_clean(ctx, &to_remove_pending, log)?;
-                record_removals(ctx, &to_delete, log)?;
-                record_additions(ctx, downloaded, log)?;
+                record_clean(ctx, &to_remove_pending)?;
+                record_removals(ctx, &to_delete)?;
+                record_additions(ctx, downloaded)?;
 
                 // update usn
                 meta.last_sync_usn = last_usn;
@@ -351,7 +333,7 @@ where
                 break;
             }
 
-            let zip_data = zip_files(&mut self.ctx, &self.mgr.media_folder, &pending, &self.log)?;
+            let zip_data = zip_files(&mut self.ctx, &self.mgr.media_folder, &pending)?;
             if zip_data.is_none() {
                 self.progress.checked += pending.len();
                 self.fire_progress_cb()?;
@@ -377,16 +359,14 @@ where
                 .map(|e| &e.fname)
                 .collect();
             let fname_cnt = fnames.len() as i32;
-            let log = &self.log;
             self.ctx.transact(|ctx| {
-                record_clean(ctx, fnames.as_slice(), log)?;
+                record_clean(ctx, fnames.as_slice())?;
                 let mut meta = ctx.get_meta()?;
                 if meta.last_sync_usn + fname_cnt == reply.current_usn {
                     meta.last_sync_usn = reply.current_usn;
                     ctx.set_meta(&meta)?;
                 } else {
                     debug!(
-                        log,
                         "server usn {} is not {}, skipping usn update",
                         reply.current_usn,
                         meta.last_sync_usn + fname_cnt
@@ -444,7 +424,7 @@ where
     async fn fetch_zip(&self, files: &[&String]) -> Result<Bytes> {
         let url = format!("{}downloadFiles", self.endpoint);
 
-        debug!(self.log, "requesting files: {:?}", files);
+        debug!("requesting files: {:?}", files);
 
         let req = ZipRequest { files };
         let resp = ankiweb_json_request(&self.client, &url, &req, self.skey(), true).await?;
@@ -503,7 +483,6 @@ fn determine_required_change(
 fn determine_required_changes<'a>(
     ctx: &mut MediaDatabaseContext,
     records: &'a [ServerMediaRecord],
-    log: &Logger,
 ) -> Result<(Vec<&'a String>, Vec<&'a String>, Vec<&'a String>)> {
     let mut to_download = vec![];
     let mut to_delete = vec![];
@@ -527,13 +506,12 @@ fn determine_required_changes<'a>(
 
         let req_change = determine_required_change(&local_sha1, &remote.sha1, local_state);
         debug!(
-            log,
-            "determine action";
-            "fname" => &remote.fname,
-            "lsha" => local_sha1.chars().take(8).collect::<String>(),
-            "rsha" => remote.sha1.chars().take(8).collect::<String>(),
-            "state" => ?local_state,
-            "action" => ?req_change
+            fname = &remote.fname,
+            lsha = local_sha1.chars().take(8).collect::<String>(),
+            rsha = remote.sha1.chars().take(8).collect::<String>(),
+            state = ?local_state,
+            action = ?req_change,
+            "determine action"
         );
         match req_change {
             RequiredChange::Download => to_download.push(&remote.fname),
@@ -594,11 +572,7 @@ async fn ankiweb_request(
     req.send().await?.error_for_status().map_err(Into::into)
 }
 
-fn extract_into_media_folder(
-    media_folder: &Path,
-    zip: Bytes,
-    log: &Logger,
-) -> Result<Vec<AddedFile>> {
+fn extract_into_media_folder(media_folder: &Path, zip: Bytes) -> Result<Vec<AddedFile>> {
     let reader = io::Cursor::new(zip);
     let mut zip = zip::ZipArchive::new(reader)?;
 
@@ -620,7 +594,7 @@ fn extract_into_media_folder(
         let mut data = Vec::with_capacity(file.size() as usize);
         file.read_to_end(&mut data)?;
 
-        let added = add_file_from_ankiweb(media_folder, real_name, &data, log)?;
+        let added = add_file_from_ankiweb(media_folder, real_name, &data)?;
 
         output.push(added);
     }
@@ -628,29 +602,21 @@ fn extract_into_media_folder(
     Ok(output)
 }
 
-fn record_removals(
-    ctx: &mut MediaDatabaseContext,
-    removals: &[&String],
-    log: &Logger,
-) -> Result<()> {
+fn record_removals(ctx: &mut MediaDatabaseContext, removals: &[&String]) -> Result<()> {
     for &fname in removals {
-        debug!(log, "mark removed"; "fname" => fname);
+        debug!(fname, "mark removed");
         ctx.remove_entry(fname)?;
     }
 
     Ok(())
 }
 
-fn record_additions(
-    ctx: &mut MediaDatabaseContext,
-    additions: Vec<AddedFile>,
-    log: &Logger,
-) -> Result<()> {
+fn record_additions(ctx: &mut MediaDatabaseContext, additions: Vec<AddedFile>) -> Result<()> {
     for file in additions {
         if let Some(renamed) = file.renamed_from {
             // the file AnkiWeb sent us wasn't normalized, so we need to record
             // the old file name as a deletion
-            debug!(log, "marking non-normalized file as deleted: {}", renamed);
+            debug!("marking non-normalized file as deleted: {}", renamed);
             let mut entry = MediaEntry {
                 fname: renamed,
                 sha1: None,
@@ -659,10 +625,7 @@ fn record_additions(
             };
             ctx.set_entry(&entry)?;
             // and upload the new filename to ankiweb
-            debug!(
-                log,
-                "marking renamed file as needing upload: {}", file.fname
-            );
+            debug!("marking renamed file as needing upload: {}", file.fname);
             entry = MediaEntry {
                 fname: file.fname.to_string(),
                 sha1: Some(file.sha1),
@@ -678,9 +641,10 @@ fn record_additions(
                 mtime: file.mtime,
                 sync_required: false,
             };
-            debug!(log, "mark added";
-                "fname" => &entry.fname,
-                "sha1" => hex::encode(&entry.sha1.as_ref().unwrap()[0..4])
+            debug!(
+                fname = &entry.fname,
+                sha1 = hex::encode(&entry.sha1.as_ref().unwrap()[0..4]),
+                "mark added"
             );
             ctx.set_entry(&entry)?;
         }
@@ -689,12 +653,12 @@ fn record_additions(
     Ok(())
 }
 
-fn record_clean(ctx: &mut MediaDatabaseContext, clean: &[&String], log: &Logger) -> Result<()> {
+fn record_clean(ctx: &mut MediaDatabaseContext, clean: &[&String]) -> Result<()> {
     for &fname in clean {
         if let Some(mut entry) = ctx.get_entry(fname)? {
             if entry.sync_required {
                 entry.sync_required = false;
-                debug!(log, "mark clean"; "fname"=>&entry.fname);
+                debug!(fname = &entry.fname, "mark clean");
                 ctx.set_entry(&entry)?;
             }
         }
@@ -707,7 +671,6 @@ fn zip_files<'a>(
     ctx: &mut MediaDatabaseContext,
     media_folder: &Path,
     files: &'a [MediaEntry],
-    log: &Logger,
 ) -> Result<Option<Vec<u8>>> {
     let buf = vec![];
     let mut invalid_entries = vec![];
@@ -731,7 +694,7 @@ fn zip_files<'a>(
             use unicode_normalization::is_nfc;
             if !is_nfc(&file.fname) {
                 // older Anki versions stored non-normalized filenames in the DB; clean them up
-                debug!(log, "clean up non-nfc entry"; "fname"=>&file.fname);
+                debug!(fname = file.fname, "clean up non-nfc entry");
                 invalid_entries.push(&file.fname);
                 continue;
             }
@@ -741,7 +704,7 @@ fn zip_files<'a>(
             match data_for_file(media_folder, &file.fname) {
                 Ok(data) => data,
                 Err(e) => {
-                    debug!(log, "error accessing {}: {}", &file.fname, e);
+                    debug!("error accessing {}: {}", &file.fname, e);
                     invalid_entries.push(&file.fname);
                     continue;
                 }
@@ -754,7 +717,7 @@ fn zip_files<'a>(
         if let Some(data) = &file_data {
             let normalized = normalize_filename(&file.fname);
             if let Cow::Owned(o) = normalized {
-                debug!(log, "media check required: {} should be {}", &file.fname, o);
+                debug!("media check required: {} should be {}", &file.fname, o);
                 invalid_entries.push(&file.fname);
                 continue;
             }
@@ -773,14 +736,13 @@ fn zip_files<'a>(
         }
 
         debug!(
-            log,
-            "will upload";
-             "fname"=>&file.fname,
-             "kind"=>if file_data.is_some() {
+            fname = &file.fname,
+            kind = if file_data.is_some() {
                 "addition "
             } else {
                 "removal"
-            }
+            },
+            "will upload"
         );
 
         entries.push(UploadEntry {
@@ -840,10 +802,8 @@ mod test {
             true
         };
 
-        let log = crate::log::terminal();
-
         let mgr = MediaManager::new(&media_dir, &media_db)?;
-        mgr.sync_media(progress, 0, hkey, log).await?;
+        mgr.sync_media(progress, 0, hkey).await?;
 
         Ok(())
     }

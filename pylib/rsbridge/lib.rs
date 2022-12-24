@@ -3,7 +3,7 @@
 
 use anki::{
     backend::{init_backend, Backend as RustBackend},
-    log::default_logger,
+    log::set_global_logger,
 };
 use pyo3::{
     create_exception, exceptions::PyException, prelude::*, types::PyBytes, wrap_pyfunction,
@@ -22,12 +22,13 @@ fn buildhash() -> &'static str {
 }
 
 #[pyfunction]
-fn open_backend(init_msg: &PyBytes, log_file: Option<String>) -> PyResult<Backend> {
-    let log = match default_logger(log_file.as_deref()) {
-        Ok(log) => Some(log),
-        Err(e) => return Err(PyException::new_err(e)),
-    };
-    match init_backend(init_msg.as_bytes(), log) {
+fn initialize_logging(path: Option<&str>) -> PyResult<()> {
+    set_global_logger(path).map_err(|e| PyException::new_err(e.to_string()))
+}
+
+#[pyfunction]
+fn open_backend(init_msg: &PyBytes) -> PyResult<Backend> {
+    match init_backend(init_msg.as_bytes()) {
         Ok(backend) => Ok(Backend { backend }),
         Err(e) => Err(PyException::new_err(e)),
     }
@@ -74,6 +75,7 @@ fn _rsbridge(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<Backend>()?;
     m.add_wrapped(wrap_pyfunction!(buildhash)).unwrap();
     m.add_wrapped(wrap_pyfunction!(open_backend)).unwrap();
+    m.add_wrapped(wrap_pyfunction!(initialize_logging)).unwrap();
 
     Ok(())
 }

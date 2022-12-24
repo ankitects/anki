@@ -11,7 +11,6 @@ use crate::{
     collection::CollectionBuilder,
     import_export::package::import_colpkg,
     io::{create_dir, create_dir_all, read_file},
-    log::terminal,
     media::MediaManager,
     prelude::*,
 };
@@ -62,7 +61,6 @@ fn roundtrip() -> Result<()> {
             &import_media_dir,
             &import_media_db,
             |_, _| true,
-            &terminal(),
         )?;
 
         // confirm collection imported

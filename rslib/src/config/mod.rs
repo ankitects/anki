@@ -11,8 +11,8 @@ pub(crate) mod undo;
 
 use serde::{de::DeserializeOwned, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
-use slog::warn;
 use strum::IntoStaticStr;
+use tracing::warn;
 
 pub use self::{
     bool::BoolKey, deck::DeckConfigKey, notetype::get_aux_notetype_config_key,
@@ -109,7 +109,7 @@ impl Collection {
             Ok(Some(val)) => Some(val),
             Ok(None) => None,
             Err(e) => {
-                warn!(self.log, "error accessing config key"; "key"=>key, "err"=>?e);
+                warn!(key, ?e, "error accessing config key");
                 None
             }
         }

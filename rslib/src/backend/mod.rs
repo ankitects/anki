@@ -37,7 +37,6 @@ use std::{
 use once_cell::sync::OnceCell;
 use progress::AbortHandleSlot;
 use prost::Message;
-use slog::Logger;
 use tokio::runtime::{
     Runtime, {self},
 };
@@ -62,7 +61,7 @@ use self::{
     sync::{SyncService, SyncState},
     tags::TagsService,
 };
-use crate::{backend::dbproxy::db_command_bytes, log, pb, pb::backend::ServiceIndex, prelude::*};
+use crate::{backend::dbproxy::db_command_bytes, pb, pb::backend::ServiceIndex, prelude::*};
 
 pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,
@@ -71,7 +70,6 @@ pub struct Backend {
     sync_abort: AbortHandleSlot,
     progress_state: Arc<Mutex<ProgressState>>,
     runtime: OnceCell<Runtime>,
-    log: Logger,
     state: Arc<Mutex<BackendState>>,
     backup_task: Arc<Mutex<Option<JoinHandle<Result<()>>>>>,
 }
@@ -81,20 +79,19 @@ struct BackendState {
     sync: SyncState,
 }
 
-pub fn init_backend(init_msg: &[u8], log: Option<Logger>) -> result::Result<Backend, String> {
+pub fn init_backend(init_msg: &[u8]) -> result::Result<Backend, String> {
     let input: pb::backend::BackendInit = match pb::backend::BackendInit::decode(init_msg) {
         Ok(req) => req,
         Err(_) => return Err("couldn't decode init request".into()),
     };
 
     let tr = I18n::new(&input.preferred_langs);
-    let log = log.unwrap_or_else(log::terminal);
 
-    Ok(Backend::new(tr, input.server, log))
+    Ok(Backend::new(tr, input.server))
 }
 
 impl Backend {
-    pub fn new(tr: I18n, server: bool, log: Logger) -> Backend {
+    pub fn new(tr: I18n, server: bool) -> Backend {
         Backend {
             col: Arc::new(Mutex::new(None)),
             tr,
@@ -105,7 +102,6 @@ impl Backend {
                 last_progress: None,
             })),
             runtime: OnceCell::new(),
-            log,
             state: Arc::new(Mutex::new(BackendState::default())),
             backup_task: Arc::new(Mutex::new(None)),
         }

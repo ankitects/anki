@@ -90,15 +90,6 @@
     "description": "Flexible concrete Error type built on std::error::Error"
   },
   {
-    "name": "arc-swap",
-    "version": "1.5.1",
-    "authors": "Michal 'vorner' Vaner <vorner@vorner.cz>",
-    "repository": "https://github.com/vorner/arc-swap",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Atomically swappable Arc"
-  },
-  {
     "name": "arrayref",
     "version": "0.3.6",
     "authors": "David Roundy <roundyd@physics.oregonstate.edu>",
@@ -133,15 +124,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Type erasure for async trait methods"
-  },
-  {
-    "name": "atty",
-    "version": "0.2.14",
-    "authors": "softprops <d.tangren@gmail.com>",
-    "repository": "https://github.com/softprops/atty",
-    "license": "MIT",
-    "license_file": null,
-    "description": "A simple interface for querying atty"
   },
   {
     "name": "autocfg",
@@ -466,24 +448,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Traits for cryptographic hash functions and message authentication codes"
-  },
-  {
-    "name": "dirs-next",
-    "version": "2.0.0",
-    "authors": "The @xdg-rs members",
-    "repository": "https://github.com/xdg-rs/dirs",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A tiny low-level library that provides platform-specific standard locations of directories for config, cache and other data on Linux, Windows, macOS and Redox by leveraging the mechanisms defined by the XDG base/user directory specifications on Linux, the Known Folder API on Windows, and the Standard Directory guidelines on macOS."
-  },
-  {
-    "name": "dirs-sys-next",
-    "version": "0.1.2",
-    "authors": "The @xdg-rs members",
-    "repository": "https://github.com/xdg-rs/dirs/tree/master/dirs-sys",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "system-level helper functions for the dirs and directories crates"
   },
   {
     "name": "displaydoc",
@@ -1206,6 +1170,15 @@
     "description": "Common code for xml5ever and html5ever"
   },
   {
+    "name": "matchers",
+    "version": "0.1.0",
+    "authors": "Eliza Weisman <eliza@buoyant.io>",
+    "repository": "https://github.com/hawkw/matchers",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Regex matching on character and byte streams."
+  },
+  {
     "name": "matches",
     "version": "0.1.9",
     "authors": "Simon Sapin <simon.sapin@exyr.org>",
@@ -1312,6 +1285,15 @@
     "license": "MIT",
     "license_file": null,
     "description": "A byte-oriented, zero-copy, parser combinators library"
+  },
+  {
+    "name": "nu-ansi-term",
+    "version": "0.46.0",
+    "authors": "ogham@bsago.me|Ryan Scheel (Havvy) <ryan.havvy@gmail.com>|Josh Triplett <josh@joshtriplett.org>|The Nushell Project Developers",
+    "repository": "https://github.com/nushell/nu-ansi-term",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Library for ANSI terminal colors and styles (bold, underline)"
   },
   {
     "name": "num-format",
@@ -1438,6 +1420,15 @@
     "license": "MIT",
     "license_file": null,
     "description": "FFI bindings to OpenSSL"
+  },
+  {
+    "name": "overload",
+    "version": "0.1.1",
+    "authors": "Daniel Salvadori <danaugrs@gmail.com>",
+    "repository": "https://github.com/danaugrs/overload",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Provides a macro to simplify operator overloading."
   },
   {
     "name": "parking_lot",
@@ -1755,15 +1746,6 @@
     "description": "A Rust library to access raw Redox system calls"
   },
   {
-    "name": "redox_users",
-    "version": "0.4.3",
-    "authors": "Jose Narvaez <goyox86@gmail.com>|Wesley Hershberger <mggmugginsmc@gmail.com>",
-    "repository": "https://gitlab.redox-os.org/redox-os/users",
-    "license": "MIT",
-    "license_file": null,
-    "description": "A Rust library to access Redox users and groups functionality"
-  },
-  {
     "name": "regex",
     "version": "1.7.0",
     "authors": "The Rust Project Developers",
@@ -2043,6 +2025,15 @@
     "description": "Pure Rust implementation of the SHA-2 hash function family including SHA-224, SHA-256, SHA-384, and SHA-512."
   },
   {
+    "name": "sharded-slab",
+    "version": "0.1.4",
+    "authors": "Eliza Weisman <eliza@buoyant.io>",
+    "repository": "https://github.com/hawkw/sharded-slab",
+    "license": "MIT",
+    "license_file": null,
+    "description": "A lock-free concurrent slab."
+  },
+  {
     "name": "signal-hook-registry",
     "version": "1.4.0",
     "authors": "Michal 'vorner' Vaner <vorner@vorner.cz>|Masaki Hara <ackie.h.gmai@gmail.com>",
@@ -2068,60 +2059,6 @@
     "license": "MIT",
     "license_file": null,
     "description": "Pre-allocated storage for a uniform data type"
-  },
-  {
-    "name": "slog",
-    "version": "2.7.0",
-    "authors": "Dawid Ciężarkiewicz <dpc@dpc.pw>",
-    "repository": "https://github.com/slog-rs/slog",
-    "license": "Apache-2.0 OR MIT OR MPL-2.0",
-    "license_file": null,
-    "description": "Structured, extensible, composable logging for Rust"
-  },
-  {
-    "name": "slog-async",
-    "version": "2.7.0",
-    "authors": "Dawid Ciężarkiewicz <dpc@dpc.pw>",
-    "repository": "https://github.com/slog-rs/async",
-    "license": "Apache-2.0 OR MIT OR MPL-2.0",
-    "license_file": null,
-    "description": "Asynchronous drain for slog-rs"
-  },
-  {
-    "name": "slog-envlogger",
-    "version": "2.2.0",
-    "authors": "The Rust Project Developers|Dawid Ciężarkiewicz <dpc@dpc.pw>",
-    "repository": "https://github.com/slog-rs/envlogger",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Port of de facto standard logger implementation for Rust, to `slog-rs` framework."
-  },
-  {
-    "name": "slog-scope",
-    "version": "4.4.0",
-    "authors": "Dawid Ciężarkiewicz <dpc@dpc.pw>",
-    "repository": "https://github.com/slog-rs/scope",
-    "license": "Apache-2.0 OR MIT OR MPL-2.0",
-    "license_file": null,
-    "description": "Logging scopes for slog-rs"
-  },
-  {
-    "name": "slog-stdlog",
-    "version": "4.1.1",
-    "authors": "Dawid Ciężarkiewicz <dpc@dpc.pw>",
-    "repository": "https://github.com/slog-rs/stdlog",
-    "license": "Apache-2.0 OR MIT OR MPL-2.0",
-    "license_file": null,
-    "description": "`log` crate adapter for slog-rs"
-  },
-  {
-    "name": "slog-term",
-    "version": "2.9.0",
-    "authors": "Dawid Ciężarkiewicz <dpc@dpc.pw>",
-    "repository": "https://github.com/slog-rs/term",
-    "license": "Apache-2.0 OR MIT OR MPL-2.0",
-    "license_file": null,
-    "description": "Unix terminal drain and formatter for slog-rs"
   },
   {
     "name": "smallvec",
@@ -2232,15 +2169,6 @@
     "description": "Parser for Rust source code"
   },
   {
-    "name": "take_mut",
-    "version": "0.2.2",
-    "authors": "Sgeo <sgeoster@gmail.com>",
-    "repository": "https://github.com/Sgeo/take_mut",
-    "license": "MIT",
-    "license_file": null,
-    "description": "Take a T from a &mut T temporarily"
-  },
-  {
     "name": "tempfile",
     "version": "3.3.0",
     "authors": "Steven Allen <steven@stebalien.com>|The Rust Project Developers|Ashley Mannix <ashleymannix@live.com.au>|Jason White <jasonaw0@gmail.com>",
@@ -2257,15 +2185,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Compact buffer/string type for zero-copy parsing"
-  },
-  {
-    "name": "term",
-    "version": "0.7.0",
-    "authors": "The Rust Project Developers|Steven Allen",
-    "repository": "https://github.com/Stebalien/term",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A terminal formatting library"
   },
   {
     "name": "termcolor",
@@ -2448,6 +2367,24 @@
     "description": "Application-level tracing for Rust."
   },
   {
+    "name": "tracing-appender",
+    "version": "0.2.2",
+    "authors": "Zeki Sherif <zekshi@amazon.com>|Tokio Contributors <team@tokio.rs>",
+    "repository": "https://github.com/tokio-rs/tracing",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Provides utilities for file appenders and making non-blocking writers."
+  },
+  {
+    "name": "tracing-attributes",
+    "version": "0.1.23",
+    "authors": "Tokio Contributors <team@tokio.rs>|Eliza Weisman <eliza@buoyant.io>|David Barsky <dbarsky@amazon.com>",
+    "repository": "https://github.com/tokio-rs/tracing",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Procedural macro attributes for automatically instrumenting functions."
+  },
+  {
     "name": "tracing-core",
     "version": "0.1.30",
     "authors": "Tokio Contributors <team@tokio.rs>",
@@ -2455,6 +2392,24 @@
     "license": "MIT",
     "license_file": null,
     "description": "Core primitives for application-level tracing."
+  },
+  {
+    "name": "tracing-log",
+    "version": "0.1.3",
+    "authors": "Tokio Contributors <team@tokio.rs>",
+    "repository": "https://github.com/tokio-rs/tracing",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Provides compatibility between `tracing` and the `log` crate."
+  },
+  {
+    "name": "tracing-subscriber",
+    "version": "0.3.16",
+    "authors": "Eliza Weisman <eliza@buoyant.io>|David Barsky <me@davidbarsky.com>|Tokio Contributors <team@tokio.rs>",
+    "repository": "https://github.com/tokio-rs/tracing",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Utilities for implementing and composing `tracing` subscribers."
   },
   {
     "name": "try-lock",
@@ -2653,6 +2608,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A missing utime function for Rust."
+  },
+  {
+    "name": "valuable",
+    "version": "0.1.0",
+    "authors": null,
+    "repository": "https://github.com/tokio-rs/valuable",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Object-safe value inspection, used to pass un-typed structured data across trait-object boundaries."
   },
   {
     "name": "vcpkg",

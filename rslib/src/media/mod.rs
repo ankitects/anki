@@ -8,7 +8,6 @@ use std::{
 };
 
 use rusqlite::Connection;
-use slog::Logger;
 
 use self::changetracker::ChangeTracker;
 use crate::{
@@ -150,12 +149,11 @@ impl MediaManager {
         progress: F,
         host_number: u32,
         hkey: &'a str,
-        log: Logger,
     ) -> Result<()>
     where
         F: FnMut(MediaSyncProgress) -> bool,
     {
-        let mut syncer = MediaSyncer::new(self, progress, host_number, log);
+        let mut syncer = MediaSyncer::new(self, progress, host_number);
         syncer.sync(hkey).await
     }
 
@@ -166,10 +164,9 @@ impl MediaManager {
     pub fn all_checksums(
         &self,
         progress: impl FnMut(usize) -> bool,
-        log: &Logger,
     ) -> Result<HashMap<String, Sha1Hash>> {
         let mut dbctx = self.dbctx();
-        ChangeTracker::new(&self.media_folder, progress, log).register_changes(&mut dbctx)?;
+        ChangeTracker::new(&self.media_folder, progress).register_changes(&mut dbctx)?;
         dbctx.all_checksums()
     }
 
@@ -182,12 +179,8 @@ impl MediaManager {
         }
     }
 
-    pub fn register_changes(
-        &self,
-        progress: &mut impl FnMut(usize) -> bool,
-        log: &Logger,
-    ) -> Result<()> {
-        ChangeTracker::new(&self.media_folder, progress, log).register_changes(&mut self.dbctx())
+    pub fn register_changes(&self, progress: &mut impl FnMut(usize) -> bool) -> Result<()> {
+        ChangeTracker::new(&self.media_folder, progress).register_changes(&mut self.dbctx())
     }
 }
 

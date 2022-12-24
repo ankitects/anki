@@ -117,16 +117,19 @@ ExportLimit = Union[DeckIdLimit, NoteIdsLimit, CardIdsLimit, None]
 class Collection(DeprecatedNamesMixin):
     sched: V1Scheduler | V2Scheduler | V3Scheduler
 
+    @staticmethod
+    def initialize_backend_logging(path: str | None = None) -> None:
+        """Enable terminal and optional file-based logging. Must be called only once."""
+        RustBackend.initialize_logging(path)
+
     def __init__(
         self,
         path: str,
         backend: RustBackend | None = None,
         server: bool = False,
-        log: bool = False,
     ) -> None:
         self._backend = backend or RustBackend(server=server)
         self.db: DBProxy | None = None
-        self._should_log = log
         self.server = server
         self.path = os.path.abspath(path)
         self.reopen()
@@ -300,18 +303,12 @@ class Collection(DeprecatedNamesMixin):
 
         (media_dir, media_db) = media_paths_from_col_path(self.path)
 
-        log_path = ""
-        should_log = not self.server and self._should_log
-        if should_log:
-            log_path = self.path.replace(".anki2", ".log")
-
         # connect
         if not after_full_sync:
             self._backend.open_collection(
                 collection_path=self.path,
                 media_folder_path=media_dir,
                 media_db_path=media_db,
-                log_path=log_path,
             )
         self.db = DBProxy(weakref.proxy(self._backend))
         self.db.begin()
