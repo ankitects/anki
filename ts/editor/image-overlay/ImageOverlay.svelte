@@ -94,13 +94,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 `${maxHeight}px`,
             );
         } else {
-            document.documentElement.style.setProperty(
+            document.documentElement.style.removeProperty(
                 "--editor-default-max-width",
-                "inherit",
             );
-            document.documentElement.style.setProperty(
+            document.documentElement.style.removeProperty(
                 "--editor-default-max-height",
-                "inherit",
             );
         }
     }
