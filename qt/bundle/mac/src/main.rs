@@ -56,7 +56,7 @@ impl DistKind {
                     "10.14.4"
                 }
             }
-            DistKind::Alternate => "10.13.14",
+            DistKind::Alternate => "10.13.4",
         }
     }
 
