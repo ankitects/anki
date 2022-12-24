@@ -47,7 +47,6 @@ impl ImportExportService for Backend {
             Path::new(&input.media_folder),
             Path::new(&input.media_db),
             self.import_progress_fn(),
-            &self.log,
         )
         .map(Into::into)
     }

@@ -9,12 +9,12 @@ use std::{
 };
 
 use anki_i18n::without_unicode_isolation;
+use tracing::debug;
 
 use crate::{
     collection::Collection,
     error::{AnkiError, DbErrorKind, Result},
     latex::extract_latex_expanding_clozes,
-    log::debug,
     media::{
         database::MediaDatabaseContext,
         files::{
@@ -250,7 +250,7 @@ where
     ) -> Result<Cow<'a, str>> {
         // add a copy of the file using the correct name
         let fname = self.mgr.add_file(ctx, disk_fname, &data)?;
-        debug!(self.ctx.log, "renamed"; "from"=>disk_fname, "to"=>&fname.as_ref());
+        debug!(from = disk_fname, to = &fname.as_ref(), "renamed");
         assert_ne!(fname.as_ref(), disk_fname);
 
         // remove the original file
@@ -340,7 +340,7 @@ where
                         self.mgr
                             .add_file(&mut self.mgr.dbctx(), fname.as_ref(), &data)?;
                 } else {
-                    debug!(self.ctx.log, "file disappeared while restoring trash"; "fname"=>fname.as_ref());
+                    debug!(?fname, "file disappeared while restoring trash");
                 }
                 fs::remove_file(dentry.path())?;
             }

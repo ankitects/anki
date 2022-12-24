@@ -6,7 +6,7 @@ mod server;
 use std::sync::Arc;
 
 use futures::future::{AbortHandle, AbortRegistration, Abortable};
-use slog::warn;
+use tracing::warn;
 
 use super::{progress::AbortHandleSlot, Backend};
 pub(super) use crate::pb::sync::sync_service::Service as SyncService;
@@ -153,9 +153,7 @@ impl Backend {
             //       abort handles by just iterating over them all in
             //       abort_sync). But for now, just log a warning if there was
             //       already one present -- but don't abort it either.
-            let log = self.with_col(|col| Ok(col.log.clone()))?;
             warn!(
-                log,
                 "new sync_abort handle registered, but old one was still present (old sync job might not be cancelled on abort)"
             );
         }
@@ -184,7 +182,6 @@ impl Backend {
         let col = guard.as_mut().unwrap();
         let folder = col.media_folder.clone();
         let db = col.media_db.clone();
-        let log = col.log.clone();
         drop(guard);
 
         // start the sync
@@ -193,7 +190,7 @@ impl Backend {
 
         let mgr = MediaManager::new(&folder, &db)?;
         let rt = self.runtime_handle();
-        let sync_fut = mgr.sync_media(progress_fn, input.host_number, &input.hkey, log);
+        let sync_fut = mgr.sync_media(progress_fn, input.host_number, &input.hkey);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let result = rt.block_on(abortable_sync);
 

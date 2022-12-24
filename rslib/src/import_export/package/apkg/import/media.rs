@@ -38,9 +38,7 @@ impl Context<'_> {
         }
 
         let db_progress_fn = self.progress.media_db_fn(ImportProgress::MediaCheck)?;
-        let existing_sha1s = self
-            .media_manager
-            .all_checksums(db_progress_fn, &self.target_col.log)?;
+        let existing_sha1s = self.media_manager.all_checksums(db_progress_fn)?;
 
         prepare_media(
             media_entries,

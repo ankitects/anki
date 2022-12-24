@@ -13,10 +13,10 @@ use std::{
 
 use chrono::prelude::*;
 use itertools::Itertools;
-use log::error;
+use tracing::error;
 
 use crate::{
-    import_export::package::export_colpkg_from_data, io::read_file, log,
+    import_export::package::export_colpkg_from_data, io::read_file,
     pb::config::preferences::BackupLimits, prelude::*,
 };
 
@@ -37,13 +37,12 @@ impl Collection {
         if should_skip_backup(force, limits.minimum_interval_mins, backup_folder.as_ref())? {
             Ok(None)
         } else {
-            let log = self.log.clone();
             let tr = self.tr.clone();
             self.storage.checkpoint()?;
             let col_data = read_file(&self.col_path)?;
             self.update_last_backup_timestamp()?;
             Ok(Some(thread::spawn(move || {
-                backup_inner(&col_data, &backup_folder, limits, log, &tr)
+                backup_inner(&col_data, &backup_folder, limits, &tr)
             })))
         }
     }
@@ -86,11 +85,10 @@ fn backup_inner<P: AsRef<Path>>(
     col_data: &[u8],
     backup_folder: P,
     limits: BackupLimits,
-    log: Logger,
     tr: &I18n,
 ) -> Result<()> {
     write_backup(col_data, backup_folder.as_ref(), tr)?;
-    thin_backups(backup_folder, limits, &log)
+    thin_backups(backup_folder, limits)
 }
 
 fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S, tr: &I18n) -> Result<()> {
@@ -99,17 +97,13 @@ fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S, tr: &I18n) -
     export_colpkg_from_data(&out_path, col_data, tr)
 }
 
-fn thin_backups<P: AsRef<Path>>(
-    backup_folder: P,
-    limits: BackupLimits,
-    log: &Logger,
-) -> Result<()> {
+fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: BackupLimits) -> Result<()> {
     let backups =
         read_dir(backup_folder)?.filter_map(|entry| entry.ok().and_then(Backup::from_entry));
     let obsolete_backups = BackupFilter::new(Local::now(), limits).obsolete_backups(backups);
     for backup in obsolete_backups {
         if let Err(error) = remove_file(&backup.path) {
-            error!(log, "failed to remove {:?}: {error:?}", &backup.path);
+            error!("failed to remove {:?}: {error:?}", &backup.path);
         };
     }
 
