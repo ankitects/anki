@@ -4,9 +4,12 @@
 import { getSelection, isSelectionCollapsed } from "@tslib/cross-browser";
 import { elementIsEmpty, nodeIsElement, nodeIsText } from "@tslib/dom";
 import { on } from "@tslib/events";
+import type { Unsubscriber } from "svelte/store";
+import { get } from "svelte/store";
 
 import { moveChildOutOfElement } from "../domlib/move-nodes";
 import { placeCaretAfter } from "../domlib/place-caret";
+import { isComposing } from "../sveltelib/composition";
 import type { FrameElement } from "./frame-element";
 
 /**
@@ -86,6 +89,10 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
             ) {
                 continue;
             }
+            if (get(isComposing)) {
+                target.parentElement.subscribeToCompositionEvent();
+                continue;
+            }
 
             referenceNode = target.parentElement.moveTextOutOfFrame();
         }
@@ -116,6 +123,7 @@ export abstract class FrameHandle extends HTMLElement {
     partiallySelected = false;
     frames?: string;
     abstract placement: Placement;
+    unsubscribe: Unsubscriber | null;
 
     constructor() {
         super();
@@ -124,6 +132,7 @@ export abstract class FrameHandle extends HTMLElement {
             subtree: true,
             characterData: true,
         });
+        this.unsubscribe = null;
     }
 
     attributeChangedCallback(name: string, old: string, newValue: string): void {
@@ -185,6 +194,7 @@ export abstract class FrameHandle extends HTMLElement {
 
         this.removeMoveIn?.();
         this.removeMoveIn = undefined;
+        this.unsubscribeToCompositionEvent();
     }
 
     abstract notifyMoveIn(offset: number): void;
@@ -201,6 +211,27 @@ export abstract class FrameHandle extends HTMLElement {
         }
         this.refreshSpace();
         return text;
+    }
+
+    /**
+     * https://github.com/ankitects/anki/issues/2251
+     *
+     * Work around the issue by not moving the input string while an IME session
+     * is active, and moving the final output from IME only after the session ends.
+     */
+    subscribeToCompositionEvent(): void {
+        this.unsubscribe = this.unsubscribe
+            || isComposing.subscribe((composing) => {
+                if (!composing) {
+                    placeCaretAfter(this.moveTextOutOfFrame());
+                    this.unsubscribeToCompositionEvent();
+                }
+            });
+    }
+
+    unsubscribeToCompositionEvent(): void {
+        this.unsubscribe?.();
+        this.unsubscribe = null;
     }
 }
 
