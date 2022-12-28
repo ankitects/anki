@@ -349,7 +349,13 @@ where
             .duration_since(time::UNIX_EPOCH)
             .unwrap()
             .as_secs() as i64;
-        utime::set_file_times(&dst_path, secs, secs)?;
+        if let Err(err) = utime::set_file_times(&dst_path, secs, secs) {
+            // The libc utimes() call fails on (some? all?) Android devices. Since we don't
+            // do automatic expiry yet, we can safely ignore the error.
+            if !cfg!(target_os = "android") {
+                return Err(err.into());
+            }
+        }
     }
 
     Ok(())
