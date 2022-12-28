@@ -1,5 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 from aqt import colors, props
 from aqt.theme import ThemeManager
 
@@ -101,9 +102,7 @@ QMenu::indicator {{
 
 def button_styles(tm: ThemeManager) -> str:
     return f"""
-QPushButton {{
-    min-width: 75px;
-}}
+QPushButton {{ padding-left: 15px; padding-right: 15px; }}
 QPushButton,
 QTabBar::tab:!selected,
 QComboBox:!editable,
