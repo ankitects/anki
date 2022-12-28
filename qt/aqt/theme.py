@@ -43,6 +43,12 @@ class ColoredIcon:
         return ColoredIcon(path=self.path, color=color)
 
 
+class AnkiStyles(enum.IntEnum):
+    ANKI = 0
+    FUSION = 1
+    NATIVE = 2
+
+
 class Theme(enum.IntEnum):
     FOLLOW_SYSTEM = 0
     LIGHT = 1
@@ -230,9 +236,11 @@ class ThemeManager:
     def _apply_style(self, app: QApplication) -> None:
         from aqt.stylesheets import splitter_styles
 
-        buf = splitter_styles(self)
+        buf = splitter_styles(self) if not aqt.mw.pm.force_native_styles() else ""
 
-        if not is_mac or aqt.mw.pm.force_custom_styles():
+        if aqt.mw.pm.force_anki_styles() or not (
+            aqt.mw.pm.force_native_styles() or aqt.mw.pm.force_fusion_styles() or is_mac
+        ):
             from aqt.stylesheets import (
                 button_styles,
                 checkbox_styles,
@@ -267,7 +275,9 @@ class ThemeManager:
     def _apply_palette(self, app: QApplication) -> None:
         set_macos_dark_mode(self.night_mode)
 
-        if is_mac and not (qtmajor == 5 or aqt.mw.pm.force_custom_styles()):
+        if aqt.mw.pm.force_native_styles() or (
+            is_mac and not (qtmajor == 5 or aqt.mw.pm.force_anki_styles())
+        ):
             app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
             self.default_palette.setColor(
                 QPalette.ColorRole.Window, self.qcolor(colors.CANVAS)

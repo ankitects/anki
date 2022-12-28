@@ -1619,6 +1619,8 @@ title="{}" {}>{}</button>""".format(
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), d)
         qconnect(s.activated, frm.text.clear)
 
+        qconnect(frm.widgetsButton.clicked, self._on_widgetGallery)
+
         def addContextMenu(
             ev: Union[QCloseEvent, QContextMenuEvent], name: str
         ) -> None:
@@ -1639,6 +1641,12 @@ title="{}" {}>{}</button>""".format(
         frm.text.contextMenuEvent = lambda ev: addContextMenu(ev, "text")  # type: ignore[assignment]
         gui_hooks.debug_console_will_show(d)
         d.show()
+
+    def _on_widgetGallery(self) -> None:
+        from aqt.widgetgallery import WidgetGallery
+
+        self.widgetGallery = WidgetGallery(self)
+        self.widgetGallery.show()
 
     def _captureOutput(self, on: bool) -> None:
         mw2 = self

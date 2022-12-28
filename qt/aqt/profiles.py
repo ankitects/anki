@@ -23,7 +23,7 @@ from anki.sync import SyncAuth
 from anki.utils import int_time, is_mac, is_win, point_version
 from aqt import appHelpSite
 from aqt.qt import *
-from aqt.theme import Theme, theme_manager
+from aqt.theme import AnkiStyles, Theme, theme_manager
 from aqt.utils import disable_help_button, send_to_trash, showWarning, tr
 
 if TYPE_CHECKING:
@@ -540,11 +540,34 @@ create table if not exists profiles
     def set_theme(self, theme: Theme) -> None:
         self.meta["theme"] = theme.value
 
-    def force_custom_styles(self) -> bool:
-        return self.meta.get("force_custom_styles", False)
+    def set_forced_style(self, style: AnkiStyles | None) -> None:
+        if style:
+            self.meta[f"force_{AnkiStyles(style).name.lower()}_styles"] = True
 
-    def set_force_custom_styles(self, enabled: bool) -> None:
-        self.meta["force_custom_styles"] = enabled
+        for member in AnkiStyles:
+            if member != style:
+                self.meta[f"force_{AnkiStyles(member).name.lower()}_styles"] = False
+
+        theme_manager.apply_style()
+
+    def has_forced_style(self) -> bool:
+        for member in AnkiStyles:
+            if self.meta[f"force_{AnkiStyles(member).name.lower()}_styles"]:
+                return True
+        return False
+
+    # These getters are used by ThemeManager
+    def unset_forced_styles(self) -> None:
+        self.set_forced_style(None)
+
+    def force_anki_styles(self) -> bool:
+        return self.meta.get("force_anki_styles", False)
+
+    def force_fusion_styles(self) -> bool:
+        return self.meta.get("force_fusion_styles", False)
+
+    def force_native_styles(self) -> bool:
+        return self.meta.get("force_native_styles", False)
 
     def browser_layout(self) -> BrowserLayout:
         from aqt.browser.layout import BrowserLayout
