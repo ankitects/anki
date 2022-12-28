@@ -58,22 +58,21 @@ impl AnkidroidService for Backend {
 
     fn flush_all_queries(&self, _input: Empty) -> Result<Empty> {
         self.with_col(|col| {
-            db::flush_all(backend_id(col));
+            db::flush_collection(col);
             Ok(Empty {})
         })
     }
 
     fn flush_query(&self, input: Int32) -> Result<Empty> {
         self.with_col(|col| {
-            db::flush_cache(backend_id(col), input.val);
+            db::flush_single_result(col, input.val);
             Ok(Empty {})
         })
     }
 
     fn get_next_result_page(&self, input: GetNextResultPageRequest) -> Result<DbResponse> {
         self.with_col(|col| {
-            let id = backend_id(col);
-            db::get_next(id, input.sequence, input.index).or_not_found(id)
+            db::get_next(col, input.sequence, input.index).or_invalid("missing result page")
         })
     }
 
@@ -107,7 +106,7 @@ impl AnkidroidService for Backend {
     ) -> Result<GetActiveSequenceNumbersResponse> {
         self.with_col(|col| {
             Ok(GetActiveSequenceNumbersResponse {
-                numbers: active_sequences(backend_id(col)),
+                numbers: active_sequences(col),
             })
         })
     }
@@ -115,10 +114,4 @@ impl AnkidroidService for Backend {
     fn debug_produce_error(&self, input: generic::String) -> Result<Empty> {
         Err(debug_produce_error(&input.val))
     }
-}
-
-/// The old AnkiDroid code used the pointer to the backend as a cache index;
-/// Now we use a pointer to SqliteStorage instead.
-pub(crate) fn backend_id(col: &Collection) -> i64 {
-    (&col.storage as *const _) as i64
 }

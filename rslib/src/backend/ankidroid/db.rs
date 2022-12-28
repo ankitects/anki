@@ -10,8 +10,6 @@ use std::{
     },
 };
 
-// TODO: storing the results in a box in the cache is unnecessary and more fragile
-use i64 as dbresponse_pointer;
 use itertools::{
     FoldWhile,
     FoldWhile::{Continue, Done},
@@ -26,6 +24,17 @@ use crate::{
     error::Result,
     pb::ankidroid::{sql_value::Data, DbResponse, DbResult, Row, SqlValue},
 };
+
+/// A pointer to the SqliteStorage object stored in a collection, used to
+/// uniquely index results from multiple open collections at once.
+impl Collection {
+    fn id_for_db_cache(&self) -> CollectionId {
+        CollectionId((&self.storage as *const _) as i64)
+    }
+}
+
+#[derive(Hash, PartialEq, Eq)]
+struct CollectionId(i64);
 
 #[derive(Deserialize)]
 struct DBArgs {
@@ -99,54 +108,32 @@ fn select_slice_of_size<'a>(
     })
 }
 
+type SequenceNumber = i32;
+
 lazy_static! {
-    // i64 => Map<sequenceNumber, DbResponse pointer>
-    static ref HASHMAP: Mutex<HashMap<i64, HashMap<i32, i64>>> = {
-        Mutex::new(HashMap::new())
-    };
+    static ref HASHMAP: Mutex<HashMap<CollectionId, HashMap<SequenceNumber, DbResponse>>> =
+        Mutex::new(HashMap::new());
 }
 
-pub(crate) fn flush_cache(ptr: i64, sequence_number: i32) {
-    let mut map = HASHMAP.lock().unwrap();
-    let entries = map.get_mut(&ptr);
-    if let Some(seq_to_ptr) = entries {
-        let entry = seq_to_ptr.remove_entry(&sequence_number);
-        if let Some(ptr) = entry {
-            let raw = ptr.1 as *mut DbResponse;
-            unsafe {
-                drop(Box::from_raw(raw));
-            }
-        }
-    }
+pub(crate) fn flush_single_result(col: &Collection, sequence_number: i32) {
+    HASHMAP
+        .lock()
+        .unwrap()
+        .get_mut(&col.id_for_db_cache())
+        .map(|storage| storage.remove(&sequence_number));
 }
 
-pub(crate) fn flush_all(ptr: i64) {
-    let mut map = HASHMAP.lock().unwrap();
-
-    // clear the map
-    let entries = map.remove_entry(&ptr);
-
-    if let Some(seq_to_ptr_map) = entries {
-        // then clear each value
-        for val in seq_to_ptr_map.1.values() {
-            let raw = (*val) as *mut DbResponse;
-            unsafe {
-                drop(Box::from_raw(raw));
-            }
-        }
-    }
+pub(crate) fn flush_collection(col: &Collection) {
+    HASHMAP.lock().unwrap().remove(&col.id_for_db_cache());
 }
 
-pub(crate) fn active_sequences(ptr: i64) -> Vec<i32> {
-    let mut map = HASHMAP.lock().unwrap();
-
-    match map.get_mut(&ptr) {
-        Some(x) => {
-            let keys = x.keys();
-            keys.into_iter().copied().collect_vec()
-        }
-        None => Vec::new(),
-    }
+pub(crate) fn active_sequences(col: &Collection) -> Vec<i32> {
+    HASHMAP
+        .lock()
+        .unwrap()
+        .get(&col.id_for_db_cache())
+        .map(|h| h.keys().copied().collect())
+        .unwrap_or_default()
 }
 
 /**
@@ -154,7 +141,7 @@ Store the data in the cache if larger than than the page size.<br/>
 Returns: The data capped to the page size
 */
 pub(crate) fn trim_and_cache_remaining(
-    backend_ptr: i64,
+    col: &Collection,
     values: DbResult,
     sequence_number: i32,
 ) -> DbResponse {
@@ -171,7 +158,7 @@ pub(crate) fn trim_and_cache_remaining(
             row_count,
             start_index,
         };
-        insert_cache(backend_ptr, to_store);
+        insert_cache(col, to_store);
 
         DbResponse {
             result: Some(DbResult { rows: first_result }),
@@ -189,45 +176,39 @@ pub(crate) fn trim_and_cache_remaining(
     }
 }
 
-fn insert_cache(ptr: i64, result: DbResponse) {
-    let mut map = HASHMAP.lock().unwrap();
-
-    match map.get_mut(&ptr) {
-        Some(_) => {}
-        None => {
-            let map2: HashMap<i32, i64> = HashMap::new();
-            map.insert(ptr, map2);
-        }
-    };
-
-    let out_hash_map = map.get_mut(&ptr).unwrap();
-
-    out_hash_map.insert(
-        result.sequence_number,
-        Box::into_raw(Box::new(result)) as dbresponse_pointer,
-    );
+fn insert_cache(col: &Collection, result: DbResponse) {
+    HASHMAP
+        .lock()
+        .unwrap()
+        .entry(col.id_for_db_cache())
+        .or_default()
+        .insert(result.sequence_number, result);
 }
 
-pub(crate) fn get_next(ptr: i64, sequence_number: i32, start_index: i64) -> Option<DbResponse> {
-    let result = get_next_result(ptr, &sequence_number, start_index);
+pub(crate) fn get_next(
+    col: &Collection,
+    sequence_number: i32,
+    start_index: i64,
+) -> Option<DbResponse> {
+    let result = get_next_result(col, &sequence_number, start_index);
 
     if let Some(resp) = result.as_ref() {
         if resp.result.is_none() || resp.result.as_ref().unwrap().rows.is_empty() {
-            flush_cache(ptr, sequence_number)
+            flush_single_result(col, sequence_number)
         }
     }
 
     result
 }
 
-fn get_next_result(ptr: i64, sequence_number: &i32, start_index: i64) -> Option<DbResponse> {
+fn get_next_result(
+    col: &Collection,
+    sequence_number: &i32,
+    start_index: i64,
+) -> Option<DbResponse> {
     let map = HASHMAP.lock().unwrap();
-
-    let result_map = map.get(&ptr)?;
-
-    let backend_ptr = *result_map.get(sequence_number)?;
-
-    let current_result = unsafe { &mut *(backend_ptr as *mut DbResponse) };
+    let result_map = map.get(&col.id_for_db_cache())?;
+    let current_result = result_map.get(sequence_number)?;
 
     // TODO: This shouldn't need to exist
     let tmp: Vec<Row> = Vec::new();
@@ -300,6 +281,7 @@ mod tests {
     use super::*;
     use crate::{
         backend::ankidroid::db::{select_slice_of_size, Sizable},
+        collection::open_test_collection,
         pb::ankidroid::{sql_value, Row, SqlValue},
     };
 
@@ -377,28 +359,29 @@ mod tests {
         );
     }
 
-    const BACKEND_PTR: i64 = 12;
     const SEQUENCE_NUMBER: i32 = 1;
 
-    fn get(index: i64) -> Option<DbResponse> {
-        get_next(BACKEND_PTR, SEQUENCE_NUMBER, index)
+    fn get(col: &Collection, index: i64) -> Option<DbResponse> {
+        get_next(col, SEQUENCE_NUMBER, index)
     }
 
-    fn get_first(result: DbResult) -> DbResponse {
-        trim_and_cache_remaining(BACKEND_PTR, result, SEQUENCE_NUMBER)
+    fn get_first(col: &Collection, result: DbResult) -> DbResponse {
+        trim_and_cache_remaining(col, result, SEQUENCE_NUMBER)
     }
 
-    fn seq_number_used() -> bool {
+    fn seq_number_used(col: &Collection) -> bool {
         HASHMAP
             .lock()
             .unwrap()
-            .get(&BACKEND_PTR)
+            .get(&col.id_for_db_cache())
             .unwrap()
             .contains_key(&SEQUENCE_NUMBER)
     }
 
     #[test]
     fn integration_test() {
+        let col = open_test_collection();
+
         let row = Row { fields: gen_data() };
 
         // return one row at a time
@@ -408,7 +391,7 @@ mod tests {
             rows: vec![row.clone(), row],
         };
 
-        let first_jni_response = get_first(db_query_result);
+        let first_jni_response = get_first(&col, db_query_result);
 
         assert_eq!(
             row_count(&first_jni_response),
@@ -418,7 +401,7 @@ mod tests {
 
         let next_index = first_jni_response.start_index + row_count(&first_jni_response);
 
-        let second_response = get(next_index);
+        let second_response = get(&col, next_index);
 
         assert!(
             second_response.is_some(),
@@ -429,9 +412,9 @@ mod tests {
 
         let final_index = valid_second_response.start_index + row_count(&valid_second_response);
 
-        assert!(seq_number_used(), "The sequence number is assigned");
+        assert!(seq_number_used(&col), "The sequence number is assigned");
 
-        let final_response = get(final_index);
+        let final_response = get(&col, final_index);
         assert!(
             final_response.is_some(),
             "The third call should return something with no rows"
@@ -441,7 +424,10 @@ mod tests {
             0,
             "The third call should return something with no rows"
         );
-        assert!(!seq_number_used(), "Sequence number data has been cleared");
+        assert!(
+            !seq_number_used(&col),
+            "Sequence number data has been cleared"
+        );
     }
 
     fn row_count(resp: &DbResponse) -> i64 {

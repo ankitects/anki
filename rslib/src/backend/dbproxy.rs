@@ -8,7 +8,6 @@ use rusqlite::{
 };
 use serde_derive::{Deserialize, Serialize};
 
-use super::ankidroid::backend_id;
 use crate::{
     pb,
     pb::ankidroid::{
@@ -183,7 +182,7 @@ pub(crate) fn db_command_proto(col: &mut Collection, input: &[u8]) -> Result<DbR
         DbResult::Rows(rows) => ProtoDbResult::from(&rows),
     };
     let trimmed = super::ankidroid::db::trim_and_cache_remaining(
-        backend_id(col),
+        col,
         proto_resp,
         super::ankidroid::db::next_sequence_number(),
     );
