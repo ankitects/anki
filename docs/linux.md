@@ -42,6 +42,14 @@ sudo apt install libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
   libxcb-randr0 libxcb-render-util0
 ```
 
+If you're running into this error on Arch Linux:
+
+```
+error while loading shared libraries: libcrypt.so.1: cannot open shared object file: No such file or directory
+```
+
+Run `sudo pacman -S libxcrypt-compat` to install the missing library.
+
 ## Audio
 
 To play and record audio during development, install mpv and lame.
