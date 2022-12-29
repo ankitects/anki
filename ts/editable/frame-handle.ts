@@ -86,6 +86,7 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
                 !nodeIsText(target)
                 || !isFrameHandle(target.parentElement)
                 || skippableNode(target.parentElement, target)
+                || target.parentElement.unsubscribe
             ) {
                 continue;
             }
@@ -220,13 +221,12 @@ export abstract class FrameHandle extends HTMLElement {
      * is active, and moving the final output from IME only after the session ends.
      */
     subscribeToCompositionEvent(): void {
-        this.unsubscribe = this.unsubscribe
-            || isComposing.subscribe((composing) => {
-                if (!composing) {
-                    placeCaretAfter(this.moveTextOutOfFrame());
-                    this.unsubscribeToCompositionEvent();
-                }
-            });
+        this.unsubscribe = isComposing.subscribe((composing) => {
+            if (!composing) {
+                placeCaretAfter(this.moveTextOutOfFrame());
+                this.unsubscribeToCompositionEvent();
+            }
+        });
     }
 
     unsubscribeToCompositionEvent(): void {
