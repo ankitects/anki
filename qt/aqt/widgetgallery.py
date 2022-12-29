@@ -30,11 +30,11 @@ class WidgetGallery(QDialog):
             [member.name.lower().capitalize() for member in AnkiStyles]
         )
         self.form.styleComboBox.setCurrentIndex(
-            1
+            AnkiStyles.FUSION
             if self.mw.pm.force_fusion_styles()
-            else 2
+            else AnkiStyles.NATIVE
             if self.mw.pm.force_native_styles() or is_mac
-            else 0
+            else AnkiStyles.ANKI
         )
         self.form.forceCheckBox.setChecked(self.mw.pm.has_forced_style())
 
