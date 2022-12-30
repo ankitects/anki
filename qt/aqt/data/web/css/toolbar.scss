@@ -31,17 +31,11 @@ body {
 
 .hitem {
     font-weight: bold;
-    padding: 4px 12px;
+    padding: 4px clamp(4px, 1.2vw, 1.5rem);
     text-decoration: none;
     color: color(fg);
     display: inline-block;
     border: none;
-    &:first-child {
-        padding-left: 18px;
-    }
-    &:last-child {
-        padding-right: 18px;
-    }
     background-color: transparent;
     transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
     &:hover {
