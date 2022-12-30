@@ -13,6 +13,10 @@
     border-spacing: 0px;
 }
 
+center#outer {
+    border-block-end: 1px solid color(border);
+}
+
 .tdcenter {
     white-space: nowrap;
     overflow: hidden;
@@ -33,7 +37,7 @@ body {
 
 .hitem {
     font-weight: bold;
-    padding: 4px 6px;
+    padding: 4px 10px;
     text-decoration: none;
     color: color(fg);
     display: inline-block;
@@ -44,10 +48,11 @@ body {
     &:last-child {
         padding-right: 18px;
     }
-    border-radius: 5px;
     background-color: transparent;
+    transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
     &:hover {
-        background-color: hsl(0, 0, 0, 0.1);
+        background-color: white;
+        @include button.impressed-shadow(0.35);
         cursor: pointer;
     }
 }
