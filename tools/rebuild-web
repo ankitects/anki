@@ -7,6 +7,7 @@
 set -e
 
 PARENT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+ROOT_DIR=$( cd -- "$( dirname -- "${PARENT_DIR}" )" &> /dev/null && pwd )
 
-bazel build "//qt/aqt/data/web" 
-"$PARENT_DIR/reload_webviews.py"
+./ninja qt/aqt
+"$ROOT_DIR/out/pyenv/bin/python" "$PARENT_DIR/reload_webviews.py"
