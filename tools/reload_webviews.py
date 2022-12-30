@@ -10,7 +10,7 @@ Remote Debugging interface.
 import argparse
 import sys
 
-import PyChromeDevTools
+import PyChromeDevTools  # type: ignore[import]
 
 DEFAULT_HOST = "localhost"
 DEFAULT_PORT = 8080
