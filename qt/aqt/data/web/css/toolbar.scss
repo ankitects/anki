@@ -6,24 +6,6 @@
 @use "sass/elevation" as *;
 @use "sass/button-mixins" as button;
 
-#header,
-#header tbody {
-    padding: 0px;
-    margin: 0px;
-    border-spacing: 0px;
-}
-
-center#outer {
-    border-block-end: 1px solid color(border);
-}
-
-.tdcenter {
-    white-space: nowrap;
-    overflow: hidden;
-    padding: 0;
-    background-color: transparent;
-}
-
 body {
     margin: 0;
     padding: 0;
@@ -35,9 +17,21 @@ body {
     -webkit-user-drag: none;
 }
 
+.top_toolbar {
+    padding: 0;
+    margin: 0;
+    border-block-end: 1px solid color(border);
+    white-space: nowrap;
+    overflow: hidden;
+    background-color: transparent;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+}
+
 .hitem {
     font-weight: bold;
-    padding: 4px 10px;
+    padding: 4px 12px;
     text-decoration: none;
     color: color(fg);
     display: inline-block;
