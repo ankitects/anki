@@ -31,7 +31,7 @@ body {
 
 .hitem {
     font-weight: bold;
-    padding: 4px clamp(4px, 1.2vw, 1.5rem);
+    padding: 6px clamp(4px, 1.2vw, 1.5rem) 5px;
     text-decoration: none;
     color: color(fg);
     display: inline-block;
