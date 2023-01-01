@@ -4,10 +4,9 @@
 
 # Manually trigger a rebuild and reload of Anki's web stack
 
+# NOTE: This script needs to be run from the project root
+
 set -e
 
-PARENT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-ROOT_DIR=$( cd -- "$( dirname -- "${PARENT_DIR}" )" &> /dev/null && pwd )
-
 ./ninja qt/aqt
-"$ROOT_DIR/out/pyenv/bin/python" "$PARENT_DIR/reload_webviews.py"
+./out/pyenv/bin/python tools/reload_webviews.py
