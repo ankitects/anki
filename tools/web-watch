@@ -10,9 +10,7 @@ set -e
 MONITORED_FOLDERS=("ts/" "sass/" "qt/aqt/data/web/")
 MONITORED_EVENTS=("Created" "Updated" "Removed")
 
-parent_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-on_change_detected="printf \\033c\\n; \"$parent_dir/rebuild-web\""
+on_change_detected="printf \\033c\\n; \"./tools/rebuild-web\""
 
 event_args=""
 for event in "${MONITORED_EVENTS[@]}"; do
