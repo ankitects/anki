@@ -114,12 +114,9 @@
         </widget>
        </item>
        <item alignment="Qt::AlignLeft">
-        <widget class="QCheckBox" name="minimize_distractions">
-         <property name="toolTip">
-          <string>preferences_minimize_distractions_tooltip</string>
-         </property>
+        <widget class="QCheckBox" name="auto_hide_toolbar">
          <property name="text">
-          <string>preferences_minimize_distractions</string>
+          <string>preferences_auto_hide_toolbar</string>
          </property>
         </widget>
        </item>
@@ -706,7 +703,7 @@
   <tabstop>ignore_accents_in_search</tabstop>
   <tabstop>legacy_import_export</tabstop>
   <tabstop>reduce_motion</tabstop>
-  <tabstop>minimize_distractions</tabstop>
+  <tabstop>auto_hide_toolbar</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>
