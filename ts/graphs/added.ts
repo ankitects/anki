@@ -6,25 +6,21 @@
  */
 
 import * as tr from "@tslib/ftl";
-import type { Cards, Stats } from "@tslib/proto";
+import type { Stats } from "@tslib/proto";
 import { dayLabel } from "@tslib/time";
 import type { Bin } from "d3";
-import { bin, extent, interpolateBlues, scaleLinear, scaleSequential, sum } from "d3";
+import { bin, interpolateBlues, min, scaleLinear, scaleSequential, sum } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
-import { GraphRange } from "./graph-helpers";
+import { getNumericMapBinValue, GraphRange, numericMap } from "./graph-helpers";
 import type { HistogramData } from "./histogram-graph";
 
 export interface GraphData {
-    daysAdded: number[];
+    daysAdded: Map<number, number>;
 }
 
 export function gatherData(data: Stats.GraphsResponse): GraphData {
-    const daysAdded = (data.cards as Cards.Card[]).map((card) => {
-        const elapsedSecs = (card.id as number) / 1000 - data.nextDayAtSecs;
-        return Math.ceil(elapsedSecs / 86400);
-    });
-    return { daysAdded };
+    return { daysAdded: numericMap(data.added!.added) };
 }
 
 function makeQuery(start: number, end: number): string {
@@ -45,13 +41,12 @@ export function buildHistogram(
     browserLinksSupported: boolean,
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
-    const total = data.daysAdded.length;
+    const total = data.daysAdded.size;
     if (!total) {
         return [null, []];
     }
 
-    const [xMinOrig] = extent(data.daysAdded);
-    let xMin = xMinOrig;
+    let xMin: number;
 
     // cap max to selected range
     switch (range) {
@@ -65,6 +60,7 @@ export function buildHistogram(
             xMin = -365;
             break;
         case GraphRange.AllTime:
+            xMin = min(data.daysAdded.keys())!;
             break;
     }
     const xMax = 1;
@@ -72,8 +68,11 @@ export function buildHistogram(
 
     const scale = scaleLinear().domain([xMin!, xMax]);
     const bins = bin()
+        .value((m) => {
+            return m[0];
+        })
         .domain(scale.domain() as any)
-        .thresholds(scale.ticks(desiredBars))(data.daysAdded);
+        .thresholds(scale.ticks(desiredBars))(data.daysAdded.entries() as any);
 
     // empty graph?
     if (!sum(bins, (bin) => bin.length)) {
@@ -124,6 +123,7 @@ export function buildHistogram(
             hoverText,
             onClick: browserLinksSupported ? onClick : null,
             colourScale,
+            binValue: getNumericMapBinValue,
             showArea: true,
         },
         tableData,

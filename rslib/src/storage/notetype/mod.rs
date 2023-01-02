@@ -226,7 +226,7 @@ impl SqliteStorage {
     }
 
     pub(crate) fn add_notetype(&self, nt: &mut Notetype) -> Result<()> {
-        assert!(nt.id.0 == 0);
+        assert_eq!(nt.id.0, 0);
 
         let mut stmt = self.db.prepare_cached(include_str!("add_notetype.sql"))?;
         let mut config_bytes = vec![];

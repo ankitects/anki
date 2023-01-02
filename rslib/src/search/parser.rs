@@ -737,8 +737,8 @@ mod test {
         use Node::*;
         use SearchNode::*;
 
-        assert_eq!(parse("")?, vec![Search(SearchNode::WholeCollection)]);
-        assert_eq!(parse("  ")?, vec![Search(SearchNode::WholeCollection)]);
+        assert_eq!(parse("")?, vec![Search(WholeCollection)]);
+        assert_eq!(parse("  ")?, vec![Search(WholeCollection)]);
 
         // leading/trailing/interspersed whitespace
         assert_eq!(

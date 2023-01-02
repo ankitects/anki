@@ -68,7 +68,7 @@ body {
 }
 
 .spin {
-    width: 16px;
+    width: 16px !important;
     animation: spin;
     animation-duration: 2s;
     animation-iteration-count: infinite;

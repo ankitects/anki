@@ -3,8 +3,8 @@
 
 use std::borrow::Cow;
 
+use ascii_percent_encoding::{percent_decode_str, utf8_percent_encode, AsciiSet, CONTROLS};
 use lazy_static::lazy_static;
-use pct_str::{IriReserved, PctStr, PctString};
 use regex::{Captures, Regex};
 use unicase::eq as uni_eq;
 use unicode_normalization::{
@@ -487,25 +487,26 @@ lazy_static! {
     pub(crate) static ref REMOTE_FILENAME: Regex = Regex::new("(?i)^https?://").unwrap();
 }
 
+/// https://url.spec.whatwg.org/#fragment-percent-encode-set
+const FRAGMENT_QUERY_UNION: &AsciiSet = &CONTROLS
+    .add(b' ')
+    .add(b'"')
+    .add(b'<')
+    .add(b'>')
+    .add(b'`')
+    .add(b'#');
+
 /// IRI-encode unescaped local paths in HTML fragment.
 pub(crate) fn encode_iri_paths(unescaped_html: &str) -> Cow<str> {
     transform_html_paths(unescaped_html, |fname| {
-        PctString::encode(fname.chars(), IriReserved::Segment)
-            .into_string()
-            .into()
+        utf8_percent_encode(fname, FRAGMENT_QUERY_UNION).into()
     })
 }
 
 /// URI-decode escaped local paths in HTML fragment.
 pub(crate) fn decode_iri_paths(escaped_html: &str) -> Cow<str> {
     transform_html_paths(escaped_html, |fname| {
-        match PctStr::new(fname) {
-            Ok(s) => s.decode().into(),
-            Err(_e) => {
-                // invalid percent encoding; return unchanged
-                fname.into()
-            }
-        }
+        percent_decode_str(fname).decode_utf8_lossy()
     })
 }
 
@@ -620,5 +621,22 @@ mod test {
         let mut s = "日本語".to_string();
         truncate_to_char_boundary(&mut s, 1);
         assert_eq!(&s, "");
+    }
+
+    #[test]
+    fn iri_encoding() {
+        for (input, output) in [
+            ("foo.jpg", "foo.jpg"),
+            ("bar baz", "bar%20baz"),
+            ("sub/path.jpg", "sub/path.jpg"),
+            ("日本語", "日本語"),
+            ("a=b", "a=b"),
+            ("a&b", "a&b"),
+        ] {
+            assert_eq!(
+                &encode_iri_paths(&format!("<img src=\"{input}\">")),
+                &format!("<img src=\"{output}\">")
+            );
+        }
     }
 }

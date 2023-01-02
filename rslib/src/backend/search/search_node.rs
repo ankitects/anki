@@ -12,11 +12,11 @@ use crate::{
     text::{escape_anki_wildcards, escape_anki_wildcards_for_search_node},
 };
 
-impl TryFrom<pb::SearchNode> for Node {
+impl TryFrom<pb::search::SearchNode> for Node {
     type Error = AnkiError;
 
-    fn try_from(msg: pb::SearchNode) -> std::result::Result<Self, Self::Error> {
-        use pb::search_node::{group::Joiner, Filter, Flag};
+    fn try_from(msg: pb::search::SearchNode) -> std::result::Result<Self, Self::Error> {
+        use pb::search::search_node::{group::Joiner, Filter, Flag};
         Ok(if let Some(filter) = msg.filter {
             match filter {
                 Filter::Tag(s) => SearchNode::from_tag_name(&s).into(),
@@ -52,7 +52,7 @@ impl TryFrom<pb::SearchNode> for Node {
                 }),
                 Filter::EditedInDays(u) => Node::Search(SearchNode::EditedInDays(u)),
                 Filter::CardState(state) => Node::Search(SearchNode::State(
-                    pb::search_node::CardState::from_i32(state)
+                    pb::search::search_node::CardState::from_i32(state)
                         .unwrap_or_default()
                         .into(),
                 )),
@@ -114,33 +114,33 @@ impl TryFrom<pb::SearchNode> for Node {
     }
 }
 
-impl From<pb::search_node::Rating> for RatingKind {
-    fn from(r: pb::search_node::Rating) -> Self {
+impl From<pb::search::search_node::Rating> for RatingKind {
+    fn from(r: pb::search::search_node::Rating) -> Self {
         match r {
-            pb::search_node::Rating::Again => RatingKind::AnswerButton(1),
-            pb::search_node::Rating::Hard => RatingKind::AnswerButton(2),
-            pb::search_node::Rating::Good => RatingKind::AnswerButton(3),
-            pb::search_node::Rating::Easy => RatingKind::AnswerButton(4),
-            pb::search_node::Rating::Any => RatingKind::AnyAnswerButton,
-            pb::search_node::Rating::ByReschedule => RatingKind::ManualReschedule,
+            pb::search::search_node::Rating::Again => RatingKind::AnswerButton(1),
+            pb::search::search_node::Rating::Hard => RatingKind::AnswerButton(2),
+            pb::search::search_node::Rating::Good => RatingKind::AnswerButton(3),
+            pb::search::search_node::Rating::Easy => RatingKind::AnswerButton(4),
+            pb::search::search_node::Rating::Any => RatingKind::AnyAnswerButton,
+            pb::search::search_node::Rating::ByReschedule => RatingKind::ManualReschedule,
         }
     }
 }
 
-impl From<pb::search_node::CardState> for StateKind {
-    fn from(k: pb::search_node::CardState) -> Self {
+impl From<pb::search::search_node::CardState> for StateKind {
+    fn from(k: pb::search::search_node::CardState) -> Self {
         match k {
-            pb::search_node::CardState::New => StateKind::New,
-            pb::search_node::CardState::Learn => StateKind::Learning,
-            pb::search_node::CardState::Review => StateKind::Review,
-            pb::search_node::CardState::Due => StateKind::Due,
-            pb::search_node::CardState::Suspended => StateKind::Suspended,
-            pb::search_node::CardState::Buried => StateKind::Buried,
+            pb::search::search_node::CardState::New => StateKind::New,
+            pb::search::search_node::CardState::Learn => StateKind::Learning,
+            pb::search::search_node::CardState::Review => StateKind::Review,
+            pb::search::search_node::CardState::Due => StateKind::Due,
+            pb::search::search_node::CardState::Suspended => StateKind::Suspended,
+            pb::search::search_node::CardState::Buried => StateKind::Buried,
         }
     }
 }
 
-impl pb::search_node::IdList {
+impl pb::search::search_node::IdList {
     fn into_id_string(self) -> String {
         self.ids
             .iter()

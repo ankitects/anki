@@ -72,6 +72,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: disabled = !$focusedInput || !editingInputIsRichText($focusedInput);
 
     let showFloating = false;
+    $: if (disabled) {
+        showFloating = false;
+    }
 </script>
 
 <ButtonGroup>
@@ -100,7 +103,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <ButtonGroupItem>
             <WithFloating
-                show={showFloating && !disabled}
+                show={showFloating}
                 inline
                 on:close={() => (showFloating = false)}
                 let:asReference

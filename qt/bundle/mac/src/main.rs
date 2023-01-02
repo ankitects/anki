@@ -56,7 +56,7 @@ impl DistKind {
                     "10.14.4"
                 }
             }
-            DistKind::Alternate => "10.13.14",
+            DistKind::Alternate => "10.13.4",
         }
     }
 
@@ -90,7 +90,7 @@ enum Commands {
     BuildDmgs(BuildDmgsArgs),
 }
 
-fn main() -> anyhow::Result<()> {
+fn main() -> Result<()> {
     match Cli::parse().command {
         Commands::BuildApp {
             version,
@@ -132,7 +132,7 @@ fn make_app(kind: DistKind, mut plist: plist::Dictionary, stamp: &Utf8Path) -> R
         let path_str = relative_path.to_str().unwrap();
         if path_str.contains("libankihelper") {
             builder.add_file_macos("libankihelper.dylib", entry)?;
-        } else if path_str.contains("aqt/data") {
+        } else if path_str.contains("aqt/data") || path_str.contains("certifi") {
             builder.add_file_resources(relative_path.strip_prefix("lib").unwrap(), entry)?;
         } else {
             if path_str.contains("__pycache__") {
@@ -215,7 +215,7 @@ fn fix_rpath(exe_path: Utf8PathBuf) -> Result<()> {
 
 fn get_plist(anki_version: &str) -> plist::Dictionary {
     let reader = std::io::Cursor::new(include_bytes!("Info.plist"));
-    let mut plist = plist::Value::from_reader(reader)
+    let mut plist = Value::from_reader(reader)
         .unwrap()
         .into_dictionary()
         .unwrap();

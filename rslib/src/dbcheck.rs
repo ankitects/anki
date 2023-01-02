@@ -4,7 +4,7 @@
 use std::{collections::HashSet, sync::Arc};
 
 use itertools::Itertools;
-use slog::debug;
+use tracing::debug;
 
 use crate::{
     collection::Collection,
@@ -89,9 +89,9 @@ impl Collection {
         F: FnMut(DatabaseCheckProgress, bool),
     {
         progress_fn(DatabaseCheckProgress::Integrity, false);
-        debug!(self.log, "quick check");
+        debug!("quick check");
         if self.storage.quick_check_corrupt() {
-            debug!(self.log, "quick check failed");
+            debug!("quick check failed");
             return Err(AnkiError::db_error(
                 self.tr.database_check_corrupt(),
                 DbErrorKind::Corrupt,
@@ -99,7 +99,7 @@ impl Collection {
         }
 
         progress_fn(DatabaseCheckProgress::Optimize, false);
-        debug!(self.log, "optimize");
+        debug!("optimize");
         self.storage.optimize()?;
 
         self.transact_no_undo(|col| col.check_database_inner(progress_fn))
@@ -113,28 +113,28 @@ impl Collection {
 
         // cards first, as we need to be able to read them to process notes
         progress_fn(DatabaseCheckProgress::Cards, false);
-        debug!(self.log, "check cards");
+        debug!("check cards");
         self.check_card_properties(&mut out)?;
         self.check_orphaned_cards(&mut out)?;
 
-        debug!(self.log, "check decks");
+        debug!("check decks");
         self.check_missing_deck_ids(&mut out)?;
         self.check_filtered_cards(&mut out)?;
 
-        debug!(self.log, "check notetypes");
+        debug!("check notetypes");
         self.check_notetypes(&mut out, &mut progress_fn)?;
 
         progress_fn(DatabaseCheckProgress::History, false);
 
-        debug!(self.log, "check review log");
+        debug!("check review log");
         self.check_revlog(&mut out)?;
 
-        debug!(self.log, "missing decks");
+        debug!("missing decks");
         self.check_missing_deck_names(&mut out)?;
 
         self.update_next_new_position()?;
 
-        debug!(self.log, "db check finished: {:#?}", out);
+        debug!("db check finished: {:#?}", out);
 
         Ok(out)
     }
@@ -216,7 +216,7 @@ impl Collection {
         let mut checked_notes = 0;
 
         for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
-            debug!(self.log, "check notetype: {}", ntid);
+            debug!("check notetype: {}", ntid);
             let mut group = group.peekable();
             let nt = match self.get_notetype(ntid)? {
                 None => {
@@ -363,7 +363,7 @@ impl Collection {
         field_count: usize,
         previous_id: NotetypeId,
     ) -> Result<Arc<Notetype>> {
-        debug!(self.log, "create recovery notetype");
+        debug!("create recovery notetype");
         let extra_cards_required = self
             .storage
             .highest_card_ordinal_for_notetype(previous_id)?;

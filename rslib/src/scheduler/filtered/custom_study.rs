@@ -9,22 +9,25 @@ use crate::{
     decks::{FilteredDeck, FilteredSearchOrder, FilteredSearchTerm},
     error::{CustomStudyError, FilteredDeckError},
     pb::{
-        self as pb,
-        custom_study_request::{cram::CramKind, Cram, Value as CustomStudyValue},
+        scheduler::custom_study_request::{cram::CramKind, Cram, Value as CustomStudyValue},
+        {self as pb},
     },
     prelude::*,
     search::{JoinSearches, Negated, PropertyKind, RatingKind, SearchNode, StateKind},
 };
 
 impl Collection {
-    pub fn custom_study(&mut self, input: pb::CustomStudyRequest) -> Result<OpOutput<()>> {
+    pub fn custom_study(
+        &mut self,
+        input: pb::scheduler::CustomStudyRequest,
+    ) -> Result<OpOutput<()>> {
         self.transact(Op::CreateCustomStudy, |col| col.custom_study_inner(input))
     }
 
     pub fn custom_study_defaults(
         &mut self,
         deck_id: DeckId,
-    ) -> Result<pb::CustomStudyDefaultsResponse> {
+    ) -> Result<pb::scheduler::CustomStudyDefaultsResponse> {
         // daily counts
         let deck = self.get_deck(deck_id)?.or_not_found(deck_id)?;
         let normal = deck.normal()?;
@@ -70,11 +73,11 @@ impl Collection {
         );
         let mut all_tags: Vec<_> = self.all_tags_in_deck(deck_id)?.into_iter().collect();
         all_tags.sort_unstable();
-        let tags: Vec<pb::custom_study_defaults_response::Tag> = all_tags
+        let tags: Vec<pb::scheduler::custom_study_defaults_response::Tag> = all_tags
             .into_iter()
             .map(|tag| {
                 let tag = tag.into_inner();
-                pb::custom_study_defaults_response::Tag {
+                pb::scheduler::custom_study_defaults_response::Tag {
                     include: include_tags.contains(&tag),
                     exclude: exclude_tags.contains(&tag),
                     name: tag,
@@ -82,7 +85,7 @@ impl Collection {
             })
             .collect();
 
-        Ok(pb::CustomStudyDefaultsResponse {
+        Ok(pb::scheduler::CustomStudyDefaultsResponse {
             tags,
             extend_new,
             extend_review,
@@ -95,7 +98,7 @@ impl Collection {
 }
 
 impl Collection {
-    fn custom_study_inner(&mut self, input: pb::CustomStudyRequest) -> Result<()> {
+    fn custom_study_inner(&mut self, input: pb::scheduler::CustomStudyRequest) -> Result<()> {
         let mut deck = self
             .storage
             .get_deck(input.deck_id.into())?
@@ -292,8 +295,8 @@ mod test {
     use super::*;
     use crate::{
         collection::open_test_collection,
-        pb::{
-            scheduler::custom_study_request::{cram::CramKind, Cram, Value},
+        pb::scheduler::{
+            custom_study_request::{cram::CramKind, Cram, Value},
             CustomStudyRequest,
         },
     };

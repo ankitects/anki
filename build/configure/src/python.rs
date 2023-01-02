@@ -82,13 +82,20 @@ pub fn setup_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
     let requirements_txt = if cfg!(windows) {
         inputs![
             "python/requirements.dev.txt",
-            "python/requirements.qt6.txt",
+            "python/requirements.qt6_4.txt",
             "python/requirements.win.txt",
         ]
     } else if cfg!(all(target_os = "linux", target_arch = "aarch64")) {
         inputs!["python/requirements.dev.txt"]
     } else {
-        inputs!["python/requirements.dev.txt", "python/requirements.qt6.txt",]
+        inputs![
+            "python/requirements.dev.txt",
+            if cfg!(target_os = "macos") {
+                "python/requirements.qt6_3.txt"
+            } else {
+                "python/requirements.qt6_4.txt"
+            }
+        ]
     };
     build.add(
         "pyenv",
@@ -153,7 +160,7 @@ impl BuildAction for GenPythonProto {
         -Iproto $in"
     }
 
-    fn files(&mut self, build: &mut impl ninja_gen::build::FilesHandle) {
+    fn files(&mut self, build: &mut impl FilesHandle) {
         let proto_inputs = build.expand_inputs(&self.proto_files);
         let python_outputs: Vec<_> = proto_inputs
             .iter()

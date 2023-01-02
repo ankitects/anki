@@ -6,14 +6,18 @@ pub(crate) mod timestamps;
 mod transact;
 pub(crate) mod undo;
 
-use std::{collections::HashMap, path::PathBuf, sync::Arc};
+use std::{
+    collections::HashMap,
+    fmt::{Debug, Formatter},
+    path::PathBuf,
+    sync::Arc,
+};
 
 use crate::{
     browser_table,
     decks::{Deck, DeckId},
     error::Result,
     i18n::I18n,
-    log::{default_logger, Logger},
     notetype::{Notetype, NotetypeId},
     scheduler::{queue::CardQueues, SchedulerInfo},
     storage::{SchemaVersion, SqliteStorage},
@@ -29,7 +33,6 @@ pub struct CollectionBuilder {
     media_db: Option<PathBuf>,
     server: Option<bool>,
     tr: Option<I18n>,
-    log: Option<Logger>,
 }
 
 impl CollectionBuilder {
@@ -50,7 +53,6 @@ impl CollectionBuilder {
         let server = self.server.unwrap_or_default();
         let media_folder = self.media_folder.clone().unwrap_or_default();
         let media_db = self.media_db.clone().unwrap_or_default();
-        let log = self.log.clone().unwrap_or_else(crate::log::terminal);
 
         let storage = SqliteStorage::open_or_create(&col_path, &tr, server)?;
         let col = Collection {
@@ -59,7 +61,6 @@ impl CollectionBuilder {
             media_folder,
             media_db,
             tr,
-            log,
             server,
             state: CollectionState::default(),
         };
@@ -86,18 +87,6 @@ impl CollectionBuilder {
     pub fn set_tr(&mut self, tr: I18n) -> &mut Self {
         self.tr = Some(tr);
         self
-    }
-
-    /// Directly set the logger.
-    pub fn set_logger(&mut self, log: Logger) -> &mut Self {
-        self.log = Some(log);
-        self
-    }
-
-    /// Log to the provided file.
-    pub fn set_log_file(&mut self, log_file: &str) -> Result<&mut Self, std::io::Error> {
-        self.set_logger(default_logger(Some(log_file))?);
-        Ok(self)
     }
 }
 
@@ -129,9 +118,16 @@ pub struct Collection {
     pub(crate) media_folder: PathBuf,
     pub(crate) media_db: PathBuf,
     pub(crate) tr: I18n,
-    pub(crate) log: Logger,
     pub(crate) server: bool,
     pub(crate) state: CollectionState,
+}
+
+impl Debug for Collection {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Collection")
+            .field("col_path", &self.col_path)
+            .finish()
+    }
 }
 
 impl Collection {
@@ -140,8 +136,7 @@ impl Collection {
         builder
             .set_media_paths(self.media_folder.clone(), self.media_db.clone())
             .set_server(self.server)
-            .set_tr(self.tr.clone())
-            .set_logger(self.log.clone());
+            .set_tr(self.tr.clone());
         builder
     }
 

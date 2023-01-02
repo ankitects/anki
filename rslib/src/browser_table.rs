@@ -182,8 +182,8 @@ impl Column {
         .into()
     }
 
-    pub fn default_order(self) -> pb::browser_columns::Sorting {
-        use pb::browser_columns::Sorting;
+    pub fn default_order(self) -> pb::search::browser_columns::Sorting {
+        use pb::search::browser_columns::Sorting;
         match self {
             Column::Question | Column::Answer | Column::Custom => Sorting::None,
             Column::SortField | Column::Tags | Column::Notetype | Column::Deck => {
@@ -205,8 +205,8 @@ impl Column {
         matches!(self, Self::Question | Self::Answer | Self::SortField)
     }
 
-    pub fn alignment(self) -> pb::browser_columns::Alignment {
-        use pb::browser_columns::Alignment;
+    pub fn alignment(self) -> pb::search::browser_columns::Alignment {
+        use pb::search::browser_columns::Alignment;
         match self {
             Self::Question
             | Self::Answer
@@ -221,16 +221,16 @@ impl Column {
 }
 
 impl Collection {
-    pub fn all_browser_columns(&self) -> pb::BrowserColumns {
-        let mut columns: Vec<pb::browser_columns::Column> = Column::iter()
+    pub fn all_browser_columns(&self) -> pb::search::BrowserColumns {
+        let mut columns: Vec<pb::search::browser_columns::Column> = Column::iter()
             .filter(|&c| c != Column::Custom)
             .map(|c| c.to_pb_column(&self.tr))
             .collect();
         columns.sort_by(|c1, c2| c1.cards_mode_label.cmp(&c2.cards_mode_label));
-        pb::BrowserColumns { columns }
+        pb::search::BrowserColumns { columns }
     }
 
-    pub fn browser_row_for_id(&mut self, id: i64) -> Result<pb::BrowserRow> {
+    pub fn browser_row_for_id(&mut self, id: i64) -> Result<pb::search::BrowserRow> {
         let notes_mode = self.get_config_bool(BoolKey::BrowserTableShowNotesMode);
         let columns = Arc::clone(
             self.state
@@ -361,8 +361,8 @@ impl RowContext {
         })
     }
 
-    fn browser_row(&self, columns: &[Column]) -> Result<pb::BrowserRow> {
-        Ok(pb::BrowserRow {
+    fn browser_row(&self, columns: &[Column]) -> Result<pb::search::BrowserRow> {
+        Ok(pb::search::BrowserRow {
             cells: columns
                 .iter()
                 .map(|&column| self.get_cell(column))
@@ -373,8 +373,8 @@ impl RowContext {
         })
     }
 
-    fn get_cell(&self, column: Column) -> Result<pb::browser_row::Cell> {
-        Ok(pb::browser_row::Cell {
+    fn get_cell(&self, column: Column) -> Result<pb::search::browser_row::Cell> {
+        Ok(pb::search::browser_row::Cell {
             text: self.get_cell_text(column)?,
             is_rtl: self.get_is_rtl(column),
         })
@@ -546,8 +546,8 @@ impl RowContext {
         Ok(self.template()?.config.browser_font_size)
     }
 
-    fn get_row_color(&self) -> pb::browser_row::Color {
-        use pb::browser_row::Color;
+    fn get_row_color(&self) -> pb::search::browser_row::Color {
+        use pb::search::browser_row::Color;
         if self.notes_mode {
             if self.note.is_marked() {
                 Color::Marked

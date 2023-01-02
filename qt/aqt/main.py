@@ -1411,13 +1411,6 @@ title="{}" {}>{}</button>""".format(
             True,
             parent=self,
         )
-        self.progress.timer(
-            12 * 60 * 1000,
-            self.refresh_certs,
-            repeat=True,
-            requiresCollection=False,
-            parent=self,
-        )
 
     def onRefreshTimer(self) -> None:
         if self.state == "deckBrowser":
@@ -1432,15 +1425,6 @@ title="{}" {}>{}</button>""".format(
             return
         if elap > minutes * 60:
             self.maybe_auto_sync_media()
-
-    def refresh_certs(self) -> None:
-        # The requests library copies the certs into a temporary folder on startup,
-        # and chokes when the file is later missing due to temp file cleaners.
-        # Work around the issue by accessing them once every 12 hours.
-        import certifi
-
-        with open(certifi.where(), "rb") as f:
-            f.read()
 
     # Backups
     ##########################################################################

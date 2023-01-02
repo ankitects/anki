@@ -6,7 +6,9 @@ use std::{
     collections::HashMap,
     ffi::OsStr,
     fs::File,
-    io::{self, Read, Write},
+    io::{
+        Read, Write, {self},
+    },
     path::{Path, PathBuf},
 };
 
@@ -268,7 +270,7 @@ fn write_media_map(
         buf
     };
     let size = encoded_bytes.len();
-    let mut cursor = std::io::Cursor::new(encoded_bytes);
+    let mut cursor = io::Cursor::new(encoded_bytes);
     if meta.zstd_compressed() {
         zstd_copy(&mut cursor, zip, size)?;
     } else {

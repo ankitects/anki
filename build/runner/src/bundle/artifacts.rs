@@ -22,6 +22,10 @@ pub fn build_artifacts(args: BuildArtifactsArgs) {
         fs::remove_dir_all(&artifacts).unwrap();
     }
     let bundle_root = args.bundle_root.canonicalize_utf8().unwrap();
+    let build_folder = bundle_root.join("build");
+    if build_folder.exists() {
+        fs::remove_dir_all(&build_folder).unwrap();
+    }
 
     run_silent(
         Command::new(&args.pyoxidizer_bin)
@@ -34,7 +38,7 @@ pub fn build_artifacts(args: BuildArtifactsArgs) {
                 "out/bundle/pyenv",
                 "--var",
                 "build",
-                bundle_root.join("build").as_str(),
+                build_folder.as_str(),
             ])
             .env("CARGO_MANIFEST_DIR", "qt/bundle")
             .env("CARGO_TARGET_DIR", "out/bundle/rust")

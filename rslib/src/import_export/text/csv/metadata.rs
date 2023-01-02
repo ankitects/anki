@@ -22,7 +22,7 @@ use crate::{
     import_export::text::NameOrId,
     io::open_file,
     notetype::NoteField,
-    pb::StringList,
+    pb::generic::StringList,
     prelude::*,
     text::{html_to_text_line, is_html},
 };

@@ -362,24 +362,21 @@ fn want_comma_as_decimal_separator(langs: &[LanguageIdentifier]) -> bool {
 }
 
 fn format_decimal_with_comma(
-    val: &fluent::FluentValue,
+    val: &FluentValue,
     _intl: &intl_memoizer::concurrent::IntlLangMemoizer,
 ) -> Option<String> {
     format_number_values(val, Some(","))
 }
 
 fn format_decimal_with_period(
-    val: &fluent::FluentValue,
+    val: &FluentValue,
     _intl: &intl_memoizer::concurrent::IntlLangMemoizer,
 ) -> Option<String> {
     format_number_values(val, None)
 }
 
 #[inline]
-fn format_number_values(
-    val: &fluent::FluentValue,
-    alt_separator: Option<&'static str>,
-) -> Option<String> {
+fn format_number_values(val: &FluentValue, alt_separator: Option<&'static str>) -> Option<String> {
     match val {
         FluentValue::Number(num) => {
             // create a string with desired maximum digits

@@ -64,6 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         }
         transition: box-shadow var(--transition) ease-in-out;
+        page-break-inside: avoid;
     }
     h1 {
         border-bottom: 1px solid var(--border);

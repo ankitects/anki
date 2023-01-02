@@ -4,12 +4,12 @@
 use crate::{
     error::{AnkiError, SyncErrorKind},
     pb,
-    pb::backend_error::Kind,
+    pb::backend::backend_error::Kind,
     prelude::*,
 };
 
 impl AnkiError {
-    pub fn into_protobuf(self, tr: &I18n) -> pb::BackendError {
+    pub fn into_protobuf(self, tr: &I18n) -> pb::backend::BackendError {
         let message = self.message(tr);
         let help_page = self.help_page().map(|page| page as i32);
         let context = self.context();
@@ -43,7 +43,7 @@ impl AnkiError {
             AnkiError::InvalidId => Kind::InvalidInput,
         };
 
-        pb::BackendError {
+        pb::backend::BackendError {
             kind: kind as i32,
             message,
             help_page,

@@ -4,9 +4,12 @@
 import { getSelection, isSelectionCollapsed } from "@tslib/cross-browser";
 import { elementIsEmpty, nodeIsElement, nodeIsText } from "@tslib/dom";
 import { on } from "@tslib/events";
+import type { Unsubscriber } from "svelte/store";
+import { get } from "svelte/store";
 
 import { moveChildOutOfElement } from "../domlib/move-nodes";
 import { placeCaretAfter } from "../domlib/place-caret";
+import { isComposing } from "../sveltelib/composition";
 import type { FrameElement } from "./frame-element";
 
 /**
@@ -53,7 +56,6 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
             }
 
             const handleElement = target;
-            const placement = handleElement instanceof FrameStart ? "beforebegin" : "afterend";
             const frameElement = handleElement.parentElement as FrameElement;
 
             for (const node of mutation.addedNodes) {
@@ -75,7 +77,7 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
                     referenceNode = moveChildOutOfElement(
                         frameElement,
                         node,
-                        placement,
+                        handleElement.placement,
                     );
                 }
             }
@@ -84,25 +86,16 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
                 !nodeIsText(target)
                 || !isFrameHandle(target.parentElement)
                 || skippableNode(target.parentElement, target)
+                || target.parentElement.unsubscribe
             ) {
                 continue;
             }
-
-            const handleElement = target.parentElement;
-            const placement = handleElement instanceof FrameStart ? "beforebegin" : "afterend";
-            const frameElement = handleElement.parentElement! as FrameElement;
-
-            const cleaned = target.data.replace(spaceRegex, "");
-            const text = new Text(cleaned);
-
-            if (placement === "beforebegin") {
-                frameElement.before(text);
-            } else {
-                frameElement.after(text);
+            if (get(isComposing)) {
+                target.parentElement.subscribeToCompositionEvent();
+                continue;
             }
 
-            handleElement.refreshSpace();
-            referenceNode = text;
+            referenceNode = target.parentElement.moveTextOutOfFrame();
         }
     }
 
@@ -113,6 +106,8 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
 
 const handleObserver = new MutationObserver(restoreHandleContent);
 const handles: Set<FrameHandle> = new Set();
+
+type Placement = Extract<InsertPosition, "beforebegin" | "afterend">;
 
 export abstract class FrameHandle extends HTMLElement {
     static get observedAttributes(): string[] {
@@ -128,6 +123,8 @@ export abstract class FrameHandle extends HTMLElement {
      */
     partiallySelected = false;
     frames?: string;
+    abstract placement: Placement;
+    unsubscribe: Unsubscriber | null;
 
     constructor() {
         super();
@@ -136,6 +133,7 @@ export abstract class FrameHandle extends HTMLElement {
             subtree: true,
             characterData: true,
         });
+        this.unsubscribe = null;
     }
 
     attributeChangedCallback(name: string, old: string, newValue: string): void {
@@ -197,13 +195,54 @@ export abstract class FrameHandle extends HTMLElement {
 
         this.removeMoveIn?.();
         this.removeMoveIn = undefined;
+        this.unsubscribeToCompositionEvent();
     }
 
     abstract notifyMoveIn(offset: number): void;
+
+    moveTextOutOfFrame(): Text {
+        const frameElement = this.parentElement! as FrameElement;
+        const cleaned = this.innerHTML.replace(spaceRegex, "");
+        const text = new Text(cleaned);
+
+        if (this.placement === "beforebegin") {
+            frameElement.before(text);
+        } else if (this.placement === "afterend") {
+            frameElement.after(text);
+        }
+        this.refreshSpace();
+        return text;
+    }
+
+    /**
+     * https://github.com/ankitects/anki/issues/2251
+     *
+     * Work around the issue by not moving the input string while an IME session
+     * is active, and moving the final output from IME only after the session ends.
+     */
+    subscribeToCompositionEvent(): void {
+        this.unsubscribe = isComposing.subscribe((composing) => {
+            if (!composing) {
+                placeCaretAfter(this.moveTextOutOfFrame());
+                this.unsubscribeToCompositionEvent();
+            }
+        });
+    }
+
+    unsubscribeToCompositionEvent(): void {
+        this.unsubscribe?.();
+        this.unsubscribe = null;
+    }
 }
 
 export class FrameStart extends FrameHandle {
     static tagName = "frame-start";
+    placement: Placement;
+
+    constructor() {
+        super();
+        this.placement = "beforebegin";
+    }
 
     getFrameRange(): Range {
         const range = new Range();
@@ -245,6 +284,12 @@ export class FrameStart extends FrameHandle {
 
 export class FrameEnd extends FrameHandle {
     static tagName = "frame-end";
+    placement: Placement;
+
+    constructor() {
+        super();
+        this.placement = "afterend";
+    }
 
     getFrameRange(): Range {
         const range = new Range();

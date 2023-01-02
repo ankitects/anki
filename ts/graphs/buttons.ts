@@ -7,7 +7,7 @@
 
 import * as tr from "@tslib/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import { Stats } from "@tslib/proto";
+import type { Stats } from "@tslib/proto";
 import {
     axisBottom,
     axisLeft,
@@ -20,11 +20,13 @@ import {
     sum,
 } from "d3";
 
-import type { GraphBounds, GraphRange } from "./graph-helpers";
-import { millisecondCutoffForRange, setDataAvailable } from "./graph-helpers";
+import type { GraphBounds } from "./graph-helpers";
+import { GraphRange } from "./graph-helpers";
+import { setDataAvailable } from "./graph-helpers";
 import { hideTooltip, showTooltip } from "./tooltip";
 
-type ButtonCounts = [number, number, number, number];
+/// 4 element array
+type ButtonCounts = number[];
 
 export interface GraphData {
     learning: ButtonCounts;
@@ -32,48 +34,18 @@ export interface GraphData {
     mature: ButtonCounts;
 }
 
-const ReviewKind = Stats.RevlogEntry.ReviewKind;
-
 export function gatherData(data: Stats.GraphsResponse, range: GraphRange): GraphData {
-    const cutoff = millisecondCutoffForRange(range, data.nextDayAtSecs);
-    const learning: ButtonCounts = [0, 0, 0, 0];
-    const young: ButtonCounts = [0, 0, 0, 0];
-    const mature: ButtonCounts = [0, 0, 0, 0];
-
-    for (const review of data.revlog as Stats.RevlogEntry[]) {
-        if (cutoff && (review.id as number) < cutoff) {
-            continue;
-        }
-
-        let buttonNum = review.buttonChosen;
-        if (buttonNum <= 0 || buttonNum > 4) {
-            continue;
-        }
-
-        let buttons = learning;
-        switch (review.reviewKind) {
-            case ReviewKind.LEARNING:
-            case ReviewKind.RELEARNING:
-                // V1 scheduler only had 3 buttons in learning
-                if (buttonNum === 4 && data.schedulerVersion === 1) {
-                    buttonNum = 3;
-                }
-                break;
-
-            case ReviewKind.REVIEW:
-                if (review.lastInterval < 21) {
-                    buttons = young;
-                } else {
-                    buttons = mature;
-                }
-                break;
-            case ReviewKind.FILTERED:
-                break;
-        }
-
-        buttons[buttonNum - 1] += 1;
+    const buttons = data.buttons!;
+    switch (range) {
+        case GraphRange.Month:
+            return buttons.oneMonth!;
+        case GraphRange.ThreeMonths:
+            return buttons.threeMonths!;
+        case GraphRange.Year:
+            return buttons.oneYear!;
+        case GraphRange.AllTime:
+            return buttons.allTime!;
     }
-    return { learning, young, mature };
 }
 
 type GroupKind = "learning" | "young" | "mature";

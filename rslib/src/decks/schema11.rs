@@ -23,7 +23,9 @@ pub enum DeckSchema11 {
 
 // serde doesn't support integer/bool enum tags, so we manually pick the correct variant
 mod dynfix {
-    use serde::de::{self, Deserialize, Deserializer};
+    use serde::de::{
+        Deserialize, Deserializer, {self},
+    };
     use serde_json::{Map, Value};
 
     use super::{DeckSchema11, FilteredDeckSchema11, NormalDeckSchema11};

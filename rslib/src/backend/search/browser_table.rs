@@ -6,8 +6,8 @@ use std::str::FromStr;
 use crate::{browser_table, i18n::I18n, pb};
 
 impl browser_table::Column {
-    pub fn to_pb_column(self, i18n: &I18n) -> pb::browser_columns::Column {
-        pb::browser_columns::Column {
+    pub fn to_pb_column(self, i18n: &I18n) -> pb::search::browser_columns::Column {
+        pb::search::browser_columns::Column {
             key: self.to_string(),
             cards_mode_label: self.cards_mode_label(i18n),
             notes_mode_label: self.notes_mode_label(i18n),
@@ -20,8 +20,8 @@ impl browser_table::Column {
     }
 }
 
-impl From<pb::StringList> for Vec<browser_table::Column> {
-    fn from(input: pb::StringList) -> Self {
+impl From<pb::generic::StringList> for Vec<browser_table::Column> {
+    fn from(input: pb::generic::StringList) -> Self {
         input
             .vals
             .iter()

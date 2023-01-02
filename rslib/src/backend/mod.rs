@@ -37,8 +37,9 @@ use std::{
 use once_cell::sync::OnceCell;
 use progress::AbortHandleSlot;
 use prost::Message;
-use slog::Logger;
-use tokio::runtime::{self, Runtime};
+use tokio::runtime::{
+    Runtime, {self},
+};
 
 use self::{
     card::CardsService,
@@ -60,7 +61,7 @@ use self::{
     sync::{SyncService, SyncState},
     tags::TagsService,
 };
-use crate::{backend::dbproxy::db_command_bytes, log, pb, prelude::*};
+use crate::{backend::dbproxy::db_command_bytes, pb, pb::backend::ServiceIndex, prelude::*};
 
 pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,
@@ -69,7 +70,6 @@ pub struct Backend {
     sync_abort: AbortHandleSlot,
     progress_state: Arc<Mutex<ProgressState>>,
     runtime: OnceCell<Runtime>,
-    log: Logger,
     state: Arc<Mutex<BackendState>>,
     backup_task: Arc<Mutex<Option<JoinHandle<Result<()>>>>>,
 }
@@ -79,20 +79,19 @@ struct BackendState {
     sync: SyncState,
 }
 
-pub fn init_backend(init_msg: &[u8], log: Option<Logger>) -> std::result::Result<Backend, String> {
-    let input: pb::BackendInit = match pb::BackendInit::decode(init_msg) {
+pub fn init_backend(init_msg: &[u8]) -> result::Result<Backend, String> {
+    let input: pb::backend::BackendInit = match pb::backend::BackendInit::decode(init_msg) {
         Ok(req) => req,
         Err(_) => return Err("couldn't decode init request".into()),
     };
 
     let tr = I18n::new(&input.preferred_langs);
-    let log = log.unwrap_or_else(log::terminal);
 
-    Ok(Backend::new(tr, input.server, log))
+    Ok(Backend::new(tr, input.server))
 }
 
 impl Backend {
-    pub fn new(tr: I18n, server: bool, log: Logger) -> Backend {
+    pub fn new(tr: I18n, server: bool) -> Backend {
         Backend {
             col: Arc::new(Mutex::new(None)),
             tr,
@@ -103,7 +102,6 @@ impl Backend {
                 last_progress: None,
             })),
             runtime: OnceCell::new(),
-            log,
             state: Arc::new(Mutex::new(BackendState::default())),
             backup_task: Arc::new(Mutex::new(None)),
         }
@@ -119,30 +117,28 @@ impl Backend {
         method: u32,
         input: &[u8],
     ) -> result::Result<Vec<u8>, Vec<u8>> {
-        pb::ServiceIndex::from_i32(service as i32)
+        ServiceIndex::from_i32(service as i32)
             .or_invalid("invalid service")
             .and_then(|service| match service {
-                pb::ServiceIndex::Scheduler => SchedulerService::run_method(self, method, input),
-                pb::ServiceIndex::Decks => DecksService::run_method(self, method, input),
-                pb::ServiceIndex::Notes => NotesService::run_method(self, method, input),
-                pb::ServiceIndex::Notetypes => NotetypesService::run_method(self, method, input),
-                pb::ServiceIndex::Config => ConfigService::run_method(self, method, input),
-                pb::ServiceIndex::Sync => SyncService::run_method(self, method, input),
-                pb::ServiceIndex::Tags => TagsService::run_method(self, method, input),
-                pb::ServiceIndex::DeckConfig => DeckConfigService::run_method(self, method, input),
-                pb::ServiceIndex::CardRendering => {
+                ServiceIndex::Scheduler => SchedulerService::run_method(self, method, input),
+                ServiceIndex::Decks => DecksService::run_method(self, method, input),
+                ServiceIndex::Notes => NotesService::run_method(self, method, input),
+                ServiceIndex::Notetypes => NotetypesService::run_method(self, method, input),
+                ServiceIndex::Config => ConfigService::run_method(self, method, input),
+                ServiceIndex::Sync => SyncService::run_method(self, method, input),
+                ServiceIndex::Tags => TagsService::run_method(self, method, input),
+                ServiceIndex::DeckConfig => DeckConfigService::run_method(self, method, input),
+                ServiceIndex::CardRendering => {
                     CardRenderingService::run_method(self, method, input)
                 }
-                pb::ServiceIndex::Media => MediaService::run_method(self, method, input),
-                pb::ServiceIndex::Stats => StatsService::run_method(self, method, input),
-                pb::ServiceIndex::Search => SearchService::run_method(self, method, input),
-                pb::ServiceIndex::I18n => I18nService::run_method(self, method, input),
-                pb::ServiceIndex::Links => LinksService::run_method(self, method, input),
-                pb::ServiceIndex::Collection => CollectionService::run_method(self, method, input),
-                pb::ServiceIndex::Cards => CardsService::run_method(self, method, input),
-                pb::ServiceIndex::ImportExport => {
-                    ImportExportService::run_method(self, method, input)
-                }
+                ServiceIndex::Media => MediaService::run_method(self, method, input),
+                ServiceIndex::Stats => StatsService::run_method(self, method, input),
+                ServiceIndex::Search => SearchService::run_method(self, method, input),
+                ServiceIndex::I18n => I18nService::run_method(self, method, input),
+                ServiceIndex::Links => LinksService::run_method(self, method, input),
+                ServiceIndex::Collection => CollectionService::run_method(self, method, input),
+                ServiceIndex::Cards => CardsService::run_method(self, method, input),
+                ServiceIndex::ImportExport => ImportExportService::run_method(self, method, input),
             })
             .map_err(|err| {
                 let backend_err = err.into_protobuf(&self.tr);
@@ -152,7 +148,7 @@ impl Backend {
             })
     }
 
-    pub fn run_db_command_bytes(&self, input: &[u8]) -> std::result::Result<Vec<u8>, Vec<u8>> {
+    pub fn run_db_command_bytes(&self, input: &[u8]) -> result::Result<Vec<u8>, Vec<u8>> {
         self.db_command(input).map_err(|err| {
             let backend_err = err.into_protobuf(&self.tr);
             let mut bytes = Vec::new();
