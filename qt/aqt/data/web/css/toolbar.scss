@@ -39,7 +39,7 @@ body {
     background-color: transparent;
     transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
     &:hover {
-        background-color: white;
+        background: var(--button-bg);
         @include button.impressed-shadow(0.35);
         cursor: pointer;
     }
