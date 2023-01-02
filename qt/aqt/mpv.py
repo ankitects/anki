@@ -143,7 +143,7 @@ class MPVBase:
         --input-unix-socket option.
         """
         if is_win:
-            self._sock_filename = "ankimpv"
+            self._sock_filename = "ankimpv{}".format(os.getpid())
             return
         fd, self._sock_filename = tempfile.mkstemp(prefix="mpv.")
         os.close(fd)
@@ -156,12 +156,11 @@ class MPVBase:
         start = time.time()
         while self.is_running() and time.time() < start + 10:
             time.sleep(0.1)
-
             if is_win:
                 # named pipe
                 try:
                     self._sock = win32file.CreateFile(
-                        r"\\.\pipe\ankimpv",
+                        r"\\.\pipe\{}".format(self._sock_filename),
                         win32file.GENERIC_READ | win32file.GENERIC_WRITE,
                         0,
                         None,
