@@ -92,6 +92,9 @@ class MPVBase:
         "--gapless-audio=no",
     ]
 
+    if is_win:
+        default_argv += ["--af-add=lavfi=[apad=pad_dur=0.150]"]
+
     def __init__(self, window_id=None, debug=False):
         self.window_id = window_id
         self.debug = debug
