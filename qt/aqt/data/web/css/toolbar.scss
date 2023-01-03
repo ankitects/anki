@@ -6,6 +6,10 @@
 @use "sass/elevation" as *;
 @use "sass/button-mixins" as button;
 
+body {
+    background: var(--dynamic-bg, var(--canvas));
+}
+
 #header {
     padding-bottom: 4px;
     margin-top: -3px;
@@ -13,18 +17,23 @@
 
 .tdcenter {
     white-space: nowrap;
-    border-radius: prop(border-radius);
     border-bottom-left-radius: prop(border-radius-large);
     border-bottom-right-radius: prop(border-radius-large);
-    @include button.base($with-hover: false, $with-active: false);
+    border: 1px solid var(--border-subtle);
     overflow: hidden;
     padding: 0;
 
-    @include elevation(1, $opacity-boost: -0.08);
+    body:not(.inset) &,
     &:hover {
-        @include elevation(2);
+        @include button.base($with-hover: false, $with-active: false);
+        background: var(--canvas-elevated);
+        @include elevation(1, $opacity-boost: -0.08);
+        &:hover {
+            @include elevation(2);
+        }
+        transition: none;
     }
-    transition: box-shadow var(--transition) ease-in-out;
+    transition: all var(--transition) ease-in-out;
 }
 
 body {
@@ -40,12 +49,16 @@ body {
 
 .hitem {
     font-weight: bold;
-    padding: 8px 14px;
+    padding: 6px 12px 8px;
     text-decoration: none;
     color: color(fg);
     display: inline-block;
-    @include button.base;
-    border: none;
+
+    body:not(.inset) &,
+    &:hover {
+        @include button.base($border: false);
+        background: var(--canvas-elevated);
+    }
     &:first-child {
         padding-left: 18px;
     }

@@ -73,12 +73,18 @@ class ToolbarWebView(AnkiWebView):
             self.animation.start()
 
     def collapse(self) -> None:
-        self._onHeight(0)
         self.collapsed = True
+        self._onHeight(0)
 
     def expand(self) -> None:
-        self.adjustHeightToFit()
         self.collapsed = False
+        self.adjustHeightToFit()
+
+    def inset(self) -> None:
+        self.eval("document.body.classList.add('inset'); ")
+
+    def outset(self) -> None:
+        self.eval("document.body.classList.remove('inset'); ")
 
 
 class Toolbar:
@@ -88,7 +94,8 @@ class Toolbar:
         self.link_handlers: dict[str, Callable] = {
             "study": self._studyLinkHandler,
         }
-        self.web.setFixedHeight(0)
+        # TODO: find alternative for hard-coded height to prevent initial animation
+        self.web.setFixedHeight(41)
         self.web.requiresCol = False
 
     def draw(
