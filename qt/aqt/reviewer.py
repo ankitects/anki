@@ -516,6 +516,7 @@ class Reviewer:
 
     def on_pause_audio(self) -> None:
         av_player.toggle_pause()
+        self.web.eval("ankimedia.togglePause();")
 
     seek_secs = 5
 
