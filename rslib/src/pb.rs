@@ -9,6 +9,7 @@ macro_rules! protobuf {
     };
 }
 
+protobuf!(ankidroid, "ankidroid");
 protobuf!(backend, "backend");
 protobuf!(card_rendering, "card_rendering");
 protobuf!(cards, "cards");

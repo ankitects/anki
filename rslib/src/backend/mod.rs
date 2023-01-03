@@ -5,6 +5,7 @@
 #![allow(clippy::unnecessary_wraps)]
 
 mod adding;
+mod ankidroid;
 mod card;
 mod cardrendering;
 mod collection;
@@ -42,6 +43,7 @@ use tokio::runtime::{
 };
 
 use self::{
+    ankidroid::AnkidroidService,
     card::CardsService,
     cardrendering::CardRenderingService,
     collection::CollectionService,
@@ -120,6 +122,7 @@ impl Backend {
         ServiceIndex::from_i32(service as i32)
             .or_invalid("invalid service")
             .and_then(|service| match service {
+                ServiceIndex::Ankidroid => AnkidroidService::run_method(self, method, input),
                 ServiceIndex::Scheduler => SchedulerService::run_method(self, method, input),
                 ServiceIndex::Decks => DecksService::run_method(self, method, input),
                 ServiceIndex::Notes => NotesService::run_method(self, method, input),

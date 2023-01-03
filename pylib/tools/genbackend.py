@@ -194,6 +194,8 @@ for service in anki.backend_pb2.ServiceIndex.DESCRIPTOR.values:
     base = service.name.replace("SERVICE_INDEX_", "")
     service_pkg = service_modules.get(base)
     service_var = "_" + base.replace("_", "") + "SERVICE"
+    if service_var == "_ANKIDROIDSERVICE":
+        continue
     service_obj = getattr(service_pkg, service_var)
     service_index = service.number
     render_service(service_obj, service_index)
