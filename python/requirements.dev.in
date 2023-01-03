@@ -9,6 +9,7 @@ mypy-protobuf
 pip-tools
 pylint
 pytest
+PyChromeDevTools
 fluent.syntax
 types-decorator
 types-flask
