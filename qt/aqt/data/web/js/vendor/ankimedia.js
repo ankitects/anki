@@ -111,6 +111,7 @@ class AnkiMediaQueue {
         this._addall_last_where = "front";
         this._clearPlayingElement();
         this._was_next_play_paused = false;
+        this._is_playing_resuming = false;
         this.autoplay = true;
         this.is_playing = false;
         this.is_autoplay = false;
@@ -627,6 +628,10 @@ class AnkiMediaQueue {
         // Set to automatically pause all other medias when playing a new media.
         let auto_pause = (target) => {
             return (event) => {
+                if (this._is_playing_resuming) {
+                    this._is_playing_resuming = false;
+                    return;
+                }
                 // only clear the queue if the play event was from an user action
                 if (!this.is_autoplay) {
                     this.playing_front.length = 0;
@@ -663,10 +668,14 @@ class AnkiMediaQueue {
         }
         let playing_media = this._playing_element ? this._playing_element : this._playing_media;
         if (playing_media && playing_media.paused) {
+            this._is_playing_resuming = true;
             let playpromise = playing_media.play();
             if (playpromise) {
-                playpromise.catch((error) => console.log(`Could not unpause the media due to '${error}'! ` +
-                    this._getMediaInfo(playing_media)));
+                playpromise.catch((error) => {
+                    this._is_playing_resuming = false;
+                    console.log(`Could not unpause the media due to '${error}'! ` +
+                        this._getMediaInfo(playing_media));
+                });
             }
             return true;
         }
