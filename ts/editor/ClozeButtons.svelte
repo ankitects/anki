@@ -16,6 +16,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as noteEditorContext } from "./NoteEditor.svelte";
     import { editingInputIsRichText } from "./rich-text-input";
 
+    export let alwaysEnabled = false;
+
     const { focusedInput, fields } = noteEditorContext.get();
 
     // Workaround for Cmd+Option+Shift+C not working on macOS. The keyup approach works
@@ -67,7 +69,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    $: disabled = !$focusedInput || !editingInputIsRichText($focusedInput);
+    $: disabled =
+        !alwaysEnabled && (!$focusedInput || !editingInputIsRichText($focusedInput));
 
     const incrementKeyCombination = "Control+Shift+C";
     const sameKeyCombination = "Control+Alt+Shift+C";
