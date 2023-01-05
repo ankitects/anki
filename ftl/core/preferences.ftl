@@ -48,4 +48,4 @@ preferences-monthly-backups = Monthly backups to keep:
 preferences-minutes-between-backups = Minutes between automatic backups:
 preferences-reduce-motion = Reduce motion
 preferences-reduce-motion-tooltip = Disable various animations and transitions of the user interface
-preferences-auto-hide-toolbar = Hide toolbar during review
+preferences-collapse-toolbar = Collapse toolbar during review

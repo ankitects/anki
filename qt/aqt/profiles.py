@@ -524,11 +524,11 @@ create table if not exists profiles
     def set_reduced_motion(self, on: bool) -> None:
         self.meta["reduced_motion"] = on
 
-    def auto_hide_toolbar(self) -> bool:
-        return self.meta.get("auto_hide_toolbar", False)
+    def collapse_toolbar(self) -> bool:
+        return self.meta.get("collapse_toolbar", False)
 
-    def set_auto_hide_toolbar(self, on: bool) -> None:
-        self.meta["auto_hide_toolbar"] = on
+    def set_collapse_toolbar(self, on: bool) -> None:
+        self.meta["collapse_toolbar"] = on
 
     def last_addon_update_check(self) -> int:
         return self.meta.get("last_addon_update_check", 0)

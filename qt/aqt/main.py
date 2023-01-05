@@ -150,7 +150,7 @@ class MainWebView(AnkiWebView):
             return handled
 
         if evt.type() == QEvent.Type.Leave:
-            if self.mw.pm.auto_hide_toolbar():
+            if self.mw.pm.collapse_toolbar():
                 # Expand toolbar when mouse moves above main webview
                 # and automatically collapse it with delay after mouse leaves
                 if self.mapFromGlobal(QCursor.pos()).y() < self.geometry().y():
@@ -160,7 +160,7 @@ class MainWebView(AnkiWebView):
                 return True
 
         if evt.type() == QEvent.Type.Enter:
-            if self.mw.pm.auto_hide_toolbar():
+            if self.mw.pm.collapse_toolbar():
                 self.mw.toolbarWeb.hide_timer.start()
                 return True
 
@@ -730,7 +730,7 @@ class AnkiQt(QMainWindow):
 
     def _reviewState(self, oldState: MainWindowState) -> None:
         self.reviewer.show()
-        if self.pm.auto_hide_toolbar():
+        if self.pm.collapse_toolbar():
             self.toolbarWeb.collapse()
         else:
             self.toolbarWeb.flatten()
@@ -1360,7 +1360,7 @@ title="{}" {}>{}</button>""".format(
             )
 
     def collapse_toolbar_if_allowed(self) -> None:
-        if self.pm.auto_hide_toolbar() and self.state == "review":
+        if self.pm.collapse_toolbar() and self.state == "review":
             self.toolbarWeb.collapse()
 
     # Auto update
