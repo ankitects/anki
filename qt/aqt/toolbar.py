@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import re
 from typing import Any, Optional, cast
 
 import aqt
@@ -88,12 +89,16 @@ class ToolbarWebView(AnkiWebView):
             """
             document.body.classList.remove("flat");
             document.body.style.removeProperty("background");
-        """
+            """
         )
 
     def update_background_image(self) -> None:
-        def set_background(bg: str) -> None:
-            self.eval(f"""document.body.style.setProperty("background", '{bg}'); """)
+        def set_background(val: str) -> None:
+            background = re.sub(r"-\d+px ", "0%", val)
+
+            self.eval(
+                f"""document.body.style.setProperty("background", '{background}'); """
+            )
             # offset reviewer background by toolbar height
             self.mw.web.eval(
                 f"""document.body.style.setProperty("background-position-y", "-{self.height()}px"); """
