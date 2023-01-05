@@ -156,7 +156,6 @@ class MainWebView(AnkiWebView):
                 if self.mapFromGlobal(QCursor.pos()).y() < self.geometry().y():
                     if self.mw.toolbarWeb.collapsed:
                         self.mw.toolbarWeb.expand()
-                        self.mw.toolbarWeb.hide_timer.start()
                 return True
 
         if evt.type() == QEvent.Type.Enter:
