@@ -12,7 +12,9 @@ if sys.version_info[0] < 3 or sys.version_info[1] < 9:
 try:
     "テスト".encode(sys.getfilesystemencoding())
 except UnicodeEncodeError as exc:
-    raise Exception("Anki requires a UTF-8 locale.") from exc
+    print("Anki requires a UTF-8 locale.")
+    print("Please Google 'how to change locale on [your Linux distro]'")
+    sys.exit(1)
 
 from .package import packaged_build_setup
 
