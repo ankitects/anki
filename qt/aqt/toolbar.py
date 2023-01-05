@@ -80,10 +80,10 @@ class ToolbarWebView(AnkiWebView):
         self.collapsed = False
         self.adjustHeightToFit()
 
-    def inset(self) -> None:
+    def flatten(self) -> None:
         self.eval("document.body.classList.add('inset'); ")
 
-    def outset(self) -> None:
+    def elevate(self) -> None:
         self.eval(
             """
             document.body.classList.remove("inset");
