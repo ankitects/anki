@@ -11,7 +11,7 @@ impl GraphsContext {
         let start_of_today_ms = self.next_day_start.adding_secs(-86_400).as_millis().0;
         for review in self.revlog.iter().rev() {
             if review.id.0 < start_of_today_ms {
-                break;
+                continue;
             }
             if review.review_kind == RevlogReviewKind::Manual {
                 continue;
