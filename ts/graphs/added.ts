@@ -102,7 +102,7 @@ export function buildHistogram(
         _percent: number,
     ): string {
         const day = dayLabel(bin.x0!, bin.x1!);
-        const cards = tr.statisticsCards({ cards: bin.length });
+        const cards = tr.statisticsCards({ cards: getNumericMapBinValue(bin as any) });
         const total = tr.statisticsRunningTotal();
         const totalCards = tr.statisticsCards({ cards: cumulative });
         return `${day}:<br>${cards}<br>${total}: ${totalCards}`;
