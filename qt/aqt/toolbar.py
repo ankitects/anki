@@ -81,12 +81,12 @@ class ToolbarWebView(AnkiWebView):
         self.adjustHeightToFit()
 
     def flatten(self) -> None:
-        self.eval("document.body.classList.add('inset'); ")
+        self.eval("document.body.classList.add('flat'); ")
 
     def elevate(self) -> None:
         self.eval(
             """
-            document.body.classList.remove("inset");
+            document.body.classList.remove("flat");
             document.body.style.removeProperty("background");
         """
         )
