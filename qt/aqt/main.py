@@ -733,12 +733,12 @@ class AnkiQt(QMainWindow):
         if self.pm.auto_hide_toolbar():
             self.toolbarWeb.collapse()
         else:
-            self.toolbarWeb.inset()
+            self.toolbarWeb.flatten()
 
     def _reviewCleanup(self, newState: MainWindowState) -> None:
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
-            self.toolbarWeb.outset()
+            self.toolbarWeb.elevate()
             self.toolbarWeb.expand()
 
     # Resetting state
