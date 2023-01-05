@@ -216,6 +216,9 @@ pub struct NoteFieldSchema11 {
     pub(crate) plain_text: bool,
 
     #[serde(default, deserialize_with = "default_on_invalid")]
+    pub(crate) media_only: bool,
+
+    #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) collapsed: bool,
 
     #[serde(flatten)]
@@ -230,6 +233,7 @@ impl Default for NoteFieldSchema11 {
             sticky: false,
             rtl: false,
             plain_text: false,
+            media_only: false,
             font: "Arial".to_string(),
             size: 20,
             description: String::new(),
@@ -248,6 +252,7 @@ impl From<NoteFieldSchema11> for NoteField {
                 sticky: f.sticky,
                 rtl: f.rtl,
                 plain_text: f.plain_text,
+                media_only: f.media_only,
                 font_name: f.font,
                 font_size: f.size as u32,
                 description: f.description,
@@ -271,6 +276,7 @@ impl From<NoteField> for NoteFieldSchema11 {
             sticky: conf.sticky,
             rtl: conf.rtl,
             plain_text: conf.plain_text,
+            media_only: conf.media_only,
             font: conf.font_name,
             size: conf.font_size as u16,
             description: conf.description,

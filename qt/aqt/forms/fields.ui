@@ -148,6 +148,16 @@
        </property>
       </widget>
      </item>
+     <item row="6" column="1" alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="mediaOnly">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>fields_media_only</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="1" colspan="2">
       <widget class="QLineEdit" name="fieldDescription">
        <property name="placeholderText">

@@ -40,6 +40,7 @@ impl NoteField {
                 sticky: false,
                 rtl: false,
                 plain_text: false,
+                media_only: false,
                 font_name: "Arial".into(),
                 font_size: 20,
                 description: "".into(),

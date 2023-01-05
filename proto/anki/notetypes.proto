@@ -74,6 +74,7 @@ message Notetype {
       string description = 5;
       bool plain_text = 6;
       bool collapsed = 7;
+      bool media_only = 8;
 
       bytes other = 255;
     }

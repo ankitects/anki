@@ -89,6 +89,7 @@ impl Default for Notetype {
             mtime_secs: TimestampSecs(0),
             usn: Usn(0),
             fields: vec![],
+
             templates: vec![],
             config: NotetypeConfig::new(),
         }

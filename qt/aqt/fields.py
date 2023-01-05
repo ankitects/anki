@@ -107,6 +107,8 @@ class FieldDialog(QDialog):
         qconnect(f.fieldRename.clicked, self.onRename)
         qconnect(f.fieldPosition.clicked, self.onPosition)
         qconnect(f.sortField.clicked, self.onSortField)
+        qconnect(f.mediaOnly.clicked, self.onMediaOnlyField)
+        qconnect(f.plainTextByDefault.clicked, self.onPlainTextByDefaultField)
         qconnect(f.buttonBox.helpRequested, self.onHelp)
 
     def onDrop(self, ev: QDropEvent) -> None:
@@ -226,6 +228,17 @@ class FieldDialog(QDialog):
         self.form.sortField.setChecked(True)
         self.mm.set_sort_index(self.model, self.form.fieldList.currentRow())
 
+    def onMediaOnlyField(self) -> None:
+        if self.form.mediaOnly.isChecked():
+            self.form.plainTextByDefault.setChecked(True)
+        self.saveField()
+
+    def onPlainTextByDefaultField(self) -> None:
+        # file paths should always be plain text, so ensure it is checked
+        if self.form.mediaOnly.isChecked():
+            self.form.plainTextByDefault.setChecked(True)
+        self.saveField()
+
     def moveField(self, pos: int) -> None:
         if not self.change_tracker.mark_schema():
             return
@@ -244,6 +257,7 @@ class FieldDialog(QDialog):
         f.sortField.setChecked(self.model["sortf"] == fld["ord"])
         f.rtl.setChecked(fld["rtl"])
         f.plainTextByDefault.setChecked(fld["plainText"])
+        f.mediaOnly.setChecked(fld["mediaOnly"])
         f.collapseByDefault.setChecked(fld["collapsed"])
         f.fieldDescription.setText(fld.get("description", ""))
 
@@ -270,6 +284,9 @@ class FieldDialog(QDialog):
         if fld["plainText"] != plain_text:
             fld["plainText"] = plain_text
             self.change_tracker.mark_basic()
+        media_only = f.mediaOnly.isChecked()
+        if fld["mediaOnly"] != media_only:
+            fld["mediaOnly"] = media_only
         collapsed = f.collapseByDefault.isChecked()
         if fld["collapsed"] != collapsed:
             fld["collapsed"] = collapsed
