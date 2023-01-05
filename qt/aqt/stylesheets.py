@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from anki.utils import is_win
 from aqt import colors, props
 from aqt.theme import ThemeManager
 
@@ -101,8 +102,10 @@ QMenu::indicator {{
 
 
 def button_styles(tm: ThemeManager) -> str:
+    # For some reason, Windows needs a larger padding to look the same
+    button_pad = 25 if is_win else 15
     return f"""
-QPushButton {{ padding-left: 15px; padding-right: 15px; }}
+QPushButton {{ padding-left: {button_pad}px; padding-right: {button_pad}px; }}
 QPushButton,
 QTabBar::tab:!selected,
 QComboBox:!editable,
