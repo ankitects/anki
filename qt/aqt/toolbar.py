@@ -34,6 +34,7 @@ class ToolbarWebView(AnkiWebView):
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.disable_zoom()
         self.collapsed = False
+        self.web_height = 0
 
         # collapse timer
         self.hide_timer = QTimer()
@@ -58,6 +59,9 @@ class ToolbarWebView(AnkiWebView):
         if qvar is None:
             self.mw.progress.single_shot(1000, self.mw.reset)
             return
+
+        if int(qvar) > 0:
+            self.web_height = int(qvar)
 
         if self.mw.pm.reduced_motion():
             self.setFixedHeight(int(qvar))
@@ -101,7 +105,7 @@ class ToolbarWebView(AnkiWebView):
             )
             # offset reviewer background by toolbar height
             self.mw.web.eval(
-                f"""document.body.style.setProperty("background-position-y", "-{self.height()}px"); """
+                f"""document.body.style.setProperty("background-position-y", "-{self.web_height}px"); """
             )
 
         self.mw.web.evalWithCallback(
