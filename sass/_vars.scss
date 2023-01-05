@@ -56,7 +56,7 @@ $vars: (
             default: (
                 "Default background blur value",
                 (
-                    default: 40px,
+                    default: 20px,
                 )
             )
         )
@@ -138,7 +138,7 @@ $vars: (
             glass: (
                 "Transparent background for surfaces containing text",
                 (
-                    light: color.scale(white, $alpha: -40%),
+                    light: color.scale(white, $alpha: -60%),
                     dark: color.scale(palette(darkgray, 4), $alpha: -60%),
                 ),
             ),
