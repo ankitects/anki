@@ -6,33 +6,26 @@
 @use "sass/elevation" as *;
 @use "sass/button-mixins" as button;
 
-body {
-    background: var(--dynamic-bg, var(--canvas));
-}
-
-#header {
-    padding-bottom: 4px;
-    margin-top: -3px;
-}
-
-.tdcenter {
+.toolbar {
+    display: inline-block;
     white-space: nowrap;
     border-bottom-left-radius: prop(border-radius-large);
     border-bottom-right-radius: prop(border-radius-large);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid transparent;
     overflow: hidden;
-    padding: 0;
+    backdrop-filter: blur(var(--blur));
+    background: var(--canvas-glass);
+    @include elevation(1, $opacity-boost: -0.1);
 
-    body:not(.inset) &,
-    &:hover {
-        @include button.base($with-hover: false, $with-active: false);
+    body:not(.inset) & {
         background: var(--canvas-elevated);
-        @include elevation(1, $opacity-boost: -0.08);
+        @include elevation(1);
         &:hover {
             @include elevation(2);
         }
         transition: none;
     }
+    border-top: none;
     transition: all var(--transition) ease-in-out;
 }
 

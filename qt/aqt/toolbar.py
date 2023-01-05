@@ -84,7 +84,25 @@ class ToolbarWebView(AnkiWebView):
         self.eval("document.body.classList.add('inset'); ")
 
     def outset(self) -> None:
-        self.eval("document.body.classList.remove('inset'); ")
+        self.eval(
+            """
+            document.body.classList.remove("inset");
+            document.body.style.removeProperty("background");
+        """
+        )
+
+    def update_background_image(self) -> None:
+        def set_background(bg: str) -> None:
+            self.eval(f"""document.body.style.setProperty("background", '{bg}'); """)
+            # offset reviewer background by toolbar height
+            self.mw.web.eval(
+                f"""document.body.style.setProperty("background-position-y", "-{self.height()}px"); """
+            )
+
+        self.mw.web.evalWithCallback(
+            """window.getComputedStyle(document.body).background; """,
+            set_background,
+        )
 
 
 class Toolbar:
@@ -258,11 +276,10 @@ class Toolbar:
     ######################################################################
 
     _body = """
-<center id=outer>
-<table id=header>
-<tr>
-<td class=tdcenter align=center>%s</td>
-</tr></table>
+<center id="outer">
+<div id="header">
+<div class="toolbar">%s<div>
+</div>
 </center>
 """
 

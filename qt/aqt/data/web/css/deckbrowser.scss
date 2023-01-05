@@ -16,6 +16,8 @@ table {
         @include elevation(2);
     }
     transition: box-shadow var(--transition) ease-in-out;
+    background: var(--canvas-glass);
+    backdrop-filter: blur(var(--blur));
 }
 
 a.deck {

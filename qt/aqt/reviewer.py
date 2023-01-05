@@ -410,7 +410,12 @@ class Reviewer:
         a = self._mungeQA(a)
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")
         # render and update bottom
-        self.web.eval(f"_showAnswer({json.dumps(a)});")
+        self.web.evalWithCallback(
+            f"_showAnswer({json.dumps(a)});",
+            lambda _: self.mw.progress.single_shot(
+                500, self.mw.toolbarWeb.update_background_image
+            ),
+        )
         self._showEaseButtons()
         self.mw.web.setFocus()
         # user hook
@@ -703,7 +708,12 @@ time = %(time)d;
             maxTime = self.card.time_limit() / 1000
         else:
             maxTime = 0
-        self.bottom.web.eval("showQuestion(%s,%d);" % (json.dumps(middle), maxTime))
+        self.bottom.web.evalWithCallback(
+            "showQuestion(%s,%d);" % (json.dumps(middle), maxTime),
+            lambda _: self.mw.progress.single_shot(
+                500, self.mw.toolbarWeb.update_background_image
+            ),
+        )
         self.bottom.web.adjustHeightToFit()
 
     def _showEaseButtons(self) -> None:
