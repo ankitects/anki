@@ -73,6 +73,7 @@ function moveLegacyAddonsToTray() {
     for (const element of legacyAddonElements) {
         const wrapperElement = document.createElement("div");
         const dimensions = getElementDimensions(element);
+        element.style.right = "0px"; // remove manual padding
         wrapperElement.append(element);
         wrapperElement.style.cssText = `\
 width: ${dimensions[0]}px; height: ${dimensions[1]}}px;
