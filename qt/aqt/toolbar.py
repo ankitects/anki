@@ -215,12 +215,15 @@ class Toolbar:
     def _left_tray_content(self) -> str:
         left_tray_content: list[str] = []
         gui_hooks.top_toolbar_will_set_left_tray_content(left_tray_content, self)
-        return "\n".join(left_tray_content)
+        return self._process_tray_content(left_tray_content)
 
     def _right_tray_content(self) -> str:
         right_tray_content: list[str] = []
         gui_hooks.top_toolbar_will_set_right_tray_content(right_tray_content, self)
-        return "\n".join(right_tray_content)
+        return self._process_tray_content(right_tray_content)
+
+    def _process_tray_content(self, content: list[str]) -> str:
+        return "\n".join(f"""<div class="tray-item">{item}</div>""" for item in content)
 
     # Sync
     ######################################################################

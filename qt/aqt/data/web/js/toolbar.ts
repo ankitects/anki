@@ -81,6 +81,7 @@ function moveLegacyAddonsToTray() {
         wrapperElement.style.cssText = `\
 width: ${dimensions[0]}px; height: ${dimensions[1]}}px;
 margin-left: 5px; margin-right: 5px; position: relative;`;
+        wrapperElement.className = "tray-item tray-item-legacy";
         rightTray.append(wrapperElement);
     }
 }
