@@ -6,7 +6,9 @@ antispam=", at the domain "
 
 headAuthor=$(git log -1 --pretty=format:'%ae')
 authorAt=$(echo "$headAuthor" | sed "s/@/$antispam/")
-if git log --pretty=format:'%ae' CONTRIBUTORS | grep -i "$headAuthor" > /dev/null; then
+if [ $headAuthor = "49699333+dependabot[bot]@users.noreply.github.com" ]; then
+    echo "Dependabot whitelisted."
+elif git log --pretty=format:'%ae' CONTRIBUTORS | grep -i "$headAuthor" > /dev/null; then
     echo "Author found in CONTRIBUTORS"
 else
     echo "All contributors:"
