@@ -231,13 +231,11 @@ class FieldDialog(QDialog):
     def onMediaOnlyField(self) -> None:
         if self.form.mediaOnly.isChecked():
             self.form.plainTextByDefault.setChecked(True)
-        self.saveField()
 
     def onPlainTextByDefaultField(self) -> None:
         # file paths should always be plain text, so ensure it is checked
         if self.form.mediaOnly.isChecked():
             self.form.plainTextByDefault.setChecked(True)
-        self.saveField()
 
     def moveField(self, pos: int) -> None:
         if not self.change_tracker.mark_schema():

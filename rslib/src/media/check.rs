@@ -25,6 +25,7 @@ use crate::{
         MediaManager,
     },
     notes::Note,
+    notetype::Notetype,
     text::{extract_media_refs, normalize_to_nfc, MediaRef, REMOTE_FILENAME},
 };
 
@@ -372,8 +373,10 @@ where
             let nt = notetypes.get(&note.notetype_id).ok_or_else(|| {
                 AnkiError::db_error("missing note type", DbErrorKind::MissingEntity)
             })?;
+
             if fix_and_extract_media_refs(
                 &mut note,
+                nt,
                 &mut referenced_files,
                 renamed,
                 &self.mgr.media_folder,
@@ -402,6 +405,7 @@ where
 /// Returns true if note was modified.
 fn fix_and_extract_media_refs(
     note: &mut Note,
+    notetype: &Notetype,
     seen_files: &mut HashSet<String>,
     renamed: &HashMap<String, String>,
     media_folder: &Path,
@@ -417,8 +421,7 @@ fn fix_and_extract_media_refs(
             media_folder,
         );
 
-        // For fields only with media names
-        if field.len() < 2000 && allfiles.contains(&field.to_string()) {
+        if notetype.fields[idx].config.media_only && allfiles.contains(&field.to_string()) {
             seen_files.insert(field.to_string());
         }
 
