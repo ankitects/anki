@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import json
 import re
 from typing import Any
 
@@ -34,7 +35,6 @@ class ToolbarWebView(AnkiWebView):
         self.disable_zoom()
         self.collapsed = False
         self.web_height = 0
-
         # collapse timer
         self.hide_timer = QTimer()
         self.hide_timer.setSingleShot(True)
@@ -94,6 +94,11 @@ class Toolbar:
     def __init__(self, mw: aqt.AnkiQt, web: AnkiWebView) -> None:
         self.mw = mw
         self.web = web
+        self.web.eval(
+            f"""document.body.classList.toggle("no-blur", {
+            json.dumps(qtmajor == 5 and qtminor < 15)
+            }); """
+        )
         self.link_handlers: dict[str, Callable] = {
             "study": self._studyLinkHandler,
         }
