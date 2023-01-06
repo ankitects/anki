@@ -1,13 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 
 use itertools::Itertools;
 
 use super::{ExportProgress, IncrementableProgress};
 use crate::{
     decks::immediate_parent_name,
+    error::{AnkiError, DbErrorKind},
     io::filename_is_safe,
     latex::extract_latex,
     prelude::*,
@@ -22,6 +26,7 @@ pub(super) struct ExchangeData {
     pub(super) notes: Vec<Note>,
     pub(super) cards: Vec<Card>,
     pub(super) notetypes: Vec<Notetype>,
+    pub(super) allnotetypes: HashMap<NotetypeId, Arc<Notetype>>,
     pub(super) revlog: Vec<RevlogEntry>,
     pub(super) deck_configs: Vec<DeckConfig>,
     pub(super) media_filenames: HashSet<String>,
@@ -44,6 +49,7 @@ impl ExchangeData {
         self.cards = cards;
         self.decks = guard.col.gather_decks(with_scheduling)?;
         self.notetypes = guard.col.gather_notetypes()?;
+        self.allnotetypes = guard.col.get_all_notetypes()?;
         self.check_ids()?;
 
         if with_scheduling {
@@ -69,7 +75,10 @@ impl ExchangeData {
         let svg_getter = svg_getter(&self.notetypes);
         for note in self.notes.iter() {
             progress.increment()?;
-            gather_media_names_from_note(note, &mut inserter, &svg_getter);
+            let notetype = self.allnotetypes.get(&note.notetype_id).ok_or_else(|| {
+                AnkiError::db_error("missing note type", DbErrorKind::MissingEntity)
+            })?;
+            gather_media_names_from_note(note, notetype, &mut inserter, &svg_getter);
         }
         for notetype in self.notetypes.iter() {
             gather_media_names_from_notetype(notetype, &mut inserter);
@@ -141,10 +150,16 @@ impl ExchangeData {
 
 fn gather_media_names_from_note(
     note: &Note,
+    notetype: &Notetype,
     inserter: &mut impl FnMut(String),
     svg_getter: &impl Fn(NotetypeId) -> bool,
 ) {
-    for field in note.fields() {
+    for (idx, field) in note.fields().iter().enumerate() {
+        if notetype.fields[idx].config.media_only {
+            inserter(field.to_string());
+            continue;
+        }
+
         for media_ref in extract_media_refs(field) {
             inserter(media_ref.fname_decoded.to_string());
         }
