@@ -53,6 +53,9 @@ function isLegacyAddonElement(node: Node): boolean {
 function getElementDimensions(element: HTMLElement): [number, number] {
     const widths = [element.offsetWidth];
     const heights = [element.offsetHeight];
+    // Some add-ons inject spans or anchors into the toolbar whose dimensions,
+    // as reported by the properties above are zero, but still occupy space due
+    // to their child elements:
     for (const child of element.childNodes) {
         if (!(child instanceof HTMLElement)) {
             continue;
@@ -65,9 +68,9 @@ function getElementDimensions(element: HTMLElement): [number, number] {
 
 function moveLegacyAddonsToTray() {
     const rightTray = document.getElementsByClassName("right-tray")[0];
-    const links = document.querySelectorAll<HTMLAnchorElement>(".toolbar > *");
-    const legacyAddonElements: HTMLAnchorElement[] = Array.from(links)
-        .reverse()
+    const toolbarChildren = document.querySelectorAll<HTMLElement>(".toolbar > *");
+    const legacyAddonElements: HTMLElement[] = Array.from(toolbarChildren)
+        .reverse() // restore original add-on load order
         .filter(isLegacyAddonElement);
 
     for (const element of legacyAddonElements) {
