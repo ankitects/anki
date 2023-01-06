@@ -22,16 +22,11 @@
             @include elevation(2);
         }
     }
-
     // glass effect
     background: var(--canvas-glass);backdrop-filter: unset;
     // qt 5.14 doesn't support backdrop-filter: blur
     body:not(.no-blur) & {
         backdrop-filter: blur(var(--blur));
-    }
-
-    body.collapsed & {
-        transform: translateY(-100vh);
     }
 
     transition: all var(--transition) ease-in-out;
@@ -42,6 +37,11 @@ body {
     padding: 0;
     -webkit-user-select: none;
     overflow: hidden;
+
+    &.collapsed {
+        transform: translateY(-100vh);
+    }
+    transition: transform var(--transition) ease-in-out;
 }
 
 * {
