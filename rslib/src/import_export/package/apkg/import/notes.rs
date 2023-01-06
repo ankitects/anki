@@ -12,6 +12,7 @@ use sha1::{Digest, Sha1};
 
 use super::{media::MediaUseMap, Context};
 use crate::{
+    error::{AnkiError, DbErrorKind},
     import_export::{
         package::media::safe_normalized_file_name, ImportProgress, IncrementableProgress, NoteLog,
     },
@@ -24,6 +25,7 @@ struct NoteContext<'a> {
     usn: Usn,
     normalize_notes: bool,
     remapped_notetypes: HashMap<NotetypeId, NotetypeId>,
+    allnotetypes: HashMap<NotetypeId, Arc<Notetype>>,
     target_guids: HashMap<String, NoteMeta>,
     target_ids: HashSet<NoteId>,
     media_map: &'a mut MediaUseMap,
@@ -104,6 +106,7 @@ impl<'n> NoteContext<'n> {
             usn,
             normalize_notes,
             remapped_notetypes: HashMap::new(),
+            allnotetypes: HashMap::new(),
             target_guids,
             target_ids,
             imports: NoteImports::default(),
@@ -167,6 +170,7 @@ impl<'n> NoteContext<'n> {
         progress: &mut IncrementableProgress<ImportProgress>,
     ) -> Result<()> {
         let mut incrementor = progress.incrementor(ImportProgress::Notes);
+        self.allnotetypes = self.target_col.get_all_notetypes()?;
 
         for mut note in notes {
             incrementor.increment()?;
@@ -250,7 +254,19 @@ impl<'n> NoteContext<'n> {
     }
 
     fn munge_media(&mut self, note: &mut Note) -> Result<()> {
-        for field in note.fields_mut() {
+        let notetype = self
+            .allnotetypes
+            .get(&note.notetype_id)
+            .ok_or_else(|| AnkiError::db_error("missing note type", DbErrorKind::MissingEntity))?
+            .clone();
+
+        for (idx, field) in note.fields_mut().iter_mut().enumerate() {
+            if notetype.fields[idx].config.media_only {
+                if let Some(new_field) = self.replace_media_only_refs(field) {
+                    *field = new_field;
+                };
+                continue;
+            }
             if let Some(new_field) = self.replace_media_refs(field) {
                 *field = new_field;
             };
@@ -258,7 +274,7 @@ impl<'n> NoteContext<'n> {
         Ok(())
     }
 
-    fn replace_media_refs(&mut self, field: &mut str) -> Option<String> {
+    fn replace_media_refs(&mut self, field: &str) -> Option<String> {
         replace_media_refs(field, |name| {
             if let Ok(normalized) = safe_normalized_file_name(name) {
                 if let Some(entry) = self.media_map.use_entry(&normalized) {
@@ -273,6 +289,21 @@ impl<'n> NoteContext<'n> {
             }
             None
         })
+    }
+
+    fn replace_media_only_refs(&mut self, name: &str) -> Option<String> {
+        if let Ok(normalized) = safe_normalized_file_name(name) {
+            if let Some(entry) = self.media_map.use_entry(&normalized) {
+                if entry.name != name {
+                    // name is not normalized, and/or remapped
+                    return Some(entry.name.clone());
+                }
+            } else if let Cow::Owned(s) = normalized {
+                // no entry; might be a reference to an existing file, so ensure normalization
+                return Some(s);
+            }
+        }
+        None
     }
 }
 
