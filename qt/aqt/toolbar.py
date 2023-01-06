@@ -265,11 +265,11 @@ class Toolbar:
     ######################################################################
 
     _body = """
-<center id="outer">
-<div id="header">
-<div class="toolbar">%s<div>
+<div class="header">
+  <div class="left-tray"></div>
+  <div class="toolbar">%s</div>
+  <div class="right-tray"></div>
 </div>
-</center>
 """
 
 
