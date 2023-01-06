@@ -9,23 +9,31 @@
 .toolbar {
     display: inline-block;
     white-space: nowrap;
+    overflow: hidden;
     border-bottom-left-radius: prop(border-radius-large);
     border-bottom-right-radius: prop(border-radius-large);
-    border: 1px solid transparent;
-    overflow: hidden;
-    backdrop-filter: blur(var(--blur));
-    background: var(--canvas-glass);
     @include elevation(1, $opacity-boost: -0.1);
 
+    // elevated state (deck browser, overview)
     body:not(.flat) & {
         background: var(--canvas-elevated);
         @include elevation(1);
         &:hover {
             @include elevation(2);
         }
-        transition: none;
     }
-    border-top: none;
+
+    // glass effect
+    background: var(--canvas-glass);backdrop-filter: unset;
+    // qt 5.14 doesn't support backdrop-filter: blur
+    body:not(.no-blur) & {
+        backdrop-filter: blur(var(--blur));
+    }
+
+    body.collapsed & {
+        transform: translateY(-100vh);
+    }
+
     transition: all var(--transition) ease-in-out;
 }
 

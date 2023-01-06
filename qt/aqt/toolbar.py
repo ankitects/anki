@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Optional, cast
+from typing import Any
 
 import aqt
 from anki.sync import SyncStatus
-from aqt import gui_hooks, props
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.sync import get_sync_status
-from aqt.theme import theme_manager
 from aqt.utils import tr
 from aqt.webview import AnkiWebView
 
@@ -54,36 +53,13 @@ class ToolbarWebView(AnkiWebView):
 
         return False
 
-    # Overwrite AnkiWebView _onHeight for dock animation
-    def _onHeight(self, qvar: Optional[int]) -> None:
-        if qvar is None:
-            self.mw.progress.single_shot(1000, self.mw.reset)
-            return
-
-        if int(qvar) > 0:
-            self.web_height = int(qvar)
-
-        if self.mw.pm.reduced_motion():
-            self.setFixedHeight(int(qvar))
-        else:
-            # Collapse/Expand animation
-            self.setMinimumHeight(0)
-            self.animation = QPropertyAnimation(
-                self, cast(QByteArray, b"maximumHeight")
-            )
-            self.animation.setDuration(int(theme_manager.var(props.TRANSITION)))
-            self.animation.setStartValue(self.height())
-            self.animation.setEndValue(int(qvar))
-            qconnect(self.animation.finished, lambda: self.setFixedHeight(int(qvar)))
-            self.animation.start()
-
     def collapse(self) -> None:
         self.collapsed = True
-        self._onHeight(0)
+        self.eval("""document.body.classList.add("collapsed"); """)
 
     def expand(self) -> None:
         self.collapsed = False
-        self.adjustHeightToFit()
+        self.eval("""document.body.classList.remove("collapsed"); """)
 
     def flatten(self) -> None:
         self.eval("document.body.classList.add('flat'); ")
@@ -121,8 +97,7 @@ class Toolbar:
         self.link_handlers: dict[str, Callable] = {
             "study": self._studyLinkHandler,
         }
-        # TODO: find alternative for hard-coded height to prevent initial animation
-        self.web.setFixedHeight(41)
+        self.web.adjustHeightToFit()
         self.web.requiresCol = False
 
     def draw(
