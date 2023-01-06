@@ -796,6 +796,28 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         """,
     ),
     Hook(
+        name="top_toolbar_will_set_left_tray_content",
+        args=["content: list[str]", "top_toolbar: aqt.toolbar.Toolbar"],
+        doc="""Used to add custom add-on components to the *left* area of Anki's main
+        window toolbar
+
+        'content' is a list of HTML strings added by add-ons which you can append your
+        own components or elements to. To equip your components with logic and styling
+        please see `webview_will_set_content` and `webview_did_receive_js_message`.
+        """,
+    ),
+    Hook(
+        name="top_toolbar_will_set_right_tray_content",
+        args=["content: list[str]", "top_toolbar: aqt.toolbar.Toolbar"],
+        doc="""Used to add custom add-on components to the *right* area of Anki's main
+        window toolbar
+
+        'content' is a list of HTML strings added by add-ons which you can append your
+        own components or elements to. To equip your components with logic and styling
+        please see `webview_will_set_content` and `webview_did_receive_js_message`.
+        """,
+    ),
+    Hook(
         name="top_toolbar_did_redraw",
         args=["top_toolbar: aqt.toolbar.Toolbar"],
         doc="""Executed when the top toolbar is redrawn""",
