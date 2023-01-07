@@ -804,6 +804,10 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         'content' is a list of HTML strings added by add-ons which you can append your
         own components or elements to. To equip your components with logic and styling
         please see `webview_will_set_content` and `webview_did_receive_js_message`.
+        
+        Please note that Anki's main screen is due to undergo a significant refactor
+        in the future and, as a result, add-ons subscribing to this hook will likely
+        require changes to continue working.
         """,
     ),
     Hook(
@@ -815,6 +819,10 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         'content' is a list of HTML strings added by add-ons which you can append your
         own components or elements to. To equip your components with logic and styling
         please see `webview_will_set_content` and `webview_did_receive_js_message`.
+        
+        Please note that Anki's main screen is due to undergo a significant refactor
+        in the future and, as a result, add-ons subscribing to this hook will likely
+        require changes to continue working.
         """,
     ),
     Hook(
