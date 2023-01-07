@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, Optional
 
 import aqt
 from anki.sync import SyncStatus
@@ -52,6 +52,10 @@ class ToolbarWebView(AnkiWebView):
 
         return False
 
+    def _onHeight(self, qvar: Optional[int]) -> None:
+        super()._onHeight(qvar)
+        self.web_height = int(qvar)
+
     def collapse(self) -> None:
         self.collapsed = True
         self.eval("""document.body.classList.add("collapsed"); """)
@@ -73,7 +77,10 @@ class ToolbarWebView(AnkiWebView):
 
     def update_background_image(self) -> None:
         def set_background(val: str) -> None:
+            # remove offset from copy
             background = re.sub(r"-\d+px ", "0%", val)
+            # change computedStyle px value back to 100vw
+            background = re.sub(r"\d+px", "100vw", background)
 
             self.eval(
                 f"""document.body.style.setProperty("background", '{background}'); """
@@ -96,7 +103,6 @@ class Toolbar:
         self.link_handlers: dict[str, Callable] = {
             "study": self._studyLinkHandler,
         }
-        self.web.adjustHeightToFit()
         self.web.requiresCol = False
 
     def draw(
