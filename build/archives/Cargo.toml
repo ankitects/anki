@@ -13,7 +13,7 @@ camino = "1.1.1"
 flate2 = "1.0.25"
 sha2 = { version = "0.10.6" }
 tar = "0.4.38"
-tokio = { version = "1.22.0", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.23.1", features = ["macros", "rt-multi-thread"] }
 workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }
 xz2 = "0.1.7"
 zip = "0.6.3"
