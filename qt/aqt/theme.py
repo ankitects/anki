@@ -25,6 +25,7 @@ from aqt.qt import (
     QStyleFactory,
     Qt,
     qtmajor,
+    qtminor,
 )
 
 
@@ -169,6 +170,8 @@ class ThemeManager:
                 classes.append("macos-dark-mode")
         if aqt.mw.pm.reduced_motion():
             classes.append("reduced-motion")
+        if qtmajor == 5 and qtminor < 15:
+            classes.append("no-blur")
         return " ".join(classes)
 
     def body_classes_for_card_ord(

@@ -24,10 +24,7 @@
     }
     // glass effect
     background: var(--canvas-glass);backdrop-filter: unset;
-    // qt 5.14 doesn't support backdrop-filter: blur
-    body:not(.no-blur) & {
-        backdrop-filter: blur(var(--blur));
-    }
+    backdrop-filter: blur(var(--blur));
 
     transition: all var(--transition) ease-in-out;
 }

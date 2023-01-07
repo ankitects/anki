@@ -2,7 +2,6 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
-import json
 import re
 from typing import Any
 
@@ -94,11 +93,6 @@ class Toolbar:
     def __init__(self, mw: aqt.AnkiQt, web: AnkiWebView) -> None:
         self.mw = mw
         self.web = web
-        self.web.eval(
-            f"""document.body.classList.toggle("no-blur", {
-            json.dumps(qtmajor == 5 and qtminor < 15)
-            }); """
-        )
         self.link_handlers: dict[str, Callable] = {
             "study": self._studyLinkHandler,
         }
