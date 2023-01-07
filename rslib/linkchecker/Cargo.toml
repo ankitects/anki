@@ -20,7 +20,7 @@ linkcheck = { git = "https://github.com/ankitects/linkcheck.git", rev = "2f20798
 futures = "0.3.25"
 itertools = "0.10.5"
 strum = { version = "0.24.1", features = ["derive"] }
-tokio = { version = "1.22.0", features = ["full"] }
+tokio = { version = "1.23.1", features = ["full"] }
 workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }
 
 [features]
