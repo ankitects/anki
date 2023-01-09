@@ -23,7 +23,9 @@ pub enum DeckSchema11 {
 
 // serde doesn't support integer/bool enum tags, so we manually pick the correct variant
 mod dynfix {
-    use serde::de::{self, Deserialize, Deserializer};
+    use serde::de::{
+        Deserialize, Deserializer, {self},
+    };
     use serde_json::{Map, Value};
 
     use super::{DeckSchema11, FilteredDeckSchema11, NormalDeckSchema11};
@@ -50,10 +52,7 @@ mod dynfix {
                 })?;
 
             if needs_fix {
-                map.insert(
-                    "dyn".into(),
-                    Value::Number((if is_dyn { 1 } else { 0 }).into()),
-                );
+                map.insert("dyn".into(), Value::Number(u8::from(is_dyn).into()));
             }
 
             // remove an obsolete key
@@ -387,11 +386,7 @@ impl From<Deck> for DeckCommonSchema11 {
             today: (&deck).into(),
             study_collapsed: deck.common.study_collapsed,
             browser_collapsed: deck.common.browser_collapsed,
-            dynamic: if matches!(deck.kind, DeckKind::Filtered(_)) {
-                1
-            } else {
-                0
-            },
+            dynamic: matches!(deck.kind, DeckKind::Filtered(_)).into(),
             markdown_description: match &deck.kind {
                 DeckKind::Normal(n) => n.markdown_description,
                 DeckKind::Filtered(_) => false,

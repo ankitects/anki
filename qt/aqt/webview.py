@@ -175,7 +175,7 @@ class WebContent:
 
     Important Notes:
         - When modifying the attributes specified above, please make sure your
-        changes only perform the minimum requried edits to make your add-on work.
+        changes only perform the minimum required edits to make your add-on work.
         You should avoid overwriting or interfering with existing data as much
         as possible, instead opting to append your own changes, e.g.:
 
@@ -247,13 +247,20 @@ class AnkiWebView(QWebEngineView):
 
         self.resetHandlers()
         self._filterSet = False
-        QShortcut(  # type: ignore
-            QKeySequence("Esc"),
-            self,
-            context=Qt.ShortcutContext.WidgetWithChildrenShortcut,
-            activated=self.onEsc,
-        )
         gui_hooks.theme_did_change.append(self.on_theme_did_change)
+
+        qconnect(self.loadFinished, self._on_load_finished)
+
+    def _on_load_finished(self) -> None:
+        self.eval(
+            """
+        document.addEventListener("keydown", function(evt) {
+            if (evt.keyCode === 27) {
+                pycmd("close");
+            }
+        });
+        """
+        )
 
     def set_title(self, title: str) -> None:
         self.title = title  # type: ignore[assignment]
@@ -332,7 +339,6 @@ class AnkiWebView(QWebEngineView):
         self._domDone = True
         self._queueAction("setHtml", html)
         self.set_open_links_externally(True)
-        self.setZoomFactor(1)
         self.allow_drops = False
         self.show()
 
@@ -413,10 +419,10 @@ class AnkiWebView(QWebEngineView):
             button_style = f"""
 button {{ font-family: {family}; }}
             """
-            font = f"font-size:12px;font-family:{family};"
+            font = f"font-family:{family};"
         elif is_mac:
             family = "Helvetica"
-            font = f'font-size:14px;font-family:"{family}";'
+            font = f'font-family:"{family}";'
             button_style = """
 button {
     --canvas: #fff;
@@ -432,7 +438,7 @@ button {
 """
         else:
             family = self.font().family()
-            font = f'font-size:14px;font-family:"{family}", sans-serif;'
+            font = f'font-family:"{family}", sans-serif;'
             button_style = """
 /* Buttons */
 button{{ 
@@ -602,6 +608,8 @@ html {{ {font} }}
         if cmd == "domDone":
             self._domDone = True
             self._maybeRunActions()
+        elif cmd == "close":
+            self.onEsc()
         else:
             handled, result = gui_hooks.webview_did_receive_js_message(
                 (False, None), cmd, self._bridge_context
@@ -626,7 +634,6 @@ html {{ {font} }}
         from aqt import mw
 
         if qvar is None:
-
             mw.progress.single_shot(1000, mw.reset)
             return
 
@@ -647,23 +654,30 @@ html {{ {font} }}
         self.setSizePolicy(sp)
         self.hide()
 
-    def inject_dynamic_style_and_show(self) -> None:
-        "Add dynamic styling, and reveal."
+    def add_dynamic_css_and_classes_then_show(self) -> None:
+        "Add dynamic styling, set platform-specific body classes and reveal."
         css = self.standard_css()
+        body_classes = theme_manager.body_class().split(" ")
 
-        def after_style(arg: Any) -> None:
+        def after_injection(arg: Any) -> None:
             gui_hooks.webview_did_inject_style_into_page(self)
             self.show()
 
+        if theme_manager.night_mode:
+            night_mode = 'document.documentElement.classList.add("night-mode");'
+        else:
+            night_mode = ""
         self.evalWithCallback(
             f"""
 (function(){{
     const style = document.createElement('style');
     style.innerHTML = `{css}`;
     document.head.appendChild(style);
+    document.body.classList.add({", ".join([f'"{c}"' for c in body_classes])});
+    {night_mode}
 }})();
 """,
-            after_style,
+            after_injection,
         )
 
     def load_ts_page(self, name: str) -> None:
@@ -674,10 +688,8 @@ html {{ {font} }}
             extra = "#night"
         else:
             extra = ""
-        self.hide_while_preserving_layout()
-        self.setZoomFactor(1)
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
-        self.inject_dynamic_style_and_show()
+        self.add_dynamic_css_and_classes_then_show()
 
     def force_load_hack(self) -> None:
         """Force process to initialize.

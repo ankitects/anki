@@ -5,24 +5,15 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import * as tr from "@tslib/ftl";
+import { localizedNumber } from "@tslib/i18n";
+import type { Stats } from "@tslib/proto";
+import { timeSpan } from "@tslib/time";
 import type { Bin } from "d3";
-import {
-    extent,
-    histogram,
-    interpolateBlues,
-    mean,
-    quantile,
-    scaleLinear,
-    scaleSequential,
-    sum,
-} from "d3";
+import { bin, extent, interpolateBlues, mean, quantile, scaleLinear, scaleSequential, sum } from "d3";
 
-import { CardType } from "../lib/cards";
-import * as tr from "../lib/ftl";
-import { localizedNumber } from "../lib/i18n";
-import type { Cards, Stats } from "../lib/proto";
-import { timeSpan } from "../lib/time";
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
+import { numericMap } from "./graph-helpers";
 import type { HistogramData } from "./histogram-graph";
 
 export interface IntervalGraphData {
@@ -37,10 +28,19 @@ export enum IntervalRange {
 }
 
 export function gatherIntervalData(data: Stats.GraphsResponse): IntervalGraphData {
-    const intervals = (data.cards as Cards.Card[])
-        .filter((c) => [CardType.Review, CardType.Relearn].includes(c.ctype))
-        .map((c) => c.interval);
-    return { intervals };
+    // This could be made more efficient - this graph currently expects a flat list of individual intervals which it
+    // uses to calculate a percentile and then converts into a histogram, and the percentile/histogram calculations
+    // in JS are relatively slow.
+    const map = numericMap(data.intervals!.intervals);
+    const totalCards = sum(map, ([_k, v]) => v);
+    const allIntervals: number[] = Array(totalCards);
+    let position = 0;
+    for (const entry of map.entries()) {
+        allIntervals.fill(entry[0], position, position + entry[1]);
+        position += entry[1];
+    }
+    allIntervals.sort((a, b) => a - b);
+    return { intervals: allIntervals };
 }
 
 export function intervalLabel(
@@ -125,7 +125,7 @@ export function prepareIntervalData(
         (niceNecessary ? prescale.nice() : prescale).domain().map(increment),
     );
 
-    const bins = histogram()
+    const bins = bin()
         .domain(scale.domain() as [number, number])
         .thresholds(scale.ticks(desiredBars).flatMap(adjustTicks))(allIntervals);
 
@@ -136,9 +136,7 @@ export function prepareIntervalData(
     }
 
     const adjustedRange = scaleLinear().range([0.7, 0.3]);
-    const colourScale = scaleSequential((n) =>
-        interpolateBlues(adjustedRange(n)!),
-    ).domain([xMax!, xMin!]);
+    const colourScale = scaleSequential((n) => interpolateBlues(adjustedRange(n)!)).domain([xMax!, xMin!]);
 
     function hoverText(
         bin: Bin<number, number>,

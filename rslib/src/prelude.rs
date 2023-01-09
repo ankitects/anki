@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-pub use slog::{debug, Logger};
 pub use snafu::ResultExt;
 
 pub(crate) use crate::types::IntoNewtypeVec;

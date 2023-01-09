@@ -3,5 +3,13 @@
 
 set -e
 
-bazel run yarn -- $*
-./update-licenses.sh
+PATH=../out/extracted/node/bin
+
+../out/extracted/node/bin/yarn $*
+
+cd ..
+
+PATH=out/extracted/node/bin
+./node_modules/.bin/license-checker-rseidelsohn --production --json \
+    --excludePackages anki --relativeLicensePath \
+    --relativeModulePath > ts/licenses.json

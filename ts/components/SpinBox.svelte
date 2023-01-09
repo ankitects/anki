@@ -3,15 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@tslib/ftl";
+    import { isDesktop } from "@tslib/platform";
+
     import IconConstrain from "./IconConstrain.svelte";
-    import { chevronLeft, chevronRight } from "./icons";
+    import { chevronDown, chevronUp } from "./icons";
 
     export let value: number;
     export let step = 1;
     export let min = 1;
     export let max = 9999;
-
-    const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
 
     let input: HTMLInputElement;
     let focused = false;
@@ -67,34 +68,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="spin-box" on:wheel={handleWheel}>
-    <button
-        class="left"
-        disabled={rtl ? value == max : value == min}
-        on:click={() => {
-            input.focus();
-            if (rtl && value < max) {
-                change(step);
-            } else if (value > min) {
-                change(-step);
-            }
-        }}
-        on:mousedown={() =>
-            longPress(() => {
-                if (rtl && value < max) {
-                    change(step);
-                } else if (value > min) {
-                    change(-step);
-                }
-            })}
-        on:mouseup={() => {
-            clearTimeout(pressTimer);
-            pressed = false;
-        }}
-    >
-        <IconConstrain>
-            {@html chevronLeft}
-        </IconConstrain>
-    </button>
     <input
         type="number"
         pattern="[0-9]*"
@@ -108,83 +81,101 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:focusin={() => (focused = true)}
         on:focusout={() => (focused = false)}
     />
-    <button
-        class="right"
-        disabled={rtl ? value == min : value == max}
-        on:click={() => {
-            input.focus();
-            if (rtl && value > min) {
-                change(-step);
-            } else if (value < max) {
-                change(step);
-            }
-        }}
-        on:mousedown={() =>
-            longPress(() => {
-                if (rtl && value > min) {
+    {#if isDesktop()}
+        <div
+            class="spinner decrement"
+            class:active={value > min}
+            tabindex="-1"
+            title={tr.actionsDecrementValue()}
+            on:click={() => {
+                input.focus();
+                if (value > min) {
                     change(-step);
-                } else if (value < max) {
+                }
+            }}
+            on:mousedown={() =>
+                longPress(() => {
+                    if (value > min) {
+                        change(-step);
+                    }
+                })}
+            on:mouseup={() => {
+                clearTimeout(pressTimer);
+                pressed = false;
+            }}
+        >
+            <IconConstrain>
+                {@html chevronDown}
+            </IconConstrain>
+        </div>
+        <div
+            class="spinner increment"
+            class:active={value < max}
+            tabindex="-1"
+            title={tr.actionsIncrementValue()}
+            on:click={() => {
+                input.focus();
+                if (value < max) {
                     change(step);
                 }
-            })}
-        on:mouseup={() => {
-            clearTimeout(pressTimer);
-            pressed = false;
-        }}
-    >
-        <IconConstrain>
-            {@html chevronRight}
-        </IconConstrain>
-    </button>
+            }}
+            on:mousedown={() =>
+                longPress(() => {
+                    if (value < max) {
+                        change(step);
+                    }
+                })}
+            on:mouseup={() => {
+                clearTimeout(pressTimer);
+                pressed = false;
+            }}
+        >
+            <IconConstrain>
+                {@html chevronUp}
+            </IconConstrain>
+        </div>
+    {/if}
 </div>
 
 <style lang="scss">
-    @use "sass/button-mixins" as button;
-
     .spin-box {
         width: 100%;
+        background: var(--canvas-inset);
         border: 1px solid var(--border);
         border-radius: var(--border-radius);
         overflow: hidden;
         position: relative;
+        display: flex;
+        justify-content: space-between;
 
         input {
-            width: 100%;
-            padding: 0.2rem 1.5rem 0.2rem 0.75rem;
-            background: var(--canvas-elevated);
-            color: var(--fg);
+            flex-grow: 1;
             border: none;
             outline: none;
-            text-align: center;
+            background: transparent;
             &::-webkit-inner-spin-button {
                 display: none;
             }
+            padding-left: 0.5em;
+            padding-right: 0.5em;
         }
 
         &:hover,
         &:focus-within {
-            button {
-                opacity: 1;
+            .spinner {
+                opacity: 0.1;
+                &.active {
+                    opacity: 0.4;
+                    cursor: pointer;
+                    &:hover {
+                        opacity: 1;
+                    }
+                }
             }
         }
     }
-    button {
+    .spinner {
         opacity: 0;
-        position: absolute;
-        @include button.base($border: false);
-
-        &.left {
-            top: 0;
-            right: auto;
-            bottom: 0;
-            left: 0;
-            border-right: 1px solid var(--border);
-        }
-        &.right {
-            position: absolute;
-            right: 0;
-            left: auto;
-            border-left: 1px solid var(--border);
-        }
+        height: 100%;
     }
 </style>

@@ -543,6 +543,8 @@ class Reviewer:
             self.showContextMenu()
         elif url.startswith("play:"):
             play_clicked_audio(url, self.card)
+        elif url.startswith("updateToolbar"):
+            self.mw.toolbarWeb.update_background_image()
         else:
             print("unrecognized anki link:", url)
 
@@ -662,11 +664,11 @@ class Reviewer:
 <center id=outer>
 <table id=innertable width=100%% cellspacing=0 cellpadding=0>
 <tr>
-<td align=left valign=top class=stat>
+<td align=start valign=top class=stat>
 <button title="%(editkey)s" onclick="pycmd('edit');">%(edit)s</button></td>
 <td align=center valign=top id=middle>
 </td>
-<td align=right valign=top class=stat>
+<td align=end valign=top class=stat>
 <button title="%(morekey)s" onclick="pycmd('more');">
 %(more)s %(downArrow)s
 <span id=time class=stattxt></span>
@@ -792,20 +794,21 @@ time = %(time)d;
                 due,
             )
 
-        buf = "<center><table cellpading=0 cellspacing=0><tr>"
+        buf = "<center><table cellpadding=0 cellspacing=0><tr>"
         for ease, label in self._answerButtonList():
             buf += but(ease, label)
         buf += "</tr></table>"
         return buf
 
     def _buttonTime(self, i: int, v3_labels: Sequence[str] | None = None) -> str:
-        if not self.mw.col.conf["estTimes"]:
-            return "<div class=spacer></div>"
-        if v3_labels:
-            txt = v3_labels[i - 1]
+        if self.mw.col.conf["estTimes"]:
+            if v3_labels:
+                txt = v3_labels[i - 1]
+            else:
+                txt = self.mw.col.sched.nextIvlStr(self.card, i, True) or ""
+            return f"""<span class="nobold">{txt}</span>"""
         else:
-            txt = self.mw.col.sched.nextIvlStr(self.card, i, True) or "&nbsp;"
-        return f"<span class=nobold>{txt}</span>"
+            return ""
 
     # Leeches
     ##########################################################################

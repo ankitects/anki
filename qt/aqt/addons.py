@@ -407,7 +407,7 @@ class AddonManager:
         force_enable: bool = False,
     ) -> InstallOk | InstallError:
         """Install add-on from path or file-like object. Metadata is read
-        from the manifest file, with keys overriden by supplying a 'manifest'
+        from the manifest file, with keys overridden by supplying a 'manifest'
         dictionary"""
         try:
             zfile = ZipFile(file)
@@ -1550,6 +1550,7 @@ class ConfigEditor(QDialog):
         self.updateHelp()
         self.updateText(self.conf)
         restoreGeom(self, "addonconf")
+        self.form.splitter.setSizes([2 * self.width() // 3, self.width() // 3])
         restoreSplitter(self.form.splitter, "addonconf")
         self.setWindowTitle(
             without_unicode_isolation(
@@ -1574,9 +1575,9 @@ class ConfigEditor(QDialog):
     def updateHelp(self) -> None:
         txt = self.mgr.addonConfigHelp(self.addon)
         if txt:
-            self.form.label.setText(txt)
+            self.form.help.stdHtml(txt, js=[], css=["css/addonconf.css"], context=self)
         else:
-            self.form.scrollArea.setVisible(False)
+            self.form.help.setVisible(False)
 
     def updateText(self, conf: dict[str, Any]) -> None:
         text = json.dumps(
@@ -1601,7 +1602,7 @@ class ConfigEditor(QDialog):
 
     def accept(self) -> None:
         txt = self.form.editor.toPlainText()
-        txt = gui_hooks.addon_config_editor_will_save_json(txt)
+        txt = gui_hooks.addon_config_editor_will_update_json(txt, self.addon)
         try:
             new_conf = json.loads(txt)
             jsonschema.validate(new_conf, self.mgr._addon_schema(self.addon))

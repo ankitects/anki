@@ -14,7 +14,7 @@ pub(crate) struct CongratsInfo {
 }
 
 impl Collection {
-    pub fn congrats_info(&mut self) -> Result<pb::CongratsInfoResponse> {
+    pub fn congrats_info(&mut self) -> Result<pb::scheduler::CongratsInfoResponse> {
         let deck = self.get_current_deck()?;
         let today = self.timing_today()?.days_elapsed;
         let info = self.storage.congrats_info(&deck, today)?;
@@ -27,7 +27,7 @@ impl Collection {
             ((info.next_learn_due as i64) - self.learn_ahead_secs() as i64 - TimestampSecs::now().0)
                 .max(60) as u32
         };
-        Ok(pb::CongratsInfoResponse {
+        Ok(pb::scheduler::CongratsInfoResponse {
             learn_remaining: info.learn_count,
             review_remaining: info.review_remaining,
             new_remaining: info.new_remaining,
@@ -51,7 +51,7 @@ mod test {
         let info = col.congrats_info().unwrap();
         assert_eq!(
             info,
-            crate::pb::CongratsInfoResponse {
+            crate::pb::scheduler::CongratsInfoResponse {
                 learn_remaining: 0,
                 review_remaining: false,
                 new_remaining: false,

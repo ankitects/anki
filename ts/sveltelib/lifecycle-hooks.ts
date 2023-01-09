@@ -1,10 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import type { Callback } from "@tslib/helpers";
+import { removeItem } from "@tslib/helpers";
 import { onDestroy as svelteOnDestroy, onMount as svelteOnMount } from "svelte";
-
-import type { Callback } from "../lib/helpers";
-import { removeItem } from "../lib/helpers";
 
 type ComponentAPIMount<T> = (api: T) => Callback | void;
 type ComponentAPIDestroy<T> = (api: T) => void;

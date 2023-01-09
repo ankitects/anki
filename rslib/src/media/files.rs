@@ -11,7 +11,8 @@ use std::{
 
 use lazy_static::lazy_static;
 use regex::Regex;
-use sha1::Sha1;
+use sha1::{Digest, Sha1};
+use tracing::debug;
 use unic_ucd_category::GeneralCategory;
 use unicode_normalization::{is_nfc, UnicodeNormalization};
 
@@ -255,7 +256,7 @@ fn split_and_truncate_filename(fname: &str, max_bytes: usize) -> (&str, &str) {
 }
 
 /// Return a substring on a valid UTF8 boundary.
-/// Based on a funtion in the Rust stdlib.
+/// Based on a function in the Rust stdlib.
 fn truncated_to_char_boundary(s: &str, mut max: usize) -> &str {
     if max >= s.len() {
         s
@@ -286,7 +287,7 @@ pub(crate) fn sha1_of_file(path: &Path) -> Result<Sha1Hash, FileIoError> {
 }
 
 /// Return the SHA1 of a stream.
-pub(crate) fn sha1_of_reader(reader: &mut impl Read) -> std::io::Result<Sha1Hash> {
+pub(crate) fn sha1_of_reader(reader: &mut impl Read) -> io::Result<Sha1Hash> {
     let mut hasher = Sha1::new();
     let mut buf = [0; 64 * 1024];
     loop {
@@ -297,14 +298,14 @@ pub(crate) fn sha1_of_reader(reader: &mut impl Read) -> std::io::Result<Sha1Hash
             Err(e) => return Err(e),
         };
     }
-    Ok(hasher.digest().bytes())
+    Ok(hasher.finalize().into())
 }
 
 /// Return the SHA1 of provided data.
 pub(crate) fn sha1_of_data(data: &[u8]) -> Sha1Hash {
     let mut hasher = Sha1::new();
     hasher.update(data);
-    hasher.digest().bytes()
+    hasher.finalize().into()
 }
 
 pub(super) fn mtime_as_i64<P: AsRef<Path>>(path: P) -> io::Result<i64> {
@@ -348,7 +349,13 @@ where
             .duration_since(time::UNIX_EPOCH)
             .unwrap()
             .as_secs() as i64;
-        utime::set_file_times(&dst_path, secs, secs)?;
+        if let Err(err) = utime::set_file_times(&dst_path, secs, secs) {
+            // The libc utimes() call fails on (some? all?) Android devices. Since we don't
+            // do automatic expiry yet, we can safely ignore the error.
+            if !cfg!(target_os = "android") {
+                return Err(err.into());
+            }
+        }
     }
 
     Ok(())
@@ -383,7 +390,6 @@ pub(super) fn add_file_from_ankiweb(
     media_folder: &Path,
     fname: &str,
     data: &[u8],
-    log: &Logger,
 ) -> Result<AddedFile> {
     let sha1 = sha1_of_data(data);
     let normalized = normalize_filename(fname);
@@ -391,13 +397,17 @@ pub(super) fn add_file_from_ankiweb(
     // if the filename is already valid, we can write the file directly
     let (renamed_from, path) = if let Cow::Borrowed(_) = normalized {
         let path = media_folder.join(normalized.as_ref());
-        debug!(log, "write"; "fname" => normalized.as_ref());
+        debug!(fname = normalized.as_ref(), "write");
         write_file(&path, data)?;
         (None, path)
     } else {
         // ankiweb sent us a non-normalized filename, so we'll rename it
         let new_name = add_data_to_folder_uniquely(media_folder, fname, data, sha1)?;
-        debug!(log, "non-normalized filename received"; "fname"=>&fname, "rename_to"=>new_name.as_ref());
+        debug!(
+            fname,
+            rename_to = new_name.as_ref(),
+            "non-normalized filename received"
+        );
         (
             Some(fname.to_string()),
             media_folder.join(new_name.as_ref()),

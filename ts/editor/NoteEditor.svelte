@@ -21,7 +21,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         toolbar: EditorToolbarAPI;
     }
 
-    import { registerPackage } from "../lib/runtime-require";
+    import { registerPackage } from "@tslib/runtime-require";
+
     import contextProperty from "../sveltelib/context-property";
     import lifecycleHooks from "../sveltelib/lifecycle-hooks";
 
@@ -39,6 +40,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { bridgeCommand } from "@tslib/bridgecommand";
+    import * as tr from "@tslib/ftl";
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
 
@@ -48,7 +51,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Pane from "../components/Pane.svelte";
     import PaneContent from "../components/PaneContent.svelte";
     import { ResizablePane } from "../components/types";
-    import { bridgeCommand } from "../lib/bridgecommand";
     import { TagEditor } from "../tag-editor";
     import TagAddButton from "../tag-editor/tag-options-button/TagAddButton.svelte";
     import { ChangeTimer } from "./change-timer";
@@ -57,7 +59,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import EditorToolbar from "./editor-toolbar";
     import type { FieldData } from "./EditorField.svelte";
     import EditorField from "./EditorField.svelte";
-    import FieldDescription from "./FieldDescription.svelte";
     import Fields from "./Fields.svelte";
     import { alertIcon } from "./icons";
     import ImageOverlay from "./image-overlay";
@@ -70,6 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
     import SymbolsOverlay from "./symbols-overlay";
+    import type { SessionOptions } from "./types";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -79,8 +81,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return fontFamily;
     }
 
-    const size = 1.5;
+    const size = 1.6;
     const wrap = true;
+
+    const sessionOptions: SessionOptions = {};
+    export function saveSession(): void {
+        if (notetypeId) {
+            sessionOptions[notetypeId] = {
+                fieldsCollapsed,
+                fieldStates: {
+                    richTextsHidden,
+                    plainTextsHidden,
+                    plainTextDefaults,
+                },
+            };
+        }
+    }
 
     const fieldStores: Writable<string>[] = [];
     let fieldNames: string[] = [];
@@ -118,18 +134,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let fieldsCollapsed: boolean[] = [];
-    export function setCollapsed(fs: boolean[]): void {
-        fieldsCollapsed = fs;
+    export function setCollapsed(defaultCollapsed: boolean[]): void {
+        fieldsCollapsed =
+            sessionOptions[notetypeId!]?.fieldsCollapsed ?? defaultCollapsed;
     }
 
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
     let plainTextDefaults: boolean[] = [];
 
-    export function setPlainTexts(fs: boolean[]): void {
-        richTextsHidden = fs;
-        plainTextsHidden = Array.from(fs, (v) => !v);
-        plainTextDefaults = [...richTextsHidden];
+    export function setPlainTexts(defaultPlainTexts: boolean[]): void {
+        const states = sessionOptions[notetypeId!]?.fieldStates;
+        if (states) {
+            richTextsHidden = states.richTextsHidden;
+            plainTextsHidden = states.plainTextsHidden;
+            plainTextDefaults = states.plainTextDefaults;
+        } else {
+            plainTextDefaults = defaultPlainTexts;
+            richTextsHidden = defaultPlainTexts;
+            plainTextsHidden = Array.from(defaultPlainTexts, (v) => !v);
+        }
     }
 
     function setMathjaxEnabled(enabled: boolean): void {
@@ -137,8 +161,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let fieldDescriptions: string[] = [];
-    export function setDescriptions(fs: string[]): void {
-        fieldDescriptions = fs;
+    export function setDescriptions(descriptions: string[]): void {
+        fieldDescriptions = descriptions;
     }
 
     let fonts: [string, number, boolean][] = [];
@@ -184,6 +208,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             pi.api.codeMirror.editor.then((editor) => editor.clearHistory());
         }
         noteId = ntid;
+    }
+
+    let notetypeId: number | null = null;
+    export function setNotetypeId(mid: number): void {
+        notetypeId = mid;
     }
 
     let insertSymbols = false;
@@ -280,8 +309,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $closeHTMLTags = closeTags;
     }
 
+    import { wrapInternal } from "@tslib/wrap";
+
     import { mathjaxConfig } from "../editable/mathjax-element";
-    import { wrapInternal } from "../lib/wrap";
     import { refocusInput } from "./helpers";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
@@ -297,6 +327,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         Object.assign(globalThis, {
+            saveSession,
             setFields,
             setCollapsed,
             setPlainTexts,
@@ -311,6 +342,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             focusIfField,
             getNoteId,
             setNoteId,
+            setNotetypeId,
             wrap,
             setMathjaxEnabled,
             setInsertSymbolsEnabled,
@@ -382,7 +414,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 Serves as a pre-slotted convenience component which combines all the common
 components and functionality for general note editing.
 
-Functionality exclusive to specifc note-editing views (e.g. in the browser or
+Functionality exclusive to specific note-editing views (e.g. in the browser or
 the AddCards dialog) should be implemented in the user of this component.
 -->
 <div class="note-editor" bind:clientHeight>
@@ -437,6 +469,8 @@ the AddCards dialog) should be implemented in the user of this component.
                         }}
                         collapsed={fieldsCollapsed[index]}
                         dupe={cols[index] === "dupe"}
+                        --description-font-size="{field.fontSize}px"
+                        --description-content={`"${field.description}"`}
                     >
                         <svelte:fragment slot="field-label">
                             <LabelContainer
@@ -456,6 +490,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                         richTextsHidden[index] = true;
                                     }
                                 }}
+                                --icon-align="bottom"
                             >
                                 <svelte:fragment slot="field-name">
                                     <LabelName>
@@ -524,11 +559,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                         $focusedInput = null;
                                     }}
                                     bind:this={richTextInputs[index]}
-                                >
-                                    <FieldDescription>
-                                        {field.description}
-                                    </FieldDescription>
-                                </RichTextInput>
+                                />
                             </Collapsible>
                         </svelte:fragment>
                         <svelte:fragment slot="plain-text-input">
@@ -562,7 +593,9 @@ the AddCards dialog) should be implemented in the user of this component.
     <HorizontalResizer
         panes={[fieldsPane, tagsPane]}
         showIndicator={$tagsCollapsed || snapTags}
-        tip={`Double click to ${$tagsCollapsed ? "expand" : "collapse"} tag editor`}
+        tip={$tagsCollapsed
+            ? tr.editingDoubleClickToExpand()
+            : tr.editingDoubleClickToCollapse()}
         {clientHeight}
         bind:this={lowerResizer}
         on:dblclick={() => snapResizer(!$tagsCollapsed)}
@@ -577,7 +610,7 @@ the AddCards dialog) should be implemented in the user of this component.
                 }}
                 keyCombination="Control+Shift+T"
             >
-                {@html tagAmount > 0 ? `${tagAmount} Tags` : ""}
+                {@html tagAmount > 0 ? `${tagAmount} ${tr.editingTags()}` : ""}
             </TagAddButton>
         </div>
     </HorizontalResizer>

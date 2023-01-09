@@ -3,10 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr2 from "@tslib/ftl";
+    import type { Stats } from "@tslib/proto";
     import { createEventDispatcher } from "svelte";
 
-    import * as tr2 from "../lib/ftl";
-    import type { Stats } from "../lib/proto";
     import type { PreferenceStore } from "../sveltelib/preferences";
     import type { GraphData, TableDatum } from "./card-counts";
     import { gatherData, renderCards } from "./card-counts";
@@ -48,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </InputBox>
 
     <div class="counts-outer">
-        <div class="svg-container" width={bounds.width} height={bounds.height}>
+        <div class="svg-container">
             <svg
                 bind:this={svg}
                 viewBox={`0 0 ${bounds.width} ${bounds.height}`}
@@ -87,13 +87,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     svg {
-        transition: opacity 1s;
+        transition: opacity var(--transition-slow);
     }
 
     .counts-outer {
         display: flex;
         justify-content: center;
         margin: 0 4vw;
+        flex-wrap: wrap;
+        flex: 1;
 
         .svg-container {
             width: 225px;
@@ -116,27 +118,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         text-align: right;
                     }
                 }
-            }
-        }
-    }
-
-    /* On narrow devices, stack graph and table in a column */
-    @media only screen and (max-width: 600px) {
-        .counts-outer {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-
-            .svg-container {
-                width: 180px;
-
-                svg {
-                    margin-left: 4vw;
-                }
-            }
-
-            .counts-table table td {
-                padding: 0 min(6vw, 30px);
             }
         }
     }

@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@tslib/ftl";
     import { cloneDeep, isEqual as isEqualLodash } from "lodash-es";
     import { getContext } from "svelte";
 
@@ -11,7 +12,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DropdownItem from "../components/DropdownItem.svelte";
     import Popover from "../components/Popover.svelte";
     import WithFloating from "../components/WithFloating.svelte";
-    import * as tr from "../lib/ftl";
     import { revertIcon } from "./icons";
 
     type T = unknown;

@@ -3,10 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { createEventDispatcher, onMount, tick } from "svelte";
+    import { createEventDispatcher, getContext, onMount, tick } from "svelte";
 
-    import { isArrowLeft, isArrowRight } from "../lib/keys";
-    import { registerShortcut } from "../lib/shortcuts";
+    import { tagActionsShortcutsKey } from "@tslib/context-keys";
+    import { isArrowLeft, isArrowRight } from "@tslib/keys";
+    import { registerShortcut } from "@tslib/shortcuts";
     import {
         delimChar,
         normalizeTagname,
@@ -234,8 +235,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    const { selectAllShortcut } =
+        getContext<Record<string, string>>(tagActionsShortcutsKey);
+
     onMount(() => {
-        registerShortcut(onSelectAll, "Control+A", { target: input });
+        registerShortcut(onSelectAll, selectAllShortcut, { target: input });
         input.focus();
     });
 </script>
@@ -267,7 +271,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         resize: none;
         appearance: none;
         font: inherit;
-        font-size: var(--base-font-size);
+        font-size: var(--font-size);
         outline: none;
         border: none;
         margin: 0;
@@ -276,6 +280,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .tag-input {
         /* recreates positioning of Tag component
          * so that the text does not move when accepting */
-        border-left: 1px solid transparent;
+        border: 1px solid transparent !important;
     }
 </style>

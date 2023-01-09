@@ -1,10 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { on } from "@tslib/events";
 import type { Writable } from "svelte/store";
 import { writable } from "svelte/store";
 
-import { on } from "../lib/events";
 import storeSubscribe from "./store-subscribe";
 
 const config = {

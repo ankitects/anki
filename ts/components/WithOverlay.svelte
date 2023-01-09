@@ -3,12 +3,17 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { FloatingElement } from "@floating-ui/dom";
-    import { createEventDispatcher } from "svelte";
+    import type {
+        FloatingElement,
+        Placement,
+        ReferenceElement,
+    } from "@floating-ui/dom";
+    import type { Callback } from "@tslib/typing";
+    import { singleCallback } from "@tslib/typing";
+    import { createEventDispatcher, setContext } from "svelte";
     import type { ActionReturn } from "svelte/action";
+    import { writable } from "svelte/store";
 
-    import type { Callback } from "../lib/typing";
-    import { singleCallback } from "../lib/typing";
     import isClosingClick from "../sveltelib/closing-click";
     import isClosingKeyup from "../sveltelib/closing-keyup";
     import type { EventPredicateResult } from "../sveltelib/event-predicate";
@@ -18,6 +23,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { PositionAlgorithm } from "../sveltelib/position/position-algorithm";
     import positionOverlay from "../sveltelib/position/position-overlay";
     import subscribeToUpdates from "../sveltelib/subscribe-updates";
+    import { overlayKey } from "./context-keys";
+
+    /* Used by Popover to set animation direction depending on placement */
+    const placementPromise = writable(undefined as Promise<Placement> | undefined);
+    setContext(overlayKey, placementPromise);
 
     export let padding = 0;
     export let inline = false;
@@ -50,8 +60,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reference: HTMLElement,
         floating: FloatingElement,
         position: PositionAlgorithm,
-    ): Promise<void> {
-        return position(reference, floating);
+    ): Promise<Placement> {
+        const promise = position(reference, floating);
+        $placementPromise = promise;
+        return promise;
     }
 
     async function position(
@@ -59,8 +71,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             reference: HTMLElement,
             floating: FloatingElement,
             position: PositionAlgorithm,
-        ) => Promise<void> = applyPosition,
-    ): Promise<void> {
+        ) => Promise<Placement> = applyPosition,
+    ): Promise<Placement | void> {
         if (reference && floating) {
             return callback(reference, floating, positionCurried);
         }
@@ -71,13 +83,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function positioningCallback(
-        reference: HTMLElement,
+        reference: ReferenceElement,
         callback: PositioningCallback,
     ): Callback {
         const innerFloating = floating;
-        return callback(reference, innerFloating, () =>
-            positionCurried(reference, innerFloating),
-        );
+        return callback(reference, innerFloating, () => {
+            $placementPromise = positionCurried(reference, innerFloating);
+        });
     }
 
     let cleanup: Callback;
@@ -147,15 +159,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    @use "sass/elevation" as elevation;
-
     .overlay {
         position: absolute;
-        border-radius: 5px;
+        border-radius: var(--border-radius);
 
         z-index: 40;
-        &.show {
-            @include elevation.elevation(5);
-        }
     }
 </style>

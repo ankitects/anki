@@ -9,16 +9,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { on } from "@tslib/events";
+    import * as tr from "@tslib/ftl";
+    import { removeStyleProperties } from "@tslib/styling";
+    import type { Callback } from "@tslib/typing";
     import { tick } from "svelte";
 
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
     import WithOverlay from "../../components/WithOverlay.svelte";
-    import { on } from "../../lib/events";
-    import * as tr from "../../lib/ftl";
-    import { removeStyleProperties } from "../../lib/styling";
-    import type { Callback } from "../../lib/typing";
     import type { EditingInputAPI } from "../EditingArea.svelte";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
@@ -94,13 +94,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 `${maxHeight}px`,
             );
         } else {
-            document.documentElement.style.setProperty(
-                "--editor-default-max-width",
-                "inherit",
-            );
-            document.documentElement.style.setProperty(
+            document.documentElement.style.removeProperty("--editor-default-max-width");
+            document.documentElement.style.removeProperty(
                 "--editor-default-max-height",
-                "inherit",
             );
         }
     }
@@ -266,7 +262,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <WithOverlay reference={activeImage} inline let:position={positionOverlay}>
             <WithFloating
                 reference={activeImage}
-                placement="auto"
                 offset={20}
                 inline
                 hideIfReferenceHidden
@@ -325,7 +320,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                 <HandleLabel>
                     {#if isSizeConstrained}
-                        <span>{tr.editingDoubleClickToExpand()}</span>
+                        <span>{`(${tr.editingDoubleClickToExpand()})`}</span>
                     {:else}
                         <span>{actualWidth}&times;{actualHeight}</span>
                         {#if customDimensions}

@@ -41,7 +41,7 @@ class NewDeckStats(QDialog):
         f.setupUi(self)
         f.groupBox.setVisible(False)
         f.groupBox_2.setVisible(False)
-        restoreGeom(self, self.name)
+        restoreGeom(self, self.name, default_size=(800, 800))
         b = f.buttonBox.addButton(
             tr.statistics_save_pdf(), QDialogButtonBox.ButtonRole.ActionRole
         )
@@ -50,6 +50,7 @@ class NewDeckStats(QDialog):
         maybeHideClose(self.form.buttonBox)
         addCloseShortcut(self)
         gui_hooks.stats_dialog_will_show(self)
+        self.form.web.hide_while_preserving_layout()
         self.show()
         self.refresh()
         self.form.web.set_bridge_command(self._on_bridge_cmd, self)

@@ -1,5 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from anki.utils import is_win
 from aqt import colors, props
 from aqt.theme import ThemeManager
 
@@ -83,8 +85,7 @@ QMenu::item {{
     margin-bottom: 4px;
 }}
 QMenu::item:selected {{
-    background-color: {tm.var(colors.CANVAS_INSET)};
-    color: {tm.var(colors.HIGHLIGHT_FG)};
+    background-color: {tm.var(colors.HIGHLIGHT_BG)};
     border-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QMenu::separator {{
@@ -101,19 +102,24 @@ QMenu::indicator {{
 
 
 def button_styles(tm: ThemeManager) -> str:
+    # For some reason, Windows needs a larger padding to look the same
+    button_pad = 25 if is_win else 15
     return f"""
-QPushButton {{
-    min-width: 75px;
-}}
+QPushButton {{ padding-left: {button_pad}px; padding-right: {button_pad}px; }}
 QPushButton,
 QTabBar::tab:!selected,
-QComboBox:!editable {{
+QComboBox:!editable,
+QComboBox::drop-down:editable,
+QSpinBox::up-button,
+QSpinBox::down-button {{
     background: {tm.var(colors.BUTTON_BG)};
     border-bottom: 1px solid {tm.var(colors.SHADOW)};
 }}
 QPushButton:hover,
 QTabBar::tab:hover,
-QComboBox:!editable:hover {{
+QComboBox:!editable:hover,
+QSpinBox::up-button,
+QSpinBox::down-button {{
     background: {
         button_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
@@ -122,8 +128,8 @@ QComboBox:!editable:hover {{
     };
 }}
 QPushButton:pressed,
-QComboBox:!editable:pressed {{
-    border: 1px solid {tm.var(colors.BORDER_STRONG)};
+QSpinBox::up-button,
+QSpinBox::down-button {{
     background: {
         button_pressed_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
@@ -157,6 +163,9 @@ def combobox_styles(tm: ThemeManager) -> str:
 QComboBox {{
     padding: {"1px 6px 2px 4px" if tm.rtl() else "1px 4px 2px 6px"};
 }}
+QComboBox:focus {{
+    border-color: {tm.var(colors.BORDER_FOCUS)};
+}}
 QComboBox:editable:on,
 QComboBox:editable:focus,
 QComboBox::drop-down:focus:editable,
@@ -181,30 +190,30 @@ QComboBox::item::icon:selected {{
     position: absolute;
 }}
 QComboBox::drop-down {{
-    margin: -1px;
-    subcontrol-origin: padding;
+    subcontrol-origin: border;
     padding: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
     width: 16px;
     subcontrol-position: top right;
     border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
     border-top-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
     border-bottom-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
 }}
+QComboBox::drop-down:!editable {{
+    background: none;
+    border-color: transparent;
+}}
 QComboBox::down-arrow {{
     image: url({tm.themed_icon("mdi:chevron-down")});
 }}
-QComboBox::drop-down {{
-    background: {tm.var(colors.BUTTON_BG)};
-    border-bottom: 1px solid {tm.var(colors.SHADOW)};
-}}
-QComboBox::drop-down:hover {{
+QComboBox::drop-down:hover:editable {{
     background: {
         button_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
             tm.var(colors.BUTTON_GRADIENT_END),
         )
     };
-    border-bottom: 1px solid {tm.var(colors.SHADOW)};
 }}
     """
 
@@ -286,7 +295,6 @@ QHeaderView::section:first {{
 }}
 QHeaderView::section:pressed,
 QHeaderView::section:pressed:!first {{
-    border: 1px solid {tm.var(colors.BORDER_STRONG)};
     background: {
         button_pressed_gradient(
             tm.var(colors.BUTTON_GRADIENT_START),
@@ -341,28 +349,6 @@ QSpinBox::up-button,
 QSpinBox::down-button {{
     subcontrol-origin: border;
     width: 16px;
-    border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-    background: {tm.var(colors.BUTTON_BG)};
-}}
-QSpinBox::up-button:pressed,
-QSpinBox::down-button:pressed {{
-    border: 1px solid {tm.var(colors.BORDER_STRONG)};
-    background: {
-        button_pressed_gradient(
-            tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END),
-            tm.var(colors.SHADOW)
-        )
-    }
-}}
-QSpinBox::up-button:hover,
-QSpinBox::down-button:hover {{
-    background: {
-        button_gradient(
-            tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END),
-        )
-    };
 }}
 QSpinBox::up-button {{
     margin-bottom: -1px;

@@ -1,7 +1,7 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use "root-vars";
+@use "sass/root-vars";
 @use "sass/vars" as *;
 @use "sass/card-counts";
 
@@ -18,10 +18,6 @@ body {
     padding: 0;
 }
 
-#innertable {
-    padding-top: 10px;
-}
-
 #middle td[align="center"] {
     padding-top: 10px;
     position: relative;
@@ -30,7 +26,7 @@ body {
 button {
     min-width: 60px;
     white-space: nowrap;
-    margin: 0.5em;
+    margin: 9px;
     position: relative;
 }
 
@@ -51,10 +47,6 @@ button {
     font-weight: normal;
 }
 
-#ansbut {
-    margin-bottom: 1em;
-}
-
 :focus {
     border-color: color(border-focus);
 }
@@ -63,7 +55,7 @@ button {
 .stattxt {
     position: absolute;
     white-space: nowrap;
-    font-size: medium;
+    font-size: small;
     top: -3px;
     left: 50%;
     transform: translate(-50%, -100%);

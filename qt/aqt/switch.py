@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from typing import cast
 
-from aqt import colors
+from aqt import colors, props
 from aqt.qt import *
 from aqt.theme import theme_manager
 
@@ -35,7 +35,7 @@ class Switch(QAbstractButton):
         self._knob_radius = radius - 2
         self._label_padding = 4
         self._left_knob_position = self._position = radius
-        self._right_knob_position = self.width - self._path_radius
+        self._right_knob_position = self.width() - self._path_radius
         self._left_label_position = self._label_padding / 2
         self._right_label_position = 2 * self._knob_radius
         self._hide_label: bool = False
@@ -84,18 +84,16 @@ class Switch(QAbstractButton):
             + 2 * self._label_padding
         )
 
-    @property
     def width(self) -> int:
         return self.label_width + 2 * self._path_radius
 
-    @property
     def height(self) -> int:
         return 2 * self._path_radius
 
     def sizeHint(self) -> QSize:
         return QSize(
-            self.width,
-            self.height,
+            self.width(),
+            self.height(),
         )
 
     def setChecked(self, checked: bool) -> None:
@@ -116,8 +114,8 @@ class Switch(QAbstractButton):
         return QRectF(
             0,
             0,
-            self.width,
-            self.height,
+            self.width(),
+            self.height(),
         )
 
     def _current_label_rectangle(self) -> QRectF:
@@ -127,7 +125,7 @@ class Switch(QAbstractButton):
             else self._right_label_position,
             0,
             self.label_width,
-            self.height,
+            self.height(),
         )
 
     def _current_knob_rectangle(self) -> QRectF:
@@ -175,7 +173,7 @@ class Switch(QAbstractButton):
 
     def _animate_toggle(self) -> None:
         animation = QPropertyAnimation(self, cast(QByteArray, b"position"), self)
-        animation.setDuration(100)
+        animation.setDuration(int(theme_manager.var(props.TRANSITION)))
         animation.setStartValue(self.start_position)
         animation.setEndValue(self.end_position)
         # hide label during animation

@@ -8,9 +8,7 @@ Parse and re-serialize ftl files to get them in a consistent form.
 
 import difflib
 import glob
-import json
 import os
-import sys
 from typing import List
 
 from compare_locales import parser

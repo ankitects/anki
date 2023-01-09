@@ -123,14 +123,14 @@ impl ExchangeData {
     }
 
     fn check_ids(&self) -> Result<()> {
-        let now = TimestampMillis::now().0;
+        let tomorrow = TimestampMillis::now().adding_secs(86_400).0;
         if self
             .cards
             .iter()
             .map(|card| card.id.0)
             .chain(self.notes.iter().map(|note| note.id.0))
             .chain(self.revlog.iter().map(|entry| entry.id.0))
-            .any(|timestamp| timestamp > now)
+            .any(|timestamp| timestamp > tomorrow)
         {
             Err(AnkiError::InvalidId)
         } else {

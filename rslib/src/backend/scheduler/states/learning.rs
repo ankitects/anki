@@ -3,8 +3,8 @@
 
 use crate::{pb, scheduler::states::LearnState};
 
-impl From<pb::scheduling_state::Learning> for LearnState {
-    fn from(state: pb::scheduling_state::Learning) -> Self {
+impl From<pb::scheduler::scheduling_state::Learning> for LearnState {
+    fn from(state: pb::scheduler::scheduling_state::Learning) -> Self {
         LearnState {
             remaining_steps: state.remaining_steps,
             scheduled_secs: state.scheduled_secs,
@@ -12,9 +12,9 @@ impl From<pb::scheduling_state::Learning> for LearnState {
     }
 }
 
-impl From<LearnState> for pb::scheduling_state::Learning {
+impl From<LearnState> for pb::scheduler::scheduling_state::Learning {
     fn from(state: LearnState) -> Self {
-        pb::scheduling_state::Learning {
+        pb::scheduler::scheduling_state::Learning {
             remaining_steps: state.remaining_steps,
             scheduled_secs: state.scheduled_secs,
         }

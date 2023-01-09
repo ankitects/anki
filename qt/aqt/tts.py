@@ -555,7 +555,7 @@ if is_win:
             import winrt.windows.media.speechsynthesis as speechsynthesis  # type: ignore
 
             try:
-                self.voice_list = speechsynthesis.SpeechSynthesizer.get_all_voices()
+                self.voice_list = speechsynthesis.SpeechSynthesizer.get_all_voices()  # type: ignore
             except Exception as e:
                 print("winrt tts voices unavailable:", e)
                 self.voice_list = []
@@ -605,7 +605,7 @@ if is_win:
 
             synthesizer = speechsynthesis.SpeechSynthesizer()
 
-            voices = speechsynthesis.SpeechSynthesizer.get_all_voices()
+            voices = speechsynthesis.SpeechSynthesizer.get_all_voices()  # type: ignore
             voice_match = next(filter(lambda v: v.id == voice_id, voices))
 
             assert voice_match

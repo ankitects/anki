@@ -10,6 +10,7 @@ use std::{
 
 use itertools::Itertools;
 use num_integer::Integer;
+use sha1::{Digest, Sha1};
 
 use crate::{
     cloze::contains_cloze,
@@ -17,7 +18,7 @@ use crate::{
     notetype::{CardGenContext, NoteField},
     ops::StateChanges,
     pb,
-    pb::note_fields_check_response::State as NoteFieldsState,
+    pb::notes::note_fields_check_response::State as NoteFieldsState,
     prelude::*,
     template::field_is_empty,
     text::{ensure_string_in_nfc, normalize_to_nfc, strip_html_preserving_media_filenames},
@@ -168,7 +169,7 @@ impl Note {
 
     /// Prepare note for saving to the database. Does not mark it as modified.
     pub(crate) fn prepare_for_update(&mut self, nt: &Notetype, normalize_text: bool) -> Result<()> {
-        assert!(nt.id == self.notetype_id);
+        assert_eq!(nt.id, self.notetype_id);
         let notetype_field_count = nt.fields.len().max(1);
         require!(
             notetype_field_count == self.fields.len(),
@@ -257,9 +258,9 @@ pub(crate) fn normalize_field(field: &mut String, normalize_text: bool) {
     }
 }
 
-impl From<Note> for pb::Note {
+impl From<Note> for pb::notes::Note {
     fn from(n: Note) -> Self {
-        pb::Note {
+        pb::notes::Note {
             id: n.id.0,
             guid: n.guid,
             notetype_id: n.notetype_id.0,
@@ -271,8 +272,8 @@ impl From<Note> for pb::Note {
     }
 }
 
-impl From<pb::Note> for Note {
-    fn from(n: pb::Note) -> Self {
+impl From<pb::notes::Note> for Note {
+    fn from(n: pb::notes::Note) -> Self {
         Note {
             id: NoteId(n.id),
             guid: n.guid,
@@ -290,7 +291,9 @@ impl From<pb::Note> for Note {
 /// Text must be passed to strip_html_preserving_media_filenames() by
 /// caller prior to passing in here.
 pub(crate) fn field_checksum(text: &str) -> u32 {
-    let digest = sha1::Sha1::from(text).digest().bytes();
+    let mut hash = Sha1::new();
+    hash.update(text);
+    let digest = hash.finalize();
     u32::from_be_bytes(digest[..4].try_into().unwrap())
 }
 

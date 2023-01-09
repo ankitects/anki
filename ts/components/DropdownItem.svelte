@@ -14,13 +14,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let active = false;
     export let disabled = false;
 
+    const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
+
     $: if (buttonRef && active) {
-        setTimeout(() =>
-            buttonRef.scrollIntoView({
-                behavior: "smooth",
-                block: "nearest",
-            }),
-        );
+        buttonRef!.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+        });
     }
 
     export let tabbable = false;
@@ -32,8 +32,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     tabindex={tabbable ? 0 : -1}
     class="dropdown-item {className}"
     class:active
-    class:disabled
+    class:rtl
     title={tooltip}
+    {disabled}
     on:mouseenter
     on:focus
     on:keydown
@@ -48,8 +49,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         justify-content: start;
         width: 100%;
-
-        font-size: var(--dropdown-font-size, calc(0.8 * var(--base-font-size)));
+        padding: 0.25rem 1rem;
+        white-space: nowrap;
+        font-size: var(--dropdown-font-size, small);
 
         background: none;
         box-shadow: none !important;
@@ -57,9 +59,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: 0;
         color: var(--fg);
 
-        &:hover {
+        &:hover:not([disabled]) {
             background: var(--highlight-bg);
             color: var(--highlight-fg);
+        }
+
+        &[disabled] {
+            cursor: default;
+            color: var(--fg-disabled);
+        }
+
+        /* selection highlight */
+        &:not(.rtl) {
+            border-left: 3px solid transparent;
+        }
+        &.rtl {
+            border-right: 3px solid transparent;
+        }
+        &.active {
+            &:not(.rtl) {
+                border-left-color: var(--border-focus);
+            }
+            &.rtl {
+                border-right-color: var(--border-focus);
+            }
         }
     }
 </style>

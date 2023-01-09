@@ -94,8 +94,6 @@ profileConf: dict[str, Any] = dict(
     lastOptimize=int_time(),
     # editing
     searchHistory=[],
-    lastTextColor="#00f",
-    lastHighlightColor="#00f",
     # syncing
     syncKey=None,
     syncMedia=True,
@@ -117,15 +115,14 @@ class LoadMetaResult:
 
 
 class ProfileManager:
-    def __init__(self, base: str | None = None) -> None:  #
+    def __init__(self, base: Path) -> None:  #
+        "base should be retrieved via ProfileMangager.get_created_base_folder"
         ## Settings which should be forgotten each Anki restart
         self.session: dict[str, Any] = {}
         self.name: str | None = None
         self.db: DB | None = None
         self.profile: dict | None = None
-        # instantiate base folder
-        self.base: str
-        self._setBaseFolder(base)
+        self.base = str(base)
 
     def setupMeta(self) -> LoadMetaResult:
         # load metadata
@@ -145,12 +142,6 @@ class ProfileManager:
                 self.load(profile)
             except TypeError as exc:
                 raise Exception("Provided profile does not exist.") from exc
-
-    # Base creation
-    ######################################################################
-
-    def ensureBaseExists(self) -> None:
-        self._ensureExists(self.base)
 
     # Profile load/save
     ######################################################################
@@ -339,16 +330,19 @@ class ProfileManager:
             os.makedirs(path)
         return path
 
-    def _setBaseFolder(self, cmdlineBase: str | None) -> None:
-        if cmdlineBase:
-            self.base = os.path.abspath(cmdlineBase)
-        elif os.environ.get("ANKI_BASE"):
-            self.base = os.path.abspath(os.environ["ANKI_BASE"])
-        else:
-            self.base = self._defaultBase()
-        self.ensureBaseExists()
+    @staticmethod
+    def get_created_base_folder(path_override: str | None) -> Path:
+        "Create the base folder and return it, using provided path or default."
+        path = Path(
+            path_override
+            or os.environ.get("ANKI_BASE")
+            or ProfileManager._default_base()
+        )
+        path.mkdir(parents=True, exist_ok=True)
+        return path
 
-    def _defaultBase(self) -> str:
+    @staticmethod
+    def _default_base() -> str:
         if is_win:
             from aqt.winpaths import get_appdata
 
@@ -530,6 +524,12 @@ create table if not exists profiles
     def set_reduced_motion(self, on: bool) -> None:
         self.meta["reduced_motion"] = on
 
+    def collapse_toolbar(self) -> bool:
+        return self.meta.get("collapse_toolbar", False)
+
+    def set_collapse_toolbar(self, on: bool) -> None:
+        self.meta["collapse_toolbar"] = on
+
     def last_addon_update_check(self) -> int:
         return self.meta.get("last_addon_update_check", 0)
 
@@ -545,6 +545,12 @@ create table if not exists profiles
 
     def set_theme(self, theme: Theme) -> None:
         self.meta["theme"] = theme.value
+
+    def force_custom_styles(self) -> bool:
+        return self.meta.get("force_custom_styles", False)
+
+    def set_force_custom_styles(self, enabled: bool) -> None:
+        self.meta["force_custom_styles"] = enabled
 
     def browser_layout(self) -> BrowserLayout:
         from aqt.browser.layout import BrowserLayout

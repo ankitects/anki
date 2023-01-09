@@ -15,14 +15,10 @@ export function mergeTooltipAndShortcut(
     return buf;
 }
 
-export const withButton =
-    (f: (button: HTMLButtonElement) => void) =>
-    ({ detail }: CustomEvent): void => {
-        f(detail.button);
-    };
+export const withButton = (f: (button: HTMLButtonElement) => void) => ({ detail }: CustomEvent): void => {
+    f(detail.button);
+};
 
-export const withSpan =
-    (f: (span: HTMLSpanElement) => void) =>
-    ({ detail }: CustomEvent): void => {
-        f(detail.span);
-    };
+export const withSpan = (f: (span: HTMLSpanElement) => void) => ({ detail }: CustomEvent): void => {
+    f(detail.span);
+};

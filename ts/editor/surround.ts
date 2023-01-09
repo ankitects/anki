@@ -1,6 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { getRange, getSelection } from "@tslib/cross-browser";
+import { asyncNoop } from "@tslib/functional";
+import { registerPackage } from "@tslib/runtime-require";
 import type { Readable } from "svelte/store";
 import { derived, get } from "svelte/store";
 
@@ -8,9 +11,6 @@ import type { Matcher } from "../domlib/find-above";
 import { findClosest } from "../domlib/find-above";
 import type { SurroundFormat } from "../domlib/surround";
 import { boolMatcher, reformat, surround, unsurround } from "../domlib/surround";
-import { getRange, getSelection } from "../lib/cross-browser";
-import { asyncNoop } from "../lib/functional";
-import { registerPackage } from "../lib/runtime-require";
 import type { TriggerItem } from "../sveltelib/handler-list";
 import type { InputHandlerAPI } from "../sveltelib/input-handler";
 
@@ -24,8 +24,8 @@ function isSurroundedInner(
     matcher: Matcher,
 ): boolean {
     return Boolean(
-        findClosest(range.startContainer, base, matcher) ||
-            findClosest(range.endContainer, base, matcher),
+        findClosest(range.startContainer, base, matcher)
+            || findClosest(range.endContainer, base, matcher),
     );
 }
 
@@ -359,7 +359,13 @@ export class Surrounder<T = unknown> {
                     return false;
                 }
 
-                const isSurrounded = isSurroundedInner(
+                // This is confusing: when nothing is selected, we only
+                // include currently-active buttons, as otherwise inactive
+                // buttons get toggled on. But when something is selected,
+                // we include everything, since we want to remove formatting
+                // that may be in part of the selection, but not at the start/end.
+
+                const isSurrounded = !range.collapsed || isSurroundedInner(
                     range,
                     base,
                     boolMatcher(format),

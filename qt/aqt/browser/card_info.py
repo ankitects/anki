@@ -48,7 +48,7 @@ class CardInfoDialog(QDialog):
     def _setup_ui(self, card_id: CardId | None) -> None:
         self.mw.garbage_collect_on_dialog_finish(self)
         disable_help_button(self)
-        restoreGeom(self, self.GEOMETRY_KEY)
+        restoreGeom(self, self.GEOMETRY_KEY, default_size=(800, 800))
         addCloseShortcut(self)
         setWindowIcon(self)
 

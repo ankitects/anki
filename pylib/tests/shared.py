@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import os
 import shutil
 import tempfile
@@ -32,21 +34,23 @@ def assertException(exception, func):
 
 # Creating new decks is expensive. Just do it once, and then spin off
 # copies from the master.
+_emptyCol: str | None = None
+
+
 def getEmptyCol():
-    if len(getEmptyCol.master) == 0:
-        (fd, nam) = tempfile.mkstemp(suffix=".anki2")
+    global _emptyCol
+    if not _emptyCol:
+        (fd, path) = tempfile.mkstemp(suffix=".anki2")
         os.close(fd)
-        os.unlink(nam)
-        col = aopen(nam)
+        os.unlink(path)
+        col = aopen(path)
         col.close(downgrade=False)
-        getEmptyCol.master = nam
-    (fd, nam) = tempfile.mkstemp(suffix=".anki2")
-    shutil.copy(getEmptyCol.master, nam)
-    col = aopen(nam)
+        _emptyCol = path
+    (fd, path) = tempfile.mkstemp(suffix=".anki2")
+    shutil.copy(_emptyCol, path)
+    col = aopen(path)
     return col
 
-
-getEmptyCol.master = ""
 
 # Fallback for when the DB needs options passed in.
 def getEmptyDeckWith(**kwargs):

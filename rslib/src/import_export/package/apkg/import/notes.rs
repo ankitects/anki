@@ -8,7 +8,7 @@ use std::{
     sync::Arc,
 };
 
-use sha1::Sha1;
+use sha1::{Digest, Sha1};
 
 use super::{media::MediaUseMap, Context};
 use crate::{
@@ -153,7 +153,7 @@ impl<'n> NoteContext<'n> {
     }
 
     fn add_notetype_with_remapped_id(&mut self, notetype: &mut Notetype) -> Result<()> {
-        let old_id = std::mem::take(&mut notetype.id);
+        let old_id = mem::take(&mut notetype.id);
         notetype.usn = self.usn;
         self.target_col
             .add_notetype_inner(notetype, self.usn, true)?;
@@ -285,7 +285,7 @@ impl Notetype {
         for template in &self.templates {
             hasher.update(template.name.as_bytes());
         }
-        hasher.digest().bytes()
+        hasher.finalize().into()
     }
 }
 

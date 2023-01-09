@@ -89,6 +89,14 @@ The hook code is automatically generated using the definitions in
 pylib/tools/genhooks.py and qt/tools/genhooks_gui.py. Adding a new definition
 in one of those files will update the generated files.
 
+If you want to change an existing hook to, for example, receive an additional
+argument, you must leave the existing hook unchanged to preserve backwards
+compatibility. Create a new definition for your hook with a similar name and
+include the properties `replaces="name_of_old_hook"` and
+`replaced_hook_args=["..."]` in the definition of the new hook. If the old hook
+has a legacy hook, you must not add the legacy hook to the definition of the
+new hook.
+
 ## Translations
 
 For information on adding new translatable strings to Anki, please see
@@ -96,13 +104,13 @@ https://translating.ankiweb.net/anki/developers
 
 ## Tests Must Pass
 
-Please make sure 'bazel test //...' completes successfully before submitting code.
+Please make sure 'ninja check' completes successfully before submitting code.
 You can do this automatically by adding the following into
 .git/hooks/pre-commit or .git/hooks/pre-push and making it executable.
 
 ```sh
 #!/bin/bash
-bazel test //...
+./ninja check
 ```
 
 You may want to explicitly set PATH to your normal shell PATH in that script,

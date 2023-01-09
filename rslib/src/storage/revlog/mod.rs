@@ -12,7 +12,6 @@ use rusqlite::{
 use super::SqliteStorage;
 use crate::{
     error::Result,
-    pb,
     prelude::*,
     revlog::{RevlogEntry, RevlogReviewKind},
 };
@@ -110,16 +109,16 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn get_pb_revlog_entries_for_searched_cards(
+    pub(crate) fn get_revlog_entries_for_searched_cards_after_stamp(
         &self,
         after: TimestampSecs,
-    ) -> Result<Vec<pb::RevlogEntry>> {
+    ) -> Result<Vec<RevlogEntry>> {
         self.db
             .prepare_cached(concat!(
                 include_str!("get.sql"),
                 " where cid in (select cid from search_cids) and id >= ?"
             ))?
-            .query_and_then([after.0 * 1000], |r| row_to_revlog_entry(r).map(Into::into))?
+            .query_and_then([after.0 * 1000], row_to_revlog_entry)?
             .collect()
     }
 
@@ -133,11 +132,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    /// This includes entries from deleted cards.
-    pub(crate) fn get_all_revlog_entries(
-        &self,
-        after: TimestampSecs,
-    ) -> Result<Vec<pb::RevlogEntry>> {
+    pub(crate) fn get_all_revlog_entries(&self, after: TimestampSecs) -> Result<Vec<RevlogEntry>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " where id >= ?"))?
             .query_and_then([after.0 * 1000], |r| row_to_revlog_entry(r).map(Into::into))?

@@ -17,8 +17,8 @@ Name "Anki"
 
 Unicode true
 
-; The file to write
-OutFile "anki-setup.exe"
+; The file to write (make relative to repo root instead of out/bundle)
+OutFile "..\..\@@INSTALLER@@"
 
 ; The default installation directory
 InstallDir "$PROGRAMFILES64\Anki"
@@ -141,7 +141,7 @@ Section ""
 
   ; Add files to installer
   !ifndef WRITE_UNINSTALLER
-  File /r @@SRC@@\*.*
+  File /r ..\..\@@SRC@@\*.*
   !endif
 
   !insertmacro APP_ASSOCIATE "apkg" "anki.apkg" \

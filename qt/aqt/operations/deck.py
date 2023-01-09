@@ -7,8 +7,8 @@ from typing import Sequence
 
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.decks import DeckCollapseScope, DeckDict, DeckId, UpdateDeckConfigs
-from aqt import QWidget
 from aqt.operations import CollectionOp
+from aqt.qt import QWidget
 from aqt.utils import getOnlyText, tooltip, tr
 
 

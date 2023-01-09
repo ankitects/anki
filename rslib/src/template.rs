@@ -78,7 +78,7 @@ fn tokens<'a>(template: &'a str) -> Box<dyn Iterator<Item = TemplateResult<Token
 }
 
 fn new_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> {
-    std::iter::from_fn(move || {
+    iter::from_fn(move || {
         if data.is_empty() {
             return None;
         }
@@ -158,7 +158,7 @@ fn alternate_handlebar_token(s: &str) -> nom::IResult<&str, Token> {
 }
 
 fn legacy_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> {
-    std::iter::from_fn(move || {
+    iter::from_fn(move || {
         if data.is_empty() {
             return None;
         }
@@ -397,10 +397,10 @@ impl ParsedTemplate {
     /// Replacements that use only standard filters will become part of
     /// a text node. If a non-standard filter is encountered, a partially
     /// rendered Replacement is returned for the calling code to complete.
-    fn render(&self, context: &RenderContext, tr: &I18n) -> TemplateResult<Vec<RenderedNode>> {
+    fn render(&self, context: &RenderContext, _tr: &I18n) -> TemplateResult<Vec<RenderedNode>> {
         let mut rendered = vec![];
 
-        render_into(&mut rendered, self.0.as_ref(), context, tr)?;
+        render_into(&mut rendered, self.0.as_ref(), context)?;
 
         Ok(rendered)
     }
@@ -410,7 +410,6 @@ fn render_into(
     rendered_nodes: &mut Vec<RenderedNode>,
     nodes: &[ParsedNode],
     context: &RenderContext,
-    tr: &I18n,
 ) -> TemplateResult<()> {
     use ParsedNode::*;
     for node in nodes {
@@ -479,17 +478,17 @@ fn render_into(
             }
             Conditional { key, children } => {
                 if context.evaluate_conditional(key.as_str(), false)? {
-                    render_into(rendered_nodes, children.as_ref(), context, tr)?;
+                    render_into(rendered_nodes, children.as_ref(), context)?;
                 } else {
                     // keep checking for errors, but discard rendered nodes
-                    render_into(&mut vec![], children.as_ref(), context, tr)?;
+                    render_into(&mut vec![], children.as_ref(), context)?;
                 }
             }
             NegatedConditional { key, children } => {
                 if context.evaluate_conditional(key.as_str(), true)? {
-                    render_into(rendered_nodes, children.as_ref(), context, tr)?;
+                    render_into(rendered_nodes, children.as_ref(), context)?;
                 } else {
-                    render_into(&mut vec![], children.as_ref(), context, tr)?;
+                    render_into(&mut vec![], children.as_ref(), context)?;
                 }
             }
         };

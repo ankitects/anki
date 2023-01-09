@@ -9,8 +9,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let subtitle: string | null = null;
 </script>
 
-<TitledContainer {title}>
-    <div class="graph">
+<TitledContainer class="d-flex flex-column" {title}>
+    <div class="graph d-flex flex-grow-1 flex-column justify-content-center">
         {#if subtitle}
             <div class="subtitle">{subtitle}</div>
         {/if}
@@ -21,8 +21,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     @use "sass/elevation" as *;
     .graph {
-        page-break-inside: avoid;
-
         /* See graph-styles.ts for constants referencing global styles */
         :global(.graph-element-clickable) {
             cursor: pointer;

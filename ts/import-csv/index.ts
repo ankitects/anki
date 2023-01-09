@@ -1,16 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import "./import-csv-base.css";
+import "./import-csv-base.scss";
 
-import { ModuleName, setupI18n } from "../lib/i18n";
-import { checkNightMode } from "../lib/nightmode";
-import {
-    Decks,
-    decks as decksService,
-    empty,
-    notetypes as notetypeService,
-} from "../lib/proto";
+import { ModuleName, setupI18n } from "@tslib/i18n";
+import { checkNightMode } from "@tslib/nightmode";
+import { Decks, decks as decksService, empty, notetypes as notetypeService } from "@tslib/proto";
+
 import ImportCsvPage from "./ImportCsvPage.svelte";
 import { getCsvMetadata } from "./lib";
 

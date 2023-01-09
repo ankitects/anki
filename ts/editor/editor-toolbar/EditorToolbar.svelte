@@ -57,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import BlockButtons from "./BlockButtons.svelte";
     import InlineButtons from "./InlineButtons.svelte";
     import NotetypeButtons from "./NotetypeButtons.svelte";
-    import OptionsButton from "./OptionsButton.svelte";
+    import OptionsButtons from "./OptionsButtons.svelte";
     import RichTextClozeButtons from "./RichTextClozeButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
 
@@ -66,6 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const toolbar = {} as DefaultSlotInterface;
     const notetypeButtons = {} as DefaultSlotInterface;
+    const optionsButtons = {} as DefaultSlotInterface;
     const inlineButtons = {} as DefaultSlotInterface;
     const blockButtons = {} as DefaultSlotInterface;
     const templateButtons = {} as DefaultSlotInterface;
@@ -100,6 +101,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </NotetypeButtons>
             </Item>
 
+            <Item id="settings">
+                <OptionsButtons api={optionsButtons} />
+            </Item>
+
             <Item id="inlineFormatting">
                 <InlineButtons api={inlineButtons} />
             </Item>
@@ -114,10 +119,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             <Item id="cloze">
                 <RichTextClozeButtons />
-            </Item>
-
-            <Item id="options">
-                <OptionsButton />
             </Item>
         </DynamicallySlottable>
     </ButtonToolbar>

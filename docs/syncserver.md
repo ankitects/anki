@@ -5,21 +5,21 @@ use AnkiWeb, you can run the server on a machine on your local network.
 
 Things to be aware of:
 
--   Media syncing is not currently supported. You will either need to disable
-    syncing of sounds and images in the preferences screen, sync your media via
-    AnkiWeb, or use some other solution.
--   AnkiMobile does not yet provide an option for using a local sync server,
-    so for now this will only be usable with the computer version of Anki, and
-    AnkiDroid.
--   This code is partly new, and while it has had some testing, it's possible
-    something has been missed. Please make backups, and report any bugs you run
-    into.
--   The server runs over an unencrypted HTTP connection and does not require
-    authentication, so it is only suitable for use on a private network.
--   This is an advanced feature, targeted at users who are comfortable with
-    networking and the command line. If you use this, the expectation is you
-    can resolve any setup/network/firewall issues you run into yourself, and
-    use of this is entirely at your own risk.
+- Media syncing is not currently supported. You will either need to disable
+  syncing of sounds and images in the preferences screen, sync your media via
+  AnkiWeb, or use some other solution.
+- AnkiMobile does not yet provide an option for using a local sync server,
+  so for now this will only be usable with the computer version of Anki, and
+  AnkiDroid.
+- This code is partly new, and while it has had some testing, it's possible
+  something has been missed. Please make backups, and report any bugs you run
+  into.
+- The server runs over an unencrypted HTTP connection and does not require
+  authentication, so it is only suitable for use on a private network.
+- This is an advanced feature, targeted at users who are comfortable with
+  networking and the command line. If you use this, the expectation is you
+  can resolve any setup/network/firewall issues you run into yourself, and
+  use of this is entirely at your own risk.
 
 ## From source
 

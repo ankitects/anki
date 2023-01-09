@@ -1,5 +1,6 @@
 from aqt.qt import qtmajor
+
 if qtmajor > 5:
-  from .customstudy_qt6 import *
+    from _aqt.forms.customstudy_qt6 import *
 else:
-  from .customstudy_qt5 import *  # type: ignore
+    from _aqt.forms.customstudy_qt5 import *  # type: ignore

@@ -3,9 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@tslib/ftl";
     import type { Writable } from "svelte/store";
 
-    import * as tr from "../lib/ftl";
     import { daysToRevlogRange, RevlogRange } from "./graph-helpers";
     import InputBox from "./InputBox.svelte";
 
@@ -148,7 +148,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         &.loading {
             opacity: 0.5;
-            transition: opacity 1s;
+            transition: opacity var(--transition-slow);
         }
     }
 

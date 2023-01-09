@@ -3,12 +3,17 @@
 
 use std::{
     fs::File,
-    io::{self, Write},
+    io::{
+        Write, {self},
+    },
     path::{Path, PathBuf},
 };
 
 use zip::{read::ZipFile, ZipArchive};
-use zstd::{self, stream::copy_decode};
+use zstd::{
+    stream::copy_decode,
+    {self},
+};
 
 use crate::{
     collection::CollectionBuilder,
@@ -31,7 +36,6 @@ pub fn import_colpkg(
     target_media_folder: &Path,
     media_db: &Path,
     progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
-    log: &Logger,
 ) -> Result<()> {
     let mut progress = IncrementableProgress::new(progress_fn);
     progress.call(ImportProgress::File)?;
@@ -53,7 +57,6 @@ pub fn import_colpkg(
         &mut archive,
         target_media_folder,
         media_db,
-        log,
     )?;
 
     atomic_rename(tempfile, &col_path, true)?;
@@ -85,7 +88,6 @@ fn restore_media(
     archive: &mut ZipArchive<File>,
     media_folder: &Path,
     media_db: &Path,
-    log: &Logger,
 ) -> Result<()> {
     let media_entries = extract_media_entries(meta, archive)?;
     if media_entries.is_empty() {
@@ -94,7 +96,7 @@ fn restore_media(
 
     create_dir_all(media_folder)?;
     let media_manager = MediaManager::new(media_folder, media_db)?;
-    let mut media_comparer = MediaComparer::new(meta, progress, &media_manager, log)?;
+    let mut media_comparer = MediaComparer::new(meta, progress, &media_manager)?;
 
     let mut incrementor = progress.incrementor(ImportProgress::Media);
     for mut entry in media_entries {
@@ -166,13 +168,12 @@ impl<'a> MediaComparer<'a> {
         meta: &Meta,
         progress: &mut IncrementableProgress<ImportProgress>,
         media_manager: &'a MediaManager,
-        log: &Logger,
     ) -> Result<Self> {
         Ok(Self(if meta.media_list_is_hashmap() {
             None
         } else {
             let mut db_progress_fn = progress.media_db_fn(ImportProgress::MediaCheck)?;
-            media_manager.register_changes(&mut db_progress_fn, log)?;
+            media_manager.register_changes(&mut db_progress_fn)?;
             Some(Box::new(media_manager.checksum_getter()))
         }))
     }

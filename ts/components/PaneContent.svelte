@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { promiseWithResolver } from "../lib/promise";
+    import { promiseWithResolver } from "@tslib/promise";
 
     export let scroll = true;
     const [element, elementResolve] = promiseWithResolver<HTMLElement>();
@@ -75,7 +75,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             z-index: 4;
             height: var(--client-height);
             box-shadow: var(--box-shadow);
-            transition: box-shadow 0.1s ease-in-out;
+            transition: box-shadow var(--transition) ease-in-out;
         }
     }
 </style>

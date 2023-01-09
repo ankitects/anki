@@ -330,7 +330,7 @@ impl Collection {
         self.update_deck_stats(
             updater.timing.days_elapsed,
             usn,
-            pb::UpdateStatsRequest {
+            pb::scheduler::UpdateStatsRequest {
                 deck_id: updater.deck.id.0,
                 new_delta,
                 review_delta,

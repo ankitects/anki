@@ -1,5 +1,6 @@
 from aqt.qt import qtmajor
+
 if qtmajor > 5:
-  from .exporting_qt6 import *
+    from _aqt.forms.exporting_qt6 import *
 else:
-  from .exporting_qt5 import *  # type: ignore
+    from _aqt.forms.exporting_qt5 import *  # type: ignore

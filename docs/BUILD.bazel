@@ -1,4 +1,0 @@
-load("//ts:prettier.bzl", "prettier_test")
-
-# formatting of the .md files
-prettier_test()

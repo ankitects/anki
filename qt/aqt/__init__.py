@@ -12,7 +12,9 @@ if sys.version_info[0] < 3 or sys.version_info[1] < 9:
 try:
     "テスト".encode(sys.getfilesystemencoding())
 except UnicodeEncodeError as exc:
-    raise Exception("Anki requires a UTF-8 locale.") from exc
+    print("Anki requires a UTF-8 locale.")
+    print("Please Google 'how to change locale on [your Linux distro]'")
+    sys.exit(1)
 
 from .package import packaged_build_setup
 
@@ -239,9 +241,8 @@ def setupLangAndBackend(
         lang = force or pm.meta["defaultLang"]
     lang = anki.lang.lang_to_disk_lang(lang)
 
-    if not firstTime:
-        # set active language
-        anki.lang.set_lang(lang)
+    # set active language
+    anki.lang.set_lang(lang)
 
     # switch direction for RTL languages
     if anki.lang.is_rtl(lang):
@@ -537,14 +538,19 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         print("You can force it on with an env var: ANKI_WAYLAND=1")
         os.environ["QT_QPA_PLATFORM"] = "xcb"
 
-    # default to specified/system language before getting user's preference so that we can localize some more strings
-    lang = anki.lang.get_def_lang(opts.lang)
-    anki.lang.set_lang(lang[1])
-
     # profile manager
+    i18n_setup = False
     pm = None
     try:
-        pm = ProfileManager(opts.base)
+        base_folder = ProfileManager.get_created_base_folder(opts.base)
+        Collection.initialize_backend_logging(str(base_folder / "anki.log"))
+
+        # default to specified/system language before getting user's preference so that we can localize some more strings
+        lang = anki.lang.get_def_lang(opts.lang)
+        anki.lang.set_lang(lang[1])
+        i18n_setup = True
+
+        pm = ProfileManager(base_folder)
         pmLoadResult = pm.setupMeta()
     except:
         # will handle below
@@ -583,11 +589,14 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         return None
 
     if not pm:
-        QMessageBox.critical(
-            None,
-            tr.qt_misc_error(),
-            tr.profiles_could_not_create_data_folder(),
-        )
+        if i18n_setup:
+            QMessageBox.critical(
+                None,
+                tr.qt_misc_error(),
+                tr.profiles_could_not_create_data_folder(),
+            )
+        else:
+            QMessageBox.critical(None, "Startup Failed", "Unable to create data folder")
         return None
 
     # disable icons on mac; this must be done before window created

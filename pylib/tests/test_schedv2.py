@@ -4,7 +4,7 @@
 import copy
 import os
 import time
-from typing import Dict
+from typing import Callable, Dict
 
 import pytest
 
@@ -717,7 +717,12 @@ def test_suspend():
 
 
 def test_filt_reviewing_early_normal():
-    to_int = round if is_2021() else int
+    def to_int(val: float) -> int:
+        if is_2021():
+            return round(val)
+        else:
+            return int(val)
+
     col = getEmptyCol()
     note = col.newNote()
     note["Front"] = "one"

@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { get, Writable, writable } from "svelte/store";
+import type { Writable } from "svelte/store";
+import { get, writable } from "svelte/store";
 
 export interface CustomStore<T> extends Writable<T> {
     subscribe: (getter: (value: T) => void) => () => void;
@@ -60,9 +61,11 @@ function preparePreferences<T>(
         setter(constructPreferences());
     }
 
-    for (const [key, value] of Object.entries(
-        toObject(Preferences, { defaults: true }),
-    )) {
+    for (
+        const [key, value] of Object.entries(
+            toObject(Preferences, { defaults: true }),
+        )
+    ) {
         preferences[key] = createPreference(value, savePreferences);
     }
 

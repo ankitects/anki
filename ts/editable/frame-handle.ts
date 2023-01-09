@@ -1,11 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { getSelection, isSelectionCollapsed } from "@tslib/cross-browser";
+import { elementIsEmpty, nodeIsElement, nodeIsText } from "@tslib/dom";
+import { on } from "@tslib/events";
+import type { Unsubscriber } from "svelte/store";
+import { get } from "svelte/store";
+
 import { moveChildOutOfElement } from "../domlib/move-nodes";
 import { placeCaretAfter } from "../domlib/place-caret";
-import { getSelection, isSelectionCollapsed } from "../lib/cross-browser";
-import { elementIsEmpty, nodeIsElement, nodeIsText } from "../lib/dom";
-import { on } from "../lib/events";
+import { isComposing } from "../sveltelib/composition";
 import type { FrameElement } from "./frame-element";
 
 /**
@@ -33,9 +37,9 @@ function skippableNode(handleElement: FrameHandle, node: Node): boolean {
      * MutationRecords however might include nodes which were directly removed again
      */
     return (
-        (nodeIsText(node) &&
-            (node.data === spaceCharacter || node.data.length === 0)) ||
-        !Array.prototype.includes.call(handleElement.childNodes, node)
+        (nodeIsText(node)
+            && (node.data === spaceCharacter || node.data.length === 0))
+        || !Array.prototype.includes.call(handleElement.childNodes, node)
     );
 }
 
@@ -52,8 +56,6 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
             }
 
             const handleElement = target;
-            const placement =
-                handleElement instanceof FrameStart ? "beforebegin" : "afterend";
             const frameElement = handleElement.parentElement as FrameElement;
 
             for (const node of mutation.addedNodes) {
@@ -62,10 +64,10 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
                 }
 
                 if (
-                    nodeIsElement(node) &&
-                    !elementIsEmpty(node) &&
-                    (node.textContent === spaceCharacter ||
-                        node.textContent?.length === 0)
+                    nodeIsElement(node)
+                    && !elementIsEmpty(node)
+                    && (node.textContent === spaceCharacter
+                        || node.textContent?.length === 0)
                 ) {
                     /**
                      * When we surround the spaceCharacter of the frame handle
@@ -75,35 +77,25 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
                     referenceNode = moveChildOutOfElement(
                         frameElement,
                         node,
-                        placement,
+                        handleElement.placement,
                     );
                 }
             }
         } else if (mutation.type === "characterData") {
             if (
-                !nodeIsText(target) ||
-                !isFrameHandle(target.parentElement) ||
-                skippableNode(target.parentElement, target)
+                !nodeIsText(target)
+                || !isFrameHandle(target.parentElement)
+                || skippableNode(target.parentElement, target)
+                || target.parentElement.unsubscribe
             ) {
                 continue;
             }
-
-            const handleElement = target.parentElement;
-            const placement =
-                handleElement instanceof FrameStart ? "beforebegin" : "afterend";
-            const frameElement = handleElement.parentElement! as FrameElement;
-
-            const cleaned = target.data.replace(spaceRegex, "");
-            const text = new Text(cleaned);
-
-            if (placement === "beforebegin") {
-                frameElement.before(text);
-            } else {
-                frameElement.after(text);
+            if (get(isComposing)) {
+                target.parentElement.subscribeToCompositionEvent();
+                continue;
             }
 
-            handleElement.refreshSpace();
-            referenceNode = text;
+            referenceNode = target.parentElement.moveTextOutOfFrame();
         }
     }
 
@@ -114,6 +106,8 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
 
 const handleObserver = new MutationObserver(restoreHandleContent);
 const handles: Set<FrameHandle> = new Set();
+
+type Placement = Extract<InsertPosition, "beforebegin" | "afterend">;
 
 export abstract class FrameHandle extends HTMLElement {
     static get observedAttributes(): string[] {
@@ -129,6 +123,8 @@ export abstract class FrameHandle extends HTMLElement {
      */
     partiallySelected = false;
     frames?: string;
+    abstract placement: Placement;
+    unsubscribe: Unsubscriber | null;
 
     constructor() {
         super();
@@ -137,6 +133,7 @@ export abstract class FrameHandle extends HTMLElement {
             subtree: true,
             characterData: true,
         });
+        this.unsubscribe = null;
     }
 
     attributeChangedCallback(name: string, old: string, newValue: string): void {
@@ -155,8 +152,8 @@ export abstract class FrameHandle extends HTMLElement {
 
     invalidSpace(): boolean {
         return (
-            !this.firstChild ||
-            !(nodeIsText(this.firstChild) && this.firstChild.data === spaceCharacter)
+            !this.firstChild
+            || !(nodeIsText(this.firstChild) && this.firstChild.data === spaceCharacter)
         );
     }
 
@@ -198,13 +195,54 @@ export abstract class FrameHandle extends HTMLElement {
 
         this.removeMoveIn?.();
         this.removeMoveIn = undefined;
+        this.unsubscribeToCompositionEvent();
     }
 
     abstract notifyMoveIn(offset: number): void;
+
+    moveTextOutOfFrame(): Text {
+        const frameElement = this.parentElement! as FrameElement;
+        const cleaned = this.innerHTML.replace(spaceRegex, "");
+        const text = new Text(cleaned);
+
+        if (this.placement === "beforebegin") {
+            frameElement.before(text);
+        } else if (this.placement === "afterend") {
+            frameElement.after(text);
+        }
+        this.refreshSpace();
+        return text;
+    }
+
+    /**
+     * https://github.com/ankitects/anki/issues/2251
+     *
+     * Work around the issue by not moving the input string while an IME session
+     * is active, and moving the final output from IME only after the session ends.
+     */
+    subscribeToCompositionEvent(): void {
+        this.unsubscribe = isComposing.subscribe((composing) => {
+            if (!composing) {
+                placeCaretAfter(this.moveTextOutOfFrame());
+                this.unsubscribeToCompositionEvent();
+            }
+        });
+    }
+
+    unsubscribeToCompositionEvent(): void {
+        this.unsubscribe?.();
+        this.unsubscribe = null;
+    }
 }
 
 export class FrameStart extends FrameHandle {
     static tagName = "frame-start";
+    placement: Placement;
+
+    constructor() {
+        super();
+        this.placement = "beforebegin";
+    }
 
     getFrameRange(): Range {
         const range = new Range();
@@ -236,14 +274,22 @@ export class FrameStart extends FrameHandle {
     connectedCallback(): void {
         super.connectedCallback();
 
-        this.removeMoveIn = on(this, "movein" as keyof HTMLElementEventMap, () =>
-            this.parentElement?.dispatchEvent(new Event("moveinstart")),
+        this.removeMoveIn = on(
+            this,
+            "movein" as keyof HTMLElementEventMap,
+            () => this.parentElement?.dispatchEvent(new Event("moveinstart")),
         );
     }
 }
 
 export class FrameEnd extends FrameHandle {
     static tagName = "frame-end";
+    placement: Placement;
+
+    constructor() {
+        super();
+        this.placement = "afterend";
+    }
 
     getFrameRange(): Range {
         const range = new Range();
@@ -275,8 +321,10 @@ export class FrameEnd extends FrameHandle {
     connectedCallback(): void {
         super.connectedCallback();
 
-        this.removeMoveIn = on(this, "movein" as keyof HTMLElementEventMap, () =>
-            this.parentElement?.dispatchEvent(new Event("moveinend")),
+        this.removeMoveIn = on(
+            this,
+            "movein" as keyof HTMLElementEventMap,
+            () => this.parentElement?.dispatchEvent(new Event("moveinend")),
         );
     }
 }
@@ -288,10 +336,9 @@ function checkWhetherMovingIntoHandle(selection: Selection, handle: FrameHandle)
 }
 
 function checkWhetherSelectingHandle(selection: Selection, handle: FrameHandle): void {
-    handle.partiallySelected =
-        handle.firstChild && !isSelectionCollapsed(selection)
-            ? selection.containsNode(handle.firstChild)
-            : false;
+    handle.partiallySelected = handle.firstChild && !isSelectionCollapsed(selection)
+        ? selection.containsNode(handle.firstChild)
+        : false;
 }
 
 export function checkHandles(): void {

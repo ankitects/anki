@@ -10,7 +10,7 @@ let time: number; // set in python code
 let maxTime = 0;
 document.addEventListener("DOMContentLoaded", () => {
     updateTime();
-    setInterval(function () {
+    setInterval(function() {
         time += 1;
         updateTime();
     }, 1000);

@@ -3,10 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@tslib/ftl";
+    import { ImportExport } from "@tslib/proto";
+
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
-    import * as tr from "../lib/ftl";
-    import { ImportExport } from "../lib/proto";
+    import Select from "../components/Select.svelte";
+    import SelectOption from "../components/SelectOption.svelte";
 
     export let delimiter: ImportExport.CsvMetadata.Delimiter;
     export let disabled: boolean;
@@ -20,6 +23,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         { value: Delimiter.COMMA, label: tr.importingComma() },
         { value: Delimiter.SPACE, label: tr.studyingSpace() },
     ];
+
+    $: label = delimiters.find((d) => d.value === delimiter)?.label;
 </script>
 
 <Row --cols={2}>
@@ -27,11 +32,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {tr.importingFieldSeparator()}
     </Col>
     <Col --col-size={1}>
-        <!-- svelte-ignore a11y-no-onchange -->
-        <select class="form-select" bind:value={delimiter} {disabled}>
+        <Select bind:value={delimiter} {disabled} {label}>
             {#each delimiters as { value, label }}
-                <option {value}>{label}</option>
+                <SelectOption {value}>{label}</SelectOption>
             {/each}
-        </select>
+        </Select>
     </Col>
 </Row>

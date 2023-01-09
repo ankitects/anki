@@ -24,9 +24,7 @@ interface WithTagName {
     tagName: string;
 }
 
-export interface DecoratedElementConstructor
-    extends CustomElementConstructor,
-        WithTagName {
+export interface DecoratedElementConstructor extends CustomElementConstructor, WithTagName {
     prototype: DecoratedElement;
     /**
      * Transforms elements in input HTML from undecorated to stored state.

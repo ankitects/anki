@@ -14,7 +14,7 @@ use crate::timestamp::TimestampSecs;
 pub(crate) fn default_on_invalid<'de, T, D>(deserializer: D) -> Result<T, D::Error>
 where
     T: Default + DeTrait<'de>,
-    D: serde::de::Deserializer<'de>,
+    D: Deserializer<'de>,
 {
     let v: Value = DeTrait::deserialize(deserializer)?;
     Ok(T::deserialize(v).unwrap_or_default())

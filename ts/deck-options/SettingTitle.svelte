@@ -10,8 +10,7 @@
     .setting-title {
         cursor: help;
         &:hover {
-            text-decoration: underline;
-            text-decoration-style: dashed;
+            text-decoration: underline dotted var(--fg-subtle);
         }
     }
 </style>

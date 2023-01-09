@@ -81,8 +81,8 @@ mod test {
     #[test]
     #[allow(clippy::assertions_on_constants)]
     fn assert_18_is_latest_schema_version() {
-        assert!(
-            18 == SCHEMA_MAX_VERSION,
+        assert_eq!(
+            18, SCHEMA_MAX_VERSION,
             "must implement SqliteStorage::downgrade_to(SchemaVersion::V18)"
         );
     }

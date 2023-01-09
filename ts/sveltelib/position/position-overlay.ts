@@ -1,12 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type {
-    ComputePositionConfig,
-    FloatingElement,
-    Middleware,
-    ReferenceElement,
-} from "@floating-ui/dom";
+import type { ComputePositionConfig, FloatingElement, Middleware, Placement, ReferenceElement } from "@floating-ui/dom";
 import { computePosition, inline, offset } from "@floating-ui/dom";
 
 import type { PositionAlgorithm } from "./position-algorithm";
@@ -22,10 +17,10 @@ function positionOverlay({
     inline: inlineArg,
     hideCallback,
 }: PositionOverlayArgs): PositionAlgorithm {
-    return async function (
+    return async function(
         reference: ReferenceElement,
         floating: FloatingElement,
-    ): Promise<void> {
+    ): Promise<Placement> {
         const middleware: Middleware[] = inlineArg ? [inline()] : [];
 
         const { width, height } = reference.getBoundingClientRect();
@@ -40,7 +35,7 @@ function positionOverlay({
             middleware,
         };
 
-        const { x, y, middlewareData } = await computePosition(
+        const { x, y, middlewareData, placement } = await computePosition(
             reference,
             floating,
             computeArgs,
@@ -62,6 +57,8 @@ function positionOverlay({
             width: `${width + 2 * padding}px`,
             height: `${height + 2 * padding}px`,
         });
+
+        return placement;
     };
 }
 
