@@ -114,8 +114,13 @@ class Toolbar:
         web_context = web_context or TopToolbar(self)
         link_handler = link_handler or self._linkHandler
         self.web.set_bridge_command(link_handler, web_context)
+        body = self._body.format(
+            toolbar_content=self._centerLinks(),
+            left_tray_content=self._left_tray_content(),
+            right_tray_content=self._right_tray_content(),
+        )
         self.web.stdHtml(
-            self._body % self._centerLinks(),
+            body,
             css=["css/toolbar.css"],
             js=["js/vendor/jquery.min.js", "js/toolbar.js"],
             context=web_context,
@@ -204,6 +209,22 @@ class Toolbar:
 
         return "\n".join(links)
 
+    # Add-ons
+    ######################################################################
+
+    def _left_tray_content(self) -> str:
+        left_tray_content: list[str] = []
+        gui_hooks.top_toolbar_will_set_left_tray_content(left_tray_content, self)
+        return self._process_tray_content(left_tray_content)
+
+    def _right_tray_content(self) -> str:
+        right_tray_content: list[str] = []
+        gui_hooks.top_toolbar_will_set_right_tray_content(right_tray_content, self)
+        return self._process_tray_content(right_tray_content)
+
+    def _process_tray_content(self, content: list[str]) -> str:
+        return "\n".join(f"""<div class="tray-item">{item}</div>""" for item in content)
+
     # Sync
     ######################################################################
 
@@ -265,11 +286,11 @@ class Toolbar:
     ######################################################################
 
     _body = """
-<center id="outer">
-<div id="header">
-<div class="toolbar">%s<div>
+<div class="header">
+  <div class="left-tray">{left_tray_content}</div>
+  <div class="toolbar">{toolbar_content}</div>
+  <div class="right-tray">{right_tray_content}</div>
 </div>
-</center>
 """
 
 
