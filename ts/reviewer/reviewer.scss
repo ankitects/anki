@@ -10,7 +10,10 @@ hr {
 body {
     margin: 20px;
     overflow-wrap: break-word;
-    background-color: var(--canvas);
+    // default background setting to fit with toolbar
+    background-size: 100vw;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
 // explicit nightMode definition required

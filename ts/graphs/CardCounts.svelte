@@ -87,7 +87,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     svg {
-        transition: opacity 1s;
+        transition: opacity var(--transition-slow);
     }
 
     .counts-outer {

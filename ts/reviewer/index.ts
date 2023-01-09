@@ -145,6 +145,9 @@ export async function _updateQA(
 
     await _runHook(onUpdateHook);
 
+    // dynamic toolbar background
+    bridgeCommand("updateToolbar");
+
     // wait for mathjax to ready
     await MathJax.startup.promise
         .then(() => {

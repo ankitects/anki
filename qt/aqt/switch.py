@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from typing import cast
 
-from aqt import colors
+from aqt import colors, props
 from aqt.qt import *
 from aqt.theme import theme_manager
 
@@ -173,7 +173,7 @@ class Switch(QAbstractButton):
 
     def _animate_toggle(self) -> None:
         animation = QPropertyAnimation(self, cast(QByteArray, b"position"), self)
-        animation.setDuration(100)
+        animation.setDuration(int(theme_manager.var(props.TRANSITION)))
         animation.setStartValue(self.start_position)
         animation.setEndValue(self.end_position)
         # hide label during animation

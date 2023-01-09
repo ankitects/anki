@@ -11,7 +11,7 @@ body {
     color: var(--fg);
     background: var(--canvas);
     margin: 1em;
-    transition: opacity 0.5s ease-out;
+    transition: opacity var(--transition-medium) ease-out;
     overscroll-behavior: none;
 }
 

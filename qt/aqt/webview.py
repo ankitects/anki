@@ -634,7 +634,6 @@ html {{ {font} }}
         from aqt import mw
 
         if qvar is None:
-
             mw.progress.single_shot(1000, mw.reset)
             return
 
