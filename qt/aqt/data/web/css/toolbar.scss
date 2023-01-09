@@ -6,27 +6,6 @@
 @use "sass/elevation" as *;
 @use "sass/button-mixins" as button;
 
-#header {
-    padding-bottom: 4px;
-    margin-top: -3px;
-}
-
-.tdcenter {
-    white-space: nowrap;
-    border-radius: prop(border-radius);
-    border-bottom-left-radius: prop(border-radius-large);
-    border-bottom-right-radius: prop(border-radius-large);
-    @include button.base($with-hover: false, $with-active: false);
-    overflow: hidden;
-    padding: 0;
-
-    @include elevation(1, $opacity-boost: -0.08);
-    &:hover {
-        @include elevation(2);
-    }
-    transition: box-shadow 0.2s ease-in-out;
-}
-
 body {
     margin: 0;
     padding: 0;
@@ -38,19 +17,31 @@ body {
     -webkit-user-drag: none;
 }
 
+.top_toolbar {
+    padding: 0;
+    margin: 0;
+    border-block-end: 1px solid color(border);
+    white-space: nowrap;
+    overflow: hidden;
+    background-color: transparent;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+}
+
 .hitem {
     font-weight: bold;
-    padding: 8px 14px;
+    padding: 6px clamp(4px, 1.2vw, 1.5rem) 5px;
     text-decoration: none;
     color: color(fg);
     display: inline-block;
-    @include button.base;
     border: none;
-    &:first-child {
-        padding-left: 18px;
-    }
-    &:last-child {
-        padding-right: 18px;
+    background-color: transparent;
+    transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    &:hover {
+        background: var(--button-bg);
+        @include button.impressed-shadow(0.35);
+        cursor: pointer;
     }
 }
 

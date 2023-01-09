@@ -195,12 +195,9 @@ class Toolbar:
     ######################################################################
 
     _body = """
-<center id=outer>
-<table id=header>
-<tr>
-<td class=tdcenter align=center>%s</td>
-</tr></table>
-</center>
+<div class="top_toolbar">
+%s
+</div>
 """
 
 
