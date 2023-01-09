@@ -6,8 +6,33 @@
 @use "sass/elevation" as *;
 @use "sass/button-mixins" as button;
 
+.header {
+    height: 41px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: start;
+    align-content: space-between;
+}
+
+.left-tray {
+    justify-self: start;
+}
+
+.right-tray {
+    justify-self: end;
+}
+
+.left-tray,
+.right-tray {
+    align-self: start;
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+}
+
 .toolbar {
-    display: inline-block;
+    height: 31px;
+    justify-self: center;
     white-space: nowrap;
     overflow: hidden;
     border-bottom-left-radius: prop(border-radius-large);
