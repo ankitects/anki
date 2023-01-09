@@ -2,7 +2,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
-from typing import Any
+import re
+from typing import Any, Optional
 
 import aqt
 from anki.sync import SyncStatus
@@ -25,6 +26,76 @@ class BottomToolbar:
         self.toolbar = toolbar
 
 
+class ToolbarWebView(AnkiWebView):
+    def __init__(self, mw: aqt.AnkiQt, title: str) -> None:
+        AnkiWebView.__init__(self, mw, title=title)
+        self.mw = mw
+        self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
+        self.disable_zoom()
+        self.collapsed = False
+        self.web_height = 0
+        # collapse timer
+        self.hide_timer = QTimer()
+        self.hide_timer.setSingleShot(True)
+        self.hide_timer.setInterval(1000)
+        qconnect(self.hide_timer.timeout, self.mw.collapse_toolbar_if_allowed)
+
+    def eventFilter(self, obj, evt):
+        if handled := super().eventFilter(obj, evt):
+            return handled
+
+        # prevent collapse if pointer inside
+        if evt.type() == QEvent.Type.Enter:
+            self.hide_timer.stop()
+            self.hide_timer.setInterval(1000)
+            return True
+
+        return False
+
+    def _onHeight(self, qvar: Optional[int]) -> None:
+        super()._onHeight(qvar)
+        self.web_height = int(qvar)
+
+    def collapse(self) -> None:
+        self.collapsed = True
+        self.eval("""document.body.classList.add("collapsed"); """)
+
+    def expand(self) -> None:
+        self.collapsed = False
+        self.eval("""document.body.classList.remove("collapsed"); """)
+
+    def flatten(self) -> None:
+        self.eval("document.body.classList.add('flat'); ")
+
+    def elevate(self) -> None:
+        self.eval(
+            """
+            document.body.classList.remove("flat");
+            document.body.style.removeProperty("background");
+            """
+        )
+
+    def update_background_image(self) -> None:
+        def set_background(val: str) -> None:
+            # remove offset from copy
+            background = re.sub(r"-\d+px ", "0%", val)
+            # change computedStyle px value back to 100vw
+            background = re.sub(r"\d+px", "100vw", background)
+
+            self.eval(
+                f"""document.body.style.setProperty("background", '{background}'); """
+            )
+            # offset reviewer background by toolbar height
+            self.mw.web.eval(
+                f"""document.body.style.setProperty("background-position-y", "-{self.web_height}px"); """
+            )
+
+        self.mw.web.evalWithCallback(
+            """window.getComputedStyle(document.body).background; """,
+            set_background,
+        )
+
+
 class Toolbar:
     def __init__(self, mw: aqt.AnkiQt, web: AnkiWebView) -> None:
         self.mw = mw
@@ -32,7 +103,6 @@ class Toolbar:
         self.link_handlers: dict[str, Callable] = {
             "study": self._studyLinkHandler,
         }
-        self.web.setFixedHeight(30)
         self.web.requiresCol = False
 
     def draw(
@@ -195,11 +265,10 @@ class Toolbar:
     ######################################################################
 
     _body = """
-<center id=outer>
-<table id=header>
-<tr>
-<td class=tdcenter align=center>%s</td>
-</tr></table>
+<center id="outer">
+<div id="header">
+<div class="toolbar">%s<div>
+</div>
 </center>
 """
 
