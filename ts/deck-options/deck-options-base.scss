@@ -1,7 +1,7 @@
 @import "sass/base";
 
 // override Bootstrap transition duration
-$carousel-transition: 0.2s;
+$carousel-transition: var(--transition);
 
 @import "bootstrap/scss/buttons";
 @import "bootstrap/scss/button-group";

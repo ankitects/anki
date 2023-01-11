@@ -18,10 +18,6 @@ body {
     padding: 0;
 }
 
-#innertable {
-    padding-top: 10px;
-}
-
 #middle td[align="center"] {
     padding-top: 10px;
     position: relative;
@@ -30,7 +26,7 @@ body {
 button {
     min-width: 60px;
     white-space: nowrap;
-    margin: 0.5em;
+    margin: 9px;
     position: relative;
 }
 
@@ -49,10 +45,6 @@ button {
 .stat2 {
     padding-top: 10px;
     font-weight: normal;
-}
-
-#ansbut {
-    margin-bottom: 1em;
 }
 
 :focus {

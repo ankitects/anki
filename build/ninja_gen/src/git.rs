@@ -12,7 +12,7 @@ pub struct SyncSubmodule {
 
 impl BuildAction for SyncSubmodule {
     fn command(&self) -> &str {
-        "git submodule update --init $path"
+        "git -c protocol.file.allow=always submodule update --init $path"
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {

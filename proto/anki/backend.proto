@@ -30,6 +30,7 @@ enum ServiceIndex {
   SERVICE_INDEX_CARDS = 14;
   SERVICE_INDEX_LINKS = 15;
   SERVICE_INDEX_IMPORT_EXPORT = 16;
+  SERVICE_INDEX_ANKIDROID = 17;
 }
 
 message BackendInit {
@@ -64,6 +65,7 @@ message BackendError {
     IMPORT_ERROR = 16;
     DELETED = 17;
     CARD_TYPE_ERROR = 18;
+    ANKIDROID_PANIC_ERROR = 19;
   }
 
   // error description, usually localized, suitable for displaying to the user

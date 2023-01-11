@@ -50,7 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         font-size: 15px;
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.3s;
+        transition: opacity var(--transition);
         color: var(--fg);
         background: var(--canvas-overlay);
 

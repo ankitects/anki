@@ -75,14 +75,15 @@ export function buildHistogram(
         .thresholds(scale.ticks(desiredBars))(data.daysAdded.entries() as any);
 
     // empty graph?
-    if (!sum(bins, (bin) => bin.length)) {
+    const accessor = getNumericMapBinValue as any;
+    if (!sum(bins, accessor)) {
         return [null, []];
     }
 
     const adjustedRange = scaleLinear().range([0.7, 0.3]);
     const colourScale = scaleSequential((n) => interpolateBlues(adjustedRange(n)!)).domain([xMax!, xMin!]);
 
-    const totalInPeriod = sum(bins, (bin) => bin.length);
+    const totalInPeriod = sum(bins, accessor);
     const periodDays = Math.abs(xMin!);
     const cardsPerDay = Math.round(totalInPeriod / periodDays);
     const tableData = [
@@ -102,7 +103,7 @@ export function buildHistogram(
         _percent: number,
     ): string {
         const day = dayLabel(bin.x0!, bin.x1!);
-        const cards = tr.statisticsCards({ cards: bin.length });
+        const cards = tr.statisticsCards({ cards: accessor(bin) });
         const total = tr.statisticsRunningTotal();
         const totalCards = tr.statisticsCards({ cards: cumulative });
         return `${day}:<br>${cards}<br>${total}: ${totalCards}`;

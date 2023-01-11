@@ -29,7 +29,7 @@ $ sudo apt install bash grep findutils curl gcc g++ git rsync ninja-build
 
 ## Missing Libraries
 
-If you get errors during startup, try starting with
+If you get errors during build or startup, try starting with
 
 QT_DEBUG_PLUGINS=1 ./run
 
@@ -40,6 +40,13 @@ for example:
 ```
 sudo apt install libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
   libxcb-randr0 libxcb-render-util0
+```
+
+On some distros such as Arch Linux and Fedora, you may need to install the
+`libxcrypt-compat` package if you get an error like this:
+
+```
+error while loading shared libraries: libcrypt.so.1: cannot open shared object file: No such file or directory
 ```
 
 ## Audio

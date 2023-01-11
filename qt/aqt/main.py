@@ -66,6 +66,7 @@ from aqt.qt import sip
 from aqt.sync import sync_collection, sync_login
 from aqt.taskman import TaskManager
 from aqt.theme import Theme, theme_manager
+from aqt.toolbar import Toolbar, ToolbarWebView
 from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
@@ -142,6 +143,27 @@ class MainWebView(AnkiWebView):
             # importing continues after the above call returns, so it is not
             # currently safe for us to import more than one file at once
             return
+
+    # Main webview specific event handling
+    def eventFilter(self, obj, evt):
+        if handled := super().eventFilter(obj, evt):
+            return handled
+
+        if evt.type() == QEvent.Type.Leave:
+            if self.mw.pm.collapse_toolbar():
+                # Expand toolbar when mouse moves above main webview
+                # and automatically collapse it with delay after mouse leaves
+                if self.mapFromGlobal(QCursor.pos()).y() < self.geometry().y():
+                    if self.mw.toolbarWeb.collapsed:
+                        self.mw.toolbarWeb.expand()
+                return True
+
+        if evt.type() == QEvent.Type.Enter:
+            if self.mw.pm.collapse_toolbar():
+                self.mw.toolbarWeb.hide_timer.start()
+                return True
+
+        return False
 
 
 class AnkiQt(QMainWindow):
@@ -707,10 +729,16 @@ class AnkiQt(QMainWindow):
 
     def _reviewState(self, oldState: MainWindowState) -> None:
         self.reviewer.show()
+        if self.pm.collapse_toolbar():
+            self.toolbarWeb.collapse()
+        else:
+            self.toolbarWeb.flatten()
 
     def _reviewCleanup(self, newState: MainWindowState) -> None:
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
+            self.toolbarWeb.elevate()
+            self.toolbarWeb.expand()
 
     # Resetting state
     ##########################################################################
@@ -844,10 +872,8 @@ title="{}" {}>{}</button>""".format(
         self.form = aqt.forms.main.Ui_MainWindow()
         self.form.setupUi(self)
         # toolbar
-        tweb = self.toolbarWeb = AnkiWebView(title="top toolbar")
-        tweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
-        tweb.disable_zoom()
-        self.toolbar = aqt.toolbar.Toolbar(self, tweb)
+        tweb = self.toolbarWeb = ToolbarWebView(self, title="top toolbar")
+        self.toolbar = Toolbar(self, tweb)
         # main area
         self.web = MainWebView(self)
         # bottom area
@@ -1332,6 +1358,10 @@ title="{}" {}>{}</button>""".format(
                 window.windowState() ^ Qt.WindowState.WindowFullScreen
             )
 
+    def collapse_toolbar_if_allowed(self) -> None:
+        if self.pm.collapse_toolbar() and self.state == "review":
+            self.toolbarWeb.collapse()
+
     # Auto update
     ##########################################################################
 
@@ -1382,13 +1412,6 @@ title="{}" {}>{}</button>""".format(
             True,
             parent=self,
         )
-        self.progress.timer(
-            12 * 60 * 1000,
-            self.refresh_certs,
-            repeat=True,
-            requiresCollection=False,
-            parent=self,
-        )
 
     def onRefreshTimer(self) -> None:
         if self.state == "deckBrowser":
@@ -1403,15 +1426,6 @@ title="{}" {}>{}</button>""".format(
             return
         if elap > minutes * 60:
             self.maybe_auto_sync_media()
-
-    def refresh_certs(self) -> None:
-        # The requests library copies the certs into a temporary folder on startup,
-        # and chokes when the file is later missing due to temp file cleaners.
-        # Work around the issue by accessing them once every 12 hours.
-        from requests.certs import where  # type: ignore[attr-defined]
-
-        with open(where(), "rb") as f:
-            f.read()
 
     # Backups
     ##########################################################################
