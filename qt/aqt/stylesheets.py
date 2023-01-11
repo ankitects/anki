@@ -401,9 +401,9 @@ QRadioButton {{
 QCheckBox::indicator,
 QRadioButton::indicator,
 QMenu::indicator {{
-    border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+    border: 1px solid {tm.var(colors.BORDER)};
     border-radius: {tm.var(props.BORDER_RADIUS)};
-    background: {tm.var(colors.CANVAS_INSET)};
+    background: {tm.var(colors.CANVAS_ELEVATED)};
     width: 16px;
     height: 16px;
 }}
