@@ -22,8 +22,8 @@ body {
     &:not(.isMac) * {
         @include scrollbar.custom;
     }
-    &.reduced-motion,
-    &.reduced-motion * {
+    &.reduce-motion,
+    &.reduce-motion * {
         transition: none !important;
         animation: none !important;
     }

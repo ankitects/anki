@@ -174,8 +174,8 @@ class ThemeManager:
             classes.extend(["nightMode", "night_mode"])
             if self.macos_dark_mode():
                 classes.append("macos-dark-mode")
-        if aqt.mw.pm.reduced_motion():
-            classes.append("reduced-motion")
+        if aqt.mw.pm.reduce_motion():
+            classes.append("reduce-motion")
         if qtmajor == 5 and qtminor < 15:
             classes.append("no-blur")
         return " ".join(classes)
