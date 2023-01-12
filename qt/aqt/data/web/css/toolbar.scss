@@ -61,39 +61,45 @@ body {
             transform: translateY(-100vh);
         }
         transition: transform var(--transition) ease-in-out;
-    
+
         .header {
             height: 41px;
         }
         .toolbar {
             height: 31px;
-
             overflow: hidden;
             border-bottom-left-radius: prop(border-radius-medium);
             border-bottom-right-radius: prop(border-radius-medium);
             @include elevation(1, $opacity-boost: -0.1);
 
-            // elevated state (deck browser, overview)
-            body:not(.flat) & {
-                background: var(--canvas-elevated);
-                @include elevation(1);
-                &:hover {
-                    @include elevation(2);
-                }
-            }
             // glass effect
             background: var(--canvas-glass);
             backdrop-filter: blur(var(--blur));
         }
 
-        .hitem {
+        // elevated state (deck browser, overview)
+        &:not(.flat) .toolbar {
+            background: var(--canvas-elevated);
+            @include elevation(1);
             &:hover {
-                background: var(--canvas-inset);
-                text-decoration: none;
+                @include elevation(2);
+            }
+        }
+
+        &:not(.flat) .hitem {
+            @include button.base($border: false, $with-hover: false);
+            background: var(--canvas-glass);
+            border: 1px solid transparent;
+        }
+        .hitem {
+            text-decoration: none;
+            border: 1px solid transparent;
+
+            &:hover {
+                border: 1px solid var(--border-subtle);
             }
             &:active {
-                @include button.base($border: false);
-                background: var(--canvas-elevated);
+                background: var(--canvas-inset);
             }
             &:first-child {
                 padding-left: 18px;

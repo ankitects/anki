@@ -55,6 +55,13 @@ class ToolbarWebView(AnkiWebView):
     def on_body_classes_need_update(self) -> None:
         super().on_body_classes_need_update()
         super().adjustHeightToFit()
+
+        if self.mw.state == "review":
+            if self.mw.pm.collapse_toolbar():
+                self.eval("""document.body.classList.remove("flat"); """)
+            else:
+                self.flatten()
+
         self.expand()
 
     def _onHeight(self, qvar: Optional[int]) -> None:
@@ -70,7 +77,7 @@ class ToolbarWebView(AnkiWebView):
         self.eval("""document.body.classList.remove("collapsed"); """)
 
     def flatten(self) -> None:
-        self.eval("document.body.classList.add('flat'); ")
+        self.eval("""document.body.classList.add("flat"); """)
 
     def elevate(self) -> None:
         self.eval(
