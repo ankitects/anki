@@ -28,9 +28,6 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_8">
        <item>
-        <layout class="QHBoxLayout" name="uiSizeLayout"/>
-       </item>
-       <item>
         <widget class="QGroupBox" name="generalGroup">
          <property name="title">
           <string>preferences_general</string>
