@@ -147,6 +147,14 @@ class CustomStyles:
         background: {tm.var(colors.BUTTON_BG)};
         border-bottom: 1px solid {tm.var(colors.SHADOW)};
     }}
+    QPushButton:default {{
+        background: {tm.var(colors.BUTTON_PRIMARY_BG)};
+    }}
+    QPushButton:focus,
+    QTabBar::tab:focus {{
+        border: 2px solid {tm.var(colors.BORDER_FOCUS)};
+        outline: none;
+    }}
     QPushButton:hover,
     QTabBar::tab:hover,
     QComboBox:!editable:hover,
@@ -161,7 +169,16 @@ class CustomStyles:
             )
         };
     }}
+    QPushButton:default:hover {{
+        background: {
+            button_gradient(
+                tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
+                tm.var(colors.BUTTON_PRIMARY_GRADIENT_END)
+            )
+        };
+    }}
     QPushButton:pressed,
+    QPushButton:checked,
     QSpinBox::up-button:pressed,
     QSpinBox::down-button:pressed,
     QDateTimeEdit::up-button:pressed,
@@ -173,6 +190,18 @@ class CustomStyles:
                 tm.var(colors.SHADOW)
             )
         };
+    }}
+    QPushButton:default:pressed {{
+        background: {
+            button_pressed_gradient(
+                tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
+                tm.var(colors.BUTTON_PRIMARY_GRADIENT_END),
+                tm.var(colors.SHADOW)
+            )
+        };
+    }}
+    QPushButton:flat {{
+        border: none;
     }}
         """
 
