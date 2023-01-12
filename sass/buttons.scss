@@ -24,15 +24,22 @@
 
 button {
     outline: none !important;
-    @include button.base;
-    border-radius: var(--border-radius-large);
-    padding: 8px 10px;
+    border: none;
+    background: none;
+    &:hover {
+        background: var(--button-bg);
+    }
     font-weight: 500;
+    padding: 8px 10px;
     margin: 0 4px;
 
-    @include elevation(1, $opacity-boost: -0.08);
-    &:hover {
-        @include elevation(2);
-        transition: box-shadow var(--transition) linear;
+    .fancy & {
+        @include button.base;
+        border-radius: var(--border-radius-large);
+        @include elevation(1, $opacity-boost: -0.08);
+        &:hover {
+            @include elevation(2);
+            transition: box-shadow var(--transition) linear;
+        }
     }
 }

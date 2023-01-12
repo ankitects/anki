@@ -1068,9 +1068,9 @@ title="{}" {}>{}</button>""".format(
         if is_lin:
             # On Linux, the check requires invoking an external binary,
             # which we don't want to be doing frequently
-            interval_secs = 300
+            interval_secs = 10
         else:
-            interval_secs = 5
+            interval_secs = 2
         self.progress.timer(
             interval_secs * 1000,
             theme_manager.apply_style_if_system_style_changed,

@@ -52,6 +52,11 @@ class ToolbarWebView(AnkiWebView):
 
         return False
 
+    def on_body_classes_need_update(self) -> None:
+        super().on_body_classes_need_update()
+        super().adjustHeightToFit()
+        self.expand()
+
     def _onHeight(self, qvar: Optional[int]) -> None:
         super()._onHeight(qvar)
         self.web_height = int(qvar)

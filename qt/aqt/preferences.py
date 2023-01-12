@@ -13,7 +13,7 @@ from aqt import AnkiQt
 from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
 from aqt.qt import *
-from aqt.theme import Theme
+from aqt.theme import AnkiStyles, Theme
 from aqt.utils import HelpPage, disable_help_button, openHelp, showInfo, showWarning, tr
 
 
@@ -207,20 +207,35 @@ class Preferences(QDialog):
 
     def setup_global(self) -> None:
         "Setup options global to all profiles."
-        self.form.reduce_motion.setChecked(self.mw.pm.reduced_motion())
+        self.form.reduce_motion.setChecked(self.mw.pm.reduce_motion())
+        qconnect(self.form.reduce_motion.stateChanged, self.mw.pm.set_reduce_motion)
+
+        self.form.minimalist_mode.setChecked(self.mw.pm.minimalist_mode())
+        qconnect(self.form.minimalist_mode.stateChanged, self.mw.pm.set_minimalist_mode)
+
         self.form.collapse_toolbar.setChecked(self.mw.pm.collapse_toolbar())
+        qconnect(
+            self.form.collapse_toolbar.stateChanged, self.mw.pm.set_collapse_toolbar
+        )
+
         self.form.uiScale.setValue(int(self.mw.pm.uiScale() * 100))
         themes = [
-            tr.preferences_theme_label(theme=theme)
-            for theme in (
-                tr.preferences_theme_follow_system(),
-                tr.preferences_theme_light(),
-                tr.preferences_theme_dark(),
-            )
+            tr.preferences_theme_follow_system(),
+            tr.preferences_theme_light(),
+            tr.preferences_theme_dark(),
         ]
         self.form.theme.addItems(themes)
         self.form.theme.setCurrentIndex(self.mw.pm.theme().value)
         qconnect(self.form.theme.currentIndexChanged, self.on_theme_changed)
+
+        self.form.styleComboBox.addItems(
+            [member.name.lower().capitalize() for member in AnkiStyles]
+        )
+        self.form.styleComboBox.setCurrentIndex(self.mw.pm.get_widget_style())
+        qconnect(
+            self.form.styleComboBox.currentIndexChanged,
+            self.mw.pm.set_widget_style,
+        )
         self.form.legacy_import_export.setChecked(self.mw.pm.legacy_import_export())
 
         self.setup_language()
@@ -238,8 +253,6 @@ class Preferences(QDialog):
             self.mw.pm.setUiScale(newScale)
             restart_required = True
 
-        self.mw.pm.set_reduced_motion(self.form.reduce_motion.isChecked())
-        self.mw.pm.set_collapse_toolbar(self.form.collapse_toolbar.isChecked())
         self.mw.pm.set_legacy_import_export(self.form.legacy_import_export.isChecked())
 
         if restart_required:
@@ -289,14 +302,12 @@ class Preferences(QDialog):
 
     def setup_video_driver(self) -> None:
         self.video_drivers = VideoDriver.all_for_platform()
-        names = [
-            tr.preferences_video_driver(driver=video_driver_name_for_platform(d))
-            for d in self.video_drivers
-        ]
+        names = [video_driver_name_for_platform(d) for d in self.video_drivers]
         self.form.video_driver.addItems(names)
         self.form.video_driver.setCurrentIndex(
             self.video_drivers.index(self.mw.pm.video_driver())
         )
+        self.form.video_driver_label.setVisible(qtmajor == 5)
         self.form.video_driver.setVisible(qtmajor == 5)
 
     def update_video_driver(self) -> None:

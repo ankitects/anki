@@ -5,7 +5,7 @@ import aqt
 import aqt.main
 from aqt.qt import QDialog, qconnect
 from aqt.theme import AnkiStyles
-from aqt.utils import is_mac, restoreGeom, saveGeom
+from aqt.utils import restoreGeom, saveGeom
 
 
 class WidgetGallery(QDialog):
@@ -29,23 +29,12 @@ class WidgetGallery(QDialog):
         self.form.styleComboBox.addItems(
             [member.name.lower().capitalize() for member in AnkiStyles]
         )
-        self.form.styleComboBox.setCurrentIndex(
-            AnkiStyles.FUSION
-            if self.mw.pm.force_fusion_styles()
-            else AnkiStyles.NATIVE
-            if self.mw.pm.force_native_styles() or is_mac
-            else AnkiStyles.ANKI
-        )
-        self.form.forceCheckBox.setChecked(self.mw.pm.has_forced_style())
-
+        self.form.styleComboBox.setCurrentIndex(self.mw.pm.get_widget_style())
         qconnect(
             self.form.styleComboBox.currentIndexChanged,
-            self.mw.pm.set_forced_style,
+            self.mw.pm.set_widget_style,
         )
 
     def reject(self) -> None:
         super().reject()
-        if not self.form.forceCheckBox.isChecked():
-            self.mw.pm.unset_forced_styles()
-
         saveGeom(self, "WidgetGallery")

@@ -7,17 +7,19 @@
 
 table {
     padding: 1rem;
-    background: var(--canvas-elevated);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--border-radius-large);
 
-    @include elevation(1, $opacity-boost: -0.08);
-    &:hover {
-        @include elevation(2);
+    .fancy & {
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--border-radius-medium);
+
+        @include elevation(1, $opacity-boost: -0.08);
+        &:hover {
+            @include elevation(2);
+        }
+        transition: box-shadow var(--transition) ease-in-out;
+        background: var(--canvas-glass);
+        backdrop-filter: blur(var(--blur));
     }
-    transition: box-shadow var(--transition) ease-in-out;
-    background: var(--canvas-glass);
-    backdrop-filter: blur(var(--blur));
 }
 
 a.deck {
@@ -37,7 +39,11 @@ th {
 }
 
 tr.deck td {
-    padding: 4px 12px;
+    padding: 2px 12px;
+
+    .fancy & {
+        padding: 4px 12px;
+    }
 }
 
 tr.top-level-drag-row td {

@@ -7,7 +7,6 @@
 @use "sass/button-mixins" as button;
 
 .header {
-    height: 41px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     align-items: start;
@@ -31,27 +30,19 @@
 }
 
 .toolbar {
-    height: 31px;
     justify-self: center;
     white-space: nowrap;
-    overflow: hidden;
-    border-bottom-left-radius: prop(border-radius-large);
-    border-bottom-right-radius: prop(border-radius-large);
-    @include elevation(1, $opacity-boost: -0.1);
-
-    // elevated state (deck browser, overview)
-    body:not(.flat) & {
-        background: var(--canvas-elevated);
-        @include elevation(1);
-        &:hover {
-            @include elevation(2);
-        }
-    }
-    // glass effect
-    background: var(--canvas-glass);backdrop-filter: unset;
-    backdrop-filter: blur(var(--blur));
-
     transition: all var(--transition) ease-in-out;
+}
+
+.hitem {
+    font-weight: bold;
+    padding: 5px 12px;
+    color: color(fg);
+    display: inline-block;
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 body {
@@ -60,34 +51,65 @@ body {
     -webkit-user-select: none;
     overflow: hidden;
 
-    &.collapsed {
-        transform: translateY(-100vh);
+    &:not(.fancy).collapsed {
+        opacity: 0;
     }
-    transition: transform var(--transition) ease-in-out;
+    transition: opacity var(--transition) ease-in-out;
+
+    &.fancy {
+        &.collapsed {
+            transform: translateY(-100vh);
+        }
+        transition: transform var(--transition) ease-in-out;
+    
+        .header {
+            height: 41px;
+        }
+        .toolbar {
+            height: 31px;
+
+            overflow: hidden;
+            border-bottom-left-radius: prop(border-radius-medium);
+            border-bottom-right-radius: prop(border-radius-medium);
+            @include elevation(1, $opacity-boost: -0.1);
+
+            // elevated state (deck browser, overview)
+            body:not(.flat) & {
+                background: var(--canvas-elevated);
+                @include elevation(1);
+                &:hover {
+                    @include elevation(2);
+                }
+            }
+            // glass effect
+            background: var(--canvas-glass);
+            backdrop-filter: blur(var(--blur));
+        }
+
+        .hitem {
+            &:hover {
+                background: var(--canvas-inset);
+                text-decoration: none;
+            }
+            &:active {
+                @include button.base($border: false);
+                background: var(--canvas-elevated);
+            }
+            &:first-child {
+                padding-left: 18px;
+            }
+            &:last-child {
+                padding-right: 18px;
+            }
+        }
+    }
+    &:not(.fancy) {
+        border-bottom: 1px solid var(--border-subtle);
+    }
 }
 
 * {
     -webkit-user-drag: none;
-}
-
-.hitem {
-    font-weight: bold;
-    padding: 5px 12px;
-    text-decoration: none;
-    color: color(fg);
-    display: inline-block;
-
-    body:not(.flat) &,
-    &:hover {
-        @include button.base($border: false);
-        background: var(--canvas-elevated);
-    }
-    &:first-child {
-        padding-left: 18px;
-    }
-    &:last-child {
-        padding-right: 18px;
-    }
 }
 
 .hitem:focus {

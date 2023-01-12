@@ -30,6 +30,11 @@ body {
     &.no-blur * {
         backdrop-filter: none !important;
     }
+    &:not(.fancy),
+    &:not(.fancy) * {
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+    }
 }
 
 a {

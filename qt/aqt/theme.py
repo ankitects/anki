@@ -46,8 +46,7 @@ class ColoredIcon:
 
 class AnkiStyles(enum.IntEnum):
     ANKI = 0
-    FUSION = 1
-    NATIVE = 2
+    NATIVE = 1
 
 
 class Theme(enum.IntEnum):
@@ -176,6 +175,8 @@ class ThemeManager:
                 classes.append("macos-dark-mode")
         if aqt.mw.pm.reduce_motion():
             classes.append("reduce-motion")
+        if not aqt.mw.pm.minimalist_mode():
+            classes.append("fancy")
         if qtmajor == 5 and qtminor < 15:
             classes.append("no-blur")
         return " ".join(classes)
@@ -237,36 +238,24 @@ class ThemeManager:
         gui_hooks.theme_did_change()
 
     def _apply_style(self, app: QApplication) -> None:
-        from aqt.stylesheets import splitter_styles
+        buf = ""
 
-        buf = splitter_styles(self) if not aqt.mw.pm.force_native_styles() else ""
-
-        if aqt.mw.pm.force_anki_styles() or not (
-            aqt.mw.pm.force_native_styles() or aqt.mw.pm.force_fusion_styles() or is_mac
-        ):
-            from aqt.stylesheets import (
-                button_styles,
-                checkbox_styles,
-                combobox_styles,
-                general_styles,
-                menu_styles,
-                scrollbar_styles,
-                spinbox_styles,
-                table_styles,
-                tabwidget_styles,
-            )
+        if aqt.mw.pm.get_widget_style() == AnkiStyles.ANKI:
+            from aqt.stylesheets import custom_styles
 
             buf += "".join(
                 [
-                    general_styles(self),
-                    button_styles(self),
-                    checkbox_styles(self),
-                    menu_styles(self),
-                    combobox_styles(self),
-                    tabwidget_styles(self),
-                    table_styles(self),
-                    spinbox_styles(self),
-                    scrollbar_styles(self),
+                    custom_styles.general(self),
+                    custom_styles.button(self),
+                    custom_styles.checkbox(self),
+                    custom_styles.menu(self),
+                    custom_styles.combobox(self),
+                    custom_styles.tabwidget(self),
+                    custom_styles.table(self),
+                    custom_styles.spinbox(self),
+                    custom_styles.scrollbar(self),
+                    custom_styles.slider(self),
+                    custom_styles.splitter(self),
                 ]
             )
 
@@ -277,19 +266,6 @@ class ThemeManager:
 
     def _apply_palette(self, app: QApplication) -> None:
         set_macos_dark_mode(self.night_mode)
-
-        if aqt.mw.pm.force_native_styles() or (
-            is_mac and not (qtmajor == 5 or aqt.mw.pm.force_anki_styles())
-        ):
-            app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
-            self.default_palette.setColor(
-                QPalette.ColorRole.Window, self.qcolor(colors.CANVAS)
-            )
-            self.default_palette.setColor(
-                QPalette.ColorRole.AlternateBase, self.qcolor(colors.CANVAS)
-            )
-            app.setPalette(self.default_palette)
-            return
 
         app.setStyle(QStyleFactory.create("fusion"))  # type: ignore
 

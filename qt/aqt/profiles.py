@@ -21,7 +21,7 @@ from anki.db import DB
 from anki.lang import without_unicode_isolation
 from anki.sync import SyncAuth
 from anki.utils import int_time, is_mac, is_win, point_version
-from aqt import appHelpSite
+from aqt import appHelpSite, gui_hooks
 from aqt.qt import *
 from aqt.theme import AnkiStyles, Theme, theme_manager
 from aqt.utils import disable_help_button, send_to_trash, showWarning, tr
@@ -523,12 +523,21 @@ create table if not exists profiles
 
     def set_reduce_motion(self, on: bool) -> None:
         self.meta["reduce_motion"] = on
+        gui_hooks.body_classes_need_update()
+
+    def minimalist_mode(self) -> bool:
+        return self.meta.get("tatsumoto_mode", False)
+
+    def set_minimalist_mode(self, on: bool) -> None:
+        self.meta["tatsumoto_mode"] = on
+        gui_hooks.body_classes_need_update()
 
     def collapse_toolbar(self) -> bool:
         return self.meta.get("collapse_toolbar", False)
 
     def set_collapse_toolbar(self, on: bool) -> None:
         self.meta["collapse_toolbar"] = on
+        gui_hooks.body_classes_need_update()
 
     def last_addon_update_check(self) -> int:
         return self.meta.get("last_addon_update_check", 0)
@@ -546,34 +555,14 @@ create table if not exists profiles
     def set_theme(self, theme: Theme) -> None:
         self.meta["theme"] = theme.value
 
-    def set_forced_style(self, style: AnkiStyles | None) -> None:
-        if style:
-            self.meta[f"force_{AnkiStyles(style).name.lower()}_styles"] = True
-
-        for member in AnkiStyles:
-            if member != style:
-                self.meta[f"force_{AnkiStyles(member).name.lower()}_styles"] = False
-
+    def set_widget_style(self, style: AnkiStyles) -> None:
+        self.meta["widget_style"] = style
         theme_manager.apply_style()
 
-    def has_forced_style(self) -> bool:
-        for member in AnkiStyles:
-            if self.meta[f"force_{AnkiStyles(member).name.lower()}_styles"]:
-                return True
-        return False
-
-    # These getters are used by ThemeManager
-    def unset_forced_styles(self) -> None:
-        self.set_forced_style(None)
-
-    def force_anki_styles(self) -> bool:
-        return self.meta.get("force_anki_styles", False)
-
-    def force_fusion_styles(self) -> bool:
-        return self.meta.get("force_fusion_styles", False)
-
-    def force_native_styles(self) -> bool:
-        return self.meta.get("force_native_styles", False)
+    def get_widget_style(self) -> AnkiStyles:
+        return self.meta.get(
+            "widget_style", AnkiStyles.NATIVE if is_mac else AnkiStyles.ANKI
+        )
 
     def browser_layout(self) -> BrowserLayout:
         from aqt.browser.layout import BrowserLayout

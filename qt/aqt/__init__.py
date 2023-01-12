@@ -351,6 +351,7 @@ class AnkiApp(QApplication):
             QCheckBox,
             QRadioButton,
             QMenu,
+            QSlider,
             # classes with PyQt5 compatibility proxy
             without_qt5_compat_wrapper(QToolButton),
             without_qt5_compat_wrapper(QTabBar),

@@ -248,6 +248,7 @@ class AnkiWebView(QWebEngineView):
         self.resetHandlers()
         self._filterSet = False
         gui_hooks.theme_did_change.append(self.on_theme_did_change)
+        gui_hooks.body_classes_need_update.append(self.on_body_classes_need_update)
 
         qconnect(self.loadFinished, self._on_load_finished)
 
@@ -706,6 +707,7 @@ html {{ {font} }}
             return
 
         gui_hooks.theme_did_change.remove(self.on_theme_did_change)
+        gui_hooks.body_classes_need_update.remove(self.on_body_classes_need_update)
         mw.mediaServer.clear_page_html(id(self))
         self._page.deleteLater()
 
@@ -731,6 +733,16 @@ html {{ {font} }}
     }}
 }})();
 """
+        )
+
+    def on_body_classes_need_update(self) -> None:
+        from aqt import mw
+
+        self.eval(
+            f"""document.body.classList.toggle("fancy", {json.dumps(not mw.pm.minimalist_mode())}); """
+        )
+        self.eval(
+            f"""document.body.classList.toggle("reduce-motion", {json.dumps(mw.pm.minimalist_mode())}); """
         )
 
     @deprecated(info="use theme_manager.qcolor() instead")
