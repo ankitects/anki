@@ -254,38 +254,38 @@ class CustomStyles:
     def tabwidget(self, tm: ThemeManager) -> str:
         return f"""
     QTabWidget {{
-    border-radius: {tm.var(props.BORDER_RADIUS)};
-    background: none;
+        border-radius: {tm.var(props.BORDER_RADIUS)};
+        background: none;
     }}
     QTabWidget::pane {{
-    top: -15px;
-    padding-top: 1em;
-    background: {tm.var(colors.CANVAS_ELEVATED)};
-    border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-    border-radius: {tm.var(props.BORDER_RADIUS)};
+        top: -15px;
+        padding-top: 1em;
+        background: {tm.var(colors.CANVAS_ELEVATED)};
+        border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+        border-radius: {tm.var(props.BORDER_RADIUS)};
     }}
     QTabWidget::tab-bar {{
         alignment: center;
     }}
     QTabBar::tab {{
-    background: none;
-    padding: 4px 8px;
-    min-width: 8ex;
+        background: none;
+        padding: 4px 8px;
+        min-width: 8ex;
     }}
     QTabBar::tab {{
-    border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
-    border-bottom-color: {tm.var(colors.SHADOW)};
+        border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+        border-bottom-color: {tm.var(colors.SHADOW)};
     }}
     QTabBar::tab:first {{
-    border-top-{tm.left()}-radius: {tm.var(props.BORDER_RADIUS)};
-    border-bottom-{tm.left()}-radius: {tm.var(props.BORDER_RADIUS)};
+        border-top-{tm.left()}-radius: {tm.var(props.BORDER_RADIUS)};
+        border-bottom-{tm.left()}-radius: {tm.var(props.BORDER_RADIUS)};
     }}
     QTabBar::tab:!first {{
-    margin-{tm.left()}: -1px;
+        margin-{tm.left()}: -1px;
     }}
     QTabBar::tab:last {{
-    border-top-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
-    border-bottom-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
+        border-top-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
+        border-bottom-{tm.right()}-radius: {tm.var(props.BORDER_RADIUS)};
     }}
     QTabBar::tab:selected {{
         color: white;
