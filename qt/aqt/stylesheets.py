@@ -148,10 +148,9 @@ class CustomStyles:
         border-bottom: 1px solid {tm.var(colors.SHADOW)};
     }}
     QPushButton:default {{
-        background: {tm.var(colors.BUTTON_PRIMARY_BG)};
+        border: 1px solid {tm.var(colors.BORDER_FOCUS)};
     }}
-    QPushButton:focus,
-    QTabBar::tab:focus {{
+    QPushButton:focus {{
         border: 2px solid {tm.var(colors.BORDER_FOCUS)};
         outline: none;
     }}
@@ -170,12 +169,7 @@ class CustomStyles:
         };
     }}
     QPushButton:default:hover {{
-        background: {
-            button_gradient(
-                tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
-                tm.var(colors.BUTTON_PRIMARY_GRADIENT_END)
-            )
-        };
+        border-width: 2px;
     }}
     QPushButton:pressed,
     QPushButton:checked,
@@ -187,15 +181,6 @@ class CustomStyles:
             button_pressed_gradient(
                 tm.var(colors.BUTTON_GRADIENT_START),
                 tm.var(colors.BUTTON_GRADIENT_END),
-                tm.var(colors.SHADOW)
-            )
-        };
-    }}
-    QPushButton:default:pressed {{
-        background: {
-            button_pressed_gradient(
-                tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
-                tm.var(colors.BUTTON_PRIMARY_GRADIENT_END),
                 tm.var(colors.SHADOW)
             )
         };
@@ -327,6 +312,9 @@ class CustomStyles:
                 tm.var(colors.BUTTON_PRIMARY_GRADIENT_END),
             )
         };
+    }}
+    QTabBar::tab:focus {{
+        outline: none;
     }}
     QTabBar::tab:disabled,
     QTabBar::tab:disabled:hover {{
