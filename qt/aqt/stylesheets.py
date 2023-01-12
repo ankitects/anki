@@ -350,7 +350,7 @@ class CustomStyles:
         gridline-color: {tm.var(colors.BORDER_SUBTLE)};
         selection-background-color: {tm.var(colors.SELECTED_BG)};
         selection-color: {tm.var(colors.SELECTED_FG)};
-        background: {tm.var(colors.CANVAS_INSET)};
+        background: {tm.var(colors.CANVAS_CODE)};
     }}
     QHeaderView {{
         background: {tm.var(colors.CANVAS)};
