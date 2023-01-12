@@ -489,8 +489,10 @@ class CustomStyles:
     QMenu::indicator:exclusive {{
         border-radius: 8px;
     }}
+    QCheckBox::indicator:focus,
     QCheckBox::indicator:hover,
     QCheckBox::indicator:checked:hover,
+    QRadioButton::indicator:focus,
     QRadioButton::indicator:hover,
     QRadioButton::indicator:checked:hover {{
         border: 2px solid {tm.var(colors.BORDER_STRONG)};
