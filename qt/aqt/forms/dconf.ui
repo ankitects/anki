@@ -193,6 +193,13 @@
            </property>
           </widget>
          </item>
+         <item row="7" column="0" colspan="3"  alignment="Qt::AlignLeft">
+          <widget class="QCheckBox" name="buryInterdayLearningSiblings">
+           <property name="text">
+            <string>deck_config_bury_interday_learning_siblings</string>
+           </property>
+          </widget>
+         </item>
          <item row="4" column="2">
           <widget class="QLabel" name="label_9">
            <property name="text">
