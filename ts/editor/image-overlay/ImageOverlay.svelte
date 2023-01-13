@@ -24,25 +24,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HandleControl from "../HandleControl.svelte";
     import HandleLabel from "../HandleLabel.svelte";
     import { context } from "../NoteEditor.svelte";
-    import type { RichTextInputAPI } from "../rich-text-input";
-    import {
-        editingInputIsRichText,
-        lifecycle as richTextLifecycle,
-    } from "../rich-text-input";
+    import { editingInputIsRichText } from "../rich-text-input";
     import FloatButtons from "./FloatButtons.svelte";
     import SizeSelect from "./SizeSelect.svelte";
 
     export let maxWidth: number;
     export let maxHeight: number;
 
-    richTextLifecycle.onMount(({ element }: RichTextInputAPI): void => {
-        (async () => {
-            const container = await element;
+    (<[string, number][]>[
+        ["--editor-shrink-max-width", maxWidth],
+        ["--editor-shrink-max-height", maxHeight],
+        ["--editor-default-max-width", maxWidth],
+        ["--editor-default-max-height", maxHeight],
+    ]).forEach(([prop, value]) =>
+        document.documentElement.style.setProperty(prop, `${value}px`),
+    );
 
-            container.style.setProperty("--editor-shrink-max-width", `${maxWidth}px`);
-            container.style.setProperty("--editor-shrink-max-height", `${maxHeight}px`);
-        })();
-    });
+    $: document.documentElement.classList.toggle(
+        "shrink-image",
+        $shrinkImagesByDefault,
+    );
 
     const { focusedInput } = context.get();
 
@@ -80,24 +81,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             isSizeConstrained =
                 getBooleanDatasetAttribute(activeImage, "editorShrink") ??
                 $shrinkImagesByDefault;
-        }
-    }
-
-    $: {
-        if ($shrinkImagesByDefault) {
-            document.documentElement.style.setProperty(
-                "--editor-default-max-width",
-                `${maxWidth}px`,
-            );
-            document.documentElement.style.setProperty(
-                "--editor-default-max-height",
-                `${maxHeight}px`,
-            );
-        } else {
-            document.documentElement.style.removeProperty("--editor-default-max-width");
-            document.documentElement.style.removeProperty(
-                "--editor-default-max-height",
-            );
         }
     }
 
