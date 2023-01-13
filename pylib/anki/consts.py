@@ -155,6 +155,17 @@ def new_sort_order_choices(
     }
 
 
+def review_mix_choices(
+    col: anki.collection.Collection | None,
+) -> dict[int, Any]:
+    tr = _tr(col)
+    return {
+        0: tr.deck_config_review_mix_mix_with_reviews(),
+        1: tr.deck_config_review_mix_show_after_reviews(),
+        2: tr.deck_config_review_mix_show_before_reviews(),
+    }
+
+
 _deprecated_names = DeprecatedNamesMixinForModule(globals())
 
 

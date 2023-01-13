@@ -67,6 +67,12 @@ class DeckConf(QDialog):
         f.buryInterdayLearningSiblings.setToolTip(tr.deck_config_bury_interday_learning_tooltip())
         f.newGatherPriority.setToolTip(tr.deck_config_new_gather_priority_tooltip_2())
         f.newSortOrder.setToolTip(tr.deck_config_new_card_sort_order_tooltip_2())
+        f.newMix.setToolTip(
+            f"{tr.deck_config_new_review_priority_tooltip()}"
+            "\n\n"
+            f"{tr.deck_config_display_order_will_use_current_deck()}"
+        )
+        f.interdayLearningMix.setToolTip(tr.deck_config_interday_step_priority_tooltip())
 
     def setupCombos(self) -> None:
         import anki.consts as cs
@@ -78,6 +84,8 @@ class DeckConf(QDialog):
 
         f.newGatherPriority.addItems(list(cs.new_gather_priority_choices(self.mw.col).values()))
         f.newSortOrder.addItems(list(cs.new_sort_order_choices(self.mw.col).values()))
+        f.newMix.addItems(list(cs.review_mix_choices(self.mw.col).values()))
+        f.interdayLearningMix.addItems(list(cs.review_mix_choices(self.mw.col).values()))
 
     # Conf list
     ######################################################################
@@ -224,6 +232,7 @@ class DeckConf(QDialog):
         f.buryInterdayLearningSiblings.setChecked(self.conf["buryInterdayLearning"])
         f.newGatherPriority.setCurrentIndex(self.conf["newGatherPriority"])
         f.newSortOrder.setCurrentIndex(self.conf["newSortOrder"])
+        f.newMix.setCurrentIndex(self.conf["newMix"])
 
         # rev
         c = self.conf["rev"]
@@ -237,6 +246,7 @@ class DeckConf(QDialog):
         if self.mw.col.sched_ver() == 1:
             f.hardFactor.setVisible(False)
             f.hardFactorLabel.setVisible(False)
+        f.interdayLearningMix.setCurrentIndex(self.conf["interdayLearningMix"])
 
         # lapse
         c = self.conf["lapse"]
@@ -317,6 +327,7 @@ class DeckConf(QDialog):
         self.conf["buryInterdayLearning"] = f.buryInterdayLearningSiblings.isChecked()
         self.conf["newGatherPriority"] = f.newGatherPriority.currentIndex()
         self.conf["newSortOrder"] = f.newSortOrder.currentIndex()
+        self.conf["newMix"] = f.newMix.currentIndex()
 
         # rev
         c = self.conf["rev"]
@@ -326,6 +337,7 @@ class DeckConf(QDialog):
         c["maxIvl"] = f.maxIvl.value()
         c["bury"] = f.buryRev.isChecked()
         c["hardFactor"] = f.hardFactor.value() / 100.0
+        self.conf["interdayLearningMix"] = f.interdayLearningMix.currentIndex()
 
         # lapse
         c = self.conf["lapse"]

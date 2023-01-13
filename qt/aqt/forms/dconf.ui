@@ -94,14 +94,14 @@
          <property name="spacing">
           <number>12</number>
          </property>
-         <item row="7" column="0">
+         <item row="8" column="0">
           <widget class="QLabel" name="label_24">
            <property name="text">
             <string>scheduling_starting_ease</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="1">
+         <item row="8" column="1">
           <widget class="QSpinBox" name="lrnFactor">
            <property name="suffix">
             <string notr="true">%</string>
@@ -138,14 +138,21 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="1">
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_40">
+           <property name="text">
+            <string>deck_config_new_review_priority</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
           <widget class="QSpinBox" name="lrnEasyInt">
            <property name="minimum">
             <number>1</number>
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="6" column="1">
           <widget class="QSpinBox" name="lrnGradInt">
            <property name="minimum">
             <number>1</number>
@@ -159,28 +166,28 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
+         <item row="7" column="0">
           <widget class="QLabel" name="label_5">
            <property name="text">
             <string>scheduling_easy_interval</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
+         <item row="6" column="0">
           <widget class="QLabel" name="label_4">
            <property name="text">
             <string>scheduling_graduating_interval</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="5" column="1">
           <widget class="QSpinBox" name="newPerDay">
            <property name="maximum">
             <number>9999</number>
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
+         <item row="5" column="0">
           <widget class="QLabel" name="label_6">
            <property name="text">
             <string>scheduling_new_cardsday</string>
@@ -206,28 +213,31 @@
          <item row="3" column="1" colspan="2">
           <widget class="QComboBox" name="newSortOrder"/>
          </item>
-         <item row="8" column="0" colspan="3"  alignment="Qt::AlignLeft">
+         <item row="4" column="1" colspan="2">
+          <widget class="QComboBox" name="newMix"/>
+         </item>
+         <item row="9" column="0" colspan="3"  alignment="Qt::AlignLeft">
           <widget class="QCheckBox" name="bury">
            <property name="text">
             <string>scheduling_bury_related_new_cards_until_the</string>
            </property>
           </widget>
          </item>
-         <item row="9" column="0" colspan="3"  alignment="Qt::AlignLeft">
+         <item row="10" column="0" colspan="3"  alignment="Qt::AlignLeft">
           <widget class="QCheckBox" name="buryInterdayLearningSiblings">
            <property name="text">
             <string>deck_config_bury_interday_learning_siblings</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="2">
+         <item row="7" column="2">
           <widget class="QLabel" name="label_9">
            <property name="text">
             <string>scheduling_days</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="2">
+         <item row="6" column="2">
           <widget class="QLabel" name="label_7">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -382,7 +392,7 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="0" colspan="3"  alignment="Qt::AlignLeft">
+         <item row="6" column="0" colspan="3"  alignment="Qt::AlignLeft">
           <widget class="QCheckBox" name="buryRev">
            <property name="text">
             <string>scheduling_bury_related_reviews_until_the_next</string>
@@ -393,6 +403,13 @@
           <widget class="QLabel" name="hardFactorLabel">
            <property name="text">
             <string>scheduling_hard_interval</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="interdayLearningMixLabel">
+           <property name="text">
+            <string>deck_config_interday_step_priority</string>
            </property>
           </widget>
          </item>
@@ -408,6 +425,9 @@
             <number>120</number>
            </property>
           </widget>
+         </item>
+         <item row="5" column="1" colspan="2">
+          <widget class="QComboBox" name="interdayLearningMix"/>
          </item>
         </layout>
        </item>
