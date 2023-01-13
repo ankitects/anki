@@ -210,6 +210,7 @@ class DeckConf(QDialog):
         f.newPerDay.setValue(c["perDay"])
         f.bury.setChecked(c.get("bury", True))
         f.newplim.setText(self.parentLimText("new"))
+        f.buryInterdayLearningSiblings.setChecked(self.conf["buryInterdayLearning"])
         # rev
         c = self.conf["rev"]
         f.revPerDay.setValue(c["perDay"])
@@ -297,6 +298,7 @@ class DeckConf(QDialog):
                 self.mw.col.sched.randomize_cards(self.deck["id"])
             else:
                 self.mw.col.sched.order_cards(self.deck["id"])
+        self.conf["buryInterdayLearning"] = f.buryInterdayLearningSiblings.isChecked()
         # rev
         c = self.conf["rev"]
         c["perDay"] = f.revPerDay.value()
