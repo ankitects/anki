@@ -162,7 +162,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let fieldDescriptions: string[] = [];
     export function setDescriptions(descriptions: string[]): void {
-        fieldDescriptions = descriptions;
+        fieldDescriptions = descriptions.map((d) =>
+            d.replace(/\\/g, "").replace(/"/g, '\\"'),
+        );
     }
 
     let fonts: [string, number, boolean][] = [];
