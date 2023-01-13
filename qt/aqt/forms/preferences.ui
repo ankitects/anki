@@ -120,6 +120,13 @@
          </property>
         </widget>
        </item>
+       <item alignment="Qt::AlignLeft">
+        <widget class="QCheckBox" name="webview_based_deck_options">
+         <property name="text">
+          <string>preferences_enable_webview_based_deck_options_dialog</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QComboBox" name="useCurrent">
          <item>

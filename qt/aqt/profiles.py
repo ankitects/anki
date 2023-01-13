@@ -527,8 +527,14 @@ create table if not exists profiles
     def collapse_toolbar(self) -> bool:
         return self.meta.get("collapse_toolbar", False)
 
+    def webview_based_deck_options(self) -> bool:
+        return self.meta.get("webview_based_deck_options", False)
+
     def set_collapse_toolbar(self, on: bool) -> None:
         self.meta["collapse_toolbar"] = on
+
+    def set_webview_based_deck_options(self, on: bool) -> None:
+        self.meta["webview_based_deck_options"] = on
 
     def last_addon_update_check(self) -> int:
         return self.meta.get("last_addon_update_check", 0)

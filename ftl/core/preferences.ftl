@@ -49,3 +49,4 @@ preferences-minutes-between-backups = Minutes between automatic backups:
 preferences-reduce-motion = Reduce motion
 preferences-reduce-motion-tooltip = Disable various animations and transitions of the user interface
 preferences-collapse-toolbar = Hide top bar during review
+preferences-enable-webview-based-deck-options-dialog = Use WebView-based Options Groups dialog
