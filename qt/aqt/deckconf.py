@@ -223,6 +223,7 @@ class DeckConf(QDialog):
         if self.mw.col.sched_ver() == 1:
             f.hardFactor.setVisible(False)
             f.hardFactorLabel.setVisible(False)
+
         # lapse
         c = self.conf["lapse"]
         f.lapSteps.setText(self.listToUser(c["delays"]))
@@ -230,6 +231,7 @@ class DeckConf(QDialog):
         f.lapMinInt.setValue(c["minInt"])
         f.leechThreshold.setValue(c["leechFails"])
         f.leechAction.setCurrentIndex(c["leechAction"])
+
         # general
         c = self.conf
         f.maxTaken.setValue(c["maxTaken"])
@@ -299,6 +301,7 @@ class DeckConf(QDialog):
             else:
                 self.mw.col.sched.order_cards(self.deck["id"])
         self.conf["buryInterdayLearning"] = f.buryInterdayLearningSiblings.isChecked()
+
         # rev
         c = self.conf["rev"]
         c["perDay"] = f.revPerDay.value()
@@ -307,6 +310,7 @@ class DeckConf(QDialog):
         c["maxIvl"] = f.maxIvl.value()
         c["bury"] = f.buryRev.isChecked()
         c["hardFactor"] = f.hardFactor.value() / 100.0
+
         # lapse
         c = self.conf["lapse"]
         self.updateList(c, "delays", f.lapSteps, minSize=0)
@@ -314,6 +318,7 @@ class DeckConf(QDialog):
         c["minInt"] = f.lapMinInt.value()
         c["leechFails"] = f.leechThreshold.value()
         c["leechAction"] = f.leechAction.currentIndex()
+
         # general
         c = self.conf
         c["maxTaken"] = f.maxTaken.value()
