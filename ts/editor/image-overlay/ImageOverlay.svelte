@@ -248,6 +248,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 offset={20}
                 inline
                 hideIfReferenceHidden
+                portalTarget={document.body}
                 let:position={positionFloating}
                 on:close={async ({ detail }) => {
                     const { reason, originalEvent } = detail;
