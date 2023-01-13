@@ -66,6 +66,7 @@ class DeckConf(QDialog):
         f = self.form
         f.buryInterdayLearningSiblings.setToolTip(tr.deck_config_bury_interday_learning_tooltip())
         f.newGatherPriority.setToolTip(tr.deck_config_new_gather_priority_tooltip_2())
+        f.newSortOrder.setToolTip(tr.deck_config_new_card_sort_order_tooltip_2())
 
     def setupCombos(self) -> None:
         import anki.consts as cs
@@ -76,6 +77,7 @@ class DeckConf(QDialog):
         qconnect(f.newOrder.currentIndexChanged, self.onNewOrderChanged)
 
         f.newGatherPriority.addItems(list(cs.new_gather_priority_choices(self.mw.col).values()))
+        f.newSortOrder.addItems(list(cs.new_sort_order_choices(self.mw.col).values()))
 
     # Conf list
     ######################################################################
@@ -221,6 +223,7 @@ class DeckConf(QDialog):
         f.newplim.setText(self.parentLimText("new"))
         f.buryInterdayLearningSiblings.setChecked(self.conf["buryInterdayLearning"])
         f.newGatherPriority.setCurrentIndex(self.conf["newGatherPriority"])
+        f.newSortOrder.setCurrentIndex(self.conf["newSortOrder"])
 
         # rev
         c = self.conf["rev"]
@@ -313,6 +316,7 @@ class DeckConf(QDialog):
                 self.mw.col.sched.order_cards(self.deck["id"])
         self.conf["buryInterdayLearning"] = f.buryInterdayLearningSiblings.isChecked()
         self.conf["newGatherPriority"] = f.newGatherPriority.currentIndex()
+        self.conf["newSortOrder"] = f.newSortOrder.currentIndex()
 
         # rev
         c = self.conf["rev"]

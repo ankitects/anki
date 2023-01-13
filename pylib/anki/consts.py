@@ -142,6 +142,19 @@ def new_gather_priority_choices(
     }
 
 
+def new_sort_order_choices(
+    col: anki.collection.Collection | None,
+) -> dict[int, Any]:
+    tr = _tr(col)
+    return {
+        0: tr.deck_config_sort_order_template_then_gather(),
+        1: tr.deck_config_sort_order_gather(),
+        2: tr.deck_config_sort_order_card_template_then_random(),
+        3: tr.deck_config_sort_order_random_note_then_template(),
+        4: tr.deck_config_sort_order_random(),
+    }
+
+
 _deprecated_names = DeprecatedNamesMixinForModule(globals())
 
 
