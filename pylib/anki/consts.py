@@ -129,6 +129,19 @@ def new_card_scheduling_labels(
     }
 
 
+def new_gather_priority_choices(
+    col: anki.collection.Collection | None,
+) -> dict[int, Any]:
+    tr = _tr(col)
+    return {
+        0: tr.deck_config_new_gather_priority_deck(),
+        1: tr.deck_config_new_gather_priority_position_lowest_first(),
+        2: tr.deck_config_new_gather_priority_position_highest_first(),
+        3: tr.deck_config_new_gather_priority_random_notes(),
+        4: tr.deck_config_new_gather_priority_random_cards(),
+    }
+
+
 _deprecated_names = DeprecatedNamesMixinForModule(globals())
 
 

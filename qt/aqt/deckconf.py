@@ -65,13 +65,17 @@ class DeckConf(QDialog):
     def setTooltips(self):
         f = self.form
         f.buryInterdayLearningSiblings.setToolTip(tr.deck_config_bury_interday_learning_tooltip())
+        f.newGatherPriority.setToolTip(tr.deck_config_new_gather_priority_tooltip_2())
 
     def setupCombos(self) -> None:
         import anki.consts as cs
 
         f = self.form
+
         f.newOrder.addItems(list(cs.new_card_order_labels(self.mw.col).values()))
         qconnect(f.newOrder.currentIndexChanged, self.onNewOrderChanged)
+
+        f.newGatherPriority.addItems(list(cs.new_gather_priority_choices(self.mw.col).values()))
 
     # Conf list
     ######################################################################
@@ -216,6 +220,8 @@ class DeckConf(QDialog):
         f.bury.setChecked(c.get("bury", True))
         f.newplim.setText(self.parentLimText("new"))
         f.buryInterdayLearningSiblings.setChecked(self.conf["buryInterdayLearning"])
+        f.newGatherPriority.setCurrentIndex(self.conf["newGatherPriority"])
+
         # rev
         c = self.conf["rev"]
         f.revPerDay.setValue(c["perDay"])
@@ -306,6 +312,7 @@ class DeckConf(QDialog):
             else:
                 self.mw.col.sched.order_cards(self.deck["id"])
         self.conf["buryInterdayLearning"] = f.buryInterdayLearningSiblings.isChecked()
+        self.conf["newGatherPriority"] = f.newGatherPriority.currentIndex()
 
         # rev
         c = self.conf["rev"]
