@@ -29,6 +29,8 @@ from aqt.utils import (
 
 
 class DeckConf(QDialog):
+    name = "deckconf"
+
     def __init__(self, mw: aqt.AnkiQt, deck: dict) -> None:
         QDialog.__init__(self, mw)
         self.mw = mw
@@ -57,10 +59,9 @@ class DeckConf(QDialog):
         )
         disable_help_button(self)
         # qt doesn't size properly with altered fonts otherwise
-        restoreGeom(self, "deckconf", adjustSize=True)
+        restoreGeom(self, self.name, adjustSize=True)
         gui_hooks.deck_conf_will_show(self)
         self.open()
-        saveGeom(self, "deckconf")
 
     def setTooltips(self):
         f = self.form
@@ -392,3 +393,7 @@ class DeckConf(QDialog):
         self.saveConf()
         self.mw.reset()
         QDialog.accept(self)
+
+    def done(self, *args, **kwargs) -> None:
+        saveGeom(self, self.name)
+        return super().done(*args, **kwargs)
