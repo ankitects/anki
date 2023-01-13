@@ -39,6 +39,7 @@ class DeckConf(QDialog):
         self.form.setupUi(self)
         gui_hooks.deck_conf_did_setup_ui_form(self)
         self.mw.checkpoint(tr.actions_options())
+        self.setTooltips()
         self.setupCombos()
         self.setupConfs()
         qconnect(
@@ -60,6 +61,10 @@ class DeckConf(QDialog):
         gui_hooks.deck_conf_will_show(self)
         self.open()
         saveGeom(self, "deckconf")
+
+    def setTooltips(self):
+        f = self.form
+        f.buryInterdayLearningSiblings.setToolTip(tr.deck_config_bury_interday_learning_tooltip())
 
     def setupCombos(self) -> None:
         import anki.consts as cs
