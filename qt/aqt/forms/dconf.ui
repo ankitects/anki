@@ -392,7 +392,7 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="0" colspan="3"  alignment="Qt::AlignLeft">
+         <item row="7" column="0" colspan="3"  alignment="Qt::AlignLeft">
           <widget class="QCheckBox" name="buryRev">
            <property name="text">
             <string>scheduling_bury_related_reviews_until_the_next</string>
@@ -413,6 +413,13 @@
            </property>
           </widget>
          </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="reviewOrderLabel">
+           <property name="text">
+            <string>deck_config_review_sort_order</string>
+           </property>
+          </widget>
+         </item>
          <item row="4" column="1">
           <widget class="QSpinBox" name="hardFactor">
            <property name="suffix">
@@ -428,6 +435,9 @@
          </item>
          <item row="5" column="1" colspan="2">
           <widget class="QComboBox" name="interdayLearningMix"/>
+         </item>
+         <item row="6" column="1" colspan="2">
+          <widget class="QComboBox" name="reviewOrder"/>
          </item>
         </layout>
        </item>

@@ -166,6 +166,22 @@ def review_mix_choices(
     }
 
 
+def review_order_choices(
+    col: anki.collection.Collection | None,
+) -> dict[int, Any]:
+    tr = _tr(col)
+    return {
+        0: tr.deck_config_sort_order_due_date_then_random(),
+        1: tr.deck_config_sort_order_due_date_then_deck(),
+        2: tr.deck_config_sort_order_deck_then_due_date(),
+        3: tr.deck_config_sort_order_ascending_intervals(),
+        4: tr.deck_config_sort_order_descending_intervals(),
+        5: tr.deck_config_sort_order_ascending_ease(),
+        6: tr.deck_config_sort_order_descending_ease(),
+        7: tr.deck_config_sort_order_relative_overdueness(),
+    }
+
+
 _deprecated_names = DeprecatedNamesMixinForModule(globals())
 
 

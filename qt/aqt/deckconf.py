@@ -64,28 +64,53 @@ class DeckConf(QDialog):
 
     def setTooltips(self):
         f = self.form
+
+        # new
         f.buryInterdayLearningSiblings.setToolTip(tr.deck_config_bury_interday_learning_tooltip())
-        f.newGatherPriority.setToolTip(tr.deck_config_new_gather_priority_tooltip_2())
-        f.newSortOrder.setToolTip(tr.deck_config_new_card_sort_order_tooltip_2())
+        f.newGatherPriority.setToolTip(
+            f"{tr.deck_config_new_gather_priority_tooltip_2()}"
+            "\n\n"
+            f"{tr.deck_config_display_order_will_use_current_deck()}"
+        )
+        f.newSortOrder.setToolTip(
+            f"{tr.deck_config_new_card_sort_order_tooltip_2()}"
+            "\n\n"
+            f"{tr.deck_config_display_order_will_use_current_deck()}"
+        )
         f.newMix.setToolTip(
             f"{tr.deck_config_new_review_priority_tooltip()}"
             "\n\n"
             f"{tr.deck_config_display_order_will_use_current_deck()}"
         )
-        f.interdayLearningMix.setToolTip(tr.deck_config_interday_step_priority_tooltip())
+
+        # review
+        f.interdayLearningMix.setToolTip(
+            f"{tr.deck_config_interday_step_priority_tooltip()}"
+            "\n\n"
+            f"{tr.deck_config_display_order_will_use_current_deck()}"
+        )
+        f.reviewOrder.setToolTip(
+            f"{tr.deck_config_review_sort_order_tooltip()}"
+            "\n\n"
+            f"{tr.deck_config_display_order_will_use_current_deck()}"
+        )
 
     def setupCombos(self) -> None:
         import anki.consts as cs
 
         f = self.form
 
+        # new
         f.newOrder.addItems(list(cs.new_card_order_labels(self.mw.col).values()))
         qconnect(f.newOrder.currentIndexChanged, self.onNewOrderChanged)
 
         f.newGatherPriority.addItems(list(cs.new_gather_priority_choices(self.mw.col).values()))
         f.newSortOrder.addItems(list(cs.new_sort_order_choices(self.mw.col).values()))
         f.newMix.addItems(list(cs.review_mix_choices(self.mw.col).values()))
+
+        # review
         f.interdayLearningMix.addItems(list(cs.review_mix_choices(self.mw.col).values()))
+        f.reviewOrder.addItems(list(cs.review_order_choices(self.mw.col).values()))
 
     # Conf list
     ######################################################################
@@ -218,6 +243,7 @@ class DeckConf(QDialog):
 
     def loadConf(self) -> None:
         self.conf = self.mw.col.decks.config_dict_for_deck_id(self.deck["id"])
+
         # new
         c = self.conf["new"]
         f = self.form
@@ -247,6 +273,7 @@ class DeckConf(QDialog):
             f.hardFactor.setVisible(False)
             f.hardFactorLabel.setVisible(False)
         f.interdayLearningMix.setCurrentIndex(self.conf["interdayLearningMix"])
+        f.reviewOrder.setCurrentIndex(self.conf["reviewOrder"])
 
         # lapse
         c = self.conf["lapse"]
@@ -338,6 +365,7 @@ class DeckConf(QDialog):
         c["bury"] = f.buryRev.isChecked()
         c["hardFactor"] = f.hardFactor.value() / 100.0
         self.conf["interdayLearningMix"] = f.interdayLearningMix.currentIndex()
+        self.conf["reviewOrder"] = f.reviewOrder.currentIndex()
 
         # lapse
         c = self.conf["lapse"]
