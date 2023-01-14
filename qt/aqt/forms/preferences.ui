@@ -136,6 +136,32 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_7">
           <item>
+           <widget class="QCheckBox" name="hide_top_bar">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_hide_top_bar_during_review</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="hide_bottom_bar">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_hide_bottom_bar_during_review</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QCheckBox" name="reduce_motion">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -161,32 +187,6 @@
             </property>
             <property name="text">
              <string>preferences_minimalist_mode</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="hide_top_bar">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>preferences_hide_top_bar_during_review</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="hide_bottom_bar">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>preferences_hide_bottom_bar_during_review</string>
             </property>
            </widget>
           </item>
@@ -1003,6 +1003,8 @@
   <tabstop>theme</tabstop>
   <tabstop>styleComboBox</tabstop>
   <tabstop>uiScale</tabstop>
+  <tabstop>hide_top_bar</tabstop>
+  <tabstop>hide_bottom_bar</tabstop>
   <tabstop>reduce_motion</tabstop>
   <tabstop>minimalist_mode</tabstop>
   <tabstop>pastePNG</tabstop>
@@ -1011,6 +1013,8 @@
   <tabstop>default_search_text</tabstop>
   <tabstop>ignore_accents_in_search</tabstop>
   <tabstop>legacy_import_export</tabstop>
+  <tabstop>sched2021</tabstop>
+  <tabstop>dayLearnFirst</tabstop>
   <tabstop>legacy_timezone</tabstop>
   <tabstop>dayOffset</tabstop>
   <tabstop>lrnCutoff</tabstop>
@@ -1031,8 +1035,6 @@
   <tabstop>weekly_backups</tabstop>
   <tabstop>monthly_backups</tabstop>
   <tabstop>tabWidget</tabstop>
-  <tabstop>sched2021</tabstop>
-  <tabstop>dayLearnFirst</tabstop>
  </tabstops>
  <resources/>
  <connections>
