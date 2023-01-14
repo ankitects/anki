@@ -67,7 +67,24 @@ class DeckConf(QDialog):
         f = self.form
 
         # new
+        f.lrnSteps.setToolTip(tr.deck_config_learning_steps_tooltip())
+        f.newOrder.setToolTip(tr.deck_config_new_insertion_order_tooltip())
+        f.bury.setToolTip(tr.deck_config_bury_new_tooltip())
         f.buryInterdayLearningSiblings.setToolTip(tr.deck_config_bury_interday_learning_tooltip())
+        f.lrnGradInt.setToolTip(tr.deck_config_graduating_interval_tooltip())
+        f.lrnEasyInt.setToolTip(tr.deck_config_easy_interval_tooltip())
+        f.lrnFactor.setToolTip(tr.deck_config_starting_ease_tooltip())
+        f.newPerDay.setToolTip(
+            f"{tr.deck_config_new_limit_tooltip()}"
+            "\n\n"
+            f"{tr.deck_config_limit_new_bound_by_reviews()}"
+            "\n\n"
+            f"{tr.deck_config_limit_interday_bound_by_reviews()}"
+            "\n\n"
+            f"{tr.deck_config_limit_deck_v3()}"
+            "\n\n"
+            f"{tr.deck_config_tab_description()}"
+        )
         f.newGatherPriority.setToolTip(
             f"{tr.deck_config_new_gather_priority_tooltip_2()}"
             "\n\n"
@@ -85,6 +102,22 @@ class DeckConf(QDialog):
         )
 
         # review
+        f.easyBonus.setToolTip(tr.deck_config_easy_bonus_tooltip())
+        f.fi1.setToolTip(tr.deck_config_interval_modifier_tooltip())
+        f.maxIvl.setToolTip(tr.deck_config_maximum_interval_tooltip())
+        f.hardFactor.setToolTip(tr.deck_config_hard_interval_tooltip())
+        f.revPerDay.setToolTip(
+            f"{tr.deck_config_review_limit_tooltip()}"
+            "\n\n"
+            f"{tr.deck_config_limit_new_bound_by_reviews()}"
+            "\n\n"
+            f"{tr.deck_config_limit_interday_bound_by_reviews()}"
+            "\n\n"
+            f"{tr.deck_config_limit_deck_v3()}"
+            "\n\n"
+            f"{tr.deck_config_tab_description()}"
+        )
+        f.buryRev.setToolTip(tr.deck_config_bury_review_tooltip())
         f.interdayLearningMix.setToolTip(
             f"{tr.deck_config_interday_step_priority_tooltip()}"
             "\n\n"
@@ -95,6 +128,19 @@ class DeckConf(QDialog):
             "\n\n"
             f"{tr.deck_config_display_order_will_use_current_deck()}"
         )
+
+        # lapse
+        f.lapSteps.setToolTip(tr.deck_config_relearning_steps_tooltip())
+        f.lapMult.setToolTip(tr.deck_config_new_interval_tooltip())
+        f.lapMinInt.setToolTip(tr.deck_config_minimum_interval_tooltip())
+        f.leechThreshold.setToolTip(tr.deck_config_leech_threshold_tooltip())
+        f.leechAction.setToolTip(tr.deck_config_leech_action_tooltip())
+
+        # general
+        f.maxTaken.setToolTip(tr.deck_config_maximum_answer_secs_tooltip())
+        f.showTimer.setToolTip(tr.deck_config_show_answer_timer_tooltip())
+        # f.autoplaySounds.setToolTip(missing)
+        f.replayQuestion.setToolTip(tr.deck_config_always_include_question_audio_tooltip())
 
     def setupCombos(self) -> None:
         import anki.consts as cs
