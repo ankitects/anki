@@ -36,26 +36,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "sass/elevation" as *;
     .container {
         width: 100%;
-        :global(.fancy) & {
-            background: var(--canvas-elevated);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--border-radius-medium, 10px);
+        background: var(--canvas-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--border-radius-medium, 10px);
 
-            &.light {
-                @include elevation(2, $opacity-boost: -0.08);
-                &:hover,
-                &:focus-within {
-                    @include elevation(3);
-                }
-            }
-            &.dark {
-                @include elevation(3, $opacity-boost: -0.08);
-                &:hover,
-                &:focus-within {
-                    @include elevation(4);
-                }
+        &.light {
+            @include elevation(2, $opacity-boost: -0.08);
+            &:hover,
+            &:focus-within {
+                @include elevation(3);
             }
         }
+        &.dark {
+            @include elevation(3, $opacity-boost: -0.08);
+            &:hover,
+            &:focus-within {
+                @include elevation(4);
+            }
+        }
+
         padding: 1rem 1.75rem 0.75rem 1.25rem;
         &.rtl {
             padding: 1rem 1.25rem 0.75rem 1.75rem;
