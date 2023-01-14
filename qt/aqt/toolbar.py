@@ -133,23 +133,43 @@ class TopWebView(ToolbarWebView):
         if self.mw.pm.minimalist_mode():
             return
 
-        def set_background(val: str) -> None:
+        def set_background(computed: str) -> None:
             # remove offset from copy
-            background = re.sub(r"-\d+px ", "0%", val)
+            background = re.sub(r"-\d+px ", "0%", computed)
+            # ensure alignment with main webview
+            background = re.sub(r"\sfixed", "", background)
             # change computedStyle px value back to 100vw
             background = re.sub(r"\d+px", "100vw", background)
 
             self.eval(
-                f"""document.body.style.setProperty("background", '{background}'); """
+                f"""
+                    document.body.style.setProperty("background", '{background}');
+                """
             )
+            self.set_body_height(self.mw.web.height())
+
             # offset reviewer background by toolbar height
             self.mw.web.eval(
                 f"""document.body.style.setProperty("background-position-y", "-{self.web_height}px"); """
             )
 
+
         self.mw.web.evalWithCallback(
             """window.getComputedStyle(document.body).background; """,
             set_background,
+        )
+
+    def set_body_height(self, height: int) -> None:
+        self.eval(
+            f"""document.body.style.setProperty("min-height", "{self.mw.web.height()}px"); """
+        )
+        
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
+
+        self.mw.web.evalWithCallback(
+            """window.innerHeight; """,
+            self.set_body_height,
         )
 
 
