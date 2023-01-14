@@ -66,7 +66,7 @@ from aqt.qt import sip
 from aqt.sync import sync_collection, sync_login
 from aqt.taskman import TaskManager
 from aqt.theme import Theme, theme_manager
-from aqt.toolbar import Toolbar, ToolbarWebView
+from aqt.toolbar import BottomWebView, Toolbar, TopWebView
 from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
@@ -150,17 +150,17 @@ class MainWebView(AnkiWebView):
             return handled
 
         if evt.type() == QEvent.Type.Leave:
-            if self.mw.pm.collapse_toolbar():
-                # Expand toolbar when mouse moves above main webview
-                # and automatically collapse it with delay after mouse leaves
-                if self.mapFromGlobal(QCursor.pos()).y() < self.geometry().y():
-                    if self.mw.toolbarWeb.collapsed:
-                        self.mw.toolbarWeb.expand()
+            if self.mw.pm.hide_top_bar():
+                # Show toolbar when mouse moves outside main webview
+                # and automatically hide it with delay after mouse has entered again
+                self.mw.toolbarWeb.show()
+                self.mw.bottomWeb.show()
                 return True
 
         if evt.type() == QEvent.Type.Enter:
-            if self.mw.pm.collapse_toolbar():
+            if self.mw.pm.hide_top_bar():
                 self.mw.toolbarWeb.hide_timer.start()
+                self.mw.bottomWeb.hide_timer.start()
                 return True
 
         return False
@@ -729,16 +729,21 @@ class AnkiQt(QMainWindow):
 
     def _reviewState(self, oldState: MainWindowState) -> None:
         self.reviewer.show()
-        if self.pm.collapse_toolbar():
-            self.toolbarWeb.collapse()
+
+        if self.pm.hide_top_bar():
+            self.toolbarWeb.hide()
         else:
             self.toolbarWeb.flatten()
+
+        if self.pm.hide_bottom_bar():
+            self.bottomWeb.hide()
 
     def _reviewCleanup(self, newState: MainWindowState) -> None:
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
             self.toolbarWeb.elevate()
-            self.toolbarWeb.expand()
+            self.toolbarWeb.show()
+            self.bottomWeb.show()
 
     # Resetting state
     ##########################################################################
@@ -872,12 +877,12 @@ title="{}" {}>{}</button>""".format(
         self.form = aqt.forms.main.Ui_MainWindow()
         self.form.setupUi(self)
         # toolbar
-        tweb = self.toolbarWeb = ToolbarWebView(self, title="top toolbar")
+        tweb = self.toolbarWeb = TopWebView(self, title="top toolbar")
         self.toolbar = Toolbar(self, tweb)
         # main area
         self.web = MainWebView(self)
         # bottom area
-        sweb = self.bottomWeb = AnkiWebView(title="bottom toolbar")
+        sweb = self.bottomWeb = BottomWebView(self, title="bottom toolbar")
         sweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         sweb.disable_zoom()
         # add in a layout
@@ -1357,10 +1362,6 @@ title="{}" {}>{}</button>""".format(
             window.setWindowState(
                 window.windowState() ^ Qt.WindowState.WindowFullScreen
             )
-
-    def collapse_toolbar_if_allowed(self) -> None:
-        if self.pm.collapse_toolbar() and self.state == "review":
-            self.toolbarWeb.collapse()
 
     # Auto update
     ##########################################################################

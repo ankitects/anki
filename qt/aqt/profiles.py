@@ -532,12 +532,18 @@ create table if not exists profiles
         self.meta["tatsumoto_mode"] = on
         gui_hooks.body_classes_need_update()
 
-    def collapse_toolbar(self) -> bool:
-        return self.meta.get("collapse_toolbar", False)
+    def hide_top_bar(self) -> bool:
+        return self.meta.get("hide_top_bar", False)
 
-    def set_collapse_toolbar(self, on: bool) -> None:
-        self.meta["collapse_toolbar"] = on
+    def set_hide_top_bar(self, on: bool) -> None:
+        self.meta["hide_top_bar"] = on
         gui_hooks.body_classes_need_update()
+
+    def hide_bottom_bar(self) -> bool:
+        return self.meta.get("hide_bottom_bar", False)
+
+    def set_hide_bottom_bar(self, on: bool) -> None:
+        self.meta["hide_bottom_bar"] = on
 
     def last_addon_update_check(self) -> int:
         return self.meta.get("last_addon_update_check", 0)

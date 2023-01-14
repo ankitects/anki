@@ -51,22 +51,20 @@ body {
     -webkit-user-select: none;
     overflow: hidden;
 
-    &:not(.fancy).collapsed {
+    &:not(.fancy).hidden {
         opacity: 0;
     }
     transition: opacity var(--transition) ease-in-out;
 
     &.fancy {
-        &.collapsed {
+        margin-bottom: 5px;
+
+        &.hidden {
             transform: translateY(-100vh);
         }
         transition: transform var(--transition) ease-in-out;
 
-        .header {
-            height: 41px;
-        }
         .toolbar {
-            height: 31px;
             overflow: hidden;
             border-bottom-left-radius: prop(border-radius-medium);
             border-bottom-right-radius: prop(border-radius-medium);

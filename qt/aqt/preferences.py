@@ -213,10 +213,11 @@ class Preferences(QDialog):
         self.form.minimalist_mode.setChecked(self.mw.pm.minimalist_mode())
         qconnect(self.form.minimalist_mode.stateChanged, self.mw.pm.set_minimalist_mode)
 
-        self.form.collapse_toolbar.setChecked(self.mw.pm.collapse_toolbar())
-        qconnect(
-            self.form.collapse_toolbar.stateChanged, self.mw.pm.set_collapse_toolbar
-        )
+        self.form.hide_top_bar.setChecked(self.mw.pm.hide_top_bar())
+        qconnect(self.form.hide_top_bar.stateChanged, self.mw.pm.set_hide_top_bar)
+
+        self.form.hide_bottom_bar.setChecked(self.mw.pm.hide_bottom_bar())
+        qconnect(self.form.hide_bottom_bar.stateChanged, self.mw.pm.set_hide_bottom_bar)
 
         self.form.uiScale.setValue(int(self.mw.pm.uiScale() * 100))
         themes = [

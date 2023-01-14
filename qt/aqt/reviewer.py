@@ -706,7 +706,6 @@ time = %(time)d;
         else:
             maxTime = 0
         self.bottom.web.eval("showQuestion(%s,%d);" % (json.dumps(middle), maxTime))
-        self.bottom.web.adjustHeightToFit()
 
     def _showEaseButtons(self) -> None:
         middle = self._answerButtons()
