@@ -170,7 +170,7 @@ class AnkiQt(QMainWindow):
     col: Collection
     pm: ProfileManagerType
     web: MainWebView
-    bottomWeb: AnkiWebView
+    bottomWeb: BottomWebView
 
     def __init__(
         self,
@@ -1362,6 +1362,13 @@ title="{}" {}>{}</button>""".format(
             window.setWindowState(
                 window.windowState() ^ Qt.WindowState.WindowFullScreen
             )
+
+        # Hide Menubar on Windows and Linux
+        if Qt.WindowState.WindowFullScreen in window.windowState() and not is_mac:
+            self.form.menubar.setFixedHeight(0)
+        else:
+            self.form.menubar.setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX)
+            self.form.menubar.setMinimumSize(0, 0)
 
     # Auto update
     ##########################################################################

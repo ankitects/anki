@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Optional, cast
+from typing import Any, Optional, Callable, cast
 
 import aqt
 from anki.sync import SyncStatus
@@ -28,6 +28,8 @@ class BottomToolbar:
 
 
 class ToolbarWebView(AnkiWebView):
+    hide_condition: Callable[..., bool]
+
     def __init__(self, mw: aqt.AnkiQt, title: str) -> None:
         AnkiWebView.__init__(self, mw, title=title)
         self.mw = mw
@@ -38,17 +40,9 @@ class ToolbarWebView(AnkiWebView):
         self.hide_timer.setSingleShot(True)
         self.hide_timer.setInterval(1000)
 
-    def eventFilter(self, obj, evt):
-        if handled := super().eventFilter(obj, evt):
-            return handled
-
-        # prevent collapse if pointer inside
-        if evt.type() == QEvent.Type.Enter:
-            self.hide_timer.stop()
-            self.hide_timer.setInterval(1000)
-            return True
-
-        return False
+    def reset_timer(self) -> None:
+        self.hide_timer.stop()
+        self.hide_timer.setInterval(1000)
 
     def hide(self) -> None:
         self.hidden = True
@@ -70,6 +64,18 @@ class TopWebView(ToolbarWebView):
         self.web_height = 0
         self.hide_condition = self.mw.pm.hide_top_bar
         qconnect(self.hide_timer.timeout, self.hide_if_allowed)
+
+    def eventFilter(self, obj, evt):
+        if handled := super().eventFilter(obj, evt):
+            return handled
+
+        # prevent collapse of both toolbars if pointer is inside one of them
+        if evt.type() == QEvent.Type.Enter:
+            self.reset_timer()
+            self.mw.bottomWeb.reset_timer()
+            return True
+
+        return False
 
     def on_body_classes_need_update(self) -> None:
         super().on_body_classes_need_update()
@@ -137,6 +143,17 @@ class BottomWebView(ToolbarWebView):
         super().__init__(mw, title=title)
         self.hide_condition = self.mw.pm.hide_bottom_bar
         qconnect(self.hide_timer.timeout, self.hide_if_allowed)
+
+    def eventFilter(self, obj, evt):
+        if handled := super().eventFilter(obj, evt):
+            return handled
+
+        if evt.type() == QEvent.Type.Enter:
+            self.reset_timer()
+            self.mw.toolbarWeb.reset_timer()
+            return True
+
+        return False
 
     def on_body_classes_need_update(self) -> None:
         super().on_body_classes_need_update()
