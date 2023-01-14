@@ -84,17 +84,22 @@ class AnkiMediaQueue {
     _reset(parameters = {}) {
         // this._debug(`_reset parameters '${JSON.stringify(parameters)}'`);
         let { skip_front_reset = false } = parameters;
-        // // Pause all medias before resetting the state of the next card
-        // try {
-        //     for (let [filename, media] of this.medias) {
-        //         console.log(`filename ${filename}, media ${media}, 'pause' in media ${media && 'pause' in media}.`)
-        //         if( media && 'pause' in media ) {
-        //             media.pause();
-        //         }
-        //     }
-        // }
-        // finally {
-        // }
+        // Pause all medias before resetting the state of the next card
+        let allmedias = new Map([
+            ...this.medias,
+            ['_playing_media', this._playing_media],
+            ['_playing_element', this._playing_element],
+        ]);
+        try {
+            for (let [filename, media] of allmedias) {
+                // this._debug(`Pausing filename ${filename}, media ${media}, 'pause' in media ${media && 'pause' in media}.`)
+                if (media && 'pause' in media) {
+                    media.pause();
+                }
+            }
+        }
+        finally {
+        }
         this.delay = 0.3;
         this.playing_front.length = 0;
         this.playing_back.length = 0;
@@ -491,9 +496,9 @@ class AnkiMediaQueue {
     }
     /**
      * Call this on your front-card before adding new medias to the playing queue.
-     * You can call this function as `setup({delay: 5, wait: false})`.
+     * You can call this function as `setup({delay: 0.3, wait: false})`.
      *
-     * @param {number} delay   - how many seconds to time to wait before playing the next audio.
+     * @param {number} delay   - how many seconds to time to wait before playing the next audio (default 0.3).
      * @param {boolean} wait   - if true (default), wait the question audio to play
      *        when the answer was showed before it had finished playing.
      * @param {function} extra - a function(media) to be run on each media of the page.

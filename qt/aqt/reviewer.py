@@ -211,6 +211,7 @@ class Reviewer:
     def _redraw_current_card(self) -> None:
         self.card.load()
         self.web.eval("ankimedia._reset();")
+
         if self.state == "answer":
             self._showAnswer()
         else:
@@ -236,9 +237,10 @@ class Reviewer:
             self.mw.moveToState("overview")
             return
 
-        # if self._reps is None:
-        self._initWeb()
+        if self._reps is None:
+            self._initWeb()
 
+        self.web.eval("ankimedia._reset();")
         self._showQuestion()
 
     def _get_next_v1_v2_card(self) -> None:
@@ -345,8 +347,6 @@ class Reviewer:
         return self.typeAnsFilter(self.mw.prepare_card_text_for_display(buf))
 
     def _showQuestion(self) -> None:
-        self.web.eval("ankimedia._reset();")
-
         self._reps += 1
         self.state = "question"
         self.typedAnswer: str = None
