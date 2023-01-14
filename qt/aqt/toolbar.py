@@ -94,9 +94,6 @@ class TopWebView(ToolbarWebView):
         self.eval(
             """document.body.classList.add("hidden"); """,
         )
-        self.mw.web.eval(
-            f"""document.body.style.setProperty("--toolbar-height", "0px"); """
-        )
 
     def show(self) -> None:
         super().show()
