@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Optional, Callable, cast
+from typing import Any, Callable, Optional, cast
 
 import aqt
 from anki.sync import SyncStatus
