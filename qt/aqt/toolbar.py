@@ -118,6 +118,9 @@ class TopWebView(ToolbarWebView):
         )
 
     def update_background_image(self) -> None:
+        if self.mw.pm.minimalist_mode():
+            return
+
         def set_background(val: str) -> None:
             # remove offset from copy
             background = re.sub(r"-\d+px ", "0%", val)
