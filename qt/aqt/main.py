@@ -150,9 +150,9 @@ class MainWebView(AnkiWebView):
             return handled
 
         if evt.type() == QEvent.Type.Leave:
-            if self.mw.pm.hide_top_bar():
-                # Show toolbar when mouse moves outside main webview
-                # and automatically hide it with delay after mouse has entered again
+            # Show toolbar when mouse moves outside main webview
+            # and automatically hide it with delay after mouse has entered again
+            if self.mw.pm.hide_top_bar() or self.mw.pm.hide_bottom_bar():
                 self.mw.toolbarWeb.show()
                 self.mw.bottomWeb.show()
                 return True
@@ -161,9 +161,12 @@ class MainWebView(AnkiWebView):
             if self.mw.pm.hide_top_bar():
                 self.mw.toolbarWeb.hide_timer.start()
                 self.mw.bottomWeb.hide_timer.start()
-                return True
+                handled = True
+            if self.mw.pm.hide_bottom_bar():
+                self.mw.bottomWeb.hide_timer.start()
+                handled = True
 
-        return False
+        return handled
 
 
 class AnkiQt(QMainWindow):

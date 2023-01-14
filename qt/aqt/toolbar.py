@@ -50,19 +50,11 @@ class ToolbarWebView(AnkiWebView):
     def show(self) -> None:
         self.hidden = False
 
-    def hide_if_allowed(self) -> None:
-        if self.mw.state != "review":
-            return
-
-        if self.hide_condition():
-            self.hide()
-
 
 class TopWebView(ToolbarWebView):
     def __init__(self, mw: aqt.AnkiQt, title: str) -> None:
         super().__init__(mw, title=title)
         self.web_height = 0
-        self.hide_condition = self.mw.pm.hide_top_bar
         qconnect(self.hide_timer.timeout, self.hide_if_allowed)
 
     def eventFilter(self, obj, evt):
@@ -92,6 +84,13 @@ class TopWebView(ToolbarWebView):
     def _onHeight(self, qvar: Optional[int]) -> None:
         super()._onHeight(qvar)
         self.web_height = int(qvar)
+
+    def hide_if_allowed(self) -> None:
+        if self.mw.state != "review":
+            return
+
+        if self.mw.pm.hide_top_bar():
+            self.hide()
 
     def hide(self) -> None:
         super().hide()
@@ -144,7 +143,6 @@ class TopWebView(ToolbarWebView):
 class BottomWebView(ToolbarWebView):
     def __init__(self, mw: aqt.AnkiQt, title: str) -> None:
         super().__init__(mw, title=title)
-        self.hide_condition = self.mw.pm.hide_bottom_bar
         qconnect(self.hide_timer.timeout, self.hide_if_allowed)
 
     def eventFilter(self, obj, evt):
@@ -184,6 +182,13 @@ class BottomWebView(ToolbarWebView):
             self.animation.setEndValue(int(qvar))
             qconnect(self.animation.finished, lambda: self.setFixedHeight(int(qvar)))
             self.animation.start()
+
+    def hide_if_allowed(self) -> None:
+        if self.mw.state != "review":
+            return
+
+        if self.mw.pm.hide_bottom_bar():
+            self.hide()
 
     def hide(self) -> None:
         super().hide()
