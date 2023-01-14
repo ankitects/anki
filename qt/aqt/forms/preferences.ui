@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>604</width>
-    <height>634</height>
+    <height>638</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -79,29 +79,15 @@
           <string>preferences_user_interface</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>preferences_theme</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="theme"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>preferences_style</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="1">
            <widget class="QComboBox" name="styleComboBox">
             <property name="currentText">
              <string/>
             </property>
            </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="theme"/>
           </item>
           <item row="2" column="1">
            <widget class="QSpinBox" name="uiScale">
@@ -126,38 +112,17 @@
             </property>
            </widget>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="reviewerGroup">
-         <property name="title">
-          <string>preferences_reviewer</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_6">
-          <item>
-           <widget class="QCheckBox" name="collapse_toolbar">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_2">
             <property name="text">
-             <string>preferences_collapse_toolbar</string>
+             <string>preferences_style</string>
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QCheckBox" name="showPlayButtons">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
             <property name="text">
-             <string>preferences_show_play_buttons_on_cards_with</string>
+             <string>preferences_theme</string>
             </property>
            </widget>
           </item>
@@ -199,30 +164,40 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="hide_top_bar">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_hide_top_bar_during_review</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="hide_bottom_bar">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_hide_bottom_bar_during_review</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_9">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_1">
       <attribute name="title">
-       <string>preferences_basic</string>
+       <string>preferences_editing</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_10">
        <item>
@@ -348,54 +323,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_10">
-         <property name="title">
-          <string>preferences_review</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_16">
-          <item>
-           <widget class="QCheckBox" name="showEstimates">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>preferences_show_next_review_time_above_answer</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="showProgress">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>preferences_show_remaining_card_count_during_review</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="interrupt_audio">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>preferences_interrupt_current_audio_when_answering</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <widget class="QGroupBox" name="groupBox_4">
          <property name="title">
           <string>preferences_import_export</string>
@@ -437,11 +364,11 @@
      </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>preferences_scheduler</string>
+       <string>preferences_review</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
+      <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
-        <widget class="QGroupBox" name="groupBox_11">
+        <widget class="QGroupBox" name="schedulerGroup">
          <property name="title">
           <string>preferences_scheduler</string>
          </property>
@@ -505,18 +432,6 @@
            </spacer>
           </item>
           <item>
-           <widget class="QComboBox" name="newSpread"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox_12">
-         <property name="title">
-          <string>preferences_limits</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="1" column="0">
            <layout class="QGridLayout" name="gridLayout_4">
             <property name="spacing">
              <number>12</number>
@@ -598,21 +513,72 @@
             </item>
            </layout>
           </item>
+          <item>
+           <widget class="QComboBox" name="newSpread"/>
+          </item>
          </layout>
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+        <widget class="QGroupBox" name="reviewerGroup">
+         <property name="title">
+          <string>preferences_review</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>16</height>
-          </size>
-         </property>
-        </spacer>
+         <layout class="QVBoxLayout" name="verticalLayout_16">
+          <item>
+           <widget class="QCheckBox" name="showPlayButtons">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_show_play_buttons_on_cards_with</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="interrupt_audio">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_interrupt_current_audio_when_answering</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="showProgress">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_show_remaining_card_count_during_review</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="showEstimates">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_show_next_review_time_above_answer</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -997,6 +963,19 @@
     </widget>
    </item>
    <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>16</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
     <widget class="QLabel" name="someSettingsLabel">
      <property name="text">
       <string>preferences_some_settings_will_take_effect_after</string>
@@ -1024,8 +1003,6 @@
   <tabstop>theme</tabstop>
   <tabstop>styleComboBox</tabstop>
   <tabstop>uiScale</tabstop>
-  <tabstop>collapse_toolbar</tabstop>
-  <tabstop>showPlayButtons</tabstop>
   <tabstop>reduce_motion</tabstop>
   <tabstop>minimalist_mode</tabstop>
   <tabstop>pastePNG</tabstop>
@@ -1033,17 +1010,16 @@
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>ignore_accents_in_search</tabstop>
-  <tabstop>showEstimates</tabstop>
-  <tabstop>showProgress</tabstop>
-  <tabstop>interrupt_audio</tabstop>
   <tabstop>legacy_import_export</tabstop>
-  <tabstop>sched2021</tabstop>
-  <tabstop>dayLearnFirst</tabstop>
   <tabstop>legacy_timezone</tabstop>
-  <tabstop>newSpread</tabstop>
   <tabstop>dayOffset</tabstop>
   <tabstop>lrnCutoff</tabstop>
   <tabstop>timeLimit</tabstop>
+  <tabstop>newSpread</tabstop>
+  <tabstop>showPlayButtons</tabstop>
+  <tabstop>interrupt_audio</tabstop>
+  <tabstop>showProgress</tabstop>
+  <tabstop>showEstimates</tabstop>
   <tabstop>syncMedia</tabstop>
   <tabstop>syncOnProgramOpen</tabstop>
   <tabstop>autoSyncMedia</tabstop>
@@ -1055,6 +1031,8 @@
   <tabstop>weekly_backups</tabstop>
   <tabstop>monthly_backups</tabstop>
   <tabstop>tabWidget</tabstop>
+  <tabstop>sched2021</tabstop>
+  <tabstop>dayLearnFirst</tabstop>
  </tabstops>
  <resources/>
  <connections>
