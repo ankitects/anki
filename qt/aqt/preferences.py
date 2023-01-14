@@ -223,6 +223,7 @@ class Preferences(QDialog):
         )
         self.form.topBarComboBox.addItems(hide_choices)
         self.form.topBarComboBox.setCurrentIndex(self.mw.pm.top_bar_hide_mode())
+        self.form.topBarComboBox.setVisible(self.form.hide_top_bar.isChecked())
 
         qconnect(
             self.form.topBarComboBox.currentIndexChanged,
@@ -237,6 +238,7 @@ class Preferences(QDialog):
         )
         self.form.bottomBarComboBox.addItems(hide_choices)
         self.form.bottomBarComboBox.setCurrentIndex(self.mw.pm.bottom_bar_hide_mode())
+        self.form.bottomBarComboBox.setVisible(self.form.hide_bottom_bar.isChecked())
 
         qconnect(
             self.form.bottomBarComboBox.currentIndexChanged,
