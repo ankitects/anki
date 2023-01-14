@@ -38,11 +38,11 @@ class ToolbarWebView(AnkiWebView):
         self.hidden = False
         self.hide_timer = QTimer()
         self.hide_timer.setSingleShot(True)
-        self.hide_timer.setInterval(1000)
+        self.reset_timer()
 
     def reset_timer(self) -> None:
         self.hide_timer.stop()
-        self.hide_timer.setInterval(1000)
+        self.hide_timer.setInterval(2000)
 
     def hide(self) -> None:
         self.hidden = True
