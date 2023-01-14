@@ -24,10 +24,12 @@
 
 button {
     outline: none !important;
-    border: none;
-    background: none;
+    background: var(--button-bg);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-subtle);
     &:hover {
-        background: var(--button-bg);
+        background: var(--button-gradient-start);
+        border: 1px solid var(--border);
     }
     font-weight: 500;
     padding: 8px 10px;
