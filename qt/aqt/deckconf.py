@@ -77,30 +77,39 @@ class DeckConf(QDialog):
         f.lrnEasyInt.setToolTip(tr.deck_config_easy_interval_tooltip())
         f.lrnFactor.setToolTip(tr.deck_config_starting_ease_tooltip())
         f.newPerDay.setToolTip(
-            f"{tr.deck_config_new_limit_tooltip()}"
-            "\n\n"
-            f"{tr.deck_config_limit_new_bound_by_reviews()}"
-            "\n\n"
-            f"{tr.deck_config_limit_interday_bound_by_reviews()}"
-            "\n\n"
-            f"{tr.deck_config_limit_deck_v3()}"
-            "\n\n"
-            f"{tr.deck_config_tab_description()}"
+            "\n\n".join(
+                (
+                    tr.deck_config_new_limit_tooltip(),
+                    tr.deck_config_limit_new_bound_by_reviews(),
+                    tr.deck_config_limit_interday_bound_by_reviews(),
+                    tr.deck_config_limit_deck_v3(),
+                    tr.deck_config_tab_description(),
+                )
+            )
         )
         f.newGatherPriority.setToolTip(
-            f"{tr.deck_config_new_gather_priority_tooltip_2()}"
-            "\n\n"
-            f"{tr.deck_config_display_order_will_use_current_deck()}"
+            "\n\n".join(
+                (
+                    tr.deck_config_new_gather_priority_tooltip_2(),
+                    tr.deck_config_display_order_will_use_current_deck(),
+                )
+            )
         )
         f.newSortOrder.setToolTip(
-            f"{tr.deck_config_new_card_sort_order_tooltip_2()}"
-            "\n\n"
-            f"{tr.deck_config_display_order_will_use_current_deck()}"
+            "\n\n".join(
+                (
+                    tr.deck_config_new_card_sort_order_tooltip_2(),
+                    tr.deck_config_display_order_will_use_current_deck(),
+                )
+            )
         )
         f.newMix.setToolTip(
-            f"{tr.deck_config_new_review_priority_tooltip()}"
-            "\n\n"
-            f"{tr.deck_config_display_order_will_use_current_deck()}"
+            "\n\n".join(
+                (
+                    tr.deck_config_new_review_priority_tooltip(),
+                    tr.deck_config_display_order_will_use_current_deck(),
+                )
+            )
         )
 
         # review
@@ -109,26 +118,32 @@ class DeckConf(QDialog):
         f.maxIvl.setToolTip(tr.deck_config_maximum_interval_tooltip())
         f.hardFactor.setToolTip(tr.deck_config_hard_interval_tooltip())
         f.revPerDay.setToolTip(
-            f"{tr.deck_config_review_limit_tooltip()}"
-            "\n\n"
-            f"{tr.deck_config_limit_new_bound_by_reviews()}"
-            "\n\n"
-            f"{tr.deck_config_limit_interday_bound_by_reviews()}"
-            "\n\n"
-            f"{tr.deck_config_limit_deck_v3()}"
-            "\n\n"
-            f"{tr.deck_config_tab_description()}"
+            "\n\n".join(
+                (
+                    tr.deck_config_review_limit_tooltip(),
+                    tr.deck_config_limit_new_bound_by_reviews(),
+                    tr.deck_config_limit_interday_bound_by_reviews(),
+                    tr.deck_config_limit_deck_v3(),
+                    tr.deck_config_tab_description(),
+                )
+            )
         )
         f.buryRev.setToolTip(tr.deck_config_bury_review_tooltip())
         f.interdayLearningMix.setToolTip(
-            f"{tr.deck_config_interday_step_priority_tooltip()}"
-            "\n\n"
-            f"{tr.deck_config_display_order_will_use_current_deck()}"
+            "\n\n".join(
+                (
+                    tr.deck_config_interday_step_priority_tooltip(),
+                    tr.deck_config_display_order_will_use_current_deck(),
+                )
+            )
         )
         f.reviewOrder.setToolTip(
-            f"{tr.deck_config_review_sort_order_tooltip()}"
-            "\n\n"
-            f"{tr.deck_config_display_order_will_use_current_deck()}"
+            "\n\n".join(
+                (
+                    tr.deck_config_review_sort_order_tooltip(),
+                    tr.deck_config_display_order_will_use_current_deck(),
+                )
+            )
         )
 
         # lapse
