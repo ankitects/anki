@@ -3,7 +3,8 @@
 
 use std::borrow::Cow;
 
-use dissimilar::Chunk;
+use difflib::sequencematcher::{Opcode, SequenceMatcher};
+use itertools::Itertools;
 use lazy_static::lazy_static;
 use regex::Regex;
 use unic_ucd_category::GeneralCategory;
@@ -29,41 +30,56 @@ lazy_static! {
 }
 
 struct DiffContext {
-    expected: String,
-    provided: String,
+    expected: Vec<char>,
+    provided: Vec<char>,
 }
 
 impl DiffContext {
     fn new(expected: &str, provided: &str) -> Self {
         DiffContext {
-            expected: prepare_expected(expected),
-            provided: prepare_provided(provided),
+            provided: prepare_provided(provided).chars().collect_vec(),
+            expected: prepare_expected(expected).chars().collect_vec(),
         }
     }
 
-    fn to_tokens(&self) -> DiffOutput<'_> {
-        let chunks = dissimilar::diff(&self.provided, &self.expected);
+    fn expected_block(&self, opcode: &Opcode) -> String {
+        self.expected[opcode.second_start..opcode.second_end]
+            .iter()
+            .cloned()
+            .collect()
+    }
+
+    fn provided_block(&self, opcode: &Opcode) -> String {
+        self.provided[opcode.first_start..opcode.first_end]
+            .iter()
+            .cloned()
+            .collect()
+    }
+
+    fn to_tokens(&self) -> DiffOutput {
+        let mut matcher = SequenceMatcher::new(&self.provided, &self.expected);
+        let opcodes = matcher.get_opcodes();
         let mut provided = vec![];
         let mut expected = vec![];
-        for chunk in chunks {
-            match chunk {
-                Chunk::Equal(text) => {
+        for opcode in opcodes {
+            match opcode.tag.as_str() {
+                "equal" => {
                     provided.push(DiffToken {
                         kind: DiffTokenKind::Good,
-                        text: text.into(),
+                        text: self.provided_block(&opcode),
                     });
                     expected.push(DiffToken {
                         kind: DiffTokenKind::Good,
-                        text: text.into(),
+                        text: self.expected_block(&opcode),
                     });
                 }
-                Chunk::Delete(text) => {
+                "delete" => {
                     provided.push(DiffToken {
                         kind: DiffTokenKind::Bad,
-                        text: text.into(),
+                        text: self.provided_block(&opcode),
                     });
                 }
-                Chunk::Insert(text) => {
+                "insert" => {
                     // If the preceding text was correct, indicate text was missing
                     if provided
                         .last()
@@ -72,14 +88,25 @@ impl DiffContext {
                     {
                         provided.push(DiffToken {
                             kind: DiffTokenKind::Missing,
-                            text: text.into(),
+                            text: self.expected_block(&opcode),
                         });
                     }
                     expected.push(DiffToken {
                         kind: DiffTokenKind::Missing,
-                        text: text.into(),
+                        text: self.expected_block(&opcode),
                     });
                 }
+                "replace" => {
+                    provided.push(DiffToken {
+                        kind: DiffTokenKind::Bad,
+                        text: self.provided_block(&opcode),
+                    });
+                    expected.push(DiffToken {
+                        kind: DiffTokenKind::Missing,
+                        text: self.expected_block(&opcode),
+                    });
+                }
+                _ => unreachable!(),
             }
         }
         DiffOutput { provided, expected }
@@ -123,15 +150,15 @@ enum DiffTokenKind {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct DiffToken<'a> {
+struct DiffToken {
     kind: DiffTokenKind,
-    text: Cow<'a, str>,
+    text: String,
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct DiffOutput<'a> {
-    provided: Vec<DiffToken<'a>>,
-    expected: Vec<DiffToken<'a>>,
+struct DiffOutput {
+    provided: Vec<DiffToken>,
+    expected: Vec<DiffToken>,
 }
 
 pub fn compare_answer(expected: &str, provided: &str) -> String {
@@ -168,15 +195,29 @@ fn with_isolated_leading_mark(text: &str) -> Cow<str> {
 
 #[cfg(test)]
 mod test {
-    use DiffTokenKind::*;
-
     use super::*;
 
-    macro_rules! token {
-        ($kind:ident, $text:expr) => {
+    macro_rules! bad {
+        ($text:expr) => {
             DiffToken {
-                kind: $kind,
-                text: $text.into(),
+                kind: DiffTokenKind::Bad,
+                text: String::from($text),
+            }
+        };
+    }
+    macro_rules! good {
+        ($text:expr) => {
+            DiffToken {
+                kind: DiffTokenKind::Good,
+                text: String::from($text),
+            }
+        };
+    }
+    macro_rules! missing {
+        ($text:expr) => {
+            DiffToken {
+                kind: DiffTokenKind::Missing,
+                text: String::from($text),
             }
         };
     }
@@ -188,25 +229,25 @@ mod test {
         assert_eq!(
             output.provided,
             vec![
-                token!(Bad, "y"),
-                token!(Good, " ahora q"),
-                token!(Bad, "e"),
-                token!(Good, " vamos"),
-                token!(Missing, " "),
-                token!(Good, "a hacer"),
-                token!(Missing, "?"),
+                bad!("y"),
+                good!(" ahora q"),
+                bad!("e"),
+                good!(" vamos"),
+                missing!(" "),
+                good!("a hacer"),
+                missing!("?"),
             ]
         );
         assert_eq!(
             output.expected,
             vec![
-                token!(Missing, "¿Y"),
-                token!(Good, " ahora q"),
-                token!(Missing, "ué"),
-                token!(Good, " vamos"),
-                token!(Missing, " "),
-                token!(Good, "a hacer"),
-                token!(Missing, "?"),
+                missing!("¿Y"),
+                good!(" ahora q"),
+                missing!("ué"),
+                good!(" vamos"),
+                missing!(" "),
+                good!("a hacer"),
+                missing!("?"),
             ]
         );
     }
@@ -215,17 +256,35 @@ mod test {
     fn html_and_media() {
         let ctx = DiffContext::new("[sound:foo.mp3]<b>1</b> &nbsp;2", "1  2");
         // the spacing is handled by wrapping html output in white-space: pre-wrap
-        assert_eq!(ctx.to_tokens().expected, &[token!(Good, "1  2")]);
+        assert_eq!(ctx.to_tokens().expected, &[good!("1  2")]);
     }
 
     #[test]
     fn missed_chars_only_shown_in_provided_when_after_good() {
         let ctx = DiffContext::new("1", "23");
-        assert_eq!(ctx.to_tokens().provided, &[token!(Bad, "23")]);
+        assert_eq!(ctx.to_tokens().provided, &[bad!("23")]);
         let ctx = DiffContext::new("12", "1");
+        assert_eq!(ctx.to_tokens().provided, &[good!("1"), missing!("2"),]);
+    }
+
+    #[test]
+    fn good() {
+        let ctx = DiffContext::new("쓰다듬다", "스다뜸다");
         assert_eq!(
             ctx.to_tokens().provided,
-            &[token!(Good, "1"), token!(Missing, "2"),]
+            &[bad!("스"), good!("다"), bad!("뜸"), good!("다"),]
         );
+    }
+
+    #[test]
+    fn is_panic() {
+        let ctx = DiffContext::new(
+            "Сущность должна быть ответственна только за одно дело",
+            concat!(
+                "Single responsibility Сущность выполняет только одну задачу.",
+                "Повод для изменения сущности только один."
+            ),
+        );
+        ctx.to_tokens();
     }
 }

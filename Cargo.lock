@@ -92,7 +92,7 @@ dependencies = [
  "convert_case 0.6.0",
  "criterion",
  "csv",
- "dissimilar",
+ "difflib",
  "env_logger",
  "flate2",
  "fluent",
@@ -823,6 +823,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "difflib"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6184e33543162437515c2e2b48714794e37845ec9851711914eec9d308f6ebe8"
+
+[[package]]
 name = "digest"
 version = "0.10.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -843,12 +849,6 @@ dependencies = [
  "quote",
  "syn",
 ]
-
-[[package]]
-name = "dissimilar"
-version = "1.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c97b9233581d84b8e1e689cdd3a47b6f69770084fc246e86a7f78b0d9c1d4a5"
 
 [[package]]
 name = "doc-comment"
