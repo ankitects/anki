@@ -39,9 +39,11 @@ th {
 }
 
 tr.deck td {
-    padding: 2px 12px;
+    padding: 1px 12px;
+    border-bottom: 1px solid var(--border-subtle);
 
     .fancy & {
+        border: unset;
         padding: 4px 12px;
     }
 }
