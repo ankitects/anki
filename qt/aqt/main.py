@@ -734,12 +734,14 @@ class AnkiQt(QMainWindow):
         self.reviewer.show()
 
         if self.pm.hide_top_bar():
-            self.toolbarWeb.hide()
+            self.toolbarWeb.hide_timer.setInterval(500)
+            self.toolbarWeb.hide_timer.start()
         else:
             self.toolbarWeb.flatten()
 
         if self.pm.hide_bottom_bar():
-            self.bottomWeb.hide()
+            self.bottomWeb.hide_timer.setInterval(500)
+            self.bottomWeb.hide_timer.start()
 
     def _reviewCleanup(self, newState: MainWindowState) -> None:
         if newState != "resetRequired" and newState != "review":
