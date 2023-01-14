@@ -213,7 +213,7 @@ class Preferences(QDialog):
         self.form.minimalist_mode.setChecked(self.mw.pm.minimalist_mode())
         qconnect(self.form.minimalist_mode.stateChanged, self.mw.pm.set_minimalist_mode)
 
-        hide_choices = [tr.preferences_in_full_screen(), tr.preferences_always()]
+        hide_choices = [tr.preferences_full_screen_only(), tr.preferences_always()]
 
         self.form.hide_top_bar.setChecked(self.mw.pm.hide_top_bar())
         qconnect(self.form.hide_top_bar.stateChanged, self.mw.pm.set_hide_top_bar)
