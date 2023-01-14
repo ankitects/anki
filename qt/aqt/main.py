@@ -1076,7 +1076,7 @@ title="{}" {}>{}</button>""".format(
         if is_lin:
             # On Linux, the check requires invoking an external binary,
             # which we don't want to be doing frequently
-            interval_secs = 10
+            interval_secs = 5
         else:
             interval_secs = 2
         self.progress.timer(
