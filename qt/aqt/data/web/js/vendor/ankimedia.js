@@ -194,7 +194,7 @@ class AnkiMediaQueue {
      *        card-front, otherwise, the value "back" if it is being called on the card-back.
      * @param {number} speed - the speed to play the audio, where 1.0 is the default speed.
      *        Each media element can also have an attribute as `data-speed="1.0"` indicating
-     *        the speed it should play. The `data-speed` value has precedence over this parameter.
+     *        the speed at it should play. The `data-speed` value has precedence over this parameter.
      */
     addall(where = undefined, speed = undefined) {
         speed = speed || 1.0;
@@ -232,15 +232,15 @@ class AnkiMediaQueue {
         }
     }
     /**
-     * Add an audio file to the playing queue and immediately starts playing, if not playing
-     * already.
+     * Add an audio file to the playing queue and immediately starts playing.
+     * If not playing already.
      *
-     * @param {string} htmlfield - an audio filename or html as string to find audios for playing.
+     * @param {string} htmlfield - an audio filename or HTML text as string to find audios for playing.
      * @param {string} where    - pass "front" if this is being called on the card-front,
      *        otherwise, pass "back" as it is being called on the card-back.
      *        If not specified, each media element to be added automatically can also have a
      *        "data-where" attribute with the value "front" if this is being called on the
-     *        card-front, otherwise, the value "back" if it is being called on the card-back.
+     *        card-front. Otherwise, the value "back" if it is being called on the card-back.
      * @param {number} speed    - the speed to play the audio, where 1.0 is the default speed.
      *        Each media element can also have an attribute as `data-speed="1.0"` indicating
      *        the speed it should play. The `data-speed` value has precedence over this parameter.
@@ -327,7 +327,7 @@ class AnkiMediaQueue {
         return false;
     }
     /**
-     * Re-play the medias as done in the first time the card answer or question was shown.
+     * Re-play the media as done in the first time the card answer or question was shown.
      */
     replay() {
         // this._debug(`replay '${this.is_playing}'`);
@@ -495,11 +495,11 @@ class AnkiMediaQueue {
         return media;
     }
     /**
-     * Call this on your front-card before adding new medias to the playing queue.
+     * Call this on your front-card before adding new media to the playing queue.
      * You can call this function as `setup({delay: 0.3, wait: false})`.
      *
-     * @param {number} delay   - how many seconds to time to wait before playing the next audio (default 0.3).
-     * @param {boolean} wait   - if true (default), wait the question audio to play
+     * @param {number} delay   - how many seconds to wait before playing the next audio (default 0.3).
+     * @param {boolean} wait   - if true (default), wait for the question audio to play
      *        when the answer was showed before it had finished playing.
      * @param {function} extra - a function(media) to be run on each media of the page.
      * @param {array} medias   - an array of initial values to be passed to setAnkiMedia() calls.
