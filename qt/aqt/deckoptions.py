@@ -106,8 +106,10 @@ def display_options_for_deck_id(deck_id: DeckId) -> None:
 def display_options_for_deck(deck: DeckDict) -> None:
     if not deck["dyn"]:
         webview_dialog_requested = (
-            aqt.mw.pm.webview_based_deck_options() and not KeyboardModifiersPressed().shift
-            or not aqt.mw.pm.webview_based_deck_options() and KeyboardModifiersPressed().shift
+            aqt.mw.pm.webview_based_deck_options()
+            and not KeyboardModifiersPressed().shift
+            or not aqt.mw.pm.webview_based_deck_options()
+            and KeyboardModifiersPressed().shift
         )
 
         if webview_dialog_requested and aqt.mw.col.sched_ver() > 1:

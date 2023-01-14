@@ -70,7 +70,9 @@ class DeckConf(QDialog):
         f.lrnSteps.setToolTip(tr.deck_config_learning_steps_tooltip())
         f.newOrder.setToolTip(tr.deck_config_new_insertion_order_tooltip())
         f.bury.setToolTip(tr.deck_config_bury_new_tooltip())
-        f.buryInterdayLearningSiblings.setToolTip(tr.deck_config_bury_interday_learning_tooltip())
+        f.buryInterdayLearningSiblings.setToolTip(
+            tr.deck_config_bury_interday_learning_tooltip()
+        )
         f.lrnGradInt.setToolTip(tr.deck_config_graduating_interval_tooltip())
         f.lrnEasyInt.setToolTip(tr.deck_config_easy_interval_tooltip())
         f.lrnFactor.setToolTip(tr.deck_config_starting_ease_tooltip())
@@ -140,7 +142,9 @@ class DeckConf(QDialog):
         f.maxTaken.setToolTip(tr.deck_config_maximum_answer_secs_tooltip())
         f.showTimer.setToolTip(tr.deck_config_show_answer_timer_tooltip())
         # f.autoplaySounds.setToolTip(missing)
-        f.replayQuestion.setToolTip(tr.deck_config_always_include_question_audio_tooltip())
+        f.replayQuestion.setToolTip(
+            tr.deck_config_always_include_question_audio_tooltip()
+        )
 
     def setupCombos(self) -> None:
         import anki.consts as cs
@@ -151,12 +155,16 @@ class DeckConf(QDialog):
         f.newOrder.addItems(list(cs.new_card_order_labels(self.mw.col).values()))
         qconnect(f.newOrder.currentIndexChanged, self.onNewOrderChanged)
 
-        f.newGatherPriority.addItems(list(cs.new_gather_priority_choices(self.mw.col).values()))
+        f.newGatherPriority.addItems(
+            list(cs.new_gather_priority_choices(self.mw.col).values())
+        )
         f.newSortOrder.addItems(list(cs.new_sort_order_choices(self.mw.col).values()))
         f.newMix.addItems(list(cs.review_mix_choices(self.mw.col).values()))
 
         # review
-        f.interdayLearningMix.addItems(list(cs.review_mix_choices(self.mw.col).values()))
+        f.interdayLearningMix.addItems(
+            list(cs.review_mix_choices(self.mw.col).values())
+        )
         f.reviewOrder.addItems(list(cs.review_order_choices(self.mw.col).values()))
 
     # Conf list
