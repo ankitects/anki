@@ -158,15 +158,11 @@ class MainWebView(AnkiWebView):
                 return True
 
         if evt.type() == QEvent.Type.Enter:
-            if self.mw.pm.hide_top_bar():
-                self.mw.toolbarWeb.hide_timer.start()
-                self.mw.bottomWeb.hide_timer.start()
-                handled = True
-            if self.mw.pm.hide_bottom_bar():
-                self.mw.bottomWeb.hide_timer.start()
-                handled = True
+            self.mw.toolbarWeb.hide_timer.start()
+            self.mw.bottomWeb.hide_timer.start()
+            return True
 
-        return handled
+        return False
 
 
 class AnkiQt(QMainWindow):
@@ -1374,6 +1370,10 @@ title="{}" {}>{}</button>""".format(
         else:
             self.form.menubar.setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX)
             self.form.menubar.setMinimumSize(0, 0)
+
+        # Update Toolbar states
+        self.toolbarWeb.hide_if_allowed()
+        self.bottomWeb.hide_if_allowed()
 
     # Auto update
     ##########################################################################

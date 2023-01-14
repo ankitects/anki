@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import enum
 import re
 from typing import Any, Callable, Optional, cast
 
@@ -13,6 +14,11 @@ from aqt.sync import get_sync_status
 from aqt.theme import theme_manager
 from aqt.utils import tr
 from aqt.webview import AnkiWebView
+
+
+class HideMode(enum.IntEnum):
+    FULLSCREEN = 0
+    ALWAYS = 1
 
 
 # wrapper class for set_bridge_command()
@@ -90,6 +96,13 @@ class TopWebView(ToolbarWebView):
             return
 
         if self.mw.pm.hide_top_bar():
+            if (
+                self.mw.pm.top_bar_hide_mode() == HideMode.FULLSCREEN
+                and not Qt.WindowState.WindowFullScreen in self.mw.windowState()
+            ):
+                self.show()
+                return
+
             self.hide()
 
     def hide(self) -> None:
@@ -188,6 +201,13 @@ class BottomWebView(ToolbarWebView):
             return
 
         if self.mw.pm.hide_bottom_bar():
+            if (
+                self.mw.pm.bottom_bar_hide_mode() == HideMode.FULLSCREEN
+                and not Qt.WindowState.WindowFullScreen in self.mw.windowState()
+            ):
+                self.show()
+                return
+
             self.hide()
 
     def hide(self) -> None:

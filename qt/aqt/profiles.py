@@ -24,6 +24,7 @@ from anki.utils import int_time, is_mac, is_win, point_version
 from aqt import appHelpSite, gui_hooks
 from aqt.qt import *
 from aqt.theme import AnkiStyles, Theme, theme_manager
+from aqt.toolbar import HideMode
 from aqt.utils import disable_help_button, send_to_trash, showWarning, tr
 
 if TYPE_CHECKING:
@@ -539,11 +540,25 @@ create table if not exists profiles
         self.meta["hide_top_bar"] = on
         gui_hooks.body_classes_need_update()
 
+    def top_bar_hide_mode(self) -> bool:
+        return self.meta.get("top_bar_hide_mode", HideMode.FULLSCREEN)
+
+    def set_top_bar_hide_mode(self, mode: HideMode) -> None:
+        self.meta["top_bar_hide_mode"] = mode
+        gui_hooks.body_classes_need_update()
+
     def hide_bottom_bar(self) -> bool:
         return self.meta.get("hide_bottom_bar", False)
 
     def set_hide_bottom_bar(self, on: bool) -> None:
         self.meta["hide_bottom_bar"] = on
+
+    def bottom_bar_hide_mode(self) -> bool:
+        return self.meta.get("bottom_bar_hide_mode", HideMode.FULLSCREEN)
+
+    def set_bottom_bar_hide_mode(self, mode: HideMode) -> None:
+        self.meta["bottom_bar_hide_mode"] = mode
+        gui_hooks.body_classes_need_update()
 
     def last_addon_update_check(self) -> int:
         return self.meta.get("last_addon_update_check", 0)

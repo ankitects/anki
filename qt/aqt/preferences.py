@@ -213,11 +213,35 @@ class Preferences(QDialog):
         self.form.minimalist_mode.setChecked(self.mw.pm.minimalist_mode())
         qconnect(self.form.minimalist_mode.stateChanged, self.mw.pm.set_minimalist_mode)
 
+        hide_choices = [tr.preferences_in_full_screen(), tr.preferences_always()]
+
         self.form.hide_top_bar.setChecked(self.mw.pm.hide_top_bar())
         qconnect(self.form.hide_top_bar.stateChanged, self.mw.pm.set_hide_top_bar)
+        qconnect(
+            self.form.hide_top_bar.stateChanged,
+            self.form.topBarComboBox.setVisible,
+        )
+        self.form.topBarComboBox.addItems(hide_choices)
+        self.form.topBarComboBox.setCurrentIndex(self.mw.pm.top_bar_hide_mode())
+
+        qconnect(
+            self.form.topBarComboBox.currentIndexChanged,
+            self.mw.pm.set_top_bar_hide_mode,
+        )
 
         self.form.hide_bottom_bar.setChecked(self.mw.pm.hide_bottom_bar())
         qconnect(self.form.hide_bottom_bar.stateChanged, self.mw.pm.set_hide_bottom_bar)
+        qconnect(
+            self.form.hide_bottom_bar.stateChanged,
+            self.form.bottomBarComboBox.setVisible,
+        )
+        self.form.bottomBarComboBox.addItems(hide_choices)
+        self.form.bottomBarComboBox.setCurrentIndex(self.mw.pm.bottom_bar_hide_mode())
+
+        qconnect(
+            self.form.bottomBarComboBox.currentIndexChanged,
+            self.mw.pm.set_bottom_bar_hide_mode,
+        )
 
         self.form.uiScale.setValue(int(self.mw.pm.uiScale() * 100))
         themes = [
