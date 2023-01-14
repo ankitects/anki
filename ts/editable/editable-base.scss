@@ -26,3 +26,18 @@ p {
 pre {
     white-space: pre-wrap;
 }
+
+// image size constraints
+img:not(.mathjax) {
+    &:not([data-editor-shrink="false"]) {
+        :host-context(.shrink-image) & {
+            max-width: var(--editor-default-max-width);
+            max-height: var(--editor-default-max-height);
+        }
+    }
+
+    &[data-editor-shrink="true"] {
+        max-width: var(--editor-shrink-max-width);
+        max-height: var(--editor-shrink-max-height);
+    }
+}
