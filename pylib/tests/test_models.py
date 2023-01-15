@@ -185,41 +185,53 @@ def test_cloze():
     note["Text"] = "hello {{c1::world}}"
     assert col.addNote(note) == 1
     assert (
-        f'hello <span class="cloze" data-cloze="{encode_attribute("world")}">[...]</span>'
+        f'hello <span class="cloze" data-cloze="{encode_attribute("world")}" data-ordinal="1">[...]</span>'
         in note.cards()[0].question()
     )
-    assert 'hello <span class="cloze">world</span>' in note.cards()[0].answer()
+    assert (
+        'hello <span class="cloze" data-ordinal="1">world</span>'
+        in note.cards()[0].answer()
+    )
     # and with a comment
     note = col.new_note(m)
     note["Text"] = "hello {{c1::world::typical}}"
     assert col.addNote(note) == 1
     assert (
-        f'<span class="cloze" data-cloze="{encode_attribute("world")}">[typical]</span>'
+        f'<span class="cloze" data-cloze="{encode_attribute("world")}" data-ordinal="1">[typical]</span>'
         in note.cards()[0].question()
     )
-    assert '<span class="cloze">world</span>' in note.cards()[0].answer()
+    assert (
+        '<span class="cloze" data-ordinal="1">world</span>' in note.cards()[0].answer()
+    )
     # and with 2 clozes
     note = col.new_note(m)
     note["Text"] = "hello {{c1::world}} {{c2::bar}}"
     assert col.addNote(note) == 2
     (c1, c2) = note.cards()
     assert (
-        f'<span class="cloze" data-cloze="{encode_attribute("world")}">[...]</span> bar'
+        f'<span class="cloze" data-cloze="{encode_attribute("world")}" data-ordinal="1">[...]</span> <span class="cloze-inactive" data-ordinal="2">bar</span>'
         in c1.question()
     )
-    assert '<span class="cloze">world</span> bar' in c1.answer()
     assert (
-        f'world <span class="cloze" data-cloze="{encode_attribute("bar")}">[...]</span>'
+        '<span class="cloze" data-ordinal="1">world</span> <span class="cloze-inactive" data-ordinal="2">bar</span>'
+        in c1.answer()
+    )
+    assert (
+        f'<span class="cloze-inactive" data-ordinal="1">world</span> <span class="cloze" data-cloze="{encode_attribute("bar")}" data-ordinal="2">[...]</span>'
         in c2.question()
     )
-    assert 'world <span class="cloze">bar</span>' in c2.answer()
+    assert (
+        '<span class="cloze-inactive" data-ordinal="1">world</span> <span class="cloze" data-ordinal="2">bar</span>'
+        in c2.answer()
+    )
     # if there are multiple answers for a single cloze, they are given in a
     # list
     note = col.new_note(m)
     note["Text"] = "a {{c1::b}} {{c1::c}}"
     assert col.addNote(note) == 1
-    assert '<span class="cloze">b</span> <span class="cloze">c</span>' in (
-        note.cards()[0].answer()
+    assert (
+        '<span class="cloze" data-ordinal="1">b</span> <span class="cloze" data-ordinal="1">c</span>'
+        in (note.cards()[0].answer())
     )
     # if we add another cloze, a card should be generated
     cnt = col.card_count()
@@ -280,7 +292,9 @@ def test_cloze_mathjax():
     assert (
         note.cards()[0]
         .question()
-        .endswith(r'\(a\) <span class="cloze" data-cloze="b">[...]</span> \[ [...] \]')
+        .endswith(
+            r'\(a\) <span class="cloze" data-cloze="b" data-ordinal="1">[...]</span> \[ [...] \]'
+        )
     )
 
 
@@ -310,26 +324,26 @@ def test_chained_mods():
     col.models.update(m)
 
     note = col.newNote()
-    q1 = '<span style="color:red">phrase</span>'
-    a1 = "<b>sentence</b>"
-    q2 = '<span style="color:red">en chaine</span>'
-    a2 = "<i>chained</i>"
+    a1 = '<span style="color:red">phrase</span>'
+    h1 = "<b>sentence</b>"
+    a2 = '<span style="color:red">en chaine</span>'
+    h2 = "<i>chained</i>"
     note[
         "Text"
     ] = "This {{{{c1::{}::{}}}}} demonstrates {{{{c1::{}::{}}}}} clozes.".format(
-        q1,
         a1,
-        q2,
+        h1,
         a2,
+        h2,
     )
     assert col.addNote(note) == 1
     assert (
-        f'This <span class="cloze" data-cloze="{encode_attribute("phrase")}">[sentence]</span>'
-        f' demonstrates <span class="cloze" data-cloze="{encode_attribute("en chaine")}">[chained]</span> clozes.'
+        'This <span class="cloze" data-cloze="phrase" data-ordinal="1">[sentence]</span>'
+        f' demonstrates <span class="cloze" data-cloze="{encode_attribute("en chaine")}" data-ordinal="1">[chained]</span> clozes.'
         in note.cards()[0].question()
     )
     assert (
-        f'This <span class="cloze">phrase</span> demonstrates <span class="cloze">en chaine</span> clozes.'
+        'This <span class="cloze" data-ordinal="1">phrase</span> demonstrates <span class="cloze" data-ordinal="1">en chaine</span> clozes.'
         in note.cards()[0].answer()
     )
 

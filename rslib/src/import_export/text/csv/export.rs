@@ -11,7 +11,7 @@ use super::metadata::Delimiter;
 use crate::{
     import_export::{ExportProgress, IncrementableProgress},
     notetype::RenderCardOutput,
-    pb::ExportNoteCsvRequest,
+    pb::import_export::ExportNoteCsvRequest,
     prelude::*,
     search::{SearchNode, SortMode},
     template::RenderedNode,

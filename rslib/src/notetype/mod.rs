@@ -30,7 +30,7 @@ pub use stock::all_stock_notetypes;
 pub use templates::CardTemplate;
 use unicase::UniCase;
 
-pub use crate::pb::{
+pub use crate::pb::notetypes::{
     notetype::{
         config::{
             card_requirement::Kind as CardRequirementKind, CardRequirement, Kind as NotetypeKind,

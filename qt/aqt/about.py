@@ -210,7 +210,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Ijgnd",
             "Evandro Coan",
             "Alan Du",
-            "ANH",
+            "Abdo",
             "Junseo Park",
             "Gustavo Costa",
             "余时行",
@@ -228,6 +228,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Luka Warren",
             "Christos Longros",
             "hafatsat anki",
+            "Carlos Duarte",
         )
     )
 

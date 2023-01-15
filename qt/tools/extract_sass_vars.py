@@ -47,10 +47,14 @@ for line in re.split(r"[;\{\}]|\*\/", data):
             print("failed to match", line)
         continue
 
+    # convert variable names to Qt style
     var = m.group(1).replace("-", "_").upper()
     val = m.group(2)
 
     if reached_props:
+        # remove trailing ms from time props
+        val = re.sub(r"^(\d+)ms$", r"\1", val)
+
         if not var in props:
             props.setdefault(var, {})["comment"] = comment
             props[var]["light"] = val

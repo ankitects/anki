@@ -56,10 +56,6 @@ pub struct MediaEntry {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct MediaDatabaseMetadata {
-    /// The syncing code no longer uses this; files are scanned for
-    /// indiscriminately. After this has been in production for a while
-    /// without reports of speed regressions, we should remove the rest
-    /// of the code that refers to this.
     pub folder_mtime: i64,
     pub last_sync_usn: i32,
 }

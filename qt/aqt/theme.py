@@ -24,6 +24,8 @@ from aqt.qt import (
     QPixmap,
     QStyleFactory,
     Qt,
+    qtmajor,
+    qtminor,
 )
 
 
@@ -168,6 +170,8 @@ class ThemeManager:
                 classes.append("macos-dark-mode")
         if aqt.mw.pm.reduced_motion():
             classes.append("reduced-motion")
+        if qtmajor == 5 and qtminor < 15:
+            classes.append("no-blur")
         return " ".join(classes)
 
     def body_classes_for_card_ord(
@@ -266,7 +270,7 @@ class ThemeManager:
     def _apply_palette(self, app: QApplication) -> None:
         set_macos_dark_mode(self.night_mode)
 
-        if is_mac and not aqt.mw.pm.force_custom_styles():
+        if is_mac and not (qtmajor == 5 or aqt.mw.pm.force_custom_styles()):
             app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
             self.default_palette.setColor(
                 QPalette.ColorRole.Window, self.qcolor(colors.CANVAS)

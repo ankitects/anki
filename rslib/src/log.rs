@@ -3,52 +3,42 @@
 
 use std::{fs, fs::OpenOptions, io};
 
-pub use slog::{debug, error, Logger};
-use slog::{slog_o, Drain};
-use slog_async::OverflowStrategy;
+use once_cell::sync::OnceCell;
+use tracing::subscriber::set_global_default;
+use tracing_appender::non_blocking::{NonBlocking, WorkerGuard};
+use tracing_subscriber::{fmt, fmt::Layer, layer::SubscriberExt, EnvFilter};
+
+use crate::prelude::*;
 
 const LOG_ROTATE_BYTES: u64 = 50 * 1024 * 1024;
 
-pub(crate) fn terminal() -> Logger {
-    let decorator = slog_term::TermDecorator::new().build();
-    let drain = slog_term::FullFormat::new(decorator).build().fuse();
-    let drain = slog_envlogger::new(drain);
-    let drain = slog_async::Async::new(drain)
-        .chan_size(1_024)
-        .overflow_strategy(OverflowStrategy::Block)
-        .build()
-        .fuse();
-    Logger::root(drain, slog_o!())
+/// Enable logging to the console, and optionally also to a file.
+pub fn set_global_logger(path: Option<&str>) -> Result<()> {
+    let file_writer = if let Some(path) = path {
+        Some(Layer::new().with_writer(get_appender(path)?))
+    } else {
+        None
+    };
+    let subscriber = tracing_subscriber::registry()
+        .with(fmt::layer())
+        .with(file_writer)
+        .with(EnvFilter::from_default_env());
+    set_global_default(subscriber).or_invalid("global subscriber already set")?;
+    Ok(())
 }
 
-fn file(path: &str) -> io::Result<Logger> {
+/// Holding on to this guard does not actually ensure the log file will be fully written,
+/// as statics do not implement Drop.
+static APPENDER_GUARD: OnceCell<WorkerGuard> = OnceCell::new();
+
+fn get_appender(path: &str) -> Result<NonBlocking> {
     maybe_rotate_log(path)?;
     let file = OpenOptions::new().create(true).append(true).open(path)?;
-
-    let decorator = slog_term::PlainSyncDecorator::new(file);
-    let drain = slog_term::FullFormat::new(decorator).build().fuse();
-    let drain = slog_envlogger::new(drain);
-
-    if std::env::var("LOGTERM").is_ok() {
-        // log to the terminal as well
-        let decorator = slog_term::TermDecorator::new().build();
-        let term_drain = slog_term::FullFormat::new(decorator).build().fuse();
-        let term_drain = slog_envlogger::new(term_drain);
-        let joined_drain = slog::Duplicate::new(drain, term_drain).fuse();
-        let drain = slog_async::Async::new(joined_drain)
-            .chan_size(1_024)
-            .overflow_strategy(OverflowStrategy::Block)
-            .build()
-            .fuse();
-        Ok(Logger::root(drain, slog_o!()))
-    } else {
-        let drain = slog_async::Async::new(drain)
-            .chan_size(1_024)
-            .overflow_strategy(OverflowStrategy::Block)
-            .build()
-            .fuse();
-        Ok(Logger::root(drain, slog_o!()))
+    let (appender, guard) = tracing_appender::non_blocking(file);
+    if APPENDER_GUARD.set(guard).is_err() {
+        invalid_input!("log file should be set only once");
     }
+    Ok(appender)
 }
 
 fn maybe_rotate_log(path: &str) -> io::Result<()> {
@@ -78,12 +68,4 @@ fn maybe_rotate_log(path: &str) -> io::Result<()> {
 
     // and rotate the primary log
     fs::rename(path, path2)
-}
-
-/// Get a logger, logging to a file if a path was provided, otherwise terminal.
-pub fn default_logger(path: Option<&str>) -> io::Result<Logger> {
-    Ok(match path {
-        Some(path) => file(path)?,
-        None => terminal(),
-    })
 }

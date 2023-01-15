@@ -73,6 +73,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @media only screen and (max-width: 600px) {
             font-size: 12px;
         }
+
+        @media only print {
+            // grid layout does not honor page-break-inside
+            display: block;
+            margin-top: 3em;
+        }
     }
 
     .spacer {

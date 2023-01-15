@@ -266,7 +266,7 @@ mod test {
     use crate::{
         card::{CardQueue, CardType},
         collection::open_test_collection,
-        pb::deck_config::config::{NewCardGatherPriority, NewCardSortOrder},
+        pb::deckconfig::deck_config::config::{NewCardGatherPriority, NewCardSortOrder},
     };
 
     impl Collection {

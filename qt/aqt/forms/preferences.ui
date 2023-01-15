@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>640</height>
+    <height>660</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -110,6 +110,13 @@
          </property>
          <property name="text">
           <string>preferences_reduce_motion</string>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignLeft">
+        <widget class="QCheckBox" name="collapse_toolbar">
+         <property name="text">
+          <string>preferences_collapse_toolbar</string>
          </property>
         </widget>
        </item>
@@ -666,7 +673,7 @@
      </widget>
     </widget>
    </item>
-   <item alignment="Qt::AlignCenter">
+   <item>
     <widget class="QLabel" name="label_21">
      <property name="text">
       <string>preferences_some_settings_will_take_effect_after</string>
@@ -696,6 +703,7 @@
   <tabstop>ignore_accents_in_search</tabstop>
   <tabstop>legacy_import_export</tabstop>
   <tabstop>reduce_motion</tabstop>
+  <tabstop>collapse_toolbar</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>

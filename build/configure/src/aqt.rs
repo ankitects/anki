@@ -4,7 +4,7 @@
 use ninja_gen::{
     action::BuildAction,
     command::RunCommand,
-    copy::CopyFiles,
+    copy::{CopyFile, CopyFiles},
     glob, hashmap, inputs,
     node::{CompileSass, EsbuildScript, TypescriptCheck},
     python::{python_format, PythonTest},
@@ -88,6 +88,15 @@ fn build_generated_sources(build: &mut Build) -> Result<()> {
                     "qt/_aqt/props.py"
                 ]
             },
+        },
+    )?;
+    // we need to add a py.typed file to the generated sources, or mypy
+    // will ignore them when used with the generated wheel
+    build.add(
+        "qt/aqt:py.typed",
+        CopyFile {
+            input: "qt/aqt/py.typed".into(),
+            output: "qt/_aqt/py.typed",
         },
     )?;
     Ok(())
@@ -192,7 +201,8 @@ fn build_vendor_js(build: &mut Build) -> Result<()> {
                 ":node_modules:jquery",
                 ":node_modules:jquery-ui",
                 ":node_modules:css-browser-selector",
-                ":node_modules:bootstrap-dist"
+                ":node_modules:bootstrap-dist",
+                "qt/aqt/data/web/js/vendor/plot.js"
             ],
             output_folder: "qt/_aqt/data/web/js/vendor",
         },

@@ -520,8 +520,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
 
-        text_color = self.mw.pm.profile.get("lastTextColor", "#00f")
-        highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#00f")
+        text_color = self.mw.pm.profile.get("lastTextColor", "#0000ff")
+        highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#0000ff")
 
         js = f"""
             saveSession();
@@ -1401,8 +1401,10 @@ class EditorWebView(AnkiWebView):
             clip.setMimeData(mime)
 
         # Mutter bugs out if the clipboard data is mutated in the clipboard change
-        # hook, so we need to do it after a small delay
-        aqt.mw.progress.timer(10, after_delay, False, parent=self)
+        # hook, so we need to do it after a delay. Initially 10ms appeared to be
+        # enough, but we've had a recent report than 175ms+ was required on their
+        # system.
+        aqt.mw.progress.timer(300 if is_lin else 10, after_delay, False, parent=self)
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)

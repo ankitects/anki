@@ -32,6 +32,34 @@ $vars: (
                 ),
             ),
         ),
+        transition: (
+            default: (
+                "Default duration of transitions in milliseconds",
+                (
+                    default: 180ms,
+                ),
+            ),
+            medium: (
+                "Slightly longer transition duration in milliseconds",
+                (
+                    default: 500ms,
+                ),
+            ),
+            slow: (
+                "Long transition duration in milliseconds",
+                (
+                    default: 1000ms,
+                ),
+            ),
+        ),
+        blur: (
+            default: (
+                "Default background blur value",
+                (
+                    default: 20px,
+                )
+            )
+        )
     ),
     colors: (
         fg: (
@@ -105,6 +133,13 @@ $vars: (
                 (
                     light: white,
                     dark: palette(darkgray, 6),
+                ),
+            ),
+            glass: (
+                "Transparent background for surfaces containing text",
+                (
+                    light: color.scale(white, $alpha: -60%),
+                    dark: color.scale(palette(darkgray, 4), $alpha: -60%),
                 ),
             ),
         ),
@@ -378,7 +413,7 @@ $vars: (
             marked: (
                 "Accent color for marked cards",
                 (
-                    light: palette(indigo, 2),
+                    light: palette(indigo, 5),
                     dark: palette(purple, 5),
                 ),
             ),

@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type CodeMirrorLib from "codemirror";
     import { tick } from "svelte";
     import { writable } from "svelte/store";
+    import { isComposing } from "sveltelib/composition";
 
     import Popover from "../../components/Popover.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
@@ -79,6 +80,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const code = writable("");
 
     function showOverlay(image: HTMLImageElement, pos?: CodeMirrorLib.Position) {
+        if ($isComposing) {
+            // Should be canceled while an IME composition session is active
+            return;
+        }
+
         const [promise, allowResolve] = promiseWithResolver<void>();
 
         allowPromise = promise;

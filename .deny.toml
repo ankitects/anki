@@ -11,9 +11,6 @@ unmaintained = "warn"
 yanked = "warn"
 notice = "warn"
 ignore = [
-  # atty: we don't use a custom allocator on Windows, and our deps haven't
-  # updated to alternatives yet
-  "RUSTSEC-2021-0145",
   # xml-rs via apple-bundles: not used for untrusted input
   "RUSTSEC-2022-0048",
 ]
@@ -54,10 +51,6 @@ ignore = true
 unknown-registry = "warn"
 unknown-git = "warn"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
-allow-git = [
-  # https://github.com/timothee-haudebourg/pct-str/issues/5
-  "https://github.com/timothee-haudebourg/pct-str.git",
-]
 
 [sources.allow-org]
 github = ["ankitects"]

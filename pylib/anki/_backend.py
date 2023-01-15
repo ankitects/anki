@@ -62,11 +62,14 @@ class RustBackend(RustBackendGenerated):
     public method.
     """
 
+    @staticmethod
+    def initialize_logging(path: str | None = None) -> None:
+        _rsbridge.initialize_logging(path)
+
     def __init__(
         self,
         langs: list[str] | None = None,
         server: bool = False,
-        log_file: str | None = None,
     ) -> None:
         # pick up global defaults if not provided
         if langs is None:
@@ -76,7 +79,7 @@ class RustBackend(RustBackendGenerated):
             preferred_langs=langs,
             server=server,
         )
-        self._backend = _rsbridge.open_backend(init_msg.SerializeToString(), log_file)
+        self._backend = _rsbridge.open_backend(init_msg.SerializeToString())
 
     def db_query(
         self, sql: str, args: Sequence[ValueForDB], first_row_only: bool

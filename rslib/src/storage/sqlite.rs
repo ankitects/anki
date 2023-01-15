@@ -204,7 +204,12 @@ fn trace(s: &str) {
 }
 
 impl SqliteStorage {
-    pub(crate) fn open_or_create(path: &Path, tr: &I18n, server: bool) -> Result<Self> {
+    pub(crate) fn open_or_create(
+        path: &Path,
+        tr: &I18n,
+        server: bool,
+        force_schema11: bool,
+    ) -> Result<Self> {
         let db = open_or_create_collection_db(path)?;
         let (create, ver) = schema_version(&db)?;
 
@@ -248,6 +253,13 @@ impl SqliteStorage {
         }
 
         let storage = Self { db };
+
+        if force_schema11 {
+            if create || upgrade {
+                storage.commit_trx()?;
+            }
+            return storage_with_schema11(storage, ver);
+        }
 
         if create || upgrade {
             storage.upgrade_to_latest_schema(ver, server)?;
@@ -368,4 +380,21 @@ impl SqliteStorage {
     pub(crate) fn db_scalar<T: rusqlite::types::FromSql>(&self, sql: &str) -> Result<T> {
         self.db.query_row(sql, [], |r| r.get(0)).map_err(Into::into)
     }
+}
+
+fn storage_with_schema11(storage: SqliteStorage, ver: u8) -> Result<SqliteStorage> {
+    if ver != 11 {
+        if ver != SCHEMA_MAX_VERSION {
+            // partially upgraded; need to fully upgrade before downgrading
+            storage.begin_trx()?;
+            storage.upgrade_to_latest_schema(ver, false)?;
+            storage.commit_trx()?;
+        }
+        storage.downgrade_to(SchemaVersion::V11)?;
+    }
+    // Requery uses "TRUNCATE" by default if WAL is not enabled.
+    // We copy this behaviour here. See https://github.com/ankidroid/Anki-Android/pull/7977 for
+    // analysis. We may be able to enable WAL at a later time.
+    storage.db.pragma_update(None, "journal_mode", "TRUNCATE")?;
+    Ok(storage)
 }

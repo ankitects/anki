@@ -55,6 +55,8 @@ def handle_resource(policy, resource):
         for prefix in included_resource_packages:
             if resource.package.startswith(prefix):
                 resource.add_include = True
+                if resource.package == "certifi":
+                    resource.add_location = "filesystem-relative:lib"
         for suffix in excluded_resource_suffixes:
             if resource.name.endswith(suffix):
                 resource.add_include = False

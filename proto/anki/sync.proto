@@ -11,14 +11,15 @@ import "anki/generic.proto";
 
 service SyncService {
   rpc SyncMedia(SyncAuth) returns (generic.Empty);
-  rpc AbortSync(generic.Empty) returns (generic.Empty);
   rpc AbortMediaSync(generic.Empty) returns (generic.Empty);
-  rpc BeforeUpload(generic.Empty) returns (generic.Empty);
+
   rpc SyncLogin(SyncLoginRequest) returns (SyncAuth);
   rpc SyncStatus(SyncAuth) returns (SyncStatusResponse);
   rpc SyncCollection(SyncAuth) returns (SyncCollectionResponse);
   rpc FullUpload(SyncAuth) returns (generic.Empty);
   rpc FullDownload(SyncAuth) returns (generic.Empty);
+  rpc AbortSync(generic.Empty) returns (generic.Empty);
+
   rpc SyncServerMethod(SyncServerMethodRequest) returns (generic.Json);
 }
 

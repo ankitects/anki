@@ -70,6 +70,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 z-index: 100;
                 height: var(--client-height);
                 box-shadow: var(--box-shadow);
+                transition: box-shadow var(--transition) ease-in-out;
             }
         }
     }

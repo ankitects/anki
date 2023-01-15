@@ -55,17 +55,21 @@ pub(super) enum Progress {
     Export(ExportProgress),
 }
 
-pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Progress {
+pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::collection::Progress {
     let progress = if let Some(progress) = progress {
         match progress {
-            Progress::MediaSync(p) => pb::progress::Value::MediaSync(media_sync_progress(p, tr)),
-            Progress::MediaCheck(n) => {
-                pb::progress::Value::MediaCheck(tr.media_check_checked(n).into())
+            Progress::MediaSync(p) => {
+                pb::collection::progress::Value::MediaSync(media_sync_progress(p, tr))
             }
-            Progress::FullSync(p) => pb::progress::Value::FullSync(pb::progress::FullSync {
-                transferred: p.transferred_bytes as u32,
-                total: p.total_bytes as u32,
-            }),
+            Progress::MediaCheck(n) => {
+                pb::collection::progress::Value::MediaCheck(tr.media_check_checked(n).into())
+            }
+            Progress::FullSync(p) => {
+                pb::collection::progress::Value::FullSync(pb::collection::progress::FullSync {
+                    transferred: p.transferred_bytes as u32,
+                    total: p.total_bytes as u32,
+                })
+            }
             Progress::NormalSync(p) => {
                 let stage = match p.stage {
                     SyncStage::Connecting => tr.sync_syncing(),
@@ -79,7 +83,7 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Pr
                 let removed = tr
                     .sync_media_removed_count(p.local_remove, p.remote_remove)
                     .into();
-                pb::progress::Value::NormalSync(pb::progress::NormalSync {
+                pb::collection::progress::Value::NormalSync(pb::collection::progress::NormalSync {
                     stage,
                     added,
                     removed,
@@ -100,13 +104,15 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Pr
                     DatabaseCheckProgress::History => tr.database_check_checking_history(),
                 }
                 .to_string();
-                pb::progress::Value::DatabaseCheck(pb::progress::DatabaseCheck {
-                    stage,
-                    stage_total,
-                    stage_current,
-                })
+                pb::collection::progress::Value::DatabaseCheck(
+                    pb::collection::progress::DatabaseCheck {
+                        stage,
+                        stage_total,
+                        stage_current,
+                    },
+                )
             }
-            Progress::Import(progress) => pb::progress::Value::Importing(
+            Progress::Import(progress) => pb::collection::progress::Value::Importing(
                 match progress {
                     ImportProgress::File => tr.importing_importing_file(),
                     ImportProgress::Media(n) => tr.importing_processed_media_file(n),
@@ -117,7 +123,7 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Pr
                 }
                 .into(),
             ),
-            Progress::Export(progress) => pb::progress::Value::Exporting(
+            Progress::Export(progress) => pb::collection::progress::Value::Exporting(
                 match progress {
                     ExportProgress::File => tr.exporting_exporting_file(),
                     ExportProgress::Media(n) => tr.exporting_processed_media_files(n),
@@ -129,15 +135,15 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Pr
             ),
         }
     } else {
-        pb::progress::Value::None(pb::Empty {})
+        pb::collection::progress::Value::None(pb::generic::Empty {})
     };
-    pb::Progress {
+    pb::collection::Progress {
         value: Some(progress),
     }
 }
 
-fn media_sync_progress(p: MediaSyncProgress, tr: &I18n) -> pb::progress::MediaSync {
-    pb::progress::MediaSync {
+fn media_sync_progress(p: MediaSyncProgress, tr: &I18n) -> pb::collection::progress::MediaSync {
+    pb::collection::progress::MediaSync {
         checked: tr.sync_media_checked_count(p.checked).into(),
         added: tr
             .sync_media_added_count(p.uploaded_files, p.downloaded_files)

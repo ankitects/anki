@@ -88,13 +88,13 @@ const MAC_AMD_AUDIO: OnlineArchive = OnlineArchive {
 };
 
 const MAC_ARM_QT6: OnlineArchive = OnlineArchive {
-    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-10-10/pyqt6.4-mac-arm64.tar.gz",
-    sha256: "96f5b3e64f3eeebbb8c60f85d547bbe21a3e8dfbc1135286fcd37482c8c4d87b",
+    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-09-21/pyqt6.3-mac-arm64.tar.gz",
+    sha256: "5c30f6952b498bb0df31ca23bd3b35e09ea732df528f70df454580b495ecbdfd",
 };
 
 const MAC_AMD_QT6: OnlineArchive = OnlineArchive {
-    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-10-10/pyqt6.4-mac-amd64.tar.gz",
-    sha256: "6da02be0ffbbbdb5db80c1c65d01bdbf0207c04378019fcf6109796adc97916e",
+    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-09-21/pyqt6.3-mac-amd64.tar.gz",
+    sha256: "252922cfc2c5848d50ef90a903eed43545ef66b189db791bbe621704ef58bcf1",
 };
 
 const MAC_AMD_QT5: OnlineArchive = OnlineArchive {
@@ -171,7 +171,11 @@ const QT5_VENV: Venv = Venv {
 fn setup_primary_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
     let mut qt6_reqs = inputs![
         "python/requirements.bundle.txt",
-        "python/requirements.qt6.txt",
+        if cfg!(target_os = "macos") {
+            "python/requirements.qt6_3.txt"
+        } else {
+            "python/requirements.qt6_4.txt"
+        }
     ];
     if cfg!(windows) {
         qt6_reqs = inputs![qt6_reqs, "python/requirements.win.txt"];
@@ -390,7 +394,7 @@ impl BuildAction for BuildTarball {
 
         build.add_inputs("", inputs![input_folder_target]);
         build.add_variable("zstd", "zstd -c --long -T0 -18");
-        build.add_variable("transform", format!("s%^.%{output_folder_base}%"));
+        build.add_variable("transform", format!("s%^.%{output_folder_base}%S"));
         build.add_variable("folder", input_folder_path);
         build.add_outputs("tarball", vec![output_tarball]);
     }

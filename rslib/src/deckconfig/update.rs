@@ -13,8 +13,8 @@ use crate::{
     decks::NormalDeck,
     pb,
     pb::{
-        deck::normal::DayLimit,
-        deck_configs_for_update::{current_deck::Limits, ConfigWithExtra, CurrentDeck},
+        deckconfig::deck_configs_for_update::{current_deck::Limits, ConfigWithExtra, CurrentDeck},
+        decks::deck::normal::DayLimit,
     },
     prelude::*,
     search::{JoinSearches, SearchNode},
@@ -36,8 +36,8 @@ impl Collection {
     pub fn get_deck_configs_for_update(
         &mut self,
         deck: DeckId,
-    ) -> Result<pb::DeckConfigsForUpdate> {
-        Ok(pb::DeckConfigsForUpdate {
+    ) -> Result<pb::deckconfig::DeckConfigsForUpdate> {
+        Ok(pb::deckconfig::DeckConfigsForUpdate {
             all_config: self.get_deck_config_with_extra_for_update()?,
             current_deck: Some(self.get_current_deck_for_update(deck)?),
             defaults: Some(DeckConfig::default().into()),

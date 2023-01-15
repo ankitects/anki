@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::Backend;
-pub(super) use crate::pb::deckconfig_service::Service as DeckConfigService;
+pub(super) use crate::pb::deckconfig::deckconfig_service::Service as DeckConfigService;
 use crate::{
     deckconfig::{DeckConfSchema11, DeckConfig, UpdateDeckConfigsRequest},
     pb,
@@ -10,19 +10,22 @@ use crate::{
 };
 
 impl DeckConfigService for Backend {
-    fn add_or_update_deck_config_legacy(&self, input: pb::Json) -> Result<pb::DeckConfigId> {
+    fn add_or_update_deck_config_legacy(
+        &self,
+        input: pb::generic::Json,
+    ) -> Result<pb::deckconfig::DeckConfigId> {
         let conf: DeckConfSchema11 = serde_json::from_slice(&input.json)?;
         let mut conf: DeckConfig = conf.into();
         self.with_col(|col| {
             col.transact_no_undo(|col| {
                 col.add_or_update_deck_config_legacy(&mut conf)?;
-                Ok(pb::DeckConfigId { dcid: conf.id.0 })
+                Ok(pb::deckconfig::DeckConfigId { dcid: conf.id.0 })
             })
         })
         .map(Into::into)
     }
 
-    fn all_deck_config_legacy(&self, _input: pb::Empty) -> Result<pb::Json> {
+    fn all_deck_config_legacy(&self, _input: pb::generic::Empty) -> Result<pb::generic::Json> {
         self.with_col(|col| {
             let conf: Vec<DeckConfSchema11> = col
                 .storage
@@ -35,11 +38,17 @@ impl DeckConfigService for Backend {
         .map(Into::into)
     }
 
-    fn get_deck_config(&self, input: pb::DeckConfigId) -> Result<pb::DeckConfig> {
+    fn get_deck_config(
+        &self,
+        input: pb::deckconfig::DeckConfigId,
+    ) -> Result<pb::deckconfig::DeckConfig> {
         self.with_col(|col| Ok(col.get_deck_config(input.into(), true)?.unwrap().into()))
     }
 
-    fn get_deck_config_legacy(&self, input: pb::DeckConfigId) -> Result<pb::Json> {
+    fn get_deck_config_legacy(
+        &self,
+        input: pb::deckconfig::DeckConfigId,
+    ) -> Result<pb::generic::Json> {
         self.with_col(|col| {
             let conf = col.get_deck_config(input.into(), true)?.unwrap();
             let conf: DeckConfSchema11 = conf.into();
@@ -48,30 +57,39 @@ impl DeckConfigService for Backend {
         .map(Into::into)
     }
 
-    fn new_deck_config_legacy(&self, _input: pb::Empty) -> Result<pb::Json> {
+    fn new_deck_config_legacy(&self, _input: pb::generic::Empty) -> Result<pb::generic::Json> {
         serde_json::to_vec(&DeckConfSchema11::default())
             .map_err(Into::into)
             .map(Into::into)
     }
 
-    fn remove_deck_config(&self, input: pb::DeckConfigId) -> Result<pb::Empty> {
+    fn remove_deck_config(
+        &self,
+        input: pb::deckconfig::DeckConfigId,
+    ) -> Result<pb::generic::Empty> {
         self.with_col(|col| col.transact_no_undo(|col| col.remove_deck_config_inner(input.into())))
             .map(Into::into)
     }
 
-    fn get_deck_configs_for_update(&self, input: pb::DeckId) -> Result<pb::DeckConfigsForUpdate> {
+    fn get_deck_configs_for_update(
+        &self,
+        input: pb::decks::DeckId,
+    ) -> Result<pb::deckconfig::DeckConfigsForUpdate> {
         self.with_col(|col| col.get_deck_configs_for_update(input.into()))
     }
 
-    fn update_deck_configs(&self, input: pb::UpdateDeckConfigsRequest) -> Result<pb::OpChanges> {
+    fn update_deck_configs(
+        &self,
+        input: pb::deckconfig::UpdateDeckConfigsRequest,
+    ) -> Result<pb::collection::OpChanges> {
         self.with_col(|col| col.update_deck_configs(input.into()))
             .map(Into::into)
     }
 }
 
-impl From<DeckConfig> for pb::DeckConfig {
+impl From<DeckConfig> for pb::deckconfig::DeckConfig {
     fn from(c: DeckConfig) -> Self {
-        pb::DeckConfig {
+        pb::deckconfig::DeckConfig {
             id: c.id.0,
             name: c.name,
             mtime_secs: c.mtime_secs.0,
@@ -81,8 +99,8 @@ impl From<DeckConfig> for pb::DeckConfig {
     }
 }
 
-impl From<pb::UpdateDeckConfigsRequest> for UpdateDeckConfigsRequest {
-    fn from(c: pb::UpdateDeckConfigsRequest) -> Self {
+impl From<pb::deckconfig::UpdateDeckConfigsRequest> for UpdateDeckConfigsRequest {
+    fn from(c: pb::deckconfig::UpdateDeckConfigsRequest) -> Self {
         UpdateDeckConfigsRequest {
             target_deck_id: c.target_deck_id.into(),
             configs: c.configs.into_iter().map(Into::into).collect(),
@@ -94,8 +112,8 @@ impl From<pb::UpdateDeckConfigsRequest> for UpdateDeckConfigsRequest {
     }
 }
 
-impl From<pb::DeckConfig> for DeckConfig {
-    fn from(c: pb::DeckConfig) -> Self {
+impl From<pb::deckconfig::DeckConfig> for DeckConfig {
+    fn from(c: pb::deckconfig::DeckConfig) -> Self {
         DeckConfig {
             id: c.id.into(),
             name: c.name,

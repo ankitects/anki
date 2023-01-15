@@ -80,6 +80,10 @@ impl TimestampMillis {
     pub fn as_secs(self) -> TimestampSecs {
         TimestampSecs(self.0 / 1000)
     }
+
+    pub fn adding_secs(self, secs: i64) -> Self {
+        Self(self.0 + secs * 1000)
+    }
 }
 
 fn elapsed() -> time::Duration {

@@ -2,34 +2,30 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 macro_rules! protobuf {
-    ($ident:ident) => {
+    ($ident:ident, $name:literal) => {
         pub mod $ident {
-            #![allow(clippy::derive_partial_eq_without_eq)]
-            include!(concat!(
-                env!("OUT_DIR"),
-                concat!("/anki.", stringify!($ident), ".rs")
-            ));
+            include!(concat!(env!("OUT_DIR"), "/anki.", $name, ".rs"));
         }
-        pub use $ident::*;
     };
 }
 
-protobuf!(backend);
-protobuf!(card_rendering);
-protobuf!(cards);
-protobuf!(collection);
-protobuf!(config);
-protobuf!(deckconfig);
-protobuf!(decks);
-protobuf!(generic);
-protobuf!(i18n);
-protobuf!(import_export);
-protobuf!(links);
-protobuf!(media);
-protobuf!(notes);
-protobuf!(notetypes);
-protobuf!(scheduler);
-protobuf!(search);
-protobuf!(stats);
-protobuf!(sync);
-protobuf!(tags);
+protobuf!(ankidroid, "ankidroid");
+protobuf!(backend, "backend");
+protobuf!(card_rendering, "card_rendering");
+protobuf!(cards, "cards");
+protobuf!(collection, "collection");
+protobuf!(config, "config");
+protobuf!(deckconfig, "deckconfig");
+protobuf!(decks, "decks");
+protobuf!(generic, "generic");
+protobuf!(i18n, "i18n");
+protobuf!(import_export, "import_export");
+protobuf!(links, "links");
+protobuf!(media, "media");
+protobuf!(notes, "notes");
+protobuf!(notetypes, "notetypes");
+protobuf!(scheduler, "scheduler");
+protobuf!(search, "search");
+protobuf!(stats, "stats");
+protobuf!(sync, "sync");
+protobuf!(tags, "tags");

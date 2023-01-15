@@ -1,5 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from anki.utils import is_win
 from aqt import colors, props
 from aqt.theme import ThemeManager
 
@@ -83,7 +85,7 @@ QMenu::item {{
     margin-bottom: 4px;
 }}
 QMenu::item:selected {{
-    background-color: {tm.var(colors.CANVAS_ELEVATED)};
+    background-color: {tm.var(colors.HIGHLIGHT_BG)};
     border-radius: {tm.var(props.BORDER_RADIUS)};
 }}
 QMenu::separator {{
@@ -100,10 +102,10 @@ QMenu::indicator {{
 
 
 def button_styles(tm: ThemeManager) -> str:
+    # For some reason, Windows needs a larger padding to look the same
+    button_pad = 25 if is_win else 15
     return f"""
-QPushButton {{
-    min-width: 75px;
-}}
+QPushButton {{ padding-left: {button_pad}px; padding-right: {button_pad}px; }}
 QPushButton,
 QTabBar::tab:!selected,
 QComboBox:!editable,
@@ -154,6 +156,9 @@ def combobox_styles(tm: ThemeManager) -> str:
     return f"""
 QComboBox {{
     padding: {"1px 6px 2px 4px" if tm.rtl() else "1px 4px 2px 6px"};
+}}
+QComboBox:focus {{
+    border-color: {tm.var(colors.BORDER_FOCUS)};
 }}
 QComboBox:editable:on,
 QComboBox:editable:focus,
@@ -390,9 +395,9 @@ QRadioButton {{
 QCheckBox::indicator,
 QRadioButton::indicator,
 QMenu::indicator {{
-    border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
+    border: 1px solid {tm.var(colors.BORDER)};
     border-radius: {tm.var(props.BORDER_RADIUS)};
-    background: {tm.var(colors.CANVAS_INSET)};
+    background: {tm.var(colors.CANVAS_ELEVATED)};
     width: 16px;
     height: 16px;
 }}

@@ -145,7 +145,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         &.loading {
             opacity: 0.5;
-            transition: opacity 1s;
+            transition: opacity var(--transition-slow);
         }
     }
 

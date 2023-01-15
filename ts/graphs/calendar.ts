@@ -48,19 +48,11 @@ export function gatherData(
     data: Stats.GraphsResponse,
     firstDayOfWeek: WeekdayType,
 ): GraphData {
-    const reviewCount = new Map<number, number>();
-
-    for (const review of data.revlog as Stats.RevlogEntry[]) {
-        if (review.buttonChosen == 0) {
-            continue;
-        }
-        const day = Math.ceil(
-            ((review.id as number) / 1000 - data.nextDayAtSecs) / 86400,
-        );
-        const count = reviewCount.get(day) ?? 0;
-        reviewCount.set(day, count + 1);
-    }
-
+    const reviewCount = new Map(
+        Object.entries(data.reviews!.count).map(([k, v]) => {
+            return [Number(k), v.learn + v.relearn + v.mature + v.filtered + v.young];
+        }),
+    );
     const timeFunction = timeFunctionForDay(firstDayOfWeek);
     const weekdayLabels: number[] = [];
     for (let i = 0; i < 7; i++) {
