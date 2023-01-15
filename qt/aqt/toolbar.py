@@ -153,7 +153,6 @@ class TopWebView(ToolbarWebView):
                 f"""document.body.style.setProperty("background-position-y", "-{self.web_height}px"); """
             )
 
-
         self.mw.web.evalWithCallback(
             """window.getComputedStyle(document.body).background; """,
             set_background,
@@ -163,7 +162,11 @@ class TopWebView(ToolbarWebView):
         self.eval(
             f"""document.body.style.setProperty("min-height", "{self.mw.web.height()}px"); """
         )
-        
+
+    def adjustHeightToFit(self) -> None:
+        self.eval("""document.body.style.setProperty("min-height", "0px"); """)
+        self.evalWithCallback("document.documentElement.offsetHeight", self._onHeight)
+
     def resizeEvent(self, event: QResizeEvent) -> None:
         super().resizeEvent(event)
 
