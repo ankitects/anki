@@ -527,10 +527,10 @@ create table if not exists profiles
         gui_hooks.body_classes_need_update()
 
     def minimalist_mode(self) -> bool:
-        return self.meta.get("tatsumoto_mode", False)
+        return self.meta.get("minimalist_mode", False)
 
     def set_minimalist_mode(self, on: bool) -> None:
-        self.meta["tatsumoto_mode"] = on
+        self.meta["minimalist_mode"] = on
         gui_hooks.body_classes_need_update()
 
     def hide_top_bar(self) -> bool:
