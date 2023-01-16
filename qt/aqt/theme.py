@@ -253,11 +253,13 @@ class ThemeManager:
                     custom_styles.tabwidget(self),
                     custom_styles.table(self),
                     custom_styles.spinbox(self),
-                    custom_styles.scrollbar(self),
                     custom_styles.slider(self),
                     custom_styles.splitter(self),
                 ]
             )
+
+            if not is_mac:
+                buf += custom_styles.scrollbar(self)
 
         # allow addons to modify the styling
         buf = gui_hooks.style_did_init(buf)
@@ -270,7 +272,6 @@ class ThemeManager:
         if (
             aqt.mw.pm.get_widget_style() == AnkiStyles.NATIVE
             and aqt.mw.pm.theme() == Theme.FOLLOW_SYSTEM
-            and qtmajor > 5
         ):
             app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
             self.default_palette.setColor(
