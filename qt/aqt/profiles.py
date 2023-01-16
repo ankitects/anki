@@ -552,6 +552,7 @@ create table if not exists profiles
 
     def set_hide_bottom_bar(self, on: bool) -> None:
         self.meta["hide_bottom_bar"] = on
+        gui_hooks.body_classes_need_update()
 
     def bottom_bar_hide_mode(self) -> HideMode:
         return self.meta.get("bottom_bar_hide_mode", HideMode.FULLSCREEN)

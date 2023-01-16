@@ -77,7 +77,6 @@ class TopWebView(ToolbarWebView):
 
     def on_body_classes_need_update(self) -> None:
         super().on_body_classes_need_update()
-        self.adjustHeightToFit()
 
         if self.mw.state == "review":
             if self.mw.pm.hide_top_bar():
@@ -194,19 +193,14 @@ class BottomWebView(ToolbarWebView):
 
     def on_body_classes_need_update(self) -> None:
         super().on_body_classes_need_update()
+        if self.mw.state == "review":
+            self.show()
 
-        self.adjustHeightToFit()
-        self.show()
-
-    def _onHeight(self, qvar: Optional[int]) -> None:
-        self.web_height = int(qvar)
-
-        if qvar is None:
-            self.mw.progress.single_shot(1000, self.mw.reset)
-            return
+    def animate_height(self, height: int) -> None:
+        self.web_height = height
 
         if self.mw.pm.reduce_motion():
-            self.setFixedHeight(int(qvar))
+            self.setFixedHeight(height)
         else:
             # Collapse/Expand animation
             self.setMinimumHeight(0)
@@ -215,8 +209,8 @@ class BottomWebView(ToolbarWebView):
             )
             self.animation.setDuration(int(theme_manager.var(props.TRANSITION)))
             self.animation.setStartValue(self.height())
-            self.animation.setEndValue(int(qvar))
-            qconnect(self.animation.finished, lambda: self.setFixedHeight(int(qvar)))
+            self.animation.setEndValue(height)
+            qconnect(self.animation.finished, lambda: self.setFixedHeight(height))
             self.animation.start()
 
     def hide_if_allowed(self) -> None:
@@ -236,13 +230,19 @@ class BottomWebView(ToolbarWebView):
     def hide(self) -> None:
         super().hide()
 
-        self._onHeight(1)
+        self.hidden = True
+        self.animate_height(1)
 
     def show(self) -> None:
         super().show()
 
         self.hidden = False
-        self.adjustHeightToFit()
+        if self.mw.state == "review":
+            self.evalWithCallback(
+                "document.documentElement.offsetHeight", self.animate_height
+            )
+        else:
+            self.adjustHeightToFit()
 
 
 class Toolbar:

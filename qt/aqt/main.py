@@ -708,7 +708,7 @@ class AnkiQt(QMainWindow):
         gui_hooks.state_will_change(state, oldState)
         getattr(self, f"_{state}State", lambda *_: None)(oldState, *args)
         if state != "resetRequired":
-            self.bottomWeb.show()
+            self.bottomWeb.adjustHeightToFit()
         gui_hooks.state_did_change(state, oldState)
 
     def _deckBrowserState(self, oldState: MainWindowState) -> None:
