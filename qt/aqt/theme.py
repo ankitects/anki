@@ -282,7 +282,8 @@ class ThemeManager:
             app.setPalette(self.default_palette)
             return
 
-        app.setStyle(QStyleFactory.create("fusion"))  # type: ignore
+        if not is_mac:
+            app.setStyle(QStyleFactory.create("fusion"))  # type: ignore
 
         palette = QPalette()
         text = self.qcolor(colors.FG)
