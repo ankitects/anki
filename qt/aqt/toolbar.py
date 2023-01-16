@@ -111,11 +111,14 @@ class TopWebView(ToolbarWebView):
         self.eval(
             """document.body.classList.add("hidden"); """,
         )
+        if self.mw.fullscreen:
+            self.mw.hide_menubar()
 
     def show(self) -> None:
         super().show()
 
         self.eval("""document.body.classList.remove("hidden"); """)
+        self.mw.show_menubar()
 
     def flatten(self) -> None:
         self.eval("""document.body.classList.add("flat"); """)

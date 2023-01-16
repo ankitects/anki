@@ -189,6 +189,7 @@ class AnkiQt(QMainWindow):
         aqt.mw = self
         self.app = app
         self.pm = profileManager
+        self.fullscreen = False
         # init rest of app
         self.safeMode = (
             bool(self.app.queryKeyboardModifiers() & Qt.KeyboardModifier.ShiftModifier)
@@ -1366,14 +1367,22 @@ title="{}" {}>{}</button>""".format(
 
         # Hide Menubar on Windows and Linux
         if Qt.WindowState.WindowFullScreen in window.windowState() and not is_mac:
-            self.form.menubar.setFixedHeight(0)
+            self.fullscreen = True
+            self.hide_menubar()
         else:
-            self.form.menubar.setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX)
-            self.form.menubar.setMinimumSize(0, 0)
+            self.fullscreen = False
+            self.show_menubar()
 
         # Update Toolbar states
         self.toolbarWeb.hide_if_allowed()
         self.bottomWeb.hide_if_allowed()
+
+    def hide_menubar(self) -> None:
+        self.form.menubar.setFixedHeight(0)
+
+    def show_menubar(self) -> None:
+        self.form.menubar.setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX)
+        self.form.menubar.setMinimumSize(0, 0)
 
     # Auto update
     ##########################################################################
