@@ -334,8 +334,9 @@ class Preferences(QDialog):
         self.form.video_driver.setCurrentIndex(
             self.video_drivers.index(self.mw.pm.video_driver())
         )
-        self.form.video_driver_label.setVisible(qtmajor == 5)
-        self.form.video_driver.setVisible(qtmajor == 5)
+        if qtmajor > 5:
+            self.form.video_driver_label.setVisible(False)
+            self.form.video_driver.setVisible(False)
 
     def update_video_driver(self) -> None:
         new_driver = self.video_drivers[self.form.video_driver.currentIndex()]
