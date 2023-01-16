@@ -215,173 +215,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_1">
-      <attribute name="title">
-       <string>preferences_editing</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_10">
-       <item>
-        <widget class="QGroupBox" name="editorGroupBox">
-         <property name="title">
-          <string>preferences_editing</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_9">
-          <item>
-           <widget class="QCheckBox" name="pastePNG">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>preferences_paste_clipboard_images_as_png</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="paste_strips_formatting">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>preferences_paste_without_shift_key_strips_formatting</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_7">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>10</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_7">
-            <item>
-             <widget class="QLabel" name="deck_label">
-              <property name="text">
-               <string>preferences_default_deck</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="useCurrent">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <item>
-               <property name="text">
-                <string>preferences_when_adding_default_to_current_deck</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>preferences_change_deck_depending_on_note_type</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="browserGroupBox">
-         <property name="title">
-          <string>preferences_browsing</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <widget class="QLabel" name="search_text_label">
-              <property name="text">
-               <string>preferences_default_search_text</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="default_search_text">
-              <property name="placeholderText">
-               <string>preferences_default_search_text_example</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="ignore_accents_in_search">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>preferences_ignore_accents_in_search</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox_4">
-         <property name="title">
-          <string>preferences_import_export</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_11">
-          <item>
-           <widget class="QCheckBox" name="legacy_import_export">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string notr="true">Legacy import/export handling</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
        <string>preferences_review</string>
@@ -599,6 +432,173 @@
           </item>
          </layout>
         </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_1">
+      <attribute name="title">
+       <string>preferences_editing</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_10">
+       <item>
+        <widget class="QGroupBox" name="editorGroupBox">
+         <property name="title">
+          <string>preferences_editing</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_9">
+          <item>
+           <widget class="QCheckBox" name="pastePNG">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_paste_clipboard_images_as_png</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="paste_strips_formatting">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_paste_without_shift_key_strips_formatting</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_7">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>10</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="QLabel" name="deck_label">
+              <property name="text">
+               <string>preferences_default_deck</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="useCurrent">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <item>
+               <property name="text">
+                <string>preferences_when_adding_default_to_current_deck</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>preferences_change_deck_depending_on_note_type</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="browserGroupBox">
+         <property name="title">
+          <string>preferences_browsing</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QLabel" name="search_text_label">
+              <property name="text">
+               <string>preferences_default_search_text</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="default_search_text">
+              <property name="placeholderText">
+               <string>preferences_default_search_text_example</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="ignore_accents_in_search">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_ignore_accents_in_search</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
+          <string>preferences_import_export</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_11">
+          <item>
+           <widget class="QCheckBox" name="legacy_import_export">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string notr="true">Legacy import/export handling</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
@@ -1024,15 +1024,11 @@
   <tabstop>styleComboBox</tabstop>
   <tabstop>uiScale</tabstop>
   <tabstop>hide_top_bar</tabstop>
+  <tabstop>topBarComboBox</tabstop>
   <tabstop>hide_bottom_bar</tabstop>
+  <tabstop>bottomBarComboBox</tabstop>
   <tabstop>reduce_motion</tabstop>
   <tabstop>minimalist_mode</tabstop>
-  <tabstop>pastePNG</tabstop>
-  <tabstop>paste_strips_formatting</tabstop>
-  <tabstop>useCurrent</tabstop>
-  <tabstop>default_search_text</tabstop>
-  <tabstop>ignore_accents_in_search</tabstop>
-  <tabstop>legacy_import_export</tabstop>
   <tabstop>sched2021</tabstop>
   <tabstop>dayLearnFirst</tabstop>
   <tabstop>legacy_timezone</tabstop>
@@ -1044,6 +1040,12 @@
   <tabstop>interrupt_audio</tabstop>
   <tabstop>showProgress</tabstop>
   <tabstop>showEstimates</tabstop>
+  <tabstop>pastePNG</tabstop>
+  <tabstop>paste_strips_formatting</tabstop>
+  <tabstop>useCurrent</tabstop>
+  <tabstop>default_search_text</tabstop>
+  <tabstop>ignore_accents_in_search</tabstop>
+  <tabstop>legacy_import_export</tabstop>
   <tabstop>syncMedia</tabstop>
   <tabstop>syncOnProgramOpen</tabstop>
   <tabstop>autoSyncMedia</tabstop>
