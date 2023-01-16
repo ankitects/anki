@@ -11,6 +11,9 @@
     grid-template-columns: repeat(3, 1fr);
     align-items: start;
     align-content: space-between;
+    body:not(.fancy) & {
+        border-bottom: 1px solid var(--border-subtle);
+    }
 }
 
 .left-tray {
@@ -106,9 +109,6 @@ body {
                 padding-right: 18px;
             }
         }
-    }
-    &:not(.fancy) {
-        border-bottom: 1px solid var(--border-subtle);
     }
 }
 
