@@ -267,7 +267,9 @@ class ThemeManager:
     def _apply_palette(self, app: QApplication) -> None:
         set_macos_dark_mode(self.night_mode)
 
-        if is_mac and not (qtmajor == 5 or aqt.mw.pm.get_widget_style() == AnkiStyles.ANKI):
+        if is_mac and not (
+            qtmajor == 5 or aqt.mw.pm.get_widget_style() == AnkiStyles.ANKI
+        ):
             app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
             self.default_palette.setColor(
                 QPalette.ColorRole.Window, self.qcolor(colors.CANVAS)
