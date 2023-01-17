@@ -29,6 +29,7 @@ class ImportCsvDialog(QDialog):
         self._on_accepted = on_accepted
         self._setup_ui(path)
         self.show()
+        self.web.setVisible(True)
 
     def _setup_ui(self, path: str) -> None:
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
