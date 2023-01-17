@@ -263,6 +263,9 @@ class ThemeManager:
             if not is_mac:
                 buf += custom_styles.scrollbar(self)
 
+        else:
+            app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
+
         # allow addons to modify the styling
         buf = gui_hooks.style_did_init(buf)
 
