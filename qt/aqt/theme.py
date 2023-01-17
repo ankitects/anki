@@ -238,13 +238,12 @@ class ThemeManager:
         gui_hooks.theme_did_change()
 
     def _apply_style(self, app: QApplication) -> None:
-        if not is_mac:
-            app.setStyle(QStyleFactory.create("fusion"))  # type: ignore
-
         buf = ""
 
         if aqt.mw.pm.get_widget_style() == AnkiStyles.ANKI:
             from aqt.stylesheets import custom_styles
+
+            app.setStyle(QStyleFactory.create("fusion"))  # type: ignore
 
             buf += "".join(
                 [
