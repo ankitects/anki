@@ -289,7 +289,7 @@ class ThemeManager:
         palette.setColor(QPalette.ColorRole.Window, canvas)
         palette.setColor(QPalette.ColorRole.AlternateBase, canvas)
 
-        palette.setColor(QPalette.ColorRole.Button, self.qcolor(colors.BUTTON_BG))
+        palette.setColor(QPalette.ColorRole.Button, canvas)
 
         input_base = self.qcolor(colors.CANVAS_CODE)
         palette.setColor(QPalette.ColorRole.Base, input_base)
