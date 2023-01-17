@@ -17,7 +17,6 @@ from anki.utils import is_lin, is_mac, is_win
 from aqt import QApplication, colors, gui_hooks
 from aqt.qt import (
     QColor,
-    QGuiApplication,
     QIcon,
     QPainter,
     QPalette,
@@ -61,7 +60,6 @@ class ThemeManager:
     _icon_cache_dark: dict[str, QIcon] = {}
     _icon_size = 128
     _dark_mode_available: bool | None = None
-    default_palette: QPalette | None = None
     _default_style: str | None = None
 
     def rtl(self) -> bool:
@@ -230,8 +228,7 @@ class ThemeManager:
         "Apply currently configured style."
         app = aqt.mw.app
         self.night_mode = self._determine_night_mode()
-        if not self.default_palette:
-            self.default_palette = QGuiApplication.palette()
+        if not self._default_style:
             self._default_style = app.style().objectName()
         self._apply_palette(app)
         self._apply_style(app)

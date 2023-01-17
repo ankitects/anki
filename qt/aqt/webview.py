@@ -411,8 +411,7 @@ class AnkiWebView(QWebEngineView):
             return 3
 
     def standard_css(self) -> str:
-        palette = theme_manager.default_palette
-        color_hl = palette.color(QPalette.ColorRole.Highlight).name()
+        color_hl = theme_manager.var(colors.BORDER_FOCUS)
 
         if is_win:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
