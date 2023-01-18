@@ -4706,7 +4706,6 @@ dependencies = [
  "rand_core 0.6.4",
  "regex",
  "regex-syntax",
- "reqwest",
  "scopeguard",
  "serde",
  "serde_json",
