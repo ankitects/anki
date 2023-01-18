@@ -3,17 +3,13 @@
 
 use std::{
     fs::File,
-    io::{
-        Write, {self},
-    },
+    io,
+    io::Write,
     path::{Path, PathBuf},
 };
 
 use zip::{read::ZipFile, ZipArchive};
-use zstd::{
-    stream::copy_decode,
-    {self},
-};
+use zstd::{self, stream::copy_decode};
 
 use crate::{
     collection::CollectionBuilder,

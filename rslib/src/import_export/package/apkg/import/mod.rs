@@ -59,7 +59,7 @@ impl<'a> Context<'a> {
     ) -> Result<Self> {
         let mut progress = IncrementableProgress::new(progress_fn);
         progress.call(ImportProgress::Extracting)?;
-        let media_manager = MediaManager::new(&target_col.media_folder, &target_col.media_db)?;
+        let media_manager = target_col.media()?;
         let meta = Meta::from_archive(&mut archive)?;
         let data = ExchangeData::gather_from_archive(
             &mut archive,

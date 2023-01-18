@@ -606,15 +606,33 @@ create table if not exists profiles
         return self.profile["autoSync"]
 
     def sync_auth(self) -> SyncAuth | None:
-        hkey = self.profile.get("syncKey")
-        if not hkey:
+        if not (hkey := self.profile.get("syncKey")):
             return None
-        return SyncAuth(hkey=hkey, host_number=self.profile.get("hostNum", 0))
+        return SyncAuth(hkey=hkey, endpoint=self.sync_endpoint())
 
     def clear_sync_auth(self) -> None:
-        self.profile["syncKey"] = None
-        self.profile["syncUser"] = None
-        self.profile["hostNum"] = 0
+        self.set_sync_key(None)
+        self.set_sync_username(None)
+        self.set_host_number(None)
+        self.set_current_sync_url(None)
+
+    def sync_endpoint(self) -> str | None:
+        return self._current_sync_url() or self.custom_sync_url() or None
+
+    def _current_sync_url(self) -> str | None:
+        """The last endpoint the server redirected us to."""
+        return self.profile.get("currentSyncUrl")
+
+    def set_current_sync_url(self, url: str | None) -> None:
+        self.profile["currentSyncUrl"] = url
+
+    def custom_sync_url(self) -> str | None:
+        """A custom server provided by the user."""
+        return self.profile.get("customSyncUrl")
+
+    def set_custom_sync_url(self, url: str | None) -> None:
+        self.set_current_sync_url(None)
+        self.profile["customSyncUrl"] = url
 
     def auto_sync_media_minutes(self) -> int:
         return self.profile.get("autoSyncMediaMinutes", 15)

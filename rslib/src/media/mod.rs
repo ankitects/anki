@@ -1,35 +1,41 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+pub mod check;
+pub mod files;
+
 use std::{
     borrow::Cow,
     collections::HashMap,
     path::{Path, PathBuf},
 };
 
-use rusqlite::Connection;
-
-use self::changetracker::ChangeTracker;
 use crate::{
-    media::{
-        database::{open_or_create, MediaDatabaseContext, MediaEntry},
-        files::{add_data_to_folder_uniquely, mtime_as_i64, remove_files, sha1_of_data},
-        sync::{MediaSyncProgress, MediaSyncer},
-    },
+    io::create_dir_all,
+    media::files::{add_data_to_folder_uniquely, mtime_as_i64, remove_files, sha1_of_data},
     prelude::*,
+    sync::{
+        http_client::HttpSyncClient,
+        login::SyncAuth,
+        media::{
+            database::client::{changetracker::ChangeTracker, MediaDatabase, MediaEntry},
+            progress::MediaSyncProgress,
+            syncer::MediaSyncer,
+        },
+    },
 };
-
-pub mod changetracker;
-pub mod check;
-pub mod database;
-pub mod files;
-pub mod sync;
 
 pub type Sha1Hash = [u8; 20];
 
+impl Collection {
+    pub fn media(&self) -> Result<MediaManager> {
+        MediaManager::new(&self.media_folder, &self.media_db)
+    }
+}
+
 pub struct MediaManager {
-    db: Connection,
-    media_folder: PathBuf,
+    pub(crate) db: MediaDatabase,
+    pub(crate) media_folder: PathBuf,
 }
 
 impl MediaManager {
@@ -38,10 +44,11 @@ impl MediaManager {
         P: Into<PathBuf>,
         P2: AsRef<Path>,
     {
-        let db = open_or_create(media_db.as_ref())?;
+        let media_folder = media_folder.into();
+        create_dir_all(&media_folder)?;
         Ok(MediaManager {
-            db,
-            media_folder: media_folder.into(),
+            db: MediaDatabase::new(media_db.as_ref())?,
+            media_folder,
         })
     }
 
@@ -51,26 +58,21 @@ impl MediaManager {
     /// appended to the name.
     ///
     /// Also notes the file in the media database.
-    pub fn add_file<'a>(
-        &self,
-        ctx: &mut MediaDatabaseContext,
-        desired_name: &'a str,
-        data: &[u8],
-    ) -> Result<Cow<'a, str>> {
+    pub fn add_file<'a>(&self, desired_name: &'a str, data: &[u8]) -> Result<Cow<'a, str>> {
         let data_hash = sha1_of_data(data);
 
-        self.transact(ctx, |ctx| {
+        self.transact(|db| {
             let chosen_fname =
                 add_data_to_folder_uniquely(&self.media_folder, desired_name, data, data_hash)?;
             let file_mtime = mtime_as_i64(self.media_folder.join(chosen_fname.as_ref()))?;
 
-            let existing_entry = ctx.get_entry(&chosen_fname)?;
+            let existing_entry = db.get_entry(&chosen_fname)?;
             let new_sha1 = Some(data_hash);
 
             let entry_update_required = existing_entry.map(|e| e.sha1 != new_sha1).unwrap_or(true);
 
             if entry_update_required {
-                ctx.set_entry(&MediaEntry {
+                db.set_entry(&MediaEntry {
                     fname: chosen_fname.to_string(),
                     sha1: new_sha1,
                     mtime: file_mtime,
@@ -82,18 +84,18 @@ impl MediaManager {
         })
     }
 
-    pub fn remove_files<S>(&self, ctx: &mut MediaDatabaseContext, filenames: &[S]) -> Result<()>
+    pub fn remove_files<S>(&self, filenames: &[S]) -> Result<()>
     where
         S: AsRef<str> + std::fmt::Debug,
     {
-        self.transact(ctx, |ctx| {
+        self.transact(|db| {
             remove_files(&self.media_folder, filenames)?;
             for fname in filenames {
-                if let Some(mut entry) = ctx.get_entry(fname.as_ref())? {
+                if let Some(mut entry) = db.get_entry(fname.as_ref())? {
                     entry.sha1 = None;
                     entry.mtime = 0;
                     entry.sync_required = true;
-                    ctx.set_entry(&entry)?;
+                    db.set_entry(&entry)?;
                 }
             }
             Ok(())
@@ -102,21 +104,17 @@ impl MediaManager {
 
     /// Opens a transaction and manages folder mtime, so user should perform not
     /// only db ops, but also all file ops inside the closure.
-    pub(crate) fn transact<T>(
-        &self,
-        ctx: &mut MediaDatabaseContext,
-        func: impl FnOnce(&mut MediaDatabaseContext) -> Result<T>,
-    ) -> Result<T> {
+    pub(crate) fn transact<T>(&self, func: impl FnOnce(&MediaDatabase) -> Result<T>) -> Result<T> {
         let start_folder_mtime = mtime_as_i64(&self.media_folder)?;
-        ctx.transact(|ctx| {
-            let out = func(ctx)?;
+        self.db.transact(|db| {
+            let out = func(db)?;
 
-            let mut meta = ctx.get_meta()?;
+            let mut meta = db.get_meta()?;
             if meta.folder_mtime == start_folder_mtime {
                 // if media db was in sync with folder prior to this add,
                 // we can keep it in sync
                 meta.folder_mtime = mtime_as_i64(&self.media_folder)?;
-                ctx.set_meta(&meta)?;
+                db.set_meta(&meta)?;
             } else {
                 // otherwise, leave it alone so that other pending changes
                 // get picked up later
@@ -127,15 +125,10 @@ impl MediaManager {
     }
 
     /// Set entry for a newly added file. Caller must ensure transaction.
-    pub(crate) fn add_entry(
-        &self,
-        ctx: &mut MediaDatabaseContext,
-        fname: impl Into<String>,
-        sha1: [u8; 20],
-    ) -> Result<()> {
+    pub(crate) fn add_entry(&self, fname: impl Into<String>, sha1: [u8; 20]) -> Result<()> {
         let fname = fname.into();
         let mtime = mtime_as_i64(self.media_folder.join(&fname))?;
-        ctx.set_entry(&MediaEntry {
+        self.db.set_entry(&MediaEntry {
             fname,
             mtime,
             sha1: Some(sha1),
@@ -144,55 +137,38 @@ impl MediaManager {
     }
 
     /// Sync media.
-    pub async fn sync_media<'a, F>(
-        &'a self,
-        progress: F,
-        host_number: u32,
-        hkey: &'a str,
-    ) -> Result<()>
+    pub async fn sync_media<F>(self, progress: F, auth: SyncAuth) -> Result<()>
     where
         F: FnMut(MediaSyncProgress) -> bool,
     {
-        let mut syncer = MediaSyncer::new(self, progress, host_number);
-        syncer.sync(hkey).await
+        let client = HttpSyncClient::new(auth);
+        let mut syncer = MediaSyncer::new(self, progress, client)?;
+        syncer.sync().await
     }
 
-    pub fn dbctx(&self) -> MediaDatabaseContext {
-        MediaDatabaseContext::new(&self.db)
-    }
-
-    pub fn all_checksums(
+    pub fn all_checksums_after_checking(
         &self,
         progress: impl FnMut(usize) -> bool,
     ) -> Result<HashMap<String, Sha1Hash>> {
-        let mut dbctx = self.dbctx();
-        ChangeTracker::new(&self.media_folder, progress).register_changes(&mut dbctx)?;
-        dbctx.all_checksums()
+        ChangeTracker::new(&self.media_folder, progress).register_changes(&self.db)?;
+        self.db.all_registered_checksums()
     }
 
     pub fn checksum_getter(&self) -> impl FnMut(&str) -> Result<Option<Sha1Hash>> + '_ {
-        let mut dbctx = self.dbctx();
-        move |fname: &str| {
-            dbctx
+        |fname: &str| {
+            self.db
                 .get_entry(fname)
                 .map(|opt| opt.and_then(|entry| entry.sha1))
         }
     }
 
     pub fn register_changes(&self, progress: &mut impl FnMut(usize) -> bool) -> Result<()> {
-        ChangeTracker::new(&self.media_folder, progress).register_changes(&mut self.dbctx())
+        ChangeTracker::new(&self.media_folder, progress).register_changes(&self.db)
     }
-}
 
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    impl MediaManager {
-        /// All checksums without registering changes first.
-        pub(crate) fn all_checksums_as_is(&self) -> HashMap<String, [u8; 20]> {
-            let mut dbctx = self.dbctx();
-            dbctx.all_checksums().unwrap()
-        }
+    /// All checksums without registering changes first.
+    #[cfg(test)]
+    pub(crate) fn all_checksums_as_is(&self) -> HashMap<String, [u8; 20]> {
+        self.db.all_registered_checksums().unwrap()
     }
 }
