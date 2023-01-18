@@ -7,7 +7,7 @@ use super::Backend;
 pub(super) use crate::pb::decks::decks_service::Service as DecksService;
 use crate::{
     decks::{DeckSchema11, FilteredSearchOrder},
-    pb::{self as pb},
+    pb,
     prelude::*,
     scheduler::filtered::FilteredDeckForUpdate,
 };

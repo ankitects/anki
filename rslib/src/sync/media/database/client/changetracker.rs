@@ -7,14 +7,12 @@ use tracing::debug;
 
 use crate::{
     io::read_dir_files,
-    media::{
-        database::{MediaDatabaseContext, MediaEntry},
-        files::{
-            filename_if_normalized, mtime_as_i64, sha1_of_file, MEDIA_SYNC_FILESIZE_LIMIT,
-            NONSYNCABLE_FILENAME,
-        },
-    },
+    media::files::{filename_if_normalized, mtime_as_i64, sha1_of_file, NONSYNCABLE_FILENAME},
     prelude::*,
+    sync::media::{
+        database::client::{MediaDatabase, MediaEntry},
+        MAX_INDIVIDUAL_MEDIA_FILE_SIZE,
+    },
 };
 
 struct FilesystemEntry {
@@ -24,7 +22,7 @@ struct FilesystemEntry {
     is_new: bool,
 }
 
-pub(super) struct ChangeTracker<'a, F>
+pub(crate) struct ChangeTracker<'a, F>
 where
     F: FnMut(usize) -> bool,
 {
@@ -37,7 +35,7 @@ impl<F> ChangeTracker<'_, F>
 where
     F: FnMut(usize) -> bool,
 {
-    pub(super) fn new(media_folder: &Path, progress: F) -> ChangeTracker<'_, F> {
+    pub(crate) fn new(media_folder: &Path, progress: F) -> ChangeTracker<'_, F> {
         ChangeTracker {
             media_folder,
             progress_cb: progress,
@@ -53,7 +51,7 @@ where
         }
     }
 
-    pub(super) fn register_changes(&mut self, ctx: &mut MediaDatabaseContext) -> Result<()> {
+    pub(crate) fn register_changes(&mut self, ctx: &MediaDatabase) -> Result<()> {
         ctx.transact(|ctx| {
             // folder mtime unchanged?
             let dirmod = mtime_as_i64(self.media_folder)?;
@@ -125,7 +123,7 @@ where
 
             // ignore large files and zero byte files
             let metadata = dentry.metadata()?;
-            if metadata.len() > MEDIA_SYNC_FILESIZE_LIMIT as u64 {
+            if metadata.len() > MAX_INDIVIDUAL_MEDIA_FILE_SIZE as u64 {
                 continue;
             }
             if metadata.len() == 0 {
@@ -184,7 +182,7 @@ where
     /// Skip files where the mod time differed, but checksums are the same.
     fn add_updated_entries(
         &mut self,
-        ctx: &mut MediaDatabaseContext,
+        ctx: &MediaDatabase,
         entries: Vec<FilesystemEntry>,
     ) -> Result<()> {
         for fentry in entries {
@@ -217,11 +215,7 @@ where
     }
 
     /// Remove deleted files from the media DB.
-    fn remove_deleted_files(
-        &mut self,
-        ctx: &mut MediaDatabaseContext,
-        removed: Vec<String>,
-    ) -> Result<()> {
+    fn remove_deleted_files(&mut self, ctx: &MediaDatabase, removed: Vec<String>) -> Result<()> {
         for fname in removed {
             ctx.set_entry(&MediaEntry {
                 fname,
@@ -246,12 +240,12 @@ mod test {
 
     use tempfile::tempdir;
 
+    use super::*;
     use crate::{
         error::Result,
         io::{create_dir, write_file},
-        media::{
-            changetracker::ChangeTracker, database::MediaEntry, files::sha1_of_data, MediaManager,
-        },
+        media::{files::sha1_of_data, MediaManager},
+        sync::media::database::client::MediaEntry,
     };
 
     // helper
@@ -273,9 +267,7 @@ mod test {
         let media_db = dir.path().join("media.db");
 
         let mgr = MediaManager::new(&media_dir, media_db)?;
-        let mut ctx = mgr.dbctx();
-
-        assert_eq!(ctx.count()?, 0);
+        assert_eq!(mgr.db.count()?, 0);
 
         // add a file and check it's picked up
         let f1 = media_dir.join("file.jpg");
@@ -283,11 +275,11 @@ mod test {
 
         change_mtime(&media_dir);
 
-        let progress_cb = |_n| true;
+        let mut progress_cb = |_n| true;
 
-        ChangeTracker::new(&mgr.media_folder, progress_cb).register_changes(&mut ctx)?;
+        mgr.register_changes(&mut progress_cb)?;
 
-        let mut entry = ctx.transact(|ctx| {
+        let mut entry = mgr.db.transact(|ctx| {
             assert_eq!(ctx.count()?, 1);
             assert!(!ctx.get_pending_uploads(1)?.is_empty());
             let mut entry = ctx.get_entry("file.jpg")?.unwrap();
@@ -320,9 +312,9 @@ mod test {
             Ok(entry)
         })?;
 
-        ChangeTracker::new(&mgr.media_folder, progress_cb).register_changes(&mut ctx)?;
+        ChangeTracker::new(&mgr.media_folder, progress_cb).register_changes(&mgr.db)?;
 
-        ctx.transact(|ctx| {
+        mgr.db.transact(|ctx| {
             assert_eq!(ctx.count()?, 1);
             assert!(!ctx.get_pending_uploads(1)?.is_empty());
             assert_eq!(
@@ -353,12 +345,12 @@ mod test {
 
         change_mtime(&media_dir);
 
-        ChangeTracker::new(&mgr.media_folder, progress_cb).register_changes(&mut ctx)?;
+        ChangeTracker::new(&mgr.media_folder, progress_cb).register_changes(&mgr.db)?;
 
-        assert_eq!(ctx.count()?, 0);
-        assert!(!ctx.get_pending_uploads(1)?.is_empty());
+        assert_eq!(mgr.db.count()?, 0);
+        assert!(!mgr.db.get_pending_uploads(1)?.is_empty());
         assert_eq!(
-            ctx.get_entry("file.jpg")?.unwrap(),
+            mgr.db.get_entry("file.jpg")?.unwrap(),
             MediaEntry {
                 fname: "file.jpg".into(),
                 sha1: None,

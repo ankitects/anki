@@ -208,6 +208,7 @@ impl SqliteStorage {
         path: &Path,
         tr: &I18n,
         server: bool,
+        check_integrity: bool,
         force_schema11: bool,
     ) -> Result<Self> {
         let db = open_or_create_collection_db(path)?;
@@ -225,6 +226,13 @@ impl SqliteStorage {
         };
         if let Some(kind) = err {
             return Err(AnkiError::db_error("", kind));
+        }
+
+        if check_integrity {
+            match db.pragma_query_value(None, "integrity_check", |row| row.get::<_, String>(0)) {
+                Ok(s) => require!(s == "ok", "corrupt: {s}"),
+                Err(e) => return Err(e.into()),
+            };
         }
 
         let upgrade = ver != SCHEMA_MAX_VERSION;

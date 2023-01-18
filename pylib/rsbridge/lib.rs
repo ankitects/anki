@@ -4,6 +4,7 @@
 use anki::{
     backend::{init_backend, Backend as RustBackend},
     log::set_global_logger,
+    sync::http_server::SimpleServer,
 };
 use pyo3::{
     create_exception, exceptions::PyException, prelude::*, types::PyBytes, wrap_pyfunction,
@@ -24,6 +25,12 @@ fn buildhash() -> &'static str {
 #[pyfunction]
 fn initialize_logging(path: Option<&str>) -> PyResult<()> {
     set_global_logger(path).map_err(|e| PyException::new_err(e.to_string()))
+}
+
+#[pyfunction]
+fn syncserver() -> PyResult<()> {
+    set_global_logger(None).unwrap();
+    SimpleServer::run().map_err(|e| PyException::new_err(format!("{e:?}")))
 }
 
 #[pyfunction]
@@ -76,6 +83,7 @@ fn _rsbridge(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(buildhash)).unwrap();
     m.add_wrapped(wrap_pyfunction!(open_backend)).unwrap();
     m.add_wrapped(wrap_pyfunction!(initialize_logging)).unwrap();
+    m.add_wrapped(wrap_pyfunction!(syncserver)).unwrap();
 
     Ok(())
 }

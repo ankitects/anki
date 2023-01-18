@@ -6,9 +6,8 @@ use std::{
     collections::HashMap,
     ffi::OsStr,
     fs::File,
-    io::{
-        Read, Write, {self},
-    },
+    io,
+    io::{Read, Write},
     path::{Path, PathBuf},
 };
 

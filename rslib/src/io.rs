@@ -31,6 +31,15 @@ pub(crate) fn write_file(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> 
     })
 }
 
+/// See [std::fs::remove_file].
+#[allow(dead_code)]
+pub(crate) fn remove_file(path: impl AsRef<Path>) -> Result<()> {
+    std::fs::remove_file(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Remove,
+    })
+}
+
 /// See [std::fs::create_dir].
 pub(crate) fn create_dir(path: impl AsRef<Path>) -> Result<()> {
     std::fs::create_dir(&path).context(FileIoSnafu {

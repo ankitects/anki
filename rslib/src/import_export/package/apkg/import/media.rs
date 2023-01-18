@@ -38,7 +38,9 @@ impl Context<'_> {
         }
 
         let db_progress_fn = self.progress.media_db_fn(ImportProgress::MediaCheck)?;
-        let existing_sha1s = self.media_manager.all_checksums(db_progress_fn)?;
+        let existing_sha1s = self
+            .media_manager
+            .all_checksums_after_checking(db_progress_fn)?;
 
         prepare_media(
             media_entries,
@@ -50,9 +52,8 @@ impl Context<'_> {
 
     pub(super) fn copy_media(&mut self, media_map: &mut MediaUseMap) -> Result<()> {
         let mut incrementor = self.progress.incrementor(ImportProgress::Media);
-        let mut dbctx = self.media_manager.dbctx();
         let mut copier = MediaCopier::new(false);
-        self.media_manager.transact(&mut dbctx, |dbctx| {
+        self.media_manager.transact(|_db| {
             for entry in media_map.used_entries() {
                 incrementor.increment()?;
                 entry.copy_and_ensure_sha1_set(
@@ -61,7 +62,7 @@ impl Context<'_> {
                     &mut copier,
                 )?;
                 self.media_manager
-                    .add_entry(dbctx, &entry.name, entry.sha1.unwrap())?;
+                    .add_entry(&entry.name, entry.sha1.unwrap())?;
             }
             Ok(())
         })

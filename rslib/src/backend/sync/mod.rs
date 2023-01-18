@@ -1,22 +1,27 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-mod server;
-
 use std::sync::Arc;
 
 use futures::future::{AbortHandle, AbortRegistration, Abortable};
+use pb::sync::sync_status_response::Required;
+use reqwest::Url;
 use tracing::warn;
 
 use super::{progress::AbortHandleSlot, Backend};
 pub(super) use crate::pb::sync::sync_service::Service as SyncService;
 use crate::{
-    media::MediaManager,
     pb,
+    pb::sync::SyncStatusResponse,
     prelude::*,
     sync::{
-        get_remote_sync_meta, http::SyncRequest, sync_abort, sync_login, FullSyncProgress,
-        LocalServer, NormalSyncProgress, SyncActionRequired, SyncAuth, SyncMeta, SyncOutput,
+        collection::{
+            normal::{ClientSyncState, NormalSyncProgress, SyncActionRequired, SyncOutput},
+            progress::{sync_abort, FullSyncProgress},
+            status::online_sync_status_check,
+        },
+        http_client::HttpSyncClient,
+        login::{sync_login, SyncAuth},
     },
 };
 
@@ -24,17 +29,16 @@ use crate::{
 pub(super) struct SyncState {
     remote_sync_status: RemoteSyncStatus,
     media_sync_abort: Option<AbortHandle>,
-    http_sync_server: Option<LocalServer>,
 }
 
 #[derive(Default, Debug)]
 pub(super) struct RemoteSyncStatus {
     pub last_check: TimestampSecs,
-    pub last_response: pb::sync::sync_status_response::Required,
+    pub last_response: Required,
 }
 
 impl RemoteSyncStatus {
-    pub(super) fn update(&mut self, required: pb::sync::sync_status_response::Required) {
+    pub(super) fn update(&mut self, required: Required) {
         self.last_check = TimestampSecs::now();
         self.last_response = required
     }
@@ -45,6 +49,7 @@ impl From<SyncOutput> for pb::sync::SyncCollectionResponse {
         pb::sync::SyncCollectionResponse {
             host_number: o.host_number,
             server_message: o.server_message,
+            new_endpoint: o.new_endpoint,
             required: match o.required {
                 SyncActionRequired::NoChanges => {
                     pb::sync::sync_collection_response::ChangesRequired::NoChanges as i32
@@ -69,12 +74,20 @@ impl From<SyncOutput> for pb::sync::SyncCollectionResponse {
     }
 }
 
-impl From<pb::sync::SyncAuth> for SyncAuth {
-    fn from(a: pb::sync::SyncAuth) -> Self {
-        SyncAuth {
-            hkey: a.hkey,
-            host_number: a.host_number,
-        }
+impl TryFrom<pb::sync::SyncAuth> for SyncAuth {
+    type Error = AnkiError;
+
+    fn try_from(value: pb::sync::SyncAuth) -> std::result::Result<Self, Self::Error> {
+        Ok(SyncAuth {
+            hkey: value.hkey,
+            endpoint: value
+                .endpoint
+                .map(|v| {
+                    Url::try_from(v.as_str())
+                        .or_invalid("Invalid sync server specified. Please check the preferences.")
+                })
+                .transpose()?,
+        })
     }
 }
 
@@ -123,14 +136,6 @@ impl SyncService for Backend {
         self.full_sync_inner(input, false)?;
         Ok(().into())
     }
-
-    fn sync_server_method(
-        &self,
-        input: pb::sync::SyncServerMethodRequest,
-    ) -> Result<pb::generic::Json> {
-        let req = SyncRequest::from_method_and_data(input.method(), input.data)?;
-        self.sync_server_method_inner(req).map(Into::into)
-    }
 }
 
 impl Backend {
@@ -160,7 +165,8 @@ impl Backend {
         Ok((guard, abort_reg))
     }
 
-    pub(super) fn sync_media_inner(&self, input: pb::sync::SyncAuth) -> Result<()> {
+    pub(super) fn sync_media_inner(&self, auth: pb::sync::SyncAuth) -> Result<()> {
+        let auth = auth.try_into()?;
         // mark media sync as active
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
         {
@@ -173,20 +179,13 @@ impl Backend {
             }
         }
 
-        // get required info from collection
-        let mut guard = self.col.lock().unwrap();
-        let col = guard.as_mut().unwrap();
-        let folder = col.media_folder.clone();
-        let db = col.media_db.clone();
-        drop(guard);
-
         // start the sync
+        let mgr = self.col.lock().unwrap().as_mut().unwrap().media()?;
         let mut handler = self.new_progress_handler();
         let progress_fn = move |progress| handler.update(progress, true);
 
-        let mgr = MediaManager::new(&folder, &db)?;
         let rt = self.runtime_handle();
-        let sync_fut = mgr.sync_media(progress_fn, input.host_number, &input.hkey);
+        let sync_fut = mgr.sync_media(progress_fn, auth);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let result = rt.block_on(abortable_sync);
 
@@ -226,7 +225,7 @@ impl Backend {
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
         let rt = self.runtime_handle();
-        let sync_fut = sync_login(&input.username, &input.password);
+        let sync_fut = sync_login(input.username, input.password, input.endpoint);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let ret = match rt.block_on(abortable_sync) {
             Ok(sync_result) => sync_result,
@@ -234,7 +233,7 @@ impl Backend {
         };
         ret.map(|a| pb::sync::SyncAuth {
             hkey: a.hkey,
-            host_number: a.host_number,
+            endpoint: None,
         })
     }
 
@@ -243,8 +242,8 @@ impl Backend {
         input: pb::sync::SyncAuth,
     ) -> Result<pb::sync::SyncStatusResponse> {
         // any local changes mean we can skip the network round-trip
-        let req = self.with_col(|col| col.get_local_sync_status())?;
-        if req != pb::sync::sync_status_response::Required::NoChanges {
+        let req = self.with_col(|col| col.sync_status_offline())?;
+        if req != Required::NoChanges {
             return Ok(req.into());
         }
 
@@ -257,11 +256,12 @@ impl Backend {
         }
 
         // fetch and cache result
+        let auth = input.try_into()?;
         let rt = self.runtime_handle();
         let time_at_check_begin = TimestampSecs::now();
-        let remote: SyncMeta = rt.block_on(get_remote_sync_meta(input.into()))?;
-        let response = self.with_col(|col| col.get_sync_status(remote).map(Into::into))?;
-
+        let local = self.with_col(|col| col.sync_meta())?;
+        let mut client = HttpSyncClient::new(auth);
+        let state = rt.block_on(online_sync_status_check(local, &mut client))?;
         {
             let mut guard = self.state.lock().unwrap();
             // On startup, the sync status check will block on network access, and then automatic syncing begins,
@@ -269,21 +269,21 @@ impl Backend {
             // so we discard it if stale.
             if guard.sync.remote_sync_status.last_check < time_at_check_begin {
                 guard.sync.remote_sync_status.last_check = time_at_check_begin;
-                guard.sync.remote_sync_status.last_response = response;
+                guard.sync.remote_sync_status.last_response = state.required.into();
             }
         }
 
-        Ok(response.into())
+        Ok(state.into())
     }
 
     pub(super) fn sync_collection_inner(
         &self,
         input: pb::sync::SyncAuth,
     ) -> Result<pb::sync::SyncCollectionResponse> {
+        let auth: SyncAuth = input.try_into()?;
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
         let rt = self.runtime_handle();
-        let input_copy = input.clone();
 
         let ret = self.with_col(|col| {
             let mut handler = self.new_progress_handler();
@@ -291,7 +291,7 @@ impl Backend {
                 handler.update(progress, throttle);
             };
 
-            let sync_fut = col.normal_sync(input.into(), progress_fn);
+            let sync_fut = col.normal_sync(auth.clone(), progress_fn);
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
 
             match rt.block_on(abortable_sync) {
@@ -301,7 +301,7 @@ impl Backend {
                     col.storage.rollback_trx()?;
                     // and tell AnkiWeb to clean up
                     let _handle = std::thread::spawn(move || {
-                        let _ = rt.block_on(sync_abort(input_copy.hkey, input_copy.host_number));
+                        let _ = rt.block_on(sync_abort(auth));
                     });
 
                     Err(AnkiError::Interrupted)
@@ -320,6 +320,7 @@ impl Backend {
     }
 
     pub(super) fn full_sync_inner(&self, input: pb::sync::SyncAuth, upload: bool) -> Result<()> {
+        let auth = input.try_into()?;
         self.abort_media_sync_and_wait();
 
         let rt = self.runtime_handle();
@@ -336,16 +337,16 @@ impl Backend {
         let builder = col_inner.as_builder();
 
         let mut handler = self.new_progress_handler();
-        let progress_fn = move |progress: FullSyncProgress, throttle: bool| {
+        let progress_fn = Box::new(move |progress: FullSyncProgress, throttle: bool| {
             handler.update(progress, throttle);
-        };
+        });
 
         let result = if upload {
-            let sync_fut = col_inner.full_upload(input.into(), Box::new(progress_fn));
+            let sync_fut = col_inner.full_upload(auth, progress_fn);
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
             rt.block_on(abortable_sync)
         } else {
-            let sync_fut = col_inner.full_download(input.into(), Box::new(progress_fn));
+            let sync_fut = col_inner.full_download(auth, progress_fn);
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
             rt.block_on(abortable_sync)
         };
@@ -361,11 +362,39 @@ impl Backend {
                         .unwrap()
                         .sync
                         .remote_sync_status
-                        .update(pb::sync::sync_status_response::Required::NoChanges);
+                        .update(Required::NoChanges);
                 }
                 sync_result
             }
             Err(_) => Err(AnkiError::Interrupted),
+        }
+    }
+}
+
+impl From<Required> for SyncStatusResponse {
+    fn from(r: Required) -> Self {
+        SyncStatusResponse {
+            required: r.into(),
+            new_endpoint: None,
+        }
+    }
+}
+
+impl From<ClientSyncState> for SyncStatusResponse {
+    fn from(r: ClientSyncState) -> Self {
+        SyncStatusResponse {
+            required: Required::from(r.required).into(),
+            new_endpoint: r.new_endpoint,
+        }
+    }
+}
+
+impl From<SyncActionRequired> for Required {
+    fn from(r: SyncActionRequired) -> Self {
+        match r {
+            SyncActionRequired::NoChanges => Required::NoChanges,
+            SyncActionRequired::FullSyncRequired { .. } => Required::FullSync,
+            SyncActionRequired::NormalSyncRequired => Required::NormalSync,
         }
     }
 }

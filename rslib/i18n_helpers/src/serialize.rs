@@ -3,7 +3,9 @@
 
 // copied from https://github.com/projectfluent/fluent-rs/pull/241
 
-use std::fmt::{self, Error, Write};
+use std::fmt::{
+    Error, Write, {self},
+};
 
 use fluent_syntax::{ast::*, parser::Slice};
 

@@ -16,14 +16,11 @@ use crate::{
     error::{AnkiError, DbErrorKind, Result},
     latex::extract_latex_expanding_clozes,
     media::{
-        database::MediaDatabaseContext,
-        files::{
-            data_for_file, filename_if_normalized, normalize_nfc_filename, trash_folder,
-            MEDIA_SYNC_FILESIZE_LIMIT,
-        },
+        files::{data_for_file, filename_if_normalized, normalize_nfc_filename, trash_folder},
         MediaManager,
     },
     notes::Note,
+    sync::media::MAX_INDIVIDUAL_MEDIA_FILE_SIZE,
     text::{extract_media_refs, normalize_to_nfc, MediaRef, REMOTE_FILENAME},
 };
 
@@ -74,9 +71,7 @@ where
     }
 
     pub fn check(&mut self) -> Result<MediaCheckOutput> {
-        let mut ctx = self.mgr.dbctx();
-
-        let folder_check = self.check_media_folder(&mut ctx)?;
+        let folder_check = self.check_media_folder()?;
         let referenced_files = self.check_media_references(&folder_check.renamed)?;
         let (unused, missing) = find_unused_and_missing(folder_check.files, referenced_files);
         let (trash_count, trash_bytes) = self.files_in_trash()?;
@@ -186,7 +181,7 @@ where
     /// - Renames files with invalid names
     /// - Notes folders/oversized files
     /// - Gathers a list of all files
-    fn check_media_folder(&mut self, ctx: &mut MediaDatabaseContext) -> Result<MediaFolderCheck> {
+    fn check_media_folder(&mut self) -> Result<MediaFolderCheck> {
         let mut out = MediaFolderCheck::default();
         for dentry in self.mgr.media_folder.read_dir()? {
             let dentry = dentry?;
@@ -211,7 +206,7 @@ where
 
             // ignore large files and zero byte files
             let metadata = dentry.metadata()?;
-            if metadata.len() > MEDIA_SYNC_FILESIZE_LIMIT as u64 {
+            if metadata.len() > MAX_INDIVIDUAL_MEDIA_FILE_SIZE as u64 {
                 out.oversize.push(disk_fname.to_string());
                 continue;
             }
@@ -224,7 +219,7 @@ where
             } else {
                 match data_for_file(&self.mgr.media_folder, disk_fname)? {
                     Some(data) => {
-                        let norm_name = self.normalize_file(ctx, disk_fname, data)?;
+                        let norm_name = self.normalize_file(disk_fname, data)?;
                         out.renamed
                             .insert(disk_fname.to_string(), norm_name.to_string());
                         out.files.push(norm_name.into_owned());
@@ -242,14 +237,9 @@ where
     }
 
     /// Write file data to normalized location, moving old file to trash.
-    fn normalize_file<'a>(
-        &mut self,
-        ctx: &mut MediaDatabaseContext,
-        disk_fname: &'a str,
-        data: Vec<u8>,
-    ) -> Result<Cow<'a, str>> {
+    fn normalize_file<'a>(&mut self, disk_fname: &'a str, data: Vec<u8>) -> Result<Cow<'a, str>> {
         // add a copy of the file using the correct name
-        let fname = self.mgr.add_file(ctx, disk_fname, &data)?;
+        let fname = self.mgr.add_file(disk_fname, &data)?;
         debug!(from = disk_fname, to = &fname.as_ref(), "renamed");
         assert_ne!(fname.as_ref(), disk_fname);
 
@@ -336,9 +326,7 @@ where
                 let fname_os = dentry.file_name();
                 let fname = fname_os.to_string_lossy();
                 if let Some(data) = data_for_file(&trash, fname.as_ref())? {
-                    let _new_fname =
-                        self.mgr
-                            .add_file(&mut self.mgr.dbctx(), fname.as_ref(), &data)?;
+                    let _new_fname = self.mgr.add_file(fname.as_ref(), &data)?;
                 } else {
                     debug!(?fname, "file disappeared while restoring trash");
                 }

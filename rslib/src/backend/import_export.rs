@@ -7,10 +7,8 @@ use super::{progress::Progress, Backend};
 pub(super) use crate::pb::import_export::importexport_service::Service as ImportExportService;
 use crate::{
     import_export::{package::import_colpkg, ExportProgress, ImportProgress, NoteLog},
-    pb::{
-        import_export::{export_limit, ExportLimit},
-        {self as pb},
-    },
+    pb,
+    pb::import_export::{export_limit, ExportLimit},
     prelude::*,
     search::SearchNode,
 };

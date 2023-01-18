@@ -19,10 +19,9 @@ mod upgrades;
 use std::fmt::Write;
 
 pub(crate) use sqlite::SqliteStorage;
-pub(crate) use sync::open_and_check_sqlite_file;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum SchemaVersion {
+pub enum SchemaVersion {
     V11,
     V18,
 }
