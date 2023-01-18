@@ -221,7 +221,7 @@ fn constrain_passing_interval(ctx: &StateContext, interval: f32, minimum: u32, f
     if fuzz {
         ctx.with_review_fuzz(interval, minimum, maximum)
     } else {
-        (interval.round() as u32).max(minimum).min(maximum)
+        (interval.round() as u32).clamp(minimum, maximum)
     }
 }
 

@@ -29,7 +29,7 @@ pub fn write_strings(map: &TranslationsByLang, modules: &[Module]) {
 
     let dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
     let path = dir.join("strings.rs");
-    fs::write(&path, buf).unwrap();
+    fs::write(path, buf).unwrap();
 }
 
 fn write_methods(modules: &[Module], buf: &mut String) {

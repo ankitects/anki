@@ -63,7 +63,7 @@ impl FromI64 for i64 {
 
 impl FromI64 for TimestampSecs {
     fn from_i64(val: i64) -> Self {
-        TimestampSecs(val as i64)
+        TimestampSecs(val)
     }
 }
 
