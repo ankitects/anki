@@ -23,7 +23,7 @@ from anki.sync import SyncAuth
 from anki.utils import int_time, is_mac, is_win, point_version
 from aqt import appHelpSite, gui_hooks
 from aqt.qt import *
-from aqt.theme import WidgetStyle, Theme, theme_manager
+from aqt.theme import Theme, WidgetStyle, theme_manager
 from aqt.toolbar import HideMode
 from aqt.utils import disable_help_button, send_to_trash, showWarning, tr
 

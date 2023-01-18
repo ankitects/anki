@@ -13,7 +13,7 @@ from aqt import AnkiQt
 from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
 from aqt.qt import *
-from aqt.theme import WidgetStyle, Theme
+from aqt.theme import Theme, WidgetStyle
 from aqt.utils import HelpPage, disable_help_button, openHelp, showInfo, showWarning, tr
 
 
