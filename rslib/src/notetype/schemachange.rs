@@ -130,8 +130,8 @@ impl Collection {
     }
 
     /// Update cards after card templates added, removed or reordered.
-    /// Does not remove cards where the template still exists but creates an empty card.
-    /// Caller must create transaction.
+    /// Does not remove cards where the template still exists but creates an
+    /// empty card. Caller must create transaction.
     pub(crate) fn update_cards_for_changed_templates(
         &mut self,
         nt: &Notetype,

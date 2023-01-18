@@ -17,8 +17,8 @@ pub struct BuildArtifactsArgs {
 }
 
 pub fn build_artifacts(args: BuildArtifactsArgs) {
-    // build.rs doesn't declare inputs from venv, so we need to force a rebuild to ensure
-    // changes to our libs/the venv get included
+    // build.rs doesn't declare inputs from venv, so we need to force a rebuild to
+    // ensure changes to our libs/the venv get included
     let artifacts = args.bundle_root.join("artifacts");
     if artifacts.exists() {
         fs::remove_dir_all(&artifacts).unwrap();

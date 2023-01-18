@@ -258,8 +258,8 @@ pub fn check_python(build: &mut Build) -> Result<()> {
 
 fn add_pylint(build: &mut Build) -> Result<()> {
     // pylint does not support PEP420 implicit namespaces split across import paths,
-    // so we need to merge our pylib sources and generated files before invoking it, and
-    // add a top-level __init__.py
+    // so we need to merge our pylib sources and generated files before invoking it,
+    // and add a top-level __init__.py
     build.add(
         "pylint/anki",
         RsyncFiles {

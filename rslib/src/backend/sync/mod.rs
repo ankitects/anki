@@ -266,8 +266,9 @@ impl Backend {
         let state = rt.block_on(online_sync_status_check(local, &mut client))?;
         {
             let mut guard = self.state.lock().unwrap();
-            // On startup, the sync status check will block on network access, and then automatic syncing begins,
-            // taking hold of the mutex. By the time we reach here, our network status may be out of date,
+            // On startup, the sync status check will block on network access, and then
+            // automatic syncing begins, taking hold of the mutex. By the time
+            // we reach here, our network status may be out of date,
             // so we discard it if stale.
             if guard.sync.remote_sync_status.last_check < time_at_check_begin {
                 guard.sync.remote_sync_status.last_check = time_at_check_begin;

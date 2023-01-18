@@ -326,9 +326,9 @@ impl ParsedTemplate {
     }
 }
 
-/// If check_negated is false, negated conditionals resolve to their children, even
-/// if the referenced key is non-empty. This allows the legacy required field cache to
-/// generate results closer to older Anki versions.
+/// If check_negated is false, negated conditionals resolve to their children,
+/// even if the referenced key is non-empty. This allows the legacy required
+/// field cache to generate results closer to older Anki versions.
 fn template_is_empty(
     nonempty_fields: &HashSet<&str>,
     nodes: &[ParsedNode],
@@ -685,8 +685,8 @@ impl ParsedTemplate {
 //----------------------------------------
 
 impl ParsedTemplate {
-    /// Given a map of old to new field names, update references to the new names.
-    /// Returns true if any changes made.
+    /// Given a map of old to new field names, update references to the new
+    /// names. Returns true if any changes made.
     pub(crate) fn rename_and_remove_fields(&mut self, fields: &HashMap<String, Option<String>>) {
         let old_nodes = std::mem::take(&mut self.0);
         self.0 = rename_and_remove_fields(old_nodes, fields);

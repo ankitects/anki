@@ -11,16 +11,16 @@ use crate::sync::error::OrHttpErr;
 pub const SYNC_VERSION_MIN: u8 = SYNC_VERSION_08_SESSIONKEY;
 pub const SYNC_VERSION_MAX: u8 = SYNC_VERSION_11_DIRECT_POST;
 
-/// Added in 2013. Introduced a session key to identify parallel attempts at syncing.
-/// At the end of 2022, only used by 0.045% of syncers. Half are AnkiUniversal users,
-/// as it never added support for the V2 scheduler.
+/// Added in 2013. Introduced a session key to identify parallel attempts at
+/// syncing. At the end of 2022, only used by 0.045% of syncers. Half are
+/// AnkiUniversal users, as it never added support for the V2 scheduler.
 pub const SYNC_VERSION_08_SESSIONKEY: u8 = 8;
 
 /// Added Jan 2018. No functional changes to protocol, but marks that the client
 /// supports the V2 scheduler.
 ///
-/// In July 2018 a separate chunked graves method was added, but was optional. At
-/// the end of 2022, AnkiDroid is still using the old approach of passing all
+/// In July 2018 a separate chunked graves method was added, but was optional.
+/// At the end of 2022, AnkiDroid is still using the old approach of passing all
 /// graves to the start method in the legacy schema path.
 pub const SYNC_VERSION_09_V2_SCHEDULER: u8 = 9;
 

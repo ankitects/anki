@@ -272,7 +272,8 @@ impl SqliteStorage {
             .collect()
     }
 
-    /// Return the parents of `child`, with the most immediate parent coming first.
+    /// Return the parents of `child`, with the most immediate parent coming
+    /// first.
     pub(crate) fn parent_decks(&self, child: &Deck) -> Result<Vec<Deck>> {
         let mut decks: Vec<Deck> = vec![];
         while let Some(parent_name) = immediate_parent_name(

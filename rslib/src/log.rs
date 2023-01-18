@@ -37,8 +37,8 @@ pub fn set_global_logger(path: Option<&str>) -> Result<()> {
     Ok(())
 }
 
-/// Holding on to this guard does not actually ensure the log file will be fully written,
-/// as statics do not implement Drop.
+/// Holding on to this guard does not actually ensure the log file will be fully
+/// written, as statics do not implement Drop.
 static APPENDER_GUARD: OnceCell<WorkerGuard> = OnceCell::new();
 
 fn get_appender(path: &str) -> Result<NonBlocking> {

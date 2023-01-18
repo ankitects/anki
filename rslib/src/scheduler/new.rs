@@ -257,8 +257,8 @@ impl Collection {
         }
     }
 
-    /// This is handled by update_deck_configs() now; this function has been kept around
-    /// for now to support the old deck config screen.
+    /// This is handled by update_deck_configs() now; this function has been
+    /// kept around for now to support the old deck config screen.
     pub fn sort_deck_legacy(&mut self, deck: DeckId, random: bool) -> Result<OpOutput<usize>> {
         self.transact(Op::SortCards, |col| {
             col.sort_deck(

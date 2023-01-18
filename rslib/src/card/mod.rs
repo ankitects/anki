@@ -82,7 +82,8 @@ pub struct Card {
     pub(crate) flags: u8,
     /// The position in the new queue before leaving it.
     pub(crate) original_position: Option<u32>,
-    /// JSON object or empty; exposed through the reviewer for persisting custom state
+    /// JSON object or empty; exposed through the reviewer for persisting custom
+    /// state
     pub(crate) custom_data: String,
 }
 
@@ -162,9 +163,10 @@ impl Card {
         }
     }
 
-    /// Remaining steps after configured steps have changed, disregarding "remaining today".
-    /// [None] if same as before. A step counts as remaining if the card has not passed a step
-    /// with the same or a greater delay, but output will be at least 1.
+    /// Remaining steps after configured steps have changed, disregarding
+    /// "remaining today". [None] if same as before. A step counts as
+    /// remaining if the card has not passed a step with the same or a
+    /// greater delay, but output will be at least 1.
     fn new_remaining_steps(&self, new_steps: &[f32], old_steps: &[f32]) -> Option<u32> {
         let remaining = self.remaining_steps();
         let new_remaining = old_steps

@@ -41,8 +41,8 @@ impl Collection {
     }
 
     /// Render a card that may not yet have been added.
-    /// The provided ordinal will be used if the template has not yet been saved.
-    /// If fill_empty is set, note will be mutated.
+    /// The provided ordinal will be used if the template has not yet been
+    /// saved. If fill_empty is set, note will be mutated.
     pub fn render_uncommitted_card(
         &mut self,
         note: &mut Note,

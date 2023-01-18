@@ -100,8 +100,8 @@ impl IoMonitor {
         }
     }
 
-    /// Takes care of encoding provided request data and setting content type to binary, and returns
-    /// the decompressed response body.
+    /// Takes care of encoding provided request data and setting content type to
+    /// binary, and returns the decompressed response body.
     pub async fn zstd_request_with_timeout(
         &self,
         request: RequestBuilder,
@@ -159,8 +159,8 @@ impl IoMonitor {
     }
 }
 
-/// Reqwest can't retry a redirected request as the body has been consumed, so we need
-/// to bubble it up to the sync driver to retry.
+/// Reqwest can't retry a redirected request as the body has been consumed, so
+/// we need to bubble it up to the sync driver to retry.
 fn map_redirect_to_error(resp: &Response) -> HttpResult<()> {
     if resp.status() == StatusCode::PERMANENT_REDIRECT {
         let location = resp

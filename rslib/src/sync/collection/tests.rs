@@ -286,8 +286,8 @@ async fn sanity_check_should_roll_back_and_force_full_sync() -> Result<()> {
 
         let mut col1 = ctx.col1();
 
-        // add a deck but don't mark it as requiring a sync, which will trigger the sanity
-        // check to fail
+        // add a deck but don't mark it as requiring a sync, which will trigger the
+        // sanity check to fail
         let mut deck = col1.get_or_create_normal_deck("unsynced deck")?;
         col1.add_or_update_deck(&mut deck)?;
         col1.storage

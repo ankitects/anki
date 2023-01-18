@@ -518,7 +518,8 @@ mod test {
         assert_eq!(parent.children[0].children[1].new_count, 1);
         // child: cards from self and children, limited by own new limit
         assert_eq!(parent.children[0].new_count, 4);
-        // parent: cards from self and all subdecks, all limits in the hierarchy are respected
+        // parent: cards from self and all subdecks, all limits in the hierarchy are
+        // respected
         assert_eq!(parent.new_count, 6);
         assert_eq!(parent.total_including_children, 8);
         assert_eq!(parent.total_in_deck, 2);

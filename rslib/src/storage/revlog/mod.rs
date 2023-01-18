@@ -59,8 +59,8 @@ impl SqliteStorage {
         Ok(())
     }
 
-    /// Adds the entry, if its id is unique. If it is not, and `uniquify` is true,
-    /// adds it with a new id. Returns the added id.
+    /// Adds the entry, if its id is unique. If it is not, and `uniquify` is
+    /// true, adds it with a new id. Returns the added id.
     /// (I.e., the option is safe to unwrap, if `uniquify` is true.)
     pub(crate) fn add_revlog_entry(
         &self,
@@ -93,7 +93,8 @@ impl SqliteStorage {
             .transpose()
     }
 
-    /// Only intended to be used by the undo code, as Anki can not sync revlog deletions.
+    /// Only intended to be used by the undo code, as Anki can not sync revlog
+    /// deletions.
     pub(crate) fn remove_revlog_entry(&self, id: RevlogId) -> Result<()> {
         self.db
             .prepare_cached("delete from revlog where id = ?")?

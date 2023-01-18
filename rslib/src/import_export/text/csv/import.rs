@@ -115,7 +115,8 @@ struct ColumnContext {
     notetype_column: Option<usize>,
     /// Source column indices for the fields of a notetype
     field_source_columns: FieldSourceColumns,
-    /// How fields are converted to strings. Used for escaping HTML if appropriate.
+    /// How fields are converted to strings. Used for escaping HTML if
+    /// appropriate.
     stringify: fn(&str) -> String,
 }
 
@@ -215,8 +216,8 @@ fn stringify_fn(is_html: bool) -> fn(&str) -> String {
     }
 }
 
-/// If the reader's first line starts with "tags:", which is allowed for historic
-/// reasons, seek to the second line.
+/// If the reader's first line starts with "tags:", which is allowed for
+/// historic reasons, seek to the second line.
 fn remove_tags_line_from_reader(reader: &mut (impl Read + Seek)) -> Result<()> {
     let mut buf_reader = BufReader::new(reader);
     let mut first_line = String::new();

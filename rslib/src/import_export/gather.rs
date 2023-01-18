@@ -200,8 +200,8 @@ impl Collection {
 
     /// If with_scheduling, also gather all original decks of cards in filtered
     /// decks, so they don't have to be converted to regular decks on import.
-    /// If not with_scheduling, skip exporting the default deck to avoid changing
-    /// the importing client's defaults.
+    /// If not with_scheduling, skip exporting the default deck to avoid
+    /// changing the importing client's defaults.
     fn gather_decks(&mut self, with_scheduling: bool) -> Result<Vec<Deck>> {
         let decks = if with_scheduling {
             self.storage.get_decks_and_original_for_search_cards()

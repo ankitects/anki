@@ -17,12 +17,14 @@ use crate::pb::decks::deck::normal::DayLimit;
 use crate::prelude::*;
 
 impl NormalDeck {
-    /// The deck's review limit for today, or its regular one, if any is configured.
+    /// The deck's review limit for today, or its regular one, if any is
+    /// configured.
     pub fn current_review_limit(&self, today: u32) -> Option<u32> {
         self.review_limit_today(today).or(self.review_limit)
     }
 
-    /// The deck's new limit for today, or its regular one, if any is configured.
+    /// The deck's new limit for today, or its regular one, if any is
+    /// configured.
     pub fn current_new_limit(&self, today: u32) -> Option<u32> {
         self.new_limit_today(today).or(self.new_limit)
     }
@@ -189,7 +191,8 @@ impl LimitTreeMap {
     /// Recursively appends descendants to the provided parent [Node], and adds
     /// them to the [HashMap].
     /// Given [Deck]s are assumed to arrive in depth-first order.
-    /// The tree-from-deck-list logic is taken from [crate::decks::tree::add_child_nodes].
+    /// The tree-from-deck-list logic is taken from
+    /// [crate::decks::tree::add_child_nodes].
     fn add_child_nodes(
         &mut self,
         parent_node_id: NodeId,

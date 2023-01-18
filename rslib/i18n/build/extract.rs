@@ -166,7 +166,8 @@ impl Visitor {
 impl From<String> for Variable {
     fn from(name: String) -> Self {
         // rather than adding more items here as we add new strings, we should probably
-        // try to either reuse existing ones, or consider some sort of Hungarian notation
+        // try to either reuse existing ones, or consider some sort of Hungarian
+        // notation
         let kind = match name.as_str() {
             "cards" | "notes" | "count" | "amount" | "reviews" | "total" | "selected"
             | "kilobytes" | "daysStart" | "daysEnd" | "days" | "secs-per-card" | "remaining"

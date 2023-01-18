@@ -80,7 +80,8 @@ impl TagMatcher {
         join_tags(tags.as_slice())
     }
 
-    /// The `replacement` function should return the text to use as a replacement.
+    /// The `replacement` function should return the text to use as a
+    /// replacement.
     pub fn replace_with_fn<F>(&mut self, space_separated_tags: &str, replacer: F) -> String
     where
         F: Fn(&str) -> String,

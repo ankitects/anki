@@ -29,8 +29,8 @@ pub struct BuildDistFolderArgs {
 pub fn build_dist_folder(args: BuildDistFolderArgs) {
     let BuildDistFolderArgs { kind, folder_root } = args;
     fs::create_dir_all(&folder_root).unwrap();
-    // Start with Qt, as it's the largest, and we use --delete to ensure there are no
-    // stale files in lib/. Skipped on macOS as Qt is handled later.
+    // Start with Qt, as it's the largest, and we use --delete to ensure there are
+    // no stale files in lib/. Skipped on macOS as Qt is handled later.
     if !cfg!(target_os = "macos") {
         copy_qt_from_venv(kind, &folder_root);
     }

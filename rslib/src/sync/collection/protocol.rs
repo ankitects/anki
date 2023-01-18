@@ -92,9 +92,9 @@ pub trait SyncProtocol: Send + Sync + 'static {
 }
 
 /// The sync protocol expects '{}' to be sent in requests without args.
-/// Serde serializes/deserializes empty structs as 'null', so we add an empty value
-/// to cause it to produce a map instead. This only applies to inputs; empty outputs
-/// are returned as ()/null.
+/// Serde serializes/deserializes empty structs as 'null', so we add an empty
+/// value to cause it to produce a map instead. This only applies to inputs;
+/// empty outputs are returned as ()/null.
 #[derive(Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields)]
 pub struct EmptyInput {

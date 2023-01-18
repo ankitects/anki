@@ -633,7 +633,8 @@ Unused: unused.jpg
             vec!["test.jpg".to_string()]
         );
 
-        // if we repeat the process, restoring should do the same thing if the contents are equal
+        // if we repeat the process, restoring should do the same thing if the contents
+        // are equal
         write_file(trash_folder.join("test.jpg"), "test")?;
 
         let mut checker = MediaChecker::new(&mut col, &mgr, progress);

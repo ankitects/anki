@@ -163,7 +163,8 @@ impl Collection {
                     .map(|c| c.inner.new_card_insert_order())
                     .unwrap_or_default();
 
-                // if a selected (sub)deck, or its old config was removed, update deck to point to new config
+                // if a selected (sub)deck, or its old config was removed, update deck to point
+                // to new config
                 let current_config_id = if selected_deck_ids.contains(&deck.id)
                     || !configs_after_update.contains_key(&previous_config_id)
                 {
@@ -194,7 +195,8 @@ impl Collection {
         Ok(())
     }
 
-    /// Adjust the remaining steps of cards in the given deck according to the config change.
+    /// Adjust the remaining steps of cards in the given deck according to the
+    /// config change.
     fn adjust_remaining_steps_in_deck(
         &mut self,
         deck: DeckId,

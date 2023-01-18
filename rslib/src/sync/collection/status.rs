@@ -11,8 +11,8 @@ use crate::sync::collection::normal::ClientSyncState;
 use crate::sync::http_client::HttpSyncClient;
 
 impl Collection {
-    /// Checks local collection only. If local collection is clean but changes are pending
-    /// on AnkiWeb, NoChanges will be returned.
+    /// Checks local collection only. If local collection is clean but changes
+    /// are pending on AnkiWeb, NoChanges will be returned.
     pub fn sync_status_offline(&mut self) -> Result<sync_status_response::Required> {
         let stamps = self.storage.get_collection_timestamps()?;
         let required = if stamps.schema_changed_since_sync() {
@@ -27,11 +27,13 @@ impl Collection {
     }
 }
 
-/// Should be called if a call to sync_status_offline() returns NoChanges, to check
-/// if AnkiWeb has pending changes. Caller should persist new endpoint if returned.
+/// Should be called if a call to sync_status_offline() returns NoChanges, to
+/// check if AnkiWeb has pending changes. Caller should persist new endpoint if
+/// returned.
 ///
-/// This routine is outside of the collection, as we don't want to block collection access
-/// for a potentially slow network request that happens in the background.
+/// This routine is outside of the collection, as we don't want to block
+/// collection access for a potentially slow network request that happens in the
+/// background.
 pub async fn online_sync_status_check(
     local: SyncMeta,
     server: &mut HttpSyncClient,

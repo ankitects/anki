@@ -246,9 +246,9 @@ impl Collection {
     }
 
     fn get_note_maybe_with_fields(&self, id: NoteId, _with_fields: bool) -> Result<Note> {
-        // todo: After note.sort_field has been modified so it can be displayed in the browser,
-        // we can update note_field_str() and only load the note with fields if a card render is
-        // necessary (see #1082).
+        // todo: After note.sort_field has been modified so it can be displayed in the
+        // browser, we can update note_field_str() and only load the note with
+        // fields if a card render is necessary (see #1082).
         if true {
             self.storage.get_note(id)?
         } else {
@@ -453,8 +453,9 @@ impl RowContext {
         }
     }
 
-    /// Returns the due date of the next due card that is not in a filtered deck, new, suspended or
-    /// buried or the empty string if there is no such card.
+    /// Returns the due date of the next due card that is not in a filtered
+    /// deck, new, suspended or buried or the empty string if there is no
+    /// such card.
     fn note_due_str(&self) -> String {
         self.cards
             .iter()
@@ -465,7 +466,8 @@ impl RowContext {
             .unwrap_or_else(|| "".into())
     }
 
-    /// Returns the average ease of the non-new cards or a hint if there aren't any.
+    /// Returns the average ease of the non-new cards or a hint if there aren't
+    /// any.
     fn ease_str(&self) -> String {
         let eases: Vec<u16> = self
             .cards
@@ -480,7 +482,8 @@ impl RowContext {
         }
     }
 
-    /// Returns the average interval of the review and relearn cards if there are any.
+    /// Returns the average interval of the review and relearn cards if there
+    /// are any.
     fn interval_str(&self) -> String {
         if !self.notes_mode {
             match self.cards[0].ctype {

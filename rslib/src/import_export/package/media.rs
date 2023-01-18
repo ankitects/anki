@@ -103,7 +103,8 @@ impl SafeMediaEntry {
         fs::metadata(other_path).map_or(false, |metadata| metadata.len() == self.size as u64)
     }
 
-    /// Copy the archived file to the target folder, setting its hash if necessary.
+    /// Copy the archived file to the target folder, setting its hash if
+    /// necessary.
     pub(super) fn copy_and_ensure_sha1_set(
         &mut self,
         archive: &mut ZipArchive<File>,

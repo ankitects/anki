@@ -21,7 +21,8 @@ struct CardContext<'a> {
     imported_notes: &'a HashMap<NoteId, NoteId>,
     remapped_decks: &'a HashMap<DeckId, DeckId>,
 
-    /// The number of days the source collection is ahead of the target collection
+    /// The number of days the source collection is ahead of the target
+    /// collection
     collection_delta: i32,
     scheduler_version: SchedulerVersion,
     existing_cards: HashSet<CardAsNidAndOrd>,

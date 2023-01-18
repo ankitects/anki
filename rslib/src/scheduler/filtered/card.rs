@@ -25,7 +25,8 @@ impl Card {
     }
 
     pub(crate) fn move_into_filtered_deck(&mut self, ctx: &DeckFilterContext, position: i32) {
-        // filtered and v1 learning cards are excluded, so odue should be guaranteed to be zero
+        // filtered and v1 learning cards are excluded, so odue should be guaranteed to
+        // be zero
         if self.original_due != 0 {
             println!("bug: odue was set");
             return;

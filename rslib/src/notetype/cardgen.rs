@@ -40,8 +40,8 @@ pub(crate) struct SingleCardGenContext {
     target_deck_id: Option<DeckId>,
 }
 
-/// Info required to determine which cards should be generated when note added/updated,
-/// and where they should be placed.
+/// Info required to determine which cards should be generated when note
+/// added/updated, and where they should be placed.
 pub(crate) struct CardGenContext<N: Deref<Target = Notetype>> {
     pub usn: Usn,
     pub notetype: N,
@@ -75,8 +75,9 @@ impl<N: Deref<Target = Notetype>> CardGenContext<N> {
         }
     }
 
-    /// If template[ord] generates a non-empty question given nonempty_fields, return the provided
-    /// deck id, or an overridden one. If question is empty, return None.
+    /// If template[ord] generates a non-empty question given nonempty_fields,
+    /// return the provided deck id, or an overridden one. If question is
+    /// empty, return None.
     fn is_nonempty(&self, card_ord: usize, nonempty_fields: &HashSet<&str>) -> bool {
         let card = &self.cards[card_ord];
         let template = match card.template {
@@ -326,7 +327,8 @@ impl Collection {
         }
     }
 
-    /// If deck ID does not exist or points to a filtered deck, fall back on default.
+    /// If deck ID does not exist or points to a filtered deck, fall back on
+    /// default.
     fn deck_for_adding(&mut self, did: Option<DeckId>) -> Result<(DeckId, DeckConfigId)> {
         if let Some(did) = did {
             if let Some(deck) = self.deck_conf_if_normal(did)? {

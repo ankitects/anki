@@ -19,7 +19,8 @@ mod test {
 
     use super::*;
 
-    /// Aggregates [`Outcome`]s by collecting the error messages of the invalid ones.
+    /// Aggregates [`Outcome`]s by collecting the error messages of the invalid
+    /// ones.
     #[derive(Default)]
     struct Outcomes(Vec<String>);
 

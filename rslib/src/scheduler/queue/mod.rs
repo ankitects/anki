@@ -221,8 +221,8 @@ impl Collection {
         Ok(self.state.card_queues.as_mut().unwrap())
     }
 
-    // Returns queues if they are valid and have not been rebuilt. If build time has changed,
-    // they are cleared.
+    // Returns queues if they are valid and have not been rebuilt. If build time has
+    // changed, they are cleared.
     pub(crate) fn get_or_invalidate_queues(
         &mut self,
         build_time: TimestampMillis,

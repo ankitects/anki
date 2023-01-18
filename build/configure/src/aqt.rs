@@ -300,7 +300,8 @@ impl BuildAction for BuildThemedIcon<'_> {
 
     fn files(&mut self, build: &mut impl ninja_gen::build::FilesHandle) {
         let stem = self.src_icon.file_stem().unwrap();
-        // eg foo-light.svg, foo-dark.svg, foo-FG_SUBTLE-light.svg, foo-FG_SUBTLE-dark.svg
+        // eg foo-light.svg, foo-dark.svg, foo-FG_SUBTLE-light.svg,
+        // foo-FG_SUBTLE-dark.svg
         let outputs: Vec<_> = self
             .colors
             .iter()

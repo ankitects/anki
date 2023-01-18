@@ -25,7 +25,8 @@ pub enum DeckSchema11 {
     Filtered(FilteredDeckSchema11),
 }
 
-// serde doesn't support integer/bool enum tags, so we manually pick the correct variant
+// serde doesn't support integer/bool enum tags, so we manually pick the correct
+// variant
 mod dynfix {
     use serde::de;
     use serde::de::Deserialize;

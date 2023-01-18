@@ -156,8 +156,8 @@ pub(crate) fn filename_if_normalized(fname: &str) -> Option<Cow<str>> {
     }
 }
 
-/// Write desired_name into folder, renaming if existing file has different content.
-/// Returns the used filename.
+/// Write desired_name into folder, renaming if existing file has different
+/// content. Returns the used filename.
 pub fn add_data_to_folder_uniquely<'a, P>(
     folder: P,
     desired_name: &'a str,

@@ -31,7 +31,8 @@ fn unicase_compare(s1: &str, s2: &str) -> Ordering {
 }
 
 // fixme: rollback savepoint when tags not changed
-// fixme: need to drop out of wal prior to vacuuming to fix page size of older collections
+// fixme: need to drop out of wal prior to vacuuming to fix page size of older
+// collections
 
 // currently public for dbproxy
 #[derive(Debug)]
@@ -302,8 +303,8 @@ impl SqliteStorage {
         Ok(())
     }
 
-    /// Flush data from WAL file into DB, so the DB is safe to copy. Caller must not call this
-    /// while there is an active transaction.
+    /// Flush data from WAL file into DB, so the DB is safe to copy. Caller must
+    /// not call this while there is an active transaction.
     pub(crate) fn checkpoint(&self) -> Result<()> {
         if !self.db.is_autocommit() {
             return Err(AnkiError::db_error(

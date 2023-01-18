@@ -47,7 +47,8 @@ pub struct RevlogEntry {
     /// Positive values are in days, negative values in seconds.
     #[serde(rename = "lastIvl", deserialize_with = "deserialize_int_from_number")]
     pub last_interval: i32,
-    /// Card's ease after answering, stored as 10x the %, eg 2500 represents 250%.
+    /// Card's ease after answering, stored as 10x the %, eg 2500 represents
+    /// 250%.
     #[serde(rename = "factor", deserialize_with = "deserialize_int_from_number")]
     pub ease_factor: u32,
     /// Amount of milliseconds taken to answer the card.

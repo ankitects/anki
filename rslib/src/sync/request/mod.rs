@@ -45,8 +45,8 @@ pub struct SyncRequest<T> {
     pub ip: IpAddr,
     /// Non-empty on every non-login request.
     pub sync_key: String,
-    /// May not be set on some requests by legacy clients. Used by stateful sync methods to check
-    /// for concurrent access.
+    /// May not be set on some requests by legacy clients. Used by stateful sync
+    /// methods to check for concurrent access.
     pub session_key: String,
     /// Set by legacy clients when posting to msync/begin
     pub media_client_version: Option<String>,
@@ -151,8 +151,8 @@ where
     where
         Self: Sized + 'static,
     {
-        // A not-very-elegant workaround for the fact that a separate impl for vec<u8> would
-        // conflict with this generic one.
+        // A not-very-elegant workaround for the fact that a separate impl for vec<u8>
+        // would conflict with this generic one.
         let is_data = (&self as &dyn Any).is::<Vec<u8>>();
         let data = if is_data {
             let boxed_self = (Box::new(self) as Box<dyn Any>)
@@ -183,8 +183,8 @@ pub static MAXIMUM_SYNC_PAYLOAD_BYTES: Lazy<usize> = Lazy::new(|| {
         * 1024
         * 1024
 });
-/// Client ignores this when a non-AnkiWeb endpoint is configured. Controls the maximum
-/// size of a payload after decompression, which effectively limits the how large a collection
-/// file can be uploaded.
+/// Client ignores this when a non-AnkiWeb endpoint is configured. Controls the
+/// maximum size of a payload after decompression, which effectively limits the
+/// how large a collection file can be uploaded.
 pub static MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED: Lazy<u64> =
     Lazy::new(|| (*MAXIMUM_SYNC_PAYLOAD_BYTES * 3) as u64);

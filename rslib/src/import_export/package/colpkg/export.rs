@@ -85,7 +85,8 @@ impl Collection {
 pub struct MediaIter(Box<dyn Iterator<Item = io::Result<PathBuf>>>);
 
 impl MediaIter {
-    /// Iterator over all files in the given path, without traversing subfolders.
+    /// Iterator over all files in the given path, without traversing
+    /// subfolders.
     pub fn from_folder(path: &Path) -> Result<Self> {
         Ok(Self(Box::new(
             read_dir_files(path)?.map(|res| res.map(|entry| entry.path())),

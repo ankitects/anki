@@ -204,8 +204,8 @@ impl NetworkError {
     }
 }
 
-// This needs rethinking; we should be attaching error context as errors are encountered
-// instead of trying to determine the problem later.
+// This needs rethinking; we should be attaching error context as errors are
+// encountered instead of trying to determine the problem later.
 impl From<HttpError> for AnkiError {
     fn from(err: HttpError) -> Self {
         if let Some(source) = &err.source {

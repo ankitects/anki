@@ -88,10 +88,10 @@ impl Collection {
         Ok(out_tags)
     }
 
-    /// Adjust tag casing to match any existing parents, and register it if it's not already
-    /// in the tags list. True if the tag was added and not already in tag list.
-    /// In the case the tag is already registered, tag will be mutated to match the existing
-    /// name.
+    /// Adjust tag casing to match any existing parents, and register it if it's
+    /// not already in the tags list. True if the tag was added and not
+    /// already in tag list. In the case the tag is already registered, tag
+    /// will be mutated to match the existing name.
     pub(crate) fn register_tag(&mut self, tag: &mut Tag) -> Result<bool> {
         let is_new = self.prepare_tag_for_registering(tag)?;
         if is_new {
@@ -100,8 +100,8 @@ impl Collection {
         Ok(is_new)
     }
 
-    /// Create a tag object, normalize text, and match parents/existing case if available.
-    /// True if tag is new.
+    /// Create a tag object, normalize text, and match parents/existing case if
+    /// available. True if tag is new.
     pub(super) fn prepare_tag_for_registering(&self, tag: &mut Tag) -> Result<bool> {
         let normalized_name = normalize_tag_name(&tag.name)?;
         if let Some(existing_tag) = self.storage.get_tag(&normalized_name)? {

@@ -14,8 +14,8 @@ use crate::scheduler::states::SchedulingStates;
 use crate::stats::studied_today;
 
 impl SchedulerService for Backend {
-    /// This behaves like _updateCutoff() in older code - it also unburies at the start of
-    /// a new day.
+    /// This behaves like _updateCutoff() in older code - it also unburies at
+    /// the start of a new day.
     fn sched_timing_today(
         &self,
         _input: pb::generic::Empty,

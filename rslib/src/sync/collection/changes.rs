@@ -56,10 +56,10 @@ impl<F> NormalSyncer<'_, F>
 where
     F: FnMut(NormalSyncProgress, bool),
 {
-    // This was assumed to a cheap operation when originally written - it didn't anticipate
-    // the large deck trees and note types some users would create. They should be chunked
-    // in the future, like other objects. Syncing tags explicitly is also probably of limited
-    // usefulness.
+    // This was assumed to a cheap operation when originally written - it didn't
+    // anticipate the large deck trees and note types some users would create.
+    // They should be chunked in the future, like other objects. Syncing tags
+    // explicitly is also probably of limited usefulness.
     pub(in crate::sync) async fn process_unchunked_changes(
         &mut self,
         state: &ClientSyncState,
@@ -211,8 +211,8 @@ impl Collection {
         Ok(changed)
     }
 
-    /// Currently this is all config, as legacy clients overwrite the local items
-    /// with the provided value.
+    /// Currently this is all config, as legacy clients overwrite the local
+    /// items with the provided value.
     fn changed_config(&self) -> Result<HashMap<String, Value>> {
         let conf = self.storage.get_all_config()?;
         self.storage.clear_config_usns()?;

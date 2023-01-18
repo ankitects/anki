@@ -27,8 +27,8 @@ use crate::sync::login::SyncAuth;
 use crate::sync::request::IntoSyncRequest;
 use crate::sync::request::MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED;
 
-/// Old clients didn't display a useful message on HTTP 400, and were expected to show the error message
-/// returned by the server.
+/// Old clients didn't display a useful message on HTTP 400, and were expected
+/// to show the error message returned by the server.
 pub const CORRUPT_MESSAGE: &str =
     "Your upload was corrupt. Please use Check Database, or restore from backup.";
 

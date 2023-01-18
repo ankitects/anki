@@ -18,10 +18,10 @@ use crate::sync::media::MEDIA_SYNC_TARGET_ZIP_BYTES;
 
 #[derive(Serialize_tuple, Deserialize, Debug)]
 pub struct MediaUploadResponse {
-    /// Always equal to number of uploaded files now. Old AnkiWeb versions used to
-    /// terminate processing early if too much time had elapsed, so older clients
-    /// will upload the same material again if this is less than the count they
-    /// uploaded.
+    /// Always equal to number of uploaded files now. Old AnkiWeb versions used
+    /// to terminate processing early if too much time had elapsed, so older
+    /// clients will upload the same material again if this is less than the
+    /// count they uploaded.
     pub processed: usize,
     pub current_usn: Usn,
 }
@@ -31,7 +31,8 @@ type ZipDataForUpload = Vec<(String, Option<Vec<u8>>)>;
 
 /// Gather [(filename, data)] for provided entries, up to configured limit.
 /// Data is None if file is deleted.
-/// Returns None if one or more of the entries were inaccessible or in the wrong format.
+/// Returns None if one or more of the entries were inaccessible or in the wrong
+/// format.
 pub fn gather_zip_data_for_upload(
     ctx: &MediaDatabase,
     media_folder: &Path,

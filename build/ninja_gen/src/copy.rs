@@ -11,7 +11,8 @@ use crate::input::BuildInput;
 /// into out/$output_folder/bar.js.
 pub struct CopyFiles<'a> {
     pub inputs: BuildInput,
-    /// The folder (relative to the build folder) that files should be copied into.
+    /// The folder (relative to the build folder) that files should be copied
+    /// into.
     pub output_folder: &'a str,
 }
 
@@ -52,8 +53,9 @@ impl BuildAction for CopyFile<'_> {
     }
 }
 
-/// Create a symbolic link to the provided output path, which should be relative to
-/// the output folder. This can be used to create a copy with a different name.
+/// Create a symbolic link to the provided output path, which should be relative
+/// to the output folder. This can be used to create a copy with a different
+/// name.
 pub struct LinkFile<'a> {
     pub input: BuildInput,
     pub output: &'a str,

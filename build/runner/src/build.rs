@@ -47,7 +47,8 @@ pub fn run_build(args: BuildArgs) {
         maybe_reconfigure_build(&build_file, &path);
     }
 
-    // automatically convert foo:bar references to foo_bar, as Ninja can not represent the former
+    // automatically convert foo:bar references to foo_bar, as Ninja can not
+    // represent the former
     let ninja_args = args.args.into_iter().map(|a| a.replace(':', "_"));
 
     let start_time = Instant::now();
@@ -74,9 +75,10 @@ pub fn run_build(args: BuildArgs) {
     // run build
     let mut status = command.status().expect("ninja not installed");
     if !status.success() && Instant::now().duration_since(start_time).as_secs() < 3 {
-        // if the build fails quickly, there's a reasonable chance that build.ninja references
-        // a file that has been renamed/deleted. We currently don't capture stderr, so we can't
-        // confirm, but in case that's the case, we regenerate the build.ninja file then try again.
+        // if the build fails quickly, there's a reasonable chance that build.ninja
+        // references a file that has been renamed/deleted. We currently don't
+        // capture stderr, so we can't confirm, but in case that's the case, we
+        // regenerate the build.ninja file then try again.
         bootstrap_build();
         status = command.status().expect("ninja missing");
     }

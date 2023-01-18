@@ -52,7 +52,8 @@ impl super::SqliteStorage {
             .collect()
     }
 
-    /// If fields have been modified, caller must call note.prepare_for_update() prior to calling this.
+    /// If fields have been modified, caller must call note.prepare_for_update()
+    /// prior to calling this.
     pub(crate) fn update_note(&self, note: &Note) -> Result<()> {
         assert_ne!(note.id.0, 0);
         let mut stmt = self.db.prepare_cached(include_str!("update.sql"))?;
@@ -106,7 +107,8 @@ impl super::SqliteStorage {
             .map_err(Into::into)
     }
 
-    /// Add or update the provided note, preserving ID. Used by the syncing code.
+    /// Add or update the provided note, preserving ID. Used by the syncing
+    /// code.
     pub(crate) fn add_or_update_note(&self, note: &Note) -> Result<()> {
         let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
         stmt.execute(params![

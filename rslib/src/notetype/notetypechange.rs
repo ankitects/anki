@@ -247,8 +247,8 @@ impl Collection {
     /// Rewrite notes to match new notetype, and assigns new notetype id.
     ///
     /// `new_fields` should be the length of the new notetype's fields, and is a
-    /// list of the previous field index each field should be mapped to. If None,
-    /// the field is left empty.
+    /// list of the previous field index each field should be mapped to. If
+    /// None, the field is left empty.
     fn update_notes_for_new_notetype_and_generate_cards(
         &mut self,
         note_ids: &[NoteId],
@@ -532,7 +532,8 @@ mod test {
         let cards = col.storage.all_cards_of_note(note.id)?;
         assert_eq!(cards.len(), 2);
 
-        // but any cards above the available templates should be removed when converting from cloze->normal
+        // but any cards above the available templates should be removed when converting
+        // from cloze->normal
         let input = ChangeNotetypeInput {
             note_ids: vec![note.id],
             ..col.notetype_change_info(basic.id, cloze.id)?.input

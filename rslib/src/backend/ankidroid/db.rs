@@ -74,9 +74,10 @@ impl Sizable for Row {
 
 impl Sizable for DbResult {
     fn estimate_size(&self) -> usize {
-        // Performance: It might be best to take the first x rows and determine the data types
-        // If we have floats or longs, they'll be a fixed size (excluding nulls) and should speed
-        // up the calculation as we'll only calculate a subset of the columns.
+        // Performance: It might be best to take the first x rows and determine the data
+        // types If we have floats or longs, they'll be a fixed size (excluding
+        // nulls) and should speed up the calculation as we'll only calculate a
+        // subset of the columns.
         self.rows.iter().map(|x| x.estimate_size()).sum()
     }
 }
@@ -94,8 +95,9 @@ fn select_slice_of_size<'a>(
     let init: Vec<Row> = Vec::new();
     rows.fold_while((0, init), |mut acc, x| {
         let new_size = acc.0 + x.estimate_size();
-        // If the accumulator is 0, but we're over the size: return a single result so we don't loop forever.
-        // Theoretically, this shouldn't happen as data should be reasonably sized
+        // If the accumulator is 0, but we're over the size: return a single result so
+        // we don't loop forever. Theoretically, this shouldn't happen as data
+        // should be reasonably sized
         if new_size > max_size && acc.0 > 0 {
             Done(acc)
         } else {
@@ -145,7 +147,8 @@ pub(crate) fn trim_and_cache_remaining(
 ) -> DbResponse {
     let start_index = 0;
 
-    // PERF: Could speed this up by not creating the vector and just calculating the count
+    // PERF: Could speed this up by not creating the vector and just calculating the
+    // count
     let first_result = select_next_slice(values.rows.iter());
 
     let row_count = values.rows.len() as i32;

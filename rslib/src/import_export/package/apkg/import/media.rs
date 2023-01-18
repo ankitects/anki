@@ -26,7 +26,8 @@ pub(super) struct MediaUseMap {
     /// entry with possibly remapped filename)
     checked: HashMap<String, (bool, SafeMediaEntry)>,
     /// Static files (latex, underscored). Usage is not tracked, and if the name
-    /// already exists in the target, it is skipped regardless of content equality.
+    /// already exists in the target, it is skipped regardless of content
+    /// equality.
     unchecked: Vec<SafeMediaEntry>,
 }
 

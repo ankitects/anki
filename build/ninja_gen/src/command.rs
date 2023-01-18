@@ -23,8 +23,9 @@ impl BuildAction for RunCommand<'_> {
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
-        // Because we've defined a generic rule instead of making one for a specific use case,
-        // we need to manually intepolate variables in the user-provided args.
+        // Because we've defined a generic rule instead of making one for a specific use
+        // case, we need to manually intepolate variables in the user-provided
+        // args.
         let mut args = self.args.to_string();
         for (key, inputs) in &self.inputs {
             let files = build.expand_inputs(inputs);

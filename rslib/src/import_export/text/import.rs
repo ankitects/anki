@@ -526,7 +526,8 @@ impl ForeignNote {
             .map(|field| strip_html_preserving_media_filenames(field.as_str()))
     }
 
-    /// If the first field is set, returns its checksum. Field is expected to be normalized.
+    /// If the first field is set, returns its checksum. Field is expected to be
+    /// normalized.
     fn checksum(&self) -> Option<u32> {
         self.first_field_stripped()
             .map(|field| field_checksum(&field))

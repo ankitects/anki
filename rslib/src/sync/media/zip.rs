@@ -24,8 +24,8 @@ pub struct ZipFileMetadata {
 }
 
 /// Write provided `[(filename, data)]` into a zip file, returning its data.
-/// The metadata is in a different format to the upload case, since deletions don't need
-/// to be represented.
+/// The metadata is in a different format to the upload case, since deletions
+/// don't need to be represented.
 pub fn zip_files_for_download(files: Vec<(String, Vec<u8>)>) -> Result<Vec<u8>> {
     let options = FileOptions::default().compression_method(zip::CompressionMethod::Stored);
     let mut zip = ZipWriter::new(io::Cursor::new(vec![]));

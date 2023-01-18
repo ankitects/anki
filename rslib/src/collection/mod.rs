@@ -160,8 +160,8 @@ impl Collection {
         builder
     }
 
-    // A count of all changed rows since the collection was opened, which can be used to detect
-    // if the collection was modified or not.
+    // A count of all changed rows since the collection was opened, which can be
+    // used to detect if the collection was modified or not.
     pub fn changes_since_open(&self) -> u64 {
         self.storage.db.changes()
     }
@@ -171,7 +171,8 @@ impl Collection {
     }
 
     pub(crate) fn usn(&self) -> Result<Usn> {
-        // if we cache this in the future, must make sure to invalidate cache when usn bumped in sync.finish()
+        // if we cache this in the future, must make sure to invalidate cache when usn
+        // bumped in sync.finish()
         self.storage.usn(self.server)
     }
 

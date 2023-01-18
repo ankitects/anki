@@ -33,8 +33,8 @@ struct NoteContext<'a> {
 #[derive(Debug, Default)]
 pub(super) struct NoteImports {
     pub(super) id_map: HashMap<NoteId, NoteId>,
-    /// All notes from the source collection as [Vec]s of their fields, and grouped
-    /// by import result kind.
+    /// All notes from the source collection as [Vec]s of their fields, and
+    /// grouped by import result kind.
     pub(super) log: NoteLog,
 }
 
@@ -318,7 +318,8 @@ mod test {
         }};
     }
 
-    /// Assert that exactly one [Note] is logged, and that with the given state and fields.
+    /// Assert that exactly one [Note] is logged, and that with the given state
+    /// and fields.
     macro_rules! assert_note_logged {
         ($log:expr, $state:ident, $fields:expr) => {
             assert_eq!($log.$state.pop().unwrap().fields, $fields);

@@ -62,8 +62,9 @@ impl StoreMetadata {
 }
 
 impl ServerMediaDatabase {
-    /// Perform an exclusive transaction. Will implicitly commit if no error returned,
-    /// after flushing the updated metadata. Returns the latest usn.
+    /// Perform an exclusive transaction. Will implicitly commit if no error
+    /// returned, after flushing the updated metadata. Returns the latest
+    /// usn.
     pub fn with_transaction<F>(&mut self, op: F) -> error::Result<Usn>
     where
         F: FnOnce(&mut Self, &mut StoreMetadata) -> error::Result<()>,

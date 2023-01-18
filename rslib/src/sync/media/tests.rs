@@ -52,8 +52,8 @@ async fn begin_supports_get() -> Result<()> {
     .await
 }
 
-/// Older clients used a `v` variable in the begin multipart instead of placing the
-/// version in the JSON payload.
+/// Older clients used a `v` variable in the begin multipart instead of placing
+/// the version in the JSON payload.
 #[tokio::test]
 async fn begin_supports_version_in_form() -> Result<()> {
     with_active_server(|client_| async move {
@@ -160,9 +160,9 @@ impl SyncTestContext {
     }
 
     /// As local change detection depends on a millisecond timestamp,
-    /// we need to wait a little while between steps to ensure changes are observed. Theoretically
-    /// 1ms should suffice, but I was seeing flaky tests on a ZFS system with the delay set to a
-    /// few milliseconds.
+    /// we need to wait a little while between steps to ensure changes are
+    /// observed. Theoretically 1ms should suffice, but I was seeing flaky
+    /// tests on a ZFS system with the delay set to a few milliseconds.
     fn sleep(&self) {
         sleep(Duration::from_millis(10))
     }
@@ -228,8 +228,8 @@ async fn parallel_requests() -> Result<()> {
         media2.add_file("auto", b"auto").unwrap();
         ctx.sync_media1().await?;
         // Normally the second client would notice the addition of the file when
-        // fetching changes from the server; here we manually upload the change to simulate
-        // two parallel syncs going on.
+        // fetching changes from the server; here we manually upload the change to
+        // simulate two parallel syncs going on.
         let get_usn = || async {
             Ok::<_, AnkiError>(
                 ctx.client

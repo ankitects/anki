@@ -101,12 +101,14 @@ impl BuildAction for DownloadArchive {
 
 struct ExtractArchive<'a, I> {
     pub archive_path: BuildInput,
-    /// The folder that the archive should be extracted into, relative to $builddir/extracted.
-    /// If the archive contains a single top-level folder, its contents will be extracted into the
-    /// provided folder, so that output like tool-1.2/ can be extracted into tool/.
+    /// The folder that the archive should be extracted into, relative to
+    /// $builddir/extracted. If the archive contains a single top-level
+    /// folder, its contents will be extracted into the provided folder, so
+    /// that output like tool-1.2/ can be extracted into tool/.
     pub extraction_folder_name: &'a str,
-    /// Files contained inside the archive, relative to the archive root, and excluding the top-level
-    /// folder if it is the sole top-level entry. Any files you wish to use as part of subsequent rules
+    /// Files contained inside the archive, relative to the archive root, and
+    /// excluding the top-level folder if it is the sole top-level entry.
+    /// Any files you wish to use as part of subsequent rules
     /// must be declared here.
     pub file_manifest: HashMap<&'static str, I>,
 }

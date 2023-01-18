@@ -119,7 +119,8 @@ fn extract(archive_path: &str, output_folder: &str) -> Result<()> {
             archive.extract(&output_tmp)?;
         }
     }
-    // if the output folder contains a single folder (eg foo-1.2), move it up a level
+    // if the output folder contains a single folder (eg foo-1.2), move it up a
+    // level
     let mut entries: Vec<_> = output_tmp.read_dir_utf8()?.take(2).collect();
     let first_entry = entries.pop().unwrap()?;
     if entries.is_empty() && first_entry.metadata()?.is_dir() {

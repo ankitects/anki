@@ -67,7 +67,8 @@ impl Collection {
             .collect()
     }
 
-    /// Create a report on empty cards. Mutates the provided data to sort ordinals.
+    /// Create a report on empty cards. Mutates the provided data to sort
+    /// ordinals.
     pub fn empty_cards_report(
         &mut self,
         empty: &mut [(NotetypeId, Vec<EmptyCardsForNote>)],

@@ -9,8 +9,8 @@ use serde_json::Value;
 
 use crate::timestamp::TimestampSecs;
 
-/// Note: if you wish to cover the case where a field is missing, make sure you also
-/// use the `serde(default)` flag.
+/// Note: if you wish to cover the case where a field is missing, make sure you
+/// also use the `serde(default)` flag.
 pub(crate) fn default_on_invalid<'de, T, D>(deserializer: D) -> Result<T, D::Error>
 where
     T: Default + DeTrait<'de>,

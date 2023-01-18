@@ -18,7 +18,8 @@ pub struct PyenvArgs {
     venv_args: Vec<String>,
 }
 
-/// Set up a venv if one doesn't already exist, and then sync packages with provided requirements file.
+/// Set up a venv if one doesn't already exist, and then sync packages with
+/// provided requirements file.
 pub fn setup_pyenv(args: PyenvArgs) {
     let pyenv_folder = Utf8Path::new(&args.pyenv_folder);
 
@@ -35,8 +36,8 @@ pub fn setup_pyenv(args: PyenvArgs) {
         );
 
         if cfg!(windows) {
-            // the first install on Windows throws an error the first time pip is upgraded, so we install
-            // it twice and swallow the first error
+            // the first install on Windows throws an error the first time pip is upgraded,
+            // so we install it twice and swallow the first error
             let _output = Command::new(&pyenv_python)
                 .args(["-m", "pip", "install", "-r", &args.initial_reqs])
                 .output()

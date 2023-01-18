@@ -54,8 +54,8 @@ pub fn collection_sync_router<P: SyncProtocol + Clone>() -> Router<P> {
     Router::new().route("/:method", post(sync_handler::<P>))
 }
 
-/// The Rust code used to send a GET with query params, which was inconsistent with the
-/// rest of our code - map the request into our standard structure.
+/// The Rust code used to send a GET with query params, which was inconsistent
+/// with the rest of our code - map the request into our standard structure.
 async fn media_begin_get<P: MediaSyncProtocol>(
     Query(req): Query<SyncBeginQuery>,
     server: State<P>,
@@ -71,8 +71,8 @@ async fn media_begin_get<P: MediaSyncProtocol>(
     media_begin_post(server, req).await
 }
 
-/// Older clients would send client info in the multipart instead of the inner JSON;
-/// Inject it into the json if provided.
+/// Older clients would send client info in the multipart instead of the inner
+/// JSON; Inject it into the json if provided.
 async fn media_begin_post<P: MediaSyncProtocol>(
     server: State<P>,
     mut req: SyncRequest<SyncBeginRequest>,

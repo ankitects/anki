@@ -101,7 +101,8 @@ fn node(s: &str) -> IResult<Node> {
     alt((text_node, sound_node, tag_node))(s)
 }
 
-/// A sound tag `[sound:resource]`, where `resource` is pointing to a sound or video file.
+/// A sound tag `[sound:resource]`, where `resource` is pointing to a sound or
+/// video file.
 fn sound_node(s: &str) -> IResult<Node> {
     map(
         delimited(tag("[sound:"), is_not("]"), tag("]")),
@@ -120,7 +121,8 @@ fn tag_node(s: &str) -> IResult<Node> {
     fn opening_parser<'name, 's: 'name>(
         name: &'name str,
     ) -> impl FnMut(&'s str) -> IResult<Vec<(&str, &str)>> + 'name {
-        /// List of whitespace-separated `key=val` tuples, where `val` may be empty.
+        /// List of whitespace-separated `key=val` tuples, where `val` may be
+        /// empty.
         fn options(s: &str) -> IResult<Vec<(&str, &str)>> {
             fn key(s: &str) -> IResult<&str> {
                 is_not("] \t\r\n=")(s)
@@ -150,7 +152,8 @@ fn tag_node(s: &str) -> IResult<Node> {
         value((), tuple((tag("[/anki:"), tag(name), tag("]"))))
     }
 
-    /// Return a parser to match and return anything until a closing `name` tag is found.
+    /// Return a parser to match and return anything until a closing `name` tag
+    /// is found.
     fn content_parser<'parser, 'name: 'parser, 's: 'parser>(
         name: &'name str,
     ) -> impl FnMut(&'s str) -> IResult<&str> + 'parser {

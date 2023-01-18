@@ -211,7 +211,8 @@ impl Collection {
         self.state.undo.merge_undoable_ops(starting_from)
     }
 
-    /// Add an empty custom undo step, which subsequent changes can be merged into.
+    /// Add an empty custom undo step, which subsequent changes can be merged
+    /// into.
     pub fn add_custom_undo_step(&mut self, name: String) -> usize {
         self.state.undo.add_custom_step(name)
     }
@@ -275,8 +276,8 @@ impl Collection {
             .pop()
     }
 
-    /// Return changes made by the current op. Must only be called in a transaction,
-    /// when an operation was passed to transact().
+    /// Return changes made by the current op. Must only be called in a
+    /// transaction, when an operation was passed to transact().
     pub(crate) fn op_changes(&self) -> OpChanges {
         self.state.undo.op_changes()
     }

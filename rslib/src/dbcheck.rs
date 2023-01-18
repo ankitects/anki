@@ -283,8 +283,8 @@ impl Collection {
         // to ensure to restore the collapse state
         self.storage.restore_expanded_tags(&expanded_tags)?;
 
-        // if the collection is empty and the user has deleted all note types, ensure at least
-        // one note type exists
+        // if the collection is empty and the user has deleted all note types, ensure at
+        // least one note type exists
         if self.storage.get_all_notetype_names()?.is_empty() {
             let mut nt = all_stock_notetypes(&self.tr).remove(0);
             self.add_notetype_inner(&mut nt, usn, true)?;

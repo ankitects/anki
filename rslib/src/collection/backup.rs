@@ -130,8 +130,8 @@ impl Backup {
 
     /// Serial week number, starting on Monday
     fn week(&self) -> i32 {
-        // Day 1 (01/01/01) was a Monday, meaning week rolled over on Sunday (when day % 7 == 0).
-        // We subtract 1 to shift the rollover to Monday.
+        // Day 1 (01/01/01) was a Monday, meaning week rolled over on Sunday (when day %
+        // 7 == 0). We subtract 1 to shift the rollover to Monday.
         (self.day() - 1) / 7
     }
 

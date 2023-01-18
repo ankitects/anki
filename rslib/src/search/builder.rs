@@ -18,9 +18,11 @@ pub trait Negated {
 }
 
 pub trait JoinSearches {
-    /// Concatenates two sets of [Node]s, inserting [Node::And], and grouping, if appropriate.
+    /// Concatenates two sets of [Node]s, inserting [Node::And], and grouping,
+    /// if appropriate.
     fn and(self, other: impl Into<SearchBuilder>) -> SearchBuilder;
-    /// Concatenates two sets of [Node]s, inserting [Node::Or], and grouping, if appropriate.
+    /// Concatenates two sets of [Node]s, inserting [Node::Or], and grouping, if
+    /// appropriate.
     fn or(self, other: impl Into<SearchBuilder>) -> SearchBuilder;
     /// Concatenates two sets of [Node]s, inserting [Node::And] if appropriate,
     /// but without grouping either set.

@@ -595,8 +595,8 @@ fn parse_mid(s: &str) -> ParseResult<SearchNode> {
     parse_i64(s, "mid:").map(|n| SearchNode::NotetypeId(n.into()))
 }
 
-/// ensure a list of ids contains only numbers and commas, returning unchanged if true
-/// used by nid: and cid:
+/// ensure a list of ids contains only numbers and commas, returning unchanged
+/// if true used by nid: and cid:
 fn check_id_list<'a, 'b>(s: &'a str, context: &'b str) -> ParseResult<'a, &'a str> {
     lazy_static! {
         static ref RE: Regex = Regex::new(r"^(\d+,)*\d+$").unwrap();

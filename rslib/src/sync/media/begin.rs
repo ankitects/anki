@@ -28,8 +28,8 @@ pub struct SyncBeginRequest {
 pub struct SyncBeginResponse {
     pub usn: Usn,
     /// The server used to send back a session key used for following requests,
-    /// but this is no longer required. To avoid breaking older clients, the host
-    /// key is returned in its place.
+    /// but this is no longer required. To avoid breaking older clients, the
+    /// host key is returned in its place.
     #[serde(rename = "sk")]
     pub host_key: String,
 }

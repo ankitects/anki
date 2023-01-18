@@ -32,8 +32,9 @@ impl ServerMediaDatabase {
             .map_err(Into::into)
     }
 
-    /// Saves entry to the DB, overwriting any existing entry. Does no validation on its own;
-    /// caller is responsible for mutating meta (which will update mtime as well).
+    /// Saves entry to the DB, overwriting any existing entry. Does no
+    /// validation on its own; caller is responsible for mutating meta
+    /// (which will update mtime as well).
     pub fn set_entry(&mut self, entry: &mut MediaEntry) -> error::Result<()> {
         self.db
             .prepare_cached(include_str!("set_entry.sql"))?

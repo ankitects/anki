@@ -195,8 +195,8 @@ impl BuildAction for CargoFormat {
     }
 }
 
-/// Use Cargo to download and build a Rust binary. If `binary_name` is `foo`, a `$foo` variable
-/// will be defined with the path to the binary.
+/// Use Cargo to download and build a Rust binary. If `binary_name` is `foo`, a
+/// `$foo` variable will be defined with the path to the binary.
 pub struct CargoInstall {
     pub binary_name: &'static str,
     /// eg 'foo --version 1.3' or '--git git://...'

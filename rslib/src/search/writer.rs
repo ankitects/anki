@@ -18,9 +18,10 @@ use crate::search::parser::StateKind;
 use crate::search::parser::TemplateKind;
 use crate::text::escape_anki_wildcards;
 
-/// Given an existing parsed search, if the provided `replacement` is a single search node such
-/// as a deck:xxx search, replace any instances of that search in `existing` with the new value.
-/// Then return the possibly modified first search as a string.
+/// Given an existing parsed search, if the provided `replacement` is a single
+/// search node such as a deck:xxx search, replace any instances of that search
+/// in `existing` with the new value. Then return the possibly modified first
+/// search as a string.
 pub fn replace_search_node(mut existing: Vec<Node>, replacement: Node) -> String {
     if let Node::Search(search_node) = replacement {
         fn update_node_vec(old_nodes: &mut [Node], new_node: &SearchNode) {

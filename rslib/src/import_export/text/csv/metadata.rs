@@ -93,7 +93,8 @@ impl Collection {
         Ok(meta_len)
     }
 
-    /// True if the line is a meta line, i.e. a comment, or starting with 'tags:'.
+    /// True if the line is a meta line, i.e. a comment, or starting with
+    /// 'tags:'.
     fn parse_first_line(&mut self, line: &str, metadata: &mut CsvMetadata) -> bool {
         if let Some(tags) = line.strip_prefix("tags:") {
             metadata.global_tags = collect_tags(tags);

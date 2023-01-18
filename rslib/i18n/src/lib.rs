@@ -268,7 +268,8 @@ impl I18n {
         key.to_string().into()
     }
 
-    /// Return text from configured locales for use with the JS Fluent implementation.
+    /// Return text from configured locales for use with the JS Fluent
+    /// implementation.
     pub fn resources_for_js(&self, desired_modules: &[String]) -> ResourcesForJavascript {
         let inner = self.inner.lock().unwrap();
         let resources = get_modules(&inner.langs, desired_modules);

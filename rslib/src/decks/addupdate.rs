@@ -71,8 +71,8 @@ impl Collection {
         }
         self.update_single_deck_undoable(deck, original)?;
         if name_changed {
-            // after updating, we need to ensure all grandparents exist, which may not be the case
-            // in the parent->child case
+            // after updating, we need to ensure all grandparents exist, which may not be
+            // the case in the parent->child case
             self.create_missing_parents(&deck.name, usn)?;
         }
         Ok(())
@@ -109,7 +109,8 @@ impl Collection {
 
     /// If parent deck(s) exist, rewrite name to match their case.
     /// If they don't exist, create them.
-    /// Returns an error if a DB operation fails, or if the first existing parent is a filtered deck.
+    /// Returns an error if a DB operation fails, or if the first existing
+    /// parent is a filtered deck.
     fn match_or_create_parents(&mut self, deck: &mut Deck, usn: Usn) -> Result<()> {
         let child_split: Vec<_> = deck.name.components().collect();
         if let Some(parent_deck) = self.first_existing_parent(deck.name.as_native_str(), 0)? {

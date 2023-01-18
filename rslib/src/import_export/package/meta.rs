@@ -49,7 +49,8 @@ impl Meta {
         }
     }
 
-    /// Extracts meta data from an archive and checks if its version is supported.
+    /// Extracts meta data from an archive and checks if its version is
+    /// supported.
     pub(super) fn from_archive(archive: &mut ZipArchive<File>) -> Result<Self> {
         let meta_bytes = archive.by_name("meta").ok().and_then(|mut meta_file| {
             let mut buf = vec![];

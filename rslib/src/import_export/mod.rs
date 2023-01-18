@@ -35,8 +35,8 @@ pub enum ExportProgress {
     Media(usize),
 }
 
-/// Wrapper around a progress function, usually passed by the [crate::backend::Backend],
-/// to make repeated calls more ergonomic.
+/// Wrapper around a progress function, usually passed by the
+/// [crate::backend::Backend], to make repeated calls more ergonomic.
 pub(crate) struct IncrementableProgress<P>(Box<dyn FnMut(P, bool) -> bool>);
 
 impl<P> IncrementableProgress<P> {
@@ -45,7 +45,8 @@ impl<P> IncrementableProgress<P> {
         Self(Box::new(progress_fn))
     }
 
-    /// Returns an [Incrementor] with an `increment()` function for use in loops.
+    /// Returns an [Incrementor] with an `increment()` function for use in
+    /// loops.
     pub(crate) fn incrementor<'inc, 'progress: 'inc, 'map: 'inc>(
         &'progress mut self,
         mut count_map: impl 'map + FnMut(usize) -> P,

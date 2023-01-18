@@ -120,7 +120,8 @@ impl CardStateUpdater {
                             invalid_input!("should set finished=true, not return different state")
                         }
                         FilteredState::Rescheduling(_) => {
-                            // card needs to be removed from normal filtered deck, then scheduled normally
+                            // card needs to be removed from normal filtered deck, then scheduled
+                            // normally
                             self.card.remove_from_filtered_deck_before_reschedule();
                         }
                     }

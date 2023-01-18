@@ -115,8 +115,8 @@ pub fn server_start(
 /// retain a bunch of information across requests. These are set either
 /// on start, or on subsequent methods.
 pub struct ServerSyncState {
-    /// The session key. This is sent on every http request, but is ignored for methods
-    /// where there is not active sync state.
+    /// The session key. This is sent on every http request, but is ignored for
+    /// methods where there is not active sync state.
     pub skey: String,
 
     pub(in crate::sync) server_usn: Usn,

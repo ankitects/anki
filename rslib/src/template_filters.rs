@@ -16,7 +16,8 @@ use crate::text::strip_html;
 // Filtering
 //----------------------------------------
 
-/// Applies built in filters, returning the resulting text and remaining filters.
+/// Applies built in filters, returning the resulting text and remaining
+/// filters.
 ///
 /// The first non-standard filter that is encountered will terminate processing,
 /// so non-standard filters must come at the end.

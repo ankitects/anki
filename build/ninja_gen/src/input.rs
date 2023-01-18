@@ -127,7 +127,8 @@ lazy_static::lazy_static! {
     static ref CACHED_FILES: Vec<Utf8PathBuf> = cache_files();
 }
 
-/// Walking the source tree once instead of for each glob yields ~4x speed improvements.
+/// Walking the source tree once instead of for each glob yields ~4x speed
+/// improvements.
 fn cache_files() -> Vec<Utf8PathBuf> {
     walkdir::WalkDir::new(".")
         // ensure the output order is predictable
