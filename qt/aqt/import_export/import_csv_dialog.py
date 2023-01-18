@@ -46,7 +46,9 @@ class ImportCsvDialog(QDialog):
         layout.addWidget(self.web)
         self.setLayout(layout)
 
-        self.web.eval(f"anki.setupImportCsvPage('{path}');")
+        self.web.evalWithCallback(
+            f"anki.setupImportCsvPage('{path}');", lambda _: self.web.setFocus()
+        )
         self.setWindowTitle(tr.decks_import_file())
 
     def reject(self) -> None:
