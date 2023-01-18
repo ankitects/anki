@@ -97,7 +97,7 @@ class TopWebView(ToolbarWebView):
         if self.mw.pm.hide_top_bar():
             if (
                 self.mw.pm.top_bar_hide_mode() == HideMode.FULLSCREEN
-                and not Qt.WindowState.WindowFullScreen in self.mw.windowState()
+                and not self.mw.windowState() & Qt.WindowState.WindowFullScreen
             ):
                 self.show()
                 return
@@ -223,7 +223,7 @@ class BottomWebView(ToolbarWebView):
         if self.mw.pm.hide_bottom_bar():
             if (
                 self.mw.pm.bottom_bar_hide_mode() == HideMode.FULLSCREEN
-                and not Qt.WindowState.WindowFullScreen in self.mw.windowState()
+                and not self.mw.windowState() & Qt.WindowState.WindowFullScreen
             ):
                 self.show()
                 return

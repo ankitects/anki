@@ -1366,7 +1366,7 @@ title="{}" {}>{}</button>""".format(
             )
 
         # Hide Menubar on Windows and Linux
-        if Qt.WindowState.WindowFullScreen in window.windowState() and not is_mac:
+        if window.windowState() & Qt.WindowState.WindowFullScreen and not is_mac:
             self.fullscreen = True
             self.hide_menubar()
         else:
