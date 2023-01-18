@@ -1080,7 +1080,7 @@ title="{}" {}>{}</button>""".format(
             interval_secs = 2
         self.progress.timer(
             interval_secs * 1000,
-            theme_manager.apply_style_if_system_style_changed,
+            theme_manager.apply_style,
             True,
             False,
             parent=self,

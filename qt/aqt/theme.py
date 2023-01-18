@@ -218,20 +218,17 @@ class ThemeManager:
             else:
                 return get_linux_dark_mode()
 
-    def apply_style_if_system_style_changed(self) -> None:
-        self.apply_style()
-
     def apply_style(self) -> None:
         "Apply currently configured style."
-        app = aqt.mw.app
         new_theme = self._determine_night_mode()
         theme_changed = self.night_mode != new_theme
-        new_style = aqt.mw.pm.get_widget_style()
-        style_changed = self._current_widget_style != new_style
+        new_widget_style = aqt.mw.pm.get_widget_style()
+        style_changed = self._current_widget_style != new_widget_style
         if not theme_changed and not style_changed:
             return
         self.night_mode = new_theme
-        self._current_widget_style = new_style
+        self._current_widget_style = new_widget_style
+        app = aqt.mw.app
         if not self._default_style:
             self._default_style = app.style().objectName()
         self._apply_palette(app)
