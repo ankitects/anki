@@ -10,8 +10,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import DropdownDivider from "../components/DropdownDivider.svelte";
     import DropdownItem from "../components/DropdownItem.svelte";
-    import LabelButton from "../components/LabelButton.svelte";
     import IconButton from "../components/IconButton.svelte";
+    import LabelButton from "../components/LabelButton.svelte";
     import Popover from "../components/Popover.svelte";
     import Shortcut from "../components/Shortcut.svelte";
     import WithFloating from "../components/WithFloating.svelte";
@@ -68,6 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <LabelButton
+    class="save-button"
     primary
     on:click={() => save(false)}
     tooltip={getPlatformString(saveKeyCombination)}
@@ -114,6 +115,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </WithFloating>
 
 <style lang="scss">
+    /* LabelButton's overflow: hidden breaks the text centering */
+    :global(.save-button) {
+        overflow: visible !important;
+    }
+
     .save {
         margin: 0 0.75rem;
     }
