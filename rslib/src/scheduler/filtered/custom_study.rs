@@ -8,10 +8,8 @@ use crate::{
     config::DeckConfigKey,
     decks::{FilteredDeck, FilteredSearchOrder, FilteredSearchTerm},
     error::{CustomStudyError, FilteredDeckError},
-    pb::{
-        scheduler::custom_study_request::{cram::CramKind, Cram, Value as CustomStudyValue},
-        {self as pb},
-    },
+    pb,
+    pb::scheduler::custom_study_request::{cram::CramKind, Cram, Value as CustomStudyValue},
     prelude::*,
     search::{JoinSearches, Negated, PropertyKind, RatingKind, SearchNode, StateKind},
 };

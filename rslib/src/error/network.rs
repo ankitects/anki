@@ -1,13 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::error::Error;
+
 use anki_i18n::I18n;
 use reqwest::StatusCode;
 use snafu::Snafu;
 
 use super::AnkiError;
+use crate::sync::{collection::sanity::SanityCheckCounts, error::HttpError};
 
 #[derive(Debug, PartialEq, Eq, Snafu)]
+#[snafu(visibility(pub(crate)))]
 pub struct NetworkError {
     pub info: String,
     pub kind: NetworkErrorKind,
@@ -40,6 +44,10 @@ pub enum SyncErrorKind {
     DatabaseCheckRequired,
     SyncNotStarted,
     UploadTooLarge,
+    SanityCheckFailed {
+        client: Option<SanityCheckCounts>,
+        server: Option<SanityCheckCounts>,
+    },
 }
 
 impl AnkiError {
@@ -172,7 +180,9 @@ impl SyncError {
             SyncErrorKind::AuthFailed => tr.sync_wrong_pass(),
             SyncErrorKind::ResyncRequired => tr.sync_resync_required(),
             SyncErrorKind::ClockIncorrect => tr.sync_clock_off(),
-            SyncErrorKind::DatabaseCheckRequired => tr.sync_sanity_check_failed(),
+            SyncErrorKind::DatabaseCheckRequired | SyncErrorKind::SanityCheckFailed { .. } => {
+                tr.sync_sanity_check_failed()
+            }
             SyncErrorKind::SyncNotStarted => "sync not started".into(),
             SyncErrorKind::UploadTooLarge => tr.sync_upload_too_large(&self.info),
         }
@@ -190,5 +200,33 @@ impl NetworkError {
         };
         let details = tr.network_details(self.info.as_str());
         format!("{}\n\n{}", summary, details)
+    }
+}
+
+// This needs rethinking; we should be attaching error context as errors are encountered
+// instead of trying to determine the problem later.
+impl From<HttpError> for AnkiError {
+    fn from(err: HttpError) -> Self {
+        if let Some(source) = &err.source {
+            if let Some(err) = source.downcast_ref::<reqwest::Error>() {
+                if let Some(status) = err.status() {
+                    let kind = match status {
+                        StatusCode::CONFLICT => SyncErrorKind::Conflict,
+                        StatusCode::NOT_IMPLEMENTED => SyncErrorKind::ClientTooOld,
+                        StatusCode::FORBIDDEN => SyncErrorKind::AuthFailed,
+                        StatusCode::INTERNAL_SERVER_ERROR => SyncErrorKind::ServerError,
+                        StatusCode::BAD_REQUEST => SyncErrorKind::DatabaseCheckRequired,
+                        _ => SyncErrorKind::Other,
+                    };
+                    let info = format!("{:?}", err);
+                    // in the future we should chain the error instead of discarding it
+                    return AnkiError::sync_error(info, kind);
+                } else if let Some(source) = err.source() {
+                    let info = format!("{:?}", source);
+                    return AnkiError::sync_error(info, SyncErrorKind::Other);
+                }
+            }
+        }
+        AnkiError::sync_error(format!("{:?}", err), SyncErrorKind::Other)
     }
 }

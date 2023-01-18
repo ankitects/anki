@@ -120,7 +120,7 @@ impl Note {
     pub(crate) fn new(notetype: &Notetype) -> Self {
         Note {
             id: NoteId(0),
-            guid: guid(),
+            guid: base91_u64(),
             notetype_id: notetype.id,
             mtime: TimestampSecs(0),
             usn: Usn(0),
@@ -297,20 +297,25 @@ pub(crate) fn field_checksum(text: &str) -> u32 {
     u32::from_be_bytes(digest[..4].try_into().unwrap())
 }
 
-pub(crate) fn guid() -> String {
+pub(crate) fn base91_u64() -> String {
     anki_base91(rand::random())
 }
 
-fn anki_base91(mut n: u64) -> String {
-    let table = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\
-0123456789!#$%&()*+,-./:;<=>?@[]^_`{|}~";
+fn anki_base91(n: u64) -> String {
+    to_base_n(
+        n,
+        b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\
+0123456789!#$%&()*+,-./:;<=>?@[]^_`{|}~",
+    )
+}
+
+pub fn to_base_n(mut n: u64, table: &[u8]) -> String {
     let mut buf = String::new();
     while n > 0 {
         let (q, r) = n.div_rem(&(table.len() as u64));
         buf.push(table[r as usize] as char);
         n = q;
     }
-
     buf.chars().rev().collect()
 }
 

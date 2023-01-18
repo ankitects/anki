@@ -8,10 +8,7 @@ use tracing::error;
 use super::{progress::Progress, Backend};
 pub(super) use crate::pb::collection::collection_service::Service as CollectionService;
 use crate::{
-    backend::progress::progress_to_proto,
-    collection::CollectionBuilder,
-    pb::{self as pb},
-    prelude::*,
+    backend::progress::progress_to_proto, collection::CollectionBuilder, pb, prelude::*,
     storage::SchemaVersion,
 };
 

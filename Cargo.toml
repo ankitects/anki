@@ -24,10 +24,6 @@ members = [
 exclude = ["qt/bundle"]
 resolver = "2"
 
-[patch.crates-io]
-# If updating rev, hakari.toml needs updating too.
-reqwest = { git = "https://github.com/ankitects/reqwest.git", rev = "7591444614de02b658ddab125efba7b2bb4e2335" }
-
 # Apply mild optimizations to our dependencies in dev mode, which among other things
 # improves sha2 performance by about 21x. Opt 1 chosen due to
 # https://doc.rust-lang.org/cargo/reference/profiles.html#overrides-and-generics. This

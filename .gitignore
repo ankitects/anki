@@ -5,7 +5,7 @@ target
 /user.bazelrc
 .dmypy.json
 /.idea/
-/.vscode/
+/.vscode
 /.bazel
 /windows.bazelrc
 /out

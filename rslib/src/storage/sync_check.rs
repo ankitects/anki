@@ -5,7 +5,7 @@ use super::*;
 use crate::{
     error::SyncErrorKind,
     prelude::*,
-    sync::{SanityCheckCounts, SanityCheckDueCounts},
+    sync::collection::sanity::{SanityCheckCounts, SanityCheckDueCounts},
 };
 
 impl SqliteStorage {

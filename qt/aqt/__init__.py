@@ -16,17 +16,16 @@ except UnicodeEncodeError as exc:
     print("Please Google 'how to change locale on [your Linux distro]'")
     sys.exit(1)
 
+# if sync server enabled, bypass the rest of the startup
+if "--syncserver" in sys.argv:
+    from anki.syncserver import run_sync_server
+
+    # does not return
+    run_sync_server()
+
 from .package import packaged_build_setup
 
 packaged_build_setup()
-
-# syncserver needs to be run before Qt loaded
-if "--syncserver" in sys.argv:
-    from anki.syncserver import serve
-
-    serve()
-    sys.exit(0)
-
 
 import argparse
 import builtins

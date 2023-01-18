@@ -5,7 +5,7 @@ mod db;
 mod file_io;
 mod filtered;
 mod invalid_input;
-mod network;
+pub(crate) mod network;
 mod not_found;
 mod search;
 

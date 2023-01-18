@@ -12,6 +12,7 @@ import aqt.main
 from anki.errors import Interrupted, SyncError, SyncErrorKind
 from anki.lang import without_unicode_isolation
 from anki.sync import SyncOutput, SyncStatus
+from anki.sync_pb2 import SyncAuth
 from anki.utils import plat_desc
 from aqt import gui_hooks
 from aqt.qt import (
@@ -43,13 +44,15 @@ def get_sync_status(
         callback(SyncStatus(required=SyncStatus.NO_CHANGES))  # pylint:disable=no-member
         return
 
-    def on_future_done(fut: Future) -> None:
+    def on_future_done(fut: Future[SyncStatus]) -> None:
         try:
             out = fut.result()
         except Exception as e:
             # swallow errors
             print("sync status check failed:", str(e))
             return
+        if out.new_endpoint:
+            mw.pm.set_current_sync_url(out.new_endpoint)
         callback(out)
 
     mw.taskman.run_in_background(lambda: mw.col.sync_status(auth), on_future_done)
@@ -93,18 +96,20 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     qconnect(timer.timeout, on_timer)
     timer.start(150)
 
-    def on_future_done(fut: Future) -> None:
+    def on_future_done(fut: Future[SyncOutput]) -> None:
         mw.col.db.begin()
         # scheduler version may have changed
         mw.col._load_scheduler()
         timer.stop()
         try:
-            out: SyncOutput = fut.result()
+            out = fut.result()
         except Exception as err:
             handle_sync_error(mw, err)
             return on_done()
 
         mw.pm.set_host_number(out.host_number)
+        if out.new_endpoint:
+            mw.pm.set_current_sync_url(out.new_endpoint)
         if out.server_message:
             showText(out.server_message)
         if out.required == out.NO_CHANGES:
@@ -161,7 +166,7 @@ def confirm_full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> N
         mw.closeAllWindows(lambda: full_download(mw, on_done))
 
 
-def on_full_sync_timer(mw: aqt.main.AnkiQt) -> None:
+def on_full_sync_timer(mw: aqt.main.AnkiQt, label: str) -> None:
     progress = mw.col.latest_progress()
     if not progress.HasField("full_sync"):
         return
@@ -169,8 +174,6 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt) -> None:
 
     if sync_progress.transferred == sync_progress.total:
         label = tr.sync_checking()
-    else:
-        label = None
     mw.progress.update(
         value=sync_progress.transferred,
         max=sync_progress.total,
@@ -183,8 +186,10 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt) -> None:
 
 
 def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
+    label = tr.sync_downloading_from_ankiweb()
+
     def on_timer() -> None:
-        on_full_sync_timer(mw)
+        on_full_sync_timer(mw, label)
 
     timer = QTimer(mw)
     qconnect(timer.timeout, on_timer)
@@ -212,7 +217,6 @@ def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     mw.taskman.with_progress(
         download,
         on_future_done,
-        label=tr.sync_downloading_from_ankiweb(),
     )
 
 
@@ -220,8 +224,10 @@ def full_upload(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     gui_hooks.collection_will_temporarily_close(mw.col)
     mw.col.close_for_full_sync()
 
+    label = tr.sync_uploading_to_ankiweb()
+
     def on_timer() -> None:
-        on_full_sync_timer(mw)
+        on_full_sync_timer(mw, label)
 
     timer = QTimer(mw)
     qconnect(timer.timeout, on_timer)
@@ -242,7 +248,6 @@ def full_upload(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     mw.taskman.with_progress(
         lambda: mw.col.full_upload(mw.pm.sync_auth()),
         on_future_done,
-        label=tr.sync_uploading_to_ankiweb(),
     )
 
 
@@ -259,7 +264,7 @@ def sync_login(
         if username and password:
             break
 
-    def on_future_done(fut: Future) -> None:
+    def on_future_done(fut: Future[SyncAuth]) -> None:
         try:
             auth = fut.result()
         except SyncError as e:
@@ -273,14 +278,15 @@ def sync_login(
             handle_sync_error(mw, err)
             return
 
-        mw.pm.set_host_number(auth.host_number)
         mw.pm.set_sync_key(auth.hkey)
         mw.pm.set_sync_username(username)
 
         on_success()
 
     mw.taskman.with_progress(
-        lambda: mw.col.sync_login(username=username, password=password),
+        lambda: mw.col.sync_login(
+            username=username, password=password, endpoint=mw.pm.sync_endpoint()
+        ),
         on_future_done,
     )
 

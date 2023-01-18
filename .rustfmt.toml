@@ -2,5 +2,7 @@
 # useful for manual invocation with 'cargo +nightly fmt'
 imports_granularity = "Crate"
 group_imports = "StdExternalCrate"
+
+# wrap_comments = true
 # imports_granularity = "Item"
 # imports_layout = "Vertical"

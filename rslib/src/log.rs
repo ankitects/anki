@@ -14,16 +14,20 @@ const LOG_ROTATE_BYTES: u64 = 50 * 1024 * 1024;
 
 /// Enable logging to the console, and optionally also to a file.
 pub fn set_global_logger(path: Option<&str>) -> Result<()> {
-    let file_writer = if let Some(path) = path {
-        Some(Layer::new().with_writer(get_appender(path)?))
-    } else {
-        None
-    };
-    let subscriber = tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(file_writer)
-        .with(EnvFilter::from_default_env());
-    set_global_default(subscriber).or_invalid("global subscriber already set")?;
+    static ONCE: OnceCell<()> = OnceCell::new();
+    ONCE.get_or_try_init(|| -> Result<()> {
+        let file_writer = if let Some(path) = path {
+            Some(Layer::new().with_writer(get_appender(path)?))
+        } else {
+            None
+        };
+        let subscriber = tracing_subscriber::registry()
+            .with(fmt::layer().with_target(false))
+            .with(file_writer)
+            .with(EnvFilter::from_default_env());
+        set_global_default(subscriber).or_invalid("global subscriber already set")?;
+        Ok(())
+    })?;
     Ok(())
 }
 
