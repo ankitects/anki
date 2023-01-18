@@ -148,9 +148,9 @@ body {
 }
 
 .normal-sync {
-    color: color(state-new);
+    color: color(state-new) !important;
 }
 
 .full-sync {
-    color: color(state-learn);
+    color: color(state-learn) !important;
 }
