@@ -1074,8 +1074,10 @@ title="{}" {}>{}</button>""".format(
         theme_manager.apply_style()
         if is_lin:
             # On Linux, the check requires invoking an external binary,
+            # and can potentially produce verbose logs on systems where
+            # the preferred theme cannot be determined,
             # which we don't want to be doing frequently
-            interval_secs = 5
+            interval_secs = 300
         else:
             interval_secs = 2
         self.progress.timer(
