@@ -207,7 +207,7 @@ fn stringify_fn(is_html: bool) -> fn(&str) -> String {
     if is_html {
         ToString::to_string
     } else {
-        htmlescape::encode_minimal
+        |s| htmlescape::encode_minimal(s).replace('\n', "<br>")
     }
 }
 
