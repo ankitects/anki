@@ -63,7 +63,7 @@ pub fn notarize_app(output_folder: &Utf8Path) -> Result<()> {
         ),
     };
     let uuid_path = output_folder.with_extension("uuid");
-    fs::write(&uuid_path, output.id).expect("write uuid");
+    fs::write(uuid_path, output.id).expect("write uuid");
     Ok(())
 }
 

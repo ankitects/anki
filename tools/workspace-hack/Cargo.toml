@@ -14,7 +14,6 @@ description = "workspace-hack package, managed by hakari"
 
 ### BEGIN HAKARI SECTION
 [dependencies]
-bstr = { version = "0.2", features = ["lazy_static", "regex-automata", "serde", "serde1", "serde1-nostd", "std", "unicode"] }
 bytes = { version = "1", features = ["std"] }
 crossbeam-utils = { version = "0.8", features = ["std"] }
 either = { version = "1", features = ["use_std"] }
@@ -28,6 +27,7 @@ hashbrown = { version = "0.12", features = ["ahash", "inline-more", "raw"] }
 hmac = { version = "0.12", default-features = false, features = ["reset"] }
 hyper = { version = "0.14", features = ["client", "full", "h2", "http1", "http2", "runtime", "server", "socket2", "stream", "tcp"] }
 indexmap = { version = "1", default-features = false, features = ["std"] }
+itertools = { version = "0.10", features = ["use_alloc", "use_std"] }
 log = { version = "0.4", default-features = false, features = ["std"] }
 num-traits = { version = "0.2", features = ["std"] }
 phf_shared = { version = "0.11", default-features = false, features = ["std"] }
@@ -36,7 +36,6 @@ rand-c38e5c1d305a1b54 = { package = "rand", version = "0.8", features = ["alloc"
 rand-ca01ad9e24f5d932 = { package = "rand", version = "0.7", features = ["alloc", "getrandom", "getrandom_package", "libc", "rand_pcg", "small_rng", "std"] }
 rand_core = { version = "0.6", default-features = false, features = ["alloc", "getrandom", "std"] }
 regex = { version = "1", features = ["aho-corasick", "memchr", "perf", "perf-cache", "perf-dfa", "perf-inline", "perf-literal", "std", "unicode", "unicode-age", "unicode-bool", "unicode-case", "unicode-gencat", "unicode-perl", "unicode-script", "unicode-segment"] }
-regex-automata = { version = "0.1", features = ["regex-syntax", "std"] }
 regex-syntax = { version = "0.6", features = ["unicode", "unicode-age", "unicode-bool", "unicode-case", "unicode-gencat", "unicode-perl", "unicode-script", "unicode-segment"] }
 reqwest = { version = "0.11", features = ["__rustls", "__tls", "blocking", "default-tls", "hyper-rustls", "hyper-tls", "json", "mime_guess", "multipart", "native-tls", "native-tls-crate", "rustls", "rustls-native-certs", "rustls-pemfile", "rustls-tls", "rustls-tls-native-roots", "rustls-tls-webpki-roots", "serde_json", "socks", "stream", "tokio-native-tls", "tokio-rustls", "tokio-socks", "tokio-util", "webpki-roots"] }
 scopeguard = { version = "1", features = ["use_std"] }
@@ -64,6 +63,7 @@ either = { version = "1", features = ["use_std"] }
 getrandom = { version = "0.2", default-features = false, features = ["std"] }
 hashbrown = { version = "0.12", features = ["ahash", "inline-more", "raw"] }
 indexmap = { version = "1", default-features = false, features = ["std"] }
+itertools = { version = "0.10", features = ["use_alloc", "use_std"] }
 log = { version = "0.4", default-features = false, features = ["std"] }
 phf_shared = { version = "0.11", default-features = false, features = ["std"] }
 prost = { version = "0.11", features = ["prost-derive", "std"] }

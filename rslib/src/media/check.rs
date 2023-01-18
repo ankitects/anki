@@ -321,7 +321,7 @@ where
             // if the original filename doesn't exist, we can just rename
             if let Err(e) = fs::metadata(&orig_path) {
                 if e.kind() == io::ErrorKind::NotFound {
-                    fs::rename(&dentry.path(), &orig_path)?;
+                    fs::rename(dentry.path(), &orig_path)?;
                 } else {
                     return Err(e.into());
                 }
@@ -544,12 +544,12 @@ pub(crate) mod test {
         let (_dir, mgr, mut col) = common_setup()?;
 
         // add some test files
-        write_file(&mgr.media_folder.join("zerobytes"), "")?;
-        create_dir(&mgr.media_folder.join("folder"))?;
-        write_file(&mgr.media_folder.join("normal.jpg"), "normal")?;
-        write_file(&mgr.media_folder.join("foo[.jpg"), "foo")?;
-        write_file(&mgr.media_folder.join("_under.jpg"), "foo")?;
-        write_file(&mgr.media_folder.join("unused.jpg"), "foo")?;
+        write_file(mgr.media_folder.join("zerobytes"), "")?;
+        create_dir(mgr.media_folder.join("folder"))?;
+        write_file(mgr.media_folder.join("normal.jpg"), "normal")?;
+        write_file(mgr.media_folder.join("foo[.jpg"), "foo")?;
+        write_file(mgr.media_folder.join("_under.jpg"), "foo")?;
+        write_file(mgr.media_folder.join("unused.jpg"), "foo")?;
 
         let progress = |_n| true;
 
@@ -575,8 +575,8 @@ pub(crate) mod test {
             }
         );
 
-        assert!(fs::metadata(&mgr.media_folder.join("foo[.jpg")).is_err());
-        assert!(fs::metadata(&mgr.media_folder.join("foo.jpg")).is_ok());
+        assert!(fs::metadata(mgr.media_folder.join("foo[.jpg")).is_err());
+        assert!(fs::metadata(mgr.media_folder.join("foo.jpg")).is_ok());
 
         assert_eq!(
             report,
@@ -668,7 +668,7 @@ Unused: unused.jpg
     fn unicode_normalization() -> Result<()> {
         let (_dir, mgr, mut col) = common_setup()?;
 
-        write_file(&mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
+        write_file(mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
 
         let progress = |_n| true;
 
@@ -694,7 +694,7 @@ Unused: unused.jpg
                     trash_bytes: 0
                 }
             );
-            assert!(fs::metadata(&mgr.media_folder.join("ぱぱ.jpg")).is_ok());
+            assert!(fs::metadata(mgr.media_folder.join("ぱぱ.jpg")).is_ok());
         } else {
             // on other platforms, the file should have been renamed to NFC
             assert_eq!(
@@ -711,8 +711,8 @@ Unused: unused.jpg
                     trash_bytes: 0
                 }
             );
-            assert!(fs::metadata(&mgr.media_folder.join("ぱぱ.jpg")).is_err());
-            assert!(fs::metadata(&mgr.media_folder.join("ぱぱ.jpg")).is_ok());
+            assert!(fs::metadata(mgr.media_folder.join("ぱぱ.jpg")).is_err());
+            assert!(fs::metadata(mgr.media_folder.join("ぱぱ.jpg")).is_ok());
         }
 
         Ok(())

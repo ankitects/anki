@@ -171,7 +171,7 @@ where
         }
 
         // any remaining entries from the database have been deleted
-        let removed: Vec<_> = mtimes.into_iter().map(|(k, _)| k).collect();
+        let removed: Vec<_> = mtimes.into_keys().collect();
         for f in &removed {
             debug!(fname = f, "db entry missing on disk");
         }

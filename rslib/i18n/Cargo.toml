@@ -18,17 +18,17 @@ path = "src/lib.rs"
 fluent-syntax = "0.11.0"
 fluent = "0.16.0"
 unic-langid = { version = "0.9.1", features = ["macros"] }
-serde = { version = "1.0.148", features = ["derive"] }
-serde_json = "1.0.89"
+serde = { version = "1.0.152", features = ["derive"] }
+serde_json = "1.0.91"
 inflections = "1.1.1"
 
 [dependencies]
 fluent = "0.16.0"
 fluent-bundle = "0.15.2"
 intl-memoizer = "0.5.1"
-num-format = "0.4.3"
+num-format = "0.4.4"
 phf = { version = "0.11.1", features = ["macros"] }
-serde = { version = "1.0.148", features = ["derive"] }
-serde_json = "1.0.89"
+serde = { version = "1.0.152", features = ["derive"] }
+serde_json = "1.0.91"
 unic-langid = { version = "0.9.1", features = ["macros"] }
 workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }

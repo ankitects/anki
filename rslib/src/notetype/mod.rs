@@ -360,8 +360,7 @@ impl Notetype {
                 // provided ordinal not on any existing field; cap to bounds
                 self.config
                     .sort_field_idx
-                    .max(0)
-                    .min((self.fields.len() - 1) as u32)
+                    .clamp(0, (self.fields.len() - 1) as u32)
             });
     }
 

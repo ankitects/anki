@@ -50,7 +50,7 @@ fn add_folder(map: &mut TranslationsByLang, folder: &Path, lang: &str) {
             continue;
         }
         let module = fname.trim_end_matches(".ftl").replace('-', "_");
-        let text = fs::read_to_string(&entry.path()).unwrap();
+        let text = fs::read_to_string(entry.path()).unwrap();
         assert!(
             text.ends_with('\n'),
             "file was missing final newline: {:?}",
