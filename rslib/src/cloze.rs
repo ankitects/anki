@@ -306,6 +306,21 @@ pub fn reveal_cloze_text_only(text: &str, cloze_ord: u16, question: bool) -> Cow
     output.join(", ").into()
 }
 
+pub fn extract_cloze_for_typing(text: &str, cloze_ord: u16) -> Cow<str> {
+    let mut output = Vec::new();
+    for node in &parse_text_with_clozes(text) {
+        reveal_cloze_text_in_nodes(node, cloze_ord, false, &mut output);
+    }
+    if output.is_empty() {
+        "".into()
+    } else if output.iter().min() == output.iter().max() {
+        // If all matches are identical text, they get collapsed into a single entry
+        output.pop().unwrap().into()
+    } else {
+        output.join(", ").into()
+    }
+}
+
 /// If text contains any LaTeX tags, render the front and back
 /// of each cloze deletion so that LaTeX can be generated. If
 /// no LaTeX is found, returns an empty string.
@@ -416,6 +431,19 @@ mod test {
         assert_eq!(
             reveal_cloze_text_only("{{c1::foo}} {{c1::bar}}", 1, false),
             "foo, bar"
+        );
+    }
+
+    #[test]
+    fn clozes_for_typing() {
+        assert_eq!(extract_cloze_for_typing("{{c2::foo}}", 1), "");
+        assert_eq!(
+            extract_cloze_for_typing("{{c1::foo}} {{c1::bar}} {{c1::foo}}", 1),
+            "foo, bar, foo"
+        );
+        assert_eq!(
+            extract_cloze_for_typing("{{c1::foo}} {{c1::foo}} {{c1::foo}}", 1),
+            "foo"
         );
     }
 

@@ -27,6 +27,8 @@ service CardRenderingService {
   rpc DecodeIriPaths(generic.String) returns (generic.String);
   rpc StripHtml(StripHtmlRequest) returns (generic.String);
   rpc CompareAnswer(CompareAnswerRequest) returns (generic.String);
+  rpc ExtractClozeForTyping(ExtractClozeForTypingRequest)
+      returns (generic.String);
 }
 
 message ExtractAVTagsRequest {
@@ -137,4 +139,9 @@ message StripHtmlRequest {
 message CompareAnswerRequest {
   string expected = 1;
   string provided = 2;
+}
+
+message ExtractClozeForTypingRequest {
+  string text = 1;
+  uint32 ordinal = 2;
 }

@@ -4,6 +4,7 @@
 use super::Backend;
 use crate::card_rendering::extract_av_tags;
 use crate::card_rendering::strip_av_tags;
+use crate::cloze::extract_cloze_for_typing;
 use crate::latex::extract_latex;
 use crate::latex::extract_latex_expanding_clozes;
 use crate::latex::ExtractedLatex;
@@ -12,6 +13,7 @@ use crate::notetype::CardTemplateSchema11;
 use crate::notetype::RenderCardOutput;
 use crate::pb;
 pub(super) use crate::pb::card_rendering::cardrendering_service::Service as CardRenderingService;
+use crate::pb::card_rendering::ExtractClozeForTypingRequest;
 use crate::prelude::*;
 use crate::template::RenderedNode;
 use crate::text::decode_iri_paths;
@@ -163,6 +165,15 @@ impl CardRenderingService for Backend {
         input: pb::card_rendering::CompareAnswerRequest,
     ) -> Result<pb::generic::String> {
         Ok(compare_answer(&input.expected, &input.provided).into())
+    }
+
+    fn extract_cloze_for_typing(
+        &self,
+        input: ExtractClozeForTypingRequest,
+    ) -> Result<pb::generic::String> {
+        Ok(extract_cloze_for_typing(&input.text, input.ordinal as u16)
+            .to_string()
+            .into())
     }
 }
 
