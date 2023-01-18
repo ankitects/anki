@@ -15,7 +15,7 @@ workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }
 
 # /cargo/update.py needs to be run if updating the version below
 [dependencies.pyo3]
-version = "0.17.3"
+version = "0.18.0"
 features = ["extension-module", "abi3", "abi3-py39"]
 
 [lib]

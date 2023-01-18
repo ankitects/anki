@@ -10,7 +10,7 @@ rust-version.workspace = true
 
 [dependencies]
 anyhow = "1.0.68"
-apple-bundles = "0.15.0"
+apple-bundles = "0.17.0"
 camino = "1.1.2"
 clap = { version = "4.1.1", features = ["derive"] }
 glob = "0.3.1"
