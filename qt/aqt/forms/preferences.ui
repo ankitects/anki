@@ -432,7 +432,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>preferences_show_remaining_card_count_during_review</string>
+             <string>preferences_show_remaining_card_count</string>
             </property>
            </widget>
           </item>
@@ -657,7 +657,7 @@
        <item>
         <widget class="QGroupBox" name="groupBox_5">
          <property name="title">
-          <string>preferences_synchronisation</string>
+          <string>preferences_tab_synchronisation</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_12">
           <item>
@@ -1005,7 +1005,7 @@
           <item>
            <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>preferences_note_media_is_not_backed_up</string>
+             <string>preferences_media_is_not_backed_up</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
