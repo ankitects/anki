@@ -61,6 +61,7 @@ class ThemeManager:
     _icon_size = 128
     _dark_mode_available: bool | None = None
     _default_style: str | None = None
+    _current_widget_style: WidgetStyle | None = None
 
     def rtl(self) -> bool:
         return is_rtl(anki.lang.current_lang)
@@ -218,16 +219,19 @@ class ThemeManager:
                 return get_linux_dark_mode()
 
     def apply_style_if_system_style_changed(self) -> None:
-        theme = aqt.mw.pm.theme()
-        if theme != Theme.FOLLOW_SYSTEM:
-            return
-        if self._determine_night_mode() != self.night_mode:
-            self.apply_style()
+        self.apply_style()
 
     def apply_style(self) -> None:
         "Apply currently configured style."
         app = aqt.mw.app
-        self.night_mode = self._determine_night_mode()
+        new_theme = self._determine_night_mode()
+        theme_changed = self.night_mode != new_theme
+        new_style = aqt.mw.pm.get_widget_style()
+        style_changed = self._current_widget_style != new_style
+        if not theme_changed and not style_changed:
+            return
+        self.night_mode = new_theme
+        self._current_widget_style = new_style
         if not self._default_style:
             self._default_style = app.style().objectName()
         self._apply_palette(app)
