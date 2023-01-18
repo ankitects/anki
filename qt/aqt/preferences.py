@@ -13,7 +13,7 @@ from aqt import AnkiQt
 from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
 from aqt.qt import *
-from aqt.theme import AnkiStyles, Theme
+from aqt.theme import WidgetStyle, Theme
 from aqt.utils import HelpPage, disable_help_button, openHelp, showInfo, showWarning, tr
 
 
@@ -258,7 +258,7 @@ class Preferences(QDialog):
         qconnect(self.form.theme.currentIndexChanged, self.on_theme_changed)
 
         self.form.styleComboBox.addItems(
-            [member.name.lower().capitalize() for member in AnkiStyles]
+            [member.name.lower().capitalize() for member in WidgetStyle]
         )
         self.form.styleComboBox.setCurrentIndex(self.mw.pm.get_widget_style())
         qconnect(

@@ -4,7 +4,7 @@
 import aqt
 import aqt.main
 from aqt.qt import QDialog, qconnect
-from aqt.theme import AnkiStyles
+from aqt.theme import WidgetStyle
 from aqt.utils import restoreGeom, saveGeom
 
 
@@ -27,7 +27,7 @@ class WidgetGallery(QDialog):
         )
 
         self.form.styleComboBox.addItems(
-            [member.name.lower().capitalize() for member in AnkiStyles]
+            [member.name.lower().capitalize() for member in WidgetStyle]
         )
         self.form.styleComboBox.setCurrentIndex(self.mw.pm.get_widget_style())
         qconnect(

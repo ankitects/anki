@@ -23,7 +23,7 @@ from anki.sync import SyncAuth
 from anki.utils import int_time, is_mac, is_win, point_version
 from aqt import appHelpSite, gui_hooks
 from aqt.qt import *
-from aqt.theme import AnkiStyles, Theme, theme_manager
+from aqt.theme import WidgetStyle, Theme, theme_manager
 from aqt.toolbar import HideMode
 from aqt.utils import disable_help_button, send_to_trash, showWarning, tr
 
@@ -577,13 +577,13 @@ create table if not exists profiles
     def set_theme(self, theme: Theme) -> None:
         self.meta["theme"] = theme.value
 
-    def set_widget_style(self, style: AnkiStyles) -> None:
+    def set_widget_style(self, style: WidgetStyle) -> None:
         self.meta["widget_style"] = style
         theme_manager.apply_style()
 
-    def get_widget_style(self) -> AnkiStyles:
+    def get_widget_style(self) -> WidgetStyle:
         return self.meta.get(
-            "widget_style", AnkiStyles.NATIVE if is_mac else AnkiStyles.ANKI
+            "widget_style", WidgetStyle.NATIVE if is_mac else WidgetStyle.ANKI
         )
 
     def browser_layout(self) -> BrowserLayout:

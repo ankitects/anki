@@ -43,7 +43,7 @@ class ColoredIcon:
         return ColoredIcon(path=self.path, color=color)
 
 
-class AnkiStyles(enum.IntEnum):
+class WidgetStyle(enum.IntEnum):
     ANKI = 0
     NATIVE = 1
 
@@ -237,7 +237,7 @@ class ThemeManager:
     def _apply_style(self, app: QApplication) -> None:
         buf = ""
 
-        if aqt.mw.pm.get_widget_style() == AnkiStyles.ANKI:
+        if aqt.mw.pm.get_widget_style() == WidgetStyle.ANKI:
             from aqt.stylesheets import custom_styles
 
             app.setStyle(QStyleFactory.create("fusion"))  # type: ignore
