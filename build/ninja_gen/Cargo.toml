@@ -9,12 +9,12 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-camino = "1.1.1"
-globset = "0.4.9"
+camino = "1.1.2"
+globset = "0.4.10"
 itertools = "0.10.5"
 lazy_static = "1.4.0"
 maplit = "1.0.2"
-num_cpus = "1.14.0"
+num_cpus = "1.15.0"
 walkdir = "2.3.2"
 which = "4.3.0"
 workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }

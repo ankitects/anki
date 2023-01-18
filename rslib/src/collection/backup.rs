@@ -93,8 +93,8 @@ fn backup_inner<P: AsRef<Path>>(
 
 fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S, tr: &I18n) -> Result<()> {
     let out_path =
-        Path::new(&backup_folder).join(&format!("{}", Local::now().format(BACKUP_FORMAT_STRING)));
-    export_colpkg_from_data(&out_path, col_data, tr)
+        Path::new(&backup_folder).join(format!("{}", Local::now().format(BACKUP_FORMAT_STRING)));
+    export_colpkg_from_data(out_path, col_data, tr)
 }
 
 fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: BackupLimits) -> Result<()> {

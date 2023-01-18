@@ -49,7 +49,7 @@ impl SyncVersion {
 
     pub fn ensure_supported(&self) -> HttpResult<()> {
         if self.is_too_old() || self.is_too_new() {
-            None.or_bad_request(&format!("unsupported sync version: {}", self.0))?;
+            None.or_bad_request(format!("unsupported sync version: {}", self.0))?;
         }
         Ok(())
     }

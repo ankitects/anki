@@ -371,7 +371,7 @@ impl From<Deck> for DeckSchema11 {
                 } else {
                     Some(filt.delays.clone())
                 },
-                preview_delay: filt.preview_delay as u32,
+                preview_delay: filt.preview_delay,
                 common: deck.into(),
             }),
         }

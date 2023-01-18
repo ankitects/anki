@@ -9,15 +9,15 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-camino = "1.1.1"
+camino = "1.1.2"
 flate2 = "1.0.25"
 sha2 = { version = "0.10.6" }
 tar = "0.4.38"
-tokio = { version = "1.23.1", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.24.2", features = ["macros", "rt-multi-thread"] }
 workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }
 xz2 = "0.1.7"
 zip = "0.6.3"
-zstd = "0.12.0"
+zstd = "0.12.2"
 
 [features]
 rustls = ["reqwest/rustls-tls", "reqwest/rustls-tls-native-roots"]

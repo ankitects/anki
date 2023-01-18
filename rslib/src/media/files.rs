@@ -421,7 +421,7 @@ pub(crate) fn add_file_from_ankiweb(
 }
 
 pub(crate) fn data_for_file(media_folder: &Path, fname: &str) -> Result<Option<Vec<u8>>> {
-    let mut file = match open_file(&media_folder.join(fname)) {
+    let mut file = match open_file(media_folder.join(fname)) {
         Err(e) if e.is_not_found() => return Ok(None),
         res => res?,
     };
