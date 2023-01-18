@@ -14,7 +14,15 @@ from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
 from aqt.qt import *
 from aqt.theme import Theme
-from aqt.utils import HelpPage, disable_help_button, is_win, openHelp, showInfo, showWarning, tr
+from aqt.utils import (
+    HelpPage,
+    disable_help_button,
+    is_win,
+    openHelp,
+    showInfo,
+    showWarning,
+    tr,
+)
 
 
 class Preferences(QDialog):
@@ -257,9 +265,7 @@ class Preferences(QDialog):
         self.form.theme.setCurrentIndex(self.mw.pm.theme().value)
         qconnect(self.form.theme.currentIndexChanged, self.on_theme_changed)
 
-        self.form.styleComboBox.addItems(
-            ["Anki"] + (["Native"] if not is_win else [])
-        )
+        self.form.styleComboBox.addItems(["Anki"] + (["Native"] if not is_win else []))
         self.form.styleComboBox.setCurrentIndex(self.mw.pm.get_widget_style())
         qconnect(
             self.form.styleComboBox.currentIndexChanged,
