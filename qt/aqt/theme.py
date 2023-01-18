@@ -252,13 +252,11 @@ class ThemeManager:
                     custom_styles.tabwidget(self),
                     custom_styles.table(self),
                     custom_styles.spinbox(self),
+                    custom_styles.scrollbar(self),
                     custom_styles.slider(self),
                     custom_styles.splitter(self),
                 ]
             )
-
-            if not is_mac:
-                buf += custom_styles.scrollbar(self)
 
         else:
             app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
