@@ -325,7 +325,6 @@ class Reviewer:
         self.web.allow_drops = True
         self.web.eval("_blockDefaultDragDropBehavior();")
         # show answer / ease buttons
-        self.bottom.web.show()
         self.bottom.web.stdHtml(
             self._bottomHTML(),
             css=["css/toolbar-bottom.css", "css/reviewer-bottom.css"],
@@ -706,7 +705,6 @@ time = %(time)d;
         else:
             maxTime = 0
         self.bottom.web.eval("showQuestion(%s,%d);" % (json.dumps(middle), maxTime))
-        self.bottom.web.adjustHeightToFit()
 
     def _showEaseButtons(self) -> None:
         middle = self._answerButtons()

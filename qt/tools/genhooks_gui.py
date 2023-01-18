@@ -613,6 +613,10 @@ hooks = [
         name="theme_did_change",
         doc="Called after night mode is toggled.",
     ),
+    Hook(
+        name="body_classes_need_update",
+        doc="Called when a setting involving a webview body class is toggled.",
+    ),
     # Webview
     ###################
     Hook(

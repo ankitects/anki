@@ -66,7 +66,7 @@ from aqt.qt import sip
 from aqt.sync import sync_collection, sync_login
 from aqt.taskman import TaskManager
 from aqt.theme import Theme, theme_manager
-from aqt.toolbar import Toolbar, ToolbarWebView
+from aqt.toolbar import BottomWebView, Toolbar, TopWebView
 from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
@@ -150,18 +150,17 @@ class MainWebView(AnkiWebView):
             return handled
 
         if evt.type() == QEvent.Type.Leave:
-            if self.mw.pm.collapse_toolbar():
-                # Expand toolbar when mouse moves above main webview
-                # and automatically collapse it with delay after mouse leaves
-                if self.mapFromGlobal(QCursor.pos()).y() < self.geometry().y():
-                    if self.mw.toolbarWeb.collapsed:
-                        self.mw.toolbarWeb.expand()
+            # Show toolbar when mouse moves outside main webview
+            # and automatically hide it with delay after mouse has entered again
+            if self.mw.pm.hide_top_bar() or self.mw.pm.hide_bottom_bar():
+                self.mw.toolbarWeb.show()
+                self.mw.bottomWeb.show()
                 return True
 
         if evt.type() == QEvent.Type.Enter:
-            if self.mw.pm.collapse_toolbar():
-                self.mw.toolbarWeb.hide_timer.start()
-                return True
+            self.mw.toolbarWeb.hide_timer.start()
+            self.mw.bottomWeb.hide_timer.start()
+            return True
 
         return False
 
@@ -170,7 +169,7 @@ class AnkiQt(QMainWindow):
     col: Collection
     pm: ProfileManagerType
     web: MainWebView
-    bottomWeb: AnkiWebView
+    bottomWeb: BottomWebView
 
     def __init__(
         self,
@@ -190,6 +189,7 @@ class AnkiQt(QMainWindow):
         aqt.mw = self
         self.app = app
         self.pm = profileManager
+        self.fullscreen = False
         # init rest of app
         self.safeMode = (
             bool(self.app.queryKeyboardModifiers() & Qt.KeyboardModifier.ShiftModifier)
@@ -709,7 +709,7 @@ class AnkiQt(QMainWindow):
         gui_hooks.state_will_change(state, oldState)
         getattr(self, f"_{state}State", lambda *_: None)(oldState, *args)
         if state != "resetRequired":
-            self.bottomWeb.show()
+            self.bottomWeb.adjustHeightToFit()
         gui_hooks.state_did_change(state, oldState)
 
     def _deckBrowserState(self, oldState: MainWindowState) -> None:
@@ -729,16 +729,23 @@ class AnkiQt(QMainWindow):
 
     def _reviewState(self, oldState: MainWindowState) -> None:
         self.reviewer.show()
-        if self.pm.collapse_toolbar():
-            self.toolbarWeb.collapse()
+
+        if self.pm.hide_top_bar():
+            self.toolbarWeb.hide_timer.setInterval(500)
+            self.toolbarWeb.hide_timer.start()
         else:
             self.toolbarWeb.flatten()
+
+        if self.pm.hide_bottom_bar():
+            self.bottomWeb.hide_timer.setInterval(500)
+            self.bottomWeb.hide_timer.start()
 
     def _reviewCleanup(self, newState: MainWindowState) -> None:
         if newState != "resetRequired" and newState != "review":
             self.reviewer.cleanup()
             self.toolbarWeb.elevate()
-            self.toolbarWeb.expand()
+            self.toolbarWeb.show()
+            self.bottomWeb.show()
 
     # Resetting state
     ##########################################################################
@@ -872,12 +879,12 @@ title="{}" {}>{}</button>""".format(
         self.form = aqt.forms.main.Ui_MainWindow()
         self.form.setupUi(self)
         # toolbar
-        tweb = self.toolbarWeb = ToolbarWebView(self, title="top toolbar")
+        tweb = self.toolbarWeb = TopWebView(self, title="top toolbar")
         self.toolbar = Toolbar(self, tweb)
         # main area
         self.web = MainWebView(self)
         # bottom area
-        sweb = self.bottomWeb = AnkiWebView(title="bottom toolbar")
+        sweb = self.bottomWeb = BottomWebView(self, title="bottom toolbar")
         sweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         sweb.disable_zoom()
         # add in a layout
@@ -1068,12 +1075,12 @@ title="{}" {}>{}</button>""".format(
         if is_lin:
             # On Linux, the check requires invoking an external binary,
             # which we don't want to be doing frequently
-            interval_secs = 300
-        else:
             interval_secs = 5
+        else:
+            interval_secs = 2
         self.progress.timer(
             interval_secs * 1000,
-            theme_manager.apply_style_if_system_style_changed,
+            theme_manager.apply_style,
             True,
             False,
             parent=self,
@@ -1358,9 +1365,24 @@ title="{}" {}>{}</button>""".format(
                 window.windowState() ^ Qt.WindowState.WindowFullScreen
             )
 
-    def collapse_toolbar_if_allowed(self) -> None:
-        if self.pm.collapse_toolbar() and self.state == "review":
-            self.toolbarWeb.collapse()
+        # Hide Menubar on Windows and Linux
+        if window.windowState() & Qt.WindowState.WindowFullScreen and not is_mac:
+            self.fullscreen = True
+            self.hide_menubar()
+        else:
+            self.fullscreen = False
+            self.show_menubar()
+
+        # Update Toolbar states
+        self.toolbarWeb.hide_if_allowed()
+        self.bottomWeb.hide_if_allowed()
+
+    def hide_menubar(self) -> None:
+        self.form.menubar.setFixedHeight(0)
+
+    def show_menubar(self) -> None:
+        self.form.menubar.setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX)
+        self.form.menubar.setMinimumSize(0, 0)
 
     # Auto update
     ##########################################################################
@@ -1633,6 +1655,8 @@ title="{}" {}>{}</button>""".format(
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), d)
         qconnect(s.activated, frm.text.clear)
 
+        qconnect(frm.widgetsButton.clicked, self._on_widgetGallery)
+
         def addContextMenu(
             ev: Union[QCloseEvent, QContextMenuEvent], name: str
         ) -> None:
@@ -1653,6 +1677,12 @@ title="{}" {}>{}</button>""".format(
         frm.text.contextMenuEvent = lambda ev: addContextMenu(ev, "text")  # type: ignore[assignment]
         gui_hooks.debug_console_will_show(d)
         d.show()
+
+    def _on_widgetGallery(self) -> None:
+        from aqt.widgetgallery import WidgetGallery
+
+        self.widgetGallery = WidgetGallery(self)
+        self.widgetGallery.show()
 
     def _captureOutput(self, on: bool) -> None:
         mw2 = self

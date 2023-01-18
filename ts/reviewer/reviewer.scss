@@ -11,8 +11,9 @@ body {
     margin: 20px;
     overflow-wrap: break-word;
     // default background setting to fit with toolbar
-    background-size: 100vw;
+    background-size: cover;
     background-repeat: no-repeat;
+    background-position: top;
     background-attachment: fixed;
 }
 
