@@ -22,11 +22,8 @@ use bundle::artifacts::BuildArtifactsArgs;
 use bundle::binary::build_bundle_binary;
 use bundle::folder::build_dist_folder;
 use bundle::folder::BuildDistFolderArgs;
-// use bundle::{build_bundle_binary, build_dist_folder, BuildDistFolderArgs};
-use clap::{
-    Parser,
-    Subcommand,
-};
+use clap::Parser;
+use clap::Subcommand;
 use pyenv::setup_pyenv;
 use pyenv::PyenvArgs;
 use rsync::rsync_files;

@@ -10,7 +10,6 @@ use std::path::PathBuf;
 use zip::read::ZipFile;
 use zip::ZipArchive;
 use zstd::stream::copy_decode;
-use zstd::{self,};
 
 use crate::collection::CollectionBuilder;
 use crate::error::FileIoSnafu;

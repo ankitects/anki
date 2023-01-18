@@ -11,7 +11,6 @@ use serde_tuple::Serialize_tuple;
 use unicode_normalization::is_nfc;
 use zip::write::FileOptions;
 use zip::ZipWriter;
-use zip::{self,};
 
 use crate::media::files::sha1_of_data;
 use crate::prelude::*;
