@@ -99,6 +99,11 @@ class CustomStyles:
         margin: 0 2px;
         left: 15px;
     }}
+    QGroupBox#preview_box::title,
+    QGroupBox#template_box::title {{
+        margin-top: 5px;
+        left: 5px;
+    }}
         """
 
     def menu(self, tm: ThemeManager) -> str:
