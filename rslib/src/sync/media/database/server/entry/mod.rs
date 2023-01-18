@@ -3,13 +3,15 @@
 
 use std::mem;
 
-use rusqlite::{params, OptionalExtension, Row};
+use rusqlite::params;
+use rusqlite::OptionalExtension;
+use rusqlite::Row;
 
-use crate::{
-    error,
-    prelude::{TimestampSecs, Usn},
-    sync::media::database::server::{meta::StoreMetadata, ServerMediaDatabase},
-};
+use crate::error;
+use crate::prelude::TimestampSecs;
+use crate::prelude::Usn;
+use crate::sync::media::database::server::meta::StoreMetadata;
+use crate::sync::media::database::server::ServerMediaDatabase;
 
 pub mod changes;
 mod download;
@@ -30,8 +32,9 @@ impl ServerMediaDatabase {
             .map_err(Into::into)
     }
 
-    /// Saves entry to the DB, overwriting any existing entry. Does no validation on its own;
-    /// caller is responsible for mutating meta (which will update mtime as well).
+    /// Saves entry to the DB, overwriting any existing entry. Does no
+    /// validation on its own; caller is responsible for mutating meta
+    /// (which will update mtime as well).
     pub fn set_entry(&mut self, entry: &mut MediaEntry) -> error::Result<()> {
         self.db
             .prepare_cached(include_str!("set_entry.sql"))?

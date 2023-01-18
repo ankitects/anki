@@ -3,26 +3,27 @@
 
 pub(crate) mod undo;
 
-use std::{
-    borrow::Cow,
-    collections::{HashMap, HashSet},
-};
+use std::borrow::Cow;
+use std::collections::HashMap;
+use std::collections::HashSet;
 
 use itertools::Itertools;
 use num_integer::Integer;
-use sha1::{Digest, Sha1};
+use sha1::Digest;
+use sha1::Sha1;
 
-use crate::{
-    cloze::contains_cloze,
-    define_newtype,
-    notetype::{CardGenContext, NoteField},
-    ops::StateChanges,
-    pb,
-    pb::notes::note_fields_check_response::State as NoteFieldsState,
-    prelude::*,
-    template::field_is_empty,
-    text::{ensure_string_in_nfc, normalize_to_nfc, strip_html_preserving_media_filenames},
-};
+use crate::cloze::contains_cloze;
+use crate::define_newtype;
+use crate::notetype::CardGenContext;
+use crate::notetype::NoteField;
+use crate::ops::StateChanges;
+use crate::pb;
+use crate::pb::notes::note_fields_check_response::State as NoteFieldsState;
+use crate::prelude::*;
+use crate::template::field_is_empty;
+use crate::text::ensure_string_in_nfc;
+use crate::text::normalize_to_nfc;
+use crate::text::strip_html_preserving_media_filenames;
 
 define_newtype!(NoteId, i64);
 
@@ -628,11 +629,14 @@ fn note_differs_from_db(existing_note: &mut Note, note: &mut Note) -> bool {
 
 #[cfg(test)]
 mod test {
-    use super::{anki_base91, field_checksum};
-    use crate::{
-        collection::open_test_collection, config::BoolKey, decks::DeckId, error::Result,
-        prelude::*, search::SortMode,
-    };
+    use super::anki_base91;
+    use super::field_checksum;
+    use crate::collection::open_test_collection;
+    use crate::config::BoolKey;
+    use crate::decks::DeckId;
+    use crate::error::Result;
+    use crate::prelude::*;
+    use crate::search::SortMode;
 
     #[test]
     fn test_base91() {

@@ -1,15 +1,19 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashMap, io, io::Read, path::Path};
+use std::collections::HashMap;
+use std::io;
+use std::io::Read;
+use std::path::Path;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::{
-    error,
-    error::{AnkiError, SyncErrorKind},
-    media::files::{add_file_from_ankiweb, AddedFile},
-};
+use crate::error;
+use crate::error::AnkiError;
+use crate::error::SyncErrorKind;
+use crate::media::files::add_file_from_ankiweb;
+use crate::media::files::AddedFile;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DownloadFilesRequest {

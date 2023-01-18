@@ -3,13 +3,19 @@
 
 use std::borrow::Cow;
 
-use ascii_percent_encoding::{percent_decode_str, utf8_percent_encode, AsciiSet, CONTROLS};
+use ascii_percent_encoding::percent_decode_str;
+use ascii_percent_encoding::utf8_percent_encode;
+use ascii_percent_encoding::AsciiSet;
+use ascii_percent_encoding::CONTROLS;
 use lazy_static::lazy_static;
-use regex::{Captures, Regex};
+use regex::Captures;
+use regex::Regex;
 use unicase::eq as uni_eq;
-use unicode_normalization::{
-    char::is_combining_mark, is_nfc, is_nfkd_quick, IsNormalized, UnicodeNormalization,
-};
+use unicode_normalization::char::is_combining_mark;
+use unicode_normalization::is_nfc;
+use unicode_normalization::is_nfkd_quick;
+use unicode_normalization::IsNormalized;
+use unicode_normalization::UnicodeNormalization;
 
 pub trait Trimming {
     fn trim(self) -> Self;

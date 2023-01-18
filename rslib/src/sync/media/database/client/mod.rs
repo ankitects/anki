@@ -1,16 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashMap, path::Path};
+use std::collections::HashMap;
+use std::path::Path;
 
-use rusqlite::{params, Connection, OptionalExtension, Row};
+use rusqlite::params;
+use rusqlite::Connection;
+use rusqlite::OptionalExtension;
+use rusqlite::Row;
 use tracing::debug;
 
-use crate::{
-    error,
-    media::{files::AddedFile, Sha1Hash},
-    prelude::{Usn, *},
-};
+use crate::error;
+use crate::media::files::AddedFile;
+use crate::media::Sha1Hash;
+use crate::prelude::Usn;
+use crate::prelude::*;
 
 pub mod changetracker;
 
@@ -319,12 +323,11 @@ fn initial_db_setup(db: &mut Connection) -> error::Result<()> {
 mod test {
     use tempfile::TempDir;
 
-    use crate::{
-        error::Result,
-        io::new_tempfile,
-        media::{files::sha1_of_data, MediaManager},
-        sync::media::database::client::MediaEntry,
-    };
+    use crate::error::Result;
+    use crate::io::new_tempfile;
+    use crate::media::files::sha1_of_data;
+    use crate::media::MediaManager;
+    use crate::sync::media::database::client::MediaEntry;
 
     #[test]
     fn database() -> Result<()> {

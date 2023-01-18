@@ -3,7 +3,9 @@
 
 use std::str::FromStr;
 
-use crate::{browser_table, i18n::I18n, pb};
+use crate::browser_table;
+use crate::i18n::I18n;
+use crate::pb;
 
 impl browser_table::Column {
     pub fn to_pb_column(self, i18n: &I18n) -> pb::search::browser_columns::Column {

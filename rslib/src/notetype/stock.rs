@@ -2,15 +2,14 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::NotetypeConfig;
-use crate::{
-    config::{ConfigEntry, ConfigKey},
-    error::Result,
-    i18n::I18n,
-    notetype::Notetype,
-    pb::notetypes::stock_notetype::Kind,
-    storage::SqliteStorage,
-    timestamp::TimestampSecs,
-};
+use crate::config::ConfigEntry;
+use crate::config::ConfigKey;
+use crate::error::Result;
+use crate::i18n::I18n;
+use crate::notetype::Notetype;
+use crate::pb::notetypes::stock_notetype::Kind;
+use crate::storage::SqliteStorage;
+use crate::timestamp::TimestampSecs;
 
 impl SqliteStorage {
     pub(crate) fn add_stock_notetypes(&self, tr: &I18n) -> Result<()> {

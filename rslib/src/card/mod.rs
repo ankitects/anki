@@ -3,24 +3,27 @@
 
 pub(crate) mod undo;
 
-use std::collections::{hash_map::Entry, HashMap, HashSet};
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
+use std::collections::HashSet;
 
 use num_enum::TryFromPrimitive;
-use serde_repr::{Deserialize_repr, Serialize_repr};
+use serde_repr::Deserialize_repr;
+use serde_repr::Serialize_repr;
 
-use crate::{
-    collection::Collection,
-    config::SchedulerVersion,
-    deckconfig::DeckConfig,
-    decks::DeckId,
-    define_newtype,
-    error::{AnkiError, FilteredDeckError, Result},
-    notes::NoteId,
-    ops::StateChanges,
-    prelude::*,
-    timestamp::TimestampSecs,
-    types::Usn,
-};
+use crate::collection::Collection;
+use crate::config::SchedulerVersion;
+use crate::deckconfig::DeckConfig;
+use crate::decks::DeckId;
+use crate::define_newtype;
+use crate::error::AnkiError;
+use crate::error::FilteredDeckError;
+use crate::error::Result;
+use crate::notes::NoteId;
+use crate::ops::StateChanges;
+use crate::prelude::*;
+use crate::timestamp::TimestampSecs;
+use crate::types::Usn;
 
 define_newtype!(CardId, i64);
 
@@ -79,7 +82,8 @@ pub struct Card {
     pub(crate) flags: u8,
     /// The position in the new queue before leaving it.
     pub(crate) original_position: Option<u32>,
-    /// JSON object or empty; exposed through the reviewer for persisting custom state
+    /// JSON object or empty; exposed through the reviewer for persisting custom
+    /// state
     pub(crate) custom_data: String,
 }
 
@@ -159,9 +163,10 @@ impl Card {
         }
     }
 
-    /// Remaining steps after configured steps have changed, disregarding "remaining today".
-    /// [None] if same as before. A step counts as remaining if the card has not passed a step
-    /// with the same or a greater delay, but output will be at least 1.
+    /// Remaining steps after configured steps have changed, disregarding
+    /// "remaining today". [None] if same as before. A step counts as
+    /// remaining if the card has not passed a step with the same or a
+    /// greater delay, but output will be at least 1.
     fn new_remaining_steps(&self, new_steps: &[f32], old_steps: &[f32]) -> Option<u32> {
         let remaining = self.remaining_steps();
         let new_remaining = old_steps
@@ -387,10 +392,9 @@ impl<'a> RemainingStepsAdjuster<'a> {
 
 #[cfg(test)]
 mod test {
-    use crate::tests::{
-        open_test_collection_with_learning_card, open_test_collection_with_relearning_card,
-        DeckAdder,
-    };
+    use crate::tests::open_test_collection_with_learning_card;
+    use crate::tests::open_test_collection_with_relearning_card;
+    use crate::tests::DeckAdder;
 
     #[test]
     fn should_increase_remaining_learning_steps_if_new_deck_has_more_unpassed_ones() {

@@ -1,15 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, collections::HashMap};
+use std::borrow::Cow;
+use std::collections::HashMap;
 
 use super::*;
-use crate::{
-    action::BuildAction,
-    archives::{download_and_extract, OnlineArchive, Platform},
-    hash::simple_hash,
-    input::{space_separated, BuildInput},
-};
+use crate::action::BuildAction;
+use crate::archives::download_and_extract;
+use crate::archives::OnlineArchive;
+use crate::archives::Platform;
+use crate::hash::simple_hash;
+use crate::input::space_separated;
+use crate::input::BuildInput;
 
 pub fn node_archive(platform: Platform) -> OnlineArchive {
     match platform {

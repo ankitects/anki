@@ -3,16 +3,16 @@
 
 use std::borrow::Cow;
 
-use difflib::sequencematcher::{Opcode, SequenceMatcher};
+use difflib::sequencematcher::Opcode;
+use difflib::sequencematcher::SequenceMatcher;
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use regex::Regex;
 use unic_ucd_category::GeneralCategory;
 
-use crate::{
-    card_rendering::strip_av_tags,
-    text::{normalize_to_nfc, strip_html},
-};
+use crate::card_rendering::strip_av_tags;
+use crate::text::normalize_to_nfc;
+use crate::text::strip_html;
 
 lazy_static! {
     static ref LINEBREAKS: Regex = Regex::new(

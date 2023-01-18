@@ -1,19 +1,23 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, collections::HashSet, fmt::Write};
+use std::borrow::Cow;
+use std::collections::HashSet;
+use std::fmt::Write;
 
 use htmlescape::encode_attribute;
 use lazy_static::lazy_static;
-use nom::{
-    branch::alt,
-    bytes::complete::{tag, take_while},
-    combinator::map,
-    IResult,
-};
-use regex::{Captures, Regex};
+use nom::branch::alt;
+use nom::bytes::complete::tag;
+use nom::bytes::complete::take_while;
+use nom::combinator::map;
+use nom::IResult;
+use regex::Captures;
+use regex::Regex;
 
-use crate::{latex::contains_latex, template::RenderContext, text::strip_html_preserving_entities};
+use crate::latex::contains_latex;
+use crate::template::RenderContext;
+use crate::text::strip_html_preserving_entities;
 
 lazy_static! {
     static ref MATHJAX: Regex = Regex::new(

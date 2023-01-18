@@ -9,14 +9,20 @@ pub(crate) mod undo;
 
 use std::collections::VecDeque;
 
-pub(crate) use builder::{DueCard, DueCardKind, NewCard};
-pub(crate) use entry::{QueueEntry, QueueEntryKind};
+pub(crate) use builder::DueCard;
+pub(crate) use builder::DueCardKind;
+pub(crate) use builder::NewCard;
+pub(crate) use entry::QueueEntry;
+pub(crate) use entry::QueueEntryKind;
 pub(crate) use learning::LearningQueueEntry;
-pub(crate) use main::{MainQueueEntry, MainQueueEntryKind};
+pub(crate) use main::MainQueueEntry;
+pub(crate) use main::MainQueueEntryKind;
 
 use self::undo::QueueUpdate;
-use super::{states::SchedulingStates, timing::SchedTimingToday};
-use crate::{prelude::*, timestamp::TimestampSecs};
+use super::states::SchedulingStates;
+use super::timing::SchedTimingToday;
+use crate::prelude::*;
+use crate::timestamp::TimestampSecs;
 
 #[derive(Debug)]
 pub(crate) struct CardQueues {
@@ -215,8 +221,8 @@ impl Collection {
         Ok(self.state.card_queues.as_mut().unwrap())
     }
 
-    // Returns queues if they are valid and have not been rebuilt. If build time has changed,
-    // they are cleared.
+    // Returns queues if they are valid and have not been rebuilt. If build time has
+    // changed, they are cleared.
     pub(crate) fn get_or_invalidate_queues(
         &mut self,
         build_time: TimestampMillis,

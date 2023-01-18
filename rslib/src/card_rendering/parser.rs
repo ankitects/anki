@@ -3,16 +3,30 @@
 
 use std::collections::HashMap;
 
-use nom::{
-    branch::alt,
-    bytes::complete::{is_not, tag},
-    character::complete::{anychar, multispace0},
-    combinator::{map, not, recognize, success, value},
-    multi::{many0, many1},
-    sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
-};
+use nom::branch::alt;
+use nom::bytes::complete::is_not;
+use nom::bytes::complete::tag;
+use nom::character::complete::anychar;
+use nom::character::complete::multispace0;
+use nom::combinator::map;
+use nom::combinator::not;
+use nom::combinator::recognize;
+use nom::combinator::success;
+use nom::combinator::value;
+use nom::multi::many0;
+use nom::multi::many1;
+use nom::sequence::delimited;
+use nom::sequence::pair;
+use nom::sequence::preceded;
+use nom::sequence::separated_pair;
+use nom::sequence::terminated;
+use nom::sequence::tuple;
 
-use super::{CardNodes, Directive, Node, OtherDirective, TtsDirective};
+use super::CardNodes;
+use super::Directive;
+use super::Node;
+use super::OtherDirective;
+use super::TtsDirective;
 
 type IResult<'a, O> = nom::IResult<&'a str, O>;
 
@@ -87,7 +101,8 @@ fn node(s: &str) -> IResult<Node> {
     alt((text_node, sound_node, tag_node))(s)
 }
 
-/// A sound tag `[sound:resource]`, where `resource` is pointing to a sound or video file.
+/// A sound tag `[sound:resource]`, where `resource` is pointing to a sound or
+/// video file.
 fn sound_node(s: &str) -> IResult<Node> {
     map(
         delimited(tag("[sound:"), is_not("]"), tag("]")),
@@ -106,7 +121,8 @@ fn tag_node(s: &str) -> IResult<Node> {
     fn opening_parser<'name, 's: 'name>(
         name: &'name str,
     ) -> impl FnMut(&'s str) -> IResult<Vec<(&str, &str)>> + 'name {
-        /// List of whitespace-separated `key=val` tuples, where `val` may be empty.
+        /// List of whitespace-separated `key=val` tuples, where `val` may be
+        /// empty.
         fn options(s: &str) -> IResult<Vec<(&str, &str)>> {
             fn key(s: &str) -> IResult<&str> {
                 is_not("] \t\r\n=")(s)
@@ -136,7 +152,8 @@ fn tag_node(s: &str) -> IResult<Node> {
         value((), tuple((tag("[/anki:"), tag(name), tag("]"))))
     }
 
-    /// Return a parser to match and return anything until a closing `name` tag is found.
+    /// Return a parser to match and return anything until a closing `name` tag
+    /// is found.
     fn content_parser<'parser, 'name: 'parser, 's: 'parser>(
         name: &'name str,
     ) -> impl FnMut(&'s str) -> IResult<&str> + 'parser {

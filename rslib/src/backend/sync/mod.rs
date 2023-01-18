@@ -3,27 +3,29 @@
 
 use std::sync::Arc;
 
-use futures::future::{AbortHandle, AbortRegistration, Abortable};
+use futures::future::AbortHandle;
+use futures::future::AbortRegistration;
+use futures::future::Abortable;
 use pb::sync::sync_status_response::Required;
 use reqwest::Url;
 use tracing::warn;
 
-use super::{progress::AbortHandleSlot, Backend};
+use super::progress::AbortHandleSlot;
+use super::Backend;
+use crate::pb;
 pub(super) use crate::pb::sync::sync_service::Service as SyncService;
-use crate::{
-    pb,
-    pb::sync::SyncStatusResponse,
-    prelude::*,
-    sync::{
-        collection::{
-            normal::{ClientSyncState, NormalSyncProgress, SyncActionRequired, SyncOutput},
-            progress::{sync_abort, FullSyncProgress},
-            status::online_sync_status_check,
-        },
-        http_client::HttpSyncClient,
-        login::{sync_login, SyncAuth},
-    },
-};
+use crate::pb::sync::SyncStatusResponse;
+use crate::prelude::*;
+use crate::sync::collection::normal::ClientSyncState;
+use crate::sync::collection::normal::NormalSyncProgress;
+use crate::sync::collection::normal::SyncActionRequired;
+use crate::sync::collection::normal::SyncOutput;
+use crate::sync::collection::progress::sync_abort;
+use crate::sync::collection::progress::FullSyncProgress;
+use crate::sync::collection::status::online_sync_status_check;
+use crate::sync::http_client::HttpSyncClient;
+use crate::sync::login::sync_login;
+use crate::sync::login::SyncAuth;
 
 #[derive(Default)]
 pub(super) struct SyncState {
@@ -264,8 +266,9 @@ impl Backend {
         let state = rt.block_on(online_sync_status_check(local, &mut client))?;
         {
             let mut guard = self.state.lock().unwrap();
-            // On startup, the sync status check will block on network access, and then automatic syncing begins,
-            // taking hold of the mutex. By the time we reach here, our network status may be out of date,
+            // On startup, the sync status check will block on network access, and then
+            // automatic syncing begins, taking hold of the mutex. By the time
+            // we reach here, our network status may be out of date,
             // so we discard it if stale.
             if guard.sync.remote_sync_status.last_check < time_at_check_begin {
                 guard.sync.remote_sync_status.last_check = time_at_check_begin;

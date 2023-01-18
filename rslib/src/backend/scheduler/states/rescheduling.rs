@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{pb, scheduler::states::ReschedulingFilterState};
+use crate::pb;
+use crate::scheduler::states::ReschedulingFilterState;
 
 impl From<pb::scheduler::scheduling_state::ReschedulingFilter> for ReschedulingFilterState {
     fn from(state: pb::scheduler::scheduling_state::ReschedulingFilter) -> Self {

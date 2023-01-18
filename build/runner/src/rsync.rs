@@ -6,7 +6,8 @@ use std::process::Command;
 use camino::Utf8Path;
 use clap::Args;
 
-use crate::{paths::absolute_msys_path, run::run_silent};
+use crate::paths::absolute_msys_path;
+use crate::run::run_silent;
 
 #[derive(Args)]
 pub struct RsyncArgs {

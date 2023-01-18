@@ -11,13 +11,12 @@ mod intervals;
 mod reviews;
 mod today;
 
-use crate::{
-    config::{BoolKey, Weekday},
-    pb,
-    prelude::*,
-    revlog::RevlogEntry,
-    search::SortMode,
-};
+use crate::config::BoolKey;
+use crate::config::Weekday;
+use crate::pb;
+use crate::prelude::*;
+use crate::revlog::RevlogEntry;
+use crate::search::SortMode;
 
 struct GraphsContext {
     revlog: Vec<RevlogEntry>,

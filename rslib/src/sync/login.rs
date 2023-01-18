@@ -2,14 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use reqwest::Url;
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
 
-use crate::{
-    prelude::*,
-    sync::{
-        collection::protocol::SyncProtocol, http_client::HttpSyncClient, request::IntoSyncRequest,
-    },
-};
+use crate::prelude::*;
+use crate::sync::collection::protocol::SyncProtocol;
+use crate::sync::http_client::HttpSyncClient;
+use crate::sync::request::IntoSyncRequest;
 
 #[derive(Clone, Default)]
 pub struct SyncAuth {

@@ -1,10 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{any, fmt};
+use std::any;
+use std::fmt;
 
-use convert_case::{Case, Casing};
-use snafu::{Backtrace, OptionExt, Snafu};
+use convert_case::Case;
+use convert_case::Casing;
+use snafu::Backtrace;
+use snafu::OptionExt;
+use snafu::Snafu;
 
 use crate::prelude::*;
 

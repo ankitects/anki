@@ -3,7 +3,8 @@
 
 use std::collections::HashMap;
 
-use crate::{pb, prelude::*};
+use crate::pb;
+use crate::prelude::*;
 
 mod parser;
 mod writer;
@@ -92,7 +93,8 @@ pub fn anki_directive_benchmark() {
 mod test {
     use super::*;
 
-    /// Strip av tags and assert equality with input or separately passed output.
+    /// Strip av tags and assert equality with input or separately passed
+    /// output.
     macro_rules! assert_av_stripped {
         ($input:expr) => {
             assert_eq!($input, strip_av_tags($input));

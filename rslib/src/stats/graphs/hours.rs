@@ -1,11 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{
-    pb::stats::graphs_response::{hours::Hour, Hours},
-    revlog::RevlogReviewKind,
-    stats::graphs::GraphsContext,
-};
+use crate::pb::stats::graphs_response::hours::Hour;
+use crate::pb::stats::graphs_response::Hours;
+use crate::revlog::RevlogReviewKind;
+use crate::stats::graphs::GraphsContext;
 
 impl GraphsContext {
     pub(super) fn hours(&self) -> Hours {

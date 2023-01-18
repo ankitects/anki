@@ -1,10 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{
-    interval_kind::IntervalKind, CardState, LearnState, RelearnState, SchedulingStates,
-    StateContext,
-};
+use super::interval_kind::IntervalKind;
+use super::CardState;
+use super::LearnState;
+use super::RelearnState;
+use super::SchedulingStates;
+use super::StateContext;
 use crate::revlog::RevlogReviewKind;
 
 pub const INITIAL_EASE_FACTOR: f32 = 2.5;
@@ -122,7 +124,8 @@ impl ReviewState {
         }
     }
 
-    /// Return the intervals for hard, good and easy, each of which depends on the previous.
+    /// Return the intervals for hard, good and easy, each of which depends on
+    /// the previous.
     fn passing_review_intervals(self, ctx: &StateContext) -> (u32, u32, u32) {
         if self.days_late() < 0 {
             self.passing_early_review_intervals(ctx)
@@ -159,10 +162,10 @@ impl ReviewState {
         (hard_interval, good_interval, easy_interval)
     }
 
-    /// Mostly direct port from the Python version for now, so we can confirm implementation
-    /// is correct.
-    /// FIXME: this needs reworking in the future; it overly penalizes reviews done
-    /// shortly before the due date.
+    /// Mostly direct port from the Python version for now, so we can confirm
+    /// implementation is correct.
+    /// FIXME: this needs reworking in the future; it overly penalizes reviews
+    /// done shortly before the due date.
     fn passing_early_review_intervals(self, ctx: &StateContext) -> (u32, u32, u32) {
         let scheduled = self.scheduled_days as f32;
         let elapsed = (self.scheduled_days as f32) + (self.days_late() as f32);
@@ -258,7 +261,8 @@ mod test {
     #[test]
     fn extreme_multiplier_fuzz() {
         let mut ctx = StateContext::defaults_for_testing();
-        // our calculations should work correctly with a low ease or non-default multiplier
+        // our calculations should work correctly with a low ease or non-default
+        // multiplier
         let state = ReviewState {
             scheduled_days: 1,
             elapsed_days: 1,

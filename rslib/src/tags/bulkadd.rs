@@ -7,8 +7,10 @@ use std::collections::HashSet;
 
 use unicase::UniCase;
 
-use super::{join_tags, split_tags};
-use crate::{notes::NoteTags, prelude::*};
+use super::join_tags;
+use super::split_tags;
+use crate::notes::NoteTags;
+use crate::prelude::*;
 
 impl Collection {
     pub fn add_tags_to_notes(&mut self, nids: &[NoteId], tags: &str) -> Result<OpOutput<usize>> {

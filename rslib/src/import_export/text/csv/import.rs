@@ -1,19 +1,23 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::io::{BufRead, BufReader, Read, Seek, SeekFrom};
+use std::io::BufRead;
+use std::io::BufReader;
+use std::io::Read;
+use std::io::Seek;
+use std::io::SeekFrom;
 
-use crate::{
-    import_export::{
-        text::{
-            csv::metadata::{CsvDeck, CsvMetadata, CsvNotetype, Delimiter},
-            ForeignData, ForeignNote, NameOrId,
-        },
-        ImportProgress, NoteLog,
-    },
-    io::open_file,
-    prelude::*,
-};
+use crate::import_export::text::csv::metadata::CsvDeck;
+use crate::import_export::text::csv::metadata::CsvMetadata;
+use crate::import_export::text::csv::metadata::CsvNotetype;
+use crate::import_export::text::csv::metadata::Delimiter;
+use crate::import_export::text::ForeignData;
+use crate::import_export::text::ForeignNote;
+use crate::import_export::text::NameOrId;
+use crate::import_export::ImportProgress;
+use crate::import_export::NoteLog;
+use crate::io::open_file;
+use crate::prelude::*;
 
 impl Collection {
     pub fn import_csv(
@@ -111,7 +115,8 @@ struct ColumnContext {
     notetype_column: Option<usize>,
     /// Source column indices for the fields of a notetype
     field_source_columns: FieldSourceColumns,
-    /// How fields are converted to strings. Used for escaping HTML if appropriate.
+    /// How fields are converted to strings. Used for escaping HTML if
+    /// appropriate.
     stringify: fn(&str) -> String,
 }
 
@@ -211,8 +216,8 @@ fn stringify_fn(is_html: bool) -> fn(&str) -> String {
     }
 }
 
-/// If the reader's first line starts with "tags:", which is allowed for historic
-/// reasons, seek to the second line.
+/// If the reader's first line starts with "tags:", which is allowed for
+/// historic reasons, seek to the second line.
 fn remove_tags_line_from_reader(reader: &mut (impl Read + Seek)) -> Result<()> {
     let mut buf_reader = BufReader::new(reader);
     let mut first_line = String::new();

@@ -3,22 +3,28 @@
 
 use std::collections::HashMap;
 
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
 use serde_json::Value;
-use serde_repr::{Deserialize_repr, Serialize_repr};
+use serde_repr::Deserialize_repr;
+use serde_repr::Serialize_repr;
 use serde_tuple::Serialize_tuple;
 
-use super::{CardRequirementKind, NotetypeId};
-use crate::{
-    decks::DeckId,
-    notetype::{
-        CardRequirement, CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig, Notetype,
-        NotetypeConfig,
-    },
-    serde::{default_on_invalid, deserialize_bool_from_anything, deserialize_number_from_string},
-    timestamp::TimestampSecs,
-    types::Usn,
-};
+use super::CardRequirementKind;
+use super::NotetypeId;
+use crate::decks::DeckId;
+use crate::notetype::CardRequirement;
+use crate::notetype::CardTemplate;
+use crate::notetype::CardTemplateConfig;
+use crate::notetype::NoteField;
+use crate::notetype::NoteFieldConfig;
+use crate::notetype::Notetype;
+use crate::notetype::NotetypeConfig;
+use crate::serde::default_on_invalid;
+use crate::serde::deserialize_bool_from_anything;
+use crate::serde::deserialize_number_from_string;
+use crate::timestamp::TimestampSecs;
+use crate::types::Usn;
 
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Eq, Debug, Clone)]
 #[repr(u8)]

@@ -2,12 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::Backend;
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::pb;
 pub(super) use crate::pb::cards::cards_service::Service as CardsService;
-use crate::{
-    card::{CardQueue, CardType},
-    pb,
-    prelude::*,
-};
+use crate::prelude::*;
 
 impl CardsService for Backend {
     fn get_card(&self, input: pb::cards::CardId) -> Result<pb::cards::Card> {

@@ -1,7 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{build::FilesHandle, Build, Result};
+use crate::build::FilesHandle;
+use crate::Build;
+use crate::Result;
 
 pub trait BuildAction {
     /// Command line to invoke for each build statement.
@@ -10,8 +12,9 @@ pub trait BuildAction {
     /// Declare the input files and variables, and output files.
     fn files(&mut self, build: &mut impl FilesHandle);
 
-    /// If true, this action will not trigger a rebuild of dependent targets if the output
-    /// files are unchanged. This corresponds to Ninja's "restat" argument.
+    /// If true, this action will not trigger a rebuild of dependent targets if
+    /// the output files are unchanged. This corresponds to Ninja's "restat"
+    /// argument.
     fn check_output_timestamps(&self) -> bool {
         false
     }
@@ -21,8 +24,8 @@ pub trait BuildAction {
         false
     }
 
-    /// Called on first action invocation; can be used to inject other build actions
-    /// to perform initial setup.
+    /// Called on first action invocation; can be used to inject other build
+    /// actions to perform initial setup.
     #[allow(unused_variables)]
     fn on_first_instance(&self, build: &mut Build) -> Result<()> {
         Ok(())

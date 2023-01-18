@@ -1,11 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{DueCard, NewCard, QueueBuilder};
-use crate::{
-    deckconfig::NewCardGatherPriority, prelude::*, scheduler::queue::DueCardKind,
-    storage::card::NewCardSorting,
-};
+use super::DueCard;
+use super::NewCard;
+use super::QueueBuilder;
+use crate::deckconfig::NewCardGatherPriority;
+use crate::prelude::*;
+use crate::scheduler::queue::DueCardKind;
+use crate::storage::card::NewCardSorting;
 
 impl QueueBuilder {
     pub(super) fn gather_cards(&mut self, col: &mut Collection) -> Result<()> {

@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
 
 use crate::prelude::*;
 
@@ -27,8 +28,8 @@ pub struct SyncBeginRequest {
 pub struct SyncBeginResponse {
     pub usn: Usn,
     /// The server used to send back a session key used for following requests,
-    /// but this is no longer required. To avoid breaking older clients, the host
-    /// key is returned in its place.
+    /// but this is no longer required. To avoid breaking older clients, the
+    /// host key is returned in its place.
     #[serde(rename = "sk")]
     pub host_key: String,
 }

@@ -1,27 +1,31 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    borrow::Cow,
-    fs, io,
-    io::Read,
-    path::{Path, PathBuf},
-    time,
-};
+use std::borrow::Cow;
+use std::fs;
+use std::io;
+use std::io::Read;
+use std::path::Path;
+use std::path::PathBuf;
+use std::time;
 
 use lazy_static::lazy_static;
 use regex::Regex;
-use sha1::{Digest, Sha1};
+use sha1::Digest;
+use sha1::Sha1;
 use tracing::debug;
 use unic_ucd_category::GeneralCategory;
-use unicode_normalization::{is_nfc, UnicodeNormalization};
+use unicode_normalization::is_nfc;
+use unicode_normalization::UnicodeNormalization;
 
-use crate::{
-    error::{FileIoError, FileIoSnafu, FileOp},
-    io::{create_dir, open_file, write_file},
-    prelude::*,
-    sync::media::MAX_MEDIA_FILENAME_LENGTH,
-};
+use crate::error::FileIoError;
+use crate::error::FileIoSnafu;
+use crate::error::FileOp;
+use crate::io::create_dir;
+use crate::io::open_file;
+use crate::io::write_file;
+use crate::prelude::*;
+use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH;
 
 lazy_static! {
     static ref WINDOWS_DEVICE_NAME: Regex = Regex::new(
@@ -152,8 +156,8 @@ pub(crate) fn filename_if_normalized(fname: &str) -> Option<Cow<str>> {
     }
 }
 
-/// Write desired_name into folder, renaming if existing file has different content.
-/// Returns the used filename.
+/// Write desired_name into folder, renaming if existing file has different
+/// content. Returns the used filename.
 pub fn add_data_to_folder_uniquely<'a, P>(
     folder: P,
     desired_name: &'a str,
@@ -432,13 +436,13 @@ mod test {
 
     use tempfile::tempdir;
 
-    use crate::{
-        media::files::{
-            add_data_to_folder_uniquely, add_hash_suffix_to_file_stem, normalize_filename,
-            remove_files, sha1_of_data, truncate_filename,
-        },
-        sync::media::MAX_MEDIA_FILENAME_LENGTH,
-    };
+    use crate::media::files::add_data_to_folder_uniquely;
+    use crate::media::files::add_hash_suffix_to_file_stem;
+    use crate::media::files::normalize_filename;
+    use crate::media::files::remove_files;
+    use crate::media::files::sha1_of_data;
+    use crate::media::files::truncate_filename;
+    use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH;
 
     #[test]
     fn normalize() {

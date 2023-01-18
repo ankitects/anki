@@ -2,12 +2,12 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::Backend;
+use crate::deckconfig::DeckConfSchema11;
+use crate::deckconfig::DeckConfig;
+use crate::deckconfig::UpdateDeckConfigsRequest;
+use crate::pb;
 pub(super) use crate::pb::deckconfig::deckconfig_service::Service as DeckConfigService;
-use crate::{
-    deckconfig::{DeckConfSchema11, DeckConfig, UpdateDeckConfigsRequest},
-    pb,
-    prelude::*,
-};
+use crate::prelude::*;
 
 impl DeckConfigService for Backend {
     fn add_or_update_deck_config_legacy(

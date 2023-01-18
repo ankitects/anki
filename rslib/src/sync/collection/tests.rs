@@ -9,41 +9,46 @@ use axum::http::StatusCode;
 use once_cell::sync::Lazy;
 use reqwest::Url;
 use serde_json::json;
-use tempfile::{tempdir, TempDir};
-use tokio::sync::{Mutex, MutexGuard};
-use tracing::{Instrument, Span};
-use wiremock::{
-    matchers::{method, path},
-    Mock, MockServer, ResponseTemplate,
-};
+use tempfile::tempdir;
+use tempfile::TempDir;
+use tokio::sync::Mutex;
+use tokio::sync::MutexGuard;
+use tracing::Instrument;
+use tracing::Span;
+use wiremock::matchers::method;
+use wiremock::matchers::path;
+use wiremock::Mock;
+use wiremock::MockServer;
+use wiremock::ResponseTemplate;
 
-use crate::{
-    card::CardQueue,
-    collection::CollectionBuilder,
-    deckconfig::DeckConfig,
-    decks::DeckKind,
-    error::{SyncError, SyncErrorKind},
-    log::set_global_logger,
-    notetype::all_stock_notetypes,
-    prelude::*,
-    revlog::RevlogEntry,
-    search::SortMode,
-    sync::{
-        collection::{
-            graves::ApplyGravesRequest,
-            meta::MetaRequest,
-            normal::{NormalSyncProgress, NormalSyncer, SyncActionRequired, SyncOutput},
-            progress::FullSyncProgress,
-            protocol::{EmptyInput, SyncProtocol},
-            start::StartRequest,
-            upload::{UploadResponse, CORRUPT_MESSAGE},
-        },
-        http_client::HttpSyncClient,
-        http_server::SimpleServer,
-        login::{HostKeyRequest, SyncAuth},
-        request::IntoSyncRequest,
-    },
-};
+use crate::card::CardQueue;
+use crate::collection::CollectionBuilder;
+use crate::deckconfig::DeckConfig;
+use crate::decks::DeckKind;
+use crate::error::SyncError;
+use crate::error::SyncErrorKind;
+use crate::log::set_global_logger;
+use crate::notetype::all_stock_notetypes;
+use crate::prelude::*;
+use crate::revlog::RevlogEntry;
+use crate::search::SortMode;
+use crate::sync::collection::graves::ApplyGravesRequest;
+use crate::sync::collection::meta::MetaRequest;
+use crate::sync::collection::normal::NormalSyncProgress;
+use crate::sync::collection::normal::NormalSyncer;
+use crate::sync::collection::normal::SyncActionRequired;
+use crate::sync::collection::normal::SyncOutput;
+use crate::sync::collection::progress::FullSyncProgress;
+use crate::sync::collection::protocol::EmptyInput;
+use crate::sync::collection::protocol::SyncProtocol;
+use crate::sync::collection::start::StartRequest;
+use crate::sync::collection::upload::UploadResponse;
+use crate::sync::collection::upload::CORRUPT_MESSAGE;
+use crate::sync::http_client::HttpSyncClient;
+use crate::sync::http_server::SimpleServer;
+use crate::sync::login::HostKeyRequest;
+use crate::sync::login::SyncAuth;
+use crate::sync::request::IntoSyncRequest;
 
 struct TestAuth {
     username: String,
@@ -281,8 +286,8 @@ async fn sanity_check_should_roll_back_and_force_full_sync() -> Result<()> {
 
         let mut col1 = ctx.col1();
 
-        // add a deck but don't mark it as requiring a sync, which will trigger the sanity
-        // check to fail
+        // add a deck but don't mark it as requiring a sync, which will trigger the
+        // sanity check to fail
         let mut deck = col1.get_or_create_normal_deck("unsynced deck")?;
         col1.add_or_update_deck(&mut deck)?;
         col1.storage

@@ -2,10 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::GraphsContext;
-use crate::{
-    pb::stats::graphs_response::{buttons::ButtonCounts, Buttons},
-    revlog::{RevlogEntry, RevlogReviewKind},
-};
+use crate::pb::stats::graphs_response::buttons::ButtonCounts;
+use crate::pb::stats::graphs_response::Buttons;
+use crate::revlog::RevlogEntry;
+use crate::revlog::RevlogReviewKind;
 
 impl GraphsContext {
     pub(super) fn buttons(&self) -> Buttons {

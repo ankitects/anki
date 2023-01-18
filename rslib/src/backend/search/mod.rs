@@ -4,17 +4,20 @@
 mod browser_table;
 mod search_node;
 
-use std::{str::FromStr, sync::Arc};
+use std::str::FromStr;
+use std::sync::Arc;
 
-use super::{notes::to_note_ids, Backend};
+use super::notes::to_note_ids;
+use super::Backend;
+use crate::browser_table::Column;
+use crate::pb;
 pub(super) use crate::pb::search::search_service::Service as SearchService;
-use crate::{
-    browser_table::Column,
-    pb,
-    pb::search::sort_order::Value as SortOrderProto,
-    prelude::*,
-    search::{replace_search_node, JoinSearches, Node, SortMode},
-};
+use crate::pb::search::sort_order::Value as SortOrderProto;
+use crate::prelude::*;
+use crate::search::replace_search_node;
+use crate::search::JoinSearches;
+use crate::search::Node;
+use crate::search::SortMode;
 
 impl SearchService for Backend {
     fn build_search_string(&self, input: pb::search::SearchNode) -> Result<pb::generic::String> {

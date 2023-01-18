@@ -4,30 +4,31 @@
 use tracing::debug;
 use version::sync_client_version;
 
-use crate::{
-    error::{AnkiError, Result, SyncErrorKind},
-    media::{files::mtime_as_i64, MediaManager},
-    prelude::*,
-    sync::{
-        http_client::HttpSyncClient,
-        media::{
-            begin::{SyncBeginRequest, SyncBeginResponse},
-            changes,
-            changes::MediaChangesRequest,
-            database::client::{changetracker::ChangeTracker, MediaDatabaseMetadata, MediaEntry},
-            download,
-            download::DownloadFilesRequest,
-            progress::MediaSyncProgress,
-            protocol::MediaSyncProtocol,
-            sanity::{MediaSanityCheckResponse, SanityCheckRequest},
-            upload::gather_zip_data_for_upload,
-            zip::zip_files_for_upload,
-            MAX_MEDIA_FILES_IN_ZIP,
-        },
-        request::IntoSyncRequest,
-    },
-    version,
-};
+use crate::error::AnkiError;
+use crate::error::Result;
+use crate::error::SyncErrorKind;
+use crate::media::files::mtime_as_i64;
+use crate::media::MediaManager;
+use crate::prelude::*;
+use crate::sync::http_client::HttpSyncClient;
+use crate::sync::media::begin::SyncBeginRequest;
+use crate::sync::media::begin::SyncBeginResponse;
+use crate::sync::media::changes;
+use crate::sync::media::changes::MediaChangesRequest;
+use crate::sync::media::database::client::changetracker::ChangeTracker;
+use crate::sync::media::database::client::MediaDatabaseMetadata;
+use crate::sync::media::database::client::MediaEntry;
+use crate::sync::media::download;
+use crate::sync::media::download::DownloadFilesRequest;
+use crate::sync::media::progress::MediaSyncProgress;
+use crate::sync::media::protocol::MediaSyncProtocol;
+use crate::sync::media::sanity::MediaSanityCheckResponse;
+use crate::sync::media::sanity::SanityCheckRequest;
+use crate::sync::media::upload::gather_zip_data_for_upload;
+use crate::sync::media::zip::zip_files_for_upload;
+use crate::sync::media::MAX_MEDIA_FILES_IN_ZIP;
+use crate::sync::request::IntoSyncRequest;
+use crate::version;
 
 pub struct MediaSyncer<P>
 where

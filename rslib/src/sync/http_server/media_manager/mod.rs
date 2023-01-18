@@ -4,19 +4,16 @@
 pub mod download;
 pub mod upload;
 
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use std::path::PathBuf;
 
-use crate::{
-    io::create_dir_all,
-    prelude::*,
-    sync::{
-        error::{HttpResult, OrHttpErr},
-        media::{
-            changes::MediaChange, database::server::ServerMediaDatabase,
-            sanity::MediaSanityCheckResponse,
-        },
-    },
-};
+use crate::io::create_dir_all;
+use crate::prelude::*;
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
+use crate::sync::media::changes::MediaChange;
+use crate::sync::media::database::server::ServerMediaDatabase;
+use crate::sync::media::sanity::MediaSanityCheckResponse;
 
 pub(crate) struct ServerMediaManager {
     pub media_folder: PathBuf,

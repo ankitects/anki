@@ -1,24 +1,24 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{fs, io::ErrorKind, path::Path};
+use std::fs;
+use std::io::ErrorKind;
+use std::path::Path;
 
 use snafu::ResultExt;
 use tracing::info;
 
-use crate::{
-    error,
-    error::{FileIoError, FileIoSnafu, FileOp},
-    io::write_file,
-    sync::{
-        error::{HttpResult, OrHttpErr},
-        http_server::media_manager::ServerMediaManager,
-        media::{
-            database::server::entry::upload::UploadedChangeResult, upload::MediaUploadResponse,
-            zip::unzip_and_validate_files,
-        },
-    },
-};
+use crate::error;
+use crate::error::FileIoError;
+use crate::error::FileIoSnafu;
+use crate::error::FileOp;
+use crate::io::write_file;
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
+use crate::sync::http_server::media_manager::ServerMediaManager;
+use crate::sync::media::database::server::entry::upload::UploadedChangeResult;
+use crate::sync::media::upload::MediaUploadResponse;
+use crate::sync::media::zip::unzip_and_validate_files;
 
 impl ServerMediaManager {
     pub fn process_uploaded_changes(

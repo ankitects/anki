@@ -1,11 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
 use serde_tuple::Serialize_tuple;
 use tracing::debug;
 
-use crate::{error, prelude::Usn, sync::media::database::client::MediaDatabase};
+use crate::error;
+use crate::prelude::Usn;
+use crate::sync::media::database::client::MediaDatabase;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -119,9 +122,9 @@ mod test {
 
     #[test]
     fn required_change() {
-        use crate::sync::media::changes::{
-            determine_required_change as d, LocalState as L, RequiredChange as R,
-        };
+        use crate::sync::media::changes::determine_required_change as d;
+        use crate::sync::media::changes::LocalState as L;
+        use crate::sync::media::changes::RequiredChange as R;
         assert_eq!(d("", "", L::NotInDb), R::None);
         assert_eq!(d("", "", L::InDbNotPending), R::Delete);
         assert_eq!(d("", "1", L::InDbAndPending), R::Download);

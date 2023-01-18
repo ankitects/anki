@@ -5,20 +5,17 @@ mod answering;
 mod states;
 
 use super::Backend;
+use crate::pb;
 pub(super) use crate::pb::scheduler::scheduler_service::Service as SchedulerService;
-use crate::{
-    pb,
-    prelude::*,
-    scheduler::{
-        new::NewCardDueOrder,
-        states::{CardState, SchedulingStates},
-    },
-    stats::studied_today,
-};
+use crate::prelude::*;
+use crate::scheduler::new::NewCardDueOrder;
+use crate::scheduler::states::CardState;
+use crate::scheduler::states::SchedulingStates;
+use crate::stats::studied_today;
 
 impl SchedulerService for Backend {
-    /// This behaves like _updateCutoff() in older code - it also unburies at the start of
-    /// a new day.
+    /// This behaves like _updateCutoff() in older code - it also unburies at
+    /// the start of a new day.
     fn sched_timing_today(
         &self,
         _input: pb::generic::Empty,

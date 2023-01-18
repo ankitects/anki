@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{pb, scheduler::states::NormalState};
+use crate::pb;
+use crate::scheduler::states::NormalState;
 
 impl From<NormalState> for pb::scheduler::scheduling_state::Normal {
     fn from(state: NormalState) -> Self {

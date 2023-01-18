@@ -4,39 +4,50 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use media::{sanity::MediaSanityCheckResponse, upload::MediaUploadResponse};
+use media::sanity::MediaSanityCheckResponse;
+use media::upload::MediaUploadResponse;
 
-use crate::{
-    prelude::*,
-    sync::{
-        collection::{
-            changes::{server_apply_changes, ApplyChangesRequest, UnchunkedChanges},
-            chunks::{server_apply_chunk, server_chunk, ApplyChunkRequest, Chunk},
-            download::server_download,
-            finish::server_finish,
-            graves::{server_apply_graves, ApplyGravesRequest, Graves},
-            meta::{server_meta, MetaRequest, SyncMeta},
-            protocol::{EmptyInput, SyncProtocol},
-            sanity::{
-                server_sanity_check, SanityCheckRequest, SanityCheckResponse, SanityCheckStatus,
-            },
-            start::{server_start, StartRequest},
-            upload::{handle_received_upload, UploadResponse},
-        },
-        error::{HttpResult, OrHttpErr},
-        http_server::SimpleServer,
-        login::{HostKeyRequest, HostKeyResponse},
-        media,
-        media::{
-            begin::{SyncBeginRequest, SyncBeginResponse},
-            changes::{MediaChangesRequest, MediaChangesResponse},
-            download::DownloadFilesRequest,
-            protocol::{JsonResult, MediaSyncProtocol},
-        },
-        request::SyncRequest,
-        response::SyncResponse,
-    },
-};
+use crate::prelude::*;
+use crate::sync::collection::changes::server_apply_changes;
+use crate::sync::collection::changes::ApplyChangesRequest;
+use crate::sync::collection::changes::UnchunkedChanges;
+use crate::sync::collection::chunks::server_apply_chunk;
+use crate::sync::collection::chunks::server_chunk;
+use crate::sync::collection::chunks::ApplyChunkRequest;
+use crate::sync::collection::chunks::Chunk;
+use crate::sync::collection::download::server_download;
+use crate::sync::collection::finish::server_finish;
+use crate::sync::collection::graves::server_apply_graves;
+use crate::sync::collection::graves::ApplyGravesRequest;
+use crate::sync::collection::graves::Graves;
+use crate::sync::collection::meta::server_meta;
+use crate::sync::collection::meta::MetaRequest;
+use crate::sync::collection::meta::SyncMeta;
+use crate::sync::collection::protocol::EmptyInput;
+use crate::sync::collection::protocol::SyncProtocol;
+use crate::sync::collection::sanity::server_sanity_check;
+use crate::sync::collection::sanity::SanityCheckRequest;
+use crate::sync::collection::sanity::SanityCheckResponse;
+use crate::sync::collection::sanity::SanityCheckStatus;
+use crate::sync::collection::start::server_start;
+use crate::sync::collection::start::StartRequest;
+use crate::sync::collection::upload::handle_received_upload;
+use crate::sync::collection::upload::UploadResponse;
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
+use crate::sync::http_server::SimpleServer;
+use crate::sync::login::HostKeyRequest;
+use crate::sync::login::HostKeyResponse;
+use crate::sync::media;
+use crate::sync::media::begin::SyncBeginRequest;
+use crate::sync::media::begin::SyncBeginResponse;
+use crate::sync::media::changes::MediaChangesRequest;
+use crate::sync::media::changes::MediaChangesResponse;
+use crate::sync::media::download::DownloadFilesRequest;
+use crate::sync::media::protocol::JsonResult;
+use crate::sync::media::protocol::MediaSyncProtocol;
+use crate::sync::request::SyncRequest;
+use crate::sync::response::SyncResponse;
 
 #[async_trait]
 impl SyncProtocol for Arc<SimpleServer> {

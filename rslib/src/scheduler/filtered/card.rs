@@ -2,11 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::DeckFilterContext;
-use crate::{
-    card::{CardQueue, CardType},
-    config::SchedulerVersion,
-    prelude::*,
-};
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::config::SchedulerVersion;
+use crate::prelude::*;
 
 impl Card {
     pub(crate) fn restore_queue_from_type(&mut self) {
@@ -26,7 +25,8 @@ impl Card {
     }
 
     pub(crate) fn move_into_filtered_deck(&mut self, ctx: &DeckFilterContext, position: i32) {
-        // filtered and v1 learning cards are excluded, so odue should be guaranteed to be zero
+        // filtered and v1 learning cards are excluded, so odue should be guaranteed to
+        // be zero
         if self.original_due != 0 {
             println!("bug: odue was set");
             return;

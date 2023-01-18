@@ -1,12 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{fs, io::prelude::*, path::Path, process::Command};
+use std::fs;
+use std::io::prelude::*;
+use std::path::Path;
+use std::process::Command;
 
-use anyhow::{bail, Context, Result};
-use camino::{Utf8Path, Utf8PathBuf};
+use anyhow::bail;
+use anyhow::Context;
+use anyhow::Result;
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
 use clap::Parser;
-use tugger_windows_codesign::{CodeSigningCertificate, SigntoolSign, SystemStore, TimestampServer};
+use tugger_windows_codesign::CodeSigningCertificate;
+use tugger_windows_codesign::SigntoolSign;
+use tugger_windows_codesign::SystemStore;
+use tugger_windows_codesign::TimestampServer;
 use walkdir::WalkDir;
 
 #[derive(Parser)]

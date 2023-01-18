@@ -1,12 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashSet, iter::Peekable};
+use std::collections::HashSet;
+use std::iter::Peekable;
 
 use unicase::UniCase;
 
-use super::{immediate_parent_name_unicase, Tag};
-use crate::{pb::tags::TagTreeNode, prelude::*};
+use super::immediate_parent_name_unicase;
+use super::Tag;
+use crate::pb::tags::TagTreeNode;
+use crate::prelude::*;
 
 impl Collection {
     pub fn tag_tree(&mut self) -> Result<TagTreeNode> {

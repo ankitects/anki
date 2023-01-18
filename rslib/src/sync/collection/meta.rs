@@ -3,27 +3,27 @@
 
 use ammonia::Url;
 use axum::http::StatusCode;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use tracing::debug;
 
-use crate::{
-    config::SchedulerVersion,
-    prelude::*,
-    sync::{
-        collection::{
-            normal::{ClientSyncState, SyncActionRequired},
-            protocol::SyncProtocol,
-        },
-        error::{HttpError, HttpResult, HttpSnafu, OrHttpErr},
-        http_client::HttpSyncClient,
-        request::{IntoSyncRequest, SyncRequest},
-        version::{
-            SYNC_VERSION_09_V2_SCHEDULER, SYNC_VERSION_10_V2_TIMEZONE, SYNC_VERSION_MAX,
-            SYNC_VERSION_MIN,
-        },
-    },
-    version::sync_client_version,
-};
+use crate::config::SchedulerVersion;
+use crate::prelude::*;
+use crate::sync::collection::normal::ClientSyncState;
+use crate::sync::collection::normal::SyncActionRequired;
+use crate::sync::collection::protocol::SyncProtocol;
+use crate::sync::error::HttpError;
+use crate::sync::error::HttpResult;
+use crate::sync::error::HttpSnafu;
+use crate::sync::error::OrHttpErr;
+use crate::sync::http_client::HttpSyncClient;
+use crate::sync::request::IntoSyncRequest;
+use crate::sync::request::SyncRequest;
+use crate::sync::version::SYNC_VERSION_09_V2_SCHEDULER;
+use crate::sync::version::SYNC_VERSION_10_V2_TIMEZONE;
+use crate::sync::version::SYNC_VERSION_MAX;
+use crate::sync::version::SYNC_VERSION_MIN;
+use crate::version::sync_client_version;
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct SyncMeta {

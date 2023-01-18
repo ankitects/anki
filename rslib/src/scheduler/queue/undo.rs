@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{LearningQueueEntry, QueueEntry};
+use super::LearningQueueEntry;
+use super::QueueEntry;
 use crate::prelude::*;
 
 #[derive(Debug)]
@@ -63,12 +64,11 @@ impl Collection {
 
 #[cfg(test)]
 mod test {
-    use crate::{
-        card::{CardQueue, CardType},
-        collection::open_test_collection,
-        deckconfig::LeechAction,
-        prelude::*,
-    };
+    use crate::card::CardQueue;
+    use crate::card::CardType;
+    use crate::collection::open_test_collection;
+    use crate::deckconfig::LeechAction;
+    use crate::prelude::*;
 
     fn add_note(col: &mut Collection, with_reverse: bool) -> Result<NoteId> {
         let nt = col

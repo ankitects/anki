@@ -3,10 +3,9 @@
 
 use rusqlite::Row;
 
-use crate::{
-    prelude::*,
-    sync::media::{changes::MediaChange, database::server::ServerMediaDatabase},
-};
+use crate::prelude::*;
+use crate::sync::media::changes::MediaChange;
+use crate::sync::media::database::server::ServerMediaDatabase;
 
 impl MediaChange {
     fn from_row(row: &Row) -> Result<Self, rusqlite::Error> {

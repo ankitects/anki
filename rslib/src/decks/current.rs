@@ -3,7 +3,8 @@
 
 use std::sync::Arc;
 
-use crate::{config::ConfigKey, prelude::*};
+use crate::config::ConfigKey;
+use crate::prelude::*;
 
 impl Collection {
     pub fn set_current_deck(&mut self, deck: DeckId) -> Result<OpOutput<()>> {

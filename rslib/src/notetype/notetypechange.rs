@@ -3,14 +3,18 @@
 
 //! Updates to notes/cards when a note is moved to a different notetype.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+use std::collections::HashSet;
 
-use super::{CardGenContext, Notetype, NotetypeKind};
-use crate::{
-    prelude::*,
-    search::{JoinSearches, Node, SearchNode, TemplateKind},
-    storage::comma_separated_ids,
-};
+use super::CardGenContext;
+use super::Notetype;
+use super::NotetypeKind;
+use crate::prelude::*;
+use crate::search::JoinSearches;
+use crate::search::Node;
+use crate::search::SearchNode;
+use crate::search::TemplateKind;
+use crate::storage::comma_separated_ids;
 
 #[derive(Debug)]
 pub struct ChangeNotetypeInput {
@@ -243,8 +247,8 @@ impl Collection {
     /// Rewrite notes to match new notetype, and assigns new notetype id.
     ///
     /// `new_fields` should be the length of the new notetype's fields, and is a
-    /// list of the previous field index each field should be mapped to. If None,
-    /// the field is left empty.
+    /// list of the previous field index each field should be mapped to. If
+    /// None, the field is left empty.
     fn update_notes_for_new_notetype_and_generate_cards(
         &mut self,
         note_ids: &[NoteId],
@@ -370,7 +374,8 @@ fn remap_fields(fields: &mut Vec<String>, new_fields: &[Option<usize>]) {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, error::Result};
+    use crate::collection::open_test_collection;
+    use crate::error::Result;
 
     #[test]
     fn field_map() -> Result<()> {
@@ -527,7 +532,8 @@ mod test {
         let cards = col.storage.all_cards_of_note(note.id)?;
         assert_eq!(cards.len(), 2);
 
-        // but any cards above the available templates should be removed when converting from cloze->normal
+        // but any cards above the available templates should be removed when converting
+        // from cloze->normal
         let input = ChangeNotetypeInput {
             note_ids: vec![note.id],
             ..col.notetype_change_info(basic.id, cloze.id)?.input

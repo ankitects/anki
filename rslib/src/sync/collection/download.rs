@@ -1,21 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{
-    collection::CollectionBuilder,
-    io::{atomic_rename, new_tempfile_in_parent_of, read_file, write_file},
-    prelude::*,
-    storage::SchemaVersion,
-    sync::{
-        collection::{
-            progress::FullSyncProgressFn,
-            protocol::{EmptyInput, SyncProtocol},
-        },
-        error::{HttpResult, OrHttpErr},
-        http_client::HttpSyncClient,
-        login::SyncAuth,
-    },
-};
+use crate::collection::CollectionBuilder;
+use crate::io::atomic_rename;
+use crate::io::new_tempfile_in_parent_of;
+use crate::io::read_file;
+use crate::io::write_file;
+use crate::prelude::*;
+use crate::storage::SchemaVersion;
+use crate::sync::collection::progress::FullSyncProgressFn;
+use crate::sync::collection::protocol::EmptyInput;
+use crate::sync::collection::protocol::SyncProtocol;
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
+use crate::sync::http_client::HttpSyncClient;
+use crate::sync::login::SyncAuth;
 
 impl Collection {
     /// Download collection from AnkiWeb. Caller must re-open afterwards.

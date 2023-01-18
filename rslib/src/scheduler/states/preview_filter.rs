@@ -1,7 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{IntervalKind, SchedulingStates, StateContext};
+use super::IntervalKind;
+use super::SchedulingStates;
+use super::StateContext;
 use crate::revlog::RevlogReviewKind;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -1,11 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, collections::HashSet};
+use std::borrow::Cow;
+use std::collections::HashSet;
 
-use regex::{Captures, Regex};
+use regex::Captures;
+use regex::Regex;
 
-use super::{join_tags, split_tags};
+use super::join_tags;
+use super::split_tags;
 use crate::prelude::*;
 pub(crate) struct TagMatcher {
     regex: Regex,
@@ -77,7 +80,8 @@ impl TagMatcher {
         join_tags(tags.as_slice())
     }
 
-    /// The `replacement` function should return the text to use as a replacement.
+    /// The `replacement` function should return the text to use as a
+    /// replacement.
     pub fn replace_with_fn<F>(&mut self, space_separated_tags: &str, replacer: F) -> String
     where
         F: Fn(&str) -> String,

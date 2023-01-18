@@ -3,18 +3,24 @@
 
 use std::env;
 
-use ninja_gen::{
-    action::BuildAction,
-    archives::{download_and_extract, OnlineArchive, Platform},
-    build::FilesHandle,
-    command::RunCommand,
-    glob, hashmap,
-    input::BuildInput,
-    inputs,
-    python::{python_format, PythonEnvironment, PythonLint, PythonTypecheck},
-    rsync::RsyncFiles,
-    Build, Result, Utf8Path,
-};
+use ninja_gen::action::BuildAction;
+use ninja_gen::archives::download_and_extract;
+use ninja_gen::archives::OnlineArchive;
+use ninja_gen::archives::Platform;
+use ninja_gen::build::FilesHandle;
+use ninja_gen::command::RunCommand;
+use ninja_gen::glob;
+use ninja_gen::hashmap;
+use ninja_gen::input::BuildInput;
+use ninja_gen::inputs;
+use ninja_gen::python::python_format;
+use ninja_gen::python::PythonEnvironment;
+use ninja_gen::python::PythonLint;
+use ninja_gen::python::PythonTypecheck;
+use ninja_gen::rsync::RsyncFiles;
+use ninja_gen::Build;
+use ninja_gen::Result;
+use ninja_gen::Utf8Path;
 
 fn python_archive(platform: Platform) -> OnlineArchive {
     match platform {
@@ -252,8 +258,8 @@ pub fn check_python(build: &mut Build) -> Result<()> {
 
 fn add_pylint(build: &mut Build) -> Result<()> {
     // pylint does not support PEP420 implicit namespaces split across import paths,
-    // so we need to merge our pylib sources and generated files before invoking it, and
-    // add a top-level __init__.py
+    // so we need to merge our pylib sources and generated files before invoking it,
+    // and add a top-level __init__.py
     build.add(
         "pylint/anki",
         RsyncFiles {

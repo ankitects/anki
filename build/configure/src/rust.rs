@@ -1,13 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use ninja_gen::{
-    cargo::{CargoBuild, CargoClippy, CargoFormat, CargoRun, CargoTest, RustOutput},
-    git::SyncSubmodule,
-    glob, inputs, Build, Result,
-};
+use ninja_gen::cargo::CargoBuild;
+use ninja_gen::cargo::CargoClippy;
+use ninja_gen::cargo::CargoFormat;
+use ninja_gen::cargo::CargoRun;
+use ninja_gen::cargo::CargoTest;
+use ninja_gen::cargo::RustOutput;
+use ninja_gen::git::SyncSubmodule;
+use ninja_gen::glob;
+use ninja_gen::inputs;
+use ninja_gen::Build;
+use ninja_gen::Result;
 
-use crate::{platform::overriden_rust_target_triple, proto::download_protoc};
+use crate::platform::overriden_rust_target_triple;
+use crate::proto::download_protoc;
 
 pub fn build_rust(build: &mut Build) -> Result<()> {
     prepare_translations(build)?;

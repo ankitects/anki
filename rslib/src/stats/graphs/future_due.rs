@@ -14,8 +14,8 @@ impl GraphsContext {
             if c.queue as i8 <= 0 {
                 continue;
             }
-            // The extra original_due check covers lapsed cards, which have their due date updated on
-            // graduation.
+            // The extra original_due check covers lapsed cards, which have their due date
+            // updated on graduation.
             let due = if c.is_filtered() && c.original_due != 0 {
                 c.original_due
             } else {

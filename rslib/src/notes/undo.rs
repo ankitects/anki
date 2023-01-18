@@ -2,7 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::NoteTags;
-use crate::{prelude::*, undo::UndoableChange};
+use crate::prelude::*;
+use crate::undo::UndoableChange;
 
 #[derive(Debug)]
 pub(crate) enum UndoableNoteChange {
@@ -57,7 +58,8 @@ impl Collection {
         Ok(())
     }
 
-    /// If note is edited multiple times in quick succession, avoid creating extra undo entries.
+    /// If note is edited multiple times in quick succession, avoid creating
+    /// extra undo entries.
     pub(crate) fn maybe_coalesce_note_undo_entry(&mut self, changes: &OpChanges) {
         if changes.op != Op::UpdateNote {
             return;
