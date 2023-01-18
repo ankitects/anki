@@ -13,8 +13,8 @@ from aqt import AnkiQt
 from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
 from aqt.qt import *
-from aqt.theme import Theme, WidgetStyle
-from aqt.utils import HelpPage, disable_help_button, openHelp, showInfo, showWarning, tr
+from aqt.theme import Theme
+from aqt.utils import HelpPage, disable_help_button, is_win, openHelp, showInfo, showWarning, tr
 
 
 class Preferences(QDialog):
@@ -258,13 +258,14 @@ class Preferences(QDialog):
         qconnect(self.form.theme.currentIndexChanged, self.on_theme_changed)
 
         self.form.styleComboBox.addItems(
-            [member.name.lower().capitalize() for member in WidgetStyle]
+            ["Anki"] + (["Native"] if not is_win else [])
         )
         self.form.styleComboBox.setCurrentIndex(self.mw.pm.get_widget_style())
         qconnect(
             self.form.styleComboBox.currentIndexChanged,
             self.mw.pm.set_widget_style,
         )
+        self.form.styleComboBox.setVisible(not is_win)
         self.form.legacy_import_export.setChecked(self.mw.pm.legacy_import_export())
 
         self.setup_language()
