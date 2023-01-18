@@ -1,16 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use serde::{Deserialize as DeTrait, Deserializer};
-pub(crate) use serde_aux::field_attributes::{
-    deserialize_bool_from_anything, deserialize_number_from_string,
-};
+use serde::Deserialize as DeTrait;
+use serde::Deserializer;
+pub(crate) use serde_aux::field_attributes::deserialize_bool_from_anything;
+pub(crate) use serde_aux::field_attributes::deserialize_number_from_string;
 use serde_json::Value;
 
 use crate::timestamp::TimestampSecs;
 
-/// Note: if you wish to cover the case where a field is missing, make sure you also
-/// use the `serde(default)` flag.
+/// Note: if you wish to cover the case where a field is missing, make sure you
+/// also use the `serde(default)` flag.
 pub(crate) fn default_on_invalid<'de, T, D>(deserializer: D) -> Result<T, D::Error>
 where
     T: Default + DeTrait<'de>,

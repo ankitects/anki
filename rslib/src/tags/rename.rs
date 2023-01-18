@@ -1,12 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{is_tag_separator, matcher::TagMatcher};
-use crate::{prelude::*, tags::register::normalize_tag_name};
+use super::is_tag_separator;
+use super::matcher::TagMatcher;
+use crate::prelude::*;
+use crate::tags::register::normalize_tag_name;
 
 impl Collection {
-    /// Rename a given tag and its children on all notes that reference it, returning changed
-    /// note count.
+    /// Rename a given tag and its children on all notes that reference it,
+    /// returning changed note count.
     pub fn rename_tag(&mut self, old_prefix: &str, new_prefix: &str) -> Result<OpOutput<usize>> {
         self.transact(Op::RenameTag, |col| {
             col.rename_tag_inner(old_prefix, new_prefix)

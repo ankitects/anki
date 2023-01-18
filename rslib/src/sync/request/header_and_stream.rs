@@ -1,30 +1,32 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    fmt::Display,
-    io::{Cursor, ErrorKind},
-    marker::PhantomData,
-    net::IpAddr,
-};
+use std::fmt::Display;
+use std::io::Cursor;
+use std::io::ErrorKind;
+use std::marker::PhantomData;
+use std::net::IpAddr;
 
-use axum::{
-    extract::BodyStream,
-    headers::{Header, HeaderName, HeaderValue},
-    http::StatusCode,
-};
+use axum::extract::BodyStream;
+use axum::headers::Header;
+use axum::headers::HeaderName;
+use axum::headers::HeaderValue;
+use axum::http::StatusCode;
 use bytes::Bytes;
-use futures::{Stream, TryStreamExt};
+use futures::Stream;
+use futures::TryStreamExt;
 use serde::de::DeserializeOwned;
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
 use tokio::io::AsyncReadExt;
 use tokio_util::io::ReaderStream;
 
-use crate::sync::{
-    error::{HttpResult, HttpSnafu, OrHttpErr},
-    request::{SyncRequest, MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED},
-    version::SyncVersion,
-};
+use crate::sync::error::HttpResult;
+use crate::sync::error::HttpSnafu;
+use crate::sync::error::OrHttpErr;
+use crate::sync::request::SyncRequest;
+use crate::sync::request::MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED;
+use crate::sync::version::SyncVersion;
 
 impl<T> SyncRequest<T> {
     pub(super) async fn from_header_and_stream(

@@ -4,7 +4,8 @@ use std::borrow::Cow;
 
 use itertools::Itertools;
 
-use crate::{prelude::*, text::normalize_to_nfc};
+use crate::prelude::*;
+use crate::text::normalize_to_nfc;
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct NativeDeckName(String);
@@ -42,7 +43,8 @@ impl NativeDeckName {
         self.0.split('\x1f')
     }
 
-    /// Normalize the name's components if necessary. True if mutation took place.
+    /// Normalize the name's components if necessary. True if mutation took
+    /// place.
     pub(crate) fn maybe_normalize(&mut self) -> bool {
         let needs_normalization = self
             .components()
@@ -57,8 +59,8 @@ impl NativeDeckName {
     }
 
     /// Determine name to rename a deck to, when `self` is dropped on `target`.
-    /// `target` being unset represents a drop at the top or bottom of the deck list.
-    /// The returned name should be used to replace `self`.
+    /// `target` being unset represents a drop at the top or bottom of the deck
+    /// list. The returned name should be used to replace `self`.
     pub(crate) fn reparented_name(&self, target: Option<&NativeDeckName>) -> Option<Self> {
         let dragged_base = self.0.rsplit('\x1f').next().unwrap();
         let dragged_root = self.components().next().unwrap();
@@ -77,8 +79,8 @@ impl NativeDeckName {
         }
     }
 
-    /// Replace the old parent's name with the new parent's name in self's name, where the old
-    /// parent's name is expected to be a prefix.
+    /// Replace the old parent's name with the new parent's name in self's name,
+    /// where the old parent's name is expected to be a prefix.
     fn reparent(&mut self, old_parent: &NativeDeckName, new_parent: &NativeDeckName) {
         self.0 = std::iter::once(new_parent.as_native_str())
             .chain(self.components().skip(old_parent.components().count()))

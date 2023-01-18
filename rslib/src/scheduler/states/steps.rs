@@ -55,8 +55,9 @@ impl<'a> LearningSteps<'a> {
             })
     }
 
-    /// Special case the hard interval for the first step to avoid equality with the again interval.
-    /// Also ensure it's smaller than the good interval, at least with reasonable settings.
+    /// Special case the hard interval for the first step to avoid equality with
+    /// the again interval. Also ensure it's smaller than the good interval,
+    /// at least with reasonable settings.
     fn hard_delay_secs_for_first_step(self, again_secs: u32) -> u32 {
         if let Some(next) = self.secs_at_index(1) {
             // average of first (again) and second (good) steps
@@ -90,9 +91,9 @@ impl<'a> LearningSteps<'a> {
     }
 }
 
-/// If the given interval in seconds surpasses 1 day, rounds it to a whole number of days.
-/// Ensures that the user gets the same results earlier and later in the day.
-/// Returns seconds.
+/// If the given interval in seconds surpasses 1 day, rounds it to a whole
+/// number of days. Ensures that the user gets the same results earlier and
+/// later in the day. Returns seconds.
 fn maybe_round_in_days(secs: u32) -> u32 {
     if secs > DAY {
         ((secs as f32 / DAY as f32).round() as u32).saturating_mul(DAY)

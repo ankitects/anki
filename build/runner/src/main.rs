@@ -15,18 +15,23 @@ mod yarn;
 
 use std::error::Error;
 
-use build::{run_build, BuildArgs};
-use bundle::{
-    artifacts::{build_artifacts, BuildArtifactsArgs},
-    binary::build_bundle_binary,
-    folder::{build_dist_folder, BuildDistFolderArgs},
-};
-// use bundle::{build_bundle_binary, build_dist_folder, BuildDistFolderArgs};
-use clap::{Parser, Subcommand};
-use pyenv::{setup_pyenv, PyenvArgs};
-use rsync::{rsync_files, RsyncArgs};
-use run::{run_commands, RunArgs};
-use yarn::{setup_yarn, YarnArgs};
+use build::run_build;
+use build::BuildArgs;
+use bundle::artifacts::build_artifacts;
+use bundle::artifacts::BuildArtifactsArgs;
+use bundle::binary::build_bundle_binary;
+use bundle::folder::build_dist_folder;
+use bundle::folder::BuildDistFolderArgs;
+use clap::Parser;
+use clap::Subcommand;
+use pyenv::setup_pyenv;
+use pyenv::PyenvArgs;
+use rsync::rsync_files;
+use rsync::RsyncArgs;
+use run::run_commands;
+use run::RunArgs;
+use yarn::setup_yarn;
+use yarn::YarnArgs;
 
 pub type Result<T, E = Box<dyn Error>> = std::result::Result<T, E>;
 

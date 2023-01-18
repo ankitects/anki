@@ -1,12 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashSet, fmt::Write};
+use std::collections::HashSet;
+use std::fmt::Write;
 
-use super::{
-    cardgen::group_generated_cards_by_note, CardGenContext, Notetype, NotetypeId, NotetypeKind,
-};
-use crate::{card::CardId, collection::Collection, error::Result, notes::NoteId};
+use super::cardgen::group_generated_cards_by_note;
+use super::CardGenContext;
+use super::Notetype;
+use super::NotetypeId;
+use super::NotetypeKind;
+use crate::card::CardId;
+use crate::collection::Collection;
+use crate::error::Result;
+use crate::notes::NoteId;
 
 pub struct EmptyCardsForNote {
     pub nid: NoteId,
@@ -61,7 +67,8 @@ impl Collection {
             .collect()
     }
 
-    /// Create a report on empty cards. Mutates the provided data to sort ordinals.
+    /// Create a report on empty cards. Mutates the provided data to sort
+    /// ordinals.
     pub fn empty_cards_report(
         &mut self,
         empty: &mut [(NotetypeId, Vec<EmptyCardsForNote>)],

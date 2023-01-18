@@ -1,13 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{
-    error::{
-        DbError, DbErrorKind as DB, FilteredDeckError, InvalidInputError, NetworkError,
-        NetworkErrorKind as Net, NotFoundError, SearchErrorKind, SyncError, SyncErrorKind as Sync,
-    },
-    prelude::AnkiError,
-};
+use crate::error::DbError;
+use crate::error::DbErrorKind as DB;
+use crate::error::FilteredDeckError;
+use crate::error::InvalidInputError;
+use crate::error::NetworkError;
+use crate::error::NetworkErrorKind as Net;
+use crate::error::NotFoundError;
+use crate::error::SearchErrorKind;
+use crate::error::SyncError;
+use crate::error::SyncErrorKind as Sync;
+use crate::prelude::AnkiError;
 
 pub(super) fn debug_produce_error(s: &str) -> AnkiError {
     let info = "error_value".to_string();

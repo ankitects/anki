@@ -3,22 +3,20 @@
 
 //! Updating configs in bulk, from the deck options screen.
 
-use std::{
-    collections::{HashMap, HashSet},
-    iter,
-};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::iter;
 
-use crate::{
-    config::StringKey,
-    decks::NormalDeck,
-    pb,
-    pb::{
-        deckconfig::deck_configs_for_update::{current_deck::Limits, ConfigWithExtra, CurrentDeck},
-        decks::deck::normal::DayLimit,
-    },
-    prelude::*,
-    search::{JoinSearches, SearchNode},
-};
+use crate::config::StringKey;
+use crate::decks::NormalDeck;
+use crate::pb;
+use crate::pb::deckconfig::deck_configs_for_update::current_deck::Limits;
+use crate::pb::deckconfig::deck_configs_for_update::ConfigWithExtra;
+use crate::pb::deckconfig::deck_configs_for_update::CurrentDeck;
+use crate::pb::decks::deck::normal::DayLimit;
+use crate::prelude::*;
+use crate::search::JoinSearches;
+use crate::search::SearchNode;
 
 #[derive(Debug, Clone)]
 pub struct UpdateDeckConfigsRequest {
@@ -165,7 +163,8 @@ impl Collection {
                     .map(|c| c.inner.new_card_insert_order())
                     .unwrap_or_default();
 
-                // if a selected (sub)deck, or its old config was removed, update deck to point to new config
+                // if a selected (sub)deck, or its old config was removed, update deck to point
+                // to new config
                 let current_config_id = if selected_deck_ids.contains(&deck.id)
                     || !configs_after_update.contains_key(&previous_config_id)
                 {
@@ -196,7 +195,8 @@ impl Collection {
         Ok(())
     }
 
-    /// Adjust the remaining steps of cards in the given deck according to the config change.
+    /// Adjust the remaining steps of cards in the given deck according to the
+    /// config change.
     fn adjust_remaining_steps_in_deck(
         &mut self,
         deck: DeckId,
@@ -269,13 +269,10 @@ fn update_day_limit(day_limit: &mut Option<DayLimit>, new_limit: Option<u32>, to
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{
-        collection::open_test_collection,
-        deckconfig::NewCardInsertOrder,
-        tests::{
-            open_test_collection_with_learning_card, open_test_collection_with_relearning_card,
-        },
-    };
+    use crate::collection::open_test_collection;
+    use crate::deckconfig::NewCardInsertOrder;
+    use crate::tests::open_test_collection_with_learning_card;
+    use crate::tests::open_test_collection_with_relearning_card;
 
     #[test]
     fn updating() -> Result<()> {

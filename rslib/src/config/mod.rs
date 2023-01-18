@@ -9,15 +9,19 @@ pub(crate) mod schema11;
 mod string;
 pub(crate) mod undo;
 
-use serde::{de::DeserializeOwned, Serialize};
-use serde_repr::{Deserialize_repr, Serialize_repr};
+use serde::de::DeserializeOwned;
+use serde::Serialize;
+use serde_repr::Deserialize_repr;
+use serde_repr::Serialize_repr;
 use strum::IntoStaticStr;
 
-pub use self::{
-    bool::BoolKey, deck::DeckConfigKey, notetype::get_aux_notetype_config_key,
-    number::I32ConfigKey, string::StringKey,
-};
-use crate::{pb::config::preferences::BackupLimits, prelude::*};
+pub use self::bool::BoolKey;
+pub use self::deck::DeckConfigKey;
+pub use self::notetype::get_aux_notetype_config_key;
+pub use self::number::I32ConfigKey;
+pub use self::string::StringKey;
+use crate::pb::config::preferences::BackupLimits;
+use crate::prelude::*;
 
 /// Only used when updating/undoing.
 #[derive(Debug)]
@@ -306,7 +310,8 @@ pub(crate) enum Weekday {
 
 #[cfg(test)]
 mod test {
-    use crate::{collection::open_test_collection, decks::DeckId};
+    use crate::collection::open_test_collection;
+    use crate::decks::DeckId;
 
     #[test]
     fn defaults() {

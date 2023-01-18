@@ -1,21 +1,24 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use rusqlite::{
-    params_from_iter,
-    types::{FromSql, FromSqlError, ToSql, ToSqlOutput, ValueRef},
-    OptionalExtension,
-};
-use serde_derive::{Deserialize, Serialize};
+use rusqlite::params_from_iter;
+use rusqlite::types::FromSql;
+use rusqlite::types::FromSqlError;
+use rusqlite::types::ToSql;
+use rusqlite::types::ToSqlOutput;
+use rusqlite::types::ValueRef;
+use rusqlite::OptionalExtension;
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
 
-use crate::{
-    pb,
-    pb::ankidroid::{
-        sql_value::Data, DbResponse, DbResult as ProtoDbResult, Row, SqlValue as pb_SqlValue,
-    },
-    prelude::*,
-    storage::SqliteStorage,
-};
+use crate::pb;
+use crate::pb::ankidroid::sql_value::Data;
+use crate::pb::ankidroid::DbResponse;
+use crate::pb::ankidroid::DbResult as ProtoDbResult;
+use crate::pb::ankidroid::Row;
+use crate::pb::ankidroid::SqlValue as pb_SqlValue;
+use crate::prelude::*;
+use crate::storage::SqliteStorage;
 
 #[derive(Deserialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]

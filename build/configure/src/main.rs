@@ -12,11 +12,18 @@ mod web;
 
 use aqt::build_and_check_aqt;
 use bundle::build_bundle;
-use ninja_gen::{Build, Result};
-use pylib::{build_pylib, check_pylib};
-use python::{check_copyright, check_python, setup_python, setup_venv};
-use rust::{build_rust, check_rust};
-use web::{build_and_check_web, check_sql};
+use ninja_gen::Build;
+use ninja_gen::Result;
+use pylib::build_pylib;
+use pylib::check_pylib;
+use python::check_copyright;
+use python::check_python;
+use python::setup_python;
+use python::setup_venv;
+use rust::build_rust;
+use rust::check_rust;
+use web::build_and_check_web;
+use web::check_sql;
 
 use crate::proto::check_proto;
 

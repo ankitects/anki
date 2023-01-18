@@ -1,10 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashMap, mem};
+use std::collections::HashMap;
+use std::mem;
 
 use super::Context;
-use crate::{decks::NormalDeck, prelude::*};
+use crate::decks::NormalDeck;
+use crate::prelude::*;
 
 struct DeckContext<'d> {
     target_col: &'d mut Collection,
@@ -207,7 +209,8 @@ mod test {
     use std::collections::HashSet;
 
     use super::*;
-    use crate::{collection::open_test_collection, tests::new_deck_with_machine_name};
+    use crate::collection::open_test_collection;
+    use crate::tests::new_deck_with_machine_name;
 
     #[test]
     fn parents() {

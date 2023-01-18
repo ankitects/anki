@@ -80,7 +80,8 @@ impl CardState {
 
 /// Info required during state transitions.
 pub(crate) struct StateContext<'a> {
-    /// In range `0.0..1.0`. Used to pick the final interval from the fuzz range.
+    /// In range `0.0..1.0`. Used to pick the final interval from the fuzz
+    /// range.
     pub fuzz_factor: Option<f32>,
 
     // learning

@@ -8,7 +8,10 @@ use serde::de::DeserializeOwned;
 use serde_json::Value;
 
 use super::SqliteStorage;
-use crate::{config::ConfigEntry, error::Result, timestamp::TimestampSecs, types::Usn};
+use crate::config::ConfigEntry;
+use crate::error::Result;
+use crate::timestamp::TimestampSecs;
+use crate::types::Usn;
 
 impl SqliteStorage {
     pub(crate) fn set_config_entry(&self, entry: &ConfigEntry) -> Result<()> {

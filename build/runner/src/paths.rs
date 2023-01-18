@@ -3,8 +3,8 @@
 
 use camino::Utf8Path;
 
-/// On Unix, just a normal path. On Windows, c:\foo\bar.txt becomes /c/foo/bar.txt,
-/// which msys rsync expects.
+/// On Unix, just a normal path. On Windows, c:\foo\bar.txt becomes
+/// /c/foo/bar.txt, which msys rsync expects.
 pub fn absolute_msys_path(path: &Utf8Path) -> String {
     let path = path.canonicalize_utf8().unwrap().into_string();
     if !cfg!(windows) {

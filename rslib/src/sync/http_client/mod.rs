@@ -5,24 +5,26 @@ pub(crate) mod full_sync;
 pub(crate) mod io_monitor;
 mod protocol;
 
-use std::{sync::Mutex, time::Duration};
+use std::sync::Mutex;
+use std::time::Duration;
 
-use reqwest::{Client, Error, StatusCode, Url};
+use reqwest::Client;
+use reqwest::Error;
+use reqwest::StatusCode;
+use reqwest::Url;
 
-use crate::{
-    notes,
-    sync::{
-        collection::{progress::FullSyncProgressFn, protocol::AsSyncEndpoint},
-        error::{HttpError, HttpResult, HttpSnafu},
-        http_client::io_monitor::IoMonitor,
-        login::SyncAuth,
-        request::{
-            header_and_stream::{SyncHeader, SYNC_HEADER_NAME},
-            SyncRequest,
-        },
-        response::SyncResponse,
-    },
-};
+use crate::notes;
+use crate::sync::collection::progress::FullSyncProgressFn;
+use crate::sync::collection::protocol::AsSyncEndpoint;
+use crate::sync::error::HttpError;
+use crate::sync::error::HttpResult;
+use crate::sync::error::HttpSnafu;
+use crate::sync::http_client::io_monitor::IoMonitor;
+use crate::sync::login::SyncAuth;
+use crate::sync::request::header_and_stream::SyncHeader;
+use crate::sync::request::header_and_stream::SYNC_HEADER_NAME;
+use crate::sync::request::SyncRequest;
+use crate::sync::response::SyncResponse;
 
 pub struct HttpSyncClient {
     /// Set to the empty string for initial login

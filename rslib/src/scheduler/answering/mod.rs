@@ -8,23 +8,24 @@ mod relearning;
 mod review;
 mod revlog;
 
-use rand::{prelude::*, rngs::StdRng};
+use rand::prelude::*;
+use rand::rngs::StdRng;
 use revlog::RevlogEntryPartial;
 
-use super::{
-    states::{
-        steps::LearningSteps, CardState, FilteredState, NormalState, SchedulingStates, StateContext,
-    },
-    timespan::answer_button_time_collapsible,
-    timing::SchedTimingToday,
-};
-use crate::{
-    card::CardQueue,
-    deckconfig::{DeckConfig, LeechAction},
-    decks::Deck,
-    pb,
-    prelude::*,
-};
+use super::states::steps::LearningSteps;
+use super::states::CardState;
+use super::states::FilteredState;
+use super::states::NormalState;
+use super::states::SchedulingStates;
+use super::states::StateContext;
+use super::timespan::answer_button_time_collapsible;
+use super::timing::SchedTimingToday;
+use crate::card::CardQueue;
+use crate::deckconfig::DeckConfig;
+use crate::deckconfig::LeechAction;
+use crate::decks::Deck;
+use crate::pb;
+use crate::prelude::*;
 
 #[derive(Copy, Clone)]
 pub enum Rating {
@@ -119,7 +120,8 @@ impl CardStateUpdater {
                             invalid_input!("should set finished=true, not return different state")
                         }
                         FilteredState::Rescheduling(_) => {
-                            // card needs to be removed from normal filtered deck, then scheduled normally
+                            // card needs to be removed from normal filtered deck, then scheduled
+                            // normally
                             self.card.remove_from_filtered_deck_before_reschedule();
                         }
                     }
@@ -449,9 +451,10 @@ fn get_fuzz_factor(seed: Option<u64>) -> Option<f32> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{
-        card::CardType, collection::open_test_collection, deckconfig::ReviewMix, search::SortMode,
-    };
+    use crate::card::CardType;
+    use crate::collection::open_test_collection;
+    use crate::deckconfig::ReviewMix;
+    use crate::search::SortMode;
 
     fn current_state(col: &mut Collection, card_id: CardId) -> CardState {
         col.get_scheduling_states(card_id).unwrap().current

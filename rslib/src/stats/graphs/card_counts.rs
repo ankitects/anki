@@ -1,11 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{
-    card::{Card, CardQueue, CardType},
-    pb::stats::graphs_response::{card_counts::Counts, CardCounts},
-    stats::graphs::GraphsContext,
-};
+use crate::card::Card;
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::pb::stats::graphs_response::card_counts::Counts;
+use crate::pb::stats::graphs_response::CardCounts;
+use crate::stats::graphs::GraphsContext;
 
 impl GraphsContext {
     pub(super) fn card_counts(&self) -> CardCounts {

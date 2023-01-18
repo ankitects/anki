@@ -4,9 +4,12 @@
 use std::borrow::Cow;
 
 use lazy_static::lazy_static;
-use regex::{Captures, Regex};
+use regex::Captures;
+use regex::Regex;
 
-use crate::{cloze::expand_clozes_to_reveal_latex, media::files::sha1_of_data, text::strip_html};
+use crate::cloze::expand_clozes_to_reveal_latex;
+use crate::media::files::sha1_of_data;
+use crate::text::strip_html;
 
 lazy_static! {
     pub(crate) static ref LATEX: Regex = Regex::new(
@@ -107,7 +110,8 @@ fn image_link_for_fname(src: &str, fname: &str) -> String {
 
 #[cfg(test)]
 mod test {
-    use crate::latex::{extract_latex, ExtractedLatex};
+    use crate::latex::extract_latex;
+    use crate::latex::ExtractedLatex;
 
     #[test]
     fn latex() {

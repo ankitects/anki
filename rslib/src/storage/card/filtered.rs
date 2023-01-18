@@ -1,10 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{
-    card::CardQueue,
-    decks::{FilteredSearchOrder, FilteredSearchTerm},
-};
+use crate::card::CardQueue;
+use crate::decks::FilteredSearchOrder;
+use crate::decks::FilteredSearchTerm;
 
 pub(crate) fn order_and_limit_for_search(term: &FilteredSearchTerm, today: u32) -> String {
     let temp_string;

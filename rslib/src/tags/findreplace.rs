@@ -3,10 +3,15 @@
 
 use std::borrow::Cow;
 
-use regex::{NoExpand, Regex, Replacer};
+use regex::NoExpand;
+use regex::Regex;
+use regex::Replacer;
 
-use super::{is_tag_separator, join_tags, split_tags};
-use crate::{notes::NoteTags, prelude::*};
+use super::is_tag_separator;
+use super::join_tags;
+use super::split_tags;
+use crate::notes::NoteTags;
+use crate::prelude::*;
 
 impl Collection {
     /// Replace occurrences of a search with a new value in tags.
@@ -96,7 +101,8 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, decks::DeckId};
+    use crate::collection::open_test_collection;
+    use crate::decks::DeckId;
 
     #[test]
     fn find_replace() -> Result<()> {

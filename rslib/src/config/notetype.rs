@@ -4,7 +4,8 @@
 use strum::IntoStaticStr;
 
 use super::ConfigKey;
-use crate::{notetype::NotetypeKind, prelude::*};
+use crate::notetype::NotetypeKind;
+use crate::prelude::*;
 
 /// Notetype config packed into a collection config key. This may change
 /// frequently, and we want to avoid the potentially expensive notetype

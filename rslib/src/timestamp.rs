@@ -5,7 +5,8 @@ use std::time;
 
 use chrono::prelude::*;
 
-use crate::{define_newtype, prelude::*};
+use crate::define_newtype;
+use crate::prelude::*;
 
 define_newtype!(TimestampSecs, i64);
 define_newtype!(TimestampMillis, i64);
@@ -88,8 +89,9 @@ impl TimestampMillis {
 
 fn elapsed() -> time::Duration {
     if *crate::PYTHON_UNIT_TESTS {
-        // shift clock around rollover time to accommodate Python tests that make bad assumptions.
-        // we should update the tests in the future and remove this hack.
+        // shift clock around rollover time to accommodate Python tests that make bad
+        // assumptions. we should update the tests in the future and remove this
+        // hack.
         let mut elap = time::SystemTime::now()
             .duration_since(time::SystemTime::UNIX_EPOCH)
             .unwrap();

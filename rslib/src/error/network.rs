@@ -8,7 +8,8 @@ use reqwest::StatusCode;
 use snafu::Snafu;
 
 use super::AnkiError;
-use crate::sync::{collection::sanity::SanityCheckCounts, error::HttpError};
+use crate::sync::collection::sanity::SanityCheckCounts;
+use crate::sync::error::HttpError;
 
 #[derive(Debug, PartialEq, Eq, Snafu)]
 #[snafu(visibility(pub(crate)))]
@@ -203,8 +204,8 @@ impl NetworkError {
     }
 }
 
-// This needs rethinking; we should be attaching error context as errors are encountered
-// instead of trying to determine the problem later.
+// This needs rethinking; we should be attaching error context as errors are
+// encountered instead of trying to determine the problem later.
 impl From<HttpError> for AnkiError {
     fn from(err: HttpError) -> Self {
         if let Some(source) = &err.source {

@@ -1,22 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    collections::HashMap,
-    io,
-    io::{Read, Write},
-};
+use std::collections::HashMap;
+use std::io;
+use std::io::Read;
+use std::io::Write;
 
 use serde::Deserialize;
 use serde_tuple::Serialize_tuple;
 use unicode_normalization::is_nfc;
-use zip::{self, write::FileOptions, ZipWriter};
+use zip::write::FileOptions;
+use zip::ZipWriter;
 
-use crate::{
-    media::files::sha1_of_data,
-    prelude::*,
-    sync::media::{MAX_INDIVIDUAL_MEDIA_FILE_SIZE, MAX_MEDIA_FILENAME_LENGTH_SERVER},
-};
+use crate::media::files::sha1_of_data;
+use crate::prelude::*;
+use crate::sync::media::MAX_INDIVIDUAL_MEDIA_FILE_SIZE;
+use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH_SERVER;
 
 pub struct ZipFileMetadata {
     pub filename: String,
@@ -25,8 +24,8 @@ pub struct ZipFileMetadata {
 }
 
 /// Write provided `[(filename, data)]` into a zip file, returning its data.
-/// The metadata is in a different format to the upload case, since deletions don't need
-/// to be represented.
+/// The metadata is in a different format to the upload case, since deletions
+/// don't need to be represented.
 pub fn zip_files_for_download(files: Vec<(String, Vec<u8>)>) -> Result<Vec<u8>> {
     let options = FileOptions::default().compression_method(zip::CompressionMethod::Stored);
     let mut zip = ZipWriter::new(io::Cursor::new(vec![]));

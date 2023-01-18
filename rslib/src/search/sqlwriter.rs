@@ -1,28 +1,36 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, fmt::Write};
+use std::borrow::Cow;
+use std::fmt::Write;
 
 use itertools::Itertools;
 
-use super::{
-    parser::{Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
-    ReturnItemType,
-};
-use crate::{
-    card::{CardQueue, CardType},
-    collection::Collection,
-    error::Result,
-    notes::field_checksum,
-    notetype::NotetypeId,
-    prelude::*,
-    storage::ids_to_string,
-    text::{
-        glob_matcher, is_glob, normalize_to_nfc, strip_html_preserving_media_filenames,
-        to_custom_re, to_re, to_sql, to_text, without_combining,
-    },
-    timestamp::TimestampSecs,
-};
+use super::parser::Node;
+use super::parser::PropertyKind;
+use super::parser::RatingKind;
+use super::parser::SearchNode;
+use super::parser::StateKind;
+use super::parser::TemplateKind;
+use super::ReturnItemType;
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::collection::Collection;
+use crate::error::Result;
+use crate::notes::field_checksum;
+use crate::notetype::NotetypeId;
+use crate::prelude::*;
+use crate::storage::ids_to_string;
+use crate::text::glob_matcher;
+use crate::text::is_glob;
+use crate::text::normalize_to_nfc;
+use crate::text::strip_html_preserving_media_filenames;
+use crate::text::to_custom_re;
+use crate::text::to_re;
+use crate::text::to_sql;
+use crate::text::to_text;
+use crate::text::without_combining;
+use crate::timestamp::TimestampSecs;
 
 pub(crate) struct SqlWriter<'a> {
     col: &'a mut Collection,
@@ -113,9 +121,9 @@ impl SqlWriter<'_> {
         }
     }
 
-    // NOTE: when adding any new nodes in the future, make sure that they are either a single
-    // search term, or they wrap multiple terms in parentheses, as can be seen in the sql() unit
-    // test at the bottom of the file.
+    // NOTE: when adding any new nodes in the future, make sure that they are either
+    // a single search term, or they wrap multiple terms in parentheses, as can
+    // be seen in the sql() unit test at the bottom of the file.
     fn write_search_node_to_sql(&mut self, node: &SearchNode) -> Result<()> {
         use normalize_to_nfc as norm;
         match node {
@@ -689,11 +697,11 @@ impl SearchNode {
 mod test {
     use tempfile::tempdir;
 
-    use super::{super::parser::parse, *};
-    use crate::{
-        collection::{Collection, CollectionBuilder},
-        io::write_file,
-    };
+    use super::super::parser::parse;
+    use super::*;
+    use crate::collection::Collection;
+    use crate::collection::CollectionBuilder;
+    use crate::io::write_file;
 
     // shortcut
     fn s(req: &mut Collection, search: &str) -> (String, Vec<String>) {

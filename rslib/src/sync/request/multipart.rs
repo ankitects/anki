@@ -1,18 +1,22 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{io::Read, marker::PhantomData, net::IpAddr};
+use std::io::Read;
+use std::marker::PhantomData;
+use std::net::IpAddr;
 
 use axum::extract::Multipart;
-use bytes::{Buf, Bytes};
+use bytes::Buf;
+use bytes::Bytes;
 use flate2::read::GzDecoder;
 use tokio::task::spawn_blocking;
 
-use crate::sync::{
-    error::{HttpResult, OrHttpErr},
-    request::{SyncRequest, MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED},
-    version::{SyncVersion, SYNC_VERSION_10_V2_TIMEZONE},
-};
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
+use crate::sync::request::SyncRequest;
+use crate::sync::request::MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED;
+use crate::sync::version::SyncVersion;
+use crate::sync::version::SYNC_VERSION_10_V2_TIMEZONE;
 
 impl<T> SyncRequest<T> {
     pub(super) async fn from_multipart(

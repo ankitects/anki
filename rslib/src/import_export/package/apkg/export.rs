@@ -1,24 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    collections::HashSet,
-    path::{Path, PathBuf},
-};
+use std::collections::HashSet;
+use std::path::Path;
+use std::path::PathBuf;
 
-use crate::{
-    collection::CollectionBuilder,
-    import_export::{
-        gather::ExchangeData,
-        package::{
-            colpkg::export::{export_collection, MediaIter},
-            Meta,
-        },
-        ExportProgress, IncrementableProgress,
-    },
-    io::{atomic_rename, new_tempfile, new_tempfile_in_parent_of},
-    prelude::*,
-};
+use crate::collection::CollectionBuilder;
+use crate::import_export::gather::ExchangeData;
+use crate::import_export::package::colpkg::export::export_collection;
+use crate::import_export::package::colpkg::export::MediaIter;
+use crate::import_export::package::Meta;
+use crate::import_export::ExportProgress;
+use crate::import_export::IncrementableProgress;
+use crate::io::atomic_rename;
+use crate::io::new_tempfile;
+use crate::io::new_tempfile_in_parent_of;
+use crate::prelude::*;
 
 impl Collection {
     /// Returns number of exported notes.

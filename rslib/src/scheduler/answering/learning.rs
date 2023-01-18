@@ -1,14 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use rand::{prelude::*, rngs::StdRng};
+use rand::prelude::*;
+use rand::rngs::StdRng;
 
-use super::{CardStateUpdater, RevlogEntryPartial};
-use crate::{
-    card::{CardQueue, CardType},
-    prelude::*,
-    scheduler::states::{CardState, IntervalKind, LearnState, NewState},
-};
+use super::CardStateUpdater;
+use super::RevlogEntryPartial;
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::prelude::*;
+use crate::scheduler::states::CardState;
+use crate::scheduler::states::IntervalKind;
+use crate::scheduler::states::LearnState;
+use crate::scheduler::states::NewState;
 
 impl CardStateUpdater {
     pub(super) fn apply_new_state(

@@ -5,21 +5,24 @@ mod schema11;
 pub(crate) mod undo;
 mod update;
 
-pub use schema11::{DeckConfSchema11, NewCardOrderSchema11};
+pub use schema11::DeckConfSchema11;
+pub use schema11::NewCardOrderSchema11;
 pub use update::UpdateDeckConfigsRequest;
 
-pub use crate::pb::deckconfig::deck_config::{
-    config::{
-        LeechAction, NewCardGatherPriority, NewCardInsertOrder, NewCardSortOrder, ReviewCardOrder,
-        ReviewMix,
-    },
-    Config as DeckConfigInner,
-};
+pub use crate::pb::deckconfig::deck_config::config::LeechAction;
+pub use crate::pb::deckconfig::deck_config::config::NewCardGatherPriority;
+pub use crate::pb::deckconfig::deck_config::config::NewCardInsertOrder;
+pub use crate::pb::deckconfig::deck_config::config::NewCardSortOrder;
+pub use crate::pb::deckconfig::deck_config::config::ReviewCardOrder;
+pub use crate::pb::deckconfig::deck_config::config::ReviewMix;
+pub use crate::pb::deckconfig::deck_config::Config as DeckConfigInner;
 
 /// Old deck config and cards table store 250% as 2500.
 pub(crate) const INITIAL_EASE_FACTOR_THOUSANDS: u16 = (INITIAL_EASE_FACTOR * 1000.0) as u16;
 
-use crate::{define_newtype, prelude::*, scheduler::states::review::INITIAL_EASE_FACTOR};
+use crate::define_newtype;
+use crate::prelude::*;
+use crate::scheduler::states::review::INITIAL_EASE_FACTOR;
 
 define_newtype!(DeckConfigId, i64);
 

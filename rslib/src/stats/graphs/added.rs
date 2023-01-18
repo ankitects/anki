@@ -8,7 +8,8 @@ impl GraphsContext {
     pub(super) fn added_days(&self) -> Added {
         let mut data = Added::default();
         for card in &self.cards {
-            // this could perhaps be simplified; it currently tries to match the old TS code logic
+            // this could perhaps be simplified; it currently tries to match the old TS code
+            // logic
             let day = ((card.id.as_secs().elapsed_secs_since(self.next_day_start) as f64)
                 / 86_400.0)
                 .ceil() as i32;

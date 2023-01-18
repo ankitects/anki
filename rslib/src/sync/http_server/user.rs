@@ -5,15 +5,13 @@ use std::path::PathBuf;
 
 use tracing::info;
 
-use crate::{
-    collection::{Collection, CollectionBuilder},
-    error,
-    sync::{
-        collection::start::ServerSyncState,
-        error::{HttpResult, OrHttpErr},
-        http_server::media_manager::ServerMediaManager,
-    },
-};
+use crate::collection::Collection;
+use crate::collection::CollectionBuilder;
+use crate::error;
+use crate::sync::collection::start::ServerSyncState;
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
+use crate::sync::http_server::media_manager::ServerMediaManager;
 
 pub(in crate::sync) struct User {
     pub name: String,
@@ -34,9 +32,9 @@ impl User {
         op(self.col.as_mut().unwrap())
     }
 
-    /// Run op with the existing sync state created by start_new_sync(). If there is no
-    /// existing state, or the current state's key does not match, abort the request with
-    /// a conflict.
+    /// Run op with the existing sync state created by start_new_sync(). If
+    /// there is no existing state, or the current state's key does not
+    /// match, abort the request with a conflict.
     pub(crate) fn with_sync_state<F, T>(&mut self, skey: &str, op: F) -> HttpResult<T>
     where
         F: FnOnce(&mut Collection, &mut ServerSyncState) -> error::Result<T>,
@@ -53,9 +51,10 @@ impl User {
         self.ensure_col_open()?;
         let state = self.sync_state.as_mut().unwrap();
         let col = self.col.as_mut().or_internal_err("open col")?;
-        // Failures in a sync op are usually caused by referential integrity issues (eg they've sent
-        // a note without sending its associated notetype). Returning HTTP 400 will inform the client that
-        // a DB check+full sync is required to fix the issue.
+        // Failures in a sync op are usually caused by referential integrity issues (eg
+        // they've sent a note without sending its associated notetype).
+        // Returning HTTP 400 will inform the client that a DB check+full sync
+        // is required to fix the issue.
         op(col, state)
             .map_err(|e| {
                 self.col = None;

@@ -2,8 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::Backend;
+use crate::pb;
 pub(super) use crate::pb::stats::stats_service::Service as StatsService;
-use crate::{pb, prelude::*, revlog::RevlogReviewKind};
+use crate::prelude::*;
+use crate::revlog::RevlogReviewKind;
 
 impl StatsService for Backend {
     fn card_stats(&self, input: pb::cards::CardId) -> Result<pb::stats::CardStatsResponse> {

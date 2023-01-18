@@ -1,7 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{i18n::I18n, prelude::*, scheduler::timespan::Timespan};
+use crate::i18n::I18n;
+use crate::prelude::*;
+use crate::scheduler::timespan::Timespan;
 
 pub fn studied_today(cards: u32, secs: f32, tr: &I18n) -> String {
     let span = Timespan::from_secs(secs).natural_span();

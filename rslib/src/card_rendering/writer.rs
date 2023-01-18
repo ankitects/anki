@@ -3,12 +3,15 @@
 
 use std::fmt::Write as _;
 
-use super::{CardNodes, Directive, Node, OtherDirective, TtsDirective};
-use crate::{
-    pb,
-    prelude::*,
-    text::{decode_entities, strip_html_for_tts},
-};
+use super::CardNodes;
+use super::Directive;
+use super::Node;
+use super::OtherDirective;
+use super::TtsDirective;
+use crate::pb;
+use crate::prelude::*;
+use crate::text::decode_entities;
+use crate::text::strip_html_for_tts;
 
 impl<'a> CardNodes<'a> {
     pub(super) fn write_without_av_tags(&self) -> String {

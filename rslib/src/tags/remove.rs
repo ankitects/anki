@@ -5,7 +5,8 @@ use super::matcher::TagMatcher;
 use crate::prelude::*;
 
 impl Collection {
-    /// Take tags as a whitespace-separated string and remove them from all notes and the tag list.
+    /// Take tags as a whitespace-separated string and remove them from all
+    /// notes and the tag list.
     pub fn remove_tags(&mut self, tags: &str) -> Result<OpOutput<usize>> {
         self.transact(Op::RemoveTag, |col| col.remove_tags_inner(tags))
     }
@@ -96,7 +97,8 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, tags::Tag};
+    use crate::collection::open_test_collection;
+    use crate::tags::Tag;
 
     #[test]
     fn clearing() -> Result<()> {

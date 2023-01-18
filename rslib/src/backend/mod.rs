@@ -29,39 +29,41 @@ mod stats;
 mod sync;
 mod tags;
 
-use std::{
-    result,
-    sync::{Arc, Mutex},
-    thread::JoinHandle,
-};
+use std::result;
+use std::sync::Arc;
+use std::sync::Mutex;
+use std::thread::JoinHandle;
 
 use once_cell::sync::OnceCell;
 use progress::AbortHandleSlot;
 use prost::Message;
-use tokio::{runtime, runtime::Runtime};
+use tokio::runtime;
+use tokio::runtime::Runtime;
 
-use self::{
-    ankidroid::AnkidroidService,
-    card::CardsService,
-    cardrendering::CardRenderingService,
-    collection::CollectionService,
-    config::ConfigService,
-    deckconfig::DeckConfigService,
-    decks::DecksService,
-    i18n::I18nService,
-    import_export::ImportExportService,
-    links::LinksService,
-    media::MediaService,
-    notes::NotesService,
-    notetypes::NotetypesService,
-    progress::ProgressState,
-    scheduler::SchedulerService,
-    search::SearchService,
-    stats::StatsService,
-    sync::{SyncService, SyncState},
-    tags::TagsService,
-};
-use crate::{backend::dbproxy::db_command_bytes, pb, pb::backend::ServiceIndex, prelude::*};
+use self::ankidroid::AnkidroidService;
+use self::card::CardsService;
+use self::cardrendering::CardRenderingService;
+use self::collection::CollectionService;
+use self::config::ConfigService;
+use self::deckconfig::DeckConfigService;
+use self::decks::DecksService;
+use self::i18n::I18nService;
+use self::import_export::ImportExportService;
+use self::links::LinksService;
+use self::media::MediaService;
+use self::notes::NotesService;
+use self::notetypes::NotetypesService;
+use self::progress::ProgressState;
+use self::scheduler::SchedulerService;
+use self::search::SearchService;
+use self::stats::StatsService;
+use self::sync::SyncService;
+use self::sync::SyncState;
+use self::tags::TagsService;
+use crate::backend::dbproxy::db_command_bytes;
+use crate::pb;
+use crate::pb::backend::ServiceIndex;
+use crate::prelude::*;
 
 pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,

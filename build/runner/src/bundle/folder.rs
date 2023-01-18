@@ -1,15 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{env, fs, process::Command};
+use std::env;
+use std::fs;
+use std::process::Command;
 
-use camino::{Utf8Path, Utf8PathBuf};
-use clap::{Args, ValueEnum};
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
+use clap::Args;
+use clap::ValueEnum;
 
-use crate::{
-    paths::{absolute_msys_path, unix_path},
-    run::run_silent,
-};
+use crate::paths::absolute_msys_path;
+use crate::paths::unix_path;
+use crate::run::run_silent;
 
 #[derive(Clone, Copy, ValueEnum, Debug)]
 enum DistKind {
@@ -26,8 +29,8 @@ pub struct BuildDistFolderArgs {
 pub fn build_dist_folder(args: BuildDistFolderArgs) {
     let BuildDistFolderArgs { kind, folder_root } = args;
     fs::create_dir_all(&folder_root).unwrap();
-    // Start with Qt, as it's the largest, and we use --delete to ensure there are no
-    // stale files in lib/. Skipped on macOS as Qt is handled later.
+    // Start with Qt, as it's the largest, and we use --delete to ensure there are
+    // no stale files in lib/. Skipped on macOS as Qt is handled later.
     if !cfg!(target_os = "macos") {
         copy_qt_from_venv(kind, &folder_root);
     }

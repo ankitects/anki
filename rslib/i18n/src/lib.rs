@@ -3,14 +3,17 @@
 
 mod generated;
 
-use std::{
-    borrow::Cow,
-    sync::{Arc, Mutex},
-};
+use std::borrow::Cow;
+use std::sync::Arc;
+use std::sync::Mutex;
 
-use fluent::{types::FluentNumber, FluentArgs, FluentResource, FluentValue};
+use fluent::types::FluentNumber;
+use fluent::FluentArgs;
+use fluent::FluentResource;
+use fluent::FluentValue;
 use fluent_bundle::bundle::FluentBundle as FluentBundleOrig;
-use generated::{KEYS_BY_MODULE, STRINGS};
+use generated::KEYS_BY_MODULE;
+use generated::STRINGS;
 use num_format::Locale;
 use serde::Serialize;
 use unic_langid::LanguageIdentifier;
@@ -265,7 +268,8 @@ impl I18n {
         key.to_string().into()
     }
 
-    /// Return text from configured locales for use with the JS Fluent implementation.
+    /// Return text from configured locales for use with the JS Fluent
+    /// implementation.
     pub fn resources_for_js(&self, desired_modules: &[String]) -> ResourcesForJavascript {
         let inner = self.inner.lock().unwrap();
         let resources = get_modules(&inner.langs, desired_modules);

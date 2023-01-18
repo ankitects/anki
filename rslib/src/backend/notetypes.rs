@@ -2,15 +2,15 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::Backend;
+use crate::config::get_aux_notetype_config_key;
+use crate::notetype::all_stock_notetypes;
+use crate::notetype::ChangeNotetypeInput;
+use crate::notetype::Notetype;
+use crate::notetype::NotetypeChangeInfo;
+use crate::notetype::NotetypeSchema11;
+use crate::pb;
 pub(super) use crate::pb::notetypes::notetypes_service::Service as NotetypesService;
-use crate::{
-    config::get_aux_notetype_config_key,
-    notetype::{
-        all_stock_notetypes, ChangeNotetypeInput, Notetype, NotetypeChangeInfo, NotetypeSchema11,
-    },
-    pb,
-    prelude::*,
-};
+use crate::prelude::*;
 
 impl NotetypesService for Backend {
     fn add_notetype(

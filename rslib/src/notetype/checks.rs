@@ -1,18 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, fmt::Write, ops::Deref};
+use std::borrow::Cow;
+use std::fmt::Write;
+use std::ops::Deref;
 
 use anki_i18n::without_unicode_isolation;
 use lazy_static::lazy_static;
-use regex::{Captures, Match, Regex};
+use regex::Captures;
+use regex::Match;
+use regex::Regex;
 
 use super::CardTemplate;
-use crate::{
-    latex::LATEX,
-    prelude::*,
-    text::{HTML_MEDIA_TAGS, SOUND_TAG},
-};
+use crate::latex::LATEX;
+use crate::prelude::*;
+use crate::text::HTML_MEDIA_TAGS;
+use crate::text::SOUND_TAG;
 
 #[derive(Debug, PartialEq, Eq)]
 struct Template<'a> {

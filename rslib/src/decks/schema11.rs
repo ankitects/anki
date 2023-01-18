@@ -3,16 +3,20 @@
 
 use std::collections::HashMap;
 
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
 use serde_json::Value;
 use serde_tuple::Serialize_tuple;
 
-use super::{DeckCommon, FilteredDeck, FilteredSearchTerm, NormalDeck};
-use crate::{
-    pb::decks::deck::normal::DayLimit,
-    prelude::*,
-    serde::{default_on_invalid, deserialize_bool_from_anything, deserialize_number_from_string},
-};
+use super::DeckCommon;
+use super::FilteredDeck;
+use super::FilteredSearchTerm;
+use super::NormalDeck;
+use crate::pb::decks::deck::normal::DayLimit;
+use crate::prelude::*;
+use crate::serde::default_on_invalid;
+use crate::serde::deserialize_bool_from_anything;
+use crate::serde::deserialize_number_from_string;
 
 #[derive(Serialize, PartialEq, Debug, Clone)]
 #[serde(untagged)]
@@ -21,15 +25,18 @@ pub enum DeckSchema11 {
     Filtered(FilteredDeckSchema11),
 }
 
-// serde doesn't support integer/bool enum tags, so we manually pick the correct variant
+// serde doesn't support integer/bool enum tags, so we manually pick the correct
+// variant
 mod dynfix {
-    use serde::{
-        de,
-        de::{Deserialize, Deserializer},
-    };
-    use serde_json::{Map, Value};
+    use serde::de;
+    use serde::de::Deserialize;
+    use serde::de::Deserializer;
+    use serde_json::Map;
+    use serde_json::Value;
 
-    use super::{DeckSchema11, FilteredDeckSchema11, NormalDeckSchema11};
+    use super::DeckSchema11;
+    use super::FilteredDeckSchema11;
+    use super::NormalDeckSchema11;
 
     impl<'de> Deserialize<'de> for DeckSchema11 {
         fn deserialize<D>(deserializer: D) -> Result<DeckSchema11, D::Error>

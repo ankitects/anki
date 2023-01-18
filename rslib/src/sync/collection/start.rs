@@ -1,21 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
 use tracing::debug;
 
-use crate::{
-    prelude::*,
-    sync::{
-        collection::{
-            chunks::ChunkableIds,
-            graves::{ApplyGravesRequest, Graves},
-            normal::{ClientSyncState, NormalSyncProgress, NormalSyncer},
-            protocol::SyncProtocol,
-        },
-        request::IntoSyncRequest,
-    },
-};
+use crate::prelude::*;
+use crate::sync::collection::chunks::ChunkableIds;
+use crate::sync::collection::graves::ApplyGravesRequest;
+use crate::sync::collection::graves::Graves;
+use crate::sync::collection::normal::ClientSyncState;
+use crate::sync::collection::normal::NormalSyncProgress;
+use crate::sync::collection::normal::NormalSyncer;
+use crate::sync::collection::protocol::SyncProtocol;
+use crate::sync::request::IntoSyncRequest;
 
 impl<F> NormalSyncer<'_, F>
 where
@@ -116,8 +115,8 @@ pub fn server_start(
 /// retain a bunch of information across requests. These are set either
 /// on start, or on subsequent methods.
 pub struct ServerSyncState {
-    /// The session key. This is sent on every http request, but is ignored for methods
-    /// where there is not active sync state.
+    /// The session key. This is sent on every http request, but is ignored for
+    /// methods where there is not active sync state.
     pub skey: String,
 
     pub(in crate::sync) server_usn: Usn,

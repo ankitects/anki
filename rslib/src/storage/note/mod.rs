@@ -1,18 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+use std::collections::HashSet;
 
-use rusqlite::{params, Row};
+use rusqlite::params;
+use rusqlite::Row;
 
-use crate::{
-    error::Result,
-    import_export::package::NoteMeta,
-    notes::{Note, NoteId, NoteTags},
-    notetype::NotetypeId,
-    tags::{join_tags, split_tags},
-    timestamp::TimestampMillis,
-};
+use crate::error::Result;
+use crate::import_export::package::NoteMeta;
+use crate::notes::Note;
+use crate::notes::NoteId;
+use crate::notes::NoteTags;
+use crate::notetype::NotetypeId;
+use crate::tags::join_tags;
+use crate::tags::split_tags;
+use crate::timestamp::TimestampMillis;
 
 pub(crate) fn split_fields(fields: &str) -> Vec<String> {
     fields.split('\x1f').map(Into::into).collect()
@@ -49,7 +52,8 @@ impl super::SqliteStorage {
             .collect()
     }
 
-    /// If fields have been modified, caller must call note.prepare_for_update() prior to calling this.
+    /// If fields have been modified, caller must call note.prepare_for_update()
+    /// prior to calling this.
     pub(crate) fn update_note(&self, note: &Note) -> Result<()> {
         assert_ne!(note.id.0, 0);
         let mut stmt = self.db.prepare_cached(include_str!("update.sql"))?;
@@ -103,7 +107,8 @@ impl super::SqliteStorage {
             .map_err(Into::into)
     }
 
-    /// Add or update the provided note, preserving ID. Used by the syncing code.
+    /// Add or update the provided note, preserving ID. Used by the syncing
+    /// code.
     pub(crate) fn add_or_update_note(&self, note: &Note) -> Result<()> {
         let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
         stmt.execute(params![

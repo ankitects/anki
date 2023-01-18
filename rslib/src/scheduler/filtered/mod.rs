@@ -4,17 +4,16 @@
 mod card;
 mod custom_study;
 
-use crate::{
-    config::{ConfigKey, SchedulerVersion},
-    decks::{FilteredDeck, FilteredSearchTerm},
-    error::FilteredDeckError,
-    prelude::*,
-    search::{
-        writer::{deck_search, normalize_search},
-        SortMode,
-    },
-    storage::card::filtered::order_and_limit_for_search,
-};
+use crate::config::ConfigKey;
+use crate::config::SchedulerVersion;
+use crate::decks::FilteredDeck;
+use crate::decks::FilteredSearchTerm;
+use crate::error::FilteredDeckError;
+use crate::prelude::*;
+use crate::search::writer::deck_search;
+use crate::search::writer::normalize_search;
+use crate::search::SortMode;
+use crate::storage::card::filtered::order_and_limit_for_search;
 
 /// Contains the parts of a filtered deck required for modifying its settings in
 /// the UI.
@@ -33,8 +32,8 @@ pub(crate) struct DeckFilterContext<'a> {
 }
 
 impl Collection {
-    /// Get an existing filtered deck, or create a new one if `deck_id` is 0. The new deck
-    /// will not be added to the DB.
+    /// Get an existing filtered deck, or create a new one if `deck_id` is 0.
+    /// The new deck will not be added to the DB.
     pub fn get_or_create_filtered_deck(
         &mut self,
         deck_id: DeckId,
@@ -48,10 +47,10 @@ impl Collection {
         deck.try_into()
     }
 
-    /// If the provided `deck_id` is 0, add provided deck to the DB, and rebuild it. If the
-    /// searches are invalid or do not match anything, adding is aborted.
-    /// If an existing deck is provided, it will be updated. Invalid searches or an empty
-    /// match will abort the update.
+    /// If the provided `deck_id` is 0, add provided deck to the DB, and rebuild
+    /// it. If the searches are invalid or do not match anything, adding is
+    /// aborted. If an existing deck is provided, it will be updated.
+    /// Invalid searches or an empty match will abort the update.
     /// Returns the deck_id, which will have changed if the id was 0.
     pub fn add_or_update_filtered_deck(
         &mut self,

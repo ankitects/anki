@@ -1,12 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{
-    error::{AnkiError, SyncErrorKind},
-    pb,
-    pb::backend::backend_error::Kind,
-    prelude::*,
-};
+use crate::error::AnkiError;
+use crate::error::SyncErrorKind;
+use crate::pb;
+use crate::pb::backend::backend_error::Kind;
+use crate::prelude::*;
 
 impl AnkiError {
     pub fn into_protobuf(self, tr: &I18n) -> pb::backend::BackendError {

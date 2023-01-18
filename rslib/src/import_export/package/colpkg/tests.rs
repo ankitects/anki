@@ -7,13 +7,13 @@ use std::path::Path;
 
 use tempfile::tempdir;
 
-use crate::{
-    collection::CollectionBuilder,
-    import_export::package::import_colpkg,
-    io::{create_dir, create_dir_all, read_file},
-    media::MediaManager,
-    prelude::*,
-};
+use crate::collection::CollectionBuilder;
+use crate::import_export::package::import_colpkg;
+use crate::io::create_dir;
+use crate::io::create_dir_all;
+use crate::io::read_file;
+use crate::media::MediaManager;
+use crate::prelude::*;
 
 fn collection_with_media(dir: &Path, name: &str) -> Result<Collection> {
     let name = format!("{name}_src");

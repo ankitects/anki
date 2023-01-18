@@ -4,26 +4,24 @@
 use async_trait::async_trait;
 use reqwest::Url;
 use serde::de::DeserializeOwned;
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
 use strum::IntoStaticStr;
 
-use crate::{
-    error,
-    error::AnkiError,
-    sync::{
-        collection::protocol::AsSyncEndpoint,
-        error::HttpResult,
-        media::{
-            begin::{SyncBeginRequest, SyncBeginResponse},
-            changes::{MediaChangesRequest, MediaChangesResponse},
-            download::DownloadFilesRequest,
-            sanity::{MediaSanityCheckResponse, SanityCheckRequest},
-            upload::MediaUploadResponse,
-        },
-        request::SyncRequest,
-        response::SyncResponse,
-    },
-};
+use crate::error;
+use crate::error::AnkiError;
+use crate::sync::collection::protocol::AsSyncEndpoint;
+use crate::sync::error::HttpResult;
+use crate::sync::media::begin::SyncBeginRequest;
+use crate::sync::media::begin::SyncBeginResponse;
+use crate::sync::media::changes::MediaChangesRequest;
+use crate::sync::media::changes::MediaChangesResponse;
+use crate::sync::media::download::DownloadFilesRequest;
+use crate::sync::media::sanity::MediaSanityCheckResponse;
+use crate::sync::media::sanity::SanityCheckRequest;
+use crate::sync::media::upload::MediaUploadResponse;
+use crate::sync::request::SyncRequest;
+use crate::sync::response::SyncResponse;
 
 #[derive(IntoStaticStr, Deserialize, PartialEq, Eq, Debug)]
 #[serde(rename_all = "camelCase")]

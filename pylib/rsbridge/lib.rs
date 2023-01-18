@@ -1,14 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use anki::{
-    backend::{init_backend, Backend as RustBackend},
-    log::set_global_logger,
-    sync::http_server::SimpleServer,
-};
-use pyo3::{
-    create_exception, exceptions::PyException, prelude::*, types::PyBytes, wrap_pyfunction,
-};
+use anki::backend::init_backend;
+use anki::backend::Backend as RustBackend;
+use anki::log::set_global_logger;
+use anki::sync::http_server::SimpleServer;
+use pyo3::create_exception;
+use pyo3::exceptions::PyException;
+use pyo3::prelude::*;
+use pyo3::types::PyBytes;
+use pyo3::wrap_pyfunction;
 
 #[pyclass(module = "_rsbridge")]
 struct Backend {

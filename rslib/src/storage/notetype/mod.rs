@@ -1,21 +1,26 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+use std::collections::HashSet;
 
 use prost::Message;
-use rusqlite::{params, OptionalExtension, Row};
+use rusqlite::params;
+use rusqlite::OptionalExtension;
+use rusqlite::Row;
 use unicase::UniCase;
 
-use super::{ids_to_string, SqliteStorage};
-use crate::{
-    error::DbErrorKind,
-    notetype::{
-        AlreadyGeneratedCardInfo, CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig,
-        NotetypeConfig, NotetypeSchema11,
-    },
-    prelude::*,
-};
+use super::ids_to_string;
+use super::SqliteStorage;
+use crate::error::DbErrorKind;
+use crate::notetype::AlreadyGeneratedCardInfo;
+use crate::notetype::CardTemplate;
+use crate::notetype::CardTemplateConfig;
+use crate::notetype::NoteField;
+use crate::notetype::NoteFieldConfig;
+use crate::notetype::NotetypeConfig;
+use crate::notetype::NotetypeSchema11;
+use crate::prelude::*;
 
 fn row_to_notetype_core(row: &Row) -> Result<Notetype> {
     let config = NotetypeConfig::decode(row.get_ref_unwrap(4).as_blob()?)?;

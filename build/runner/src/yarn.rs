@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{path::Path, process::Command};
+use std::path::Path;
+use std::process::Command;
 
 use clap::Args;
 
@@ -21,8 +22,8 @@ pub fn setup_yarn(args: YarnArgs) {
     std::fs::write(args.stamp, b"").unwrap();
 }
 
-/// Unfortunately a lot of the node ecosystem expects the output folder to reside
-/// in the repo root, so we need to link in our output folder.
+/// Unfortunately a lot of the node ecosystem expects the output folder to
+/// reside in the repo root, so we need to link in our output folder.
 #[cfg(not(windows))]
 fn link_node_modules() {
     let target = Path::new("node_modules");
@@ -35,9 +36,10 @@ fn link_node_modules() {
     }
 }
 
-/// Things are more complicated on Windows - having $root/node_modules point to $root/out/node_modules
-/// breaks our globs for some reason, so we create the junction in the opposite direction instead.
-/// Ninja will have already created some empty folders based on our declared outputs, so we move the
+/// Things are more complicated on Windows - having $root/node_modules point to
+/// $root/out/node_modules breaks our globs for some reason, so we create the
+/// junction in the opposite direction instead. Ninja will have already created
+/// some empty folders based on our declared outputs, so we move the
 /// created folder into the root.
 #[cfg(windows)]
 fn link_node_modules() {

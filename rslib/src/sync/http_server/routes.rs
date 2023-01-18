@@ -1,23 +1,25 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use axum::{
-    extract::{Path, Query, State},
-    response::Response,
-    routing::{get, post},
-    Router,
-};
+use axum::extract::Path;
+use axum::extract::Query;
+use axum::extract::State;
+use axum::response::Response;
+use axum::routing::get;
+use axum::routing::post;
+use axum::Router;
 
-use crate::sync::{
-    collection::protocol::{SyncMethod, SyncProtocol},
-    error::{HttpResult, OrHttpErr},
-    media::{
-        begin::{SyncBeginQuery, SyncBeginRequest},
-        protocol::{MediaSyncMethod, MediaSyncProtocol},
-    },
-    request::{IntoSyncRequest, SyncRequest},
-    version::SyncVersion,
-};
+use crate::sync::collection::protocol::SyncMethod;
+use crate::sync::collection::protocol::SyncProtocol;
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
+use crate::sync::media::begin::SyncBeginQuery;
+use crate::sync::media::begin::SyncBeginRequest;
+use crate::sync::media::protocol::MediaSyncMethod;
+use crate::sync::media::protocol::MediaSyncProtocol;
+use crate::sync::request::IntoSyncRequest;
+use crate::sync::request::SyncRequest;
+use crate::sync::version::SyncVersion;
 
 macro_rules! sync_method {
     ($server:ident, $req:ident, $method:ident) => {{
@@ -52,8 +54,8 @@ pub fn collection_sync_router<P: SyncProtocol + Clone>() -> Router<P> {
     Router::new().route("/:method", post(sync_handler::<P>))
 }
 
-/// The Rust code used to send a GET with query params, which was inconsistent with the
-/// rest of our code - map the request into our standard structure.
+/// The Rust code used to send a GET with query params, which was inconsistent
+/// with the rest of our code - map the request into our standard structure.
 async fn media_begin_get<P: MediaSyncProtocol>(
     Query(req): Query<SyncBeginQuery>,
     server: State<P>,
@@ -69,8 +71,8 @@ async fn media_begin_get<P: MediaSyncProtocol>(
     media_begin_post(server, req).await
 }
 
-/// Older clients would send client info in the multipart instead of the inner JSON;
-/// Inject it into the json if provided.
+/// Older clients would send client info in the multipart instead of the inner
+/// JSON; Inject it into the json if provided.
 async fn media_begin_post<P: MediaSyncProtocol>(
     server: State<P>,
     mut req: SyncRequest<SyncBeginRequest>,

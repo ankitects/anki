@@ -1,7 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{BuryMode, Context, DueCard, NewCard, QueueBuilder};
+use super::BuryMode;
+use super::Context;
+use super::DueCard;
+use super::NewCard;
+use super::QueueBuilder;
 use crate::prelude::*;
 
 pub(super) enum DueOrNewCard {
@@ -54,8 +58,8 @@ impl Context {
 
 impl QueueBuilder {
     /// If burying is enabled in `new_settings`, existing entry will be updated.
-    /// Returns a copy made before changing the entry, so that a card with burying
-    /// enabled will bury future siblings, but not itself.
+    /// Returns a copy made before changing the entry, so that a card with
+    /// burying enabled will bury future siblings, but not itself.
     pub(super) fn get_and_update_bury_mode_for_note(
         &mut self,
         card: DueOrNewCard,

@@ -1,17 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, collections::HashMap};
+use std::borrow::Cow;
+use std::collections::HashMap;
 
-use camino::{Utf8Path, Utf8PathBuf};
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
 
-use crate::{
-    action::BuildAction,
-    cargo::{CargoBuild, RustOutput},
-    glob,
-    input::BuildInput,
-    inputs, Build, Result,
-};
+use crate::action::BuildAction;
+use crate::cargo::CargoBuild;
+use crate::cargo::RustOutput;
+use crate::glob;
+use crate::input::BuildInput;
+use crate::inputs;
+use crate::Build;
+use crate::Result;
 
 #[derive(Clone, Copy, Debug)]
 pub struct OnlineArchive {
@@ -98,12 +101,14 @@ impl BuildAction for DownloadArchive {
 
 struct ExtractArchive<'a, I> {
     pub archive_path: BuildInput,
-    /// The folder that the archive should be extracted into, relative to $builddir/extracted.
-    /// If the archive contains a single top-level folder, its contents will be extracted into the
-    /// provided folder, so that output like tool-1.2/ can be extracted into tool/.
+    /// The folder that the archive should be extracted into, relative to
+    /// $builddir/extracted. If the archive contains a single top-level
+    /// folder, its contents will be extracted into the provided folder, so
+    /// that output like tool-1.2/ can be extracted into tool/.
     pub extraction_folder_name: &'a str,
-    /// Files contained inside the archive, relative to the archive root, and excluding the top-level
-    /// folder if it is the sole top-level entry. Any files you wish to use as part of subsequent rules
+    /// Files contained inside the archive, relative to the archive root, and
+    /// excluding the top-level folder if it is the sole top-level entry.
+    /// Any files you wish to use as part of subsequent rules
     /// must be declared here.
     pub file_manifest: HashMap<&'static str, I>,
 }

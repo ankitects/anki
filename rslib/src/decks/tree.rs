@@ -1,23 +1,23 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    collections::{HashMap, HashSet},
-    iter::Peekable,
-    ops::AddAssign,
-};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::iter::Peekable;
+use std::ops::AddAssign;
 
 use serde_tuple::Serialize_tuple;
 use unicase::UniCase;
 
-use super::{
-    limits::{remaining_limits_map, RemainingLimits},
-    DueCounts,
-};
+use super::limits::remaining_limits_map;
+use super::limits::RemainingLimits;
+use super::DueCounts;
+use crate::config::SchedulerVersion;
+use crate::ops::OpOutput;
 pub use crate::pb::decks::set_deck_collapsed_request::Scope as DeckCollapseScope;
-use crate::{
-    config::SchedulerVersion, ops::OpOutput, pb::decks::DeckTreeNode, prelude::*, undo::Op,
-};
+use crate::pb::decks::DeckTreeNode;
+use crate::prelude::*;
+use crate::undo::Op;
 
 fn deck_names_to_tree(names: impl Iterator<Item = (DeckId, String)>) -> DeckTreeNode {
     let mut top = DeckTreeNode::default();
@@ -395,7 +395,9 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, deckconfig::DeckConfigId, error::Result};
+    use crate::collection::open_test_collection;
+    use crate::deckconfig::DeckConfigId;
+    use crate::error::Result;
 
     #[test]
     fn wellformed() -> Result<()> {
@@ -516,7 +518,8 @@ mod test {
         assert_eq!(parent.children[0].children[1].new_count, 1);
         // child: cards from self and children, limited by own new limit
         assert_eq!(parent.children[0].new_count, 4);
-        // parent: cards from self and all subdecks, all limits in the hierarchy are respected
+        // parent: cards from self and all subdecks, all limits in the hierarchy are
+        // respected
         assert_eq!(parent.new_count, 6);
         assert_eq!(parent.total_including_children, 8);
         assert_eq!(parent.total_in_deck, 2);

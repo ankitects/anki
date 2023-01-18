@@ -1,12 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::{
-    prelude::*,
-    sync::collection::{chunks::CHUNK_SIZE, start::ServerSyncState},
-};
+use crate::prelude::*;
+use crate::sync::collection::chunks::CHUNK_SIZE;
+use crate::sync::collection::start::ServerSyncState;
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct ApplyGravesRequest {

@@ -8,10 +8,9 @@ use std::collections::VecDeque;
 pub(crate) use changes::UndoableChange;
 
 pub use crate::ops::Op;
-use crate::{
-    ops::{OpChanges, StateChanges},
-    prelude::*,
-};
+use crate::ops::OpChanges;
+use crate::ops::StateChanges;
+use crate::prelude::*;
 
 const UNDO_LIMIT: usize = 30;
 
@@ -212,7 +211,8 @@ impl Collection {
         self.state.undo.merge_undoable_ops(starting_from)
     }
 
-    /// Add an empty custom undo step, which subsequent changes can be merged into.
+    /// Add an empty custom undo step, which subsequent changes can be merged
+    /// into.
     pub fn add_custom_undo_step(&mut self, name: String) -> usize {
         self.state.undo.add_custom_step(name)
     }
@@ -276,8 +276,8 @@ impl Collection {
             .pop()
     }
 
-    /// Return changes made by the current op. Must only be called in a transaction,
-    /// when an operation was passed to transact().
+    /// Return changes made by the current op. Must only be called in a
+    /// transaction, when an operation was passed to transact().
     pub(crate) fn op_changes(&self) -> OpChanges {
         self.state.undo.op_changes()
     }
@@ -331,7 +331,9 @@ impl From<&[UndoableChange]> for StateChanges {
 #[cfg(test)]
 mod test {
     use super::UndoableChange;
-    use crate::{card::Card, collection::open_test_collection, prelude::*};
+    use crate::card::Card;
+    use crate::collection::open_test_collection;
+    use crate::prelude::*;
 
     #[test]
     fn undo() -> Result<()> {

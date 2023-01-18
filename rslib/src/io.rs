@@ -1,17 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    fs::File,
-    path::{Component, Path},
-};
+use std::fs::File;
+use std::path::Component;
+use std::path::Path;
 
 use tempfile::NamedTempFile;
 
-use crate::{
-    error::{FileIoError, FileIoSnafu, FileOp},
-    prelude::*,
-};
+use crate::error::FileIoError;
+use crate::error::FileIoSnafu;
+use crate::error::FileOp;
+use crate::prelude::*;
 
 pub(crate) type Result<T, E = FileIoError> = std::result::Result<T, E>;
 

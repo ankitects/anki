@@ -4,13 +4,12 @@
 use std::convert::TryFrom;
 
 use super::Backend;
+use crate::decks::DeckSchema11;
+use crate::decks::FilteredSearchOrder;
+use crate::pb;
 pub(super) use crate::pb::decks::decks_service::Service as DecksService;
-use crate::{
-    decks::{DeckSchema11, FilteredSearchOrder},
-    pb,
-    prelude::*,
-    scheduler::filtered::FilteredDeckForUpdate,
-};
+use crate::prelude::*;
+use crate::scheduler::filtered::FilteredDeckForUpdate;
 
 impl DecksService for Backend {
     fn new_deck(&self, _input: pb::generic::Empty) -> Result<pb::decks::Deck> {

@@ -4,7 +4,8 @@
 use rusqlite::params;
 
 use super::SqliteStorage;
-use crate::{collection::timestamps::CollectionTimestamps, prelude::*};
+use crate::collection::timestamps::CollectionTimestamps;
+use crate::prelude::*;
 
 impl SqliteStorage {
     pub(crate) fn get_collection_timestamps(&self) -> Result<CollectionTimestamps> {

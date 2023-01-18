@@ -1,7 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{collection::Collection, config::SchedulerVersion, error::Result, prelude::*};
+use crate::collection::Collection;
+use crate::config::SchedulerVersion;
+use crate::error::Result;
+use crate::prelude::*;
 
 pub mod answering;
 pub mod bury_and_suspend;
@@ -18,10 +21,10 @@ mod upgrade;
 
 use chrono::FixedOffset;
 pub use reviews::parse_due_date_str;
-use timing::{
-    sched_timing_today, v1_creation_date_adjusted_to_hour, v1_rollover_from_creation_stamp,
-    SchedTimingToday,
-};
+use timing::sched_timing_today;
+use timing::v1_creation_date_adjusted_to_hour;
+use timing::v1_rollover_from_creation_stamp;
+use timing::SchedTimingToday;
 
 #[derive(Debug, Clone, Copy)]
 pub struct SchedulerInfo {

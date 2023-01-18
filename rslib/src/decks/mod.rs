@@ -21,19 +21,19 @@ pub(crate) use name::immediate_parent_name;
 pub use name::NativeDeckName;
 pub use schema11::DeckSchema11;
 
-pub use crate::pb::decks::{
-    deck::{
-        filtered::{search_term::Order as FilteredSearchOrder, SearchTerm as FilteredSearchTerm},
-        kind_container::Kind as DeckKind,
-        Common as DeckCommon, Filtered as FilteredDeck, KindContainer as DeckKindContainer,
-        Normal as NormalDeck,
-    },
-    Deck as DeckProto,
-};
-use crate::{
-    define_newtype, error::FilteredDeckError, markdown::render_markdown, prelude::*,
-    text::sanitize_html_no_images,
-};
+use crate::define_newtype;
+use crate::error::FilteredDeckError;
+use crate::markdown::render_markdown;
+pub use crate::pb::decks::deck::filtered::search_term::Order as FilteredSearchOrder;
+pub use crate::pb::decks::deck::filtered::SearchTerm as FilteredSearchTerm;
+pub use crate::pb::decks::deck::kind_container::Kind as DeckKind;
+pub use crate::pb::decks::deck::Common as DeckCommon;
+pub use crate::pb::decks::deck::Filtered as FilteredDeck;
+pub use crate::pb::decks::deck::KindContainer as DeckKindContainer;
+pub use crate::pb::decks::deck::Normal as NormalDeck;
+pub use crate::pb::decks::Deck as DeckProto;
+use crate::prelude::*;
+use crate::text::sanitize_html_no_images;
 
 define_newtype!(DeckId, i64);
 
@@ -185,7 +185,9 @@ impl Collection {
 
 #[cfg(test)]
 mod test {
-    use crate::{collection::open_test_collection, prelude::*, search::SortMode};
+    use crate::collection::open_test_collection;
+    use crate::prelude::*;
+    use crate::search::SortMode;
 
     fn sorted_names(col: &Collection) -> Vec<String> {
         col.storage

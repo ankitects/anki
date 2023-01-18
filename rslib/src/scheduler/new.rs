@@ -1,21 +1,24 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+use std::collections::HashSet;
 
 use rand::seq::SliceRandom;
 
-pub use crate::pb::scheduler::{
-    schedule_cards_as_new_request::Context as ScheduleAsNewContext, RepositionDefaultsResponse,
-    ScheduleCardsAsNewDefaultsResponse,
-};
-use crate::{
-    card::{CardQueue, CardType},
-    config::{BoolKey, SchedulerVersion},
-    deckconfig::NewCardInsertOrder,
-    prelude::*,
-    search::{JoinSearches, SearchNode, SortMode, StateKind},
-};
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::config::BoolKey;
+use crate::config::SchedulerVersion;
+use crate::deckconfig::NewCardInsertOrder;
+pub use crate::pb::scheduler::schedule_cards_as_new_request::Context as ScheduleAsNewContext;
+pub use crate::pb::scheduler::RepositionDefaultsResponse;
+pub use crate::pb::scheduler::ScheduleCardsAsNewDefaultsResponse;
+use crate::prelude::*;
+use crate::search::JoinSearches;
+use crate::search::SearchNode;
+use crate::search::SortMode;
+use crate::search::StateKind;
 
 impl Card {
     pub(crate) fn original_or_current_due(&self) -> i32 {
@@ -254,8 +257,8 @@ impl Collection {
         }
     }
 
-    /// This is handled by update_deck_configs() now; this function has been kept around
-    /// for now to support the old deck config screen.
+    /// This is handled by update_deck_configs() now; this function has been
+    /// kept around for now to support the old deck config screen.
     pub fn sort_deck_legacy(&mut self, deck: DeckId, random: bool) -> Result<OpOutput<usize>> {
         self.transact(Op::SortCards, |col| {
             col.sort_deck(

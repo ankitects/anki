@@ -3,14 +3,12 @@
 
 use std::mem;
 
-use crate::{
-    pb,
-    prelude::*,
-    scheduler::{
-        answering::{CardAnswer, Rating},
-        queue::{QueuedCard, QueuedCards},
-    },
-};
+use crate::pb;
+use crate::prelude::*;
+use crate::scheduler::answering::CardAnswer;
+use crate::scheduler::answering::Rating;
+use crate::scheduler::queue::QueuedCard;
+use crate::scheduler::queue::QueuedCards;
 
 impl From<pb::scheduler::CardAnswer> for CardAnswer {
     fn from(mut answer: pb::scheduler::CardAnswer) -> Self {

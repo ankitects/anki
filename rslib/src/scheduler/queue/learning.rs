@@ -1,8 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{undo::CutoffSnapshot, CardQueues};
-use crate::{prelude::*, scheduler::timing::SchedTimingToday};
+use super::undo::CutoffSnapshot;
+use super::CardQueues;
+use crate::prelude::*;
+use crate::scheduler::timing::SchedTimingToday;
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord)]
 pub(crate) struct LearningQueueEntry {
@@ -52,8 +54,9 @@ impl CardQueues {
         change
     }
 
-    /// Given the just-answered `card`, place it back in the learning queues if it's still
-    /// due today. Avoid placing it in a position where it would be shown again immediately.
+    /// Given the just-answered `card`, place it back in the learning queues if
+    /// it's still due today. Avoid placing it in a position where it would
+    /// be shown again immediately.
     pub(super) fn maybe_requeue_learning_card(
         &mut self,
         card: &Card,
@@ -144,8 +147,8 @@ impl CardQueues {
         self.intraday_learning.insert(target_idx, entry);
     }
 
-    /// Remove an inserted intraday learning card after a lapse is undone, adjusting
-    /// counts.
+    /// Remove an inserted intraday learning card after a lapse is undone,
+    /// adjusting counts.
     pub(super) fn remove_intraday_learning_card(
         &mut self,
         card_id: CardId,
