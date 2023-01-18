@@ -1219,6 +1219,9 @@ class Collection(DeprecatedNamesMixin):
     def compare_answer(self, expected: str, provided: str) -> str:
         return self._backend.compare_answer(expected=expected, provided=provided)
 
+    def extract_cloze_for_typing(self, text: str, ordinal: int) -> str:
+        return self._backend.extract_cloze_for_typing(text=text, ordinal=ordinal)
+
     # Timeboxing
     ##########################################################################
     # fixme: there doesn't seem to be a good reason why this code is in main.py
