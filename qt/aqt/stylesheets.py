@@ -88,6 +88,11 @@ class CustomStyles:
         border-radius: {tm.var(props.BORDER_RADIUS)};
         margin-top: 10px;
     }}
+    QGroupBox#preview_box,
+    QGroupBox#template_box {{
+        background: none;
+        border: none;
+    }}
     QGroupBox::title {{
         subcontrol-origin: margin;
         subcontrol-position: top left;
