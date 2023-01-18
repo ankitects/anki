@@ -97,7 +97,10 @@ impl Collection {
                     .or_not_found(entry.card_id())?;
                 require!(
                     card.mtime == entry.mtime(),
-                    "bug: card modified without updating queue",
+                    "bug: card modified without updating queue: id:{} card:{} entry:{}",
+                    card.id,
+                    card.mtime,
+                    entry.mtime()
                 );
 
                 // fixme: pass in card instead of id
