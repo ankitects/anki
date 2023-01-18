@@ -13,8 +13,68 @@ description = "workspace-hack package, managed by hakari"
 # are managed by hakari.
 
 ### BEGIN HAKARI SECTION
+[dependencies]
+bytes = { version = "1", features = ["std"] }
+crossbeam-utils = { version = "0.8", features = ["std"] }
+either = { version = "1", features = ["use_std"] }
+flate2 = { version = "1", features = ["miniz_oxide", "rust_backend"] }
+futures-channel = { version = "0.3", features = ["alloc", "futures-sink", "sink", "std"] }
+futures-io = { version = "0.3", features = ["std"] }
+futures-task = { version = "0.3", default-features = false, features = ["alloc", "std"] }
+futures-util = { version = "0.3", default-features = false, features = ["alloc", "async-await", "async-await-macro", "channel", "futures-channel", "futures-io", "futures-macro", "futures-sink", "io", "memchr", "sink", "slab", "std"] }
+getrandom = { version = "0.2", default-features = false, features = ["std"] }
+hashbrown = { version = "0.12", features = ["ahash", "inline-more", "raw"] }
+hmac = { version = "0.12", default-features = false, features = ["reset"] }
+hyper = { version = "0.14", features = ["client", "full", "h2", "http1", "http2", "runtime", "server", "socket2", "stream", "tcp"] }
+indexmap = { version = "1", default-features = false, features = ["std"] }
+itertools = { version = "0.10", features = ["use_alloc", "use_std"] }
+log = { version = "0.4", default-features = false, features = ["std"] }
+num-traits = { version = "0.2", features = ["std"] }
+phf_shared = { version = "0.11", default-features = false, features = ["std"] }
+prost = { version = "0.11", features = ["prost-derive", "std"] }
+rand-c38e5c1d305a1b54 = { package = "rand", version = "0.8", features = ["alloc", "getrandom", "libc", "rand_chacha", "small_rng", "std", "std_rng"] }
+rand-ca01ad9e24f5d932 = { package = "rand", version = "0.7", features = ["alloc", "getrandom", "getrandom_package", "libc", "rand_pcg", "small_rng", "std"] }
+rand_core = { version = "0.6", default-features = false, features = ["alloc", "getrandom", "std"] }
+regex = { version = "1", features = ["aho-corasick", "memchr", "perf", "perf-cache", "perf-dfa", "perf-inline", "perf-literal", "std", "unicode", "unicode-age", "unicode-bool", "unicode-case", "unicode-gencat", "unicode-perl", "unicode-script", "unicode-segment"] }
+regex-syntax = { version = "0.6", features = ["unicode", "unicode-age", "unicode-bool", "unicode-case", "unicode-gencat", "unicode-perl", "unicode-script", "unicode-segment"] }
+reqwest = { version = "0.11", features = ["__rustls", "__tls", "blocking", "default-tls", "hyper-rustls", "hyper-tls", "json", "mime_guess", "multipart", "native-tls", "native-tls-crate", "rustls", "rustls-native-certs", "rustls-pemfile", "rustls-tls", "rustls-tls-native-roots", "rustls-tls-webpki-roots", "serde_json", "socks", "stream", "tokio-native-tls", "tokio-rustls", "tokio-socks", "tokio-util", "webpki-roots"] }
+scopeguard = { version = "1", features = ["use_std"] }
+serde = { version = "1", features = ["alloc", "derive", "rc", "serde_derive", "std"] }
+serde_json = { version = "1", features = ["raw_value", "std"] }
+sha2 = { version = "0.10", features = ["std"] }
+snafu = { version = "0.7", features = ["backtrace", "backtraces", "rust_1_39", "rust_1_46", "std"] }
+time = { version = "0.3", features = ["alloc", "formatting", "macros", "parsing", "std"] }
+tokio = { version = "1", features = ["bytes", "fs", "full", "io-std", "io-util", "libc", "macros", "memchr", "mio", "net", "num_cpus", "parking_lot", "process", "rt", "rt-multi-thread", "signal", "signal-hook-registry", "socket2", "sync", "time", "tokio-macros"] }
+tokio-util = { version = "0.7", features = ["codec", "io", "tracing"] }
+tracing = { version = "0.1", features = ["attributes", "log", "max_level_trace", "release_max_level_debug", "std", "tracing-attributes"] }
+tracing-core = { version = "0.1", features = ["once_cell", "std"] }
+url = { version = "2", features = ["serde"] }
+zip = { version = "0.6", features = ["aes", "aes-crypto", "bzip2", "constant_time_eq", "deflate", "flate2", "hmac", "pbkdf2", "sha1", "time", "zstd"] }
+zstd-5ef9efb8ec2df382 = { package = "zstd", version = "0.12", features = ["arrays", "legacy", "zdict_builder", "zstdmt"] }
+zstd-a6292c17cd707f01 = { package = "zstd", version = "0.11", features = ["arrays", "legacy", "zdict_builder"] }
+zstd-safe-a490c3000a992113 = { package = "zstd-safe", version = "6", default-features = false, features = ["arrays", "legacy", "std", "zdict_builder", "zstdmt"] }
+zstd-safe-cdf1610d3e1514e9 = { package = "zstd-safe", version = "5", default-features = false, features = ["arrays", "legacy", "std", "zdict_builder"] }
+zstd-sys = { version = "2", default-features = false, features = ["legacy", "std", "zdict_builder", "zstdmt"] }
 
-# Disabled by running `cargo hakari disable`.
-# To re-enable, run:
-#     cargo hakari generate
+[build-dependencies]
+bytes = { version = "1", features = ["std"] }
+cc = { version = "1", default-features = false, features = ["jobserver", "parallel"] }
+either = { version = "1", features = ["use_std"] }
+getrandom = { version = "0.2", default-features = false, features = ["std"] }
+hashbrown = { version = "0.12", features = ["ahash", "inline-more", "raw"] }
+indexmap = { version = "1", default-features = false, features = ["std"] }
+itertools = { version = "0.10", features = ["use_alloc", "use_std"] }
+log = { version = "0.4", default-features = false, features = ["std"] }
+phf_shared = { version = "0.11", default-features = false, features = ["std"] }
+prost = { version = "0.11", features = ["prost-derive", "std"] }
+rand-ca01ad9e24f5d932 = { package = "rand", version = "0.7", features = ["alloc", "getrandom", "getrandom_package", "libc", "rand_pcg", "small_rng", "std"] }
+rand-c38e5c1d305a1b54 = { package = "rand", version = "0.8", features = ["alloc", "getrandom", "libc", "rand_chacha", "small_rng", "std", "std_rng"] }
+rand_core = { version = "0.6", default-features = false, features = ["alloc", "getrandom", "std"] }
+regex = { version = "1", features = ["aho-corasick", "memchr", "perf", "perf-cache", "perf-dfa", "perf-inline", "perf-literal", "std", "unicode", "unicode-age", "unicode-bool", "unicode-case", "unicode-gencat", "unicode-perl", "unicode-script", "unicode-segment"] }
+regex-syntax = { version = "0.6", features = ["unicode", "unicode-age", "unicode-bool", "unicode-case", "unicode-gencat", "unicode-perl", "unicode-script", "unicode-segment"] }
+serde = { version = "1", features = ["alloc", "derive", "rc", "serde_derive", "std"] }
+serde_json = { version = "1", features = ["raw_value", "std"] }
+syn = { version = "1", features = ["clone-impls", "derive", "extra-traits", "fold", "full", "parsing", "printing", "proc-macro", "quote", "visit", "visit-mut"] }
+time-macros = { version = "0.2", default-features = false, features = ["formatting", "parsing"] }
+
 ### END HAKARI SECTION
