@@ -174,6 +174,7 @@ class Preferences(QDialog):
             self.form.syncUser.setText(self.prof.get("syncUser", ""))
             qconnect(self.form.syncDeauth.clicked, self.sync_logout)
         self.form.syncDeauth.setText(tr.sync_log_out_button())
+        self.form.custom_sync_url.setText(self.mw.pm.custom_sync_url())
 
     def on_media_log(self) -> None:
         self.mw.media_syncer.show_sync_log()
@@ -201,6 +202,7 @@ class Preferences(QDialog):
         )
         if self.form.fullSync.isChecked():
             self.mw.col.mod_schema(check=False)
+        self.mw.pm.set_custom_sync_url(self.form.custom_sync_url.text())
 
     # Global preferences
     ######################################################################

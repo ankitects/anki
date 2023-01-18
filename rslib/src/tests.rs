@@ -49,9 +49,8 @@ pub(crate) fn open_test_collection_with_relearning_card() -> Collection {
 impl Collection {
     pub(crate) fn add_media(&self, media: &[(&str, &[u8])]) {
         let mgr = MediaManager::new(&self.media_folder, &self.media_db).unwrap();
-        let mut ctx = mgr.dbctx();
         for (name, data) in media {
-            mgr.add_file(&mut ctx, name, data).unwrap();
+            mgr.add_file(name, data).unwrap();
         }
     }
 

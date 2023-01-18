@@ -24,3 +24,15 @@ pub(crate) fn sync_client_version() -> &'static str {
     }
     &VER
 }
+
+pub(crate) fn sync_client_version_short() -> &'static str {
+    lazy_static! {
+        static ref VER: String = format!(
+            "{version},{buildhash},{platform}",
+            version = version(),
+            buildhash = buildhash(),
+            platform = env::consts::OS
+        );
+    }
+    &VER
+}

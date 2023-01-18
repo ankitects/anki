@@ -20,16 +20,8 @@ use crate::{
     error::{FileIoError, FileIoSnafu, FileOp},
     io::{create_dir, open_file, write_file},
     prelude::*,
+    sync::media::MAX_MEDIA_FILENAME_LENGTH,
 };
-
-/// The maximum length we allow a filename to be. When combined
-/// with the rest of the path, the full path needs to be under ~240 chars
-/// on some platforms, and some filesystems like eCryptFS will increase
-/// the length of the filename.
-pub(super) static MAX_FILENAME_LENGTH: usize = 120;
-
-/// Media syncing does not support files over 100MiB.
-pub(super) static MEDIA_SYNC_FILESIZE_LIMIT: usize = 100 * 1024 * 1024;
 
 lazy_static! {
     static ref WINDOWS_DEVICE_NAME: Regex = Regex::new(
@@ -56,7 +48,7 @@ lazy_static! {
             "#
     )
     .unwrap();
-    pub(super) static ref NONSYNCABLE_FILENAME: Regex = Regex::new(
+    pub(crate) static ref NONSYNCABLE_FILENAME: Regex = Regex::new(
         r#"(?xi)
             ^
             (:?
@@ -119,7 +111,7 @@ pub(crate) fn normalize_nfc_filename(mut fname: Cow<str>) -> Cow<str> {
         fname = format!("{}_", fname.as_ref()).into();
     }
 
-    if let Cow::Owned(o) = truncate_filename(fname.as_ref(), MAX_FILENAME_LENGTH) {
+    if let Cow::Owned(o) = truncate_filename(fname.as_ref(), MAX_MEDIA_FILENAME_LENGTH) {
         fname = o.into();
     }
 
@@ -198,7 +190,7 @@ where
 /// Convert foo.jpg into foo-abcde12345679.jpg
 pub(crate) fn add_hash_suffix_to_file_stem(fname: &str, hash: &Sha1Hash) -> String {
     // when appending a hash to make unique, it will be 40 bytes plus the hyphen.
-    let max_len = MAX_FILENAME_LENGTH - 40 - 1;
+    let max_len = MAX_MEDIA_FILENAME_LENGTH - 40 - 1;
 
     let (stem, ext) = split_and_truncate_filename(fname, max_len);
 
@@ -308,14 +300,14 @@ pub(crate) fn sha1_of_data(data: &[u8]) -> Sha1Hash {
     hasher.finalize().into()
 }
 
-pub(super) fn mtime_as_i64<P: AsRef<Path>>(path: P) -> io::Result<i64> {
+pub(crate) fn mtime_as_i64<P: AsRef<Path>>(path: P) -> io::Result<i64> {
     Ok(path
         .as_ref()
         .metadata()?
         .modified()?
         .duration_since(time::UNIX_EPOCH)
         .unwrap()
-        .as_secs() as i64)
+        .as_millis() as i64)
 }
 
 pub fn remove_files<S>(media_folder: &Path, files: &[S]) -> Result<()>
@@ -375,7 +367,7 @@ pub(super) fn trash_folder(media_folder: &Path) -> Result<PathBuf> {
     }
 }
 
-pub(super) struct AddedFile {
+pub struct AddedFile {
     pub fname: String,
     pub sha1: Sha1Hash,
     pub mtime: i64,
@@ -386,7 +378,7 @@ pub(super) struct AddedFile {
 ///
 /// Because AnkiWeb did not previously enforce file name limits and invalid
 /// characters, we'll need to rename the file if it is not valid.
-pub(super) fn add_file_from_ankiweb(
+pub(crate) fn add_file_from_ankiweb(
     media_folder: &Path,
     fname: &str,
     data: &[u8],
@@ -424,7 +416,7 @@ pub(super) fn add_file_from_ankiweb(
     })
 }
 
-pub(super) fn data_for_file(media_folder: &Path, fname: &str) -> Result<Option<Vec<u8>>> {
+pub(crate) fn data_for_file(media_folder: &Path, fname: &str) -> Result<Option<Vec<u8>>> {
     let mut file = match open_file(&media_folder.join(fname)) {
         Err(e) if e.is_not_found() => return Ok(None),
         res => res?,
@@ -440,9 +432,12 @@ mod test {
 
     use tempfile::tempdir;
 
-    use crate::media::files::{
-        add_data_to_folder_uniquely, add_hash_suffix_to_file_stem, normalize_filename,
-        remove_files, sha1_of_data, truncate_filename, MAX_FILENAME_LENGTH,
+    use crate::{
+        media::files::{
+            add_data_to_folder_uniquely, add_hash_suffix_to_file_stem, normalize_filename,
+            remove_files, sha1_of_data, truncate_filename,
+        },
+        sync::media::MAX_MEDIA_FILENAME_LENGTH,
     };
 
     #[test]
@@ -456,9 +451,12 @@ mod test {
         assert_eq!(normalize_filename("test.").as_ref(), "test._");
         assert_eq!(normalize_filename("test ").as_ref(), "test _");
 
-        let expected_stem_len = MAX_FILENAME_LENGTH - ".jpg".len() - 1;
+        let expected_stem_len = MAX_MEDIA_FILENAME_LENGTH - ".jpg".len() - 1;
         assert_eq!(
-            normalize_filename(&format!("{}.jpg", "x".repeat(MAX_FILENAME_LENGTH * 2))),
+            normalize_filename(&format!(
+                "{}.jpg",
+                "x".repeat(MAX_MEDIA_FILENAME_LENGTH * 2)
+            )),
             "x".repeat(expected_stem_len) + ".jpg"
         );
     }
@@ -516,29 +514,32 @@ mod test {
 
     #[test]
     fn truncation() {
-        let one_less = "x".repeat(MAX_FILENAME_LENGTH - 1);
+        let one_less = "x".repeat(MAX_MEDIA_FILENAME_LENGTH - 1);
         assert_eq!(
-            truncate_filename(&one_less, MAX_FILENAME_LENGTH),
+            truncate_filename(&one_less, MAX_MEDIA_FILENAME_LENGTH),
             Cow::Borrowed(&one_less)
         );
-        let equal = "x".repeat(MAX_FILENAME_LENGTH);
+        let equal = "x".repeat(MAX_MEDIA_FILENAME_LENGTH);
         assert_eq!(
-            truncate_filename(&equal, MAX_FILENAME_LENGTH),
+            truncate_filename(&equal, MAX_MEDIA_FILENAME_LENGTH),
             Cow::Borrowed(&equal)
         );
-        let equal = format!("{}.jpg", "x".repeat(MAX_FILENAME_LENGTH - 4));
+        let equal = format!("{}.jpg", "x".repeat(MAX_MEDIA_FILENAME_LENGTH - 4));
         assert_eq!(
-            truncate_filename(&equal, MAX_FILENAME_LENGTH),
+            truncate_filename(&equal, MAX_MEDIA_FILENAME_LENGTH),
             Cow::Borrowed(&equal)
         );
-        let one_more = "x".repeat(MAX_FILENAME_LENGTH + 1);
+        let one_more = "x".repeat(MAX_MEDIA_FILENAME_LENGTH + 1);
         assert_eq!(
-            truncate_filename(&one_more, MAX_FILENAME_LENGTH),
-            Cow::<str>::Owned("x".repeat(MAX_FILENAME_LENGTH - 2))
+            truncate_filename(&one_more, MAX_MEDIA_FILENAME_LENGTH),
+            Cow::<str>::Owned("x".repeat(MAX_MEDIA_FILENAME_LENGTH - 2))
         );
         assert_eq!(
-            truncate_filename(&" ".repeat(MAX_FILENAME_LENGTH + 1), MAX_FILENAME_LENGTH),
-            Cow::<str>::Owned(format!("{}_", " ".repeat(MAX_FILENAME_LENGTH - 2)))
+            truncate_filename(
+                &" ".repeat(MAX_MEDIA_FILENAME_LENGTH + 1),
+                MAX_MEDIA_FILENAME_LENGTH
+            ),
+            Cow::<str>::Owned(format!("{}_", " ".repeat(MAX_MEDIA_FILENAME_LENGTH - 2)))
         );
     }
 }

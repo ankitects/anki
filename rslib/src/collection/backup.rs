@@ -5,9 +5,8 @@ use std::{
     ffi::OsStr,
     fs::{read_dir, remove_file, DirEntry},
     path::{Path, PathBuf},
-    thread::{
-        JoinHandle, {self},
-    },
+    thread,
+    thread::JoinHandle,
     time::SystemTime,
 };
 

@@ -38,9 +38,7 @@ use std::{
 use once_cell::sync::OnceCell;
 use progress::AbortHandleSlot;
 use prost::Message;
-use tokio::runtime::{
-    Runtime, {self},
-};
+use tokio::{runtime, runtime::Runtime};
 
 use self::{
     ankidroid::AnkidroidService,

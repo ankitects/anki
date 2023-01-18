@@ -12,13 +12,14 @@ use super::{
 pub(super) use crate::pb::ankidroid::ankidroid_service::Service as AnkidroidService;
 use crate::{
     backend::ankidroid::db::{execute_for_row_count, insert_for_id},
+    pb,
     pb::{
-        self as pb,
         ankidroid::{DbResponse, GetActiveSequenceNumbersResponse, GetNextResultPageRequest},
-        generic::{self, Empty, Int32, Json},
+        generic,
+        generic::{Empty, Int32, Json},
     },
     prelude::*,
-    scheduler::timing::{self, fixed_offset_from_minutes},
+    scheduler::{timing, timing::fixed_offset_from_minutes},
 };
 
 impl AnkidroidService for Backend {

@@ -10,9 +10,14 @@ use crate::{
     dbcheck::DatabaseCheckProgress,
     i18n::I18n,
     import_export::{ExportProgress, ImportProgress},
-    media::sync::MediaSyncProgress,
     pb,
-    sync::{FullSyncProgress, NormalSyncProgress, SyncStage},
+    sync::{
+        collection::{
+            normal::NormalSyncProgress,
+            progress::{FullSyncProgress, SyncStage},
+        },
+        media::progress::MediaSyncProgress,
+    },
 };
 
 pub(super) struct ThrottlingProgressHandler {

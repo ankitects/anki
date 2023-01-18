@@ -7,7 +7,7 @@ use num_enum::TryFromPrimitive;
 use rusqlite::params;
 
 use super::SqliteStorage;
-use crate::{prelude::*, sync::Graves};
+use crate::{prelude::*, sync::collection::graves::Graves};
 
 #[derive(TryFromPrimitive)]
 #[repr(u8)]

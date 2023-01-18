@@ -8,7 +8,7 @@ use snafu::Snafu;
 /// Wrapper for [std::io::Error] with additional information on the attempted
 /// operation.
 #[derive(Debug, Snafu)]
-#[snafu(visibility(pub))]
+#[snafu(visibility(pub), display("{op:?} {path:?}"))]
 pub struct FileIoError {
     pub path: PathBuf,
     pub op: FileOp,
@@ -29,6 +29,7 @@ pub enum FileOp {
     Open,
     Create,
     Write,
+    Remove,
     CopyFrom(PathBuf),
     Persist,
     Sync,
@@ -52,6 +53,7 @@ impl FileIoError {
                 FileOp::Read => "read".into(),
                 FileOp::Create => "create file in".into(),
                 FileOp::Write => "write".into(),
+                FileOp::Remove => "remove".into(),
                 FileOp::CopyFrom(p) => format!("copy from '{}' to", p.to_string_lossy()),
                 FileOp::Persist => "persist".into(),
                 FileOp::Sync => "sync".into(),

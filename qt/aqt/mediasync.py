@@ -12,12 +12,12 @@ import aqt
 import aqt.forms
 import aqt.main
 from anki.collection import Progress
-from anki.errors import Interrupted, NetworkError
+from anki.errors import Interrupted
 from anki.types import assert_exhaustive
 from anki.utils import int_time
 from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, QPushButton, QTextCursor, QTimer, qconnect
-from aqt.utils import disable_help_button, showWarning, tr
+from aqt.utils import disable_help_button, tr
 
 LogEntry = Union[Progress.MediaSync, str]
 
@@ -92,13 +92,12 @@ class MediaSyncer:
         if isinstance(exc, Interrupted):
             self._log_and_notify(tr.sync_media_aborted())
             return
-        elif isinstance(exc, NetworkError):
-            # avoid popups for network errors
+        else:
+            # Avoid popups for errors; they can cause a deadlock if
+            # a modal window happens to be active, or a duplicate auth
+            # failed message if the password is changed.
             self._log_and_notify(str(exc))
             return
-
-        self._log_and_notify(tr.sync_media_failed())
-        showWarning(str(exc))
 
     def entries(self) -> list[LogEntryWithTime]:
         return self._log

@@ -5,11 +5,7 @@ use std::collections::HashSet;
 
 use super::Backend;
 pub(super) use crate::pb::notes::notes_service::Service as NotesService;
-use crate::{
-    cloze::add_cloze_numbers_in_string,
-    pb::{self as pb},
-    prelude::*,
-};
+use crate::{cloze::add_cloze_numbers_in_string, pb, prelude::*};
 
 impl NotesService for Backend {
     fn new_note(&self, input: pb::notetypes::NotetypeId) -> Result<pb::notes::Note> {

@@ -6,6 +6,7 @@ from __future__ import annotations
 import sys
 from email.message import EmailMessage
 from pathlib import Path
+from typing import Sequence
 from zipfile import ZIP_DEFLATED, ZipInfo
 
 from wheel.wheelfile import WheelFile
@@ -158,11 +159,10 @@ else:
 contents: dict[str, str] = {}
 merge_sources(contents, src_root, exclude)
 merge_sources(contents, generated_root, exclude)
+all_requires: Sequence[str | ExtraRequires]
 
 if name == "anki":
-    all_requires = extract_requirements(Path("python/requirements.anki.in")) + [
-        ExtraRequires("syncserver", ["flask", "waitress"]),
-    ]
+    all_requires = extract_requirements(Path("python/requirements.anki.in"))
     entrypoints = None
     top_level = None
 else:
