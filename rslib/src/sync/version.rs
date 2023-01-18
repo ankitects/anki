@@ -1,12 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
 
-use crate::{
-    storage::SchemaVersion,
-    sync::error::{HttpResult, OrHttpErr},
-};
+use crate::storage::SchemaVersion;
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
 
 pub const SYNC_VERSION_MIN: u8 = SYNC_VERSION_08_SESSIONKEY;
 pub const SYNC_VERSION_MAX: u8 = SYNC_VERSION_11_DIRECT_POST;

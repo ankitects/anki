@@ -3,16 +3,16 @@
 
 #![cfg(test)]
 
-use tempfile::{tempdir, TempDir};
+use tempfile::tempdir;
+use tempfile::TempDir;
 
-use crate::{
-    collection::{open_test_collection, CollectionBuilder},
-    deckconfig::UpdateDeckConfigsRequest,
-    io::create_dir,
-    media::MediaManager,
-    pb::deckconfig::deck_configs_for_update::current_deck::Limits,
-    prelude::*,
-};
+use crate::collection::open_test_collection;
+use crate::collection::CollectionBuilder;
+use crate::deckconfig::UpdateDeckConfigsRequest;
+use crate::io::create_dir;
+use crate::media::MediaManager;
+use crate::pb::deckconfig::deck_configs_for_update::current_deck::Limits;
+use crate::prelude::*;
 
 pub(crate) fn open_fs_test_collection(name: &str) -> (Collection, TempDir) {
     let tempdir = tempdir().unwrap();

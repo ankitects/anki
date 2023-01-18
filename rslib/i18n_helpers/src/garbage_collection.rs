@@ -1,13 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashSet, fs, io::BufReader, iter::FromIterator};
+use std::collections::HashSet;
+use std::fs;
+use std::io::BufReader;
+use std::iter::FromIterator;
 
-use fluent_syntax::{ast, parser};
+use fluent_syntax::ast;
+use fluent_syntax::parser;
 use lazy_static::lazy_static;
 use regex::Regex;
 use serde_json;
-use walkdir::{DirEntry, WalkDir};
+use walkdir::DirEntry;
+use walkdir::WalkDir;
 
 use crate::serialize;
 

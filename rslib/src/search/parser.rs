@@ -2,21 +2,27 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use lazy_static::lazy_static;
-use nom::{
-    branch::alt,
-    bytes::complete::{escaped, is_not, tag},
-    character::complete::{anychar, char, none_of, one_of},
-    combinator::{map, verify},
-    error::ErrorKind as NomErrorKind,
-    multi::many0,
-    sequence::{preceded, separated_pair},
-};
-use regex::{Captures, Regex};
+use nom::branch::alt;
+use nom::bytes::complete::escaped;
+use nom::bytes::complete::is_not;
+use nom::bytes::complete::tag;
+use nom::character::complete::anychar;
+use nom::character::complete::char;
+use nom::character::complete::none_of;
+use nom::character::complete::one_of;
+use nom::combinator::map;
+use nom::combinator::verify;
+use nom::error::ErrorKind as NomErrorKind;
+use nom::multi::many0;
+use nom::sequence::preceded;
+use nom::sequence::separated_pair;
+use regex::Captures;
+use regex::Regex;
 
-use crate::{
-    error::{ParseError, Result, SearchErrorKind as FailKind},
-    prelude::*,
-};
+use crate::error::ParseError;
+use crate::error::Result;
+use crate::error::SearchErrorKind as FailKind;
+use crate::prelude::*;
 
 type IResult<'a, O> = std::result::Result<(&'a str, O), nom::Err<ParseError<'a>>>;
 type ParseResult<'a, O> = std::result::Result<O, nom::Err<ParseError<'a>>>;

@@ -3,7 +3,8 @@
 
 use camino::Utf8Path;
 
-use crate::{action::BuildAction, input::BuildInput};
+use crate::action::BuildAction;
+use crate::input::BuildInput;
 
 /// Copy the provided files into the specified destination folder.
 /// Directory structure is not preserved - eg foo/bar.js is copied

@@ -5,14 +5,14 @@ pub(crate) mod undo;
 
 use num_enum::TryFromPrimitive;
 use serde::Deserialize;
-use serde_repr::{Deserialize_repr, Serialize_repr};
+use serde_repr::Deserialize_repr;
+use serde_repr::Serialize_repr;
 use serde_tuple::Serialize_tuple;
 
-use crate::{
-    define_newtype,
-    prelude::*,
-    serde::{default_on_invalid, deserialize_int_from_number},
-};
+use crate::define_newtype;
+use crate::prelude::*;
+use crate::serde::default_on_invalid;
+use crate::serde::deserialize_int_from_number;
 
 define_newtype!(RevlogId, i64);
 

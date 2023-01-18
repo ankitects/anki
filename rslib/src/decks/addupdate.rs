@@ -4,7 +4,8 @@
 //! Adding and updating.
 
 use super::name::immediate_parent_name;
-use crate::{error::FilteredDeckError, prelude::*};
+use crate::error::FilteredDeckError;
+use crate::prelude::*;
 
 impl Collection {
     /// Add a new deck. The id must be 0, as it will be automatically assigned.

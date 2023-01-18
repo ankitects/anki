@@ -1,7 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use chrono::{DateTime, Datelike, Duration, FixedOffset, Timelike};
+use chrono::DateTime;
+use chrono::Datelike;
+use chrono::Duration;
+use chrono::FixedOffset;
+use chrono::Timelike;
 
 use crate::prelude::*;
 
@@ -196,7 +200,9 @@ pub(crate) fn sched_timing_today(
 
 #[cfg(test)]
 mod test {
-    use chrono::{FixedOffset, Local, TimeZone};
+    use chrono::FixedOffset;
+    use chrono::Local;
+    use chrono::TimeZone;
 
     use super::*;
 

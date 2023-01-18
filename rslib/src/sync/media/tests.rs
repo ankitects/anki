@@ -3,33 +3,34 @@
 
 #![cfg(test)]
 
-use std::{fs, net::IpAddr, thread::sleep, time::Duration};
+use std::fs;
+use std::net::IpAddr;
+use std::thread::sleep;
+use std::time::Duration;
 
 use nom::AsBytes;
-use reqwest::{multipart, Client};
+use reqwest::multipart;
+use reqwest::Client;
 
-use crate::{
-    error::Result,
-    media::MediaManager,
-    prelude::AnkiError,
-    sync::{
-        collection::{
-            protocol::AsSyncEndpoint,
-            tests::{with_active_server, SyncTestContext},
-        },
-        media::{
-            begin::{SyncBeginQuery, SyncBeginRequest},
-            progress::MediaSyncProgress,
-            protocol::{MediaSyncMethod, MediaSyncProtocol},
-            sanity::{MediaSanityCheckResponse, SanityCheckRequest},
-            syncer::MediaSyncer,
-            zip::zip_files_for_upload,
-        },
-        request::{IntoSyncRequest, SyncRequest},
-        version::SyncVersion,
-    },
-    version::sync_client_version,
-};
+use crate::error::Result;
+use crate::media::MediaManager;
+use crate::prelude::AnkiError;
+use crate::sync::collection::protocol::AsSyncEndpoint;
+use crate::sync::collection::tests::with_active_server;
+use crate::sync::collection::tests::SyncTestContext;
+use crate::sync::media::begin::SyncBeginQuery;
+use crate::sync::media::begin::SyncBeginRequest;
+use crate::sync::media::progress::MediaSyncProgress;
+use crate::sync::media::protocol::MediaSyncMethod;
+use crate::sync::media::protocol::MediaSyncProtocol;
+use crate::sync::media::sanity::MediaSanityCheckResponse;
+use crate::sync::media::sanity::SanityCheckRequest;
+use crate::sync::media::syncer::MediaSyncer;
+use crate::sync::media::zip::zip_files_for_upload;
+use crate::sync::request::IntoSyncRequest;
+use crate::sync::request::SyncRequest;
+use crate::sync::version::SyncVersion;
+use crate::version::sync_client_version;
 
 /// Older Rust versions sent hkey/version in GET query string.
 #[tokio::test]

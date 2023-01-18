@@ -4,7 +4,8 @@ use std::borrow::Cow;
 
 use itertools::Itertools;
 
-use crate::{prelude::*, text::normalize_to_nfc};
+use crate::prelude::*;
+use crate::text::normalize_to_nfc;
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct NativeDeckName(String);

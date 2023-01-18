@@ -1,30 +1,32 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    fs::File,
-    io,
-    io::Write,
-    path::{Path, PathBuf},
-};
+use std::fs::File;
+use std::io;
+use std::io::Write;
+use std::path::Path;
+use std::path::PathBuf;
 
-use zip::{read::ZipFile, ZipArchive};
-use zstd::{self, stream::copy_decode};
+use zip::read::ZipFile;
+use zip::ZipArchive;
+use zstd::stream::copy_decode;
+use zstd::{self,};
 
-use crate::{
-    collection::CollectionBuilder,
-    error::{FileIoSnafu, FileOp, ImportError},
-    import_export::{
-        package::{
-            media::{extract_media_entries, SafeMediaEntry},
-            Meta,
-        },
-        ImportProgress, IncrementableProgress,
-    },
-    io::{atomic_rename, create_dir_all, new_tempfile_in_parent_of, open_file},
-    media::MediaManager,
-    prelude::*,
-};
+use crate::collection::CollectionBuilder;
+use crate::error::FileIoSnafu;
+use crate::error::FileOp;
+use crate::error::ImportError;
+use crate::import_export::package::media::extract_media_entries;
+use crate::import_export::package::media::SafeMediaEntry;
+use crate::import_export::package::Meta;
+use crate::import_export::ImportProgress;
+use crate::import_export::IncrementableProgress;
+use crate::io::atomic_rename;
+use crate::io::create_dir_all;
+use crate::io::new_tempfile_in_parent_of;
+use crate::io::open_file;
+use crate::media::MediaManager;
+use crate::prelude::*;
 
 pub fn import_colpkg(
     colpkg_path: &str,

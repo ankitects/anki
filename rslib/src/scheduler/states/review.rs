@@ -1,10 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{
-    interval_kind::IntervalKind, CardState, LearnState, RelearnState, SchedulingStates,
-    StateContext,
-};
+use super::interval_kind::IntervalKind;
+use super::CardState;
+use super::LearnState;
+use super::RelearnState;
+use super::SchedulingStates;
+use super::StateContext;
 use crate::revlog::RevlogReviewKind;
 
 pub const INITIAL_EASE_FACTOR: f32 = 2.5;

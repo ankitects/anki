@@ -3,21 +3,18 @@
 
 use tracing::debug;
 
-use crate::{
-    collection::Collection,
-    error,
-    error::{AnkiError, SyncError, SyncErrorKind},
-    prelude::Usn,
-    sync::{
-        collection::{
-            progress::SyncStage,
-            protocol::{EmptyInput, SyncProtocol},
-            status::online_sync_status_check,
-        },
-        http_client::HttpSyncClient,
-        login::SyncAuth,
-    },
-};
+use crate::collection::Collection;
+use crate::error;
+use crate::error::AnkiError;
+use crate::error::SyncError;
+use crate::error::SyncErrorKind;
+use crate::prelude::Usn;
+use crate::sync::collection::progress::SyncStage;
+use crate::sync::collection::protocol::EmptyInput;
+use crate::sync::collection::protocol::SyncProtocol;
+use crate::sync::collection::status::online_sync_status_check;
+use crate::sync::http_client::HttpSyncClient;
+use crate::sync::login::SyncAuth;
 
 pub struct NormalSyncer<'a, F> {
     pub(in crate::sync) col: &'a mut Collection,

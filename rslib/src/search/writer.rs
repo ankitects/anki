@@ -6,13 +6,17 @@ use std::mem;
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use crate::{
-    decks::DeckId as DeckIdType,
-    notetype::NotetypeId as NotetypeIdType,
-    prelude::*,
-    search::parser::{parse, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
-    text::escape_anki_wildcards,
-};
+use crate::decks::DeckId as DeckIdType;
+use crate::notetype::NotetypeId as NotetypeIdType;
+use crate::prelude::*;
+use crate::search::parser::parse;
+use crate::search::parser::Node;
+use crate::search::parser::PropertyKind;
+use crate::search::parser::RatingKind;
+use crate::search::parser::SearchNode;
+use crate::search::parser::StateKind;
+use crate::search::parser::TemplateKind;
+use crate::text::escape_anki_wildcards;
 
 /// Given an existing parsed search, if the provided `replacement` is a single search node such
 /// as a deck:xxx search, replace any instances of that search in `existing` with the new value.
@@ -182,7 +186,8 @@ pub(crate) fn normalize_search(input: &str) -> Result<String> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{error::Result, search::parse_search as parse};
+    use crate::error::Result;
+    use crate::search::parse_search as parse;
 
     #[test]
     fn normalizing() {

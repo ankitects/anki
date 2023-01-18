@@ -3,14 +3,15 @@
 
 #![cfg(test)]
 
-use std::{collections::HashSet, fs::File, io::Write};
+use std::collections::HashSet;
+use std::fs::File;
+use std::io::Write;
 
-use crate::{
-    media::{files::sha1_of_data, MediaManager},
-    prelude::*,
-    search::SearchNode,
-    tests::open_fs_test_collection,
-};
+use crate::media::files::sha1_of_data;
+use crate::media::MediaManager;
+use crate::prelude::*;
+use crate::search::SearchNode;
+use crate::tests::open_fs_test_collection;
 
 const SAMPLE_JPG: &str = "sample.jpg";
 const SAMPLE_MP3: &str = "sample.mp3";

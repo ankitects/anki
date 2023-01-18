@@ -4,15 +4,23 @@
 use std::collections::HashSet;
 
 use super::FilteredDeckForUpdate;
-use crate::{
-    config::DeckConfigKey,
-    decks::{FilteredDeck, FilteredSearchOrder, FilteredSearchTerm},
-    error::{CustomStudyError, FilteredDeckError},
-    pb,
-    pb::scheduler::custom_study_request::{cram::CramKind, Cram, Value as CustomStudyValue},
-    prelude::*,
-    search::{JoinSearches, Negated, PropertyKind, RatingKind, SearchNode, StateKind},
-};
+use crate::config::DeckConfigKey;
+use crate::decks::FilteredDeck;
+use crate::decks::FilteredSearchOrder;
+use crate::decks::FilteredSearchTerm;
+use crate::error::CustomStudyError;
+use crate::error::FilteredDeckError;
+use crate::pb;
+use crate::pb::scheduler::custom_study_request::cram::CramKind;
+use crate::pb::scheduler::custom_study_request::Cram;
+use crate::pb::scheduler::custom_study_request::Value as CustomStudyValue;
+use crate::prelude::*;
+use crate::search::JoinSearches;
+use crate::search::Negated;
+use crate::search::PropertyKind;
+use crate::search::RatingKind;
+use crate::search::SearchNode;
+use crate::search::StateKind;
 
 impl Collection {
     pub fn custom_study(
@@ -291,13 +299,11 @@ fn tags_to_nodes(tags_to_include: &[String], tags_to_exclude: &[String]) -> Sear
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{
-        collection::open_test_collection,
-        pb::scheduler::{
-            custom_study_request::{cram::CramKind, Cram, Value},
-            CustomStudyRequest,
-        },
-    };
+    use crate::collection::open_test_collection;
+    use crate::pb::scheduler::custom_study_request::cram::CramKind;
+    use crate::pb::scheduler::custom_study_request::Cram;
+    use crate::pb::scheduler::custom_study_request::Value;
+    use crate::pb::scheduler::CustomStudyRequest;
 
     #[test]
     fn tag_remembering() -> Result<()> {

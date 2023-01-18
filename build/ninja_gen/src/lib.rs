@@ -19,7 +19,8 @@ pub mod rsync;
 pub mod sass;
 
 pub use build::Build;
-pub use camino::{Utf8Path, Utf8PathBuf};
+pub use camino::Utf8Path;
+pub use camino::Utf8PathBuf;
 pub use maplit::hashmap;
 pub use which::which;
 

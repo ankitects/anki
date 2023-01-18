@@ -1,22 +1,19 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use serde_tuple::Serialize_tuple;
-use tracing::{debug, info};
+use tracing::debug;
+use tracing::info;
 
-use crate::{
-    error::SyncErrorKind,
-    prelude::*,
-    serde::default_on_invalid,
-    sync::{
-        collection::{
-            normal::{NormalSyncProgress, NormalSyncer},
-            protocol::SyncProtocol,
-        },
-        request::IntoSyncRequest,
-    },
-};
+use crate::error::SyncErrorKind;
+use crate::prelude::*;
+use crate::serde::default_on_invalid;
+use crate::sync::collection::normal::NormalSyncProgress;
+use crate::sync::collection::normal::NormalSyncer;
+use crate::sync::collection::protocol::SyncProtocol;
+use crate::sync::request::IntoSyncRequest;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SanityCheckResponse {

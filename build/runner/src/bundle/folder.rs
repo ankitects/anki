@@ -1,15 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{env, fs, process::Command};
+use std::env;
+use std::fs;
+use std::process::Command;
 
-use camino::{Utf8Path, Utf8PathBuf};
-use clap::{Args, ValueEnum};
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
+use clap::Args;
+use clap::ValueEnum;
 
-use crate::{
-    paths::{absolute_msys_path, unix_path},
-    run::run_silent,
-};
+use crate::paths::absolute_msys_path;
+use crate::paths::unix_path;
+use crate::run::run_silent;
 
 #[derive(Clone, Copy, ValueEnum, Debug)]
 enum DistKind {

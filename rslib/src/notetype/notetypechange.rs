@@ -3,14 +3,18 @@
 
 //! Updates to notes/cards when a note is moved to a different notetype.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+use std::collections::HashSet;
 
-use super::{CardGenContext, Notetype, NotetypeKind};
-use crate::{
-    prelude::*,
-    search::{JoinSearches, Node, SearchNode, TemplateKind},
-    storage::comma_separated_ids,
-};
+use super::CardGenContext;
+use super::Notetype;
+use super::NotetypeKind;
+use crate::prelude::*;
+use crate::search::JoinSearches;
+use crate::search::Node;
+use crate::search::SearchNode;
+use crate::search::TemplateKind;
+use crate::storage::comma_separated_ids;
 
 #[derive(Debug)]
 pub struct ChangeNotetypeInput {
@@ -370,7 +374,8 @@ fn remap_fields(fields: &mut Vec<String>, new_fields: &[Option<usize>]) {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, error::Result};
+    use crate::collection::open_test_collection;
+    use crate::error::Result;
 
     #[test]
     fn field_map() -> Result<()> {

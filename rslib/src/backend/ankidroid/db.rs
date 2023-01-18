@@ -1,29 +1,27 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    collections::HashMap,
-    mem::size_of,
-    sync::{
-        atomic::{AtomicI32, Ordering},
-        Mutex,
-    },
-};
+use std::collections::HashMap;
+use std::mem::size_of;
+use std::sync::atomic::AtomicI32;
+use std::sync::atomic::Ordering;
+use std::sync::Mutex;
 
-use itertools::{
-    FoldWhile,
-    FoldWhile::{Continue, Done},
-    Itertools,
-};
+use itertools::FoldWhile;
+use itertools::FoldWhile::Continue;
+use itertools::FoldWhile::Done;
+use itertools::Itertools;
 use lazy_static::lazy_static;
 use rusqlite::ToSql;
 use serde_derive::Deserialize;
 
-use crate::{
-    collection::Collection,
-    error::Result,
-    pb::ankidroid::{sql_value::Data, DbResponse, DbResult, Row, SqlValue},
-};
+use crate::collection::Collection;
+use crate::error::Result;
+use crate::pb::ankidroid::sql_value::Data;
+use crate::pb::ankidroid::DbResponse;
+use crate::pb::ankidroid::DbResult;
+use crate::pb::ankidroid::Row;
+use crate::pb::ankidroid::SqlValue;
 
 /// A pointer to the SqliteStorage object stored in a collection, used to
 /// uniquely index results from multiple open collections at once.
@@ -279,11 +277,12 @@ pub(crate) fn execute_for_row_count(col: &Collection, req: &[u8]) -> Result<i64>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        backend::ankidroid::db::{select_slice_of_size, Sizable},
-        collection::open_test_collection,
-        pb::ankidroid::{sql_value, Row, SqlValue},
-    };
+    use crate::backend::ankidroid::db::select_slice_of_size;
+    use crate::backend::ankidroid::db::Sizable;
+    use crate::collection::open_test_collection;
+    use crate::pb::ankidroid::sql_value;
+    use crate::pb::ankidroid::Row;
+    use crate::pb::ankidroid::SqlValue;
 
     fn gen_data() -> Vec<SqlValue> {
         vec![

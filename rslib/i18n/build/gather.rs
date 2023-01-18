@@ -4,11 +4,10 @@
 //! By default, the Qt translations will be included in rslib. EXTRA_FTL_ROOT can be set
 //! to an external folder so the mobile clients can use their own translations instead.
 
-use std::{
-    collections::HashMap,
-    fs,
-    path::{Path, PathBuf},
-};
+use std::collections::HashMap;
+use std::fs;
+use std::path::Path;
+use std::path::PathBuf;
 
 pub type TranslationsByFile = HashMap<String, String>;
 pub type TranslationsByLang = HashMap<String, TranslationsByFile>;

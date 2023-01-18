@@ -1,27 +1,31 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{fs, io::Write};
+use std::fs;
+use std::io::Write;
 
-use axum::response::{IntoResponse, Response};
-use flate2::{write::GzEncoder, Compression};
+use axum::response::IntoResponse;
+use axum::response::Response;
+use flate2::write::GzEncoder;
+use flate2::Compression;
 use futures::StreamExt;
 use tokio_util::io::ReaderStream;
 
-use crate::{
-    collection::CollectionBuilder,
-    error::SyncErrorKind,
-    io::{atomic_rename, new_tempfile_in_parent_of, write_file},
-    prelude::*,
-    storage::SchemaVersion,
-    sync::{
-        collection::{progress::FullSyncProgressFn, protocol::SyncProtocol},
-        error::{HttpResult, OrHttpErr},
-        http_client::HttpSyncClient,
-        login::SyncAuth,
-        request::{IntoSyncRequest, MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED},
-    },
-};
+use crate::collection::CollectionBuilder;
+use crate::error::SyncErrorKind;
+use crate::io::atomic_rename;
+use crate::io::new_tempfile_in_parent_of;
+use crate::io::write_file;
+use crate::prelude::*;
+use crate::storage::SchemaVersion;
+use crate::sync::collection::progress::FullSyncProgressFn;
+use crate::sync::collection::protocol::SyncProtocol;
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
+use crate::sync::http_client::HttpSyncClient;
+use crate::sync::login::SyncAuth;
+use crate::sync::request::IntoSyncRequest;
+use crate::sync::request::MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED;
 
 /// Old clients didn't display a useful message on HTTP 400, and were expected to show the error message
 /// returned by the server.

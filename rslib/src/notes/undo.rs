@@ -2,7 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::NoteTags;
-use crate::{prelude::*, undo::UndoableChange};
+use crate::prelude::*;
+use crate::undo::UndoableChange;
 
 #[derive(Debug)]
 pub(crate) enum UndoableNoteChange {

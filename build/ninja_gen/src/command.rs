@@ -3,11 +3,10 @@
 
 use std::collections::HashMap;
 
-use crate::{
-    action::BuildAction,
-    input::{space_separated, BuildInput},
-    inputs,
-};
+use crate::action::BuildAction;
+use crate::input::space_separated;
+use crate::input::BuildInput;
+use crate::inputs;
 
 pub struct RunCommand<'a> {
     // Will be automatically included as a dependency

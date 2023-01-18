@@ -1,23 +1,25 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use axum::{
-    extract::{Path, Query, State},
-    response::Response,
-    routing::{get, post},
-    Router,
-};
+use axum::extract::Path;
+use axum::extract::Query;
+use axum::extract::State;
+use axum::response::Response;
+use axum::routing::get;
+use axum::routing::post;
+use axum::Router;
 
-use crate::sync::{
-    collection::protocol::{SyncMethod, SyncProtocol},
-    error::{HttpResult, OrHttpErr},
-    media::{
-        begin::{SyncBeginQuery, SyncBeginRequest},
-        protocol::{MediaSyncMethod, MediaSyncProtocol},
-    },
-    request::{IntoSyncRequest, SyncRequest},
-    version::SyncVersion,
-};
+use crate::sync::collection::protocol::SyncMethod;
+use crate::sync::collection::protocol::SyncProtocol;
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
+use crate::sync::media::begin::SyncBeginQuery;
+use crate::sync::media::begin::SyncBeginRequest;
+use crate::sync::media::protocol::MediaSyncMethod;
+use crate::sync::media::protocol::MediaSyncProtocol;
+use crate::sync::request::IntoSyncRequest;
+use crate::sync::request::SyncRequest;
+use crate::sync::version::SyncVersion;
 
 macro_rules! sync_method {
     ($server:ident, $req:ident, $method:ident) => {{

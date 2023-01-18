@@ -1,23 +1,23 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    borrow::Cow,
-    collections::{HashMap, HashSet},
-    mem,
-    sync::Arc,
-};
+use std::borrow::Cow;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::mem;
+use std::sync::Arc;
 
-use sha1::{Digest, Sha1};
+use sha1::Digest;
+use sha1::Sha1;
 
-use super::{media::MediaUseMap, Context};
-use crate::{
-    import_export::{
-        package::media::safe_normalized_file_name, ImportProgress, IncrementableProgress, NoteLog,
-    },
-    prelude::*,
-    text::replace_media_refs,
-};
+use super::media::MediaUseMap;
+use super::Context;
+use crate::import_export::package::media::safe_normalized_file_name;
+use crate::import_export::ImportProgress;
+use crate::import_export::IncrementableProgress;
+use crate::import_export::NoteLog;
+use crate::prelude::*;
+use crate::text::replace_media_refs;
 
 struct NoteContext<'a> {
     target_col: &'a mut Collection,
@@ -292,7 +292,8 @@ impl Notetype {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, import_export::package::media::SafeMediaEntry};
+    use crate::collection::open_test_collection;
+    use crate::import_export::package::media::SafeMediaEntry;
 
     /// Import [Note] into [Collection], optionally taking a [MediaUseMap],
     /// or a [Notetype] remapping.

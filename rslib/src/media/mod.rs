@@ -4,26 +4,24 @@
 pub mod check;
 pub mod files;
 
-use std::{
-    borrow::Cow,
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
+use std::borrow::Cow;
+use std::collections::HashMap;
+use std::path::Path;
+use std::path::PathBuf;
 
-use crate::{
-    io::create_dir_all,
-    media::files::{add_data_to_folder_uniquely, mtime_as_i64, remove_files, sha1_of_data},
-    prelude::*,
-    sync::{
-        http_client::HttpSyncClient,
-        login::SyncAuth,
-        media::{
-            database::client::{changetracker::ChangeTracker, MediaDatabase, MediaEntry},
-            progress::MediaSyncProgress,
-            syncer::MediaSyncer,
-        },
-    },
-};
+use crate::io::create_dir_all;
+use crate::media::files::add_data_to_folder_uniquely;
+use crate::media::files::mtime_as_i64;
+use crate::media::files::remove_files;
+use crate::media::files::sha1_of_data;
+use crate::prelude::*;
+use crate::sync::http_client::HttpSyncClient;
+use crate::sync::login::SyncAuth;
+use crate::sync::media::database::client::changetracker::ChangeTracker;
+use crate::sync::media::database::client::MediaDatabase;
+use crate::sync::media::database::client::MediaEntry;
+use crate::sync::media::progress::MediaSyncProgress;
+use crate::sync::media::syncer::MediaSyncer;
 
 pub type Sha1Hash = [u8; 20];
 

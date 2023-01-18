@@ -5,14 +5,15 @@ use anki::links::HelpPage;
 
 #[cfg(test)]
 mod test {
-    use std::{env, iter};
+    use std::env;
+    use std::iter;
 
     use futures::StreamExt;
     use itertools::Itertools;
-    use linkcheck::{
-        validation::{check_web, Context, Reason},
-        BasicContext,
-    };
+    use linkcheck::validation::check_web;
+    use linkcheck::validation::Context;
+    use linkcheck::validation::Reason;
+    use linkcheck::BasicContext;
     use reqwest::Url;
     use strum::IntoEnumIterator;
 

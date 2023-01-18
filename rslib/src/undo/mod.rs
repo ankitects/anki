@@ -8,10 +8,9 @@ use std::collections::VecDeque;
 pub(crate) use changes::UndoableChange;
 
 pub use crate::ops::Op;
-use crate::{
-    ops::{OpChanges, StateChanges},
-    prelude::*,
-};
+use crate::ops::OpChanges;
+use crate::ops::StateChanges;
+use crate::prelude::*;
 
 const UNDO_LIMIT: usize = 30;
 
@@ -331,7 +330,9 @@ impl From<&[UndoableChange]> for StateChanges {
 #[cfg(test)]
 mod test {
     use super::UndoableChange;
-    use crate::{card::Card, collection::open_test_collection, prelude::*};
+    use crate::card::Card;
+    use crate::collection::open_test_collection;
+    use crate::prelude::*;
 
     #[test]
     fn undo() -> Result<()> {

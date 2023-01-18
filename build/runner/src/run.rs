@@ -1,10 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    io::ErrorKind,
-    process::{Command, Output},
-};
+use std::io::ErrorKind;
+use std::process::Command;
+use std::process::Output;
 
 use clap::Args;
 

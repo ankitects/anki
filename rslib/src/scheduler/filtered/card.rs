@@ -2,11 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::DeckFilterContext;
-use crate::{
-    card::{CardQueue, CardType},
-    config::SchedulerVersion,
-    prelude::*,
-};
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::config::SchedulerVersion;
+use crate::prelude::*;
 
 impl Card {
     pub(crate) fn restore_queue_from_type(&mut self) {

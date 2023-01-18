@@ -3,18 +3,17 @@
 
 use std::convert::TryFrom;
 
-use rusqlite::{
-    params,
-    types::{FromSql, FromSqlError, ValueRef},
-    Row,
-};
+use rusqlite::params;
+use rusqlite::types::FromSql;
+use rusqlite::types::FromSqlError;
+use rusqlite::types::ValueRef;
+use rusqlite::Row;
 
 use super::SqliteStorage;
-use crate::{
-    error::Result,
-    prelude::*,
-    revlog::{RevlogEntry, RevlogReviewKind},
-};
+use crate::error::Result;
+use crate::prelude::*;
+use crate::revlog::RevlogEntry;
+use crate::revlog::RevlogReviewKind;
 
 pub(crate) struct StudiedToday {
     pub cards: u32,

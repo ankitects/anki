@@ -3,16 +3,30 @@
 
 use std::collections::HashMap;
 
-use nom::{
-    branch::alt,
-    bytes::complete::{is_not, tag},
-    character::complete::{anychar, multispace0},
-    combinator::{map, not, recognize, success, value},
-    multi::{many0, many1},
-    sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
-};
+use nom::branch::alt;
+use nom::bytes::complete::is_not;
+use nom::bytes::complete::tag;
+use nom::character::complete::anychar;
+use nom::character::complete::multispace0;
+use nom::combinator::map;
+use nom::combinator::not;
+use nom::combinator::recognize;
+use nom::combinator::success;
+use nom::combinator::value;
+use nom::multi::many0;
+use nom::multi::many1;
+use nom::sequence::delimited;
+use nom::sequence::pair;
+use nom::sequence::preceded;
+use nom::sequence::separated_pair;
+use nom::sequence::terminated;
+use nom::sequence::tuple;
 
-use super::{CardNodes, Directive, Node, OtherDirective, TtsDirective};
+use super::CardNodes;
+use super::Directive;
+use super::Node;
+use super::OtherDirective;
+use super::TtsDirective;
 
 type IResult<'a, O> = nom::IResult<&'a str, O>;
 

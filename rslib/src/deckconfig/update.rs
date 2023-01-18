@@ -3,22 +3,20 @@
 
 //! Updating configs in bulk, from the deck options screen.
 
-use std::{
-    collections::{HashMap, HashSet},
-    iter,
-};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::iter;
 
-use crate::{
-    config::StringKey,
-    decks::NormalDeck,
-    pb,
-    pb::{
-        deckconfig::deck_configs_for_update::{current_deck::Limits, ConfigWithExtra, CurrentDeck},
-        decks::deck::normal::DayLimit,
-    },
-    prelude::*,
-    search::{JoinSearches, SearchNode},
-};
+use crate::config::StringKey;
+use crate::decks::NormalDeck;
+use crate::pb;
+use crate::pb::deckconfig::deck_configs_for_update::current_deck::Limits;
+use crate::pb::deckconfig::deck_configs_for_update::ConfigWithExtra;
+use crate::pb::deckconfig::deck_configs_for_update::CurrentDeck;
+use crate::pb::decks::deck::normal::DayLimit;
+use crate::prelude::*;
+use crate::search::JoinSearches;
+use crate::search::SearchNode;
 
 #[derive(Debug, Clone)]
 pub struct UpdateDeckConfigsRequest {
@@ -269,13 +267,10 @@ fn update_day_limit(day_limit: &mut Option<DayLimit>, new_limit: Option<u32>, to
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{
-        collection::open_test_collection,
-        deckconfig::NewCardInsertOrder,
-        tests::{
-            open_test_collection_with_learning_card, open_test_collection_with_relearning_card,
-        },
-    };
+    use crate::collection::open_test_collection;
+    use crate::deckconfig::NewCardInsertOrder;
+    use crate::tests::open_test_collection_with_learning_card;
+    use crate::tests::open_test_collection_with_relearning_card;
 
     #[test]
     fn updating() -> Result<()> {

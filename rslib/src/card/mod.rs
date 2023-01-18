@@ -3,24 +3,27 @@
 
 pub(crate) mod undo;
 
-use std::collections::{hash_map::Entry, HashMap, HashSet};
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
+use std::collections::HashSet;
 
 use num_enum::TryFromPrimitive;
-use serde_repr::{Deserialize_repr, Serialize_repr};
+use serde_repr::Deserialize_repr;
+use serde_repr::Serialize_repr;
 
-use crate::{
-    collection::Collection,
-    config::SchedulerVersion,
-    deckconfig::DeckConfig,
-    decks::DeckId,
-    define_newtype,
-    error::{AnkiError, FilteredDeckError, Result},
-    notes::NoteId,
-    ops::StateChanges,
-    prelude::*,
-    timestamp::TimestampSecs,
-    types::Usn,
-};
+use crate::collection::Collection;
+use crate::config::SchedulerVersion;
+use crate::deckconfig::DeckConfig;
+use crate::decks::DeckId;
+use crate::define_newtype;
+use crate::error::AnkiError;
+use crate::error::FilteredDeckError;
+use crate::error::Result;
+use crate::notes::NoteId;
+use crate::ops::StateChanges;
+use crate::prelude::*;
+use crate::timestamp::TimestampSecs;
+use crate::types::Usn;
 
 define_newtype!(CardId, i64);
 
@@ -387,10 +390,9 @@ impl<'a> RemainingStepsAdjuster<'a> {
 
 #[cfg(test)]
 mod test {
-    use crate::tests::{
-        open_test_collection_with_learning_card, open_test_collection_with_relearning_card,
-        DeckAdder,
-    };
+    use crate::tests::open_test_collection_with_learning_card;
+    use crate::tests::open_test_collection_with_relearning_card;
+    use crate::tests::DeckAdder;
 
     #[test]
     fn should_increase_remaining_learning_steps_if_new_deck_has_more_unpassed_ones() {

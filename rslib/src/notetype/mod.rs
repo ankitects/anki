@@ -13,43 +13,48 @@ mod stock;
 mod templates;
 pub(crate) mod undo;
 
-use std::{
-    collections::{HashMap, HashSet},
-    iter::FromIterator,
-    sync::Arc,
-};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::iter::FromIterator;
+use std::sync::Arc;
 
-pub(crate) use cardgen::{AlreadyGeneratedCardInfo, CardGenContext};
+pub(crate) use cardgen::AlreadyGeneratedCardInfo;
+pub(crate) use cardgen::CardGenContext;
 pub use fields::NoteField;
 use lazy_static::lazy_static;
-pub use notetypechange::{ChangeNotetypeInput, NotetypeChangeInfo};
+pub use notetypechange::ChangeNotetypeInput;
+pub use notetypechange::NotetypeChangeInfo;
 use regex::Regex;
 pub(crate) use render::RenderCardOutput;
-pub use schema11::{CardTemplateSchema11, NoteFieldSchema11, NotetypeSchema11};
+pub use schema11::CardTemplateSchema11;
+pub use schema11::NoteFieldSchema11;
+pub use schema11::NotetypeSchema11;
 pub use stock::all_stock_notetypes;
 pub use templates::CardTemplate;
 use unicase::UniCase;
 
-pub use crate::pb::notetypes::{
-    notetype::{
-        config::{
-            card_requirement::Kind as CardRequirementKind, CardRequirement, Kind as NotetypeKind,
-        },
-        field::Config as NoteFieldConfig,
-        template::Config as CardTemplateConfig,
-        Config as NotetypeConfig, Field as NoteFieldProto, Template as CardTemplateProto,
-    },
-    Notetype as NotetypeProto,
-};
-use crate::{
-    define_newtype,
-    error::{CardTypeError, CardTypeErrorDetails, CardTypeSnafu, MissingClozeSnafu},
-    prelude::*,
-    search::{JoinSearches, Node, SearchNode},
-    storage::comma_separated_ids,
-    template::{FieldRequirements, ParsedTemplate},
-    text::ensure_string_in_nfc,
-};
+use crate::define_newtype;
+use crate::error::CardTypeError;
+use crate::error::CardTypeErrorDetails;
+use crate::error::CardTypeSnafu;
+use crate::error::MissingClozeSnafu;
+pub use crate::pb::notetypes::notetype::config::card_requirement::Kind as CardRequirementKind;
+pub use crate::pb::notetypes::notetype::config::CardRequirement;
+pub use crate::pb::notetypes::notetype::config::Kind as NotetypeKind;
+pub use crate::pb::notetypes::notetype::field::Config as NoteFieldConfig;
+pub use crate::pb::notetypes::notetype::template::Config as CardTemplateConfig;
+pub use crate::pb::notetypes::notetype::Config as NotetypeConfig;
+pub use crate::pb::notetypes::notetype::Field as NoteFieldProto;
+pub use crate::pb::notetypes::notetype::Template as CardTemplateProto;
+pub use crate::pb::notetypes::Notetype as NotetypeProto;
+use crate::prelude::*;
+use crate::search::JoinSearches;
+use crate::search::Node;
+use crate::search::SearchNode;
+use crate::storage::comma_separated_ids;
+use crate::template::FieldRequirements;
+use crate::template::ParsedTemplate;
+use crate::text::ensure_string_in_nfc;
 
 define_newtype!(NotetypeId, i64);
 

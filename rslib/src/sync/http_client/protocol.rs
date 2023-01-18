@@ -3,33 +3,38 @@
 
 use async_trait::async_trait;
 
-use crate::{
-    prelude::TimestampMillis,
-    sync::{
-        collection::{
-            changes::{ApplyChangesRequest, UnchunkedChanges},
-            chunks::{ApplyChunkRequest, Chunk},
-            graves::{ApplyGravesRequest, Graves},
-            meta::{MetaRequest, SyncMeta},
-            protocol::{EmptyInput, SyncMethod, SyncProtocol},
-            sanity::{SanityCheckRequest, SanityCheckResponse},
-            start::StartRequest,
-            upload::UploadResponse,
-        },
-        error::HttpResult,
-        http_client::HttpSyncClient,
-        login::{HostKeyRequest, HostKeyResponse},
-        media::{
-            begin::{SyncBeginRequest, SyncBeginResponse},
-            changes::{MediaChangesRequest, MediaChangesResponse},
-            download::DownloadFilesRequest,
-            protocol::{JsonResult, MediaSyncMethod, MediaSyncProtocol},
-            sanity, upload,
-        },
-        request::SyncRequest,
-        response::SyncResponse,
-    },
-};
+use crate::prelude::TimestampMillis;
+use crate::sync::collection::changes::ApplyChangesRequest;
+use crate::sync::collection::changes::UnchunkedChanges;
+use crate::sync::collection::chunks::ApplyChunkRequest;
+use crate::sync::collection::chunks::Chunk;
+use crate::sync::collection::graves::ApplyGravesRequest;
+use crate::sync::collection::graves::Graves;
+use crate::sync::collection::meta::MetaRequest;
+use crate::sync::collection::meta::SyncMeta;
+use crate::sync::collection::protocol::EmptyInput;
+use crate::sync::collection::protocol::SyncMethod;
+use crate::sync::collection::protocol::SyncProtocol;
+use crate::sync::collection::sanity::SanityCheckRequest;
+use crate::sync::collection::sanity::SanityCheckResponse;
+use crate::sync::collection::start::StartRequest;
+use crate::sync::collection::upload::UploadResponse;
+use crate::sync::error::HttpResult;
+use crate::sync::http_client::HttpSyncClient;
+use crate::sync::login::HostKeyRequest;
+use crate::sync::login::HostKeyResponse;
+use crate::sync::media::begin::SyncBeginRequest;
+use crate::sync::media::begin::SyncBeginResponse;
+use crate::sync::media::changes::MediaChangesRequest;
+use crate::sync::media::changes::MediaChangesResponse;
+use crate::sync::media::download::DownloadFilesRequest;
+use crate::sync::media::protocol::JsonResult;
+use crate::sync::media::protocol::MediaSyncMethod;
+use crate::sync::media::protocol::MediaSyncProtocol;
+use crate::sync::media::sanity;
+use crate::sync::media::upload;
+use crate::sync::request::SyncRequest;
+use crate::sync::response::SyncResponse;
 
 #[async_trait]
 impl SyncProtocol for HttpSyncClient {

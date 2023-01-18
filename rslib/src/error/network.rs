@@ -8,7 +8,8 @@ use reqwest::StatusCode;
 use snafu::Snafu;
 
 use super::AnkiError;
-use crate::sync::{collection::sanity::SanityCheckCounts, error::HttpError};
+use crate::sync::collection::sanity::SanityCheckCounts;
+use crate::sync::error::HttpError;
 
 #[derive(Debug, PartialEq, Eq, Snafu)]
 #[snafu(visibility(pub(crate)))]

@@ -1,12 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{
-    ops::OpChanges,
-    pb,
-    prelude::*,
-    undo::{UndoOutput, UndoStatus},
-};
+use crate::ops::OpChanges;
+use crate::pb;
+use crate::prelude::*;
+use crate::undo::UndoOutput;
+use crate::undo::UndoStatus;
 
 impl From<OpChanges> for pb::collection::OpChanges {
     fn from(c: OpChanges) -> Self {

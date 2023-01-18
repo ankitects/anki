@@ -1,27 +1,32 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    borrow::Cow,
-    collections::{HashMap, HashSet},
-    sync::Arc,
-};
+use std::borrow::Cow;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::sync::Arc;
 
 use super::NameOrId;
-use crate::{
-    card::{CardQueue, CardType},
-    config::I32ConfigKey,
-    import_export::{
-        text::{
-            DupeResolution, ForeignCard, ForeignData, ForeignNote, ForeignNotetype, ForeignTemplate,
-        },
-        ImportProgress, IncrementableProgress, NoteLog,
-    },
-    notes::{field_checksum, normalize_field},
-    notetype::{CardGenContext, CardTemplate, NoteField, NotetypeConfig},
-    prelude::*,
-    text::strip_html_preserving_media_filenames,
-};
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::config::I32ConfigKey;
+use crate::import_export::text::DupeResolution;
+use crate::import_export::text::ForeignCard;
+use crate::import_export::text::ForeignData;
+use crate::import_export::text::ForeignNote;
+use crate::import_export::text::ForeignNotetype;
+use crate::import_export::text::ForeignTemplate;
+use crate::import_export::ImportProgress;
+use crate::import_export::IncrementableProgress;
+use crate::import_export::NoteLog;
+use crate::notes::field_checksum;
+use crate::notes::normalize_field;
+use crate::notetype::CardGenContext;
+use crate::notetype::CardTemplate;
+use crate::notetype::NoteField;
+use crate::notetype::NotetypeConfig;
+use crate::prelude::*;
+use crate::text::strip_html_preserving_media_filenames;
 
 impl ForeignData {
     pub fn import(

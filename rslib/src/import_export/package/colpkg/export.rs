@@ -1,34 +1,42 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    borrow::Cow,
-    collections::HashMap,
-    ffi::OsStr,
-    fs::File,
-    io,
-    io::{Read, Write},
-    path::{Path, PathBuf},
-};
+use std::borrow::Cow;
+use std::collections::HashMap;
+use std::ffi::OsStr;
+use std::fs::File;
+use std::io;
+use std::io::Read;
+use std::io::Write;
+use std::path::Path;
+use std::path::PathBuf;
 
 use prost::Message;
-use sha1::{Digest, Sha1};
+use sha1::Digest;
+use sha1::Sha1;
 use tempfile::NamedTempFile;
-use zip::{write::FileOptions, CompressionMethod, ZipWriter};
-use zstd::{
-    stream::{raw::Encoder as RawEncoder, zio},
-    Encoder,
-};
+use zip::write::FileOptions;
+use zip::CompressionMethod;
+use zip::ZipWriter;
+use zstd::stream::raw::Encoder as RawEncoder;
+use zstd::stream::zio;
+use zstd::Encoder;
 
-use super::super::{MediaEntries, MediaEntry, Meta, Version};
-use crate::{
-    collection::CollectionBuilder,
-    import_export::{ExportProgress, IncrementableProgress},
-    io::{atomic_rename, new_tempfile, new_tempfile_in_parent_of, open_file, read_dir_files},
-    media::files::filename_if_normalized,
-    prelude::*,
-    storage::SchemaVersion,
-};
+use super::super::MediaEntries;
+use super::super::MediaEntry;
+use super::super::Meta;
+use super::super::Version;
+use crate::collection::CollectionBuilder;
+use crate::import_export::ExportProgress;
+use crate::import_export::IncrementableProgress;
+use crate::io::atomic_rename;
+use crate::io::new_tempfile;
+use crate::io::new_tempfile_in_parent_of;
+use crate::io::open_file;
+use crate::io::read_dir_files;
+use crate::media::files::filename_if_normalized;
+use crate::prelude::*;
+use crate::storage::SchemaVersion;
 
 /// Enable multithreaded compression if over this size. For smaller files,
 /// multithreading makes things slower, and in initial tests, the crossover

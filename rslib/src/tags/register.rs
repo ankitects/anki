@@ -1,12 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, collections::HashSet};
+use std::borrow::Cow;
+use std::collections::HashSet;
 
 use unicase::UniCase;
 
-use super::{immediate_parent_name_str, is_tag_separator, split_tags, Tag};
-use crate::{prelude::*, text::normalize_to_nfc, types::Usn};
+use super::immediate_parent_name_str;
+use super::is_tag_separator;
+use super::split_tags;
+use super::Tag;
+use crate::prelude::*;
+use crate::text::normalize_to_nfc;
+use crate::types::Usn;
 
 impl Collection {
     /// Given a list of tags, fix case, ordering and duplicates.
@@ -189,7 +195,8 @@ pub(super) fn normalize_tag_name(name: &str) -> Result<Cow<str>> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, decks::DeckId};
+    use crate::collection::open_test_collection;
+    use crate::decks::DeckId;
 
     #[test]
     fn tags() -> Result<()> {

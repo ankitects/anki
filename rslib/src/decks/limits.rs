@@ -1,16 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashMap, iter::Peekable};
+use std::collections::HashMap;
+use std::iter::Peekable;
 
-use id_tree::{InsertBehavior, Node, NodeId, Tree};
+use id_tree::InsertBehavior;
+use id_tree::Node;
+use id_tree::NodeId;
+use id_tree::Tree;
 
-use super::{Deck, NormalDeck};
-use crate::{
-    deckconfig::{DeckConfig, DeckConfigId},
-    pb::decks::deck::normal::DayLimit,
-    prelude::*,
-};
+use super::Deck;
+use super::NormalDeck;
+use crate::deckconfig::DeckConfig;
+use crate::deckconfig::DeckConfigId;
+use crate::pb::decks::deck::normal::DayLimit;
+use crate::prelude::*;
 
 impl NormalDeck {
     /// The deck's review limit for today, or its regular one, if any is configured.

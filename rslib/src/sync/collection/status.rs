@@ -3,15 +3,12 @@
 
 use tracing::debug;
 
-use crate::{
-    error::SyncErrorKind,
-    pb::sync::sync_status_response,
-    prelude::*,
-    sync::{
-        collection::{meta::SyncMeta, normal::ClientSyncState},
-        http_client::HttpSyncClient,
-    },
-};
+use crate::error::SyncErrorKind;
+use crate::pb::sync::sync_status_response;
+use crate::prelude::*;
+use crate::sync::collection::meta::SyncMeta;
+use crate::sync::collection::normal::ClientSyncState;
+use crate::sync::http_client::HttpSyncClient;
 
 impl Collection {
     /// Checks local collection only. If local collection is clean but changes are pending

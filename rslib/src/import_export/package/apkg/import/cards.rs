@@ -1,18 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    collections::{HashMap, HashSet},
-    mem,
-};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::mem;
 
 use super::Context;
-use crate::{
-    card::{CardQueue, CardType},
-    config::SchedulerVersion,
-    prelude::*,
-    revlog::RevlogEntry,
-};
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::config::SchedulerVersion;
+use crate::prelude::*;
+use crate::revlog::RevlogEntry;
 
 type CardAsNidAndOrd = (NoteId, u16);
 

@@ -1,17 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, collections::HashMap};
+use std::borrow::Cow;
+use std::collections::HashMap;
 
-use camino::{Utf8Path, Utf8PathBuf};
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
 
-use crate::{
-    action::BuildAction,
-    cargo::{CargoBuild, RustOutput},
-    glob,
-    input::BuildInput,
-    inputs, Build, Result,
-};
+use crate::action::BuildAction;
+use crate::cargo::CargoBuild;
+use crate::cargo::RustOutput;
+use crate::glob;
+use crate::input::BuildInput;
+use crate::inputs;
+use crate::Build;
+use crate::Result;
 
 #[derive(Clone, Copy, Debug)]
 pub struct OnlineArchive {

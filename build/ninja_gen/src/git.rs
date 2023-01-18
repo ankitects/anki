@@ -4,7 +4,8 @@
 use itertools::Itertools;
 
 use super::*;
-use crate::{action::BuildAction, input::BuildInput};
+use crate::action::BuildAction;
+use crate::input::BuildInput;
 
 pub struct SyncSubmodule {
     pub path: &'static str,

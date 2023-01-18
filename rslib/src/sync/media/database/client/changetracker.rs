@@ -1,19 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashMap, path::Path, time};
+use std::collections::HashMap;
+use std::path::Path;
+use std::time;
 
 use tracing::debug;
 
-use crate::{
-    io::read_dir_files,
-    media::files::{filename_if_normalized, mtime_as_i64, sha1_of_file, NONSYNCABLE_FILENAME},
-    prelude::*,
-    sync::media::{
-        database::client::{MediaDatabase, MediaEntry},
-        MAX_INDIVIDUAL_MEDIA_FILE_SIZE,
-    },
-};
+use crate::io::read_dir_files;
+use crate::media::files::filename_if_normalized;
+use crate::media::files::mtime_as_i64;
+use crate::media::files::sha1_of_file;
+use crate::media::files::NONSYNCABLE_FILENAME;
+use crate::prelude::*;
+use crate::sync::media::database::client::MediaDatabase;
+use crate::sync::media::database::client::MediaEntry;
+use crate::sync::media::MAX_INDIVIDUAL_MEDIA_FILE_SIZE;
 
 struct FilesystemEntry {
     fname: String,
@@ -236,17 +238,20 @@ where
 
 #[cfg(test)]
 mod test {
-    use std::{fs, path::Path, time, time::Duration};
+    use std::fs;
+    use std::path::Path;
+    use std::time;
+    use std::time::Duration;
 
     use tempfile::tempdir;
 
     use super::*;
-    use crate::{
-        error::Result,
-        io::{create_dir, write_file},
-        media::{files::sha1_of_data, MediaManager},
-        sync::media::database::client::MediaEntry,
-    };
+    use crate::error::Result;
+    use crate::io::create_dir;
+    use crate::io::write_file;
+    use crate::media::files::sha1_of_data;
+    use crate::media::MediaManager;
+    use crate::sync::media::database::client::MediaEntry;
 
     // helper
     fn change_mtime(p: &Path) {

@@ -5,27 +5,29 @@ use std::marker::PhantomData;
 
 use ammonia::Url;
 use async_trait::async_trait;
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
 use strum::IntoStaticStr;
 
-use crate::{
-    prelude::TimestampMillis,
-    sync::{
-        collection::{
-            changes::{ApplyChangesRequest, UnchunkedChanges},
-            chunks::{ApplyChunkRequest, Chunk},
-            graves::{ApplyGravesRequest, Graves},
-            meta::{MetaRequest, SyncMeta},
-            sanity::{SanityCheckRequest, SanityCheckResponse},
-            start::StartRequest,
-            upload::UploadResponse,
-        },
-        error::HttpResult,
-        login::{HostKeyRequest, HostKeyResponse},
-        request::{IntoSyncRequest, SyncRequest},
-        response::SyncResponse,
-    },
-};
+use crate::prelude::TimestampMillis;
+use crate::sync::collection::changes::ApplyChangesRequest;
+use crate::sync::collection::changes::UnchunkedChanges;
+use crate::sync::collection::chunks::ApplyChunkRequest;
+use crate::sync::collection::chunks::Chunk;
+use crate::sync::collection::graves::ApplyGravesRequest;
+use crate::sync::collection::graves::Graves;
+use crate::sync::collection::meta::MetaRequest;
+use crate::sync::collection::meta::SyncMeta;
+use crate::sync::collection::sanity::SanityCheckRequest;
+use crate::sync::collection::sanity::SanityCheckResponse;
+use crate::sync::collection::start::StartRequest;
+use crate::sync::collection::upload::UploadResponse;
+use crate::sync::error::HttpResult;
+use crate::sync::login::HostKeyRequest;
+use crate::sync::login::HostKeyResponse;
+use crate::sync::request::IntoSyncRequest;
+use crate::sync::request::SyncRequest;
+use crate::sync::response::SyncResponse;
 
 #[derive(IntoStaticStr, Deserialize, PartialEq, Eq, Debug)]
 #[serde(rename_all = "camelCase")]

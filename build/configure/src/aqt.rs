@@ -1,21 +1,27 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use ninja_gen::{
-    action::BuildAction,
-    command::RunCommand,
-    copy::{CopyFile, CopyFiles},
-    glob, hashmap, inputs,
-    node::{CompileSass, EsbuildScript, TypescriptCheck},
-    python::{python_format, PythonTest},
-    Build, Result, Utf8Path, Utf8PathBuf,
-};
+use ninja_gen::action::BuildAction;
+use ninja_gen::command::RunCommand;
+use ninja_gen::copy::CopyFile;
+use ninja_gen::copy::CopyFiles;
+use ninja_gen::glob;
+use ninja_gen::hashmap;
+use ninja_gen::inputs;
+use ninja_gen::node::CompileSass;
+use ninja_gen::node::EsbuildScript;
+use ninja_gen::node::TypescriptCheck;
+use ninja_gen::python::python_format;
+use ninja_gen::python::PythonTest;
+use ninja_gen::Build;
+use ninja_gen::Result;
+use ninja_gen::Utf8Path;
+use ninja_gen::Utf8PathBuf;
 
-use crate::{
-    anki_version,
-    python::BuildWheel,
-    web::{copy_mathjax, eslint},
-};
+use crate::anki_version;
+use crate::python::BuildWheel;
+use crate::web::copy_mathjax;
+use crate::web::eslint;
 
 pub fn build_and_check_aqt(build: &mut Build) -> Result<()> {
     build_forms(build)?;

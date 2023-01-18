@@ -1,10 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{fs, process::Command};
+use std::fs;
+use std::process::Command;
 
-use anyhow::{Context, Result};
-use camino::{Utf8Path, Utf8PathBuf};
+use anyhow::Context;
+use anyhow::Result;
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
 use clap::Args;
 
 use crate::notarize::wait_then_staple_app;

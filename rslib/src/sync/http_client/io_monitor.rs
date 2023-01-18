@@ -1,33 +1,37 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    io::{Cursor, ErrorKind},
-    sync::{Arc, Mutex},
-    time::Duration,
-};
+use std::io::Cursor;
+use std::io::ErrorKind;
+use std::sync::Arc;
+use std::sync::Mutex;
+use std::time::Duration;
 
 use bytes::Bytes;
-use futures::{Stream, StreamExt, TryStreamExt};
-use reqwest::{
-    header::{CONTENT_TYPE, LOCATION},
-    Body, RequestBuilder, Response, StatusCode,
-};
-use tokio::{
-    io::AsyncReadExt,
-    select,
-    time::{interval, Instant},
-};
-use tokio_util::io::{ReaderStream, StreamReader};
+use futures::Stream;
+use futures::StreamExt;
+use futures::TryStreamExt;
+use reqwest::header::CONTENT_TYPE;
+use reqwest::header::LOCATION;
+use reqwest::Body;
+use reqwest::RequestBuilder;
+use reqwest::Response;
+use reqwest::StatusCode;
+use tokio::io::AsyncReadExt;
+use tokio::select;
+use tokio::time::interval;
+use tokio::time::Instant;
+use tokio_util::io::ReaderStream;
+use tokio_util::io::StreamReader;
 
-use crate::{
-    error::Result,
-    sync::{
-        error::{HttpError, HttpResult, HttpSnafu, OrHttpErr},
-        request::header_and_stream::{decode_zstd_body_stream, encode_zstd_body_stream},
-        response::ORIGINAL_SIZE,
-    },
-};
+use crate::error::Result;
+use crate::sync::error::HttpError;
+use crate::sync::error::HttpResult;
+use crate::sync::error::HttpSnafu;
+use crate::sync::error::OrHttpErr;
+use crate::sync::request::header_and_stream::decode_zstd_body_stream;
+use crate::sync::request::header_and_stream::encode_zstd_body_stream;
+use crate::sync::response::ORIGINAL_SIZE;
 
 /// Serves two purposes:
 /// - allows us to monitor data sending/receiving and abort if
@@ -184,12 +188,15 @@ impl IoMonitor {}
 #[cfg(test)]
 mod test {
     use async_stream::stream;
-    use futures::{pin_mut, StreamExt};
-    use tokio::{select, time::sleep};
-    use wiremock::{
-        matchers::{method, path},
-        Mock, MockServer, ResponseTemplate,
-    };
+    use futures::pin_mut;
+    use futures::StreamExt;
+    use tokio::select;
+    use tokio::time::sleep;
+    use wiremock::matchers::method;
+    use wiremock::matchers::path;
+    use wiremock::Mock;
+    use wiremock::MockServer;
+    use wiremock::ResponseTemplate;
 
     use super::*;
     use crate::sync::error::HttpError;

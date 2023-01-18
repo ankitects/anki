@@ -3,7 +3,8 @@
 
 use std::collections::HashMap;
 
-use crate::{pb, prelude::*};
+use crate::pb;
+use crate::prelude::*;
 
 mod parser;
 mod writer;

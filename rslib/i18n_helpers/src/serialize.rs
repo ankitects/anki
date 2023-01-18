@@ -3,11 +3,12 @@
 
 // copied from https://github.com/projectfluent/fluent-rs/pull/241
 
-use std::fmt::{
-    Error, Write, {self},
-};
+use std::fmt::Error;
+use std::fmt::Write;
+use std::fmt::{self,};
 
-use fluent_syntax::{ast::*, parser::Slice};
+use fluent_syntax::ast::*;
+use fluent_syntax::parser::Slice;
 
 pub fn serialize<'s, S: Slice<'s>>(resource: &Resource<S>) -> String {
     serialize_with_options(resource, Options::default())

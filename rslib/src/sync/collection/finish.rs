@@ -1,13 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{
-    prelude::*,
-    sync::collection::{
-        normal::{ClientSyncState, NormalSyncProgress, NormalSyncer},
-        protocol::{EmptyInput, SyncProtocol},
-    },
-};
+use crate::prelude::*;
+use crate::sync::collection::normal::ClientSyncState;
+use crate::sync::collection::normal::NormalSyncProgress;
+use crate::sync::collection::normal::NormalSyncer;
+use crate::sync::collection::protocol::EmptyInput;
+use crate::sync::collection::protocol::SyncProtocol;
 
 impl<F> NormalSyncer<'_, F>
 where

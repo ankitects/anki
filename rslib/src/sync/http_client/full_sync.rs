@@ -1,21 +1,22 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{future::Future, time::Duration};
+use std::future::Future;
+use std::time::Duration;
 
-use tokio::{select, time::interval};
+use tokio::select;
+use tokio::time::interval;
 
-use crate::sync::{
-    collection::{
-        progress::{FullSyncProgress, FullSyncProgressFn},
-        protocol::{EmptyInput, SyncMethod},
-        upload::UploadResponse,
-    },
-    error::HttpResult,
-    http_client::{io_monitor::IoMonitor, HttpSyncClient},
-    request::SyncRequest,
-    response::SyncResponse,
-};
+use crate::sync::collection::progress::FullSyncProgress;
+use crate::sync::collection::progress::FullSyncProgressFn;
+use crate::sync::collection::protocol::EmptyInput;
+use crate::sync::collection::protocol::SyncMethod;
+use crate::sync::collection::upload::UploadResponse;
+use crate::sync::error::HttpResult;
+use crate::sync::http_client::io_monitor::IoMonitor;
+use crate::sync::http_client::HttpSyncClient;
+use crate::sync::request::SyncRequest;
+use crate::sync::response::SyncResponse;
 
 impl HttpSyncClient {
     pub fn set_full_sync_progress_fn(&mut self, func: Option<FullSyncProgressFn>) {

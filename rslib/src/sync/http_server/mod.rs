@@ -7,37 +7,40 @@ mod media_manager;
 mod routes;
 mod user;
 
-use std::{
-    collections::HashMap,
-    env,
-    future::Future,
-    net::{SocketAddr, TcpListener},
-    path::{Path, PathBuf},
-    pin::Pin,
-    sync::{Arc, Mutex},
-};
+use std::collections::HashMap;
+use std::env;
+use std::future::Future;
+use std::net::SocketAddr;
+use std::net::TcpListener;
+use std::path::Path;
+use std::path::PathBuf;
+use std::pin::Pin;
+use std::sync::Arc;
+use std::sync::Mutex;
 
-use axum::{extract::DefaultBodyLimit, Router};
-use snafu::{whatever, OptionExt, ResultExt, Whatever};
+use axum::extract::DefaultBodyLimit;
+use axum::Router;
+use snafu::whatever;
+use snafu::OptionExt;
+use snafu::ResultExt;
+use snafu::Whatever;
 use tracing::Span;
 
-use crate::{
-    error,
-    io::create_dir_all,
-    media::files::sha1_of_data,
-    sync::{
-        error::{HttpResult, OrHttpErr},
-        http_server::{
-            logging::with_logging_layer,
-            media_manager::ServerMediaManager,
-            routes::{collection_sync_router, media_sync_router},
-            user::User,
-        },
-        login::{HostKeyRequest, HostKeyResponse},
-        request::{SyncRequest, MAXIMUM_SYNC_PAYLOAD_BYTES},
-        response::SyncResponse,
-    },
-};
+use crate::error;
+use crate::io::create_dir_all;
+use crate::media::files::sha1_of_data;
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
+use crate::sync::http_server::logging::with_logging_layer;
+use crate::sync::http_server::media_manager::ServerMediaManager;
+use crate::sync::http_server::routes::collection_sync_router;
+use crate::sync::http_server::routes::media_sync_router;
+use crate::sync::http_server::user::User;
+use crate::sync::login::HostKeyRequest;
+use crate::sync::login::HostKeyResponse;
+use crate::sync::request::SyncRequest;
+use crate::sync::request::MAXIMUM_SYNC_PAYLOAD_BYTES;
+use crate::sync::response::SyncResponse;
 
 pub struct SimpleServer {
     state: Mutex<SimpleServerInner>,

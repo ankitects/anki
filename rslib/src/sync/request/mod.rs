@@ -4,29 +4,32 @@
 pub mod header_and_stream;
 mod multipart;
 
-use std::{any::Any, env, marker::PhantomData, net::IpAddr};
+use std::any::Any;
+use std::env;
+use std::marker::PhantomData;
+use std::net::IpAddr;
 
 use async_trait::async_trait;
-use axum::{
-    extract::{BodyStream, FromRequest, Multipart},
-    http::Request,
-    RequestPartsExt, TypedHeader,
-};
+use axum::extract::BodyStream;
+use axum::extract::FromRequest;
+use axum::extract::Multipart;
+use axum::http::Request;
+use axum::RequestPartsExt;
+use axum::TypedHeader;
 use axum_client_ip::ClientIp;
 use header_and_stream::SyncHeader;
 use hyper::Body;
 use once_cell::sync::Lazy;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::de::DeserializeOwned;
+use serde::Serialize;
 use serde_json::Error;
 use tracing::Span;
 
-use crate::{
-    sync::{
-        error::{HttpError, HttpResult, OrHttpErr},
-        version::SyncVersion,
-    },
-    version::sync_client_version_short,
-};
+use crate::sync::error::HttpError;
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
+use crate::sync::version::SyncVersion;
+use crate::version::sync_client_version_short;
 
 /// Stores the bytes of a sync request, the associated type they
 /// represent, and authentication info provided in headers/multipart

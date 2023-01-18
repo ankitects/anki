@@ -6,25 +6,26 @@ pub(crate) mod timestamps;
 mod transact;
 pub(crate) mod undo;
 
-use std::{
-    collections::HashMap,
-    fmt::{Debug, Formatter},
-    path::PathBuf,
-    sync::Arc,
-};
+use std::collections::HashMap;
+use std::fmt::Debug;
+use std::fmt::Formatter;
+use std::path::PathBuf;
+use std::sync::Arc;
 
-use crate::{
-    browser_table,
-    decks::{Deck, DeckId},
-    error::Result,
-    i18n::I18n,
-    notetype::{Notetype, NotetypeId},
-    scheduler::{queue::CardQueues, SchedulerInfo},
-    storage::{SchemaVersion, SqliteStorage},
-    timestamp::TimestampMillis,
-    types::Usn,
-    undo::UndoManager,
-};
+use crate::browser_table;
+use crate::decks::Deck;
+use crate::decks::DeckId;
+use crate::error::Result;
+use crate::i18n::I18n;
+use crate::notetype::Notetype;
+use crate::notetype::NotetypeId;
+use crate::scheduler::queue::CardQueues;
+use crate::scheduler::SchedulerInfo;
+use crate::storage::SchemaVersion;
+use crate::storage::SqliteStorage;
+use crate::timestamp::TimestampMillis;
+use crate::types::Usn;
+use crate::undo::UndoManager;
 
 #[derive(Default)]
 pub struct CollectionBuilder {

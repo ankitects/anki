@@ -5,11 +5,12 @@
 
 use std::collections::HashMap;
 
-use super::{CardGenContext, CardTemplate, Notetype};
-use crate::{
-    prelude::*,
-    search::{JoinSearches, TemplateKind},
-};
+use super::CardGenContext;
+use super::CardTemplate;
+use super::Notetype;
+use crate::prelude::*;
+use crate::search::JoinSearches;
+use crate::search::TemplateKind;
 
 /// True if any ordinals added, removed or reordered.
 fn ords_changed(ords: &[Option<u32>], previous_len: usize) -> bool {
@@ -193,8 +194,12 @@ impl Notetype {
 
 #[cfg(test)]
 mod test {
-    use super::{ords_changed, TemplateOrdChanges};
-    use crate::{collection::open_test_collection, decks::DeckId, error::Result, search::SortMode};
+    use super::ords_changed;
+    use super::TemplateOrdChanges;
+    use crate::collection::open_test_collection;
+    use crate::decks::DeckId;
+    use crate::error::Result;
+    use crate::search::SortMode;
 
     #[test]
     fn ord_changes() {

@@ -3,22 +3,19 @@
 
 use std::marker::PhantomData;
 
-use axum::{
-    body::StreamBody,
-    headers::HeaderName,
-    response::{IntoResponse, Response},
-};
-use serde::{de::DeserializeOwned, Serialize};
+use axum::body::StreamBody;
+use axum::headers::HeaderName;
+use axum::response::IntoResponse;
+use axum::response::Response;
+use serde::de::DeserializeOwned;
+use serde::Serialize;
 
-use crate::{
-    prelude::*,
-    sync::{
-        collection::upload::UploadResponse,
-        error::{HttpResult, OrHttpErr},
-        request::header_and_stream::encode_zstd_body,
-        version::SyncVersion,
-    },
-};
+use crate::prelude::*;
+use crate::sync::collection::upload::UploadResponse;
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
+use crate::sync::request::header_and_stream::encode_zstd_body;
+use crate::sync::version::SyncVersion;
 
 pub static ORIGINAL_SIZE: HeaderName = HeaderName::from_static("anki-original-size");
 

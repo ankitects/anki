@@ -4,13 +4,13 @@
 use serde_json::Value;
 
 use super::Backend;
+use crate::config::BoolKey;
+use crate::config::StringKey;
+use crate::pb;
+use crate::pb::config::config_key::Bool as BoolKeyProto;
+use crate::pb::config::config_key::String as StringKeyProto;
 pub(super) use crate::pb::config::config_service::Service as ConfigService;
-use crate::{
-    config::{BoolKey, StringKey},
-    pb,
-    pb::config::config_key::{Bool as BoolKeyProto, String as StringKeyProto},
-    prelude::*,
-};
+use crate::prelude::*;
 
 impl From<BoolKeyProto> for BoolKey {
     fn from(k: BoolKeyProto) -> Self {

@@ -1,18 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{fs, io::ErrorKind};
+use std::fs;
+use std::io::ErrorKind;
 
 use snafu::ResultExt;
 
-use crate::{
-    error::{FileIoSnafu, FileOp},
-    sync::{
-        error::{HttpResult, OrHttpErr},
-        http_server::media_manager::ServerMediaManager,
-        media::{database::server::entry::MediaEntry, zip::zip_files_for_download},
-    },
-};
+use crate::error::FileIoSnafu;
+use crate::error::FileOp;
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
+use crate::sync::http_server::media_manager::ServerMediaManager;
+use crate::sync::media::database::server::entry::MediaEntry;
+use crate::sync::media::zip::zip_files_for_download;
 
 impl ServerMediaManager {
     pub fn zip_files_for_download(&mut self, files: Vec<String>) -> HttpResult<Vec<u8>> {

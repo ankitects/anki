@@ -8,7 +8,8 @@
 use std::process::Command;
 
 use camino::Utf8Path;
-use snafu::{prelude::*, Whatever};
+use snafu::prelude::*;
+use snafu::Whatever;
 
 type Result<T> = std::result::Result<T, Whatever>;
 

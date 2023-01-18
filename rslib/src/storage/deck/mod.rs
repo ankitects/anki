@@ -1,23 +1,26 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    collections::{HashMap, HashSet},
-    iter,
-};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::iter;
 
 use prost::Message;
-use rusqlite::{named_params, params, Row};
+use rusqlite::named_params;
+use rusqlite::params;
+use rusqlite::Row;
 use unicase::UniCase;
 
 use super::SqliteStorage;
-use crate::{
-    card::CardQueue,
-    config::SchedulerVersion,
-    decks::{immediate_parent_name, DeckCommon, DeckKindContainer, DeckSchema11, DueCounts},
-    error::DbErrorKind,
-    prelude::*,
-};
+use crate::card::CardQueue;
+use crate::config::SchedulerVersion;
+use crate::decks::immediate_parent_name;
+use crate::decks::DeckCommon;
+use crate::decks::DeckKindContainer;
+use crate::decks::DeckSchema11;
+use crate::decks::DueCounts;
+use crate::error::DbErrorKind;
+use crate::prelude::*;
 
 fn row_to_deck(row: &Row) -> Result<Deck> {
     let common = DeckCommon::decode(row.get_ref_unwrap(4).as_blob()?)?;

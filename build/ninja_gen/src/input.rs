@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashMap, fmt::Display};
+use std::collections::HashMap;
+use std::fmt::Display;
 
 use camino::Utf8PathBuf;
 

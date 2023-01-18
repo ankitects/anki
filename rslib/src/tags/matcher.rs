@@ -1,11 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, collections::HashSet};
+use std::borrow::Cow;
+use std::collections::HashSet;
 
-use regex::{Captures, Regex};
+use regex::Captures;
+use regex::Regex;
 
-use super::{join_tags, split_tags};
+use super::join_tags;
+use super::split_tags;
 use crate::prelude::*;
 pub(crate) struct TagMatcher {
     regex: Regex,

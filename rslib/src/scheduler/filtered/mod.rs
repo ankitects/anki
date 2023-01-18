@@ -4,17 +4,16 @@
 mod card;
 mod custom_study;
 
-use crate::{
-    config::{ConfigKey, SchedulerVersion},
-    decks::{FilteredDeck, FilteredSearchTerm},
-    error::FilteredDeckError,
-    prelude::*,
-    search::{
-        writer::{deck_search, normalize_search},
-        SortMode,
-    },
-    storage::card::filtered::order_and_limit_for_search,
-};
+use crate::config::ConfigKey;
+use crate::config::SchedulerVersion;
+use crate::decks::FilteredDeck;
+use crate::decks::FilteredSearchTerm;
+use crate::error::FilteredDeckError;
+use crate::prelude::*;
+use crate::search::writer::deck_search;
+use crate::search::writer::normalize_search;
+use crate::search::SortMode;
+use crate::storage::card::filtered::order_and_limit_for_search;
 
 /// Contains the parts of a filtered deck required for modifying its settings in
 /// the UI.

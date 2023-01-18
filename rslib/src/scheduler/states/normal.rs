@@ -1,10 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{
-    interval_kind::IntervalKind, LearnState, NewState, RelearnState, ReviewState, SchedulingStates,
-    StateContext,
-};
+use super::interval_kind::IntervalKind;
+use super::LearnState;
+use super::NewState;
+use super::RelearnState;
+use super::ReviewState;
+use super::SchedulingStates;
+use super::StateContext;
 use crate::revlog::RevlogReviewKind;
 
 #[derive(Debug, Clone, Copy, PartialEq)]

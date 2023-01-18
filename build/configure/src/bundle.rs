@@ -1,22 +1,25 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use ninja_gen::{
-    action::BuildAction,
-    archives::{download_and_extract, empty_manifest, with_exe, OnlineArchive},
-    cargo::{CargoBuild, RustOutput},
-    git::SyncSubmodule,
-    glob,
-    input::BuildInput,
-    inputs,
-    python::PythonEnvironment,
-    Build, Result, Utf8Path,
-};
+use ninja_gen::action::BuildAction;
+use ninja_gen::archives::download_and_extract;
+use ninja_gen::archives::empty_manifest;
+use ninja_gen::archives::with_exe;
+use ninja_gen::archives::OnlineArchive;
+use ninja_gen::cargo::CargoBuild;
+use ninja_gen::cargo::RustOutput;
+use ninja_gen::git::SyncSubmodule;
+use ninja_gen::glob;
+use ninja_gen::input::BuildInput;
+use ninja_gen::inputs;
+use ninja_gen::python::PythonEnvironment;
+use ninja_gen::Build;
+use ninja_gen::Result;
+use ninja_gen::Utf8Path;
 
-use crate::{
-    anki_version,
-    platform::{overriden_python_target_platform, overriden_rust_target_triple},
-};
+use crate::anki_version;
+use crate::platform::overriden_python_target_platform;
+use crate::platform::overriden_rust_target_triple;
 
 #[derive(Debug, PartialEq, Eq)]
 enum DistKind {

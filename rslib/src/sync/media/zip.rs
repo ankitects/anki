@@ -1,22 +1,22 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    collections::HashMap,
-    io,
-    io::{Read, Write},
-};
+use std::collections::HashMap;
+use std::io;
+use std::io::Read;
+use std::io::Write;
 
 use serde::Deserialize;
 use serde_tuple::Serialize_tuple;
 use unicode_normalization::is_nfc;
-use zip::{self, write::FileOptions, ZipWriter};
+use zip::write::FileOptions;
+use zip::ZipWriter;
+use zip::{self,};
 
-use crate::{
-    media::files::sha1_of_data,
-    prelude::*,
-    sync::media::{MAX_INDIVIDUAL_MEDIA_FILE_SIZE, MAX_MEDIA_FILENAME_LENGTH_SERVER},
-};
+use crate::media::files::sha1_of_data;
+use crate::prelude::*;
+use crate::sync::media::MAX_INDIVIDUAL_MEDIA_FILE_SIZE;
+use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH_SERVER;
 
 pub struct ZipFileMetadata {
     pub filename: String,

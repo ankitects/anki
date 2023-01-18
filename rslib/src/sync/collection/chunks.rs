@@ -2,27 +2,29 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use serde_tuple::Serialize_tuple;
 use tracing::debug;
 
-use crate::{
-    card::{Card, CardQueue, CardType},
-    notes::Note,
-    prelude::*,
-    revlog::RevlogEntry,
-    serde::deserialize_int_from_number,
-    storage::card::data::{card_data_string, CardData},
-    sync::{
-        collection::{
-            normal::{ClientSyncState, NormalSyncProgress, NormalSyncer},
-            protocol::{EmptyInput, SyncProtocol},
-            start::ServerSyncState,
-        },
-        request::IntoSyncRequest,
-    },
-    tags::{join_tags, split_tags},
-};
+use crate::card::Card;
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::notes::Note;
+use crate::prelude::*;
+use crate::revlog::RevlogEntry;
+use crate::serde::deserialize_int_from_number;
+use crate::storage::card::data::card_data_string;
+use crate::storage::card::data::CardData;
+use crate::sync::collection::normal::ClientSyncState;
+use crate::sync::collection::normal::NormalSyncProgress;
+use crate::sync::collection::normal::NormalSyncer;
+use crate::sync::collection::protocol::EmptyInput;
+use crate::sync::collection::protocol::SyncProtocol;
+use crate::sync::collection::start::ServerSyncState;
+use crate::sync::request::IntoSyncRequest;
+use crate::tags::join_tags;
+use crate::tags::split_tags;
 
 pub(in crate::sync) struct ChunkableIds {
     revlog: Vec<RevlogId>,

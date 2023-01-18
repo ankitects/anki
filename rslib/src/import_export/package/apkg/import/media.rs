@@ -1,23 +1,23 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashMap, fs::File, mem};
+use std::collections::HashMap;
+use std::fs::File;
+use std::mem;
 
 use zip::ZipArchive;
 
 use super::Context;
-use crate::{
-    error::{FileIoSnafu, FileOp},
-    import_export::{
-        package::{
-            colpkg::export::MediaCopier,
-            media::{extract_media_entries, SafeMediaEntry},
-        },
-        ImportProgress, IncrementableProgress,
-    },
-    media::files::{add_hash_suffix_to_file_stem, sha1_of_reader},
-    prelude::*,
-};
+use crate::error::FileIoSnafu;
+use crate::error::FileOp;
+use crate::import_export::package::colpkg::export::MediaCopier;
+use crate::import_export::package::media::extract_media_entries;
+use crate::import_export::package::media::SafeMediaEntry;
+use crate::import_export::ImportProgress;
+use crate::import_export::IncrementableProgress;
+use crate::media::files::add_hash_suffix_to_file_stem;
+use crate::media::files::sha1_of_reader;
+use crate::prelude::*;
 
 /// Map of source media files, that do not already exist in the target.
 #[derive(Default)]

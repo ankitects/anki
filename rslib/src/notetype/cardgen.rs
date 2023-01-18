@@ -1,19 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    collections::{HashMap, HashSet},
-    ops::Deref,
-};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::ops::Deref;
 
 use itertools::Itertools;
-use rand::{rngs::StdRng, Rng, SeedableRng};
+use rand::rngs::StdRng;
+use rand::Rng;
+use rand::SeedableRng;
 
 use super::Notetype;
-use crate::{
-    cloze::add_cloze_numbers_in_string, notetype::NotetypeKind, prelude::*,
-    template::ParsedTemplate,
-};
+use crate::cloze::add_cloze_numbers_in_string;
+use crate::notetype::NotetypeKind;
+use crate::prelude::*;
+use crate::template::ParsedTemplate;
 
 /// Info about an existing card required when generating new cards
 #[derive(Debug, PartialEq, Eq)]

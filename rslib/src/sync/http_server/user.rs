@@ -5,15 +5,13 @@ use std::path::PathBuf;
 
 use tracing::info;
 
-use crate::{
-    collection::{Collection, CollectionBuilder},
-    error,
-    sync::{
-        collection::start::ServerSyncState,
-        error::{HttpResult, OrHttpErr},
-        http_server::media_manager::ServerMediaManager,
-    },
-};
+use crate::collection::Collection;
+use crate::collection::CollectionBuilder;
+use crate::error;
+use crate::sync::collection::start::ServerSyncState;
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
+use crate::sync::http_server::media_manager::ServerMediaManager;
 
 pub(in crate::sync) struct User {
     pub name: String,

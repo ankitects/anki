@@ -96,7 +96,8 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, tags::Tag};
+    use crate::collection::open_test_collection;
+    use crate::tags::Tag;
 
     #[test]
     fn clearing() -> Result<()> {

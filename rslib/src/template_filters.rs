@@ -5,13 +5,13 @@ use std::borrow::Cow;
 
 use blake3::Hasher;
 use lazy_static::lazy_static;
-use regex::{Captures, Regex};
+use regex::Captures;
+use regex::Regex;
 
-use crate::{
-    cloze::{cloze_filter, cloze_only_filter},
-    template::RenderContext,
-    text::strip_html,
-};
+use crate::cloze::cloze_filter;
+use crate::cloze::cloze_only_filter;
+use crate::template::RenderContext;
+use crate::text::strip_html;
 
 // Filtering
 //----------------------------------------

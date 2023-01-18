@@ -1,12 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{fs, fs::OpenOptions, io};
+use std::fs;
+use std::fs::OpenOptions;
+use std::io;
 
 use once_cell::sync::OnceCell;
 use tracing::subscriber::set_global_default;
-use tracing_appender::non_blocking::{NonBlocking, WorkerGuard};
-use tracing_subscriber::{fmt, fmt::Layer, layer::SubscriberExt, EnvFilter};
+use tracing_appender::non_blocking::NonBlocking;
+use tracing_appender::non_blocking::WorkerGuard;
+use tracing_subscriber::fmt;
+use tracing_subscriber::fmt::Layer;
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::EnvFilter;
 
 use crate::prelude::*;
 

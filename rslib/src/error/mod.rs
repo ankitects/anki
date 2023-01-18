@@ -9,18 +9,27 @@ pub(crate) mod network;
 mod not_found;
 mod search;
 
-pub use db::{DbError, DbErrorKind};
-pub use filtered::{CustomStudyError, FilteredDeckError};
-pub use network::{NetworkError, NetworkErrorKind, SyncError, SyncErrorKind};
-pub use search::{ParseError, SearchErrorKind};
+pub use db::DbError;
+pub use db::DbErrorKind;
+pub use filtered::CustomStudyError;
+pub use filtered::FilteredDeckError;
+pub use network::NetworkError;
+pub use network::NetworkErrorKind;
+pub use network::SyncError;
+pub use network::SyncErrorKind;
+pub use search::ParseError;
+pub use search::SearchErrorKind;
 use snafu::Snafu;
 
-pub use self::{
-    file_io::{FileIoError, FileIoSnafu, FileOp},
-    invalid_input::{InvalidInputError, OrInvalid},
-    not_found::{NotFoundError, OrNotFound},
-};
-use crate::{i18n::I18n, links::HelpPage};
+pub use self::file_io::FileIoError;
+pub use self::file_io::FileIoSnafu;
+pub use self::file_io::FileOp;
+pub use self::invalid_input::InvalidInputError;
+pub use self::invalid_input::OrInvalid;
+pub use self::not_found::NotFoundError;
+pub use self::not_found::OrNotFound;
+use crate::i18n::I18n;
+use crate::links::HelpPage;
 
 pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 

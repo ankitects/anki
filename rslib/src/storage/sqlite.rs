@@ -1,24 +1,30 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, cmp::Ordering, collections::HashSet, hash::Hasher, path::Path, sync::Arc};
+use std::borrow::Cow;
+use std::cmp::Ordering;
+use std::collections::HashSet;
+use std::hash::Hasher;
+use std::path::Path;
+use std::sync::Arc;
 
 use fnv::FnvHasher;
 use regex::Regex;
-use rusqlite::{functions::FunctionFlags, params, Connection};
+use rusqlite::functions::FunctionFlags;
+use rusqlite::params;
+use rusqlite::Connection;
 use unicase::UniCase;
 
-use super::{
-    upgrades::{SCHEMA_MAX_VERSION, SCHEMA_MIN_VERSION, SCHEMA_STARTING_VERSION},
-    SchemaVersion,
-};
-use crate::{
-    config::schema11::schema11_config_as_string,
-    error::DbErrorKind,
-    prelude::*,
-    scheduler::timing::{local_minutes_west_for_stamp, v1_creation_date},
-    text::without_combining,
-};
+use super::upgrades::SCHEMA_MAX_VERSION;
+use super::upgrades::SCHEMA_MIN_VERSION;
+use super::upgrades::SCHEMA_STARTING_VERSION;
+use super::SchemaVersion;
+use crate::config::schema11::schema11_config_as_string;
+use crate::error::DbErrorKind;
+use crate::prelude::*;
+use crate::scheduler::timing::local_minutes_west_for_stamp;
+use crate::scheduler::timing::v1_creation_date;
+use crate::text::without_combining;
 
 fn unicase_compare(s1: &str, s2: &str) -> Ordering {
     UniCase::new(s1).cmp(&UniCase::new(s2))

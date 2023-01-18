@@ -6,24 +6,28 @@ mod decks;
 mod media;
 mod notes;
 
-use std::{collections::HashSet, fs::File, path::Path};
+use std::collections::HashSet;
+use std::fs::File;
+use std::path::Path;
 
 pub(crate) use notes::NoteMeta;
 use rusqlite::OptionalExtension;
 use tempfile::NamedTempFile;
 use zip::ZipArchive;
 
-use crate::{
-    collection::CollectionBuilder,
-    error::{FileIoSnafu, FileOp},
-    import_export::{
-        gather::ExchangeData, package::Meta, ImportProgress, IncrementableProgress, NoteLog,
-    },
-    io::{new_tempfile, open_file},
-    media::MediaManager,
-    prelude::*,
-    search::SearchNode,
-};
+use crate::collection::CollectionBuilder;
+use crate::error::FileIoSnafu;
+use crate::error::FileOp;
+use crate::import_export::gather::ExchangeData;
+use crate::import_export::package::Meta;
+use crate::import_export::ImportProgress;
+use crate::import_export::IncrementableProgress;
+use crate::import_export::NoteLog;
+use crate::io::new_tempfile;
+use crate::io::open_file;
+use crate::media::MediaManager;
+use crate::prelude::*;
+use crate::search::SearchNode;
 
 struct Context<'a> {
     target_col: &'a mut Collection,

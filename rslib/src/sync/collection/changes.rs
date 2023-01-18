@@ -6,27 +6,25 @@
 
 use std::collections::HashMap;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use serde_json::Value;
 use serde_tuple::Serialize_tuple;
-use tracing::{debug, trace};
+use tracing::debug;
+use tracing::trace;
 
-use crate::{
-    deckconfig::DeckConfSchema11,
-    decks::DeckSchema11,
-    error::SyncErrorKind,
-    notetype::NotetypeSchema11,
-    prelude::*,
-    sync::{
-        collection::{
-            normal::{ClientSyncState, NormalSyncProgress, NormalSyncer},
-            protocol::SyncProtocol,
-            start::ServerSyncState,
-        },
-        request::IntoSyncRequest,
-    },
-    tags::Tag,
-};
+use crate::deckconfig::DeckConfSchema11;
+use crate::decks::DeckSchema11;
+use crate::error::SyncErrorKind;
+use crate::notetype::NotetypeSchema11;
+use crate::prelude::*;
+use crate::sync::collection::normal::ClientSyncState;
+use crate::sync::collection::normal::NormalSyncProgress;
+use crate::sync::collection::normal::NormalSyncer;
+use crate::sync::collection::protocol::SyncProtocol;
+use crate::sync::collection::start::ServerSyncState;
+use crate::sync::request::IntoSyncRequest;
+use crate::tags::Tag;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ApplyChangesRequest {

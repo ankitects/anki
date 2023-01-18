@@ -1,20 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    collections::{HashMap, HashSet},
-    fmt::Write,
-};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::fmt::Write;
 
 use camino::Utf8PathBuf;
 
-use crate::{
-    action::BuildAction,
-    archives::Platform,
-    configure::ConfigureBuild,
-    input::{space_separated, BuildInput},
-    Result,
-};
+use crate::action::BuildAction;
+use crate::archives::Platform;
+use crate::configure::ConfigureBuild;
+use crate::input::space_separated;
+use crate::input::BuildInput;
+use crate::Result;
 
 #[derive(Debug)]
 pub struct Build {

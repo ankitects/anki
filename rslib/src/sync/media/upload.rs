@@ -1,20 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, path::Path};
+use std::borrow::Cow;
+use std::path::Path;
 
 use serde_derive::Deserialize;
 use serde_tuple::Serialize_tuple;
 use tracing::debug;
 
-use crate::{
-    media::files::{data_for_file, normalize_filename},
-    prelude::*,
-    sync::media::{
-        database::client::{MediaDatabase, MediaEntry},
-        MAX_INDIVIDUAL_MEDIA_FILE_SIZE, MEDIA_SYNC_TARGET_ZIP_BYTES,
-    },
-};
+use crate::media::files::data_for_file;
+use crate::media::files::normalize_filename;
+use crate::prelude::*;
+use crate::sync::media::database::client::MediaDatabase;
+use crate::sync::media::database::client::MediaEntry;
+use crate::sync::media::MAX_INDIVIDUAL_MEDIA_FILE_SIZE;
+use crate::sync::media::MEDIA_SYNC_TARGET_ZIP_BYTES;
 
 #[derive(Serialize_tuple, Deserialize, Debug)]
 pub struct MediaUploadResponse {

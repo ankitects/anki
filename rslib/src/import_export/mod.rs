@@ -8,14 +8,13 @@ pub mod text;
 
 use std::marker::PhantomData;
 
-pub use crate::pb::import_export::import_response::{Log as NoteLog, Note as LogNote};
-use crate::{
-    prelude::*,
-    text::{
-        newlines_to_spaces, strip_html_preserving_media_filenames, truncate_to_char_boundary,
-        CowMapping,
-    },
-};
+pub use crate::pb::import_export::import_response::Log as NoteLog;
+pub use crate::pb::import_export::import_response::Note as LogNote;
+use crate::prelude::*;
+use crate::text::newlines_to_spaces;
+use crate::text::strip_html_preserving_media_filenames;
+use crate::text::truncate_to_char_boundary;
+use crate::text::CowMapping;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ImportProgress {

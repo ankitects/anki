@@ -4,18 +4,22 @@
 use std::sync::Arc;
 
 use itertools::Itertools;
-use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
+use strum::Display;
+use strum::EnumIter;
+use strum::EnumString;
+use strum::IntoEnumIterator;
 
-use crate::{
-    card::{CardQueue, CardType},
-    card_rendering::prettify_av_tags,
-    notetype::{CardTemplate, NotetypeKind},
-    pb,
-    prelude::*,
-    scheduler::{timespan::time_span, timing::SchedTimingToday},
-    template::RenderedNode,
-    text::html_to_text_line,
-};
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::card_rendering::prettify_av_tags;
+use crate::notetype::CardTemplate;
+use crate::notetype::NotetypeKind;
+use crate::pb;
+use crate::prelude::*;
+use crate::scheduler::timespan::time_span;
+use crate::scheduler::timing::SchedTimingToday;
+use crate::template::RenderedNode;
+use crate::text::html_to_text_line;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Display, EnumIter, EnumString)]
 #[strum(serialize_all = "camelCase")]

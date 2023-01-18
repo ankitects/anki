@@ -1,28 +1,32 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    borrow::Cow,
-    collections::{HashMap, HashSet},
-    fs, io,
-    path::Path,
-};
+use std::borrow::Cow;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::fs;
+use std::io;
+use std::path::Path;
 
 use anki_i18n::without_unicode_isolation;
 use tracing::debug;
 
-use crate::{
-    collection::Collection,
-    error::{AnkiError, DbErrorKind, Result},
-    latex::extract_latex_expanding_clozes,
-    media::{
-        files::{data_for_file, filename_if_normalized, normalize_nfc_filename, trash_folder},
-        MediaManager,
-    },
-    notes::Note,
-    sync::media::MAX_INDIVIDUAL_MEDIA_FILE_SIZE,
-    text::{extract_media_refs, normalize_to_nfc, MediaRef, REMOTE_FILENAME},
-};
+use crate::collection::Collection;
+use crate::error::AnkiError;
+use crate::error::DbErrorKind;
+use crate::error::Result;
+use crate::latex::extract_latex_expanding_clozes;
+use crate::media::files::data_for_file;
+use crate::media::files::filename_if_normalized;
+use crate::media::files::normalize_nfc_filename;
+use crate::media::files::trash_folder;
+use crate::media::MediaManager;
+use crate::notes::Note;
+use crate::sync::media::MAX_INDIVIDUAL_MEDIA_FILE_SIZE;
+use crate::text::extract_media_refs;
+use crate::text::normalize_to_nfc;
+use crate::text::MediaRef;
+use crate::text::REMOTE_FILENAME;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct MediaCheckOutput {
@@ -500,21 +504,24 @@ pub(crate) mod test {
     pub(crate) const MEDIACHECK_ANKI2: &[u8] =
         include_bytes!("../../tests/support/mediacheck.anki2");
 
-    use std::{collections::HashMap, fs, io, path::Path};
+    use std::collections::HashMap;
+    use std::fs;
+    use std::io;
+    use std::path::Path;
 
-    use tempfile::{tempdir, TempDir};
+    use tempfile::tempdir;
+    use tempfile::TempDir;
 
     use super::normalize_and_maybe_rename_files;
-    use crate::{
-        collection::{Collection, CollectionBuilder},
-        error::Result,
-        io::{create_dir, write_file},
-        media::{
-            check::{MediaCheckOutput, MediaChecker},
-            files::trash_folder,
-            MediaManager,
-        },
-    };
+    use crate::collection::Collection;
+    use crate::collection::CollectionBuilder;
+    use crate::error::Result;
+    use crate::io::create_dir;
+    use crate::io::write_file;
+    use crate::media::check::MediaCheckOutput;
+    use crate::media::check::MediaChecker;
+    use crate::media::files::trash_folder;
+    use crate::media::MediaManager;
 
     fn common_setup() -> Result<(TempDir, MediaManager, Collection)> {
         let dir = tempdir()?;

@@ -1,7 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{action::BuildAction, hash::simple_hash, input::BuildInput, inputs, Build, Result};
+use crate::action::BuildAction;
+use crate::hash::simple_hash;
+use crate::input::BuildInput;
+use crate::inputs;
+use crate::Build;
+use crate::Result;
 
 pub struct PythonEnvironment<'a> {
     pub folder: &'static str,

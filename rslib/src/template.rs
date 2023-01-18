@@ -1,28 +1,28 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    borrow::Cow,
-    collections::{HashMap, HashSet},
-    fmt::Write,
-    iter,
-};
+use std::borrow::Cow;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::fmt::Write;
+use std::iter;
 
 use lazy_static::lazy_static;
-use nom::{
-    branch::alt,
-    bytes::complete::{tag, take_until},
-    combinator::{map, rest, verify},
-    sequence::delimited,
-};
+use nom::branch::alt;
+use nom::bytes::complete::tag;
+use nom::bytes::complete::take_until;
+use nom::combinator::map;
+use nom::combinator::rest;
+use nom::combinator::verify;
+use nom::sequence::delimited;
 use regex::Regex;
 
-use crate::{
-    cloze::add_cloze_numbers_in_string,
-    error::{AnkiError, Result, TemplateError},
-    i18n::I18n,
-    template_filters::apply_filters,
-};
+use crate::cloze::add_cloze_numbers_in_string;
+use crate::error::AnkiError;
+use crate::error::Result;
+use crate::error::TemplateError;
+use crate::i18n::I18n;
+use crate::template_filters::apply_filters;
 
 pub type FieldMap<'a> = HashMap<&'a str, u16>;
 type TemplateResult<T> = std::result::Result<T, TemplateError>;
@@ -846,12 +846,15 @@ fn is_cloze_conditional(key: &str) -> bool {
 mod test {
     use std::collections::HashMap;
 
-    use super::{FieldMap, ParsedNode::*, ParsedTemplate as PT};
-    use crate::{
-        error::TemplateError,
-        i18n::I18n,
-        template::{field_is_empty, nonempty_fields, FieldRequirements, RenderContext},
-    };
+    use super::FieldMap;
+    use super::ParsedNode::*;
+    use super::ParsedTemplate as PT;
+    use crate::error::TemplateError;
+    use crate::i18n::I18n;
+    use crate::template::field_is_empty;
+    use crate::template::nonempty_fields;
+    use crate::template::FieldRequirements;
+    use crate::template::RenderContext;
 
     #[test]
     fn field_empty() {

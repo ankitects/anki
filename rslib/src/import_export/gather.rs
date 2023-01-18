@@ -1,20 +1,23 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+use std::collections::HashSet;
 
 use itertools::Itertools;
 
-use super::{ExportProgress, IncrementableProgress};
-use crate::{
-    decks::immediate_parent_name,
-    io::filename_is_safe,
-    latex::extract_latex,
-    prelude::*,
-    revlog::RevlogEntry,
-    search::{CardTableGuard, NoteTableGuard},
-    text::{extract_media_refs, extract_underscored_css_imports, extract_underscored_references},
-};
+use super::ExportProgress;
+use super::IncrementableProgress;
+use crate::decks::immediate_parent_name;
+use crate::io::filename_is_safe;
+use crate::latex::extract_latex;
+use crate::prelude::*;
+use crate::revlog::RevlogEntry;
+use crate::search::CardTableGuard;
+use crate::search::NoteTableGuard;
+use crate::text::extract_media_refs;
+use crate::text::extract_underscored_css_imports;
+use crate::text::extract_underscored_references;
 
 #[derive(Debug, Default)]
 pub(super) struct ExchangeData {
@@ -267,7 +270,8 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, search::SearchNode};
+    use crate::collection::open_test_collection;
+    use crate::search::SearchNode;
 
     #[test]
     fn should_gather_valid_notes() {

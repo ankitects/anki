@@ -1,23 +1,24 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    ffi::OsStr,
-    fs::{read_dir, remove_file, DirEntry},
-    path::{Path, PathBuf},
-    thread,
-    thread::JoinHandle,
-    time::SystemTime,
-};
+use std::ffi::OsStr;
+use std::fs::read_dir;
+use std::fs::remove_file;
+use std::fs::DirEntry;
+use std::path::Path;
+use std::path::PathBuf;
+use std::thread;
+use std::thread::JoinHandle;
+use std::time::SystemTime;
 
 use chrono::prelude::*;
 use itertools::Itertools;
 use tracing::error;
 
-use crate::{
-    import_export::package::export_colpkg_from_data, io::read_file,
-    pb::config::preferences::BackupLimits, prelude::*,
-};
+use crate::import_export::package::export_colpkg_from_data;
+use crate::io::read_file;
+use crate::pb::config::preferences::BackupLimits;
+use crate::prelude::*;
 
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";
 

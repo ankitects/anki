@@ -1,12 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashSet, fmt::Write};
+use std::collections::HashSet;
+use std::fmt::Write;
 
-use fluent_syntax::{
-    ast::{Entry, Expression, InlineExpression, Pattern, PatternElement},
-    parser::parse,
-};
+use fluent_syntax::ast::Entry;
+use fluent_syntax::ast::Expression;
+use fluent_syntax::ast::InlineExpression;
+use fluent_syntax::ast::Pattern;
+use fluent_syntax::ast::PatternElement;
+use fluent_syntax::parser::parse;
 use serde::Serialize;
 
 use crate::gather::TranslationsByLang;

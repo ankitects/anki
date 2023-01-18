@@ -1,23 +1,28 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashSet, sync::Arc};
+use std::collections::HashSet;
+use std::sync::Arc;
 
 use itertools::Itertools;
 use tracing::debug;
 
-use crate::{
-    collection::Collection,
-    config::SchedulerVersion,
-    error::{AnkiError, DbError, DbErrorKind, Result},
-    i18n::I18n,
-    notetype::{
-        all_stock_notetypes, AlreadyGeneratedCardInfo, CardGenContext, Notetype, NotetypeId,
-        NotetypeKind,
-    },
-    prelude::*,
-    timestamp::{TimestampMillis, TimestampSecs},
-};
+use crate::collection::Collection;
+use crate::config::SchedulerVersion;
+use crate::error::AnkiError;
+use crate::error::DbError;
+use crate::error::DbErrorKind;
+use crate::error::Result;
+use crate::i18n::I18n;
+use crate::notetype::all_stock_notetypes;
+use crate::notetype::AlreadyGeneratedCardInfo;
+use crate::notetype::CardGenContext;
+use crate::notetype::Notetype;
+use crate::notetype::NotetypeId;
+use crate::notetype::NotetypeKind;
+use crate::prelude::*;
+use crate::timestamp::TimestampMillis;
+use crate::timestamp::TimestampSecs;
 
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct CheckDatabaseOutput {
@@ -408,7 +413,9 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, decks::DeckId, search::SortMode};
+    use crate::collection::open_test_collection;
+    use crate::decks::DeckId;
+    use crate::search::SortMode;
 
     fn progress_fn(_progress: DatabaseCheckProgress, _throttle: bool) {}
 

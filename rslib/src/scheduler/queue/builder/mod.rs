@@ -7,18 +7,24 @@ pub(crate) mod intersperser;
 pub(crate) mod sized_chain;
 mod sorting;
 
-use std::collections::{HashMap, VecDeque};
+use std::collections::HashMap;
+use std::collections::VecDeque;
 
 use intersperser::Intersperser;
 use sized_chain::SizedChain;
 
-use super::{CardQueues, Counts, LearningQueueEntry, MainQueueEntry, MainQueueEntryKind};
-use crate::{
-    deckconfig::{NewCardGatherPriority, NewCardSortOrder, ReviewCardOrder, ReviewMix},
-    decks::limits::LimitTreeMap,
-    prelude::*,
-    scheduler::timing::SchedTimingToday,
-};
+use super::CardQueues;
+use super::Counts;
+use super::LearningQueueEntry;
+use super::MainQueueEntry;
+use super::MainQueueEntryKind;
+use crate::deckconfig::NewCardGatherPriority;
+use crate::deckconfig::NewCardSortOrder;
+use crate::deckconfig::ReviewCardOrder;
+use crate::deckconfig::ReviewMix;
+use crate::decks::limits::LimitTreeMap;
+use crate::prelude::*;
+use crate::scheduler::timing::SchedTimingToday;
 
 /// Temporary holder for review cards that will be built into a queue.
 #[derive(Debug, Clone, Copy)]
@@ -263,11 +269,11 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{
-        card::{CardQueue, CardType},
-        collection::open_test_collection,
-        pb::deckconfig::deck_config::config::{NewCardGatherPriority, NewCardSortOrder},
-    };
+    use crate::card::CardQueue;
+    use crate::card::CardType;
+    use crate::collection::open_test_collection;
+    use crate::pb::deckconfig::deck_config::config::NewCardGatherPriority;
+    use crate::pb::deckconfig::deck_config::config::NewCardSortOrder;
 
     impl Collection {
         fn set_deck_gather_order(&mut self, deck: &mut Deck, order: NewCardGatherPriority) {

@@ -1,20 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use ninja_gen::{
-    action::BuildAction,
-    archives::Platform,
-    command::RunCommand,
-    copy::LinkFile,
-    glob, hashmap, inputs,
-    python::{python_format, PythonTest},
-    Build, Result,
-};
+use ninja_gen::action::BuildAction;
+use ninja_gen::archives::Platform;
+use ninja_gen::command::RunCommand;
+use ninja_gen::copy::LinkFile;
+use ninja_gen::glob;
+use ninja_gen::hashmap;
+use ninja_gen::inputs;
+use ninja_gen::python::python_format;
+use ninja_gen::python::PythonTest;
+use ninja_gen::Build;
+use ninja_gen::Result;
 
-use crate::{
-    platform::overriden_python_target_platform,
-    python::{BuildWheel, GenPythonProto},
-};
+use crate::platform::overriden_python_target_platform;
+use crate::python::BuildWheel;
+use crate::python::GenPythonProto;
 
 pub fn build_pylib(build: &mut Build) -> Result<()> {
     // generated files

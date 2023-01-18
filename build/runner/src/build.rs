@@ -1,11 +1,19 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{env, fs, io::Write, process::Command, time::Instant};
+use std::env;
+use std::fs;
+use std::io::Write;
+use std::process::Command;
+use std::time::Instant;
 
 use camino::Utf8Path;
 use clap::Args;
-use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
+use termcolor::Color;
+use termcolor::ColorChoice;
+use termcolor::ColorSpec;
+use termcolor::StandardStream;
+use termcolor::WriteColor;
 
 #[derive(Args)]
 pub struct BuildArgs {

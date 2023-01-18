@@ -1,14 +1,19 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{fs::File, io, io::Read};
+use std::fs::File;
+use std::io;
+use std::io::Read;
 
 use prost::Message;
 use zip::ZipArchive;
 use zstd::stream::copy_decode;
 
-pub(super) use crate::pb::import_export::{package_metadata::Version, PackageMetadata as Meta};
-use crate::{error::ImportError, prelude::*, storage::SchemaVersion};
+use crate::error::ImportError;
+pub(super) use crate::pb::import_export::package_metadata::Version;
+pub(super) use crate::pb::import_export::PackageMetadata as Meta;
+use crate::prelude::*;
+use crate::storage::SchemaVersion;
 
 impl Version {
     pub(super) fn collection_filename(&self) -> &'static str {

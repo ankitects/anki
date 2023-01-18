@@ -1,12 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{CardStateUpdater, RevlogEntryPartial};
-use crate::{
-    card::CardQueue,
-    config::SchedulerVersion,
-    scheduler::states::{CardState, IntervalKind, PreviewState},
-};
+use super::CardStateUpdater;
+use super::RevlogEntryPartial;
+use crate::card::CardQueue;
+use crate::config::SchedulerVersion;
+use crate::scheduler::states::CardState;
+use crate::scheduler::states::IntervalKind;
+use crate::scheduler::states::PreviewState;
 
 impl CardStateUpdater {
     pub(super) fn apply_preview_state(
@@ -40,16 +41,14 @@ impl CardStateUpdater {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{
-        card::CardType,
-        collection::open_test_collection,
-        prelude::*,
-        scheduler::{
-            answering::{CardAnswer, Rating},
-            states::{CardState, FilteredState},
-        },
-        timestamp::TimestampMillis,
-    };
+    use crate::card::CardType;
+    use crate::collection::open_test_collection;
+    use crate::prelude::*;
+    use crate::scheduler::answering::CardAnswer;
+    use crate::scheduler::answering::Rating;
+    use crate::scheduler::states::CardState;
+    use crate::scheduler::states::FilteredState;
+    use crate::timestamp::TimestampMillis;
 
     #[test]
     fn preview() -> Result<()> {

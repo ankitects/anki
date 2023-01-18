@@ -3,13 +3,14 @@
 
 use maplit::hashmap;
 
-use crate::{
-    action::BuildAction,
-    archives::{download_and_extract, with_exe, OnlineArchive, Platform},
-    hash::simple_hash,
-    input::BuildInput,
-    inputs,
-};
+use crate::action::BuildAction;
+use crate::archives::download_and_extract;
+use crate::archives::with_exe;
+use crate::archives::OnlineArchive;
+use crate::archives::Platform;
+use crate::hash::simple_hash;
+use crate::input::BuildInput;
+use crate::inputs;
 
 pub fn protoc_archive(platform: Platform) -> OnlineArchive {
     match platform {

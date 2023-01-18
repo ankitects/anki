@@ -8,7 +8,8 @@ pub(super) const SCHEMA_STARTING_VERSION: u8 = 11;
 /// The maximum schema version we can open.
 pub(super) const SCHEMA_MAX_VERSION: u8 = 18;
 
-use super::{SchemaVersion, SqliteStorage};
+use super::SchemaVersion;
+use super::SqliteStorage;
 use crate::error::Result;
 
 impl SqliteStorage {

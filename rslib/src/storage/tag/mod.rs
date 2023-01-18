@@ -3,10 +3,13 @@
 
 use std::collections::HashMap;
 
-use rusqlite::{params, Row};
+use rusqlite::params;
+use rusqlite::Row;
 
 use super::SqliteStorage;
-use crate::{error::Result, tags::Tag, types::Usn};
+use crate::error::Result;
+use crate::tags::Tag;
+use crate::types::Usn;
 
 fn row_to_tag(row: &Row) -> Result<Tag> {
     Ok(Tag {

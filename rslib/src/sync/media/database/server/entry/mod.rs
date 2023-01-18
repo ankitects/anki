@@ -3,13 +3,15 @@
 
 use std::mem;
 
-use rusqlite::{params, OptionalExtension, Row};
+use rusqlite::params;
+use rusqlite::OptionalExtension;
+use rusqlite::Row;
 
-use crate::{
-    error,
-    prelude::{TimestampSecs, Usn},
-    sync::media::database::server::{meta::StoreMetadata, ServerMediaDatabase},
-};
+use crate::error;
+use crate::prelude::TimestampSecs;
+use crate::prelude::Usn;
+use crate::sync::media::database::server::meta::StoreMetadata;
+use crate::sync::media::database::server::ServerMediaDatabase;
 
 pub mod changes;
 mod download;

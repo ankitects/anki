@@ -1,10 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{env, process::Command};
+use std::env;
+use std::process::Command;
 
-use anyhow::{bail, Result};
-use camino::{Utf8Path, Utf8PathBuf};
+use anyhow::bail;
+use anyhow::Result;
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
 
 const CODESIGN_ARGS: &[&str] = &["-vvvv", "-o", "runtime", "-s", "Developer ID Application:"];
 

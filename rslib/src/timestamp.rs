@@ -5,7 +5,8 @@ use std::time;
 
 use chrono::prelude::*;
 
-use crate::{define_newtype, prelude::*};
+use crate::define_newtype;
+use crate::prelude::*;
 
 define_newtype!(TimestampSecs, i64);
 define_newtype!(TimestampMillis, i64);

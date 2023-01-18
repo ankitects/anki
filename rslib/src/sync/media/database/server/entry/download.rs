@@ -3,16 +3,13 @@
 
 use rusqlite::params;
 
-use crate::{
-    error,
-    sync::{
-        error::{HttpResult, OrHttpErr},
-        media::{
-            database::server::{entry::MediaEntry, ServerMediaDatabase},
-            MAX_MEDIA_FILES_IN_ZIP, MEDIA_SYNC_TARGET_ZIP_BYTES,
-        },
-    },
-};
+use crate::error;
+use crate::sync::error::HttpResult;
+use crate::sync::error::OrHttpErr;
+use crate::sync::media::database::server::entry::MediaEntry;
+use crate::sync::media::database::server::ServerMediaDatabase;
+use crate::sync::media::MAX_MEDIA_FILES_IN_ZIP;
+use crate::sync::media::MEDIA_SYNC_TARGET_ZIP_BYTES;
 
 impl ServerMediaDatabase {
     /// Return a list of entries in the same order as the provided files, truncating

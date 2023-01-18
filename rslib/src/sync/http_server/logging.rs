@@ -3,9 +3,13 @@
 
 use std::time::Duration;
 
-use axum::{body::Body, http::Request, response::Response, Router};
+use axum::body::Body;
+use axum::http::Request;
+use axum::response::Response;
+use axum::Router;
 use tower_http::trace::TraceLayer;
-use tracing::{info_span, Span};
+use tracing::info_span;
+use tracing::Span;
 
 pub fn with_logging_layer(router: Router) -> Router {
     router.layer(

@@ -1,13 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{
-    error,
-    sync::media::{
-        database::server::{meta::StoreMetadata, ServerMediaDatabase},
-        zip::{UploadedChange, UploadedChangeKind},
-    },
-};
+use crate::error;
+use crate::sync::media::database::server::meta::StoreMetadata;
+use crate::sync::media::database::server::ServerMediaDatabase;
+use crate::sync::media::zip::UploadedChange;
+use crate::sync::media::zip::UploadedChangeKind;
 
 pub enum UploadedChangeResult {
     FileAlreadyDeleted {

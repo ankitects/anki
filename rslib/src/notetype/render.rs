@@ -1,13 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, collections::HashMap};
+use std::borrow::Cow;
+use std::collections::HashMap;
 
-use super::{CardTemplate, Notetype, NotetypeKind};
-use crate::{
-    prelude::*,
-    template::{field_is_empty, render_card, ParsedTemplate, RenderedNode},
-};
+use super::CardTemplate;
+use super::Notetype;
+use super::NotetypeKind;
+use crate::prelude::*;
+use crate::template::field_is_empty;
+use crate::template::render_card;
+use crate::template::ParsedTemplate;
+use crate::template::RenderedNode;
 
 pub struct RenderCardOutput {
     pub qnodes: Vec<RenderedNode>,
