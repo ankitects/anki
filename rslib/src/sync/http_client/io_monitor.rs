@@ -194,9 +194,11 @@ mod test {
     use super::*;
     use crate::sync::error::HttpError;
 
-    /// Longer delays on Windows
+    /// The delays in the tests are aggressively short, and false positives slip through
+    /// on a loaded system - especially on Windows. Fix by applying a universal
+    /// multiplier.
     fn millis(millis: u64) -> Duration {
-        Duration::from_millis(millis * if cfg!(windows) { 10 } else { 1 })
+        Duration::from_millis(millis * if cfg!(windows) { 10 } else { 5 })
     }
 
     #[tokio::test]
