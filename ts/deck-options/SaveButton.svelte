@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import DropdownDivider from "../components/DropdownDivider.svelte";
     import DropdownItem from "../components/DropdownItem.svelte";
-    import LabelButton from "../components/IconButton.svelte";
+    import LabelButton from "../components/LabelButton.svelte";
     import IconButton from "../components/IconButton.svelte";
     import Popover from "../components/Popover.svelte";
     import Shortcut from "../components/Shortcut.svelte";
