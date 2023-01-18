@@ -2,16 +2,23 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import enum
 import re
-from typing import Any, Optional
+from typing import Any, Callable, Optional, cast
 
 import aqt
 from anki.sync import SyncStatus
-from aqt import gui_hooks
+from aqt import gui_hooks, props
 from aqt.qt import *
 from aqt.sync import get_sync_status
+from aqt.theme import theme_manager
 from aqt.utils import tr
 from aqt.webview import AnkiWebView
+
+
+class HideMode(enum.IntEnum):
+    FULLSCREEN = 0
+    ALWAYS = 1
 
 
 # wrapper class for set_bridge_command()
@@ -27,45 +34,94 @@ class BottomToolbar:
 
 
 class ToolbarWebView(AnkiWebView):
+    hide_condition: Callable[..., bool]
+
     def __init__(self, mw: aqt.AnkiQt, title: str) -> None:
         AnkiWebView.__init__(self, mw, title=title)
         self.mw = mw
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.disable_zoom()
-        self.collapsed = False
-        self.web_height = 0
-        # collapse timer
+        self.hidden = False
         self.hide_timer = QTimer()
         self.hide_timer.setSingleShot(True)
-        self.hide_timer.setInterval(1000)
-        qconnect(self.hide_timer.timeout, self.mw.collapse_toolbar_if_allowed)
+        self.reset_timer()
+
+    def reset_timer(self) -> None:
+        self.hide_timer.stop()
+        self.hide_timer.setInterval(2000)
+
+    def hide(self) -> None:
+        self.hidden = True
+
+    def show(self) -> None:
+        self.hidden = False
+
+
+class TopWebView(ToolbarWebView):
+    def __init__(self, mw: aqt.AnkiQt, title: str) -> None:
+        super().__init__(mw, title=title)
+        self.web_height = 0
+        qconnect(self.hide_timer.timeout, self.hide_if_allowed)
 
     def eventFilter(self, obj, evt):
         if handled := super().eventFilter(obj, evt):
             return handled
 
-        # prevent collapse if pointer inside
+        # prevent collapse of both toolbars if pointer is inside one of them
         if evt.type() == QEvent.Type.Enter:
-            self.hide_timer.stop()
-            self.hide_timer.setInterval(1000)
+            self.reset_timer()
+            self.mw.bottomWeb.reset_timer()
             return True
 
         return False
+
+    def on_body_classes_need_update(self) -> None:
+        super().on_body_classes_need_update()
+
+        if self.mw.state == "review":
+            if self.mw.pm.hide_top_bar():
+                self.eval("""document.body.classList.remove("flat"); """)
+            else:
+                self.flatten()
+
+        self.show()
 
     def _onHeight(self, qvar: Optional[int]) -> None:
         super()._onHeight(qvar)
         self.web_height = int(qvar)
 
-    def collapse(self) -> None:
-        self.collapsed = True
-        self.eval("""document.body.classList.add("collapsed"); """)
+    def hide_if_allowed(self) -> None:
+        if self.mw.state != "review":
+            return
 
-    def expand(self) -> None:
-        self.collapsed = False
-        self.eval("""document.body.classList.remove("collapsed"); """)
+        if self.mw.pm.hide_top_bar():
+            if (
+                self.mw.pm.top_bar_hide_mode() == HideMode.FULLSCREEN
+                and not self.mw.windowState() & Qt.WindowState.WindowFullScreen
+            ):
+                self.show()
+                return
+
+            self.hide()
+
+    def hide(self) -> None:
+        super().hide()
+
+        self.hidden = True
+        self.eval(
+            """document.body.classList.add("hidden"); """,
+        )
+        if self.mw.fullscreen:
+            self.mw.hide_menubar()
+
+    def show(self) -> None:
+        super().show()
+
+        self.eval("""document.body.classList.remove("hidden"); """)
+        self.mw.show_menubar()
 
     def flatten(self) -> None:
-        self.eval("document.body.classList.add('flat'); ")
+        self.eval("""document.body.classList.add("flat"); """)
 
     def elevate(self) -> None:
         self.eval(
@@ -76,15 +132,24 @@ class ToolbarWebView(AnkiWebView):
         )
 
     def update_background_image(self) -> None:
-        def set_background(val: str) -> None:
+        if self.mw.pm.minimalist_mode():
+            return
+
+        def set_background(computed: str) -> None:
             # remove offset from copy
-            background = re.sub(r"-\d+px ", "0%", val)
+            background = re.sub(r"-\d+px ", "0%", computed)
+            # ensure alignment with main webview
+            background = re.sub(r"\sfixed", "", background)
             # change computedStyle px value back to 100vw
             background = re.sub(r"\d+px", "100vw", background)
 
             self.eval(
-                f"""document.body.style.setProperty("background", '{background}'); """
+                f"""
+                    document.body.style.setProperty("background", '{background}');
+                """
             )
+            self.set_body_height(self.mw.web.height())
+
             # offset reviewer background by toolbar height
             self.mw.web.eval(
                 f"""document.body.style.setProperty("background-position-y", "-{self.web_height}px"); """
@@ -94,6 +159,93 @@ class ToolbarWebView(AnkiWebView):
             """window.getComputedStyle(document.body).background; """,
             set_background,
         )
+
+    def set_body_height(self, height: int) -> None:
+        self.eval(
+            f"""document.body.style.setProperty("min-height", "{self.mw.web.height()}px"); """
+        )
+
+    def adjustHeightToFit(self) -> None:
+        self.eval("""document.body.style.setProperty("min-height", "0px"); """)
+        self.evalWithCallback("document.documentElement.offsetHeight", self._onHeight)
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
+
+        self.mw.web.evalWithCallback(
+            """window.innerHeight; """,
+            self.set_body_height,
+        )
+
+
+class BottomWebView(ToolbarWebView):
+    def __init__(self, mw: aqt.AnkiQt, title: str) -> None:
+        super().__init__(mw, title=title)
+        qconnect(self.hide_timer.timeout, self.hide_if_allowed)
+
+    def eventFilter(self, obj, evt):
+        if handled := super().eventFilter(obj, evt):
+            return handled
+
+        if evt.type() == QEvent.Type.Enter:
+            self.reset_timer()
+            self.mw.toolbarWeb.reset_timer()
+            return True
+
+        return False
+
+    def on_body_classes_need_update(self) -> None:
+        super().on_body_classes_need_update()
+        if self.mw.state == "review":
+            self.show()
+
+    def animate_height(self, height: int) -> None:
+        self.web_height = height
+
+        if self.mw.pm.reduce_motion():
+            self.setFixedHeight(height)
+        else:
+            # Collapse/Expand animation
+            self.setMinimumHeight(0)
+            self.animation = QPropertyAnimation(
+                self, cast(QByteArray, b"maximumHeight")
+            )
+            self.animation.setDuration(int(theme_manager.var(props.TRANSITION)))
+            self.animation.setStartValue(self.height())
+            self.animation.setEndValue(height)
+            qconnect(self.animation.finished, lambda: self.setFixedHeight(height))
+            self.animation.start()
+
+    def hide_if_allowed(self) -> None:
+        if self.mw.state != "review":
+            return
+
+        if self.mw.pm.hide_bottom_bar():
+            if (
+                self.mw.pm.bottom_bar_hide_mode() == HideMode.FULLSCREEN
+                and not self.mw.windowState() & Qt.WindowState.WindowFullScreen
+            ):
+                self.show()
+                return
+
+            self.hide()
+
+    def hide(self) -> None:
+        super().hide()
+
+        self.hidden = True
+        self.animate_height(1)
+
+    def show(self) -> None:
+        super().show()
+
+        self.hidden = False
+        if self.mw.state == "review":
+            self.evalWithCallback(
+                "document.documentElement.offsetHeight", self.animate_height
+            )
+        else:
+            self.adjustHeightToFit()
 
 
 class Toolbar:

@@ -38,17 +38,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         width: 100%;
         background: var(--canvas-elevated);
         border: 1px solid var(--border-subtle);
-        border-radius: var(--border-radius-large, 10px);
-        padding: 1rem 1.75rem 0.75rem 1.25rem;
-        &.rtl {
-            padding: 1rem 1.25rem 0.75rem 1.75rem;
-        }
-        &:hover,
-        &:focus-within {
-            .help-badge {
-                color: var(--fg-subtle);
-            }
-        }
+        border-radius: var(--border-radius-medium, 10px);
+
         &.light {
             @include elevation(2, $opacity-boost: -0.08);
             &:hover,
@@ -61,6 +52,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             &:hover,
             &:focus-within {
                 @include elevation(4);
+            }
+        }
+
+        padding: 1rem 1.75rem 0.75rem 1.25rem;
+        &.rtl {
+            padding: 1rem 1.25rem 0.75rem 1.75rem;
+        }
+        &:hover,
+        &:focus-within {
+            .help-badge {
+                color: var(--fg-subtle);
             }
         }
         transition: box-shadow var(--transition) ease-in-out;

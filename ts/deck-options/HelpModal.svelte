@@ -158,7 +158,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .modal-content {
         background-color: var(--canvas);
         color: var(--fg);
-        border-radius: var(--border-radius-large, 10px);
+        border-radius: var(--border-radius-medium, 10px);
     }
 
     .invert {

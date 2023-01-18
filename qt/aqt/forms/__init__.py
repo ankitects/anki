@@ -42,4 +42,5 @@ from . import (
     synclog,
     taglimit,
     template,
+    widgets,
 )

@@ -22,12 +22,17 @@ body {
     &:not(.isMac) * {
         @include scrollbar.custom;
     }
-    &.reduced-motion,
-    &.reduced-motion * {
+    &.reduce-motion,
+    &.reduce-motion * {
         transition: none !important;
         animation: none !important;
     }
     &.no-blur * {
+        backdrop-filter: none !important;
+    }
+    &:not(.fancy),
+    &:not(.fancy) * {
+        box-shadow: none !important;
         backdrop-filter: none !important;
     }
 }

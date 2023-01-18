@@ -7,17 +7,19 @@
 
 table {
     padding: 1rem;
-    background: var(--canvas-elevated);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--border-radius-large);
 
-    @include elevation(1, $opacity-boost: -0.08);
-    &:hover {
-        @include elevation(2);
+    .fancy & {
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--border-radius-medium);
+
+        @include elevation(1, $opacity-boost: -0.08);
+        &:hover {
+            @include elevation(2);
+        }
+        transition: box-shadow var(--transition) ease-in-out;
+        background: var(--canvas-glass);
+        backdrop-filter: blur(var(--blur));
     }
-    transition: box-shadow var(--transition) ease-in-out;
-    background: var(--canvas-glass);
-    backdrop-filter: blur(var(--blur));
 }
 
 a.deck {
@@ -37,7 +39,13 @@ th {
 }
 
 tr.deck td {
-    padding: 4px 12px;
+    padding: 1px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+
+    .fancy & {
+        border: unset;
+        padding: 4px 12px;
+    }
 }
 
 tr.top-level-drag-row td {
@@ -62,12 +70,12 @@ tr:hover:not(.top-level-drag-row) {
     td {
         background: color(border-subtle);
         &:first-child {
-            border-top-left-radius: prop(border-radius-large);
-            border-bottom-left-radius: prop(border-radius-large);
+            border-top-left-radius: prop(border-radius-medium);
+            border-bottom-left-radius: prop(border-radius-medium);
         }
         &:last-child {
-            border-top-right-radius: prop(border-radius-large);
-            border-bottom-right-radius: prop(border-radius-large);
+            border-top-right-radius: prop(border-radius-medium);
+            border-bottom-right-radius: prop(border-radius-medium);
         }
         .gears {
             visibility: visible;
@@ -82,14 +90,14 @@ tr:hover:not(.top-level-drag-row) {
             &:first-child {
                 border-top-left-radius: 0;
                 border-bottom-left-radius: 0;
-                border-top-right-radius: prop(border-radius-large);
-                border-bottom-right-radius: prop(border-radius-large);
+                border-top-right-radius: prop(border-radius-medium);
+                border-bottom-right-radius: prop(border-radius-medium);
             }
             &:last-child {
                 border-top-right-radius: 0;
                 border-bottom-right-radius: 0;
-                border-top-left-radius: prop(border-radius-large);
-                border-bottom-left-radius: prop(border-radius-large);
+                border-top-left-radius: prop(border-radius-medium);
+                border-bottom-left-radius: prop(border-radius-medium);
             }
         }
     }

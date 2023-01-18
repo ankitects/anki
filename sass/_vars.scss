@@ -25,8 +25,14 @@ $vars: (
                     default: 5px,
                 ),
             ),
+            medium: (
+                "Used for container corners",
+                (
+                    default: 12px,
+                ),
+            ),
             large: (
-                "Used for big centered buttons",
+                "Used for pill-shaped buttons",
                 (
                     default: 15px,
                 ),
