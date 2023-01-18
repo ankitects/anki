@@ -175,9 +175,6 @@
            <property name="currentText">
             <string notr="true">ComboBox (editable)</string>
            </property>
-           <property name="placeholderText">
-            <string/>
-           </property>
           </widget>
          </item>
          <item>
