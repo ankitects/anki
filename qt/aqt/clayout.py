@@ -247,7 +247,7 @@ class CardLayout(QDialog):
         tform.front_button.setText(tr.card_templates_front_template())
         tform.back_button.setText(tr.card_templates_back_template())
         tform.style_button.setText(tr.card_templates_template_styling())
-        tform.groupBox.setTitle(tr.card_templates_template_box())
+        tform.template_box.setTitle(tr.card_templates_template_box())
 
         cnt = self.mw.col.models.use_count(self.model)
         tform.changes_affect_label.setText(
