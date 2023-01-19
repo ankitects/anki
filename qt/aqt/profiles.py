@@ -665,8 +665,9 @@ create table if not exists profiles
         return self.profile.get("customSyncUrl")
 
     def set_custom_sync_url(self, url: str | None) -> None:
-        self.set_current_sync_url(None)
-        self.profile["customSyncUrl"] = url
+        if url != self.custom_sync_url():
+            self.set_current_sync_url(None)
+            self.profile["customSyncUrl"] = url
 
     def auto_sync_media_minutes(self) -> int:
         return self.profile.get("autoSyncMediaMinutes", 15)
