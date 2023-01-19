@@ -14,7 +14,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let active = false;
     export let disabled = false;
     export let tabbable = false;
-
+    export let ellipsis = false;
+    
     let buttonRef: HTMLButtonElement;
 
     const dispatch = createEventDispatcher();
@@ -27,6 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="label-button {className}"
     class:active
     class:primary
+    class:ellipsis
     title={tooltip}
     {disabled}
     tabindex={tabbable ? 0 : -1}
@@ -47,8 +49,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @include button.border-radius;
 
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        &.ellipsis {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
         padding: 0 calc(var(--buttons-size) / 3);
         font-size: var(--font-size);
         width: auto;
