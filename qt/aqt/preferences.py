@@ -271,6 +271,7 @@ class Preferences(QDialog):
             self.form.styleComboBox.currentIndexChanged,
             self.mw.pm.set_widget_style,
         )
+        self.form.styleLabel.setVisible(not is_win)
         self.form.styleComboBox.setVisible(not is_win)
         self.form.legacy_import_export.setChecked(self.mw.pm.legacy_import_export())
 
