@@ -68,7 +68,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <LabelButton
-    class="save-button"
     primary
     on:click={() => save(false)}
     tooltip={getPlatformString(saveKeyCombination)}
@@ -115,11 +114,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </WithFloating>
 
 <style lang="scss">
-    /* LabelButton's overflow: hidden breaks the text centering */
-    :global(.save-button) {
-        overflow: visible !important;
-    }
-
     .save {
         margin: 0 0.75rem;
     }
