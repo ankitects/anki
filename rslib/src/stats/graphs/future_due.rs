@@ -23,7 +23,7 @@ impl GraphsContext {
             };
             let due_day = if c.is_intraday_learning() {
                 let offset = due as i64 - self.next_day_start.0;
-                ((offset / 86_400) + 1) as i32
+                (offset / 86_400) as i32
             } else {
                 due - (self.days_elapsed as i32)
             };
