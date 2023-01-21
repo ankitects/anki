@@ -83,6 +83,8 @@ class Previewer(QDialog):
         self.bbox = QDialogButtonBox()
         self.bbox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
+        gui_hooks.will_show_web(self._web, "enable")
+
         self._replay = self.bbox.addButton(
             tr.actions_replay_audio(), QDialogButtonBox.ButtonRole.ActionRole
         )
