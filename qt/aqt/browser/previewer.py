@@ -110,6 +110,7 @@ class Previewer(QDialog):
         self._on_close()
 
     def _on_replay_audio(self) -> None:
+        gui_hooks.will_show_web(self._web, "replay")
         if self._state == "question":
             replay_audio(self.card(), True)
         elif self._state == "answer":
@@ -189,6 +190,10 @@ class Previewer(QDialog):
             elif self._card_changed:
                 self._state = "question"
 
+            if not self._show_both_sides and self._state == "answer":
+                gui_hooks.will_show_web(self._web, "skip")
+            gui_hooks.will_show_web(self._web, "reset_skip")
+
             currentState = self._state_and_mod()
             if currentState == self._last_state:
                 # nothing has changed, avoid refreshing
@@ -222,6 +227,8 @@ class Previewer(QDialog):
             else:
                 audio = []
                 self._web.setPlaybackRequiresGesture(True)
+                gui_hooks.will_show_web(self._web, "autoplay")
+
             gui_hooks.av_player_will_play_tags(audio, self._state, self)
             av_player.play_tags(audio)
             txt = self.mw.prepare_card_text_for_display(txt)
@@ -236,10 +243,15 @@ class Previewer(QDialog):
             js = f"{func}({json.dumps(txt)}, '{bodyclass}');"
         self._web.eval(js)
         self._card_changed = False
+        gui_hooks.will_show_web(self._web, "skip")
 
     def _on_show_both_sides(self, toggle: bool) -> None:
         self._show_both_sides = toggle
         self.mw.col.set_config_bool(Config.Bool.PREVIEW_BOTH_SIDES, toggle)
+        gui_hooks.will_show_web(self._web, "reset")
+
+        if self._state == "question" and toggle:
+            gui_hooks.will_show_web(self._web, "skip")
         if self._state == "answer" and not toggle:
             self._state = "question"
         self.render_card()

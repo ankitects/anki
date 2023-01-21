@@ -526,6 +526,12 @@ class CardLayout(QDialog):
             c.ord, self.night_mode_is_enabled
         )
 
+        if not self.have_autoplayed:
+            gui_hooks.will_show_web(self.preview_web, "reset")
+
+            if not c.autoplay():
+                gui_hooks.will_show_web(self.preview_web, "autoplay")
+
         if self.pform.preview_front.isChecked():
             q = ti(self.mw.prepare_card_text_for_display(c.question()))
             q = gui_hooks.card_will_show(q, c, "clayoutQuestion")
@@ -534,6 +540,7 @@ class CardLayout(QDialog):
             a = ti(self.mw.prepare_card_text_for_display(c.answer()), type="a")
             a = gui_hooks.card_will_show(a, c, "clayoutAnswer")
             text = a
+            gui_hooks.will_show_web(self.preview_web, "skip")
 
         # use _showAnswer to avoid the longer delay
         self.preview_web.eval(f"_showAnswer({json.dumps(text)},'{bodyclass}');")
