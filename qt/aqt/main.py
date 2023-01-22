@@ -1251,7 +1251,7 @@ title="{}" {}>{}</button>""".format(
             # there were instances in the distant past where the received filename was not
             # valid (encoding issues?), so this was added to direct users to try
             # file>import instead.
-            showInfo(tr.qt_misc_please_use_fileimport_to_import_this())
+            showInfo(f"{tr.qt_misc_please_use_fileimport_to_import_this()} ({path})")
             return None
 
         if not self.pm.legacy_import_export():
