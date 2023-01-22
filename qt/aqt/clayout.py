@@ -359,7 +359,7 @@ class CardLayout(QDialog):
         self.preview_web.eval("_blockDefaultDragDropBehavior();")
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)
 
-        gui_hooks.will_show_web(self.preview_web, "enable")
+        gui_hooks.will_show_web(self.preview_web, "enable-clayout")
 
         if self._isCloze():
             nums = list(self.note.cloze_numbers_in_fields())
@@ -529,10 +529,10 @@ class CardLayout(QDialog):
         )
 
         if not self.have_autoplayed:
-            gui_hooks.will_show_web(self.preview_web, "reset")
+            gui_hooks.will_show_web(self.preview_web, "reset-preview")
 
             if not c.autoplay():
-                gui_hooks.will_show_web(self.preview_web, "autoplay")
+                gui_hooks.will_show_web(self.preview_web, "autoplay-preview")
 
         if self.pform.preview_front.isChecked():
             q = ti(self.mw.prepare_card_text_for_display(c.question()))
@@ -542,7 +542,7 @@ class CardLayout(QDialog):
             a = ti(self.mw.prepare_card_text_for_display(c.answer()), type="a")
             a = gui_hooks.card_will_show(a, c, "clayoutAnswer")
             text = a
-            gui_hooks.will_show_web(self.preview_web, "skip")
+            gui_hooks.will_show_web(self.preview_web, "skip-preview")
 
         # use _showAnswer to avoid the longer delay
         self.preview_web.eval(f"_showAnswer({json.dumps(text)},'{bodyclass}');")

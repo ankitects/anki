@@ -210,7 +210,7 @@ class Reviewer:
 
     def _redraw_current_card(self) -> None:
         self.card.load()
-        gui_hooks.will_show_web(self.web, "reset")
+        gui_hooks.will_show_web(self.web, "reset-redraw")
 
         if self.state == "answer":
             self._showAnswer()
@@ -240,7 +240,7 @@ class Reviewer:
         if self._reps is None:
             self._initWeb()
 
-        gui_hooks.will_show_web(self.web, "reset")
+        gui_hooks.will_show_web(self.web, "reset-next")
         self._showQuestion()
 
     def _get_next_v1_v2_card(self) -> None:
@@ -295,8 +295,8 @@ class Reviewer:
         elif self.state == "answer":
             replay_audio(self.card, False)
             if not self.card.replay_question_audio_on_answer_side():
-                gui_hooks.will_show_web(self.web, "skip")
-        gui_hooks.will_show_web(self.web, "replay")
+                gui_hooks.will_show_web(self.web, "skip-replay")
+        gui_hooks.will_show_web(self.web, "replay-replay")
 
     # Initializing the webview
     ##########################################################################
@@ -371,7 +371,7 @@ class Reviewer:
         a = self.mw.col.media.escape_media_filenames(c.answer())
 
         if not c.autoplay():
-            gui_hooks.will_show_web(self.web, "autoplay")
+            gui_hooks.will_show_web(self.web, "autoplay-show")
 
         self.web.eval(
             f"_showQuestion({json.dumps(q)}, {json.dumps(a)}, '{bodyclass}');"
@@ -514,7 +514,7 @@ class Reviewer:
 
     def on_pause_audio(self) -> None:
         av_player.toggle_pause()
-        gui_hooks.will_show_web(self.web, "toggle")
+        gui_hooks.will_show_web(self.web, "toggle-pause")
 
     seek_secs = 5
 
