@@ -107,7 +107,8 @@ fn prepare_expected(expected: &str) -> String {
     let without_av = strip_av_tags(expected);
     let without_newlines = LINEBREAKS.replace_all(&without_av, " ");
     let without_html = strip_html(&without_newlines);
-    normalize_to_nfc(&without_html).into()
+    let without_outer_whitespace = without_html.trim();
+    normalize_to_nfc(without_outer_whitespace).into()
 }
 
 fn prepare_provided(provided: &str) -> String {
@@ -269,5 +270,10 @@ mod test {
             ),
         );
         ctx.to_tokens();
+    }
+
+    #[test]
+    fn whitespace_is_trimmed() {
+        assert_eq!(prepare_expected("<div>foo</div>"), "foo");
     }
 }
