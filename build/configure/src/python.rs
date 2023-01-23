@@ -178,7 +178,7 @@ impl BuildAction for GenPythonProto {
             })
             .collect();
         build.add_inputs("in", &self.proto_files);
-        build.add_inputs("protoc", inputs![":extract:protoc:bin"]);
+        build.add_inputs("protoc", inputs!["$protoc_binary"]);
         build.add_inputs("protoc-gen-mypy", inputs![":pyenv:protoc-gen-mypy"]);
         build.add_outputs("", python_outputs);
     }
