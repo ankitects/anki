@@ -125,7 +125,8 @@ pub fn write_backend_proto_rs() {
 /// If PROTOC is not defined, and protoc is not on path, use the protoc
 /// fetched by Bazel so that Rust Analyzer does not fail.
 fn maybe_add_protobuf_to_path() {
-    if let Ok(protoc) = env::var("PROTOC") {
+    if let Ok(protoc) = env::var("PROTOC_BINARY") {
+        env::set_var("PROTOC", &protoc);
         if cfg!(windows) && !protoc.ends_with(".exe") {
             env::set_var("PROTOC", format!("{protoc}.exe"));
         }
