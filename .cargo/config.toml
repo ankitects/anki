@@ -1,7 +1,7 @@
 [env]
 STRINGS_JSON = { value = "out/rslib/i18n/strings.json", relative = true }
 # build script will append .exe if necessary
-PROTOC = { value = "out/extracted/protoc/bin/protoc", relative = true }
+PROTOC_BINARY = { value = "out/extracted/protoc/bin/protoc", relative = true }
 PYO3_NO_PYTHON = "1"
 MACOSX_DEPLOYMENT_TARGET = "10.13.4"
 
