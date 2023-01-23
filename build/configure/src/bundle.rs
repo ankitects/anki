@@ -43,9 +43,9 @@ impl DistKind {
     }
 }
 
-pub fn build_bundle(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
+pub fn build_bundle(build: &mut Build) -> Result<()> {
     // install into venv
-    setup_primary_venv(build, python_binary)?;
+    setup_primary_venv(build)?;
     install_anki_wheels(build)?;
 
     // bundle venv into output binary + extra_files
@@ -60,7 +60,7 @@ pub fn build_bundle(build: &mut Build, python_binary: &BuildInput) -> Result<()>
     // repeat for Qt5
     if !targetting_macos_arm() {
         if !cfg!(target_os = "macos") {
-            setup_qt5_venv(build, python_binary)?;
+            setup_qt5_venv(build)?;
         }
         build_dist_folder(build, DistKind::Alternate)?;
     }
@@ -171,7 +171,7 @@ const QT5_VENV: Venv = Venv {
     path_without_builddir: "bundle/pyenv-qt5",
 };
 
-fn setup_primary_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
+fn setup_primary_venv(build: &mut Build) -> Result<()> {
     let mut qt6_reqs = inputs![
         "python/requirements.bundle.txt",
         if cfg!(target_os = "macos") {
@@ -189,14 +189,13 @@ fn setup_primary_venv(build: &mut Build, python_binary: &BuildInput) -> Result<(
             folder: PRIMARY_VENV.path_without_builddir,
             base_requirements_txt: "python/requirements.base.txt".into(),
             requirements_txt: qt6_reqs,
-            python_binary,
             extra_binary_exports: &[],
         },
     )?;
     Ok(())
 }
 
-fn setup_qt5_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
+fn setup_qt5_venv(build: &mut Build) -> Result<()> {
     let qt5_reqs = inputs![
         "python/requirements.base.txt",
         if cfg!(target_os = "macos") {
@@ -211,7 +210,6 @@ fn setup_qt5_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
             folder: QT5_VENV.path_without_builddir,
             base_requirements_txt: "python/requirements.base.txt".into(),
             requirements_txt: qt5_reqs,
-            python_binary,
             extra_binary_exports: &[],
         },
     )

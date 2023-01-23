@@ -59,7 +59,7 @@ fn python_archive(platform: Platform) -> OnlineArchive {
 
 /// Returns the Python binary, which can be used to create venvs.
 /// Downloads if missing.
-pub fn setup_python(build: &mut Build) -> Result<BuildInput> {
+pub fn setup_python(build: &mut Build) -> Result<()> {
     // if changing this, make sure you remove out/pyenv
     let python_binary = match env::var("PYTHON_BINARY") {
         Ok(path) => {
@@ -81,10 +81,12 @@ pub fn setup_python(build: &mut Build) -> Result<BuildInput> {
             inputs![":extract:python:bin"]
         }
     };
-    Ok(python_binary)
+    let python_binary = build.expand_inputs(python_binary);
+    build.variable("python_binary", &python_binary[0]);
+    Ok(())
 }
 
-pub fn setup_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
+pub fn setup_venv(build: &mut Build) -> Result<()> {
     let requirements_txt = if cfg!(windows) {
         inputs![
             "python/requirements.dev.txt",
@@ -109,7 +111,6 @@ pub fn setup_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
             folder: "pyenv",
             base_requirements_txt: inputs!["python/requirements.base.txt"],
             requirements_txt,
-            python_binary,
             extra_binary_exports: &[
                 "pip-compile",
                 "pip-sync",
@@ -135,7 +136,6 @@ pub fn setup_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
             folder: "pyenv-qt5.15",
             base_requirements_txt: inputs!["python/requirements.base.txt"],
             requirements_txt: inputs![&reqs_qt5, "python/requirements.qt5_15.txt"],
-            python_binary,
             extra_binary_exports: &[],
         },
     )?;
@@ -145,7 +145,6 @@ pub fn setup_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
             folder: "pyenv-qt5.14",
             base_requirements_txt: inputs!["python/requirements.base.txt"],
             requirements_txt: inputs![reqs_qt5, "python/requirements.qt5_14.txt"],
-            python_binary,
             extra_binary_exports: &[],
         },
     )?;
