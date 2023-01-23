@@ -8,15 +8,14 @@ use crate::inputs;
 use crate::Build;
 use crate::Result;
 
-pub struct PythonEnvironment<'a> {
+pub struct PythonEnvironment {
     pub folder: &'static str,
     pub base_requirements_txt: BuildInput,
     pub requirements_txt: BuildInput,
-    pub python_binary: &'a BuildInput,
     pub extra_binary_exports: &'static [&'static str],
 }
 
-impl BuildAction for PythonEnvironment<'_> {
+impl BuildAction for PythonEnvironment {
     fn command(&self) -> &str {
         "$runner pyenv $python_binary $builddir/$pyenv_folder $system_pkgs $base_requirements $requirements"
     }
@@ -32,7 +31,7 @@ impl BuildAction for PythonEnvironment<'_> {
             vec![path]
         };
 
-        build.add_inputs("python_binary", self.python_binary);
+        build.add_inputs("python_binary", inputs!["$python_binary"]);
         build.add_inputs("base_requirements", &self.base_requirements_txt);
         build.add_inputs("requirements", &self.requirements_txt);
         build.add_variable("pyenv_folder", self.folder);

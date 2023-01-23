@@ -35,14 +35,14 @@ fn main() -> Result<()> {
     let mut build = Build::new()?;
     let build = &mut build;
 
-    let python_binary = setup_python(build)?;
-    setup_venv(build, &python_binary)?;
+    setup_python(build)?;
+    setup_venv(build)?;
 
     build_rust(build)?;
     build_pylib(build)?;
     build_and_check_web(build)?;
     build_and_check_aqt(build)?;
-    build_bundle(build, &python_binary)?;
+    build_bundle(build)?;
 
     check_rust(build)?;
     check_pylib(build)?;
