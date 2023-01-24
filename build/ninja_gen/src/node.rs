@@ -114,6 +114,22 @@ pub fn setup_node(
             "npm" => vec![if cfg!(windows) { "npm.cmd " } else { "bin/npm" }]
         },
     )?;
+
+    let node_binary = match std::env::var("NODE_BINARY") {
+        Ok(path) => {
+            assert!(
+                Utf8Path::new(&path).is_absolute(),
+                "NODE_BINARY must be absolute"
+            );
+            path.into()
+        }
+        Err(_) => {
+            inputs![":extract:node:bin"]
+        }
+    };
+    let node_binary = build.expand_inputs(node_binary);
+    build.variable("node_binary", &node_binary[0]);
+
     build.add("yarn", YarnSetup {})?;
 
     for binary in binary_exports {
@@ -148,7 +164,7 @@ impl BuildAction for EsbuildScript<'_> {
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
-        build.add_inputs("node_bin", inputs![":extract:node:bin"]);
+        build.add_inputs("node_bin", inputs!["$node_binary"]);
         build.add_inputs("script", &self.script);
         build.add_inputs("entrypoint", &self.entrypoint);
         build.add_inputs("", inputs!["yarn.lock", ":node_modules", &self.deps]);
