@@ -177,13 +177,13 @@ pub struct CargoFormat {
 
 impl BuildAction for CargoFormat {
     fn command(&self) -> &str {
-        // the empty config file prevents warnings about nightly features
-        "cargo fmt $mode -- --config-path=.rustfmt-empty.toml --color always"
+        "cargo fmt $mode --all"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
         build.add_inputs("", &self.inputs);
         build.add_variable("mode", if self.check_only { "--check" } else { "" });
+        build.set_working_dir("cargo/format");
         build.add_output_stamp(format!(
             "tests/cargo_format.{}",
             if self.check_only { "check" } else { "fmt" }
