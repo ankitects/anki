@@ -173,17 +173,21 @@ impl BuildAction for CargoClippy {
 pub struct CargoFormat {
     pub inputs: BuildInput,
     pub check_only: bool,
+    pub working_dir: Option<&'static str>,
 }
 
 impl BuildAction for CargoFormat {
     fn command(&self) -> &str {
-        // the empty config file prevents warnings about nightly features
-        "cargo fmt $mode -- --config-path=.rustfmt-empty.toml --color always"
+        "cargo fmt $mode --all"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
         build.add_inputs("", &self.inputs);
         build.add_variable("mode", if self.check_only { "--check" } else { "" });
+        if let Some(working_dir) = self.working_dir {
+            build.set_working_dir("$working_dir");
+            build.add_variable("working_dir", working_dir);
+        }
         build.add_output_stamp(format!(
             "tests/cargo_format.{}",
             if self.check_only { "check" } else { "fmt" }

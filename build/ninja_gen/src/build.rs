@@ -214,6 +214,7 @@ struct BuildStatement<'a> {
     rule_variables: Vec<(String, String)>,
     output_stamp: bool,
     env_vars: Vec<String>,
+    working_dir: Option<String>,
     release: bool,
     bypass_runner: bool,
 }
@@ -237,6 +238,7 @@ impl BuildStatement<'_> {
             output_subsets: Default::default(),
             output_stamp: false,
             env_vars: Default::default(),
+            working_dir: None,
             release,
             bypass_runner: action.bypass_runner(),
         };
@@ -295,6 +297,9 @@ impl BuildStatement<'_> {
             for var in &self.env_vars {
                 write!(&mut buf, "--env={var} ").unwrap();
             }
+        }
+        if let Some(working_dir) = &self.working_dir {
+            write!(&mut buf, "--cwd={working_dir} ").unwrap();
         }
         buf.push_str(&command);
         buf
@@ -360,6 +365,11 @@ pub trait FilesHandle {
     /// for each command, `constant_value` should reference a `$variable` you
     /// have defined.
     fn add_env_var(&mut self, key: &str, constant_value: &str);
+    /// Set the current working dir for the provided command(s).
+    /// Note this is defined once for the rule, so if the value should change
+    /// for each command, `constant_value` should reference a `$variable` you
+    /// have defined.
+    fn set_working_dir(&mut self, constant_value: &str);
 
     fn release_build(&self) -> bool;
 }
@@ -447,6 +457,10 @@ impl FilesHandle for BuildStatement<'_> {
 
     fn add_env_var(&mut self, key: &str, constant_value: &str) {
         self.env_vars.push(format!("{key}={constant_value}"));
+    }
+
+    fn set_working_dir(&mut self, constant_value: &str) {
+        self.working_dir = Some(constant_value.to_owned());
     }
 }
 
