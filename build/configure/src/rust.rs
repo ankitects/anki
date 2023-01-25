@@ -113,6 +113,7 @@ pub fn check_rust(build: &mut Build) -> Result<()> {
         CargoFormat {
             inputs: inputs.clone(),
             check_only: true,
+            working_dir: Some("cargo/format"),
         },
     )?;
     build.add(
@@ -120,6 +121,7 @@ pub fn check_rust(build: &mut Build) -> Result<()> {
         CargoFormat {
             inputs: inputs.clone(),
             check_only: false,
+            working_dir: Some("cargo/format"),
         },
     )?;
 
