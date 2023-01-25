@@ -34,3 +34,7 @@ If you run into trouble with the build process:
 - You can browse the build graph via e.g. `./ninja -- -t browse wheels`
 - You can profile build performance with
   https://discourse.cmake.org/t/profiling-build-performance/2443/3.
+
+## Packaging considerations
+
+See [this page](./linux.md).
