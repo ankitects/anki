@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import html
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
@@ -230,7 +231,7 @@ class DeckBrowser:
             collapse,
             extraclass,
             node.deck_id,
-            node.name,
+            html.escape(node.name),
         )
         # due counts
         def nonzeroColour(cnt: int, klass: str) -> str:
