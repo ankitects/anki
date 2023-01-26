@@ -209,7 +209,7 @@
      <x>0</x>
      <y>0</y>
      <width>750</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit">
@@ -271,6 +271,7 @@
     <addaction name="actionReposition"/>
     <addaction name="separator"/>
     <addaction name="actionToggle_Suspend"/>
+    <addaction name="action_toggle_bury"/>
     <addaction name="separator"/>
     <addaction name="menuFlag"/>
     <addaction name="separator"/>
@@ -737,6 +738,17 @@
   <action name="actionbrowsing_toggle_showing_cards_notes">
    <property name="text">
     <string>browsing_toggle_showing_cards_notes</string>
+   </property>
+  </action>
+  <action name="action_toggle_bury">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>browsing_toggle_bury</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true"/>
    </property>
   </action>
  </widget>

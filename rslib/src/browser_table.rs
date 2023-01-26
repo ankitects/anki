@@ -575,6 +575,8 @@ impl RowContext {
                         Color::Marked
                     } else if self.cards[0].queue == CardQueue::Suspended {
                         Color::Suspended
+                    } else if self.cards[0].queue == CardQueue::UserBuried || self.cards[0].queue == CardQueue::SchedBuried {
+                        Color::Buried
                     } else {
                         Color::Default
                     }

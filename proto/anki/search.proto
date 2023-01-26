@@ -182,6 +182,7 @@ message BrowserRow {
     COLOR_FLAG_PINK = 7;
     COLOR_FLAG_TURQUOISE = 8;
     COLOR_FLAG_PURPLE = 9;
+    COLOR_BURIED = 10;
   }
   repeated Cell cells = 1;
   Color color = 2;
