@@ -340,7 +340,7 @@ class ProfileManager:
             or ProfileManager._default_base()
         )
         path.mkdir(parents=True, exist_ok=True)
-        return path
+        return path.resolve()
 
     @staticmethod
     def _default_base() -> str:
