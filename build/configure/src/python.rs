@@ -1,11 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::env;
-
 use ninja_gen::action::BuildAction;
-use ninja_gen::archives::download_and_extract;
-use ninja_gen::archives::OnlineArchive;
 use ninja_gen::archives::Platform;
 use ninja_gen::build::FilesHandle;
 use ninja_gen::command::RunCommand;
@@ -20,71 +16,6 @@ use ninja_gen::python::PythonTypecheck;
 use ninja_gen::rsync::RsyncFiles;
 use ninja_gen::Build;
 use ninja_gen::Result;
-use ninja_gen::Utf8Path;
-
-fn python_archive(platform: Platform) -> OnlineArchive {
-    match platform {
-        Platform::LinuxX64 => {
-            OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20221106/cpython-3.9.15+20221106-x86_64_v2-unknown-linux-gnu-install_only.tar.gz",
-                sha256: "436c35bd809abdd028f386cc623ae020c77e6b544eaaca405098387c4daa444c",
-            }
-        }
-        Platform::LinuxArm => {
-            OnlineArchive {
-                url: "https://github.com/ankitects/python-build-standalone/releases/download/anki-2022-02-18/cpython-3.9.10-aarch64-unknown-linux-gnu-install_only-20220218T1329.tar.gz",
-                sha256: "39070f9b9492dce3085c8c98916940434bb65663e6665b2c87bef86025532c1a",
-            }
-        }
-        Platform::MacX64 => {
-            OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20211012/cpython-3.9.7-x86_64-apple-darwin-install_only-20211011T1926.tar.gz",
-                sha256: "43cb1a83919f49b1ce95e42f9c461d8a9fb00ff3957bebef9cffe61a5f362377",
-            }
-        }
-        Platform::MacArm => {
-            OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20221106/cpython-3.9.15+20221106-aarch64-apple-darwin-install_only.tar.gz",
-                sha256: "64dc7e1013481c9864152c3dd806c41144c79d5e9cd3140e185c6a5060bdc9ab",
-            }
-        }
-        Platform::WindowsX64 => {
-            OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20211012/cpython-3.9.7-x86_64-pc-windows-msvc-shared-install_only-20211011T1926.tar.gz",
-                sha256: "80370f232fd63d5cb3ff9418121acb87276228b0dafbeee3c57af143aca11f89",
-            }
-        }
-    }
-}
-
-/// Returns the Python binary, which can be used to create venvs.
-/// Downloads if missing.
-pub fn setup_python(build: &mut Build) -> Result<()> {
-    // if changing this, make sure you remove out/pyenv
-    let python_binary = match env::var("PYTHON_BINARY") {
-        Ok(path) => {
-            assert!(
-                Utf8Path::new(&path).is_absolute(),
-                "PYTHON_BINARY must be absolute"
-            );
-            path.into()
-        }
-        Err(_) => {
-            download_and_extract(
-                build,
-                "python",
-                python_archive(build.host_platform),
-                hashmap! { "bin" => [
-                    if cfg!(windows) { "python.exe" } else { "bin/python3"}
-                ] },
-            )?;
-            inputs![":extract:python:bin"]
-        }
-    };
-    let python_binary = build.expand_inputs(python_binary);
-    build.variable("python_binary", &python_binary[0]);
-    Ok(())
-}
 
 pub fn setup_venv(build: &mut Build) -> Result<()> {
     let requirements_txt = if cfg!(windows) {

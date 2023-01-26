@@ -12,13 +12,13 @@ mod web;
 
 use aqt::build_and_check_aqt;
 use bundle::build_bundle;
+use ninja_gen::python::setup_python;
 use ninja_gen::Build;
 use ninja_gen::Result;
 use pylib::build_pylib;
 use pylib::check_pylib;
 use python::check_copyright;
 use python::check_python;
-use python::setup_python;
 use python::setup_venv;
 use rust::build_rust;
 use rust::check_rust;
