@@ -126,8 +126,8 @@
             : [],
     );
 
-    let newValue: number;
-    let reviewsValue: number;
+    let newValue = 0;
+    let reviewsValue = 0;
 
     const settings = {
         newLimit: {

@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let stringValue: string;
-    $: if (value) stringValue = value.toFixed(decimalPlaces(step));
+    $: stringValue = value.toFixed(decimalPlaces(step));
 
     function update(this: HTMLInputElement): void {
         const newValue = parseFloat(this.value);
