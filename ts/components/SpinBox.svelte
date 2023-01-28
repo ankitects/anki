@@ -26,12 +26,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: if (value) stringValue = value.toFixed(decimalPlaces(step));
 
     function update(this: HTMLInputElement): void {
-        value = Math.min(max, Math.max(min, parseFloat(this.value)));
-        if (value > max) {
-            value = max;
-        } else if (value < min) {
-            value = min;
+        const newValue = parseFloat(this.value);
+        if (Number.isNaN(newValue)) {
+            return;
         }
+        value = Math.min(max, Math.max(min, newValue));
     }
 
     function handleWheel(event: WheelEvent) {
