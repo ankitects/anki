@@ -40,7 +40,7 @@ impl HttpSyncClient {
         HttpSyncClient {
             sync_key: auth.hkey,
             session_key: simple_session_id(),
-            client: Client::new(),
+            client: Client::builder().http1_only().build().unwrap(),
             endpoint: auth
                 .endpoint
                 .unwrap_or_else(|| Url::try_from("https://sync.ankiweb.net/").unwrap()),
