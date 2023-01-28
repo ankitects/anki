@@ -9,10 +9,10 @@
     import ConfigInput from "./ConfigInput.svelte";
     import RevertButton from "./RevertButton.svelte";
 
-    export let value: any;
-    export let defaultValue: any;
+    export let value: number;
+    export let defaultValue: number;
     export let min = 0;
-    export let max: number | undefined = undefined;
+    export let max = 9999;
 </script>
 
 <Row --cols={13}>
