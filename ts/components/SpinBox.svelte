@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@tslib/ftl";
     import { isDesktop } from "@tslib/platform";
+    import { tick } from "svelte";
 
     import IconConstrain from "./IconConstrain.svelte";
     import { chevronDown, chevronUp } from "./icons";
@@ -17,6 +18,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let input: HTMLInputElement;
     let focused = false;
 
+    /// Set value to a new number, clamping it to a valid range, and
+    /// leaving it unchanged if `newValue` is NaN.
+    function updateValue(newValue: number) {
+        if (Number.isNaN(newValue)) {
+            // avoid updating the value
+        } else {
+            value = Math.min(max, Math.max(min, newValue));
+        }
+        // Assigning to `value` will trigger the stringValue reactive statement below,
+        // but Svelte may not redraw the UI. For example, if '1' was shown, and the user
+        // enters '0', if the value gets clamped back to '1', Svelte will think the value hasn't
+        // changed, and will skip the UI update. So we manually update the DOM to ensure it stays
+        // in sync.
+        tick().then(() => (input.value = stringValue));
+    }
+
     function decimalPlaces(value: number) {
         if (Math.floor(value) === value) return 0;
         return value.toString().split(".")[1].length || 0;
@@ -26,22 +43,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: stringValue = value.toFixed(decimalPlaces(step));
 
     function update(this: HTMLInputElement): void {
-        const newValue = parseFloat(this.value);
-        if (Number.isNaN(newValue)) {
-            return;
-        }
-        value = Math.min(max, Math.max(min, newValue));
+        updateValue(parseFloat(this.value));
     }
 
     function handleWheel(event: WheelEvent) {
         if (focused) {
-            value += event.deltaY < 0 ? step : -step;
+            updateValue(value + (event.deltaY < 0 ? step : -step));
             event.preventDefault();
         }
     }
 
     function change(step: number): void {
-        value += step;
+        updateValue(value + step);
         if (pressed) {
             setTimeout(() => change(step), timeout);
         }
