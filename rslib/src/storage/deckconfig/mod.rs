@@ -16,7 +16,8 @@ use crate::deckconfig::DeckConfigInner;
 use crate::prelude::*;
 
 fn row_to_deckconf(row: &Row) -> Result<DeckConfig> {
-    let config = DeckConfigInner::decode(row.get_ref_unwrap(4).as_blob()?)?;
+    let mut config = DeckConfigInner::decode(row.get_ref_unwrap(4).as_blob()?)?;
+    config.ensure_values_valid();
     Ok(DeckConfig {
         id: row.get(0)?,
         name: row.get(1)?,

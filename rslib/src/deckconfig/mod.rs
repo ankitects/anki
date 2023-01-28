@@ -35,6 +35,40 @@ pub struct DeckConfig {
     pub inner: DeckConfigInner,
 }
 
+/// NOTE: this does not set the default steps
+const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
+    learn_steps: Vec::new(),
+    relearn_steps: Vec::new(),
+    new_per_day: 20,
+    reviews_per_day: 200,
+    new_per_day_minimum: 0,
+    initial_ease: 2.5,
+    easy_multiplier: 1.3,
+    hard_multiplier: 1.2,
+    lapse_multiplier: 0.0,
+    interval_multiplier: 1.0,
+    maximum_review_interval: 36_500,
+    minimum_lapse_interval: 1,
+    graduating_interval_good: 1,
+    graduating_interval_easy: 4,
+    new_card_insert_order: NewCardInsertOrder::Due as i32,
+    new_card_gather_priority: NewCardGatherPriority::Deck as i32,
+    new_card_sort_order: NewCardSortOrder::Template as i32,
+    review_order: ReviewCardOrder::Day as i32,
+    new_mix: ReviewMix::MixWithReviews as i32,
+    interday_learning_mix: ReviewMix::MixWithReviews as i32,
+    leech_action: LeechAction::TagOnly as i32,
+    leech_threshold: 8,
+    disable_autoplay: false,
+    cap_answer_time_to_secs: 60,
+    show_timer: false,
+    skip_question_when_replaying_answer: false,
+    bury_new: false,
+    bury_reviews: false,
+    bury_interday_learning: false,
+    other: Vec::new(),
+};
+
 impl Default for DeckConfig {
     fn default() -> Self {
         DeckConfig {
@@ -45,34 +79,7 @@ impl Default for DeckConfig {
             inner: DeckConfigInner {
                 learn_steps: vec![1.0, 10.0],
                 relearn_steps: vec![10.0],
-                new_per_day: 20,
-                reviews_per_day: 200,
-                new_per_day_minimum: 0,
-                initial_ease: 2.5,
-                easy_multiplier: 1.3,
-                hard_multiplier: 1.2,
-                lapse_multiplier: 0.0,
-                interval_multiplier: 1.0,
-                maximum_review_interval: 36_500,
-                minimum_lapse_interval: 1,
-                graduating_interval_good: 1,
-                graduating_interval_easy: 4,
-                new_card_insert_order: NewCardInsertOrder::Due as i32,
-                new_card_gather_priority: NewCardGatherPriority::Deck as i32,
-                new_card_sort_order: NewCardSortOrder::Template as i32,
-                review_order: ReviewCardOrder::Day as i32,
-                new_mix: ReviewMix::MixWithReviews as i32,
-                interday_learning_mix: ReviewMix::MixWithReviews as i32,
-                leech_action: LeechAction::TagOnly as i32,
-                leech_threshold: 8,
-                disable_autoplay: false,
-                cap_answer_time_to_secs: 60,
-                show_timer: false,
-                skip_question_when_replaying_answer: false,
-                bury_new: false,
-                bury_reviews: false,
-                bury_interday_learning: false,
-                other: vec![],
+                ..DEFAULT_DECK_CONFIG_INNER
             },
         }
     }
@@ -176,5 +183,80 @@ impl Collection {
         let conf = self.storage.get_deck_config(dcid)?.or_not_found(dcid)?;
         self.set_schema_modified()?;
         self.remove_deck_config_undoable(conf)
+    }
+}
+
+impl DeckConfigInner {
+    /// There was a period of time when the deck options screen was allowing
+    /// 0/NaN to be persisted, so we need to check the values are within
+    /// valid bounds when reading from the DB.
+    pub(crate) fn ensure_values_valid(&mut self) {
+        let default = DEFAULT_DECK_CONFIG_INNER;
+        ensure_u32_valid(&mut self.new_per_day, default.new_per_day, 0, 9999);
+        ensure_u32_valid(&mut self.reviews_per_day, default.reviews_per_day, 0, 9999);
+        ensure_u32_valid(
+            &mut self.new_per_day_minimum,
+            default.new_per_day_minimum,
+            0,
+            9999,
+        );
+        ensure_f32_valid(&mut self.initial_ease, default.initial_ease, 1.31, 5.0);
+        ensure_f32_valid(&mut self.easy_multiplier, default.easy_multiplier, 1.0, 5.0);
+        ensure_f32_valid(&mut self.hard_multiplier, default.hard_multiplier, 0.5, 1.3);
+        ensure_f32_valid(
+            &mut self.lapse_multiplier,
+            default.lapse_multiplier,
+            0.0,
+            1.0,
+        );
+        ensure_f32_valid(
+            &mut self.interval_multiplier,
+            default.interval_multiplier,
+            0.5,
+            2.0,
+        );
+        ensure_u32_valid(
+            &mut self.maximum_review_interval,
+            default.maximum_review_interval,
+            1,
+            36_500,
+        );
+        ensure_u32_valid(
+            &mut self.minimum_lapse_interval,
+            default.minimum_lapse_interval,
+            1,
+            36_500,
+        );
+        ensure_u32_valid(
+            &mut self.graduating_interval_good,
+            default.graduating_interval_good,
+            1,
+            36_500,
+        );
+        ensure_u32_valid(
+            &mut self.graduating_interval_easy,
+            default.graduating_interval_easy,
+            1,
+            36_500,
+        );
+        ensure_u32_valid(&mut self.leech_threshold, default.leech_threshold, 1, 9999);
+        ensure_u32_valid(
+            &mut self.cap_answer_time_to_secs,
+            default.cap_answer_time_to_secs,
+            1,
+            9999,
+        );
+    }
+}
+
+fn ensure_f32_valid(val: &mut f32, default: f32, min: f32, max: f32) {
+    if val.is_nan() || *val < min || *val > max {
+        *val = default;
+    }
+}
+
+fn ensure_u32_valid(val: &mut u32, default: u32, min: u32, max: u32) {
+    if *val < min || *val > max {
+        *val = default;
     }
 }
