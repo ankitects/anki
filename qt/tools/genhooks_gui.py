@@ -245,6 +245,12 @@ hooks = [
     ),
     # Multiple windows
     ###################
+    # reviewer and previewer
+    Hook(
+        name="audio_will_replay",
+        args=["webview: aqt.webview.AnkiWebView", "card: Card", "is_front_side: bool"],
+        doc="""Called when the user uses the 'replay audio' action, but not when they click on a play button.""",
+    ),
     # reviewer, clayout and browser
     Hook(
         name="card_will_show",

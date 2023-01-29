@@ -291,9 +291,7 @@ class Reviewer:
             replay_audio(self.card, True)
         elif self.state == "answer":
             replay_audio(self.card, False)
-            if not self.card.replay_question_audio_on_answer_side():
-                gui_hooks.will_show_web(self.web, "skip-replay")
-        gui_hooks.will_show_web(self.web, "replay-replay")
+        gui_hooks.audio_will_replay(self.web, self.card, self.state == "question")
 
     # Initializing the webview
     ##########################################################################

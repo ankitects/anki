@@ -112,7 +112,8 @@ class Previewer(QDialog):
         self._on_close()
 
     def _on_replay_audio(self) -> None:
-        gui_hooks.will_show_web(self._web, "replay-audio")
+        gui_hooks.audio_will_replay(self._web, self.card(), self._state == "question")
+
         if self._state == "question":
             replay_audio(self.card(), True)
         elif self._state == "answer":
