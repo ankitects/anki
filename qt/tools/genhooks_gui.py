@@ -284,12 +284,6 @@ hooks = [
         ],
         doc="Called when initializing the webview for the review screen, the card layout screen, and the preview screen.",
     ),
-    # reviewer, preview and clayout
-    Hook(
-        name="will_show_web",
-        args=["web_content: aqt.webview.AnkiWebView", "location: str"],
-        doc="Can use the web object in several occasions.",
-    ),
     # Deck browser
     ###################
     Hook(
@@ -568,6 +562,16 @@ hooks = [
         name="previewer_did_init",
         args=["previewer: aqt.browser.previewer.Previewer"],
         doc="""Called after the previewer is initialized.""",
+    ),
+    Hook(
+        name="previewer_will_redraw_after_show_both_sides_toggled",
+        args=[
+            "webview: aqt.webview.AnkiWebView",
+            "card: Card",
+            "is_front_side: bool",
+            "show_both_sides: bool",
+        ],
+        doc="""Called when the checkbox <show both sides> is toggled by the user.""",
     ),
     # Main window states
     ###################

@@ -254,10 +254,10 @@ class Previewer(QDialog):
     def _on_show_both_sides(self, toggle: bool) -> None:
         self._show_both_sides = toggle
         self.mw.col.set_config_bool(Config.Bool.PREVIEW_BOTH_SIDES, toggle)
-        gui_hooks.will_show_web(self._web, "reset-sides")
+        gui_hooks.previewer_will_redraw_after_show_both_sides_toggled(
+            self._web, self.card(), self._state == "question", toggle
+        )
 
-        if self._state == "question" and toggle:
-            gui_hooks.will_show_web(self._web, "skip-sides")
         if self._state == "answer" and not toggle:
             self._state = "question"
         self.render_card()
