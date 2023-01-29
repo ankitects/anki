@@ -510,7 +510,7 @@ class Reviewer:
 
     def on_pause_audio(self) -> None:
         av_player.toggle_pause()
-        gui_hooks.will_show_web(self.web, "toggle-pause")
+        gui_hooks.audio_did_pause_or_unpause(self.web)
 
     seek_secs = 5
 

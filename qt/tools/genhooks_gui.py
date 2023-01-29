@@ -215,6 +215,11 @@ hooks = [
         name="reviewer_will_bury_card",
         args=["id: int"],
     ),
+    Hook(
+        name="audio_did_pause_or_unpause",
+        args=["webview: aqt.webview.AnkiWebView"],
+        doc="""Called when the audio is paused or unpaused.""",
+    ),
     # Debug
     ###################
     Hook(
