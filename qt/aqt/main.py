@@ -1361,6 +1361,7 @@ title="{}" {}>{}</button>""".format(
                 parent=self,
                 help=HelpPage.FULL_SCREEN_ISSUE,
             )
+            return
         else:
             window = self.app.activeWindow()
             window.setWindowState(
