@@ -22,7 +22,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
     const dispatchPresetChange = () => dispatch("presetchange");
 
-    $: label = configLabel($configList.find((entry) => entry.current)!);
+    let value = $configList.findIndex((entry) => entry.current);
+    $: label = configLabel($configList[value]);
 
     function configLabel(entry: ConfigListEntry): string {
         const count = tr.deckConfigUsedByDecks({ decks: entry.useCount });
@@ -93,7 +94,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <StickyContainer --gutter-block="0.5rem" --sticky-borders="0 0 1px" breakpoint="sm">
     <ButtonToolbar class="justify-content-between flex-grow-1" wrap={false}>
-        <Select class="flex-grow-1" {label} on:change={blur}>
+        <Select class="flex-grow-1" bind:value {label} on:change={blur}>
             {#each $configList as entry}
                 <SelectOption value={entry.idx}>{configLabel(entry)}</SelectOption>
             {/each}
