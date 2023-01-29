@@ -246,6 +246,22 @@ hooks = [
         args=["text: str", "card: Card", "kind: str"],
         return_type="str",
         legacy_hook="prepareQA",
+        doc="""Deprecated. Use card_will_show_state instead.
+        Can modify card text before review/preview.""",
+    ),
+    Hook(
+        name="card_will_show_state",
+        args=[
+            "text: str",
+            "card: Card",
+            "kind: str",
+            "web_content: aqt.webview.AnkiWebView",
+            "skip_front: bool",
+            "has_autoplayed: bool",
+        ],
+        return_type="str",
+        replaces="card_will_show",
+        replaced_hook_args=["text: str", "card: Card", "kind: str"],
         doc="Can modify card text before review/preview.",
     ),
     # reviewer, main and clayout

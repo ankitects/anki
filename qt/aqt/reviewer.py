@@ -210,8 +210,6 @@ class Reviewer:
 
     def _redraw_current_card(self) -> None:
         self.card.load()
-        gui_hooks.will_show_web(self.web, "reset-redraw")
-
         if self.state == "answer":
             self._showAnswer()
         else:
@@ -240,7 +238,6 @@ class Reviewer:
         if self._reps is None:
             self._initWeb()
 
-        gui_hooks.will_show_web(self.web, "reset-next")
         self._showQuestion()
 
     def _get_next_v1_v2_card(self) -> None:
@@ -364,14 +361,13 @@ class Reviewer:
         av_player.play_tags(sounds)
         # render & update bottom
         q = self._mungeQA(q)
-        q = gui_hooks.card_will_show(q, c, "reviewQuestion")
+        q = gui_hooks.card_will_show_state(
+            q, c, "reviewQuestion", self.web, False, False
+        )
         self._run_state_mutation_hook()
 
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
         a = self.mw.col.media.escape_media_filenames(c.answer())
-
-        if not c.autoplay():
-            gui_hooks.will_show_web(self.web, "autoplay-show")
 
         self.web.eval(
             f"_showQuestion({json.dumps(q)}, {json.dumps(a)}, '{bodyclass}');"
@@ -416,7 +412,7 @@ class Reviewer:
         gui_hooks.av_player_will_play_tags(sounds, self.state, self)
         av_player.play_tags(sounds)
         a = self._mungeQA(a)
-        a = gui_hooks.card_will_show(a, c, "reviewAnswer")
+        a = gui_hooks.card_will_show_state(a, c, "reviewAnswer", self.web, True, False)
         # render and update bottom
         self.web.eval(f"_showAnswer({json.dumps(a)});")
         self._showEaseButtons()

@@ -192,10 +192,6 @@ class Previewer(QDialog):
             elif self._card_changed:
                 self._state = "question"
 
-            if not self._show_both_sides and self._state == "answer":
-                gui_hooks.will_show_web(self._web, "skip-render_answer")
-            gui_hooks.will_show_web(self._web, "reset_skip-render")
-
             currentState = self._state_and_mod()
             if currentState == self._last_state:
                 # nothing has changed, avoid refreshing
@@ -229,12 +225,20 @@ class Previewer(QDialog):
             else:
                 audio = []
                 self._web.setPlaybackRequiresGesture(True)
-                gui_hooks.will_show_web(self._web, "autoplay-render")
 
             gui_hooks.av_player_will_play_tags(audio, self._state, self)
             av_player.play_tags(audio)
+            skip_front = not self._show_both_sides and self._state == "answer"
+
             txt = self.mw.prepare_card_text_for_display(txt)
-            txt = gui_hooks.card_will_show(txt, c, f"preview{self._state.capitalize()}")
+            txt = gui_hooks.card_will_show_state(
+                txt,
+                c,
+                f"preview{self._state.capitalize()}",
+                self._web,
+                skip_front,
+                False,
+            )
             self._last_state = self._state_and_mod()
 
         js: str
@@ -245,7 +249,6 @@ class Previewer(QDialog):
             js = f"{func}({json.dumps(txt)}, '{bodyclass}');"
         self._web.eval(js)
         self._card_changed = False
-        gui_hooks.will_show_web(self._web, "skip-render_end")
 
     def _on_show_both_sides(self, toggle: bool) -> None:
         self._show_both_sides = toggle
