@@ -748,7 +748,7 @@
     <string>browsing_toggle_bury</string>
    </property>
    <property name="shortcut">
-    <string notr="true"/>
+    <string notr="true">Ctrl+Shift+J</string>
    </property>
   </action>
  </widget>
