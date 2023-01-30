@@ -84,6 +84,8 @@ def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> dict[str, str] | No
         temp_color = colors.STATE_MARKED
     if color == BrowserRow.COLOR_SUSPENDED:
         temp_color = colors.STATE_SUSPENDED
+    if color == BrowserRow.COLOR_BURIED:
+        temp_color = colors.STATE_BURIED
     if color == BrowserRow.COLOR_FLAG_RED:
         temp_color = colors.FLAG_1
     if color == BrowserRow.COLOR_FLAG_ORANGE:
