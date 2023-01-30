@@ -573,14 +573,12 @@ impl RowContext {
                 _ => {
                     if self.note.is_marked() {
                         Color::Marked
-                    } else if self.cards[0].queue == CardQueue::Suspended {
-                        Color::Suspended
-                    } else if self.cards[0].queue == CardQueue::UserBuried
-                        || self.cards[0].queue == CardQueue::SchedBuried
-                    {
-                        Color::Buried
                     } else {
-                        Color::Default
+                        match self.cards[0].queue {
+                            CardQueue::Suspended => Color::Suspended,
+                            CardQueue::UserBuried | CardQueue::SchedBuried => Color::Buried,
+                            _ => Color::Default,
+                        }
                     }
                 }
             }
