@@ -611,7 +611,7 @@ class Reviewer:
         expected = self.typeCorrect
         provided = self.typedAnswer
         if not provided:
-            output = expected
+            output = "<code id=typeans>" + expected + "</code>"
         else:
             # compare with typed answer
             output = self.mw.col.compare_answer(expected, provided)
