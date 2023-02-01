@@ -3,25 +3,36 @@
 
 use std::borrow::Cow;
 use std::collections::HashMap;
+use std::ffi::OsString;
 use std::fs;
 use std::fs::File;
 use std::io;
+use std::io::Read;
+use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
 
 use prost::Message;
+use sha1::Digest;
+use sha1::Sha1;
 use zip::read::ZipFile;
 use zip::ZipArchive;
 use zstd::stream::copy_decode;
+use zstd::stream::raw::Encoder as RawEncoder;
 
-use super::colpkg::export::MediaCopier;
 use super::MediaEntries;
 use super::MediaEntry;
 use super::Meta;
+use crate::error::FileIoError;
+use crate::error::FileOp;
 use crate::error::ImportError;
+use crate::error::InvalidInputError;
+use crate::import_export::package::colpkg::export::MaybeEncodedWriter;
 use crate::io::atomic_rename;
 use crate::io::filename_is_safe;
 use crate::io::new_tempfile_in;
+use crate::io::read_dir_files;
+use crate::media::files::filename_if_normalized;
 use crate::media::files::normalize_filename;
 use crate::prelude::*;
 
@@ -168,6 +179,163 @@ impl MediaEntries {
             .enumerate()
             .map(SafeMediaEntry::from_entry)
             .collect()
+    }
+}
+
+pub struct MediaIterEntry {
+    pub nfc_filename: String,
+    pub data: Box<dyn Read>,
+}
+
+#[derive(Debug)]
+pub enum MediaIterError {
+    InvalidFilename {
+        filename: OsString,
+    },
+    IoError {
+        filename: String,
+        source: io::Error,
+    },
+    Other {
+        source: Box<dyn std::error::Error + Send + Sync>,
+    },
+}
+
+impl TryFrom<&Path> for MediaIterEntry {
+    type Error = MediaIterError;
+
+    fn try_from(value: &Path) -> std::result::Result<Self, Self::Error> {
+        let nfc_filename: String = value
+            .file_name()
+            .and_then(|s| s.to_str())
+            .and_then(filename_if_normalized)
+            .ok_or_else(|| MediaIterError::InvalidFilename {
+                filename: value.as_os_str().to_owned(),
+            })?
+            .into();
+        let file = File::open(value).map_err(|err| MediaIterError::IoError {
+            filename: nfc_filename.clone(),
+            source: err,
+        })?;
+        Ok(MediaIterEntry {
+            nfc_filename,
+            data: Box::new(file) as _,
+        })
+    }
+}
+
+impl From<MediaIterError> for AnkiError {
+    fn from(err: MediaIterError) -> Self {
+        match err {
+            MediaIterError::InvalidFilename { .. } => AnkiError::MediaCheckRequired,
+            MediaIterError::IoError { filename, source } => FileIoError {
+                path: filename.into(),
+                op: FileOp::Read,
+                source,
+            }
+            .into(),
+            MediaIterError::Other { source } => InvalidInputError {
+                message: "".to_string(),
+                source: Some(source),
+                backtrace: None,
+            }
+            .into(),
+        }
+    }
+}
+
+pub struct MediaIter(pub Box<dyn Iterator<Item = Result<MediaIterEntry, MediaIterError>>>);
+
+impl MediaIter {
+    pub fn new<I>(iter: I) -> Self
+    where
+        I: Iterator<Item = Result<MediaIterEntry, MediaIterError>> + 'static,
+    {
+        Self(Box::new(iter))
+    }
+
+    /// Iterator over all files in the given path, without traversing
+    /// subfolders.
+    pub fn from_folder(path: &Path) -> Result<Self> {
+        let path2 = path.to_owned();
+        Ok(Self::new(read_dir_files(path)?.map(move |res| match res {
+            Ok(entry) => MediaIterEntry::try_from(entry.path().as_path()),
+            Err(err) => Err(MediaIterError::IoError {
+                filename: path2.to_string_lossy().into(),
+                source: err,
+            }),
+        })))
+    }
+
+    /// Iterator over all given files in the given folder.
+    /// Missing files are silently ignored.
+    pub fn from_file_list(
+        list: impl IntoIterator<Item = String> + 'static,
+        folder: PathBuf,
+    ) -> Self {
+        Self::new(
+            list.into_iter()
+                .map(move |file| folder.join(file))
+                .filter(|path| path.exists())
+                .map(|path| MediaIterEntry::try_from(path.as_path())),
+        )
+    }
+
+    pub fn empty() -> Self {
+        Self::new([].into_iter())
+    }
+}
+
+/// Copies and hashes while optionally encoding.
+/// If compressing, the encoder is reused to optimize for repeated calls.
+pub(crate) struct MediaCopier {
+    encoding: bool,
+    encoder: Option<RawEncoder<'static>>,
+    buf: [u8; 64 * 1024],
+}
+
+impl MediaCopier {
+    pub(crate) fn new(encoding: bool) -> Self {
+        Self {
+            encoding,
+            encoder: None,
+            buf: [0; 64 * 1024],
+        }
+    }
+
+    fn encoder(&mut self) -> Option<RawEncoder<'static>> {
+        self.encoding.then(|| {
+            self.encoder
+                .take()
+                .unwrap_or_else(|| RawEncoder::with_dictionary(0, &[]).unwrap())
+        })
+    }
+
+    /// Returns size and sha1 hash of the copied data.
+    pub(crate) fn copy(
+        &mut self,
+        reader: &mut impl Read,
+        writer: &mut impl Write,
+    ) -> Result<(usize, Sha1Hash)> {
+        let mut size = 0;
+        let mut hasher = Sha1::new();
+        self.buf = [0; 64 * 1024];
+        let mut wrapped_writer = MaybeEncodedWriter::new(writer, self.encoder());
+
+        loop {
+            let count = match reader.read(&mut self.buf) {
+                Ok(0) => break,
+                Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
+                result => result?,
+            };
+            size += count;
+            hasher.update(&self.buf[..count]);
+            wrapped_writer.write(&self.buf[..count])?;
+        }
+
+        self.encoder = wrapped_writer.finish()?;
+
+        Ok((size, hasher.finalize().into()))
     }
 }
 
