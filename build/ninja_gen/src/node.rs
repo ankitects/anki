@@ -312,8 +312,8 @@ pub struct GenTypescriptProto {
 
 impl BuildAction for GenTypescriptProto {
     fn command(&self) -> &str {
-        "$pbjs --target=static-module --wrap=default --force-number --force-message --out=$static -p proto $in && $
-         $pbjs --target=json-module --wrap=default --force-number --force-message --out=$js -p proto $in && $
+        "$pbjs --target=static-module --wrap=default --force-number --force-message --out=$static $in && $
+         $pbjs --target=json-module --wrap=default --force-number --force-message --out=$js $in && $
          $pbts --out=$dts $static && $
          rm $static"
     }
