@@ -90,7 +90,9 @@ impl DiffContext {
         let expected = render_tokens(&output.expected);
         format!(
             "<code id=typeans>{}</code>",
-            if no_mistakes(&output.expected) {
+            if self.provided.is_empty() {
+                self.expected.iter().collect()
+            } else if no_mistakes(&output.expected) {
                 provided
             } else {
                 format!("{provided}<br><span id=typearrow>&darr;</span><br>{expected}")
