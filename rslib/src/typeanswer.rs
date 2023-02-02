@@ -71,8 +71,9 @@ impl DiffContext {
                     provided.push(DiffToken::bad(self.slice_provided(&opcode)));
                 }
                 "insert" => {
-                    provided.push(DiffToken::missing(self.slice_expected(&opcode)));
-                    expected.push(DiffToken::missing(self.slice_expected(&opcode)));
+                    let expected_str = self.slice_expected(&opcode);
+                    provided.push(DiffToken::missing("-".repeat(expected_str.len())));
+                    expected.push(DiffToken::missing(expected_str));
                 }
                 "replace" => {
                     provided.push(DiffToken::bad(self.slice_provided(&opcode)));
@@ -217,9 +218,9 @@ mod test {
                 good(" ahora q"),
                 bad("e"),
                 good(" vamos"),
-                missing(" "),
+                missing("-"),
                 good("a hacer"),
-                missing("?"),
+                missing("-"),
             ]
         );
         assert_eq!(
@@ -248,7 +249,7 @@ mod test {
         let ctx = DiffContext::new("1", "23");
         assert_eq!(ctx.to_tokens().provided, &[bad("23")]);
         let ctx = DiffContext::new("12", "1");
-        assert_eq!(ctx.to_tokens().provided, &[good("1"), missing("2"),]);
+        assert_eq!(ctx.to_tokens().provided, &[good("1"), missing("-"),]);
     }
 
     #[test]
