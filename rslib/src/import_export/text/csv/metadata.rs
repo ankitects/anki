@@ -28,6 +28,7 @@ pub use crate::pb::import_export::CsvMetadata;
 use crate::prelude::*;
 use crate::text::html_to_text_line;
 use crate::text::is_html;
+use crate::text::strip_utf8_bom;
 
 /// The maximum number of preview rows.
 const PREVIEW_LENGTH: usize = 5;
@@ -96,6 +97,7 @@ impl Collection {
     /// True if the line is a meta line, i.e. a comment, or starting with
     /// 'tags:'.
     fn parse_first_line(&mut self, line: &str, metadata: &mut CsvMetadata) -> bool {
+        let line = strip_utf8_bom(line);
         if let Some(tags) = line.strip_prefix("tags:") {
             metadata.global_tags = collect_tags(tags);
             true
@@ -738,5 +740,15 @@ mod test {
         assert_eq!(meta.preview[0].vals, ["foo", "bar"]);
         // html is stripped
         assert_eq!(meta.preview[1].vals, ["baz", ""]);
+    }
+
+    #[test]
+    fn should_parse_first_first_line_despite_bom() {
+        let mut col = open_test_collection();
+        assert_eq!(
+            metadata!(col, "\u{feff}#separator:tab\n").delimiter(),
+            Delimiter::Tab
+        );
+        assert_eq!(metadata!(col, "\u{feff}tags:foo\n").global_tags, ["foo"]);
     }
 }
