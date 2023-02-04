@@ -108,6 +108,17 @@ deck-config-bury-review-tooltip = Whether other `review` cards of the same note 
 deck-config-bury-interday-learning-tooltip =
     Whether other `learning` cards of the same note with intervals > 1 day
     will be delayed until the next day.
+deck-config-bury-siblings = Bury siblings
+deck-config-none = None
+deck-config-only-new = Only new
+deck-config-only-new-review = Only new and review
+deck-config-new-review-interday = New, review, and interday learning
+deck-config-bury-tooltip =
+    What kind of siblings will be delayed until the next day. New, review and learning
+    cards with intervals > 1 day can be gradually included.
+    
+    Siblings are other cards of the same note (eg reverse cards, adjacent cloze deletions).
+
 
 ## Ordering section
 
