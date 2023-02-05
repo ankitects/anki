@@ -22,7 +22,7 @@ const DEPCRATION_WARNING: &str = "DEPRECATED - you do not need to translate thes
 /// Extract references from all Rust, Python, TS, Svelte, Swift and Designer
 /// files in the `roots`, convert them to kebab case and write them as a json to
 /// the target file.
-pub fn extract_ftl_references<S1: AsRef<str>, S2: AsRef<str>>(roots: &[S1], target: S2) {
+pub fn write_ftl_json<S1: AsRef<str>, S2: AsRef<str>>(roots: &[S1], target: S2) {
     let mut refs = HashSet::new();
     for root in roots {
         for_files_with_ending(root.as_ref(), "", |entry| {
@@ -40,7 +40,7 @@ pub fn extract_ftl_references<S1: AsRef<str>, S2: AsRef<str>>(roots: &[S1], targ
 
 /// Delete every entry in `ftl_root` that is not mentioned in another message
 /// or any json in `json_root`.
-pub fn remove_unused_ftl_messages<S: AsRef<str>>(ftl_root: S, json_root: S) {
+pub fn garbage_collect_ftl_entries<S: AsRef<str>>(ftl_root: S, json_root: S) {
     let used_ftls = get_all_used_messages_and_terms(json_root.as_ref(), ftl_root.as_ref());
     strip_unused_ftl_messages_and_terms(ftl_root.as_ref(), &used_ftls);
 }
@@ -48,7 +48,7 @@ pub fn remove_unused_ftl_messages<S: AsRef<str>>(ftl_root: S, json_root: S) {
 /// Moves every entry in `ftl_root` that is not mentioned in another message
 /// or any json in `json_root` to the bottom of its file below a deprecation
 /// warning.
-pub fn deprecate_unused_ftl_messages<S: AsRef<str>>(ftl_root: S, json_root: S) {
+pub fn deprecate_ftl_entries<S: AsRef<str>>(ftl_root: S, json_root: S) {
     let used_ftls = get_all_used_messages_and_terms(json_root.as_ref(), ftl_root.as_ref());
     deprecate_unused_ftl_messages_and_terms(ftl_root.as_ref(), &used_ftls);
 }
