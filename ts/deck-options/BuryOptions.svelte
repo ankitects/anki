@@ -47,14 +47,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tr.deckConfigDoNotBury(),
         tr.deckConfigBuryIfNew(),
         tr.deckConfigBuryIfNewOrReview(),
-        tr.deckConfigBuryIfNewReviewOrInterday(),
     ];
+    if (state.v3Scheduler) {
+        buryModeChoices.push(tr.deckConfigBuryIfNewReviewOrInterday());
+    }
 
     function buryModeFromConfig(config: anki.deckconfig.DeckConfig.Config): BuryMode {
         // burying review cards is only allowed if also burying new cards
         const buryReviews = config.buryNew && config.buryReviews;
         // burying learning cards is only allowed if also burying review and new cards
-        const buryInterdayLearning = buryReviews && config.buryInterdayLearning;
+        const buryInterdayLearning =
+            buryReviews && config.buryInterdayLearning && state.v3Scheduler;
         return (
             Number(config.buryNew) + Number(buryReviews) + Number(buryInterdayLearning)
         );
