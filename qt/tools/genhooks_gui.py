@@ -705,9 +705,8 @@ mutate the DOM before the page is revealed.
 
 For example:
 
-def mytest(web: AnkiWebView):
-    page = os.path.basename(web.page().url().path())
-    if page != "graphs.html":
+def mytest(webview: AnkiWebView):
+    if webview.origin != AnkiWebViewOrigin.DECK_STATS:
         return
     web.eval(
         """
