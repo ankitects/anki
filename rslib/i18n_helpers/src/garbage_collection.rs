@@ -24,11 +24,9 @@ const DEPCRATION_WARNING: &str = "DEPRECATED - you do not need to translate thes
 /// the target file.
 pub fn write_ftl_json<S1: AsRef<str>, S2: AsRef<str>>(roots: &[S1], target: S2) {
     let mut refs = HashSet::new();
-    for root in roots {
-        for_files_with_ending(root.as_ref(), "", |entry| {
-            extract_references_from_file(&mut refs, &entry)
-        })
-    }
+    for_files_with_ending(roots, "", |entry| {
+        extract_references_from_file(&mut refs, &entry)
+    });
     let mut refs = Vec::from_iter(refs);
     refs.sort();
     serde_json::to_writer_pretty(
@@ -40,45 +38,57 @@ pub fn write_ftl_json<S1: AsRef<str>, S2: AsRef<str>>(roots: &[S1], target: S2) 
 
 /// Delete every entry in `ftl_root` that is not mentioned in another message
 /// or any json in `json_root`.
-pub fn garbage_collect_ftl_entries<S: AsRef<str>>(ftl_root: S, json_root: S) {
-    let used_ftls = get_all_used_messages_and_terms(json_root.as_ref(), ftl_root.as_ref());
-    strip_unused_ftl_messages_and_terms(ftl_root.as_ref(), &used_ftls);
+pub fn garbage_collect_ftl_entries(ftl_roots: &[impl AsRef<str>], json_root: impl AsRef<str>) {
+    let used_ftls = get_all_used_messages_and_terms(json_root.as_ref(), ftl_roots);
+    strip_unused_ftl_messages_and_terms(ftl_roots, &used_ftls);
 }
 
 /// Moves every entry in `ftl_root` that is not mentioned in another message
 /// or any json in `json_root` to the bottom of its file below a deprecation
 /// warning.
-pub fn deprecate_ftl_entries<S: AsRef<str>>(ftl_root: S, json_root: S) {
-    let used_ftls = get_all_used_messages_and_terms(json_root.as_ref(), ftl_root.as_ref());
-    deprecate_unused_ftl_messages_and_terms(ftl_root.as_ref(), &used_ftls);
+pub fn deprecate_ftl_entries(ftl_roots: &[impl AsRef<str>], json_root: impl AsRef<str>) {
+    let used_ftls = get_all_used_messages_and_terms(json_root.as_ref(), ftl_roots);
+    deprecate_unused_ftl_messages_and_terms(ftl_roots, &used_ftls);
 }
 
-fn get_all_used_messages_and_terms(json_root: &str, ftl_root: &str) -> HashSet<String> {
+fn get_all_used_messages_and_terms(
+    json_root: &str,
+    ftl_roots: &[impl AsRef<str>],
+) -> HashSet<String> {
     let mut used_ftls = HashSet::new();
     import_used_messages(json_root, &mut used_ftls);
-    extract_nested_messages_and_terms(ftl_root, &mut used_ftls);
+    extract_nested_messages_and_terms(ftl_roots, &mut used_ftls);
     used_ftls
 }
 
-fn for_files_with_ending(root: &str, file_ending: &str, mut op: impl FnMut(DirEntry)) {
-    for res in WalkDir::new(root) {
-        let entry = res.expect("failed to visit dir");
-        if entry.file_type().is_file()
-            && entry
-                .file_name()
-                .to_str()
-                .expect("non-unicode filename")
-                .ends_with(file_ending)
-        {
-            op(entry);
+fn for_files_with_ending(
+    roots: &[impl AsRef<str>],
+    file_ending: &str,
+    mut op: impl FnMut(DirEntry),
+) {
+    for root in roots {
+        for res in WalkDir::new(root.as_ref()) {
+            let entry = res.expect("failed to visit dir");
+            if entry.file_type().is_file()
+                && entry
+                    .file_name()
+                    .to_str()
+                    .expect("non-unicode filename")
+                    .ends_with(file_ending)
+            {
+                op(entry);
+            }
         }
     }
 }
 
 /// Iterates over all .ftl files in `root`, parses them and rewrites the file if
 /// `op` decides to return a new AST.
-fn rewrite_ftl_files(root: &str, mut op: impl FnMut(Resource<&str>) -> Option<Resource<&str>>) {
-    for_files_with_ending(root, ".ftl", |entry| {
+fn rewrite_ftl_files(
+    roots: &[impl AsRef<str>],
+    mut op: impl FnMut(Resource<&str>) -> Option<Resource<&str>>,
+) {
+    for_files_with_ending(roots, ".ftl", |entry| {
         let ftl = fs::read_to_string(entry.path()).expect("failed to open file");
         let ast = parser::parse(ftl.as_str()).expect("failed to parse ftl");
         if let Some(ast) = op(ast) {
@@ -88,19 +98,21 @@ fn rewrite_ftl_files(root: &str, mut op: impl FnMut(Resource<&str>) -> Option<Re
 }
 
 fn import_used_messages(json_root: &str, used_ftls: &mut HashSet<String>) {
-    for_files_with_ending(json_root, ".json", |entry| {
+    for_files_with_ending(&[json_root], ".json", |entry| {
         let buffer = BufReader::new(fs::File::open(entry.path()).expect("failed to open file"));
         let refs: Vec<String> = serde_json::from_reader(buffer).expect("failed to parse json");
         used_ftls.extend(refs);
     })
 }
 
-fn extract_nested_messages_and_terms(ftl_root: &str, used_ftls: &mut HashSet<String>) {
+fn extract_nested_messages_and_terms(
+    ftl_roots: &[impl AsRef<str>],
+    used_ftls: &mut HashSet<String>,
+) {
     lazy_static! {
         static ref REFERENCE: Regex = Regex::new(r"\{\s*-?([-0-9a-z]+)\s*\}").unwrap();
     }
-
-    for_files_with_ending(ftl_root, ".ftl", |entry| {
+    for_files_with_ending(ftl_roots, ".ftl", |entry| {
         let source = fs::read_to_string(entry.path()).expect("file not readable");
         for caps in REFERENCE.captures_iter(&source) {
             used_ftls.insert(caps[1].to_string());
@@ -108,16 +120,16 @@ fn extract_nested_messages_and_terms(ftl_root: &str, used_ftls: &mut HashSet<Str
     })
 }
 
-fn strip_unused_ftl_messages_and_terms(ftl_root: &str, used_ftls: &HashSet<String>) {
-    rewrite_ftl_files(ftl_root, |mut ast| {
+fn strip_unused_ftl_messages_and_terms(roots: &[impl AsRef<str>], used_ftls: &HashSet<String>) {
+    rewrite_ftl_files(roots, |mut ast| {
         let num_entries = ast.body.len();
         ast.body.retain(entry_use_check(used_ftls));
         (ast.body.len() < num_entries).then_some(ast)
     });
 }
 
-fn deprecate_unused_ftl_messages_and_terms(ftl_root: &str, used_ftls: &HashSet<String>) {
-    rewrite_ftl_files(ftl_root, |ast| {
+fn deprecate_unused_ftl_messages_and_terms(roots: &[impl AsRef<str>], used_ftls: &HashSet<String>) {
+    rewrite_ftl_files(roots, |ast| {
         let (mut used, mut unused): (Vec<_>, Vec<_>) =
             ast.body.into_iter().partition(entry_use_check(used_ftls));
         if unused.is_empty() {
