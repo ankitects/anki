@@ -7,6 +7,7 @@ use std::io::BufReader;
 use std::iter::FromIterator;
 
 use fluent_syntax::ast;
+use fluent_syntax::ast::Resource;
 use fluent_syntax::parser;
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -15,6 +16,8 @@ use walkdir::DirEntry;
 use walkdir::WalkDir;
 
 use crate::serialize;
+
+const DEPCRATION_WARNING: &str = "DEPRECATED - you do not need to translate these.";
 
 /// Extract references from all Rust, Python, TS, Svelte, Swift and Designer
 /// files in the `roots`, convert them to kebab case and write them as a json to
@@ -38,10 +41,23 @@ pub fn extract_ftl_references<S1: AsRef<str>, S2: AsRef<str>>(roots: &[S1], targ
 /// Delete every entry in `ftl_root` that is not mentioned in another message
 /// or any json in `json_root`.
 pub fn remove_unused_ftl_messages<S: AsRef<str>>(ftl_root: S, json_root: S) {
-    let mut used_ftls = HashSet::new();
-    import_used_messages(json_root.as_ref(), &mut used_ftls);
-    extract_nested_messages_and_terms(ftl_root.as_ref(), &mut used_ftls);
+    let used_ftls = get_all_used_messages_and_terms(json_root.as_ref(), ftl_root.as_ref());
     strip_unused_ftl_messages_and_terms(ftl_root.as_ref(), &used_ftls);
+}
+
+/// Moves every entry in `ftl_root` that is not mentioned in another message
+/// or any json in `json_root` to the bottom of its file below a deprecation
+/// warning.
+pub fn deprecate_unused_ftl_messages<S: AsRef<str>>(ftl_root: S, json_root: S) {
+    let used_ftls = get_all_used_messages_and_terms(json_root.as_ref(), ftl_root.as_ref());
+    deprecate_unused_ftl_messages_and_terms(ftl_root.as_ref(), &used_ftls);
+}
+
+fn get_all_used_messages_and_terms(json_root: &str, ftl_root: &str) -> HashSet<String> {
+    let mut used_ftls = HashSet::new();
+    import_used_messages(json_root, &mut used_ftls);
+    extract_nested_messages_and_terms(ftl_root, &mut used_ftls);
+    used_ftls
 }
 
 fn for_files_with_ending(root: &str, file_ending: &str, mut op: impl FnMut(DirEntry)) {
@@ -57,6 +73,18 @@ fn for_files_with_ending(root: &str, file_ending: &str, mut op: impl FnMut(DirEn
             op(entry);
         }
     }
+}
+
+/// Iterates over all .ftl files in `root`, parses them and rewrites the file if
+/// `op` decides to return a new AST.
+fn rewrite_ftl_files(root: &str, mut op: impl FnMut(Resource<&str>) -> Option<Resource<&str>>) {
+    for_files_with_ending(root, ".ftl", |entry| {
+        let ftl = fs::read_to_string(entry.path()).expect("failed to open file");
+        let ast = parser::parse(ftl.as_str()).expect("failed to parse ftl");
+        if let Some(ast) = op(ast) {
+            fs::write(entry.path(), serialize::serialize(&ast)).expect("failed to write file");
+        }
+    });
 }
 
 fn import_used_messages(json_root: &str, used_ftls: &mut HashSet<String>) {
@@ -81,21 +109,45 @@ fn extract_nested_messages_and_terms(ftl_root: &str, used_ftls: &mut HashSet<Str
 }
 
 fn strip_unused_ftl_messages_and_terms(ftl_root: &str, used_ftls: &HashSet<String>) {
-    for_files_with_ending(ftl_root, ".ftl", |entry| {
-        let ftl = fs::read_to_string(entry.path()).expect("failed to open file");
-        let mut ast = parser::parse(ftl.as_str()).expect("failed to parse ftl");
+    rewrite_ftl_files(ftl_root, |mut ast| {
         let num_entries = ast.body.len();
+        ast.body.retain(entry_use_check(used_ftls));
+        (ast.body.len() < num_entries).then_some(ast)
+    });
+}
 
-        ast.body.retain(|entry| match entry {
-            ast::Entry::Message(msg) => used_ftls.contains(msg.id.name),
-            ast::Entry::Term(term) => used_ftls.contains(term.id.name),
-            _ => true,
-        });
-
-        if ast.body.len() < num_entries {
-            fs::write(entry.path(), serialize::serialize(&ast)).expect("failed to write file");
+fn deprecate_unused_ftl_messages_and_terms(ftl_root: &str, used_ftls: &HashSet<String>) {
+    rewrite_ftl_files(ftl_root, |ast| {
+        let (mut used, mut unused): (Vec<_>, Vec<_>) =
+            ast.body.into_iter().partition(entry_use_check(used_ftls));
+        if unused.is_empty() {
+            None
+        } else {
+            append_deprecation_warning(&mut used);
+            used.append(&mut unused);
+            Some(Resource { body: used })
         }
     });
+}
+
+fn append_deprecation_warning(entries: &mut Vec<ast::Entry<&str>>) {
+    entries.retain(|entry| match entry {
+        ast::Entry::GroupComment(ast::Comment { content }) => {
+            !matches!(content.first(), Some(&DEPCRATION_WARNING))
+        }
+        _ => true,
+    });
+    entries.push(ast::Entry::GroupComment(ast::Comment {
+        content: vec![DEPCRATION_WARNING],
+    }));
+}
+
+fn entry_use_check(used_ftls: &HashSet<String>) -> impl Fn(&ast::Entry<&str>) -> bool + '_ {
+    |entry: &ast::Entry<&str>| match entry {
+        ast::Entry::Message(msg) => used_ftls.contains(msg.id.name),
+        ast::Entry::Term(term) => used_ftls.contains(term.id.name),
+        _ => true,
+    }
 }
 
 fn extract_references_from_file(refs: &mut HashSet<String>, entry: &DirEntry) {
