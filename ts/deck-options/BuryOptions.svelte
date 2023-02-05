@@ -44,10 +44,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const buryModeChoices = [
-        tr.deckConfigNone(),
-        tr.deckConfigOnlyNew(),
-        tr.deckConfigOnlyNewReview(),
-        tr.deckConfigNewReviewInterday(),
+        tr.deckConfigDoNotBury(),
+        tr.deckConfigBuryIfNew(),
+        tr.deckConfigBuryIfNewOrReview(),
+        tr.deckConfigBuryIfNewReviewOrInterday(),
     ];
 
     function buryModeFromConfig(config: anki.deckconfig.DeckConfig.Config): BuryMode {
