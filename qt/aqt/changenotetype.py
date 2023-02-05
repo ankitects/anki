@@ -23,7 +23,7 @@ from aqt.utils import (
     tooltip,
     tr,
 )
-from aqt.webview import AnkiWebView
+from aqt.webview import AnkiWebView, AnkiWebViewOrigin
 
 
 class ChangeNotetypeDialog(QDialog):
@@ -52,7 +52,7 @@ class ChangeNotetypeDialog(QDialog):
         restoreGeom(self, self.TITLE, default_size=(800, 800))
         addCloseShortcut(self)
 
-        self.web = AnkiWebView(title=self.TITLE)
+        self.web = AnkiWebView(origin=AnkiWebViewOrigin.CHANGE_NOTETYPE)
         self.web.setVisible(False)
         self.web.load_ts_page("change-notetype")
         layout = QVBoxLayout()

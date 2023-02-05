@@ -19,7 +19,7 @@ from aqt.utils import (
     saveGeom,
     tr,
 )
-from aqt.webview import AnkiWebView
+from aqt.webview import AnkiWebView, AnkiWebViewOrigin
 
 
 class DeckOptionsDialog(QDialog):
@@ -42,7 +42,7 @@ class DeckOptionsDialog(QDialog):
         restoreGeom(self, self.TITLE, default_size=(800, 800))
         addCloseShortcut(self)
 
-        self.web = AnkiWebView(title=self.TITLE)
+        self.web = AnkiWebView(origin=AnkiWebViewOrigin.DECK_OPTIONS)
         self.web.load_ts_page("deck-options")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)

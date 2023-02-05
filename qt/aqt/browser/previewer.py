@@ -29,7 +29,7 @@ from aqt.reviewer import replay_audio
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.utils import disable_help_button, restoreGeom, saveGeom, setWindowIcon, tr
-from aqt.webview import AnkiWebView
+from aqt.webview import AnkiWebView, AnkiWebViewOrigin
 
 LastStateAndMod = tuple[str, int, int]
 
@@ -78,7 +78,7 @@ class Previewer(QDialog):
         self.silentlyClose = True
         self.vbox = QVBoxLayout()
         self.vbox.setContentsMargins(0, 0, 0, 0)
-        self._web = AnkiWebView(title="previewer")
+        self._web = AnkiWebView(origin=AnkiWebViewOrigin.PREVIEWER)
         self.vbox.addWidget(self._web)
         self.bbox = QDialogButtonBox()
         self.bbox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)

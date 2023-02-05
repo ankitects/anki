@@ -91,7 +91,7 @@ from aqt.utils import (
     tooltip,
     tr,
 )
-from aqt.webview import AnkiWebView
+from aqt.webview import AnkiWebView, AnkiWebViewOrigin
 
 install_pylib_legacy()
 
@@ -105,7 +105,7 @@ T = TypeVar("T")
 
 class MainWebView(AnkiWebView):
     def __init__(self, mw: AnkiQt) -> None:
-        AnkiWebView.__init__(self, title="main webview")
+        AnkiWebView.__init__(self, origin=AnkiWebViewOrigin.MAIN)
         self.mw = mw
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.setMinimumWidth(400)
@@ -879,12 +879,12 @@ title="{}" {}>{}</button>""".format(
         self.form = aqt.forms.main.Ui_MainWindow()
         self.form.setupUi(self)
         # toolbar
-        tweb = self.toolbarWeb = TopWebView(self, title="top toolbar")
+        tweb = self.toolbarWeb = TopWebView(self)
         self.toolbar = Toolbar(self, tweb)
         # main area
         self.web = MainWebView(self)
         # bottom area
-        sweb = self.bottomWeb = BottomWebView(self, title="bottom toolbar")
+        sweb = self.bottomWeb = BottomWebView(self)
         sweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         sweb.disable_zoom()
         # add in a layout

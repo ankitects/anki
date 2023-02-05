@@ -35,7 +35,7 @@ from aqt.utils import (
     tooltip,
     tr,
 )
-from aqt.webview import AnkiWebView
+from aqt.webview import AnkiWebView, AnkiWebViewOrigin
 
 
 class CardLayout(QDialog):
@@ -334,7 +334,7 @@ class CardLayout(QDialog):
 
     def setup_preview(self) -> None:
         pform = self.pform
-        self.preview_web = AnkiWebView(title="card layout")
+        self.preview_web = AnkiWebView(origin=AnkiWebViewOrigin.CARD_LAYOUT)
         pform.verticalLayout.addWidget(self.preview_web)
         pform.verticalLayout.setStretch(1, 99)
         pform.preview_front.isChecked()

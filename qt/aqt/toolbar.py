@@ -13,7 +13,7 @@ from aqt.qt import *
 from aqt.sync import get_sync_status
 from aqt.theme import theme_manager
 from aqt.utils import tr
-from aqt.webview import AnkiWebView
+from aqt.webview import AnkiWebView, AnkiWebViewOrigin
 
 
 class HideMode(enum.IntEnum):
@@ -36,8 +36,8 @@ class BottomToolbar:
 class ToolbarWebView(AnkiWebView):
     hide_condition: Callable[..., bool]
 
-    def __init__(self, mw: aqt.AnkiQt, title: str) -> None:
-        AnkiWebView.__init__(self, mw, title=title)
+    def __init__(self, mw: aqt.AnkiQt, origin: AnkiWebViewOrigin | None = None) -> None:
+        AnkiWebView.__init__(self, mw, origin=origin)
         self.mw = mw
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.disable_zoom()
@@ -58,8 +58,8 @@ class ToolbarWebView(AnkiWebView):
 
 
 class TopWebView(ToolbarWebView):
-    def __init__(self, mw: aqt.AnkiQt, title: str) -> None:
-        super().__init__(mw, title=title)
+    def __init__(self, mw: aqt.AnkiQt) -> None:
+        super().__init__(mw, origin=AnkiWebViewOrigin.TOP_TOOLBAR)
         self.web_height = 0
         qconnect(self.hide_timer.timeout, self.hide_if_allowed)
 
@@ -179,8 +179,8 @@ class TopWebView(ToolbarWebView):
 
 
 class BottomWebView(ToolbarWebView):
-    def __init__(self, mw: aqt.AnkiQt, title: str) -> None:
-        super().__init__(mw, title=title)
+    def __init__(self, mw: aqt.AnkiQt) -> None:
+        super().__init__(mw, origin=AnkiWebViewOrigin.BOTTOM_TOOLBAR)
         qconnect(self.hide_timer.timeout, self.hide_if_allowed)
 
     def eventFilter(self, obj, evt):
