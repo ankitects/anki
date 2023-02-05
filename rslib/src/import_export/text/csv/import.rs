@@ -18,6 +18,7 @@ use crate::import_export::ImportProgress;
 use crate::import_export::NoteLog;
 use crate::io::open_file;
 use crate::prelude::*;
+use crate::text::strip_utf8_bom;
 
 impl Collection {
     pub fn import_csv(
@@ -222,7 +223,7 @@ fn remove_tags_line_from_reader(reader: &mut (impl Read + Seek)) -> Result<()> {
     let mut buf_reader = BufReader::new(reader);
     let mut first_line = String::new();
     buf_reader.read_line(&mut first_line)?;
-    let offset = if first_line.starts_with("tags:") {
+    let offset = if strip_utf8_bom(&first_line).starts_with("tags:") {
         first_line.as_bytes().len()
     } else {
         0
@@ -379,5 +380,14 @@ mod test {
         assert_eq!(notes[0].notetype, NameOrId::Name(String::from("Basic")));
         assert_field_eq!(notes[1].fields, [Some("foo"), Some("bar")]);
         assert_eq!(notes[1].notetype, NameOrId::Name(String::from("Cloze")));
+    }
+
+    #[test]
+    fn should_ignore_bom() {
+        let metadata = CsvMetadata::defaults_for_testing();
+        assert_imported_fields!(metadata, "\u{feff}foo,bar\n", [[Some("foo"), Some("bar")]]);
+        assert!(import!(metadata, "\u{feff}#foo\n").is_empty());
+        assert!(import!(metadata, "\u{feff}#html:true\n").is_empty());
+        assert!(import!(metadata, "\u{feff}tags:foo\n").is_empty());
     }
 }

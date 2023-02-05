@@ -62,6 +62,10 @@ impl<'a, B: ?Sized + 'a + ToOwned> CowMapping<'a, B> for Cow<'a, B> {
     }
 }
 
+pub(crate) fn strip_utf8_bom(s: &str) -> &str {
+    s.strip_prefix('\u{feff}').unwrap_or(s)
+}
+
 #[derive(Debug, PartialEq)]
 pub enum AvTag {
     SoundOrVideo(String),
