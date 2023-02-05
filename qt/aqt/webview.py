@@ -301,6 +301,7 @@ class AnkiWebView(QWebEngineView):
         self.set_title(origin.value)
 
     def origin(self) -> AnkiWebViewOrigin | None:
+        """Used by add-ons to identify the webview origin"""
         return self._origin
 
     def set_title(self, title: str) -> None:
