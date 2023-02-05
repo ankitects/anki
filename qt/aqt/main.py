@@ -901,7 +901,7 @@ title="{}" {}>{}</button>""".format(
             for webview in self.web, self.bottomWeb:
                 webview.force_load_hack()
 
-        gui_hooks.will_show_web(self.web, "enable-main")
+        gui_hooks.card_review_webview_did_init(self.web, AnkiWebViewKind.MAIN)
 
     def closeAllWindows(self, onsuccess: Callable) -> None:
         aqt.dialogs.closeAll(onsuccess)

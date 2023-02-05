@@ -248,10 +248,19 @@ hooks = [
         legacy_hook="prepareQA",
         doc="Can modify card text before review/preview.",
     ),
+    # reviewer, main and clayout
+    Hook(
+        name="card_review_webview_did_init",
+        args=[
+            "webview: aqt.webview.AnkiWebView",
+            "kind: aqt.webview.AnkiWebViewKind",
+        ],
+        doc="Called when initializing the webview for the review screen, the card layout screen, and the preview screen.",
+    ),
     # reviewer, preview and clayout
     Hook(
         name="will_show_web",
-        args=["web: aqt.webview.AnkiWebView", "location: str"],
+        args=["web_content: aqt.webview.AnkiWebView", "location: str"],
         doc="Can use the web object in several occasions.",
     ),
     # Deck browser

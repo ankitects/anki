@@ -83,7 +83,7 @@ class Previewer(QDialog):
         self.bbox = QDialogButtonBox()
         self.bbox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
-        gui_hooks.will_show_web(self._web, "enable-previewer")
+        gui_hooks.card_review_webview_did_init(self._web, AnkiWebViewKind.PREVIEWER)
 
         self._replay = self.bbox.addButton(
             tr.actions_replay_audio(), QDialogButtonBox.ButtonRole.ActionRole
