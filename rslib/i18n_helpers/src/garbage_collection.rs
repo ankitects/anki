@@ -23,10 +23,7 @@ const DEPCRATION_WARNING: &str = "DEPRECATED - you do not need to translate thes
 /// files in the `roots`, convert them to kebab case and write them as a json to
 /// the target file.
 pub fn write_ftl_json<S1: AsRef<str>, S2: AsRef<str>>(roots: &[S1], target: S2) {
-    let mut refs = HashSet::new();
-    for_files_with_ending(roots, "", |entry| {
-        extract_references_from_file(&mut refs, &entry)
-    });
+    let refs = gather_ftl_references(roots);
     let mut refs = Vec::from_iter(refs);
     refs.sort();
     serde_json::to_writer_pretty(
@@ -46,8 +43,9 @@ pub fn garbage_collect_ftl_entries(ftl_roots: &[impl AsRef<str>], json_root: imp
 /// Moves every entry in `ftl_root` that is not mentioned in another message
 /// or any json in `json_root` to the bottom of its file below a deprecation
 /// warning.
-pub fn deprecate_ftl_entries(ftl_roots: &[impl AsRef<str>], json_root: impl AsRef<str>) {
-    let used_ftls = get_all_used_messages_and_terms(json_root.as_ref(), ftl_roots);
+pub fn deprecate_ftl_entries(ftl_roots: &[impl AsRef<str>], source_roots: &[impl AsRef<str>]) {
+    let mut used_ftls = gather_ftl_references(source_roots);
+    extract_nested_messages_and_terms(ftl_roots, &mut used_ftls);
     deprecate_unused_ftl_messages_and_terms(ftl_roots, &used_ftls);
 }
 
@@ -80,6 +78,14 @@ fn for_files_with_ending(
             }
         }
     }
+}
+
+fn gather_ftl_references(roots: &[impl AsRef<str>]) -> HashSet<String> {
+    let mut refs = HashSet::new();
+    for_files_with_ending(roots, "", |entry| {
+        extract_references_from_file(&mut refs, &entry)
+    });
+    refs
 }
 
 /// Iterates over all .ftl files in `root`, parses them and rewrites the file if
