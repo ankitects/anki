@@ -12,6 +12,7 @@ use rand::prelude::*;
 use rand::rngs::StdRng;
 use revlog::RevlogEntryPartial;
 
+use super::queue::BuryMode;
 use super::states::steps::LearningSteps;
 use super::states::CardState;
 use super::states::FilteredState;
@@ -285,16 +286,10 @@ impl Collection {
     }
 
     fn maybe_bury_siblings(&mut self, card: &Card, config: &DeckConfig) -> Result<()> {
-        if config.inner.bury_new || config.inner.bury_reviews {
-            self.bury_siblings(
-                card.id,
-                card.note_id,
-                config.inner.bury_new,
-                config.inner.bury_reviews,
-                config.inner.bury_interday_learning,
-            )?;
+        let bury_mode = BuryMode::from_deck_config(config);
+        if bury_mode.any_burying() {
+            self.bury_siblings(card.id, card.note_id, bury_mode)?;
         }
-
         Ok(())
     }
 
