@@ -712,7 +712,7 @@ html {{ {font} }}
         self.evalWithCallback(
             f"""
 (function(){{
-    document.title = `{self.title}`
+    document.title = `{self.title}`;
     const style = document.createElement('style');
     style.innerHTML = `{css}`;
     document.head.appendChild(style);
