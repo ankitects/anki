@@ -109,6 +109,23 @@ deck-config-bury-interday-learning-tooltip =
     Whether other `learning` cards of the same note with intervals > 1 day
     will be delayed until the next day.
 
+deck-config-bury-siblings = Bury siblings
+deck-config-do-not-bury = Do not bury siblings
+deck-config-bury-if-new = Bury if new
+deck-config-bury-if-new-or-review = Bury if new or review
+deck-config-bury-if-new-review-or-interday = Bury if new, review, or interday learning
+deck-config-bury-tooltip =
+    Siblings are other cards from the same note (eg forward/reverse cards, or
+    other cloze deletions from the same text).
+    
+    When this option is off, multiple cards from the same note may be seen on the same
+    day. When enabled, Anki will automatically *bury* siblings, hiding them until the next
+    day. This option allows you to choose which kinds of cards may be buried when you answer
+    one of their siblings.
+
+    When using the V3 scheduler, interday learning cards can also be buried. Interday
+    learning cards are cards with a current learning step of one or more days.
+
 ## Ordering section
 
 deck-config-ordering-title = Display Order

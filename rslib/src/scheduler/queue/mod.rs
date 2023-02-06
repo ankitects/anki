@@ -66,6 +66,15 @@ pub struct QueuedCards {
     pub review_count: usize,
 }
 
+/// When we encounter a card with new or review burying enabled, all future
+/// siblings need to be buried, regardless of their own settings.
+#[derive(Default, Debug, Clone, Copy)]
+pub(crate) struct BuryMode {
+    pub(crate) bury_new: bool,
+    pub(crate) bury_reviews: bool,
+    pub(crate) bury_interday_learning: bool,
+}
+
 impl Collection {
     pub fn get_next_card(&mut self) -> Result<Option<QueuedCard>> {
         self.get_queued_cards(1, false)

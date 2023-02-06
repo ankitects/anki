@@ -8,6 +8,7 @@ use tempfile::TempDir;
 
 use crate::collection::open_test_collection;
 use crate::collection::CollectionBuilder;
+use crate::deckconfig::DeckConfigInner;
 use crate::deckconfig::UpdateDeckConfigsRequest;
 use crate::io::create_dir;
 use crate::media::MediaManager;
@@ -88,23 +89,23 @@ impl Collection {
         self.storage.get_all_cards().pop().unwrap()
     }
 
-    pub(crate) fn get_first_deck_config(&mut self) -> DeckConfig {
-        self.storage.all_deck_config().unwrap().pop().unwrap()
-    }
-
     pub(crate) fn set_default_learn_steps(&mut self, steps: Vec<f32>) {
-        let mut config = self.get_first_deck_config();
-        config.inner.learn_steps = steps;
-        self.update_default_deck_config(config);
+        self.update_default_deck_config(|config| config.learn_steps = steps);
     }
 
     pub(crate) fn set_default_relearn_steps(&mut self, steps: Vec<f32>) {
-        let mut config = self.get_first_deck_config();
-        config.inner.relearn_steps = steps;
-        self.update_default_deck_config(config);
+        self.update_default_deck_config(|config| config.relearn_steps = steps);
     }
 
-    pub(crate) fn update_default_deck_config(&mut self, config: DeckConfig) {
+    pub(crate) fn update_default_deck_config(
+        &mut self,
+        modifier: impl FnOnce(&mut DeckConfigInner),
+    ) {
+        let mut config = self
+            .get_deck_config(DeckConfigId(1), false)
+            .unwrap()
+            .unwrap();
+        modifier(&mut config.inner);
         self.update_deck_configs(UpdateDeckConfigsRequest {
             target_deck_id: DeckId(1),
             configs: vec![config],

@@ -1,11 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::BuryMode;
+use super::super::BuryMode;
 use super::Context;
 use super::DueCard;
 use super::NewCard;
 use super::QueueBuilder;
+use crate::deckconfig::DeckConfig;
 use crate::prelude::*;
 
 pub(super) enum DueOrNewCard {
@@ -47,12 +48,28 @@ impl Context {
             .get(&deck_id)
             .and_then(|deck| deck.config_id())
             .and_then(|config_id| self.config_map.get(&config_id))
-            .map(|config| BuryMode {
-                bury_new: config.inner.bury_new,
-                bury_reviews: config.inner.bury_reviews,
-                bury_interday_learning: config.inner.bury_interday_learning,
-            })
+            .map(BuryMode::from_deck_config)
             .unwrap_or_default()
+    }
+}
+
+impl BuryMode {
+    pub(crate) fn from_deck_config(config: &DeckConfig) -> BuryMode {
+        let cfg = &config.inner;
+        // Since cards are gathered in a certain order (learning > review > new) and
+        // a card can only bury siblings that are gathered later, only the four bury
+        // modes following this order are allowed.
+        // Booleans are continued to be used for reasons of backwards compatibility.
+        // https://github.com/ankitects/anki/issues/2352
+        BuryMode {
+            bury_new: cfg.bury_new,
+            bury_reviews: cfg.bury_new && cfg.bury_reviews,
+            bury_interday_learning: cfg.bury_new && cfg.bury_reviews && cfg.bury_interday_learning,
+        }
+    }
+
+    pub(crate) fn any_burying(self) -> bool {
+        self.bury_interday_learning || self.bury_reviews || self.bury_new
     }
 }
 
