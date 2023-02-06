@@ -31,6 +31,7 @@ use crate::decks::DeckKind;
 use crate::error::Result;
 use crate::notes::NoteId;
 use crate::scheduler::congrats::CongratsInfo;
+use crate::scheduler::queue::BuryMode;
 use crate::scheduler::queue::DueCard;
 use crate::scheduler::queue::DueCardKind;
 use crate::scheduler::queue::NewCard;
@@ -471,16 +472,14 @@ impl super::SqliteStorage {
         &self,
         cid: CardId,
         nid: NoteId,
-        include_new: bool,
-        include_reviews: bool,
-        include_day_learn: bool,
+        bury_mode: BuryMode,
     ) -> Result<Vec<Card>> {
         let params = named_params! {
             ":card_id": cid,
             ":note_id": nid,
-            ":include_new": include_new,
-            ":include_reviews": include_reviews,
-            ":include_day_learn": include_day_learn,
+            ":include_new": bury_mode.bury_new,
+            ":include_reviews": bury_mode.bury_reviews,
+            ":include_day_learn": bury_mode.bury_interday_learning      ,
             ":new_queue": CardQueue::New as i8,
             ":review_queue": CardQueue::Review as i8,
             ":daylearn_queue": CardQueue::DayLearn as i8,
