@@ -696,7 +696,7 @@ html {{ {font} }}
         self.setSizePolicy(sp)
         self.hide()
 
-    def add_dynamic_styling_and_properties(self) -> None:
+    def add_dynamic_styling_and_props_then_show(self) -> None:
         "Add dynamic styling, title, set platform-specific body classes and reveal."
         css = self.standard_css()
         body_classes = theme_manager.body_class().split(" ")
@@ -732,7 +732,7 @@ html {{ {font} }}
         else:
             extra = ""
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
-        self.add_dynamic_styling_and_properties()
+        self.add_dynamic_styling_and_props_then_show()
 
     def force_load_hack(self) -> None:
         """Force process to initialize.
