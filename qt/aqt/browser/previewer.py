@@ -226,20 +226,10 @@ class Previewer(QDialog):
             else:
                 audio = []
                 self._web.setPlaybackRequiresGesture(True)
-
             gui_hooks.av_player_will_play_tags(audio, self._state, self)
             av_player.play_tags(audio)
-            skip_front = not self._show_both_sides and self._state == "answer"
-
             txt = self.mw.prepare_card_text_for_display(txt)
-            txt = gui_hooks.card_will_show_state(
-                txt,
-                c,
-                f"preview{self._state.capitalize()}",
-                self._web,
-                skip_front,
-                False,
-            )
+            txt = gui_hooks.card_will_show(txt, c, f"preview{self._state.capitalize()}")
             self._last_state = self._state_and_mod()
 
         js: str

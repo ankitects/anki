@@ -359,9 +359,7 @@ class Reviewer:
         av_player.play_tags(sounds)
         # render & update bottom
         q = self._mungeQA(q)
-        q = gui_hooks.card_will_show_state(
-            q, c, "reviewQuestion", self.web, False, False
-        )
+        q = gui_hooks.card_will_show(q, c, "reviewQuestion")
         self._run_state_mutation_hook()
 
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
@@ -410,7 +408,7 @@ class Reviewer:
         gui_hooks.av_player_will_play_tags(sounds, self.state, self)
         av_player.play_tags(sounds)
         a = self._mungeQA(a)
-        a = gui_hooks.card_will_show_state(a, c, "reviewAnswer", self.web, True, False)
+        a = gui_hooks.card_will_show(a, c, "reviewAnswer")
         # render and update bottom
         self.web.eval(f"_showAnswer({json.dumps(a)});")
         self._showEaseButtons()

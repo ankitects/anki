@@ -532,15 +532,11 @@ class CardLayout(QDialog):
 
         if self.pform.preview_front.isChecked():
             q = ti(self.mw.prepare_card_text_for_display(c.question()))
-            q = gui_hooks.card_will_show_state(
-                q, c, "clayoutQuestion", self.preview_web, False, self.have_autoplayed
-            )
+            q = gui_hooks.card_will_show(q, c, "clayoutQuestion")
             text = q
         else:
             a = ti(self.mw.prepare_card_text_for_display(c.answer()), type="a")
-            a = gui_hooks.card_will_show_state(
-                a, c, "clayoutAnswer", self.preview_web, True, self.have_autoplayed
-            )
+            a = gui_hooks.card_will_show(a, c, "clayoutAnswer")
             text = a
 
         # use _showAnswer to avoid the longer delay
