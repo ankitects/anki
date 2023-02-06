@@ -1,2 +1,2 @@
-usage
-
+usage/*
+!usage/no-deprecate.json

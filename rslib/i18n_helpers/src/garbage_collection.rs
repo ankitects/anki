@@ -43,8 +43,13 @@ pub fn garbage_collect_ftl_entries(ftl_roots: &[impl AsRef<str>], json_root: imp
 /// Moves every entry in `ftl_root` that is not mentioned in another message
 /// or any json in `json_root` to the bottom of its file below a deprecation
 /// warning.
-pub fn deprecate_ftl_entries(ftl_roots: &[impl AsRef<str>], source_roots: &[impl AsRef<str>]) {
+pub fn deprecate_ftl_entries(
+    ftl_roots: &[impl AsRef<str>],
+    source_roots: &[impl AsRef<str>],
+    json_root: impl AsRef<str>,
+) {
     let mut used_ftls = gather_ftl_references(source_roots);
+    import_used_messages(json_root.as_ref(), &mut used_ftls);
     extract_nested_messages_and_terms(ftl_roots, &mut used_ftls);
     deprecate_unused_ftl_messages_and_terms(ftl_roots, &used_ftls);
 }

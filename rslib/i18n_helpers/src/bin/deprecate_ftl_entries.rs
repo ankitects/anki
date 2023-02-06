@@ -7,7 +7,11 @@
 /// roots.
 fn main() {
     let (ftl_roots, source_roots) = collect_separated_args();
-    anki_i18n_helpers::garbage_collection::deprecate_ftl_entries(&ftl_roots, &source_roots);
+    anki_i18n_helpers::garbage_collection::deprecate_ftl_entries(
+        &ftl_roots,
+        &source_roots,
+        "ftl/usage",
+    );
 }
 
 fn collect_separated_args() -> (Vec<String>, Vec<String>) {
