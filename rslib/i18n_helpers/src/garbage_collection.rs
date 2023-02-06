@@ -19,9 +19,9 @@ use crate::serialize;
 
 const DEPCRATION_WARNING: &str = "DEPRECATED - you do not need to translate these.";
 
-/// Extract references from all Rust, Python, TS, Svelte, Swift and Designer
-/// files in the `roots`, convert them to kebab case and write them as a json to
-/// the target file.
+/// Extract references from all Rust, Python, TS, Svelte, Swift, Kotlin and
+/// Designer files in the `roots`, convert them to kebab case and write them as
+/// a json to the target file.
 pub fn write_ftl_json<S1: AsRef<str>, S2: AsRef<str>>(roots: &[S1], target: S2) {
     let refs = gather_ftl_references(roots);
     let mut refs = Vec::from_iter(refs);
@@ -188,6 +188,7 @@ fn extract_references_from_file(refs: &mut HashSet<String>, entry: &DirEntry) {
         } else if file_name.ends_with(".ts")
             || file_name.ends_with(".svelte")
             || file_name.ends_with(".swift")
+            || file_name.ends_with(".kt")
         {
             (&CAMELCASE_TR, camel_to_kebab_case)
         } else if file_name.ends_with(".ui") {
