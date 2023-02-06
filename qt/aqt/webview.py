@@ -238,7 +238,7 @@ class AnkiWebViewOrigin(Enum):
     BOTTOM_TOOLBAR = "bottom toolbar"
     DECK_OPTIONS = "deck options"
     EDITOR = "editor"
-    LEGACY_DECK_STATS = "deck stats"
+    LEGACY_DECK_STATS = "legacy deck stats"
     DECK_STATS = "deck stats"
     PREVIEWER = "previewer"
     CHANGE_NOTETYPE = "change notetype"
