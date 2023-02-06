@@ -239,6 +239,6 @@ impl BuildAction for CargoRun {
         build.add_variable("binary", self.binary_name);
         build.add_variable("cargo_args", self.cargo_args);
         build.add_variable("bin_args", self.bin_args);
-        build.add_outputs("", vec!["phony"]);
+        build.add_outputs("", vec![format!("phony-{}", self.binary_name)]);
     }
 }
