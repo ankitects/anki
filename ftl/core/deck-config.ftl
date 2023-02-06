@@ -295,8 +295,6 @@ deck-config-maximum-answer-secs-above-recommended = Anki can schedule your revie
 
 deck-config-which-deck = Which deck would you like?
 
-## NO NEED TO TRANSLATE. These strings have been replaced with new versions, and will be removed in the future.
-
 
 ## DEPRECATED - you do not need to translate these.
 

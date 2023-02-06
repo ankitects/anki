@@ -164,8 +164,6 @@ browsing-reparented-decks =
        *[other] Renamed { $count } decks.
     }
 
-## obsolete; no need to translate
-
 
 ## DEPRECATED - you do not need to translate these.
 
