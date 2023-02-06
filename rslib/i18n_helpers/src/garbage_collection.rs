@@ -40,16 +40,16 @@ pub fn garbage_collect_ftl_entries(ftl_roots: &[impl AsRef<str>], json_root: imp
     strip_unused_ftl_messages_and_terms(ftl_roots, &used_ftls);
 }
 
-/// Moves every entry in `ftl_root` that is not mentioned in another message
-/// or any json in `json_root` to the bottom of its file below a deprecation
-/// warning.
+/// Moves every entry in `ftl_roots` that is not mentioned in another message, a
+/// source file or any json in `json_roots` to the bottom of its file below a
+/// deprecation warning.
 pub fn deprecate_ftl_entries(
     ftl_roots: &[impl AsRef<str>],
     source_roots: &[impl AsRef<str>],
-    json_root: impl AsRef<str>,
+    json_roots: &[impl AsRef<str>],
 ) {
     let mut used_ftls = gather_ftl_references(source_roots);
-    import_used_messages(json_root.as_ref(), &mut used_ftls);
+    import_messages_from_json(json_roots, &mut used_ftls);
     extract_nested_messages_and_terms(ftl_roots, &mut used_ftls);
     deprecate_unused_ftl_messages_and_terms(ftl_roots, &used_ftls);
 }
@@ -59,7 +59,7 @@ fn get_all_used_messages_and_terms(
     ftl_roots: &[impl AsRef<str>],
 ) -> HashSet<String> {
     let mut used_ftls = HashSet::new();
-    import_used_messages(json_root, &mut used_ftls);
+    import_messages_from_json(&[json_root], &mut used_ftls);
     extract_nested_messages_and_terms(ftl_roots, &mut used_ftls);
     used_ftls
 }
@@ -108,11 +108,11 @@ fn rewrite_ftl_files(
     });
 }
 
-fn import_used_messages(json_root: &str, used_ftls: &mut HashSet<String>) {
-    for_files_with_ending(&[json_root], ".json", |entry| {
+fn import_messages_from_json(json_roots: &[impl AsRef<str>], entries: &mut HashSet<String>) {
+    for_files_with_ending(json_roots, ".json", |entry| {
         let buffer = BufReader::new(fs::File::open(entry.path()).expect("failed to open file"));
         let refs: Vec<String> = serde_json::from_reader(buffer).expect("failed to parse json");
-        used_ftls.extend(refs);
+        entries.extend(refs);
     })
 }
 
