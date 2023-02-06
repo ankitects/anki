@@ -71,12 +71,17 @@ impl RemainingLimits {
         normal: &NormalDeck,
         config: &DeckConfig,
     ) -> RemainingLimits {
-        let review_limit = normal
-            .current_review_limit(today)
-            .unwrap_or(config.inner.reviews_per_day);
-        let new_limit = normal
-            .current_new_limit(today)
-            .unwrap_or(config.inner.new_per_day);
+        let (review_limit, new_limit) = if v3 {
+            let review_limit = normal
+                .current_review_limit(today)
+                .unwrap_or(config.inner.reviews_per_day);
+            let new_limit = normal
+                .current_new_limit(today)
+                .unwrap_or(config.inner.new_per_day);
+            (review_limit, new_limit)
+        } else {
+            (config.inner.reviews_per_day, config.inner.new_per_day)
+        };
         let (new_today, mut rev_today) = deck.new_rev_counts(today);
         if v3 {
             // any reviewed new cards contribute to the review limit
