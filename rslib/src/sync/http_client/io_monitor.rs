@@ -29,7 +29,7 @@ use crate::sync::error::HttpError;
 use crate::sync::error::HttpResult;
 use crate::sync::error::HttpSnafu;
 use crate::sync::error::OrHttpErr;
-use crate::sync::request::header_and_stream::decode_zstd_body_stream;
+use crate::sync::request::header_and_stream::decode_zstd_body_stream_for_client;
 use crate::sync::request::header_and_stream::encode_zstd_body_stream;
 use crate::sync::response::ORIGINAL_SIZE;
 
@@ -131,7 +131,7 @@ impl IoMonitor {
             let response_stream = self.wrap_stream(
                 false,
                 response_total,
-                decode_zstd_body_stream(resp.bytes_stream()),
+                decode_zstd_body_stream_for_client(resp.bytes_stream()),
             );
             let mut reader =
                 StreamReader::new(response_stream.map_err(|e| {
