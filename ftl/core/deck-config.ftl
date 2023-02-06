@@ -123,6 +123,9 @@ deck-config-bury-tooltip =
     day. This option allows you to choose which kinds of cards may be buried when you answer
     one of their siblings.
 
+    When using the V3 scheduler, interday learning cards can also be buried. Interday
+    learning cards are cards with a current learning step of one or more days.
+
 ## Ordering section
 
 deck-config-ordering-title = Display Order
