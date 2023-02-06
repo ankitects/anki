@@ -38,7 +38,7 @@ impl<T> SyncRequest<T> {
         T: DeserializeOwned,
     {
         sync_header.sync_version.ensure_supported()?;
-        let data = decode_zstd_body(body_stream).await?;
+        let data = decode_zstd_body_for_server(body_stream).await?;
         Ok(Self {
             sync_key: sync_header.sync_key,
             session_key: sync_header.session_key,
@@ -52,7 +52,8 @@ impl<T> SyncRequest<T> {
     }
 }
 
-pub async fn decode_zstd_body<S, E>(data: S) -> HttpResult<Vec<u8>>
+/// Enforces max payload size
+pub async fn decode_zstd_body_for_server<S, E>(data: S) -> HttpResult<Vec<u8>>
 where
     S: Stream<Item = Result<Bytes, E>> + Unpin,
     E: Display,
@@ -70,7 +71,8 @@ where
     Ok(buf)
 }
 
-pub fn decode_zstd_body_stream<S, E>(data: S) -> impl Stream<Item = HttpResult<Bytes>>
+/// Does not enforce payload size
+pub fn decode_zstd_body_stream_for_client<S, E>(data: S) -> impl Stream<Item = HttpResult<Bytes>>
 where
     S: Stream<Item = Result<Bytes, E>> + Unpin,
     E: Display,
@@ -79,7 +81,7 @@ where
         data.map_err(|e| std::io::Error::new(ErrorKind::ConnectionAborted, format!("{e}"))),
     );
     let reader = async_compression::tokio::bufread::ZstdDecoder::new(reader);
-    ReaderStream::new(reader.take(*MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED)).map_err(|err| {
+    ReaderStream::new(reader).map_err(|err| {
         HttpSnafu {
             code: StatusCode::BAD_REQUEST,
             context: "decode zstd body",
