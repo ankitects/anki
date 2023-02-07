@@ -7,5 +7,5 @@
 /// First argument is the target file name, following are source roots.
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    anki_i18n_helpers::garbage_collection::extract_ftl_references(&args[2..], &args[1]);
+    anki_i18n_helpers::garbage_collection::write_ftl_json(&args[2..], &args[1]);
 }
