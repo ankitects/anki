@@ -44,6 +44,7 @@ impl Collection {
             card_type: nt.get_template(card.template_idx)?.name.clone(),
             notetype: nt.name.clone(),
             revlog: revlog.iter().rev().map(stats_revlog_entry).collect(),
+            custom_data: card.custom_data,
         })
     }
 
