@@ -65,6 +65,16 @@ fn prepare_translations(build: &mut Build) -> Result<()> {
         },
     )?;
 
+    build.add(
+        "ftl:deprecate",
+        CargoRun {
+            binary_name: "deprecate_ftl_entries",
+            cargo_args: "-p anki_i18n_helpers",
+            bin_args: "ftl/core ftl/qt -- pylib qt rslib ts --keep ftl/usage",
+            deps: inputs!["ftl/core", "ftl/qt", "pylib", "qt", "rslib", "ts"],
+        },
+    )?;
+
     Ok(())
 }
 

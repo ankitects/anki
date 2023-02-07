@@ -13,8 +13,6 @@ browsing-browser-options = Browser Options
 browsing-buried = Buried
 browsing-card = Card
 browsing-cards = Cards
-# Exactly one character representing 'Cards'; should differ from browsing-note-initial.
-browsing-card-initial = C
 browsing-card-list = Card List
 browsing-cards-cant-be-manually-moved-into = Cards can't be manually moved into a filtered deck.
 browsing-cards-deleted =
@@ -61,8 +59,6 @@ browsing-no-flag = No Flag
 browsing-no-selection = No cards or notes selected.
 browsing-note = Note
 browsing-notes = Notes
-# Exactly one character representing 'Notes'; should differ from browsing-card-initial.
-browsing-note-initial = N
 browsing-optional-filter = Optional filter:
 browsing-override-back-template = Override back template:
 browsing-override-font = Override font:
@@ -168,5 +164,10 @@ browsing-reparented-decks =
        *[other] Renamed { $count } decks.
     }
 
-## obsolete; no need to translate
 
+## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
+
+# Exactly one character representing 'Cards'; should differ from browsing-note-initial.
+browsing-card-initial = C
+# Exactly one character representing 'Notes'; should differ from browsing-card-initial.
+browsing-note-initial = N

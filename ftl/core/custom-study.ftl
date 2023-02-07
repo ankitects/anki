@@ -28,7 +28,7 @@ custom-study-available-new-cards-2 = Available new cards: { $countString }
 custom-study-available-review-cards-2 = Available review cards: { $countString }
 custom-study-available-child-count = ({ $count } in subdecks)
 
-## DEPRECATED - you do not need to translate these.
+## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
 custom-study-available-new-cards = Available new cards: { $count }
 custom-study-available-review-cards = Available review cards: { $count }

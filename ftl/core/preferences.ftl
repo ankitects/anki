@@ -1,6 +1,5 @@
 preferences-automatically-sync-on-profile-openclose = Automatically sync on profile open/close
 preferences-backups = Backups
-preferences-basic = Basic
 preferences-change-deck-depending-on-note-type = Change deck depending on note type
 preferences-changes-will-take-effect-when-you = Changes will take effect when you restart Anki.
 preferences-hours-past-midnight = hours past midnight
@@ -58,15 +57,19 @@ preferences-appearance = Appearance
 preferences-general = General
 preferences-style = Style
 preferences-review = Review
-preferences-reviewer = Reviewer
 preferences-distractions = Distractions
 preferences-minimalist-mode = Minimalist mode
 preferences-editing = Editing
 preferences-browsing = Browsing
 preferences-default-deck = Default deck
 preferences-account = AnkiWeb Account
-preferences-media = Media
 preferences-note = Note
 preferences-scheduler = Scheduler
 preferences-user-interface = User Interface
 preferences-import-export = Import/Export
+
+## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
+
+preferences-basic = Basic
+preferences-reviewer = Reviewer
+preferences-media = Media

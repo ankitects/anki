@@ -3,9 +3,9 @@
 
 /// Delete every entry in the ftl files that is not mentioned in another message
 /// or a given json.
-/// First argument is the root of the ftl files, second one is the root of the
-/// json files.
+/// First argument is the root of the json files, following are the roots of the
+/// ftl files.
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    anki_i18n_helpers::garbage_collection::remove_unused_ftl_messages(&args[1], &args[2]);
+    anki_i18n_helpers::garbage_collection::garbage_collect_ftl_entries(&args[2..], &args[1]);
 }
