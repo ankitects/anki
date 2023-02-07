@@ -68,7 +68,7 @@ preferences-scheduler = Scheduler
 preferences-user-interface = User Interface
 preferences-import-export = Import/Export
 
-## DEPRECATED - you do not need to translate these.
+## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
 preferences-basic = Basic
 preferences-reviewer = Reviewer

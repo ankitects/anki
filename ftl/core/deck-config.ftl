@@ -296,7 +296,7 @@ deck-config-maximum-answer-secs-above-recommended = Anki can schedule your revie
 deck-config-which-deck = Which deck would you like?
 
 
-## DEPRECATED - you do not need to translate these.
+## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
 deck-config-bury-new-siblings = Bury new siblings
 deck-config-bury-review-siblings = Bury review siblings

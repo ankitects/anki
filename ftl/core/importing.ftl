@@ -107,7 +107,7 @@ importing-tag-all-notes = Tag all notes
 importing-tag-updated-notes = Tag updated notes
 importing-file = File
 
-## DEPRECATED - you do not need to translate these.
+## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
 importing-importing-collection = Importing collection...
 importing-unable-to-import-filename = Unable to import { $filename }: file type not supported

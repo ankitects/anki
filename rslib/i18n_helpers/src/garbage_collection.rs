@@ -17,7 +17,8 @@ use walkdir::WalkDir;
 
 use crate::serialize;
 
-const DEPCRATION_WARNING: &str = "DEPRECATED - you do not need to translate these.";
+const DEPCRATION_WARNING: &str =
+    "NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.";
 
 /// Extract references from all Rust, Python, TS, Svelte, Swift, Kotlin and
 /// Designer files in the `roots`, convert them to kebab case and write them as

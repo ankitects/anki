@@ -17,7 +17,7 @@ errors-inconsistent-db-state = Your database appears to be in an inconsistent st
 errors-bad-directive = Error in directive '{ $directive }': { $error }
 errors-option-not-set = '{ $option }' not set
 
-## DEPRECATED - you do not need to translate these.
+## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
 errors-invalid-input-empty = Invalid input.
 errors-invalid-input-details = Invalid input: { $details }
