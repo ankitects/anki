@@ -32,11 +32,13 @@ pub struct HttpSyncClient {
     session_key: String,
     client: Client,
     pub endpoint: Url,
+    pub io_timeout: Duration,
     full_sync_progress_fn: Mutex<Option<FullSyncProgressFn>>,
 }
 
 impl HttpSyncClient {
     pub fn new(auth: SyncAuth) -> HttpSyncClient {
+        let io_timeout = Duration::from_secs(auth.io_timeout_secs.unwrap_or(30) as u64);
         HttpSyncClient {
             sync_key: auth.hkey,
             session_key: simple_session_id(),
@@ -44,6 +46,7 @@ impl HttpSyncClient {
             endpoint: auth
                 .endpoint
                 .unwrap_or_else(|| Url::try_from("https://sync.ankiweb.net/").unwrap()),
+            io_timeout,
             full_sync_progress_fn: Mutex::new(None),
         }
     }
@@ -56,6 +59,7 @@ impl HttpSyncClient {
             client: self.client.clone(),
             endpoint: self.endpoint.clone(),
             full_sync_progress_fn: Mutex::new(None),
+            io_timeout: self.io_timeout,
         }
     }
 
@@ -86,7 +90,7 @@ impl HttpSyncClient {
             .post(url)
             .header(&SYNC_HEADER_NAME, serde_json::to_string(&header).unwrap());
         io_monitor
-            .zstd_request_with_timeout(request, data, Duration::from_secs(30))
+            .zstd_request_with_timeout(request, data, self.io_timeout)
             .await
             .map(SyncResponse::from_vec)
     }

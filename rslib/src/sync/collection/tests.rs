@@ -98,6 +98,7 @@ where
     let auth = SyncAuth {
         hkey: AUTH.host_key.clone(),
         endpoint: Some(endpoint),
+        io_timeout_secs: None,
     };
     let client = HttpSyncClient::new(auth);
     op(client).await

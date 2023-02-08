@@ -713,6 +713,47 @@
            </widget>
           </item>
           <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>preferences_network_timeout</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="network_timeout">
+              <property name="minimum">
+               <number>30</number>
+              </property>
+              <property name="maximum">
+               <number>99999</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>scheduling_seconds</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
              <widget class="QLabel" name="syncLabel">
@@ -1087,6 +1128,7 @@
   <tabstop>syncOnProgramOpen</tabstop>
   <tabstop>autoSyncMedia</tabstop>
   <tabstop>fullSync</tabstop>
+  <tabstop>network_timeout</tabstop>
   <tabstop>media_log</tabstop>
   <tabstop>syncDeauth</tabstop>
   <tabstop>custom_sync_url</tabstop>
