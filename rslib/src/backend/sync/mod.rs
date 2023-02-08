@@ -89,6 +89,7 @@ impl TryFrom<pb::sync::SyncAuth> for SyncAuth {
                         .or_invalid("Invalid sync server specified. Please check the preferences.")
                 })
                 .transpose()?,
+            io_timeout_secs: value.io_timeout_secs,
         })
     }
 }
@@ -236,6 +237,7 @@ impl Backend {
         ret.map(|a| pb::sync::SyncAuth {
             hkey: a.hkey,
             endpoint: None,
+            io_timeout_secs: None,
         })
     }
 

@@ -642,7 +642,11 @@ create table if not exists profiles
     def sync_auth(self) -> SyncAuth | None:
         if not (hkey := self.profile.get("syncKey")):
             return None
-        return SyncAuth(hkey=hkey, endpoint=self.sync_endpoint())
+        return SyncAuth(
+            hkey=hkey,
+            endpoint=self.sync_endpoint(),
+            io_timeout_secs=self.network_timeout(),
+        )
 
     def clear_sync_auth(self) -> None:
         self.set_sync_key(None)
@@ -680,3 +684,9 @@ create table if not exists profiles
 
     def set_show_browser_table_tooltips(self, val: bool) -> None:
         self.profile["browserTableTooltips"] = val
+
+    def set_network_timeout(self, timeout_secs: int) -> None:
+        self.profile["networkTimeout"] = timeout_secs
+
+    def network_timeout(self) -> int:
+        return self.profile.get("networkTimeout") or 30

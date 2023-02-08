@@ -24,6 +24,7 @@ service SyncService {
 message SyncAuth {
   string hkey = 1;
   optional string endpoint = 2;
+  optional uint32 io_timeout_secs = 3;
 }
 
 message SyncLoginRequest {

@@ -14,6 +14,7 @@ use crate::sync::request::IntoSyncRequest;
 pub struct SyncAuth {
     pub hkey: String,
     pub endpoint: Option<Url>,
+    pub io_timeout_secs: Option<u32>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -53,5 +54,6 @@ pub async fn sync_login<S: Into<String>>(
     Ok(SyncAuth {
         hkey: resp.key,
         endpoint: None,
+        io_timeout_secs: None,
     })
 }
