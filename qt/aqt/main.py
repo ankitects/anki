@@ -91,7 +91,7 @@ from aqt.utils import (
     tooltip,
     tr,
 )
-from aqt.webview import AnkiWebView, AnkiWebViewOrigin
+from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 install_pylib_legacy()
 
@@ -105,7 +105,7 @@ T = TypeVar("T")
 
 class MainWebView(AnkiWebView):
     def __init__(self, mw: AnkiQt) -> None:
-        AnkiWebView.__init__(self, origin=AnkiWebViewOrigin.MAIN)
+        AnkiWebView.__init__(self, kind=AnkiWebViewKind.MAIN)
         self.mw = mw
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.setMinimumWidth(400)

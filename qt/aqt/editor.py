@@ -55,7 +55,7 @@ from aqt.utils import (
     tooltip,
     tr,
 )
-from aqt.webview import AnkiWebView, AnkiWebViewOrigin
+from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp", "ico")
 audio = (
@@ -1211,7 +1211,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
 class EditorWebView(AnkiWebView):
     def __init__(self, parent: QWidget, editor: Editor) -> None:
-        AnkiWebView.__init__(self, origin=AnkiWebViewOrigin.EDITOR)
+        AnkiWebView.__init__(self, kind=AnkiWebViewKind.EDITOR)
         self.editor = editor
         self.setAcceptDrops(True)
         self._markInternal = False

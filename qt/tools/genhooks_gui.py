@@ -706,7 +706,7 @@ mutate the DOM before the page is revealed.
 For example:
 
 def mytest(webview: AnkiWebView):
-    if webview.origin != AnkiWebViewOrigin.DECK_STATS:
+    if webview.kind != AnkiWebViewKind.DECK_STATS:
         return
     web.eval(
         """

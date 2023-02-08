@@ -225,7 +225,7 @@ class WebContent:
 ##########################################################################
 
 
-class AnkiWebViewOrigin(Enum):
+class AnkiWebViewKind(Enum):
     """Enum registry of all web views managed by Anki
 
     The value of each entry corresponds to the web view's title.
@@ -252,17 +252,17 @@ class AnkiWebViewOrigin(Enum):
 
 class AnkiWebView(QWebEngineView):
     allow_drops = False
-    _origin: AnkiWebViewOrigin | None
+    _kind: AnkiWebViewKind | None
 
     def __init__(
         self,
         parent: QWidget | None = None,
         title: str = "default",
-        origin: AnkiWebViewOrigin | None = None,
+        kind: AnkiWebViewKind | None = None,
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
-        if origin:
-            self.set_origin(origin)
+        if kind:
+            self.set_kind(kind)
         else:
             self.set_title(title)
         self._page = AnkiWebPage(self._onBridgeCmd)
@@ -296,14 +296,14 @@ class AnkiWebView(QWebEngineView):
         """
         )
 
-    def set_origin(self, origin: AnkiWebViewOrigin) -> None:
-        self._origin = origin
-        self.set_title(origin.value)
+    def set_kind(self, kind: AnkiWebViewKind) -> None:
+        self._kind = kind
+        self.set_title(kind.value)
 
     @property
-    def origin(self) -> AnkiWebViewOrigin | None:
-        """Used by add-ons to identify the webview origin"""
-        return self._origin
+    def kind(self) -> AnkiWebViewKind | None:
+        """Used by add-ons to identify the webview kind"""
+        return self._kind
 
     def set_title(self, title: str) -> None:
         self.title = title  # type: ignore[assignment]

@@ -27,7 +27,7 @@ from aqt.utils import (
     tooltip,
     tr,
 )
-from aqt.webview import AnkiWebViewOrigin
+from aqt.webview import AnkiWebViewKind
 
 
 class FieldDialog(QDialog):
@@ -56,7 +56,7 @@ class FieldDialog(QDialog):
             form.setupUi(self)
 
             self.webview = form.webview
-            self.webview.set_origin(AnkiWebViewOrigin.FIELDS)
+            self.webview.set_kind(AnkiWebViewKind.FIELDS)
 
             self.show()
             self.refresh()

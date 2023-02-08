@@ -21,7 +21,7 @@ from aqt.utils import (
     tooltip,
     tr,
 )
-from aqt.webview import AnkiWebViewOrigin
+from aqt.webview import AnkiWebViewKind
 
 
 class NewDeckStats(QDialog):
@@ -51,7 +51,7 @@ class NewDeckStats(QDialog):
         maybeHideClose(self.form.buttonBox)
         addCloseShortcut(self)
         gui_hooks.stats_dialog_will_show(self)
-        self.form.web.set_origin(AnkiWebViewOrigin.DECK_STATS)
+        self.form.web.set_kind(AnkiWebViewKind.DECK_STATS)
         self.form.web.hide_while_preserving_layout()
         self.show()
         self.refresh()
@@ -200,7 +200,7 @@ class DeckStats(QDialog):
         stats = self.mw.col.stats()
         stats.wholeCollection = self.wholeCollection
         self.report = stats.report(type=self.period)
-        self.form.web.set_origin(AnkiWebViewOrigin.LEGACY_DECK_STATS)
+        self.form.web.set_kind(AnkiWebViewKind.LEGACY_DECK_STATS)
         self.form.web.stdHtml(
             f"<html><body>{self.report}</body></html>",
             js=["js/vendor/jquery.min.js", "js/vendor/plot.js"],

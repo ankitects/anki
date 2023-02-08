@@ -13,7 +13,7 @@ import aqt.forms
 from anki.collection import SearchNode
 from anki.notes import NoteId
 from aqt.qt import *
-from aqt.webview import AnkiWebViewOrigin
+from aqt.webview import AnkiWebViewKind
 
 from ..operations import QueryOp
 from ..operations.tag import add_tags_to_notes
@@ -51,7 +51,7 @@ class FindDuplicatesDialog(QDialog):
         self._dupes: list[tuple[str, list[NoteId]]] = []
 
         # links
-        form.webView.set_origin(AnkiWebViewOrigin.FIND_DUPLICATES)
+        form.webView.set_kind(AnkiWebViewKind.FIND_DUPLICATES)
         form.webView.set_bridge_command(self._on_duplicate_clicked, context=self)
         form.webView.stdHtml("", context=self)
 
