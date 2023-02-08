@@ -218,6 +218,12 @@ impl From<HttpError> for AnkiError {
             .and_then(|source| source.downcast_ref::<reqwest::Error>())
         {
             reqwest_error.into()
+        } else if err.code == StatusCode::REQUEST_TIMEOUT {
+            NetworkError {
+                info: String::new(),
+                kind: NetworkErrorKind::Timeout,
+            }
+            .into()
         } else {
             AnkiError::sync_error(format!("{:?}", err), SyncErrorKind::Other)
         }
