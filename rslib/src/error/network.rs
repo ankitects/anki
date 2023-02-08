@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::error::Error;
-
 use anki_i18n::I18n;
 use reqwest::StatusCode;
 use snafu::Snafu;
@@ -66,8 +64,8 @@ impl AnkiError {
     }
 }
 
-impl From<reqwest::Error> for AnkiError {
-    fn from(err: reqwest::Error) -> Self {
+impl From<&reqwest::Error> for AnkiError {
+    fn from(err: &reqwest::Error) -> Self {
         let url = err.url().map(|url| url.as_str()).unwrap_or("");
         let str_err = format!("{}", err);
         // strip url from error to avoid exposing keys
@@ -85,6 +83,12 @@ impl From<reqwest::Error> for AnkiError {
         } else {
             guess_reqwest_error(info)
         }
+    }
+}
+
+impl From<reqwest::Error> for AnkiError {
+    fn from(err: reqwest::Error) -> Self {
+        err.into()
     }
 }
 
@@ -208,26 +212,20 @@ impl NetworkError {
 // encountered instead of trying to determine the problem later.
 impl From<HttpError> for AnkiError {
     fn from(err: HttpError) -> Self {
-        if let Some(source) = &err.source {
-            if let Some(err) = source.downcast_ref::<reqwest::Error>() {
-                if let Some(status) = err.status() {
-                    let kind = match status {
-                        StatusCode::CONFLICT => SyncErrorKind::Conflict,
-                        StatusCode::NOT_IMPLEMENTED => SyncErrorKind::ClientTooOld,
-                        StatusCode::FORBIDDEN => SyncErrorKind::AuthFailed,
-                        StatusCode::INTERNAL_SERVER_ERROR => SyncErrorKind::ServerError,
-                        StatusCode::BAD_REQUEST => SyncErrorKind::DatabaseCheckRequired,
-                        _ => SyncErrorKind::Other,
-                    };
-                    let info = format!("{:?}", err);
-                    // in the future we should chain the error instead of discarding it
-                    return AnkiError::sync_error(info, kind);
-                } else if let Some(source) = err.source() {
-                    let info = format!("{:?}", source);
-                    return AnkiError::sync_error(info, SyncErrorKind::Other);
-                }
+        if let Some(reqwest_error) = err
+            .source
+            .as_ref()
+            .and_then(|source| source.downcast_ref::<reqwest::Error>())
+        {
+            reqwest_error.into()
+        } else if err.code == StatusCode::REQUEST_TIMEOUT {
+            NetworkError {
+                info: String::new(),
+                kind: NetworkErrorKind::Timeout,
             }
+            .into()
+        } else {
+            AnkiError::sync_error(format!("{:?}", err), SyncErrorKind::Other)
         }
-        AnkiError::sync_error(format!("{:?}", err), SyncErrorKind::Other)
     }
 }
