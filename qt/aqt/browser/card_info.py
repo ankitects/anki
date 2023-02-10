@@ -19,7 +19,7 @@ from aqt.utils import (
     setWindowIcon,
     tr,
 )
-from aqt.webview import AnkiWebView
+from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 
 class CardInfoDialog(QDialog):
@@ -52,7 +52,7 @@ class CardInfoDialog(QDialog):
         addCloseShortcut(self)
         setWindowIcon(self)
 
-        self.web = AnkiWebView(title=self.TITLE)
+        self.web = AnkiWebView(kind=AnkiWebViewKind.BROWSER_CARD_INFO)
         self.web.setVisible(False)
         self.web.load_ts_page("card-info")
         layout = QVBoxLayout()

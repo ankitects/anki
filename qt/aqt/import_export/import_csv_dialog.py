@@ -10,7 +10,7 @@ import aqt.operations
 from anki.collection import ImportCsvRequest
 from aqt.qt import *
 from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGeom, tr
-from aqt.webview import AnkiWebView
+from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 
 class ImportCsvDialog(QDialog):
@@ -38,7 +38,7 @@ class ImportCsvDialog(QDialog):
         restoreGeom(self, self.TITLE, default_size=(800, 800))
         addCloseShortcut(self)
 
-        self.web = AnkiWebView(title=self.TITLE)
+        self.web = AnkiWebView(kind=AnkiWebViewKind.IMPORT_CSV)
         self.web.setVisible(False)
         self.web.load_ts_page("import-csv")
         layout = QVBoxLayout()
