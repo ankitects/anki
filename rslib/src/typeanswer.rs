@@ -72,7 +72,7 @@ impl DiffContext {
                 }
                 "insert" => {
                     let expected_str = self.slice_expected(&opcode);
-                    provided.push(DiffToken::missing("-".repeat(expected_str.len())));
+                    provided.push(DiffToken::missing("-".repeat(expected_str.chars().count())));
                     expected.push(DiffToken::missing(expected_str));
                 }
                 "replace" => {
@@ -246,6 +246,15 @@ mod test {
         assert_eq!(ctx.to_tokens().provided, &[bad("23")]);
         let ctx = DiffContext::new("12", "1");
         assert_eq!(ctx.to_tokens().provided, &[good("1"), missing("-"),]);
+    }
+
+    #[test]
+    fn missed_chars_counted_correctly() {
+        let ctx = DiffContext::new("нос", "нс");
+        assert_eq!(
+            ctx.to_tokens().provided,
+            &[good("н"), missing("-"), good("с")]
+        );
     }
 
     #[test]
