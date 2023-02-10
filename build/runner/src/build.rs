@@ -31,8 +31,12 @@ pub fn run_build(args: BuildArgs) {
         )
     } else {
         format!(
-            "out/bin:out/extracted/node/bin:{}",
-            env::var("PATH").unwrap()
+            "{br}/bin:{br}/extracted/node/bin:{path}",
+            br = build_root
+                .canonicalize_utf8()
+                .expect("resolving build root")
+                .as_str(),
+            path = env::var("PATH").unwrap()
         )
     };
 
