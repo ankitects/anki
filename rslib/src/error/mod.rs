@@ -105,6 +105,11 @@ pub enum AnkiError {
         source: ImportError,
     },
     InvalidId,
+    #[cfg(windows)]
+    #[snafu(context(false))]
+    WindowsError {
+        source: windows::core::Error,
+    },
 }
 
 // error helpers
@@ -154,6 +159,8 @@ impl AnkiError {
             AnkiError::FileIoError { source } => source.message(),
             AnkiError::InvalidInput { source } => source.message(),
             AnkiError::NotFound { source } => source.message(tr),
+            #[cfg(windows)]
+            AnkiError::WindowsError { source } => format!("{source:?}"),
         }
     }
 
