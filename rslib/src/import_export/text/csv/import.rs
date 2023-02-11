@@ -28,21 +28,28 @@ impl Collection {
         progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
     ) -> Result<OpOutput<NoteLog>> {
         let file = open_file(path)?;
-        let default_deck = metadata.deck()?.name_or_id();
-        let default_notetype = metadata.notetype()?.name_or_id();
         let mut ctx = ColumnContext::new(&metadata)?;
         let notes = ctx.deserialize_csv(file, metadata.delimiter())?;
+        let mut data = ForeignData::from(metadata);
+        data.notes = notes;
+        data.import(self, progress_fn)
+    }
+}
 
+impl From<CsvMetadata> for ForeignData {
+    fn from(metadata: CsvMetadata) -> Self {
         ForeignData {
             dupe_resolution: metadata.dupe_resolution(),
-            default_deck,
-            default_notetype,
-            notes,
+            limit_dupe_check_to_deck: metadata.limit_dupe_check_to_deck,
+            default_deck: metadata.deck().map(|d| d.name_or_id()).unwrap_or_default(),
+            default_notetype: metadata
+                .notetype()
+                .map(|nt| nt.name_or_id())
+                .unwrap_or_default(),
             global_tags: metadata.global_tags,
             updated_tags: metadata.updated_tags,
             ..Default::default()
         }
-        .import(self, progress_fn)
     }
 }
 
@@ -289,6 +296,7 @@ mod test {
                 })),
                 preview: Vec::new(),
                 dupe_resolution: 0,
+                limit_dupe_check_to_deck: false,
             }
         }
     }

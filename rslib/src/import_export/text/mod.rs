@@ -15,6 +15,7 @@ use crate::pb::import_export::csv_metadata::DupeResolution;
 #[serde(default)]
 pub struct ForeignData {
     dupe_resolution: DupeResolution,
+    limit_dupe_check_to_deck: bool,
     default_deck: NameOrId,
     default_notetype: NameOrId,
     notes: Vec<ForeignNote>,

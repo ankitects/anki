@@ -168,6 +168,7 @@ message CsvMetadata {
   repeated generic.StringList preview = 13;
   uint32 guid_column = 14;
   DupeResolution dupe_resolution = 15;
+  bool limit_dupe_check_to_deck = 16;
 }
 
 message ExportCardCsvRequest {

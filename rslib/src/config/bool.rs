@@ -33,6 +33,7 @@ pub enum BoolKey {
     ResetCountsReviewer,
     RandomOrderReposition,
     ShiftPositionOfExistingCards,
+    LimitDupeCheckToDeck,
 
     #[strum(to_string = "normalize_note_text")]
     NormalizeNoteText,
