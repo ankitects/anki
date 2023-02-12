@@ -26,7 +26,7 @@ pub(super) fn write_stream(path: &str, voice_id: &str, speed: f32, text: &str) -
     Ok(())
 }
 
-fn find_voice(voice_id: &str) -> Result<VoiceInformation, AnkiError> {
+fn find_voice(voice_id: &str) -> Result<VoiceInformation> {
     SpeechSynthesizer::AllVoices()?
         .into_iter()
         .find(|info| {
@@ -37,25 +37,17 @@ fn find_voice(voice_id: &str) -> Result<VoiceInformation, AnkiError> {
         .or_invalid("voice id not found")
 }
 
-fn ssml(speed: f32, text: &str) -> Result<HSTRING> {
-    let ssml: Vec<u16> = format!(
-        concat!(
-            r#"<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">"#,
-            r#"    <prosody rate="{}">{}</prosody>"#,
-            r#"</speak>"#,
-        ),
-        speed, text
-    )
-    .encode_utf16()
-    .collect();
-    HSTRING::from_wide(&ssml).map_err(Into::into)
+fn to_hstring(text: &str) -> Result<HSTRING> {
+    let utf16: Vec<u16> = text.encode_utf16().collect();
+    HSTRING::from_wide(&utf16).map_err(Into::into)
 }
 
 fn synthesize_stream(voice_id: &str, speed: f32, text: &str) -> Result<SpeechSynthesisStream> {
     let synthesizer = SpeechSynthesizer::new()?;
     let voice = find_voice(voice_id)?;
     synthesizer.SetVoice(&voice)?;
-    let async_op = synthesizer.SynthesizeSsmlToStreamAsync(&ssml(speed, text)?)?;
+    synthesizer.Options()?.SetSpeakingRate(speed as f64)?;
+    let async_op = synthesizer.SynthesizeTextToStreamAsync(&to_hstring(text)?)?;
     let stream = block_on(async_op)?;
     Ok(stream)
 }
