@@ -8,6 +8,8 @@ mod invalid_input;
 pub(crate) mod network;
 mod not_found;
 mod search;
+#[cfg(windows)]
+pub mod windows;
 
 pub use db::DbError;
 pub use db::DbErrorKind;
@@ -33,7 +35,7 @@ use crate::links::HelpPage;
 
 pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 
-#[derive(Debug, PartialEq, Eq, Snafu)]
+#[derive(Debug, PartialEq, Snafu)]
 pub enum AnkiError {
     #[snafu(context(false))]
     InvalidInput {
@@ -108,7 +110,7 @@ pub enum AnkiError {
     #[cfg(windows)]
     #[snafu(context(false))]
     WindowsError {
-        source: windows::core::Error,
+        source: windows::WindowsError,
     },
 }
 

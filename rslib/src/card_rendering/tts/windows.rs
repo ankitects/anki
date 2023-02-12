@@ -10,6 +10,8 @@ use windows::Media::SpeechSynthesis::SpeechSynthesizer;
 use windows::Media::SpeechSynthesis::VoiceInformation;
 use windows::Storage::Streams::DataReader;
 
+use crate::error::windows::WindowsErrorDetails;
+use crate::error::windows::WindowsSnafu;
 use crate::pb::card_rendering::all_tts_voices_response::TtsVoice;
 use crate::prelude::*;
 
@@ -37,18 +39,27 @@ fn find_voice(voice_id: &str) -> Result<VoiceInformation> {
         .or_invalid("voice id not found")
 }
 
-fn to_hstring(text: &str) -> Result<HSTRING> {
+fn to_hstring(text: &str) -> HSTRING {
     let utf16: Vec<u16> = text.encode_utf16().collect();
-    HSTRING::from_wide(&utf16).map_err(Into::into)
+    HSTRING::from_wide(&utf16).expect("Strings are valid Unicode")
 }
 
 fn synthesize_stream(voice_id: &str, speed: f32, text: &str) -> Result<SpeechSynthesisStream> {
     let synthesizer = SpeechSynthesizer::new()?;
     let voice = find_voice(voice_id)?;
-    synthesizer.SetVoice(&voice)?;
-    synthesizer.Options()?.SetSpeakingRate(speed as f64)?;
-    let async_op = synthesizer.SynthesizeTextToStreamAsync(&to_hstring(text)?)?;
-    let stream = block_on(async_op)?;
+    synthesizer.SetVoice(&voice).context(WindowsSnafu {
+        details: WindowsErrorDetails::SettingVoice(voice),
+    })?;
+    synthesizer
+        .Options()?
+        .SetSpeakingRate(speed as f64)
+        .context(WindowsSnafu {
+            details: WindowsErrorDetails::SettingRate(speed),
+        })?;
+    let async_op = synthesizer.SynthesizeTextToStreamAsync(&to_hstring(text))?;
+    let stream = block_on(async_op).with_context(|_| WindowsSnafu {
+        details: WindowsErrorDetails::Synthesizing(text.to_string()),
+    })?;
     Ok(stream)
 }
 
