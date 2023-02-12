@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Container from "../components/Container.svelte";
     import Row from "../components/Row.svelte";
     import Spacer from "../components/Spacer.svelte";
+    import DeckDupeCheckSwitch from "./DeckDupeCheckSwitch.svelte";
     import DeckSelector from "./DeckSelector.svelte";
     import DelimiterSelector from "./DelimiterSelector.svelte";
     import DupeResolutionSelector from "./DupeResolutionSelector.svelte";
@@ -27,6 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let notetypeNameIds: Notetypes.NotetypeNameId[];
     export let deckNameIds: Decks.DeckNameId[];
     export let dupeResolution: ImportExport.CsvMetadata.DupeResolution;
+    export let limitDupeCheckToDeck: boolean;
 
     export let delimiter: ImportExport.CsvMetadata.Delimiter;
     export let forceDelimiter: boolean;
@@ -73,6 +75,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 path,
                 metadata: ImportExport.CsvMetadata.create({
                     dupeResolution,
+                    limitDupeCheckToDeck,
                     delimiter,
                     forceDelimiter,
                     isHtml,
@@ -119,6 +122,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <DeckSelector {deckNameIds} bind:deckId />
                 {/if}
                 <DupeResolutionSelector bind:dupeResolution />
+                <DeckDupeCheckSwitch bind:value={limitDupeCheckToDeck} />
                 <Tags bind:globalTags bind:updatedTags />
             </Container>
         </Col>

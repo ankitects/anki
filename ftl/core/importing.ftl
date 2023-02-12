@@ -106,6 +106,7 @@ importing-update = Update
 importing-tag-all-notes = Tag all notes
 importing-tag-updated-notes = Tag updated notes
 importing-file = File
+importing-limit-dupe-check-to-deck = Only check for duplicates in same deck
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
