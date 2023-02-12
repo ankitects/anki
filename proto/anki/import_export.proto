@@ -122,8 +122,8 @@ message CsvMetadataRequest {
 message CsvMetadata {
   enum DupeResolution {
     UPDATE = 0;
-    IGNORE = 1;
-    ADD = 2;
+    PRESERVE = 1;
+    DUPLICATE = 2;
     // UPDATE_IF_NEWER = 3;
   }
   // Order roughly in ascending expected frequency in note text, because the

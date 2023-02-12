@@ -161,6 +161,16 @@ impl Collection {
                     metadata.guid_column = n;
                 }
             }
+            "limit dupe check to deck" => {
+                if let Ok(limit) = value.to_lowercase().parse() {
+                    metadata.limit_dupe_check_to_deck = limit;
+                }
+            }
+            "dupe resolution" => {
+                if let Some(resolution) = DupeResolution::from_str_name(&value.to_uppercase()) {
+                    metadata.dupe_resolution = resolution as i32;
+                }
+            }
             _ => (),
         }
     }

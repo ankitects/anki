@@ -338,15 +338,15 @@ impl<'a> Context<'a> {
     fn import_note(&mut self, ctx: NoteContext, log: &mut NoteLog) -> Result<()> {
         match self.dupe_resolution {
             _ if !ctx.is_dupe() => self.add_note(ctx, log)?,
-            DupeResolution::Add if ctx.is_guid_dupe() => {
+            DupeResolution::Duplicate if ctx.is_guid_dupe() => {
                 log.duplicate.push(ctx.note.into_log_note())
             }
-            DupeResolution::Add if !ctx.has_first_field() => {
+            DupeResolution::Duplicate if !ctx.has_first_field() => {
                 log.empty_first_field.push(ctx.note.into_log_note())
             }
-            DupeResolution::Add => self.add_note(ctx, log)?,
+            DupeResolution::Duplicate => self.add_note(ctx, log)?,
             DupeResolution::Update => self.update_with_note(ctx, log)?,
-            DupeResolution::Ignore => log.first_field_match.push(ctx.note.into_log_note()),
+            DupeResolution::Preserve => log.first_field_match.push(ctx.note.into_log_note()),
         }
         Ok(())
     }
@@ -654,7 +654,7 @@ mod test {
         let mut col = open_test_collection();
         let mut data = ForeignData::with_defaults();
         data.add_note(&["same", "old"]);
-        data.dupe_resolution = DupeResolution::Add;
+        data.dupe_resolution = DupeResolution::Duplicate;
 
         data.clone().import(&mut col, |_, _| true).unwrap();
         data.import(&mut col, |_, _| true).unwrap();
@@ -666,7 +666,7 @@ mod test {
         let mut col = open_test_collection();
         let mut data = ForeignData::with_defaults();
         data.add_note(&["same", "old"]);
-        data.dupe_resolution = DupeResolution::Ignore;
+        data.dupe_resolution = DupeResolution::Preserve;
 
         data.clone().import(&mut col, |_, _| true).unwrap();
         assert_eq!(col.storage.notes_table_len(), 1);

@@ -19,11 +19,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             label: tr.importingUpdate(),
         },
         {
-            value: ImportExport.CsvMetadata.DupeResolution.ADD,
+            value: ImportExport.CsvMetadata.DupeResolution.DUPLICATE,
             label: tr.importingDuplicate(),
         },
         {
-            value: ImportExport.CsvMetadata.DupeResolution.IGNORE,
+            value: ImportExport.CsvMetadata.DupeResolution.PRESERVE,
             label: tr.importingPreserve(),
         },
     ];
