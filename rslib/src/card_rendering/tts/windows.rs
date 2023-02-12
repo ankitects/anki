@@ -18,12 +18,16 @@ use crate::prelude::*;
 pub(super) fn all_voices() -> Result<Vec<TtsVoice>> {
     SpeechSynthesizer::AllVoices()?
         .into_iter()
+        // Windows lists voices that fail when actually trying to use them. This has been observed
+        // with voices from an uninstalled language pack.
+        .filter(|voice| synthesize_stream(voice, 1.0, "").is_ok())
         .map(TryFrom::try_from)
         .collect()
 }
 
 pub(super) fn write_stream(path: &str, voice_id: &str, speed: f32, text: &str) -> Result<()> {
-    let stream = synthesize_stream(voice_id, speed, text)?;
+    let voice = find_voice(voice_id)?;
+    let stream = synthesize_stream(&voice, speed, text)?;
     write_stream_to_path(stream, path)?;
     Ok(())
 }
@@ -44,11 +48,14 @@ fn to_hstring(text: &str) -> HSTRING {
     HSTRING::from_wide(&utf16).expect("Strings are valid Unicode")
 }
 
-fn synthesize_stream(voice_id: &str, speed: f32, text: &str) -> Result<SpeechSynthesisStream> {
+fn synthesize_stream(
+    voice: &VoiceInformation,
+    speed: f32,
+    text: &str,
+) -> Result<SpeechSynthesisStream> {
     let synthesizer = SpeechSynthesizer::new()?;
-    let voice = find_voice(voice_id)?;
-    synthesizer.SetVoice(&voice).context(WindowsSnafu {
-        details: WindowsErrorDetails::SettingVoice(voice),
+    synthesizer.SetVoice(voice).with_context(|_| WindowsSnafu {
+        details: WindowsErrorDetails::SettingVoice(voice.clone()),
     })?;
     synthesizer
         .Options()?
