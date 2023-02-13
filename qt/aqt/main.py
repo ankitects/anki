@@ -248,6 +248,8 @@ class AnkiQt(QMainWindow):
     def finish_ui_setup(self) -> None:
         "Actions that are deferred until after add-on loading."
         self.toolbar.draw()
+        # add-ons are only available here after setupAddons
+        gui_hooks.reviewer_did_init(self.reviewer)
 
     def setupProfileAfterWebviewsLoaded(self) -> None:
         for w in (self.web, self.bottomWeb):
@@ -900,6 +902,8 @@ title="{}" {}>{}</button>""".format(
         if is_win:
             for webview in self.web, self.bottomWeb:
                 webview.force_load_hack()
+
+        gui_hooks.card_review_webview_did_init(self.web, AnkiWebViewKind.MAIN)
 
     def closeAllWindows(self, onsuccess: Callable) -> None:
         aqt.dialogs.closeAll(onsuccess)
