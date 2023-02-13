@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::fs::File;
 use std::io::Write;
 
 use futures::executor::block_on;
@@ -14,6 +15,8 @@ use crate::error::windows::WindowsErrorDetails;
 use crate::error::windows::WindowsSnafu;
 use crate::pb::card_rendering::all_tts_voices_response::TtsVoice;
 use crate::prelude::*;
+
+const MAX_BUFFER_SIZE: usize = 1024 * 1024;
 
 pub(super) fn all_voices() -> Result<Vec<TtsVoice>> {
     SpeechSynthesizer::AllVoices()?
@@ -75,10 +78,24 @@ fn write_stream_to_path(stream: SpeechSynthesisStream, path: &str) -> Result<()>
     let date_reader = DataReader::CreateDataReader(&input_stream)?;
     let stream_size = stream.Size()?.try_into().or_invalid("stream too large")?;
     date_reader.LoadAsync(stream_size)?;
-    let mut file = std::fs::File::create(path)?;
-    let mut buf = vec![0u8; stream_size as usize];
-    date_reader.ReadBytes(&mut buf)?;
-    file.write_all(&buf)?;
+    let mut file = File::create(path)?;
+    write_reader_to_file(date_reader, &mut file, stream_size as usize)
+}
+
+fn write_reader_to_file(reader: DataReader, file: &mut File, stream_size: usize) -> Result<()> {
+    let buffer_size = stream_size.min(MAX_BUFFER_SIZE);
+    let iterations = stream_size / buffer_size;
+    let remainder = stream_size % buffer_size;
+    let mut buf = vec![0u8; buffer_size];
+    for i in 0..iterations + 1 {
+        // unless stream_size is divisable by buffer_size, there are less bytes to write
+        // in the last iteration
+        if i == iterations && remainder != 0 {
+            buf.truncate(remainder);
+        }
+        reader.ReadBytes(&mut buf)?;
+        file.write_all(&buf)?;
+    }
     Ok(())
 }
 
