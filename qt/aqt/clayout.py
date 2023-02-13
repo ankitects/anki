@@ -359,6 +359,10 @@ class CardLayout(QDialog):
         self.preview_web.eval("_blockDefaultDragDropBehavior();")
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)
 
+        gui_hooks.card_review_webview_did_init(
+            self.preview_web, AnkiWebViewKind.CARD_LAYOUT
+        )
+
         if self._isCloze():
             nums = list(self.note.cloze_numbers_in_fields())
             if self.ord + 1 not in nums:

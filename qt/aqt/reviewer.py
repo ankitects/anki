@@ -291,6 +291,7 @@ class Reviewer:
             replay_audio(self.card, True)
         elif self.state == "answer":
             replay_audio(self.card, False)
+        gui_hooks.audio_will_replay(self.web, self.card, self.state == "question")
 
     # Initializing the webview
     ##########################################################################
@@ -505,6 +506,7 @@ class Reviewer:
 
     def on_pause_audio(self) -> None:
         av_player.toggle_pause()
+        gui_hooks.audio_did_pause_or_unpause(self.web)
 
     seek_secs = 5
 
