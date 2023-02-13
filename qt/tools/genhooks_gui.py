@@ -215,6 +215,11 @@ hooks = [
         name="reviewer_will_bury_card",
         args=["id: int"],
     ),
+    Hook(
+        name="audio_did_pause_or_unpause",
+        args=["webview: aqt.webview.AnkiWebView"],
+        doc="""Called when the audio is paused or unpaused.""",
+    ),
     # Debug
     ###################
     Hook(
@@ -238,8 +243,21 @@ hooks = [
         doc="""Allow to change the display of the card layout. After most values are
          set and before the window is actually shown.""",
     ),
+    # Reviewer
+    ###################
+    Hook(
+        name="reviewer_did_init",
+        args=["reviewer: aqt.reviewer.Reviewer"],
+        doc="""Called after the reviewer is initialized.""",
+    ),
     # Multiple windows
     ###################
+    # reviewer and previewer
+    Hook(
+        name="audio_will_replay",
+        args=["webview: aqt.webview.AnkiWebView", "card: Card", "is_front_side: bool"],
+        doc="""Called when the user uses the 'replay audio' action, but not when they click on a play button.""",
+    ),
     # reviewer, clayout and browser
     Hook(
         name="card_will_show",
@@ -247,6 +265,15 @@ hooks = [
         return_type="str",
         legacy_hook="prepareQA",
         doc="Can modify card text before review/preview.",
+    ),
+    # reviewer, main and clayout
+    Hook(
+        name="card_review_webview_did_init",
+        args=[
+            "webview: aqt.webview.AnkiWebView",
+            "kind: aqt.webview.AnkiWebViewKind",
+        ],
+        doc="Called when initializing the webview for the review screen, the card layout screen, and the preview screen.",
     ),
     # Deck browser
     ###################
@@ -526,6 +553,16 @@ hooks = [
         name="previewer_did_init",
         args=["previewer: aqt.browser.previewer.Previewer"],
         doc="""Called after the previewer is initialized.""",
+    ),
+    Hook(
+        name="previewer_will_redraw_after_show_both_sides_toggled",
+        args=[
+            "webview: aqt.webview.AnkiWebView",
+            "card: Card",
+            "is_front_side: bool",
+            "show_both_sides: bool",
+        ],
+        doc="""Called when the checkbox <show both sides> is toggled by the user.""",
     ),
     # Main window states
     ###################
