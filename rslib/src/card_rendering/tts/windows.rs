@@ -64,8 +64,8 @@ fn synthesize_stream(
             details: WindowsErrorDetails::SettingRate(speed),
         })?;
     let async_op = synthesizer.SynthesizeTextToStreamAsync(&to_hstring(text))?;
-    let stream = block_on(async_op).with_context(|_| WindowsSnafu {
-        details: WindowsErrorDetails::Synthesizing(text.to_string()),
+    let stream = block_on(async_op).context(WindowsSnafu {
+        details: WindowsErrorDetails::Synthesizing,
     })?;
     Ok(stream)
 }

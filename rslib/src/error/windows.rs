@@ -16,7 +16,7 @@ pub struct WindowsError {
 pub enum WindowsErrorDetails {
     SettingVoice(windows::Media::SpeechSynthesis::VoiceInformation),
     SettingRate(f32),
-    Synthesizing(String),
+    Synthesizing,
     Other,
 }
 
