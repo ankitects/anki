@@ -35,3 +35,17 @@ notetypes-note-types = Note Types
 notetypes-options = Options
 notetypes-please-add-another-note-type-first = Please add another note type first.
 notetypes-type = Type
+
+## Image Occlusion
+
+notetypes-image = Image
+notetypes-occlusion = Occlusion
+notetypes-occlusion-mask = Mask
+notetypes-occlusion-note = Note
+notetypes-comments-field = Comments
+notetypes-image-occlusion-name = Image Occlusion
+notetypes-hide-all-guess-one = Hide All, Guess One
+notetypes-hide-one-guess-one = Hide One, Guess One
+notetypes-change-shape-color = Change Shape Color
+notetypes-question-mask-color = Question Mask Color
+notetypes-error-generating-cloze = An error occurred when generating an image occlusion

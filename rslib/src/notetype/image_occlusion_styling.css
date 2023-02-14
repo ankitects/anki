@@ -1,0 +1,34 @@
+.card {
+    font-family: arial;
+    font-size: 20px;
+    text-align: center;
+    color: black;
+    background-color: white;
+}
+
+.cloze {
+    font-weight: bold;
+    color: blue;
+}
+
+.nightMode .cloze {
+    color: lightblue;
+}
+
+#container {
+    position: relative;
+}
+
+#image {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+}
+
+#canvas {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+}
