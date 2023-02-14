@@ -10,6 +10,7 @@ from anki import (
     collection_pb2,
     config_pb2,
     generic_pb2,
+    image_occlusion_pb2,
     import_export_pb2,
     links_pb2,
     search_pb2,
@@ -40,6 +41,9 @@ CsvMetadata = import_export_pb2.CsvMetadata
 DupeResolution = CsvMetadata.DupeResolution
 Delimiter = import_export_pb2.CsvMetadata.Delimiter
 TtsVoice = card_rendering_pb2.AllTtsVoicesResponse.TtsVoice
+ImageClozeMetadata = image_occlusion_pb2.ImageClozeMetadata
+AddImageOcclusionNotesRequest = image_occlusion_pb2.AddImageOcclusionNotesRequest
+ImageClozeNote = image_occlusion_pb2.ImageClozeNote
 
 import copy
 import os
@@ -455,6 +459,46 @@ class Collection(DeprecatedNamesMixin):
 
     def import_json_string(self, json: str) -> ImportLogWithChanges:
         return self._backend.import_json_string(json)
+
+    # Image Occlusion
+    ##########################################################################
+    def get_image_cloze_metadata(self, path: str | None) -> ImageClozeMetadata:
+        return self._backend.get_image_cloze_metadata(path=path)
+
+    def add_image_occlusion_notes(
+        self,
+        image_path: str | None,
+        occlusions: str | None,
+        header: str | None,
+        back_extra: str | None,
+        tags: list[str] | None,
+    ) -> OpChanges:
+        return self._backend.add_image_occlusion_notes(
+            image_path=image_path,
+            occlusions=occlusions,
+            header=header,
+            back_extra=back_extra,
+            tags=tags,
+        )
+
+    def get_image_cloze_notes(self, note_id: int | None) -> ImageClozeNote:
+        return self._backend.get_image_cloze_notes(note_id=note_id)
+
+    def update_image_occlusion_notes(
+        self,
+        note_id: int | None,
+        occlusions: str | None,
+        header: str | None,
+        back_extra: str | None,
+        tags: list[str] | None,
+    ) -> OpChanges:
+        return self._backend.update_image_occlusion_notes(
+            note_id=note_id,
+            occlusions=occlusions,
+            header=header,
+            back_extra=back_extra,
+            tags=tags,
+        )
 
     # Object helpers
     ##########################################################################

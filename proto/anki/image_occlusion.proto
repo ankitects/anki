@@ -1,0 +1,61 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.image_occlusion;
+
+import "anki/cards.proto";
+import "anki/collection.proto";
+import "anki/notes.proto";
+import "anki/generic.proto";
+
+service ImageOcclusionService {
+  rpc GetImageClozeMetadata(ImageClozeMetadataRequest)
+      returns (ImageClozeMetadata);
+  rpc AddImageOcclusionNotes(AddImageOcclusionNotesRequest)
+      returns (collection.OpChanges);
+  rpc GetImageClozeNotes(GetImageOcclusionNotesRequest)
+      returns (ImageClozeNote);
+  rpc UpdateImageOcclusionNotes(UpdateImageOcclusionNotesRequest)
+      returns (collection.OpChanges);
+}
+
+message ImageClozeMetadataRequest {
+  string path = 1;
+}
+
+message ImageClozeMetadata {
+  bytes data = 1;
+  string name = 2;
+}
+
+message AddImageOcclusionNotesRequest {
+  string image_path = 1;
+  string occlusions = 2;
+  string header = 3;
+  string back_extra = 4;
+  repeated string tags = 5;
+}
+
+message ImageClozeNote {
+  bytes image_data = 1;
+  string occlusions = 2;
+  string header = 3;
+  string back_extra = 4;
+  repeated string tags = 5;
+}
+
+message GetImageOcclusionNotesRequest {
+  int64 note_id = 1;
+}
+
+message UpdateImageOcclusionNotesRequest {
+  int64 note_id = 1;
+  string occlusions = 2;
+  string header = 3;
+  string back_extra = 4;
+  repeated string tags = 5;
+}
