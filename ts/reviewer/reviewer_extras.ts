@@ -9,6 +9,8 @@
 // When all clients are using reviewer.js directly, we can get rid of this.
 
 import { mutateNextCardStates } from "./answering";
+import { setupImageCloze } from "./image_occlusion";
 
 globalThis.anki = globalThis.anki || {};
 globalThis.anki.mutateNextCardStates = mutateNextCardStates;
+globalThis.anki.setupImageCloze = setupImageCloze;
