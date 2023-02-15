@@ -52,6 +52,16 @@ from aqt.utils import tooltip, tr
 class TTSVoice:
     name: str
     lang: str
+    available: bool | None
+
+    def __str__(self) -> str:
+        out = f"{{{{tts {self.lang} voices={self.name}}}}}"
+        if self.unavailable():
+            out += " (unavailable)"
+        return out
+
+    def unavailable(self) -> bool:
+        return self.available is False
 
 
 @dataclass
@@ -124,10 +134,9 @@ def all_tts_voices() -> list[TTSVoice]:
 
     all_voices: list[TTSVoice] = []
     for p in av_player.players:
-        getter = getattr(p, "voices", None)
-        if not getter:
-            continue
-        all_voices.extend(getter())
+        getter = getattr(p, "validated_voices", getattr(p, "voices", None))
+        if getter:
+            all_voices.extend(getter())
     return all_voices
 
 
@@ -137,14 +146,13 @@ def on_tts_voices(
     if filter != "tts-voices":
         return text
     voices = all_tts_voices()
-    voices.sort(key=attrgetter("name"))
-    voices.sort(key=attrgetter("lang"))
+    voices.sort(key=attrgetter("lang", "name"))
 
     buf = "<div style='font-size: 14px; text-align: left;'>TTS voices available:<br>"
-    buf += "<br>".join(
-        f"{{{{tts {v.lang} voices={v.name}}}}}"  # pylint: disable=no-member
-        for v in voices
-    )
+    buf += "<br>".join(map(str, voices))
+    if any(v.unavailable() for v in voices):
+        buf += "<div>One or more voices are unavailable."
+        buf += " Installing a Windows language pack may help.</div>"
     return f"{buf}</div>"
 
 
@@ -205,7 +213,9 @@ class MacTTSPlayer(TTSProcessPlayer):
 
         original_name = m.group(1).strip()
         tidy_name = f"Apple_{original_name.replace(' ', '_')}"
-        return MacVoice(name=tidy_name, original_name=original_name, lang=m.group(2))
+        return MacVoice(
+            name=tidy_name, original_name=original_name, lang=m.group(2), available=None
+        )
 
 
 class MacTTSFilePlayer(MacTTSPlayer):
@@ -508,7 +518,10 @@ if is_win:
                 # some voices may not have a name
                 name = "unknown"
             name = self._tidy_name(name)
-            return [WindowsVoice(name=name, lang=lang, handle=voice) for lang in langs]
+            return [
+                WindowsVoice(name=name, lang=lang, handle=voice, available=None)
+                for lang in langs
+            ]
 
         def _play(self, tag: AVTag) -> None:
             assert isinstance(tag, TTSTag)
@@ -553,14 +566,24 @@ if is_win:
                 id=voice.id,
                 name=voice.name.replace(" ", "_"),
                 lang=voice.language.replace("-", "_"),
+                available=voice.available,
             )
 
     class WindowsRTTTSFilePlayer(TTSProcessPlayer):
         tmppath = os.path.join(tmpdir(), "tts.wav")
 
-        def get_available_voices(self) -> list[TTSVoice]:
+        def validated_voices(self) -> list[TTSVoice]:
+            self._available_voices = self._get_available_voices(validate=True)
+            return self._available_voices
+
+        @classmethod
+        def get_available_voices(cls) -> list[TTSVoice]:
+            return cls._get_available_voices(validate=False)
+
+        @staticmethod
+        def _get_available_voices(validate: bool) -> list[TTSVoice]:
             assert aqt.mw
-            voices = aqt.mw.backend.all_tts_voices()
+            voices = aqt.mw.backend.all_tts_voices(val=validate)
             return list(map(WindowsRTVoice.from_backend_voice, voices))
 
         def _play(self, tag: AVTag) -> None:

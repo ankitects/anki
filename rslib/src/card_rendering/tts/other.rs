@@ -4,7 +4,7 @@
 use crate::pb::card_rendering::all_tts_voices_response::TtsVoice;
 use crate::prelude::*;
 
-pub(super) fn all_voices() -> Result<Vec<TtsVoice>> {
+pub(super) fn all_voices(_validate: bool) -> Result<Vec<TtsVoice>> {
     invalid_input!("not implemented for this OS");
 }
 

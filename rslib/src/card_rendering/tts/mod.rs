@@ -11,8 +11,8 @@ mod inner;
 #[path = "other.rs"]
 mod inner;
 
-pub fn all_voices() -> Result<Vec<TtsVoice>> {
-    inner::all_voices()
+pub fn all_voices(validate: bool) -> Result<Vec<TtsVoice>> {
+    inner::all_voices(validate)
 }
 
 pub fn write_stream(path: &str, voice_id: &str, speed: f32, text: &str) -> Result<()> {

@@ -179,9 +179,9 @@ impl CardRenderingService for Backend {
 
     fn all_tts_voices(
         &self,
-        _input: pb::generic::Empty,
+        input: pb::generic::Bool,
     ) -> Result<pb::card_rendering::AllTtsVoicesResponse> {
-        tts::all_voices().map(|voices| pb::card_rendering::AllTtsVoicesResponse { voices })
+        tts::all_voices(input.val).map(|voices| pb::card_rendering::AllTtsVoicesResponse { voices })
     }
 
     fn write_tts_stream(

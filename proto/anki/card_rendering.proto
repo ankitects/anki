@@ -29,7 +29,7 @@ service CardRenderingService {
   rpc CompareAnswer(CompareAnswerRequest) returns (generic.String);
   rpc ExtractClozeForTyping(ExtractClozeForTypingRequest)
       returns (generic.String);
-  rpc AllTtsVoices(generic.Empty) returns (AllTtsVoicesResponse);
+  rpc AllTtsVoices(generic.Bool) returns (AllTtsVoicesResponse);
   rpc WriteTtsStream(WriteTtsStreamRequest) returns (generic.Empty);
 }
 
@@ -153,6 +153,7 @@ message AllTtsVoicesResponse {
     string id = 1;
     string name = 2;
     string language = 3;
+    optional bool available = 4;
   }
   repeated TtsVoice voices = 1;
 }

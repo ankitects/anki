@@ -18,13 +18,10 @@ use crate::prelude::*;
 
 const MAX_BUFFER_SIZE: usize = 1024 * 1024;
 
-pub(super) fn all_voices() -> Result<Vec<TtsVoice>> {
+pub(super) fn all_voices(validate: bool) -> Result<Vec<TtsVoice>> {
     SpeechSynthesizer::AllVoices()?
         .into_iter()
-        // Windows lists voices that fail when actually trying to use them. This has been observed
-        // with voices from an uninstalled language pack.
-        .filter(|voice| synthesize_stream(voice, 1.0, "").is_ok())
-        .map(TryFrom::try_from)
+        .map(|info| TtsVoice::from_voice_information(info, validate))
         .collect()
 }
 
@@ -99,14 +96,16 @@ fn write_reader_to_file(reader: DataReader, file: &mut File, stream_size: usize)
     Ok(())
 }
 
-impl TryFrom<VoiceInformation> for TtsVoice {
-    type Error = AnkiError;
-
-    fn try_from(info: VoiceInformation) -> Result<Self> {
+impl TtsVoice {
+    fn from_voice_information(info: VoiceInformation, validate: bool) -> Result<Self> {
         Ok(Self {
             id: info.Id()?.to_string_lossy(),
             name: info.DisplayName()?.to_string_lossy(),
             language: info.Language()?.to_string_lossy(),
+            // Windows lists voices that fail when actually trying to use them. This has been
+            // observed with voices from an uninstalled language pack.
+            // Validation is optional because it may be slow.
+            available: validate.then(|| synthesize_stream(&info, 1.0, "").is_ok()),
         })
     }
 }
