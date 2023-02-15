@@ -80,6 +80,9 @@ tr:hover:not(.top-level-drag-row) {
         .gears {
             visibility: visible;
         }
+        .quickaction {
+            visibility: visible;
+        }
     }
 }
 [dir="rtl"] {
@@ -136,6 +139,16 @@ tr:hover:not(.top-level-drag-row) {
     padding-top: 0.2em;
     cursor: pointer;
     visibility: hidden;
+}
+
+.quickaction {
+	width: 1em;
+	height: 1em;
+	padding-left: 0.4em;
+	padding-top: .2em;
+	cursor: pointer;
+	visibility: hidden;
+	vertical-align: top;
 }
 
 .nightMode {

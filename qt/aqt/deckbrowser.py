@@ -6,7 +6,7 @@ from __future__ import annotations
 import html
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, List
 
 import aqt
 import aqt.operations
@@ -118,6 +118,12 @@ class DeckBrowser:
             self._confirm_upgrade()
         elif cmd == "v2upgradeinfo":
             openLink("https://faqs.ankiweb.net/the-anki-2.1-scheduler.html")
+        elif cmd == "rebuilddyndeck":
+            self.mw.col.sched.rebuild_filtered_deck(int(arg))
+            self.refresh()
+        elif cmd == "emptydyndeck":
+            self.mw.col.sched.empty_filtered_deck(int(arg))
+            self.refresh()
         return False
 
     def set_current_deck(self, deck_id: DeckId) -> None:
@@ -211,6 +217,7 @@ class DeckBrowser:
             klass = "deck"
 
         buf = "<tr class='%s' id='%d'>" % (klass, node.deck_id)
+
         # deck link
         if node.children:
             collapse = (
@@ -247,11 +254,18 @@ class DeckBrowser:
             learn,
             review,
         )
+
         # options
+        buf += "<td align=left class=opts>"
         buf += (
-            "<td align=center class=opts><a onclick='return pycmd(\"opts:%d\");'>"
-            "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % node.deck_id
+            "<a onclick='return pycmd(\"opts:%d\");'>"
+                "<img src='/_anki/imgs/gears.svg' class=gears>"
+            "</a>" % node.deck_id
         )
+        for quickAction in self._create_deck_quick_actions(node):
+            buf += quickAction
+        buf += "</td></tr>"
+
         # children
         if not node.collapsed:
             for child in node.children:
@@ -260,6 +274,19 @@ class DeckBrowser:
 
     def _topLevelDragRow(self) -> str:
         return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
+
+    def _create_deck_quick_actions(self, node: DeckTreeNode) -> List[str]:
+        quickActions = []
+        isDyn = self.mw.col.decks.is_filtered(node.deck_id)
+
+        def create_single_icon(icon: str, onclick: str, styleOverrides: str, title: str) -> str:
+            return "<a class='quickaction' title='%s' onclick='%s' style='%s'>%s</a>" % (onclick, styleOverrides, icon)
+
+        if isDyn:
+            quickActions.append(create_single_icon("↻", "pycmd(\"rebuilddyndeck:%s\")" % node.deck_id, "cursor: pointer; color: #0af0a7;", "Rebuild"))
+            quickActions.append(create_single_icon("⤬", "pycmd(\"emptydyndeck:%s\")" % node.deck_id, "cursor: pointer; color: #ed1f94;", "Empty"))
+
+        return quickActions
 
     # Options
     ##########################################################################
