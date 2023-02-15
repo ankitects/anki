@@ -2,7 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 use std::collections::HashMap;
 
-use crate::{pb, prelude::*};
+use crate::pb;
+use crate::prelude::*;
 
 #[derive(Debug)]
 pub(crate) struct DueCounts {

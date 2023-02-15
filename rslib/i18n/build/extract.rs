@@ -1,12 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashSet, fmt::Write};
+use std::collections::HashSet;
+use std::fmt::Write;
 
-use fluent_syntax::{
-    ast::{Entry, Expression, InlineExpression, Pattern, PatternElement},
-    parser::parse,
-};
+use fluent_syntax::ast::Entry;
+use fluent_syntax::ast::Expression;
+use fluent_syntax::ast::InlineExpression;
+use fluent_syntax::ast::Pattern;
+use fluent_syntax::ast::PatternElement;
+use fluent_syntax::parser::parse;
 use serde::Serialize;
 
 use crate::gather::TranslationsByLang;
@@ -163,7 +166,8 @@ impl Visitor {
 impl From<String> for Variable {
     fn from(name: String) -> Self {
         // rather than adding more items here as we add new strings, we should probably
-        // try to either reuse existing ones, or consider some sort of Hungarian notation
+        // try to either reuse existing ones, or consider some sort of Hungarian
+        // notation
         let kind = match name.as_str() {
             "cards" | "notes" | "count" | "amount" | "reviews" | "total" | "selected"
             | "kilobytes" | "daysStart" | "daysEnd" | "days" | "secs-per-card" | "remaining"

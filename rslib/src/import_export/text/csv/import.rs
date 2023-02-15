@@ -1,19 +1,24 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::io::{BufRead, BufReader, Read, Seek, SeekFrom};
+use std::io::BufRead;
+use std::io::BufReader;
+use std::io::Read;
+use std::io::Seek;
+use std::io::SeekFrom;
 
-use crate::{
-    import_export::{
-        text::{
-            csv::metadata::{CsvDeck, CsvMetadata, CsvNotetype, Delimiter},
-            ForeignData, ForeignNote, NameOrId,
-        },
-        ImportProgress, NoteLog,
-    },
-    io::open_file,
-    prelude::*,
-};
+use crate::import_export::text::csv::metadata::CsvDeck;
+use crate::import_export::text::csv::metadata::CsvMetadata;
+use crate::import_export::text::csv::metadata::CsvNotetype;
+use crate::import_export::text::csv::metadata::Delimiter;
+use crate::import_export::text::ForeignData;
+use crate::import_export::text::ForeignNote;
+use crate::import_export::text::NameOrId;
+use crate::import_export::ImportProgress;
+use crate::import_export::NoteLog;
+use crate::io::open_file;
+use crate::prelude::*;
+use crate::text::strip_utf8_bom;
 
 impl Collection {
     pub fn import_csv(
@@ -111,7 +116,8 @@ struct ColumnContext {
     notetype_column: Option<usize>,
     /// Source column indices for the fields of a notetype
     field_source_columns: FieldSourceColumns,
-    /// How fields are converted to strings. Used for escaping HTML if appropriate.
+    /// How fields are converted to strings. Used for escaping HTML if
+    /// appropriate.
     stringify: fn(&str) -> String,
 }
 
@@ -207,17 +213,17 @@ fn stringify_fn(is_html: bool) -> fn(&str) -> String {
     if is_html {
         ToString::to_string
     } else {
-        htmlescape::encode_minimal
+        |s| htmlescape::encode_minimal(s).replace('\n', "<br>")
     }
 }
 
-/// If the reader's first line starts with "tags:", which is allowed for historic
-/// reasons, seek to the second line.
+/// If the reader's first line starts with "tags:", which is allowed for
+/// historic reasons, seek to the second line.
 fn remove_tags_line_from_reader(reader: &mut (impl Read + Seek)) -> Result<()> {
     let mut buf_reader = BufReader::new(reader);
     let mut first_line = String::new();
     buf_reader.read_line(&mut first_line)?;
-    let offset = if first_line.starts_with("tags:") {
+    let offset = if strip_utf8_bom(&first_line).starts_with("tags:") {
         first_line.as_bytes().len()
     } else {
         0
@@ -374,5 +380,14 @@ mod test {
         assert_eq!(notes[0].notetype, NameOrId::Name(String::from("Basic")));
         assert_field_eq!(notes[1].fields, [Some("foo"), Some("bar")]);
         assert_eq!(notes[1].notetype, NameOrId::Name(String::from("Cloze")));
+    }
+
+    #[test]
+    fn should_ignore_bom() {
+        let metadata = CsvMetadata::defaults_for_testing();
+        assert_imported_fields!(metadata, "\u{feff}foo,bar\n", [[Some("foo"), Some("bar")]]);
+        assert!(import!(metadata, "\u{feff}#foo\n").is_empty());
+        assert!(import!(metadata, "\u{feff}#html:true\n").is_empty());
+        assert!(import!(metadata, "\u{feff}tags:foo\n").is_empty());
     }
 }

@@ -1,17 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use super::queue::BuryMode;
 use super::timing::SchedTimingToday;
-use crate::{
-    card::CardQueue,
-    config::SchedulerVersion,
-    pb::scheduler::{
-        bury_or_suspend_cards_request::Mode as BuryOrSuspendMode,
-        unbury_deck_request::Mode as UnburyDeckMode,
-    },
-    prelude::*,
-    search::{JoinSearches, SearchNode, StateKind},
-};
+use crate::card::CardQueue;
+use crate::config::SchedulerVersion;
+use crate::pb::scheduler::bury_or_suspend_cards_request::Mode as BuryOrSuspendMode;
+use crate::pb::scheduler::unbury_deck_request::Mode as UnburyDeckMode;
+use crate::prelude::*;
+use crate::search::JoinSearches;
+use crate::search::SearchNode;
+use crate::search::StateKind;
 
 impl Card {
     /// True if card was buried/suspended prior to the call.
@@ -142,28 +141,21 @@ impl Collection {
         &mut self,
         cid: CardId,
         nid: NoteId,
-        include_new: bool,
-        include_reviews: bool,
-        include_day_learn: bool,
+        bury_mode: BuryMode,
     ) -> Result<usize> {
-        let cards = self.storage.all_siblings_for_bury(
-            cid,
-            nid,
-            include_new,
-            include_reviews,
-            include_day_learn,
-        )?;
+        let cards = self.storage.all_siblings_for_bury(cid, nid, bury_mode)?;
         self.bury_or_suspend_cards_inner(cards, BuryOrSuspendMode::BurySched)
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::{
-        card::{Card, CardQueue},
-        collection::{open_test_collection, Collection},
-        search::{SortMode, StateKind},
-    };
+    use crate::card::Card;
+    use crate::card::CardQueue;
+    use crate::collection::open_test_collection;
+    use crate::collection::Collection;
+    use crate::search::SortMode;
+    use crate::search::StateKind;
 
     #[test]
     fn unbury() {

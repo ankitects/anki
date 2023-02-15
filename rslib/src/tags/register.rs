@@ -1,12 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, collections::HashSet};
+use std::borrow::Cow;
+use std::collections::HashSet;
 
 use unicase::UniCase;
 
-use super::{immediate_parent_name_str, is_tag_separator, split_tags, Tag};
-use crate::{prelude::*, text::normalize_to_nfc, types::Usn};
+use super::immediate_parent_name_str;
+use super::is_tag_separator;
+use super::split_tags;
+use super::Tag;
+use crate::prelude::*;
+use crate::text::normalize_to_nfc;
+use crate::types::Usn;
 
 impl Collection {
     /// Given a list of tags, fix case, ordering and duplicates.
@@ -82,10 +88,10 @@ impl Collection {
         Ok(out_tags)
     }
 
-    /// Adjust tag casing to match any existing parents, and register it if it's not already
-    /// in the tags list. True if the tag was added and not already in tag list.
-    /// In the case the tag is already registered, tag will be mutated to match the existing
-    /// name.
+    /// Adjust tag casing to match any existing parents, and register it if it's
+    /// not already in the tags list. True if the tag was added and not
+    /// already in tag list. In the case the tag is already registered, tag
+    /// will be mutated to match the existing name.
     pub(crate) fn register_tag(&mut self, tag: &mut Tag) -> Result<bool> {
         let is_new = self.prepare_tag_for_registering(tag)?;
         if is_new {
@@ -94,8 +100,8 @@ impl Collection {
         Ok(is_new)
     }
 
-    /// Create a tag object, normalize text, and match parents/existing case if available.
-    /// True if tag is new.
+    /// Create a tag object, normalize text, and match parents/existing case if
+    /// available. True if tag is new.
     pub(super) fn prepare_tag_for_registering(&self, tag: &mut Tag) -> Result<bool> {
         let normalized_name = normalize_tag_name(&tag.name)?;
         if let Some(existing_tag) = self.storage.get_tag(&normalized_name)? {
@@ -189,7 +195,8 @@ pub(super) fn normalize_tag_name(name: &str) -> Result<Cow<str>> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, decks::DeckId};
+    use crate::collection::open_test_collection;
+    use crate::decks::DeckId;
 
     #[test]
     fn tags() -> Result<()> {

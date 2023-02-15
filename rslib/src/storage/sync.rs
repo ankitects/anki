@@ -1,9 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::path::Path;
-
-use rusqlite::{params, types::FromSql, Connection, ToSql};
+use rusqlite::params;
+use rusqlite::types::FromSql;
+use rusqlite::ToSql;
 
 use super::*;
 use crate::prelude::*;
@@ -49,9 +49,9 @@ impl SqliteStorage {
         &self,
         table: &str,
         ids: &[I],
-        new_usn: Option<Usn>,
+        server_usn_if_client: Option<Usn>,
     ) -> Result<()> {
-        if let Some(new_usn) = new_usn {
+        if let Some(new_usn) = server_usn_if_client {
             let mut stmt = self
                 .db
                 .prepare_cached(&format!("update {} set usn=? where id=?", table))?;
@@ -63,18 +63,13 @@ impl SqliteStorage {
     }
 }
 
-/// Return error if file is unreadable, fails the sqlite
-/// integrity check, or is not in the 'delete' journal mode.
-/// On success, returns the opened DB.
-pub(crate) fn open_and_check_sqlite_file(path: &Path) -> Result<Connection> {
-    let db = Connection::open(path)?;
-    match db.pragma_query_value(None, "integrity_check", |row| row.get::<_, String>(0)) {
-        Ok(s) => require!(s == "ok", "corrupt: {s}"),
-        Err(e) => return Err(e.into()),
-    };
-    match db.pragma_query_value(None, "journal_mode", |row| row.get::<_, String>(0)) {
-        Ok(s) if s == "delete" => Ok(db),
-        Ok(s) => invalid_input!("corrupt: {s}"),
-        Err(e) => Err(e.into()),
+impl Usn {
+    /// Used when gathering pending objects during sync.
+    pub(crate) fn pending_object_clause(self) -> &'static str {
+        if self.0 == -1 {
+            "usn = ?"
+        } else {
+            "usn >= ?"
+        }
     }
 }

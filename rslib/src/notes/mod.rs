@@ -3,26 +3,27 @@
 
 pub(crate) mod undo;
 
-use std::{
-    borrow::Cow,
-    collections::{HashMap, HashSet},
-};
+use std::borrow::Cow;
+use std::collections::HashMap;
+use std::collections::HashSet;
 
 use itertools::Itertools;
 use num_integer::Integer;
-use sha1::{Digest, Sha1};
+use sha1::Digest;
+use sha1::Sha1;
 
-use crate::{
-    cloze::contains_cloze,
-    define_newtype,
-    notetype::{CardGenContext, NoteField},
-    ops::StateChanges,
-    pb,
-    pb::notes::note_fields_check_response::State as NoteFieldsState,
-    prelude::*,
-    template::field_is_empty,
-    text::{ensure_string_in_nfc, normalize_to_nfc, strip_html_preserving_media_filenames},
-};
+use crate::cloze::contains_cloze;
+use crate::define_newtype;
+use crate::notetype::CardGenContext;
+use crate::notetype::NoteField;
+use crate::ops::StateChanges;
+use crate::pb;
+use crate::pb::notes::note_fields_check_response::State as NoteFieldsState;
+use crate::prelude::*;
+use crate::template::field_is_empty;
+use crate::text::ensure_string_in_nfc;
+use crate::text::normalize_to_nfc;
+use crate::text::strip_html_preserving_media_filenames;
 
 define_newtype!(NoteId, i64);
 
@@ -120,7 +121,7 @@ impl Note {
     pub(crate) fn new(notetype: &Notetype) -> Self {
         Note {
             id: NoteId(0),
-            guid: guid(),
+            guid: base91_u64(),
             notetype_id: notetype.id,
             mtime: TimestampSecs(0),
             usn: Usn(0),
@@ -297,20 +298,25 @@ pub(crate) fn field_checksum(text: &str) -> u32 {
     u32::from_be_bytes(digest[..4].try_into().unwrap())
 }
 
-pub(crate) fn guid() -> String {
+pub(crate) fn base91_u64() -> String {
     anki_base91(rand::random())
 }
 
-fn anki_base91(mut n: u64) -> String {
-    let table = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\
-0123456789!#$%&()*+,-./:;<=>?@[]^_`{|}~";
+fn anki_base91(n: u64) -> String {
+    to_base_n(
+        n,
+        b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\
+0123456789!#$%&()*+,-./:;<=>?@[]^_`{|}~",
+    )
+}
+
+pub fn to_base_n(mut n: u64, table: &[u8]) -> String {
     let mut buf = String::new();
     while n > 0 {
         let (q, r) = n.div_rem(&(table.len() as u64));
         buf.push(table[r as usize] as char);
         n = q;
     }
-
     buf.chars().rev().collect()
 }
 
@@ -623,11 +629,14 @@ fn note_differs_from_db(existing_note: &mut Note, note: &mut Note) -> bool {
 
 #[cfg(test)]
 mod test {
-    use super::{anki_base91, field_checksum};
-    use crate::{
-        collection::open_test_collection, config::BoolKey, decks::DeckId, error::Result,
-        prelude::*, search::SortMode,
-    };
+    use super::anki_base91;
+    use super::field_checksum;
+    use crate::collection::open_test_collection;
+    use crate::config::BoolKey;
+    use crate::decks::DeckId;
+    use crate::error::Result;
+    use crate::prelude::*;
+    use crate::search::SortMode;
 
     #[test]
     fn test_base91() {

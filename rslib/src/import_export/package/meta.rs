@@ -1,19 +1,19 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    fs::File,
-    io::{
-        Read, {self},
-    },
-};
+use std::fs::File;
+use std::io;
+use std::io::Read;
 
 use prost::Message;
 use zip::ZipArchive;
 use zstd::stream::copy_decode;
 
-pub(super) use crate::pb::import_export::{package_metadata::Version, PackageMetadata as Meta};
-use crate::{error::ImportError, prelude::*, storage::SchemaVersion};
+use crate::error::ImportError;
+pub(super) use crate::pb::import_export::package_metadata::Version;
+pub(super) use crate::pb::import_export::PackageMetadata as Meta;
+use crate::prelude::*;
+use crate::storage::SchemaVersion;
 
 impl Version {
     pub(super) fn collection_filename(&self) -> &'static str {
@@ -49,7 +49,8 @@ impl Meta {
         }
     }
 
-    /// Extracts meta data from an archive and checks if its version is supported.
+    /// Extracts meta data from an archive and checks if its version is
+    /// supported.
     pub(super) fn from_archive(archive: &mut ZipArchive<File>) -> Result<Self> {
         let meta_bytes = archive.by_name("meta").ok().and_then(|mut meta_file| {
             let mut buf = vec![];

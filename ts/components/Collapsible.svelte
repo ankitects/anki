@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let collapse = false;
     export let toggleDisplay = false;
-    export let animated = !document.body.classList.contains("reduced-motion");
+    export let animated = !document.body.classList.contains("reduce-motion");
 
     let contentHeight = 0;
 

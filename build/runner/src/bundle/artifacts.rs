@@ -1,7 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{env, fs, process::Command};
+use std::env;
+use std::fs;
+use std::process::Command;
 
 use camino::Utf8PathBuf;
 use clap::Args;
@@ -15,8 +17,8 @@ pub struct BuildArtifactsArgs {
 }
 
 pub fn build_artifacts(args: BuildArtifactsArgs) {
-    // build.rs doesn't declare inputs from venv, so we need to force a rebuild to ensure
-    // changes to our libs/the venv get included
+    // build.rs doesn't declare inputs from venv, so we need to force a rebuild to
+    // ensure changes to our libs/the venv get included
     let artifacts = args.bundle_root.join("artifacts");
     if artifacts.exists() {
         fs::remove_dir_all(&artifacts).unwrap();

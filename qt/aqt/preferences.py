@@ -14,7 +14,15 @@ from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
 from aqt.qt import *
 from aqt.theme import Theme
-from aqt.utils import HelpPage, disable_help_button, openHelp, showInfo, showWarning, tr
+from aqt.utils import (
+    HelpPage,
+    disable_help_button,
+    is_win,
+    openHelp,
+    showInfo,
+    showWarning,
+    tr,
+)
 
 
 class Preferences(QDialog):
@@ -174,6 +182,8 @@ class Preferences(QDialog):
             self.form.syncUser.setText(self.prof.get("syncUser", ""))
             qconnect(self.form.syncDeauth.clicked, self.sync_logout)
         self.form.syncDeauth.setText(tr.sync_log_out_button())
+        self.form.custom_sync_url.setText(self.mw.pm.custom_sync_url())
+        self.form.network_timeout.setValue(self.mw.pm.network_timeout())
 
     def on_media_log(self) -> None:
         self.mw.media_syncer.show_sync_log()
@@ -201,26 +211,70 @@ class Preferences(QDialog):
         )
         if self.form.fullSync.isChecked():
             self.mw.col.mod_schema(check=False)
+        self.mw.pm.set_custom_sync_url(self.form.custom_sync_url.text())
+        self.mw.pm.set_network_timeout(self.form.network_timeout.value())
 
     # Global preferences
     ######################################################################
 
     def setup_global(self) -> None:
         "Setup options global to all profiles."
-        self.form.reduce_motion.setChecked(self.mw.pm.reduced_motion())
-        self.form.collapse_toolbar.setChecked(self.mw.pm.collapse_toolbar())
+        self.form.reduce_motion.setChecked(self.mw.pm.reduce_motion())
+        qconnect(self.form.reduce_motion.stateChanged, self.mw.pm.set_reduce_motion)
+
+        self.form.minimalist_mode.setChecked(self.mw.pm.minimalist_mode())
+        qconnect(self.form.minimalist_mode.stateChanged, self.mw.pm.set_minimalist_mode)
+
+        hide_choices = [tr.preferences_full_screen_only(), tr.preferences_always()]
+
+        self.form.hide_top_bar.setChecked(self.mw.pm.hide_top_bar())
+        qconnect(self.form.hide_top_bar.stateChanged, self.mw.pm.set_hide_top_bar)
+        qconnect(
+            self.form.hide_top_bar.stateChanged,
+            self.form.topBarComboBox.setVisible,
+        )
+        self.form.topBarComboBox.addItems(hide_choices)
+        self.form.topBarComboBox.setCurrentIndex(self.mw.pm.top_bar_hide_mode())
+        self.form.topBarComboBox.setVisible(self.form.hide_top_bar.isChecked())
+
+        qconnect(
+            self.form.topBarComboBox.currentIndexChanged,
+            self.mw.pm.set_top_bar_hide_mode,
+        )
+
+        self.form.hide_bottom_bar.setChecked(self.mw.pm.hide_bottom_bar())
+        qconnect(self.form.hide_bottom_bar.stateChanged, self.mw.pm.set_hide_bottom_bar)
+        qconnect(
+            self.form.hide_bottom_bar.stateChanged,
+            self.form.bottomBarComboBox.setVisible,
+        )
+        self.form.bottomBarComboBox.addItems(hide_choices)
+        self.form.bottomBarComboBox.setCurrentIndex(self.mw.pm.bottom_bar_hide_mode())
+        self.form.bottomBarComboBox.setVisible(self.form.hide_bottom_bar.isChecked())
+
+        qconnect(
+            self.form.bottomBarComboBox.currentIndexChanged,
+            self.mw.pm.set_bottom_bar_hide_mode,
+        )
+
         self.form.uiScale.setValue(int(self.mw.pm.uiScale() * 100))
         themes = [
-            tr.preferences_theme_label(theme=theme)
-            for theme in (
-                tr.preferences_theme_follow_system(),
-                tr.preferences_theme_light(),
-                tr.preferences_theme_dark(),
-            )
+            tr.preferences_theme_follow_system(),
+            tr.preferences_theme_light(),
+            tr.preferences_theme_dark(),
         ]
         self.form.theme.addItems(themes)
         self.form.theme.setCurrentIndex(self.mw.pm.theme().value)
         qconnect(self.form.theme.currentIndexChanged, self.on_theme_changed)
+
+        self.form.styleComboBox.addItems(["Anki"] + (["Native"] if not is_win else []))
+        self.form.styleComboBox.setCurrentIndex(self.mw.pm.get_widget_style())
+        qconnect(
+            self.form.styleComboBox.currentIndexChanged,
+            self.mw.pm.set_widget_style,
+        )
+        self.form.styleLabel.setVisible(not is_win)
+        self.form.styleComboBox.setVisible(not is_win)
         self.form.legacy_import_export.setChecked(self.mw.pm.legacy_import_export())
 
         self.setup_language()
@@ -238,8 +292,6 @@ class Preferences(QDialog):
             self.mw.pm.setUiScale(newScale)
             restart_required = True
 
-        self.mw.pm.set_reduced_motion(self.form.reduce_motion.isChecked())
-        self.mw.pm.set_collapse_toolbar(self.form.collapse_toolbar.isChecked())
         self.mw.pm.set_legacy_import_export(self.form.legacy_import_export.isChecked())
 
         if restart_required:
@@ -289,15 +341,14 @@ class Preferences(QDialog):
 
     def setup_video_driver(self) -> None:
         self.video_drivers = VideoDriver.all_for_platform()
-        names = [
-            tr.preferences_video_driver(driver=video_driver_name_for_platform(d))
-            for d in self.video_drivers
-        ]
+        names = [video_driver_name_for_platform(d) for d in self.video_drivers]
         self.form.video_driver.addItems(names)
         self.form.video_driver.setCurrentIndex(
             self.video_drivers.index(self.mw.pm.video_driver())
         )
-        self.form.video_driver.setVisible(qtmajor == 5)
+        if qtmajor > 5:
+            self.form.video_driver_label.setVisible(False)
+            self.form.video_driver.setVisible(False)
 
     def update_video_driver(self) -> None:
         new_driver = self.video_drivers[self.form.video_driver.currentIndex()]

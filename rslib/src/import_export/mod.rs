@@ -8,14 +8,13 @@ pub mod text;
 
 use std::marker::PhantomData;
 
-pub use crate::pb::import_export::import_response::{Log as NoteLog, Note as LogNote};
-use crate::{
-    prelude::*,
-    text::{
-        newlines_to_spaces, strip_html_preserving_media_filenames, truncate_to_char_boundary,
-        CowMapping,
-    },
-};
+pub use crate::pb::import_export::import_response::Log as NoteLog;
+pub use crate::pb::import_export::import_response::Note as LogNote;
+use crate::prelude::*;
+use crate::text::newlines_to_spaces;
+use crate::text::strip_html_preserving_media_filenames;
+use crate::text::truncate_to_char_boundary;
+use crate::text::CowMapping;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ImportProgress {
@@ -36,8 +35,8 @@ pub enum ExportProgress {
     Media(usize),
 }
 
-/// Wrapper around a progress function, usually passed by the [crate::backend::Backend],
-/// to make repeated calls more ergonomic.
+/// Wrapper around a progress function, usually passed by the
+/// [crate::backend::Backend], to make repeated calls more ergonomic.
 pub(crate) struct IncrementableProgress<P>(Box<dyn FnMut(P, bool) -> bool>);
 
 impl<P> IncrementableProgress<P> {
@@ -46,7 +45,8 @@ impl<P> IncrementableProgress<P> {
         Self(Box::new(progress_fn))
     }
 
-    /// Returns an [Incrementor] with an `increment()` function for use in loops.
+    /// Returns an [Incrementor] with an `increment()` function for use in
+    /// loops.
     pub(crate) fn incrementor<'inc, 'progress: 'inc, 'map: 'inc>(
         &'progress mut self,
         mut count_map: impl 'map + FnMut(usize) -> P,

@@ -1,84 +1,23 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::env;
+use ninja_gen::action::BuildAction;
+use ninja_gen::archives::Platform;
+use ninja_gen::build::FilesHandle;
+use ninja_gen::command::RunCommand;
+use ninja_gen::glob;
+use ninja_gen::hashmap;
+use ninja_gen::input::BuildInput;
+use ninja_gen::inputs;
+use ninja_gen::python::python_format;
+use ninja_gen::python::PythonEnvironment;
+use ninja_gen::python::PythonLint;
+use ninja_gen::python::PythonTypecheck;
+use ninja_gen::rsync::RsyncFiles;
+use ninja_gen::Build;
+use ninja_gen::Result;
 
-use ninja_gen::{
-    action::BuildAction,
-    archives::{download_and_extract, OnlineArchive, Platform},
-    build::FilesHandle,
-    command::RunCommand,
-    glob, hashmap,
-    input::BuildInput,
-    inputs,
-    python::{python_format, PythonEnvironment, PythonLint, PythonTypecheck},
-    rsync::RsyncFiles,
-    Build, Result, Utf8Path,
-};
-
-fn python_archive(platform: Platform) -> OnlineArchive {
-    match platform {
-        Platform::LinuxX64 => {
-            OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20221106/cpython-3.9.15+20221106-x86_64_v2-unknown-linux-gnu-install_only.tar.gz",
-                sha256: "436c35bd809abdd028f386cc623ae020c77e6b544eaaca405098387c4daa444c",
-            }
-        }
-        Platform::LinuxArm => {
-            OnlineArchive {
-                url: "https://github.com/ankitects/python-build-standalone/releases/download/anki-2022-02-18/cpython-3.9.10-aarch64-unknown-linux-gnu-install_only-20220218T1329.tar.gz",
-                sha256: "39070f9b9492dce3085c8c98916940434bb65663e6665b2c87bef86025532c1a",
-            }
-        }
-        Platform::MacX64 => {
-            OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20211012/cpython-3.9.7-x86_64-apple-darwin-install_only-20211011T1926.tar.gz",
-                sha256: "43cb1a83919f49b1ce95e42f9c461d8a9fb00ff3957bebef9cffe61a5f362377",
-            }
-        }
-        Platform::MacArm => {
-            OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20221106/cpython-3.9.15+20221106-aarch64-apple-darwin-install_only.tar.gz",
-                sha256: "64dc7e1013481c9864152c3dd806c41144c79d5e9cd3140e185c6a5060bdc9ab",
-            }
-        }
-        Platform::WindowsX64 => {
-            OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20211012/cpython-3.9.7-x86_64-pc-windows-msvc-shared-install_only-20211011T1926.tar.gz",
-                sha256: "80370f232fd63d5cb3ff9418121acb87276228b0dafbeee3c57af143aca11f89",
-            }
-        }
-    }
-}
-
-/// Returns the Python binary, which can be used to create venvs.
-/// Downloads if missing.
-pub fn setup_python(build: &mut Build) -> Result<BuildInput> {
-    // if changing this, make sure you remove out/pyenv
-    let python_binary = match env::var("PYTHON_BINARY") {
-        Ok(path) => {
-            assert!(
-                Utf8Path::new(&path).is_absolute(),
-                "PYTHON_BINARY must be absolute"
-            );
-            path.into()
-        }
-        Err(_) => {
-            download_and_extract(
-                build,
-                "python",
-                python_archive(build.host_platform),
-                hashmap! { "bin" => [
-                    if cfg!(windows) { "python.exe" } else { "bin/python3"}
-                ] },
-            )?;
-            inputs![":extract:python:bin"]
-        }
-    };
-    Ok(python_binary)
-}
-
-pub fn setup_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
+pub fn setup_venv(build: &mut Build) -> Result<()> {
     let requirements_txt = if cfg!(windows) {
         inputs![
             "python/requirements.dev.txt",
@@ -103,7 +42,6 @@ pub fn setup_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
             folder: "pyenv",
             base_requirements_txt: inputs!["python/requirements.base.txt"],
             requirements_txt,
-            python_binary,
             extra_binary_exports: &[
                 "pip-compile",
                 "pip-sync",
@@ -129,7 +67,6 @@ pub fn setup_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
             folder: "pyenv-qt5.15",
             base_requirements_txt: inputs!["python/requirements.base.txt"],
             requirements_txt: inputs![&reqs_qt5, "python/requirements.qt5_15.txt"],
-            python_binary,
             extra_binary_exports: &[],
         },
     )?;
@@ -139,7 +76,6 @@ pub fn setup_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
             folder: "pyenv-qt5.14",
             base_requirements_txt: inputs!["python/requirements.base.txt"],
             requirements_txt: inputs![reqs_qt5, "python/requirements.qt5_14.txt"],
-            python_binary,
             extra_binary_exports: &[],
         },
     )?;
@@ -173,7 +109,7 @@ impl BuildAction for GenPythonProto {
             })
             .collect();
         build.add_inputs("in", &self.proto_files);
-        build.add_inputs("protoc", inputs![":extract:protoc:bin"]);
+        build.add_inputs("protoc", inputs!["$protoc_binary"]);
         build.add_inputs("protoc-gen-mypy", inputs![":pyenv:protoc-gen-mypy"]);
         build.add_outputs("", python_outputs);
     }
@@ -252,8 +188,8 @@ pub fn check_python(build: &mut Build) -> Result<()> {
 
 fn add_pylint(build: &mut Build) -> Result<()> {
     // pylint does not support PEP420 implicit namespaces split across import paths,
-    // so we need to merge our pylib sources and generated files before invoking it, and
-    // add a top-level __init__.py
+    // so we need to merge our pylib sources and generated files before invoking it,
+    // and add a top-level __init__.py
     build.add(
         "pylint/anki",
         RsyncFiles {

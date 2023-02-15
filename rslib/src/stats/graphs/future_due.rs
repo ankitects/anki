@@ -14,8 +14,8 @@ impl GraphsContext {
             if c.queue as i8 <= 0 {
                 continue;
             }
-            // The extra original_due check covers lapsed cards, which have their due date updated on
-            // graduation.
+            // The extra original_due check covers lapsed cards, which have their due date
+            // updated on graduation.
             let due = if c.is_filtered() && c.original_due != 0 {
                 c.original_due
             } else {
@@ -23,7 +23,7 @@ impl GraphsContext {
             };
             let due_day = if c.is_intraday_learning() {
                 let offset = due as i64 - self.next_day_start.0;
-                ((offset / 86_400) + 1) as i32
+                (offset / 86_400) as i32
             } else {
                 due - (self.days_elapsed as i32)
             };

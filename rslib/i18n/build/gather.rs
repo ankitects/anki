@@ -1,14 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-//! By default, the Qt translations will be included in rslib. EXTRA_FTL_ROOT can be set
-//! to an external folder so the mobile clients can use their own translations instead.
+//! By default, the Qt translations will be included in rslib. EXTRA_FTL_ROOT
+//! can be set to an external folder so the mobile clients can use their own
+//! translations instead.
 
-use std::{
-    collections::HashMap,
-    fs,
-    path::{Path, PathBuf},
-};
+use std::collections::HashMap;
+use std::fs;
+use std::path::Path;
+use std::path::PathBuf;
 
 pub type TranslationsByFile = HashMap<String, String>;
 pub type TranslationsByLang = HashMap<String, TranslationsByFile>;
@@ -26,7 +26,8 @@ pub fn get_ftl_data() -> TranslationsByLang {
     if let Some(path) = extra_ftl_root() {
         // Mobile client has requested its own extra translations
         add_translation_root(&mut map, &path, false);
-        // In a debug build, also include the Qt translations so that our Python unit tests pass.
+        // In a debug build, also include the Qt translations so that our Python unit
+        // tests pass.
         if std::env::var("RELEASE").is_err() {
             add_folder(&mut map, &ftl_base.join("qt"), "templates");
         }
@@ -49,7 +50,7 @@ fn add_folder(map: &mut TranslationsByLang, folder: &Path, lang: &str) {
             continue;
         }
         let module = fname.trim_end_matches(".ftl").replace('-', "_");
-        let text = fs::read_to_string(&entry.path()).unwrap();
+        let text = fs::read_to_string(entry.path()).unwrap();
         assert!(
             text.ends_with('\n'),
             "file was missing final newline: {:?}",

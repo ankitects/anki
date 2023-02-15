@@ -76,10 +76,8 @@ There are a few things to be aware of:
 
 ## Packaging considerations
 
-Python and node are downloaded as part of the build. You can optionally define
-PYTHON_BINARY as the full path to a Python binary, to use it instead of the downloaded
-version. A similar approach could be done with node in the future; a PR would be
-welcome.
+Python, node and protoc are downloaded as part of the build. You can optionally define
+PYTHON_BINARY, NODE_BINARY and/or PROTOC_BINARY to use locally-installed versions instead.
 
 If rust-toolchain.toml is removed, newer Rust versions can be used. Older versions
 may or may not compile the code.

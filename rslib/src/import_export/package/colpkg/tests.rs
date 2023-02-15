@@ -7,13 +7,13 @@ use std::path::Path;
 
 use tempfile::tempdir;
 
-use crate::{
-    collection::CollectionBuilder,
-    import_export::package::import_colpkg,
-    io::{create_dir, create_dir_all, read_file},
-    media::MediaManager,
-    prelude::*,
-};
+use crate::collection::CollectionBuilder;
+use crate::import_export::package::import_colpkg;
+use crate::io::create_dir;
+use crate::io::create_dir_all;
+use crate::io::read_file;
+use crate::media::MediaManager;
+use crate::prelude::*;
 
 fn collection_with_media(dir: &Path, name: &str) -> Result<Collection> {
     let name = format!("{name}_src");
@@ -27,11 +27,10 @@ fn collection_with_media(dir: &Path, name: &str) -> Result<Collection> {
     let mut note = nt.new_note();
     col.add_note(&mut note, DeckId(1))?;
     // add sample media
-    let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-    let mut ctx = mgr.dbctx();
-    mgr.add_file(&mut ctx, "1", b"1")?;
-    mgr.add_file(&mut ctx, "2", b"2")?;
-    mgr.add_file(&mut ctx, "3", b"3")?;
+    let mgr = col.media()?;
+    mgr.add_file("1", b"1")?;
+    mgr.add_file("2", b"2")?;
+    mgr.add_file("3", b"3")?;
     Ok(col)
 }
 

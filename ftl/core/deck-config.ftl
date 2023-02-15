@@ -98,16 +98,22 @@ deck-config-leech-action-tooltip =
 ## Burying section
 
 deck-config-bury-title = Burying
-deck-config-bury-new-siblings = Bury new siblings
-deck-config-bury-review-siblings = Bury review siblings
-deck-config-bury-interday-learning-siblings = Bury interday learning siblings
-deck-config-bury-new-tooltip =
-    Whether other `new` cards of the same note (eg reverse cards, adjacent cloze deletions)
-    will be delayed until the next day.
-deck-config-bury-review-tooltip = Whether other `review` cards of the same note will be delayed until the next day.
-deck-config-bury-interday-learning-tooltip =
-    Whether other `learning` cards of the same note with intervals > 1 day
-    will be delayed until the next day.
+deck-config-bury-siblings = Bury siblings
+deck-config-do-not-bury = Do not bury siblings
+deck-config-bury-if-new = Bury if new
+deck-config-bury-if-new-or-review = Bury if new or review
+deck-config-bury-if-new-review-or-interday = Bury if new, review, or interday learning
+deck-config-bury-tooltip =
+    Siblings are other cards from the same note (eg forward/reverse cards, or
+    other cloze deletions from the same text).
+    
+    When this option is off, multiple cards from the same note may be seen on the same
+    day. When enabled, Anki will automatically *bury* siblings, hiding them until the next
+    day. This option allows you to choose which kinds of cards may be buried when you answer
+    one of their siblings.
+    
+    When using the V3 scheduler, interday learning cards can also be buried. Interday
+    learning cards are cards with a current learning step of one or more days.
 
 ## Ordering section
 
@@ -289,5 +295,16 @@ deck-config-maximum-answer-secs-above-recommended = Anki can schedule your revie
 
 deck-config-which-deck = Which deck would you like?
 
-## NO NEED TO TRANSLATE. These strings have been replaced with new versions, and will be removed in the future.
 
+## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
+
+deck-config-bury-new-siblings = Bury new siblings
+deck-config-bury-review-siblings = Bury review siblings
+deck-config-bury-interday-learning-siblings = Bury interday learning siblings
+deck-config-bury-new-tooltip =
+    Whether other `new` cards of the same note (eg reverse cards, adjacent cloze deletions)
+    will be delayed until the next day.
+deck-config-bury-review-tooltip = Whether other `review` cards of the same note will be delayed until the next day.
+deck-config-bury-interday-learning-tooltip =
+    Whether other `learning` cards of the same note with intervals > 1 day
+    will be delayed until the next day.

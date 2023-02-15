@@ -1,11 +1,19 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{env, fs, io::Write, process::Command, time::Instant};
+use std::env;
+use std::fs;
+use std::io::Write;
+use std::process::Command;
+use std::time::Instant;
 
 use camino::Utf8Path;
 use clap::Args;
-use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
+use termcolor::Color;
+use termcolor::ColorChoice;
+use termcolor::ColorSpec;
+use termcolor::StandardStream;
+use termcolor::WriteColor;
 
 #[derive(Args)]
 pub struct BuildArgs {
@@ -23,8 +31,12 @@ pub fn run_build(args: BuildArgs) {
         )
     } else {
         format!(
-            "out/bin:out/extracted/node/bin:{}",
-            env::var("PATH").unwrap()
+            "{br}/bin:{br}/extracted/node/bin:{path}",
+            br = build_root
+                .canonicalize_utf8()
+                .expect("resolving build root")
+                .as_str(),
+            path = env::var("PATH").unwrap()
         )
     };
 
@@ -39,7 +51,8 @@ pub fn run_build(args: BuildArgs) {
         maybe_reconfigure_build(&build_file, &path);
     }
 
-    // automatically convert foo:bar references to foo_bar, as Ninja can not represent the former
+    // automatically convert foo:bar references to foo_bar, as Ninja can not
+    // represent the former
     let ninja_args = args.args.into_iter().map(|a| a.replace(':', "_"));
 
     let start_time = Instant::now();
@@ -58,7 +71,7 @@ pub fn run_build(args: BuildArgs) {
         // commands will not show colors by default, as we do not provide a tty
         .env("FORCE_COLOR", "1")
         .env("MYPY_FORCE_COLOR", "1")
-        .env("TERM", "1")
+        .env("TERM", std::env::var("TERM").unwrap_or_default())
         // Prevents 'Warn: You must provide the URL of lib/mappings.wasm'.
         // Updating svelte-check or its deps will likely remove the need for it.
         .env("NODE_OPTIONS", "--no-experimental-fetch");
@@ -66,9 +79,10 @@ pub fn run_build(args: BuildArgs) {
     // run build
     let mut status = command.status().expect("ninja not installed");
     if !status.success() && Instant::now().duration_since(start_time).as_secs() < 3 {
-        // if the build fails quickly, there's a reasonable chance that build.ninja references
-        // a file that has been renamed/deleted. We currently don't capture stderr, so we can't
-        // confirm, but in case that's the case, we regenerate the build.ninja file then try again.
+        // if the build fails quickly, there's a reasonable chance that build.ninja
+        // references a file that has been renamed/deleted. We currently don't
+        // capture stderr, so we can't confirm, but in case that's the case, we
+        // regenerate the build.ninja file then try again.
         bootstrap_build();
         status = command.status().expect("ninja missing");
     }

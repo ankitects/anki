@@ -1,9 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{env, fs, process::Command};
+use std::env;
+use std::fs;
+use std::process::Command;
 
-use anyhow::{bail, Context, Result};
+use anyhow::bail;
+use anyhow::Context;
+use anyhow::Result;
 use camino::Utf8Path;
 use serde::Deserialize;
 
@@ -59,7 +63,7 @@ pub fn notarize_app(output_folder: &Utf8Path) -> Result<()> {
         ),
     };
     let uuid_path = output_folder.with_extension("uuid");
-    fs::write(&uuid_path, output.id).expect("write uuid");
+    fs::write(uuid_path, output.id).expect("write uuid");
     Ok(())
 }
 

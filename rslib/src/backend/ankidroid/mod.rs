@@ -4,22 +4,25 @@
 pub(crate) mod db;
 pub(crate) mod error;
 
-use self::{db::active_sequences, error::debug_produce_error};
-use super::{
-    dbproxy::{db_command_bytes, db_command_proto},
-    Backend,
-};
+use self::db::active_sequences;
+use self::error::debug_produce_error;
+use super::dbproxy::db_command_bytes;
+use super::dbproxy::db_command_proto;
+use super::Backend;
+use crate::backend::ankidroid::db::execute_for_row_count;
+use crate::backend::ankidroid::db::insert_for_id;
+use crate::pb;
 pub(super) use crate::pb::ankidroid::ankidroid_service::Service as AnkidroidService;
-use crate::{
-    backend::ankidroid::db::{execute_for_row_count, insert_for_id},
-    pb::{
-        self as pb,
-        ankidroid::{DbResponse, GetActiveSequenceNumbersResponse, GetNextResultPageRequest},
-        generic::{self, Empty, Int32, Json},
-    },
-    prelude::*,
-    scheduler::timing::{self, fixed_offset_from_minutes},
-};
+use crate::pb::ankidroid::DbResponse;
+use crate::pb::ankidroid::GetActiveSequenceNumbersResponse;
+use crate::pb::ankidroid::GetNextResultPageRequest;
+use crate::pb::generic;
+use crate::pb::generic::Empty;
+use crate::pb::generic::Int32;
+use crate::pb::generic::Json;
+use crate::prelude::*;
+use crate::scheduler::timing;
+use crate::scheduler::timing::fixed_offset_from_minutes;
 
 impl AnkidroidService for Backend {
     fn sched_timing_today_legacy(

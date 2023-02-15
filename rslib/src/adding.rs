@@ -15,8 +15,9 @@ impl Collection {
     ///
     /// - When 'default to the current deck' is enabled, we use the current deck
     ///   if it's normal, the provided reviewer card's deck as a fallback, and
-    ///   Default as a final fallback. We then fetch the last used notetype stored
-    ///   in the deck, falling back to the global notetype, or the first available one.
+    ///   Default as a final fallback. We then fetch the last used notetype
+    ///   stored in the deck, falling back to the global notetype, or the first
+    ///   available one.
     ///
     /// - Otherwise, each note type remembers the last deck cards were added to,
     ///   and we use that, defaulting to the current deck if missing, and
@@ -49,7 +50,8 @@ impl Collection {
         })
     }
 
-    /// The currently selected deck, the home deck of the provided card, or the default deck.
+    /// The currently selected deck, the home deck of the provided card, or the
+    /// default deck.
     fn get_current_deck_for_adding(
         &mut self,
         home_deck_of_reviewer_card: DeckId,
@@ -96,9 +98,10 @@ impl Collection {
     }
 
     /// Returns the last deck added to with this notetype, provided it is valid.
-    /// This is optional due to the inconsistent handling, where changes in notetype
-    /// may need to update the current deck, but not vice versa. If a previous deck is
-    /// not set, we want to keep the current selection, instead of resetting it.
+    /// This is optional due to the inconsistent handling, where changes in
+    /// notetype may need to update the current deck, but not vice versa. If
+    /// a previous deck is not set, we want to keep the current selection,
+    /// instead of resetting it.
     pub(crate) fn default_deck_for_notetype(&mut self, ntid: NotetypeId) -> Result<Option<DeckId>> {
         if let Some(last_deck_id) = self.get_last_deck_added_to_for_notetype(ntid) {
             if let Some(deck) = self.get_deck(last_deck_id)? {

@@ -95,7 +95,7 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
                 continue;
             }
 
-            referenceNode = target.parentElement.moveTextOutOfFrame();
+            referenceNode = target.parentElement.moveTextOutOfFrame(target.data);
         }
     }
 
@@ -200,9 +200,9 @@ export abstract class FrameHandle extends HTMLElement {
 
     abstract notifyMoveIn(offset: number): void;
 
-    moveTextOutOfFrame(): Text {
+    moveTextOutOfFrame(data: string): Text {
         const frameElement = this.parentElement! as FrameElement;
-        const cleaned = this.innerHTML.replace(spaceRegex, "");
+        const cleaned = data.replace(spaceRegex, "");
         const text = new Text(cleaned);
 
         if (this.placement === "beforebegin") {
@@ -223,7 +223,9 @@ export abstract class FrameHandle extends HTMLElement {
     subscribeToCompositionEvent(): void {
         this.unsubscribe = isComposing.subscribe((composing) => {
             if (!composing) {
-                placeCaretAfter(this.moveTextOutOfFrame());
+                if (this.firstChild && nodeIsText(this.firstChild)) {
+                    placeCaretAfter(this.moveTextOutOfFrame(this.firstChild.data));
+                }
                 this.unsubscribeToCompositionEvent();
             }
         });

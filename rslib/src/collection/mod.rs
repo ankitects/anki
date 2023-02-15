@@ -6,25 +6,26 @@ pub(crate) mod timestamps;
 mod transact;
 pub(crate) mod undo;
 
-use std::{
-    collections::HashMap,
-    fmt::{Debug, Formatter},
-    path::PathBuf,
-    sync::Arc,
-};
+use std::collections::HashMap;
+use std::fmt::Debug;
+use std::fmt::Formatter;
+use std::path::PathBuf;
+use std::sync::Arc;
 
-use crate::{
-    browser_table,
-    decks::{Deck, DeckId},
-    error::Result,
-    i18n::I18n,
-    notetype::{Notetype, NotetypeId},
-    scheduler::{queue::CardQueues, SchedulerInfo},
-    storage::{SchemaVersion, SqliteStorage},
-    timestamp::TimestampMillis,
-    types::Usn,
-    undo::UndoManager,
-};
+use crate::browser_table;
+use crate::decks::Deck;
+use crate::decks::DeckId;
+use crate::error::Result;
+use crate::i18n::I18n;
+use crate::notetype::Notetype;
+use crate::notetype::NotetypeId;
+use crate::scheduler::queue::CardQueues;
+use crate::scheduler::SchedulerInfo;
+use crate::storage::SchemaVersion;
+use crate::storage::SqliteStorage;
+use crate::timestamp::TimestampMillis;
+use crate::types::Usn;
+use crate::undo::UndoManager;
 
 #[derive(Default)]
 pub struct CollectionBuilder {
@@ -33,6 +34,7 @@ pub struct CollectionBuilder {
     media_db: Option<PathBuf>,
     server: Option<bool>,
     tr: Option<I18n>,
+    check_integrity: bool,
     // temporary option for AnkiDroid
     force_schema11: Option<bool>,
 }
@@ -56,7 +58,13 @@ impl CollectionBuilder {
         let media_folder = self.media_folder.clone().unwrap_or_default();
         let media_db = self.media_db.clone().unwrap_or_default();
         let force_schema11 = self.force_schema11.unwrap_or_default();
-        let storage = SqliteStorage::open_or_create(&col_path, &tr, server, force_schema11)?;
+        let storage = SqliteStorage::open_or_create(
+            &col_path,
+            &tr,
+            server,
+            self.check_integrity,
+            force_schema11,
+        )?;
         let col = Collection {
             storage,
             col_path,
@@ -93,6 +101,11 @@ impl CollectionBuilder {
 
     pub fn set_force_schema11(&mut self, force: bool) -> &mut Self {
         self.force_schema11 = Some(force);
+        self
+    }
+
+    pub fn set_check_integrity(&mut self, check_integrity: bool) -> &mut Self {
+        self.check_integrity = check_integrity;
         self
     }
 }
@@ -147,12 +160,19 @@ impl Collection {
         builder
     }
 
-    pub(crate) fn close(self, desired_version: Option<SchemaVersion>) -> Result<()> {
+    // A count of all changed rows since the collection was opened, which can be
+    // used to detect if the collection was modified or not.
+    pub fn changes_since_open(&self) -> u64 {
+        self.storage.db.changes()
+    }
+
+    pub fn close(self, desired_version: Option<SchemaVersion>) -> Result<()> {
         self.storage.close(desired_version)
     }
 
     pub(crate) fn usn(&self) -> Result<Usn> {
-        // if we cache this in the future, must make sure to invalidate cache when usn bumped in sync.finish()
+        // if we cache this in the future, must make sure to invalidate cache when usn
+        // bumped in sync.finish()
         self.storage.usn(self.server)
     }
 

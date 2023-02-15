@@ -1,9 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{notes::to_note_ids, Backend};
+use super::notes::to_note_ids;
+use super::Backend;
+use crate::pb;
 pub(super) use crate::pb::tags::tags_service::Service as TagsService;
-use crate::{pb, prelude::*};
+use crate::prelude::*;
 
 impl TagsService for Backend {
     fn clear_unused_tags(

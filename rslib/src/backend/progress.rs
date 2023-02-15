@@ -1,19 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use futures::future::AbortHandle;
 
 use super::Backend;
-use crate::{
-    dbcheck::DatabaseCheckProgress,
-    i18n::I18n,
-    import_export::{ExportProgress, ImportProgress},
-    media::sync::MediaSyncProgress,
-    pb,
-    sync::{FullSyncProgress, NormalSyncProgress, SyncStage},
-};
+use crate::dbcheck::DatabaseCheckProgress;
+use crate::i18n::I18n;
+use crate::import_export::ExportProgress;
+use crate::import_export::ImportProgress;
+use crate::pb;
+use crate::sync::collection::normal::NormalSyncProgress;
+use crate::sync::collection::progress::FullSyncProgress;
+use crate::sync::collection::progress::SyncStage;
+use crate::sync::media::progress::MediaSyncProgress;
 
 pub(super) struct ThrottlingProgressHandler {
     pub state: Arc<Mutex<ProgressState>>,

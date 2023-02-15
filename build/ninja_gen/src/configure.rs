@@ -1,12 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{
-    action::BuildAction,
-    build::FilesHandle,
-    cargo::{CargoBuild, RustOutput},
-    glob, inputs, Build, Result,
-};
+use crate::action::BuildAction;
+use crate::build::FilesHandle;
+use crate::cargo::CargoBuild;
+use crate::cargo::RustOutput;
+use crate::glob;
+use crate::inputs;
+use crate::Build;
+use crate::Result;
 
 pub struct ConfigureBuild {}
 

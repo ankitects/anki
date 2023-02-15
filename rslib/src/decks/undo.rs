@@ -60,9 +60,9 @@ impl Collection {
         Ok(())
     }
 
-    /// Update an individual, existing deck. Caller is responsible for ensuring deck
-    /// is normalized, matches parents, is not a duplicate name, and bumping mtime.
-    /// Clears deck cache.
+    /// Update an individual, existing deck. Caller is responsible for ensuring
+    /// deck is normalized, matches parents, is not a duplicate name, and
+    /// bumping mtime. Clears deck cache.
     pub(super) fn update_single_deck_undoable(
         &mut self,
         deck: &mut Deck,

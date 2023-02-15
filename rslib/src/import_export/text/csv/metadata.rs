@@ -1,31 +1,34 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    collections::{HashMap, HashSet},
-    io::{BufRead, BufReader, Read, Seek, SeekFrom},
-};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::io::BufRead;
+use std::io::BufReader;
+use std::io::Read;
+use std::io::Seek;
+use std::io::SeekFrom;
 
 use itertools::Itertools;
 use strum::IntoEnumIterator;
 
 use super::import::build_csv_reader;
-pub use crate::pb::import_export::{
-    csv_metadata::{
-        Deck as CsvDeck, Delimiter, DupeResolution, MappedNotetype, Notetype as CsvNotetype,
-    },
-    CsvMetadata,
-};
-use crate::{
-    config::I32ConfigKey,
-    error::ImportError,
-    import_export::text::NameOrId,
-    io::open_file,
-    notetype::NoteField,
-    pb::generic::StringList,
-    prelude::*,
-    text::{html_to_text_line, is_html},
-};
+use crate::config::I32ConfigKey;
+use crate::error::ImportError;
+use crate::import_export::text::NameOrId;
+use crate::io::open_file;
+use crate::notetype::NoteField;
+use crate::pb::generic::StringList;
+pub use crate::pb::import_export::csv_metadata::Deck as CsvDeck;
+pub use crate::pb::import_export::csv_metadata::Delimiter;
+pub use crate::pb::import_export::csv_metadata::DupeResolution;
+pub use crate::pb::import_export::csv_metadata::MappedNotetype;
+pub use crate::pb::import_export::csv_metadata::Notetype as CsvNotetype;
+pub use crate::pb::import_export::CsvMetadata;
+use crate::prelude::*;
+use crate::text::html_to_text_line;
+use crate::text::is_html;
+use crate::text::strip_utf8_bom;
 
 /// The maximum number of preview rows.
 const PREVIEW_LENGTH: usize = 5;
@@ -91,8 +94,10 @@ impl Collection {
         Ok(meta_len)
     }
 
-    /// True if the line is a meta line, i.e. a comment, or starting with 'tags:'.
+    /// True if the line is a meta line, i.e. a comment, or starting with
+    /// 'tags:'.
     fn parse_first_line(&mut self, line: &str, metadata: &mut CsvMetadata) -> bool {
+        let line = strip_utf8_bom(line);
         if let Some(tags) = line.strip_prefix("tags:") {
             metadata.global_tags = collect_tags(tags);
             true
@@ -735,5 +740,15 @@ mod test {
         assert_eq!(meta.preview[0].vals, ["foo", "bar"]);
         // html is stripped
         assert_eq!(meta.preview[1].vals, ["baz", ""]);
+    }
+
+    #[test]
+    fn should_parse_first_first_line_despite_bom() {
+        let mut col = open_test_collection();
+        assert_eq!(
+            metadata!(col, "\u{feff}#separator:tab\n").delimiter(),
+            Delimiter::Tab
+        );
+        assert_eq!(metadata!(col, "\u{feff}tags:foo\n").global_tags, ["foo"]);
     }
 }

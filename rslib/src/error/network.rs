@@ -6,8 +6,11 @@ use reqwest::StatusCode;
 use snafu::Snafu;
 
 use super::AnkiError;
+use crate::sync::collection::sanity::SanityCheckCounts;
+use crate::sync::error::HttpError;
 
 #[derive(Debug, PartialEq, Eq, Snafu)]
+#[snafu(visibility(pub(crate)))]
 pub struct NetworkError {
     pub info: String,
     pub kind: NetworkErrorKind,
@@ -40,6 +43,10 @@ pub enum SyncErrorKind {
     DatabaseCheckRequired,
     SyncNotStarted,
     UploadTooLarge,
+    SanityCheckFailed {
+        client: Option<SanityCheckCounts>,
+        server: Option<SanityCheckCounts>,
+    },
 }
 
 impl AnkiError {
@@ -57,8 +64,8 @@ impl AnkiError {
     }
 }
 
-impl From<reqwest::Error> for AnkiError {
-    fn from(err: reqwest::Error) -> Self {
+impl From<&reqwest::Error> for AnkiError {
+    fn from(err: &reqwest::Error) -> Self {
         let url = err.url().map(|url| url.as_str()).unwrap_or("");
         let str_err = format!("{}", err);
         // strip url from error to avoid exposing keys
@@ -76,6 +83,12 @@ impl From<reqwest::Error> for AnkiError {
         } else {
             guess_reqwest_error(info)
         }
+    }
+}
+
+impl From<reqwest::Error> for AnkiError {
+    fn from(err: reqwest::Error) -> Self {
+        err.into()
     }
 }
 
@@ -172,7 +185,9 @@ impl SyncError {
             SyncErrorKind::AuthFailed => tr.sync_wrong_pass(),
             SyncErrorKind::ResyncRequired => tr.sync_resync_required(),
             SyncErrorKind::ClockIncorrect => tr.sync_clock_off(),
-            SyncErrorKind::DatabaseCheckRequired => tr.sync_sanity_check_failed(),
+            SyncErrorKind::DatabaseCheckRequired | SyncErrorKind::SanityCheckFailed { .. } => {
+                tr.sync_sanity_check_failed()
+            }
             SyncErrorKind::SyncNotStarted => "sync not started".into(),
             SyncErrorKind::UploadTooLarge => tr.sync_upload_too_large(&self.info),
         }
@@ -190,5 +205,27 @@ impl NetworkError {
         };
         let details = tr.network_details(self.info.as_str());
         format!("{}\n\n{}", summary, details)
+    }
+}
+
+// This needs rethinking; we should be attaching error context as errors are
+// encountered instead of trying to determine the problem later.
+impl From<HttpError> for AnkiError {
+    fn from(err: HttpError) -> Self {
+        if let Some(reqwest_error) = err
+            .source
+            .as_ref()
+            .and_then(|source| source.downcast_ref::<reqwest::Error>())
+        {
+            reqwest_error.into()
+        } else if err.code == StatusCode::REQUEST_TIMEOUT {
+            NetworkError {
+                info: String::new(),
+                kind: NetworkErrorKind::Timeout,
+            }
+            .into()
+        } else {
+            AnkiError::sync_error(format!("{:?}", err), SyncErrorKind::Other)
+        }
     }
 }

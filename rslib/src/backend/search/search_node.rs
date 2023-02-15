@@ -3,20 +3,26 @@
 
 use itertools::Itertools;
 
-use crate::{
-    pb,
-    prelude::*,
-    search::{
-        parse_search, Negated, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind,
-    },
-    text::{escape_anki_wildcards, escape_anki_wildcards_for_search_node},
-};
+use crate::pb;
+use crate::prelude::*;
+use crate::search::parse_search;
+use crate::search::Negated;
+use crate::search::Node;
+use crate::search::PropertyKind;
+use crate::search::RatingKind;
+use crate::search::SearchNode;
+use crate::search::StateKind;
+use crate::search::TemplateKind;
+use crate::text::escape_anki_wildcards;
+use crate::text::escape_anki_wildcards_for_search_node;
 
 impl TryFrom<pb::search::SearchNode> for Node {
     type Error = AnkiError;
 
     fn try_from(msg: pb::search::SearchNode) -> std::result::Result<Self, Self::Error> {
-        use pb::search::search_node::{group::Joiner, Filter, Flag};
+        use pb::search::search_node::group::Joiner;
+        use pb::search::search_node::Filter;
+        use pb::search::search_node::Flag;
         Ok(if let Some(filter) = msg.filter {
             match filter {
                 Filter::Tag(s) => SearchNode::from_tag_name(&s).into(),

@@ -5,18 +5,19 @@ use std::borrow::Cow;
 
 use blake3::Hasher;
 use lazy_static::lazy_static;
-use regex::{Captures, Regex};
+use regex::Captures;
+use regex::Regex;
 
-use crate::{
-    cloze::{cloze_filter, cloze_only_filter},
-    template::RenderContext,
-    text::strip_html,
-};
+use crate::cloze::cloze_filter;
+use crate::cloze::cloze_only_filter;
+use crate::template::RenderContext;
+use crate::text::strip_html;
 
 // Filtering
 //----------------------------------------
 
-/// Applies built in filters, returning the resulting text and remaining filters.
+/// Applies built in filters, returning the resulting text and remaining
+/// filters.
 ///
 /// The first non-standard filter that is encountered will terminate processing,
 /// so non-standard filters must come at the end.

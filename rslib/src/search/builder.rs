@@ -5,17 +5,24 @@ use std::mem;
 
 use itertools::Itertools;
 
-use super::{writer::write_nodes, Node, SearchNode, StateKind, TemplateKind};
-use crate::{prelude::*, text::escape_anki_wildcards_for_search_node};
+use super::writer::write_nodes;
+use super::Node;
+use super::SearchNode;
+use super::StateKind;
+use super::TemplateKind;
+use crate::prelude::*;
+use crate::text::escape_anki_wildcards_for_search_node;
 
 pub trait Negated {
     fn negated(self) -> Node;
 }
 
 pub trait JoinSearches {
-    /// Concatenates two sets of [Node]s, inserting [Node::And], and grouping, if appropriate.
+    /// Concatenates two sets of [Node]s, inserting [Node::And], and grouping,
+    /// if appropriate.
     fn and(self, other: impl Into<SearchBuilder>) -> SearchBuilder;
-    /// Concatenates two sets of [Node]s, inserting [Node::Or], and grouping, if appropriate.
+    /// Concatenates two sets of [Node]s, inserting [Node::Or], and grouping, if
+    /// appropriate.
     fn or(self, other: impl Into<SearchBuilder>) -> SearchBuilder;
     /// Concatenates two sets of [Node]s, inserting [Node::And] if appropriate,
     /// but without grouping either set.

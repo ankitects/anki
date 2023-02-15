@@ -11,7 +11,6 @@ from weakref import ref
 from markdown import markdown
 
 import anki.buildinfo
-import anki.lang
 from anki import _rsbridge, backend_pb2, i18n_pb2
 from anki._backend_generated import RustBackendGenerated
 from anki._fluent import GeneratedTranslations
@@ -72,6 +71,8 @@ class RustBackend(RustBackendGenerated):
         server: bool = False,
     ) -> None:
         # pick up global defaults if not provided
+        import anki.lang
+
         if langs is None:
             langs = [anki.lang.current_lang]
 
@@ -80,6 +81,10 @@ class RustBackend(RustBackendGenerated):
             server=server,
         )
         self._backend = _rsbridge.open_backend(init_msg.SerializeToString())
+
+    @staticmethod
+    def syncserver() -> None:
+        _rsbridge.syncserver()
 
     def db_query(
         self, sql: str, args: Sequence[ValueForDB], first_row_only: bool

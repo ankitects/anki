@@ -1,31 +1,32 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    borrow::Cow,
-    collections::{HashMap, HashSet},
-    fs, io,
-    path::Path,
-};
+use std::borrow::Cow;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::fs;
+use std::io;
+use std::path::Path;
 
 use anki_i18n::without_unicode_isolation;
 use tracing::debug;
 
-use crate::{
-    collection::Collection,
-    error::{AnkiError, DbErrorKind, Result},
-    latex::extract_latex_expanding_clozes,
-    media::{
-        database::MediaDatabaseContext,
-        files::{
-            data_for_file, filename_if_normalized, normalize_nfc_filename, trash_folder,
-            MEDIA_SYNC_FILESIZE_LIMIT,
-        },
-        MediaManager,
-    },
-    notes::Note,
-    text::{extract_media_refs, normalize_to_nfc, MediaRef, REMOTE_FILENAME},
-};
+use crate::collection::Collection;
+use crate::error::AnkiError;
+use crate::error::DbErrorKind;
+use crate::error::Result;
+use crate::latex::extract_latex_expanding_clozes;
+use crate::media::files::data_for_file;
+use crate::media::files::filename_if_normalized;
+use crate::media::files::normalize_nfc_filename;
+use crate::media::files::trash_folder;
+use crate::media::MediaManager;
+use crate::notes::Note;
+use crate::sync::media::MAX_INDIVIDUAL_MEDIA_FILE_SIZE;
+use crate::text::extract_media_refs;
+use crate::text::normalize_to_nfc;
+use crate::text::MediaRef;
+use crate::text::REMOTE_FILENAME;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct MediaCheckOutput {
@@ -74,9 +75,7 @@ where
     }
 
     pub fn check(&mut self) -> Result<MediaCheckOutput> {
-        let mut ctx = self.mgr.dbctx();
-
-        let folder_check = self.check_media_folder(&mut ctx)?;
+        let folder_check = self.check_media_folder()?;
         let referenced_files = self.check_media_references(&folder_check.renamed)?;
         let (unused, missing) = find_unused_and_missing(folder_check.files, referenced_files);
         let (trash_count, trash_bytes) = self.files_in_trash()?;
@@ -186,7 +185,7 @@ where
     /// - Renames files with invalid names
     /// - Notes folders/oversized files
     /// - Gathers a list of all files
-    fn check_media_folder(&mut self, ctx: &mut MediaDatabaseContext) -> Result<MediaFolderCheck> {
+    fn check_media_folder(&mut self) -> Result<MediaFolderCheck> {
         let mut out = MediaFolderCheck::default();
         for dentry in self.mgr.media_folder.read_dir()? {
             let dentry = dentry?;
@@ -211,7 +210,7 @@ where
 
             // ignore large files and zero byte files
             let metadata = dentry.metadata()?;
-            if metadata.len() > MEDIA_SYNC_FILESIZE_LIMIT as u64 {
+            if metadata.len() > MAX_INDIVIDUAL_MEDIA_FILE_SIZE as u64 {
                 out.oversize.push(disk_fname.to_string());
                 continue;
             }
@@ -224,7 +223,7 @@ where
             } else {
                 match data_for_file(&self.mgr.media_folder, disk_fname)? {
                     Some(data) => {
-                        let norm_name = self.normalize_file(ctx, disk_fname, data)?;
+                        let norm_name = self.normalize_file(disk_fname, data)?;
                         out.renamed
                             .insert(disk_fname.to_string(), norm_name.to_string());
                         out.files.push(norm_name.into_owned());
@@ -242,14 +241,9 @@ where
     }
 
     /// Write file data to normalized location, moving old file to trash.
-    fn normalize_file<'a>(
-        &mut self,
-        ctx: &mut MediaDatabaseContext,
-        disk_fname: &'a str,
-        data: Vec<u8>,
-    ) -> Result<Cow<'a, str>> {
+    fn normalize_file<'a>(&mut self, disk_fname: &'a str, data: Vec<u8>) -> Result<Cow<'a, str>> {
         // add a copy of the file using the correct name
-        let fname = self.mgr.add_file(ctx, disk_fname, &data)?;
+        let fname = self.mgr.add_file(disk_fname, &data)?;
         debug!(from = disk_fname, to = &fname.as_ref(), "renamed");
         assert_ne!(fname.as_ref(), disk_fname);
 
@@ -327,7 +321,7 @@ where
             // if the original filename doesn't exist, we can just rename
             if let Err(e) = fs::metadata(&orig_path) {
                 if e.kind() == io::ErrorKind::NotFound {
-                    fs::rename(&dentry.path(), &orig_path)?;
+                    fs::rename(dentry.path(), &orig_path)?;
                 } else {
                     return Err(e.into());
                 }
@@ -336,9 +330,7 @@ where
                 let fname_os = dentry.file_name();
                 let fname = fname_os.to_string_lossy();
                 if let Some(data) = data_for_file(&trash, fname.as_ref())? {
-                    let _new_fname =
-                        self.mgr
-                            .add_file(&mut self.mgr.dbctx(), fname.as_ref(), &data)?;
+                    let _new_fname = self.mgr.add_file(fname.as_ref(), &data)?;
                 } else {
                     debug!(?fname, "file disappeared while restoring trash");
                 }
@@ -512,21 +504,24 @@ pub(crate) mod test {
     pub(crate) const MEDIACHECK_ANKI2: &[u8] =
         include_bytes!("../../tests/support/mediacheck.anki2");
 
-    use std::{collections::HashMap, fs, io, path::Path};
+    use std::collections::HashMap;
+    use std::fs;
+    use std::io;
+    use std::path::Path;
 
-    use tempfile::{tempdir, TempDir};
+    use tempfile::tempdir;
+    use tempfile::TempDir;
 
     use super::normalize_and_maybe_rename_files;
-    use crate::{
-        collection::{Collection, CollectionBuilder},
-        error::Result,
-        io::{create_dir, write_file},
-        media::{
-            check::{MediaCheckOutput, MediaChecker},
-            files::trash_folder,
-            MediaManager,
-        },
-    };
+    use crate::collection::Collection;
+    use crate::collection::CollectionBuilder;
+    use crate::error::Result;
+    use crate::io::create_dir;
+    use crate::io::write_file;
+    use crate::media::check::MediaCheckOutput;
+    use crate::media::check::MediaChecker;
+    use crate::media::files::trash_folder;
+    use crate::media::MediaManager;
 
     fn common_setup() -> Result<(TempDir, MediaManager, Collection)> {
         let dir = tempdir()?;
@@ -549,12 +544,12 @@ pub(crate) mod test {
         let (_dir, mgr, mut col) = common_setup()?;
 
         // add some test files
-        write_file(&mgr.media_folder.join("zerobytes"), "")?;
-        create_dir(&mgr.media_folder.join("folder"))?;
-        write_file(&mgr.media_folder.join("normal.jpg"), "normal")?;
-        write_file(&mgr.media_folder.join("foo[.jpg"), "foo")?;
-        write_file(&mgr.media_folder.join("_under.jpg"), "foo")?;
-        write_file(&mgr.media_folder.join("unused.jpg"), "foo")?;
+        write_file(mgr.media_folder.join("zerobytes"), "")?;
+        create_dir(mgr.media_folder.join("folder"))?;
+        write_file(mgr.media_folder.join("normal.jpg"), "normal")?;
+        write_file(mgr.media_folder.join("foo[.jpg"), "foo")?;
+        write_file(mgr.media_folder.join("_under.jpg"), "foo")?;
+        write_file(mgr.media_folder.join("unused.jpg"), "foo")?;
 
         let progress = |_n| true;
 
@@ -580,8 +575,8 @@ pub(crate) mod test {
             }
         );
 
-        assert!(fs::metadata(&mgr.media_folder.join("foo[.jpg")).is_err());
-        assert!(fs::metadata(&mgr.media_folder.join("foo.jpg")).is_ok());
+        assert!(fs::metadata(mgr.media_folder.join("foo[.jpg")).is_err());
+        assert!(fs::metadata(mgr.media_folder.join("foo.jpg")).is_ok());
 
         assert_eq!(
             report,
@@ -638,7 +633,8 @@ Unused: unused.jpg
             vec!["test.jpg".to_string()]
         );
 
-        // if we repeat the process, restoring should do the same thing if the contents are equal
+        // if we repeat the process, restoring should do the same thing if the contents
+        // are equal
         write_file(trash_folder.join("test.jpg"), "test")?;
 
         let mut checker = MediaChecker::new(&mut col, &mgr, progress);
@@ -672,7 +668,7 @@ Unused: unused.jpg
     fn unicode_normalization() -> Result<()> {
         let (_dir, mgr, mut col) = common_setup()?;
 
-        write_file(&mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
+        write_file(mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
 
         let progress = |_n| true;
 
@@ -698,7 +694,7 @@ Unused: unused.jpg
                     trash_bytes: 0
                 }
             );
-            assert!(fs::metadata(&mgr.media_folder.join("ぱぱ.jpg")).is_ok());
+            assert!(fs::metadata(mgr.media_folder.join("ぱぱ.jpg")).is_ok());
         } else {
             // on other platforms, the file should have been renamed to NFC
             assert_eq!(
@@ -715,8 +711,8 @@ Unused: unused.jpg
                     trash_bytes: 0
                 }
             );
-            assert!(fs::metadata(&mgr.media_folder.join("ぱぱ.jpg")).is_err());
-            assert!(fs::metadata(&mgr.media_folder.join("ぱぱ.jpg")).is_ok());
+            assert!(fs::metadata(mgr.media_folder.join("ぱぱ.jpg")).is_err());
+            assert!(fs::metadata(mgr.media_folder.join("ぱぱ.jpg")).is_ok());
         }
 
         Ok(())

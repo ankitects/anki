@@ -2,7 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::gather::ExchangeData;
-use crate::{prelude::*, revlog::RevlogEntry};
+use crate::prelude::*;
+use crate::revlog::RevlogEntry;
 
 impl Collection {
     pub(super) fn insert_data(&mut self, data: &ExchangeData) -> Result<()> {

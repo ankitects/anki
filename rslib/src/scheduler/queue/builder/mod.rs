@@ -7,18 +7,25 @@ pub(crate) mod intersperser;
 pub(crate) mod sized_chain;
 mod sorting;
 
-use std::collections::{HashMap, VecDeque};
+use std::collections::HashMap;
+use std::collections::VecDeque;
 
 use intersperser::Intersperser;
 use sized_chain::SizedChain;
 
-use super::{CardQueues, Counts, LearningQueueEntry, MainQueueEntry, MainQueueEntryKind};
-use crate::{
-    deckconfig::{NewCardGatherPriority, NewCardSortOrder, ReviewCardOrder, ReviewMix},
-    decks::limits::LimitTreeMap,
-    prelude::*,
-    scheduler::timing::SchedTimingToday,
-};
+use super::BuryMode;
+use super::CardQueues;
+use super::Counts;
+use super::LearningQueueEntry;
+use super::MainQueueEntry;
+use super::MainQueueEntryKind;
+use crate::deckconfig::NewCardGatherPriority;
+use crate::deckconfig::NewCardSortOrder;
+use crate::deckconfig::ReviewCardOrder;
+use crate::deckconfig::ReviewMix;
+use crate::decks::limits::LimitTreeMap;
+use crate::prelude::*;
+use crate::scheduler::timing::SchedTimingToday;
 
 /// Temporary holder for review cards that will be built into a queue.
 #[derive(Debug, Clone, Copy)]
@@ -81,15 +88,6 @@ impl From<DueCard> for LearningQueueEntry {
             mtime: c.mtime,
         }
     }
-}
-
-/// When we encounter a card with new or review burying enabled, all future
-/// siblings need to be buried, regardless of their own settings.
-#[derive(Default, Debug, Clone, Copy)]
-pub(super) struct BuryMode {
-    bury_new: bool,
-    bury_reviews: bool,
-    bury_interday_learning: bool,
 }
 
 #[derive(Default, Clone, Debug)]
@@ -263,11 +261,11 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{
-        card::{CardQueue, CardType},
-        collection::open_test_collection,
-        pb::deckconfig::deck_config::config::{NewCardGatherPriority, NewCardSortOrder},
-    };
+    use crate::card::CardQueue;
+    use crate::card::CardType;
+    use crate::collection::open_test_collection;
+    use crate::pb::deckconfig::deck_config::config::NewCardGatherPriority;
+    use crate::pb::deckconfig::deck_config::config::NewCardSortOrder;
 
     impl Collection {
         fn set_deck_gather_order(&mut self, deck: &mut Deck, order: NewCardGatherPriority) {
@@ -452,5 +450,36 @@ mod test {
         assert_eq!(col.queue_as_due_and_ivl(deck.id), expected_queue);
 
         Ok(())
+    }
+
+    impl Collection {
+        fn card_queue_len(&mut self) -> usize {
+            self.get_queued_cards(5, false).unwrap().cards.len()
+        }
+    }
+
+    #[test]
+    fn new_card_potentially_burying_review_card() {
+        let mut col = open_test_collection();
+        // add one new and one review card
+        col.add_new_note_with_fields("basic (and reversed card)", &["foo", "bar"]);
+        let card = col.get_first_card();
+        col.set_due_date(&[card.id], "0", None).unwrap();
+        // Potentially problematic config: New cards are shown first and would bury
+        // review siblings. This poses a problem because we gather review cards first.
+        col.update_default_deck_config(|config| {
+            config.new_mix = ReviewMix::BeforeReviews as i32;
+            config.bury_new = false;
+            config.bury_reviews = true;
+        });
+
+        let old_queue_len = col.card_queue_len();
+        col.answer_easy();
+        col.clear_study_queues();
+
+        // The number of cards in the queue must decrease by exactly 1, either because
+        // no burying was performed, or the first built queue anticipated it and didn't
+        // include the buried card.
+        assert_eq!(col.card_queue_len(), old_queue_len - 1);
     }
 }

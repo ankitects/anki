@@ -1,27 +1,29 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    borrow::Cow,
-    collections::HashMap,
-    fs::{
-        File, {self},
-    },
-    io,
-    path::{Path, PathBuf},
-};
+use std::borrow::Cow;
+use std::collections::HashMap;
+use std::fs;
+use std::fs::File;
+use std::io;
+use std::path::Path;
+use std::path::PathBuf;
 
 use prost::Message;
-use zip::{read::ZipFile, ZipArchive};
+use zip::read::ZipFile;
+use zip::ZipArchive;
 use zstd::stream::copy_decode;
 
-use super::{colpkg::export::MediaCopier, MediaEntries, MediaEntry, Meta};
-use crate::{
-    error::ImportError,
-    io::{atomic_rename, filename_is_safe, new_tempfile_in},
-    media::files::normalize_filename,
-    prelude::*,
-};
+use super::colpkg::export::MediaCopier;
+use super::MediaEntries;
+use super::MediaEntry;
+use super::Meta;
+use crate::error::ImportError;
+use crate::io::atomic_rename;
+use crate::io::filename_is_safe;
+use crate::io::new_tempfile_in;
+use crate::media::files::normalize_filename;
+use crate::prelude::*;
 
 /// Like [MediaEntry], but with a safe filename and set zip filename.
 pub(super) struct SafeMediaEntry {
@@ -101,7 +103,8 @@ impl SafeMediaEntry {
         fs::metadata(other_path).map_or(false, |metadata| metadata.len() == self.size as u64)
     }
 
-    /// Copy the archived file to the target folder, setting its hash if necessary.
+    /// Copy the archived file to the target folder, setting its hash if
+    /// necessary.
     pub(super) fn copy_and_ensure_sha1_set(
         &mut self,
         archive: &mut ZipArchive<File>,

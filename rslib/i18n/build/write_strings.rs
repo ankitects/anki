@@ -3,14 +3,17 @@
 
 //! Write strings to a strings.rs file that will be compiled into the binary.
 
-use std::{fmt::Write, fs, path::PathBuf};
+use std::fmt::Write;
+use std::fs;
+use std::path::PathBuf;
 
 use inflections::Inflect;
 
-use crate::{
-    extract::{Module, Translation, VariableKind},
-    gather::{TranslationsByFile, TranslationsByLang},
-};
+use crate::extract::Module;
+use crate::extract::Translation;
+use crate::extract::VariableKind;
+use crate::gather::TranslationsByFile;
+use crate::gather::TranslationsByLang;
 
 pub fn write_strings(map: &TranslationsByLang, modules: &[Module]) {
     let mut buf = String::new();
@@ -26,7 +29,7 @@ pub fn write_strings(map: &TranslationsByLang, modules: &[Module]) {
 
     let dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
     let path = dir.join("strings.rs");
-    fs::write(&path, buf).unwrap();
+    fs::write(path, buf).unwrap();
 }
 
 fn write_methods(modules: &[Module], buf: &mut String) {

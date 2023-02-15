@@ -4,16 +4,18 @@
 use std::collections::HashMap;
 
 use lazy_static::lazy_static;
-use rand::distributions::{Distribution, Uniform};
+use rand::distributions::Distribution;
+use rand::distributions::Uniform;
 use regex::Regex;
 
-use crate::{
-    card::{Card, CardId, CardQueue, CardType},
-    collection::Collection,
-    config::StringKey,
-    error::Result,
-    prelude::*,
-};
+use crate::card::Card;
+use crate::card::CardId;
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::collection::Collection;
+use crate::config::StringKey;
+use crate::error::Result;
+use crate::prelude::*;
 
 impl Card {
     /// Make card due in `days_from_today`.

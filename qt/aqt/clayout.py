@@ -35,7 +35,7 @@ from aqt.utils import (
     tooltip,
     tr,
 )
-from aqt.webview import AnkiWebView
+from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 
 class CardLayout(QDialog):
@@ -247,7 +247,7 @@ class CardLayout(QDialog):
         tform.front_button.setText(tr.card_templates_front_template())
         tform.back_button.setText(tr.card_templates_back_template())
         tform.style_button.setText(tr.card_templates_template_styling())
-        tform.groupBox.setTitle(tr.card_templates_template_box())
+        tform.template_box.setTitle(tr.card_templates_template_box())
 
         cnt = self.mw.col.models.use_count(self.model)
         tform.changes_affect_label.setText(
@@ -334,7 +334,7 @@ class CardLayout(QDialog):
 
     def setup_preview(self) -> None:
         pform = self.pform
-        self.preview_web = AnkiWebView(title="card layout")
+        self.preview_web = AnkiWebView(kind=AnkiWebViewKind.CARD_LAYOUT)
         pform.verticalLayout.addWidget(self.preview_web)
         pform.verticalLayout.setStretch(1, 99)
         pform.preview_front.isChecked()
@@ -358,6 +358,10 @@ class CardLayout(QDialog):
         self.preview_web.allow_drops = True
         self.preview_web.eval("_blockDefaultDragDropBehavior();")
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)
+
+        gui_hooks.card_review_webview_did_init(
+            self.preview_web, AnkiWebViewKind.CARD_LAYOUT
+        )
 
         if self._isCloze():
             nums = list(self.note.cloze_numbers_in_fields())

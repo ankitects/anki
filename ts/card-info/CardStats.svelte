@@ -83,6 +83,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         statsRows.push({ label: tr2.cardStatsCardId(), value: stats.cardId });
         statsRows.push({ label: tr2.cardStatsNoteId(), value: stats.noteId });
 
+        if (stats.customData) {
+            let value: string;
+            try {
+                const obj = JSON.parse(stats.customData);
+                value = Object.entries(obj)
+                    .map(([k, v]) => `${k}=${v}`)
+                    .join(" ");
+            } catch (exc) {
+                value = stats.customData;
+            }
+            statsRows.push({
+                label: tr2.cardStatsCustomData(),
+                value: value,
+            });
+        }
+
         return statsRows;
     }
 

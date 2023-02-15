@@ -3,16 +3,16 @@
 
 use camino::Utf8Path;
 
-use crate::{
-    action::BuildAction,
-    build::FilesHandle,
-    input::{space_separated, BuildInput},
-};
+use crate::action::BuildAction;
+use crate::build::FilesHandle;
+use crate::input::space_separated;
+use crate::input::BuildInput;
 
-/// Rsync the provided inputs into `output_folder`, preserving directory structure,
-/// eg foo/bar.js -> out/$target_folder/foo/bar.js. `strip_prefix` can be used to
-/// remove a portion of the the path when copying. If the input files are from previous
-/// build outputs, the prefix should begin with `$builddir/`.
+/// Rsync the provided inputs into `output_folder`, preserving directory
+/// structure, eg foo/bar.js -> out/$target_folder/foo/bar.js. `strip_prefix`
+/// can be used to remove a portion of the the path when copying. If the input
+/// files are from previous build outputs, the prefix should begin with
+/// `$builddir/`.
 pub struct RsyncFiles<'a> {
     pub inputs: BuildInput,
     pub target_folder: &'a str,

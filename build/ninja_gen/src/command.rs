@@ -3,11 +3,10 @@
 
 use std::collections::HashMap;
 
-use crate::{
-    action::BuildAction,
-    input::{space_separated, BuildInput},
-    inputs,
-};
+use crate::action::BuildAction;
+use crate::input::space_separated;
+use crate::input::BuildInput;
+use crate::inputs;
 
 pub struct RunCommand<'a> {
     // Will be automatically included as a dependency
@@ -24,8 +23,9 @@ impl BuildAction for RunCommand<'_> {
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
-        // Because we've defined a generic rule instead of making one for a specific use case,
-        // we need to manually intepolate variables in the user-provided args.
+        // Because we've defined a generic rule instead of making one for a specific use
+        // case, we need to manually intepolate variables in the user-provided
+        // args.
         let mut args = self.args.to_string();
         for (key, inputs) in &self.inputs {
             let files = build.expand_inputs(inputs);

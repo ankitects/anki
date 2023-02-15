@@ -21,9 +21,10 @@ from anki.db import DB
 from anki.lang import without_unicode_isolation
 from anki.sync import SyncAuth
 from anki.utils import int_time, is_mac, is_win, point_version
-from aqt import appHelpSite
+from aqt import appHelpSite, gui_hooks
 from aqt.qt import *
-from aqt.theme import Theme, theme_manager
+from aqt.theme import Theme, WidgetStyle, theme_manager
+from aqt.toolbar import HideMode
 from aqt.utils import disable_help_button, send_to_trash, showWarning, tr
 
 if TYPE_CHECKING:
@@ -339,7 +340,7 @@ class ProfileManager:
             or ProfileManager._default_base()
         )
         path.mkdir(parents=True, exist_ok=True)
-        return path
+        return path.resolve()
 
     @staticmethod
     def _default_base() -> str:
@@ -518,17 +519,47 @@ create table if not exists profiles
     def setUiScale(self, scale: float) -> None:
         self.meta["uiScale"] = scale
 
-    def reduced_motion(self) -> bool:
-        return self.meta.get("reduced_motion", False)
+    def reduce_motion(self) -> bool:
+        return self.meta.get("reduce_motion", False)
 
-    def set_reduced_motion(self, on: bool) -> None:
-        self.meta["reduced_motion"] = on
+    def set_reduce_motion(self, on: bool) -> None:
+        self.meta["reduce_motion"] = on
+        gui_hooks.body_classes_need_update()
 
-    def collapse_toolbar(self) -> bool:
-        return self.meta.get("collapse_toolbar", False)
+    def minimalist_mode(self) -> bool:
+        return self.meta.get("minimalist_mode", False)
 
-    def set_collapse_toolbar(self, on: bool) -> None:
-        self.meta["collapse_toolbar"] = on
+    def set_minimalist_mode(self, on: bool) -> None:
+        self.meta["minimalist_mode"] = on
+        gui_hooks.body_classes_need_update()
+
+    def hide_top_bar(self) -> bool:
+        return self.meta.get("hide_top_bar", False)
+
+    def set_hide_top_bar(self, on: bool) -> None:
+        self.meta["hide_top_bar"] = on
+        gui_hooks.body_classes_need_update()
+
+    def top_bar_hide_mode(self) -> HideMode:
+        return self.meta.get("top_bar_hide_mode", HideMode.FULLSCREEN)
+
+    def set_top_bar_hide_mode(self, mode: HideMode) -> None:
+        self.meta["top_bar_hide_mode"] = mode
+        gui_hooks.body_classes_need_update()
+
+    def hide_bottom_bar(self) -> bool:
+        return self.meta.get("hide_bottom_bar", False)
+
+    def set_hide_bottom_bar(self, on: bool) -> None:
+        self.meta["hide_bottom_bar"] = on
+        gui_hooks.body_classes_need_update()
+
+    def bottom_bar_hide_mode(self) -> HideMode:
+        return self.meta.get("bottom_bar_hide_mode", HideMode.FULLSCREEN)
+
+    def set_bottom_bar_hide_mode(self, mode: HideMode) -> None:
+        self.meta["bottom_bar_hide_mode"] = mode
+        gui_hooks.body_classes_need_update()
 
     def last_addon_update_check(self) -> int:
         return self.meta.get("last_addon_update_check", 0)
@@ -546,11 +577,14 @@ create table if not exists profiles
     def set_theme(self, theme: Theme) -> None:
         self.meta["theme"] = theme.value
 
-    def force_custom_styles(self) -> bool:
-        return self.meta.get("force_custom_styles", False)
+    def set_widget_style(self, style: WidgetStyle) -> None:
+        self.meta["widget_style"] = style
+        theme_manager.apply_style()
 
-    def set_force_custom_styles(self, enabled: bool) -> None:
-        self.meta["force_custom_styles"] = enabled
+    def get_widget_style(self) -> WidgetStyle:
+        return self.meta.get(
+            "widget_style", WidgetStyle.NATIVE if is_mac else WidgetStyle.ANKI
+        )
 
     def browser_layout(self) -> BrowserLayout:
         from aqt.browser.layout import BrowserLayout
@@ -606,15 +640,38 @@ create table if not exists profiles
         return self.profile["autoSync"]
 
     def sync_auth(self) -> SyncAuth | None:
-        hkey = self.profile.get("syncKey")
-        if not hkey:
+        if not (hkey := self.profile.get("syncKey")):
             return None
-        return SyncAuth(hkey=hkey, host_number=self.profile.get("hostNum", 0))
+        return SyncAuth(
+            hkey=hkey,
+            endpoint=self.sync_endpoint(),
+            io_timeout_secs=self.network_timeout(),
+        )
 
     def clear_sync_auth(self) -> None:
-        self.profile["syncKey"] = None
-        self.profile["syncUser"] = None
-        self.profile["hostNum"] = 0
+        self.set_sync_key(None)
+        self.set_sync_username(None)
+        self.set_host_number(None)
+        self.set_current_sync_url(None)
+
+    def sync_endpoint(self) -> str | None:
+        return self._current_sync_url() or self.custom_sync_url() or None
+
+    def _current_sync_url(self) -> str | None:
+        """The last endpoint the server redirected us to."""
+        return self.profile.get("currentSyncUrl")
+
+    def set_current_sync_url(self, url: str | None) -> None:
+        self.profile["currentSyncUrl"] = url
+
+    def custom_sync_url(self) -> str | None:
+        """A custom server provided by the user."""
+        return self.profile.get("customSyncUrl")
+
+    def set_custom_sync_url(self, url: str | None) -> None:
+        if url != self.custom_sync_url():
+            self.set_current_sync_url(None)
+            self.profile["customSyncUrl"] = url
 
     def auto_sync_media_minutes(self) -> int:
         return self.profile.get("autoSyncMediaMinutes", 15)
@@ -627,3 +684,9 @@ create table if not exists profiles
 
     def set_show_browser_table_tooltips(self, val: bool) -> None:
         self.profile["browserTableTooltips"] = val
+
+    def set_network_timeout(self, timeout_secs: int) -> None:
+        self.profile["networkTimeout"] = timeout_secs
+
+    def network_timeout(self) -> int:
+        return self.profile.get("networkTimeout") or 30

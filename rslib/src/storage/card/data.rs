@@ -3,14 +3,17 @@
 
 use std::collections::HashMap;
 
-use rusqlite::{
-    types::{FromSql, FromSqlError, ToSqlOutput, ValueRef},
-    ToSql,
-};
-use serde_derive::{Deserialize, Serialize};
+use rusqlite::types::FromSql;
+use rusqlite::types::FromSqlError;
+use rusqlite::types::ToSqlOutput;
+use rusqlite::types::ValueRef;
+use rusqlite::ToSql;
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
 use serde_json::Value;
 
-use crate::{prelude::*, serde::default_on_invalid};
+use crate::prelude::*;
+use crate::serde::default_on_invalid;
 
 /// Helper for serdeing the card data column.
 #[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]

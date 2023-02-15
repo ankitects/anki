@@ -1,8 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{CardTemplateConfig, CardTemplateProto};
-use crate::{pb::generic::UInt32, prelude::*, template::ParsedTemplate};
+use super::CardTemplateConfig;
+use super::CardTemplateProto;
+use crate::pb::generic::UInt32;
+use crate::prelude::*;
+use crate::template::ParsedTemplate;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct CardTemplate {
@@ -96,7 +99,8 @@ impl CardTemplate {
         }
     }
 
-    /// Return whether the name is valid. Remove quote characters if it leads to a valid name.
+    /// Return whether the name is valid. Remove quote characters if it leads to
+    /// a valid name.
     pub(crate) fn fix_name(&mut self) -> Result<()> {
         let bad_chars = |c| c == '"';
         require!(!self.name.is_empty(), "Empty template name");

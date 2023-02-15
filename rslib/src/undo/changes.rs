@@ -1,13 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{
-    card::undo::UndoableCardChange, collection::undo::UndoableCollectionChange,
-    config::undo::UndoableConfigChange, deckconfig::undo::UndoableDeckConfigChange,
-    decks::undo::UndoableDeckChange, notes::undo::UndoableNoteChange,
-    notetype::undo::UndoableNotetypeChange, prelude::*, revlog::undo::UndoableRevlogChange,
-    scheduler::queue::undo::UndoableQueueChange, tags::undo::UndoableTagChange,
-};
+use crate::card::undo::UndoableCardChange;
+use crate::collection::undo::UndoableCollectionChange;
+use crate::config::undo::UndoableConfigChange;
+use crate::deckconfig::undo::UndoableDeckConfigChange;
+use crate::decks::undo::UndoableDeckChange;
+use crate::notes::undo::UndoableNoteChange;
+use crate::notetype::undo::UndoableNotetypeChange;
+use crate::prelude::*;
+use crate::revlog::undo::UndoableRevlogChange;
+use crate::scheduler::queue::undo::UndoableQueueChange;
+use crate::tags::undo::UndoableTagChange;
 
 #[derive(Debug)]
 pub(crate) enum UndoableChange {

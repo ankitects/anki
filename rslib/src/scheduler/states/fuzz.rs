@@ -37,7 +37,7 @@ impl<'a> StateContext<'a> {
             let (lower, upper) = constrained_fuzz_bounds(interval, minimum, maximum);
             (lower as f32 + fuzz_factor * ((1 + upper - lower) as f32)).floor() as u32
         } else {
-            (interval.round() as u32).max(minimum).min(maximum)
+            (interval.round() as u32).clamp(minimum, maximum)
         }
     }
 
@@ -60,8 +60,8 @@ fn constrained_fuzz_bounds(interval: f32, minimum: u32, maximum: u32) -> (u32, u
 
     // minimum <= maximum and lower <= upper are assumed
     // now ensure minimum <= lower <= upper <= maximum
-    lower = lower.max(minimum).min(maximum);
-    upper = upper.max(minimum).min(maximum);
+    lower = lower.clamp(minimum, maximum);
+    upper = upper.clamp(minimum, maximum);
 
     if upper == lower && upper > 2 && upper < maximum {
         upper = lower + 1;

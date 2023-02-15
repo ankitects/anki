@@ -1,0 +1,29 @@
+diff --git a/node_modules/protobufjs/src/root.js b/node_modules/protobufjs/src/root.js
+index 6067ca6..78d25f2 100644
+--- a/node_modules/protobufjs/src/root.js
++++ b/node_modules/protobufjs/src/root.js
+@@ -259,7 +259,7 @@ Root.prototype.resolveAll = function resolveAll() {
+ };
+ 
+ // only uppercased (and thus conflict-free) children are exposed, see below
+-var exposeRe = /^[A-Z]/;
++var exposeRe = /^[A-Za-z]/;
+ 
+ /**
+  * Handles a deferred declaring extension field by creating a sister field to represent it within its extended type.
+diff --git a/node_modules/protobufjs/src/util/minimal.js b/node_modules/protobufjs/src/util/minimal.js
+index 35008ec..20394ab 100644
+--- a/node_modules/protobufjs/src/util/minimal.js
++++ b/node_modules/protobufjs/src/util/minimal.js
+@@ -177,10 +177,7 @@ util.Array = typeof Uint8Array !== "undefined" ? Uint8Array /* istanbul ignore n
+  * Long.js's Long class if available.
+  * @type {Constructor<Long>}
+  */
+-util.Long = /* istanbul ignore next */ util.global.dcodeIO && /* istanbul ignore next */ util.global.dcodeIO.Long
+-         || /* istanbul ignore next */ util.global.Long
+-         || util.inquire("long");
+-
++util.Long = null;
+ /**
+  * Regular expression used to verify 2 bit (`bool`) map keys.
+  * @type {RegExp}

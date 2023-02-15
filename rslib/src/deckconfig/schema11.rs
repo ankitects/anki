@@ -3,17 +3,24 @@
 
 use std::collections::HashMap;
 
-use serde::{Deserialize as DeTrait, Deserializer};
+use serde::Deserialize as DeTrait;
+use serde::Deserializer;
 use serde_aux::field_attributes::deserialize_number_from_string;
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
 use serde_json::Value;
-use serde_repr::{Deserialize_repr, Serialize_repr};
+use serde_repr::Deserialize_repr;
+use serde_repr::Serialize_repr;
 use serde_tuple::Serialize_tuple;
 
-use super::{
-    DeckConfig, DeckConfigId, DeckConfigInner, NewCardInsertOrder, INITIAL_EASE_FACTOR_THOUSANDS,
-};
-use crate::{serde::default_on_invalid, timestamp::TimestampSecs, types::Usn};
+use super::DeckConfig;
+use super::DeckConfigId;
+use super::DeckConfigInner;
+use super::NewCardInsertOrder;
+use super::INITIAL_EASE_FACTOR_THOUSANDS;
+use crate::serde::default_on_invalid;
+use crate::timestamp::TimestampSecs;
+use crate::types::Usn;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -430,7 +437,8 @@ fn clear_other_duplicates(top_other: &mut HashMap<String, Value>) {
 #[cfg(test)]
 mod test {
     use serde::de::IntoDeserializer;
-    use serde_json::{json, Value};
+    use serde_json::json;
+    use serde_json::Value;
 
     use super::*;
 

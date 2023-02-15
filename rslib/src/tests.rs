@@ -3,16 +3,17 @@
 
 #![cfg(test)]
 
-use tempfile::{tempdir, TempDir};
+use tempfile::tempdir;
+use tempfile::TempDir;
 
-use crate::{
-    collection::{open_test_collection, CollectionBuilder},
-    deckconfig::UpdateDeckConfigsRequest,
-    io::create_dir,
-    media::MediaManager,
-    pb::deckconfig::deck_configs_for_update::current_deck::Limits,
-    prelude::*,
-};
+use crate::collection::open_test_collection;
+use crate::collection::CollectionBuilder;
+use crate::deckconfig::DeckConfigInner;
+use crate::deckconfig::UpdateDeckConfigsRequest;
+use crate::io::create_dir;
+use crate::media::MediaManager;
+use crate::pb::deckconfig::deck_configs_for_update::current_deck::Limits;
+use crate::prelude::*;
 
 pub(crate) fn open_fs_test_collection(name: &str) -> (Collection, TempDir) {
     let tempdir = tempdir().unwrap();
@@ -49,9 +50,8 @@ pub(crate) fn open_test_collection_with_relearning_card() -> Collection {
 impl Collection {
     pub(crate) fn add_media(&self, media: &[(&str, &[u8])]) {
         let mgr = MediaManager::new(&self.media_folder, &self.media_db).unwrap();
-        let mut ctx = mgr.dbctx();
         for (name, data) in media {
-            mgr.add_file(&mut ctx, name, data).unwrap();
+            mgr.add_file(name, data).unwrap();
         }
     }
 
@@ -89,23 +89,23 @@ impl Collection {
         self.storage.get_all_cards().pop().unwrap()
     }
 
-    pub(crate) fn get_first_deck_config(&mut self) -> DeckConfig {
-        self.storage.all_deck_config().unwrap().pop().unwrap()
-    }
-
     pub(crate) fn set_default_learn_steps(&mut self, steps: Vec<f32>) {
-        let mut config = self.get_first_deck_config();
-        config.inner.learn_steps = steps;
-        self.update_default_deck_config(config);
+        self.update_default_deck_config(|config| config.learn_steps = steps);
     }
 
     pub(crate) fn set_default_relearn_steps(&mut self, steps: Vec<f32>) {
-        let mut config = self.get_first_deck_config();
-        config.inner.relearn_steps = steps;
-        self.update_default_deck_config(config);
+        self.update_default_deck_config(|config| config.relearn_steps = steps);
     }
 
-    pub(crate) fn update_default_deck_config(&mut self, config: DeckConfig) {
+    pub(crate) fn update_default_deck_config(
+        &mut self,
+        modifier: impl FnOnce(&mut DeckConfigInner),
+    ) {
+        let mut config = self
+            .get_deck_config(DeckConfigId(1), false)
+            .unwrap()
+            .unwrap();
+        modifier(&mut config.inner);
         self.update_deck_configs(UpdateDeckConfigsRequest {
             target_deck_id: DeckId(1),
             configs: vec![config],

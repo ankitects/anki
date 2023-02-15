@@ -1,24 +1,30 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashMap, iter::Peekable};
+use std::collections::HashMap;
+use std::iter::Peekable;
 
-use id_tree::{InsertBehavior, Node, NodeId, Tree};
+use id_tree::InsertBehavior;
+use id_tree::Node;
+use id_tree::NodeId;
+use id_tree::Tree;
 
-use super::{Deck, NormalDeck};
-use crate::{
-    deckconfig::{DeckConfig, DeckConfigId},
-    pb::decks::deck::normal::DayLimit,
-    prelude::*,
-};
+use super::Deck;
+use super::NormalDeck;
+use crate::deckconfig::DeckConfig;
+use crate::deckconfig::DeckConfigId;
+use crate::pb::decks::deck::normal::DayLimit;
+use crate::prelude::*;
 
 impl NormalDeck {
-    /// The deck's review limit for today, or its regular one, if any is configured.
+    /// The deck's review limit for today, or its regular one, if any is
+    /// configured.
     pub fn current_review_limit(&self, today: u32) -> Option<u32> {
         self.review_limit_today(today).or(self.review_limit)
     }
 
-    /// The deck's new limit for today, or its regular one, if any is configured.
+    /// The deck's new limit for today, or its regular one, if any is
+    /// configured.
     pub fn current_new_limit(&self, today: u32) -> Option<u32> {
         self.new_limit_today(today).or(self.new_limit)
     }
@@ -65,12 +71,17 @@ impl RemainingLimits {
         normal: &NormalDeck,
         config: &DeckConfig,
     ) -> RemainingLimits {
-        let review_limit = normal
-            .current_review_limit(today)
-            .unwrap_or(config.inner.reviews_per_day);
-        let new_limit = normal
-            .current_new_limit(today)
-            .unwrap_or(config.inner.new_per_day);
+        let (review_limit, new_limit) = if v3 {
+            let review_limit = normal
+                .current_review_limit(today)
+                .unwrap_or(config.inner.reviews_per_day);
+            let new_limit = normal
+                .current_new_limit(today)
+                .unwrap_or(config.inner.new_per_day);
+            (review_limit, new_limit)
+        } else {
+            (config.inner.reviews_per_day, config.inner.new_per_day)
+        };
         let (new_today, mut rev_today) = deck.new_rev_counts(today);
         if v3 {
             // any reviewed new cards contribute to the review limit
@@ -185,7 +196,8 @@ impl LimitTreeMap {
     /// Recursively appends descendants to the provided parent [Node], and adds
     /// them to the [HashMap].
     /// Given [Deck]s are assumed to arrive in depth-first order.
-    /// The tree-from-deck-list logic is taken from [crate::decks::tree::add_child_nodes].
+    /// The tree-from-deck-list logic is taken from
+    /// [crate::decks::tree::add_child_nodes].
     fn add_child_nodes(
         &mut self,
         parent_node_id: NodeId,

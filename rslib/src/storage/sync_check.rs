@@ -2,11 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::*;
-use crate::{
-    error::SyncErrorKind,
-    prelude::*,
-    sync::{SanityCheckCounts, SanityCheckDueCounts},
-};
+use crate::error::SyncErrorKind;
+use crate::prelude::*;
+use crate::sync::collection::sanity::SanityCheckCounts;
+use crate::sync::collection::sanity::SanityCheckDueCounts;
 
 impl SqliteStorage {
     fn table_has_usn(&self, table: &str) -> Result<bool> {

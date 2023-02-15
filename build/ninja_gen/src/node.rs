@@ -1,15 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, collections::HashMap};
+use std::borrow::Cow;
+use std::collections::HashMap;
 
 use super::*;
-use crate::{
-    action::BuildAction,
-    archives::{download_and_extract, OnlineArchive, Platform},
-    hash::simple_hash,
-    input::{space_separated, BuildInput},
-};
+use crate::action::BuildAction;
+use crate::archives::download_and_extract;
+use crate::archives::OnlineArchive;
+use crate::archives::Platform;
+use crate::hash::simple_hash;
+use crate::input::space_separated;
+use crate::input::BuildInput;
 
 pub fn node_archive(platform: Platform) -> OnlineArchive {
     match platform {
@@ -112,6 +114,22 @@ pub fn setup_node(
             "npm" => vec![if cfg!(windows) { "npm.cmd " } else { "bin/npm" }]
         },
     )?;
+
+    let node_binary = match std::env::var("NODE_BINARY") {
+        Ok(path) => {
+            assert!(
+                Utf8Path::new(&path).is_absolute(),
+                "NODE_BINARY must be absolute"
+            );
+            path.into()
+        }
+        Err(_) => {
+            inputs![":extract:node:bin"]
+        }
+    };
+    let node_binary = build.expand_inputs(node_binary);
+    build.variable("node_binary", &node_binary[0]);
+
     build.add("yarn", YarnSetup {})?;
 
     for binary in binary_exports {
@@ -146,7 +164,7 @@ impl BuildAction for EsbuildScript<'_> {
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
-        build.add_inputs("node_bin", inputs![":extract:node:bin"]);
+        build.add_inputs("node_bin", inputs!["$node_binary"]);
         build.add_inputs("script", &self.script);
         build.add_inputs("entrypoint", &self.entrypoint);
         build.add_inputs("", inputs!["yarn.lock", ":node_modules", &self.deps]);

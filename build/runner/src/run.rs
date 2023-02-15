@@ -1,10 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    io::ErrorKind,
-    process::{Command, Output},
-};
+use std::io::ErrorKind;
+use std::process::Command;
+use std::process::Output;
 
 use clap::Args;
 
@@ -14,6 +13,8 @@ pub struct RunArgs {
     stamp: Option<String>,
     #[arg(long, value_parser = split_env)]
     env: Vec<(String, String)>,
+    #[arg(long)]
+    cwd: Option<String>,
     #[arg(trailing_var_arg = true)]
     args: Vec<String>,
 }
@@ -23,7 +24,7 @@ pub struct RunArgs {
 pub fn run_commands(args: RunArgs) {
     let commands = split_args(args.args);
     for command in commands {
-        run_silent(&mut build_command(command, &args.env));
+        run_silent(&mut build_command(command, &args.env, &args.cwd));
     }
     if let Some(stamp_file) = args.stamp {
         std::fs::write(stamp_file, b"").expect("unable to write stamp file");
@@ -38,11 +39,18 @@ fn split_env(s: &str) -> Result<(String, String), std::io::Error> {
     }
 }
 
-fn build_command(command_and_args: Vec<String>, env: &[(String, String)]) -> Command {
+fn build_command(
+    command_and_args: Vec<String>,
+    env: &[(String, String)],
+    cwd: &Option<String>,
+) -> Command {
     let mut command = Command::new(&command_and_args[0]);
     command.args(&command_and_args[1..]);
     for (k, v) in env {
         command.env(k, v);
+    }
+    if let Some(cwd) = cwd {
+        command.current_dir(cwd);
     }
     command
 }

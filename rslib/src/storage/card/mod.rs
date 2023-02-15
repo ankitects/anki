@@ -4,29 +4,40 @@
 pub(crate) mod data;
 pub(crate) mod filtered;
 
-use std::{collections::HashSet, convert::TryFrom, fmt, result};
+use std::collections::HashSet;
+use std::convert::TryFrom;
+use std::fmt;
+use std::result;
 
-use rusqlite::{
-    named_params, params,
-    types::{FromSql, FromSqlError, ValueRef},
-    OptionalExtension, Row,
-};
+use rusqlite::named_params;
+use rusqlite::params;
+use rusqlite::types::FromSql;
+use rusqlite::types::FromSqlError;
+use rusqlite::types::ValueRef;
+use rusqlite::OptionalExtension;
+use rusqlite::Row;
 
 use self::data::CardData;
 use super::ids_to_string;
-use crate::{
-    card::{Card, CardId, CardQueue, CardType},
-    deckconfig::{DeckConfigId, ReviewCardOrder},
-    decks::{Deck, DeckId, DeckKind},
-    error::Result,
-    notes::NoteId,
-    scheduler::{
-        congrats::CongratsInfo,
-        queue::{DueCard, DueCardKind, NewCard},
-    },
-    timestamp::{TimestampMillis, TimestampSecs},
-    types::Usn,
-};
+use crate::card::Card;
+use crate::card::CardId;
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::deckconfig::DeckConfigId;
+use crate::deckconfig::ReviewCardOrder;
+use crate::decks::Deck;
+use crate::decks::DeckId;
+use crate::decks::DeckKind;
+use crate::error::Result;
+use crate::notes::NoteId;
+use crate::scheduler::congrats::CongratsInfo;
+use crate::scheduler::queue::BuryMode;
+use crate::scheduler::queue::DueCard;
+use crate::scheduler::queue::DueCardKind;
+use crate::scheduler::queue::NewCard;
+use crate::timestamp::TimestampMillis;
+use crate::timestamp::TimestampSecs;
+use crate::types::Usn;
 
 impl FromSql for CardType {
     fn column_result(value: ValueRef<'_>) -> result::Result<Self, FromSqlError> {
@@ -461,16 +472,14 @@ impl super::SqliteStorage {
         &self,
         cid: CardId,
         nid: NoteId,
-        include_new: bool,
-        include_reviews: bool,
-        include_day_learn: bool,
+        bury_mode: BuryMode,
     ) -> Result<Vec<Card>> {
         let params = named_params! {
             ":card_id": cid,
             ":note_id": nid,
-            ":include_new": include_new,
-            ":include_reviews": include_reviews,
-            ":include_day_learn": include_day_learn,
+            ":include_new": bury_mode.bury_new,
+            ":include_reviews": bury_mode.bury_reviews,
+            ":include_day_learn": bury_mode.bury_interday_learning      ,
             ":new_queue": CardQueue::New as i8,
             ":review_queue": CardQueue::Review as i8,
             ":daylearn_queue": CardQueue::DayLearn as i8,
@@ -757,13 +766,15 @@ impl NewCardSorting {
 mod test {
     use std::path::Path;
 
-    use crate::{card::Card, i18n::I18n, storage::SqliteStorage};
+    use crate::card::Card;
+    use crate::i18n::I18n;
+    use crate::storage::SqliteStorage;
 
     #[test]
     fn add_card() {
         let tr = I18n::template_only();
         let storage =
-            SqliteStorage::open_or_create(Path::new(":memory:"), &tr, false, false).unwrap();
+            SqliteStorage::open_or_create(Path::new(":memory:"), &tr, false, false, false).unwrap();
         let mut card = Card::default();
         storage.add_card(&mut card).unwrap();
         let id1 = card.id;

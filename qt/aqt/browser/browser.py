@@ -31,10 +31,12 @@ from aqt.operations.card import set_card_deck, set_card_flag
 from aqt.operations.collection import redo, undo
 from aqt.operations.note import remove_notes
 from aqt.operations.scheduling import (
+    bury_cards,
     forget_cards,
     reposition_new_cards_dialog,
     set_due_date_dialog,
     suspend_cards,
+    unbury_cards,
     unsuspend_cards,
 )
 from aqt.operations.tag import (
@@ -302,6 +304,7 @@ class Browser(QMainWindow):
         qconnect(f.action_set_due_date.triggered, self.set_due_date)
         qconnect(f.action_forget.triggered, self.forget_cards)
         qconnect(f.actionToggle_Suspend.triggered, self.suspend_selected_cards)
+        qconnect(f.action_toggle_bury.triggered, self.bury_selected_cards)
 
         def set_flag_func(desired_flag: int) -> Callable:
             return lambda: self.set_flag_of_selected_cards(desired_flag)
@@ -590,6 +593,7 @@ class Browser(QMainWindow):
 
     def _update_current_actions(self) -> None:
         self._update_flags_menu()
+        self._update_toggle_bury_action()
         self._update_toggle_mark_action()
         self._update_toggle_suspend_action()
         self.form.actionCopy.setEnabled(self.table.has_current())
@@ -868,6 +872,24 @@ class Browser(QMainWindow):
             suspend_cards(parent=self, card_ids=cids).run_in_background()
         else:
             unsuspend_cards(parent=self.mw, card_ids=cids).run_in_background()
+
+    # Burying
+    ######################################################################
+
+    def _update_toggle_bury_action(self) -> None:
+        is_buried = bool(
+            self.current_card and self.current_card.queue == QUEUE_TYPE_MANUALLY_BURIED
+        )
+        self.form.action_toggle_bury.setChecked(is_buried)
+
+    @skip_if_selection_is_empty
+    @ensure_editor_saved
+    def bury_selected_cards(self, checked: bool) -> None:
+        cids = self.selected_cards()
+        if checked:
+            bury_cards(parent=self, card_ids=cids).run_in_background()
+        else:
+            unbury_cards(parent=self.mw, card_ids=cids).run_in_background()
 
     # Exporting
     ######################################################################

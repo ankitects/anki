@@ -2,7 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::GraphsContext;
-use crate::{pb::stats::graphs_response::ReviewCountsAndTimes, revlog::RevlogReviewKind};
+use crate::pb::stats::graphs_response::ReviewCountsAndTimes;
+use crate::revlog::RevlogReviewKind;
 
 impl GraphsContext {
     pub(super) fn review_counts_and_times(&self) -> ReviewCountsAndTimes {

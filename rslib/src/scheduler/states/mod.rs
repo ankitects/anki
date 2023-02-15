@@ -80,7 +80,8 @@ impl CardState {
 
 /// Info required during state transitions.
 pub(crate) struct StateContext<'a> {
-    /// In range `0.0..1.0`. Used to pick the final interval from the fuzz range.
+    /// In range `0.0..1.0`. Used to pick the final interval from the fuzz
+    /// range.
     pub fuzz_factor: Option<f32>,
 
     // learning
@@ -112,7 +113,7 @@ impl<'a> StateContext<'a> {
     /// - `minimum` is as passed, but at least 1, and at most `maximum`.
     pub(crate) fn min_and_max_review_intervals(&self, minimum: u32) -> (u32, u32) {
         let maximum = self.maximum_review_interval.max(1);
-        let minimum = minimum.max(1).min(maximum);
+        let minimum = minimum.clamp(1, maximum);
         (minimum, maximum)
     }
 

@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as editorFieldContext } from "./EditorField.svelte";
     import { stickyIcon } from "./icons";
 
-    const animated = !document.body.classList.contains("reduced-motion");
+    const animated = !document.body.classList.contains("reduce-motion");
 
     export let active: boolean;
     export let show: boolean;

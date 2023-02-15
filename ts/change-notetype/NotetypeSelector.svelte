@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ButtonToolbar class="justify-content-between" wrap={false}>
-    <LabelButton disabled={true}>
+    <LabelButton ellipsis disabled={true}>
         {$info.oldNotetypeName}
     </LabelButton>
     <Badge iconSize={70}>

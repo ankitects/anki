@@ -1,17 +1,24 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use ninja_gen::{
-    cargo::{CargoBuild, CargoClippy, CargoFormat, CargoRun, CargoTest, RustOutput},
-    git::SyncSubmodule,
-    glob, inputs, Build, Result,
-};
+use ninja_gen::cargo::CargoBuild;
+use ninja_gen::cargo::CargoClippy;
+use ninja_gen::cargo::CargoFormat;
+use ninja_gen::cargo::CargoRun;
+use ninja_gen::cargo::CargoTest;
+use ninja_gen::cargo::RustOutput;
+use ninja_gen::git::SyncSubmodule;
+use ninja_gen::glob;
+use ninja_gen::inputs;
+use ninja_gen::Build;
+use ninja_gen::Result;
 
-use crate::{platform::overriden_rust_target_triple, proto::download_protoc};
+use crate::platform::overriden_rust_target_triple;
+use crate::proto::setup_protoc;
 
 pub fn build_rust(build: &mut Build) -> Result<()> {
     prepare_translations(build)?;
-    download_protoc(build)?;
+    setup_protoc(build)?;
     build_rsbridge(build)
 }
 
@@ -58,6 +65,16 @@ fn prepare_translations(build: &mut Build) -> Result<()> {
         },
     )?;
 
+    build.add(
+        "ftl:deprecate",
+        CargoRun {
+            binary_name: "deprecate_ftl_entries",
+            cargo_args: "-p anki_i18n_helpers",
+            bin_args: "ftl/core ftl/qt -- pylib qt rslib ts --keep ftl/usage",
+            deps: inputs!["ftl/core", "ftl/qt", "pylib", "qt", "rslib", "ts"],
+        },
+    )?;
+
     Ok(())
 }
 
@@ -72,7 +89,7 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
         CargoBuild {
             inputs: inputs![
                 glob!["{pylib/rsbridge/**,rslib/**,proto/**}"],
-                ":extract:protoc:bin",
+                "$protoc_binary",
                 // declare a dependency on i18n so it gets built first, allowing
                 // things depending on strings.json to build faster, and ensuring
                 // changes to the ftl files trigger a rebuild
@@ -106,6 +123,7 @@ pub fn check_rust(build: &mut Build) -> Result<()> {
         CargoFormat {
             inputs: inputs.clone(),
             check_only: true,
+            working_dir: Some("cargo/format"),
         },
     )?;
     build.add(
@@ -113,6 +131,7 @@ pub fn check_rust(build: &mut Build) -> Result<()> {
         CargoFormat {
             inputs: inputs.clone(),
             check_only: false,
+            working_dir: Some("cargo/format"),
         },
     )?;
 

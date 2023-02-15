@@ -55,7 +55,7 @@ from aqt.utils import (
     tooltip,
     tr,
 )
-from aqt.webview import AnkiWebView
+from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp", "ico")
 audio = (
@@ -1211,7 +1211,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
 class EditorWebView(AnkiWebView):
     def __init__(self, parent: QWidget, editor: Editor) -> None:
-        AnkiWebView.__init__(self, title="editor")
+        AnkiWebView.__init__(self, kind=AnkiWebViewKind.EDITOR)
         self.editor = editor
         self.setAcceptDrops(True)
         self._markInternal = False
@@ -1401,8 +1401,10 @@ class EditorWebView(AnkiWebView):
             clip.setMimeData(mime)
 
         # Mutter bugs out if the clipboard data is mutated in the clipboard change
-        # hook, so we need to do it after a small delay
-        aqt.mw.progress.timer(10, after_delay, False, parent=self)
+        # hook, so we need to do it after a delay. Initially 10ms appeared to be
+        # enough, but we've had a recent report than 175ms+ was required on their
+        # system.
+        aqt.mw.progress.timer(300 if is_lin else 10, after_delay, False, parent=self)
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)

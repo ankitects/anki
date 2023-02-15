@@ -1,9 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-//! Check the .ftl files at build time to ensure we don't get runtime load failures.
+//! Check the .ftl files at build time to ensure we don't get runtime load
+//! failures.
 
-use fluent::{FluentBundle, FluentResource};
+use fluent::FluentBundle;
+use fluent::FluentResource;
 use unic_langid::LanguageIdentifier;
 
 use super::gather::TranslationsByLang;

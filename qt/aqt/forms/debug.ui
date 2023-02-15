@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>643</width>
-    <height>580</height>
+    <height>582</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,6 +48,9 @@
       <property name="lineWrapMode">
        <enum>QPlainTextEdit::NoWrap</enum>
       </property>
+      <property name="placeholderText">
+       <string notr="true">Type commands here (Enter to submit)</string>
+      </property>
      </widget>
      <widget class="QPlainTextEdit" name="log">
       <property name="sizePolicy">
@@ -68,7 +71,26 @@
       <property name="readOnly">
        <bool>true</bool>
       </property>
+      <property name="placeholderText">
+       <string notr="true">Output</string>
+      </property>
      </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string notr="true">Styling</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QPushButton" name="widgetsButton">
+        <property name="text">
+         <string notr="true">Qt Widget Gallery</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>

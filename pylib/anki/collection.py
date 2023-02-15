@@ -16,6 +16,7 @@ from anki import (
     stats_pb2,
 )
 from anki._legacy import DeprecatedNamesMixin, deprecated
+from anki.sync_pb2 import SyncLoginRequest
 
 # protobuf we publicly export - listed first to avoid circular imports
 HelpPage = links_pb2.HelpPageLinkRequest.HelpPage
@@ -1189,8 +1190,12 @@ class Collection(DeprecatedNamesMixin):
     def full_download(self, auth: SyncAuth) -> None:
         self._backend.full_download(auth)
 
-    def sync_login(self, username: str, password: str) -> SyncAuth:
-        return self._backend.sync_login(username=username, password=password)
+    def sync_login(
+        self, username: str, password: str, endpoint: str | None
+    ) -> SyncAuth:
+        return self._backend.sync_login(
+            SyncLoginRequest(username=username, password=password, endpoint=endpoint)
+        )
 
     def sync_collection(self, auth: SyncAuth) -> SyncOutput:
         return self._backend.sync_collection(auth)
@@ -1213,6 +1218,9 @@ class Collection(DeprecatedNamesMixin):
 
     def compare_answer(self, expected: str, provided: str) -> str:
         return self._backend.compare_answer(expected=expected, provided=provided)
+
+    def extract_cloze_for_typing(self, text: str, ordinal: int) -> str:
+        return self._backend.extract_cloze_for_typing(text=text, ordinal=ordinal)
 
     # Timeboxing
     ##########################################################################

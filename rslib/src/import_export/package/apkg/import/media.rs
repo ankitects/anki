@@ -1,23 +1,23 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashMap, fs::File, mem};
+use std::collections::HashMap;
+use std::fs::File;
+use std::mem;
 
 use zip::ZipArchive;
 
 use super::Context;
-use crate::{
-    error::{FileIoSnafu, FileOp},
-    import_export::{
-        package::{
-            colpkg::export::MediaCopier,
-            media::{extract_media_entries, SafeMediaEntry},
-        },
-        ImportProgress, IncrementableProgress,
-    },
-    media::files::{add_hash_suffix_to_file_stem, sha1_of_reader},
-    prelude::*,
-};
+use crate::error::FileIoSnafu;
+use crate::error::FileOp;
+use crate::import_export::package::colpkg::export::MediaCopier;
+use crate::import_export::package::media::extract_media_entries;
+use crate::import_export::package::media::SafeMediaEntry;
+use crate::import_export::ImportProgress;
+use crate::import_export::IncrementableProgress;
+use crate::media::files::add_hash_suffix_to_file_stem;
+use crate::media::files::sha1_of_reader;
+use crate::prelude::*;
 
 /// Map of source media files, that do not already exist in the target.
 #[derive(Default)]
@@ -26,7 +26,8 @@ pub(super) struct MediaUseMap {
     /// entry with possibly remapped filename)
     checked: HashMap<String, (bool, SafeMediaEntry)>,
     /// Static files (latex, underscored). Usage is not tracked, and if the name
-    /// already exists in the target, it is skipped regardless of content equality.
+    /// already exists in the target, it is skipped regardless of content
+    /// equality.
     unchecked: Vec<SafeMediaEntry>,
 }
 
@@ -38,7 +39,9 @@ impl Context<'_> {
         }
 
         let db_progress_fn = self.progress.media_db_fn(ImportProgress::MediaCheck)?;
-        let existing_sha1s = self.media_manager.all_checksums(db_progress_fn)?;
+        let existing_sha1s = self
+            .media_manager
+            .all_checksums_after_checking(db_progress_fn)?;
 
         prepare_media(
             media_entries,
@@ -50,9 +53,8 @@ impl Context<'_> {
 
     pub(super) fn copy_media(&mut self, media_map: &mut MediaUseMap) -> Result<()> {
         let mut incrementor = self.progress.incrementor(ImportProgress::Media);
-        let mut dbctx = self.media_manager.dbctx();
         let mut copier = MediaCopier::new(false);
-        self.media_manager.transact(&mut dbctx, |dbctx| {
+        self.media_manager.transact(|_db| {
             for entry in media_map.used_entries() {
                 incrementor.increment()?;
                 entry.copy_and_ensure_sha1_set(
@@ -61,7 +63,7 @@ impl Context<'_> {
                     &mut copier,
                 )?;
                 self.media_manager
-                    .add_entry(dbctx, &entry.name, entry.sha1.unwrap())?;
+                    .add_entry(&entry.name, entry.sha1.unwrap())?;
             }
             Ok(())
         })

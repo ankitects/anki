@@ -1,12 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{
-    card::{CardQueue, CardType},
-    pb,
-    prelude::*,
-    revlog::RevlogEntry,
-};
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::pb;
+use crate::prelude::*;
+use crate::revlog::RevlogEntry;
 
 impl Collection {
     pub fn card_stats(&mut self, cid: CardId) -> Result<pb::stats::CardStatsResponse> {
@@ -45,6 +44,7 @@ impl Collection {
             card_type: nt.get_template(card.template_idx)?.name.clone(),
             notetype: nt.name.clone(),
             revlog: revlog.iter().rev().map(stats_revlog_entry).collect(),
+            custom_data: card.custom_data,
         })
     }
 
@@ -106,7 +106,8 @@ fn stats_revlog_entry(entry: &RevlogEntry) -> pb::stats::card_stats_response::St
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, search::SortMode};
+    use crate::collection::open_test_collection;
+    use crate::search::SortMode;
 
     #[test]
     fn stats() -> Result<()> {

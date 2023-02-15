@@ -17,7 +17,6 @@ from anki.utils import is_lin, is_mac, is_win
 from aqt import QApplication, colors, gui_hooks
 from aqt.qt import (
     QColor,
-    QGuiApplication,
     QIcon,
     QPainter,
     QPalette,
@@ -44,6 +43,11 @@ class ColoredIcon:
         return ColoredIcon(path=self.path, color=color)
 
 
+class WidgetStyle(enum.IntEnum):
+    ANKI = 0
+    NATIVE = 1
+
+
 class Theme(enum.IntEnum):
     FOLLOW_SYSTEM = 0
     LIGHT = 1
@@ -56,8 +60,8 @@ class ThemeManager:
     _icon_cache_dark: dict[str, QIcon] = {}
     _icon_size = 128
     _dark_mode_available: bool | None = None
-    default_palette: QPalette | None = None
     _default_style: str | None = None
+    _current_widget_style: WidgetStyle | None = None
 
     def rtl(self) -> bool:
         return is_rtl(anki.lang.current_lang)
@@ -168,8 +172,10 @@ class ThemeManager:
             classes.extend(["nightMode", "night_mode"])
             if self.macos_dark_mode():
                 classes.append("macos-dark-mode")
-        if aqt.mw.pm.reduced_motion():
-            classes.append("reduced-motion")
+        if aqt.mw.pm.reduce_motion():
+            classes.append("reduce-motion")
+        if not aqt.mw.pm.minimalist_mode():
+            classes.append("fancy")
         if qtmajor == 5 and qtminor < 15:
             classes.append("no-blur")
         return " ".join(classes)
@@ -212,55 +218,49 @@ class ThemeManager:
             else:
                 return get_linux_dark_mode()
 
-    def apply_style_if_system_style_changed(self) -> None:
-        theme = aqt.mw.pm.theme()
-        if theme != Theme.FOLLOW_SYSTEM:
-            return
-        if self._determine_night_mode() != self.night_mode:
-            self.apply_style()
-
     def apply_style(self) -> None:
         "Apply currently configured style."
+        new_theme = self._determine_night_mode()
+        theme_changed = self.night_mode != new_theme
+        new_widget_style = aqt.mw.pm.get_widget_style()
+        style_changed = self._current_widget_style != new_widget_style
+        if not theme_changed and not style_changed:
+            return
+        self.night_mode = new_theme
+        self._current_widget_style = new_widget_style
         app = aqt.mw.app
-        self.night_mode = self._determine_night_mode()
-        if not self.default_palette:
-            self.default_palette = QGuiApplication.palette()
+        if not self._default_style:
             self._default_style = app.style().objectName()
         self._apply_palette(app)
         self._apply_style(app)
         gui_hooks.theme_did_change()
 
     def _apply_style(self, app: QApplication) -> None:
-        from aqt.stylesheets import splitter_styles
+        buf = ""
 
-        buf = splitter_styles(self)
+        if aqt.mw.pm.get_widget_style() == WidgetStyle.ANKI:
+            from aqt.stylesheets import custom_styles
 
-        if not is_mac or aqt.mw.pm.force_custom_styles():
-            from aqt.stylesheets import (
-                button_styles,
-                checkbox_styles,
-                combobox_styles,
-                general_styles,
-                menu_styles,
-                scrollbar_styles,
-                spinbox_styles,
-                table_styles,
-                tabwidget_styles,
-            )
+            app.setStyle(QStyleFactory.create("fusion"))  # type: ignore
 
             buf += "".join(
                 [
-                    general_styles(self),
-                    button_styles(self),
-                    checkbox_styles(self),
-                    menu_styles(self),
-                    combobox_styles(self),
-                    tabwidget_styles(self),
-                    table_styles(self),
-                    spinbox_styles(self),
-                    scrollbar_styles(self),
+                    custom_styles.general(self),
+                    custom_styles.button(self),
+                    custom_styles.checkbox(self),
+                    custom_styles.menu(self),
+                    custom_styles.combobox(self),
+                    custom_styles.tabwidget(self),
+                    custom_styles.table(self),
+                    custom_styles.spinbox(self),
+                    custom_styles.scrollbar(self),
+                    custom_styles.slider(self),
+                    custom_styles.splitter(self),
                 ]
             )
+
+        else:
+            app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
 
         # allow addons to modify the styling
         buf = gui_hooks.style_did_init(buf)
@@ -269,19 +269,6 @@ class ThemeManager:
 
     def _apply_palette(self, app: QApplication) -> None:
         set_macos_dark_mode(self.night_mode)
-
-        if is_mac and not (qtmajor == 5 or aqt.mw.pm.force_custom_styles()):
-            app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
-            self.default_palette.setColor(
-                QPalette.ColorRole.Window, self.qcolor(colors.CANVAS)
-            )
-            self.default_palette.setColor(
-                QPalette.ColorRole.AlternateBase, self.qcolor(colors.CANVAS)
-            )
-            app.setPalette(self.default_palette)
-            return
-
-        app.setStyle(QStyleFactory.create("fusion"))  # type: ignore
 
         palette = QPalette()
         text = self.qcolor(colors.FG)
@@ -300,7 +287,7 @@ class ThemeManager:
         palette.setColor(QPalette.ColorRole.Window, canvas)
         palette.setColor(QPalette.ColorRole.AlternateBase, canvas)
 
-        palette.setColor(QPalette.ColorRole.Button, self.qcolor(colors.BUTTON_BG))
+        palette.setColor(QPalette.ColorRole.Button, canvas)
 
         input_base = self.qcolor(colors.CANVAS_CODE)
         palette.setColor(QPalette.ColorRole.Base, input_base)

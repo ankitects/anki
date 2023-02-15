@@ -1,12 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use camino::{Utf8Path, Utf8PathBuf};
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
 
-use crate::{
-    action::BuildAction, archives::with_exe, build::FilesHandle, input::BuildInput, inputs, Build,
-    Result,
-};
+use crate::action::BuildAction;
+use crate::archives::with_exe;
+use crate::build::FilesHandle;
+use crate::input::BuildInput;
+use crate::inputs;
+use crate::Build;
+use crate::Result;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum RustOutput<'a> {
@@ -169,17 +173,21 @@ impl BuildAction for CargoClippy {
 pub struct CargoFormat {
     pub inputs: BuildInput,
     pub check_only: bool,
+    pub working_dir: Option<&'static str>,
 }
 
 impl BuildAction for CargoFormat {
     fn command(&self) -> &str {
-        // the empty config file prevents warnings about nightly features
-        "cargo fmt $mode -- --config-path=.rustfmt-empty.toml --color always"
+        "cargo fmt $mode --all"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
         build.add_inputs("", &self.inputs);
         build.add_variable("mode", if self.check_only { "--check" } else { "" });
+        if let Some(working_dir) = self.working_dir {
+            build.set_working_dir("$working_dir");
+            build.add_variable("working_dir", working_dir);
+        }
         build.add_output_stamp(format!(
             "tests/cargo_format.{}",
             if self.check_only { "check" } else { "fmt" }
@@ -191,8 +199,8 @@ impl BuildAction for CargoFormat {
     }
 }
 
-/// Use Cargo to download and build a Rust binary. If `binary_name` is `foo`, a `$foo` variable
-/// will be defined with the path to the binary.
+/// Use Cargo to download and build a Rust binary. If `binary_name` is `foo`, a
+/// `$foo` variable will be defined with the path to the binary.
 pub struct CargoInstall {
     pub binary_name: &'static str,
     /// eg 'foo --version 1.3' or '--git git://...'
@@ -231,6 +239,6 @@ impl BuildAction for CargoRun {
         build.add_variable("binary", self.binary_name);
         build.add_variable("cargo_args", self.cargo_args);
         build.add_variable("bin_args", self.bin_args);
-        build.add_outputs("", vec!["phony"]);
+        build.add_outputs("", vec![format!("phony-{}", self.binary_name)]);
     }
 }

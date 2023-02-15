@@ -1,11 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{CardStateUpdater, RevlogEntryPartial};
-use crate::{
-    card::{CardQueue, CardType},
-    scheduler::states::{CardState, IntervalKind, RelearnState},
-};
+use super::CardStateUpdater;
+use super::RevlogEntryPartial;
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::scheduler::states::CardState;
+use crate::scheduler::states::IntervalKind;
+use crate::scheduler::states::RelearnState;
 
 impl CardStateUpdater {
     pub(super) fn apply_relearning_state(

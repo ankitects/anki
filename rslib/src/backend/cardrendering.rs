@@ -2,21 +2,26 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::Backend;
+use crate::card_rendering::extract_av_tags;
+use crate::card_rendering::strip_av_tags;
+use crate::cloze::extract_cloze_for_typing;
+use crate::latex::extract_latex;
+use crate::latex::extract_latex_expanding_clozes;
+use crate::latex::ExtractedLatex;
+use crate::markdown::render_markdown;
+use crate::notetype::CardTemplateSchema11;
+use crate::notetype::RenderCardOutput;
+use crate::pb;
 pub(super) use crate::pb::card_rendering::cardrendering_service::Service as CardRenderingService;
-use crate::{
-    card_rendering::{extract_av_tags, strip_av_tags},
-    latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
-    markdown::render_markdown,
-    notetype::{CardTemplateSchema11, RenderCardOutput},
-    pb,
-    prelude::*,
-    template::RenderedNode,
-    text::{
-        decode_iri_paths, encode_iri_paths, sanitize_html_no_images, strip_html,
-        strip_html_preserving_media_filenames,
-    },
-    typeanswer::compare_answer,
-};
+use crate::pb::card_rendering::ExtractClozeForTypingRequest;
+use crate::prelude::*;
+use crate::template::RenderedNode;
+use crate::text::decode_iri_paths;
+use crate::text::encode_iri_paths;
+use crate::text::sanitize_html_no_images;
+use crate::text::strip_html;
+use crate::text::strip_html_preserving_media_filenames;
+use crate::typeanswer::compare_answer;
 
 impl CardRenderingService for Backend {
     fn extract_av_tags(
@@ -160,6 +165,15 @@ impl CardRenderingService for Backend {
         input: pb::card_rendering::CompareAnswerRequest,
     ) -> Result<pb::generic::String> {
         Ok(compare_answer(&input.expected, &input.provided).into())
+    }
+
+    fn extract_cloze_for_typing(
+        &self,
+        input: ExtractClozeForTypingRequest,
+    ) -> Result<pb::generic::String> {
+        Ok(extract_cloze_for_typing(&input.text, input.ordinal as u16)
+            .to_string()
+            .into())
     }
 }
 

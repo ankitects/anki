@@ -11,8 +11,7 @@ unmaintained = "warn"
 yanked = "warn"
 notice = "warn"
 ignore = [
-  # xml-rs via apple-bundles: not used for untrusted input
-  "RUSTSEC-2022-0048",
+
 ]
 
 [licenses]

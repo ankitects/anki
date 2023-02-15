@@ -2,19 +2,25 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 // use super::*;
-use ninja_gen::{
-    action::BuildAction,
-    command::RunCommand,
-    glob, hashmap,
-    input::BuildInput,
-    inputs,
-    node::{
-        node_archive, CompileSass, DPrint, EsbuildScript, Eslint, GenTypescriptProto, JestTest,
-        SqlFormat, SvelteCheck, TypescriptCheck,
-    },
-    rsync::RsyncFiles,
-    Build, Result,
-};
+use ninja_gen::action::BuildAction;
+use ninja_gen::command::RunCommand;
+use ninja_gen::glob;
+use ninja_gen::hashmap;
+use ninja_gen::input::BuildInput;
+use ninja_gen::inputs;
+use ninja_gen::node::node_archive;
+use ninja_gen::node::CompileSass;
+use ninja_gen::node::DPrint;
+use ninja_gen::node::EsbuildScript;
+use ninja_gen::node::Eslint;
+use ninja_gen::node::GenTypescriptProto;
+use ninja_gen::node::JestTest;
+use ninja_gen::node::SqlFormat;
+use ninja_gen::node::SvelteCheck;
+use ninja_gen::node::TypescriptCheck;
+use ninja_gen::rsync::RsyncFiles;
+use ninja_gen::Build;
+use ninja_gen::Result;
 
 pub fn build_and_check_web(build: &mut Build) -> Result<()> {
     setup_node(build)?;
@@ -418,7 +424,7 @@ fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
 }
 
 fn check_web(build: &mut Build) -> Result<()> {
-    let dprint_files = inputs![glob!["**/*.{ts,mjs,js,md,json,toml}", "target/**"]];
+    let dprint_files = inputs![glob!["**/*.{ts,mjs,js,md,json,toml,svelte}", "target/**"]];
     build.add(
         "check:format:dprint",
         DPrint {

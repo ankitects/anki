@@ -1,10 +1,13 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import dataclasses
 import json
 import re
 import sys
+from enum import Enum
 from typing import Any, Callable, Optional, Sequence, cast
 
 import anki
@@ -222,16 +225,46 @@ class WebContent:
 ##########################################################################
 
 
+class AnkiWebViewKind(Enum):
+    """Enum registry of all web views managed by Anki
+
+    The value of each entry corresponds to the web view's title.
+
+    When introducing a new web view, please add it to the registry below.
+    """
+
+    MAIN = "main webview"
+    TOP_TOOLBAR = "top toolbar"
+    BOTTOM_TOOLBAR = "bottom toolbar"
+    DECK_OPTIONS = "deck options"
+    EDITOR = "editor"
+    LEGACY_DECK_STATS = "legacy deck stats"
+    DECK_STATS = "deck stats"
+    PREVIEWER = "previewer"
+    CHANGE_NOTETYPE = "change notetype"
+    CARD_LAYOUT = "card layout"
+    BROWSER_CARD_INFO = "browser card info"
+    IMPORT_CSV = "csv import"
+    EMPTY_CARDS = "empty cards"
+    FIND_DUPLICATES = "find duplicates"
+    FIELDS = "fields"
+
+
 class AnkiWebView(QWebEngineView):
     allow_drops = False
+    _kind: AnkiWebViewKind | None
 
     def __init__(
         self,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
         title: str = "default",
+        kind: AnkiWebViewKind | None = None,
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
-        self.set_title(title)
+        if kind:
+            self.set_kind(kind)
+        else:
+            self.set_title(title)
         self._page = AnkiWebPage(self._onBridgeCmd)
         # reduce flicker
         self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
@@ -248,6 +281,7 @@ class AnkiWebView(QWebEngineView):
         self.resetHandlers()
         self._filterSet = False
         gui_hooks.theme_did_change.append(self.on_theme_did_change)
+        gui_hooks.body_classes_need_update.append(self.on_body_classes_need_update)
 
         qconnect(self.loadFinished, self._on_load_finished)
 
@@ -261,6 +295,15 @@ class AnkiWebView(QWebEngineView):
         });
         """
         )
+
+    def set_kind(self, kind: AnkiWebViewKind) -> None:
+        self._kind = kind
+        self.set_title(kind.value)
+
+    @property
+    def kind(self) -> AnkiWebViewKind | None:
+        """Used by add-ons to identify the webview kind"""
+        return self._kind
 
     def set_title(self, title: str) -> None:
         self.title = title  # type: ignore[assignment]
@@ -410,8 +453,7 @@ class AnkiWebView(QWebEngineView):
             return 3
 
     def standard_css(self) -> str:
-        palette = theme_manager.default_palette
-        color_hl = palette.color(QPalette.ColorRole.Highlight).name()
+        color_hl = theme_manager.var(colors.BORDER_FOCUS)
 
         if is_win:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
@@ -654,8 +696,8 @@ html {{ {font} }}
         self.setSizePolicy(sp)
         self.hide()
 
-    def add_dynamic_css_and_classes_then_show(self) -> None:
-        "Add dynamic styling, set platform-specific body classes and reveal."
+    def add_dynamic_styling_and_props_then_show(self) -> None:
+        "Add dynamic styling, title, set platform-specific body classes and reveal."
         css = self.standard_css()
         body_classes = theme_manager.body_class().split(" ")
 
@@ -670,6 +712,7 @@ html {{ {font} }}
         self.evalWithCallback(
             f"""
 (function(){{
+    document.title = `{self.title}`;
     const style = document.createElement('style');
     style.innerHTML = `{css}`;
     document.head.appendChild(style);
@@ -689,7 +732,7 @@ html {{ {font} }}
         else:
             extra = ""
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
-        self.add_dynamic_css_and_classes_then_show()
+        self.add_dynamic_styling_and_props_then_show()
 
     def force_load_hack(self) -> None:
         """Force process to initialize.
@@ -706,6 +749,7 @@ html {{ {font} }}
             return
 
         gui_hooks.theme_did_change.remove(self.on_theme_did_change)
+        gui_hooks.body_classes_need_update.remove(self.on_body_classes_need_update)
         mw.mediaServer.clear_page_html(id(self))
         self._page.deleteLater()
 
@@ -731,6 +775,16 @@ html {{ {font} }}
     }}
 }})();
 """
+        )
+
+    def on_body_classes_need_update(self) -> None:
+        from aqt import mw
+
+        self.eval(
+            f"""document.body.classList.toggle("fancy", {json.dumps(not mw.pm.minimalist_mode())}); """
+        )
+        self.eval(
+            f"""document.body.classList.toggle("reduce-motion", {json.dumps(mw.pm.minimalist_mode())}); """
         )
 
     @deprecated(info="use theme_manager.qcolor() instead")

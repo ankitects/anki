@@ -5,15 +5,14 @@ use std::sync::MutexGuard;
 
 use tracing::error;
 
-use super::{progress::Progress, Backend};
+use super::progress::Progress;
+use super::Backend;
+use crate::backend::progress::progress_to_proto;
+use crate::collection::CollectionBuilder;
+use crate::pb;
 pub(super) use crate::pb::collection::collection_service::Service as CollectionService;
-use crate::{
-    backend::progress::progress_to_proto,
-    collection::CollectionBuilder,
-    pb::{self as pb},
-    prelude::*,
-    storage::SchemaVersion,
-};
+use crate::prelude::*;
+use crate::storage::SchemaVersion;
 
 impl CollectionService for Backend {
     fn latest_progress(&self, _input: pb::generic::Empty) -> Result<pb::collection::Progress> {

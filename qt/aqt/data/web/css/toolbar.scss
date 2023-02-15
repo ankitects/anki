@@ -6,27 +6,46 @@
 @use "sass/elevation" as *;
 @use "sass/button-mixins" as button;
 
-.toolbar {
-    display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    border-bottom-left-radius: prop(border-radius-large);
-    border-bottom-right-radius: prop(border-radius-large);
-    @include elevation(1, $opacity-boost: -0.1);
-
-    // elevated state (deck browser, overview)
-    body:not(.flat) & {
-        background: var(--canvas-elevated);
-        @include elevation(1);
-        &:hover {
-            @include elevation(2);
-        }
+.header {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: start;
+    align-content: space-between;
+    body:not(.fancy) & {
+        border-bottom: 1px solid var(--border-subtle);
     }
-    // glass effect
-    background: var(--canvas-glass);backdrop-filter: unset;
-    backdrop-filter: blur(var(--blur));
+}
 
+.left-tray {
+    justify-self: start;
+}
+
+.right-tray {
+    justify-self: end;
+}
+
+.left-tray,
+.right-tray {
+    align-self: start;
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+}
+
+.toolbar {
+    justify-self: center;
+    white-space: nowrap;
     transition: all var(--transition) ease-in-out;
+}
+
+.hitem {
+    font-weight: bold;
+    padding: 5px 12px;
+    color: color(fg);
+    display: inline-block;
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 body {
@@ -35,34 +54,66 @@ body {
     -webkit-user-select: none;
     overflow: hidden;
 
-    &.collapsed {
-        transform: translateY(-100vh);
+    &:not(.fancy).hidden {
+        opacity: 0;
     }
-    transition: transform var(--transition) ease-in-out;
+    transition: opacity var(--transition) ease-in-out;
+
+    &.fancy {
+        margin-bottom: 5px;
+
+        &.hidden {
+            transform: translateY(-100vh);
+        }
+        transition: transform var(--transition) ease-in-out;
+
+        .toolbar {
+            overflow: hidden;
+            border-bottom-left-radius: prop(border-radius-medium);
+            border-bottom-right-radius: prop(border-radius-medium);
+            @include elevation(1, $opacity-boost: -0.1);
+
+            // glass effect
+            background: var(--canvas-glass);
+            backdrop-filter: blur(var(--blur));
+        }
+
+        // elevated state (deck browser, overview)
+        &:not(.flat) .toolbar {
+            background: var(--canvas-elevated);
+            @include elevation(1);
+            &:hover {
+                @include elevation(2);
+            }
+        }
+
+        &:not(.flat) .hitem {
+            @include button.base($border: false, $with-hover: false);
+            background: var(--canvas-glass);
+            border: 1px solid transparent;
+        }
+        .hitem {
+            text-decoration: none;
+            border: 1px solid transparent;
+
+            &:hover {
+                border: 1px solid var(--border-subtle);
+            }
+            &:active {
+                background: var(--canvas-inset);
+            }
+            &:first-child {
+                padding-left: 18px;
+            }
+            &:last-child {
+                padding-right: 18px;
+            }
+        }
+    }
 }
 
 * {
     -webkit-user-drag: none;
-}
-
-.hitem {
-    font-weight: bold;
-    padding: 6px 12px 8px;
-    text-decoration: none;
-    color: color(fg);
-    display: inline-block;
-
-    body:not(.flat) &,
-    &:hover {
-        @include button.base($border: false);
-        background: var(--canvas-elevated);
-    }
-    &:first-child {
-        padding-left: 18px;
-    }
-    &:last-child {
-        padding-right: 18px;
-    }
 }
 
 .hitem:focus {
@@ -97,9 +148,9 @@ body {
 }
 
 .normal-sync {
-    color: color(state-new);
+    color: color(state-new) !important;
 }
 
 .full-sync {
-    color: color(state-learn);
+    color: color(state-learn) !important;
 }

@@ -1,22 +1,25 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use ninja_gen::{
-    action::BuildAction,
-    archives::{download_and_extract, empty_manifest, with_exe, OnlineArchive},
-    cargo::{CargoBuild, RustOutput},
-    git::SyncSubmodule,
-    glob,
-    input::BuildInput,
-    inputs,
-    python::PythonEnvironment,
-    Build, Result, Utf8Path,
-};
+use ninja_gen::action::BuildAction;
+use ninja_gen::archives::download_and_extract;
+use ninja_gen::archives::empty_manifest;
+use ninja_gen::archives::with_exe;
+use ninja_gen::archives::OnlineArchive;
+use ninja_gen::cargo::CargoBuild;
+use ninja_gen::cargo::RustOutput;
+use ninja_gen::git::SyncSubmodule;
+use ninja_gen::glob;
+use ninja_gen::input::BuildInput;
+use ninja_gen::inputs;
+use ninja_gen::python::PythonEnvironment;
+use ninja_gen::Build;
+use ninja_gen::Result;
+use ninja_gen::Utf8Path;
 
-use crate::{
-    anki_version,
-    platform::{overriden_python_target_platform, overriden_rust_target_triple},
-};
+use crate::anki_version;
+use crate::platform::overriden_python_target_platform;
+use crate::platform::overriden_rust_target_triple;
 
 #[derive(Debug, PartialEq, Eq)]
 enum DistKind {
@@ -40,9 +43,9 @@ impl DistKind {
     }
 }
 
-pub fn build_bundle(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
+pub fn build_bundle(build: &mut Build) -> Result<()> {
     // install into venv
-    setup_primary_venv(build, python_binary)?;
+    setup_primary_venv(build)?;
     install_anki_wheels(build)?;
 
     // bundle venv into output binary + extra_files
@@ -57,7 +60,7 @@ pub fn build_bundle(build: &mut Build, python_binary: &BuildInput) -> Result<()>
     // repeat for Qt5
     if !targetting_macos_arm() {
         if !cfg!(target_os = "macos") {
-            setup_qt5_venv(build, python_binary)?;
+            setup_qt5_venv(build)?;
         }
         build_dist_folder(build, DistKind::Alternate)?;
     }
@@ -168,7 +171,7 @@ const QT5_VENV: Venv = Venv {
     path_without_builddir: "bundle/pyenv-qt5",
 };
 
-fn setup_primary_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
+fn setup_primary_venv(build: &mut Build) -> Result<()> {
     let mut qt6_reqs = inputs![
         "python/requirements.bundle.txt",
         if cfg!(target_os = "macos") {
@@ -186,14 +189,13 @@ fn setup_primary_venv(build: &mut Build, python_binary: &BuildInput) -> Result<(
             folder: PRIMARY_VENV.path_without_builddir,
             base_requirements_txt: "python/requirements.base.txt".into(),
             requirements_txt: qt6_reqs,
-            python_binary,
             extra_binary_exports: &[],
         },
     )?;
     Ok(())
 }
 
-fn setup_qt5_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
+fn setup_qt5_venv(build: &mut Build) -> Result<()> {
     let qt5_reqs = inputs![
         "python/requirements.base.txt",
         if cfg!(target_os = "macos") {
@@ -208,7 +210,6 @@ fn setup_qt5_venv(build: &mut Build, python_binary: &BuildInput) -> Result<()> {
             folder: QT5_VENV.path_without_builddir,
             base_requirements_txt: "python/requirements.base.txt".into(),
             requirements_txt: qt5_reqs,
-            python_binary,
             extra_binary_exports: &[],
         },
     )

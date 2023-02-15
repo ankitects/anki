@@ -2,14 +2,16 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::CardStateUpdater;
-use crate::{
-    card::CardType,
-    decks::DeckKind,
-    scheduler::states::{
-        CardState, LearnState, NewState, NormalState, PreviewState, RelearnState,
-        ReschedulingFilterState, ReviewState,
-    },
-};
+use crate::card::CardType;
+use crate::decks::DeckKind;
+use crate::scheduler::states::CardState;
+use crate::scheduler::states::LearnState;
+use crate::scheduler::states::NewState;
+use crate::scheduler::states::NormalState;
+use crate::scheduler::states::PreviewState;
+use crate::scheduler::states::RelearnState;
+use crate::scheduler::states::ReschedulingFilterState;
+use crate::scheduler::states::ReviewState;
 
 impl CardStateUpdater {
     pub(crate) fn current_card_state(&self) -> CardState {

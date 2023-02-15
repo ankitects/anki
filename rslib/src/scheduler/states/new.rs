@@ -11,8 +11,9 @@ pub struct NewState {
 
 impl NewState {
     pub(crate) fn interval_kind(self) -> IntervalKind {
-        // todo: consider packing the due number in here; it would allow us to restore the
-        // original position of cards - though not as cheaply as if it were a card property.
+        // todo: consider packing the due number in here; it would allow us to restore
+        // the original position of cards - though not as cheaply as if it were
+        // a card property.
         IntervalKind::InSecs(0)
     }
 

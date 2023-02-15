@@ -1,6 +1,7 @@
-# this is not supported on stable Rust, and is ignored by the Bazel rules; it is only
-# useful for manual invocation with 'cargo +nightly fmt'
-imports_granularity = "Crate"
+# These settings are not supported on stable Rust, and are ignored by the ninja
+# build script - to use them you need to run 'cargo +nightly fmt'
 group_imports = "StdExternalCrate"
-# imports_granularity = "Item"
-# imports_layout = "Vertical"
+imports_granularity = "Item"
+imports_layout = "Vertical"
+wrap_comments = true
+ignore = ["ascii_percent_encoding"]

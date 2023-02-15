@@ -29,7 +29,7 @@ from aqt.reviewer import replay_audio
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.utils import disable_help_button, restoreGeom, saveGeom, setWindowIcon, tr
-from aqt.webview import AnkiWebView
+from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 LastStateAndMod = tuple[str, int, int]
 
@@ -78,10 +78,12 @@ class Previewer(QDialog):
         self.silentlyClose = True
         self.vbox = QVBoxLayout()
         self.vbox.setContentsMargins(0, 0, 0, 0)
-        self._web = AnkiWebView(title="previewer")
+        self._web = AnkiWebView(kind=AnkiWebViewKind.PREVIEWER)
         self.vbox.addWidget(self._web)
         self.bbox = QDialogButtonBox()
         self.bbox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+
+        gui_hooks.card_review_webview_did_init(self._web, AnkiWebViewKind.PREVIEWER)
 
         self._replay = self.bbox.addButton(
             tr.actions_replay_audio(), QDialogButtonBox.ButtonRole.ActionRole
@@ -110,6 +112,8 @@ class Previewer(QDialog):
         self._on_close()
 
     def _on_replay_audio(self) -> None:
+        gui_hooks.audio_will_replay(self._web, self.card(), self._state == "question")
+
         if self._state == "question":
             replay_audio(self.card(), True)
         elif self._state == "answer":
@@ -240,6 +244,10 @@ class Previewer(QDialog):
     def _on_show_both_sides(self, toggle: bool) -> None:
         self._show_both_sides = toggle
         self.mw.col.set_config_bool(Config.Bool.PREVIEW_BOTH_SIDES, toggle)
+        gui_hooks.previewer_will_redraw_after_show_both_sides_toggled(
+            self._web, self.card(), self._state == "question", toggle
+        )
+
         if self._state == "answer" and not toggle:
             self._state = "question"
         self.render_card()

@@ -4,18 +4,22 @@
 use std::sync::Arc;
 
 use itertools::Itertools;
-use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
+use strum::Display;
+use strum::EnumIter;
+use strum::EnumString;
+use strum::IntoEnumIterator;
 
-use crate::{
-    card::{CardQueue, CardType},
-    card_rendering::prettify_av_tags,
-    notetype::{CardTemplate, NotetypeKind},
-    pb,
-    prelude::*,
-    scheduler::{timespan::time_span, timing::SchedTimingToday},
-    template::RenderedNode,
-    text::html_to_text_line,
-};
+use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::card_rendering::prettify_av_tags;
+use crate::notetype::CardTemplate;
+use crate::notetype::NotetypeKind;
+use crate::pb;
+use crate::prelude::*;
+use crate::scheduler::timespan::time_span;
+use crate::scheduler::timing::SchedTimingToday;
+use crate::template::RenderedNode;
+use crate::text::html_to_text_line;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Display, EnumIter, EnumString)]
 #[strum(serialize_all = "camelCase")]
@@ -242,9 +246,9 @@ impl Collection {
     }
 
     fn get_note_maybe_with_fields(&self, id: NoteId, _with_fields: bool) -> Result<Note> {
-        // todo: After note.sort_field has been modified so it can be displayed in the browser,
-        // we can update note_field_str() and only load the note with fields if a card render is
-        // necessary (see #1082).
+        // todo: After note.sort_field has been modified so it can be displayed in the
+        // browser, we can update note_field_str() and only load the note with
+        // fields if a card render is necessary (see #1082).
         if true {
             self.storage.get_note(id)?
         } else {
@@ -449,8 +453,9 @@ impl RowContext {
         }
     }
 
-    /// Returns the due date of the next due card that is not in a filtered deck, new, suspended or
-    /// buried or the empty string if there is no such card.
+    /// Returns the due date of the next due card that is not in a filtered
+    /// deck, new, suspended or buried or the empty string if there is no
+    /// such card.
     fn note_due_str(&self) -> String {
         self.cards
             .iter()
@@ -461,7 +466,8 @@ impl RowContext {
             .unwrap_or_else(|| "".into())
     }
 
-    /// Returns the average ease of the non-new cards or a hint if there aren't any.
+    /// Returns the average ease of the non-new cards or a hint if there aren't
+    /// any.
     fn ease_str(&self) -> String {
         let eases: Vec<u16> = self
             .cards
@@ -476,7 +482,8 @@ impl RowContext {
         }
     }
 
-    /// Returns the average interval of the review and relearn cards if there are any.
+    /// Returns the average interval of the review and relearn cards if there
+    /// are any.
     fn interval_str(&self) -> String {
         if !self.notes_mode {
             match self.cards[0].ctype {
@@ -566,10 +573,12 @@ impl RowContext {
                 _ => {
                     if self.note.is_marked() {
                         Color::Marked
-                    } else if self.cards[0].queue == CardQueue::Suspended {
-                        Color::Suspended
                     } else {
-                        Color::Default
+                        match self.cards[0].queue {
+                            CardQueue::Suspended => Color::Suspended,
+                            CardQueue::UserBuried | CardQueue::SchedBuried => Color::Buried,
+                            _ => Color::Default,
+                        }
                     }
                 }
             }

@@ -3,7 +3,8 @@
 
 use std::collections::HashMap;
 
-use super::{join_tags, matcher::TagMatcher};
+use super::join_tags;
+use super::matcher::TagMatcher;
 use crate::prelude::*;
 
 impl Collection {

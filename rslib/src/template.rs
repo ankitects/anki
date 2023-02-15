@@ -1,28 +1,28 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    borrow::Cow,
-    collections::{HashMap, HashSet},
-    fmt::Write,
-    iter,
-};
+use std::borrow::Cow;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::fmt::Write;
+use std::iter;
 
 use lazy_static::lazy_static;
-use nom::{
-    branch::alt,
-    bytes::complete::{tag, take_until},
-    combinator::{map, rest, verify},
-    sequence::delimited,
-};
+use nom::branch::alt;
+use nom::bytes::complete::tag;
+use nom::bytes::complete::take_until;
+use nom::combinator::map;
+use nom::combinator::rest;
+use nom::combinator::verify;
+use nom::sequence::delimited;
 use regex::Regex;
 
-use crate::{
-    cloze::add_cloze_numbers_in_string,
-    error::{AnkiError, Result, TemplateError},
-    i18n::I18n,
-    template_filters::apply_filters,
-};
+use crate::cloze::add_cloze_numbers_in_string;
+use crate::error::AnkiError;
+use crate::error::Result;
+use crate::error::TemplateError;
+use crate::i18n::I18n;
+use crate::template_filters::apply_filters;
 
 pub type FieldMap<'a> = HashMap<&'a str, u16>;
 type TemplateResult<T> = std::result::Result<T, TemplateError>;
@@ -326,9 +326,9 @@ impl ParsedTemplate {
     }
 }
 
-/// If check_negated is false, negated conditionals resolve to their children, even
-/// if the referenced key is non-empty. This allows the legacy required field cache to
-/// generate results closer to older Anki versions.
+/// If check_negated is false, negated conditionals resolve to their children,
+/// even if the referenced key is non-empty. This allows the legacy required
+/// field cache to generate results closer to older Anki versions.
 fn template_is_empty(
     nonempty_fields: &HashSet<&str>,
     nodes: &[ParsedNode],
@@ -685,8 +685,8 @@ impl ParsedTemplate {
 //----------------------------------------
 
 impl ParsedTemplate {
-    /// Given a map of old to new field names, update references to the new names.
-    /// Returns true if any changes made.
+    /// Given a map of old to new field names, update references to the new
+    /// names. Returns true if any changes made.
     pub(crate) fn rename_and_remove_fields(&mut self, fields: &HashMap<String, Option<String>>) {
         let old_nodes = std::mem::take(&mut self.0);
         self.0 = rename_and_remove_fields(old_nodes, fields);
@@ -846,12 +846,15 @@ fn is_cloze_conditional(key: &str) -> bool {
 mod test {
     use std::collections::HashMap;
 
-    use super::{FieldMap, ParsedNode::*, ParsedTemplate as PT};
-    use crate::{
-        error::TemplateError,
-        i18n::I18n,
-        template::{field_is_empty, nonempty_fields, FieldRequirements, RenderContext},
-    };
+    use super::FieldMap;
+    use super::ParsedNode::*;
+    use super::ParsedTemplate as PT;
+    use crate::error::TemplateError;
+    use crate::i18n::I18n;
+    use crate::template::field_is_empty;
+    use crate::template::nonempty_fields;
+    use crate::template::FieldRequirements;
+    use crate::template::RenderContext;
 
     #[test]
     fn field_empty() {

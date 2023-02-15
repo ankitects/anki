@@ -124,8 +124,13 @@ message DeckConfig {
     bool show_timer = 25;
     bool skip_question_when_replaying_answer = 26;
 
+    // the new scheduler doesn't allow toggling these booleans freely anymore,
+    // but they are continued to be used for reasons of backwards compatibility
+
     bool bury_new = 27;
+    // only respected if bury_new
     bool bury_reviews = 28;
+    // only respected if bury_new and bury_reviews
     bool bury_interday_learning = 29;
 
     bytes other = 255;

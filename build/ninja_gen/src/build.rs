@@ -1,20 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    collections::{HashMap, HashSet},
-    fmt::Write,
-};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::fmt::Write;
 
 use camino::Utf8PathBuf;
 
-use crate::{
-    action::BuildAction,
-    archives::Platform,
-    configure::ConfigureBuild,
-    input::{space_separated, BuildInput},
-    Result,
-};
+use crate::action::BuildAction;
+use crate::archives::Platform;
+use crate::configure::ConfigureBuild;
+use crate::input::space_separated;
+use crate::input::BuildInput;
+use crate::Result;
 
 #[derive(Debug)]
 pub struct Build {
@@ -64,8 +62,8 @@ impl Build {
         self.pools.push((name, size));
     }
 
-    /// Evaluate the provided closure only once, using `key` to determine uniqueness.
-    /// This key should not match any build action name.
+    /// Evaluate the provided closure only once, using `key` to determine
+    /// uniqueness. This key should not match any build action name.
     pub fn once_only(
         &mut self,
         key: &'static str,
@@ -155,15 +153,16 @@ rule {action_name}
         self.add_resolved_files_to_group(target_group, &additional_files.clone())
     }
 
-    /// Outputs from a given build statement group. An error if no files have been registered yet.
+    /// Outputs from a given build statement group. An error if no files have
+    /// been registered yet.
     pub fn group_outputs(&self, group_name: &'static str) -> &[String] {
         self.groups
             .get(group_name)
             .unwrap_or_else(|| panic!("expected files in {group_name}"))
     }
 
-    /// Single output from a given build statement group. An error if no files have been registered yet,
-    /// or more than one file has been registered.
+    /// Single output from a given build statement group. An error if no files
+    /// have been registered yet, or more than one file has been registered.
     pub fn group_output(&self, group_name: &'static str) -> String {
         let outputs = self.group_outputs(group_name);
         assert_eq!(outputs.len(), 1);
@@ -201,8 +200,8 @@ fn split_groups(group: &str) -> Vec<&str> {
 }
 
 struct BuildStatement<'a> {
-    /// Cache of outputs by already-evaluated build rules, allowing later rules to more easily consume
-    /// the outputs of previous rules.
+    /// Cache of outputs by already-evaluated build rules, allowing later rules
+    /// to more easily consume the outputs of previous rules.
     existing_outputs: &'a HashMap<String, Vec<String>>,
     rule_name: &'static str,
     // implicit refers to files that are not automatically assigned to $in and $out by Ninja,
@@ -215,6 +214,7 @@ struct BuildStatement<'a> {
     rule_variables: Vec<(String, String)>,
     output_stamp: bool,
     env_vars: Vec<String>,
+    working_dir: Option<String>,
     release: bool,
     bypass_runner: bool,
 }
@@ -238,6 +238,7 @@ impl BuildStatement<'_> {
             output_subsets: Default::default(),
             output_stamp: false,
             env_vars: Default::default(),
+            working_dir: None,
             release,
             bypass_runner: action.bypass_runner(),
         };
@@ -260,8 +261,8 @@ impl BuildStatement<'_> {
         stmt
     }
 
-    /// Returns a list of all output files, which `Build` will add to `existing_outputs`,
-    /// and any subgroups.
+    /// Returns a list of all output files, which `Build` will add to
+    /// `existing_outputs`, and any subgroups.
     fn render_into(mut self, buf: &mut String) -> (Vec<String>, Vec<(String, Vec<String>)>) {
         let action_name = self.rule_name;
         let inputs_str = to_ninja_target_string(&self.explicit_inputs, &self.implicit_inputs);
@@ -296,6 +297,9 @@ impl BuildStatement<'_> {
             for var in &self.env_vars {
                 write!(&mut buf, "--env={var} ").unwrap();
             }
+        }
+        if let Some(working_dir) = &self.working_dir {
+            write!(&mut buf, "--cwd={working_dir} ").unwrap();
         }
         buf.push_str(&command);
         buf
@@ -344,8 +348,9 @@ pub trait FilesHandle {
     /// created so the file list can be accessed in the command. By convention,
     /// this is often `out`.
     /// - If subgroup is true, the files are also placed in a subgroup. Eg
-    /// if a rule `foo` exists and subgroup `bar` is provided, the files are accessible
-    /// via `:foo:bar`. The variable name must not be empty, or called `out`.
+    /// if a rule `foo` exists and subgroup `bar` is provided, the files are
+    /// accessible via `:foo:bar`. The variable name must not be empty, or
+    /// called `out`.
     fn add_outputs_ext(
         &mut self,
         variable: impl Into<String>,
@@ -357,9 +362,14 @@ pub trait FilesHandle {
     fn add_output_stamp(&mut self, path: impl Into<String>);
     /// Set an env var for the duration of the provided command(s).
     /// Note this is defined once for the rule, so if the value should change
-    /// for each command, `constant_value` should reference a `$variable` you have
-    /// defined.
+    /// for each command, `constant_value` should reference a `$variable` you
+    /// have defined.
     fn add_env_var(&mut self, key: &str, constant_value: &str);
+    /// Set the current working dir for the provided command(s).
+    /// Note this is defined once for the rule, so if the value should change
+    /// for each command, `constant_value` should reference a `$variable` you
+    /// have defined.
+    fn set_working_dir(&mut self, constant_value: &str);
 
     fn release_build(&self) -> bool;
 }
@@ -447,6 +457,10 @@ impl FilesHandle for BuildStatement<'_> {
 
     fn add_env_var(&mut self, key: &str, constant_value: &str) {
         self.env_vars.push(format!("{key}={constant_value}"));
+    }
+
+    fn set_working_dir(&mut self, constant_value: &str) {
+        self.working_dir = Some(constant_value.to_owned());
     }
 }
 

@@ -1,9 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{fmt::Write, fs::read_to_string};
+use std::fmt::Write;
+use std::fs::read_to_string;
 
-use crate::{archives::with_exe, input::space_separated, Build};
+use crate::archives::with_exe;
+use crate::input::space_separated;
+use crate::Build;
 
 impl Build {
     pub fn render(&self) -> String {

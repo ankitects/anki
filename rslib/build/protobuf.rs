@@ -1,7 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{env, fmt::Write, path::PathBuf};
+use std::env;
+use std::fmt::Write;
+use std::path::PathBuf;
 
 struct CustomGenerator {}
 
@@ -71,7 +73,7 @@ fn service_generator() -> Box<dyn prost_build::ServiceGenerator> {
 }
 
 pub fn write_backend_proto_rs() {
-    maybe_add_protobuf_to_path();
+    set_protoc_path();
     let proto_dir = PathBuf::from("../proto");
 
     let subfolders = &["anki"];
@@ -120,12 +122,14 @@ pub fn write_backend_proto_rs() {
         .unwrap();
 }
 
-/// If PROTOC is not defined, and protoc is not on path, use the protoc
-/// fetched by Bazel so that Rust Analyzer does not fail.
-fn maybe_add_protobuf_to_path() {
-    if let Ok(protoc) = env::var("PROTOC") {
-        if cfg!(windows) && !protoc.ends_with(".exe") {
-            env::set_var("PROTOC", format!("{protoc}.exe"));
+/// Set PROTOC to the custom path provided by PROTOC_BINARY, or add .exe to
+/// the standard path if on Windows.
+fn set_protoc_path() {
+    if let Ok(custom_protoc) = env::var("PROTOC_BINARY") {
+        env::set_var("PROTOC", custom_protoc);
+    } else if let Ok(bundled_protoc) = env::var("PROTOC") {
+        if cfg!(windows) && !bundled_protoc.ends_with(".exe") {
+            env::set_var("PROTOC", format!("{bundled_protoc}.exe"));
         }
     }
 }

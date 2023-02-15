@@ -10,10 +10,11 @@ mod relearning;
 mod rescheduling;
 mod review;
 
-use crate::{
-    pb,
-    scheduler::states::{CardState, NewState, NormalState, SchedulingStates},
-};
+use crate::pb;
+use crate::scheduler::states::CardState;
+use crate::scheduler::states::NewState;
+use crate::scheduler::states::NormalState;
+use crate::scheduler::states::SchedulingStates;
 
 impl From<SchedulingStates> for pb::scheduler::SchedulingStates {
     fn from(choices: SchedulingStates) -> Self {

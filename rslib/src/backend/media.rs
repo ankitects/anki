@@ -1,13 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{progress::Progress, Backend};
+use super::progress::Progress;
+use super::Backend;
+use crate::media::check::MediaChecker;
+use crate::pb;
 pub(super) use crate::pb::media::media_service::Service as MediaService;
-use crate::{
-    media::{check::MediaChecker, MediaManager},
-    pb,
-    prelude::*,
-};
+use crate::prelude::*;
 
 impl MediaService for Backend {
     // media
@@ -18,7 +17,7 @@ impl MediaService for Backend {
         let progress_fn =
             move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
         self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            let mgr = col.media()?;
             col.transact_no_undo(|ctx| {
                 let mut checker = MediaChecker::new(ctx, &mgr, progress_fn);
                 let mut output = checker.check()?;
@@ -41,19 +40,17 @@ impl MediaService for Backend {
         input: pb::media::TrashMediaFilesRequest,
     ) -> Result<pb::generic::Empty> {
         self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            let mut ctx = mgr.dbctx();
-            mgr.remove_files(&mut ctx, &input.fnames)
+            let mgr = col.media()?;
+            mgr.remove_files(&input.fnames)
         })
         .map(Into::into)
     }
 
     fn add_media_file(&self, input: pb::media::AddMediaFileRequest) -> Result<pb::generic::String> {
         self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            let mut ctx = mgr.dbctx();
+            let mgr = col.media()?;
             Ok(mgr
-                .add_file(&mut ctx, &input.desired_name, &input.data)?
+                .add_file(&input.desired_name, &input.data)?
                 .to_string()
                 .into())
         })
@@ -65,7 +62,7 @@ impl MediaService for Backend {
             move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
 
         self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            let mgr = col.media()?;
             let mut checker = MediaChecker::new(col, &mgr, progress_fn);
             checker.empty_trash()
         })
@@ -77,7 +74,7 @@ impl MediaService for Backend {
         let progress_fn =
             move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
         self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            let mgr = col.media()?;
             let mut checker = MediaChecker::new(col, &mgr, progress_fn);
             checker.restore_trash()
         })

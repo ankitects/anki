@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{
-    prelude::*,
-    revlog::{RevlogEntry, RevlogReviewKind},
-    scheduler::states::{CardState, IntervalKind},
-};
+use crate::prelude::*;
+use crate::revlog::RevlogEntry;
+use crate::revlog::RevlogReviewKind;
+use crate::scheduler::states::CardState;
+use crate::scheduler::states::IntervalKind;
 
 pub struct RevlogEntryPartial {
     interval: IntervalKind,
