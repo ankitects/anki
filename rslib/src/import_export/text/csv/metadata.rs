@@ -161,13 +161,17 @@ impl Collection {
                     metadata.guid_column = n;
                 }
             }
-            "limit dupe check to deck" => {
-                if let Ok(limit) = value.to_lowercase().parse() {
-                    metadata.limit_dupe_check_to_deck = limit;
+            "match scope" => match value {
+                "notetype" => {
+                    metadata.limit_dupe_check_to_deck = false;
                 }
-            }
-            "dupe resolution" => {
-                if let Some(resolution) = DupeResolution::from_str_name(&value.to_uppercase()) {
+                "notetype + deck" => {
+                    metadata.limit_dupe_check_to_deck = true;
+                }
+                _ => (),
+            },
+            "if matches" => {
+                if let Some(resolution) = DupeResolution::from_text(value) {
                     metadata.dupe_resolution = resolution as i32;
                 }
             }
@@ -261,6 +265,15 @@ impl CsvMetadata {
 impl DupeResolution {
     fn from_config(col: &Collection) -> Self {
         Self::from_i32(col.get_config_i32(I32ConfigKey::CsvDuplicateResolution)).unwrap_or_default()
+    }
+
+    fn from_text(text: &str) -> Option<Self> {
+        match text {
+            "update current" => Some(Self::Update),
+            "keep current" => Some(Self::Preserve),
+            "keep both" => Some(Self::Duplicate),
+            _ => None,
+        }
     }
 }
 
