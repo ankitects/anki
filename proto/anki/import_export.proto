@@ -161,6 +161,10 @@ message CsvMetadata {
     // One-based. 0 means n/a.
     uint32 notetype_column = 9;
   }
+  enum MatchScope {
+    NOTETYPE = 0;
+    NOTETYPE_AND_DECK = 1;
+  }
   // One-based. 0 means n/a.
   uint32 tags_column = 10;
   bool force_delimiter = 11;
@@ -168,7 +172,7 @@ message CsvMetadata {
   repeated generic.StringList preview = 13;
   uint32 guid_column = 14;
   DupeResolution dupe_resolution = 15;
-  bool limit_dupe_check_to_deck = 16;
+  MatchScope match_scope = 16;
 }
 
 message ExportCardCsvRequest {

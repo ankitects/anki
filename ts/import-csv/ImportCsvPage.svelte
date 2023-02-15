@@ -28,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let notetypeNameIds: Notetypes.NotetypeNameId[];
     export let deckNameIds: Decks.DeckNameId[];
     export let dupeResolution: ImportExport.CsvMetadata.DupeResolution;
-    export let limitDupeCheckToDeck: boolean;
+    export let matchScope: ImportExport.CsvMetadata.MatchScope;
 
     export let delimiter: ImportExport.CsvMetadata.Delimiter;
     export let forceDelimiter: boolean;
@@ -75,7 +75,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 path,
                 metadata: ImportExport.CsvMetadata.create({
                     dupeResolution,
-                    limitDupeCheckToDeck,
+                    matchScope,
                     delimiter,
                     forceDelimiter,
                     isHtml,
@@ -122,7 +122,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <DeckSelector {deckNameIds} bind:deckId />
                 {/if}
                 <DupeResolutionSelector bind:dupeResolution />
-                <DeckDupeCheckSwitch bind:value={limitDupeCheckToDeck} />
+                <DeckDupeCheckSwitch bind:matchScope />
                 <Tags bind:globalTags bind:updatedTags />
             </Container>
         </Col>

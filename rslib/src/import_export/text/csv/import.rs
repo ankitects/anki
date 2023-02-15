@@ -40,7 +40,7 @@ impl From<CsvMetadata> for ForeignData {
     fn from(metadata: CsvMetadata) -> Self {
         ForeignData {
             dupe_resolution: metadata.dupe_resolution(),
-            limit_dupe_check_to_deck: metadata.limit_dupe_check_to_deck,
+            match_scope: metadata.match_scope(),
             default_deck: metadata.deck().map(|d| d.name_or_id()).unwrap_or_default(),
             default_notetype: metadata
                 .notetype()
@@ -296,7 +296,7 @@ mod test {
                 })),
                 preview: Vec::new(),
                 dupe_resolution: 0,
-                limit_dupe_check_to_deck: false,
+                match_scope: 0,
             }
         }
     }

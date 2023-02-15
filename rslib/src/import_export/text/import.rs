@@ -16,6 +16,7 @@ use crate::import_export::text::ForeignData;
 use crate::import_export::text::ForeignNote;
 use crate::import_export::text::ForeignNotetype;
 use crate::import_export::text::ForeignTemplate;
+use crate::import_export::text::MatchScope;
 use crate::import_export::ImportProgress;
 use crate::import_export::IncrementableProgress;
 use crate::import_export::NoteLog;
@@ -54,7 +55,7 @@ impl ForeignData {
             I32ConfigKey::CsvDuplicateResolution,
             self.dupe_resolution as i32,
         )?;
-        col.set_config_bool_inner(BoolKey::LimitDupeCheckToDeck, self.limit_dupe_check_to_deck)?;
+        col.set_config_i32_inner(I32ConfigKey::MatchScope, self.match_scope as i32)?;
         Ok(())
     }
 }
@@ -94,27 +95,28 @@ struct DeckIdsByNameOrId {
 /// have different original decks.
 #[derive(Debug)]
 enum ExistingChecksums {
-    WithoutDeck(HashMap<(NotetypeId, u32), Vec<NoteId>>),
-    WithDeck(HashMap<(NotetypeId, u32, DeckId), Vec<NoteId>>),
+    ByNotetype(HashMap<(NotetypeId, u32), Vec<NoteId>>),
+    ByNotetypeAndDeck(HashMap<(NotetypeId, u32, DeckId), Vec<NoteId>>),
 }
 
 impl ExistingChecksums {
-    fn new(col: &mut Collection, include_deck: bool) -> Result<Self> {
-        if include_deck {
-            col.storage
-                .all_notes_by_type_checksum_and_deck()
-                .map(Self::WithDeck)
-        } else {
-            col.storage
+    fn new(col: &mut Collection, match_scope: MatchScope) -> Result<Self> {
+        match match_scope {
+            MatchScope::Notetype => col
+                .storage
                 .all_notes_by_type_and_checksum()
-                .map(Self::WithoutDeck)
+                .map(Self::ByNotetype),
+            MatchScope::NotetypeAndDeck => col
+                .storage
+                .all_notes_by_type_checksum_and_deck()
+                .map(Self::ByNotetypeAndDeck),
         }
     }
 
     fn get(&self, notetype: NotetypeId, checksum: u32, deck: DeckId) -> Option<&Vec<NoteId>> {
         match self {
-            Self::WithoutDeck(map) => map.get(&(notetype, checksum)),
-            Self::WithDeck(map) => map.get(&(notetype, checksum, deck)),
+            Self::ByNotetype(map) => map.get(&(notetype, checksum)),
+            Self::ByNotetypeAndDeck(map) => map.get(&(notetype, checksum, deck)),
         }
     }
 }
@@ -188,7 +190,7 @@ impl<'a> Context<'a> {
             col.notetype_by_name_or_id(&data.default_notetype)?,
         );
         let deck_ids = DeckIdsByNameOrId::new(col, &data.default_deck)?;
-        let existing_checksums = ExistingChecksums::new(col, data.limit_dupe_check_to_deck)?;
+        let existing_checksums = ExistingChecksums::new(col, data.match_scope)?;
         let existing_guids = col.storage.all_notes_by_guid()?;
 
         Ok(Self {
@@ -767,7 +769,7 @@ mod test {
             .deck(other_deck_id)
             .add(&mut col);
         let mut data = ForeignData::with_defaults();
-        data.limit_dupe_check_to_deck = true;
+        data.match_scope = MatchScope::NotetypeAndDeck;
         data.add_note(&["foo", "new"]);
 
         data.import(&mut col, |_, _| true).unwrap();

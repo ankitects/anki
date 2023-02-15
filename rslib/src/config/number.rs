@@ -9,6 +9,7 @@ use crate::prelude::*;
 #[strum(serialize_all = "camelCase")]
 pub enum I32ConfigKey {
     CsvDuplicateResolution,
+    MatchScope,
 }
 
 impl Collection {

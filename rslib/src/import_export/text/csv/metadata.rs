@@ -23,6 +23,7 @@ pub use crate::pb::import_export::csv_metadata::Deck as CsvDeck;
 pub use crate::pb::import_export::csv_metadata::Delimiter;
 pub use crate::pb::import_export::csv_metadata::DupeResolution;
 pub use crate::pb::import_export::csv_metadata::MappedNotetype;
+pub use crate::pb::import_export::csv_metadata::MatchScope;
 pub use crate::pb::import_export::csv_metadata::Notetype as CsvNotetype;
 pub use crate::pb::import_export::CsvMetadata;
 use crate::prelude::*;
@@ -161,15 +162,11 @@ impl Collection {
                     metadata.guid_column = n;
                 }
             }
-            "match scope" => match value {
-                "notetype" => {
-                    metadata.limit_dupe_check_to_deck = false;
+            "match scope" => {
+                if let Some(scope) = MatchScope::from_text(value) {
+                    metadata.match_scope = scope as i32;
                 }
-                "notetype + deck" => {
-                    metadata.limit_dupe_check_to_deck = true;
-                }
-                _ => (),
-            },
+            }
             "if matches" => {
                 if let Some(resolution) = DupeResolution::from_text(value) {
                     metadata.dupe_resolution = resolution as i32;
@@ -256,7 +253,7 @@ impl CsvMetadata {
     fn from_config(col: &Collection) -> Self {
         Self {
             dupe_resolution: DupeResolution::from_config(col) as i32,
-            limit_dupe_check_to_deck: col.get_config_bool(BoolKey::LimitDupeCheckToDeck),
+            match_scope: MatchScope::from_config(col) as i32,
             ..Default::default()
         }
     }
@@ -272,6 +269,20 @@ impl DupeResolution {
             "update current" => Some(Self::Update),
             "keep current" => Some(Self::Preserve),
             "keep both" => Some(Self::Duplicate),
+            _ => None,
+        }
+    }
+}
+
+impl MatchScope {
+    fn from_config(col: &Collection) -> Self {
+        Self::from_i32(col.get_config_i32(I32ConfigKey::MatchScope)).unwrap_or_default()
+    }
+
+    fn from_text(text: &str) -> Option<Self> {
+        match text {
+            "notetype" => Some(Self::Notetype),
+            "notetype + deck" => Some(Self::NotetypeAndDeck),
             _ => None,
         }
     }
