@@ -29,7 +29,7 @@ service CardRenderingService {
   rpc CompareAnswer(CompareAnswerRequest) returns (generic.String);
   rpc ExtractClozeForTyping(ExtractClozeForTypingRequest)
       returns (generic.String);
-  rpc AllTtsVoices(generic.Bool) returns (AllTtsVoicesResponse);
+  rpc AllTtsVoices(AllTtsVoicesRequest) returns (AllTtsVoicesResponse);
   rpc WriteTtsStream(WriteTtsStreamRequest) returns (generic.Empty);
 }
 
@@ -146,6 +146,10 @@ message CompareAnswerRequest {
 message ExtractClozeForTypingRequest {
   string text = 1;
   uint32 ordinal = 2;
+}
+
+message AllTtsVoicesRequest {
+  bool validate = 1;
 }
 
 message AllTtsVoicesResponse {

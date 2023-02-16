@@ -583,7 +583,7 @@ if is_win:
         @staticmethod
         def _get_available_voices(validate: bool) -> list[TTSVoice]:
             assert aqt.mw
-            voices = aqt.mw.backend.all_tts_voices(val=validate)
+            voices = aqt.mw.backend.all_tts_voices(validate=validate)
             return list(map(WindowsRTVoice.from_backend_voice, voices))
 
         def _play(self, tag: AVTag) -> None:
