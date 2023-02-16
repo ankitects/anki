@@ -124,6 +124,22 @@ class DeckBrowser:
         elif cmd == "emptydyndeck":
             self.mw.col.sched.empty_filtered_deck(int(arg))
             self.refresh()
+        elif cmd == "stats":
+            #temporarily change the current deck, open the stats page, and then change the deck back 
+            originalDeckId = self.mw.col.decks.get_current_id()
+            clickedDeckId = DeckId(int(arg))
+
+            def setCurrentDeck(did: DeckId, callback):
+                set_current_deck(parent=self.mw, deck_id=originalDeckId).success(callback).run_in_background(initiator=self)
+            
+            def openStatsAndSwitchBackToDeckCallback():
+                self.mw.onStats()
+                setCurrentDeck(originalDeckId, lambda _: 0)
+            
+            setCurrentDeck(clickedDeckId, lambda _: openStatsAndSwitchBackToDeckCallback()) 
+        elif cmd == "rename":
+            self._rename(DeckId(int(arg)))
+
         return False
 
     def set_current_deck(self, deck_id: DeckId) -> None:
@@ -280,7 +296,10 @@ class DeckBrowser:
         isDyn = self.mw.col.decks.is_filtered(node.deck_id)
 
         def create_single_icon(icon: str, onclick: str, styleOverrides: str, title: str) -> str:
-            return "<a class='quickaction' title='%s' onclick='%s' style='%s'>%s</a>" % (onclick, styleOverrides, icon)
+            return "<a class='quickaction' title='%s' onclick='%s' style='%s'>%s</a>" % (title, onclick, styleOverrides, icon)
+        
+        quickActions.append(create_single_icon("✎", "pycmd(\"rename:%s\")" % node.deck_id, "cursor: pointer; color: #e945ff;", "Rename"))
+        quickActions.append(create_single_icon("🗠", "pycmd(\"stats:%s\")" % node.deck_id, "cursor: pointer; color: #3d9bff;", "Stats"))
 
         if isDyn:
             quickActions.append(create_single_icon("↻", "pycmd(\"rebuilddyndeck:%s\")" % node.deck_id, "cursor: pointer; color: #0af0a7;", "Rebuild"))
