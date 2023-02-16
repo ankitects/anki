@@ -10,11 +10,13 @@ use serde_derive::Serialize;
 
 use super::LogNote;
 use crate::pb::import_export::csv_metadata::DupeResolution;
+use crate::pb::import_export::csv_metadata::MatchScope;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ForeignData {
     dupe_resolution: DupeResolution,
+    match_scope: MatchScope,
     default_deck: NameOrId,
     default_notetype: NameOrId,
     notes: Vec<ForeignNote>,

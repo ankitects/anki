@@ -48,6 +48,7 @@ export async function setupImportCsvPage(path: string): Promise<ImportCsvPage> {
             deckNameIds: decks.entries,
             notetypeNameIds: notetypes.entries,
             dupeResolution: metadata.dupeResolution,
+            matchScope: metadata.matchScope,
             delimiter: metadata.delimiter,
             forceDelimiter: metadata.forceDelimiter,
             isHtml: metadata.isHtml,

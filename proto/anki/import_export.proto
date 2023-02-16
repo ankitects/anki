@@ -122,8 +122,8 @@ message CsvMetadataRequest {
 message CsvMetadata {
   enum DupeResolution {
     UPDATE = 0;
-    IGNORE = 1;
-    ADD = 2;
+    PRESERVE = 1;
+    DUPLICATE = 2;
     // UPDATE_IF_NEWER = 3;
   }
   // Order roughly in ascending expected frequency in note text, because the
@@ -161,6 +161,10 @@ message CsvMetadata {
     // One-based. 0 means n/a.
     uint32 notetype_column = 9;
   }
+  enum MatchScope {
+    NOTETYPE = 0;
+    NOTETYPE_AND_DECK = 1;
+  }
   // One-based. 0 means n/a.
   uint32 tags_column = 10;
   bool force_delimiter = 11;
@@ -168,6 +172,7 @@ message CsvMetadata {
   repeated generic.StringList preview = 13;
   uint32 guid_column = 14;
   DupeResolution dupe_resolution = 15;
+  MatchScope match_scope = 16;
 }
 
 message ExportCardCsvRequest {
