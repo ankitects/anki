@@ -129,18 +129,9 @@ class DeckBrowser:
             self.mw.col.sched.empty_filtered_deck(int(arg))
             self.refresh()
         elif cmd == "stats":
-            #temporarily change the current deck, open the stats page, and then change the deck back 
-            originalDeckId = self.mw.col.decks.get_current_id()
             clickedDeckId = DeckId(int(arg))
-
-            def setCurrentDeck(did: DeckId, callback):
-                set_current_deck(parent=self.mw, deck_id=originalDeckId).success(callback).run_in_background(initiator=self)
-            
-            def openStatsAndSwitchBackToDeckCallback():
-                self.mw.onStats()
-                setCurrentDeck(originalDeckId, lambda _: 0)
-            
-            setCurrentDeck(clickedDeckId, lambda _: openStatsAndSwitchBackToDeckCallback())
+            set_current_deck(parent=self.mw, deck_id=clickedDeckId).success(lambda _: self.mw.onStats()).run_in_background(initiator=self)
+            self.mark_refresh_needed()
         elif cmd == "rename":
             self._rename(DeckId(int(arg)))
         elif cmd == "togglequickactions":
