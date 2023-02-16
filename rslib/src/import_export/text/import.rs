@@ -16,6 +16,7 @@ use crate::import_export::text::ForeignData;
 use crate::import_export::text::ForeignNote;
 use crate::import_export::text::ForeignNotetype;
 use crate::import_export::text::ForeignTemplate;
+use crate::import_export::text::MatchScope;
 use crate::import_export::ImportProgress;
 use crate::import_export::IncrementableProgress;
 use crate::import_export::NoteLog;
@@ -37,10 +38,7 @@ impl ForeignData {
         let mut progress = IncrementableProgress::new(progress_fn);
         progress.call(ImportProgress::File)?;
         col.transact(Op::Import, |col| {
-            col.set_config_i32_inner(
-                I32ConfigKey::CsvDuplicateResolution,
-                self.dupe_resolution as i32,
-            )?;
+            self.update_config(col)?;
             let mut ctx = Context::new(&self, col)?;
             ctx.import_foreign_notetypes(self.notetypes)?;
             ctx.import_foreign_notes(
@@ -50,6 +48,15 @@ impl ForeignData {
                 &mut progress,
             )
         })
+    }
+
+    fn update_config(&self, col: &mut Collection) -> Result<()> {
+        col.set_config_i32_inner(
+            I32ConfigKey::CsvDuplicateResolution,
+            self.dupe_resolution as i32,
+        )?;
+        col.set_config_i32_inner(I32ConfigKey::MatchScope, self.match_scope as i32)?;
+        Ok(())
     }
 }
 
@@ -73,7 +80,7 @@ struct Context<'a> {
     today: u32,
     dupe_resolution: DupeResolution,
     card_gen_ctxs: HashMap<(NotetypeId, DeckId), CardGenContext<Arc<Notetype>>>,
-    existing_checksums: HashMap<(NotetypeId, u32), Vec<NoteId>>,
+    existing_checksums: ExistingChecksums,
     existing_guids: HashMap<String, NoteId>,
 }
 
@@ -81,6 +88,37 @@ struct DeckIdsByNameOrId {
     ids: HashSet<DeckId>,
     names: HashMap<String, DeckId>,
     default: Option<DeckId>,
+}
+
+/// Notes in the collection indexed by notetype, checksum and optionally deck.
+/// With deck, a note will be included in as many entries as its cards
+/// have different original decks.
+#[derive(Debug)]
+enum ExistingChecksums {
+    ByNotetype(HashMap<(NotetypeId, u32), Vec<NoteId>>),
+    ByNotetypeAndDeck(HashMap<(NotetypeId, u32, DeckId), Vec<NoteId>>),
+}
+
+impl ExistingChecksums {
+    fn new(col: &mut Collection, match_scope: MatchScope) -> Result<Self> {
+        match match_scope {
+            MatchScope::Notetype => col
+                .storage
+                .all_notes_by_type_and_checksum()
+                .map(Self::ByNotetype),
+            MatchScope::NotetypeAndDeck => col
+                .storage
+                .all_notes_by_type_checksum_and_deck()
+                .map(Self::ByNotetypeAndDeck),
+        }
+    }
+
+    fn get(&self, notetype: NotetypeId, checksum: u32, deck: DeckId) -> Option<&Vec<NoteId>> {
+        match self {
+            Self::ByNotetype(map) => map.get(&(notetype, checksum)),
+            Self::ByNotetypeAndDeck(map) => map.get(&(notetype, checksum, deck)),
+        }
+    }
 }
 
 struct NoteContext<'a> {
@@ -152,7 +190,7 @@ impl<'a> Context<'a> {
             col.notetype_by_name_or_id(&data.default_notetype)?,
         );
         let deck_ids = DeckIdsByNameOrId::new(col, &data.default_deck)?;
-        let existing_checksums = col.storage.all_notes_by_type_and_checksum()?;
+        let existing_checksums = ExistingChecksums::new(col, data.match_scope)?;
         let existing_guids = col.storage.all_notes_by_guid()?;
 
         Ok(Self {
@@ -247,7 +285,7 @@ impl<'a> Context<'a> {
         updated_tags: &'tags [String],
     ) -> Result<NoteContext<'tags>> {
         self.prepare_foreign_note(&mut note)?;
-        let dupes = self.find_duplicates(&notetype, &note)?;
+        let dupes = self.find_duplicates(&notetype, &note, deck_id)?;
         Ok(NoteContext {
             note,
             dupes,
@@ -263,11 +301,16 @@ impl<'a> Context<'a> {
         self.col.canonify_foreign_tags(note, self.usn)
     }
 
-    fn find_duplicates(&self, notetype: &Notetype, note: &ForeignNote) -> Result<Vec<Duplicate>> {
+    fn find_duplicates(
+        &self,
+        notetype: &Notetype,
+        note: &ForeignNote,
+        deck_id: DeckId,
+    ) -> Result<Vec<Duplicate>> {
         if note.guid.is_empty() {
             if let Some(nids) = note
                 .checksum()
-                .and_then(|csum| self.existing_checksums.get(&(notetype.id, csum)))
+                .and_then(|csum| self.existing_checksums.get(notetype.id, csum, deck_id))
             {
                 return self.get_first_field_dupes(note, nids);
             }
@@ -297,15 +340,15 @@ impl<'a> Context<'a> {
     fn import_note(&mut self, ctx: NoteContext, log: &mut NoteLog) -> Result<()> {
         match self.dupe_resolution {
             _ if !ctx.is_dupe() => self.add_note(ctx, log)?,
-            DupeResolution::Add if ctx.is_guid_dupe() => {
+            DupeResolution::Duplicate if ctx.is_guid_dupe() => {
                 log.duplicate.push(ctx.note.into_log_note())
             }
-            DupeResolution::Add if !ctx.has_first_field() => {
+            DupeResolution::Duplicate if !ctx.has_first_field() => {
                 log.empty_first_field.push(ctx.note.into_log_note())
             }
-            DupeResolution::Add => self.add_note(ctx, log)?,
+            DupeResolution::Duplicate => self.add_note(ctx, log)?,
             DupeResolution::Update => self.update_with_note(ctx, log)?,
-            DupeResolution::Ignore => log.first_field_match.push(ctx.note.into_log_note()),
+            DupeResolution::Preserve => log.first_field_match.push(ctx.note.into_log_note()),
         }
         Ok(())
     }
@@ -588,6 +631,8 @@ impl ForeignTemplate {
 mod test {
     use super::*;
     use crate::collection::open_test_collection;
+    use crate::tests::DeckAdder;
+    use crate::tests::NoteAdder;
 
     impl ForeignData {
         fn with_defaults() -> Self {
@@ -611,7 +656,7 @@ mod test {
         let mut col = open_test_collection();
         let mut data = ForeignData::with_defaults();
         data.add_note(&["same", "old"]);
-        data.dupe_resolution = DupeResolution::Add;
+        data.dupe_resolution = DupeResolution::Duplicate;
 
         data.clone().import(&mut col, |_, _| true).unwrap();
         data.import(&mut col, |_, _| true).unwrap();
@@ -623,7 +668,7 @@ mod test {
         let mut col = open_test_collection();
         let mut data = ForeignData::with_defaults();
         data.add_note(&["same", "old"]);
-        data.dupe_resolution = DupeResolution::Ignore;
+        data.dupe_resolution = DupeResolution::Preserve;
 
         data.clone().import(&mut col, |_, _| true).unwrap();
         assert_eq!(col.storage.notes_table_len(), 1);
@@ -710,5 +755,28 @@ mod test {
 
         data.import(&mut col, |_, _| true).unwrap();
         assert_eq!(col.storage.get_all_notes()[0].tags, ["bar", "baz"]);
+    }
+
+    #[test]
+    fn should_only_update_duplicates_in_same_deck_if_limit_is_enabled() {
+        let mut col = open_test_collection();
+        let other_deck_id = DeckAdder::new("other").add(&mut col).id;
+        NoteAdder::basic(&mut col)
+            .fields(&["foo", "old"])
+            .add(&mut col);
+        NoteAdder::basic(&mut col)
+            .fields(&["foo", "old"])
+            .deck(other_deck_id)
+            .add(&mut col);
+        let mut data = ForeignData::with_defaults();
+        data.match_scope = MatchScope::NotetypeAndDeck;
+        data.add_note(&["foo", "new"]);
+
+        data.import(&mut col, |_, _| true).unwrap();
+        let notes = col.storage.get_all_notes();
+        // same deck, should be updated
+        assert_eq!(notes[0].fields()[1], "new");
+        // other deck, should be unchanged
+        assert_eq!(notes[1].fields()[1], "old");
     }
 }
