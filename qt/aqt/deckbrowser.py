@@ -6,7 +6,7 @@ from __future__ import annotations
 import html
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Any, List
+from typing import Any, List, Tuple
 
 import aqt
 import aqt.operations
@@ -282,7 +282,12 @@ class DeckBrowser:
         buf += "<td align=left class=opts>"
         buf += "<a class='quickaction' onclick='return pycmd(\"deckcontextmenu:%d\");'>☰</a>" % node.deck_id
         if self.mw.pm.show_deck_quick_actions():
-            for quickAction in self._create_deck_quick_actions(node):
+            unconditionalQuickActions, conditionalQuickActions = self._create_deck_quick_actions(node)
+            gui_hooks.deck_browser_did_generate_quick_actions_for_deck(node, self, unconditionalQuickActions, conditionalQuickActions)
+            # display actions that are on every deck first
+            for quickAction in unconditionalQuickActions:
+                buf += quickAction
+            for quickAction in conditionalQuickActions:
                 buf += quickAction
         buf += "</td></tr>"
 
@@ -295,22 +300,24 @@ class DeckBrowser:
     def _topLevelDragRow(self) -> str:
         return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
 
-    def _create_deck_quick_actions(self, node: DeckTreeNode) -> List[str]:
-        quickActions = []
+    def _create_deck_quick_actions(self, node: DeckTreeNode) -> Tuple[List[str], List[str]]:
+        unconditionalQuickActions = []
+        conditionalQuickActions = []
+        
         isDyn = self.mw.col.decks.is_filtered(node.deck_id)
 
         def create_single_icon(icon: str, onclick: str, styleOverrides: str, title: str) -> str:
             return "<a class='quickaction' title='%s' onclick='%s' style='%s'>%s</a>" % (title, onclick, styleOverrides, icon)
         
-        quickActions.append(create_single_icon("⚙️", "pycmd(\"opts:%s\")" % node.deck_id, "cursor: pointer;", "Options"))
-        quickActions.append(create_single_icon("✎", "pycmd(\"rename:%s\")" % node.deck_id, "cursor: pointer; color: #e945ff;", "Rename"))
-        quickActions.append(create_single_icon("🗠", "pycmd(\"stats:%s\")" % node.deck_id, "cursor: pointer; color: #3d9bff;", "Stats"))
+        unconditionalQuickActions.append(create_single_icon("⚙️", "pycmd(\"opts:%s\")" % node.deck_id, "cursor: pointer;", "Options"))
+        unconditionalQuickActions.append(create_single_icon("✎", "pycmd(\"rename:%s\")" % node.deck_id, "cursor: pointer; color: #e945ff;", "Rename"))
+        unconditionalQuickActions.append(create_single_icon("🗠", "pycmd(\"stats:%s\")" % node.deck_id, "cursor: pointer; color: #3d9bff;", "Stats"))
 
         if isDyn:
-            quickActions.append(create_single_icon("↻", "pycmd(\"rebuilddyndeck:%s\")" % node.deck_id, "cursor: pointer; color: #0af0a7;", "Rebuild"))
-            quickActions.append(create_single_icon("⤬", "pycmd(\"emptydyndeck:%s\")" % node.deck_id, "cursor: pointer; color: #ed1f94;", "Empty"))
+            conditionalQuickActions.append(create_single_icon("↻", "pycmd(\"rebuilddyndeck:%s\")" % node.deck_id, "cursor: pointer; color: #0af0a7;", "Rebuild"))
+            conditionalQuickActions.append(create_single_icon("⤬", "pycmd(\"emptydyndeck:%s\")" % node.deck_id, "cursor: pointer; color: #ed1f94;", "Empty"))
 
-        return quickActions
+        return unconditionalQuickActions, conditionalQuickActions
 
     # Options
     ##########################################################################
@@ -324,7 +331,7 @@ class DeckBrowser:
             qconnect(a.triggered, lambda b, did=did: self._rename(DeckId(int(did))))
             a = m.addAction(tr.actions_options())
             qconnect(a.triggered, lambda b, did=did: self._options(DeckId(int(did))))
-            
+
         a = m.addAction(tr.actions_export())
         qconnect(a.triggered, lambda b, did=did: self._export(DeckId(int(did))))
         a = m.addAction(tr.actions_delete())
