@@ -68,6 +68,16 @@ preferences-scheduler = Scheduler
 preferences-user-interface = User Interface
 preferences-import-export = Import/Export
 preferences-network-timeout = Network timeout
+preferences-deckbrowser = Deck Browser
+preferences-deckbrowser-quick-actions = Quick Actions
+preferences-deckbrowser-show-quick-actions = Show quick actions for decks
+preferences-deckbrowser-available-quick-actions = Available quick actions
+preferences-deckbrowser-show-options-quick-action = Options
+preferences-deckbrowser-show-rename-quick-action = Rename
+preferences-deckbrowser-show-rebuild-quick-action = Rebuild
+preferences-deckbrowser-show-empty-quick-action = Empty
+preferences-deckbrowser-show-stats-quick-action = Stats
+
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

@@ -626,6 +626,32 @@ create table if not exists profiles
 
     def set_show_deck_quick_actions(self, show: bool) -> None:
         self.meta["show_deck_quick_actions"] = show
+        gui_hooks.quick_actions_did_change()
+
+    def deck_quick_actions_to_show(self) -> str:
+        return self.meta.get("deck_quick_actions_to_show", "Options,Rename,Rebuild,Empty")
+
+    def set_deck_quick_actions_to_show(self, actionIdentifiersToShow: str):
+        self.meta["deck_quick_actions_to_show"] = actionIdentifiersToShow    
+        gui_hooks.quick_actions_did_change()
+
+    def should_show_deck_action(self, actionIdentifier: str) -> bool:
+        actionsToShow = self.deck_quick_actions_to_show().split(",")
+        return actionIdentifier in actionsToShow
+    
+    def add_action_to_deck_quick_actions_to_show(self, actionIdentifier):
+        existingActionsToShow = self.deck_quick_actions_to_show().split(",")
+        if actionIdentifier not in existingActionsToShow:
+            existingActionsToShow.append(actionIdentifier)
+            self.set_deck_quick_actions_to_show(",".join(existingActionsToShow))
+            gui_hooks.quick_actions_did_change()
+
+    def remove_action_from_deck_quick_actions_to_show(self, actionIdentifier):
+        existingActionsToShow = self.deck_quick_actions_to_show().split(",")
+        if actionIdentifier in existingActionsToShow:
+            existingActionsToShow.remove(actionIdentifier)
+            self.set_deck_quick_actions_to_show(",".join(existingActionsToShow))
+            gui_hooks.quick_actions_did_change()
 
     # Profile-specific
     ######################################################################

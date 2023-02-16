@@ -685,6 +685,10 @@ hooks = [
         name="body_classes_need_update",
         doc="Called when a setting involving a webview body class is toggled.",
     ),
+    Hook(
+        name="quick_actions_did_change",
+        doc="Called when the settings regarding deck quick actions have been changed.",
+    ),
     # Webview
     ###################
     Hook(

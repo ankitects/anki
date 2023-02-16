@@ -234,6 +234,20 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>preferences_deckbrowser</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_18">
+       <item>
+        <widget class="QGroupBox" name="quickActionsGroup">
+         <property name="title">
+          <string>preferences_deckbrowser_quick_actions</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
        <string>preferences_review</string>
