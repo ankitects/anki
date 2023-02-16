@@ -266,8 +266,6 @@ class WindowsVoice(TTSVoice):
 
 
 if is_win:
-    import win32com.client  # pylint: disable=import-error
-
     # language ID map from https://github.com/sindresorhus/lcid/blob/master/lcid.json
     LCIDS = {
         "4": "zh_CHS",
@@ -482,8 +480,11 @@ if is_win:
     class WindowsTTSPlayer(TTSProcessPlayer):
         default_rank = -1
         try:
+            import win32com.client  # pylint: disable=import-error
+
             speaker = win32com.client.Dispatch("SAPI.SpVoice")
-        except:
+        except Exception as exc:
+            print("unable to activate sapi:", exc)
             speaker = None
 
         def get_available_voices(self) -> list[TTSVoice]:
