@@ -123,10 +123,12 @@ class DeckBrowser:
         elif cmd == "v2upgradeinfo":
             openLink("https://faqs.ankiweb.net/the-anki-2.1-scheduler.html")
         elif cmd == "rebuilddyndeck":
-            self.mw.col.sched.rebuild_filtered_deck(int(arg))
+            clickedDeckId = DeckId(int(arg))
+            self.mw.col.sched.rebuild_filtered_deck(clickedDeckId)
             self.refresh()
         elif cmd == "emptydyndeck":
-            self.mw.col.sched.empty_filtered_deck(int(arg))
+            clickedDeckId = DeckId(int(arg))
+            self.mw.col.sched.empty_filtered_deck(clickedDeckId)
             self.refresh()
         elif cmd == "stats":
             clickedDeckId = DeckId(int(arg))
@@ -313,7 +315,7 @@ class DeckBrowser:
         unconditionalQuickActions = []
         conditionalQuickActions = []
 
-        isDyn = self.mw.col.decks.is_filtered(node.deck_id)
+        isDyn = self.mw.col.decks.is_filtered(DeckId(node.deck_id))
 
         def create_single_icon(
             icon: str, onclick: str, styleOverrides: str, title: str

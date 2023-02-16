@@ -305,7 +305,7 @@ hooks = [
     Hook(
         name="deck_browser_did_generate_quick_actions_for_deck",
         args=[
-            "node: DeckTreeNode",
+            "node: anki.decks.DeckTreeNode",
             "deck_browser: aqt.deckbrowser.DeckBrowser",
             "unconditional_quick_actions: list[str]",
             "conditional_quick_actions: list[str]",
@@ -322,7 +322,7 @@ hooks = [
         where 'icon' is a unicode character (see https://www.amp-what.com/unicode/search/). 
         Adhering to this form will create a uniform look for the quick actions.
         Ex:
-        def deck_browser_did_generate_quick_actions_for_deck(node: DeckTreeNode, deck_browser: aqt.deckbrowser.DeckBrowser, unconditional_quick_actions, conditional_quick_actions):
+        def deck_browser_did_generate_quick_actions_for_deck(node: anki.decks.DeckTreeNode, deck_browser: aqt.deckbrowser.DeckBrowser, unconditional_quick_actions, conditional_quick_actions):
             # generate your <a> elements and append each of them to either the unconditional_quick_actions or conditional_quick_actions list
             new_unconditional_action = <a ... />
             unconditional_quick_actions.append(new_unconditional_action)
