@@ -81,12 +81,11 @@ fn write_stream_to_path(stream: SpeechSynthesisStream, path: &str) -> Result<()>
 
 fn write_reader_to_file(reader: DataReader, file: &mut File, stream_size: usize) -> Result<()> {
     let mut bytes_remaining = stream_size;
-    let mut buf = vec![0u8; MAX_BUFFER_SIZE];
+    let mut buf = [0u8; MAX_BUFFER_SIZE];
     while bytes_remaining > 0 {
         let chunk_size = bytes_remaining.min(MAX_BUFFER_SIZE);
-        buf.truncate(chunk_size);
-        reader.ReadBytes(&mut buf)?;
-        file.write_all(&buf)?;
+        reader.ReadBytes(&mut buf[..chunk_size])?;
+        file.write_all(&buf[..chunk_size])?;
         bytes_remaining -= chunk_size;
     }
     Ok(())
