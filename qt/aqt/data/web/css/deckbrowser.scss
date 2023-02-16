@@ -119,6 +119,9 @@ tr:hover:not(.top-level-drag-row) {
 
 .optscol {
     width: 2em;
+    padding-left: 1em;
+    float: left;
+    cursor: pointer;
 }
 
 .collapse {

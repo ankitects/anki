@@ -10,7 +10,7 @@ import shutil
 import traceback
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, List
 
 import anki.lang
 import aqt.forms
@@ -620,6 +620,12 @@ create table if not exists profiles
 
     def set_last_loaded_profile_name(self, name: str) -> None:
         self.meta["last_loaded_profile_name"] = name
+
+    def show_deck_quick_actions(self) -> bool:
+        return self.meta.get("show_deck_quick_actions", False)
+
+    def set_show_deck_quick_actions(self, show: bool) -> None:
+        self.meta["show_deck_quick_actions"] = show
 
     # Profile-specific
     ######################################################################

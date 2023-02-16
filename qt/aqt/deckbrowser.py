@@ -101,8 +101,8 @@ class DeckBrowser:
             cmd = url
         if cmd == "open":
             self.set_current_deck(DeckId(int(arg)))
-        elif cmd == "opts":
-            self._showOptions(arg)
+        elif cmd == "deckcontextmenu":
+            self._show_deck_context_menu(arg)
         elif cmd == "shared":
             self._onShared()
         elif cmd == "import":
@@ -136,9 +136,15 @@ class DeckBrowser:
                 self.mw.onStats()
                 setCurrentDeck(originalDeckId, lambda _: 0)
             
-            setCurrentDeck(clickedDeckId, lambda _: openStatsAndSwitchBackToDeckCallback()) 
+            setCurrentDeck(clickedDeckId, lambda _: openStatsAndSwitchBackToDeckCallback())
         elif cmd == "rename":
             self._rename(DeckId(int(arg)))
+        elif cmd == "togglequickactions":
+            self.mw.pm.set_show_deck_quick_actions(not self.mw.pm.show_deck_quick_actions())
+            self.refresh()
+        elif cmd == "opts":
+            clickedDeckId = DeckId(int(arg))
+            self._options(clickedDeckId)
 
         return False
 
@@ -203,11 +209,12 @@ class DeckBrowser:
 <th class=count>{}</th>
 <th class=count>{}</th>
 <th class=count>{}</th>
-<th class=optscol></th></tr>""".format(
+<th class=optscol><a onclick='pycmd("togglequickactions")'>{}</a></th></tr>""".format(
             tr.decks_deck(),
             tr.actions_new(),
             tr.card_stats_review_log_type_learn(),
             tr.statistics_due_count(),
+            "⋘" if self.mw.pm.show_deck_quick_actions() else "⋙"
         )
         buf += self._topLevelDragRow()
 
@@ -271,15 +278,12 @@ class DeckBrowser:
             review,
         )
 
-        # options
+        # deck actions            
         buf += "<td align=left class=opts>"
-        buf += (
-            "<a onclick='return pycmd(\"opts:%d\");'>"
-                "<img src='/_anki/imgs/gears.svg' class=gears>"
-            "</a>" % node.deck_id
-        )
-        for quickAction in self._create_deck_quick_actions(node):
-            buf += quickAction
+        buf += "<a class='quickaction' onclick='return pycmd(\"deckcontextmenu:%d\");'>☰</a>" % node.deck_id
+        if self.mw.pm.show_deck_quick_actions():
+            for quickAction in self._create_deck_quick_actions(node):
+                buf += quickAction
         buf += "</td></tr>"
 
         # children
@@ -298,6 +302,7 @@ class DeckBrowser:
         def create_single_icon(icon: str, onclick: str, styleOverrides: str, title: str) -> str:
             return "<a class='quickaction' title='%s' onclick='%s' style='%s'>%s</a>" % (title, onclick, styleOverrides, icon)
         
+        quickActions.append(create_single_icon("⚙️", "pycmd(\"opts:%s\")" % node.deck_id, "cursor: pointer;", "Options"))
         quickActions.append(create_single_icon("✎", "pycmd(\"rename:%s\")" % node.deck_id, "cursor: pointer; color: #e945ff;", "Rename"))
         quickActions.append(create_single_icon("🗠", "pycmd(\"stats:%s\")" % node.deck_id, "cursor: pointer; color: #3d9bff;", "Stats"))
 
@@ -310,12 +315,16 @@ class DeckBrowser:
     # Options
     ##########################################################################
 
-    def _showOptions(self, did: str) -> None:
+    def _show_deck_context_menu(self, did: str) -> None:
         m = QMenu(self.mw)
-        a = m.addAction(tr.actions_rename())
-        qconnect(a.triggered, lambda b, did=did: self._rename(DeckId(int(did))))
-        a = m.addAction(tr.actions_options())
-        qconnect(a.triggered, lambda b, did=did: self._options(DeckId(int(did))))
+        
+        if not self.mw.pm.show_deck_quick_actions():
+            # If there are quick actions for these items, don't include them in the context menu
+            a = m.addAction(tr.actions_rename())
+            qconnect(a.triggered, lambda b, did=did: self._rename(DeckId(int(did))))
+            a = m.addAction(tr.actions_options())
+            qconnect(a.triggered, lambda b, did=did: self._options(DeckId(int(did))))
+            
         a = m.addAction(tr.actions_export())
         qconnect(a.triggered, lambda b, did=did: self._export(DeckId(int(did))))
         a = m.addAction(tr.actions_delete())
