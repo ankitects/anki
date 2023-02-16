@@ -80,18 +80,14 @@ fn write_stream_to_path(stream: SpeechSynthesisStream, path: &str) -> Result<()>
 }
 
 fn write_reader_to_file(reader: DataReader, file: &mut File, stream_size: usize) -> Result<()> {
-    let buffer_size = stream_size.min(MAX_BUFFER_SIZE);
-    let iterations = stream_size / buffer_size;
-    let remainder = stream_size % buffer_size;
-    let mut buf = vec![0u8; buffer_size];
-    for i in 0..iterations + 1 {
-        // unless stream_size is divisable by buffer_size, there are less bytes to write
-        // in the last iteration
-        if i == iterations && remainder != 0 {
-            buf.truncate(remainder);
-        }
+    let mut bytes_remaining = stream_size;
+    let mut buf = vec![0u8; MAX_BUFFER_SIZE];
+    while bytes_remaining > 0 {
+        let chunk_size = bytes_remaining.min(MAX_BUFFER_SIZE);
+        buf.truncate(chunk_size);
         reader.ReadBytes(&mut buf)?;
         file.write_all(&buf)?;
+        bytes_remaining -= chunk_size;
     }
     Ok(())
 }
