@@ -629,16 +629,18 @@ create table if not exists profiles
         gui_hooks.quick_actions_did_change()
 
     def deck_quick_actions_to_show(self) -> str:
-        return self.meta.get("deck_quick_actions_to_show", "Options,Rename,Rebuild,Empty")
+        return self.meta.get(
+            "deck_quick_actions_to_show", "Options,Rename,Rebuild,Empty"
+        )
 
     def set_deck_quick_actions_to_show(self, actionIdentifiersToShow: str):
-        self.meta["deck_quick_actions_to_show"] = actionIdentifiersToShow    
+        self.meta["deck_quick_actions_to_show"] = actionIdentifiersToShow
         gui_hooks.quick_actions_did_change()
 
     def should_show_deck_action(self, actionIdentifier: str) -> bool:
         actionsToShow = self.deck_quick_actions_to_show().split(",")
         return actionIdentifier in actionsToShow
-    
+
     def add_action_to_deck_quick_actions_to_show(self, actionIdentifier):
         existingActionsToShow = self.deck_quick_actions_to_show().split(",")
         if actionIdentifier not in existingActionsToShow:

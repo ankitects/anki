@@ -24,6 +24,7 @@ from aqt.utils import (
     tr,
 )
 
+
 class Preferences(QDialog):
     def __init__(self, mw: AnkiQt) -> None:
         QDialog.__init__(self, mw, Qt.WindowType.Window)
@@ -303,7 +304,7 @@ class Preferences(QDialog):
 
     def setupDeckQuickActions(self):
         checkboxesToMake = [
-            (tr.preferences_deckbrowser_show_options_quick_action(), "Options"), 
+            (tr.preferences_deckbrowser_show_options_quick_action(), "Options"),
             (tr.preferences_deckbrowser_show_rename_quick_action(), "Rename"),
             (tr.preferences_deckbrowser_show_stats_quick_action(), "Stats"),
             (tr.preferences_deckbrowser_show_rebuild_quick_action(), "Rebuild"),
@@ -312,29 +313,43 @@ class Preferences(QDialog):
 
         deckQuickActionsBox = QVBoxLayout()
 
-        showAnyQuickActionsCheckbox = QCheckBox(tr.preferences_deckbrowser_show_quick_actions())
+        showAnyQuickActionsCheckbox = QCheckBox(
+            tr.preferences_deckbrowser_show_quick_actions()
+        )
         showAnyActions = self.mw.pm.show_deck_quick_actions()
         showAnyQuickActionsCheckbox.setChecked(showAnyActions)
-        qconnect(showAnyQuickActionsCheckbox.stateChanged, self.mw.pm.set_show_deck_quick_actions)
+        qconnect(
+            showAnyQuickActionsCheckbox.stateChanged,
+            self.mw.pm.set_show_deck_quick_actions,
+        )
         deckQuickActionsBox.addWidget(showAnyQuickActionsCheckbox)
 
         def actionCheckboxStateChanged(newState: bool, actionIdentifier: str):
             if newState:
                 self.mw.pm.add_action_to_deck_quick_actions_to_show(actionIdentifier)
             else:
-                self.mw.pm.remove_action_from_deck_quick_actions_to_show(actionIdentifier)
-        
+                self.mw.pm.remove_action_from_deck_quick_actions_to_show(
+                    actionIdentifier
+                )
+
         actionCheckboxes = []
-        
+
         specificActionsBox = QVBoxLayout()
         for checkboxText, actionIdentifier in checkboxesToMake:
             checkbox = QCheckBox(checkboxText)
             checkbox.setChecked(self.mw.pm.should_show_deck_action(actionIdentifier))
-            qconnect(checkbox.stateChanged, lambda checked,actionIdentifier=actionIdentifier: actionCheckboxStateChanged(checked, actionIdentifier))
+            qconnect(
+                checkbox.stateChanged,
+                lambda checked, actionIdentifier=actionIdentifier: actionCheckboxStateChanged(
+                    checked, actionIdentifier
+                ),
+            )
             specificActionsBox.addWidget(checkbox)
             actionCheckboxes.append(checkbox)
 
-        specificActionsGroup = QGroupBox(tr.preferences_deckbrowser_available_quick_actions())
+        specificActionsGroup = QGroupBox(
+            tr.preferences_deckbrowser_available_quick_actions()
+        )
         specificActionsGroup.setLayout(specificActionsBox)
         deckQuickActionsBox.addWidget(specificActionsGroup)
         deckQuickActionsBox.addStretch(0)

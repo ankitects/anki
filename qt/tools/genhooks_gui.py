@@ -308,7 +308,7 @@ hooks = [
             "node: DeckTreeNode",
             "deck_browser: aqt.deckbrowser.DeckBrowser",
             "unconditional_quick_actions: list[str]",
-            "conditional_quick_actions: list[str]"
+            "conditional_quick_actions: list[str]",
         ],
         doc="""Used to modify the available quick actions for a deck row on the deck browser screen. 
         'node' is the current deck tree node that quick actions are being generated for.
@@ -332,7 +332,6 @@ hooks = [
 
         """,
     ),
-
     # Deck options (legacy screen)
     ###############################
     Hook(

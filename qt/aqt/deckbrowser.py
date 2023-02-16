@@ -130,12 +130,16 @@ class DeckBrowser:
             self.refresh()
         elif cmd == "stats":
             clickedDeckId = DeckId(int(arg))
-            set_current_deck(parent=self.mw, deck_id=clickedDeckId).success(lambda _: self.mw.onStats()).run_in_background(initiator=self)
+            set_current_deck(parent=self.mw, deck_id=clickedDeckId).success(
+                lambda _: self.mw.onStats()
+            ).run_in_background(initiator=self)
             self.mark_refresh_needed()
         elif cmd == "rename":
             self._rename(DeckId(int(arg)))
         elif cmd == "togglequickactions":
-            self.mw.pm.set_show_deck_quick_actions(not self.mw.pm.show_deck_quick_actions())
+            self.mw.pm.set_show_deck_quick_actions(
+                not self.mw.pm.show_deck_quick_actions()
+            )
             self.refresh()
         elif cmd == "configuration":
             clickedDeckId = DeckId(int(arg))
@@ -209,7 +213,7 @@ class DeckBrowser:
             tr.actions_new(),
             tr.card_stats_review_log_type_learn(),
             tr.statistics_due_count(),
-            "⋘" if self.mw.pm.show_deck_quick_actions() else "⋙"
+            "⋘" if self.mw.pm.show_deck_quick_actions() else "⋙",
         )
         buf += self._topLevelDragRow()
 
@@ -273,12 +277,20 @@ class DeckBrowser:
             review,
         )
 
-        # deck actions            
+        # deck actions
         buf += "<td align=left class=opts>"
-        buf += "<a class='quickaction' onclick='return pycmd(\"opts:%d\");'>☰</a>" % node.deck_id
+        buf += (
+            "<a class='quickaction' onclick='return pycmd(\"opts:%d\");'>☰</a>"
+            % node.deck_id
+        )
         if self.mw.pm.show_deck_quick_actions():
-            unconditionalQuickActions, conditionalQuickActions = self._create_deck_quick_actions(node)
-            gui_hooks.deck_browser_did_generate_quick_actions_for_deck(node, self, unconditionalQuickActions, conditionalQuickActions)
+            (
+                unconditionalQuickActions,
+                conditionalQuickActions,
+            ) = self._create_deck_quick_actions(node)
+            gui_hooks.deck_browser_did_generate_quick_actions_for_deck(
+                node, self, unconditionalQuickActions, conditionalQuickActions
+            )
             # display actions that are on every deck first
             for quickAction in unconditionalQuickActions:
                 buf += quickAction
@@ -295,27 +307,69 @@ class DeckBrowser:
     def _topLevelDragRow(self) -> str:
         return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
 
-    def _create_deck_quick_actions(self, node: DeckTreeNode) -> Tuple[List[str], List[str]]:
+    def _create_deck_quick_actions(
+        self, node: DeckTreeNode
+    ) -> Tuple[List[str], List[str]]:
         unconditionalQuickActions = []
         conditionalQuickActions = []
-        
+
         isDyn = self.mw.col.decks.is_filtered(node.deck_id)
 
-        def create_single_icon(icon: str, onclick: str, styleOverrides: str, title: str) -> str:
-            return "<a class='quickaction' title='%s' onclick='%s' style='%s'>%s</a>" % (title, onclick, styleOverrides, icon)
-        
+        def create_single_icon(
+            icon: str, onclick: str, styleOverrides: str, title: str
+        ) -> str:
+            return (
+                "<a class='quickaction' title='%s' onclick='%s' style='%s'>%s</a>"
+                % (title, onclick, styleOverrides, icon)
+            )
+
         if self.mw.pm.should_show_deck_action("Options"):
-            unconditionalQuickActions.append(create_single_icon("⚙️", "pycmd(\"configuration:%s\")" % node.deck_id, "cursor: pointer;", "Options"))
+            unconditionalQuickActions.append(
+                create_single_icon(
+                    "⚙️",
+                    'pycmd("configuration:%s")' % node.deck_id,
+                    "cursor: pointer;",
+                    "Options",
+                )
+            )
         if self.mw.pm.should_show_deck_action("Rename"):
-            unconditionalQuickActions.append(create_single_icon("✎", "pycmd(\"rename:%s\")" % node.deck_id, "cursor: pointer; color: #e945ff;", "Rename"))
+            unconditionalQuickActions.append(
+                create_single_icon(
+                    "✎",
+                    'pycmd("rename:%s")' % node.deck_id,
+                    "cursor: pointer; color: #e945ff;",
+                    "Rename",
+                )
+            )
         if self.mw.pm.should_show_deck_action("Stats"):
-            unconditionalQuickActions.append(create_single_icon("🗠", "pycmd(\"stats:%s\")" % node.deck_id, "cursor: pointer; color: #3d9bff;", "Stats"))
+            unconditionalQuickActions.append(
+                create_single_icon(
+                    "🗠",
+                    'pycmd("stats:%s")' % node.deck_id,
+                    "cursor: pointer; color: #3d9bff;",
+                    "Stats",
+                )
+            )
 
         if isDyn:
             if self.mw.pm.should_show_deck_action("Rebuild"):
-                conditionalQuickActions.append(create_single_icon("↻", "pycmd(\"rebuilddyndeck:%s\")" % node.deck_id, "cursor: pointer; color: #0af0a7;", "Rebuild"))
+                conditionalQuickActions.append(
+                    create_single_icon(
+                        "↻",
+                        'pycmd("rebuilddyndeck:%s")' % node.deck_id,
+                        "cursor: pointer; color: #0af0a7;",
+                        "Rebuild",
+                    )
+                )
             if self.mw.pm.should_show_deck_action("Empty"):
-                conditionalQuickActions.append(create_single_icon("⤬", "pycmd(\"emptydyndeck:%s\")" % node.deck_id, "cursor: pointer; color: #ed1f94;", "Empty"))
+                conditionalQuickActions.append(
+                    create_single_icon(
+                        "⤬",
+                        'pycmd("emptydyndeck:%s")' % node.deck_id,
+                        "cursor: pointer; color: #ed1f94;",
+                        "Empty",
+                    )
+                )
 
         return unconditionalQuickActions, conditionalQuickActions
 
@@ -326,10 +380,16 @@ class DeckBrowser:
         m = QMenu(self.mw)
 
         # If there is a quick action showed for these items, don't include them in the context menu
-        if not self.mw.pm.show_deck_quick_actions() or not self.mw.pm.should_show_deck_action("Options"):
+        if (
+            not self.mw.pm.show_deck_quick_actions()
+            or not self.mw.pm.should_show_deck_action("Options")
+        ):
             a = m.addAction(tr.actions_options())
             qconnect(a.triggered, lambda b, did=did: self._options(DeckId(int(did))))
-        if not self.mw.pm.show_deck_quick_actions() or not self.mw.pm.should_show_deck_action("Rename"):
+        if (
+            not self.mw.pm.show_deck_quick_actions()
+            or not self.mw.pm.should_show_deck_action("Rename")
+        ):
             a = m.addAction(tr.actions_rename())
             qconnect(a.triggered, lambda b, did=did: self._rename(DeckId(int(did))))
 
