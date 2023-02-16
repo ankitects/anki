@@ -7,15 +7,11 @@ use std::collections::HashSet;
 use rusqlite::params;
 use rusqlite::Row;
 
-use crate::error::Result;
 use crate::import_export::package::NoteMeta;
-use crate::notes::Note;
-use crate::notes::NoteId;
 use crate::notes::NoteTags;
-use crate::notetype::NotetypeId;
+use crate::prelude::*;
 use crate::tags::join_tags;
 use crate::tags::split_tags;
-use crate::timestamp::TimestampMillis;
 
 pub(crate) fn split_fields(fields: &str) -> Vec<String> {
     fields.split('\x1f').map(Into::into).collect()
@@ -191,6 +187,22 @@ impl super::SqliteStorage {
             map.entry((row.get(0)?, row.get(1)?))
                 .or_insert_with(Vec::new)
                 .push(row.get(2)?);
+        }
+        Ok(map)
+    }
+
+    pub(crate) fn all_notes_by_type_checksum_and_deck(
+        &self,
+    ) -> Result<HashMap<(NotetypeId, u32, DeckId), Vec<NoteId>>> {
+        let mut map = HashMap::new();
+        let mut stmt = self
+            .db
+            .prepare(include_str!("notes_types_checksums_decks.sql"))?;
+        let mut rows = stmt.query([])?;
+        while let Some(row) = rows.next()? {
+            map.entry((row.get(1)?, row.get(2)?, row.get(3)?))
+                .or_insert_with(Vec::new)
+                .push(row.get(0)?);
         }
         Ok(map)
     }

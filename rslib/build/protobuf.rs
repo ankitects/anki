@@ -118,6 +118,10 @@ pub fn write_backend_proto_rs() {
             "CsvMetadata.DupeResolution",
             "#[derive(serde_derive::Deserialize, serde_derive::Serialize)]",
         )
+        .type_attribute(
+            "CsvMetadata.MatchScope",
+            "#[derive(serde_derive::Deserialize, serde_derive::Serialize)]",
+        )
         .compile_protos(paths.as_slice(), &[proto_dir])
         .unwrap();
 }

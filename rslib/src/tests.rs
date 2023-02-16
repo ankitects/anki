@@ -173,3 +173,37 @@ impl DeckAdder {
         deck
     }
 }
+
+#[derive(Debug, Clone)]
+pub(crate) struct NoteAdder {
+    note: Note,
+    deck: DeckId,
+}
+
+impl NoteAdder {
+    pub(crate) fn new(col: &mut Collection, notetype: &str) -> Self {
+        Self {
+            note: col.new_note(notetype),
+            deck: DeckId(1),
+        }
+    }
+
+    pub(crate) fn basic(col: &mut Collection) -> Self {
+        Self::new(col, "basic")
+    }
+
+    pub(crate) fn fields(mut self, fields: &[&str]) -> Self {
+        *self.note.fields_mut() = fields.iter().map(ToString::to_string).collect();
+        self
+    }
+
+    pub(crate) fn deck(mut self, deck: DeckId) -> Self {
+        self.deck = deck;
+        self
+    }
+
+    pub(crate) fn add(mut self, col: &mut Collection) -> Note {
+        col.add_note(&mut self.note, self.deck).unwrap();
+        self.note
+    }
+}

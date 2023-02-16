@@ -23,6 +23,7 @@ pub use crate::pb::import_export::csv_metadata::Deck as CsvDeck;
 pub use crate::pb::import_export::csv_metadata::Delimiter;
 pub use crate::pb::import_export::csv_metadata::DupeResolution;
 pub use crate::pb::import_export::csv_metadata::MappedNotetype;
+pub use crate::pb::import_export::csv_metadata::MatchScope;
 pub use crate::pb::import_export::csv_metadata::Notetype as CsvNotetype;
 pub use crate::pb::import_export::CsvMetadata;
 use crate::prelude::*;
@@ -54,14 +55,7 @@ impl Collection {
         notetype_id: Option<NotetypeId>,
         is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
-        let dupe_resolution =
-            DupeResolution::from_i32(self.get_config_i32(I32ConfigKey::CsvDuplicateResolution))
-                .map(|r| r as i32)
-                .unwrap_or_default();
-        let mut metadata = CsvMetadata {
-            dupe_resolution,
-            ..Default::default()
-        };
+        let mut metadata = CsvMetadata::from_config(self);
         let meta_len = self.parse_meta_lines(&mut reader, &mut metadata)? as u64;
         maybe_set_fallback_delimiter(delimiter, &mut metadata, &mut reader, meta_len)?;
         let records = collect_preview_records(&mut metadata, reader)?;
@@ -168,6 +162,16 @@ impl Collection {
                     metadata.guid_column = n;
                 }
             }
+            "match scope" => {
+                if let Some(scope) = MatchScope::from_text(value) {
+                    metadata.match_scope = scope as i32;
+                }
+            }
+            "if matches" => {
+                if let Some(resolution) = DupeResolution::from_text(value) {
+                    metadata.dupe_resolution = resolution as i32;
+                }
+            }
             _ => (),
         }
     }
@@ -241,6 +245,46 @@ impl Collection {
                 .or_invalid("collection has no notetypes")?
                 .0
         })
+    }
+}
+
+impl CsvMetadata {
+    /// Defaults with config values filled in.
+    fn from_config(col: &Collection) -> Self {
+        Self {
+            dupe_resolution: DupeResolution::from_config(col) as i32,
+            match_scope: MatchScope::from_config(col) as i32,
+            ..Default::default()
+        }
+    }
+}
+
+impl DupeResolution {
+    fn from_config(col: &Collection) -> Self {
+        Self::from_i32(col.get_config_i32(I32ConfigKey::CsvDuplicateResolution)).unwrap_or_default()
+    }
+
+    fn from_text(text: &str) -> Option<Self> {
+        match text {
+            "update current" => Some(Self::Update),
+            "keep current" => Some(Self::Preserve),
+            "keep both" => Some(Self::Duplicate),
+            _ => None,
+        }
+    }
+}
+
+impl MatchScope {
+    fn from_config(col: &Collection) -> Self {
+        Self::from_i32(col.get_config_i32(I32ConfigKey::MatchScope)).unwrap_or_default()
+    }
+
+    fn from_text(text: &str) -> Option<Self> {
+        match text {
+            "notetype" => Some(Self::Notetype),
+            "notetype + deck" => Some(Self::NotetypeAndDeck),
+            _ => None,
+        }
     }
 }
 
