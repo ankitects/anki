@@ -101,8 +101,8 @@ class DeckBrowser:
             cmd = url
         if cmd == "open":
             self.set_current_deck(DeckId(int(arg)))
-        elif cmd == "deckcontextmenu":
-            self._show_deck_context_menu(arg)
+        elif cmd == "opts":
+            self._showOptions(arg)
         elif cmd == "shared":
             self._onShared()
         elif cmd == "import":
@@ -142,7 +142,7 @@ class DeckBrowser:
         elif cmd == "togglequickactions":
             self.mw.pm.set_show_deck_quick_actions(not self.mw.pm.show_deck_quick_actions())
             self.refresh()
-        elif cmd == "opts":
+        elif cmd == "configuration":
             clickedDeckId = DeckId(int(arg))
             self._options(clickedDeckId)
 
@@ -280,7 +280,7 @@ class DeckBrowser:
 
         # deck actions            
         buf += "<td align=left class=opts>"
-        buf += "<a class='quickaction' onclick='return pycmd(\"deckcontextmenu:%d\");'>☰</a>" % node.deck_id
+        buf += "<a class='quickaction' onclick='return pycmd(\"opts:%d\");'>☰</a>" % node.deck_id
         if self.mw.pm.show_deck_quick_actions():
             unconditionalQuickActions, conditionalQuickActions = self._create_deck_quick_actions(node)
             gui_hooks.deck_browser_did_generate_quick_actions_for_deck(node, self, unconditionalQuickActions, conditionalQuickActions)
@@ -309,7 +309,7 @@ class DeckBrowser:
         def create_single_icon(icon: str, onclick: str, styleOverrides: str, title: str) -> str:
             return "<a class='quickaction' title='%s' onclick='%s' style='%s'>%s</a>" % (title, onclick, styleOverrides, icon)
         
-        unconditionalQuickActions.append(create_single_icon("⚙️", "pycmd(\"opts:%s\")" % node.deck_id, "cursor: pointer;", "Options"))
+        unconditionalQuickActions.append(create_single_icon("⚙️", "pycmd(\"configuration:%s\")" % node.deck_id, "cursor: pointer;", "Options"))
         unconditionalQuickActions.append(create_single_icon("✎", "pycmd(\"rename:%s\")" % node.deck_id, "cursor: pointer; color: #e945ff;", "Rename"))
         unconditionalQuickActions.append(create_single_icon("🗠", "pycmd(\"stats:%s\")" % node.deck_id, "cursor: pointer; color: #3d9bff;", "Stats"))
 
@@ -322,7 +322,7 @@ class DeckBrowser:
     # Options
     ##########################################################################
 
-    def _show_deck_context_menu(self, did: str) -> None:
+    def _showOptions(self, did: str) -> None:
         m = QMenu(self.mw)
         
         if not self.mw.pm.show_deck_quick_actions():
