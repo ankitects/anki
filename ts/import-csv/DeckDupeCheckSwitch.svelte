@@ -11,33 +11,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Select from "../components/Select.svelte";
     import SelectOption from "../components/SelectOption.svelte";
 
-    export let dupeResolution: ImportExport.CsvMetadata.DupeResolution;
+    export let matchScope: ImportExport.CsvMetadata.MatchScope;
 
-    const dupeResolutions = [
+    const matchScopes = [
         {
-            value: ImportExport.CsvMetadata.DupeResolution.UPDATE,
-            label: tr.importingUpdate(),
+            value: ImportExport.CsvMetadata.MatchScope.NOTETYPE,
+            label: tr.notetypesNotetype(),
         },
         {
-            value: ImportExport.CsvMetadata.DupeResolution.DUPLICATE,
-            label: tr.importingDuplicate(),
-        },
-        {
-            value: ImportExport.CsvMetadata.DupeResolution.PRESERVE,
-            label: tr.importingPreserve(),
+            value: ImportExport.CsvMetadata.MatchScope.NOTETYPE_AND_DECK,
+            label: tr.importingNotetypeAndDeck(),
         },
     ];
 
-    $: label = dupeResolutions.find((r) => r.value === dupeResolution)?.label;
+    $: label = matchScopes.find((r) => r.value === matchScope)?.label;
 </script>
 
 <Row --cols={2}>
     <Col --col-size={1}>
-        {tr.importingExistingNotes()}
+        {tr.importingMatchScope()}
     </Col>
     <Col --col-size={1}>
-        <Select bind:value={dupeResolution} {label}>
-            {#each dupeResolutions as { label, value }}
+        <Select bind:value={matchScope} {label}>
+            {#each matchScopes as { label, value }}
                 <SelectOption {value}>{label}</SelectOption>
             {/each}
         </Select>

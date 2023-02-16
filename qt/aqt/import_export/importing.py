@@ -273,10 +273,10 @@ class LogQueue:
 
 
 def first_field_queue(log: ImportLogWithChanges.Log) -> LogQueue:
-    if log.dupe_resolution == DupeResolution.ADD:
+    if log.dupe_resolution == DupeResolution.DUPLICATE:
         summary_template = tr.importing_added_duplicate_with_first_field
         action_string = tr.adding_added()
-    elif log.dupe_resolution == DupeResolution.IGNORE:
+    elif log.dupe_resolution == DupeResolution.PRESERVE:
         summary_template = tr.importing_first_field_matched
         action_string = tr.importing_skipped()
     else:
