@@ -151,7 +151,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             plainTextDefaults = states.plainTextDefaults;
         } else {
             plainTextDefaults = defaultPlainTexts;
-            richTextsHidden = defaultPlainTexts;
+            richTextsHidden = [...defaultPlainTexts];
             plainTextsHidden = Array.from(defaultPlainTexts, (v) => !v);
         }
     }
