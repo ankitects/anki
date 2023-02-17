@@ -16,7 +16,7 @@ use crate::error::windows::WindowsSnafu;
 use crate::pb::card_rendering::all_tts_voices_response::TtsVoice;
 use crate::prelude::*;
 
-const MAX_BUFFER_SIZE: usize = 1024 * 1024;
+const MAX_BUFFER_SIZE: usize = 128 * 1024;
 
 pub(super) fn all_voices(validate: bool) -> Result<Vec<TtsVoice>> {
     SpeechSynthesizer::AllVoices()?
