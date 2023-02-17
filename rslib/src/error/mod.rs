@@ -8,6 +8,8 @@ mod invalid_input;
 pub(crate) mod network;
 mod not_found;
 mod search;
+#[cfg(windows)]
+pub mod windows;
 
 pub use db::DbError;
 pub use db::DbErrorKind;
@@ -33,7 +35,7 @@ use crate::links::HelpPage;
 
 pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 
-#[derive(Debug, PartialEq, Eq, Snafu)]
+#[derive(Debug, PartialEq, Snafu)]
 pub enum AnkiError {
     #[snafu(context(false))]
     InvalidInput {
@@ -105,6 +107,11 @@ pub enum AnkiError {
         source: ImportError,
     },
     InvalidId,
+    #[cfg(windows)]
+    #[snafu(context(false))]
+    WindowsError {
+        source: windows::WindowsError,
+    },
 }
 
 // error helpers
@@ -154,6 +161,8 @@ impl AnkiError {
             AnkiError::FileIoError { source } => source.message(),
             AnkiError::InvalidInput { source } => source.message(),
             AnkiError::NotFound { source } => source.message(tr),
+            #[cfg(windows)]
+            AnkiError::WindowsError { source } => format!("{source:?}"),
         }
     }
 

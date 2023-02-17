@@ -15,9 +15,11 @@ use crate::deckconfig::DeckConfigId;
 use crate::deckconfig::DeckConfigInner;
 use crate::prelude::*;
 
-fn row_to_deckconf(row: &Row) -> Result<DeckConfig> {
+fn row_to_deckconf(row: &Row, fix_invalid: bool) -> Result<DeckConfig> {
     let mut config = DeckConfigInner::decode(row.get_ref_unwrap(4).as_blob()?)?;
-    config.ensure_values_valid();
+    if fix_invalid {
+        config.ensure_values_valid();
+    }
     Ok(DeckConfig {
         id: row.get(0)?,
         name: row.get(1)?,
@@ -31,14 +33,22 @@ impl SqliteStorage {
     pub(crate) fn all_deck_config(&self) -> Result<Vec<DeckConfig>> {
         self.db
             .prepare_cached(include_str!("get.sql"))?
-            .query_and_then([], row_to_deckconf)?
+            .query_and_then([], |row| row_to_deckconf(row, true))?
+            .collect()
+    }
+
+    /// Does not cap values to those expected by the latest schema.
+    pub(crate) fn all_deck_config_for_schema16_upgrade(&self) -> Result<Vec<DeckConfig>> {
+        self.db
+            .prepare_cached(include_str!("get.sql"))?
+            .query_and_then([], |row| row_to_deckconf(row, false))?
             .collect()
     }
 
     pub(crate) fn get_deck_config_map(&self) -> Result<HashMap<DeckConfigId, DeckConfig>> {
         self.db
             .prepare_cached(include_str!("get.sql"))?
-            .query_and_then([], row_to_deckconf)?
+            .query_and_then([], |row| row_to_deckconf(row, true))?
             .map(|res| res.map(|d| (d.id, d)))
             .collect()
     }
@@ -46,7 +56,7 @@ impl SqliteStorage {
     pub(crate) fn get_deck_config(&self, dcid: DeckConfigId) -> Result<Option<DeckConfig>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " where id = ?"))?
-            .query_and_then(params![dcid], row_to_deckconf)?
+            .query_and_then(params![dcid], |row| row_to_deckconf(row, true))?
             .next()
             .transpose()
     }
@@ -217,7 +227,7 @@ impl SqliteStorage {
 
     pub(super) fn upgrade_deck_conf_to_schema16(&self, server: bool) -> Result<()> {
         let mut invalid_configs = vec![];
-        for mut conf in self.all_deck_config()? {
+        for mut conf in self.all_deck_config_for_schema16_upgrade()? {
             // schema 16 changed starting ease of 250 to 2.5
             conf.inner.initial_ease /= 100.0;
             // new deck configs created with schema 15 had the wrong

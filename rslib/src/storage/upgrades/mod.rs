@@ -78,6 +78,9 @@ impl SqliteStorage {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::collection::CollectionBuilder;
+    use crate::io::new_tempfile;
+    use crate::prelude::*;
 
     #[test]
     #[allow(clippy::assertions_on_constants)]
@@ -86,5 +89,26 @@ mod test {
             18, SCHEMA_MAX_VERSION,
             "must implement SqliteStorage::downgrade_to(SchemaVersion::V18)"
         );
+    }
+
+    #[test]
+    fn valid_ease_factor_survives_upgrade_roundtrip() -> Result<()> {
+        let tempfile = new_tempfile()?;
+        let mut col = CollectionBuilder::default()
+            .set_collection_path(tempfile.path())
+            .build()?;
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+        col.storage
+            .db
+            .execute("update cards set factor = 1400", [])?;
+        col.close(Some(SchemaVersion::V11))?;
+        let col = CollectionBuilder::default()
+            .set_collection_path(tempfile.path())
+            .build()?;
+        let card = &col.storage.get_all_cards()[0];
+        assert_eq!(card.ease_factor, 1400);
+        Ok(())
     }
 }

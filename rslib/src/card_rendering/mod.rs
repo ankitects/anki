@@ -7,6 +7,7 @@ use crate::pb;
 use crate::prelude::*;
 
 mod parser;
+pub mod tts;
 mod writer;
 
 pub fn strip_av_tags<S: Into<String> + AsRef<str>>(txt: S) -> String {

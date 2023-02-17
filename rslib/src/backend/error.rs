@@ -40,6 +40,8 @@ impl AnkiError {
             AnkiError::FileIoError { .. } => Kind::IoError,
             AnkiError::MediaCheckRequired => Kind::InvalidInput,
             AnkiError::InvalidId => Kind::InvalidInput,
+            #[cfg(windows)]
+            AnkiError::WindowsError { .. } => Kind::OsError,
         };
 
         pb::backend::BackendError {

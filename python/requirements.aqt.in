@@ -7,4 +7,3 @@ send2trash
 waitress>=2.0.0
 psutil; sys.platform == "win32"
 pywin32; sys.platform == "win32"
-winrt; sys.platform == "win32"
