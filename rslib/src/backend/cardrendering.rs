@@ -4,6 +4,7 @@
 use super::Backend;
 use crate::card_rendering::extract_av_tags;
 use crate::card_rendering::strip_av_tags;
+use crate::card_rendering::tts;
 use crate::cloze::extract_cloze_for_typing;
 use crate::latex::extract_latex;
 use crate::latex::extract_latex_expanding_clozes;
@@ -174,6 +175,27 @@ impl CardRenderingService for Backend {
         Ok(extract_cloze_for_typing(&input.text, input.ordinal as u16)
             .to_string()
             .into())
+    }
+
+    fn all_tts_voices(
+        &self,
+        input: pb::card_rendering::AllTtsVoicesRequest,
+    ) -> Result<pb::card_rendering::AllTtsVoicesResponse> {
+        tts::all_voices(input.validate)
+            .map(|voices| pb::card_rendering::AllTtsVoicesResponse { voices })
+    }
+
+    fn write_tts_stream(
+        &self,
+        request: pb::card_rendering::WriteTtsStreamRequest,
+    ) -> Result<pb::generic::Empty> {
+        tts::write_stream(
+            &request.path,
+            &request.voice_id,
+            request.speed,
+            &request.text,
+        )
+        .map(Into::into)
     }
 }
 
