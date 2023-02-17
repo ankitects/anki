@@ -39,6 +39,7 @@ ImportCsvRequest = import_export_pb2.ImportCsvRequest
 CsvMetadata = import_export_pb2.CsvMetadata
 DupeResolution = CsvMetadata.DupeResolution
 Delimiter = import_export_pb2.CsvMetadata.Delimiter
+TtsVoice = card_rendering_pb2.AllTtsVoicesResponse.TtsVoice
 
 import copy
 import os

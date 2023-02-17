@@ -29,6 +29,8 @@ service CardRenderingService {
   rpc CompareAnswer(CompareAnswerRequest) returns (generic.String);
   rpc ExtractClozeForTyping(ExtractClozeForTypingRequest)
       returns (generic.String);
+  rpc AllTtsVoices(AllTtsVoicesRequest) returns (AllTtsVoicesResponse);
+  rpc WriteTtsStream(WriteTtsStreamRequest) returns (generic.Empty);
 }
 
 message ExtractAVTagsRequest {
@@ -144,4 +146,25 @@ message CompareAnswerRequest {
 message ExtractClozeForTypingRequest {
   string text = 1;
   uint32 ordinal = 2;
+}
+
+message AllTtsVoicesRequest {
+  bool validate = 1;
+}
+
+message AllTtsVoicesResponse {
+  message TtsVoice {
+    string id = 1;
+    string name = 2;
+    string language = 3;
+    optional bool available = 4;
+  }
+  repeated TtsVoice voices = 1;
+}
+
+message WriteTtsStreamRequest {
+  string path = 1;
+  string voice_id = 2;
+  float speed = 3;
+  string text = 4;
 }

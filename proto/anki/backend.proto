@@ -66,6 +66,8 @@ message BackendError {
     DELETED = 17;
     CARD_TYPE_ERROR = 18;
     ANKIDROID_PANIC_ERROR = 19;
+    // Originated from and usually specific to the OS.
+    OS_ERROR = 20;
   }
 
   // error description, usually localized, suitable for displaying to the user
