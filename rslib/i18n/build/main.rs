@@ -23,6 +23,7 @@ fn main() {
     write_strings(&map, &modules);
 
     // write strings.json file to requested path
+    println!("cargo:rerun-if-env-changed=STRINGS_JSON");
     if let Some(path) = option_env!("STRINGS_JSON") {
         let meta_json = serde_json::to_string_pretty(&modules).unwrap();
         fs::write(path, meta_json).unwrap();
