@@ -14,7 +14,6 @@ use crate::sync::collection::normal::SyncActionRequired;
 use crate::sync::collection::protocol::SyncProtocol;
 use crate::sync::error::HttpError;
 use crate::sync::error::HttpResult;
-use crate::sync::error::HttpSnafu;
 use crate::sync::error::OrHttpErr;
 use crate::sync::http_client::HttpSyncClient;
 use crate::sync::request::IntoSyncRequest;
@@ -139,13 +138,12 @@ impl Collection {
 
 pub fn server_meta(req: MetaRequest, col: &mut Collection) -> HttpResult<SyncMeta> {
     if !matches!(req.sync_version, SYNC_VERSION_MIN..=SYNC_VERSION_MAX) {
-        return HttpSnafu {
+        return Err(HttpError {
             // old clients expected this code
             code: StatusCode::NOT_IMPLEMENTED,
-            context: "unsupported version",
+            context: "unsupported version".into(),
             source: None,
-        }
-        .fail();
+        });
     }
     let mut meta = col.sync_meta().or_internal_err("sync meta")?;
     if meta.v2_scheduler_or_later && req.sync_version < SYNC_VERSION_09_V2_SCHEDULER {

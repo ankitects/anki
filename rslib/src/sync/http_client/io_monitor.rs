@@ -27,7 +27,6 @@ use tokio_util::io::StreamReader;
 use crate::error::Result;
 use crate::sync::error::HttpError;
 use crate::sync::error::HttpResult;
-use crate::sync::error::HttpSnafu;
 use crate::sync::error::OrHttpErr;
 use crate::sync::request::header_and_stream::decode_zstd_body_stream_for_client;
 use crate::sync::request::header_and_stream::encode_zstd_body_stream;
@@ -149,11 +148,11 @@ impl IoMonitor {
             data = response_body_stream => Ok(data?),
             // timeout
             _ = self.timeout(stall_duration) => {
-                HttpSnafu {
+                Err(HttpError {
                     code: StatusCode::REQUEST_TIMEOUT,
-                    context: "timeout monitor",
+                    context: "timeout monitor".into(),
                     source: None,
-                }.fail()
+                })
             }
         }
     }
