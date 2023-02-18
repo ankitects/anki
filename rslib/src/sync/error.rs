@@ -114,7 +114,7 @@ pub trait OrHttpErr {
 
 impl<T, E> OrHttpErr for Result<T, E>
 where
-    E: std::error::Error + Send + Sync + 'static,
+    E: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
 {
     type Value = T;
 
@@ -127,7 +127,7 @@ where
             HttpSnafu {
                 code,
                 context: context.into(),
-                source: Some(Box::new(err) as _),
+                source: err.into(),
             }
             .build()
         })
