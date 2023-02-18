@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use super::notes::to_i64s;
 use super::progress::Progress;
 use super::Backend;
 use crate::media::check::MediaChecker;
@@ -28,6 +29,7 @@ impl MediaService for Backend {
                 Ok(pb::media::CheckMediaResponse {
                     unused: output.unused,
                     missing: output.missing,
+                    missing_media_notes: to_i64s(output.missing_media_notes),
                     report,
                     have_trash: output.trash_count > 0,
                 })
