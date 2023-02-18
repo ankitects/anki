@@ -1,28 +1,37 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::error::Error;
+use std::fmt::Display;
+use std::fmt::Formatter;
+
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::response::Redirect;
 use axum::response::Response;
-use snafu::OptionExt;
-use snafu::Snafu;
 
-pub type HttpResult<T, E = HttpError> = std::result::Result<T, E>;
+pub type HttpResult<T, E = HttpError> = Result<T, E>;
 
-#[derive(Debug, Snafu)]
-#[snafu(visibility(pub))]
+#[derive(Debug)]
 pub struct HttpError {
     pub code: StatusCode,
     pub context: String,
-    // snafu's automatic error conversion only supports Option if
-    // the whatever trait is derived, and deriving whatever means we
-    // can't have extra fields like `code`. Even without Option, the
-    // error conversion requires us to manually box the error, so we end
-    // up having to disable the default behaviour and add the error to the
-    // snafu ourselves
-    #[snafu(source(false))]
-    pub source: Option<Box<dyn std::error::Error + Send + Sync>>,
+    pub source: Option<Box<dyn Error + Send + Sync>>,
+}
+
+impl Display for HttpError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} (code={})", self.context, self.code.as_u16())
+    }
+}
+
+impl Error for HttpError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match &self.source {
+            None => None,
+            Some(err) => Some(err.as_ref()),
+        }
+    }
 }
 
 impl HttpError {
@@ -114,7 +123,7 @@ pub trait OrHttpErr {
 
 impl<T, E> OrHttpErr for Result<T, E>
 where
-    E: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
+    E: Into<Box<dyn Error + Send + Sync + 'static>>,
 {
     type Value = T;
 
@@ -123,13 +132,10 @@ where
         code: StatusCode,
         context: impl Into<String>,
     ) -> Result<Self::Value, HttpError> {
-        self.map_err(|err| {
-            HttpSnafu {
-                code,
-                context: context.into(),
-                source: err.into(),
-            }
-            .build()
+        self.map_err(|err| HttpError {
+            code,
+            context: context.into(),
+            source: Some(err.into()),
         })
     }
 }
@@ -142,9 +148,9 @@ impl<T> OrHttpErr for Option<T> {
         code: StatusCode,
         context: impl Into<String>,
     ) -> Result<Self::Value, HttpError> {
-        self.context(HttpSnafu {
+        self.ok_or_else(|| HttpError {
             code,
-            context,
+            context: context.into(),
             source: None,
         })
     }

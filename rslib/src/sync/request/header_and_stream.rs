@@ -21,8 +21,8 @@ use serde_derive::Serialize;
 use tokio::io::AsyncReadExt;
 use tokio_util::io::ReaderStream;
 
+use crate::sync::error::HttpError;
 use crate::sync::error::HttpResult;
-use crate::sync::error::HttpSnafu;
 use crate::sync::error::OrHttpErr;
 use crate::sync::request::SyncRequest;
 use crate::sync::request::MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED;
@@ -81,25 +81,19 @@ where
         data.map_err(|e| std::io::Error::new(ErrorKind::ConnectionAborted, format!("{e}"))),
     );
     let reader = async_compression::tokio::bufread::ZstdDecoder::new(reader);
-    ReaderStream::new(reader).map_err(|err| {
-        HttpSnafu {
-            code: StatusCode::BAD_REQUEST,
-            context: "decode zstd body",
-            source: Some(Box::new(err) as _),
-        }
-        .build()
+    ReaderStream::new(reader).map_err(|err| HttpError {
+        code: StatusCode::BAD_REQUEST,
+        context: "decode zstd body".into(),
+        source: Some(Box::new(err) as _),
     })
 }
 
 pub fn encode_zstd_body(data: Vec<u8>) -> impl Stream<Item = HttpResult<Bytes>> + Unpin {
     let enc = async_compression::tokio::bufread::ZstdEncoder::new(Cursor::new(data));
-    ReaderStream::new(enc).map_err(|err| {
-        HttpSnafu {
-            code: StatusCode::INTERNAL_SERVER_ERROR,
-            context: "encode zstd body",
-            source: Some(Box::new(err) as _),
-        }
-        .build()
+    ReaderStream::new(enc).map_err(|err| HttpError {
+        code: StatusCode::INTERNAL_SERVER_ERROR,
+        context: "encode zstd body".into(),
+        source: Some(Box::new(err) as _),
     })
 }
 
@@ -112,13 +106,10 @@ where
         data.map_err(|e| std::io::Error::new(ErrorKind::ConnectionAborted, format!("{e}"))),
     );
     let reader = async_compression::tokio::bufread::ZstdEncoder::new(reader);
-    ReaderStream::new(reader).map_err(|err| {
-        HttpSnafu {
-            code: StatusCode::BAD_REQUEST,
-            context: "encode zstd body",
-            source: Some(Box::new(err) as _),
-        }
-        .build()
+    ReaderStream::new(reader).map_err(|err| HttpError {
+        code: StatusCode::BAD_REQUEST,
+        context: "encode zstd body".into(),
+        source: Some(Box::new(err) as _),
     })
 }
 
