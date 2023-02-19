@@ -25,6 +25,7 @@ pub enum NetworkErrorKind {
 }
 
 #[derive(Debug, PartialEq, Eq, Snafu)]
+#[snafu(display("{kind:?}: {info}"))]
 pub struct SyncError {
     pub info: String,
     pub kind: SyncErrorKind,
