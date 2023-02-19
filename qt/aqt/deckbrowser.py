@@ -274,6 +274,8 @@ class DeckBrowser:
         qconnect(a.triggered, lambda b, did=did: self._export(DeckId(int(did))))
         a = m.addAction(tr.actions_delete())
         qconnect(a.triggered, lambda b, did=did: self._delete(DeckId(int(did))))
+        a = m.addAction(tr.decks_create_deck())
+        qconnect(a.triggered, lambda b, did=did: self._create_subdeck(DeckId(int(did))))
         gui_hooks.deck_browser_will_show_options_menu(m, int(did))
         m.popup(QCursor.pos())
 
@@ -293,6 +295,10 @@ class DeckBrowser:
         QueryOp(
             parent=self.mw, op=lambda col: col.decks.name(did), success=prompt
         ).run_in_background()
+
+    def _create_subdeck(self, did: DeckId) -> None:
+        if op := add_deck_dialog(parent=self.mw, default_text=aqt.mw.col.decks.get(did)["name"]):
+            op.run_in_background()
 
     def _options(self, did: DeckId) -> None:
         display_options_for_deck_id(did)
