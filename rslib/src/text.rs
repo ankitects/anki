@@ -101,7 +101,7 @@ lazy_static! {
         "#
     ).unwrap();
 
-    pub(crate) static ref HTML_MEDIA_TAGS: Regex = Regex::new(
+    pub static ref HTML_MEDIA_TAGS: Regex = Regex::new(
         r#"(?xsi)
             # the start of the image, audio, or object tag
             <\b(?:img|audio|object)\b[^>]+\b(?:src|data)\b=
@@ -284,7 +284,7 @@ pub(crate) fn extract_media_refs(text: &str) -> Vec<MediaRef> {
 
 /// Calls `replacer` for every media reference in `text`, and optionally
 /// replaces it with something else. [None] if no reference was found.
-pub(crate) fn replace_media_refs(
+pub fn replace_media_refs(
     text: &str,
     mut replacer: impl FnMut(&str) -> Option<String>,
 ) -> Option<String> {
