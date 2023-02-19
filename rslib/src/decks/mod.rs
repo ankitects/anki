@@ -158,7 +158,7 @@ impl Collection {
 }
 
 impl Collection {
-    pub(crate) fn get_deck(&mut self, did: DeckId) -> Result<Option<Arc<Deck>>> {
+    pub fn get_deck(&mut self, did: DeckId) -> Result<Option<Arc<Deck>>> {
         if let Some(deck) = self.state.deck_cache.get(&did) {
             return Ok(Some(deck.clone()));
         }
