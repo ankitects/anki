@@ -52,7 +52,6 @@ from aqt.utils import tooltip, tr
 class TTSVoice:
     name: str
     lang: str
-    available: bool | None
 
     def __str__(self) -> str:
         out = f"{{{{tts {self.lang} voices={self.name}}}}}"
@@ -61,7 +60,7 @@ class TTSVoice:
         return out
 
     def unavailable(self) -> bool:
-        return self.available is False
+        return False
 
 
 @dataclass
@@ -213,9 +212,7 @@ class MacTTSPlayer(TTSProcessPlayer):
 
         original_name = m.group(1).strip()
         tidy_name = f"Apple_{original_name.replace(' ', '_')}"
-        return MacVoice(
-            name=tidy_name, original_name=original_name, lang=m.group(2), available=None
-        )
+        return MacVoice(name=tidy_name, original_name=original_name, lang=m.group(2))
 
 
 class MacTTSFilePlayer(MacTTSPlayer):
@@ -519,10 +516,7 @@ if is_win:
                 # some voices may not have a name
                 name = "unknown"
             name = self._tidy_name(name)
-            return [
-                WindowsVoice(name=name, lang=lang, handle=voice, available=None)
-                for lang in langs
-            ]
+            return [WindowsVoice(name=name, lang=lang, handle=voice) for lang in langs]
 
         def _play(self, tag: AVTag) -> None:
             assert isinstance(tag, TTSTag)
@@ -560,6 +554,10 @@ if is_win:
     @dataclass
     class WindowsRTVoice(TTSVoice):
         id: str
+        available: bool | None = None
+
+        def unavailable(self) -> bool:
+            return self.available is False
 
         @classmethod
         def from_backend_voice(cls, voice: BackendVoice) -> WindowsRTVoice:
