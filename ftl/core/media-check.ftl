@@ -76,4 +76,4 @@ media-check-check-media-action = Check Media
 # a tag for notes with missing media files (must not contain whitespace)
 media-check-missing-media-tag = missing-media
 # add a tag to notes with missing media
-media-check-add-tag = Add tag '{ media-check-missing-media-tag }'
+media-check-add-tag = Tag Missing
