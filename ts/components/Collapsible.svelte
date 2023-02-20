@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     $: duration = dynamicDuration(contentHeight);
 
-    const size = tweened<number>(undefined);
+    const size = tweened<number>(0);
 
     async function transition(collapse: boolean): Promise<void> {
         if (collapse) {
