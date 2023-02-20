@@ -172,3 +172,7 @@ impl NotesService for Backend {
 pub(super) fn to_note_ids(ids: Vec<i64>) -> Vec<NoteId> {
     ids.into_iter().map(NoteId).collect()
 }
+
+pub(super) fn to_i64s(ids: Vec<NoteId>) -> Vec<i64> {
+    ids.into_iter().map(Into::into).collect()
+}
