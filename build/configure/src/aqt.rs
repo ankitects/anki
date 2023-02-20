@@ -269,6 +269,9 @@ fn build_themed_icons(build: &mut Build) -> Result<()> {
         "chevron-down" => &["FG_DISABLED"],
         "drag-vertical" => &["FG_SUBTLE"],
         "drag-horizontal" => &["FG_SUBTLE"],
+        "check" => &["FG_DISABLED"],
+        "circle-medium" => &["FG_DISABLED"],
+        "minus-thick" => &["FG_DISABLED"],
     };
     for icon_path in build.expand_inputs(inputs![":node_modules:mdi_themed"]) {
         let path = Utf8Path::new(&icon_path);
