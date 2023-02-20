@@ -11,17 +11,14 @@ use std::path::Path;
 use anki_i18n::without_unicode_isolation;
 use tracing::debug;
 
-use crate::collection::Collection;
-use crate::error::AnkiError;
 use crate::error::DbErrorKind;
-use crate::error::Result;
 use crate::latex::extract_latex_expanding_clozes;
 use crate::media::files::data_for_file;
 use crate::media::files::filename_if_normalized;
 use crate::media::files::normalize_nfc_filename;
 use crate::media::files::trash_folder;
 use crate::media::MediaManager;
-use crate::notes::Note;
+use crate::prelude::*;
 use crate::sync::media::MAX_INDIVIDUAL_MEDIA_FILE_SIZE;
 use crate::text::extract_media_refs;
 use crate::text::normalize_to_nfc;
@@ -32,6 +29,7 @@ use crate::text::REMOTE_FILENAME;
 pub struct MediaCheckOutput {
     pub unused: Vec<String>,
     pub missing: Vec<String>,
+    pub missing_media_notes: Vec<NoteId>,
     pub renamed: HashMap<String, String>,
     pub dirs: Vec<String>,
     pub oversize: Vec<String>,
@@ -76,12 +74,13 @@ where
 
     pub fn check(&mut self) -> Result<MediaCheckOutput> {
         let folder_check = self.check_media_folder()?;
-        let referenced_files = self.check_media_references(&folder_check.renamed)?;
-        let (unused, missing) = find_unused_and_missing(folder_check.files, referenced_files);
+        let references = self.check_media_references(&folder_check.renamed)?;
+        let unused_and_missing = UnusedAndMissingFiles::new(folder_check.files, references);
         let (trash_count, trash_bytes) = self.files_in_trash()?;
         Ok(MediaCheckOutput {
-            unused,
-            missing,
+            unused: unused_and_missing.unused,
+            missing: unused_and_missing.missing,
+            missing_media_notes: unused_and_missing.missing_media_notes,
             renamed: folder_check.renamed,
             dirs: folder_check.dirs,
             oversize: folder_check.oversize,
@@ -345,8 +344,8 @@ where
     fn check_media_references(
         &mut self,
         renamed: &HashMap<String, String>,
-    ) -> Result<HashSet<String>> {
-        let mut referenced_files = HashSet::new();
+    ) -> Result<HashMap<String, Vec<NoteId>>> {
+        let mut referenced_files = HashMap::new();
         let notetypes = self.ctx.get_all_notetypes()?;
         let mut collection_modified = false;
 
@@ -361,12 +360,14 @@ where
             let nt = notetypes.get(&note.notetype_id).ok_or_else(|| {
                 AnkiError::db_error("missing note type", DbErrorKind::MissingEntity)
             })?;
-            if fix_and_extract_media_refs(
-                &mut note,
-                &mut referenced_files,
-                renamed,
-                &self.mgr.media_folder,
-            )? {
+            let mut tracker = |fname| {
+                referenced_files
+                    .entry(fname)
+                    .or_insert_with(Vec::new)
+                    .push(nid)
+            };
+            if fix_and_extract_media_refs(&mut note, &mut tracker, renamed, &self.mgr.media_folder)?
+            {
                 // note was modified, needs saving
                 note.prepare_for_update(nt, false)?;
                 note.set_modified(usn);
@@ -375,7 +376,7 @@ where
             }
 
             // extract latex
-            extract_latex_refs(&note, &mut referenced_files, nt.config.latex_svg);
+            extract_latex_refs(&note, &mut tracker, nt.config.latex_svg);
         }
 
         if collection_modified {
@@ -390,7 +391,7 @@ where
 /// Returns true if note was modified.
 fn fix_and_extract_media_refs(
     note: &mut Note,
-    seen_files: &mut HashSet<String>,
+    mut tracker: impl FnMut(String),
     renamed: &HashMap<String, String>,
     media_folder: &Path,
 ) -> Result<bool> {
@@ -400,7 +401,7 @@ fn fix_and_extract_media_refs(
         let field = normalize_and_maybe_rename_files(
             &note.fields()[idx],
             renamed,
-            seen_files,
+            &mut tracker,
             media_folder,
         );
         if let Cow::Owned(field) = field {
@@ -418,7 +419,7 @@ fn fix_and_extract_media_refs(
 fn normalize_and_maybe_rename_files<'a>(
     field: &'a str,
     renamed: &HashMap<String, String>,
-    seen_files: &mut HashSet<String>,
+    mut tracker: impl FnMut(String),
     media_folder: &Path,
 ) -> Cow<'a, str> {
     let refs = extract_media_refs(field);
@@ -455,7 +456,7 @@ fn normalize_and_maybe_rename_files<'a>(
             field = rename_media_ref_in_field(field.as_ref(), &media_ref, new_name).into();
         }
         // and mark this filename as having been referenced
-        seen_files.insert(fname.into_owned());
+        tracker(fname.into_owned());
     }
 
     field
@@ -472,29 +473,43 @@ fn rename_media_ref_in_field(field: &str, media_ref: &MediaRef, new_name: &str) 
     field.replace(media_ref.full_ref, &updated_tag)
 }
 
-/// Returns (unused, missing)
-fn find_unused_and_missing(
-    files: Vec<String>,
-    mut references: HashSet<String>,
-) -> (Vec<String>, Vec<String>) {
-    let mut unused = vec![];
-
-    for file in files {
-        if !file.starts_with('_') && !references.contains(&file) {
-            unused.push(file);
-        } else {
-            references.remove(&file);
-        }
-    }
-
-    (unused, references.into_iter().collect())
+struct UnusedAndMissingFiles {
+    unused: Vec<String>,
+    missing: Vec<String>,
+    missing_media_notes: Vec<NoteId>,
 }
 
-fn extract_latex_refs(note: &Note, seen_files: &mut HashSet<String>, svg: bool) {
+impl UnusedAndMissingFiles {
+    fn new(files: Vec<String>, mut references: HashMap<String, Vec<NoteId>>) -> Self {
+        let mut unused = vec![];
+        for file in files {
+            if !file.starts_with('_') && !references.contains_key(&file) {
+                unused.push(file);
+            } else {
+                references.remove(&file);
+            }
+        }
+
+        let mut missing = Vec::new();
+        let mut notes = HashSet::new();
+        for (fname, nids) in references {
+            missing.push(fname);
+            notes.extend(nids);
+        }
+
+        Self {
+            unused,
+            missing,
+            missing_media_notes: notes.into_iter().collect(),
+        }
+    }
+}
+
+fn extract_latex_refs(note: &Note, mut tracker: impl FnMut(String), svg: bool) {
     for field in note.fields() {
         let (_, extracted) = extract_latex_expanding_clozes(field, svg);
         for e in extracted {
-            seen_files.insert(e.fname);
+            tracker(e.fname);
         }
     }
 }
@@ -505,23 +520,14 @@ pub(crate) mod test {
         include_bytes!("../../tests/support/mediacheck.anki2");
 
     use std::collections::HashMap;
-    use std::fs;
-    use std::io;
-    use std::path::Path;
 
     use tempfile::tempdir;
     use tempfile::TempDir;
 
-    use super::normalize_and_maybe_rename_files;
-    use crate::collection::Collection;
+    use super::*;
     use crate::collection::CollectionBuilder;
-    use crate::error::Result;
     use crate::io::create_dir;
     use crate::io::write_file;
-    use crate::media::check::MediaCheckOutput;
-    use crate::media::check::MediaChecker;
-    use crate::media::files::trash_folder;
-    use crate::media::MediaManager;
 
     fn common_setup() -> Result<(TempDir, MediaManager, Collection)> {
         let dir = tempdir()?;
@@ -565,6 +571,7 @@ pub(crate) mod test {
             MediaCheckOutput {
                 unused: vec!["unused.jpg".into()],
                 missing: vec!["ぱぱ.jpg".into()],
+                missing_media_notes: vec![NoteId(1581236461568)],
                 renamed: vec![("foo[.jpg".into(), "foo.jpg".into())]
                     .into_iter()
                     .collect(),
@@ -687,6 +694,7 @@ Unused: unused.jpg
                 MediaCheckOutput {
                     unused: vec![],
                     missing: vec!["foo[.jpg".into(), "normal.jpg".into()],
+                    missing_media_notes: vec![NoteId(1581236386334)],
                     renamed: Default::default(),
                     dirs: vec![],
                     oversize: vec![],
@@ -702,6 +710,7 @@ Unused: unused.jpg
                 MediaCheckOutput {
                     unused: vec![],
                     missing: vec!["foo[.jpg".into(), "normal.jpg".into()],
+                    missing_media_notes: vec![NoteId(1581236386334)],
                     renamed: vec![("ぱぱ.jpg".into(), "ぱぱ.jpg".into())]
                         .into_iter()
                         .collect(),
@@ -718,21 +727,31 @@ Unused: unused.jpg
         Ok(())
     }
 
+    fn normalize_and_maybe_rename_files_helper(field: &str) -> HashSet<String> {
+        let mut seen = HashSet::new();
+        normalize_and_maybe_rename_files(
+            field,
+            &HashMap::new(),
+            |fname| {
+                seen.insert(fname);
+            },
+            Path::new("/tmp"),
+        );
+        seen
+    }
+
     #[test]
     fn html_encoding() {
         let mut field = "[sound:a &amp; b.mp3]";
-        let mut seen = Default::default();
-        normalize_and_maybe_rename_files(field, &HashMap::new(), &mut seen, Path::new("/tmp"));
+        let seen = normalize_and_maybe_rename_files_helper(field);
         assert!(seen.contains("a & b.mp3"));
 
         field = r#"<img src="a&b.jpg">"#;
-        seen = Default::default();
-        normalize_and_maybe_rename_files(field, &HashMap::new(), &mut seen, Path::new("/tmp"));
+        let seen = normalize_and_maybe_rename_files_helper(field);
         assert!(seen.contains("a&b.jpg"));
 
         field = r#"<img src="a&amp;b.jpg">"#;
-        seen = Default::default();
-        normalize_and_maybe_rename_files(field, &HashMap::new(), &mut seen, Path::new("/tmp"));
+        let seen = normalize_and_maybe_rename_files_helper(field);
         assert!(seen.contains("a&b.jpg"));
     }
 }

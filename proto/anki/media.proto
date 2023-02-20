@@ -20,8 +20,9 @@ service MediaService {
 message CheckMediaResponse {
   repeated string unused = 1;
   repeated string missing = 2;
-  string report = 3;
-  bool have_trash = 4;
+  repeated int64 missing_media_notes = 3;
+  string report = 4;
+  bool have_trash = 5;
 }
 
 message TrashMediaFilesRequest {
