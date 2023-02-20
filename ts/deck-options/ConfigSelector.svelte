@@ -22,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
     const dispatchPresetChange = () => dispatch("presetchange");
 
-    let value = $configList.findIndex((entry) => entry.current);
+    $: value = $configList.findIndex((entry) => entry.current);
     $: label = configLabel($configList[value]);
 
     function configLabel(entry: ConfigListEntry): string {
