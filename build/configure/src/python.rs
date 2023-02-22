@@ -117,7 +117,7 @@ impl BuildAction for GenPythonProto {
 
 pub struct BuildWheel {
     pub name: &'static str,
-    pub version: &'static str,
+    pub version: String,
     pub src_folder: &'static str,
     pub gen_folder: &'static str,
     pub platform: Option<Platform>,
@@ -149,7 +149,7 @@ impl BuildAction for BuildWheel {
             "py3-none-any".into()
         };
         let name = self.name;
-        let version = self.version;
+        let version = &self.version;
         let wheel_path = format!("wheels/{name}-{version}-{tag}.whl");
         build.add_outputs("out", vec![wheel_path]);
     }

@@ -11,8 +11,8 @@ type ComponentAPIDestroy<T> = (api: T) => void;
 type SetLifecycleHooksAction<T> = (api: T) => void;
 
 export interface LifecycleHooks<T> {
-    onMount(callback: ComponentAPIMount<T>): Callback;
-    onDestroy(callback: ComponentAPIDestroy<T>): Callback;
+    onMount(callback: ComponentAPIMount<T>): Callback | Promise<Callback>;
+    onDestroy(callback: ComponentAPIDestroy<T>): Callback | Promise<Callback>;
 }
 
 /**
@@ -27,22 +27,25 @@ function lifecycleHooks<T>(): [LifecycleHooks<T>, T[], SetLifecycleHooksAction<T
 
     function setup(api: T): void {
         svelteOnMount(() => {
-            const cleanups: Callback[] = [];
+            const cleanups: Promise<void | Callback>[] = [];
 
-            for (const callback of mountCallbacks) {
-                const cleanup = callback(api);
-
-                if (cleanup) {
-                    cleanups.push(cleanup);
-                }
+            for (const mountCallback of mountCallbacks) {
+                // Promise.resolve doesn't care whether it's a promise or sync callback
+                cleanups.push(
+                    Promise.resolve(mountCallback).then((callback) => {
+                        return callback(api);
+                    }),
+                );
             }
 
             // onMount seems to be called in reverse order
             instances.unshift(api);
 
-            return () => {
-                for (const cleanup of cleanups) {
-                    cleanup();
+            return async () => {
+                for (const cleanup of await Promise.all(cleanups)) {
+                    if (cleanup) {
+                        cleanup();
+                    }
                 }
             };
         });
@@ -50,8 +53,10 @@ function lifecycleHooks<T>(): [LifecycleHooks<T>, T[], SetLifecycleHooksAction<T
         svelteOnDestroy(() => {
             removeItem(instances, api);
 
-            for (const callback of destroyCallbacks) {
-                callback(api);
+            for (const destroyCallback of destroyCallbacks) {
+                Promise.resolve(destroyCallback).then((callback) => {
+                    callback(api);
+                });
             }
         });
     }

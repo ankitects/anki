@@ -13,6 +13,7 @@ use ninja_gen::python::PythonTest;
 use ninja_gen::Build;
 use ninja_gen::Result;
 
+use crate::anki_version;
 use crate::platform::overriden_python_target_platform;
 use crate::python::BuildWheel;
 use crate::python::GenPythonProto;
@@ -88,14 +89,14 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
         "wheels:anki",
         BuildWheel {
             name: "anki",
-            version: include_str!("../../../.version").trim(),
+            version: anki_version(),
             src_folder: "pylib/anki",
             gen_folder: "$builddir/pylib/anki",
             platform: overriden_python_target_platform().or(Some(build.host_platform)),
             deps: inputs![
                 ":pylib/anki",
                 glob!("pylib/anki/**"),
-                "python/requirements.anki.in"
+                "python/requirements.anki.in",
             ],
         },
     )?;

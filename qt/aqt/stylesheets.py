@@ -104,6 +104,9 @@ class CustomStyles:
         margin-top: 5px;
         left: 5px;
     }}
+    QLabel:disabled {{
+        color: {tm.var(colors.FG_DISABLED)};
+    }}
         """
 
     def menu(self, tm: ThemeManager) -> str:
@@ -264,6 +267,9 @@ class CustomStyles:
     }}
     QComboBox::down-arrow {{
         image: url({tm.themed_icon("mdi:chevron-down")});
+    }}
+    QComboBox::down-arrow:disabled {{
+        image: url({tm.themed_icon("mdi:chevron-down-FG_DISABLED")});
     }}
     QComboBox::drop-down:hover:editable {{
         background: {
@@ -463,18 +469,12 @@ class CustomStyles:
         width: 20px;
         height: 20px;
     }}
-    QSpinBox::up-button:disabled, QSpinBox::up-button:off,
-    QSpinBox::down-button:disabled, QSpinBox::down-button:off,
-    QDateTimeEdit::up-button:disabled, QDateTimeEdit::up-button:off,
-    QDateTimeEdit::down-button:disabled, QDateTimeEdit::down-button:off {{
-    background: {tm.var(colors.BUTTON_DISABLED)};
-    }}
-    QSpinBox::up-arrow:off,
-    QDateTimeEdit::up-arrow:off {{
+    QSpinBox::up-arrow:disabled, QSpinBox::up-arrow:off,
+    QDateTimeEdit::up-arrow:disabled, QDateTimeEdit::up-arrow:off {{
         image: url({tm.themed_icon("mdi:chevron-up-FG_DISABLED")});
     }}
-    QSpinBox::down-arrow:off,
-    QDateTimeEdit::down-arrow:off {{
+    QSpinBox::down-arrow:disabled, QSpinBox::down-arrow:off,
+    QDateTimeEdit::down-arrow:disabled, QDateTimeEdit::down-arrow:off {{
         image: url({tm.themed_icon("mdi:chevron-down-FG_DISABLED")});
     }}
         """
@@ -499,12 +499,12 @@ class CustomStyles:
     QMenu::indicator:exclusive {{
         border-radius: 8px;
     }}
-    QCheckBox::indicator:focus,
-    QCheckBox::indicator:hover,
-    QCheckBox::indicator:checked:hover,
-    QRadioButton::indicator:focus,
-    QRadioButton::indicator:hover,
-    QRadioButton::indicator:checked:hover {{
+    QCheckBox::indicator:focus:!disabled,
+    QCheckBox::indicator:hover:!disabled,
+    QCheckBox::indicator:checked:hover:!disabled,
+    QRadioButton::indicator:focus:!disabled,
+    QRadioButton::indicator:hover:!disabled,
+    QRadioButton::indicator:checked::!disabled {{
         border: 2px solid {tm.var(colors.BORDER_STRONG)};
         width: 14px;
         height: 14px;
@@ -519,6 +519,27 @@ class CustomStyles:
     }}
     QCheckBox::indicator:indeterminate {{
         image: url({tm.themed_icon("mdi:minus-thick")});
+    }}
+    QCheckBox:disabled,
+    QRadioButton:disabled {{
+        color: {tm.var(colors.FG_DISABLED)};
+    }}
+    QCheckBox::indicator:disabled,
+    QRadioButton::indicator:disabled,
+    QMenu:indicator:disabled {{
+        color: {tm.var(colors.FG_DISABLED)};
+        border-color: {tm.var(colors.FG_DISABLED)};
+    }}
+    QCheckBox::indicator:checked:disabled,
+    QRadioButton::indicator:checked:disabled,
+    QMenu::indicator:checked:disabled {{
+        image: url({tm.themed_icon("mdi:check-FG_DISABLED")});
+    }}
+    QRadioButton::indicator:checked:disabled {{
+        image: url({tm.themed_icon("mdi:circle-medium-FG_DISABLED")});
+    }}
+    QCheckBox::indicator:indeterminate:disabled {{
+        image: url({tm.themed_icon("mdi:minus-thick-FG_DISABLED")});
     }}
         """
 

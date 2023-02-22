@@ -73,3 +73,7 @@ media-check-empty-trash = Empty Trash
 # button to move deleted files from the trash back into the media folder
 media-check-restore-trash = Restore Deleted
 media-check-check-media-action = Check Media
+# a tag for notes with missing media files (must not contain whitespace)
+media-check-missing-media-tag = missing-media
+# add a tag to notes with missing media
+media-check-add-tag = Tag Missing
