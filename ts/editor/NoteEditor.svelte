@@ -143,7 +143,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let plainTextsHidden: boolean[] = [];
     let plainTextDefaults: boolean[] = [];
 
-    export function setPlainTexts(defaultPlainTexts: boolean[]): void {
+    export async function setPlainTexts(defaultPlainTexts: boolean[]): Promise<void> {
+        await tick();
         const states = sessionOptions[notetypeId!]?.fieldStates;
         if (states) {
             richTextsHidden = states.richTextsHidden;

@@ -16,9 +16,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const stylesDidLoad: Promise<unknown> = Promise.all([userBaseStyle, userBaseRule]);
 
     userBaseStyle.then((baseStyle: StyleObject) => {
-        const sheet = baseStyle.element.sheet as CSSStyleSheet;
-        const baseIndex = sheet.insertRule("anki-editable {}");
-        userBaseRuleResolve(sheet.cssRules[baseIndex] as CSSStyleRule);
+        const sheet = baseStyle.element.sheet;
+        if (sheet) {
+            const baseIndex = sheet.insertRule("anki-editable {}");
+            userBaseRuleResolve(sheet.cssRules[baseIndex] as CSSStyleRule);
+        }
     });
 
     export let color: string;

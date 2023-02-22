@@ -21,6 +21,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const size = tweened<number>(0);
 
     async function transition(collapse: boolean): Promise<void> {
+        await new Promise(window.requestAnimationFrame);
+        if (!collapsibleElement) {
+            return;
+        }
+
         if (collapse) {
             contentHeight = collapsibleElement.clientHeight;
             size.set(0, {
@@ -40,12 +45,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    $: if (collapsibleElement) {
-        if (animated) {
-            transition(collapse);
-        } else {
-            collapsed = collapse;
-        }
+    $: if (animated) {
+        transition(collapse);
+    } else {
+        collapsed = collapse;
     }
 
     let collapsibleElement: HTMLElement;
