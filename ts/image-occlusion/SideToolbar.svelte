@@ -3,16 +3,18 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type Pickr from "@simonwep/pickr";
+    import * as tr from "@tslib/ftl";
 
     import IconButton from "../components/IconButton.svelte";
-    import { colorPicker } from "./color-picker";
+    import ColorPicker from "./color-picker/ColorPicker.svelte";
     import { mdiFormatColorFill, mdiPalette } from "./icons";
     import { drawEllipse, drawPolygon, drawRectangle } from "./tools/index";
     import {
         enableSelectable,
         fillQuestionMaskColor,
         fillShapeColor,
+        getQuestionMaskColor,
+        getShapeColor,
         stopDraw,
     } from "./tools/lib";
     import { tools } from "./tools/tool-buttons";
@@ -24,7 +26,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const iconSize = 80;
 
     let activeTool = "cursor";
-    let picker: Pickr;
+    let showChooseMaskColor = false;
+    let showChooseShapeColor = false;
 
     function setActive(toolId) {
         activeTool = toolId;
@@ -50,22 +53,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 break;
             case "shape-fill-color":
                 {
-                    if (picker) {
-                        picker.destroyAndRemove();
-                    }
-                    picker = colorPicker(".color-picker-1", true);
-                    picker.show();
+                    showChooseShapeColor = !showChooseShapeColor;
+                    showChooseMaskColor = false;
                     enableSelectable(canvas, true);
                     document.addEventListener("click", fillColorEventListener);
                 }
                 break;
             case "choose-color":
                 {
-                    if (picker) {
-                        picker.destroyAndRemove();
-                    }
-                    picker = colorPicker(".color-picker-2", false);
-                    picker.show();
+                    showChooseMaskColor = !showChooseMaskColor;
+                    showChooseShapeColor = false;
                     enableSelectable(canvas, true);
                     document.addEventListener("click", questionMaskColorEventListener);
                 }
@@ -87,6 +84,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const questionMaskColorEventListener = () => {
         fillQuestionMaskColor(canvas);
     };
+
+    document.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        if (target.classList.contains("upper-canvas")) {
+            showChooseShapeColor = false;
+            showChooseMaskColor = false;
+        }
+    });
 </script>
 
 <TopToolbar {canvas} {activeTool} {instance} {iconSize} />
@@ -127,6 +132,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
 </div>
 
+<ColorPicker
+    show={showChooseShapeColor}
+    top={120}
+    left={36}
+    title={tr.notetypesChangeShapeColor()}
+    selectedColor={getShapeColor()}
+    saveColor={(color) => {
+        localStorage.setItem("shape-color", color);
+    }}
+/>
+
+<ColorPicker
+    show={showChooseMaskColor}
+    top={140}
+    left={36}
+    title={tr.notetypesQuestionMaskColor()}
+    selectedColor={getQuestionMaskColor()}
+    saveColor={(color) => {
+        localStorage.setItem("ques-color", color);
+    }}
+/>
+
 <style>
     .tool-bar-container {
         position: fixed;
@@ -153,10 +180,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     :global(.active-tool) {
         color: red !important;
         background: unset !important;
-    }
-
-    :global(.color-picker) {
-        padding: 8px;
     }
 
     :global(.pickr-title) {

@@ -124,14 +124,6 @@
         "path": "node_modules/@protobufjs/utf8",
         "licenseFile": "node_modules/@protobufjs/utf8/LICENSE"
     },
-    "@simonwep/pickr@1.8.2": {
-        "licenses": "MIT",
-        "repository": "https://github.com/Simonwep/pickr",
-        "publisher": "Simon Reinisch",
-        "email": "trash@reinisch.io",
-        "path": "node_modules/@simonwep/pickr",
-        "licenseFile": "node_modules/@simonwep/pickr/LICENSE"
-    },
     "@tootallnate/once@2.0.0": {
         "licenses": "MIT",
         "repository": "https://github.com/TooTallNate/once",
@@ -380,15 +372,6 @@
         "url": "http://re-becca.org/",
         "path": "node_modules/console-control-strings",
         "licenseFile": "node_modules/console-control-strings/LICENSE"
-    },
-    "core-js@3.27.2": {
-        "licenses": "MIT",
-        "repository": "https://github.com/zloirock/core-js",
-        "publisher": "Denis Pushkarev",
-        "email": "zloirock@zloirock.ru",
-        "url": "http://zloirock.ru",
-        "path": "node_modules/core-js",
-        "licenseFile": "node_modules/core-js/LICENSE"
     },
     "css-browser-selector@0.6.5": {
         "licenses": "CC-BY-SA-2.5",
@@ -1103,14 +1086,6 @@
         "repository": "https://github.com/nodejs/nan",
         "path": "node_modules/nan",
         "licenseFile": "node_modules/nan/LICENSE.md"
-    },
-    "nanopop@2.2.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/Simonwep/nanopop",
-        "publisher": "Simon Reinisch",
-        "email": "trash@reinisch.io",
-        "path": "node_modules/nanopop",
-        "licenseFile": "node_modules/nanopop/LICENSE"
     },
     "ngraph.events@1.2.2": {
         "licenses": "BSD-3-Clause",

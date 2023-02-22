@@ -66,7 +66,6 @@
         "@fluent/bundle": "^0.17.0",
         "@mdi/svg": "^7.0.96",
         "@popperjs/core": "^2.9.2",
-        "@simonwep/pickr": "^1.8.2",
         "@types/lodash-es": "^4.17.4",
         "@types/marked": "^4.0.1",
         "bootstrap": "=5.0.2",

@@ -30,5 +30,6 @@ export { default as mdiPalette } from "@mdi/svg/svg/palette.svg";
 export { default as mdiRectangleOutline } from "@mdi/svg/svg/rectangle-outline.svg";
 export { default as mdiRedo } from "@mdi/svg/svg/redo.svg";
 export { default as mdiUndo } from "@mdi/svg/svg/undo.svg";
+export { default as mdiUnfoldMoreHorizontal } from "@mdi/svg/svg/unfold-more-horizontal.svg";
 export { default as mdiUngroup } from "@mdi/svg/svg/ungroup.svg";
 export { default as mdiVectorPolygonVariant } from "@mdi/svg/svg/vector-polygon-variant.svg";
