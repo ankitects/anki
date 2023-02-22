@@ -167,7 +167,12 @@ impl From<Notetype> for NotetypeSchema11 {
 
 /// See [crate::deckconfig::schema11::clear_other_duplicates()].
 fn clear_other_field_duplicates(other: &mut HashMap<String, Value>) {
-    for key in &["description", "plainText", "collapsed"] {
+    for key in &[
+        "description",
+        "plainText",
+        "collapsed",
+        "exclude_from_search",
+    ] {
         other.remove(*key);
     }
 }
@@ -224,6 +229,9 @@ pub struct NoteFieldSchema11 {
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) collapsed: bool,
 
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    pub(crate) exclude_from_search: bool,
+
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
 }
@@ -240,6 +248,7 @@ impl Default for NoteFieldSchema11 {
             size: 20,
             description: String::new(),
             collapsed: false,
+            exclude_from_search: false,
             other: Default::default(),
         }
     }
@@ -258,6 +267,7 @@ impl From<NoteFieldSchema11> for NoteField {
                 font_size: f.size as u32,
                 description: f.description,
                 collapsed: f.collapsed,
+                exclude_from_search: f.exclude_from_search,
                 other: other_to_bytes(&f.other),
             },
         }
@@ -281,6 +291,7 @@ impl From<NoteField> for NoteFieldSchema11 {
             size: conf.font_size as u16,
             description: conf.description,
             collapsed: conf.collapsed,
+            exclude_from_search: conf.exclude_from_search,
             other,
         }
     }

@@ -46,6 +46,7 @@ impl NoteField {
                 font_size: 20,
                 description: "".into(),
                 collapsed: false,
+                exclude_from_search: false,
                 other: vec![],
             },
         }

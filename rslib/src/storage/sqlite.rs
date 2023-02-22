@@ -3,6 +3,7 @@
 
 use std::borrow::Cow;
 use std::cmp::Ordering;
+use std::collections::HashMap;
 use std::collections::HashSet;
 use std::hash::Hasher;
 use std::path::Path;
@@ -24,6 +25,7 @@ use crate::error::DbErrorKind;
 use crate::prelude::*;
 use crate::scheduler::timing::local_minutes_west_for_stamp;
 use crate::scheduler::timing::v1_creation_date;
+use crate::storage::notetype::ExcludedSearchFields;
 use crate::text::without_combining;
 
 fn unicase_compare(s1: &str, s2: &str) -> Ordering {
@@ -67,6 +69,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     add_regexp_tags_function(&db)?;
     add_without_combining_function(&db)?;
     add_fnvhash_function(&db)?;
+    add_exclude_fields_function(&db)?;
 
     db.create_collation("unicase", unicase_compare)?;
 
@@ -186,6 +189,40 @@ fn add_regexp_tags_function(db: &Connection) -> rusqlite::Result<()> {
             let mut tags = ctx.get_raw(1).as_str()?.split(' ');
 
             Ok(tags.any(|tag| re.is_match(tag)))
+        },
+    )
+}
+
+/// Adds sql function exclude_fields(flds, mid, excluded_map)
+/// to return flds with fields that exist in excluded_map[mid] removed
+fn add_exclude_fields_function(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "exclude_fields",
+        3,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 3, "called with unexpected number of arguments");
+
+            let joined_fields = ctx.get_raw(0).as_str()?;
+            let fields: Vec<&str> = joined_fields.split('\x1f').collect();
+            let ntid = ctx.get_raw(1).as_i64().unwrap();
+            let excluded_map: HashMap<i64, ExcludedSearchFields> =
+                serde_json::from_str(ctx.get_raw(2).as_str()?).unwrap();
+            if !excluded_map.contains_key(&ntid) {
+                return Ok(joined_fields.to_string());
+            }
+            let sort_field_idx = excluded_map[&ntid].sort_field_idx;
+            let excluded_field_indices = &excluded_map[&ntid].excluded_field_indices;
+            if fields.len() == 1 && excluded_field_indices.contains(&sort_field_idx) {
+                return Ok("".to_string());
+            }
+            let mut matched_fields = vec![];
+            for (idx, field) in fields.iter().enumerate() {
+                if !excluded_field_indices.contains(&(idx as u32)) {
+                    matched_fields.push(*field);
+                }
+            }
+            Ok(matched_fields.join("\x1f"))
         },
     )
 }

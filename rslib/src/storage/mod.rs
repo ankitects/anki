@@ -8,7 +8,7 @@ mod deck;
 mod deckconfig;
 mod graves;
 mod note;
-mod notetype;
+pub(crate) mod notetype;
 mod revlog;
 mod sqlite;
 mod sync;

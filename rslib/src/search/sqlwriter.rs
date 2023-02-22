@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::fmt::Write;
 
 use itertools::Itertools;
@@ -21,6 +22,7 @@ use crate::notes::field_checksum;
 use crate::notetype::NotetypeId;
 use crate::prelude::*;
 use crate::storage::ids_to_string;
+use crate::storage::notetype::ExcludedSearchFields;
 use crate::text::glob_matcher;
 use crate::text::is_glob;
 use crate::text::normalize_to_nfc;
@@ -133,7 +135,12 @@ impl SqlWriter<'_> {
                 if self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch) {
                     self.write_no_combining(text)
                 } else {
-                    self.write_unqualified(text)
+                    let excluded_map = self.excluded_field_indices_by_notetype()?;
+                    let mut excluded_map_json = String::new();
+                    if let Some(m) = excluded_map {
+                        excluded_map_json.push_str(&serde_json::to_string(&m)?);
+                    }
+                    self.write_unqualified(text, excluded_map_json)
                 }
             }
             SearchNode::SingleField { field, text, is_re } => {
@@ -184,16 +191,27 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_unqualified(&mut self, text: &str) {
+    fn write_unqualified(&mut self, text: &str, excluded_map_json: String) {
         // implicitly wrap in %
         let text = format!("%{}%", &to_sql(text));
         self.args.push(text);
-        write!(
-            self.sql,
-            "(n.sfld like ?{n} escape '\\' or n.flds like ?{n} escape '\\')",
-            n = self.args.len(),
-        )
-        .unwrap();
+        if excluded_map_json.is_empty() {
+            write!(
+                self.sql,
+                "(n.sfld like ?{n} escape '\\' or n.flds like ?{n} escape '\\')",
+                n = self.args.len(),
+            )
+            .unwrap();
+        } else {
+            self.args.push(excluded_map_json);
+            write!(
+                self.sql,
+                "(exclude_fields(cast(n.sfld as text), n.mid, ?{n}) like ?{text_idx} escape '\\' or exclude_fields(n.flds, n.mid, ?{n}) like ?{text_idx} escape '\\')",
+                text_idx = self.args.len() - 1,
+                n = self.args.len(),
+            )
+            .unwrap();
+        }
     }
 
     fn write_no_combining(&mut self, text: &str) {
@@ -523,7 +541,7 @@ impl SqlWriter<'_> {
 
         let mut field_map = vec![];
         for nt in notetypes.values() {
-            let mut matched_fields = vec![];
+            let mut matched_fields: Vec<u32> = vec![];
             for field in &nt.fields {
                 if matches_glob(&field.name) {
                     matched_fields.push(field.ord.unwrap_or_default());
@@ -538,6 +556,36 @@ impl SqlWriter<'_> {
         field_map.sort();
 
         Ok(field_map)
+    }
+
+    fn excluded_field_indices_by_notetype(
+        &mut self,
+    ) -> Result<Option<HashMap<i64, ExcludedSearchFields>>> {
+        let notetypes = self.col.get_all_notetypes()?;
+        let mut excluded_map: HashMap<i64, ExcludedSearchFields> = HashMap::new();
+        let mut any_excluded = false;
+        for nt in notetypes.values() {
+            let mut excluded_field_indices = vec![];
+            for field in &nt.fields {
+                if field.config.exclude_from_search {
+                    excluded_field_indices.push(field.ord.unwrap());
+                    any_excluded = true;
+                }
+            }
+            if !excluded_field_indices.is_empty() {
+                excluded_map.insert(
+                    nt.id.0,
+                    ExcludedSearchFields {
+                        sort_field_idx: nt.config.sort_field_idx,
+                        excluded_field_indices,
+                    },
+                );
+            }
+        }
+        if any_excluded {
+            return Ok(Some(excluded_map));
+        }
+        Ok(None)
     }
 
     fn write_dupe(&mut self, ntid: NotetypeId, text: &str) -> Result<()> {

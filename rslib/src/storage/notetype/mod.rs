@@ -6,8 +6,13 @@ use std::collections::HashSet;
 
 use prost::Message;
 use rusqlite::params;
+use rusqlite::types::FromSql;
+use rusqlite::types::FromSqlError;
+use rusqlite::types::ValueRef;
 use rusqlite::OptionalExtension;
 use rusqlite::Row;
+use serde::Deserialize;
+use serde::Serialize;
 use unicase::UniCase;
 
 use super::ids_to_string;
@@ -43,6 +48,22 @@ fn row_to_existing_card(row: &Row) -> Result<AlreadyGeneratedCardInfo> {
         original_deck_id: row.get(3)?,
         position_if_new: row.get(4).ok().unwrap_or_default(),
     })
+}
+
+#[derive(Serialize, Deserialize)]
+pub(crate) struct ExcludedSearchFields {
+    pub(crate) sort_field_idx: u32,
+    pub(crate) excluded_field_indices: Vec<u32>,
+}
+
+impl FromSql for ExcludedSearchFields {
+    fn column_result(value: ValueRef<'_>) -> std::result::Result<Self, FromSqlError> {
+        if let ValueRef::Text(s) = value {
+            Ok(serde_json::from_slice(s).map_err(|_| FromSqlError::InvalidType)?)
+        } else {
+            Err(FromSqlError::InvalidType)
+        }
+    }
 }
 
 impl SqliteStorage {
