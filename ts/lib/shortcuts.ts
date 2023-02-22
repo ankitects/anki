@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import type { Callback } from "@tslib/typing";
 import { on } from "./events";
 import type { Modifier } from "./keys";
 import { checkIfModifierKey, checkModifiers, keyToPlatformString, modifiersToPlatformString } from "./keys";
@@ -35,6 +36,15 @@ const keyCodeLookup = {
     "/": 191,
     "`": 192,
 };
+
+/**
+ * List of registered shortcuts.
+ * Iterated to remove existing shortcuts if `override == true` in `registerShortcut`.
+ *
+ * @param sequenceStart - Start of the shortcut sequence, e.g. for `Control+T, E` it would be `Control+T`
+ * @param remove - Callback to remove the EventListener
+ */
+const registeredShortcuts: { sequenceStart: string; remove: Callback }[] = [];
 
 function isRequiredModifier(modifier: string): boolean {
     return !modifier.endsWith("?");
@@ -139,16 +149,39 @@ function innerShortcut(
     }
 }
 
+/**
+ * Removes all shortcuts that conflict with the given key combination.
+ * @example
+ * The keyCombinationString "Control+T" conflicts with:
+ * - "Control+T"
+ * but also with combined shortcuts like:
+ * - "Control+T, T"
+ * - "Control+T, E"
+ * - "Control+T, M"
+ */
+function removeConflictingShortcuts(keyCombinationString: string) {
+    let i = registeredShortcuts.length;
+    while (i--) {
+        const shortcut = registeredShortcuts[i];
+        if (shortcut.sequenceStart === keyCombinationString.split(",")[0]) {
+            shortcut.remove();
+            registeredShortcuts.splice(i, 1);
+        }
+    }
+}
+
 export interface RegisterShortcutRestParams {
     target: EventTarget;
     /// There might be no good reason to use `keyup` other
     /// than to circumvent Qt bugs
     event: "keydown" | "keyup";
+    override: boolean;
 }
 
 const defaultRegisterShortcutRestParams = {
     target: document,
     event: "keydown" as const,
+    override: false,
 };
 
 export function registerShortcut(
@@ -159,6 +192,7 @@ export function registerShortcut(
     const {
         target = defaultRegisterShortcutRestParams.target,
         event = defaultRegisterShortcutRestParams.event,
+        override = defaultRegisterShortcutRestParams.override,
     } = restParams;
 
     const [check, ...restChecks] = splitKeyCombinationString(keyCombinationString).map(keyCombinationToCheck);
@@ -169,7 +203,17 @@ export function registerShortcut(
         }
     }
 
-    return on(target, event, handler);
+    if (override) {
+        removeConflictingShortcuts(keyCombinationString);
+    }
+
+    const remove = on(target, event, handler);
+    registeredShortcuts.push({
+        sequenceStart: keyCombinationString.split(",")[0],
+        remove,
+    });
+
+    return remove;
 }
 
 registerPackage("anki/shortcuts", {
