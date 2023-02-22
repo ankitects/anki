@@ -878,7 +878,9 @@ class Browser(QMainWindow):
 
     def _update_toggle_bury_action(self) -> None:
         is_buried = bool(
-            self.current_card and self.current_card.queue == QUEUE_TYPE_MANUALLY_BURIED
+            self.current_card
+            and self.current_card.queue
+            in (QUEUE_TYPE_MANUALLY_BURIED, QUEUE_TYPE_SIBLING_BURIED)
         )
         self.form.action_toggle_bury.setChecked(is_buried)
 
