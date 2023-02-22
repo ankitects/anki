@@ -55,9 +55,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding: 4px !important;
         border-radius: 2px !important;
     }
-
-    :global(.active-note-tool) {
-        background-color: #808080 !important;
-        color: white !important;
-    }
 </style>

@@ -3,7 +3,9 @@
 
 import { writable } from "svelte/store";
 
-export const active = writable("");
+// it stores note's data for generate.ts, when function generate() is called it will be used to generate the note
 export const notesDataStore = writable({ id: "", title: "", divValue: "", textareaValue: "" }[0]);
+// it stores the value of zoom ratio for canvas
 export const zoomResetValue = writable(1);
+// it stores the tags for the note in note editor
 export const tagsWritable = writable([""]);

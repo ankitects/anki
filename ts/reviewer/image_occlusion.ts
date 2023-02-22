@@ -96,6 +96,8 @@ function draw(
     }
 }
 
+// following function copy+pasted from mask-editor.ts,
+// so update both, if it changes
 function limitSize(size: { width: number; height: number }): { width: number; height: number; scalar: number } {
     const maximumPixels = 1000000;
     const { width, height } = size;

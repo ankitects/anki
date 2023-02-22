@@ -182,21 +182,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         background: unset !important;
     }
 
-    :global(.pickr-title) {
-        padding: 8px;
-        text-align: center;
-    }
-
-    :global(.color-picker-shape) {
-        left: 40px !important;
-        background: var(--canvas-elevated);
-    }
-
-    :global(.color-picker-ques) {
-        left: 40px !important;
-        background: var(--canvas-elevated);
-    }
-
     ::-webkit-scrollbar {
         width: 0.2em !important;
         height: 0.2em !important;

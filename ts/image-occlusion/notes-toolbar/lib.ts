@@ -7,9 +7,9 @@ export const changePreviewHTMLView = (): void => {
         return;
     }
 
-    const id = activeElement.id.split("--")[0];
-    const divId = `${id}--div`;
-    const textAreaId = `${id}--textarea`;
+    const noteId = activeElement.id.split("--")[0];
+    const divId = `${noteId}--div`;
+    const textAreaId = `${noteId}--textarea`;
     const divElement = document.getElementById(divId)!;
     const textAreaElement = document.getElementById(textAreaId)! as HTMLTextAreaElement;
 

@@ -16,43 +16,19 @@ import { generateShapeFromCloze } from "./tools/shape-generate";
 import { undoRedoInit } from "./tools/tool-undo-redo";
 
 export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<fabric.Canvas> => {
-    const metadata = await getImageForOcclusion(path!);
-    const b64encoded = protobuf.util.base64.encode(
-        metadata.data,
-        0,
-        metadata.data.length,
-    );
-    const data = "data:image/png;base64," + b64encoded;
-
-    const canvas = new fabric.Canvas("canvas", {
-        hoverCursor: "pointer",
-        selectionBorderColor: "green",
-    });
+    const imageData = await getImageForOcclusion(path!);
+    const canvas = initCanvas();
 
     // get image width and height
     const image = new Image();
+    image.src = getImageData(imageData.data!);
     image.onload = function() {
         const size = limitSize({ width: image.width, height: image.height });
         canvas.setWidth(size.width);
         canvas.setHeight(size.height);
-
-        fabric.Image.fromURL(image.src, function(image) {
-            canvas.setBackgroundImage(image, canvas.renderAll.bind(canvas), {
-                scaleX: canvas.width! / image.width!,
-                scaleY: canvas.height! / image.height!,
-            });
-
-            canvas.backgroundImage.scale(size.scalar);
-            const zoomRatio = (innerWidth - 40) / canvas.width!;
-            zoomResetValue.set(zoomRatio);
-            instance.smoothZoom(0, 0, zoomRatio);
-        });
+        setCanvasBackgroundImage(canvas, image, size.scalar, instance);
     };
 
-    tagsWritable.set([]);
-    globalThis.canvas = canvas;
-    undoRedoInit(canvas);
-    image.src = data;
     image.remove();
     return canvas;
 };
@@ -71,47 +47,63 @@ export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom):
     }
 
     const clozeNote = clozeNoteResponse.note!;
-    const b64encoded = protobuf.util.base64.encode(
-        clozeNote.imageData,
-        0,
-        clozeNote.imageData.length,
-    );
-    const data = "data:image/png;base64," + b64encoded;
-
-    const canvas = new fabric.Canvas("canvas", {
-        hoverCursor: "pointer",
-        selectionBorderColor: "green",
-    });
+    const canvas = initCanvas();
 
     // get image width and height
     const image = new Image();
+    image.src = getImageData(clozeNote.imageData!);
     image.onload = function() {
         const size = limitSize({ width: image.width, height: image.height });
         canvas.setWidth(size.width);
         canvas.setHeight(size.height);
 
-        fabric.Image.fromURL(image.src, function(image) {
-            canvas.setBackgroundImage(image, canvas.renderAll.bind(canvas), {
-                scaleX: canvas.width / image.width,
-                scaleY: canvas.height / image.height,
-            });
-
-            canvas.backgroundImage.scale(size.scalar);
-            generateShapeFromCloze(canvas, clozeNote.occlusions);
-            enableSelectable(canvas, true);
-            addClozeNotesToTextEditor(clozeNote.header, clozeNote.backExtra, clozeNote.tags);
-
-            const zoomRatio = (innerWidth - 40) / canvas.width!;
-            zoomResetValue.set(zoomRatio);
-            instance.smoothZoom(0, 0, zoomRatio);
-        });
+        setCanvasBackgroundImage(canvas, image, size.scalar, instance);
+        generateShapeFromCloze(canvas, clozeNote.occlusions);
+        enableSelectable(canvas, true);
+        addClozeNotesToTextEditor(clozeNote.header, clozeNote.backExtra, clozeNote.tags);
     };
 
-    globalThis.canvas = canvas;
-    undoRedoInit(canvas);
-    image.src = data;
     image.remove();
     return canvas;
+};
+
+const initCanvas = (): fabric.Canvas => {
+    const canvas = new fabric.Canvas("canvas", {
+        hoverCursor: "pointer",
+        selectionBorderColor: "green",
+    });
+    tagsWritable.set([]);
+    globalThis.canvas = canvas;
+    undoRedoInit(canvas);
+    return canvas;
+};
+
+const getImageData = (imageData): string => {
+    const b64encoded = protobuf.util.base64.encode(
+        imageData,
+        0,
+        imageData.length,
+    );
+    return "data:image/png;base64," + b64encoded;
+};
+
+const setCanvasBackgroundImage = (
+    canvas: fabric.Canvas,
+    image: HTMLImageElement,
+    scalar: number,
+    instance: PanZoom,
+): void => {
+    fabric.Image.fromURL(image.src, function(image) {
+        canvas.setBackgroundImage(image, canvas.renderAll.bind(canvas), {
+            scaleX: canvas.width! / image.width!,
+            scaleY: canvas.height! / image.height!,
+        });
+
+        canvas.backgroundImage.scale(scalar);
+        const zoomRatio = (innerWidth - 40) / canvas.width!;
+        zoomResetValue.set(zoomRatio);
+        instance.smoothZoom(0, 0, zoomRatio);
+    });
 };
 
 const addClozeNotesToTextEditor = (header: string, backExtra: string, tags: string[]) => {
@@ -134,6 +126,12 @@ const addClozeNotesToTextEditor = (header: string, backExtra: string, tags: stri
     });
 };
 
+/**
+ * Fix for safari browser,
+ * Canvas area exceeds the maximum limit (width * height > 16777216),
+ * Following function also added in reviewer ts,
+ * so update both, if it changes
+ */
 const limitSize = (size: { width: number; height: number }): { width: number; height: number; scalar: number } => {
     const maximumPixels = 1000000;
     const { width, height } = size;
