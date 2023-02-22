@@ -249,6 +249,11 @@ const dummyButton = document.createElement("button");
 dummyButton.style.position = "absolute";
 dummyButton.style.left = "-9999px";
 document.addEventListener("focusout", (event) => {
+    // Prevent type box from losing focus when switching IMEs
+    if (!document.hasFocus()) {
+        return;
+    }
+
     const target = event.target;
     if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
         document.body.appendChild(dummyButton);
