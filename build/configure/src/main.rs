@@ -27,8 +27,11 @@ use web::check_sql;
 
 use crate::proto::check_proto;
 
-fn anki_version() -> &'static str {
-    include_str!("../../../.version").trim()
+fn anki_version() -> String {
+    std::fs::read_to_string(".version")
+        .unwrap()
+        .trim()
+        .to_string()
 }
 
 fn main() -> Result<()> {
