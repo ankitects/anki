@@ -7,19 +7,19 @@ use crate::pb::{self as pb,};
 use crate::prelude::*;
 
 impl ImageOcclusionService for Backend {
-    fn get_image_cloze_metadata(
+    fn get_image_for_occlusion(
         &self,
-        input: pb::image_occlusion::ImageClozeMetadataRequest,
-    ) -> Result<pb::image_occlusion::ImageClozeMetadata> {
-        self.with_col(|col| col.get_image_cloze_metadata(&input.path))
+        input: pb::image_occlusion::GetImageForOcclusionRequest,
+    ) -> Result<pb::image_occlusion::ImageData> {
+        self.with_col(|col| col.get_image_for_occlusion(&input.path))
     }
 
-    fn add_image_occlusion_notes(
+    fn add_image_occlusion_note(
         &self,
-        input: pb::image_occlusion::AddImageOcclusionNotesRequest,
+        input: pb::image_occlusion::AddImageOcclusionNoteRequest,
     ) -> Result<pb::collection::OpChanges> {
         self.with_col(|col| {
-            col.add_image_occlusion_notes(
+            col.add_image_occlusion_note(
                 &input.image_path,
                 &input.occlusions,
                 &input.header,
@@ -30,19 +30,19 @@ impl ImageOcclusionService for Backend {
         .map(Into::into)
     }
 
-    fn get_image_cloze_notes(
+    fn get_image_cloze_note(
         &self,
-        input: pb::image_occlusion::GetImageOcclusionNotesRequest,
-    ) -> Result<pb::image_occlusion::ImageClozeNote> {
-        self.with_col(|col| col.get_image_cloze_notes(input.note_id.into()))
+        input: pb::image_occlusion::GetImageOcclusionNoteRequest,
+    ) -> Result<pb::image_occlusion::ImageClozeNoteResponse> {
+        self.with_col(|col| col.get_image_cloze_note(input.note_id.into()))
     }
 
-    fn update_image_occlusion_notes(
+    fn update_image_occlusion_note(
         &self,
-        input: pb::image_occlusion::UpdateImageOcclusionNotesRequest,
+        input: pb::image_occlusion::UpdateImageOcclusionNoteRequest,
     ) -> Result<pb::collection::OpChanges> {
         self.with_col(|col| {
-            col.update_image_occlusion_notes(
+            col.update_image_occlusion_note(
                 input.note_id.into(),
                 &input.occlusions,
                 &input.header,

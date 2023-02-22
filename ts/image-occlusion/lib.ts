@@ -4,25 +4,25 @@
 import type { Collection } from "../lib/proto";
 import { ImageOcclusion, imageOcclusion } from "../lib/proto";
 
-export async function getImageClozeMetadata(
+export async function getImageForOcclusion(
     path: string,
-): Promise<ImageOcclusion.ImageClozeMetadata> {
-    return imageOcclusion.getImageClozeMetadata(
-        ImageOcclusion.ImageClozeMetadataRequest.create({
+): Promise<ImageOcclusion.ImageData> {
+    return imageOcclusion.getImageForOcclusion(
+        ImageOcclusion.GetImageForOcclusionRequest.create({
             path,
         }),
     );
 }
 
-export async function addImageOcclusionNotes(
+export async function addImageOcclusionNote(
     imagePath: string,
     occlusions: string,
     header: string,
     backExtra: string,
     tags: string[],
 ): Promise<Collection.OpChanges> {
-    return imageOcclusion.addImageOcclusionNotes(
-        ImageOcclusion.AddImageOcclusionNotesRequest.create({
+    return imageOcclusion.addImageOcclusionNote(
+        ImageOcclusion.AddImageOcclusionNoteRequest.create({
             imagePath,
             occlusions,
             header,
@@ -32,25 +32,25 @@ export async function addImageOcclusionNotes(
     );
 }
 
-export async function getImageClozeNotes(
+export async function getImageClozeNote(
     noteId: number,
-): Promise<ImageOcclusion.ImageClozeNote> {
-    return imageOcclusion.getImageClozeNotes(
-        ImageOcclusion.GetImageOcclusionNotesRequest.create({
+): Promise<ImageOcclusion.ImageClozeNoteResponse> {
+    return imageOcclusion.getImageClozeNote(
+        ImageOcclusion.GetImageOcclusionNoteRequest.create({
             noteId,
         }),
     );
 }
 
-export async function updateImageOcclusionNotes(
+export async function updateImageOcclusionNote(
     noteId: number,
     occlusions: string,
     header: string,
     backExtra: string,
     tags: string[],
 ): Promise<Collection.OpChanges> {
-    return imageOcclusion.updateImageOcclusionNotes(
-        ImageOcclusion.UpdateImageOcclusionNotesRequest.create({
+    return imageOcclusion.updateImageOcclusionNote(
+        ImageOcclusion.UpdateImageOcclusionNoteRequest.create({
             noteId,
             occlusions,
             header,

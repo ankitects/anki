@@ -1,20 +1,22 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import * as tr from "@tslib/ftl";
 import type { ImageOcclusion } from "@tslib/proto";
 import { fabric } from "fabric";
 import type { PanZoom } from "panzoom";
 import protobuf from "protobufjs";
 import { get } from "svelte/store";
 
-import { getImageClozeMetadata, getImageClozeNotes } from "./lib";
+import { getImageClozeNote, getImageForOcclusion } from "./lib";
 import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
+import Toast from "./Toast.svelte";
 import { enableSelectable } from "./tools/lib";
 import { generateShapeFromCloze } from "./tools/shape-generate";
 import { undoRedoInit } from "./tools/tool-undo-redo";
 
 export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<fabric.Canvas> => {
-    const metadata = await getImageClozeMetadata(path!);
+    const metadata = await getImageForOcclusion(path!);
     const b64encoded = protobuf.util.base64.encode(
         metadata.data,
         0,
@@ -56,7 +58,19 @@ export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<
 };
 
 export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom): Promise<fabric.Canvas> => {
-    const clozeNote: ImageOcclusion.ImageClozeNote = await getImageClozeNotes(noteId);
+    const clozeNoteResponse: ImageOcclusion.ImageClozeNoteResponse = await getImageClozeNote(noteId);
+    if (clozeNoteResponse.error) {
+        new Toast({
+            target: document.body,
+            props: {
+                message: tr.notetypesErrorGettingImagecloze(),
+                type: "error",
+            },
+        }).$set({ showToast: true });
+        return;
+    }
+
+    const clozeNote = clozeNoteResponse.note!;
     const b64encoded = protobuf.util.base64.encode(
         clozeNote.imageData,
         0,

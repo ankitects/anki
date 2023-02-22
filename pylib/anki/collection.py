@@ -41,9 +41,9 @@ CsvMetadata = import_export_pb2.CsvMetadata
 DupeResolution = CsvMetadata.DupeResolution
 Delimiter = import_export_pb2.CsvMetadata.Delimiter
 TtsVoice = card_rendering_pb2.AllTtsVoicesResponse.TtsVoice
-ImageClozeMetadata = image_occlusion_pb2.ImageClozeMetadata
-AddImageOcclusionNotesRequest = image_occlusion_pb2.AddImageOcclusionNotesRequest
-ImageClozeNote = image_occlusion_pb2.ImageClozeNote
+ImageData = image_occlusion_pb2.ImageData
+AddImageOcclusionNoteRequest = image_occlusion_pb2.AddImageOcclusionNoteRequest
+ImageClozeNoteResponse = image_occlusion_pb2.ImageClozeNoteResponse
 
 import copy
 import os
@@ -462,10 +462,10 @@ class Collection(DeprecatedNamesMixin):
 
     # Image Occlusion
     ##########################################################################
-    def get_image_cloze_metadata(self, path: str | None) -> ImageClozeMetadata:
-        return self._backend.get_image_cloze_metadata(path=path)
+    def get_image_for_occlusion(self, path: str | None) -> ImageData:
+        return self._backend.get_image_for_occlusion(path=path)
 
-    def add_image_occlusion_notes(
+    def add_image_occlusion_note(
         self,
         image_path: str | None,
         occlusions: str | None,
@@ -473,7 +473,7 @@ class Collection(DeprecatedNamesMixin):
         back_extra: str | None,
         tags: list[str] | None,
     ) -> OpChanges:
-        return self._backend.add_image_occlusion_notes(
+        return self._backend.add_image_occlusion_note(
             image_path=image_path,
             occlusions=occlusions,
             header=header,
@@ -481,10 +481,10 @@ class Collection(DeprecatedNamesMixin):
             tags=tags,
         )
 
-    def get_image_cloze_notes(self, note_id: int | None) -> ImageClozeNote:
-        return self._backend.get_image_cloze_notes(note_id=note_id)
+    def get_image_cloze_note(self, note_id: int | None) -> ImageClozeNoteResponse:
+        return self._backend.get_image_cloze_note(note_id=note_id)
 
-    def update_image_occlusion_notes(
+    def update_image_occlusion_note(
         self,
         note_id: int | None,
         occlusions: str | None,
@@ -492,7 +492,7 @@ class Collection(DeprecatedNamesMixin):
         back_extra: str | None,
         tags: list[str] | None,
     ) -> OpChanges:
-        return self._backend.update_image_occlusion_notes(
+        return self._backend.update_image_occlusion_note(
             note_id=note_id,
             occlusions=occlusions,
             header=header,

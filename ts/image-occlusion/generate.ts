@@ -6,7 +6,7 @@ import { fabric } from "fabric";
 import { get } from "svelte/store";
 
 import type { Collection } from "../lib/proto";
-import { addImageOcclusionNotes, updateImageOcclusionNotes } from "./lib";
+import { addImageOcclusionNote, updateImageOcclusionNote } from "./lib";
 import { notesDataStore, tagsWritable } from "./store";
 import Toast from "./Toast.svelte";
 import { makeMaskTransparent } from "./tools/lib";
@@ -129,7 +129,7 @@ export const saveImageNotes = async function(
     backExtra = header ? `<div>${backExtra}</div>` : "";
 
     if (noteId) {
-        const result = await updateImageOcclusionNotes(
+        const result = await updateImageOcclusionNote(
             noteId,
             occlusionCloze,
             header,
@@ -138,7 +138,7 @@ export const saveImageNotes = async function(
         );
         showResult(noteId, result, noteCount);
     } else {
-        const result = await addImageOcclusionNotes(
+        const result = await addImageOcclusionNote(
             imagePath,
             occlusionCloze,
             header,

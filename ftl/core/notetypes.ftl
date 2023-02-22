@@ -49,3 +49,4 @@ notetypes-hide-one-guess-one = Hide One, Guess One
 notetypes-change-shape-color = Change Shape Color
 notetypes-question-mask-color = Question Mask Color
 notetypes-error-generating-cloze = An error occurred when generating an image occlusion
+notetypes-error-getting-imagecloze = An error occurred while fetching image occlusion note

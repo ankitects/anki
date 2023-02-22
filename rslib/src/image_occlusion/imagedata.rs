@@ -12,13 +12,14 @@ use crate::media::MediaManager;
 use crate::notetype;
 use crate::notetype::CardGenContext;
 use crate::notetype::Notetype;
-pub use crate::pb::image_occlusion::ImageClozeMetadata;
 use crate::pb::image_occlusion::ImageClozeNote;
+use crate::pb::image_occlusion::ImageClozeNoteResponse;
+pub use crate::pb::image_occlusion::ImageData;
 use crate::prelude::*;
 
 impl Collection {
-    pub fn get_image_cloze_metadata(&mut self, path: &str) -> Result<ImageClozeMetadata> {
-        let mut metadata = ImageClozeMetadata {
+    pub fn get_image_for_occlusion(&mut self, path: &str) -> Result<ImageData> {
+        let mut metadata = ImageData {
             ..Default::default()
         };
         metadata.data = read(path)?;
@@ -26,7 +27,7 @@ impl Collection {
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub fn add_image_occlusion_notes(
+    pub fn add_image_occlusion_note(
         &mut self,
         image_path: &str,
         occlusions: &str,
@@ -98,45 +99,50 @@ impl Collection {
         Ok(())
     }
 
-    pub fn get_image_cloze_notes(&mut self, note_id: NoteId) -> Result<ImageClozeNote> {
-        let mut cloze_notes = ImageClozeNote {
-            ..Default::default()
-        };
-        let note = if true {
-            self.storage.get_note(note_id)?
-        } else {
-            self.storage.get_note_without_fields(note_id)?
+    pub fn get_image_cloze_note(&mut self, note_id: NoteId) -> Result<ImageClozeNoteResponse> {
+        let mut cloze_note = ImageClozeNote::default();
+        let note = self.storage.get_note(note_id);
+        let mut response = ImageClozeNoteResponse::default();
+        match note {
+            Ok(note) => {
+                let mut note = note.unwrap();
+                let original = note.clone();
+                let fields = note.fields_mut();
+
+                if fields.len() < 4 {
+                    response.error = "Note does not have 4 fields".into();
+                    return Ok(response);
+                }
+
+                cloze_note.occlusions = fields.get(0).unwrap().into();
+                cloze_note.header = fields.get(2).unwrap().into();
+                cloze_note.back_extra = fields.get(3).unwrap().into();
+                cloze_note.image_data = "".into();
+
+                let tags = original.tags;
+                cloze_note.tags = tags.to_vec();
+
+                let image_file_name = fields.get(1).unwrap();
+                let src = self
+                    .extract_img_src(image_file_name)
+                    .unwrap_or_else(|| "".to_owned());
+                let final_path = self.media_folder.join(src);
+
+                if self.is_image_file(&final_path) {
+                    cloze_note.image_data = read(&final_path).unwrap();
+                }
+
+                response.note = cloze_note.into();
+                Ok(response)
+            }
+            Err(_) => {
+                response.error = "Note not found".into();
+                Ok(response)
+            }
         }
-        .or_not_found(note_id);
-
-        if note.is_err() {
-            return Ok(cloze_notes);
-        }
-
-        let mut note = note.unwrap();
-        let original = note.clone();
-        let fields = note.fields_mut();
-        cloze_notes.occlusions = fields.get(0).unwrap().into();
-        cloze_notes.header = fields.get(2).unwrap().into();
-        cloze_notes.back_extra = fields.get(3).unwrap().into();
-        cloze_notes.image_data = "".into();
-
-        let tags = original.tags;
-        cloze_notes.tags = tags.to_vec();
-
-        let image_file_name = fields.get(1).unwrap();
-        let src = self
-            .extract_img_src(image_file_name)
-            .unwrap_or_else(|| "".to_owned());
-        let final_path = self.media_folder.join(src);
-
-        if self.is_image_file(&final_path) {
-            cloze_notes.image_data = read(&final_path)?;
-        }
-        Ok(cloze_notes)
     }
 
-    pub fn update_image_occlusion_notes(
+    pub fn update_image_occlusion_note(
         &mut self,
         note_id: NoteId,
         occlusions: &str,
@@ -144,11 +150,11 @@ impl Collection {
         back_extra: &str,
         tags: Vec<String>,
     ) -> Result<OpOutput<()>> {
-        let mut note = self.storage.get_note(note_id)?.unwrap();
+        let mut note = self.storage.get_note(note_id)?.or_not_found(note_id)?;
         self.transact(Op::ImageOcclusion, |col| {
-            note.set_field(0, occlusions).unwrap();
-            note.set_field(2, header).unwrap();
-            note.set_field(3, back_extra).unwrap();
+            note.set_field(0, occlusions)?;
+            note.set_field(2, header)?;
+            note.set_field(3, back_extra)?;
             note.tags = tags;
             col.update_note_inner(&mut note)?;
             Ok(())
@@ -162,16 +168,23 @@ impl Collection {
 
     fn is_image_file(&mut self, path: &PathBuf) -> bool {
         let file_path = Path::new(&path);
+        let supported_extensions = vec![
+            "jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp", "ico",
+        ];
 
         if file_path.exists() {
             let metadata = std::fs::metadata(file_path).unwrap();
             if metadata.is_file() {
-                let file_extension = file_path.extension().unwrap().to_str().unwrap();
-                let supported_extensions = vec![
-                    "jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp", "ico",
-                ];
-                if supported_extensions.contains(&file_extension) {
-                    return true;
+                if let Some(ext_osstr) = file_path.extension() {
+                    if let Some(ext_str) = ext_osstr.to_str() {
+                        if supported_extensions.contains(&ext_str) {
+                            return true;
+                        }
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
                 }
             }
         }

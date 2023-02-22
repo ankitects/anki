@@ -13,26 +13,25 @@ import "anki/notes.proto";
 import "anki/generic.proto";
 
 service ImageOcclusionService {
-  rpc GetImageClozeMetadata(ImageClozeMetadataRequest)
-      returns (ImageClozeMetadata);
-  rpc AddImageOcclusionNotes(AddImageOcclusionNotesRequest)
+  rpc GetImageForOcclusion(GetImageForOcclusionRequest) returns (ImageData);
+  rpc AddImageOcclusionNote(AddImageOcclusionNoteRequest)
       returns (collection.OpChanges);
-  rpc GetImageClozeNotes(GetImageOcclusionNotesRequest)
-      returns (ImageClozeNote);
-  rpc UpdateImageOcclusionNotes(UpdateImageOcclusionNotesRequest)
+  rpc GetImageClozeNote(GetImageOcclusionNoteRequest)
+      returns (ImageClozeNoteResponse);
+  rpc UpdateImageOcclusionNote(UpdateImageOcclusionNoteRequest)
       returns (collection.OpChanges);
 }
 
-message ImageClozeMetadataRequest {
+message GetImageForOcclusionRequest {
   string path = 1;
 }
 
-message ImageClozeMetadata {
+message ImageData {
   bytes data = 1;
   string name = 2;
 }
 
-message AddImageOcclusionNotesRequest {
+message AddImageOcclusionNoteRequest {
   string image_path = 1;
   string occlusions = 2;
   string header = 3;
@@ -48,14 +47,19 @@ message ImageClozeNote {
   repeated string tags = 5;
 }
 
-message GetImageOcclusionNotesRequest {
+message GetImageOcclusionNoteRequest {
   int64 note_id = 1;
 }
 
-message UpdateImageOcclusionNotesRequest {
+message UpdateImageOcclusionNoteRequest {
   int64 note_id = 1;
   string occlusions = 2;
   string header = 3;
   string back_extra = 4;
   repeated string tags = 5;
+}
+
+message ImageClozeNoteResponse {
+  ImageClozeNote note = 1;
+  string error = 2;
 }
