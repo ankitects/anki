@@ -193,7 +193,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export function setTagsCollapsed(collapsed: boolean): void {
         $tagsCollapsed = collapsed;
     }
-    $: bridgeCommand(`setTagsCollapsed:${$tagsCollapsed}`);
+
+    function updateTagsCollapsed(collapsed: boolean) {
+        $tagsCollapsed = collapsed;
+        bridgeCommand(`setTagsCollapsed:${$tagsCollapsed}`);
+    }
 
     let noteId: number | null = null;
     export function setNoteId(ntid: number): void {
@@ -548,13 +552,13 @@ the AddCards dialog) should be implemented in the user of this component.
     <Shortcut
         keyCombination="Control+Shift+T"
         on:action={() => {
-            $tagsCollapsed = false;
+            updateTagsCollapsed(false);
         }}
     />
     <CollapseLabel
         collapsed={$tagsCollapsed}
         tooltip={$tagsCollapsed ? tr.editingExpand() : tr.editingCollapse()}
-        on:toggle={() => ($tagsCollapsed = !$tagsCollapsed)}
+        on:toggle={() => updateTagsCollapsed(!$tagsCollapsed)}
     >
         {@html `${tagAmount > 0 ? tagAmount : ""} ${tr.editingTags()}`}
     </CollapseLabel>
