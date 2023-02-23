@@ -421,7 +421,7 @@ impl BuildAction for BuildWindowsInstallers {
         });
 
         build.add_inputs("", inputs![":bundle:folder:std", ":bundle:folder:alt"]);
-        build.add_variable("version", version);
+        build.add_variable("version", &version);
         build.add_variable("bundle_root", "$builddir/bundle");
         build.add_outputs("out", outputs);
     }

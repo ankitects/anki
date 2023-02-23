@@ -19,8 +19,8 @@ impl BuildAction for ConfigureBuild {
 
     fn files(&mut self, build: &mut impl FilesHandle) {
         build.add_inputs("cmd", inputs![":build:configure"]);
-        // reconfigure when env changes
-        build.add_inputs("", inputs!["$builddir/env"]);
+        // reconfigure when external inputs change
+        build.add_inputs("", inputs!["$builddir/env", ".version", ".git"]);
         build.add_outputs("", ["build.ninja"])
     }
 
