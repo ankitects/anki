@@ -210,7 +210,7 @@ export function registerShortcut(
 }
 
 /**
- * Export a wrapper function that overrides conflicting shortcuts
+ * Expose wrapper function that overrides conflicting shortcuts
  */
 registerPackage("anki/shortcuts", {
     registerShortcut: (
