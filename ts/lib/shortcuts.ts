@@ -38,8 +38,7 @@ const keyCodeLookup = {
 };
 
 /**
- * List of registered shortcuts.
- * Iterated to remove existing shortcuts if `override == true` in `registerShortcut`.
+ * List of registered shortcuts iterated when removing conflicting shortcuts.
  *
  * @param sequenceStart - Start of the shortcut sequence, e.g. for `Control+T, E` it would be `Control+T`
  * @param remove - Callback to remove the EventListener
@@ -181,18 +180,16 @@ export interface RegisterShortcutRestParams {
 const defaultRegisterShortcutRestParams = {
     target: document,
     event: "keydown" as const,
-    override: false,
 };
 
 export function registerShortcut(
     callback: (event: KeyboardEvent) => void,
     keyCombinationString: string,
     restParams: Partial<RegisterShortcutRestParams> = defaultRegisterShortcutRestParams,
-): () => void {
+): Callback {
     const {
         target = defaultRegisterShortcutRestParams.target,
         event = defaultRegisterShortcutRestParams.event,
-        override = defaultRegisterShortcutRestParams.override,
     } = restParams;
 
     const [check, ...restChecks] = splitKeyCombinationString(keyCombinationString).map(keyCombinationToCheck);
@@ -201,10 +198,6 @@ export function registerShortcut(
         if (check(event)) {
             innerShortcut(target, event, callback, ...restChecks);
         }
-    }
-
-    if (override) {
-        removeConflictingShortcuts(keyCombinationString);
     }
 
     const remove = on(target, event, handler);
@@ -216,7 +209,17 @@ export function registerShortcut(
     return remove;
 }
 
+/**
+ * Export a wrapper function that overrides conflicting shortcuts
+ */
 registerPackage("anki/shortcuts", {
-    registerShortcut,
+    registerShortcut: (
+        callback: (event: KeyboardEvent) => void,
+        keyCombinationString: string,
+        restParams: Partial<RegisterShortcutRestParams>,
+    ) => {
+        removeConflictingShortcuts(keyCombinationString);
+        return registerShortcut(callback, keyCombinationString, restParams);
+    },
     getPlatformString,
 });
