@@ -3,45 +3,40 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount } from "svelte";
-    import { promiseWithResolver } from "../lib/promise";
     let className: string = "";
     export { className as class };
-    const [element, elementResolve] = promiseWithResolver<HTMLDivElement>();
     export let scrollX = false;
     export let scrollY = false;
     let scrollBarWidth = 0;
     let scrollBarHeight = 0;
     let measuring = true;
-    onMount(async function measureScrollbar() {
-        const el = await element;
-        scrollBarWidth = el.offsetWidth - el.clientWidth;
-        scrollBarHeight = el.offsetHeight - el.clientHeight;
-        measuring = false;
-    });
+
     const scrollStates = {
         top: false,
         right: false,
         bottom: false,
         left: false,
     };
+
+    function measureScrollbar(el: HTMLDivElement) {
+        scrollBarWidth = el.offsetWidth - el.clientWidth;
+        scrollBarHeight = el.offsetHeight - el.clientHeight;
+        measuring = false;
+    }
+
     const callback = (entries: IntersectionObserverEntry[]) => {
         entries.forEach((entry) => {
             scrollStates[entry.target.getAttribute("data-edge")!] =
                 !entry.isIntersecting;
         });
     };
+
     let observer: IntersectionObserver;
-    async function initObserver() {
-        observer = new IntersectionObserver(callback, { root: await element });
-    }
-    function observe(edge: HTMLDivElement) {
-        (async (edge) => {
-            if (!observer) {
-                await initObserver();
-            }
+    function initObserver(el: HTMLDivElement) {
+        observer = new IntersectionObserver(callback, { root: el });
+        for (const edge of el.getElementsByClassName("scroll-edge")) {
             observer.observe(edge);
-        })(edge);
+        }
     }
 </script>
 
@@ -53,18 +48,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             class:scroll-x={scrollX}
             class:scroll-y={scrollY}
             style:--scrollbar-height="{scrollBarHeight}px"
-            use:elementResolve
+            use:measureScrollbar
+            use:initObserver
         >
             <div class="d-flex flex-column flex-grow-1">
-                <div class="scroll-edge" data-edge="top" use:observe />
+                <div class="scroll-edge" data-edge="top" />
                 <div class="d-flex flex-row flex-grow-1">
-                    <div class="scroll-edge" data-edge="left" use:observe />
+                    <div class="scroll-edge" data-edge="left" />
                     <div class="scroll-content flex-grow-1">
                         <slot />
                     </div>
-                    <div class="scroll-edge" data-edge="right" use:observe />
+                    <div class="scroll-edge" data-edge="right" />
                 </div>
-                <div class="scroll-edge" data-edge="bottom" use:observe />
+                <div class="scroll-edge" data-edge="bottom" />
             </div>
         </div>
 
