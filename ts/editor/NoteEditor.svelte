@@ -547,15 +547,13 @@ the AddCards dialog) should be implemented in the user of this component.
 
     <Shortcut
         keyCombination="Control+Shift+T"
-        on:action={async () => {
+        on:action={() => {
             $tagsCollapsed = false;
         }}
     />
     <CollapseLabel
         collapsed={$tagsCollapsed}
-        tooltip={$tagsCollapsed
-            ? tr.editingExpand()
-            : tr.editingCollapse()}
+        tooltip={$tagsCollapsed ? tr.editingExpand() : tr.editingCollapse()}
         on:toggle={() => ($tagsCollapsed = !$tagsCollapsed)}
     >
         {@html `${tagAmount > 0 ? tagAmount : ""} ${tr.editingTags()}`}

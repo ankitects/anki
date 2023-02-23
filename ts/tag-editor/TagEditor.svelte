@@ -137,8 +137,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (tagsHadFocus) {
             decideNextActive();
         }
-        console.log("appendingEmtpyTag");
-        activeInput.focus();
     }
 
     function appendTagAndFocusAt(index: number, name: string): void {
@@ -508,9 +506,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         flex-flow: row wrap;
         align-items: flex-end;
-        background: var(--canvas-inset);
+        background: var(--canvas-elevated);
+        border: 1px solid var(--border);
         border-radius: var(--border-radius);
         padding: 6px;
+        margin: 1px;
+
+        &:focus-within {
+            outline-offset: -1px;
+            outline: 2px solid var(--border-focus);
+        }
     }
 
     .tag-relative {
