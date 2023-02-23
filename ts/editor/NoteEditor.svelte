@@ -554,8 +554,8 @@ the AddCards dialog) should be implemented in the user of this component.
     <CollapseLabel
         collapsed={$tagsCollapsed}
         tooltip={$tagsCollapsed
-            ? tr.editingDoubleClickToExpand()
-            : tr.editingDoubleClickToCollapse()}
+            ? tr.editingExpand()
+            : tr.editingCollapse()}
         on:toggle={() => ($tagsCollapsed = !$tagsCollapsed)}
     >
         {@html `${tagAmount > 0 ? tagAmount : ""} ${tr.editingTags()}`}
