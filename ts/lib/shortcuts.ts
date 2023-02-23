@@ -154,9 +154,7 @@ function innerShortcut(
  * The keyCombinationString "Control+T" conflicts with:
  * - "Control+T"
  * but also with combined shortcuts like:
- * - "Control+T, T"
  * - "Control+T, E"
- * - "Control+T, M"
  */
 function removeConflictingShortcuts(keyCombinationString: string) {
     let i = registeredShortcuts.length;
