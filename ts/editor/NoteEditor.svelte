@@ -177,7 +177,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export function focusField(index: number | null): void {
-        tick().then(() => {
+        setTimeout(() => {
             if (typeof index === "number") {
                 if (!(index in fields)) {
                     return;
