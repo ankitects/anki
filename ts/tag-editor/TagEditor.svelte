@@ -504,6 +504,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .tag-editor {
         display: flex;
+        flex-grow: 1;
         flex-flow: row wrap;
         align-items: flex-end;
         background: var(--canvas-elevated);
