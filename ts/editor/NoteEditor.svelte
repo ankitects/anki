@@ -313,10 +313,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { mathjaxConfig } from "../editable/mathjax-element";
     import { refocusInput } from "./helpers";
     import * as oldEditorAdapter from "./old-editor-adapter";
-    import IconConstrain from "components/IconConstrain.svelte";
-    import CollapseBadge from "./CollapseBadge.svelte";
     import CollapseLabel from "./CollapseLabel.svelte";
-    import TagAddButton from "tag-editor/tag-options-button/TagAddButton.svelte";
     import Shortcut from "components/Shortcut.svelte";
 
     onMount(() => {
