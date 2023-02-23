@@ -2,13 +2,19 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<script lang="ts">
+    import ScrollArea from "components/ScrollArea.svelte";
+</script>
+
 <!--
 @component
 Contains the fields. This contains the scrollable area.
 -->
-<div class="fields">
-    <slot />
-</div>
+<ScrollArea>
+    <div class="fields">
+        <slot />
+    </div>
+</ScrollArea>
 
 <style lang="scss">
     .fields {
