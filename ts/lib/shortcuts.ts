@@ -37,13 +37,11 @@ const keyCodeLookup = {
     "`": 192,
 };
 
-/**
- * List of registered native shortcuts
- *
- * @param sequenceStart - Start of the shortcut sequence, e.g. for `Control+T, E` it would be `Control+T`
- * @param remove - Callback to remove the EventListener
- */
 const nativeShortcuts: { sequenceStart: string; remove: Callback }[] = [];
+const externalShortcuts = new Map<
+    { keyCombinationString: string; callback: (event: KeyboardEvent) => void },
+    Callback
+>();
 
 function isRequiredModifier(modifier: string): boolean {
     return !modifier.endsWith("?");
@@ -209,17 +207,29 @@ export function registerShortcut(
     keyCombinationString: string,
     restParams: Partial<RegisterShortcutRestParams> = defaultRegisterShortcutRestParams,
 ): Callback {
+    /**
+     * Native shortcuts may be registered at a later time, e.g. when the Cloze notetype is loaded,
+     * so we iterate external shortcuts and prevent registration in case of conflict.
+     */
+    for (const shortcut of externalShortcuts.keys()) {
+        if (
+            shortcut.keyCombinationString.split(",")[0]
+                === keyCombinationString.split(",")[0]
+        ) {
+            return () => {};
+        }
+    }
     const remove = registerShortcutInner(callback, keyCombinationString, restParams);
+
     nativeShortcuts.push({
         sequenceStart: keyCombinationString.split(",")[0],
         remove,
     });
+
     return remove;
 }
 
-/**
- * Expose wrapper function which overrides conflicting native shortcuts
- */
+// Expose wrapper function which overrides conflicting native shortcuts
 registerPackage("anki/shortcuts", {
     registerShortcut: (
         callback: (event: KeyboardEvent) => void,
@@ -227,7 +237,19 @@ registerPackage("anki/shortcuts", {
         restParams: Partial<RegisterShortcutRestParams> = defaultRegisterShortcutRestParams,
     ) => {
         removeConflictingShortcuts(keyCombinationString);
-        return registerShortcutInner(callback, keyCombinationString, restParams);
+
+        const key = { keyCombinationString, callback };
+        const remove = registerShortcutInner(callback, keyCombinationString, restParams);
+
+        externalShortcuts.set(
+            key,
+            remove,
+        );
+
+        return () => {
+            externalShortcuts.get(key)?.();
+            externalShortcuts.delete(key);
+        };
     },
     getPlatformString,
 });
