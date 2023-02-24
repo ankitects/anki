@@ -178,12 +178,15 @@ impl NodeCountsV3 {
         let mut remaining_reviews = remaining.review.saturating_sub(capped.interday_learning);
         // any remaining review limit is applied to reviews
         capped.review = capped.review.min(remaining_reviews);
-        remaining_reviews = remaining_reviews.saturating_sub(capped.review);
-        // new cards last, capped to new and remaining review limits
-        capped.new = capped.new.min(remaining_reviews).min(remaining.new);
+        capped.new = capped.new.min(remaining.new);
+        if remaining.cap_new_to_review {
+            remaining_reviews = remaining_reviews.saturating_sub(capped.review);
+            capped.new = capped.new.min(remaining_reviews);
+        }
         capped
     }
 }
+
 impl AddAssign for NodeCountsV3 {
     fn add_assign(&mut self, rhs: Self) {
         self.new += rhs.new;

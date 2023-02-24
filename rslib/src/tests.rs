@@ -2,7 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 #![cfg(test)]
+#![allow(dead_code)]
 
+use itertools::Itertools;
 use tempfile::tempdir;
 use tempfile::TempDir;
 
@@ -48,6 +50,13 @@ pub(crate) fn open_test_collection_with_relearning_card() -> Collection {
 }
 
 impl Collection {
+    pub(crate) fn new_v3() -> Collection {
+        let mut col = open_test_collection();
+        col.set_config_bool(BoolKey::Sched2021, true, false)
+            .unwrap();
+        col
+    }
+
     pub(crate) fn add_media(&self, media: &[(&str, &[u8])]) {
         let mgr = MediaManager::new(&self.media_folder, &self.media_db).unwrap();
         for (name, data) in media {
@@ -143,7 +152,6 @@ impl DeckAdder {
         }
     }
 
-    #[allow(dead_code)]
     pub(crate) fn filtered(mut self, filtered: bool) -> Self {
         self.filtered = filtered;
         self
@@ -192,6 +200,10 @@ impl NoteAdder {
         Self::new(col, "basic")
     }
 
+    pub(crate) fn cloze(col: &mut Collection) -> Self {
+        Self::new(col, "cloze")
+    }
+
     pub(crate) fn fields(mut self, fields: &[&str]) -> Self {
         *self.note.fields_mut() = fields.iter().map(ToString::to_string).collect();
         self
@@ -205,5 +217,52 @@ impl NoteAdder {
     pub(crate) fn add(mut self, col: &mut Collection) -> Note {
         col.add_note(&mut self.note, self.deck).unwrap();
         self.note
+    }
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct CardAdder {
+    siblings: usize,
+    deck: DeckId,
+    due_date: Option<&'static str>,
+}
+
+impl CardAdder {
+    pub(crate) fn new() -> Self {
+        Self {
+            siblings: 1,
+            deck: DeckId(1),
+            due_date: None,
+        }
+    }
+
+    pub(crate) fn siblings(mut self, siblings: usize) -> Self {
+        self.siblings = siblings;
+        self
+    }
+
+    pub(crate) fn deck(mut self, deck: DeckId) -> Self {
+        self.deck = deck;
+        self
+    }
+
+    pub(crate) fn due_date(mut self, due_date: &'static str) -> Self {
+        self.due_date.replace(due_date);
+        self
+    }
+
+    pub(crate) fn add(&self, col: &mut Collection) -> Vec<Card> {
+        let field = (1..self.siblings + 1)
+            .map(|n| format!("{{{{c{n}::}}}}"))
+            .join("");
+        let note = NoteAdder::cloze(col)
+            .fields(&[&field, ""])
+            .deck(self.deck)
+            .add(col);
+        if let Some(due_date) = self.due_date {
+            let cids = col.storage.card_ids_of_notes(&[note.id]).unwrap();
+            col.set_due_date(&cids, due_date, None).unwrap();
+        }
+        col.storage.all_cards_of_note(note.id).unwrap()
     }
 }

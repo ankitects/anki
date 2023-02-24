@@ -266,6 +266,8 @@ mod test {
     use crate::collection::open_test_collection;
     use crate::pb::deckconfig::deck_config::config::NewCardGatherPriority;
     use crate::pb::deckconfig::deck_config::config::NewCardSortOrder;
+    use crate::tests::NoteAdder;
+    use crate::tests::*;
 
     impl Collection {
         fn set_deck_gather_order(&mut self, deck: &mut Deck, order: NewCardGatherPriority) {
@@ -481,5 +483,38 @@ mod test {
         // no burying was performed, or the first built queue anticipated it and didn't
         // include the buried card.
         assert_eq!(col.card_queue_len(), old_queue_len - 1);
+    }
+
+    #[test]
+    fn new_cards_may_ignore_review_limit() {
+        let mut col = Collection::new_v3();
+        col.update_default_deck_config(|config| {
+            config.new_ignore_review_limit = true;
+            config.reviews_per_day = 0;
+        });
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        // review limit doesn't apply to new card
+        assert_eq!(col.card_queue_len(), 1);
+    }
+
+    #[test]
+    fn review_limit_only_applies_to_new_cards_from_the_same_deck() {
+        let mut col = Collection::new_v3();
+        // parent deck with more new than reviews, but new cards ignore the review limit
+        let parent = DeckAdder::new("parent")
+            .with_config(|config| {
+                config.inner.reviews_per_day = 0;
+                config.inner.new_per_day = 1;
+                config.inner.new_ignore_review_limit = true;
+            })
+            .add(&mut col);
+        let child = DeckAdder::new("parent\x1fchild").add(&mut col);
+        CardAdder::new().deck(child.id).add(&mut col);
+        col.set_current_deck(parent.id).unwrap();
+
+        // the child deck only caps new cards by its own review limit, but _not_ by the
+        // parent's review limit
+        assert_eq!(col.card_queue_len(), 1);
     }
 }

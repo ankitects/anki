@@ -254,7 +254,7 @@ impl super::SqliteStorage {
         mut func: F,
     ) -> Result<()>
     where
-        F: FnMut(DueCard) -> bool,
+        F: FnMut(DueCard) -> Result<bool>,
     {
         let order_clause = review_order_sql(order, day_cutoff);
         let mut stmt = self.db.prepare_cached(&format!(
@@ -276,7 +276,7 @@ impl super::SqliteStorage {
                 current_deck_id: row.get(5)?,
                 original_deck_id: row.get(6)?,
                 kind,
-            }) {
+            })? {
                 break;
             }
         }
@@ -288,7 +288,7 @@ impl super::SqliteStorage {
     /// returns or no more cards found.
     pub(crate) fn for_each_new_card_in_deck<F>(&self, deck: DeckId, mut func: F) -> Result<()>
     where
-        F: FnMut(NewCard) -> bool,
+        F: FnMut(NewCard) -> Result<bool>,
     {
         let mut stmt = self.db.prepare_cached(&format!(
             "{} ORDER BY due, ord ASC",
@@ -296,7 +296,7 @@ impl super::SqliteStorage {
         ))?;
         let mut rows = stmt.query(params![deck])?;
         while let Some(row) = rows.next()? {
-            if !func(row_to_new_card(row)?) {
+            if !func(row_to_new_card(row)?)? {
                 break;
             }
         }
@@ -312,7 +312,7 @@ impl super::SqliteStorage {
         mut func: F,
     ) -> Result<()>
     where
-        F: FnMut(NewCard) -> bool,
+        F: FnMut(NewCard) -> Result<bool>,
     {
         let mut stmt = self.db.prepare_cached(&format!(
             "{} ORDER BY {}",
@@ -321,7 +321,7 @@ impl super::SqliteStorage {
         ))?;
         let mut rows = stmt.query(params![])?;
         while let Some(row) = rows.next()? {
-            if !func(row_to_new_card(row)?) {
+            if !func(row_to_new_card(row)?)? {
                 break;
             }
         }

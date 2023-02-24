@@ -51,6 +51,7 @@ pub struct DeckConfSchema11 {
     // NOTE: if adding new ones, make sure to update clear_other_duplicates()
     #[serde(default)]
     new_mix: i32,
+    /// This has been repurposed as a boolean: `new_ignore_review_limit`
     #[serde(default)]
     new_per_day_minimum: u32,
     #[serde(default)]
@@ -293,7 +294,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 relearn_steps: c.lapse.delays,
                 new_per_day: c.new.per_day,
                 reviews_per_day: c.rev.per_day,
-                new_per_day_minimum: c.new_per_day_minimum,
+                new_ignore_review_limit: c.new_per_day_minimum > 0,
                 initial_ease: (c.new.initial_factor as f32) / 1000.0,
                 easy_multiplier: c.rev.ease4,
                 hard_multiplier: c.rev.hard_factor,
@@ -403,7 +404,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             },
             other: top_other,
             new_mix: i.new_mix,
-            new_per_day_minimum: i.new_per_day_minimum,
+            new_per_day_minimum: i.new_ignore_review_limit as u32,
             interday_learning_mix: i.interday_learning_mix,
             review_order: i.review_order,
             new_sort_order: i.new_card_sort_order,

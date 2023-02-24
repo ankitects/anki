@@ -41,7 +41,7 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     relearn_steps: Vec::new(),
     new_per_day: 20,
     reviews_per_day: 200,
-    new_per_day_minimum: 0,
+    new_ignore_review_limit: false,
     initial_ease: 2.5,
     easy_multiplier: 1.3,
     hard_multiplier: 1.2,
@@ -194,12 +194,6 @@ impl DeckConfigInner {
         let default = DEFAULT_DECK_CONFIG_INNER;
         ensure_u32_valid(&mut self.new_per_day, default.new_per_day, 0, 9999);
         ensure_u32_valid(&mut self.reviews_per_day, default.reviews_per_day, 0, 9999);
-        ensure_u32_valid(
-            &mut self.new_per_day_minimum,
-            default.new_per_day_minimum,
-            0,
-            9999,
-        );
         ensure_f32_valid(&mut self.initial_ease, default.initial_ease, 1.31, 5.0);
         ensure_f32_valid(&mut self.easy_multiplier, default.easy_multiplier, 1.0, 5.0);
         ensure_f32_valid(&mut self.hard_multiplier, default.hard_multiplier, 0.5, 1.3);

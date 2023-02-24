@@ -91,9 +91,7 @@ message DeckConfig {
 
     uint32 new_per_day = 9;
     uint32 reviews_per_day = 10;
-
-    // not currently used
-    uint32 new_per_day_minimum = 35;
+    bool new_ignore_review_limit = 35;
 
     float initial_ease = 11;
     float easy_multiplier = 12;
