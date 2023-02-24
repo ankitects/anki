@@ -183,7 +183,7 @@ const defaultRegisterShortcutRestParams = {
 function registerShortcutInner(
     callback: (event: KeyboardEvent) => void,
     keyCombinationString: string,
-    restParams: Partial<RegisterShortcutRestParams> = defaultRegisterShortcutRestParams,
+    restParams: Partial<RegisterShortcutRestParams>,
 ): Callback {
     const {
         target = defaultRegisterShortcutRestParams.target,
@@ -207,7 +207,7 @@ function registerShortcutInner(
 export function registerShortcut(
     callback: (event: KeyboardEvent) => void,
     keyCombinationString: string,
-    restParams: Partial<RegisterShortcutRestParams>,
+    restParams: Partial<RegisterShortcutRestParams> = defaultRegisterShortcutRestParams,
 ): Callback {
     const remove = registerShortcutInner(callback, keyCombinationString, restParams);
     nativeShortcuts.push({
@@ -224,7 +224,7 @@ registerPackage("anki/shortcuts", {
     registerShortcut: (
         callback: (event: KeyboardEvent) => void,
         keyCombinationString: string,
-        restParams: Partial<RegisterShortcutRestParams>,
+        restParams: Partial<RegisterShortcutRestParams> = defaultRegisterShortcutRestParams,
     ) => {
         removeConflictingShortcuts(keyCombinationString);
         return registerShortcutInner(callback, keyCombinationString, restParams);
