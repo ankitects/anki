@@ -143,18 +143,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let plainTextsHidden: boolean[] = [];
     let plainTextDefaults: boolean[] = [];
 
-    export async function setPlainTexts(defaultPlainTexts: boolean[]): Promise<void> {
-        await tick();
-        const states = sessionOptions[notetypeId!]?.fieldStates;
-        if (states) {
-            richTextsHidden = states.richTextsHidden;
-            plainTextsHidden = states.plainTextsHidden;
-            plainTextDefaults = states.plainTextDefaults;
-        } else {
-            plainTextDefaults = defaultPlainTexts;
-            richTextsHidden = [...defaultPlainTexts];
-            plainTextsHidden = Array.from(defaultPlainTexts, (v) => !v);
-        }
+    export function setPlainTexts(defaultPlainTexts: boolean[]): void {
+        tick().then(() => {
+            const states = sessionOptions[notetypeId!]?.fieldStates;
+            if (states) {
+                richTextsHidden = states.richTextsHidden;
+                plainTextsHidden = states.plainTextsHidden;
+                plainTextDefaults = states.plainTextDefaults;
+            } else {
+                plainTextDefaults = defaultPlainTexts;
+                richTextsHidden = [...defaultPlainTexts];
+                plainTextsHidden = Array.from(defaultPlainTexts, (v) => !v);
+            }
+        });
     }
 
     function setMathjaxEnabled(enabled: boolean): void {
