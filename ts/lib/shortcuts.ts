@@ -123,6 +123,10 @@ function keyCombinationToCheck(
     return check(keyCode, required, optional);
 }
 
+function sequenceStart(keyCombinationString: string): string {
+    return keyCombinationString.split(",")[0];
+}
+
 function innerShortcut(
     target: EventTarget | Document,
     lastEvent: KeyboardEvent,
@@ -158,7 +162,7 @@ function removeConflictingShortcuts(keyCombinationString: string) {
     let i = nativeShortcuts.length;
     while (i--) {
         const shortcut = nativeShortcuts[i];
-        if (shortcut.sequenceStart === keyCombinationString.split(",")[0]) {
+        if (shortcut.sequenceStart === sequenceStart(keyCombinationString)) {
             shortcut.remove();
             nativeShortcuts.splice(i, 1);
         }
@@ -213,8 +217,8 @@ export function registerShortcut(
      */
     for (const shortcut of externalShortcuts.keys()) {
         if (
-            shortcut.keyCombinationString.split(",")[0]
-                === keyCombinationString.split(",")[0]
+            sequenceStart(shortcut.keyCombinationString)
+                === sequenceStart(keyCombinationString)
         ) {
             return () => {};
         }
@@ -222,7 +226,7 @@ export function registerShortcut(
     const remove = registerShortcutInner(callback, keyCombinationString, restParams);
 
     nativeShortcuts.push({
-        sequenceStart: keyCombinationString.split(",")[0],
+        sequenceStart: sequenceStart(keyCombinationString),
         remove,
     });
 
@@ -239,12 +243,13 @@ registerPackage("anki/shortcuts", {
         removeConflictingShortcuts(keyCombinationString);
 
         const key = { keyCombinationString, callback };
-        const remove = registerShortcutInner(callback, keyCombinationString, restParams);
-
-        externalShortcuts.set(
-            key,
-            remove,
+        const remove = registerShortcutInner(
+            callback,
+            keyCombinationString,
+            restParams,
         );
+
+        externalShortcuts.set(key, remove);
 
         return () => {
             externalShortcuts.get(key)?.();
