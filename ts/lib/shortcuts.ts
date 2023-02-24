@@ -220,7 +220,9 @@ export function registerShortcut(
             sequenceStart(shortcut.keyCombinationString)
                 === sequenceStart(keyCombinationString)
         ) {
-            return () => {};
+            return () => {
+                // do nothing
+            };
         }
     }
     const remove = registerShortcutInner(callback, keyCombinationString, restParams);
