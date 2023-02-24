@@ -15,6 +15,7 @@
     import { ValueTab } from "./lib";
     import SettingTitle from "./SettingTitle.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
+    import SwitchRow from "./SwitchRow.svelte";
     import TabbedValue from "./TabbedValue.svelte";
     import type { DeckOption } from "./types";
     import Warning from "./Warning.svelte";
@@ -140,6 +141,11 @@
             help: tr.deckConfigReviewLimitTooltip() + v3Extra,
             url: "https://docs.ankiweb.net/deck-options.html#maximum-reviewsday",
         },
+        newIgnoreReviewLimit: {
+            title: tr.deckConfigNewCardsIgnoreReviewLimit(),
+            help: tr.deckConfigNewCardsIgnoreReviewLimitTooltip(),
+            url: "https://docs.ankiweb.net/deck-options.html#new-cardsday",
+        },
     };
     const helpSections = Object.values(settings) as DeckOption[];
 
@@ -192,5 +198,21 @@
         <Item>
             <Warning warning={reviewsTooLow} />
         </Item>
+
+        {#if state.v3Scheduler}
+            <Item>
+                <SwitchRow
+                    bind:value={$config.newIgnoreReviewLimit}
+                    defaultValue={defaults.newIgnoreReviewLimit}
+                >
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(
+                                Object.keys(settings).indexOf("newIgnoreReviewLimit"),
+                            )}>{settings.newIgnoreReviewLimit.title}</SettingTitle
+                    >
+                </SwitchRow>
+            </Item>
+        {/if}
     </DynamicallySlottable>
 </TitledContainer>
