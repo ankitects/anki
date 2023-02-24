@@ -38,12 +38,12 @@ const keyCodeLookup = {
 };
 
 /**
- * List of registered shortcuts iterated when removing conflicting shortcuts.
+ * List of registered native shortcuts
  *
  * @param sequenceStart - Start of the shortcut sequence, e.g. for `Control+T, E` it would be `Control+T`
  * @param remove - Callback to remove the EventListener
  */
-const registeredShortcuts: { sequenceStart: string; remove: Callback }[] = [];
+const nativeShortcuts: { sequenceStart: string; remove: Callback }[] = [];
 
 function isRequiredModifier(modifier: string): boolean {
     return !modifier.endsWith("?");
@@ -149,7 +149,7 @@ function innerShortcut(
 }
 
 /**
- * Removes all shortcuts that conflict with the given key combination.
+ * Removes all native shortcuts that conflict with the given key combination.
  * @example
  * The keyCombinationString "Control+T" conflicts with:
  * - "Control+T"
@@ -157,12 +157,12 @@ function innerShortcut(
  * - "Control+T, E"
  */
 function removeConflictingShortcuts(keyCombinationString: string) {
-    let i = registeredShortcuts.length;
+    let i = nativeShortcuts.length;
     while (i--) {
-        const shortcut = registeredShortcuts[i];
+        const shortcut = nativeShortcuts[i];
         if (shortcut.sequenceStart === keyCombinationString.split(",")[0]) {
             shortcut.remove();
-            registeredShortcuts.splice(i, 1);
+            nativeShortcuts.splice(i, 1);
         }
     }
 }
@@ -180,7 +180,7 @@ const defaultRegisterShortcutRestParams = {
     event: "keydown" as const,
 };
 
-export function registerShortcut(
+function registerShortcutInner(
     callback: (event: KeyboardEvent) => void,
     keyCombinationString: string,
     restParams: Partial<RegisterShortcutRestParams> = defaultRegisterShortcutRestParams,
@@ -198,17 +198,27 @@ export function registerShortcut(
         }
     }
 
-    const remove = on(target, event, handler);
-    registeredShortcuts.push({
+    return on(target, event, handler);
+}
+
+/**
+ * Used by native Anki components
+ */
+export function registerShortcut(
+    callback: (event: KeyboardEvent) => void,
+    keyCombinationString: string,
+    restParams: Partial<RegisterShortcutRestParams>,
+): Callback {
+    const remove = registerShortcutInner(callback, keyCombinationString, restParams);
+    nativeShortcuts.push({
         sequenceStart: keyCombinationString.split(",")[0],
         remove,
     });
-
     return remove;
 }
 
 /**
- * Expose wrapper function that overrides conflicting shortcuts
+ * Expose wrapper function which overrides conflicting native shortcuts
  */
 registerPackage("anki/shortcuts", {
     registerShortcut: (
@@ -217,7 +227,7 @@ registerPackage("anki/shortcuts", {
         restParams: Partial<RegisterShortcutRestParams>,
     ) => {
         removeConflictingShortcuts(keyCombinationString);
-        return registerShortcut(callback, keyCombinationString, restParams);
+        return registerShortcutInner(callback, keyCombinationString, restParams);
     },
     getPlatformString,
 });
