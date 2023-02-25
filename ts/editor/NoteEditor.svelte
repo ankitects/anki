@@ -135,8 +135,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let fieldsCollapsed: boolean[] = [];
     export function setCollapsed(defaultCollapsed: boolean[]): void {
-        fieldsCollapsed =
-            sessionOptions[notetypeId!]?.fieldsCollapsed ?? defaultCollapsed;
+        tick().then(() => {
+            fieldsCollapsed =
+                sessionOptions[notetypeId!]?.fieldsCollapsed ?? defaultCollapsed;
+        });
     }
 
     let richTextsHidden: boolean[] = [];
