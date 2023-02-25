@@ -6,13 +6,8 @@ use std::collections::HashSet;
 
 use prost::Message;
 use rusqlite::params;
-use rusqlite::types::FromSql;
-use rusqlite::types::FromSqlError;
-use rusqlite::types::ValueRef;
 use rusqlite::OptionalExtension;
 use rusqlite::Row;
-use serde::Deserialize;
-use serde::Serialize;
 use unicase::UniCase;
 
 use super::ids_to_string;
@@ -48,22 +43,6 @@ fn row_to_existing_card(row: &Row) -> Result<AlreadyGeneratedCardInfo> {
         original_deck_id: row.get(3)?,
         position_if_new: row.get(4).ok().unwrap_or_default(),
     })
-}
-
-#[derive(Serialize, Deserialize)]
-pub(crate) struct ExcludedSearchFields {
-    pub(crate) sort_field_idx: u32,
-    pub(crate) excluded_field_indices: Vec<u32>,
-}
-
-impl FromSql for ExcludedSearchFields {
-    fn column_result(value: ValueRef<'_>) -> std::result::Result<Self, FromSqlError> {
-        if let ValueRef::Text(s) = value {
-            Ok(serde_json::from_slice(s).map_err(|_| FromSqlError::InvalidType)?)
-        } else {
-            Err(FromSqlError::InvalidType)
-        }
-    }
 }
 
 impl SqliteStorage {
@@ -412,5 +391,42 @@ impl SqliteStorage {
             .prepare_cached("SELECT name FROM fields WHERE ntid = ? ORDER BY ord")?
             .query_and_then([notetype_id], |row| Ok(row.get(0)?))?
             .collect()
+    }
+
+    pub fn populate_excluded_fields(&self) -> Result<bool> {
+        self.db.execute_batch(include_str!("excluded_fields.sql"))?;
+        let mut any_excluded = false;
+        self.db
+            .prepare_cached(
+                "SELECT nt.id, f.ord, f.config FROM notetypes nt, fields f where f.ntid = nt.id",
+            )?
+            .query_and_then([], |row| -> Result<()> {
+                let ntid: i64 = row.get(0)?;
+                let ord: u32 = row.get(1)?;
+                let config = NoteFieldConfig::decode(row.get_ref_unwrap(2).as_blob()?)?;
+                if config.exclude_from_search {
+                    any_excluded = true;
+                    self.db
+                        .prepare_cached("INSERT OR IGNORE INTO excluded_fields values(?, ?)")?
+                        .execute(params![ntid, ord])?;
+                }
+                Ok(())
+            })?
+            .last();
+        if any_excluded {
+            self.db
+                .prepare_cached(include_str!("get_notetype.sql"))?
+                .query_and_then([], |row| -> Result<()> {
+                    let ntid: i64 = row.get(0)?;
+                    let sort_field_idx =
+                        NotetypeConfig::decode(row.get_ref_unwrap(4).as_blob()?)?.sort_field_idx;
+                    self.db
+                        .prepare_cached("INSERT OR IGNORE INTO sort_fields values(?, ?)")?
+                        .execute(params![ntid, sort_field_idx])?;
+                    Ok(())
+                })?
+                .last();
+        }
+        Ok(any_excluded)
     }
 }
