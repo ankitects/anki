@@ -190,7 +190,9 @@ impl SqlWriter<'_> {
         self.args.push(text);
         let any_excluded = self.col.storage.populate_excluded_fields()?;
         if any_excluded {
-            write!(self.sql, "(exclude_fields(cast(n.sfld as text), coalesce((select group_concat(ord) from excluded_fields where ntid = n.mid), ''), (select ord from sort_fields where ntid = n.mid)) like ?{n} escape '\\' or exclude_fields(n.flds, coalesce((select group_concat(ord) from excluded_fields where ntid = n.mid), '')) like ?{n} escape '\\')",
+            let exclude_clause =
+                "coalesce((select group_concat(ord) from excluded_fields where ntid = n.mid), '')";
+            write!(self.sql, "(exclude_fields(cast(n.sfld as text), {exclude_clause}, (select ord from sort_fields where ntid = n.mid)) like ?{n} escape '\\' or exclude_fields(n.flds, {exclude_clause}) like ?{n} escape '\\')",
             n = self.args.len()).unwrap();
         } else {
             write!(
