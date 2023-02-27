@@ -67,7 +67,6 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     add_regexp_tags_function(&db)?;
     add_without_combining_function(&db)?;
     add_fnvhash_function(&db)?;
-    add_exclude_fields_function(&db)?;
 
     db.create_collation("unicase", unicase_compare)?;
 
@@ -187,44 +186,6 @@ fn add_regexp_tags_function(db: &Connection) -> rusqlite::Result<()> {
             let mut tags = ctx.get_raw(1).as_str()?.split(' ');
 
             Ok(tags.any(|tag| re.is_match(tag)))
-        },
-    )
-}
-
-/// Adds sql function exclude_fields(flds, ords, [sort_idx])
-/// to return `flds` with fields whose ordinals are in the comma-separated
-/// string `ords` removed
-fn add_exclude_fields_function(db: &Connection) -> rusqlite::Result<()> {
-    db.create_scalar_function(
-        "exclude_fields",
-        -1,
-        FunctionFlags::SQLITE_DETERMINISTIC,
-        move |ctx| {
-            assert!(ctx.len() > 1, "not enough arguments");
-
-            let joined_fields = ctx.get_raw(0).as_str()?;
-            let fields: Vec<&str> = joined_fields.split('\x1f').collect();
-            let ords_str = ctx.get_raw(1).as_str()?.trim();
-            let mut ords: HashSet<usize> = HashSet::new();
-            if !ords_str.is_empty() {
-                ords = ords_str.split(',').map(|o| o.parse().unwrap()).collect();
-            }
-            if fields.len() == 1 {
-                assert!(ctx.len() > 2, "sort_idx argument missing");
-                let sort_idx: usize = ctx.get(2)?;
-                if ords.contains(&sort_idx) {
-                    return Ok(String::new());
-                } else {
-                    return Ok(joined_fields.to_string());
-                }
-            }
-            let mut matched_fields = vec![];
-            for (i, field) in fields.iter().enumerate() {
-                if !ords.contains(&i) {
-                    matched_fields.push(*field);
-                }
-            }
-            Ok(matched_fields.join("\x1f"))
         },
     )
 }

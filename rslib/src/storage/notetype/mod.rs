@@ -392,39 +392,4 @@ impl SqliteStorage {
             .query_and_then([notetype_id], |row| Ok(row.get(0)?))?
             .collect()
     }
-
-    pub fn populate_excluded_fields(&self) -> Result<bool> {
-        self.db.execute_batch(include_str!("excluded_fields.sql"))?;
-        let mut any_excluded = false;
-        self.db
-            .prepare_cached("SELECT ntid, ord, config FROM fields")?
-            .query_and_then([], |row| -> Result<()> {
-                let ntid: i64 = row.get(0)?;
-                let ord: u32 = row.get(1)?;
-                let config = NoteFieldConfig::decode(row.get_ref_unwrap(2).as_blob()?)?;
-                if config.exclude_from_search {
-                    any_excluded = true;
-                    self.db
-                        .prepare_cached("INSERT OR IGNORE INTO excluded_fields values(?, ?)")?
-                        .execute(params![ntid, ord])?;
-                }
-                Ok(())
-            })?
-            .last();
-        if any_excluded {
-            self.db
-                .prepare_cached(include_str!("get_notetype.sql"))?
-                .query_and_then([], |row| -> Result<()> {
-                    let ntid: i64 = row.get(0)?;
-                    let sort_field_idx =
-                        NotetypeConfig::decode(row.get_ref_unwrap(4).as_blob()?)?.sort_field_idx;
-                    self.db
-                        .prepare_cached("INSERT OR IGNORE INTO sort_fields values(?, ?)")?
-                        .execute(params![ntid, sort_field_idx])?;
-                    Ok(())
-                })?
-                .last();
-        }
-        Ok(any_excluded)
-    }
 }
