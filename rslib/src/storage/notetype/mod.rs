@@ -397,9 +397,7 @@ impl SqliteStorage {
         self.db.execute_batch(include_str!("excluded_fields.sql"))?;
         let mut any_excluded = false;
         self.db
-            .prepare_cached(
-                "SELECT nt.id, f.ord, f.config FROM notetypes nt, fields f where f.ntid = nt.id",
-            )?
+            .prepare_cached("SELECT ntid, ord, config FROM fields")?
             .query_and_then([], |row| -> Result<()> {
                 let ntid: i64 = row.get(0)?;
                 let ord: u32 = row.get(1)?;
