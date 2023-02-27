@@ -130,8 +130,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let fieldsCollapsed: boolean[] = [];
     export function setCollapsed(defaultCollapsed: boolean[]): void {
-        fieldsCollapsed =
-            sessionOptions[notetypeId!]?.fieldsCollapsed ?? defaultCollapsed;
+        tick().then(() => {
+            fieldsCollapsed =
+                sessionOptions[notetypeId!]?.fieldsCollapsed ?? defaultCollapsed;
+        });
     }
 
     let richTextsHidden: boolean[] = [];
@@ -139,16 +141,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let plainTextDefaults: boolean[] = [];
 
     export function setPlainTexts(defaultPlainTexts: boolean[]): void {
-        const states = sessionOptions[notetypeId!]?.fieldStates;
-        if (states) {
-            richTextsHidden = states.richTextsHidden;
-            plainTextsHidden = states.plainTextsHidden;
-            plainTextDefaults = states.plainTextDefaults;
-        } else {
-            plainTextDefaults = defaultPlainTexts;
-            richTextsHidden = [...defaultPlainTexts];
-            plainTextsHidden = Array.from(defaultPlainTexts, (v) => !v);
-        }
+        tick().then(() => {
+            const states = sessionOptions[notetypeId!]?.fieldStates;
+            if (states) {
+                richTextsHidden = states.richTextsHidden;
+                plainTextsHidden = states.plainTextsHidden;
+                plainTextDefaults = states.plainTextDefaults;
+            } else {
+                plainTextDefaults = defaultPlainTexts;
+                richTextsHidden = [...defaultPlainTexts];
+                plainTextsHidden = Array.from(defaultPlainTexts, (v) => !v);
+            }
+        });
     }
 
     function setMathjaxEnabled(enabled: boolean): void {
@@ -171,7 +175,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export function focusField(index: number | null): void {
-        tick().then(() => {
+        setTimeout(() => {
             if (typeof index === "number") {
                 if (!(index in fields)) {
                     return;
