@@ -465,6 +465,11 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             if not self.addMode:
                 self._save_current_note()
 
+        elif cmd.startswith("setTagsCollapsed"):
+            (type, collapsed_string) = cmd.split(":", 1)
+            collapsed = collapsed_string == "true"
+            self.setTagsCollapsed(collapsed)
+
         elif cmd in self._links:
             return self._links[cmd](self)
 
@@ -1165,11 +1170,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             not self.mw.col.get_config("closeHTMLTags", True),
         )
 
-    def collapseTags(self) -> None:
-        aqt.mw.pm.set_tags_collapsed(self.editorMode, True)
-
-    def expandTags(self) -> None:
-        aqt.mw.pm.set_tags_collapsed(self.editorMode, False)
+    def setTagsCollapsed(self, collapsed: bool) -> None:
+        aqt.mw.pm.set_tags_collapsed(self.editorMode, collapsed)
 
     # Links from HTML
     ######################################################################
@@ -1200,8 +1202,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             toggleMathjax=Editor.toggleMathjax,
             toggleShrinkImages=Editor.toggleShrinkImages,
             toggleCloseHTMLTags=Editor.toggleCloseHTMLTags,
-            expandTags=Editor.expandTags,
-            collapseTags=Editor.collapseTags,
         )
 
 
