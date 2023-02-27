@@ -42,7 +42,7 @@
                     var(--button-gradient-end) 100%
                 );
                 /* Makes distinguishing hover state in light theme easier */
-                @include impressed-shadow(0.2);
+                border: 1px solid var(--shadow);
             }
         }
     }

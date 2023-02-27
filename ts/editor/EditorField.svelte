@@ -132,7 +132,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /* make room for thicker focus border */
         margin: 1px;
 
-        border-radius: 5px;
+        border-radius: var(--border-radius);
         border: 1px solid var(--border);
 
         @include elevation(1);
