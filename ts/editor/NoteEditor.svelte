@@ -309,12 +309,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     import { wrapInternal } from "@tslib/wrap";
+    import Shortcut from "components/Shortcut.svelte";
 
     import { mathjaxConfig } from "../editable/mathjax-element";
+    import CollapseLabel from "./CollapseLabel.svelte";
     import { refocusInput } from "./helpers";
     import * as oldEditorAdapter from "./old-editor-adapter";
-    import CollapseLabel from "./CollapseLabel.svelte";
-    import Shortcut from "components/Shortcut.svelte";
 
     onMount(() => {
         function wrap(before: string, after: string): void {
