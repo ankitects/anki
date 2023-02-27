@@ -577,7 +577,7 @@ impl SqlWriter<'_> {
         for nt in notetypes.values() {
             let mut matched_fields = vec![];
             for field in &nt.fields {
-                if matches_glob(&field.name) {
+                if matches_glob(&field.name) && !field.config.exclude_from_search {
                     matched_fields.push(field.ord.unwrap_or_default());
                 }
             }
