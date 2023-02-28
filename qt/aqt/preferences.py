@@ -276,6 +276,7 @@ class Preferences(QDialog):
         self.form.styleLabel.setVisible(not is_win)
         self.form.styleComboBox.setVisible(not is_win)
         self.form.legacy_import_export.setChecked(self.mw.pm.legacy_import_export())
+        qconnect(self.form.resetWindowSizes.clicked, self.on_reset_window_sizes)
 
         self.setup_language()
         self.setup_video_driver()
@@ -301,6 +302,13 @@ class Preferences(QDialog):
 
     def on_theme_changed(self, index: int) -> None:
         self.mw.set_theme(Theme(index))
+
+    def on_reset_window_sizes(self) -> None:
+        suffixes = ["Geom", "State", "Splitter"]
+        for key in list(self.prof.keys()):
+            if any(key.endswith(suffix) for suffix in suffixes):
+                del self.prof[key]
+        showInfo(tr.preferences_reset_window_sizes_complete())
 
     # legacy - one of Henrik's add-ons is currently wrapping them
 
