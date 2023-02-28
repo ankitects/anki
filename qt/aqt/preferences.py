@@ -308,6 +308,7 @@ class Preferences(QDialog):
         for key in list(self.prof.keys()):
             if any(key.endswith(suffix) for suffix in suffixes):
                 del self.prof[key]
+        showInfo(tr.preferences_reset_window_sizes_complete())
 
     # legacy - one of Henrik's add-ons is currently wrapping them
 
