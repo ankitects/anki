@@ -44,7 +44,7 @@ html {
 }
 
 body {
-    overflow-x: hidden !important;
+    overflow-x: hidden;
     &:not(.isMac),
     &:not(.isMac) * {
         @include scrollbar.custom;
