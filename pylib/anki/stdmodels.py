@@ -38,7 +38,6 @@ def get_stock_notetypes(
         StockNotetypeKind.BASIC_AND_REVERSED,
         StockNotetypeKind.BASIC_OPTIONAL_REVERSED,
         StockNotetypeKind.CLOZE,
-        StockNotetypeKind.IMAGE_OCCLUSION,
     ]:
         note_type = from_json_bytes(col._backend.get_stock_notetype_legacy(kind))
 
@@ -103,14 +102,6 @@ def _legacy_add_cloze_model(
     return note_type
 
 
-def _legacy_add_image_occlusion(
-    col: anki.collection.Collection,
-) -> anki.models.NotetypeDict:
-    note_type = _get_stock_notetype(col, StockNotetypeKind.IMAGE_OCCLUSION)
-    col.models.add(note_type)
-    return note_type
-
-
 _deprecated_names = DeprecatedNamesMixinForModule(globals())
 _deprecated_names.register_deprecated_attributes(
     addBasicModel=(_legacy_add_basic_model, get_stock_notetypes),
@@ -121,10 +112,6 @@ _deprecated_names.register_deprecated_attributes(
         get_stock_notetypes,
     ),
     addClozeModel=(_legacy_add_cloze_model, get_stock_notetypes),
-    addImageOcclusionModel=(
-        _legacy_add_image_occlusion,
-        get_stock_notetypes,
-    ),
 )
 
 

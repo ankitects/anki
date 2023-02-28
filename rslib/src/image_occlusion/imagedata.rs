@@ -9,9 +9,9 @@ use std::sync::Arc;
 use regex::Regex;
 
 use crate::media::MediaManager;
-use crate::notetype;
 use crate::notetype::CardGenContext;
 use crate::notetype::Notetype;
+use crate::notetype::NotetypeConfig;
 use crate::pb::image_occlusion::ImageClozeNote;
 use crate::pb::image_occlusion::ImageClozeNoteResponse;
 pub use crate::pb::image_occlusion::ImageData;
@@ -93,8 +93,7 @@ impl Collection {
 
     fn add_io_notetype(&mut self) -> Result<()> {
         let usn = self.usn()?;
-        let tr = &self.tr;
-        let mut nt = notetype::stock::image_occlusion(tr);
+        let mut nt = self.image_occlusion_notetype();
         self.add_notetype_inner(&mut nt, usn, false)?;
         Ok(())
     }
@@ -190,5 +189,51 @@ impl Collection {
         }
 
         false
+    }
+
+    fn image_occlusion_notetype(&mut self) -> Notetype {
+        let tr = &self.tr;
+        const IMAGE_CLOZE_CSS: &str = include_str!("image_occlusion_styling.css");
+        let mut nt = Notetype {
+            name: tr.notetypes_image_occlusion_name().into(),
+            config: NotetypeConfig::new_cloze(),
+            ..Default::default()
+        };
+        nt.config.css = IMAGE_CLOZE_CSS.to_string();
+        let occlusion = tr.notetypes_occlusion();
+        nt.add_field(occlusion.as_ref());
+        let image = tr.notetypes_image();
+        nt.add_field(image.as_ref());
+        let header = tr.notetypes_header();
+        nt.add_field(header.as_ref());
+        let back_extra = tr.notetypes_back_extra_field();
+        nt.add_field(back_extra.as_ref());
+        let comments = tr.notetypes_comments_field();
+        nt.add_field(comments.as_ref());
+        let qfmt = format!(
+            "{{{{cloze:{}}}}}
+<div id=container>
+    {{{{{}}}}}
+    <canvas id=\"canvas\"></canvas>
+</div>
+<div id=\"err\"></div>
+<script>
+try {{
+    anki.setupImageCloze();
+}} catch (exc) {{
+    document.getElementById(\"err\").innerHTML = `{}<br><br>${{exc}}`;
+}}
+</script>
+",
+            occlusion,
+            image,
+            tr.notetypes_error_loading_image_occlusion(),
+        );
+        let afmt = format!(
+            "{{{{{}}}}}\n{}\n{{{{{}}}}}\n{{{{{}}}}}",
+            header, qfmt, back_extra, comments
+        );
+        nt.add_template(nt.name.clone(), qfmt, afmt);
+        nt
     }
 }

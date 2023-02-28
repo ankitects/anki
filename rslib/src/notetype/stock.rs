@@ -37,7 +37,6 @@ pub fn all_stock_notetypes(tr: &I18n) -> Vec<Notetype> {
         basic_optional_reverse(tr),
         basic_typing(tr),
         cloze(tr),
-        image_occlusion(tr),
     ]
 }
 
@@ -121,49 +120,6 @@ pub(crate) fn cloze(tr: &I18n) -> Notetype {
     nt.add_field(back_extra.as_ref());
     let qfmt = format!("{{{{cloze:{}}}}}", text);
     let afmt = format!("{}<br>\n{{{{{}}}}}", qfmt, back_extra);
-    nt.add_template(nt.name.clone(), qfmt, afmt);
-    nt
-}
-
-pub(crate) fn image_occlusion(tr: &I18n) -> Notetype {
-    const IMAGE_CLOZE_CSS: &str = include_str!("image_occlusion_styling.css");
-    let mut nt = Notetype {
-        name: tr.notetypes_image_occlusion_name().into(),
-        config: NotetypeConfig::new_cloze(),
-        ..Default::default()
-    };
-    nt.config.css = IMAGE_CLOZE_CSS.to_string();
-    let occlusion = tr.notetypes_occlusion();
-    nt.add_field(occlusion.as_ref());
-    let image = tr.notetypes_image();
-    nt.add_field(image.as_ref());
-    let header = tr.notetypes_header();
-    nt.add_field(header.as_ref());
-    let back_extra = tr.notetypes_back_extra_field();
-    nt.add_field(back_extra.as_ref());
-    let comments = tr.notetypes_comments_field();
-    nt.add_field(comments.as_ref());
-    let qfmt = format!(
-        "{{{{cloze:{}}}}}
-<div id=container>
-    {{{{{}}}}}
-    <canvas id=canvas></canvas>
-</div>
-<div id=err></div>
-<script>
-try {{
-    anki.setupImageCloze();
-}} catch (exc) {{
-    document.getElementById(\"err\").innerHTML = `Error loading image occlusion. Is your Anki version up to date?<br><br>${{exc}}`;
-}}
-</script>",
-        occlusion,
-        image,
-    );
-    let afmt = format!(
-        "{{{{{}}}}}\n{}\n{{{{{}}}}}\n{{{{{}}}}}",
-        header, qfmt, back_extra, comments
-    );
     nt.add_template(nt.name.clone(), qfmt, afmt);
     nt
 }

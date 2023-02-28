@@ -50,3 +50,4 @@ notetypes-change-shape-color = Change Shape Color
 notetypes-question-mask-color = Question Mask Color
 notetypes-error-generating-cloze = An error occurred when generating an image occlusion
 notetypes-error-getting-imagecloze = An error occurred while fetching image occlusion note
+notetypes-error-loading-image-occlusion = Error loading image occlusion. Is your Anki version up to date?
