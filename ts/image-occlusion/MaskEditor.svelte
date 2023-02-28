@@ -22,6 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             maxZoom: 3,
             minZoom: 0.1,
             zoomDoubleClickSpeed: 1,
+            smoothScroll: false,
         });
         instance.pause();
 

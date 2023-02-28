@@ -180,7 +180,7 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
         objectCaching: false,
         moveable: false,
     });
-    polygon.questionmaskcolor = getQuestionMaskColor();
+    polygon.qmask = getQuestionMaskColor();
     canvas.add(polygon);
     toggleDrawPolygon(canvas);
 };

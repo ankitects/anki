@@ -11,6 +11,9 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
     stopDraw(canvas);
 
     canvas.on("mouse:down", function(o) {
+        if (o.target) {
+            return;
+        }
         isDown = true;
 
         const pointer = canvas.getPointer(o.e);
@@ -27,9 +30,9 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
             angle: 0,
             fill: getShapeColor()!,
             transparentCorners: false,
-            selectable: false,
+            selectable: true,
         });
-        rect.questionmaskcolor = getQuestionMaskColor();
+        rect.qmask = getQuestionMaskColor();
         canvas.add(rect);
     });
 
@@ -58,14 +61,13 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
         canvas.renderAll();
     });
 
-    canvas.on("mouse:up", function(o) {
+    canvas.on("mouse:up", function() {
         isDown = false;
-
-        const pointer = canvas.getPointer(o.e);
-        const height = Math.abs(origY - pointer.y);
-        const width = Math.abs(origX - pointer.x);
-
-        if (height < 5 && width < 5) {
+        // probably changed from rectangle to ellipse
+        if (!rect) {
+            return;
+        }
+        if (rect.width < 5 || rect.height < 5) {
             canvas.remove(rect);
         }
         rect.setCoords();

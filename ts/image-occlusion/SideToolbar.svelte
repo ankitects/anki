@@ -32,14 +32,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function setActive(toolId) {
         activeTool = toolId;
         disableFunctions();
+        enableSelectable(canvas, true);
         document.removeEventListener("click", fillColorEventListener);
         document.removeEventListener("click", questionMaskColorEventListener);
 
         switch (toolId) {
-            case "cursor":
-                enableSelectable(canvas, true);
-                break;
             case "magnify":
+                enableSelectable(canvas, false);
                 instance.resume();
                 break;
             case "draw-rectangle":
@@ -55,7 +54,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {
                     showChooseShapeColor = !showChooseShapeColor;
                     showChooseMaskColor = false;
-                    enableSelectable(canvas, true);
                     document.addEventListener("click", fillColorEventListener);
                 }
                 break;
@@ -63,7 +61,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {
                     showChooseMaskColor = !showChooseMaskColor;
                     showChooseShapeColor = false;
-                    enableSelectable(canvas, true);
                     document.addEventListener("click", questionMaskColorEventListener);
                 }
                 break;
@@ -75,7 +72,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const disableFunctions = () => {
         instance.pause();
         stopDraw(canvas);
-        enableSelectable(canvas, false);
     };
 
     const fillColorEventListener = () => {
@@ -94,7 +90,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<TopToolbar {canvas} {activeTool} {instance} {iconSize} />
+<TopToolbar {canvas} {instance} {iconSize} />
 
 <div class="tool-bar-container">
     {#each tools as tool}

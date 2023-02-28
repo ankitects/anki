@@ -11,6 +11,9 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
     stopDraw(canvas);
 
     canvas.on("mouse:down", function(o) {
+        if (o.target) {
+            return;
+        }
         isDown = true;
 
         const pointer = canvas.getPointer(o.e);
@@ -26,9 +29,9 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
             originX: "center",
             originY: "center",
             transparentCorners: false,
-            selectable: false,
+            selectable: true,
         });
-        ellipse.questionmaskcolor = getQuestionMaskColor();
+        ellipse.qmask = getQuestionMaskColor();
         canvas.add(ellipse);
     });
 
@@ -44,13 +47,13 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
         canvas.renderAll();
     });
 
-    canvas.on("mouse:up", function(o) {
+    canvas.on("mouse:up", function() {
         isDown = false;
-
-        const pointer = canvas.getPointer(o.e);
-        const rx = Math.abs(origX - pointer.x);
-        const ry = Math.abs(origY - pointer.y);
-        if (rx < 5 || ry < 5) {
+        // probably changed from ellipse to rectangle
+        if (!ellipse) {
+            return;
+        }
+        if (ellipse.width < 5 || ellipse.height < 5) {
             canvas.remove(ellipse);
         }
         ellipse.setCoords();

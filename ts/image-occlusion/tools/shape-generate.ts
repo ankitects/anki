@@ -43,7 +43,7 @@ export const generateShapeFromCloze = (canvas: fabric.Canvas, clozeStr: string):
                     rx: "0",
                     ry: "0",
                     points: "",
-                    questionmaskcolor: "",
+                    qmask: "",
                 };
 
                 for (let i = 1; i < parts.length; i++) {

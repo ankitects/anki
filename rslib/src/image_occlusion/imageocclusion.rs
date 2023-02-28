@@ -14,7 +14,7 @@ pub fn get_image_cloze_data(text: &str) -> String {
     let mut hideinactive = "";
     let mut left = "";
     let mut points = "";
-    let mut questionmaskcolor = "";
+    let mut qmask = "";
     let mut rx = "";
     let mut ry = "";
     let mut top = "";
@@ -37,7 +37,7 @@ pub fn get_image_cloze_data(text: &str) -> String {
                     "ry" => ry = values[1],
                     "angle" => angle = values[1],
                     "points" => points = values[1],
-                    "questionmaskcolor" => questionmaskcolor = values[1],
+                    "qmask" => qmask = values[1],
                     "hideinactive" => hideinactive = values[1],
                     _ => {}
                 }
@@ -103,11 +103,8 @@ pub fn get_image_cloze_data(text: &str) -> String {
         result.push_str(&format!("data-fill=\"{}\" ", fill));
     }
 
-    if !questionmaskcolor.is_empty() {
-        result.push_str(&format!(
-            "data-questionmaskcolor=\"{}\" ",
-            questionmaskcolor
-        ));
+    if !qmask.is_empty() {
+        result.push_str(&format!("data-qmask=\"{}\" ", qmask));
     }
 
     if !hideinactive.is_empty() {
@@ -124,11 +121,9 @@ pub fn get_image_cloze_data(text: &str) -> String {
 #[test]
 fn test_get_image_cloze_data() {
     assert_eq!(
-        get_image_cloze_data(
-            "rect:left=10:top=20:width=30:height=10:fill=#ffe34d:questionmaskcolor=#ff0000"
-        ),
+        get_image_cloze_data("rect:left=10:top=20:width=30:height=10:fill=#ffe34d:qmask=#ff0000"),
         format!(
-            r#"data-shape="rect" data-left="10" data-top="20" data-width="30" data-height="10" data-fill="{}" data-questionmaskcolor="{}" "#,
+            r#"data-shape="rect" data-left="10" data-top="20" data-width="30" data-height="10" data-fill="{}" data-qmask="{}" "#,
             "#ffe34d", "#ff0000"
         )
     );

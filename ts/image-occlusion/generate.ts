@@ -22,13 +22,13 @@ const divData = [
     "top",
     "type",
     "width",
-    "questionmaskcolor",
+    "qmask",
 ];
 
 const originalToObject = fabric.Object.prototype.toObject;
-const questionmaskcolor = ["questionmaskcolor"];
+const qmask = ["qmask"];
 fabric.Object.prototype.toObject = function(additionalProperties) {
-    return originalToObject.call(this, questionmaskcolor.concat(additionalProperties));
+    return originalToObject.call(this, qmask.concat(additionalProperties));
 };
 
 export function generate(hideInactive: boolean): { occlusionCloze: string; noteCount: number } {

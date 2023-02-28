@@ -9,7 +9,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { alignTools, cursorTools, zoomTools } from "./tools/more-tools";
     import { undoRedoTools } from "./tools/tool-undo-redo";
 
-    export let activeTool = "cursor";
     export let canvas;
     export let instance;
     export let iconSize;
@@ -67,32 +66,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </IconButton>
 
     <!-- cursor tools -->
-    {#if activeTool === "cursor"}
-        {#each cursorTools as cursorBottomTool}
-            {#if cursorBottomTool.name === "align"}
-                <IconButton
-                    class="top-tool-icon-button dropdown-tool"
-                    {iconSize}
-                    on:click={(e) => {
-                        showAlignTools = !showAlignTools;
-                        leftPos = e.pageX - 100;
-                    }}
-                >
-                    {@html mdiFormatAlignCenter}
-                </IconButton>
-            {:else}
-                <IconButton
-                    class="top-tool-icon-button"
-                    {iconSize}
-                    on:click={() => {
-                        cursorBottomTool.action(canvas);
-                    }}
-                >
-                    {@html cursorBottomTool.icon}
-                </IconButton>
-            {/if}
-        {/each}
-    {/if}
+    {#each cursorTools as cursorBottomTool}
+        {#if cursorBottomTool.name === "align"}
+            <IconButton
+                class="top-tool-icon-button dropdown-tool"
+                {iconSize}
+                on:click={(e) => {
+                    showAlignTools = !showAlignTools;
+                    leftPos = e.pageX - 100;
+                }}
+            >
+                {@html mdiFormatAlignCenter}
+            </IconButton>
+        {:else}
+            <IconButton
+                class="top-tool-icon-button"
+                {iconSize}
+                on:click={() => {
+                    cursorBottomTool.action(canvas);
+                }}
+            >
+                {@html cursorBottomTool.icon}
+            </IconButton>
+        {/if}
+    {/each}
 </div>
 
 <div class:show={showAlignTools} class="dropdown-content" style="left:{leftPos}px;">

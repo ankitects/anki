@@ -1,13 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-window.addEventListener("resize", setupImageCloze);
+window.addEventListener("load", () => {
+    window.addEventListener("resize", setupImageCloze);
+});
 
 export function setupImageCloze(): void {
-    const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
+    const canvas: HTMLCanvasElement = document.querySelector("canvas")! as HTMLCanvasElement;
     canvas.style.backgroundSize = "100% 100%";
     canvas.style.maxWidth = "100%";
-    canvas.style.maxHeight = "90vh";
+    canvas.style.maxHeight = "100%";
 
     const ctx: CanvasRenderingContext2D = canvas.getContext("2d")!;
     const image = document.getElementById("img") as HTMLImageElement;
@@ -22,6 +24,7 @@ export function setupImageCloze(): void {
     } else {
         shapeScaler = imageNaturalWidth / canvasWidth;
     }
+    shapeScaler = Math.round(shapeScaler * 100) / 100;
     drawShapes(ctx, shapeScaler);
 }
 
@@ -32,7 +35,7 @@ function drawShapes(ctx: CanvasRenderingContext2D, shapeScaler: number): void {
     for (const clz of activeCloze) {
         const cloze = (<HTMLDivElement> clz);
         const shape = cloze.dataset.shape!;
-        const fill = cloze.dataset.questionmaskcolor!;
+        const fill = cloze.dataset.qmask ? cloze.dataset.qmask : "#EF9A9A";
         draw(ctx, cloze, shape, fill, shapeScaler);
     }
 

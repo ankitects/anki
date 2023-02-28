@@ -165,10 +165,10 @@ export const fillQuestionMaskColor = (canvas: fabric.Canvas): void => {
     const active = canvas.getActiveObject();
     if (active) {
         if (active.type === "activeSelection") {
-            active.getObjects().forEach((x) => x.set({ questionmaskcolor: color }));
+            active.getObjects().forEach((x) => x.set({ qmask: color }));
             canvas.renderAll();
         } else {
-            active.set({ questionmaskcolor: color });
+            active.set({ qmask: color });
             canvas.renderAll();
         }
     }
