@@ -118,6 +118,10 @@ class DeckBrowser:
             self._confirm_upgrade()
         elif cmd == "v2upgradeinfo":
             openLink("https://faqs.ankiweb.net/the-anki-2.1-scheduler.html")
+        elif cmd == "select":
+            set_current_deck(
+                parent=self.mw, deck_id=DeckId(int(arg))
+            ).run_in_background()
         return False
 
     def set_current_deck(self, deck_id: DeckId) -> None:
@@ -210,7 +214,14 @@ class DeckBrowser:
         else:
             klass = "deck"
 
-        buf = "<tr class='%s' id='%d'>" % (klass, node.deck_id)
+        buf = (
+            "<tr class='%s' id='%d' onclick='if(event.shiftKey) return pycmd(\"select:%d\")'>"
+            % (
+                klass,
+                node.deck_id,
+                node.deck_id,
+            )
+        )
         # deck link
         if node.children:
             collapse = (
@@ -346,7 +357,9 @@ class DeckBrowser:
         openLink(f"{aqt.appShared}decks/")
 
     def _on_create(self) -> None:
-        if op := add_deck_dialog(parent=self.mw):
+        if op := add_deck_dialog(
+            parent=self.mw, default_text=self.mw.col.decks.current()["name"]
+        ):
             op.run_in_background()
 
     ######################################################################
