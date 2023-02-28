@@ -132,12 +132,14 @@ class Table:
             | QItemSelectionModel.SelectionFlag.Rows,
         )
 
-    def select_single_card(self, card_id: CardId) -> None:
+    def select_single_card(
+        self, card_id: CardId, scroll_even_if_visible: bool = True
+    ) -> None:
         """Try to set the selection to the item corresponding to the given card."""
         self._reset_selection()
         if (row := self._model.get_card_row(card_id)) is not None:
             self._view.selectRow(row)
-            self._scroll_to_row(row, scroll_even_if_visible=True)
+            self._scroll_to_row(row, scroll_even_if_visible)
         else:
             self.browser.on_all_or_selected_rows_changed()
             self.browser.on_current_row_changed()
