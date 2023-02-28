@@ -79,7 +79,13 @@ impl Collection {
             Some(nt) => nt,
             None => {
                 self.add_io_notetype()?;
-                self.get_notetype_by_name(&name).unwrap().unwrap() // need to handle exception
+                if let Some(nt) = self.get_notetype_by_name(&name)? {
+                    nt
+                } else {
+                    return Err(AnkiError::TemplateError {
+                        info: "IO notetype not found".to_string(),
+                    });
+                }
             }
         };
         if nt.fields.len() < 4 {
