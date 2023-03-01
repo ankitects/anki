@@ -1,13 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::fs::read;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
 
 use regex::Regex;
 
+use crate::io::read_file;
 use crate::media::MediaManager;
 use crate::notetype::CardGenContext;
 use crate::notetype::Notetype;
@@ -23,7 +23,7 @@ impl Collection {
         let mut metadata = ImageData {
             ..Default::default()
         };
-        metadata.data = read(path)?;
+        metadata.data = read_file(path)?;
         Ok(metadata)
     }
 
@@ -37,7 +37,7 @@ impl Collection {
         tags: Vec<String>,
     ) -> Result<OpOutput<()>> {
         // image file
-        let image_bytes = read(image_path)?;
+        let image_bytes = read_file(image_path)?;
         let image_filename = Path::new(&image_path)
             .file_name()
             .or_not_found("expected filename")?
@@ -135,7 +135,7 @@ impl Collection {
         let final_path = self.media_folder.join(src);
 
         if self.is_image_file(&final_path) {
-            cloze_note.image_data = read(&final_path).unwrap();
+            cloze_note.image_data = read_file(&final_path)?;
         }
 
         Ok(cloze_note)
