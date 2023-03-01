@@ -12,6 +12,7 @@ use crate::media::MediaManager;
 use crate::notetype::CardGenContext;
 use crate::notetype::Notetype;
 use crate::notetype::NotetypeConfig;
+use crate::pb::image_occlusion::image_cloze_note_response::Value;
 use crate::pb::image_occlusion::ImageClozeNote;
 use crate::pb::image_occlusion::ImageClozeNoteResponse;
 pub use crate::pb::image_occlusion::ImageData;
@@ -115,7 +116,7 @@ impl Collection {
                 let fields = note.fields_mut();
 
                 if fields.len() < 4 {
-                    response.error = "Note does not have 4 fields".into();
+                    response.value = Some(Value::Error("Note does not have 4 fields".into()));
                     return Ok(response);
                 }
 
@@ -137,11 +138,11 @@ impl Collection {
                     cloze_note.image_data = read(&final_path).unwrap();
                 }
 
-                response.note = cloze_note.into();
+                response.value = Some(Value::Note(cloze_note));
                 Ok(response)
             }
             Err(_) => {
-                response.error = "Note not found".into();
+                response.value = Some(Value::Error("Note not found".into()));
                 Ok(response)
             }
         }

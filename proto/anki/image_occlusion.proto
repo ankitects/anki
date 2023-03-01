@@ -60,6 +60,8 @@ message UpdateImageOcclusionNoteRequest {
 }
 
 message ImageClozeNoteResponse {
-  ImageClozeNote note = 1;
-  string error = 2;
+  oneof value {
+    ImageClozeNote note = 1;
+    string error = 2;
+  }
 }
