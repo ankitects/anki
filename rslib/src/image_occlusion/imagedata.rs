@@ -7,6 +7,7 @@ use std::sync::Arc;
 
 use regex::Regex;
 
+use crate::io::metadata;
 use crate::io::read_file;
 use crate::media::MediaManager;
 use crate::notetype::CardGenContext;
@@ -134,7 +135,7 @@ impl Collection {
             .unwrap_or_else(|| "".to_owned());
         let final_path = self.media_folder.join(src);
 
-        if self.is_image_file(&final_path) {
+        if self.is_image_file(&final_path)? {
             cloze_note.image_data = read_file(&final_path)?;
         }
 
@@ -165,30 +166,26 @@ impl Collection {
         re.captures(html).map(|cap| cap[1].to_owned())
     }
 
-    fn is_image_file(&mut self, path: &PathBuf) -> bool {
+    fn is_image_file(&mut self, path: &PathBuf) -> Result<bool> {
         let file_path = Path::new(&path);
         let supported_extensions = vec![
             "jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp", "ico",
         ];
 
         if file_path.exists() {
-            let metadata = std::fs::metadata(file_path).unwrap();
-            if metadata.is_file() {
+            let meta = metadata(file_path)?;
+            if meta.is_file() {
                 if let Some(ext_osstr) = file_path.extension() {
                     if let Some(ext_str) = ext_osstr.to_str() {
                         if supported_extensions.contains(&ext_str) {
-                            return true;
+                            return Ok(true);
                         }
-                    } else {
-                        return false;
                     }
-                } else {
-                    return false;
                 }
             }
         }
 
-        false
+        Ok(false)
     }
 
     fn image_occlusion_notetype(&mut self) -> Notetype {
