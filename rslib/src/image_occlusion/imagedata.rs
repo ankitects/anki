@@ -106,46 +106,39 @@ impl Collection {
     }
 
     pub fn get_image_cloze_note(&mut self, note_id: NoteId) -> Result<ImageClozeNoteResponse> {
+        let value = match self.get_image_cloze_note_inner(note_id) {
+            Ok(note) => Value::Note(note),
+            Err(err) => Value::Error(format!("{:?}", err)),
+        };
+        Ok(ImageClozeNoteResponse { value: Some(value) })
+    }
+
+    pub fn get_image_cloze_note_inner(&mut self, note_id: NoteId) -> Result<ImageClozeNote> {
+        let note = self.storage.get_note(note_id)?.or_not_found(note_id)?;
         let mut cloze_note = ImageClozeNote::default();
-        let note = self.storage.get_note(note_id);
-        let mut response = ImageClozeNoteResponse::default();
-        match note {
-            Ok(note) => {
-                let mut note = note.unwrap();
-                let original = note.clone();
-                let fields = note.fields_mut();
 
-                if fields.len() < 4 {
-                    response.value = Some(Value::Error("Note does not have 4 fields".into()));
-                    return Ok(response);
-                }
-
-                cloze_note.occlusions = fields.get(0).unwrap().into();
-                cloze_note.header = fields.get(2).unwrap().into();
-                cloze_note.back_extra = fields.get(3).unwrap().into();
-                cloze_note.image_data = "".into();
-
-                let tags = original.tags;
-                cloze_note.tags = tags.to_vec();
-
-                let image_file_name = fields.get(1).unwrap();
-                let src = self
-                    .extract_img_src(image_file_name)
-                    .unwrap_or_else(|| "".to_owned());
-                let final_path = self.media_folder.join(src);
-
-                if self.is_image_file(&final_path) {
-                    cloze_note.image_data = read(&final_path).unwrap();
-                }
-
-                response.value = Some(Value::Note(cloze_note));
-                Ok(response)
-            }
-            Err(_) => {
-                response.value = Some(Value::Error("Note not found".into()));
-                Ok(response)
-            }
+        let fields = note.fields();
+        if fields.len() < 4 {
+            invalid_input!("Note does not have 4 fields");
         }
+
+        cloze_note.occlusions = fields[0].clone();
+        cloze_note.header = fields[2].clone();
+        cloze_note.back_extra = fields[3].clone();
+        cloze_note.image_data = "".into();
+        cloze_note.tags = note.tags.clone();
+
+        let image_file_name = fields[1].clone();
+        let src = self
+            .extract_img_src(&image_file_name)
+            .unwrap_or_else(|| "".to_owned());
+        let final_path = self.media_folder.join(src);
+
+        if self.is_image_file(&final_path) {
+            cloze_note.image_data = read(&final_path).unwrap();
+        }
+
+        Ok(cloze_note)
     }
 
     pub fn update_image_occlusion_note(
