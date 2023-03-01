@@ -40,7 +40,7 @@ impl Collection {
         let image_bytes = read(image_path)?;
         let image_filename = Path::new(&image_path)
             .file_name()
-            .unwrap()
+            .or_not_found("expected filename")?
             .to_str()
             .unwrap()
             .to_string();
