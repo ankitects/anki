@@ -81,7 +81,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const sessionOptions: SessionOptions = {};
     export function saveSession(): void {
-        if (notetypeId) {
+        if (notetypeId && fieldsData.length > 0) {
             sessionOptions[notetypeId] = {
                 fieldsCollapsed,
                 fieldStates: {
