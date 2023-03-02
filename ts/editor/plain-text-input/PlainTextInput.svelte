@@ -168,6 +168,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             padding-inline: 4px;
         }
 
+        :global(.CodeMirror-sizer) {
+            // Workaround for CodeMirror starting with a height bigger than it should  
+            // when the browser is opened on a notetype that has fields with the HTML
+            // editor selected by default
+            min-height: 0 !important;
+        }
+
         :global(.CodeMirror-lines) {
             padding: 8px 0;
         }
