@@ -301,9 +301,10 @@ class AnkiQt(QMainWindow):
 
         self.pendingImport: str | None = None
         self.restoring_backup = False
-        # profile not provided on command line?
-        if not self.pm.name:
-            # if there's a single profile, load it automatically
+        # - if a valid profile was provided on commandline, we load it
+        # - if an invalid profile was provided, we skip this step and show the picker
+        # - if no profile was provided, we use this step
+        if not self.pm.name and not self.pm.invalid_profile_provided_on_commandline:
             profs = self.pm.profiles()
             name = self.pm.last_loaded_profile_name()
             if len(profs) == 1:

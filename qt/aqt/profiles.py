@@ -123,6 +123,7 @@ class ProfileManager:
         self.name: str | None = None
         self.db: DB | None = None
         self.profile: dict | None = None
+        self.invalid_profile_provided_on_commandline = False
         self.base = str(base)
 
     def setupMeta(self) -> LoadMetaResult:
@@ -131,18 +132,15 @@ class ProfileManager:
         self.firstRun = res.firstTime
         return res
 
-    # profile load on startup
+    # -p profile provided on command line.
     def openProfile(self, profile: str) -> None:
-        if profile:
-            if profile not in self.profiles():
-                QMessageBox.critical(
-                    None, tr.qt_misc_error(), tr.profiles_profile_does_not_exist()
-                )
-                sys.exit(1)
+        if profile not in self.profiles():
+            self.invalid_profile_provided_on_commandline = True
+        else:
             try:
                 self.load(profile)
-            except TypeError as exc:
-                raise Exception("Provided profile does not exist.") from exc
+            except Exception as exc:
+                self.invalid_profile_provided_on_commandline = True
 
     # Profile load/save
     ######################################################################
