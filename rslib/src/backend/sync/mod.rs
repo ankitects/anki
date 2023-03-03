@@ -86,6 +86,11 @@ impl TryFrom<pb::sync::SyncAuth> for SyncAuth {
                 .endpoint
                 .map(|v| {
                     Url::try_from(v.as_str())
+                        // Without the next line, incomplete URLs like computer.local without the http://
+                        // are detected but URLs like computer.local:8000 are not.
+                        // By calling join() now, these URLs are detected too and later code that
+                        // uses and unwraps the result of join() doesn't panic
+                        .and_then(|x| x.join("/"))
                         .or_invalid("Invalid sync server specified. Please check the preferences.")
                 })
                 .transpose()?,
