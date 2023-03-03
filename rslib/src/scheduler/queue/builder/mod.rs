@@ -123,10 +123,17 @@ struct Context {
 impl QueueBuilder {
     pub(super) fn new(col: &mut Collection, deck_id: DeckId) -> Result<Self> {
         let timing = col.timing_for_timestamp(TimestampSecs::now())?;
+        let new_cards_ignore_review_limit = col.get_config_bool(BoolKey::NewCardsIgnoreReviewLimit);
         let config_map = col.storage.get_deck_config_map()?;
         let root_deck = col.storage.get_deck(deck_id)?.or_not_found(deck_id)?;
         let child_decks = col.storage.child_decks(&root_deck)?;
-        let limits = LimitTreeMap::build(&root_deck, child_decks, &config_map, timing.days_elapsed);
+        let limits = LimitTreeMap::build(
+            &root_deck,
+            child_decks,
+            &config_map,
+            timing.days_elapsed,
+            new_cards_ignore_review_limit,
+        );
         let sort_options = sort_options(&root_deck, &config_map);
         let deck_map = col.storage.get_decks_map()?;
 
@@ -266,6 +273,7 @@ mod test {
     use crate::collection::open_test_collection;
     use crate::pb::deckconfig::deck_config::config::NewCardGatherPriority;
     use crate::pb::deckconfig::deck_config::config::NewCardSortOrder;
+    use crate::tests::*;
 
     impl Collection {
         fn set_deck_gather_order(&mut self, deck: &mut Deck, order: NewCardGatherPriority) {
@@ -481,5 +489,19 @@ mod test {
         // no burying was performed, or the first built queue anticipated it and didn't
         // include the buried card.
         assert_eq!(col.card_queue_len(), old_queue_len - 1);
+    }
+
+    #[test]
+    fn new_cards_may_ignore_review_limit() {
+        let mut col = Collection::new_v3();
+        col.set_config_bool(BoolKey::NewCardsIgnoreReviewLimit, true, false)
+            .unwrap();
+        col.update_default_deck_config(|config| {
+            config.reviews_per_day = 0;
+        });
+        CardAdder::new().add(&mut col);
+
+        // review limit doesn't apply to new card
+        assert_eq!(col.card_queue_len(), 1);
     }
 }
