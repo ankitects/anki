@@ -3,20 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "@tslib/ftl";
-
     import IconButton from "../components/IconButton.svelte";
-    import ColorPicker from "./color-picker/ColorPicker.svelte";
-    import { mdiFormatColorFill, mdiPalette } from "./icons";
     import { drawEllipse, drawPolygon, drawRectangle } from "./tools/index";
-    import {
-        enableSelectable,
-        fillQuestionMaskColor,
-        fillShapeColor,
-        getQuestionMaskColor,
-        getShapeColor,
-        stopDraw,
-    } from "./tools/lib";
+    import { enableSelectable, stopDraw } from "./tools/lib";
     import { tools } from "./tools/tool-buttons";
     import TopToolbar from "./TopToolbar.svelte";
 
@@ -26,15 +15,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const iconSize = 80;
 
     let activeTool = "cursor";
-    let showChooseMaskColor = false;
-    let showChooseShapeColor = false;
 
     function setActive(toolId) {
         activeTool = toolId;
         disableFunctions();
         enableSelectable(canvas, true);
-        document.removeEventListener("click", fillColorEventListener);
-        document.removeEventListener("click", questionMaskColorEventListener);
 
         switch (toolId) {
             case "magnify":
@@ -50,20 +35,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             case "draw-polygon":
                 drawPolygon(canvas, instance);
                 break;
-            case "shape-fill-color":
-                {
-                    showChooseShapeColor = !showChooseShapeColor;
-                    showChooseMaskColor = false;
-                    document.addEventListener("click", fillColorEventListener);
-                }
-                break;
-            case "choose-color":
-                {
-                    showChooseMaskColor = !showChooseMaskColor;
-                    showChooseShapeColor = false;
-                    document.addEventListener("click", questionMaskColorEventListener);
-                }
-                break;
             default:
                 break;
         }
@@ -73,21 +44,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         instance.pause();
         stopDraw(canvas);
     };
-
-    const fillColorEventListener = () => {
-        fillShapeColor(canvas);
-    };
-    const questionMaskColorEventListener = () => {
-        fillQuestionMaskColor(canvas);
-    };
-
-    document.addEventListener("click", (e) => {
-        const target = e.target as HTMLElement;
-        if (target.classList.contains("upper-canvas")) {
-            showChooseShapeColor = false;
-            showChooseMaskColor = false;
-        }
-    });
 </script>
 
 <TopToolbar {canvas} {instance} {iconSize} />
@@ -103,52 +59,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }}>{@html tool.icon}</IconButton
         >
     {/each}
-
-    <IconButton
-        class="tool-icon-button color-picker-1 {activeTool == 'shape-fill-color'
-            ? 'active-tool'
-            : ''}"
-        {iconSize}
-        active={activeTool === "shape-fill-color"}
-        on:click={() => {
-            activeTool = "shape-fill-color";
-            setActive(activeTool);
-        }}>{@html mdiFormatColorFill}</IconButton
-    >
-    <IconButton
-        class="tool-icon-button color-picker-2 {activeTool == 'choose-color'
-            ? 'active-tool'
-            : ''}"
-        {iconSize}
-        active={activeTool === "choose-color"}
-        on:click={() => {
-            activeTool = "choose-color";
-            setActive(activeTool);
-        }}>{@html mdiPalette}</IconButton
-    >
 </div>
-
-<ColorPicker
-    show={showChooseShapeColor}
-    top={120}
-    left={36}
-    title={tr.notetypesChangeShapeColor()}
-    selectedColor={getShapeColor()}
-    saveColor={(color) => {
-        localStorage.setItem("shape-color", color);
-    }}
-/>
-
-<ColorPicker
-    show={showChooseMaskColor}
-    top={140}
-    left={36}
-    title={tr.notetypesQuestionMaskColor()}
-    selectedColor={getQuestionMaskColor()}
-    saveColor={(color) => {
-        localStorage.setItem("ques-color", color);
-    }}
-/>
 
 <style>
     .tool-bar-container {

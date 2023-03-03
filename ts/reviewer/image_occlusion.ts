@@ -31,18 +31,19 @@ export function setupImageCloze(): void {
 function drawShapes(ctx: CanvasRenderingContext2D, shapeScaler: number): void {
     const activeCloze = document.querySelectorAll(".cloze");
     const inActiveCloze = document.querySelectorAll(".cloze-inactive");
+    const maskColor = getMaskColor();
 
     for (const clz of activeCloze) {
         const cloze = (<HTMLDivElement> clz);
         const shape = cloze.dataset.shape!;
-        const fill = cloze.dataset.qmask ? cloze.dataset.qmask : "#EF9A9A";
+        const fill = maskColor.questionMask;
         draw(ctx, cloze, shape, fill, shapeScaler);
     }
 
     for (const clz of inActiveCloze) {
         const cloze = (<HTMLDivElement> clz);
         const shape = cloze.dataset.shape!;
-        const fill = cloze.dataset.fill!;
+        const fill = maskColor.shapeMask;
         const hideinactive = cloze.dataset.hideinactive == "true";
         if (!hideinactive) {
             draw(ctx, cloze, shape, fill, shapeScaler);
@@ -113,5 +114,17 @@ function limitSize(size: { width: number; height: number }): { width: number; he
         width: Math.floor(width * scalar),
         height: Math.floor(height * scalar),
         scalar: scalar,
+    };
+}
+
+function getMaskColor(): { questionMask: string; shapeMask: string } {
+    const canvas = document.getElementById("canvas");
+    const computedStyle = window.getComputedStyle(canvas!);
+    const questionMask = computedStyle.getPropertyValue("--question-mask-color");
+    const shapeMask = computedStyle.getPropertyValue("--shape-mask-color");
+
+    return {
+        questionMask: questionMask ? questionMask : "#EF9A9A",
+        shapeMask: shapeMask ? shapeMask : "#FFEB3B",
     };
 }

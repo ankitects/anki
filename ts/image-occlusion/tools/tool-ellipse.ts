@@ -3,7 +3,7 @@
 
 import { fabric } from "fabric";
 
-import { getQuestionMaskColor, getShapeColor, stopDraw } from "./lib";
+import { shapeMaskColor, stopDraw } from "./lib";
 
 export const drawEllipse = (canvas: fabric.Canvas): void => {
     let ellipse, isDown, origX, origY;
@@ -25,13 +25,12 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
             top: pointer.y,
             rx: 1,
             ry: 1,
-            fill: getShapeColor()!,
+            fill: shapeMaskColor,
             originX: "center",
             originY: "center",
             transparentCorners: false,
             selectable: true,
         });
-        ellipse.qmask = getQuestionMaskColor();
         canvas.add(ellipse);
     });
 

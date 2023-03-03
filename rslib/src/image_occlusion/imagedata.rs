@@ -211,7 +211,7 @@ impl Collection {
             "{{{{cloze:{}}}}}
 <div id=container>
     {{{{{}}}}}
-    <canvas id=\"canvas\"></canvas>
+    <canvas id=\"canvas\" class=\"image-occlusion-canvas\"></canvas>
 </div>
 <div id=\"err\"></div>
 <script>

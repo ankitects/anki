@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import * as tr from "@tslib/ftl";
-import { fabric } from "fabric";
 import { get } from "svelte/store";
 
 import type { Collection } from "../lib/proto";
@@ -13,7 +12,6 @@ import { makeMaskTransparent } from "./tools/lib";
 
 const divData = [
     "angle",
-    "fill",
     "height",
     "left",
     "points",
@@ -22,14 +20,7 @@ const divData = [
     "top",
     "type",
     "width",
-    "qmask",
 ];
-
-const originalToObject = fabric.Object.prototype.toObject;
-const qmask = ["qmask"];
-fabric.Object.prototype.toObject = function(additionalProperties) {
-    return originalToObject.call(this, qmask.concat(additionalProperties));
-};
 
 export function generate(hideInactive: boolean): { occlusionCloze: string; noteCount: number } {
     const canvas = globalThis.canvas;

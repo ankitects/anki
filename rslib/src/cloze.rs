@@ -567,13 +567,12 @@ mod test {
     fn image_cloze() {
         assert_eq!(
             reveal_cloze_text(
-                "{{c1::image-occlusion:rect:left=10.0:top=20:width=30:height=10:fill=#ffe34d}}",
+                "{{c1::image-occlusion:rect:left=10.0:top=20:width=30:height=10}}",
                 1,
                 true
             ),
             format!(
-                r#"<div class="cloze" data-shape="rect" data-left="10.0" data-top="20" data-width="30" data-height="10" data-fill="{}" ></div>"#,
-                "#ffe34d"
+                r#"<div class="cloze" data-shape="rect" data-left="10.0" data-top="20" data-width="30" data-height="10" ></div>"#,
             )
         );
     }

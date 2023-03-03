@@ -4,7 +4,7 @@
 import { fabric } from "fabric";
 import type { PanZoom } from "panzoom";
 
-import { getQuestionMaskColor, getShapeColor } from "./lib";
+import { shapeMaskColor } from "./lib";
 
 let activeLine;
 let activeShape;
@@ -176,11 +176,10 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
     canvas.remove(activeShape).remove(activeLine);
 
     const polygon = new fabric.Polygon(points, {
-        fill: getShapeColor(),
+        fill: shapeMaskColor,
         objectCaching: false,
         moveable: false,
     });
-    polygon.qmask = getQuestionMaskColor();
     canvas.add(polygon);
     toggleDrawPolygon(canvas);
 };

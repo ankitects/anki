@@ -1,3 +1,8 @@
+.image-occlusion-canvas {
+    --shape-mask-color: #ffeba2;
+    --question-mask-color: #ff8e8e;
+}
+
 .card {
     font-family: arial;
     font-size: 20px;

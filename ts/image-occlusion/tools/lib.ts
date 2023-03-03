@@ -8,6 +8,8 @@ import { get } from "svelte/store";
 import { zoomResetValue } from "../store";
 import { stack } from "./tool-undo-redo";
 
+export const shapeMaskColor = "#ffeba2";
+
 let _clipboard;
 
 export const stopDraw = (canvas: fabric.Canvas): void => {
@@ -76,18 +78,6 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
     canvas.requestRenderAll();
 };
 
-export const getQuestionMaskColor = (): string => {
-    return localStorage.getItem("ques-color")
-        ? localStorage.getItem("ques-color")!
-        : "#f06";
-};
-
-export const getShapeColor = (): string => {
-    return localStorage.getItem("shape-color")
-        ? localStorage.getItem("shape-color")!
-        : "#f06";
-};
-
 export const zoomIn = (instance: PanZoom): void => {
     instance.smoothZoom(0, 0, 1.25);
 };
@@ -144,34 +134,6 @@ const pasteItem = (canvas: fabric.Canvas): void => {
         canvas.setActiveObject(clonedObj);
         canvas.requestRenderAll();
     });
-};
-
-export const fillShapeColor = (canvas: fabric.Canvas): void => {
-    const color = getShapeColor();
-    const active = canvas.getActiveObject();
-    if (active) {
-        if (active.type === "activeSelection") {
-            active.getObjects().forEach((x) => x.set({ fill: color }));
-            canvas.renderAll();
-        } else {
-            active.set({ fill: color });
-            canvas.renderAll();
-        }
-    }
-};
-
-export const fillQuestionMaskColor = (canvas: fabric.Canvas): void => {
-    const color = getQuestionMaskColor();
-    const active = canvas.getActiveObject();
-    if (active) {
-        if (active.type === "activeSelection") {
-            active.getObjects().forEach((x) => x.set({ qmask: color }));
-            canvas.renderAll();
-        } else {
-            active.set({ qmask: color });
-            canvas.renderAll();
-        }
-    }
 };
 
 export const makeMaskTransparent = (canvas: fabric.Canvas, opacity = false): void => {

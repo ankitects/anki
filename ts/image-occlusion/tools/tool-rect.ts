@@ -3,7 +3,7 @@
 
 import { fabric } from "fabric";
 
-import { getQuestionMaskColor, getShapeColor, stopDraw } from "./lib";
+import { shapeMaskColor, stopDraw } from "./lib";
 
 export const drawRectangle = (canvas: fabric.Canvas): void => {
     let rect, isDown, origX, origY;
@@ -28,11 +28,10 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
             width: pointer.x - origX,
             height: pointer.y - origY,
             angle: 0,
-            fill: getShapeColor()!,
+            fill: shapeMaskColor,
             transparentCorners: false,
             selectable: true,
         });
-        rect.qmask = getQuestionMaskColor();
         canvas.add(rect);
     });
 

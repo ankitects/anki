@@ -9,12 +9,10 @@ pub fn get_image_cloze_data(text: &str) -> String {
     let mut result = String::new();
     let mut shape = "";
     let mut angle = "";
-    let mut fill = "";
     let mut height = "";
     let mut hideinactive = "";
     let mut left = "";
     let mut points = "";
-    let mut qmask = "";
     let mut rx = "";
     let mut ry = "";
     let mut top = "";
@@ -32,12 +30,10 @@ pub fn get_image_cloze_data(text: &str) -> String {
                     "top" => top = values[1],
                     "width" => width = values[1],
                     "height" => height = values[1],
-                    "fill" => fill = values[1],
                     "rx" => rx = values[1],
                     "ry" => ry = values[1],
                     "angle" => angle = values[1],
                     "points" => points = values[1],
-                    "qmask" => qmask = values[1],
                     "hideinactive" => hideinactive = values[1],
                     _ => {}
                 }
@@ -99,14 +95,6 @@ pub fn get_image_cloze_data(text: &str) -> String {
         result.push_str(&format!("data-angle=\"{}\" ", angle));
     }
 
-    if !fill.is_empty() {
-        result.push_str(&format!("data-fill=\"{}\" ", fill));
-    }
-
-    if !qmask.is_empty() {
-        result.push_str(&format!("data-qmask=\"{}\" ", qmask));
-    }
-
     if !hideinactive.is_empty() {
         result.push_str(&format!("data-hideinactive=\"{}\" ", hideinactive));
     }
@@ -121,18 +109,17 @@ pub fn get_image_cloze_data(text: &str) -> String {
 #[test]
 fn test_get_image_cloze_data() {
     assert_eq!(
-        get_image_cloze_data("rect:left=10:top=20:width=30:height=10:fill=#ffe34d:qmask=#ff0000"),
+        get_image_cloze_data("rect:left=10:top=20:width=30:height=10"),
         format!(
-            r#"data-shape="rect" data-left="10" data-top="20" data-width="30" data-height="10" data-fill="{}" data-qmask="{}" "#,
-            "#ffe34d", "#ff0000"
+            r#"data-shape="rect" data-left="10" data-top="20" data-width="30" data-height="10" "#,
         )
     );
     assert_eq!(
-        get_image_cloze_data("ellipse:left=15:top=20:width=10:height=20:rx=10:ry=5:fill=red"),
-        r#"data-shape="ellipse" data-rx="10" data-ry="5" data-left="15" data-top="20" data-width="10" data-height="20" data-fill="red" "#
+        get_image_cloze_data("ellipse:left=15:top=20:width=10:height=20:rx=10:ry=5"),
+        r#"data-shape="ellipse" data-rx="10" data-ry="5" data-left="15" data-top="20" data-width="10" data-height="20" "#,
     );
     assert_eq!(
-        get_image_cloze_data("polygon:points=0,0 10,10 20,0:fill=blue"),
-        r#"data-shape="polygon" data-points="[[0,0],[10,10],[20,0]]" data-fill="blue" "#
+        get_image_cloze_data("polygon:points=0,0 10,10 20,0"),
+        r#"data-shape="polygon" data-points="[[0,0],[10,10],[20,0]]" "#,
     );
 }

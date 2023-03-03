@@ -3,6 +3,8 @@
 
 import { fabric } from "fabric";
 
+import { shapeMaskColor } from "./lib";
+
 export const generateShapeFromCloze = (canvas: fabric.Canvas, clozeStr: string): void => {
     // generate shapes from clozeStr similar to following
     // {{c1::image-occlusion:rect:left=10.0:top=20:width=30:height=10:fill=#ffe34d}}
@@ -39,11 +41,10 @@ export const generateShapeFromCloze = (canvas: fabric.Canvas, clozeStr: string):
                     top: "0",
                     width: "0",
                     height: "0",
-                    fill: "#f06",
+                    fill: shapeMaskColor,
                     rx: "0",
                     ry: "0",
                     points: "",
-                    qmask: "",
                 };
 
                 for (let i = 1; i < parts.length; i++) {
@@ -67,7 +68,7 @@ export const generateShapeFromCloze = (canvas: fabric.Canvas, clozeStr: string):
                 top: "0",
                 width: "0",
                 height: "0",
-                fill: "#f06",
+                fill: shapeMaskColor,
                 rx: "0",
                 ry: "0",
                 points: "",
