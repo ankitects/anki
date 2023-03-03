@@ -124,7 +124,7 @@ function getMaskColor(): { questionMask: string; shapeMask: string } {
     const shapeMask = computedStyle.getPropertyValue("--shape-mask-color");
 
     return {
-        questionMask: questionMask ? questionMask : "#EF9A9A",
-        shapeMask: shapeMask ? shapeMask : "#FFEB3B",
+        questionMask: questionMask ? questionMask : "#ff8e8e",
+        shapeMask: shapeMask ? shapeMask : "#ffeba2",
     };
 }
