@@ -27,6 +27,7 @@ pub struct UpdateDeckConfigsRequest {
     pub apply_to_children: bool,
     pub card_state_customizer: String,
     pub limits: Limits,
+    pub new_cards_ignore_review_limit: bool,
 }
 
 impl Collection {
@@ -45,6 +46,7 @@ impl Collection {
                 .schema_changed_since_sync(),
             v3_scheduler: self.get_config_bool(BoolKey::Sched2021),
             card_state_customizer: self.get_config_string(StringKey::CardStateCustomizer),
+            new_cards_ignore_review_limit: self.get_config_bool(BoolKey::NewCardsIgnoreReviewLimit),
         })
     }
 
@@ -191,13 +193,17 @@ impl Collection {
         }
 
         self.set_config_string_inner(StringKey::CardStateCustomizer, &input.card_state_customizer)?;
+        self.set_config_bool_inner(
+            BoolKey::NewCardsIgnoreReviewLimit,
+            input.new_cards_ignore_review_limit,
+        )?;
 
         Ok(())
     }
 
     /// Adjust the remaining steps of cards in the given deck according to the
     /// config change.
-    fn adjust_remaining_steps_in_deck(
+    pub(crate) fn adjust_remaining_steps_in_deck(
         &mut self,
         deck: DeckId,
         previous_config: Option<&DeckConfig>,
@@ -286,8 +292,9 @@ mod test {
             col.add_note(&mut note, DeckId(1))?;
         }
 
-        // add the key so it doesn't trigger a change below
+        // add the keys so it doesn't trigger a change below
         col.set_config_string_inner(StringKey::CardStateCustomizer, "")?;
+        col.set_config_bool_inner(BoolKey::NewCardsIgnoreReviewLimit, false)?;
 
         // pretend we're in sync
         let stamps = col.storage.get_collection_timestamps()?;
@@ -320,6 +327,7 @@ mod test {
             apply_to_children: false,
             card_state_customizer: "".to_string(),
             limits: Limits::default(),
+            new_cards_ignore_review_limit: false,
         };
         assert!(!col.update_deck_configs(input.clone())?.changes.had_change());
 

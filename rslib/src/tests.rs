@@ -11,10 +11,8 @@ use tempfile::TempDir;
 use crate::collection::open_test_collection;
 use crate::collection::CollectionBuilder;
 use crate::deckconfig::DeckConfigInner;
-use crate::deckconfig::UpdateDeckConfigsRequest;
 use crate::io::create_dir;
 use crate::media::MediaManager;
-use crate::pb::deckconfig::deck_configs_for_update::current_deck::Limits;
 use crate::prelude::*;
 
 pub(crate) fn open_fs_test_collection(name: &str) -> (Collection, TempDir) {
@@ -106,24 +104,26 @@ impl Collection {
         self.update_default_deck_config(|config| config.relearn_steps = steps);
     }
 
+    /// Updates with the modified config, then resorts and adjusts remaining
+    /// steps in the default deck.
     pub(crate) fn update_default_deck_config(
         &mut self,
         modifier: impl FnOnce(&mut DeckConfigInner),
     ) {
-        let mut config = self
+        let config = self
             .get_deck_config(DeckConfigId(1), false)
             .unwrap()
             .unwrap();
-        modifier(&mut config.inner);
-        self.update_deck_configs(UpdateDeckConfigsRequest {
-            target_deck_id: DeckId(1),
-            configs: vec![config],
-            removed_config_ids: vec![],
-            apply_to_children: false,
-            card_state_customizer: "".to_string(),
-            limits: Limits::default(),
-        })
-        .unwrap();
+        let mut new_config = config.clone();
+
+        modifier(&mut new_config.inner);
+
+        self.update_deck_config_inner(&mut new_config, config.clone(), None)
+            .unwrap();
+        self.sort_deck(DeckId(1), config.inner.new_card_insert_order(), Usn(0))
+            .unwrap();
+        self.adjust_remaining_steps_in_deck(DeckId(1), Some(&config), Some(&new_config), Usn(0))
+            .unwrap();
     }
 }
 

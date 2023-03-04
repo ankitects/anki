@@ -108,6 +108,7 @@ impl From<pb::deckconfig::UpdateDeckConfigsRequest> for UpdateDeckConfigsRequest
             apply_to_children: c.apply_to_children,
             card_state_customizer: c.card_state_customizer,
             limits: c.limits.unwrap_or_default(),
+            new_cards_ignore_review_limit: c.new_cards_ignore_review_limit,
         }
     }
 }
