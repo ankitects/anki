@@ -219,7 +219,7 @@ impl SqlWriter<'_> {
 
         if let Some(field_indicies_by_notetype) = self.included_fields_indices_by_notetype()? {
             let notetype_clause =
-                |(mid, sortf, fields): &(NotetypeId, u32, HashSet<u32>)| -> String {
+                |(mid, sortf, fields): &(NotetypeId, u32, HashSet<u32>)| -> Option<String> {
                     let field_index_clause =
                         |ord| format!("field_at_index(n.flds, {ord}) like ?{arg_idx} escape '\\'",);
                     let mut all_field_clauses: Vec<String> =
@@ -227,14 +227,18 @@ impl SqlWriter<'_> {
                     if fields.contains(sortf) {
                         all_field_clauses.push(format!("n.sfld like ?{arg_idx} escape '\\'"))
                     }
-                    format!(
-                        "(n.mid = {mid} and ({all_field_clauses}))",
-                        all_field_clauses = all_field_clauses.join(" or ")
-                    )
+                    if !all_field_clauses.is_empty() {
+                        Some(format!(
+                            "(n.mid = {mid} and ({all_field_clauses}))",
+                            all_field_clauses = all_field_clauses.join(" or ")
+                        ))
+                    } else {
+                        None
+                    }
                 };
             let all_notetype_clauses = field_indicies_by_notetype
                 .iter()
-                .map(notetype_clause)
+                .filter_map(notetype_clause)
                 .join(" or ");
             write!(self.sql, "({all_notetype_clauses})").unwrap();
         } else {
