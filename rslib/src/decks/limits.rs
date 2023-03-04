@@ -153,21 +153,29 @@ impl RemainingLimits {
     }
 
     /// True if some limit was decremented to 0.
-    fn decremented_to_zero(&mut self, kind: LimitKind) -> bool {
-        match kind {
-            LimitKind::Review if self.cap_new_to_review => {
-                decremented_to_zero(&mut self.review) | decremented_to_zero(&mut self.new)
-            }
-            LimitKind::Review => decremented_to_zero(&mut self.review),
-            LimitKind::New => decremented_to_zero(&mut self.new),
+    fn decrement(&mut self, kind: LimitKind) -> DecrementResult {
+        let before = *self;
+        if matches!(kind, LimitKind::Review) {
+            self.review = self.review.saturating_sub(1);
         }
+        if self.cap_new_to_review || matches!(kind, LimitKind::New) {
+            self.new = self.new.saturating_sub(1);
+        }
+        DecrementResult::new(&before, self)
     }
 }
 
-fn decremented_to_zero(num: &mut u32) -> bool {
-    let to_zero = *num == 1;
-    *num = num.saturating_sub(1);
-    to_zero
+struct DecrementResult {
+    count_reached_zero: bool,
+}
+
+impl DecrementResult {
+    fn new(before: &RemainingLimits, after: &RemainingLimits) -> Self {
+        Self {
+            count_reached_zero: before.review > 0 && after.review == 0
+                || before.new > 0 && after.new == 0,
+        }
+    }
 }
 
 impl Default for RemainingLimits {
@@ -406,7 +414,7 @@ impl LimitTreeMap {
         let parent = node.parent().cloned();
 
         let limits = &mut node.data_mut().limits;
-        if limits.decremented_to_zero(kind) {
+        if limits.decrement(kind).count_reached_zero {
             let limits = *limits;
             self.cap_node_and_descendants(node_id, limits);
         };
