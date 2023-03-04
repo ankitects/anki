@@ -3,7 +3,7 @@
 
 import { fabric } from "fabric";
 
-import { shapeMaskColor, stopDraw } from "./lib";
+import { borderColor, shapeMaskColor, stopDraw } from "./lib";
 
 export const drawRectangle = (canvas: fabric.Canvas): void => {
     let rect, isDown, origX, origY;
@@ -31,6 +31,8 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
             fill: shapeMaskColor,
             transparentCorners: false,
             selectable: true,
+            stroke: borderColor,
+            strokeWidth: 1,
         });
         canvas.add(rect);
     });

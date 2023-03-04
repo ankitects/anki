@@ -4,7 +4,7 @@
 import { fabric } from "fabric";
 import type { PanZoom } from "panzoom";
 
-import { shapeMaskColor } from "./lib";
+import { borderColor, shapeMaskColor } from "./lib";
 
 let activeLine;
 let activeShape;
@@ -179,6 +179,8 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
         fill: shapeMaskColor,
         objectCaching: false,
         moveable: false,
+        stroke: borderColor,
+        strokeWidth: 1,
     });
     canvas.add(polygon);
     toggleDrawPolygon(canvas);

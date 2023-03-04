@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import * as tr from "@tslib/ftl";
+import { fabric } from "fabric";
 import { get } from "svelte/store";
 
 import type { Collection } from "../lib/proto";
@@ -21,6 +22,9 @@ const divData = [
     "type",
     "width",
 ];
+
+// Defines the number of fraction digits to use when serializing object values
+fabric.Object.NUM_FRACTION_DIGITS = 2;
 
 export function generate(hideInactive: boolean): { occlusionCloze: string; noteCount: number } {
     const canvas = globalThis.canvas;

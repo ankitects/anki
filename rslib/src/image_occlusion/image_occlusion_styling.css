@@ -1,6 +1,8 @@
 .image-occlusion-canvas {
-    --shape-mask-color: #ffeba2;
-    --question-mask-color: #ff8e8e;
+    --inactive-shape-color: #ffeba2;
+    --active-shape-color: #ff8e8e;
+    --inactive-shape-border: 1px #212121;
+    --active-shape-border: 1px #212121;
 }
 
 .card {
@@ -24,7 +26,7 @@
     position: relative;
 }
 
-#image {
+img {
     position: absolute;
     top: 0;
     left: 50%;

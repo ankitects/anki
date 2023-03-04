@@ -9,6 +9,7 @@ import { zoomResetValue } from "../store";
 import { stack } from "./tool-undo-redo";
 
 export const shapeMaskColor = "#ffeba2";
+export const borderColor = "#212121";
 
 let _clipboard;
 

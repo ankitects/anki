@@ -3,7 +3,7 @@
 
 import { fabric } from "fabric";
 
-import { shapeMaskColor, stopDraw } from "./lib";
+import { borderColor, shapeMaskColor, stopDraw } from "./lib";
 
 export const drawEllipse = (canvas: fabric.Canvas): void => {
     let ellipse, isDown, origX, origY;
@@ -30,6 +30,8 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
             originY: "center",
             transparentCorners: false,
             selectable: true,
+            stroke: borderColor,
+            strokeWidth: 1,
         });
         canvas.add(ellipse);
     });
@@ -39,8 +41,8 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
 
         const pointer = canvas.getPointer(o.e);
         ellipse.set({
-            rx: Math.abs(origX - pointer.x),
-            ry: Math.abs(origY - pointer.y),
+            rx: Math.abs(origX - pointer.x).toFixed(2),
+            ry: Math.abs(origY - pointer.y).toFixed(2),
         });
 
         canvas.renderAll();

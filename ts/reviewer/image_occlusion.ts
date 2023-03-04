@@ -7,46 +7,36 @@ window.addEventListener("load", () => {
 
 export function setupImageCloze(): void {
     const canvas: HTMLCanvasElement = document.querySelector("canvas")! as HTMLCanvasElement;
-    canvas.style.backgroundSize = "100% 100%";
     canvas.style.maxWidth = "100%";
-    canvas.style.maxHeight = "100%";
+    canvas.style.maxHeight = "95vh";
 
     const ctx: CanvasRenderingContext2D = canvas.getContext("2d")!;
     const image = document.getElementById("img") as HTMLImageElement;
-    const size = limitSize({ width: image.width, height: image.height });
+    const size = limitSize({ width: image.naturalWidth, height: image.naturalHeight });
     canvas.width = size.width;
     canvas.height = size.height;
-    const imageNaturalWidth = image.naturalWidth;
-    const canvasWidth = canvas.width;
-    let shapeScaler = 1;
-    if (imageNaturalWidth > canvasWidth) {
-        shapeScaler = canvasWidth / imageNaturalWidth;
-    } else {
-        shapeScaler = imageNaturalWidth / canvasWidth;
-    }
-    shapeScaler = Math.round(shapeScaler * 100) / 100;
-    drawShapes(ctx, shapeScaler);
+    drawShapes(ctx);
 }
 
-function drawShapes(ctx: CanvasRenderingContext2D, shapeScaler: number): void {
+function drawShapes(ctx: CanvasRenderingContext2D): void {
     const activeCloze = document.querySelectorAll(".cloze");
     const inActiveCloze = document.querySelectorAll(".cloze-inactive");
-    const maskColor = getMaskColor();
+    const shapeProperty = getShapeProperty();
 
     for (const clz of activeCloze) {
         const cloze = (<HTMLDivElement> clz);
         const shape = cloze.dataset.shape!;
-        const fill = maskColor.questionMask;
-        draw(ctx, cloze, shape, fill, shapeScaler);
+        const fill = shapeProperty.activeShapeColor;
+        draw(ctx, cloze, shape, fill, shapeProperty.activeBorder);
     }
 
     for (const clz of inActiveCloze) {
         const cloze = (<HTMLDivElement> clz);
         const shape = cloze.dataset.shape!;
-        const fill = maskColor.shapeMask;
+        const fill = shapeProperty.inActiveShapeColor;
         const hideinactive = cloze.dataset.hideinactive == "true";
         if (!hideinactive) {
-            draw(ctx, cloze, shape, fill, shapeScaler);
+            draw(ctx, cloze, shape, fill, shapeProperty.inActiveBorder);
         }
     }
 }
@@ -56,29 +46,40 @@ function draw(
     cloze: HTMLDivElement,
     shape: string,
     color: string,
-    shapeScaler: number,
+    border: { width: number; color: string },
 ): void {
     ctx.fillStyle = color;
 
-    const post_left = parseFloat(cloze.dataset.left!) * shapeScaler;
-    const pos_top = parseFloat(cloze.dataset.top!) * shapeScaler;
-    const width = parseFloat(cloze.dataset.width!) * shapeScaler;
-    const height = parseFloat(cloze.dataset.height!) * shapeScaler;
+    const post_left = parseFloat(cloze.dataset.left!);
+    const pos_top = parseFloat(cloze.dataset.top!);
+    const width = parseFloat(cloze.dataset.width!);
+    const height = parseFloat(cloze.dataset.height!);
 
     switch (shape) {
         case "rect":
             {
+                ctx.strokeStyle = border.color;
+                ctx.lineWidth = border.width;
                 ctx.fillRect(post_left, pos_top, width, height);
+                ctx.strokeRect(post_left, pos_top, width, height);
             }
             break;
 
         case "ellipse":
             {
-                const rx = parseFloat(cloze.dataset.rx!) * shapeScaler;
-                const ry = parseFloat(cloze.dataset.ry!) * shapeScaler;
+                const canvas: HTMLCanvasElement = document.querySelector("canvas")! as HTMLCanvasElement;
+                const image = document.getElementById("img") as HTMLImageElement;
+                const scale = canvas.width / image.naturalWidth;
+
+                const rx = parseFloat(cloze.dataset.rx!) * scale;
+                const ry = parseFloat(cloze.dataset.ry!) * scale;
                 ctx.beginPath();
+                ctx.strokeStyle = border.color;
+                ctx.lineWidth = border.width;
                 ctx.ellipse(post_left, pos_top, rx, ry, 0, 0, Math.PI * 2, false);
+                ctx.closePath();
                 ctx.fill();
+                ctx.stroke();
             }
             break;
 
@@ -86,12 +87,15 @@ function draw(
             {
                 const points = JSON.parse(cloze.dataset.points!);
                 ctx.beginPath();
-                ctx.moveTo(points[0][0] * shapeScaler, points[0][1] * shapeScaler);
+                ctx.strokeStyle = border.color;
+                ctx.lineWidth = border.width;
+                ctx.moveTo(points[0][0], points[0][1]);
                 for (let i = 1; i < points.length; i++) {
-                    ctx.lineTo(points[i][0] * shapeScaler, points[i][1] * shapeScaler);
+                    ctx.lineTo(points[i][0], points[i][1]);
                 }
                 ctx.closePath();
                 ctx.fill();
+                ctx.stroke();
             }
             break;
 
@@ -117,14 +121,53 @@ function limitSize(size: { width: number; height: number }): { width: number; he
     };
 }
 
-function getMaskColor(): { questionMask: string; shapeMask: string } {
+function getShapeProperty(): {
+    activeShapeColor: string;
+    inActiveShapeColor: string;
+    activeBorder: { width: number; color: string };
+    inActiveBorder: { width: number; color: string };
+} {
     const canvas = document.getElementById("canvas");
     const computedStyle = window.getComputedStyle(canvas!);
-    const questionMask = computedStyle.getPropertyValue("--question-mask-color");
-    const shapeMask = computedStyle.getPropertyValue("--shape-mask-color");
+    // it may throw error if the css variable is not defined
+    try {
+        // shape color
+        const activeShapeColor = computedStyle.getPropertyValue("--active-shape-color");
+        const inActiveShapeColor = computedStyle.getPropertyValue("--inactive-shape-color");
+        // inactive shape border
+        const inActiveShapeBorder = computedStyle.getPropertyValue("--inactive-shape-border");
+        const inActiveShapeBorderWidth = parseFloat(inActiveShapeBorder.split(" ")[0]);
+        const inActiveShapeBorderColor = inActiveShapeBorder.split(" ")[1];
+        // active shape border
+        const activeShapeBorder = computedStyle.getPropertyValue("--active-shape-border");
+        const activeShapeBorderWidth = parseFloat(activeShapeBorder.split(" ")[0]);
+        const activeShapeBorderColor = activeShapeBorder.split(" ")[1];
 
-    return {
-        questionMask: questionMask ? questionMask : "#ff8e8e",
-        shapeMask: shapeMask ? shapeMask : "#ffeba2",
-    };
+        return {
+            activeShapeColor: activeShapeColor ? activeShapeColor : "#ff8e8e",
+            inActiveShapeColor: inActiveShapeColor ? inActiveShapeColor : "#ffeba2",
+            activeBorder: {
+                width: activeShapeBorderWidth ? activeShapeBorderWidth : 1,
+                color: activeShapeBorderColor ? activeShapeBorderColor : "#212121",
+            },
+            inActiveBorder: {
+                width: inActiveShapeBorderWidth ? inActiveShapeBorderWidth : 1,
+                color: inActiveShapeBorderColor ? inActiveShapeBorderColor : "#212121",
+            },
+        };
+    } catch {
+        // return default values
+        return {
+            activeShapeColor: "#ff8e8e",
+            inActiveShapeColor: "#ffeba2",
+            activeBorder: {
+                width: 1,
+                color: "#212121",
+            },
+            inActiveBorder: {
+                width: 1,
+                color: "#212121",
+            },
+        };
+    }
 }
