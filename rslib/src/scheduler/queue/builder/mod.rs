@@ -273,7 +273,6 @@ mod test {
     use crate::collection::open_test_collection;
     use crate::pb::deckconfig::deck_config::config::NewCardGatherPriority;
     use crate::pb::deckconfig::deck_config::config::NewCardSortOrder;
-    use crate::tests::*;
 
     impl Collection {
         fn set_deck_gather_order(&mut self, deck: &mut Deck, order: NewCardGatherPriority) {
@@ -333,38 +332,27 @@ mod test {
 
     #[test]
     fn should_build_empty_queue_if_limit_is_reached() {
-        let mut col = open_test_collection();
-        col.set_config_bool(BoolKey::Sched2021, true, false)
-            .unwrap();
-        let note_id = col.add_new_note("Basic").id;
-        let cids = col.storage.card_ids_of_notes(&[note_id]).unwrap();
-        col.set_due_date(&cids, "0", None).unwrap();
+        let mut col = Collection::new_v3();
+        CardAdder::new().due_dates(["0"]).add(&mut col);
         col.set_deck_review_limit(DeckId(1), 0);
         assert_eq!(col.queue_as_deck_and_template(DeckId(1)), vec![]);
     }
 
     #[test]
     fn new_queue_building() -> Result<()> {
-        let mut col = open_test_collection();
-        col.set_config_bool(BoolKey::Sched2021, true, false)?;
+        let mut col = Collection::new_v3();
 
         // parent
         // ┣━━child━━grandchild
         // ┗━━child_2
-        let mut parent = col.get_or_create_normal_deck("Default").unwrap();
-        let mut child = col.get_or_create_normal_deck("Default::child").unwrap();
-        let child_2 = col.get_or_create_normal_deck("Default::child_2").unwrap();
-        let grandchild = col
-            .get_or_create_normal_deck("Default::child::grandchild")
-            .unwrap();
+        let mut parent = DeckAdder::new("parent").add(&mut col);
+        let mut child = DeckAdder::new("parent\x1fchild").add(&mut col);
+        let child_2 = DeckAdder::new("parent\x1fchild_2").add(&mut col);
+        let grandchild = DeckAdder::new("parent\x1fchild\x1fgrandchild").add(&mut col);
 
         // add 2 new cards to each deck
-        let nt = col.get_notetype_by_name("Cloze")?.unwrap();
-        let mut note = nt.new_note();
-        note.set_field(0, "{{c1::}} {{c2::}}")?;
         for deck in [&parent, &child, &child_2, &grandchild] {
-            note.id.0 = 0;
-            col.add_note(&mut note, deck.id)?;
+            CardAdder::new().siblings(2).deck(deck.id).add(&mut col);
         }
 
         // set child's new limit to 3, which should affect grandchild
@@ -470,9 +458,7 @@ mod test {
     fn new_card_potentially_burying_review_card() {
         let mut col = open_test_collection();
         // add one new and one review card
-        col.add_new_note_with_fields("basic (and reversed card)", &["foo", "bar"]);
-        let card = col.get_first_card();
-        col.set_due_date(&[card.id], "0", None).unwrap();
+        CardAdder::new().siblings(2).due_dates(["0"]).add(&mut col);
         // Potentially problematic config: New cards are shown first and would bury
         // review siblings. This poses a problem because we gather review cards first.
         col.update_default_deck_config(|config| {

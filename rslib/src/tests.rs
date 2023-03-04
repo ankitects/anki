@@ -29,14 +29,14 @@ pub(crate) fn open_fs_test_collection(name: &str) -> (Collection, TempDir) {
 
 pub(crate) fn open_test_collection_with_learning_card() -> Collection {
     let mut col = open_test_collection();
-    col.add_new_note("basic");
+    NoteAdder::basic(&mut col).add(&mut col);
     col.answer_again();
     col
 }
 
 pub(crate) fn open_test_collection_with_relearning_card() -> Collection {
     let mut col = open_test_collection();
-    col.add_new_note("basic");
+    NoteAdder::basic(&mut col).add(&mut col);
     col.answer_easy();
     col.storage
         .db
@@ -62,34 +62,8 @@ impl Collection {
         }
     }
 
-    pub(crate) fn new_note(&mut self, notetype: &str) -> Note {
-        self.get_notetype_by_name(notetype)
-            .unwrap()
-            .unwrap()
-            .new_note()
-    }
-
-    pub(crate) fn add_new_note(&mut self, notetype: &str) -> Note {
-        let mut note = self.new_note(notetype);
-        self.add_note(&mut note, DeckId(1)).unwrap();
-        note
-    }
-
-    pub(crate) fn add_new_note_with_fields(&mut self, notetype: &str, fields: &[&str]) -> Note {
-        let mut note = self.new_note(notetype);
-        *note.fields_mut() = fields.iter().map(ToString::to_string).collect();
-        self.add_note(&mut note, DeckId(1)).unwrap();
-        note
-    }
-
     pub(crate) fn get_all_notes(&mut self) -> Vec<Note> {
         self.storage.get_all_notes()
-    }
-
-    pub(crate) fn add_deck_with_machine_name(&mut self, name: &str, filtered: bool) -> Deck {
-        let mut deck = new_deck_with_machine_name(name, filtered);
-        self.add_deck_inner(&mut deck, Usn(1)).unwrap();
-        deck
     }
 
     pub(crate) fn get_first_card(&self) -> Card {
@@ -127,16 +101,6 @@ impl Collection {
     }
 }
 
-pub(crate) fn new_deck_with_machine_name(name: &str, filtered: bool) -> Deck {
-    let mut deck = if filtered {
-        Deck::new_filtered()
-    } else {
-        Deck::new_normal()
-    };
-    deck.name = NativeDeckName::from_native_str(name);
-    deck
-}
-
 #[derive(Debug, Default, Clone)]
 pub(crate) struct DeckAdder {
     name: NativeDeckName,
@@ -164,20 +128,26 @@ impl DeckAdder {
         self
     }
 
-    pub(crate) fn add(self, col: &mut Collection) -> Deck {
-        let mut deck = if self.filtered {
-            Deck::new_filtered()
-        } else {
-            Deck::new_normal()
-        };
-        deck.name = self.name;
-        if let Some(mut config) = self.config {
+    pub(crate) fn add(mut self, col: &mut Collection) -> Deck {
+        let config_opt = self.config.take();
+        let mut deck = self.deck();
+        if let Some(mut config) = config_opt {
             col.add_or_update_deck_config(&mut config).unwrap();
             deck.normal_mut()
                 .expect("can't set config for filtered deck")
                 .config_id = config.id.0;
         }
         col.add_or_update_deck(&mut deck).unwrap();
+        deck
+    }
+
+    pub(crate) fn deck(self) -> Deck {
+        let mut deck = if self.filtered {
+            Deck::new_filtered()
+        } else {
+            Deck::new_normal()
+        };
+        deck.name = self.name;
         deck
     }
 }
@@ -191,7 +161,11 @@ pub(crate) struct NoteAdder {
 impl NoteAdder {
     pub(crate) fn new(col: &mut Collection, notetype: &str) -> Self {
         Self {
-            note: col.new_note(notetype),
+            note: col
+                .get_notetype_by_name(notetype)
+                .unwrap()
+                .unwrap()
+                .new_note(),
             deck: DeckId(1),
         }
     }
@@ -218,13 +192,17 @@ impl NoteAdder {
         col.add_note(&mut self.note, self.deck).unwrap();
         self.note
     }
+
+    pub(crate) fn note(self) -> Note {
+        self.note
+    }
 }
 
 #[derive(Debug, Clone)]
 pub(crate) struct CardAdder {
     siblings: usize,
     deck: DeckId,
-    due_date: Option<&'static str>,
+    due_dates: Vec<&'static str>,
 }
 
 impl CardAdder {
@@ -232,7 +210,7 @@ impl CardAdder {
         Self {
             siblings: 1,
             deck: DeckId(1),
-            due_date: None,
+            due_dates: Vec::new(),
         }
     }
 
@@ -246,8 +224,10 @@ impl CardAdder {
         self
     }
 
-    pub(crate) fn due_date(mut self, due_date: &'static str) -> Self {
-        self.due_date.replace(due_date);
+    /// Takes an array of strs and sets the due date of the first siblings
+    /// accordingly, skipping siblings if a str is empty.
+    pub(crate) fn due_dates(mut self, due_dates: impl Into<Vec<&'static str>>) -> Self {
+        self.due_dates = due_dates.into();
         self
     }
 
@@ -259,10 +239,17 @@ impl CardAdder {
             .fields(&[&field, ""])
             .deck(self.deck)
             .add(col);
-        if let Some(due_date) = self.due_date {
+
+        if !self.due_dates.is_empty() {
             let cids = col.storage.card_ids_of_notes(&[note.id]).unwrap();
-            col.set_due_date(&cids, due_date, None).unwrap();
+            for (ord, due_date) in self.due_dates.iter().enumerate() {
+                if !due_date.is_empty() {
+                    col.set_due_date(&cids[ord..ord + 1], due_date, None)
+                        .unwrap();
+                }
+            }
         }
+
         col.storage.all_cards_of_note(note.id).unwrap()
     }
 }
