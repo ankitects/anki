@@ -16,7 +16,7 @@ use itertools::Itertools;
 use tracing::error;
 
 use crate::import_export::package::export_colpkg_from_data;
-use crate::io::read_file;
+use crate::io::read_locked_db_file;
 use crate::pb::config::preferences::BackupLimits;
 use crate::prelude::*;
 
@@ -39,7 +39,7 @@ impl Collection {
         } else {
             let tr = self.tr.clone();
             self.storage.checkpoint()?;
-            let col_data = read_file(&self.col_path)?;
+            let col_data = read_locked_db_file(&self.col_path)?;
             self.update_last_backup_timestamp()?;
             Ok(Some(thread::spawn(move || {
                 backup_inner(&col_data, &backup_folder, limits, &tr)
