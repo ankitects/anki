@@ -280,7 +280,7 @@ class Reviewer:
     def _run_state_mutation_hook(self) -> None:
         if self._v3 and (js := self._state_mutation_js):
             self.web.eval(
-                f"anki.mutateNextCardStates('{self._state_mutation_key}', (states, customData) => {{ {js} }})"
+                RUN_STATE_MUTATION.format(key=self._state_mutation_key, js=js)
             )
 
     # Audio
@@ -360,7 +360,6 @@ class Reviewer:
         # render & update bottom
         q = self._mungeQA(q)
         q = gui_hooks.card_will_show(q, c, "reviewQuestion")
-        self._run_state_mutation_hook()
 
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
         a = self.mw.col.media.escape_media_filenames(c.answer())
@@ -370,6 +369,7 @@ class Reviewer:
         )
         self._update_flag_icon()
         self._update_mark_icon()
+        self._run_state_mutation_hook()
         self._showAnswerButton()
         self.mw.web.setFocus()
         # user hook
@@ -1034,3 +1034,10 @@ time = %(time)d;
     onDelete = delete_current_note
     onMark = toggle_mark_on_current_note
     setFlag = set_flag_on_current_card
+
+
+RUN_STATE_MUTATION = """
+_queueAction(() => {{
+    anki.mutateNextCardStates('{key}', (states, customData) => {{ {js} }})
+}})
+"""
