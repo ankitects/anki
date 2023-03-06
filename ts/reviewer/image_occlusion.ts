@@ -50,8 +50,8 @@ function draw(
 ): void {
     ctx.fillStyle = color;
 
-    const post_left = parseFloat(cloze.dataset.left!);
-    const pos_top = parseFloat(cloze.dataset.top!);
+    const posLeft = parseFloat(cloze.dataset.left!);
+    const posTop = parseFloat(cloze.dataset.top!);
     const width = parseFloat(cloze.dataset.width!);
     const height = parseFloat(cloze.dataset.height!);
 
@@ -60,8 +60,8 @@ function draw(
             {
                 ctx.strokeStyle = border.color;
                 ctx.lineWidth = border.width;
-                ctx.fillRect(post_left, pos_top, width, height);
-                ctx.strokeRect(post_left, pos_top, width, height);
+                ctx.fillRect(posLeft, posTop, width, height);
+                ctx.strokeRect(posLeft, posTop, width, height);
             }
             break;
 
@@ -69,8 +69,8 @@ function draw(
             {
                 const rx = parseFloat(cloze.dataset.rx!);
                 const ry = parseFloat(cloze.dataset.ry!);
-                const newLeft = post_left + rx;
-                const newTop = pos_top + ry;
+                const newLeft = posLeft + rx;
+                const newTop = posTop + ry;
                 ctx.beginPath();
                 ctx.strokeStyle = border.color;
                 ctx.lineWidth = border.width;
@@ -134,12 +134,14 @@ function getShapeProperty(): {
         const inActiveShapeColor = computedStyle.getPropertyValue("--inactive-shape-color");
         // inactive shape border
         const inActiveShapeBorder = computedStyle.getPropertyValue("--inactive-shape-border");
-        const inActiveShapeBorderWidth = parseFloat(inActiveShapeBorder.split(" ")[0]);
-        const inActiveShapeBorderColor = inActiveShapeBorder.split(" ")[1];
+        const inActiveBorder = inActiveShapeBorder.split(" ").filter((x) => x);
+        const inActiveShapeBorderWidth = parseFloat(inActiveBorder[0]);
+        const inActiveShapeBorderColor = inActiveBorder[1];
         // active shape border
         const activeShapeBorder = computedStyle.getPropertyValue("--active-shape-border");
-        const activeShapeBorderWidth = parseFloat(activeShapeBorder.split(" ")[0]);
-        const activeShapeBorderColor = activeShapeBorder.split(" ")[1];
+        const activeBorder = activeShapeBorder.split(" ").filter((x) => x);
+        const activeShapeBorderWidth = parseFloat(activeBorder[0]);
+        const activeShapeBorderColor = activeBorder[1];
 
         return {
             activeShapeColor: activeShapeColor ? activeShapeColor : "#ff8e8e",
