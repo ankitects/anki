@@ -185,10 +185,10 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    /// Return non-excluded fields for unqualified search only if there are any
-    /// excluded ones
+    /// Return excluded fields for notetypes that have some but not all fields
+    /// excluded
     #[allow(clippy::type_complexity)]
-    fn included_fields_indices_by_notetype(
+    fn excluded_fields_indices_by_notetype(
         &mut self,
     ) -> Result<Option<Vec<(NotetypeId, u32, HashSet<u32>)>>> {
         let notetypes = self.col.get_all_notetypes()?;
@@ -198,11 +198,13 @@ impl SqlWriter<'_> {
             let mut matched_fields: HashSet<u32> = HashSet::new();
             for field in &nt.fields {
                 any_excluded |= field.config.exclude_from_search;
-                if !field.config.exclude_from_search {
+                if field.config.exclude_from_search {
                     matched_fields.insert(field.ord.unwrap_or_default());
                 }
             }
-            field_map.push((nt.id, nt.config.sort_field_idx, matched_fields));
+            if nt.fields.len() != matched_fields.len() {
+                field_map.push((nt.id, nt.config.sort_field_idx, matched_fields));
+            }
         }
         if any_excluded {
             Ok(Some(field_map))
@@ -217,28 +219,24 @@ impl SqlWriter<'_> {
         self.args.push(text);
         let arg_idx = self.args.len();
 
-        if let Some(field_indicies_by_notetype) = self.included_fields_indices_by_notetype()? {
+        if let Some(field_indicies_by_notetype) = self.excluded_fields_indices_by_notetype()? {
             let notetype_clause =
-                |(mid, sortf, fields): &(NotetypeId, u32, HashSet<u32>)| -> Option<String> {
-                    let field_index_clause =
-                        |ord| format!("field_at_index(n.flds, {ord}) like ?{arg_idx} escape '\\'",);
-                    let mut all_field_clauses: Vec<String> =
-                        fields.iter().map(field_index_clause).collect();
-                    if fields.contains(sortf) {
-                        all_field_clauses.push(format!("n.sfld like ?{arg_idx} escape '\\'"))
+                |(mid, sortf, fields): &(NotetypeId, u32, HashSet<u32>)| -> String {
+                    let mut clauses = vec![];
+                    let mut joined_fields = String::from(if fields.is_empty() { "" } else { ", " });
+                    joined_fields.push_str(&fields.iter().join(", "));
+                    clauses.push(format!("exclude_fields(n.flds, {sortf}{joined_fields}) like ?{arg_idx} escape '\\'"));
+                    if !fields.contains(sortf) {
+                        clauses.push(format!("n.sfld like ?{arg_idx} escape '\\'"));
                     }
-                    if !all_field_clauses.is_empty() {
-                        Some(format!(
-                            "(n.mid = {mid} and ({all_field_clauses}))",
-                            all_field_clauses = all_field_clauses.join(" or ")
-                        ))
-                    } else {
-                        None
-                    }
+                    format!(
+                        "(n.mid = {mid} and ({clauses}))",
+                        clauses = clauses.join(" or ")
+                    )
                 };
             let all_notetype_clauses = field_indicies_by_notetype
                 .iter()
-                .filter_map(notetype_clause)
+                .map(notetype_clause)
                 .join(" or ");
             write!(self.sql, "({all_notetype_clauses})").unwrap();
         } else {
