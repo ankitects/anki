@@ -342,7 +342,7 @@ mod test {
     #[test]
     fn should_add_note_with_new_id_if_guid_is_unique_and_id_is_not() {
         let mut col = open_test_collection();
-        let mut note = col.add_new_note("basic");
+        let mut note = NoteAdder::basic(&mut col).add(&mut col);
         note.guid = "other".to_string();
         let original_id = note.id;
 
@@ -354,7 +354,7 @@ mod test {
     #[test]
     fn should_skip_note_if_guid_already_exists_with_newer_mtime() {
         let mut col = open_test_collection();
-        let mut note = col.add_new_note("basic");
+        let mut note = NoteAdder::basic(&mut col).add(&mut col);
         note.mtime.0 -= 1;
         note.fields_mut()[0] = "outdated".to_string();
 
@@ -366,7 +366,7 @@ mod test {
     #[test]
     fn should_update_note_if_guid_already_exists_with_different_id() {
         let mut col = open_test_collection();
-        let mut note = col.add_new_note("basic");
+        let mut note = NoteAdder::basic(&mut col).add(&mut col);
         note.id.0 = 42;
         note.mtime.0 += 1;
         note.fields_mut()[0] = "updated".to_string();
@@ -379,7 +379,7 @@ mod test {
     #[test]
     fn should_ignore_note_if_guid_already_exists_with_different_notetype() {
         let mut col = open_test_collection();
-        let mut note = col.add_new_note("basic");
+        let mut note = NoteAdder::basic(&mut col).add(&mut col);
         note.notetype_id.0 = 42;
         note.mtime.0 += 1;
         note.fields_mut()[0] = "updated".to_string();
@@ -393,7 +393,7 @@ mod test {
     fn should_add_note_with_remapped_notetype_if_in_notetype_map() {
         let mut col = open_test_collection();
         let basic_ntid = col.get_notetype_by_name("basic").unwrap().unwrap().id;
-        let mut note = col.new_note("basic");
+        let mut note = NoteAdder::basic(&mut col).note();
         note.notetype_id.0 = 123;
 
         let mut log = import_note!(col, note, NotetypeId(123) => basic_ntid);
@@ -405,7 +405,7 @@ mod test {
     fn should_ignore_note_if_guid_already_exists_and_notetype_is_remapped() {
         let mut col = open_test_collection();
         let basic_ntid = col.get_notetype_by_name("basic").unwrap().unwrap().id;
-        let mut note = col.add_new_note("basic");
+        let mut note = NoteAdder::basic(&mut col).add(&mut col);
         note.notetype_id.0 = 123;
         note.mtime.0 += 1;
         note.fields_mut()[0] = "updated".to_string();
@@ -418,7 +418,7 @@ mod test {
     #[test]
     fn should_add_note_with_remapped_media_reference_in_field_if_in_media_map() {
         let mut col = open_test_collection();
-        let mut note = col.new_note("basic");
+        let mut note = NoteAdder::basic(&mut col).note();
         note.fields_mut()[0] = "<img src='foo.jpg'>".to_string();
 
         let mut media_map = MediaUseMap::default();

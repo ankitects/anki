@@ -278,7 +278,7 @@ mod test {
         let mut data = ExchangeData::default();
         let mut col = open_test_collection();
 
-        let note = col.add_new_note("Basic");
+        let note = NoteAdder::basic(&mut col).add(&mut col);
         data.gather_data(&mut col, SearchNode::WholeCollection, true)
             .unwrap();
 
@@ -291,7 +291,7 @@ mod test {
         let mut col = open_test_collection();
         let now_micros = TimestampMillis::now().0 * 1000;
 
-        let mut note = col.add_new_note("Basic");
+        let mut note = NoteAdder::basic(&mut col).add(&mut col);
         note.id = NoteId(now_micros);
         col.add_note_only_with_id_undoable(&mut note).unwrap();
 
