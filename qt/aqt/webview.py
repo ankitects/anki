@@ -784,7 +784,7 @@ html {{ {font} }}
             f"""document.body.classList.toggle("fancy", {json.dumps(not mw.pm.minimalist_mode())}); """
         )
         self.eval(
-            f"""document.body.classList.toggle("reduce-motion", {json.dumps(mw.pm.minimalist_mode())}); """
+            f"""document.body.classList.toggle("reduce-motion", {json.dumps(mw.pm.reduce_motion())}); """
         )
 
     @deprecated(info="use theme_manager.qcolor() instead")
