@@ -15,6 +15,7 @@
     import { ValueTab } from "./lib";
     import SettingTitle from "./SettingTitle.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
+    import SwitchRow from "./SwitchRow.svelte";
     import TabbedValue from "./TabbedValue.svelte";
     import type { DeckOption } from "./types";
     import Warning from "./Warning.svelte";
@@ -43,17 +44,18 @@
     const limits = state.deckLimits;
     const defaults = state.defaults;
     const parentLimits = state.parentLimits;
+    const newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
 
     const v3Extra = state.v3Scheduler
-        ? "\n\n" +
-          tr.deckConfigLimitNewBoundByReviews() +
-          "\n\n" +
-          tr.deckConfigLimitInterdayBoundByReviews() +
-          "\n\n" +
-          tr.deckConfigLimitDeckV3() +
-          "\n\n" +
-          tr.deckConfigTabDescription()
+        ? "\n\n" + tr.deckConfigLimitDeckV3() + "\n\n" + tr.deckConfigTabDescription()
         : "";
+    const reviewV3Extra = state.v3Scheduler
+        ? "\n\n" + tr.deckConfigLimitInterdayBoundByReviews() + v3Extra
+        : "";
+    const newCardsIgnoreReviewLimitHelp =
+        tr.deckConfigAffectsEntireCollection() +
+        "\n\n" +
+        tr.deckConfigNewCardsIgnoreReviewLimitTooltip();
 
     $: newCardsGreaterThanParent =
         !state.v3Scheduler && newValue > $parentLimits.newCards
@@ -137,8 +139,13 @@
         },
         reviewLimit: {
             title: tr.schedulingMaximumReviewsday(),
-            help: tr.deckConfigReviewLimitTooltip() + v3Extra,
+            help: tr.deckConfigReviewLimitTooltip() + reviewV3Extra,
             url: "https://docs.ankiweb.net/deck-options.html#maximum-reviewsday",
+        },
+        newCardsIgnoreReviewLimit: {
+            title: tr.deckConfigNewCardsIgnoreReviewLimit(),
+            help: newCardsIgnoreReviewLimitHelp,
+            url: "https://docs.ankiweb.net/deck-options.html#new-cardsday",
         },
     };
     const helpSections = Object.values(settings) as DeckOption[];
@@ -192,5 +199,18 @@
         <Item>
             <Warning warning={reviewsTooLow} />
         </Item>
+
+        {#if state.v3Scheduler}
+            <Item>
+                <SwitchRow bind:value={$newCardsIgnoreReviewLimit} defaultValue={false}>
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(
+                                Object.keys(settings).indexOf("newIgnoreReviewLimit"),
+                            )}>{settings.newCardsIgnoreReviewLimit.title}</SettingTitle
+                    >
+                </SwitchRow>
+            </Item>
+        {/if}
     </DynamicallySlottable>
 </TitledContainer>

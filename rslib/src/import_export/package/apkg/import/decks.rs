@@ -210,24 +210,23 @@ mod test {
 
     use super::*;
     use crate::collection::open_test_collection;
-    use crate::tests::new_deck_with_machine_name;
 
     #[test]
     fn parents() {
         let mut col = open_test_collection();
 
-        col.add_deck_with_machine_name("filtered", true);
-        col.add_deck_with_machine_name("PARENT", false);
+        DeckAdder::new("filtered").filtered(true).add(&mut col);
+        DeckAdder::new("PARENT").add(&mut col);
 
         let mut ctx = DeckContext::new(&mut col, Usn(1));
         ctx.unique_suffix = "★".to_string();
 
         let imports = vec![
-            new_deck_with_machine_name("unknown parent\x1fchild", false),
-            new_deck_with_machine_name("filtered\x1fchild", false),
-            new_deck_with_machine_name("parent\x1fchild", false),
-            new_deck_with_machine_name("NEW PARENT\x1fchild", false),
-            new_deck_with_machine_name("new parent", false),
+            DeckAdder::new("unknown parent\x1fchild").deck(),
+            DeckAdder::new("filtered\x1fchild").deck(),
+            DeckAdder::new("parent\x1fchild").deck(),
+            DeckAdder::new("NEW PARENT\x1fchild").deck(),
+            DeckAdder::new("new parent").deck(),
         ];
         ctx.import_decks(imports, false, false).unwrap();
         let existing_decks: HashSet<_> = ctx

@@ -172,6 +172,8 @@ message DeckConfigsForUpdate {
   bool v3_scheduler = 5;
   // only applies to v3 scheduler
   string card_state_customizer = 6;
+  // only applies to v3 scheduler
+  bool new_cards_ignore_review_limit = 7;
 }
 
 message UpdateDeckConfigsRequest {
@@ -183,4 +185,5 @@ message UpdateDeckConfigsRequest {
   bool apply_to_children = 4;
   string card_state_customizer = 5;
   DeckConfigsForUpdate.CurrentDeck.Limits limits = 6;
+  bool new_cards_ignore_review_limit = 7;
 }
