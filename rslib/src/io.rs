@@ -2,6 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::fs::File;
+use std::io::Read;
+use std::io::Seek;
 use std::path::Component;
 use std::path::Path;
 
@@ -61,6 +63,34 @@ pub(crate) fn read_file(path: impl AsRef<Path>) -> Result<Vec<u8>> {
         path: path.as_ref(),
         op: FileOp::Read,
     })
+}
+
+/// Like [read_file], but skips the section that is potentially locked by
+/// SQLite.
+pub(crate) fn read_locked_db_file(path: impl AsRef<Path>) -> Result<Vec<u8>> {
+    read_locked_db_file_inner(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Read,
+    })
+}
+
+const LOCKED_SECTION_START_BYTE: usize = 1024 * 1024 * 1024;
+const LOCKED_SECTION_LEN_BYTES: usize = 512;
+const LOCKED_SECTION_END_BYTE: usize = LOCKED_SECTION_START_BYTE + LOCKED_SECTION_LEN_BYTES;
+
+fn read_locked_db_file_inner(path: impl AsRef<Path>) -> std::io::Result<Vec<u8>> {
+    let size = std::fs::metadata(&path)?.len() as usize;
+    if size < LOCKED_SECTION_END_BYTE {
+        return std::fs::read(path);
+    }
+
+    let mut file = File::open(&path)?;
+    let mut buf = vec![0; size];
+    file.read_exact(&mut buf[..LOCKED_SECTION_START_BYTE])?;
+    file.seek(std::io::SeekFrom::Current(LOCKED_SECTION_LEN_BYTES as i64))?;
+    file.read_exact(&mut buf[LOCKED_SECTION_END_BYTE..])?;
+
+    Ok(buf)
 }
 
 pub(crate) fn new_tempfile() -> Result<NamedTempFile> {
