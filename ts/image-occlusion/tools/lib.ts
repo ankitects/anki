@@ -17,6 +17,7 @@ export const stopDraw = (canvas: fabric.Canvas): void => {
     canvas.off("mouse:down");
     canvas.off("mouse:up");
     canvas.off("mouse:move");
+    canvas.off("object:modified");
 };
 
 export const enableSelectable = (canvas: fabric.Canvas, select: boolean): void => {

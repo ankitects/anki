@@ -74,6 +74,9 @@ const initCanvas = (): fabric.Canvas => {
     });
     tagsWritable.set([]);
     globalThis.canvas = canvas;
+    // enables uniform scaling by default without the need for the Shift key
+    canvas.uniformScaling = false;
+    canvas.uniScaleKey = "none";
     undoRedoInit(canvas);
     return canvas;
 };

@@ -20,10 +20,9 @@ export const drawPolygon = (canvas: fabric.Canvas, panzoom: PanZoom): void => {
     panzoomY = panzoom.getTransform().y;
 
     canvas.on("mouse:down", function(options) {
+        addPoint(canvas, options);
         if (options.target && options.target.id === pointsList[0].id) {
             generatePolygon(canvas, pointsList);
-        } else {
-            addPoint(canvas, options);
         }
     });
 
@@ -178,10 +177,45 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
     const polygon = new fabric.Polygon(points, {
         fill: shapeMaskColor,
         objectCaching: false,
-        moveable: false,
         stroke: borderColor,
         strokeWidth: 1,
+        strokeUniform: true,
+        noScaleCache: false,
     });
-    canvas.add(polygon);
+    if (polygon.width > 5 && polygon.height > 5) {
+        canvas.add(polygon);
+    }
+
+    polygon.on("modified", () => {
+        modifiedPolygon(canvas, polygon);
+    });
+
     toggleDrawPolygon(canvas);
+};
+
+const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon): void => {
+    const matrix = polygon.calcTransformMatrix();
+    const transformedPoints = polygon.get("points")
+        .map(function(p) {
+            return new fabric.Point(p.x - polygon.pathOffset.x, p.y - polygon.pathOffset.y);
+        })
+        .map(function(p) {
+            return fabric.util.transformPoint(p, matrix);
+        });
+
+    const polygon1 = new fabric.Polygon(transformedPoints, {
+        fill: shapeMaskColor,
+        objectCaching: false,
+        stroke: borderColor,
+        strokeWidth: 1,
+        strokeUniform: true,
+        noScaleCache: false,
+    });
+
+    polygon1.on("modified", () => {
+        modifiedPolygon(canvas, polygon1);
+    });
+
+    canvas.remove(polygon);
+    canvas.add(polygon1);
 };

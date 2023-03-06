@@ -21,17 +21,19 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
         origY = pointer.y;
 
         ellipse = new fabric.Ellipse({
-            left: pointer.x,
-            top: pointer.y,
-            rx: 1,
-            ry: 1,
+            left: origX,
+            top: origY,
+            originX: "left",
+            originY: "top",
+            rx: pointer.x - origX,
+            ry: pointer.y - origY,
             fill: shapeMaskColor,
-            originX: "center",
-            originY: "center",
             transparentCorners: false,
             selectable: true,
             stroke: borderColor,
             strokeWidth: 1,
+            strokeUniform: true,
+            noScaleCache: false,
         });
         canvas.add(ellipse);
     });
@@ -40,10 +42,29 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
         if (!isDown) return;
 
         const pointer = canvas.getPointer(o.e);
-        ellipse.set({
-            rx: Math.abs(origX - pointer.x).toFixed(2),
-            ry: Math.abs(origY - pointer.y).toFixed(2),
-        });
+        let rx = Math.abs(origX - pointer.x) / 2;
+        let ry = Math.abs(origY - pointer.y) / 2;
+
+        if (rx > ellipse.strokeWidth) {
+            rx -= ellipse.strokeWidth / 2;
+        }
+        if (ry > ellipse.strokeWidth) {
+            ry -= ellipse.strokeWidth / 2;
+        }
+
+        if (pointer.x < origX) {
+            ellipse.set({ originX: "right" });
+        } else {
+            ellipse.set({ originX: "left" });
+        }
+
+        if (pointer.y < origY) {
+            ellipse.set({ originY: "bottom" });
+        } else {
+            ellipse.set({ originY: "top" });
+        }
+
+        ellipse.set({ rx: rx, ry: ry });
 
         canvas.renderAll();
     });
@@ -58,5 +79,26 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
             canvas.remove(ellipse);
         }
         ellipse.setCoords();
+    });
+
+    canvas.on("object:modified", function(o) {
+        const activeObject = o.target;
+        if (!activeObject) {
+            return;
+        }
+
+        const newRx = activeObject.rx * activeObject.scaleX;
+        const newRy = activeObject.ry * activeObject.scaleY;
+        const newWidth = activeObject.width * activeObject.scaleX;
+        const newHeight = activeObject.height * activeObject.scaleY;
+
+        activeObject.set({
+            rx: newRx,
+            ry: newRy,
+            width: newWidth,
+            height: newHeight,
+            scaleX: 1,
+            scaleY: 1,
+        });
     });
 };

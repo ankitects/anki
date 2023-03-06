@@ -33,6 +33,8 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
             selectable: true,
             stroke: borderColor,
             strokeWidth: 1,
+            strokeUniform: true,
+            noScaleCache: false,
         });
         canvas.add(rect);
     });
@@ -41,15 +43,16 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
         if (!isDown) return;
         const pointer = canvas.getPointer(o.e);
 
-        if (origX > pointer.x) {
-            rect.set({
-                left: Math.abs(pointer.x),
-            });
+        if (pointer.x < origX) {
+            rect.set({ originX: "right" });
+        } else {
+            rect.set({ originX: "left" });
         }
-        if (origY > pointer.y) {
-            rect.set({
-                top: Math.abs(pointer.y),
-            });
+
+        if (pointer.y < origY) {
+            rect.set({ originY: "bottom" });
+        } else {
+            rect.set({ originY: "top" });
         }
 
         rect.set({
@@ -72,5 +75,22 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
             canvas.remove(rect);
         }
         rect.setCoords();
+    });
+
+    canvas.on("object:modified", function(o) {
+        const activeObject = o.target;
+        if (!activeObject) {
+            return;
+        }
+
+        const newWidth = activeObject.width * activeObject.scaleX;
+        const newHeight = activeObject.height * activeObject.scaleY;
+
+        activeObject.set({
+            width: newWidth,
+            height: newHeight,
+            scaleX: 1,
+            scaleY: 1,
+        });
     });
 };

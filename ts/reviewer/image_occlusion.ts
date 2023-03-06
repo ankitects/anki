@@ -67,16 +67,14 @@ function draw(
 
         case "ellipse":
             {
-                const canvas: HTMLCanvasElement = document.querySelector("canvas")! as HTMLCanvasElement;
-                const image = document.getElementById("img") as HTMLImageElement;
-                const scale = canvas.width / image.naturalWidth;
-
-                const rx = parseFloat(cloze.dataset.rx!) * scale;
-                const ry = parseFloat(cloze.dataset.ry!) * scale;
+                const rx = parseFloat(cloze.dataset.rx!);
+                const ry = parseFloat(cloze.dataset.ry!);
+                const newLeft = post_left + rx;
+                const newTop = pos_top + ry;
                 ctx.beginPath();
                 ctx.strokeStyle = border.color;
                 ctx.lineWidth = border.width;
-                ctx.ellipse(post_left, pos_top, rx, ry, 0, 0, Math.PI * 2, false);
+                ctx.ellipse(newLeft, newTop, rx, ry, 0, 0, Math.PI * 2, false);
                 ctx.closePath();
                 ctx.fill();
                 ctx.stroke();
