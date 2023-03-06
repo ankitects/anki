@@ -168,13 +168,15 @@ lazy_static! {
     /// Strings, src and data attributes with a leading underscore.
     static ref UNDERSCORED_REFERENCES: Regex = Regex::new(
         r#"(?x)
-                "(_[^"]+)"        # double quoted
-            |                     # or
-                '(_[^']+)'        # single quoted string
-            |                     # or
-                \b(?:src|data)    # a 'src' or 'data' attribute
-                =                 # followed by
-                (_[^ >]+)         # an unquoted value
+                \[sound:(_[^]]+)\]  # a filename in an Anki sound tag
+            |                       # or
+                "(_[^"]+)"          # a double quoted
+            |                       # or
+                '(_[^']+)'          # single quoted string
+            |                       # or
+                \b(?:src|data)      # a 'src' or 'data' attribute
+                =                   # followed by
+                (_[^ >]+)           # an unquoted value
     "#).unwrap();
 }
 
@@ -312,29 +314,22 @@ pub fn replace_media_refs(
 pub(crate) fn extract_underscored_css_imports(text: &str) -> Vec<&str> {
     UNDERSCORED_CSS_IMPORTS
         .captures_iter(text)
-        .map(|caps| {
-            caps.get(1)
-                .or_else(|| caps.get(2))
-                .or_else(|| caps.get(3))
-                .or_else(|| caps.get(4))
-                .or_else(|| caps.get(5))
-                .unwrap()
-                .as_str()
-        })
+        .map(extract_match)
         .collect()
 }
 
 pub(crate) fn extract_underscored_references(text: &str) -> Vec<&str> {
     UNDERSCORED_REFERENCES
         .captures_iter(text)
-        .map(|caps| {
-            caps.get(1)
-                .or_else(|| caps.get(2))
-                .or_else(|| caps.get(3))
-                .unwrap()
-                .as_str()
-        })
+        .map(extract_match)
         .collect()
+}
+
+/// Returns the first matching group as a str. This is intended for regexes
+/// where exactly one group matches, and will panic for matches without matching
+/// groups.
+fn extract_match(caps: Captures) -> &str {
+    caps.iter().skip(1).find_map(|g| g).unwrap().as_str()
 }
 
 pub fn strip_html_preserving_media_filenames(html: &str) -> Cow<str> {
