@@ -433,9 +433,10 @@ class SidebarTreeView(QTreeView):
         return True
 
     def _on_search(self, index: QModelIndex) -> None:
-        if item := self.model().item_for_index(index):
-            if search_node := item.search_node:
-                self.update_search(search_node)
+        if model := self.model():
+            if item := model.item_for_index(index):
+                if search_node := item.search_node:
+                    self.update_search(search_node)
 
     def _on_rename(self, item: SidebarItem, text: str) -> bool:
         new_name = text.replace('"', "")
