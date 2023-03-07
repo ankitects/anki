@@ -16,19 +16,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function dynamicDuration(height: number): number {
         return 100 + Math.pow(height, 1 / 4) * 25;
     }
-    // If we don't transition, the editor actually takes considerably longer to create all
-    // the fields. Because of that, we're using an imperceptible duration for the animation
-    // when reduced motion is enabled.
-    $: duration = animated ? dynamicDuration(contentHeight) : 0.01;
+    $: duration = dynamicDuration(contentHeight);
 
     const size = tweened<number>(0);
 
     async function transition(collapse: boolean): Promise<void> {
-        // We need to ensure collapsibleElement still exists
-        if (!collapsibleElement) {
-            return;
-        }
-
         if (collapse) {
             contentHeight = collapsibleElement.clientHeight;
             size.set(0, {
@@ -49,7 +41,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: if (collapsibleElement) {
-        window.requestAnimationFrame(() => transition(collapse));
+        if (animated) {
+            transition(collapse);
+        } else {
+            collapsed = collapse;
+        }
     }
 
     let collapsibleElement: HTMLElement;
@@ -71,6 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={collapsibleElement}
     class="collapsible"
+    class:animated
     class:expanded
     class:full-hide={toggleDisplay}
     class:measuring
@@ -81,26 +78,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <slot {collapsed} />
 </div>
 
-{#if measuring}
+{#if animated && measuring}
     <!-- Maintain document flow while collapsible height is measured -->
     <div class="collapsible-placeholder" />
 {/if}
 
 <style lang="scss">
     .collapsible {
-        &.measuring {
-            display: initial;
-            position: absolute;
-            opacity: 0;
-        }
-        &.transitioning {
-            overflow: hidden;
-            height: var(--height);
-            &.expanded {
-                overflow: visible;
-            }
-            &.full-hide {
+        &.animated {
+            &.measuring {
                 display: initial;
+                position: absolute;
+                opacity: 0;
+            }
+
+            &.transitioning {
+                overflow: hidden;
+                height: var(--height);
+                &.expanded {
+                    overflow: visible;
+                }
+                &.full-hide {
+                    display: initial;
+                }
             }
         }
         &.full-hide {
