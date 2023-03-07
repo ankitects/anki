@@ -77,7 +77,23 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
         }
         if (ellipse.width < 5 || ellipse.height < 5) {
             canvas.remove(ellipse);
+            return;
         }
+
+        if (ellipse.originX === "right") {
+            ellipse.set({
+                originX: "left",
+                left: ellipse.left - ellipse.width + ellipse.strokeWidth,
+            });
+        }
+
+        if (ellipse.originY === "bottom") {
+            ellipse.set({
+                originY: "top",
+                top: ellipse.top - ellipse.height + ellipse.strokeWidth,
+            });
+        }
+
         ellipse.setCoords();
     });
 

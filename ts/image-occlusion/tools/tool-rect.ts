@@ -73,7 +73,23 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
         }
         if (rect.width < 5 || rect.height < 5) {
             canvas.remove(rect);
+            return;
         }
+
+        if (rect.originX === "right") {
+            rect.set({
+                originX: "left",
+                left: rect.left - rect.width + rect.strokeWidth,
+            });
+        }
+
+        if (rect.originY === "bottom") {
+            rect.set({
+                originY: "top",
+                top: rect.top - rect.height + rect.strokeWidth,
+            });
+        }
+
         rect.setCoords();
     });
 
