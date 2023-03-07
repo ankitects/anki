@@ -12,7 +12,6 @@ import Toast from "./Toast.svelte";
 import { makeMaskTransparent } from "./tools/lib";
 
 const divData = [
-    "angle",
     "height",
     "left",
     "points",
