@@ -638,7 +638,7 @@ def getFile(
     return ret[0] if ret else None
 
 
-def checkNeedPortalSupport():
+def running_in_sandbox():
     """Check whether running in Flatpak or Snap. When in such a sandbox, Qt
     will not report the true location of user-chosen files, but instead a
     temporary location from which the sandboxing software will copy the file to
@@ -679,7 +679,7 @@ def getSaveFile(
         f"{key} (*{ext})",
         options=QFileDialog.Option.DontConfirmOverwrite,
     )[0]
-    if file and not checkNeedPortalSupport():
+    if file and not running_in_sandbox():
         # add extension
         if not file.lower().endswith(ext):
             file += ext
