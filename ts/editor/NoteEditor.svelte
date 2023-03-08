@@ -130,10 +130,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let fieldsCollapsed: boolean[] = [];
     export function setCollapsed(defaultCollapsed: boolean[]): void {
-        tick().then(() => {
-            fieldsCollapsed =
-                sessionOptions[notetypeId!]?.fieldsCollapsed ?? defaultCollapsed;
-        });
+        fieldsCollapsed =
+            sessionOptions[notetypeId!]?.fieldsCollapsed ?? defaultCollapsed;
     }
 
     let richTextsHidden: boolean[] = [];
@@ -141,17 +139,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let plainTextDefaults: boolean[] = [];
 
     export function setPlainTexts(defaultPlainTexts: boolean[]): void {
+        const states = sessionOptions[notetypeId!]?.fieldStates;
+        if (states) {
+            richTextsHidden = states.richTextsHidden;
+            plainTextsHidden = states.plainTextsHidden;
+            plainTextDefaults = states.plainTextDefaults;
+        } else {
+            plainTextDefaults = defaultPlainTexts;
+            richTextsHidden = [...defaultPlainTexts];
+            plainTextsHidden = Array.from(defaultPlainTexts, (v) => !v);
+        }
+    }
+
+    export function triggerChanges(): void {
+        // I know this looks quite weird and doesn't seem to do anything
+        // but if we don't call this after setPlainTexts() and setCollapsed()
+        // when switching notetypes, existing collapsibles won't react
+        // automatically to the updated props
         tick().then(() => {
-            const states = sessionOptions[notetypeId!]?.fieldStates;
-            if (states) {
-                richTextsHidden = states.richTextsHidden;
-                plainTextsHidden = states.plainTextsHidden;
-                plainTextDefaults = states.plainTextDefaults;
-            } else {
-                plainTextDefaults = defaultPlainTexts;
-                richTextsHidden = [...defaultPlainTexts];
-                plainTextsHidden = Array.from(defaultPlainTexts, (v) => !v);
-            }
+            fieldsCollapsed = fieldsCollapsed;
+            plainTextDefaults = plainTextDefaults;
+            richTextsHidden = richTextsHidden;
+            plainTextsHidden = plainTextsHidden;
         });
     }
 
@@ -175,7 +184,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export function focusField(index: number | null): void {
-        setTimeout(() => {
+        tick().then(() => {
             if (typeof index === "number") {
                 if (!(index in fields)) {
                     return;
@@ -353,6 +362,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setInsertSymbolsEnabled,
             setShrinkImages,
             setCloseHTMLTags,
+            triggerChanges,
             ...oldEditorAdapter,
         });
 
