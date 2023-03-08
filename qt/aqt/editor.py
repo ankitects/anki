@@ -544,6 +544,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setMathjaxEnabled({json.dumps(self.mw.col.get_config("renderMathjax", True))});
             setShrinkImages({json.dumps(self.mw.col.get_config("shrinkEditorImages", True))});
             setCloseHTMLTags({json.dumps(self.mw.col.get_config("closeHTMLTags", True))});
+            triggerChanges();
             """
 
         if self.addMode:
