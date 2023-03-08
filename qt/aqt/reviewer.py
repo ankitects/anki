@@ -125,6 +125,51 @@ class V3CardInfo:
             return CardAnswer.EASY
 
 
+class State(Enum):
+    WAITING = 0
+    READY = 1
+    DELAYED = 2
+
+
+class EventualCallback:
+    """Enables suspension of execution until a callback is ready.
+
+    After a run singal, the callback is executed as soon as a ready signal is received,
+    which may be immediately. A ready signal is also emitted automatically a certain
+    time after a wait signal.
+    """
+
+    _state = State.READY
+
+    def __init__(self, parent: QObject, callback: Callable[[], None]) -> None:
+        self._timer = QTimer(parent)
+        self._timer.setSingleShot(True)
+        qconnect(self._timer.timeout, self.ready)
+        self._callback = callback
+
+    def wait(self) -> None:
+        """Suspend any runs until the next ready signal or timeout.
+        Must only be called on the main thread.
+        """
+        self._state = State.WAITING
+        self._timer.start(500)
+
+    def ready(self) -> None:
+        """Mark the callback as ready, and run it immediately if a run is pending."""
+        if not self._timer.isActive() and self._state is not State.READY:
+            print("timed out waiting for ready signal")
+        if self._state is State.DELAYED:
+            self._callback()
+        self._state = State.READY
+
+    def run_when_ready(self) -> None:
+        """Run the callback as soon as it is ready, possibly immediately."""
+        if self._state is State.READY:
+            self._callback()
+        else:
+            self._state = State.DELAYED
+
+
 class Reviewer:
     def __init__(self, mw: AnkiQt) -> None:
         self.mw = mw
@@ -143,6 +188,7 @@ class Reviewer:
         self.bottom = BottomBar(mw, mw.bottomWeb)
         self._card_info = ReviewerCardInfo(self.mw)
         self._previous_card_info = PreviousReviewerCardInfo(self.mw)
+        self._ease_button_callback = EventualCallback(mw, self._showEaseButtons)
         hooks.card_did_leech.append(self.onLeech)
 
     def show(self) -> None:
@@ -276,9 +322,11 @@ class Reviewer:
 
         if v3 := self._v3:
             v3.states = states
+            self._ease_button_callback.ready()
 
     def _run_state_mutation_hook(self) -> None:
         if self._v3 and (js := self._state_mutation_js):
+            self._ease_button_callback.wait()
             self.web.eval(
                 RUN_STATE_MUTATION.format(key=self._state_mutation_key, js=js)
             )
@@ -411,7 +459,7 @@ class Reviewer:
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")
         # render and update bottom
         self.web.eval(f"_showAnswer({json.dumps(a)});")
-        self._showEaseButtons()
+        self._ease_button_callback.run_when_ready()
         self.mw.web.setFocus()
         # user hook
         gui_hooks.reviewer_did_show_answer(c)
