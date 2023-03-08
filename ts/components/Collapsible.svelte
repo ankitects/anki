@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     $: duration = dynamicDuration(contentHeight);
 
-    const size = tweened<number>(0);
+    const size = tweened<number | undefined>(undefined);
 
     async function transition(collapse: boolean): Promise<void> {
         if (collapse) {
@@ -50,10 +50,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let collapsibleElement: HTMLElement;
 
-    $: collapsed = $size === 0;
+    $: collapsed = ($size ?? 0) === 0;
     $: expanded = $size === 1;
-    $: height = $size * contentHeight;
-    $: transitioning = $size > 0 && !(collapsed || expanded);
+    $: height = ($size ?? 0) * contentHeight;
+    $: transitioning = ($size ?? 0) > 0 && !(collapsed || expanded);
     $: measuring = !(collapsed || transitioning || expanded);
 
     let hidden = collapsed;
