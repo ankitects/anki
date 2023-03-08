@@ -151,6 +151,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    export function triggerChanges(): void {
+        // I know this looks quite weird and doesn't seem to do anything
+        // but if we don't call this after setPlainTexts() and setCollapsed()
+        // when switching notetypes, existing collapsibles won't react
+        // automatically to the updated props
+        tick().then(() => {
+            fieldsCollapsed = fieldsCollapsed;
+            plainTextDefaults = plainTextDefaults;
+            richTextsHidden = richTextsHidden;
+            plainTextsHidden = plainTextsHidden;
+        });
+    }
+
     function setMathjaxEnabled(enabled: boolean): void {
         mathjaxConfig.enabled = enabled;
     }
@@ -349,6 +362,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setInsertSymbolsEnabled,
             setShrinkImages,
             setCloseHTMLTags,
+            triggerChanges,
             ...oldEditorAdapter,
         });
 
