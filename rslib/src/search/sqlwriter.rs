@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
-use std::collections::HashSet;
 use std::fmt::Write;
+use std::ops::Range;
 
 use itertools::Itertools;
 
@@ -185,55 +185,47 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    /// Return excluded fields for notetypes that have some but not all fields
-    /// excluded
-    #[allow(clippy::type_complexity)]
-    fn excluded_fields_indices_by_notetype(
-        &mut self,
-    ) -> Result<Option<Vec<(NotetypeId, u32, HashSet<u32>)>>> {
-        let notetypes = self.col.get_all_notetypes()?;
-        let mut any_excluded = false;
-        let mut field_map = vec![];
-        for nt in notetypes.values() {
-            let mut matched_fields: HashSet<u32> = HashSet::new();
-            for field in &nt.fields {
-                any_excluded |= field.config.exclude_from_search;
-                if field.config.exclude_from_search {
-                    matched_fields.insert(field.ord.unwrap_or_default());
-                }
-            }
-            if nt.fields.len() != matched_fields.len() {
-                field_map.push((nt.id, nt.config.sort_field_idx, matched_fields));
-            }
-        }
-        if any_excluded {
-            Ok(Some(field_map))
-        } else {
-            Ok(None)
-        }
-    }
-
     fn write_unqualified(&mut self, text: &str) -> Result<()> {
         // implicitly wrap in %
         let text = format!("%{}%", &to_sql(text));
         self.args.push(text);
         let arg_idx = self.args.len();
 
-        if let Some(field_indicies_by_notetype) = self.excluded_fields_indices_by_notetype()? {
-            let notetype_clause =
-                |(mid, sortf, fields): &(NotetypeId, u32, HashSet<u32>)| -> String {
-                    let mut clauses = vec![];
-                    let mut joined_fields = String::from(if fields.is_empty() { "" } else { ", " });
-                    joined_fields.push_str(&fields.iter().join(", "));
-                    clauses.push(format!("exclude_fields(n.flds, {sortf}{joined_fields}) like ?{arg_idx} escape '\\'"));
-                    if !fields.contains(sortf) {
-                        clauses.push(format!("n.sfld like ?{arg_idx} escape '\\'"));
-                    }
-                    format!(
-                        "(n.mid = {mid} and ({clauses}))",
-                        clauses = clauses.join(" or ")
-                    )
+        if let Some(field_indicies_by_notetype) = self.included_fields_by_notetype()? {
+            let field_idx_str = format!("' || ?{arg_idx} || '");
+            let other_idx_str = "%".to_string();
+
+            let notetype_clause = |(mid, num_fields, sortf_excluded, fields): &(
+                NotetypeId,
+                usize,
+                bool,
+                Vec<Range<u32>>,
+            )|
+             -> String {
+                let field_index_clause = |range: &Range<u32>| {
+                    let f = (0..*num_fields)
+                        .filter_map(|i| {
+                            if i as u32 == range.start {
+                                Some(&field_idx_str)
+                            } else if range.contains(&(i as u32)) {
+                                None
+                            } else {
+                                Some(&other_idx_str)
+                            }
+                        })
+                        .join("\x1f");
+                    format!("n.flds like '{f}' escape '\\'")
                 };
+                let mut all_field_clauses: Vec<String> =
+                    fields.iter().map(field_index_clause).collect();
+                if !sortf_excluded {
+                    all_field_clauses.push(format!("n.sfld like ?{arg_idx} escape '\\'"));
+                }
+                format!(
+                    "(n.mid = {mid} and ({all_field_clauses}))",
+                    all_field_clauses = all_field_clauses.join(" or ")
+                )
+            };
             let all_notetype_clauses = field_indicies_by_notetype
                 .iter()
                 .map(notetype_clause)
@@ -594,6 +586,38 @@ impl SqlWriter<'_> {
         Ok(field_map)
     }
 
+    #[allow(clippy::type_complexity)]
+    fn included_fields_by_notetype(
+        &mut self,
+    ) -> Result<Option<Vec<(NotetypeId, usize, bool, Vec<Range<u32>>)>>> {
+        let notetypes = self.col.get_all_notetypes()?;
+        let mut any_excluded = true;
+        let mut field_map = vec![];
+        for nt in notetypes.values() {
+            let mut sortf_excluded = false;
+            let matched_fields = nt
+                .fields
+                .iter()
+                .filter_map(|field| {
+                    (!field.config.exclude_from_search).then(|| {
+                        any_excluded = false;
+                        let ord = field.ord.unwrap_or_default();
+                        sortf_excluded |= ord == nt.config.sort_field_idx;
+                        ord
+                    })
+                })
+                .collect_ranges();
+            if !matched_fields.is_empty() {
+                field_map.push((nt.id, nt.fields.len(), sortf_excluded, matched_fields));
+            }
+        }
+        if any_excluded {
+            Ok(Some(field_map))
+        } else {
+            Ok(None)
+        }
+    }
+
     fn write_dupe(&mut self, ntid: NotetypeId, text: &str) -> Result<()> {
         let text_nohtml = strip_html_preserving_media_filenames(text);
         let csum = field_checksum(text_nohtml.as_ref());
@@ -697,6 +721,43 @@ impl RequiredTable {
                 }
             }
         }
+    }
+}
+
+trait CollectRanges {
+    type Item;
+    fn collect_ranges(self) -> Vec<Range<Self::Item>>;
+}
+
+impl<
+        Idx: Copy + PartialOrd + std::ops::Add<Idx, Output = Idx> + From<u8>,
+        I: IntoIterator<Item = Idx>,
+    > CollectRanges for I
+{
+    type Item = Idx;
+
+    fn collect_ranges(self) -> Vec<Range<Self::Item>> {
+        let mut result = Vec::new();
+        let mut iter = self.into_iter();
+        let next = iter.next();
+        if next.is_none() {
+            return result;
+        }
+        let mut start = next.unwrap();
+        let mut end = next.unwrap();
+
+        for i in iter {
+            if i == end + 1.into() {
+                end = end + 1.into();
+            } else {
+                result.push(start..end + 1.into());
+                start = i;
+                end = i;
+            }
+        }
+        result.push(start..end + 1.into());
+
+        result
     }
 }
 
