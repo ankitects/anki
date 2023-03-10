@@ -49,7 +49,17 @@
        <enum>QPlainTextEdit::NoWrap</enum>
       </property>
       <property name="placeholderText">
-       <string notr="true">Type commands here (Enter to submit)</string>
+       <string notr="true">Actions:
+    Ctrl+Enter          Execute
+    Ctrl+Shift+Enter    Execute and print current line
+    Ctrl+L              Clear log
+    Ctrl+Shift+L        Clear input
+
+Locals:
+    mw: AnkiQt                          Main window
+    card: Callable[[], Card | None]     Reviewer card
+    bcard: Callable[[], Card | None]    Browser card
+    pp: Callable[[object], None]        Pretty print</string>
       </property>
      </widget>
      <widget class="QPlainTextEdit" name="log">
