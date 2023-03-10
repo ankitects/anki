@@ -80,7 +80,6 @@ impl Collection {
         })
     }
 
-    /// Bury/suspend cards in search table, and clear it.
     /// Marks the cards as modified.
     fn bury_or_suspend_cards_inner(
         &mut self,
