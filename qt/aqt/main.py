@@ -1795,6 +1795,8 @@ title="{}" {}>{}</button>""".format(
                 to_append, text, frm
             )
             frm.log.appendPlainText(to_append)
+        slider = frm.log.verticalScrollBar()
+        slider.setValue(slider.maximum())
         frm.log.ensureCursorVisible()
 
     # System specific code
