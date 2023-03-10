@@ -1752,9 +1752,10 @@ title="{}" {}>{}</button>""".format(
         position = cursor.position()
         cursor.select(QTextCursor.SelectionType.LineUnderCursor)
         line = cursor.selectedText()
+        whitespace, stripped = _split_off_leading_whitespace(line)
         pfx, sfx = "pp(", ")"
-        if not line.startswith(pfx):
-            line = f"{pfx}{line}{sfx}"
+        if not stripped.startswith(pfx):
+            line = f"{whitespace}{pfx}{stripped}{sfx}"
             cursor.insertText(line)
             cursor.setPosition(position + len(pfx))
             frm.text.setTextCursor(cursor)
@@ -1943,6 +1944,12 @@ title="{}" {}>{}</button>""".format(
 
     def serverURL(self) -> str:
         return "http://127.0.0.1:%d/" % self.mediaServer.getPort()
+
+
+def _split_off_leading_whitespace(text: str) -> tuple[str, str]:
+    stripped = text.lstrip()
+    whitespace = text[: len(text) - len(stripped)]
+    return whitespace, stripped
 
 
 # legacy
