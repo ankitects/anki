@@ -14,9 +14,6 @@ import { makeMaskTransparent } from "./tools/lib";
 const divData = [
     "height",
     "left",
-    "points",
-    "rx",
-    "ry",
     "top",
     "type",
     "width",
@@ -62,13 +59,19 @@ const getCloze = (object, index, relativePos, hideInactive): string => {
         if (divData.includes(key)) {
             if (key === "type") {
                 clozeData += `:${obJson[key]}`;
-            } else if (key === "points") {
-                const points = obJson[key];
-                let pnts = "";
-                points.forEach((point: { x: number; y: number }) => {
-                    pnts += point.x.toFixed(2) + "," + point.y.toFixed(2) + " ";
-                });
-                clozeData += `:${key}=${pnts.trim()}`;
+
+                if (obJson[key] === "ellipse") {
+                    clozeData += `:rx=${obJson.rx.toFixed(2)}:ry=${obJson.ry.toFixed(2)}`;
+                }
+
+                if (obJson[key] === "polygon") {
+                    const points = obJson.points;
+                    let pnts = "";
+                    points.forEach((point: { x: number; y: number }) => {
+                        pnts += point.x.toFixed(2) + "," + point.y.toFixed(2) + " ";
+                    });
+                    clozeData += `:points=${pnts.trim()}`;
+                }
             } else if (relativePos && key === "top") {
                 clozeData += `:top=${relativePos.top}`;
             } else if (relativePos && key === "left") {

@@ -64,6 +64,20 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
             ellipse.set({ originY: "top" });
         }
 
+        // do not draw outside of canvas
+        if (pointer.x < ellipse.strokeWidth) {
+            rx = origX / 2 - 1;
+        }
+        if (pointer.y < ellipse.strokeWidth) {
+            ry = origY / 2 - 1;
+        }
+        if (pointer.x >= canvas.width - ellipse.strokeWidth) {
+            rx = (canvas.width - origX) / 2;
+        }
+        if (pointer.y > canvas.height - ellipse.strokeWidth) {
+            ry = (canvas.height - origY) / 2;
+        }
+
         ellipse.set({ rx: rx, ry: ry });
 
         canvas.renderAll();
@@ -95,26 +109,5 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
         }
 
         ellipse.setCoords();
-    });
-
-    canvas.on("object:modified", function(o) {
-        const activeObject = o.target;
-        if (!activeObject) {
-            return;
-        }
-
-        const newRx = activeObject.rx * activeObject.scaleX;
-        const newRy = activeObject.ry * activeObject.scaleY;
-        const newWidth = activeObject.width * activeObject.scaleX;
-        const newHeight = activeObject.height * activeObject.scaleY;
-
-        activeObject.set({
-            rx: newRx,
-            ry: newRy,
-            width: newWidth,
-            height: newHeight,
-            scaleX: 1,
-            scaleY: 1,
-        });
     });
 };

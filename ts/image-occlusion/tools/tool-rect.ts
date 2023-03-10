@@ -42,24 +42,38 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
     canvas.on("mouse:move", function(o) {
         if (!isDown) return;
         const pointer = canvas.getPointer(o.e);
+        let x = pointer.x;
+        let y = pointer.y;
 
-        if (pointer.x < origX) {
+        if (x < origX) {
             rect.set({ originX: "right" });
         } else {
             rect.set({ originX: "left" });
         }
 
-        if (pointer.y < origY) {
+        if (y < origY) {
             rect.set({ originY: "bottom" });
         } else {
             rect.set({ originY: "top" });
         }
 
+        // do not draw outside of canvas
+        if (x < rect.strokeWidth) {
+            x = -1;
+        }
+        if (y < rect.strokeWidth) {
+            y = -1;
+        }
+        if (x >= canvas.width - rect.strokeWidth) {
+            x = canvas.width;
+        }
+        if (y >= canvas.height - rect.strokeWidth) {
+            y = canvas.height;
+        }
+
         rect.set({
-            width: Math.abs(origX - pointer.x),
-        });
-        rect.set({
-            height: Math.abs(origY - pointer.y),
+            width: Math.abs(x - rect.left),
+            height: Math.abs(y - rect.top),
         });
 
         canvas.renderAll();
@@ -91,22 +105,5 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
         }
 
         rect.setCoords();
-    });
-
-    canvas.on("object:modified", function(o) {
-        const activeObject = o.target;
-        if (!activeObject) {
-            return;
-        }
-
-        const newWidth = activeObject.width * activeObject.scaleX;
-        const newHeight = activeObject.height * activeObject.scaleY;
-
-        activeObject.set({
-            width: newWidth,
-            height: newHeight,
-            scaleX: 1,
-            scaleY: 1,
-        });
     });
 };

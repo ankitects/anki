@@ -11,7 +11,7 @@ import { get } from "svelte/store";
 import { getImageClozeNote, getImageForOcclusion } from "./lib";
 import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
 import Toast from "./Toast.svelte";
-import { enableSelectable } from "./tools/lib";
+import { enableSelectable, moveShapeToCanvasBoundaries } from "./tools/lib";
 import { generateShapeFromCloze } from "./tools/shape-generate";
 import { undoRedoInit } from "./tools/tool-undo-redo";
 
@@ -77,6 +77,7 @@ const initCanvas = (): fabric.Canvas => {
     // enables uniform scaling by default without the need for the Shift key
     canvas.uniformScaling = false;
     canvas.uniScaleKey = "none";
+    moveShapeToCanvasBoundaries(canvas);
     undoRedoInit(canvas);
     return canvas;
 };

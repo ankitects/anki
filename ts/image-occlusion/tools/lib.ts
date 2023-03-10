@@ -17,7 +17,6 @@ export const stopDraw = (canvas: fabric.Canvas): void => {
     canvas.off("mouse:down");
     canvas.off("mouse:up");
     canvas.off("mouse:move");
-    canvas.off("object:modified");
 };
 
 export const enableSelectable = (canvas: fabric.Canvas, select: boolean): void => {
@@ -148,3 +147,64 @@ export const makeMaskTransparent = (canvas: fabric.Canvas, opacity = false): voi
     });
     canvas.renderAll();
 };
+
+export const moveShapeToCanvasBoundaries = (canvas: fabric.Canvas): void => {
+    canvas.on("object:modified", function(o) {
+        const activeObject = o.target;
+        if (!activeObject) {
+            return;
+        }
+        if (activeObject.type === "activeSelection" || activeObject.type === "rect") {
+            modifiedSelection(canvas, activeObject);
+        }
+        if (activeObject.type === "ellipse") {
+            modifiedEllipse(canvas, activeObject);
+        }
+    });
+};
+
+const modifiedSelection = (canvas: fabric.Canvas, object: fabric.Object): void => {
+    const newWidth = object.width * object.scaleX;
+    const newHeight = object.height * object.scaleY;
+
+    object.set({
+        width: newWidth,
+        height: newHeight,
+        scaleX: 1,
+        scaleY: 1,
+    });
+    setShapePosition(canvas, object);
+};
+
+const modifiedEllipse = (canvas: fabric.Canvas, object: fabric.Object): void => {
+    const newRx = object.rx * object.scaleX;
+    const newRy = object.ry * object.scaleY;
+    const newWidth = object.width * object.scaleX;
+    const newHeight = object.height * object.scaleY;
+
+    object.set({
+        rx: newRx,
+        ry: newRy,
+        width: newWidth,
+        height: newHeight,
+        scaleX: 1,
+        scaleY: 1,
+    });
+    setShapePosition(canvas, object);    
+};
+
+const setShapePosition = (canvas: fabric.Canvas, object: fabric.Object): void => {
+    if (object.left < 0) {
+        object.set({ left: 0 });
+    }
+    if (object.top < 0) {
+        object.set({ top: 0 });
+    }
+    if (object.left + object.width + object.strokeWidth > canvas.width) {
+        object.set({ left: canvas.width - object.width });
+    }
+    if (object.top + object.height + object.strokeWidth > canvas.height) {
+        object.set({ top: canvas.height - object.height });
+    }
+    object.setCoords();
+}
