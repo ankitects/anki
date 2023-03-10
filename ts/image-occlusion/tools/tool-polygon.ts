@@ -20,7 +20,7 @@ export const drawPolygon = (canvas: fabric.Canvas, panzoom: PanZoom): void => {
     panzoomY = panzoom.getTransform().y;
 
     canvas.on("mouse:down", function(options) {
-        addPoint(canvas, options);
+        addPoint(canvas, options, panzoom);
         if (options.target && options.target.id === pointsList[0].id) {
             generatePolygon(canvas, pointsList);
         }
@@ -61,7 +61,18 @@ const toggleDrawPolygon = (canvas: fabric.Canvas): void => {
     }
 };
 
-const addPoint = (canvas: fabric.Canvas, options): void => {
+const addPoint = (canvas: fabric.Canvas, options, panzoom): void => {
+    zoomValue = panzoom.getTransform().scale;
+    panzoomX = panzoom.getTransform().x;
+    panzoomY = panzoom.getTransform().y;
+
+    const canvasContainer = document.querySelector(".canvas-container")!.getBoundingClientRect()!;
+    let clientX = options.e.touches ? options.e.touches[0].clientX : options.e.clientX;
+    let clientY = options.e.touches ? options.e.touches[0].clientY : options.e.clientY;
+
+    clientX = (clientX - canvasContainer.left - panzoomX) / zoomValue;
+    clientY = (clientY - canvasContainer.top - panzoomY) / zoomValue;
+
     const point = new fabric.Circle({
         radius: 5,
         fill: "#ffffff",
@@ -69,8 +80,8 @@ const addPoint = (canvas: fabric.Canvas, options): void => {
         strokeWidth: 0.5,
         originX: "left",
         originY: "top",
-        left: (options.e.layerX - panzoomX) / zoomValue,
-        top: (options.e.layerY - panzoomY) / zoomValue,
+        left: clientX,
+        top: clientY,
         selectable: false,
         hasBorders: false,
         hasControls: false,
@@ -83,12 +94,7 @@ const addPoint = (canvas: fabric.Canvas, options): void => {
         });
     }
 
-    const linePoints = [
-        (options.e.layerX - panzoomX) / zoomValue,
-        (options.e.layerY - panzoomY) / zoomValue,
-        (options.e.layerX - panzoomX) / zoomValue,
-        (options.e.layerY - panzoomY) / zoomValue,
-    ];
+    const linePoints = [clientX, clientY, clientX, clientY];
 
     const line = new fabric.Line(linePoints, {
         strokeWidth: 2,
@@ -129,11 +135,7 @@ const addPoint = (canvas: fabric.Canvas, options): void => {
         activeShape = polygon;
         canvas.renderAll();
     } else {
-        const polyPoint = [{
-            x: (options.e.layerX - panzoomX) / zoomValue,
-            y: (options.e.layerY - panzoomY) / zoomValue,
-        }];
-
+        const polyPoint = [{ x: clientX, y: clientY }];
         const polygon = new fabric.Polygon(polyPoint, {
             stroke: "#333333",
             strokeWidth: 1,

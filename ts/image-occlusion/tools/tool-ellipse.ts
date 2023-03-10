@@ -66,10 +66,10 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
 
         // do not draw outside of canvas
         if (pointer.x < ellipse.strokeWidth) {
-            rx = origX / 2 - 1;
+            rx = origX / 2;
         }
         if (pointer.y < ellipse.strokeWidth) {
-            ry = origY / 2 - 1;
+            ry = origY / 2;
         }
         if (pointer.x >= canvas.width - ellipse.strokeWidth) {
             rx = (canvas.width - origX) / 2;
