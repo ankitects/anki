@@ -104,7 +104,9 @@ const setCanvasBackgroundImage = (
         });
 
         canvas.backgroundImage.scale(scalar);
-        const zoomRatio = (innerWidth - 40) / canvas.width!;
+        const zoomRatioW = (innerWidth - 60) / canvas.width!;
+        const zoomRatioH = (innerHeight - 100) / canvas.height!;
+        const zoomRatio = zoomRatioW < zoomRatioH ? zoomRatioW : zoomRatioH;
         zoomResetValue.set(zoomRatio);
         instance.smoothZoom(0, 0, zoomRatio);
     });

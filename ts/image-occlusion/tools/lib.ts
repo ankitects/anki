@@ -190,7 +190,7 @@ const modifiedEllipse = (canvas: fabric.Canvas, object: fabric.Object): void => 
         scaleX: 1,
         scaleY: 1,
     });
-    setShapePosition(canvas, object);    
+    setShapePosition(canvas, object);
 };
 
 const setShapePosition = (canvas: fabric.Canvas, object: fabric.Object): void => {
@@ -207,4 +207,4 @@ const setShapePosition = (canvas: fabric.Canvas, object: fabric.Object): void =>
         object.set({ top: canvas.height - object.height });
     }
     object.setCoords();
-}
+};
