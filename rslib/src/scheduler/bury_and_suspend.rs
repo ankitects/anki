@@ -138,12 +138,23 @@ impl Collection {
 
     pub(crate) fn bury_siblings(
         &mut self,
-        cid: CardId,
+        card: &Card,
         nid: NoteId,
-        bury_mode: BuryMode,
+        mut bury_mode: BuryMode,
     ) -> Result<usize> {
-        let cards = self.storage.all_siblings_for_bury(cid, nid, bury_mode)?;
+        bury_mode.exclude_earlier_gathered_queues(card.queue);
+        let cards = self
+            .storage
+            .all_siblings_for_bury(card.id, nid, bury_mode)?;
         self.bury_or_suspend_cards_inner(cards, BuryOrSuspendMode::BurySched)
+    }
+}
+
+impl BuryMode {
+    /// Disables burying for queues gathered before `queue`.
+    fn exclude_earlier_gathered_queues(&mut self, queue: CardQueue) {
+        self.bury_interday_learning &= matches!(queue, CardQueue::DayLearn);
+        self.bury_reviews &= matches!(queue, CardQueue::DayLearn | CardQueue::Review);
     }
 }
 
