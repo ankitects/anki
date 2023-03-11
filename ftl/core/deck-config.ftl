@@ -115,11 +115,17 @@ deck-config-bury-interday-learning-tooltip =
     Whether other `learning` cards of the same note with intervals > 1 day
     will be delayed until the next day.
 deck-config-bury-priority-tooltip =
-    Which one of multiple siblings will be shown if burying is enabled, depends on the *gather*
-    order. The card gathered first will be shown, its siblings will be buried.
-    Since learning cards are gathered first, then review cards, and finally new cards,
-    a review card can never be buried by a new sibling. So if you enable burying new cards,
-    but not review cards, you may see a new and a review sibling in the same session.
+    When Anki gathers cards, it first gathers intraday learning cards, then
+    interday learning cards, then reviews, and finally new cards. This affects
+    how burying works:
+
+    - If you have all burying options enabled, the sibling that comes earliest in
+    that list will be shown. For example, a review card will be shown in preference
+    to a new card.
+    - Siblings later in the list can not bury earlier card types. For example, if you
+    disable burying of new cards, and study a new card, it will not bury any interday
+    learning or review cards, and you may see both a review sibling and new sibling in the
+    same session.
 
 ## Ordering section
 
