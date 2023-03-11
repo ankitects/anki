@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::fmt::Write;
+
 // split following
 // text = "rect:399.01,99.52,167.09,33.78:fill=#0a2cee:stroke=1"
 // with
@@ -52,12 +54,12 @@ pub fn get_image_cloze_data(text: &str) -> String {
                     }
                     "points" => {
                         if !values[1].is_empty() {
-                            let points_vec: Vec<&str> = values[1].split(' ').collect();
                             let mut point_str = String::new();
-                            for point in &points_vec {
-                                let xy: Vec<&str> = point.split(',').collect();
-                                point_str.push_str(&format!("[{},{}],", xy[0], xy[1]));
+                            for point_pair in values[1].split(' ') {
+                                let Some((x, y)) = point_pair.split_once(',') else { continue };
+                                write!(&mut point_str, "[{},{}],", x, y).unwrap();
                             }
+                            // remove the trailing comma
                             point_str.pop();
                             if !point_str.is_empty() {
                                 result.push_str(&format!("data-points=\"[{}]\" ", point_str));

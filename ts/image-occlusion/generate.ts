@@ -83,7 +83,7 @@ const getCloze = (object, index, relativePos, hideInactive): string => {
     });
 
     clozeData += `:hideinactive=${hideInactive}`;
-    clozeData = `{{c${index + 1}::image-occlusion${clozeData}}}\n`;
+    clozeData = `{{c${index + 1}::image-occlusion${clozeData}}}<br>`;
     return clozeData;
 };
 

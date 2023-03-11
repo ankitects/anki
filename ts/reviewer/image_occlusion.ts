@@ -15,6 +15,17 @@ export function setupImageCloze(): void {
     const size = limitSize({ width: image.naturalWidth, height: image.naturalHeight });
     canvas.width = size.width;
     canvas.height = size.height;
+
+    // set height for div container (used 'relative' in css)
+    const container = document.getElementById("container") as HTMLDivElement;
+    container.style.height = `${image.height}px`;
+
+    // setup button for toggle image occlusion
+    const button = document.getElementById("toggle");
+    if (button) {
+        button.addEventListener("click", toggleMasks);
+    }
+
     drawShapes(ctx);
 }
 
@@ -171,3 +182,13 @@ function getShapeProperty(): {
         };
     }
 }
+
+const toggleMasks = (): void => {
+    const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+    const display = canvas.style.display;
+    if (display === "none") {
+        canvas.style.display = "unset";
+    } else {
+        canvas.style.display = "none";
+    }
+};

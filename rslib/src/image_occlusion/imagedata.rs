@@ -208,7 +208,7 @@ impl Collection {
         let comments = tr.notetypes_comments_field();
         nt.add_field(comments.as_ref());
         let qfmt = format!(
-            "{{{{cloze:{}}}}}
+            "<div style=\"display: none\">{{{{cloze:{}}}}}</div>
 <div id=container>
     {{{{{}}}}}
     <canvas id=\"canvas\" class=\"image-occlusion-canvas\"></canvas>
@@ -227,8 +227,18 @@ try {{
             tr.notetypes_error_loading_image_occlusion(),
         );
         let afmt = format!(
-            "{{{{{}}}}}\n{}\n{{{{{}}}}}\n{{{{{}}}}}",
-            header, qfmt, back_extra, comments
+            "{{{{{}}}}}
+{}
+<button id=\"toggle\">{}</button>
+<br>
+{{{{{}}}}}
+<br>
+{{{{{}}}}}",
+            header,
+            qfmt,
+            tr.notetypes_toggle_masks(),
+            back_extra,
+            comments,
         );
         nt.add_template(nt.name.clone(), qfmt, afmt);
         nt

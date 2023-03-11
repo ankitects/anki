@@ -48,6 +48,8 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
         const pointer = canvas.getPointer(o.e);
         let rx = Math.abs(origX - pointer.x) / 2;
         let ry = Math.abs(origY - pointer.y) / 2;
+        const x = pointer.x;
+        const y = pointer.y;
 
         if (rx > ellipse.strokeWidth) {
             rx -= ellipse.strokeWidth / 2;
@@ -56,30 +58,30 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
             ry -= ellipse.strokeWidth / 2;
         }
 
-        if (pointer.x < origX) {
+        if (x < origX) {
             ellipse.set({ originX: "right" });
         } else {
             ellipse.set({ originX: "left" });
         }
 
-        if (pointer.y < origY) {
+        if (y < origY) {
             ellipse.set({ originY: "bottom" });
         } else {
             ellipse.set({ originY: "top" });
         }
 
         // do not draw outside of canvas
-        if (pointer.x < ellipse.strokeWidth) {
-            rx = origX / 2;
+        if (x < ellipse.strokeWidth) {
+            rx = (origX + ellipse.strokeWidth + 0.5) / 2;
         }
-        if (pointer.y < ellipse.strokeWidth) {
-            ry = origY / 2;
+        if (y < ellipse.strokeWidth) {
+            ry = (origY + ellipse.strokeWidth + 0.5) / 2;
         }
-        if (pointer.x >= canvas.width - ellipse.strokeWidth) {
-            rx = (canvas.width - origX) / 2;
+        if (x >= canvas.width - ellipse.strokeWidth) {
+            rx = (canvas.width - origX) / 2 - ellipse.strokeWidth + 0.5;
         }
-        if (pointer.y > canvas.height - ellipse.strokeWidth) {
-            ry = (canvas.height - origY) / 2;
+        if (y > canvas.height - ellipse.strokeWidth) {
+            ry = (canvas.height - origY) / 2 - ellipse.strokeWidth + 0.5;
         }
 
         ellipse.set({ rx: rx, ry: ry });

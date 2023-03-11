@@ -63,16 +63,16 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
 
         // do not draw outside of canvas
         if (x < rect.strokeWidth) {
-            x = 0;
+            x = -rect.strokeWidth + 0.5;
         }
         if (y < rect.strokeWidth) {
-            y = 0;
+            y = -rect.strokeWidth + 0.5;
         }
         if (x >= canvas.width - rect.strokeWidth) {
-            x = canvas.width;
+            x = canvas.width - rect.strokeWidth + 0.5;
         }
         if (y >= canvas.height - rect.strokeWidth) {
-            y = canvas.height;
+            y = canvas.height - rect.strokeWidth + 0.5;
         }
 
         rect.set({

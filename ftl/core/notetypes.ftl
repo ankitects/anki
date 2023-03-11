@@ -43,6 +43,7 @@ notetypes-occlusion = Occlusion
 notetypes-occlusion-mask = Mask
 notetypes-occlusion-note = Note
 notetypes-comments-field = Comments
+notetypes-toggle-masks = Toggle Masks
 notetypes-image-occlusion-name = Image Occlusion
 notetypes-hide-all-guess-one = Hide All, Guess One
 notetypes-hide-one-guess-one = Hide One, Guess One
