@@ -63,14 +63,14 @@ export async function mutateNextCardStates(
         states: Scheduler.SchedulingStates,
         customData: CustomDataStates,
         ctx: Scheduler.SchedulingContext,
-    ) => void,
+    ) => Promise<void>,
 ): Promise<void> {
     const [states, ctx] = await Promise.all([
         getSchedulingStates(),
         getSchedulingContext(),
     ]);
     const customData = unpackCustomData(states);
-    mutator(states, customData, ctx);
+    await mutator(states, customData, ctx);
     packCustomData(states, customData);
     await setSchedulingStates(key, states);
 }

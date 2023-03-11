@@ -1064,6 +1064,6 @@ time = %(time)d;
 
 
 RUN_STATE_MUTATION = """
-anki.mutateNextCardStates('{key}', (states, customData, ctx) => {{ {js} }})
+anki.mutateNextCardStates('{key}', async (states, customData, ctx) => {{ {js} }})
     .finally(() => bridgeCommand('statesMutated'));
 """
