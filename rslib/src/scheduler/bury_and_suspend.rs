@@ -153,8 +153,21 @@ impl Collection {
 impl BuryMode {
     /// Disables burying for queues gathered before `queue`.
     fn exclude_earlier_gathered_queues(&mut self, queue: CardQueue) {
-        self.bury_interday_learning &= matches!(queue, CardQueue::DayLearn);
-        self.bury_reviews &= matches!(queue, CardQueue::DayLearn | CardQueue::Review);
+        self.bury_interday_learning &= queue.gather_ord() <= CardQueue::DayLearn.gather_ord();
+        self.bury_reviews &= queue.gather_ord() <= CardQueue::Review.gather_ord();
+    }
+}
+
+impl CardQueue {
+    fn gather_ord(self) -> u8 {
+        match self {
+            CardQueue::Learn | CardQueue::PreviewRepeat => 0,
+            CardQueue::DayLearn => 1,
+            CardQueue::Review => 2,
+            CardQueue::New => 3,
+            // not gathered
+            CardQueue::Suspended | CardQueue::SchedBuried | CardQueue::UserBuried => u8::MAX,
+        }
     }
 }
 
