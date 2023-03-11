@@ -10,7 +10,6 @@ import {
     mdiAlignVerticalTop,
     mdiCopy,
     mdiDeleteOutline,
-    mdiFormatAlignCenter,
     mdiGroup,
     mdiUngroup,
     mdiZoomIn,
@@ -27,12 +26,7 @@ import {
     alignVerticalCenter,
 } from "./tool-aligns";
 
-export const cursorTools = [
-    {
-        name: "delete",
-        icon: mdiDeleteOutline,
-        action: deleteItem,
-    },
+export const groupUngroupTools = [
     {
         name: "group",
         icon: mdiGroup,
@@ -43,14 +37,18 @@ export const cursorTools = [
         icon: mdiUngroup,
         action: unGroupShapes,
     },
+];
+
+export const deleteDuplicateTools = [
+    {
+        name: "delete",
+        icon: mdiDeleteOutline,
+        action: deleteItem,
+    },
     {
         name: "duplicate",
         icon: mdiCopy,
         action: duplicateItem,
-    },
-    {
-        name: "align",
-        icon: mdiFormatAlignCenter,
     },
 ];
 

@@ -6,7 +6,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../components/IconButton.svelte";
     import { mdiEye, mdiFormatAlignCenter } from "./icons";
     import { makeMaskTransparent } from "./tools/lib";
-    import { alignTools, cursorTools, zoomTools } from "./tools/more-tools";
+    import {
+        alignTools,
+        deleteDuplicateTools,
+        groupUngroupTools,
+        zoomTools,
+    } from "./tools/more-tools";
     import { undoRedoTools } from "./tools/tool-undo-redo";
 
     export let canvas;
@@ -27,69 +32,94 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="top-tool-bar-container">
     <!-- undo & redo tools -->
     <div class="undo-redo-button">
-        {#each undoRedoTools as undoRedoTool}
+        {#each undoRedoTools as tool}
             <IconButton
-                class="top-tool-icon-button"
+                class="top-tool-icon-button {tool.name === 'undo'
+                    ? 'left-border-radius'
+                    : 'right-border-radius'}"
                 {iconSize}
                 on:click={() => {
-                    undoRedoTool.action(canvas);
+                    tool.action(canvas);
                 }}
             >
-                {@html undoRedoTool.icon}
+                {@html tool.icon}
             </IconButton>
         {/each}
     </div>
 
     <!-- zoom tools -->
-    {#each zoomTools as zoomBottomTool}
-        <IconButton
-            class="top-tool-icon-button"
-            {iconSize}
-            on:click={() => {
-                zoomBottomTool.action(instance);
-            }}
-        >
-            {@html zoomBottomTool.icon}
-        </IconButton>
-    {/each}
-
-    <!-- opacity tools -->
-    <IconButton
-        class="top-tool-icon-button"
-        {iconSize}
-        on:click={() => {
-            maksOpacity = !maksOpacity;
-            makeMaskTransparent(canvas, maksOpacity);
-        }}
-    >
-        {@html mdiEye}
-    </IconButton>
-
-    <!-- cursor tools -->
-    {#each cursorTools as cursorBottomTool}
-        {#if cursorBottomTool.name === "align"}
+    <div class="tool-button-container">
+        {#each zoomTools as tool}
             <IconButton
-                class="top-tool-icon-button dropdown-tool"
-                {iconSize}
-                on:click={(e) => {
-                    showAlignTools = !showAlignTools;
-                    leftPos = e.pageX - 100;
-                }}
-            >
-                {@html mdiFormatAlignCenter}
-            </IconButton>
-        {:else}
-            <IconButton
-                class="top-tool-icon-button"
+                class="top-tool-icon-button {tool.name === 'zoomOut'
+                    ? 'left-border-radius'
+                    : ''} {tool.name === 'zoomReset' ? 'right-border-radius' : ''}"
                 {iconSize}
                 on:click={() => {
-                    cursorBottomTool.action(canvas);
+                    tool.action(instance);
                 }}
             >
-                {@html cursorBottomTool.icon}
+                {@html tool.icon}
             </IconButton>
-        {/if}
-    {/each}
+        {/each}
+    </div>
+
+    <div class="tool-button-container">
+        <!-- opacity tools -->
+        <IconButton
+            class="top-tool-icon-button left-border-radius"
+            {iconSize}
+            on:click={() => {
+                maksOpacity = !maksOpacity;
+                makeMaskTransparent(canvas, maksOpacity);
+            }}
+        >
+            {@html mdiEye}
+        </IconButton>
+
+        <!-- cursor tools -->
+        {#each deleteDuplicateTools as tool}
+            <IconButton
+                class="top-tool-icon-button {tool.name === 'duplicate'
+                    ? 'right-border-radius'
+                    : ''}"
+                {iconSize}
+                on:click={() => {
+                    tool.action(canvas);
+                }}
+            >
+                {@html tool.icon}
+            </IconButton>
+        {/each}
+    </div>
+
+    <div class="tool-button-container">
+        <!-- group & ungroup tools -->
+        {#each groupUngroupTools as tool}
+            <IconButton
+                class="top-tool-icon-button {tool.name === 'group'
+                    ? 'left-border-radius'
+                    : ''}"
+                {iconSize}
+                on:click={() => {
+                    tool.action(canvas);
+                }}
+            >
+                {@html tool.icon}
+            </IconButton>
+        {/each}
+
+        <IconButton
+            class="top-tool-icon-button dropdown-tool right-border-radius"
+            {iconSize}
+            on:click={(e) => {
+                showAlignTools = !showAlignTools;
+                leftPos = e.pageX - 100;
+            }}
+        >
+            {@html mdiFormatAlignCenter}
+        </IconButton>
+    </div>
 </div>
 
 <div class:show={showAlignTools} class="dropdown-content" style="left:{leftPos}px;">
@@ -118,7 +148,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .undo-redo-button {
         margin-left: 28px;
+        margin-right: 2px;
         display: flex;
+    }
+
+    .tool-button-container {
+        margin-left: 2px;
+        margin-right: 2px;
+        display: flex;
+    }
+
+    :global(.left-border-radius) {
+        border-radius: 5px 0 0 5px !important;
+    }
+
+    :global(.right-border-radius) {
+        border-radius: 0 5px 5px 0 !important;
     }
 
     :global(.top-tool-icon-button) {
@@ -133,7 +178,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .dropdown-content {
         display: none;
         position: absolute;
-        background-color: var(--canvas);
         z-index: 100;
         top: 82px;
         margin-top: 1px;
