@@ -416,6 +416,7 @@ class Reviewer:
         # render & update bottom
         q = self._mungeQA(q)
         q = gui_hooks.card_will_show(q, c, "reviewQuestion")
+        self._run_state_mutation_hook()
 
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
         a = self.mw.col.media.escape_media_filenames(c.answer())
@@ -425,7 +426,6 @@ class Reviewer:
         )
         self._update_flag_icon()
         self._update_mark_icon()
-        self._run_state_mutation_hook()
         self._showAnswerButton()
         self.mw.web.setFocus()
         # user hook
@@ -1093,7 +1093,5 @@ time = %(time)d;
 
 
 RUN_STATE_MUTATION = """
-_queueAction(() => {{
-    anki.mutateNextCardStates('{key}', (states, customData) => {{ {js} }})
-}})
+anki.mutateNextCardStates('{key}', (states, customData, ctx) => {{ {js} }});
 """
