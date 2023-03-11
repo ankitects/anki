@@ -45,8 +45,10 @@ class Action:
 
 class DebugConsole(QDialog):
     silentlyClose = True
+    _last_index = 0
 
     def __init__(self, parent: QWidget) -> None:
+        self._buffers: dict[int, str] = {}
         super().__init__(parent)
         self._setup_ui()
         disable_help_button(self)
@@ -64,6 +66,7 @@ class DebugConsole(QDialog):
         self._setup_actions()
         self._setup_context_menu()
         qconnect(self.frm.widgetsButton.clicked, self._on_widgetGallery)
+        qconnect(self._script.currentIndexChanged, self._on_script_change)
 
     def _setup_text_edits(self):
         font = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
@@ -98,24 +101,51 @@ class DebugConsole(QDialog):
         saveSplitter(self.frm.splitter, "DebugConsoleWindow")
         saveGeom(self, "DebugConsoleWindow")
 
+    def _on_script_change(self, new_index: int) -> None:
+        self._buffers[self._last_index] = self._text.toPlainText()
+        self._text.setPlainText(self._get_script(new_index) or "")
+        self._last_index = new_index
+
+    def _get_script(self, idx: int) -> str | None:
+        if script := self._buffers.get(idx, ""):
+            return script
+        if path := self._get_item(idx):
+            return path.read_text(encoding="utf8")
+        return None
+
+    def _get_item(self, idx: int) -> Path | None:
+        if not idx:
+            return None
+        path = Path(self._script.itemText(idx))
+        return path if path.is_absolute() else self._dir.joinpath(path)
+
+    def _get_index(self, path: Path) -> int:
+        return self._script.findText(self._path_to_item(path))
+
+    def _path_to_item(self, path: Path) -> str:
+        return path.name if path.is_relative_to(self._dir) else str(path)
+
+    def _current_script_path(self) -> Path | None:
+        return self._get_item(self._script.currentIndex())
+
     def _save_script(self) -> None:
-        if (existing_file := self._script.currentText()) != UNSAVED_SCRIPT:
-            path = Path(existing_file)
-            if not path.is_absolute():
-                path = self._dir.joinpath(path)
-        else:
-            file = QFileDialog.getSaveFileName(
+        if not (path := self._current_script_path()):
+            new_file = QFileDialog.getSaveFileName(
                 self, directory=str(self._dir), filter="Python file (*.py)"
             )[0]
-            if not file:
+            if not new_file:
                 return
-            path = Path(file)
+            path = Path(new_file)
+
         path.write_text(self._text.toPlainText(), encoding="utf8")
 
-        item = path.name if path.is_relative_to(self._dir) else str(path)
-        if not existing_file:
+        item = self._path_to_item(path)
+        if (idx := self._get_index(path)) == -1:
             self._script.addItem(item)
-        self._script.setCurrentText(item)
+            idx = self._script.count() - 1
+        # update existing buffer, so text edit doesn't change when index changes
+        self._buffers[idx] = self._text.toPlainText()
+        self._script.setCurrentIndex(idx)
 
     def _open_script(self) -> None:
         file = QFileDialog.getOpenFileName(
@@ -123,13 +153,19 @@ class DebugConsole(QDialog):
         )[0]
         if not file:
             return
-        path = Path(file)
-        item = path.name if path.is_relative_to(self._dir) else str(path)
-        if self._script.findText(item) == -1:
-            self._script.addItem(item)
-        self._script.setCurrentText(item)
 
-        self._text.setPlainText(path.read_text(encoding="utf8"))
+        path = Path(file)
+        item = self._path_to_item(path)
+        if (idx := self._get_index(path)) == -1:
+            self._script.addItem(item)
+            idx = self._script.count() - 1
+        elif idx in self._buffers:
+            del self._buffers[idx]
+
+        if idx == self._script.currentIndex():
+            self._text.setPlainText(path.read_text(encoding="utf8"))
+        else:
+            self._script.setCurrentIndex(idx)
 
     def _setup_context_menu(self) -> None:
         for text_edit in (self._log, self._text):
