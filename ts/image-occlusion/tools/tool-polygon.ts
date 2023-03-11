@@ -5,6 +5,7 @@ import { fabric } from "fabric";
 import type { PanZoom } from "panzoom";
 
 import { borderColor, shapeMaskColor } from "./lib";
+import { objectAdded, saveCanvasState } from "./tool-undo-redo";
 
 let activeLine;
 let activeShape;
@@ -13,16 +14,18 @@ let pointsList: fabric.Circle = [];
 let drawMode = false;
 let zoomValue = 1;
 let panzoomX = 1, panzoomY = 1;
+const addedPolygonIds: string[] = [];
 
 export const drawPolygon = (canvas: fabric.Canvas, panzoom: PanZoom): void => {
-    zoomValue = panzoom.getTransform().scale;
-    panzoomX = panzoom.getTransform().x;
-    panzoomY = panzoom.getTransform().y;
-
     canvas.on("mouse:down", function(options) {
-        addPoint(canvas, options, panzoom);
-        if (options.target && options.target.id === pointsList[0].id) {
-            generatePolygon(canvas, pointsList);
+        try {
+            if (options.target && options.target.id === pointsList[0].id) {
+                generatePolygon(canvas, pointsList);
+            } else {
+                addPoint(canvas, options, panzoom);
+            }
+        } catch (e) {
+            // Cannot read properties of undefined (reading 'id')
         }
     });
 
@@ -177,6 +180,7 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
     canvas.remove(activeShape).remove(activeLine);
 
     const polygon = new fabric.Polygon(points, {
+        id: "polygon-" + new Date().getTime(),
         fill: shapeMaskColor,
         objectCaching: false,
         stroke: borderColor,
@@ -186,10 +190,13 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
     });
     if (polygon.width > 5 && polygon.height > 5) {
         canvas.add(polygon);
+        // view undo redo tools
+        objectAdded(canvas, addedPolygonIds, polygon.id);
     }
 
     polygon.on("modified", () => {
         modifiedPolygon(canvas, polygon);
+        saveCanvasState(canvas);
     });
 
     toggleDrawPolygon(canvas);
@@ -206,6 +213,7 @@ const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon): void =
         });
 
     const polygon1 = new fabric.Polygon(transformedPoints, {
+        id: polygon.id,
         fill: shapeMaskColor,
         objectCaching: false,
         stroke: borderColor,
@@ -216,6 +224,7 @@ const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon): void =
 
     polygon1.on("modified", () => {
         modifiedPolygon(canvas, polygon1);
+        saveCanvasState(canvas);
     });
 
     canvas.remove(polygon);

@@ -4,6 +4,9 @@
 import { fabric } from "fabric";
 
 import { borderColor, shapeMaskColor, stopDraw } from "./lib";
+import { objectAdded } from "./tool-undo-redo";
+
+const addedRectangleIds: string[] = [];
 
 export const drawRectangle = (canvas: fabric.Canvas): void => {
     let rect, isDown, origX, origY;
@@ -21,6 +24,7 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
         origY = pointer.y;
 
         rect = new fabric.Rect({
+            id: "rect-" + new Date().getTime(),
             left: origX,
             top: origY,
             originX: "left",
@@ -105,5 +109,6 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
         }
 
         rect.setCoords();
+        objectAdded(canvas, addedRectangleIds, rect.id);
     });
 };

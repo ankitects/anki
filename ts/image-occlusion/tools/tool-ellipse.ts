@@ -4,6 +4,9 @@
 import { fabric } from "fabric";
 
 import { borderColor, shapeMaskColor, stopDraw } from "./lib";
+import { objectAdded } from "./tool-undo-redo";
+
+const addedEllipseIds: string[] = [];
 
 export const drawEllipse = (canvas: fabric.Canvas): void => {
     let ellipse, isDown, origX, origY;
@@ -21,6 +24,7 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
         origY = pointer.y;
 
         ellipse = new fabric.Ellipse({
+            id: "ellipse-" + new Date().getTime(),
             left: origX,
             top: origY,
             originX: "left",
@@ -109,5 +113,6 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
         }
 
         ellipse.setCoords();
+        objectAdded(canvas, addedEllipseIds, ellipse.id);
     });
 };

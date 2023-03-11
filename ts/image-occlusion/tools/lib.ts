@@ -6,7 +6,6 @@ import type { PanZoom } from "panzoom";
 import { get } from "svelte/store";
 
 import { zoomResetValue } from "../store";
-import { stack } from "./tool-undo-redo";
 
 export const shapeMaskColor = "#ffeba2";
 export const borderColor = "#212121";
@@ -31,7 +30,6 @@ export const deleteItem = (canvas: fabric.Canvas): void => {
     const active = canvas.getActiveObject();
     if (active) {
         canvas.remove(active);
-        stack.push(active);
         if (active.type == "activeSelection") {
             active.getObjects().forEach((x) => canvas.remove(x));
             canvas.discardActiveObject().renderAll();
