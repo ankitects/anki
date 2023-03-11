@@ -64,6 +64,9 @@
     Ctrl+Shift+Enter    Execute and print current line
     Ctrl+L              Clear log
     Ctrl+Shift+L        Clear input
+    Ctrl+S              Save script
+    Ctrl+O              Open script
+    Ctrl+D              Delete script
 
 Locals:
     mw: AnkiQt                          Main window

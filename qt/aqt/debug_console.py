@@ -21,6 +21,7 @@ from aqt.utils import (
     restoreSplitter,
     saveGeom,
     saveSplitter,
+    send_to_trash,
     tr,
 )
 
@@ -94,6 +95,7 @@ class DebugConsole(QDialog):
             Action("Clear code", "ctrl+shift+l", self._text.clear),
             Action("Save script", "ctrl+s", self._save_script),
             Action("Open script", "ctrl+o", self._open_script),
+            Action("Delete script", "ctrl+d", self._delete_script),
         ]
 
     def reject(self) -> None:
@@ -166,6 +168,21 @@ class DebugConsole(QDialog):
             self._text.setPlainText(path.read_text(encoding="utf8"))
         else:
             self._script.setCurrentIndex(idx)
+
+    def _delete_script(self) -> None:
+        if not (path := self._current_script_path()):
+            return
+        send_to_trash(path)
+        deleted_idx = self._script.currentIndex()
+        self._script.setCurrentIndex(0)
+        self._script.removeItem(deleted_idx)
+        self._drop_buffer_and_shift_keys(deleted_idx)
+
+    def _drop_buffer_and_shift_keys(self, idx: int) -> None:
+        def shift(old_idx: int) -> int:
+            return old_idx - 1 if old_idx > idx else old_idx
+
+        self._buffers = {shift(i): val for i, val in self._buffers.items() if i != idx}
 
     def _setup_context_menu(self) -> None:
         for text_edit in (self._log, self._text):
