@@ -125,12 +125,6 @@ class V3CardInfo:
             return CardAnswer.EASY
 
 
-class State(Enum):
-    WAITING = 0
-    READY = 1
-    DELAYED = 2
-
-
 class Reviewer:
     def __init__(self, mw: AnkiQt) -> None:
         self.mw = mw
