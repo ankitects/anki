@@ -456,7 +456,7 @@ mod test {
 
     #[test]
     fn new_card_potentially_burying_review_card() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new_v3();
         // add one new and one review card
         CardAdder::new().siblings(2).due_dates(["0"]).add(&mut col);
         // Potentially problematic config: New cards are shown first and would bury
