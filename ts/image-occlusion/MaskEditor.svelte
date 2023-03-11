@@ -43,6 +43,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <SideToolbar {instance} {canvas} />
 <div class="editor-main" bind:clientWidth={innerWidth}>
     <div class="editor-container" use:initPanzoom>
+        <!-- svelte-ignore a11y-missing-attribute -->
+        <img id="image" />
         <canvas id="canvas" />
     </div>
 </div>
@@ -62,9 +64,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .editor-container {
         width: 100%;
         height: 100%;
+        position: relative;
+    }
+
+    #image {
+        position: absolute;
     }
 
     :global(.upper-canvas) {
         border: 0.5px solid var(--border-strong);
+    }
+
+    :global(.canvas-container) {
+        position: absolute;
     }
 </style>

@@ -20,16 +20,17 @@ export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<
     const canvas = initCanvas();
 
     // get image width and height
-    const image = new Image();
+    const image = document.getElementById("image") as HTMLImageElement;
     image.src = getImageData(imageData.data!);
     image.onload = function() {
         const size = limitSize({ width: image.width, height: image.height });
         canvas.setWidth(size.width);
         canvas.setHeight(size.height);
-        setCanvasBackgroundImage(canvas, image, size.scalar, instance);
+        image.height = size.height;
+        image.width = size.width;
+        setCanvasZoomRatio(canvas, instance);
     };
 
-    image.remove();
     return canvas;
 };
 
@@ -50,20 +51,21 @@ export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom):
     const canvas = initCanvas();
 
     // get image width and height
-    const image = new Image();
+    const image = document.getElementById("image") as HTMLImageElement;
     image.src = getImageData(clozeNote.imageData!);
     image.onload = function() {
         const size = limitSize({ width: image.width, height: image.height });
         canvas.setWidth(size.width);
         canvas.setHeight(size.height);
+        image.height = size.height;
+        image.width = size.width;
 
-        setCanvasBackgroundImage(canvas, image, size.scalar, instance);
+        setCanvasZoomRatio(canvas, instance);
         generateShapeFromCloze(canvas, clozeNote.occlusions);
         enableSelectable(canvas, true);
         addClozeNotesToTextEditor(clozeNote.header, clozeNote.backExtra, clozeNote.tags);
     };
 
-    image.remove();
     return canvas;
 };
 
@@ -91,25 +93,15 @@ const getImageData = (imageData): string => {
     return "data:image/png;base64," + b64encoded;
 };
 
-const setCanvasBackgroundImage = (
+const setCanvasZoomRatio = (
     canvas: fabric.Canvas,
-    image: HTMLImageElement,
-    scalar: number,
     instance: PanZoom,
 ): void => {
-    fabric.Image.fromURL(image.src, function(image) {
-        canvas.setBackgroundImage(image, canvas.renderAll.bind(canvas), {
-            scaleX: canvas.width! / image.width!,
-            scaleY: canvas.height! / image.height!,
-        });
-
-        canvas.backgroundImage.scale(scalar);
-        const zoomRatioW = (innerWidth - 60) / canvas.width!;
-        const zoomRatioH = (innerHeight - 100) / canvas.height!;
-        const zoomRatio = zoomRatioW < zoomRatioH ? zoomRatioW : zoomRatioH;
-        zoomResetValue.set(zoomRatio);
-        instance.smoothZoom(0, 0, zoomRatio);
-    });
+    const zoomRatioW = (innerWidth - 60) / canvas.width!;
+    const zoomRatioH = (innerHeight - 100) / canvas.height!;
+    const zoomRatio = zoomRatioW < zoomRatioH ? zoomRatioW : zoomRatioH;
+    zoomResetValue.set(zoomRatio);
+    instance.smoothZoom(0, 0, zoomRatio);
 };
 
 const addClozeNotesToTextEditor = (header: string, backExtra: string, tags: string[]) => {
