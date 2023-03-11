@@ -11,6 +11,7 @@ import signal
 import weakref
 from argparse import Namespace
 from concurrent.futures import Future
+from pathlib import Path
 from typing import Any, Literal, Sequence, TextIO, TypeVar, cast
 
 import anki
@@ -1640,14 +1641,56 @@ title="{}" {}>{}</button>""".format(
         class DebugDialog(QDialog):
             silentlyClose = True
 
+            def __init__(self) -> None:
+                super().__init__()
+                self._dir = ProfileManagerType.get_created_base_folder(None).joinpath(
+                    "debug_scripts"
+                )
+                self._dir.mkdir(exist_ok=True)
+
             def reject(self) -> None:
                 super().reject()
                 saveSplitter(frm.splitter, "DebugConsoleWindow")
                 saveGeom(self, "DebugConsoleWindow")
 
+            def _save_script(self) -> None:
+                if (existing_file := frm.script.currentText()) != "Unsaved script":
+                    path = Path(existing_file)
+                    if not path.is_absolute():
+                        path = self._dir.joinpath(path)
+                else:
+                    file = QFileDialog.getSaveFileName(
+                        self, directory=str(self._dir), filter="Python file (*.py)"
+                    )[0]
+                    if not file:
+                        return
+                    path = Path(file)
+                path.write_text(frm.text.toPlainText(), encoding="utf8")
+
+                item = path.name if path.is_relative_to(self._dir) else str(path)
+                if not existing_file:
+                    frm.script.addItem(item)
+                frm.script.setCurrentText(item)
+
+            def _open_script(self) -> None:
+                file = QFileDialog.getOpenFileName(
+                    self, directory=str(self._dir), filter="Python file (*.py)"
+                )[0]
+                if not file:
+                    return
+                path = Path(file)
+                item = path.name if path.is_relative_to(self._dir) else str(path)
+                if frm.script.findText(item) == -1:
+                    frm.script.addItem(item)
+                frm.script.setCurrentText(item)
+
+                frm.text.setPlainText(path.read_text(encoding="utf8"))
+
         d = self.debugDiag = DebugDialog()
         disable_help_button(d)
         frm.setupUi(d)
+        frm.script.addItem("Unsaved script")
+        frm.script.addItems(os.listdir(d._dir))
         restoreGeom(d, "DebugConsoleWindow")
         restoreSplitter(frm.splitter, "DebugConsoleWindow")
         font = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
@@ -1662,6 +1705,8 @@ title="{}" {}>{}</button>""".format(
         qconnect(s.activated, frm.log.clear)
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), d)
         qconnect(s.activated, frm.text.clear)
+        qconnect(QShortcut(QKeySequence("ctrl+s"), d).activated, d._save_script)
+        qconnect(QShortcut(QKeySequence("ctrl+o"), d).activated, d._open_script)
 
         qconnect(frm.widgetsButton.clicked, self._on_widgetGallery)
 
@@ -1679,6 +1724,14 @@ title="{}" {}>{}</button>""".format(
                 a = menu.addAction("Clear Code")
                 a.setShortcut(QKeySequence("ctrl+shift+l"))
                 qconnect(a.triggered, frm.text.clear)
+            menu.addSeparator()
+            a = menu.addAction("Save Script")
+            a.setShortcut(QKeySequence("ctrl+s"))
+            qconnect(a.triggered, d._save_script)
+            a = menu.addAction("Open Script")
+            a.setShortcut(QKeySequence("ctrl+o"))
+            qconnect(a.triggered, d._open_script)
+
             menu.exec(QCursor.pos())
 
         frm.log.contextMenuEvent = lambda ev: addContextMenu(ev, "log")  # type: ignore[assignment]
