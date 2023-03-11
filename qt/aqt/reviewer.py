@@ -19,7 +19,7 @@ from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.scheduler.base import ScheduleCardsAsNew
 from anki.scheduler.v3 import CardAnswer, QueuedCards
 from anki.scheduler.v3 import Scheduler as V3Scheduler
-from anki.scheduler.v3 import SchedulingStates
+from anki.scheduler.v3 import SchedulingContext, SchedulingStates
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
 from aqt import AnkiQt, gui_hooks
@@ -315,6 +315,14 @@ class Reviewer:
             return v3.states
         else:
             return None
+
+    def get_scheduling_context(self) -> SchedulingContext | None:
+        if not self.card:
+            return None
+        return SchedulingContext(
+            deck_name=self.mw.col.decks.name(self.card.current_deck_id()),
+            seed=self.card.review_hash(),
+        )
 
     def set_scheduling_states(self, key: str, states: SchedulingStates) -> None:
         if key != self._state_mutation_key:

@@ -17,6 +17,12 @@ async function getSchedulingStates(): Promise<Scheduler.SchedulingStates> {
     );
 }
 
+async function getSchedulingContext(): Promise<Scheduler.SchedulingContext> {
+    return Scheduler.SchedulingContext.decode(
+        await postRequest("/_anki/getSchedulingContext", ""),
+    );
+}
+
 async function setSchedulingStates(
     key: string,
     states: Scheduler.SchedulingStates,
@@ -53,11 +59,18 @@ function packCustomData(
 
 export async function mutateNextCardStates(
     key: string,
-    mutator: (states: Scheduler.SchedulingStates, customData: CustomDataStates) => void,
+    mutator: (
+        states: Scheduler.SchedulingStates,
+        customData: CustomDataStates,
+        ctx: Scheduler.SchedulingContext,
+    ) => void,
 ): Promise<void> {
-    const states = await getSchedulingStates();
+    const [states, ctx] = await Promise.all([
+        getSchedulingStates(),
+        getSchedulingContext(),
+    ]);
     const customData = unpackCustomData(states);
-    mutator(states, customData);
+    mutator(states, customData, ctx);
     packCustomData(states, customData);
     await setSchedulingStates(key, states);
 }

@@ -423,6 +423,12 @@ def set_scheduling_states() -> bytes:
     return b""
 
 
+def get_scheduling_context() -> bytes:
+    if ctx := aqt.mw.reviewer.get_scheduling_context():
+        return ctx.SerializeToString()
+    return b""
+
+
 def change_notetype() -> bytes:
     data = request.data
 
@@ -453,6 +459,7 @@ post_handler_list = [
     update_deck_configs,
     get_scheduling_states,
     set_scheduling_states,
+    get_scheduling_context,
     change_notetype,
     import_csv,
 ]

@@ -282,6 +282,11 @@ message CustomStudyRequest {
   }
 }
 
+message SchedulingContext {
+  string deck_name = 1;
+  string seed = 2;
+}
+
 message CustomStudyDefaultsRequest {
   int64 deck_id = 1;
 }
