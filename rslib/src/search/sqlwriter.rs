@@ -536,7 +536,8 @@ impl SqlWriter<'_> {
     }
 
     fn write_single_field(&mut self, field_name: &str, val: &str) -> Result<()> {
-        let field_indicies_by_notetype = self.fields_indices_by_notetype(field_name)?;
+        let field_indicies_by_notetype =
+            self.num_fields_and_fields_indices_by_notetype(field_name)?;
         if field_indicies_by_notetype.is_empty() {
             write!(self.sql, "false").unwrap();
             return Ok(());
@@ -544,13 +545,29 @@ impl SqlWriter<'_> {
 
         self.args.push(to_sql(val).into());
         let arg_idx = self.args.len();
+        let field_idx_str = format!("' || ?{arg_idx} || '");
+        let other_idx_str = "%".to_string();
 
-        let notetype_clause = |(mid, fields): &(NotetypeId, Vec<u32>)| -> String {
-            let field_index_clause =
-                |ord| format!("field_at_index(n.flds, {ord}) like ?{arg_idx} escape '\\'",);
-            let all_field_clauses = fields.iter().map(field_index_clause).join(" or ");
-            format!("(n.mid = {mid} and ({all_field_clauses}))",)
-        };
+        let notetype_clause =
+            |(mid, num_fields, fields): &(NotetypeId, usize, Vec<Range<u32>>)| -> String {
+                let field_index_clause = |range: &Range<u32>| {
+                    let f = (0..*num_fields)
+                        .filter_map(|i| {
+                            if i as u32 == range.start {
+                                Some(&field_idx_str)
+                            } else if range.contains(&(i as u32)) {
+                                None
+                            } else {
+                                Some(&other_idx_str)
+                            }
+                        })
+                        .join("\x1f");
+                    format!("n.flds like '{f}' escape '\\'")
+                };
+
+                let all_field_clauses = fields.iter().map(field_index_clause).join(" or ");
+                format!("(n.mid = {mid} and ({all_field_clauses}))",)
+            };
         let all_notetype_clauses = field_indicies_by_notetype
             .iter()
             .map(notetype_clause)
@@ -558,6 +575,30 @@ impl SqlWriter<'_> {
         write!(self.sql, "({all_notetype_clauses})").unwrap();
 
         Ok(())
+    }
+
+    fn num_fields_and_fields_indices_by_notetype(
+        &mut self,
+        field_name: &str,
+    ) -> Result<Vec<(NotetypeId, usize, Vec<Range<u32>>)>> {
+        let notetypes = self.col.get_all_notetypes()?;
+        let matches_glob = glob_matcher(field_name);
+
+        let mut field_map = vec![];
+        for nt in notetypes.values() {
+            let matched_fields = nt
+                .fields
+                .iter()
+                .filter_map(|field| {
+                    (matches_glob(&field.name) && !field.config.exclude_from_search)
+                        .then(|| field.ord.unwrap_or_default())
+                })
+                .collect_ranges();
+            if !matched_fields.is_empty() {
+                field_map.push((nt.id, nt.fields.len(), matched_fields));
+            }
+        }
+        Ok(field_map)
     }
 
     fn fields_indices_by_notetype(
