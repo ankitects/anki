@@ -131,11 +131,10 @@ impl SqlWriter<'_> {
             // note fields related
             SearchNode::UnqualifiedText(text) => {
                 let text = &self.norm_note(text);
-                if self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch) {
-                    self.write_no_combining(text)
-                } else {
-                    self.write_unqualified(text)?
-                }
+                self.write_unqualified(
+                    text,
+                    self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch),
+                )?
             }
             SearchNode::SingleField { field, text, is_re } => {
                 self.write_field(&norm(field), &self.norm_note(text), *is_re)?
@@ -144,7 +143,7 @@ impl SqlWriter<'_> {
                 self.write_dupe(*notetype_id, &self.norm_note(text))?
             }
             SearchNode::Regex(re) => self.write_regex(&self.norm_note(re)),
-            SearchNode::NoCombining(text) => self.write_no_combining(&self.norm_note(text)),
+            SearchNode::NoCombining(text) => self.write_unqualified(&self.norm_note(text), true)?,
             SearchNode::WordBoundary(text) => self.write_word_boundary(&self.norm_note(text)),
 
             // other
@@ -185,13 +184,28 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_unqualified(&mut self, text: &str) -> Result<()> {
-        // implicitly wrap in %
-        let text = format!("%{}%", &to_sql(text));
-        self.args.push(text);
-        let arg_idx = self.args.len();
+    fn write_unqualified(&mut self, text: &str, no_combining: bool) -> Result<()> {
+        let text = to_sql(text);
+        let text = if no_combining {
+            without_combining(&text)
+        } else {
+            text
+        };
+
+        let arg_idx = self.args.len() + 1;
+        let sfld_expr;
+        let flds_expr;
+        if no_combining {
+            sfld_expr = "coalesce(without_combining(cast(n.sfld as text)), n.sfld)";
+            flds_expr = "coalesce(without_combining(n.flds), n.flds)";
+        } else {
+            sfld_expr = "n.sfld";
+            flds_expr = "n.flds";
+        }
 
         if let Some(field_indicies_by_notetype) = self.included_fields_by_notetype()? {
+            self.args.push(text.into());
+
             let field_idx_str = format!("' || ?{arg_idx} || '");
             let other_idx_str = "%".to_string();
 
@@ -214,12 +228,12 @@ impl SqlWriter<'_> {
                             }
                         })
                         .join("\x1f");
-                    format!("n.flds like '{f}' escape '\\'")
+                    format!("{flds_expr} like '{f}' escape '\\'")
                 };
                 let mut all_field_clauses: Vec<String> =
                     fields.iter().map(field_index_clause).collect();
                 if !sortf_excluded {
-                    all_field_clauses.push(format!("n.sfld like ?{arg_idx} escape '\\'"));
+                    all_field_clauses.push(format!("{sfld_expr} like ?{arg_idx} escape '\\'"));
                 }
                 format!(
                     "(n.mid = {mid} and ({all_field_clauses}))",
@@ -232,28 +246,17 @@ impl SqlWriter<'_> {
                 .join(" or ");
             write!(self.sql, "({all_notetype_clauses})").unwrap();
         } else {
+            // implicitly wrap in %
+            let text = format!("%{}%", text);
+            self.args.push(text);
             write!(
                 self.sql,
-                "(n.sfld like ?{arg_idx} escape '\\' or n.flds like ?{arg_idx} escape '\\')"
+                "({sfld_expr} like ?{arg_idx} escape '\\' or {flds_expr} like ?{arg_idx} escape '\\')"
             )
             .unwrap();
         }
 
         Ok(())
-    }
-
-    fn write_no_combining(&mut self, text: &str) {
-        let text = format!("%{}%", without_combining(&to_sql(text)));
-        self.args.push(text);
-        write!(
-            self.sql,
-            concat!(
-                "(coalesce(without_combining(cast(n.sfld as text)), n.sfld) like ?{n} escape '\\' ",
-                "or coalesce(without_combining(n.flds), n.flds) like ?{n} escape '\\')"
-            ),
-            n = self.args.len(),
-        )
-        .unwrap();
     }
 
     fn write_tag(&mut self, tag: &str, is_re: bool) {
