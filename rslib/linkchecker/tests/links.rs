@@ -3,16 +3,19 @@
 
 #![cfg(test)]
 
+use std::borrow::Cow;
 use std::env;
 use std::iter;
 
 use anki::links::HelpPage;
 use futures::StreamExt;
 use itertools::Itertools;
+use lazy_static::lazy_static;
 use linkcheck::validation::check_web;
 use linkcheck::validation::Context;
 use linkcheck::validation::Reason;
 use linkcheck::BasicContext;
+use regex::Regex;
 use reqwest::Url;
 use strum::IntoEnumIterator;
 
@@ -26,6 +29,49 @@ enum Outcome {
     Invalid(String),
 }
 
+#[derive(Clone)]
+enum CheckableUrl {
+    HelpPage(HelpPage),
+    String(&'static str),
+}
+
+impl CheckableUrl {
+    fn url(&self) -> Cow<str> {
+        match *self {
+            Self::HelpPage(page) => page.to_link().into(),
+            Self::String(s) => s.into(),
+        }
+    }
+
+    fn anchor(&self) -> Cow<str> {
+        match *self {
+            Self::HelpPage(page) => page.to_link_suffix().into(),
+            Self::String(s) => s.split('#').last().unwrap_or_default().into(),
+        }
+    }
+}
+
+impl From<HelpPage> for CheckableUrl {
+    fn from(value: HelpPage) -> Self {
+        Self::HelpPage(value)
+    }
+}
+
+impl From<&'static str> for CheckableUrl {
+    fn from(value: &'static str) -> Self {
+        Self::String(value)
+    }
+}
+
+fn ts_help_pages() -> impl Iterator<Item = &'static str> {
+    lazy_static! {
+        static ref QUOTED_URL: Regex = Regex::new("\"(http.+)\"").unwrap();
+    }
+    QUOTED_URL
+        .captures_iter(include_str!("../../../ts/lib/help-page.ts"))
+        .map(|caps| caps.get(1).unwrap().as_str())
+}
+
 #[tokio::test]
 async fn check_links() {
     if env::var("ONLINE_TESTS").is_err() {
@@ -33,18 +79,22 @@ async fn check_links() {
         return;
     }
     let ctx = BasicContext::default();
-    let result = futures::stream::iter(HelpPage::iter())
-        .map(|page| check_page(page, &ctx))
-        .buffer_unordered(ctx.concurrency())
-        .collect::<Outcomes>()
-        .await;
+    let result = futures::stream::iter(
+        HelpPage::iter()
+            .map(CheckableUrl::from)
+            .chain(ts_help_pages().map(CheckableUrl::from)),
+    )
+    .map(|page| check_url(page, &ctx))
+    .buffer_unordered(ctx.concurrency())
+    .collect::<Outcomes>()
+    .await;
     if !result.0.is_empty() {
         panic!("{}", result.message());
     }
 }
 
-async fn check_page(page: HelpPage, ctx: &BasicContext) -> Outcome {
-    let link = page.to_link();
+async fn check_url(page: CheckableUrl, ctx: &BasicContext) -> Outcome {
+    let link = page.url();
     match Url::parse(&link) {
         Ok(url) => {
             if url.as_str() == link {
@@ -60,10 +110,7 @@ async fn check_page(page: HelpPage, ctx: &BasicContext) -> Outcome {
                     _ => unreachable!(),
                 }
             } else {
-                Outcome::Invalid(format!(
-                    "'{}' is not a valid URL part",
-                    page.to_link_suffix(),
-                ))
+                Outcome::Invalid(format!("'{}' is not a valid URL part", page.anchor(),))
             }
         }
         Err(err) => Outcome::Invalid(err.to_string()),
