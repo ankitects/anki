@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@tslib/ftl";
+    import { HelpPage } from "@tslib/help-page";
     import { DeckConfig } from "@tslib/proto";
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
@@ -58,22 +59,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         learningSteps: {
             title: tr.deckConfigLearningSteps(),
             help: tr.deckConfigLearningStepsTooltip(),
-            url: "https://docs.ankiweb.net/deck-options.html#learning-steps",
+            url: HelpPage.DeckOptions.learningSteps,
         },
         graduatingInterval: {
             title: tr.schedulingGraduatingInterval(),
             help: tr.deckConfigGraduatingIntervalTooltip(),
-            url: "https://docs.ankiweb.net/deck-options.html#graduating-interval",
+            url: HelpPage.DeckOptions.graduatingInterval,
         },
         easyInterval: {
             title: tr.schedulingEasyInterval(),
             help: tr.deckConfigEasyIntervalTooltip(),
-            url: "https://docs.ankiweb.net/deck-options.html#easy-interval",
+            url: HelpPage.DeckOptions.easyInterval,
         },
         insertionOrder: {
             title: tr.deckConfigNewInsertionOrder(),
             help: tr.deckConfigNewInsertionOrderTooltip(),
-            url: "https://docs.ankiweb.net/deck-options.html#insertion-order",
+            url: HelpPage.DeckOptions.insertionOrder,
         },
     };
     const helpSections = Object.values(settings) as DeckOption[];
@@ -90,7 +91,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.schedulingNewCards()}>
     <HelpModal
         title={tr.schedulingNewCards()}
-        url="https://docs.ankiweb.net/deck-options.html#new-cards"
+        url={HelpPage.DeckOptions.newCards}
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {
