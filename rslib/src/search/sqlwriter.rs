@@ -632,7 +632,7 @@ impl SqlWriter<'_> {
         &mut self,
     ) -> Result<Option<Vec<(NotetypeId, usize, bool, Vec<Range<u32>>)>>> {
         let notetypes = self.col.get_all_notetypes()?;
-        let mut any_excluded = true;
+        let mut any_excluded = false;
         let mut field_map = vec![];
         for nt in notetypes.values() {
             let mut sortf_excluded = false;
@@ -640,12 +640,12 @@ impl SqlWriter<'_> {
                 .fields
                 .iter()
                 .filter_map(|field| {
-                    (!field.config.exclude_from_search).then(|| {
-                        any_excluded = false;
-                        let ord = field.ord.unwrap_or_default();
+                    let ord = field.ord.unwrap_or_default();
+                    if field.config.exclude_from_search {
+                        any_excluded = true;
                         sortf_excluded |= ord == nt.config.sort_field_idx;
-                        ord
-                    })
+                    }
+                    (!field.config.exclude_from_search).then(|| ord)
                 })
                 .collect_ranges();
             if !matched_fields.is_empty() {
