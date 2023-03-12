@@ -574,7 +574,6 @@ mod test {
     use std::io::Cursor;
 
     use super::*;
-    use crate::collection::open_test_collection;
 
     macro_rules! metadata {
         ($col:expr,$csv:expr) => {
@@ -604,7 +603,7 @@ mod test {
 
     #[test]
     fn should_detect_deck_by_name_or_id() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let deck_id = col.get_or_create_normal_deck("my deck").unwrap().id.0;
         assert_eq!(metadata!(col, "#deck:my deck\n").unwrap_deck_id(), deck_id);
         assert_eq!(
@@ -618,7 +617,7 @@ mod test {
 
     #[test]
     fn should_detect_notetype_by_name_or_id() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let basic_id = col.get_notetype_by_name("Basic").unwrap().unwrap().id.0;
         assert_eq!(
             metadata!(col, "#notetype:Basic\n").unwrap_notetype_id(),
@@ -632,7 +631,7 @@ mod test {
 
     #[test]
     fn should_detect_valid_delimiters() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         assert_eq!(
             metadata!(col, "#separator:comma\n").delimiter(),
             Delimiter::Comma
@@ -661,7 +660,7 @@ mod test {
 
     #[test]
     fn should_enforce_valid_html_flag() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         let meta = metadata!(col, "#html:true\n");
         assert!(meta.is_html);
@@ -676,7 +675,7 @@ mod test {
 
     #[test]
     fn should_set_missing_html_flag_by_first_line() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         let meta = metadata!(col, "<br/>\n");
         assert!(meta.is_html);
@@ -690,7 +689,7 @@ mod test {
 
     #[test]
     fn should_detect_old_and_new_style_tags() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         assert_eq!(metadata!(col, "tags:foo bar\n").global_tags, ["foo", "bar"]);
         assert_eq!(
             metadata!(col, "#tags:foo bar\n").global_tags,
@@ -708,7 +707,7 @@ mod test {
 
     #[test]
     fn should_detect_column_number_and_names() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         // detect from line
         assert_eq!(metadata!(col, "foo;bar\n").column_labels.len(), 2);
         // detect encoded
@@ -745,7 +744,7 @@ mod test {
 
     #[test]
     fn should_detect_column_number_despite_escaped_line_breaks() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         assert_eq!(
             metadata!(col, "\"foo|\nbar\"\tfoo\tbar\n")
                 .column_labels
@@ -765,21 +764,21 @@ mod test {
 
     #[test]
     fn should_map_default_notetype_fields_by_index_if_no_column_names() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let meta = metadata!(col, "#deck column:1\nfoo,bar,baz\n");
         assert_eq!(meta.unwrap_notetype_map(), &[2, 3]);
     }
 
     #[test]
     fn should_map_default_notetype_fields_by_given_column_names() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let meta = metadata!(col, "#columns:Back\tFront\nfoo,bar,baz\n");
         assert_eq!(meta.unwrap_notetype_map(), &[2, 1]);
     }
 
     #[test]
     fn should_gather_first_lines_into_preview() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let meta = metadata!(col, "#separator: \nfoo bar\nbaz<br>\n");
         assert_eq!(meta.preview[0].vals, ["foo", "bar"]);
         // html is stripped
@@ -788,7 +787,7 @@ mod test {
 
     #[test]
     fn should_parse_first_first_line_despite_bom() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         assert_eq!(
             metadata!(col, "\u{feff}#separator:tab\n").delimiter(),
             Delimiter::Tab

@@ -270,13 +270,12 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::collection::open_test_collection;
     use crate::search::SearchNode;
 
     #[test]
     fn should_gather_valid_notes() {
         let mut data = ExchangeData::default();
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         let note = NoteAdder::basic(&mut col).add(&mut col);
         data.gather_data(&mut col, SearchNode::WholeCollection, true)
@@ -288,7 +287,7 @@ mod test {
     #[test]
     fn should_err_if_note_has_invalid_id() {
         let mut data = ExchangeData::default();
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let now_micros = TimestampMillis::now().0 * 1000;
 
         let mut note = NoteAdder::basic(&mut col).add(&mut col);

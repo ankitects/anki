@@ -374,12 +374,11 @@ fn remap_fields(fields: &mut Vec<String>, new_fields: &[Option<usize>]) {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::collection::open_test_collection;
     use crate::error::Result;
 
     #[test]
     fn field_map() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let mut basic = col
             .storage
             .get_notetype(col.get_current_notetype_id().unwrap())?
@@ -446,7 +445,7 @@ mod test {
 
     #[test]
     fn basic() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let basic = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = basic.new_note();
         note.set_field(0, "1")?;
@@ -482,7 +481,7 @@ mod test {
 
     #[test]
     fn field_count_change() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let basic = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = basic.new_note();
         note.set_field(0, "1")?;
@@ -503,7 +502,7 @@ mod test {
 
     #[test]
     fn cloze() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let basic = col
             .get_notetype_by_name("Basic (and reversed card)")?
             .unwrap();

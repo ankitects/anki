@@ -270,7 +270,6 @@ mod test {
     use super::*;
     use crate::card::CardQueue;
     use crate::card::CardType;
-    use crate::collection::open_test_collection;
     use crate::pb::deckconfig::deck_config::config::NewCardGatherPriority;
     use crate::pb::deckconfig::deck_config::config::NewCardSortOrder;
 
@@ -402,7 +401,7 @@ mod test {
 
     #[test]
     fn review_queue_building() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         col.set_config_bool(BoolKey::Sched2021, true, false)?;
 
         let mut deck = col.get_or_create_normal_deck("Default").unwrap();

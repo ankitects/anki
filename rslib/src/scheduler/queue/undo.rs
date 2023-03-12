@@ -66,7 +66,6 @@ impl Collection {
 mod test {
     use crate::card::CardQueue;
     use crate::card::CardType;
-    use crate::collection::open_test_collection;
     use crate::deckconfig::LeechAction;
     use crate::prelude::*;
 
@@ -86,7 +85,7 @@ mod test {
     #[test]
     fn undo() -> Result<()> {
         // add a note
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let nid = add_note(&mut col, true)?;
 
         // turn burying and leech suspension on
@@ -193,7 +192,7 @@ mod test {
 
     #[test]
     fn undo_counts() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         if col.timing_today()?.near_cutoff() {
             return Ok(());
         }
@@ -247,7 +246,7 @@ mod test {
     #[test]
     fn redo_after_queue_invalidation_bug() -> Result<()> {
         // add a note to the default deck
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let _nid = add_note(&mut col, true)?;
 
         // add a deck and select it

@@ -44,11 +44,11 @@ impl Collection {
 
 #[cfg(test)]
 mod test {
-    use crate::collection::open_test_collection;
+    use super::*;
 
     #[test]
     fn empty() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let info = col.congrats_info().unwrap();
         assert_eq!(
             info,

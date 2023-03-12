@@ -282,7 +282,6 @@ mod tests {
     use super::*;
     use crate::backend::ankidroid::db::select_slice_of_size;
     use crate::backend::ankidroid::db::Sizable;
-    use crate::collection::open_test_collection;
     use crate::pb::ankidroid::sql_value;
     use crate::pb::ankidroid::Row;
     use crate::pb::ankidroid::SqlValue;
@@ -382,7 +381,7 @@ mod tests {
 
     #[test]
     fn integration_test() {
-        let col = open_test_collection();
+        let col = Collection::new();
 
         let row = Row { fields: gen_data() };
 

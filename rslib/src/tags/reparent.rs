@@ -114,7 +114,6 @@ fn reparented_name(existing_name: &str, new_parent: Option<&str>) -> Option<Stri
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::collection::open_test_collection;
 
     fn alltags(col: &Collection) -> Vec<String> {
         col.storage
@@ -127,7 +126,7 @@ mod test {
 
     #[test]
     fn dragdrop() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         for tag in &[
             "a",

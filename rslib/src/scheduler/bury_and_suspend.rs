@@ -175,14 +175,13 @@ impl CardQueue {
 mod test {
     use crate::card::Card;
     use crate::card::CardQueue;
-    use crate::collection::open_test_collection;
     use crate::collection::Collection;
     use crate::search::SortMode;
     use crate::search::StateKind;
 
     #[test]
     fn unbury() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let mut card = Card {
             queue: CardQueue::UserBuried,
             ..Default::default()

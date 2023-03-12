@@ -631,7 +631,6 @@ fn note_differs_from_db(existing_note: &mut Note, note: &mut Note) -> bool {
 mod test {
     use super::anki_base91;
     use super::field_checksum;
-    use crate::collection::open_test_collection;
     use crate::config::BoolKey;
     use crate::decks::DeckId;
     use crate::error::Result;
@@ -655,7 +654,7 @@ mod test {
 
     #[test]
     fn adding_cards() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let nt = col
             .get_notetype_by_name("basic (and reversed card)")?
             .unwrap();
@@ -703,7 +702,7 @@ mod test {
 
     #[test]
     fn normalization() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
@@ -735,7 +734,7 @@ mod test {
 
     #[test]
     fn undo() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let nt = col
             .get_notetype_by_name("basic (and reversed card)")?
             .unwrap();

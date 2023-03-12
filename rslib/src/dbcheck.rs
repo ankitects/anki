@@ -413,7 +413,6 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::collection::open_test_collection;
     use crate::decks::DeckId;
     use crate::search::SortMode;
 
@@ -421,7 +420,7 @@ mod test {
 
     #[test]
     fn cards() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         col.add_note(&mut note, DeckId(1))?;
@@ -483,7 +482,7 @@ mod test {
 
     #[test]
     fn revlog() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         col.storage.db.execute_batch(
             "
@@ -508,7 +507,7 @@ mod test {
 
     #[test]
     fn note_card_link() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         col.add_note(&mut note, DeckId(1))?;
@@ -557,7 +556,7 @@ mod test {
 
     #[test]
     fn note_fields() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         col.add_note(&mut note, DeckId(1))?;
@@ -597,7 +596,7 @@ mod test {
 
     #[test]
     fn deck_names() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         let deck = col.get_or_create_normal_deck("foo::bar::baz")?;
         // includes default
@@ -631,7 +630,7 @@ mod test {
 
     #[test]
     fn tags() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         note.tags.push("one".into());

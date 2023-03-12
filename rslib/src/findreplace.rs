@@ -114,12 +114,11 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::collection::open_test_collection;
     use crate::decks::DeckId;
 
     #[test]
     fn findreplace() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();

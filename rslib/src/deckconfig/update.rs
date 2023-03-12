@@ -275,14 +275,13 @@ fn update_day_limit(day_limit: &mut Option<DayLimit>, new_limit: Option<u32>, to
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::collection::open_test_collection;
     use crate::deckconfig::NewCardInsertOrder;
     use crate::tests::open_test_collection_with_learning_card;
     use crate::tests::open_test_collection_with_relearning_card;
 
     #[test]
     fn updating() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note1 = nt.new_note();
         col.add_note(&mut note1, DeckId(1))?;
