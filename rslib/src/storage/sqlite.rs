@@ -9,6 +9,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use fnv::FnvHasher;
+use itertools::Itertools;
 use regex::Regex;
 use rusqlite::functions::FunctionFlags;
 use rusqlite::params;
@@ -67,6 +68,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     add_regexp_tags_function(&db)?;
     add_without_combining_function(&db)?;
     add_fnvhash_function(&db)?;
+    add_exclude_fields_function(&db)?;
 
     db.create_collation("unicase", unicase_compare)?;
 
@@ -186,6 +188,31 @@ fn add_regexp_tags_function(db: &Connection) -> rusqlite::Result<()> {
             let mut tags = ctx.get_raw(1).as_str()?.split(' ');
 
             Ok(tags.any(|tag| re.is_match(tag)))
+        },
+    )
+}
+
+/// Adds sql function exclude_fields(flds, indices...)
+/// to return `flds` with fields whose indices are in `indices` removed
+fn add_exclude_fields_function(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "exclude_fields",
+        -1,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert!(ctx.len() > 1, "not enough arguments");
+
+            let joined_fields = ctx.get_raw(0).as_str()?;
+            let fields: Vec<&str> = joined_fields.split('\x1f').collect();
+            let indices: HashSet<usize> = (1..ctx.len())
+                .map(|i| ctx.get(i))
+                .collect::<rusqlite::Result<_>>()?;
+            let matched_fields = fields
+                .iter()
+                .enumerate()
+                .filter_map(|(i, field)| (!indices.contains(&i)).then_some(field))
+                .join("\x1f");
+            Ok(matched_fields)
         },
     )
 }

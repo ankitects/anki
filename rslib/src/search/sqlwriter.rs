@@ -142,9 +142,9 @@ impl SqlWriter<'_> {
             SearchNode::Duplicates { notetype_id, text } => {
                 self.write_dupe(*notetype_id, &self.norm_note(text))?
             }
-            SearchNode::Regex(re) => self.write_regex(&self.norm_note(re)),
+            SearchNode::Regex(re) => self.write_regex(&self.norm_note(re), false)?,
             SearchNode::NoCombining(text) => self.write_unqualified(&self.norm_note(text), true)?,
-            SearchNode::WordBoundary(text) => self.write_word_boundary(&self.norm_note(text)),
+            SearchNode::WordBoundary(text) => self.write_word_boundary(&self.norm_note(text))?,
 
             // other
             SearchNode::AddedInDays(days) => self.write_added(*days)?,
@@ -191,17 +191,17 @@ impl SqlWriter<'_> {
         } else {
             text
         };
-
         let arg_idx = self.args.len() + 1;
-        let sfld_expr;
-        let flds_expr;
-        if no_combining {
-            sfld_expr = "coalesce(without_combining(cast(n.sfld as text)), n.sfld)";
-            flds_expr = "coalesce(without_combining(n.flds), n.flds)";
+        let sfld_expr = if no_combining {
+            "coalesce(without_combining(cast(n.sfld as text)), n.sfld)"
         } else {
-            sfld_expr = "n.sfld";
-            flds_expr = "n.flds";
-        }
+            "n.sfld"
+        };
+        let flds_expr = if no_combining {
+            "coalesce(without_combining(n.flds), n.flds)"
+        } else {
+            "n.flds"
+        };
 
         if let Some(field_indicies_by_notetype) = self.included_fields_by_notetype()? {
             self.args.push(text.into());
@@ -580,6 +580,7 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
+    #[allow(clippy::type_complexity)]
     fn num_fields_and_fields_indices_by_notetype(
         &mut self,
         field_name: &str,
@@ -601,6 +602,10 @@ impl SqlWriter<'_> {
                 field_map.push((nt.id, nt.fields.len(), matched_fields));
             }
         }
+
+        // for now, sort the map for the benefit of unit tests
+        field_map.sort_by_key(|v| v.0);
+
         Ok(field_map)
     }
 
@@ -648,11 +653,39 @@ impl SqlWriter<'_> {
                         any_excluded = true;
                         sortf_excluded |= ord == nt.config.sort_field_idx;
                     }
-                    (!field.config.exclude_from_search).then(|| ord)
+                    (!field.config.exclude_from_search).then_some(ord)
                 })
                 .collect_ranges();
             if !matched_fields.is_empty() {
                 field_map.push((nt.id, nt.fields.len(), sortf_excluded, matched_fields));
+            }
+        }
+        if any_excluded {
+            Ok(Some(field_map))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Return excluded fields for notetypes that have some but not all fields
+    /// excluded
+    #[allow(clippy::type_complexity)]
+    fn excluded_fields_by_notetype(&mut self) -> Result<Option<Vec<(NotetypeId, Vec<u32>)>>> {
+        let notetypes = self.col.get_all_notetypes()?;
+        let mut any_excluded = false;
+        let mut field_map = vec![];
+        for nt in notetypes.values() {
+            let matched_fields: Vec<u32> = nt
+                .fields
+                .iter()
+                .filter_map(|field| {
+                    let ord = field.ord.unwrap_or_default();
+                    any_excluded |= field.config.exclude_from_search;
+                    field.config.exclude_from_search.then_some(ord)
+                })
+                .collect();
+            if nt.fields.len() != matched_fields.len() {
+                field_map.push((nt.id, matched_fields));
             }
         }
         if any_excluded {
@@ -720,25 +753,47 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_regex(&mut self, word: &str) {
-        self.sql.push_str("n.flds regexp ?");
-        self.args.push(format!(r"(?i){}", word));
-    }
-
-    fn write_regex_nc(&mut self, word: &str) {
-        let word = &without_combining(word);
-        self.sql
-            .push_str("coalesce(without_combining(n.flds), n.flds) regexp ?");
-        self.args.push(format!(r"(?i){}", word));
-    }
-
-    fn write_word_boundary(&mut self, word: &str) {
-        let re = format!(r"\b{}\b", to_re(word));
-        if self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch) {
-            self.write_regex_nc(&re);
+    fn write_regex(&mut self, word: &str, no_combining: bool) -> Result<()> {
+        let flds_expr = if no_combining {
+            "coalesce(without_combining(n.flds), n.flds)"
         } else {
-            self.write_regex(&re);
+            "n.flds"
+        };
+        let word = if no_combining {
+            without_combining(word)
+        } else {
+            std::borrow::Cow::Borrowed(word)
+        };
+        self.args.push(format!(r"(?i){}", word));
+        let arg_idx = self.args.len();
+        if let Some(field_indices_by_notetype) = self.excluded_fields_by_notetype()? {
+            let notetype_clause = |(mid, fields): &(NotetypeId, Vec<u32>)| -> String {
+                let clause = if fields.is_empty() {
+                    format!("{flds_expr} regexp ?{arg_idx}")
+                } else {
+                    let indices = fields.iter().join(",");
+                    format!("exclude_fields({flds_expr}, {indices}) regexp ?{arg_idx}")
+                };
+                format!("(n.mid = {mid} and {clause})")
+            };
+            let all_notetype_clauses = field_indices_by_notetype
+                .iter()
+                .map(notetype_clause)
+                .join(" or ");
+            write!(self.sql, "({all_notetype_clauses})").unwrap();
+        } else {
+            write!(self.sql, "{flds_expr} regexp ?{arg_idx}").unwrap();
         }
+
+        Ok(())
+    }
+
+    fn write_word_boundary(&mut self, word: &str) -> Result<()> {
+        let re = format!(r"\b{}\b", to_re(word));
+        self.write_regex(
+            &re,
+            self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch),
+        )
     }
 }
 
@@ -899,10 +954,10 @@ mod test {
             s(ctx, "front:te*st"),
             (
                 concat!(
-                    "(((n.mid = 1581236385344 and (field_at_index(n.flds, 0) like ?1 escape '\\')) or ",
-                    "(n.mid = 1581236385345 and (field_at_index(n.flds, 0) like ?1 escape '\\')) or ",
-                    "(n.mid = 1581236385346 and (field_at_index(n.flds, 0) like ?1 escape '\\')) or ",
-                    "(n.mid = 1581236385347 and (field_at_index(n.flds, 0) like ?1 escape '\\'))))"
+                    "(((n.mid = 1581236385344 and (n.flds like '' || ?1 || '\u{1f}%' escape '\\')) or ",
+                    "(n.mid = 1581236385345 and (n.flds like '' || ?1 || '\u{1f}%\u{1f}%' escape '\\')) or ",
+                    "(n.mid = 1581236385346 and (n.flds like '' || ?1 || '\u{1f}%' escape '\\')) or ",
+                    "(n.mid = 1581236385347 and (n.flds like '' || ?1 || '\u{1f}%' escape '\\'))))"
                 )
                 .into(),
                 vec!["te%st".into()]
@@ -1100,22 +1155,25 @@ mod test {
         // regex
         assert_eq!(
             s(ctx, r"re:\bone"),
-            ("(n.flds regexp ?)".into(), vec![r"(?i)\bone".into()])
+            ("(n.flds regexp ?1)".into(), vec![r"(?i)\bone".into()])
         );
 
         // word boundary
         assert_eq!(
             s(ctx, r"w:foo"),
-            ("(n.flds regexp ?)".into(), vec![r"(?i)\bfoo\b".into()])
+            ("(n.flds regexp ?1)".into(), vec![r"(?i)\bfoo\b".into()])
         );
         assert_eq!(
             s(ctx, r"w:*foo"),
-            ("(n.flds regexp ?)".into(), vec![r"(?i)\b.*foo\b".into()])
+            ("(n.flds regexp ?1)".into(), vec![r"(?i)\b.*foo\b".into()])
         );
 
         assert_eq!(
             s(ctx, r"w:*fo_o*"),
-            ("(n.flds regexp ?)".into(), vec![r"(?i)\b.*fo.o.*\b".into()])
+            (
+                "(n.flds regexp ?1)".into(),
+                vec![r"(?i)\b.*fo.o.*\b".into()]
+            )
         );
     }
 
