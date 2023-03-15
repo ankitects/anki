@@ -153,7 +153,7 @@ class Browser(QMainWindow):
         restoreState(self, self._editor_state_key)
 
         # responsive layout
-        self.aspect_ratio = self.width() / self.height()
+        self.aspect_ratio = self.width() / self.height() if self.height() != 0 else 0
         self.set_layout(self.mw.pm.browser_layout(), True)
         # disable undo/redo
         self.on_undo_state_change(mw.undo_actions_info())
@@ -234,12 +234,13 @@ class Browser(QMainWindow):
                 self.form.splitter.setOrientation(Qt.Orientation.Horizontal)
 
     def resizeEvent(self, event: QResizeEvent) -> None:
-        aspect_ratio = self.width() / self.height()
+        if self.height() != 0:
+            aspect_ratio = self.width() / self.height()
 
-        if self.auto_layout:
-            self.maybe_update_layout(aspect_ratio)
+            if self.auto_layout:
+                self.maybe_update_layout(aspect_ratio)
 
-        self.aspect_ratio = aspect_ratio
+            self.aspect_ratio = aspect_ratio
 
         QMainWindow.resizeEvent(self, event)
 
