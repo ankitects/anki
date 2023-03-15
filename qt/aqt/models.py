@@ -280,7 +280,9 @@ class AddModel(QDialog):
         else:
             self.model = model(self.col)
         QDialog.accept(self)
-        self.on_success(self.model)
+        # On mac, we need to allow time for the existing modal to close or
+        # Qt gets confused.
+        self.mw.progress.single_shot(100, lambda: self.on_success(self.model), True)
 
     def onHelp(self) -> None:
         openHelp(HelpPage.ADDING_A_NOTE_TYPE)
