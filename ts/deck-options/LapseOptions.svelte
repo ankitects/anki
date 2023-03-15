@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@tslib/ftl";
+    import { HelpPage } from "@tslib/help-page";
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
 
@@ -42,22 +43,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         relearningSteps: {
             title: tr.deckConfigRelearningSteps(),
             help: tr.deckConfigRelearningStepsTooltip(),
-            url: "https://docs.ankiweb.net/deck-options.html#relearning-steps",
+            url: HelpPage.DeckOptions.relearningSteps,
         },
         minimumInterval: {
             title: tr.schedulingMinimumInterval(),
             help: tr.deckConfigMinimumIntervalTooltip(),
-            url: "https://docs.ankiweb.net/deck-options.html#minimum-interval",
+            url: HelpPage.DeckOptions.minimumInterval,
         },
         leechThreshold: {
             title: tr.schedulingLeechThreshold(),
             help: tr.deckConfigLeechThresholdTooltip(),
-            url: "https://docs.ankiweb.net/leeches.html#leeches",
+            url: HelpPage.Leeches.leeches,
         },
         leechAction: {
             title: tr.schedulingLeechAction(),
             help: tr.deckConfigLeechActionTooltip(),
-            url: "https://docs.ankiweb.net/leeches.html#waiting",
+            url: HelpPage.Leeches.waiting,
         },
     };
     const helpSections = Object.values(settings) as DeckOption[];
@@ -74,7 +75,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.schedulingLapses()}>
     <HelpModal
         title={tr.schedulingLapses()}
-        url="https://docs.ankiweb.net/deck-options.html#lapses"
+        url={HelpPage.DeckOptions.lapses}
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {
