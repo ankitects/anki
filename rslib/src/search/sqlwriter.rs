@@ -191,7 +191,11 @@ impl SqlWriter<'_> {
         } else {
             text
         };
-        let arg_idx = self.args.len() + 1;
+        // implicitly wrap in %
+        let text = format!("%{}%", text);
+        self.args.push(text);
+        let arg_idx = self.args.len();
+
         let sfld_expr = if no_combining {
             "coalesce(without_combining(cast(n.sfld as text)), n.sfld)"
         } else {
@@ -204,8 +208,6 @@ impl SqlWriter<'_> {
         };
 
         if let Some(field_indicies_by_notetype) = self.included_fields_by_notetype()? {
-            self.args.push(text.into());
-
             let field_idx_str = format!("' || ?{arg_idx} || '");
             let other_idx_str = "%".to_string();
 
@@ -246,9 +248,6 @@ impl SqlWriter<'_> {
                 .join(" or ");
             write!(self.sql, "({all_notetype_clauses})").unwrap();
         } else {
-            // implicitly wrap in %
-            let text = format!("%{}%", text);
-            self.args.push(text);
             write!(
                 self.sql,
                 "({sfld_expr} like ?{arg_idx} escape '\\' or {flds_expr} like ?{arg_idx} escape '\\')"
