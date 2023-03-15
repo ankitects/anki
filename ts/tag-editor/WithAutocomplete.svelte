@@ -127,7 +127,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <WithFloating
     keepOnKeyup
     show={$show}
-    preferredPlacement="top-start"
+    preferredPlacement="top"
     portalTarget={document.body}
     let:asReference
     on:close={() => show.set(false)}
