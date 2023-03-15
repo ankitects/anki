@@ -11,15 +11,9 @@ interface CustomDataStates {
     easy: Record<string, unknown>;
 }
 
-async function getSchedulingStates(): Promise<Scheduler.SchedulingStates> {
-    return Scheduler.SchedulingStates.decode(
-        await postRequest("/_anki/getSchedulingStates", ""),
-    );
-}
-
-async function getSchedulingContext(): Promise<Scheduler.SchedulingContext> {
-    return Scheduler.SchedulingContext.decode(
-        await postRequest("/_anki/getSchedulingContext", ""),
+async function getSchedulingStatesWithContext(): Promise<Scheduler.SchedulingStatesWithContext> {
+    return Scheduler.SchedulingStatesWithContext.decode(
+        await postRequest("/_anki/getSchedulingStatesWithContext", ""),
     );
 }
 
@@ -65,12 +59,10 @@ export async function mutateNextCardStates(
         ctx: Scheduler.SchedulingContext,
     ) => Promise<void>,
 ): Promise<void> {
-    const [states, ctx] = await Promise.all([
-        getSchedulingStates(),
-        getSchedulingContext(),
-    ]);
+    const statesWithContext = await getSchedulingStatesWithContext();
+    const states = statesWithContext.states!;
     const customData = unpackCustomData(states);
-    await mutator(states, customData, ctx);
+    await mutator(states, customData, statesWithContext.context!);
     packCustomData(states, customData);
     await setSchedulingStates(key, states);
 }

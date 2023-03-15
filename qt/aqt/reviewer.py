@@ -83,6 +83,7 @@ class V3CardInfo:
 
     queued_cards: QueuedCards
     states: SchedulingStates
+    context: SchedulingContext
 
     @staticmethod
     def from_queue(queued_cards: QueuedCards) -> V3CardInfo:
@@ -90,8 +91,7 @@ class V3CardInfo:
         states = top_card.states
         states.current.custom_data = top_card.card.custom_data
         return V3CardInfo(
-            queued_cards=queued_cards,
-            states=states,
+            queued_cards=queued_cards, states=states, context=top_card.context
         )
 
     def top_card(self) -> QueuedCards.QueuedCard:
@@ -268,16 +268,12 @@ class Reviewer:
     def get_scheduling_states(self) -> SchedulingStates | None:
         if v3 := self._v3:
             return v3.states
-        else:
-            return None
+        return None
 
     def get_scheduling_context(self) -> SchedulingContext | None:
-        if not self.card:
-            return None
-        return SchedulingContext(
-            deck_name=self.mw.col.decks.name(self.card.current_deck_id()),
-            seed=self.card.review_hash(),
-        )
+        if v3 := self._v3:
+            return v3.context
+        return None
 
     def set_scheduling_states(self, key: str, states: SchedulingStates) -> None:
         if key != self._state_mutation_key:

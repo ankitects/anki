@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import pprint
 import time
 
@@ -84,7 +83,7 @@ class Card(DeprecatedNamesMixin):
         self.due = card.due
         self.ivl = card.interval
         self.factor = card.ease_factor
-        self.reps: int = card.reps
+        self.reps = card.reps
         self.lapses = card.lapses
         self.left = card.remaining_steps
         self.odue = card.original_due
@@ -216,15 +215,6 @@ class Card(DeprecatedNamesMixin):
         if not 0 <= flag <= 7:
             raise Exception("invalid flag")
         self.flags = (self.flags & ~0b111) | flag
-
-    def review_hash(self) -> str:
-        """Sha1 of this card's id and repetition count."""
-        hash = hashlib.sha1()
-        # CardId is an i64 in Rust
-        hash.update(self.id.to_bytes(8, "little", signed=True))
-        # reps are a u32 in Rust
-        hash.update(self.reps.to_bytes(4, "little"))
-        return hash.hexdigest()
 
     @deprecated(info="use card.render_output() directly")
     def css(self) -> str:

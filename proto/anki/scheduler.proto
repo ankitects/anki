@@ -108,6 +108,7 @@ message QueuedCards {
     cards.Card card = 1;
     Queue queue = 2;
     SchedulingStates states = 3;
+    SchedulingContext context = 4;
   }
 
   repeated QueuedCard cards = 1;
@@ -284,7 +285,12 @@ message CustomStudyRequest {
 
 message SchedulingContext {
   string deck_name = 1;
-  string seed = 2;
+  uint64 seed = 2;
+}
+
+message SchedulingStatesWithContext {
+  SchedulingStates states = 1;
+  SchedulingContext context = 2;
 }
 
 message CustomStudyDefaultsRequest {

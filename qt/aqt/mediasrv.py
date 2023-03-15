@@ -27,6 +27,7 @@ import aqt.operations
 from anki import hooks
 from anki.collection import OpChanges
 from anki.decks import UpdateDeckConfigs
+from anki.scheduler.v3 import SchedulingStatesWithContext
 from anki.scheduler_pb2 import SchedulingStates
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
@@ -408,11 +409,11 @@ def update_deck_configs() -> bytes:
     return b""
 
 
-def get_scheduling_states() -> bytes:
-    if states := aqt.mw.reviewer.get_scheduling_states():
-        return states.SerializeToString()
-    else:
-        return b""
+def get_scheduling_states_with_context() -> bytes:
+    return SchedulingStatesWithContext(
+        states=aqt.mw.reviewer.get_scheduling_states(),
+        context=aqt.mw.reviewer.get_scheduling_context(),
+    ).SerializeToString()
 
 
 def set_scheduling_states() -> bytes:
@@ -420,12 +421,6 @@ def set_scheduling_states() -> bytes:
     states = SchedulingStates()
     states.ParseFromString(request.data)
     aqt.mw.reviewer.set_scheduling_states(key, states)
-    return b""
-
-
-def get_scheduling_context() -> bytes:
-    if ctx := aqt.mw.reviewer.get_scheduling_context():
-        return ctx.SerializeToString()
     return b""
 
 
@@ -457,9 +452,8 @@ post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
     update_deck_configs,
-    get_scheduling_states,
+    get_scheduling_states_with_context,
     set_scheduling_states,
-    get_scheduling_context,
     change_notetype,
     import_csv,
 ]
