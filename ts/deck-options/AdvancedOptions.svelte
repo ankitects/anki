@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@tslib/ftl";
+    import { HelpPage } from "@tslib/help-page";
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
 
@@ -29,32 +30,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         maximumInterval: {
             title: tr.schedulingMaximumInterval(),
             help: tr.deckConfigMaximumIntervalTooltip(),
-            url: "https://docs.ankiweb.net/deck-options.html#maximum-interval",
+            url: HelpPage.DeckOptions.maximumInterval,
         },
         startingEase: {
             title: tr.schedulingStartingEase(),
             help: tr.deckConfigStartingEaseTooltip(),
-            url: "https://docs.ankiweb.net/deck-options.html#starting-ease",
+            url: HelpPage.DeckOptions.startingEase,
         },
         easyBonus: {
             title: tr.schedulingEasyBonus(),
             help: tr.deckConfigEasyBonusTooltip(),
-            url: "https://docs.ankiweb.net/deck-options.html#easy-bonus",
+            url: HelpPage.DeckOptions.easyBonus,
         },
         intervalModifier: {
             title: tr.schedulingIntervalModifier(),
             help: tr.deckConfigIntervalModifierTooltip(),
-            url: "https://docs.ankiweb.net/deck-options.html#interval-modifier",
+            url: HelpPage.DeckOptions.intervalModifier,
         },
         hardInterval: {
             title: tr.schedulingHardInterval(),
             help: tr.deckConfigHardIntervalTooltip(),
-            url: "https://docs.ankiweb.net/deck-options.html#hard-interval",
+            url: HelpPage.DeckOptions.hardInterval,
         },
         newInterval: {
             title: tr.schedulingNewInterval(),
             help: tr.deckConfigNewIntervalTooltip(),
-            url: "https://docs.ankiweb.net/deck-options.html#new-interval",
+            url: HelpPage.DeckOptions.newInterval,
         },
         customScheduling: {
             title: tr.deckConfigCustomScheduling(),
@@ -76,7 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.deckConfigAdvancedTitle()}>
     <HelpModal
         title={tr.deckConfigAdvancedTitle()}
-        url="https://docs.ankiweb.net/deck-options.html#advanced"
+        url={HelpPage.DeckOptions.advanced}
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {

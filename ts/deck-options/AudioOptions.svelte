@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@tslib/ftl";
+    import { HelpPage } from "@tslib/help-page";
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
 
@@ -46,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.deckConfigAudioTitle()}>
     <HelpModal
         title={tr.deckConfigAudioTitle()}
-        url="https://docs.ankiweb.net/deck-options.html#audio"
+        url={HelpPage.DeckOptions.audio}
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {

@@ -4,6 +4,7 @@
 -->
 <script lang="ts">
     import * as tr from "@tslib/ftl";
+    import { HelpPage } from "@tslib/help-page";
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
 
@@ -135,17 +136,17 @@
         newLimit: {
             title: tr.schedulingNewCardsday(),
             help: tr.deckConfigNewLimitTooltip() + v3Extra,
-            url: "https://docs.ankiweb.net/deck-options.html#new-cardsday",
+            url: HelpPage.DeckOptions.newCardsday,
         },
         reviewLimit: {
             title: tr.schedulingMaximumReviewsday(),
             help: tr.deckConfigReviewLimitTooltip() + reviewV3Extra,
-            url: "https://docs.ankiweb.net/deck-options.html#maximum-reviewsday",
+            url: HelpPage.DeckOptions.maximumReviewsday,
         },
         newCardsIgnoreReviewLimit: {
             title: tr.deckConfigNewCardsIgnoreReviewLimit(),
             help: newCardsIgnoreReviewLimitHelp,
-            url: "https://docs.ankiweb.net/deck-options.html#new-cardsday",
+            url: HelpPage.DeckOptions.newCardsday,
         },
     };
     const helpSections = Object.values(settings) as DeckOption[];
@@ -162,7 +163,7 @@
 <TitledContainer title={tr.deckConfigDailyLimits()}>
     <HelpModal
         title={tr.deckConfigDailyLimits()}
-        url="https://docs.ankiweb.net/deck-options.html#daily-limits"
+        url={HelpPage.DeckOptions.dailyLimits}
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {

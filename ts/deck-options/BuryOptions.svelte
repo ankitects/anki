@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@tslib/ftl";
+    import { HelpPage } from "@tslib/help-page";
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
 
@@ -54,7 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.deckConfigBuryTitle()}>
     <HelpModal
         title={tr.deckConfigBuryTitle()}
-        url="https://docs.ankiweb.net/studying.html#siblings-and-burying"
+        url={HelpPage.Studying.siblingsAndBurying}
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {
