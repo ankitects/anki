@@ -18,7 +18,6 @@ use crate::sync::collection::progress::FullSyncProgressFn;
 use crate::sync::collection::protocol::AsSyncEndpoint;
 use crate::sync::error::HttpError;
 use crate::sync::error::HttpResult;
-use crate::sync::error::HttpSnafu;
 use crate::sync::http_client::io_monitor::IoMonitor;
 use crate::sync::login::SyncAuth;
 use crate::sync::request::header_and_stream::SyncHeader;
@@ -113,13 +112,12 @@ impl HttpSyncClient {
 
 impl From<Error> for HttpError {
     fn from(err: Error) -> Self {
-        HttpSnafu {
+        HttpError {
             // we should perhaps make this Optional instead
             code: err.status().unwrap_or(StatusCode::SEE_OTHER),
-            context: "from reqwest",
+            context: "from reqwest".into(),
             source: Some(Box::new(err) as _),
         }
-        .build()
     }
 }
 

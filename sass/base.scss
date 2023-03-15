@@ -40,11 +40,11 @@ body {
 }
 
 html {
-    overflow-x: hidden;
     overscroll-behavior: none;
 }
 
 body {
+    overflow-x: hidden;
     &:not(.isMac),
     &:not(.isMac) * {
         @include scrollbar.custom;

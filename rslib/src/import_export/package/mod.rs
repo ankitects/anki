@@ -9,6 +9,9 @@ mod meta;
 pub(crate) use apkg::NoteMeta;
 pub(crate) use colpkg::export::export_colpkg_from_data;
 pub use colpkg::import::import_colpkg;
+pub use media::MediaIter;
+pub use media::MediaIterEntry;
+pub use media::MediaIterError;
 pub(self) use meta::Meta;
 pub(self) use meta::Version;
 

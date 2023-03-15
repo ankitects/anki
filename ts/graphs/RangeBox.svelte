@@ -55,11 +55,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function searchKeyUp(event: KeyboardEvent): void {
-        // fetch data on enter
-        if (event.code === "Enter") {
-            $search = displayedSearch;
-        }
+    function updateSearch(): void {
+        $search = displayedSearch;
     }
 
     const year = tr.statisticsRange_1YearHistory();
@@ -89,7 +86,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <input
             type="text"
             bind:value={displayedSearch}
-            on:keyup={searchKeyUp}
+            on:change={updateSearch}
             on:focus={() => {
                 searchRange = SearchRange.Custom;
             }}

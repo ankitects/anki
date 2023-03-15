@@ -31,6 +31,8 @@ pub use crate::require;
 pub use crate::revlog::RevlogId;
 pub use crate::search::SearchBuilder;
 pub use crate::search::TryIntoSearch;
+#[cfg(test)]
+pub(crate) use crate::tests::*;
 pub use crate::timestamp::TimestampMillis;
 pub use crate::timestamp::TimestampSecs;
 pub(crate) use crate::types::IntoNewtypeVec;

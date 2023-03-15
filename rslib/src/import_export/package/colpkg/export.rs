@@ -1,9 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::borrow::Cow;
 use std::collections::HashMap;
-use std::ffi::OsStr;
 use std::fs::File;
 use std::io;
 use std::io::Read;
@@ -12,8 +10,6 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use prost::Message;
-use sha1::Digest;
-use sha1::Sha1;
 use tempfile::NamedTempFile;
 use zip::write::FileOptions;
 use zip::CompressionMethod;
@@ -27,14 +23,14 @@ use super::super::MediaEntry;
 use super::super::Meta;
 use super::super::Version;
 use crate::collection::CollectionBuilder;
+use crate::import_export::package::media::MediaCopier;
+use crate::import_export::package::media::MediaIter;
 use crate::import_export::ExportProgress;
 use crate::import_export::IncrementableProgress;
 use crate::io::atomic_rename;
 use crate::io::new_tempfile;
 use crate::io::new_tempfile_in_parent_of;
 use crate::io::open_file;
-use crate::io::read_dir_files;
-use crate::media::files::filename_if_normalized;
 use crate::prelude::*;
 use crate::storage::SchemaVersion;
 
@@ -79,36 +75,6 @@ impl Collection {
         atomic_rename(temp_colpkg, colpkg_name, true)?;
 
         Ok(())
-    }
-}
-
-pub struct MediaIter(Box<dyn Iterator<Item = io::Result<PathBuf>>>);
-
-impl MediaIter {
-    /// Iterator over all files in the given path, without traversing
-    /// subfolders.
-    pub fn from_folder(path: &Path) -> Result<Self> {
-        Ok(Self(Box::new(
-            read_dir_files(path)?.map(|res| res.map(|entry| entry.path())),
-        )))
-    }
-
-    /// Iterator over all given files in the given folder.
-    /// Missing files are silently ignored.
-    pub fn from_file_list(
-        list: impl IntoIterator<Item = String> + 'static,
-        folder: PathBuf,
-    ) -> Self {
-        Self(Box::new(
-            list.into_iter()
-                .map(move |file| folder.join(file))
-                .filter(|path| path.exists())
-                .map(Ok),
-        ))
-    }
-
-    pub fn empty() -> Self {
-        Self(Box::new(std::iter::empty()))
     }
 }
 
@@ -298,88 +264,24 @@ fn write_media_files(
     let mut incrementor = progress.incrementor(ExportProgress::Media);
     for (index, res) in media.0.enumerate() {
         incrementor.increment()?;
-        let path = res?;
+        let mut entry = res?;
 
         zip.start_file(index.to_string(), file_options_stored())?;
 
-        let mut file = open_file(&path)?;
-        let file_name = path.file_name().or_invalid("not a file path")?;
-        let name = normalized_unicode_file_name(file_name)?;
-
-        let (size, sha1) = copier.copy(&mut file, zip)?;
-        media_entries.push(MediaEntry::new(name, size, sha1));
+        let (size, sha1) = copier.copy(&mut entry.data, zip)?;
+        media_entries.push(MediaEntry::new(entry.nfc_filename, size, sha1));
     }
 
     Ok(())
 }
 
-fn normalized_unicode_file_name(filename: &OsStr) -> Result<String> {
-    let filename = filename.to_str().or_invalid("non-unicode filename")?;
-    filename_if_normalized(filename)
-        .map(Cow::into_owned)
-        .ok_or(AnkiError::MediaCheckRequired)
-}
-
-/// Copies and hashes while optionally encoding.
-/// If compressing, the encoder is reused to optimize for repeated calls.
-pub(crate) struct MediaCopier {
-    encoding: bool,
-    encoder: Option<RawEncoder<'static>>,
-    buf: [u8; 64 * 1024],
-}
-
-impl MediaCopier {
-    pub(crate) fn new(encoding: bool) -> Self {
-        Self {
-            encoding,
-            encoder: None,
-            buf: [0; 64 * 1024],
-        }
-    }
-
-    fn encoder(&mut self) -> Option<RawEncoder<'static>> {
-        self.encoding.then(|| {
-            self.encoder
-                .take()
-                .unwrap_or_else(|| RawEncoder::with_dictionary(0, &[]).unwrap())
-        })
-    }
-
-    /// Returns size and sha1 hash of the copied data.
-    pub(crate) fn copy(
-        &mut self,
-        reader: &mut impl Read,
-        writer: &mut impl Write,
-    ) -> Result<(usize, Sha1Hash)> {
-        let mut size = 0;
-        let mut hasher = Sha1::new();
-        self.buf = [0; 64 * 1024];
-        let mut wrapped_writer = MaybeEncodedWriter::new(writer, self.encoder());
-
-        loop {
-            let count = match reader.read(&mut self.buf) {
-                Ok(0) => break,
-                Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
-                result => result?,
-            };
-            size += count;
-            hasher.update(&self.buf[..count]);
-            wrapped_writer.write(&self.buf[..count])?;
-        }
-
-        self.encoder = wrapped_writer.finish()?;
-
-        Ok((size, hasher.finalize().into()))
-    }
-}
-
-enum MaybeEncodedWriter<'a, W: Write> {
+pub(crate) enum MaybeEncodedWriter<'a, W: Write> {
     Stored(&'a mut W),
     Encoded(zio::Writer<&'a mut W, RawEncoder<'static>>),
 }
 
 impl<'a, W: Write> MaybeEncodedWriter<'a, W> {
-    fn new(writer: &'a mut W, encoder: Option<RawEncoder<'static>>) -> Self {
+    pub fn new(writer: &'a mut W, encoder: Option<RawEncoder<'static>>) -> Self {
         if let Some(encoder) = encoder {
             Self::Encoded(zio::Writer::new(writer, encoder))
         } else {
@@ -387,7 +289,7 @@ impl<'a, W: Write> MaybeEncodedWriter<'a, W> {
         }
     }
 
-    fn write(&mut self, buf: &[u8]) -> Result<()> {
+    pub fn write(&mut self, buf: &[u8]) -> Result<()> {
         match self {
             Self::Stored(writer) => writer.write_all(buf)?,
             Self::Encoded(writer) => writer.write_all(buf)?,
@@ -395,7 +297,7 @@ impl<'a, W: Write> MaybeEncodedWriter<'a, W> {
         Ok(())
     }
 
-    fn finish(self) -> Result<Option<RawEncoder<'static>>> {
+    pub fn finish(self) -> Result<Option<RawEncoder<'static>>> {
         Ok(match self {
             Self::Stored(_) => None,
             Self::Encoded(mut writer) => {

@@ -16,6 +16,12 @@ use crate::deckconfig::DeckConfigId;
 use crate::pb::decks::deck::normal::DayLimit;
 use crate::prelude::*;
 
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum LimitKind {
+    Review,
+    New,
+}
+
 impl NormalDeck {
     /// The deck's review limit for today, or its regular one, if any is
     /// configured.
@@ -50,15 +56,29 @@ impl DayLimit {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct RemainingLimits {
-    pub review: u32,
-    pub new: u32,
+    pub(crate) review: u32,
+    pub(crate) new: u32,
+    pub(crate) cap_new_to_review: bool,
 }
 
 impl RemainingLimits {
-    pub(crate) fn new(deck: &Deck, config: Option<&DeckConfig>, today: u32, v3: bool) -> Self {
+    pub(crate) fn new(
+        deck: &Deck,
+        config: Option<&DeckConfig>,
+        today: u32,
+        v3: bool,
+        new_cards_ignore_review_limit: bool,
+    ) -> Self {
         if let Ok(normal) = deck.normal() {
             if let Some(config) = config {
-                return Self::new_for_normal_deck(deck, today, v3, normal, config);
+                return Self::new_for_normal_deck(
+                    deck,
+                    today,
+                    v3,
+                    new_cards_ignore_review_limit,
+                    normal,
+                    config,
+                );
             }
         }
         Self::default()
@@ -68,35 +88,93 @@ impl RemainingLimits {
         deck: &Deck,
         today: u32,
         v3: bool,
+        new_cards_ignore_review_limit: bool,
         normal: &NormalDeck,
         config: &DeckConfig,
     ) -> RemainingLimits {
-        let (review_limit, new_limit) = if v3 {
-            let review_limit = normal
-                .current_review_limit(today)
-                .unwrap_or(config.inner.reviews_per_day);
-            let new_limit = normal
-                .current_new_limit(today)
-                .unwrap_or(config.inner.new_per_day);
-            (review_limit, new_limit)
-        } else {
-            (config.inner.reviews_per_day, config.inner.new_per_day)
-        };
-        let (new_today, mut rev_today) = deck.new_rev_counts(today);
         if v3 {
-            // any reviewed new cards contribute to the review limit
-            rev_today += new_today;
+            Self::new_for_normal_deck_v3(deck, today, new_cards_ignore_review_limit, normal, config)
+        } else {
+            Self::new_for_normal_deck_v2(deck, today, config)
+        }
+    }
+
+    fn new_for_normal_deck_v2(deck: &Deck, today: u32, config: &DeckConfig) -> RemainingLimits {
+        let review_limit = config.inner.reviews_per_day;
+        let new_limit = config.inner.new_per_day;
+        let (new_today_count, review_today_count) = deck.new_rev_counts(today);
+
+        Self {
+            review: (review_limit as i32 - review_today_count).max(0) as u32,
+            new: (new_limit as i32 - new_today_count).max(0) as u32,
+            cap_new_to_review: false,
+        }
+    }
+
+    fn new_for_normal_deck_v3(
+        deck: &Deck,
+        today: u32,
+        new_cards_ignore_review_limit: bool,
+        normal: &NormalDeck,
+        config: &DeckConfig,
+    ) -> RemainingLimits {
+        let mut review_limit = normal
+            .current_review_limit(today)
+            .unwrap_or(config.inner.reviews_per_day) as i32;
+        let mut new_limit = normal
+            .current_new_limit(today)
+            .unwrap_or(config.inner.new_per_day) as i32;
+        let (new_today_count, review_today_count) = deck.new_rev_counts(today);
+
+        review_limit -= review_today_count;
+        new_limit -= new_today_count;
+        if !new_cards_ignore_review_limit {
+            review_limit -= new_today_count;
+            new_limit = new_limit.min(review_limit);
         }
 
         Self {
-            review: (review_limit as i32 - rev_today).max(0) as u32,
-            new: (new_limit as i32 - new_today).max(0) as u32,
+            review: review_limit.max(0) as u32,
+            new: new_limit.max(0) as u32,
+            cap_new_to_review: !new_cards_ignore_review_limit,
+        }
+    }
+
+    pub(crate) fn get(&self, kind: LimitKind) -> u32 {
+        match kind {
+            LimitKind::Review => self.review,
+            LimitKind::New => self.new,
         }
     }
 
     pub(crate) fn cap_to(&mut self, limits: RemainingLimits) {
         self.review = self.review.min(limits.review);
         self.new = self.new.min(limits.new);
+    }
+
+    /// True if some limit was decremented to 0.
+    fn decrement(&mut self, kind: LimitKind) -> DecrementResult {
+        let before = *self;
+        if matches!(kind, LimitKind::Review) {
+            self.review = self.review.saturating_sub(1);
+        }
+        if self.cap_new_to_review || matches!(kind, LimitKind::New) {
+            self.new = self.new.saturating_sub(1);
+        }
+        DecrementResult::new(&before, self)
+    }
+}
+
+struct DecrementResult {
+    count_reached_zero: bool,
+}
+
+impl DecrementResult {
+    fn new(before: &RemainingLimits, after: &RemainingLimits) -> Self {
+        Self {
+            count_reached_zero: before.review > 0 && after.review == 0
+                || before.new > 0 && after.new == 0,
+        }
     }
 }
 
@@ -105,6 +183,7 @@ impl Default for RemainingLimits {
         RemainingLimits {
             review: 9999,
             new: 9999,
+            cap_new_to_review: false,
         }
     }
 }
@@ -114,6 +193,7 @@ pub(crate) fn remaining_limits_map<'a>(
     config: &'a HashMap<DeckConfigId, DeckConfig>,
     today: u32,
     v3: bool,
+    new_cards_ignore_review_limit: bool,
 ) -> HashMap<DeckId, RemainingLimits> {
     decks
         .map(|deck| {
@@ -124,6 +204,7 @@ pub(crate) fn remaining_limits_map<'a>(
                     deck.config_id().and_then(|id| config.get(&id)),
                     today,
                     v3,
+                    new_cards_ignore_review_limit,
                 ),
             )
         })
@@ -140,7 +221,12 @@ struct NodeLimits {
 }
 
 impl NodeLimits {
-    fn new(deck: &Deck, config: &HashMap<DeckConfigId, DeckConfig>, today: u32) -> Self {
+    fn new(
+        deck: &Deck,
+        config: &HashMap<DeckConfigId, DeckConfig>,
+        today: u32,
+        new_cards_ignore_review_limit: bool,
+    ) -> Self {
         Self {
             deck_id: deck.id,
             level: deck.name.components().count(),
@@ -149,6 +235,7 @@ impl NodeLimits {
                 deck.config_id().and_then(|id| config.get(&id)),
                 today,
                 true,
+                new_cards_ignore_review_limit,
             ),
         }
     }
@@ -162,8 +249,7 @@ pub(crate) struct LimitTreeMap {
     // and (3) have more than 1 tree, it's safe to unwrap on Tree::get() and
     // Tree::root_node_id(), even if we clone Nodes.
     tree: Tree<NodeLimits>,
-    /// A map to access the tree node of a deck. Only decks with a remaining
-    /// limit above zero are included.
+    /// A map to access the tree node of a deck.
     map: HashMap<DeckId, NodeId>,
 }
 
@@ -174,21 +260,26 @@ impl LimitTreeMap {
         child_decks: Vec<Deck>,
         config: &HashMap<DeckConfigId, DeckConfig>,
         today: u32,
+        new_cards_ignore_review_limit: bool,
     ) -> Self {
-        let root_limits = NodeLimits::new(root_deck, config, today);
+        let root_limits = NodeLimits::new(root_deck, config, today, new_cards_ignore_review_limit);
         let mut tree = Tree::new();
         let root_id = tree
             .insert(Node::new(root_limits), InsertBehavior::AsRoot)
             .unwrap();
 
         let mut map = HashMap::new();
-        if root_limits.limits.review > 0 {
-            map.insert(root_deck.id, root_id.clone());
-        }
+        map.insert(root_deck.id, root_id.clone());
 
         let mut limits = Self { tree, map };
         let mut remaining_decks = child_decks.into_iter().peekable();
-        limits.add_child_nodes(root_id, &mut remaining_decks, config, today);
+        limits.add_child_nodes(
+            root_id,
+            &mut remaining_decks,
+            config,
+            today,
+            new_cards_ignore_review_limit,
+        );
 
         limits
     }
@@ -204,6 +295,7 @@ impl LimitTreeMap {
         remaining_decks: &mut Peekable<impl Iterator<Item = Deck>>,
         config: &HashMap<DeckConfigId, DeckConfig>,
         today: u32,
+        new_cards_ignore_review_limit: bool,
     ) {
         let parent = *self.tree.get(&parent_node_id).unwrap().data();
         while let Some(deck) = remaining_decks.peek() {
@@ -214,7 +306,13 @@ impl LimitTreeMap {
                 }
                 l if l == parent.level + 1 => {
                     // next item is an immediate descendent of parent
-                    self.insert_child_node(deck, parent_node_id.clone(), config, today);
+                    self.insert_child_node(
+                        deck,
+                        parent_node_id.clone(),
+                        config,
+                        today,
+                        new_cards_ignore_review_limit,
+                    );
                     remaining_decks.next();
                 }
                 _ => {
@@ -227,7 +325,13 @@ impl LimitTreeMap {
                         .last()
                         .cloned()
                     {
-                        self.add_child_nodes(last_child_node_id, remaining_decks, config, today)
+                        self.add_child_nodes(
+                            last_child_node_id,
+                            remaining_decks,
+                            config,
+                            today,
+                            new_cards_ignore_review_limit,
+                        )
                     } else {
                         // immediate parent is missing, skip the deck until a DB check is run
                         remaining_decks.next();
@@ -243,12 +347,13 @@ impl LimitTreeMap {
         parent_node_id: NodeId,
         config: &HashMap<DeckConfigId, DeckConfig>,
         today: u32,
+        new_cards_ignore_review_limit: bool,
     ) {
-        let mut child_limits = NodeLimits::new(child_deck, config, today);
+        let mut child_limits =
+            NodeLimits::new(child_deck, config, today, new_cards_ignore_review_limit);
         child_limits
             .limits
-            .cap_to(self.tree.get(&parent_node_id).unwrap().data().limits);
-
+            .cap_to(self.get_node_limits(&parent_node_id));
         let child_node_id = self
             .tree
             .insert(
@@ -256,16 +361,34 @@ impl LimitTreeMap {
                 InsertBehavior::UnderNode(&parent_node_id),
             )
             .unwrap();
-        if child_limits.limits.review > 0 {
-            self.map.insert(child_deck.id, child_node_id);
-        }
-    }
-    pub(crate) fn root_limit_reached(&self) -> bool {
-        self.map.is_empty()
+        self.map.insert(child_deck.id, child_node_id);
     }
 
-    pub(crate) fn limit_reached(&self, deck_id: DeckId) -> bool {
-        self.map.get(&deck_id).is_none()
+    fn get_node_id(&self, deck_id: DeckId) -> Result<&NodeId> {
+        self.map
+            .get(&deck_id)
+            .or_invalid("deck not found in limits map")
+    }
+
+    fn get_node_limits(&self, node_id: &NodeId) -> RemainingLimits {
+        self.tree.get(node_id).unwrap().data().limits
+    }
+
+    fn get_deck_limits(&self, deck_id: DeckId) -> Result<RemainingLimits> {
+        self.get_node_id(deck_id)
+            .map(|node_id| self.get_node_limits(node_id))
+    }
+
+    fn get_root_limits(&self) -> RemainingLimits {
+        self.get_node_limits(self.tree.root_node_id().unwrap())
+    }
+
+    pub(crate) fn root_limit_reached(&self, kind: LimitKind) -> bool {
+        self.get_root_limits().get(kind) == 0
+    }
+
+    pub(crate) fn limit_reached(&self, deck_id: DeckId, kind: LimitKind) -> Result<bool> {
+        Ok(self.get_deck_limits(deck_id)?.get(kind) == 0)
     }
 
     pub(crate) fn active_decks(&self) -> Vec<DeckId> {
@@ -276,59 +399,36 @@ impl LimitTreeMap {
             .collect()
     }
 
-    pub(crate) fn remaining_node_id(&self, deck_id: DeckId) -> Option<NodeId> {
-        self.map.get(&deck_id).map(Clone::clone)
+    pub(crate) fn decrement_deck_and_parent_limits(
+        &mut self,
+        deck_id: DeckId,
+        kind: LimitKind,
+    ) -> Result<()> {
+        let node_id = self.get_node_id(deck_id)?.clone();
+        self.decrement_node_and_parent_limits(&node_id, kind);
+        Ok(())
     }
 
-    pub(crate) fn decrement_node_and_parent_limits(&mut self, node_id: &NodeId, new: bool) {
+    fn decrement_node_and_parent_limits(&mut self, node_id: &NodeId, kind: LimitKind) {
         let node = self.tree.get_mut(node_id).unwrap();
         let parent = node.parent().cloned();
 
-        let limit = &mut node.data_mut().limits;
-        if if new {
-            limit.new = limit.new.saturating_sub(1);
-            limit.new
-        } else {
-            limit.review = limit.review.saturating_sub(1);
-            limit.review
-        } == 0
-        {
-            self.remove_node_and_descendants_from_map(node_id);
+        let limits = &mut node.data_mut().limits;
+        if limits.decrement(kind).count_reached_zero {
+            let limits = *limits;
+            self.cap_node_and_descendants(node_id, limits);
         };
 
         if let Some(parent_id) = parent {
-            self.decrement_node_and_parent_limits(&parent_id, new)
+            self.decrement_node_and_parent_limits(&parent_id, kind)
         }
     }
 
-    pub(crate) fn remove_node_and_descendants_from_map(&mut self, node_id: &NodeId) {
-        let node = self.tree.get(node_id).unwrap();
-        self.map.remove(&node.data().deck_id);
-
-        for child_id in node.children().clone() {
-            self.remove_node_and_descendants_from_map(&child_id);
-        }
-    }
-
-    pub(crate) fn cap_new_to_review(&mut self) {
-        self.cap_new_to_review_rec(&self.tree.root_node_id().unwrap().clone(), 9999);
-    }
-
-    fn cap_new_to_review_rec(&mut self, node_id: &NodeId, parent_limit: u32) {
+    fn cap_node_and_descendants(&mut self, node_id: &NodeId, limits: RemainingLimits) {
         let node = self.tree.get_mut(node_id).unwrap();
-        let mut limits = &mut node.data_mut().limits;
-        limits.new = limits.new.min(limits.review).min(parent_limit);
-
-        // clone because of borrowing rules
-        let node_limit = limits.new;
-        let children = node.children().clone();
-
-        if node_limit == 0 {
-            self.remove_node_and_descendants_from_map(node_id);
-        }
-
-        for child_id in children {
-            self.cap_new_to_review_rec(&child_id, node_limit);
+        node.data_mut().limits.cap_to(limits);
+        for child_id in node.children().clone() {
+            self.cap_node_and_descendants(&child_id, limits);
         }
     }
 }

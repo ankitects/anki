@@ -161,7 +161,11 @@ impl OpChanges {
         let c = &self.changes;
         (c.card && self.op != Op::SetFlag)
             || c.deck
-            || (c.config && matches!(self.op, Op::SetCurrentDeck | Op::UpdatePreferences))
+            || (c.config
+                && matches!(
+                    self.op,
+                    Op::SetCurrentDeck | Op::UpdatePreferences | Op::UpdateDeckConfig
+                ))
             || c.deck_config
     }
 }

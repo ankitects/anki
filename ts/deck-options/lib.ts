@@ -40,6 +40,7 @@ export class DeckOptionsState {
     readonly defaults: DeckConfig.DeckConfig.Config;
     readonly addonComponents: Writable<DynamicSvelteComponent[]>;
     readonly v3Scheduler: boolean;
+    readonly newCardsIgnoreReviewLimit: Writable<boolean>;
 
     private targetDeckId: number;
     private configs: ConfigWithCount[];
@@ -70,6 +71,7 @@ export class DeckOptionsState {
         this.v3Scheduler = data.v3Scheduler;
         this.cardStateCustomizer = writable(data.cardStateCustomizer);
         this.deckLimits = writable(data.currentDeck?.limits ?? createLimits());
+        this.newCardsIgnoreReviewLimit = writable(data.newCardsIgnoreReviewLimit);
 
         // decrement the use count of the starting item, as we'll apply +1 to currently
         // selected one at display time
@@ -195,6 +197,7 @@ export class DeckOptionsState {
             applyToChildren,
             cardStateCustomizer: get(this.cardStateCustomizer),
             limits: get(this.deckLimits),
+            newCardsIgnoreReviewLimit: get(this.newCardsIgnoreReviewLimit),
         };
     }
 

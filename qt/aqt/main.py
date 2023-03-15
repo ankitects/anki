@@ -11,7 +11,7 @@ import signal
 import weakref
 from argparse import Namespace
 from concurrent.futures import Future
-from typing import Any, Literal, Sequence, TextIO, TypeVar, cast
+from typing import Any, Literal, Sequence, TypeVar, cast
 
 import anki
 import anki.cards
@@ -46,6 +46,7 @@ from anki.utils import (
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
 from aqt.dbcheck import check_db
+from aqt.debug_console import show_debug_console
 from aqt.emptycards import show_empty_cards
 from aqt.flags import FlagManager
 from aqt.import_export.exporting import ExportDialog
@@ -74,17 +75,14 @@ from aqt.utils import (
     askUser,
     checkInvalidFilename,
     current_window,
-    disable_help_button,
     disallow_full_screen,
     getFile,
     getOnlyText,
     openHelp,
     openLink,
     restoreGeom,
-    restoreSplitter,
     restoreState,
     saveGeom,
-    saveSplitter,
     saveState,
     showInfo,
     showWarning,
@@ -301,9 +299,10 @@ class AnkiQt(QMainWindow):
 
         self.pendingImport: str | None = None
         self.restoring_backup = False
-        # profile not provided on command line?
-        if not self.pm.name:
-            # if there's a single profile, load it automatically
+        # - if a valid profile was provided on commandline, we load it
+        # - if an invalid profile was provided, we skip this step and show the picker
+        # - if no profile was provided, we use this step
+        if not self.pm.name and not self.pm.invalid_profile_provided_on_commandline:
             profs = self.pm.profiles()
             name = self.pm.last_loaded_profile_name()
             if len(profs) == 1:
@@ -1101,7 +1100,7 @@ title="{}" {}>{}</button>""".format(
 
     def setupKeys(self) -> None:
         globalShortcuts = [
-            ("Ctrl+:", self.onDebug),
+            ("Ctrl+:", show_debug_console),
             ("d", lambda: self.moveToState("deckBrowser")),
             ("s", self.onStudyKey),
             ("a", self.onAddCard),
@@ -1629,171 +1628,6 @@ title="{}" {}>{}</button>""".format(
 
     def onEmptyCards(self) -> None:
         show_empty_cards(self)
-
-    # Debugging
-    ######################################################################
-
-    def onDebug(self) -> None:
-        frm = self.debug_diag_form = aqt.forms.debug.Ui_Dialog()
-
-        class DebugDialog(QDialog):
-            silentlyClose = True
-
-            def reject(self) -> None:
-                super().reject()
-                saveSplitter(frm.splitter, "DebugConsoleWindow")
-                saveGeom(self, "DebugConsoleWindow")
-
-        d = self.debugDiag = DebugDialog()
-        disable_help_button(d)
-        frm.setupUi(d)
-        restoreGeom(d, "DebugConsoleWindow")
-        restoreSplitter(frm.splitter, "DebugConsoleWindow")
-        font = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
-        font.setPointSize(frm.text.font().pointSize() + 1)
-        frm.text.setFont(font)
-        frm.log.setFont(font)
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), d)
-        qconnect(s.activated, lambda: self.onDebugRet(frm))
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+return"), d)
-        qconnect(s.activated, lambda: self.onDebugPrint(frm))
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+l"), d)
-        qconnect(s.activated, frm.log.clear)
-        s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), d)
-        qconnect(s.activated, frm.text.clear)
-
-        qconnect(frm.widgetsButton.clicked, self._on_widgetGallery)
-
-        def addContextMenu(
-            ev: Union[QCloseEvent, QContextMenuEvent], name: str
-        ) -> None:
-            ev.accept()
-            menu = frm.log.createStandardContextMenu(QCursor.pos())
-            menu.addSeparator()
-            if name == "log":
-                a = menu.addAction("Clear Log")
-                a.setShortcut(QKeySequence("ctrl+l"))
-                qconnect(a.triggered, frm.log.clear)
-            elif name == "text":
-                a = menu.addAction("Clear Code")
-                a.setShortcut(QKeySequence("ctrl+shift+l"))
-                qconnect(a.triggered, frm.text.clear)
-            menu.exec(QCursor.pos())
-
-        frm.log.contextMenuEvent = lambda ev: addContextMenu(ev, "log")  # type: ignore[assignment]
-        frm.text.contextMenuEvent = lambda ev: addContextMenu(ev, "text")  # type: ignore[assignment]
-        gui_hooks.debug_console_will_show(d)
-        d.show()
-
-    def _on_widgetGallery(self) -> None:
-        from aqt.widgetgallery import WidgetGallery
-
-        self.widgetGallery = WidgetGallery(self)
-        self.widgetGallery.show()
-
-    def _captureOutput(self, on: bool) -> None:
-        mw2 = self
-
-        class Stream:
-            def write(self, data: str) -> None:
-                mw2._output += data
-
-        if on:
-            self._output = ""
-            self._oldStderr = sys.stderr
-            self._oldStdout = sys.stdout
-            s = cast(TextIO, Stream())
-            sys.stderr = s
-            sys.stdout = s
-        else:
-            sys.stderr = self._oldStderr
-            sys.stdout = self._oldStdout
-
-    def _card_repr(self, card: anki.cards.Card) -> None:
-        import copy
-        import pprint
-
-        if not card:
-            print("no card")
-            return
-
-        print("Front:", card.question())
-        print("\n")
-        print("Back:", card.answer())
-
-        print("\nNote:")
-        note = copy.copy(card.note())
-        for k, v in note.items():
-            print(f"- {k}:", v)
-
-        print("\n")
-        del note.fields
-        del note._fmap
-        pprint.pprint(note.__dict__)
-
-        print("\nCard:")
-        c = copy.copy(card)
-        c._render_output = None
-        pprint.pprint(c.__dict__)
-
-    def _debugCard(self) -> anki.cards.Card | None:
-        card = self.reviewer.card
-        self._card_repr(card)
-        return card
-
-    def _debugBrowserCard(self) -> anki.cards.Card | None:
-        card = aqt.dialogs._dialogs["Browser"][1].card
-        self._card_repr(card)
-        return card
-
-    def onDebugPrint(self, frm: aqt.forms.debug.Ui_Dialog) -> None:
-        cursor = frm.text.textCursor()
-        position = cursor.position()
-        cursor.select(QTextCursor.SelectionType.LineUnderCursor)
-        line = cursor.selectedText()
-        pfx, sfx = "pp(", ")"
-        if not line.startswith(pfx):
-            line = f"{pfx}{line}{sfx}"
-            cursor.insertText(line)
-            cursor.setPosition(position + len(pfx))
-            frm.text.setTextCursor(cursor)
-        self.onDebugRet(frm)
-
-    def onDebugRet(self, frm: aqt.forms.debug.Ui_Dialog) -> None:
-        import pprint
-        import traceback
-
-        text = frm.text.toPlainText()
-        card = self._debugCard
-        bcard = self._debugBrowserCard
-        mw = self
-        pp = pprint.pprint
-        self._captureOutput(True)
-        try:
-            # pylint: disable=exec-used
-            exec(text)
-        except:
-            self._output += traceback.format_exc()
-        self._captureOutput(False)
-        buf = ""
-        for c, line in enumerate(text.strip().split("\n")):
-            if c == 0:
-                buf += f">>> {line}\n"
-            else:
-                buf += f"... {line}\n"
-        try:
-            to_append = buf + (self._output or "<no output>")
-            to_append = gui_hooks.debug_console_did_evaluate_python(
-                to_append, text, frm
-            )
-            frm.log.appendPlainText(to_append)
-        except UnicodeDecodeError:
-            to_append = tr.qt_misc_non_unicode_text()
-            to_append = gui_hooks.debug_console_did_evaluate_python(
-                to_append, text, frm
-            )
-            frm.log.appendPlainText(to_append)
-        frm.log.ensureCursorVisible()
 
     # System specific code
     ##########################################################################

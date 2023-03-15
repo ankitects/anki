@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@tslib/ftl";
+    import { HelpPage } from "@tslib/help-page";
     import { DeckConfig } from "@tslib/proto";
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
@@ -127,7 +128,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.deckConfigOrderingTitle()}>
     <HelpModal
         title={tr.deckConfigOrderingTitle()}
-        url="https://docs.ankiweb.net/deck-options.html#display-order"
+        url={HelpPage.DeckOptions.displayOrder}
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {

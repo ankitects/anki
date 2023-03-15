@@ -132,7 +132,7 @@ pub struct CollectionState {
 }
 
 pub struct Collection {
-    pub(crate) storage: SqliteStorage,
+    pub storage: SqliteStorage,
     #[allow(dead_code)]
     pub(crate) col_path: PathBuf,
     pub(crate) media_folder: PathBuf,

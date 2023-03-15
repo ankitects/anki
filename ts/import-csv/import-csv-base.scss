@@ -14,7 +14,8 @@
 }
 
 body {
-    height: 100vh;
+    min-height: 100vh;
+    height: auto;
     width: min(100vw, 70em);
     margin: 0 auto;
     padding: 0 1em 1em 1em;

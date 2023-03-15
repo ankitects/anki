@@ -85,13 +85,6 @@
           <string>preferences_user_interface</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="1" column="1">
-           <widget class="QComboBox" name="styleComboBox">
-            <property name="currentText">
-             <string/>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="1">
            <widget class="QComboBox" name="theme"/>
           </item>
@@ -111,10 +104,10 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="uiSizeLabel">
-            <property name="text">
-             <string>preferences_user_interface_size</string>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="styleComboBox">
+            <property name="currentText">
+             <string/>
             </property>
            </widget>
           </item>
@@ -129,6 +122,20 @@
            <widget class="QLabel" name="themeLabel">
             <property name="text">
              <string>preferences_theme</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="uiSizeLabel">
+            <property name="text">
+             <string>preferences_user_interface_size</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QPushButton" name="resetWindowSizes">
+            <property name="text">
+             <string>preferences_reset_window_sizes</string>
             </property>
            </widget>
           </item>

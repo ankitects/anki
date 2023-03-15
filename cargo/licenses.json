@@ -2025,15 +2025,6 @@
     "description": "A regular expression parser."
   },
   {
-    "name": "remove_dir_all",
-    "version": "0.5.3",
-    "authors": "Aaronepower <theaaronepower@gmail.com>",
-    "repository": "https://github.com/XAMPPRocky/remove_dir_all.git",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A safe, reliable implementation of remove_dir_all for Windows"
-  },
-  {
     "name": "reqwest",
     "version": "0.11.13",
     "authors": "Sean McArthur <sean@seanmonstar.com>",
@@ -2476,8 +2467,8 @@
   },
   {
     "name": "tempfile",
-    "version": "3.3.0",
-    "authors": "Steven Allen <steven@stebalien.com>|The Rust Project Developers|Ashley Mannix <ashleymannix@live.com.au>|Jason White <jasonaw0@gmail.com>",
+    "version": "3.4.0",
+    "authors": "Steven Allen <steven@stebalien.com>|The Rust Project Developers|Ashley Mannix <ashleymannix@live.com.au>|Jason White <me@jasonwhite.io>",
     "repository": "https://github.com/Stebalien/tempfile",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -3123,6 +3114,15 @@
     "description": "Import libraries for the x86_64-pc-windows-gnu target. Please don't use this crate directly, depend on winapi instead."
   },
   {
+    "name": "windows",
+    "version": "0.44.0",
+    "authors": "Microsoft",
+    "repository": "https://github.com/microsoft/windows-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Rust for Windows"
+  },
+  {
     "name": "windows-sys",
     "version": "0.42.0",
     "authors": "Microsoft",
@@ -3130,6 +3130,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Rust for Windows"
+  },
+  {
+    "name": "windows-targets",
+    "version": "0.42.1",
+    "authors": "Microsoft",
+    "repository": "https://github.com/microsoft/windows-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Code gen support for the windows crate"
   },
   {
     "name": "windows_aarch64_gnullvm",

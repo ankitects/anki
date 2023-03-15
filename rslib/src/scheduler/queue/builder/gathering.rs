@@ -5,6 +5,7 @@ use super::DueCard;
 use super::NewCard;
 use super::QueueBuilder;
 use crate::deckconfig::NewCardGatherPriority;
+use crate::decks::limits::LimitKind;
 use crate::prelude::*;
 use crate::scheduler::queue::DueCardKind;
 use crate::storage::card::NewCardSorting;
@@ -14,7 +15,6 @@ impl QueueBuilder {
         self.gather_intraday_learning_cards(col)?;
         self.gather_due_cards(col, DueCardKind::Learning)?;
         self.gather_due_cards(col, DueCardKind::Review)?;
-        self.limits.cap_new_to_review();
         self.gather_new_cards(col)?;
 
         Ok(())
@@ -33,27 +33,30 @@ impl QueueBuilder {
     }
 
     fn gather_due_cards(&mut self, col: &mut Collection, kind: DueCardKind) -> Result<()> {
-        if !self.limits.root_limit_reached() {
-            col.storage.for_each_due_card_in_active_decks(
-                self.context.timing.days_elapsed,
-                self.context.sort_options.review_order,
-                kind,
-                |card| {
-                    if self.limits.root_limit_reached() {
-                        false
-                    } else {
-                        if let Some(node_id) = self.limits.remaining_node_id(card.current_deck_id) {
-                            if self.add_due_card(card) {
-                                self.limits
-                                    .decrement_node_and_parent_limits(&node_id, false);
-                            }
-                        }
-                        true
-                    }
-                },
-            )?;
+        if self.limits.root_limit_reached(LimitKind::Review) {
+            return Ok(());
         }
-        Ok(())
+        col.storage.for_each_due_card_in_active_decks(
+            self.context.timing.days_elapsed,
+            self.context.sort_options.review_order,
+            kind,
+            |card| {
+                if self.limits.root_limit_reached(LimitKind::Review) {
+                    return Ok(false);
+                }
+                if !self
+                    .limits
+                    .limit_reached(card.current_deck_id, LimitKind::Review)?
+                    && self.add_due_card(card)
+                {
+                    self.limits.decrement_deck_and_parent_limits(
+                        card.current_deck_id,
+                        LimitKind::Review,
+                    )?;
+                }
+                Ok(true)
+            },
+        )
     }
 
     fn gather_new_cards(&mut self, col: &mut Collection) -> Result<()> {
@@ -78,21 +81,20 @@ impl QueueBuilder {
 
     fn gather_new_cards_by_deck(&mut self, col: &mut Collection) -> Result<()> {
         for deck_id in self.limits.active_decks() {
-            if self.limits.root_limit_reached() {
+            if self.limits.root_limit_reached(LimitKind::New) {
                 break;
             }
-            if !self.limits.limit_reached(deck_id) {
-                col.storage.for_each_new_card_in_deck(deck_id, |card| {
-                    if let Some(node_id) = self.limits.remaining_node_id(deck_id) {
-                        if self.add_new_card(card) {
-                            self.limits.decrement_node_and_parent_limits(&node_id, true);
-                        }
-                        true
-                    } else {
-                        false
-                    }
-                })?;
+            if self.limits.limit_reached(deck_id, LimitKind::New)? {
+                continue;
             }
+            col.storage.for_each_new_card_in_deck(deck_id, |card| {
+                let limit_reached = self.limits.limit_reached(deck_id, LimitKind::New)?;
+                if !limit_reached && self.add_new_card(card) {
+                    self.limits
+                        .decrement_deck_and_parent_limits(deck_id, LimitKind::New)?;
+                }
+                Ok(!limit_reached)
+            })?;
         }
 
         Ok(())
@@ -105,19 +107,19 @@ impl QueueBuilder {
     ) -> Result<()> {
         col.storage
             .for_each_new_card_in_active_decks(order, |card| {
-                if self.limits.root_limit_reached() {
-                    false
-                } else {
-                    if let Some(node_id) = self.limits.remaining_node_id(card.current_deck_id) {
-                        if self.add_new_card(card) {
-                            self.limits.decrement_node_and_parent_limits(&node_id, true);
-                        }
-                    }
-                    true
+                if self.limits.root_limit_reached(LimitKind::New) {
+                    return Ok(false);
                 }
-            })?;
-
-        Ok(())
+                if !self
+                    .limits
+                    .limit_reached(card.current_deck_id, LimitKind::New)?
+                    && self.add_new_card(card)
+                {
+                    self.limits
+                        .decrement_deck_and_parent_limits(card.current_deck_id, LimitKind::New)?;
+                }
+                Ok(true)
+            })
     }
 
     /// True if limit should be decremented.

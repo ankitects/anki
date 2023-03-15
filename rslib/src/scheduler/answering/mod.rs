@@ -288,7 +288,7 @@ impl Collection {
     fn maybe_bury_siblings(&mut self, card: &Card, config: &DeckConfig) -> Result<()> {
         let bury_mode = BuryMode::from_deck_config(config);
         if bury_mode.any_burying() {
-            self.bury_siblings(card.id, card.note_id, bury_mode)?;
+            self.bury_siblings(card, card.note_id, bury_mode)?;
         }
         Ok(())
     }

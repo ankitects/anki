@@ -4,33 +4,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@tslib/ftl";
-    import { createEventDispatcher } from "svelte";
 
-    import CollapseBadge from "./CollapseBadge.svelte";
+    import CollapseLabel from "./CollapseLabel.svelte";
 
     export let collapsed: boolean;
-    let hovered = false;
 
     $: tooltip = collapsed ? tr.editingExpandField() : tr.editingCollapseField();
-
-    const dispatch = createEventDispatcher();
-
-    function toggle() {
-        dispatch("toggle");
-    }
 </script>
 
 <div class="label-container">
-    <span
-        class="clickable"
-        title={tooltip}
-        on:click|stopPropagation={toggle}
-        on:mouseenter={() => (hovered = true)}
-        on:mouseleave={() => (hovered = false)}
-    >
-        <CollapseBadge {collapsed} highlighted={hovered} />
+    <CollapseLabel {collapsed} {tooltip} on:toggle>
         <slot name="field-name" />
-    </span>
+    </CollapseLabel>
     <slot />
 </div>
 
@@ -46,9 +31,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         position: sticky;
         top: 0;
         z-index: 50;
-
-        .clickable {
-            cursor: pointer;
-        }
     }
 </style>

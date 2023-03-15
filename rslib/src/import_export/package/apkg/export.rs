@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use crate::collection::CollectionBuilder;
 use crate::import_export::gather::ExchangeData;
 use crate::import_export::package::colpkg::export::export_collection;
-use crate::import_export::package::colpkg::export::MediaIter;
+use crate::import_export::package::media::MediaIter;
 use crate::import_export::package::Meta;
 use crate::import_export::ExportProgress;
 use crate::import_export::IncrementableProgress;

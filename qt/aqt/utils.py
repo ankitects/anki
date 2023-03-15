@@ -638,6 +638,23 @@ def getFile(
     return ret[0] if ret else None
 
 
+def running_in_sandbox():
+    """Check whether running in Flatpak or Snap. When in such a sandbox, Qt
+    will not report the true location of user-chosen files, but instead a
+    temporary location from which the sandboxing software will copy the file to
+    the user-chosen destination. Thus file renames are impossible and caching
+    the reported file location is unhelpful."""
+    in_flatpak = (
+        QStandardPaths.locate(
+            QStandardPaths.StandardLocation.RuntimeLocation,
+            "flatpak-info",
+        )
+        != ""
+    )
+    in_snap = os.environ.get("SNAP") != ""
+    return in_flatpak or in_snap
+
+
 def getSaveFile(
     parent: QDialog,
     title: str,
@@ -662,7 +679,7 @@ def getSaveFile(
         f"{key} (*{ext})",
         options=QFileDialog.Option.DontConfirmOverwrite,
     )[0]
-    if file:
+    if file and not running_in_sandbox():
         # add extension
         if not file.lower().endswith(ext):
             file += ext

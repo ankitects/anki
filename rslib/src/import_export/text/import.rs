@@ -717,7 +717,9 @@ mod test {
     #[test]
     fn should_recognize_normalized_duplicate_only_if_normalization_is_enabled() {
         let mut col = open_test_collection();
-        col.add_new_note_with_fields("Basic", &["神", "old"]);
+        NoteAdder::basic(&mut col)
+            .fields(&["神", "old"])
+            .add(&mut col);
         let mut data = ForeignData::with_defaults();
         data.dupe_resolution = DupeResolution::Update;
         data.add_note(&["神", "new"]);
