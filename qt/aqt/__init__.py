@@ -532,11 +532,17 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         and (os.getenv("QT_QPA_PLATFORM") == "wayland" or os.getenv("WAYLAND_DISPLAY"))
         and not os.getenv("ANKI_WAYLAND")
     ):
-        # users need to opt in to wayland support, given the issues it has
-        print("Wayland support is disabled by default due to bugs:")
-        print("https://github.com/ankitects/anki/issues/1767")
-        print("You can force it on with an env var: ANKI_WAYLAND=1")
-        os.environ["QT_QPA_PLATFORM"] = "xcb"
+        if not os.getenv("DISPLAY"):
+            print(
+                "Trying to use X11, but it is not available. Falling back to Wayland, which has some bugs:"
+            )
+            print("https://github.com/ankitects/anki/issues/1767")
+        else:
+            # users need to opt in to wayland support, given the issues it has
+            print("Wayland support is disabled by default due to bugs:")
+            print("https://github.com/ankitects/anki/issues/1767")
+            print("You can force it on with an env var: ANKI_WAYLAND=1")
+            os.environ["QT_QPA_PLATFORM"] = "xcb"
 
     # profile manager
     i18n_setup = False
