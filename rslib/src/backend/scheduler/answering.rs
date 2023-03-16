@@ -42,6 +42,7 @@ impl From<QueuedCard> for pb::scheduler::queued_cards::QueuedCard {
         Self {
             card: Some(queued_card.card.into()),
             states: Some(queued_card.states.into()),
+            context: Some(queued_card.context),
             queue: match queued_card.kind {
                 crate::scheduler::queue::QueueEntryKind::New => {
                     pb::scheduler::queued_cards::Queue::New

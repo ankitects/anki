@@ -21,6 +21,7 @@ pub(crate) use main::MainQueueEntryKind;
 use self::undo::QueueUpdate;
 use super::states::SchedulingStates;
 use super::timing::SchedTimingToday;
+use crate::pb::scheduler::SchedulingContext;
 use crate::prelude::*;
 use crate::timestamp::TimestampSecs;
 
@@ -56,6 +57,7 @@ pub struct QueuedCard {
     pub card: Card,
     pub kind: QueueEntryKind,
     pub states: SchedulingStates,
+    pub context: SchedulingContext,
 }
 
 #[derive(Debug)]
@@ -116,6 +118,7 @@ impl Collection {
                 let next_states = self.get_scheduling_states(card.id)?;
 
                 Ok(QueuedCard {
+                    context: SchedulingContext::new(self, &card)?,
                     card,
                     states: next_states,
                     kind: entry.kind(),
@@ -127,6 +130,18 @@ impl Collection {
             new_count: counts.new,
             learning_count: counts.learning,
             review_count: counts.review,
+        })
+    }
+}
+
+impl SchedulingContext {
+    fn new(col: &mut Collection, card: &Card) -> Result<Self> {
+        Ok(Self {
+            deck_name: col
+                .get_deck(card.deck_id)?
+                .or_not_found(card.deck_id)?
+                .human_name(),
+            seed: card.review_seed(),
         })
     }
 }

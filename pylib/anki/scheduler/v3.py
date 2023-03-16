@@ -30,6 +30,8 @@ from anki.utils import int_time
 QueuedCards = scheduler_pb2.QueuedCards
 SchedulingState = scheduler_pb2.SchedulingState
 SchedulingStates = scheduler_pb2.SchedulingStates
+SchedulingContext = scheduler_pb2.SchedulingContext
+SchedulingStatesWithContext = scheduler_pb2.SchedulingStatesWithContext
 CardAnswer = scheduler_pb2.CardAnswer
 
 
