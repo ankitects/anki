@@ -2,12 +2,21 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="ts">
-    import { createEventDispatcher, getContext, onMount, tick } from "svelte";
+<script context="module" lang="ts">
+    let current: HTMLInputElement | null = null;
 
+    export function commitTagEdits(): void {
+        current?.blur();
+    }
+</script>
+
+<script lang="ts">
     import { tagActionsShortcutsKey } from "@tslib/context-keys";
     import { isArrowLeft, isArrowRight } from "@tslib/keys";
     import { registerShortcut } from "@tslib/shortcuts";
+    import { createEventDispatcher, getContext, onMount, tick } from "svelte";
+    import type { ActionReturn } from "svelte/action";
+
     import {
         delimChar,
         normalizeTagname,
@@ -242,6 +251,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         registerShortcut(onSelectAll, selectAllShortcut, { target: input });
         input.focus();
     });
+
+    function updateCurrent(input: HTMLInputElement): ActionReturn {
+        current = input;
+        return {
+            destroy(): void {
+                if (current === input) {
+                    current = null;
+                }
+            },
+        };
+    }
 </script>
 
 <input
@@ -261,6 +281,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:input={() => dispatch("taginput")}
     on:copy|preventDefault={onCopy}
     on:paste|preventDefault={onPaste}
+    use:updateCurrent
 />
 
 <style lang="scss">
