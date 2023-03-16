@@ -48,6 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
     import { TagEditor } from "../tag-editor";
+    import { commitTagEdits } from "../tag-editor/TagInput.svelte";
     import { ChangeTimer } from "./change-timer";
     import { clearableArray } from "./destroyable";
     import DuplicateLink from "./DuplicateLink.svelte";
@@ -280,9 +281,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
     }
 
-    export function saveFieldNow(): void {
+    function saveFieldNow(): void {
         /* this will always be a key save */
         fieldSave.fireImmediately();
+    }
+
+    function saveNow(): void {
+        commitTagEdits();
+        saveFieldNow();
     }
 
     export function saveOnPageHide() {
@@ -352,7 +358,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setTagsCollapsed,
             setBackgrounds,
             setClozeHint,
-            saveNow: saveFieldNow,
+            saveNow,
             focusIfField,
             getNoteId,
             setNoteId,
