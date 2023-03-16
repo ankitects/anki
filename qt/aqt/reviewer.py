@@ -19,7 +19,7 @@ from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.scheduler.base import ScheduleCardsAsNew
 from anki.scheduler.v3 import CardAnswer, QueuedCards
 from anki.scheduler.v3 import Scheduler as V3Scheduler
-from anki.scheduler.v3 import SchedulingStates
+from anki.scheduler.v3 import SchedulingContext, SchedulingStates
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
 from aqt import AnkiQt, gui_hooks
@@ -83,6 +83,7 @@ class V3CardInfo:
 
     queued_cards: QueuedCards
     states: SchedulingStates
+    context: SchedulingContext
 
     @staticmethod
     def from_queue(queued_cards: QueuedCards) -> V3CardInfo:
@@ -90,8 +91,7 @@ class V3CardInfo:
         states = top_card.states
         states.current.custom_data = top_card.card.custom_data
         return V3CardInfo(
-            queued_cards=queued_cards,
-            states=states,
+            queued_cards=queued_cards, states=states, context=top_card.context
         )
 
     def top_card(self) -> QueuedCards.QueuedCard:
@@ -143,6 +143,7 @@ class Reviewer:
         self.bottom = BottomBar(mw, mw.bottomWeb)
         self._card_info = ReviewerCardInfo(self.mw)
         self._previous_card_info = PreviousReviewerCardInfo(self.mw)
+        self._states_mutated = True
         hooks.card_did_leech.append(self.onLeech)
 
     def show(self) -> None:
@@ -267,8 +268,12 @@ class Reviewer:
     def get_scheduling_states(self) -> SchedulingStates | None:
         if v3 := self._v3:
             return v3.states
-        else:
-            return None
+        return None
+
+    def get_scheduling_context(self) -> SchedulingContext | None:
+        if v3 := self._v3:
+            return v3.context
+        return None
 
     def set_scheduling_states(self, key: str, states: SchedulingStates) -> None:
         if key != self._state_mutation_key:
@@ -278,9 +283,16 @@ class Reviewer:
             v3.states = states
 
     def _run_state_mutation_hook(self) -> None:
+        def on_eval(result: Any) -> None:
+            if result is None:
+                # eval failed, usually a syntax error
+                self._states_mutated = True
+
         if self._v3 and (js := self._state_mutation_js):
-            self.web.eval(
-                f"anki.mutateNextCardStates('{self._state_mutation_key}', (states, customData) => {{ {js} }})"
+            self._states_mutated = False
+            self.web.evalWithCallback(
+                RUN_STATE_MUTATION.format(key=self._state_mutation_key, js=js),
+                on_eval,
             )
 
     # Audio
@@ -546,6 +558,8 @@ class Reviewer:
             play_clicked_audio(url, self.card)
         elif url.startswith("updateToolbar"):
             self.mw.toolbarWeb.update_background_image()
+        elif url == "statesMutated":
+            self._states_mutated = True
         else:
             print("unrecognized anki link:", url)
 
@@ -692,6 +706,9 @@ time = %(time)d;
         self.bottom.web.eval("showQuestion(%s,%d);" % (json.dumps(middle), maxTime))
 
     def _showEaseButtons(self) -> None:
+        if not self._states_mutated:
+            self.mw.progress.single_shot(50, self._showEaseButtons)
+            return
         middle = self._answerButtons()
         self.bottom.web.eval(f"showAnswer({json.dumps(middle)});")
 
@@ -1034,3 +1051,9 @@ time = %(time)d;
     onDelete = delete_current_note
     onMark = toggle_mark_on_current_note
     setFlag = set_flag_on_current_card
+
+
+RUN_STATE_MUTATION = """
+anki.mutateNextCardStates('{key}', async (states, customData, ctx) => {{ {js} }})
+    .finally(() => bridgeCommand('statesMutated'));
+"""
