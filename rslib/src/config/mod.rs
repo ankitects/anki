@@ -310,7 +310,7 @@ pub(crate) enum Weekday {
 
 #[cfg(test)]
 mod test {
-    use crate::decks::DeckId;
+    use super::*;
 
     #[test]
     fn defaults() {
