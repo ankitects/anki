@@ -105,16 +105,6 @@ pub fn setup_node(
     binary_exports: &[&'static str],
     mut data_exports: HashMap<&str, Vec<Cow<str>>>,
 ) -> Result<()> {
-    download_and_extract(
-        build,
-        "node",
-        archive,
-        hashmap! {
-            "bin" => vec![if cfg!(windows) { "node.exe" } else { "bin/node" }],
-            "npm" => vec![if cfg!(windows) { "npm.cmd " } else { "bin/npm" }]
-        },
-    )?;
-
     let node_binary = match std::env::var("NODE_BINARY") {
         Ok(path) => {
             assert!(
@@ -124,6 +114,15 @@ pub fn setup_node(
             path.into()
         }
         Err(_) => {
+            download_and_extract(
+                build,
+                "node",
+                archive,
+                hashmap! {
+                    "bin" => vec![if cfg!(windows) { "node.exe" } else { "bin/node" }],
+                    "npm" => vec![if cfg!(windows) { "npm.cmd " } else { "bin/npm" }]
+                },
+            )?;
             inputs![":extract:node:bin"]
         }
     };
