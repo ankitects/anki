@@ -155,11 +155,14 @@ impl RemainingLimits {
     /// True if some limit was decremented to 0.
     fn decrement(&mut self, kind: LimitKind) -> DecrementResult {
         let before = *self;
-        if matches!(kind, LimitKind::Review) {
-            self.review = self.review.saturating_sub(1);
-        }
-        if self.cap_new_to_review || matches!(kind, LimitKind::New) {
-            self.new = self.new.saturating_sub(1);
+        match kind {
+            LimitKind::Review => {
+                self.review = self.review.saturating_sub(1);
+                if self.cap_new_to_review {
+                    self.new = self.new.min(self.review);
+                }
+            }
+            LimitKind::New => self.new = self.new.saturating_sub(1),
         }
         DecrementResult::new(&before, self)
     }
