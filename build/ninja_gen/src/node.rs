@@ -129,7 +129,18 @@ pub fn setup_node(
     let node_binary = build.expand_inputs(node_binary);
     build.variable("node_binary", &node_binary[0]);
 
-    build.add("yarn", YarnSetup {})?;
+    match std::env::var("YARN_BINARY") {
+        Ok(path) => {
+            assert!(
+                Utf8Path::new(&path).is_absolute(),
+                "YARN_BINARY must be absolute"
+            );
+            build.add_resolved_files_to_group("yarn:bin", &vec![path]);
+        }
+        Err(_) => {
+            build.add("yarn", YarnSetup {})?;
+        }
+    };
 
     for binary in binary_exports {
         data_exports.insert(
