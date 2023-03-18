@@ -597,8 +597,7 @@ impl SqlWriter<'_> {
                 .fields
                 .iter()
                 .filter_map(|field| {
-                    (matches_glob(&field.name) && !field.config.exclude_from_search)
-                        .then(|| field.ord.unwrap_or_default())
+                    matches_glob(&field.name).then(|| field.ord.unwrap_or_default())
                 })
                 .collect_ranges();
             if !matched_fields.is_empty() {
@@ -625,12 +624,13 @@ impl SqlWriter<'_> {
 
         let mut field_map = vec![];
         for nt in notetypes.values() {
-            let mut matched_fields = vec![];
-            for field in &nt.fields {
-                if matches_glob(&field.name) && !field.config.exclude_from_search {
-                    matched_fields.push(field.ord.unwrap_or_default());
-                }
-            }
+            let matched_fields: Vec<u32> = nt
+                .fields
+                .iter()
+                .filter_map(|field| {
+                    matches_glob(&field.name).then(|| field.ord.unwrap_or_default())
+                })
+                .collect();
             if !matched_fields.is_empty() {
                 field_map.push((nt.id, matched_fields));
             }
