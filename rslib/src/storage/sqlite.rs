@@ -203,12 +203,11 @@ fn add_exclude_fields_function(db: &Connection) -> rusqlite::Result<()> {
             assert!(ctx.len() > 1, "not enough arguments");
 
             let joined_fields = ctx.get_raw(0).as_str()?;
-            let fields: Vec<&str> = joined_fields.split('\x1f').collect();
             let indices: HashSet<usize> = (1..ctx.len())
                 .map(|i| ctx.get(i))
                 .collect::<rusqlite::Result<_>>()?;
-            let matched_fields = fields
-                .iter()
+            let matched_fields = joined_fields
+                .split('\x1f')
                 .enumerate()
                 .filter_map(|(i, field)| (!indices.contains(&i)).then_some(field))
                 .join("\x1f");
