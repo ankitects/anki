@@ -211,37 +211,38 @@ impl SqlWriter<'_> {
             let field_idx_str = format!("' || ?{arg_idx} || '");
             let other_idx_str = "%".to_string();
 
-            let notetype_clause = |(mid, num_fields, sortf_excluded, fields): &(
-                NotetypeId,
-                usize,
-                bool,
-                Vec<Range<u32>>,
-            )|
-             -> String {
-                let field_index_clause = |range: &Range<u32>| {
-                    let f = (0..*num_fields)
-                        .filter_map(|i| {
-                            if i as u32 == range.start {
-                                Some(&field_idx_str)
-                            } else if range.contains(&(i as u32)) {
-                                None
-                            } else {
-                                Some(&other_idx_str)
-                            }
-                        })
-                        .join("\x1f");
-                    format!("{flds_expr} like '{f}' escape '\\'")
+            let notetype_clause =
+                |UnqualifiedSearchContext {
+                     mid,
+                     num_fields,
+                     sortf_excluded,
+                     fields,
+                 }: &UnqualifiedSearchContext|
+                 -> String {
+                    let field_index_clause = |range: &Range<u32>| {
+                        let f = (0..*num_fields)
+                            .filter_map(|i| {
+                                if i as u32 == range.start {
+                                    Some(&field_idx_str)
+                                } else if range.contains(&(i as u32)) {
+                                    None
+                                } else {
+                                    Some(&other_idx_str)
+                                }
+                            })
+                            .join("\x1f");
+                        format!("{flds_expr} like '{f}' escape '\\'")
+                    };
+                    let mut all_field_clauses: Vec<String> =
+                        fields.iter().map(field_index_clause).collect();
+                    if !sortf_excluded {
+                        all_field_clauses.push(format!("{sfld_expr} like ?{arg_idx} escape '\\'"));
+                    }
+                    format!(
+                        "(n.mid = {mid} and ({all_field_clauses}))",
+                        all_field_clauses = all_field_clauses.join(" or ")
+                    )
                 };
-                let mut all_field_clauses: Vec<String> =
-                    fields.iter().map(field_index_clause).collect();
-                if !sortf_excluded {
-                    all_field_clauses.push(format!("{sfld_expr} like ?{arg_idx} escape '\\'"));
-                }
-                format!(
-                    "(n.mid = {mid} and ({all_field_clauses}))",
-                    all_field_clauses = all_field_clauses.join(" or ")
-                )
-            };
             let all_notetype_clauses = field_indicies_by_notetype
                 .iter()
                 .map(notetype_clause)
@@ -550,26 +551,30 @@ impl SqlWriter<'_> {
         let field_idx_str = format!("' || ?{arg_idx} || '");
         let other_idx_str = "%".to_string();
 
-        let notetype_clause =
-            |(mid, num_fields, fields): &(NotetypeId, usize, Vec<Range<u32>>)| -> String {
-                let field_index_clause = |range: &Range<u32>| {
-                    let f = (0..*num_fields)
-                        .filter_map(|i| {
-                            if i as u32 == range.start {
-                                Some(&field_idx_str)
-                            } else if range.contains(&(i as u32)) {
-                                None
-                            } else {
-                                Some(&other_idx_str)
-                            }
-                        })
-                        .join("\x1f");
-                    format!("n.flds like '{f}' escape '\\'")
-                };
-
-                let all_field_clauses = fields.iter().map(field_index_clause).join(" or ");
-                format!("(n.mid = {mid} and ({all_field_clauses}))",)
+        let notetype_clause = |SingleFieldSearchContext {
+                                   mid,
+                                   num_fields,
+                                   fields,
+                               }: &SingleFieldSearchContext|
+         -> String {
+            let field_index_clause = |range: &Range<u32>| {
+                let f = (0..*num_fields)
+                    .filter_map(|i| {
+                        if i as u32 == range.start {
+                            Some(&field_idx_str)
+                        } else if range.contains(&(i as u32)) {
+                            None
+                        } else {
+                            Some(&other_idx_str)
+                        }
+                    })
+                    .join("\x1f");
+                format!("n.flds like '{f}' escape '\\'")
             };
+
+            let all_field_clauses = fields.iter().map(field_index_clause).join(" or ");
+            format!("(n.mid = {mid} and ({all_field_clauses}))",)
+        };
         let all_notetype_clauses = field_indicies_by_notetype
             .iter()
             .map(notetype_clause)
@@ -579,11 +584,10 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    #[allow(clippy::type_complexity)]
     fn num_fields_and_fields_indices_by_notetype(
         &mut self,
         field_name: &str,
-    ) -> Result<Vec<(NotetypeId, usize, Vec<Range<u32>>)>> {
+    ) -> Result<Vec<SingleFieldSearchContext>> {
         let notetypes = self.col.get_all_notetypes()?;
         let matches_glob = glob_matcher(field_name);
 
@@ -598,12 +602,16 @@ impl SqlWriter<'_> {
                 })
                 .collect_ranges();
             if !matched_fields.is_empty() {
-                field_map.push((nt.id, nt.fields.len(), matched_fields));
+                field_map.push(SingleFieldSearchContext {
+                    mid: nt.id,
+                    num_fields: nt.fields.len(),
+                    fields: matched_fields,
+                });
             }
         }
 
         // for now, sort the map for the benefit of unit tests
-        field_map.sort_by_key(|v| v.0);
+        field_map.sort_by_key(|v| v.mid);
 
         Ok(field_map)
     }
@@ -634,10 +642,7 @@ impl SqlWriter<'_> {
         Ok(field_map)
     }
 
-    #[allow(clippy::type_complexity)]
-    fn included_fields_by_notetype(
-        &mut self,
-    ) -> Result<Option<Vec<(NotetypeId, usize, bool, Vec<Range<u32>>)>>> {
+    fn included_fields_by_notetype(&mut self) -> Result<Option<Vec<UnqualifiedSearchContext>>> {
         let notetypes = self.col.get_all_notetypes()?;
         let mut any_excluded = false;
         let mut field_map = vec![];
@@ -656,7 +661,12 @@ impl SqlWriter<'_> {
                 })
                 .collect_ranges();
             if !matched_fields.is_empty() {
-                field_map.push((nt.id, nt.fields.len(), sortf_excluded, matched_fields));
+                field_map.push(UnqualifiedSearchContext {
+                    mid: nt.id,
+                    num_fields: nt.fields.len(),
+                    sortf_excluded,
+                    fields: matched_fields,
+                });
             }
         }
         if any_excluded {
@@ -668,8 +678,9 @@ impl SqlWriter<'_> {
 
     /// Return excluded fields for notetypes that have some but not all fields
     /// excluded
-    #[allow(clippy::type_complexity)]
-    fn excluded_fields_by_notetype(&mut self) -> Result<Option<Vec<(NotetypeId, Vec<u32>)>>> {
+    fn excluded_fields_by_notetype(
+        &mut self,
+    ) -> Result<Option<Vec<UnqualifiedRegexSearchContext>>> {
         let notetypes = self.col.get_all_notetypes()?;
         let mut any_excluded = false;
         let mut field_map = vec![];
@@ -684,7 +695,10 @@ impl SqlWriter<'_> {
                 })
                 .collect();
             if nt.fields.len() != matched_fields.len() {
-                field_map.push((nt.id, matched_fields));
+                field_map.push(UnqualifiedRegexSearchContext {
+                    mid: nt.id,
+                    fields: matched_fields,
+                });
             }
         }
         if any_excluded {
@@ -766,7 +780,7 @@ impl SqlWriter<'_> {
         self.args.push(format!(r"(?i){}", word));
         let arg_idx = self.args.len();
         if let Some(field_indices_by_notetype) = self.excluded_fields_by_notetype()? {
-            let notetype_clause = |(mid, fields): &(NotetypeId, Vec<u32>)| -> String {
+            let notetype_clause = |UnqualifiedRegexSearchContext{mid, fields}: &UnqualifiedRegexSearchContext| -> String {
                 let clause = if fields.is_empty() {
                     format!("{flds_expr} regexp ?{arg_idx}")
                 } else {
@@ -857,6 +871,24 @@ impl<
 
         result
     }
+}
+
+struct SingleFieldSearchContext {
+    mid: NotetypeId,
+    num_fields: usize,
+    fields: Vec<Range<u32>>,
+}
+
+struct UnqualifiedSearchContext {
+    mid: NotetypeId,
+    num_fields: usize,
+    sortf_excluded: bool,
+    fields: Vec<Range<u32>>,
+}
+
+struct UnqualifiedRegexSearchContext {
+    mid: NotetypeId,
+    fields: Vec<u32>,
 }
 
 impl Node {
