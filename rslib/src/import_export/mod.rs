@@ -8,6 +8,8 @@ pub mod text;
 
 use std::marker::PhantomData;
 
+use snafu::Snafu;
+
 pub use crate::pb::import_export::import_response::Log as NoteLog;
 pub use crate::pb::import_export::import_response::Note as LogNote;
 use crate::prelude::*;
@@ -126,5 +128,29 @@ impl Note {
                 })
                 .collect(),
         }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Snafu)]
+pub enum ImportError {
+    Corrupt,
+    TooNew,
+    MediaImportFailed { info: String },
+    NoFieldColumn,
+    InvalidId,
+}
+
+impl ImportError {
+    pub(crate) fn message(&self, tr: &I18n) -> String {
+        match self {
+            ImportError::Corrupt => tr.importing_the_provided_file_is_not_a(),
+            ImportError::TooNew => tr.errors_collection_too_new(),
+            ImportError::MediaImportFailed { info } => {
+                tr.importing_failed_to_import_media_file(info)
+            }
+            ImportError::NoFieldColumn => tr.importing_file_must_contain_field_column(),
+            ImportError::InvalidId => tr.errors_invalid_ids(),
+        }
+        .into()
     }
 }

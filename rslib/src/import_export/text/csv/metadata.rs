@@ -14,8 +14,8 @@ use strum::IntoEnumIterator;
 
 use super::import::build_csv_reader;
 use crate::config::I32ConfigKey;
-use crate::error::ImportError;
 use crate::import_export::text::NameOrId;
+use crate::import_export::ImportError;
 use crate::io::open_file;
 use crate::notetype::NoteField;
 use crate::pb::generic::StringList;

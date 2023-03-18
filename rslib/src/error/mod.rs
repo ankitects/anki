@@ -31,6 +31,7 @@ pub use self::invalid_input::OrInvalid;
 pub use self::not_found::NotFoundError;
 pub use self::not_found::OrNotFound;
 use crate::i18n::I18n;
+use crate::import_export::ImportError;
 use crate::links::HelpPage;
 
 pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
@@ -150,7 +151,7 @@ impl AnkiError {
             AnkiError::CustomStudyError { source } => source.message(tr),
             AnkiError::ImportError { source } => source.message(tr),
             AnkiError::Deleted => tr.browsing_row_deleted().into(),
-            AnkiError::InvalidId => tr.errors_invalid_ids().into(),
+            AnkiError::InvalidId => tr.errors_please_check_database().into(),
             AnkiError::JsonError { .. }
             | AnkiError::ProtoError { .. }
             | AnkiError::Interrupted
@@ -298,26 +299,4 @@ pub enum CardTypeErrorDetails {
     NoSuchField,
     MissingCloze,
     ExtraneousCloze,
-}
-
-#[derive(Debug, PartialEq, Eq, Clone, Snafu)]
-pub enum ImportError {
-    Corrupt,
-    TooNew,
-    MediaImportFailed { info: String },
-    NoFieldColumn,
-}
-
-impl ImportError {
-    fn message(&self, tr: &I18n) -> String {
-        match self {
-            ImportError::Corrupt => tr.importing_the_provided_file_is_not_a(),
-            ImportError::TooNew => tr.errors_collection_too_new(),
-            ImportError::MediaImportFailed { info } => {
-                tr.importing_failed_to_import_media_file(info)
-            }
-            ImportError::NoFieldColumn => tr.importing_file_must_contain_field_column(),
-        }
-        .into()
-    }
 }
