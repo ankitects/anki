@@ -105,16 +105,6 @@ pub fn setup_node(
     binary_exports: &[&'static str],
     mut data_exports: HashMap<&str, Vec<Cow<str>>>,
 ) -> Result<()> {
-    download_and_extract(
-        build,
-        "node",
-        archive,
-        hashmap! {
-            "bin" => vec![if cfg!(windows) { "node.exe" } else { "bin/node" }],
-            "npm" => vec![if cfg!(windows) { "npm.cmd " } else { "bin/npm" }]
-        },
-    )?;
-
     let node_binary = match std::env::var("NODE_BINARY") {
         Ok(path) => {
             assert!(
@@ -124,13 +114,33 @@ pub fn setup_node(
             path.into()
         }
         Err(_) => {
+            download_and_extract(
+                build,
+                "node",
+                archive,
+                hashmap! {
+                    "bin" => vec![if cfg!(windows) { "node.exe" } else { "bin/node" }],
+                    "npm" => vec![if cfg!(windows) { "npm.cmd " } else { "bin/npm" }]
+                },
+            )?;
             inputs![":extract:node:bin"]
         }
     };
     let node_binary = build.expand_inputs(node_binary);
     build.variable("node_binary", &node_binary[0]);
 
-    build.add("yarn", YarnSetup {})?;
+    match std::env::var("YARN_BINARY") {
+        Ok(path) => {
+            assert!(
+                Utf8Path::new(&path).is_absolute(),
+                "YARN_BINARY must be absolute"
+            );
+            build.add_resolved_files_to_group("yarn:bin", &vec![path]);
+        }
+        Err(_) => {
+            build.add("yarn", YarnSetup {})?;
+        }
+    };
 
     for binary in binary_exports {
         data_exports.insert(
