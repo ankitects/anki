@@ -490,4 +490,14 @@ mod test {
         // review limit doesn't apply to new card
         assert_eq!(col.card_queue_len(), 1);
     }
+
+    #[test]
+    fn reviews_dont_affect_new_limit_before_review_limit_is_reached() {
+        let mut col = Collection::new_v3();
+        col.update_default_deck_config(|config| {
+            config.new_per_day = 1;
+        });
+        CardAdder::new().siblings(2).due_dates(["0"]).add(&mut col);
+        assert_eq!(col.card_queue_len(), 2);
+    }
 }
