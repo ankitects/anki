@@ -112,9 +112,9 @@ pub(crate) struct DeckAdder {
 }
 
 impl DeckAdder {
-    pub(crate) fn new(machine_name: impl Into<String>) -> Self {
+    pub(crate) fn new(human_name: impl AsRef<str>) -> Self {
         Self {
-            name: NativeDeckName::from_native_str(machine_name),
+            name: NativeDeckName::from_human_name(human_name),
             ..Default::default()
         }
     }

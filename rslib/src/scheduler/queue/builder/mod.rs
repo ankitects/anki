@@ -345,9 +345,9 @@ mod test {
         // ┣━━child━━grandchild
         // ┗━━child_2
         let mut parent = DeckAdder::new("parent").add(&mut col);
-        let mut child = DeckAdder::new("parent\x1fchild").add(&mut col);
-        let child_2 = DeckAdder::new("parent\x1fchild_2").add(&mut col);
-        let grandchild = DeckAdder::new("parent\x1fchild\x1fgrandchild").add(&mut col);
+        let mut child = DeckAdder::new("parent::child").add(&mut col);
+        let child_2 = DeckAdder::new("parent::child_2").add(&mut col);
+        let grandchild = DeckAdder::new("parent::child::grandchild").add(&mut col);
 
         // add 2 new cards to each deck
         for deck in [&parent, &child, &child_2, &grandchild] {

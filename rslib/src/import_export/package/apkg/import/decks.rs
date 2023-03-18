@@ -221,10 +221,10 @@ mod test {
         ctx.unique_suffix = "★".to_string();
 
         let imports = vec![
-            DeckAdder::new("unknown parent\x1fchild").deck(),
-            DeckAdder::new("filtered\x1fchild").deck(),
-            DeckAdder::new("parent\x1fchild").deck(),
-            DeckAdder::new("NEW PARENT\x1fchild").deck(),
+            DeckAdder::new("unknown parent::child").deck(),
+            DeckAdder::new("filtered::child").deck(),
+            DeckAdder::new("parent::child").deck(),
+            DeckAdder::new("NEW PARENT::child").deck(),
             DeckAdder::new("new parent").deck(),
         ];
         ctx.import_decks(imports, false, false).unwrap();
