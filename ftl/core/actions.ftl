@@ -50,6 +50,7 @@ actions-add-notetype = Add Notetype
 actions-remove-notetype = Remove Notetype
 actions-update-notetype = Update Notetype
 actions-update-config = Update Config
+actions-update-theme = Update Theme
 actions-card-info = Card Info
 actions-previous-card-info = Previous Card Info
 # By convention, the name of a menu action is suffixed with "..." if additional

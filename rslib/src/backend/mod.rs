@@ -28,6 +28,7 @@ mod search;
 mod stats;
 mod sync;
 mod tags;
+mod themes;
 
 use std::result;
 use std::sync::Arc;
@@ -60,6 +61,7 @@ use self::stats::StatsService;
 use self::sync::SyncService;
 use self::sync::SyncState;
 use self::tags::TagsService;
+use self::themes::ThemesService;
 use crate::backend::dbproxy::db_command_bytes;
 use crate::pb;
 use crate::pb::backend::ServiceIndex;
@@ -131,6 +133,7 @@ impl Backend {
                 ServiceIndex::Sync => SyncService::run_method(self, method, input),
                 ServiceIndex::Tags => TagsService::run_method(self, method, input),
                 ServiceIndex::DeckConfig => DeckConfigService::run_method(self, method, input),
+                ServiceIndex::Themes => ThemesService::run_method(self, method, input),
                 ServiceIndex::CardRendering => {
                     CardRenderingService::run_method(self, method, input)
                 }

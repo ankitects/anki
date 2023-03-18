@@ -109,6 +109,7 @@ utime = "0.3.1"
 workspace-hack = { version = "0.1", path = "../tools/workspace-hack" }
 zip = { version = "0.6.3", default-features = false, features = ["deflate", "time"] }
 zstd = { version = "0.12.2", features = ["zstdmt"] }
+palette = "0.6.1"
 
 [target.'cfg(windows)'.dependencies.windows]
 version = "0.44.0"

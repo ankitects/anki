@@ -27,6 +27,7 @@ pub mod media;
 pub mod notes;
 pub mod notetype;
 pub mod ops;
+pub mod themes;
 pub mod pb;
 mod preferences;
 pub mod prelude;

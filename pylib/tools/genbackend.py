@@ -29,6 +29,7 @@ import anki.search_pb2
 import anki.stats_pb2
 import anki.sync_pb2
 import anki.tags_pb2
+import anki.themes_pb2
 
 TYPE_DOUBLE = 1
 TYPE_FLOAT = 2
@@ -184,6 +185,7 @@ service_modules = dict(
     STATS=anki.stats_pb2,
     CARD_RENDERING=anki.card_rendering_pb2,
     TAGS=anki.tags_pb2,
+    THEMES=anki.themes_pb2,
     MEDIA=anki.media_pb2,
     LINKS=anki.links_pb2,
     IMPORT_EXPORT=anki.import_export_pb2,
@@ -236,6 +238,7 @@ import anki.search_pb2
 import anki.stats_pb2
 import anki.card_rendering_pb2
 import anki.tags_pb2
+import anki.themes_pb2
 import anki.media_pb2
 import anki.import_export_pb2
 

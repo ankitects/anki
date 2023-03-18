@@ -1,0 +1,148 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.themes;
+
+import "anki/generic.proto";
+import "anki/collection.proto";
+import "anki/decks.proto";
+
+service ThemesService {
+  rpc GetTheme(ThemeId) returns (Theme);
+  rpc RemoveTheme(ThemeId) returns (generic.Empty);
+  rpc GetThemesForUpdate(generic.Empty) returns (ThemesForUpdate);
+  rpc UpdateThemes(UpdateThemesRequest) returns (collection.OpChanges);
+}
+
+message ThemeId {
+  int64 tid = 1;
+}
+
+message Vars {
+  Factors factors = 1;
+  Colors colors = 2;
+}
+
+message Theme {
+  int64 id = 1;
+  string name = 2;
+  int64 mtime_secs = 3;
+  int32 usn = 4;
+  Vars vars = 5;
+}
+
+message Factors {
+  float font_size = 1;
+  float roundness = 2;
+  float spacing = 3;
+  float transparency = 4;
+  float animation_speed = 5;
+
+  bytes other = 255;
+}
+
+message Color {
+  float red = 1;
+  float green = 2;
+  float blue = 3;
+  float alpha = 4;
+}
+
+
+/* User-modifiable base colors
+from which helper colors (gradient, hover, etc.) are derived */
+message Colors {
+  // background
+  Color canvas = 1;
+  Color canvas_secondary = 2;
+  Color canvas_code = 3;
+  reserved 4;
+  reserved 5;
+
+  // foreground
+  Color fg = 6;
+  reserved 7;
+  Color link = 8;
+  reserved 9;
+  reserved 10;
+
+  // effects
+  Color focus = 11;
+  Color shadow = 12;
+  Color glass = 13;
+  reserved 14;
+  reserved 15;
+
+  // various UI
+  Color border = 16;
+  Color button = 17;
+  Color button_primary = 18;
+  Color scrollbar = 19;
+  Color input_bg = 20;
+  reserved 21;
+  reserved 22;
+  reserved 23;
+  reserved 24;
+  reserved 25;
+
+  // accent colors
+  Color card = 26;
+  Color note = 27;
+  Color warning = 28;
+  reserved 29;
+  reserved 30;
+
+  // flags
+  Color flag_1 = 31;
+  Color flag_2 = 32;
+  Color flag_3 = 33;
+  Color flag_4 = 34;
+  Color flag_5 = 35;
+  Color flag_6 = 36;
+  Color flag_7 = 37;
+  reserved 38;
+  reserved 39;
+  reserved 40;
+
+  // card states
+  Color card_new = 41;
+  Color card_learn = 42;
+  Color card_review = 43;
+  Color card_buried = 44;
+  Color card_suspended = 45;
+  Color card_marked = 46;
+  reserved 47;
+  reserved 48;
+  reserved 49;
+  reserved 50;
+
+  // highlights
+  Color text_highlighted_bg = 51;
+  Color text_highlighted_fg = 52;
+  Color item_selected_bg = 53;
+  Color item_selected_fg = 54;
+  Color search_match_bg = 55;
+  Color search_match_fg = 56;
+  reserved 57;
+  reserved 58;
+  reserved 59;
+  reserved 60;
+
+  bytes other = 255;
+}
+
+message ThemesForUpdate {
+  repeated Theme all_themes = 1;
+  Theme defaults = 2;
+  bool schema_modified = 3;
+}
+
+message UpdateThemesRequest {
+  /// Unchanged, non-selected themes can be omitted.
+  repeated Theme themes = 1;
+  repeated int64 removed_theme_ids = 2;
+}

@@ -14,6 +14,7 @@ mod sqlite;
 mod sync;
 mod sync_check;
 mod tag;
+mod theme;
 mod upgrades;
 
 use std::fmt::Write;
