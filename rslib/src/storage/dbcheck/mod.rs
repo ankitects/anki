@@ -5,11 +5,11 @@ use crate::prelude::*;
 
 impl super::SqliteStorage {
     /// True if any ids used as timestamps are larger than `cutoff`.
-    pub(crate) fn has_invalid_ids(&self, cutoff: i64) -> Result<bool> {
+    pub(crate) fn invalid_ids(&self, cutoff: i64) -> Result<usize> {
         Ok(self
             .db
             .query_row_and_then(include_str!("invalid_ids_count.sql"), [cutoff], |r| {
-                r.get(0).map(|i: u32| i != 0)
+                r.get(0)
             })?)
     }
 
@@ -68,13 +68,14 @@ mod test {
     #[test]
     fn any_invalid_ids() {
         let mut col = Collection::new();
-        assert!(!col.storage.has_invalid_ids(0).unwrap());
+        assert_eq!(col.storage.invalid_ids(0).unwrap(), 0);
         NoteAdder::basic(&mut col).add(&mut col);
-        assert!(col.storage.has_invalid_ids(0).unwrap());
-        assert!(!col
-            .storage
-            .has_invalid_ids(TimestampMillis::now().0)
-            .unwrap());
+        // 1 card and 1 note
+        assert_eq!(col.storage.invalid_ids(0).unwrap(), 2);
+        assert_eq!(
+            col.storage.invalid_ids(TimestampMillis::now().0).unwrap(),
+            0
+        );
     }
 
     #[test]

@@ -36,6 +36,7 @@ pub struct CheckDatabaseOutput {
     field_count_mismatch: usize,
     notetypes_recovered: usize,
     invalid_utf8: usize,
+    invalid_ids: usize,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -81,6 +82,9 @@ impl CheckDatabaseOutput {
         }
         if self.invalid_utf8 > 0 {
             probs.push(tr.database_check_notes_with_invalid_utf8(self.invalid_utf8));
+        }
+        if self.invalid_ids > 0 {
+            probs.push(tr.database_check_fixed_invalid_ids(self.invalid_ids));
         }
 
         probs.into_iter().map(Into::into).collect()
@@ -140,7 +144,7 @@ impl Collection {
         self.update_next_new_position()?;
 
         debug!("invalid ids");
-        self.maybe_fix_invalid_ids()?;
+        self.maybe_fix_invalid_ids(&mut out)?;
 
         debug!("db check finished: {:#?}", out);
 
@@ -412,10 +416,11 @@ impl Collection {
         self.set_next_card_position(pos)
     }
 
-    pub(crate) fn maybe_fix_invalid_ids(&mut self) -> Result<()> {
+    fn maybe_fix_invalid_ids(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
         let now = TimestampMillis::now();
         let tomorrow = now.adding_secs(24 * 60 * 60).0;
-        if self.storage.has_invalid_ids(tomorrow)? {
+        out.invalid_ids = self.storage.invalid_ids(tomorrow)?;
+        if out.invalid_ids > 0 {
             self.storage.fix_invalid_ids(tomorrow, now.0)?;
             self.set_schema_modified()?;
         }

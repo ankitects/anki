@@ -10,4 +10,4 @@ SELECT (
     SELECT COUNT(*)
     FROM revlog
     WHERE id > :cutoff
-  )
+  );
