@@ -213,7 +213,7 @@ impl SqlWriter<'_> {
 
             let notetype_clause = |ctx: &UnqualifiedSearchContext| -> String {
                 let field_index_clause = |range: &Range<u32>| {
-                    let f = (0..ctx.num_fields)
+                    let f = (0..ctx.total_fields_in_note)
                         .filter_map(|i| {
                             if i as u32 == range.start {
                                 Some(&field_idx_str)
@@ -547,7 +547,7 @@ impl SqlWriter<'_> {
 
         let notetype_clause = |ctx: &SingleFieldSearchContext| -> String {
             let field_index_clause = |range: &Range<u32>| {
-                let f = (0..ctx.num_fields)
+                let f = (0..ctx.total_fields_in_note)
                     .filter_map(|i| {
                         if i as u32 == range.start {
                             Some(&field_idx_str)
@@ -592,7 +592,7 @@ impl SqlWriter<'_> {
             if !matched_fields.is_empty() {
                 field_map.push(SingleFieldSearchContext {
                     mid: nt.id,
-                    num_fields: nt.fields.len(),
+                    total_fields_in_note: nt.fields.len(),
                     fields: matched_fields,
                 });
             }
@@ -652,7 +652,7 @@ impl SqlWriter<'_> {
             if !matched_fields.is_empty() {
                 field_map.push(UnqualifiedSearchContext {
                     mid: nt.id,
-                    num_fields: nt.fields.len(),
+                    total_fields_in_note: nt.fields.len(),
                     sortf_excluded,
                     fields: matched_fields,
                 });
@@ -682,7 +682,7 @@ impl SqlWriter<'_> {
                 .collect();
             field_map.push(UnqualifiedRegexSearchContext {
                 mid: nt.id,
-                num_fields: nt.fields.len(),
+                total_fields_in_note: nt.fields.len(),
                 fields: matched_fields,
             });
         }
@@ -766,7 +766,7 @@ impl SqlWriter<'_> {
         let arg_idx = self.args.len();
         if let Some(field_indices_by_notetype) = self.included_fields_for_unqualified_regex()? {
             let notetype_clause = |ctx: &UnqualifiedRegexSearchContext| -> String {
-                let clause = if ctx.fields.len() == ctx.num_fields {
+                let clause = if ctx.fields.len() == ctx.total_fields_in_note {
                     format!("{flds_expr} regexp ?{arg_idx}")
                 } else {
                     let indices = ctx.fields.iter().join(",");
@@ -863,20 +863,20 @@ impl<
 
 struct SingleFieldSearchContext {
     mid: NotetypeId,
-    num_fields: usize,
+    total_fields_in_note: usize,
     fields: Vec<Range<u32>>,
 }
 
 struct UnqualifiedSearchContext {
     mid: NotetypeId,
-    num_fields: usize,
+    total_fields_in_note: usize,
     sortf_excluded: bool,
     fields: Vec<Range<u32>>,
 }
 
 struct UnqualifiedRegexSearchContext {
     mid: NotetypeId,
-    num_fields: usize,
+    total_fields_in_note: usize,
     fields: Vec<u32>,
 }
 
