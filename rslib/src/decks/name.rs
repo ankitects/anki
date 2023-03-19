@@ -12,9 +12,10 @@ pub struct NativeDeckName(String);
 
 impl NativeDeckName {
     /// Create from a '::'-separated string
-    pub fn from_human_name(name: &str) -> Self {
+    pub fn from_human_name(name: impl AsRef<str>) -> Self {
         NativeDeckName(
-            name.split("::")
+            name.as_ref()
+                .split("::")
                 .map(normalized_deck_name_component)
                 .join("\x1f"),
         )

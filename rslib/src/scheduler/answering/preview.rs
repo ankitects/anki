@@ -42,7 +42,6 @@ impl CardStateUpdater {
 mod test {
     use super::*;
     use crate::card::CardType;
-    use crate::collection::open_test_collection;
     use crate::prelude::*;
     use crate::scheduler::answering::CardAnswer;
     use crate::scheduler::answering::Rating;
@@ -52,7 +51,7 @@ mod test {
 
     #[test]
     fn preview() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let mut c = Card {
             deck_id: DeckId(1),
             ctype: CardType::Learn,

@@ -270,7 +270,6 @@ mod test {
     use super::*;
     use crate::card::CardQueue;
     use crate::card::CardType;
-    use crate::collection::open_test_collection;
     use crate::pb::deckconfig::deck_config::config::NewCardGatherPriority;
     use crate::pb::deckconfig::deck_config::config::NewCardSortOrder;
 
@@ -346,9 +345,9 @@ mod test {
         // ┣━━child━━grandchild
         // ┗━━child_2
         let mut parent = DeckAdder::new("parent").add(&mut col);
-        let mut child = DeckAdder::new("parent\x1fchild").add(&mut col);
-        let child_2 = DeckAdder::new("parent\x1fchild_2").add(&mut col);
-        let grandchild = DeckAdder::new("parent\x1fchild\x1fgrandchild").add(&mut col);
+        let mut child = DeckAdder::new("parent::child").add(&mut col);
+        let child_2 = DeckAdder::new("parent::child_2").add(&mut col);
+        let grandchild = DeckAdder::new("parent::child::grandchild").add(&mut col);
 
         // add 2 new cards to each deck
         for deck in [&parent, &child, &child_2, &grandchild] {
@@ -402,7 +401,7 @@ mod test {
 
     #[test]
     fn review_queue_building() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         col.set_config_bool(BoolKey::Sched2021, true, false)?;
 
         let mut deck = col.get_or_create_normal_deck("Default").unwrap();

@@ -447,7 +447,6 @@ fn get_fuzz_factor(seed: Option<u64>) -> Option<f32> {
 mod test {
     use super::*;
     use crate::card::CardType;
-    use crate::collection::open_test_collection;
     use crate::deckconfig::ReviewMix;
     use crate::search::SortMode;
 
@@ -459,7 +458,7 @@ mod test {
     // state we applied to it
     #[test]
     fn state_application() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         if col.timing_today()?.near_cutoff() {
             return Ok(());
         }
@@ -574,7 +573,7 @@ mod test {
     }
 
     fn v3_test_collection(cards: usize) -> Result<(Collection, Vec<CardId>)> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         for _ in 0..cards {
             let mut note = Note::new(&nt);

@@ -299,7 +299,6 @@ fn tags_to_nodes(tags_to_include: &[String], tags_to_exclude: &[String]) -> Sear
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::collection::open_test_collection;
     use crate::pb::scheduler::custom_study_request::cram::CramKind;
     use crate::pb::scheduler::custom_study_request::Cram;
     use crate::pb::scheduler::custom_study_request::Value;
@@ -307,7 +306,7 @@ mod test {
 
     #[test]
     fn tag_remembering() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();

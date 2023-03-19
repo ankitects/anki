@@ -110,11 +110,6 @@ impl CollectionBuilder {
     }
 }
 
-#[cfg(test)]
-pub fn open_test_collection() -> Collection {
-    CollectionBuilder::default().build().unwrap()
-}
-
 #[derive(Debug, Default)]
 pub struct CollectionState {
     pub(crate) undo: UndoManager,

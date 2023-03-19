@@ -4,6 +4,7 @@
 pub(crate) mod card;
 mod collection_timestamps;
 mod config;
+mod dbcheck;
 mod deck;
 mod deckconfig;
 mod graves;
