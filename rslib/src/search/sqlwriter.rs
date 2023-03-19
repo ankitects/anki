@@ -665,9 +665,7 @@ impl SqlWriter<'_> {
         }
     }
 
-    /// Return excluded fields for notetypes that have some but not all fields
-    /// excluded
-    fn excluded_fields_by_notetype(
+    fn included_fields_for_unqualified_regex(
         &mut self,
     ) -> Result<Option<Vec<UnqualifiedRegexSearchContext>>> {
         let notetypes = self.col.get_all_notetypes()?;
@@ -678,17 +676,15 @@ impl SqlWriter<'_> {
                 .fields
                 .iter()
                 .filter_map(|field| {
-                    let ord = field.ord.unwrap_or_default();
                     any_excluded |= field.config.exclude_from_search;
-                    field.config.exclude_from_search.then_some(ord)
+                    (!field.config.exclude_from_search).then_some(field.ord.unwrap_or_default())
                 })
                 .collect();
-            if nt.fields.len() != matched_fields.len() {
-                field_map.push(UnqualifiedRegexSearchContext {
-                    mid: nt.id,
-                    fields: matched_fields,
-                });
-            }
+            field_map.push(UnqualifiedRegexSearchContext {
+                mid: nt.id,
+                num_fields: nt.fields.len(),
+                fields: matched_fields,
+            });
         }
         if any_excluded {
             Ok(Some(field_map))
@@ -768,14 +764,15 @@ impl SqlWriter<'_> {
         };
         self.args.push(format!(r"(?i){}", word));
         let arg_idx = self.args.len();
-        if let Some(field_indices_by_notetype) = self.excluded_fields_by_notetype()? {
+        if let Some(field_indices_by_notetype) = self.included_fields_for_unqualified_regex()? {
             let notetype_clause = |ctx: &UnqualifiedRegexSearchContext| -> String {
-                let clause = if ctx.fields.is_empty() {
+                let clause = if ctx.fields.len() == ctx.num_fields {
                     format!("{flds_expr} regexp ?{arg_idx}")
                 } else {
                     let indices = ctx.fields.iter().join(",");
-                    format!("exclude_fields({flds_expr}, {indices}) regexp ?{arg_idx}")
+                    format!("regexp_fields(?{arg_idx}, {flds_expr}, {indices})")
                 };
+
                 format!("(n.mid = {mid} and {clause})", mid = ctx.mid)
             };
             let all_notetype_clauses = field_indices_by_notetype
@@ -879,6 +876,7 @@ struct UnqualifiedSearchContext {
 
 struct UnqualifiedRegexSearchContext {
     mid: NotetypeId,
+    num_fields: usize,
     fields: Vec<u32>,
 }
 
