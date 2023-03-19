@@ -20,7 +20,6 @@ use crate::error::FileIoSnafu;
 use crate::error::FileOp;
 use crate::import_export::gather::ExchangeData;
 use crate::import_export::package::Meta;
-use crate::import_export::ImportError;
 use crate::import_export::ImportProgress;
 use crate::import_export::IncrementableProgress;
 use crate::import_export::NoteLog;
@@ -107,15 +106,12 @@ impl ExchangeData {
     ) -> Result<Self> {
         let tempfile = collection_to_tempfile(meta, archive)?;
         let mut col = CollectionBuilder::new(tempfile.path()).build()?;
+        col.maybe_fix_invalid_ids()?;
         col.maybe_upgrade_scheduler()?;
 
         progress.call(ImportProgress::Gathering)?;
         let mut data = ExchangeData::default();
-        data.gather_data(&mut col, search, with_scheduling)
-            .map_err(|error| match error {
-                AnkiError::InvalidId => ImportError::InvalidId.into(),
-                error => error,
-            })?;
+        data.gather_data(&mut col, search, with_scheduling)?;
 
         Ok(data)
     }
