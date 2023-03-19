@@ -144,7 +144,7 @@ impl Collection {
         self.update_next_new_position()?;
 
         debug!("invalid ids");
-        self.maybe_fix_invalid_ids(&mut out)?;
+        out.invalid_ids = self.maybe_fix_invalid_ids()?;
 
         debug!("db check finished: {:#?}", out);
 
@@ -416,15 +416,15 @@ impl Collection {
         self.set_next_card_position(pos)
     }
 
-    fn maybe_fix_invalid_ids(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
+    pub(crate) fn maybe_fix_invalid_ids(&mut self) -> Result<usize> {
         let now = TimestampMillis::now();
         let tomorrow = now.adding_secs(24 * 60 * 60).0;
-        out.invalid_ids = self.storage.invalid_ids(tomorrow)?;
-        if out.invalid_ids > 0 {
+        let num_invalid_ids = self.storage.invalid_ids(tomorrow)?;
+        if num_invalid_ids > 0 {
             self.storage.fix_invalid_ids(tomorrow, now.0)?;
             self.set_schema_modified()?;
         }
-        Ok(())
+        Ok(num_invalid_ids)
     }
 }
 
