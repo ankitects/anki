@@ -226,8 +226,11 @@ impl SqlWriter<'_> {
                         .join("\x1f");
                     format!("{flds_expr} like '{f}' escape '\\'")
                 };
-                let mut all_field_clauses: Vec<String> =
-                    ctx.fields.iter().map(field_index_clause).collect();
+                let mut all_field_clauses: Vec<String> = ctx
+                    .field_ranges_to_search
+                    .iter()
+                    .map(field_index_clause)
+                    .collect();
                 if !ctx.sortf_excluded {
                     all_field_clauses.push(format!("{sfld_expr} like ?{arg_idx} escape '\\'"));
                 }
@@ -561,7 +564,11 @@ impl SqlWriter<'_> {
                 format!("n.flds like '{f}' escape '\\'")
             };
 
-            let all_field_clauses = ctx.fields.iter().map(field_index_clause).join(" or ");
+            let all_field_clauses = ctx
+                .field_ranges_to_search
+                .iter()
+                .map(field_index_clause)
+                .join(" or ");
             format!("(n.mid = {mid} and ({all_field_clauses}))", mid = ctx.mid)
         };
         let all_notetype_clauses = field_indicies_by_notetype
@@ -593,7 +600,7 @@ impl SqlWriter<'_> {
                 field_map.push(SingleFieldSearchContext {
                     mid: nt.id,
                     total_fields_in_note: nt.fields.len(),
-                    fields: matched_fields,
+                    field_ranges_to_search: matched_fields,
                 });
             }
         }
@@ -654,7 +661,7 @@ impl SqlWriter<'_> {
                     mid: nt.id,
                     total_fields_in_note: nt.fields.len(),
                     sortf_excluded,
-                    fields: matched_fields,
+                    field_ranges_to_search: matched_fields,
                 });
             }
         }
@@ -864,14 +871,14 @@ impl<
 struct SingleFieldSearchContext {
     mid: NotetypeId,
     total_fields_in_note: usize,
-    fields: Vec<Range<u32>>,
+    field_ranges_to_search: Vec<Range<u32>>,
 }
 
 struct UnqualifiedSearchContext {
     mid: NotetypeId,
     total_fields_in_note: usize,
     sortf_excluded: bool,
-    fields: Vec<Range<u32>>,
+    field_ranges_to_search: Vec<Range<u32>>,
 }
 
 struct UnqualifiedRegexSearchContext {
