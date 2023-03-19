@@ -690,7 +690,7 @@ impl SqlWriter<'_> {
             field_map.push(UnqualifiedRegexSearchContext {
                 mid: nt.id,
                 total_fields_in_note: nt.fields.len(),
-                fields: matched_fields,
+                fields_to_search: matched_fields,
             });
         }
         if any_excluded {
@@ -773,10 +773,10 @@ impl SqlWriter<'_> {
         let arg_idx = self.args.len();
         if let Some(field_indices_by_notetype) = self.included_fields_for_unqualified_regex()? {
             let notetype_clause = |ctx: &UnqualifiedRegexSearchContext| -> String {
-                let clause = if ctx.fields.len() == ctx.total_fields_in_note {
+                let clause = if ctx.fields_to_search.len() == ctx.total_fields_in_note {
                     format!("{flds_expr} regexp ?{arg_idx}")
                 } else {
-                    let indices = ctx.fields.iter().join(",");
+                    let indices = ctx.fields_to_search.iter().join(",");
                     format!("regexp_fields(?{arg_idx}, {flds_expr}, {indices})")
                 };
 
@@ -884,7 +884,9 @@ struct UnqualifiedSearchContext {
 struct UnqualifiedRegexSearchContext {
     mid: NotetypeId,
     total_fields_in_note: usize,
-    fields: Vec<u32>,
+    /// Unlike the other contexts, this contains each individual index
+    /// instead of a list of ranges.
+    fields_to_search: Vec<u32>,
 }
 
 impl Node {
