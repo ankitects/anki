@@ -9,7 +9,7 @@ import aqt.forms
 import aqt.operations
 from anki.collection import OpChanges
 from anki.consts import new_card_scheduling_labels
-from aqt import AnkiQt
+from aqt import AnkiQt, gui_hooks
 from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
 from aqt.qt import *
@@ -150,6 +150,7 @@ class Preferences(QDialog):
                 want_v3 = form.sched2021.isChecked()
                 if self.mw.col.v3_scheduler() != want_v3:
                     self.mw.col.set_v3_scheduler(want_v3)
+                    gui_hooks.operation_did_execute(OpChanges(study_queues=True), None)
 
             on_done()
 
