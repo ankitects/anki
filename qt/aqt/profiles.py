@@ -518,7 +518,7 @@ create table if not exists profiles
         self.meta["uiScale"] = scale
 
     def reduce_motion(self) -> bool:
-        return self.meta.get("reduce_motion", False)
+        return self.meta.get("reduce_motion", True)
 
     def set_reduce_motion(self, on: bool) -> None:
         self.meta["reduce_motion"] = on
