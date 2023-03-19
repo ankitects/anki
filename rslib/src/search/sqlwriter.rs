@@ -836,6 +836,8 @@ impl RequiredTable {
     }
 }
 
+/// Given a list of numbers, create one or more ranges, collapsing
+/// contiguous numbers.
 trait CollectRanges {
     type Item;
     fn collect_ranges(self) -> Vec<Range<Self::Item>>;
@@ -1238,5 +1240,11 @@ mod test {
             Node::Group(parse("test nid:1").unwrap()).required_table(),
             RequiredTable::Notes
         );
+    }
+
+    #[test]
+    fn ranges() {
+        assert_eq!([1, 2, 3].collect_ranges(), [1..4]);
+        assert_eq!([1, 3, 4].collect_ranges(), [1..2, 3..5]);
     }
 }
