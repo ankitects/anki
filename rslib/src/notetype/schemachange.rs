@@ -194,11 +194,7 @@ impl Notetype {
 
 #[cfg(test)]
 mod test {
-    use super::ords_changed;
-    use super::TemplateOrdChanges;
-    use crate::collection::open_test_collection;
-    use crate::decks::DeckId;
-    use crate::error::Result;
+    use super::*;
     use crate::search::SortMode;
 
     #[test]
@@ -258,7 +254,7 @@ mod test {
 
     #[test]
     fn fields() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let mut nt = col
             .storage
             .get_notetype(col.get_current_notetype_id().unwrap())?
@@ -286,7 +282,7 @@ mod test {
 
     #[test]
     fn field_renaming_and_deleting() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let mut nt = col
             .storage
             .get_notetype(col.get_current_notetype_id().unwrap())?
@@ -307,7 +303,7 @@ mod test {
 
     #[test]
     fn cards() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let mut nt = col
             .storage
             .get_notetype(col.get_current_notetype_id().unwrap())?

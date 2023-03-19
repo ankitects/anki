@@ -185,7 +185,6 @@ impl Collection {
 
 #[cfg(test)]
 mod test {
-    use crate::collection::open_test_collection;
     use crate::prelude::*;
     use crate::search::SortMode;
 
@@ -200,7 +199,7 @@ mod test {
 
     #[test]
     fn adding_updating() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         let deck1 = col.get_or_create_normal_deck("foo")?;
         let deck2 = col.get_or_create_normal_deck("FOO")?;
@@ -220,7 +219,7 @@ mod test {
 
     #[test]
     fn renaming() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         let _ = col.get_or_create_normal_deck("foo::bar::baz")?;
         let mut top_deck = col.get_or_create_normal_deck("foo")?;
@@ -291,7 +290,7 @@ mod test {
     fn default() -> Result<()> {
         // deleting the default deck will remove cards, but bring the deck back
         // as a top level deck
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         let mut default = col.get_or_create_normal_deck("default")?;
         default.name = NativeDeckName::from_native_str("one\x1ftwo");

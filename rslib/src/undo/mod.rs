@@ -332,12 +332,11 @@ impl From<&[UndoableChange]> for StateChanges {
 mod test {
     use super::UndoableChange;
     use crate::card::Card;
-    use crate::collection::open_test_collection;
     use crate::prelude::*;
 
     #[test]
     fn undo() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         let mut card = Card {
             interval: 1,
@@ -445,7 +444,7 @@ mod test {
 
     #[test]
     fn custom() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         // perform some actions in separate steps
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
@@ -509,7 +508,7 @@ mod test {
 
     #[test]
     fn undo_mtime_bump() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         col.storage.db.execute_batch("update col set mod = 0")?;
 
         // a no-op change should not bump mtime

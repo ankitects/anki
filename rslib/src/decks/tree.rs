@@ -406,13 +406,12 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::collection::open_test_collection;
     use crate::deckconfig::DeckConfigId;
     use crate::error::Result;
 
     #[test]
     fn wellformed() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         col.get_or_create_normal_deck("1")?;
         col.get_or_create_normal_deck("2")?;
@@ -436,7 +435,7 @@ mod test {
 
     #[test]
     fn malformed() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         col.get_or_create_normal_deck("1")?;
         col.get_or_create_normal_deck("2::3::4")?;
@@ -453,7 +452,7 @@ mod test {
 
     #[test]
     fn counts() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         let mut parent_deck = col.get_or_create_normal_deck("Default")?;
         let mut child_deck = col.get_or_create_normal_deck("Default::one")?;
@@ -503,7 +502,7 @@ mod test {
             deck
         }
 
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         col.set_config_bool(BoolKey::Sched2021, true, false)?;
 
         let parent_deck = create_deck_with_new_limit(&mut col, "Default", 8);

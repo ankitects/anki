@@ -9,7 +9,7 @@ use prost::Message;
 use zip::ZipArchive;
 use zstd::stream::copy_decode;
 
-use crate::error::ImportError;
+use crate::import_export::ImportError;
 pub(super) use crate::pb::import_export::package_metadata::Version;
 pub(super) use crate::pb::import_export::PackageMetadata as Meta;
 use crate::prelude::*;

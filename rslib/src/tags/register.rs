@@ -195,12 +195,11 @@ pub(super) fn normalize_tag_name(name: &str) -> Result<Cow<str>> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::collection::open_test_collection;
     use crate::decks::DeckId;
 
     #[test]
     fn tags() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         col.add_note(&mut note, DeckId(1))?;

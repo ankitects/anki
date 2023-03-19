@@ -36,6 +36,7 @@ pub struct CheckDatabaseOutput {
     field_count_mismatch: usize,
     notetypes_recovered: usize,
     invalid_utf8: usize,
+    invalid_ids: usize,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -81,6 +82,9 @@ impl CheckDatabaseOutput {
         }
         if self.invalid_utf8 > 0 {
             probs.push(tr.database_check_notes_with_invalid_utf8(self.invalid_utf8));
+        }
+        if self.invalid_ids > 0 {
+            probs.push(tr.database_check_fixed_invalid_ids(self.invalid_ids));
         }
 
         probs.into_iter().map(Into::into).collect()
@@ -138,6 +142,9 @@ impl Collection {
         self.check_missing_deck_names(&mut out)?;
 
         self.update_next_new_position()?;
+
+        debug!("invalid ids");
+        self.maybe_fix_invalid_ids(&mut out)?;
 
         debug!("db check finished: {:#?}", out);
 
@@ -408,12 +415,22 @@ impl Collection {
         let pos = self.storage.max_new_card_position().unwrap_or(0);
         self.set_next_card_position(pos)
     }
+
+    fn maybe_fix_invalid_ids(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
+        let now = TimestampMillis::now();
+        let tomorrow = now.adding_secs(24 * 60 * 60).0;
+        out.invalid_ids = self.storage.invalid_ids(tomorrow)?;
+        if out.invalid_ids > 0 {
+            self.storage.fix_invalid_ids(tomorrow, now.0)?;
+            self.set_schema_modified()?;
+        }
+        Ok(())
+    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::collection::open_test_collection;
     use crate::decks::DeckId;
     use crate::search::SortMode;
 
@@ -421,7 +438,7 @@ mod test {
 
     #[test]
     fn cards() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         col.add_note(&mut note, DeckId(1))?;
@@ -483,7 +500,7 @@ mod test {
 
     #[test]
     fn revlog() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         col.storage.db.execute_batch(
             "
@@ -508,7 +525,7 @@ mod test {
 
     #[test]
     fn note_card_link() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         col.add_note(&mut note, DeckId(1))?;
@@ -557,7 +574,7 @@ mod test {
 
     #[test]
     fn note_fields() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         col.add_note(&mut note, DeckId(1))?;
@@ -597,7 +614,7 @@ mod test {
 
     #[test]
     fn deck_names() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         let deck = col.get_or_create_normal_deck("foo::bar::baz")?;
         // includes default
@@ -631,7 +648,7 @@ mod test {
 
     #[test]
     fn tags() -> Result<()> {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         note.tags.push("one".into());

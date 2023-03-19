@@ -375,7 +375,7 @@ impl SqlWriter<'_> {
                             .as_native_str(),
                     )
                 } else {
-                    NativeDeckName::from_human_name(&to_re(deck))
+                    NativeDeckName::from_human_name(to_re(deck))
                         .as_native_str()
                         .to_string()
                 };

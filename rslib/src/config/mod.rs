@@ -310,18 +310,17 @@ pub(crate) enum Weekday {
 
 #[cfg(test)]
 mod test {
-    use crate::collection::open_test_collection;
-    use crate::decks::DeckId;
+    use super::*;
 
     #[test]
     fn defaults() {
-        let col = open_test_collection();
+        let col = Collection::new();
         assert_eq!(col.get_current_deck_id(), DeckId(1));
     }
 
     #[test]
     fn get_set() {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
 
         // missing key
         assert_eq!(col.get_config_optional::<Vec<i64>, _>("test"), None);

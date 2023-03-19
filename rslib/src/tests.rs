@@ -8,7 +8,6 @@ use itertools::Itertools;
 use tempfile::tempdir;
 use tempfile::TempDir;
 
-use crate::collection::open_test_collection;
 use crate::collection::CollectionBuilder;
 use crate::deckconfig::DeckConfigInner;
 use crate::io::create_dir;
@@ -28,14 +27,14 @@ pub(crate) fn open_fs_test_collection(name: &str) -> (Collection, TempDir) {
 }
 
 pub(crate) fn open_test_collection_with_learning_card() -> Collection {
-    let mut col = open_test_collection();
+    let mut col = Collection::new();
     NoteAdder::basic(&mut col).add(&mut col);
     col.answer_again();
     col
 }
 
 pub(crate) fn open_test_collection_with_relearning_card() -> Collection {
-    let mut col = open_test_collection();
+    let mut col = Collection::new();
     NoteAdder::basic(&mut col).add(&mut col);
     col.answer_easy();
     col.storage
@@ -48,8 +47,12 @@ pub(crate) fn open_test_collection_with_relearning_card() -> Collection {
 }
 
 impl Collection {
+    pub(crate) fn new() -> Collection {
+        CollectionBuilder::default().build().unwrap()
+    }
+
     pub(crate) fn new_v3() -> Collection {
-        let mut col = open_test_collection();
+        let mut col = Collection::new();
         col.set_config_bool(BoolKey::Sched2021, true, false)
             .unwrap();
         col
@@ -109,9 +112,9 @@ pub(crate) struct DeckAdder {
 }
 
 impl DeckAdder {
-    pub(crate) fn new(machine_name: impl Into<String>) -> Self {
+    pub(crate) fn new(human_name: impl AsRef<str>) -> Self {
         Self {
-            name: NativeDeckName::from_native_str(machine_name),
+            name: NativeDeckName::from_human_name(human_name),
             ..Default::default()
         }
     }
