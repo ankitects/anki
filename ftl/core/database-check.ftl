@@ -47,8 +47,8 @@ database-check-notes-with-invalid-utf8 =
     }
 database-check-fixed-invalid-ids =
     { $count ->
-        [one] Fixed { $count } invalid id.
-       *[other] Fixed { $count } invalid ids.
+        [one] Fixed { $count } object with timestamps in the future.
+       *[other] Fixed { $count } objects with timestamps in the future.
     }
 # "db-check" is always in English
 database-check-notetypes-recovered = One or more notetypes were missing. The notes that used them have been given new notetypes starting with "db-check", but field names and card design have been lost, so you may be better off restoring from an automatic backup.
