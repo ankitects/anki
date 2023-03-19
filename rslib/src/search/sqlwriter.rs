@@ -236,7 +236,7 @@ impl SqlWriter<'_> {
                 }
                 format!(
                     "(n.mid = {mid} and ({all_field_clauses}))",
-                    mid = ctx.mid,
+                    mid = ctx.ntid,
                     all_field_clauses = all_field_clauses.join(" or ")
                 )
             };
@@ -569,7 +569,7 @@ impl SqlWriter<'_> {
                 .iter()
                 .map(field_index_clause)
                 .join(" or ");
-            format!("(n.mid = {mid} and ({all_field_clauses}))", mid = ctx.mid)
+            format!("(n.mid = {mid} and ({all_field_clauses}))", mid = ctx.ntid)
         };
         let all_notetype_clauses = field_indicies_by_notetype
             .iter()
@@ -598,7 +598,7 @@ impl SqlWriter<'_> {
                 .collect_ranges();
             if !matched_fields.is_empty() {
                 field_map.push(FieldQualifiedSearchContext {
-                    mid: nt.id,
+                    ntid: nt.id,
                     total_fields_in_note: nt.fields.len(),
                     field_ranges_to_search: matched_fields,
                 });
@@ -606,7 +606,7 @@ impl SqlWriter<'_> {
         }
 
         // for now, sort the map for the benefit of unit tests
-        field_map.sort_by_key(|v| v.mid);
+        field_map.sort_by_key(|v| v.ntid);
 
         Ok(field_map)
     }
@@ -658,7 +658,7 @@ impl SqlWriter<'_> {
                 .collect_ranges();
             if !matched_fields.is_empty() {
                 field_map.push(UnqualifiedSearchContext {
-                    mid: nt.id,
+                    ntid: nt.id,
                     total_fields_in_note: nt.fields.len(),
                     sortf_excluded,
                     field_ranges_to_search: matched_fields,
@@ -688,7 +688,7 @@ impl SqlWriter<'_> {
                 })
                 .collect();
             field_map.push(UnqualifiedRegexSearchContext {
-                mid: nt.id,
+                ntid: nt.id,
                 total_fields_in_note: nt.fields.len(),
                 fields_to_search: matched_fields,
             });
@@ -780,7 +780,7 @@ impl SqlWriter<'_> {
                     format!("regexp_fields(?{arg_idx}, {flds_expr}, {indices})")
                 };
 
-                format!("(n.mid = {mid} and {clause})", mid = ctx.mid)
+                format!("(n.mid = {mid} and {clause})", mid = ctx.ntid)
             };
             let all_notetype_clauses = field_indices_by_notetype
                 .iter()
@@ -869,7 +869,7 @@ impl<
 }
 
 struct FieldQualifiedSearchContext {
-    mid: NotetypeId,
+    ntid: NotetypeId,
     total_fields_in_note: usize,
     /// This may include more than one field in the case the user
     /// has searched with a wildcard, eg f*:foo.
@@ -877,14 +877,14 @@ struct FieldQualifiedSearchContext {
 }
 
 struct UnqualifiedSearchContext {
-    mid: NotetypeId,
+    ntid: NotetypeId,
     total_fields_in_note: usize,
     sortf_excluded: bool,
     field_ranges_to_search: Vec<Range<u32>>,
 }
 
 struct UnqualifiedRegexSearchContext {
-    mid: NotetypeId,
+    ntid: NotetypeId,
     total_fields_in_note: usize,
     /// Unlike the other contexts, this contains each individual index
     /// instead of a list of ranges.
