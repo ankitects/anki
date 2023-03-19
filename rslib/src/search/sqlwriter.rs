@@ -3,6 +3,7 @@
 
 use std::borrow::Cow;
 use std::fmt::Write;
+use std::ops::Range;
 
 use itertools::Itertools;
 
@@ -130,11 +131,10 @@ impl SqlWriter<'_> {
             // note fields related
             SearchNode::UnqualifiedText(text) => {
                 let text = &self.norm_note(text);
-                if self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch) {
-                    self.write_no_combining(text)
-                } else {
-                    self.write_unqualified(text)
-                }
+                self.write_unqualified(
+                    text,
+                    self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch),
+                )?
             }
             SearchNode::SingleField { field, text, is_re } => {
                 self.write_field(&norm(field), &self.norm_note(text), *is_re)?
@@ -142,9 +142,9 @@ impl SqlWriter<'_> {
             SearchNode::Duplicates { notetype_id, text } => {
                 self.write_dupe(*notetype_id, &self.norm_note(text))?
             }
-            SearchNode::Regex(re) => self.write_regex(&self.norm_note(re)),
-            SearchNode::NoCombining(text) => self.write_no_combining(&self.norm_note(text)),
-            SearchNode::WordBoundary(text) => self.write_word_boundary(&self.norm_note(text)),
+            SearchNode::Regex(re) => self.write_regex(&self.norm_note(re), false)?,
+            SearchNode::NoCombining(text) => self.write_unqualified(&self.norm_note(text), true)?,
+            SearchNode::WordBoundary(text) => self.write_word_boundary(&self.norm_note(text))?,
 
             // other
             SearchNode::AddedInDays(days) => self.write_added(*days)?,
@@ -184,30 +184,76 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_unqualified(&mut self, text: &str) {
+    fn write_unqualified(&mut self, text: &str, no_combining: bool) -> Result<()> {
+        let text = to_sql(text);
+        let text = if no_combining {
+            without_combining(&text)
+        } else {
+            text
+        };
         // implicitly wrap in %
-        let text = format!("%{}%", &to_sql(text));
+        let text = format!("%{}%", text);
         self.args.push(text);
-        write!(
-            self.sql,
-            "(n.sfld like ?{n} escape '\\' or n.flds like ?{n} escape '\\')",
-            n = self.args.len(),
-        )
-        .unwrap();
-    }
+        let arg_idx = self.args.len();
 
-    fn write_no_combining(&mut self, text: &str) {
-        let text = format!("%{}%", without_combining(&to_sql(text)));
-        self.args.push(text);
-        write!(
-            self.sql,
-            concat!(
-                "(coalesce(without_combining(cast(n.sfld as text)), n.sfld) like ?{n} escape '\\' ",
-                "or coalesce(without_combining(n.flds), n.flds) like ?{n} escape '\\')"
-            ),
-            n = self.args.len(),
-        )
-        .unwrap();
+        let sfld_expr = if no_combining {
+            "coalesce(without_combining(cast(n.sfld as text)), n.sfld)"
+        } else {
+            "n.sfld"
+        };
+        let flds_expr = if no_combining {
+            "coalesce(without_combining(n.flds), n.flds)"
+        } else {
+            "n.flds"
+        };
+
+        if let Some(field_indicies_by_notetype) = self.included_fields_by_notetype()? {
+            let field_idx_str = format!("' || ?{arg_idx} || '");
+            let other_idx_str = "%".to_string();
+
+            let notetype_clause = |ctx: &UnqualifiedSearchContext| -> String {
+                let field_index_clause = |range: &Range<u32>| {
+                    let f = (0..ctx.total_fields_in_note)
+                        .filter_map(|i| {
+                            if i as u32 == range.start {
+                                Some(&field_idx_str)
+                            } else if range.contains(&(i as u32)) {
+                                None
+                            } else {
+                                Some(&other_idx_str)
+                            }
+                        })
+                        .join("\x1f");
+                    format!("{flds_expr} like '{f}' escape '\\'")
+                };
+                let mut all_field_clauses: Vec<String> = ctx
+                    .field_ranges_to_search
+                    .iter()
+                    .map(field_index_clause)
+                    .collect();
+                if !ctx.sortf_excluded {
+                    all_field_clauses.push(format!("{sfld_expr} like ?{arg_idx} escape '\\'"));
+                }
+                format!(
+                    "(n.mid = {mid} and ({all_field_clauses}))",
+                    mid = ctx.ntid,
+                    all_field_clauses = all_field_clauses.join(" or ")
+                )
+            };
+            let all_notetype_clauses = field_indicies_by_notetype
+                .iter()
+                .map(notetype_clause)
+                .join(" or ");
+            write!(self.sql, "({all_notetype_clauses})").unwrap();
+        } else {
+            write!(
+                self.sql,
+                "({sfld_expr} like ?{arg_idx} escape '\\' or {flds_expr} like ?{arg_idx} escape '\\')"
+            )
+            .unwrap();
+        }
+
+        Ok(())
     }
 
     fn write_tag(&mut self, tag: &str, is_re: bool) {
@@ -490,7 +536,8 @@ impl SqlWriter<'_> {
     }
 
     fn write_single_field(&mut self, field_name: &str, val: &str) -> Result<()> {
-        let field_indicies_by_notetype = self.fields_indices_by_notetype(field_name)?;
+        let field_indicies_by_notetype =
+            self.num_fields_and_fields_indices_by_notetype(field_name)?;
         if field_indicies_by_notetype.is_empty() {
             write!(self.sql, "false").unwrap();
             return Ok(());
@@ -498,12 +545,31 @@ impl SqlWriter<'_> {
 
         self.args.push(to_sql(val).into());
         let arg_idx = self.args.len();
+        let field_idx_str = format!("' || ?{arg_idx} || '");
+        let other_idx_str = "%".to_string();
 
-        let notetype_clause = |(mid, fields): &(NotetypeId, Vec<u32>)| -> String {
-            let field_index_clause =
-                |ord| format!("field_at_index(n.flds, {ord}) like ?{arg_idx} escape '\\'",);
-            let all_field_clauses = fields.iter().map(field_index_clause).join(" or ");
-            format!("(n.mid = {mid} and ({all_field_clauses}))",)
+        let notetype_clause = |ctx: &FieldQualifiedSearchContext| -> String {
+            let field_index_clause = |range: &Range<u32>| {
+                let f = (0..ctx.total_fields_in_note)
+                    .filter_map(|i| {
+                        if i as u32 == range.start {
+                            Some(&field_idx_str)
+                        } else if range.contains(&(i as u32)) {
+                            None
+                        } else {
+                            Some(&other_idx_str)
+                        }
+                    })
+                    .join("\x1f");
+                format!("n.flds like '{f}' escape '\\'")
+            };
+
+            let all_field_clauses = ctx
+                .field_ranges_to_search
+                .iter()
+                .map(field_index_clause)
+                .join(" or ");
+            format!("(n.mid = {mid} and ({all_field_clauses}))", mid = ctx.ntid)
         };
         let all_notetype_clauses = field_indicies_by_notetype
             .iter()
@@ -512,6 +578,37 @@ impl SqlWriter<'_> {
         write!(self.sql, "({all_notetype_clauses})").unwrap();
 
         Ok(())
+    }
+
+    fn num_fields_and_fields_indices_by_notetype(
+        &mut self,
+        field_name: &str,
+    ) -> Result<Vec<FieldQualifiedSearchContext>> {
+        let notetypes = self.col.get_all_notetypes()?;
+        let matches_glob = glob_matcher(field_name);
+
+        let mut field_map = vec![];
+        for nt in notetypes.values() {
+            let matched_fields = nt
+                .fields
+                .iter()
+                .filter_map(|field| {
+                    matches_glob(&field.name).then(|| field.ord.unwrap_or_default())
+                })
+                .collect_ranges();
+            if !matched_fields.is_empty() {
+                field_map.push(FieldQualifiedSearchContext {
+                    ntid: nt.id,
+                    total_fields_in_note: nt.fields.len(),
+                    field_ranges_to_search: matched_fields,
+                });
+            }
+        }
+
+        // for now, sort the map for the benefit of unit tests
+        field_map.sort_by_key(|v| v.ntid);
+
+        Ok(field_map)
     }
 
     fn fields_indices_by_notetype(
@@ -523,12 +620,13 @@ impl SqlWriter<'_> {
 
         let mut field_map = vec![];
         for nt in notetypes.values() {
-            let mut matched_fields = vec![];
-            for field in &nt.fields {
-                if matches_glob(&field.name) {
-                    matched_fields.push(field.ord.unwrap_or_default());
-                }
-            }
+            let matched_fields: Vec<u32> = nt
+                .fields
+                .iter()
+                .filter_map(|field| {
+                    matches_glob(&field.name).then(|| field.ord.unwrap_or_default())
+                })
+                .collect();
             if !matched_fields.is_empty() {
                 field_map.push((nt.id, matched_fields));
             }
@@ -538,6 +636,68 @@ impl SqlWriter<'_> {
         field_map.sort();
 
         Ok(field_map)
+    }
+
+    fn included_fields_by_notetype(&mut self) -> Result<Option<Vec<UnqualifiedSearchContext>>> {
+        let notetypes = self.col.get_all_notetypes()?;
+        let mut any_excluded = false;
+        let mut field_map = vec![];
+        for nt in notetypes.values() {
+            let mut sortf_excluded = false;
+            let matched_fields = nt
+                .fields
+                .iter()
+                .filter_map(|field| {
+                    let ord = field.ord.unwrap_or_default();
+                    if field.config.exclude_from_search {
+                        any_excluded = true;
+                        sortf_excluded |= ord == nt.config.sort_field_idx;
+                    }
+                    (!field.config.exclude_from_search).then_some(ord)
+                })
+                .collect_ranges();
+            if !matched_fields.is_empty() {
+                field_map.push(UnqualifiedSearchContext {
+                    ntid: nt.id,
+                    total_fields_in_note: nt.fields.len(),
+                    sortf_excluded,
+                    field_ranges_to_search: matched_fields,
+                });
+            }
+        }
+        if any_excluded {
+            Ok(Some(field_map))
+        } else {
+            Ok(None)
+        }
+    }
+
+    fn included_fields_for_unqualified_regex(
+        &mut self,
+    ) -> Result<Option<Vec<UnqualifiedRegexSearchContext>>> {
+        let notetypes = self.col.get_all_notetypes()?;
+        let mut any_excluded = false;
+        let mut field_map = vec![];
+        for nt in notetypes.values() {
+            let matched_fields: Vec<u32> = nt
+                .fields
+                .iter()
+                .filter_map(|field| {
+                    any_excluded |= field.config.exclude_from_search;
+                    (!field.config.exclude_from_search).then_some(field.ord.unwrap_or_default())
+                })
+                .collect();
+            field_map.push(UnqualifiedRegexSearchContext {
+                ntid: nt.id,
+                total_fields_in_note: nt.fields.len(),
+                fields_to_search: matched_fields,
+            });
+        }
+        if any_excluded {
+            Ok(Some(field_map))
+        } else {
+            Ok(None)
+        }
     }
 
     fn write_dupe(&mut self, ntid: NotetypeId, text: &str) -> Result<()> {
@@ -598,25 +758,48 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_regex(&mut self, word: &str) {
-        self.sql.push_str("n.flds regexp ?");
-        self.args.push(format!(r"(?i){}", word));
-    }
-
-    fn write_regex_nc(&mut self, word: &str) {
-        let word = &without_combining(word);
-        self.sql
-            .push_str("coalesce(without_combining(n.flds), n.flds) regexp ?");
-        self.args.push(format!(r"(?i){}", word));
-    }
-
-    fn write_word_boundary(&mut self, word: &str) {
-        let re = format!(r"\b{}\b", to_re(word));
-        if self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch) {
-            self.write_regex_nc(&re);
+    fn write_regex(&mut self, word: &str, no_combining: bool) -> Result<()> {
+        let flds_expr = if no_combining {
+            "coalesce(without_combining(n.flds), n.flds)"
         } else {
-            self.write_regex(&re);
+            "n.flds"
+        };
+        let word = if no_combining {
+            without_combining(word)
+        } else {
+            std::borrow::Cow::Borrowed(word)
+        };
+        self.args.push(format!(r"(?i){}", word));
+        let arg_idx = self.args.len();
+        if let Some(field_indices_by_notetype) = self.included_fields_for_unqualified_regex()? {
+            let notetype_clause = |ctx: &UnqualifiedRegexSearchContext| -> String {
+                let clause = if ctx.fields_to_search.len() == ctx.total_fields_in_note {
+                    format!("{flds_expr} regexp ?{arg_idx}")
+                } else {
+                    let indices = ctx.fields_to_search.iter().join(",");
+                    format!("regexp_fields(?{arg_idx}, {flds_expr}, {indices})")
+                };
+
+                format!("(n.mid = {mid} and {clause})", mid = ctx.ntid)
+            };
+            let all_notetype_clauses = field_indices_by_notetype
+                .iter()
+                .map(notetype_clause)
+                .join(" or ");
+            write!(self.sql, "({all_notetype_clauses})").unwrap();
+        } else {
+            write!(self.sql, "{flds_expr} regexp ?{arg_idx}").unwrap();
         }
+
+        Ok(())
+    }
+
+    fn write_word_boundary(&mut self, word: &str) -> Result<()> {
+        let re = format!(r"\b{}\b", to_re(word));
+        self.write_regex(
+            &re,
+            self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch),
+        )
     }
 }
 
@@ -644,6 +827,68 @@ impl RequiredTable {
             }
         }
     }
+}
+
+/// Given a list of numbers, create one or more ranges, collapsing
+/// contiguous numbers.
+trait CollectRanges {
+    type Item;
+    fn collect_ranges(self) -> Vec<Range<Self::Item>>;
+}
+
+impl<
+        Idx: Copy + PartialOrd + std::ops::Add<Idx, Output = Idx> + From<u8>,
+        I: IntoIterator<Item = Idx>,
+    > CollectRanges for I
+{
+    type Item = Idx;
+
+    fn collect_ranges(self) -> Vec<Range<Self::Item>> {
+        let mut result = Vec::new();
+        let mut iter = self.into_iter();
+        let next = iter.next();
+        if next.is_none() {
+            return result;
+        }
+        let mut start = next.unwrap();
+        let mut end = next.unwrap();
+
+        for i in iter {
+            if i == end + 1.into() {
+                end = end + 1.into();
+            } else {
+                result.push(start..end + 1.into());
+                start = i;
+                end = i;
+            }
+        }
+        result.push(start..end + 1.into());
+
+        result
+    }
+}
+
+struct FieldQualifiedSearchContext {
+    ntid: NotetypeId,
+    total_fields_in_note: usize,
+    /// This may include more than one field in the case the user
+    /// has searched with a wildcard, eg f*:foo.
+    field_ranges_to_search: Vec<Range<u32>>,
+}
+
+struct UnqualifiedSearchContext {
+    ntid: NotetypeId,
+    total_fields_in_note: usize,
+    sortf_excluded: bool,
+    field_ranges_to_search: Vec<Range<u32>>,
+}
+
+struct UnqualifiedRegexSearchContext {
+    ntid: NotetypeId,
+    total_fields_in_note: usize,
+    /// Unlike the other contexts, this contains each individual index
+    /// instead of a list of ranges.
+    fields_to_search: Vec<u32>,
 }
 
 impl Node {
@@ -740,10 +985,10 @@ mod test {
             s(ctx, "front:te*st"),
             (
                 concat!(
-                    "(((n.mid = 1581236385344 and (field_at_index(n.flds, 0) like ?1 escape '\\')) or ",
-                    "(n.mid = 1581236385345 and (field_at_index(n.flds, 0) like ?1 escape '\\')) or ",
-                    "(n.mid = 1581236385346 and (field_at_index(n.flds, 0) like ?1 escape '\\')) or ",
-                    "(n.mid = 1581236385347 and (field_at_index(n.flds, 0) like ?1 escape '\\'))))"
+                    "(((n.mid = 1581236385344 and (n.flds like '' || ?1 || '\u{1f}%' escape '\\')) or ",
+                    "(n.mid = 1581236385345 and (n.flds like '' || ?1 || '\u{1f}%\u{1f}%' escape '\\')) or ",
+                    "(n.mid = 1581236385346 and (n.flds like '' || ?1 || '\u{1f}%' escape '\\')) or ",
+                    "(n.mid = 1581236385347 and (n.flds like '' || ?1 || '\u{1f}%' escape '\\'))))"
                 )
                 .into(),
                 vec!["te%st".into()]
@@ -941,22 +1186,25 @@ mod test {
         // regex
         assert_eq!(
             s(ctx, r"re:\bone"),
-            ("(n.flds regexp ?)".into(), vec![r"(?i)\bone".into()])
+            ("(n.flds regexp ?1)".into(), vec![r"(?i)\bone".into()])
         );
 
         // word boundary
         assert_eq!(
             s(ctx, r"w:foo"),
-            ("(n.flds regexp ?)".into(), vec![r"(?i)\bfoo\b".into()])
+            ("(n.flds regexp ?1)".into(), vec![r"(?i)\bfoo\b".into()])
         );
         assert_eq!(
             s(ctx, r"w:*foo"),
-            ("(n.flds regexp ?)".into(), vec![r"(?i)\b.*foo\b".into()])
+            ("(n.flds regexp ?1)".into(), vec![r"(?i)\b.*foo\b".into()])
         );
 
         assert_eq!(
             s(ctx, r"w:*fo_o*"),
-            ("(n.flds regexp ?)".into(), vec![r"(?i)\b.*fo.o.*\b".into()])
+            (
+                "(n.flds regexp ?1)".into(),
+                vec![r"(?i)\b.*fo.o.*\b".into()]
+            )
         );
     }
 
@@ -990,5 +1238,11 @@ mod test {
             Node::Group(parse("test nid:1").unwrap()).required_table(),
             RequiredTable::Notes
         );
+    }
+
+    #[test]
+    fn ranges() {
+        assert_eq!([1, 2, 3].collect_ranges(), [1..4]);
+        assert_eq!([1, 3, 4].collect_ranges(), [1..2, 3..5]);
     }
 }
