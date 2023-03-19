@@ -246,6 +246,7 @@ class FieldDialog(QDialog):
         f.rtl.setChecked(fld["rtl"])
         f.plainTextByDefault.setChecked(fld["plainText"])
         f.collapseByDefault.setChecked(fld["collapsed"])
+        f.excludeFromSearch.setChecked(fld["excludeFromSearch"])
         f.fieldDescription.setText(fld.get("description", ""))
 
     def saveField(self) -> None:
@@ -274,6 +275,11 @@ class FieldDialog(QDialog):
         collapsed = f.collapseByDefault.isChecked()
         if fld["collapsed"] != collapsed:
             fld["collapsed"] = collapsed
+            self.change_tracker.mark_basic()
+        exclude_from_search = f.excludeFromSearch.isChecked()
+        if fld["excludeFromSearch"] != exclude_from_search:
+            fld["excludeFromSearch"] = exclude_from_search
+            self.change_tracker.mark_basic()
         desc = f.fieldDescription.text()
         if fld.get("description", "") != desc:
             fld["description"] = desc

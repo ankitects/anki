@@ -172,6 +172,16 @@
        </property>
       </widget>
      </item>
+     <item row="6" column="1" alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="excludeFromSearch">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>fields_exclude_from_search</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
