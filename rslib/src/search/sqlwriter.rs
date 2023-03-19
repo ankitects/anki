@@ -548,7 +548,7 @@ impl SqlWriter<'_> {
         let field_idx_str = format!("' || ?{arg_idx} || '");
         let other_idx_str = "%".to_string();
 
-        let notetype_clause = |ctx: &SingleFieldSearchContext| -> String {
+        let notetype_clause = |ctx: &FieldQualifiedSearchContext| -> String {
             let field_index_clause = |range: &Range<u32>| {
                 let f = (0..ctx.total_fields_in_note)
                     .filter_map(|i| {
@@ -583,7 +583,7 @@ impl SqlWriter<'_> {
     fn num_fields_and_fields_indices_by_notetype(
         &mut self,
         field_name: &str,
-    ) -> Result<Vec<SingleFieldSearchContext>> {
+    ) -> Result<Vec<FieldQualifiedSearchContext>> {
         let notetypes = self.col.get_all_notetypes()?;
         let matches_glob = glob_matcher(field_name);
 
@@ -597,7 +597,7 @@ impl SqlWriter<'_> {
                 })
                 .collect_ranges();
             if !matched_fields.is_empty() {
-                field_map.push(SingleFieldSearchContext {
+                field_map.push(FieldQualifiedSearchContext {
                     mid: nt.id,
                     total_fields_in_note: nt.fields.len(),
                     field_ranges_to_search: matched_fields,
@@ -868,9 +868,11 @@ impl<
     }
 }
 
-struct SingleFieldSearchContext {
+struct FieldQualifiedSearchContext {
     mid: NotetypeId,
     total_fields_in_note: usize,
+    /// This may include more than one field in the case the user
+    /// has searched with a wildcard, eg f*:foo.
     field_ranges_to_search: Vec<Range<u32>>,
 }
 
