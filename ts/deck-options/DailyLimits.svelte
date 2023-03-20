@@ -207,7 +207,9 @@
                     <SettingTitle
                         on:click={() =>
                             openHelpModal(
-                                Object.keys(settings).indexOf("newIgnoreReviewLimit"),
+                                Object.keys(settings).indexOf(
+                                    "newCardsIgnoreReviewLimit",
+                                ),
                             )}>{settings.newCardsIgnoreReviewLimit.title}</SettingTitle
                     >
                 </SwitchRow>
