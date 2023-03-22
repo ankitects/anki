@@ -118,6 +118,11 @@ Locals:
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>text</tabstop>
+  <tabstop>widgetsButton</tabstop>
+  <tabstop>script</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
