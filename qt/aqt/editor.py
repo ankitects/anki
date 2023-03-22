@@ -1294,7 +1294,11 @@ class EditorWebView(AnkiWebView):
             return html_content, internal
 
         # favour url if it's a local link
-        if mime.hasUrls() and mime.urls()[0].toString().startswith("file://"):
+        if (
+            mime.hasUrls()
+            and (urls := mime.urls())
+            and urls[0].toString().startswith("file://")
+        ):
             types = (self._processUrls, self._processImage, self._processText)
         else:
             types = (self._processImage, self._processUrls, self._processText)
