@@ -85,7 +85,7 @@ export function renderCalendar(
     const dayMap: Map<number, DayDatum> = new Map();
     let maxCount = 0;
     for (const [day, count] of sourceData.reviewCount.entries()) {
-        const date = new Date(now.getTime() + day * 86400 * 1000);
+        const date = timeDay.offset(now, day);
         if (count > maxCount) {
             maxCount = count;
         }
@@ -110,7 +110,7 @@ export function renderCalendar(
     const oneYearAgoFromNow = new Date(now);
     oneYearAgoFromNow.setFullYear(now.getFullYear() - 1);
     for (let i = 0; i < 365; i++) {
-        const date = new Date(startDate.getTime() + i * 86400 * 1000);
+        const date = timeDay.offset(startDate, i);
         if (date > now) {
             // don't fill out future dates
             continue;
