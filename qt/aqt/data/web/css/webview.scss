@@ -23,7 +23,7 @@ body {
         @include scrollbar.custom;
     }
     &.reduce-motion,
-    &.reduce-motion * {
+    &.reduce-motion *:not(.no-reduce-motion) {
         transition: none !important;
         animation: none !important;
     }
