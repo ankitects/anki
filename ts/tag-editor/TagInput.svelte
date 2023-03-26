@@ -3,11 +3,14 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    let current: HTMLInputElement | null = null;
+    import { derived, writable } from "svelte/store";
 
-    export function commitTagEdits(): void {
-        current?.blur();
-    }
+    export const currentTagInput = writable<HTMLInputElement | null>(null);
+
+    export const commitTagEdits = derived<typeof currentTagInput, () => void>(
+        currentTagInput,
+        ($currentTagInput) => () => $currentTagInput?.blur(),
+    );
 </script>
 
 <script lang="ts">
@@ -253,11 +256,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     function updateCurrent(input: HTMLInputElement): ActionReturn {
-        current = input;
+        $currentTagInput = input;
         return {
             destroy(): void {
-                if (current === input) {
-                    current = null;
+                if ($currentTagInput === input) {
+                    $currentTagInput = null;
                 }
             },
         };
