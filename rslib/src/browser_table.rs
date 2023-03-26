@@ -398,7 +398,7 @@ impl RowContext {
             Column::Cards => self.cards_str()?,
             Column::NoteCreation => self.note_creation_str(),
             Column::SortField => self.note_field_str(),
-            Column::NoteMod => self.note.mtime.date_string(),
+            Column::NoteMod => self.note.mtime.date_and_time_string(),
             Column::Tags => self.note.tags.join(" "),
             Column::Notetype => self.notetype.name.to_owned(),
             Column::Custom => "".to_string(),
@@ -406,7 +406,9 @@ impl RowContext {
     }
 
     fn note_creation_str(&self) -> String {
-        TimestampMillis(self.note.id.into()).as_secs().date_string()
+        TimestampMillis(self.note.id.into())
+            .as_secs()
+            .date_and_time_string()
     }
 
     fn note_field_str(&self) -> String {
@@ -515,7 +517,7 @@ impl RowContext {
             .map(|c| c.mtime)
             .max()
             .expect("cards missing from RowContext")
-            .date_string()
+            .date_and_time_string()
     }
 
     fn deck_str(&self) -> String {

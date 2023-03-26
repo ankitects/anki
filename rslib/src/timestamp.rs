@@ -53,6 +53,10 @@ impl TimestampSecs {
             .unwrap_or_else(|_err| "invalid date".to_string())
     }
 
+    pub(crate) fn date_and_time_string(self) -> String {
+        format!("{} @ {}", self.date_string(), self.time_string())
+    }
+
     pub fn local_utc_offset(self) -> Result<FixedOffset> {
         Ok(*self.local_datetime()?.offset())
     }
