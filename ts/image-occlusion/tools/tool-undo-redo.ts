@@ -33,7 +33,7 @@ export const undoRedoInit = (canvas: fabric.Canvas): void => {
 };
 
 const validShape = (shape: fabric.Object): boolean => {
-    if (shape.width <= 5 || shape.height <= 5 || !shape.id) return false;
+    if (shape.width <= 5 || shape.height <= 5) return false;
     if (shapeType.indexOf(shape.type) === -1) return false;
     return true;
 };

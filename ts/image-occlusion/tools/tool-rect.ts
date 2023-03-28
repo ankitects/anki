@@ -9,6 +9,7 @@ import { objectAdded } from "./tool-undo-redo";
 const addedRectangleIds: string[] = [];
 
 export const drawRectangle = (canvas: fabric.Canvas): void => {
+    canvas.selectionColor = "rgba(0, 0, 0, 0)";
     let rect, isDown, origX, origY;
 
     stopDraw(canvas);

@@ -70,10 +70,7 @@ export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom):
 };
 
 const initCanvas = (): fabric.Canvas => {
-    const canvas = new fabric.Canvas("canvas", {
-        hoverCursor: "pointer",
-        selectionBorderColor: "green",
-    });
+    const canvas = new fabric.Canvas("canvas");
     tagsWritable.set([]);
     globalThis.canvas = canvas;
     // enables uniform scaling by default without the need for the Shift key

@@ -17,6 +17,7 @@ let panzoomX = 1, panzoomY = 1;
 const addedPolygonIds: string[] = [];
 
 export const drawPolygon = (canvas: fabric.Canvas, panzoom: PanZoom): void => {
+    canvas.selectionColor = "rgba(0, 0, 0, 0)";
     canvas.on("mouse:down", function(options) {
         try {
             if (options.target && options.target.id === pointsList[0].id) {

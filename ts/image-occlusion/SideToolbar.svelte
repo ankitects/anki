@@ -43,6 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const disableFunctions = () => {
         instance.pause();
         stopDraw(canvas);
+        canvas.selectionColor = "rgba(100, 100, 255, 0.3)";
     };
 </script>
 

@@ -9,6 +9,7 @@ import { objectAdded } from "./tool-undo-redo";
 const addedEllipseIds: string[] = [];
 
 export const drawEllipse = (canvas: fabric.Canvas): void => {
+    canvas.selectionColor = "rgba(0, 0, 0, 0)";
     let ellipse, isDown, origX, origY;
 
     stopDraw(canvas);
