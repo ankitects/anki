@@ -5,6 +5,7 @@ import * as tr from "@tslib/ftl";
 import { localizedDate, weekdayLabel } from "@tslib/i18n";
 import { Stats } from "@tslib/proto";
 import type { CountableTimeInterval } from "d3";
+import { timeHour } from "d3";
 import {
     interpolateBlues,
     pointer,
@@ -29,6 +30,7 @@ export interface GraphData {
     reviewCount: Map<number, number>;
     timeFunction: CountableTimeInterval;
     weekdayLabels: number[];
+    rolloverHour: number;
 }
 
 interface DayDatum {
@@ -59,7 +61,7 @@ export function gatherData(
         weekdayLabels.push((firstDayOfWeek + i) % 7);
     }
 
-    return { reviewCount, timeFunction, weekdayLabels };
+    return { reviewCount, timeFunction, weekdayLabels, rolloverHour: data.rolloverHour };
 }
 
 export function renderCalendar(
@@ -85,7 +87,9 @@ export function renderCalendar(
     const dayMap: Map<number, DayDatum> = new Map();
     let maxCount = 0;
     for (const [day, count] of sourceData.reviewCount.entries()) {
-        const date = timeDay.offset(now, day);
+        let date = timeDay.offset(now, day);
+        // anki day does not necessarily roll over at midnight, we account for this when mapping onto calendar days
+        date = timeHour.offset(date, -1 * sourceData.rolloverHour);
         if (count > maxCount) {
             maxCount = count;
         }
@@ -105,7 +109,7 @@ export function renderCalendar(
         setDataAvailable(svg, true);
     }
 
-    // fill in any blanks
+    // fill in any blanks, including the current calendar day even if the anki day has not rolled over
     const startDate = timeYear(nowForYear);
     const oneYearAgoFromNow = new Date(now);
     oneYearAgoFromNow.setFullYear(now.getFullYear() - 1);
