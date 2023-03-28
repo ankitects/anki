@@ -141,6 +141,7 @@ message GraphsResponse {
   FutureDue future_due = 7;
   Added added = 8;
   ReviewCountsAndTimes reviews = 9;
+  uint32 rollover_hour = 10;
 }
 
 message GraphPreferences {
