@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import IconConstrain from "../../components/IconConstrain.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
+    import { currentTagInput } from "../TagInput.svelte";
     import { addTagIcon, tagIcon } from "./icons";
 
     export let keyCombination: string;
@@ -20,10 +21,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
+<!-- toggle tabindex to allow Shift+Tab to move focus to the last field -->
 <div
     class="tag-add-button"
     title="{tr.editingTagsAdd()} ({getPlatformString(keyCombination)})"
-    tabindex={0}
+    tabindex={$currentTagInput ? -1 : 0}
     on:click={appendTag}
     on:focus={appendTag}
 >
