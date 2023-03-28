@@ -71,6 +71,7 @@ impl Collection {
             hours: Some(ctx.hours()),
             buttons: Some(ctx.buttons()),
             card_counts: Some(ctx.card_counts()),
+            rollover_hour: self.rollover_for_current_scheduler()? as u32,
         };
         Ok(resp)
     }
