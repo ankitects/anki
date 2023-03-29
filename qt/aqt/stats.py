@@ -61,6 +61,8 @@ class NewDeckStats(QDialog):
         )
         qconnect(b.clicked, self.saveImage)
         b.setAutoDefault(False)
+        b = f.buttonBox.button(QDialogButtonBox.StandardButton.Close)
+        b.setAutoDefault(False)
         maybeHideClose(self.form.buttonBox)
         addCloseShortcut(self)
         gui_hooks.stats_dialog_will_show(self)
