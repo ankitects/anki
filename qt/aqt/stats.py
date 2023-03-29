@@ -85,9 +85,9 @@ class NewDeckStats(QDialog):
         callback()
 
     def on_deck_changed(self, deck_id: int) -> None:
-        set_current_deck(parent=self.mw, deck_id=DeckId(deck_id)).success(
+        set_current_deck(parent=self, deck_id=DeckId(deck_id)).success(
             lambda _: self.refresh()
-        ).run_in_background(initiator=self)
+        ).run_in_background()
 
     def _imagePath(self) -> str:
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf", time.localtime(time.time()))
