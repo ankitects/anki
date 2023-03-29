@@ -8,7 +8,9 @@ from typing import Any
 import aqt
 import aqt.forms
 import aqt.main
+from anki.decks import DeckId
 from aqt import gui_hooks
+from aqt.operations.deck import set_current_deck
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import (
@@ -42,11 +44,24 @@ class NewDeckStats(QDialog):
         f.setupUi(self)
         f.groupBox.setVisible(False)
         f.groupBox_2.setVisible(False)
+        if not is_mac:
+            f.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
         restoreGeom(self, self.name, default_size=(800, 800))
+
+        from aqt.deckchooser import DeckChooser
+
+        DeckChooser(
+            self.mw,
+            f.deckArea,
+            on_deck_changed=self.on_deck_changed,
+        )
+
         b = f.buttonBox.addButton(
             tr.statistics_save_pdf(), QDialogButtonBox.ButtonRole.ActionRole
         )
         qconnect(b.clicked, self.saveImage)
+        b.setAutoDefault(False)
+        b = f.buttonBox.button(QDialogButtonBox.StandardButton.Close)
         b.setAutoDefault(False)
         maybeHideClose(self.form.buttonBox)
         addCloseShortcut(self)
@@ -68,6 +83,11 @@ class NewDeckStats(QDialog):
     def closeWithCallback(self, callback: Callable[[], None]) -> None:
         self.reject()
         callback()
+
+    def on_deck_changed(self, deck_id: int) -> None:
+        set_current_deck(parent=self, deck_id=DeckId(deck_id)).success(
+            lambda _: self.refresh()
+        ).run_in_background()
 
     def _imagePath(self) -> str:
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf", time.localtime(time.time()))
