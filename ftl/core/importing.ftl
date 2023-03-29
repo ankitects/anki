@@ -108,6 +108,11 @@ importing-tag-updated-notes = Tag updated notes
 importing-file = File
 importing-match-scope = Match scope
 importing-notetype-and-deck = Notetype and deck
+importing-cards-added =
+    { $count ->
+        [one] { $count } card added.
+       *[other] { $count } cards added.
+    }
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

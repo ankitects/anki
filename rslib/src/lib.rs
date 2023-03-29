@@ -17,6 +17,7 @@ pub mod decks;
 pub mod error;
 pub mod findreplace;
 pub mod i18n;
+pub mod image_occlusion;
 pub mod import_export;
 mod io;
 pub mod latex;

@@ -17,6 +17,7 @@ pub enum Op {
     CreateCustomStudy,
     EmptyFilteredDeck,
     FindAndReplace,
+    ImageOcclusion,
     Import,
     RebuildFilteredDeck,
     RemoveDeck,
@@ -90,6 +91,7 @@ impl Op {
             Op::Custom(name) => name.into(),
             Op::ChangeNotetype => tr.browsing_change_notetype(),
             Op::SkipUndo => return "".to_string(),
+            Op::ImageOcclusion => tr.notetypes_image_occlusion_name(),
         }
         .into()
     }

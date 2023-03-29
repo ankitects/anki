@@ -93,6 +93,14 @@ fn read_locked_db_file_inner(path: impl AsRef<Path>) -> std::io::Result<Vec<u8>>
     Ok(buf)
 }
 
+/// See [std::fs::metadata].
+pub(crate) fn metadata(path: impl AsRef<Path>) -> Result<std::fs::Metadata> {
+    std::fs::metadata(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Metadata,
+    })
+}
+
 pub(crate) fn new_tempfile() -> Result<NamedTempFile> {
     NamedTempFile::new().context(FileIoSnafu {
         path: std::env::temp_dir(),

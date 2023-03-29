@@ -1,0 +1,17 @@
+{
+    "extends": "../tsconfig.json",
+    "include": [
+        "*",
+        "tools/*",
+        "notes-toolbar"
+    ],
+    "references": [
+        { "path": "../lib" },
+        { "path": "../sveltelib" },
+        { "path": "../components" },
+        { "path": "../tag-editor" }
+    ],
+    "compilerOptions": {
+        "types": ["jest"]
+    }
+}
