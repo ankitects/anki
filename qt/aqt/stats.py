@@ -44,6 +44,8 @@ class NewDeckStats(QDialog):
         f.setupUi(self)
         f.groupBox.setVisible(False)
         f.groupBox_2.setVisible(False)
+        if not is_mac:
+            f.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
         restoreGeom(self, self.name, default_size=(800, 800))
 
         from aqt.deckchooser import DeckChooser
