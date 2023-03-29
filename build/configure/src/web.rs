@@ -334,6 +334,18 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
             ":sass"
         ],
     )?;
+    build_page(
+        "image-occlusion",
+        true,
+        inputs![
+            //
+            ":ts:lib",
+            ":ts:components",
+            ":ts:sveltelib",
+            ":ts:tag-editor",
+            ":sass"
+        ],
+    )?;
 
     Ok(())
 }

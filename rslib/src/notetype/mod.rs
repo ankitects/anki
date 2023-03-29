@@ -9,7 +9,7 @@ mod notetypechange;
 mod render;
 mod schema11;
 mod schemachange;
-mod stock;
+pub(crate) mod stock;
 mod templates;
 pub(crate) mod undo;
 

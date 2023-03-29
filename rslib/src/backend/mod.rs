@@ -16,6 +16,7 @@ mod decks;
 mod error;
 mod generic;
 mod i18n;
+mod image_occlusion;
 mod import_export;
 mod links;
 mod media;
@@ -48,6 +49,7 @@ use self::config::ConfigService;
 use self::deckconfig::DeckConfigService;
 use self::decks::DecksService;
 use self::i18n::I18nService;
+use self::image_occlusion::ImageOcclusionService;
 use self::import_export::ImportExportService;
 use self::links::LinksService;
 use self::media::MediaService;
@@ -142,6 +144,9 @@ impl Backend {
                 ServiceIndex::Collection => CollectionService::run_method(self, method, input),
                 ServiceIndex::Cards => CardsService::run_method(self, method, input),
                 ServiceIndex::ImportExport => ImportExportService::run_method(self, method, input),
+                ServiceIndex::ImageOcclusion => {
+                    ImageOcclusionService::run_method(self, method, input)
+                }
             })
             .map_err(|err| {
                 let backend_err = err.into_protobuf(&self.tr);

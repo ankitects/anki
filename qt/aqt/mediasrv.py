@@ -479,6 +479,11 @@ exposed_backend_list = [
     "set_graph_preferences",
     # TagsService
     "complete_tag",
+    # ImageOcclusionService
+    "get_image_for_occlusion",
+    "add_image_occlusion_note",
+    "get_image_cloze_note",
+    "update_image_occlusion_note",
 ]
 
 

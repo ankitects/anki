@@ -15,6 +15,7 @@ use nom::IResult;
 use regex::Captures;
 use regex::Regex;
 
+use crate::image_occlusion::imageocclusion::get_image_cloze_data;
 use crate::latex::contains_latex;
 use crate::template::RenderContext;
 use crate::text::strip_html_preserving_entities;
@@ -138,6 +139,13 @@ impl ExtractedCloze<'_> {
 
         buf.into()
     }
+
+    /// If cloze starts with image-occlusion:, return the text following that.
+    fn image_occlusion(&self) -> Option<&str> {
+        let Some(first_node) = self.nodes.get(0) else { return None };
+        let TextOrCloze::Text(text) = first_node else { return None };
+        text.strip_prefix("image-occlusion:")
+    }
 }
 
 fn parse_text_with_clozes(text: &str) -> Vec<TextOrCloze<'_>> {
@@ -212,6 +220,14 @@ fn reveal_cloze(
 ) {
     let active = cloze.ordinal == cloze_ord;
     *active_cloze_found_in_text |= active;
+    if let Some(image_occlusion_text) = cloze.image_occlusion() {
+        buf.push_str(&render_image_occlusion(
+            image_occlusion_text,
+            question,
+            active,
+        ));
+        return;
+    }
     match (question, active) {
         (true, true) => {
             // question side with active cloze; all inner content is elided
@@ -272,6 +288,22 @@ fn reveal_cloze(
             }
             buf.push_str("</span>")
         }
+    }
+}
+
+fn render_image_occlusion(text: &str, question_side: bool, active: bool) -> String {
+    if question_side && active {
+        format!(
+            r#"<div class="cloze" {}></div>"#,
+            &get_image_cloze_data(text)
+        )
+    } else if !active {
+        format!(
+            r#"<div class="cloze-inactive" {}></div>"#,
+            &get_image_cloze_data(text)
+        )
+    } else {
+        "".into()
     }
 }
 
@@ -529,5 +561,19 @@ mod test {
     #[test]
     fn non_latin() {
         assert!(cloze_numbers_in_string("öaöaöööaö").is_empty());
+    }
+
+    #[test]
+    fn image_cloze() {
+        assert_eq!(
+            reveal_cloze_text(
+                "{{c1::image-occlusion:rect:left=10.0:top=20:width=30:height=10}}",
+                1,
+                true
+            ),
+            format!(
+                r#"<div class="cloze" data-shape="rect" data-left="10.0" data-top="20" data-width="30" data-height="10" ></div>"#,
+            )
+        );
     }
 }

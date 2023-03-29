@@ -124,6 +124,7 @@ message StockNotetype {
     BASIC_OPTIONAL_REVERSED = 2;
     BASIC_TYPING = 3;
     CLOZE = 4;
+    IMAGE_OCCLUSION = 5;
   }
 
   Kind kind = 1;

@@ -33,6 +33,7 @@ pub enum FileOp {
     CopyFrom(PathBuf),
     Persist,
     Sync,
+    Metadata,
     /// For legacy errors without any context.
     Unknown,
 }
@@ -57,6 +58,7 @@ impl FileIoError {
                 FileOp::CopyFrom(p) => format!("copy from '{}' to", p.to_string_lossy()),
                 FileOp::Persist => "persist".into(),
                 FileOp::Sync => "sync".into(),
+                FileOp::Metadata => "get metadata".into(),
             },
             self.path.to_string_lossy(),
             self.source

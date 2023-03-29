@@ -1,0 +1,67 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.image_occlusion;
+
+import "anki/cards.proto";
+import "anki/collection.proto";
+import "anki/notes.proto";
+import "anki/generic.proto";
+
+service ImageOcclusionService {
+  rpc GetImageForOcclusion(GetImageForOcclusionRequest) returns (ImageData);
+  rpc AddImageOcclusionNote(AddImageOcclusionNoteRequest)
+      returns (collection.OpChanges);
+  rpc GetImageClozeNote(GetImageOcclusionNoteRequest)
+      returns (ImageClozeNoteResponse);
+  rpc UpdateImageOcclusionNote(UpdateImageOcclusionNoteRequest)
+      returns (collection.OpChanges);
+}
+
+message GetImageForOcclusionRequest {
+  string path = 1;
+}
+
+message ImageData {
+  bytes data = 1;
+  string name = 2;
+}
+
+message AddImageOcclusionNoteRequest {
+  string image_path = 1;
+  string occlusions = 2;
+  string header = 3;
+  string back_extra = 4;
+  repeated string tags = 5;
+}
+
+message ImageClozeNote {
+  bytes image_data = 1;
+  string occlusions = 2;
+  string header = 3;
+  string back_extra = 4;
+  repeated string tags = 5;
+}
+
+message GetImageOcclusionNoteRequest {
+  int64 note_id = 1;
+}
+
+message UpdateImageOcclusionNoteRequest {
+  int64 note_id = 1;
+  string occlusions = 2;
+  string header = 3;
+  string back_extra = 4;
+  repeated string tags = 5;
+}
+
+message ImageClozeNoteResponse {
+  oneof value {
+    ImageClozeNote note = 1;
+    string error = 2;
+  }
+}
