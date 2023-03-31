@@ -287,16 +287,12 @@ impl Collection {
 }
 
 // 2021 scheduler moves this into deck config
+#[derive(Default)]
 pub(crate) enum NewReviewMix {
+    #[default]
     Mix = 0,
     ReviewsFirst = 1,
     NewFirst = 2,
-}
-
-impl Default for NewReviewMix {
-    fn default() -> Self {
-        NewReviewMix::Mix
-    }
 }
 
 #[derive(PartialEq, Eq, Serialize_repr, Deserialize_repr, Clone, Copy)]

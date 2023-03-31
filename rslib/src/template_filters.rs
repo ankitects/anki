@@ -63,9 +63,9 @@ pub(crate) fn apply_filters<'a>(
 ///
 /// Returns true if filter was valid.
 /// Returns string if input text changed.
-fn apply_filter<'a>(
+fn apply_filter(
     filter_name: &str,
-    text: &'a str,
+    text: &str,
     field_name: &str,
     context: &RenderContext,
 ) -> (bool, Option<String>) {

@@ -60,7 +60,9 @@ pub struct RevlogEntry {
 
 #[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, TryFromPrimitive, Clone, Copy)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum RevlogReviewKind {
+    #[default]
     Learning = 0,
     Review = 1,
     Relearning = 2,
@@ -69,12 +71,6 @@ pub enum RevlogReviewKind {
     /// rescheduling disabled.
     Filtered = 3,
     Manual = 4,
-}
-
-impl Default for RevlogReviewKind {
-    fn default() -> Self {
-        RevlogReviewKind::Learning
-    }
 }
 
 impl RevlogEntry {

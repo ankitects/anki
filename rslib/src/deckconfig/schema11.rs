@@ -163,8 +163,10 @@ pub struct RevConfSchema11 {
 
 #[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, Clone)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum LeechAction {
     Suspend = 0,
+    #[default]
     TagOnly = 1,
 }
 
@@ -181,12 +183,6 @@ pub struct LapseConfSchema11 {
 
     #[serde(flatten)]
     other: HashMap<String, Value>,
-}
-
-impl Default for LeechAction {
-    fn default() -> Self {
-        LeechAction::TagOnly
-    }
 }
 
 impl Default for RevConfSchema11 {

@@ -6,24 +6,19 @@ use std::fmt::Display;
 
 use camino::Utf8PathBuf;
 
-#[derive(Debug, Clone, Hash)]
+#[derive(Debug, Clone, Hash, Default)]
 pub enum BuildInput {
     Single(String),
     Multiple(Vec<String>),
     Glob(Glob),
     Inputs(Vec<BuildInput>),
+    #[default]
     Empty,
 }
 
 impl AsRef<BuildInput> for BuildInput {
     fn as_ref(&self) -> &BuildInput {
         self
-    }
-}
-
-impl Default for BuildInput {
-    fn default() -> Self {
-        BuildInput::Empty
     }
 }
 
