@@ -9,9 +9,9 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-anyhow = "1.0.68"
-camino = "1.1.2"
-clap = { version = "4.1.1", features = ["derive"] }
+anyhow = "1.0.70"
+camino = "1.1.4"
+clap = { version = "4.2.1", features = ["derive"] }
 glob = "0.3.1"
 tugger-windows-codesign = "0.10.0"
 walkdir = "2.3.3"

@@ -17,12 +17,12 @@ anki = { path = ".." }
 
 linkcheck = { git = "https://github.com/ankitects/linkcheck.git", rev = "2f20798ce521cc594d510d4e417e76d5eac04d4b" }
 
-futures = "0.3.25"
+futures = "0.3.28"
 itertools = "0.10.5"
 lazy_static = "1.4.0"
-regex = "1.7.1"
+regex = "1.7.3"
 strum = { version = "0.24.1", features = ["derive"] }
-tokio = { version = "1.24.2", features = ["full"] }
+tokio = { version = "1.27.0", features = ["full"] }
 workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }
 
 [features]
@@ -30,5 +30,5 @@ rustls = ["reqwest/rustls-tls", "reqwest/rustls-tls-native-roots"]
 native-tls = ["reqwest/native-tls"]
 
 [dependencies.reqwest]
-version = "0.11.13"
+version = "0.11.16"
 default-features = false

@@ -1,5 +1,5 @@
 hakari-package = "workspace-hack"
-dep-format-version = "2"
+dep-format-version = "4"
 resolver = "2"
 
 [traversal-excludes]
