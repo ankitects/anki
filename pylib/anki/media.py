@@ -30,7 +30,6 @@ CheckMediaResponse = media_pb2.CheckMediaResponse
 
 
 class MediaManager(DeprecatedNamesMixin):
-
     sound_regexps = [r"(?i)(\[sound:(?P<fname>[^]]+)\])"]
     html_media_regexps = [
         # src element quoted case
@@ -186,10 +185,9 @@ class MediaManager(DeprecatedNamesMixin):
         """
         last_progress = time.time()
         checked = 0
-        for (nid, mid, flds) in self.col.db.execute(
+        for nid, mid, flds in self.col.db.execute(
             "select id, mid, flds from notes where flds like '%[%'"
         ):
-
             model = self.col.models.get(mid)
             _html, errors = render_latex_returning_errors(
                 flds, model, self.col, expand_clozes=True

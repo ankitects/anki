@@ -14,7 +14,6 @@ from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 
 class ImportCsvDialog(QDialog):
-
     TITLE = "csv import"
     silentlyClose = True
 

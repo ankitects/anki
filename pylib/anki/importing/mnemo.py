@@ -13,7 +13,6 @@ from anki.stdmodels import _legacy_add_basic_model, _legacy_add_cloze_model
 
 
 class MnemosyneImporter(NoteImporter):
-
     needMapper = False
     update = False
     allowHTML = True

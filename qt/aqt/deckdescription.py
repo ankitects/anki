@@ -14,7 +14,6 @@ from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGe
 
 
 class DeckDescriptionDialog(QDialog):
-
     TITLE = "deckDescription"
     silentlyClose = True
 

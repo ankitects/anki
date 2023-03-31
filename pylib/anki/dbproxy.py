@@ -116,6 +116,7 @@ def emulate_named_args(
         args2.append(val)
         number = len(args2)
         arg_num[key] = number
+
     # update refs
     def repl(match: Match) -> str:
         arg = match.group(1)

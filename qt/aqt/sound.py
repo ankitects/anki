@@ -237,6 +237,7 @@ av_player = AVPlayer()
 # Packaged commands
 ##########################################################################
 
+
 # return modified command array that points to bundled command, and return
 # required environment
 def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
@@ -262,6 +263,7 @@ def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
 
 # legacy global for add-ons
 si = startup_info()
+
 
 # osx throws interrupted system call errors frequently
 def retryWait(proc: subprocess.Popen) -> int:
@@ -390,7 +392,6 @@ class SimpleMplayerPlayer(SimpleProcessPlayer, SoundOrVideoPlayer):
 
 
 class MpvManager(MPV, SoundOrVideoPlayer):
-
     if not is_lin:
         default_argv = MPVBase.default_argv + [
             "--input-media-keys=no",
@@ -797,7 +798,7 @@ mpvManager: MpvManager | None = None
 
 # add everything from this module into anki.sound for backwards compat
 _exports = [i for i in locals().items() if not i[0].startswith("__")]
-for (k, v) in _exports:
+for k, v in _exports:
     sys.modules["anki.sound"].__dict__[k] = v
 
 # Tag handling

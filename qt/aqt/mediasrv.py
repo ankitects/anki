@@ -64,7 +64,6 @@ DynamicRequest = Callable[[], Response]
 
 
 class MediaServer(threading.Thread):
-
     _ready = threading.Event()
     daemon = True
 

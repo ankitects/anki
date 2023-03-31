@@ -1341,6 +1341,7 @@ class EditorWebView(AnkiWebView):
                     processed.append(link)
                 else:
                     token = html.escape(token).replace("\t", " " * 4)
+
                     # if there's more than one consecutive space,
                     # use non-breaking spaces for the second one on
                     def repl(match: Match) -> str:

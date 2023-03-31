@@ -107,6 +107,7 @@ class NewDeckStats(QDialog):
         path = self._imagePath()
         if not path:
             return
+
         # When scrolled down in dark mode, the top of the page in the
         # final PDF will have a white background, making the text and graphs
         # unreadable. A simple fix for now is to scroll to the top of the

@@ -13,7 +13,6 @@ from anki.utils import max_id
 
 
 class Importer:
-
     needMapper = False
     needDelimiter = False
     dst: Optional[Collection]

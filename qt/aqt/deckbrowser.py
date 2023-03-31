@@ -244,6 +244,7 @@ class DeckBrowser:
             node.deck_id,
             html.escape(node.name),
         )
+
         # due counts
         def nonzeroColour(cnt: int, klass: str) -> str:
             if not cnt:

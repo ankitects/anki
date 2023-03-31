@@ -1131,6 +1131,7 @@ Add-ons, last update check: {}
 
 ######################################################################
 
+
 # adapted from version detection in qutebrowser
 def opengl_vendor() -> str | None:
     if qtmajor != 5:

@@ -101,7 +101,6 @@ class Exporter:
 
 
 class TextCardExporter(Exporter):
-
     ext = ".txt"
     includeHTML = True
 
@@ -134,7 +133,6 @@ class TextCardExporter(Exporter):
 
 
 class TextNoteExporter(Exporter):
-
     ext = ".txt"
     includeTags = True
     includeHTML = True
@@ -179,7 +177,6 @@ where cards.id in %s)"""
 
 
 class AnkiExporter(Exporter):
-
     ext = ".anki2"
     includeSched: bool | None = False
     includeMedia = True
@@ -332,7 +329,6 @@ class AnkiExporter(Exporter):
 
 
 class AnkiPackageExporter(AnkiExporter):
-
     ext = ".apkg"
 
     def __init__(self, col: Collection) -> None:
@@ -418,7 +414,6 @@ class AnkiPackageExporter(AnkiExporter):
 
 
 class AnkiCollectionPackageExporter(AnkiPackageExporter):
-
     ext = ".colpkg"
     verbatim = True
     includeSched = None
