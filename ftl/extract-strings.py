@@ -14,7 +14,7 @@ from fluent.syntax import parse
 from fluent.syntax.ast import Junk
 from fluent.syntax.serializer import serialize_element
 
-root = os.environ["BUILD_WORKSPACE_DIRECTORY"]
+root = ".."
 ftl_files = glob.glob(os.path.join(root, "ftl", "core", "*.ftl"), recursive=True)
 keys_by_value: dict[str, list[str]] = {}
 
