@@ -155,7 +155,6 @@ impl ColumnContext {
     ) -> Result<Vec<ForeignNote>> {
         reader
             .records()
-            .into_iter()
             .map(|res| {
                 res.or_invalid("invalid csv")
                     .map(|record| self.foreign_note_from_record(&record))

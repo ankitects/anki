@@ -302,7 +302,6 @@ fn collect_preview_records(
     let mut csv_reader = build_csv_reader(reader, metadata.delimiter())?;
     csv_reader
         .records()
-        .into_iter()
         .take(PREVIEW_LENGTH)
         .collect::<csv::Result<_>>()
         .or_invalid("invalid csv")

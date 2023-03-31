@@ -23,8 +23,10 @@ use crate::text::html_to_text_line;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Display, EnumIter, EnumString)]
 #[strum(serialize_all = "camelCase")]
+#[derive(Default)]
 pub enum Column {
     #[strum(serialize = "")]
+    #[default]
     Custom,
     Answer,
     CardMod,
@@ -51,12 +53,6 @@ pub enum Column {
     SortField,
     #[strum(serialize = "noteTags")]
     Tags,
-}
-
-impl Default for Column {
-    fn default() -> Self {
-        Column::Custom
-    }
 }
 
 struct RowContext {
