@@ -56,7 +56,6 @@ def methods() -> str:
 
 
 def get_arg_types(args: list[Variable]) -> str:
-
     return ", ".join(
         [f"{stringcase.snakecase(arg['name'])}: {arg_kind(arg)}" for arg in args]
     )

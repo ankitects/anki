@@ -27,7 +27,6 @@ from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 
 class ChangeNotetypeDialog(QDialog):
-
     TITLE = "changeNotetype"
     silentlyClose = True
 

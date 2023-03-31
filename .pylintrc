@@ -33,7 +33,8 @@ disable=
   arguments-differ,
   arguments-renamed,
   consider-using-f-string,
-  invalid-name
+  invalid-name,
+  broad-exception-raised
 
 [BASIC]
 good-names =

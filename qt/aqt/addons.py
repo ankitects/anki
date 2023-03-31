@@ -179,7 +179,6 @@ def package_name_valid(name: str) -> bool:
 
 # fixme: this class should not have any GUI code in it
 class AddonManager:
-
     exts: list[str] = [".ankiaddon", ".zip"]
     _manifest_schema: dict = {
         "type": "object",
@@ -491,7 +490,6 @@ class AddonManager:
         parent: QWidget | None = None,
         force_enable: bool = False,
     ) -> tuple[list[str], list[str]]:
-
         log = []
         errs = []
 
@@ -520,7 +518,6 @@ class AddonManager:
     def _installationErrorReport(
         self, result: InstallError, base: str, mode: str = "download"
     ) -> list[str]:
-
         messages = {
             "zip": tr.addons_corrupt_addon_file(),
             "manifest": tr.addons_invalid_addon_manifest(),
@@ -538,7 +535,6 @@ class AddonManager:
     def _installationSuccessReport(
         self, result: InstallOk, base: str, mode: str = "download"
     ) -> list[str]:
-
         name = result.name or base
         if mode == "download":
             template = tr.addons_downloaded_fnames(fname=name)
@@ -1661,7 +1657,6 @@ def installAddonPackages(
     advise_restart: bool = False,
     force_enable: bool = False,
 ) -> bool:
-
     if warn:
         names = ",<br>".join(f"<b>{os.path.basename(p)}</b>" for p in paths)
         q = tr.addons_important_as_addons_are_programs_downloaded() % dict(names=names)

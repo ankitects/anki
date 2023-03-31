@@ -451,7 +451,6 @@ class Toolbar:
 
 
 class BottomBar(Toolbar):
-
     _centerBody = """
 <center id=outer><table width=100%% id=header><tr><td align=center>
 %s</td></tr></table></center>

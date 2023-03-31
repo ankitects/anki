@@ -30,7 +30,6 @@ class MediaMapInvalid(Exception):
 
 
 class Anki2Importer(Importer):
-
     needMapper = False
     deckPrefix: Optional[str] = None
     allowUpdate = True

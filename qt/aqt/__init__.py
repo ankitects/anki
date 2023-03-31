@@ -102,7 +102,6 @@ from aqt import stats, about, preferences, mediasync  # isort:skip
 
 
 class DialogManager:
-
     _dialogs: dict[str, list] = {
         "AddCards": [addcards.AddCards, None],
         "AddonsDialog": [addons.AddonsDialog, None],
@@ -146,7 +145,7 @@ class DialogManager:
             return None
 
         # ask all windows to close and await a reply
-        for (name, (creator, instance)) in self._dialogs.items():
+        for name, (creator, instance) in self._dialogs.items():
             if not instance:
                 continue
 
@@ -271,7 +270,6 @@ def setupLangAndBackend(
 
 
 class AnkiApp(QApplication):
-
     # Single instance support on Win32/Linux
     ##################################################
 
@@ -477,7 +475,6 @@ PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
 
 
 def write_profile_results() -> None:
-
     profiler.disable()
     profile = os.path.join(os.environ.get("BUILD_WORKSPACE_DIRECTORY", ""), "anki.prof")
     profiler.dump_stats(profile)
@@ -523,7 +520,6 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         return None
 
     if PROFILE_CODE:
-
         profiler = cProfile.Profile()
         profiler.enable()
 

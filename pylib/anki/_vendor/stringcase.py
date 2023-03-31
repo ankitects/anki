@@ -183,7 +183,6 @@ def spinalcase(string):
 
 
 def dotcase(string):
-
     """Convert string into dot case.
     Join punctuation with dot.
 

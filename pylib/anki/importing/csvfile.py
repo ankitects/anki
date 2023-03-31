@@ -14,7 +14,6 @@ from anki.importing.noteimp import ForeignNote, NoteImporter
 
 
 class TextImporter(NoteImporter):
-
     needDelimiter = True
     patterns = "\t|,;:"
 
@@ -54,7 +53,7 @@ class TextImporter(NoteImporter):
                     continue
                 note = self.noteFromFields(row)
                 notes.append(note)
-        except (csv.Error) as e:
+        except csv.Error as e:
             log.append(self.col.tr.importing_aborted(val=str(e)))
         self.log = log
         self.ignored = ignored

@@ -122,7 +122,6 @@ class ImportDialog(QDialog):
         self.showMapping()
 
     def onDelimiter(self) -> None:
-
         # Open a modal dialog to enter an delimiter
         # Todo/Idea Constrain the maximum width, so it doesn't take up that much screen space
         delim, ok = getText(

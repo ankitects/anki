@@ -72,7 +72,6 @@ ADD_MODE = 2
 
 
 class NoteImporter(Importer):
-
     needMapper = True
     needDelimiter = False
     allowHTML = False

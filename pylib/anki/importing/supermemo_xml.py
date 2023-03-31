@@ -65,7 +65,6 @@ class SuperMemoElement(SmartDict):
 
 # This is an AnkiImporter
 class SupermemoXmlImporter(NoteImporter):
-
     needMapper = False
     allowHTML = True
 
@@ -186,7 +185,6 @@ class SupermemoXmlImporter(NoteImporter):
     ## DEFAULT IMPORTER METHODS
 
     def foreignNotes(self) -> list[ForeignNote]:
-
         # Load file and parse it by minidom
         self.loadSource(self.file)
 
@@ -402,7 +400,6 @@ class SupermemoXmlImporter(NoteImporter):
         # if smel.Lapses != None and smel.Interval != None and smel.Question != None and smel.Answer != None:
         if smel.Title is None and smel.Question is not None and smel.Answer is not None:
             if smel.Answer.strip() != "" and smel.Question.strip() != "":
-
                 # migrate only memorized otherway skip/continue
                 if self.META.onlyMemorizedItems and not (int(smel.Interval) > 0):
                     self.logger("Element skipped  \t- not memorized ...", level=3)

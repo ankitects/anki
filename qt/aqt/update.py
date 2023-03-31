@@ -14,7 +14,6 @@ from aqt.utils import openLink, showText, tr
 
 
 class LatestVersionFinder(QThread):
-
     newVerAvail = pyqtSignal(str)
     newMsg = pyqtSignal(dict)
     clockIsOff = pyqtSignal(float)

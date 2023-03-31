@@ -22,7 +22,6 @@ ProgressCallback = Callable[[int, int], None]
 
 
 class HttpClient(DeprecatedNamesMixin):
-
     verify = True
     timeout = 60
     # args are (upload_bytes_in_chunk, download_bytes_in_chunk)
