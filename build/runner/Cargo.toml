@@ -9,8 +9,8 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-camino = "1.1.2"
-clap = { version = "4.1.1", features = ["derive"] }
-junction = "0.2.0"
+camino = "1.1.4"
+clap = { version = "4.2.1", features = ["derive"] }
+junction = "1.0.0"
 termcolor = "1.2.0"
 workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }

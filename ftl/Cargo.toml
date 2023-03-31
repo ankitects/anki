@@ -13,6 +13,6 @@ name = "ftl-sync"
 path = "sync.rs"
 
 [dependencies]
-camino = "1.1.2"
+camino = "1.1.4"
 snafu = { version = "0.7.4" }
 workspace-hack = { version = "0.1", path = "../tools/workspace-hack" }
