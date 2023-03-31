@@ -50,7 +50,7 @@ class NewDeckStats(QDialog):
 
         from aqt.deckchooser import DeckChooser
 
-        DeckChooser(
+        self.deck_chooser = DeckChooser(
             self.mw,
             f.deckArea,
             on_deck_changed=self.on_deck_changed,
@@ -74,6 +74,7 @@ class NewDeckStats(QDialog):
         self.activateWindow()
 
     def reject(self) -> None:
+        self.deck_chooser.cleanup()
         self.form.web.cleanup()
         self.form.web = None
         saveGeom(self, self.name)
