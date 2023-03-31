@@ -10,7 +10,7 @@ import glob
 import os
 
 from fluent.syntax import parse, serialize
-from fluent.syntax.ast import Junk
+from fluent.syntax.ast import Junk, Message, TextElement
 
 template_root = ".."
 template_files = glob.glob(
@@ -32,15 +32,16 @@ def transform_string_in_file(path):
     for ent in obj.body:
         if isinstance(ent, Junk):
             raise Exception(f"file had junk! {path} {ent}")
-        if getattr(ent, "id", None):
+        if isinstance(ent, Message):
             key = ent.id.name
             for target_key, src, dst in target_repls:
                 if key == target_key:
                     for elem in ent.value.elements:
-                        newval = elem.value.replace(src, dst)
-                        if newval != elem.value:
-                            elem.value = newval
-                            changed = True
+                        if isinstance(elem, TextElement):
+                            newval = elem.value.replace(src, dst)
+                            if newval != elem.value:
+                                elem.value = newval
+                                changed = True
 
     if changed:
         open(path, "w", encoding="utf8").write(serialize(obj))
