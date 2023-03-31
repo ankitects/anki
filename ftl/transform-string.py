@@ -12,7 +12,7 @@ import os
 from fluent.syntax import parse, serialize
 from fluent.syntax.ast import Junk
 
-template_root = os.environ["BUILD_WORKSPACE_DIRECTORY"]
+template_root = ".."
 template_files = glob.glob(
     os.path.join(template_root, "ftl", "*", "*.ftl"), recursive=True
 )
@@ -34,7 +34,7 @@ def transform_string_in_file(path):
             raise Exception(f"file had junk! {path} {ent}")
         if getattr(ent, "id", None):
             key = ent.id.name
-            for (target_key, src, dst) in target_repls:
+            for target_key, src, dst in target_repls:
                 if key == target_key:
                     for elem in ent.value.elements:
                         newval = elem.value.replace(src, dst)
