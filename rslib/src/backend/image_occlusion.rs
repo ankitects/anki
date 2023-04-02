@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::Backend;
+use crate::pb;
 pub(super) use crate::pb::image_occlusion::imageocclusion_service::Service as ImageOcclusionService;
-use crate::pb::{self as pb,};
 use crate::prelude::*;
 
 impl ImageOcclusionService for Backend {
