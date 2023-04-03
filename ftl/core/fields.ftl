@@ -17,4 +17,6 @@ fields-sort-by-this-field-in-the = Sort by this field in the browser
 fields-that-field-name-is-already-used = That field name is already used.
 fields-name-first-letter-not-valid = The field name should not start with #, ^ or /.
 fields-name-invalid-letter = The field name should not contain :, ", { "{" } or { "}" }.
+# If enabled, the field is not included when searching for 'text', 're:text' and so on,
+# but is when searching for a specific field, eg 'field:text'.
 fields-exclude-from-search = Exclude from unqualified searches (slower)

@@ -106,7 +106,9 @@ importing-update = Update
 importing-tag-all-notes = Tag all notes
 importing-tag-updated-notes = Tag updated notes
 importing-file = File
+# "Match scope: notetype / notetype and deck". Controls how duplicates are matched.
 importing-match-scope = Match scope
+# Used with the 'match scope' option
 importing-notetype-and-deck = Notetype and deck
 importing-cards-added =
     { $count ->
