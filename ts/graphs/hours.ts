@@ -170,12 +170,12 @@ export function renderHours(
             hourStart: d.hour,
             hourEnd: d.hour + 1,
         });
-        const correct = tr.statisticsHoursCorrect({
-            correct: d.correctCount,
-            total: d.totalCount,
+        const reviews = tr.statisticsHoursReviews({ reviews: d.totalCount });
+        const correct = tr.statisticsHoursCorrectReviews({
             percent: d.totalCount ? (d.correctCount / d.totalCount) * 100 : 0,
+            reviews: d.correctCount,
         });
-        return `${hour}<br>${correct}`;
+        return `${hour}<br>${reviews}<br>${correct}`;
     }
 
     // hover/tooltip
