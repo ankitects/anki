@@ -24,7 +24,7 @@ name = "benchmark"
 harness = false
 required-features = ["bench"]
 
-# After updating anything below, run ../cargo/update.py
+# After updating anything below, run ../cargo/update_licenses.sh
 
 [build-dependencies]
 prost-build = "0.11.8"
@@ -50,7 +50,7 @@ percent-encoding = { git = "https://github.com/ankitects/rust-url.git", rev = "0
 unicase = "=2.6.0"
 
 # keep this at 0.4.19 until an Android-compatible update is ready
-chrono = { version = "0.4.24", default-features = false, features = ["std", "clock"] }
+chrono = { version = "0.4.19", default-features = false, features = ["std", "clock"] }
 
 criterion = { version = "0.4.0", optional = true }
 
