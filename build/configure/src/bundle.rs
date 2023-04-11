@@ -177,7 +177,7 @@ fn setup_primary_venv(build: &mut Build) -> Result<()> {
         if cfg!(target_os = "macos") {
             "python/requirements.qt6_3.txt"
         } else {
-            "python/requirements.qt6_4.txt"
+            "python/requirements.qt6_5.txt"
         }
     ];
     if cfg!(windows) {
