@@ -114,7 +114,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         overflow: hidden;
 
         :global(.CodeMirror) {
-            max-width: 28rem;
+            max-width: 100ch;
             min-width: 14rem;
             margin-bottom: 0.25rem;
         }
