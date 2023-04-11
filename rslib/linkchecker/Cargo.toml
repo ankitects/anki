@@ -15,7 +15,7 @@ rust-version.workspace = true
 [dependencies]
 anki = { path = ".." }
 
-linkcheck = { git = "https://github.com/ankitects/linkcheck.git", rev = "2f20798ce521cc594d510d4e417e76d5eac04d4b" }
+linkcheck = { git = "https://github.com/ankitects/linkcheck.git", rev = "184b2ca50ed39ca43da13f0b830a463861adb9ca" }
 
 futures = "0.3.28"
 itertools = "0.10.5"
