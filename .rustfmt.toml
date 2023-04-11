@@ -4,4 +4,3 @@ group_imports = "StdExternalCrate"
 imports_granularity = "Item"
 imports_layout = "Vertical"
 wrap_comments = true
-ignore = ["ascii_percent_encoding"]
