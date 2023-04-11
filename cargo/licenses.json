@@ -108,15 +108,6 @@
     "description": "A vector with fixed capacity, backed by an array (it can be stored on the stack too). Implements fixed capacity ArrayVec and ArrayString."
   },
   {
-    "name": "ascii_percent_encoding",
-    "version": "0.0.0",
-    "authors": "The rust-url developers",
-    "repository": null,
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Like percent_encoding, but does not encode non-ASCII characters."
-  },
-  {
     "name": "assert-json-diff",
     "version": "2.0.2",
     "authors": "David Pedersen <david.pdrsn@gmail.com>",
@@ -1690,6 +1681,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Generic implementation of PBKDF2"
+  },
+  {
+    "name": "percent-encoding",
+    "version": "2.2.0",
+    "authors": "The rust-url developers",
+    "repository": "https://github.com/servo/rust-url/",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Percent encoding and decoding"
   },
   {
     "name": "percent-encoding",

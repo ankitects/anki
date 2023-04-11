@@ -3,11 +3,11 @@
 
 use std::borrow::Cow;
 
-use ascii_percent_encoding::percent_decode_str;
-use ascii_percent_encoding::utf8_percent_encode;
-use ascii_percent_encoding::AsciiSet;
-use ascii_percent_encoding::CONTROLS;
 use lazy_static::lazy_static;
+use percent_encoding::percent_decode_str;
+use percent_encoding::utf8_percent_encode;
+use percent_encoding::AsciiSet;
+use percent_encoding::CONTROLS;
 use regex::Captures;
 use regex::Regex;
 use unicase::eq as uni_eq;
