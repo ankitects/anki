@@ -725,6 +725,7 @@ fn review_order_sql(order: ReviewCardOrder, today: u32) -> String {
         ReviewCardOrder::RelativeOverdueness => {
             vec![ReviewOrderSubclause::RelativeOverdueness { today }]
         }
+        ReviewCardOrder::Random => vec![],
     };
     subclauses.push(ReviewOrderSubclause::Random);
 
