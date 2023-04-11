@@ -469,7 +469,7 @@
   },
   {
     "name": "crossbeam-channel",
-    "version": "0.5.7",
+    "version": "0.5.8",
     "authors": null,
     "repository": "https://github.com/crossbeam-rs/crossbeam",
     "license": "Apache-2.0 OR MIT",
