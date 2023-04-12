@@ -44,7 +44,7 @@
             "@tslib/*": ["lib/*", "../out/ts/lib/*"]
         },
         "types": [],
-        "importsNotUsedAsValues": "error",
+        "verbatimModuleSyntax": true,
         "strict": true,
         "noImplicitAny": false,
         "strictNullChecks": true,

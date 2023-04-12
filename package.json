@@ -49,13 +49,13 @@
         "semver": "^7.3.4",
         "svelte": "^3.25.0",
         "svelte-check": "^2.2.6",
-        "svelte-preprocess": "^4.6.9",
+        "svelte-preprocess": "^5.0.3",
         "svelte-preprocess-esbuild": "^3.0.1",
         "svelte2tsx": "^0.4.6",
         "tmp": "^0.2.1",
         "tslib": "^2.0.3",
         "tsx": "^3.12.0",
-        "typescript": "^4.4.4",
+        "typescript": "^5.0.4",
         "uglify-js": "^3.13.1"
     },
     "scripts": {
