@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from email.message import EmailMessage
 from pathlib import Path
@@ -10,16 +11,6 @@ from typing import Sequence
 from zipfile import ZIP_DEFLATED, ZipInfo
 
 from wheel.wheelfile import WheelFile
-
-
-class ReproducibleWheelFile(WheelFile):
-    def writestr(self, zinfo, *args, **kwargs):
-        if not isinstance(zinfo, ZipInfo):
-            raise ValueError("ZipInfo required")
-        zinfo.date_time = (1980, 1, 1, 0, 0, 0)
-        zinfo.create_system = 3
-        super().writestr(zinfo, *args, **kwargs)
-
 
 def make_message(headers, payload=None):
     msg = EmailMessage()
@@ -43,7 +34,7 @@ def make_message(headers, payload=None):
 
 
 def write_wheel_file(filename, contents):
-    with ReproducibleWheelFile(filename, "w") as wheel:
+    with WheelFile(filename, "w") as wheel:
         for member_info, member_source in contents.items():
             if not isinstance(member_info, ZipInfo):
                 member_info = ZipInfo(member_info)
@@ -185,6 +176,9 @@ else:
     ]
     entrypoints = ["anki = aqt:run"]
     top_level = ["aqt", "_aqt"]
+
+# reproducible builds
+os.environ["SOURCE_DATE_EPOCH"] = "0"
 
 write_wheel(
     wheel_path,
