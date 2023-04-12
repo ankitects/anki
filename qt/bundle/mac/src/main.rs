@@ -58,13 +58,7 @@ impl DistKind {
 
     fn macos_min(&self) -> &str {
         match self {
-            DistKind::Standard => {
-                if cfg!(target_arch = "aarch64") && env::var("MAC_X86").is_err() {
-                    "11"
-                } else {
-                    "10.14.4"
-                }
-            }
+            DistKind::Standard => "11",
             DistKind::Alternate => "10.13.4",
         }
     }

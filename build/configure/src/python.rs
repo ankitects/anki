@@ -29,11 +29,7 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
     } else {
         inputs![
             "python/requirements.dev.txt",
-            if cfg!(target_os = "macos") {
-                "python/requirements.qt6_3.txt"
-            } else {
-                "python/requirements.qt6_5.txt"
-            }
+            "python/requirements.qt6_5.txt"
         ]
     };
     build.add(
