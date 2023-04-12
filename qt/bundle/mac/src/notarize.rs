@@ -20,6 +20,9 @@ pub fn notarize_app(output_folder: &Utf8Path) -> Result<()> {
     if env::var("ANKI_CODESIGN").is_err() {
         return Ok(());
     }
+    if env::var("ANKI_NO_NOTARIZE").is_ok() {
+        return Ok(());
+    }
     let zip_file = output_folder.with_extension("zip");
     assert!(
         Command::new("ditto")
