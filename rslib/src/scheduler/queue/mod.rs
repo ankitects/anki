@@ -138,7 +138,7 @@ impl SchedulingContext {
     fn new(col: &mut Collection, card: &Card) -> Result<Self> {
         Ok(Self {
             deck_name: col
-                .get_deck(card.deck_id)?
+                .get_deck(card.original_or_current_deck_id())?
                 .or_not_found(card.deck_id)?
                 .human_name(),
             seed: card.review_seed(),
