@@ -3,7 +3,7 @@
 
 use super::Backend;
 use crate::config::get_aux_notetype_config_key;
-use crate::notetype::all_stock_notetypes;
+use crate::notetype::stock::get_stock_notetype;
 use crate::notetype::ChangeNotetypeInput;
 use crate::notetype::Notetype;
 use crate::notetype::NotetypeChangeInfo;
@@ -81,10 +81,7 @@ impl NotetypesService for Backend {
         &self,
         input: pb::notetypes::StockNotetype,
     ) -> Result<pb::generic::Json> {
-        // fixme: use individual functions instead of full vec
-        let mut all = all_stock_notetypes(&self.tr);
-        let idx = (input.kind as usize).min(all.len() - 1);
-        let nt = all.swap_remove(idx);
+        let nt = get_stock_notetype(input.kind(), &self.tr);
         let schema11: NotetypeSchema11 = nt.into();
         serde_json::to_vec(&schema11)
             .map_err(Into::into)

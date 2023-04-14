@@ -181,7 +181,7 @@ class ModelManager(DeprecatedNamesMixin):
         "Create a new model, and return it."
         # caller should call save() after modifying
         notetype = from_json_bytes(
-            self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
+            self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.KIND_BASIC)
         )
         notetype["flds"] = []
         notetype["tmpls"] = []
@@ -277,7 +277,7 @@ class ModelManager(DeprecatedNamesMixin):
     def new_field(self, name: str) -> FieldDict:
         assert isinstance(name, str)
         notetype = from_json_bytes(
-            self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
+            self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.KIND_BASIC)
         )
         field = notetype["flds"][0]
         field["name"] = name
@@ -321,7 +321,7 @@ class ModelManager(DeprecatedNamesMixin):
 
     def new_template(self, name: str) -> TemplateDict:
         notetype = from_json_bytes(
-            self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
+            self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.KIND_BASIC)
         )
         template = notetype["tmpls"][0]
         template["name"] = name
