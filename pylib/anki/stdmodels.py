@@ -31,12 +31,12 @@ def get_stock_notetypes(
     out: list[
         tuple[str, Callable[[anki.collection.Collection], anki.models.NotetypeDict]]
     ] = []
-    # add standard
+    # add standard - this order should match the one in notetypes.proto
     for kind in [
         StockNotetypeKind.KIND_BASIC,
-        StockNotetypeKind.KIND_BASIC_TYPING,
         StockNotetypeKind.KIND_BASIC_AND_REVERSED,
         StockNotetypeKind.KIND_BASIC_OPTIONAL_REVERSED,
+        StockNotetypeKind.KIND_BASIC_TYPING,
         StockNotetypeKind.KIND_CLOZE,
     ]:
         note_type = from_json_bytes(col._backend.get_stock_notetype_legacy(kind))

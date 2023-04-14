@@ -7,6 +7,7 @@ mod emptycards;
 mod fields;
 mod notetypechange;
 mod render;
+mod restore;
 mod schema11;
 mod schemachange;
 pub(crate) mod stock;

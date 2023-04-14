@@ -6,6 +6,8 @@ use crate::config::ConfigEntry;
 use crate::config::ConfigKey;
 use crate::error::Result;
 use crate::i18n::I18n;
+use crate::image_occlusion::imagedata::image_occlusion_notetype;
+use crate::invalid_input;
 use crate::notetype::Notetype;
 use crate::pb::notetypes::notetype::config::Kind as NotetypeKind;
 use crate::pb::notetypes::stock_notetype::Kind;
@@ -78,6 +80,18 @@ pub(crate) fn get_stock_notetype(kind: StockKind, tr: &I18n) -> Notetype {
         Kind::BasicTyping => basic_typing(tr),
         Kind::Cloze => cloze(tr),
     }
+}
+
+pub(crate) fn get_original_stock_notetype(kind: OriginalStockKind, tr: &I18n) -> Result<Notetype> {
+    Ok(match kind {
+        OriginalStockKind::Unknown => invalid_input!("original stock kind not provided"),
+        OriginalStockKind::Basic => basic(tr),
+        OriginalStockKind::BasicAndReversed => basic_forward_reverse(tr),
+        OriginalStockKind::BasicOptionalReversed => basic_optional_reverse(tr),
+        OriginalStockKind::BasicTyping => basic_typing(tr),
+        OriginalStockKind::Cloze => cloze(tr),
+        OriginalStockKind::ImageOcclusion => image_occlusion_notetype(tr),
+    })
 }
 
 pub(crate) fn basic(tr: &I18n) -> Notetype {

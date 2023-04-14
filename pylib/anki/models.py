@@ -393,6 +393,16 @@ and notes.mid = ? and cards.ord = ?""",
         op_bytes = self.col._backend.change_notetype_raw(input.SerializeToString())
         return OpChanges.FromString(op_bytes)
 
+    def restore_notetype_to_stock(
+        self, notetype_id: NotetypeId, force_kind: StockNotetypeKind.V | None
+    ) -> OpChanges:
+        msg = notetypes_pb2.RestoreNotetypeToStockRequest(
+            notetype_id=notetypes_pb2.NotetypeId(ntid=notetype_id),
+        )
+        if force_kind is not None:
+            msg.force_kind = force_kind
+        return self.col._backend.restore_notetype_to_stock(msg)
+
     # legacy API - used by unit tests and add-ons
 
     def change(  # pylint: disable=invalid-name
