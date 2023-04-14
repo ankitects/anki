@@ -21,7 +21,7 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
     let requirements_txt = if cfg!(windows) {
         inputs![
             "python/requirements.dev.txt",
-            "python/requirements.qt6_5.txt",
+            "python/requirements.qt6_4.txt",
             "python/requirements.win.txt",
         ]
     } else if cfg!(all(target_os = "linux", target_arch = "aarch64")) {
@@ -29,7 +29,7 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
     } else {
         inputs![
             "python/requirements.dev.txt",
-            "python/requirements.qt6_5.txt"
+            "python/requirements.qt6_5.txt",
         ]
     };
     build.add(
