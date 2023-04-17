@@ -149,6 +149,10 @@ statistics-intervals-day-single =
 # hour range, eg "From 14:00-15:00"
 statistics-hours-range = From { $hourStart }:00~{ $hourEnd }:00
 statistics-hours-correct = { $correct }/{ $total } correct ({ $percent }%)
+# the emoji depicts the graph displaying this number
+statistics-hours-reviews = 📊 { $reviews } reviews
+# the emoji depicts the graph displaying this number
+statistics-hours-correct-reviews = 📈 { $percent }% correct ({ $reviews })
 statistics-hours-title = Hourly Breakdown
 statistics-hours-subtitle = Review success rate for each hour of the day.
 # shown when graph is empty
