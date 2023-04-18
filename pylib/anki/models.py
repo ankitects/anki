@@ -181,7 +181,7 @@ class ModelManager(DeprecatedNamesMixin):
         "Create a new model, and return it."
         # caller should call save() after modifying
         notetype = from_json_bytes(
-            self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
+            self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.KIND_BASIC)
         )
         notetype["flds"] = []
         notetype["tmpls"] = []
@@ -277,7 +277,7 @@ class ModelManager(DeprecatedNamesMixin):
     def new_field(self, name: str) -> FieldDict:
         assert isinstance(name, str)
         notetype = from_json_bytes(
-            self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
+            self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.KIND_BASIC)
         )
         field = notetype["flds"][0]
         field["name"] = name
@@ -321,7 +321,7 @@ class ModelManager(DeprecatedNamesMixin):
 
     def new_template(self, name: str) -> TemplateDict:
         notetype = from_json_bytes(
-            self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.BASIC)
+            self.col._backend.get_stock_notetype_legacy(StockNotetypeKind.KIND_BASIC)
         )
         template = notetype["tmpls"][0]
         template["name"] = name
@@ -392,6 +392,16 @@ and notes.mid = ? and cards.ord = ?""",
         """
         op_bytes = self.col._backend.change_notetype_raw(input.SerializeToString())
         return OpChanges.FromString(op_bytes)
+
+    def restore_notetype_to_stock(
+        self, notetype_id: NotetypeId, force_kind: StockNotetypeKind.V | None
+    ) -> OpChanges:
+        msg = notetypes_pb2.RestoreNotetypeToStockRequest(
+            notetype_id=notetypes_pb2.NotetypeId(ntid=notetype_id),
+        )
+        if force_kind is not None:
+            msg.force_kind = force_kind
+        return self.col._backend.restore_notetype_to_stock(msg)
 
     # legacy API - used by unit tests and add-ons
 

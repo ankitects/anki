@@ -10,13 +10,15 @@ use regex::Regex;
 use crate::io::metadata;
 use crate::io::read_file;
 use crate::media::MediaManager;
+use crate::notetype::stock::empty_stock;
 use crate::notetype::CardGenContext;
 use crate::notetype::Notetype;
-use crate::notetype::NotetypeConfig;
+use crate::notetype::NotetypeKind;
 use crate::pb::image_occlusion::image_cloze_note_response::Value;
 use crate::pb::image_occlusion::ImageClozeNote;
 use crate::pb::image_occlusion::ImageClozeNoteResponse;
 pub use crate::pb::image_occlusion::ImageData;
+use crate::pb::notetypes::stock_notetype::OriginalStockKind;
 use crate::prelude::*;
 
 impl Collection {
@@ -101,7 +103,7 @@ impl Collection {
 
     fn add_io_notetype(&mut self) -> Result<()> {
         let usn = self.usn()?;
-        let mut nt = self.image_occlusion_notetype();
+        let mut nt = image_occlusion_notetype(&self.tr);
         self.add_notetype_inner(&mut nt, usn, false)?;
         Ok(())
     }
@@ -187,28 +189,28 @@ impl Collection {
 
         Ok(false)
     }
+}
 
-    fn image_occlusion_notetype(&mut self) -> Notetype {
-        let tr = &self.tr;
-        const IMAGE_CLOZE_CSS: &str = include_str!("image_occlusion_styling.css");
-        let mut nt = Notetype {
-            name: tr.notetypes_image_occlusion_name().into(),
-            config: NotetypeConfig::new_cloze(),
-            ..Default::default()
-        };
-        nt.config.css = IMAGE_CLOZE_CSS.to_string();
-        let occlusion = tr.notetypes_occlusion();
-        nt.add_field(occlusion.as_ref());
-        let image = tr.notetypes_image();
-        nt.add_field(image.as_ref());
-        let header = tr.notetypes_header();
-        nt.add_field(header.as_ref());
-        let back_extra = tr.notetypes_back_extra_field();
-        nt.add_field(back_extra.as_ref());
-        let comments = tr.notetypes_comments_field();
-        nt.add_field(comments.as_ref());
-        let qfmt = format!(
-            "<div style=\"display: none\">{{{{cloze:{}}}}}</div>
+pub(crate) fn image_occlusion_notetype(tr: &I18n) -> Notetype {
+    const IMAGE_CLOZE_CSS: &str = include_str!("image_occlusion_styling.css");
+    let mut nt = empty_stock(
+        NotetypeKind::Cloze,
+        OriginalStockKind::ImageOcclusion,
+        tr.notetypes_image_occlusion_name(),
+    );
+    nt.config.css = IMAGE_CLOZE_CSS.to_string();
+    let occlusion = tr.notetypes_occlusion();
+    nt.add_field(occlusion.as_ref());
+    let image = tr.notetypes_image();
+    nt.add_field(image.as_ref());
+    let header = tr.notetypes_header();
+    nt.add_field(header.as_ref());
+    let back_extra = tr.notetypes_back_extra_field();
+    nt.add_field(back_extra.as_ref());
+    let comments = tr.notetypes_comments_field();
+    nt.add_field(comments.as_ref());
+    let qfmt = format!(
+        "<div style=\"display: none\">{{{{cloze:{}}}}}</div>
 <div id=container>
     {{{{{}}}}}
     <canvas id=\"canvas\" class=\"image-occlusion-canvas\"></canvas>
@@ -222,25 +224,24 @@ try {{
 }}
 </script>
 ",
-            occlusion,
-            image,
-            tr.notetypes_error_loading_image_occlusion(),
-        );
-        let afmt = format!(
-            "{{{{{}}}}}
+        occlusion,
+        image,
+        tr.notetypes_error_loading_image_occlusion(),
+    );
+    let afmt = format!(
+        "{{{{{}}}}}
 {}
 <button id=\"toggle\">{}</button>
 <br>
 {{{{{}}}}}
 <br>
 {{{{{}}}}}",
-            header,
-            qfmt,
-            tr.notetypes_toggle_masks(),
-            back_extra,
-            comments,
-        );
-        nt.add_template(nt.name.clone(), qfmt, afmt);
-        nt
-    }
+        header,
+        qfmt,
+        tr.notetypes_toggle_masks(),
+        back_extra,
+        comments,
+    );
+    nt.add_template(nt.name.clone(), qfmt, afmt);
+    nt
 }

@@ -3,7 +3,8 @@
 
 use super::Backend;
 use crate::config::get_aux_notetype_config_key;
-use crate::notetype::all_stock_notetypes;
+use crate::notetype::stock::get_stock_notetype;
+use crate::notetype::stock::StockKind;
 use crate::notetype::ChangeNotetypeInput;
 use crate::notetype::Notetype;
 use crate::notetype::NotetypeChangeInfo;
@@ -81,10 +82,7 @@ impl NotetypesService for Backend {
         &self,
         input: pb::notetypes::StockNotetype,
     ) -> Result<pb::generic::Json> {
-        // fixme: use individual functions instead of full vec
-        let mut all = all_stock_notetypes(&self.tr);
-        let idx = (input.kind as usize).min(all.len() - 1);
-        let nt = all.swap_remove(idx);
+        let nt = get_stock_notetype(input.kind(), &self.tr);
         let schema11: NotetypeSchema11 = nt.into();
         serde_json::to_vec(&schema11)
             .map_err(Into::into)
@@ -207,6 +205,20 @@ impl NotetypesService for Backend {
     fn get_field_names(&self, input: pb::notetypes::NotetypeId) -> Result<pb::generic::StringList> {
         self.with_col(|col| col.storage.get_field_names(input.into()))
             .map(Into::into)
+    }
+
+    fn restore_notetype_to_stock(
+        &self,
+        input: pb::notetypes::RestoreNotetypeToStockRequest,
+    ) -> Result<pb::collection::OpChanges> {
+        let force_kind = input.force_kind.and_then(StockKind::from_i32);
+        self.with_col(|col| {
+            col.restore_notetype_to_stock(
+                input.notetype_id.or_invalid("missing notetype id")?.into(),
+                force_kind,
+            )
+            .map(Into::into)
+        })
     }
 }
 

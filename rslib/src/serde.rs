@@ -20,6 +20,10 @@ where
     Ok(T::deserialize(v).unwrap_or_default())
 }
 
+pub(crate) fn is_default<T: Default + PartialEq>(t: &T) -> bool {
+    *t == Default::default()
+}
+
 pub(crate) fn deserialize_int_from_number<'de, T, D>(deserializer: D) -> Result<T, D::Error>
 where
     D: Deserializer<'de>,
