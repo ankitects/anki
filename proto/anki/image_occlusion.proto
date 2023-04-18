@@ -20,6 +20,8 @@ service ImageOcclusionService {
       returns (ImageClozeNoteResponse);
   rpc UpdateImageOcclusionNote(UpdateImageOcclusionNoteRequest)
       returns (collection.OpChanges);
+  // Adds an I/O notetype if none exists in the collection.
+  rpc AddImageOcclusionNotetype(generic.Empty) returns (collection.OpChanges);
 }
 
 message GetImageForOcclusionRequest {
@@ -37,6 +39,7 @@ message AddImageOcclusionNoteRequest {
   string header = 3;
   string back_extra = 4;
   repeated string tags = 5;
+  int64 notetype_id = 6;
 }
 
 message ImageClozeNote {

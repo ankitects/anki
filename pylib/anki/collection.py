@@ -462,18 +462,21 @@ class Collection(DeprecatedNamesMixin):
 
     # Image Occlusion
     ##########################################################################
+
     def get_image_for_occlusion(self, path: str | None) -> ImageData:
         return self._backend.get_image_for_occlusion(path=path)
 
     def add_image_occlusion_note(
         self,
-        image_path: str | None,
-        occlusions: str | None,
-        header: str | None,
-        back_extra: str | None,
-        tags: list[str] | None,
+        notetype_id: int,
+        image_path: str,
+        occlusions: str,
+        header: str,
+        back_extra: str,
+        tags: list[str],
     ) -> OpChanges:
         return self._backend.add_image_occlusion_note(
+            notetype_id=notetype_id,
             image_path=image_path,
             occlusions=occlusions,
             header=header,

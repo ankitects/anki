@@ -3,22 +3,17 @@
 
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::Arc;
 
 use regex::Regex;
 
 use crate::io::metadata;
 use crate::io::read_file;
 use crate::media::MediaManager;
-use crate::notetype::stock::empty_stock;
 use crate::notetype::CardGenContext;
-use crate::notetype::Notetype;
-use crate::notetype::NotetypeKind;
 use crate::pb::image_occlusion::image_cloze_note_response::Value;
 use crate::pb::image_occlusion::ImageClozeNote;
 use crate::pb::image_occlusion::ImageClozeNoteResponse;
 pub use crate::pb::image_occlusion::ImageData;
-use crate::pb::notetypes::stock_notetype::OriginalStockKind;
 use crate::prelude::*;
 
 impl Collection {
@@ -33,6 +28,7 @@ impl Collection {
     #[allow(clippy::too_many_arguments)]
     pub fn add_image_occlusion_note(
         &mut self,
+        notetype_id: NotetypeId,
         image_path: &str,
         occlusions: &str,
         header: &str,
@@ -58,7 +54,14 @@ impl Collection {
 
         let current_deck = self.get_current_deck()?;
         self.transact(Op::ImageOcclusion, |col| {
-            let nt = col.get_or_create_io_notetype()?;
+            let nt = if notetype_id.0 == 0 {
+                // when testing via .html page, use first available notetype
+                col.add_image_occlusion_notetype_inner()?;
+                col.get_first_io_notetype()?
+                    .or_invalid("expected an i/o notetype to exist")?
+            } else {
+                col.get_io_notetype_by_id(notetype_id)?
+            };
 
             let mut note = nt.new_note();
             note.set_field(0, occlusions)?;
@@ -74,38 +77,6 @@ impl Collection {
 
             Ok(())
         })
-    }
-
-    fn get_or_create_io_notetype(&mut self) -> Result<Arc<Notetype>> {
-        let tr = &self.tr;
-        let name = format!("{}", tr.notetypes_image_occlusion_name());
-        let nt = match self.get_notetype_by_name(&name)? {
-            Some(nt) => nt,
-            None => {
-                self.add_io_notetype()?;
-                if let Some(nt) = self.get_notetype_by_name(&name)? {
-                    nt
-                } else {
-                    return Err(AnkiError::TemplateError {
-                        info: "IO notetype not found".to_string(),
-                    });
-                }
-            }
-        };
-        if nt.fields.len() < 4 {
-            Err(AnkiError::TemplateError {
-                info: "IO notetype must have 4+ fields".to_string(),
-            })
-        } else {
-            Ok(nt)
-        }
-    }
-
-    fn add_io_notetype(&mut self) -> Result<()> {
-        let usn = self.usn()?;
-        let mut nt = image_occlusion_notetype(&self.tr);
-        self.add_notetype_inner(&mut nt, usn, false)?;
-        Ok(())
     }
 
     pub fn get_image_cloze_note(&mut self, note_id: NoteId) -> Result<ImageClozeNoteResponse> {
@@ -189,59 +160,4 @@ impl Collection {
 
         Ok(false)
     }
-}
-
-pub(crate) fn image_occlusion_notetype(tr: &I18n) -> Notetype {
-    const IMAGE_CLOZE_CSS: &str = include_str!("image_occlusion_styling.css");
-    let mut nt = empty_stock(
-        NotetypeKind::Cloze,
-        OriginalStockKind::ImageOcclusion,
-        tr.notetypes_image_occlusion_name(),
-    );
-    nt.config.css = IMAGE_CLOZE_CSS.to_string();
-    let occlusion = tr.notetypes_occlusion();
-    nt.add_field(occlusion.as_ref());
-    let image = tr.notetypes_image();
-    nt.add_field(image.as_ref());
-    let header = tr.notetypes_header();
-    nt.add_field(header.as_ref());
-    let back_extra = tr.notetypes_back_extra_field();
-    nt.add_field(back_extra.as_ref());
-    let comments = tr.notetypes_comments_field();
-    nt.add_field(comments.as_ref());
-    let qfmt = format!(
-        "<div style=\"display: none\">{{{{cloze:{}}}}}</div>
-<div id=container>
-    {{{{{}}}}}
-    <canvas id=\"canvas\" class=\"image-occlusion-canvas\"></canvas>
-</div>
-<div id=\"err\"></div>
-<script>
-try {{
-    anki.setupImageCloze();
-}} catch (exc) {{
-    document.getElementById(\"err\").innerHTML = `{}<br><br>${{exc}}`;
-}}
-</script>
-",
-        occlusion,
-        image,
-        tr.notetypes_error_loading_image_occlusion(),
-    );
-    let afmt = format!(
-        "{{{{{}}}}}
-{}
-<button id=\"toggle\">{}</button>
-<br>
-{{{{{}}}}}
-<br>
-{{{{{}}}}}",
-        header,
-        qfmt,
-        tr.notetypes_toggle_masks(),
-        back_extra,
-        comments,
-    );
-    nt.add_template(nt.name.clone(), qfmt, afmt);
-    nt
 }

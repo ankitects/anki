@@ -20,6 +20,7 @@ impl ImageOcclusionService for Backend {
     ) -> Result<pb::collection::OpChanges> {
         self.with_col(|col| {
             col.add_image_occlusion_note(
+                input.notetype_id.into(),
                 &input.image_path,
                 &input.occlusions,
                 &input.header,
@@ -51,5 +52,13 @@ impl ImageOcclusionService for Backend {
             )
         })
         .map(Into::into)
+    }
+
+    fn add_image_occlusion_notetype(
+        &self,
+        _input: pb::generic::Empty,
+    ) -> Result<pb::collection::OpChanges> {
+        self.with_col(|col| col.add_image_occlusion_notetype())
+            .map(Into::into)
     }
 }

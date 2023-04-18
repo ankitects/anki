@@ -6,7 +6,7 @@ use crate::config::ConfigEntry;
 use crate::config::ConfigKey;
 use crate::error::Result;
 use crate::i18n::I18n;
-use crate::image_occlusion::imagedata::image_occlusion_notetype;
+use crate::image_occlusion::notetype::image_occlusion_notetype;
 use crate::invalid_input;
 use crate::notetype::Notetype;
 use crate::pb::notetypes::notetype::config::Kind as NotetypeKind;
