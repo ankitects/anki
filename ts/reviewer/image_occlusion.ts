@@ -11,13 +11,18 @@ export function setupImageCloze(): void {
     canvas.style.maxHeight = "95vh";
 
     const ctx: CanvasRenderingContext2D = canvas.getContext("2d")!;
+    const container = document.getElementById("container") as HTMLDivElement;
     const image = document.getElementById("img") as HTMLImageElement;
+    if (image == null) {
+        container.innerText = "No image to show.";
+        return;
+    }
+
     const size = limitSize({ width: image.naturalWidth, height: image.naturalHeight });
     canvas.width = size.width;
     canvas.height = size.height;
 
     // set height for div container (used 'relative' in css)
-    const container = document.getElementById("container") as HTMLDivElement;
     container.style.height = `${image.height}px`;
 
     // setup button for toggle image occlusion
