@@ -14,7 +14,7 @@ import aqt.operations
 from anki import stdmodels
 from anki.collection import OpChanges
 from anki.consts import *
-from anki.lang import without_unicode_isolation
+from anki.lang import with_collapsed_whitespace, without_unicode_isolation
 from anki.notes import Note
 from anki.notetypes_pb2 import StockNotetype
 from aqt import AnkiQt, gui_hooks
@@ -713,7 +713,10 @@ class CardLayout(QDialog):
             return
 
         if not askUser(
-            tr.card_templates_restore_to_default_confirmation(), defaultno=True
+            with_collapsed_whitespace(
+                tr.card_templates_restore_to_default_confirmation()
+            ),
+            defaultno=True,
         ):
             return
 
@@ -743,17 +746,17 @@ class CardLayout(QDialog):
     def onMore(self) -> None:
         m = QMenu(self)
 
+        a = m.addAction(
+            tr.actions_with_ellipsis(action=tr.card_templates_restore_to_default())
+        )
+        qconnect(
+            a.triggered,
+            lambda: self.on_restore_to_default(),  # pylint: disable=unnecessary-lambda
+        )
+
         if not self._isCloze():
             a = m.addAction(tr.card_templates_add_card_type())
             qconnect(a.triggered, self.onAddCard)
-
-            a = m.addAction(
-                tr.actions_with_ellipsis(action=tr.card_templates_restore_to_default())
-            )
-            qconnect(
-                a.triggered,
-                lambda: self.on_restore_to_default(),  # pylint: disable=unnecessary-lambda
-            )
 
             a = m.addAction(tr.card_templates_remove_card_type())
             qconnect(a.triggered, self.onRemove)
