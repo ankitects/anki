@@ -57,3 +57,8 @@ card-templates-this-will-create-card-proceed =
        *[other] This will create { $count } cards. Proceed?
     }
 card-templates-type-boxes-warning = Only one typing box per card template is supported.
+card-templates-restore-to-default = Restore to Default
+card-templates-restore-to-default-confirmation = This will reset all fields and templates in this notetype to their default
+    values, and remove any custom styling. Do you wish to proceed?
+card-templates-restored-to-default = Notetype has been restored to its original state.
+

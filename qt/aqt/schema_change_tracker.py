@@ -34,3 +34,6 @@ class ChangeTracker:
 
     def changed(self) -> bool:
         return self._changed != Change.NO_CHANGE
+
+    def set_unchanged(self) -> None:
+        self._changed = Change.NO_CHANGE

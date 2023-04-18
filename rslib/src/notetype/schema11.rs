@@ -23,6 +23,7 @@ use crate::notetype::NotetypeConfig;
 use crate::serde::default_on_invalid;
 use crate::serde::deserialize_bool_from_anything;
 use crate::serde::deserialize_number_from_string;
+use crate::serde::is_default;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 
@@ -59,6 +60,8 @@ pub struct NotetypeSchema11 {
     pub latexsvg: bool,
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) req: CardRequirementsSchema11,
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub(crate) original_stock_kind: i32,
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
 }
@@ -103,6 +106,7 @@ impl From<NotetypeSchema11> for Notetype {
                 latex_post: nt.latex_post,
                 latex_svg: nt.latexsvg,
                 reqs: nt.req.0.into_iter().map(Into::into).collect(),
+                original_stock_kind: nt.original_stock_kind,
                 other: other_to_bytes(&nt.other),
             },
             fields: nt.flds.into_iter().map(Into::into).collect(),
@@ -160,6 +164,7 @@ impl From<Notetype> for NotetypeSchema11 {
             latex_post: c.latex_post,
             latexsvg: c.latex_svg,
             req: CardRequirementsSchema11(c.reqs.into_iter().map(Into::into).collect()),
+            original_stock_kind: c.original_stock_kind,
             other: bytes_to_other(&c.other),
         }
     }
@@ -167,7 +172,13 @@ impl From<Notetype> for NotetypeSchema11 {
 
 /// See [crate::deckconfig::schema11::clear_other_duplicates()].
 fn clear_other_field_duplicates(other: &mut HashMap<String, Value>) {
-    for key in &["description", "plainText", "collapsed", "excludeFromSearch"] {
+    for key in &[
+        "description",
+        "plainText",
+        "collapsed",
+        "excludeFromSearch",
+        "originalStockKind",
+    ] {
         other.remove(*key);
     }
 }

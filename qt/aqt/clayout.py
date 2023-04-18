@@ -1,20 +1,25 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from __future__ import annotations
+
 import json
 import re
 from concurrent.futures import Future
-from typing import Any, Match, Optional
+from typing import Any, Match, Optional, cast
 
 import aqt
 import aqt.forms
 import aqt.operations
+from anki import stdmodels
 from anki.collection import OpChanges
 from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.notes import Note
+from anki.notetypes_pb2 import StockNotetype
 from aqt import AnkiQt, gui_hooks
 from aqt.forms import browserdisp
-from aqt.operations.notetype import update_notetype_legacy
+from aqt.operations.notetype import restore_notetype_to_stock, update_notetype_legacy
 from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
 from aqt.sound import av_player, play_clicked_audio
@@ -696,6 +701,31 @@ class CardLayout(QDialog):
         self.ord = len(self.templates) - 1
         self.redraw_everything()
 
+    def on_restore_to_default(
+        self, force_kind: StockNotetype.Kind.V | None = None
+    ) -> None:
+        if force_kind is None and not self.model.get("originalStockKind", 0):
+            SelectStockNotetype(
+                mw=self.mw,
+                on_success=lambda kind: self.on_restore_to_default(force_kind=kind),
+                parent=self,
+            )
+            return
+
+        if not askUser(
+            tr.card_templates_restore_to_default_confirmation(), defaultno=True
+        ):
+            return
+
+        def on_success(changes: OpChanges) -> None:
+            self.change_tracker.set_unchanged()
+            self.close()
+            showInfo(tr.card_templates_restored_to_default(), parent=self.mw)
+
+        restore_notetype_to_stock(
+            parent=self, notetype_id=self.model["id"], force_kind=force_kind
+        ).success(on_success).run_in_background()
+
     def onFlip(self) -> None:
         old = self.current_template()
         self._flipQA(old, old)
@@ -716,6 +746,14 @@ class CardLayout(QDialog):
         if not self._isCloze():
             a = m.addAction(tr.card_templates_add_card_type())
             qconnect(a.triggered, self.onAddCard)
+
+            a = m.addAction(
+                tr.actions_with_ellipsis(action=tr.card_templates_restore_to_default())
+            )
+            qconnect(
+                a.triggered,
+                lambda: self.on_restore_to_default(),  # pylint: disable=unnecessary-lambda
+            )
 
             a = m.addAction(tr.card_templates_remove_card_type())
             qconnect(a.triggered, self.onRemove)
@@ -869,3 +907,42 @@ class CardLayout(QDialog):
 
     def onHelp(self) -> None:
         openHelp(HelpPage.TEMPLATES)
+
+
+class SelectStockNotetype(QDialog):
+    def __init__(
+        self,
+        mw: AnkiQt,
+        on_success: Callable[[StockNotetype.Kind.V], None],
+        parent: QWidget,
+    ) -> None:
+        self.mw = mw
+        QDialog.__init__(self, parent, Qt.WindowType.Window)
+        self.dialog = aqt.forms.addmodel.Ui_Dialog()
+        self.dialog.setupUi(self)
+        self.setWindowTitle("Anki")
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        disable_help_button(self)
+        stock_types = stdmodels.get_stock_notetypes(mw.col)
+
+        for name, func in stock_types:
+            item = QListWidgetItem(name)
+            self.dialog.models.addItem(item)
+        self.dialog.models.setCurrentRow(0)
+        # the list widget will swallow the enter key
+        s = QShortcut(QKeySequence("Return"), self)
+        qconnect(s.activated, self.accept)
+        # help
+        # self.dialog.buttonBox.standardButton(QDialogButtonBox.StandardButton.Help).
+        self.on_success = on_success
+        self.show()
+
+    def reject(self) -> None:
+        QDialog.reject(self)
+
+    def accept(self) -> None:
+        kind = cast(StockNotetype.Kind.V, self.dialog.models.currentRow())
+        QDialog.accept(self)
+        # On Mac, we need to allow time for the existing modal to close or
+        # Qt gets confused.
+        self.mw.progress.single_shot(100, lambda: self.on_success(kind), True)
