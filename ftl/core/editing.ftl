@@ -66,6 +66,7 @@ editing-warning-cloze-deletions-will-not-work = Warning, cloze deletions will no
 editing-mathjax-preview = MathJax Preview
 editing-shrink-images = Shrink Images
 editing-close-html-tags = Auto-close HTML tags
+editing-from-clipboard = From Clipboard
 
 ## You don't need to translate these strings, as they will be replaced with different ones soon.
 
