@@ -944,7 +944,7 @@ class SelectStockNotetype(QDialog):
         QDialog.reject(self)
 
     def accept(self) -> None:
-        kind = cast(StockNotetype.Kind.V, self.dialog.models.currentRow())
+        kind = cast(StockNotetype.Kind.ValueType, self.dialog.models.currentRow())
         QDialog.accept(self)
         # On Mac, we need to allow time for the existing modal to close or
         # Qt gets confused.
