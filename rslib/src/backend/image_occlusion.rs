@@ -10,7 +10,7 @@ impl ImageOcclusionService for Backend {
     fn get_image_for_occlusion(
         &self,
         input: pb::image_occlusion::GetImageForOcclusionRequest,
-    ) -> Result<pb::image_occlusion::ImageData> {
+    ) -> Result<pb::image_occlusion::GetImageForOcclusionResponse> {
         self.with_col(|col| col.get_image_for_occlusion(&input.path))
     }
 
@@ -20,6 +20,7 @@ impl ImageOcclusionService for Backend {
     ) -> Result<pb::collection::OpChanges> {
         self.with_col(|col| {
             col.add_image_occlusion_note(
+                input.notetype_id.into(),
                 &input.image_path,
                 &input.occlusions,
                 &input.header,
@@ -30,11 +31,11 @@ impl ImageOcclusionService for Backend {
         .map(Into::into)
     }
 
-    fn get_image_cloze_note(
+    fn get_image_occlusion_note(
         &self,
         input: pb::image_occlusion::GetImageOcclusionNoteRequest,
-    ) -> Result<pb::image_occlusion::ImageClozeNoteResponse> {
-        self.with_col(|col| col.get_image_cloze_note(input.note_id.into()))
+    ) -> Result<pb::image_occlusion::GetImageOcclusionNoteResponse> {
+        self.with_col(|col| col.get_image_occlusion_note(input.note_id.into()))
     }
 
     fn update_image_occlusion_note(
@@ -51,5 +52,13 @@ impl ImageOcclusionService for Backend {
             )
         })
         .map(Into::into)
+    }
+
+    fn add_image_occlusion_notetype(
+        &self,
+        _input: pb::generic::Empty,
+    ) -> Result<pb::collection::OpChanges> {
+        self.with_col(|col| col.add_image_occlusion_notetype())
+            .map(Into::into)
     }
 }

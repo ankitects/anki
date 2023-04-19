@@ -6,20 +6,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
 
     import Container from "../components/Container.svelte";
-    import { saveImageNotes } from "./generate";
+    import { addOrUpdateNote } from "./generate";
+    import type { IOMode } from "./lib";
     import MasksEditor from "./MaskEditor.svelte";
     import Notes from "./Notes.svelte";
     import StickyFooter from "./StickyFooter.svelte";
 
-    export let path: string | null;
-    export let noteId: number | null;
+    export let mode: IOMode;
 
     async function hideAllGuessOne(): Promise<void> {
-        saveImageNotes(path!, noteId!, false);
+        addOrUpdateNote(mode, false);
     }
 
     async function hideOneGuessOne(): Promise<void> {
-        saveImageNotes(path!, noteId!, true);
+        addOrUpdateNote(mode, true);
     }
 
     const items = [
@@ -41,12 +41,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ul>
 
     <div hidden={activeTabValue != 1}>
-        <MasksEditor {path} {noteId} />
+        <MasksEditor {mode} />
     </div>
 
     <div hidden={activeTabValue != 2}>
         <div class="notes-page"><Notes /></div>
-        <StickyFooter {hideAllGuessOne} {hideOneGuessOne} {noteId} />
+        <StickyFooter
+            {hideAllGuessOne}
+            {hideOneGuessOne}
+            editing={mode.kind == "edit"}
+        />
     </div>
 </Container>
 

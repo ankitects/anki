@@ -3,3 +3,4 @@
 
 pub mod imagedata;
 pub mod imageocclusion;
+pub(crate) mod notetype;
