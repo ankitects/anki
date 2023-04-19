@@ -6,11 +6,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { PanZoom } from "panzoom";
     import panzoom from "panzoom";
 
+    import type { IOMode } from "./lib";
     import { setupMaskEditor, setupMaskEditorForEdit } from "./mask-editor";
     import SideToolbar from "./SideToolbar.svelte";
 
-    export let path: string | null;
-    export let noteId: number | null;
+    export let mode: IOMode;
 
     let instance: PanZoom;
     let innerWidth = 0;
@@ -26,14 +26,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
         instance.pause();
 
-        if (path) {
-            setupMaskEditor(path, instance).then((canvas1) => {
+        if (mode.kind == "add") {
+            setupMaskEditor(mode.imagePath, instance).then((canvas1) => {
                 canvas = canvas1;
             });
-        }
-
-        if (noteId) {
-            setupMaskEditorForEdit(noteId, instance).then((canvas1) => {
+        } else {
+            setupMaskEditorForEdit(mode.noteId, instance).then((canvas1) => {
                 canvas = canvas1;
             });
         }

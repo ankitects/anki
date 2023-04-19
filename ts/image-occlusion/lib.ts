@@ -4,6 +4,19 @@
 import type { Collection } from "../lib/proto";
 import { ImageOcclusion, imageOcclusion } from "../lib/proto";
 
+export interface IOAddingMode {
+    kind: "add";
+    notetypeId: number;
+    imagePath: string;
+}
+
+export interface IOEditingMode {
+    kind: "edit";
+    noteId: number;
+}
+
+export type IOMode = IOAddingMode | IOEditingMode;
+
 export async function getImageForOcclusion(
     path: string,
 ): Promise<ImageOcclusion.ImageData> {
@@ -15,6 +28,7 @@ export async function getImageForOcclusion(
 }
 
 export async function addImageOcclusionNote(
+    notetypeId: number,
     imagePath: string,
     occlusions: string,
     header: string,
@@ -23,6 +37,7 @@ export async function addImageOcclusionNote(
 ): Promise<Collection.OpChanges> {
     return imageOcclusion.addImageOcclusionNote(
         ImageOcclusion.AddImageOcclusionNoteRequest.create({
+            notetypeId,
             imagePath,
             occlusions,
             header,
