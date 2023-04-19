@@ -48,7 +48,7 @@ impl Collection {
         let actual_image_name_after_adding = mgr.add_file(&image_filename, &image_bytes)?;
 
         let image_tag = format!(
-            "<img id='img' src='{}'></img>",
+            r#"<img id="img" src="{}">"#,
             &actual_image_name_after_adding
         );
 
@@ -102,9 +102,9 @@ impl Collection {
         cloze_note.image_data = "".into();
         cloze_note.tags = note.tags.clone();
 
-        let image_file_name = fields[1].clone();
+        let image_file_name = &fields[1];
         let src = self
-            .extract_img_src(&image_file_name)
+            .extract_img_src(image_file_name)
             .unwrap_or_else(|| "".to_owned());
         let final_path = self.media_folder.join(src);
 
