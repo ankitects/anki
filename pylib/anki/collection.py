@@ -41,9 +41,9 @@ CsvMetadata = import_export_pb2.CsvMetadata
 DupeResolution = CsvMetadata.DupeResolution
 Delimiter = import_export_pb2.CsvMetadata.Delimiter
 TtsVoice = card_rendering_pb2.AllTtsVoicesResponse.TtsVoice
-ImageData = image_occlusion_pb2.ImageData
+GetImageForOcclusionResponse = image_occlusion_pb2.GetImageForOcclusionResponse
 AddImageOcclusionNoteRequest = image_occlusion_pb2.AddImageOcclusionNoteRequest
-ImageClozeNoteResponse = image_occlusion_pb2.ImageClozeNoteResponse
+GetImageOcclusionNoteResponse = image_occlusion_pb2.GetImageOcclusionNoteResponse
 
 import copy
 import os
@@ -463,7 +463,7 @@ class Collection(DeprecatedNamesMixin):
     # Image Occlusion
     ##########################################################################
 
-    def get_image_for_occlusion(self, path: str | None) -> ImageData:
+    def get_image_for_occlusion(self, path: str | None) -> GetImageForOcclusionResponse:
         return self._backend.get_image_for_occlusion(path=path)
 
     def add_image_occlusion_note(
@@ -484,8 +484,10 @@ class Collection(DeprecatedNamesMixin):
             tags=tags,
         )
 
-    def get_image_cloze_note(self, note_id: int | None) -> ImageClozeNoteResponse:
-        return self._backend.get_image_cloze_note(note_id=note_id)
+    def get_image_occlusion_note(
+        self, note_id: int | None
+    ) -> GetImageOcclusionNoteResponse:
+        return self._backend.get_image_occlusion_note(note_id=note_id)
 
     def update_image_occlusion_note(
         self,

@@ -10,7 +10,7 @@ impl ImageOcclusionService for Backend {
     fn get_image_for_occlusion(
         &self,
         input: pb::image_occlusion::GetImageForOcclusionRequest,
-    ) -> Result<pb::image_occlusion::ImageData> {
+    ) -> Result<pb::image_occlusion::GetImageForOcclusionResponse> {
         self.with_col(|col| col.get_image_for_occlusion(&input.path))
     }
 
@@ -31,11 +31,11 @@ impl ImageOcclusionService for Backend {
         .map(Into::into)
     }
 
-    fn get_image_cloze_note(
+    fn get_image_occlusion_note(
         &self,
         input: pb::image_occlusion::GetImageOcclusionNoteRequest,
-    ) -> Result<pb::image_occlusion::ImageClozeNoteResponse> {
-        self.with_col(|col| col.get_image_cloze_note(input.note_id.into()))
+    ) -> Result<pb::image_occlusion::GetImageOcclusionNoteResponse> {
+        self.with_col(|col| col.get_image_occlusion_note(input.note_id.into()))
     }
 
     fn update_image_occlusion_note(

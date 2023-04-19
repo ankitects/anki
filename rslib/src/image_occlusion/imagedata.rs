@@ -10,15 +10,15 @@ use crate::io::metadata;
 use crate::io::read_file;
 use crate::media::MediaManager;
 use crate::notetype::CardGenContext;
-use crate::pb::image_occlusion::image_cloze_note_response::Value;
-use crate::pb::image_occlusion::ImageClozeNote;
-use crate::pb::image_occlusion::ImageClozeNoteResponse;
-pub use crate::pb::image_occlusion::ImageData;
+use crate::pb::image_occlusion::get_image_occlusion_note_response::ImageClozeNote;
+use crate::pb::image_occlusion::get_image_occlusion_note_response::Value;
+use crate::pb::image_occlusion::GetImageForOcclusionResponse;
+use crate::pb::image_occlusion::GetImageOcclusionNoteResponse;
 use crate::prelude::*;
 
 impl Collection {
-    pub fn get_image_for_occlusion(&mut self, path: &str) -> Result<ImageData> {
-        let mut metadata = ImageData {
+    pub fn get_image_for_occlusion(&mut self, path: &str) -> Result<GetImageForOcclusionResponse> {
+        let mut metadata = GetImageForOcclusionResponse {
             ..Default::default()
         };
         metadata.data = read_file(path)?;
@@ -79,15 +79,18 @@ impl Collection {
         })
     }
 
-    pub fn get_image_cloze_note(&mut self, note_id: NoteId) -> Result<ImageClozeNoteResponse> {
-        let value = match self.get_image_cloze_note_inner(note_id) {
+    pub fn get_image_occlusion_note(
+        &mut self,
+        note_id: NoteId,
+    ) -> Result<GetImageOcclusionNoteResponse> {
+        let value = match self.get_image_occlusion_note_inner(note_id) {
             Ok(note) => Value::Note(note),
             Err(err) => Value::Error(format!("{:?}", err)),
         };
-        Ok(ImageClozeNoteResponse { value: Some(value) })
+        Ok(GetImageOcclusionNoteResponse { value: Some(value) })
     }
 
-    pub fn get_image_cloze_note_inner(&mut self, note_id: NoteId) -> Result<ImageClozeNote> {
+    pub fn get_image_occlusion_note_inner(&mut self, note_id: NoteId) -> Result<ImageClozeNote> {
         let note = self.storage.get_note(note_id)?.or_not_found(note_id)?;
         let mut cloze_note = ImageClozeNote::default();
 

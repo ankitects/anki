@@ -19,7 +19,7 @@ export type IOMode = IOAddingMode | IOEditingMode;
 
 export async function getImageForOcclusion(
     path: string,
-): Promise<ImageOcclusion.ImageData> {
+): Promise<ImageOcclusion.GetImageForOcclusionResponse> {
     return imageOcclusion.getImageForOcclusion(
         ImageOcclusion.GetImageForOcclusionRequest.create({
             path,
@@ -47,10 +47,10 @@ export async function addImageOcclusionNote(
     );
 }
 
-export async function getImageClozeNote(
+export async function getImageOcclusionNote(
     noteId: number,
-): Promise<ImageOcclusion.ImageClozeNoteResponse> {
-    return imageOcclusion.getImageClozeNote(
+): Promise<ImageOcclusion.GetImageOcclusionNoteResponse> {
+    return imageOcclusion.getImageOcclusionNote(
         ImageOcclusion.GetImageOcclusionNoteRequest.create({
             noteId,
         }),

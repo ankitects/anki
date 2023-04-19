@@ -481,7 +481,7 @@ exposed_backend_list = [
     # ImageOcclusionService
     "get_image_for_occlusion",
     "add_image_occlusion_note",
-    "get_image_cloze_note",
+    "get_image_occlusion_note",
     "update_image_occlusion_note",
 ]
 

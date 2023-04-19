@@ -13,11 +13,12 @@ import "anki/notes.proto";
 import "anki/generic.proto";
 
 service ImageOcclusionService {
-  rpc GetImageForOcclusion(GetImageForOcclusionRequest) returns (ImageData);
+  rpc GetImageForOcclusion(GetImageForOcclusionRequest)
+      returns (GetImageForOcclusionResponse);
   rpc AddImageOcclusionNote(AddImageOcclusionNoteRequest)
       returns (collection.OpChanges);
-  rpc GetImageClozeNote(GetImageOcclusionNoteRequest)
-      returns (ImageClozeNoteResponse);
+  rpc GetImageOcclusionNote(GetImageOcclusionNoteRequest)
+      returns (GetImageOcclusionNoteResponse);
   rpc UpdateImageOcclusionNote(UpdateImageOcclusionNoteRequest)
       returns (collection.OpChanges);
   // Adds an I/O notetype if none exists in the collection.
@@ -28,7 +29,7 @@ message GetImageForOcclusionRequest {
   string path = 1;
 }
 
-message ImageData {
+message GetImageForOcclusionResponse {
   bytes data = 1;
   string name = 2;
 }
@@ -42,16 +43,23 @@ message AddImageOcclusionNoteRequest {
   int64 notetype_id = 6;
 }
 
-message ImageClozeNote {
-  bytes image_data = 1;
-  string occlusions = 2;
-  string header = 3;
-  string back_extra = 4;
-  repeated string tags = 5;
-}
-
 message GetImageOcclusionNoteRequest {
   int64 note_id = 1;
+}
+
+message GetImageOcclusionNoteResponse {
+  message ImageClozeNote {
+    bytes image_data = 1;
+    string occlusions = 2;
+    string header = 3;
+    string back_extra = 4;
+    repeated string tags = 5;
+  }
+
+  oneof value {
+    ImageClozeNote note = 1;
+    string error = 2;
+  }
 }
 
 message UpdateImageOcclusionNoteRequest {
@@ -60,11 +68,4 @@ message UpdateImageOcclusionNoteRequest {
   string header = 3;
   string back_extra = 4;
   repeated string tags = 5;
-}
-
-message ImageClozeNoteResponse {
-  oneof value {
-    ImageClozeNote note = 1;
-    string error = 2;
-  }
 }

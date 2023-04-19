@@ -8,7 +8,7 @@ import type { PanZoom } from "panzoom";
 import protobuf from "protobufjs";
 import { get } from "svelte/store";
 
-import { getImageClozeNote, getImageForOcclusion } from "./lib";
+import { getImageForOcclusion, getImageOcclusionNote } from "./lib";
 import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
 import Toast from "./Toast.svelte";
 import { enableSelectable, moveShapeToCanvasBoundaries } from "./tools/lib";
@@ -35,7 +35,7 @@ export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<
 };
 
 export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom): Promise<fabric.Canvas> => {
-    const clozeNoteResponse: ImageOcclusion.ImageClozeNoteResponse = await getImageClozeNote(noteId);
+    const clozeNoteResponse: ImageOcclusion.GetImageOcclusionNoteResponse = await getImageOcclusionNote(noteId);
     if (clozeNoteResponse.error) {
         new Toast({
             target: document.body,
