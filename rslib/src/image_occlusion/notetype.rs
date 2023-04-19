@@ -68,38 +68,34 @@ pub(crate) fn image_occlusion_notetype(tr: &I18n) -> Notetype {
     nt.add_field(back_extra.as_ref());
     let comments = tr.notetypes_comments_field();
     nt.add_field(comments.as_ref());
+
+    let err_loading = tr.notetypes_error_loading_image_occlusion();
     let qfmt = format!(
-        "<div style=\"display: none\">{{{{cloze:{}}}}}</div>
+        "\
+{{{{#{header}}}}}<div>{{{{{header}}}}}</div>{{{{/{header}}}}}
+<div style=\"display: none\">{{{{cloze:{occlusion}}}}}</div>
+<div id=\"err\"></div>
 <div id=container>
-    {{{{{}}}}}
+    {{{{{image}}}}}
     <canvas id=\"canvas\" class=\"image-occlusion-canvas\"></canvas>
 </div>
-<div id=\"err\"></div>
 <script>
 try {{
     anki.setupImageCloze();
 }} catch (exc) {{
-    document.getElementById(\"err\").innerHTML = `{}<br><br>${{exc}}`;
+    document.getElementById(\"err\").innerHTML = `{err_loading}<br><br>${{exc}}`;
 }}
 </script>
-",
-        occlusion,
-        image,
-        tr.notetypes_error_loading_image_occlusion(),
+"
     );
+
+    let toggle_masks = tr.notetypes_toggle_masks();
     let afmt = format!(
-        "{{{{{}}}}}
-{}
-<button id=\"toggle\">{}</button>
-<br>
-{{{{{}}}}}
-<br>
-{{{{{}}}}}",
-        header,
-        qfmt,
-        tr.notetypes_toggle_masks(),
-        back_extra,
-        comments,
+        "\
+{qfmt}
+<div><button id=\"toggle\">{toggle_masks}</button></div>
+{{{{#{back_extra}}}}}<div>{{{{{back_extra}}}}}</div>{{{{/{back_extra}}}}}
+",
     );
     nt.add_template(nt.name.clone(), qfmt, afmt);
     nt
