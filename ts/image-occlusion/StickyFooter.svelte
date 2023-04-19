@@ -10,12 +10,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let hideAllGuessOne: () => void;
     export let hideOneGuessOne: () => void;
-    export let noteId: number | null;
+    export let editing: boolean;
 </script>
 
 <div style:flex-grow="1" />
 <div class="sticky-footer">
-    {#if noteId}
+    {#if editing}
         <div class="update-note-text">
             {tr.actionsUpdateNote()}
         </div>
@@ -49,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         z-index: 99;
         margin: 0;
         padding: 0.25rem;
-        background: var(--window-bg);
+        background: var(--canvas);
         border-style: solid none none;
         border-color: var(--border);
         border-width: thin;

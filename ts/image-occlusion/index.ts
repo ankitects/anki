@@ -7,6 +7,7 @@ import { ModuleName, setupI18n } from "@tslib/i18n";
 
 import { checkNightMode } from "../lib/nightmode";
 import ImageOcclusionPage from "./ImageOcclusionPage.svelte";
+import type { IOMode } from "./lib";
 
 const i18n = setupI18n({
     modules: [
@@ -19,38 +20,24 @@ const i18n = setupI18n({
     ],
 });
 
-export async function setupImageOcclusion(path: string): Promise<ImageOcclusionPage> {
+export async function setupImageOcclusion(mode: IOMode): Promise<ImageOcclusionPage> {
     checkNightMode();
     await i18n;
 
     return new ImageOcclusionPage({
         target: document.body,
         props: {
-            path: path,
-            noteId: null,
-        },
-    });
-}
-
-export async function setupImageOcclusionForEdit(noteId: number): Promise<ImageOcclusionPage> {
-    checkNightMode();
-    await i18n;
-
-    return new ImageOcclusionPage({
-        target: document.body,
-        props: {
-            path: null,
-            noteId: noteId,
+            mode,
         },
     });
 }
 
 if (window.location.hash.startsWith("#test-")) {
-    const path = window.location.hash.replace("#test-", "");
-    setupImageOcclusion(path);
+    const imagePath = window.location.hash.replace("#test-", "");
+    setupImageOcclusion({ kind: "add", imagePath, notetypeId: 0 });
 }
 
 if (window.location.hash.startsWith("#testforedit-")) {
     const noteId = parseInt(window.location.hash.replace("#testforedit-", ""));
-    setupImageOcclusionForEdit(noteId);
+    setupImageOcclusion({ kind: "edit", noteId });
 }

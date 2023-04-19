@@ -6,6 +6,7 @@ import { fabric } from "fabric";
 import { get } from "svelte/store";
 
 import type { Collection } from "../lib/proto";
+import type { IOMode } from "./lib";
 import { addImageOcclusionNote, updateImageOcclusionNote } from "./lib";
 import { notesDataStore, tagsWritable } from "./store";
 import Toast from "./Toast.svelte";
@@ -107,9 +108,8 @@ const getObjectPositionInGroup = (group, object): { top: number; left: number } 
     return { top, left };
 };
 
-export const saveImageNotes = async function(
-    imagePath: string,
-    noteId: number,
+export const addOrUpdateNote = async function(
+    mode: IOMode,
     hideInactive: boolean,
 ): Promise<void> {
     const { occlusionCloze, noteCount } = generate(hideInactive);
@@ -125,29 +125,30 @@ export const saveImageNotes = async function(
     header = header ? `<div>${header}</div>` : "";
     backExtra = header ? `<div>${backExtra}</div>` : "";
 
-    if (noteId) {
+    if (mode.kind == "edit") {
         const result = await updateImageOcclusionNote(
-            noteId,
+            mode.noteId,
             occlusionCloze,
             header,
             backExtra,
             tags,
         );
-        showResult(noteId, result, noteCount);
+        showResult(mode.noteId, result, noteCount);
     } else {
         const result = await addImageOcclusionNote(
-            imagePath,
+            mode.notetypeId,
+            mode.imagePath,
             occlusionCloze,
             header,
             backExtra,
             tags,
         );
-        showResult(noteId, result, noteCount);
+        showResult(null, result, noteCount);
     }
 };
 
 // show toast message
-const showResult = (noteId: number, result: Collection.OpChanges, count: number) => {
+const showResult = (noteId: number | null, result: Collection.OpChanges, count: number) => {
     const toastComponent = new Toast({
         target: document.body,
         props: {
