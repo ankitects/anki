@@ -21,7 +21,7 @@ export function withFontColor(
 }
 
 export class Flag {
-    flag: boolean;
+    private flag: boolean;
 
     constructor() {
         this.flag = false;
@@ -31,7 +31,8 @@ export class Flag {
         this.flag = on;
     }
 
-    check(): boolean {
+    /** Resets the flag to false and returns the previous value. */
+    checkAndReset(): boolean {
         const val = this.flag;
         this.flag = false;
         return val;

@@ -196,7 +196,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: {
         pushUpdate(!hidden);
-        if (focusFlag.check()) {
+        if (focusFlag.checkAndReset()) {
             tick().then(refocus);
         }
     }
