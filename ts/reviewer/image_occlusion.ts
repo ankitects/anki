@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import * as tr from "@tslib/ftl";
+
 window.addEventListener("load", () => {
     window.addEventListener("resize", setupImageCloze);
 });
@@ -14,7 +16,7 @@ export function setupImageCloze(): void {
     const container = document.getElementById("container") as HTMLDivElement;
     const image = document.getElementById("img") as HTMLImageElement;
     if (image == null) {
-        container.innerText = "No image to show.";
+        container.innerText = tr.notetypeErrorNoImageToShow();
         return;
     }
 
