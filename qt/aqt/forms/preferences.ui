@@ -456,6 +456,19 @@
             </property>
            </widget>
           </item>
+          <item>
+            <widget class="QCheckBox" name="grade_with_space">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>preferences_grade_with_space</string>
+             </property>
+            </widget>
+           </item>
          </layout>
         </widget>
        </item>
@@ -1114,6 +1127,7 @@
   <tabstop>bottomBarComboBox</tabstop>
   <tabstop>reduce_motion</tabstop>
   <tabstop>minimalist_mode</tabstop>
+  <tabstop>grade_with_space</tabstop>
   <tabstop>sched2021</tabstop>
   <tabstop>dayLearnFirst</tabstop>
   <tabstop>legacy_timezone</tabstop>
