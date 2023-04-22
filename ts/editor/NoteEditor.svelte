@@ -317,6 +317,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let plainTextInputs: PlainTextInput[] = [];
     $: plainTextInputs = plainTextInputs.filter(Boolean);
 
+    function toggleRichTextInput(index: number): void {
+        const hidden = !richTextsHidden[index];
+        richTextInputs[index].focusFlag.setFlag(!hidden);
+        richTextsHidden[index] = hidden;
+        if (hidden) {
+            plainTextInputs[index].api.refocus();
+        }
+    }
+
+    function togglePlainTextInput(index: number): void {
+        const hidden = !plainTextsHidden[index];
+        plainTextInputs[index].focusFlag.setFlag(!hidden);
+        plainTextsHidden[index] = hidden;
+        if (hidden) {
+            richTextInputs[index].api.refocus();
+        }
+    }
+
+    function toggleField(index: number): void {
+        const collapsed = !fieldsCollapsed[index];
+        fieldsCollapsed[index] = collapsed;
+
+        const defaultInput = !plainTextDefaults[index]
+            ? richTextInputs[index]
+            : plainTextInputs[index];
+
+        if (!collapsed) {
+            defaultInput.api.refocus();
+        } else if (!plainTextDefaults[index]) {
+            plainTextsHidden[index] = true;
+        } else {
+            richTextsHidden[index] = true;
+        }
+    }
+
     const toolbar: Partial<EditorToolbarAPI> = {};
 
     function setShrinkImages(shrinkByDefault: boolean) {
@@ -332,7 +367,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { mathjaxConfig } from "../editable/mathjax-element";
     import CollapseLabel from "./CollapseLabel.svelte";
-    import { refocusInput } from "./helpers";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
     onMount(() => {
@@ -457,21 +491,7 @@ the AddCards dialog) should be implemented in the user of this component.
                 <svelte:fragment slot="field-label">
                     <LabelContainer
                         collapsed={fieldsCollapsed[index]}
-                        on:toggle={async () => {
-                            fieldsCollapsed[index] = !fieldsCollapsed[index];
-
-                            const defaultInput = !plainTextDefaults[index]
-                                ? richTextInputs[index]
-                                : plainTextInputs[index];
-
-                            if (!fieldsCollapsed[index]) {
-                                refocusInput(defaultInput.api);
-                            } else if (!plainTextDefaults[index]) {
-                                plainTextsHidden[index] = true;
-                            } else {
-                                richTextsHidden[index] = true;
-                            }
-                        }}
+                        on:toggle={() => toggleField(index)}
                         --icon-align="bottom"
                     >
                         <svelte:fragment slot="field-name">
@@ -489,14 +509,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                         (fields[index] === $hoveredField ||
                                             fields[index] === $focusedField)}
                                     bind:off={richTextsHidden[index]}
-                                    on:toggle={async () => {
-                                        richTextsHidden[index] =
-                                            !richTextsHidden[index];
-
-                                        if (!richTextsHidden[index]) {
-                                            refocusInput(richTextInputs[index].api);
-                                        }
-                                    }}
+                                    on:toggle={() => toggleRichTextInput(index)}
                                 />
                             {:else}
                                 <PlainTextBadge
@@ -504,14 +517,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                         (fields[index] === $hoveredField ||
                                             fields[index] === $focusedField)}
                                     bind:off={plainTextsHidden[index]}
-                                    on:toggle={async () => {
-                                        plainTextsHidden[index] =
-                                            !plainTextsHidden[index];
-
-                                        if (!plainTextsHidden[index]) {
-                                            refocusInput(plainTextInputs[index].api);
-                                        }
-                                    }}
+                                    on:toggle={() => togglePlainTextInput(index)}
                                 />
                             {/if}
                             <slot

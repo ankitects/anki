@@ -37,11 +37,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { baseOptions, gutterOptions, htmlanki } from "../code-mirror";
     import CodeMirror from "../CodeMirror.svelte";
     import { context as editingAreaContext } from "../EditingArea.svelte";
+    import { Flag } from "../helpers";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import removeProhibitedTags from "./remove-prohibited";
     import { storedToUndecorated, undecoratedToStored } from "./transform";
 
     export let hidden = false;
+    export const focusFlag = new Flag();
 
     $: configuration = {
         mode: htmlanki,
@@ -115,7 +117,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: {
         pushUpdate(!hidden);
-        tick().then(refresh);
+        tick().then(() => {
+            refresh();
+            if (focusFlag.checkAndReset()) {
+                refocus();
+            }
+        });
     }
 
     function onChange({ detail: html }: CustomEvent<string>): void {
