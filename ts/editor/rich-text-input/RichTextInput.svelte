@@ -64,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { directionKey, fontFamilyKey, fontSizeKey } from "@tslib/context-keys";
     import { promiseWithResolver } from "@tslib/promise";
     import { singleCallback } from "@tslib/typing";
-    import { getAllContexts, getContext, onMount } from "svelte";
+    import { getAllContexts, getContext, onMount, tick } from "svelte";
     import type { Readable } from "svelte/store";
 
     import { placeCaretAfterContent } from "../../domlib/place-caret";
@@ -73,6 +73,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import useInputHandler from "../../sveltelib/input-handler";
     import { pageTheme } from "../../sveltelib/theme";
     import { context as editingAreaContext } from "../EditingArea.svelte";
+    import { Flag } from "../helpers";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import getNormalizingNodeStore from "./normalizing-node-store";
     import useRichTextResolve from "./rich-text-resolve";
@@ -80,6 +81,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { fragmentToStored, storedToFragment } from "./transform";
 
     export let hidden = false;
+    export const focusFlag = new Flag();
 
     const { focusedInput } = noteEditorContext.get();
     const { content, editingInputs } = editingAreaContext.get();
@@ -192,7 +194,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $apiStore = null;
     }
 
-    $: pushUpdate(!hidden);
+    $: {
+        pushUpdate(!hidden);
+        if (focusFlag.checkAndReset()) {
+            tick().then(refocus);
+        }
+    }
 
     onMount(() => {
         $editingInputs.push(api);
