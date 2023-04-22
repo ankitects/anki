@@ -515,6 +515,7 @@ class Reviewer:
             ("j", lambda: self._answerCard(2)),
             ("k", lambda: self._answerCard(3)),
             ("l", lambda: self._answerCard(4)),
+            ("u", self.mw.undo),
             ("5", self.on_pause_audio),
             ("6", self.on_seek_backward),
             ("7", self.on_seek_forward),
