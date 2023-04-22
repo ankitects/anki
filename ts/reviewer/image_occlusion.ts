@@ -8,6 +8,10 @@ window.addEventListener("load", () => {
 });
 
 export function setupImageCloze(): void {
+    window.requestAnimationFrame(setupImageClozeInner);
+}
+
+function setupImageClozeInner(): void {
     const canvas: HTMLCanvasElement = document.querySelector("canvas")! as HTMLCanvasElement;
     canvas.style.maxWidth = "100%";
     canvas.style.maxHeight = "95vh";
