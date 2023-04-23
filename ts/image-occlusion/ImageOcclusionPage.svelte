@@ -49,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </div>
 
     <div hidden={activeTabValue != 2}>
-        <div class="notes-page"><Notes /></div>
+        <Notes />
         <StickyFooter
             {hideAllGuessOne}
             {hideOneGuessOne}
@@ -89,15 +89,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             // dropdowns, and short rows like checkboxes
             min-height: 2.5em;
             align-items: center;
-        }
-    }
-
-    :global(.notes-page) {
-        @media only screen and (min-width: 1024px) {
-            width: min(100vw, 70em);
-            margin: 6px auto;
-            padding-bottom: 5em;
-            padding-right: 12px;
         }
     }
 </style>

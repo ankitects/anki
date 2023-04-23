@@ -13,7 +13,6 @@ let linesList: fabric.Line = [];
 let pointsList: fabric.Circle = [];
 let drawMode = false;
 let zoomValue = 1;
-let panzoomX = 1, panzoomY = 1;
 const addedPolygonIds: string[] = [];
 
 export const drawPolygon = (canvas: fabric.Canvas, panzoom: PanZoom): void => {
@@ -67,15 +66,13 @@ const toggleDrawPolygon = (canvas: fabric.Canvas): void => {
 
 const addPoint = (canvas: fabric.Canvas, options, panzoom): void => {
     zoomValue = panzoom.getTransform().scale;
-    panzoomX = panzoom.getTransform().x;
-    panzoomY = panzoom.getTransform().y;
 
     const canvasContainer = document.querySelector(".canvas-container")!.getBoundingClientRect()!;
     let clientX = options.e.touches ? options.e.touches[0].clientX : options.e.clientX;
     let clientY = options.e.touches ? options.e.touches[0].clientY : options.e.clientY;
 
-    clientX = (clientX - canvasContainer.left - panzoomX) / zoomValue;
-    clientY = (clientY - canvasContainer.top - panzoomY) / zoomValue;
+    clientX = (clientX - canvasContainer.left) / zoomValue;
+    clientY = (clientY - canvasContainer.top) / zoomValue;
 
     const point = new fabric.Circle({
         radius: 5,
