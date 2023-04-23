@@ -32,13 +32,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <Container class="image-occlusion">
-    <ul>
+    <div class="tab-buttons">
         {#each items as item}
-            <li class={activeTabValue === item.value ? "active" : ""}>
-                <span on:click={tabChange(item.value)}>{item.label}</span>
-            </li>
+            <button
+                class="tab-item {activeTabValue === item.value ? 'active' : ''} 
+                    {item.value === 1 ? 'left-border-radius' : 'right-border-radius'}"
+                on:click={tabChange(item.value)}
+            >
+                {item.label}
+            </button>
         {/each}
-    </ul>
+    </div>
 
     <div hidden={activeTabValue != 1}>
         <MasksEditor {mode} />
@@ -55,6 +59,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </Container>
 
 <style lang="scss">
+    .tab-buttons {
+        display: flex;
+        margin-right: 4px;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+    }
+    .tab-buttons .active {
+        background: var(--button-primary-bg);
+        color: white;
+    }
+
+    .tab-item {
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        padding: 0px 6px 0px 6px;
+        height: 36px;
+    }
+
     :global(.image-occlusion) {
         --gutter-inline: 0.5rem;
 
@@ -66,37 +90,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             min-height: 2.5em;
             align-items: center;
         }
-    }
-    ul {
-        display: flex;
-        flex-wrap: wrap;
-        padding-left: 0;
-        list-style: none;
-        border-bottom: 1px solid var(--border);
-        margin-top: 2px;
-    }
-    li {
-        margin-bottom: -1px;
-    }
-
-    span {
-        border: 1px solid transparent;
-        border-top-left-radius: 0.25rem;
-        border-top-right-radius: 0.25rem;
-        display: block;
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        color: var(--fg-subtle);
-    }
-
-    span:hover {
-        border-color: var(--border) var(--border) var(--canvas);
-    }
-
-    li.active > span {
-        color: var(--fg);
-        background-color: var(--canvas);
-        border-color: var(--border) var(--border) var(--canvas);
     }
 
     :global(.notes-page) {

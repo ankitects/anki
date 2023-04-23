@@ -50,7 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .editor-main {
         position: absolute;
-        top: 84px;
+        top: 42px;
         left: 36px;
         bottom: 2px;
         right: 2px;

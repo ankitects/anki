@@ -65,8 +65,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style>
     .tool-bar-container {
         position: fixed;
-        top: 46px;
-        left: 0;
+        top: 42px;
+        left: 2px;
         height: 100%;
         border-right: 1px solid var(--border);
         overflow-y: auto;
@@ -86,8 +86,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     :global(.active-tool) {
-        color: red !important;
-        background: unset !important;
+        color: white !important;
+        background: var(--button-primary-bg) !important;
     }
 
     ::-webkit-scrollbar {
