@@ -32,6 +32,11 @@ hooks = [
         legacy_hook="remNotes",
     ),
     Hook(
+        name="note_will_be_added",
+        args=["col: anki.collection.Collection", "note: Note", "deck_id: DeckId"],
+        doc="Can modify the note before it is added to the collection.",
+    ),
+    Hook(
         name="media_files_did_export",
         args=["count: int"],
         doc="Only used by legacy .apkg exporter. Will be deprecated in the future.",
