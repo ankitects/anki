@@ -33,7 +33,7 @@ hooks = [
     ),
     Hook(
         name="note_will_be_added",
-        args=["col: anki.collection.Collection", "note: Note", "deck_id: DeckId"],
+        args=["col: anki.collection.Collection", "note: anki.notes.Note", "deck_id: anki.decks.DeckId"],
         doc="Can modify the note before it is added to the collection.",
     ),
     Hook(
