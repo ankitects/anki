@@ -139,13 +139,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style>
     .top-tool-bar-container {
         display: flex;
-        position: fixed;
-        top: 2px;
-        width: 98%;
-        overflow-y: auto;
+        overflow-y: scroll;
         z-index: 99;
-        margin-left: 92px;
-        padding-right: 96px;
+        margin-left: 98px;
+        margin-top: 2px;
     }
 
     .undo-redo-button {

@@ -23,6 +23,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     :global(.tag-editor) {
-        margin-top: 14px;
+        margin: 10px 0px 10px 0px;
     }
 </style>

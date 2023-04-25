@@ -68,6 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: none;
         background: var(--canvas-elevated);
         border: 2px solid var(--border);
+        border-radius: var(--border-radius);
         outline: none;
         resize: none;
         overflow: auto;
@@ -76,6 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .text-editor {
         height: 80px;
         border: 1px solid var(--border);
+        border-radius: var(--border-radius);
         padding: 5px;
         overflow: auto;
         outline: none;
@@ -83,10 +85,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .note-toolbar {
-        margin-left: 92px;
-        margin-top: 4px;
+        margin-left: 98px;
+        margin-top: 2px;
         display: flex;
         overflow-x: auto;
+        height: 38px;
     }
 
     ::-webkit-scrollbar {

@@ -71,6 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     :global(.upper-canvas) {
         border: 0.5px solid var(--border-strong);
+        border-width: thin;
     }
 
     :global(.canvas-container) {

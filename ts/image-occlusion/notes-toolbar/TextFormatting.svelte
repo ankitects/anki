@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {#each textFormatting as tool}
     <IconButton
         id={"note-tool-" + tool.name}
-        class="note-tool-icon-button"
+        class="note-tool-icon-button {tool.name === 'b' ? 'left-border-radius' : ''}"
         {iconSize}
         tooltip={tool.title}
         on:click={() => {
@@ -54,5 +54,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     :global(.note-tool-icon-button) {
         padding: 4px !important;
         border-radius: 2px !important;
+        padding: 0px 6px 0px 6px !important;
+    }
+
+    :global(.left-border-radius) {
+        border-radius: 5px 0 0 5px !important;
+    }
+
+    :global(.right-border-radius) {
+        border-radius: 0 5px 5px 0 !important;
     }
 </style>

@@ -50,18 +50,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <div hidden={activeTabValue != 2}>
         <Notes />
-        <StickyFooter
-            {hideAllGuessOne}
-            {hideOneGuessOne}
-            editing={mode.kind == "edit"}
-        />
+        <StickyFooter {hideAllGuessOne} {hideOneGuessOne} />
     </div>
 </Container>
 
 <style lang="scss">
     .tab-buttons {
         display: flex;
-        margin-right: 4px;
         position: absolute;
         top: 2px;
         left: 2px;
@@ -76,7 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         align-items: center;
         display: flex;
         padding: 0px 6px 0px 6px;
-        height: 36px;
+        height: 38px;
     }
 
     :global(.image-occlusion) {
