@@ -174,10 +174,10 @@ class Preferences(QDialog):
     def setup_network(self) -> None:
         self.form.media_log.setText(tr.sync_media_log_button())
         qconnect(self.form.media_log.clicked, self.on_media_log)
-        self.form.syncOnProgramOpen.setChecked(self.prof["autoSync"])
-        self.form.syncMedia.setChecked(self.prof["syncMedia"])
+        self.form.syncOnProgramOpen.setChecked(self.mw.pm.auto_syncing_enabled())
+        self.form.syncMedia.setChecked(self.mw.pm.media_syncing_enabled())
         self.form.autoSyncMedia.setChecked(self.mw.pm.auto_sync_media_minutes() != 0)
-        if not self.prof["syncKey"]:
+        if not self.prof.get("syncKey"):
             self._hide_sync_auth_settings()
         else:
             self.form.syncUser.setText(self.prof.get("syncUser", ""))
