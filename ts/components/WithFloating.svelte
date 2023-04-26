@@ -70,6 +70,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let closeOnInsideClick = false;
     export let keepOnKeyup = false;
+    export let keepOnTextSelection = false;
     export let hideArrow = false;
 
     export let reference: ReferenceElement | undefined = undefined;
@@ -165,6 +166,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: updateFloating(reference, floating, show);
 
+    /**
+     * Prevents the floating element from closing when the cursor is outside
+     * of it at the end of text selection. `stopPropagation()` has to be called
+     * in the capturing phase.
+     */
+    function preventClosingOnTextSelection(event: MouseEvent) {
+        if (event.button === 0) {
+            const floating = event.currentTarget as HTMLDivElement;
+            document.addEventListener(
+                "click",
+                (secondaryEvent: MouseEvent) => {
+                    if (
+                        secondaryEvent.target instanceof HTMLElement &&
+                        !floating.contains(secondaryEvent.target)
+                    ) {
+                        secondaryEvent.stopPropagation();
+                    }
+                },
+                { capture: true, once: true },
+            );
+        }
+    }
+
     onDestroy(() => cleanup?.());
 </script>
 
@@ -182,7 +206,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/if}
 {/if}
 
-<div bind:this={floating} class="floating" class:show use:portal={portalTarget}>
+<div
+    bind:this={floating}
+    class="floating"
+    class:show
+    on:mousedown={keepOnTextSelection ? preventClosingOnTextSelection : null}
+    use:portal={portalTarget}
+>
     {#if show}
         <slot name="floating" />
     {/if}

@@ -210,6 +210,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 reference={activeImage}
                 offset={20}
                 keepOnKeyup
+                keepOnTextSelection
                 portalTarget={document.body}
                 let:position={positionFloating}
                 on:close={resetHandle}
