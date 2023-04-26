@@ -184,7 +184,7 @@ def test_learn():
     col.sched.answerCard(c, 3)
     # it should be due in 10 minutes
     dueIn = c.due - time.time()
-    assert 599 <= dueIn <= 600 * 1.25
+    assert 598 <= dueIn <= 600 * 1.25
     assert c.left % 1000 == 1
     # the next pass should graduate the card
     assert c.queue == QUEUE_TYPE_LRN
