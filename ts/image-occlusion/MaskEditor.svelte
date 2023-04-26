@@ -50,7 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .editor-main {
         position: absolute;
-        top: 84px;
+        top: 42px;
         left: 36px;
         bottom: 2px;
         right: 2px;
@@ -71,6 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     :global(.upper-canvas) {
         border: 0.5px solid var(--border-strong);
+        border-width: thin;
     }
 
     :global(.canvas-container) {

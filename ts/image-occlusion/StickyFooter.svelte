@@ -10,16 +10,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let hideAllGuessOne: () => void;
     export let hideOneGuessOne: () => void;
-    export let editing: boolean;
 </script>
 
 <div style:flex-grow="1" />
 <div class="sticky-footer">
-    {#if editing}
-        <div class="update-note-text">
-            {tr.actionsUpdateNote()}
-        </div>
-    {/if}
     <ButtonGroup size={2}>
         <LabelButton
             --border-left-radius="5px"
@@ -56,12 +50,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         justify-content: flex-end;
     }
-    :global(.bottom-btn) {
-        margin: 2px;
+
+    @media only screen and (max-width: 640px) {
+        .sticky-footer {
+            justify-content: center;
+        }
     }
 
-    :global(.update-note-text) {
-        align-self: center;
-        padding-right: 20px;
+    :global(.bottom-btn) {
+        margin: 2px;
     }
 </style>

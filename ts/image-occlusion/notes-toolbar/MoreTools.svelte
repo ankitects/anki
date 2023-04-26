@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 {#each moreTools as tool}
     <IconButton
-        class="note-tool-icon-button"
+        class="note-tool-icon-button right-border-radius"
         {iconSize}
         on:click={() => tool.action()}
         tooltip={tool.title}>{@html tool.icon}</IconButton

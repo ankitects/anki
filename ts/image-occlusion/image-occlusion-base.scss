@@ -17,3 +17,9 @@
 html {
     overflow: hidden;
 }
+
+/** consistent font size **/
+:root { --font-size: 16px; }
+body { 
+    font-size: 16px;
+}

@@ -6,7 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
 
     import Col from "../components/Col.svelte";
-    import Container from "../components/Container.svelte";
     import Row from "../components/Row.svelte";
     import NotesToolbar from "./notes-toolbar/NotesToolbar.svelte";
     import { notesDataStore, tagsWritable } from "./store";
@@ -33,38 +32,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <NotesToolbar />
 </div>
 
-<Container>
-    {#each notesFields as field}
-        <Container>
-            <Row --cols={1}>
-                <Col --col-size={1}>
-                    {field.title}
-                </Col>
-            </Row>
-            <Row --cols={1}>
-                <div id="note-container">
-                    <div
-                        id="{field.id}--div"
-                        bind:innerHTML={field.divValue}
-                        class="text-editor"
-                        on:input={() => {
-                            field.textareaValue = field.divValue;
-                        }}
-                        contenteditable
-                    />
-                    <textarea
-                        id="{field.id}--textarea"
-                        class="text-area"
-                        bind:value={field.textareaValue}
-                    />
-                </div>
-            </Row>
-        </Container>
-    {/each}
-    <Container>
-        <Tags {tagsWritable} />
-    </Container>
-</Container>
+{#each notesFields as field}
+    <Row --cols={1}>
+        <Col --col-size={1}>
+            {field.title}
+        </Col>
+    </Row>
+    <Row --cols={1}>
+        <div id="note-container">
+            <div
+                id="{field.id}--div"
+                bind:innerHTML={field.divValue}
+                class="text-editor"
+                on:input={() => {
+                    field.textareaValue = field.divValue;
+                }}
+                contenteditable
+            />
+            <textarea
+                id="{field.id}--textarea"
+                class="text-area"
+                bind:value={field.textareaValue}
+            />
+        </div>
+    </Row>
+{/each}
+<div style="margin-top: 10px;">
+    <Tags {tagsWritable} />
+</div>
 
 <style lang="scss">
     .text-area {
@@ -73,6 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: none;
         background: var(--canvas-elevated);
         border: 2px solid var(--border);
+        border-radius: var(--border-radius);
         outline: none;
         resize: none;
         overflow: auto;
@@ -81,6 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .text-editor {
         height: 80px;
         border: 1px solid var(--border);
+        border-radius: var(--border-radius);
         padding: 5px;
         overflow: auto;
         outline: none;
@@ -88,6 +85,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .note-toolbar {
-        margin-left: 14px;
+        margin-left: 98px;
+        margin-top: 2px;
+        display: flex;
+        overflow-x: auto;
+        height: 38px;
+    }
+
+    ::-webkit-scrollbar {
+        width: 0.1em !important;
+        height: 0.1em !important;
     }
 </style>
