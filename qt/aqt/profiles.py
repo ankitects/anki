@@ -632,10 +632,10 @@ create table if not exists profiles
         self.profile["hostNum"] = val or 0
 
     def media_syncing_enabled(self) -> bool:
-        return self.profile.get("syncMedia")
+        return self.profile.get("syncMedia", True)
 
     def auto_syncing_enabled(self) -> bool:
-        return self.profile.get("autoSync")
+        return self.profile.get("autoSync", True)
 
     def sync_auth(self) -> SyncAuth | None:
         if not (hkey := self.profile.get("syncKey")):
