@@ -22,3 +22,5 @@ echo "--- Check Rust libs"
 cargo install cargo-deny
 cargo deny check -A duplicate
 
+echo "--- Cleanup"
+rm -rf /tmp/* || true
