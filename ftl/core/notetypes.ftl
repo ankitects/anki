@@ -50,3 +50,4 @@ notetypes-hide-one-guess-one = Hide One, Guess One
 notetypes-error-generating-cloze = An error occurred when generating an image occlusion note
 notetypes-error-getting-imagecloze = An error occurred while fetching an image occlusion note
 notetypes-error-loading-image-occlusion = Error loading image occlusion. Is your Anki version up to date?
+notetype-error-no-image-to-show = No image to show.
