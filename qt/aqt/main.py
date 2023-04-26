@@ -476,7 +476,7 @@ class AnkiQt(QMainWindow):
         self.setup_sound()
         self.flags = FlagManager(self)
         # show main window
-        if self.pm.profile["mainWindowState"]:
+        if self.pm.profile.get("mainWindowState"):
             restoreGeom(self, "mainWindow")
             restoreState(self, "mainWindow")
         # titlebar
@@ -687,8 +687,9 @@ class AnkiQt(QMainWindow):
 
     def maybeOptimize(self) -> None:
         # have two weeks passed?
-        if (int_time() - self.pm.profile["lastOptimize"]) < 86400 * 14:
-            return
+        if (last_optimize := self.pm.profile.get("lastOptimize")) is not None:
+            if (int_time() - last_optimize) < 86400 * 14:
+                return
         self.progress.start(label=tr.qt_misc_optimizing())
         self.col.optimize()
         self.pm.profile["lastOptimize"] = int_time()
