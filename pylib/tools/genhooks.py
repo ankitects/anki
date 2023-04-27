@@ -38,7 +38,12 @@ hooks = [
             "note: anki.notes.Note",
             "deck_id: anki.decks.DeckId",
         ],
-        doc="Can modify the note before it is added to the collection.",
+        doc="""Allows modifying a note before it's added to the collection.
+
+        This hook may be called both when users use the Add screen, and when
+        add-ons like AnkiConnect add notes. It is not called when importing. If
+        you wish to alter the Add screen, use gui_hooks.add_cards_will_add_note
+        instead.""",
     ),
     Hook(
         name="media_files_did_export",
