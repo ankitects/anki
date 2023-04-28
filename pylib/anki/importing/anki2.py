@@ -150,7 +150,7 @@ class Anki2Importer(Importer):
 
         if dupesIgnored:
             self.log.append(
-                self.dst.tr.importing_notes_that_could_not_be_imported(
+                self.dst.tr.importing_notes_skipped_update_due_to_notetype(
                     val=len(dupesIgnored)
                 )
             )

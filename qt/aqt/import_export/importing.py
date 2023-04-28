@@ -289,7 +289,7 @@ def log_queues(log: ImportLogWithChanges.Log) -> Tuple[LogQueue, ...]:
     return (
         LogQueue(
             log.conflicting,
-            tr.importing_notes_that_could_not_be_imported,
+            tr.importing_notes_skipped_update_due_to_notetype,
             tr.importing_skipped(),
         ),
         LogQueue(
