@@ -170,19 +170,30 @@ impl<'n> NoteContext<'n> {
 
         for mut note in notes {
             incrementor.increment()?;
-            if let Some(notetype_id) = self.remapped_notetypes.get(&note.notetype_id) {
-                if self.target_guids.contains_key(&note.guid) {
-                    self.imports.log_conflicting(note);
+            let remapped_notetype_id = self.remapped_notetypes.get(&note.notetype_id);
+            if let Some(existing_note) = self.target_guids.get(&note.guid) {
+                if existing_note.mtime < note.mtime {
+                    if existing_note.notetype_id != note.notetype_id
+                        || remapped_notetype_id.is_some()
+                    {
+                        // Existing GUID with different notetype id, or changed notetype schema
+                        self.imports.log_conflicting(note);
+                    } else {
+                        self.update_note(note, existing_note.id)?;
+                    }
                 } else {
-                    note.notetype_id = *notetype_id;
-                    self.add_note(note)?;
+                    self.imports.log_duplicate(note, existing_note.id);
                 }
-            } else if let Some(&meta) = self.target_guids.get(&note.guid) {
-                self.maybe_update_note(note, meta)?;
             } else {
+                if let Some(remapped_ntid) = remapped_notetype_id {
+                    // Notetypes have diverged, but this is a new note, so we can import
+                    // with a new notetype id.
+                    note.notetype_id = *remapped_ntid;
+                }
                 self.add_note(note)?;
             }
         }
+
         Ok(())
     }
 
@@ -215,19 +226,6 @@ impl<'n> NoteContext<'n> {
 
     fn get_expected_note(&mut self, nid: NoteId) -> Result<Note> {
         self.target_col.storage.get_note(nid)?.or_not_found(nid)
-    }
-
-    fn maybe_update_note(&mut self, note: Note, meta: NoteMeta) -> Result<()> {
-        if meta.mtime < note.mtime {
-            if meta.notetype_id == note.notetype_id {
-                self.update_note(note, meta.id)?;
-            } else {
-                self.imports.log_conflicting(note);
-            }
-        } else {
-            self.imports.log_duplicate(note, meta.id);
-        }
-        Ok(())
     }
 
     fn update_note(&mut self, mut note: Note, target_id: NoteId) -> Result<()> {

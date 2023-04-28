@@ -651,7 +651,7 @@ def running_in_sandbox():
         )
         != ""
     )
-    in_snap = os.environ.get("SNAP") != ""
+    in_snap = bool(os.environ.get("SNAP"))
     return in_flatpak or in_snap
 
 
