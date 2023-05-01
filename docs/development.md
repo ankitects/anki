@@ -26,6 +26,9 @@ in the provided commands, `--pre` tells pip to fetch alpha/beta versions. If you
 
 ## Building from source
 
+Clone the git repo into a folder of your choosing. The folder path must not
+contain spaces, and should not be too long if you are on Windows.
+
 On all platforms, you will need to install:
 
 - Rustup (https://rustup.rs/). The Rust version pinned in rust-toolchain.toml
