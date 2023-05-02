@@ -33,14 +33,14 @@ img:not(.mathjax) {
         :host-context(.shrink-image) & {
             max-width: var(--editor-default-max-width);
             max-height: var(--editor-default-max-height);
+            // prevent inline width/height from skewing aspect ratio
+            width: unset;
+            height: unset;
         }
     }
 
     &[data-editor-shrink="true"] {
         max-width: var(--editor-shrink-max-width);
         max-height: var(--editor-shrink-max-height);
-        // prevent inline width/height from skewing aspect ratio
-        width: unset;
-        height: unset;
     }
 }
