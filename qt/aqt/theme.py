@@ -410,12 +410,12 @@ def get_linux_dark_mode() -> bool:
             )
         except FileNotFoundError as e:
             # detection strategy failed, missing program
-            print(e)
+            # print(e)
             continue
 
         except subprocess.CalledProcessError as e:
             # detection strategy failed, command returned error
-            print(e)
+            # print(e)
             continue
 
         return parse_stdout(process.stdout)
