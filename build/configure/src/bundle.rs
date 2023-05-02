@@ -106,8 +106,8 @@ const MAC_AMD_QT5: OnlineArchive = OnlineArchive {
 };
 
 const LINUX_QT_PLUGINS: OnlineArchive = OnlineArchive {
-    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/qt-plugins-linux-amd64.tar.gz",
-    sha256: "cbfb41fb750ae19b381f8137bd307e1167fdc68420052977f6e1887537a131b0",
+    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2023-05-02/qt-plugins-linux-amd64.tar.gz",
+    sha256: "66bb568aca7242bc55ad419bf5c96755ca15d2a743e1c3a09cba8b83230b138b",
 };
 
 fn download_dist_folder_deps(build: &mut Build) -> Result<()> {
