@@ -39,5 +39,8 @@ img:not(.mathjax) {
     &[data-editor-shrink="true"] {
         max-width: var(--editor-shrink-max-width);
         max-height: var(--editor-shrink-max-height);
+        // prevent inline width/height from skewing aspect ratio
+        width: unset;
+        height: unset;
     }
 }
