@@ -227,7 +227,9 @@ class Preferences(QDialog):
         qconnect(self.form.minimalist_mode.stateChanged, self.mw.pm.set_minimalist_mode)
 
         self.form.grade_with_space.setChecked(self.mw.pm.grade_with_space())
-        qconnect(self.form.grade_with_space.stateChanged, self.mw.pm.set_grade_with_space)
+        qconnect(
+            self.form.grade_with_space.stateChanged, self.mw.pm.set_grade_with_space
+        )
 
         hide_choices = [tr.preferences_full_screen_only(), tr.preferences_always()]
 
