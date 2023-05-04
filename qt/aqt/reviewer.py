@@ -536,7 +536,7 @@ class Reviewer:
     def onEnterKey(self) -> None:
         if self.state == "question":
             self._getTypedAnswer()
-        elif self.state == "answer" and aqt.mw.pm.grade_with_space():
+        elif self.state == "answer" and aqt.mw.pm.spacebar_rates_card():
             self.bottom.web.evalWithCallback(
                 "selectedAnswerButton()", self._onAnswerButton
             )

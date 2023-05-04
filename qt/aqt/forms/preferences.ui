@@ -457,7 +457,7 @@
            </widget>
           </item>
           <item>
-            <widget class="QCheckBox" name="grade_with_space">
+            <widget class="QCheckBox" name="spacebar_rates_card">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -465,7 +465,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>preferences_grade_with_space</string>
+              <string>preferences_spacebar_rates_card</string>
              </property>
             </widget>
            </item>
@@ -1127,7 +1127,6 @@
   <tabstop>bottomBarComboBox</tabstop>
   <tabstop>reduce_motion</tabstop>
   <tabstop>minimalist_mode</tabstop>
-  <tabstop>grade_with_space</tabstop>
   <tabstop>sched2021</tabstop>
   <tabstop>dayLearnFirst</tabstop>
   <tabstop>legacy_timezone</tabstop>
@@ -1139,6 +1138,7 @@
   <tabstop>interrupt_audio</tabstop>
   <tabstop>showProgress</tabstop>
   <tabstop>showEstimates</tabstop>
+  <tabstop>spacebar_rates_card</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>paste_strips_formatting</tabstop>
   <tabstop>useCurrent</tabstop>

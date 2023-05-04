@@ -531,11 +531,11 @@ create table if not exists profiles
         self.meta["minimalist_mode"] = on
         gui_hooks.body_classes_need_update()
 
-    def grade_with_space(self) -> bool:
-        return self.meta.get("grade_with_space", True)
+    def spacebar_rates_card(self) -> bool:
+        return self.meta.get("spacebar_rates_card", True)
 
-    def set_grade_with_space(self, on: bool) -> None:
-        self.meta["grade_with_space"] = on
+    def set_spacebar_rates_card(self, on: bool) -> None:
+        self.meta["spacebar_rates_card"] = on
 
     def hide_top_bar(self) -> bool:
         return self.meta.get("hide_top_bar", False)
