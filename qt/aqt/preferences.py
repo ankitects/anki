@@ -228,7 +228,8 @@ class Preferences(QDialog):
 
         self.form.spacebar_rates_card.setChecked(self.mw.pm.spacebar_rates_card())
         qconnect(
-            self.form.spacebar_rates_card.stateChanged, self.mw.pm.set_spacebar_rates_card
+            self.form.spacebar_rates_card.stateChanged,
+            self.mw.pm.set_spacebar_rates_card,
         )
 
         hide_choices = [tr.preferences_full_screen_only(), tr.preferences_always()]
