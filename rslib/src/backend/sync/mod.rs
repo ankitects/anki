@@ -90,7 +90,7 @@ impl TryFrom<pb::sync::SyncAuth> for SyncAuth {
                         // are detected but URLs like computer.local:8000 are not.
                         // By calling join() now, these URLs are detected too and later code that
                         // uses and unwraps the result of join() doesn't panic
-                        .and_then(|x| x.join("/"))
+                        .and_then(|x| x.join("./"))
                         .or_invalid("Invalid sync server specified. Please check the preferences.")
                 })
                 .transpose()?,
