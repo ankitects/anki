@@ -226,6 +226,12 @@ class Preferences(QDialog):
         self.form.minimalist_mode.setChecked(self.mw.pm.minimalist_mode())
         qconnect(self.form.minimalist_mode.stateChanged, self.mw.pm.set_minimalist_mode)
 
+        self.form.spacebar_rates_card.setChecked(self.mw.pm.spacebar_rates_card())
+        qconnect(
+            self.form.spacebar_rates_card.stateChanged,
+            self.mw.pm.set_spacebar_rates_card,
+        )
+
         hide_choices = [tr.preferences_full_screen_only(), tr.preferences_always()]
 
         self.form.hide_top_bar.setChecked(self.mw.pm.hide_top_bar())
