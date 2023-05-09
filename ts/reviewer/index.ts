@@ -18,8 +18,8 @@ globalThis.anki.setupImageCloze = setupImageCloze;
 
 import { bridgeCommand } from "@tslib/bridgecommand";
 
-import { maybePreloadExternalCss } from "./css";
 import { allImagesLoaded, maybePreloadImages, preloadAnswerImages } from "./images";
+import { preloadResources } from "./preload";
 
 declare const MathJax: any;
 
@@ -131,8 +131,7 @@ export async function _updateQA(
 
     const qa = document.getElementById("qa")!;
 
-    // prevent flash of unstyled content when external css used
-    await maybePreloadExternalCss(html);
+    await preloadResources(html);
 
     // prevent flickering & layout shift on image load
     await maybePreloadImages(html);
