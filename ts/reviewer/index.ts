@@ -18,7 +18,7 @@ globalThis.anki.setupImageCloze = setupImageCloze;
 
 import { bridgeCommand } from "@tslib/bridgecommand";
 
-import { allImagesLoaded, maybePreloadImages, preloadAnswerImages } from "./images";
+import { allImagesLoaded, preloadAnswerImages } from "./images";
 import { preloadResources } from "./preload";
 
 declare const MathJax: any;
@@ -133,9 +133,6 @@ export async function _updateQA(
 
     await preloadResources(html);
 
-    // prevent flickering & layout shift on image load
-    await maybePreloadImages(html);
-
     qa.style.opacity = "0";
 
     try {
@@ -182,7 +179,7 @@ export function _showQuestion(q: string, a: string, bodyclass: string): void {
                     typeans.focus();
                 }
                 // preload images
-                allImagesLoaded().then(() => preloadAnswerImages(q, a));
+                allImagesLoaded().then(() => preloadAnswerImages(a));
             },
         )
     );

@@ -1,9 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-type CSSElement = HTMLStyleElement | HTMLLinkElement;
+import { preloadImages } from "./images";
 
 const template = document.createElement("template");
+
+type CSSElement = HTMLStyleElement | HTMLLinkElement;
 
 function loadResource(element: HTMLElement): Promise<void> {
     return new Promise((resolve) => {
@@ -40,9 +42,16 @@ export async function preloadResources(html: string): Promise<void> {
     template.innerHTML = html;
     const fragment = template.content;
     const styleSheets = preloadStyleSheets(fragment);
+    const images = preloadImages(fragment);
+
+    let timeout: number;
     if (styleSheets.length) {
-        await Promise.race(
-            [Promise.all(styleSheets), new Promise((r) => setTimeout(r, 500))],
-        );
-    }
+        timeout = 500;
+    } else if (images.length) {
+        timeout = 200;
+    } else return;
+
+    await Promise.race(
+        [Promise.all([...styleSheets, ...images]), new Promise((r) => setTimeout(r, timeout))],
+    );
 }
