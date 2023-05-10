@@ -66,7 +66,7 @@ impl<'a> LearningSteps<'a> {
             // 50% more than the again secs, but at most one day more
             // otherwise, a learning step of 3 days and a graduating interval of 4 days e.g.
             // would lead to the hard interval being larger than the good interval
-            let secs = (again_secs.saturating_mul(3) / 2).min(again_secs + DAY);
+            let secs = (again_secs.saturating_mul(3) / 2).min(again_secs.saturating_add(DAY));
             maybe_round_in_days(secs)
         }
     }
