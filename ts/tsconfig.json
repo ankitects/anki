@@ -29,6 +29,7 @@
             "es2018.regexp",
             "es2019.array",
             "es2019.object",
+            "es2019.string",
             "es2020.string",
             "es2020.promise",
             "dom",
