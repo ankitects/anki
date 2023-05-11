@@ -262,7 +262,7 @@ impl BuildAction for Eslint<'_> {
         build.add_inputs("eslint", inputs![":node_modules:eslint"]);
         build.add_inputs("eslint_rc", &self.eslint_rc);
         build.add_inputs("in", &self.inputs);
-        build.add_inputs("", inputs!["yarn.lock"]);
+        build.add_inputs("", inputs!["yarn.lock", "ts/tsconfig.json"]);
         build.add_variable("fix", if self.fix { "--fix" } else { "" });
         build.add_variable("folder", self.folder);
         let hash = simple_hash(self.folder);
