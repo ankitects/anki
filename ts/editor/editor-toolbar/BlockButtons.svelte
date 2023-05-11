@@ -110,6 +110,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             >
                 <span class="block-buttons" use:asReference>
                     <IconButton
+                        tooltip={tr.editingAlignment()}
                         {disabled}
                         on:click={() => (showFloating = !showFloating)}
                     >
