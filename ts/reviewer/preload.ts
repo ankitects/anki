@@ -94,9 +94,9 @@ function preloadFonts(fragment: DocumentFragment): Promise<void>[] {
 export async function preloadResources(html: string): Promise<void> {
     template.innerHTML = html;
     const fragment = template.content;
-    const styleSheets = preloadStyleSheets(fragment);
-    const images = preloadImages(fragment);
-    const fonts = preloadFonts(fragment);
+    const styleSheets = preloadStyleSheets(fragment.cloneNode(true) as DocumentFragment);
+    const images = preloadImages(fragment.cloneNode(true) as DocumentFragment);
+    const fonts = preloadFonts(fragment.cloneNode(true) as DocumentFragment);
 
     let timeout: number;
     if (fonts.length) {
