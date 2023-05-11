@@ -89,6 +89,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     <IconButton
         slot="reference"
+        tooltip={tr.editingEquations()}
         {disabled}
         on:click={() => (showFloating = !showFloating)}
     >
