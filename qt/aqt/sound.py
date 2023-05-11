@@ -847,7 +847,8 @@ def setup_audio(taskman: TaskManager, base_folder: str, media_folder: str) -> No
     except FileNotFoundError:
         print("mpv not found, reverting to mplayer")
     except aqt.mpv.MPVProcessError:
-        print("mpv too old, reverting to mplayer")
+        print(traceback.format_exc())
+        print("mpv too old or failed to open, reverting to mplayer")
 
     if mpvManager is not None:
         av_player.players.append(mpvManager)
