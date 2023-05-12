@@ -1,5 +1,5 @@
 @echo off
-anki %*
+"%~dp0"\anki %*
 pause
 
      
