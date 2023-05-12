@@ -131,6 +131,30 @@ FunctionEnd
 
 ;--------------------------------
 
+; Macro from fileassoc changed to work non elevated
+!macro APP_ASSOCIATE_HKCU EXT FILECLASS DESCRIPTION ICON COMMANDTEXT COMMAND
+  ; Backup the previously associated file class
+  ReadRegStr $R0 HKCU "Software\Classes\.${EXT}" ""
+  WriteRegStr HKCU "Software\Classes\.${EXT}" "${FILECLASS}_backup" "$R0"
+ 
+  WriteRegStr HKCU "Software\Classes\.${EXT}" "" "${FILECLASS}"
+ 
+  WriteRegStr HKCU "Software\Classes\${FILECLASS}" "" `${DESCRIPTION}`
+  WriteRegStr HKCU "Software\Classes\${FILECLASS}\DefaultIcon" "" `${ICON}`
+  WriteRegStr HKCU "Software\Classes\${FILECLASS}\shell" "" "open"
+  WriteRegStr HKCU "Software\Classes\${FILECLASS}\shell\open" "" `${COMMANDTEXT}`
+  WriteRegStr HKCU "Software\Classes\${FILECLASS}\shell\open\command" "" `${COMMAND}`
+!macroend
+
+; Macro from fileassoc changed to work non elevated
+!macro APP_UNASSOCIATE_HKCU EXT FILECLASS
+  ; Backup the previously associated file class
+  ReadRegStr $R0 HKCU "Software\Classes\.${EXT}" `${FILECLASS}_backup`
+  WriteRegStr HKCU "Software\Classes\.${EXT}" "" "$R0"
+ 
+  DeleteRegKey HKCU `Software\Classes\${FILECLASS}`
+!macroend
+
 ; The stuff to install
 Section ""
 
@@ -148,15 +172,15 @@ Section ""
   File /r ..\..\@@SRC@@\*.*
   !endif
 
-  !insertmacro APP_ASSOCIATE "apkg" "anki.apkg" \
+  !insertmacro APP_ASSOCIATE_HKCU "apkg" "anki.apkg" \
     "Anki deck package" "$INSTDIR\anki.exe,0" \
     "Open with Anki" "$INSTDIR\anki.exe $\"%L$\""
   
-  !insertmacro APP_ASSOCIATE "colpkg" "anki.colpkg" \
+  !insertmacro APP_ASSOCIATE_HKCU "colpkg" "anki.colpkg" \
     "Anki collection package" "$INSTDIR\anki.exe,0" \
     "Open with Anki" "$INSTDIR\anki.exe $\"%L$\""
 
-  !insertmacro APP_ASSOCIATE "ankiaddon" "anki.ankiaddon" \
+  !insertmacro APP_ASSOCIATE_HKCU "ankiaddon" "anki.ankiaddon" \
     "Anki add-on" "$INSTDIR\anki.exe,0" \
     "Open with Anki" "$INSTDIR\anki.exe $\"%L$\""
 
@@ -205,9 +229,9 @@ Section "Uninstall"
   Delete "$SMPROGRAMS\Anki.lnk"
 
   ; associations
-  !insertmacro APP_UNASSOCIATE "apkg" "anki.apkg"
-  !insertmacro APP_UNASSOCIATE "colpkg" "anki.colpkg"
-  !insertmacro APP_UNASSOCIATE "ankiaddon" "anki.ankiaddon"
+  !insertmacro APP_UNASSOCIATE_HKCU "apkg" "anki.apkg"
+  !insertmacro APP_UNASSOCIATE_HKCU "colpkg" "anki.colpkg"
+  !insertmacro APP_UNASSOCIATE_HKCU "ankiaddon" "anki.ankiaddon"
   !insertmacro UPDATEFILEASSOC
 
   ; try to remove top level folder if empty
