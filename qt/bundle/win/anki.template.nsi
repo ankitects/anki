@@ -20,8 +20,11 @@ Unicode true
 ; The file to write (make relative to repo root instead of out/bundle)
 OutFile "..\..\@@INSTALLER@@"
 
+; Non elevated
+RequestExecutionLevel user
+
 ; The default installation directory
-InstallDir "$PROGRAMFILES64\Anki"
+InstallDir "$LOCALAPPDATA\Programs\Anki"
 
 ; Remember the install location
 InstallDirRegKey HKLM "Software\Anki" "Install_Dir64"
