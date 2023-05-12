@@ -824,14 +824,21 @@ def av_refs_to_play_icons(text: str) -> str:
 
 
 def play_clicked_audio(pycmd: str, card: Card) -> None:
-    """eg. if pycmd is 'play:q:0', play the first audio on the question side."""
+    """eg. if pycmd is 'play:q:0', play the first audio on the question side.
+    Likewise, if it is 'play:a:all', play all card audio in sequence."""
     play, context, str_idx = pycmd.split(":")
-    idx = int(str_idx)
+    try:
+        idx = int(str_idx)
+    except ValueError:
+        idx = 0
     if context == "q":
         tags = card.question_av_tags()
     else:
         tags = card.answer_av_tags()
-    av_player.play_tags([tags[idx]])
+    if str_idx == "all":
+        av_player.play_tags(tags)
+    else:
+        av_player.play_tags([tags[idx]])
 
 
 # Init defaults
