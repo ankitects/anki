@@ -164,6 +164,8 @@ Section ""
   ReadRegStr $0 HKLM "Software\WOW6432Node\Anki" "Install_Dir64"
   ${IF} $0 != ""
       ; old value exists, we want to call uninstall with silent parameter
+      ; the wait does not work, I suspect this is because of the UAC prompt
+      ; it is still better to use the wait version in my opinion
       ExecShellWait "open" "$0\uninstall.exe /S"
   ${ENDIF}
 
