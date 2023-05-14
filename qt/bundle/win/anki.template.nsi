@@ -27,7 +27,6 @@ RequestExecutionLevel user
 InstallDir "$LOCALAPPDATA\Programs\Anki"
 
 ; Remember the install location
-;InstallDirRegKey HKLM "Software\Anki" "Install_Dir64"
 InstallDirRegKey HKCU "Software\Anki" "Install_Dir64"
 
 AllowSkipFiles off
@@ -200,11 +199,6 @@ Section ""
   WriteRegStr HKCU Software\Anki "Install_Dir64" "$INSTDIR"
 
   ; Write the uninstall keys for Windows
-  ; WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayName" "Anki"
-  ; WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayVersion" "@@VERSION@@"
-  ; WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  ; WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "NoModify" 1
-  ; WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "NoRepair" 1
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayName" "Anki"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayVersion" "@@VERSION@@"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "UninstallString" '"$INSTDIR\uninstall.exe"'
@@ -247,8 +241,6 @@ Section "Uninstall"
   RMDir "$INSTDIR"
 
   ; Remove registry keys
-  ; DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki"
-  ; DeleteRegKey HKLM Software\Anki
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki"
   DeleteRegKey HKCU Software\Anki
 
