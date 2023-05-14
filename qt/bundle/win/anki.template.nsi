@@ -160,6 +160,13 @@ Section ""
 
   SetShellVarContext current
 
+  ; "Upgrade" from elevated anki
+  ReadRegStr $0 HKLM "Software\WOW6432Node\Anki" "Install_Dir64"
+  ${IF} $0 != ""
+      ; old value exists, we want to call uninstall with silent parameter
+      ExecShellWait "open" "$0\uninstall.exe /S"
+  ${ENDIF}
+
   Call removeManifestFiles
 
   ; Set output path to the installation directory.
