@@ -576,6 +576,11 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     if os.environ.get("ANKI_SOFTWAREOPENGL"):
         QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
 
+    # Work around broken fractional scaling in Wayland
+    # https://bugreports.qt.io/browse/QTBUG-113574
+    if is_lin and qtmajor > 5:
+        os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = "RoundPreferFloor"
+
     # fix an issue on Windows, where Ctrl+Alt shortcuts are triggered by AltGr,
     # preventing users from typing things like "@" through AltGr+Q on a German
     # keyboard.
