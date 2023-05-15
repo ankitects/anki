@@ -5,6 +5,7 @@ import "./import-csv-base.scss";
 
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
+import type { ImportExport, Notetypes } from "@tslib/proto";
 import { Decks, decks as decksService, empty, notetypes as notetypeService } from "@tslib/proto";
 
 import ImportCsvPage from "./ImportCsvPage.svelte";
@@ -32,12 +33,21 @@ const i18n = setupI18n({
 
 export async function setupImportCsvPage(path: string): Promise<ImportCsvPage> {
     const gettingMetadata = getCsvMetadata(path);
-    const [notetypes, decks, metadata] = await Promise.all([
-        gettingNotetypes,
-        gettingDecks,
-        gettingMetadata,
-        i18n,
-    ]);
+
+    let notetypes: Notetypes.NotetypeNames;
+    let decks: Decks.DeckNames;
+    let metadata: ImportExport.CsvMetadata;
+    try {
+        [notetypes, decks, metadata] = await Promise.all([
+            gettingNotetypes,
+            gettingDecks,
+            gettingMetadata,
+            i18n,
+        ]);
+    } catch (err) {
+        alert(err);
+        throw (err);
+    }
 
     checkNightMode();
 
