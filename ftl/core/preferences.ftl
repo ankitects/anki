@@ -58,6 +58,7 @@ preferences-appearance = Appearance
 preferences-general = General
 preferences-style = Style
 preferences-review = Review
+preferences-answer-keys = Answer keys
 preferences-distractions = Distractions
 preferences-minimalist-mode = Minimalist mode
 preferences-editing = Editing
