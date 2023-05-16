@@ -162,10 +162,10 @@ Section ""
   ; "Upgrade" from elevated anki
   ReadRegStr $0 HKLM "Software\WOW6432Node\Anki" "Install_Dir64"
   ${IF} $0 != ""
-      ; old value exists, we want to call uninstall with silent parameter
-      ; the wait does not work, I suspect this is because of the UAC prompt
-      ; it is still better to use the wait version in my opinion
-      ExecShellWait "open" "$0\uninstall.exe /S"
+      ; old value exists, we want to inform the user that a manual uninstall is required first and then start the uninstall.exe
+      MessageBox MB_ICONEXCLAMATION|MB_OK "Cannot automatically upgrade old Anki version, please uninstall manually and then start this installer again.$\r$\nStarting uninstaller now..."
+      ExecShell "open" "$0\uninstall.exe"
+      Quit
   ${ENDIF}
 
   Call removeManifestFiles
