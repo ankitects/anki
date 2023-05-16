@@ -116,6 +116,8 @@ class LoadMetaResult:
 
 
 class ProfileManager:
+    default_answer_keys = {ease_num: str(ease_num) for ease_num in range(1, 5)}
+
     def __init__(self, base: Path) -> None:  #
         "base should be retrieved via ProfileMangager.get_created_base_folder"
         ## Settings which should be forgotten each Anki restart
@@ -536,6 +538,12 @@ create table if not exists profiles
 
     def set_spacebar_rates_card(self, on: bool) -> None:
         self.meta["spacebar_rates_card"] = on
+
+    def get_answer_key(self, ease: int) -> Optional[str]:
+        return self.meta.setdefault("answer_keys", self.default_answer_keys).get(ease)
+
+    def set_answer_key(self, ease: int, key: str):
+        self.meta.setdefault("answer_keys", self.default_answer_keys)[ease] = key
 
     def hide_top_bar(self) -> bool:
         return self.meta.get("hide_top_bar", False)
