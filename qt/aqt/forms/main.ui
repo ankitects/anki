@@ -258,10 +258,16 @@
    <property name="text">
     <string>qt_accel_zoom_in</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+=</string>
+   </property>
   </action>
   <action name="actionZoomOut">
    <property name="text">
     <string>qt_accel_zoom_out</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+-</string>
    </property>
   </action>
   <action name="actionResetZoom">
