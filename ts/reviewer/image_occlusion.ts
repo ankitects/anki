@@ -12,7 +12,11 @@ export function setupImageCloze(): void {
 }
 
 function setupImageClozeInner(): void {
-    const canvas: HTMLCanvasElement = document.querySelector("canvas")! as HTMLCanvasElement;
+    const canvas = document.querySelector("canvas") as HTMLCanvasElement;
+    if (canvas == null) {
+        return;
+    }
+
     canvas.style.maxWidth = "100%";
     canvas.style.maxHeight = "95vh";
 
