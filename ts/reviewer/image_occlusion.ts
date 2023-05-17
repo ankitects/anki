@@ -12,7 +12,7 @@ export function setupImageCloze(): void {
 }
 
 function setupImageClozeInner(): void {
-    const canvas = document.querySelector("canvas") as HTMLCanvasElement;
+    const canvas = document.querySelector("canvas") as HTMLCanvasElement | null;
     if (canvas == null) {
         return;
     }
