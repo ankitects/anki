@@ -27,6 +27,8 @@ export { Cards, Collection, Decks, Generic, Notes };
 
 export const empty = Generic.Empty.create();
 
+export class InternalError extends Error {}
+
 async function serviceCallback(
     method: rpc.ServiceMethod<Message<any>, Message<any>>,
     requestData: Uint8Array,
@@ -44,6 +46,11 @@ async function serviceCallback(
             headers,
             body: requestData,
         });
+
+        if (result.status == 500) {
+            callback(new InternalError(await result.text()), null);
+            return;
+        }
 
         const blob = await result.blob();
         const respBuf = await new Response(blob).arrayBuffer();

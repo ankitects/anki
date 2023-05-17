@@ -516,9 +516,11 @@ def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
                     response.headers["Content-Type"] = "application/binary"
                 else:
                     response = flask.make_response("", HTTPStatus.NO_CONTENT)
-            except:
+            except Exception as exc:
                 print(traceback.format_exc())
-                response = flask.make_response("", HTTPStatus.INTERNAL_SERVER_ERROR)
+                response = flask.make_response(
+                    str(exc), HTTPStatus.INTERNAL_SERVER_ERROR
+                )
             return response
 
         return wrapped
