@@ -163,7 +163,7 @@ Section ""
   ReadRegStr $0 HKLM "Software\WOW6432Node\Anki" "Install_Dir64"
   ${IF} $0 != ""
       ; old value exists, we want to inform the user that a manual uninstall is required first and then start the uninstall.exe
-      MessageBox MB_ICONEXCLAMATION|MB_OK "Cannot automatically upgrade old Anki version, please uninstall manually and then start this installer again.$\r$\nStarting uninstaller now..."
+      MessageBox MB_ICONEXCLAMATION|MB_OK "A previous Anki version needs to be uninstalled first. After uninstallation completes, please run this installer again."
       ExecShell "open" "$0\uninstall.exe"
       Quit
   ${ENDIF}
