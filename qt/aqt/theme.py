@@ -156,7 +156,7 @@ class ThemeManager:
 
         return cache.setdefault(path, icon)
 
-    def body_class(self, night_mode: bool | None = None) -> str:
+    def body_class(self, night_mode: bool | None = None, reviewer: bool = False) -> str:
         "Returns space-separated class list for platform/theme/global settings."
         classes = []
         if is_win:
@@ -172,7 +172,7 @@ class ThemeManager:
             classes.extend(["nightMode", "night_mode"])
             if self.macos_dark_mode():
                 classes.append("macos-dark-mode")
-        if aqt.mw.pm.reduce_motion():
+        if aqt.mw.pm.reduce_motion() and not reviewer:
             classes.append("reduce-motion")
         if not aqt.mw.pm.minimalist_mode():
             classes.append("fancy")
@@ -184,7 +184,7 @@ class ThemeManager:
         self, card_ord: int, night_mode: bool | None = None
     ) -> str:
         "Returns body classes used when showing a card."
-        return f"card card{card_ord+1} {self.body_class(night_mode)}"
+        return f"card card{card_ord+1} {self.body_class(night_mode, reviewer=True)}"
 
     def var(self, vars: dict[str, str]) -> str:
         """Given day/night colors/props, return the correct one for the current theme."""
