@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import enum
 import inspect
 import os
 import re
@@ -693,11 +694,29 @@ def getSaveFile(
     return file
 
 
+class _QtStateKeyKind(enum.Enum):
+    HEADER = enum.auto()
+    SPLITTER = enum.auto()
+    STATE = enum.auto()
+    GEOMETRY = enum.auto()
+
+
+def _qt_state_key(kind: _QtStateKeyKind, key: str) -> str:
+    """Construct a key used to save/restore geometry, state, etc.
+
+    Adds Qt version number to key so that different data is saved per Qt version,
+    preventing crashes and bugs when restoring data saved with a different Qt version.
+    """
+    qt_suffix = f"{qtmajor}.{qtminor}" if qtmajor > 5 else ""
+    return f"{key}{kind.name.capitalize()}{qt_suffix}"
+
+
 def saveGeom(widget: QWidget, key: str) -> None:
     # restoring a fullscreen window is buggy
     # (at the time of writing; Qt 6.2.2 and 5.15)
     if not widget.isFullScreen():
-        aqt.mw.pm.profile[f"{key}Geom"] = widget.saveGeometry()
+        key = _qt_state_key(_QtStateKeyKind.GEOMETRY, key)
+        aqt.mw.pm.profile[key] = widget.saveGeometry()
 
 
 def restoreGeom(
@@ -706,7 +725,7 @@ def restoreGeom(
     adjustSize: bool = False,
     default_size: tuple[int, int] | None = None,
 ) -> None:
-    key += "Geom"
+    key = _qt_state_key(_QtStateKeyKind.GEOMETRY, key)
     if existing_geom := aqt.mw.pm.profile.get(key):
         widget.restoreGeometry(existing_geom)
         ensureWidgetInScreenBoundaries(widget)
@@ -745,39 +764,35 @@ def ensureWidgetInScreenBoundaries(widget: QWidget) -> None:
 
 
 def saveState(widget: QFileDialog | QMainWindow, key: str) -> None:
-    key += "State"
+    key = _qt_state_key(_QtStateKeyKind.STATE, key)
     aqt.mw.pm.profile[key] = widget.saveState()
 
 
 def restoreState(widget: QFileDialog | QMainWindow, key: str) -> None:
-    key += "State"
-    if aqt.mw.pm.profile.get(key):
-        widget.restoreState(aqt.mw.pm.profile[key])
+    key = _qt_state_key(_QtStateKeyKind.STATE, key)
+    if data := aqt.mw.pm.profile.get(key):
+        widget.restoreState(data)
 
 
 def saveSplitter(widget: QSplitter, key: str) -> None:
-    key += "Splitter"
+    key = _qt_state_key(_QtStateKeyKind.SPLITTER, key)
     aqt.mw.pm.profile[key] = widget.saveState()
 
 
 def restoreSplitter(widget: QSplitter, key: str) -> None:
-    key += "Splitter"
-    if aqt.mw.pm.profile.get(key):
-        widget.restoreState(aqt.mw.pm.profile[key])
-
-
-def _header_key(key: str) -> str:
-    # not compatible across major versions
-    qt_suffix = f"Qt{qtmajor}" if qtmajor > 5 else ""
-    return f"{key}Header{qt_suffix}"
+    key = _qt_state_key(_QtStateKeyKind.SPLITTER, key)
+    if data := aqt.mw.pm.profile.get(key):
+        widget.restoreState(data)
 
 
 def saveHeader(widget: QHeaderView, key: str) -> None:
-    aqt.mw.pm.profile[_header_key(key)] = widget.saveState()
+    key = _qt_state_key(_QtStateKeyKind.HEADER, key)
+    aqt.mw.pm.profile[key] = widget.saveState()
 
 
 def restoreHeader(widget: QHeaderView, key: str) -> None:
-    if state := aqt.mw.pm.profile.get(_header_key(key)):
+    key = _qt_state_key(_QtStateKeyKind.HEADER, key)
+    if state := aqt.mw.pm.profile.get(key):
         widget.restoreState(state)
 
 

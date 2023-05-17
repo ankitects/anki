@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import re
 from typing import Any, cast
 
 import anki.lang
@@ -311,9 +312,9 @@ class Preferences(QDialog):
         self.mw.set_theme(Theme(index))
 
     def on_reset_window_sizes(self) -> None:
-        suffixes = ["Geom", "State", "Splitter"]
+        regexp = re.compile(r"(Geom(etry)?|State|Splitter|Header)(\d+.\d+)?$")
         for key in list(self.prof.keys()):
-            if any(key.endswith(suffix) for suffix in suffixes):
+            if regexp.search(key):
                 del self.prof[key]
         showInfo(tr.preferences_reset_window_sizes_complete())
 
