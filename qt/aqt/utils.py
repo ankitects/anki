@@ -703,18 +703,12 @@ def saveGeom(widget: QWidget, key: str) -> None:
 def restoreGeom(
     widget: QWidget,
     key: str,
-    offset: int | None = None,
     adjustSize: bool = False,
     default_size: tuple[int, int] | None = None,
 ) -> None:
     key += "Geom"
     if existing_geom := aqt.mw.pm.profile.get(key):
         widget.restoreGeometry(existing_geom)
-        if is_mac and offset:
-            if qtmajor > 5 or qtminor > 6:
-                # bug in osx toolkit
-                s = widget.size()
-                widget.resize(s.width(), s.height() + offset * 2)
         ensureWidgetInScreenBoundaries(widget)
     elif adjustSize:
         widget.adjustSize()
