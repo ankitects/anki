@@ -171,6 +171,7 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
             RatingKind::AnyAnswerButton => format!("prop:rated{}{}", operator, u),
             RatingKind::ManualReschedule => format!("prop:resched{}{}", operator, u),
         },
+        CustomDataNumber { key, value } => format!("prop:cdn:{key}{operator}{value}"),
     }
 }
 

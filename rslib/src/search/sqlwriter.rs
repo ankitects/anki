@@ -354,6 +354,13 @@ impl SqlWriter<'_> {
                 write!(self.sql, "factor {} {}", op, (ease * 1000.0) as u32).unwrap()
             }
             PropertyKind::Rated(days, ease) => self.write_rated(op, i64::from(*days), ease)?,
+            PropertyKind::CustomDataNumber { key, value } => {
+                write!(
+                    self.sql,
+                    "extract_custom_data_number(c.data, '{key}') {op} {value}"
+                )
+                .unwrap();
+            }
         }
 
         Ok(())
@@ -1166,6 +1173,10 @@ mod test {
             )
         );
         assert_eq!(s(ctx, "prop:rated>-5:3").0, s(ctx, "rated:5:3").0);
+        assert_eq!(
+            &s(ctx, "prop:cdn:r=1").0,
+            "(extract_custom_data_number(c.data, 'r') = 1)"
+        );
 
         // note types by name
         assert_eq!(
