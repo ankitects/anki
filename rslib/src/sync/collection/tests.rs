@@ -480,7 +480,7 @@ impl SyncTestContext {
     pub fn col1(&self) -> Collection {
         let base = self.folder.path();
         CollectionBuilder::new(base.join("col1.anki2"))
-            .set_media_paths(base.join("col1.media"), base.join("col1.media.db"))
+            .with_desktop_media_paths()
             .build()
             .unwrap()
     }
@@ -488,7 +488,7 @@ impl SyncTestContext {
     pub fn col2(&self) -> Collection {
         let base = self.folder.path();
         CollectionBuilder::new(base.join("col2.anki2"))
-            .set_media_paths(base.join("col2.media"), base.join("col2.media.db"))
+            .with_desktop_media_paths()
             .build()
             .unwrap()
     }
