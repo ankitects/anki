@@ -79,10 +79,7 @@ class Preferences(QDialog):
                     QRegularExpression(r"^[a-z0-9\]\[=,./;\'\\-]$")
                 )
             )
-            line_edit.setPlaceholderText("Key letter")
-            line_edit.setToolTip(
-                "Leave empty to disable.\nIf a key is taken by something else, behavior is undefined."
-            )
+            line_edit.setPlaceholderText(tr.preferences_shortcut_placeholder())
 
     def accept(self) -> None:
         # avoid exception if main window is already closed
