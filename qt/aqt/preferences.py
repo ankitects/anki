@@ -61,7 +61,7 @@ class Preferences(QDialog):
             (3, tr.studying_good()),
             (4, tr.studying_easy()),
         )
-        self.form.verticalLayout_6.addWidget(
+        self.form.review_options_layout.addWidget(
             group := QGroupBox(tr.preferences_answer_keys())
         )
         group.setLayout(layout := QFormLayout())
