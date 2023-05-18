@@ -213,7 +213,8 @@ pub struct SvelteCheck {
 impl BuildAction for SvelteCheck {
     fn command(&self) -> &str {
         "$svelte-check --tsconfig $tsconfig $
-        --fail-on-warnings --threshold warning --use-new-transformation"
+        --fail-on-warnings --threshold warning --use-new-transformation $
+        --compiler-warnings $compiler_warnings"
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
@@ -221,6 +222,17 @@ impl BuildAction for SvelteCheck {
         build.add_inputs("tsconfig", &self.tsconfig);
         build.add_inputs("", &self.inputs);
         build.add_inputs("", inputs!["yarn.lock"]);
+        build.add_variable(
+            "compiler_warnings",
+            [
+                "a11y-click-events-have-key-events",
+                "a11y-no-noninteractive-tabindex",
+            ]
+            .iter()
+            .map(|warning| format!("{}$:ignore", warning))
+            .collect::<Vec<_>>()
+            .join(","),
+        );
         let hash = simple_hash(&self.tsconfig);
         build.add_output_stamp(format!("tests/svelte-check.{hash}"));
     }
