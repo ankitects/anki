@@ -43,6 +43,9 @@ impl MediaManager {
         P2: AsRef<Path>,
     {
         let media_folder = media_folder.into();
+        if media_folder.as_os_str().is_empty() {
+            invalid_input!("attempted media operation without media folder set");
+        }
         create_dir_all(&media_folder)?;
         Ok(MediaManager {
             db: MediaDatabase::new(media_db.as_ref())?,

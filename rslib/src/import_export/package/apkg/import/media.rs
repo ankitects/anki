@@ -61,6 +61,7 @@ impl Context<'_> {
                     &mut self.archive,
                     &self.target_col.media_folder,
                     &mut copier,
+                    self.meta.zstd_compressed(),
                 )?;
                 self.media_manager
                     .add_entry(&entry.name, entry.sha1.unwrap())?;

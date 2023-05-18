@@ -121,14 +121,15 @@ impl SafeMediaEntry {
         archive: &mut ZipArchive<File>,
         target_folder: &Path,
         copier: &mut MediaCopier,
+        compressed: bool,
     ) -> Result<()> {
         let mut file = self.fetch_file(archive)?;
         let mut tempfile = new_tempfile_in(target_folder)?;
-        if self.sha1.is_none() {
+        if compressed {
+            copy_decode(&mut file, &mut tempfile)?
+        } else {
             let (_, sha1) = copier.copy(&mut file, &mut tempfile)?;
             self.sha1 = Some(sha1);
-        } else {
-            io::copy(&mut file, &mut tempfile)?;
         }
         atomic_rename(tempfile, &self.file_path(target_folder), false)?;
 

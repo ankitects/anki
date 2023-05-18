@@ -148,7 +148,7 @@ class Browser(QMainWindow):
             if self.layoutDirection() == Qt.LayoutDirection.RightToLeft
             else "editor"
         )
-        restoreGeom(self, self._editor_state_key, 0)
+        restoreGeom(self, self._editor_state_key)
         restoreSplitter(self.form.splitter, "editor3")
         restoreState(self, self._editor_state_key)
 
