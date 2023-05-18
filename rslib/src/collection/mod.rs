@@ -17,6 +17,7 @@ use crate::decks::Deck;
 use crate::decks::DeckId;
 use crate::error::Result;
 use crate::i18n::I18n;
+use crate::io::create_dir_all;
 use crate::notetype::Notetype;
 use crate::notetype::NotetypeId;
 use crate::scheduler::queue::CardQueues;
@@ -87,6 +88,17 @@ impl CollectionBuilder {
         self.media_folder = Some(media_folder.into());
         self.media_db = Some(media_db.into());
         self
+    }
+
+    /// For a `foo.anki2` file, use `foo.media` and `foo.mdb`. Mobile clients
+    /// use different paths, so the backend must continue to use
+    /// [set_media_paths].
+    pub fn with_desktop_media_paths(&mut self) -> &mut Self {
+        let col_path = self.collection_path.as_ref().unwrap();
+        let media_folder = col_path.with_extension("media");
+        create_dir_all(&media_folder).expect("creating media folder");
+        let media_db = col_path.with_extension("mdb");
+        self.set_media_paths(media_folder, media_db)
     }
 
     pub fn set_server(&mut self, server: bool) -> &mut Self {

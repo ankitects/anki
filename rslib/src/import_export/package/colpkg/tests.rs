@@ -9,7 +9,6 @@ use tempfile::tempdir;
 
 use crate::collection::CollectionBuilder;
 use crate::import_export::package::import_colpkg;
-use crate::io::create_dir;
 use crate::io::create_dir_all;
 use crate::io::read_file;
 use crate::media::MediaManager;
@@ -17,11 +16,9 @@ use crate::prelude::*;
 
 fn collection_with_media(dir: &Path, name: &str) -> Result<Collection> {
     let name = format!("{name}_src");
-    let media_folder = dir.join(format!("{name}.media"));
-    create_dir(&media_folder)?;
     // add collection with sentinel note
     let mut col = CollectionBuilder::new(dir.join(format!("{name}.anki2")))
-        .set_media_paths(media_folder, dir.join(format!("{name}.mdb")))
+        .with_desktop_media_paths()
         .build()?;
     let nt = col.get_notetype_by_name("Basic")?.unwrap();
     let mut note = nt.new_note();

@@ -10,17 +10,14 @@ use tempfile::TempDir;
 
 use crate::collection::CollectionBuilder;
 use crate::deckconfig::DeckConfigInner;
-use crate::io::create_dir;
 use crate::media::MediaManager;
 use crate::prelude::*;
 
 pub(crate) fn open_fs_test_collection(name: &str) -> (Collection, TempDir) {
     let tempdir = tempdir().unwrap();
     let dir = tempdir.path();
-    let media_folder = dir.join(format!("{name}.media"));
-    create_dir(&media_folder).unwrap();
     let col = CollectionBuilder::new(dir.join(format!("{name}.anki2")))
-        .set_media_paths(media_folder, dir.join(format!("{name}.mdb")))
+        .with_desktop_media_paths()
         .build()
         .unwrap();
     (col, tempdir)
