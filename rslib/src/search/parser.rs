@@ -6,11 +6,13 @@ use nom::branch::alt;
 use nom::bytes::complete::escaped;
 use nom::bytes::complete::is_not;
 use nom::bytes::complete::tag;
+use nom::character::complete::alphanumeric1;
 use nom::character::complete::anychar;
 use nom::character::complete::char;
 use nom::character::complete::none_of;
 use nom::character::complete::one_of;
 use nom::combinator::map;
+use nom::combinator::recognize;
 use nom::combinator::verify;
 use nom::error::ErrorKind as NomErrorKind;
 use nom::multi::many0;
@@ -101,6 +103,7 @@ pub enum PropertyKind {
     Ease(f32),
     Position(u32),
     Rated(i32, RatingKind),
+    CustomDataNumber { key: String, value: f32 },
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -403,6 +406,7 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
         tag("pos"),
         tag("rated"),
         tag("resched"),
+        recognize(preceded(tag("cdn:"), alphanumeric1)),
     ))(prop_clause)
     .map_err(|_| {
         parse_failure(
@@ -442,7 +446,13 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
         "reps" => PropertyKind::Reps(parse_u32(num, prop_clause)?),
         "lapses" => PropertyKind::Lapses(parse_u32(num, prop_clause)?),
         "pos" => PropertyKind::Position(parse_u32(num, prop_clause)?),
-        _ => unreachable!(),
+        other => {
+            let Some(prop) = other.strip_prefix("cdn:") else { unreachable!() };
+            PropertyKind::CustomDataNumber {
+                key: prop.into(),
+                value: parse_f32(num, prop_clause)?,
+            }
+        }
     };
 
     Ok(SearchNode::Property {
@@ -903,6 +913,16 @@ mod test {
                 kind: PropertyKind::Ease(3.3)
             })]
         );
+        assert_eq!(
+            parse("prop:cdn:abc<=1")?,
+            vec![Search(Property {
+                operator: "<=".into(),
+                kind: PropertyKind::CustomDataNumber {
+                    key: "abc".into(),
+                    value: 1.0
+                }
+            })]
+        );
 
         Ok(())
     }
@@ -1110,6 +1130,18 @@ mod test {
             "prop:DUE<5",
             InvalidPropProperty {
                 provided: "DUE<5".into(),
+            },
+        );
+        assert_err_kind(
+            "prop:cdn=5",
+            InvalidPropProperty {
+                provided: "cdn=5".to_string(),
+            },
+        );
+        assert_err_kind(
+            "prop:cdn:=5",
+            InvalidPropProperty {
+                provided: "cdn:=5".to_string(),
             },
         );
 

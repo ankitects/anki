@@ -13,6 +13,7 @@ use regex::Regex;
 use rusqlite::functions::FunctionFlags;
 use rusqlite::params;
 use rusqlite::Connection;
+use serde_json::Value;
 use unicase::UniCase;
 
 use super::upgrades::SCHEMA_MAX_VERSION;
@@ -24,6 +25,7 @@ use crate::error::DbErrorKind;
 use crate::prelude::*;
 use crate::scheduler::timing::local_minutes_west_for_stamp;
 use crate::scheduler::timing::v1_creation_date;
+use crate::storage::card::data::CardData;
 use crate::text::without_combining;
 
 fn unicase_compare(s1: &str, s2: &str) -> Ordering {
@@ -67,6 +69,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     add_regexp_tags_function(&db)?;
     add_without_combining_function(&db)?;
     add_fnvhash_function(&db)?;
+    add_extract_custom_data_number_function(&db)?;
 
     db.create_collation("unicase", unicase_compare)?;
 
@@ -186,6 +189,28 @@ fn add_regexp_tags_function(db: &Connection) -> rusqlite::Result<()> {
             let mut tags = ctx.get_raw(1).as_str()?.split(' ');
 
             Ok(tags.any(|tag| re.is_match(tag)))
+        },
+    )
+}
+
+/// eg. extract_custom_data_number(card.data, 'r') -> float | null
+fn add_extract_custom_data_number_function(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "extract_custom_data_number",
+        2,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
+
+            let Ok(card_data) = ctx.get_raw(0).as_str() else { return Ok(None) };
+            if card_data.is_empty() {
+                return Ok(None);
+            }
+            let Ok(key) = ctx.get_raw(1).as_str() else { return Ok(None) };
+            let custom_data = &CardData::from_str(card_data).custom_data;
+            let Ok(value) = serde_json::from_str::<Value>(custom_data) else { return Ok(None) };
+            let num = value.get(key).and_then(|v| v.as_f64());
+            Ok(num)
         },
     )
 }
