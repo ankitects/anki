@@ -58,6 +58,7 @@ preferences-appearance = Appearance
 preferences-general = General
 preferences-style = Style
 preferences-review = Review
+preferences-answer-keys = Answer keys
 preferences-distractions = Distractions
 preferences-minimalist-mode = Minimalist mode
 preferences-editing = Editing
@@ -71,6 +72,7 @@ preferences-import-export = Import/Export
 preferences-network-timeout = Network timeout
 preferences-reset-window-sizes = Reset Window Sizes
 preferences-reset-window-sizes-complete = Window sizes and locations have been reset.
+preferences-shortcut-placeholder = Enter an unused shortcut key, or leave empty to disable.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import functools
 import json
 import random
 import re
@@ -507,14 +508,11 @@ class Reviewer:
             ("o", self.onOptions),
             ("i", self.on_card_info),
             ("Ctrl+Alt+i", self.on_previous_card_info),
-            ("1", lambda: self._answerCard(1)),
-            ("2", lambda: self._answerCard(2)),
-            ("3", lambda: self._answerCard(3)),
-            ("4", lambda: self._answerCard(4)),
-            ("h", lambda: self._answerCard(1)),
-            ("j", lambda: self._answerCard(2)),
-            ("k", lambda: self._answerCard(3)),
-            ("l", lambda: self._answerCard(4)),
+            *(
+                (key, functools.partial(self._answerCard, ease))
+                for ease in aqt.mw.pm.default_answer_keys
+                if (key := aqt.mw.pm.get_answer_key(ease))
+            ),
             ("u", self.mw.undo),
             ("5", self.on_pause_audio),
             ("6", self.on_seek_backward),

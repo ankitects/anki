@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import functools
 import re
 from typing import Any, cast
 
@@ -47,7 +48,38 @@ class Preferences(QDialog):
         self.setup_collection()
         self.setup_profile()
         self.setup_global()
+        self.setup_configurable_answer_keys()
         self.show()
+
+    def setup_configurable_answer_keys(self):
+        """
+        Create a group box in Preferences with widgets that let the user edit answer keys.
+        """
+        ease_labels = (
+            (1, tr.studying_again()),
+            (2, tr.studying_hard()),
+            (3, tr.studying_good()),
+            (4, tr.studying_easy()),
+        )
+        self.form.review_options_layout.addWidget(
+            group := QGroupBox(tr.preferences_answer_keys())
+        )
+        group.setLayout(layout := QFormLayout())
+        for ease, label in ease_labels:
+            layout.addRow(
+                label,
+                line_edit := QLineEdit(self.mw.pm.get_answer_key(ease) or ""),
+            )
+            qconnect(
+                line_edit.textChanged,
+                functools.partial(self.mw.pm.set_answer_key, ease),
+            )
+            line_edit.setValidator(
+                QRegularExpressionValidator(
+                    QRegularExpression(r"^[a-z0-9\]\[=,./;\'\\-]$")
+                )
+            )
+            line_edit.setPlaceholderText(tr.preferences_shortcut_placeholder())
 
     def accept(self) -> None:
         # avoid exception if main window is already closed

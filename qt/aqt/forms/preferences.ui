@@ -245,7 +245,7 @@
       <attribute name="title">
        <string>preferences_review</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_6">
+      <layout class="QVBoxLayout" name="review_options_layout">
        <item>
         <widget class="QGroupBox" name="schedulerGroup">
          <property name="title">
