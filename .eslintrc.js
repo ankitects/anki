@@ -52,5 +52,6 @@ module.exports = {
     },
     settings: {
         "svelte3/typescript": () => require("typescript"),
+        "svelte3/ignore-warnings": (warning) => warning.code.startsWith("a11y-"),
     },
 };
