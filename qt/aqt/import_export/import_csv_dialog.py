@@ -45,8 +45,9 @@ class ImportCsvDialog(QDialog):
         layout.addWidget(self.web)
         self.setLayout(layout)
 
+        escaped_path = path.replace("'", r"\'")
         self.web.evalWithCallback(
-            f"anki.setupImportCsvPage('{path}');", lambda _: self.web.setFocus()
+            f"anki.setupImportCsvPage('{escaped_path}');", lambda _: self.web.setFocus()
         )
         self.setWindowTitle(tr.decks_import_file())
 
