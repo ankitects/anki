@@ -1115,8 +1115,13 @@ title="{}" {}>{}</button>""".format(
     def applyShortcuts(
         self, shortcuts: Sequence[tuple[str, Callable]]
     ) -> list[QShortcut]:
+        # remove duplicate shortcuts (possibly added by add-ons)
+        # by normalizing them and filtering through a dictionary.
+        shortcuts: dict[QKeySequence, Callable] = {
+            QKeySequence(key): fn for key, fn in shortcuts
+        }
         qshortcuts = []
-        for key, fn in shortcuts:
+        for key, fn in shortcuts.items():
             scut = QShortcut(QKeySequence(key), self, activated=fn)  # type: ignore
             scut.setAutoRepeat(False)
             qshortcuts.append(scut)
@@ -1126,9 +1131,6 @@ title="{}" {}>{}</button>""".format(
         gui_hooks.state_shortcuts_will_change(self.state, shortcuts)
         # legacy hook
         runHook(f"{self.state}StateShortcuts", shortcuts)
-        # remove duplicate shortcuts (possibly added by add-ons)
-        # by filtering them through a dictionary.
-        shortcuts = list(dict(shortcuts).items())
         self.stateShortcuts = self.applyShortcuts(shortcuts)
 
     def clearStateShortcuts(self) -> None:
