@@ -1112,16 +1112,20 @@ title="{}" {}>{}</button>""".format(
         self.applyShortcuts(globalShortcuts)
         self.stateShortcuts: list[QShortcut] = []
 
+    def _normalize_shortcuts(
+        self, shortcuts: Sequence[tuple[str, Callable]]
+    ) -> Sequence[tuple[QKeySequence, Callable]]:
+        """
+        Remove duplicate shortcuts (possibly added by add-ons)
+        by normalizing them and filtering through a dictionary.
+        """
+        return tuple({QKeySequence(key): fn for key, fn in shortcuts}.items())
+
     def applyShortcuts(
         self, shortcuts: Sequence[tuple[str, Callable]]
     ) -> list[QShortcut]:
-        # remove duplicate shortcuts (possibly added by add-ons)
-        # by normalizing them and filtering through a dictionary.
-        shortcuts: dict[QKeySequence, Callable] = {
-            QKeySequence(key): fn for key, fn in shortcuts
-        }
         qshortcuts = []
-        for key, fn in shortcuts.items():
+        for key, fn in self._normalize_shortcuts(shortcuts):
             scut = QShortcut(key, self, activated=fn)  # type: ignore
             scut.setAutoRepeat(False)
             qshortcuts.append(scut)
