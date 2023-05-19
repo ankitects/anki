@@ -1126,6 +1126,9 @@ title="{}" {}>{}</button>""".format(
         gui_hooks.state_shortcuts_will_change(self.state, shortcuts)
         # legacy hook
         runHook(f"{self.state}StateShortcuts", shortcuts)
+        # remove duplicate shortcuts (possibly added by add-ons)
+        # by filtering them through a dictionary.
+        shortcuts = list(dict(shortcuts).items())
         self.stateShortcuts = self.applyShortcuts(shortcuts)
 
     def clearStateShortcuts(self) -> None:
