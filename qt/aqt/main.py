@@ -1122,7 +1122,7 @@ title="{}" {}>{}</button>""".format(
         }
         qshortcuts = []
         for key, fn in shortcuts.items():
-            scut = QShortcut(QKeySequence(key), self, activated=fn)  # type: ignore
+            scut = QShortcut(key, self, activated=fn)  # type: ignore
             scut.setAutoRepeat(False)
             qshortcuts.append(scut)
         return qshortcuts
