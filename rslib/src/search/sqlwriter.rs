@@ -326,8 +326,10 @@ impl SqlWriter<'_> {
                     self.sql,
                     // SQL does integer division if both parameters are integers
                     "(\
-                    (c.queue in ({rev},{daylrn}) and c.due {op} {day}) or \
-                    (c.queue in ({lrn},{previewrepeat}) and ((c.due - {cutoff}) / 86400) {op} {days})\
+                    (c.queue in ({rev},{daylrn}) and 
+                        (case when c.odue != 0 then c.odue else c.due end) {op} {day}) or \
+                    (c.queue in ({lrn},{previewrepeat}) and 
+                        (((case when c.odue != 0 then c.odue else c.due end) - {cutoff}) / 86400) {op} {days})\
                     )",
                     rev = CardQueue::Review as u8,
                     daylrn = CardQueue::DayLearn as u8,
@@ -341,7 +343,7 @@ impl SqlWriter<'_> {
             }
             PropertyKind::Position(pos) => write!(
                 self.sql,
-                "(c.type = {t} and due {op} {pos})",
+                "(c.type = {t} and (case when c.odue != 0 then c.odue else c.due end) {op} {pos})",
                 t = CardType::New as u8,
                 op = op,
                 pos = pos
@@ -1167,7 +1169,9 @@ mod test {
         assert_eq!(
             s(ctx, "prop:due!=-1").0,
             format!(
-                "(((c.queue in (2,3) and c.due != {days}) or (c.queue in (1,4) and ((c.due - {cutoff}) / 86400) != -1)))",
+                "(((c.queue in (2,3) and \n                        (case when \
+c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and 
+                        (((case when c.odue != 0 then c.odue else c.due end) - {cutoff}) / 86400) != -1)))",
                 days = timing.days_elapsed - 1,
                 cutoff = timing.next_day_at
             )
