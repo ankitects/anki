@@ -1,12 +1,18 @@
 ;; This installer was written many years ago, and it is probably worth investigating modern
-;; installer alternatives. 
+;; installer alternatives at one point.
+
+!addplugindir .
 
 !include "fileassoc.nsh"
 !include WinVer.nsh
 !include x64.nsh
-; must be installed into NSIS install location
-; can be found on https://github.com/ankitects/anki-bundle-extras/releases/tag/anki-2022-02-09
-!include nsProcess.nsh
+
+!define nsProcess::FindProcess `!insertmacro nsProcess::FindProcess`
+
+!macro nsProcess::FindProcess _FILE _ERR
+	nsProcess::_FindProcess /NOUNLOAD `${_FILE}`
+	Pop ${_ERR}
+!macroend
 
 ;--------------------------------
 

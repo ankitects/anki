@@ -110,11 +110,17 @@ const LINUX_QT_PLUGINS: OnlineArchive = OnlineArchive {
     sha256: "66bb568aca7242bc55ad419bf5c96755ca15d2a743e1c3a09cba8b83230b138b",
 };
 
+const NSIS_PLUGINS: OnlineArchive = OnlineArchive {
+    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2023-05-19/nsis.tar.zst",
+    sha256: "6133f730ece699de19714d0479c73bc848647d277e9cc80dda9b9ebe532b40a8",
+};
+
 fn download_dist_folder_deps(build: &mut Build) -> Result<()> {
     let mut bundle_deps = vec![":wheels"];
     if cfg!(windows) {
         download_and_extract(build, "win_amd64_audio", WIN_AUDIO, empty_manifest())?;
-        bundle_deps.push(":extract:win_amd64_audio");
+        download_and_extract(build, "nsis_plugins", NSIS_PLUGINS, empty_manifest())?;
+        bundle_deps.extend([":extract:win_amd64_audio", ":extract:nsis_plugins"]);
     } else if cfg!(target_os = "macos") {
         if targetting_macos_arm() {
             download_and_extract(build, "mac_arm_audio", MAC_ARM_AUDIO, empty_manifest())?;
