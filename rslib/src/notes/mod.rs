@@ -354,7 +354,7 @@ impl Collection {
         self.transact(Op::UpdateNote, |col| col.update_note_inner(note))
     }
 
-    pub fn update_notes_maybe_undoable(
+    pub(crate) fn update_notes_maybe_undoable(
         &mut self,
         notes: Vec<Note>,
         undoable: bool,
