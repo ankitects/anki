@@ -350,8 +350,7 @@ impl Collection {
         self.set_current_notetype_id(note.notetype_id)
     }
 
-    #[cfg(test)]
-    pub(crate) fn update_note(&mut self, note: &mut Note) -> Result<OpOutput<()>> {
+    pub fn update_note(&mut self, note: &mut Note) -> Result<OpOutput<()>> {
         self.transact(Op::UpdateNote, |col| col.update_note_inner(note))
     }
 
@@ -542,7 +541,7 @@ impl Collection {
     /// Check if the note's first field is empty or a duplicate. Then for cloze
     /// notetypes, check if there is a cloze in a non-cloze field or if there's
     /// no cloze at all. For other notetypes, just check if there's a cloze.
-    pub(crate) fn note_fields_check(&mut self, note: &Note) -> Result<NoteFieldsState> {
+    pub fn note_fields_check(&mut self, note: &Note) -> Result<NoteFieldsState> {
         Ok(if let Some(text) = note.fields.get(0) {
             let field1 = if self.get_config_bool(BoolKey::NormalizeNoteText) {
                 normalize_to_nfc(text)

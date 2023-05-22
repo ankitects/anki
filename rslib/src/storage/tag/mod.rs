@@ -21,7 +21,7 @@ fn row_to_tag(row: &Row) -> Result<Tag> {
 
 impl SqliteStorage {
     /// All tags in the collection, in alphabetical order.
-    pub(crate) fn all_tags(&self) -> Result<Vec<Tag>> {
+    pub fn all_tags(&self) -> Result<Vec<Tag>> {
         self.db
             .prepare_cached(include_str!("get.sql"))?
             .query_and_then([], row_to_tag)?
