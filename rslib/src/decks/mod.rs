@@ -177,7 +177,7 @@ impl Collection {
 
     /// Get a deck based on its human name. If you have a machine name,
     /// use the method in storage instead.
-    pub(crate) fn get_deck_id(&self, human_name: &str) -> Result<Option<DeckId>> {
+    pub fn get_deck_id(&self, human_name: &str) -> Result<Option<DeckId>> {
         self.storage
             .get_deck_id(NativeDeckName::from_human_name(human_name).as_native_str())
     }
