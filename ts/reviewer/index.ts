@@ -245,7 +245,7 @@ export function _blockDefaultDragDropBehavior(): void {
 // https://github.com/ankitects/anki/issues/1952
 const dummyButton = document.createElement("button");
 dummyButton.style.position = "absolute";
-dummyButton.style.left = "-9999px";
+dummyButton.style.opacity = "0";
 document.addEventListener("focusout", (event) => {
     // Prevent type box from losing focus when switching IMEs
     if (!document.hasFocus()) {
@@ -254,6 +254,8 @@ document.addEventListener("focusout", (event) => {
 
     const target = event.target;
     if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+        dummyButton.style.left = `${window.scrollX}px`;
+        dummyButton.style.top = `${window.scrollY}px`;
         document.body.appendChild(dummyButton);
         dummyButton.focus();
         document.body.removeChild(dummyButton);
