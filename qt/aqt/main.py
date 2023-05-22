@@ -1118,6 +1118,8 @@ title="{}" {}>{}</button>""".format(
         """
         Remove duplicate shortcuts (possibly added by add-ons)
         by normalizing them and filtering through a dictionary.
+        The last duplicate shortcut wins, so add-ons will override
+        standard shortcuts if they append to the shortcut list.
         """
         return tuple({QKeySequence(key): fn for key, fn in shortcuts}.items())
 
