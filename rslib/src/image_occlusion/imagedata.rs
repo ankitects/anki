@@ -47,10 +47,7 @@ impl Collection {
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
         let actual_image_name_after_adding = mgr.add_file(&image_filename, &image_bytes)?;
 
-        let image_tag = format!(
-            r#"<img id="img" src="{}">"#,
-            &actual_image_name_after_adding
-        );
+        let image_tag = format!(r#"<img src="{}">"#, &actual_image_name_after_adding);
 
         let current_deck = self.get_current_deck()?;
         self.transact(Op::ImageOcclusion, |col| {
