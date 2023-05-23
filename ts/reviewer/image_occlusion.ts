@@ -17,9 +17,6 @@ function setupImageClozeInner(): void {
         return;
     }
 
-    canvas.style.maxWidth = "100%";
-    canvas.style.maxHeight = "95vh";
-
     const ctx: CanvasRenderingContext2D = canvas.getContext("2d")!;
     const container = document.getElementById("image-occlusion-container") as HTMLDivElement;
     const image = document.querySelector("#image-occlusion-container img") as HTMLImageElement;
@@ -32,8 +29,8 @@ function setupImageClozeInner(): void {
     canvas.width = size.width;
     canvas.height = size.height;
 
-    // set height for div container (used 'relative' in css)
-    container.style.height = `${image.height}px`;
+    // Enforce aspect ratio of image
+    container.style.aspectRatio = `${size.width / size.height}`;
 
     // setup button for toggle image occlusion
     const button = document.getElementById("toggle");
