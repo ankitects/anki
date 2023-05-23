@@ -147,14 +147,14 @@ export async function _updateQA(
     bridgeCommand("updateToolbar");
 
     // wait for mathjax to ready
-    await MathJax.startup.promise
+    await (MathJax.startup.promise = MathJax.startup.promise
         .then(() => {
             // clear MathJax buffers from previous typesets
             MathJax.typesetClear();
 
             return MathJax.typesetPromise([qa]);
         })
-        .catch(renderError("MathJax"));
+        .catch(renderError("MathJax")));
 
     qa.style.opacity = "1";
 
