@@ -51,7 +51,7 @@ impl Collection {
 }
 
 pub(crate) fn image_occlusion_notetype(tr: &I18n) -> Notetype {
-    const IMAGE_CLOZE_CSS: &str = include_str!("image_occlusion_styling.css");
+    const IMAGE_CLOZE_CSS: &str = include_str!("notetype.css");
     let mut nt = empty_stock(
         NotetypeKind::Cloze,
         OriginalStockKind::ImageOcclusion,
@@ -71,31 +71,29 @@ pub(crate) fn image_occlusion_notetype(tr: &I18n) -> Notetype {
 
     let err_loading = tr.notetypes_error_loading_image_occlusion();
     let qfmt = format!(
-        "\
-{{{{#{header}}}}}<div>{{{{{header}}}}}</div>{{{{/{header}}}}}
-<div style=\"display: none\">{{{{cloze:{occlusion}}}}}</div>
-<div id=\"err\"></div>
-<div id=container>
+        r#"{{{{#{header}}}}}<div>{{{{{header}}}}}</div>{{{{/{header}}}}}
+<div style="display: none">{{{{cloze:{occlusion}}}}}</div>
+<div id="err"></div>
+<div id="image-occlusion-container">
     {{{{{image}}}}}
-    <canvas id=\"canvas\" class=\"image-occlusion-canvas\"></canvas>
+    <canvas id="image-occlusion-canvas"></canvas>
 </div>
 <script>
 try {{
     anki.setupImageCloze();
 }} catch (exc) {{
-    document.getElementById(\"err\").innerHTML = `{err_loading}<br><br>${{exc}}`;
+    document.getElementById("err").innerHTML = `{err_loading}<br><br>${{exc}}`;
 }}
 </script>
-"
+"#
     );
 
     let toggle_masks = tr.notetypes_toggle_masks();
     let afmt = format!(
-        "\
-{qfmt}
-<div><button id=\"toggle\">{toggle_masks}</button></div>
+        r#"{qfmt}
+<div><button id="toggle">{toggle_masks}</button></div>
 {{{{#{back_extra}}}}}<div>{{{{{back_extra}}}}}</div>{{{{/{back_extra}}}}}
-",
+"#,
     );
     nt.add_template(nt.name.clone(), qfmt, afmt);
     nt

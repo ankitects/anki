@@ -394,7 +394,7 @@ fn build_and_check_editor(build: &mut Build) -> Result<()> {
 }
 
 fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
-    let reviewer_deps = inputs![":ts:lib", glob!("ts/reviewer/**")];
+    let reviewer_deps = inputs![":ts:lib", glob!("ts/reviewer/**"),];
     build.add(
         "ts:reviewer:reviewer.js",
         EsbuildScript {
@@ -410,7 +410,7 @@ fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
         CompileSass {
             input: inputs!["ts/reviewer/reviewer.scss"],
             output: "ts/reviewer/reviewer.css",
-            deps: ":sass".into(),
+            deps: inputs![":sass", "ts/image-occlusion/review.scss"],
             load_paths: vec!["."],
         },
     )?;
