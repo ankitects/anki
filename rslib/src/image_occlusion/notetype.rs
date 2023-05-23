@@ -51,7 +51,7 @@ impl Collection {
 }
 
 pub(crate) fn image_occlusion_notetype(tr: &I18n) -> Notetype {
-    const IMAGE_CLOZE_CSS: &str = include_str!("image_occlusion_styling.css");
+    const IMAGE_CLOZE_CSS: &str = include_str!("notetype.css");
     let mut nt = empty_stock(
         NotetypeKind::Cloze,
         OriginalStockKind::ImageOcclusion,
@@ -74,9 +74,9 @@ pub(crate) fn image_occlusion_notetype(tr: &I18n) -> Notetype {
         r#"{{{{#{header}}}}}<div>{{{{{header}}}}}</div>{{{{/{header}}}}}
 <div style="display: none">{{{{cloze:{occlusion}}}}}</div>
 <div id="err"></div>
-<div id=container>
+<div id="image-occlusion-container">
     {{{{{image}}}}}
-    <canvas id="canvas" class="image-occlusion-canvas"></canvas>
+    <canvas id="image-occlusion-canvas"></canvas>
 </div>
 <script>
 try {{

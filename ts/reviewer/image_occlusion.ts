@@ -12,7 +12,7 @@ export function setupImageCloze(): void {
 }
 
 function setupImageClozeInner(): void {
-    const canvas = document.querySelector("canvas") as HTMLCanvasElement | null;
+    const canvas = document.querySelector("#image-occlusion-canvas") as HTMLCanvasElement | null;
     if (canvas == null) {
         return;
     }
@@ -21,8 +21,8 @@ function setupImageClozeInner(): void {
     canvas.style.maxHeight = "95vh";
 
     const ctx: CanvasRenderingContext2D = canvas.getContext("2d")!;
-    const container = document.getElementById("container") as HTMLDivElement;
-    const image = document.getElementById("img") as HTMLImageElement;
+    const container = document.getElementById("image-occlusion-container") as HTMLDivElement;
+    const image = document.querySelector("#image-occlusion-container img") as HTMLImageElement;
     if (image == null) {
         container.innerText = tr.notetypeErrorNoImageToShow();
         return;
@@ -151,7 +151,7 @@ function getShapeProperty(): {
     activeBorder: { width: number; color: string };
     inActiveBorder: { width: number; color: string };
 } {
-    const canvas = document.getElementById("canvas");
+    const canvas = document.getElementById("image-occlusion-canvas");
     const computedStyle = window.getComputedStyle(canvas!);
     // it may throw error if the css variable is not defined
     try {
@@ -199,7 +199,7 @@ function getShapeProperty(): {
 }
 
 const toggleMasks = (): void => {
-    const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+    const canvas = document.getElementById("image-occlusion-canvas") as HTMLCanvasElement;
     const display = canvas.style.display;
     if (display === "none") {
         canvas.style.display = "unset";

@@ -1,4 +1,4 @@
-.image-occlusion-canvas {
+#image-occlusion-canvas {
     --inactive-shape-color: #ffeba2;
     --active-shape-color: #ff8e8e;
     --inactive-shape-border: 1px #212121;
@@ -13,18 +13,18 @@
     background-color: white;
 }
 
-#container {
+#image-occlusion-container {
     position: relative;
 }
 
-img {
+#image-occlusion-container img {
     position: absolute;
     top: 0;
     left: 50%;
     transform: translate(-50%, 0);
 }
 
-#canvas {
+#image-occlusion-canvas {
     position: absolute;
     top: 0;
     left: 50%;
