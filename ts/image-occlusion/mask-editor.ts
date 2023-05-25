@@ -8,6 +8,7 @@ import type { PanZoom } from "panzoom";
 import protobuf from "protobufjs";
 import { get } from "svelte/store";
 
+import { cappedCanvasSize } from "./canvas-cap";
 import { getImageForOcclusion, getImageOcclusionNote } from "./lib";
 import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
 import Toast from "./Toast.svelte";
@@ -23,7 +24,7 @@ export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<
     const image = document.getElementById("image") as HTMLImageElement;
     image.src = getImageData(imageData.data!);
     image.onload = function() {
-        const size = limitSize({ width: image.width, height: image.height });
+        const size = cappedCanvasSize({ width: image.width, height: image.height });
         canvas.setWidth(size.width);
         canvas.setHeight(size.height);
         image.height = size.height;
@@ -54,7 +55,7 @@ export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom):
     const image = document.getElementById("image") as HTMLImageElement;
     image.src = getImageData(clozeNote.imageData!);
     image.onload = function() {
-        const size = limitSize({ width: image.width, height: image.height });
+        const size = cappedCanvasSize({ width: image.width, height: image.height });
         canvas.setWidth(size.width);
         canvas.setHeight(size.height);
         image.height = size.height;
@@ -119,25 +120,4 @@ const addClozeNotesToTextEditor = (header: string, backExtra: string, tags: stri
         divElement.innerHTML = note.divValue;
         textAreaElement.value = note.textareaValue;
     });
-};
-
-/**
- * Fix for safari browser,
- * Canvas area exceeds the maximum limit (width * height > 16777216),
- * Following function also added in reviewer ts,
- * so update both, if it changes
- */
-const limitSize = (size: { width: number; height: number }): { width: number; height: number; scalar: number } => {
-    const maximumPixels = 1000000;
-    const { width, height } = size;
-
-    const requiredPixels = width * height;
-    if (requiredPixels <= maximumPixels) return { width, height, scalar: 1 };
-
-    const scalar = Math.sqrt(maximumPixels) / Math.sqrt(requiredPixels);
-    return {
-        width: Math.floor(width * scalar),
-        height: Math.floor(height * scalar),
-        scalar: scalar,
-    };
 };

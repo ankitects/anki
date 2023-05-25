@@ -3,6 +3,7 @@
 
 import * as tr from "@tslib/ftl";
 
+import { cappedCanvasSize } from "../image-occlusion/canvas-cap";
 import { xFromNormalized, yFromNormalized } from "../image-occlusion/position";
 
 window.addEventListener("load", () => {
@@ -27,7 +28,7 @@ function setupImageClozeInner(): void {
         return;
     }
 
-    const size = limitSize({ width: image.naturalWidth, height: image.naturalHeight });
+    const size = cappedCanvasSize({ width: image.naturalWidth, height: image.naturalHeight });
     canvas.width = size.width;
     canvas.height = size.height;
 
@@ -126,23 +127,6 @@ function draw(
         default:
             break;
     }
-}
-
-// following function copy+pasted from mask-editor.ts,
-// so update both, if it changes
-function limitSize(size: { width: number; height: number }): { width: number; height: number; scalar: number } {
-    const maximumPixels = 1000000;
-    const { width, height } = size;
-
-    const requiredPixels = width * height;
-    if (requiredPixels <= maximumPixels) return { width, height, scalar: 1 };
-
-    const scalar = Math.sqrt(maximumPixels) / Math.sqrt(requiredPixels);
-    return {
-        width: Math.floor(width * scalar),
-        height: Math.floor(height * scalar),
-        scalar: scalar,
-    };
 }
 
 function getShapeProperty(): {
