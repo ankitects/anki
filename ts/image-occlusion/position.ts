@@ -13,14 +13,18 @@ export function yToNormalized(canvas: HTMLCanvasElement, y: number): string {
 
 /** Position in pixels from normalized range, e.g 0.25 in a 600x300px canvas is 150. */
 export function xFromNormalized(canvas: HTMLCanvasElement, x: string): number {
-    return parseFloat(x) * canvas.width;
+    return Math.round(parseFloat(x) * canvas.width);
 }
 
 /** Position in pixels from normalized range, e.g 0.5 in a 600x300px canvas is 150. */
 export function yFromNormalized(canvas: HTMLCanvasElement, y: string): number {
-    return parseFloat(y) * canvas.height;
+    return Math.round(parseFloat(y) * canvas.height);
 }
 
+/** Convert a float to a string with up to 4 fraction digits,
+ * which when rounded, reproduces identical pixels to input
+ * for up to widths/heights of 10kpx.
+ */
 function floatToDisplay(number: number): string {
-    return number.toFixed(6).replace(/^0+|0+$/g, "");
+    return number.toFixed(4).replace(/^0+|0+$/g, "");
 }
