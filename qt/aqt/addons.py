@@ -1184,6 +1184,7 @@ class DownloaderInstaller(QObject):
 
     def _download_done(self, future: Future) -> None:
         self.mgr.mw.progress.finish()
+        future.result()
         # qt gets confused if on_done() opens new windows while the progress
         # modal is still cleaning up
         self.mgr.mw.progress.single_shot(50, lambda: self.on_done(self.log))
