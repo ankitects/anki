@@ -6,11 +6,10 @@ import * as tr from "@tslib/ftl";
 import { cappedCanvasSize } from "../image-occlusion/canvas-cap";
 import { xFromNormalized, yFromNormalized } from "../image-occlusion/position";
 
-window.addEventListener("load", () => {
-    window.addEventListener("resize", setupImageCloze);
-});
-
 export function setupImageCloze(): void {
+    window.addEventListener("load", () => {
+        window.addEventListener("resize", setupImageCloze);
+    });
     window.requestAnimationFrame(setupImageClozeInner);
 }
 
