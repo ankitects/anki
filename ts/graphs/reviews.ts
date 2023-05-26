@@ -76,7 +76,7 @@ function totalsForBin(bin: BinType): number[] {
     return total;
 }
 
-/// eg idx=0 is mature count, idx=1 is mature+young count, etc
+/** eg idx=0 is mature count, idx=1 is mature+young count, etc */
 function cumulativeBinValue(bin: BinType, idx: number): number {
     return sum(totalsForBin(bin).slice(0, idx + 1));
 }

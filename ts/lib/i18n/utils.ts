@@ -64,8 +64,8 @@ export function localeCompare(
     return first.localeCompare(second, langs, options);
 }
 
-/// Treat text like HTML, merging multiple spaces and converting
-/// newlines to spaces.
+/** Treat text like HTML, merging multiple spaces and converting
+ newlines to spaces. */
 export function withCollapsedWhitespace(s: string): string {
     return s.replace(/\s+/g, " ");
 }

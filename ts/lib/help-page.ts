@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-/// These links are checked in CI to ensure they are valid.
+/** These links are checked in CI to ensure they are valid. */
 export const HelpPage = {
     DeckOptions: {
         maximumInterval: "https://docs.ankiweb.net/deck-options.html#maximum-interval",

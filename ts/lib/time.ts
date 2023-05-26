@@ -53,7 +53,7 @@ export function naturalUnit(secs: number): TimespanUnit {
     }
 }
 
-/// Number of seconds in a given unit.
+/** Number of seconds in a given unit. */
 export function unitSeconds(unit: TimespanUnit): number {
     switch (unit) {
         case TimespanUnit.Seconds:
@@ -75,7 +75,7 @@ export function unitAmount(unit: TimespanUnit, secs: number): number {
     return secs / unitSeconds(unit);
 }
 
-/// Largest unit provided seconds can be divided by without a remainder.
+/** Largest unit provided seconds can be divided by without a remainder. */
 export function naturalWholeUnit(secs: number): TimespanUnit {
     let unit = naturalUnit(secs);
     while (unit != TimespanUnit.Seconds) {
@@ -142,10 +142,10 @@ function i18nFuncForUnit(
     }
 }
 
-/// Describe the given seconds using the largest appropriate unit.
-/// If precise is true, show to two decimal places, eg
-/// eg 70 seconds -> "1.17 minutes"
-/// If false, seconds and days are shown without decimals.
+/** Describe the given seconds using the largest appropriate unit.
+If precise is true, show to two decimal places, eg
+eg 70 seconds -> "1.17 minutes"
+If false, seconds and days are shown without decimals. */
 export function timeSpan(seconds: number, short = false): string {
     const unit = naturalUnit(seconds);
     const amount = unitAmount(unit, seconds);

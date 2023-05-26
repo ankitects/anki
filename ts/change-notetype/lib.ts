@@ -11,12 +11,12 @@ function nullToNegativeOne(list: (number | null)[]): number[] {
     return list.map((val) => val ?? -1);
 }
 
-/// Public only for tests.
+/** Public only for tests. */
 export function negativeOneToNull(list: number[]): (number | null)[] {
     return list.map((val) => (val === -1 ? null : val));
 }
 
-/// Wrapper for the protobuf message to make it more ergonomic.
+/** Wrapper for the protobuf message to make it more ergonomic. */
 export class ChangeNotetypeInfoWrapper {
     fields: (number | null)[];
     templates?: (number | null)[];
@@ -33,26 +33,26 @@ export class ChangeNotetypeInfoWrapper {
         this.oldNotetypeName = info.oldNotetypeName;
     }
 
-    /// A list with an entry for each field/template in the new notetype, with
-    /// the values pointing back to indexes in the original notetype.
+    /** A list with an entry for each field/template in the new notetype, with
+    the values pointing back to indexes in the original notetype. */
     mapForContext(ctx: MapContext): (number | null)[] {
         return ctx == MapContext.Template ? this.templates ?? [] : this.fields;
     }
 
-    /// Return index of old fields/templates, with null values mapped to "Nothing"
-    /// at the end.
+    /** Return index of old fields/templates, with null values mapped to "Nothing"
+    at the end.*/
     getOldIndex(ctx: MapContext, newIdx: number): number {
         const map = this.mapForContext(ctx);
         const val = map[newIdx];
         return val ?? this.getOldNamesIncludingNothing(ctx).length - 1;
     }
 
-    /// Return all the old names, with "Nothing" at the end.
+    /** Return all the old names, with "Nothing" at the end. */
     getOldNamesIncludingNothing(ctx: MapContext): string[] {
         return [...this.getOldNames(ctx), tr.changeNotetypeNothing()];
     }
 
-    /// Old names without "Nothing" at the end.
+    /** Old names without "Nothing" at the end. */
     getOldNames(ctx: MapContext): string[] {
         return ctx == MapContext.Template
             ? this.info.oldTemplateNames
@@ -93,7 +93,7 @@ export class ChangeNotetypeInfoWrapper {
         return this.info.input as Notetypes.ChangeNotetypeRequest;
     }
 
-    /// Pack changes back into input message for saving.
+    /** Pack changes back into input message for saving. */
     intoInput(): Notetypes.ChangeNotetypeRequest {
         const input = this.info.input as Notetypes.ChangeNotetypeRequest;
         input.newFields = nullToNegativeOne(this.fields);

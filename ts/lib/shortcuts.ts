@@ -141,8 +141,8 @@ function innerShortcut(
 
 export interface RegisterShortcutRestParams {
     target: EventTarget;
-    /// There might be no good reason to use `keyup` other
-    /// than to circumvent Qt bugs
+    /** There might be no good reason to use `keyup` other
+    than to circumvent Qt bugs */
     event: "keydown" | "keyup";
 }
 

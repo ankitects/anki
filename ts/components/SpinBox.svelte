@@ -18,8 +18,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let input: HTMLInputElement;
     let focused = false;
 
-    /// Set value to a new number, clamping it to a valid range, and
-    /// leaving it unchanged if `newValue` is NaN.
+    /** Set value to a new number, clamping it to a valid range, and
+        leaving it unchanged if `newValue` is NaN. */
     function updateValue(newValue: number) {
         if (Number.isNaN(newValue)) {
             // avoid updating the value
