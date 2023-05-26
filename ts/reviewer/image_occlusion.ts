@@ -3,6 +3,8 @@
 
 import * as tr from "@tslib/ftl";
 
+import { xFromNormalized, yFromNormalized } from "../image-occlusion/position";
+
 window.addEventListener("load", () => {
     window.addEventListener("resize", setupImageCloze);
 });
@@ -38,10 +40,10 @@ function setupImageClozeInner(): void {
         button.addEventListener("click", toggleMasks);
     }
 
-    drawShapes(ctx);
+    drawShapes(canvas, ctx);
 }
 
-function drawShapes(ctx: CanvasRenderingContext2D): void {
+function drawShapes(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): void {
     const activeCloze = document.querySelectorAll(".cloze");
     const inActiveCloze = document.querySelectorAll(".cloze-inactive");
     const shapeProperty = getShapeProperty();
@@ -50,7 +52,7 @@ function drawShapes(ctx: CanvasRenderingContext2D): void {
         const cloze = (<HTMLDivElement> clz);
         const shape = cloze.dataset.shape!;
         const fill = shapeProperty.activeShapeColor;
-        draw(ctx, cloze, shape, fill, shapeProperty.activeBorder);
+        draw(canvas, ctx, cloze, shape, fill, shapeProperty.activeBorder);
     }
 
     for (const clz of inActiveCloze) {
@@ -59,12 +61,13 @@ function drawShapes(ctx: CanvasRenderingContext2D): void {
         const fill = shapeProperty.inActiveShapeColor;
         const hideinactive = cloze.dataset.hideinactive == "true";
         if (!hideinactive) {
-            draw(ctx, cloze, shape, fill, shapeProperty.inActiveBorder);
+            draw(canvas, ctx, cloze, shape, fill, shapeProperty.inActiveBorder);
         }
     }
 }
 
 function draw(
+    canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D,
     cloze: HTMLDivElement,
     shape: string,
@@ -73,10 +76,10 @@ function draw(
 ): void {
     ctx.fillStyle = color;
 
-    const posLeft = parseFloat(cloze.dataset.left!);
-    const posTop = parseFloat(cloze.dataset.top!);
-    const width = parseFloat(cloze.dataset.width!);
-    const height = parseFloat(cloze.dataset.height!);
+    const posLeft = xFromNormalized(canvas, cloze.dataset.left!);
+    const posTop = yFromNormalized(canvas, cloze.dataset.top!);
+    const width = xFromNormalized(canvas, cloze.dataset.width!);
+    const height = yFromNormalized(canvas, cloze.dataset.height!);
 
     switch (shape) {
         case "rect":
@@ -90,8 +93,8 @@ function draw(
 
         case "ellipse":
             {
-                const rx = parseFloat(cloze.dataset.rx!);
-                const ry = parseFloat(cloze.dataset.ry!);
+                const rx = xFromNormalized(canvas, cloze.dataset.rx!);
+                const ry = yFromNormalized(canvas, cloze.dataset.ry!);
                 const newLeft = posLeft + rx;
                 const newTop = posTop + ry;
                 ctx.beginPath();
@@ -112,7 +115,7 @@ function draw(
                 ctx.lineWidth = border.width;
                 ctx.moveTo(points[0][0], points[0][1]);
                 for (let i = 1; i < points.length; i++) {
-                    ctx.lineTo(points[i][0], points[i][1]);
+                    ctx.lineTo(xFromNormalized(canvas, points[i][0]), yFromNormalized(canvas, points[i][1]));
                 }
                 ctx.closePath();
                 ctx.fill();

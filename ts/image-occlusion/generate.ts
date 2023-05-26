@@ -2,12 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import * as tr from "@tslib/ftl";
-import { fabric } from "fabric";
+import type { StaticCanvas } from "fabric";
 import { get } from "svelte/store";
 
 import type { Collection } from "../lib/proto";
 import type { IOMode } from "./lib";
 import { addImageOcclusionNote, updateImageOcclusionNote } from "./lib";
+import { xToNormalized, yToNormalized } from "./position";
 import { notesDataStore, tagsWritable } from "./store";
 import Toast from "./Toast.svelte";
 import { makeMaskTransparent } from "./tools/lib";
@@ -20,11 +21,8 @@ const divData = [
     "width",
 ];
 
-// Defines the number of fraction digits to use when serializing object values
-fabric.Object.NUM_FRACTION_DIGITS = 2;
-
 export function generate(hideInactive: boolean): { occlusionCloze: string; noteCount: number } {
-    const canvas = globalThis.canvas;
+    const canvas = globalThis.canvas as StaticCanvas;
     const canvasObjects = canvas.getObjects();
     if (canvasObjects.length < 1) {
         return { occlusionCloze: "", noteCount: 0 };
@@ -40,9 +38,9 @@ export function generate(hideInactive: boolean): { occlusionCloze: string; noteC
         const obJson = object.toJSON();
         noteCount++;
         if (obJson.type === "group") {
-            clozeData += getGroupCloze(object, index, hideInactive);
+            clozeData += getGroupCloze(canvas, object, index, hideInactive);
         } else {
-            clozeData += getCloze(object, index, null, hideInactive);
+            clozeData += getCloze(canvas, object, index, null, hideInactive);
         }
     });
 
@@ -50,35 +48,37 @@ export function generate(hideInactive: boolean): { occlusionCloze: string; noteC
     return { occlusionCloze, noteCount };
 }
 
-const getCloze = (object, index, relativePos, hideInactive): string => {
+const getCloze = (canvas: HTMLCanvasElement, object, index, relativePos, hideInactive): string => {
     const obJson = object.toJSON();
     let clozeData = "";
 
     // generate cloze data in form of
-    // {{c1::image-occlusion:rect:top=100:left=100:width=100:height=100}}
+    // {{c1::image-occlusion:rect:top=.1:left=.23:width=.4:height=.5}}
     Object.keys(obJson).forEach(function(key) {
         if (divData.includes(key)) {
             if (key === "type") {
                 clozeData += `:${obJson[key]}`;
 
                 if (obJson[key] === "ellipse") {
-                    clozeData += `:rx=${obJson.rx.toFixed(2)}:ry=${obJson.ry.toFixed(2)}`;
+                    clozeData += `:rx=${xToNormalized(canvas, obJson.rx)}:ry=${yToNormalized(canvas, obJson.ry)}`;
                 }
 
                 if (obJson[key] === "polygon") {
                     const points = obJson.points;
                     let pnts = "";
                     points.forEach((point: { x: number; y: number }) => {
-                        pnts += point.x.toFixed(2) + "," + point.y.toFixed(2) + " ";
+                        pnts += xToNormalized(canvas, point.x) + "," + yToNormalized(canvas, point.y) + " ";
                     });
                     clozeData += `:points=${pnts.trim()}`;
                 }
-            } else if (relativePos && key === "top") {
-                clozeData += `:top=${relativePos.top}`;
-            } else if (relativePos && key === "left") {
-                clozeData += `:left=${relativePos.left}`;
-            } else {
-                clozeData += `:${key}=${obJson[key]}`;
+            } else if (key === "top") {
+                clozeData += `:top=${yToNormalized(canvas, relativePos?.top ?? obJson.top)}`;
+            } else if (key === "left") {
+                clozeData += `:left=${xToNormalized(canvas, relativePos?.left ?? obJson.left)}`;
+            } else if (key === "width") {
+                clozeData += `:width=${xToNormalized(canvas, obJson.width)}`;
+            } else if (key === "height") {
+                clozeData += `:height=${yToNormalized(canvas, obJson.height)}`;
             }
         }
     });
@@ -88,13 +88,13 @@ const getCloze = (object, index, relativePos, hideInactive): string => {
     return clozeData;
 };
 
-const getGroupCloze = (group, index, hideInactive): string => {
+const getGroupCloze = (canvas: HTMLCanvasElement, group, index, hideInactive): string => {
     let clozeData = "";
     const objects = group._objects;
 
     objects.forEach((object) => {
         const { top, left } = getObjectPositionInGroup(group, object);
-        clozeData += getCloze(object, index, { top, left }, hideInactive);
+        clozeData += getCloze(canvas, object, index, { top, left }, hideInactive);
     });
 
     return clozeData;
