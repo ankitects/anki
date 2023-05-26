@@ -25,7 +25,7 @@ import { GraphRange } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
 import { hideTooltip, showTooltip } from "./tooltip";
 
-/// 4 element array
+/** 4 element array */
 type ButtonCounts = number[];
 
 export interface GraphData {

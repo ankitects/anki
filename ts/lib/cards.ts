@@ -9,17 +9,17 @@ export enum CardType {
 }
 
 export enum CardQueue {
-    /// due is the order cards are shown in
+    /** due is the order cards are shown in */
     New = 0,
-    /// due is a unix timestamp
+    /** due is a unix timestamp */
     Learn = 1,
-    /// due is days since creation date
+    /** due is days since creation date */
     Review = 2,
     DayLearn = 3,
-    /// due is a unix timestamp.
-    /// preview cards only placed here when failed.
+    /** due is a unix timestamp. */
+    /** preview cards only placed here when failed. */
     PreviewRepeat = 4,
-    /// cards are not due in these states
+    /** cards are not due in these states */
     Suspended = -1,
     SchedBuried = -2,
     UserBuried = -3,

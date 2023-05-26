@@ -9,7 +9,7 @@ declare global {
     }
 }
 
-/// HTML <a> tag pointing to a bridge command.
+/** HTML <a> tag pointing to a bridge command. */
 export function bridgeLink(command: string, label: string): string {
     return `<a href="javascript:bridgeCommand('${command}')">${label}</a>`;
 }
