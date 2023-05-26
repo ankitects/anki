@@ -80,6 +80,7 @@ impl LintContext {
                 .collect();
             if exts.contains(&path.extension()) {
                 self.check_copyright(path)?;
+                self.check_triple_slash(path)?;
             }
         }
         Ok(())
@@ -103,6 +104,19 @@ impl LintContext {
                 fix_copyright(path)?;
             } else {
                 println!("missing standard copyright header: {:?}", path);
+                self.found_problems = true;
+            }
+        }
+        Ok(())
+    }
+
+    fn check_triple_slash(&mut self, path: &Utf8Path) -> Result<()> {
+        if !matches!(path.extension(), Some("ts") | Some("svelte")) {
+            return Ok(());
+        }
+        for line in fs::read_to_string(path)?.lines() {
+            if line.contains("///") && !line.contains("/// <reference") {
+                println!("not a docstring: {path}: {line}");
                 self.found_problems = true;
             }
         }
