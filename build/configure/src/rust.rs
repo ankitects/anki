@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use ninja_gen::action::BuildAction;
+use ninja_gen::build::FilesHandle;
 use ninja_gen::cargo::CargoBuild;
 use ninja_gen::cargo::CargoClippy;
 use ninja_gen::cargo::CargoFormat;
@@ -9,6 +11,7 @@ use ninja_gen::cargo::CargoTest;
 use ninja_gen::cargo::RustOutput;
 use ninja_gen::git::SyncSubmodule;
 use ninja_gen::glob;
+use ninja_gen::input::BuildInput;
 use ninja_gen::inputs;
 use ninja_gen::Build;
 use ninja_gen::Result;
@@ -149,5 +152,59 @@ pub fn check_rust(build: &mut Build) -> Result<()> {
     )?;
     build.add("check:rust_test", CargoTest { inputs })?;
 
+    Ok(())
+}
+
+pub fn check_minilints(build: &mut Build) -> Result<()> {
+    struct RunMinilints {
+        pub deps: BuildInput,
+        pub fix: bool,
+    }
+
+    impl BuildAction for RunMinilints {
+        fn command(&self) -> &str {
+            "$minilints_bin $fix"
+        }
+
+        fn files(&mut self, build: &mut impl FilesHandle) {
+            build.add_inputs("minilints_bin", inputs![":build:minilints"]);
+            build.add_inputs("", &self.deps);
+            build.add_variable("fix", if self.fix { "fix" } else { "" });
+            build.add_output_stamp(format!("tests/minilints.{}", self.fix));
+        }
+
+        fn on_first_instance(&self, build: &mut Build) -> Result<()> {
+            build.add(
+                "build:minilints",
+                CargoBuild {
+                    inputs: inputs![glob!("tools/minilints/**/*")],
+                    outputs: &[RustOutput::Binary("minilints")],
+                    target: None,
+                    extra_args: "-p minilints",
+                    release_override: Some(false),
+                },
+            )
+        }
+    }
+
+    let files = inputs![glob![
+        "**/*.{py,rs,ts,svelte,mjs}",
+        "{node_modules,qt/bundle/PyOxidizer}/**"
+    ]];
+
+    build.add(
+        "check:minilints",
+        RunMinilints {
+            deps: files.clone(),
+            fix: false,
+        },
+    )?;
+    build.add(
+        "fix:minilints",
+        RunMinilints {
+            deps: files,
+            fix: true,
+        },
+    )?;
     Ok(())
 }

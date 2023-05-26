@@ -15,9 +15,9 @@ function getThemeFromRoot(): ThemeInfo {
 }
 
 let setPageTheme: ((theme: ThemeInfo) => void) | null = null;
-/// The current theme that applies to this document/shadow root. When
-/// previewing cards in the card layout screen, this may not match the
-/// theme Anki is using in its UI.
+/** The current theme that applies to this document/shadow root. When
+previewing cards in the card layout screen, this may not match the
+theme Anki is using in its UI. */
 export const pageTheme = readable(getThemeFromRoot(), (set) => {
     setPageTheme = set;
 });

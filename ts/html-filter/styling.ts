@@ -1,15 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-/// Keep property if true.
+/** Keep property if true. */
 type StylingPredicate = (property: string, value: string) => boolean;
 
 const keep = (_key: string, _value: string) => true;
 const discard = (_key: string, _value: string) => false;
 
-/// Return a function that filters out certain styles.
-/// - If the style is listed in `exceptions`, the provided predicate is used.
-/// - If the style is not listed, the default predicate is used instead.
+/** Return a function that filters out certain styles.
+   - If the style is listed in `exceptions`, the provided predicate is used.
+   - If the style is not listed, the default predicate is used instead. */
 function filterStyling(
     defaultPredicate: StylingPredicate,
     exceptions: Record<string, StylingPredicate>,

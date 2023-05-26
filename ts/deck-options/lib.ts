@@ -21,7 +21,7 @@ export interface ParentLimits {
     reviews: number;
 }
 
-/// Info for showing the top selector
+/** Info for showing the top selector */
 export interface ConfigListEntry {
     idx: number;
     name: string;
@@ -124,17 +124,17 @@ export class DeckOptionsState {
         this.updateConfigList();
     }
 
-    /// Adds a new config, making it current.
+    /** Adds a new config, making it current. */
     addConfig(name: string): void {
         this.addConfigFrom(name, this.defaults);
     }
 
-    /// Clone the current config, making it current.
+    /** Clone the current config, making it current. */
     cloneConfig(name: string): void {
         this.addConfigFrom(name, this.configs[this.selectedIdx].config.config!);
     }
 
-    /// Clone the current config, making it current.
+    /** Clone the current config, making it current. */
     private addConfigFrom(name: string, source: DeckConfig.DeckConfig.IConfig): void {
         const uniqueName = this.ensureNewNameUnique(name);
         const config = DeckConfig.DeckConfig.create({
@@ -158,7 +158,7 @@ export class DeckOptionsState {
         return this.configs[this.selectedIdx].config.id === 1;
     }
 
-    /// Will throw if the default deck is selected.
+    /** Will throw if the default deck is selected. */
     removeCurrentConfig(): void {
         const currentId = this.configs[this.selectedIdx].config.id;
         if (currentId === 1) {
@@ -250,12 +250,12 @@ export class DeckOptionsState {
         this.configListSetter?.(this.getConfigList());
     }
 
-    /// Returns a copy of the currently selected config.
+    /** Returns a copy of the currently selected config. */
     private getCurrentConfig(): DeckConfig.DeckConfig.Config {
         return cloneDeep(this.configs[this.selectedIdx].config.config!);
     }
 
-    /// Extra data associated with current config (for add-ons)
+    /** Extra data associated with current config (for add-ons) */
     private getCurrentAuxData(): Record<string, unknown> {
         const conf = this.configs[this.selectedIdx].config.config!;
         return bytesToObject(conf.other);
