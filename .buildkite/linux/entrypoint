@@ -2,10 +2,6 @@
 
 set -e
 
-# check author has added themselves to CONTRIBUTORS
-echo "--- Checking CONTRIBUTORS"
-.buildkite/linux/check_contributors
-
 echo "+++ Building and testing"
 ln -sf out/node_modules .
 
