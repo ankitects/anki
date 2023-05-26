@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import * as tr from "@tslib/ftl";
-import type { StaticCanvas } from "fabric";
+import type { Canvas } from "fabric";
 import { get } from "svelte/store";
 
 import type { Collection } from "../lib/proto";
@@ -12,6 +12,7 @@ import { xToNormalized, yToNormalized } from "./position";
 import { notesDataStore, tagsWritable } from "./store";
 import Toast from "./Toast.svelte";
 import { makeMaskTransparent } from "./tools/lib";
+import type { Size } from "./types";
 
 const divData = [
     "height",
@@ -22,7 +23,7 @@ const divData = [
 ];
 
 export function generate(hideInactive: boolean): { occlusionCloze: string; noteCount: number } {
-    const canvas = globalThis.canvas as StaticCanvas;
+    const canvas = globalThis.canvas as Canvas;
     const canvasObjects = canvas.getObjects();
     if (canvasObjects.length < 1) {
         return { occlusionCloze: "", noteCount: 0 };
@@ -48,7 +49,7 @@ export function generate(hideInactive: boolean): { occlusionCloze: string; noteC
     return { occlusionCloze, noteCount };
 }
 
-const getCloze = (canvas: HTMLCanvasElement, object, index, relativePos, hideInactive): string => {
+const getCloze = (size: Size, object, index, relativePos, hideInactive): string => {
     const obJson = object.toJSON();
     let clozeData = "";
 
@@ -60,25 +61,25 @@ const getCloze = (canvas: HTMLCanvasElement, object, index, relativePos, hideIna
                 clozeData += `:${obJson[key]}`;
 
                 if (obJson[key] === "ellipse") {
-                    clozeData += `:rx=${xToNormalized(canvas, obJson.rx)}:ry=${yToNormalized(canvas, obJson.ry)}`;
+                    clozeData += `:rx=${xToNormalized(size, obJson.rx)}:ry=${yToNormalized(size, obJson.ry)}`;
                 }
 
                 if (obJson[key] === "polygon") {
                     const points = obJson.points;
                     let pnts = "";
                     points.forEach((point: { x: number; y: number }) => {
-                        pnts += xToNormalized(canvas, point.x) + "," + yToNormalized(canvas, point.y) + " ";
+                        pnts += xToNormalized(size, point.x) + "," + yToNormalized(size, point.y) + " ";
                     });
                     clozeData += `:points=${pnts.trim()}`;
                 }
             } else if (key === "top") {
-                clozeData += `:top=${yToNormalized(canvas, relativePos?.top ?? obJson.top)}`;
+                clozeData += `:top=${yToNormalized(size, relativePos?.top ?? obJson.top)}`;
             } else if (key === "left") {
-                clozeData += `:left=${xToNormalized(canvas, relativePos?.left ?? obJson.left)}`;
+                clozeData += `:left=${xToNormalized(size, relativePos?.left ?? obJson.left)}`;
             } else if (key === "width") {
-                clozeData += `:width=${xToNormalized(canvas, obJson.width)}`;
+                clozeData += `:width=${xToNormalized(size, obJson.width)}`;
             } else if (key === "height") {
-                clozeData += `:height=${yToNormalized(canvas, obJson.height)}`;
+                clozeData += `:height=${yToNormalized(size, obJson.height)}`;
             }
         }
     });
