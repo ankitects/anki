@@ -452,10 +452,11 @@ class AddonManager:
         base = self.addonsFolder(module)
         if os.path.exists(base):
             self.backupUserFiles(module)
-            if not self.deleteAddon(module):
+            try:
+                self.deleteAddon(module)
+            except Exception:
                 self.restoreUserFiles(module)
-                return
-
+                raise
         os.mkdir(base)
         self.restoreUserFiles(module)
 
@@ -471,17 +472,8 @@ class AddonManager:
                 continue
             zfile.extract(n, base)
 
-    # true on success
-    def deleteAddon(self, module: str) -> bool:
-        try:
-            send_to_trash(Path(self.addonsFolder(module)))
-            return True
-        except OSError as e:
-            showWarning(
-                tr.addons_unable_to_update_or_delete_addon(val=str(e)),
-                textFormat="plain",
-            )
-            return False
+    def deleteAddon(self, module: str) -> None:
+        send_to_trash(Path(self.addonsFolder(module)))
 
     # Processing local add-on files
     ######################################################################
@@ -914,12 +906,17 @@ class AddonsDialog(QDialog):
         if not askUser(tr.addons_delete_the_numd_selected_addon(count=len(selected))):
             return
         gui_hooks.addons_dialog_will_delete_addons(self, selected)
-        for module in selected:
-            # doing this before deleting, as `enabled` is always True afterwards
-            if self.mgr.addon_meta(module).enabled:
-                self._require_restart = True
-            if not self.mgr.deleteAddon(module):
-                break
+        try:
+            for module in selected:
+                # doing this before deleting, as `enabled` is always True afterwards
+                if self.mgr.addon_meta(module).enabled:
+                    self._require_restart = True
+                self.mgr.deleteAddon(module)
+        except OSError as e:
+            showWarning(
+                tr.addons_unable_to_update_or_delete_addon(val=str(e)),
+                textFormat="plain",
+            )
         self.form.addonList.clearSelection()
         self.redrawAddons()
 
