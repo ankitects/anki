@@ -426,7 +426,9 @@ class AddonManager:
             conflicts = manifest.get("conflicts", [])
             found_conflicts = self._disableConflicting(package, conflicts)
             meta = self.addonMeta(package)
+            gui_hooks.addon_manager_will_install_addon(self, package)
             self._install(package, zfile)
+            gui_hooks.addon_manager_did_install_addon(self, package)
 
         schema = self._manifest_schema["properties"]
         manifest_meta = {

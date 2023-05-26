@@ -1211,6 +1211,16 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         args=["dialog: aqt.addons.AddonsDialog", "ids: list[str]"],
         doc="""Allows doing an action before an add-on is deleted.""",
     ),
+    Hook(
+        name="addon_manager_will_install_addon",
+        args=["manager: aqt.addons.AddonManager", "module: str"],
+        doc="""Called before installing or updating an addon.""",
+    ),
+    Hook(
+        name="addon_manager_did_install_addon",
+        args=["manager: aqt.addons.AddonManager", "module: str"],
+        doc="""Called after installing or updating an addon.""",
+    ),
     # Model
     ###################
     Hook(
