@@ -5,3 +5,7 @@ export interface Size {
     width: number;
     height: number;
 }
+
+export type ConstructorParams<T> = {
+    [P in keyof T]?: T[P];
+};

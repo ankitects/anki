@@ -3,7 +3,7 @@
 
 import { fabric } from "fabric";
 
-import { borderColor, shapeMaskColor, stopDraw } from "./lib";
+import { BORDER_COLOR, disableRotation, SHAPE_MASK_COLOR, stopDraw } from "./lib";
 import { objectAdded } from "./tool-undo-redo";
 
 const addedRectangleIds: string[] = [];
@@ -33,14 +33,15 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
             width: pointer.x - origX,
             height: pointer.y - origY,
             angle: 0,
-            fill: shapeMaskColor,
+            fill: SHAPE_MASK_COLOR,
             transparentCorners: false,
             selectable: true,
-            stroke: borderColor,
+            stroke: BORDER_COLOR,
             strokeWidth: 1,
             strokeUniform: true,
             noScaleCache: false,
         });
+        disableRotation(rect);
         canvas.add(rect);
     });
 

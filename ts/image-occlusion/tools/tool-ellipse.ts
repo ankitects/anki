@@ -3,7 +3,7 @@
 
 import { fabric } from "fabric";
 
-import { borderColor, shapeMaskColor, stopDraw } from "./lib";
+import { BORDER_COLOR, disableRotation, SHAPE_MASK_COLOR, stopDraw } from "./lib";
 import { objectAdded } from "./tool-undo-redo";
 
 const addedEllipseIds: string[] = [];
@@ -32,14 +32,15 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
             originY: "top",
             rx: pointer.x - origX,
             ry: pointer.y - origY,
-            fill: shapeMaskColor,
+            fill: SHAPE_MASK_COLOR,
             transparentCorners: false,
             selectable: true,
-            stroke: borderColor,
+            stroke: BORDER_COLOR,
             strokeWidth: 1,
             strokeUniform: true,
             noScaleCache: false,
         });
+        disableRotation(ellipse);
         canvas.add(ellipse);
     });
 

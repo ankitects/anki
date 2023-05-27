@@ -4,7 +4,12 @@
 import * as tr from "@tslib/ftl";
 
 import { cappedCanvasSize } from "../image-occlusion/canvas-cap";
-import { xFromNormalized, yFromNormalized } from "../image-occlusion/position";
+import type { Shape } from "./shapes/base";
+import { Ellipse } from "./shapes/ellipse";
+import { extractShapesFromRenderedClozes } from "./shapes/from-cloze";
+import { Polygon } from "./shapes/polygon";
+import { Rectangle } from "./shapes/rectangle";
+import type { Size } from "./types";
 
 export function setupImageCloze(): void {
     window.addEventListener("load", () => {
@@ -44,88 +49,75 @@ function setupImageClozeInner(): void {
 }
 
 function drawShapes(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): void {
-    const activeCloze = document.querySelectorAll(".cloze");
-    const inActiveCloze = document.querySelectorAll(".cloze-inactive");
     const shapeProperty = getShapeProperty();
-
-    for (const clz of activeCloze) {
-        const cloze = (<HTMLDivElement> clz);
-        const shape = cloze.dataset.shape!;
+    const size = canvas;
+    for (const active of extractShapesFromRenderedClozes(".cloze")) {
         const fill = shapeProperty.activeShapeColor;
-        draw(canvas, ctx, cloze, shape, fill, shapeProperty.activeBorder);
+        drawShape(ctx, size, active, fill, shapeProperty.activeBorder);
     }
-
-    for (const clz of inActiveCloze) {
-        const cloze = (<HTMLDivElement> clz);
-        const shape = cloze.dataset.shape!;
+    for (const inactive of extractShapesFromRenderedClozes(".cloze-inactive")) {
         const fill = shapeProperty.inActiveShapeColor;
-        const hideinactive = cloze.dataset.hideinactive == "true";
-        if (!hideinactive) {
-            draw(canvas, ctx, cloze, shape, fill, shapeProperty.inActiveBorder);
+        if (inactive.occludeInactive) {
+            drawShape(ctx, size, inactive, fill, shapeProperty.inActiveBorder);
         }
     }
 }
 
-function draw(
-    canvas: HTMLCanvasElement,
+function drawShape(
     ctx: CanvasRenderingContext2D,
-    cloze: HTMLDivElement,
-    shape: string,
+    size: Size,
+    shape: Shape,
     color: string,
     border: { width: number; color: string },
 ): void {
+    shape.makeAbsolute(size);
     ctx.fillStyle = color;
-
-    const posLeft = xFromNormalized(canvas, cloze.dataset.left!);
-    const posTop = yFromNormalized(canvas, cloze.dataset.top!);
-    const width = xFromNormalized(canvas, cloze.dataset.width!);
-    const height = yFromNormalized(canvas, cloze.dataset.height!);
-
-    switch (shape) {
-        case "rect":
-            {
-                ctx.strokeStyle = border.color;
-                ctx.lineWidth = border.width;
-                ctx.fillRect(posLeft, posTop, width, height);
-                ctx.strokeRect(posLeft, posTop, width, height);
-            }
-            break;
-
-        case "ellipse":
-            {
-                const rx = xFromNormalized(canvas, cloze.dataset.rx!);
-                const ry = yFromNormalized(canvas, cloze.dataset.ry!);
-                const newLeft = posLeft + rx;
-                const newTop = posTop + ry;
-                ctx.beginPath();
-                ctx.strokeStyle = border.color;
-                ctx.lineWidth = border.width;
-                ctx.ellipse(newLeft, newTop, rx, ry, 0, 0, Math.PI * 2, false);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-            }
-            break;
-
-        case "polygon":
-            {
-                const points = JSON.parse(cloze.dataset.points!);
-                ctx.beginPath();
-                ctx.strokeStyle = border.color;
-                ctx.lineWidth = border.width;
-                ctx.moveTo(points[0][0], points[0][1]);
-                for (let i = 1; i < points.length; i++) {
-                    ctx.lineTo(xFromNormalized(canvas, points[i][0]), yFromNormalized(canvas, points[i][1]));
-                }
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-            }
-            break;
-
-        default:
-            break;
+    ctx.strokeStyle = border.color;
+    ctx.lineWidth = border.width;
+    if (shape instanceof Rectangle) {
+        ctx.fillRect(shape.left, shape.top, shape.width, shape.height);
+        ctx.strokeRect(shape.left, shape.top, shape.width, shape.height);
+    } else if (shape instanceof Ellipse) {
+        const adjustedLeft = shape.left + shape.rx;
+        const adjustedTop = shape.top + shape.ry;
+        ctx.beginPath();
+        ctx.ellipse(adjustedLeft, adjustedTop, shape.rx, shape.ry, 0, 0, Math.PI * 2, false);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+    } else if (shape instanceof Polygon) {
+        const offset = getPolygonOffset(shape);
+        ctx.save();
+        ctx.translate(offset.x, offset.y);
+        ctx.beginPath();
+        ctx.moveTo(shape.points[0].x, shape.points[0].y);
+        for (let i = 0; i < shape.points.length; i++) {
+            ctx.lineTo(shape.points[i].x, shape.points[i].y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
     }
+}
+
+function getPolygonOffset(polygon: Polygon): { x: number; y: number } {
+    const topLeft = topLeftOfPoints(polygon.points);
+    return { x: polygon.left - topLeft.x, y: polygon.top - topLeft.y };
+}
+
+function topLeftOfPoints(points: { x: number; y: number }[]): { x: number; y: number } {
+    let top = points[0].y;
+    let left = points[0].x;
+    for (const point of points) {
+        if (point.y < top) {
+            top = point.y;
+        }
+        if (point.x < left) {
+            left = point.x;
+        }
+    }
+    return { x: left, y: top };
 }
 
 function getShapeProperty(): {

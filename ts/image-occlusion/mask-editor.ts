@@ -12,8 +12,8 @@ import { cappedCanvasSize } from "./canvas-cap";
 import { getImageForOcclusion, getImageOcclusionNote } from "./lib";
 import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
 import Toast from "./Toast.svelte";
+import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
 import { enableSelectable, moveShapeToCanvasBoundaries } from "./tools/lib";
-import { generateShapeFromCloze } from "./tools/shape-generate";
 import { undoRedoInit } from "./tools/tool-undo-redo";
 
 export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<fabric.Canvas> => {
@@ -62,7 +62,7 @@ export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom):
         image.width = size.width;
 
         setCanvasZoomRatio(canvas, instance);
-        generateShapeFromCloze(canvas, clozeNote.occlusions);
+        addShapesToCanvasFromCloze(canvas, clozeNote.occlusions);
         enableSelectable(canvas, true);
         addClozeNotesToTextEditor(clozeNote.header, clozeNote.backExtra, clozeNote.tags);
     };

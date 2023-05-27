@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
 
     import Container from "../components/Container.svelte";
-    import { addOrUpdateNote } from "./generate";
+    import { addOrUpdateNote } from "./add-or-update-note";
     import type { IOMode } from "./lib";
     import MasksEditor from "./MaskEditor.svelte";
     import Notes from "./Notes.svelte";
@@ -15,11 +15,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let mode: IOMode;
 
     async function hideAllGuessOne(): Promise<void> {
-        addOrUpdateNote(mode, false);
+        addOrUpdateNote(mode, true);
     }
 
     async function hideOneGuessOne(): Promise<void> {
-        addOrUpdateNote(mode, true);
+        addOrUpdateNote(mode, false);
     }
 
     const items = [
