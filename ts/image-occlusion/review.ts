@@ -3,7 +3,7 @@
 
 import * as tr from "@tslib/ftl";
 
-import { cappedCanvasSize } from "../image-occlusion/canvas-cap";
+import { optimumCanvasSize } from "./canvas-scale";
 import type { Shape } from "./shapes/base";
 import { Ellipse } from "./shapes/ellipse";
 import { extractShapesFromRenderedClozes } from "./shapes/from-cloze";
@@ -32,7 +32,7 @@ function setupImageClozeInner(): void {
         return;
     }
 
-    const size = cappedCanvasSize({ width: image.naturalWidth, height: image.naturalHeight });
+    const size = optimumCanvasSize({ width: image.naturalWidth, height: image.naturalHeight });
     canvas.width = size.width;
     canvas.height = size.height;
 
