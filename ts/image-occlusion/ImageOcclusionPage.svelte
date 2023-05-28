@@ -50,8 +50,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <div hidden={activeTabValue != 2}>
         <Notes />
-        <StickyFooter {hideAllGuessOne} {hideOneGuessOne} />
     </div>
+
+    <StickyFooter {hideAllGuessOne} {hideOneGuessOne} />
 </Container>
 
 <style lang="scss">
