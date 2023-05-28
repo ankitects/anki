@@ -15,6 +15,7 @@ import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
 import { enableSelectable, moveShapeToCanvasBoundaries } from "./tools/lib";
 import { undoRedoInit } from "./tools/tool-undo-redo";
+import type { Size } from "./types";
 
 export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<fabric.Canvas> => {
     const imageData = await getImageForOcclusion(path!);
@@ -24,7 +25,7 @@ export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<
     const image = document.getElementById("image") as HTMLImageElement;
     image.src = getImageData(imageData.data!);
     image.onload = function() {
-        const size = optimumCanvasSize({ width: image.width, height: image.height });
+        const size = optimumCanvasSize({ width: image.width, height: image.height }, containerSize());
         canvas.setWidth(size.width);
         canvas.setHeight(size.height);
         image.height = size.height;
@@ -55,7 +56,7 @@ export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom):
     const image = document.getElementById("image") as HTMLImageElement;
     image.src = getImageData(clozeNote.imageData!);
     image.onload = function() {
-        const size = optimumCanvasSize({ width: image.width, height: image.height });
+        const size = optimumCanvasSize({ width: image.width, height: image.height }, containerSize());
         canvas.setWidth(size.width);
         canvas.setHeight(size.height);
         image.height = size.height;
@@ -121,3 +122,11 @@ const addClozeNotesToTextEditor = (header: string, backExtra: string, tags: stri
         textAreaElement.value = note.textareaValue;
     });
 };
+
+function containerSize(): Size {
+    const container = document.querySelector(".editor-main")!;
+    return {
+        width: container.clientWidth,
+        height: container.clientHeight,
+    };
+}

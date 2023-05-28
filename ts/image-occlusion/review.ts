@@ -32,12 +32,15 @@ function setupImageClozeInner(): void {
         return;
     }
 
-    const size = optimumCanvasSize({ width: image.naturalWidth, height: image.naturalHeight });
+    // Enforce aspect ratio of image
+    container.style.aspectRatio = `${image.naturalWidth / image.naturalHeight}`;
+
+    const size = optimumCanvasSize(
+        { width: image.naturalWidth, height: image.naturalHeight },
+        { width: canvas.clientWidth, height: canvas.clientHeight },
+    );
     canvas.width = size.width;
     canvas.height = size.height;
-
-    // Enforce aspect ratio of image
-    container.style.aspectRatio = `${size.width / size.height}`;
 
     // setup button for toggle image occlusion
     const button = document.getElementById("toggle");

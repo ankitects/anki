@@ -4,17 +4,24 @@
 import type { Size } from "./types";
 
 /**
- * - On Retina displays, the canvas should be double the size of the CSS pixels
- * to be sharp.
+ * - Choose an appropriate size for the canvas based on the current container,
+ * so the masks are sharp and legible.
  * - Safari doesn't allow canvas elements to be over 16M (4096x4096), so we need
  * to ensure the canvas is smaller than that size.
  */
-export function optimumCanvasSize(imageSize: Size): Size {
+export function optimumCanvasSize(imageSize: Size, containerSize: Size): Size {
     let { width, height } = imageSize;
 
     const pixelScale = window.devicePixelRatio;
-    width *= pixelScale;
-    height *= pixelScale;
+    containerSize.width *= pixelScale;
+    containerSize.height *= pixelScale;
+
+    // Scale image dimensions to fit in container, retaining aspect ratio.
+    // We take the minimum of width/height scales, as that's the one that is
+    // potentially limiting the image from expanding.
+    const containerScale = Math.min(containerSize.width / imageSize.width, containerSize.height / imageSize.height);
+    width *= containerScale;
+    height *= containerScale;
 
     const maximumPixels = 4096 * 4096;
     const requiredPixels = width * height;
@@ -25,7 +32,7 @@ export function optimumCanvasSize(imageSize: Size): Size {
     }
 
     return {
-        width,
-        height,
+        width: Math.floor(width),
+        height: Math.floor(height),
     };
 }
