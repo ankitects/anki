@@ -100,7 +100,7 @@ const setCanvasZoomRatio = (
     const zoomRatioH = (innerHeight - 100) / canvas.height!;
     const zoomRatio = zoomRatioW < zoomRatioH ? zoomRatioW : zoomRatioH;
     zoomResetValue.set(zoomRatio);
-    instance.smoothZoom(0, 0, zoomRatio);
+    instance.zoomAbs(0, 0, zoomRatio);
 };
 
 const addClozeNotesToTextEditor = (header: string, backExtra: string, tags: string[]) => {
