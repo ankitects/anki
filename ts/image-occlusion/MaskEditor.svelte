@@ -14,9 +14,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let instance: PanZoom;
     let innerWidth = 0;
+    const startingTool = mode.kind === "add" ? "draw-rectangle" : "cursor";
     $: canvas = null;
 
-    function initPanzoom(node) {
+    function init(node) {
         instance = panzoom(node, {
             bounds: true,
             maxZoom: 3,
@@ -38,9 +39,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<SideToolbar {instance} {canvas} />
+<SideToolbar {instance} {canvas} activeTool={startingTool} />
 <div class="editor-main" bind:clientWidth={innerWidth}>
-    <div class="editor-container" use:initPanzoom>
+    <div class="editor-container" use:init>
         <!-- svelte-ignore a11y-missing-attribute -->
         <img id="image" />
         <canvas id="canvas" />

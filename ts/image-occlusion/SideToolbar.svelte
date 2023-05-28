@@ -14,14 +14,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const iconSize = 80;
 
-    let activeTool = "cursor";
+    export let activeTool = "cursor";
 
-    function setActive(toolId) {
-        activeTool = toolId;
+    // handle tool changes after initialization
+    $: if (instance && canvas) {
         disableFunctions();
         enableSelectable(canvas, true);
 
-        switch (toolId) {
+        switch (activeTool) {
             case "magnify":
                 enableSelectable(canvas, false);
                 instance.resume();
@@ -56,7 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {iconSize}
             active={activeTool === tool.id}
             on:click={() => {
-                setActive(tool.id);
+                activeTool = tool.id;
             }}>{@html tool.icon}</IconButton
         >
     {/each}
