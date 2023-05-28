@@ -8,8 +8,9 @@ import type { Size } from "./types";
  * so the masks are sharp and legible.
  * - Safari doesn't allow canvas elements to be over 16M (4096x4096), so we need
  * to ensure the canvas is smaller than that size.
+ * - Returns the size in actual pixels, not CSS size.
  */
-export function optimumCanvasSize(imageSize: Size, containerSize: Size): Size {
+export function optimumPixelSizeForCanvas(imageSize: Size, containerSize: Size): Size {
     let { width, height } = imageSize;
 
     const pixelScale = window.devicePixelRatio;
@@ -34,5 +35,14 @@ export function optimumCanvasSize(imageSize: Size, containerSize: Size): Size {
     return {
         width: Math.floor(width),
         height: Math.floor(height),
+    };
+}
+
+/** See {@link optimumPixelSizeForCanvas()} */
+export function optimumCssSizeForCanvas(imageSize: Size, containerSize: Size): Size {
+    const { width, height } = optimumPixelSizeForCanvas(imageSize, containerSize);
+    return {
+        width: width / window.devicePixelRatio,
+        height: height / window.devicePixelRatio,
     };
 }

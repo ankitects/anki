@@ -8,7 +8,7 @@ import type { PanZoom } from "panzoom";
 import protobuf from "protobufjs";
 import { get } from "svelte/store";
 
-import { optimumCanvasSize } from "./canvas-scale";
+import { optimumCssSizeForCanvas } from "./canvas-scale";
 import { getImageForOcclusion, getImageOcclusionNote } from "./lib";
 import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
 import Toast from "./Toast.svelte";
@@ -25,7 +25,7 @@ export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<
     const image = document.getElementById("image") as HTMLImageElement;
     image.src = getImageData(imageData.data!);
     image.onload = function() {
-        const size = optimumCanvasSize({ width: image.width, height: image.height }, containerSize());
+        const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
         canvas.setWidth(size.width);
         canvas.setHeight(size.height);
         image.height = size.height;
@@ -56,7 +56,7 @@ export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom):
     const image = document.getElementById("image") as HTMLImageElement;
     image.src = getImageData(clozeNote.imageData!);
     image.onload = function() {
-        const size = optimumCanvasSize({ width: image.width, height: image.height }, containerSize());
+        const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
         canvas.setWidth(size.width);
         canvas.setHeight(size.height);
         image.height = size.height;

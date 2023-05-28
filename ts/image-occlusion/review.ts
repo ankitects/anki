@@ -3,7 +3,7 @@
 
 import * as tr from "@tslib/ftl";
 
-import { optimumCanvasSize } from "./canvas-scale";
+import { optimumPixelSizeForCanvas } from "./canvas-scale";
 import type { Shape } from "./shapes/base";
 import { Ellipse } from "./shapes/ellipse";
 import { extractShapesFromRenderedClozes } from "./shapes/from-cloze";
@@ -35,7 +35,7 @@ function setupImageClozeInner(): void {
     // Enforce aspect ratio of image
     container.style.aspectRatio = `${image.naturalWidth / image.naturalHeight}`;
 
-    const size = optimumCanvasSize(
+    const size = optimumPixelSizeForCanvas(
         { width: image.naturalWidth, height: image.naturalHeight },
         { width: canvas.clientWidth, height: canvas.clientHeight },
     );
