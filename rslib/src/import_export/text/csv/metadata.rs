@@ -42,10 +42,11 @@ impl Collection {
         path: &str,
         delimiter: Option<Delimiter>,
         notetype_id: Option<NotetypeId>,
+        deck_id: Option<DeckId>,
         is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
         let mut reader = open_file(path)?;
-        self.get_reader_metadata(&mut reader, delimiter, notetype_id, is_html)
+        self.get_reader_metadata(&mut reader, delimiter, notetype_id, deck_id, is_html)
     }
 
     fn get_reader_metadata(
@@ -53,6 +54,7 @@ impl Collection {
         mut reader: impl Read + Seek,
         delimiter: Option<Delimiter>,
         notetype_id: Option<NotetypeId>,
+        deck_id: Option<DeckId>,
         is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
         let mut metadata = CsvMetadata::from_config(self);
@@ -62,9 +64,8 @@ impl Collection {
         maybe_set_fallback_is_html(&mut metadata, &records, is_html)?;
         set_preview(&mut metadata, &records)?;
         maybe_set_fallback_columns(&mut metadata)?;
-        self.maybe_set_fallback_notetype(&mut metadata, notetype_id)?;
+        self.maybe_set_notetype_and_deck(&mut metadata, notetype_id, deck_id)?;
         self.maybe_init_notetype_map(&mut metadata)?;
-        self.maybe_set_fallback_deck(&mut metadata)?;
 
         Ok(metadata)
     }
@@ -176,36 +177,20 @@ impl Collection {
         }
     }
 
-    fn maybe_set_fallback_notetype(
+    pub(crate) fn maybe_set_notetype_and_deck(
         &mut self,
-        metadata: &mut CsvMetadata,
+        metadata: &mut crate::pb::import_export::CsvMetadata,
         notetype_id: Option<NotetypeId>,
+        deck_id: Option<DeckId>,
     ) -> Result<()> {
-        if let Some(ntid) = notetype_id {
-            metadata.notetype = Some(CsvNotetype::new_global(ntid));
-        } else if metadata.notetype.is_none() {
-            metadata.notetype = Some(CsvNotetype::new_global(self.fallback_notetype_id()?));
-        }
-        Ok(())
-    }
-
-    fn maybe_set_fallback_deck(&mut self, metadata: &mut CsvMetadata) -> Result<()> {
-        if metadata.deck.is_none() {
-            metadata.deck = Some(CsvDeck::DeckId(
-                metadata
-                    .notetype_id()
-                    .and_then(|ntid| self.default_deck_for_notetype(ntid).transpose())
-                    .unwrap_or_else(|| {
-                        self.get_current_deck().map(|deck| {
-                            if deck.is_filtered() {
-                                DeckId(1)
-                            } else {
-                                deck.id
-                            }
-                        })
-                    })?
-                    .0,
+        let defaults = self.defaults_for_adding(DeckId(0))?;
+        if metadata.notetype.is_none() {
+            metadata.notetype = Some(CsvNotetype::new_global(
+                notetype_id.unwrap_or(defaults.notetype_id),
             ));
+        }
+        if metadata.deck.is_none() {
+            metadata.deck = Some(CsvDeck::DeckId(deck_id.unwrap_or(defaults.deck_id).0));
         }
         Ok(())
     }
@@ -233,18 +218,6 @@ impl Collection {
             maybe_set_tags_column(metadata, &meta_columns);
         }
         Ok(())
-    }
-
-    fn fallback_notetype_id(&mut self) -> Result<NotetypeId> {
-        Ok(if let Some(notetype_id) = self.get_current_notetype_id() {
-            notetype_id
-        } else {
-            self.storage
-                .get_all_notetype_names()?
-                .first()
-                .or_invalid("collection has no notetypes")?
-                .0
-        })
     }
 }
 
@@ -524,14 +497,6 @@ impl CsvNotetype {
 }
 
 impl CsvMetadata {
-    fn notetype_id(&self) -> Option<NotetypeId> {
-        if let Some(CsvNotetype::GlobalNotetype(ref global)) = self.notetype {
-            Some(NotetypeId(global.id))
-        } else {
-            None
-        }
-    }
-
     pub(super) fn meta_columns(&self) -> HashSet<usize> {
         let mut columns = HashSet::new();
         if let Some(CsvDeck::DeckColumn(deck_column)) = self.deck {
@@ -579,7 +544,7 @@ mod test {
             metadata!($col, $csv, None)
         };
         ($col:expr,$csv:expr, $delim:expr) => {
-            $col.get_reader_metadata(Cursor::new($csv.as_bytes()), $delim, None, None)
+            $col.get_reader_metadata(Cursor::new($csv.as_bytes()), $delim, None, None, None)
                 .unwrap()
         };
     }
