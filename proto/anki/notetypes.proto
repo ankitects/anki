@@ -70,6 +70,8 @@ message Notetype {
     repeated CardRequirement reqs = 8;
     // Only set on notetypes created with Anki 2.1.62+.
     StockNotetype.OriginalStockKind original_stock_kind = 9;
+    // the id in the source collection for imported notetypes (Anki 2.1.65+)
+    optional int64 original_id = 10;
 
     bytes other = 255;
   }

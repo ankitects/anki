@@ -113,6 +113,7 @@ impl<'n> NoteContext<'n> {
 
     fn import_notetypes(&mut self, mut notetypes: Vec<Notetype>) -> Result<()> {
         for notetype in &mut notetypes {
+            notetype.config.original_id.replace(notetype.id.0);
             if let Some(existing) = self.target_col.storage.get_notetype(notetype.id)? {
                 self.merge_or_remap_notetype(notetype, existing)?;
             } else {

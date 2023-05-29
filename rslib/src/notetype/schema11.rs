@@ -64,6 +64,8 @@ pub struct NotetypeSchema11 {
     pub(crate) req: CardRequirementsSchema11,
     #[serde(default, skip_serializing_if = "is_default")]
     pub(crate) original_stock_kind: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub(crate) original_id: Option<i64>,
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
 }
@@ -109,6 +111,7 @@ impl From<NotetypeSchema11> for Notetype {
                 latex_svg: nt.latexsvg,
                 reqs: nt.req.0.into_iter().map(Into::into).collect(),
                 original_stock_kind: nt.original_stock_kind,
+                original_id: nt.original_id,
                 other: other_to_bytes(&nt.other),
             },
             fields: nt.flds.into_iter().map(Into::into).collect(),
@@ -172,6 +175,7 @@ impl From<Notetype> for NotetypeSchema11 {
             latexsvg: c.latex_svg,
             req: CardRequirementsSchema11(c.reqs.into_iter().map(Into::into).collect()),
             original_stock_kind: c.original_stock_kind,
+            original_id: c.original_id,
             other: parse_other_fields(&c.other, &RESERVED_NOTETYPE_KEYS),
         }
     }
