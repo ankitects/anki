@@ -1214,12 +1214,18 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     Hook(
         name="addon_manager_will_install_addon",
         args=["manager: aqt.addons.AddonManager", "module: str"],
-        doc="""Called before installing or updating an addon.""",
+        doc="""Called before installing or updating an addon.
+        
+        Can be used to release DB connections or open files that
+        would prevent an update from succeeding.""",
     ),
     Hook(
         name="addon_manager_did_install_addon",
         args=["manager: aqt.addons.AddonManager", "module: str"],
-        doc="""Called after installing or updating an addon.""",
+        doc="""Called after installing or updating an addon.
+        
+        Can be used to restore DB connections or open files after
+        an add-on has been updated.""",
     ),
     # Model
     ###################
