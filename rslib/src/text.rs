@@ -4,10 +4,10 @@
 use std::borrow::Cow;
 
 use lazy_static::lazy_static;
-use percent_encoding::percent_decode_str;
-use percent_encoding::utf8_percent_encode;
-use percent_encoding::AsciiSet;
-use percent_encoding::CONTROLS;
+use percent_encoding_iri::percent_decode_str;
+use percent_encoding_iri::utf8_percent_encode;
+use percent_encoding_iri::AsciiSet;
+use percent_encoding_iri::CONTROLS;
 use regex::Captures;
 use regex::Regex;
 use unicase::eq as uni_eq;

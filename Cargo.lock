@@ -113,7 +113,7 @@ dependencies = [
  "num_cpus",
  "num_enum",
  "once_cell",
- "percent-encoding 2.2.0 (git+https://github.com/ankitects/rust-url.git?rev=06a87b6c31c7e9a856a3fb058cb30b204c05b650)",
+ "percent-encoding-iri",
  "pin-project",
  "prost",
  "prost-build",
@@ -372,7 +372,7 @@ dependencies = [
  "memchr",
  "mime",
  "multer",
- "percent-encoding 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "percent-encoding",
  "pin-project-lite",
  "rustversion",
  "serde",
@@ -1284,7 +1284,7 @@ version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a9c384f161156f5260c24a097c56119f9be8c798586aecc13afbcbe7b7e26bf8"
 dependencies = [
- "percent-encoding 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "percent-encoding",
 ]
 
 [[package]]
@@ -2689,9 +2689,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e"
 
 [[package]]
-name = "percent-encoding"
+name = "percent-encoding-iri"
 version = "2.2.0"
-source = "git+https://github.com/ankitects/rust-url.git?rev=06a87b6c31c7e9a856a3fb058cb30b204c05b650#06a87b6c31c7e9a856a3fb058cb30b204c05b650"
+source = "git+https://github.com/ankitects/rust-url.git?rev=bb930b8d089f4d30d7d19c12e54e66191de47b88#bb930b8d089f4d30d7d19c12e54e66191de47b88"
 
 [[package]]
 name = "pest"
@@ -3302,7 +3302,7 @@ dependencies = [
  "mime_guess",
  "native-tls",
  "once_cell",
- "percent-encoding 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "percent-encoding",
  "pin-project-lite",
  "rustls",
  "rustls-native-certs",
@@ -3595,7 +3595,7 @@ version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c7715380eec75f029a4ef7de39a9200e0a63823176b759d055b613f5a87df6a6"
 dependencies = [
- "percent-encoding 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "percent-encoding",
  "serde",
  "thiserror",
 ]
@@ -4521,7 +4521,7 @@ checksum = "0d68c799ae75762b8c3fe375feb6600ef5602c883c5d21eb51c09f22b83c4643"
 dependencies = [
  "form_urlencoded",
  "idna",
- "percent-encoding 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "percent-encoding",
  "serde",
 ]
 
@@ -4606,7 +4606,7 @@ dependencies = [
  "log",
  "mime",
  "mime_guess",
- "percent-encoding 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "percent-encoding",
  "pin-project",
  "rustls-pemfile",
  "scoped-tls",
