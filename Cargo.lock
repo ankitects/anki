@@ -3121,7 +3121,6 @@ dependencies = [
  "rand_chacha 0.2.2",
  "rand_core 0.5.1",
  "rand_hc",
- "rand_pcg",
 ]
 
 [[package]]
@@ -3178,15 +3177,6 @@ name = "rand_hc"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ca3129af7b92a17112d59ad498c6f81eaf463253766b90396d39ea7a39d6613c"
-dependencies = [
- "rand_core 0.5.1",
-]
-
-[[package]]
-name = "rand_pcg"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "16abd0c1b639e9eb4d7c50c0b8100b0d0f849be2349829c740fe8e6eb4816429"
 dependencies = [
  "rand_core 0.5.1",
 ]
@@ -4995,12 +4985,13 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "cc",
+ "clap 4.2.1",
+ "clap_builder",
  "crossbeam-utils",
  "either",
  "flate2",
  "futures-channel",
  "futures-io",
- "futures-task",
  "futures-util",
  "getrandom 0.2.8",
  "hashbrown",
@@ -5012,7 +5003,6 @@ dependencies = [
  "num-traits",
  "phf_shared 0.11.1",
  "prost",
- "rand 0.7.3",
  "rand 0.8.5",
  "rand_core 0.6.4",
  "regex",
