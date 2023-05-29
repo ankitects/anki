@@ -108,12 +108,15 @@ class ThemeManager:
             return path
 
         filename = f"{name}-{'dark' if self.night_mode else 'light'}.svg"
-
-        return (
-            os.path.join(aqt_data_folder(), "qt", "icons", filename)
-            .replace("\\\\?\\", "")
-            .replace("\\", "/")
-        )
+        path = os.path.join(aqt_data_folder(), "qt", "icons", filename)
+        path = path.replace("\\\\?\\", "").replace("\\", "/")
+        if is_win:
+            # Workaround for Qt bug. First attempt was percent-escaping the chars,
+            # but Qt can't handle that. No reports so far of this affecting
+            # other platforms, so it's limited to Windows for now.
+            # https://forum.qt.io/topic/55274/solved-qss-with-special-characters/11
+            path = re.sub(r"([\u00A1-\u00FF])", r"\\\1", path)
+        return path
 
     def icon_from_resources(self, path: str | ColoredIcon) -> QIcon:
         "Fetch icon from Qt resources."
