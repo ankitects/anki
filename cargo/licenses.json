@@ -81,8 +81,44 @@
     "description": "Anki's Rust library i18n code"
   },
   {
+    "name": "anstream",
+    "version": "0.2.6",
+    "authors": null,
+    "repository": "https://github.com/rust-cli/anstyle.git",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A simple cross platform library for writing colored text to a terminal."
+  },
+  {
+    "name": "anstyle",
+    "version": "0.3.5",
+    "authors": null,
+    "repository": "https://github.com/rust-cli/anstyle.git",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "ANSI text styling"
+  },
+  {
+    "name": "anstyle-parse",
+    "version": "0.1.1",
+    "authors": null,
+    "repository": "https://github.com/rust-cli/anstyle.git",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Parse ANSI Style Escapes"
+  },
+  {
+    "name": "anstyle-wincon",
+    "version": "0.2.0",
+    "authors": null,
+    "repository": "https://github.com/rust-cli/anstyle.git",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Styling legacy Windows terminals"
+  },
+  {
     "name": "anyhow",
-    "version": "1.0.70",
+    "version": "1.0.71",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/anyhow",
     "license": "Apache-2.0 OR MIT",
@@ -369,6 +405,42 @@
     "description": "Traits for describing block ciphers and stream ciphers"
   },
   {
+    "name": "clap",
+    "version": "4.2.1",
+    "authors": null,
+    "repository": "https://github.com/clap-rs/clap",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A simple to use, efficient, and full-featured Command Line Argument Parser"
+  },
+  {
+    "name": "clap_builder",
+    "version": "4.2.1",
+    "authors": null,
+    "repository": "https://github.com/clap-rs/clap",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A simple to use, efficient, and full-featured Command Line Argument Parser"
+  },
+  {
+    "name": "clap_derive",
+    "version": "4.2.0",
+    "authors": null,
+    "repository": "https://github.com/clap-rs/clap/tree/master/clap_derive",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Parse command line argument by defining a struct, derive crate."
+  },
+  {
+    "name": "clap_lex",
+    "version": "0.4.1",
+    "authors": null,
+    "repository": "https://github.com/clap-rs/clap/tree/master/clap_lex",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Minimal, flexible command line parser"
+  },
+  {
     "name": "coarsetime",
     "version": "0.1.23",
     "authors": "Frank Denis <github@pureftpd.org>",
@@ -385,6 +457,24 @@
     "license": "Apache-2.0",
     "license_file": null,
     "description": "Beautiful diagnostic reporting for text-based programming languages"
+  },
+  {
+    "name": "concolor-override",
+    "version": "1.0.0",
+    "authors": null,
+    "repository": "https://github.com/rust-cli/concolor",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Global override of color control"
+  },
+  {
+    "name": "concolor-query",
+    "version": "0.3.3",
+    "authors": null,
+    "repository": "https://github.com/rust-cli/concolor",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Look up colored console capabilities"
   },
   {
     "name": "concurrent-queue",
@@ -1692,13 +1782,13 @@
     "description": "Percent encoding and decoding"
   },
   {
-    "name": "percent-encoding",
+    "name": "percent-encoding-iri",
     "version": "2.2.0",
     "authors": "The rust-url developers",
     "repository": "https://github.com/servo/rust-url/",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
-    "description": "Percent encoding and decoding"
+    "description": "Percent encoding and decoding, preserving non-Latin characters."
   },
   {
     "name": "petgraph",
@@ -1996,15 +2086,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "HC128 random number generator"
-  },
-  {
-    "name": "rand_pcg",
-    "version": "0.2.1",
-    "authors": "The Rand Project Developers",
-    "repository": "https://github.com/rust-random/rand",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Selected PCG random number generators"
   },
   {
     "name": "redox_syscall",
@@ -2448,6 +2529,15 @@
     "description": "A codegen library for string-cache, developed as part of the Servo project."
   },
   {
+    "name": "strsim",
+    "version": "0.10.0",
+    "authors": "Danny Guo <danny@dannyguo.com>",
+    "repository": "https://github.com/dguo/strsim-rs",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Implementations of string similarity metrics. Includes Hamming, Levenshtein, OSA, Damerau-Levenshtein, Jaro, Jaro-Winkler, and Sørensen-Dice."
+  },
+  {
     "name": "strum",
     "version": "0.24.1",
     "authors": "Peter Glotfelty <peter.glotfelty@microsoft.com>",
@@ -2527,6 +2617,15 @@
     "license": "MIT OR Unlicense",
     "license_file": null,
     "description": "A simple cross platform library for writing colored text to a terminal."
+  },
+  {
+    "name": "terminal_size",
+    "version": "0.2.6",
+    "authors": "Andrew Chin <achin@eminence32.net>",
+    "repository": "https://github.com/eminence/terminal-size",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Gets the size of your Linux or Windows terminal"
   },
   {
     "name": "thiserror",
@@ -2961,6 +3060,15 @@
     "description": "Incremental, zero-copy UTF-8 decoding with error handling"
   },
   {
+    "name": "utf8parse",
+    "version": "0.2.1",
+    "authors": "Joe Wilm <joe@jwilm.com>|Christian Duerr <contact@christianduerr.com>",
+    "repository": "https://github.com/alacritty/vte",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Table-driven UTF-8 parser"
+  },
+  {
     "name": "utime",
     "version": "0.3.1",
     "authors": "Hyeon Kim <simnalamburt@gmail.com>",
@@ -3188,6 +3296,15 @@
   {
     "name": "windows-sys",
     "version": "0.45.0",
+    "authors": "Microsoft",
+    "repository": "https://github.com/microsoft/windows-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Rust for Windows"
+  },
+  {
+    "name": "windows-sys",
+    "version": "0.48.0",
     "authors": "Microsoft",
     "repository": "https://github.com/microsoft/windows-rs",
     "license": "Apache-2.0 OR MIT",

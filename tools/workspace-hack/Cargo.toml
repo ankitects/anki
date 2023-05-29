@@ -15,13 +15,14 @@ description = "workspace-hack package, managed by hakari"
 ### BEGIN HAKARI SECTION
 [dependencies]
 bytes = { version = "1" }
+clap = { version = "4", features = ["cargo", "derive", "wrap_help"] }
+clap_builder = { version = "4", default-features = false, features = ["cargo", "color", "std", "suggestions", "usage", "wrap_help"] }
 crossbeam-utils = { version = "0.8" }
 either = { version = "1" }
 flate2 = { version = "1" }
 futures-channel = { version = "0.3", features = ["sink"] }
 futures-io = { version = "0.3" }
-futures-task = { version = "0.3", default-features = false, features = ["std"] }
-futures-util = { version = "0.3", default-features = false, features = ["async-await-macro", "channel", "io", "sink"] }
+futures-util = { version = "0.3", features = ["channel", "io", "sink"] }
 getrandom = { version = "0.2", default-features = false, features = ["std"] }
 hashbrown = { version = "0.12", features = ["raw"] }
 hmac = { version = "0.12", default-features = false, features = ["reset"] }
@@ -32,8 +33,7 @@ log = { version = "0.4", default-features = false, features = ["std"] }
 num-traits = { version = "0.2" }
 phf_shared = { version = "0.11", default-features = false, features = ["std"] }
 prost = { version = "0.11" }
-rand-c38e5c1d305a1b54 = { package = "rand", version = "0.8", features = ["small_rng"] }
-rand-ca01ad9e24f5d932 = { package = "rand", version = "0.7", features = ["small_rng"] }
+rand = { version = "0.8", features = ["small_rng"] }
 rand_core = { version = "0.6", default-features = false, features = ["std"] }
 regex = { version = "1" }
 regex-syntax = { version = "0.6" }
@@ -66,8 +66,7 @@ itertools = { version = "0.10" }
 log = { version = "0.4", default-features = false, features = ["std"] }
 phf_shared = { version = "0.11", default-features = false, features = ["std"] }
 prost = { version = "0.11" }
-rand-c38e5c1d305a1b54 = { package = "rand", version = "0.8", features = ["small_rng"] }
-rand-ca01ad9e24f5d932 = { package = "rand", version = "0.7", features = ["small_rng"] }
+rand = { version = "0.8", features = ["small_rng"] }
 rand_core = { version = "0.6", default-features = false, features = ["std"] }
 regex = { version = "1" }
 regex-syntax = { version = "0.6" }
