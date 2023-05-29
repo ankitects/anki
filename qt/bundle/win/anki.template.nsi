@@ -170,9 +170,17 @@ Section ""
   ${IF} $0 != ""
       ; old value exists, we want to inform the user that a manual uninstall is required first and then start the uninstall.exe
       MessageBox MB_ICONEXCLAMATION|MB_OK "A previous Anki version needs to be uninstalled first. After uninstallation completes, please run this installer again."
+      ClearErrors
       ExecShell "open" "$0\uninstall.exe"
+      IfErrors shellError
       Quit
+  ${ELSE}
+      goto notOldUpgrade
   ${ENDIF}
+
+  shellError:
+    MessageBox MB_OK|MB_ICONEXCLAMATION "Failed to uninstall the old version of Anki. Proceeding with installation."
+  notOldUpgrade:
 
   Call removeManifestFiles
 
