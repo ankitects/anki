@@ -1,3 +1,6 @@
+[registries.crates-io]
+protocol = "sparse"
+
 [env]
 STRINGS_JSON = { value = "out/rslib/i18n/strings.json", relative = true }
 # build script will append .exe if necessary
