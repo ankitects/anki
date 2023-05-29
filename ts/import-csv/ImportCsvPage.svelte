@@ -47,7 +47,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let deckColumn: number | null;
 
     let lastNotetypeId = globalNotetype?.id;
-    let lastDeckId = deckId;
     let lastDelimeter = delimiter;
 
     $: columnOptions = getColumnOptions(
@@ -61,13 +60,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         columnLabels = meta.columnLabels;
         preview = meta.preview;
     });
-    $: if (
-        globalNotetype?.id !== lastNotetypeId ||
-        lastDeckId !== deckId ||
-        delimiter !== lastDelimeter
-    ) {
+    $: if (globalNotetype?.id !== lastNotetypeId || delimiter !== lastDelimeter) {
         lastNotetypeId = globalNotetype?.id;
-        lastDeckId = deckId;
         lastDelimeter = delimiter;
         getCsvMetadata(path, delimiter, globalNotetype?.id, deckId || undefined).then(
             (meta) => {

@@ -177,6 +177,18 @@ impl Collection {
         }
     }
 
+    /// Ensure notetype and deck are set.
+    ///
+    /// - When the UI is first loaded, both notetype and deck arguments will be
+    ///   None.
+    /// - When the UI refreshes due to user changes, the currently-selected deck
+    ///   and notetype will be provided.
+    /// - Metadata may already have deck and notetype set, if those directives
+    ///   were present in the file to import. In the UI refresh case, we
+    ///   override them with the current UI values, so that the user can adjust
+    ///   the deck/notetype if they wish.
+    /// - In the initial load case, if notetype/deck were not specified in file,
+    ///   we apply the defaults from defaults_for_adding().
     pub(crate) fn maybe_set_notetype_and_deck(
         &mut self,
         metadata: &mut crate::pb::import_export::CsvMetadata,
@@ -184,12 +196,12 @@ impl Collection {
         deck_id: Option<DeckId>,
     ) -> Result<()> {
         let defaults = self.defaults_for_adding(DeckId(0))?;
-        if metadata.notetype.is_none() {
+        if metadata.notetype.is_none() || notetype_id.is_some() {
             metadata.notetype = Some(CsvNotetype::new_global(
                 notetype_id.unwrap_or(defaults.notetype_id),
             ));
         }
-        if metadata.deck.is_none() {
+        if metadata.deck.is_none() || deck_id.is_some() {
             metadata.deck = Some(CsvDeck::DeckId(deck_id.unwrap_or(defaults.deck_id).0));
         }
         Ok(())
