@@ -592,6 +592,7 @@ class Browser(QMainWindow):
         self.form.action_forget.setEnabled(has_selection)
         self.form.actionReposition.setEnabled(has_selection)
         self.form.actionToggle_Suspend.setEnabled(has_selection)
+        self.form.action_toggle_bury.setEnabled(has_selection)
         self.form.menuFlag.setEnabled(has_selection)
 
     def _update_current_actions(self) -> None:
