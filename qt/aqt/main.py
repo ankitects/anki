@@ -732,6 +732,8 @@ class AnkiQt(QMainWindow):
     def _reviewState(self, oldState: MainWindowState) -> None:
         self.reviewer.show()
 
+        self.setWindowTitle("Study - Anki")
+
         if self.pm.hide_top_bar():
             self.toolbarWeb.hide_timer.setInterval(500)
             self.toolbarWeb.hide_timer.start()
@@ -748,6 +750,7 @@ class AnkiQt(QMainWindow):
             self.toolbarWeb.elevate()
             self.toolbarWeb.show()
             self.bottomWeb.show()
+            self.setWindowTitle(f"{self.pm.name} - Anki")
 
     # Resetting state
     ##########################################################################
