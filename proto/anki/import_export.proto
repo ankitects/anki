@@ -114,7 +114,8 @@ message CsvMetadataRequest {
   string path = 1;
   optional CsvMetadata.Delimiter delimiter = 2;
   optional int64 notetype_id = 3;
-  optional bool is_html = 4;
+  optional int64 deck_id = 4;
+  optional bool is_html = 5;
 }
 
 // Column indices are 1-based to make working with them in TS easier, where

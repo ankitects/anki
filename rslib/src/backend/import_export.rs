@@ -88,6 +88,7 @@ impl ImportExportService for Backend {
                 &input.path,
                 delimiter,
                 input.notetype_id.map(Into::into),
+                input.deck_id.map(Into::into),
                 input.is_html,
             )
         })
