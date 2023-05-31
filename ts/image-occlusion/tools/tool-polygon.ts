@@ -4,7 +4,7 @@
 import { fabric } from "fabric";
 import type { PanZoom } from "panzoom";
 
-import { borderColor, shapeMaskColor } from "./lib";
+import { BORDER_COLOR, disableRotation, SHAPE_MASK_COLOR } from "./lib";
 import { objectAdded, saveCanvasState } from "./tool-undo-redo";
 
 let activeLine;
@@ -179,14 +179,15 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
 
     const polygon = new fabric.Polygon(points, {
         id: "polygon-" + new Date().getTime(),
-        fill: shapeMaskColor,
+        fill: SHAPE_MASK_COLOR,
         objectCaching: false,
-        stroke: borderColor,
+        stroke: BORDER_COLOR,
         strokeWidth: 1,
         strokeUniform: true,
         noScaleCache: false,
     });
     if (polygon.width > 5 && polygon.height > 5) {
+        disableRotation(polygon);
         canvas.add(polygon);
         // view undo redo tools
         objectAdded(canvas, addedPolygonIds, polygon.id);
@@ -212,9 +213,9 @@ const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon): void =
 
     const polygon1 = new fabric.Polygon(transformedPoints, {
         id: polygon.id,
-        fill: shapeMaskColor,
+        fill: SHAPE_MASK_COLOR,
         objectCaching: false,
-        stroke: borderColor,
+        stroke: BORDER_COLOR,
         strokeWidth: 1,
         strokeUniform: true,
         noScaleCache: false,

@@ -3,10 +3,11 @@
 
 use std::fmt::Write;
 
-// split following
-// text = "rect:399.01,99.52,167.09,33.78:fill=#0a2cee:stroke=1"
-// with
-// result = "data-shape="rect" data-left="399.01" data-top="99.52" data-width="167.09" data-height="33.78" data-fill="\#0a2cee" data-stroke="1""
+// convert text like
+// rect:left=.2325:top=.3261:width=.202:height=.0975
+// to something like
+// result = "data-shape="rect" data-left="399.01" data-top="99.52"
+// data-width="167.09" data-height="33.78"
 pub fn get_image_cloze_data(text: &str) -> String {
     let mut result = String::new();
     let parts: Vec<&str> = text.split(':').collect();
@@ -57,18 +58,18 @@ pub fn get_image_cloze_data(text: &str) -> String {
                             let mut point_str = String::new();
                             for point_pair in values[1].split(' ') {
                                 let Some((x, y)) = point_pair.split_once(',') else { continue };
-                                write!(&mut point_str, "[{},{}],", x, y).unwrap();
+                                write!(&mut point_str, "{},{} ", x, y).unwrap();
                             }
-                            // remove the trailing comma
+                            // remove the trailing space
                             point_str.pop();
                             if !point_str.is_empty() {
-                                result.push_str(&format!("data-points=\"[{}]\" ", point_str));
+                                result.push_str(&format!("data-points=\"{point_str}\" "));
                             }
                         }
                     }
-                    "hideinactive" => {
+                    "oi" => {
                         if !values[1].is_empty() {
-                            result.push_str(&format!("data-hideinactive=\"{}\" ", values[1]));
+                            result.push_str(&format!("data-occludeInactive=\"{}\" ", values[1]));
                         }
                     }
                     _ => {}
@@ -102,6 +103,6 @@ fn test_get_image_cloze_data() {
     );
     assert_eq!(
         get_image_cloze_data("polygon:points=0,0 10,10 20,0"),
-        r#"data-shape="polygon" data-points="[[0,0],[10,10],[20,0]]" "#,
+        r#"data-shape="polygon" data-points="0,0 10,10 20,0" "#,
     );
 }
