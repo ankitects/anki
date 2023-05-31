@@ -3,6 +3,7 @@
     "include": [
         "*",
         "tools/*",
+        "shapes/*",
         "notes-toolbar"
     ],
     "references": [

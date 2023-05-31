@@ -7,8 +7,8 @@ import { get } from "svelte/store";
 
 import { zoomResetValue } from "../store";
 
-export const shapeMaskColor = "#ffeba2";
-export const borderColor = "#212121";
+export const SHAPE_MASK_COLOR = "#ffeba2";
+export const BORDER_COLOR = "#212121";
 
 let _clipboard;
 
@@ -206,3 +206,13 @@ const setShapePosition = (canvas: fabric.Canvas, object: fabric.Object): void =>
     }
     object.setCoords();
 };
+
+export function disableRotation(obj: fabric.Object): void {
+    obj.setControlsVisibility({
+        mtr: false,
+    });
+}
+
+export function addBorder(obj: fabric.Object): void {
+    obj.stroke = BORDER_COLOR;
+}

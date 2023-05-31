@@ -8,12 +8,14 @@ import type { PanZoom } from "panzoom";
 import protobuf from "protobufjs";
 import { get } from "svelte/store";
 
+import { optimumCssSizeForCanvas } from "./canvas-scale";
 import { getImageForOcclusion, getImageOcclusionNote } from "./lib";
 import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
 import Toast from "./Toast.svelte";
+import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
 import { enableSelectable, moveShapeToCanvasBoundaries } from "./tools/lib";
-import { generateShapeFromCloze } from "./tools/shape-generate";
 import { undoRedoInit } from "./tools/tool-undo-redo";
+import type { Size } from "./types";
 
 export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<fabric.Canvas> => {
     const imageData = await getImageForOcclusion(path!);
@@ -23,7 +25,7 @@ export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<
     const image = document.getElementById("image") as HTMLImageElement;
     image.src = getImageData(imageData.data!);
     image.onload = function() {
-        const size = limitSize({ width: image.width, height: image.height });
+        const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
         canvas.setWidth(size.width);
         canvas.setHeight(size.height);
         image.height = size.height;
@@ -54,14 +56,14 @@ export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom):
     const image = document.getElementById("image") as HTMLImageElement;
     image.src = getImageData(clozeNote.imageData!);
     image.onload = function() {
-        const size = limitSize({ width: image.width, height: image.height });
+        const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
         canvas.setWidth(size.width);
         canvas.setHeight(size.height);
         image.height = size.height;
         image.width = size.width;
 
         setCanvasZoomRatio(canvas, instance);
-        generateShapeFromCloze(canvas, clozeNote.occlusions);
+        addShapesToCanvasFromCloze(canvas, clozeNote.occlusions);
         enableSelectable(canvas, true);
         addClozeNotesToTextEditor(clozeNote.header, clozeNote.backExtra, clozeNote.tags);
     };
@@ -98,7 +100,7 @@ const setCanvasZoomRatio = (
     const zoomRatioH = (innerHeight - 100) / canvas.height!;
     const zoomRatio = zoomRatioW < zoomRatioH ? zoomRatioW : zoomRatioH;
     zoomResetValue.set(zoomRatio);
-    instance.smoothZoom(0, 0, zoomRatio);
+    instance.zoomAbs(0, 0, zoomRatio);
 };
 
 const addClozeNotesToTextEditor = (header: string, backExtra: string, tags: string[]) => {
@@ -121,23 +123,10 @@ const addClozeNotesToTextEditor = (header: string, backExtra: string, tags: stri
     });
 };
 
-/**
- * Fix for safari browser,
- * Canvas area exceeds the maximum limit (width * height > 16777216),
- * Following function also added in reviewer ts,
- * so update both, if it changes
- */
-const limitSize = (size: { width: number; height: number }): { width: number; height: number; scalar: number } => {
-    const maximumPixels = 1000000;
-    const { width, height } = size;
-
-    const requiredPixels = width * height;
-    if (requiredPixels <= maximumPixels) return { width, height, scalar: 1 };
-
-    const scalar = Math.sqrt(maximumPixels) / Math.sqrt(requiredPixels);
+function containerSize(): Size {
+    const container = document.querySelector(".editor-main")!;
     return {
-        width: Math.floor(width * scalar),
-        height: Math.floor(height * scalar),
-        scalar: scalar,
+        width: container.clientWidth,
+        height: container.clientHeight,
     };
-};
+}
