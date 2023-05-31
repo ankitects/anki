@@ -50,8 +50,8 @@ impl Collection {
         })
     }
 
-    /// The currently selected deck, the home deck of the provided card, or the
-    /// default deck.
+    /// The currently selected deck, the home deck of the provided card if
+    /// current deck is filtered, or the default deck.
     fn get_current_deck_for_adding(
         &mut self,
         home_deck_of_reviewer_card: DeckId,

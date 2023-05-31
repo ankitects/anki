@@ -60,6 +60,7 @@ export async function getCsvMetadata(
     path: string,
     delimiter?: ImportExport.CsvMetadata.Delimiter,
     notetypeId?: number,
+    deckId?: number,
     isHtml?: boolean,
 ): Promise<ImportExport.CsvMetadata> {
     return importExport.getCsvMetadata(
@@ -67,6 +68,7 @@ export async function getCsvMetadata(
             path,
             delimiter,
             notetypeId,
+            deckId,
             isHtml,
         }),
     );

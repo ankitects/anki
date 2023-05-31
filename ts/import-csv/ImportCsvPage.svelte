@@ -56,17 +56,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         deckColumn,
         guidColumn,
     );
-    $: getCsvMetadata(path, delimiter, undefined, isHtml).then((meta) => {
+    $: getCsvMetadata(path, delimiter, undefined, undefined, isHtml).then((meta) => {
         columnLabels = meta.columnLabels;
         preview = meta.preview;
     });
     $: if (globalNotetype?.id !== lastNotetypeId || delimiter !== lastDelimeter) {
         lastNotetypeId = globalNotetype?.id;
         lastDelimeter = delimiter;
-        getCsvMetadata(path, delimiter, globalNotetype?.id).then((meta) => {
-            globalNotetype = meta.globalNotetype ?? null;
-            tagsColumn = meta.tagsColumn;
-        });
+        getCsvMetadata(path, delimiter, globalNotetype?.id, deckId || undefined).then(
+            (meta) => {
+                globalNotetype = meta.globalNotetype ?? null;
+                deckId = meta.deckId ?? null;
+                tagsColumn = meta.tagsColumn;
+            },
+        );
     }
 
     async function onImport(): Promise<void> {
