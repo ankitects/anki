@@ -17,6 +17,7 @@ globalThis.anki.mutateNextCardStates = mutateNextCardStates;
 globalThis.anki.setupImageCloze = setupImageCloze;
 
 import { bridgeCommand } from "@tslib/bridgecommand";
+import { registerPackage } from "@tslib/runtime-require";
 
 import { allImagesLoaded, preloadAnswerImages } from "./images";
 import { preloadResources } from "./preload";
@@ -260,4 +261,14 @@ document.addEventListener("focusout", (event) => {
         dummyButton.focus();
         document.body.removeChild(dummyButton);
     }
+});
+
+registerPackage("anki/reviewer", {
+    // If you append a function to this each time the question or answer
+    // is shown, it will be called before MathJax has been rendered.
+    onUpdateHook,
+    // If you append a function to this each time the question or answer
+    // is shown, it will be called after images have been preloaded and
+    // MathJax has been rendered.
+    onShownHook,
 });
