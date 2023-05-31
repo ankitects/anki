@@ -107,6 +107,7 @@ class CustomStyles:
     QLabel:disabled {{
         color: {tm.var(colors.FG_DISABLED)};
     }}
+    QToolTip {{ color: {tm.var(colors.FG)}; background-color: {tm.var(colors.CANVAS)}; }} 
         """
 
     def menu(self, tm: ThemeManager) -> str:
