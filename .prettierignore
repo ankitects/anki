@@ -1,7 +1,0 @@
-licenses.json
-vendor
-node_modules
-bazel-*
-.bazel
-ftl/usage
-.mypy_cache
