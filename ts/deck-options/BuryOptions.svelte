@@ -69,8 +69,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("buryNewSiblings"))}
-                    >{settings.buryNewSiblings.title}</SettingTitle
                 >
+                    {settings.buryNewSiblings.title}
+                </SettingTitle>
             </SwitchRow>
         </Item>
 
@@ -83,8 +84,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:click={() =>
                         openHelpModal(
                             Object.keys(settings).indexOf("buryReviewSiblings"),
-                        )}>{settings.buryReviewSiblings.title}</SettingTitle
+                        )}
                 >
+                    {settings.buryReviewSiblings.title}
+                </SettingTitle>
             </SwitchRow>
         </Item>
 
@@ -101,8 +104,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                     "buryInterdayLearningSiblings",
                                 ),
                             )}
-                        >{settings.buryInterdayLearningSiblings.title}</SettingTitle
                     >
+                        {settings.buryInterdayLearningSiblings.title}
+                    </SettingTitle>
                 </SwitchRow>
             </Item>
         {/if}

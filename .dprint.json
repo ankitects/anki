@@ -11,7 +11,8 @@
         "trailingComma": "all",
         "printWidth": 88,
         "tabWidth": 4,
-        "semi": true
+        "semi": true,
+        "htmlWhitespaceSensitivity": "ignore"
     },
     "includes": ["**/*.{ts,tsx,js,jsx,cjs,mjs,json,md,toml,svelte}"],
     "excludes": [

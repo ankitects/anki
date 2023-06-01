@@ -64,8 +64,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("disableAutoplay"))}
-                    >{settings.disableAutoplay.title}</SettingTitle
                 >
+                    {settings.disableAutoplay.title}
+                </SettingTitle>
             </SwitchRow>
         </Item>
 
@@ -78,8 +79,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:click={() =>
                         openHelpModal(
                             Object.keys(settings).indexOf("skipQuestionWhenReplaying"),
-                        )}>{settings.skipQuestionWhenReplaying.title}</SettingTitle
+                        )}
                 >
+                    {settings.skipQuestionWhenReplaying.title}
+                </SettingTitle>
             </SwitchRow>
         </Item>
     </DynamicallySlottable>

@@ -108,8 +108,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("learningSteps"))}
-                    >{settings.learningSteps.title}</SettingTitle
                 >
+                    {settings.learningSteps.title}
+                </SettingTitle>
             </StepsInputRow>
         </Item>
 
@@ -122,8 +123,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:click={() =>
                         openHelpModal(
                             Object.keys(settings).indexOf("graduatingInterval"),
-                        )}>{settings.graduatingInterval.title}</SettingTitle
+                        )}
                 >
+                    {settings.graduatingInterval.title}
+                </SettingTitle>
             </SpinBoxRow>
         </Item>
 
@@ -139,8 +142,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("easyInterval"))}
-                    >{settings.easyInterval.title}</SettingTitle
                 >
+                    {settings.easyInterval.title}
+                </SettingTitle>
             </SpinBoxRow>
         </Item>
 
@@ -158,8 +162,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("insertionOrder"))}
-                    >{settings.insertionOrder.title}</SettingTitle
                 >
+                    {settings.insertionOrder.title}
+                </SettingTitle>
             </EnumSelectorRow>
         </Item>
 

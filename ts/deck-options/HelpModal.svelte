@@ -130,9 +130,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </Row>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" on:click={onOkClicked}
-                    >OK</button
-                >
+                <button type="button" class="btn btn-primary" on:click={onOkClicked}>
+                    OK
+                </button>
             </div>
         </div>
     </div>

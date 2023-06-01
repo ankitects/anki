@@ -45,7 +45,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             tooltip={tr.actionsDelete()}
             on:click={() => dispatch("delete")}
             --border-left-radius="5px"
-            --border-right-radius="5px">{@html deleteIcon}</IconButton
+            --border-right-radius="5px"
         >
+            {@html deleteIcon}
+        </IconButton>
     </ButtonGroup>
 </ButtonToolbar>

@@ -66,9 +66,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <div class="modal-body">
                 <form on:submit|preventDefault={onOkClicked}>
                     <div class="mb-3">
-                        <label for="prompt-input" class="col-form-label"
-                            >{prompt}:</label
-                        >
+                        <label for="prompt-input" class="col-form-label">
+                            {prompt}:
+                        </label>
                         <input
                             id="prompt-input"
                             bind:this={inputRef}
@@ -81,12 +81,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                    >Cancel</button
-                >
-                <button type="button" class="btn btn-primary" on:click={onOkClicked}
-                    >OK</button
-                >
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" on:click={onOkClicked}>
+                    OK
+                </button>
             </div>
         </div>
     </div>

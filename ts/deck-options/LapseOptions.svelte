@@ -92,8 +92,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("relearningSteps"))}
-                    >{settings.relearningSteps.title}</SettingTitle
                 >
+                    {settings.relearningSteps.title}
+                </SettingTitle>
             </StepsInputRow>
         </Item>
 
@@ -106,8 +107,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("minimumInterval"))}
-                    >{settings.minimumInterval.title}</SettingTitle
                 >
+                    {settings.minimumInterval.title}
+                </SettingTitle>
             </SpinBoxRow>
         </Item>
 
@@ -124,8 +126,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("leechThreshold"))}
-                    >{settings.leechThreshold.title}</SettingTitle
                 >
+                    {settings.leechThreshold.title}
+                </SettingTitle>
             </SpinBoxRow>
         </Item>
 
@@ -139,8 +142,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("leechAction"))}
-                    >{settings.leechAction.title}</SettingTitle
                 >
+                    {settings.leechAction.title}
+                </SettingTitle>
             </EnumSelectorRow>
         </Item>
     </DynamicallySlottable>

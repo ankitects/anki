@@ -42,8 +42,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     <Badge
         tooltip="{tr.editingToggleSticky()} ({getPlatformString(keyCombination)})"
-        widthMultiplier={0.7}>{@html stickyIcon}</Badge
+        widthMultiplier={0.7}
     >
+        {@html stickyIcon}
+    </Badge>
 </span>
 
 <style lang="scss">
