@@ -76,7 +76,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {/each}
 
                 <tr>
-                    <td><span style="visibility: hidden;">■</span> {total}</td>
+                    <td>
+                        <span style="visibility: hidden;">■</span>
+                        {total}
+                    </td>
                     <td class="right">{graphData.totalCards}</td>
                     <td />
                 </tr>

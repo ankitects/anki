@@ -28,13 +28,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flipX={$direction === "rtl"}
         tooltip="{tr.editingActualSize()} ({tr.editingDoubleClickImage()})"
         on:click={() => dispatch("imagetoggle")}
-        --border-left-radius="5px">{@html icon}</IconButton
+        --border-left-radius="5px"
     >
+        {@html icon}
+    </IconButton>
 
     <IconButton
         disabled={restoringDisabled}
         tooltip={tr.editingRestoreOriginalSize()}
         on:click={() => dispatch("imageclear")}
-        --border-right-radius="5px">{@html sizeClear}</IconButton
+        --border-right-radius="5px"
     >
+        {@html sizeClear}
+    </IconButton>
 </ButtonGroup>

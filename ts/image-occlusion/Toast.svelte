@@ -19,8 +19,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div class="toast {type === 'success' ? 'success' : 'error'}">
             {message}
             <IconButton iconSize={96} on:click={closeToast} class="toast-icon">
-                {@html mdiClose}</IconButton
-            >
+                {@html mdiClose}
+            </IconButton>
         </div>
     </div>
 {/if}

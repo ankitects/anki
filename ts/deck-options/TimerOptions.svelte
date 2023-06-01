@@ -74,8 +74,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:click={() =>
                         openHelpModal(
                             Object.keys(settings).indexOf("maximumAnswerSecs"),
-                        )}>{settings.maximumAnswerSecs.title}</SettingTitle
+                        )}
                 >
+                    {settings.maximumAnswerSecs.title}
+                </SettingTitle>
             </SpinBoxRow>
         </Item>
 
@@ -94,8 +96,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         on:click={() =>
                             openHelpModal(
                                 Object.keys(settings).indexOf("showAnswerTimer"),
-                            )}>{settings.showAnswerTimer.title}</SettingTitle
+                            )}
                     >
+                        {settings.showAnswerTimer.title}
+                    </SettingTitle>
                 </SwitchRow>
             </div>
         </Item>

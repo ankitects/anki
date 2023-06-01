@@ -57,8 +57,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             active={activeTool === tool.id}
             on:click={() => {
                 activeTool = tool.id;
-            }}>{@html tool.icon}</IconButton
+            }}
         >
+            {@html tool.icon}
+        </IconButton>
     {/each}
 </div>
 

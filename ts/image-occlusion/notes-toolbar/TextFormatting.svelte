@@ -46,8 +46,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:click={() => {
             // setActiveTool(tool);
             textFormat(tool);
-        }}>{@html tool.icon}</IconButton
+        }}
     >
+        {@html tool.icon}
+    </IconButton>
 {/each}
 
 <style lang="scss">

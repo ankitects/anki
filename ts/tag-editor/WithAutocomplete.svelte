@@ -150,8 +150,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         }}
                         on:mouseenter={(event) => selectIfMousedown(event, index)}
                         on:mouseleave={() => (active = false)}
-                        >{suggestion}</AutocompleteItem
                     >
+                        {suggestion}
+                    </AutocompleteItem>
                 {:else}
                     <AutocompleteItem
                         on:mousedown={() => setSelectedAndActive(index)}
@@ -160,8 +161,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             chooseSelected();
                         }}
                         on:mouseenter={(event) => selectIfMousedown(event, index)}
-                        >{suggestion}</AutocompleteItem
                     >
+                        {suggestion}
+                    </AutocompleteItem>
                 {/if}
             {/each}
         </div>

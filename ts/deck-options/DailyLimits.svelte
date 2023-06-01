@@ -178,8 +178,9 @@
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("newLimit"))}
-                    >{settings.newLimit.title}</SettingTitle
                 >
+                    {settings.newLimit.title}
+                </SettingTitle>
             </SpinBoxRow>
         </Item>
 
@@ -192,8 +193,9 @@
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("reviewLimit"))}
-                    >{settings.reviewLimit.title}</SettingTitle
                 >
+                    {settings.reviewLimit.title}
+                </SettingTitle>
             </SpinBoxRow>
         </Item>
 
@@ -210,8 +212,10 @@
                                 Object.keys(settings).indexOf(
                                     "newCardsIgnoreReviewLimit",
                                 ),
-                            )}>{settings.newCardsIgnoreReviewLimit.title}</SettingTitle
+                            )}
                     >
+                        {settings.newCardsIgnoreReviewLimit.title}
+                    </SettingTitle>
                 </SwitchRow>
             </Item>
         {/if}

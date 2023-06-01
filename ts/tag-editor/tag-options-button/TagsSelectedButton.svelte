@@ -38,15 +38,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {tr.editingTagsSelectAll()} ({getPlatformString(selectAllShortcut)})
         </DropdownItem>
 
-        <DropdownItem on:click={() => dispatch("tagcopy")}
-            >{tr.editingTagsCopy()} ({getPlatformString(copyShortcut)})</DropdownItem
-        >
+        <DropdownItem on:click={() => dispatch("tagcopy")}>
+            {tr.editingTagsCopy()} ({getPlatformString(copyShortcut)})
+        </DropdownItem>
 
-        <DropdownItem on:click={() => dispatch("tagdelete")}
-            >{tr.editingTagsRemove()} ({getPlatformString(
-                removeShortcut,
-            )})</DropdownItem
-        >
+        <DropdownItem on:click={() => dispatch("tagdelete")}>
+            {tr.editingTagsRemove()} ({getPlatformString(removeShortcut)})
+        </DropdownItem>
     </Popover>
 </WithFloating>
 

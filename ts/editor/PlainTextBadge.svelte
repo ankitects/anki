@@ -39,8 +39,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     <Badge
         tooltip="{tr.editingToggleHtmlEditor()} ({getPlatformString(keyCombination)})"
-        iconSize={80}>{@html plainTextIcon}</Badge
+        iconSize={80}
     >
+        {@html plainTextIcon}
+    </Badge>
 </span>
 
 <style lang="scss">

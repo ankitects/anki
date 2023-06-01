@@ -6,7 +6,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let value: boolean;
 </script>
 
-<label><input type="checkbox" bind:checked={value} /><slot /></label>
+<label>
+    <input type="checkbox" bind:checked={value} />
+    <slot />
+</label>
 
 <style lang="scss">
     label {

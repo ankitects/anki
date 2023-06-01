@@ -15,8 +15,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <Select bind:value {label}>
     {#each options as option, idx}
-        <SelectOption value={idx} disabled={disabled.includes(idx)}
-            >{option}</SelectOption
-        >
+        <SelectOption value={idx} disabled={disabled.includes(idx)}>
+            {option}
+        </SelectOption>
     {/each}
 </Select>

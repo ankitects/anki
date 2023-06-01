@@ -148,8 +148,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:click={() =>
                         openHelpModal(
                             Object.keys(settings).indexOf("newGatherPriority"),
-                        )}>{settings.newGatherPriority.title}</SettingTitle
+                        )}
                 >
+                    {settings.newGatherPriority.title}
+                </SettingTitle>
             </EnumSelectorRow>
         </Item>
 
@@ -164,8 +166,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:click={() =>
                         openHelpModal(
                             Object.keys(settings).indexOf("newCardSortOrder"),
-                        )}>{settings.newCardSortOrder.title}</SettingTitle
+                        )}
                 >
+                    {settings.newCardSortOrder.title}
+                </SettingTitle>
             </EnumSelectorRow>
         </Item>
 
@@ -179,8 +183,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:click={() =>
                         openHelpModal(
                             Object.keys(settings).indexOf("newReviewPriority"),
-                        )}>{settings.newReviewPriority.title}</SettingTitle
+                        )}
                 >
+                    {settings.newReviewPriority.title}
+                </SettingTitle>
             </EnumSelectorRow>
         </Item>
 
@@ -194,8 +200,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:click={() =>
                         openHelpModal(
                             Object.keys(settings).indexOf("interdayStepPriority"),
-                        )}>{settings.interdayStepPriority.title}</SettingTitle
+                        )}
                 >
+                    {settings.interdayStepPriority.title}
+                </SettingTitle>
             </EnumSelectorRow>
         </Item>
 
@@ -208,8 +216,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("reviewSortOrder"))}
-                    >{settings.reviewSortOrder.title}</SettingTitle
                 >
+                    {settings.reviewSortOrder.title}
+                </SettingTitle>
             </EnumSelectorRow>
         </Item>
     </DynamicallySlottable>

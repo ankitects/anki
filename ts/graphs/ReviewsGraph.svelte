@@ -57,7 +57,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <Graph {title} {subtitle}>
     <InputBox>
-        <label> <input type="checkbox" bind:checked={showTime} /> {time} </label>
+        <label>
+            <input type="checkbox" bind:checked={showTime} />
+            {time}
+        </label>
 
         <GraphRangeRadios bind:graphRange {revlogRange} followRevlog={true} />
     </InputBox>

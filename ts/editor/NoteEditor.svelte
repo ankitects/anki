@@ -448,9 +448,9 @@ the AddCards dialog) should be implemented in the user of this component.
     {#if hint}
         <Absolute bottom right --margin="10px">
             <Notification>
-                <Badge --badge-color="tomato" --icon-align="top"
-                    >{@html alertIcon}</Badge
-                >
+                <Badge --badge-color="tomato" --icon-align="top">
+                    {@html alertIcon}
+                </Badge>
                 <span>{@html hint}</span>
             </Notification>
         </Absolute>

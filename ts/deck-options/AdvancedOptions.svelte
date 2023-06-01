@@ -96,8 +96,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("maximumInterval"))}
-                    >{settings.maximumInterval.title}</SettingTitle
                 >
+                    {settings.maximumInterval.title}
+                </SettingTitle>
             </SpinBoxRow>
         </Item>
 
@@ -111,8 +112,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("startingEase"))}
-                    >{settings.startingEase.title}</SettingTitle
                 >
+                    {settings.startingEase.title}
+                </SettingTitle>
             </SpinBoxFloatRow>
         </Item>
 
@@ -126,8 +128,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("easyBonus"))}
-                    >{settings.easyBonus.title}</SettingTitle
                 >
+                    {settings.easyBonus.title}
+                </SettingTitle>
             </SpinBoxFloatRow>
         </Item>
 
@@ -142,8 +145,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:click={() =>
                         openHelpModal(
                             Object.keys(settings).indexOf("intervalModifier"),
-                        )}>{settings.intervalModifier.title}</SettingTitle
+                        )}
                 >
+                    {settings.intervalModifier.title}
+                </SettingTitle>
             </SpinBoxFloatRow>
         </Item>
 
@@ -157,8 +162,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("hardInterval"))}
-                    >{settings.hardInterval.title}</SettingTitle
                 >
+                    {settings.hardInterval.title}
+                </SettingTitle>
             </SpinBoxFloatRow>
         </Item>
 
@@ -171,8 +177,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("newInterval"))}
-                    >{settings.newInterval.title}</SettingTitle
                 >
+                    {settings.newInterval.title}
+                </SettingTitle>
             </SpinBoxFloatRow>
         </Item>
 

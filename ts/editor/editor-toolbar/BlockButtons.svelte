@@ -89,16 +89,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <CommandIconButton
                 key="insertUnorderedList"
                 tooltip={tr.editingUnorderedList()}
-                shortcut="Control+,">{@html ulIcon}</CommandIconButton
+                shortcut="Control+,"
             >
+                {@html ulIcon}
+            </CommandIconButton>
         </ButtonGroupItem>
 
         <ButtonGroupItem>
             <CommandIconButton
                 key="insertOrderedList"
                 tooltip={tr.editingOrderedList()}
-                shortcut="Control+.">{@html olIcon}</CommandIconButton
+                shortcut="Control+."
             >
+                {@html olIcon}
+            </CommandIconButton>
         </ButtonGroupItem>
 
         <ButtonGroupItem>
@@ -126,27 +130,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 tooltip={tr.editingAlignLeft()}
                                 --border-left-radius="5px"
                                 --border-right-radius="0px"
-                                >{@html justifyLeftIcon}</CommandIconButton
                             >
+                                {@html justifyLeftIcon}
+                            </CommandIconButton>
 
                             <CommandIconButton
                                 key="justifyCenter"
                                 tooltip={tr.editingCenter()}
-                                >{@html justifyCenterIcon}</CommandIconButton
                             >
+                                {@html justifyCenterIcon}
+                            </CommandIconButton>
 
                             <CommandIconButton
                                 key="justifyRight"
                                 tooltip={tr.editingAlignRight()}
-                                >{@html justifyRightIcon}</CommandIconButton
                             >
+                                {@html justifyRightIcon}
+                            </CommandIconButton>
 
                             <CommandIconButton
                                 key="justifyFull"
                                 tooltip={tr.editingJustify()}
                                 --border-right-radius="5px"
-                                >{@html justifyFullIcon}</CommandIconButton
                             >
+                                {@html justifyFullIcon}
+                            </CommandIconButton>
                         </ButtonGroup>
 
                         <ButtonGroup>
