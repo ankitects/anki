@@ -517,6 +517,21 @@ class Reviewer:
             ("5", self.on_pause_audio),
             ("6", self.on_seek_backward),
             ("7", self.on_seek_forward),
+            # Korean characters
+            ("ㄷ", self.mw.onEditCurrent),
+            ("ㅡ", self.showContextMenu),
+            ("ㄱ", self.replayAudio),
+            ("Ctrl+Alt+ㅜ", self.forget_current_card),
+            # does not work
+            # ("Ctrl+Alt+ㄷ", self.on_create_copy),
+            # does not work
+            # ("Ctrl+Shift+ㅇ", self.on_set_due),
+            ("ㅍ", self.onReplayRecorded),
+            ("Shift+ㅍ", self.onRecordVoice),
+            ("ㅐ", self.onOptions),
+            ("ㅑ", self.on_card_info),
+            ("Ctrl+Alt+ㅑ", self.on_previous_card_info),
+            ("ㅕ", self.mw.undo),
         ]
 
     def on_pause_audio(self) -> None:
