@@ -479,7 +479,9 @@ class Reviewer:
     # Handlers
     ############################################################
 
-    def korean_shortcuts(self) -> Sequence[Union[tuple[str, Callable], tuple[Qt.Key, Callable]]]:
+    def korean_shortcuts(
+        self,
+    ) -> Sequence[Union[tuple[str, Callable], tuple[Qt.Key, Callable]]]:
         return [
             ("ㄷ", self.mw.onEditCurrent),
             ("ㅡ", self.showContextMenu),
