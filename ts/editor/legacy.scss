@@ -33,3 +33,7 @@
         }
     }
 }
+
+button {
+    @include button.base($active-class: active);
+}

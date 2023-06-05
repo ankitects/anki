@@ -236,7 +236,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
                     def on_hotkey() -> None:
                         on_activated()
-                        self.web.eval(f'toggleEditorButton("#{id}");')
+                        self.web.eval(
+                            f'toggleEditorButton(document.getElementById("{id}"));'
+                        )
 
                 else:
                     on_hotkey = on_activated
