@@ -251,12 +251,13 @@ class ErrorHandler(QObject):
             sys.exit(1)
 
     def _addonText(self, error: str) -> str:
-        matches = re.findall(r"addons21/(.*?)/", error)
+        matches = re.findall(r"addons21(/|\\)(.*?)(/|\\)", error)
         if not matches:
             return ""
         # reverse to list most likely suspect first, dict to deduplicate:
         addons = [
-            aqt.mw.addonManager.addonName(i) for i in dict.fromkeys(reversed(matches))
+            aqt.mw.addonManager.addonName(i[1])
+            for i in dict.fromkeys(reversed(matches))
         ]
         # highlight importance of first add-on:
         addons[0] = f"<b>{addons[0]}</b>"
