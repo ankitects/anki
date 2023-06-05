@@ -21,3 +21,7 @@ export function setFormat(cmd: string, arg?: string, _nosave = false): void {
     execCommand(cmd, false, arg);
     updateAllState(new Event(cmd));
 }
+
+export function toggleEditorButton(button: HTMLButtonElement): void {
+    button.classList.toggle("active");
+}
