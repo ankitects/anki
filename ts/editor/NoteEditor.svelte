@@ -362,6 +362,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $closeHTMLTags = closeTags;
     }
 
+    /**
+     * Enable/Disable add-on buttons that do not have the `perm` class
+     */
+    function setAddonButtonsDisabled(disabled: boolean): void {
+        document.querySelectorAll("button.linkb:not(.perm)").forEach((button) => {
+            (button as HTMLButtonElement).disabled = disabled;
+        });
+    }
+
     import { wrapInternal } from "@tslib/wrap";
     import Shortcut from "components/Shortcut.svelte";
 
@@ -467,10 +476,12 @@ the AddCards dialog) should be implemented in the user of this component.
                 api={fields[index]}
                 on:focusin={() => {
                     $focusedField = fields[index];
+                    setAddonButtonsDisabled(false);
                     bridgeCommand(`focus:${index}`);
                 }}
                 on:focusout={() => {
                     $focusedField = null;
+                    setAddonButtonsDisabled(true);
                     bridgeCommand(
                         `blur:${index}:${getNoteId()}:${transformContentBeforeSave(
                             get(content),
