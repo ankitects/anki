@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@tslib/ftl";
     import { getPlatformString, registerShortcut } from "@tslib/shortcuts";
-    import { createEventDispatcher, onMount } from "svelte";
+    import { createEventDispatcher, onDestroy } from "svelte";
 
     import Badge from "../components/Badge.svelte";
     import { context as editorFieldContext } from "./EditorField.svelte";
@@ -24,11 +24,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         dispatch("toggle");
     }
 
-    function shortcut(target: HTMLElement): () => void {
-        return registerShortcut(toggle, keyCombination, { target });
-    }
+    let unregister: ReturnType<typeof registerShortcut> | undefined;
 
-    onMount(() => editorField.element.then(shortcut));
+    editorField.element.then((target) => {
+        unregister = registerShortcut(toggle, keyCombination, { target });
+    });
+
+    onDestroy(() => unregister?.());
 </script>
 
 <span
