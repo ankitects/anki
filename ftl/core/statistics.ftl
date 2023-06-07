@@ -203,3 +203,4 @@ statistics-average-ease = Average ease
 statistics-save-pdf = Save PDF
 statistics-saved = Saved.
 statistics-stats = stats
+statistics-title = Statistics
