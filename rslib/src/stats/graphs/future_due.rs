@@ -16,7 +16,8 @@ impl GraphsContext {
             }
             // The extra original_due check covers lapsed cards, which have their due date
             // updated on graduation.
-            let due = if c.is_filtered() && c.original_due != 0 {
+            let intraday = c.is_intraday_learning();
+            let due = if c.is_filtered() && c.original_due != 0 && !intraday {
                 c.original_due
             } else {
                 c.due
