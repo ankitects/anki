@@ -7,9 +7,6 @@ use std::collections::HashSet;
 use std::mem;
 use std::sync::Arc;
 
-use sha1::Digest;
-use sha1::Sha1;
-
 use super::media::MediaUseMap;
 use super::Context;
 use crate::import_export::package::media::safe_normalized_file_name;
@@ -26,6 +23,7 @@ struct NoteContext<'a> {
     remapped_notetypes: HashMap<NotetypeId, NotetypeId>,
     target_guids: HashMap<String, NoteMeta>,
     target_ids: HashSet<NoteId>,
+    target_notetypes: HashMap<NotetypeId, Vec<Arc<Notetype>>>,
     media_map: &'a mut MediaUseMap,
     imports: NoteImports,
 }
@@ -99,6 +97,7 @@ impl<'n> NoteContext<'n> {
         let target_guids = target_col.storage.note_guid_map()?;
         let normalize_notes = target_col.get_config_bool(BoolKey::NormalizeNoteText);
         let target_ids = target_col.storage.get_all_note_ids()?;
+        let target_notetypes = target_col.notetype_id_map()?;
         Ok(Self {
             target_col,
             usn,
@@ -106,15 +105,31 @@ impl<'n> NoteContext<'n> {
             remapped_notetypes: HashMap::new(),
             target_guids,
             target_ids,
+            target_notetypes,
             imports: NoteImports::default(),
             media_map,
         })
     }
 
+    /// Returns a notetype from the target collection with the same id or
+    /// original id, prioritizing by matching schema, then id over original
+    /// id.
+    fn best_notetype_match(&self, notetype: &Notetype) -> Option<Notetype> {
+        self.target_notetypes
+            .get(&notetype.id)
+            .and_then(|id_matches| {
+                id_matches
+                    .iter()
+                    .find(|id_match| notetype.equal_schema(id_match))
+                    .or(id_matches.first())
+            })
+            .map(|nt| nt.as_ref().clone())
+    }
+
     fn import_notetypes(&mut self, mut notetypes: Vec<Notetype>) -> Result<()> {
         for notetype in &mut notetypes {
             notetype.config.original_id.replace(notetype.id.0);
-            if let Some(existing) = self.target_col.storage.get_notetype(notetype.id)? {
+            if let Some(existing) = self.best_notetype_match(notetype) {
                 self.merge_or_remap_notetype(notetype, existing)?;
             } else {
                 self.add_notetype(notetype)?;
@@ -128,7 +143,11 @@ impl<'n> NoteContext<'n> {
         incoming: &mut Notetype,
         existing: Notetype,
     ) -> Result<()> {
-        if incoming.schema_hash() == existing.schema_hash() {
+        if existing.equal_schema(incoming) {
+            if existing.id != incoming.id {
+                self.remapped_notetypes.insert(incoming.id, existing.id);
+                incoming.id = existing.id;
+            }
             if incoming.mtime_secs > existing.mtime_secs {
                 self.update_notetype(incoming, existing)?;
             }
@@ -275,16 +294,38 @@ impl<'n> NoteContext<'n> {
     }
 }
 
+impl Collection {
+    /// Returns a map of all notetypes by id and original id. If there is a
+    /// notetype with a given id, it is stored before any notetypes with this
+    /// original id.
+    fn notetype_id_map(&mut self) -> Result<HashMap<NotetypeId, Vec<Arc<Notetype>>>> {
+        let mut map = HashMap::new();
+        for (ntid, nt) in self.get_all_notetypes()? {
+            if let Some(original_id) = nt.config.original_id {
+                map.entry(NotetypeId(original_id))
+                    .or_insert_with(Vec::new)
+                    // notetypes with matching original id are appended to the end
+                    .push(Arc::clone(&nt));
+            }
+            // the notetype with the same id must come first
+            map.entry(ntid).or_insert_with(Vec::new).insert(0, nt);
+        }
+        Ok(map)
+    }
+}
+
 impl Notetype {
-    fn schema_hash(&self) -> Sha1Hash {
-        let mut hasher = Sha1::new();
-        for field in &self.fields {
-            hasher.update(field.name.as_bytes());
-        }
-        for template in &self.templates {
-            hasher.update(template.name.as_bytes());
-        }
-        hasher.finalize().into()
+    fn field_names(&self) -> impl Iterator<Item = &String> {
+        self.fields.iter().map(|f| &f.name)
+    }
+
+    fn template_names(&self) -> impl Iterator<Item = &String> {
+        self.templates.iter().map(|t| &t.name)
+    }
+
+    fn equal_schema(&self, other: &Self) -> bool {
+        self.field_names().eq(other.field_names())
+            && self.template_names().eq(other.template_names())
     }
 }
 
@@ -326,6 +367,17 @@ mod test {
             assert!($log.duplicate.is_empty());
             assert!($log.conflicting.is_empty());
         };
+    }
+
+    /// Imports the notetype into the collection, and returns its remapped id if
+    /// any.
+    macro_rules! import_notetype {
+        ($col:expr, $notetype:expr) => {{
+            let mut media_map = MediaUseMap::default();
+            let mut ctx = NoteContext::new(Usn(1), $col, &mut media_map).unwrap();
+            ctx.import_notetypes(vec![$notetype]).unwrap();
+            ctx.remapped_notetypes.values().next().copied()
+        }};
     }
 
     impl Collection {
@@ -426,5 +478,55 @@ mod test {
         let mut log = import_note!(col, note, media_map);
         assert_eq!(col.get_all_notes()[0].fields()[0], "<img src='bar.jpg'>");
         assert_note_logged!(log, new, &[" bar.jpg ", ""]);
+    }
+
+    #[test]
+    fn should_import_new_notetype() {
+        let mut col = Collection::new();
+        let mut new_basic = crate::notetype::stock::basic(&col.tr);
+        new_basic.id.0 = 123;
+        import_notetype!(&mut col, new_basic);
+        assert!(col.storage.get_notetype(NotetypeId(123)).unwrap().is_some());
+    }
+
+    #[test]
+    fn should_update_existing_notetype_with_older_mtime_and_matching_schema() {
+        let mut col = Collection::new();
+        let mut basic = col.basic_notetype();
+        basic.mtime_secs.0 += 1;
+        basic.name = String::from("new");
+        import_notetype!(&mut col, basic);
+        assert!(col.get_notetype_by_name("new").unwrap().is_some());
+    }
+
+    #[test]
+    fn should_not_update_existing_notetype_with_newer_mtime_and_matching_schema() {
+        let mut col = Collection::new();
+        let mut basic = col.basic_notetype();
+        basic.mtime_secs.0 -= 1;
+        basic.name = String::from("new");
+        import_notetype!(&mut col, basic);
+        assert!(col.get_notetype_by_name("new").unwrap().is_none());
+    }
+
+    #[test]
+    fn should_add_remapped_notetype_if_schema_has_changed_and_reuse_it_subsequently() {
+        let mut col = Collection::new();
+        let mut to_import = col.basic_notetype();
+        to_import.fields[0].name = String::from("new field");
+
+        // schema mismatch => notetype should be imported with new id
+        let remapped_id = import_notetype!(&mut col, to_import.clone()).unwrap();
+        assert_eq!(col.basic_notetype().fields[0].name, "Front");
+        let remapped = col.storage.get_notetype(remapped_id).unwrap().unwrap();
+        assert_eq!(remapped.fields[0].name, "new field");
+
+        // notetype with matching schema and original id exists => should be reused
+        to_import.name = String::from("new name");
+        to_import.mtime_secs.0 = remapped.mtime_secs.0 + 1;
+        let remapped_id_2 = import_notetype!(&mut col, to_import).unwrap();
+        assert_eq!(remapped_id, remapped_id_2);
+        let updated = col.storage.get_notetype(remapped_id).unwrap().unwrap();
+        assert_eq!(updated.name, "new name");
     }
 }
