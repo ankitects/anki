@@ -9,6 +9,10 @@ use serde_json::Value;
 
 use crate::timestamp::TimestampSecs;
 
+pub(crate) trait FieldNames {
+    fn field_names() -> &'static [&'static str];
+}
+
 /// Note: if you wish to cover the case where a field is missing, make sure you
 /// also use the `serde(default)` flag.
 pub(crate) fn default_on_invalid<'de, T, D>(deserializer: D) -> Result<T, D::Error>

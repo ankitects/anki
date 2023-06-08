@@ -1,0 +1,17 @@
+[package]
+name = "field_names_derive"
+publish = false
+description = "Derive macro for the FieldNames trait defined in the anki crate"
+
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "1.0"
+syn = "2.0"

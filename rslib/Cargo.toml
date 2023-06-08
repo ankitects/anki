@@ -42,6 +42,7 @@ features = ["json", "socks", "stream", "multipart"]
 
 [dependencies]
 anki_i18n = { path = "i18n" }
+field_names_derive = { path = "field_names_derive" }
 
 csv = { git = "https://github.com/ankitects/rust-csv.git", rev = "1c9d3aab6f79a7d815c69f925a46a4590c115f90" }
 percent-encoding-iri = { git = "https://github.com/ankitects/rust-url.git", rev = "bb930b8d089f4d30d7d19c12e54e66191de47b88" }

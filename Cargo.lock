@@ -97,6 +97,7 @@ dependencies = [
  "csv",
  "difflib",
  "env_logger",
+ "field_names_derive",
  "flate2",
  "fluent",
  "fluent-bundle",
@@ -1172,6 +1173,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e51093e27b0797c359783294ca4f0a911c270184cb10f85783b118614a1501be"
 dependencies = [
  "instant",
+]
+
+[[package]]
+name = "field_names_derive"
+version = "0.0.0"
+dependencies = [
+ "quote",
+ "syn 2.0.12",
 ]
 
 [[package]]
