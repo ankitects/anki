@@ -36,6 +36,7 @@ const IGNORED_FOLDERS: &[&str] = &[
     "./qt/aqt/forms",
     "./tools/workspace-hack",
     "./qt/bundle/PyOxidizer",
+    "./target",
 ];
 
 fn main() -> Result<()> {
