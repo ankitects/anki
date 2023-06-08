@@ -538,6 +538,23 @@ where
     })
 }
 
+pub(crate) fn snake_to_camel_case(snake: impl AsRef<str>) -> String {
+    let mut camel = String::with_capacity(snake.as_ref().len());
+    let mut capitalize = false;
+    for mut ch in snake.as_ref().chars() {
+        if ch == '_' {
+            capitalize = true;
+        } else {
+            if capitalize {
+                ch = ch.to_ascii_uppercase();
+            }
+            camel.push(ch);
+            capitalize = false;
+        }
+    }
+    camel
+}
+
 #[cfg(test)]
 mod test {
     use std::borrow::Cow;
@@ -643,5 +660,12 @@ mod test {
                 &format!("<img src=\"{output}\">")
             );
         }
+    }
+
+    #[test]
+    fn case_conversion() {
+        assert_eq!(snake_to_camel_case("snamel"), "snamel");
+        assert_eq!(snake_to_camel_case("snaky_snake"), "snakySnake");
+        assert_eq!(snake_to_camel_case("snaky_snake_2"), "snakySnake2");
     }
 }

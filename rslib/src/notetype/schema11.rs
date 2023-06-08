@@ -3,6 +3,7 @@
 
 use std::collections::HashMap;
 
+use field_names_derive::FieldNames;
 use serde_derive::Deserialize;
 use serde_derive::Serialize;
 use serde_json::Value;
@@ -23,6 +24,7 @@ use crate::notetype::NotetypeConfig;
 use crate::serde::default_on_invalid;
 use crate::serde::deserialize_bool_from_anything;
 use crate::serde::deserialize_number_from_string;
+use crate::serde::extract_field_names;
 use crate::serde::is_default;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
@@ -34,7 +36,7 @@ pub enum NotetypeKind {
     Cloze = 1,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNames)]
 #[serde(rename_all = "camelCase")]
 pub struct NotetypeSchema11 {
     #[serde(deserialize_with = "deserialize_number_from_string")]
@@ -127,20 +129,12 @@ fn other_to_bytes(other: &HashMap<String, Value>) -> Vec<u8> {
     }
 }
 
-fn bytes_to_other(bytes: &[u8]) -> HashMap<String, Value> {
-    if bytes.is_empty() {
-        Default::default()
-    } else {
-        serde_json::from_slice(bytes).unwrap_or_else(|e| {
-            println!("deserialization failed for other: {}", e);
-            Default::default()
-        })
-    }
-}
-
 impl From<Notetype> for NotetypeSchema11 {
     fn from(p: Notetype) -> Self {
         let c = p.config;
+        let mut other: HashMap<String, Value> =
+            serde_json::from_slice(&c.other).unwrap_or_default();
+        extract_field_names::<Self, _>(&mut other);
         NotetypeSchema11 {
             id: p.id,
             name: p.name,
@@ -165,21 +159,8 @@ impl From<Notetype> for NotetypeSchema11 {
             latexsvg: c.latex_svg,
             req: CardRequirementsSchema11(c.reqs.into_iter().map(Into::into).collect()),
             original_stock_kind: c.original_stock_kind,
-            other: bytes_to_other(&c.other),
+            other,
         }
-    }
-}
-
-/// See [crate::deckconfig::schema11::clear_other_duplicates()].
-fn clear_other_field_duplicates(other: &mut HashMap<String, Value>) {
-    for key in &[
-        "description",
-        "plainText",
-        "collapsed",
-        "excludeFromSearch",
-        "originalStockKind",
-    ] {
-        other.remove(*key);
     }
 }
 
@@ -211,7 +192,7 @@ impl From<CardRequirement> for CardRequirementSchema11 {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNames)]
 #[serde(rename_all = "camelCase")]
 pub struct NoteFieldSchema11 {
     pub(crate) name: String,
@@ -225,7 +206,6 @@ pub struct NoteFieldSchema11 {
 
     // This was not in schema 11, but needs to be listed here so that the setting is not lost
     // on downgrade/upgrade.
-    // NOTE: if adding new ones, make sure to update clear_other_field_duplicates()
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) description: String,
 
@@ -285,8 +265,9 @@ impl From<NoteFieldSchema11> for NoteField {
 impl From<NoteField> for NoteFieldSchema11 {
     fn from(p: NoteField) -> Self {
         let conf = p.config;
-        let mut other = bytes_to_other(&conf.other);
-        clear_other_field_duplicates(&mut other);
+        let mut other: HashMap<String, Value> =
+            serde_json::from_slice(&conf.other).unwrap_or_default();
+        extract_field_names::<Self, _>(&mut other);
         NoteFieldSchema11 {
             name: p.name,
             ord: p.ord.map(|o| o as u16),
@@ -303,7 +284,7 @@ impl From<NoteField> for NoteFieldSchema11 {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone, FieldNames)]
 pub struct CardTemplateSchema11 {
     pub(crate) name: String,
     pub(crate) ord: Option<u16>,
@@ -350,6 +331,9 @@ impl From<CardTemplateSchema11> for CardTemplate {
 impl From<CardTemplate> for CardTemplateSchema11 {
     fn from(p: CardTemplate) -> Self {
         let conf = p.config;
+        let mut other: HashMap<String, Value> =
+            serde_json::from_slice(&conf.other).unwrap_or_default();
+        extract_field_names::<Self, _>(&mut other);
         CardTemplateSchema11 {
             name: p.name,
             ord: p.ord.map(|o| o as u16),
@@ -364,7 +348,24 @@ impl From<CardTemplate> for CardTemplateSchema11 {
             },
             bfont: conf.browser_font_name,
             bsize: conf.browser_font_size as u8,
-            other: bytes_to_other(&conf.other),
+            other,
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn notetype_other_duplicates() {
+        // create notetype with field duplicated in `other`
+        let mut nt = crate::notetype::stock::basic(&anki_i18n::I18n::template_only());
+        nt.config.other = Vec::from(*b"{\"originalStockKind\":42}");
+        // serialize with schema 11
+        let nt11 = NotetypeSchema11::from(nt);
+        let json = serde_json::to_string(&nt11).unwrap();
+        // deserialize; only works if duplicate field has been removed
+        assert!(serde_json::from_str::<NotetypeSchema11>(&json).is_ok());
     }
 }

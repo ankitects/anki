@@ -1,16 +1,41 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashMap;
+
 use serde::Deserialize as DeTrait;
 use serde::Deserializer;
 pub(crate) use serde_aux::field_attributes::deserialize_bool_from_anything;
 pub(crate) use serde_aux::field_attributes::deserialize_number_from_string;
 use serde_json::Value;
 
+use crate::text::snake_to_camel_case;
 use crate::timestamp::TimestampSecs;
 
 pub(crate) trait FieldNames {
     fn field_names() -> &'static [&'static str];
+}
+
+/// Removes any entries matching a field name of the associated struct in camel
+/// case, and returns them.
+///
+/// This function solves a very specific problem when (de)serializing structs on
+/// up-/downgrade:
+/// Older clients may have received keys from a newer client when
+/// syncing, which get bundled into `other`. If they then upgrade, then
+/// downgrade their collection to schema11, serde will serialize the
+/// new default keys, but then add them again from `other`, leading
+/// to the keys being duplicated in the resulting json - which older
+/// clients then can't read. So we need to strip out any new keys we
+/// add.
+pub(crate) fn extract_field_names<T: FieldNames, V>(
+    map: &mut HashMap<String, V>,
+) -> HashMap<String, V> {
+    T::field_names()
+        .iter()
+        .map(snake_to_camel_case)
+        .filter_map(|name| map.remove(&name).map(|val| (name, val)))
+        .collect()
 }
 
 /// Note: if you wish to cover the case where a field is missing, make sure you
