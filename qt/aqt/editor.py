@@ -511,6 +511,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         collapsed = [fld["collapsed"] for fld in flds]
         plain_texts = [fld.get("plainText", False) for fld in flds]
         descriptions = [fld.get("description", "") for fld in flds]
+        notetype = {"id": self.note.mid, "mtime": self.note.note_type()["mod"]}
 
         self.widget.show()
 
@@ -533,7 +534,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         js = f"""
             saveSession();
             setFields({json.dumps(data)});
-            setNotetypeId({json.dumps(self.note.mid)});
+            setNotetype({json.dumps(notetype)});
             setCollapsed({json.dumps(collapsed)});
             setPlainTexts({json.dumps(plain_texts)});
             setDescriptions({json.dumps(descriptions)});

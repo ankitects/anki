@@ -8,8 +8,15 @@ export type EditorOptions = {
         plainTextsHidden: boolean[];
         plainTextDefaults: boolean[];
     };
+    mtimeOfNotetype: number;
 };
 
 export type SessionOptions = {
     [key: number]: EditorOptions;
+};
+
+export type Notetype = {
+    id: number;
+    /** last modification time */
+    mtime: number;
 };
