@@ -3,6 +3,7 @@
 
 use std::collections::HashMap;
 
+use field_names_derive::FieldNames;
 use serde_derive::Deserialize;
 use serde_derive::Serialize;
 use serde_json::Value;
@@ -17,6 +18,7 @@ use crate::prelude::*;
 use crate::serde::default_on_invalid;
 use crate::serde::deserialize_bool_from_anything;
 use crate::serde::deserialize_number_from_string;
+use crate::serde::extract_field_names;
 
 #[derive(Serialize, PartialEq, Debug, Clone)]
 #[serde(untagged)]
@@ -112,7 +114,7 @@ pub struct DeckCommonSchema11 {
     other: HashMap<String, Value>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone, FieldNames)]
 #[serde(rename_all = "camelCase")]
 pub struct NormalDeckSchema11 {
     #[serde(flatten)]
@@ -380,12 +382,9 @@ impl From<Deck> for DeckSchema11 {
 
 impl From<Deck> for DeckCommonSchema11 {
     fn from(deck: Deck) -> Self {
-        let mut other: HashMap<String, Value> = if deck.common.other.is_empty() {
-            Default::default()
-        } else {
-            serde_json::from_slice(&deck.common.other).unwrap_or_default()
-        };
-        clear_other_duplicates(&mut other);
+        let mut other: HashMap<String, Value> =
+            serde_json::from_slice(&deck.common.other).unwrap_or_default();
+        extract_field_names::<NormalDeckSchema11, _>(&mut other);
         DeckCommonSchema11 {
             id: deck.id,
             mtime: deck.mtime_secs,
@@ -405,18 +404,6 @@ impl From<Deck> for DeckCommonSchema11 {
             },
             other,
         }
-    }
-}
-
-/// See [crate::deckconfig::schema11::clear_other_duplicates()].
-fn clear_other_duplicates(other: &mut HashMap<String, Value>) {
-    for key in [
-        "reviewLimit",
-        "newLimit",
-        "reviewLimitToday",
-        "newLimitToday",
-    ] {
-        other.remove(key);
     }
 }
 

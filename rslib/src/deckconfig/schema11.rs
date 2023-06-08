@@ -3,6 +3,7 @@
 
 use std::collections::HashMap;
 
+use field_names_derive::FieldNames;
 use serde::Deserialize as DeTrait;
 use serde::Deserializer;
 use serde_aux::field_attributes::deserialize_number_from_string;
@@ -19,10 +20,11 @@ use super::DeckConfigInner;
 use super::NewCardInsertOrder;
 use super::INITIAL_EASE_FACTOR_THOUSANDS;
 use crate::serde::default_on_invalid;
+use crate::serde::extract_field_names;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, FieldNames)]
 #[serde(rename_all = "camelCase")]
 pub struct DeckConfSchema11 {
     #[serde(deserialize_with = "deserialize_number_from_string")]
@@ -48,7 +50,6 @@ pub struct DeckConfSchema11 {
 
     // 2021 scheduler options: these were not in schema 11, but we need to persist them
     // so the settings are not lost on upgrade/downgrade.
-    // NOTE: if adding new ones, make sure to update clear_other_duplicates()
     #[serde(default)]
     new_mix: i32,
     #[serde(default)]
@@ -323,32 +324,22 @@ impl From<DeckConfSchema11> for DeckConfig {
     }
 }
 
+fn parse_nested_other(map: &mut HashMap<String, Value>, key: &str) -> HashMap<String, Value> {
+    map.remove(key)
+        .and_then(|val| serde_json::from_value::<HashMap<String, Value>>(val).ok())
+        .unwrap_or_default()
+}
+
 // latest schema -> schema 11
 impl From<DeckConfig> for DeckConfSchema11 {
     fn from(c: DeckConfig) -> DeckConfSchema11 {
         // split extra json up
-        let mut top_other: HashMap<String, Value>;
-        let mut new_other = Default::default();
-        let mut rev_other = Default::default();
-        let mut lapse_other = Default::default();
-        if c.inner.other.is_empty() {
-            top_other = Default::default();
-        } else {
-            top_other = serde_json::from_slice(&c.inner.other).unwrap_or_default();
-            clear_other_duplicates(&mut top_other);
-            if let Some(new) = top_other.remove("new") {
-                let val: HashMap<String, Value> = serde_json::from_value(new).unwrap_or_default();
-                new_other = val;
-            }
-            if let Some(rev) = top_other.remove("rev") {
-                let val: HashMap<String, Value> = serde_json::from_value(rev).unwrap_or_default();
-                rev_other = val;
-            }
-            if let Some(lapse) = top_other.remove("lapse") {
-                let val: HashMap<String, Value> = serde_json::from_value(lapse).unwrap_or_default();
-                lapse_other = val;
-            }
-        }
+        let mut top_other: HashMap<String, Value> =
+            serde_json::from_slice(&c.inner.other).unwrap_or_default();
+        let mut duplicates = extract_field_names::<Self, _>(&mut top_other);
+        let new_other = parse_nested_other(&mut duplicates, "new");
+        let rev_other = parse_nested_other(&mut duplicates, "rev");
+        let lapse_other = parse_nested_other(&mut duplicates, "lapse");
         let i = c.inner;
         let new_order = i.new_card_insert_order();
         DeckConfSchema11 {
@@ -406,27 +397,6 @@ impl From<DeckConfig> for DeckConfSchema11 {
             new_gather_priority: i.new_card_gather_priority,
             bury_interday_learning: i.bury_interday_learning,
         }
-    }
-}
-
-fn clear_other_duplicates(top_other: &mut HashMap<String, Value>) {
-    // Older clients may have received keys from a newer client when
-    // syncing, which get bundled into `other`. If they then upgrade, then
-    // downgrade their collection to schema11, serde will serialize the
-    // new default keys, but then add them again from `other`, leading
-    // to the keys being duplicated in the resulting json - which older
-    // clients then can't read. So we need to strip out any new keys we
-    // add.
-    for key in &[
-        "newMix",
-        "newPerDayMinimum",
-        "interdayLearningMix",
-        "reviewOrder",
-        "newSortOrder",
-        "newGatherPriority",
-        "buryInterdayLearning",
-    ] {
-        top_other.remove(*key);
     }
 }
 
