@@ -253,6 +253,9 @@ pub struct NoteFieldSchema11 {
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) exclude_from_search: bool,
 
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    pub(crate) id: Option<i64>,
+
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
 }
@@ -270,6 +273,7 @@ impl Default for NoteFieldSchema11 {
             description: String::new(),
             collapsed: false,
             exclude_from_search: false,
+            id: None,
             other: Default::default(),
         }
     }
@@ -289,6 +293,7 @@ impl From<NoteFieldSchema11> for NoteField {
                 description: f.description,
                 collapsed: f.collapsed,
                 exclude_from_search: f.exclude_from_search,
+                id: f.id,
                 other: other_to_bytes(&f.other),
             },
         }
@@ -309,6 +314,7 @@ impl From<NoteField> for NoteFieldSchema11 {
             description: conf.description,
             collapsed: conf.collapsed,
             exclude_from_search: conf.exclude_from_search,
+            id: conf.id,
             other: parse_other_fields(&conf.other, &RESERVED_FIELD_KEYS),
         }
     }
@@ -325,6 +331,7 @@ static RESERVED_FIELD_KEYS: Set<&'static str> = phf_set! {
     "collapsed",
     "description",
     "excludeFromSearch",
+    "id",
 };
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
@@ -344,6 +351,8 @@ pub struct CardTemplateSchema11 {
     pub(crate) bfont: String,
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) bsize: u8,
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    pub(crate) id: Option<i64>,
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
 }
@@ -363,6 +372,7 @@ impl From<CardTemplateSchema11> for CardTemplate {
                 target_deck_id: t.did.unwrap_or(DeckId(0)).0,
                 browser_font_name: t.bfont,
                 browser_font_size: t.bsize as u32,
+                id: t.id,
                 other: other_to_bytes(&t.other),
             },
         }
@@ -386,6 +396,7 @@ impl From<CardTemplate> for CardTemplateSchema11 {
             },
             bfont: conf.browser_font_name,
             bsize: conf.browser_font_size as u8,
+            id: conf.id,
             other: parse_other_fields(&conf.other, &RESERVED_TEMPLATE_KEYS),
         }
     }
@@ -401,6 +412,7 @@ static RESERVED_TEMPLATE_KEYS: Set<&'static str> = phf_set! {
     "bqfmt",
     "bfont",
     "bsize",
+    "id",
 };
 
 #[cfg(test)]

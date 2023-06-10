@@ -85,6 +85,8 @@ message Notetype {
       bool plain_text = 6;
       bool collapsed = 7;
       bool exclude_from_search = 8;
+      // used for merging notetypes on import (Anki 2.1.66)
+      optional int64 id = 9;
 
       bytes other = 255;
     }
@@ -101,6 +103,8 @@ message Notetype {
       int64 target_deck_id = 5;
       string browser_font_name = 6;
       uint32 browser_font_size = 7;
+      // used for merging notetypes on import (Anki 2.1.66)
+      optional int64 id = 8;
 
       bytes other = 255;
     }
