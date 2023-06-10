@@ -404,7 +404,7 @@ impl SqliteStorage {
 
     pub(crate) fn downgrade_decks_from_schema15(&self) -> Result<()> {
         let decks = self.get_all_decks_as_schema11()?;
-        self.set_schema11_decks(decks)
+        self.set_schema11_decks(&decks)
     }
 
     fn get_schema11_decks(&self) -> Result<HashMap<DeckId, DeckSchema11>> {
@@ -420,8 +420,8 @@ impl SqliteStorage {
         Ok(decks)
     }
 
-    pub(crate) fn set_schema11_decks(&self, decks: HashMap<DeckId, DeckSchema11>) -> Result<()> {
-        let json = serde_json::to_string(&decks)?;
+    pub(crate) fn set_schema11_decks(&self, decks: &HashMap<DeckId, DeckSchema11>) -> Result<()> {
+        let json = crate::serde::schema11_to_string(decks)?;
         self.db.execute("update col set decks = ?", [json])?;
         Ok(())
     }
