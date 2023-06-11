@@ -11,6 +11,7 @@ members = [
   "rslib/i18n",
   "rslib/i18n_helpers",
   "rslib/linkchecker",
+  "rslib/proto",
   "pylib/rsbridge",
   "build/configure",
   "build/ninja_gen",

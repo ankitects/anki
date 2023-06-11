@@ -22,6 +22,7 @@ use crate::proto::setup_protoc;
 pub fn build_rust(build: &mut Build) -> Result<()> {
     prepare_translations(build)?;
     setup_protoc(build)?;
+    prepare_proto_descriptors(build)?;
     build_rsbridge(build)
 }
 
@@ -81,6 +82,24 @@ fn prepare_translations(build: &mut Build) -> Result<()> {
     Ok(())
 }
 
+fn prepare_proto_descriptors(build: &mut Build) -> Result<()> {
+    // build anki_proto and spit out descriptors/Python interface
+    build.add(
+        "rslib/proto",
+        CargoBuild {
+            inputs: inputs![glob!["{proto,rslib/proto}/**"], "$protoc_binary",],
+            outputs: &[RustOutput::Data(
+                "descriptors.bin",
+                "$builddir/rslib/proto/descriptors.bin",
+            )],
+            target: None,
+            extra_args: "-p anki_proto",
+            release_override: None,
+        },
+    )?;
+    Ok(())
+}
+
 fn build_rsbridge(build: &mut Build) -> Result<()> {
     let features = if cfg!(target_os = "linux") {
         "rustls"
@@ -91,12 +110,12 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
         "pylib/rsbridge",
         CargoBuild {
             inputs: inputs![
-                glob!["{pylib/rsbridge/**,rslib/**,proto/**}"],
-                "$protoc_binary",
-                // declare a dependency on i18n so it gets built first, allowing
+                glob!["{pylib/rsbridge/**,rslib/**}"],
+                // declare a dependency on i18n/proto so it gets built first, allowing
                 // things depending on strings.json to build faster, and ensuring
                 // changes to the ftl files trigger a rebuild
                 ":rslib/i18n",
+                ":rslib/proto",
                 // when env vars change the build hash gets updated
                 "$builddir/build.ninja",
                 // building on Windows requires python3.lib

@@ -64,7 +64,7 @@ use self::sync::SyncState;
 use self::tags::TagsService;
 use crate::backend::dbproxy::db_command_bytes;
 use crate::pb;
-use crate::pb::backend::ServiceIndex;
+use crate::pb::ServiceIndex;
 use crate::prelude::*;
 
 pub struct Backend {
@@ -121,7 +121,7 @@ impl Backend {
         method: u32,
         input: &[u8],
     ) -> result::Result<Vec<u8>, Vec<u8>> {
-        ServiceIndex::from_i32(service as i32)
+        ServiceIndex::try_from(service)
             .or_invalid("invalid service")
             .and_then(|service| match service {
                 ServiceIndex::Ankidroid => AnkidroidService::run_method(self, method, input),

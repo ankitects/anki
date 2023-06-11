@@ -125,14 +125,9 @@ class RustBackend(RustBackendGenerated):
             for k, v in kwargs.items()
         }
 
-        input = i18n_pb2.TranslateStringRequest(
-            module_index=module_index,
-            message_index=message_index,
-            args=args,
+        return self.translate_string(
+            module_index=module_index, message_index=message_index, args=args
         )
-
-        output_bytes = self.translate_string_raw(input.SerializeToString())
-        return anki.generic_pb2.String.FromString(output_bytes).val
 
     def format_time_span(
         self,

@@ -4,10 +4,12 @@
 macro_rules! protobuf {
     ($ident:ident, $name:literal) => {
         pub mod $ident {
-            include!(concat!(env!("OUT_DIR"), "/anki.", $name, ".rs"));
+            include!(concat!("../../out/rslib/proto/anki.", $name, ".rs"));
         }
     };
 }
+
+include!("../../out/rslib/proto/service_index.rs");
 
 protobuf!(ankidroid, "ankidroid");
 protobuf!(backend, "backend");
