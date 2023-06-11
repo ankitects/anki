@@ -1,0 +1,17 @@
+[package]
+name = "anki_proto"
+publish = false
+description = "Anki's Rust library protobuf code"
+
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[build-dependencies]
+anyhow = "1.0.71"
+inflections = "1.1.1"
+prost-build = "0.11.9"
+prost-reflect = "0.11.4"
+prost-types = "0.11.9"

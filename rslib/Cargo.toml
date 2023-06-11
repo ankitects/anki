@@ -1,6 +1,5 @@
 [package]
 name = "anki"
-build = "build/main.rs"
 publish = false
 description = "Anki's Rust library code"
 
@@ -9,10 +8,6 @@ authors.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
-
-[lib]
-name = "anki"
-path = "src/lib.rs"
 
 [features]
 bench = ["criterion"]
@@ -27,7 +22,13 @@ required-features = ["bench"]
 # After updating anything below, run ../cargo/update_licenses.sh
 
 [build-dependencies]
+anyhow = "1.0.71"
+inflections = "1.1.1"
+prost = "0.11.8"
 prost-build = "0.11.8"
+prost-reflect = "0.11.4"
+prost-types = "0.11.9"
+regex = "1.7.3"
 which = "4.4.0"
 
 [dev-dependencies]
@@ -42,6 +43,7 @@ features = ["json", "socks", "stream", "multipart"]
 
 [dependencies]
 anki_i18n = { path = "i18n" }
+anki_proto = { path = "proto" }
 
 csv = { git = "https://github.com/ankitects/rust-csv.git", rev = "1c9d3aab6f79a7d815c69f925a46a4590c115f90" }
 percent-encoding-iri = { git = "https://github.com/ankitects/rust-url.git", rev = "bb930b8d089f4d30d7d19c12e54e66191de47b88" }
