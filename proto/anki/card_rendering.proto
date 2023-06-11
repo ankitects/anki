@@ -12,7 +12,7 @@ import "anki/notes.proto";
 import "anki/notetypes.proto";
 
 service CardRenderingService {
-  rpc ExtractAVTags(ExtractAVTagsRequest) returns (ExtractAVTagsResponse);
+  rpc ExtractAvTags(ExtractAvTagsRequest) returns (ExtractAvTagsResponse);
   rpc ExtractLatex(ExtractLatexRequest) returns (ExtractLatexResponse);
   rpc GetEmptyCards(generic.Empty) returns (EmptyCardsReport);
   rpc RenderExistingCard(RenderExistingCardRequest)
@@ -21,7 +21,7 @@ service CardRenderingService {
       returns (RenderCardResponse);
   rpc RenderUncommittedCardLegacy(RenderUncommittedCardLegacyRequest)
       returns (RenderCardResponse);
-  rpc StripAVTags(generic.String) returns (generic.String);
+  rpc StripAvTags(generic.String) returns (generic.String);
   rpc RenderMarkdown(RenderMarkdownRequest) returns (generic.String);
   rpc EncodeIriPaths(generic.String) returns (generic.String);
   rpc DecodeIriPaths(generic.String) returns (generic.String);
@@ -33,12 +33,12 @@ service CardRenderingService {
   rpc WriteTtsStream(WriteTtsStreamRequest) returns (generic.Empty);
 }
 
-message ExtractAVTagsRequest {
+message ExtractAvTagsRequest {
   string text = 1;
   bool question_side = 2;
 }
 
-message ExtractAVTagsResponse {
+message ExtractAvTagsResponse {
   string text = 1;
   repeated AVTag av_tags = 2;
 }
