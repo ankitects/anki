@@ -7,7 +7,8 @@ use std::collections::HashSet;
 use std::fs::File;
 use std::io::Write;
 
-use crate::io::read_file;
+use anki_io::read_file;
+
 use crate::media::files::sha1_of_data;
 use crate::media::MediaManager;
 use crate::prelude::*;

@@ -1,12 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::fs::File;
 use std::io::BufWriter;
 use std::io::Write;
 use std::path::Path;
 
-use anyhow::Context;
+use anki_io::create_file;
 use anyhow::Result;
 use inflections::Inflect;
 use prost_reflect::DescriptorPool;
@@ -18,9 +17,7 @@ use prost_reflect::ServiceDescriptor;
 
 pub(crate) fn write_python_interface(pool: &DescriptorPool) -> Result<()> {
     let output_path = Path::new("../../out/pylib/anki/_backend_generated.py");
-    let mut out = BufWriter::new(
-        File::create(output_path).with_context(|| format!("opening {output_path:?}"))?,
-    );
+    let mut out = BufWriter::new(create_file(output_path)?);
     write_header(&mut out)?;
 
     for service in pool.services() {

@@ -9,6 +9,10 @@ use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
 
+use anki_io::atomic_rename;
+use anki_io::new_tempfile;
+use anki_io::new_tempfile_in_parent_of;
+use anki_io::open_file;
 use prost::Message;
 use tempfile::NamedTempFile;
 use zip::write::FileOptions;
@@ -30,10 +34,6 @@ use crate::import_export::package::media::MediaCopier;
 use crate::import_export::package::media::MediaIter;
 use crate::import_export::ExportProgress;
 use crate::import_export::IncrementableProgress;
-use crate::io::atomic_rename;
-use crate::io::new_tempfile;
-use crate::io::new_tempfile_in_parent_of;
-use crate::io::open_file;
 use crate::prelude::*;
 use crate::storage::SchemaVersion;
 

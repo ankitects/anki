@@ -5,6 +5,10 @@ use std::collections::HashSet;
 use std::path::Path;
 use std::path::PathBuf;
 
+use anki_io::atomic_rename;
+use anki_io::new_tempfile;
+use anki_io::new_tempfile_in_parent_of;
+
 use super::super::meta::MetaExt;
 use crate::collection::CollectionBuilder;
 use crate::import_export::gather::ExchangeData;
@@ -13,9 +17,6 @@ use crate::import_export::package::media::MediaIter;
 use crate::import_export::package::Meta;
 use crate::import_export::ExportProgress;
 use crate::import_export::IncrementableProgress;
-use crate::io::atomic_rename;
-use crate::io::new_tempfile;
-use crate::io::new_tempfile_in_parent_of;
 use crate::prelude::*;
 
 impl Collection {

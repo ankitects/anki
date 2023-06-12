@@ -949,13 +949,13 @@ impl SearchNode {
 
 #[cfg(test)]
 mod test {
+    use anki_io::write_file;
     use tempfile::tempdir;
 
     use super::super::parser::parse;
     use super::*;
     use crate::collection::Collection;
     use crate::collection::CollectionBuilder;
-    use crate::io::write_file;
 
     // shortcut
     fn s(req: &mut Collection, search: &str) -> (String, Vec<String>) {

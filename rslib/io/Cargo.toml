@@ -1,0 +1,14 @@
+[package]
+name = "anki_io"
+publish = false
+description = "Utils for better I/O error reporting"
+
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+snafu = "0.7.4"
+tempfile = "3.6.0"

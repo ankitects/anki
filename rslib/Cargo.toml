@@ -43,6 +43,7 @@ features = ["json", "socks", "stream", "multipart"]
 
 [dependencies]
 anki_i18n = { path = "i18n" }
+anki_io = { path = "io" }
 anki_proto = { path = "proto" }
 
 csv = { git = "https://github.com/ankitects/rust-csv.git", rev = "1c9d3aab6f79a7d815c69f925a46a4590c115f90" }

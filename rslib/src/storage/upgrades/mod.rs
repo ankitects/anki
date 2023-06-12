@@ -77,9 +77,10 @@ impl SqliteStorage {
 
 #[cfg(test)]
 mod test {
+    use anki_io::new_tempfile;
+
     use super::*;
     use crate::collection::CollectionBuilder;
-    use crate::io::new_tempfile;
     use crate::prelude::*;
 
     #[test]
