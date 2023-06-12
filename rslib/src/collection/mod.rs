@@ -12,11 +12,12 @@ use std::fmt::Formatter;
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use anki_i18n::I18n;
+
 use crate::browser_table;
 use crate::decks::Deck;
 use crate::decks::DeckId;
 use crate::error::Result;
-use crate::i18n::I18n;
 use crate::io::create_dir_all;
 use crate::notetype::Notetype;
 use crate::notetype::NotetypeId;

@@ -4,11 +4,11 @@
 use std::collections::HashSet;
 use std::iter::Peekable;
 
+use anki_proto::tags::TagTreeNode;
 use unicase::UniCase;
 
 use super::immediate_parent_name_unicase;
 use super::Tag;
-use crate::pb::tags::TagTreeNode;
 use crate::prelude::*;
 
 impl Collection {

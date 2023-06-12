@@ -3,8 +3,9 @@
 
 use std::collections::HashMap;
 
-use serde_derive::Deserialize;
-use serde_derive::Serialize;
+use anki_proto::decks::deck::normal::DayLimit;
+use serde::Deserialize;
+use serde::Serialize;
 use serde_json::Value;
 use serde_tuple::Serialize_tuple;
 
@@ -12,7 +13,6 @@ use super::DeckCommon;
 use super::FilteredDeck;
 use super::FilteredSearchTerm;
 use super::NormalDeck;
-use crate::pb::decks::deck::normal::DayLimit;
 use crate::prelude::*;
 use crate::serde::default_on_invalid;
 use crate::serde::deserialize_bool_from_anything;

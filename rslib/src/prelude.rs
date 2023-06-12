@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+pub use anki_i18n::I18n;
 pub use snafu::ResultExt;
 
 pub use crate::card::Card;
@@ -17,7 +18,6 @@ pub use crate::error::AnkiError;
 pub use crate::error::OrInvalid;
 pub use crate::error::OrNotFound;
 pub use crate::error::Result;
-pub use crate::i18n::I18n;
 pub use crate::invalid_input;
 pub use crate::media::Sha1Hash;
 pub use crate::notes::Note;

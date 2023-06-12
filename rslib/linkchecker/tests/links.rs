@@ -7,6 +7,8 @@ use std::borrow::Cow;
 use std::env;
 use std::iter;
 
+use anki::links::help_page_link_suffix;
+use anki::links::help_page_to_link;
 use anki::links::HelpPage;
 use futures::StreamExt;
 use itertools::Itertools;
@@ -38,14 +40,14 @@ enum CheckableUrl {
 impl CheckableUrl {
     fn url(&self) -> Cow<str> {
         match *self {
-            Self::HelpPage(page) => page.to_link().into(),
+            Self::HelpPage(page) => help_page_to_link(page).into(),
             Self::String(s) => s.into(),
         }
     }
 
     fn anchor(&self) -> Cow<str> {
         match *self {
-            Self::HelpPage(page) => page.to_link_suffix().into(),
+            Self::HelpPage(page) => help_page_link_suffix(page).into(),
             Self::String(s) => s.split('#').last().unwrap_or_default().into(),
         }
     }

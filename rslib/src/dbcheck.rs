@@ -4,6 +4,7 @@
 use std::collections::HashSet;
 use std::sync::Arc;
 
+use anki_i18n::I18n;
 use itertools::Itertools;
 use tracing::debug;
 
@@ -13,7 +14,6 @@ use crate::error::AnkiError;
 use crate::error::DbError;
 use crate::error::DbErrorKind;
 use crate::error::Result;
-use crate::i18n::I18n;
 use crate::notetype::all_stock_notetypes;
 use crate::notetype::AlreadyGeneratedCardInfo;
 use crate::notetype::CardGenContext;

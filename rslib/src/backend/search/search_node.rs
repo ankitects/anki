@@ -1,9 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki_proto::search::search_node::IdList;
 use itertools::Itertools;
 
-use crate::pb;
 use crate::prelude::*;
 use crate::search::parse_search;
 use crate::search::Negated;
@@ -16,13 +16,13 @@ use crate::search::TemplateKind;
 use crate::text::escape_anki_wildcards;
 use crate::text::escape_anki_wildcards_for_search_node;
 
-impl TryFrom<pb::search::SearchNode> for Node {
+impl TryFrom<anki_proto::search::SearchNode> for Node {
     type Error = AnkiError;
 
-    fn try_from(msg: pb::search::SearchNode) -> std::result::Result<Self, Self::Error> {
-        use pb::search::search_node::group::Joiner;
-        use pb::search::search_node::Filter;
-        use pb::search::search_node::Flag;
+    fn try_from(msg: anki_proto::search::SearchNode) -> std::result::Result<Self, Self::Error> {
+        use anki_proto::search::search_node::group::Joiner;
+        use anki_proto::search::search_node::Filter;
+        use anki_proto::search::search_node::Flag;
         Ok(if let Some(filter) = msg.filter {
             match filter {
                 Filter::Tag(s) => SearchNode::from_tag_name(&s).into(),
@@ -32,7 +32,7 @@ impl TryFrom<pb::search::SearchNode> for Node {
                     Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
                 }
                 Filter::Nid(nid) => Node::Search(SearchNode::NoteIds(nid.to_string())),
-                Filter::Nids(nids) => Node::Search(SearchNode::NoteIds(nids.into_id_string())),
+                Filter::Nids(nids) => Node::Search(SearchNode::NoteIds(id_list_to_string(nids))),
                 Filter::Dupe(dupe) => Node::Search(SearchNode::Duplicates {
                     notetype_id: dupe.notetype_id.into(),
                     text: dupe.first_field,
@@ -58,7 +58,7 @@ impl TryFrom<pb::search::SearchNode> for Node {
                 }),
                 Filter::EditedInDays(u) => Node::Search(SearchNode::EditedInDays(u)),
                 Filter::CardState(state) => Node::Search(SearchNode::State(
-                    pb::search::search_node::CardState::from_i32(state)
+                    anki_proto::search::search_node::CardState::from_i32(state)
                         .unwrap_or_default()
                         .into(),
                 )),
@@ -120,38 +120,36 @@ impl TryFrom<pb::search::SearchNode> for Node {
     }
 }
 
-impl From<pb::search::search_node::Rating> for RatingKind {
-    fn from(r: pb::search::search_node::Rating) -> Self {
+impl From<anki_proto::search::search_node::Rating> for RatingKind {
+    fn from(r: anki_proto::search::search_node::Rating) -> Self {
         match r {
-            pb::search::search_node::Rating::Again => RatingKind::AnswerButton(1),
-            pb::search::search_node::Rating::Hard => RatingKind::AnswerButton(2),
-            pb::search::search_node::Rating::Good => RatingKind::AnswerButton(3),
-            pb::search::search_node::Rating::Easy => RatingKind::AnswerButton(4),
-            pb::search::search_node::Rating::Any => RatingKind::AnyAnswerButton,
-            pb::search::search_node::Rating::ByReschedule => RatingKind::ManualReschedule,
+            anki_proto::search::search_node::Rating::Again => RatingKind::AnswerButton(1),
+            anki_proto::search::search_node::Rating::Hard => RatingKind::AnswerButton(2),
+            anki_proto::search::search_node::Rating::Good => RatingKind::AnswerButton(3),
+            anki_proto::search::search_node::Rating::Easy => RatingKind::AnswerButton(4),
+            anki_proto::search::search_node::Rating::Any => RatingKind::AnyAnswerButton,
+            anki_proto::search::search_node::Rating::ByReschedule => RatingKind::ManualReschedule,
         }
     }
 }
 
-impl From<pb::search::search_node::CardState> for StateKind {
-    fn from(k: pb::search::search_node::CardState) -> Self {
+impl From<anki_proto::search::search_node::CardState> for StateKind {
+    fn from(k: anki_proto::search::search_node::CardState) -> Self {
         match k {
-            pb::search::search_node::CardState::New => StateKind::New,
-            pb::search::search_node::CardState::Learn => StateKind::Learning,
-            pb::search::search_node::CardState::Review => StateKind::Review,
-            pb::search::search_node::CardState::Due => StateKind::Due,
-            pb::search::search_node::CardState::Suspended => StateKind::Suspended,
-            pb::search::search_node::CardState::Buried => StateKind::Buried,
+            anki_proto::search::search_node::CardState::New => StateKind::New,
+            anki_proto::search::search_node::CardState::Learn => StateKind::Learning,
+            anki_proto::search::search_node::CardState::Review => StateKind::Review,
+            anki_proto::search::search_node::CardState::Due => StateKind::Due,
+            anki_proto::search::search_node::CardState::Suspended => StateKind::Suspended,
+            anki_proto::search::search_node::CardState::Buried => StateKind::Buried,
         }
     }
 }
 
-impl pb::search::search_node::IdList {
-    fn into_id_string(self) -> String {
-        self.ids
-            .iter()
-            .map(|i| i.to_string())
-            .collect::<Vec<_>>()
-            .join(",")
-    }
+fn id_list_to_string(list: IdList) -> String {
+    list.ids
+        .iter()
+        .map(|i| i.to_string())
+        .collect::<Vec<_>>()
+        .join(",")
 }

@@ -3,18 +3,18 @@
 
 use std::sync::Arc;
 
+use anki_proto::generic;
+pub(super) use anki_proto::sync::sync_service::Service as SyncService;
+use anki_proto::sync::sync_status_response::Required;
+use anki_proto::sync::SyncStatusResponse;
 use futures::future::AbortHandle;
 use futures::future::AbortRegistration;
 use futures::future::Abortable;
-use pb::sync::sync_status_response::Required;
 use reqwest::Url;
 use tracing::warn;
 
 use super::progress::AbortHandleSlot;
 use super::Backend;
-use crate::pb;
-pub(super) use crate::pb::sync::sync_service::Service as SyncService;
-use crate::pb::sync::SyncStatusResponse;
 use crate::prelude::*;
 use crate::sync::collection::normal::ClientSyncState;
 use crate::sync::collection::normal::NormalSyncProgress;
@@ -46,40 +46,42 @@ impl RemoteSyncStatus {
     }
 }
 
-impl From<SyncOutput> for pb::sync::SyncCollectionResponse {
+impl From<SyncOutput> for anki_proto::sync::SyncCollectionResponse {
     fn from(o: SyncOutput) -> Self {
-        pb::sync::SyncCollectionResponse {
+        anki_proto::sync::SyncCollectionResponse {
             host_number: o.host_number,
             server_message: o.server_message,
             new_endpoint: o.new_endpoint,
             required: match o.required {
                 SyncActionRequired::NoChanges => {
-                    pb::sync::sync_collection_response::ChangesRequired::NoChanges as i32
+                    anki_proto::sync::sync_collection_response::ChangesRequired::NoChanges as i32
                 }
                 SyncActionRequired::FullSyncRequired {
                     upload_ok,
                     download_ok,
                 } => {
                     if !upload_ok {
-                        pb::sync::sync_collection_response::ChangesRequired::FullDownload as i32
+                        anki_proto::sync::sync_collection_response::ChangesRequired::FullDownload
+                            as i32
                     } else if !download_ok {
-                        pb::sync::sync_collection_response::ChangesRequired::FullUpload as i32
+                        anki_proto::sync::sync_collection_response::ChangesRequired::FullUpload
+                            as i32
                     } else {
-                        pb::sync::sync_collection_response::ChangesRequired::FullSync as i32
+                        anki_proto::sync::sync_collection_response::ChangesRequired::FullSync as i32
                     }
                 }
                 SyncActionRequired::NormalSyncRequired => {
-                    pb::sync::sync_collection_response::ChangesRequired::NormalSync as i32
+                    anki_proto::sync::sync_collection_response::ChangesRequired::NormalSync as i32
                 }
             },
         }
     }
 }
 
-impl TryFrom<pb::sync::SyncAuth> for SyncAuth {
+impl TryFrom<anki_proto::sync::SyncAuth> for SyncAuth {
     type Error = AnkiError;
 
-    fn try_from(value: pb::sync::SyncAuth) -> std::result::Result<Self, Self::Error> {
+    fn try_from(value: anki_proto::sync::SyncAuth) -> std::result::Result<Self, Self::Error> {
         Ok(SyncAuth {
             hkey: value.hkey,
             endpoint: value
@@ -100,11 +102,13 @@ impl TryFrom<pb::sync::SyncAuth> for SyncAuth {
 }
 
 impl SyncService for Backend {
-    fn sync_media(&self, input: pb::sync::SyncAuth) -> Result<pb::generic::Empty> {
+    type Error = AnkiError;
+
+    fn sync_media(&self, input: anki_proto::sync::SyncAuth) -> Result<generic::Empty> {
         self.sync_media_inner(input).map(Into::into)
     }
 
-    fn abort_sync(&self, _input: pb::generic::Empty) -> Result<pb::generic::Empty> {
+    fn abort_sync(&self, _input: generic::Empty) -> Result<generic::Empty> {
         if let Some(handle) = self.sync_abort.lock().unwrap().take() {
             handle.abort();
         }
@@ -112,7 +116,7 @@ impl SyncService for Backend {
     }
 
     /// Abort the media sync. Does not wait for completion.
-    fn abort_media_sync(&self, _input: pb::generic::Empty) -> Result<pb::generic::Empty> {
+    fn abort_media_sync(&self, _input: generic::Empty) -> Result<generic::Empty> {
         let guard = self.state.lock().unwrap();
         if let Some(handle) = &guard.sync.media_sync_abort {
             handle.abort();
@@ -120,27 +124,33 @@ impl SyncService for Backend {
         Ok(().into())
     }
 
-    fn sync_login(&self, input: pb::sync::SyncLoginRequest) -> Result<pb::sync::SyncAuth> {
+    fn sync_login(
+        &self,
+        input: anki_proto::sync::SyncLoginRequest,
+    ) -> Result<anki_proto::sync::SyncAuth> {
         self.sync_login_inner(input)
     }
 
-    fn sync_status(&self, input: pb::sync::SyncAuth) -> Result<pb::sync::SyncStatusResponse> {
+    fn sync_status(
+        &self,
+        input: anki_proto::sync::SyncAuth,
+    ) -> Result<anki_proto::sync::SyncStatusResponse> {
         self.sync_status_inner(input)
     }
 
     fn sync_collection(
         &self,
-        input: pb::sync::SyncAuth,
-    ) -> Result<pb::sync::SyncCollectionResponse> {
+        input: anki_proto::sync::SyncAuth,
+    ) -> Result<anki_proto::sync::SyncCollectionResponse> {
         self.sync_collection_inner(input)
     }
 
-    fn full_upload(&self, input: pb::sync::SyncAuth) -> Result<pb::generic::Empty> {
+    fn full_upload(&self, input: anki_proto::sync::SyncAuth) -> Result<generic::Empty> {
         self.full_sync_inner(input, true)?;
         Ok(().into())
     }
 
-    fn full_download(&self, input: pb::sync::SyncAuth) -> Result<pb::generic::Empty> {
+    fn full_download(&self, input: anki_proto::sync::SyncAuth) -> Result<generic::Empty> {
         self.full_sync_inner(input, false)?;
         Ok(().into())
     }
@@ -173,7 +183,7 @@ impl Backend {
         Ok((guard, abort_reg))
     }
 
-    pub(super) fn sync_media_inner(&self, auth: pb::sync::SyncAuth) -> Result<()> {
+    pub(super) fn sync_media_inner(&self, auth: anki_proto::sync::SyncAuth) -> Result<()> {
         let auth = auth.try_into()?;
         // mark media sync as active
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
@@ -228,8 +238,8 @@ impl Backend {
 
     pub(super) fn sync_login_inner(
         &self,
-        input: pb::sync::SyncLoginRequest,
-    ) -> Result<pb::sync::SyncAuth> {
+        input: anki_proto::sync::SyncLoginRequest,
+    ) -> Result<anki_proto::sync::SyncAuth> {
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
         let rt = self.runtime_handle();
@@ -239,7 +249,7 @@ impl Backend {
             Ok(sync_result) => sync_result,
             Err(_) => Err(AnkiError::Interrupted),
         };
-        ret.map(|a| pb::sync::SyncAuth {
+        ret.map(|a| anki_proto::sync::SyncAuth {
             hkey: a.hkey,
             endpoint: None,
             io_timeout_secs: None,
@@ -248,19 +258,21 @@ impl Backend {
 
     pub(super) fn sync_status_inner(
         &self,
-        input: pb::sync::SyncAuth,
-    ) -> Result<pb::sync::SyncStatusResponse> {
+        input: anki_proto::sync::SyncAuth,
+    ) -> Result<anki_proto::sync::SyncStatusResponse> {
         // any local changes mean we can skip the network round-trip
         let req = self.with_col(|col| col.sync_status_offline())?;
         if req != Required::NoChanges {
-            return Ok(req.into());
+            return Ok(status_response_from_required(req));
         }
 
         // return cached server response if only a short time has elapsed
         {
             let guard = self.state.lock().unwrap();
             if guard.sync.remote_sync_status.last_check.elapsed_secs() < 300 {
-                return Ok(guard.sync.remote_sync_status.last_response.into());
+                return Ok(status_response_from_required(
+                    guard.sync.remote_sync_status.last_response,
+                ));
             }
         }
 
@@ -288,8 +300,8 @@ impl Backend {
 
     pub(super) fn sync_collection_inner(
         &self,
-        input: pb::sync::SyncAuth,
-    ) -> Result<pb::sync::SyncCollectionResponse> {
+        input: anki_proto::sync::SyncAuth,
+    ) -> Result<anki_proto::sync::SyncCollectionResponse> {
         let auth: SyncAuth = input.try_into()?;
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
@@ -329,7 +341,11 @@ impl Backend {
         Ok(output.into())
     }
 
-    pub(super) fn full_sync_inner(&self, input: pb::sync::SyncAuth, upload: bool) -> Result<()> {
+    pub(super) fn full_sync_inner(
+        &self,
+        input: anki_proto::sync::SyncAuth,
+        upload: bool,
+    ) -> Result<()> {
         let auth = input.try_into()?;
         self.abort_media_sync_and_wait();
 
@@ -381,12 +397,10 @@ impl Backend {
     }
 }
 
-impl From<Required> for SyncStatusResponse {
-    fn from(r: Required) -> Self {
-        SyncStatusResponse {
-            required: r.into(),
-            new_endpoint: None,
-        }
+fn status_response_from_required(required: Required) -> SyncStatusResponse {
+    SyncStatusResponse {
+        required: required.into(),
+        new_endpoint: None,
     }
 }
 

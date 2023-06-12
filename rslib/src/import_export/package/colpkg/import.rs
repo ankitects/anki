@@ -11,6 +11,7 @@ use zip::read::ZipFile;
 use zip::ZipArchive;
 use zstd::stream::copy_decode;
 
+use super::super::meta::MetaExt;
 use crate::collection::CollectionBuilder;
 use crate::error::FileIoSnafu;
 use crate::error::FileOp;

@@ -2,14 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::ops::OpChanges;
-use crate::pb;
 use crate::prelude::*;
 use crate::undo::UndoOutput;
 use crate::undo::UndoStatus;
 
-impl From<OpChanges> for pb::collection::OpChanges {
+impl From<OpChanges> for anki_proto::collection::OpChanges {
     fn from(c: OpChanges) -> Self {
-        pb::collection::OpChanges {
+        anki_proto::collection::OpChanges {
             card: c.changes.card,
             note: c.changes.note,
             deck: c.changes.deck,
@@ -27,8 +26,8 @@ impl From<OpChanges> for pb::collection::OpChanges {
 }
 
 impl UndoStatus {
-    pub(crate) fn into_protobuf(self, tr: &I18n) -> pb::collection::UndoStatus {
-        pb::collection::UndoStatus {
+    pub(crate) fn into_protobuf(self, tr: &I18n) -> anki_proto::collection::UndoStatus {
+        anki_proto::collection::UndoStatus {
             undo: self.undo.map(|op| op.describe(tr)).unwrap_or_default(),
             redo: self.redo.map(|op| op.describe(tr)).unwrap_or_default(),
             last_step: self.last_step as u32,
@@ -36,24 +35,24 @@ impl UndoStatus {
     }
 }
 
-impl From<OpOutput<()>> for pb::collection::OpChanges {
+impl From<OpOutput<()>> for anki_proto::collection::OpChanges {
     fn from(o: OpOutput<()>) -> Self {
         o.changes.into()
     }
 }
 
-impl From<OpOutput<usize>> for pb::collection::OpChangesWithCount {
+impl From<OpOutput<usize>> for anki_proto::collection::OpChangesWithCount {
     fn from(out: OpOutput<usize>) -> Self {
-        pb::collection::OpChangesWithCount {
+        anki_proto::collection::OpChangesWithCount {
             count: out.output as u32,
             changes: Some(out.changes.into()),
         }
     }
 }
 
-impl From<OpOutput<i64>> for pb::collection::OpChangesWithId {
+impl From<OpOutput<i64>> for anki_proto::collection::OpChangesWithId {
     fn from(out: OpOutput<i64>) -> Self {
-        pb::collection::OpChangesWithId {
+        anki_proto::collection::OpChangesWithId {
             id: out.output,
             changes: Some(out.changes.into()),
         }
@@ -61,8 +60,8 @@ impl From<OpOutput<i64>> for pb::collection::OpChangesWithId {
 }
 
 impl OpOutput<UndoOutput> {
-    pub(crate) fn into_protobuf(self, tr: &I18n) -> pb::collection::OpChangesAfterUndo {
-        pb::collection::OpChangesAfterUndo {
+    pub(crate) fn into_protobuf(self, tr: &I18n) -> anki_proto::collection::OpChangesAfterUndo {
+        anki_proto::collection::OpChangesAfterUndo {
             changes: Some(self.changes.into()),
             operation: self.output.undone_op.describe(tr),
             reverted_to_timestamp: self.output.reverted_to.0,

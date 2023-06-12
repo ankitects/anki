@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::i18n::I18n;
+use anki_i18n::I18n;
+
 use crate::prelude::*;
 use crate::scheduler::timespan::Timespan;
 
@@ -28,8 +29,9 @@ impl Collection {
 
 #[cfg(test)]
 mod test {
+    use anki_i18n::I18n;
+
     use super::studied_today;
-    use crate::i18n::I18n;
 
     #[test]
     fn today() {

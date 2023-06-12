@@ -3,8 +3,9 @@
 
 use std::collections::HashMap;
 
+use anki_proto::stats::graphs_response::FutureDue;
+
 use super::GraphsContext;
-use crate::pb::stats::graphs_response::FutureDue;
 
 impl GraphsContext {
     pub(super) fn future_due(&self) -> FutureDue {

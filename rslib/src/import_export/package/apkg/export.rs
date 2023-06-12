@@ -5,6 +5,7 @@ use std::collections::HashSet;
 use std::path::Path;
 use std::path::PathBuf;
 
+use super::super::meta::MetaExt;
 use crate::collection::CollectionBuilder;
 use crate::import_export::gather::ExchangeData;
 use crate::import_export::package::colpkg::export::export_collection;

@@ -7,21 +7,21 @@ use std::sync::atomic::AtomicI32;
 use std::sync::atomic::Ordering;
 use std::sync::Mutex;
 
+use anki_proto::ankidroid::sql_value::Data;
+use anki_proto::ankidroid::DbResponse;
+use anki_proto::ankidroid::DbResult;
+use anki_proto::ankidroid::Row;
+use anki_proto::ankidroid::SqlValue;
 use itertools::FoldWhile;
 use itertools::FoldWhile::Continue;
 use itertools::FoldWhile::Done;
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use rusqlite::ToSql;
-use serde_derive::Deserialize;
+use serde::Deserialize;
 
 use crate::collection::Collection;
 use crate::error::Result;
-use crate::pb::ankidroid::sql_value::Data;
-use crate::pb::ankidroid::DbResponse;
-use crate::pb::ankidroid::DbResult;
-use crate::pb::ankidroid::Row;
-use crate::pb::ankidroid::SqlValue;
 
 /// A pointer to the SqliteStorage object stored in a collection, used to
 /// uniquely index results from multiple open collections at once.
@@ -279,12 +279,13 @@ pub(crate) fn execute_for_row_count(col: &Collection, req: &[u8]) -> Result<i64>
 
 #[cfg(test)]
 mod tests {
+    use anki_proto::ankidroid::sql_value;
+    use anki_proto::ankidroid::Row;
+    use anki_proto::ankidroid::SqlValue;
+
     use super::*;
     use crate::backend::ankidroid::db::select_slice_of_size;
     use crate::backend::ankidroid::db::Sizable;
-    use crate::pb::ankidroid::sql_value;
-    use crate::pb::ankidroid::Row;
-    use crate::pb::ankidroid::SqlValue;
 
     fn gen_data() -> Vec<SqlValue> {
         vec![

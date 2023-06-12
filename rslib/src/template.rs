@@ -7,6 +7,7 @@ use std::collections::HashSet;
 use std::fmt::Write;
 use std::iter;
 
+use anki_i18n::I18n;
 use lazy_static::lazy_static;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
@@ -21,7 +22,6 @@ use crate::cloze::add_cloze_numbers_in_string;
 use crate::error::AnkiError;
 use crate::error::Result;
 use crate::error::TemplateError;
-use crate::i18n::I18n;
 use crate::template_filters::apply_filters;
 
 pub type FieldMap<'a> = HashMap<&'a str, u16>;
@@ -846,11 +846,12 @@ fn is_cloze_conditional(key: &str) -> bool {
 mod test {
     use std::collections::HashMap;
 
+    use anki_i18n::I18n;
+
     use super::FieldMap;
     use super::ParsedNode::*;
     use super::ParsedTemplate as PT;
     use crate::error::TemplateError;
-    use crate::i18n::I18n;
     use crate::template::field_is_empty;
     use crate::template::nonempty_fields;
     use crate::template::FieldRequirements;

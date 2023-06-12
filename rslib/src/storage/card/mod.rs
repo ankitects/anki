@@ -764,8 +764,9 @@ impl NewCardSorting {
 mod test {
     use std::path::Path;
 
+    use anki_i18n::I18n;
+
     use crate::card::Card;
-    use crate::i18n::I18n;
     use crate::storage::SqliteStorage;
 
     #[test]

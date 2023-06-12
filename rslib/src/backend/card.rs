@@ -1,15 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+pub(super) use anki_proto::cards::cards_service::Service as CardsService;
+use anki_proto::generic;
+
 use super::Backend;
 use crate::card::CardQueue;
 use crate::card::CardType;
-use crate::pb;
-pub(super) use crate::pb::cards::cards_service::Service as CardsService;
 use crate::prelude::*;
 
 impl CardsService for Backend {
-    fn get_card(&self, input: pb::cards::CardId) -> Result<pb::cards::Card> {
+    type Error = AnkiError;
+
+    fn get_card(&self, input: anki_proto::cards::CardId) -> Result<anki_proto::cards::Card> {
         let cid = input.into();
         self.with_col(|col| {
             col.storage
@@ -21,8 +24,8 @@ impl CardsService for Backend {
 
     fn update_cards(
         &self,
-        input: pb::cards::UpdateCardsRequest,
-    ) -> Result<pb::collection::OpChanges> {
+        input: anki_proto::cards::UpdateCardsRequest,
+    ) -> Result<anki_proto::collection::OpChanges> {
         self.with_col(|col| {
             let cards = input
                 .cards
@@ -37,7 +40,7 @@ impl CardsService for Backend {
         .map(Into::into)
     }
 
-    fn remove_cards(&self, input: pb::cards::RemoveCardsRequest) -> Result<pb::generic::Empty> {
+    fn remove_cards(&self, input: anki_proto::cards::RemoveCardsRequest) -> Result<generic::Empty> {
         self.with_col(|col| {
             col.transact_no_undo(|col| {
                 col.remove_cards_and_orphaned_notes(
@@ -54,8 +57,8 @@ impl CardsService for Backend {
 
     fn set_deck(
         &self,
-        input: pb::cards::SetDeckRequest,
-    ) -> Result<pb::collection::OpChangesWithCount> {
+        input: anki_proto::cards::SetDeckRequest,
+    ) -> Result<anki_proto::collection::OpChangesWithCount> {
         let cids: Vec<_> = input.card_ids.into_iter().map(CardId).collect();
         let deck_id = input.deck_id.into();
         self.with_col(|col| col.set_deck(&cids, deck_id).map(Into::into))
@@ -63,8 +66,8 @@ impl CardsService for Backend {
 
     fn set_flag(
         &self,
-        input: pb::cards::SetFlagRequest,
-    ) -> Result<pb::collection::OpChangesWithCount> {
+        input: anki_proto::cards::SetFlagRequest,
+    ) -> Result<anki_proto::collection::OpChangesWithCount> {
         self.with_col(|col| {
             col.set_card_flag(&to_card_ids(input.card_ids), input.flag)
                 .map(Into::into)
@@ -72,10 +75,10 @@ impl CardsService for Backend {
     }
 }
 
-impl TryFrom<pb::cards::Card> for Card {
+impl TryFrom<anki_proto::cards::Card> for Card {
     type Error = AnkiError;
 
-    fn try_from(c: pb::cards::Card) -> Result<Self, Self::Error> {
+    fn try_from(c: anki_proto::cards::Card) -> Result<Self, Self::Error> {
         let ctype = CardType::try_from(c.ctype as u8).or_invalid("invalid card type")?;
         let queue = CardQueue::try_from(c.queue as i8).or_invalid("invalid card queue")?;
         Ok(Card {
@@ -102,9 +105,9 @@ impl TryFrom<pb::cards::Card> for Card {
     }
 }
 
-impl From<Card> for pb::cards::Card {
+impl From<Card> for anki_proto::cards::Card {
     fn from(c: Card) -> Self {
-        pb::cards::Card {
+        anki_proto::cards::Card {
             id: c.id.0,
             note_id: c.note_id.0,
             deck_id: c.deck_id.0,
@@ -130,4 +133,10 @@ impl From<Card> for pb::cards::Card {
 
 fn to_card_ids(v: Vec<i64>) -> Vec<CardId> {
     v.into_iter().map(CardId).collect()
+}
+
+impl From<anki_proto::cards::CardId> for CardId {
+    fn from(cid: anki_proto::cards::CardId) -> Self {
+        CardId(cid.cid)
+    }
 }

@@ -15,6 +15,7 @@ use rusqlite::OptionalExtension;
 use tempfile::NamedTempFile;
 use zip::ZipArchive;
 
+use super::super::meta::MetaExt;
 use crate::collection::CollectionBuilder;
 use crate::error::FileIoSnafu;
 use crate::error::FileOp;

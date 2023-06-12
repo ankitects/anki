@@ -8,8 +8,8 @@ use rusqlite::types::FromSqlError;
 use rusqlite::types::ToSqlOutput;
 use rusqlite::types::ValueRef;
 use rusqlite::ToSql;
-use serde_derive::Deserialize;
-use serde_derive::Serialize;
+use serde::Deserialize;
+use serde::Serialize;
 use serde_json::Value;
 
 use crate::prelude::*;

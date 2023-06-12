@@ -20,6 +20,7 @@ use zip::ZipArchive;
 use zstd::stream::copy_decode;
 use zstd::stream::raw::Encoder as RawEncoder;
 
+use super::meta::MetaExt;
 use super::MediaEntries;
 use super::MediaEntry;
 use super::Meta;
@@ -44,18 +45,16 @@ pub(super) struct SafeMediaEntry {
     pub(super) index: usize,
 }
 
-impl MediaEntry {
-    pub(super) fn new(
-        name: impl Into<String>,
-        size: impl TryInto<u32>,
-        sha1: impl Into<Vec<u8>>,
-    ) -> Self {
-        MediaEntry {
-            name: name.into(),
-            size: size.try_into().unwrap_or_default(),
-            sha1: sha1.into(),
-            legacy_zip_filename: None,
-        }
+pub(super) fn new_media_entry(
+    name: impl Into<String>,
+    size: impl TryInto<u32>,
+    sha1: impl Into<Vec<u8>>,
+) -> MediaEntry {
+    MediaEntry {
+        name: name.into(),
+        size: size.try_into().unwrap_or_default(),
+        sha1: sha1.into(),
+        legacy_zip_filename: None,
     }
 }
 
@@ -146,7 +145,7 @@ pub(super) fn extract_media_entries(
         let map: HashMap<&str, String> = serde_json::from_slice(&media_list_data)?;
         map.into_iter().map(SafeMediaEntry::from_legacy).collect()
     } else {
-        MediaEntries::decode_safe_entries(&media_list_data)
+        decode_safe_entries(&media_list_data)
     }
 }
 
@@ -171,16 +170,14 @@ fn get_media_list_data(archive: &mut ZipArchive<File>, meta: &Meta) -> Result<Ve
     Ok(buf)
 }
 
-impl MediaEntries {
-    fn decode_safe_entries(buf: &[u8]) -> Result<Vec<SafeMediaEntry>> {
-        let entries: Self = Message::decode(buf)?;
-        entries
-            .entries
-            .into_iter()
-            .enumerate()
-            .map(SafeMediaEntry::from_entry)
-            .collect()
-    }
+pub(super) fn decode_safe_entries(buf: &[u8]) -> Result<Vec<SafeMediaEntry>> {
+    let entries: MediaEntries = Message::decode(buf)?;
+    entries
+        .entries
+        .into_iter()
+        .enumerate()
+        .map(SafeMediaEntry::from_entry)
+        .collect()
 }
 
 pub struct MediaIterEntry {
@@ -353,10 +350,10 @@ mod test {
         // new-style entries should have been normalized on export
         let mut entries = Vec::new();
         MediaEntries {
-            entries: vec![MediaEntry::new("con", 0, Vec::new())],
+            entries: vec![new_media_entry("con", 0, Vec::new())],
         }
         .encode(&mut entries)
         .unwrap();
-        assert!(MediaEntries::decode_safe_entries(&entries).is_err());
+        assert!(decode_safe_entries(&entries).is_err());
     }
 }

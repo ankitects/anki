@@ -1,9 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki_proto::stats::graphs_response::buttons::ButtonCounts;
+use anki_proto::stats::graphs_response::Buttons;
+
 use super::GraphsContext;
-use crate::pb::stats::graphs_response::buttons::ButtonCounts;
-use crate::pb::stats::graphs_response::Buttons;
 use crate::revlog::RevlogEntry;
 use crate::revlog::RevlogReviewKind;
 
@@ -32,12 +33,12 @@ impl GraphsContext {
             let Some(interval_bucket) = interval_bucket(review) else { continue; };
             let Some(button_idx) = button_index(review.button_chosen) else { continue; };
             let review_secs = review.id.as_secs();
-            all_time.increment(interval_bucket, button_idx);
+            increment_button_counts(&mut all_time, interval_bucket, button_idx);
             for (stamp, bucket) in &mut conditional_buckets {
                 if &review_secs < stamp {
                     continue 'outer;
                 }
-                bucket.increment(interval_bucket, button_idx);
+                increment_button_counts(bucket, interval_bucket, button_idx);
             }
         }
         Buttons {
@@ -56,13 +57,11 @@ enum IntervalBucket {
     Mature,
 }
 
-impl ButtonCounts {
-    fn increment(&mut self, bucket: IntervalBucket, button_idx: usize) {
-        match bucket {
-            IntervalBucket::Learning => self.learning[button_idx] += 1,
-            IntervalBucket::Young => self.young[button_idx] += 1,
-            IntervalBucket::Mature => self.mature[button_idx] += 1,
-        }
+fn increment_button_counts(counts: &mut ButtonCounts, bucket: IntervalBucket, button_idx: usize) {
+    match bucket {
+        IntervalBucket::Learning => counts.learning[button_idx] += 1,
+        IntervalBucket::Young => counts.young[button_idx] += 1,
+        IntervalBucket::Mature => counts.mature[button_idx] += 1,
     }
 }
 

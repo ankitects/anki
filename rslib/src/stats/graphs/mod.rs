@@ -13,7 +13,6 @@ mod today;
 
 use crate::config::BoolKey;
 use crate::config::Weekday;
-use crate::pb;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 use crate::search::SortMode;
@@ -31,13 +30,13 @@ impl Collection {
         &mut self,
         search: &str,
         days: u32,
-    ) -> Result<pb::stats::GraphsResponse> {
+    ) -> Result<anki_proto::stats::GraphsResponse> {
         let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
         let all = search.trim().is_empty();
         guard.col.graph_data(all, days)
     }
 
-    fn graph_data(&mut self, all: bool, days: u32) -> Result<pb::stats::GraphsResponse> {
+    fn graph_data(&mut self, all: bool, days: u32) -> Result<anki_proto::stats::GraphsResponse> {
         let timing = self.timing_today()?;
         let revlog_start = if days > 0 {
             timing
@@ -61,7 +60,7 @@ impl Collection {
             next_day_start: timing.next_day_at,
             local_offset_secs,
         };
-        let resp = pb::stats::GraphsResponse {
+        let resp = anki_proto::stats::GraphsResponse {
             added: Some(ctx.added_days()),
             reviews: Some(ctx.review_counts_and_times()),
             future_due: Some(ctx.future_due()),
@@ -76,8 +75,8 @@ impl Collection {
         Ok(resp)
     }
 
-    pub(crate) fn get_graph_preferences(&self) -> pb::stats::GraphPreferences {
-        pb::stats::GraphPreferences {
+    pub(crate) fn get_graph_preferences(&self) -> anki_proto::stats::GraphPreferences {
+        anki_proto::stats::GraphPreferences {
             calendar_first_day_of_week: self.get_first_day_of_week() as i32,
             card_counts_separate_inactive: self
                 .get_config_bool(BoolKey::CardCountsSeparateInactive),
@@ -88,7 +87,7 @@ impl Collection {
 
     pub(crate) fn set_graph_preferences(
         &mut self,
-        prefs: pb::stats::GraphPreferences,
+        prefs: anki_proto::stats::GraphPreferences,
     ) -> Result<()> {
         self.set_first_day_of_week(match prefs.calendar_first_day_of_week {
             1 => Weekday::Monday,

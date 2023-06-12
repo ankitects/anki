@@ -3,7 +3,6 @@
 
 use super::CardTemplateConfig;
 use super::CardTemplateProto;
-use crate::pb::generic::UInt32;
 use crate::prelude::*;
 use crate::template::ParsedTemplate;
 
@@ -53,7 +52,7 @@ impl CardTemplate {
 impl From<CardTemplate> for CardTemplateProto {
     fn from(t: CardTemplate) -> Self {
         CardTemplateProto {
-            ord: t.ord.map(|n| UInt32 { val: n }),
+            ord: t.ord.map(Into::into),
             mtime_secs: t.mtime_secs.0,
             usn: t.usn.0,
             name: t.name,

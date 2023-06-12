@@ -4,18 +4,26 @@
 mod addupdate;
 mod counts;
 mod current;
-mod filtered;
+pub mod filtered;
 pub(crate) mod limits;
 mod name;
 mod remove;
 mod reparent;
 mod schema11;
 mod stats;
-mod tree;
+pub mod tree;
 pub(crate) mod undo;
 
 use std::sync::Arc;
 
+pub use anki_proto::decks::deck::filtered::search_term::Order as FilteredSearchOrder;
+pub use anki_proto::decks::deck::filtered::SearchTerm as FilteredSearchTerm;
+pub use anki_proto::decks::deck::kind_container::Kind as DeckKind;
+pub use anki_proto::decks::deck::Common as DeckCommon;
+pub use anki_proto::decks::deck::Filtered as FilteredDeck;
+pub use anki_proto::decks::deck::KindContainer as DeckKindContainer;
+pub use anki_proto::decks::deck::Normal as NormalDeck;
+pub use anki_proto::decks::Deck as DeckProto;
 pub(crate) use counts::DueCounts;
 pub(crate) use name::immediate_parent_name;
 pub use name::NativeDeckName;
@@ -24,14 +32,6 @@ pub use schema11::DeckSchema11;
 use crate::define_newtype;
 use crate::error::FilteredDeckError;
 use crate::markdown::render_markdown;
-pub use crate::pb::decks::deck::filtered::search_term::Order as FilteredSearchOrder;
-pub use crate::pb::decks::deck::filtered::SearchTerm as FilteredSearchTerm;
-pub use crate::pb::decks::deck::kind_container::Kind as DeckKind;
-pub use crate::pb::decks::deck::Common as DeckCommon;
-pub use crate::pb::decks::deck::Filtered as FilteredDeck;
-pub use crate::pb::decks::deck::KindContainer as DeckKindContainer;
-pub use crate::pb::decks::deck::Normal as NormalDeck;
-pub use crate::pb::decks::Deck as DeckProto;
 use crate::prelude::*;
 use crate::text::sanitize_html_no_images;
 

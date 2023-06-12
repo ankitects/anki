@@ -1,14 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki_proto::backend::backend_error::Kind;
+
 use crate::error::AnkiError;
 use crate::error::SyncErrorKind;
-use crate::pb;
-use crate::pb::backend::backend_error::Kind;
 use crate::prelude::*;
 
 impl AnkiError {
-    pub fn into_protobuf(self, tr: &I18n) -> pb::backend::BackendError {
+    pub fn into_protobuf(self, tr: &I18n) -> anki_proto::backend::BackendError {
         let message = self.message(tr);
         let help_page = self.help_page().map(|page| page as i32);
         let context = self.context();
@@ -44,7 +44,7 @@ impl AnkiError {
             AnkiError::WindowsError { .. } => Kind::OsError,
         };
 
-        pb::backend::BackendError {
+        anki_proto::backend::BackendError {
             kind: kind as i32,
             message,
             help_page,
