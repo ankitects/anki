@@ -67,7 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
     import SymbolsOverlay from "./symbols-overlay";
-    import type { Notetype, SessionOptions } from "./types";
+    import type { NotetypeIdAndModTime, SessionOptions } from "./types";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -82,15 +82,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const sessionOptions: SessionOptions = {};
     export function saveSession(): void {
-        if (notetype) {
-            sessionOptions[notetype.id] = {
+        if (notetypeMeta) {
+            sessionOptions[notetypeMeta.id] = {
                 fieldsCollapsed,
                 fieldStates: {
                     richTextsHidden,
                     plainTextsHidden,
                     plainTextDefaults,
                 },
-                mtimeOfNotetype: notetype.mtime,
+                modTimeOfNotetype: notetypeMeta.modTime,
             };
         }
     }
@@ -133,7 +133,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let fieldsCollapsed: boolean[] = [];
     export function setCollapsed(defaultCollapsed: boolean[]): void {
         fieldsCollapsed =
-            sessionOptions[notetype!.id]?.fieldsCollapsed ?? defaultCollapsed;
+            sessionOptions[notetypeMeta?.id]?.fieldsCollapsed ?? defaultCollapsed;
     }
 
     let richTextsHidden: boolean[] = [];
@@ -141,7 +141,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let plainTextDefaults: boolean[] = [];
 
     export function setPlainTexts(defaultPlainTexts: boolean[]): void {
-        const states = sessionOptions[notetype!.id]?.fieldStates;
+        const states = sessionOptions[notetypeMeta?.id]?.fieldStates;
         if (states) {
             richTextsHidden = states.richTextsHidden;
             plainTextsHidden = states.plainTextsHidden;
@@ -224,11 +224,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         noteId = ntid;
     }
 
-    let notetype: Notetype | undefined;
-    function setNotetype({ id, mtime }: Notetype): void {
-        notetype = { id, mtime };
+    let notetypeMeta: NotetypeIdAndModTime;
+    function setNotetypeMeta({ id, modTime }: NotetypeIdAndModTime): void {
+        notetypeMeta = { id, modTime };
         // Discard the saved state of the fields if the notetype has been modified.
-        if (sessionOptions[id]?.mtimeOfNotetype !== mtime) {
+        if (sessionOptions[id]?.modTimeOfNotetype !== modTime) {
             delete sessionOptions[id];
         }
     }
@@ -410,7 +410,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             focusIfField,
             getNoteId,
             setNoteId,
-            setNotetype,
+            setNotetypeMeta,
             wrap,
             setMathjaxEnabled,
             setInsertSymbolsEnabled,

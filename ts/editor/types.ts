@@ -8,15 +8,14 @@ export type EditorOptions = {
         plainTextsHidden: boolean[];
         plainTextDefaults: boolean[];
     };
-    mtimeOfNotetype: number;
+    modTimeOfNotetype: number;
 };
 
 export type SessionOptions = {
     [key: number]: EditorOptions;
 };
 
-export type Notetype = {
+export type NotetypeIdAndModTime = {
     id: number;
-    /** last modification time */
-    mtime: number;
+    modTime: number;
 };
