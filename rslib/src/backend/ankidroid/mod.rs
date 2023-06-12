@@ -4,6 +4,12 @@
 pub(crate) mod db;
 pub(crate) mod error;
 
+pub(super) use anki_proto::ankidroid::ankidroid_service::Service as AnkidroidService;
+use anki_proto::ankidroid::DbResponse;
+use anki_proto::ankidroid::GetActiveSequenceNumbersResponse;
+use anki_proto::ankidroid::GetNextResultPageRequest;
+use anki_proto::generic;
+
 use self::db::active_sequences;
 use self::error::debug_produce_error;
 use super::dbproxy::db_command_bytes;
@@ -11,24 +17,17 @@ use super::dbproxy::db_command_proto;
 use super::Backend;
 use crate::backend::ankidroid::db::execute_for_row_count;
 use crate::backend::ankidroid::db::insert_for_id;
-use crate::pb;
-pub(super) use crate::pb::ankidroid::ankidroid_service::Service as AnkidroidService;
-use crate::pb::ankidroid::DbResponse;
-use crate::pb::ankidroid::GetActiveSequenceNumbersResponse;
-use crate::pb::ankidroid::GetNextResultPageRequest;
-use crate::pb::generic;
-use crate::pb::generic::Empty;
-use crate::pb::generic::Int32;
-use crate::pb::generic::Json;
 use crate::prelude::*;
 use crate::scheduler::timing;
 use crate::scheduler::timing::fixed_offset_from_minutes;
 
 impl AnkidroidService for Backend {
+    type Error = AnkiError;
+
     fn sched_timing_today_legacy(
         &self,
-        input: pb::ankidroid::SchedTimingTodayLegacyRequest,
-    ) -> Result<pb::scheduler::SchedTimingTodayResponse> {
+        input: anki_proto::ankidroid::SchedTimingTodayLegacyRequest,
+    ) -> Result<anki_proto::scheduler::SchedTimingTodayResponse> {
         let result = timing::sched_timing_today(
             TimestampSecs::from(input.created_secs),
             TimestampSecs::from(input.now_secs),
@@ -36,40 +35,42 @@ impl AnkidroidService for Backend {
             fixed_offset_from_minutes(input.now_mins_west),
             Some(input.rollover_hour as u8),
         )?;
-        Ok(pb::scheduler::SchedTimingTodayResponse::from(result))
+        Ok(anki_proto::scheduler::SchedTimingTodayResponse::from(
+            result,
+        ))
     }
 
-    fn local_minutes_west_legacy(&self, input: pb::generic::Int64) -> Result<pb::generic::Int32> {
-        Ok(pb::generic::Int32 {
+    fn local_minutes_west_legacy(&self, input: generic::Int64) -> Result<generic::Int32> {
+        Ok(generic::Int32 {
             val: timing::local_minutes_west_for_stamp(input.val.into())?,
         })
     }
 
-    fn run_db_command(&self, input: Json) -> Result<Json> {
+    fn run_db_command(&self, input: generic::Json) -> Result<generic::Json> {
         self.with_col(|col| db_command_bytes(col, &input.json))
-            .map(|json| Json { json })
+            .map(|json| generic::Json { json })
     }
 
-    fn run_db_command_proto(&self, input: Json) -> Result<DbResponse> {
+    fn run_db_command_proto(&self, input: generic::Json) -> Result<DbResponse> {
         self.with_col(|col| db_command_proto(col, &input.json))
     }
 
-    fn run_db_command_for_row_count(&self, input: Json) -> Result<pb::generic::Int64> {
+    fn run_db_command_for_row_count(&self, input: generic::Json) -> Result<generic::Int64> {
         self.with_col(|col| execute_for_row_count(col, &input.json))
-            .map(|val| pb::generic::Int64 { val })
+            .map(|val| generic::Int64 { val })
     }
 
-    fn flush_all_queries(&self, _input: Empty) -> Result<Empty> {
+    fn flush_all_queries(&self, _input: generic::Empty) -> Result<generic::Empty> {
         self.with_col(|col| {
             db::flush_collection(col);
-            Ok(Empty {})
+            Ok(generic::Empty {})
         })
     }
 
-    fn flush_query(&self, input: Int32) -> Result<Empty> {
+    fn flush_query(&self, input: generic::Int32) -> Result<generic::Empty> {
         self.with_col(|col| {
             db::flush_single_result(col, input.val);
-            Ok(Empty {})
+            Ok(generic::Empty {})
         })
     }
 
@@ -79,11 +80,11 @@ impl AnkidroidService for Backend {
         })
     }
 
-    fn insert_for_id(&self, input: Json) -> Result<pb::generic::Int64> {
+    fn insert_for_id(&self, input: generic::Json) -> Result<generic::Int64> {
         self.with_col(|col| insert_for_id(col, &input.json).map(Into::into))
     }
 
-    fn set_page_size(&self, input: pb::generic::Int64) -> Result<Empty> {
+    fn set_page_size(&self, input: generic::Int64) -> Result<generic::Empty> {
         // we don't require an open collection, but should avoid modifying this
         // concurrently
         let _guard = self.col.lock();
@@ -91,10 +92,7 @@ impl AnkidroidService for Backend {
         Ok(().into())
     }
 
-    fn get_column_names_from_query(
-        &self,
-        input: generic::String,
-    ) -> Result<pb::generic::StringList> {
+    fn get_column_names_from_query(&self, input: generic::String) -> Result<generic::StringList> {
         self.with_col(|col| {
             let stmt = col.storage.db.prepare(&input.val)?;
             let names = stmt.column_names();
@@ -105,7 +103,7 @@ impl AnkidroidService for Backend {
 
     fn get_active_sequence_numbers(
         &self,
-        _input: Empty,
+        _input: generic::Empty,
     ) -> Result<GetActiveSequenceNumbersResponse> {
         self.with_col(|col| {
             Ok(GetActiveSequenceNumbersResponse {
@@ -114,7 +112,20 @@ impl AnkidroidService for Backend {
         })
     }
 
-    fn debug_produce_error(&self, input: generic::String) -> Result<Empty> {
+    fn debug_produce_error(&self, input: generic::String) -> Result<generic::Empty> {
         Err(debug_produce_error(&input.val))
+    }
+}
+
+impl From<crate::scheduler::timing::SchedTimingToday>
+    for anki_proto::scheduler::SchedTimingTodayResponse
+{
+    fn from(
+        t: crate::scheduler::timing::SchedTimingToday,
+    ) -> anki_proto::scheduler::SchedTimingTodayResponse {
+        anki_proto::scheduler::SchedTimingTodayResponse {
+            days_elapsed: t.days_elapsed,
+            next_day_at: t.next_day_at.0,
+        }
     }
 }

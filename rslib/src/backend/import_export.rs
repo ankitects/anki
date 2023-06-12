@@ -3,24 +3,27 @@
 
 use std::path::Path;
 
+use anki_proto::generic;
+use anki_proto::import_export::export_limit;
+pub(super) use anki_proto::import_export::importexport_service::Service as ImportExportService;
+use anki_proto::import_export::ExportLimit;
+
 use super::progress::Progress;
 use super::Backend;
 use crate::import_export::package::import_colpkg;
 use crate::import_export::ExportProgress;
 use crate::import_export::ImportProgress;
 use crate::import_export::NoteLog;
-use crate::pb;
-use crate::pb::import_export::export_limit;
-pub(super) use crate::pb::import_export::importexport_service::Service as ImportExportService;
-use crate::pb::import_export::ExportLimit;
 use crate::prelude::*;
 use crate::search::SearchNode;
 
 impl ImportExportService for Backend {
+    type Error = AnkiError;
+
     fn export_collection_package(
         &self,
-        input: pb::import_export::ExportCollectionPackageRequest,
-    ) -> Result<pb::generic::Empty> {
+        input: anki_proto::import_export::ExportCollectionPackageRequest,
+    ) -> Result<generic::Empty> {
         self.abort_media_sync_and_wait();
 
         let mut guard = self.lock_open_collection()?;
@@ -38,8 +41,8 @@ impl ImportExportService for Backend {
 
     fn import_collection_package(
         &self,
-        input: pb::import_export::ImportCollectionPackageRequest,
-    ) -> Result<pb::generic::Empty> {
+        input: anki_proto::import_export::ImportCollectionPackageRequest,
+    ) -> Result<generic::Empty> {
         let _guard = self.lock_closed_collection()?;
 
         import_colpkg(
@@ -54,16 +57,16 @@ impl ImportExportService for Backend {
 
     fn import_anki_package(
         &self,
-        input: pb::import_export::ImportAnkiPackageRequest,
-    ) -> Result<pb::import_export::ImportResponse> {
+        input: anki_proto::import_export::ImportAnkiPackageRequest,
+    ) -> Result<anki_proto::import_export::ImportResponse> {
         self.with_col(|col| col.import_apkg(&input.package_path, self.import_progress_fn()))
             .map(Into::into)
     }
 
     fn export_anki_package(
         &self,
-        input: pb::import_export::ExportAnkiPackageRequest,
-    ) -> Result<pb::generic::UInt32> {
+        input: anki_proto::import_export::ExportAnkiPackageRequest,
+    ) -> Result<generic::UInt32> {
         self.with_col(|col| {
             col.export_apkg(
                 &input.out_path,
@@ -80,8 +83,8 @@ impl ImportExportService for Backend {
 
     fn get_csv_metadata(
         &self,
-        input: pb::import_export::CsvMetadataRequest,
-    ) -> Result<pb::import_export::CsvMetadata> {
+        input: anki_proto::import_export::CsvMetadataRequest,
+    ) -> Result<anki_proto::import_export::CsvMetadata> {
         let delimiter = input.delimiter.is_some().then(|| input.delimiter());
         self.with_col(|col| {
             col.get_csv_metadata(
@@ -96,8 +99,8 @@ impl ImportExportService for Backend {
 
     fn import_csv(
         &self,
-        input: pb::import_export::ImportCsvRequest,
-    ) -> Result<pb::import_export::ImportResponse> {
+        input: anki_proto::import_export::ImportCsvRequest,
+    ) -> Result<anki_proto::import_export::ImportResponse> {
         self.with_col(|col| {
             col.import_csv(
                 &input.path,
@@ -110,16 +113,16 @@ impl ImportExportService for Backend {
 
     fn export_note_csv(
         &self,
-        input: pb::import_export::ExportNoteCsvRequest,
-    ) -> Result<pb::generic::UInt32> {
+        input: anki_proto::import_export::ExportNoteCsvRequest,
+    ) -> Result<generic::UInt32> {
         self.with_col(|col| col.export_note_csv(input, self.export_progress_fn()))
             .map(Into::into)
     }
 
     fn export_card_csv(
         &self,
-        input: pb::import_export::ExportCardCsvRequest,
-    ) -> Result<pb::generic::UInt32> {
+        input: anki_proto::import_export::ExportCardCsvRequest,
+    ) -> Result<generic::UInt32> {
         self.with_col(|col| {
             col.export_card_csv(
                 &input.out_path,
@@ -133,16 +136,16 @@ impl ImportExportService for Backend {
 
     fn import_json_file(
         &self,
-        input: pb::generic::String,
-    ) -> Result<pb::import_export::ImportResponse> {
+        input: generic::String,
+    ) -> Result<anki_proto::import_export::ImportResponse> {
         self.with_col(|col| col.import_json_file(&input.val, self.import_progress_fn()))
             .map(Into::into)
     }
 
     fn import_json_string(
         &self,
-        input: pb::generic::String,
-    ) -> Result<pb::import_export::ImportResponse> {
+        input: generic::String,
+    ) -> Result<anki_proto::import_export::ImportResponse> {
         self.with_col(|col| col.import_json_string(&input.val, self.import_progress_fn()))
             .map(Into::into)
     }
@@ -160,7 +163,7 @@ impl Backend {
     }
 }
 
-impl From<OpOutput<NoteLog>> for pb::import_export::ImportResponse {
+impl From<OpOutput<NoteLog>> for anki_proto::import_export::ImportResponse {
     fn from(output: OpOutput<NoteLog>) -> Self {
         Self {
             changes: Some(output.changes.into()),
@@ -174,7 +177,7 @@ impl From<ExportLimit> for SearchNode {
         use export_limit::Limit;
         let limit = export_limit
             .limit
-            .unwrap_or(Limit::WholeCollection(pb::generic::Empty {}));
+            .unwrap_or(Limit::WholeCollection(generic::Empty {}));
         match limit {
             Limit::WholeCollection(_) => Self::WholeCollection,
             Limit::DeckId(did) => Self::from_deck_id(did, true),

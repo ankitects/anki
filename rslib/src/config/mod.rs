@@ -9,6 +9,7 @@ pub(crate) mod schema11;
 mod string;
 pub(crate) mod undo;
 
+use anki_proto::config::preferences::BackupLimits;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use serde_repr::Deserialize_repr;
@@ -20,7 +21,6 @@ pub use self::deck::DeckConfigKey;
 pub use self::notetype::get_aux_notetype_config_key;
 pub use self::number::I32ConfigKey;
 pub use self::string::StringKey;
-use crate::pb::config::preferences::BackupLimits;
 use crate::prelude::*;
 
 /// Only used when updating/undoing.

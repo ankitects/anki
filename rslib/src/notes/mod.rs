@@ -7,6 +7,7 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+use anki_proto::notes::note_fields_check_response::State as NoteFieldsState;
 use itertools::Itertools;
 use num_integer::Integer;
 use sha1::Digest;
@@ -17,8 +18,6 @@ use crate::define_newtype;
 use crate::notetype::CardGenContext;
 use crate::notetype::NoteField;
 use crate::ops::StateChanges;
-use crate::pb;
-use crate::pb::notes::note_fields_check_response::State as NoteFieldsState;
 use crate::prelude::*;
 use crate::template::field_is_empty;
 use crate::text::ensure_string_in_nfc;
@@ -259,9 +258,9 @@ pub(crate) fn normalize_field(field: &mut String, normalize_text: bool) {
     }
 }
 
-impl From<Note> for pb::notes::Note {
+impl From<Note> for anki_proto::notes::Note {
     fn from(n: Note) -> Self {
-        pb::notes::Note {
+        anki_proto::notes::Note {
             id: n.id.0,
             guid: n.guid,
             notetype_id: n.notetype_id.0,
@@ -273,8 +272,8 @@ impl From<Note> for pb::notes::Note {
     }
 }
 
-impl From<pb::notes::Note> for Note {
-    fn from(n: pb::notes::Note) -> Self {
+impl From<anki_proto::notes::Note> for Note {
+    fn from(n: anki_proto::notes::Note) -> Self {
         Note {
             id: NoteId(n.id),
             guid: n.guid,

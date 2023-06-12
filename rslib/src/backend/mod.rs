@@ -14,7 +14,6 @@ mod dbproxy;
 mod deckconfig;
 mod decks;
 mod error;
-mod generic;
 mod i18n;
 mod image_occlusion;
 mod import_export;
@@ -35,6 +34,7 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread::JoinHandle;
 
+use anki_proto::ServiceIndex;
 use once_cell::sync::OnceCell;
 use progress::AbortHandleSlot;
 use prost::Message;
@@ -63,8 +63,6 @@ use self::sync::SyncService;
 use self::sync::SyncState;
 use self::tags::TagsService;
 use crate::backend::dbproxy::db_command_bytes;
-use crate::pb;
-use crate::pb::ServiceIndex;
 use crate::prelude::*;
 
 pub struct Backend {
@@ -84,10 +82,11 @@ struct BackendState {
 }
 
 pub fn init_backend(init_msg: &[u8]) -> result::Result<Backend, String> {
-    let input: pb::backend::BackendInit = match pb::backend::BackendInit::decode(init_msg) {
-        Ok(req) => req,
-        Err(_) => return Err("couldn't decode init request".into()),
-    };
+    let input: anki_proto::backend::BackendInit =
+        match anki_proto::backend::BackendInit::decode(init_msg) {
+            Ok(req) => req,
+            Err(_) => return Err("couldn't decode init request".into()),
+        };
 
     let tr = I18n::new(&input.preferred_langs);
 

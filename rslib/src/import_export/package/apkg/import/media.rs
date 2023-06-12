@@ -7,6 +7,7 @@ use std::mem;
 
 use zip::ZipArchive;
 
+use super::super::super::meta::MetaExt;
 use super::Context;
 use crate::error::FileIoSnafu;
 use crate::error::FileOp;

@@ -10,15 +10,14 @@ mod relearning;
 mod rescheduling;
 mod review;
 
-use crate::pb;
 use crate::scheduler::states::CardState;
 use crate::scheduler::states::NewState;
 use crate::scheduler::states::NormalState;
 use crate::scheduler::states::SchedulingStates;
 
-impl From<SchedulingStates> for pb::scheduler::SchedulingStates {
+impl From<SchedulingStates> for anki_proto::scheduler::SchedulingStates {
     fn from(choices: SchedulingStates) -> Self {
-        pb::scheduler::SchedulingStates {
+        anki_proto::scheduler::SchedulingStates {
             current: Some(choices.current.into()),
             again: Some(choices.again.into()),
             hard: Some(choices.hard.into()),
@@ -28,8 +27,8 @@ impl From<SchedulingStates> for pb::scheduler::SchedulingStates {
     }
 }
 
-impl From<pb::scheduler::SchedulingStates> for SchedulingStates {
-    fn from(choices: pb::scheduler::SchedulingStates) -> Self {
+impl From<anki_proto::scheduler::SchedulingStates> for SchedulingStates {
+    fn from(choices: anki_proto::scheduler::SchedulingStates) -> Self {
         SchedulingStates {
             current: choices.current.unwrap_or_default().into(),
             again: choices.again.unwrap_or_default().into(),
@@ -40,15 +39,15 @@ impl From<pb::scheduler::SchedulingStates> for SchedulingStates {
     }
 }
 
-impl From<CardState> for pb::scheduler::SchedulingState {
+impl From<CardState> for anki_proto::scheduler::SchedulingState {
     fn from(state: CardState) -> Self {
-        pb::scheduler::SchedulingState {
+        anki_proto::scheduler::SchedulingState {
             value: Some(match state {
                 CardState::Normal(state) => {
-                    pb::scheduler::scheduling_state::Value::Normal(state.into())
+                    anki_proto::scheduler::scheduling_state::Value::Normal(state.into())
                 }
                 CardState::Filtered(state) => {
-                    pb::scheduler::scheduling_state::Value::Filtered(state.into())
+                    anki_proto::scheduler::scheduling_state::Value::Filtered(state.into())
                 }
             }),
             custom_data: None,
@@ -56,14 +55,14 @@ impl From<CardState> for pb::scheduler::SchedulingState {
     }
 }
 
-impl From<pb::scheduler::SchedulingState> for CardState {
-    fn from(state: pb::scheduler::SchedulingState) -> Self {
+impl From<anki_proto::scheduler::SchedulingState> for CardState {
+    fn from(state: anki_proto::scheduler::SchedulingState) -> Self {
         if let Some(value) = state.value {
             match value {
-                pb::scheduler::scheduling_state::Value::Normal(normal) => {
+                anki_proto::scheduler::scheduling_state::Value::Normal(normal) => {
                     CardState::Normal(normal.into())
                 }
-                pb::scheduler::scheduling_state::Value::Filtered(filtered) => {
+                anki_proto::scheduler::scheduling_state::Value::Filtered(filtered) => {
                     CardState::Filtered(filtered.into())
                 }
             }

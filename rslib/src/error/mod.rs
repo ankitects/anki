@@ -11,6 +11,8 @@ mod search;
 #[cfg(windows)]
 pub mod windows;
 
+use anki_i18n::I18n;
+use anki_proto::ProtoError;
 pub use db::DbError;
 pub use db::DbErrorKind;
 pub use filtered::CustomStudyError;
@@ -30,7 +32,6 @@ pub use self::invalid_input::InvalidInputError;
 pub use self::invalid_input::OrInvalid;
 pub use self::not_found::NotFoundError;
 pub use self::not_found::OrNotFound;
-use crate::i18n::I18n;
 use crate::import_export::ImportError;
 use crate::links::HelpPage;
 
@@ -299,4 +300,12 @@ pub enum CardTypeErrorDetails {
     NoSuchField,
     MissingCloze,
     ExtraneousCloze,
+}
+
+impl From<anki_proto::ProtoError> for AnkiError {
+    fn from(value: ProtoError) -> Self {
+        AnkiError::ProtoError {
+            info: value.to_string(),
+        }
+    }
 }

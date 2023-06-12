@@ -3,4 +3,4 @@
 
 mod export;
 mod import;
-mod metadata;
+pub mod metadata;

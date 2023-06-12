@@ -18,11 +18,14 @@ use zstd::stream::raw::Encoder as RawEncoder;
 use zstd::stream::zio;
 use zstd::Encoder;
 
+use super::super::meta::MetaExt;
+use super::super::meta::VersionExt;
 use super::super::MediaEntries;
 use super::super::MediaEntry;
 use super::super::Meta;
 use super::super::Version;
 use crate::collection::CollectionBuilder;
+use crate::import_export::package::media::new_media_entry;
 use crate::import_export::package::media::MediaCopier;
 use crate::import_export::package::media::MediaIter;
 use crate::import_export::ExportProgress;
@@ -269,7 +272,7 @@ fn write_media_files(
         zip.start_file(index.to_string(), file_options_stored())?;
 
         let (size, sha1) = copier.copy(&mut entry.data, zip)?;
-        media_entries.push(MediaEntry::new(entry.nfc_filename, size, sha1));
+        media_entries.push(new_media_entry(entry.nfc_filename, size, sha1));
     }
 
     Ok(())

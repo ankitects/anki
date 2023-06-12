@@ -43,23 +43,23 @@ impl Deck {
     }
 }
 
-impl FilteredSearchOrder {
-    pub fn labels(tr: &I18n) -> Vec<String> {
-        FilteredSearchOrder::iter().map(|v| v.label(tr)).collect()
-    }
+pub fn search_order_labels(tr: &I18n) -> Vec<String> {
+    FilteredSearchOrder::iter()
+        .map(|v| search_order_label(v, tr))
+        .collect()
+}
 
-    fn label(self, tr: &I18n) -> String {
-        match self {
-            FilteredSearchOrder::OldestReviewedFirst => tr.decks_oldest_seen_first(),
-            FilteredSearchOrder::Random => tr.decks_random(),
-            FilteredSearchOrder::IntervalsAscending => tr.decks_increasing_intervals(),
-            FilteredSearchOrder::IntervalsDescending => tr.decks_decreasing_intervals(),
-            FilteredSearchOrder::Lapses => tr.decks_most_lapses(),
-            FilteredSearchOrder::Added => tr.decks_order_added(),
-            FilteredSearchOrder::Due => tr.decks_order_due(),
-            FilteredSearchOrder::ReverseAdded => tr.decks_latest_added_first(),
-            FilteredSearchOrder::DuePriority => tr.decks_relative_overdueness(),
-        }
-        .into()
+fn search_order_label(order: FilteredSearchOrder, tr: &I18n) -> String {
+    match order {
+        FilteredSearchOrder::OldestReviewedFirst => tr.decks_oldest_seen_first(),
+        FilteredSearchOrder::Random => tr.decks_random(),
+        FilteredSearchOrder::IntervalsAscending => tr.decks_increasing_intervals(),
+        FilteredSearchOrder::IntervalsDescending => tr.decks_decreasing_intervals(),
+        FilteredSearchOrder::Lapses => tr.decks_most_lapses(),
+        FilteredSearchOrder::Added => tr.decks_order_added(),
+        FilteredSearchOrder::Due => tr.decks_order_due(),
+        FilteredSearchOrder::ReverseAdded => tr.decks_latest_added_first(),
+        FilteredSearchOrder::DuePriority => tr.decks_relative_overdueness(),
     }
+    .into()
 }

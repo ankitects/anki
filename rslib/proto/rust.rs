@@ -16,11 +16,16 @@ pub fn write_backend_proto_rs(descriptors_path: &Path) -> Result<DescriptorPool>
     set_protoc_path();
     let proto_dir = PathBuf::from("../../proto");
     let paths = gather_proto_paths(&proto_dir)?;
-    let out_dir = Path::new("../../out/rslib/proto");
-    fs::create_dir_all(out_dir).with_context(|| format!("{:?}", out_dir))?;
+    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
+    fs::create_dir_all(
+        descriptors_path
+            .parent()
+            .context("no parent found for descriptors path")?,
+    )
+    .with_context(|| format!("creating {descriptors_path:?}"))?;
 
     prost_build::Config::new()
-        .out_dir(out_dir)
+        .out_dir(&out_dir)
         .file_descriptor_set_path(descriptors_path)
         .service_generator(RustCodeGenerator::boxed())
         .type_attribute(
@@ -29,26 +34,26 @@ pub fn write_backend_proto_rs(descriptors_path: &Path) -> Result<DescriptorPool>
         )
         .type_attribute(
             "Deck.Normal.DayLimit",
-            "#[derive(Copy, Eq, serde_derive::Deserialize, serde_derive::Serialize)]",
+            "#[derive(Copy, Eq, serde::Deserialize, serde::Serialize)]",
         )
         .type_attribute("HelpPageLinkRequest.HelpPage", "#[derive(strum::EnumIter)]")
         .type_attribute("CsvMetadata.Delimiter", "#[derive(strum::EnumIter)]")
         .type_attribute(
             "Preferences.BackupLimits",
-            "#[derive(Copy, serde_derive::Deserialize, serde_derive::Serialize)]",
+            "#[derive(Copy, serde::Deserialize, serde::Serialize)]",
         )
         .type_attribute(
             "CsvMetadata.DupeResolution",
-            "#[derive(serde_derive::Deserialize, serde_derive::Serialize)]",
+            "#[derive(serde::Deserialize, serde::Serialize)]",
         )
         .type_attribute(
             "CsvMetadata.MatchScope",
-            "#[derive(serde_derive::Deserialize, serde_derive::Serialize)]",
+            "#[derive(serde::Deserialize, serde::Serialize)]",
         )
         .compile_protos(paths.as_slice(), &[proto_dir])
         .context("prost build")?;
 
-    write_service_index(out_dir, descriptors_path)
+    write_service_index(&out_dir, descriptors_path)
 }
 
 fn write_service_index(out_dir: &Path, descriptors_path: &Path) -> Result<DescriptorPool> {
@@ -115,7 +120,9 @@ impl RustCodeGenerator {
         buf.push_str(
             r#"
 pub trait Service {
-    fn run_method(&self, method: u32, input: &[u8]) -> Result<Vec<u8>> {
+    type Error: From<crate::ProtoError>;
+
+    fn run_method(&self, method: u32, input: &[u8]) -> Result<Vec<u8>, Self::Error> {
         match method {
 "#,
         );
@@ -123,9 +130,9 @@ pub trait Service {
             write!(
                 buf,
                 concat!("            ",
-                "{idx} => {{ let input = super::{input_type}::decode(input)?;\n",
+                "{idx} => {{ let input = super::{input_type}::decode(input).map_err(crate::ProtoError::from)?;\n",
                 "let output = self.{rust_method}(input)?;\n",
-                "let mut out_bytes = Vec::new(); output.encode(&mut out_bytes)?; Ok(out_bytes) }}, "),
+                "let mut out_bytes = Vec::new(); output.encode(&mut out_bytes).map_err(crate::ProtoError::from)?; Ok(out_bytes) }}, "),
                 idx = idx,
                 input_type = method.input_type,
                 rust_method = method.name
@@ -134,7 +141,7 @@ pub trait Service {
         }
         buf.push_str(
             r#"
-            _ => crate::invalid_input!("invalid command"),
+            _ => Err(crate::ProtoError::InvalidMethodIndex.into()),
         }
     }
 "#,
@@ -145,7 +152,7 @@ pub trait Service {
                 buf,
                 concat!(
                     "    fn {method_name}(&self, input: super::{input_type}) -> ",
-                    "Result<super::{output_type}>;\n"
+                    "Result<super::{output_type}, Self::Error>;\n"
                 ),
                 method_name = method.name,
                 input_type = method.input_type,
@@ -163,7 +170,6 @@ impl ServiceGenerator for RustCodeGenerator {
             buf,
             "pub mod {name}_service {{
                 use prost::Message;
-                use crate::error::Result;
                 ",
             name = service.name.replace("Service", "").to_ascii_lowercase()
         )

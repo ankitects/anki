@@ -4,14 +4,13 @@
 use std::sync::Arc;
 use std::sync::Mutex;
 
+use anki_i18n::I18n;
 use futures::future::AbortHandle;
 
 use super::Backend;
 use crate::dbcheck::DatabaseCheckProgress;
-use crate::i18n::I18n;
 use crate::import_export::ExportProgress;
 use crate::import_export::ImportProgress;
-use crate::pb;
 use crate::sync::collection::normal::NormalSyncProgress;
 use crate::sync::collection::progress::FullSyncProgress;
 use crate::sync::collection::progress::SyncStage;
@@ -57,21 +56,24 @@ pub(super) enum Progress {
     Export(ExportProgress),
 }
 
-pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::collection::Progress {
+pub(super) fn progress_to_proto(
+    progress: Option<Progress>,
+    tr: &I18n,
+) -> anki_proto::collection::Progress {
     let progress = if let Some(progress) = progress {
         match progress {
             Progress::MediaSync(p) => {
-                pb::collection::progress::Value::MediaSync(media_sync_progress(p, tr))
+                anki_proto::collection::progress::Value::MediaSync(media_sync_progress(p, tr))
             }
-            Progress::MediaCheck(n) => {
-                pb::collection::progress::Value::MediaCheck(tr.media_check_checked(n).into())
-            }
-            Progress::FullSync(p) => {
-                pb::collection::progress::Value::FullSync(pb::collection::progress::FullSync {
+            Progress::MediaCheck(n) => anki_proto::collection::progress::Value::MediaCheck(
+                tr.media_check_checked(n).into(),
+            ),
+            Progress::FullSync(p) => anki_proto::collection::progress::Value::FullSync(
+                anki_proto::collection::progress::FullSync {
                     transferred: p.transferred_bytes as u32,
                     total: p.total_bytes as u32,
-                })
-            }
+                },
+            ),
             Progress::NormalSync(p) => {
                 let stage = match p.stage {
                     SyncStage::Connecting => tr.sync_syncing(),
@@ -85,11 +87,13 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::co
                 let removed = tr
                     .sync_media_removed_count(p.local_remove, p.remote_remove)
                     .into();
-                pb::collection::progress::Value::NormalSync(pb::collection::progress::NormalSync {
-                    stage,
-                    added,
-                    removed,
-                })
+                anki_proto::collection::progress::Value::NormalSync(
+                    anki_proto::collection::progress::NormalSync {
+                        stage,
+                        added,
+                        removed,
+                    },
+                )
             }
             Progress::DatabaseCheck(p) => {
                 let mut stage_total = 0;
@@ -106,15 +110,15 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::co
                     DatabaseCheckProgress::History => tr.database_check_checking_history(),
                 }
                 .to_string();
-                pb::collection::progress::Value::DatabaseCheck(
-                    pb::collection::progress::DatabaseCheck {
+                anki_proto::collection::progress::Value::DatabaseCheck(
+                    anki_proto::collection::progress::DatabaseCheck {
                         stage,
                         stage_total,
                         stage_current,
                     },
                 )
             }
-            Progress::Import(progress) => pb::collection::progress::Value::Importing(
+            Progress::Import(progress) => anki_proto::collection::progress::Value::Importing(
                 match progress {
                     ImportProgress::File => tr.importing_importing_file(),
                     ImportProgress::Media(n) => tr.importing_processed_media_file(n),
@@ -125,7 +129,7 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::co
                 }
                 .into(),
             ),
-            Progress::Export(progress) => pb::collection::progress::Value::Exporting(
+            Progress::Export(progress) => anki_proto::collection::progress::Value::Exporting(
                 match progress {
                     ExportProgress::File => tr.exporting_exporting_file(),
                     ExportProgress::Media(n) => tr.exporting_processed_media_files(n),
@@ -137,15 +141,18 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::co
             ),
         }
     } else {
-        pb::collection::progress::Value::None(pb::generic::Empty {})
+        anki_proto::collection::progress::Value::None(anki_proto::generic::Empty {})
     };
-    pb::collection::Progress {
+    anki_proto::collection::Progress {
         value: Some(progress),
     }
 }
 
-fn media_sync_progress(p: MediaSyncProgress, tr: &I18n) -> pb::collection::progress::MediaSync {
-    pb::collection::progress::MediaSync {
+fn media_sync_progress(
+    p: MediaSyncProgress,
+    tr: &I18n,
+) -> anki_proto::collection::progress::MediaSync {
+    anki_proto::collection::progress::MediaSync {
         checked: tr.sync_media_checked_count(p.checked).into(),
         added: tr
             .sync_media_added_count(p.uploaded_files, p.downloaded_files)

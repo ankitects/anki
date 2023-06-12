@@ -16,7 +16,6 @@ pub mod deckconfig;
 pub mod decks;
 pub mod error;
 pub mod findreplace;
-pub mod i18n;
 pub mod image_occlusion;
 pub mod import_export;
 mod io;
@@ -28,7 +27,6 @@ pub mod media;
 pub mod notes;
 pub mod notetype;
 pub mod ops;
-pub mod pb;
 mod preferences;
 pub mod prelude;
 pub mod revlog;
@@ -56,3 +54,5 @@ use lazy_static::lazy_static;
 lazy_static! {
     pub(crate) static ref PYTHON_UNIT_TESTS: bool = env::var("ANKI_TEST_MODE").is_ok();
 }
+
+// temporary during proto migration

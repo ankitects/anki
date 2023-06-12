@@ -4,6 +4,7 @@
 use std::fs::File;
 use std::io::Write;
 
+use anki_proto::card_rendering::all_tts_voices_response::TtsVoice;
 use futures::executor::block_on;
 use windows::core::HSTRING;
 use windows::Media::SpeechSynthesis::SpeechSynthesisStream;
@@ -13,7 +14,6 @@ use windows::Storage::Streams::DataReader;
 
 use crate::error::windows::WindowsErrorDetails;
 use crate::error::windows::WindowsSnafu;
-use crate::pb::card_rendering::all_tts_voices_response::TtsVoice;
 use crate::prelude::*;
 
 const MAX_BUFFER_SIZE: usize = 128 * 1024;

@@ -16,8 +16,8 @@ use bytes::Bytes;
 use futures::Stream;
 use futures::TryStreamExt;
 use serde::de::DeserializeOwned;
-use serde_derive::Deserialize;
-use serde_derive::Serialize;
+use serde::Deserialize;
+use serde::Serialize;
 use tokio::io::AsyncReadExt;
 use tokio_util::io::ReaderStream;
 

@@ -1,6 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki_proto::ankidroid::sql_value::Data;
+use anki_proto::ankidroid::DbResponse;
+use anki_proto::ankidroid::DbResult as ProtoDbResult;
+use anki_proto::ankidroid::SqlValue as pb_SqlValue;
 use rusqlite::params_from_iter;
 use rusqlite::types::FromSql;
 use rusqlite::types::FromSqlError;
@@ -8,15 +12,9 @@ use rusqlite::types::ToSql;
 use rusqlite::types::ToSqlOutput;
 use rusqlite::types::ValueRef;
 use rusqlite::OptionalExtension;
-use serde_derive::Deserialize;
-use serde_derive::Serialize;
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::pb;
-use crate::pb::ankidroid::sql_value::Data;
-use crate::pb::ankidroid::DbResponse;
-use crate::pb::ankidroid::DbResult as ProtoDbResult;
-use crate::pb::ankidroid::Row;
-use crate::pb::ankidroid::SqlValue as pb_SqlValue;
 use crate::prelude::*;
 use crate::storage::SqliteStorage;
 
@@ -67,7 +65,7 @@ impl ToSql for SqlValue {
     }
 }
 
-impl From<&SqlValue> for pb::ankidroid::SqlValue {
+impl From<&SqlValue> for anki_proto::ankidroid::SqlValue {
     fn from(item: &SqlValue) -> Self {
         match item {
             SqlValue::Null => pb_SqlValue { data: Option::None },
@@ -87,19 +85,18 @@ impl From<&SqlValue> for pb::ankidroid::SqlValue {
     }
 }
 
-impl From<&Vec<SqlValue>> for pb::ankidroid::Row {
-    fn from(item: &Vec<SqlValue>) -> Self {
-        Row {
-            fields: item.iter().map(pb::ankidroid::SqlValue::from).collect(),
-        }
+fn row_to_proto(row: &[SqlValue]) -> anki_proto::ankidroid::Row {
+    anki_proto::ankidroid::Row {
+        fields: row
+            .iter()
+            .map(anki_proto::ankidroid::SqlValue::from)
+            .collect(),
     }
 }
 
-impl From<&Vec<Vec<SqlValue>>> for pb::ankidroid::DbResult {
-    fn from(item: &Vec<Vec<SqlValue>>) -> Self {
-        ProtoDbResult {
-            rows: item.iter().map(Row::from).collect(),
-        }
+fn rows_to_proto(rows: &[Vec<SqlValue>]) -> anki_proto::ankidroid::DbResult {
+    anki_proto::ankidroid::DbResult {
+        rows: rows.iter().map(|r| row_to_proto(r)).collect(),
     }
 }
 
@@ -182,7 +179,7 @@ pub(crate) fn db_command_proto(col: &mut Collection, input: &[u8]) -> Result<DbR
     let result = db_command_bytes_inner(col, input)?;
     let proto_resp = match result {
         DbResult::None => ProtoDbResult { rows: Vec::new() },
-        DbResult::Rows(rows) => ProtoDbResult::from(&rows),
+        DbResult::Rows(rows) => rows_to_proto(&rows),
     };
     let trimmed = super::ankidroid::db::trim_and_cache_remaining(
         col,

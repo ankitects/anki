@@ -25,7 +25,6 @@ use crate::card::CardQueue;
 use crate::deckconfig::DeckConfig;
 use crate::deckconfig::LeechAction;
 use crate::decks::Deck;
-use crate::pb;
 use crate::prelude::*;
 
 #[derive(Copy, Clone)]
@@ -327,7 +326,7 @@ impl Collection {
         self.update_deck_stats(
             updater.timing.days_elapsed,
             usn,
-            pb::scheduler::UpdateStatsRequest {
+            anki_proto::scheduler::UpdateStatsRequest {
                 deck_id: updater.deck.id.0,
                 new_delta,
                 review_delta,

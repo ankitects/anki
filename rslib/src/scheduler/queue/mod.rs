@@ -9,6 +9,7 @@ pub(crate) mod undo;
 
 use std::collections::VecDeque;
 
+use anki_proto::scheduler::SchedulingContext;
 pub(crate) use builder::DueCard;
 pub(crate) use builder::DueCardKind;
 pub(crate) use builder::NewCard;
@@ -21,7 +22,6 @@ pub(crate) use main::MainQueueEntryKind;
 use self::undo::QueueUpdate;
 use super::states::SchedulingStates;
 use super::timing::SchedTimingToday;
-use crate::pb::scheduler::SchedulingContext;
 use crate::prelude::*;
 use crate::timestamp::TimestampSecs;
 
@@ -118,7 +118,7 @@ impl Collection {
                 let next_states = self.get_scheduling_states(card.id)?;
 
                 Ok(QueuedCard {
-                    context: SchedulingContext::new(self, &card)?,
+                    context: new_scheduling_context(self, &card)?,
                     card,
                     states: next_states,
                     kind: entry.kind(),
@@ -134,16 +134,14 @@ impl Collection {
     }
 }
 
-impl SchedulingContext {
-    fn new(col: &mut Collection, card: &Card) -> Result<Self> {
-        Ok(Self {
-            deck_name: col
-                .get_deck(card.original_or_current_deck_id())?
-                .or_not_found(card.deck_id)?
-                .human_name(),
-            seed: card.review_seed(),
-        })
-    }
+fn new_scheduling_context(col: &mut Collection, card: &Card) -> Result<SchedulingContext> {
+    Ok(SchedulingContext {
+        deck_name: col
+            .get_deck(card.original_or_current_deck_id())?
+            .or_not_found(card.deck_id)?
+            .human_name(),
+        seed: card.review_seed(),
+    })
 }
 
 impl CardQueues {

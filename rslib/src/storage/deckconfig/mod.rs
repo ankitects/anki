@@ -9,6 +9,7 @@ use rusqlite::Row;
 use serde_json::Value;
 
 use super::SqliteStorage;
+use crate::deckconfig::ensure_deck_config_values_valid;
 use crate::deckconfig::DeckConfSchema11;
 use crate::deckconfig::DeckConfig;
 use crate::deckconfig::DeckConfigId;
@@ -18,7 +19,7 @@ use crate::prelude::*;
 fn row_to_deckconf(row: &Row, fix_invalid: bool) -> Result<DeckConfig> {
     let mut config = DeckConfigInner::decode(row.get_ref_unwrap(4).as_blob()?)?;
     if fix_invalid {
-        config.ensure_values_valid();
+        ensure_deck_config_values_valid(&mut config);
     }
     Ok(DeckConfig {
         id: row.get(0)?,

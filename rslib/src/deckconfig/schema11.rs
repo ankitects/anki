@@ -4,10 +4,10 @@
 use std::collections::HashMap;
 
 use serde::Deserialize as DeTrait;
+use serde::Deserialize;
 use serde::Deserializer;
+use serde::Serialize;
 use serde_aux::field_attributes::deserialize_number_from_string;
-use serde_derive::Deserialize;
-use serde_derive::Serialize;
 use serde_json::Value;
 use serde_repr::Deserialize_repr;
 use serde_repr::Serialize_repr;

@@ -3,17 +3,19 @@
 
 use std::collections::HashSet;
 
+use anki_proto::scheduler::custom_study_request::cram::CramKind;
+use anki_proto::scheduler::custom_study_request::Cram;
+use anki_proto::scheduler::custom_study_request::Value as CustomStudyValue;
+
 use super::FilteredDeckForUpdate;
 use crate::config::DeckConfigKey;
+use crate::decks::tree::get_deck_in_tree;
+use crate::decks::tree::sum_deck_tree_node;
 use crate::decks::FilteredDeck;
 use crate::decks::FilteredSearchOrder;
 use crate::decks::FilteredSearchTerm;
 use crate::error::CustomStudyError;
 use crate::error::FilteredDeckError;
-use crate::pb;
-use crate::pb::scheduler::custom_study_request::cram::CramKind;
-use crate::pb::scheduler::custom_study_request::Cram;
-use crate::pb::scheduler::custom_study_request::Value as CustomStudyValue;
 use crate::prelude::*;
 use crate::search::JoinSearches;
 use crate::search::Negated;
@@ -25,7 +27,7 @@ use crate::search::StateKind;
 impl Collection {
     pub fn custom_study(
         &mut self,
-        input: pb::scheduler::CustomStudyRequest,
+        input: anki_proto::scheduler::CustomStudyRequest,
     ) -> Result<OpOutput<()>> {
         self.transact(Op::CreateCustomStudy, |col| col.custom_study_inner(input))
     }
@@ -33,19 +35,20 @@ impl Collection {
     pub fn custom_study_defaults(
         &mut self,
         deck_id: DeckId,
-    ) -> Result<pb::scheduler::CustomStudyDefaultsResponse> {
+    ) -> Result<anki_proto::scheduler::CustomStudyDefaultsResponse> {
         // daily counts
         let deck = self.get_deck(deck_id)?.or_not_found(deck_id)?;
         let normal = deck.normal()?;
         let extend_new = normal.extend_new;
         let extend_review = normal.extend_review;
-        let subtree = self
-            .deck_tree(Some(TimestampSecs::now()))?
-            .get_deck(deck_id)
+
+        let subtree = get_deck_in_tree(self.deck_tree(Some(TimestampSecs::now()))?, deck_id)
             .or_not_found(deck_id)?;
         let v3 = self.get_config_bool(BoolKey::Sched2021);
-        let available_new_including_children = subtree.sum(|node| node.new_uncapped);
-        let available_review_including_children = subtree.sum(|node| node.review_uncapped);
+        let available_new_including_children =
+            sum_deck_tree_node(&subtree, |node| node.new_uncapped);
+        let available_review_including_children =
+            sum_deck_tree_node(&subtree, |node| node.review_uncapped);
         let (
             available_new,
             available_new_in_children,
@@ -79,11 +82,11 @@ impl Collection {
         );
         let mut all_tags: Vec<_> = self.all_tags_in_deck(deck_id)?.into_iter().collect();
         all_tags.sort_unstable();
-        let tags: Vec<pb::scheduler::custom_study_defaults_response::Tag> = all_tags
+        let tags: Vec<anki_proto::scheduler::custom_study_defaults_response::Tag> = all_tags
             .into_iter()
             .map(|tag| {
                 let tag = tag.into_inner();
-                pb::scheduler::custom_study_defaults_response::Tag {
+                anki_proto::scheduler::custom_study_defaults_response::Tag {
                     include: include_tags.contains(&tag),
                     exclude: exclude_tags.contains(&tag),
                     name: tag,
@@ -91,7 +94,7 @@ impl Collection {
             })
             .collect();
 
-        Ok(pb::scheduler::CustomStudyDefaultsResponse {
+        Ok(anki_proto::scheduler::CustomStudyDefaultsResponse {
             tags,
             extend_new,
             extend_review,
@@ -104,7 +107,10 @@ impl Collection {
 }
 
 impl Collection {
-    fn custom_study_inner(&mut self, input: pb::scheduler::CustomStudyRequest) -> Result<()> {
+    fn custom_study_inner(
+        &mut self,
+        input: anki_proto::scheduler::CustomStudyRequest,
+    ) -> Result<()> {
         let mut deck = self
             .storage
             .get_deck(input.deck_id.into())?
@@ -298,11 +304,12 @@ fn tags_to_nodes(tags_to_include: &[String], tags_to_exclude: &[String]) -> Sear
 
 #[cfg(test)]
 mod test {
+    use anki_proto::scheduler::custom_study_request::cram::CramKind;
+    use anki_proto::scheduler::custom_study_request::Cram;
+    use anki_proto::scheduler::custom_study_request::Value;
+    use anki_proto::scheduler::CustomStudyRequest;
+
     use super::*;
-    use crate::pb::scheduler::custom_study_request::cram::CramKind;
-    use crate::pb::scheduler::custom_study_request::Cram;
-    use crate::pb::scheduler::custom_study_request::Value;
-    use crate::pb::scheduler::CustomStudyRequest;
 
     #[test]
     fn tag_remembering() -> Result<()> {

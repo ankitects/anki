@@ -5,12 +5,12 @@ pub mod csv;
 mod import;
 mod json;
 
-use serde_derive::Deserialize;
-use serde_derive::Serialize;
+use anki_proto::import_export::csv_metadata::DupeResolution;
+use anki_proto::import_export::csv_metadata::MatchScope;
+use serde::Deserialize;
+use serde::Serialize;
 
 use super::LogNote;
-use crate::pb::import_export::csv_metadata::DupeResolution;
-use crate::pb::import_export::csv_metadata::MatchScope;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(default)]

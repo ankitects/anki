@@ -9,23 +9,23 @@ use std::io::Read;
 use std::io::Seek;
 use std::io::SeekFrom;
 
+pub use anki_proto::import_export::csv_metadata::Deck as CsvDeck;
+pub use anki_proto::import_export::csv_metadata::Delimiter;
+pub use anki_proto::import_export::csv_metadata::DupeResolution;
+pub use anki_proto::import_export::csv_metadata::MappedNotetype;
+pub use anki_proto::import_export::csv_metadata::MatchScope;
+pub use anki_proto::import_export::csv_metadata::Notetype as CsvNotetype;
+pub use anki_proto::import_export::CsvMetadata;
 use itertools::Itertools;
 use strum::IntoEnumIterator;
 
 use super::import::build_csv_reader;
 use crate::config::I32ConfigKey;
+use crate::import_export::text::csv::import::FieldSourceColumns;
 use crate::import_export::text::NameOrId;
 use crate::import_export::ImportError;
 use crate::io::open_file;
 use crate::notetype::NoteField;
-use crate::pb::generic::StringList;
-pub use crate::pb::import_export::csv_metadata::Deck as CsvDeck;
-pub use crate::pb::import_export::csv_metadata::Delimiter;
-pub use crate::pb::import_export::csv_metadata::DupeResolution;
-pub use crate::pb::import_export::csv_metadata::MappedNotetype;
-pub use crate::pb::import_export::csv_metadata::MatchScope;
-pub use crate::pb::import_export::csv_metadata::Notetype as CsvNotetype;
-pub use crate::pb::import_export::CsvMetadata;
 use crate::prelude::*;
 use crate::text::html_to_text_line;
 use crate::text::is_html;
@@ -135,7 +135,7 @@ impl Collection {
             }
             "notetype" => {
                 if let Ok(Some(nt)) = self.notetype_by_name_or_id(&NameOrId::parse(value)) {
-                    metadata.notetype = Some(CsvNotetype::new_global(nt.id));
+                    metadata.notetype = Some(new_global_csv_notetype(nt.id));
                 }
             }
             "deck" => {
@@ -191,13 +191,13 @@ impl Collection {
     ///   we apply the defaults from defaults_for_adding().
     pub(crate) fn maybe_set_notetype_and_deck(
         &mut self,
-        metadata: &mut crate::pb::import_export::CsvMetadata,
+        metadata: &mut anki_proto::import_export::CsvMetadata,
         notetype_id: Option<NotetypeId>,
         deck_id: Option<DeckId>,
     ) -> Result<()> {
         let defaults = self.defaults_for_adding(DeckId(0))?;
         if metadata.notetype.is_none() || notetype_id.is_some() {
-            metadata.notetype = Some(CsvNotetype::new_global(
+            metadata.notetype = Some(new_global_csv_notetype(
                 notetype_id.unwrap_or(defaults.notetype_id),
             ));
         }
@@ -233,7 +233,15 @@ impl Collection {
     }
 }
 
-impl CsvMetadata {
+pub(super) trait CsvMetadataHelpers {
+    fn from_config(col: &Collection) -> Self;
+    fn deck(&self) -> Result<&CsvDeck>;
+    fn notetype(&self) -> Result<&CsvNotetype>;
+    fn field_source_columns(&self) -> Result<FieldSourceColumns>;
+    fn meta_columns(&self) -> HashSet<usize>;
+}
+
+impl CsvMetadataHelpers for CsvMetadata {
     /// Defaults with config values filled in.
     fn from_config(col: &Collection) -> Self {
         Self {
@@ -242,9 +250,56 @@ impl CsvMetadata {
             ..Default::default()
         }
     }
+
+    fn deck(&self) -> Result<&CsvDeck> {
+        self.deck.as_ref().or_invalid("deck oneof not set")
+    }
+
+    fn notetype(&self) -> Result<&CsvNotetype> {
+        self.notetype.as_ref().or_invalid("notetype oneof not set")
+    }
+
+    fn field_source_columns(&self) -> Result<FieldSourceColumns> {
+        Ok(match self.notetype()? {
+            CsvNotetype::GlobalNotetype(global) => global
+                .field_columns
+                .iter()
+                .map(|&i| (i > 0).then_some(i as usize))
+                .collect(),
+            CsvNotetype::NotetypeColumn(_) => {
+                let meta_columns = self.meta_columns();
+                (1..self.column_labels.len() + 1)
+                    .filter(|idx| !meta_columns.contains(idx))
+                    .map(Some)
+                    .collect()
+            }
+        })
+    }
+
+    fn meta_columns(&self) -> HashSet<usize> {
+        let mut columns = HashSet::new();
+        if let Some(CsvDeck::DeckColumn(deck_column)) = self.deck {
+            columns.insert(deck_column as usize);
+        }
+        if let Some(CsvNotetype::NotetypeColumn(notetype_column)) = self.notetype {
+            columns.insert(notetype_column as usize);
+        }
+        if self.tags_column > 0 {
+            columns.insert(self.tags_column as usize);
+        }
+        if self.guid_column > 0 {
+            columns.insert(self.guid_column as usize);
+        }
+        columns
+    }
 }
 
-impl DupeResolution {
+pub(super) trait DupeResolutionExt: Sized {
+    fn from_config(col: &Collection) -> Self;
+    fn from_text(text: &str) -> Option<Self>;
+}
+
+impl DupeResolutionExt for DupeResolution {
     fn from_config(col: &Collection) -> Self {
         Self::from_i32(col.get_config_i32(I32ConfigKey::CsvDuplicateResolution)).unwrap_or_default()
     }
@@ -259,7 +314,12 @@ impl DupeResolution {
     }
 }
 
-impl MatchScope {
+pub(super) trait MatchScopeExt: Sized {
+    fn from_config(col: &Collection) -> Self;
+    fn from_text(text: &str) -> Option<Self>;
+}
+
+impl MatchScopeExt for MatchScope {
     fn from_config(col: &Collection) -> Self {
         Self::from_i32(col.get_config_i32(I32ConfigKey::MatchScope)).unwrap_or_default()
     }
@@ -308,8 +368,12 @@ fn set_preview(metadata: &mut CsvMetadata, records: &[csv::StringRecord]) -> Res
     Ok(())
 }
 
-fn build_preview_row(min_len: usize, record: &csv::StringRecord, strip_html: bool) -> StringList {
-    StringList {
+fn build_preview_row(
+    min_len: usize,
+    record: &csv::StringRecord,
+    strip_html: bool,
+) -> anki_proto::generic::StringList {
+    anki_proto::generic::StringList {
         vals: record
             .iter()
             .pad_using(min_len, |_| "")
@@ -475,8 +539,13 @@ fn strip_line_ending(line: &str) -> &str {
         .unwrap_or_else(|| line.strip_suffix('\n').unwrap_or(line))
 }
 
-impl Delimiter {
-    pub fn byte(self) -> u8 {
+pub(super) trait DelimeterExt {
+    fn byte(self) -> u8;
+    fn name(self) -> &'static str;
+}
+
+impl DelimeterExt for Delimiter {
+    fn byte(self) -> u8 {
         match self {
             Delimiter::Comma => b',',
             Delimiter::Semicolon => b';',
@@ -487,7 +556,7 @@ impl Delimiter {
         }
     }
 
-    pub fn name(self) -> &'static str {
+    fn name(self) -> &'static str {
         match self {
             Delimiter::Comma => "comma",
             Delimiter::Semicolon => "semicolon",
@@ -499,32 +568,11 @@ impl Delimiter {
     }
 }
 
-impl CsvNotetype {
-    fn new_global(id: NotetypeId) -> Self {
-        Self::GlobalNotetype(MappedNotetype {
-            id: id.0,
-            field_columns: Vec::new(),
-        })
-    }
-}
-
-impl CsvMetadata {
-    pub(super) fn meta_columns(&self) -> HashSet<usize> {
-        let mut columns = HashSet::new();
-        if let Some(CsvDeck::DeckColumn(deck_column)) = self.deck {
-            columns.insert(deck_column as usize);
-        }
-        if let Some(CsvNotetype::NotetypeColumn(notetype_column)) = self.notetype {
-            columns.insert(notetype_column as usize);
-        }
-        if self.tags_column > 0 {
-            columns.insert(self.tags_column as usize);
-        }
-        if self.guid_column > 0 {
-            columns.insert(self.guid_column as usize);
-        }
-        columns
-    }
+fn new_global_csv_notetype(id: NotetypeId) -> CsvNotetype {
+    CsvNotetype::GlobalNotetype(MappedNotetype {
+        id: id.0,
+        field_columns: Vec::new(),
+    })
 }
 
 impl NameOrId {
@@ -537,16 +585,8 @@ impl NameOrId {
     }
 }
 
-impl From<csv::StringRecord> for StringList {
-    fn from(record: csv::StringRecord) -> Self {
-        Self {
-            vals: record.iter().map(ToString::to_string).collect(),
-        }
-    }
-}
-
 #[cfg(test)]
-mod test {
+pub(in crate::import_export) mod test {
     use std::io::Cursor;
 
     use super::*;
@@ -561,7 +601,36 @@ mod test {
         };
     }
 
-    impl CsvMetadata {
+    pub trait CsvMetadataTestExt {
+        fn defaults_for_testing() -> Self;
+        fn unwrap_deck_id(&self) -> i64;
+        fn unwrap_notetype_id(&self) -> i64;
+        fn unwrap_notetype_map(&self) -> &[u32];
+    }
+
+    impl CsvMetadataTestExt for CsvMetadata {
+        fn defaults_for_testing() -> Self {
+            Self {
+                delimiter: Delimiter::Comma as i32,
+                force_delimiter: false,
+                is_html: false,
+                force_is_html: false,
+                tags_column: 0,
+                guid_column: 0,
+                global_tags: Vec::new(),
+                updated_tags: Vec::new(),
+                column_labels: vec!["".to_string(); 2],
+                deck: Some(CsvDeck::DeckId(1)),
+                notetype: Some(CsvNotetype::GlobalNotetype(MappedNotetype {
+                    id: 1,
+                    field_columns: vec![1, 2],
+                })),
+                preview: Vec::new(),
+                dupe_resolution: 0,
+                match_scope: 0,
+            }
+        }
+
         fn unwrap_deck_id(&self) -> i64 {
             match self.deck {
                 Some(CsvDeck::DeckId(did)) => did,
@@ -573,6 +642,12 @@ mod test {
             match self.notetype {
                 Some(CsvNotetype::GlobalNotetype(ref nt)) => nt.id,
                 _ => panic!("no notetype id"),
+            }
+        }
+        fn unwrap_notetype_map(&self) -> &[u32] {
+            match &self.notetype {
+                Some(CsvNotetype::GlobalNotetype(nt)) => &nt.field_columns,
+                _ => panic!("no notetype map"),
             }
         }
     }
@@ -727,15 +802,6 @@ mod test {
                 .len(),
             3
         );
-    }
-
-    impl CsvMetadata {
-        fn unwrap_notetype_map(&self) -> &[u32] {
-            match &self.notetype {
-                Some(CsvNotetype::GlobalNotetype(nt)) => &nt.field_columns,
-                _ => panic!("no notetype map"),
-            }
-        }
     }
 
     #[test]

@@ -19,6 +19,15 @@ use std::collections::HashSet;
 use std::iter::FromIterator;
 use std::sync::Arc;
 
+pub use anki_proto::notetypes::notetype::config::card_requirement::Kind as CardRequirementKind;
+pub use anki_proto::notetypes::notetype::config::CardRequirement;
+pub use anki_proto::notetypes::notetype::config::Kind as NotetypeKind;
+pub use anki_proto::notetypes::notetype::field::Config as NoteFieldConfig;
+pub use anki_proto::notetypes::notetype::template::Config as CardTemplateConfig;
+pub use anki_proto::notetypes::notetype::Config as NotetypeConfig;
+pub use anki_proto::notetypes::notetype::Field as NoteFieldProto;
+pub use anki_proto::notetypes::notetype::Template as CardTemplateProto;
+pub use anki_proto::notetypes::Notetype as NotetypeProto;
 pub(crate) use cardgen::AlreadyGeneratedCardInfo;
 pub(crate) use cardgen::CardGenContext;
 pub use fields::NoteField;
@@ -39,15 +48,6 @@ use crate::error::CardTypeError;
 use crate::error::CardTypeErrorDetails;
 use crate::error::CardTypeSnafu;
 use crate::error::MissingClozeSnafu;
-pub use crate::pb::notetypes::notetype::config::card_requirement::Kind as CardRequirementKind;
-pub use crate::pb::notetypes::notetype::config::CardRequirement;
-pub use crate::pb::notetypes::notetype::config::Kind as NotetypeKind;
-pub use crate::pb::notetypes::notetype::field::Config as NoteFieldConfig;
-pub use crate::pb::notetypes::notetype::template::Config as CardTemplateConfig;
-pub use crate::pb::notetypes::notetype::Config as NotetypeConfig;
-pub use crate::pb::notetypes::notetype::Field as NoteFieldProto;
-pub use crate::pb::notetypes::notetype::Template as CardTemplateProto;
-pub use crate::pb::notetypes::Notetype as NotetypeProto;
 use crate::prelude::*;
 use crate::search::JoinSearches;
 use crate::search::Node;
@@ -96,13 +96,13 @@ impl Default for Notetype {
             usn: Usn(0),
             fields: vec![],
             templates: vec![],
-            config: NotetypeConfig::new(),
+            config: Notetype::new_config(),
         }
     }
 }
 
-impl NotetypeConfig {
-    pub(crate) fn new() -> Self {
+impl Notetype {
+    pub(crate) fn new_config() -> NotetypeConfig {
         NotetypeConfig {
             css: DEFAULT_CSS.into(),
             latex_pre: DEFAULT_LATEX_HEADER.into(),
@@ -111,8 +111,8 @@ impl NotetypeConfig {
         }
     }
 
-    pub(crate) fn new_cloze() -> Self {
-        let mut config = Self::new();
+    pub(crate) fn new_cloze_config() -> NotetypeConfig {
+        let mut config = Self::new_config();
         config.css += DEFAULT_CLOZE_CSS;
         config.kind = NotetypeKind::Cloze as i32;
         config

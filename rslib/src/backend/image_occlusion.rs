@@ -1,23 +1,26 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki_proto::generic;
+pub(super) use anki_proto::image_occlusion::imageocclusion_service::Service as ImageOcclusionService;
+
 use super::Backend;
-use crate::pb;
-pub(super) use crate::pb::image_occlusion::imageocclusion_service::Service as ImageOcclusionService;
 use crate::prelude::*;
 
 impl ImageOcclusionService for Backend {
+    type Error = AnkiError;
+
     fn get_image_for_occlusion(
         &self,
-        input: pb::image_occlusion::GetImageForOcclusionRequest,
-    ) -> Result<pb::image_occlusion::GetImageForOcclusionResponse> {
+        input: anki_proto::image_occlusion::GetImageForOcclusionRequest,
+    ) -> Result<anki_proto::image_occlusion::GetImageForOcclusionResponse> {
         self.with_col(|col| col.get_image_for_occlusion(&input.path))
     }
 
     fn add_image_occlusion_note(
         &self,
-        input: pb::image_occlusion::AddImageOcclusionNoteRequest,
-    ) -> Result<pb::collection::OpChanges> {
+        input: anki_proto::image_occlusion::AddImageOcclusionNoteRequest,
+    ) -> Result<anki_proto::collection::OpChanges> {
         self.with_col(|col| {
             col.add_image_occlusion_note(
                 input.notetype_id.into(),
@@ -33,15 +36,15 @@ impl ImageOcclusionService for Backend {
 
     fn get_image_occlusion_note(
         &self,
-        input: pb::image_occlusion::GetImageOcclusionNoteRequest,
-    ) -> Result<pb::image_occlusion::GetImageOcclusionNoteResponse> {
+        input: anki_proto::image_occlusion::GetImageOcclusionNoteRequest,
+    ) -> Result<anki_proto::image_occlusion::GetImageOcclusionNoteResponse> {
         self.with_col(|col| col.get_image_occlusion_note(input.note_id.into()))
     }
 
     fn update_image_occlusion_note(
         &self,
-        input: pb::image_occlusion::UpdateImageOcclusionNoteRequest,
-    ) -> Result<pb::collection::OpChanges> {
+        input: anki_proto::image_occlusion::UpdateImageOcclusionNoteRequest,
+    ) -> Result<anki_proto::collection::OpChanges> {
         self.with_col(|col| {
             col.update_image_occlusion_note(
                 input.note_id.into(),
@@ -56,8 +59,8 @@ impl ImageOcclusionService for Backend {
 
     fn add_image_occlusion_notetype(
         &self,
-        _input: pb::generic::Empty,
-    ) -> Result<pb::collection::OpChanges> {
+        _input: generic::Empty,
+    ) -> Result<anki_proto::collection::OpChanges> {
         self.with_col(|col| col.add_image_occlusion_notetype())
             .map(Into::into)
     }

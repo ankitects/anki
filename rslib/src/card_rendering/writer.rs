@@ -8,7 +8,6 @@ use super::Directive;
 use super::Node;
 use super::OtherDirective;
 use super::TtsDirective;
-use crate::pb;
 use crate::prelude::*;
 use crate::text::decode_entities;
 use crate::text::strip_html_for_tts;
@@ -22,7 +21,7 @@ impl<'a> CardNodes<'a> {
         &self,
         question_side: bool,
         tr: &I18n,
-    ) -> (String, Vec<pb::card_rendering::AvTag>) {
+    ) -> (String, Vec<anki_proto::card_rendering::AvTag>) {
         let mut extractor = AvExtractor::new(question_side, tr);
         (extractor.write(self), extractor.tags)
     }
@@ -122,7 +121,7 @@ impl Write for AvStripper {
 
 struct AvExtractor<'a> {
     side: char,
-    tags: Vec<pb::card_rendering::AvTag>,
+    tags: Vec<anki_proto::card_rendering::AvTag>,
     tr: &'a I18n,
 }
 
@@ -150,8 +149,8 @@ impl<'a> AvExtractor<'a> {
 impl Write for AvExtractor<'_> {
     fn write_sound(&mut self, buf: &mut String, resource: &str) {
         self.write_play_tag(buf);
-        self.tags.push(pb::card_rendering::AvTag {
-            value: Some(pb::card_rendering::av_tag::Value::SoundOrVideo(
+        self.tags.push(anki_proto::card_rendering::AvTag {
+            value: Some(anki_proto::card_rendering::av_tag::Value::SoundOrVideo(
                 decode_entities(resource).into(),
             )),
         });
@@ -164,9 +163,9 @@ impl Write for AvExtractor<'_> {
         }
 
         self.write_play_tag(buf);
-        self.tags.push(pb::card_rendering::AvTag {
-            value: Some(pb::card_rendering::av_tag::Value::Tts(
-                pb::card_rendering::TtsTag {
+        self.tags.push(anki_proto::card_rendering::AvTag {
+            value: Some(anki_proto::card_rendering::av_tag::Value::Tts(
+                anki_proto::card_rendering::TtsTag {
                     field_text: self.transform_tts_content(directive),
                     lang: directive.lang.into(),
                     voices: directive.voices.iter().map(ToString::to_string).collect(),

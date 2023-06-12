@@ -4,6 +4,9 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+pub use anki_proto::scheduler::schedule_cards_as_new_request::Context as ScheduleAsNewContext;
+pub use anki_proto::scheduler::RepositionDefaultsResponse;
+pub use anki_proto::scheduler::ScheduleCardsAsNewDefaultsResponse;
 use rand::seq::SliceRandom;
 
 use crate::card::CardQueue;
@@ -11,9 +14,6 @@ use crate::card::CardType;
 use crate::config::BoolKey;
 use crate::config::SchedulerVersion;
 use crate::deckconfig::NewCardInsertOrder;
-pub use crate::pb::scheduler::schedule_cards_as_new_request::Context as ScheduleAsNewContext;
-pub use crate::pb::scheduler::RepositionDefaultsResponse;
-pub use crate::pb::scheduler::ScheduleCardsAsNewDefaultsResponse;
 use crate::prelude::*;
 use crate::search::JoinSearches;
 use crate::search::SearchNode;

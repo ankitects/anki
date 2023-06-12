@@ -1,11 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::pb;
 use crate::scheduler::states::PreviewState;
 
-impl From<pb::scheduler::scheduling_state::Preview> for PreviewState {
-    fn from(state: pb::scheduler::scheduling_state::Preview) -> Self {
+impl From<anki_proto::scheduler::scheduling_state::Preview> for PreviewState {
+    fn from(state: anki_proto::scheduler::scheduling_state::Preview) -> Self {
         PreviewState {
             scheduled_secs: state.scheduled_secs,
             finished: state.finished,
@@ -13,9 +12,9 @@ impl From<pb::scheduler::scheduling_state::Preview> for PreviewState {
     }
 }
 
-impl From<PreviewState> for pb::scheduler::scheduling_state::Preview {
+impl From<PreviewState> for anki_proto::scheduler::scheduling_state::Preview {
     fn from(state: PreviewState) -> Self {
-        pb::scheduler::scheduling_state::Preview {
+        anki_proto::scheduler::scheduling_state::Preview {
             scheduled_secs: state.scheduled_secs,
             finished: state.finished,
         }

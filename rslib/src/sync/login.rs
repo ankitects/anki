@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use reqwest::Url;
-use serde_derive::Deserialize;
-use serde_derive::Serialize;
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::prelude::*;
 use crate::sync::collection::protocol::SyncProtocol;
@@ -35,7 +35,7 @@ pub async fn sync_login<S: Into<String>>(
     password: S,
     endpoint: Option<String>,
 ) -> Result<SyncAuth> {
-    let auth = crate::pb::sync::SyncAuth {
+    let auth = anki_proto::sync::SyncAuth {
         endpoint,
         ..Default::default()
     }
