@@ -11,13 +11,13 @@ use std::thread;
 use std::thread::JoinHandle;
 use std::time::SystemTime;
 
+use anki_io::read_locked_db_file;
+use anki_proto::config::preferences::BackupLimits;
 use chrono::prelude::*;
 use itertools::Itertools;
 use tracing::error;
 
 use crate::import_export::package::export_colpkg_from_data;
-use crate::io::read_locked_db_file;
-use crate::pb::config::preferences::BackupLimits;
 use crate::prelude::*;
 
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";

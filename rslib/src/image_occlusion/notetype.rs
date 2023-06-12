@@ -3,10 +3,11 @@
 
 use std::sync::Arc;
 
+use anki_proto::notetypes::stock_notetype::OriginalStockKind;
+
 use crate::notetype::stock::empty_stock;
 use crate::notetype::Notetype;
 use crate::notetype::NotetypeKind;
-use crate::pb::notetypes::stock_notetype::OriginalStockKind;
 use crate::prelude::*;
 
 impl Collection {

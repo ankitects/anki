@@ -4,6 +4,7 @@
 use std::fs::File;
 use std::io::Write;
 
+use anki_proto::card_rendering::all_tts_voices_response::TtsVoice;
 use futures::executor::block_on;
 use windows::core::HSTRING;
 use windows::Media::SpeechSynthesis::SpeechSynthesisStream;
@@ -13,7 +14,6 @@ use windows::Storage::Streams::DataReader;
 
 use crate::error::windows::WindowsErrorDetails;
 use crate::error::windows::WindowsSnafu;
-use crate::pb::card_rendering::all_tts_voices_response::TtsVoice;
 use crate::prelude::*;
 
 const MAX_BUFFER_SIZE: usize = 128 * 1024;
@@ -21,7 +21,7 @@ const MAX_BUFFER_SIZE: usize = 128 * 1024;
 pub(super) fn all_voices(validate: bool) -> Result<Vec<TtsVoice>> {
     SpeechSynthesizer::AllVoices()?
         .into_iter()
-        .map(|info| TtsVoice::from_voice_information(info, validate))
+        .map(|info| tts_voice_from_information(info, validate))
         .collect()
 }
 
@@ -91,16 +91,14 @@ fn write_reader_to_file(reader: DataReader, file: &mut File, stream_size: usize)
     Ok(())
 }
 
-impl TtsVoice {
-    fn from_voice_information(info: VoiceInformation, validate: bool) -> Result<Self> {
-        Ok(Self {
-            id: info.Id()?.to_string_lossy(),
-            name: info.DisplayName()?.to_string_lossy(),
-            language: info.Language()?.to_string_lossy(),
-            // Windows lists voices that fail when actually trying to use them. This has been
-            // observed with voices from an uninstalled language pack.
-            // Validation is optional because it may be slow.
-            available: validate.then(|| synthesize_stream(&info, 1.0, "").is_ok()),
-        })
-    }
+fn tts_voice_from_information(info: VoiceInformation, validate: bool) -> Result<TtsVoice> {
+    Ok(TtsVoice {
+        id: info.Id()?.to_string_lossy(),
+        name: info.DisplayName()?.to_string_lossy(),
+        language: info.Language()?.to_string_lossy(),
+        // Windows lists voices that fail when actually trying to use them. This has been
+        // observed with voices from an uninstalled language pack.
+        // Validation is optional because it may be slow.
+        available: validate.then(|| synthesize_stream(&info, 1.0, "").is_ok()),
+    })
 }

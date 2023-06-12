@@ -5,17 +5,16 @@ mod schema11;
 pub(crate) mod undo;
 mod update;
 
+pub use anki_proto::deckconfig::deck_config::config::LeechAction;
+pub use anki_proto::deckconfig::deck_config::config::NewCardGatherPriority;
+pub use anki_proto::deckconfig::deck_config::config::NewCardInsertOrder;
+pub use anki_proto::deckconfig::deck_config::config::NewCardSortOrder;
+pub use anki_proto::deckconfig::deck_config::config::ReviewCardOrder;
+pub use anki_proto::deckconfig::deck_config::config::ReviewMix;
+pub use anki_proto::deckconfig::deck_config::Config as DeckConfigInner;
 pub use schema11::DeckConfSchema11;
 pub use schema11::NewCardOrderSchema11;
 pub use update::UpdateDeckConfigsRequest;
-
-pub use crate::pb::deckconfig::deck_config::config::LeechAction;
-pub use crate::pb::deckconfig::deck_config::config::NewCardGatherPriority;
-pub use crate::pb::deckconfig::deck_config::config::NewCardInsertOrder;
-pub use crate::pb::deckconfig::deck_config::config::NewCardSortOrder;
-pub use crate::pb::deckconfig::deck_config::config::ReviewCardOrder;
-pub use crate::pb::deckconfig::deck_config::config::ReviewMix;
-pub use crate::pb::deckconfig::deck_config::Config as DeckConfigInner;
 
 /// Old deck config and cards table store 250% as 2500.
 pub(crate) const INITIAL_EASE_FACTOR_THOUSANDS: u16 = (INITIAL_EASE_FACTOR * 1000.0) as u16;
@@ -186,67 +185,85 @@ impl Collection {
     }
 }
 
-impl DeckConfigInner {
-    /// There was a period of time when the deck options screen was allowing
-    /// 0/NaN to be persisted, so we need to check the values are within
-    /// valid bounds when reading from the DB.
-    pub(crate) fn ensure_values_valid(&mut self) {
-        let default = DEFAULT_DECK_CONFIG_INNER;
-        ensure_u32_valid(&mut self.new_per_day, default.new_per_day, 0, 9999);
-        ensure_u32_valid(&mut self.reviews_per_day, default.reviews_per_day, 0, 9999);
-        ensure_u32_valid(
-            &mut self.new_per_day_minimum,
-            default.new_per_day_minimum,
-            0,
-            9999,
-        );
-        ensure_f32_valid(&mut self.initial_ease, default.initial_ease, 1.31, 5.0);
-        ensure_f32_valid(&mut self.easy_multiplier, default.easy_multiplier, 1.0, 5.0);
-        ensure_f32_valid(&mut self.hard_multiplier, default.hard_multiplier, 0.5, 1.3);
-        ensure_f32_valid(
-            &mut self.lapse_multiplier,
-            default.lapse_multiplier,
-            0.0,
-            1.0,
-        );
-        ensure_f32_valid(
-            &mut self.interval_multiplier,
-            default.interval_multiplier,
-            0.5,
-            2.0,
-        );
-        ensure_u32_valid(
-            &mut self.maximum_review_interval,
-            default.maximum_review_interval,
-            1,
-            36_500,
-        );
-        ensure_u32_valid(
-            &mut self.minimum_lapse_interval,
-            default.minimum_lapse_interval,
-            1,
-            36_500,
-        );
-        ensure_u32_valid(
-            &mut self.graduating_interval_good,
-            default.graduating_interval_good,
-            1,
-            36_500,
-        );
-        ensure_u32_valid(
-            &mut self.graduating_interval_easy,
-            default.graduating_interval_easy,
-            1,
-            36_500,
-        );
-        ensure_u32_valid(&mut self.leech_threshold, default.leech_threshold, 1, 9999);
-        ensure_u32_valid(
-            &mut self.cap_answer_time_to_secs,
-            default.cap_answer_time_to_secs,
-            1,
-            9999,
-        );
-    }
+/// There was a period of time when the deck options screen was allowing
+/// 0/NaN to be persisted, so we need to check the values are within
+/// valid bounds when reading from the DB.
+pub(crate) fn ensure_deck_config_values_valid(config: &mut DeckConfigInner) {
+    let default = DEFAULT_DECK_CONFIG_INNER;
+    ensure_u32_valid(&mut config.new_per_day, default.new_per_day, 0, 9999);
+    ensure_u32_valid(
+        &mut config.reviews_per_day,
+        default.reviews_per_day,
+        0,
+        9999,
+    );
+    ensure_u32_valid(
+        &mut config.new_per_day_minimum,
+        default.new_per_day_minimum,
+        0,
+        9999,
+    );
+    ensure_f32_valid(&mut config.initial_ease, default.initial_ease, 1.31, 5.0);
+    ensure_f32_valid(
+        &mut config.easy_multiplier,
+        default.easy_multiplier,
+        1.0,
+        5.0,
+    );
+    ensure_f32_valid(
+        &mut config.hard_multiplier,
+        default.hard_multiplier,
+        0.5,
+        1.3,
+    );
+    ensure_f32_valid(
+        &mut config.lapse_multiplier,
+        default.lapse_multiplier,
+        0.0,
+        1.0,
+    );
+    ensure_f32_valid(
+        &mut config.interval_multiplier,
+        default.interval_multiplier,
+        0.5,
+        2.0,
+    );
+    ensure_u32_valid(
+        &mut config.maximum_review_interval,
+        default.maximum_review_interval,
+        1,
+        36_500,
+    );
+    ensure_u32_valid(
+        &mut config.minimum_lapse_interval,
+        default.minimum_lapse_interval,
+        1,
+        36_500,
+    );
+    ensure_u32_valid(
+        &mut config.graduating_interval_good,
+        default.graduating_interval_good,
+        1,
+        36_500,
+    );
+    ensure_u32_valid(
+        &mut config.graduating_interval_easy,
+        default.graduating_interval_easy,
+        1,
+        36_500,
+    );
+    ensure_u32_valid(
+        &mut config.leech_threshold,
+        default.leech_threshold,
+        1,
+        9999,
+    );
+    ensure_u32_valid(
+        &mut config.cap_answer_time_to_secs,
+        default.cap_answer_time_to_secs,
+        1,
+        9999,
+    );
 }
 
 fn ensure_f32_valid(val: &mut f32, default: f32, min: f32, max: f32) {

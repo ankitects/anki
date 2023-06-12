@@ -3,32 +3,34 @@
 
 use std::sync::MutexGuard;
 
+pub(super) use anki_proto::collection::collection_service::Service as CollectionService;
+use anki_proto::generic;
 use tracing::error;
 
 use super::progress::Progress;
 use super::Backend;
 use crate::backend::progress::progress_to_proto;
 use crate::collection::CollectionBuilder;
-use crate::pb;
-pub(super) use crate::pb::collection::collection_service::Service as CollectionService;
 use crate::prelude::*;
 use crate::storage::SchemaVersion;
 
 impl CollectionService for Backend {
-    fn latest_progress(&self, _input: pb::generic::Empty) -> Result<pb::collection::Progress> {
+    type Error = AnkiError;
+
+    fn latest_progress(&self, _input: generic::Empty) -> Result<anki_proto::collection::Progress> {
         let progress = self.progress_state.lock().unwrap().last_progress;
         Ok(progress_to_proto(progress, &self.tr))
     }
 
-    fn set_wants_abort(&self, _input: pb::generic::Empty) -> Result<pb::generic::Empty> {
+    fn set_wants_abort(&self, _input: generic::Empty) -> Result<generic::Empty> {
         self.progress_state.lock().unwrap().want_abort = true;
         Ok(().into())
     }
 
     fn open_collection(
         &self,
-        input: pb::collection::OpenCollectionRequest,
-    ) -> Result<pb::generic::Empty> {
+        input: anki_proto::collection::OpenCollectionRequest,
+    ) -> Result<generic::Empty> {
         let mut guard = self.lock_closed_collection()?;
 
         let mut builder = CollectionBuilder::new(input.collection_path);
@@ -45,8 +47,8 @@ impl CollectionService for Backend {
 
     fn close_collection(
         &self,
-        input: pb::collection::CloseCollectionRequest,
-    ) -> Result<pb::generic::Empty> {
+        input: anki_proto::collection::CloseCollectionRequest,
+    ) -> Result<generic::Empty> {
         let desired_version = if input.downgrade_to_schema11 {
             Some(SchemaVersion::V11)
         } else {
@@ -66,37 +68,44 @@ impl CollectionService for Backend {
 
     fn check_database(
         &self,
-        _input: pb::generic::Empty,
-    ) -> Result<pb::collection::CheckDatabaseResponse> {
+        _input: generic::Empty,
+    ) -> Result<anki_proto::collection::CheckDatabaseResponse> {
         let mut handler = self.new_progress_handler();
         let progress_fn = move |progress, throttle| {
             handler.update(Progress::DatabaseCheck(progress), throttle);
         };
         self.with_col(|col| {
-            col.check_database(progress_fn)
-                .map(|problems| pb::collection::CheckDatabaseResponse {
+            col.check_database(progress_fn).map(|problems| {
+                anki_proto::collection::CheckDatabaseResponse {
                     problems: problems.to_i18n_strings(&col.tr),
-                })
+                }
+            })
         })
     }
 
-    fn get_undo_status(&self, _input: pb::generic::Empty) -> Result<pb::collection::UndoStatus> {
+    fn get_undo_status(
+        &self,
+        _input: generic::Empty,
+    ) -> Result<anki_proto::collection::UndoStatus> {
         self.with_col(|col| Ok(col.undo_status().into_protobuf(&col.tr)))
     }
 
-    fn undo(&self, _input: pb::generic::Empty) -> Result<pb::collection::OpChangesAfterUndo> {
+    fn undo(&self, _input: generic::Empty) -> Result<anki_proto::collection::OpChangesAfterUndo> {
         self.with_col(|col| col.undo().map(|out| out.into_protobuf(&col.tr)))
     }
 
-    fn redo(&self, _input: pb::generic::Empty) -> Result<pb::collection::OpChangesAfterUndo> {
+    fn redo(&self, _input: generic::Empty) -> Result<anki_proto::collection::OpChangesAfterUndo> {
         self.with_col(|col| col.redo().map(|out| out.into_protobuf(&col.tr)))
     }
 
-    fn add_custom_undo_entry(&self, input: pb::generic::String) -> Result<pb::generic::UInt32> {
+    fn add_custom_undo_entry(&self, input: generic::String) -> Result<generic::UInt32> {
         self.with_col(|col| Ok(col.add_custom_undo_step(input.val).into()))
     }
 
-    fn merge_undo_entries(&self, input: pb::generic::UInt32) -> Result<pb::collection::OpChanges> {
+    fn merge_undo_entries(
+        &self,
+        input: generic::UInt32,
+    ) -> Result<anki_proto::collection::OpChanges> {
         let starting_from = input.val as usize;
         self.with_col(|col| col.merge_undoable_ops(starting_from))
             .map(Into::into)
@@ -104,8 +113,8 @@ impl CollectionService for Backend {
 
     fn create_backup(
         &self,
-        input: pb::collection::CreateBackupRequest,
-    ) -> Result<pb::generic::Bool> {
+        input: anki_proto::collection::CreateBackupRequest,
+    ) -> Result<generic::Bool> {
         // lock collection
         let mut col_lock = self.lock_open_collection()?;
         let col = col_lock.as_mut().unwrap();
@@ -129,7 +138,7 @@ impl CollectionService for Backend {
         Ok(created.into())
     }
 
-    fn await_backup_completion(&self, _input: pb::generic::Empty) -> Result<pb::generic::Empty> {
+    fn await_backup_completion(&self, _input: generic::Empty) -> Result<generic::Empty> {
         self.await_backup_completion()?;
         Ok(().into())
     }

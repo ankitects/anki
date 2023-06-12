@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki_proto::stats::graphs_response::Added;
+
 use super::GraphsContext;
-use crate::pb::stats::graphs_response::Added;
 
 impl GraphsContext {
     pub(super) fn added_days(&self) -> Added {

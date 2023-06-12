@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::pb::stats::graphs_response::hours::Hour;
-use crate::pb::stats::graphs_response::Hours;
+use anki_proto::stats::graphs_response::hours::Hour;
+use anki_proto::stats::graphs_response::Hours;
+
 use crate::revlog::RevlogReviewKind;
 use crate::stats::graphs::GraphsContext;
 
@@ -38,23 +39,21 @@ impl GraphsContext {
             let review_secs = review.id.as_secs();
             let hour = (((review_secs.0 + self.local_offset_secs) / 3600) % 24) as usize;
             let correct = review.button_chosen > 1;
-            data.all_time[hour].increment(correct);
+            increment_count_for_hour(&mut data.all_time[hour], correct);
             for (stamp, bucket) in &mut conditional_buckets {
                 if &review_secs < stamp {
                     continue 'outer;
                 }
-                bucket[hour].increment(correct)
+                increment_count_for_hour(&mut bucket[hour], correct);
             }
         }
         data
     }
 }
 
-impl Hour {
-    pub(crate) fn increment(&mut self, correct: bool) {
-        self.total += 1;
-        if correct {
-            self.correct += 1;
-        }
+pub(crate) fn increment_count_for_hour(hour: &mut Hour, correct: bool) {
+    hour.total += 1;
+    if correct {
+        hour.correct += 1;
     }
 }

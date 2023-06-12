@@ -1,15 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki_proto::config::config_key::Bool as BoolKeyProto;
+use anki_proto::config::config_key::String as StringKeyProto;
+pub(super) use anki_proto::config::config_service::Service as ConfigService;
+use anki_proto::generic;
 use serde_json::Value;
 
 use super::Backend;
 use crate::config::BoolKey;
 use crate::config::StringKey;
-use crate::pb;
-use crate::pb::config::config_key::Bool as BoolKeyProto;
-use crate::pb::config::config_key::String as StringKeyProto;
-pub(super) use crate::pb::config::config_service::Service as ConfigService;
 use crate::prelude::*;
 
 impl From<BoolKeyProto> for BoolKey {
@@ -54,7 +54,9 @@ impl From<StringKeyProto> for StringKey {
 }
 
 impl ConfigService for Backend {
-    fn get_config_json(&self, input: pb::generic::String) -> Result<pb::generic::Json> {
+    type Error = AnkiError;
+
+    fn get_config_json(&self, input: generic::String) -> Result<generic::Json> {
         self.with_col(|col| {
             let val: Option<Value> = col.get_config_optional(input.val.as_str());
             val.or_not_found(input.val)
@@ -65,8 +67,8 @@ impl ConfigService for Backend {
 
     fn set_config_json(
         &self,
-        input: pb::config::SetConfigJsonRequest,
-    ) -> Result<pb::collection::OpChanges> {
+        input: anki_proto::config::SetConfigJsonRequest,
+    ) -> Result<anki_proto::collection::OpChanges> {
         self.with_col(|col| {
             let val: Value = serde_json::from_slice(&input.value_json)?;
             col.set_config_json(input.key.as_str(), &val, input.undoable)
@@ -76,8 +78,8 @@ impl ConfigService for Backend {
 
     fn set_config_json_no_undo(
         &self,
-        input: pb::config::SetConfigJsonRequest,
-    ) -> Result<pb::generic::Empty> {
+        input: anki_proto::config::SetConfigJsonRequest,
+    ) -> Result<generic::Empty> {
         self.with_col(|col| {
             let val: Value = serde_json::from_slice(&input.value_json)?;
             col.transact_no_undo(|col| col.set_config(input.key.as_str(), &val).map(|_| ()))
@@ -85,12 +87,12 @@ impl ConfigService for Backend {
         .map(Into::into)
     }
 
-    fn remove_config(&self, input: pb::generic::String) -> Result<pb::collection::OpChanges> {
+    fn remove_config(&self, input: generic::String) -> Result<anki_proto::collection::OpChanges> {
         self.with_col(|col| col.remove_config(input.val.as_str()))
             .map(Into::into)
     }
 
-    fn get_all_config(&self, _input: pb::generic::Empty) -> Result<pb::generic::Json> {
+    fn get_all_config(&self, _input: generic::Empty) -> Result<generic::Json> {
         self.with_col(|col| {
             let conf = col.storage.get_all_config()?;
             serde_json::to_vec(&conf).map_err(Into::into)
@@ -100,10 +102,10 @@ impl ConfigService for Backend {
 
     fn get_config_bool(
         &self,
-        input: pb::config::GetConfigBoolRequest,
-    ) -> Result<pb::generic::Bool> {
+        input: anki_proto::config::GetConfigBoolRequest,
+    ) -> Result<generic::Bool> {
         self.with_col(|col| {
-            Ok(pb::generic::Bool {
+            Ok(generic::Bool {
                 val: col.get_config_bool(input.key().into()),
             })
         })
@@ -111,18 +113,18 @@ impl ConfigService for Backend {
 
     fn set_config_bool(
         &self,
-        input: pb::config::SetConfigBoolRequest,
-    ) -> Result<pb::collection::OpChanges> {
+        input: anki_proto::config::SetConfigBoolRequest,
+    ) -> Result<anki_proto::collection::OpChanges> {
         self.with_col(|col| col.set_config_bool(input.key().into(), input.value, input.undoable))
             .map(Into::into)
     }
 
     fn get_config_string(
         &self,
-        input: pb::config::GetConfigStringRequest,
-    ) -> Result<pb::generic::String> {
+        input: anki_proto::config::GetConfigStringRequest,
+    ) -> Result<generic::String> {
         self.with_col(|col| {
-            Ok(pb::generic::String {
+            Ok(generic::String {
                 val: col.get_config_string(input.key().into()),
             })
         })
@@ -130,17 +132,20 @@ impl ConfigService for Backend {
 
     fn set_config_string(
         &self,
-        input: pb::config::SetConfigStringRequest,
-    ) -> Result<pb::collection::OpChanges> {
+        input: anki_proto::config::SetConfigStringRequest,
+    ) -> Result<anki_proto::collection::OpChanges> {
         self.with_col(|col| col.set_config_string(input.key().into(), &input.value, input.undoable))
             .map(Into::into)
     }
 
-    fn get_preferences(&self, _input: pb::generic::Empty) -> Result<pb::config::Preferences> {
+    fn get_preferences(&self, _input: generic::Empty) -> Result<anki_proto::config::Preferences> {
         self.with_col(|col| col.get_preferences())
     }
 
-    fn set_preferences(&self, input: pb::config::Preferences) -> Result<pb::collection::OpChanges> {
+    fn set_preferences(
+        &self,
+        input: anki_proto::config::Preferences,
+    ) -> Result<anki_proto::collection::OpChanges> {
         self.with_col(|col| col.set_preferences(input))
             .map(Into::into)
     }

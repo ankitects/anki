@@ -1,10 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki_proto::sync::sync_status_response;
 use tracing::debug;
 
 use crate::error::SyncErrorKind;
-use crate::pb::sync::sync_status_response;
 use crate::prelude::*;
 use crate::sync::collection::meta::SyncMeta;
 use crate::sync::collection::normal::ClientSyncState;

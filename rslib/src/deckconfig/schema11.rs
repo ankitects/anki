@@ -4,10 +4,10 @@
 use std::collections::HashMap;
 
 use serde::Deserialize as DeTrait;
+use serde::Deserialize;
 use serde::Deserializer;
+use serde::Serialize;
 use serde_aux::field_attributes::deserialize_number_from_string;
-use serde_derive::Deserialize;
-use serde_derive::Serialize;
 use serde_json::Value;
 use serde_repr::Deserialize_repr;
 use serde_repr::Serialize_repr;
@@ -48,7 +48,6 @@ pub struct DeckConfSchema11 {
 
     // 2021 scheduler options: these were not in schema 11, but we need to persist them
     // so the settings are not lost on upgrade/downgrade.
-    // NOTE: if adding new ones, make sure to update clear_other_duplicates()
     #[serde(default)]
     new_mix: i32,
     #[serde(default)]
@@ -335,7 +334,6 @@ impl From<DeckConfig> for DeckConfSchema11 {
             top_other = Default::default();
         } else {
             top_other = serde_json::from_slice(&c.inner.other).unwrap_or_default();
-            clear_other_duplicates(&mut top_other);
             if let Some(new) = top_other.remove("new") {
                 let val: HashMap<String, Value> = serde_json::from_value(new).unwrap_or_default();
                 new_other = val;
@@ -406,27 +404,6 @@ impl From<DeckConfig> for DeckConfSchema11 {
             new_gather_priority: i.new_card_gather_priority,
             bury_interday_learning: i.bury_interday_learning,
         }
-    }
-}
-
-fn clear_other_duplicates(top_other: &mut HashMap<String, Value>) {
-    // Older clients may have received keys from a newer client when
-    // syncing, which get bundled into `other`. If they then upgrade, then
-    // downgrade their collection to schema11, serde will serialize the
-    // new default keys, but then add them again from `other`, leading
-    // to the keys being duplicated in the resulting json - which older
-    // clients then can't read. So we need to strip out any new keys we
-    // add.
-    for key in &[
-        "newMix",
-        "newPerDayMinimum",
-        "interdayLearningMix",
-        "reviewOrder",
-        "newSortOrder",
-        "newGatherPriority",
-        "buryInterdayLearning",
-    ] {
-        top_other.remove(*key);
     }
 }
 

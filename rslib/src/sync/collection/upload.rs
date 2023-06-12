@@ -4,6 +4,9 @@
 use std::fs;
 use std::io::Write;
 
+use anki_io::atomic_rename;
+use anki_io::new_tempfile_in_parent_of;
+use anki_io::write_file;
 use axum::response::IntoResponse;
 use axum::response::Response;
 use flate2::write::GzEncoder;
@@ -13,9 +16,6 @@ use tokio_util::io::ReaderStream;
 
 use crate::collection::CollectionBuilder;
 use crate::error::SyncErrorKind;
-use crate::io::atomic_rename;
-use crate::io::new_tempfile_in_parent_of;
-use crate::io::write_file;
 use crate::prelude::*;
 use crate::storage::SchemaVersion;
 use crate::sync::collection::progress::FullSyncProgressFn;

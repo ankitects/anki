@@ -17,6 +17,7 @@ service CardsService {
   rpc SetDeck(SetDeckRequest) returns (collection.OpChangesWithCount);
   rpc SetFlag(SetFlagRequest) returns (collection.OpChangesWithCount);
 }
+
 message CardId {
   int64 cid = 1;
 }

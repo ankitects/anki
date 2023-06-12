@@ -7,15 +7,16 @@ use std::fs::File;
 use std::io::Write;
 use std::sync::Arc;
 
+use anki_proto::import_export::ExportNoteCsvRequest;
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use regex::Regex;
 
 use super::metadata::Delimiter;
+use crate::import_export::text::csv::metadata::DelimeterExt;
 use crate::import_export::ExportProgress;
 use crate::import_export::IncrementableProgress;
 use crate::notetype::RenderCardOutput;
-use crate::pb::import_export::ExportNoteCsvRequest;
 use crate::prelude::*;
 use crate::search::SearchNode;
 use crate::search::SortMode;
@@ -60,7 +61,7 @@ impl Collection {
         progress.call(ExportProgress::File)?;
         let mut incrementor = progress.incrementor(ExportProgress::Notes);
 
-        let guard = self.search_notes_into_table(request.search_node())?;
+        let guard = self.search_notes_into_table(Into::<SearchNode>::into(&mut request))?;
         let ctx = NoteContext::new(&request, guard.col)?;
         let mut writer = note_file_writer_with_header(&request.out_path, &ctx)?;
         guard.col.storage.for_each_note_in_search(|note| {
@@ -283,8 +284,8 @@ impl NoteContext {
     }
 }
 
-impl ExportNoteCsvRequest {
-    fn search_node(&mut self) -> SearchNode {
-        SearchNode::from(self.limit.take().unwrap_or_default())
+impl From<&mut ExportNoteCsvRequest> for SearchNode {
+    fn from(req: &mut ExportNoteCsvRequest) -> Self {
+        SearchNode::from(req.limit.take().unwrap_or_default())
     }
 }

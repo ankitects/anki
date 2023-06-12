@@ -7,13 +7,13 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::iter;
 
+use anki_proto::deckconfig::deck_configs_for_update::current_deck::Limits;
+use anki_proto::deckconfig::deck_configs_for_update::ConfigWithExtra;
+use anki_proto::deckconfig::deck_configs_for_update::CurrentDeck;
+use anki_proto::decks::deck::normal::DayLimit;
+
 use crate::config::StringKey;
 use crate::decks::NormalDeck;
-use crate::pb;
-use crate::pb::deckconfig::deck_configs_for_update::current_deck::Limits;
-use crate::pb::deckconfig::deck_configs_for_update::ConfigWithExtra;
-use crate::pb::deckconfig::deck_configs_for_update::CurrentDeck;
-use crate::pb::decks::deck::normal::DayLimit;
 use crate::prelude::*;
 use crate::search::JoinSearches;
 use crate::search::SearchNode;
@@ -35,8 +35,8 @@ impl Collection {
     pub fn get_deck_configs_for_update(
         &mut self,
         deck: DeckId,
-    ) -> Result<pb::deckconfig::DeckConfigsForUpdate> {
-        Ok(pb::deckconfig::DeckConfigsForUpdate {
+    ) -> Result<anki_proto::deckconfig::DeckConfigsForUpdate> {
+        Ok(anki_proto::deckconfig::DeckConfigsForUpdate {
             all_config: self.get_deck_config_with_extra_for_update()?,
             current_deck: Some(self.get_current_deck_for_update(deck)?),
             defaults: Some(DeckConfig::default().into()),
@@ -99,7 +99,7 @@ impl Collection {
                 .into_iter()
                 .map(Into::into)
                 .collect(),
-            limits: Some(normal.to_limits(today)),
+            limits: Some(normal_deck_to_limits(normal, today)),
         })
     }
 
@@ -172,7 +172,7 @@ impl Collection {
                 {
                     let mut updated = deck.clone();
                     updated.normal_mut()?.config_id = selected_config.id.0;
-                    updated.normal_mut()?.update_limits(&input.limits, today);
+                    update_deck_limits(updated.normal_mut()?, &input.limits, today);
                     self.update_deck_inner(&mut updated, deck, usn)?;
                     selected_config.id
                 } else {
@@ -236,30 +236,28 @@ impl Collection {
     }
 }
 
-impl NormalDeck {
-    fn to_limits(&self, today: u32) -> Limits {
-        Limits {
-            review: self.review_limit,
-            new: self.new_limit,
-            review_today: self.review_limit_today.map(|limit| limit.limit),
-            new_today: self.new_limit_today.map(|limit| limit.limit),
-            review_today_active: self
-                .review_limit_today
-                .map(|limit| limit.today == today)
-                .unwrap_or_default(),
-            new_today_active: self
-                .new_limit_today
-                .map(|limit| limit.today == today)
-                .unwrap_or_default(),
-        }
+fn normal_deck_to_limits(deck: &NormalDeck, today: u32) -> Limits {
+    Limits {
+        review: deck.review_limit,
+        new: deck.new_limit,
+        review_today: deck.review_limit_today.map(|limit| limit.limit),
+        new_today: deck.new_limit_today.map(|limit| limit.limit),
+        review_today_active: deck
+            .review_limit_today
+            .map(|limit| limit.today == today)
+            .unwrap_or_default(),
+        new_today_active: deck
+            .new_limit_today
+            .map(|limit| limit.today == today)
+            .unwrap_or_default(),
     }
+}
 
-    fn update_limits(&mut self, limits: &Limits, today: u32) {
-        self.review_limit = limits.review;
-        self.new_limit = limits.new;
-        update_day_limit(&mut self.review_limit_today, limits.review_today, today);
-        update_day_limit(&mut self.new_limit_today, limits.new_today, today);
-    }
+fn update_deck_limits(deck: &mut NormalDeck, limits: &Limits, today: u32) {
+    deck.review_limit = limits.review;
+    deck.new_limit = limits.new;
+    update_day_limit(&mut deck.review_limit_today, limits.review_today, today);
+    update_day_limit(&mut deck.new_limit_today, limits.new_today, today);
 }
 
 fn update_day_limit(day_limit: &mut Option<DayLimit>, new_limit: Option<u32>, today: u32) {

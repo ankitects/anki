@@ -3,8 +3,9 @@
 
 use std::collections::HashMap;
 
-use serde_derive::Deserialize;
-use serde_derive::Serialize;
+use anki_proto::decks::deck::normal::DayLimit;
+use serde::Deserialize;
+use serde::Serialize;
 use serde_json::Value;
 use serde_tuple::Serialize_tuple;
 
@@ -12,7 +13,6 @@ use super::DeckCommon;
 use super::FilteredDeck;
 use super::FilteredSearchTerm;
 use super::NormalDeck;
-use crate::pb::decks::deck::normal::DayLimit;
 use crate::prelude::*;
 use crate::serde::default_on_invalid;
 use crate::serde::deserialize_bool_from_anything;
@@ -380,12 +380,6 @@ impl From<Deck> for DeckSchema11 {
 
 impl From<Deck> for DeckCommonSchema11 {
     fn from(deck: Deck) -> Self {
-        let mut other: HashMap<String, Value> = if deck.common.other.is_empty() {
-            Default::default()
-        } else {
-            serde_json::from_slice(&deck.common.other).unwrap_or_default()
-        };
-        clear_other_duplicates(&mut other);
         DeckCommonSchema11 {
             id: deck.id,
             mtime: deck.mtime_secs,
@@ -403,20 +397,8 @@ impl From<Deck> for DeckCommonSchema11 {
                 DeckKind::Normal(n) => n.description,
                 DeckKind::Filtered(_) => String::new(),
             },
-            other,
+            other: serde_json::from_slice(&deck.common.other).unwrap_or_default(),
         }
-    }
-}
-
-/// See [crate::deckconfig::schema11::clear_other_duplicates()].
-fn clear_other_duplicates(other: &mut HashMap<String, Value>) {
-    for key in [
-        "reviewLimit",
-        "newLimit",
-        "reviewLimitToday",
-        "newLimitToday",
-    ] {
-        other.remove(key);
     }
 }
 

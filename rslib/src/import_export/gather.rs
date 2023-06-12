@@ -4,12 +4,12 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+use anki_io::filename_is_safe;
 use itertools::Itertools;
 
 use super::ExportProgress;
 use super::IncrementableProgress;
 use crate::decks::immediate_parent_name;
-use crate::io::filename_is_safe;
 use crate::latex::extract_latex;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;

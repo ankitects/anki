@@ -26,20 +26,7 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
             proto_files: inputs![glob!["proto/anki/*.proto"]],
         },
     )?;
-    build.add(
-        "pylib/anki:_backend_generated.py",
-        RunCommand {
-            command: ":pyenv:bin",
-            args: "$script $out",
-            inputs: hashmap! {
-                "script" => inputs!["pylib/tools/genbackend.py"],
-                "" => inputs!["pylib/anki/_vendor/stringcase.py", ":pylib/anki:proto"]
-            },
-            outputs: hashmap! {
-                "out" => vec!["pylib/anki/_backend_generated.py"]
-            },
-        },
-    )?;
+
     build.add(
         "pylib/anki:_fluent.py",
         RunCommand {

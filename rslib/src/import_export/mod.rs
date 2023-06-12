@@ -8,10 +8,10 @@ pub mod text;
 
 use std::marker::PhantomData;
 
+pub use anki_proto::import_export::import_response::Log as NoteLog;
+pub use anki_proto::import_export::import_response::Note as LogNote;
 use snafu::Snafu;
 
-pub use crate::pb::import_export::import_response::Log as NoteLog;
-pub use crate::pb::import_export::import_response::Note as LogNote;
 use crate::prelude::*;
 use crate::text::newlines_to_spaces;
 use crate::text::strip_html_preserving_media_filenames;
@@ -114,7 +114,7 @@ impl<'f, F: 'f + FnMut(usize) -> Result<()>> Incrementor<'f, F> {
 impl Note {
     pub(crate) fn into_log_note(self) -> LogNote {
         LogNote {
-            id: Some(self.id.into()),
+            id: Some(anki_proto::notes::NoteId { nid: self.id.0 }),
             fields: self
                 .into_fields()
                 .into_iter()

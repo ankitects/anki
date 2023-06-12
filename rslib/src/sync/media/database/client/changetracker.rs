@@ -5,9 +5,9 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::time;
 
+use anki_io::read_dir_files;
 use tracing::debug;
 
-use crate::io::read_dir_files;
 use crate::media::files::filename_if_normalized;
 use crate::media::files::mtime_as_i64;
 use crate::media::files::sha1_of_file;
@@ -243,12 +243,12 @@ mod test {
     use std::time;
     use std::time::Duration;
 
+    use anki_io::create_dir;
+    use anki_io::write_file;
     use tempfile::tempdir;
 
     use super::*;
     use crate::error::Result;
-    use crate::io::create_dir;
-    use crate::io::write_file;
     use crate::media::files::sha1_of_data;
     use crate::media::MediaManager;
     use crate::sync::media::database::client::MediaEntry;

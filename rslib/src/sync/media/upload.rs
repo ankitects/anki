@@ -4,7 +4,7 @@
 use std::borrow::Cow;
 use std::path::Path;
 
-use serde_derive::Deserialize;
+use serde::Deserialize;
 use serde_tuple::Serialize_tuple;
 use tracing::debug;
 

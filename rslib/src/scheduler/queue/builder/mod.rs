@@ -267,11 +267,12 @@ impl Collection {
 
 #[cfg(test)]
 mod test {
+    use anki_proto::deckconfig::deck_config::config::NewCardGatherPriority;
+    use anki_proto::deckconfig::deck_config::config::NewCardSortOrder;
+
     use super::*;
     use crate::card::CardQueue;
     use crate::card::CardType;
-    use crate::pb::deckconfig::deck_config::config::NewCardGatherPriority;
-    use crate::pb::deckconfig::deck_config::config::NewCardSortOrder;
 
     impl Collection {
         fn set_deck_gather_order(&mut self, deck: &mut Deck, order: NewCardGatherPriority) {

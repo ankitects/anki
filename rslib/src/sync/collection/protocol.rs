@@ -5,8 +5,8 @@ use std::marker::PhantomData;
 
 use ammonia::Url;
 use async_trait::async_trait;
-use serde_derive::Deserialize;
-use serde_derive::Serialize;
+use serde::Deserialize;
+use serde::Serialize;
 use strum::IntoStaticStr;
 
 use crate::prelude::TimestampMillis;

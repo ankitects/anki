@@ -1,10 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki_proto::notetypes::stock_notetype::Kind;
+use anki_proto::notetypes::stock_notetype::OriginalStockKind;
+
 use crate::notetype::stock::get_original_stock_notetype;
 use crate::notetype::stock::StockKind;
-use crate::pb::notetypes::stock_notetype::Kind;
-use crate::pb::notetypes::stock_notetype::OriginalStockKind;
 use crate::prelude::*;
 
 impl Collection {

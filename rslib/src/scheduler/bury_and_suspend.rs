@@ -1,12 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki_proto::scheduler::bury_or_suspend_cards_request::Mode as BuryOrSuspendMode;
+use anki_proto::scheduler::unbury_deck_request::Mode as UnburyDeckMode;
+
 use super::queue::BuryMode;
 use super::timing::SchedTimingToday;
 use crate::card::CardQueue;
 use crate::config::SchedulerVersion;
-use crate::pb::scheduler::bury_or_suspend_cards_request::Mode as BuryOrSuspendMode;
-use crate::pb::scheduler::unbury_deck_request::Mode as UnburyDeckMode;
 use crate::prelude::*;
 use crate::search::JoinSearches;
 use crate::search::SearchNode;

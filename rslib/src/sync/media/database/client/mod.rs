@@ -321,10 +321,10 @@ fn initial_db_setup(db: &mut Connection) -> error::Result<()> {
 
 #[cfg(test)]
 mod test {
+    use anki_io::new_tempfile;
     use tempfile::TempDir;
 
     use crate::error::Result;
-    use crate::io::new_tempfile;
     use crate::media::files::sha1_of_data;
     use crate::media::MediaManager;
     use crate::sync::media::database::client::MediaEntry;

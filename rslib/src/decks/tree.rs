@@ -6,6 +6,8 @@ use std::collections::HashSet;
 use std::iter::Peekable;
 use std::ops::AddAssign;
 
+pub use anki_proto::decks::set_deck_collapsed_request::Scope as DeckCollapseScope;
+use anki_proto::decks::DeckTreeNode;
 use serde_tuple::Serialize_tuple;
 use unicase::UniCase;
 
@@ -14,8 +16,6 @@ use super::limits::RemainingLimits;
 use super::DueCounts;
 use crate::config::SchedulerVersion;
 use crate::ops::OpOutput;
-pub use crate::pb::decks::set_deck_collapsed_request::Scope as DeckCollapseScope;
-use crate::pb::decks::DeckTreeNode;
 use crate::prelude::*;
 use crate::undo::Op;
 
@@ -250,28 +250,29 @@ fn hide_default_deck(node: &mut DeckTreeNode) {
     }
 }
 
-impl DeckTreeNode {
-    /// Locate provided deck in tree, and return it.
-    pub fn get_deck(self, deck_id: DeckId) -> Option<DeckTreeNode> {
-        if self.deck_id == deck_id.0 {
-            return Some(self);
+/// Locate provided deck in tree, and return it.
+pub fn get_deck_in_tree(tree: DeckTreeNode, deck_id: DeckId) -> Option<DeckTreeNode> {
+    if tree.deck_id == deck_id.0 {
+        return Some(tree);
+    }
+    for child in tree.children {
+        if let Some(node) = get_deck_in_tree(child, deck_id) {
+            return Some(node);
         }
-        for child in self.children {
-            if let Some(node) = child.get_deck(deck_id) {
-                return Some(node);
-            }
-        }
-
-        None
     }
 
-    pub(crate) fn sum<T: AddAssign>(&self, map: fn(&DeckTreeNode) -> T) -> T {
-        let mut output = map(self);
-        for child in &self.children {
-            output += child.sum(map);
-        }
-        output
+    None
+}
+
+pub(crate) fn sum_deck_tree_node<T: AddAssign>(
+    node: &DeckTreeNode,
+    map: fn(&DeckTreeNode) -> T,
+) -> T {
+    let mut output = map(node);
+    for child in &node.children {
+        output += sum_deck_tree_node(child, map)
     }
+    output
 }
 
 #[derive(Serialize_tuple)]
@@ -355,7 +356,7 @@ impl Collection {
     pub fn current_deck_tree(&mut self) -> Result<Option<DeckTreeNode>> {
         let target = self.get_current_deck_id();
         let tree = self.deck_tree(Some(TimestampSecs::now()))?;
-        Ok(tree.get_deck(target))
+        Ok(get_deck_in_tree(tree, target))
     }
 
     pub fn set_deck_collapsed(

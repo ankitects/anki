@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod generic_helpers;
+
 macro_rules! protobuf {
     ($ident:ident, $name:literal) => {
         pub mod $ident {
@@ -8,6 +10,23 @@ macro_rules! protobuf {
         }
     };
 }
+
+use snafu::Snafu;
+
+#[derive(Debug, Snafu)]
+pub enum ProtoError {
+    InvalidMethodIndex,
+    #[snafu(context(false))]
+    DecodeError {
+        source: prost::DecodeError,
+    },
+    #[snafu(context(false))]
+    EncodeError {
+        source: prost::EncodeError,
+    },
+}
+
+include!(concat!(env!("OUT_DIR"), "/service_index.rs"));
 
 protobuf!(ankidroid, "ankidroid");
 protobuf!(backend, "backend");

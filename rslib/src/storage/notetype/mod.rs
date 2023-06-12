@@ -361,7 +361,7 @@ impl SqliteStorage {
 
     pub(crate) fn downgrade_notetypes_from_schema15(&self) -> Result<()> {
         let nts = self.get_all_notetypes_as_schema11()?;
-        self.set_schema11_notetypes(nts)
+        self.set_schema11_notetypes(&nts)
     }
 
     fn get_schema11_notetypes(&self) -> Result<HashMap<NotetypeId, NotetypeSchema11>> {
@@ -379,9 +379,9 @@ impl SqliteStorage {
 
     pub(crate) fn set_schema11_notetypes(
         &self,
-        notetypes: HashMap<NotetypeId, NotetypeSchema11>,
+        notetypes: &HashMap<NotetypeId, NotetypeSchema11>,
     ) -> Result<()> {
-        let json = serde_json::to_string(&notetypes)?;
+        let json = crate::serde::schema11_to_string(notetypes)?;
         self.db.execute("update col set models = ?", [json])?;
         Ok(())
     }

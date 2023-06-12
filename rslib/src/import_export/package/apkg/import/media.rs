@@ -5,11 +5,12 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::mem;
 
+use anki_io::FileIoSnafu;
+use anki_io::FileOp;
 use zip::ZipArchive;
 
+use super::super::super::meta::MetaExt;
 use super::Context;
-use crate::error::FileIoSnafu;
-use crate::error::FileOp;
 use crate::import_export::package::media::extract_media_entries;
 use crate::import_export::package::media::MediaCopier;
 use crate::import_export::package::media::SafeMediaEntry;

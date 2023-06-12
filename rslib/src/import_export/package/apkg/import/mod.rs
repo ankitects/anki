@@ -10,21 +10,22 @@ use std::collections::HashSet;
 use std::fs::File;
 use std::path::Path;
 
+use anki_io::new_tempfile;
+use anki_io::open_file;
+use anki_io::FileIoSnafu;
+use anki_io::FileOp;
 pub(crate) use notes::NoteMeta;
 use rusqlite::OptionalExtension;
 use tempfile::NamedTempFile;
 use zip::ZipArchive;
 
+use super::super::meta::MetaExt;
 use crate::collection::CollectionBuilder;
-use crate::error::FileIoSnafu;
-use crate::error::FileOp;
 use crate::import_export::gather::ExchangeData;
 use crate::import_export::package::Meta;
 use crate::import_export::ImportProgress;
 use crate::import_export::IncrementableProgress;
 use crate::import_export::NoteLog;
-use crate::io::new_tempfile;
-use crate::io::open_file;
 use crate::media::MediaManager;
 use crate::prelude::*;
 use crate::search::SearchNode;

@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod db;
-mod file_io;
 mod filtered;
 mod invalid_input;
 pub(crate) mod network;
@@ -11,6 +10,10 @@ mod search;
 #[cfg(windows)]
 pub mod windows;
 
+use anki_i18n::I18n;
+use anki_io::FileIoError;
+use anki_io::FileOp;
+use anki_proto::ProtoError;
 pub use db::DbError;
 pub use db::DbErrorKind;
 pub use filtered::CustomStudyError;
@@ -23,14 +26,10 @@ pub use search::ParseError;
 pub use search::SearchErrorKind;
 use snafu::Snafu;
 
-pub use self::file_io::FileIoError;
-pub use self::file_io::FileIoSnafu;
-pub use self::file_io::FileOp;
 pub use self::invalid_input::InvalidInputError;
 pub use self::invalid_input::OrInvalid;
 pub use self::not_found::NotFoundError;
 pub use self::not_found::OrNotFound;
-use crate::i18n::I18n;
 use crate::import_export::ImportError;
 use crate::links::HelpPage;
 
@@ -299,4 +298,12 @@ pub enum CardTypeErrorDetails {
     NoSuchField,
     MissingCloze,
     ExtraneousCloze,
+}
+
+impl From<anki_proto::ProtoError> for AnkiError {
+    fn from(value: ProtoError) -> Self {
+        AnkiError::ProtoError {
+            info: value.to_string(),
+        }
+    }
 }

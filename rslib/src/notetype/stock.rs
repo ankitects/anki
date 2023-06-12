@@ -1,18 +1,19 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki_i18n::I18n;
+use anki_proto::notetypes::notetype::config::Kind as NotetypeKind;
+use anki_proto::notetypes::stock_notetype::Kind;
+pub(crate) use anki_proto::notetypes::stock_notetype::Kind as StockKind;
+use anki_proto::notetypes::stock_notetype::OriginalStockKind;
+
 use super::NotetypeConfig;
 use crate::config::ConfigEntry;
 use crate::config::ConfigKey;
 use crate::error::Result;
-use crate::i18n::I18n;
 use crate::image_occlusion::notetype::image_occlusion_notetype;
 use crate::invalid_input;
 use crate::notetype::Notetype;
-use crate::pb::notetypes::notetype::config::Kind as NotetypeKind;
-use crate::pb::notetypes::stock_notetype::Kind;
-pub(crate) use crate::pb::notetypes::stock_notetype::Kind as StockKind;
-use crate::pb::notetypes::stock_notetype::OriginalStockKind;
 use crate::storage::SqliteStorage;
 use crate::timestamp::TimestampSecs;
 
@@ -63,9 +64,9 @@ pub(crate) fn empty_stock(
             kind: nt_kind as i32,
             original_stock_kind: original_stock_kind as i32,
             ..if nt_kind == NotetypeKind::Cloze {
-                NotetypeConfig::new_cloze()
+                Notetype::new_cloze_config()
             } else {
-                NotetypeConfig::new()
+                Notetype::new_config()
             }
         },
         ..Default::default()

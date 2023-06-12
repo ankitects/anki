@@ -141,7 +141,7 @@ impl DeckContext<'_> {
     fn update_deck(&mut self, deck: &Deck, original: Deck) -> Result<()> {
         let mut new_deck = original.clone();
         if let (Ok(new), Ok(old)) = (new_deck.normal_mut(), deck.normal()) {
-            new.update_with_other(old);
+            update_normal_with_other(new, old);
         } else if let (Ok(new), Ok(old)) = (new_deck.filtered_mut(), deck.filtered()) {
             *new = old.clone();
         } else {
@@ -188,20 +188,18 @@ impl Deck {
     }
 }
 
-impl NormalDeck {
-    fn update_with_other(&mut self, other: &Self) {
-        if !other.description.is_empty() {
-            self.markdown_description = other.markdown_description;
-            self.description = other.description.clone();
-        }
-        if other.config_id != 1 {
-            self.config_id = other.config_id;
-        }
-        self.review_limit = other.review_limit.or(self.review_limit);
-        self.new_limit = other.new_limit.or(self.new_limit);
-        self.review_limit_today = other.review_limit_today.or(self.review_limit_today);
-        self.new_limit_today = other.new_limit_today.or(self.new_limit_today);
+fn update_normal_with_other(normal: &mut NormalDeck, other: &NormalDeck) {
+    if !other.description.is_empty() {
+        normal.markdown_description = other.markdown_description;
+        normal.description = other.description.clone();
     }
+    if other.config_id != 1 {
+        normal.config_id = other.config_id;
+    }
+    normal.review_limit = other.review_limit.or(normal.review_limit);
+    normal.new_limit = other.new_limit.or(normal.new_limit);
+    normal.review_limit_today = other.review_limit_today.or(normal.review_limit_today);
+    normal.new_limit_today = other.new_limit_today.or(normal.new_limit_today);
 }
 
 #[cfg(test)]

@@ -7,12 +7,14 @@ mod search_node;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use anki_proto::generic;
+pub(super) use anki_proto::search::search_service::Service as SearchService;
+use anki_proto::search::sort_order::Value as SortOrderProto;
+
 use super::notes::to_note_ids;
 use super::Backend;
+use crate::backend::search::browser_table::string_list_to_browser_columns;
 use crate::browser_table::Column;
-use crate::pb;
-pub(super) use crate::pb::search::search_service::Service as SearchService;
-use crate::pb::search::sort_order::Value as SortOrderProto;
 use crate::prelude::*;
 use crate::search::replace_search_node;
 use crate::search::JoinSearches;
@@ -20,26 +22,37 @@ use crate::search::Node;
 use crate::search::SortMode;
 
 impl SearchService for Backend {
-    fn build_search_string(&self, input: pb::search::SearchNode) -> Result<pb::generic::String> {
+    type Error = AnkiError;
+
+    fn build_search_string(
+        &self,
+        input: anki_proto::search::SearchNode,
+    ) -> Result<generic::String> {
         let node: Node = input.try_into()?;
         Ok(SearchBuilder::from_root(node).write().into())
     }
 
-    fn search_cards(&self, input: pb::search::SearchRequest) -> Result<pb::search::SearchResponse> {
+    fn search_cards(
+        &self,
+        input: anki_proto::search::SearchRequest,
+    ) -> Result<anki_proto::search::SearchResponse> {
         self.with_col(|col| {
             let order = input.order.unwrap_or_default().value.into();
             let cids = col.search_cards(&input.search, order)?;
-            Ok(pb::search::SearchResponse {
+            Ok(anki_proto::search::SearchResponse {
                 ids: cids.into_iter().map(|v| v.0).collect(),
             })
         })
     }
 
-    fn search_notes(&self, input: pb::search::SearchRequest) -> Result<pb::search::SearchResponse> {
+    fn search_notes(
+        &self,
+        input: anki_proto::search::SearchRequest,
+    ) -> Result<anki_proto::search::SearchResponse> {
         self.with_col(|col| {
             let order = input.order.unwrap_or_default().value.into();
             let nids = col.search_notes(&input.search, order)?;
-            Ok(pb::search::SearchResponse {
+            Ok(anki_proto::search::SearchResponse {
                 ids: nids.into_iter().map(|v| v.0).collect(),
             })
         })
@@ -47,15 +60,21 @@ impl SearchService for Backend {
 
     fn join_search_nodes(
         &self,
-        input: pb::search::JoinSearchNodesRequest,
-    ) -> Result<pb::generic::String> {
+        input: anki_proto::search::JoinSearchNodesRequest,
+    ) -> Result<generic::String> {
         let existing_node: Node = input.existing_node.unwrap_or_default().try_into()?;
         let additional_node: Node = input.additional_node.unwrap_or_default().try_into()?;
 
         Ok(
-            match pb::search::search_node::group::Joiner::from_i32(input.joiner).unwrap_or_default() {
-                pb::search::search_node::group::Joiner::And => existing_node.and_flat(additional_node),
-                pb::search::search_node::group::Joiner::Or => existing_node.or_flat(additional_node),
+            match anki_proto::search::search_node::group::Joiner::from_i32(input.joiner)
+                .unwrap_or_default()
+            {
+                anki_proto::search::search_node::group::Joiner::And => {
+                    existing_node.and_flat(additional_node)
+                }
+                anki_proto::search::search_node::group::Joiner::Or => {
+                    existing_node.or_flat(additional_node)
+                }
             }
             .write()
             .into(),
@@ -64,8 +83,8 @@ impl SearchService for Backend {
 
     fn replace_search_node(
         &self,
-        input: pb::search::ReplaceSearchNodeRequest,
-    ) -> Result<pb::generic::String> {
+        input: anki_proto::search::ReplaceSearchNodeRequest,
+    ) -> Result<generic::String> {
         let existing = {
             let node = input.existing_node.unwrap_or_default().try_into()?;
             if let Node::Group(nodes) = node {
@@ -80,8 +99,8 @@ impl SearchService for Backend {
 
     fn find_and_replace(
         &self,
-        input: pb::search::FindAndReplaceRequest,
-    ) -> Result<pb::collection::OpChangesWithCount> {
+        input: anki_proto::search::FindAndReplaceRequest,
+    ) -> Result<anki_proto::collection::OpChangesWithCount> {
         let mut search = if input.regex {
             input.search
         } else {
@@ -108,31 +127,29 @@ impl SearchService for Backend {
 
     fn all_browser_columns(
         &self,
-        _input: pb::generic::Empty,
-    ) -> Result<pb::search::BrowserColumns> {
+        _input: generic::Empty,
+    ) -> Result<anki_proto::search::BrowserColumns> {
         self.with_col(|col| Ok(col.all_browser_columns()))
     }
 
-    fn set_active_browser_columns(
-        &self,
-        input: pb::generic::StringList,
-    ) -> Result<pb::generic::Empty> {
+    fn set_active_browser_columns(&self, input: generic::StringList) -> Result<generic::Empty> {
         self.with_col(|col| {
-            col.state.active_browser_columns = Some(Arc::new(input.into()));
+            col.state.active_browser_columns =
+                Some(Arc::new(string_list_to_browser_columns(input)));
             Ok(())
         })
         .map(Into::into)
     }
 
-    fn browser_row_for_id(&self, input: pb::generic::Int64) -> Result<pb::search::BrowserRow> {
+    fn browser_row_for_id(&self, input: generic::Int64) -> Result<anki_proto::search::BrowserRow> {
         self.with_col(|col| col.browser_row_for_id(input.val).map(Into::into))
     }
 }
 
 impl From<Option<SortOrderProto>> for SortMode {
     fn from(order: Option<SortOrderProto>) -> Self {
-        use pb::search::sort_order::Value as V;
-        match order.unwrap_or(V::None(pb::generic::Empty {})) {
+        use anki_proto::search::sort_order::Value as V;
+        match order.unwrap_or(V::None(generic::Empty {})) {
             V::None(_) => SortMode::NoOrder,
             V::Custom(s) => SortMode::Custom(s),
             V::Builtin(b) => SortMode::Builtin {

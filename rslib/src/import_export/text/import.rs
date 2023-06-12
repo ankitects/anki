@@ -25,7 +25,6 @@ use crate::notes::normalize_field;
 use crate::notetype::CardGenContext;
 use crate::notetype::CardTemplate;
 use crate::notetype::NoteField;
-use crate::notetype::NotetypeConfig;
 use crate::prelude::*;
 use crate::text::strip_html_preserving_media_filenames;
 
@@ -60,13 +59,11 @@ impl ForeignData {
     }
 }
 
-impl NoteLog {
-    fn new(dupe_resolution: DupeResolution, found_notes: u32) -> Self {
-        Self {
-            dupe_resolution: dupe_resolution as i32,
-            found_notes,
-            ..Default::default()
-        }
+fn new_note_log(dupe_resolution: DupeResolution, found_notes: u32) -> NoteLog {
+    NoteLog {
+        dupe_resolution: dupe_resolution as i32,
+        found_notes,
+        ..Default::default()
     }
 }
 
@@ -235,7 +232,7 @@ impl<'a> Context<'a> {
         progress: &mut IncrementableProgress<ImportProgress>,
     ) -> Result<NoteLog> {
         let mut incrementor = progress.incrementor(ImportProgress::Notes);
-        let mut log = NoteLog::new(self.dupe_resolution, notes.len() as u32);
+        let mut log = new_note_log(self.dupe_resolution, notes.len() as u32);
         for foreign in notes {
             incrementor.increment()?;
             if foreign.first_field_is_the_empty_string() {
@@ -612,9 +609,9 @@ impl ForeignNotetype {
                 .map(ForeignTemplate::into_native)
                 .collect(),
             config: if self.is_cloze {
-                NotetypeConfig::new_cloze()
+                Notetype::new_cloze_config()
             } else {
-                NotetypeConfig::new()
+                Notetype::new_config()
             },
             ..Notetype::default()
         }
