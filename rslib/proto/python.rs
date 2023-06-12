@@ -5,6 +5,7 @@ use std::io::BufWriter;
 use std::io::Write;
 use std::path::Path;
 
+use anki_io::create_dir_all;
 use anki_io::create_file;
 use anyhow::Result;
 use inflections::Inflect;
@@ -17,6 +18,7 @@ use prost_reflect::ServiceDescriptor;
 
 pub(crate) fn write_python_interface(pool: &DescriptorPool) -> Result<()> {
     let output_path = Path::new("../../out/pylib/anki/_backend_generated.py");
+    create_dir_all(output_path.parent().unwrap())?;
     let mut out = BufWriter::new(create_file(output_path)?);
     write_header(&mut out)?;
 
