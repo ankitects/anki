@@ -1,23 +1,33 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod error;
+
 use std::fs::File;
 use std::io::Read;
 use std::io::Seek;
 use std::path::Component;
 use std::path::Path;
 
+use snafu::ResultExt;
 use tempfile::NamedTempFile;
 
-use crate::error::FileIoError;
-use crate::error::FileIoSnafu;
-use crate::error::FileOp;
-use crate::prelude::*;
+pub use crate::error::FileIoError;
+pub use crate::error::FileIoSnafu;
+pub use crate::error::FileOp;
 
-pub(crate) type Result<T, E = FileIoError> = std::result::Result<T, E>;
+pub type Result<T, E = FileIoError> = std::result::Result<T, E>;
+
+/// See [File::create].
+pub fn create_file(path: impl AsRef<Path>) -> Result<File> {
+    File::create(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Create,
+    })
+}
 
 /// See [File::open].
-pub(crate) fn open_file(path: impl AsRef<Path>) -> Result<File> {
+pub fn open_file(path: impl AsRef<Path>) -> Result<File> {
     File::open(&path).context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::Open,
@@ -25,7 +35,7 @@ pub(crate) fn open_file(path: impl AsRef<Path>) -> Result<File> {
 }
 
 /// See [std::fs::write].
-pub(crate) fn write_file(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> Result<()> {
+pub fn write_file(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> Result<()> {
     std::fs::write(&path, contents).context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::Write,
@@ -34,7 +44,7 @@ pub(crate) fn write_file(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> 
 
 /// See [std::fs::remove_file].
 #[allow(dead_code)]
-pub(crate) fn remove_file(path: impl AsRef<Path>) -> Result<()> {
+pub fn remove_file(path: impl AsRef<Path>) -> Result<()> {
     std::fs::remove_file(&path).context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::Remove,
@@ -42,7 +52,7 @@ pub(crate) fn remove_file(path: impl AsRef<Path>) -> Result<()> {
 }
 
 /// See [std::fs::create_dir].
-pub(crate) fn create_dir(path: impl AsRef<Path>) -> Result<()> {
+pub fn create_dir(path: impl AsRef<Path>) -> Result<()> {
     std::fs::create_dir(&path).context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::Create,
@@ -50,7 +60,7 @@ pub(crate) fn create_dir(path: impl AsRef<Path>) -> Result<()> {
 }
 
 /// See [std::fs::create_dir_all].
-pub(crate) fn create_dir_all(path: impl AsRef<Path>) -> Result<()> {
+pub fn create_dir_all(path: impl AsRef<Path>) -> Result<()> {
     std::fs::create_dir_all(&path).context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::Create,
@@ -58,7 +68,7 @@ pub(crate) fn create_dir_all(path: impl AsRef<Path>) -> Result<()> {
 }
 
 /// See [std::fs::read].
-pub(crate) fn read_file(path: impl AsRef<Path>) -> Result<Vec<u8>> {
+pub fn read_file(path: impl AsRef<Path>) -> Result<Vec<u8>> {
     std::fs::read(&path).context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::Read,
@@ -67,7 +77,7 @@ pub(crate) fn read_file(path: impl AsRef<Path>) -> Result<Vec<u8>> {
 
 /// Like [read_file], but skips the section that is potentially locked by
 /// SQLite.
-pub(crate) fn read_locked_db_file(path: impl AsRef<Path>) -> Result<Vec<u8>> {
+pub fn read_locked_db_file(path: impl AsRef<Path>) -> Result<Vec<u8>> {
     read_locked_db_file_inner(&path).context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::Read,
@@ -94,28 +104,28 @@ fn read_locked_db_file_inner(path: impl AsRef<Path>) -> std::io::Result<Vec<u8>>
 }
 
 /// See [std::fs::metadata].
-pub(crate) fn metadata(path: impl AsRef<Path>) -> Result<std::fs::Metadata> {
+pub fn metadata(path: impl AsRef<Path>) -> Result<std::fs::Metadata> {
     std::fs::metadata(&path).context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::Metadata,
     })
 }
 
-pub(crate) fn new_tempfile() -> Result<NamedTempFile> {
+pub fn new_tempfile() -> Result<NamedTempFile> {
     NamedTempFile::new().context(FileIoSnafu {
         path: std::env::temp_dir(),
         op: FileOp::Create,
     })
 }
 
-pub(crate) fn new_tempfile_in(dir: impl AsRef<Path>) -> Result<NamedTempFile> {
+pub fn new_tempfile_in(dir: impl AsRef<Path>) -> Result<NamedTempFile> {
     NamedTempFile::new_in(&dir).context(FileIoSnafu {
         path: dir.as_ref(),
         op: FileOp::Create,
     })
 }
 
-pub(crate) fn new_tempfile_in_parent_of(file: &Path) -> Result<NamedTempFile> {
+pub fn new_tempfile_in_parent_of(file: &Path) -> Result<NamedTempFile> {
     let dir = file.parent().unwrap_or(file);
     NamedTempFile::new_in(dir).context(FileIoSnafu {
         path: dir,
@@ -129,7 +139,7 @@ pub(crate) fn new_tempfile_in_parent_of(file: &Path) -> Result<NamedTempFile> {
 /// folder is synced on UNIX platforms after renaming. This minimizes the
 /// chances of corruption if there is a crash or power loss directly after the
 /// op, but it can be considerably slower.
-pub(crate) fn atomic_rename(file: NamedTempFile, target: &Path, fsync: bool) -> Result<()> {
+pub fn atomic_rename(file: NamedTempFile, target: &Path, fsync: bool) -> Result<()> {
     if fsync {
         file.as_file().sync_all().context(FileIoSnafu {
             path: file.path(),
@@ -150,7 +160,7 @@ pub(crate) fn atomic_rename(file: NamedTempFile, target: &Path, fsync: bool) -> 
 }
 
 /// Like [std::fs::read_dir], but only yielding files. [Err]s are not filtered.
-pub(crate) fn read_dir_files(path: impl AsRef<Path>) -> Result<ReadDirFiles> {
+pub fn read_dir_files(path: impl AsRef<Path>) -> Result<ReadDirFiles> {
     std::fs::read_dir(&path)
         .map(ReadDirFiles)
         .context(FileIoSnafu {
@@ -160,7 +170,7 @@ pub(crate) fn read_dir_files(path: impl AsRef<Path>) -> Result<ReadDirFiles> {
 }
 
 /// True if name does not contain any path separators.
-pub(crate) fn filename_is_safe(name: &str) -> bool {
+pub fn filename_is_safe(name: &str) -> bool {
     let mut components = Path::new(name).components();
     let first_element_normal = components
         .next()
@@ -170,7 +180,7 @@ pub(crate) fn filename_is_safe(name: &str) -> bool {
     first_element_normal && components.next().is_none()
 }
 
-pub(crate) struct ReadDirFiles(std::fs::ReadDir);
+pub struct ReadDirFiles(std::fs::ReadDir);
 
 impl Iterator for ReadDirFiles {
     type Item = std::io::Result<std::fs::DirEntry>;

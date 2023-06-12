@@ -1,11 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki_io::atomic_rename;
+use anki_io::new_tempfile_in_parent_of;
+use anki_io::read_file;
+use anki_io::write_file;
+
 use crate::collection::CollectionBuilder;
-use crate::io::atomic_rename;
-use crate::io::new_tempfile_in_parent_of;
-use crate::io::read_file;
-use crate::io::write_file;
 use crate::prelude::*;
 use crate::storage::SchemaVersion;
 use crate::sync::collection::progress::FullSyncProgressFn;

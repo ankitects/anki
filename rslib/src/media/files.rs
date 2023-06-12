@@ -9,6 +9,12 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::time;
 
+use anki_io::create_dir;
+use anki_io::open_file;
+use anki_io::write_file;
+use anki_io::FileIoError;
+use anki_io::FileIoSnafu;
+use anki_io::FileOp;
 use lazy_static::lazy_static;
 use regex::Regex;
 use sha1::Digest;
@@ -18,12 +24,6 @@ use unic_ucd_category::GeneralCategory;
 use unicode_normalization::is_nfc;
 use unicode_normalization::UnicodeNormalization;
 
-use crate::error::FileIoError;
-use crate::error::FileIoSnafu;
-use crate::error::FileOp;
-use crate::io::create_dir;
-use crate::io::open_file;
-use crate::io::write_file;
 use crate::prelude::*;
 use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH;
 

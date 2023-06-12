@@ -5,12 +5,12 @@
 
 use std::path::Path;
 
+use anki_io::create_dir_all;
+use anki_io::read_file;
 use tempfile::tempdir;
 
 use crate::collection::CollectionBuilder;
 use crate::import_export::package::import_colpkg;
-use crate::io::create_dir_all;
-use crate::io::read_file;
 use crate::media::MediaManager;
 use crate::prelude::*;
 
@@ -79,7 +79,7 @@ fn roundtrip() -> Result<()> {
 #[test]
 #[cfg(not(target_vendor = "apple"))]
 fn normalization_check_on_export() -> Result<()> {
-    use crate::io::write_file;
+    use anki_io::write_file;
 
     let _dir = tempdir()?;
     let dir = _dir.path();

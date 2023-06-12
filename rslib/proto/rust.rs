@@ -7,6 +7,8 @@ use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 
+use anki_io::create_dir_all;
+use anki_io::read_file;
 use anyhow::Context;
 use anyhow::Result;
 use prost_build::ServiceGenerator;
@@ -17,13 +19,11 @@ pub fn write_backend_proto_rs(descriptors_path: &Path) -> Result<DescriptorPool>
     let proto_dir = PathBuf::from("../../proto");
     let paths = gather_proto_paths(&proto_dir)?;
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
-    fs::create_dir_all(
+    create_dir_all(
         descriptors_path
             .parent()
-            .context("no parent found for descriptors path")?,
-    )
-    .with_context(|| format!("creating {descriptors_path:?}"))?;
-
+            .context("missing parent of descriptor")?,
+    )?;
     prost_build::Config::new()
         .out_dir(&out_dir)
         .file_descriptor_set_path(descriptors_path)
@@ -57,8 +57,7 @@ pub fn write_backend_proto_rs(descriptors_path: &Path) -> Result<DescriptorPool>
 }
 
 fn write_service_index(out_dir: &Path, descriptors_path: &Path) -> Result<DescriptorPool> {
-    let descriptors = fs::read(descriptors_path)
-        .with_context(|| format!("failed to read {descriptors_path:?}"))?;
+    let descriptors = read_file(descriptors_path)?;
     let pool =
         DescriptorPool::decode(descriptors.as_ref()).context("unable to decode descriptors")?;
     let mut buf = String::new();

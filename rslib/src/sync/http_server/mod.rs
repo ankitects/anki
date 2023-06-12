@@ -18,6 +18,7 @@ use std::pin::Pin;
 use std::sync::Arc;
 use std::sync::Mutex;
 
+use anki_io::create_dir_all;
 use axum::extract::DefaultBodyLimit;
 use axum::Router;
 use snafu::whatever;
@@ -27,7 +28,6 @@ use snafu::Whatever;
 use tracing::Span;
 
 use crate::error;
-use crate::io::create_dir_all;
 use crate::media::files::sha1_of_data;
 use crate::sync::error::HttpResult;
 use crate::sync::error::OrHttpErr;

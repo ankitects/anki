@@ -4,14 +4,14 @@
 use std::path::Path;
 use std::path::PathBuf;
 
+use anki_io::metadata;
+use anki_io::read_file;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageClozeNote;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::Value;
 use anki_proto::image_occlusion::GetImageForOcclusionResponse;
 use anki_proto::image_occlusion::GetImageOcclusionNoteResponse;
 use regex::Regex;
 
-use crate::io::metadata;
-use crate::io::read_file;
 use crate::media::MediaManager;
 use crate::notetype::CardGenContext;
 use crate::prelude::*;

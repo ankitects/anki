@@ -7,7 +7,8 @@ pub mod upload;
 use std::path::Path;
 use std::path::PathBuf;
 
-use crate::io::create_dir_all;
+use anki_io::create_dir_all;
+
 use crate::prelude::*;
 use crate::sync::error::HttpResult;
 use crate::sync::error::OrHttpErr;

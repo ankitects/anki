@@ -9,6 +9,7 @@ use std::io::Read;
 use std::io::Seek;
 use std::io::SeekFrom;
 
+use anki_io::open_file;
 pub use anki_proto::import_export::csv_metadata::Deck as CsvDeck;
 pub use anki_proto::import_export::csv_metadata::Delimiter;
 pub use anki_proto::import_export::csv_metadata::DupeResolution;
@@ -24,7 +25,6 @@ use crate::config::I32ConfigKey;
 use crate::import_export::text::csv::import::FieldSourceColumns;
 use crate::import_export::text::NameOrId;
 use crate::import_export::ImportError;
-use crate::io::open_file;
 use crate::notetype::NoteField;
 use crate::prelude::*;
 use crate::text::html_to_text_line;

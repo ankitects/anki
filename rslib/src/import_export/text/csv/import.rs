@@ -7,6 +7,8 @@ use std::io::Read;
 use std::io::Seek;
 use std::io::SeekFrom;
 
+use anki_io::open_file;
+
 use crate::import_export::text::csv::metadata::CsvDeck;
 use crate::import_export::text::csv::metadata::CsvMetadata;
 use crate::import_export::text::csv::metadata::CsvMetadataHelpers;
@@ -18,7 +20,6 @@ use crate::import_export::text::ForeignNote;
 use crate::import_export::text::NameOrId;
 use crate::import_export::ImportProgress;
 use crate::import_export::NoteLog;
-use crate::io::open_file;
 use crate::prelude::*;
 use crate::text::strip_utf8_bom;
 

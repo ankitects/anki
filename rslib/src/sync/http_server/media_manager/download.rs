@@ -4,10 +4,10 @@
 use std::fs;
 use std::io::ErrorKind;
 
+use anki_io::FileIoSnafu;
+use anki_io::FileOp;
 use snafu::ResultExt;
 
-use crate::error::FileIoSnafu;
-use crate::error::FileOp;
 use crate::sync::error::HttpResult;
 use crate::sync::error::OrHttpErr;
 use crate::sync::http_server::media_manager::ServerMediaManager;

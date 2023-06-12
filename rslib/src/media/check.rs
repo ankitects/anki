@@ -521,13 +521,13 @@ pub(crate) mod test {
 
     use std::collections::HashMap;
 
+    use anki_io::create_dir;
+    use anki_io::write_file;
     use tempfile::tempdir;
     use tempfile::TempDir;
 
     use super::*;
     use crate::collection::CollectionBuilder;
-    use crate::io::create_dir;
-    use crate::io::write_file;
 
     fn common_setup() -> Result<(TempDir, MediaManager, Collection)> {
         let dir = tempdir()?;

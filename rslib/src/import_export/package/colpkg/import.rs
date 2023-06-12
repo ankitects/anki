@@ -7,24 +7,24 @@ use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
 
+use anki_io::atomic_rename;
+use anki_io::create_dir_all;
+use anki_io::new_tempfile_in_parent_of;
+use anki_io::open_file;
+use anki_io::FileIoSnafu;
+use anki_io::FileOp;
 use zip::read::ZipFile;
 use zip::ZipArchive;
 use zstd::stream::copy_decode;
 
 use super::super::meta::MetaExt;
 use crate::collection::CollectionBuilder;
-use crate::error::FileIoSnafu;
-use crate::error::FileOp;
 use crate::import_export::package::media::extract_media_entries;
 use crate::import_export::package::media::SafeMediaEntry;
 use crate::import_export::package::Meta;
 use crate::import_export::ImportError;
 use crate::import_export::ImportProgress;
 use crate::import_export::IncrementableProgress;
-use crate::io::atomic_rename;
-use crate::io::create_dir_all;
-use crate::io::new_tempfile_in_parent_of;
-use crate::io::open_file;
 use crate::media::MediaManager;
 use crate::prelude::*;
 
