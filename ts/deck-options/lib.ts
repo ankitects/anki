@@ -145,7 +145,7 @@ export class DeckOptionsState {
     private addConfigFrom(name: string, source: DeckConfig_Config): void {
         const uniqueName = this.ensureNewNameUnique(name);
         const config = new DeckConfig({
-            id: BigInt(0),
+            id: 0n,
             name: uniqueName,
             config: new DeckConfig_Config(cloneDeep(source)),
         });
@@ -158,20 +158,20 @@ export class DeckOptionsState {
     }
 
     removalWilLForceFullSync(): boolean {
-        return !this.schemaModified && this.configs[this.selectedIdx].config.id !== BigInt(0);
+        return !this.schemaModified && this.configs[this.selectedIdx].config.id !== 0n;
     }
 
     defaultConfigSelected(): boolean {
-        return this.configs[this.selectedIdx].config.id === BigInt(1);
+        return this.configs[this.selectedIdx].config.id === 1n;
     }
 
     /** Will throw if the default deck is selected. */
     removeCurrentConfig(): void {
         const currentId = this.configs[this.selectedIdx].config.id;
-        if (currentId === BigInt(1)) {
+        if (currentId === 1n) {
             throw Error("can't remove default config");
         }
-        if (currentId !== BigInt(0)) {
+        if (currentId !== 0n) {
             this.removedConfigs.push(currentId);
             this.schemaModified = true;
         }
@@ -189,7 +189,7 @@ export class DeckOptionsState {
             .filter((c, idx) => {
                 return (
                     idx !== this.selectedIdx
-                    && (c.id === BigInt(0) || this.modifiedConfigs.has(c.id))
+                    && (c.id === 0n || this.modifiedConfigs.has(c.id))
                 );
             });
         const configs = [

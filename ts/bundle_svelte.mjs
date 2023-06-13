@@ -18,7 +18,7 @@ if (page_html != null) {
 }
 
 // support Qt 5.14
-const target = ["es6", "chrome77"];
+const target = ["es2020", "chrome77"];
 const inlineCss = bundle_css == null;
 const sourcemap = env.SOURCEMAP && true;
 let sveltePlugins;

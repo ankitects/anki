@@ -16,23 +16,23 @@ import { ChangeNotetypeState, MapContext, negativeOneToNull } from "./lib";
 const exampleNames = {
     entries: [
         {
-            id: BigInt(1623289129847),
+            id: 1623289129847n,
             name: "Basic",
         },
         {
-            id: BigInt(1623289129848),
+            id: 1623289129848n,
             name: "Basic (and reversed card)",
         },
         {
-            id: BigInt(1623289129849),
+            id: 1623289129849n,
             name: "Basic (optional reversed card)",
         },
         {
-            id: BigInt(1623289129850),
+            id: 1623289129850n,
             name: "Basic (type in the answer)",
         },
         {
-            id: BigInt(1623289129851),
+            id: 1623289129851n,
             name: "Cloze",
         },
     ],
@@ -46,9 +46,9 @@ const exampleInfoDifferent = {
     input: {
         newFields: [0, 1, -1],
         newTemplates: [0, -1],
-        oldNotetypeId: BigInt(1623289129847),
-        newNotetypeId: BigInt(1623289129849),
-        currentSchema: BigInt(1623302002316),
+        oldNotetypeId: 1623289129847n,
+        newNotetypeId: 1623289129849n,
+        currentSchema: 1623302002316n,
         oldNotetypeName: "Basic",
     },
 };
@@ -61,9 +61,9 @@ const exampleInfoSame = {
     input: {
         newFields: [0, 1],
         newTemplates: [0],
-        oldNotetypeId: BigInt(1623289129847),
-        newNotetypeId: BigInt(1623289129847),
-        currentSchema: BigInt(1623302002316),
+        oldNotetypeId: 1623289129847n,
+        newNotetypeId: 1623289129847n,
+        currentSchema: 1623302002316n,
         oldNotetypeName: "Basic",
     },
 };
