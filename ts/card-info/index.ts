@@ -26,6 +26,6 @@ if (window.location.hash.startsWith("#test")) {
     // use #testXXXX where XXXX is card ID to test
     const cardId = parseInt(window.location.hash.substring(0, "#test".length), 10);
     setupCardInfo(document.body).then(
-        (cardInfo: CardInfo): Promise<void> => cardInfo.updateStats(cardId),
+        (cardInfo: CardInfo): Promise<void> => cardInfo.updateStats(BigInt(cardId)),
     );
 }

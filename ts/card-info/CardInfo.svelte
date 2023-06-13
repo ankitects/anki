@@ -3,8 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { Stats } from "@tslib/proto";
-    import { Cards, stats as statsService } from "@tslib/proto";
+    import type {
+        CardStatsResponse,
+        CardStatsResponse_StatsRevlogEntry,
+    } from "@tslib/anki/stats_pb";
+    import { cardStats } from "@tslib/anki/stats_service";
 
     import Container from "../components/Container.svelte";
     import Row from "../components/Row.svelte";
@@ -14,10 +17,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let includeRevlog: boolean = true;
 
-    let stats: Stats.CardStatsResponse | null = null;
-    let revlog: Stats.CardStatsResponse.StatsRevlogEntry[] | null = null;
+    let stats: CardStatsResponse | null = null;
+    let revlog: CardStatsResponse_StatsRevlogEntry[] | null = null;
 
-    export async function updateStats(cardId: number | null): Promise<void> {
+    export async function updateStats(cardId: bigint | null): Promise<void> {
         const requestedCardId = cardId;
 
         if (cardId === null) {
@@ -26,16 +29,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
-        const cardStats = await statsService.cardStats(
-            Cards.CardId.create({ cid: requestedCardId }),
-        );
+        const updatedStats = await cardStats({ cid: cardId });
 
         /* Skip if another update has been triggered in the meantime. */
         if (requestedCardId === cardId) {
-            stats = cardStats;
+            stats = updatedStats;
 
             if (includeRevlog) {
-                revlog = stats.revlog as Stats.CardStatsResponse.StatsRevlogEntry[];
+                revlog = stats.revlog;
             }
         }
     }

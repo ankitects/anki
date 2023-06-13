@@ -20,7 +20,6 @@ import ImportExport = anki.import_export;
 import Notes = anki.notes;
 import Notetypes = anki.notetypes;
 import Scheduler = anki.scheduler;
-import Stats = anki.stats;
 import Tags = anki.tags;
 
 export { Cards, Collection, Decks, Generic, Notes };
@@ -83,9 +82,6 @@ export const notetypes = Notetypes.NotetypesService.create(serviceCallback as RP
 
 export { Scheduler };
 export const scheduler = Scheduler.SchedulerService.create(serviceCallback as RPCImpl);
-
-export { Stats };
-export const stats = Stats.StatsService.create(serviceCallback as RPCImpl);
 
 export { Tags };
 export const tags = Tags.TagsService.create(serviceCallback as RPCImpl);

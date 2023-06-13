@@ -32,6 +32,7 @@
             "es2019.string",
             "es2020.string",
             "es2020.promise",
+            "ES2020.BigInt",
             "dom",
             "dom.iterable"
         ],
