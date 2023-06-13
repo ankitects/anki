@@ -15,12 +15,10 @@ import DeckConfig = anki.deckconfig;
 import Decks = anki.decks;
 import Generic = anki.generic;
 import I18n = anki.i18n;
-import ImageOcclusion = anki.image_occlusion;
 import ImportExport = anki.import_export;
 import Notes = anki.notes;
 import Notetypes = anki.notetypes;
 import Scheduler = anki.scheduler;
-import Tags = anki.tags;
 
 export { Cards, Collection, Decks, Generic, Notes };
 
@@ -82,9 +80,3 @@ export const notetypes = Notetypes.NotetypesService.create(serviceCallback as RP
 
 export { Scheduler };
 export const scheduler = Scheduler.SchedulerService.create(serviceCallback as RPCImpl);
-
-export { Tags };
-export const tags = Tags.TagsService.create(serviceCallback as RPCImpl);
-
-export { ImageOcclusion };
-export const imageOcclusion = ImageOcclusion.ImageOcclusionService.create(serviceCallback as RPCImpl);

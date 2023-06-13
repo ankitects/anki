@@ -6,12 +6,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, setContext, tick } from "svelte";
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
-
+    import { completeTag } from "@tslib/anki/tags_service";
     import Shortcut from "../components/Shortcut.svelte";
     import { execCommand } from "../domlib";
     import { tagActionsShortcutsKey } from "@tslib/context-keys";
     import { isArrowDown, isArrowUp } from "@tslib/keys";
-    import { Tags, tags as tagsService } from "@tslib/proto";
     import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";
@@ -67,9 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let autocompleteDisabled: boolean = false;
 
     async function fetchSuggestions(input: string): Promise<string[]> {
-        const { tags } = await tagsService.completeTag(
-            Tags.CompleteTagRequest.create({ input, matchLimit: 500 }),
-        );
+        const { tags } = await completeTag({ input, matchLimit: 500 });
         return tags;
     }
 

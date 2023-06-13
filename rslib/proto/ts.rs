@@ -73,7 +73,12 @@ import type { PostProtoOptions } from "../post";
 
 fn write_imports(referenced_packages: HashSet<String>, out: &mut impl Write) -> Result<()> {
     for package in referenced_packages {
-        writeln!(out, "import * as {} from \"./{}_pb\";", package, package)?;
+        writeln!(
+            out,
+            "import * as {} from \"./{}_pb\";",
+            package,
+            package.to_snake_case()
+        )?;
     }
     Ok(())
 }
