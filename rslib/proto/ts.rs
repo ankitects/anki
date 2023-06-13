@@ -115,6 +115,7 @@ fn write_js_file(
     for method in service.methods() {
         let method = MethodDetails::from_descriptor(&method, comments);
         record_referenced_type(&mut referenced_packages, &method.input_type)?;
+        record_referenced_type(&mut referenced_packages, &method.output_type)?;
         write_js_method(&method, &mut method_text)?;
     }
 

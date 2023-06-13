@@ -9,7 +9,6 @@ import type { Message, rpc, RPCImpl, RPCImplCallback } from "protobufjs";
 
 import { anki } from "../../out/ts/lib/backend_proto";
 
-import I18n = anki.i18n;
 import Scheduler = anki.scheduler;
 
 export class InternalError extends Error {}
@@ -47,9 +46,6 @@ async function serviceCallback(
         callback(error as Error, null);
     }
 }
-
-export { I18n };
-export const i18n = I18n.I18nService.create(serviceCallback as RPCImpl);
 
 export { Scheduler };
 export const scheduler = Scheduler.SchedulerService.create(serviceCallback as RPCImpl);
