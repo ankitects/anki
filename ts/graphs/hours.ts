@@ -5,9 +5,10 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import type { GraphsResponse } from "@tslib/anki/stats_pb";
+import type { GraphsResponse_Hours_Hour } from "@tslib/anki/stats_pb";
 import * as tr from "@tslib/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import type { Stats } from "@tslib/proto";
 import {
     area,
     axisBottom,
@@ -33,8 +34,8 @@ interface Hour {
     correctCount: number;
 }
 
-function gatherData(data: Stats.GraphsResponse, range: GraphRange): Hour[] {
-    function convert(hours: Stats.GraphsResponse.Hours.IHour[]): Hour[] {
+function gatherData(data: GraphsResponse, range: GraphRange): Hour[] {
+    function convert(hours: GraphsResponse_Hours_Hour[]): Hour[] {
         return hours.map((e, idx) => {
             return { hour: idx, totalCount: e.total!, correctCount: e.correct! };
         });
@@ -54,7 +55,7 @@ function gatherData(data: Stats.GraphsResponse, range: GraphRange): Hour[] {
 export function renderHours(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    origData: Stats.GraphsResponse,
+    origData: GraphsResponse,
     range: GraphRange,
 ): void {
     const data = gatherData(origData, range);

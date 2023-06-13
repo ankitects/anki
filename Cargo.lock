@@ -3390,8 +3390,11 @@ dependencies = [
 name = "runner"
 version = "0.0.0"
 dependencies = [
+ "anki_io",
+ "anyhow",
  "camino",
  "clap 4.2.1",
+ "itertools",
  "junction",
  "termcolor",
  "workspace-hack",

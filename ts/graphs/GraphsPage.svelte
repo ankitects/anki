@@ -17,6 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const days = writable(initialDays);
 
     export let graphs: typeof SvelteComponentDev[];
+    /** See RangeBox */
     export let controller: typeof SvelteComponentDev | null;
 
     function browserSearch(event: CustomEvent) {
@@ -24,25 +25,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<WithGraphData
-    {search}
-    {days}
-    let:loading
-    let:sourceData
-    let:preferences
-    let:revlogRange
->
+<WithGraphData {search} {days} let:sourceData let:loading let:prefs let:revlogRange>
     {#if controller}
         <svelte:component this={controller} {search} {days} {loading} />
     {/if}
 
     <div class="graphs-container">
-        {#if sourceData && preferences && revlogRange}
+        {#if sourceData && revlogRange}
             {#each graphs as graph}
                 <svelte:component
                     this={graph}
                     {sourceData}
-                    {preferences}
+                    {prefs}
                     {revlogRange}
                     nightMode={$pageTheme.isDark}
                     on:search={browserSearch}

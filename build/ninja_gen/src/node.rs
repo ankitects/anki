@@ -4,6 +4,8 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 
+use itertools::Itertools;
+
 use super::*;
 use crate::action::BuildAction;
 use crate::archives::download_and_extract;
@@ -135,10 +137,10 @@ pub fn setup_node(
                 Utf8Path::new(&path).is_absolute(),
                 "YARN_BINARY must be absolute"
             );
-            build.add_resolved_files_to_group("yarn:bin", &vec![path]);
+            build.add_dependency("yarn:bin", inputs![path]);
         }
         Err(_) => {
-            build.add("yarn", YarnSetup {})?;
+            build.add_action("yarn", YarnSetup {})?;
         }
     };
 
@@ -148,7 +150,7 @@ pub fn setup_node(
             vec![format!(".bin/{}", with_cmd_ext(binary)).into()],
         );
     }
-    build.add(
+    build.add_action(
         "node_modules",
         YarnInstall {
             package_json_and_lock: inputs!["yarn.lock", "package.json"],
@@ -374,5 +376,96 @@ impl BuildAction for CompileSass<'_> {
         build.add_variable("args", args);
 
         build.add_outputs("out", vec![self.output]);
+    }
+}
+
+pub struct GenTypescriptProtoEs<'a> {
+    pub protos: BuildInput,
+    pub include_dirs: &'a [&'a str],
+    /// Automatically created.
+    pub out_dir: &'a str,
+    /// Can be used to adjust the output js/dts files to point to out_dir.
+    pub out_path_transform: fn(&str) -> String,
+}
+
+impl BuildAction for GenTypescriptProtoEs<'_> {
+    fn command(&self) -> &str {
+        "$protoc $includes $in \
+        --plugin $gen-es --es_out $out_dir"
+    }
+
+    fn files(&mut self, build: &mut impl build::FilesHandle) {
+        let proto_files = build.expand_inputs(&self.protos);
+        let output_files: Vec<_> = proto_files
+            .iter()
+            .flat_map(|f| {
+                let js_path = f.replace(".proto", "_pb.js");
+                let dts_path = f.replace(".proto", "_pb.d.ts");
+                [
+                    (self.out_path_transform)(&js_path),
+                    (self.out_path_transform)(&dts_path),
+                ]
+            })
+            .collect();
+
+        build.create_dir_all("out_dir", self.out_dir);
+        build.add_variable(
+            "includes",
+            self.include_dirs
+                .iter()
+                .map(|d| format!("-I {d}"))
+                .join(" "),
+        );
+        build.add_inputs("protoc", inputs![":extract:protoc:bin"]);
+        build.add_inputs("gen-es", inputs![":node_modules:protoc-gen-es"]);
+        if cfg!(windows) {
+            build.add_env_var(
+                "PATH",
+                &format!("node_modules/.bin;{}", std::env::var("PATH").unwrap()),
+            );
+        }
+        build.add_inputs_vec("in", proto_files);
+        build.add_inputs("", inputs!["yarn.lock"]);
+        build.add_outputs("", output_files);
+    }
+}
+
+/// Usually we rely on esbuild to transpile our .ts files on the fly, but when
+/// we want generated code to be able to import a .ts file, we need to use
+/// typescript to generate .js/.d.ts files, or types can't be looked up, and
+/// esbuild can't find the file to bundle.
+pub struct CompileTypescript<'a> {
+    pub ts_files: BuildInput,
+    /// Automatically created.
+    pub out_dir: &'a str,
+    /// Can be used to adjust the output js/dts files to point to out_dir.
+    pub out_path_transform: fn(&str) -> String,
+}
+
+impl BuildAction for CompileTypescript<'_> {
+    fn command(&self) -> &str {
+        "$tsc $in --outDir $out_dir -d --skipLibCheck"
+    }
+
+    fn files(&mut self, build: &mut impl build::FilesHandle) {
+        build.add_inputs("tsc", inputs![":node_modules:tsc"]);
+        build.add_inputs("in", &self.ts_files);
+        build.add_inputs("", inputs!["yarn.lock"]);
+
+        let ts_files = build.expand_inputs(&self.ts_files);
+        let output_files: Vec<_> = ts_files
+            .iter()
+            .flat_map(|f| {
+                let js_path = f.replace(".ts", ".js");
+                let dts_path = f.replace(".ts", ".d.ts");
+                [
+                    (self.out_path_transform)(&js_path),
+                    (self.out_path_transform)(&dts_path),
+                ]
+            })
+            .collect();
+
+        build.create_dir_all("out_dir", self.out_dir);
+        build.add_outputs("", output_files);
     }
 }

@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { GraphsResponse } from "@tslib/anki/stats_pb";
     import * as tr from "@tslib/ftl";
-    import type { Stats } from "@tslib/proto";
 
     import AxisTicks from "./AxisTicks.svelte";
     import CumulativeOverlay from "./CumulativeOverlay.svelte";
@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { gatherData, renderReviews } from "./reviews";
     import TableData from "./TableData.svelte";
 
-    export let sourceData: Stats.GraphsResponse | null = null;
+    export let sourceData: GraphsResponse | null = null;
     export let revlogRange: RevlogRange;
 
     let graphData: GraphData | null = null;

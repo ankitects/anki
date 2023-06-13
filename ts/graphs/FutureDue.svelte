@@ -3,14 +3,14 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { GraphsResponse } from "@tslib/anki/stats_pb";
     import * as tr from "@tslib/ftl";
-    import type { Stats } from "@tslib/proto";
     import { createEventDispatcher } from "svelte";
 
-    import type { PreferenceStore } from "../sveltelib/preferences";
     import type { GraphData } from "./future-due";
     import { buildHistogram, gatherData } from "./future-due";
     import Graph from "./Graph.svelte";
+    import type { GraphPrefs } from "./graph-helpers";
     import type { SearchEventMap, TableDatum } from "./graph-helpers";
     import { GraphRange, RevlogRange } from "./graph-helpers";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
@@ -19,8 +19,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import InputBox from "./InputBox.svelte";
     import TableData from "./TableData.svelte";
 
-    export let sourceData: Stats.GraphsResponse | null = null;
-    export let preferences: PreferenceStore<Stats.GraphPreferences>;
+    export let sourceData: GraphsResponse | null = null;
+    export let prefs: GraphPrefs;
 
     const dispatch = createEventDispatcher<SearchEventMap>();
 
@@ -28,7 +28,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let histogramData = null as HistogramData | null;
     let tableData: TableDatum[] = [] as any;
     let graphRange: GraphRange = GraphRange.Month;
-    const { browserLinksSupported, futureDueShowBacklog } = preferences;
 
     $: if (sourceData) {
         graphData = gatherData(sourceData);
@@ -38,9 +37,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ({ histogramData, tableData } = buildHistogram(
             graphData,
             graphRange,
-            $futureDueShowBacklog,
+            $prefs.futureDueShowBacklog,
             dispatch,
-            $browserLinksSupported,
+            $prefs.browserLinksSupported,
         ));
     }
 
@@ -53,7 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <InputBox>
         {#if graphData && graphData.haveBacklog}
             <label>
-                <input type="checkbox" bind:checked={$futureDueShowBacklog} />
+                <input type="checkbox" bind:checked={$prefs.futureDueShowBacklog} />
                 {backlogLabel}
             </label>
         {/if}

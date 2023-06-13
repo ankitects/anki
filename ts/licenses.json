@@ -1,4 +1,10 @@
 {
+    "@bufbuild/protobuf@1.2.1": {
+        "licenses": "(Apache-2.0 AND BSD-3-Clause)",
+        "repository": "https://github.com/bufbuild/protobuf-es",
+        "path": "node_modules/@bufbuild/protobuf",
+        "licenseFile": "node_modules/@bufbuild/protobuf/README.md"
+    },
     "@floating-ui/core@0.5.1": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",

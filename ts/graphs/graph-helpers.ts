@@ -5,9 +5,10 @@
 @typescript-eslint/no-explicit-any: "off",
 @typescript-eslint/ban-ts-comment: "off" */
 
-import type { Cards, Stats } from "@tslib/proto";
+import type { GraphPreferences } from "@tslib/anki/stats_pb";
 import type { Bin, Selection } from "d3";
 import { sum } from "d3";
+import type { PreferenceStore } from "sveltelib/preferences";
 
 // amount of data to fetch from backend
 export enum RevlogRange {
@@ -25,13 +26,6 @@ export enum GraphRange {
     ThreeMonths = 1,
     Year = 2,
     AllTime = 3,
-}
-
-export interface GraphsContext {
-    cards: Cards.Card[];
-    revlog: Stats.RevlogEntry[];
-    revlogRange: RevlogRange;
-    nightMode: boolean;
 }
 
 export interface GraphBounds {
@@ -53,6 +47,8 @@ export function defaultGraphBounds(): GraphBounds {
         marginBottom: 25,
     };
 }
+
+export type GraphPrefs = PreferenceStore<GraphPreferences>;
 
 export function setDataAvailable(
     svg: Selection<SVGElement, any, any, any>,

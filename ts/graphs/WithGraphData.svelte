@@ -3,63 +3,49 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { empty, Stats, stats } from "@tslib/proto";
+    import type { GraphsResponse } from "@tslib/anki/stats_pb";
+    import {
+        getGraphPreferences,
+        graphs,
+        setGraphPreferences,
+    } from "@tslib/anki/stats_service";
     import type { Writable } from "svelte/store";
 
-    import useAsync from "../sveltelib/async";
-    import useAsyncReactive from "../sveltelib/asyncReactive";
-    import type { PreferenceRaw } from "../sveltelib/preferences";
-    import { getPreferences } from "../sveltelib/preferences";
+    import { autoSavingPrefs } from "../sveltelib/preferences";
     import { daysToRevlogRange } from "./graph-helpers";
 
     export let search: Writable<string>;
     export let days: Writable<number>;
 
-    const {
-        loading: graphLoading,
-        error: graphError,
-        value: graphValue,
-    } = useAsyncReactive(
-        () =>
-            stats.graphs(Stats.GraphsRequest.create({ search: $search, days: $days })),
-        [search, days],
+    const prefsPromise = autoSavingPrefs(
+        () => getGraphPreferences({}),
+        setGraphPreferences,
     );
 
-    const {
-        loading: prefsLoading,
-        error: prefsError,
-        value: prefsValue,
-    } = useAsync(() =>
-        getPreferences(
-            () => stats.getGraphPreferences(empty),
-            async (input: Stats.IGraphPreferences): Promise<void> => {
-                stats.setGraphPreferences(Stats.GraphPreferences.create(input));
-            },
-            Stats.GraphPreferences.toObject.bind(Stats.GraphPreferences) as (
-                preferences: Stats.GraphPreferences,
-                options: { defaults: boolean },
-            ) => PreferenceRaw<Stats.GraphPreferences>,
-        ),
-    );
+    let sourceData = null as null | GraphsResponse;
+    let loading = true;
+    $: updateSourceData($search, $days);
+
+    async function updateSourceData(search: string, days: number): Promise<void> {
+        // ensure the fast-loading preferences come first
+        await prefsPromise;
+        loading = true;
+        try {
+            sourceData = await graphs({ search, days });
+        } finally {
+            loading = false;
+        }
+    }
 
     $: revlogRange = daysToRevlogRange($days);
-
-    $: {
-        if ($graphError) {
-            alert($graphError);
-        }
-    }
-
-    $: {
-        if ($prefsError) {
-            alert($prefsError);
-        }
-    }
 </script>
 
-<slot
-    {revlogRange}
-    loading={$graphLoading || $prefsLoading}
-    sourceData={$graphValue}
-    preferences={$prefsValue}
-/>
+<!--
+We block graphs loading until the preferences have been fetched, so graphs
+don't have to worry about a null initial value. We don't do the same for the
+graph data, as it gets updated as the user changes options, and we don't want
+the current graphs to disappear until the new graphs have finished loading.
+-->
+{#await prefsPromise then prefs}
+    <slot {revlogRange} {prefs} {sourceData} {loading} />
+{/await}

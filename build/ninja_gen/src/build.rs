@@ -49,7 +49,7 @@ impl Build {
             groups: Default::default(),
         };
 
-        build.add("build:run_configure", ConfigureBuild {})?;
+        build.add_action("build:run_configure", ConfigureBuild {})?;
 
         Ok(build)
     }
@@ -76,7 +76,7 @@ impl Build {
         }
     }
 
-    pub fn add(&mut self, group: impl AsRef<str>, action: impl BuildAction) -> Result<()> {
+    pub fn add_action(&mut self, group: impl AsRef<str>, action: impl BuildAction) -> Result<()> {
         let group = group.as_ref();
         let groups = split_groups(group);
         let group = groups[0];
@@ -104,7 +104,7 @@ impl Build {
             BuildStatement::from_build_action(group, action, &self.groups, self.release);
 
         if first_invocation {
-            let command = statement.prepare_command(command);
+            let command = statement.prepare_command(command)?;
             writeln!(
                 &mut self.output_text,
                 "\
@@ -130,8 +130,9 @@ rule {action_name}
         Ok(())
     }
 
-    /// Add one or more resolved files to a group.
-    pub fn add_resolved_files_to_group<'a>(
+    /// Add one or more resolved files to a group. Does not add to the parent
+    /// groups; that must be done by the caller.
+    fn add_resolved_files_to_group<'a>(
         &mut self,
         group: &str,
         files: impl IntoIterator<Item = &'a String>,
@@ -140,17 +141,15 @@ rule {action_name}
         buf.extend(files.into_iter().map(ToString::to_string));
     }
 
-    pub fn add_inputs_to_group(&mut self, group: &str, inputs: BuildInput) {
-        self.add_resolved_files_to_group(group, &self.expand_inputs(inputs));
-    }
-
-    /// Group names should not have a leading `:`.
-    pub fn add_group_to_group(&mut self, target_group: &str, additional_group: &str) {
-        let additional_files = self
-            .groups
-            .get(additional_group)
-            .unwrap_or_else(|| panic!("{additional_group} had no files"));
-        self.add_resolved_files_to_group(target_group, &additional_files.clone())
+    /// Allows you to add dependencies on files or build steps that aren't
+    /// required to build the group itself, but are required by consumers of
+    /// that group.
+    pub fn add_dependency(&mut self, group: &str, deps: BuildInput) {
+        let files = self.expand_inputs(deps);
+        let groups = split_groups(group);
+        for group in groups {
+            self.add_resolved_files_to_group(group, &files);
+        }
     }
 
     /// Outputs from a given build statement group. An error if no files have
@@ -215,6 +214,7 @@ struct BuildStatement<'a> {
     output_stamp: bool,
     env_vars: Vec<String>,
     working_dir: Option<String>,
+    create_dirs: Vec<String>,
     release: bool,
     bypass_runner: bool,
 }
@@ -239,6 +239,7 @@ impl BuildStatement<'_> {
             output_stamp: false,
             env_vars: Default::default(),
             working_dir: None,
+            create_dirs: Default::default(),
             release,
             bypass_runner: action.bypass_runner(),
         };
@@ -281,28 +282,29 @@ impl BuildStatement<'_> {
         (outputs_vec, self.output_subsets)
     }
 
-    fn prepare_command(&mut self, command: String) -> String {
+    fn prepare_command(&mut self, command: String) -> Result<String> {
         if self.bypass_runner {
-            return command;
+            return Ok(command);
         }
         if command.starts_with("$runner") {
             self.implicit_inputs.push("$runner".into());
-            return command;
+            return Ok(command);
         }
         let mut buf = String::from("$runner run ");
         if self.output_stamp {
-            write!(&mut buf, "--stamp=$stamp ").unwrap();
+            write!(&mut buf, "--stamp=$stamp ")?;
         }
-        if !self.env_vars.is_empty() {
-            for var in &self.env_vars {
-                write!(&mut buf, "--env={var} ").unwrap();
-            }
+        for var in &self.env_vars {
+            write!(&mut buf, "--env=\"{var}\" ")?;
+        }
+        for dir in &self.create_dirs {
+            write!(&mut buf, "--mkdir={dir} ")?;
         }
         if let Some(working_dir) = &self.working_dir {
-            write!(&mut buf, "--cwd={working_dir} ").unwrap();
+            write!(&mut buf, "--cwd={working_dir} ")?;
         }
         buf.push_str(&command);
-        buf
+        Ok(buf)
     }
 }
 
@@ -370,6 +372,10 @@ pub trait FilesHandle {
     /// for each command, `constant_value` should reference a `$variable` you
     /// have defined.
     fn set_working_dir(&mut self, constant_value: &str);
+    /// Ensure provided folder and parent folders are created before running
+    /// the command. Can be called multiple times. Defines a variable pointing
+    /// at the folder.
+    fn create_dir_all(&mut self, key: &str, path: impl Into<String>);
 
     fn release_build(&self) -> bool;
 }
@@ -461,6 +467,12 @@ impl FilesHandle for BuildStatement<'_> {
 
     fn set_working_dir(&mut self, constant_value: &str) {
         self.working_dir = Some(constant_value.to_owned());
+    }
+
+    fn create_dir_all(&mut self, key: &str, path: impl Into<String>) {
+        let path = path.into();
+        self.add_variable(key, &path);
+        self.create_dirs.push(path);
     }
 }
 

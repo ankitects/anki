@@ -3,13 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { Stats } from "@tslib/proto";
+    import type { GraphsResponse } from "@tslib/anki/stats_pb";
 
     import Graph from "./Graph.svelte";
     import type { TodayData } from "./today";
     import { gatherData } from "./today";
 
-    export let sourceData: Stats.GraphsResponse | null = null;
+    export let sourceData: GraphsResponse | null = null;
 
     let todayData: TodayData | null = null;
     $: if (sourceData) {

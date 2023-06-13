@@ -5,9 +5,9 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import type { GraphsResponse } from "@tslib/anki/stats_pb";
 import * as tr from "@tslib/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import type { Stats } from "@tslib/proto";
 import type { Bin, ScaleLinear } from "d3";
 import { bin, extent, interpolateRdYlGn, scaleLinear, scaleSequential, sum } from "d3";
 
@@ -19,7 +19,7 @@ export interface GraphData {
     eases: Map<number, number>;
 }
 
-export function gatherData(data: Stats.GraphsResponse): GraphData {
+export function gatherData(data: GraphsResponse): GraphData {
     return { eases: numericMap(data.eases!.eases) };
 }
 

@@ -13,8 +13,7 @@ mod rsync;
 mod run;
 mod yarn;
 
-use std::error::Error;
-
+use anyhow::Result;
 use build::run_build;
 use build::BuildArgs;
 use bundle::artifacts::build_artifacts;
@@ -32,8 +31,6 @@ use run::run_commands;
 use run::RunArgs;
 use yarn::setup_yarn;
 use yarn::YarnArgs;
-
-pub type Result<T, E = Box<dyn Error>> = std::result::Result<T, E>;
 
 #[derive(Parser)]
 struct Cli {
@@ -53,10 +50,10 @@ enum Command {
     BuildDistFolder(BuildDistFolderArgs),
 }
 
-fn main() {
+fn main() -> Result<()> {
     match Cli::parse().command {
         Command::Pyenv(args) => setup_pyenv(args),
-        Command::Run(args) => run_commands(args),
+        Command::Run(args) => run_commands(args)?,
         Command::Rsync(args) => rsync_files(args),
         Command::Yarn(args) => setup_yarn(args),
         Command::Build(args) => run_build(args),
@@ -64,4 +61,5 @@ fn main() {
         Command::BuildBundleBinary => build_bundle_binary(),
         Command::BuildDistFolder(args) => build_dist_folder(args),
     };
+    Ok(())
 }

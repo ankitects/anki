@@ -5,9 +5,9 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import type { GraphsResponse } from "@tslib/anki/stats_pb";
 import * as tr from "@tslib/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import type { Stats } from "@tslib/proto";
 import { dayLabel, timeSpan } from "@tslib/time";
 import type { Bin, ScaleSequential } from "d3";
 import {
@@ -51,7 +51,7 @@ export interface GraphData {
 
 type BinType = Bin<Map<number, Reviews[]>, number>;
 
-export function gatherData(data: Stats.GraphsResponse): GraphData {
+export function gatherData(data: GraphsResponse): GraphData {
     return { reviewCount: numericMap(data.reviews!.count), reviewTime: numericMap(data.reviews!.time) };
 }
 

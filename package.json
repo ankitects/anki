@@ -6,6 +6,7 @@
     "license": "AGPL-3.0-or-later",
     "description": "Anki JS support files",
     "devDependencies": {
+        "@bufbuild/protoc-gen-es": "^1.2.1",
         "@pyoner/svelte-types": "^3.4.4-2",
         "@sqltools/formatter": "^1.2.2",
         "@types/bootstrap": "^5.0.12",
@@ -62,6 +63,7 @@
         "postinstall": "patch-package --patch-dir ts/patches"
     },
     "dependencies": {
+        "@bufbuild/protobuf": "^1.2.1",
         "@floating-ui/dom": "^0.3.0",
         "@fluent/bundle": "^0.17.0",
         "@mdi/svg": "^7.0.96",

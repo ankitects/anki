@@ -305,6 +305,27 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
+"@bufbuild/protobuf@1.2.1", "@bufbuild/protobuf@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@bufbuild/protobuf/-/protobuf-1.2.1.tgz#f8b1fbbe79726a4eafa9772ddde147b57f85d177"
+  integrity sha512-cwwGvLGqvoaOZmoP5+i4v/rbW+rHkguvTehuZyM2p/xpmaNSdT2h3B7kHw33aiffv35t1XrYHIkdJSEkSEMJuA==
+
+"@bufbuild/protoc-gen-es@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@bufbuild/protoc-gen-es/-/protoc-gen-es-1.2.1.tgz#0eeee9175579e36e2c60755690d8ecd19a7bcade"
+  integrity sha512-Nfg4ZTYciAgzqrbuGtRHR2TV4tueP10cRSD/joe57EeT0hfiXT0oQzH4OO3CzqqZvMxfkxpO4jgJgtwdQd941g==
+  dependencies:
+    "@bufbuild/protoplugin" "1.2.1"
+
+"@bufbuild/protoplugin@1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@bufbuild/protoplugin/-/protoplugin-1.2.1.tgz#bdac5dba4e3397178ae2b2db304e9dc04c4ef964"
+  integrity sha512-7VtPgJGXcOszidMpQRQK9wm8QlKqC80Uc5XR9+Ej+DN4Ur64dAW1djZ7kLZ3ij6Z9IY4FteGQT+ubUNxzcW2NA==
+  dependencies:
+    "@bufbuild/protobuf" "1.2.1"
+    "@typescript/vfs" "^1.4.0"
+    typescript "4.5.2"
+
 "@esbuild-kit/cjs-loader@^2.4.0":
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/@esbuild-kit/cjs-loader/-/cjs-loader-2.4.0.tgz#643c4b2855a18f31cd983794536d4ff64d3b410d"
@@ -1283,6 +1304,13 @@
   dependencies:
     "@typescript-eslint/types" "4.33.0"
     eslint-visitor-keys "^2.0.0"
+
+"@typescript/vfs@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@typescript/vfs/-/vfs-1.4.0.tgz#2d22985c7666c9d4ce26eb025405e6f156aa32b0"
+  integrity sha512-Pood7yv5YWMIX+yCHo176OnF8WUlKGImFG7XlsuH14Zb1YN5+dYD3uUtS7lqZtsH7tAveNUi2NzdpQCN0yRbaw==
+  dependencies:
+    debug "^4.1.1"
 
 "@yarnpkg/lockfile@^1.1.0":
   version "1.1.0"
@@ -5470,6 +5498,11 @@ typescript@*:
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.6.2.tgz#fe12d2727b708f4eef40f51598b3398baa9611d4"
   integrity sha512-HM/hFigTBHZhLXshn9sN37H085+hQGeJHJ/X7LpBWLID/fbc2acUMfU+lGD98X81sKP+pFa9f0DZmCwB9GnbAg==
+
+typescript@4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.2.tgz#8ac1fba9f52256fdb06fb89e4122fa6a346c2998"
+  integrity sha512-5BlMof9H1yGt0P8/WF+wPNw6GfctgGjXp5hkblpyT+8rkASSmkUKMXrxR0Xg8ThVCi/JnHQiKXeBaEwCeQwMFw==
 
 typescript@^5.0.4:
   version "5.0.4"
