@@ -9,8 +9,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { selectKey } from "./context-keys";
     import DropdownItem from "./DropdownItem.svelte";
 
+    type T = $$Generic;
+
     export let disabled = false;
-    export let value: number;
+    export let value: T;
 
     let element: HTMLButtonElement;
 
@@ -40,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    const selectContext: Writable<{ value: number; setValue: Function }> =
+    const selectContext: Writable<{ value: T; setValue: Function }> =
         getContext(selectKey);
     const setValue = $selectContext.setValue;
 </script>

@@ -12,6 +12,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Popover from "./Popover.svelte";
     import WithFloating from "./WithFloating.svelte";
 
+    type T = $$Generic;
+
     export let id: string | undefined = undefined;
 
     let className = "";
@@ -19,11 +21,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let disabled = false;
     export let label = "<br>";
-    export let value = 0;
+    export let value: T;
 
     const dispatch = createEventDispatcher();
 
-    function setValue(v: number) {
+    function setValue(v: T) {
         value = v;
         dispatch("change", { value });
     }

@@ -3,12 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { Generic } from "@tslib/proto";
+    import type { StringList } from "@tslib/anki/generic_pb";
 
     import type { ColumnOption } from "./lib";
 
     export let columnOptions: ColumnOption[];
-    export let preview: Generic.StringList[];
+    export let preview: StringList[];
 </script>
 
 <div class="outer">

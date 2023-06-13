@@ -9,20 +9,8 @@ import type { Message, rpc, RPCImpl, RPCImplCallback } from "protobufjs";
 
 import { anki } from "../../out/ts/lib/backend_proto";
 
-import Cards = anki.cards;
-import Collection = anki.collection;
-import DeckConfig = anki.deckconfig;
-import Decks = anki.decks;
-import Generic = anki.generic;
 import I18n = anki.i18n;
-import ImportExport = anki.import_export;
-import Notes = anki.notes;
-import Notetypes = anki.notetypes;
 import Scheduler = anki.scheduler;
-
-export { Cards, Collection, Decks, Generic, Notes };
-
-export const empty = Generic.Empty.create();
 
 export class InternalError extends Error {}
 
@@ -60,23 +48,8 @@ async function serviceCallback(
     }
 }
 
-export const decks = Decks.DecksService.create(serviceCallback as RPCImpl);
-
-export { DeckConfig };
-export const deckConfig = DeckConfig.DeckConfigService.create(
-    serviceCallback as RPCImpl,
-);
-
 export { I18n };
 export const i18n = I18n.I18nService.create(serviceCallback as RPCImpl);
-
-export { ImportExport };
-export const importExport = ImportExport.ImportExportService.create(
-    serviceCallback as RPCImpl,
-);
-
-export { Notetypes };
-export const notetypes = Notetypes.NotetypesService.create(serviceCallback as RPCImpl);
 
 export { Scheduler };
 export const scheduler = Scheduler.SchedulerService.create(serviceCallback as RPCImpl);
