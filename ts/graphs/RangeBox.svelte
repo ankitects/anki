@@ -67,7 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="range-box">
-    <div class="spin" class:loading>◐</div>
+    <div class="spin no-reduce-motion" class:loading>◐</div>
 
     <InputBox>
         <label>
