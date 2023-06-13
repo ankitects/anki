@@ -3,9 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import {
+        DeckConfig_Config_NewCardGatherPriority as GatherOrder,
+        DeckConfig_Config_NewCardSortOrder as SortOrder,
+    } from "@tslib/anki/deckconfig_pb";
     import * as tr from "@tslib/ftl";
     import { HelpPage } from "@tslib/help-page";
-    import { DeckConfig } from "@tslib/proto";
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
 
@@ -53,27 +56,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tr.deckConfigSortOrderRandom(),
     ];
 
-    const GatherOrder = DeckConfig.DeckConfig.Config.NewCardGatherPriority;
-    const SortOrder = DeckConfig.DeckConfig.Config.NewCardSortOrder;
     let disabledNewSortOrders: number[] = [];
     $: {
         switch ($config.newCardGatherPriority) {
-            case GatherOrder.NEW_CARD_GATHER_PRIORITY_RANDOM_NOTES:
+            case GatherOrder.RANDOM_NOTES:
                 disabledNewSortOrders = [
-                    // same as NEW_CARD_SORT_ORDER_TEMPLATE
-                    SortOrder.NEW_CARD_SORT_ORDER_TEMPLATE_THEN_RANDOM,
-                    // same as NEW_CARD_SORT_ORDER_NO_SORT
-                    SortOrder.NEW_CARD_SORT_ORDER_RANDOM_NOTE_THEN_TEMPLATE,
+                    // same as TEMPLATE
+                    SortOrder.TEMPLATE_THEN_RANDOM,
+                    // same as NO_SORT
+                    SortOrder.RANDOM_NOTE_THEN_TEMPLATE,
                 ];
                 break;
-            case GatherOrder.NEW_CARD_GATHER_PRIORITY_RANDOM_CARDS:
+            case GatherOrder.RANDOM_CARDS:
                 disabledNewSortOrders = [
-                    // same as NEW_CARD_SORT_ORDER_TEMPLATE
-                    SortOrder.NEW_CARD_SORT_ORDER_TEMPLATE_THEN_RANDOM,
+                    // same as TEMPLATE
+                    SortOrder.TEMPLATE_THEN_RANDOM,
                     // not useful if siblings are not gathered together
-                    SortOrder.NEW_CARD_SORT_ORDER_RANDOM_NOTE_THEN_TEMPLATE,
-                    // same as NEW_CARD_SORT_ORDER_NO_SORT
-                    SortOrder.NEW_CARD_SORT_ORDER_RANDOM_CARD,
+                    SortOrder.RANDOM_NOTE_THEN_TEMPLATE,
+                    // same as NO_SORT
+                    SortOrder.RANDOM_CARD,
                 ];
                 break;
             default:
