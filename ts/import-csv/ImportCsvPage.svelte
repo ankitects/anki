@@ -3,9 +3,17 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { DeckNameId } from "@tslib/anki/decks_pb";
+    import type { StringList } from "@tslib/anki/generic_pb";
+    import type {
+        CsvMetadata_Delimiter,
+        CsvMetadata_DupeResolution,
+        CsvMetadata_MappedNotetype,
+        CsvMetadata_MatchScope,
+    } from "@tslib/anki/import_export_pb";
+    import { getCsvMetadata, importCsv } from "@tslib/anki/import_export_service";
+    import type { NotetypeNameId } from "@tslib/anki/notetypes_pb";
     import * as tr from "@tslib/ftl";
-    import type { Decks, Generic, Notetypes } from "@tslib/proto";
-    import { ImportExport, importExport } from "@tslib/proto";
 
     import Col from "../components/Col.svelte";
     import Container from "../components/Container.svelte";
@@ -18,19 +26,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import FieldMapper from "./FieldMapper.svelte";
     import Header from "./Header.svelte";
     import HtmlSwitch from "./HtmlSwitch.svelte";
-    import { getColumnOptions, getCsvMetadata } from "./lib";
+    import {
+        buildDeckOneof,
+        buildNotetypeOneof,
+        getColumnOptions,
+        tryGetDeckId,
+        tryGetGlobalNotetype,
+    } from "./lib";
     import NotetypeSelector from "./NotetypeSelector.svelte";
     import Preview from "./Preview.svelte";
     import StickyHeader from "./StickyHeader.svelte";
     import Tags from "./Tags.svelte";
 
     export let path: string;
-    export let notetypeNameIds: Notetypes.NotetypeNameId[];
-    export let deckNameIds: Decks.DeckNameId[];
-    export let dupeResolution: ImportExport.CsvMetadata.DupeResolution;
-    export let matchScope: ImportExport.CsvMetadata.MatchScope;
-
-    export let delimiter: ImportExport.CsvMetadata.Delimiter;
+    export let notetypeNameIds: NotetypeNameId[];
+    export let deckNameIds: DeckNameId[];
+    export let dupeResolution: CsvMetadata_DupeResolution;
+    export let matchScope: CsvMetadata_MatchScope;
+    export let delimiter: CsvMetadata_Delimiter;
     export let forceDelimiter: boolean;
     export let forceIsHtml: boolean;
     export let isHtml: boolean;
@@ -39,11 +52,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let columnLabels: string[];
     export let tagsColumn: number;
     export let guidColumn: number;
-    export let preview: Generic.StringList[];
+    export let preview: StringList[];
     // Protobuf oneofs. Exactly one of these pairs is expected to be set.
     export let notetypeColumn: number | null;
-    export let globalNotetype: ImportExport.CsvMetadata.MappedNotetype | null;
-    export let deckId: number | null;
+    export let globalNotetype: CsvMetadata_MappedNotetype | null;
+    export let deckId: bigint | null;
     export let deckColumn: number | null;
 
     let lastNotetypeId = globalNotetype?.id;
@@ -56,45 +69,51 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         deckColumn,
         guidColumn,
     );
-    $: getCsvMetadata(path, delimiter, undefined, undefined, isHtml).then((meta) => {
+    $: getCsvMetadata({
+        path,
+        delimiter,
+        notetypeId: undefined,
+        deckId: undefined,
+        isHtml,
+    }).then((meta) => {
         columnLabels = meta.columnLabels;
         preview = meta.preview;
     });
     $: if (globalNotetype?.id !== lastNotetypeId || delimiter !== lastDelimeter) {
         lastNotetypeId = globalNotetype?.id;
         lastDelimeter = delimiter;
-        getCsvMetadata(path, delimiter, globalNotetype?.id, deckId || undefined).then(
-            (meta) => {
-                globalNotetype = meta.globalNotetype ?? null;
-                deckId = meta.deckId ?? null;
-                tagsColumn = meta.tagsColumn;
-            },
-        );
+        getCsvMetadata({
+            path,
+            delimiter,
+            notetypeId: globalNotetype?.id,
+            deckId: deckId ?? undefined,
+        }).then((meta) => {
+            globalNotetype = tryGetGlobalNotetype(meta);
+            deckId = tryGetDeckId(meta);
+            tagsColumn = meta.tagsColumn;
+        });
     }
 
     async function onImport(): Promise<void> {
-        await importExport.importCsv(
-            ImportExport.ImportCsvRequest.create({
-                path,
-                metadata: ImportExport.CsvMetadata.create({
-                    dupeResolution,
-                    matchScope,
-                    delimiter,
-                    forceDelimiter,
-                    isHtml,
-                    forceIsHtml,
-                    globalTags,
-                    updatedTags,
-                    columnLabels,
-                    tagsColumn,
-                    guidColumn,
-                    notetypeColumn,
-                    globalNotetype,
-                    deckColumn,
-                    deckId,
-                }),
-            }),
-        );
+        await importCsv({
+            path,
+            metadata: {
+                dupeResolution,
+                matchScope,
+                delimiter,
+                forceDelimiter,
+                isHtml,
+                forceIsHtml,
+                globalTags,
+                updatedTags,
+                columnLabels,
+                tagsColumn,
+                guidColumn,
+                deck: buildDeckOneof(deckColumn, deckId),
+                notetype: buildNotetypeOneof(globalNotetype, notetypeColumn),
+                preview: [],
+            },
+        });
     }
 </script>
 

@@ -137,7 +137,7 @@ impl BuildAction for CargoTest {
     }
 
     fn on_first_instance(&self, build: &mut Build) -> Result<()> {
-        build.add(
+        build.add_action(
             "cargo-nextest",
             CargoInstall {
                 binary_name: "cargo-nextest",

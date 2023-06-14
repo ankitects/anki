@@ -100,12 +100,8 @@ Protobuf has an official Python implementation with an extensive [reference](htt
 
 ### Typescript
 
-Anki uses [protobuf.js](https://protobufjs.github.io/protobuf.js/), which offers
+Anki uses [protobuf-es](https://github.com/bufbuild/protobuf-es), which offers
 some documentation.
-
-- If using a message `Foo` as a type, make sure not to use the generated interface
-  `IFoo` instead. Their definitions are very similar, but the interface requires
-  null checks for every field.
 
 ### Rust
 

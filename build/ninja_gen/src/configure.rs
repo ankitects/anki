@@ -25,7 +25,7 @@ impl BuildAction for ConfigureBuild {
     }
 
     fn on_first_instance(&self, build: &mut Build) -> Result<()> {
-        build.add(
+        build.add_action(
             "build:configure",
             CargoBuild {
                 inputs: inputs![glob!["build/**/*"]],

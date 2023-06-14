@@ -41,14 +41,14 @@ pub fn setup_protoc(build: &mut Build) -> Result<()> {
 }
 
 pub fn check_proto(build: &mut Build) -> Result<()> {
-    build.add(
+    build.add_action(
         "check:format:proto",
         ClangFormat {
             inputs: inputs![glob!["proto/**/*.proto"]],
             check_only: true,
         },
     )?;
-    build.add(
+    build.add_action(
         "format:proto",
         ClangFormat {
             inputs: inputs![glob!["proto/**/*.proto"]],

@@ -5,6 +5,9 @@ use std::io::ErrorKind;
 use std::process::Command;
 use std::process::Output;
 
+use anki_io::create_dir_all;
+use anki_io::write_file;
+use anyhow::Result;
 use clap::Args;
 
 #[derive(Args)]
@@ -15,20 +18,26 @@ pub struct RunArgs {
     env: Vec<(String, String)>,
     #[arg(long)]
     cwd: Option<String>,
+    #[arg(long)]
+    mkdir: Vec<String>,
     #[arg(trailing_var_arg = true)]
     args: Vec<String>,
 }
 
 /// Run one or more commands separated by `&&`, optionally stamping or setting
 /// extra env vars.
-pub fn run_commands(args: RunArgs) {
+pub fn run_commands(args: RunArgs) -> Result<()> {
     let commands = split_args(args.args);
+    for dir in args.mkdir {
+        create_dir_all(&dir)?;
+    }
     for command in commands {
         run_silent(&mut build_command(command, &args.env, &args.cwd));
     }
     if let Some(stamp_file) = args.stamp {
-        std::fs::write(stamp_file, b"").expect("unable to write stamp file");
+        write_file(stamp_file, b"")?;
     }
+    Ok(())
 }
 
 fn split_env(s: &str) -> Result<(String, String), std::io::Error> {

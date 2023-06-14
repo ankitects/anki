@@ -1,8 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { postRequest } from "@tslib/postrequest";
-import { Scheduler } from "@tslib/proto";
+import type { JsonValue } from "@bufbuild/protobuf";
+import type { SchedulingContext, SchedulingStatesWithContext } from "@tslib/anki/scheduler_pb";
+import { SchedulingStates } from "@tslib/anki/scheduler_pb";
+import { getSchedulingStatesWithContext, setSchedulingStates } from "@tslib/anki/scheduler_service";
 
 interface CustomDataStates {
     again: Record<string, unknown>;
@@ -11,21 +13,7 @@ interface CustomDataStates {
     easy: Record<string, unknown>;
 }
 
-async function getSchedulingStatesWithContext(): Promise<Scheduler.SchedulingStatesWithContext> {
-    return Scheduler.SchedulingStatesWithContext.decode(
-        await postRequest("/_anki/getSchedulingStatesWithContext", ""),
-    );
-}
-
-async function setSchedulingStates(
-    key: string,
-    states: Scheduler.SchedulingStates,
-): Promise<void> {
-    const bytes = Scheduler.SchedulingStates.encode(states).finish();
-    await postRequest("/_anki/setSchedulingStates", bytes, { key });
-}
-
-function unpackCustomData(states: Scheduler.SchedulingStates): CustomDataStates {
+function unpackCustomData(states: SchedulingStates): CustomDataStates {
     const toObject = (s: string): Record<string, unknown> => {
         try {
             return JSON.parse(s);
@@ -42,7 +30,7 @@ function unpackCustomData(states: Scheduler.SchedulingStates): CustomDataStates 
 }
 
 function packCustomData(
-    states: Scheduler.SchedulingStates,
+    states: SchedulingStates,
     customData: CustomDataStates,
 ) {
     states.again!.customData = JSON.stringify(customData.again);
@@ -51,18 +39,34 @@ function packCustomData(
     states.easy!.customData = JSON.stringify(customData.easy);
 }
 
+type StateMutatorFn = (states: JsonValue, customData: CustomDataStates, ctx: SchedulingContext) => Promise<void>;
+
 export async function mutateNextCardStates(
     key: string,
-    mutator: (
-        states: Scheduler.SchedulingStates,
-        customData: CustomDataStates,
-        ctx: Scheduler.SchedulingContext,
-    ) => Promise<void>,
+    transform: StateMutatorFn,
 ): Promise<void> {
-    const statesWithContext = await getSchedulingStatesWithContext();
-    const states = statesWithContext.states!;
-    const customData = unpackCustomData(states);
-    await mutator(states, customData, statesWithContext.context!);
-    packCustomData(states, customData);
-    await setSchedulingStates(key, states);
+    const statesWithContext = await getSchedulingStatesWithContext({});
+    const updatedStates = await applyStateTransform(statesWithContext, transform);
+    await setSchedulingStates({ key, states: updatedStates });
+}
+
+/** Exported only for tests */
+export async function applyStateTransform(
+    states: SchedulingStatesWithContext,
+    transform: StateMutatorFn,
+): Promise<SchedulingStates> {
+    // convert to JSON, which is the format existing transforms expect
+    const statesJson = states.states!.toJson({ emitDefaultValues: true });
+
+    // decode customData and put it into each state
+    const customData = unpackCustomData(states.states!);
+
+    // run the user function on the JSON
+    await transform(statesJson, customData, states.context!);
+
+    // convert the JSON back into proto form, and pack the custom data in
+    const updatedStates = SchedulingStates.fromJson(statesJson);
+    packCustomData(updatedStates, customData);
+
+    return updatedStates;
 }

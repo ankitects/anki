@@ -5,9 +5,9 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import type { GraphsResponse } from "@tslib/anki/stats_pb";
 import * as tr from "@tslib/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import type { Stats } from "@tslib/proto";
 import { timeSpan } from "@tslib/time";
 import type { Bin } from "d3";
 import { bin, extent, interpolateBlues, mean, quantile, scaleLinear, scaleSequential, sum } from "d3";
@@ -27,7 +27,7 @@ export enum IntervalRange {
     All = 3,
 }
 
-export function gatherIntervalData(data: Stats.GraphsResponse): IntervalGraphData {
+export function gatherIntervalData(data: GraphsResponse): IntervalGraphData {
     // This could be made more efficient - this graph currently expects a flat list of individual intervals which it
     // uses to calculate a percentile and then converts into a histogram, and the percentile/histogram calculations
     // in JS are relatively slow.

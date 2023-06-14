@@ -3,22 +3,21 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { GraphsResponse } from "@tslib/anki/stats_pb";
     import * as tr2 from "@tslib/ftl";
-    import type { Stats } from "@tslib/proto";
     import { createEventDispatcher } from "svelte";
 
-    import type { PreferenceStore } from "../sveltelib/preferences";
     import type { GraphData, TableDatum } from "./card-counts";
     import { gatherData, renderCards } from "./card-counts";
     import Graph from "./Graph.svelte";
+    import type { GraphPrefs } from "./graph-helpers";
     import type { SearchEventMap } from "./graph-helpers";
     import { defaultGraphBounds } from "./graph-helpers";
     import InputBox from "./InputBox.svelte";
 
-    export let sourceData: Stats.GraphsResponse;
-    export let preferences: PreferenceStore<Stats.GraphPreferences>;
+    export let sourceData: GraphsResponse;
+    export let prefs: GraphPrefs;
 
-    const { cardCountsSeparateInactive, browserLinksSupported } = preferences;
     const dispatch = createEventDispatcher<SearchEventMap>();
 
     let svg = null as HTMLElement | SVGElement | null;
@@ -31,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let tableData = null as unknown as TableDatum[];
 
     $: {
-        graphData = gatherData(sourceData, $cardCountsSeparateInactive);
+        graphData = gatherData(sourceData, $prefs.cardCountsSeparateInactive);
         tableData = renderCards(svg as any, bounds, graphData);
     }
 
@@ -42,7 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <Graph title={graphData.title}>
     <InputBox>
         <label>
-            <input type="checkbox" bind:checked={$cardCountsSeparateInactive} />
+            <input type="checkbox" bind:checked={$prefs.cardCountsSeparateInactive} />
             {label}
         </label>
     </InputBox>
@@ -64,7 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <!-- prettier-ignore -->
                         <td>
                             <span style="color: {d.colour};">■&nbsp;</span>
-                            {#if browserLinksSupported}
+                            {#if $prefs.browserLinksSupported}
                                 <span class="search-link" on:click={() => dispatch('search', { query: d.query })}>{d.label}</span>
                             {:else}
                                 <span>{d.label}</span>

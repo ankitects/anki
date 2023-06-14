@@ -3,6 +3,8 @@
 
 pub mod python;
 pub mod rust;
+pub mod ts;
+pub mod utils;
 
 use std::env;
 use std::path::PathBuf;
@@ -15,5 +17,7 @@ fn main() -> Result<()> {
 
     let pool = rust::write_backend_proto_rs(&descriptors_path)?;
     python::write_python_interface(&pool)?;
+    ts::write_ts_interface(&pool)?;
+
     Ok(())
 }

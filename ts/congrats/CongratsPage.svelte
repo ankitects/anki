@@ -3,15 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { CongratsInfoResponse } from "@tslib/anki/scheduler_pb";
     import { bridgeLink } from "@tslib/bridgecommand";
     import * as tr from "@tslib/ftl";
-    import type { Scheduler } from "@tslib/proto";
 
     import Col from "../components/Col.svelte";
     import Container from "../components/Container.svelte";
     import { buildNextLearnMsg } from "./lib";
 
-    export let info: Scheduler.CongratsInfoResponse;
+    export let info: CongratsInfoResponse;
 
     const congrats = tr.schedulingCongratulationsFinished();
     let nextLearnMsg: string;

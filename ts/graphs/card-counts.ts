@@ -5,9 +5,9 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import type { GraphsResponse } from "@tslib/anki/stats_pb";
 import * as tr from "@tslib/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import type { Stats } from "@tslib/proto";
 import {
     arc,
     cumsum,
@@ -41,7 +41,7 @@ const barColours = [
     "grey", /* buried */
 ];
 
-function countCards(data: Stats.GraphsResponse, separateInactive: boolean): Count[] {
+function countCards(data: GraphsResponse, separateInactive: boolean): Count[] {
     const countData = separateInactive ? data.cardCounts!.excludingInactive! : data.cardCounts!.includingInactive!;
 
     const extraQuery = separateInactive ? "AND -(\"is:buried\" OR \"is:suspended\")" : "";
@@ -85,7 +85,7 @@ function countCards(data: Stats.GraphsResponse, separateInactive: boolean): Coun
 }
 
 export function gatherData(
-    data: Stats.GraphsResponse,
+    data: GraphsResponse,
     separateInactive: boolean,
 ): GraphData {
     const counts = countCards(data, separateInactive);

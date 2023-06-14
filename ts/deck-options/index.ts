@@ -10,7 +10,6 @@ import "./deck-options-base.scss";
 
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
-import { deckConfig, Decks } from "@tslib/proto";
 
 import { modalsKey, touchDeviceKey } from "../components/context-keys";
 import DeckOptionsPage from "./DeckOptionsPage.svelte";
@@ -26,9 +25,10 @@ const i18n = setupI18n({
     ],
 });
 
-export async function setupDeckOptions(did: number): Promise<DeckOptionsPage> {
+export async function setupDeckOptions(did_: number): Promise<DeckOptionsPage> {
+    const did = BigInt(did_);
     const [info] = await Promise.all([
-        deckConfig.getDeckConfigsForUpdate(Decks.DeckId.create({ did })),
+        getDeckConfigsForUpdate({ did }),
         i18n,
     ]);
 
@@ -38,13 +38,15 @@ export async function setupDeckOptions(did: number): Promise<DeckOptionsPage> {
     context.set(modalsKey, new Map());
     context.set(touchDeviceKey, "ontouchstart" in document.documentElement);
 
-    const state = new DeckOptionsState(did, info);
+    const state = new DeckOptionsState(BigInt(did), info);
     return new DeckOptionsPage({
         target: document.body,
         props: { state },
         context,
     });
 }
+
+import { getDeckConfigsForUpdate } from "@tslib/anki/deck_config_service";
 
 import TitledContainer from "../components/TitledContainer.svelte";
 import EnumSelectorRow from "./EnumSelectorRow.svelte";

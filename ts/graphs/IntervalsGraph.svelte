@@ -3,13 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { GraphsResponse } from "@tslib/anki/stats_pb";
     import * as tr from "@tslib/ftl";
-    import type { Stats } from "@tslib/proto";
     import { MONTH, timeSpan } from "@tslib/time";
     import { createEventDispatcher } from "svelte";
 
-    import type { PreferenceStore } from "../sveltelib/preferences";
     import Graph from "./Graph.svelte";
+    import type { GraphPrefs } from "./graph-helpers";
     import type { SearchEventMap, TableDatum } from "./graph-helpers";
     import type { HistogramData } from "./histogram-graph";
     import HistogramGraph from "./HistogramGraph.svelte";
@@ -22,8 +22,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "./intervals";
     import TableData from "./TableData.svelte";
 
-    export let sourceData: Stats.GraphsResponse | null = null;
-    export let preferences: PreferenceStore<Stats.GraphPreferences>;
+    export let sourceData: GraphsResponse | null = null;
+    export let prefs: GraphPrefs;
 
     const dispatch = createEventDispatcher<SearchEventMap>();
 
@@ -31,7 +31,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let histogramData = null as HistogramData | null;
     let tableData: TableDatum[] = [];
     let range = IntervalRange.Percentile95;
-    const { browserLinksSupported } = preferences;
 
     $: if (sourceData) {
         intervalData = gatherIntervalData(sourceData);
@@ -42,7 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             intervalData,
             range,
             dispatch,
-            $browserLinksSupported,
+            $prefs.browserLinksSupported,
         );
     }
 

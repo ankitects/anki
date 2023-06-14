@@ -3,9 +3,9 @@
 
 import "./congrats-base.scss";
 
+import { congratsInfo } from "@tslib/anki/scheduler_service";
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
-import { empty, scheduler } from "@tslib/proto";
 
 import CongratsPage from "./CongratsPage.svelte";
 
@@ -16,7 +16,7 @@ export async function setupCongrats(): Promise<CongratsPage> {
     await i18n;
 
     const customMountPoint = document.getElementById("congrats");
-    const info = await scheduler.congratsInfo(empty);
+    const info = await congratsInfo({});
     const page = new CongratsPage({
         // use #congrats if it exists, otherwise entire body
         target: customMountPoint ?? document.body,
@@ -26,7 +26,7 @@ export async function setupCongrats(): Promise<CongratsPage> {
     // refresh automatically if a custom area not provided
     if (!customMountPoint) {
         setInterval(async () => {
-            const info = await scheduler.congratsInfo(empty);
+            const info = await congratsInfo({});
             page.$set({ info });
         }, 60000);
     }

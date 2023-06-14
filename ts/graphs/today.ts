@@ -1,9 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import type { GraphsResponse } from "@tslib/anki/stats_pb";
 import * as tr from "@tslib/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import type { Stats } from "@tslib/proto";
 import { studiedToday } from "@tslib/time";
 
 export interface TodayData {
@@ -11,7 +11,7 @@ export interface TodayData {
     lines: string[];
 }
 
-export function gatherData(data: Stats.GraphsResponse): TodayData {
+export function gatherData(data: GraphsResponse): TodayData {
     let lines: string[];
     const today = data.today!;
     if (today.answerCount) {

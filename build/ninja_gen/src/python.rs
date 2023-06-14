@@ -178,7 +178,7 @@ impl BuildAction for PythonFormat<'_> {
 
 pub fn python_format(build: &mut Build, group: &str, inputs: BuildInput) -> Result<()> {
     let isort_ini = &inputs![".isort.cfg"];
-    build.add(
+    build.add_action(
         &format!("check:format:python:{group}"),
         PythonFormat {
             inputs: &inputs,
@@ -187,7 +187,7 @@ pub fn python_format(build: &mut Build, group: &str, inputs: BuildInput) -> Resu
         },
     )?;
 
-    build.add(
+    build.add_action(
         &format!("format:python:{group}"),
         PythonFormat {
             inputs: &inputs,

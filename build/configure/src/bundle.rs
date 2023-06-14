@@ -145,7 +145,7 @@ fn download_dist_folder_deps(build: &mut Build) -> Result<()> {
         )?;
         bundle_deps.extend([":extract:linux_qt_plugins"]);
     }
-    build.add_inputs_to_group(
+    build.add_dependency(
         "bundle:deps",
         inputs![bundle_deps
             .iter()
@@ -189,7 +189,7 @@ fn setup_primary_venv(build: &mut Build) -> Result<()> {
     if cfg!(windows) {
         qt6_reqs = inputs![qt6_reqs, "python/requirements.win.txt"];
     }
-    build.add(
+    build.add_action(
         PRIMARY_VENV.label,
         PythonEnvironment {
             folder: PRIMARY_VENV.path_without_builddir,
@@ -210,7 +210,7 @@ fn setup_qt5_venv(build: &mut Build) -> Result<()> {
             "python/requirements.qt5_15.txt"
         }
     ];
-    build.add(
+    build.add_action(
         QT5_VENV.label,
         PythonEnvironment {
             folder: QT5_VENV.path_without_builddir,
@@ -238,7 +238,7 @@ impl BuildAction for InstallAnkiWheels {
 }
 
 fn install_anki_wheels(build: &mut Build) -> Result<()> {
-    build.add(
+    build.add_action(
         "bundle:add_wheels:qt6",
         InstallAnkiWheels { venv: PRIMARY_VENV },
     )?;
@@ -246,13 +246,13 @@ fn install_anki_wheels(build: &mut Build) -> Result<()> {
 }
 
 fn build_pyoxidizer(build: &mut Build) -> Result<()> {
-    build.add(
+    build.add_action(
         "bundle:pyoxidizer:repo",
         SyncSubmodule {
             path: "qt/bundle/PyOxidizer",
         },
     )?;
-    build.add(
+    build.add_action(
         "bundle:pyoxidizer:bin",
         CargoBuild {
             inputs: inputs![":bundle:pyoxidizer:repo", glob!["qt/bundle/PyOxidizer/**"]],
@@ -297,7 +297,7 @@ impl BuildAction for BuildArtifacts {
 }
 
 fn build_artifacts(build: &mut Build) -> Result<()> {
-    build.add("bundle:artifacts", BuildArtifacts {})
+    build.add_action("bundle:artifacts", BuildArtifacts {})
 }
 
 struct BuildBundle {}
@@ -321,7 +321,7 @@ impl BuildAction for BuildBundle {
 }
 
 fn build_binary(build: &mut Build) -> Result<()> {
-    build.add("bundle:binary", BuildBundle {})
+    build.add_action("bundle:binary", BuildBundle {})
 }
 
 struct BuildDistFolder {
@@ -359,7 +359,7 @@ fn build_dist_folder(build: &mut Build, kind: DistKind) -> Result<()> {
         DistKind::Standard => "bundle:folder:std",
         DistKind::Alternate => "bundle:folder:alt",
     };
-    build.add(group, BuildDistFolder { kind, deps })
+    build.add_action(group, BuildDistFolder { kind, deps })
 }
 
 fn build_packages(build: &mut Build) -> Result<()> {
@@ -409,7 +409,7 @@ impl BuildAction for BuildTarball {
 
 fn build_tarball(build: &mut Build, kind: DistKind) -> Result<()> {
     let name = kind.folder_name();
-    build.add(format!("bundle:package:{name}"), BuildTarball { kind })
+    build.add_action(format!("bundle:package:{name}"), BuildTarball { kind })
 }
 
 struct BuildWindowsInstallers {}
@@ -434,7 +434,7 @@ impl BuildAction for BuildWindowsInstallers {
 }
 
 fn build_windows_installers(build: &mut Build) -> Result<()> {
-    build.add("bundle:package", BuildWindowsInstallers {})
+    build.add_action("bundle:package", BuildWindowsInstallers {})
 }
 
 struct BuildMacApp {
@@ -456,7 +456,7 @@ impl BuildAction for BuildMacApp {
 }
 
 fn build_mac_app(build: &mut Build, kind: DistKind) -> Result<()> {
-    build.add(format!("bundle:app:{}", kind.name()), BuildMacApp { kind })
+    build.add_action(format!("bundle:app:{}", kind.name()), BuildMacApp { kind })
 }
 
 struct BuildDmgs {}
@@ -488,5 +488,5 @@ impl BuildAction for BuildDmgs {
 }
 
 fn build_dmgs(build: &mut Build) -> Result<()> {
-    build.add("bundle:dmg", BuildDmgs {})
+    build.add_action("bundle:dmg", BuildDmgs {})
 }

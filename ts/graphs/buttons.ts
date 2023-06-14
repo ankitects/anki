@@ -5,9 +5,9 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import type { GraphsResponse } from "@tslib/anki/stats_pb";
 import * as tr from "@tslib/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import type { Stats } from "@tslib/proto";
 import {
     axisBottom,
     axisLeft,
@@ -34,7 +34,7 @@ export interface GraphData {
     mature: ButtonCounts;
 }
 
-export function gatherData(data: Stats.GraphsResponse, range: GraphRange): GraphData {
+export function gatherData(data: GraphsResponse, range: GraphRange): GraphData {
     const buttons = data.buttons!;
     switch (range) {
         case GraphRange.Month:
@@ -65,7 +65,7 @@ interface TotalCorrect {
 export function renderButtons(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    origData: Stats.GraphsResponse,
+    origData: GraphsResponse,
     range: GraphRange,
 ): void {
     const sourceData = gatherData(origData, range);

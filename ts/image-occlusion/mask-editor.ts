@@ -1,15 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { protoBase64 } from "@bufbuild/protobuf";
+import { getImageForOcclusion, getImageOcclusionNote } from "@tslib/anki/image_occlusion_service";
 import * as tr from "@tslib/ftl";
-import type { ImageOcclusion } from "@tslib/proto";
 import { fabric } from "fabric";
 import type { PanZoom } from "panzoom";
-import protobuf from "protobufjs";
 import { get } from "svelte/store";
 
 import { optimumCssSizeForCanvas } from "./canvas-scale";
-import { getImageForOcclusion, getImageOcclusionNote } from "./lib";
 import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
 import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
@@ -18,7 +17,7 @@ import { undoRedoInit } from "./tools/tool-undo-redo";
 import type { Size } from "./types";
 
 export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<fabric.Canvas> => {
-    const imageData = await getImageForOcclusion(path!);
+    const imageData = await getImageForOcclusion({ path });
     const canvas = initCanvas();
 
     // get image width and height
@@ -37,8 +36,9 @@ export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<
 };
 
 export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom): Promise<fabric.Canvas> => {
-    const clozeNoteResponse: ImageOcclusion.GetImageOcclusionNoteResponse = await getImageOcclusionNote(noteId);
-    if (clozeNoteResponse.error) {
+    const clozeNoteResponse = await getImageOcclusionNote({ noteId: BigInt(noteId) });
+    const kind = clozeNoteResponse.value?.case;
+    if (!kind || kind === "error") {
         new Toast({
             target: document.body,
             props: {
@@ -49,7 +49,7 @@ export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom):
         return;
     }
 
-    const clozeNote = clozeNoteResponse.note!;
+    const clozeNote = clozeNoteResponse.value.value;
     const canvas = initCanvas();
 
     // get image width and height
@@ -84,11 +84,7 @@ const initCanvas = (): fabric.Canvas => {
 };
 
 const getImageData = (imageData): string => {
-    const b64encoded = protobuf.util.base64.encode(
-        imageData,
-        0,
-        imageData.length,
-    );
+    const b64encoded = protoBase64.enc(imageData);
     return "data:image/png;base64," + b64encoded;
 };
 

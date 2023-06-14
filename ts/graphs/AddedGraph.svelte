@@ -3,14 +3,14 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { GraphsResponse } from "@tslib/anki/stats_pb";
     import * as tr from "@tslib/ftl";
-    import type { Stats } from "@tslib/proto";
     import { createEventDispatcher } from "svelte";
 
-    import type { PreferenceStore } from "../sveltelib/preferences";
     import type { GraphData } from "./added";
     import { buildHistogram, gatherData } from "./added";
     import Graph from "./Graph.svelte";
+    import type { GraphPrefs } from "./graph-helpers";
     import type { SearchEventMap, TableDatum } from "./graph-helpers";
     import { GraphRange, RevlogRange } from "./graph-helpers";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
@@ -19,13 +19,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import InputBox from "./InputBox.svelte";
     import TableData from "./TableData.svelte";
 
-    export let sourceData: Stats.GraphsResponse | null = null;
-    export let preferences: PreferenceStore<Stats.GraphPreferences>;
+    export let sourceData: GraphsResponse | null = null;
+    export let prefs: GraphPrefs;
 
     let histogramData = null as HistogramData | null;
     let tableData: TableDatum[] = [];
     let graphRange: GraphRange = GraphRange.Month;
-    const { browserLinksSupported } = preferences;
 
     const dispatch = createEventDispatcher<SearchEventMap>();
 
@@ -39,7 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             addedData,
             graphRange,
             dispatch,
-            $browserLinksSupported,
+            $prefs.browserLinksSupported,
         );
     }
 

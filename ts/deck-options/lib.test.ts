@@ -5,7 +5,8 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { DeckConfig } from "@tslib/proto";
+import { protoBase64 } from "@bufbuild/protobuf";
+import { DeckConfig_Config_LeechAction, DeckConfigsForUpdate } from "@tslib/anki/deckconfig_pb";
 import { get } from "svelte/store";
 
 import { DeckOptionsState } from "./lib";
@@ -14,9 +15,9 @@ const exampleData = {
     allConfig: [
         {
             config: {
-                id: "1",
+                id: 1n,
                 name: "Default",
-                mtimeSecs: "1618570764",
+                mtimeSecs: 1618570764n,
                 usn: -1,
                 config: {
                     learnSteps: [1, 10],
@@ -31,19 +32,21 @@ const exampleData = {
                     minimumLapseInterval: 1,
                     graduatingIntervalGood: 1,
                     graduatingIntervalEasy: 4,
-                    leechAction: "LEECH_ACTION_TAG_ONLY",
+                    leechAction: DeckConfig_Config_LeechAction.TAG_ONLY,
                     leechThreshold: 8,
                     capAnswerTimeToSecs: 60,
-                    other: "eyJuZXciOnsic2VwYXJhdGUiOnRydWV9LCJyZXYiOnsiZnV6eiI6MC4wNSwibWluU3BhY2UiOjF9fQ==",
+                    other: protoBase64.dec(
+                        "eyJuZXciOnsic2VwYXJhdGUiOnRydWV9LCJyZXYiOnsiZnV6eiI6MC4wNSwibWluU3BhY2UiOjF9fQ==",
+                    ),
                 },
             },
             useCount: 1,
         },
         {
             config: {
-                id: "1618570764780",
+                id: 1618570764780n,
                 name: "another one",
-                mtimeSecs: "1618570781",
+                mtimeSecs: 1618570781n,
                 usn: -1,
                 config: {
                     learnSteps: [1, 10, 20, 30],
@@ -58,7 +61,7 @@ const exampleData = {
                     minimumLapseInterval: 1,
                     graduatingIntervalGood: 1,
                     graduatingIntervalEasy: 4,
-                    leechAction: "LEECH_ACTION_TAG_ONLY",
+                    leechAction: DeckConfig_Config_LeechAction.TAG_ONLY,
                     leechThreshold: 8,
                     capAnswerTimeToSecs: 60,
                 },
@@ -68,8 +71,8 @@ const exampleData = {
     ],
     currentDeck: {
         name: "Default::child",
-        configId: "1618570764780",
-        parentConfigIds: [1],
+        configId: 1618570764780n,
+        parentConfigIds: [1n],
     },
     defaults: {
         config: {
@@ -85,7 +88,7 @@ const exampleData = {
             minimumLapseInterval: 1,
             graduatingIntervalGood: 1,
             graduatingIntervalEasy: 4,
-            leechAction: "LEECH_ACTION_TAG_ONLY",
+            leechAction: DeckConfig_Config_LeechAction.TAG_ONLY,
             leechThreshold: 8,
             capAnswerTimeToSecs: 60,
         },
@@ -94,8 +97,8 @@ const exampleData = {
 
 function startingState(): DeckOptionsState {
     return new DeckOptionsState(
-        123,
-        DeckConfig.DeckConfigsForUpdate.fromObject(exampleData),
+        123n,
+        new DeckConfigsForUpdate(exampleData),
     );
 }
 
@@ -202,7 +205,7 @@ test("deck list", () => {
 
     // only the pre-existing deck should be listed for removal
     const out = state.dataForSaving(false);
-    expect(out.removedConfigIds).toStrictEqual([1618570764780]);
+    expect(out.removedConfigIds).toStrictEqual([1618570764780n]);
 });
 
 test("duplicate name", () => {
@@ -242,7 +245,7 @@ test("saving", () => {
     let state = startingState();
     let out = state.dataForSaving(false);
     expect(out.removedConfigIds).toStrictEqual([]);
-    expect(out.targetDeckId).toBe(123);
+    expect(out.targetDeckId).toBe(123n);
     // in no-changes case, currently selected config should
     // be returned
     expect(out.configs!.length).toBe(1);
@@ -275,7 +278,7 @@ test("saving", () => {
     // should be listed in removedConfigs, and modified should
     // only contain Default, which is the new current deck
     out = state.dataForSaving(true);
-    expect(out.removedConfigIds).toStrictEqual([1618570764780]);
+    expect(out.removedConfigIds).toStrictEqual([1618570764780n]);
     expect(out.configs!.map((c) => c.name)).toStrictEqual(["Default"]);
 });
 

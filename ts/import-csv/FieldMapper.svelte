@@ -3,19 +3,19 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { CsvMetadata_MappedNotetype } from "@tslib/anki/import_export_pb";
+    import { getFieldNames } from "@tslib/anki/notetypes_service";
     import * as tr from "@tslib/ftl";
-    import type { ImportExport } from "@tslib/proto";
 
     import Spacer from "../components/Spacer.svelte";
     import type { ColumnOption } from "./lib";
-    import { getNotetypeFields } from "./lib";
     import MapperRow from "./MapperRow.svelte";
 
     export let columnOptions: ColumnOption[];
     export let tagsColumn: number;
-    export let globalNotetype: ImportExport.CsvMetadata.MappedNotetype | null;
+    export let globalNotetype: CsvMetadata_MappedNotetype | null;
 
-    let lastNotetypeId: number | undefined = -1;
+    let lastNotetypeId: bigint | undefined = -1n;
     let fieldNamesPromise: Promise<string[]>;
 
     $: if (globalNotetype?.id !== lastNotetypeId) {
@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fieldNamesPromise =
             globalNotetype === null
                 ? Promise.resolve([])
-                : getNotetypeFields(globalNotetype.id);
+                : getFieldNames({ ntid: globalNotetype.id }).then((list) => list.vals);
     }
 </script>
 

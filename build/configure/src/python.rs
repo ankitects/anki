@@ -32,7 +32,7 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
             "python/requirements.qt6_5.txt",
         ]
     };
-    build.add(
+    build.add_action(
         "pyenv",
         PythonEnvironment {
             folder: "pyenv",
@@ -57,7 +57,7 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
         reqs_qt5 = inputs![reqs_qt5, "python/requirements.win.txt"];
     }
 
-    build.add(
+    build.add_action(
         "pyenv-qt5.15",
         PythonEnvironment {
             folder: "pyenv-qt5.15",
@@ -66,7 +66,7 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
             extra_binary_exports: &[],
         },
     )?;
-    build.add(
+    build.add_action(
         "pyenv-qt5.14",
         PythonEnvironment {
             folder: "pyenv-qt5.14",
@@ -110,7 +110,7 @@ impl BuildAction for GenPythonProto {
         build.add_outputs("", python_outputs);
         // not a direct dependency, but we include the output interface in our declared
         // outputs
-        build.add_inputs("", inputs!["rslib/proto"]);
+        build.add_inputs("", inputs![":rslib:proto"]);
         build.add_outputs("", vec!["pylib/anki/_backend_generated.py"]);
     }
 }
@@ -159,7 +159,7 @@ pub fn check_python(build: &mut Build) -> Result<()> {
     python_format(build, "ftl", inputs![glob!("ftl/**/*.py")])?;
     python_format(build, "tools", inputs![glob!("tools/**/*.py")])?;
 
-    build.add(
+    build.add_action(
         "check:mypy",
         PythonTypecheck {
             folders: &[
@@ -190,7 +190,7 @@ fn add_pylint(build: &mut Build) -> Result<()> {
     // pylint does not support PEP420 implicit namespaces split across import paths,
     // so we need to merge our pylib sources and generated files before invoking it,
     // and add a top-level __init__.py
-    build.add(
+    build.add_action(
         "pylint/anki",
         RsyncFiles {
             inputs: inputs![":pylib/anki"],
@@ -200,7 +200,7 @@ fn add_pylint(build: &mut Build) -> Result<()> {
             extra_args: "--links",
         },
     )?;
-    build.add(
+    build.add_action(
         "pylint/anki",
         RsyncFiles {
             inputs: inputs![glob!["pylib/anki/**"]],
@@ -209,7 +209,7 @@ fn add_pylint(build: &mut Build) -> Result<()> {
             extra_args: "",
         },
     )?;
-    build.add(
+    build.add_action(
         "pylint/anki",
         RunCommand {
             command: ":pyenv:bin",
@@ -218,7 +218,7 @@ fn add_pylint(build: &mut Build) -> Result<()> {
             outputs: hashmap! { "out" => vec!["pylint/anki/__init__.py"] },
         },
     )?;
-    build.add(
+    build.add_action(
         "check:pylint",
         PythonLint {
             folders: &[

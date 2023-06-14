@@ -32,6 +32,7 @@ SchedulingState = scheduler_pb2.SchedulingState
 SchedulingStates = scheduler_pb2.SchedulingStates
 SchedulingContext = scheduler_pb2.SchedulingContext
 SchedulingStatesWithContext = scheduler_pb2.SchedulingStatesWithContext
+SetSchedulingStatesRequest = scheduler_pb2.SetSchedulingStatesRequest
 CardAnswer = scheduler_pb2.CardAnswer
 
 
@@ -182,7 +183,7 @@ class Scheduler(SchedulerBaseWithLegacy):
     # fixme: move these into tests_schedv2 in the future
 
     def _interval_for_state(self, state: scheduler_pb2.SchedulingState) -> int:
-        kind = state.WhichOneof("value")
+        kind = state.WhichOneof("kind")
         if kind == "normal":
             return self._interval_for_normal_state(state.normal)
         elif kind == "filtered":
@@ -194,7 +195,7 @@ class Scheduler(SchedulerBaseWithLegacy):
     def _interval_for_normal_state(
         self, normal: scheduler_pb2.SchedulingState.Normal
     ) -> int:
-        kind = normal.WhichOneof("value")
+        kind = normal.WhichOneof("kind")
         if kind == "new":
             return 0
         elif kind == "review":
@@ -210,7 +211,7 @@ class Scheduler(SchedulerBaseWithLegacy):
     def _interval_for_filtered_state(
         self, filtered: scheduler_pb2.SchedulingState.Filtered
     ) -> int:
-        kind = filtered.WhichOneof("value")
+        kind = filtered.WhichOneof("kind")
         if kind == "preview":
             return filtered.preview.scheduled_secs
         elif kind == "rescheduling":

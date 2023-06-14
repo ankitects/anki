@@ -1,8 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import type { CsvMetadata, CsvMetadata_MappedNotetype } from "@tslib/anki/import_export_pb";
 import * as tr from "@tslib/ftl";
-import { ImportExport, importExport, Notetypes, notetypes as notetypeService } from "@tslib/proto";
 
 export interface ColumnOption {
     label: string;
@@ -50,26 +50,42 @@ function columnOption(
     };
 }
 
-export async function getNotetypeFields(notetypeId: number): Promise<string[]> {
-    return notetypeService
-        .getFieldNames(Notetypes.NotetypeId.create({ ntid: notetypeId }))
-        .then((list) => list.vals);
+export function tryGetGlobalNotetype(meta: CsvMetadata): CsvMetadata_MappedNotetype | null {
+    return meta.notetype.case === "globalNotetype" ? meta.notetype.value : null;
 }
 
-export async function getCsvMetadata(
-    path: string,
-    delimiter?: ImportExport.CsvMetadata.Delimiter,
-    notetypeId?: number,
-    deckId?: number,
-    isHtml?: boolean,
-): Promise<ImportExport.CsvMetadata> {
-    return importExport.getCsvMetadata(
-        ImportExport.CsvMetadataRequest.create({
-            path,
-            delimiter,
-            notetypeId,
-            deckId,
-            isHtml,
-        }),
-    );
+export function tryGetDeckId(meta: CsvMetadata): bigint | null {
+    return meta.deck.case === "deckId" ? meta.deck.value : null;
+}
+
+export function tryGetDeckColumn(meta: CsvMetadata): number | null {
+    return meta.deck.case === "deckColumn" ? meta.deck.value : null;
+}
+
+export function tryGetNotetypeColumn(meta: CsvMetadata): number | null {
+    return meta.notetype.case === "notetypeColumn" ? meta.notetype.value : null;
+}
+
+export function buildDeckOneof(
+    deckColumn: number | null,
+    deckId: bigint | null,
+): CsvMetadata["deck"] {
+    if (deckColumn !== null) {
+        return { case: "deckColumn", value: deckColumn };
+    } else if (deckId !== null) {
+        return { case: "deckId", value: deckId };
+    }
+    throw new Error("missing column/id");
+}
+
+export function buildNotetypeOneof(
+    globalNotetype: CsvMetadata_MappedNotetype | null,
+    notetypeColumn: number | null,
+): CsvMetadata["notetype"] {
+    if (globalNotetype !== null) {
+        return { case: "globalNotetype", value: globalNotetype };
+    } else if (notetypeColumn !== null) {
+        return { case: "notetypeColumn", value: notetypeColumn };
+    }
+    throw new Error("missing column/id");
 }

@@ -7,8 +7,8 @@
 
 import "@tslib/i18n";
 
+import { ChangeNotetypeInfo, NotetypeNames } from "@tslib/anki/notetypes_pb";
 import * as tr from "@tslib/ftl";
-import { Notetypes } from "@tslib/proto";
 import { get } from "svelte/store";
 
 import { ChangeNotetypeState, MapContext, negativeOneToNull } from "./lib";
@@ -16,23 +16,23 @@ import { ChangeNotetypeState, MapContext, negativeOneToNull } from "./lib";
 const exampleNames = {
     entries: [
         {
-            id: "1623289129847",
+            id: 1623289129847n,
             name: "Basic",
         },
         {
-            id: "1623289129848",
+            id: 1623289129848n,
             name: "Basic (and reversed card)",
         },
         {
-            id: "1623289129849",
+            id: 1623289129849n,
             name: "Basic (optional reversed card)",
         },
         {
-            id: "1623289129850",
+            id: 1623289129850n,
             name: "Basic (type in the answer)",
         },
         {
-            id: "1623289129851",
+            id: 1623289129851n,
             name: "Cloze",
         },
     ],
@@ -46,9 +46,9 @@ const exampleInfoDifferent = {
     input: {
         newFields: [0, 1, -1],
         newTemplates: [0, -1],
-        oldNotetypeId: "1623289129847",
-        newNotetypeId: "1623289129849",
-        currentSchema: "1623302002316",
+        oldNotetypeId: 1623289129847n,
+        newNotetypeId: 1623289129849n,
+        currentSchema: 1623302002316n,
         oldNotetypeName: "Basic",
     },
 };
@@ -61,24 +61,24 @@ const exampleInfoSame = {
     input: {
         newFields: [0, 1],
         newTemplates: [0],
-        oldNotetypeId: "1623289129847",
-        newNotetypeId: "1623289129847",
-        currentSchema: "1623302002316",
+        oldNotetypeId: 1623289129847n,
+        newNotetypeId: 1623289129847n,
+        currentSchema: 1623302002316n,
         oldNotetypeName: "Basic",
     },
 };
 
 function differentState(): ChangeNotetypeState {
     return new ChangeNotetypeState(
-        Notetypes.NotetypeNames.fromObject(exampleNames),
-        Notetypes.ChangeNotetypeInfo.fromObject(exampleInfoDifferent),
+        new NotetypeNames(exampleNames),
+        new ChangeNotetypeInfo(exampleInfoDifferent),
     );
 }
 
 function sameState(): ChangeNotetypeState {
     return new ChangeNotetypeState(
-        Notetypes.NotetypeNames.fromObject(exampleNames),
-        Notetypes.ChangeNotetypeInfo.fromObject(exampleInfoSame),
+        new NotetypeNames(exampleNames),
+        new ChangeNotetypeInfo(exampleInfoSame),
     );
 }
 

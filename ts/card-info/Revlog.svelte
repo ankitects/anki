@@ -3,42 +3,41 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { CardStatsResponse_StatsRevlogEntry as RevlogEntry } from "@tslib/anki/stats_pb";
+    import { RevlogEntry_ReviewKind as ReviewKind } from "@tslib/anki/stats_pb";
     import * as tr2 from "@tslib/ftl";
-    import { Stats } from "@tslib/proto";
     import { timeSpan, Timestamp } from "@tslib/time";
 
-    type StatsRevlogEntry = Stats.CardStatsResponse.StatsRevlogEntry;
+    export let revlog: RevlogEntry[];
 
-    export let revlog: StatsRevlogEntry[];
-
-    function reviewKindClass(entry: StatsRevlogEntry): string {
+    function reviewKindClass(entry: RevlogEntry): string {
         switch (entry.reviewKind) {
-            case Stats.RevlogEntry.ReviewKind.LEARNING:
+            case ReviewKind.LEARNING:
                 return "revlog-learn";
-            case Stats.RevlogEntry.ReviewKind.REVIEW:
+            case ReviewKind.REVIEW:
                 return "revlog-review";
-            case Stats.RevlogEntry.ReviewKind.RELEARNING:
+            case ReviewKind.RELEARNING:
                 return "revlog-relearn";
         }
         return "";
     }
 
-    function reviewKindLabel(entry: StatsRevlogEntry): string {
+    function reviewKindLabel(entry: RevlogEntry): string {
         switch (entry.reviewKind) {
-            case Stats.RevlogEntry.ReviewKind.LEARNING:
+            case ReviewKind.LEARNING:
                 return tr2.cardStatsReviewLogTypeLearn();
-            case Stats.RevlogEntry.ReviewKind.REVIEW:
+            case ReviewKind.REVIEW:
                 return tr2.cardStatsReviewLogTypeReview();
-            case Stats.RevlogEntry.ReviewKind.RELEARNING:
+            case ReviewKind.RELEARNING:
                 return tr2.cardStatsReviewLogTypeRelearn();
-            case Stats.RevlogEntry.ReviewKind.FILTERED:
+            case ReviewKind.FILTERED:
                 return tr2.cardStatsReviewLogTypeFiltered();
-            case Stats.RevlogEntry.ReviewKind.MANUAL:
+            case ReviewKind.MANUAL:
                 return tr2.cardStatsReviewLogTypeManual();
         }
     }
 
-    function ratingClass(entry: StatsRevlogEntry): string {
+    function ratingClass(entry: RevlogEntry): string {
         if (entry.buttonChosen === 1) {
             return "revlog-ease1";
         }
@@ -57,8 +56,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         takenSecs: string;
     }
 
-    function revlogRowFromEntry(entry: StatsRevlogEntry): RevlogRow {
-        const timestamp = new Timestamp(entry.time);
+    function revlogRowFromEntry(entry: RevlogEntry): RevlogRow {
+        const timestamp = new Timestamp(Number(entry.time));
 
         return {
             date: timestamp.dateString(),
