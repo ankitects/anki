@@ -328,58 +328,7 @@ impl BuildAction for SqlFormat {
     }
 }
 
-pub struct GenTypescriptProto {
-    pub protos: BuildInput,
-    /// .js and .d.ts will be added to it
-    pub output_stem: &'static str,
-}
-
-impl BuildAction for GenTypescriptProto {
-    fn command(&self) -> &str {
-        "$pbjs --target=static-module --wrap=default --force-number --force-message --out=$static $in && $
-         $pbjs --target=json-module --wrap=default --force-number --force-message --out=$js $in && $
-         $pbts --out=$dts $static && $
-         rm $static"
-    }
-
-    fn files(&mut self, build: &mut impl build::FilesHandle) {
-        build.add_inputs("pbjs", inputs![":node_modules:pbjs"]);
-        build.add_inputs("pbts", inputs![":node_modules:pbts"]);
-        build.add_inputs("in", &self.protos);
-        build.add_inputs("", inputs!["yarn.lock"]);
-
-        let stem = self.output_stem;
-        build.add_variable("static", format!("$builddir/{stem}_static.js"));
-        build.add_outputs("js", vec![format!("{stem}.js")]);
-        build.add_outputs("dts", vec![format!("{stem}.d.ts")]);
-    }
-}
-
-pub struct CompileSass<'a> {
-    pub input: BuildInput,
-    pub output: &'a str,
-    pub deps: BuildInput,
-    pub load_paths: Vec<&'a str>,
-}
-
-impl BuildAction for CompileSass<'_> {
-    fn command(&self) -> &str {
-        "$sass -s compressed $args $in -- $out"
-    }
-
-    fn files(&mut self, build: &mut impl build::FilesHandle) {
-        build.add_inputs("sass", inputs![":node_modules:sass"]);
-        build.add_inputs("in", &self.input);
-        build.add_inputs("", &self.deps);
-
-        let args = space_separated(self.load_paths.iter().map(|path| format!("-I {path}")));
-        build.add_variable("args", args);
-
-        build.add_outputs("out", vec![self.output]);
-    }
-}
-
-pub struct GenTypescriptProtoEs<'a> {
+pub struct GenTypescriptProto<'a> {
     pub protos: BuildInput,
     pub include_dirs: &'a [&'a str],
     /// Automatically created.
@@ -388,7 +337,7 @@ pub struct GenTypescriptProtoEs<'a> {
     pub out_path_transform: fn(&str) -> String,
 }
 
-impl BuildAction for GenTypescriptProtoEs<'_> {
+impl BuildAction for GenTypescriptProto<'_> {
     fn command(&self) -> &str {
         "$protoc $includes $in \
         --plugin $gen-es --es_out $out_dir"
@@ -427,6 +376,30 @@ impl BuildAction for GenTypescriptProtoEs<'_> {
         build.add_inputs_vec("in", proto_files);
         build.add_inputs("", inputs!["yarn.lock"]);
         build.add_outputs("", output_files);
+    }
+}
+
+pub struct CompileSass<'a> {
+    pub input: BuildInput,
+    pub output: &'a str,
+    pub deps: BuildInput,
+    pub load_paths: Vec<&'a str>,
+}
+
+impl BuildAction for CompileSass<'_> {
+    fn command(&self) -> &str {
+        "$sass -s compressed $args $in -- $out"
+    }
+
+    fn files(&mut self, build: &mut impl build::FilesHandle) {
+        build.add_inputs("sass", inputs![":node_modules:sass"]);
+        build.add_inputs("in", &self.input);
+        build.add_inputs("", &self.deps);
+
+        let args = space_separated(self.load_paths.iter().map(|path| format!("-I {path}")));
+        build.add_variable("args", args);
+
+        build.add_outputs("out", vec![self.output]);
     }
 }
 

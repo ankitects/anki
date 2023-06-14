@@ -50,86 +50,6 @@
         "path": "node_modules/@popperjs/core",
         "licenseFile": "node_modules/@popperjs/core/LICENSE.md"
     },
-    "@protobufjs/aspromise@1.1.2": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/dcodeIO/protobuf.js",
-        "publisher": "Daniel Wirtz",
-        "email": "dcode+protobufjs@dcode.io",
-        "path": "node_modules/@protobufjs/aspromise",
-        "licenseFile": "node_modules/@protobufjs/aspromise/LICENSE"
-    },
-    "@protobufjs/base64@1.1.2": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/dcodeIO/protobuf.js",
-        "publisher": "Daniel Wirtz",
-        "email": "dcode+protobufjs@dcode.io",
-        "path": "node_modules/@protobufjs/base64",
-        "licenseFile": "node_modules/@protobufjs/base64/LICENSE"
-    },
-    "@protobufjs/codegen@2.0.4": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/dcodeIO/protobuf.js",
-        "publisher": "Daniel Wirtz",
-        "email": "dcode+protobufjs@dcode.io",
-        "path": "node_modules/@protobufjs/codegen",
-        "licenseFile": "node_modules/@protobufjs/codegen/LICENSE"
-    },
-    "@protobufjs/eventemitter@1.1.0": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/dcodeIO/protobuf.js",
-        "publisher": "Daniel Wirtz",
-        "email": "dcode+protobufjs@dcode.io",
-        "path": "node_modules/@protobufjs/eventemitter",
-        "licenseFile": "node_modules/@protobufjs/eventemitter/LICENSE"
-    },
-    "@protobufjs/fetch@1.1.0": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/dcodeIO/protobuf.js",
-        "publisher": "Daniel Wirtz",
-        "email": "dcode+protobufjs@dcode.io",
-        "path": "node_modules/@protobufjs/fetch",
-        "licenseFile": "node_modules/@protobufjs/fetch/LICENSE"
-    },
-    "@protobufjs/float@1.0.2": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/dcodeIO/protobuf.js",
-        "publisher": "Daniel Wirtz",
-        "email": "dcode+protobufjs@dcode.io",
-        "path": "node_modules/@protobufjs/float",
-        "licenseFile": "node_modules/@protobufjs/float/LICENSE"
-    },
-    "@protobufjs/inquire@1.1.0": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/dcodeIO/protobuf.js",
-        "publisher": "Daniel Wirtz",
-        "email": "dcode+protobufjs@dcode.io",
-        "path": "node_modules/@protobufjs/inquire",
-        "licenseFile": "node_modules/@protobufjs/inquire/LICENSE"
-    },
-    "@protobufjs/path@1.1.2": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/dcodeIO/protobuf.js",
-        "publisher": "Daniel Wirtz",
-        "email": "dcode+protobufjs@dcode.io",
-        "path": "node_modules/@protobufjs/path",
-        "licenseFile": "node_modules/@protobufjs/path/LICENSE"
-    },
-    "@protobufjs/pool@1.1.0": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/dcodeIO/protobuf.js",
-        "publisher": "Daniel Wirtz",
-        "email": "dcode+protobufjs@dcode.io",
-        "path": "node_modules/@protobufjs/pool",
-        "licenseFile": "node_modules/@protobufjs/pool/LICENSE"
-    },
-    "@protobufjs/utf8@1.1.0": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/dcodeIO/protobuf.js",
-        "publisher": "Daniel Wirtz",
-        "email": "dcode+protobufjs@dcode.io",
-        "path": "node_modules/@protobufjs/utf8",
-        "licenseFile": "node_modules/@protobufjs/utf8/LICENSE"
-    },
     "@tootallnate/once@2.0.0": {
         "licenses": "MIT",
         "repository": "https://github.com/TooTallNate/once",
@@ -156,12 +76,6 @@
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/marked",
         "licenseFile": "node_modules/@types/marked/LICENSE"
-    },
-    "@types/node@18.11.18": {
-        "licenses": "MIT",
-        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
-        "path": "node_modules/protobufjs/node_modules/@types/node",
-        "licenseFile": "node_modules/protobufjs/node_modules/@types/node/LICENSE"
     },
     "abab@2.0.5": {
         "licenses": "BSD-3-Clause",
@@ -195,14 +109,14 @@
     "acorn@7.4.1": {
         "licenses": "MIT",
         "repository": "https://github.com/acornjs/acorn",
-        "path": "node_modules/acorn-globals/node_modules/acorn",
-        "licenseFile": "node_modules/acorn-globals/node_modules/acorn/LICENSE"
+        "path": "node_modules/acorn",
+        "licenseFile": "node_modules/acorn/LICENSE"
     },
     "acorn@8.7.0": {
         "licenses": "MIT",
         "repository": "https://github.com/acornjs/acorn",
-        "path": "node_modules/acorn",
-        "licenseFile": "node_modules/acorn/LICENSE"
+        "path": "node_modules/jsdom/node_modules/acorn",
+        "licenseFile": "node_modules/jsdom/node_modules/acorn/LICENSE"
     },
     "agent-base@6.0.2": {
         "licenses": "MIT",
@@ -969,8 +883,8 @@
         "repository": "https://github.com/gkz/levn",
         "publisher": "George Zahariev",
         "email": "z@georgezahariev.com",
-        "path": "node_modules/optionator/node_modules/levn",
-        "licenseFile": "node_modules/optionator/node_modules/levn/LICENSE"
+        "path": "node_modules/escodegen/node_modules/levn",
+        "licenseFile": "node_modules/escodegen/node_modules/levn/LICENSE"
     },
     "lodash-es@4.17.21": {
         "licenses": "MIT",
@@ -979,14 +893,6 @@
         "email": "john.david.dalton@gmail.com",
         "path": "node_modules/lodash-es",
         "licenseFile": "node_modules/lodash-es/LICENSE"
-    },
-    "long@5.2.1": {
-        "licenses": "Apache-2.0",
-        "repository": "https://github.com/dcodeIO/long.js",
-        "publisher": "Daniel Wirtz",
-        "email": "dcode@dcode.io",
-        "path": "node_modules/long",
-        "licenseFile": "node_modules/long/LICENSE"
     },
     "lru-cache@6.0.0": {
         "licenses": "ISC",
@@ -1157,8 +1063,8 @@
         "repository": "https://github.com/gkz/optionator",
         "publisher": "George Zahariev",
         "email": "z@georgezahariev.com",
-        "path": "node_modules/optionator",
-        "licenseFile": "node_modules/optionator/LICENSE"
+        "path": "node_modules/escodegen/node_modules/optionator",
+        "licenseFile": "node_modules/escodegen/node_modules/optionator/LICENSE"
     },
     "panzoom@9.4.3": {
         "licenses": "MIT",
@@ -1192,14 +1098,6 @@
         "email": "z@georgezahariev.com",
         "path": "node_modules/prelude-ls",
         "licenseFile": "node_modules/prelude-ls/LICENSE"
-    },
-    "protobufjs@7.2.1": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/protobufjs/protobuf.js",
-        "publisher": "Daniel Wirtz",
-        "email": "dcode+protobufjs@dcode.io",
-        "path": "node_modules/protobufjs",
-        "licenseFile": "node_modules/protobufjs/LICENSE"
     },
     "psl@1.8.0": {
         "licenses": "MIT",

@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { protoBase64 } from "@bufbuild/protobuf";
 import { getImageForOcclusion, getImageOcclusionNote } from "@tslib/anki/image_occlusion_service";
 import * as tr from "@tslib/ftl";
 import { fabric } from "fabric";
 import type { PanZoom } from "panzoom";
-import protobuf from "protobufjs";
 import { get } from "svelte/store";
 
 import { optimumCssSizeForCanvas } from "./canvas-scale";
@@ -84,11 +84,7 @@ const initCanvas = (): fabric.Canvas => {
 };
 
 const getImageData = (imageData): string => {
-    const b64encoded = protobuf.util.base64.encode(
-        imageData,
-        0,
-        imageData.length,
-    );
+    const b64encoded = protoBase64.enc(imageData);
     return "data:image/png;base64," + b64encoded;
 };
 

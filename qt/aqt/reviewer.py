@@ -9,7 +9,7 @@ import random
 import re
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Callable, Literal, Match, Sequence, cast
+from typing import Any, Literal, Match, Sequence, cast
 
 import aqt
 import aqt.browser
@@ -20,7 +20,11 @@ from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.scheduler.base import ScheduleCardsAsNew
 from anki.scheduler.v3 import CardAnswer, QueuedCards
 from anki.scheduler.v3 import Scheduler as V3Scheduler
-from anki.scheduler.v3 import SchedulingContext, SchedulingStates
+from anki.scheduler.v3 import (
+    SchedulingContext,
+    SchedulingStates,
+    SetSchedulingStatesRequest,
+)
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
 from aqt import AnkiQt, gui_hooks
@@ -276,12 +280,12 @@ class Reviewer:
             return v3.context
         return None
 
-    def set_scheduling_states(self, key: str, states: SchedulingStates) -> None:
-        if key != self._state_mutation_key:
+    def set_scheduling_states(self, request: SetSchedulingStatesRequest) -> None:
+        if request.key != self._state_mutation_key:
             return
 
         if v3 := self._v3:
-            v3.states = states
+            v3.states = request.states
 
     def _run_state_mutation_hook(self) -> None:
         def on_eval(result: Any) -> None:

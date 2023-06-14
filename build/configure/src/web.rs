@@ -14,7 +14,6 @@ use ninja_gen::node::DPrint;
 use ninja_gen::node::EsbuildScript;
 use ninja_gen::node::Eslint;
 use ninja_gen::node::GenTypescriptProto;
-use ninja_gen::node::GenTypescriptProtoEs;
 use ninja_gen::node::JestTest;
 use ninja_gen::node::SqlFormat;
 use ninja_gen::node::SvelteCheck;
@@ -48,8 +47,6 @@ fn setup_node(build: &mut Build) -> Result<()> {
             "sass",
             "tsc",
             "tsx",
-            "pbjs",
-            "pbts",
             "jest",
             "protoc-gen-es",
         ],
@@ -139,16 +136,8 @@ fn build_and_check_tslib(build: &mut Build) -> Result<()> {
         },
     )?;
     build.add_action(
-        "ts:lib:backend_proto.d.ts",
-        GenTypescriptProto {
-            protos: inputs![glob!["proto/anki/*.proto"]],
-            output_stem: "ts/lib/backend_proto",
-        },
-    )?;
-
-    build.add_action(
         "ts:lib:proto",
-        GenTypescriptProtoEs {
+        GenTypescriptProto {
             protos: inputs![glob!["proto/**/*.proto"]],
             include_dirs: &["proto"],
             out_dir: "out/ts/lib",
@@ -456,7 +445,12 @@ fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
             inputs: reviewer_deps.clone(),
         },
     )?;
-    eslint(build, "reviewer", "ts/reviewer", reviewer_deps)
+    eslint(build, "reviewer", "ts/reviewer", reviewer_deps)?;
+    build.add_action(
+        "check:jest:reviewer",
+        jest_test("ts/reviewer", inputs![":ts:reviewer"], false),
+    )?;
+    Ok(())
 }
 
 fn check_web(build: &mut Build) -> Result<()> {
