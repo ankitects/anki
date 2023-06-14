@@ -34,7 +34,13 @@ async function postProtoInner(url: string, body: Uint8Array): Promise<Uint8Array
         body,
     });
     if (!result.ok) {
-        throw new Error(`unexpected response code: ${result.status}`);
+        let msg = "something went wrong";
+        try {
+            msg = await result.text();
+        } catch {
+            // ignore
+        }
+        throw new Error(`${result.status}: ${msg}`);
     }
     const blob = await result.blob();
     const respBuf = await new Response(blob).arrayBuffer();
