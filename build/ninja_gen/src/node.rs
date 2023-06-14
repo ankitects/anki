@@ -335,12 +335,15 @@ pub struct GenTypescriptProto<'a> {
     pub out_dir: &'a str,
     /// Can be used to adjust the output js/dts files to point to out_dir.
     pub out_path_transform: fn(&str) -> String,
+    /// Script to apply modifications to the generated files.
+    pub py_transform_script: &'static str,
 }
 
 impl BuildAction for GenTypescriptProto<'_> {
     fn command(&self) -> &str {
         "$protoc $includes $in \
-        --plugin $gen-es --es_out $out_dir"
+        --plugin $gen-es --es_out $out_dir && \
+        $pyenv_bin $script $out_dir"
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
@@ -375,6 +378,9 @@ impl BuildAction for GenTypescriptProto<'_> {
         }
         build.add_inputs_vec("in", proto_files);
         build.add_inputs("", inputs!["yarn.lock"]);
+        build.add_inputs("pyenv_bin", inputs![":pyenv:bin"]);
+        build.add_inputs("script", inputs![self.py_transform_script]);
+
         build.add_outputs("", output_files);
     }
 }
