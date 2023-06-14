@@ -199,6 +199,20 @@ impl Iterator for ReadDirFiles {
     }
 }
 
+pub fn write_file_if_changed(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> Result<()> {
+    let path = path.as_ref();
+    let contents = contents.as_ref();
+    let changed = {
+        read_file(path)
+            .map(|existing| existing != contents)
+            .unwrap_or(true)
+    };
+    if changed {
+        write_file(path, contents)?;
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

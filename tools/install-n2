@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cargo install --git https://github.com/evmar/n2.git --rev e73378d693716715be1a420aa74a2836b49b85c8

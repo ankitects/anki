@@ -9,5 +9,7 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+anyhow = "1.0.71"
+itertools = "0.10.5"
 ninja_gen = { "path" = "../ninja_gen" }
 workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }

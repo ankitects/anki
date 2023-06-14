@@ -6,6 +6,7 @@ use std::collections::HashSet;
 use std::fmt::Write;
 
 use camino::Utf8PathBuf;
+use itertools::Itertools;
 
 use crate::action::BuildAction;
 use crate::archives::Platform;
@@ -266,11 +267,13 @@ impl BuildStatement<'_> {
     /// `existing_outputs`, and any subgroups.
     fn render_into(mut self, buf: &mut String) -> (Vec<String>, Vec<(String, Vec<String>)>) {
         let action_name = self.rule_name;
+        self.implicit_inputs.sort();
+        self.implicit_outputs.sort();
         let inputs_str = to_ninja_target_string(&self.explicit_inputs, &self.implicit_inputs);
         let outputs_str = to_ninja_target_string(&self.explicit_outputs, &self.implicit_outputs);
 
         writeln!(buf, "build {outputs_str}: {action_name} {inputs_str}").unwrap();
-        for (key, value) in self.variables {
+        for (key, value) in self.variables.iter().sorted() {
             writeln!(buf, "  {key} = {}", value).unwrap();
         }
         writeln!(buf).unwrap();

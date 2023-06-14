@@ -10,3 +10,5 @@ target
 /windows.bazelrc
 /out
 node_modules
+.n2_db
+.ninja_log

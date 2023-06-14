@@ -56,7 +56,7 @@ pub fn run_build(args: BuildArgs) {
     let ninja_args = args.args.into_iter().map(|a| a.replace(':', "_"));
 
     let start_time = Instant::now();
-    let mut command = Command::new("ninja");
+    let mut command = Command::new(get_ninja_command());
     command
         .arg("-f")
         .arg(&build_file)
@@ -91,7 +91,12 @@ pub fn run_build(args: BuildArgs) {
         stdout
             .set_color(ColorSpec::new().set_fg(Some(Color::Green)).set_bold(true))
             .unwrap();
-        writeln!(&mut stdout, "\nBuild succeeded.").unwrap();
+        writeln!(
+            &mut stdout,
+            "\nBuild succeeded in {:.2}s.",
+            start_time.elapsed().as_secs_f32()
+        )
+        .unwrap();
         stdout.reset().unwrap();
     } else {
         stdout
@@ -101,6 +106,14 @@ pub fn run_build(args: BuildArgs) {
         stdout.reset().unwrap();
 
         std::process::exit(1);
+    }
+}
+
+fn get_ninja_command() -> &'static str {
+    if which::which("n2").is_ok() {
+        "n2"
+    } else {
+        "ninja"
     }
 }
 

@@ -2,7 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::fmt::Write;
-use std::fs::read_to_string;
+
+use anki_io::create_dir_all;
+use anki_io::write_file_if_changed;
+use anyhow::Result;
+use itertools::Itertools;
 
 use crate::archives::with_exe;
 use crate::input::space_separated;
@@ -18,18 +22,12 @@ impl Build {
         )
         .unwrap();
 
-        writeln!(&mut buf, "builddir = {}", self.buildroot.as_str()).unwrap();
         writeln!(
             &mut buf,
             "runner = $builddir/rust/debug/{}",
             with_exe("runner")
         )
         .unwrap();
-
-        for (key, value) in &self.variables {
-            writeln!(&mut buf, "{} = {}", key, value).unwrap();
-        }
-        buf.push('\n');
 
         for (key, value) in &self.pools {
             writeln!(&mut buf, "pool {}\n  depth = {}", key, value).unwrap();
@@ -38,7 +36,7 @@ impl Build {
 
         buf.push_str(&self.output_text);
 
-        for (group, targets) in &self.groups {
+        for (group, targets) in self.groups.iter().sorted() {
             let group = group.replace(':', "_");
             writeln!(
                 &mut buf,
@@ -51,20 +49,22 @@ impl Build {
 
         buf.push_str(&self.trailing_text);
 
+        buf = buf.replace("$builddir", self.buildroot.as_str());
+        for (key, value) in &self.variables {
+            buf = buf.replace(
+                &format!("${key}"),
+                &value.replace("$builddir", self.buildroot.as_str()),
+            );
+        }
+
         buf
     }
 
-    pub fn write_build_file(&self) {
-        let existing_contents = read_to_string("build.ninja").unwrap_or_default();
-        let new_contents = self.render();
-        if existing_contents != new_contents {
-            let folder = &self.buildroot;
-            if !folder.exists() {
-                std::fs::create_dir_all(folder).expect("create build dir");
-            }
-            std::fs::write(folder.join("build.ninja"), new_contents).expect("write build.ninja");
-        }
-
-        // dbg!(&self.groups);
+    pub fn write_build_file(&self) -> Result<()> {
+        create_dir_all(&self.buildroot)?;
+        let path = self.buildroot.join("build.ninja");
+        let contents = self.render().into_bytes();
+        write_file_if_changed(path, contents)?;
+        Ok(())
     }
 }
