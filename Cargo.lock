@@ -160,6 +160,8 @@ dependencies = [
 name = "anki_i18n"
 version = "0.0.0"
 dependencies = [
+ "anki_io",
+ "anyhow",
  "fluent",
  "fluent-bundle",
  "fluent-syntax",
@@ -824,6 +826,8 @@ dependencies = [
 name = "configure"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
+ "itertools",
  "ninja_gen",
  "workspace-hack",
 ]
@@ -2405,6 +2409,8 @@ checksum = "e4a24736216ec316047a1fc4252e27dabb04218aa4a3f37c6e7ddbf1f9782b54"
 name = "ninja_gen"
 version = "0.0.0"
 dependencies = [
+ "anki_io",
+ "anyhow",
  "camino",
  "globset",
  "itertools",
@@ -3397,6 +3403,7 @@ dependencies = [
  "itertools",
  "junction",
  "termcolor",
+ "which",
  "workspace-hack",
 ]
 

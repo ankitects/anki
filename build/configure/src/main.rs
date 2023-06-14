@@ -56,7 +56,7 @@ fn main() -> Result<()> {
 
     build.trailing_text = "default pylib qt\n".into();
 
-    build.write_build_file();
+    build.write_build_file()?;
 
     Ok(())
 }

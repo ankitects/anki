@@ -9,6 +9,8 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+anki_io = { version = "0.0.0", path = "../../rslib/io" }
+anyhow = "1.0.71"
 camino = "1.1.4"
 globset = "0.4.10"
 itertools = "0.10.5"

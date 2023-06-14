@@ -141,7 +141,10 @@ fn build_and_check_tslib(build: &mut Build) -> Result<()> {
             protos: inputs![glob!["proto/**/*.proto"]],
             include_dirs: &["proto"],
             out_dir: "out/ts/lib",
-            out_path_transform: |path| path.replace("proto/", "ts/lib/"),
+            out_path_transform: |path| {
+                path.replace("proto/", "ts/lib/")
+                    .replace("proto\\", "ts/lib\\")
+            },
             py_transform_script: "pylib/tools/markpure.py",
         },
     )?;

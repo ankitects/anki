@@ -6,8 +6,8 @@ mod extract;
 mod gather;
 mod write_strings;
 
-use std::fs;
-
+use anki_io::write_file_if_changed;
+use anyhow::Result;
 use check::check;
 use extract::get_modules;
 use gather::get_ftl_data;
@@ -15,7 +15,7 @@ use write_strings::write_strings;
 
 // fixme: check all variables are present in translations as well?
 
-fn main() {
+fn main() -> Result<()> {
     // generate our own requirements
     let map = get_ftl_data();
     check(&map);
@@ -26,6 +26,7 @@ fn main() {
     println!("cargo:rerun-if-env-changed=STRINGS_JSON");
     if let Some(path) = option_env!("STRINGS_JSON") {
         let meta_json = serde_json::to_string_pretty(&modules).unwrap();
-        fs::write(path, meta_json).unwrap();
+        write_file_if_changed(path, meta_json)?;
     }
+    Ok(())
 }
