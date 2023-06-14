@@ -27,8 +27,7 @@ import aqt.operations
 from anki import hooks
 from anki.collection import OpChanges
 from anki.decks import UpdateDeckConfigs
-from anki.scheduler.v3 import SchedulingStatesWithContext
-from anki.scheduler_pb2 import SchedulingStates
+from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
@@ -416,10 +415,9 @@ def get_scheduling_states_with_context() -> bytes:
 
 
 def set_scheduling_states() -> bytes:
-    key = request.headers.get("key", "")
-    states = SchedulingStates()
+    states = SetSchedulingStatesRequest()
     states.ParseFromString(request.data)
-    aqt.mw.reviewer.set_scheduling_states(key, states)
+    aqt.mw.reviewer.set_scheduling_states(states)
     return b""
 
 

@@ -32,7 +32,7 @@ impl BuildAction for CompileSassWithGrass {
     }
 
     fn on_first_instance(&self, build: &mut Build) -> Result<()> {
-        build.add(
+        build.add_action(
             "grass",
             CargoInstall {
                 binary_name: "grass",

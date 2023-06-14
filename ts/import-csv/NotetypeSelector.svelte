@@ -3,16 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { NotetypeNameId } from "@tslib/anki/notetypes_pb";
     import * as tr from "@tslib/ftl";
-    import type { Notetypes } from "@tslib/proto";
 
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
     import Select from "../components/Select.svelte";
     import SelectOption from "../components/SelectOption.svelte";
 
-    export let notetypeNameIds: Notetypes.NotetypeNameId[];
-    export let notetypeId: number;
+    export let notetypeNameIds: NotetypeNameId[];
+    export let notetypeId: bigint;
 
     $: label = notetypeNameIds.find((n) => n.id === notetypeId)?.name;
 </script>

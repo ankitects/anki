@@ -5,9 +5,9 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import type { GraphsResponse } from "@tslib/anki/stats_pb";
 import * as tr from "@tslib/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import type { Stats } from "@tslib/proto";
 import { dayLabel } from "@tslib/time";
 import type { Bin } from "d3";
 import { bin, extent, interpolateGreens, scaleLinear, scaleSequential, sum } from "d3";
@@ -21,7 +21,7 @@ export interface GraphData {
     haveBacklog: boolean;
 }
 
-export function gatherData(data: Stats.GraphsResponse): GraphData {
+export function gatherData(data: GraphsResponse): GraphData {
     const msg = data.futureDue!;
     return { dueCounts: numericMap(msg.futureDue), haveBacklog: msg.haveBacklog };
 }

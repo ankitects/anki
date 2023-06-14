@@ -3,23 +3,23 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { CsvMetadata_MatchScope } from "@tslib/anki/import_export_pb";
     import * as tr from "@tslib/ftl";
-    import { ImportExport } from "@tslib/proto";
 
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
     import Select from "../components/Select.svelte";
     import SelectOption from "../components/SelectOption.svelte";
 
-    export let matchScope: ImportExport.CsvMetadata.MatchScope;
+    export let matchScope: CsvMetadata_MatchScope;
 
     const matchScopes = [
         {
-            value: ImportExport.CsvMetadata.MatchScope.NOTETYPE,
+            value: CsvMetadata_MatchScope.NOTETYPE,
             label: tr.notetypesNotetype(),
         },
         {
-            value: ImportExport.CsvMetadata.MatchScope.NOTETYPE_AND_DECK,
+            value: CsvMetadata_MatchScope.NOTETYPE_AND_DECK,
             label: tr.importingNotetypeAndDeck(),
         },
     ];

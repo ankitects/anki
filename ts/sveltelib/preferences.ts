@@ -2,81 +2,33 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { Writable } from "svelte/store";
-import { get, writable } from "svelte/store";
+import { writable } from "svelte/store";
 
-export interface CustomStore<T> extends Writable<T> {
-    subscribe: (getter: (value: T) => void) => () => void;
-    set: (value: T) => void;
-}
+/** Automatically saves to the backend on modification. */
+export type PreferenceStore<T> = Writable<T>;
 
-export type PreferenceStore<T> = {
-    [K in keyof Omit<T, "toJSON">]: CustomStore<T[K]>;
-};
+/** Creates a store out of a preference getter, calling the setter when
+ * changes are made. */
+export async function autoSavingPrefs<T>(
+    getter: () => Promise<T>,
+    setter: (msg: T) => Promise<unknown>,
+): Promise<PreferenceStore<T>> {
+    let currentValue = await getter() as T;
+    const { subscribe, set: origSet } = writable(currentValue);
 
-export type PreferencePayload<T> = {
-    [K in keyof Omit<T, "toJSON">]: T[K];
-};
+    function set(value: T): void {
+        currentValue = value;
+        origSet(value);
+        setter(value);
+    }
 
-export type PreferenceRaw<T> = {
-    [K in keyof T]: T[K];
-};
-
-function createPreference<T>(
-    initialValue: T,
-    savePreferences: () => void,
-): CustomStore<T> {
-    const { subscribe, set, update } = writable(initialValue);
+    function update(updater: (value: T) => T): void {
+        set(updater(currentValue));
+    }
 
     return {
         subscribe,
-        set: (value: T): void => {
-            set(value);
-            savePreferences();
-        },
-        update: (updater: (value: T) => T): void => {
-            update(updater);
-            savePreferences();
-        },
+        set,
+        update,
     };
-}
-
-function preparePreferences<T>(
-    Preferences: T,
-    setter: (payload: PreferencePayload<T>) => Promise<void>,
-    toObject: (preferences: T, options: { defaults: boolean }) => PreferenceRaw<T>,
-): PreferenceStore<T> {
-    const preferences: Partial<PreferenceStore<T>> = {};
-
-    function constructPreferences(): PreferencePayload<T> {
-        const payload: Partial<PreferencePayload<T>> = {};
-
-        for (const key in preferences as PreferenceStore<T>) {
-            payload[key] = get(preferences[key]);
-        }
-
-        return payload as PreferencePayload<T>;
-    }
-
-    function savePreferences(): void {
-        setter(constructPreferences());
-    }
-
-    for (
-        const [key, value] of Object.entries(
-            toObject(Preferences, { defaults: true }),
-        )
-    ) {
-        preferences[key] = createPreference(value, savePreferences);
-    }
-
-    return preferences as PreferenceStore<T>;
-}
-
-export async function getPreferences<T>(
-    getter: () => Promise<T>,
-    setter: (payload: PreferencePayload<T>) => Promise<void>,
-    toObject: (preferences: T, options: { defaults: boolean }) => PreferenceRaw<T>,
-): Promise<PreferenceStore<T>> {
-    const initialPreferences = await getter();
-    return preparePreferences(initialPreferences, setter, toObject);
 }

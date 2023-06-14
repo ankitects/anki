@@ -3,21 +3,15 @@
 
 import "./import-csv-base.scss";
 
+import { getDeckNames } from "@tslib/anki/decks_service";
+import { getCsvMetadata } from "@tslib/anki/import_export_service";
+import { getNotetypeNames } from "@tslib/anki/notetypes_service";
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
-import type { ImportExport, Notetypes } from "@tslib/proto";
-import { Decks, decks as decksService, empty, notetypes as notetypeService } from "@tslib/proto";
 
 import ImportCsvPage from "./ImportCsvPage.svelte";
-import { getCsvMetadata } from "./lib";
+import { tryGetDeckColumn, tryGetDeckId, tryGetGlobalNotetype, tryGetNotetypeColumn } from "./lib";
 
-const gettingNotetypes = notetypeService.getNotetypeNames(empty);
-const gettingDecks = decksService.getDeckNames(
-    Decks.GetDeckNamesRequest.create({
-        skipEmptyDefault: false,
-        includeFiltered: false,
-    }),
-);
 const i18n = setupI18n({
     modules: [
         ModuleName.ACTIONS,
@@ -32,22 +26,15 @@ const i18n = setupI18n({
 });
 
 export async function setupImportCsvPage(path: string): Promise<ImportCsvPage> {
-    const gettingMetadata = getCsvMetadata(path);
-
-    let notetypes: Notetypes.NotetypeNames;
-    let decks: Decks.DeckNames;
-    let metadata: ImportExport.CsvMetadata;
-    try {
-        [notetypes, decks, metadata] = await Promise.all([
-            gettingNotetypes,
-            gettingDecks,
-            gettingMetadata,
-            i18n,
-        ]);
-    } catch (err) {
-        alert(err);
-        throw (err);
-    }
+    const [notetypes, decks, metadata, _i18n] = await Promise.all([
+        getNotetypeNames({}),
+        getDeckNames({
+            skipEmptyDefault: false,
+            includeFiltered: false,
+        }),
+        getCsvMetadata({ path }),
+        i18n,
+    ]);
 
     checkNightMode();
 
@@ -68,13 +55,13 @@ export async function setupImportCsvPage(path: string): Promise<ImportCsvPage> {
             columnLabels: metadata.columnLabels,
             tagsColumn: metadata.tagsColumn,
             guidColumn: metadata.guidColumn,
-            globalNotetype: metadata.globalNotetype ?? null,
             preview: metadata.preview,
+            globalNotetype: tryGetGlobalNotetype(metadata),
             // Unset oneof numbers default to 0, which also means n/a here,
             // but it's vital to differentiate between unset and 0 when reserializing.
-            notetypeColumn: metadata.notetypeColumn ? metadata.notetypeColumn : null,
-            deckId: metadata.deckId ? metadata.deckId : null,
-            deckColumn: metadata.deckColumn ? metadata.deckColumn : null,
+            notetypeColumn: tryGetNotetypeColumn(metadata),
+            deckId: tryGetDeckId(metadata),
+            deckColumn: tryGetDeckColumn(metadata),
         },
     });
 }

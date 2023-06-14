@@ -28,21 +28,21 @@ pub fn build_rust(build: &mut Build) -> Result<()> {
 
 fn prepare_translations(build: &mut Build) -> Result<()> {
     // ensure repos are checked out
-    build.add(
+    build.add_action(
         "ftl:repo:core",
         SyncSubmodule {
             path: "ftl/core-repo",
         },
     )?;
-    build.add(
+    build.add_action(
         "ftl:repo:qt",
         SyncSubmodule {
             path: "ftl/qt-repo",
         },
     )?;
     // build anki_i18n and spit out strings.json
-    build.add(
-        "rslib/i18n",
+    build.add_action(
+        "rslib:i18n",
         CargoBuild {
             inputs: inputs![
                 glob!["rslib/i18n/**"],
@@ -59,7 +59,7 @@ fn prepare_translations(build: &mut Build) -> Result<()> {
         },
     )?;
 
-    build.add(
+    build.add_action(
         "ftl:sync",
         CargoRun {
             binary_name: "ftl-sync",
@@ -69,7 +69,7 @@ fn prepare_translations(build: &mut Build) -> Result<()> {
         },
     )?;
 
-    build.add(
+    build.add_action(
         "ftl:deprecate",
         CargoRun {
             binary_name: "deprecate_ftl_entries",
@@ -84,8 +84,8 @@ fn prepare_translations(build: &mut Build) -> Result<()> {
 
 fn prepare_proto_descriptors(build: &mut Build) -> Result<()> {
     // build anki_proto and spit out descriptors/Python interface
-    build.add(
-        "rslib/proto",
+    build.add_action(
+        "rslib:proto",
         CargoBuild {
             inputs: inputs![glob!["{proto,rslib/proto}/**"], "$protoc_binary",],
             outputs: &[RustOutput::Data(
@@ -106,7 +106,7 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
     } else {
         "native-tls"
     };
-    build.add(
+    build.add_action(
         "pylib/rsbridge",
         CargoBuild {
             inputs: inputs![
@@ -114,8 +114,8 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
                 // declare a dependency on i18n/proto so it gets built first, allowing
                 // things depending on strings.json to build faster, and ensuring
                 // changes to the ftl files trigger a rebuild
-                ":rslib/i18n",
-                ":rslib/proto",
+                ":rslib:i18n",
+                ":rslib:proto",
                 // when env vars change the build hash gets updated
                 "$builddir/build.ninja",
                 // building on Windows requires python3.lib
@@ -140,7 +140,7 @@ pub fn check_rust(build: &mut Build) -> Result<()> {
         "Cargo.toml",
         "rust-toolchain.toml",
     ];
-    build.add(
+    build.add_action(
         "check:format:rust",
         CargoFormat {
             inputs: inputs.clone(),
@@ -148,7 +148,7 @@ pub fn check_rust(build: &mut Build) -> Result<()> {
             working_dir: Some("cargo/format"),
         },
     )?;
-    build.add(
+    build.add_action(
         "format:rust",
         CargoFormat {
             inputs: inputs.clone(),
@@ -163,13 +163,13 @@ pub fn check_rust(build: &mut Build) -> Result<()> {
         ":pylib/rsbridge"
     ];
 
-    build.add(
+    build.add_action(
         "check:clippy",
         CargoClippy {
             inputs: inputs.clone(),
         },
     )?;
-    build.add("check:rust_test", CargoTest { inputs })?;
+    build.add_action("check:rust_test", CargoTest { inputs })?;
 
     Ok(())
 }
@@ -193,7 +193,7 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
         }
 
         fn on_first_instance(&self, build: &mut Build) -> Result<()> {
-            build.add(
+            build.add_action(
                 "build:minilints",
                 CargoBuild {
                     inputs: inputs![glob!("tools/minilints/**/*")],
@@ -211,14 +211,14 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
         "{node_modules,qt/bundle/PyOxidizer}/**"
     ]];
 
-    build.add(
+    build.add_action(
         "check:minilints",
         RunMinilints {
             deps: files.clone(),
             fix: false,
         },
     )?;
-    build.add(
+    build.add_action(
         "fix:minilints",
         RunMinilints {
             deps: files,

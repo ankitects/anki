@@ -5,8 +5,11 @@ mod answering;
 mod states;
 
 use anki_proto::generic;
+use anki_proto::generic::Empty;
 use anki_proto::scheduler;
 pub(super) use anki_proto::scheduler::scheduler_service::Service as SchedulerService;
+use anki_proto::scheduler::SchedulingStatesWithContext;
+use anki_proto::scheduler::SetSchedulingStatesRequest;
 
 use super::Backend;
 use crate::prelude::*;
@@ -263,5 +266,19 @@ impl SchedulerService for Backend {
         input: scheduler::CustomStudyDefaultsRequest,
     ) -> Result<scheduler::CustomStudyDefaultsResponse> {
         self.with_col(|col| col.custom_study_defaults(input.deck_id.into()))
+    }
+
+    fn get_scheduling_states_with_context(
+        &self,
+        _input: Empty,
+    ) -> std::result::Result<SchedulingStatesWithContext, Self::Error> {
+        invalid_input!("the frontend should implement this")
+    }
+
+    fn set_scheduling_states(
+        &self,
+        _input: SetSchedulingStatesRequest,
+    ) -> std::result::Result<Empty, Self::Error> {
+        invalid_input!("the frontend should implement this")
     }
 }

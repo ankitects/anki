@@ -3,27 +3,27 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { CsvMetadata_DupeResolution as DupeResolution } from "@tslib/anki/import_export_pb";
     import * as tr from "@tslib/ftl";
-    import { ImportExport } from "@tslib/proto";
 
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
     import Select from "../components/Select.svelte";
     import SelectOption from "../components/SelectOption.svelte";
 
-    export let dupeResolution: ImportExport.CsvMetadata.DupeResolution;
+    export let dupeResolution: DupeResolution;
 
     const dupeResolutions = [
         {
-            value: ImportExport.CsvMetadata.DupeResolution.UPDATE,
+            value: DupeResolution.UPDATE,
             label: tr.importingUpdate(),
         },
         {
-            value: ImportExport.CsvMetadata.DupeResolution.DUPLICATE,
+            value: DupeResolution.DUPLICATE,
             label: tr.importingDuplicate(),
         },
         {
-            value: ImportExport.CsvMetadata.DupeResolution.PRESERVE,
+            value: DupeResolution.PRESERVE,
             label: tr.importingPreserve(),
         },
     ];

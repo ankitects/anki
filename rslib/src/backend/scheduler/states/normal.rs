@@ -6,18 +6,18 @@ use crate::scheduler::states::NormalState;
 impl From<NormalState> for anki_proto::scheduler::scheduling_state::Normal {
     fn from(state: NormalState) -> Self {
         anki_proto::scheduler::scheduling_state::Normal {
-            value: Some(match state {
+            kind: Some(match state {
                 NormalState::New(state) => {
-                    anki_proto::scheduler::scheduling_state::normal::Value::New(state.into())
+                    anki_proto::scheduler::scheduling_state::normal::Kind::New(state.into())
                 }
                 NormalState::Learning(state) => {
-                    anki_proto::scheduler::scheduling_state::normal::Value::Learning(state.into())
+                    anki_proto::scheduler::scheduling_state::normal::Kind::Learning(state.into())
                 }
                 NormalState::Review(state) => {
-                    anki_proto::scheduler::scheduling_state::normal::Value::Review(state.into())
+                    anki_proto::scheduler::scheduling_state::normal::Kind::Review(state.into())
                 }
                 NormalState::Relearning(state) => {
-                    anki_proto::scheduler::scheduling_state::normal::Value::Relearning(state.into())
+                    anki_proto::scheduler::scheduling_state::normal::Kind::Relearning(state.into())
                 }
             }),
         }
@@ -26,19 +26,19 @@ impl From<NormalState> for anki_proto::scheduler::scheduling_state::Normal {
 
 impl From<anki_proto::scheduler::scheduling_state::Normal> for NormalState {
     fn from(state: anki_proto::scheduler::scheduling_state::Normal) -> Self {
-        match state.value.unwrap_or_else(|| {
-            anki_proto::scheduler::scheduling_state::normal::Value::New(Default::default())
+        match state.kind.unwrap_or_else(|| {
+            anki_proto::scheduler::scheduling_state::normal::Kind::New(Default::default())
         }) {
-            anki_proto::scheduler::scheduling_state::normal::Value::New(state) => {
+            anki_proto::scheduler::scheduling_state::normal::Kind::New(state) => {
                 NormalState::New(state.into())
             }
-            anki_proto::scheduler::scheduling_state::normal::Value::Learning(state) => {
+            anki_proto::scheduler::scheduling_state::normal::Kind::Learning(state) => {
                 NormalState::Learning(state.into())
             }
-            anki_proto::scheduler::scheduling_state::normal::Value::Review(state) => {
+            anki_proto::scheduler::scheduling_state::normal::Kind::Review(state) => {
                 NormalState::Review(state.into())
             }
-            anki_proto::scheduler::scheduling_state::normal::Value::Relearning(state) => {
+            anki_proto::scheduler::scheduling_state::normal::Kind::Relearning(state) => {
                 NormalState::Relearning(state.into())
             }
         }

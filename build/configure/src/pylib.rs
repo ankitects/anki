@@ -20,21 +20,21 @@ use crate::python::GenPythonProto;
 
 pub fn build_pylib(build: &mut Build) -> Result<()> {
     // generated files
-    build.add(
+    build.add_action(
         "pylib/anki:proto",
         GenPythonProto {
             proto_files: inputs![glob!["proto/anki/*.proto"]],
         },
     )?;
 
-    build.add(
+    build.add_action(
         "pylib/anki:_fluent.py",
         RunCommand {
             command: ":pyenv:bin",
             args: "$script $strings $out",
             inputs: hashmap! {
                 "script" => inputs!["pylib/tools/genfluent.py"],
-                "strings" => inputs![":rslib/i18n:strings.json"],
+                "strings" => inputs![":rslib:i18n:strings.json"],
                 "" => inputs!["pylib/anki/_vendor/stringcase.py"]
             },
             outputs: hashmap! {
@@ -42,7 +42,7 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
             },
         },
     )?;
-    build.add(
+    build.add_action(
         "pylib/anki:hooks_gen.py",
         RunCommand {
             command: ":pyenv:bin",
@@ -56,7 +56,7 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
             },
         },
     )?;
-    build.add(
+    build.add_action(
         "pylib/anki:_rsbridge",
         LinkFile {
             input: inputs![":pylib/rsbridge"],
@@ -69,10 +69,10 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
             ),
         },
     )?;
-    build.add("pylib/anki:buildinfo.py", GenBuildInfo {})?;
+    build.add_action("pylib/anki:buildinfo.py", GenBuildInfo {})?;
 
     // wheel
-    build.add(
+    build.add_action(
         "wheels:anki",
         BuildWheel {
             name: "anki",
@@ -93,7 +93,7 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
 pub fn check_pylib(build: &mut Build) -> Result<()> {
     python_format(build, "pylib", inputs![glob!("pylib/**/*.py")])?;
 
-    build.add(
+    build.add_action(
         "check:pytest:pylib",
         PythonTest {
             folder: "pylib/tests",

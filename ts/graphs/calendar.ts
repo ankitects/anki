@@ -1,9 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import type { GraphsResponse } from "@tslib/anki/stats_pb";
+import { GraphPreferences_Weekday as Weekday } from "@tslib/anki/stats_pb";
 import * as tr from "@tslib/ftl";
 import { localizedDate, weekdayLabel } from "@tslib/i18n";
-import { Stats } from "@tslib/proto";
 import type { CountableTimeInterval } from "d3";
 import { timeHour } from "d3";
 import {
@@ -43,12 +44,9 @@ interface DayDatum {
     date: Date;
 }
 
-type WeekdayType = Stats.GraphPreferences.Weekday;
-const Weekday = Stats.GraphPreferences.Weekday; /* enum */
-
 export function gatherData(
-    data: Stats.GraphsResponse,
-    firstDayOfWeek: WeekdayType,
+    data: GraphsResponse,
+    firstDayOfWeek: Weekday,
 ): GraphData {
     const reviewCount = new Map(
         Object.entries(data.reviews!.count).map(([k, v]) => {
@@ -205,7 +203,7 @@ export function renderCalendar(
         .attr("fill", (d: DayDatum) => (d.count === 0 ? emptyColour : blues(d.count)!));
 }
 
-function timeFunctionForDay(firstDayOfWeek: WeekdayType): CountableTimeInterval {
+function timeFunctionForDay(firstDayOfWeek: Weekday): CountableTimeInterval {
     switch (firstDayOfWeek) {
         case Weekday.MONDAY:
             return timeMonday;

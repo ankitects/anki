@@ -1,18 +1,25 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import type { PlainMessage } from "@bufbuild/protobuf";
+import { updateDeckConfigs } from "@tslib/anki/deck_config_service";
+import type {
+    DeckConfigsForUpdate,
+    DeckConfigsForUpdate_CurrentDeck,
+    UpdateDeckConfigsRequest,
+} from "@tslib/anki/deckconfig_pb";
+import { DeckConfig, DeckConfig_Config, DeckConfigsForUpdate_CurrentDeck_Limits } from "@tslib/anki/deckconfig_pb";
 import { localeCompare } from "@tslib/i18n";
-import { DeckConfig, deckConfig } from "@tslib/proto";
 import { cloneDeep, isEqual } from "lodash-es";
 import type { Readable, Writable } from "svelte/store";
 import { get, readable, writable } from "svelte/store";
 
 import type { DynamicSvelteComponent } from "../sveltelib/dynamicComponent";
 
-export type DeckOptionsId = number;
+export type DeckOptionsId = bigint;
 
 export interface ConfigWithCount {
-    config: DeckConfig.DeckConfig;
+    config: DeckConfig;
     useCount: number;
 }
 
@@ -30,19 +37,19 @@ export interface ConfigListEntry {
 }
 
 export class DeckOptionsState {
-    readonly currentConfig: Writable<DeckConfig.DeckConfig.Config>;
+    readonly currentConfig: Writable<DeckConfig_Config>;
     readonly currentAuxData: Writable<Record<string, unknown>>;
     readonly configList: Readable<ConfigListEntry[]>;
     readonly parentLimits: Readable<ParentLimits>;
     readonly cardStateCustomizer: Writable<string>;
-    readonly currentDeck: DeckConfig.DeckConfigsForUpdate.CurrentDeck;
-    readonly deckLimits: Writable<DeckConfig.DeckConfigsForUpdate.CurrentDeck.Limits>;
-    readonly defaults: DeckConfig.DeckConfig.Config;
+    readonly currentDeck: DeckConfigsForUpdate_CurrentDeck;
+    readonly deckLimits: Writable<DeckConfigsForUpdate_CurrentDeck_Limits>;
+    readonly defaults: DeckConfig_Config;
     readonly addonComponents: Writable<DynamicSvelteComponent[]>;
     readonly v3Scheduler: boolean;
     readonly newCardsIgnoreReviewLimit: Writable<boolean>;
 
-    private targetDeckId: number;
+    private targetDeckId: DeckOptionsId;
     private configs: ConfigWithCount[];
     private selectedIdx: number;
     private configListSetter!: (val: ConfigListEntry[]) => void;
@@ -51,7 +58,7 @@ export class DeckOptionsState {
     private removedConfigs: DeckOptionsId[] = [];
     private schemaModified: boolean;
 
-    constructor(targetDeckId: number, data: DeckConfig.DeckConfigsForUpdate) {
+    constructor(targetDeckId: DeckOptionsId, data: DeckConfigsForUpdate) {
         this.targetDeckId = targetDeckId;
         this.currentDeck = data.currentDeck!;
         this.defaults = data.defaults!.config!;
@@ -135,12 +142,12 @@ export class DeckOptionsState {
     }
 
     /** Clone the current config, making it current. */
-    private addConfigFrom(name: string, source: DeckConfig.DeckConfig.IConfig): void {
+    private addConfigFrom(name: string, source: DeckConfig_Config): void {
         const uniqueName = this.ensureNewNameUnique(name);
-        const config = DeckConfig.DeckConfig.create({
-            id: 0,
+        const config = new DeckConfig({
+            id: 0n,
             name: uniqueName,
-            config: DeckConfig.DeckConfig.Config.create(cloneDeep(source)),
+            config: new DeckConfig_Config(cloneDeep(source)),
         });
         const configWithCount = { config, useCount: 0 };
         this.configs.push(configWithCount);
@@ -151,20 +158,20 @@ export class DeckOptionsState {
     }
 
     removalWilLForceFullSync(): boolean {
-        return !this.schemaModified && this.configs[this.selectedIdx].config.id !== 0;
+        return !this.schemaModified && this.configs[this.selectedIdx].config.id !== 0n;
     }
 
     defaultConfigSelected(): boolean {
-        return this.configs[this.selectedIdx].config.id === 1;
+        return this.configs[this.selectedIdx].config.id === 1n;
     }
 
     /** Will throw if the default deck is selected. */
     removeCurrentConfig(): void {
         const currentId = this.configs[this.selectedIdx].config.id;
-        if (currentId === 1) {
+        if (currentId === 1n) {
             throw Error("can't remove default config");
         }
-        if (currentId !== 0) {
+        if (currentId !== 0n) {
             this.removedConfigs.push(currentId);
             this.schemaModified = true;
         }
@@ -176,13 +183,13 @@ export class DeckOptionsState {
 
     dataForSaving(
         applyToChildren: boolean,
-    ): NonNullable<DeckConfig.IUpdateDeckConfigsRequest> {
+    ): PlainMessage<UpdateDeckConfigsRequest> {
         const modifiedConfigsExcludingCurrent = this.configs
             .map((c) => c.config)
             .filter((c, idx) => {
                 return (
                     idx !== this.selectedIdx
-                    && (c.id === 0 || this.modifiedConfigs.has(c.id))
+                    && (c.id === 0n || this.modifiedConfigs.has(c.id))
                 );
             });
         const configs = [
@@ -202,14 +209,12 @@ export class DeckOptionsState {
     }
 
     async save(applyToChildren: boolean): Promise<void> {
-        await deckConfig.updateDeckConfigs(
-            DeckConfig.UpdateDeckConfigsRequest.create(
-                this.dataForSaving(applyToChildren),
-            ),
+        await updateDeckConfigs(
+            this.dataForSaving(applyToChildren),
         );
     }
 
-    private onCurrentConfigChanged(config: DeckConfig.DeckConfig.Config): void {
+    private onCurrentConfigChanged(config: DeckConfig_Config): void {
         const configOuter = this.configs[this.selectedIdx].config;
         if (!isEqual(config, configOuter.config)) {
             configOuter.config = config;
@@ -251,7 +256,7 @@ export class DeckOptionsState {
     }
 
     /** Returns a copy of the currently selected config. */
-    private getCurrentConfig(): DeckConfig.DeckConfig.Config {
+    private getCurrentConfig(): DeckConfig_Config {
         return cloneDeep(this.configs[this.selectedIdx].config.config!);
     }
 
@@ -321,8 +326,8 @@ function bytesToObject(bytes: Uint8Array): Record<string, unknown> {
     return obj;
 }
 
-export function createLimits(): DeckConfig.DeckConfigsForUpdate.CurrentDeck.Limits {
-    return DeckConfig.DeckConfigsForUpdate.CurrentDeck.Limits.create({});
+export function createLimits(): DeckConfigsForUpdate_CurrentDeck_Limits {
+    return new DeckConfigsForUpdate_CurrentDeck_Limits({});
 }
 
 export class ValueTab {

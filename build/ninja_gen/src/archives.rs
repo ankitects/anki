@@ -160,7 +160,7 @@ where
 fn build_archive_tool(build: &mut Build) -> Result<()> {
     build.once_only("build_archive_tool", |build| {
         let features = Platform::tls_feature();
-        build.add(
+        build.add_action(
             "build:archives",
             CargoBuild {
                 inputs: inputs![glob!("build/archives/**/*")],
@@ -186,10 +186,10 @@ where
     I::Item: AsRef<str>,
 {
     let download_group = format!("download:{group_name}");
-    build.add(&download_group, DownloadArchive { archive })?;
+    build.add_action(&download_group, DownloadArchive { archive })?;
 
     let extract_group = format!("extract:{group_name}");
-    build.add(
+    build.add_action(
         extract_group,
         ExtractArchive {
             archive_path: inputs![format!(":{download_group}")],
