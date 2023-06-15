@@ -3,12 +3,12 @@
 
 use std::env;
 use std::fmt::Write;
-use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 
 use anki_io::create_dir_all;
 use anki_io::read_file;
+use anki_io::write_file_if_changed;
 use anyhow::Context;
 use anyhow::Result;
 use prost_build::ServiceGenerator;
@@ -24,9 +24,10 @@ pub fn write_backend_proto_rs(descriptors_path: &Path) -> Result<DescriptorPool>
             .parent()
             .context("missing parent of descriptor")?,
     )?;
+    let tmp_descriptors = out_dir.join("descriptors.tmp");
     prost_build::Config::new()
         .out_dir(&out_dir)
-        .file_descriptor_set_path(descriptors_path)
+        .file_descriptor_set_path(&tmp_descriptors)
         .service_generator(RustCodeGenerator::boxed())
         .type_attribute(
             "Deck.Filtered.SearchTerm.Order",
@@ -53,11 +54,12 @@ pub fn write_backend_proto_rs(descriptors_path: &Path) -> Result<DescriptorPool>
         .compile_protos(paths.as_slice(), &[proto_dir])
         .context("prost build")?;
 
-    write_service_index(&out_dir, descriptors_path)
+    let descriptors = read_file(&tmp_descriptors)?;
+    write_file_if_changed(descriptors_path, &descriptors)?;
+    write_service_index(&out_dir, descriptors)
 }
 
-fn write_service_index(out_dir: &Path, descriptors_path: &Path) -> Result<DescriptorPool> {
-    let descriptors = read_file(descriptors_path)?;
+fn write_service_index(out_dir: &Path, descriptors: Vec<u8>) -> Result<DescriptorPool> {
     let pool =
         DescriptorPool::decode(descriptors.as_ref()).context("unable to decode descriptors")?;
     let mut buf = String::new();
@@ -80,7 +82,7 @@ pub enum ServiceIndex {{"
     }
     writeln!(buf, "}}").unwrap();
 
-    fs::write(out_dir.join("service_index.rs"), buf).context("failed to write service index")?;
+    write_file_if_changed(out_dir.join("service_index.rs"), buf)?;
 
     Ok(pool)
 }
