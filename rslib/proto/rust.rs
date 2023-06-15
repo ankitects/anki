@@ -14,16 +14,11 @@ use anyhow::Result;
 use prost_build::ServiceGenerator;
 use prost_reflect::DescriptorPool;
 
-pub fn write_backend_proto_rs(descriptors_path: &Path) -> Result<DescriptorPool> {
+pub fn write_backend_proto_rs(descriptors_path: Option<PathBuf>) -> Result<DescriptorPool> {
     set_protoc_path();
     let proto_dir = PathBuf::from("../../proto");
     let paths = gather_proto_paths(&proto_dir)?;
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
-    create_dir_all(
-        descriptors_path
-            .parent()
-            .context("missing parent of descriptor")?,
-    )?;
     let tmp_descriptors = out_dir.join("descriptors.tmp");
     prost_build::Config::new()
         .out_dir(&out_dir)
@@ -55,7 +50,14 @@ pub fn write_backend_proto_rs(descriptors_path: &Path) -> Result<DescriptorPool>
         .context("prost build")?;
 
     let descriptors = read_file(&tmp_descriptors)?;
-    write_file_if_changed(descriptors_path, &descriptors)?;
+    if let Some(descriptors_path) = descriptors_path {
+        create_dir_all(
+            descriptors_path
+                .parent()
+                .context("missing parent of descriptor")?,
+        )?;
+        write_file_if_changed(descriptors_path, &descriptors)?;
+    }
     write_service_index(&out_dir, descriptors)
 }
 
