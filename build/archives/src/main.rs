@@ -4,7 +4,9 @@
 use std::error::Error;
 use std::fs;
 use std::io::Read;
+use std::path::Path;
 
+use anki_io::read_file;
 use camino::Utf8Path;
 use sha2::Digest;
 
@@ -19,7 +21,7 @@ async fn main() -> Result<()> {
         "download" => {
             let archive_url = &args[2];
             let checksum = &args[3];
-            let output_path = &args[4];
+            let output_path = Path::new(&args[4]);
             download_and_check(archive_url, checksum, output_path).await?;
         }
         "extract" => {
@@ -33,13 +35,15 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn download_and_check(archive_url: &str, checksum: &str, output_path: &str) -> Result<()> {
+async fn download_and_check(archive_url: &str, checksum: &str, output_path: &Path) -> Result<()> {
+    // skip download if we already have a valid file
+    if output_path.exists() && sha2_data(&read_file(output_path)?) == checksum {
+        return Ok(());
+    }
+
     let response = reqwest::get(archive_url).await?.error_for_status()?;
     let data = response.bytes().await?.to_vec();
-    let mut digest = sha2::Sha256::new();
-    digest.update(&data);
-    let result = digest.finalize();
-    let actual_checksum = format!("{:x}", result);
+    let actual_checksum = sha2_data(&data);
     if actual_checksum != checksum {
         println!("expected {checksum}, got {actual_checksum}");
         std::process::exit(1);
@@ -47,6 +51,13 @@ async fn download_and_check(archive_url: &str, checksum: &str, output_path: &str
     fs::write(output_path, data)?;
 
     Ok(())
+}
+
+fn sha2_data(data: &[u8]) -> String {
+    let mut digest = sha2::Sha256::new();
+    digest.update(data);
+    let result = digest.finalize();
+    format!("{:x}", result)
 }
 
 enum CompressionKind {
