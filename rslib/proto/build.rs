@@ -9,13 +9,12 @@ pub mod utils;
 use std::env;
 use std::path::PathBuf;
 
-use anyhow::Context;
 use anyhow::Result;
 
 fn main() -> Result<()> {
-    let descriptors_path = PathBuf::from(env::var("DESCRIPTORS_BIN").context("DESCRIPTORS_BIN")?);
+    let descriptors_path = env::var("DESCRIPTORS_BIN").ok().map(PathBuf::from);
 
-    let pool = rust::write_backend_proto_rs(&descriptors_path)?;
+    let pool = rust::write_backend_proto_rs(descriptors_path)?;
     python::write_python_interface(&pool)?;
     ts::write_ts_interface(&pool)?;
 
