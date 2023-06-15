@@ -209,6 +209,7 @@ struct BuildStatement<'a> {
     implicit_outputs: Vec<String>,
     explicit_inputs: Vec<String>,
     explicit_outputs: Vec<String>,
+    order_only_inputs: Vec<String>,
     output_subsets: Vec<(String, Vec<String>)>,
     variables: Vec<(String, String)>,
     rule_variables: Vec<(String, String)>,
@@ -234,6 +235,7 @@ impl BuildStatement<'_> {
             implicit_outputs: Default::default(),
             explicit_inputs: Default::default(),
             explicit_outputs: Default::default(),
+            order_only_inputs: Default::default(),
             variables: Default::default(),
             rule_variables: Default::default(),
             output_subsets: Default::default(),
@@ -269,8 +271,13 @@ impl BuildStatement<'_> {
         let action_name = self.rule_name;
         self.implicit_inputs.sort();
         self.implicit_outputs.sort();
-        let inputs_str = to_ninja_target_string(&self.explicit_inputs, &self.implicit_inputs);
-        let outputs_str = to_ninja_target_string(&self.explicit_outputs, &self.implicit_outputs);
+        let inputs_str = to_ninja_target_string(
+            &self.explicit_inputs,
+            &self.implicit_inputs,
+            &self.order_only_inputs,
+        );
+        let outputs_str =
+            to_ninja_target_string(&self.explicit_outputs, &self.implicit_outputs, &[]);
 
         writeln!(buf, "build {outputs_str}: {action_name} {inputs_str}").unwrap();
         for (key, value) in self.variables.iter().sorted() {
@@ -329,6 +336,7 @@ pub trait FilesHandle {
     /// this is often `in`.
     fn add_inputs(&mut self, variable: &'static str, inputs: impl AsRef<BuildInput>);
     fn add_inputs_vec(&mut self, variable: &'static str, inputs: Vec<String>);
+    fn add_order_only_inputs(&mut self, variable: &'static str, inputs: impl AsRef<BuildInput>);
 
     /// Add a variable that can be referenced in the command.
     fn add_variable(&mut self, name: impl Into<String>, value: impl Into<String>);
@@ -398,6 +406,14 @@ impl FilesHandle for BuildStatement<'_> {
                 self.implicit_inputs.extend(inputs);
             }
         }
+    }
+
+    fn add_order_only_inputs(&mut self, variable: &'static str, inputs: impl AsRef<BuildInput>) {
+        let inputs = FilesHandle::expand_inputs(self, inputs);
+        if !variable.is_empty() {
+            self.add_variable(variable, space_separated(&inputs))
+        }
+        self.order_only_inputs.extend(inputs);
     }
 
     fn add_variable(&mut self, key: impl Into<String>, value: impl Into<String>) {
@@ -479,11 +495,19 @@ impl FilesHandle for BuildStatement<'_> {
     }
 }
 
-fn to_ninja_target_string(explicit: &[String], implicit: &[String]) -> String {
+fn to_ninja_target_string(
+    explicit: &[String],
+    implicit: &[String],
+    order_only: &[String],
+) -> String {
     let mut joined = space_separated(explicit);
     if !implicit.is_empty() {
         joined.push_str(" | ");
         joined.push_str(&space_separated(implicit));
+    }
+    if !order_only.is_empty() {
+        joined.push_str(" || ");
+        joined.push_str(&space_separated(order_only));
     }
     joined
 }
