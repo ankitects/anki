@@ -97,6 +97,10 @@ impl BuildAction for DownloadArchive {
     fn on_first_instance(&self, build: &mut Build) -> Result<()> {
         build_archive_tool(build)
     }
+
+    fn check_output_timestamps(&self) -> bool {
+        true
+    }
 }
 
 struct ExtractArchive<'a, I> {
@@ -154,6 +158,10 @@ where
 
     fn name(&self) -> &'static str {
         "extract"
+    }
+
+    fn check_output_timestamps(&self) -> bool {
+        true
     }
 }
 
