@@ -43,7 +43,7 @@ fn build_forms(build: &mut Build) -> Result<()> {
         py_files.push(outpath.replace(".ui", "_qt6.py"));
     }
     build.add_action(
-        "qt/aqt:forms",
+        "qt:aqt:forms",
         RunCommand {
             command: ":pyenv:bin",
             args: "$script $first_form",
@@ -66,7 +66,7 @@ fn build_forms(build: &mut Build) -> Result<()> {
 /// _aqt module.
 fn build_generated_sources(build: &mut Build) -> Result<()> {
     build.add_action(
-        "qt/aqt:hooks.py",
+        "qt:aqt:hooks.py",
         RunCommand {
             command: ":pyenv:bin",
             args: "$script $out",
@@ -80,7 +80,7 @@ fn build_generated_sources(build: &mut Build) -> Result<()> {
         },
     )?;
     build.add_action(
-        "qt/aqt:sass_vars",
+        "qt:aqt:sass_vars",
         RunCommand {
             command: ":pyenv:bin",
             args: "$script $root_scss $out",
@@ -99,7 +99,7 @@ fn build_generated_sources(build: &mut Build) -> Result<()> {
     // we need to add a py.typed file to the generated sources, or mypy
     // will ignore them when used with the generated wheel
     build.add_action(
-        "qt/aqt:py.typed",
+        "qt:aqt:py.typed",
         CopyFile {
             input: "qt/aqt/py.typed".into(),
             output: "qt/_aqt/py.typed",
@@ -126,7 +126,7 @@ fn build_css(build: &mut Build) -> Result<()> {
         out_path.set_extension("css");
 
         build.add_action(
-            "qt/aqt:data/web/css",
+            "qt:aqt:data:web:css",
             CompileSass {
                 input: scss.into(),
                 output: out_path.as_str(),
@@ -144,7 +144,7 @@ fn build_css(build: &mut Build) -> Result<()> {
         ".css",
     );
     build.add_action(
-        "qt/aqt:data/web/css",
+        "qt:aqt:data:web:css",
         CopyFiles {
             inputs: other_ts_css.into(),
             output_folder: "qt/_aqt/data/web/css",
@@ -154,7 +154,7 @@ fn build_css(build: &mut Build) -> Result<()> {
 
 fn build_imgs(build: &mut Build) -> Result<()> {
     build.add_action(
-        "qt/aqt:data/web/imgs",
+        "qt:aqt:data:web:imgs",
         CopyFiles {
             inputs: inputs![glob!["qt/aqt/data/web/imgs/*"]],
             output_folder: "qt/_aqt/data/web/imgs",
@@ -165,7 +165,7 @@ fn build_imgs(build: &mut Build) -> Result<()> {
 fn build_js(build: &mut Build) -> Result<()> {
     for ts_file in &["deckbrowser", "webview", "toolbar", "reviewer-bottom"] {
         build.add_action(
-            "qt/aqt:data/web/js",
+            "qt:aqt:data:web:js",
             EsbuildScript {
                 script: "ts/transform_ts.mjs".into(),
                 entrypoint: format!("qt/aqt/data/web/js/{ts_file}.ts").into(),
@@ -189,7 +189,7 @@ fn build_js(build: &mut Build) -> Result<()> {
         ".js",
     );
     build.add_action(
-        "qt/aqt:data/web/js",
+        "qt:aqt:data:web:js",
         CopyFiles {
             inputs: files_from_ts.into(),
             output_folder: "qt/_aqt/data/web/js",
@@ -199,9 +199,9 @@ fn build_js(build: &mut Build) -> Result<()> {
 }
 
 fn build_vendor_js(build: &mut Build) -> Result<()> {
-    build.add_action("qt/aqt:data/web/js/vendor:mathjax", copy_mathjax())?;
+    build.add_action("qt:aqt:data:web:js:vendor:mathjax", copy_mathjax())?;
     build.add_action(
-        "qt/aqt:data/web/js/vendor",
+        "qt:aqt:data:web:js:vendor",
         CopyFiles {
             inputs: inputs![
                 ":node_modules:jquery",
@@ -217,7 +217,7 @@ fn build_vendor_js(build: &mut Build) -> Result<()> {
 
 fn build_pages(build: &mut Build) -> Result<()> {
     build.add_action(
-        "qt/aqt:data/web/pages",
+        "qt:aqt:data:web:pages",
         CopyFiles {
             inputs: inputs![":ts:pages"],
             output_folder: "qt/_aqt/data/web/pages",
@@ -229,30 +229,30 @@ fn build_pages(build: &mut Build) -> Result<()> {
 fn build_icons(build: &mut Build) -> Result<()> {
     build_themed_icons(build)?;
     build.add_action(
-        "qt/aqt:data/qt/icons:mdi_unthemed",
+        "qt:aqt:data:qt:icons:mdi_unthemed",
         CopyFiles {
             inputs: inputs![":node_modules:mdi_unthemed"],
             output_folder: "qt/_aqt/data/qt/icons",
         },
     )?;
     build.add_action(
-        "qt/aqt:data/qt/icons:from_src",
+        "qt:aqt:data:qt:icons:from_src",
         CopyFiles {
             inputs: inputs![glob!["qt/aqt/data/qt/icons/*.{png,svg}"]],
             output_folder: "qt/_aqt/data/qt/icons",
         },
     )?;
     build.add_action(
-        "qt/aqt:data/qt/icons",
+        "qt:aqt:data:qt:icons",
         RunCommand {
             command: ":pyenv:bin",
             args: "$script $out $in",
             inputs: hashmap! {
                 "script" => inputs!["qt/tools/build_qrc.py"],
                 "in" => inputs![
-                    ":qt/aqt:data/qt/icons:mdi_unthemed",
-                    ":qt/aqt:data/qt/icons:mdi_themed",
-                    ":qt/aqt:data/qt/icons:from_src",
+                    ":qt:aqt:data:qt:icons:mdi_unthemed",
+                    ":qt:aqt:data:qt:icons:mdi_themed",
+                    ":qt:aqt:data:qt:icons:from_src",
                 ]
             },
             outputs: hashmap! {
@@ -281,7 +281,7 @@ fn build_themed_icons(build: &mut Build) -> Result<()> {
             colors.extend(extra);
         }
         build.add_action(
-            "qt/aqt:data/qt/icons:mdi_themed",
+            "qt:aqt:data:qt:icons:mdi_themed",
             BuildThemedIcon {
                 src_icon: path,
                 colors,
@@ -324,7 +324,7 @@ impl BuildAction for BuildThemedIcon<'_> {
         build.add_inputs("pyenv_bin", inputs![":pyenv:bin"]);
         build.add_inputs("script", inputs!["qt/tools/color_svg.py"]);
         build.add_inputs("in", inputs![self.src_icon.as_str()]);
-        build.add_inputs("", inputs![":qt/aqt:sass_vars"]);
+        build.add_inputs("", inputs![":qt:aqt:sass_vars"]);
         build.add_variable("colors", self.colors.join(":"));
         build.add_outputs("out", outputs);
     }
@@ -333,7 +333,7 @@ impl BuildAction for BuildThemedIcon<'_> {
 fn build_macos_helper(build: &mut Build) -> Result<()> {
     if cfg!(target_os = "macos") {
         build.add_action(
-            "qt/aqt:data/lib:libankihelper",
+            "qt:aqt:data:lib:libankihelper",
             RunCommand {
                 command: ":pyenv:bin",
                 args: "$script $out $in",
@@ -359,7 +359,7 @@ fn build_wheel(build: &mut Build) -> Result<()> {
             src_folder: "qt/aqt",
             gen_folder: "$builddir/qt/_aqt",
             platform: None,
-            deps: inputs![":qt/aqt", glob!("qt/aqt/**"), "python/requirements.aqt.in"],
+            deps: inputs![":qt:aqt", glob!("qt/aqt/**"), "python/requirements.aqt.in"],
         },
     )
 }
@@ -376,7 +376,7 @@ fn check_python(build: &mut Build) -> Result<()> {
         PythonTest {
             folder: "qt/tests",
             python_path: &["pylib", "$builddir/pylib", "$builddir/qt"],
-            deps: inputs![":pylib/anki", ":qt/aqt", glob!["qt/tests/**"]],
+            deps: inputs![":pylib:anki", ":qt:aqt", glob!["qt/tests/**"]],
         },
     )
 }

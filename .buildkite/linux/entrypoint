@@ -13,7 +13,7 @@ if [ "$CLEAR_RUST" = "1" ]; then
     rm -rf $BUILD_ROOT/rust
 fi
 
-./ninja pylib/anki qt/aqt check
+./ninja pylib qt check
 
 echo "--- Ensure libs importable"
 SKIP_RUN=1 ./run

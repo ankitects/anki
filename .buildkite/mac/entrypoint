@@ -7,4 +7,4 @@ mkdir -p $STATE
 
 echo "+++ Building and testing"
 ln -sf out/node_modules .
-BUILD_ROOT=$STATE/build ./ninja pylib/anki qt/aqt wheels check
+BUILD_ROOT=$STATE/build ./ninja pylib qt wheels check

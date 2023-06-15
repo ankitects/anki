@@ -21,14 +21,14 @@ use crate::python::GenPythonProto;
 pub fn build_pylib(build: &mut Build) -> Result<()> {
     // generated files
     build.add_action(
-        "pylib/anki:proto",
+        "pylib:anki:proto",
         GenPythonProto {
             proto_files: inputs![glob!["proto/anki/*.proto"]],
         },
     )?;
 
     build.add_action(
-        "pylib/anki:_fluent.py",
+        "pylib:anki:_fluent.py",
         RunCommand {
             command: ":pyenv:bin",
             args: "$script $strings $out",
@@ -43,7 +43,7 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
         },
     )?;
     build.add_action(
-        "pylib/anki:hooks_gen.py",
+        "pylib:anki:hooks_gen.py",
         RunCommand {
             command: ":pyenv:bin",
             args: "$script $out",
@@ -57,9 +57,9 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
         },
     )?;
     build.add_action(
-        "pylib/anki:_rsbridge",
+        "pylib:anki:rsbridge",
         LinkFile {
-            input: inputs![":pylib/rsbridge"],
+            input: inputs![":pylib:rsbridge"],
             output: &format!(
                 "pylib/anki/_rsbridge.{}",
                 match build.host_platform {
@@ -69,7 +69,7 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
             ),
         },
     )?;
-    build.add_action("pylib/anki:buildinfo.py", GenBuildInfo {})?;
+    build.add_action("pylib:anki:buildinfo.py", GenBuildInfo {})?;
 
     // wheel
     build.add_action(
@@ -81,7 +81,7 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
             gen_folder: "$builddir/pylib/anki",
             platform: overriden_python_target_platform().or(Some(build.host_platform)),
             deps: inputs![
-                ":pylib/anki",
+                ":pylib:anki",
                 glob!("pylib/anki/**"),
                 "python/requirements.anki.in",
             ],
@@ -98,7 +98,7 @@ pub fn check_pylib(build: &mut Build) -> Result<()> {
         PythonTest {
             folder: "pylib/tests",
             python_path: &["$builddir/pylib"],
-            deps: inputs![":pylib/anki", glob!["pylib/{anki,tests}/**"]],
+            deps: inputs![":pylib:anki", glob!["pylib/{anki,tests}/**"]],
         },
     )
 }

@@ -9,7 +9,7 @@ if exist \buildkite\state\node_modules (
     move \buildkite\state\node_modules .
 )
 
-call tools\ninja build pylib/anki qt/aqt check || exit /b 1
+call tools\ninja build pylib qt check || exit /b 1
 
 echo --- Cleanup
 move out \buildkite\state\
