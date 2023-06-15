@@ -175,8 +175,8 @@ pub fn check_python(build: &mut Build) -> Result<()> {
             ],
             deps: inputs![
                 glob!["{pylib,ftl,qt}/**/*.{py,pyi}"],
-                ":pylib/anki",
-                ":qt/aqt"
+                ":pylib:anki",
+                ":qt:aqt"
             ],
         },
     )?;
@@ -191,9 +191,9 @@ fn add_pylint(build: &mut Build) -> Result<()> {
     // so we need to merge our pylib sources and generated files before invoking it,
     // and add a top-level __init__.py
     build.add_action(
-        "pylint/anki",
+        "check:pylint:copy_pylib",
         RsyncFiles {
-            inputs: inputs![":pylib/anki"],
+            inputs: inputs![":pylib:anki"],
             target_folder: "pylint/anki",
             strip_prefix: "$builddir/pylib/anki",
             // avoid copying our large rsbridge binary
@@ -201,7 +201,7 @@ fn add_pylint(build: &mut Build) -> Result<()> {
         },
     )?;
     build.add_action(
-        "pylint/anki",
+        "check:pylint:copy_pylib",
         RsyncFiles {
             inputs: inputs![glob!["pylib/anki/**"]],
             target_folder: "pylint/anki",
@@ -210,7 +210,7 @@ fn add_pylint(build: &mut Build) -> Result<()> {
         },
     )?;
     build.add_action(
-        "pylint/anki",
+        "check:pylint:copy_pylib",
         RunCommand {
             command: ":pyenv:bin",
             args: "$script $out",
@@ -231,8 +231,8 @@ fn add_pylint(build: &mut Build) -> Result<()> {
             ],
             pylint_ini: inputs![".pylintrc"],
             deps: inputs![
-                ":pylint/anki",
-                ":qt/aqt",
+                ":check:pylint:copy_pylib",
+                ":qt:aqt",
                 glob!("{pylib/tools,ftl,qt,python,tools}/**/*.py")
             ],
         },

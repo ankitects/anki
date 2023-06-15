@@ -54,7 +54,7 @@ fn main() -> Result<()> {
     check_sql(build)?;
     check_minilints(build)?;
 
-    build.trailing_text = "default pylib/anki qt/aqt\n".into();
+    build.trailing_text = "default pylib qt\n".into();
 
     build.write_build_file();
 

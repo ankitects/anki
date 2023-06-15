@@ -27,7 +27,7 @@ The build/ folder is made up of 4 packages:
 
 If you run into trouble with the build process:
 
-- You can see the executed commands with e.g. `./ninja pylib/anki -v`
+- You can see the executed commands with e.g. `./ninja pylib -v`
 - You can see the output of successful commands by defining OUTPUT_SUCCESS=1
 - You can see what's triggering a rebuild of a target with e.g.
   `./ninja qt/anki -d explain`.

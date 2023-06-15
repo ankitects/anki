@@ -6,5 +6,5 @@ export PYTHONWARNINGS=default
 export PYTHONPYCACHEPREFIX=out/pycache
 export ANKIDEV=1
 
-./ninja pylib/anki qt/aqt pyenv-qt5.14
+./ninja pylib qt pyenv-qt5.14
 ./out/pyenv-qt5.14/bin/python tools/run.py $*

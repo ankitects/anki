@@ -107,7 +107,7 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
         "native-tls"
     };
     build.add_action(
-        "pylib/rsbridge",
+        "pylib:rsbridge",
         CargoBuild {
             inputs: inputs![
                 glob!["{pylib/rsbridge/**,rslib/**}"],
@@ -160,7 +160,7 @@ pub fn check_rust(build: &mut Build) -> Result<()> {
     let inputs = inputs![
         inputs,
         // defer tests until build has completed; ensure re-run on changes
-        ":pylib/rsbridge"
+        ":pylib:rsbridge"
     ];
 
     build.add_action(

@@ -14,7 +14,7 @@ pub struct ConfigureBuild {}
 
 impl BuildAction for ConfigureBuild {
     fn command(&self) -> &str {
-        "$cmd && ninja -f $builddir/build.ninja -t cleandead"
+        "$cmd"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
