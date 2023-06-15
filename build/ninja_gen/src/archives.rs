@@ -88,7 +88,7 @@ impl BuildAction for DownloadArchive {
         let (_, filename) = self.archive.url.rsplit_once('/').unwrap();
         let output_path = Utf8Path::new("download").join(filename);
 
-        build.add_inputs("archives_bin", inputs![":build:archives"]);
+        build.add_order_only_inputs("archives_bin", inputs![":build:archives"]);
         build.add_variable("url", self.archive.url);
         build.add_variable("checksum", self.archive.sha256);
         build.add_outputs("out", &[output_path.into_string()])
@@ -135,7 +135,7 @@ where
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
-        build.add_inputs("archive_tool", inputs![":build:archives"]);
+        build.add_order_only_inputs("archive_tool", inputs![":build:archives"]);
         build.add_inputs("in", inputs![self.archive_path.clone()]);
 
         let folder = self.extraction_folder();
