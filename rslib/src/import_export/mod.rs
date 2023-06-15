@@ -137,6 +137,7 @@ pub enum ImportError {
     TooNew,
     MediaImportFailed { info: String },
     NoFieldColumn,
+    EmptyFile,
 }
 
 impl ImportError {
@@ -148,6 +149,7 @@ impl ImportError {
                 tr.importing_failed_to_import_media_file(info)
             }
             ImportError::NoFieldColumn => tr.importing_file_must_contain_field_column(),
+            ImportError::EmptyFile => tr.importing_file_empty(),
         }
         .into()
     }

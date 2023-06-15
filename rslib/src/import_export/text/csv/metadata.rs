@@ -46,7 +46,12 @@ impl Collection {
         is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
         let mut reader = open_file(path)?;
-        self.get_reader_metadata(&mut reader, delimiter, notetype_id, deck_id, is_html)
+        let meta =
+            self.get_reader_metadata(&mut reader, delimiter, notetype_id, deck_id, is_html)?;
+        if meta.preview.is_empty() {
+            return Err(ImportError::EmptyFile.into());
+        }
+        Ok(meta)
     }
 
     fn get_reader_metadata(
