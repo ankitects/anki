@@ -202,6 +202,7 @@ dependencies = [
  "anki_io",
  "anyhow",
  "inflections",
+ "itertools",
  "num_enum",
  "prost",
  "prost-build",
