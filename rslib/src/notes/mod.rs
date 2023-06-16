@@ -9,7 +9,6 @@ use std::collections::HashSet;
 
 use anki_proto::notes::note_fields_check_response::State as NoteFieldsState;
 use itertools::Itertools;
-use num_integer::Integer;
 use sha1::Digest;
 use sha1::Sha1;
 
@@ -312,7 +311,8 @@ fn anki_base91(n: u64) -> String {
 pub fn to_base_n(mut n: u64, table: &[u8]) -> String {
     let mut buf = String::new();
     while n > 0 {
-        let (q, r) = n.div_rem(&(table.len() as u64));
+        let tablelen = table.len() as u64;
+        let (q, r) = (n / tablelen, n % tablelen);
         buf.push(table[r as usize] as char);
         n = q;
     }
