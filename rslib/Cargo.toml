@@ -52,9 +52,6 @@ percent-encoding-iri = { git = "https://github.com/ankitects/rust-url.git", rev 
 # pinned as any changes could invalidate sqlite indexes
 unicase = "=2.6.0"
 
-# keep this at 0.4.19 until an Android-compatible update is ready
-chrono = { version = "0.4.19", default-features = false, features = ["std", "clock"] }
-
 criterion = { version = "0.4.0", optional = true }
 
 ammonia = "3.3.0"
@@ -64,6 +61,7 @@ axum = { version = "0.6.12", features = ["multipart", "macros", "headers"] }
 axum-client-ip = "0.3.1"
 blake3 = "1.3.3"
 bytes = "1.4.0"
+chrono = { version = "0.4.26", default-features = false, features = ["std", "clock"] }
 coarsetime = "0.1.23"
 convert_case = "0.6.0"
 difflib = "0.4.0"

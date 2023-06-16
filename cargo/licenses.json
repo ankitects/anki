@@ -54,6 +54,15 @@
     "description": "HTML Sanitization"
   },
   {
+    "name": "android-tzdata",
+    "version": "0.1.1",
+    "authors": "RumovZ",
+    "repository": "https://github.com/RumovZ/android-tzdata",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Parser for the Android-specific tzdata file"
+  },
+  {
     "name": "android_system_properties",
     "version": "0.1.5",
     "authors": "Nicolas Silva <nical@fastmail.com>",
@@ -79,6 +88,24 @@
     "license": "AGPL-3.0-or-later",
     "license_file": null,
     "description": "Anki's Rust library i18n code"
+  },
+  {
+    "name": "anki_io",
+    "version": "0.0.0",
+    "authors": "Ankitects Pty Ltd and contributors <https://help.ankiweb.net>",
+    "repository": null,
+    "license": "AGPL-3.0-or-later",
+    "license_file": null,
+    "description": "Utils for better I/O error reporting"
+  },
+  {
+    "name": "anki_proto",
+    "version": "0.0.0",
+    "authors": "Ankitects Pty Ltd and contributors <https://help.ankiweb.net>",
+    "repository": null,
+    "license": "AGPL-3.0-or-later",
+    "license_file": null,
+    "description": "Anki's Rust library protobuf code"
   },
   {
     "name": "anstream",
@@ -388,7 +415,7 @@
   },
   {
     "name": "chrono",
-    "version": "0.4.24",
+    "version": "0.4.26",
     "authors": null,
     "repository": "https://github.com/chronotope/chrono",
     "license": "Apache-2.0 OR MIT",
@@ -712,7 +739,7 @@
   },
   {
     "name": "errno",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "authors": "Chris Wong <lambda.fairy@gmail.com>",
     "repository": "https://github.com/lambda-fairy/rust-errno",
     "license": "Apache-2.0 OR MIT",
@@ -1306,7 +1333,7 @@
   },
   {
     "name": "io-lifetimes",
-    "version": "1.0.9",
+    "version": "1.0.11",
     "authors": "Dan Gohman <dev@sunfishcode.online>",
     "repository": "https://github.com/sunfishcode/io-lifetimes",
     "license": "Apache-2.0 OR Apache-2.0 WITH LLVM-exception OR MIT",
@@ -1378,7 +1405,7 @@
   },
   {
     "name": "libc",
-    "version": "0.2.140",
+    "version": "0.2.146",
     "authors": "The Rust Project Developers",
     "repository": "https://github.com/rust-lang/libc",
     "license": "Apache-2.0 OR MIT",
@@ -1405,7 +1432,7 @@
   },
   {
     "name": "linux-raw-sys",
-    "version": "0.3.1",
+    "version": "0.3.8",
     "authors": "Dan Gohman <dev@sunfishcode.online>",
     "repository": "https://github.com/sunfishcode/linux-raw-sys",
     "license": "Apache-2.0 OR Apache-2.0 WITH LLVM-exception OR MIT",
@@ -1639,7 +1666,7 @@
   },
   {
     "name": "num_enum",
-    "version": "0.5.11",
+    "version": "0.6.1",
     "authors": "Daniel Wagner-Hall <dawagner@gmail.com>|Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>|Vincent Esche <regexident@gmail.com>",
     "repository": "https://github.com/illicitonion/num_enum",
     "license": "Apache-2.0 OR BSD-3-Clause OR MIT",
@@ -1648,7 +1675,7 @@
   },
   {
     "name": "num_enum_derive",
-    "version": "0.5.11",
+    "version": "0.6.1",
     "authors": "Daniel Wagner-Hall <dawagner@gmail.com>|Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>|Vincent Esche <regexident@gmail.com>",
     "repository": "https://github.com/illicitonion/num_enum",
     "license": "Apache-2.0 OR BSD-3-Clause OR MIT",
@@ -1972,7 +1999,7 @@
   },
   {
     "name": "prost",
-    "version": "0.11.8",
+    "version": "0.11.9",
     "authors": "Dan Burkert <dan@danburkert.com>|Lucio Franco <luciofranco14@gmail.com|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/prost",
     "license": "Apache-2.0",
@@ -1981,7 +2008,7 @@
   },
   {
     "name": "prost-build",
-    "version": "0.11.8",
+    "version": "0.11.9",
     "authors": "Dan Burkert <dan@danburkert.com>|Lucio Franco <luciofranco14@gmail.com>|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/prost",
     "license": "Apache-2.0",
@@ -1990,7 +2017,7 @@
   },
   {
     "name": "prost-derive",
-    "version": "0.11.8",
+    "version": "0.11.9",
     "authors": "Dan Burkert <dan@danburkert.com>|Lucio Franco <luciofranco14@gmail.com>|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/prost",
     "license": "Apache-2.0",
@@ -1998,8 +2025,17 @@
     "description": "A Protocol Buffers implementation for the Rust Language."
   },
   {
+    "name": "prost-reflect",
+    "version": "0.11.4",
+    "authors": "Andrew Hickman <andrew.hickman1@sky.com>",
+    "repository": "https://github.com/andrewhickman/prost-reflect",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A protobuf library extending prost with reflection support and dynamic messages."
+  },
+  {
     "name": "prost-types",
-    "version": "0.11.8",
+    "version": "0.11.9",
     "authors": "Dan Burkert <dan@danburkert.com>|Lucio Franco <luciofranco14@gmail.com|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/prost",
     "license": "Apache-2.0",
@@ -2188,7 +2224,7 @@
   },
   {
     "name": "rustix",
-    "version": "0.37.5",
+    "version": "0.37.20",
     "authors": "Dan Gohman <dev@sunfishcode.online>|Jakub Konka <kubkon@jakubkonka.com>",
     "repository": "https://github.com/bytecodealliance/rustix",
     "license": "Apache-2.0 OR Apache-2.0 WITH LLVM-exception OR MIT",
@@ -2305,7 +2341,7 @@
   },
   {
     "name": "serde",
-    "version": "1.0.159",
+    "version": "1.0.164",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/serde",
     "license": "Apache-2.0 OR MIT",
@@ -2323,7 +2359,7 @@
   },
   {
     "name": "serde_derive",
-    "version": "1.0.159",
+    "version": "1.0.164",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/serde",
     "license": "Apache-2.0 OR MIT",
@@ -2593,7 +2629,7 @@
   },
   {
     "name": "tempfile",
-    "version": "3.5.0",
+    "version": "3.6.0",
     "authors": "Steven Allen <steven@stebalien.com>|The Rust Project Developers|Ashley Mannix <ashleymannix@live.com.au>|Jason White <me@jasonwhite.io>",
     "repository": "https://github.com/Stebalien/tempfile",
     "license": "Apache-2.0 OR MIT",
