@@ -16,6 +16,8 @@ use prost_reflect::MessageDescriptor;
 use prost_reflect::MethodDescriptor;
 use prost_reflect::ServiceDescriptor;
 
+use crate::utils::Comments;
+
 pub(crate) fn write_python_interface(pool: &DescriptorPool) -> Result<()> {
     let output_path = Path::new("../../out/pylib/anki/_backend_generated.py");
     create_dir_all(output_path.parent().unwrap())?;
@@ -26,8 +28,9 @@ pub(crate) fn write_python_interface(pool: &DescriptorPool) -> Result<()> {
         if service.name() == "AnkidroidService" {
             continue;
         }
+        let comments = Comments::from_file(service.parent_file().file_descriptor_proto());
         for method in service.methods() {
-            render_method(&service, &method, &mut out);
+            render_method(&service, &method, &comments, &mut out);
         }
     }
 
@@ -45,18 +48,24 @@ pub(crate) fn write_python_interface(pool: &DescriptorPool) -> Result<()> {
 ///     output = anki.generic_pb2.StringList()
 ///     output.ParseFromString(raw_bytes)
 ///     return output.vals
-fn render_method(service: &ServiceDescriptor, method: &MethodDescriptor, out: &mut impl Write) {
+fn render_method(
+    service: &ServiceDescriptor,
+    method: &MethodDescriptor,
+    comments: &Comments,
+    out: &mut impl Write,
+) {
     let method_name = method.name().to_snake_case();
     let input = method.input();
     let output = method.output();
     let service_idx = service.index();
     let method_idx = method.index();
+    let comments = format_comments(comments.get_for_path(method.path()));
 
     // raw bytes
     write!(
         out,
         r#"    def {method_name}_raw(self, message: bytes) -> bytes:
-        return self._run_command({service_idx}, {method_idx}, message)
+        {comments}return self._run_command({service_idx}, {method_idx}, message)
 
 "#
     )
@@ -69,7 +78,7 @@ fn render_method(service: &ServiceDescriptor, method: &MethodDescriptor, out: &m
     write!(
         out,
         r#"    def {method_name}({input_params}) -> {output_type}:
-        {input_assign}
+        {comments}{input_assign}
         raw_bytes = self._run_command({service_idx}, {method_idx}, message.SerializeToString())
         output = {output_constructor}()
         output.ParseFromString(raw_bytes)
@@ -78,6 +87,18 @@ fn render_method(service: &ServiceDescriptor, method: &MethodDescriptor, out: &m
 "#
     )
     .unwrap();
+}
+
+fn format_comments(comments: Option<&str>) -> String {
+    comments
+        .as_ref()
+        .map(|c| {
+            format!(
+                r#""""{c}"""
+        "#
+            )
+        })
+        .unwrap_or_default()
 }
 
 /// If any of the following apply to the input type:

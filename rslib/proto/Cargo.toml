@@ -13,6 +13,7 @@ rust-version.workspace = true
 anki_io = { version = "0.0.0", path = "../io" }
 anyhow = "1.0.71"
 inflections = "1.1.1"
+itertools = "0.10.5"
 prost-build = "0.11.9"
 prost-reflect = "0.11.4"
 prost-types = "0.11.9"

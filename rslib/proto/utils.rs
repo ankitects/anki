@@ -19,16 +19,7 @@ impl Comments {
                 .unwrap()
                 .location
                 .iter()
-                .map(|l| {
-                    (
-                        l.path.clone(),
-                        format!(
-                            "{}{}",
-                            l.leading_detached_comments.join("\n").trim(),
-                            l.leading_comments().trim()
-                        ),
-                    )
-                })
+                .map(|l| (l.path.clone(), l.leading_comments().trim().to_string()))
                 .collect(),
         }
     }

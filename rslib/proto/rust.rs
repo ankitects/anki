@@ -11,6 +11,7 @@ use anki_io::read_file;
 use anki_io::write_file_if_changed;
 use anyhow::Context;
 use anyhow::Result;
+use itertools::Itertools;
 use prost_build::ServiceGenerator;
 use prost_reflect::DescriptorPool;
 
@@ -151,12 +152,20 @@ pub trait Service {
         );
 
         for method in &service.methods {
+            let comments = method
+                .comments
+                .leading
+                .iter()
+                .map(|c| format!("    /// {c}"))
+                .join("\n");
             write!(
                 buf,
                 concat!(
-                    "    fn {method_name}(&self, input: super::{input_type}) -> ",
+                    "{comments}\n",
+                    "fn {method_name}(&self, input: super::{input_type}) -> ",
                     "Result<super::{output_type}, Self::Error>;\n"
                 ),
+                comments = comments,
                 method_name = method.name,
                 input_type = method.input_type,
                 output_type = method.output_type
