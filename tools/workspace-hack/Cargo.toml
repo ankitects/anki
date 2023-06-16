@@ -28,11 +28,9 @@ hashbrown = { version = "0.12", features = ["raw"] }
 hmac = { version = "0.12", default-features = false, features = ["reset"] }
 hyper = { version = "0.14", features = ["full"] }
 indexmap = { version = "1", default-features = false, features = ["std"] }
-itertools = { version = "0.10" }
 log = { version = "0.4", default-features = false, features = ["std"] }
 num-traits = { version = "0.2" }
 phf_shared = { version = "0.11", default-features = false, features = ["std"] }
-prost = { version = "0.11" }
 rand = { version = "0.8", features = ["small_rng"] }
 rand_core = { version = "0.6", default-features = false, features = ["std"] }
 regex = { version = "1" }
@@ -58,21 +56,44 @@ zstd-sys = { version = "2", default-features = false, features = ["legacy", "std
 [build-dependencies]
 bytes = { version = "1" }
 cc = { version = "1", default-features = false, features = ["parallel"] }
+clap = { version = "4", features = ["cargo", "derive", "wrap_help"] }
+clap_builder = { version = "4", default-features = false, features = ["cargo", "color", "std", "suggestions", "usage", "wrap_help"] }
+crossbeam-utils = { version = "0.8" }
 either = { version = "1" }
+flate2 = { version = "1" }
+futures-channel = { version = "0.3", features = ["sink"] }
+futures-io = { version = "0.3" }
+futures-util = { version = "0.3", features = ["channel", "io", "sink"] }
 getrandom = { version = "0.2", default-features = false, features = ["std"] }
 hashbrown = { version = "0.12", features = ["raw"] }
+hmac = { version = "0.12", default-features = false, features = ["reset"] }
+hyper = { version = "0.14", features = ["full"] }
 indexmap = { version = "1", default-features = false, features = ["std"] }
-itertools = { version = "0.10" }
 log = { version = "0.4", default-features = false, features = ["std"] }
+num-traits = { version = "0.2" }
 phf_shared = { version = "0.11", default-features = false, features = ["std"] }
-prost = { version = "0.11" }
 rand = { version = "0.8", features = ["small_rng"] }
 rand_core = { version = "0.6", default-features = false, features = ["std"] }
 regex = { version = "1" }
 regex-syntax = { version = "0.6" }
+scopeguard = { version = "1" }
 serde = { version = "1", features = ["alloc", "derive", "rc"] }
 serde_json = { version = "1", features = ["raw_value"] }
+sha2 = { version = "0.10" }
+snafu = { version = "0.7", features = ["backtraces"] }
 syn-dff4ba8e3ae991db = { package = "syn", version = "1", features = ["extra-traits", "fold", "full", "visit", "visit-mut"] }
 syn-f595c2ba2a3f28df = { package = "syn", version = "2", features = ["extra-traits", "full", "visit-mut"] }
+time = { version = "0.3", features = ["formatting", "parsing"] }
+tokio = { version = "1", features = ["full"] }
+tokio-util = { version = "0.7", features = ["codec", "io"] }
+tracing = { version = "0.1", features = ["log", "max_level_trace", "release_max_level_debug"] }
+tracing-core = { version = "0.1" }
+url = { version = "2", features = ["serde"] }
+zip = { version = "0.6" }
+zstd-5ef9efb8ec2df382 = { package = "zstd", version = "0.12", features = ["zstdmt"] }
+zstd-a6292c17cd707f01 = { package = "zstd", version = "0.11" }
+zstd-safe-a490c3000a992113 = { package = "zstd-safe", version = "6", default-features = false, features = ["arrays", "legacy", "std", "zdict_builder", "zstdmt"] }
+zstd-safe-cdf1610d3e1514e9 = { package = "zstd-safe", version = "5", default-features = false, features = ["arrays", "legacy", "std", "zdict_builder"] }
+zstd-sys = { version = "2", default-features = false, features = ["legacy", "std", "zdict_builder", "zstdmt"] }
 
 ### END HAKARI SECTION
