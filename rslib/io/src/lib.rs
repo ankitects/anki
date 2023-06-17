@@ -75,6 +75,14 @@ pub fn read_file(path: impl AsRef<Path>) -> Result<Vec<u8>> {
     })
 }
 
+/// See [std::fs::read_to_string].
+pub fn read_to_string(path: impl AsRef<Path>) -> Result<String> {
+    std::fs::read_to_string(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Read,
+    })
+}
+
 /// Like [read_file], but skips the section that is potentially locked by
 /// SQLite.
 pub fn read_locked_db_file(path: impl AsRef<Path>) -> Result<Vec<u8>> {

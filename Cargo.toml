@@ -13,6 +13,7 @@ members = [
   "rslib/linkchecker",
   "rslib/proto",
   "rslib/io",
+  "rslib/process",
   "pylib/rsbridge",
   "build/configure",
   "build/ninja_gen",

@@ -1638,15 +1638,6 @@
     "description": "A Rust crate for producing string-representations of numbers, formatted according to international standards"
   },
   {
-    "name": "num-integer",
-    "version": "0.1.45",
-    "authors": "The Rust Project Developers",
-    "repository": "https://github.com/rust-num/num-integer",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Integer traits and functions"
-  },
-  {
     "name": "num-traits",
     "version": "0.2.15",
     "authors": "The Rust Project Developers",

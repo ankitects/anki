@@ -39,7 +39,7 @@ scopeguard = { version = "1" }
 serde = { version = "1", features = ["alloc", "derive", "rc"] }
 serde_json = { version = "1", features = ["raw_value"] }
 sha2 = { version = "0.10" }
-snafu = { version = "0.7", features = ["backtraces"] }
+snafu = { version = "0.7", features = ["backtraces", "rust_1_61"] }
 time = { version = "0.3", features = ["formatting", "parsing"] }
 tokio = { version = "1", features = ["full"] }
 tokio-util = { version = "0.7", features = ["codec", "io"] }
@@ -80,7 +80,8 @@ scopeguard = { version = "1" }
 serde = { version = "1", features = ["alloc", "derive", "rc"] }
 serde_json = { version = "1", features = ["raw_value"] }
 sha2 = { version = "0.10" }
-snafu = { version = "0.7", features = ["backtraces"] }
+snafu = { version = "0.7", features = ["backtraces", "rust_1_61"] }
+snafu-derive = { version = "0.7", default-features = false, features = ["rust_1_39", "rust_1_46", "rust_1_61"] }
 syn-dff4ba8e3ae991db = { package = "syn", version = "1", features = ["extra-traits", "fold", "full", "visit", "visit-mut"] }
 syn-f595c2ba2a3f28df = { package = "syn", version = "2", features = ["extra-traits", "full", "visit-mut"] }
 time = { version = "0.3", features = ["formatting", "parsing"] }

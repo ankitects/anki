@@ -185,6 +185,10 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
             "$minilints_bin $fix"
         }
 
+        fn bypass_runner(&self) -> bool {
+            true
+        }
+
         fn files(&mut self, build: &mut impl FilesHandle) {
             build.add_inputs("minilints_bin", inputs![":build:minilints"]);
             build.add_inputs("", &self.deps);
@@ -206,10 +210,13 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
         }
     }
 
-    let files = inputs![glob![
-        "**/*.{py,rs,ts,svelte,mjs}",
-        "{node_modules,qt/bundle/PyOxidizer}/**"
-    ]];
+    let files = inputs![
+        glob![
+            "**/*.{py,rs,ts,svelte,mjs}",
+            "{node_modules,qt/bundle/PyOxidizer}/**"
+        ],
+        "Cargo.lock"
+    ];
 
     build.add_action(
         "check:minilints",
