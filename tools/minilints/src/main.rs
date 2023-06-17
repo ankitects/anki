@@ -198,13 +198,13 @@ impl LintContext {
 }
 
 fn check_cargo_deny() -> Result<()> {
-    Command::run(["cargo", "install", "-q", "cargo-deny@0.13.5"])?;
+    Command::run(["cargo", "install", "cargo-deny@0.13.5"])?;
     Command::run(["cargo", "deny", "check", "-A", "duplicate"])?;
     Ok(())
 }
 
 fn update_hakari() -> Result<()> {
-    Command::run(["cargo", "install", "-q", "cargo-hakari@0.9.23"])?;
+    Command::run(["cargo", "install", "cargo-hakari@0.9.23"])?;
     Command::run(["cargo", "hakari", "generate"])?;
     Ok(())
 }
@@ -257,7 +257,9 @@ fn check_for_unstaged_changes() {
 }
 
 fn generate_licences() -> Result<String> {
-    Command::run(["cargo", "install", "-q", "cargo-license@0.5.1"])?;
+    if which::which("cargo-license").is_err() {
+        Command::run(["cargo", "install", "cargo-license@0.5.1"])?;
+    }
     let output = Command::run_with_output([
         "cargo-license",
         "--features",

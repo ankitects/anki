@@ -2345,6 +2345,7 @@ dependencies = [
  "camino",
  "once_cell",
  "walkdir",
+ "which",
 ]
 
 [[package]]
