@@ -93,7 +93,7 @@ serde_json = "1.0.95"
 serde_repr = "0.1.12"
 serde_tuple = "0.5.0"
 sha1 = "0.10.5"
-snafu = { version = "0.7.4", features = ["backtraces"] }
+snafu = { version = "0.7.4", features = ["backtraces", "rust_1_61"] }
 strum = { version = "0.24.1", features = ["derive"] }
 tempfile = "3.5.0"
 tokio = { version = "1.27", features = ["fs", "rt-multi-thread", "macros", "signal"] }

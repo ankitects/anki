@@ -31,7 +31,8 @@ fn initialize_logging(path: Option<&str>) -> PyResult<()> {
 #[pyfunction]
 fn syncserver() -> PyResult<()> {
     set_global_logger(None).unwrap();
-    SimpleServer::run().map_err(|e| PyException::new_err(format!("{e:?}")))
+    let err = SimpleServer::run();
+    Err(PyException::new_err(err.to_string()))
 }
 
 #[pyfunction]
