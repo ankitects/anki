@@ -201,6 +201,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "anki_process"
+version = "0.0.0"
+dependencies = [
+ "itertools",
+ "snafu",
+]
+
+[[package]]
 name = "anki_proto"
 version = "0.0.0"
 dependencies = [
@@ -2331,6 +2339,8 @@ dependencies = [
 name = "minilints"
 version = "0.0.0"
 dependencies = [
+ "anki_io",
+ "anki_process",
  "anyhow",
  "camino",
  "once_cell",
@@ -5059,6 +5069,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "snafu",
+ "snafu-derive",
  "syn 1.0.109",
  "syn 2.0.12",
  "time",

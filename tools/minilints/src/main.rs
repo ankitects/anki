@@ -10,6 +10,9 @@ use std::io::Write;
 use std::path::Path;
 use std::process::Command;
 
+use anki_io::read_to_string;
+use anki_io::write_file;
+use anki_process::CommandExt;
 use anyhow::Context;
 use anyhow::Result;
 use camino::Utf8Path;
@@ -43,6 +46,7 @@ fn main() -> Result<()> {
     let want_fix = env::args().nth(1) == Some("fix".to_string());
     let mut ctx = LintContext::new(want_fix);
     ctx.check_contributors()?;
+    ctx.check_rust_licenses()?;
     ctx.walk_folders(Path::new("."))?;
     if ctx.found_problems {
         std::process::exit(1);
@@ -147,7 +151,6 @@ impl LintContext {
             println!("Dependabot whitelisted.");
             return Ok(());
         } else if all_contributors.contains(last_author.as_str()) {
-            println!("Author found in CONTRIBUTORS");
             return Ok(());
         }
 
@@ -175,6 +178,35 @@ impl LintContext {
 
         std::process::exit(1);
     }
+
+    fn check_rust_licenses(&mut self) -> Result<()> {
+        let license_path = Path::new("cargo/licenses.json");
+        let licenses = generate_licences()?;
+        let existing_licenses = read_to_string(license_path)?;
+        if licenses != existing_licenses {
+            if self.want_fix {
+                check_cargo_deny()?;
+                update_hakari()?;
+                write_file(license_path, licenses)?;
+            } else {
+                println!("cargo/licenses.json is out of date; run ./ninja fix:minilints");
+                self.found_problems = true;
+            }
+        }
+        Ok(())
+    }
+}
+
+fn check_cargo_deny() -> Result<()> {
+    Command::run(["cargo", "install", "-q", "cargo-deny@0.13.5"])?;
+    Command::run(["cargo", "deny", "check", "-A", "duplicate"])?;
+    Ok(())
+}
+
+fn update_hakari() -> Result<()> {
+    Command::run(["cargo", "install", "-q", "cargo-hakari@0.9.23"])?;
+    Command::run(["cargo", "hakari", "generate"])?;
+    Ok(())
 }
 
 fn head_of_file(path: &Utf8Path) -> Result<String> {
@@ -222,4 +254,19 @@ fn check_for_unstaged_changes() {
         println!("stage any changes first");
         std::process::exit(1);
     }
+}
+
+fn generate_licences() -> Result<String> {
+    Command::run(["cargo", "install", "-q", "cargo-license@0.5.1"])?;
+    let output = Command::run_with_output([
+        "cargo-license",
+        "--features",
+        "rustls",
+        "--features",
+        "native-tls",
+        "--json",
+        "--manifest-path",
+        "rslib/Cargo.toml",
+    ])?;
+    Ok(output.stdout)
 }

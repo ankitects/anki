@@ -1,5 +1,4 @@
-This folder used to contain Bazel-specific Rust integration, but now only
-contains:
+This folder contains:
 
-- our license-checking script, which should be run when using cargo update.
+- a list of Rust crate licenses, which is checked/updated with ./ninja [check|fix]:minilints
 - a nightly toolchain definition for formatting
