@@ -12,14 +12,14 @@ use snafu::Snafu;
 
 #[derive(Debug, Snafu)]
 pub enum Error {
+    #[snafu(display("Failed to execute: {cmdline}"))]
     DidNotExecute {
         cmdline: String,
         source: std::io::Error,
     },
-    ReturnedError {
-        cmdline: String,
-        code: Option<i32>,
-    },
+    #[snafu(display("Fail with code {code:?}: {cmdline}"))]
+    ReturnedError { cmdline: String, code: Option<i32> },
+    #[snafu(display("Couldn't decode stdout/stderr as utf8"))]
     InvalidUtf8 {
         cmdline: String,
         source: FromUtf8Error,
@@ -110,13 +110,12 @@ mod test {
 
     #[test]
     fn test_run() {
-        assert!(matches!(
-            Command::run(["fakefake", "1", "2"]),
-            Err(Error::DidNotExecute {
-                cmdline,
-                ..
-            }) if cmdline == "fakefake 1 2"
-        ));
+        assert_eq!(
+            Command::run(["fakefake", "1", "2"])
+                .unwrap_err()
+                .to_string(),
+            "Failed to execute: fakefake 1 2"
+        );
         #[cfg(not(windows))]
         assert!(matches!(
             Command::new("false").ensure_success(),
