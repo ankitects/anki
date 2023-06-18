@@ -20,7 +20,7 @@ impl ImportExportService for Backend {
     fn export_collection_package(
         &self,
         input: anki_proto::import_export::ExportCollectionPackageRequest,
-    ) -> Result<generic::Empty> {
+    ) -> Result<()> {
         self.abort_media_sync_and_wait();
 
         let mut guard = self.lock_open_collection()?;
@@ -34,7 +34,7 @@ impl ImportExportService for Backend {
     fn import_collection_package(
         &self,
         input: anki_proto::import_export::ImportCollectionPackageRequest,
-    ) -> Result<generic::Empty> {
+    ) -> Result<()> {
         let _guard = self.lock_closed_collection()?;
 
         import_colpkg(

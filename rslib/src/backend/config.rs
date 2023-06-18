@@ -79,7 +79,7 @@ impl ConfigService for Backend {
     fn set_config_json_no_undo(
         &self,
         input: anki_proto::config::SetConfigJsonRequest,
-    ) -> Result<generic::Empty> {
+    ) -> Result<()> {
         self.with_col(|col| {
             let val: Value = serde_json::from_slice(&input.value_json)?;
             col.transact_no_undo(|col| col.set_config(input.key.as_str(), &val).map(|_| ()))
@@ -92,7 +92,7 @@ impl ConfigService for Backend {
             .map(Into::into)
     }
 
-    fn get_all_config(&self, _input: generic::Empty) -> Result<generic::Json> {
+    fn get_all_config(&self) -> Result<generic::Json> {
         self.with_col(|col| {
             let conf = col.storage.get_all_config()?;
             serde_json::to_vec(&conf).map_err(Into::into)
@@ -138,7 +138,7 @@ impl ConfigService for Backend {
             .map(Into::into)
     }
 
-    fn get_preferences(&self, _input: generic::Empty) -> Result<anki_proto::config::Preferences> {
+    fn get_preferences(&self) -> Result<anki_proto::config::Preferences> {
         self.with_col(|col| col.get_preferences())
     }
 

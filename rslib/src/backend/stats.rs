@@ -24,17 +24,11 @@ impl StatsService for Backend {
         self.with_col(|col| col.graph_data_for_search(&input.search, input.days))
     }
 
-    fn get_graph_preferences(
-        &self,
-        _input: anki_proto::generic::Empty,
-    ) -> Result<anki_proto::stats::GraphPreferences> {
+    fn get_graph_preferences(&self) -> Result<anki_proto::stats::GraphPreferences> {
         self.with_col(|col| Ok(col.get_graph_preferences()))
     }
 
-    fn set_graph_preferences(
-        &self,
-        input: anki_proto::stats::GraphPreferences,
-    ) -> Result<anki_proto::generic::Empty> {
+    fn set_graph_preferences(&self, input: anki_proto::stats::GraphPreferences) -> Result<()> {
         self.with_col(|col| col.set_graph_preferences(input))
             .map(Into::into)
     }

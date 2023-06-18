@@ -15,7 +15,7 @@ use crate::scheduler::filtered::FilteredDeckForUpdate;
 impl DecksService for Backend {
     type Error = AnkiError;
 
-    fn new_deck(&self, _input: generic::Empty) -> Result<anki_proto::decks::Deck> {
+    fn new_deck(&self) -> Result<anki_proto::decks::Deck> {
         Ok(Deck::new_normal().into())
     }
 
@@ -72,7 +72,7 @@ impl DecksService for Backend {
         })
     }
 
-    fn deck_tree_legacy(&self, _input: generic::Empty) -> Result<generic::Json> {
+    fn deck_tree_legacy(&self) -> Result<generic::Json> {
         self.with_col(|col| {
             let tree = col.legacy_deck_tree()?;
             serde_json::to_vec(&tree)
@@ -81,7 +81,7 @@ impl DecksService for Backend {
         })
     }
 
-    fn get_all_decks_legacy(&self, _input: generic::Empty) -> Result<generic::Json> {
+    fn get_all_decks_legacy(&self) -> Result<generic::Json> {
         self.with_col(|col| {
             let decks = col.storage.get_all_decks_as_schema11()?;
             serde_json::to_vec(&decks).map_err(Into::into)
@@ -221,7 +221,7 @@ impl DecksService for Backend {
             .map(Into::into)
     }
 
-    fn filtered_deck_order_labels(&self, _input: generic::Empty) -> Result<generic::StringList> {
+    fn filtered_deck_order_labels(&self) -> Result<generic::StringList> {
         Ok(search_order_labels(&self.tr).into())
     }
 
@@ -243,7 +243,7 @@ impl DecksService for Backend {
             .map(Into::into)
     }
 
-    fn get_current_deck(&self, _input: generic::Empty) -> Result<anki_proto::decks::Deck> {
+    fn get_current_deck(&self) -> Result<anki_proto::decks::Deck> {
         self.with_col(|col| col.get_current_deck())
             .map(|deck| (*deck).clone().into())
     }

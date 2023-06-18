@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use anki_proto::generic;
 pub(super) use anki_proto::image_occlusion::imageocclusion_service::Service as ImageOcclusionService;
 
 use super::Backend;
@@ -57,10 +56,7 @@ impl ImageOcclusionService for Backend {
         .map(Into::into)
     }
 
-    fn add_image_occlusion_notetype(
-        &self,
-        _input: generic::Empty,
-    ) -> Result<anki_proto::collection::OpChanges> {
+    fn add_image_occlusion_notetype(&self) -> Result<anki_proto::collection::OpChanges> {
         self.with_col(|col| col.add_image_occlusion_notetype())
             .map(Into::into)
     }

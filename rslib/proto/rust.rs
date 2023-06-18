@@ -131,17 +131,31 @@ pub trait Service {
 "#,
         );
         for (idx, method) in service.methods.iter().enumerate() {
+            let (decode_input, input) = if method.input_proto_type == ".anki.generic.Empty" {
+                ("".into(), "")
+            } else {
+                (
+                    format!(
+                        "let input = super::{}::decode(input).map_err(crate::ProtoError::from)?;",
+                        method.input_type
+                    ),
+                    "input",
+                )
+            };
+            let (output, output_assign) = if method.output_proto_type == ".anki.generic.Empty" {
+                ("Vec::new()", "")
+            } else {
+                ("{ let mut out_bytes = Vec::new(); output.encode(&mut out_bytes).map_err(crate::ProtoError::from)?; out_bytes }",
+                 "let output = ")
+            };
             write!(
                 buf,
-                concat!("            ",
-                "{idx} => {{ let input = super::{input_type}::decode(input).map_err(crate::ProtoError::from)?;\n",
-                "let output = self.{rust_method}(input)?;\n",
-                "let mut out_bytes = Vec::new(); output.encode(&mut out_bytes).map_err(crate::ProtoError::from)?; Ok(out_bytes) }}, "),
-                idx = idx,
-                input_type = method.input_type,
+                "{idx} => {{ {decode_input}
+                {output_assign} self.{rust_method}({input})?;
+                Ok({output}) }}, ",
                 rust_method = method.name
             )
-                .unwrap();
+            .unwrap();
         }
         buf.push_str(
             r#"
@@ -158,17 +172,22 @@ pub trait Service {
                 .iter()
                 .map(|c| format!("    /// {c}"))
                 .join("\n");
+            let input_arg = if method.input_proto_type == ".anki.generic.Empty" {
+                "".into()
+            } else {
+                format!("input: super::{}", method.input_type)
+            };
+            let output_type = if method.output_proto_type == ".anki.generic.Empty" {
+                "()".into()
+            } else {
+                format!("super::{}", method.output_type)
+            };
             write!(
                 buf,
-                concat!(
-                    "{comments}\n",
-                    "fn {method_name}(&self, input: super::{input_type}) -> ",
-                    "Result<super::{output_type}, Self::Error>;\n"
-                ),
-                comments = comments,
+                "{comments}
+    fn {method_name}(&self, {input_arg}) ->
+        Result<{output_type}, Self::Error>;",
                 method_name = method.name,
-                input_type = method.input_type,
-                output_type = method.output_type
             )
             .unwrap();
         }

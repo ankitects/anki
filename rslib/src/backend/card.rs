@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 pub(super) use anki_proto::cards::cards_service::Service as CardsService;
-use anki_proto::generic;
 
 use super::Backend;
 use crate::card::CardQueue;
@@ -40,7 +39,7 @@ impl CardsService for Backend {
         .map(Into::into)
     }
 
-    fn remove_cards(&self, input: anki_proto::cards::RemoveCardsRequest) -> Result<generic::Empty> {
+    fn remove_cards(&self, input: anki_proto::cards::RemoveCardsRequest) -> Result<()> {
         self.with_col(|col| {
             col.transact_no_undo(|col| {
                 col.remove_cards_and_orphaned_notes(
@@ -50,7 +49,7 @@ impl CardsService for Backend {
                         .map(Into::into)
                         .collect::<Vec<_>>(),
                 )?;
-                Ok(().into())
+                Ok(())
             })
         })
     }

@@ -60,17 +60,17 @@ impl AnkidroidService for Backend {
             .map(|val| generic::Int64 { val })
     }
 
-    fn flush_all_queries(&self, _input: generic::Empty) -> Result<generic::Empty> {
+    fn flush_all_queries(&self) -> Result<()> {
         self.with_col(|col| {
             db::flush_collection(col);
-            Ok(generic::Empty {})
+            Ok(())
         })
     }
 
-    fn flush_query(&self, input: generic::Int32) -> Result<generic::Empty> {
+    fn flush_query(&self, input: generic::Int32) -> Result<()> {
         self.with_col(|col| {
             db::flush_single_result(col, input.val);
-            Ok(generic::Empty {})
+            Ok(())
         })
     }
 
@@ -84,12 +84,12 @@ impl AnkidroidService for Backend {
         self.with_col(|col| insert_for_id(col, &input.json).map(Into::into))
     }
 
-    fn set_page_size(&self, input: generic::Int64) -> Result<generic::Empty> {
+    fn set_page_size(&self, input: generic::Int64) -> Result<()> {
         // we don't require an open collection, but should avoid modifying this
         // concurrently
         let _guard = self.col.lock();
         db::set_max_page_size(input.val as usize);
-        Ok(().into())
+        Ok(())
     }
 
     fn get_column_names_from_query(&self, input: generic::String) -> Result<generic::StringList> {
@@ -101,10 +101,7 @@ impl AnkidroidService for Backend {
         })
     }
 
-    fn get_active_sequence_numbers(
-        &self,
-        _input: generic::Empty,
-    ) -> Result<GetActiveSequenceNumbersResponse> {
+    fn get_active_sequence_numbers(&self) -> Result<GetActiveSequenceNumbersResponse> {
         self.with_col(|col| {
             Ok(GetActiveSequenceNumbersResponse {
                 numbers: active_sequences(col),
@@ -112,7 +109,7 @@ impl AnkidroidService for Backend {
         })
     }
 
-    fn debug_produce_error(&self, input: generic::String) -> Result<generic::Empty> {
+    fn debug_produce_error(&self, input: generic::String) -> Result<()> {
         Err(debug_produce_error(&input.val))
     }
 }

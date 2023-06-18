@@ -11,7 +11,7 @@ use crate::prelude::*;
 impl MediaService for Backend {
     type Error = AnkiError;
 
-    fn check_media(&self, _input: generic::Empty) -> Result<anki_proto::media::CheckMediaResponse> {
+    fn check_media(&self) -> Result<anki_proto::media::CheckMediaResponse> {
         self.with_col(|col| {
             col.transact_no_undo(|col| {
                 let mut checker = col.media_checker()?;
@@ -31,10 +31,7 @@ impl MediaService for Backend {
         })
     }
 
-    fn trash_media_files(
-        &self,
-        input: anki_proto::media::TrashMediaFilesRequest,
-    ) -> Result<generic::Empty> {
+    fn trash_media_files(&self, input: anki_proto::media::TrashMediaFilesRequest) -> Result<()> {
         self.with_col(|col| col.media()?.remove_files(&input.fnames))
             .map(Into::into)
     }
@@ -52,12 +49,12 @@ impl MediaService for Backend {
         })
     }
 
-    fn empty_trash(&self, _input: generic::Empty) -> Result<generic::Empty> {
+    fn empty_trash(&self) -> Result<()> {
         self.with_col(|col| col.media_checker()?.empty_trash())
             .map(Into::into)
     }
 
-    fn restore_trash(&self, _input: generic::Empty) -> Result<generic::Empty> {
+    fn restore_trash(&self) -> Result<()> {
         self.with_col(|col| col.media_checker()?.restore_trash())
             .map(Into::into)
     }

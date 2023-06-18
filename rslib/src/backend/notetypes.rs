@@ -120,10 +120,7 @@ impl NotetypesService for Backend {
         })
     }
 
-    fn get_notetype_names(
-        &self,
-        _input: generic::Empty,
-    ) -> Result<anki_proto::notetypes::NotetypeNames> {
+    fn get_notetype_names(&self) -> Result<anki_proto::notetypes::NotetypeNames> {
         self.with_col(|col| {
             let entries: Vec<_> = col
                 .storage
@@ -135,10 +132,7 @@ impl NotetypesService for Backend {
         })
     }
 
-    fn get_notetype_names_and_counts(
-        &self,
-        _input: generic::Empty,
-    ) -> Result<anki_proto::notetypes::NotetypeUseCounts> {
+    fn get_notetype_names_and_counts(&self) -> Result<anki_proto::notetypes::NotetypeUseCounts> {
         self.with_col(|col| {
             let entries: Vec<_> = col
                 .storage

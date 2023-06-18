@@ -5,7 +5,6 @@ mod answering;
 mod states;
 
 use anki_proto::generic;
-use anki_proto::generic::Empty;
 use anki_proto::scheduler;
 pub(super) use anki_proto::scheduler::scheduler_service::Service as SchedulerService;
 use anki_proto::scheduler::SchedulingStatesWithContext;
@@ -23,10 +22,7 @@ impl SchedulerService for Backend {
 
     /// This behaves like _updateCutoff() in older code - it also unburies at
     /// the start of a new day.
-    fn sched_timing_today(
-        &self,
-        _input: generic::Empty,
-    ) -> Result<scheduler::SchedTimingTodayResponse> {
+    fn sched_timing_today(&self) -> Result<scheduler::SchedTimingTodayResponse> {
         self.with_col(|col| {
             let timing = col.timing_today()?;
             col.unbury_if_day_rolled_over(timing)?;
@@ -35,7 +31,7 @@ impl SchedulerService for Backend {
     }
 
     /// Fetch data from DB and return rendered string.
-    fn studied_today(&self, _input: generic::Empty) -> Result<generic::String> {
+    fn studied_today(&self) -> Result<generic::String> {
         self.with_col(|col| col.studied_today().map(Into::into))
     }
 
@@ -47,7 +43,7 @@ impl SchedulerService for Backend {
         Ok(studied_today(input.cards, input.seconds as f32, &self.tr).into())
     }
 
-    fn update_stats(&self, input: scheduler::UpdateStatsRequest) -> Result<generic::Empty> {
+    fn update_stats(&self, input: scheduler::UpdateStatsRequest) -> Result<()> {
         self.with_col(|col| {
             col.transact_no_undo(|col| {
                 let today = col.current_due_day(0)?;
@@ -57,7 +53,7 @@ impl SchedulerService for Backend {
         })
     }
 
-    fn extend_limits(&self, input: scheduler::ExtendLimitsRequest) -> Result<generic::Empty> {
+    fn extend_limits(&self, input: scheduler::ExtendLimitsRequest) -> Result<()> {
         self.with_col(|col| {
             col.transact_no_undo(|col| {
                 let today = col.current_due_day(0)?;
@@ -81,7 +77,7 @@ impl SchedulerService for Backend {
         self.with_col(|col| col.counts_for_deck_today(input.did.into()))
     }
 
-    fn congrats_info(&self, _input: generic::Empty) -> Result<scheduler::CongratsInfoResponse> {
+    fn congrats_info(&self) -> Result<scheduler::CongratsInfoResponse> {
         self.with_col(|col| col.congrats_info())
     }
 
@@ -191,10 +187,7 @@ impl SchedulerService for Backend {
         })
     }
 
-    fn reposition_defaults(
-        &self,
-        _input: generic::Empty,
-    ) -> Result<scheduler::RepositionDefaultsResponse> {
+    fn reposition_defaults(&self) -> Result<scheduler::RepositionDefaultsResponse> {
         self.with_col(|col| Ok(col.reposition_defaults()))
     }
 
@@ -239,7 +232,7 @@ impl SchedulerService for Backend {
             .map(Into::into)
     }
 
-    fn upgrade_scheduler(&self, _input: generic::Empty) -> Result<generic::Empty> {
+    fn upgrade_scheduler(&self) -> Result<()> {
         self.with_col(|col| col.transact_no_undo(|col| col.upgrade_to_v2_scheduler()))
             .map(Into::into)
     }
@@ -268,17 +261,11 @@ impl SchedulerService for Backend {
         self.with_col(|col| col.custom_study_defaults(input.deck_id.into()))
     }
 
-    fn get_scheduling_states_with_context(
-        &self,
-        _input: Empty,
-    ) -> std::result::Result<SchedulingStatesWithContext, Self::Error> {
+    fn get_scheduling_states_with_context(&self) -> Result<SchedulingStatesWithContext> {
         invalid_input!("the frontend should implement this")
     }
 
-    fn set_scheduling_states(
-        &self,
-        _input: SetSchedulingStatesRequest,
-    ) -> std::result::Result<Empty, Self::Error> {
+    fn set_scheduling_states(&self, _input: SetSchedulingStatesRequest) -> Result<()> {
         invalid_input!("the frontend should implement this")
     }
 }

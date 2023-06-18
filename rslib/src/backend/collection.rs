@@ -16,20 +16,17 @@ use crate::storage::SchemaVersion;
 impl CollectionService for Backend {
     type Error = AnkiError;
 
-    fn latest_progress(&self, _input: generic::Empty) -> Result<anki_proto::collection::Progress> {
+    fn latest_progress(&self) -> Result<anki_proto::collection::Progress> {
         let progress = self.progress_state.lock().unwrap().last_progress;
         Ok(progress_to_proto(progress, &self.tr))
     }
 
-    fn set_wants_abort(&self, _input: generic::Empty) -> Result<generic::Empty> {
+    fn set_wants_abort(&self) -> Result<()> {
         self.progress_state.lock().unwrap().want_abort = true;
-        Ok(().into())
+        Ok(())
     }
 
-    fn open_collection(
-        &self,
-        input: anki_proto::collection::OpenCollectionRequest,
-    ) -> Result<generic::Empty> {
+    fn open_collection(&self, input: anki_proto::collection::OpenCollectionRequest) -> Result<()> {
         let mut guard = self.lock_closed_collection()?;
 
         let mut builder = CollectionBuilder::new(input.collection_path);
@@ -42,13 +39,13 @@ impl CollectionService for Backend {
 
         *guard = Some(builder.build()?);
 
-        Ok(().into())
+        Ok(())
     }
 
     fn close_collection(
         &self,
         input: anki_proto::collection::CloseCollectionRequest,
-    ) -> Result<generic::Empty> {
+    ) -> Result<()> {
         let desired_version = if input.downgrade_to_schema11 {
             Some(SchemaVersion::V11)
         } else {
@@ -63,13 +60,10 @@ impl CollectionService for Backend {
             error!(" failed: {:?}", e);
         }
 
-        Ok(().into())
+        Ok(())
     }
 
-    fn check_database(
-        &self,
-        _input: generic::Empty,
-    ) -> Result<anki_proto::collection::CheckDatabaseResponse> {
+    fn check_database(&self) -> Result<anki_proto::collection::CheckDatabaseResponse> {
         self.with_col(|col| {
             col.check_database()
                 .map(|problems| anki_proto::collection::CheckDatabaseResponse {
@@ -78,18 +72,15 @@ impl CollectionService for Backend {
         })
     }
 
-    fn get_undo_status(
-        &self,
-        _input: generic::Empty,
-    ) -> Result<anki_proto::collection::UndoStatus> {
+    fn get_undo_status(&self) -> Result<anki_proto::collection::UndoStatus> {
         self.with_col(|col| Ok(col.undo_status().into_protobuf(&col.tr)))
     }
 
-    fn undo(&self, _input: generic::Empty) -> Result<anki_proto::collection::OpChangesAfterUndo> {
+    fn undo(&self) -> Result<anki_proto::collection::OpChangesAfterUndo> {
         self.with_col(|col| col.undo().map(|out| out.into_protobuf(&col.tr)))
     }
 
-    fn redo(&self, _input: generic::Empty) -> Result<anki_proto::collection::OpChangesAfterUndo> {
+    fn redo(&self) -> Result<anki_proto::collection::OpChangesAfterUndo> {
         self.with_col(|col| col.redo().map(|out| out.into_protobuf(&col.tr)))
     }
 
@@ -133,9 +124,9 @@ impl CollectionService for Backend {
         Ok(created.into())
     }
 
-    fn await_backup_completion(&self, _input: generic::Empty) -> Result<generic::Empty> {
+    fn await_backup_completion(&self) -> Result<()> {
         self.await_backup_completion()?;
-        Ok(().into())
+        Ok(())
     }
 }
 

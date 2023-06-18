@@ -11,14 +11,11 @@ use crate::prelude::*;
 impl TagsService for Backend {
     type Error = AnkiError;
 
-    fn clear_unused_tags(
-        &self,
-        _input: generic::Empty,
-    ) -> Result<anki_proto::collection::OpChangesWithCount> {
+    fn clear_unused_tags(&self) -> Result<anki_proto::collection::OpChangesWithCount> {
         self.with_col(|col| col.clear_unused_tags().map(Into::into))
     }
 
-    fn all_tags(&self, _input: generic::Empty) -> Result<generic::StringList> {
+    fn all_tags(&self) -> Result<generic::StringList> {
         Ok(generic::StringList {
             vals: self.with_col(|col| {
                 Ok(col
@@ -48,7 +45,7 @@ impl TagsService for Backend {
         })
     }
 
-    fn tag_tree(&self, _input: generic::Empty) -> Result<anki_proto::tags::TagTreeNode> {
+    fn tag_tree(&self) -> Result<anki_proto::tags::TagTreeNode> {
         self.with_col(|col| col.tag_tree())
     }
 

@@ -125,14 +125,11 @@ impl SearchService for Backend {
         })
     }
 
-    fn all_browser_columns(
-        &self,
-        _input: generic::Empty,
-    ) -> Result<anki_proto::search::BrowserColumns> {
+    fn all_browser_columns(&self) -> Result<anki_proto::search::BrowserColumns> {
         self.with_col(|col| Ok(col.all_browser_columns()))
     }
 
-    fn set_active_browser_columns(&self, input: generic::StringList) -> Result<generic::Empty> {
+    fn set_active_browser_columns(&self, input: generic::StringList) -> Result<()> {
         self.with_col(|col| {
             col.state.active_browser_columns =
                 Some(Arc::new(string_list_to_browser_columns(input)));

@@ -28,7 +28,7 @@ impl DeckConfigService for Backend {
         .map(Into::into)
     }
 
-    fn all_deck_config_legacy(&self, _input: generic::Empty) -> Result<generic::Json> {
+    fn all_deck_config_legacy(&self) -> Result<generic::Json> {
         self.with_col(|col| {
             let conf: Vec<DeckConfSchema11> = col
                 .storage
@@ -60,16 +60,13 @@ impl DeckConfigService for Backend {
         .map(Into::into)
     }
 
-    fn new_deck_config_legacy(&self, _input: generic::Empty) -> Result<generic::Json> {
+    fn new_deck_config_legacy(&self) -> Result<generic::Json> {
         serde_json::to_vec(&DeckConfSchema11::default())
             .map_err(Into::into)
             .map(Into::into)
     }
 
-    fn remove_deck_config(
-        &self,
-        input: anki_proto::deckconfig::DeckConfigId,
-    ) -> Result<generic::Empty> {
+    fn remove_deck_config(&self, input: anki_proto::deckconfig::DeckConfigId) -> Result<()> {
         self.with_col(|col| col.transact_no_undo(|col| col.remove_deck_config_inner(input.into())))
             .map(Into::into)
     }

@@ -64,10 +64,7 @@ impl CardRenderingService for Backend {
         })
     }
 
-    fn get_empty_cards(
-        &self,
-        _input: generic::Empty,
-    ) -> Result<anki_proto::card_rendering::EmptyCardsReport> {
+    fn get_empty_cards(&self) -> Result<anki_proto::card_rendering::EmptyCardsReport> {
         self.with_col(|col| {
             let mut empty = col.empty_cards()?;
             let report = col.empty_cards_report(&mut empty)?;
@@ -193,7 +190,7 @@ impl CardRenderingService for Backend {
     fn write_tts_stream(
         &self,
         request: anki_proto::card_rendering::WriteTtsStreamRequest,
-    ) -> Result<generic::Empty> {
+    ) -> Result<()> {
         tts::write_stream(
             &request.path,
             &request.voice_id,
