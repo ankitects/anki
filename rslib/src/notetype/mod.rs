@@ -5,6 +5,7 @@ mod cardgen;
 mod checks;
 mod emptycards;
 mod fields;
+mod merge;
 mod notetypechange;
 mod render;
 mod restore;

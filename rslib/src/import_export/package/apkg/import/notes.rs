@@ -9,6 +9,7 @@ use std::sync::Arc;
 
 use super::media::MediaUseMap;
 use super::Context;
+use super::TemplateMap;
 use crate::import_export::package::media::safe_normalized_file_name;
 use crate::import_export::ImportProgress;
 use crate::import_export::NoteLog;
@@ -21,16 +22,19 @@ struct NoteContext<'a> {
     usn: Usn,
     normalize_notes: bool,
     remapped_notetypes: HashMap<NotetypeId, NotetypeId>,
+    remapped_fields: HashMap<NotetypeId, Vec<Option<u32>>>,
     target_guids: HashMap<String, NoteMeta>,
     target_ids: HashSet<NoteId>,
     target_notetypes: HashMap<NotetypeId, Vec<Arc<Notetype>>>,
     media_map: &'a mut MediaUseMap,
+    merge_notetypes: bool,
     imports: NoteImports,
 }
 
 #[derive(Debug, Default)]
 pub(super) struct NoteImports {
     pub(super) id_map: HashMap<NoteId, NoteId>,
+    pub(super) remapped_templates: HashMap<NotetypeId, TemplateMap>,
     /// All notes from the source collection as [Vec]s of their fields, and
     /// grouped by import result kind.
     pub(super) log: NoteLog,
@@ -81,7 +85,7 @@ impl Context<'_> {
         &mut self,
         media_map: &mut MediaUseMap,
     ) -> Result<NoteImports> {
-        let mut ctx = NoteContext::new(self.usn, self.target_col, media_map)?;
+        let mut ctx = NoteContext::new(self.usn, self.target_col, media_map, false)?;
         ctx.import_notetypes(mem::take(&mut self.data.notetypes))?;
         ctx.import_notes(mem::take(&mut self.data.notes), &mut self.progress)?;
         Ok(ctx.imports)
@@ -93,6 +97,7 @@ impl<'n> NoteContext<'n> {
         usn: Usn,
         target_col: &'a mut Collection,
         media_map: &'a mut MediaUseMap,
+        merge_notetypes: bool,
     ) -> Result<Self> {
         let target_guids = target_col.storage.note_guid_map()?;
         let normalize_notes = target_col.get_config_bool(BoolKey::NormalizeNoteText);
@@ -103,10 +108,12 @@ impl<'n> NoteContext<'n> {
             usn,
             normalize_notes,
             remapped_notetypes: HashMap::new(),
+            remapped_fields: HashMap::new(),
             target_guids,
             target_ids,
             target_notetypes,
             imports: NoteImports::default(),
+            merge_notetypes,
             media_map,
         })
     }
@@ -130,7 +137,7 @@ impl<'n> NoteContext<'n> {
         for notetype in &mut notetypes {
             notetype.config.original_id.replace(notetype.id.0);
             if let Some(existing) = self.best_notetype_match(notetype) {
-                self.merge_or_remap_notetype(notetype, existing)?;
+                self.import_existing_notetype(notetype, existing)?;
             } else {
                 self.add_notetype(notetype)?;
             }
@@ -138,7 +145,7 @@ impl<'n> NoteContext<'n> {
         Ok(())
     }
 
-    fn merge_or_remap_notetype(
+    fn import_existing_notetype(
         &mut self,
         incoming: &mut Notetype,
         existing: Notetype,
@@ -149,8 +156,10 @@ impl<'n> NoteContext<'n> {
                 incoming.id = existing.id;
             }
             if incoming.mtime_secs > existing.mtime_secs {
-                self.update_notetype(incoming, existing)?;
+                self.update_notetype(incoming, existing, false)?;
             }
+        } else if self.merge_notetypes {
+            self.merge_notetypes(incoming, existing)?;
         } else {
             self.add_notetype_with_remapped_id(incoming)?;
         }
@@ -166,10 +175,49 @@ impl<'n> NoteContext<'n> {
             .add_notetype_with_unique_id_undoable(notetype)
     }
 
-    fn update_notetype(&mut self, notetype: &mut Notetype, original: Notetype) -> Result<()> {
-        notetype.usn = self.usn;
+    fn update_notetype(
+        &mut self,
+        notetype: &mut Notetype,
+        original: Notetype,
+        modified: bool,
+    ) -> Result<()> {
+        if modified {
+            notetype.set_modified(self.usn);
+            notetype.prepare_for_update(Some(&original), true)?;
+        } else {
+            notetype.usn = self.usn;
+        }
         self.target_col
             .add_or_update_notetype_with_existing_id_inner(notetype, Some(original), self.usn, true)
+    }
+
+    fn merge_notetypes(&mut self, incoming: &mut Notetype, mut existing: Notetype) -> Result<()> {
+        let original_existing = existing.clone();
+        incoming.merge(&existing);
+        existing.merge(incoming);
+        self.record_remapped_ords(incoming);
+        let new_incoming = if incoming.mtime_secs > existing.mtime_secs {
+            // ords must be existing's as they are used to remap note fields and card
+            // template indices
+            incoming.copy_ords(&existing);
+            incoming
+        } else {
+            &mut existing
+        };
+        self.update_notetype(new_incoming, original_existing, true)
+    }
+
+    fn record_remapped_ords(&mut self, incoming: &Notetype) {
+        self.remapped_fields
+            .insert(incoming.id, incoming.field_ords().collect());
+        self.imports.remapped_templates.insert(
+            incoming.id,
+            incoming
+                .template_ords()
+                .enumerate()
+                .filter_map(|(new, old)| old.map(|ord| (ord as u16, new as u16)))
+                .collect(),
+        );
     }
 
     fn add_notetype_with_remapped_id(&mut self, notetype: &mut Notetype) -> Result<()> {
@@ -190,30 +238,37 @@ impl<'n> NoteContext<'n> {
         self.imports.log.found_notes = notes.len() as u32;
         for mut note in notes {
             incrementor.increment()?;
-            let remapped_notetype_id = self.remapped_notetypes.get(&note.notetype_id);
+            self.remap_notetype_and_fields(&mut note);
             if let Some(existing_note) = self.target_guids.get(&note.guid) {
-                if existing_note.mtime < note.mtime {
-                    if existing_note.notetype_id != note.notetype_id
-                        || remapped_notetype_id.is_some()
-                    {
-                        // Existing GUID with different notetype id, or changed notetype schema
-                        self.imports.log_conflicting(note);
-                    } else {
-                        self.update_note(note, existing_note.id)?;
-                    }
-                } else {
-                    self.imports.log_duplicate(note, existing_note.id);
-                }
+                self.maybe_update_existing_note(*existing_note, note)?;
             } else {
-                if let Some(remapped_ntid) = remapped_notetype_id {
-                    // Notetypes have diverged, but this is a new note, so we can import
-                    // with a new notetype id.
-                    note.notetype_id = *remapped_ntid;
-                }
                 self.add_note(note)?;
             }
         }
 
+        Ok(())
+    }
+
+    fn remap_notetype_and_fields(&mut self, note: &mut Note) {
+        if let Some(new_ords) = self.remapped_fields.get(&note.notetype_id) {
+            note.reorder_fields(new_ords);
+        }
+        if let Some(remapped_ntid) = self.remapped_notetypes.get(&note.notetype_id) {
+            note.notetype_id = *remapped_ntid;
+        }
+    }
+
+    fn maybe_update_existing_note(&mut self, existing: NoteMeta, incoming: Note) -> Result<()> {
+        if incoming.notetype_id != existing.notetype_id {
+            // notetype of existing note has changed, or notetype of incoming note has been
+            // remapped due to a schema conflict
+            self.imports.log_conflicting(incoming);
+        } else if existing.mtime < incoming.mtime {
+            self.update_note(incoming, existing.id)?;
+        } else {
+            // TODO: might still want to update merged in fields
+            self.imports.log_duplicate(incoming, existing.id);
+        }
         Ok(())
     }
 
@@ -315,17 +370,35 @@ impl Collection {
 }
 
 impl Notetype {
-    fn field_names(&self) -> impl Iterator<Item = &String> {
+    pub(crate) fn field_names(&self) -> impl Iterator<Item = &String> {
         self.fields.iter().map(|f| &f.name)
     }
 
-    fn template_names(&self) -> impl Iterator<Item = &String> {
+    pub(crate) fn template_names(&self) -> impl Iterator<Item = &String> {
         self.templates.iter().map(|t| &t.name)
     }
 
+    pub(crate) fn field_ords(&self) -> impl Iterator<Item = Option<u32>> + '_ {
+        self.fields.iter().map(|f| f.ord)
+    }
+
+    pub(crate) fn template_ords(&self) -> impl Iterator<Item = Option<u32>> + '_ {
+        self.templates.iter().map(|t| t.ord)
+    }
+
     fn equal_schema(&self, other: &Self) -> bool {
+        // TODO: also return true if ids match
         self.field_names().eq(other.field_names())
             && self.template_names().eq(other.template_names())
+    }
+
+    fn copy_ords(&mut self, other: &Self) {
+        for (field, other_ord) in self.fields.iter_mut().zip(other.field_ords()) {
+            field.ord = other_ord;
+        }
+        for (template, other_ord) in self.templates.iter_mut().zip(other.template_ords()) {
+            template.ord = other_ord;
+        }
     }
 }
 
@@ -333,6 +406,8 @@ impl Notetype {
 mod test {
     use super::*;
     use crate::import_export::package::media::SafeMediaEntry;
+    use crate::notetype::CardTemplate;
+    use crate::notetype::NoteField;
 
     /// Import [Note] into [Collection], optionally taking a [MediaUseMap],
     /// or a [Notetype] remapping.
@@ -340,14 +415,14 @@ mod test {
         ($col:expr, $note:expr, $old_notetype:expr => $new_notetype:expr) => {{
             let mut media_map = MediaUseMap::default();
             let mut progress = $col.new_progress_handler();
-            let mut ctx = NoteContext::new(Usn(1), &mut $col, &mut media_map).unwrap();
+            let mut ctx = NoteContext::new(Usn(1), &mut $col, &mut media_map, false).unwrap();
             ctx.remapped_notetypes.insert($old_notetype, $new_notetype);
             ctx.import_notes(vec![$note], &mut progress).unwrap();
             ctx.imports.log
         }};
         ($col:expr, $note:expr, $media_map:expr) => {{
             let mut progress = $col.new_progress_handler();
-            let mut ctx = NoteContext::new(Usn(1), &mut $col, &mut $media_map).unwrap();
+            let mut ctx = NoteContext::new(Usn(1), &mut $col, &mut $media_map, false).unwrap();
             ctx.import_notes(vec![$note], &mut progress).unwrap();
             ctx.imports.log
         }};
@@ -369,14 +444,27 @@ mod test {
         };
     }
 
+    struct Remappings {
+        remapped_notetypes: HashMap<NotetypeId, NotetypeId>,
+        remapped_fields: HashMap<NotetypeId, Vec<Option<u32>>>,
+        remapped_templates: HashMap<NotetypeId, TemplateMap>,
+    }
+
     /// Imports the notetype into the collection, and returns its remapped id if
     /// any.
     macro_rules! import_notetype {
         ($col:expr, $notetype:expr) => {{
+            import_notetype!($col, $notetype, merge = false)
+        }};
+        ($col:expr, $notetype:expr, merge = $merge:expr) => {{
             let mut media_map = MediaUseMap::default();
-            let mut ctx = NoteContext::new(Usn(1), $col, &mut media_map).unwrap();
+            let mut ctx = NoteContext::new(Usn(1), $col, &mut media_map, $merge).unwrap();
             ctx.import_notetypes(vec![$notetype]).unwrap();
-            ctx.remapped_notetypes.values().next().copied()
+            Remappings {
+                remapped_notetypes: ctx.remapped_notetypes,
+                remapped_fields: ctx.remapped_fields,
+                remapped_templates: ctx.imports.remapped_templates,
+            }
         }};
     }
 
@@ -516,7 +604,8 @@ mod test {
         to_import.fields[0].name = String::from("new field");
 
         // schema mismatch => notetype should be imported with new id
-        let remapped_id = import_notetype!(&mut col, to_import.clone()).unwrap();
+        let out = import_notetype!(&mut col, to_import.clone());
+        let remapped_id = *out.remapped_notetypes.values().next().unwrap();
         assert_eq!(col.basic_notetype().fields[0].name, "Front");
         let remapped = col.storage.get_notetype(remapped_id).unwrap().unwrap();
         assert_eq!(remapped.fields[0].name, "new field");
@@ -524,9 +613,58 @@ mod test {
         // notetype with matching schema and original id exists => should be reused
         to_import.name = String::from("new name");
         to_import.mtime_secs.0 = remapped.mtime_secs.0 + 1;
-        let remapped_id_2 = import_notetype!(&mut col, to_import).unwrap();
+        let out_2 = import_notetype!(&mut col, to_import);
+        let remapped_id_2 = *out_2.remapped_notetypes.values().next().unwrap();
         assert_eq!(remapped_id, remapped_id_2);
         let updated = col.storage.get_notetype(remapped_id).unwrap().unwrap();
         assert_eq!(updated.name, "new name");
+    }
+
+    #[test]
+    fn should_merge_notetype_fields() {
+        let mut col = Collection::new();
+        let mut to_import = col.basic_notetype();
+        to_import.mtime_secs.0 += 1;
+        to_import.fields.remove(0);
+        to_import.fields[0].name = String::from("renamed");
+        to_import.fields[0].ord.replace(0);
+        to_import.fields.push(NoteField::new("new"));
+        to_import.fields[1].ord.replace(1);
+
+        let fields = import_notetype!(&mut col, to_import.clone(), merge = true).remapped_fields;
+        // Front field is preserved and new field added
+        assert!(col
+            .basic_notetype()
+            .field_names()
+            .eq(["Front", "renamed", "new"]));
+        // extra field must be inserted into incoming notes
+        assert_eq!(
+            fields.get(&to_import.id).unwrap(),
+            &[None, Some(0), Some(1)]
+        );
+    }
+
+    #[test]
+    fn should_merge_notetype_templates() {
+        let mut col = Collection::new();
+        let mut to_import = col.basic_rev_notetype();
+        to_import.mtime_secs.0 += 1;
+        to_import.templates.remove(0);
+        to_import.templates[0].name = String::from("renamed");
+        to_import.templates[0].ord.replace(0);
+        to_import.templates.push(CardTemplate::new("new", "", ""));
+        to_import.templates[1].ord.replace(1);
+
+        let templates =
+            import_notetype!(&mut col, to_import.clone(), merge = true).remapped_templates;
+        // Card 1 is preserved and new template added
+        assert!(col
+            .basic_rev_notetype()
+            .template_names()
+            .eq(["Card 1", "renamed", "new"]));
+        // templates must be shifted accordingly
+        let map = templates.get(&to_import.id).unwrap();
+        assert_eq!(map.get(&0), Some(&1));
+        assert_eq!(map.get(&1), Some(&2));
     }
 }

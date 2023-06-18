@@ -30,6 +30,9 @@ use crate::prelude::*;
 use crate::progress::ThrottlingProgressHandler;
 use crate::search::SearchNode;
 
+/// New template indices by old template indices for a given notetype.
+type TemplateMap = std::collections::HashMap<u16, u16>;
+
 struct Context<'a> {
     target_col: &'a mut Collection,
     media_manager: MediaManager,
@@ -81,12 +84,24 @@ impl<'a> Context<'a> {
     }
 
     fn import(&mut self) -> Result<NoteLog> {
+        let notetypes = self
+            .data
+            .notes
+            .iter()
+            .map(|n| (n.id, n.notetype_id))
+            .collect();
         let mut media_map = self.prepare_media()?;
         let note_imports = self.import_notes_and_notetypes(&mut media_map)?;
         let keep_filtered = self.data.enables_filtered_decks();
         let contains_scheduling = self.data.contains_scheduling();
         let imported_decks = self.import_decks_and_configs(keep_filtered, contains_scheduling)?;
-        self.import_cards_and_revlog(&note_imports.id_map, &imported_decks, keep_filtered)?;
+        self.import_cards_and_revlog(
+            &note_imports.id_map,
+            &notetypes,
+            &note_imports.remapped_templates,
+            &imported_decks,
+            keep_filtered,
+        )?;
         self.copy_media(&mut media_map)?;
         Ok(note_imports.log)
     }
