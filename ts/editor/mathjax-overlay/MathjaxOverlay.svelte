@@ -229,10 +229,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             placeHandle(true);
                             resetHandle();
                         }}
-                        on:blur={async () => {
-                            await tick();
-                            await resetHandle();
-                        }}
                         on:close={resetHandle}
                         let:editor={mathjaxEditor}
                     >
