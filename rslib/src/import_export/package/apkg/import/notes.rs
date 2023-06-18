@@ -544,11 +544,10 @@ mod test {
         let mut col = Collection::new();
         let basic_ntid = col.get_notetype_by_name("basic").unwrap().unwrap().id;
         let mut note = NoteAdder::basic(&mut col).add(&mut col);
-        note.notetype_id.0 = 123;
         note.mtime.0 += 1;
         note.fields_mut()[0] = "updated".to_string();
 
-        let mut log = import_note!(col, note, NotetypeId(123) => basic_ntid);
+        let mut log = import_note!(col, note, basic_ntid => NotetypeId(123));
         assert_eq!(col.get_all_notes()[0].fields()[0], "");
         assert_note_logged!(log, conflicting, &["updated", ""]);
     }
