@@ -48,10 +48,9 @@ fn roundtrip_inner(legacy: bool) {
             true,
             legacy,
             None,
-            |_, _| true,
         )
         .unwrap();
-    target_col.import_apkg(&apkg_path, |_, _| true).unwrap();
+    target_col.import_apkg(&apkg_path).unwrap();
 
     target_col.assert_decks();
     target_col.assert_notetype(&notetype);

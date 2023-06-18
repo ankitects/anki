@@ -14,9 +14,9 @@ use super::media::MediaUseMap;
 use super::Context;
 use crate::import_export::package::media::safe_normalized_file_name;
 use crate::import_export::ImportProgress;
-use crate::import_export::IncrementableProgress;
 use crate::import_export::NoteLog;
 use crate::prelude::*;
+use crate::progress::ThrottlingProgressHandler;
 use crate::text::replace_media_refs;
 
 struct NoteContext<'a> {
@@ -164,7 +164,7 @@ impl<'n> NoteContext<'n> {
     fn import_notes(
         &mut self,
         notes: Vec<Note>,
-        progress: &mut IncrementableProgress<ImportProgress>,
+        progress: &mut ThrottlingProgressHandler<ImportProgress>,
     ) -> Result<()> {
         let mut incrementor = progress.incrementor(ImportProgress::Notes);
 
@@ -297,15 +297,15 @@ mod test {
     macro_rules! import_note {
         ($col:expr, $note:expr, $old_notetype:expr => $new_notetype:expr) => {{
             let mut media_map = MediaUseMap::default();
+            let mut progress = $col.new_progress_handler();
             let mut ctx = NoteContext::new(Usn(1), &mut $col, &mut media_map).unwrap();
             ctx.remapped_notetypes.insert($old_notetype, $new_notetype);
-            let mut progress = IncrementableProgress::new(|_, _| true);
             ctx.import_notes(vec![$note], &mut progress).unwrap();
             ctx.imports.log
         }};
         ($col:expr, $note:expr, $media_map:expr) => {{
+            let mut progress = $col.new_progress_handler();
             let mut ctx = NoteContext::new(Usn(1), &mut $col, &mut $media_map).unwrap();
-            let mut progress = IncrementableProgress::new(|_, _| true);
             ctx.import_notes(vec![$note], &mut progress).unwrap();
             ctx.imports.log
         }};

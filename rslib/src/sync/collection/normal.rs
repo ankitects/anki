@@ -9,6 +9,7 @@ use crate::error::AnkiError;
 use crate::error::SyncError;
 use crate::error::SyncErrorKind;
 use crate::prelude::Usn;
+use crate::progress::ThrottlingProgressHandler;
 use crate::sync::collection::progress::SyncStage;
 use crate::sync::collection::protocol::EmptyInput;
 use crate::sync::collection::protocol::SyncProtocol;
@@ -16,11 +17,10 @@ use crate::sync::collection::status::online_sync_status_check;
 use crate::sync::http_client::HttpSyncClient;
 use crate::sync::login::SyncAuth;
 
-pub struct NormalSyncer<'a, F> {
+pub struct NormalSyncer<'a> {
     pub(in crate::sync) col: &'a mut Collection,
     pub(in crate::sync) server: HttpSyncClient,
-    pub(in crate::sync) progress: NormalSyncProgress,
-    pub(in crate::sync) progress_fn: F,
+    pub(in crate::sync) progress: ThrottlingProgressHandler<NormalSyncProgress>,
 }
 
 #[derive(Default, Debug, Clone, Copy)]
@@ -54,29 +54,17 @@ pub struct ClientSyncState {
     pub(in crate::sync) pending_usn: Usn,
 }
 
-impl<F> NormalSyncer<'_, F>
-where
-    F: FnMut(NormalSyncProgress, bool),
-{
-    pub fn new(col: &mut Collection, server: HttpSyncClient, progress_fn: F) -> NormalSyncer<'_, F>
-    where
-        F: FnMut(NormalSyncProgress, bool),
-    {
+impl NormalSyncer<'_> {
+    pub fn new(col: &mut Collection, server: HttpSyncClient) -> NormalSyncer<'_> {
         NormalSyncer {
+            progress: col.new_progress_handler(),
             col,
             server,
-            progress: NormalSyncProgress::default(),
-            progress_fn,
         }
-    }
-
-    pub(in crate::sync) fn fire_progress_cb(&mut self, throttle: bool) {
-        (self.progress_fn)(self.progress, throttle)
     }
 
     pub async fn sync(&mut self) -> error::Result<SyncOutput> {
         debug!("fetching meta...");
-        self.fire_progress_cb(false);
         let local = self.col.sync_meta()?;
         let state = online_sync_status_check(local, &mut self.server).await?;
         debug!(?state, "fetched");
@@ -120,8 +108,8 @@ where
     /// Sync. Caller must have created a transaction, and should call
     /// abort on failure.
     async fn normal_sync_inner(&mut self, mut state: ClientSyncState) -> error::Result<SyncOutput> {
-        self.progress.stage = SyncStage::Syncing;
-        self.fire_progress_cb(false);
+        self.progress
+            .update(false, |p| p.stage = SyncStage::Syncing)?;
 
         debug!("start");
         self.start_and_process_deletions(&state).await?;
@@ -132,8 +120,8 @@ where
         debug!("begin stream to server");
         self.send_chunks_to_server(&state).await?;
 
-        self.progress.stage = SyncStage::Finalizing;
-        self.fire_progress_cb(false);
+        self.progress
+            .update(false, |p| p.stage = SyncStage::Finalizing)?;
 
         debug!("sanity check");
         self.sanity_check().await?;
@@ -164,15 +152,8 @@ impl From<ClientSyncState> for SyncOutput {
 }
 
 impl Collection {
-    pub async fn normal_sync<F>(
-        &mut self,
-        auth: SyncAuth,
-        progress_fn: F,
-    ) -> error::Result<SyncOutput>
-    where
-        F: FnMut(NormalSyncProgress, bool),
-    {
-        NormalSyncer::new(self, HttpSyncClient::new(auth), progress_fn)
+    pub async fn normal_sync(&mut self, auth: SyncAuth) -> error::Result<SyncOutput> {
+        NormalSyncer::new(self, HttpSyncClient::new(auth))
             .sync()
             .await
     }

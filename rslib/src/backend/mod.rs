@@ -22,7 +22,6 @@ mod media;
 mod notes;
 mod notetypes;
 mod ops;
-mod progress;
 mod scheduler;
 mod search;
 mod stats;
@@ -36,7 +35,6 @@ use std::thread::JoinHandle;
 
 use anki_proto::ServiceIndex;
 use once_cell::sync::OnceCell;
-use progress::AbortHandleSlot;
 use prost::Message;
 use tokio::runtime;
 use tokio::runtime::Runtime;
@@ -55,7 +53,6 @@ use self::links::LinksService;
 use self::media::MediaService;
 use self::notes::NotesService;
 use self::notetypes::NotetypesService;
-use self::progress::ProgressState;
 use self::scheduler::SchedulerService;
 use self::search::SearchService;
 use self::stats::StatsService;
@@ -64,6 +61,10 @@ use self::sync::SyncState;
 use self::tags::TagsService;
 use crate::backend::dbproxy::db_command_bytes;
 use crate::prelude::*;
+use crate::progress::AbortHandleSlot;
+use crate::progress::Progress;
+use crate::progress::ProgressState;
+use crate::progress::ThrottlingProgressHandler;
 
 pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,
@@ -195,5 +196,14 @@ impl Backend {
 
     fn db_command(&self, input: &[u8]) -> Result<Vec<u8>> {
         self.with_col(|col| db_command_bytes(col, input))
+    }
+
+    /// Useful for operations that function with a closed collection, such as
+    /// a colpkg import. For collection operations, you can use
+    /// [Collection::new_progress_handler] instead.
+    pub(crate) fn new_progress_handler<P: Into<Progress> + Default + Clone>(
+        &self,
+    ) -> ThrottlingProgressHandler<P> {
+        ThrottlingProgressHandler::new(self.progress_state.clone())
     }
 }

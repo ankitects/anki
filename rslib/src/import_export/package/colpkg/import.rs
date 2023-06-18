@@ -24,19 +24,17 @@ use crate::import_export::package::media::SafeMediaEntry;
 use crate::import_export::package::Meta;
 use crate::import_export::ImportError;
 use crate::import_export::ImportProgress;
-use crate::import_export::IncrementableProgress;
 use crate::media::MediaManager;
 use crate::prelude::*;
+use crate::progress::ThrottlingProgressHandler;
 
 pub fn import_colpkg(
     colpkg_path: &str,
     target_col_path: &str,
     target_media_folder: &Path,
     media_db: &Path,
-    progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
+    mut progress: ThrottlingProgressHandler<ImportProgress>,
 ) -> Result<()> {
-    let mut progress = IncrementableProgress::new(progress_fn);
-    progress.call(ImportProgress::File)?;
     let col_path = PathBuf::from(target_col_path);
     let mut tempfile = new_tempfile_in_parent_of(&col_path)?;
 
@@ -45,9 +43,9 @@ pub fn import_colpkg(
     let meta = Meta::from_archive(&mut archive)?;
 
     copy_collection(&mut archive, &mut tempfile, &meta)?;
-    progress.call(ImportProgress::File)?;
+    progress.set(ImportProgress::File)?;
     check_collection_and_mod_schema(tempfile.path())?;
-    progress.call(ImportProgress::File)?;
+    progress.set(ImportProgress::File)?;
 
     restore_media(
         &meta,
@@ -82,7 +80,7 @@ fn check_collection_and_mod_schema(col_path: &Path) -> Result<()> {
 
 fn restore_media(
     meta: &Meta,
-    progress: &mut IncrementableProgress<ImportProgress>,
+    progress: &mut ThrottlingProgressHandler<ImportProgress>,
     archive: &mut ZipArchive<File>,
     media_folder: &Path,
     media_db: &Path,
@@ -164,7 +162,7 @@ struct MediaComparer<'a>(Option<Box<GetChecksumFn<'a>>>);
 impl<'a> MediaComparer<'a> {
     fn new(
         meta: &Meta,
-        progress: &mut IncrementableProgress<ImportProgress>,
+        progress: &mut ThrottlingProgressHandler<ImportProgress>,
         media_manager: &'a MediaManager,
     ) -> Result<Self> {
         Ok(Self(if meta.media_list_is_hashmap() {

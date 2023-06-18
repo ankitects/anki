@@ -10,7 +10,6 @@ use tracing::info;
 use crate::error::SyncErrorKind;
 use crate::prelude::*;
 use crate::serde::default_on_invalid;
-use crate::sync::collection::normal::NormalSyncProgress;
 use crate::sync::collection::normal::NormalSyncer;
 use crate::sync::collection::protocol::SyncProtocol;
 use crate::sync::request::IntoSyncRequest;
@@ -51,10 +50,7 @@ pub struct SanityCheckDueCounts {
     pub review: u32,
 }
 
-impl<F> NormalSyncer<'_, F>
-where
-    F: FnMut(NormalSyncProgress, bool),
-{
+impl NormalSyncer<'_> {
     /// Caller should force full sync after rolling back.
     pub(in crate::sync) async fn sanity_check(&mut self) -> Result<()> {
         let local_counts = self.col.storage.sanity_check_info()?;

@@ -11,15 +11,11 @@ use crate::sync::collection::chunks::ChunkableIds;
 use crate::sync::collection::graves::ApplyGravesRequest;
 use crate::sync::collection::graves::Graves;
 use crate::sync::collection::normal::ClientSyncState;
-use crate::sync::collection::normal::NormalSyncProgress;
 use crate::sync::collection::normal::NormalSyncer;
 use crate::sync::collection::protocol::SyncProtocol;
 use crate::sync::request::IntoSyncRequest;
 
-impl<F> NormalSyncer<'_, F>
-where
-    F: FnMut(NormalSyncProgress, bool),
-{
+impl NormalSyncer<'_> {
     pub(in crate::sync) async fn start_and_process_deletions(
         &mut self,
         state: &ClientSyncState,
@@ -58,16 +54,20 @@ where
 
         while let Some(chunk) = local.take_chunk() {
             debug!("sending graves chunk");
-            self.progress.local_remove += chunk.cards.len() + chunk.notes.len() + chunk.decks.len();
+            self.progress.update(false, |p| {
+                p.local_remove += chunk.cards.len() + chunk.notes.len() + chunk.decks.len()
+            })?;
             self.server
                 .apply_graves(ApplyGravesRequest { chunk }.try_into_sync_request()?)
                 .await?;
-            self.fire_progress_cb(true);
+            self.progress.check_cancelled()?;
         }
 
-        self.progress.remote_remove = remote.cards.len() + remote.notes.len() + remote.decks.len();
+        self.progress.update(false, |p| {
+            p.remote_remove = remote.cards.len() + remote.notes.len() + remote.decks.len()
+        })?;
         self.col.apply_graves(remote, state.server_usn)?;
-        self.fire_progress_cb(true);
+        self.progress.check_cancelled()?;
         debug!("applied server graves");
 
         Ok(())

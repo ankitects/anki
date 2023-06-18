@@ -4,6 +4,7 @@
 use async_trait::async_trait;
 
 use crate::prelude::TimestampMillis;
+use crate::progress::ThrottlingProgressHandler;
 use crate::sync::collection::changes::ApplyChangesRequest;
 use crate::sync::collection::changes::UnchunkedChanges;
 use crate::sync::collection::chunks::ApplyChunkRequest;
@@ -97,11 +98,13 @@ impl SyncProtocol for HttpSyncClient {
     }
 
     async fn upload(&self, req: SyncRequest<Vec<u8>>) -> HttpResult<SyncResponse<UploadResponse>> {
-        self.upload_inner(req).await
+        self.upload_with_progress(req, ThrottlingProgressHandler::default())
+            .await
     }
 
     async fn download(&self, req: SyncRequest<EmptyInput>) -> HttpResult<SyncResponse<Vec<u8>>> {
-        self.download_inner(req).await
+        self.download_with_progress(req, ThrottlingProgressHandler::default())
+            .await
     }
 }
 

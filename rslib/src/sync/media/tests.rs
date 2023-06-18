@@ -15,6 +15,7 @@ use reqwest::Client;
 use crate::error::Result;
 use crate::media::MediaManager;
 use crate::prelude::AnkiError;
+use crate::progress::ThrottlingProgressHandler;
 use crate::sync::collection::protocol::AsSyncEndpoint;
 use crate::sync::collection::tests::with_active_server;
 use crate::sync::collection::tests::SyncTestContext;
@@ -104,7 +105,7 @@ async fn legacy_session_key_works() -> Result<()> {
 #[tokio::test]
 async fn sanity_check() -> Result<()> {
     with_active_server(|client| async move {
-        let ctx = SyncTestContext::new(client.partial_clone());
+        let ctx = SyncTestContext::new(client.clone());
         let media1 = ctx.media1();
         ctx.sync_media1().await?;
         // may be non-zero when testing on external endpoint
@@ -134,8 +135,8 @@ async fn sanity_check() -> Result<()> {
     .await
 }
 
-fn ignore_progress(_progress: MediaSyncProgress) -> bool {
-    true
+fn ignore_progress() -> ThrottlingProgressHandler<MediaSyncProgress> {
+    ThrottlingProgressHandler::new(Default::default())
 }
 
 impl SyncTestContext {
@@ -149,13 +150,13 @@ impl SyncTestContext {
 
     async fn sync_media1(&self) -> Result<()> {
         let mut syncer =
-            MediaSyncer::new(self.media1(), ignore_progress, self.client.partial_clone()).unwrap();
+            MediaSyncer::new(self.media1(), ignore_progress(), self.client.clone()).unwrap();
         syncer.sync().await
     }
 
     async fn sync_media2(&self) -> Result<()> {
         let mut syncer =
-            MediaSyncer::new(self.media2(), ignore_progress, self.client.partial_clone()).unwrap();
+            MediaSyncer::new(self.media2(), ignore_progress(), self.client.clone()).unwrap();
         syncer.sync().await
     }
 
@@ -171,7 +172,7 @@ impl SyncTestContext {
 #[tokio::test]
 async fn media_roundtrip() -> Result<()> {
     with_active_server(|client| async move {
-        let ctx = SyncTestContext::new(client.partial_clone());
+        let ctx = SyncTestContext::new(client.clone());
         let media1 = ctx.media1();
         let media2 = ctx.media2();
         ctx.sync_media1().await?;
@@ -219,7 +220,7 @@ async fn media_roundtrip() -> Result<()> {
 #[tokio::test]
 async fn parallel_requests() -> Result<()> {
     with_active_server(|client| async move {
-        let ctx = SyncTestContext::new(client.partial_clone());
+        let ctx = SyncTestContext::new(client.clone());
         let media1 = ctx.media1();
         let media2 = ctx.media2();
         ctx.sleep();

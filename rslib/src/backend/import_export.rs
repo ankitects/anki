@@ -8,11 +8,8 @@ use anki_proto::import_export::export_limit;
 pub(super) use anki_proto::import_export::importexport_service::Service as ImportExportService;
 use anki_proto::import_export::ExportLimit;
 
-use super::progress::Progress;
 use super::Backend;
 use crate::import_export::package::import_colpkg;
-use crate::import_export::ExportProgress;
-use crate::import_export::ImportProgress;
 use crate::import_export::NoteLog;
 use crate::prelude::*;
 use crate::search::SearchNode;
@@ -30,12 +27,7 @@ impl ImportExportService for Backend {
 
         let col_inner = guard.take().unwrap();
         col_inner
-            .export_colpkg(
-                input.out_path,
-                input.include_media,
-                input.legacy,
-                self.export_progress_fn(),
-            )
+            .export_colpkg(input.out_path, input.include_media, input.legacy)
             .map(Into::into)
     }
 
@@ -50,7 +42,7 @@ impl ImportExportService for Backend {
             &input.col_path,
             Path::new(&input.media_folder),
             Path::new(&input.media_db),
-            self.import_progress_fn(),
+            self.new_progress_handler(),
         )
         .map(Into::into)
     }
@@ -59,7 +51,7 @@ impl ImportExportService for Backend {
         &self,
         input: anki_proto::import_export::ImportAnkiPackageRequest,
     ) -> Result<anki_proto::import_export::ImportResponse> {
-        self.with_col(|col| col.import_apkg(&input.package_path, self.import_progress_fn()))
+        self.with_col(|col| col.import_apkg(&input.package_path))
             .map(Into::into)
     }
 
@@ -75,7 +67,6 @@ impl ImportExportService for Backend {
                 input.with_media,
                 input.legacy,
                 None,
-                self.export_progress_fn(),
             )
         })
         .map(Into::into)
@@ -101,21 +92,15 @@ impl ImportExportService for Backend {
         &self,
         input: anki_proto::import_export::ImportCsvRequest,
     ) -> Result<anki_proto::import_export::ImportResponse> {
-        self.with_col(|col| {
-            col.import_csv(
-                &input.path,
-                input.metadata.unwrap_or_default(),
-                self.import_progress_fn(),
-            )
-        })
-        .map(Into::into)
+        self.with_col(|col| col.import_csv(&input.path, input.metadata.unwrap_or_default()))
+            .map(Into::into)
     }
 
     fn export_note_csv(
         &self,
         input: anki_proto::import_export::ExportNoteCsvRequest,
     ) -> Result<generic::UInt32> {
-        self.with_col(|col| col.export_note_csv(input, self.export_progress_fn()))
+        self.with_col(|col| col.export_note_csv(input))
             .map(Into::into)
     }
 
@@ -128,7 +113,6 @@ impl ImportExportService for Backend {
                 &input.out_path,
                 SearchNode::from(input.limit.unwrap_or_default()),
                 input.with_html,
-                self.export_progress_fn(),
             )
         })
         .map(Into::into)
@@ -138,7 +122,7 @@ impl ImportExportService for Backend {
         &self,
         input: generic::String,
     ) -> Result<anki_proto::import_export::ImportResponse> {
-        self.with_col(|col| col.import_json_file(&input.val, self.import_progress_fn()))
+        self.with_col(|col| col.import_json_file(&input.val))
             .map(Into::into)
     }
 
@@ -146,20 +130,8 @@ impl ImportExportService for Backend {
         &self,
         input: generic::String,
     ) -> Result<anki_proto::import_export::ImportResponse> {
-        self.with_col(|col| col.import_json_string(&input.val, self.import_progress_fn()))
+        self.with_col(|col| col.import_json_string(&input.val))
             .map(Into::into)
-    }
-}
-
-impl Backend {
-    fn import_progress_fn(&self) -> impl FnMut(ImportProgress, bool) -> bool {
-        let mut handler = self.new_progress_handler();
-        move |progress, throttle| handler.update(Progress::Import(progress), throttle)
-    }
-
-    fn export_progress_fn(&self) -> impl FnMut(ExportProgress, bool) -> bool {
-        let mut handler = self.new_progress_handler();
-        move |progress, throttle| handler.update(Progress::Export(progress), throttle)
     }
 }
 
