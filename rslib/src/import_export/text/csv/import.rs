@@ -18,24 +18,19 @@ use crate::import_export::text::csv::metadata::Delimiter;
 use crate::import_export::text::ForeignData;
 use crate::import_export::text::ForeignNote;
 use crate::import_export::text::NameOrId;
-use crate::import_export::ImportProgress;
 use crate::import_export::NoteLog;
 use crate::prelude::*;
 use crate::text::strip_utf8_bom;
 
 impl Collection {
-    pub fn import_csv(
-        &mut self,
-        path: &str,
-        metadata: CsvMetadata,
-        progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
-    ) -> Result<OpOutput<NoteLog>> {
+    pub fn import_csv(&mut self, path: &str, metadata: CsvMetadata) -> Result<OpOutput<NoteLog>> {
+        let progress = self.new_progress_handler();
         let file = open_file(path)?;
         let mut ctx = ColumnContext::new(&metadata)?;
         let notes = ctx.deserialize_csv(file, metadata.delimiter())?;
         let mut data = ForeignData::from(metadata);
         data.notes = notes;
-        data.import(self, progress_fn)
+        data.import(self, progress)
     }
 }
 

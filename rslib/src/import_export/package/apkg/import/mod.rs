@@ -24,10 +24,10 @@ use crate::collection::CollectionBuilder;
 use crate::import_export::gather::ExchangeData;
 use crate::import_export::package::Meta;
 use crate::import_export::ImportProgress;
-use crate::import_export::IncrementableProgress;
 use crate::import_export::NoteLog;
 use crate::media::MediaManager;
 use crate::prelude::*;
+use crate::progress::ThrottlingProgressHandler;
 use crate::search::SearchNode;
 
 struct Context<'a> {
@@ -37,20 +37,17 @@ struct Context<'a> {
     meta: Meta,
     data: ExchangeData,
     usn: Usn,
-    progress: IncrementableProgress<ImportProgress>,
+    progress: ThrottlingProgressHandler<ImportProgress>,
 }
 
 impl Collection {
-    pub fn import_apkg(
-        &mut self,
-        path: impl AsRef<Path>,
-        progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
-    ) -> Result<OpOutput<NoteLog>> {
+    pub fn import_apkg(&mut self, path: impl AsRef<Path>) -> Result<OpOutput<NoteLog>> {
         let file = open_file(path)?;
         let archive = ZipArchive::new(file)?;
+        let progress = self.new_progress_handler();
 
         self.transact(Op::Import, |col| {
-            let mut ctx = Context::new(archive, col, progress_fn)?;
+            let mut ctx = Context::new(archive, col, progress)?;
             ctx.import()
         })
     }
@@ -60,10 +57,8 @@ impl<'a> Context<'a> {
     fn new(
         mut archive: ZipArchive<File>,
         target_col: &'a mut Collection,
-        progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
+        mut progress: ThrottlingProgressHandler<ImportProgress>,
     ) -> Result<Self> {
-        let mut progress = IncrementableProgress::new(progress_fn);
-        progress.call(ImportProgress::Extracting)?;
         let media_manager = target_col.media()?;
         let meta = Meta::from_archive(&mut archive)?;
         let data = ExchangeData::gather_from_archive(
@@ -102,7 +97,7 @@ impl ExchangeData {
         archive: &mut ZipArchive<File>,
         meta: &Meta,
         search: impl TryIntoSearch,
-        progress: &mut IncrementableProgress<ImportProgress>,
+        progress: &mut ThrottlingProgressHandler<ImportProgress>,
         with_scheduling: bool,
     ) -> Result<Self> {
         let tempfile = collection_to_tempfile(meta, archive)?;
@@ -110,7 +105,7 @@ impl ExchangeData {
         col.maybe_fix_invalid_ids()?;
         col.maybe_upgrade_scheduler()?;
 
-        progress.call(ImportProgress::Gathering)?;
+        progress.set(ImportProgress::Gathering)?;
         let mut data = ExchangeData::default();
         data.gather_data(&mut col, search, with_scheduling)?;
 

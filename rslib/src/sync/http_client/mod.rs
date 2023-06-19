@@ -5,7 +5,6 @@ pub(crate) mod full_sync;
 pub(crate) mod io_monitor;
 mod protocol;
 
-use std::sync::Mutex;
 use std::time::Duration;
 
 use reqwest::Client;
@@ -14,7 +13,6 @@ use reqwest::StatusCode;
 use reqwest::Url;
 
 use crate::notes;
-use crate::sync::collection::progress::FullSyncProgressFn;
 use crate::sync::collection::protocol::AsSyncEndpoint;
 use crate::sync::error::HttpError;
 use crate::sync::error::HttpResult;
@@ -25,6 +23,7 @@ use crate::sync::request::header_and_stream::SYNC_HEADER_NAME;
 use crate::sync::request::SyncRequest;
 use crate::sync::response::SyncResponse;
 
+#[derive(Clone)]
 pub struct HttpSyncClient {
     /// Set to the empty string for initial login
     pub sync_key: String,
@@ -32,7 +31,6 @@ pub struct HttpSyncClient {
     client: Client,
     pub endpoint: Url,
     pub io_timeout: Duration,
-    full_sync_progress_fn: Mutex<Option<FullSyncProgressFn>>,
 }
 
 impl HttpSyncClient {
@@ -46,19 +44,6 @@ impl HttpSyncClient {
                 .endpoint
                 .unwrap_or_else(|| Url::try_from("https://sync.ankiweb.net/").unwrap()),
             io_timeout,
-            full_sync_progress_fn: Mutex::new(None),
-        }
-    }
-
-    #[cfg(test)]
-    pub fn partial_clone(&self) -> Self {
-        Self {
-            sync_key: self.sync_key.clone(),
-            session_key: self.session_key.clone(),
-            client: self.client.clone(),
-            endpoint: self.endpoint.clone(),
-            full_sync_progress_fn: Mutex::new(None),
-            io_timeout: self.io_timeout,
         }
     }
 

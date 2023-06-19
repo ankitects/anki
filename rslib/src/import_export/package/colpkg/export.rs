@@ -33,8 +33,8 @@ use crate::import_export::package::media::new_media_entry;
 use crate::import_export::package::media::MediaCopier;
 use crate::import_export::package::media::MediaIter;
 use crate::import_export::ExportProgress;
-use crate::import_export::IncrementableProgress;
 use crate::prelude::*;
+use crate::progress::ThrottlingProgressHandler;
 use crate::storage::SchemaVersion;
 
 /// Enable multithreaded compression if over this size. For smaller files,
@@ -48,10 +48,8 @@ impl Collection {
         out_path: impl AsRef<Path>,
         include_media: bool,
         legacy: bool,
-        progress_fn: impl 'static + FnMut(ExportProgress, bool) -> bool,
     ) -> Result<()> {
-        let mut progress = IncrementableProgress::new(progress_fn);
-        progress.call(ExportProgress::File)?;
+        let mut progress = self.new_progress_handler();
         let colpkg_name = out_path.as_ref();
         let temp_colpkg = new_tempfile_in_parent_of(colpkg_name)?;
         let src_path = self.col_path.clone();
@@ -87,7 +85,7 @@ fn export_collection_file(
     media_dir: Option<PathBuf>,
     legacy: bool,
     tr: &I18n,
-    progress: &mut IncrementableProgress<ExportProgress>,
+    progress: &mut ThrottlingProgressHandler<ExportProgress>,
 ) -> Result<()> {
     let meta = if legacy {
         Meta::new_legacy()
@@ -112,6 +110,7 @@ pub(crate) fn export_colpkg_from_data(
     tr: &I18n,
 ) -> Result<()> {
     let col_size = col_data.len();
+    let mut progress = ThrottlingProgressHandler::new(Default::default());
     export_collection(
         Meta::new(),
         out_path,
@@ -119,7 +118,7 @@ pub(crate) fn export_colpkg_from_data(
         col_size,
         MediaIter::empty(),
         tr,
-        &mut IncrementableProgress::new(|_, _| true),
+        &mut progress,
     )
 }
 
@@ -130,9 +129,8 @@ pub(crate) fn export_collection(
     col_size: usize,
     media: MediaIter,
     tr: &I18n,
-    progress: &mut IncrementableProgress<ExportProgress>,
+    progress: &mut ThrottlingProgressHandler<ExportProgress>,
 ) -> Result<()> {
-    progress.call(ExportProgress::File)?;
     let out_file = File::create(&out_path)?;
     let mut zip = ZipWriter::new(out_file);
 
@@ -217,7 +215,7 @@ fn write_media(
     meta: &Meta,
     zip: &mut ZipWriter<File>,
     media: MediaIter,
-    progress: &mut IncrementableProgress<ExportProgress>,
+    progress: &mut ThrottlingProgressHandler<ExportProgress>,
 ) -> Result<()> {
     let mut media_entries = vec![];
     write_media_files(meta, zip, media, &mut media_entries, progress)?;
@@ -261,7 +259,7 @@ fn write_media_files(
     zip: &mut ZipWriter<File>,
     media: MediaIter,
     media_entries: &mut Vec<MediaEntry>,
-    progress: &mut IncrementableProgress<ExportProgress>,
+    progress: &mut ThrottlingProgressHandler<ExportProgress>,
 ) -> Result<()> {
     let mut copier = MediaCopier::new(meta.zstd_compressed());
     let mut incrementor = progress.incrementor(ExportProgress::Media);

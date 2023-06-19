@@ -10,6 +10,7 @@ use crate::error::SyncErrorKind;
 use crate::media::files::mtime_as_i64;
 use crate::media::MediaManager;
 use crate::prelude::*;
+use crate::progress::ThrottlingProgressHandler;
 use crate::sync::http_client::HttpSyncClient;
 use crate::sync::media::begin::SyncBeginRequest;
 use crate::sync::media::begin::SyncBeginResponse;
@@ -30,39 +31,23 @@ use crate::sync::media::MAX_MEDIA_FILES_IN_ZIP;
 use crate::sync::request::IntoSyncRequest;
 use crate::version;
 
-pub struct MediaSyncer<P>
-where
-    P: FnMut(MediaSyncProgress) -> bool,
-{
+pub struct MediaSyncer {
     mgr: MediaManager,
     client: HttpSyncClient,
-    progress_cb: P,
-    progress: MediaSyncProgress,
+    progress: ThrottlingProgressHandler<MediaSyncProgress>,
 }
 
-impl<P> MediaSyncer<P>
-where
-    P: FnMut(MediaSyncProgress) -> bool,
-{
+impl MediaSyncer {
     pub fn new(
         mgr: MediaManager,
-        progress_cb: P,
+        progress: ThrottlingProgressHandler<MediaSyncProgress>,
         client: HttpSyncClient,
-    ) -> Result<MediaSyncer<P>> {
+    ) -> Result<MediaSyncer> {
         Ok(MediaSyncer {
             mgr,
             client,
-            progress_cb,
-            progress: Default::default(),
+            progress,
         })
-    }
-
-    fn fire_progress_cb(&mut self) -> Result<()> {
-        if (self.progress_cb)(self.progress) {
-            Ok(())
-        } else {
-            Err(AnkiError::Interrupted)
-        }
     }
 
     pub async fn sync(&mut self) -> Result<()> {
@@ -100,8 +85,6 @@ where
             self.finalize_sync().await?;
         }
 
-        self.fire_progress_cb()?;
-
         debug!("media sync complete");
 
         Ok(())
@@ -129,16 +112,9 @@ where
 
     /// Make sure media DB is up to date.
     fn register_changes(&mut self) -> Result<()> {
-        // make borrow checker happy
-        let progress = &mut self.progress;
-        let progress_cb = &mut self.progress_cb;
-
-        let progress = |checked| {
-            progress.checked = checked;
-            (progress_cb)(*progress)
-        };
-
-        ChangeTracker::new(self.mgr.media_folder.as_path(), progress).register_changes(&self.mgr.db)
+        let progress_cb = |checked| self.progress.update(true, |p| p.checked = checked).is_ok();
+        ChangeTracker::new(self.mgr.media_folder.as_path(), progress_cb)
+            .register_changes(&self.mgr.db)
     }
 
     async fn fetch_changes(&mut self, mut meta: MediaDatabaseMetadata) -> Result<()> {
@@ -157,16 +133,15 @@ where
             }
             last_usn = batch.last().unwrap().usn;
 
-            self.progress.checked += batch.len();
-            self.fire_progress_cb()?;
+            self.progress.update(false, |p| p.checked += batch.len())?;
 
             let (to_download, to_delete, to_remove_pending) =
                 changes::determine_required_changes(&self.mgr.db, batch)?;
 
             // file removal
             self.mgr.remove_files(to_delete.as_slice())?;
-            self.progress.downloaded_deletions += to_delete.len();
-            self.fire_progress_cb()?;
+            self.progress
+                .update(false, |p| p.downloaded_deletions += to_delete.len())?;
 
             // file download
             let mut downloaded = vec![];
@@ -189,8 +164,7 @@ where
                 dl_fnames = &dl_fnames[len..];
                 downloaded.extend(download_batch);
 
-                self.progress.downloaded_files += len;
-                self.fire_progress_cb()?;
+                self.progress.update(false, |p| p.downloaded_files += len)?;
             }
 
             // then update the DB
@@ -227,8 +201,8 @@ where
                 None => {
                     // discard zip info and retry batch - not particularly efficient,
                     // but this is a corner case
-                    self.progress.checked += pending.len();
-                    self.fire_progress_cb()?;
+                    self.progress
+                        .update(false, |p| p.checked += pending.len())?;
                     continue;
                 }
                 Some(data) => zip_files_for_upload(data)?,
@@ -245,9 +219,10 @@ where
                 .take(reply.processed)
                 .partition(|e| e.sha1.is_some());
 
-            self.progress.uploaded_files += processed_files.len();
-            self.progress.uploaded_deletions += processed_deletions.len();
-            self.fire_progress_cb()?;
+            self.progress.update(false, |p| {
+                p.uploaded_files += processed_files.len();
+                p.uploaded_deletions += processed_deletions.len();
+            })?;
 
             let fnames: Vec<_> = processed_files
                 .into_iter()

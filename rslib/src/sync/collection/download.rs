@@ -9,9 +9,7 @@ use anki_io::write_file;
 use crate::collection::CollectionBuilder;
 use crate::prelude::*;
 use crate::storage::SchemaVersion;
-use crate::sync::collection::progress::FullSyncProgressFn;
 use crate::sync::collection::protocol::EmptyInput;
-use crate::sync::collection::protocol::SyncProtocol;
 use crate::sync::error::HttpResult;
 use crate::sync::error::OrHttpErr;
 use crate::sync::http_client::HttpSyncClient;
@@ -19,21 +17,21 @@ use crate::sync::login::SyncAuth;
 
 impl Collection {
     /// Download collection from AnkiWeb. Caller must re-open afterwards.
-    pub async fn full_download(
-        self,
-        auth: SyncAuth,
-        progress_fn: FullSyncProgressFn,
-    ) -> Result<()> {
-        let mut server = HttpSyncClient::new(auth);
-        server.set_full_sync_progress_fn(Some(progress_fn));
-        self.full_download_with_server(server).await
+    pub async fn full_download(self, auth: SyncAuth) -> Result<()> {
+        self.full_download_with_server(HttpSyncClient::new(auth))
+            .await
     }
 
-    pub(crate) async fn full_download_with_server(self, server: HttpSyncClient) -> Result<()> {
+    // pub for tests
+    pub(super) async fn full_download_with_server(self, server: HttpSyncClient) -> Result<()> {
         let col_path = self.col_path.clone();
         let _col_folder = col_path.parent().or_invalid("couldn't get col_folder")?;
+        let progress = self.new_progress_handler();
         self.close(None)?;
-        let out_data = server.download(EmptyInput::request()).await?.data;
+        let out_data = server
+            .download_with_progress(EmptyInput::request(), progress)
+            .await?
+            .data;
         // check file ok
         let temp_file = new_tempfile_in_parent_of(&col_path)?;
         write_file(temp_file.path(), out_data)?;

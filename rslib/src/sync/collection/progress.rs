@@ -27,5 +27,3 @@ pub async fn sync_abort(auth: SyncAuth) -> error::Result<()> {
         .await?
         .json()
 }
-
-pub type FullSyncProgressFn = Box<dyn FnMut(FullSyncProgress, bool) + Send + Sync + 'static>;

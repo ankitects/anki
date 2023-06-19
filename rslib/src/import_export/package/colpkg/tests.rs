@@ -40,7 +40,8 @@ fn roundtrip() -> Result<()> {
         // export to a file
         let col = collection_with_media(dir, name)?;
         let colpkg_name = dir.join(format!("{name}.colpkg"));
-        col.export_colpkg(&colpkg_name, true, legacy, |_, _| true)?;
+        let progress = col.new_progress_handler();
+        col.export_colpkg(&colpkg_name, true, legacy)?;
 
         // import into a new collection
         let anki2_name = dir
@@ -56,7 +57,7 @@ fn roundtrip() -> Result<()> {
             &anki2_name,
             &import_media_dir,
             &import_media_db,
-            |_, _| true,
+            progress,
         )?;
 
         // confirm collection imported
@@ -89,8 +90,7 @@ fn normalization_check_on_export() -> Result<()> {
     // manually write a file in the wrong encoding.
     write_file(col.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
     assert_eq!(
-        col.export_colpkg(&colpkg_name, true, false, |_, _| true,)
-            .unwrap_err(),
+        col.export_colpkg(&colpkg_name, true, false,).unwrap_err(),
         AnkiError::MediaCheckRequired
     );
     // file should have been cleaned up

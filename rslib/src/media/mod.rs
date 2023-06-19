@@ -16,6 +16,7 @@ use crate::media::files::mtime_as_i64;
 use crate::media::files::remove_files;
 use crate::media::files::sha1_of_data;
 use crate::prelude::*;
+use crate::progress::ThrottlingProgressHandler;
 use crate::sync::http_client::HttpSyncClient;
 use crate::sync::login::SyncAuth;
 use crate::sync::media::database::client::changetracker::ChangeTracker;
@@ -139,10 +140,11 @@ impl MediaManager {
     }
 
     /// Sync media.
-    pub async fn sync_media<F>(self, progress: F, auth: SyncAuth) -> Result<()>
-    where
-        F: FnMut(MediaSyncProgress) -> bool,
-    {
+    pub async fn sync_media(
+        self,
+        progress: ThrottlingProgressHandler<MediaSyncProgress>,
+        auth: SyncAuth,
+    ) -> Result<()> {
         let client = HttpSyncClient::new(auth);
         let mut syncer = MediaSyncer::new(self, progress, client)?;
         syncer.sync().await

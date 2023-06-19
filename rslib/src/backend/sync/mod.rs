@@ -13,15 +13,13 @@ use futures::future::Abortable;
 use reqwest::Url;
 use tracing::warn;
 
-use super::progress::AbortHandleSlot;
 use super::Backend;
 use crate::prelude::*;
+use crate::progress::AbortHandleSlot;
 use crate::sync::collection::normal::ClientSyncState;
-use crate::sync::collection::normal::NormalSyncProgress;
 use crate::sync::collection::normal::SyncActionRequired;
 use crate::sync::collection::normal::SyncOutput;
 use crate::sync::collection::progress::sync_abort;
-use crate::sync::collection::progress::FullSyncProgress;
 use crate::sync::collection::status::online_sync_status_check;
 use crate::sync::http_client::HttpSyncClient;
 use crate::sync::login::sync_login;
@@ -198,12 +196,13 @@ impl Backend {
         }
 
         // start the sync
-        let mgr = self.col.lock().unwrap().as_mut().unwrap().media()?;
-        let mut handler = self.new_progress_handler();
-        let progress_fn = move |progress| handler.update(progress, true);
-
+        let (mgr, progress) = {
+            let mut col = self.col.lock().unwrap();
+            let col = col.as_mut().unwrap();
+            (col.media()?, col.new_progress_handler())
+        };
         let rt = self.runtime_handle();
-        let sync_fut = mgr.sync_media(progress_fn, auth);
+        let sync_fut = mgr.sync_media(progress, auth);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let result = rt.block_on(abortable_sync);
 
@@ -308,12 +307,7 @@ impl Backend {
         let rt = self.runtime_handle();
 
         let ret = self.with_col(|col| {
-            let mut handler = self.new_progress_handler();
-            let progress_fn = move |progress: NormalSyncProgress, throttle: bool| {
-                handler.update(progress, throttle);
-            };
-
-            let sync_fut = col.normal_sync(auth.clone(), progress_fn);
+            let sync_fut = col.normal_sync(auth.clone());
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
 
             match rt.block_on(abortable_sync) {
@@ -360,19 +354,14 @@ impl Backend {
 
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
-        let builder = col_inner.as_builder();
-
-        let mut handler = self.new_progress_handler();
-        let progress_fn = Box::new(move |progress: FullSyncProgress, throttle: bool| {
-            handler.update(progress, throttle);
-        });
+        let mut builder = col_inner.as_builder();
 
         let result = if upload {
-            let sync_fut = col_inner.full_upload(auth, progress_fn);
+            let sync_fut = col_inner.full_upload(auth);
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
             rt.block_on(abortable_sync)
         } else {
-            let sync_fut = col_inner.full_download(auth, progress_fn);
+            let sync_fut = col_inner.full_download(auth);
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
             rt.block_on(abortable_sync)
         };

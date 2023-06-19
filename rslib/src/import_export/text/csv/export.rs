@@ -15,7 +15,6 @@ use regex::Regex;
 use super::metadata::Delimiter;
 use crate::import_export::text::csv::metadata::DelimeterExt;
 use crate::import_export::ExportProgress;
-use crate::import_export::IncrementableProgress;
 use crate::notetype::RenderCardOutput;
 use crate::prelude::*;
 use crate::search::SearchNode;
@@ -32,10 +31,8 @@ impl Collection {
         path: &str,
         search: impl TryIntoSearch,
         with_html: bool,
-        progress_fn: impl 'static + FnMut(ExportProgress, bool) -> bool,
     ) -> Result<usize> {
-        let mut progress = IncrementableProgress::new(progress_fn);
-        progress.call(ExportProgress::File)?;
+        let mut progress = self.new_progress_handler::<ExportProgress>();
         let mut incrementor = progress.incrementor(ExportProgress::Cards);
 
         let mut writer = file_writer_with_header(path, with_html)?;
@@ -52,13 +49,8 @@ impl Collection {
         Ok(cards.len())
     }
 
-    pub fn export_note_csv(
-        &mut self,
-        mut request: ExportNoteCsvRequest,
-        progress_fn: impl 'static + FnMut(ExportProgress, bool) -> bool,
-    ) -> Result<usize> {
-        let mut progress = IncrementableProgress::new(progress_fn);
-        progress.call(ExportProgress::File)?;
+    pub fn export_note_csv(&mut self, mut request: ExportNoteCsvRequest) -> Result<usize> {
+        let mut progress = self.new_progress_handler::<ExportProgress>();
         let mut incrementor = progress.incrementor(ExportProgress::Notes);
 
         let guard = self.search_notes_into_table(Into::<SearchNode>::into(&mut request))?;

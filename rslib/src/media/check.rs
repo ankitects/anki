@@ -19,6 +19,8 @@ use crate::media::files::normalize_nfc_filename;
 use crate::media::files::trash_folder;
 use crate::media::MediaManager;
 use crate::prelude::*;
+use crate::progress::ThrottlingProgressHandler;
+use crate::sync::media::progress::MediaCheckProgress;
 use crate::sync::media::MAX_INDIVIDUAL_MEDIA_FILE_SIZE;
 use crate::text::extract_media_refs;
 use crate::text::normalize_to_nfc;
@@ -45,31 +47,25 @@ struct MediaFolderCheck {
     oversize: Vec<String>,
 }
 
-pub struct MediaChecker<'a, 'b, P>
-where
-    P: FnMut(usize) -> bool,
-{
-    ctx: &'a mut Collection,
-    mgr: &'b MediaManager,
-    progress_cb: P,
-    checked: usize,
+impl Collection {
+    pub fn media_checker(&mut self) -> Result<MediaChecker<'_>> {
+        MediaChecker::new(self)
+    }
 }
 
-impl<P> MediaChecker<'_, '_, P>
-where
-    P: FnMut(usize) -> bool,
-{
-    pub(crate) fn new<'a, 'b>(
-        ctx: &'a mut Collection,
-        mgr: &'b MediaManager,
-        progress_cb: P,
-    ) -> MediaChecker<'a, 'b, P> {
-        MediaChecker {
-            ctx,
-            mgr,
-            progress_cb,
-            checked: 0,
-        }
+pub struct MediaChecker<'a> {
+    col: &'a mut Collection,
+    media: MediaManager,
+    progress: ThrottlingProgressHandler<MediaCheckProgress>,
+}
+
+impl MediaChecker<'_> {
+    pub(crate) fn new(col: &mut Collection) -> Result<MediaChecker<'_>> {
+        Ok(MediaChecker {
+            media: col.media()?,
+            progress: col.new_progress_handler(),
+            col,
+        })
     }
 
     pub fn check(&mut self) -> Result<MediaCheckOutput> {
@@ -91,7 +87,7 @@ where
 
     pub fn summarize_output(&self, output: &mut MediaCheckOutput) -> String {
         let mut buf = String::new();
-        let tr = &self.ctx.tr;
+        let tr = &self.col.tr;
 
         // top summary area
         if output.trash_count > 0 {
@@ -179,6 +175,10 @@ where
         buf
     }
 
+    fn increment_progress(&mut self) -> Result<()> {
+        self.progress.increment(|p| &mut p.checked)
+    }
+
     /// Check all the files in the media folder.
     ///
     /// - Renames files with invalid names
@@ -186,13 +186,11 @@ where
     /// - Gathers a list of all files
     fn check_media_folder(&mut self) -> Result<MediaFolderCheck> {
         let mut out = MediaFolderCheck::default();
-        for dentry in self.mgr.media_folder.read_dir()? {
+
+        for dentry in self.media.media_folder.read_dir()? {
             let dentry = dentry?;
 
-            self.checked += 1;
-            if self.checked % 10 == 0 {
-                self.fire_progress_cb()?;
-            }
+            self.increment_progress()?;
 
             // if the filename is not valid unicode, skip it
             let fname_os = dentry.file_name();
@@ -220,7 +218,7 @@ where
             if let Some(norm_name) = filename_if_normalized(disk_fname) {
                 out.files.push(norm_name.into_owned());
             } else {
-                match data_for_file(&self.mgr.media_folder, disk_fname)? {
+                match data_for_file(&self.media.media_folder, disk_fname)? {
                     Some(data) => {
                         let norm_name = self.normalize_file(disk_fname, data)?;
                         out.renamed
@@ -242,38 +240,27 @@ where
     /// Write file data to normalized location, moving old file to trash.
     fn normalize_file<'a>(&mut self, disk_fname: &'a str, data: Vec<u8>) -> Result<Cow<'a, str>> {
         // add a copy of the file using the correct name
-        let fname = self.mgr.add_file(disk_fname, &data)?;
+        let fname = self.media.add_file(disk_fname, &data)?;
         debug!(from = disk_fname, to = &fname.as_ref(), "renamed");
         assert_ne!(fname.as_ref(), disk_fname);
 
         // remove the original file
-        let path = &self.mgr.media_folder.join(disk_fname);
+        let path = &self.media.media_folder.join(disk_fname);
         fs::remove_file(path)?;
 
         Ok(fname)
     }
 
-    fn fire_progress_cb(&mut self) -> Result<()> {
-        if (self.progress_cb)(self.checked) {
-            Ok(())
-        } else {
-            Err(AnkiError::Interrupted)
-        }
-    }
-
     /// Returns the count and total size of the files in the trash folder
     fn files_in_trash(&mut self) -> Result<(u64, u64)> {
-        let trash = trash_folder(&self.mgr.media_folder)?;
+        let trash = trash_folder(&self.media.media_folder)?;
         let mut total_files = 0;
         let mut total_bytes = 0;
 
         for dentry in trash.read_dir()? {
             let dentry = dentry?;
 
-            self.checked += 1;
-            if self.checked % 10 == 0 {
-                self.fire_progress_cb()?;
-            }
+            self.increment_progress()?;
 
             if dentry.file_name() == ".DS_Store" {
                 continue;
@@ -289,15 +276,12 @@ where
     }
 
     pub fn empty_trash(&mut self) -> Result<()> {
-        let trash = trash_folder(&self.mgr.media_folder)?;
+        let trash = trash_folder(&self.media.media_folder)?;
 
         for dentry in trash.read_dir()? {
             let dentry = dentry?;
 
-            self.checked += 1;
-            if self.checked % 10 == 0 {
-                self.fire_progress_cb()?;
-            }
+            self.increment_progress()?;
 
             fs::remove_file(dentry.path())?;
         }
@@ -306,17 +290,14 @@ where
     }
 
     pub fn restore_trash(&mut self) -> Result<()> {
-        let trash = trash_folder(&self.mgr.media_folder)?;
+        let trash = trash_folder(&self.media.media_folder)?;
 
         for dentry in trash.read_dir()? {
             let dentry = dentry?;
 
-            self.checked += 1;
-            if self.checked % 10 == 0 {
-                self.fire_progress_cb()?;
-            }
+            self.increment_progress()?;
 
-            let orig_path = self.mgr.media_folder.join(dentry.file_name());
+            let orig_path = self.media.media_folder.join(dentry.file_name());
             // if the original filename doesn't exist, we can just rename
             if let Err(e) = fs::metadata(&orig_path) {
                 if e.kind() == io::ErrorKind::NotFound {
@@ -329,7 +310,7 @@ where
                 let fname_os = dentry.file_name();
                 let fname = fname_os.to_string_lossy();
                 if let Some(data) = data_for_file(&trash, fname.as_ref())? {
-                    let _new_fname = self.mgr.add_file(fname.as_ref(), &data)?;
+                    let _new_fname = self.media.add_file(fname.as_ref(), &data)?;
                 } else {
                     debug!(?fname, "file disappeared while restoring trash");
                 }
@@ -346,17 +327,14 @@ where
         renamed: &HashMap<String, String>,
     ) -> Result<HashMap<String, Vec<NoteId>>> {
         let mut referenced_files = HashMap::new();
-        let notetypes = self.ctx.get_all_notetypes()?;
+        let notetypes = self.col.get_all_notetypes()?;
         let mut collection_modified = false;
 
-        let nids = self.ctx.search_notes_unordered("")?;
-        let usn = self.ctx.usn()?;
+        let nids = self.col.search_notes_unordered("")?;
+        let usn = self.col.usn()?;
         for nid in nids {
-            self.checked += 1;
-            if self.checked % 10 == 0 {
-                self.fire_progress_cb()?;
-            }
-            let mut note = self.ctx.storage.get_note(nid)?.unwrap();
+            self.increment_progress()?;
+            let mut note = self.col.storage.get_note(nid)?.unwrap();
             let nt = notetypes.get(&note.notetype_id).ok_or_else(|| {
                 AnkiError::db_error("missing note type", DbErrorKind::MissingEntity)
             })?;
@@ -366,12 +344,16 @@ where
                     .or_insert_with(Vec::new)
                     .push(nid)
             };
-            if fix_and_extract_media_refs(&mut note, &mut tracker, renamed, &self.mgr.media_folder)?
-            {
+            if fix_and_extract_media_refs(
+                &mut note,
+                &mut tracker,
+                renamed,
+                &self.media.media_folder,
+            )? {
                 // note was modified, needs saving
                 note.prepare_for_update(nt, false)?;
                 note.set_modified(usn);
-                self.ctx.storage.update_note(&note)?;
+                self.col.storage.update_note(&note)?;
                 collection_modified = true;
             }
 
@@ -557,10 +539,8 @@ pub(crate) mod test {
         write_file(mgr.media_folder.join("_under.jpg"), "foo")?;
         write_file(mgr.media_folder.join("unused.jpg"), "foo")?;
 
-        let progress = |_n| true;
-
         let (output, report) = {
-            let mut checker = MediaChecker::new(&mut col, &mgr, progress);
+            let mut checker = col.media_checker()?;
             let output = checker.check()?;
             let summary = checker.summarize_output(&mut output.clone());
             (output, summary)
@@ -628,9 +608,7 @@ Unused: unused.jpg
         let trash_folder = trash_folder(&mgr.media_folder)?;
         write_file(trash_folder.join("test.jpg"), "test")?;
 
-        let progress = |_n| true;
-
-        let mut checker = MediaChecker::new(&mut col, &mgr, progress);
+        let mut checker = col.media_checker()?;
         checker.restore_trash()?;
 
         // file should have been moved to media folder
@@ -644,7 +622,7 @@ Unused: unused.jpg
         // are equal
         write_file(trash_folder.join("test.jpg"), "test")?;
 
-        let mut checker = MediaChecker::new(&mut col, &mgr, progress);
+        let mut checker = col.media_checker()?;
         checker.restore_trash()?;
 
         assert_eq!(files_in_dir(&trash_folder), Vec::<String>::new());
@@ -656,7 +634,7 @@ Unused: unused.jpg
         // but rename if required
         write_file(trash_folder.join("test.jpg"), "test2")?;
 
-        let mut checker = MediaChecker::new(&mut col, &mgr, progress);
+        let mut checker = col.media_checker()?;
         checker.restore_trash()?;
 
         assert_eq!(files_in_dir(&trash_folder), Vec::<String>::new());
@@ -677,10 +655,8 @@ Unused: unused.jpg
 
         write_file(mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
 
-        let progress = |_n| true;
-
         let mut output = {
-            let mut checker = MediaChecker::new(&mut col, &mgr, progress);
+            let mut checker = col.media_checker()?;
             checker.check()
         }?;
 

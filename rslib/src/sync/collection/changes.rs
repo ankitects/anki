@@ -19,7 +19,6 @@ use crate::error::SyncErrorKind;
 use crate::notetype::NotetypeSchema11;
 use crate::prelude::*;
 use crate::sync::collection::normal::ClientSyncState;
-use crate::sync::collection::normal::NormalSyncProgress;
 use crate::sync::collection::normal::NormalSyncer;
 use crate::sync::collection::protocol::SyncProtocol;
 use crate::sync::collection::start::ServerSyncState;
@@ -52,10 +51,7 @@ pub struct DecksAndConfig {
     config: Vec<DeckConfSchema11>,
 }
 
-impl<F> NormalSyncer<'_, F>
-where
-    F: FnMut(NormalSyncProgress, bool),
-{
+impl NormalSyncer<'_> {
     // This was assumed to a cheap operation when originally written - it didn't
     // anticipate the large deck trees and note types some users would create.
     // They should be chunked in the future, like other objects. Syncing tags
@@ -79,16 +75,18 @@ where
             "sending"
         );
 
-        self.progress.local_update += local.notetypes.len()
-            + local.decks_and_config.decks.len()
-            + local.decks_and_config.config.len()
-            + local.tags.len();
+        self.progress.update(false, |p| {
+            p.local_update += local.notetypes.len()
+                + local.decks_and_config.decks.len()
+                + local.decks_and_config.config.len()
+                + local.tags.len();
+        })?;
         let remote = self
             .server
             .apply_changes(ApplyChangesRequest { changes: local }.try_into_sync_request()?)
             .await?
             .json()?;
-        self.fire_progress_cb(true);
+        self.progress.check_cancelled()?;
 
         debug!(
             notetypes = remote.notetypes.len(),
@@ -98,13 +96,15 @@ where
             "received"
         );
 
-        self.progress.remote_update += remote.notetypes.len()
-            + remote.decks_and_config.decks.len()
-            + remote.decks_and_config.config.len()
-            + remote.tags.len();
+        self.progress.update(false, |p| {
+            p.remote_update += remote.notetypes.len()
+                + remote.decks_and_config.decks.len()
+                + remote.decks_and_config.config.len()
+                + remote.tags.len();
+        })?;
 
         self.col.apply_changes(remote, state.server_usn)?;
-        self.fire_progress_cb(true);
+        self.progress.check_cancelled()?;
         Ok(())
     }
 }
