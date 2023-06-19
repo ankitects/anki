@@ -9,3 +9,9 @@ pub struct MediaSyncProgress {
     pub uploaded_files: usize,
     pub uploaded_deletions: usize,
 }
+
+#[derive(Debug, Default, Clone, Copy)]
+#[repr(transparent)]
+pub struct MediaCheckProgress {
+    pub checked: usize,
+}

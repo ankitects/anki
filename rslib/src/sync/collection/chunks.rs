@@ -17,7 +17,6 @@ use crate::serde::deserialize_int_from_number;
 use crate::storage::card::data::card_data_string;
 use crate::storage::card::data::CardData;
 use crate::sync::collection::normal::ClientSyncState;
-use crate::sync::collection::normal::NormalSyncProgress;
 use crate::sync::collection::normal::NormalSyncer;
 use crate::sync::collection::protocol::EmptyInput;
 use crate::sync::collection::protocol::SyncProtocol;
@@ -87,10 +86,7 @@ pub struct CardEntry {
     pub data: String,
 }
 
-impl<F> NormalSyncer<'_, F>
-where
-    F: FnMut(NormalSyncProgress, bool),
-{
+impl NormalSyncer<'_> {
     pub(in crate::sync) async fn process_chunks_from_server(
         &mut self,
         state: &ClientSyncState,
@@ -106,13 +102,14 @@ where
                 "received"
             );
 
-            self.progress.remote_update +=
-                chunk.cards.len() + chunk.notes.len() + chunk.revlog.len();
+            self.progress.update(false, |p| {
+                p.remote_update += chunk.cards.len() + chunk.notes.len() + chunk.revlog.len()
+            })?;
 
             let done = chunk.done;
             self.col.apply_chunk(chunk, state.pending_usn)?;
 
-            self.fire_progress_cb(true);
+            self.progress.check_cancelled()?;
 
             if done {
                 return Ok(());
@@ -138,14 +135,15 @@ where
                 "sending"
             );
 
-            self.progress.local_update +=
-                chunk.cards.len() + chunk.notes.len() + chunk.revlog.len();
+            self.progress.update(false, |p| {
+                p.local_update += chunk.cards.len() + chunk.notes.len() + chunk.revlog.len()
+            })?;
 
             self.server
                 .apply_chunk(ApplyChunkRequest { chunk }.try_into_sync_request()?)
                 .await?;
 
-            self.fire_progress_cb(true);
+            self.progress.check_cancelled()?;
 
             if done {
                 return Ok(());

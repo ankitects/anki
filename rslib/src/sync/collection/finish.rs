@@ -3,15 +3,11 @@
 
 use crate::prelude::*;
 use crate::sync::collection::normal::ClientSyncState;
-use crate::sync::collection::normal::NormalSyncProgress;
 use crate::sync::collection::normal::NormalSyncer;
 use crate::sync::collection::protocol::EmptyInput;
 use crate::sync::collection::protocol::SyncProtocol;
 
-impl<F> NormalSyncer<'_, F>
-where
-    F: FnMut(NormalSyncProgress, bool),
-{
+impl NormalSyncer<'_> {
     pub(in crate::sync) async fn finalize(&mut self, state: &ClientSyncState) -> Result<()> {
         let new_server_mtime = self.server.finish(EmptyInput::request()).await?.json()?;
         self.col.finalize_sync(state, new_server_mtime)

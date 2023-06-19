@@ -34,11 +34,9 @@ use crate::revlog::RevlogEntry;
 use crate::search::SortMode;
 use crate::sync::collection::graves::ApplyGravesRequest;
 use crate::sync::collection::meta::MetaRequest;
-use crate::sync::collection::normal::NormalSyncProgress;
 use crate::sync::collection::normal::NormalSyncer;
 use crate::sync::collection::normal::SyncActionRequired;
 use crate::sync::collection::normal::SyncOutput;
-use crate::sync::collection::progress::FullSyncProgress;
 use crate::sync::collection::protocol::EmptyInput;
 use crate::sync::collection::protocol::SyncProtocol;
 use crate::sync::collection::start::StartRequest;
@@ -110,10 +108,6 @@ fn unwrap_sync_err_kind(err: AnkiError) -> SyncErrorKind {
     };
     kind
 }
-
-fn norm_progress(_: NormalSyncProgress, _: bool) {}
-
-fn full_progress(_: FullSyncProgress, _: bool) {}
 
 #[tokio::test]
 async fn host_key() -> Result<()> {
@@ -209,7 +203,7 @@ async fn aborting_is_idempotent() -> Result<()> {
 #[tokio::test]
 async fn new_syncs_cancel_old_ones() -> Result<()> {
     with_active_server(|mut client| async move {
-        let ctx = SyncTestContext::new(client.partial_clone());
+        let ctx = SyncTestContext::new(client.clone());
 
         // start a sync
         let req = StartRequest {
@@ -296,7 +290,7 @@ async fn sanity_check_should_roll_back_and_force_full_sync() -> Result<()> {
             .execute("update decks set usn=0 where id=?", [deck.id])?;
 
         // the sync should fail
-        let err = NormalSyncer::new(&mut col1, ctx.cloned_client(), norm_progress)
+        let err = NormalSyncer::new(&mut col1, ctx.cloned_client())
             .sync()
             .await
             .unwrap_err();
@@ -349,7 +343,7 @@ async fn sync_errors_should_prompt_db_check() -> Result<()> {
         col1.storage.db.execute("update notetypes set usn=0", [])?;
 
         // the sync should fail
-        let err = NormalSyncer::new(&mut col1, ctx.cloned_client(), norm_progress)
+        let err = NormalSyncer::new(&mut col1, ctx.cloned_client())
             .sync()
             .await
             .unwrap_err();
@@ -362,7 +356,7 @@ async fn sync_errors_should_prompt_db_check() -> Result<()> {
         assert_eq!(out.required, SyncActionRequired::NoChanges);
 
         // and the client should be able to sync again without a forced one-way sync
-        let err = NormalSyncer::new(&mut col1, ctx.cloned_client(), norm_progress)
+        let err = NormalSyncer::new(&mut col1, ctx.cloned_client())
             .sync()
             .await
             .unwrap_err();
@@ -417,9 +411,7 @@ async fn string_grave_ids_are_handled() -> Result<()> {
 #[tokio::test]
 async fn invalid_uploads_should_be_handled() -> Result<()> {
     with_active_server(|client| async move {
-        let mut ctx = SyncTestContext::new(client);
-        ctx.client
-            .set_full_sync_progress_fn(Some(Box::new(full_progress)));
+        let ctx = SyncTestContext::new(client);
         let res = ctx
             .client
             .upload(b"fake data".to_vec().try_into_sync_request()?)
@@ -494,7 +486,7 @@ impl SyncTestContext {
     }
 
     async fn normal_sync(&self, col: &mut Collection) -> SyncOutput {
-        NormalSyncer::new(col, self.cloned_client(), norm_progress)
+        NormalSyncer::new(col, self.cloned_client())
             .sync()
             .await
             .unwrap()
@@ -513,9 +505,7 @@ impl SyncTestContext {
     }
 
     fn cloned_client(&self) -> HttpSyncClient {
-        let mut client = self.client.partial_clone();
-        client.set_full_sync_progress_fn(Some(Box::new(full_progress)));
-        client
+        self.client.clone()
     }
 }
 

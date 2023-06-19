@@ -18,8 +18,6 @@ use crate::collection::CollectionBuilder;
 use crate::error::SyncErrorKind;
 use crate::prelude::*;
 use crate::storage::SchemaVersion;
-use crate::sync::collection::progress::FullSyncProgressFn;
-use crate::sync::collection::protocol::SyncProtocol;
 use crate::sync::error::HttpResult;
 use crate::sync::error::OrHttpErr;
 use crate::sync::http_client::HttpSyncClient;
@@ -34,15 +32,16 @@ pub const CORRUPT_MESSAGE: &str =
 
 impl Collection {
     /// Upload collection to AnkiWeb. Caller must re-open afterwards.
-    pub async fn full_upload(self, auth: SyncAuth, progress_fn: FullSyncProgressFn) -> Result<()> {
-        let mut server = HttpSyncClient::new(auth);
-        server.set_full_sync_progress_fn(Some(progress_fn));
-        self.full_upload_with_server(server).await
+    pub async fn full_upload(self, auth: SyncAuth) -> Result<()> {
+        self.full_upload_with_server(HttpSyncClient::new(auth))
+            .await
     }
 
-    pub(crate) async fn full_upload_with_server(mut self, server: HttpSyncClient) -> Result<()> {
+    // pub for tests
+    pub(super) async fn full_upload_with_server(mut self, server: HttpSyncClient) -> Result<()> {
         self.before_upload()?;
         let col_path = self.col_path.clone();
+        let progress = self.new_progress_handler();
         self.close(Some(SchemaVersion::V18))?;
         let col_data = fs::read(&col_path)?;
 
@@ -55,7 +54,7 @@ impl Collection {
         }
 
         match server
-            .upload(col_data.try_into_sync_request()?)
+            .upload_with_progress(col_data.try_into_sync_request()?, progress)
             .await?
             .upload_response()
         {

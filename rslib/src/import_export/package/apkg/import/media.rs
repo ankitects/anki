@@ -15,10 +15,10 @@ use crate::import_export::package::media::extract_media_entries;
 use crate::import_export::package::media::MediaCopier;
 use crate::import_export::package::media::SafeMediaEntry;
 use crate::import_export::ImportProgress;
-use crate::import_export::IncrementableProgress;
 use crate::media::files::add_hash_suffix_to_file_stem;
 use crate::media::files::sha1_of_reader;
 use crate::prelude::*;
+use crate::progress::ThrottlingProgressHandler;
 
 /// Map of source media files, that do not already exist in the target.
 #[derive(Default)]
@@ -76,7 +76,7 @@ fn prepare_media(
     media_entries: Vec<SafeMediaEntry>,
     archive: &mut ZipArchive<File>,
     existing_sha1s: &HashMap<String, Sha1Hash>,
-    progress: &mut IncrementableProgress<ImportProgress>,
+    progress: &mut ThrottlingProgressHandler<ImportProgress>,
 ) -> Result<MediaUseMap> {
     let mut media_map = MediaUseMap::default();
     let mut incrementor = progress.incrementor(ImportProgress::MediaCheck);

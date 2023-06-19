@@ -236,6 +236,7 @@ class ProgressManager:
                 self._show_timer.stop()
                 self._show_timer = None
         if self._backend_timer:
+            self._backend_timer.stop()
             self._backend_timer.deleteLater()
             self._backend_timer = None
 

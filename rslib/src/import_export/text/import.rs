@@ -18,7 +18,6 @@ use crate::import_export::text::ForeignNotetype;
 use crate::import_export::text::ForeignTemplate;
 use crate::import_export::text::MatchScope;
 use crate::import_export::ImportProgress;
-use crate::import_export::IncrementableProgress;
 use crate::import_export::NoteLog;
 use crate::notes::field_checksum;
 use crate::notes::normalize_field;
@@ -26,16 +25,16 @@ use crate::notetype::CardGenContext;
 use crate::notetype::CardTemplate;
 use crate::notetype::NoteField;
 use crate::prelude::*;
+use crate::progress::ThrottlingProgressHandler;
 use crate::text::strip_html_preserving_media_filenames;
 
 impl ForeignData {
     pub fn import(
         self,
         col: &mut Collection,
-        progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
+        mut progress: ThrottlingProgressHandler<ImportProgress>,
     ) -> Result<OpOutput<NoteLog>> {
-        let mut progress = IncrementableProgress::new(progress_fn);
-        progress.call(ImportProgress::File)?;
+        progress.set(ImportProgress::File)?;
         col.transact(Op::Import, |col| {
             self.update_config(col)?;
             let mut ctx = Context::new(&self, col)?;
@@ -229,7 +228,7 @@ impl<'a> Context<'a> {
         notes: Vec<ForeignNote>,
         global_tags: &[String],
         updated_tags: &[String],
-        progress: &mut IncrementableProgress<ImportProgress>,
+        progress: &mut ThrottlingProgressHandler<ImportProgress>,
     ) -> Result<NoteLog> {
         let mut incrementor = progress.incrementor(ImportProgress::Notes);
         let mut log = new_note_log(self.dupe_resolution, notes.len() as u32);
@@ -654,8 +653,10 @@ mod test {
         data.add_note(&["same", "old"]);
         data.dupe_resolution = DupeResolution::Duplicate;
 
-        data.clone().import(&mut col, |_, _| true).unwrap();
-        data.import(&mut col, |_, _| true).unwrap();
+        let progress = col.new_progress_handler();
+        data.clone().import(&mut col, progress).unwrap();
+        let progress = col.new_progress_handler();
+        data.import(&mut col, progress).unwrap();
         assert_eq!(col.storage.notes_table_len(), 2);
     }
 
@@ -665,12 +666,13 @@ mod test {
         let mut data = ForeignData::with_defaults();
         data.add_note(&["same", "old"]);
         data.dupe_resolution = DupeResolution::Preserve;
-
-        data.clone().import(&mut col, |_, _| true).unwrap();
+        let progress = col.new_progress_handler();
+        data.clone().import(&mut col, progress).unwrap();
         assert_eq!(col.storage.notes_table_len(), 1);
 
         data.notes[0].fields[1].replace("new".to_string());
-        data.import(&mut col, |_, _| true).unwrap();
+        let progress = col.new_progress_handler();
+        data.import(&mut col, progress).unwrap();
         let notes = col.storage.get_all_notes();
         assert_eq!(notes.len(), 1);
         assert_eq!(notes[0].fields()[1], "old");
@@ -682,12 +684,13 @@ mod test {
         let mut data = ForeignData::with_defaults();
         data.add_note(&["same", "old"]);
         data.dupe_resolution = DupeResolution::Update;
-
-        data.clone().import(&mut col, |_, _| true).unwrap();
+        let progress = col.new_progress_handler();
+        data.clone().import(&mut col, progress).unwrap();
         assert_eq!(col.storage.notes_table_len(), 1);
 
         data.notes[0].fields[1].replace("new".to_string());
-        data.import(&mut col, |_, _| true).unwrap();
+        let progress = col.new_progress_handler();
+        data.import(&mut col, progress).unwrap();
         assert_eq!(col.storage.get_all_notes()[0].fields()[1], "new");
     }
 
@@ -698,13 +701,14 @@ mod test {
         data.add_note(&["same", "unchanged"]);
         data.add_note(&["same", "unchanged"]);
         data.dupe_resolution = DupeResolution::Update;
-
-        data.clone().import(&mut col, |_, _| true).unwrap();
+        let progress = col.new_progress_handler();
+        data.clone().import(&mut col, progress).unwrap();
         assert_eq!(col.storage.notes_table_len(), 2);
 
         data.notes[0].fields[1] = None;
         data.notes[1].fields.pop();
-        data.import(&mut col, |_, _| true).unwrap();
+        let progress = col.new_progress_handler();
+        data.import(&mut col, progress).unwrap();
         let notes = col.storage.get_all_notes();
         assert_eq!(notes[0].fields(), &["same", "unchanged"]);
         assert_eq!(notes[0].fields(), &["same", "unchanged"]);
@@ -719,13 +723,15 @@ mod test {
         let mut data = ForeignData::with_defaults();
         data.dupe_resolution = DupeResolution::Update;
         data.add_note(&["神", "new"]);
+        let progress = col.new_progress_handler();
 
-        data.clone().import(&mut col, |_, _| true).unwrap();
+        data.clone().import(&mut col, progress).unwrap();
         assert_eq!(col.storage.get_all_notes()[0].fields(), &["神", "new"]);
 
         col.set_config_bool(BoolKey::NormalizeNoteText, false, false)
             .unwrap();
-        data.import(&mut col, |_, _| true).unwrap();
+        let progress = col.new_progress_handler();
+        data.import(&mut col, progress).unwrap();
         let notes = col.storage.get_all_notes();
         assert_eq!(notes[0].fields(), &["神", "new"]);
         assert_eq!(notes[1].fields(), &["神", "new"]);
@@ -738,8 +744,8 @@ mod test {
         data.add_note(&["foo"]);
         data.notes[0].tags.replace(vec![String::from("bar")]);
         data.global_tags = vec![String::from("baz")];
-
-        data.import(&mut col, |_, _| true).unwrap();
+        let progress = col.new_progress_handler();
+        data.import(&mut col, progress).unwrap();
         assert_eq!(col.storage.get_all_notes()[0].tags, ["bar", "baz"]);
     }
 
@@ -750,8 +756,8 @@ mod test {
         data.add_note(&["foo"]);
         data.notes[0].tags.replace(vec![String::from("bar")]);
         data.global_tags = vec![String::from("baz")];
-
-        data.import(&mut col, |_, _| true).unwrap();
+        let progress = col.new_progress_handler();
+        data.import(&mut col, progress).unwrap();
         assert_eq!(col.storage.get_all_notes()[0].tags, ["bar", "baz"]);
     }
 
@@ -769,8 +775,8 @@ mod test {
         let mut data = ForeignData::with_defaults();
         data.match_scope = MatchScope::NotetypeAndDeck;
         data.add_note(&["foo", "new"]);
-
-        data.import(&mut col, |_, _| true).unwrap();
+        let progress = col.new_progress_handler();
+        data.import(&mut col, progress).unwrap();
         let notes = col.storage.get_all_notes();
         // same deck, should be updated
         assert_eq!(notes[0].fields()[1], "new");

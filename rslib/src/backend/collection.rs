@@ -7,11 +7,10 @@ pub(super) use anki_proto::collection::collection_service::Service as Collection
 use anki_proto::generic;
 use tracing::error;
 
-use super::progress::Progress;
 use super::Backend;
-use crate::backend::progress::progress_to_proto;
 use crate::collection::CollectionBuilder;
 use crate::prelude::*;
+use crate::progress::progress_to_proto;
 use crate::storage::SchemaVersion;
 
 impl CollectionService for Backend {
@@ -38,7 +37,8 @@ impl CollectionService for Backend {
             .set_force_schema11(input.force_schema11)
             .set_media_paths(input.media_folder_path, input.media_db_path)
             .set_server(self.server)
-            .set_tr(self.tr.clone());
+            .set_tr(self.tr.clone())
+            .set_shared_progress_state(self.progress_state.clone());
 
         *guard = Some(builder.build()?);
 
@@ -70,16 +70,11 @@ impl CollectionService for Backend {
         &self,
         _input: generic::Empty,
     ) -> Result<anki_proto::collection::CheckDatabaseResponse> {
-        let mut handler = self.new_progress_handler();
-        let progress_fn = move |progress, throttle| {
-            handler.update(Progress::DatabaseCheck(progress), throttle);
-        };
         self.with_col(|col| {
-            col.check_database(progress_fn).map(|problems| {
-                anki_proto::collection::CheckDatabaseResponse {
+            col.check_database()
+                .map(|problems| anki_proto::collection::CheckDatabaseResponse {
                     problems: problems.to_i18n_strings(&col.tr),
-                }
-            })
+                })
         })
     }
 

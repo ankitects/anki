@@ -8,10 +8,10 @@ use anki_io::filename_is_safe;
 use itertools::Itertools;
 
 use super::ExportProgress;
-use super::IncrementableProgress;
 use crate::decks::immediate_parent_name;
 use crate::latex::extract_latex;
 use crate::prelude::*;
+use crate::progress::ThrottlingProgressHandler;
 use crate::revlog::RevlogEntry;
 use crate::search::CardTableGuard;
 use crate::search::NoteTableGuard;
@@ -61,7 +61,7 @@ impl ExchangeData {
 
     pub(super) fn gather_media_names(
         &mut self,
-        progress: &mut IncrementableProgress<ExportProgress>,
+        progress: &mut ThrottlingProgressHandler<ExportProgress>,
     ) -> Result<()> {
         let mut inserter = |name: String| {
             if filename_is_safe(&name) {
