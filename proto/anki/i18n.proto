@@ -12,13 +12,13 @@ import "anki/codegen.proto";
 
 service I18nService {
   rpc TranslateString(TranslateStringRequest) returns (generic.String) {
-    option (codegen.rust_methods) = RUST_METHODS_COLLECTION_AND_MANUAL_BACKEND;
+    option (codegen.backend_method) = BACKEND_METHOD_IMPLEMENT;
   }
   rpc FormatTimespan(FormatTimespanRequest) returns (generic.String) {
-    option (codegen.rust_methods) = RUST_METHODS_COLLECTION_AND_MANUAL_BACKEND;
+    option (codegen.backend_method) = BACKEND_METHOD_IMPLEMENT;
   }
   rpc I18nResources(I18nResourcesRequest) returns (generic.Json) {
-    option (codegen.rust_methods) = RUST_METHODS_COLLECTION_AND_MANUAL_BACKEND;
+    option (codegen.backend_method) = BACKEND_METHOD_IMPLEMENT;
   }
 }
 

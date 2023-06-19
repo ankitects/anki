@@ -6,7 +6,7 @@ use std::fmt::Write;
 use std::path::PathBuf;
 
 use anki_io::write_file_if_changed;
-use anki_proto::codegen::RustMethods;
+use anki_proto::codegen::BackendMethod;
 use anyhow::Context;
 use anyhow::Result;
 use inflections::Inflect;
@@ -48,6 +48,7 @@ struct RustMethod {
     input_type: Option<String>,
     output_type: Option<String>,
     options: anki_proto::codegen::MethodOptions,
+    service_name: String,
 }
 
 impl RustMethod {
@@ -74,21 +75,21 @@ impl RustMethod {
     }
 
     fn wants_abstract_backend_method(&self) -> bool {
-        self.options.rust_methods() != RustMethods::CollectionAndAutoBackend
+        self.service_name.starts_with("Backend")
+            || self.options.backend_method() == BackendMethod::Implement
     }
 
     fn wants_abstract_collection_method(&self) -> bool {
-        self.options.rust_methods() != RustMethods::BackendOnly
+        !self.service_name.starts_with("Backend")
     }
-}
 
-impl RustMethod {
     fn from_proto(method: prost_reflect::MethodDescriptor) -> Self {
         RustMethod {
             name: method.name().to_snake_case(),
             input_type: rust_type(method.input().full_name()),
             output_type: rust_type(method.output().full_name()),
             options: method.options().transcode_to().unwrap(),
+            service_name: method.parent_service().name().to_string(),
         }
     }
 }
@@ -189,7 +190,11 @@ fn render_collection_trait(service: &RustService, buf: &mut String) {
 }
 
 fn render_backend_trait(service: &RustService, buf: &mut String) {
-    let name = format!("Backend{}", service.name);
+    let name = if !service.name.starts_with("Backend") {
+        format!("Backend{}", service.name)
+    } else {
+        service.name.clone()
+    };
     writeln!(buf, "pub trait {name} {{").unwrap();
     for method in &service.methods {
         if method.wants_abstract_backend_method() {

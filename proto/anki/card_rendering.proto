@@ -28,7 +28,7 @@ service CardRenderingService {
   rpc DecodeIriPaths(generic.String) returns (generic.String);
   rpc StripHtml(StripHtmlRequest) returns (generic.String) {
     // a bunch of our unit tests access this without a collection
-    option (codegen.rust_methods) = RUST_METHODS_COLLECTION_AND_MANUAL_BACKEND;
+    option (codegen.backend_method) = BACKEND_METHOD_IMPLEMENT;
   }
   rpc CompareAnswer(CompareAnswerRequest) returns (generic.String);
   rpc ExtractClozeForTyping(ExtractClozeForTypingRequest)

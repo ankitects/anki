@@ -14,14 +14,6 @@ import "anki/generic.proto";
 import "anki/codegen.proto";
 
 service ImportExportService {
-  rpc ImportCollectionPackage(ImportCollectionPackageRequest)
-      returns (generic.Empty) {
-    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
-  }
-  rpc ExportCollectionPackage(ExportCollectionPackageRequest)
-      returns (generic.Empty) {
-    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
-  }
   rpc ImportAnkiPackage(ImportAnkiPackageRequest) returns (ImportResponse);
   rpc ExportAnkiPackage(ExportAnkiPackageRequest) returns (generic.UInt32);
   rpc GetCsvMetadata(CsvMetadataRequest) returns (CsvMetadata);
@@ -30,6 +22,13 @@ service ImportExportService {
   rpc ExportCardCsv(ExportCardCsvRequest) returns (generic.UInt32);
   rpc ImportJsonFile(generic.String) returns (ImportResponse);
   rpc ImportJsonString(generic.String) returns (ImportResponse);
+}
+
+service BackendImportExportService {
+  rpc ImportCollectionPackage(ImportCollectionPackageRequest)
+      returns (generic.Empty);
+  rpc ExportCollectionPackage(ExportCollectionPackageRequest)
+      returns (generic.Empty);
 }
 
 message ImportCollectionPackageRequest {
