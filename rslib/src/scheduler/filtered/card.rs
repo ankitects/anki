@@ -103,7 +103,7 @@ impl Card {
             }
             SchedulerVersion::V2 => {
                 // original_due is cleared if card answered in filtered deck
-                if self.original_due > 0 {
+                if self.original_due != 0 {
                     self.due = self.original_due;
                 }
 
