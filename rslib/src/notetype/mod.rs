@@ -10,6 +10,7 @@ mod render;
 mod restore;
 mod schema11;
 mod schemachange;
+mod service;
 pub(crate) mod stock;
 mod templates;
 pub(crate) mod undo;

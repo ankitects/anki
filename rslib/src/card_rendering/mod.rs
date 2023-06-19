@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use crate::prelude::*;
 
 mod parser;
+pub(crate) mod service;
 pub mod tts;
 mod writer;
 

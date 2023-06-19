@@ -13,7 +13,6 @@ pub mod windows;
 use anki_i18n::I18n;
 use anki_io::FileIoError;
 use anki_io::FileOp;
-use anki_proto::ProtoError;
 pub use db::DbError;
 pub use db::DbErrorKind;
 pub use filtered::CustomStudyError;
@@ -112,6 +111,8 @@ pub enum AnkiError {
     WindowsError {
         source: windows::WindowsError,
     },
+    InvalidMethodIndex,
+    InvalidServiceIndex,
 }
 
 // error helpers
@@ -157,6 +158,8 @@ impl AnkiError {
             | AnkiError::CollectionNotOpen
             | AnkiError::CollectionAlreadyOpen
             | AnkiError::Existing
+            | AnkiError::InvalidServiceIndex
+            | AnkiError::InvalidMethodIndex
             | AnkiError::UndoEmpty => format!("{:?}", self),
             AnkiError::FileIoError { source } => source.message(),
             AnkiError::InvalidInput { source } => source.message(),
@@ -298,12 +301,4 @@ pub enum CardTypeErrorDetails {
     NoSuchField,
     MissingCloze,
     ExtraneousCloze,
-}
-
-impl From<anki_proto::ProtoError> for AnkiError {
-    fn from(value: ProtoError) -> Self {
-        AnkiError::ProtoError {
-            info: value.to_string(),
-        }
-    }
 }

@@ -1962,6 +1962,15 @@
     "description": "A minimal `syn` syntax tree pretty-printer"
   },
   {
+    "name": "prettyplease",
+    "version": "0.2.7",
+    "authors": "David Tolnay <dtolnay@gmail.com>",
+    "repository": "https://github.com/dtolnay/prettyplease",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A minimal `syn` syntax tree pretty-printer"
+  },
+  {
     "name": "proc-macro-crate",
     "version": "1.3.1",
     "authors": "Bastian Köcher <git@kchr.de>",
@@ -1981,7 +1990,7 @@
   },
   {
     "name": "proc-macro2",
-    "version": "1.0.54",
+    "version": "1.0.60",
     "authors": "David Tolnay <dtolnay@gmail.com>|Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/dtolnay/proc-macro2",
     "license": "Apache-2.0 OR MIT",
@@ -2044,7 +2053,7 @@
   },
   {
     "name": "quote",
-    "version": "1.0.26",
+    "version": "1.0.28",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/quote",
     "license": "Apache-2.0 OR MIT",
@@ -2602,7 +2611,7 @@
   },
   {
     "name": "syn",
-    "version": "2.0.12",
+    "version": "2.0.18",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/syn",
     "license": "Apache-2.0 OR MIT",

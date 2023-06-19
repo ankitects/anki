@@ -3,6 +3,9 @@
 
 pub use anki_proto::links::help_page_link_request::HelpPage;
 
+use crate::collection::Collection;
+use crate::error;
+
 static HELP_SITE: &str = "https://docs.ankiweb.net/";
 
 pub fn help_page_to_link(page: HelpPage) -> String {
@@ -38,5 +41,14 @@ pub fn help_page_link_suffix(page: HelpPage) -> &'static str {
         HelpPage::CardTypeExtraneousCloze => {
             "templates/errors.html#cloze-filter-outside-cloze-notetype"
         }
+    }
+}
+
+impl crate::services::LinksService for Collection {
+    fn help_page_link(
+        &mut self,
+        input: anki_proto::links::HelpPageLinkRequest,
+    ) -> error::Result<anki_proto::generic::String> {
+        Ok(help_page_to_link(HelpPage::from_i32(input.page).unwrap_or(HelpPage::Index)).into())
     }
 }

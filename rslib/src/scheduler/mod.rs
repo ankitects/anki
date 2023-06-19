@@ -14,6 +14,7 @@ mod learning;
 pub mod new;
 pub(crate) mod queue;
 mod reviews;
+mod service;
 pub mod states;
 pub mod timespan;
 pub mod timing;

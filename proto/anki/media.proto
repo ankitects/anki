@@ -11,8 +11,8 @@ import "anki/generic.proto";
 
 service MediaService {
   rpc CheckMedia(generic.Empty) returns (CheckMediaResponse);
-  rpc TrashMediaFiles(TrashMediaFilesRequest) returns (generic.Empty);
   rpc AddMediaFile(AddMediaFileRequest) returns (generic.String);
+  rpc TrashMediaFiles(TrashMediaFilesRequest) returns (generic.Empty);
   rpc EmptyTrash(generic.Empty) returns (generic.Empty);
   rpc RestoreTrash(generic.Empty) returns (generic.Empty);
 }

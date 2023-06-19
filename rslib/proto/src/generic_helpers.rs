@@ -48,9 +48,3 @@ impl From<usize> for crate::generic::UInt32 {
         crate::generic::UInt32 { val: val as u32 }
     }
 }
-
-impl From<()> for crate::generic::Empty {
-    fn from(_val: ()) -> Self {
-        crate::generic::Empty {}
-    }
-}

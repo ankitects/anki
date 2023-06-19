@@ -1,7 +1,3 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
-pub mod imagedata;
-pub mod imageocclusion;
-pub(crate) mod notetype;
-mod service;
+pub(crate) mod service;
