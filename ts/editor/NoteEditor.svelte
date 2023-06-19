@@ -60,6 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ImageOverlay from "./image-overlay";
     import { shrinkImagesByDefault } from "./image-overlay/ImageOverlay.svelte";
     import MathjaxOverlay from "./mathjax-overlay";
+    import { closeMathjaxEditor } from "./mathjax-overlay/MathjaxEditor.svelte";
     import Notification from "./Notification.svelte";
     import PlainTextInput from "./plain-text-input";
     import { closeHTMLTags } from "./plain-text-input/PlainTextInput.svelte";
@@ -292,6 +293,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function saveNow(): void {
+        closeMathjaxEditor?.();
         $commitTagEdits();
         saveFieldNow();
     }
