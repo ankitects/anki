@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod schema11;
+mod service;
 pub(crate) mod undo;
 mod update;
 

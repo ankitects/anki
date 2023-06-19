@@ -3,8 +3,6 @@
 
 use std::sync::Arc;
 
-use anki_proto::generic;
-pub(super) use anki_proto::sync::sync_service::Service as SyncService;
 use anki_proto::sync::sync_status_response::Required;
 use anki_proto::sync::SyncStatusResponse;
 use futures::future::AbortHandle;
@@ -99,27 +97,25 @@ impl TryFrom<anki_proto::sync::SyncAuth> for SyncAuth {
     }
 }
 
-impl SyncService for Backend {
-    type Error = AnkiError;
-
-    fn sync_media(&self, input: anki_proto::sync::SyncAuth) -> Result<generic::Empty> {
+impl crate::services::BackendSyncService for Backend {
+    fn sync_media(&self, input: anki_proto::sync::SyncAuth) -> Result<()> {
         self.sync_media_inner(input).map(Into::into)
     }
 
-    fn abort_sync(&self, _input: generic::Empty) -> Result<generic::Empty> {
+    fn abort_sync(&self) -> Result<()> {
         if let Some(handle) = self.sync_abort.lock().unwrap().take() {
             handle.abort();
         }
-        Ok(().into())
+        Ok(())
     }
 
     /// Abort the media sync. Does not wait for completion.
-    fn abort_media_sync(&self, _input: generic::Empty) -> Result<generic::Empty> {
+    fn abort_media_sync(&self) -> Result<()> {
         let guard = self.state.lock().unwrap();
         if let Some(handle) = &guard.sync.media_sync_abort {
             handle.abort();
         }
-        Ok(().into())
+        Ok(())
     }
 
     fn sync_login(
@@ -143,14 +139,14 @@ impl SyncService for Backend {
         self.sync_collection_inner(input)
     }
 
-    fn full_upload(&self, input: anki_proto::sync::SyncAuth) -> Result<generic::Empty> {
+    fn full_upload(&self, input: anki_proto::sync::SyncAuth) -> Result<()> {
         self.full_sync_inner(input, true)?;
-        Ok(().into())
+        Ok(())
     }
 
-    fn full_download(&self, input: anki_proto::sync::SyncAuth) -> Result<generic::Empty> {
+    fn full_download(&self, input: anki_proto::sync::SyncAuth) -> Result<()> {
         self.full_sync_inner(input, false)?;
-        Ok(().into())
+        Ok(())
     }
 }
 

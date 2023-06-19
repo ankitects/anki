@@ -15,6 +15,8 @@ use rusqlite::OptionalExtension;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::ankidroid::db::next_sequence_number;
+use crate::ankidroid::db::trim_and_cache_remaining;
 use crate::prelude::*;
 use crate::storage::SqliteStorage;
 
@@ -44,7 +46,7 @@ pub(super) enum DbResult {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
-pub(super) enum SqlValue {
+pub(crate) enum SqlValue {
     Null,
     String(String),
     Int(i64),
@@ -113,7 +115,7 @@ impl FromSql for SqlValue {
     }
 }
 
-pub(super) fn db_command_bytes(col: &mut Collection, input: &[u8]) -> Result<Vec<u8>> {
+pub(crate) fn db_command_bytes(col: &mut Collection, input: &[u8]) -> Result<Vec<u8>> {
     serde_json::to_vec(&db_command_bytes_inner(col, input)?).map_err(Into::into)
 }
 
@@ -181,11 +183,7 @@ pub(crate) fn db_command_proto(col: &mut Collection, input: &[u8]) -> Result<DbR
         DbResult::None => ProtoDbResult { rows: Vec::new() },
         DbResult::Rows(rows) => rows_to_proto(&rows),
     };
-    let trimmed = super::ankidroid::db::trim_and_cache_remaining(
-        col,
-        proto_resp,
-        super::ankidroid::db::next_sequence_number(),
-    );
+    let trimmed = trim_and_cache_remaining(col, proto_resp, next_sequence_number());
     Ok(trimmed)
 }
 

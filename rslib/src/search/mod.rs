@@ -3,6 +3,7 @@
 
 mod builder;
 mod parser;
+mod service;
 mod sqlwriter;
 pub(crate) mod writer;
 

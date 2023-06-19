@@ -4,25 +4,34 @@ option java_multiple_files = true;
 
 import "anki/generic.proto";
 import "anki/scheduler.proto";
+import "anki/codegen.proto";
 
 package anki.ankidroid;
 
 service AnkidroidService {
   rpc SchedTimingTodayLegacy(SchedTimingTodayLegacyRequest)
-      returns (scheduler.SchedTimingTodayResponse);
-  rpc LocalMinutesWestLegacy(generic.Int64) returns (generic.Int32);
+      returns (scheduler.SchedTimingTodayResponse) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
+  rpc LocalMinutesWestLegacy(generic.Int64) returns (generic.Int32) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
   rpc RunDbCommand(generic.Json) returns (generic.Json);
-  rpc RunDbCommandProto(generic.Json) returns (DBResponse);
+  rpc RunDbCommandProto(generic.Json) returns (DbResponse);
   rpc InsertForId(generic.Json) returns (generic.Int64);
   rpc RunDbCommandForRowCount(generic.Json) returns (generic.Int64);
   rpc FlushAllQueries(generic.Empty) returns (generic.Empty);
   rpc FlushQuery(generic.Int32) returns (generic.Empty);
-  rpc GetNextResultPage(GetNextResultPageRequest) returns (DBResponse);
-  rpc SetPageSize(generic.Int64) returns (generic.Empty);
+  rpc GetNextResultPage(GetNextResultPageRequest) returns (DbResponse);
+  rpc SetPageSize(generic.Int64) returns (generic.Empty) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
   rpc GetColumnNamesFromQuery(generic.String) returns (generic.StringList);
   rpc GetActiveSequenceNumbers(generic.Empty)
       returns (GetActiveSequenceNumbersResponse);
-  rpc DebugProduceError(generic.String) returns (generic.Empty);
+  rpc DebugProduceError(generic.String) returns (generic.Empty) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
 }
 
 message DebugActiveDatabaseSequenceNumbersResponse {
@@ -57,7 +66,7 @@ message DbResult {
   repeated Row rows = 1;
 }
 
-message DBResponse {
+message DbResponse {
   DbResult result = 1;
   int32 sequenceNumber = 2;
   int32 rowCount = 3;

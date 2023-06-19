@@ -13,7 +13,7 @@ use crate::error::SyncError;
 use crate::error::SyncErrorKind as Sync;
 use crate::prelude::AnkiError;
 
-pub(super) fn debug_produce_error(s: &str) -> AnkiError {
+pub(crate) fn debug_produce_error(s: &str) -> AnkiError {
     let info = "error_value".to_string();
     match s {
         "TemplateError" => AnkiError::TemplateError { info },

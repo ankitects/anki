@@ -10,6 +10,7 @@ mod register;
 mod remove;
 mod rename;
 mod reparent;
+mod service;
 mod tree;
 pub(crate) mod undo;
 

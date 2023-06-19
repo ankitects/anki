@@ -1,65 +1,30 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-// infallible backend methods still return a result
-#![allow(clippy::unnecessary_wraps)]
-
 mod adding;
 mod ankidroid;
-mod card;
-mod cardrendering;
+mod card_rendering;
 mod collection;
 mod config;
-mod dbproxy;
-mod deckconfig;
-mod decks;
+pub(crate) mod dbproxy;
 mod error;
 mod i18n;
-mod image_occlusion;
 mod import_export;
-mod links;
-mod media;
-mod notes;
-mod notetypes;
 mod ops;
-mod scheduler;
-mod search;
-mod stats;
 mod sync;
-mod tags;
 
 use std::result;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread::JoinHandle;
 
-use anki_proto::ServiceIndex;
 use once_cell::sync::OnceCell;
 use prost::Message;
 use tokio::runtime;
 use tokio::runtime::Runtime;
 
-use self::ankidroid::AnkidroidService;
-use self::card::CardsService;
-use self::cardrendering::CardRenderingService;
-use self::collection::CollectionService;
-use self::config::ConfigService;
-use self::deckconfig::DeckConfigService;
-use self::decks::DecksService;
-use self::i18n::I18nService;
-use self::image_occlusion::ImageOcclusionService;
-use self::import_export::ImportExportService;
-use self::links::LinksService;
-use self::media::MediaService;
-use self::notes::NotesService;
-use self::notetypes::NotetypesService;
-use self::scheduler::SchedulerService;
-use self::search::SearchService;
-use self::stats::StatsService;
-use self::sync::SyncService;
-use self::sync::SyncState;
-use self::tags::TagsService;
 use crate::backend::dbproxy::db_command_bytes;
+use crate::backend::sync::SyncState;
 use crate::prelude::*;
 use crate::progress::AbortHandleSlot;
 use crate::progress::Progress;
@@ -68,7 +33,7 @@ use crate::progress::ThrottlingProgressHandler;
 
 pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,
-    tr: I18n,
+    pub(crate) tr: I18n,
     server: bool,
     sync_abort: AbortHandleSlot,
     progress_state: Arc<Mutex<ProgressState>>,
@@ -115,47 +80,6 @@ impl Backend {
         &self.tr
     }
 
-    pub fn run_method(
-        &self,
-        service: u32,
-        method: u32,
-        input: &[u8],
-    ) -> result::Result<Vec<u8>, Vec<u8>> {
-        ServiceIndex::try_from(service)
-            .or_invalid("invalid service")
-            .and_then(|service| match service {
-                ServiceIndex::Ankidroid => AnkidroidService::run_method(self, method, input),
-                ServiceIndex::Scheduler => SchedulerService::run_method(self, method, input),
-                ServiceIndex::Decks => DecksService::run_method(self, method, input),
-                ServiceIndex::Notes => NotesService::run_method(self, method, input),
-                ServiceIndex::Notetypes => NotetypesService::run_method(self, method, input),
-                ServiceIndex::Config => ConfigService::run_method(self, method, input),
-                ServiceIndex::Sync => SyncService::run_method(self, method, input),
-                ServiceIndex::Tags => TagsService::run_method(self, method, input),
-                ServiceIndex::DeckConfig => DeckConfigService::run_method(self, method, input),
-                ServiceIndex::CardRendering => {
-                    CardRenderingService::run_method(self, method, input)
-                }
-                ServiceIndex::Media => MediaService::run_method(self, method, input),
-                ServiceIndex::Stats => StatsService::run_method(self, method, input),
-                ServiceIndex::Search => SearchService::run_method(self, method, input),
-                ServiceIndex::I18n => I18nService::run_method(self, method, input),
-                ServiceIndex::Links => LinksService::run_method(self, method, input),
-                ServiceIndex::Collection => CollectionService::run_method(self, method, input),
-                ServiceIndex::Cards => CardsService::run_method(self, method, input),
-                ServiceIndex::ImportExport => ImportExportService::run_method(self, method, input),
-                ServiceIndex::ImageOcclusion => {
-                    ImageOcclusionService::run_method(self, method, input)
-                }
-            })
-            .map_err(|err| {
-                let backend_err = err.into_protobuf(&self.tr);
-                let mut bytes = Vec::new();
-                backend_err.encode(&mut bytes).unwrap();
-                bytes
-            })
-    }
-
     pub fn run_db_command_bytes(&self, input: &[u8]) -> result::Result<Vec<u8>, Vec<u8>> {
         self.db_command(input).map_err(|err| {
             let backend_err = err.into_protobuf(&self.tr);
@@ -168,7 +92,7 @@ impl Backend {
     /// If collection is open, run the provided closure while holding
     /// the mutex.
     /// If collection is not open, return an error.
-    fn with_col<F, T>(&self, func: F) -> Result<T>
+    pub(crate) fn with_col<F, T>(&self, func: F) -> Result<T>
     where
         F: FnOnce(&mut Collection) -> Result<T>,
     {

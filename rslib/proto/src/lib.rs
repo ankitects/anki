@@ -11,27 +11,11 @@ macro_rules! protobuf {
     };
 }
 
-use snafu::Snafu;
-
-#[derive(Debug, Snafu)]
-pub enum ProtoError {
-    InvalidMethodIndex,
-    #[snafu(context(false))]
-    DecodeError {
-        source: prost::DecodeError,
-    },
-    #[snafu(context(false))]
-    EncodeError {
-        source: prost::EncodeError,
-    },
-}
-
-include!(concat!(env!("OUT_DIR"), "/service_index.rs"));
-
 protobuf!(ankidroid, "ankidroid");
 protobuf!(backend, "backend");
 protobuf!(card_rendering, "card_rendering");
 protobuf!(cards, "cards");
+protobuf!(codegen, "codegen");
 protobuf!(collection, "collection");
 protobuf!(config, "config");
 protobuf!(deckconfig, "deckconfig");

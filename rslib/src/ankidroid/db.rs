@@ -284,8 +284,8 @@ mod tests {
     use anki_proto::ankidroid::SqlValue;
 
     use super::*;
-    use crate::backend::ankidroid::db::select_slice_of_size;
-    use crate::backend::ankidroid::db::Sizable;
+    use crate::ankidroid::db::select_slice_of_size;
+    use crate::ankidroid::db::Sizable;
 
     fn gen_data() -> Vec<SqlValue> {
         vec![

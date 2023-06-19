@@ -1,84 +1,83 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
-pub(super) use anki_proto::cards::cards_service::Service as CardsService;
-use anki_proto::generic;
-
-use super::Backend;
+use crate::card::Card;
+use crate::card::CardId;
 use crate::card::CardQueue;
 use crate::card::CardType;
-use crate::prelude::*;
+use crate::collection::Collection;
+use crate::decks::DeckId;
+use crate::error;
+use crate::error::AnkiError;
+use crate::error::OrInvalid;
+use crate::error::OrNotFound;
+use crate::notes::NoteId;
+use crate::prelude::TimestampSecs;
+use crate::prelude::Usn;
 
-impl CardsService for Backend {
-    type Error = AnkiError;
-
-    fn get_card(&self, input: anki_proto::cards::CardId) -> Result<anki_proto::cards::Card> {
+impl crate::services::CardsService for Collection {
+    fn get_card(
+        &mut self,
+        input: anki_proto::cards::CardId,
+    ) -> error::Result<anki_proto::cards::Card> {
         let cid = input.into();
-        self.with_col(|col| {
-            col.storage
-                .get_card(cid)
-                .and_then(|opt| opt.or_not_found(cid))
-                .map(Into::into)
-        })
+
+        self.storage
+            .get_card(cid)
+            .and_then(|opt| opt.or_not_found(cid))
+            .map(Into::into)
     }
 
     fn update_cards(
-        &self,
+        &mut self,
         input: anki_proto::cards::UpdateCardsRequest,
-    ) -> Result<anki_proto::collection::OpChanges> {
-        self.with_col(|col| {
-            let cards = input
-                .cards
-                .into_iter()
-                .map(TryInto::try_into)
-                .collect::<Result<Vec<Card>, AnkiError>>()?;
-            for card in &cards {
-                card.validate_custom_data()?;
-            }
-            col.update_cards_maybe_undoable(cards, !input.skip_undo_entry)
-        })
-        .map(Into::into)
+    ) -> error::Result<anki_proto::collection::OpChanges> {
+        let cards = input
+            .cards
+            .into_iter()
+            .map(TryInto::try_into)
+            .collect::<error::Result<Vec<Card>, AnkiError>>()?;
+        for card in &cards {
+            card.validate_custom_data()?;
+        }
+        self.update_cards_maybe_undoable(cards, !input.skip_undo_entry)
+            .map(Into::into)
     }
 
-    fn remove_cards(&self, input: anki_proto::cards::RemoveCardsRequest) -> Result<generic::Empty> {
-        self.with_col(|col| {
-            col.transact_no_undo(|col| {
-                col.remove_cards_and_orphaned_notes(
-                    &input
-                        .card_ids
-                        .into_iter()
-                        .map(Into::into)
-                        .collect::<Vec<_>>(),
-                )?;
-                Ok(().into())
-            })
+    fn remove_cards(&mut self, input: anki_proto::cards::RemoveCardsRequest) -> error::Result<()> {
+        self.transact_no_undo(|col| {
+            col.remove_cards_and_orphaned_notes(
+                &input
+                    .card_ids
+                    .into_iter()
+                    .map(Into::into)
+                    .collect::<Vec<_>>(),
+            )?;
+            Ok(())
         })
     }
 
     fn set_deck(
-        &self,
+        &mut self,
         input: anki_proto::cards::SetDeckRequest,
-    ) -> Result<anki_proto::collection::OpChangesWithCount> {
+    ) -> error::Result<anki_proto::collection::OpChangesWithCount> {
         let cids: Vec<_> = input.card_ids.into_iter().map(CardId).collect();
         let deck_id = input.deck_id.into();
-        self.with_col(|col| col.set_deck(&cids, deck_id).map(Into::into))
+        self.set_deck(&cids, deck_id).map(Into::into)
     }
 
     fn set_flag(
-        &self,
+        &mut self,
         input: anki_proto::cards::SetFlagRequest,
-    ) -> Result<anki_proto::collection::OpChangesWithCount> {
-        self.with_col(|col| {
-            col.set_card_flag(&to_card_ids(input.card_ids), input.flag)
-                .map(Into::into)
-        })
+    ) -> error::Result<anki_proto::collection::OpChangesWithCount> {
+        self.set_card_flag(&to_card_ids(input.card_ids), input.flag)
+            .map(Into::into)
     }
 }
 
 impl TryFrom<anki_proto::cards::Card> for Card {
     type Error = AnkiError;
 
-    fn try_from(c: anki_proto::cards::Card) -> Result<Self, Self::Error> {
+    fn try_from(c: anki_proto::cards::Card) -> error::Result<Self, Self::Error> {
         let ctype = CardType::try_from(c.ctype as u8).or_invalid("invalid card type")?;
         let queue = CardQueue::try_from(c.queue as i8).or_invalid("invalid card queue")?;
         Ok(Card {

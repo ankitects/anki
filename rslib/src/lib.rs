@@ -4,6 +4,7 @@
 #![deny(unused_must_use)]
 
 pub mod adding;
+pub(crate) mod ankidroid;
 pub mod backend;
 pub mod browser_table;
 pub mod card;
@@ -16,6 +17,7 @@ pub mod deckconfig;
 pub mod decks;
 pub mod error;
 pub mod findreplace;
+pub mod i18n;
 pub mod image_occlusion;
 pub mod import_export;
 pub mod latex;
@@ -33,6 +35,7 @@ pub mod revlog;
 pub mod scheduler;
 pub mod search;
 pub mod serde;
+pub mod services;
 mod stats;
 pub mod storage;
 pub mod sync;

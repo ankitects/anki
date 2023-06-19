@@ -10,6 +10,7 @@ package anki.card_rendering;
 import "anki/generic.proto";
 import "anki/notes.proto";
 import "anki/notetypes.proto";
+import "anki/codegen.proto";
 
 service CardRenderingService {
   rpc ExtractAvTags(ExtractAvTagsRequest) returns (ExtractAvTagsResponse);
@@ -25,7 +26,10 @@ service CardRenderingService {
   rpc RenderMarkdown(RenderMarkdownRequest) returns (generic.String);
   rpc EncodeIriPaths(generic.String) returns (generic.String);
   rpc DecodeIriPaths(generic.String) returns (generic.String);
-  rpc StripHtml(StripHtmlRequest) returns (generic.String);
+  rpc StripHtml(StripHtmlRequest) returns (generic.String) {
+    // a bunch of our unit tests access this without a collection
+    option (codegen.rust_methods) = RUST_METHODS_COLLECTION_AND_MANUAL_BACKEND;
+  }
   rpc CompareAnswer(CompareAnswerRequest) returns (generic.String);
   rpc ExtractClozeForTyping(ExtractClozeForTypingRequest)
       returns (generic.String);

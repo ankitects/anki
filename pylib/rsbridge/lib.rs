@@ -53,7 +53,7 @@ impl Backend {
         input: &PyBytes,
     ) -> PyResult<PyObject> {
         let in_bytes = input.as_bytes();
-        py.allow_threads(|| self.backend.run_method(service, method, in_bytes))
+        py.allow_threads(|| self.backend.run_service_method(service, method, in_bytes))
             .map(|out_bytes| {
                 let out_obj = PyBytes::new(py, &out_bytes);
                 out_obj.into()

@@ -8,11 +8,18 @@ option java_multiple_files = true;
 package anki.i18n;
 
 import "anki/generic.proto";
+import "anki/codegen.proto";
 
 service I18nService {
-  rpc TranslateString(TranslateStringRequest) returns (generic.String);
-  rpc FormatTimespan(FormatTimespanRequest) returns (generic.String);
-  rpc I18nResources(I18nResourcesRequest) returns (generic.Json);
+  rpc TranslateString(TranslateStringRequest) returns (generic.String) {
+    option (codegen.rust_methods) = RUST_METHODS_COLLECTION_AND_MANUAL_BACKEND;
+  }
+  rpc FormatTimespan(FormatTimespanRequest) returns (generic.String) {
+    option (codegen.rust_methods) = RUST_METHODS_COLLECTION_AND_MANUAL_BACKEND;
+  }
+  rpc I18nResources(I18nResourcesRequest) returns (generic.Json) {
+    option (codegen.rust_methods) = RUST_METHODS_COLLECTION_AND_MANUAL_BACKEND;
+  }
 }
 
 message TranslateStringRequest {
