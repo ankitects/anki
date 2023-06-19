@@ -8,10 +8,15 @@ option java_multiple_files = true;
 package anki.collection;
 
 import "anki/generic.proto";
+import "anki/codegen.proto";
 
 service CollectionService {
-  rpc OpenCollection(OpenCollectionRequest) returns (generic.Empty);
-  rpc CloseCollection(CloseCollectionRequest) returns (generic.Empty);
+  rpc OpenCollection(OpenCollectionRequest) returns (generic.Empty) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
+  rpc CloseCollection(CloseCollectionRequest) returns (generic.Empty) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
   rpc CheckDatabase(generic.Empty) returns (CheckDatabaseResponse);
   rpc GetUndoStatus(generic.Empty) returns (UndoStatus);
   rpc Undo(generic.Empty) returns (OpChangesAfterUndo);
@@ -24,10 +29,14 @@ service CollectionService {
   // transaction. Unlike a collection export, does not require reopening the DB,
   // as there is no downgrade step.
   // Returns false if it's not time to make a backup yet.
-  rpc CreateBackup(CreateBackupRequest) returns (generic.Bool);
+  rpc CreateBackup(CreateBackupRequest) returns (generic.Bool) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
   // If a backup is running, wait for it to complete. Will return an error
   // if the backup encountered an error.
-  rpc AwaitBackupCompletion(generic.Empty) returns (generic.Empty);
+  rpc AwaitBackupCompletion(generic.Empty) returns (generic.Empty) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
 }
 
 message OpenCollectionRequest {

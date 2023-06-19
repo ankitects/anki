@@ -40,6 +40,7 @@ impl AnkiError {
             AnkiError::FileIoError { .. } => Kind::IoError,
             AnkiError::MediaCheckRequired => Kind::InvalidInput,
             AnkiError::InvalidId => Kind::InvalidInput,
+            AnkiError::InvalidMethodIndex | AnkiError::InvalidServiceIndex => Kind::InvalidInput,
             #[cfg(windows)]
             AnkiError::WindowsError { .. } => Kind::OsError,
         };

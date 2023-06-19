@@ -3,7 +3,6 @@
 
 use std::sync::Arc;
 
-pub(super) use anki_proto::sync::sync_service::Service as SyncService;
 use anki_proto::sync::sync_status_response::Required;
 use anki_proto::sync::SyncStatusResponse;
 use futures::future::AbortHandle;
@@ -98,9 +97,7 @@ impl TryFrom<anki_proto::sync::SyncAuth> for SyncAuth {
     }
 }
 
-impl SyncService for Backend {
-    type Error = AnkiError;
-
+impl crate::services::BackendSyncService for Backend {
     fn sync_media(&self, input: anki_proto::sync::SyncAuth) -> Result<()> {
         self.sync_media_inner(input).map(Into::into)
     }

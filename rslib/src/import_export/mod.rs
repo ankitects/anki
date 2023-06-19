@@ -4,6 +4,7 @@
 mod gather;
 mod insert;
 pub mod package;
+mod service;
 pub mod text;
 
 pub use anki_proto::import_export::import_response::Log as NoteLog;

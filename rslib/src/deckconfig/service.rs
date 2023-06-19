@@ -1,89 +1,85 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
-pub(super) use anki_proto::deckconfig::deckconfig_service::Service as DeckConfigService;
 use anki_proto::generic;
 
-use super::Backend;
+use crate::collection::Collection;
 use crate::deckconfig::DeckConfSchema11;
 use crate::deckconfig::DeckConfig;
+use crate::deckconfig::DeckConfigId;
 use crate::deckconfig::UpdateDeckConfigsRequest;
-use crate::prelude::*;
+use crate::error;
 
-impl DeckConfigService for Backend {
-    type Error = AnkiError;
-
+impl crate::services::DeckConfigService for Collection {
     fn add_or_update_deck_config_legacy(
-        &self,
+        &mut self,
         input: generic::Json,
-    ) -> Result<anki_proto::deckconfig::DeckConfigId> {
+    ) -> error::Result<anki_proto::deckconfig::DeckConfigId> {
         let conf: DeckConfSchema11 = serde_json::from_slice(&input.json)?;
         let mut conf: DeckConfig = conf.into();
-        self.with_col(|col| {
-            col.transact_no_undo(|col| {
-                col.add_or_update_deck_config_legacy(&mut conf)?;
-                Ok(anki_proto::deckconfig::DeckConfigId { dcid: conf.id.0 })
-            })
+
+        self.transact_no_undo(|col| {
+            col.add_or_update_deck_config_legacy(&mut conf)?;
+            Ok(anki_proto::deckconfig::DeckConfigId { dcid: conf.id.0 })
         })
         .map(Into::into)
     }
 
-    fn all_deck_config_legacy(&self) -> Result<generic::Json> {
-        self.with_col(|col| {
-            let conf: Vec<DeckConfSchema11> = col
-                .storage
-                .all_deck_config()?
-                .into_iter()
-                .map(Into::into)
-                .collect();
-            serde_json::to_vec(&conf).map_err(Into::into)
-        })
-        .map(Into::into)
+    fn all_deck_config_legacy(&mut self) -> error::Result<generic::Json> {
+        let conf: Vec<DeckConfSchema11> = self
+            .storage
+            .all_deck_config()?
+            .into_iter()
+            .map(Into::into)
+            .collect();
+        serde_json::to_vec(&conf)
+            .map_err(Into::into)
+            .map(Into::into)
     }
 
     fn get_deck_config(
-        &self,
+        &mut self,
         input: anki_proto::deckconfig::DeckConfigId,
-    ) -> Result<anki_proto::deckconfig::DeckConfig> {
-        self.with_col(|col| Ok(col.get_deck_config(input.into(), true)?.unwrap().into()))
+    ) -> error::Result<anki_proto::deckconfig::DeckConfig> {
+        Ok(Collection::get_deck_config(self, input.into(), true)?
+            .unwrap()
+            .into())
     }
 
     fn get_deck_config_legacy(
-        &self,
+        &mut self,
         input: anki_proto::deckconfig::DeckConfigId,
-    ) -> Result<generic::Json> {
-        self.with_col(|col| {
-            let conf = col.get_deck_config(input.into(), true)?.unwrap();
-            let conf: DeckConfSchema11 = conf.into();
-            Ok(serde_json::to_vec(&conf)?)
-        })
-        .map(Into::into)
+    ) -> error::Result<generic::Json> {
+        let conf = Collection::get_deck_config(self, input.into(), true)?.unwrap();
+        let conf: DeckConfSchema11 = conf.into();
+        Ok(serde_json::to_vec(&conf)?).map(Into::into)
     }
 
-    fn new_deck_config_legacy(&self) -> Result<generic::Json> {
+    fn new_deck_config_legacy(&mut self) -> error::Result<generic::Json> {
         serde_json::to_vec(&DeckConfSchema11::default())
             .map_err(Into::into)
             .map(Into::into)
     }
 
-    fn remove_deck_config(&self, input: anki_proto::deckconfig::DeckConfigId) -> Result<()> {
-        self.with_col(|col| col.transact_no_undo(|col| col.remove_deck_config_inner(input.into())))
+    fn remove_deck_config(
+        &mut self,
+        input: anki_proto::deckconfig::DeckConfigId,
+    ) -> error::Result<()> {
+        self.transact_no_undo(|col| col.remove_deck_config_inner(input.into()))
             .map(Into::into)
     }
 
     fn get_deck_configs_for_update(
-        &self,
+        &mut self,
         input: anki_proto::decks::DeckId,
-    ) -> Result<anki_proto::deckconfig::DeckConfigsForUpdate> {
-        self.with_col(|col| col.get_deck_configs_for_update(input.did.into()))
+    ) -> error::Result<anki_proto::deckconfig::DeckConfigsForUpdate> {
+        self.get_deck_configs_for_update(input.did.into())
     }
 
     fn update_deck_configs(
-        &self,
+        &mut self,
         input: anki_proto::deckconfig::UpdateDeckConfigsRequest,
-    ) -> Result<anki_proto::collection::OpChanges> {
-        self.with_col(|col| col.update_deck_configs(input.into()))
-            .map(Into::into)
+    ) -> error::Result<anki_proto::collection::OpChanges> {
+        self.update_deck_configs(input.into()).map(Into::into)
     }
 }
 

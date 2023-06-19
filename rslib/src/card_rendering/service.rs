@@ -1,22 +1,23 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-pub(super) use anki_proto::card_rendering::cardrendering_service::Service as CardRenderingService;
 use anki_proto::card_rendering::ExtractClozeForTypingRequest;
 use anki_proto::generic;
 
-use super::Backend;
+use crate::card::CardId;
 use crate::card_rendering::extract_av_tags;
 use crate::card_rendering::strip_av_tags;
 use crate::card_rendering::tts;
 use crate::cloze::extract_cloze_for_typing;
+use crate::collection::Collection;
+use crate::error::OrInvalid;
+use crate::error::Result;
 use crate::latex::extract_latex;
 use crate::latex::extract_latex_expanding_clozes;
 use crate::latex::ExtractedLatex;
 use crate::markdown::render_markdown;
 use crate::notetype::CardTemplateSchema11;
 use crate::notetype::RenderCardOutput;
-use crate::prelude::*;
 use crate::template::RenderedNode;
 use crate::text::decode_iri_paths;
 use crate::text::encode_iri_paths;
@@ -25,14 +26,15 @@ use crate::text::strip_html;
 use crate::text::strip_html_preserving_media_filenames;
 use crate::typeanswer::compare_answer;
 
-impl CardRenderingService for Backend {
-    type Error = AnkiError;
-
+/// While the majority of these methods do not actually require a collection,
+/// they are unlikely to be executed without one, so we only bother implementing
+/// them for the collection.
+impl crate::services::CardRenderingService for Collection {
     fn extract_av_tags(
-        &self,
+        &mut self,
         input: anki_proto::card_rendering::ExtractAvTagsRequest,
     ) -> Result<anki_proto::card_rendering::ExtractAvTagsResponse> {
-        let out = extract_av_tags(input.text, input.question_side, self.i18n());
+        let out = extract_av_tags(input.text, input.question_side, &self.tr);
         Ok(anki_proto::card_rendering::ExtractAvTagsResponse {
             text: out.0,
             av_tags: out.1,
@@ -40,7 +42,7 @@ impl CardRenderingService for Backend {
     }
 
     fn extract_latex(
-        &self,
+        &mut self,
         input: anki_proto::card_rendering::ExtractLatexRequest,
     ) -> Result<anki_proto::card_rendering::ExtractLatexResponse> {
         let func = if input.expand_clozes {
@@ -64,54 +66,49 @@ impl CardRenderingService for Backend {
         })
     }
 
-    fn get_empty_cards(&self) -> Result<anki_proto::card_rendering::EmptyCardsReport> {
-        self.with_col(|col| {
-            let mut empty = col.empty_cards()?;
-            let report = col.empty_cards_report(&mut empty)?;
+    fn get_empty_cards(&mut self) -> Result<anki_proto::card_rendering::EmptyCardsReport> {
+        let mut empty = self.empty_cards()?;
+        let report = self.empty_cards_report(&mut empty)?;
 
-            let mut outnotes = vec![];
-            for (_ntid, notes) in empty {
-                outnotes.extend(notes.into_iter().map(|e| {
-                    anki_proto::card_rendering::empty_cards_report::NoteWithEmptyCards {
-                        note_id: e.nid.0,
-                        will_delete_note: e.empty.len() == e.current_count,
-                        card_ids: e.empty.into_iter().map(|(_ord, id)| id.0).collect(),
-                    }
-                }))
-            }
-            Ok(anki_proto::card_rendering::EmptyCardsReport {
-                report,
-                notes: outnotes,
-            })
+        let mut outnotes = vec![];
+        for (_ntid, notes) in empty {
+            outnotes.extend(notes.into_iter().map(|e| {
+                anki_proto::card_rendering::empty_cards_report::NoteWithEmptyCards {
+                    note_id: e.nid.0,
+                    will_delete_note: e.empty.len() == e.current_count,
+                    card_ids: e.empty.into_iter().map(|(_ord, id)| id.0).collect(),
+                }
+            }))
+        }
+        Ok(anki_proto::card_rendering::EmptyCardsReport {
+            report,
+            notes: outnotes,
         })
     }
 
     fn render_existing_card(
-        &self,
+        &mut self,
         input: anki_proto::card_rendering::RenderExistingCardRequest,
     ) -> Result<anki_proto::card_rendering::RenderCardResponse> {
-        self.with_col(|col| {
-            col.render_existing_card(CardId(input.card_id), input.browser)
-                .map(Into::into)
-        })
+        self.render_existing_card(CardId(input.card_id), input.browser)
+            .map(Into::into)
     }
 
     fn render_uncommitted_card(
-        &self,
+        &mut self,
         input: anki_proto::card_rendering::RenderUncommittedCardRequest,
     ) -> Result<anki_proto::card_rendering::RenderCardResponse> {
         let template = input.template.or_invalid("missing template")?.into();
         let mut note = input.note.or_invalid("missing note")?.into();
         let ord = input.card_ord as u16;
         let fill_empty = input.fill_empty;
-        self.with_col(|col| {
-            col.render_uncommitted_card(&mut note, &template, ord, fill_empty)
-                .map(Into::into)
-        })
+
+        self.render_uncommitted_card(&mut note, &template, ord, fill_empty)
+            .map(Into::into)
     }
 
     fn render_uncommitted_card_legacy(
-        &self,
+        &mut self,
         input: anki_proto::card_rendering::RenderUncommittedCardLegacyRequest,
     ) -> Result<anki_proto::card_rendering::RenderCardResponse> {
         let schema11: CardTemplateSchema11 = serde_json::from_slice(&input.template)?;
@@ -119,18 +116,17 @@ impl CardRenderingService for Backend {
         let mut note = input.note.or_invalid("missing note")?.into();
         let ord = input.card_ord as u16;
         let fill_empty = input.fill_empty;
-        self.with_col(|col| {
-            col.render_uncommitted_card(&mut note, &template, ord, fill_empty)
-                .map(Into::into)
-        })
+
+        self.render_uncommitted_card(&mut note, &template, ord, fill_empty)
+            .map(Into::into)
     }
 
-    fn strip_av_tags(&self, input: generic::String) -> Result<generic::String> {
+    fn strip_av_tags(&mut self, input: generic::String) -> Result<generic::String> {
         Ok(strip_av_tags(input.val).into())
     }
 
     fn render_markdown(
-        &self,
+        &mut self,
         input: anki_proto::card_rendering::RenderMarkdownRequest,
     ) -> Result<generic::String> {
         let mut text = render_markdown(&input.markdown);
@@ -141,37 +137,30 @@ impl CardRenderingService for Backend {
         Ok(text.into())
     }
 
-    fn encode_iri_paths(&self, input: generic::String) -> Result<generic::String> {
+    fn encode_iri_paths(&mut self, input: generic::String) -> Result<generic::String> {
         Ok(encode_iri_paths(&input.val).to_string().into())
     }
 
-    fn decode_iri_paths(&self, input: generic::String) -> Result<generic::String> {
+    fn decode_iri_paths(&mut self, input: generic::String) -> Result<generic::String> {
         Ok(decode_iri_paths(&input.val).to_string().into())
     }
 
     fn strip_html(
-        &self,
+        &mut self,
         input: anki_proto::card_rendering::StripHtmlRequest,
     ) -> Result<generic::String> {
-        Ok(match input.mode() {
-            anki_proto::card_rendering::strip_html_request::Mode::Normal => strip_html(&input.text),
-            anki_proto::card_rendering::strip_html_request::Mode::PreserveMediaFilenames => {
-                strip_html_preserving_media_filenames(&input.text)
-            }
-        }
-        .to_string()
-        .into())
+        strip_html_proto(input)
     }
 
     fn compare_answer(
-        &self,
+        &mut self,
         input: anki_proto::card_rendering::CompareAnswerRequest,
     ) -> Result<generic::String> {
         Ok(compare_answer(&input.expected, &input.provided).into())
     }
 
     fn extract_cloze_for_typing(
-        &self,
+        &mut self,
         input: ExtractClozeForTypingRequest,
     ) -> Result<generic::String> {
         Ok(extract_cloze_for_typing(&input.text, input.ordinal as u16)
@@ -180,7 +169,7 @@ impl CardRenderingService for Backend {
     }
 
     fn all_tts_voices(
-        &self,
+        &mut self,
         input: anki_proto::card_rendering::AllTtsVoicesRequest,
     ) -> Result<anki_proto::card_rendering::AllTtsVoicesResponse> {
         tts::all_voices(input.validate)
@@ -188,7 +177,7 @@ impl CardRenderingService for Backend {
     }
 
     fn write_tts_stream(
-        &self,
+        &mut self,
         request: anki_proto::card_rendering::WriteTtsStreamRequest,
     ) -> Result<()> {
         tts::write_stream(
@@ -242,4 +231,17 @@ impl From<RenderCardOutput> for anki_proto::card_rendering::RenderCardResponse {
             latex_svg: o.latex_svg,
         }
     }
+}
+
+pub(crate) fn strip_html_proto(
+    input: anki_proto::card_rendering::StripHtmlRequest,
+) -> Result<generic::String> {
+    Ok(match input.mode() {
+        anki_proto::card_rendering::strip_html_request::Mode::Normal => strip_html(&input.text),
+        anki_proto::card_rendering::strip_html_request::Mode::PreserveMediaFilenames => {
+            strip_html_preserving_media_filenames(&input.text)
+        }
+    }
+    .to_string()
+    .into())
 }

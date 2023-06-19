@@ -8,17 +8,33 @@ option java_multiple_files = true;
 package anki.sync;
 
 import "anki/generic.proto";
+import "anki/codegen.proto";
 
 service SyncService {
-  rpc SyncMedia(SyncAuth) returns (generic.Empty);
-  rpc AbortMediaSync(generic.Empty) returns (generic.Empty);
-
-  rpc SyncLogin(SyncLoginRequest) returns (SyncAuth);
-  rpc SyncStatus(SyncAuth) returns (SyncStatusResponse);
-  rpc SyncCollection(SyncAuth) returns (SyncCollectionResponse);
-  rpc FullUpload(SyncAuth) returns (generic.Empty);
-  rpc FullDownload(SyncAuth) returns (generic.Empty);
-  rpc AbortSync(generic.Empty) returns (generic.Empty);
+  rpc SyncMedia(SyncAuth) returns (generic.Empty) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
+  rpc AbortMediaSync(generic.Empty) returns (generic.Empty) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
+  rpc SyncLogin(SyncLoginRequest) returns (SyncAuth) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
+  rpc SyncStatus(SyncAuth) returns (SyncStatusResponse) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
+  rpc SyncCollection(SyncAuth) returns (SyncCollectionResponse) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
+  rpc FullUpload(SyncAuth) returns (generic.Empty) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
+  rpc FullDownload(SyncAuth) returns (generic.Empty) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
+  rpc AbortSync(generic.Empty) returns (generic.Empty) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
 }
 
 message SyncAuth {

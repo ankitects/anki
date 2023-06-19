@@ -8,24 +8,20 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use anki_proto::generic;
-pub(super) use anki_proto::search::search_service::Service as SearchService;
 use anki_proto::search::sort_order::Value as SortOrderProto;
 
-use super::notes::to_note_ids;
-use super::Backend;
-use crate::backend::search::browser_table::string_list_to_browser_columns;
 use crate::browser_table::Column;
+use crate::notes::service::to_note_ids;
 use crate::prelude::*;
 use crate::search::replace_search_node;
+use crate::search::service::browser_table::string_list_to_browser_columns;
 use crate::search::JoinSearches;
 use crate::search::Node;
 use crate::search::SortMode;
 
-impl SearchService for Backend {
-    type Error = AnkiError;
-
+impl crate::services::SearchService for Collection {
     fn build_search_string(
-        &self,
+        &mut self,
         input: anki_proto::search::SearchNode,
     ) -> Result<generic::String> {
         let node: Node = input.try_into()?;
@@ -33,33 +29,29 @@ impl SearchService for Backend {
     }
 
     fn search_cards(
-        &self,
+        &mut self,
         input: anki_proto::search::SearchRequest,
     ) -> Result<anki_proto::search::SearchResponse> {
-        self.with_col(|col| {
-            let order = input.order.unwrap_or_default().value.into();
-            let cids = col.search_cards(&input.search, order)?;
-            Ok(anki_proto::search::SearchResponse {
-                ids: cids.into_iter().map(|v| v.0).collect(),
-            })
+        let order = input.order.unwrap_or_default().value.into();
+        let cids = self.search_cards(&input.search, order)?;
+        Ok(anki_proto::search::SearchResponse {
+            ids: cids.into_iter().map(|v| v.0).collect(),
         })
     }
 
     fn search_notes(
-        &self,
+        &mut self,
         input: anki_proto::search::SearchRequest,
     ) -> Result<anki_proto::search::SearchResponse> {
-        self.with_col(|col| {
-            let order = input.order.unwrap_or_default().value.into();
-            let nids = col.search_notes(&input.search, order)?;
-            Ok(anki_proto::search::SearchResponse {
-                ids: nids.into_iter().map(|v| v.0).collect(),
-            })
+        let order = input.order.unwrap_or_default().value.into();
+        let nids = self.search_notes(&input.search, order)?;
+        Ok(anki_proto::search::SearchResponse {
+            ids: nids.into_iter().map(|v| v.0).collect(),
         })
     }
 
     fn join_search_nodes(
-        &self,
+        &mut self,
         input: anki_proto::search::JoinSearchNodesRequest,
     ) -> Result<generic::String> {
         let existing_node: Node = input.existing_node.unwrap_or_default().try_into()?;
@@ -82,7 +74,7 @@ impl SearchService for Backend {
     }
 
     fn replace_search_node(
-        &self,
+        &mut self,
         input: anki_proto::search::ReplaceSearchNodeRequest,
     ) -> Result<generic::String> {
         let existing = {
@@ -98,7 +90,7 @@ impl SearchService for Backend {
     }
 
     fn find_and_replace(
-        &self,
+        &mut self,
         input: anki_proto::search::FindAndReplaceRequest,
     ) -> Result<anki_proto::collection::OpChangesWithCount> {
         let mut search = if input.regex {
@@ -116,30 +108,28 @@ impl SearchService for Backend {
             Some(input.field_name)
         };
         let repl = input.replacement;
-        self.with_col(|col| {
-            if nids.is_empty() {
-                nids = col.search_notes_unordered("")?
-            };
-            col.find_and_replace(nids, &search, &repl, field_name)
-                .map(Into::into)
-        })
+
+        if nids.is_empty() {
+            nids = self.search_notes_unordered("")?
+        };
+        self.find_and_replace(nids, &search, &repl, field_name)
+            .map(Into::into)
     }
 
-    fn all_browser_columns(&self) -> Result<anki_proto::search::BrowserColumns> {
-        self.with_col(|col| Ok(col.all_browser_columns()))
+    fn all_browser_columns(&mut self) -> Result<anki_proto::search::BrowserColumns> {
+        Ok(Collection::all_browser_columns(self))
     }
 
-    fn set_active_browser_columns(&self, input: generic::StringList) -> Result<()> {
-        self.with_col(|col| {
-            col.state.active_browser_columns =
-                Some(Arc::new(string_list_to_browser_columns(input)));
-            Ok(())
-        })
-        .map(Into::into)
+    fn set_active_browser_columns(&mut self, input: generic::StringList) -> Result<()> {
+        self.state.active_browser_columns = Some(Arc::new(string_list_to_browser_columns(input)));
+        Ok(()).map(Into::into)
     }
 
-    fn browser_row_for_id(&self, input: generic::Int64) -> Result<anki_proto::search::BrowserRow> {
-        self.with_col(|col| col.browser_row_for_id(input.val).map(Into::into))
+    fn browser_row_for_id(
+        &mut self,
+        input: generic::Int64,
+    ) -> Result<anki_proto::search::BrowserRow> {
+        self.browser_row_for_id(input.val).map(Into::into)
     }
 }
 

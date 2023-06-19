@@ -11,12 +11,17 @@ import "anki/cards.proto";
 import "anki/collection.proto";
 import "anki/notes.proto";
 import "anki/generic.proto";
+import "anki/codegen.proto";
 
 service ImportExportService {
   rpc ImportCollectionPackage(ImportCollectionPackageRequest)
-      returns (generic.Empty);
+      returns (generic.Empty) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
   rpc ExportCollectionPackage(ExportCollectionPackageRequest)
-      returns (generic.Empty);
+      returns (generic.Empty) {
+    option (codegen.rust_methods) = RUST_METHODS_BACKEND_ONLY;
+  }
   rpc ImportAnkiPackage(ImportAnkiPackageRequest) returns (ImportResponse);
   rpc ExportAnkiPackage(ExportAnkiPackageRequest) returns (generic.UInt32);
   rpc GetCsvMetadata(CsvMetadataRequest) returns (CsvMetadata);

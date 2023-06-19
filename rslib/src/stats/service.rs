@@ -1,36 +1,33 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
-pub(super) use anki_proto::stats::stats_service::Service as StatsService;
-
-use super::Backend;
-use crate::prelude::*;
+use crate::collection::Collection;
+use crate::error;
 use crate::revlog::RevlogReviewKind;
 
-impl StatsService for Backend {
-    type Error = AnkiError;
-
+impl crate::services::StatsService for Collection {
     fn card_stats(
-        &self,
+        &mut self,
         input: anki_proto::cards::CardId,
-    ) -> Result<anki_proto::stats::CardStatsResponse> {
-        self.with_col(|col| col.card_stats(input.cid.into()))
+    ) -> error::Result<anki_proto::stats::CardStatsResponse> {
+        self.card_stats(input.cid.into())
     }
 
     fn graphs(
-        &self,
+        &mut self,
         input: anki_proto::stats::GraphsRequest,
-    ) -> Result<anki_proto::stats::GraphsResponse> {
-        self.with_col(|col| col.graph_data_for_search(&input.search, input.days))
+    ) -> error::Result<anki_proto::stats::GraphsResponse> {
+        self.graph_data_for_search(&input.search, input.days)
     }
 
-    fn get_graph_preferences(&self) -> Result<anki_proto::stats::GraphPreferences> {
-        self.with_col(|col| Ok(col.get_graph_preferences()))
+    fn get_graph_preferences(&mut self) -> error::Result<anki_proto::stats::GraphPreferences> {
+        Ok(Collection::get_graph_preferences(self))
     }
 
-    fn set_graph_preferences(&self, input: anki_proto::stats::GraphPreferences) -> Result<()> {
-        self.with_col(|col| col.set_graph_preferences(input))
-            .map(Into::into)
+    fn set_graph_preferences(
+        &mut self,
+        input: anki_proto::stats::GraphPreferences,
+    ) -> error::Result<()> {
+        self.set_graph_preferences(input).map(Into::into)
     }
 }
 

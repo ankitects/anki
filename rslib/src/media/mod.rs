@@ -3,6 +3,7 @@
 
 pub mod check;
 pub mod files;
+mod service;
 
 use std::borrow::Cow;
 use std::collections::HashMap;

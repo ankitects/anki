@@ -1,93 +1,88 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 use anki_proto::generic;
-pub(super) use anki_proto::notetypes::notetypes_service::Service as NotetypesService;
+use anki_proto::notetypes::stock_notetype::Kind as StockKind;
 
-use super::Backend;
+use crate::collection::Collection;
 use crate::config::get_aux_notetype_config_key;
+use crate::error;
+use crate::error::OrInvalid;
+use crate::error::OrNotFound;
+use crate::notes::NoteId;
 use crate::notetype::stock::get_stock_notetype;
-use crate::notetype::stock::StockKind;
 use crate::notetype::ChangeNotetypeInput;
 use crate::notetype::Notetype;
 use crate::notetype::NotetypeChangeInfo;
+use crate::notetype::NotetypeId;
 use crate::notetype::NotetypeSchema11;
-use crate::prelude::*;
+use crate::prelude::IntoNewtypeVec;
 
-impl NotetypesService for Backend {
-    type Error = AnkiError;
-
+impl crate::services::NotetypesService for Collection {
     fn add_notetype(
-        &self,
+        &mut self,
         input: anki_proto::notetypes::Notetype,
-    ) -> Result<anki_proto::collection::OpChangesWithId> {
+    ) -> error::Result<anki_proto::collection::OpChangesWithId> {
         let mut notetype: Notetype = input.into();
-        self.with_col(|col| {
-            Ok(col
-                .add_notetype(&mut notetype, false)?
-                .map(|_| notetype.id.0)
-                .into())
-        })
+
+        Ok(self
+            .add_notetype(&mut notetype, false)?
+            .map(|_| notetype.id.0)
+            .into())
     }
 
     fn update_notetype(
-        &self,
+        &mut self,
         input: anki_proto::notetypes::Notetype,
-    ) -> Result<anki_proto::collection::OpChanges> {
+    ) -> error::Result<anki_proto::collection::OpChanges> {
         let mut notetype: Notetype = input.into();
-        self.with_col(|col| col.update_notetype(&mut notetype, false))
-            .map(Into::into)
+        self.update_notetype(&mut notetype, false).map(Into::into)
     }
 
     fn add_notetype_legacy(
-        &self,
+        &mut self,
         input: generic::Json,
-    ) -> Result<anki_proto::collection::OpChangesWithId> {
+    ) -> error::Result<anki_proto::collection::OpChangesWithId> {
         let legacy: NotetypeSchema11 = serde_json::from_slice(&input.json)?;
         let mut notetype: Notetype = legacy.into();
-        self.with_col(|col| {
-            Ok(col
-                .add_notetype(&mut notetype, false)?
-                .map(|_| notetype.id.0)
-                .into())
-        })
+
+        Ok(self
+            .add_notetype(&mut notetype, false)?
+            .map(|_| notetype.id.0)
+            .into())
     }
 
     fn update_notetype_legacy(
-        &self,
+        &mut self,
         input: generic::Json,
-    ) -> Result<anki_proto::collection::OpChanges> {
+    ) -> error::Result<anki_proto::collection::OpChanges> {
         let legacy: NotetypeSchema11 = serde_json::from_slice(&input.json)?;
         let mut notetype: Notetype = legacy.into();
-        self.with_col(|col| col.update_notetype(&mut notetype, false))
-            .map(Into::into)
+        self.update_notetype(&mut notetype, false).map(Into::into)
     }
 
     fn add_or_update_notetype(
-        &self,
+        &mut self,
         input: anki_proto::notetypes::AddOrUpdateNotetypeRequest,
-    ) -> Result<anki_proto::notetypes::NotetypeId> {
-        self.with_col(|col| {
-            let legacy: NotetypeSchema11 = serde_json::from_slice(&input.json)?;
-            let mut nt: Notetype = legacy.into();
-            if !input.preserve_usn_and_mtime {
-                nt.set_modified(col.usn()?);
-            }
-            if nt.id.0 == 0 {
-                col.add_notetype(&mut nt, input.skip_checks)?;
-            } else if !input.preserve_usn_and_mtime {
-                col.update_notetype(&mut nt, input.skip_checks)?;
-            } else {
-                col.add_or_update_notetype_with_existing_id(&mut nt, input.skip_checks)?;
-            }
-            Ok(anki_proto::notetypes::NotetypeId { ntid: nt.id.0 })
-        })
+    ) -> error::Result<anki_proto::notetypes::NotetypeId> {
+        let legacy: NotetypeSchema11 = serde_json::from_slice(&input.json)?;
+        let mut nt: Notetype = legacy.into();
+        if !input.preserve_usn_and_mtime {
+            nt.set_modified(self.usn()?);
+        }
+        if nt.id.0 == 0 {
+            self.add_notetype(&mut nt, input.skip_checks)?;
+        } else if !input.preserve_usn_and_mtime {
+            self.update_notetype(&mut nt, input.skip_checks)?;
+        } else {
+            self.add_or_update_notetype_with_existing_id(&mut nt, input.skip_checks)?;
+        }
+        Ok(anki_proto::notetypes::NotetypeId { ntid: nt.id.0 })
     }
 
     fn get_stock_notetype_legacy(
-        &self,
+        &mut self,
         input: anki_proto::notetypes::StockNotetype,
-    ) -> Result<generic::Json> {
+    ) -> error::Result<generic::Json> {
         let nt = get_stock_notetype(input.kind(), &self.tr);
         let schema11: NotetypeSchema11 = nt.into();
         serde_json::to_vec(&schema11)
@@ -96,138 +91,125 @@ impl NotetypesService for Backend {
     }
 
     fn get_notetype(
-        &self,
+        &mut self,
         input: anki_proto::notetypes::NotetypeId,
-    ) -> Result<anki_proto::notetypes::Notetype> {
+    ) -> error::Result<anki_proto::notetypes::Notetype> {
         let ntid = input.into();
-        self.with_col(|col| {
-            col.storage
-                .get_notetype(ntid)?
-                .or_not_found(ntid)
-                .map(Into::into)
-        })
-    }
 
-    fn get_notetype_legacy(
-        &self,
-        input: anki_proto::notetypes::NotetypeId,
-    ) -> Result<generic::Json> {
-        let ntid = input.into();
-        self.with_col(|col| {
-            let schema11: NotetypeSchema11 =
-                col.storage.get_notetype(ntid)?.or_not_found(ntid)?.into();
-            Ok(serde_json::to_vec(&schema11)?).map(Into::into)
-        })
-    }
-
-    fn get_notetype_names(&self) -> Result<anki_proto::notetypes::NotetypeNames> {
-        self.with_col(|col| {
-            let entries: Vec<_> = col
-                .storage
-                .get_all_notetype_names()?
-                .into_iter()
-                .map(|(id, name)| anki_proto::notetypes::NotetypeNameId { id: id.0, name })
-                .collect();
-            Ok(anki_proto::notetypes::NotetypeNames { entries })
-        })
-    }
-
-    fn get_notetype_names_and_counts(&self) -> Result<anki_proto::notetypes::NotetypeUseCounts> {
-        self.with_col(|col| {
-            let entries: Vec<_> = col
-                .storage
-                .get_notetype_use_counts()?
-                .into_iter()
-                .map(
-                    |(id, name, use_count)| anki_proto::notetypes::NotetypeNameIdUseCount {
-                        id: id.0,
-                        name,
-                        use_count,
-                    },
-                )
-                .collect();
-            Ok(anki_proto::notetypes::NotetypeUseCounts { entries })
-        })
-    }
-
-    fn get_notetype_id_by_name(
-        &self,
-        input: generic::String,
-    ) -> Result<anki_proto::notetypes::NotetypeId> {
-        self.with_col(|col| {
-            col.storage
-                .get_notetype_id(&input.val)
-                .and_then(|nt| nt.or_not_found(input.val))
-                .map(|ntid| anki_proto::notetypes::NotetypeId { ntid: ntid.0 })
-        })
-    }
-
-    fn remove_notetype(
-        &self,
-        input: anki_proto::notetypes::NotetypeId,
-    ) -> Result<anki_proto::collection::OpChanges> {
-        self.with_col(|col| col.remove_notetype(input.into()))
+        self.storage
+            .get_notetype(ntid)?
+            .or_not_found(ntid)
             .map(Into::into)
     }
 
+    fn get_notetype_legacy(
+        &mut self,
+        input: anki_proto::notetypes::NotetypeId,
+    ) -> error::Result<generic::Json> {
+        let ntid = input.into();
+
+        let schema11: NotetypeSchema11 =
+            self.storage.get_notetype(ntid)?.or_not_found(ntid)?.into();
+        Ok(serde_json::to_vec(&schema11)?).map(Into::into)
+    }
+
+    fn get_notetype_names(&mut self) -> error::Result<anki_proto::notetypes::NotetypeNames> {
+        let entries: Vec<_> = self
+            .storage
+            .get_all_notetype_names()?
+            .into_iter()
+            .map(|(id, name)| anki_proto::notetypes::NotetypeNameId { id: id.0, name })
+            .collect();
+        Ok(anki_proto::notetypes::NotetypeNames { entries })
+    }
+
+    fn get_notetype_names_and_counts(
+        &mut self,
+    ) -> error::Result<anki_proto::notetypes::NotetypeUseCounts> {
+        let entries: Vec<_> = self
+            .storage
+            .get_notetype_use_counts()?
+            .into_iter()
+            .map(
+                |(id, name, use_count)| anki_proto::notetypes::NotetypeNameIdUseCount {
+                    id: id.0,
+                    name,
+                    use_count,
+                },
+            )
+            .collect();
+        Ok(anki_proto::notetypes::NotetypeUseCounts { entries })
+    }
+
+    fn get_notetype_id_by_name(
+        &mut self,
+        input: generic::String,
+    ) -> error::Result<anki_proto::notetypes::NotetypeId> {
+        self.storage
+            .get_notetype_id(&input.val)
+            .and_then(|nt| nt.or_not_found(input.val))
+            .map(|ntid| anki_proto::notetypes::NotetypeId { ntid: ntid.0 })
+    }
+
+    fn remove_notetype(
+        &mut self,
+        input: anki_proto::notetypes::NotetypeId,
+    ) -> error::Result<anki_proto::collection::OpChanges> {
+        self.remove_notetype(input.into()).map(Into::into)
+    }
+
     fn get_aux_notetype_config_key(
-        &self,
+        &mut self,
         input: anki_proto::notetypes::GetAuxConfigKeyRequest,
-    ) -> Result<generic::String> {
+    ) -> error::Result<generic::String> {
         Ok(get_aux_notetype_config_key(input.id.into(), &input.key).into())
     }
 
     fn get_aux_template_config_key(
-        &self,
+        &mut self,
         input: anki_proto::notetypes::GetAuxTemplateConfigKeyRequest,
-    ) -> Result<generic::String> {
-        self.with_col(|col| {
-            col.get_aux_template_config_key(
-                input.notetype_id.into(),
-                input.card_ordinal as usize,
-                &input.key,
-            )
-            .map(Into::into)
-        })
+    ) -> error::Result<generic::String> {
+        self.get_aux_template_config_key(
+            input.notetype_id.into(),
+            input.card_ordinal as usize,
+            &input.key,
+        )
+        .map(Into::into)
     }
 
     fn get_change_notetype_info(
-        &self,
+        &mut self,
         input: anki_proto::notetypes::GetChangeNotetypeInfoRequest,
-    ) -> Result<anki_proto::notetypes::ChangeNotetypeInfo> {
-        self.with_col(|col| {
-            col.notetype_change_info(input.old_notetype_id.into(), input.new_notetype_id.into())
-                .map(Into::into)
-        })
+    ) -> error::Result<anki_proto::notetypes::ChangeNotetypeInfo> {
+        self.notetype_change_info(input.old_notetype_id.into(), input.new_notetype_id.into())
+            .map(Into::into)
     }
 
     fn change_notetype(
-        &self,
+        &mut self,
         input: anki_proto::notetypes::ChangeNotetypeRequest,
-    ) -> Result<anki_proto::collection::OpChanges> {
-        self.with_col(|col| col.change_notetype_of_notes(input.into()).map(Into::into))
+    ) -> error::Result<anki_proto::collection::OpChanges> {
+        self.change_notetype_of_notes(input.into()).map(Into::into)
     }
 
     fn get_field_names(
-        &self,
+        &mut self,
         input: anki_proto::notetypes::NotetypeId,
-    ) -> Result<generic::StringList> {
-        self.with_col(|col| col.storage.get_field_names(input.into()))
-            .map(Into::into)
+    ) -> error::Result<generic::StringList> {
+        self.storage.get_field_names(input.into()).map(Into::into)
     }
 
     fn restore_notetype_to_stock(
-        &self,
+        &mut self,
         input: anki_proto::notetypes::RestoreNotetypeToStockRequest,
-    ) -> Result<anki_proto::collection::OpChanges> {
+    ) -> error::Result<anki_proto::collection::OpChanges> {
         let force_kind = input.force_kind.and_then(StockKind::from_i32);
-        self.with_col(|col| {
-            col.restore_notetype_to_stock(
-                input.notetype_id.or_invalid("missing notetype id")?.into(),
-                force_kind,
-            )
-            .map(Into::into)
-        })
+
+        self.restore_notetype_to_stock(
+            input.notetype_id.or_invalid("missing notetype id")?.into(),
+            force_kind,
+        )
+        .map(Into::into)
     }
 }
 

@@ -10,6 +10,7 @@ mod name;
 mod remove;
 mod reparent;
 mod schema11;
+mod service;
 mod stats;
 pub mod tree;
 pub(crate) mod undo;
