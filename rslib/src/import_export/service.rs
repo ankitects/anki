@@ -14,7 +14,8 @@ impl crate::services::ImportExportService for Collection {
         &mut self,
         input: anki_proto::import_export::ImportAnkiPackageRequest,
     ) -> error::Result<anki_proto::import_export::ImportResponse> {
-        self.import_apkg(&input.package_path).map(Into::into)
+        self.import_apkg(&input.package_path, input.merge_notetypes)
+            .map(Into::into)
     }
 
     fn export_anki_package(

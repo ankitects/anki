@@ -35,6 +35,7 @@ type TemplateMap = std::collections::HashMap<u16, u16>;
 
 struct Context<'a> {
     target_col: &'a mut Collection,
+    merge_notetypes: bool,
     media_manager: MediaManager,
     archive: ZipArchive<File>,
     meta: Meta,
@@ -44,13 +45,17 @@ struct Context<'a> {
 }
 
 impl Collection {
-    pub fn import_apkg(&mut self, path: impl AsRef<Path>) -> Result<OpOutput<NoteLog>> {
+    pub fn import_apkg(
+        &mut self,
+        path: impl AsRef<Path>,
+        merge_notetypes: bool,
+    ) -> Result<OpOutput<NoteLog>> {
         let file = open_file(path)?;
         let archive = ZipArchive::new(file)?;
         let progress = self.new_progress_handler();
 
         self.transact(Op::Import, |col| {
-            let mut ctx = Context::new(archive, col, progress)?;
+            let mut ctx = Context::new(archive, col, merge_notetypes, progress)?;
             ctx.import()
         })
     }
@@ -60,6 +65,7 @@ impl<'a> Context<'a> {
     fn new(
         mut archive: ZipArchive<File>,
         target_col: &'a mut Collection,
+        merge_notetypes: bool,
         mut progress: ThrottlingProgressHandler<ImportProgress>,
     ) -> Result<Self> {
         let media_manager = target_col.media()?;
@@ -74,6 +80,7 @@ impl<'a> Context<'a> {
         let usn = target_col.usn()?;
         Ok(Self {
             target_col,
+            merge_notetypes,
             media_manager,
             archive,
             meta,

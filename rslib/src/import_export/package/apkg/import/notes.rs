@@ -85,7 +85,7 @@ impl Context<'_> {
         &mut self,
         media_map: &mut MediaUseMap,
     ) -> Result<NoteImports> {
-        let mut ctx = NoteContext::new(self.usn, self.target_col, media_map, false)?;
+        let mut ctx = NoteContext::new(self.usn, self.target_col, media_map, self.merge_notetypes)?;
         ctx.import_notetypes(mem::take(&mut self.data.notetypes))?;
         ctx.import_notes(mem::take(&mut self.data.notes), &mut self.progress)?;
         Ok(ctx.imports)

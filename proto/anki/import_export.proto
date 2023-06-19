@@ -47,6 +47,7 @@ message ExportCollectionPackageRequest {
 
 message ImportAnkiPackageRequest {
   string package_path = 1;
+  bool merge_notetypes = 2;
 }
 
 message ImportResponse {
