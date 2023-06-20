@@ -8,5 +8,5 @@
 
 set -e
 
-./ninja qt/aqt
+./ninja qt
 ./out/pyenv/bin/python tools/reload_webviews.py
