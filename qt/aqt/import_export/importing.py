@@ -13,9 +13,9 @@ from anki.collection import Collection, Progress
 from anki.errors import Interrupted
 from anki.foreign_data import mnemosyne
 from anki.lang import without_unicode_isolation
+from aqt.import_export.import_anki_package_dialog import ImportAnkiPackageDialog
 from aqt.import_export.import_csv_dialog import ImportCsvDialog
 from aqt.import_export.import_log_dialog import (
-    ApkgArgs,
     ImportLogDialog,
     JsonFileArgs,
     JsonStringArgs,
@@ -88,7 +88,7 @@ class ApkgImporter(Importer):
 
     @staticmethod
     def do_import(mw: aqt.main.AnkiQt, path: str) -> None:
-        ImportLogDialog(mw, ApkgArgs(path=path))
+        ImportAnkiPackageDialog(mw, path)
 
 
 class MnemosyneImporter(Importer):

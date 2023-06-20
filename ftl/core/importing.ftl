@@ -30,6 +30,8 @@ importing-map-to = Map to { $val }
 importing-map-to-tags = Map to Tags
 importing-mapped-to = mapped to <b>{ $val }</b>
 importing-mapped-to-tags = mapped to <b>Tags</b>
+# the action of combining two existing notetypes to create a new one
+importing-merge-notetypes = Merge notetypes
 importing-mnemosyne-20-deck-db = Mnemosyne 2.0 Deck (*.db)
 importing-multicharacter-separators-are-not-supported-please = Multi-character separators are not supported. Please enter one character only.
 importing-notes-added-from-file = Notes added from file: { $val }

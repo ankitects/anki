@@ -314,6 +314,17 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
             ":sass"
         ],
     )?;
+    build_page(
+        "import-anki-package",
+        true,
+        inputs![
+            //
+            ":ts:lib",
+            ":ts:components",
+            ":ts:sveltelib",
+            ":sass"
+        ],
+    )?;
     // we use the generated .css file separately
     build_page(
         "editable",
