@@ -9,6 +9,7 @@ use super::Notetype;
 use super::NotetypeKind;
 use crate::prelude::*;
 use crate::template::field_is_empty;
+use crate::template::flatten_nodes;
 use crate::template::render_card;
 use crate::template::ParsedTemplate;
 use crate::template::RenderedNode;
@@ -18,6 +19,18 @@ pub struct RenderCardOutput {
     pub anodes: Vec<RenderedNode>,
     pub css: String,
     pub latex_svg: bool,
+}
+
+impl RenderCardOutput {
+    /// The question text, ignoring any unknown field replacements.
+    pub fn question(&self) -> Cow<str> {
+        flatten_nodes(&self.qnodes)
+    }
+
+    /// The answer text, ignoring any unknown field replacements.
+    pub fn answer(&self) -> Cow<str> {
+        flatten_nodes(&self.anodes)
+    }
 }
 
 impl Collection {

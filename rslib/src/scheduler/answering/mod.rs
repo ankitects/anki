@@ -196,7 +196,7 @@ impl Collection {
     }
 
     /// Describe the next intervals, to display on the answer buttons.
-    pub fn describe_next_states(&mut self, choices: SchedulingStates) -> Result<Vec<String>> {
+    pub fn describe_next_states(&mut self, choices: &SchedulingStates) -> Result<Vec<String>> {
         let collapse_time = self.learn_ahead_secs();
         let now = TimestampSecs::now();
         let timing = self.timing_for_timestamp(now)?;

@@ -168,11 +168,13 @@ impl Collection {
         }
     }
 
-    pub(crate) fn get_configured_utc_offset(&self) -> Option<i32> {
+    /// In minutes west of UTC.
+    pub fn get_configured_utc_offset(&self) -> Option<i32> {
         self.get_config_optional(ConfigKey::LocalOffset)
     }
 
-    pub(crate) fn set_configured_utc_offset(&mut self, mins: i32) -> Result<()> {
+    /// In minutes west of UTC.
+    pub fn set_configured_utc_offset(&mut self, mins: i32) -> Result<()> {
         self.state.scheduler_info = None;
         self.set_config(ConfigKey::LocalOffset, &mins).map(|_| ())
     }

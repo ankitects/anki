@@ -220,4 +220,8 @@ impl Collection {
         self.state.deck_cache.clear();
         self.state.notetype_cache.clear();
     }
+
+    pub fn tr(&self) -> &I18n {
+        &self.tr
+    }
 }

@@ -529,6 +529,24 @@ fn append_str_to_nodes(nodes: &mut Vec<RenderedNode>, text: &str) {
     }
 }
 
+/// Return the resolved text of a list of nodes, ignoring any unknown
+/// filters that were encountered.
+pub(crate) fn flatten_nodes(nodes: &[RenderedNode]) -> Cow<str> {
+    match nodes {
+        [RenderedNode::Text { text }] => text.into(),
+        nodes => {
+            let mut buf = String::new();
+            for node in nodes {
+                match node {
+                    RenderedNode::Text { text } => buf.push_str(text),
+                    RenderedNode::Replacement { current_text, .. } => buf.push_str(current_text),
+                }
+            }
+            buf.into()
+        }
+    }
+}
+
 /// True if provided text contains only whitespace and/or empty BR/DIV tags.
 pub(crate) fn field_is_empty(text: &str) -> bool {
     lazy_static! {

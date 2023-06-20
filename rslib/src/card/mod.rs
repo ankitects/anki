@@ -62,6 +62,15 @@ pub enum CardQueue {
     UserBuried = -3,
 }
 
+/// Which of the blue/red/green numbers this card maps to.
+pub enum CardQueueNumber {
+    New,
+    Learning,
+    Review,
+    /// Suspended/buried cards should not be included.
+    Invalid,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Card {
     pub(crate) id: CardId,
@@ -115,6 +124,33 @@ impl Default for Card {
 }
 
 impl Card {
+    pub fn id(&self) -> CardId {
+        self.id
+    }
+
+    pub fn note_id(&self) -> NoteId {
+        self.note_id
+    }
+
+    pub fn deck_id(&self) -> DeckId {
+        self.deck_id
+    }
+
+    pub fn template_idx(&self) -> u16 {
+        self.template_idx
+    }
+
+    pub fn queue_number(&self) -> CardQueueNumber {
+        match self.queue {
+            CardQueue::New => CardQueueNumber::New,
+            CardQueue::PreviewRepeat | CardQueue::Learn => CardQueueNumber::Learning,
+            CardQueue::DayLearn | CardQueue::Review => CardQueueNumber::Review,
+            CardQueue::Suspended | CardQueue::SchedBuried | CardQueue::UserBuried => {
+                CardQueueNumber::Invalid
+            }
+        }
+    }
+
     pub fn set_modified(&mut self, usn: Usn) {
         self.mtime = TimestampSecs::now();
         self.usn = usn;

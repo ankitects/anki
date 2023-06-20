@@ -76,6 +76,14 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     Ok(db)
 }
 
+impl SqliteStorage {
+    /// This is provided as an escape hatch for when you need to do something
+    /// not directly supported by this library. Please exercise caution when
+    /// using it.
+    pub fn db(&self) -> &Connection {
+        &self.db
+    }
+}
 /// Adds sql function field_at_index(flds, index)
 /// to split provided fields and return field at zero-based index.
 /// If out of range, returns empty string.

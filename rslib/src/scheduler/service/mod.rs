@@ -198,7 +198,7 @@ impl crate::services::SchedulerService for Collection {
         input: scheduler::SchedulingStates,
     ) -> Result<generic::StringList> {
         let states: SchedulingStates = input.into();
-        self.describe_next_states(states).map(Into::into)
+        self.describe_next_states(&states).map(Into::into)
     }
 
     fn state_is_leech(&mut self, input: scheduler::SchedulingState) -> Result<generic::Bool> {
