@@ -40,9 +40,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { StockNotetype_OriginalStockKind } from "@tslib/anki/notetypes_pb";
     import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@tslib/ftl";
-    import { StockNotetype } from "@tslib/anki/notetypes_pb";
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
 
@@ -443,11 +443,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function setOcclusionField(occludeInactive: boolean) {
         // set fields data for occlusion and image fields for io notes type
-        if (
-            originalStockKind ==
-            StockNotetype.OriginalStockKind
-                .ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
-        ) {
+        if (originalStockKind == StockNotetype_OriginalStockKind.IMAGE_OCCLUSION) {
             const occlusionsData = exportShapesToClozeDeletions(occludeInactive);
             fieldStores[0].set(occlusionsData.clozes);
         }
@@ -455,11 +451,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     // hide first two fields for occlusion type, first contains occlusion data and second contains image
     function hideFieldInOcclusionType(index: number) {
-        if (
-            originalStockKind ==
-            StockNotetype.OriginalStockKind
-                .ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
-        ) {
+        if (originalStockKind == StockNotetype_OriginalStockKind.IMAGE_OCCLUSION) {
             if (index == 0 || index == 1) {
                 return true;
             }

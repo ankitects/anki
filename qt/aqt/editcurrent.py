@@ -7,7 +7,13 @@ from anki.collection import OpChanges
 from anki.errors import NotFoundError
 from aqt import gui_hooks
 from aqt.qt import *
-from aqt.utils import disable_help_button, restoreGeom, saveGeom, tr
+from aqt.utils import (
+    disable_help_button,
+    is_image_occlusion_notetype,
+    restoreGeom,
+    saveGeom,
+    tr,
+)
 
 
 class EditCurrent(QDialog):
@@ -21,9 +27,6 @@ class EditCurrent(QDialog):
         disable_help_button(self)
         self.setMinimumHeight(400)
         self.setMinimumWidth(250)
-        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Close).setShortcut(
-            QKeySequence("Ctrl+Return")
-        )
         self.editor = aqt.editor.Editor(
             self.mw,
             self.form.fieldsArea,
@@ -33,8 +36,32 @@ class EditCurrent(QDialog):
         self.editor.card = self.mw.reviewer.card
         self.editor.set_note(self.mw.reviewer.card.note(), focusTo=0)
         restoreGeom(self, "editcurrent")
+        self.setupButtons()
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         self.show()
+
+    def setupButtons(self) -> None:
+        if is_image_occlusion_notetype(self.editor):
+            bb = self.form.buttonBox
+            ar = QDialogButtonBox.ButtonRole.ActionRole
+            # add io hide all button
+            self.addButtonHideAll = bb.addButton(tr.notetypes_hide_all_guess_one(), ar)
+            qconnect(self.addButtonHideAll.clicked, self.update_io_hide_all_note)
+            self.addButtonHideAll.setShortcut(QKeySequence("Ctrl+Return+A"))
+            # add io hide one button
+            self.addButtonHideOne = bb.addButton(tr.notetypes_hide_one_guess_one(), ar)
+            qconnect(self.addButtonHideOne.clicked, self.update_io_hide_one_note)
+            self.addButtonHideOne.setShortcut(QKeySequence("Ctrl+Return+O"))
+
+        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Close).setShortcut(
+            QKeySequence("Ctrl+Return")
+        )
+
+    def update_io_hide_all_note(self) -> None:
+        self.editor.web.eval("setOcclusionField(true)")
+
+    def update_io_hide_one_note(self) -> None:
+        self.editor.web.eval("setOcclusionField(false)")
 
     def on_operation_did_execute(
         self, changes: OpChanges, handler: Optional[object]

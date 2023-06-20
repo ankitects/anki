@@ -10,7 +10,7 @@ import aqt.forms
 from anki._legacy import deprecated
 from anki.collection import OpChanges, SearchNode
 from anki.decks import DeckId
-from anki.models import NotetypeId, StockNotetype
+from anki.models import NotetypeId
 from anki.notes import Note, NoteFieldsCheckResult, NoteId
 from anki.utils import html_to_text_line, is_mac
 from aqt import AnkiQt, gui_hooks
@@ -24,6 +24,7 @@ from aqt.utils import (
     add_close_shortcut,
     askUser,
     downArrow,
+    is_image_occlusion_notetype,
     openHelp,
     restoreGeom,
     saveGeom,
@@ -148,10 +149,7 @@ class AddCards(QMainWindow):
         self.historyButton = b
 
     def show_hide_add_buttons(self) -> None:
-        if (
-            self.editor.note.note_type()["originalStockKind"]
-            == StockNotetype.OriginalStockKind.ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
-        ):
+        if is_image_occlusion_notetype(self.editor):
             self.addButton.setVisible(False)
             self.addButtonHideAll.setVisible(True)
             self.addButtonHideOne.setVisible(True)
@@ -313,7 +311,10 @@ class AddCards(QMainWindow):
         # no problem, duplicate, and confirmed cloze cases
         problem = None
         if result == NoteFieldsCheckResult.EMPTY:
-            problem = tr.adding_the_first_field_is_empty()
+            if is_image_occlusion_notetype(self.editor):
+                problem = tr.notetypes_no_occlusion_created()
+            else:
+                problem = tr.adding_the_first_field_is_empty()
         elif result == NoteFieldsCheckResult.MISSING_CLOZE:
             if not askUser(tr.adding_you_have_a_cloze_deletion_note()):
                 return False
