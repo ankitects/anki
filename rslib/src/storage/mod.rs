@@ -34,7 +34,7 @@ impl SchemaVersion {
 }
 
 /// Write a list of IDs as '(x,y,...)' into the provided string.
-pub(crate) fn ids_to_string<D, I>(buf: &mut String, ids: I)
+pub fn ids_to_string<D, I>(buf: &mut String, ids: I)
 where
     D: std::fmt::Display,
     I: IntoIterator<Item = D>,

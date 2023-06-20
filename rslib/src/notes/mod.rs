@@ -117,7 +117,7 @@ impl NoteTags {
 }
 
 impl Note {
-    pub(crate) fn new(notetype: &Notetype) -> Self {
+    pub fn new(notetype: &Notetype) -> Self {
         Note {
             id: NoteId(0),
             guid: base91_u64(),
@@ -156,7 +156,7 @@ impl Note {
         }
     }
 
-    pub(crate) fn fields_mut(&mut self) -> &mut Vec<String> {
+    pub fn fields_mut(&mut self) -> &mut Vec<String> {
         self.mark_dirty();
         &mut self.fields
     }
