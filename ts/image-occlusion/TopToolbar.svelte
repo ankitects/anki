@@ -141,7 +141,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         overflow-y: scroll;
         z-index: 99;
-        margin-left: 98px;
+        margin-left: 106px;
         margin-top: 2px;
     }
 
@@ -171,6 +171,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height: 32px;
         margin: unset;
         padding: 6px !important;
+        font-size: 16px !important;
     }
 
     .dropdown-content {

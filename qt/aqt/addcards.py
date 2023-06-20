@@ -10,7 +10,7 @@ import aqt.forms
 from anki._legacy import deprecated
 from anki.collection import OpChanges, SearchNode
 from anki.decks import DeckId
-from anki.models import NotetypeId
+from anki.models import NotetypeId, StockNotetype
 from anki.notes import Note, NoteFieldsCheckResult, NoteId
 from anki.utils import html_to_text_line, is_mac
 from aqt import AnkiQt, gui_hooks
@@ -48,13 +48,16 @@ class AddCards(QMainWindow):
         self.setMinimumWidth(400)
         self.setup_choosers()
         self.setupEditor()
-        self.setupButtons()
         add_close_shortcut(self)
         self._load_new_note()
+        self.setupButtons()
         self.history: list[NoteId] = []
         self._last_added_note: Optional[Note] = None
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         restoreGeom(self, "add")
+        self.col.add_image_occlusion_notetype()
+        # hide io buttons for note type other than image occlusion
+        self.show_hide_add_buttons()
         gui_hooks.add_cards_did_init(self)
         self.show()
 
@@ -112,6 +115,17 @@ class AddCards(QMainWindow):
         self.compat_add_shorcut = QShortcut(QKeySequence("Ctrl+Enter"), self)
         qconnect(self.compat_add_shorcut.activated, self.addButton.click)
         self.addButton.setToolTip(shortcut(tr.adding_add_shortcut_ctrlandenter()))
+
+        # add io hide all button
+        self.addButtonHideAll = bb.addButton(tr.notetypes_hide_all_guess_one(), ar)
+        qconnect(self.addButtonHideAll.clicked, self.add_io_hide_all_note)
+        self.addButtonHideAll.setShortcut(QKeySequence("Ctrl+Return+A"))
+        self.addButtonHideAll.setVisible(False)
+        # add io hide one button
+        self.addButtonHideOne = bb.addButton(tr.notetypes_hide_one_guess_one(), ar)
+        qconnect(self.addButtonHideOne.clicked, self.add_io_hide_one_note)
+        self.addButtonHideOne.setShortcut(QKeySequence("Ctrl+Return+O"))
+
         # close
         self.closeButton = QPushButton(tr.actions_close())
         self.closeButton.setAutoDefault(False)
@@ -132,6 +146,19 @@ class AddCards(QMainWindow):
         qconnect(b.clicked, self.onHistory)
         b.setEnabled(False)
         self.historyButton = b
+
+    def show_hide_add_buttons(self) -> None:
+        if (
+            self.editor.note.note_type()["originalStockKind"]
+            == StockNotetype.OriginalStockKind.ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
+        ):
+            self.addButton.setVisible(False)
+            self.addButtonHideAll.setVisible(True)
+            self.addButtonHideOne.setVisible(True)
+        else:
+            self.addButton.setVisible(True)
+            self.addButtonHideAll.setVisible(False)
+            self.addButtonHideOne.setVisible(False)
 
     def setAndFocusNote(self, note: Note) -> None:
         self.editor.set_note(note, focusTo=0)
@@ -191,6 +218,9 @@ class AddCards(QMainWindow):
         gui_hooks.add_cards_did_change_note_type(
             old_note.note_type(), new_note.note_type()
         )
+
+        # update buttons for image occlusion on note type change
+        self.show_hide_add_buttons()
 
     def _load_new_note(self, sticky_fields_from: Optional[Note] = None) -> None:
         note = self._new_note()
@@ -347,6 +377,14 @@ class AddCards(QMainWindow):
             cb()
 
         self.ifCanClose(doClose)
+
+    def add_io_hide_all_note(self) -> None:
+        self.editor.web.eval("setOcclusionField(true)")
+        self.add_current_note()
+
+    def add_io_hide_one_note(self) -> None:
+        self.editor.web.eval("setOcclusionField(false)")
+        self.add_current_note()
 
     # legacy aliases
 

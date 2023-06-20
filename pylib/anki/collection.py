@@ -466,6 +466,10 @@ class Collection(DeprecatedNamesMixin):
     def get_image_for_occlusion(self, path: str | None) -> GetImageForOcclusionResponse:
         return self._backend.get_image_for_occlusion(path=path)
 
+    def add_image_occlusion_notetype(self) -> None:
+        "Add notetype if missing."
+        self._backend.add_image_occlusion_notetype()
+
     def add_image_occlusion_note(
         self,
         notetype_id: int,

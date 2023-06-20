@@ -9,3 +9,5 @@ export const notesDataStore = writable({ id: "", title: "", divValue: "", textar
 export const zoomResetValue = writable(1);
 // it stores the tags for the note in note editor
 export const tagsWritable = writable([""]);
+// it stores the value of image loaded into mask editor or not
+export const ioImageLoaded = writable(false);

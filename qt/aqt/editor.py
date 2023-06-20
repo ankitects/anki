@@ -31,6 +31,7 @@ from anki.collection import Config, SearchNode
 from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
+from anki.models import StockNotetype
 from anki.notes import Note, NoteFieldsCheckResult
 from anki.utils import checksum, is_lin, is_win, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
@@ -476,6 +477,11 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         elif cmd in self._links:
             return self._links[cmd](self)
 
+        elif cmd.startswith("toggleMaskEditor"):
+            (_, show_str) = cmd.split(":", 1)
+            show = show_str == "true"
+            self.onToggleMaskEditor(show)
+
         else:
             print("uncaught cmd", cmd)
 
@@ -549,6 +555,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setShrinkImages({json.dumps(self.mw.col.get_config("shrinkEditorImages", True))});
             setCloseHTMLTags({json.dumps(self.mw.col.get_config("closeHTMLTags", True))});
             triggerChanges();
+            setOriginalStockKind({json.dumps(self.note.note_type()["originalStockKind"])});
             """
 
         if self.addMode:
@@ -1175,6 +1182,45 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def setTagsCollapsed(self, collapsed: bool) -> None:
         aqt.mw.pm.set_tags_collapsed(self.editorMode, collapsed)
 
+    def onAddImageForOcclusion(self) -> None:
+        """Show a file selection screen, then get selected image path."""
+        extension_filter = " ".join(
+            f"*.{extension}" for extension in sorted(itertools.chain(pics))
+        )
+        filter = f"{tr.editing_media()} ({extension_filter})"
+
+        def accept(file: str) -> None:
+            try:
+                html = self._addMedia(file)
+                options = {"kind": "add", "imagePath": file, "notetypeId": 0}
+                # pass both html and options
+                options = {"html": html, "mode": options}
+                self.web.eval(f"setupMaskEditor({options})")
+            except Exception as e:
+                showWarning(str(e))
+                return
+
+        if self.addMode:
+            file = getFile(
+                parent=self.widget,
+                title=tr.editing_add_media(),
+                cb=cast(Callable[[Any], None], accept),
+                filter=filter,
+                key="media",
+            )
+        else:
+            options = {"kind": "edit", "noteId": self.note.id}
+            options = {"mode": options}
+            self.web.eval(f"setupMaskEditor({options})")
+
+        self.parentWindow.activateWindow()
+
+    def onToggleMaskEditor(self, show) -> None:
+        if show:
+            self.web.eval("toggleMaskEditor(true)")
+        else:
+            self.web.eval("toggleMaskEditor(false)")
+
     # Links from HTML
     ######################################################################
 
@@ -1204,6 +1250,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             toggleMathjax=Editor.toggleMathjax,
             toggleShrinkImages=Editor.toggleShrinkImages,
             toggleCloseHTMLTags=Editor.toggleCloseHTMLTags,
+            addImageForOcclusion=Editor.onAddImageForOcclusion,
+            toggleMaskEditor=Editor.onToggleMaskEditor,
         )
 
 
@@ -1452,4 +1500,19 @@ def set_cloze_button(editor: Editor) -> None:
     )
 
 
+def set_image_occlusion_button(editor: Editor) -> None:
+    action = (
+        "show"
+        if editor.note.note_type()["originalStockKind"]
+        == StockNotetype.OriginalStockKind.ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
+        else "hide"
+    )
+    editor.web.eval(
+        'require("anki/ui").loaded.then(() =>'
+        f'require("anki/NoteEditor").instances[0].toolbar.toolbar.{action}("image-occlusion-button")'
+        "); "
+    )
+
+
 gui_hooks.editor_did_load_note.append(set_cloze_button)
+gui_hooks.editor_did_load_note.append(set_image_occlusion_button)
