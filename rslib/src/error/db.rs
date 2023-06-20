@@ -11,6 +11,7 @@ use snafu::Snafu;
 use super::AnkiError;
 
 #[derive(Debug, PartialEq, Eq, Snafu)]
+#[snafu(display("{kind:?}: {info}"))]
 pub struct DbError {
     pub info: String,
     pub kind: DbErrorKind,
