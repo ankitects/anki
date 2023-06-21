@@ -33,6 +33,8 @@ service BackendCollectionService {
   // If a backup is running, wait for it to complete. Will return an error
   // if the backup encountered an error.
   rpc AwaitBackupCompletion(generic.Empty) returns (generic.Empty);
+  rpc LatestProgress(generic.Empty) returns (Progress);
+  rpc SetWantsAbort(generic.Empty) returns (generic.Empty);
 }
 
 message OpenCollectionRequest {
