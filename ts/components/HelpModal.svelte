@@ -8,19 +8,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Modal from "bootstrap/js/dist/modal";
     import { createEventDispatcher, getContext, onMount } from "svelte";
 
-    import Badge from "../components/Badge.svelte";
-    import Col from "../components/Col.svelte";
-    import { modalsKey } from "../components/context-keys";
-    import Row from "../components/Row.svelte";
     import { pageTheme } from "../sveltelib/theme";
+    import Badge from "./Badge.svelte";
+    import Col from "./Col.svelte";
+    import { modalsKey } from "./context-keys";
     import HelpSection from "./HelpSection.svelte";
     import { infoCircle, manualIcon } from "./icons";
-    import type { DeckOption } from "./types";
+    import Row from "./Row.svelte";
+    import type { HelpItem } from "./types";
 
     export let title: string;
     export let url: string;
     export let startIndex = 0;
-    export let helpSections: DeckOption[];
+    export let helpSections: HelpItem[];
 
     export const modalKey: string = Math.random().toString(36).substring(2);
 
@@ -117,12 +117,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             bind:this={carouselRef}
                         >
                             <div class="carousel-inner">
-                                {#each helpSections as section, i}
+                                {#each helpSections as item, i}
                                     <div
                                         class="carousel-item"
                                         class:active={i == startIndex}
                                     >
-                                        <HelpSection {section} />
+                                        <HelpSection {item} />
                                     </div>
                                 {/each}
                             </div>

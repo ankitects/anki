@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { importDone } from "@tslib/backend";
     import * as tr from "@tslib/ftl";
     import BackendProgressIndicator from "components/BackendProgressIndicator.svelte";
+    import Switch from "components/Switch.svelte";
 
     import Col from "../components/Col.svelte";
     import Container from "../components/Container.svelte";

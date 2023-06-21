@@ -9,13 +9,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type Modal from "bootstrap/js/dist/modal";
 
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
+    import HelpModal from "../components/HelpModal.svelte";
     import Item from "../components/Item.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
-    import HelpModal from "./HelpModal.svelte";
+    import type { HelpItem } from "../components/types";
     import type { DeckOptionsState } from "./lib";
     import SettingTitle from "./SettingTitle.svelte";
     import SwitchRow from "./SwitchRow.svelte";
-    import type { DeckOption } from "./types";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
@@ -41,7 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             help: tr.deckConfigBuryInterdayLearningTooltip() + priorityTooltip,
         },
     };
-    const helpSections = Object.values(settings) as DeckOption[];
+    const helpSections = Object.values(settings) as HelpItem[];
 
     let modal: Modal;
     let carousel: Carousel;
