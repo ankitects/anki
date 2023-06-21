@@ -25,7 +25,6 @@ pub fn write_rust_interface(pool: &DescriptorPool) -> Result<()> {
 
     render_top_level_run_method(&mut buf, &services, true);
     render_top_level_run_method(&mut buf, &services, false);
-    render_method_lookup(&mut buf, &services);
 
     // println!("{}", &buf);
     let buf = format_code(buf)?;
@@ -304,21 +303,4 @@ fn render_individual_service_run_method(buf: &mut String, service: &RustService,
 } }
 "#,
     );
-}
-
-fn render_method_lookup(buf: &mut String, services: &[RustService]) {
-    writeln!(
-        buf,
-        "
-pub const METHODS_BY_NAME: phf::Map<&str, (u32, u32)> = phf::phf_map! {{
-"
-    )
-    .unwrap();
-    for (sidx, service) in services.iter().enumerate() {
-        for (midx, method) in service.methods.iter().enumerate() {
-            let name = &method.name;
-            writeln!(buf, r#"    "{name}" => ({sidx}, {midx}),"#,).unwrap();
-        }
-    }
-    buf.push_str("};\n");
 }
