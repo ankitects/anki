@@ -23,7 +23,11 @@ pub(crate) fn write_ts_interface(services: &[BackendService]) -> Result<()> {
             continue;
         }
 
-        let service_name = service.name.replace("Service", "").to_snake_case();
+        let service_name = service
+            .name
+            .replace("Service", "")
+            .replace("Backend", "")
+            .to_snake_case();
 
         write_dts_file(root, &service_name, service)?;
         write_js_file(root, &service_name, service)?;
