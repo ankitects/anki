@@ -34,6 +34,10 @@ service NotetypesService {
       returns (collection.OpChanges);
 }
 
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendNotetypesService {}
+
 message NotetypeId {
   int64 ntid = 1;
 }

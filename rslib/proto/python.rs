@@ -7,30 +7,26 @@ use std::path::Path;
 
 use anki_io::create_dir_all;
 use anki_io::create_file;
+use anki_proto_gen::BackendService;
+use anki_proto_gen::Method;
 use anyhow::Result;
 use inflections::Inflect;
-use prost_reflect::DescriptorPool;
 use prost_reflect::FieldDescriptor;
 use prost_reflect::Kind;
 use prost_reflect::MessageDescriptor;
-use prost_reflect::MethodDescriptor;
-use prost_reflect::ServiceDescriptor;
 
-use crate::utils::Comments;
-
-pub(crate) fn write_python_interface(pool: &DescriptorPool) -> Result<()> {
+pub(crate) fn write_python_interface(services: &[BackendService]) -> Result<()> {
     let output_path = Path::new("../../out/pylib/anki/_backend_generated.py");
     create_dir_all(output_path.parent().unwrap())?;
     let mut out = BufWriter::new(create_file(output_path)?);
     write_header(&mut out)?;
 
-    for service in pool.services() {
-        if service.name() == "AnkidroidService" {
+    for service in services {
+        if service.name == "BackendAnkidroidService" {
             continue;
         }
-        let comments = Comments::from_file(service.parent_file().file_descriptor_proto());
-        for method in service.methods() {
-            render_method(&service, &method, &comments, &mut out);
+        for method in service.all_methods() {
+            render_method(service, method, &mut out);
         }
     }
 
@@ -48,18 +44,13 @@ pub(crate) fn write_python_interface(pool: &DescriptorPool) -> Result<()> {
 ///     output = anki.generic_pb2.StringList()
 ///     output.ParseFromString(raw_bytes)
 ///     return output.vals
-fn render_method(
-    service: &ServiceDescriptor,
-    method: &MethodDescriptor,
-    comments: &Comments,
-    out: &mut impl Write,
-) {
-    let method_name = method.name().to_snake_case();
-    let input = method.input();
-    let output = method.output();
-    let service_idx = service.index();
-    let method_idx = method.index();
-    let comments = format_comments(comments.get_for_path(method.path()));
+fn render_method(service: &BackendService, method: &Method, out: &mut impl Write) {
+    let method_name = method.name.to_snake_case();
+    let input = method.proto.input();
+    let output = method.proto.output();
+    let service_idx = service.index;
+    let method_idx = method.index;
+    let comments = format_comments(&method.comments);
 
     // raw bytes
     write!(
@@ -89,7 +80,7 @@ fn render_method(
     .unwrap();
 }
 
-fn format_comments(comments: Option<&str>) -> String {
+fn format_comments(comments: &Option<String>) -> String {
     comments
         .as_ref()
         .map(|c| {

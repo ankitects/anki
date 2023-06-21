@@ -23,6 +23,10 @@ service SearchService {
   rpc SetActiveBrowserColumns(generic.StringList) returns (generic.Empty);
 }
 
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendSearchService {}
+
 message SearchNode {
   message Dupe {
     int64 notetype_id = 1;

@@ -28,6 +28,7 @@ hashbrown = { version = "0.12", features = ["raw"] }
 hmac = { version = "0.12", default-features = false, features = ["reset"] }
 hyper = { version = "0.14", features = ["full"] }
 indexmap = { version = "1", default-features = false, features = ["std"] }
+itertools = { version = "0.10" }
 log = { version = "0.4", default-features = false, features = ["std"] }
 num-traits = { version = "0.2" }
 phf_shared = { version = "0.11", default-features = false, features = ["std"] }
@@ -69,6 +70,7 @@ hashbrown = { version = "0.12", features = ["raw"] }
 hmac = { version = "0.12", default-features = false, features = ["reset"] }
 hyper = { version = "0.14", features = ["full"] }
 indexmap = { version = "1", default-features = false, features = ["std"] }
+itertools = { version = "0.10" }
 log = { version = "0.4", default-features = false, features = ["std"] }
 num-traits = { version = "0.2" }
 phf_shared = { version = "0.11", default-features = false, features = ["std"] }

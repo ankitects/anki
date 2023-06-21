@@ -11,7 +11,6 @@ import "anki/cards.proto";
 import "anki/collection.proto";
 import "anki/notes.proto";
 import "anki/generic.proto";
-import "anki/codegen.proto";
 
 service ImportExportService {
   rpc ImportAnkiPackage(ImportAnkiPackageRequest) returns (ImportResponse);
@@ -24,6 +23,8 @@ service ImportExportService {
   rpc ImportJsonString(generic.String) returns (ImportResponse);
 }
 
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
 service BackendImportExportService {
   rpc ImportCollectionPackage(ImportCollectionPackageRequest)
       returns (generic.Empty);

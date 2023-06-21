@@ -108,6 +108,15 @@
     "description": "Anki's Rust library protobuf code"
   },
   {
+    "name": "anki_proto_gen",
+    "version": "0.0.0",
+    "authors": "Ankitects Pty Ltd and contributors <https://help.ankiweb.net>",
+    "repository": null,
+    "license": "AGPL-3.0-or-later",
+    "license_file": null,
+    "description": "Helpers for interface code generation"
+  },
+  {
     "name": "anstream",
     "version": "0.2.6",
     "authors": null,

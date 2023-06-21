@@ -23,6 +23,10 @@ service ImageOcclusionService {
   rpc AddImageOcclusionNotetype(generic.Empty) returns (collection.OpChanges);
 }
 
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendImageOcclusionService {}
+
 message GetImageForOcclusionRequest {
   string path = 1;
 }

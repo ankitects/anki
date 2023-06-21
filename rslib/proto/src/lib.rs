@@ -15,7 +15,6 @@ protobuf!(ankidroid, "ankidroid");
 protobuf!(backend, "backend");
 protobuf!(card_rendering, "card_rendering");
 protobuf!(cards, "cards");
-protobuf!(codegen, "codegen");
 protobuf!(collection, "collection");
 protobuf!(config, "config");
 protobuf!(deckconfig, "deckconfig");

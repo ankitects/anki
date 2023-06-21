@@ -20,6 +20,8 @@ service CollectionService {
   rpc SetWantsAbort(generic.Empty) returns (generic.Empty);
 }
 
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
 service BackendCollectionService {
   rpc OpenCollection(OpenCollectionRequest) returns (generic.Empty);
   rpc CloseCollection(CloseCollectionRequest) returns (generic.Empty);
