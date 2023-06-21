@@ -9,6 +9,9 @@ package anki.sync;
 
 import "anki/generic.proto";
 
+/// Syncing methods are only available with a Backend handle.
+service SyncService {}
+
 service BackendSyncService {
   rpc SyncMedia(SyncAuth) returns (generic.Empty);
   rpc AbortMediaSync(generic.Empty) returns (generic.Empty);

@@ -17,6 +17,10 @@ service StatsService {
   rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
 }
 
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendStatsService {}
+
 message CardStatsResponse {
   message StatsRevlogEntry {
     int64 time = 1;

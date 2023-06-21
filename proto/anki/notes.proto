@@ -30,6 +30,10 @@ service NotesService {
   rpc GetSingleNotetypeOfNotes(notes.NoteIds) returns (notetypes.NotetypeId);
 }
 
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendNotesService {}
+
 message NoteId {
   int64 nid = 1;
 }

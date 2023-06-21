@@ -91,6 +91,7 @@ dependencies = [
  "anki_i18n",
  "anki_io",
  "anki_proto",
+ "anki_proto_gen",
  "anyhow",
  "async-compression",
  "async-stream",
@@ -127,7 +128,6 @@ dependencies = [
  "prettyplease 0.2.7",
  "prost",
  "prost-reflect",
- "prost-types",
  "pulldown-cmark 0.9.2",
  "rand 0.8.5",
  "regex",
@@ -213,6 +213,7 @@ name = "anki_proto"
 version = "0.0.0"
 dependencies = [
  "anki_io",
+ "anki_proto_gen",
  "anyhow",
  "inflections",
  "itertools",
@@ -224,6 +225,16 @@ dependencies = [
  "serde",
  "snafu",
  "strum",
+]
+
+[[package]]
+name = "anki_proto_gen"
+version = "0.0.0"
+dependencies = [
+ "inflections",
+ "itertools",
+ "prost-reflect",
+ "prost-types",
 ]
 
 [[package]]
@@ -5067,6 +5078,7 @@ dependencies = [
  "hmac",
  "hyper",
  "indexmap",
+ "itertools",
  "log",
  "num-traits",
  "phf_shared 0.11.1",

@@ -9,46 +9,39 @@ use std::path::Path;
 
 use anki_io::create_dir_all;
 use anki_io::create_file;
+use anki_proto_gen::BackendService;
+use anki_proto_gen::Method;
 use anyhow::Result;
 use inflections::Inflect;
-use prost_reflect::DescriptorPool;
-use prost_reflect::MethodDescriptor;
-use prost_reflect::ServiceDescriptor;
 
-use crate::utils::Comments;
-
-pub(crate) fn write_ts_interface(pool: &DescriptorPool) -> Result<()> {
+pub(crate) fn write_ts_interface(services: &[BackendService]) -> Result<()> {
     let root = Path::new("../../out/ts/lib/anki");
     create_dir_all(root)?;
 
-    for service in pool.services() {
-        if service.name() == "AnkidroidService" {
+    for service in services {
+        if service.name == "BackendAnkidroidService" {
             continue;
         }
-        let service_name = service.name().replace("Service", "").to_snake_case();
-        let comments = Comments::from_file(service.parent_file().file_descriptor_proto());
 
-        write_dts_file(root, &service_name, &service, &comments)?;
-        write_js_file(root, &service_name, &service, &comments)?;
+        let service_name = service.name.replace("Service", "").to_snake_case();
+
+        write_dts_file(root, &service_name, service)?;
+        write_js_file(root, &service_name, service)?;
     }
 
     Ok(())
 }
 
-fn write_dts_file(
-    root: &Path,
-    service_name: &str,
-    service: &ServiceDescriptor,
-    comments: &Comments,
-) -> Result<()> {
+fn write_dts_file(root: &Path, service_name: &str, service: &BackendService) -> Result<()> {
     let output_path = root.join(format!("{service_name}_service.d.ts"));
     let mut out = BufWriter::new(create_file(output_path)?);
     write_dts_header(&mut out)?;
 
     let mut referenced_packages = HashSet::new();
     let mut method_text = String::new();
-    for method in service.methods() {
-        let method = MethodDetails::from_descriptor(&method, comments);
+
+    for method in service.all_methods() {
+        let method = MethodDetails::from_method(method);
         record_referenced_type(&mut referenced_packages, &method.input_type)?;
         record_referenced_type(&mut referenced_packages, &method.output_type)?;
         write_dts_method(&method, &mut method_text)?;
@@ -100,20 +93,15 @@ fn write_dts_method(
     Ok(())
 }
 
-fn write_js_file(
-    root: &Path,
-    service_name: &str,
-    service: &ServiceDescriptor,
-    comments: &Comments,
-) -> Result<()> {
+fn write_js_file(root: &Path, service_name: &str, service: &BackendService) -> Result<()> {
     let output_path = root.join(format!("{service_name}_service.js"));
     let mut out = BufWriter::new(create_file(output_path)?);
     write_js_header(&mut out)?;
 
     let mut referenced_packages = HashSet::new();
     let mut method_text = String::new();
-    for method in service.methods() {
-        let method = MethodDetails::from_descriptor(&method, comments);
+    for method in service.all_methods() {
+        let method = MethodDetails::from_method(method);
         record_referenced_type(&mut referenced_packages, &method.input_type)?;
         record_referenced_type(&mut referenced_packages, &method.output_type)?;
         write_js_method(&method, &mut method_text)?;
@@ -169,16 +157,16 @@ struct MethodDetails {
 }
 
 impl MethodDetails {
-    fn from_descriptor(method: &MethodDescriptor, comments: &Comments) -> MethodDetails {
-        let name = method.name().to_camel_case();
-        let input_type = full_name_to_imported_reference(method.input().full_name());
-        let output_type = full_name_to_imported_reference(method.output().full_name());
-        let comments = comments.get_for_path(method.path());
+    fn from_method(method: &Method) -> MethodDetails {
+        let name = method.name.to_camel_case();
+        let input_type = full_name_to_imported_reference(method.proto.input().full_name());
+        let output_type = full_name_to_imported_reference(method.proto.output().full_name());
+        let comments = method.comments.clone();
         Self {
             method_name: name,
             input_type,
             output_type,
-            comments: comments.map(ToString::to_string),
+            comments,
         }
     }
 }

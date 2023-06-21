@@ -17,6 +17,10 @@ service MediaService {
   rpc RestoreTrash(generic.Empty) returns (generic.Empty);
 }
 
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendMediaService {}
+
 message CheckMediaResponse {
   repeated string unused = 1;
   repeated string missing = 2;

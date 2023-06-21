@@ -27,6 +27,10 @@ service TagsService {
   rpc CompleteTag(CompleteTagRequest) returns (CompleteTagResponse);
 }
 
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendTagsService {}
+
 message SetTagCollapsedRequest {
   string name = 1;
   bool collapsed = 2;

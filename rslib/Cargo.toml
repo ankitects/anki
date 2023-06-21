@@ -22,12 +22,13 @@ required-features = ["bench"]
 [build-dependencies]
 anki_io = { version = "0.0.0", path = "io" }
 anki_proto = { version = "0.0.0", path = "proto" }
+anki_proto_gen = { version = "0.0.0", path = "proto_gen" }
 anyhow = "1.0.71"
 inflections = "1.1.1"
+itertools = "0.10.5"
 prettyplease = "0.2.7"
 prost = "0.11.8"
 prost-reflect = "0.11.4"
-prost-types = "0.11.9"
 syn = { version = "2.0.18", features = ["parsing", "printing"] }
 
 [dev-dependencies]
