@@ -167,7 +167,7 @@ impl<'n> NoteContext<'n> {
         progress: &mut ThrottlingProgressHandler<ImportProgress>,
     ) -> Result<()> {
         let mut incrementor = progress.incrementor(ImportProgress::Notes);
-
+        self.imports.log.found_notes = notes.len() as u32;
         for mut note in notes {
             incrementor.increment()?;
             let remapped_notetype_id = self.remapped_notetypes.get(&note.notetype_id);
