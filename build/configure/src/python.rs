@@ -18,20 +18,21 @@ use ninja_gen::Build;
 use ninja_gen::Result;
 
 pub fn setup_venv(build: &mut Build) -> Result<()> {
-    let requirements_txt = if cfg!(windows) {
+    let platform_deps = if cfg!(windows) {
         inputs![
-            "python/requirements.dev.txt",
-            "python/requirements.qt6_4.txt",
+            "python/requirements.qt6_win.txt",
             "python/requirements.win.txt",
         ]
+    } else if cfg!(target_os = "darwin") {
+        inputs!["python/requirements.qt6_mac.txt",]
     } else if cfg!(all(target_os = "linux", target_arch = "aarch64")) {
-        inputs!["python/requirements.dev.txt"]
+        // system-provided Qt on ARM64
+        inputs![]
     } else {
-        inputs![
-            "python/requirements.dev.txt",
-            "python/requirements.qt6_5.txt",
-        ]
+        // normal linux
+        inputs!["python/requirements.qt6_lin.txt"]
     };
+    let requirements_txt = inputs!["python/requirements.dev.txt", platform_deps];
     build.add_action(
         "pyenv",
         PythonEnvironment {
