@@ -17,10 +17,9 @@ args="--resolver=backtracking --allow-unsafe --no-header --strip-extras --genera
 
 # during bundle
 ../out/pyenv/bin/pip-compile $args $upgrade requirements.bundle.in 
-#../out/pyenv/bin/pip-compile $args $upgrade requirements.qt6_4.in
-../out/pyenv/bin/pip-compile $args $upgrade requirements.qt6_5.in
-# ../out/pyenv/bin/pip-compile $args $upgrade requirements.qt5_14.in
-# ../out/pyenv/bin/pip-compile $args $upgrade requirements.qt5_15.in
+../out/pyenv/bin/pip-compile $args $upgrade requirements.qt6_win.in
+../out/pyenv/bin/pip-compile $args $upgrade requirements.qt6_lin.in
+../out/pyenv/bin/pip-compile $args $upgrade requirements.qt6_mac.in
 
 # during build/development/testing
 ../out/pyenv/bin/pip-compile $args $upgrade requirements.dev.in
