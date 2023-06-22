@@ -83,6 +83,14 @@ pub fn read_to_string(path: impl AsRef<Path>) -> Result<String> {
     })
 }
 
+/// See [std::fs::copy].
+pub fn copy_file(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> Result<u64> {
+    std::fs::copy(&src, &dst).context(FileIoSnafu {
+        path: dst.as_ref(),
+        op: FileOp::CopyFrom(src.as_ref().to_owned()),
+    })
+}
+
 /// Like [read_file], but skips the section that is potentially locked by
 /// SQLite.
 pub fn read_locked_db_file(path: impl AsRef<Path>) -> Result<Vec<u8>> {

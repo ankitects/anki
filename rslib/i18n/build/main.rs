@@ -6,6 +6,9 @@ mod extract;
 mod gather;
 mod write_strings;
 
+use std::path::Path;
+
+use anki_io::create_dir_all;
 use anki_io::write_file_if_changed;
 use anyhow::Result;
 use check::check;
@@ -26,6 +29,7 @@ fn main() -> Result<()> {
     println!("cargo:rerun-if-env-changed=STRINGS_JSON");
     if let Some(path) = option_env!("STRINGS_JSON") {
         let meta_json = serde_json::to_string_pretty(&modules).unwrap();
+        create_dir_all(Path::new(path).parent().unwrap())?;
         write_file_if_changed(path, meta_json)?;
     }
     Ok(())
