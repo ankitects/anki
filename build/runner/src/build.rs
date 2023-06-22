@@ -144,7 +144,7 @@ fn setup_build_root() -> &'static Utf8Path {
 }
 
 fn maybe_reconfigure_build(build_file: &Utf8Path, path: &str) {
-    let output = Command::new("ninja")
+    let output = Command::new(get_ninja_command())
         .arg("-f")
         .arg(build_file)
         .arg("build_run_configure")
