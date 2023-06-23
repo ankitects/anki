@@ -1,29 +1,24 @@
 [package]
 name = "archives"
-publish = false
-
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
+publish = false
 rust-version.workspace = true
 
 [dependencies]
-anki_io = { version = "0.0.0", path = "../../rslib/io" }
-camino = "1.1.4"
-flate2 = "1.0.25"
-sha2 = { version = "0.10.6" }
-tar = "0.4.38"
-tokio = { version = "1.27.0", features = ["macros", "rt-multi-thread"] }
-workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }
-xz2 = "0.1.7"
-zip = "0.6.4"
-zstd = "0.12.3"
+anki_io.workspace = true
+camino.workspace = true
+flate2.workspace = true
+reqwest.workspace = true
+sha2.workspace = true
+tar.workspace = true
+tokio.workspace = true
+xz2.workspace = true
+zip.workspace = true
+zstd.workspace = true
 
 [features]
 rustls = ["reqwest/rustls-tls", "reqwest/rustls-tls-native-roots"]
 native-tls = ["reqwest/native-tls"]
-
-[dependencies.reqwest]
-version = "0.11.16"
-default-features = false

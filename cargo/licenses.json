@@ -18,15 +18,6 @@
     "description": "A simple clean-room implementation of the Adler-32 checksum"
   },
   {
-    "name": "aes",
-    "version": "0.7.5",
-    "authors": "RustCrypto Developers",
-    "repository": "https://github.com/RustCrypto/block-ciphers",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Pure Rust implementation of the Advanced Encryption Standard (a.k.a. Rijndael) including support for AES in counter mode (a.k.a. AES-CTR)"
-  },
-  {
     "name": "ahash",
     "version": "0.7.6",
     "authors": "Tom Kaitchuck <Tom.Kaitchuck@gmail.com>",
@@ -117,42 +108,6 @@
     "description": "Helpers for interface code generation"
   },
   {
-    "name": "anstream",
-    "version": "0.2.6",
-    "authors": null,
-    "repository": "https://github.com/rust-cli/anstyle.git",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A simple cross platform library for writing colored text to a terminal."
-  },
-  {
-    "name": "anstyle",
-    "version": "0.3.5",
-    "authors": null,
-    "repository": "https://github.com/rust-cli/anstyle.git",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "ANSI text styling"
-  },
-  {
-    "name": "anstyle-parse",
-    "version": "0.1.1",
-    "authors": null,
-    "repository": "https://github.com/rust-cli/anstyle.git",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Parse ANSI Style Escapes"
-  },
-  {
-    "name": "anstyle-wincon",
-    "version": "0.2.0",
-    "authors": null,
-    "repository": "https://github.com/rust-cli/anstyle.git",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Styling legacy Windows terminals"
-  },
-  {
     "name": "anyhow",
     "version": "1.0.71",
     "authors": "David Tolnay <dtolnay@gmail.com>",
@@ -208,7 +163,7 @@
   },
   {
     "name": "async-stream",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "authors": "Carl Lerche <me@carllerche.com>",
     "repository": "https://github.com/tokio-rs/async-stream",
     "license": "MIT",
@@ -217,7 +172,7 @@
   },
   {
     "name": "async-stream-impl",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "authors": "Carl Lerche <me@carllerche.com>",
     "repository": "https://github.com/tokio-rs/async-stream",
     "license": "MIT",
@@ -306,15 +261,6 @@
     "description": "encodes and decodes base64 as bytes or utf8"
   },
   {
-    "name": "base64ct",
-    "version": "1.6.0",
-    "authors": "RustCrypto Developers",
-    "repository": "https://github.com/RustCrypto/formats/tree/master/base64ct",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Pure Rust implementation of Base64 (RFC 4648) which avoids any usages of data-dependent branches/LUTs and thereby provides portable \"best effort\" constant-time operation and embedded-friendly no_std support"
-  },
-  {
     "name": "bitflags",
     "version": "1.3.2",
     "authors": "The Rust Project Developers",
@@ -387,24 +333,6 @@
     "description": "Types and traits for working with bytes"
   },
   {
-    "name": "bzip2",
-    "version": "0.4.4",
-    "authors": "Alex Crichton <alex@alexcrichton.com>",
-    "repository": "https://github.com/alexcrichton/bzip2-rs",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Bindings to libbzip2 for bzip2 compression and decompression exposed as Reader/Writer streams."
-  },
-  {
-    "name": "bzip2-sys",
-    "version": "0.1.11+1.0.8",
-    "authors": "Alex Crichton <alex@alexcrichton.com>",
-    "repository": "https://github.com/alexcrichton/bzip2-rs",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Bindings to libbzip2 for bzip2 compression and decompression exposed as Reader/Writer streams."
-  },
-  {
     "name": "cc",
     "version": "1.0.79",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
@@ -432,51 +360,6 @@
     "description": "Date and time library for Rust"
   },
   {
-    "name": "cipher",
-    "version": "0.3.0",
-    "authors": "RustCrypto Developers",
-    "repository": "https://github.com/RustCrypto/traits",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Traits for describing block ciphers and stream ciphers"
-  },
-  {
-    "name": "clap",
-    "version": "4.2.1",
-    "authors": null,
-    "repository": "https://github.com/clap-rs/clap",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A simple to use, efficient, and full-featured Command Line Argument Parser"
-  },
-  {
-    "name": "clap_builder",
-    "version": "4.2.1",
-    "authors": null,
-    "repository": "https://github.com/clap-rs/clap",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A simple to use, efficient, and full-featured Command Line Argument Parser"
-  },
-  {
-    "name": "clap_derive",
-    "version": "4.2.0",
-    "authors": null,
-    "repository": "https://github.com/clap-rs/clap/tree/master/clap_derive",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Parse command line argument by defining a struct, derive crate."
-  },
-  {
-    "name": "clap_lex",
-    "version": "0.4.1",
-    "authors": null,
-    "repository": "https://github.com/clap-rs/clap/tree/master/clap_lex",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Minimal, flexible command line parser"
-  },
-  {
     "name": "coarsetime",
     "version": "0.1.23",
     "authors": "Frank Denis <github@pureftpd.org>",
@@ -495,40 +378,13 @@
     "description": "Beautiful diagnostic reporting for text-based programming languages"
   },
   {
-    "name": "concolor-override",
-    "version": "1.0.0",
-    "authors": null,
-    "repository": "https://github.com/rust-cli/concolor",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Global override of color control"
-  },
-  {
-    "name": "concolor-query",
-    "version": "0.3.3",
-    "authors": null,
-    "repository": "https://github.com/rust-cli/concolor",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Look up colored console capabilities"
-  },
-  {
     "name": "concurrent-queue",
-    "version": "2.1.0",
+    "version": "2.2.0",
     "authors": "Stjepan Glavina <stjepang@gmail.com>|Taiki Endo <te316e89@gmail.com>|John Nunley <jtnunley01@gmail.com>",
     "repository": "https://github.com/smol-rs/concurrent-queue",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Concurrent multi-producer multi-consumer queue"
-  },
-  {
-    "name": "constant_time_eq",
-    "version": "0.1.5",
-    "authors": "Cesar Eduardo Barros <cesarb@cesarb.eti.br>",
-    "repository": "https://github.com/cesarb/constant_time_eq",
-    "license": "CC0-1.0",
-    "license_file": null,
-    "description": "Compares two equal-sized byte strings in constant time."
   },
   {
     "name": "constant_time_eq",
@@ -955,7 +811,7 @@
   },
   {
     "name": "futures-lite",
-    "version": "1.12.0",
+    "version": "1.13.0",
     "authors": "Stjepan Glavina <stjepang@gmail.com>|Contributors to futures-rs",
     "repository": "https://github.com/smol-rs/futures-lite",
     "license": "Apache-2.0 OR MIT",
@@ -1132,15 +988,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Encoding and decoding data into/from hexadecimal representation."
-  },
-  {
-    "name": "hmac",
-    "version": "0.12.1",
-    "authors": "RustCrypto Developers",
-    "repository": "https://github.com/RustCrypto/MACs",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Generic implementation of Hash-based Message Authentication Code (HMAC)"
   },
   {
     "name": "html5ever",
@@ -1701,15 +1548,6 @@
     "description": "Single assignment cells and lazy values."
   },
   {
-    "name": "opaque-debug",
-    "version": "0.3.0",
-    "authors": "RustCrypto Developers",
-    "repository": "https://github.com/RustCrypto/utils",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Macro for opaque Debug trait implementation"
-  },
-  {
     "name": "openssl",
     "version": "0.10.55",
     "authors": "Steven Fackler <sfackler@gmail.com>",
@@ -1756,9 +1594,9 @@
   },
   {
     "name": "parking",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "authors": "Stjepan Glavina <stjepang@gmail.com>|The Rust Project Developers",
-    "repository": "https://github.com/stjepang/parking",
+    "repository": "https://github.com/smol-rs/parking",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Thread parking and unparking"
@@ -1780,24 +1618,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "An advanced API for creating custom synchronization primitives."
-  },
-  {
-    "name": "password-hash",
-    "version": "0.4.2",
-    "authors": "RustCrypto Developers",
-    "repository": "https://github.com/RustCrypto/traits/tree/master/password-hash",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Traits which describe the functionality of password hashing algorithms, as well as a `no_std`-friendly implementation of the PHC string format (a well-defined subset of the Modular Crypt Format a.k.a. MCF)"
-  },
-  {
-    "name": "pbkdf2",
-    "version": "0.11.0",
-    "authors": "RustCrypto Developers",
-    "repository": "https://github.com/RustCrypto/password-hashes/tree/master/pbkdf2",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Generic implementation of PBKDF2"
   },
   {
     "name": "percent-encoding",
@@ -2448,15 +2268,6 @@
     "description": "SHA-1 hash function"
   },
   {
-    "name": "sha2",
-    "version": "0.10.6",
-    "authors": "RustCrypto Developers",
-    "repository": "https://github.com/RustCrypto/hashes",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Pure Rust implementation of the SHA-2 hash function family including SHA-224, SHA-256, SHA-384, and SHA-512."
-  },
-  {
     "name": "sharded-slab",
     "version": "0.1.4",
     "authors": "Eliza Weisman <eliza@buoyant.io>",
@@ -2574,15 +2385,6 @@
     "description": "A codegen library for string-cache, developed as part of the Servo project."
   },
   {
-    "name": "strsim",
-    "version": "0.10.0",
-    "authors": "Danny Guo <danny@dannyguo.com>",
-    "repository": "https://github.com/dguo/strsim-rs",
-    "license": "MIT",
-    "license_file": null,
-    "description": "Implementations of string similarity metrics. Includes Hamming, Levenshtein, OSA, Damerau-Levenshtein, Jaro, Jaro-Winkler, and Sørensen-Dice."
-  },
-  {
     "name": "strum",
     "version": "0.24.1",
     "authors": "Peter Glotfelty <peter.glotfelty@microsoft.com>",
@@ -2662,15 +2464,6 @@
     "license": "MIT OR Unlicense",
     "license_file": null,
     "description": "A simple cross platform library for writing colored text to a terminal."
-  },
-  {
-    "name": "terminal_size",
-    "version": "0.2.6",
-    "authors": "Andrew Chin <achin@eminence32.net>",
-    "repository": "https://github.com/eminence/terminal-size",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Gets the size of your Linux or Windows terminal"
   },
   {
     "name": "thiserror",
@@ -3105,15 +2898,6 @@
     "description": "Incremental, zero-copy UTF-8 decoding with error handling"
   },
   {
-    "name": "utf8parse",
-    "version": "0.2.1",
-    "authors": "Joe Wilm <joe@jwilm.com>|Christian Duerr <contact@christianduerr.com>",
-    "repository": "https://github.com/alacritty/vte",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Table-driven UTF-8 parser"
-  },
-  {
     "name": "utime",
     "version": "0.3.1",
     "authors": "Hyeon Kim <simnalamburt@gmail.com>",
@@ -3520,21 +3304,12 @@
   },
   {
     "name": "wiremock",
-    "version": "0.5.17",
+    "version": "0.5.19",
     "authors": "Luca Palmieri <rust@lpalmieri.com>",
     "repository": "https://github.com/LukeMathWalker/wiremock-rs",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "HTTP mocking to test Rust applications."
-  },
-  {
-    "name": "workspace-hack",
-    "version": "0.1.0",
-    "authors": null,
-    "repository": null,
-    "license": null,
-    "license_file": null,
-    "description": "workspace-hack package, managed by hakari"
   },
   {
     "name": "zip",

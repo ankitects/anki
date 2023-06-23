@@ -1,18 +1,16 @@
 [package]
 name = "makeinstall"
-publish = false
-
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
+publish = false
 rust-version.workspace = true
 
 [dependencies]
-anyhow = "1.0.70"
-camino = "1.1.4"
-clap = { version = "4.2.1", features = ["derive"] }
-glob = "0.3.1"
-tugger-windows-codesign = "0.10.0"
-walkdir = "2.3.3"
-workspace-hack = { version = "0.1", path = "../../../tools/workspace-hack" }
+anyhow.workspace = true
+camino.workspace = true
+clap.workspace = true
+glob.workspace = true
+tugger-windows-codesign.workspace = true
+walkdir.workspace = true

@@ -186,7 +186,6 @@ impl LintContext {
         if licenses != existing_licenses {
             if self.want_fix {
                 check_cargo_deny()?;
-                update_hakari()?;
                 write_file(license_path, licenses)?;
             } else {
                 println!("cargo/licenses.json is out of date; run ./ninja fix:minilints");
@@ -200,12 +199,6 @@ impl LintContext {
 fn check_cargo_deny() -> Result<()> {
     Command::run("cargo install cargo-deny@0.13.5")?;
     Command::run("cargo deny check -A duplicate")?;
-    Ok(())
-}
-
-fn update_hakari() -> Result<()> {
-    Command::run("cargo install cargo-hakari@0.9.23")?;
-    Command::run("cargo hakari generate")?;
     Ok(())
 }
 

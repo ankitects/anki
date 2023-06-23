@@ -1,24 +1,20 @@
 [package]
 name = "anki_i18n_helpers"
-publish = false
-description = "Helpers for Anki's i18n system"
-
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
+publish = false
 rust-version.workspace = true
+description = "Helpers for Anki's i18n system"
 
 [lib]
 name = "anki_i18n_helpers"
 path = "src/lib.rs"
 
-# After updating anything below, run ../cargo/update.py
-
 [dependencies]
-fluent-syntax = "0.11.0"
-lazy_static = "1.4.0"
-regex = "1.7.3"
-serde_json = "1.0.95"
-walkdir = "2"
-workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }
+fluent-syntax.workspace = true
+lazy_static.workspace = true
+regex.workspace = true
+serde_json.workspace = true
+walkdir.workspace = true
