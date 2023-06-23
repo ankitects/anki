@@ -10,6 +10,9 @@ fi
 export CARGO_TARGET_DIR=$out/rust
 export RECONFIGURE_KEY="${MAC_X86};${SOURCEMAP}"
 
-# separate build+run steps so build env doesn't leak into subprocesses
-cargo build -p runner
+if [ "$SKIP_RUNNER_BUILD" = "1" ]; then
+    echo "Runner not rebuilt."
+else
+    cargo build -p runner;
+fi
 exec $out/rust/debug/runner build -- $*
