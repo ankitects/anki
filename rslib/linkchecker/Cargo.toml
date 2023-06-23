@@ -1,34 +1,23 @@
 [package]
 name = "linkchecker"
-publish = false
-
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
+publish = false
 rust-version.workspace = true
 
-# [[test]]
-# name = "links"
-# required-features = ["links"]
-
 [dependencies]
-anki = { path = ".." }
-
-linkcheck = { git = "https://github.com/ankitects/linkcheck.git", rev = "184b2ca50ed39ca43da13f0b830a463861adb9ca" }
-
-futures = "0.3.28"
-itertools = "0.10.5"
-lazy_static = "1.4.0"
-regex = "1.7.3"
-strum = { version = "0.24.1", features = ["derive"] }
-tokio = { version = "1.27.0", features = ["full"] }
-workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }
+anki.workspace = true
+futures.workspace = true
+itertools.workspace = true
+lazy_static.workspace = true
+linkcheck.workspace = true
+regex.workspace = true
+reqwest.workspace = true
+strum.workspace = true
+tokio.workspace = true
 
 [features]
 rustls = ["reqwest/rustls-tls", "reqwest/rustls-tls-native-roots"]
 native-tls = ["reqwest/native-tls"]
-
-[dependencies.reqwest]
-version = "0.11.16"
-default-features = false

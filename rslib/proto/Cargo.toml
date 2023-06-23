@@ -1,27 +1,26 @@
 [package]
 name = "anki_proto"
-publish = false
-description = "Anki's Rust library protobuf code"
-
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
+publish = false
 rust-version.workspace = true
+description = "Anki's Rust library protobuf code"
 
 [build-dependencies]
-anki_io = { version = "0.0.0", path = "../io" }
-anki_proto_gen = { version = "0.0.0", path = "../proto_gen" }
-anyhow = "1.0.71"
-inflections = "1.1.1"
-itertools = "0.10.5"
-prost-build = "0.11.9"
-prost-reflect = "0.11.4"
-prost-types = "0.11.9"
+anki_io.workspace = true
+anki_proto_gen.workspace = true
+anyhow.workspace = true
+inflections.workspace = true
+itertools.workspace = true
+prost-build.workspace = true
+prost-reflect.workspace = true
+prost-types.workspace = true
 
 [dependencies]
-num_enum = "0.6.1"
-prost = "0.11.9"
-serde = { version = "1.0.164", features = ["derive"] }
-snafu = "0.7.4"
-strum = { version = "0.24.1", features = ["derive"] }
+num_enum.workspace = true
+prost.workspace = true
+serde.workspace = true
+snafu.workspace = true
+strum.workspace = true

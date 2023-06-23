@@ -1,15 +1,13 @@
 [package]
 name = "configure"
-publish = false
-
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
+publish = false
 rust-version.workspace = true
 
 [dependencies]
-anyhow = "1.0.71"
-itertools = "0.10.5"
-ninja_gen = { "path" = "../ninja_gen" }
-workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }
+anyhow.workspace = true
+itertools.workspace = true
+ninja_gen.workspace = true

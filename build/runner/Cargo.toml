@@ -1,20 +1,18 @@
 [package]
 name = "runner"
-publish = false
-
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
+publish = false
 rust-version.workspace = true
 
 [dependencies]
-anki_io = { version = "0.0.0", path = "../../rslib/io" }
-anyhow = "1.0.71"
-camino = "1.1.4"
-clap = { version = "4.2.1", features = ["derive"] }
-itertools = "0.10.5"
-junction = "1.0.0"
-termcolor = "1.2.0"
-which = "4.4.0"
-workspace-hack = { version = "0.1", path = "../../tools/workspace-hack" }
+anki_io.workspace = true
+anyhow.workspace = true
+camino.workspace = true
+clap.workspace = true
+itertools.workspace = true
+junction.workspace = true
+termcolor.workspace = true
+which.workspace = true

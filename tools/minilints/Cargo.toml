@@ -1,18 +1,17 @@
 [package]
 name = "minilints"
-publish = false
-
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
+publish = false
 rust-version.workspace = true
 
 [dependencies]
-anki_io = { version = "0.0.0", path = "../../rslib/io" }
-anki_process = { version = "0.0.0", path = "../../rslib/process" }
-anyhow = "1.0.71"
-camino = "1.1.4"
-once_cell = "1.17.1"
-walkdir = "2.3.3"
-which = "4.4.0"
+anki_io.workspace = true
+anki_process.workspace = true
+anyhow.workspace = true
+camino.workspace = true
+once_cell.workspace = true
+walkdir.workspace = true
+which.workspace = true

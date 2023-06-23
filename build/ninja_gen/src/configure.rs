@@ -31,12 +31,7 @@ impl BuildAction for ConfigureBuild {
                 inputs: inputs![glob!["build/**/*"]],
                 outputs: &[RustOutput::Binary("configure")],
                 target: None,
-                // we ensure runner is up to date, but don't declare it as output,
-                // as ninja will try to clean up stale outputs, and that fails on
-                // Windows. The ninja wrapper script should ensure the runner is up to
-                // date anyway, but advanced users can invoke ninja directly to save
-                // the ~80+ms it takes cargo to check that the runner is up to date.
-                extra_args: "-p configure -p runner",
+                extra_args: "-p configure",
                 release_override: Some(false),
             },
         )?;
