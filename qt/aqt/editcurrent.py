@@ -7,13 +7,7 @@ from anki.collection import OpChanges
 from anki.errors import NotFoundError
 from aqt import gui_hooks
 from aqt.qt import *
-from aqt.utils import (
-    disable_help_button,
-    is_image_occlusion_notetype,
-    restoreGeom,
-    saveGeom,
-    tr,
-)
+from aqt.utils import disable_help_button, restoreGeom, saveGeom, tr
 
 
 class EditCurrent(QDialog):
@@ -41,7 +35,7 @@ class EditCurrent(QDialog):
         self.show()
 
     def setupButtons(self) -> None:
-        if is_image_occlusion_notetype(self.editor):
+        if self.editor.current_notetype_is_image_occlusion():
             bb = self.form.buttonBox
             ar = QDialogButtonBox.ButtonRole.ActionRole
             # add io hide all button

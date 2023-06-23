@@ -24,7 +24,6 @@ from aqt.utils import (
     add_close_shortcut,
     askUser,
     downArrow,
-    is_image_occlusion_notetype,
     openHelp,
     restoreGeom,
     saveGeom,
@@ -149,7 +148,7 @@ class AddCards(QMainWindow):
         self.historyButton = b
 
     def show_hide_add_buttons(self) -> None:
-        if is_image_occlusion_notetype(self.editor):
+        if self.editor.current_notetype_is_image_occlusion():
             self.addButton.setVisible(False)
             self.addButtonHideAll.setVisible(True)
             self.addButtonHideOne.setVisible(True)
@@ -311,7 +310,7 @@ class AddCards(QMainWindow):
         # no problem, duplicate, and confirmed cloze cases
         problem = None
         if result == NoteFieldsCheckResult.EMPTY:
-            if is_image_occlusion_notetype(self.editor):
+            if self.editor.current_notetype_is_image_occlusion():
                 problem = tr.notetypes_no_occlusion_created()
             else:
                 problem = tr.adding_the_first_field_is_empty()

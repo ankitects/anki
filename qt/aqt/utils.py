@@ -19,7 +19,6 @@ import aqt
 from anki._legacy import DeprecatedNamesMixinForModule
 from anki.collection import Collection, HelpPage
 from anki.lang import TR, tr_legacyglobal  # pylint: disable=unused-import
-from anki.models import StockNotetype
 from anki.utils import (
     invalid_filename,
     is_mac,
@@ -1287,14 +1286,3 @@ if not TYPE_CHECKING:
 
     def __getattr__(name: str) -> Any:
         return _deprecated_names.__getattr__(name)
-
-
-######################################################################
-
-
-# image occlusion utils
-def is_image_occlusion_notetype(editor) -> bool:
-    return (
-        editor.note.note_type()["originalStockKind"]
-        == StockNotetype.OriginalStockKind.ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
-    )

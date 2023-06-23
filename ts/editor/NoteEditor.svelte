@@ -40,7 +40,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { StockNotetype_OriginalStockKind } from "@tslib/anki/notetypes_pb";
     import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@tslib/ftl";
     import { onMount, tick } from "svelte";
@@ -244,9 +243,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return noteId;
     }
 
-    let originalStockKind: number | null = null;
-    function setOriginalStockKind(kind: number) {
-        originalStockKind = kind;
+    let isImageOcclusion = false;
+    function setIsImageOcclusion(val: boolean) {
+        isImageOcclusion = val;
     }
 
     let cols: ("dupe" | "")[] = [];
@@ -443,7 +442,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function setOcclusionField(occludeInactive: boolean) {
         // set fields data for occlusion and image fields for io notes type
-        if (originalStockKind == StockNotetype_OriginalStockKind.IMAGE_OCCLUSION) {
+        if (isImageOcclusion) {
             const occlusionsData = exportShapesToClozeDeletions(occludeInactive);
             fieldStores[0].set(occlusionsData.clozes);
         }
@@ -451,7 +450,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     // hide first two fields for occlusion type, first contains occlusion data and second contains image
     function hideFieldInOcclusionType(index: number) {
-        if (originalStockKind == StockNotetype_OriginalStockKind.IMAGE_OCCLUSION) {
+        if (isImageOcclusion) {
             if (index == 0 || index == 1) {
                 return true;
             }
@@ -492,7 +491,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setShrinkImages,
             setCloseHTMLTags,
             triggerChanges,
-            setOriginalStockKind,
+            setIsImageOcclusion,
             toggleMaskEditor,
             setupMaskEditor,
             setOcclusionField,

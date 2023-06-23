@@ -555,7 +555,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setShrinkImages({json.dumps(self.mw.col.get_config("shrinkEditorImages", True))});
             setCloseHTMLTags({json.dumps(self.mw.col.get_config("closeHTMLTags", True))});
             triggerChanges();
-            setOriginalStockKind({json.dumps(self.note.note_type()["originalStockKind"])});
+            setIsImageOcclusion({json.dumps(self.current_notetype_is_image_occlusion())});
             """
 
         if self.addMode:
@@ -565,6 +565,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
             f'require("anki/ui").loaded.then(() => {{ {js} }})', oncallback
+        )
+
+    def current_notetype_is_image_occlusion(self) -> bool:
+        return bool(self.note) and (
+            self.note.note_type().get("originalStockKind", None)
+            == StockNotetype.OriginalStockKind.ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
         )
 
     def _save_current_note(self) -> None:
@@ -1501,12 +1507,7 @@ def set_cloze_button(editor: Editor) -> None:
 
 
 def set_image_occlusion_button(editor: Editor) -> None:
-    action = (
-        "show"
-        if editor.note.note_type()["originalStockKind"]
-        == StockNotetype.OriginalStockKind.ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
-        else "hide"
-    )
+    action = "show" if editor.current_notetype_is_image_occlusion() else "hide"
     editor.web.eval(
         'require("anki/ui").loaded.then(() =>'
         f'require("anki/NoteEditor").instances[0].toolbar.toolbar.{action}("image-occlusion-button")'
