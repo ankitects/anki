@@ -34,12 +34,10 @@ pub struct Utf8Output {
 }
 
 pub trait CommandExt {
-    fn run<I, S>(cmd_and_args: I) -> Result<()>
-    where
-        I: IntoIterator<Item = S>,
-        S: AsRef<OsStr>,
-    {
-        let mut all_args = cmd_and_args.into_iter();
+    /// A shortcut for when the command and its args are known up-front and have
+    /// no spaces in them.
+    fn run(cmd_and_args: impl AsRef<str>) -> Result<()> {
+        let mut all_args = cmd_and_args.as_ref().split(' ');
         Command::new(all_args.next().unwrap())
             .args(all_args)
             .ensure_success()?;
@@ -111,9 +109,7 @@ mod test {
     #[test]
     fn test_run() {
         assert_eq!(
-            Command::run(["fakefake", "1", "2"])
-                .unwrap_err()
-                .to_string(),
+            Command::run("fakefake 1 2").unwrap_err().to_string(),
             "Failed to execute: fakefake 1 2"
         );
         #[cfg(not(windows))]
