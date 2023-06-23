@@ -5,6 +5,7 @@
 //! silencing their output when they succeed. Most build actions implicitly use
 //! the 'run' command; we define separate commands for more complicated actions.
 
+mod archive;
 mod build;
 mod bundle;
 mod paths;
@@ -14,6 +15,8 @@ mod run;
 mod yarn;
 
 use anyhow::Result;
+use archive::archive_command;
+use archive::ArchiveArgs;
 use build::run_build;
 use build::BuildArgs;
 use bundle::artifacts::build_artifacts;
@@ -48,6 +51,8 @@ enum Command {
     BuildArtifacts(BuildArtifactsArgs),
     BuildBundleBinary,
     BuildDistFolder(BuildDistFolderArgs),
+    #[clap(subcommand)]
+    Archive(ArchiveArgs),
 }
 
 fn main() -> Result<()> {
@@ -60,6 +65,7 @@ fn main() -> Result<()> {
         Command::BuildArtifacts(args) => build_artifacts(args),
         Command::BuildBundleBinary => build_bundle_binary(),
         Command::BuildDistFolder(args) => build_dist_folder(args),
+        Command::Archive(args) => archive_command(args)?,
     };
     Ok(())
 }

@@ -371,7 +371,9 @@ pub trait FilesHandle {
         subgroup: bool,
     );
 
-    /// Save an output stamp if the command completes successfully.
+    /// Save an output stamp if the command completes successfully. Note that
+    /// if you have bypassed the runner, you will need to create the file
+    /// yourself.
     fn add_output_stamp(&mut self, path: impl Into<String>);
     /// Set an env var for the duration of the provided command(s).
     /// Note this is defined once for the rule, so if the value should change

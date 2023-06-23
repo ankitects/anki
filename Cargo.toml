@@ -17,7 +17,6 @@ members = [
   "pylib/rsbridge",
   "build/configure",
   "build/ninja_gen",
-  "build/archives",
   "build/runner",
   "ftl",
   "tools/minilints",

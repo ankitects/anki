@@ -1,38 +1,46 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::error::Error;
 use std::fs;
 use std::io::Read;
 use std::path::Path;
+use std::path::PathBuf;
 
 use anki_io::read_file;
+use anki_io::write_file;
+use anyhow::Result;
 use camino::Utf8Path;
+use clap::Args;
+use clap::Subcommand;
 use sha2::Digest;
 
-type Result<T> = std::result::Result<T, Box<dyn Error>>;
+#[derive(Subcommand)]
+pub enum ArchiveArgs {
+    Download(DownloadArgs),
+    Extract(ExtractArgs),
+}
+
+#[derive(Args)]
+pub struct DownloadArgs {
+    archive_url: String,
+    checksum: String,
+    output_path: PathBuf,
+}
+
+#[derive(Args)]
+pub struct ExtractArgs {
+    archive_path: String,
+    output_folder: String,
+}
 
 #[tokio::main]
-async fn main() -> Result<()> {
-    let args: Vec<_> = std::env::args().collect();
-
-    let action = args[1].as_str();
-    match action {
-        "download" => {
-            let archive_url = &args[2];
-            let checksum = &args[3];
-            let output_path = Path::new(&args[4]);
-            download_and_check(archive_url, checksum, output_path).await?;
+pub async fn archive_command(args: ArchiveArgs) -> Result<()> {
+    match args {
+        ArchiveArgs::Download(args) => {
+            download_and_check(&args.archive_url, &args.checksum, &args.output_path).await
         }
-        "extract" => {
-            let archive_path = &args[2];
-            let output_folder = &args[3];
-            extract(archive_path, output_folder)?;
-        }
-        _ => panic!("unexpected action"),
+        ArchiveArgs::Extract(args) => extract_archive(&args.archive_path, &args.output_folder),
     }
-
-    Ok(())
 }
 
 async fn download_and_check(archive_url: &str, checksum: &str, output_path: &Path) -> Result<()> {
@@ -73,7 +81,7 @@ enum ArchiveKind {
     Zip,
 }
 
-fn extract(archive_path: &str, output_folder: &str) -> Result<()> {
+fn extract_archive(archive_path: &str, output_folder: &str) -> Result<()> {
     let archive_path = Utf8Path::new(archive_path);
     let archive_filename = archive_path.file_name().unwrap();
     let mut components = archive_filename.rsplit('.');
@@ -140,5 +148,6 @@ fn extract(archive_path: &str, output_folder: &str) -> Result<()> {
     } else {
         fs::rename(output_tmp, output_folder)?;
     }
+    write_file(output_folder.with_extension("marker"), "")?;
     Ok(())
 }
