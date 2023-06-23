@@ -43,7 +43,9 @@ const IGNORED_FOLDERS: &[&str] = &[
 ];
 
 fn main() -> Result<()> {
-    let want_fix = env::args().nth(1) == Some("fix".to_string());
+    let mut args = env::args();
+    let want_fix = args.nth(1) == Some("fix".to_string());
+    let stamp = args.next().unwrap();
     let mut ctx = LintContext::new(want_fix);
     ctx.check_contributors()?;
     ctx.check_rust_licenses()?;
@@ -51,6 +53,8 @@ fn main() -> Result<()> {
     if ctx.found_problems {
         std::process::exit(1);
     }
+    write_file(stamp, "")?;
+
     Ok(())
 }
 

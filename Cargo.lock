@@ -281,22 +281,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "archives"
-version = "0.0.0"
-dependencies = [
- "anki_io",
- "camino",
- "flate2",
- "reqwest",
- "sha2",
- "tar",
- "tokio",
- "xz2",
- "zip",
- "zstd 0.12.3+zstd.1.5.2",
-]
-
-[[package]]
 name = "arrayref"
 version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3334,10 +3318,18 @@ dependencies = [
  "anyhow",
  "camino",
  "clap 4.2.1",
+ "flate2",
  "itertools",
  "junction",
+ "reqwest",
+ "sha2",
+ "tar",
  "termcolor",
+ "tokio",
  "which",
+ "xz2",
+ "zip",
+ "zstd 0.12.3+zstd.1.5.2",
 ]
 
 [[package]]

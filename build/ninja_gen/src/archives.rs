@@ -8,9 +8,6 @@ use camino::Utf8Path;
 use camino::Utf8PathBuf;
 
 use crate::action::BuildAction;
-use crate::cargo::CargoBuild;
-use crate::cargo::RustOutput;
-use crate::glob;
 use crate::input::BuildInput;
 use crate::inputs;
 use crate::Build;
@@ -81,21 +78,16 @@ struct DownloadArchive {
 
 impl BuildAction for DownloadArchive {
     fn command(&self) -> &str {
-        "$archives_bin download $url $checksum $out"
+        "$runner archive download $url $checksum $out"
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
         let (_, filename) = self.archive.url.rsplit_once('/').unwrap();
         let output_path = Utf8Path::new("download").join(filename);
 
-        build.add_order_only_inputs("archives_bin", inputs![":build:archives"]);
         build.add_variable("url", self.archive.url);
         build.add_variable("checksum", self.archive.sha256);
         build.add_outputs("out", &[output_path.into_string()])
-    }
-
-    fn on_first_instance(&self, build: &mut Build) -> Result<()> {
-        build_archive_tool(build)
     }
 
     fn check_output_timestamps(&self) -> bool {
@@ -131,11 +123,10 @@ where
     I::Item: AsRef<str>,
 {
     fn command(&self) -> &str {
-        "$archive_tool extract $in $extraction_folder"
+        "$runner archive extract $in $extraction_folder"
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
-        build.add_order_only_inputs("archive_tool", inputs![":build:archives"]);
         build.add_inputs("in", inputs![self.archive_path.clone()]);
 
         let folder = self.extraction_folder();
@@ -152,10 +143,6 @@ where
         build.add_output_stamp(folder.with_extension("marker"));
     }
 
-    fn on_first_instance(&self, build: &mut Build) -> Result<()> {
-        build_archive_tool(build)
-    }
-
     fn name(&self) -> &'static str {
         "extract"
     }
@@ -163,23 +150,6 @@ where
     fn check_output_timestamps(&self) -> bool {
         true
     }
-}
-
-fn build_archive_tool(build: &mut Build) -> Result<()> {
-    build.once_only("build_archive_tool", |build| {
-        let features = Platform::tls_feature();
-        build.add_action(
-            "build:archives",
-            CargoBuild {
-                inputs: inputs![glob!("build/archives/**/*")],
-                outputs: &[RustOutput::Binary("archives")],
-                target: None,
-                extra_args: &format!("-p archives --features {features}"),
-                release_override: Some(false),
-            },
-        )?;
-        Ok(())
-    })
 }
 
 /// See [DownloadArchive] and [ExtractArchive].

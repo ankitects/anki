@@ -182,7 +182,7 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
 
     impl BuildAction for RunMinilints {
         fn command(&self) -> &str {
-            "$minilints_bin $fix"
+            "$minilints_bin $fix $stamp"
         }
 
         fn bypass_runner(&self) -> bool {
@@ -192,7 +192,7 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
         fn files(&mut self, build: &mut impl FilesHandle) {
             build.add_inputs("minilints_bin", inputs![":build:minilints"]);
             build.add_inputs("", &self.deps);
-            build.add_variable("fix", if self.fix { "fix" } else { "" });
+            build.add_variable("fix", if self.fix { "fix" } else { "check" });
             build.add_output_stamp(format!("tests/minilints.{}", self.fix));
         }
 
