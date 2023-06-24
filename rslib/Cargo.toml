@@ -33,7 +33,6 @@ syn.workspace = true
 
 [dev-dependencies]
 async-stream.workspace = true
-env_logger.workspace = true
 wiremock.workspace = true
 
 [dependencies]

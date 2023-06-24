@@ -594,15 +594,6 @@
     "description": "A Gecko-oriented implementation of the Encoding Standard"
   },
   {
-    "name": "env_logger",
-    "version": "0.10.0",
-    "authors": null,
-    "repository": "https://github.com/rust-cli/env_logger/",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A logging implementation for `log` which is configured via an environment variable."
-  },
-  {
     "name": "errno",
     "version": "0.3.1",
     "authors": "Chris Wong <lambda.fairy@gmail.com>",
@@ -1062,15 +1053,6 @@
     "description": "HTTP date parsing and formatting"
   },
   {
-    "name": "humantime",
-    "version": "2.1.0",
-    "authors": "Paul Colomiets <paul@colomiets.name>",
-    "repository": "https://github.com/tailhook/humantime",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A parser and formatter for std::time::{Duration, SystemTime}"
-  },
-  {
     "name": "hyper",
     "version": "0.14.25",
     "authors": "Sean McArthur <sean@seanmonstar.com>",
@@ -1204,15 +1186,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Provides types and useful methods for working with IPv4 and IPv6 network addresses, commonly called IP prefixes. The new `IpNet`, `Ipv4Net`, and `Ipv6Net` types build on the existing `IpAddr`, `Ipv4Addr`, and `Ipv6Addr` types already provided in Rust's standard library and align to their design to stay consistent. The module also provides useful traits that extend `Ipv4Addr` and `Ipv6Addr` with methods for `Add`, `Sub`, `BitAnd`, and `BitOr` operations. The module only uses stable feature so it is guaranteed to compile using the stable toolchain."
-  },
-  {
-    "name": "is-terminal",
-    "version": "0.4.6",
-    "authors": "softprops <d.tangren@gmail.com>|Dan Gohman <dev@sunfishcode.online>",
-    "repository": "https://github.com/sunfishcode/is-terminal",
-    "license": "MIT",
-    "license_file": null,
-    "description": "Test whether a given stream is a terminal"
   },
   {
     "name": "itertools",
