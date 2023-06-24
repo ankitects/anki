@@ -13,7 +13,6 @@ anyhow.workspace = true
 camino.workspace = true
 clap.workspace = true
 flate2.workspace = true
-itertools.workspace = true
 junction.workspace = true
 reqwest = { workspace = true, features = ["rustls-tls", "rustls-tls-native-roots"] }
 sha2.workspace = true

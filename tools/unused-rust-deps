@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cargo install cargo-udeps@0.1.40
+cargo +nightly-2023-01-24-x86_64-unknown-linux-gnu udeps --all-targets

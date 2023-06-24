@@ -19,7 +19,6 @@ prost-reflect.workspace = true
 prost-types.workspace = true
 
 [dependencies]
-num_enum.workspace = true
 prost.workspace = true
 serde.workspace = true
 snafu.workspace = true

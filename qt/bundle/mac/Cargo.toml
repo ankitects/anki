@@ -13,7 +13,6 @@ apple-bundles.workspace = true
 camino.workspace = true
 clap.workspace = true
 glob.workspace = true
-lazy_static.workspace = true
 plist.workspace = true
 serde.workspace = true
 serde_json.workspace = true
