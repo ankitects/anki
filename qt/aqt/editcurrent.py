@@ -7,7 +7,7 @@ from anki.collection import OpChanges
 from anki.errors import NotFoundError
 from aqt import gui_hooks
 from aqt.qt import *
-from aqt.utils import disable_help_button, restoreGeom, saveGeom, tr
+from aqt.utils import disable_help_button, restoreGeom, saveGeom, tooltip, tr
 
 
 class EditCurrent(QDialog):
@@ -53,9 +53,11 @@ class EditCurrent(QDialog):
 
     def update_io_hide_all_note(self) -> None:
         self.editor.web.eval("setOcclusionField(true)")
+        tooltip(tr.importing_updated(), period=500)
 
     def update_io_hide_one_note(self) -> None:
         self.editor.web.eval("setOcclusionField(false)")
+        tooltip(tr.importing_updated(), period=500)
 
     def on_operation_did_execute(
         self, changes: OpChanges, handler: Optional[object]

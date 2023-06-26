@@ -19,6 +19,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let api = {};
 
+    // reset for new occlusion in add mode
+    const resetIOImageLoaded = () => {
+        ioImageLoaded.set(false);
+        buttonPressed = false;
+        globalThis.canvas.clear();
+    };
+    globalThis.resetIOImageLoaded = resetIOImageLoaded;
+
     let buttonPressed = false;
 </script>
 

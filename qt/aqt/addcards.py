@@ -381,10 +381,12 @@ class AddCards(QMainWindow):
     def add_io_hide_all_note(self) -> None:
         self.editor.web.eval("setOcclusionField(true)")
         self.add_current_note()
+        self.editor.web.eval("resetIOImageLoaded()")
 
     def add_io_hide_one_note(self) -> None:
         self.editor.web.eval("setOcclusionField(false)")
         self.add_current_note()
+        self.editor.web.eval("resetIOImageLoaded()")
 
     # legacy aliases
 
