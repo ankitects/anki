@@ -69,7 +69,8 @@ impl Collection {
     }
 
     fn card_record(&mut self, card: CardId, with_html: bool) -> Result<[String; 2]> {
-        let RenderCardOutput { qnodes, anodes, .. } = self.render_existing_card(card, false)?;
+        let RenderCardOutput { qnodes, anodes, .. } =
+            self.render_existing_card(card, false, false)?;
         Ok([
             rendered_nodes_to_record_field(&qnodes, with_html, false),
             rendered_nodes_to_record_field(&anodes, with_html, true),

@@ -90,7 +90,7 @@ impl crate::services::CardRenderingService for Collection {
         &mut self,
         input: anki_proto::card_rendering::RenderExistingCardRequest,
     ) -> Result<anki_proto::card_rendering::RenderCardResponse> {
-        self.render_existing_card(CardId(input.card_id), input.browser)
+        self.render_existing_card(CardId(input.card_id), input.browser, input.partial_render)
             .map(Into::into)
     }
 
@@ -103,7 +103,7 @@ impl crate::services::CardRenderingService for Collection {
         let ord = input.card_ord as u16;
         let fill_empty = input.fill_empty;
 
-        self.render_uncommitted_card(&mut note, &template, ord, fill_empty)
+        self.render_uncommitted_card(&mut note, &template, ord, fill_empty, input.partial_render)
             .map(Into::into)
     }
 
@@ -117,7 +117,7 @@ impl crate::services::CardRenderingService for Collection {
         let ord = input.card_ord as u16;
         let fill_empty = input.fill_empty;
 
-        self.render_uncommitted_card(&mut note, &template, ord, fill_empty)
+        self.render_uncommitted_card(&mut note, &template, ord, fill_empty, input.partial_render)
             .map(Into::into)
     }
 

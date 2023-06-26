@@ -22,6 +22,7 @@ use crate::cloze::add_cloze_numbers_in_string;
 use crate::error::AnkiError;
 use crate::error::Result;
 use crate::error::TemplateError;
+use crate::invalid_input;
 use crate::template_filters::apply_filters;
 
 pub type FieldMap<'a> = HashMap<&'a str, u16>;
@@ -387,8 +388,14 @@ pub enum RenderedNode {
 pub(crate) struct RenderContext<'a> {
     pub fields: &'a HashMap<&'a str, Cow<'a, str>>,
     pub nonempty_fields: &'a HashSet<&'a str>,
-    pub question_side: bool,
     pub card_ord: u16,
+    /// Should be set before rendering the answer, even if `partial_for_python`
+    /// is true.
+    pub frontside: Option<&'a str>,
+    /// If true, question/answer will not be fully rendered if an unknown filter
+    /// is encountered, and the frontend code will need to complete the
+    /// rendering.
+    pub partial_for_python: bool,
 }
 
 impl ParsedTemplate {
@@ -418,62 +425,75 @@ fn render_into(
                 append_str_to_nodes(rendered_nodes, text);
             }
             Replacement { key, .. } if key == "FrontSide" => {
-                // defer FrontSide rendering to Python, as extra
-                // filters may be required
-                rendered_nodes.push(RenderedNode::Replacement {
-                    field_name: (*key).to_string(),
-                    filters: vec![],
-                    current_text: "".into(),
-                });
-            }
-            Replacement { key, filters } if key.is_empty() && !filters.is_empty() => {
-                // if a filter is provided, we accept an empty field name to
-                // mean 'pass an empty string to the filter, and it will add
-                // its own text'
-                rendered_nodes.push(RenderedNode::Replacement {
-                    field_name: "".to_string(),
-                    current_text: "".to_string(),
-                    filters: filters.clone(),
-                })
+                if let Some(frontside) = &context.frontside {
+                    if context.partial_for_python {
+                        // defer FrontSide rendering to Python, as extra
+                        // filters may be required
+                        rendered_nodes.push(RenderedNode::Replacement {
+                            field_name: (*key).to_string(),
+                            filters: vec![],
+                            current_text: "".into(),
+                        });
+                    } else {
+                        append_str_to_nodes(rendered_nodes, frontside);
+                    }
+                } else {
+                    // Not valid on the question side
+                    return Err(TemplateError::FieldNotFound {
+                        field: "FrontSide".into(),
+                        filters: "".into(),
+                    });
+                }
             }
             Replacement { key, filters } => {
-                // apply built in filters if field exists
-                let (text, remaining_filters) = match context.fields.get(key.as_str()) {
-                    Some(text) => apply_filters(
-                        text,
-                        filters
-                            .iter()
-                            .map(|s| s.as_str())
-                            .collect::<Vec<_>>()
-                            .as_slice(),
-                        key,
-                        context,
-                    ),
-                    None => {
-                        // unknown field encountered
-                        let filters_str = filters
-                            .iter()
-                            .rev()
-                            .cloned()
-                            .chain(iter::once("".into()))
-                            .collect::<Vec<_>>()
-                            .join(":");
-                        return Err(TemplateError::FieldNotFound {
-                            field: (*key).to_string(),
-                            filters: filters_str,
+                if context.partial_for_python && key.is_empty() && !filters.is_empty() {
+                    // if a filter is provided, we accept an empty field name to
+                    // mean 'pass an empty string to the filter, and it will add
+                    // its own text'
+                    rendered_nodes.push(RenderedNode::Replacement {
+                        field_name: "".to_string(),
+                        current_text: "".to_string(),
+                        filters: filters.clone(),
+                    });
+                } else {
+                    // apply built in filters if field exists
+                    let (text, remaining_filters) = match context.fields.get(key.as_str()) {
+                        Some(text) => apply_filters(
+                            text,
+                            filters
+                                .iter()
+                                .map(|s| s.as_str())
+                                .collect::<Vec<_>>()
+                                .as_slice(),
+                            key,
+                            context,
+                        ),
+                        None => {
+                            // unknown field encountered
+                            let filters_str = filters
+                                .iter()
+                                .rev()
+                                .cloned()
+                                .chain(iter::once("".into()))
+                                .collect::<Vec<_>>()
+                                .join(":");
+                            return Err(TemplateError::FieldNotFound {
+                                field: (*key).to_string(),
+                                filters: filters_str,
+                            });
+                        }
+                    };
+
+                    // fully processed?
+                    if remaining_filters.is_empty() {
+                        append_str_to_nodes(rendered_nodes, text.as_ref())
+                    } else {
+                        rendered_nodes.push(RenderedNode::Replacement {
+                            field_name: (*key).to_string(),
+                            filters: remaining_filters,
+                            current_text: text.into(),
                         });
                     }
-                };
-
-                // fully processed?
-                if remaining_filters.is_empty() {
-                    append_str_to_nodes(rendered_nodes, text.as_ref())
-                } else {
-                    rendered_nodes.push(RenderedNode::Replacement {
-                        field_name: (*key).to_string(),
-                        filters: remaining_filters,
-                        current_text: text.into(),
-                    });
                 }
             }
             Conditional { key, children } => {
@@ -529,24 +549,6 @@ fn append_str_to_nodes(nodes: &mut Vec<RenderedNode>, text: &str) {
     }
 }
 
-/// Return the resolved text of a list of nodes, ignoring any unknown
-/// filters that were encountered.
-pub(crate) fn flatten_nodes(nodes: &[RenderedNode]) -> Cow<str> {
-    match nodes {
-        [RenderedNode::Text { text }] => text.into(),
-        nodes => {
-            let mut buf = String::new();
-            for node in nodes {
-                match node {
-                    RenderedNode::Text { text } => buf.push_str(text),
-                    RenderedNode::Replacement { current_text, .. } => buf.push_str(current_text),
-                }
-            }
-            buf.into()
-        }
-    }
-}
-
 /// True if provided text contains only whitespace and/or empty BR/DIV tags.
 pub(crate) fn field_is_empty(text: &str) -> bool {
     lazy_static! {
@@ -583,22 +585,36 @@ where
 // Rendering both sides
 //----------------------------------------
 
-#[allow(clippy::implicit_hasher)]
+pub struct RenderCardRequest<'a> {
+    pub qfmt: &'a str,
+    pub afmt: &'a str,
+    pub field_map: &'a HashMap<&'a str, Cow<'a, str>>,
+    pub card_ord: u16,
+    pub is_cloze: bool,
+    pub browser: bool,
+    pub tr: &'a I18n,
+    pub partial_render: bool,
+}
+
 pub fn render_card(
-    qfmt: &str,
-    afmt: &str,
-    field_map: &HashMap<&str, Cow<str>>,
-    card_ord: u16,
-    is_cloze: bool,
-    browser: bool,
-    tr: &I18n,
+    RenderCardRequest {
+        qfmt,
+        afmt,
+        field_map,
+        card_ord,
+        is_cloze,
+        browser,
+        tr,
+        partial_render: partial_for_python,
+    }: RenderCardRequest<'_>,
 ) -> Result<(Vec<RenderedNode>, Vec<RenderedNode>)> {
     // prepare context
     let mut context = RenderContext {
         fields: field_map,
         nonempty_fields: &nonempty_fields(field_map),
-        question_side: true,
+        frontside: None,
         card_ord,
+        partial_for_python,
     };
 
     // question side
@@ -630,7 +646,14 @@ pub fn render_card(
     }
 
     // answer side
-    context.question_side = false;
+    context.frontside = if context.partial_for_python {
+        Some("")
+    } else {
+        let Some(RenderedNode::Text {text }) = &qnodes.get(0) else {
+            invalid_input!("should not happen: first node not text");
+        };
+        Some(text)
+    };
     let anodes = ParsedTemplate::from_text(afmt)
         .and_then(|tmpl| tmpl.render(&context, tr))
         .map_err(|e| template_error_to_anki_error(e, false, browser, tr))?;
@@ -873,6 +896,7 @@ mod test {
     use crate::template::field_is_empty;
     use crate::template::nonempty_fields;
     use crate::template::FieldRequirements;
+    use crate::template::RenderCardRequest;
     use crate::template::RenderContext;
 
     #[test]
@@ -1081,8 +1105,9 @@ mod test {
         let ctx = RenderContext {
             fields: &map,
             nonempty_fields: &nonempty_fields(&map),
-            question_side: true,
+            frontside: None,
             card_ord: 1,
+            partial_for_python: true,
         };
 
         use crate::template::RenderedNode as FN;
@@ -1198,9 +1223,18 @@ mod test {
         let tr = I18n::template_only();
         use crate::template::RenderedNode as FN;
 
-        let qnodes = super::render_card("test{{E}}", "", &map, 1, false, false, &tr)
-            .unwrap()
-            .0;
+        let qnodes = super::render_card(RenderCardRequest {
+            qfmt: "test{{E}}",
+            afmt: "",
+            field_map: &map,
+            card_ord: 1,
+            is_cloze: false,
+            browser: false,
+            tr: &tr,
+            partial_render: true,
+        })
+        .unwrap()
+        .0;
         assert_eq!(
             qnodes[0],
             FN::Text {
