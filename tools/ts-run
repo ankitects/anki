@@ -1,6 +1,0 @@
-#!/bin/bash
-#
-# The pages can be accessed by, eg surfing to
-# http://localhost:40000/_anki/pages/deckconfig.html
-
-QTWEBENGINE_REMOTE_DEBUGGING=8080 ANKI_API_PORT=40000 ./run $*

@@ -4,7 +4,14 @@ set -e
 
 export PYTHONWARNINGS=default
 export PYTHONPYCACHEPREFIX=out/pycache
-export ANKIDEV=1
+# define these as blank before calling the script if you want to disable them
+export ANKIDEV=${ANKIDEV-1}
+export QTWEBENGINE_REMOTE_DEBUGGING=${QTWEBENGINE_REMOTE_DEBUGGING-8080}
+# The pages can be accessed by, e.g. surfing to
+# http://localhost:40000/_anki/pages/deckconfig.html
+# Useful in conjunction with tools/web-watch for auto-rebuilding.
+export ANKI_API_PORT=${ANKI_API_PORT-40000}
+export ANKI_API_HOST=${ANKI_API_HOST-localhost}
 
 ./ninja pylib qt
 ./out/pyenv/bin/python tools/run.py $*
