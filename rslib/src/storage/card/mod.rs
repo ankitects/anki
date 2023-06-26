@@ -355,6 +355,10 @@ impl super::SqliteStorage {
             .execute(params![mtime, usn])?;
         other_cnt += self
             .db
+            .prepare(include_str!("fix_mod.sql"))?
+            .execute(params![])?;
+        other_cnt += self
+            .db
             .prepare(include_str!("fix_ordinal.sql"))?
             .execute(params![mtime, usn])?;
         Ok((new_cnt, other_cnt))
