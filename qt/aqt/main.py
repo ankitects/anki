@@ -476,9 +476,8 @@ class AnkiQt(QMainWindow):
         self.setup_sound()
         self.flags = FlagManager(self)
         # show main window
-        if self.pm.profile.get("mainWindowState"):
-            restoreGeom(self, "mainWindow")
-            restoreState(self, "mainWindow")
+        restoreGeom(self, "mainWindow")
+        restoreState(self, "mainWindow")
         # titlebar
         self.setWindowTitle(f"{self.pm.name} - Anki")
         # show and raise window for osx
