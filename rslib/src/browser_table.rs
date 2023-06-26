@@ -257,7 +257,7 @@ impl RenderContext {
     fn new(col: &mut Collection, card: &Card, note: &Note, notetype: &Notetype) -> Self {
         match notetype
             .get_template(card.template_idx)
-            .and_then(|template| col.render_card(note, card, notetype, template, true))
+            .and_then(|template| col.render_card(note, card, notetype, template, true, true))
         {
             Ok(render) => RenderContext::Ok {
                 question: rendered_nodes_to_str(&render.qnodes),

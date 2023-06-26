@@ -262,6 +262,7 @@ class TemplateRenderContext:
                 card_ord=self._card.ord,
                 template=to_json_bytes(self._template),
                 fill_empty=self._fill_empty,
+                partial_render=True,
             )
             # when rendering card layout, the css changes have not been
             # committed; we need the current notetype instance instead
@@ -269,7 +270,7 @@ class TemplateRenderContext:
         else:
             # existing card (eg study mode)
             out = self._col._backend.render_existing_card(
-                card_id=self._card.id, browser=self._browser
+                card_id=self._card.id, browser=self._browser, partial_render=True
             )
         return PartiallyRenderedCard.from_proto(out)
 

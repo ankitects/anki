@@ -19,8 +19,9 @@ use crate::text::strip_html;
 /// Applies built in filters, returning the resulting text and remaining
 /// filters.
 ///
-/// The first non-standard filter that is encountered will terminate processing,
-/// so non-standard filters must come at the end.
+/// If [context.partial_for_python] is true, the first non-standard filter that
+/// is encountered will terminate processing, so non-standard filters must come
+/// at the end. If false, missing filters are ignored.
 pub(crate) fn apply_filters<'a>(
     text: &'a str,
     filters: &[&str],
@@ -46,11 +47,14 @@ pub(crate) fn apply_filters<'a>(
                 text = output.into();
             }
             (false, _) => {
-                // unrecognized filter, return current text and remaining filters
-                return (
-                    text,
-                    filters.iter().skip(idx).map(ToString::to_string).collect(),
-                );
+                // unrecognized filter
+                if context.partial_for_python {
+                    //  return current text and remaining filters
+                    return (
+                        text,
+                        filters.iter().skip(idx).map(ToString::to_string).collect(),
+                    );
+                }
             }
         }
     }
@@ -236,8 +240,9 @@ field</a>
         let ctx = RenderContext {
             fields: &Default::default(),
             nonempty_fields: &Default::default(),
-            question_side: false,
+            frontside: Some(""),
             card_ord: 0,
+            partial_for_python: true,
         };
         assert_eq!(
             apply_filters("ignored", &["cloze", "type"], "Text", &ctx),
@@ -251,8 +256,9 @@ field</a>
         let mut ctx = RenderContext {
             fields: &Default::default(),
             nonempty_fields: &Default::default(),
-            question_side: true,
+            frontside: None,
             card_ord: 0,
+            partial_for_python: true,
         };
         assert_eq!(strip_html(&cloze_filter(text, &ctx)).as_ref(), "[...] two");
         assert_eq!(
@@ -263,7 +269,7 @@ field</a>
         ctx.card_ord = 1;
         assert_eq!(strip_html(&cloze_filter(text, &ctx)).as_ref(), "one [hint]");
 
-        ctx.question_side = false;
+        ctx.frontside = Some("");
         assert_eq!(strip_html(&cloze_filter(text, &ctx)).as_ref(), "one two");
 
         // if the provided ordinal did not match any cloze deletions,

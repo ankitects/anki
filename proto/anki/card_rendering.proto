@@ -93,6 +93,10 @@ message EmptyCardsReport {
 message RenderExistingCardRequest {
   int64 card_id = 1;
   bool browser = 2;
+  // If true, rendering will stop when an unknown filter is encountered,
+  // and caller will need to complete rendering. This is done to allow
+  // Python code to modify the rendering.
+  bool partial_render = 3;
 }
 
 message RenderUncommittedCardRequest {
@@ -100,6 +104,10 @@ message RenderUncommittedCardRequest {
   uint32 card_ord = 2;
   notetypes.Notetype.Template template = 3;
   bool fill_empty = 4;
+  // If true, rendering will stop when an unknown filter is encountered,
+  // and caller will need to complete rendering. This is done to allow
+  // Python code to modify the rendering.
+  bool partial_render = 5;
 }
 
 message RenderUncommittedCardLegacyRequest {
@@ -107,6 +115,10 @@ message RenderUncommittedCardLegacyRequest {
   uint32 card_ord = 2;
   bytes template = 3;
   bool fill_empty = 4;
+  // If true, rendering will stop when an unknown filter is encountered,
+  // and caller will need to complete rendering. This is done to allow
+  // Python code to modify the rendering.
+  bool partial_render = 5;
 }
 
 message RenderCardResponse {

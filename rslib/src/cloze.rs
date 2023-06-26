@@ -410,14 +410,14 @@ fn strip_html_inside_mathjax(text: &str) -> Cow<str> {
 
 pub(crate) fn cloze_filter<'a>(text: &'a str, context: &RenderContext) -> Cow<'a, str> {
     strip_html_inside_mathjax(
-        reveal_cloze_text(text, context.card_ord + 1, context.question_side).as_ref(),
+        reveal_cloze_text(text, context.card_ord + 1, context.frontside.is_none()).as_ref(),
     )
     .into_owned()
     .into()
 }
 
 pub(crate) fn cloze_only_filter<'a>(text: &'a str, context: &RenderContext) -> Cow<'a, str> {
-    reveal_cloze_text_only(text, context.card_ord + 1, context.question_side)
+    reveal_cloze_text_only(text, context.card_ord + 1, context.frontside.is_none())
 }
 
 #[cfg(test)]
