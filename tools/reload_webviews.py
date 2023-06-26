@@ -41,7 +41,7 @@ try:
     chrome = PyChromeDevTools.ChromeInterface(host=args.host, port=args.port)
 except Exception as e:
     print_error(
-        f"Could not establish connection to Chromium remote debugger. Exception:\n{e}"
+        f"Could not establish connection to Chromium remote debugger. Is Anki Open? Exception:\n{e}"
     )
     exit(1)
 
