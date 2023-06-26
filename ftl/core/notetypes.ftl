@@ -52,3 +52,4 @@ notetypes-error-getting-imagecloze = An error occurred while fetching an image o
 notetypes-error-loading-image-occlusion = Error loading image occlusion. Is your Anki version up to date?
 notetype-error-no-image-to-show = No image to show.
 notetypes-no-occlusion-created = No occlusion note created.
+notetypes-io-select-image = Select Image

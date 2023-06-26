@@ -384,6 +384,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     import { wrapInternal } from "@tslib/wrap";
+    import LabelButton from "components/LabelButton.svelte";
     import Shortcut from "components/Shortcut.svelte";
     import { setupImageOcclusion } from "image-occlusion";
     import type { IOMode } from "image-occlusion/lib";
@@ -397,7 +398,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let isShowMaskEditor = false;
     function toggleMaskEditor(show: boolean) {
         isShowMaskEditor = show;
-        const element = document.querySelector(".image-occlusion") as HTMLElement;
+        const element = document.getElementById("io-mask-editor") as HTMLElement;
         const ioMaskBtn = document.getElementById("io-mask-btn") as HTMLElement;
         if (isShowMaskEditor) {
             ioMaskBtn?.classList.add("active-io-btn");
@@ -420,24 +421,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             page.remove();
         }
 
-        await setupImageOcclusion(options.mode);
+        const ioMaskEditor = document.getElementById("io-mask-editor") as HTMLElement;
+        const ioSelectImageDiv = document.getElementById(
+            "io-select-image-div",
+        ) as HTMLElement;
+
+        await setupImageOcclusion(options.mode, ioMaskEditor);
         toggleMaskEditor(true);
         ioImageLoaded.set(true);
-        adjustMaskEditorPosition();
-        // add event listener for window resize
-        window.addEventListener("resize", adjustMaskEditorPosition);
-    }
 
-    // adjust position (top) of image occlusion page w.r.t note editor toolbar (mask button)
-    function adjustMaskEditorPosition() {
-        const maskBtn = document.getElementById("io-mask-btn") as HTMLElement;
-        const calcTopPos = maskBtn.getBoundingClientRect().top;
-        const ioPage = document.querySelector(".image-occlusion") as HTMLElement;
-        const toolBar = ioPage.querySelector(".tool-bar-container") as HTMLElement;
-        const bottomBtn = document.querySelector(".sticky-footer") as HTMLElement;
-        ioPage.style.top = calcTopPos + 36 + "px";
-        toolBar.style.top = calcTopPos + 38 + "px";
-        bottomBtn.style.display = "none";
+        if (ioSelectImageDiv) {
+            ioSelectImageDiv.remove();
+        }
     }
 
     function setOcclusionField(occludeInactive: boolean) {
@@ -546,6 +541,22 @@ the AddCards dialog) should be implemented in the user of this component.
                 <span>{@html hint}</span>
             </Notification>
         </Absolute>
+    {/if}
+
+    <!-- for init maskeditor -->
+    <div id="io-mask-editor" style="display: none;" />
+
+    {#if isShowMaskEditor && !get(ioImageLoaded)}
+        <div id="io-select-image-div" style="padding-top: 60px; text-align: center">
+            <LabelButton
+                --border-left-radius="5px"
+                --border-right-radius="5px"
+                class="io-select-image-btn"
+                on:click={() => bridgeCommand("addImageForOcclusion")}
+            >
+                {tr.notetypesIoSelectImage()}
+            </LabelButton>
+        </div>
     {/if}
 
     {#if !isShowMaskEditor}
@@ -704,9 +715,21 @@ the AddCards dialog) should be implemented in the user of this component.
     :global(.top-tool-bar-container .icon-button) {
         height: 36px !important;
     }
+    :global(.image-occlusion .tool-bar-container) {
+        top: 36px !important;
+    }
 
     :global(.active-io-btn) {
         background: var(--button-primary-bg) !important;
         color: white !important;
+    }
+
+    :global(.io-select-image-btn) {
+        margin: auto;
+        padding: 0px 8px 0px 8px !important;
+    }
+
+    :global(.image-occlusion .sticky-footer) {
+        display: none;
     }
 </style>

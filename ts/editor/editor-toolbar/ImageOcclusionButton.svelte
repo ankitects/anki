@@ -7,7 +7,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DynamicallySlottable from "components/DynamicallySlottable.svelte";
     import IconButton from "components/IconButton.svelte";
     import { ioImageLoaded } from "image-occlusion/store";
-    import { get } from "svelte/store";
 
     import ButtonGroupItem, {
         createProps,
@@ -27,7 +26,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
     globalThis.resetIOImageLoaded = resetIOImageLoaded;
 
-    let buttonPressed = false;
+    // in mask editor so button pressed by default
+    let buttonPressed = true;
 </script>
 
 <ButtonGroup>
@@ -42,11 +42,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <IconButton
                 id="io-mask-btn"
                 on:click={() => {
-                    // run this bridge when image not added
-                    if (get(ioImageLoaded) === false) {
-                        bridgeCommand("addImageForOcclusion");
-                    }
-
                     if (buttonPressed) {
                         bridgeCommand(`toggleMaskEditor:${false}`);
                         buttonPressed = false;
