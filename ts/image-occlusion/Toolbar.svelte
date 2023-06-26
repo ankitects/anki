@@ -5,18 +5,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script>
     import IconButton from "../components/IconButton.svelte";
     import { mdiEye, mdiFormatAlignCenter } from "./icons";
+    import { drawEllipse, drawPolygon, drawRectangle } from "./tools/index";
     import { makeMaskTransparent } from "./tools/lib";
+    import { enableSelectable, stopDraw } from "./tools/lib";
     import {
         alignTools,
         deleteDuplicateTools,
         groupUngroupTools,
         zoomTools,
     } from "./tools/more-tools";
+    import { tools } from "./tools/tool-buttons";
     import { undoRedoTools } from "./tools/tool-undo-redo";
 
     export let canvas;
     export let instance;
     export let iconSize;
+    export let activeTool = "cursor";
     let showAlignTools = false;
     let leftPos = 82;
     let maksOpacity = false;
@@ -27,7 +31,52 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             showAlignTools = false;
         }
     });
+
+    // handle tool changes after initialization
+    $: if (instance && canvas) {
+        disableFunctions();
+        enableSelectable(canvas, true);
+
+        switch (activeTool) {
+            case "magnify":
+                enableSelectable(canvas, false);
+                instance.resume();
+                break;
+            case "draw-rectangle":
+                drawRectangle(canvas);
+                break;
+            case "draw-ellipse":
+                drawEllipse(canvas);
+                break;
+            case "draw-polygon":
+                drawPolygon(canvas, instance);
+                break;
+            default:
+                break;
+        }
+    }
+
+    const disableFunctions = () => {
+        instance.pause();
+        stopDraw(canvas);
+        canvas.selectionColor = "rgba(100, 100, 255, 0.3)";
+    };
 </script>
+
+<div class="tool-bar-container">
+    {#each tools as tool}
+        <IconButton
+            class="tool-icon-button {activeTool == tool.id ? 'active-tool' : ''}"
+            {iconSize}
+            active={activeTool === tool.id}
+            on:click={() => {
+                activeTool = tool.id;
+            }}
+        >
+            {@html tool.icon}
+        </IconButton>
+    {/each}
+</div>
 
 <div class="top-tool-bar-container">
     <!-- undo & redo tools -->
@@ -189,5 +238,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ::-webkit-scrollbar {
         width: 0.1em !important;
         height: 0.1em !important;
+    }
+
+    .tool-bar-container {
+        position: fixed;
+        top: 42px;
+        left: 2px;
+        height: 100%;
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        width: 32px;
+        z-index: 99;
+        background: var(--canvas-elevated);
+        padding-bottom: 100px;
+    }
+
+    :global(.tool-icon-button) {
+        border: unset;
+        display: block;
+        width: 32px;
+        height: 32px;
+        margin: unset;
+        padding: 6px !important;
+    }
+
+    :global(.active-tool) {
+        color: white !important;
+        background: var(--button-primary-bg) !important;
     }
 </style>

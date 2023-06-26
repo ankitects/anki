@@ -8,10 +8,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type { IOMode } from "./lib";
     import { setupMaskEditor, setupMaskEditorForEdit } from "./mask-editor";
-    import SideToolbar from "./SideToolbar.svelte";
+    import Toolbar from "./Toolbar.svelte";
 
     export let mode: IOMode;
-
+    const iconSize = 80;
     let instance: PanZoom;
     let innerWidth = 0;
     const startingTool = mode.kind === "add" ? "draw-rectangle" : "cursor";
@@ -39,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<SideToolbar {instance} {canvas} activeTool={startingTool} />
+<Toolbar {canvas} {instance} {iconSize} activeTool={startingTool} />
 <div class="editor-main" bind:clientWidth={innerWidth}>
     <div class="editor-container" use:init>
         <!-- svelte-ignore a11y-missing-attribute -->

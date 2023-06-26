@@ -556,11 +556,20 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setCloseHTMLTags({json.dumps(self.mw.col.get_config("closeHTMLTags", True))});
             triggerChanges();
             setIsImageOcclusion({json.dumps(self.current_notetype_is_image_occlusion())});
+            setIsBrowseMode({json.dumps(self.editorMode == EditorMode.BROWSER)})
             """
 
         if self.addMode:
             sticky = [field["sticky"] for field in self.note.note_type()["flds"]]
             js += " setSticky(%s);" % json.dumps(sticky)
+
+        if (
+            self.editorMode != EditorMode.ADD_CARDS
+            and self.current_notetype_is_image_occlusion()
+        ):
+            options = {"kind": "edit", "noteId": self.note.id}
+            options = {"mode": options}
+            js += " setupMaskEditor(%s);" % json.dumps(options)
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
@@ -1206,18 +1215,13 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 showWarning(str(e))
                 return
 
-        if self.addMode:
-            file = getFile(
-                parent=self.widget,
-                title=tr.editing_add_media(),
-                cb=cast(Callable[[Any], None], accept),
-                filter=filter,
-                key="media",
-            )
-        else:
-            options = {"kind": "edit", "noteId": self.note.id}
-            options = {"mode": options}
-            self.web.eval(f"setupMaskEditor({options})")
+        file = getFile(
+            parent=self.widget,
+            title=tr.editing_add_media(),
+            cb=cast(Callable[[Any], None], accept),
+            filter=filter,
+            key="media",
+        )
 
         self.parentWindow.activateWindow()
 

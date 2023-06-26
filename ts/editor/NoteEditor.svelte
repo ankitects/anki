@@ -243,9 +243,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return noteId;
     }
 
-    let isImageOcclusion = false;
+    $: isImageOcclusion = false;
     function setIsImageOcclusion(val: boolean) {
         isImageOcclusion = val;
+
+        if (isImageOcclusion) {
+            toggleMaskEditor(true);
+        } else {
+            toggleMaskEditor(false);
+        }
+    }
+
+    $: isBrowseMode = false;
+    function setIsBrowseMode(val: boolean) {
+        isBrowseMode = val;
     }
 
     let cols: ("dupe" | "")[] = [];
@@ -389,13 +400,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setupImageOcclusion } from "image-occlusion";
     import type { IOMode } from "image-occlusion/lib";
     import { exportShapesToClozeDeletions } from "image-occlusion/shapes/to-cloze";
-    import { ioImageLoaded } from "image-occlusion/store";
+    import StickyFooter from "image-occlusion/StickyFooter.svelte";
 
     import { mathjaxConfig } from "../editable/mathjax-element";
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
-    let isShowMaskEditor = false;
+    $: isShowMaskEditor = false;
+    $: isIOImageLoaded = false;
     function toggleMaskEditor(show: boolean) {
         isShowMaskEditor = show;
         const element = document.getElementById("io-mask-editor") as HTMLElement;
@@ -416,7 +428,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         // remove old page for new image occlusion
-        const page = document.querySelector(".image-occlusion");
+        const page = document.querySelector(".image-occlusion") as HTMLElement;
         if (page) {
             page.remove();
         }
@@ -425,15 +437,45 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const ioSelectImageDiv = document.getElementById(
             "io-select-image-div",
         ) as HTMLElement;
-
-        await setupImageOcclusion(options.mode, ioMaskEditor);
-        toggleMaskEditor(true);
-        ioImageLoaded.set(true);
-
         if (ioSelectImageDiv) {
             ioSelectImageDiv.remove();
         }
+
+        await setupImageOcclusion(options.mode, ioMaskEditor);
+        setupIOButtons(ioMaskEditor);
+        toggleMaskEditor(true);
+        isIOImageLoaded = true;
     }
+
+    // setup buttons to generate cloze deletions and set occlusion fields
+    function setupIOButtons(element: HTMLElement) {
+        function hideAllGuessOne() {
+            setOcclusionField(true);
+        }
+        function hideOneGuessOne() {
+            setOcclusionField(false);
+        }
+        if (isBrowseMode) {
+            new StickyFooter({
+                target: element,
+                props: {
+                    hideAllGuessOne,
+                    hideOneGuessOne,
+                },
+            });
+        }
+    }
+
+    // reset for new occlusion in add mode
+    function resetIOImageLoaded() {
+        isIOImageLoaded = false;
+        globalThis.canvas.clear();
+        const page = document.querySelector(".image-occlusion");
+        if (page) {
+            page.remove();
+        }
+    }
+    globalThis.resetIOImageLoaded = resetIOImageLoaded;
 
     function setOcclusionField(occludeInactive: boolean) {
         // set fields data for occlusion and image fields for io notes type
@@ -487,6 +529,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setCloseHTMLTags,
             triggerChanges,
             setIsImageOcclusion,
+            setIsBrowseMode,
             toggleMaskEditor,
             setupMaskEditor,
             setOcclusionField,
@@ -546,7 +589,7 @@ the AddCards dialog) should be implemented in the user of this component.
     <!-- for init maskeditor -->
     <div id="io-mask-editor" style="display: none;" />
 
-    {#if isShowMaskEditor && !get(ioImageLoaded)}
+    {#if isShowMaskEditor && isImageOcclusion && !isIOImageLoaded}
         <div id="io-select-image-div" style="padding-top: 60px; text-align: center">
             <LabelButton
                 --border-left-radius="5px"
@@ -716,7 +759,8 @@ the AddCards dialog) should be implemented in the user of this component.
         height: 36px !important;
     }
     :global(.image-occlusion .tool-bar-container) {
-        top: 36px !important;
+        top: unset !important;
+        margin-top: 2px !important;
     }
 
     :global(.active-io-btn) {

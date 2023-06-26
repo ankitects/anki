@@ -6,7 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroup from "components/ButtonGroup.svelte";
     import DynamicallySlottable from "components/DynamicallySlottable.svelte";
     import IconButton from "components/IconButton.svelte";
-    import { ioImageLoaded } from "image-occlusion/store";
 
     import ButtonGroupItem, {
         createProps,
@@ -17,14 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { mdiRefresh, mdiViewDashboard } from "./icons";
 
     export let api = {};
-
-    // reset for new occlusion in add mode
-    const resetIOImageLoaded = () => {
-        ioImageLoaded.set(false);
-        buttonPressed = false;
-        globalThis.canvas.clear();
-    };
-    globalThis.resetIOImageLoaded = resetIOImageLoaded;
 
     // in mask editor so button pressed by default
     let buttonPressed = true;
