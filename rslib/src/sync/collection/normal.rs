@@ -94,7 +94,7 @@ impl NormalSyncer<'_> {
                                 },
                         } = &e
                         {
-                            debug!(?client, ?server, "sanity check failed");
+                            debug!(client_counts=?client, server_counts=?server, "sanity check failed");
                             self.col.set_schema_modified()?;
                         }
 
