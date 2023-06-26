@@ -89,7 +89,7 @@ pub fn server_sanity_check(
     let mut server = match col.storage.sanity_check_info() {
         Ok(info) => info,
         Err(err) => {
-            info!(?client, ?err, "sanity check failed");
+            info!(client_counts=?client, ?err, "sanity check failed");
             return Ok(SanityCheckResponse {
                 status: SanityCheckStatus::Bad,
                 client: Some(client),
@@ -108,7 +108,7 @@ pub fn server_sanity_check(
         status: if client == server {
             SanityCheckStatus::Ok
         } else {
-            info!(?client, ?server, "sanity check failed");
+            info!(client_counts=?client, server_counts=?server, "sanity check failed");
             SanityCheckStatus::Bad
         },
         client: Some(client),
