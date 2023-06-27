@@ -225,7 +225,7 @@ mod test {
 
         // should work even if unknown filters are encountered
         let mut tmpl = nt.templates[0].clone();
-        tmpl.config.q_format = "{{some_filter:Front}}".into();
+        tmpl.config.q_format = "{{some_filter:Front}}{{another_filter:}}".into();
         let out = col.render_uncommitted_card(&mut note, &nt.templates[0], 0, false, false)?;
         assert_eq!(&out.question(), "front");
 

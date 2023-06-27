@@ -446,15 +446,19 @@ fn render_into(
                 }
             }
             Replacement { key, filters } => {
-                if context.partial_for_python && key.is_empty() && !filters.is_empty() {
-                    // if a filter is provided, we accept an empty field name to
-                    // mean 'pass an empty string to the filter, and it will add
-                    // its own text'
-                    rendered_nodes.push(RenderedNode::Replacement {
-                        field_name: "".to_string(),
-                        current_text: "".to_string(),
-                        filters: filters.clone(),
-                    });
+                if key.is_empty() && !filters.is_empty() {
+                    if context.partial_for_python {
+                        // if a filter is provided, we accept an empty field name to
+                        // mean 'pass an empty string to the filter, and it will add
+                        // its own text'
+                        rendered_nodes.push(RenderedNode::Replacement {
+                            field_name: "".to_string(),
+                            current_text: "".to_string(),
+                            filters: filters.clone(),
+                        });
+                    } else {
+                        // nothing to do
+                    }
                 } else {
                     // apply built in filters if field exists
                     let (text, remaining_filters) = match context.fields.get(key.as_str()) {
