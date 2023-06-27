@@ -11,7 +11,7 @@ export QTWEBENGINE_REMOTE_DEBUGGING=${QTWEBENGINE_REMOTE_DEBUGGING-8080}
 # http://localhost:40000/_anki/pages/deckconfig.html
 # Useful in conjunction with tools/web-watch for auto-rebuilding.
 export ANKI_API_PORT=${ANKI_API_PORT-40000}
-export ANKI_API_HOST=${ANKI_API_HOST-localhost}
+export ANKI_API_HOST=${ANKI_API_HOST-127.0.0.1}
 
 ./ninja pylib qt
 ./out/pyenv/bin/python tools/run.py $*
