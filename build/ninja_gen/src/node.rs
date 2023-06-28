@@ -52,7 +52,7 @@ impl BuildAction for YarnSetup {
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
-        build.add_inputs("", inputs![":extract:node"]);
+        build.add_inputs("", inputs!["$node_binary"]);
         build.add_outputs_ext(
             "bin",
             vec![if cfg!(windows) {
@@ -368,7 +368,7 @@ impl BuildAction for GenTypescriptProto<'_> {
                 .map(|d| format!("-I {d}"))
                 .join(" "),
         );
-        build.add_inputs("protoc", inputs![":extract:protoc:bin"]);
+        build.add_inputs("protoc", inputs!["$protoc_binary"]);
         build.add_inputs("gen-es", inputs![":node_modules:protoc-gen-es"]);
         if cfg!(windows) {
             build.add_env_var(
