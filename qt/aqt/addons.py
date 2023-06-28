@@ -630,7 +630,8 @@ class AddonManager:
 
     def set_config_help_action(self, module: str, action: Callable[[], str]) -> None:
         "Set a callback used to produce config help."
-        self._config_help_actions[module] = action
+        addon = self.addonFromModule(module)
+        self._config_help_actions[addon] = action
 
     def addonConfigHelp(self, module: str) -> str:
         if action := self._config_help_actions.get(module, None):
