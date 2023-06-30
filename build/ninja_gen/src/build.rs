@@ -144,7 +144,8 @@ rule {action_name}
 
     /// Allows you to add dependencies on files or build steps that aren't
     /// required to build the group itself, but are required by consumers of
-    /// that group.
+    /// that group. Can also be used to allow substitution of local binaries
+    /// for downloaded ones (eg :node_binary).
     pub fn add_dependency(&mut self, group: &str, deps: BuildInput) {
         let files = self.expand_inputs(deps);
         let groups = split_groups(group);

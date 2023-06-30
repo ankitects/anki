@@ -35,8 +35,7 @@ pub fn setup_protoc(build: &mut Build) -> Result<()> {
             inputs![":extract:protoc:bin"]
         }
     };
-    let protoc_binary = build.expand_inputs(protoc_binary);
-    build.variable("protoc_binary", &protoc_binary[0]);
+    build.add_dependency("protoc_binary", protoc_binary);
     Ok(())
 }
 

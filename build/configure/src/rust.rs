@@ -87,7 +87,7 @@ fn prepare_proto_descriptors(build: &mut Build) -> Result<()> {
     build.add_action(
         "rslib:proto",
         CargoBuild {
-            inputs: inputs![glob!["{proto,rslib/proto}/**"], "$protoc_binary",],
+            inputs: inputs![glob!["{proto,rslib/proto}/**"], ":protoc_binary",],
             outputs: &[RustOutput::Data(
                 "descriptors.bin",
                 "$builddir/rslib/proto/descriptors.bin",
