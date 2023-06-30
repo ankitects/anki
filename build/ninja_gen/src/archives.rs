@@ -4,6 +4,7 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 
+use anyhow::Result;
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
 
@@ -11,7 +12,6 @@ use crate::action::BuildAction;
 use crate::input::BuildInput;
 use crate::inputs;
 use crate::Build;
-use crate::Result;
 
 #[derive(Clone, Copy, Debug)]
 pub struct OnlineArchive {

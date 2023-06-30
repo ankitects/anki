@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anyhow::Result;
 use ninja_gen::action::BuildAction;
 use ninja_gen::archives::download_and_extract;
 use ninja_gen::archives::empty_manifest;
@@ -14,7 +15,6 @@ use ninja_gen::input::BuildInput;
 use ninja_gen::inputs;
 use ninja_gen::python::PythonEnvironment;
 use ninja_gen::Build;
-use ninja_gen::Result;
 use ninja_gen::Utf8Path;
 
 use crate::anki_version;

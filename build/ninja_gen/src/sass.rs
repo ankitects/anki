@@ -1,13 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anyhow::Result;
+
 use crate::action::BuildAction;
 use crate::cargo::CargoInstall;
 use crate::input::space_separated;
 use crate::input::BuildInput;
 use crate::inputs;
 use crate::Build;
-use crate::Result;
 
 pub struct CompileSassWithGrass {
     pub input: BuildInput,
