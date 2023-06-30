@@ -52,7 +52,7 @@ impl BuildAction for YarnSetup {
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
-        build.add_inputs("", inputs!["$node_binary"]);
+        build.add_inputs("", inputs![":node_binary"]);
         build.add_outputs_ext(
             "bin",
             vec![if cfg!(windows) {
@@ -128,8 +128,7 @@ pub fn setup_node(
             inputs![":extract:node:bin"]
         }
     };
-    let node_binary = build.expand_inputs(node_binary);
-    build.variable("node_binary", &node_binary[0]);
+    build.add_dependency("node_binary", node_binary);
 
     match std::env::var("YARN_BINARY") {
         Ok(path) => {
@@ -176,7 +175,7 @@ impl BuildAction for EsbuildScript<'_> {
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
-        build.add_inputs("node_bin", inputs!["$node_binary"]);
+        build.add_inputs("node_bin", inputs![":node_binary"]);
         build.add_inputs("script", &self.script);
         build.add_inputs("entrypoint", &self.entrypoint);
         build.add_inputs("", inputs!["yarn.lock", ":node_modules", &self.deps]);
@@ -368,7 +367,7 @@ impl BuildAction for GenTypescriptProto<'_> {
                 .map(|d| format!("-I {d}"))
                 .join(" "),
         );
-        build.add_inputs("protoc", inputs!["$protoc_binary"]);
+        build.add_inputs("protoc", inputs![":protoc_binary"]);
         build.add_inputs("gen-es", inputs![":node_modules:protoc-gen-es"]);
         if cfg!(windows) {
             build.add_env_var(
