@@ -34,6 +34,7 @@ pub enum FileOp {
     Persist,
     Sync,
     Metadata,
+    DecodeUtf8Filename,
     /// For legacy errors without any context.
     Unknown,
 }
@@ -59,6 +60,7 @@ impl FileIoError {
                 FileOp::Persist => "persist".into(),
                 FileOp::Sync => "sync".into(),
                 FileOp::Metadata => "get metadata".into(),
+                FileOp::DecodeUtf8Filename => "decode utf8 filename".into(),
             },
             self.path.to_string_lossy(),
             self.source

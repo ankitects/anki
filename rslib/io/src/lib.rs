@@ -8,7 +8,10 @@ use std::io::Read;
 use std::io::Seek;
 use std::path::Component;
 use std::path::Path;
+use std::path::PathBuf;
 
+use camino::Utf8Path;
+use camino::Utf8PathBuf;
 use snafu::ResultExt;
 use tempfile::NamedTempFile;
 
@@ -215,7 +218,8 @@ impl Iterator for ReadDirFiles {
     }
 }
 
-pub fn write_file_if_changed(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> Result<()> {
+/// True if changed.
+pub fn write_file_if_changed(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> Result<bool> {
     let path = path.as_ref();
     let contents = contents.as_ref();
     let changed = {
@@ -225,8 +229,38 @@ pub fn write_file_if_changed(path: impl AsRef<Path>, contents: impl AsRef<[u8]>)
     };
     if changed {
         write_file(path, contents)?;
+        Ok(true)
+    } else {
+        Ok(false)
     }
-    Ok(())
+}
+
+pub trait ToUtf8PathBuf {
+    fn utf8(self) -> Result<Utf8PathBuf>;
+}
+
+impl ToUtf8PathBuf for PathBuf {
+    fn utf8(self) -> Result<Utf8PathBuf> {
+        Utf8PathBuf::from_path_buf(self).map_err(|path| FileIoError {
+            path,
+            op: FileOp::DecodeUtf8Filename,
+            source: std::io::Error::from(std::io::ErrorKind::InvalidData),
+        })
+    }
+}
+
+pub trait ToUtf8Path {
+    fn utf8(&self) -> Result<&Utf8Path>;
+}
+
+impl ToUtf8Path for Path {
+    fn utf8(&self) -> Result<&Utf8Path> {
+        Utf8Path::from_path(self).ok_or_else(|| FileIoError {
+            path: self.into(),
+            op: FileOp::DecodeUtf8Filename,
+            source: std::io::Error::from(std::io::ErrorKind::InvalidData),
+        })
+    }
 }
 
 #[cfg(test)]

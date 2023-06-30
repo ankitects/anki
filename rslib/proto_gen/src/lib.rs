@@ -5,14 +5,24 @@
 //! match.
 
 use std::collections::HashMap;
+use std::path::PathBuf;
 
+use anki_io::read_to_string;
+use anki_io::write_file_if_changed;
+use anki_io::ToUtf8Path;
+use anyhow::Result;
+use camino::Utf8Path;
 use inflections::Inflect;
 use itertools::Either;
 use itertools::Itertools;
+use once_cell::sync::Lazy;
 use prost_reflect::DescriptorPool;
 use prost_reflect::MessageDescriptor;
 use prost_reflect::MethodDescriptor;
 use prost_reflect::ServiceDescriptor;
+use regex::Captures;
+use regex::Regex;
+use walkdir::WalkDir;
 
 /// We look for ExampleService and BackedExampleService, both of which are
 /// expected to exist (but may be empty).
@@ -150,16 +160,16 @@ impl Method {
 
     /// The input type, if not empty.
     pub fn input(&self) -> Option<MessageDescriptor> {
-        msg_if_empty(self.proto.input())
+        msg_if_not_empty(self.proto.input())
     }
 
     /// The output type, if not empty.
     pub fn output(&self) -> Option<MessageDescriptor> {
-        msg_if_empty(self.proto.output())
+        msg_if_not_empty(self.proto.output())
     }
 }
 
-fn msg_if_empty(msg: MessageDescriptor) -> Option<MessageDescriptor> {
+fn msg_if_not_empty(msg: MessageDescriptor) -> Option<MessageDescriptor> {
     if msg.full_name() == "anki.generic.Empty" {
         None
     } else {
@@ -197,5 +207,62 @@ impl<'a> MethodComments<'a> {
             .get(method.parent_file().package_name())
             .and_then(|by_path| by_path.get(method.path()))
             .and_then(|s| if s.is_empty() { None } else { Some(s.into()) })
+    }
+}
+
+pub fn add_must_use_annotations<P, E>(
+    out_dir: &PathBuf,
+    should_process_path: P,
+    is_empty: E,
+) -> Result<()>
+where
+    P: Fn(&Utf8Path) -> bool,
+    E: Fn(&Utf8Path, &str) -> bool,
+{
+    for file in WalkDir::new(out_dir).into_iter() {
+        let file = file?;
+        let path = file.path().utf8()?;
+        if path.file_name().unwrap().ends_with(".rs") && should_process_path(path) {
+            add_must_use_annotations_to_file(path, &is_empty)?;
+        }
+    }
+    Ok(())
+}
+
+pub fn add_must_use_annotations_to_file<E>(path: &Utf8Path, is_empty: E) -> Result<()>
+where
+    E: Fn(&Utf8Path, &str) -> bool,
+{
+    static MESSAGE_OR_ENUM_RE: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r#"pub (struct|enum) ([[:alnum:]]+?)\s"#).unwrap());
+    let contents = read_to_string(path)?;
+    let contents = MESSAGE_OR_ENUM_RE.replace_all(&contents, |caps: &Captures| {
+        let is_enum = caps.get(1).unwrap().as_str() == "enum";
+        let name = caps.get(2).unwrap().as_str();
+        if is_enum || !is_empty(path, name) {
+            format!("#[must_use]\n{}", caps.get(0).unwrap().as_str())
+        } else {
+            caps.get(0).unwrap().as_str().to_string()
+        }
+    });
+    write_file_if_changed(path, contents.as_ref())?;
+    Ok(())
+}
+
+/// Given a generated prost filename and a struct name, try to determine whether
+/// the message has 0 fields.
+///
+/// This is unfortunately rather circuitous, as Prost doesn't allow us to easily
+/// alter the code generation with access to the associated proto descriptor. So
+/// we need to infer the full proto path based on the filename and the Rust type
+/// name, which we can only do for top-level elements. For any nested messages
+/// we can't find, we assume they must be used.
+pub fn determine_if_message_is_empty(pool: &DescriptorPool, path: &Utf8Path, name: &str) -> bool {
+    let package = path.file_stem().unwrap();
+    let full_name = format!("{package}.{name}");
+    if let Some(msg) = pool.get_message_by_name(&full_name) {
+        msg.fields().count() == 0
+    } else {
+        false
     }
 }

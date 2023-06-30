@@ -333,6 +333,15 @@
     "description": "Types and traits for working with bytes"
   },
   {
+    "name": "camino",
+    "version": "1.1.4",
+    "authors": "Without Boats <saoirse@without.boats>|Ashley Williams <ashley666ashley@gmail.com>|Steve Klabnik <steve@steveklabnik.com>|Rain <rain@sunshowers.io>",
+    "repository": "https://github.com/camino-rs/camino",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "UTF-8 paths"
+  },
+  {
     "name": "cc",
     "version": "1.0.79",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
@@ -2079,6 +2088,15 @@
     "description": "Fast floating point to string conversion"
   },
   {
+    "name": "same-file",
+    "version": "1.0.6",
+    "authors": "Andrew Gallant <jamslam@gmail.com>",
+    "repository": "https://github.com/BurntSushi/same-file",
+    "license": "MIT OR Unlicense",
+    "license_file": null,
+    "description": "A simple crate for determining whether two file paths point to the same file."
+  },
+  {
     "name": "schannel",
     "version": "0.1.21",
     "authors": "Steven Fackler <sfackler@gmail.com>|Steffen Butzer <steffen.butzer@outlook.com>",
@@ -2914,6 +2932,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Convert closures into wakers"
+  },
+  {
+    "name": "walkdir",
+    "version": "2.3.3",
+    "authors": "Andrew Gallant <jamslam@gmail.com>",
+    "repository": "https://github.com/BurntSushi/walkdir",
+    "license": "MIT OR Unlicense",
+    "license_file": null,
+    "description": "Recursively walk a directory."
   },
   {
     "name": "want",
