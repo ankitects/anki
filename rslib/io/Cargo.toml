@@ -9,5 +9,6 @@ rust-version.workspace = true
 description = "Utils for better I/O error reporting"
 
 [dependencies]
+camino.workspace = true
 snafu.workspace = true
 tempfile.workspace = true

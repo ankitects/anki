@@ -243,7 +243,7 @@ fn hide_default_deck(node: &mut DeckTreeNode) {
                 // can't remove if there are no other decks
             } else {
                 // safe to remove
-                node.children.remove(idx);
+                _ = node.children.remove(idx);
             }
             return;
         }

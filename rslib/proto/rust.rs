@@ -8,6 +8,8 @@ use std::path::PathBuf;
 use anki_io::create_dir_all;
 use anki_io::read_file;
 use anki_io::write_file_if_changed;
+use anki_proto_gen::add_must_use_annotations;
+use anki_proto_gen::determine_if_message_is_empty;
 use anyhow::Context;
 use anyhow::Result;
 use prost_reflect::DescriptorPool;
@@ -55,7 +57,13 @@ pub fn write_rust_protos(descriptors_path: Option<PathBuf>) -> Result<Descriptor
         )?;
         write_file_if_changed(descriptors_path, &descriptors)?;
     }
+
     let pool = DescriptorPool::decode(descriptors.as_ref())?;
+    add_must_use_annotations(
+        &out_dir,
+        |path| path.file_name().unwrap().starts_with("anki."),
+        |path, name| determine_if_message_is_empty(&pool, path, name),
+    )?;
     Ok(pool)
 }
 

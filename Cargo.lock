@@ -180,6 +180,7 @@ dependencies = [
 name = "anki_io"
 version = "0.0.0"
 dependencies = [
+ "camino",
  "snafu",
  "tempfile",
 ]
@@ -214,10 +215,16 @@ dependencies = [
 name = "anki_proto_gen"
 version = "0.0.0"
 dependencies = [
+ "anki_io",
+ "anyhow",
+ "camino",
  "inflections",
  "itertools",
+ "once_cell",
  "prost-reflect",
  "prost-types",
+ "regex",
+ "walkdir",
 ]
 
 [[package]]
