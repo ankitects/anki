@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anyhow::Result;
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
 
@@ -10,7 +11,6 @@ use crate::build::FilesHandle;
 use crate::input::BuildInput;
 use crate::inputs;
 use crate::Build;
-use crate::Result;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum RustOutput<'a> {

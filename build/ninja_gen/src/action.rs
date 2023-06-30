@@ -1,9 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anyhow::Result;
+
 use crate::build::FilesHandle;
 use crate::Build;
-use crate::Result;
 
 pub trait BuildAction {
     /// Command line to invoke for each build statement.

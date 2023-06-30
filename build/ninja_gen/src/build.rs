@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt::Write;
 
+use anyhow::Result;
 use camino::Utf8PathBuf;
 use itertools::Itertools;
 
@@ -13,7 +14,6 @@ use crate::archives::Platform;
 use crate::configure::ConfigureBuild;
 use crate::input::space_separated;
 use crate::input::BuildInput;
-use crate::Result;
 
 #[derive(Debug)]
 pub struct Build {

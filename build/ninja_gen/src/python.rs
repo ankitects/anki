@@ -3,6 +3,7 @@
 
 use std::env;
 
+use anyhow::Result;
 use camino::Utf8Path;
 use maplit::hashmap;
 
@@ -14,7 +15,6 @@ use crate::hash::simple_hash;
 use crate::input::BuildInput;
 use crate::inputs;
 use crate::Build;
-use crate::Result;
 
 pub fn python_archive(platform: Platform) -> OnlineArchive {
     match platform {

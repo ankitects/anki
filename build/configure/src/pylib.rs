@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anyhow::Result;
 use ninja_gen::action::BuildAction;
 use ninja_gen::archives::Platform;
 use ninja_gen::command::RunCommand;
@@ -11,7 +12,6 @@ use ninja_gen::inputs;
 use ninja_gen::python::python_format;
 use ninja_gen::python::PythonTest;
 use ninja_gen::Build;
-use ninja_gen::Result;
 
 use crate::anki_version;
 use crate::platform::overriden_python_target_platform;

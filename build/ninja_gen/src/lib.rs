@@ -24,8 +24,6 @@ pub use camino::Utf8PathBuf;
 pub use maplit::hashmap;
 pub use which::which;
 
-pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-
 #[macro_export]
 macro_rules! inputs {
     ($($param:expr),+ $(,)?) => {

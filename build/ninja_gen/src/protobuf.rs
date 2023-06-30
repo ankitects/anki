@@ -1,6 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::env;
+
+use anyhow::Result;
+use camino::Utf8Path;
 use maplit::hashmap;
 
 use crate::action::BuildAction;
@@ -11,6 +15,7 @@ use crate::archives::Platform;
 use crate::hash::simple_hash;
 use crate::input::BuildInput;
 use crate::inputs;
+use crate::Build;
 
 pub fn protoc_archive(platform: Platform) -> OnlineArchive {
     match platform {
@@ -91,7 +96,7 @@ impl BuildAction for ClangFormat {
         let hash = simple_hash(&self.inputs);
         build.add_output_stamp(format!("tests/clang-format.{mode}.{hash}"));
     }
-    fn on_first_instance(&self, build: &mut crate::Build) -> crate::Result<()> {
+    fn on_first_instance(&self, build: &mut crate::Build) -> anyhow::Result<()> {
         let binary = with_exe("clang-format");
         download_and_extract(
             build,
@@ -102,4 +107,47 @@ impl BuildAction for ClangFormat {
             },
         )
     }
+}
+
+pub fn setup_protoc(build: &mut Build) -> Result<()> {
+    let protoc_binary = match env::var("PROTOC_BINARY") {
+        Ok(path) => {
+            assert!(
+                Utf8Path::new(&path).is_absolute(),
+                "PROTOC_BINARY must be absolute"
+            );
+            path.into()
+        }
+        Err(_) => {
+            download_and_extract(
+                build,
+                "protoc",
+                protoc_archive(build.host_platform),
+                hashmap! {
+                    "bin" => [with_exe("bin/protoc")]
+                },
+            )?;
+            inputs![":extract:protoc:bin"]
+        }
+    };
+    build.add_dependency("protoc_binary", protoc_binary);
+    Ok(())
+}
+
+pub fn check_proto(build: &mut Build, inputs: BuildInput) -> Result<()> {
+    build.add_action(
+        "check:format:proto",
+        ClangFormat {
+            inputs: inputs.clone(),
+            check_only: true,
+        },
+    )?;
+    build.add_action(
+        "format:proto",
+        ClangFormat {
+            inputs,
+            check_only: false,
+        },
+    )?;
+    Ok(())
 }

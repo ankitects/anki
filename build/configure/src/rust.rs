@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anyhow::Result;
 use ninja_gen::action::BuildAction;
 use ninja_gen::build::FilesHandle;
 use ninja_gen::cargo::CargoBuild;
@@ -14,14 +15,11 @@ use ninja_gen::glob;
 use ninja_gen::input::BuildInput;
 use ninja_gen::inputs;
 use ninja_gen::Build;
-use ninja_gen::Result;
 
 use crate::platform::overriden_rust_target_triple;
-use crate::proto::setup_protoc;
 
 pub fn build_rust(build: &mut Build) -> Result<()> {
     prepare_translations(build)?;
-    setup_protoc(build)?;
     prepare_proto_descriptors(build)?;
     build_rsbridge(build)
 }
