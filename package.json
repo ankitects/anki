@@ -7,7 +7,6 @@
     "description": "Anki JS support files",
     "devDependencies": {
         "@bufbuild/protoc-gen-es": "^1.2.1",
-        "@pyoner/svelte-types": "^3.4.4-2",
         "@sqltools/formatter": "^1.2.2",
         "@types/bootstrap": "^5.0.12",
         "@types/codemirror": "^5.60.0",
@@ -32,7 +31,7 @@
         "eslint-plugin-compat": "^3.13.0",
         "eslint-plugin-import": "^2.25.4",
         "eslint-plugin-simple-import-sort": "^7.0.0",
-        "eslint-plugin-svelte3": "^3.4.0",
+        "eslint-plugin-svelte": "^2",
         "jest-cli": "^28.0.0-alpha.5",
         "jest-environment-jsdom": "^28.0.0-alpha.5",
         "license-checker-rseidelsohn": "^2.1.1",
@@ -43,7 +42,6 @@
         "svelte-check": "^2.2.6",
         "svelte-preprocess": "^5.0.3",
         "svelte-preprocess-esbuild": "^3.0.1",
-        "svelte2tsx": "^0.4.6",
         "tslib": "^2.0.3",
         "tsx": "^3.12.0",
         "typescript": "^5.0.4"

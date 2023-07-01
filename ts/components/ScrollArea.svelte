@@ -7,7 +7,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
     export let scrollX = false;
     export let scrollY = false;
-    let scrollBarWidth = 0;
     let scrollBarHeight = 0;
     let measuring = true;
 
@@ -19,7 +18,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 
     function measureScrollbar(el: HTMLDivElement) {
-        scrollBarWidth = el.offsetWidth - el.clientWidth;
         scrollBarHeight = el.offsetHeight - el.clientHeight;
         measuring = false;
     }

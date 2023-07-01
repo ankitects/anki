@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Popover from "./Popover.svelte";
     import WithFloating from "./WithFloating.svelte";
 
+    // eslint-disable
     type T = $$Generic;
 
     export let id: string | undefined = undefined;
