@@ -69,13 +69,8 @@
         "panzoom": "^9.4.3"
     },
     "resolutions": {
-        "sass": "=1.45.0",
-        "caniuse-lite": "^1.0.30001431",
         "canvas": "npm:empty-npm-package"
     },
-    "files": [
-        "dist/*"
-    ],
     "browserslist": [
         "defaults",
         "not op_mini all",
