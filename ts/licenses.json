@@ -47,27 +47,8 @@
         "repository": "https://github.com/TooTallNate/once",
         "publisher": "Nathan Rajlich",
         "email": "nathan@tootallnate.net",
-        "url": "http://n8.io/",
         "path": "node_modules/@tootallnate/once",
         "licenseFile": "node_modules/@tootallnate/once/LICENSE"
-    },
-    "@types/lodash-es@4.17.7": {
-        "licenses": "MIT",
-        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
-        "path": "node_modules/@types/lodash-es",
-        "licenseFile": "node_modules/@types/lodash-es/LICENSE"
-    },
-    "@types/lodash@4.14.195": {
-        "licenses": "MIT",
-        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
-        "path": "node_modules/@types/lodash",
-        "licenseFile": "node_modules/@types/lodash/LICENSE"
-    },
-    "@types/marked@4.3.1": {
-        "licenses": "MIT",
-        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
-        "path": "node_modules/@types/marked",
-        "licenseFile": "node_modules/@types/marked/LICENSE"
     },
     "abab@2.0.6": {
         "licenses": "BSD-3-Clause",
@@ -107,7 +88,6 @@
         "repository": "https://github.com/TooTallNate/node-agent-base",
         "publisher": "Nathan Rajlich",
         "email": "nathan@tootallnate.net",
-        "url": "http://n8.io/",
         "path": "node_modules/agent-base",
         "licenseFile": "node_modules/agent-base/README.md"
     },
@@ -145,7 +125,6 @@
         "licenses": "MIT",
         "repository": "https://github.com/twbs/bootstrap",
         "publisher": "The Bootstrap Authors",
-        "url": "https://github.com/twbs/bootstrap/graphs/contributors",
         "path": "node_modules/bootstrap",
         "licenseFile": "node_modules/bootstrap/LICENSE"
     },
@@ -161,7 +140,6 @@
         "repository": "https://github.com/codemirror/CodeMirror",
         "publisher": "Marijn Haverbeke",
         "email": "marijn@haverbeke.berlin",
-        "url": "http://marijnhaverbeke.nl",
         "path": "node_modules/codemirror",
         "licenseFile": "node_modules/codemirror/LICENSE"
     },
@@ -170,7 +148,6 @@
         "repository": "https://github.com/felixge/node-combined-stream",
         "publisher": "Felix Geisendörfer",
         "email": "felix@debuggable.com",
-        "url": "http://debuggable.com/",
         "path": "node_modules/combined-stream",
         "licenseFile": "node_modules/combined-stream/License"
     },
@@ -215,7 +192,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-array",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-array",
         "licenseFile": "node_modules/d3-array/LICENSE"
     },
@@ -223,7 +199,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-axis",
         "publisher": "Mike Bostock",
-        "url": "https://bost.ocks.org/mike",
         "path": "node_modules/d3-axis",
         "licenseFile": "node_modules/d3-axis/LICENSE"
     },
@@ -231,7 +206,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-brush",
         "publisher": "Mike Bostock",
-        "url": "https://bost.ocks.org/mike",
         "path": "node_modules/d3-brush",
         "licenseFile": "node_modules/d3-brush/LICENSE"
     },
@@ -239,7 +213,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-chord",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-chord",
         "licenseFile": "node_modules/d3-chord/LICENSE"
     },
@@ -247,7 +220,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-color",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-color",
         "licenseFile": "node_modules/d3-color/LICENSE"
     },
@@ -255,7 +227,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-contour",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-contour",
         "licenseFile": "node_modules/d3-contour/LICENSE"
     },
@@ -263,7 +234,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-delaunay",
         "publisher": "Mike Bostock",
-        "url": "https://bost.ocks.org/mike",
         "path": "node_modules/d3-delaunay",
         "licenseFile": "node_modules/d3-delaunay/LICENSE"
     },
@@ -271,7 +241,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-dispatch",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-dispatch",
         "licenseFile": "node_modules/d3-dispatch/LICENSE"
     },
@@ -279,7 +248,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-drag",
         "publisher": "Mike Bostock",
-        "url": "https://bost.ocks.org/mike",
         "path": "node_modules/d3-drag",
         "licenseFile": "node_modules/d3-drag/LICENSE"
     },
@@ -287,7 +255,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-dsv",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-dsv",
         "licenseFile": "node_modules/d3-dsv/LICENSE"
     },
@@ -295,7 +262,6 @@
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/d3/d3-ease",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-ease",
         "licenseFile": "node_modules/d3-ease/LICENSE"
     },
@@ -303,7 +269,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-fetch",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-fetch",
         "licenseFile": "node_modules/d3-fetch/LICENSE"
     },
@@ -311,7 +276,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-force",
         "publisher": "Mike Bostock",
-        "url": "https://bost.ocks.org/mike",
         "path": "node_modules/d3-force",
         "licenseFile": "node_modules/d3-force/LICENSE"
     },
@@ -319,7 +283,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-format",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-format",
         "licenseFile": "node_modules/d3-format/LICENSE"
     },
@@ -327,7 +290,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-geo",
         "publisher": "Mike Bostock",
-        "url": "https://bost.ocks.org/mike",
         "path": "node_modules/d3-geo",
         "licenseFile": "node_modules/d3-geo/LICENSE"
     },
@@ -335,7 +297,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-hierarchy",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-hierarchy",
         "licenseFile": "node_modules/d3-hierarchy/LICENSE"
     },
@@ -343,7 +304,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-interpolate",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-interpolate",
         "licenseFile": "node_modules/d3-interpolate/LICENSE"
     },
@@ -351,7 +311,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-path",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-path",
         "licenseFile": "node_modules/d3-path/LICENSE"
     },
@@ -359,7 +318,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-polygon",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-polygon",
         "licenseFile": "node_modules/d3-polygon/LICENSE"
     },
@@ -367,7 +325,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-quadtree",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-quadtree",
         "licenseFile": "node_modules/d3-quadtree/LICENSE"
     },
@@ -375,7 +332,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-random",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-random",
         "licenseFile": "node_modules/d3-random/LICENSE"
     },
@@ -383,7 +339,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-scale-chromatic",
         "publisher": "Mike Bostock",
-        "url": "https://bost.ocks.org/mike",
         "path": "node_modules/d3-scale-chromatic",
         "licenseFile": "node_modules/d3-scale-chromatic/LICENSE"
     },
@@ -391,7 +346,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-scale",
         "publisher": "Mike Bostock",
-        "url": "https://bost.ocks.org/mike",
         "path": "node_modules/d3-scale",
         "licenseFile": "node_modules/d3-scale/LICENSE"
     },
@@ -399,7 +353,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-selection",
         "publisher": "Mike Bostock",
-        "url": "https://bost.ocks.org/mike",
         "path": "node_modules/d3-selection",
         "licenseFile": "node_modules/d3-selection/LICENSE"
     },
@@ -407,7 +360,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-shape",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-shape",
         "licenseFile": "node_modules/d3-shape/LICENSE"
     },
@@ -415,7 +367,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-time-format",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-time-format",
         "licenseFile": "node_modules/d3-time-format/LICENSE"
     },
@@ -423,7 +374,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-time",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-time",
         "licenseFile": "node_modules/d3-time/LICENSE"
     },
@@ -431,7 +381,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-timer",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/d3-timer",
         "licenseFile": "node_modules/d3-timer/LICENSE"
     },
@@ -439,7 +388,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-transition",
         "publisher": "Mike Bostock",
-        "url": "https://bost.ocks.org/mike",
         "path": "node_modules/d3-transition",
         "licenseFile": "node_modules/d3-transition/LICENSE"
     },
@@ -447,7 +395,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-zoom",
         "publisher": "Mike Bostock",
-        "url": "https://bost.ocks.org/mike",
         "path": "node_modules/d3-zoom",
         "licenseFile": "node_modules/d3-zoom/LICENSE"
     },
@@ -455,7 +402,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3",
         "publisher": "Mike Bostock",
-        "url": "https://bost.ocks.org/mike",
         "path": "node_modules/d3",
         "licenseFile": "node_modules/d3/LICENSE"
     },
@@ -464,7 +410,6 @@
         "repository": "https://github.com/jsdom/data-urls",
         "publisher": "Domenic Denicola",
         "email": "d@domenic.me",
-        "url": "https://domenic.me/",
         "path": "node_modules/data-urls",
         "licenseFile": "node_modules/data-urls/LICENSE.txt"
     },
@@ -496,7 +441,6 @@
         "repository": "https://github.com/felixge/node-delayed-stream",
         "publisher": "Felix Geisendörfer",
         "email": "felix@debuggable.com",
-        "url": "http://debuggable.com/",
         "path": "node_modules/delayed-stream",
         "licenseFile": "node_modules/delayed-stream/License"
     },
@@ -505,7 +449,6 @@
         "repository": "https://github.com/jsdom/domexception",
         "publisher": "Domenic Denicola",
         "email": "d@domenic.me",
-        "url": "https://domenic.me/",
         "path": "node_modules/domexception",
         "licenseFile": "node_modules/domexception/LICENSE.txt"
     },
@@ -552,7 +495,6 @@
         "repository": "https://github.com/form-data/form-data",
         "publisher": "Felix Geisendörfer",
         "email": "felix@debuggable.com",
-        "url": "http://debuggable.com/",
         "path": "node_modules/form-data",
         "licenseFile": "node_modules/form-data/License"
     },
@@ -561,7 +503,6 @@
         "repository": "https://github.com/jsdom/html-encoding-sniffer",
         "publisher": "Domenic Denicola",
         "email": "d@domenic.me",
-        "url": "https://domenic.me/",
         "path": "node_modules/html-encoding-sniffer",
         "licenseFile": "node_modules/html-encoding-sniffer/LICENSE.txt"
     },
@@ -570,7 +511,6 @@
         "repository": "https://github.com/TooTallNate/node-http-proxy-agent",
         "publisher": "Nathan Rajlich",
         "email": "nathan@tootallnate.net",
-        "url": "http://n8.io/",
         "path": "node_modules/http-proxy-agent",
         "licenseFile": "node_modules/http-proxy-agent/README.md"
     },
@@ -579,7 +519,6 @@
         "repository": "https://github.com/TooTallNate/node-https-proxy-agent",
         "publisher": "Nathan Rajlich",
         "email": "nathan@tootallnate.net",
-        "url": "http://n8.io/",
         "path": "node_modules/https-proxy-agent",
         "licenseFile": "node_modules/https-proxy-agent/README.md"
     },
@@ -595,7 +534,6 @@
         "licenses": "ISC",
         "repository": "https://github.com/mbostock/internmap",
         "publisher": "Mike Bostock",
-        "url": "https://bost.ocks.org/mike",
         "path": "node_modules/internmap",
         "licenseFile": "node_modules/internmap/LICENSE"
     },
@@ -611,7 +549,6 @@
         "licenses": "MIT",
         "repository": "https://github.com/mathiasbynens/is-potential-custom-element-name",
         "publisher": "Mathias Bynens",
-        "url": "https://mathiasbynens.be/",
         "path": "node_modules/is-potential-custom-element-name",
         "licenseFile": "node_modules/is-potential-custom-element-name/LICENSE-MIT.txt"
     },
@@ -619,7 +556,6 @@
         "licenses": "MIT",
         "repository": "https://github.com/jquery/jquery-ui",
         "publisher": "jQuery Foundation and other contributors",
-        "url": "https://github.com/jquery/jquery-ui/blob/1.13.2/AUTHORS.txt",
         "path": "node_modules/jquery-ui-dist",
         "licenseFile": "node_modules/jquery-ui-dist/LICENSE.txt"
     },
@@ -627,7 +563,6 @@
         "licenses": "MIT",
         "repository": "https://github.com/jquery/jquery",
         "publisher": "OpenJS Foundation and other contributors",
-        "url": "https://github.com/jquery/jquery/blob/3.7.0/AUTHORS.txt",
         "path": "node_modules/jquery",
         "licenseFile": "node_modules/jquery/LICENSE.txt"
     },
@@ -645,7 +580,7 @@
         "path": "node_modules/lodash-es",
         "licenseFile": "node_modules/lodash-es/LICENSE"
     },
-    "marked@4.3.0": {
+    "marked@5.1.0": {
         "licenses": "MIT",
         "repository": "https://github.com/markedjs/marked",
         "publisher": "Christopher Jeffrey",
@@ -688,7 +623,6 @@
         "repository": "https://github.com/dperini/nwsapi",
         "publisher": "Diego Perini",
         "email": "diego.perini@gmail.com",
-        "url": "http://www.iport.it/",
         "path": "node_modules/nwsapi",
         "licenseFile": "node_modules/nwsapi/LICENSE"
     },
@@ -704,7 +638,6 @@
         "repository": "https://github.com/inikulin/parse5",
         "publisher": "Ivan Nikulin",
         "email": "ifaaan@gmail.com",
-        "url": "https://github.com/inikulin",
         "path": "node_modules/parse5",
         "licenseFile": "node_modules/parse5/LICENSE"
     },
@@ -713,7 +646,6 @@
         "repository": "https://github.com/lupomontero/psl",
         "publisher": "Lupo Montero",
         "email": "lupomontero@gmail.com",
-        "url": "https://lupomontero.com/",
         "path": "node_modules/psl",
         "licenseFile": "node_modules/psl/LICENSE"
     },
@@ -721,7 +653,6 @@
         "licenses": "MIT",
         "repository": "https://github.com/mathiasbynens/punycode.js",
         "publisher": "Mathias Bynens",
-        "url": "https://mathiasbynens.be/",
         "path": "node_modules/punycode",
         "licenseFile": "node_modules/punycode/LICENSE-MIT.txt"
     },
@@ -750,7 +681,6 @@
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/mbostock/rw",
         "publisher": "Mike Bostock",
-        "url": "http://bost.ocks.org/mike",
         "path": "node_modules/rw",
         "licenseFile": "node_modules/rw/LICENSE"
     },
@@ -759,7 +689,6 @@
         "repository": "https://github.com/ChALkeR/safer-buffer",
         "publisher": "Nikita Skovoroda",
         "email": "chalkerx@gmail.com",
-        "url": "https://github.com/ChALkeR",
         "path": "node_modules/safer-buffer",
         "licenseFile": "node_modules/safer-buffer/LICENSE"
     },
@@ -837,7 +766,6 @@
         "repository": "https://github.com/jsdom/webidl-conversions",
         "publisher": "Domenic Denicola",
         "email": "d@domenic.me",
-        "url": "https://domenic.me/",
         "path": "node_modules/webidl-conversions",
         "licenseFile": "node_modules/webidl-conversions/LICENSE.md"
     },
@@ -846,7 +774,6 @@
         "repository": "https://github.com/jsdom/whatwg-encoding",
         "publisher": "Domenic Denicola",
         "email": "d@domenic.me",
-        "url": "https://domenic.me/",
         "path": "node_modules/whatwg-encoding",
         "licenseFile": "node_modules/whatwg-encoding/LICENSE.txt"
     },
@@ -855,7 +782,6 @@
         "repository": "https://github.com/jsdom/whatwg-mimetype",
         "publisher": "Domenic Denicola",
         "email": "d@domenic.me",
-        "url": "https://domenic.me/",
         "path": "node_modules/whatwg-mimetype",
         "licenseFile": "node_modules/whatwg-mimetype/LICENSE.txt"
     },
@@ -887,7 +813,6 @@
         "repository": "https://github.com/websockets/ws",
         "publisher": "Einar Otto Stangvik",
         "email": "einaros@gmail.com",
-        "url": "http://2x.io",
         "path": "node_modules/ws",
         "licenseFile": "node_modules/ws/LICENSE"
     },
@@ -896,7 +821,6 @@
         "repository": "https://github.com/jsdom/xml-name-validator",
         "publisher": "Domenic Denicola",
         "email": "d@domenic.me",
-        "url": "https://domenic.me/",
         "path": "node_modules/xml-name-validator",
         "licenseFile": "node_modules/xml-name-validator/LICENSE.txt"
     },
