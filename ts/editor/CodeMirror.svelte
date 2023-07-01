@@ -4,6 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type CodeMirrorLib from "codemirror";
+    import { EditorView } from "@codemirror/view";
+    import type { Extension } from "@codemirror/state";
 
     export interface CodeMirrorAPI {
         readonly editor: Promise<CodeMirrorLib.Editor>;
@@ -28,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setupCodeMirror,
     } from "./code-mirror";
 
-    export let configuration: CodeMirrorLib.EditorConfiguration;
+    export let configuration: Extension;
     export let code: Writable<string>;
     export let hidden = false;
 
@@ -37,7 +39,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         lineNumbers: false,
     };
 
-    const [editorPromise, resolve] = promiseWithResolver<CodeMirrorLib.Editor>();
+    const dispatch = createEventDispatcher();
+
+    const updateListenerExtension = EditorView.updateListener.of((update) => {
+        if (update.docChanged) {
+            dispatch("change", update.state.doc.toString());
+        }
+    });
+
+    function allConfiguration(): Extension {
+        // {
+        //         ...configuration,
+        //         ...defaultConfiguration,
+        //         direction: $direction,
+        //         theme: $pageTheme.isDark ? darkTheme : lightTheme,
+        //     },
+        return [updateListenerExtension];
+    }
+
+    const [editorPromise, resolve] = promiseWithResolver<EditorView>();
 
     /**
      * Convenience function for editor.setOption.
@@ -60,23 +80,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setOption,
     });
 
-    const dispatch = createEventDispatcher();
-
     onMount(async () => {
         const editor = await editorPromise;
         setupCodeMirror(editor, code);
-        editor.on("change", () => dispatch("change", editor.getValue()));
-        editor.on("focus", (codeMirror, event) =>
-            dispatch("focus", { codeMirror, event }),
-        );
-        editor.on("blur", (codeMirror, event) =>
-            dispatch("blur", { codeMirror, event }),
-        );
-        editor.on("keydown", (codeMirror, event) => {
-            if (event.code === "Tab") {
-                dispatch("tab", { codeMirror, event });
-            }
-        });
+        // editor.on("focus", (codeMirror, event) =>
+        //     dispatch("focus", { codeMirror, event }),
+        // );
+        // editor.on("blur", (codeMirror, event) =>
+        //     dispatch("blur", { codeMirror, event }),
+        // );
+        // editor.on("keydown", (codeMirror, event) => {
+        //     if (event.code === "Tab") {
+        //         dispatch("tab", { codeMirror, event });
+        //     }
+        // });
     });
 </script>
 
@@ -85,12 +102,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tabindex="-1"
         hidden
         use:openCodeMirror={{
-            configuration: {
-                ...configuration,
-                ...defaultConfiguration,
-                direction: $direction,
-                theme: $pageTheme.isDark ? darkTheme : lightTheme,
-            },
+            configuration: allConfiguration(),
             resolve,
             hidden,
         }}

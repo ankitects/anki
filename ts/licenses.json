@@ -5,6 +5,62 @@
         "path": "node_modules/@bufbuild/protobuf",
         "licenseFile": "node_modules/@bufbuild/protobuf/README.md"
     },
+    "@codemirror/autocomplete@6.8.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/codemirror/autocomplete",
+        "publisher": "Marijn Haverbeke",
+        "email": "marijn@haverbeke.berlin",
+        "path": "node_modules/@codemirror/autocomplete",
+        "licenseFile": "node_modules/@codemirror/autocomplete/LICENSE"
+    },
+    "@codemirror/commands@6.2.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/codemirror/commands",
+        "publisher": "Marijn Haverbeke",
+        "email": "marijn@haverbeke.berlin",
+        "path": "node_modules/@codemirror/commands",
+        "licenseFile": "node_modules/@codemirror/commands/LICENSE"
+    },
+    "@codemirror/language@6.8.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/codemirror/language",
+        "publisher": "Marijn Haverbeke",
+        "email": "marijn@haverbeke.berlin",
+        "path": "node_modules/@codemirror/language",
+        "licenseFile": "node_modules/@codemirror/language/LICENSE"
+    },
+    "@codemirror/lint@6.3.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/codemirror/lint",
+        "publisher": "Marijn Haverbeke",
+        "email": "marijn@haverbeke.berlin",
+        "path": "node_modules/@codemirror/lint",
+        "licenseFile": "node_modules/@codemirror/lint/LICENSE"
+    },
+    "@codemirror/search@6.5.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/codemirror/search",
+        "publisher": "Marijn Haverbeke",
+        "email": "marijn@haverbeke.berlin",
+        "path": "node_modules/@codemirror/search",
+        "licenseFile": "node_modules/@codemirror/search/LICENSE"
+    },
+    "@codemirror/state@6.2.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/codemirror/state",
+        "publisher": "Marijn Haverbeke",
+        "email": "marijn@haverbeke.berlin",
+        "path": "node_modules/@codemirror/state",
+        "licenseFile": "node_modules/@codemirror/state/LICENSE"
+    },
+    "@codemirror/view@6.14.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/codemirror/view",
+        "publisher": "Marijn Haverbeke",
+        "email": "marijn@haverbeke.berlin",
+        "path": "node_modules/@codemirror/view",
+        "licenseFile": "node_modules/@codemirror/view/LICENSE"
+    },
     "@floating-ui/core@1.3.1": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
@@ -26,6 +82,30 @@
         "email": "l10n-drivers@mozilla.org",
         "path": "node_modules/@fluent/bundle",
         "licenseFile": "node_modules/@fluent/bundle/README.md"
+    },
+    "@lezer/common@1.0.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/lezer-parser/common",
+        "publisher": "Marijn Haverbeke",
+        "email": "marijn@haverbeke.berlin",
+        "path": "node_modules/@lezer/common",
+        "licenseFile": "node_modules/@lezer/common/LICENSE"
+    },
+    "@lezer/highlight@1.1.6": {
+        "licenses": "MIT",
+        "repository": "https://github.com/lezer-parser/highlight",
+        "publisher": "Marijn Haverbeke",
+        "email": "marijn@haverbeke.berlin",
+        "path": "node_modules/@lezer/highlight",
+        "licenseFile": "node_modules/@lezer/highlight/LICENSE"
+    },
+    "@lezer/lr@1.3.7": {
+        "licenses": "MIT",
+        "repository": "https://github.com/lezer-parser/lr",
+        "publisher": "Marijn Haverbeke",
+        "email": "marijn@haverbeke.berlin",
+        "path": "node_modules/@lezer/lr",
+        "licenseFile": "node_modules/@lezer/lr/LICENSE"
     },
     "@mdi/svg@7.2.96": {
         "licenses": "Apache-2.0",
@@ -135,11 +215,11 @@
         "path": "node_modules/browser-process-hrtime",
         "licenseFile": "node_modules/browser-process-hrtime/LICENSE"
     },
-    "codemirror@5.65.13": {
+    "codemirror@6.0.1": {
         "licenses": "MIT",
-        "repository": "https://github.com/codemirror/CodeMirror",
+        "repository": "https://github.com/codemirror/basic-setup",
         "publisher": "Marijn Haverbeke",
-        "email": "marijn@haverbeke.berlin",
+        "email": "marijnh@gmail.com",
         "path": "node_modules/codemirror",
         "licenseFile": "node_modules/codemirror/LICENSE"
     },
@@ -158,6 +238,14 @@
         "email": "tj@vision-media.ca",
         "path": "node_modules/commander",
         "licenseFile": "node_modules/commander/LICENSE"
+    },
+    "crelt@1.0.6": {
+        "licenses": "MIT",
+        "repository": "https://github.com/marijnh/crelt",
+        "publisher": "Marijn Haverbeke",
+        "email": "marijn@haverbeke.berlin",
+        "path": "node_modules/crelt",
+        "licenseFile": "node_modules/crelt/LICENSE"
     },
     "css-browser-selector@0.6.5": {
         "licenses": "CC-BY-SA-2.5",
@@ -708,6 +796,13 @@
         "path": "node_modules/source-map",
         "licenseFile": "node_modules/source-map/LICENSE"
     },
+    "style-mod@4.0.3": {
+        "licenses": "MIT",
+        "publisher": "Marijn Haverbeke",
+        "email": "marijn@haverbeke.berlin",
+        "path": "node_modules/style-mod",
+        "licenseFile": "node_modules/style-mod/LICENSE"
+    },
     "symbol-tree@3.2.4": {
         "licenses": "MIT",
         "repository": "https://github.com/jsdom/js-symbol-tree",
@@ -754,6 +849,14 @@
         "email": "timothygu99@gmail.com",
         "path": "node_modules/w3c-hr-time",
         "licenseFile": "node_modules/w3c-hr-time/LICENSE.md"
+    },
+    "w3c-keyname@2.2.8": {
+        "licenses": "MIT",
+        "repository": "https://github.com/marijnh/w3c-keyname",
+        "publisher": "Marijn Haverbeke",
+        "email": "marijn@haverbeke.berlin",
+        "path": "node_modules/w3c-keyname",
+        "licenseFile": "node_modules/w3c-keyname/LICENSE"
     },
     "w3c-xmlserializer@3.0.0": {
         "licenses": "MIT",

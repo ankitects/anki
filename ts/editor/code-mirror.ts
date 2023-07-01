@@ -1,24 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import "codemirror/lib/codemirror.css";
-import "codemirror/addon/fold/foldgutter.css";
-import "codemirror/theme/monokai.css";
-import "codemirror/mode/htmlmixed/htmlmixed";
-import "codemirror/mode/stex/stex";
-import "codemirror/addon/fold/foldcode";
-import "codemirror/addon/fold/foldgutter";
-import "codemirror/addon/fold/xml-fold";
-import "codemirror/addon/edit/matchtags";
-import "codemirror/addon/edit/closetag";
-import "codemirror/addon/display/placeholder";
+import type { Extension } from "@codemirror/state";
+import { EditorView } from "@codemirror/view";
 
-import CodeMirror from "codemirror";
 import type { Readable } from "svelte/store";
 
 import storeSubscribe from "../sveltelib/store-subscribe";
-
-export { CodeMirror };
 
 export const latex = {
     name: "stex",
@@ -52,7 +40,7 @@ export const gutterOptions: CodeMirror.EditorConfiguration = {
 };
 
 export function focusAndSetCaret(
-    editor: CodeMirror.Editor,
+    editor: EditorView,
     position: CodeMirror.Position = { line: editor.lineCount(), ch: 0 },
 ): void {
     editor.focus();
@@ -60,31 +48,31 @@ export function focusAndSetCaret(
 }
 
 interface OpenCodeMirrorOptions {
-    configuration: CodeMirror.EditorConfiguration;
-    resolve(editor: CodeMirror.EditorFromTextArea): void;
+    configuration: Extension;
+    resolve(editor: EditorView): void;
     hidden: boolean;
 }
 
 export function openCodeMirror(
     textarea: HTMLTextAreaElement,
-    options: Partial<OpenCodeMirrorOptions>,
-): { update: (options: Partial<OpenCodeMirrorOptions>) => void; destroy: () => void } {
-    let editor: CodeMirror.EditorFromTextArea | null = null;
+    options: OpenCodeMirrorOptions,
+): { update: (options: OpenCodeMirrorOptions) => void; destroy: () => void } {
+    let editor: EditorView | null = null;
 
     function update({
         configuration,
         resolve,
         hidden,
-    }: Partial<OpenCodeMirrorOptions>): void {
+    }: OpenCodeMirrorOptions): void {
         if (editor) {
-            for (const key in configuration) {
-                editor.setOption(
-                    key as keyof CodeMirror.EditorConfiguration,
-                    configuration[key],
-                );
-            }
+            // for (const key in configuration) {
+            //     editor.setOption(
+            //         key as keyof CodeMirror.EditorConfiguration,
+            //         configuration[key],
+            //     );
+            // }
         } else if (!hidden) {
-            editor = CodeMirror.fromTextArea(textarea, configuration);
+            editor = editorFromTextArea(textarea, configuration);
             resolve?.(editor);
         }
     }
@@ -94,51 +82,66 @@ export function openCodeMirror(
     return {
         update,
         destroy(): void {
-            editor?.toTextArea();
+            if (editor) editorToTextArea(textarea, editor);
             editor = null;
         },
     };
+}
+
+function editorFromTextArea(textarea, extensions: Extension) {
+    let view = new EditorView({ doc: textarea.value, extensions });
+    textarea.parentNode.insertBefore(view.dom, textarea);
+    textarea.style.display = "none";
+    return view;
+}
+
+function editorToTextArea(textarea, view: EditorView) {
+    textarea.style.display = "block";
+    view.destroy();
 }
 
 /**
  * Sets up the contract with the code store and location restoration.
  */
 export function setupCodeMirror(
-    editor: CodeMirror.Editor,
+    editor: EditorView,
     code: Readable<string>,
 ): void {
     const { subscribe, unsubscribe } = storeSubscribe(
         code,
-        (value: string): void => editor.setValue(value),
+        (value: string): void => {
+            console.log(value);
+            editor.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: value } });
+        },
         false,
     );
 
-    // TODO passing in the tabindex option does not do anything: bug?
-    editor.getInputField().tabIndex = 0;
+    // // TODO passing in the tabindex option does not do anything: bug?
+    // editor.getInputField().tabIndex = 0;
 
-    let ranges: CodeMirror.Range[] | null = null;
+    // let ranges: CodeMirror.Range[] | null = null;
 
-    editor.on("focus", () => {
-        if (ranges) {
-            try {
-                editor.setSelections(ranges);
-            } catch {
-                ranges = null;
-                editor.setCursor(editor.lineCount(), 0);
-            }
-        }
-        unsubscribe();
-    });
+    // editor.on("focus", () => {
+    //     if (ranges) {
+    //         try {
+    //             editor.setSelections(ranges);
+    //         } catch {
+    //             ranges = null;
+    //             editor.setCursor(editor.lineCount(), 0);
+    //         }
+    //     }
+    //     unsubscribe();
+    // });
 
-    editor.on("mousedown", () => {
-        // Prevent focus restoring location
-        ranges = null;
-    });
+    // editor.on("mousedown", () => {
+    //     // Prevent focus restoring location
+    //     ranges = null;
+    // });
 
-    editor.on("blur", () => {
-        ranges = editor.listSelections();
-        subscribe();
-    });
+    // editor.on("blur", () => {
+    //     ranges = editor.listSelections();
+    //     subscribe();
+    // });
 
     subscribe();
 }
