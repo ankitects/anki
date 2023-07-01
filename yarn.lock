@@ -2400,10 +2400,10 @@ domexception@^4.0.0:
   dependencies:
     webidl-conversions "^7.0.0"
 
-dprint@^0.37.1:
-  version "0.37.1"
-  resolved "https://registry.yarnpkg.com/dprint/-/dprint-0.37.1.tgz#d4915aea591d8503ee3b0c4b8f096857bf65e93a"
-  integrity sha512-MVKIVOvk5FSiZQFFZlLv1KiB4zZXAirlZ/m8vtyKu2PTFnkD5d6jVv4aNHvd7M6f1ToganNZ/CqhSwpgadn8Ug==
+dprint@=0.35.3:
+  version "0.35.3"
+  resolved "https://registry.yarnpkg.com/dprint/-/dprint-0.35.3.tgz#be89ff5e76b46c21d5db84015ee9232e82e9bc14"
+  integrity sha512-BWFdr2Ury2dtqyjaTI9P5vCpb1yn5laLfO3Yo5egrrDlK2A2mv6CSpe/oK2cuOPESMY1JT2dubMv2dPDiJfMnA==
   dependencies:
     https-proxy-agent "=5.0.1"
     yauzl "=2.10.0"

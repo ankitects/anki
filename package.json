@@ -23,7 +23,7 @@
         "caniuse-lite": "^1.0.30001431",
         "cross-env": "^7.0.2",
         "diff": "^5.0.0",
-        "dprint": "^0.37.1",
+        "dprint": "=0.35.3",
         "esbuild": "^0.18.10",
         "esbuild-sass-plugin": "^2",
         "esbuild-svelte": "^0.7.4",
