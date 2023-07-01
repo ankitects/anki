@@ -47,7 +47,7 @@
     },
     "dependencies": {
         "@bufbuild/protobuf": "^1.2.1",
-        "@floating-ui/dom": "^0.3.0",
+        "@floating-ui/dom": "^1.4.3",
         "@fluent/bundle": "^0.18.0",
         "@mdi/svg": "^7.0.96",
         "@popperjs/core": "^2.11.8",

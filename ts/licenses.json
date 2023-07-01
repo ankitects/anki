@@ -5,19 +5,19 @@
         "path": "node_modules/@bufbuild/protobuf",
         "licenseFile": "node_modules/@bufbuild/protobuf/README.md"
     },
-    "@floating-ui/core@0.5.1": {
+    "@floating-ui/core@1.3.1": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
         "path": "node_modules/@floating-ui/core",
-        "licenseFile": "node_modules/@floating-ui/core/README.md"
+        "licenseFile": "node_modules/@floating-ui/core/LICENSE"
     },
-    "@floating-ui/dom@0.3.1": {
+    "@floating-ui/dom@1.4.3": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
         "path": "node_modules/@floating-ui/dom",
-        "licenseFile": "node_modules/@floating-ui/dom/README.md"
+        "licenseFile": "node_modules/@floating-ui/dom/LICENSE"
     },
     "@fluent/bundle@0.18.0": {
         "licenses": "Apache-2.0",
