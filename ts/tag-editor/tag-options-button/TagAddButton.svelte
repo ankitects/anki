@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let keyCombination: string;
 
-    const dispatch = createEventDispatcher<{ tagappend: CustomEvent<void> }>();
+    const dispatch = createEventDispatcher<{ tagappend: null }>();
 
     function appendTag() {
         dispatch("tagappend");

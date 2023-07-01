@@ -211,10 +211,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 offset={20}
                 keepOnKeyup
                 portalTarget={document.body}
-                let:position={positionFloating}
                 on:close={resetHandle}
             >
-                <Popover slot="floating">
+                <Popover slot="floating" let:position={positionFloating}>
                     <MathjaxEditor
                         {acceptShortcut}
                         {newlineShortcut}

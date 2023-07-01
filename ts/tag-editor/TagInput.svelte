@@ -255,7 +255,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         input.focus();
     });
 
-    function updateCurrent(input: HTMLInputElement): ActionReturn {
+    function updateCurrent(input: HTMLInputElement): ActionReturn<any> {
         $currentTagInput = input;
         return {
             destroy(): void {

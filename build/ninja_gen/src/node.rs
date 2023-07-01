@@ -215,7 +215,7 @@ pub struct SvelteCheck {
 impl BuildAction for SvelteCheck {
     fn command(&self) -> &str {
         "$svelte-check --tsconfig $tsconfig $
-        --fail-on-warnings --threshold warning --use-new-transformation $
+        --fail-on-warnings --threshold warning $
         --compiler-warnings $compiler_warnings"
     }
 
@@ -229,6 +229,8 @@ impl BuildAction for SvelteCheck {
             [
                 "a11y-click-events-have-key-events",
                 "a11y-no-noninteractive-tabindex",
+                "a11y-no-static-element-interactions",
+                "a11y-no-noninteractive-element-interactions",
             ]
             .iter()
             .map(|warning| format!("{}$:ignore", warning))
@@ -423,7 +425,7 @@ pub struct CompileTypescript<'a> {
 
 impl BuildAction for CompileTypescript<'_> {
     fn command(&self) -> &str {
-        "$tsc $in --outDir $out_dir -d --skipLibCheck"
+        "$tsc $in --outDir $out_dir -d --skipLibCheck --types node"
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {

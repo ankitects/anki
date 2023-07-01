@@ -32,6 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .form-check-input {
         -webkit-appearance: none;
+        appearance: none;
         height: 1.5em;
         /* otherwise the switch circle shows slightly off-centered */
         margin-top: 0;

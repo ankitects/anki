@@ -24,11 +24,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         element: StyleHTMLTag;
     }
 
+    interface CustomStylesContext {
+        register: (id: string, object: StyleObject) => void;
+        deregister: (id: string) => void;
+    }
+
+    export function getCustomStylesContext(): CustomStylesContext {
+        return getContext(customStylesKey);
+    }
+
     export const customStylesKey = Symbol("customStyles");
 </script>
 
 <script lang="ts">
-    import { setContext } from "svelte";
+    import { getContext, setContext } from "svelte";
 
     import StyleLink from "./StyleLink.svelte";
     import StyleTag from "./StyleTag.svelte";

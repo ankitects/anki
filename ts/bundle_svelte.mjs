@@ -56,6 +56,8 @@ build({
         sveltePlugin({
             compilerOptions: { css: inlineCss },
             preprocess: sveltePlugins,
+            // let us focus on errors; we can see the warnings with svelte-check
+            filterWarnings: (_warning) => false,
         }),
     ],
     target,

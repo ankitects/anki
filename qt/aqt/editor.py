@@ -554,9 +554,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             sticky = [field["sticky"] for field in self.note.note_type()["flds"]]
             js += " setSticky(%s);" % json.dumps(sticky)
 
-        if os.getenv("ANKI_EDITOR_INSERT_SYMBOLS"):
-            js += " setInsertSymbolsEnabled();"
-
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
             f'require("anki/ui").loaded.then(() => {{ {js} }})', oncallback

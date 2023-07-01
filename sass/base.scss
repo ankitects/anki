@@ -3,10 +3,10 @@
 @use "button-mixins" as button;
 @use "sass/scrollbar";
 
-$body-color: color(fg);
-$body-bg: color(canvas);
-
-$link-hover-color: color(fg-link);
+$body-color: palette(darkgray, 9);
+$body-color-dark: palette(lightgray, 0);
+$body-bg: palette(lightgray, 2);
+$body-bg-dark: palette(darkgray, 5);
 $link-hover-decoration: none;
 
 $utilities: (

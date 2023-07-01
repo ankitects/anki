@@ -249,7 +249,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 inline
                 hideIfReferenceHidden
                 portalTarget={document.body}
-                let:position={positionFloating}
                 on:close={async ({ detail }) => {
                     const { reason, originalEvent } = detail;
 
@@ -264,7 +263,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     }
                 }}
             >
-                <Popover slot="floating">
+                <Popover slot="floating" let:position={positionFloating}>
                     <ButtonToolbar>
                         <FloatButtons
                             image={activeImage}
@@ -291,7 +290,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </Popover>
             </WithFloating>
 
-            <svelte:fragment slot="overlay">
+            <svelte:fragment slot="overlay" let:position={positionOverlay}>
                 <HandleBackground
                     on:dblclick={() => {
                         if (shrinkingDisabled) {
