@@ -5,11 +5,9 @@
 def run_sync_server() -> None:
     import sys
     from os import environ as env
-    from os.path import expanduser
 
     from anki._backend import RustBackend
 
-    env["SYNC_BASE"] = env.get("SYNC_BASE", expanduser("~/.syncserver"))
     env["RUST_LOG"] = env.get("RUST_LOG", "anki=info")
 
     try:
