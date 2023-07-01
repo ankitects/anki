@@ -19,7 +19,7 @@
         "path": "node_modules/@floating-ui/dom",
         "licenseFile": "node_modules/@floating-ui/dom/README.md"
     },
-    "@fluent/bundle@0.17.1": {
+    "@fluent/bundle@0.18.0": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/projectfluent/fluent.js",
         "publisher": "Mozilla",
@@ -537,7 +537,7 @@
         "path": "node_modules/internmap",
         "licenseFile": "node_modules/internmap/LICENSE"
     },
-    "intl-pluralrules@1.3.1": {
+    "intl-pluralrules@2.0.0": {
         "licenses": "ISC",
         "repository": "https://github.com/eemeli/intl-pluralrules",
         "publisher": "Eemeli Aro",

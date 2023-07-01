@@ -18,8 +18,8 @@
         "@types/lodash-es": "^4.17.4",
         "@types/marked": "^5.0.0",
         "@types/node": "^16.10.2",
-        "@typescript-eslint/eslint-plugin": "^4.22.0",
-        "@typescript-eslint/parser": "^4.22.0",
+        "@typescript-eslint/eslint-plugin": "^5.60.1",
+        "@typescript-eslint/parser": "^5.60.1",
         "caniuse-lite": "^1.0.30001431",
         "cross-env": "^7.0.2",
         "diff": "^5.0.0",
@@ -27,10 +27,10 @@
         "esbuild": "^0.18.10",
         "esbuild-sass-plugin": "^2",
         "esbuild-svelte": "^0.7.4",
-        "eslint": "^7.24.0",
-        "eslint-plugin-compat": "^3.13.0",
+        "eslint": "^8.44.0",
+        "eslint-plugin-compat": "^4.1.4",
         "eslint-plugin-import": "^2.25.4",
-        "eslint-plugin-simple-import-sort": "^7.0.0",
+        "eslint-plugin-simple-import-sort": "^10.0.0",
         "eslint-plugin-svelte": "^2",
         "jest-cli": "^28.0.0-alpha.5",
         "jest-environment-jsdom": "^28.0.0-alpha.5",
@@ -48,7 +48,7 @@
     "dependencies": {
         "@bufbuild/protobuf": "^1.2.1",
         "@floating-ui/dom": "^0.3.0",
-        "@fluent/bundle": "^0.17.0",
+        "@fluent/bundle": "^0.18.0",
         "@mdi/svg": "^7.0.96",
         "@popperjs/core": "^2.11.8",
         "bootstrap": "^5.3.0",
@@ -57,7 +57,7 @@
         "css-browser-selector": "^0.6.5",
         "d3": "^7.0.0",
         "fabric": "^5.3.0",
-        "intl-pluralrules": "^1.2.2",
+        "intl-pluralrules": "^2.0.0",
         "jquery": "^3.5.1",
         "jquery-ui-dist": "^1.12.1",
         "lodash-es": "^4.17.21",
@@ -73,6 +73,6 @@
         "not op_mini all",
         "not < 1%",
         "Chrome 77",
-        "iOS 13.4"
+        "iOS 14.5"
     ]
 }
