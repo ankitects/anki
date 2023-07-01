@@ -229,6 +229,8 @@ impl BuildAction for SvelteCheck {
             [
                 "a11y-click-events-have-key-events",
                 "a11y-no-noninteractive-tabindex",
+                "a11y-no-static-element-interactions",
+                "a11y-no-noninteractive-element-interactions",
             ]
             .iter()
             .map(|warning| format!("{}$:ignore", warning))

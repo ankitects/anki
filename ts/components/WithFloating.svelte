@@ -61,7 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         hideCallback: (reason: string) => dispatch("close", { reason }),
     });
 
-    let autoAction: ActionReturn = {};
+    let autoAction: ActionReturn<any> = {};
 
     $: {
         positionCurried;
@@ -184,7 +184,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div bind:this={floating} class="floating" class:show use:portal={portalTarget}>
     {#if show}
-        <slot name="floating" />
+        <slot name="floating" {position} />
     {/if}
 
     <div bind:this={arrow} class="floating-arrow" hidden={!show}>

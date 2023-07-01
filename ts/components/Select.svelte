@@ -69,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class="{className} select-container"
         class:rtl
         class:hover
-        {disabled}
+        class:disabled
         title={tooltip}
         tabindex="0"
         on:keypress={handleKey}
@@ -122,6 +122,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 text-overflow: ellipsis;
             }
         }
+    }
+
+    .disabled {
+        pointer-events: none;
+        opacity: 0.5;
     }
 
     .chevron {

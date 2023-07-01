@@ -32,7 +32,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return registerShortcut(toggle, keyCombination, { target });
     }
 
-    onMount(() => editorField.element.then(shortcut));
+    onMount(() => {
+        editorField.element.then(shortcut);
+    });
 </script>
 
 <span

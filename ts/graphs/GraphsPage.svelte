@@ -16,9 +16,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const search = writable(initialSearch);
     const days = writable(initialDays);
 
-    export let graphs: typeof SvelteComponent[];
+    export let graphs: typeof SvelteComponent<any>[];
     /** See RangeBox */
-    export let controller: typeof SvelteComponent | null;
+    export let controller: typeof SvelteComponent<any> | null;
 
     function browserSearch(event: CustomEvent) {
         bridgeCommand(`browserSearch: ${$search} ${event.detail.query}`);

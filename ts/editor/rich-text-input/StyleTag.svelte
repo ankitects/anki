@@ -3,13 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { getContext, onDestroy } from "svelte";
+    import { onDestroy } from "svelte";
 
-    import { customStylesKey } from "./CustomStyles.svelte";
+    import { getCustomStylesContext } from "./CustomStyles.svelte";
 
     export let id: string;
 
-    const { register, deregister } = getContext(customStylesKey);
+    const { register, deregister } = getCustomStylesContext();
 
     function onLoad(event: Event): void {
         const style = event.target! as HTMLStyleElement;
