@@ -217,12 +217,12 @@
   },
   {
     "name": "axum-client-ip",
-    "version": "0.3.1",
+    "version": "0.4.1",
     "authors": null,
     "repository": "https://github.com/imbolc/axum-client-ip",
     "license": "MIT",
     "license_file": null,
-    "description": "A client IP address extractor for Axum"
+    "description": "Client IP address extractors for Axum"
   },
   {
     "name": "axum-core",
@@ -531,6 +531,24 @@
     "description": "Traits for cryptographic hash functions and message authentication codes"
   },
   {
+    "name": "dirs",
+    "version": "5.0.1",
+    "authors": "Simon Ochsenreither <simon@ochsenreither.de>",
+    "repository": "https://github.com/soc/dirs-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A tiny low-level library that provides platform-specific standard locations of directories for config, cache and other data on Linux, Windows, macOS and Redox by leveraging the mechanisms defined by the XDG base/user directory specifications on Linux, the Known Folder API on Windows, and the Standard Directory guidelines on macOS."
+  },
+  {
+    "name": "dirs-sys",
+    "version": "0.4.1",
+    "authors": "Simon Ochsenreither <simon@ochsenreither.de>",
+    "repository": "https://github.com/dirs-dev/dirs-sys-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "System-level helper functions for the dirs and directories crates."
+  },
+  {
     "name": "displaydoc",
     "version": "0.2.4",
     "authors": "Jane Lusby <jlusby@yaah.dev>",
@@ -565,6 +583,15 @@
     "license": "(Apache-2.0 OR MIT) AND BSD-3-Clause",
     "license_file": null,
     "description": "A Gecko-oriented implementation of the Encoding Standard"
+  },
+  {
+    "name": "envy",
+    "version": "0.4.2",
+    "authors": "softprops <d.tangren@gmail.com>",
+    "repository": "https://github.com/softprops/envy",
+    "license": "MIT",
+    "license_file": null,
+    "description": "deserialize env vars into typesafe structs"
   },
   {
     "name": "equivalent",
@@ -1548,6 +1575,15 @@
     "description": "FFI bindings to OpenSSL"
   },
   {
+    "name": "option-ext",
+    "version": "0.2.0",
+    "authors": "Simon Ochsenreither <simon@ochsenreither.de>",
+    "repository": "https://github.com/soc/option-ext.git",
+    "license": "MPL-2.0",
+    "license_file": null,
+    "description": "Extends `Option` with additional operations"
+  },
+  {
     "name": "overload",
     "version": "0.1.1",
     "authors": "Daniel Salvadori <danaugrs@gmail.com>",
@@ -1918,12 +1954,30 @@
   },
   {
     "name": "redox_syscall",
+    "version": "0.2.16",
+    "authors": "Jeremy Soller <jackpot51@gmail.com>",
+    "repository": "https://gitlab.redox-os.org/redox-os/syscall",
+    "license": "MIT",
+    "license_file": null,
+    "description": "A Rust library to access raw Redox system calls"
+  },
+  {
+    "name": "redox_syscall",
     "version": "0.3.5",
     "authors": "Jeremy Soller <jackpot51@gmail.com>",
     "repository": "https://gitlab.redox-os.org/redox-os/syscall",
     "license": "MIT",
     "license_file": null,
     "description": "A Rust library to access raw Redox system calls"
+  },
+  {
+    "name": "redox_users",
+    "version": "0.4.3",
+    "authors": "Jose Narvaez <goyox86@gmail.com>|Wesley Hershberger <mggmugginsmc@gmail.com>",
+    "repository": "https://gitlab.redox-os.org/redox-os/users",
+    "license": "MIT",
+    "license_file": null,
+    "description": "A Rust library to access Redox users and groups functionality"
   },
   {
     "name": "regex",

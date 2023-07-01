@@ -8,8 +8,8 @@ mod routes;
 mod user;
 
 use std::collections::HashMap;
-use std::env;
 use std::future::Future;
+use std::net::IpAddr;
 use std::net::SocketAddr;
 use std::net::TcpListener;
 use std::path::Path;
@@ -21,6 +21,7 @@ use std::sync::Mutex;
 use anki_io::create_dir_all;
 use axum::extract::DefaultBodyLimit;
 use axum::Router;
+use axum_client_ip::SecureClientIpSource;
 use snafu::whatever;
 use snafu::OptionExt;
 use snafu::ResultExt;
@@ -49,6 +50,36 @@ pub struct SimpleServer {
 pub struct SimpleServerInner {
     /// hkey->user
     users: HashMap<String, User>,
+}
+
+#[derive(serde::Deserialize, Debug)]
+pub struct SyncServerConfig {
+    #[serde(default = "default_host")]
+    pub host: IpAddr,
+    #[serde(default = "default_port")]
+    pub port: u16,
+    #[serde(default = "default_base", rename = "base")]
+    pub base_folder: PathBuf,
+    #[serde(default = "default_ip_header")]
+    pub ip_header: SecureClientIpSource,
+}
+
+fn default_host() -> IpAddr {
+    "0.0.0.0".parse().unwrap()
+}
+
+fn default_port() -> u16 {
+    8080
+}
+
+fn default_base() -> PathBuf {
+    dirs::home_dir()
+        .unwrap_or_else(|| panic!("Unable to determine home folder; please set SYNC_BASE"))
+        .join(".syncserver")
+}
+
+pub fn default_ip_header() -> SecureClientIpSource {
+    SecureClientIpSource::ConnectInfo
 }
 
 impl SimpleServerInner {
@@ -135,12 +166,12 @@ impl SimpleServer {
     }
 
     pub fn make_server(
-        address: Option<&str>,
-        base_folder: &Path,
+        config: SyncServerConfig,
     ) -> error::Result<(SocketAddr, ServerFuture), Whatever> {
-        let server =
-            Arc::new(SimpleServer::new(base_folder).whatever_context("unable to create server")?);
-        let address = address.unwrap_or("127.0.0.1:0");
+        let server = Arc::new(
+            SimpleServer::new(&config.base_folder).whatever_context("unable to create server")?,
+        );
+        let address = &format!("{}:{}", config.host, config.port);
         let listener = TcpListener::bind(address)
             .with_whatever_context(|_| format!("couldn't bind to {address}"))?;
         let addr = listener.local_addr().unwrap();
@@ -149,7 +180,8 @@ impl SimpleServer {
                 .nest("/sync", collection_sync_router())
                 .nest("/msync", media_sync_router())
                 .with_state(server)
-                .layer(DefaultBodyLimit::max(*MAXIMUM_SYNC_PAYLOAD_BYTES)),
+                .layer(DefaultBodyLimit::max(*MAXIMUM_SYNC_PAYLOAD_BYTES))
+                .layer(config.ip_header.into_extension()),
         );
         let future = axum::Server::from_tcp(listener)
             .whatever_context("listen failed")?
@@ -164,13 +196,10 @@ impl SimpleServer {
     #[snafu::report]
     #[tokio::main]
     pub async fn run() -> error::Result<(), Whatever> {
-        let host = env::var("SYNC_HOST").unwrap_or_else(|_| "0.0.0.0".into());
-        let port = env::var("SYNC_PORT").unwrap_or_else(|_| "8080".into());
-        let base_folder =
-            PathBuf::from(env::var("SYNC_BASE").whatever_context("missing SYNC_BASE")?);
-
-        let addr = format!("{host}:{port}");
-        let (_addr, server_fut) = SimpleServer::make_server(Some(&addr), &base_folder)?;
+        let config = envy::prefixed("SYNC_")
+            .from_env::<SyncServerConfig>()
+            .whatever_context("reading SYNC_* env vars")?;
+        let (_addr, server_fut) = SimpleServer::make_server(config)?;
         server_fut.await.whatever_context("await server")?;
         Ok(())
     }
