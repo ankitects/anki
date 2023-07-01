@@ -48,7 +48,7 @@ unicase = "=2.6.0" # any changes could invalidate sqlite indexes
 ammonia = "3.3.0"
 anyhow = "1.0.71"
 apple-bundles = "0.17.0"
-async-compression = { version = "0.3.15", features = ["zstd", "tokio"] }
+async-compression = { version = "0.4.0", features = ["zstd", "tokio"] }
 async-stream = "0.3.5"
 async-trait = "0.1.68"
 axum = { version = "0.6.18", features = ["multipart", "macros", "headers"] }
@@ -60,7 +60,7 @@ chrono = { version = "0.4.26", default-features = false, features = ["std", "clo
 clap = { version = "4.3.10", features = ["derive"] }
 coarsetime = "0.1.23"
 convert_case = "0.6.0"
-criterion = { version = "0.4.0" }
+criterion = { version = "0.5.1" }
 difflib = "0.4.0"
 flate2 = "1.0.26"
 fluent = "0.16.0"
@@ -76,7 +76,7 @@ hyper = "0.14.27"
 id_tree = "1.8.0"
 inflections = "1.1.1"
 intl-memoizer = "0.5.1"
-itertools = "0.10.5"
+itertools = "0.11.0"
 junction = "1.0.0"
 lazy_static = "1.4.0"
 maplit = "1.0.2"
@@ -94,7 +94,7 @@ prost-build = "0.11.9"
 prost-reflect = "0.11.4"
 prost-types = "0.11.9"
 pulldown-cmark = "0.9.3"
-pyo3 = { version = "0.18.3", features = ["extension-module", "abi3", "abi3-py39"] }
+pyo3 = { version = "0.19.0", features = ["extension-module", "abi3", "abi3-py39"] }
 rand = "0.8.5"
 regex = "1.8.4"
 reqwest = { version = "0.11.18", default-features = false, features = ["json", "socks", "stream", "multipart"] }
@@ -109,7 +109,7 @@ sha1 = "0.10.5"
 sha2 = { version = "0.10.7" }
 simple-file-manifest = "0.11.0"
 snafu = { version = "0.7.4", features = ["backtraces", "rust_1_61"] }
-strum = { version = "0.24.1", features = ["derive"] }
+strum = { version = "0.25.0", features = ["derive"] }
 syn = { version = "2.0.22", features = ["parsing", "printing"] }
 tar = "0.4.38"
 tempfile = "3.6.0"
