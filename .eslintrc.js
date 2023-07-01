@@ -1,9 +1,11 @@
 module.exports = {
     root: true,
-    extends: ["eslint:recommended", "plugin:compat/recommended"],
+    extends: ["eslint:recommended", "plugin:compat/recommended", "plugin:svelte/recommended"],
     parser: "@typescript-eslint/parser",
+    parserOptions: {
+        extraFileExtensions: [".svelte"],
+    },
     plugins: [
-        "svelte3",
         "import",
         "simple-import-sort",
         "@typescript-eslint",
@@ -36,11 +38,14 @@ module.exports = {
             },
         },
         {
-            files: "**/*.svelte",
-            processor: "svelte3/svelte3",
+            files: ["*.svelte"],
+            parser: "svelte-eslint-parser",
+            parserOptions: {
+                parser: "@typescript-eslint/parser",
+            },
             rules: {
-                "no-redeclare": "off",
-                "no-global-assign": "off",
+                "svelte/no-at-html-tags": "off",
+                "svelte/valid-compile": ["error", { "ignoreWarnings": true }],
             },
         },
     ],
@@ -49,9 +54,6 @@ module.exports = {
     globals: {
         globalThis: false,
         NodeListOf: false,
-    },
-    settings: {
-        "svelte3/typescript": () => require("typescript"),
-        "svelte3/ignore-warnings": (warning) => warning.code.startsWith("a11y-"),
+        $$Generic: "readonly",
     },
 };

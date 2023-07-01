@@ -1,16 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type { SvelteComponentDev } from "svelte/internal";
+
+/* eslint
+@typescript-eslint/no-explicit-any: "off",
+ */
+
+import type { SvelteComponent } from "svelte";
 
 export interface DynamicSvelteComponent<
-    T extends typeof SvelteComponentDev = typeof SvelteComponentDev,
+    T extends typeof SvelteComponent<any> = typeof SvelteComponent<any>,
 > {
     component: T;
     [k: string]: unknown;
 }
 
 export const dynamicComponent = <
-    Comp extends typeof SvelteComponentDev,
+    Comp extends typeof SvelteComponent<any>,
     DefaultProps = NonNullable<ConstructorParameters<Comp>[0]["props"]>,
 >(
     component: Comp,

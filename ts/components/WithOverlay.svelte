@@ -43,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         hideCallback: (reason: string) => dispatch("close", { reason }),
     });
 
-    let autoAction: ActionReturn = {};
+    let autoAction: ActionReturn<any> = {};
 
     $: {
         positionCurried;
@@ -154,7 +154,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div bind:this={floating} class="overlay" class:show>
     {#if show}
-        <slot name="overlay" />
+        <slot name="overlay" {position} />
     {/if}
 </div>
 

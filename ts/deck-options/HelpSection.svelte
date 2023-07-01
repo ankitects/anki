@@ -4,7 +4,7 @@
 -->
 <script lang="ts">
     import * as tr from "@tslib/ftl";
-    import { marked } from "marked";
+    import { renderMarkdown } from "@tslib/helpers";
 
     import Row from "../components/Row.svelte";
     import type { DeckOption } from "./types";
@@ -21,9 +21,9 @@
         {/if}
     </h2>
     {#if section.help}
-        {@html marked(section.help)}
+        {@html renderMarkdown(section.help)}
     {:else}
-        {@html marked(
+        {@html renderMarkdown(
             tr.helpNoExplanation({
                 link: "[GitHub](https://github.com/ankitects/anki)",
             }),
@@ -33,7 +33,7 @@
 {#if section.url}
     <hr />
     <div class="chapter-redirect">
-        {@html marked(
+        {@html renderMarkdown(
             tr.helpForMoreInfo({
                 link: `<a href="${section.url}" title="${tr.helpOpenManualChapter({
                     name: section.title,

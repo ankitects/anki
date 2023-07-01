@@ -1,22 +1,26 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+/* eslint
+@typescript-eslint/no-explicit-any: "off",
+ */
+
 import "./graphs-base.scss";
 
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
-import type { SvelteComponentDev } from "svelte/internal";
+import type { SvelteComponent } from "svelte";
 
 import GraphsPage from "./GraphsPage.svelte";
 
 const i18n = setupI18n({ modules: [ModuleName.STATISTICS, ModuleName.SCHEDULING] });
 
 export async function setupGraphs(
-    graphs: typeof SvelteComponentDev[],
+    graphs: typeof SvelteComponent<any>[],
     {
         search = "deck:current",
         days = 365,
-        controller = null as typeof SvelteComponentDev | null,
+        controller = null as typeof SvelteComponent<any> | null,
     } = {},
 ): Promise<GraphsPage> {
     checkNightMode();
