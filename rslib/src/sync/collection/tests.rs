@@ -43,7 +43,9 @@ use crate::sync::collection::start::StartRequest;
 use crate::sync::collection::upload::UploadResponse;
 use crate::sync::collection::upload::CORRUPT_MESSAGE;
 use crate::sync::http_client::HttpSyncClient;
+use crate::sync::http_server::default_ip_header;
 use crate::sync::http_server::SimpleServer;
+use crate::sync::http_server::SyncServerConfig;
 use crate::sync::login::HostKeyRequest;
 use crate::sync::login::SyncAuth;
 use crate::sync::request::IntoSyncRequest;
@@ -80,7 +82,13 @@ where
     // start server
     let base_folder = tempdir()?;
     std::env::set_var("SYNC_USER1", "user:pass");
-    let (addr, server_fut) = SimpleServer::make_server(None, base_folder.path()).unwrap();
+    let (addr, server_fut) = SimpleServer::make_server(SyncServerConfig {
+        host: "127.0.0.1".parse().unwrap(),
+        port: 0,
+        base_folder: base_folder.path().into(),
+        ip_header: default_ip_header(),
+    })
+    .unwrap();
     tokio::spawn(server_fut.instrument(Span::current()));
     // when not using ephemeral servers, tests need to be serialized
     static LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));

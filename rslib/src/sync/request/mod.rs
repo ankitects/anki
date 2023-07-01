@@ -16,9 +16,10 @@ use axum::extract::Multipart;
 use axum::http::Request;
 use axum::RequestPartsExt;
 use axum::TypedHeader;
-use axum_client_ip::ClientIp;
+use axum_client_ip::SecureClientIp;
 use header_and_stream::SyncHeader;
 use hyper::Body;
+use hyper::StatusCode;
 use once_cell::sync::Lazy;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -112,11 +113,13 @@ where
     async fn from_request(req: Request<Body>, state: &S) -> HttpResult<Self, Self::Rejection> {
         let (mut parts, body) = req.into_parts();
 
-        let ClientIp(ip) = parts
-            .extract()
+        let ip = parts
+            .extract::<SecureClientIp>()
             .await
-            .ok()
-            .or_internal_err("unable to get ip")?;
+            .map_err(|_| {
+                HttpError::new_without_source(StatusCode::INTERNAL_SERVER_ERROR, "missing ip")
+            })?
+            .0;
         Span::current().record("ip", ip.to_string());
 
         let sync_header: Option<TypedHeader<SyncHeader>> =
