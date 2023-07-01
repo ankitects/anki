@@ -215,7 +215,7 @@ pub struct SvelteCheck {
 impl BuildAction for SvelteCheck {
     fn command(&self) -> &str {
         "$svelte-check --tsconfig $tsconfig $
-        --fail-on-warnings --threshold warning --use-new-transformation $
+        --fail-on-warnings --threshold warning $
         --compiler-warnings $compiler_warnings"
     }
 

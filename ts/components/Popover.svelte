@@ -5,9 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { Placement } from "@floating-ui/dom";
     import { getContext, onMount } from "svelte";
-    import { create_in_transition } from "svelte/internal";
     import type { Writable } from "svelte/store";
-    import { slide } from "svelte/transition";
 
     import { floatingKey } from "./context-keys";
 
@@ -26,8 +24,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $placementStore.then((computedPlacement) => {
             if (placement != computedPlacement) {
                 placement = computedPlacement;
-                /* use internal function to animate popover */
-                create_in_transition(element, slide, { duration: 200 }).start();
                 hidden = false;
             }
         });

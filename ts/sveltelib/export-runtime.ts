@@ -6,8 +6,8 @@
 // would not work.
 
 import { registerPackageRaw } from "@tslib/runtime-require";
-import * as svelteRuntime from "svelte/internal";
+import * as svelteRuntime from "svelte";
 import * as svelteStore from "svelte/store";
 
-registerPackageRaw("svelte/internal", svelteRuntime);
+registerPackageRaw("svelte", svelteRuntime);
 registerPackageRaw("svelte/store", svelteStore);

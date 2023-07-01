@@ -12,5 +12,5 @@ module.exports = {
             "<rootDir>/lib$1",
         ],
     },
-    transformIgnorePatterns: ["/node_modules/(?!(lodash-es)/)"],
+    transformIgnorePatterns: ["/node_modules/(?!(lodash-es|svelte)/)"],
 };
