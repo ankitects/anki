@@ -20,8 +20,10 @@ impl Collection {
     pub fn add_image_occlusion_notetype_inner(&mut self) -> Result<()> {
         if self.get_first_io_notetype()?.is_none() {
             let mut nt = image_occlusion_notetype(&self.tr);
+            let usn = self.usn()?;
+            nt.set_modified(usn);
             let current_id = self.get_current_notetype_id();
-            self.add_notetype_inner(&mut nt, self.usn()?, false)?;
+            self.add_notetype_inner(&mut nt, usn, false)?;
             if let Some(current_id) = current_id {
                 // preserve previous default
                 self.set_current_notetype_id(current_id)?;
