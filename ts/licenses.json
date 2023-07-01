@@ -34,7 +34,7 @@
         "path": "node_modules/@mdi/svg",
         "licenseFile": "node_modules/@mdi/svg/LICENSE"
     },
-    "@popperjs/core@2.11.4": {
+    "@popperjs/core@2.11.8": {
         "licenses": "MIT",
         "repository": "https://github.com/popperjs/popper-core",
         "publisher": "Federico Zivolo",
@@ -134,14 +134,14 @@
         "path": "node_modules/bezier-easing",
         "licenseFile": "node_modules/bezier-easing/LICENSE"
     },
-    "bootstrap-icons@1.8.1": {
+    "bootstrap-icons@1.10.5": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/icons",
         "publisher": "mdo",
         "path": "node_modules/bootstrap-icons",
-        "licenseFile": "node_modules/bootstrap-icons/LICENSE.md"
+        "licenseFile": "node_modules/bootstrap-icons/LICENSE"
     },
-    "bootstrap@5.0.2": {
+    "bootstrap@5.3.0": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/bootstrap",
         "publisher": "The Bootstrap Authors",
