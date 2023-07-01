@@ -67,7 +67,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import PlainTextBadge from "./PlainTextBadge.svelte";
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
-    import SymbolsOverlay from "./symbols-overlay";
     import type { NotetypeIdAndModTime, SessionOptions } from "./types";
 
     function quoteFontFamily(fontFamily: string): string {
@@ -232,12 +231,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (sessionOptions[id]?.modTimeOfNotetype !== modTime) {
             delete sessionOptions[id];
         }
-    }
-
-    let insertSymbols = false;
-
-    function setInsertSymbolsEnabled() {
-        insertSymbols = true;
     }
 
     function getNoteId(): number | null {
@@ -415,7 +408,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setNotetypeMeta,
             wrap,
             setMathjaxEnabled,
-            setInsertSymbolsEnabled,
             setShrinkImages,
             setCloseHTMLTags,
             triggerChanges,
@@ -585,9 +577,6 @@ the AddCards dialog) should be implemented in the user of this component.
 
         <MathjaxOverlay />
         <ImageOverlay maxWidth={250} maxHeight={125} />
-        {#if insertSymbols}
-            <SymbolsOverlay />
-        {/if}
     </Fields>
 
     <Shortcut
