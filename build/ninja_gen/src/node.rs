@@ -423,7 +423,7 @@ pub struct CompileTypescript<'a> {
 
 impl BuildAction for CompileTypescript<'_> {
     fn command(&self) -> &str {
-        "$tsc $in --outDir $out_dir -d --skipLibCheck"
+        "$tsc $in --outDir $out_dir -d --skipLibCheck --types node"
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
