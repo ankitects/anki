@@ -372,12 +372,6 @@ impl BuildAction for GenTypescriptProto<'_> {
         );
         build.add_inputs("protoc", inputs![":protoc_binary"]);
         build.add_inputs("gen-es", inputs![":node_modules:protoc-gen-es"]);
-        if cfg!(windows) {
-            build.add_env_var(
-                "PATH",
-                &format!("node_modules/.bin;{}", std::env::var("PATH").unwrap()),
-            );
-        }
         build.add_inputs_vec("in", proto_files);
         build.add_inputs("", inputs!["yarn.lock"]);
         build.add_inputs("pyenv_bin", inputs![":pyenv:bin"]);
