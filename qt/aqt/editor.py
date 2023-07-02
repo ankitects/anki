@@ -1382,10 +1382,6 @@ class EditorWebView(AnkiWebView):
     def flagAnkiText(self) -> None:
         # be ready to adjust when clipboard event fires
         self._markInternal = True
-        # workaround broken QClipboard.dataChanged() on recent Qt6 versions
-        # https://github.com/ankitects/anki/issues/1793
-        if is_win and qtmajor == 6:
-            self.editor.mw.progress.single_shot(300, self._flagAnkiText, True)
 
     def _flagAnkiText(self) -> None:
         # add a comment in the clipboard html so we can tell text is copied
