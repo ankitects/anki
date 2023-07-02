@@ -9,3 +9,6 @@
 [submodule "qt/bundle/PyOxidizer"]
 	path = qt/bundle/PyOxidizer
 	url = https://github.com/ankitects/PyOxidizer.git
+	shallow = true
+	update = none
+
