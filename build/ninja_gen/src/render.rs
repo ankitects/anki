@@ -24,7 +24,7 @@ impl Build {
 
         writeln!(
             &mut buf,
-            "runner = $builddir/rust/debug/{}",
+            "runner = $builddir/rust/release/{}",
             with_exe("runner")
         )
         .unwrap();
