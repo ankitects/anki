@@ -14,6 +14,7 @@ members = [
   "rslib/proto",
   "rslib/io",
   "rslib/process",
+  "rslib/sync",
   "pylib/rsbridge",
   "build/configure",
   "build/ninja_gen",

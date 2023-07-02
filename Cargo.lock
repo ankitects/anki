@@ -165,6 +165,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "anki-sync-server"
+version = "0.0.0"
+dependencies = [
+ "anki",
+]
+
+[[package]]
 name = "anki_i18n"
 version = "0.0.0"
 dependencies = [
