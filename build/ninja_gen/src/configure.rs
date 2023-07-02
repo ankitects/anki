@@ -19,7 +19,7 @@ impl BuildAction for ConfigureBuild {
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
-        build.add_inputs("cmd", inputs![":build:configure"]);
+        build.add_inputs("cmd", inputs![":build:configure_bin"]);
         // reconfigure when external inputs change
         build.add_inputs("", inputs!["$builddir/env", ".version", ".git"]);
         build.add_outputs("", ["build.ninja"])
@@ -27,7 +27,7 @@ impl BuildAction for ConfigureBuild {
 
     fn on_first_instance(&self, build: &mut Build) -> Result<()> {
         build.add_action(
-            "build:configure",
+            "build:configure_bin",
             CargoBuild {
                 inputs: inputs![glob!["build/**/*"]],
                 outputs: &[RustOutput::Binary("configure")],
@@ -37,5 +37,13 @@ impl BuildAction for ConfigureBuild {
             },
         )?;
         Ok(())
+    }
+
+    fn generator(&self) -> bool {
+        true
+    }
+
+    fn check_output_timestamps(&self) -> bool {
+        true
     }
 }

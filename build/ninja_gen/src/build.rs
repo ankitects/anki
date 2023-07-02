@@ -50,7 +50,7 @@ impl Build {
             groups: Default::default(),
         };
 
-        build.add_action("build:run_configure", ConfigureBuild {})?;
+        build.add_action("build:configure", ConfigureBuild {})?;
 
         Ok(build)
     }
