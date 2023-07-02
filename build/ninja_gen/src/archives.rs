@@ -57,8 +57,11 @@ impl Platform {
 
     pub fn as_rust_triple(&self) -> &'static str {
         match self {
+            Platform::LinuxX64 => "x86_64-unknown-linux-gnu",
+            Platform::LinuxArm => "aarch64-unknown-linux-gnu",
             Platform::MacX64 => "x86_64-apple-darwin",
-            _ => unimplemented!(),
+            Platform::MacArm => "aarch64-apple-darwin",
+            Platform::WindowsX64 => "x86_64-pc-windows-msvc",
         }
     }
 }
