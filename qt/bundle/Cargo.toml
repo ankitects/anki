@@ -55,3 +55,6 @@ build-mode-pyoxidizer-exe = []
 # to the directory containing build artifacts produced by `pyoxidizer`. If not
 # set, OUT_DIR will be used.
 build-mode-prebuilt-artifacts = []
+
+[profile.release]
+lto = true

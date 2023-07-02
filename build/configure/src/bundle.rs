@@ -8,6 +8,7 @@ use ninja_gen::archives::empty_manifest;
 use ninja_gen::archives::with_exe;
 use ninja_gen::archives::OnlineArchive;
 use ninja_gen::archives::Platform;
+use ninja_gen::build::BuildProfile;
 use ninja_gen::cargo::CargoBuild;
 use ninja_gen::cargo::RustOutput;
 use ninja_gen::git::SyncSubmodule;
@@ -269,7 +270,7 @@ fn build_pyoxidizer(build: &mut Build) -> Result<()> {
                 "--manifest-path={} --target-dir={} -p pyoxidizer",
                 "qt/bundle/PyOxidizer/Cargo.toml", "$builddir/bundle/rust"
             ),
-            release_override: Some(true),
+            release_override: Some(BuildProfile::Release),
         },
     )?;
     Ok(())
@@ -320,7 +321,8 @@ impl BuildAction for BuildBundle {
                     overriden_rust_target_triple()
                         .unwrap_or_else(|| Platform::current().as_rust_triple()),
                 ),
-                true,
+                // our pyoxidizer bin uses lto on the release profile
+                BuildProfile::Release,
             )],
         );
     }

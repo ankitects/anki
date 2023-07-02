@@ -4,6 +4,7 @@
 use anyhow::Result;
 
 use crate::action::BuildAction;
+use crate::build::BuildProfile;
 use crate::build::FilesHandle;
 use crate::cargo::CargoBuild;
 use crate::cargo::RustOutput;
@@ -33,7 +34,7 @@ impl BuildAction for ConfigureBuild {
                 outputs: &[RustOutput::Binary("configure")],
                 target: None,
                 extra_args: "-p configure",
-                release_override: Some(false),
+                release_override: Some(BuildProfile::Debug),
             },
         )?;
         Ok(())

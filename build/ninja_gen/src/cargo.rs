@@ -7,6 +7,7 @@ use camino::Utf8PathBuf;
 
 use crate::action::BuildAction;
 use crate::archives::with_exe;
+use crate::build::BuildProfile;
 use crate::build::FilesHandle;
 use crate::input::BuildInput;
 use crate::inputs;
@@ -31,7 +32,12 @@ impl RustOutput<'_> {
         }
     }
 
-    pub fn path(&self, rust_base: &Utf8Path, target: Option<&str>, release: bool) -> String {
+    pub fn path(
+        &self,
+        rust_base: &Utf8Path,
+        target: Option<&str>,
+        build_profile: BuildProfile,
+    ) -> String {
         let filename = match *self {
             RustOutput::Binary(package) => {
                 if cfg!(windows) {
@@ -56,10 +62,16 @@ impl RustOutput<'_> {
         if let Some(target) = target {
             path = path.join(target);
         }
-        path = path
-            .join(if release { "release" } else { "debug" })
-            .join(filename);
+        path = path.join(profile_output_dir(build_profile)).join(filename);
         path.to_string()
+    }
+}
+
+fn profile_output_dir(profile: BuildProfile) -> &'static str {
+    match profile {
+        BuildProfile::Debug => "debug",
+        BuildProfile::Release => "release",
+        BuildProfile::ReleaseWithLto => "release-lto",
     }
 }
 
@@ -69,7 +81,7 @@ pub struct CargoBuild<'a> {
     pub outputs: &'a [RustOutput<'a>],
     pub target: Option<&'static str>,
     pub extra_args: &'a str,
-    pub release_override: Option<bool>,
+    pub release_override: Option<BuildProfile>,
 }
 
 impl BuildAction for CargoBuild<'_> {
@@ -80,8 +92,8 @@ impl BuildAction for CargoBuild<'_> {
     fn files(&mut self, build: &mut impl FilesHandle) {
         let release_build = self
             .release_override
-            .unwrap_or_else(|| build.release_build());
-        let release_arg = if release_build { "--release" } else { "" };
+            .unwrap_or_else(|| build.build_profile());
+        let release_arg = profile_arg_for_cargo(release_build).unwrap_or_default();
         let target_arg = if let Some(target) = self.target {
             format!("--target {target}")
         } else {
@@ -111,6 +123,14 @@ impl BuildAction for CargoBuild<'_> {
 
     fn on_first_instance(&self, build: &mut Build) -> Result<()> {
         setup_flags(build)
+    }
+}
+
+fn profile_arg_for_cargo(profile: BuildProfile) -> Option<&'static str> {
+    match profile {
+        BuildProfile::Debug => None,
+        BuildProfile::Release => Some("--release"),
+        BuildProfile::ReleaseWithLto => Some("--profile release-lto"),
     }
 }
 

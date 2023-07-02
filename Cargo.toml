@@ -152,3 +152,7 @@ debug = 0
 debug = 0
 [profile.dev.package.rsbridge]
 debug = 0
+
+[profile.release-lto]
+inherits = "release"
+lto = true
