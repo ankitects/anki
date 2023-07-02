@@ -115,7 +115,7 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
                 ":rslib:i18n",
                 ":rslib:proto",
                 // when env vars change the build hash gets updated
-                "$builddir/build.ninja",
+                "$builddir/env",
                 // building on Windows requires python3.lib
                 if cfg!(windows) {
                     inputs![":extract:python"]
