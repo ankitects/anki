@@ -7,6 +7,7 @@ use ninja_gen::archives::download_and_extract;
 use ninja_gen::archives::empty_manifest;
 use ninja_gen::archives::with_exe;
 use ninja_gen::archives::OnlineArchive;
+use ninja_gen::archives::Platform;
 use ninja_gen::cargo::CargoBuild;
 use ninja_gen::cargo::RustOutput;
 use ninja_gen::git::SyncSubmodule;
@@ -181,9 +182,11 @@ fn setup_primary_venv(build: &mut Build) -> Result<()> {
     let mut qt6_reqs = inputs![
         "python/requirements.bundle.txt",
         if cfg!(windows) {
-            "python/requirements.qt6_4.txt"
+            "python/requirements.qt6_win.txt"
+        } else if cfg!(target_os = "darwin") {
+            "python/requirements.qt6_mac.txt"
         } else {
-            "python/requirements.qt6_5.txt"
+            "python/requirements.qt6_lin.txt"
         }
     ];
     if cfg!(windows) {
@@ -313,7 +316,10 @@ impl BuildAction for BuildBundle {
             "",
             vec![RustOutput::Binary("anki").path(
                 Utf8Path::new("$builddir/bundle/rust"),
-                overriden_rust_target_triple(),
+                Some(
+                    overriden_rust_target_triple()
+                        .unwrap_or_else(|| Platform::current().as_rust_triple()),
+                ),
                 true,
             )],
         );
