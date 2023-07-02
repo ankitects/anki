@@ -105,7 +105,8 @@ To run Anki in optimized mode, use:
 ./tools/runopt
 ```
 
-Or set RELEASE=1.
+Or set RELEASE=1 or RELEASE=2. The latter will further optimize the output, but make
+the build much slower.
 
 ## Building redistributable wheels
 
