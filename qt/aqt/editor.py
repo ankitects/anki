@@ -966,7 +966,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.web.onPaste()
 
     def onCutOrCopy(self) -> None:
-        self.web.flagAnkiText()
+        self.web.user_cut_or_copied()
 
     # Legacy editing routines
     ######################################################################
@@ -1215,15 +1215,34 @@ class EditorWebView(AnkiWebView):
         AnkiWebView.__init__(self, kind=AnkiWebViewKind.EDITOR)
         self.editor = editor
         self.setAcceptDrops(True)
-        self._markInternal = False
+        self._store_field_content_on_next_clipboard_change = False
+        # when we detect the user copying from a field, we store the content
+        # here, and use it when they paste, so we avoid filtering field content
+        self._internal_field_text_for_paste: str | None = None
         clip = self.editor.mw.app.clipboard()
-        qconnect(clip.dataChanged, self._onClipboardChange)
+        qconnect(clip.dataChanged, self._on_clipboard_change)
         gui_hooks.editor_web_view_did_init(self)
 
-    def _onClipboardChange(self) -> None:
-        if self._markInternal:
-            self._markInternal = False
-            self._flagAnkiText()
+    def user_cut_or_copied(self) -> None:
+        self._store_field_content_on_next_clipboard_change = True
+
+    def _on_clipboard_change(self) -> None:
+        if self._store_field_content_on_next_clipboard_change:
+            # if the flag was set, save the field data
+            self._internal_field_text_for_paste = self._get_clipboard_html_for_field()
+            self._store_field_content_on_next_clipboard_change = False
+        elif (
+            self._internal_field_text_for_paste != self._get_clipboard_html_for_field()
+        ):
+            # if we've previously saved the field, blank it out if the clipboard state has changed
+            self._internal_field_text_for_paste = None
+
+    def _get_clipboard_html_for_field(self):
+        clip = self.editor.mw.app.clipboard()
+        mime = clip.mimeData()
+        if not mime.hasHtml():
+            return
+        return mime.html()
 
     def onCut(self) -> None:
         self.triggerPageAction(QWebEnginePage.WebAction.Cut)
@@ -1241,11 +1260,15 @@ class EditorWebView(AnkiWebView):
 
     def _onPaste(self, mode: QClipboard.Mode) -> None:
         extended = self._wantsExtendedPaste()
-        mime = self.editor.mw.app.clipboard().mimeData(mode=mode)
-        html, internal = self._processMime(mime, extended)
-        if not html:
-            return
-        self.editor.doPaste(html, internal, extended)
+        if html := self._internal_field_text_for_paste:
+            print("reuse internal")
+            self.editor.doPaste(html, True, extended)
+        else:
+            print("use clipboard")
+            mime = self.editor.mw.app.clipboard().mimeData(mode=mode)
+            html, internal = self._processMime(mime, extended)
+            if html:
+                self.editor.doPaste(html, internal, extended)
 
     def onPaste(self) -> None:
         self._onPaste(QClipboard.Mode.Clipboard)
@@ -1282,7 +1305,7 @@ class EditorWebView(AnkiWebView):
         # print("urls", mime.urls())
         # print("text", mime.text())
 
-        internal = mime.html().startswith("<!--anki-->")
+        internal = False
 
         mime = gui_hooks.editor_will_process_mime(
             mime, self, internal, extended, drop_event
@@ -1378,35 +1401,6 @@ class EditorWebView(AnkiWebView):
         if fname:
             return self.editor.fnameToLink(fname)
         return None
-
-    def flagAnkiText(self) -> None:
-        # be ready to adjust when clipboard event fires
-        self._markInternal = True
-
-    def _flagAnkiText(self) -> None:
-        # add a comment in the clipboard html so we can tell text is copied
-        # from us and doesn't need to be stripped
-        clip = self.editor.mw.app.clipboard()
-        if not is_mac and not clip.ownsClipboard():
-            return
-        mime = clip.mimeData()
-        if not mime.hasHtml():
-            return
-        html = f"<!--anki-->{mime.html()}"
-
-        def after_delay() -> None:
-            # utilities that modify the clipboard can invalidate our existing
-            # mime handle in the time it takes for the timer to fire, so we need
-            # to fetch the data again
-            mime = clip.mimeData()
-            mime.setHtml(html)
-            clip.setMimeData(mime)
-
-        # Mutter bugs out if the clipboard data is mutated in the clipboard change
-        # hook, so we need to do it after a delay. Initially 10ms appeared to be
-        # enough, but we've had a recent report than 175ms+ was required on their
-        # system.
-        aqt.mw.progress.timer(300 if is_lin else 10, after_delay, False, parent=self)
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)
