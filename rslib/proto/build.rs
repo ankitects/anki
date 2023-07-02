@@ -5,14 +5,12 @@ pub mod python;
 pub mod rust;
 pub mod ts;
 
-use std::env;
-use std::path::PathBuf;
-
+use anki_proto_gen::descriptors_path;
 use anki_proto_gen::get_services;
 use anyhow::Result;
 
 fn main() -> Result<()> {
-    let descriptors_path = env::var("DESCRIPTORS_BIN").ok().map(PathBuf::from);
+    let descriptors_path = descriptors_path();
 
     let pool = rust::write_rust_protos(descriptors_path)?;
     let (_, services) = get_services(&pool);
