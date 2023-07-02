@@ -2,12 +2,15 @@
 
 set -e
 
-echo "+++ Building and testing"
-ln -sf out/node_modules .
-
 export PATH="$PATH:/state/rust/cargo/bin"
 export BUILD_ROOT=/state/build
 export ONLINE_TESTS=1
+
+echo "--- Install n2"
+./tools/install-n2
+
+echo "+++ Building and testing"
+ln -sf out/node_modules .
 
 if [ "$CLEAR_RUST" = "1" ]; then
     rm -rf $BUILD_ROOT/rust
