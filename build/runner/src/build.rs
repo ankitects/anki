@@ -27,7 +27,7 @@ pub fn run_build(args: BuildArgs) {
 
     let path = if cfg!(windows) {
         format!(
-            "out\\bin;out\\extracted\\node;{};\\msys64\\usr\\bin",
+            "out\\bin;out\\extracted\\node;node_modules\\.bin;out\\extracted\\win_amd64_audio;{};\\msys64\\usr\\bin",
             env::var("PATH").unwrap()
         )
     } else {
@@ -61,7 +61,7 @@ pub fn run_build(args: BuildArgs) {
         .arg(&build_file)
         .args(ninja_args)
         .env("NINJA_STATUS", "[%f/%t; %r active; %es] ")
-        .env("PATH", path)
+        .env("PATH", &path)
         .env(
             "MYPY_CACHE_DIR",
             build_root.join("tests").join("mypy").into_string(),
