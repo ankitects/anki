@@ -49,17 +49,7 @@ body {
     &:not(.isMac) * {
         @include scrollbar.custom;
     }
-    &.reduce-motion,
-    &.reduce-motion *:not(.no-reduce-motion) {
-        transition: none !important;
-        animation: none !important;
-    }
     &.no-blur * {
-        backdrop-filter: none !important;
-    }
-    &:not(.fancy),
-    &:not(.fancy) * {
-        box-shadow: none !important;
         backdrop-filter: none !important;
     }
 }

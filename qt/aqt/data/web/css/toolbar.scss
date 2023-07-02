@@ -35,7 +35,10 @@
 .toolbar {
     justify-self: center;
     white-space: nowrap;
-    transition: all var(--transition) ease-in-out;
+
+    .fancy & {
+        transition: all var(--transition) ease-in-out;
+    }
 }
 
 .hitem {
@@ -57,7 +60,6 @@ body {
     &:not(.fancy).hidden {
         opacity: 0;
     }
-    transition: opacity var(--transition) ease-in-out;
 
     &.fancy {
         margin-bottom: 5px;
