@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const search = writable(initialSearch);
     const days = writable(initialDays);
 
-    export let graphs: typeof SvelteComponent<any>[];
+    export let graphs: (typeof SvelteComponent<any>)[];
     /** See RangeBox */
     export let controller: typeof SvelteComponent<any> | null;
 
