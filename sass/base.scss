@@ -54,9 +54,10 @@ body {
     }
 }
 
-button:not(.btn,.btn-close) {
+button:not(.btn, .btn-close) {
     /* override transition for instant hover response */
-    transition: color var(--transition) ease-in-out, box-shadow var(--transition) ease-in-out !important;
+    transition: color var(--transition) ease-in-out,
+        box-shadow var(--transition) ease-in-out !important;
     border-radius: prop(border-radius);
     @include button.base;
 }
