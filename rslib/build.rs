@@ -3,10 +3,9 @@
 
 mod rust_interface;
 
-use std::env;
 use std::fs;
-use std::path::PathBuf;
 
+use anki_proto_gen::descriptors_path;
 use anyhow::Result;
 use prost_reflect::DescriptorPool;
 
@@ -15,7 +14,7 @@ fn main() -> Result<()> {
     let buildhash = fs::read_to_string("../out/buildhash").unwrap_or_default();
     println!("cargo:rustc-env=BUILDHASH={buildhash}");
 
-    let descriptors_path = env::var("DESCRIPTORS_BIN").ok().map(PathBuf::from).unwrap();
+    let descriptors_path = descriptors_path();
     println!("cargo:rerun-if-changed={}", descriptors_path.display());
     let pool = DescriptorPool::decode(std::fs::read(descriptors_path)?.as_ref())?;
     rust_interface::write_rust_interface(&pool)?;

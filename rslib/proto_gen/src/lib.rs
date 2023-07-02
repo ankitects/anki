@@ -5,6 +5,7 @@
 //! match.
 
 use std::collections::HashMap;
+use std::env;
 use std::path::PathBuf;
 
 use anki_io::read_to_string;
@@ -264,5 +265,16 @@ pub fn determine_if_message_is_empty(pool: &DescriptorPool, path: &Utf8Path, nam
         msg.fields().count() == 0
     } else {
         false
+    }
+}
+
+/// - When building via a local checkout, the path defined in .cargo/config
+/// - When building via cargo install or a third-party crate,
+///   OUT_DIR/../../anki_descriptors.bin (so it can be seen by the rslib crate)
+pub fn descriptors_path() -> PathBuf {
+    if let Ok(path) = env::var("DESCRIPTORS_BIN") {
+        PathBuf::from(path)
+    } else {
+        PathBuf::from(env::var("OUT_DIR").unwrap()).join("../../anki_descriptors.bin")
     }
 }

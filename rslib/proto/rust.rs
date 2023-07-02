@@ -14,7 +14,7 @@ use anyhow::Context;
 use anyhow::Result;
 use prost_reflect::DescriptorPool;
 
-pub fn write_rust_protos(descriptors_path: Option<PathBuf>) -> Result<DescriptorPool> {
+pub fn write_rust_protos(descriptors_path: PathBuf) -> Result<DescriptorPool> {
     set_protoc_path();
     let proto_dir = PathBuf::from("../../proto");
     let paths = gather_proto_paths(&proto_dir)?;
@@ -49,14 +49,12 @@ pub fn write_rust_protos(descriptors_path: Option<PathBuf>) -> Result<Descriptor
         .context("prost build")?;
 
     let descriptors = read_file(&tmp_descriptors)?;
-    if let Some(descriptors_path) = descriptors_path {
-        create_dir_all(
-            descriptors_path
-                .parent()
-                .context("missing parent of descriptor")?,
-        )?;
-        write_file_if_changed(descriptors_path, &descriptors)?;
-    }
+    create_dir_all(
+        descriptors_path
+            .parent()
+            .context("missing parent of descriptor")?,
+    )?;
+    write_file_if_changed(descriptors_path, &descriptors)?;
 
     let pool = DescriptorPool::decode(descriptors.as_ref())?;
     add_must_use_annotations(
