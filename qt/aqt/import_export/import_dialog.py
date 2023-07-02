@@ -12,8 +12,13 @@ from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGe
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 
-class ImportCsvDialog(QDialog):
-    TITLE = "csv import"
+class ImportDialog(QDialog):
+    TITLE: str
+    KIND: AnkiWebViewKind
+    TS_PAGE: str
+    SETUP_FUNCTION_NAME: str
+    DEFAULT_SIZE = (800, 800)
+    MIN_SIZE = (400, 300)
     silentlyClose = True
 
     def __init__(
@@ -29,13 +34,14 @@ class ImportCsvDialog(QDialog):
     def _setup_ui(self, path: str) -> None:
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.mw.garbage_collect_on_dialog_finish(self)
-        self.setMinimumSize(400, 300)
+        self.setMinimumSize(*self.MIN_SIZE)
         disable_help_button(self)
+        restoreGeom(self, self.TITLE, default_size=self.DEFAULT_SIZE)
         addCloseShortcut(self)
 
-        self.web = AnkiWebView(kind=AnkiWebViewKind.IMPORT_CSV)
+        self.web = AnkiWebView(kind=self.KIND)
         self.web.setVisible(False)
-        self.web.load_ts_page("import-csv")
+        self.web.load_ts_page(self.TS_PAGE)
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
@@ -44,7 +50,8 @@ class ImportCsvDialog(QDialog):
 
         escaped_path = path.replace("'", r"\'")
         self.web.evalWithCallback(
-            f"anki.setupImportCsvPage('{escaped_path}');", lambda _: self.web.setFocus()
+            f"anki.{self.SETUP_FUNCTION_NAME}('{escaped_path}');",
+            lambda _: self.web.setFocus(),
         )
         self.setWindowTitle(tr.decks_import_file())
 
@@ -55,3 +62,17 @@ class ImportCsvDialog(QDialog):
         self.web = None
         saveGeom(self, self.TITLE)
         QDialog.reject(self)
+
+
+class ImportCsvDialog(ImportDialog):
+    TITLE = "csv import"
+    KIND = AnkiWebViewKind.IMPORT_CSV
+    TS_PAGE = "import-csv"
+    SETUP_FUNCTION_NAME = "setupImportCsvPage"
+
+
+class ImportAnkiPackageDialog(ImportDialog):
+    TITLE = "anki package import"
+    KIND = AnkiWebViewKind.IMPORT_ANKI_PACKAGE
+    TS_PAGE = "import-anki-package"
+    SETUP_FUNCTION_NAME = "setupImportAnkiPackagePage"

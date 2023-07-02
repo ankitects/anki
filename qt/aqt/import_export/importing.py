@@ -13,8 +13,7 @@ from anki.collection import Collection, Progress
 from anki.errors import Interrupted
 from anki.foreign_data import mnemosyne
 from anki.lang import without_unicode_isolation
-from aqt.import_export.import_anki_package_dialog import ImportAnkiPackageDialog
-from aqt.import_export.import_csv_dialog import ImportCsvDialog
+from aqt.import_export.import_dialog import ImportAnkiPackageDialog, ImportCsvDialog
 from aqt.import_export.import_log_dialog import (
     ImportLogDialog,
     JsonFileArgs,
