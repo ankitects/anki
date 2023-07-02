@@ -178,7 +178,8 @@ impl Collection {
         builder
             .set_media_paths(self.media_folder.clone(), self.media_db.clone())
             .set_server(self.server)
-            .set_tr(self.tr.clone());
+            .set_tr(self.tr.clone())
+            .set_shared_progress_state(self.state.progress.clone());
         builder
     }
 
