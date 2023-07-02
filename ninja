@@ -13,6 +13,6 @@ export RECONFIGURE_KEY="${MAC_X86};${SOURCEMAP}"
 if [ "$SKIP_RUNNER_BUILD" = "1" ]; then
     echo "Runner not rebuilt."
 else
-    cargo build -p runner;
+    cargo build -p runner --release
 fi
-exec $out/rust/debug/runner build -- $*
+exec $out/rust/release/runner build -- $*
