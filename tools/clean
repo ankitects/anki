@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Remove most things from the build folder, to test a clean build. Keeps
+# the download folder, and optionally node_modules/pyenv.
+
+set -e
+shopt -s extglob
+
+if [ "$1" == "keep-env" ]; then
+    rm -rf out/!(node_modules|pyenv|download)
+else
+    rm -rf out/!(download)
+fi
