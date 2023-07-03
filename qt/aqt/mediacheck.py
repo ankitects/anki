@@ -152,7 +152,7 @@ class MediaChecker:
         qconnect(box.rejected, diag.reject)
         diag.setMinimumHeight(400)
         diag.setMinimumWidth(500)
-        restoreGeom(diag, "checkmediadb")
+        restoreGeom(diag, "checkmediadb", default_size=(800, 800))
         diag.exec()
         saveGeom(diag, "checkmediadb")
 
