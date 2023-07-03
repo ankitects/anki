@@ -182,6 +182,7 @@ dependencies = [
  "fluent-syntax",
  "inflections",
  "intl-memoizer",
+ "itertools 0.11.0",
  "num-format",
  "phf 0.11.2",
  "serde",

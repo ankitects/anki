@@ -161,7 +161,6 @@ pub fn check_python(build: &mut Build) -> Result<()> {
         PythonTypecheck {
             folders: &[
                 "pylib",
-                "ts/lib",
                 "qt/aqt",
                 "qt/tools",
                 "out/pylib/anki",

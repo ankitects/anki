@@ -97,11 +97,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const settings = {
         newGatherPriority: {
             title: tr.deckConfigNewGatherPriority(),
-            help: tr.deckConfigNewGatherPriorityTooltip_2() + currentDeck,
+            help: tr.deckConfigNewGatherPriorityTooltip2() + currentDeck,
         },
         newCardSortOrder: {
             title: tr.deckConfigNewCardSortOrder(),
-            help: tr.deckConfigNewCardSortOrderTooltip_2() + currentDeck,
+            help: tr.deckConfigNewCardSortOrderTooltip2() + currentDeck,
         },
         newReviewPriority: {
             title: tr.deckConfigNewReviewPriority(),
