@@ -218,7 +218,7 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
     build.add_dependency("ts:tag-editor", inputs![glob!["ts/tag-editor/**"]]);
 
     let mut build_page = |name: &str, html: bool, deps: BuildInput| -> Result<()> {
-        let group = format!("ts:pages:{name}");
+        let group = format!("ts:{name}");
         let deps = inputs![deps, glob!(format!("ts/{name}/**"))];
         let extra_exts = if html { &["css", "html"][..] } else { &["css"] };
         build.add_action(
@@ -231,6 +231,7 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
                 extra_exts,
             },
         )?;
+        build.add_dependency("ts:pages", inputs![format!(":{group}")]);
         build.add_action(
             format!("check:svelte:{name}"),
             SvelteCheck {
