@@ -48,10 +48,11 @@ fn prepare_translations(build: &mut Build) -> Result<()> {
                 glob!["ftl/{core,core-repo,qt,qt-repo}/**"],
                 ":ftl:repo",
             ],
-            outputs: &[RustOutput::Data(
-                "strings.json",
-                "$builddir/rslib/i18n/strings.json",
-            )],
+            outputs: &[
+                RustOutput::Data("py", "pylib/anki/_fluent.py"),
+                RustOutput::Data("ts", "ts/lib/ftl.d.ts"),
+                RustOutput::Data("ts", "ts/lib/ftl.js"),
+            ],
             target: None,
             extra_args: "-p anki_i18n",
             release_override: None,

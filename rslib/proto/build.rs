@@ -3,7 +3,7 @@
 
 pub mod python;
 pub mod rust;
-pub mod ts;
+pub mod typescript;
 
 use anki_proto_gen::descriptors_path;
 use anki_proto_gen::get_services;
@@ -15,7 +15,7 @@ fn main() -> Result<()> {
     let pool = rust::write_rust_protos(descriptors_path)?;
     let (_, services) = get_services(&pool);
     python::write_python_interface(&services)?;
-    ts::write_ts_interface(&services)?;
+    typescript::write_ts_interface(&services)?;
 
     Ok(())
 }
