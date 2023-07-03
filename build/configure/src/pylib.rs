@@ -27,22 +27,8 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
         },
     )?;
     build.add_dependency("pylib:anki:proto", ":rslib:proto:py".into());
+    build.add_dependency("pylib:anki:i18n", ":rslib:i18n:py".into());
 
-    build.add_action(
-        "pylib:anki:_fluent.py",
-        RunCommand {
-            command: ":pyenv:bin",
-            args: "$script $strings $out",
-            inputs: hashmap! {
-                "script" => inputs!["pylib/tools/genfluent.py"],
-                "strings" => inputs![":rslib:i18n:strings.json"],
-                "" => inputs!["pylib/anki/_vendor/stringcase.py"]
-            },
-            outputs: hashmap! {
-                "out" => vec!["pylib/anki/_fluent.py"]
-            },
-        },
-    )?;
     build.add_action(
         "pylib:anki:hooks_gen.py",
         RunCommand {

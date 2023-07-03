@@ -4,6 +4,7 @@
 mod check;
 mod extract;
 mod gather;
+mod python;
 mod typescript;
 mod write_strings;
 
@@ -27,6 +28,7 @@ fn main() -> Result<()> {
     write_strings(&map, &modules);
 
     typescript::write_ts_interface(&modules)?;
+    python::write_py_interface(&modules)?;
 
     // write strings.json file to requested path
     println!("cargo:rerun-if-env-changed=STRINGS_JSON");

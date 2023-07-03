@@ -2,7 +2,6 @@
 name = "anki_i18n"
 version.workspace = true
 authors.workspace = true
-build = "build/main.rs"
 edition.workspace = true
 license.workspace = true
 publish = false

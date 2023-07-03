@@ -147,6 +147,10 @@ debug = 0
 opt-level = 1
 debug = 0
 
+[profile.dev.package.anki_proto]
+opt-level = 1
+debug = 0
+
 # Debug info off by default, which speeds up incremental builds and produces a considerably
 # smaller library.
 [profile.dev.package.anki]
