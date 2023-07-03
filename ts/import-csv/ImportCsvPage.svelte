@@ -11,8 +11,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         CsvMetadata_MappedNotetype,
         CsvMetadata_MatchScope,
     } from "@tslib/anki/import_export_pb";
-    import { getCsvMetadata, importCsv } from "@tslib/anki/import_export_service";
     import type { NotetypeNameId } from "@tslib/anki/notetypes_pb";
+    import { getCsvMetadata, importCsv } from "@tslib/backend";
     import * as tr from "@tslib/ftl";
 
     import Col from "../components/Col.svelte";

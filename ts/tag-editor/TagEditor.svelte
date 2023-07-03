@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, setContext, tick } from "svelte";
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
-    import { completeTag } from "@tslib/anki/tags_service";
+    import { completeTag } from "@tslib/backend";
     import Shortcut from "../components/Shortcut.svelte";
     import { execCommand } from "../domlib";
     import { tagActionsShortcutsKey } from "@tslib/context-keys";

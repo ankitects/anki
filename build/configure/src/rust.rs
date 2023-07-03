@@ -21,7 +21,7 @@ use crate::platform::overriden_rust_target_triple;
 
 pub fn build_rust(build: &mut Build) -> Result<()> {
     prepare_translations(build)?;
-    prepare_proto_descriptors(build)?;
+    build_proto_descriptors_and_interfaces(build)?;
     build_rsbridge(build)
 }
 
@@ -81,16 +81,18 @@ fn prepare_translations(build: &mut Build) -> Result<()> {
     Ok(())
 }
 
-fn prepare_proto_descriptors(build: &mut Build) -> Result<()> {
-    // build anki_proto and spit out descriptors/Python interface
+fn build_proto_descriptors_and_interfaces(build: &mut Build) -> Result<()> {
+    let outputs = vec![
+        RustOutput::Data("descriptors.bin", "rslib/proto/descriptors.bin"),
+        RustOutput::Data("py", "pylib/anki/_backend_generated.py"),
+        RustOutput::Data("ts", "ts/lib/backend.d.ts"),
+        RustOutput::Data("ts", "ts/lib/backend.js"),
+    ];
     build.add_action(
         "rslib:proto",
         CargoBuild {
             inputs: inputs![glob!["{proto,rslib/proto}/**"], ":protoc_binary",],
-            outputs: &[RustOutput::Data(
-                "descriptors.bin",
-                "$builddir/rslib/proto/descriptors.bin",
-            )],
+            outputs: &outputs,
             target: None,
             extra_args: "-p anki_proto",
             release_override: None,
@@ -110,8 +112,8 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
         CargoBuild {
             inputs: inputs![
                 glob!["{pylib/rsbridge/**,rslib/**}"],
-                // declare a dependency on i18n/proto so it gets built first, allowing
-                // things depending on strings.json to build faster, and ensuring
+                // declare a dependency on i18n/proto so they get built first, allowing
+                // things depending on them to build faster, and ensuring
                 // changes to the ftl files trigger a rebuild
                 ":rslib:i18n",
                 ":rslib:proto",

@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { CsvMetadata_MappedNotetype } from "@tslib/anki/import_export_pb";
-    import { getFieldNames } from "@tslib/anki/notetypes_service";
+    import { getFieldNames } from "@tslib/backend";
     import * as tr from "@tslib/ftl";
 
     import Spacer from "../components/Spacer.svelte";

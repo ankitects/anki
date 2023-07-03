@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { ChangeNotetypeInfo, ChangeNotetypeRequest, NotetypeNames } from "@tslib/anki/notetypes_pb";
-import { changeNotetype, getChangeNotetypeInfo } from "@tslib/anki/notetypes_service";
+import { changeNotetype, getChangeNotetypeInfo } from "@tslib/backend";
 import * as tr from "@tslib/ftl";
 import { isEqual } from "lodash-es";
 import type { Readable } from "svelte/store";

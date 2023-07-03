@@ -4,7 +4,7 @@
 import type { JsonValue } from "@bufbuild/protobuf";
 import type { SchedulingContext, SchedulingStatesWithContext } from "@tslib/anki/scheduler_pb";
 import { SchedulingStates } from "@tslib/anki/scheduler_pb";
-import { getSchedulingStatesWithContext, setSchedulingStates } from "@tslib/anki/scheduler_service";
+import { getSchedulingStatesWithContext, setSchedulingStates } from "@tslib/backend";
 
 interface CustomDataStates {
     again: Record<string, unknown>;

@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { protoBase64 } from "@bufbuild/protobuf";
-import { getImageForOcclusion, getImageOcclusionNote } from "@tslib/anki/image_occlusion_service";
+import { getImageForOcclusion, getImageOcclusionNote } from "@tslib/backend";
 import * as tr from "@tslib/ftl";
 import { fabric } from "fabric";
 import type { PanZoom } from "panzoom";

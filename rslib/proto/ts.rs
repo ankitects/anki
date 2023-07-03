@@ -3,81 +3,72 @@
 
 use std::collections::HashSet;
 use std::fmt::Write as WriteFmt;
-use std::io::BufWriter;
-use std::io::Write;
 use std::path::Path;
 
 use anki_io::create_dir_all;
-use anki_io::create_file;
+use anki_io::write_file_if_changed;
 use anki_proto_gen::BackendService;
 use anki_proto_gen::Method;
 use anyhow::Result;
 use inflections::Inflect;
 
 pub(crate) fn write_ts_interface(services: &[BackendService]) -> Result<()> {
-    let root = Path::new("../../out/ts/lib/anki");
+    let root = Path::new("../../out/ts/lib");
     create_dir_all(root)?;
+
+    let mut dts_out = String::new();
+    let mut js_out = String::new();
+    let mut referenced_packages = HashSet::new();
 
     for service in services {
         if service.name == "BackendAnkidroidService" {
             continue;
         }
 
-        let service_name = service
-            .name
-            .replace("Service", "")
-            .replace("Backend", "")
-            .to_snake_case();
-
-        write_dts_file(root, &service_name, service)?;
-        write_js_file(root, &service_name, service)?;
+        for method in service.all_methods() {
+            let method = MethodDetails::from_method(method);
+            record_referenced_type(&mut referenced_packages, &method.input_type);
+            record_referenced_type(&mut referenced_packages, &method.output_type);
+            write_dts_method(&method, &mut dts_out);
+            write_js_method(&method, &mut js_out);
+        }
     }
+
+    let imports = imports(referenced_packages);
+    write_file_if_changed(
+        root.join("backend.d.ts"),
+        format!("{}{}{}", dts_header(), imports, dts_out),
+    )?;
+    write_file_if_changed(
+        root.join("backend.js"),
+        format!("{}{}{}", js_header(), imports, js_out),
+    )?;
 
     Ok(())
 }
 
-fn write_dts_file(root: &Path, service_name: &str, service: &BackendService) -> Result<()> {
-    let output_path = root.join(format!("{service_name}_service.d.ts"));
-    let mut out = BufWriter::new(create_file(output_path)?);
-    write_dts_header(&mut out)?;
-
-    let mut referenced_packages = HashSet::new();
-    let mut method_text = String::new();
-
-    for method in service.all_methods() {
-        let method = MethodDetails::from_method(method);
-        record_referenced_type(&mut referenced_packages, &method.input_type)?;
-        record_referenced_type(&mut referenced_packages, &method.output_type)?;
-        write_dts_method(&method, &mut method_text)?;
-    }
-
-    write_imports(referenced_packages, &mut out)?;
-    write!(out, "{}", method_text)?;
-    Ok(())
-}
-
-fn write_dts_header(out: &mut impl std::io::Write) -> Result<()> {
-    out.write_all(
-        br#"// Copyright: Ankitects Pty Ltd and contributors
+fn dts_header() -> String {
+    r#"// Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; https://www.gnu.org/licenses/agpl.html
 
 import type { PlainMessage } from "@bufbuild/protobuf";
-import type { PostProtoOptions } from "../post";
-"#,
-    )?;
-    Ok(())
+import type { PostProtoOptions } from "./post";
+"#
+    .into()
 }
 
-fn write_imports(referenced_packages: HashSet<String>, out: &mut impl Write) -> Result<()> {
+fn imports(referenced_packages: HashSet<String>) -> String {
+    let mut out = String::new();
     for package in referenced_packages {
         writeln!(
-            out,
-            "import * as {} from \"./{}_pb\";",
+            &mut out,
+            "import * as {} from \"./anki/{}_pb\";",
             package,
             package.to_snake_case()
-        )?;
+        )
+        .unwrap();
     }
-    Ok(())
+    out
 }
 
 fn write_dts_method(
@@ -88,43 +79,21 @@ fn write_dts_method(
         comments,
     }: &MethodDetails,
     out: &mut String,
-) -> Result<()> {
+) {
     let comments = format_comments(comments);
     writeln!(
         out,
         r#"{comments}export declare function {method_name}(input: PlainMessage<{input_type}>, options?: PostProtoOptions): Promise<{output_type}>;"#
-    )?;
-    Ok(())
+    ).unwrap()
 }
 
-fn write_js_file(root: &Path, service_name: &str, service: &BackendService) -> Result<()> {
-    let output_path = root.join(format!("{service_name}_service.js"));
-    let mut out = BufWriter::new(create_file(output_path)?);
-    write_js_header(&mut out)?;
-
-    let mut referenced_packages = HashSet::new();
-    let mut method_text = String::new();
-    for method in service.all_methods() {
-        let method = MethodDetails::from_method(method);
-        record_referenced_type(&mut referenced_packages, &method.input_type)?;
-        record_referenced_type(&mut referenced_packages, &method.output_type)?;
-        write_js_method(&method, &mut method_text)?;
-    }
-
-    write_imports(referenced_packages, &mut out)?;
-    write!(out, "{}", method_text)?;
-    Ok(())
-}
-
-fn write_js_header(out: &mut impl std::io::Write) -> Result<()> {
-    out.write_all(
-        br#"// Copyright: Ankitects Pty Ltd and contributors
+fn js_header() -> String {
+    r#"// Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; https://www.gnu.org/licenses/agpl.html
 
-import { postProto } from "../post";
-"#,
-    )?;
-    Ok(())
+import { postProto } from "./post";
+"#
+    .into()
 }
 
 fn write_js_method(
@@ -135,15 +104,15 @@ fn write_js_method(
         ..
     }: &MethodDetails,
     out: &mut String,
-) -> Result<()> {
+) {
     write!(
         out,
         r#"export async function {method_name}(input, options = {{}}) {{
     return await postProto("{method_name}", new {input_type}(input), {output_type}, options);
 }}
 "#
-    )?;
-    Ok(())
+    )
+    .unwrap();
 }
 
 fn format_comments(comments: &Option<String>) -> String {
@@ -175,12 +144,8 @@ impl MethodDetails {
     }
 }
 
-fn record_referenced_type(
-    referenced_packages: &mut HashSet<String>,
-    type_name: &str,
-) -> Result<()> {
+fn record_referenced_type(referenced_packages: &mut HashSet<String>, type_name: &str) {
     referenced_packages.insert(type_name.split('.').next().unwrap().to_string());
-    Ok(())
 }
 
 // e.g. anki.import_export.ImportResponse ->

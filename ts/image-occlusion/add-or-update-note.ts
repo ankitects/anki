@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { OpChanges } from "@tslib/anki/collection_pb";
-import { addImageOcclusionNote, updateImageOcclusionNote } from "@tslib/anki/image_occlusion_service";
+import { addImageOcclusionNote, updateImageOcclusionNote } from "@tslib/backend";
 import * as tr from "@tslib/ftl";
 import { get } from "svelte/store";
 
