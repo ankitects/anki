@@ -3,9 +3,7 @@
 
 import "./import-csv-base.scss";
 
-import { getDeckNames } from "@tslib/anki/decks_service";
-import { getCsvMetadata } from "@tslib/anki/import_export_service";
-import { getNotetypeNames } from "@tslib/anki/notetypes_service";
+import { getCsvMetadata, getDeckNames, getNotetypeNames } from "@tslib/backend";
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 

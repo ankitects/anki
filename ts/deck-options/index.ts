@@ -46,7 +46,7 @@ export async function setupDeckOptions(did_: number): Promise<DeckOptionsPage> {
     });
 }
 
-import { getDeckConfigsForUpdate } from "@tslib/anki/deck_config_service";
+import { getDeckConfigsForUpdate } from "@tslib/backend";
 
 import TitledContainer from "../components/TitledContainer.svelte";
 import EnumSelectorRow from "./EnumSelectorRow.svelte";

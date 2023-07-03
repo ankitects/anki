@@ -109,10 +109,6 @@ impl BuildAction for GenPythonProto {
         build.add_inputs("protoc", inputs![":protoc_binary"]);
         build.add_inputs("protoc-gen-mypy", inputs![":pyenv:protoc-gen-mypy"]);
         build.add_outputs("", python_outputs);
-        // not a direct dependency, but we include the output interface in our declared
-        // outputs
-        build.add_inputs("", inputs![":rslib:proto"]);
-        build.add_outputs("", vec!["pylib/anki/_backend_generated.py"]);
     }
 }
 

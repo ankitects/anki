@@ -4,11 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { GraphsResponse } from "@tslib/anki/stats_pb";
-    import {
-        getGraphPreferences,
-        graphs,
-        setGraphPreferences,
-    } from "@tslib/anki/stats_service";
+    import { getGraphPreferences, graphs, setGraphPreferences } from "@tslib/backend";
     import type { Writable } from "svelte/store";
 
     import { autoSavingPrefs } from "../sveltelib/preferences";

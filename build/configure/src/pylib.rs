@@ -26,6 +26,7 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
             proto_files: inputs![glob!["proto/anki/*.proto"]],
         },
     )?;
+    build.add_dependency("pylib:anki:proto", ":rslib:proto:py".into());
 
     build.add_action(
         "pylib:anki:_fluent.py",
