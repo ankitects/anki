@@ -355,23 +355,16 @@ fn build_and_check_editor(build: &mut Build) -> Result<()> {
         glob!("ts/{editable,editor}/**")
     ];
 
-    let mut build_editor_page = |name: &str, entrypoint: &str| -> Result<()> {
-        let stem = format!("ts/editor/{name}");
-        build.add_action(
-            "ts:editor",
-            EsbuildScript {
-                script: inputs!["ts/bundle_svelte.mjs"],
-                entrypoint: inputs![format!("ts/editor/{entrypoint}.ts")],
-                output_stem: &stem,
-                deps: editor_deps.clone(),
-                extra_exts: &["css"],
-            },
-        )
-    };
-
-    build_editor_page("browser_editor", "index_browser")?;
-    build_editor_page("reviewer_editor", "index_reviewer")?;
-    build_editor_page("note_creator", "index_creator")?;
+    build.add_action(
+        "ts:editor",
+        EsbuildScript {
+            script: "ts/bundle_svelte.mjs".into(),
+            entrypoint: "ts/editor/index.ts".into(),
+            output_stem: "ts/editor/editor",
+            deps: editor_deps.clone(),
+            extra_exts: &["css"],
+        },
+    )?;
 
     let group = "ts/editor";
     build.add_action(

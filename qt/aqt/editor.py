@@ -147,23 +147,24 @@ class Editor:
 
     def setupWeb(self) -> None:
         if self.editorMode == EditorMode.ADD_CARDS:
-            file = "note_creator"
+            mode = "add"
         elif self.editorMode == EditorMode.BROWSER:
-            file = "browser_editor"
+            mode = "browse"
         else:
-            file = "reviewer_editor"
+            mode = "review"
 
         # then load page
         self.web.stdHtml(
             "",
-            css=[f"css/{file}.css"],
+            css=["css/editor.css"],
             js=[
                 "js/mathjax.js",
-                f"js/{file}.js",
+                "js/editor.js",
             ],
             context=self,
             default_css=False,
         )
+        self.web.eval(f"setupEditor('{mode}')")
         self.web.show()
 
         lefttopbtns: list[str] = []
