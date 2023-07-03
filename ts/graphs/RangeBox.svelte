@@ -59,7 +59,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $search = displayedSearch;
     }
 
-    const year = tr.statisticsRange_1YearHistory();
+    const year = tr.statisticsRange1YearHistory();
     const deck = tr.statisticsRangeDeck();
     const collection = tr.statisticsRangeCollection();
     const searchLabel = tr.statisticsRangeSearch();

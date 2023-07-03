@@ -4,6 +4,7 @@
 mod check;
 mod extract;
 mod gather;
+mod typescript;
 mod write_strings;
 
 use std::path::Path;
@@ -24,6 +25,8 @@ fn main() -> Result<()> {
     check(&map);
     let modules = get_modules(&map);
     write_strings(&map, &modules);
+
+    typescript::write_ts_interface(&modules)?;
 
     // write strings.json file to requested path
     println!("cargo:rerun-if-env-changed=STRINGS_JSON");

@@ -3,7 +3,6 @@
 
 use anyhow::Result;
 use ninja_gen::action::BuildAction;
-use ninja_gen::command::RunCommand;
 use ninja_gen::glob;
 use ninja_gen::hashmap;
 use ninja_gen::input::BuildInput;
@@ -115,26 +114,7 @@ fn setup_node(build: &mut Build) -> Result<()> {
 }
 
 fn build_and_check_tslib(build: &mut Build) -> Result<()> {
-    build.add_action(
-        "ts:lib:i18n",
-        RunCommand {
-            command: ":pyenv:bin",
-            args: "$script $strings $out",
-            inputs: hashmap! {
-                "script" => inputs!["ts/lib/genfluent.py"],
-                "strings" => inputs![":rslib:i18n:strings.json"],
-                "" => inputs!["pylib/anki/_vendor/stringcase.py"]
-            },
-            outputs: hashmap! {
-                "out" => vec![
-                    "ts/lib/ftl.js",
-                    "ts/lib/ftl.d.ts",
-                    "ts/lib/i18n/modules.js",
-                    "ts/lib/i18n/modules.d.ts"
-                    ]
-            },
-        },
-    )?;
+    build.add_dependency("ts:lib:i18n", ":rslib:i18n".into());
     build.add_action(
         "ts:lib:proto",
         GenTypescriptProto {
