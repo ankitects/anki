@@ -13,13 +13,13 @@ impl crate::services::DeckConfigService for Collection {
     fn add_or_update_deck_config_legacy(
         &mut self,
         input: generic::Json,
-    ) -> error::Result<anki_proto::deckconfig::DeckConfigId> {
+    ) -> error::Result<anki_proto::deck_config::DeckConfigId> {
         let conf: DeckConfSchema11 = serde_json::from_slice(&input.json)?;
         let mut conf: DeckConfig = conf.into();
 
         self.transact_no_undo(|col| {
             col.add_or_update_deck_config_legacy(&mut conf)?;
-            Ok(anki_proto::deckconfig::DeckConfigId { dcid: conf.id.0 })
+            Ok(anki_proto::deck_config::DeckConfigId { dcid: conf.id.0 })
         })
         .map(Into::into)
     }
@@ -38,8 +38,8 @@ impl crate::services::DeckConfigService for Collection {
 
     fn get_deck_config(
         &mut self,
-        input: anki_proto::deckconfig::DeckConfigId,
-    ) -> error::Result<anki_proto::deckconfig::DeckConfig> {
+        input: anki_proto::deck_config::DeckConfigId,
+    ) -> error::Result<anki_proto::deck_config::DeckConfig> {
         Ok(Collection::get_deck_config(self, input.into(), true)?
             .unwrap()
             .into())
@@ -47,7 +47,7 @@ impl crate::services::DeckConfigService for Collection {
 
     fn get_deck_config_legacy(
         &mut self,
-        input: anki_proto::deckconfig::DeckConfigId,
+        input: anki_proto::deck_config::DeckConfigId,
     ) -> error::Result<generic::Json> {
         let conf = Collection::get_deck_config(self, input.into(), true)?.unwrap();
         let conf: DeckConfSchema11 = conf.into();
@@ -62,7 +62,7 @@ impl crate::services::DeckConfigService for Collection {
 
     fn remove_deck_config(
         &mut self,
-        input: anki_proto::deckconfig::DeckConfigId,
+        input: anki_proto::deck_config::DeckConfigId,
     ) -> error::Result<()> {
         self.transact_no_undo(|col| col.remove_deck_config_inner(input.into()))
             .map(Into::into)
@@ -71,21 +71,21 @@ impl crate::services::DeckConfigService for Collection {
     fn get_deck_configs_for_update(
         &mut self,
         input: anki_proto::decks::DeckId,
-    ) -> error::Result<anki_proto::deckconfig::DeckConfigsForUpdate> {
+    ) -> error::Result<anki_proto::deck_config::DeckConfigsForUpdate> {
         self.get_deck_configs_for_update(input.did.into())
     }
 
     fn update_deck_configs(
         &mut self,
-        input: anki_proto::deckconfig::UpdateDeckConfigsRequest,
+        input: anki_proto::deck_config::UpdateDeckConfigsRequest,
     ) -> error::Result<anki_proto::collection::OpChanges> {
         self.update_deck_configs(input.into()).map(Into::into)
     }
 }
 
-impl From<DeckConfig> for anki_proto::deckconfig::DeckConfig {
+impl From<DeckConfig> for anki_proto::deck_config::DeckConfig {
     fn from(c: DeckConfig) -> Self {
-        anki_proto::deckconfig::DeckConfig {
+        anki_proto::deck_config::DeckConfig {
             id: c.id.0,
             name: c.name,
             mtime_secs: c.mtime_secs.0,
@@ -95,8 +95,8 @@ impl From<DeckConfig> for anki_proto::deckconfig::DeckConfig {
     }
 }
 
-impl From<anki_proto::deckconfig::UpdateDeckConfigsRequest> for UpdateDeckConfigsRequest {
-    fn from(c: anki_proto::deckconfig::UpdateDeckConfigsRequest) -> Self {
+impl From<anki_proto::deck_config::UpdateDeckConfigsRequest> for UpdateDeckConfigsRequest {
+    fn from(c: anki_proto::deck_config::UpdateDeckConfigsRequest) -> Self {
         UpdateDeckConfigsRequest {
             target_deck_id: c.target_deck_id.into(),
             configs: c.configs.into_iter().map(Into::into).collect(),
@@ -109,8 +109,8 @@ impl From<anki_proto::deckconfig::UpdateDeckConfigsRequest> for UpdateDeckConfig
     }
 }
 
-impl From<anki_proto::deckconfig::DeckConfig> for DeckConfig {
-    fn from(c: anki_proto::deckconfig::DeckConfig) -> Self {
+impl From<anki_proto::deck_config::DeckConfig> for DeckConfig {
+    fn from(c: anki_proto::deck_config::DeckConfig) -> Self {
         DeckConfig {
             id: c.id.into(),
             name: c.name,
@@ -121,8 +121,8 @@ impl From<anki_proto::deckconfig::DeckConfig> for DeckConfig {
     }
 }
 
-impl From<anki_proto::deckconfig::DeckConfigId> for DeckConfigId {
-    fn from(dcid: anki_proto::deckconfig::DeckConfigId) -> Self {
+impl From<anki_proto::deck_config::DeckConfigId> for DeckConfigId {
+    fn from(dcid: anki_proto::deck_config::DeckConfigId) -> Self {
         DeckConfigId(dcid.dcid)
     }
 }

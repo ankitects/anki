@@ -7,9 +7,9 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::iter;
 
-use anki_proto::deckconfig::deck_configs_for_update::current_deck::Limits;
-use anki_proto::deckconfig::deck_configs_for_update::ConfigWithExtra;
-use anki_proto::deckconfig::deck_configs_for_update::CurrentDeck;
+use anki_proto::deck_config::deck_configs_for_update::current_deck::Limits;
+use anki_proto::deck_config::deck_configs_for_update::ConfigWithExtra;
+use anki_proto::deck_config::deck_configs_for_update::CurrentDeck;
 use anki_proto::decks::deck::normal::DayLimit;
 
 use crate::config::StringKey;
@@ -35,8 +35,8 @@ impl Collection {
     pub fn get_deck_configs_for_update(
         &mut self,
         deck: DeckId,
-    ) -> Result<anki_proto::deckconfig::DeckConfigsForUpdate> {
-        Ok(anki_proto::deckconfig::DeckConfigsForUpdate {
+    ) -> Result<anki_proto::deck_config::DeckConfigsForUpdate> {
+        Ok(anki_proto::deck_config::DeckConfigsForUpdate {
             all_config: self.get_deck_config_with_extra_for_update()?,
             current_deck: Some(self.get_current_deck_for_update(deck)?),
             defaults: Some(DeckConfig::default().into()),

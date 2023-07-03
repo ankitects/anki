@@ -267,8 +267,8 @@ impl Collection {
 
 #[cfg(test)]
 mod test {
-    use anki_proto::deckconfig::deck_config::config::NewCardGatherPriority;
-    use anki_proto::deckconfig::deck_config::config::NewCardSortOrder;
+    use anki_proto::deck_config::deck_config::config::NewCardGatherPriority;
+    use anki_proto::deck_config::deck_config::config::NewCardSortOrder;
 
     use super::*;
     use crate::card::CardQueue;
