@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 import anki.cards
 import anki.collection
-from anki import deckconfig_pb2, decks_pb2
+from anki import deck_config_pb2, decks_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated, print_deprecation_warning
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.consts import *
@@ -23,8 +23,8 @@ DeckTreeNode = decks_pb2.DeckTreeNode
 DeckNameId = decks_pb2.DeckNameId
 FilteredDeckConfig = decks_pb2.Deck.Filtered
 DeckCollapseScope = decks_pb2.SetDeckCollapsedRequest.Scope
-DeckConfigsForUpdate = deckconfig_pb2.DeckConfigsForUpdate
-UpdateDeckConfigs = deckconfig_pb2.UpdateDeckConfigsRequest
+DeckConfigsForUpdate = deck_config_pb2.DeckConfigsForUpdate
+UpdateDeckConfigs = deck_config_pb2.UpdateDeckConfigsRequest
 Deck = decks_pb2.Deck
 
 # type aliases until we can move away from dicts

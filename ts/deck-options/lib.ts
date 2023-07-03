@@ -2,13 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { PlainMessage } from "@bufbuild/protobuf";
-import { updateDeckConfigs } from "@tslib/anki/deck_config_service";
 import type {
     DeckConfigsForUpdate,
     DeckConfigsForUpdate_CurrentDeck,
     UpdateDeckConfigsRequest,
-} from "@tslib/anki/deckconfig_pb";
-import { DeckConfig, DeckConfig_Config, DeckConfigsForUpdate_CurrentDeck_Limits } from "@tslib/anki/deckconfig_pb";
+} from "@tslib/anki/deck_config_pb";
+import { DeckConfig, DeckConfig_Config, DeckConfigsForUpdate_CurrentDeck_Limits } from "@tslib/anki/deck_config_pb";
+import { updateDeckConfigs } from "@tslib/anki/deck_config_service";
 import { localeCompare } from "@tslib/i18n";
 import { cloneDeep, isEqual } from "lodash-es";
 import type { Readable, Writable } from "svelte/store";

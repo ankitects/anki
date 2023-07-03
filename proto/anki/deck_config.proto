@@ -7,7 +7,7 @@ option java_multiple_files = true;
 // the DeckConfig message clashes with the name of the file
 option java_outer_classname = "DeckConf";
 
-package anki.deckconfig;
+package anki.deck_config;
 
 import "anki/generic.proto";
 import "anki/collection.proto";

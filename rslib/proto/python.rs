@@ -225,7 +225,7 @@ import anki.card_rendering_pb2
 import anki.cards_pb2
 import anki.collection_pb2
 import anki.config_pb2
-import anki.deckconfig_pb2
+import anki.deck_config_pb2
 import anki.decks_pb2
 import anki.i18n_pb2
 import anki.image_occlusion_pb2
