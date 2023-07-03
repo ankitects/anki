@@ -57,6 +57,7 @@ fn render_methods(modules: &[Module], dts_out: &mut String, js_out: &mut String)
             let key = &translation.key;
             let func_name = key.replace('-', "_").to_camel_case();
             let arg_types = get_arg_types(&translation.variables);
+            let args = get_args(&translation.variables);
             let maybe_args = if translation.variables.is_empty() {
                 ""
             } else {
@@ -73,11 +74,38 @@ export declare function {func_name}({arg_types}): string;",
                 js_out,
                 r#"
 export function {func_name}({maybe_args}) {{
-    return translate("{key}", {maybe_args})
+    return translate("{key}", {args})
 }}"#,
             )
             .unwrap();
         }
+    }
+}
+
+fn get_args(variables: &[Variable]) -> String {
+    if variables.is_empty() {
+        "".into()
+    } else if variables
+        .iter()
+        .all(|v| v.name == typescript_arg_name(&v.name))
+    {
+        // can use as-is
+        "args".into()
+    } else {
+        let out = variables
+            .iter()
+            .map(|v| format!("\"{}\": args.{}", v.name, typescript_arg_name(&v.name)))
+            .join(", ");
+        format!("{{{}}}", out)
+    }
+}
+
+fn typescript_arg_name(name: &str) -> String {
+    let name = name.replace('-', "_").to_camel_case();
+    if name == "new" {
+        "new_".into()
+    } else {
+        name
     }
 }
 
