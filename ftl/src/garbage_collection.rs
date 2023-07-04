@@ -16,7 +16,6 @@ use fluent_syntax::ast::Resource;
 use fluent_syntax::parser;
 use lazy_static::lazy_static;
 use regex::Regex;
-use serde_json;
 use walkdir::DirEntry;
 use walkdir::WalkDir;
 

@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-pub mod garbage_collection;
-pub mod serialize;
 
+mod garbage_collection;
+mod serialize;
+mod string;
 mod sync;
 
 use anyhow::Result;
@@ -14,6 +15,8 @@ use garbage_collection::write_ftl_json;
 use garbage_collection::DeprecateEntriesArgs;
 use garbage_collection::GarbageCollectArgs;
 use garbage_collection::WriteJsonArgs;
+use string::string_operation;
+use string::StringArgs;
 
 #[derive(Parser)]
 struct Cli {
@@ -38,6 +41,10 @@ enum Command {
     /// and adding a deprecation warning. An entry is considered unused if
     /// cannot be found in a source or JSON file.
     Deprecate(DeprecateEntriesArgs),
+    /// Copy or move a key from one ftl file to another, including all its
+    /// translations. Source and destination should be e.g.
+    /// ftl/core-repo/core.
+    String(StringArgs),
 }
 
 fn main() -> Result<()> {
@@ -46,5 +53,6 @@ fn main() -> Result<()> {
         Command::WriteJson(args) => write_ftl_json(args),
         Command::GarbageCollect(args) => garbage_collect_ftl_entries(args),
         Command::Deprecate(args) => deprecate_ftl_entries(args),
+        Command::String(args) => string_operation(args),
     }
 }
