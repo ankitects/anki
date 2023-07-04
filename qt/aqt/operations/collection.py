@@ -60,7 +60,7 @@ def _legacy_undo(*, parent: QWidget) -> None:
 
     if result is None:
         # should not happen
-        showInfo("nothing to undo", parent=parent)
+        showInfo(tr.actions_nothing_to_undo(), parent=parent)
         mw.update_undo_actions()
         return
 
