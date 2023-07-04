@@ -1,5 +1,4 @@
 [env]
-# STRINGS_JSON = { value = "out/rslib/i18n/strings.json", relative = true }
 STRINGS_PY = { value = "out/pylib/anki/_fluent.py", relative = true }
 STRINGS_JS = { value = "out/ts/lib/ftl.js", relative = true }
 STRINGS_DTS = { value = "out/ts/lib/ftl.d.ts", relative = true }
