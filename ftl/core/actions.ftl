@@ -68,3 +68,5 @@ actions-flag-pink = Pink
 actions-flag-turquoise = Turquoise
 actions-flag-purple = Purple
 actions-set-flag = Set Flag
+actions-nothing-to-undo = Nothing to undo
+actions-nothing-to-redo = Nothing to redo
