@@ -1290,6 +1290,7 @@ dependencies = [
  "camino",
  "clap",
  "fluent-syntax",
+ "itertools 0.11.0",
  "lazy_static",
  "regex",
  "serde_json",
