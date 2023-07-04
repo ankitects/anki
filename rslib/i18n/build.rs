@@ -8,7 +8,8 @@ mod python;
 mod typescript;
 mod write_strings;
 
-use std::path::Path;
+use std::env;
+use std::path::PathBuf;
 
 use anki_io::create_dir_all;
 use anki_io::write_file_if_changed;
@@ -32,10 +33,13 @@ fn main() -> Result<()> {
 
     // write strings.json file to requested path
     println!("cargo:rerun-if-env-changed=STRINGS_JSON");
-    if let Some(path) = option_env!("STRINGS_JSON") {
-        let meta_json = serde_json::to_string_pretty(&modules).unwrap();
-        create_dir_all(Path::new(path).parent().unwrap())?;
-        write_file_if_changed(path, meta_json)?;
+    if let Ok(path) = env::var("STRINGS_JSON") {
+        if !path.is_empty() {
+            let path = PathBuf::from(path);
+            let meta_json = serde_json::to_string_pretty(&modules).unwrap();
+            create_dir_all(path.parent().unwrap())?;
+            write_file_if_changed(path, meta_json)?;
+        }
     }
     Ok(())
 }
