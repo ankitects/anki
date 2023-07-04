@@ -1,17 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-//! A helper script to update commit references to the latest translations,
-//! and copy source files to the translation repos. Requires access to the
-//! i18n repos to run.
-
 use std::process::Command;
 
+use anki_process::CommandExt;
+use anyhow::bail;
+use anyhow::Context;
+use anyhow::Result;
 use camino::Utf8Path;
-use snafu::prelude::*;
-use snafu::Whatever;
-
-type Result<T> = std::result::Result<T, Whatever>;
 
 #[derive(Debug)]
 struct Module {
@@ -23,8 +19,7 @@ struct Module {
 /// remote is used to push via authenticated ssh.
 const GIT_REMOTE: &str = "ssh";
 
-#[snafu::report]
-fn main() -> Result<()> {
+pub fn sync() -> Result<()> {
     let modules = [
         Module {
             template_folder: "ftl/core".into(),
@@ -41,8 +36,7 @@ fn main() -> Result<()> {
         fetch_new_translations(&module)?;
         push_new_templates(&module)?;
     }
-    commit(".", "Update translations")
-        .whatever_context("failure expected if no translations changed")?;
+    commit(".", "Update translations").context("failure expected if no translations changed")?;
     Ok(())
 }
 
@@ -50,47 +44,41 @@ fn check_clean() -> Result<()> {
     let output = Command::new("git")
         .arg("diff")
         .output()
-        .whatever_context("git diff")?;
-    ensure_whatever!(output.status.success(), "git diff");
-    ensure_whatever!(
-        output.stdout.is_empty(),
-        "please commit any outstanding changes first"
-    );
-    Ok(())
-}
-
-fn run(command: &mut Command) -> Result<()> {
-    let status = command
-        .status()
-        .with_whatever_context(|_| format!("{:?}", command))?;
-    if !status.success() {
-        whatever!("{:?} exited with code: {:?}", command, status.code());
+        .context("git diff")?;
+    if !output.status.success() {
+        bail!("git diff");
+    }
+    if !output.stdout.is_empty() {
+        bail!("please commit any outstanding changes first");
     }
     Ok(())
 }
 
 fn fetch_new_translations(module: &Module) -> Result<()> {
-    run(Command::new("git")
+    Command::new("git")
         .current_dir(module.translation_repo)
-        .args(["checkout", "main"]))?;
-    run(Command::new("git")
+        .args(["checkout", "main"])
+        .ensure_success()?;
+    Command::new("git")
         .current_dir(module.translation_repo)
-        .args(["pull", "origin", "main"]))?;
+        .args(["pull", "origin", "main"])
+        .ensure_success()?;
     Ok(())
 }
 
 fn push_new_templates(module: &Module) -> Result<()> {
-    run(Command::new("rsync")
+    Command::new("rsync")
         .args(["-ai", "--delete", "--no-perms", "--no-times", "-c"])
         .args([
             format!("{}/", module.template_folder),
             format!("{}/", module.translation_repo.join("templates")),
-        ]))?;
+        ])
+        .ensure_success()?;
     let changes_pending = !Command::new("git")
         .current_dir(module.translation_repo)
         .args(["diff", "--exit-code"])
         .status()
-        .whatever_context("git")?
+        .context("git")?
         .success();
     if changes_pending {
         commit(module.translation_repo, "Update templates")?;
@@ -100,11 +88,15 @@ fn push_new_templates(module: &Module) -> Result<()> {
 }
 
 fn push(repo: &Utf8Path) -> Result<()> {
-    run(Command::new("git")
+    Command::new("git")
         .current_dir(repo)
-        .args(["push", GIT_REMOTE, "main"]))?;
+        .args(["push", GIT_REMOTE, "main"])
+        .ensure_success()?;
     // ensure origin matches ssh remote
-    run(Command::new("git").current_dir(repo).args(["fetch"]))?;
+    Command::new("git")
+        .current_dir(repo)
+        .args(["fetch"])
+        .ensure_success()?;
     Ok(())
 }
 
@@ -112,8 +104,9 @@ fn commit<F>(folder: F, message: &str) -> Result<()>
 where
     F: AsRef<str>,
 {
-    run(Command::new("git")
+    Command::new("git")
         .current_dir(folder.as_ref())
-        .args(["commit", "-a", "-m", message]))?;
+        .args(["commit", "-a", "-m", message])
+        .ensure_success()?;
     Ok(())
 }

@@ -9,7 +9,6 @@ edition = "2021"
 members = [
   "rslib",
   "rslib/i18n",
-  "rslib/i18n_helpers",
   "rslib/linkchecker",
   "rslib/proto",
   "rslib/io",

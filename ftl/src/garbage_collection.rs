@@ -5,7 +5,12 @@ use std::collections::HashSet;
 use std::fs;
 use std::io::BufReader;
 use std::iter::FromIterator;
+use std::path::PathBuf;
 
+use anki_io::create_file;
+use anyhow::Context;
+use anyhow::Result;
+use clap::Args;
 use fluent_syntax::ast;
 use fluent_syntax::ast::Resource;
 use fluent_syntax::parser;
@@ -17,42 +22,61 @@ use walkdir::WalkDir;
 
 use crate::serialize;
 
+#[derive(Args)]
+pub struct WriteJsonArgs {
+    target_filename: PathBuf,
+    source_roots: Vec<String>,
+}
+
+#[derive(Args)]
+pub struct GarbageCollectArgs {
+    json_root: String,
+    ftl_roots: Vec<String>,
+}
+
+#[derive(Args)]
+pub struct DeprecateEntriesArgs {
+    #[clap(long, num_args(1..), required(true))]
+    ftl_roots: Vec<String>,
+    #[clap(long, num_args(1..), required(true))]
+    source_roots: Vec<String>,
+    #[clap(long, num_args(1..), required(true))]
+    json_roots: Vec<String>,
+}
+
 const DEPCRATION_WARNING: &str =
     "NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.";
 
 /// Extract references from all Rust, Python, TS, Svelte, Swift, Kotlin and
 /// Designer files in the `roots`, convert them to kebab case and write them as
 /// a json to the target file.
-pub fn write_ftl_json<S1: AsRef<str>, S2: AsRef<str>>(roots: &[S1], target: S2) {
-    let refs = gather_ftl_references(roots);
+pub fn write_ftl_json(args: WriteJsonArgs) -> Result<()> {
+    let refs = gather_ftl_references(&args.source_roots);
     let mut refs = Vec::from_iter(refs);
     refs.sort();
-    serde_json::to_writer_pretty(
-        fs::File::create(target.as_ref()).expect("failed to create file"),
-        &refs,
-    )
-    .expect("failed to write file");
+    serde_json::to_writer_pretty(create_file(args.target_filename)?, &refs)
+        .context("writing json")?;
+
+    Ok(())
 }
 
 /// Delete every entry in `ftl_root` that is not mentioned in another message
 /// or any json in `json_root`.
-pub fn garbage_collect_ftl_entries(ftl_roots: &[impl AsRef<str>], json_root: impl AsRef<str>) {
-    let used_ftls = get_all_used_messages_and_terms(json_root.as_ref(), ftl_roots);
-    strip_unused_ftl_messages_and_terms(ftl_roots, &used_ftls);
+pub fn garbage_collect_ftl_entries(args: GarbageCollectArgs) -> Result<()> {
+    let used_ftls = get_all_used_messages_and_terms(&args.json_root, &args.ftl_roots);
+    strip_unused_ftl_messages_and_terms(&args.ftl_roots, &used_ftls);
+    Ok(())
 }
 
 /// Moves every entry in `ftl_roots` that is not mentioned in another message, a
 /// source file or any json in `json_roots` to the bottom of its file below a
 /// deprecation warning.
-pub fn deprecate_ftl_entries(
-    ftl_roots: &[impl AsRef<str>],
-    source_roots: &[impl AsRef<str>],
-    json_roots: &[impl AsRef<str>],
-) {
-    let mut used_ftls = gather_ftl_references(source_roots);
-    import_messages_from_json(json_roots, &mut used_ftls);
-    extract_nested_messages_and_terms(ftl_roots, &mut used_ftls);
-    deprecate_unused_ftl_messages_and_terms(ftl_roots, &used_ftls);
+pub fn deprecate_ftl_entries(args: DeprecateEntriesArgs) -> Result<()> {
+    let mut used_ftls = gather_ftl_references(&args.source_roots);
+    import_messages_from_json(&args.json_roots, &mut used_ftls);
+    extract_nested_messages_and_terms(&args.ftl_roots, &mut used_ftls);
+    deprecate_unused_ftl_messages_and_terms(&args.ftl_roots, &used_ftls);
+    Ok(())
 }
 
 fn get_all_used_messages_and_terms(
