@@ -191,17 +191,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "anki_i18n_helpers"
-version = "0.0.0"
-dependencies = [
- "fluent-syntax",
- "lazy_static",
- "regex",
- "serde_json",
- "walkdir",
-]
-
-[[package]]
 name = "anki_io"
 version = "0.0.0"
 dependencies = [
@@ -1295,8 +1284,17 @@ dependencies = [
 name = "ftl"
 version = "0.0.0"
 dependencies = [
+ "anki_io",
+ "anki_process",
+ "anyhow",
  "camino",
+ "clap",
+ "fluent-syntax",
+ "lazy_static",
+ "regex",
+ "serde_json",
  "snafu",
+ "walkdir",
 ]
 
 [[package]]

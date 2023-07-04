@@ -6,11 +6,17 @@ edition.workspace = true
 license.workspace = true
 publish = false
 rust-version.workspace = true
-
-[[bin]]
-name = "ftl-sync"
-path = "sync.rs"
+description = "Helpers for Anki's i18n system"
 
 [dependencies]
+anki_io.workspace = true
+anki_process.workspace = true
+anyhow.workspace = true
 camino.workspace = true
+clap.workspace = true
+fluent-syntax.workspace = true
+lazy_static.workspace = true
+regex.workspace = true
+serde_json.workspace = true
 snafu.workspace = true
+walkdir.workspace = true

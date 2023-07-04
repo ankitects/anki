@@ -8,11 +8,11 @@ use ninja_gen::build::FilesHandle;
 use ninja_gen::cargo::CargoBuild;
 use ninja_gen::cargo::CargoClippy;
 use ninja_gen::cargo::CargoFormat;
-use ninja_gen::cargo::CargoRun;
 use ninja_gen::cargo::CargoTest;
 use ninja_gen::cargo::RustOutput;
 use ninja_gen::git::SyncSubmodule;
 use ninja_gen::glob;
+use ninja_gen::hash::simple_hash;
 use ninja_gen::input::BuildInput;
 use ninja_gen::inputs;
 use ninja_gen::Build;
@@ -60,26 +60,53 @@ fn prepare_translations(build: &mut Build) -> Result<()> {
     )?;
 
     build.add_action(
-        "ftl:sync",
-        CargoRun {
-            binary_name: "ftl-sync",
-            cargo_args: "-p ftl",
-            bin_args: "",
-            deps: inputs![":ftl:repo", glob!["ftl/{core,core-repo,qt,qt-repo}/**"]],
+        "ftl:bin",
+        CargoBuild {
+            inputs: inputs![glob!["ftl/**"],],
+            outputs: &[RustOutput::Binary("ftl")],
+            target: None,
+            extra_args: "-p ftl",
+            release_override: None,
+        },
+    )?;
+
+    // These don't use :group notation, as it doesn't make sense to invoke multiple
+    // commands as a group.
+    build.add_action(
+        "ftl-sync",
+        FtlCommand {
+            args: "sync",
+            deps: inputs![":ftl:repo", glob!["ftl/**"]],
         },
     )?;
 
     build.add_action(
-        "ftl:deprecate",
-        CargoRun {
-            binary_name: "deprecate_ftl_entries",
-            cargo_args: "-p anki_i18n_helpers",
-            bin_args: "ftl/core ftl/qt -- pylib qt rslib ts --keep ftl/usage",
+        "ftl-deprecate",
+        FtlCommand {
+            args: "deprecate --ftl-roots ftl/core ftl/qt --source-roots pylib qt rslib ts --json-roots ftl/usage",
             deps: inputs!["ftl/core", "ftl/qt", "pylib", "qt", "rslib", "ts"],
         },
     )?;
 
     Ok(())
+}
+
+struct FtlCommand {
+    args: &'static str,
+    deps: BuildInput,
+}
+
+impl BuildAction for FtlCommand {
+    fn command(&self) -> &str {
+        "$ftl_bin $args"
+    }
+
+    fn files(&mut self, build: &mut impl FilesHandle) {
+        build.add_inputs("", &self.deps);
+        build.add_inputs("ftl_bin", inputs![":ftl:bin"]);
+        build.add_variable("args", self.args);
+        build.add_output_stamp(format!("ftl/stamp.{}", simple_hash(self.args)));
+    }
 }
 
 fn build_proto_descriptors_and_interfaces(build: &mut Build) -> Result<()> {
