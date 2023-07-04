@@ -26,11 +26,6 @@ pub fn get_ftl_data() -> TranslationsByLang {
     if let Some(path) = extra_ftl_root() {
         // Mobile client has requested its own extra translations
         add_translation_root(&mut map, &path, false);
-        // In a debug build, also include the Qt translations so that our Python unit
-        // tests pass.
-        if std::env::var("RELEASE").is_err() {
-            add_folder(&mut map, &ftl_base.join("qt"), "templates");
-        }
     } else {
         // Qt core templates from this repo
         add_folder(&mut map, &ftl_base.join("qt"), "templates");
