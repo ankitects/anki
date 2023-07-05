@@ -137,6 +137,7 @@ importing-conflicting-notes-skipped =
        *[other] { $val } were not imported because their note type has changed.
     }
 importing-import-log = Import Log
+importing-import-log-for-file = Import Log for { $val }
 importing-no-notes-in-file = No notes found in file.
 importing-show = show
 importing-details = Details

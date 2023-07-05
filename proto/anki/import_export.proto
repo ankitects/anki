@@ -71,6 +71,7 @@ message ImportResponse {
   }
   collection.OpChanges changes = 1;
   Log log = 2;
+  string filename = 3;
 }
 
 message ExportAnkiPackageRequest {

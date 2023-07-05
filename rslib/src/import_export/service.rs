@@ -1,8 +1,11 @@
+use std::path::Path;
+
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 use anki_proto::generic;
 use anki_proto::import_export::import_response::Log as NoteLog;
 use anki_proto::import_export::ExportLimit;
+use anki_proto::import_export::ImportResponse;
 
 use super::get_last_import_response;
 use super::set_last_import_response;
@@ -15,8 +18,10 @@ impl crate::services::ImportExportService for Collection {
     fn import_anki_package(
         &mut self,
         input: anki_proto::import_export::ImportAnkiPackageRequest,
-    ) -> error::Result<anki_proto::import_export::ImportResponse> {
-        let response = self.import_apkg(&input.package_path).map(Into::into);
+    ) -> error::Result<ImportResponse> {
+        let response = self
+            .import_apkg(&input.package_path)
+            .map(|out| output_to_import_response(out, Some(input.package_path)));
         if let Ok(ref response) = response {
             set_last_import_response(&response);
         }
@@ -57,10 +62,10 @@ impl crate::services::ImportExportService for Collection {
     fn import_csv(
         &mut self,
         input: anki_proto::import_export::ImportCsvRequest,
-    ) -> error::Result<anki_proto::import_export::ImportResponse> {
+    ) -> error::Result<ImportResponse> {
         let response = self
             .import_csv(&input.path, input.metadata.unwrap_or_default())
-            .map(Into::into);
+            .map(|out| output_to_import_response(out, Some(input.path)));
         if let Ok(ref response) = response {
             set_last_import_response(&response);
         }
@@ -87,11 +92,10 @@ impl crate::services::ImportExportService for Collection {
         .map(Into::into)
     }
 
-    fn import_json_file(
-        &mut self,
-        input: generic::String,
-    ) -> error::Result<anki_proto::import_export::ImportResponse> {
-        let response = self.import_json_file(&input.val).map(Into::into);
+    fn import_json_file(&mut self, input: generic::String) -> error::Result<ImportResponse> {
+        let response = self
+            .import_json_file(&input.val)
+            .map(|out| output_to_import_response(out, Some(input.val)));
         if let Ok(ref response) = response {
             set_last_import_response(&response);
         }
@@ -99,11 +103,10 @@ impl crate::services::ImportExportService for Collection {
         response
     }
 
-    fn import_json_string(
-        &mut self,
-        input: generic::String,
-    ) -> error::Result<anki_proto::import_export::ImportResponse> {
-        let response = self.import_json_string(&input.val).map(Into::into);
+    fn import_json_string(&mut self, input: generic::String) -> error::Result<ImportResponse> {
+        let response = self
+            .import_json_string(&input.val)
+            .map(|out| output_to_import_response(out, None));
         if let Ok(ref response) = response {
             set_last_import_response(&response);
         }
@@ -111,19 +114,24 @@ impl crate::services::ImportExportService for Collection {
         response
     }
 
-    fn get_last_import_response(
-        &mut self,
-    ) -> error::Result<anki_proto::import_export::ImportResponse> {
+    fn get_last_import_response(&mut self) -> error::Result<ImportResponse> {
         Ok(get_last_import_response())
     }
 }
 
-impl From<OpOutput<NoteLog>> for anki_proto::import_export::ImportResponse {
-    fn from(output: OpOutput<NoteLog>) -> Self {
-        Self {
-            changes: Some(output.changes.into()),
-            log: Some(output.output),
-        }
+fn output_to_import_response(output: OpOutput<NoteLog>, path: Option<String>) -> ImportResponse {
+    let filename = if let Some(path) = path {
+        Path::new(&path)
+            .file_name()
+            .map_or("", |s| s.to_str().unwrap_or_default())
+            .to_string()
+    } else {
+        "".into()
+    };
+    ImportResponse {
+        changes: Some(output.changes.into()),
+        log: Some(output.output),
+        filename,
     }
 }
 

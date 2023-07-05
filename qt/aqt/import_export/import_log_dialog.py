@@ -9,7 +9,8 @@ import aqt
 import aqt.deckconf
 import aqt.main
 import aqt.operations
-from anki.collection import SearchNode
+from anki.collection import ImportLogWithChanges, SearchNode
+from anki.lang import without_unicode_isolation
 from aqt.qt import *
 from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGeom, tr
 from aqt.webview import AnkiWebView, AnkiWebViewKind
@@ -22,13 +23,14 @@ class ImportLogDialog(QDialog):
     def __init__(
         self,
         mw: aqt.main.AnkiQt,
+        log_with_changes: ImportLogWithChanges,
     ) -> None:
         QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
-        self._setup_ui()
+        self._setup_ui(log_with_changes)
         self.show()
 
-    def _setup_ui(self) -> None:
+    def _setup_ui(self, log_with_changes: ImportLogWithChanges) -> None:
         self.mw.garbage_collect_on_dialog_finish(self)
         self.setMinimumSize(400, 300)
         disable_help_button(self)
@@ -46,7 +48,11 @@ class ImportLogDialog(QDialog):
 
         self.web.eval("anki.setupImportLogPage()")
 
-        self.setWindowTitle(tr.importing_import_log())
+        if log_with_changes.filename:
+            title = tr.importing_import_log_for_file(val=log_with_changes.filename)
+        else:
+            title = tr.importing_import_log()
+        self.setWindowTitle(without_unicode_isolation(title))
 
     def reject(self) -> None:
         self.web.cleanup()

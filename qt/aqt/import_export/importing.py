@@ -9,12 +9,7 @@ from itertools import chain
 from typing import Type
 
 import aqt.main
-from anki.collection import (
-    Collection,
-    ImportCsvRequest,
-    ImportLogWithChanges,
-    Progress,
-)
+from anki.collection import Collection, ImportCsvRequest, ImportLogWithChanges, Progress
 from anki.errors import Interrupted
 from anki.foreign_data import mnemosyne
 from anki.lang import without_unicode_isolation
@@ -232,7 +227,7 @@ def import_json_string(mw: aqt.main.AnkiQt, json: str) -> None:
 def show_import_log(log_with_changes: ImportLogWithChanges) -> None:
     if not log_with_changes.log.found_notes:
         return tooltip(tr.importing_no_notes_in_file())
-    ImportLogDialog(aqt.mw)
+    ImportLogDialog(aqt.mw, log_with_changes)
 
 
 def import_progress_update(progress: Progress, update: ProgressUpdate) -> None:
