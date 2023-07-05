@@ -445,6 +445,10 @@ def import_csv() -> bytes:
     return b""
 
 
+def get_last_import_response() -> bytes:
+    return raw_backend_request("get_last_import_response")()
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -453,6 +457,7 @@ post_handler_list = [
     set_scheduling_states,
     change_notetype,
     import_csv,
+    get_last_import_response,
 ]
 
 

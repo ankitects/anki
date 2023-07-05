@@ -4,6 +4,8 @@ use anki_proto::generic;
 use anki_proto::import_export::import_response::Log as NoteLog;
 use anki_proto::import_export::ExportLimit;
 
+use super::get_last_import_response;
+use super::set_last_import_response;
 use crate::collection::Collection;
 use crate::error;
 use crate::ops::OpOutput;
@@ -14,7 +16,12 @@ impl crate::services::ImportExportService for Collection {
         &mut self,
         input: anki_proto::import_export::ImportAnkiPackageRequest,
     ) -> error::Result<anki_proto::import_export::ImportResponse> {
-        self.import_apkg(&input.package_path).map(Into::into)
+        let response = self.import_apkg(&input.package_path).map(Into::into);
+        if let Ok(ref response) = response {
+            set_last_import_response(&response);
+        }
+
+        response
     }
 
     fn export_anki_package(
@@ -51,8 +58,14 @@ impl crate::services::ImportExportService for Collection {
         &mut self,
         input: anki_proto::import_export::ImportCsvRequest,
     ) -> error::Result<anki_proto::import_export::ImportResponse> {
-        self.import_csv(&input.path, input.metadata.unwrap_or_default())
-            .map(Into::into)
+        let response = self
+            .import_csv(&input.path, input.metadata.unwrap_or_default())
+            .map(Into::into);
+        if let Ok(ref response) = response {
+            set_last_import_response(&response);
+        }
+
+        response
     }
 
     fn export_note_csv(
@@ -78,14 +91,30 @@ impl crate::services::ImportExportService for Collection {
         &mut self,
         input: generic::String,
     ) -> error::Result<anki_proto::import_export::ImportResponse> {
-        self.import_json_file(&input.val).map(Into::into)
+        let response = self.import_json_file(&input.val).map(Into::into);
+        if let Ok(ref response) = response {
+            set_last_import_response(&response);
+        }
+
+        response
     }
 
     fn import_json_string(
         &mut self,
         input: generic::String,
     ) -> error::Result<anki_proto::import_export::ImportResponse> {
-        self.import_json_string(&input.val).map(Into::into)
+        let response = self.import_json_string(&input.val).map(Into::into);
+        if let Ok(ref response) = response {
+            set_last_import_response(&response);
+        }
+
+        response
+    }
+
+    fn get_last_import_response(
+        &mut self,
+    ) -> error::Result<anki_proto::import_export::ImportResponse> {
+        Ok(get_last_import_response())
     }
 }
 

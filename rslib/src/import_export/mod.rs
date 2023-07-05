@@ -7,8 +7,12 @@ pub mod package;
 mod service;
 pub mod text;
 
+use std::sync::Mutex;
+
 pub use anki_proto::import_export::import_response::Log as NoteLog;
 pub use anki_proto::import_export::import_response::Note as LogNote;
+use anki_proto::import_export::ImportResponse;
+use once_cell::sync::Lazy;
 use snafu::Snafu;
 
 use crate::prelude::*;
@@ -80,4 +84,15 @@ impl ImportError {
         }
         .into()
     }
+}
+
+static LAST_IMPORT_RESPONSE: Lazy<Mutex<ImportResponse>> =
+    Lazy::new(|| Mutex::new(ImportResponse::default()));
+
+pub fn set_last_import_response(import_response: &ImportResponse) {
+    *LAST_IMPORT_RESPONSE.lock().unwrap() = import_response.clone();
+}
+
+pub fn get_last_import_response() -> ImportResponse {
+    LAST_IMPORT_RESPONSE.lock().unwrap().clone()
 }

@@ -116,6 +116,42 @@ importing-cards-added =
        *[other] { $count } cards added.
     }
 importing-file-empty = The file you selected is empty.
+importing-notes-added =
+    { $val ->
+        [one] { $val } new note was successfully imported into your collection.
+       *[other] { $val } new notes were successfully imported into your collection.
+    }
+importing-notes-updated =
+    { $val ->
+        [one] { $val } was updated to the latest version.
+       *[other] { $val } were updated to the latest version.
+    }
+importing-existing-notes-skipped =
+    { $val ->
+        [one] { $val } was not imported because it already exists identically in your collection.
+       *[other] { $val } were not imported because they already exist identically in your collection.
+    }
+importing-conflicting-notes-skipped =
+    { $val ->
+        [one] { $val } was not imported because its note type has changed.
+       *[other] { $val } were not imported because their note type has changed.
+    }
+importing-import-log = Import Log
+importing-no-notes-in-file = No notes found in file.
+importing-show = show
+importing-details = Details
+importing-status = Status
+importing-contents = Contents
+importing-skipped-because-first-field-matches = Note skipped because first field matches an existing note
+importing-updated-because-first-field-matches = An existing note was updated because first field matches
+importing-duplicate-note-added = Duplicate note added
+importing-added-new-note = New note added
+importing-existing-note-skipped = Note skipped, as an up-to-date copy is already in your collection
+importing-note-skipped-update-due-to-notetype = Note not updated, as notetype has been modified since you first imported the note
+importing-note-updated-as-file-had-newer = Note updated, as file had newer version
+importing-note-skipped-due-to-missing-notetype = Note skipped, as its notetype was missing
+importing-note-skipped-due-to-missing-deck = Note skipped, as its deck was missing
+importing-note-skipped-due-to-empty-first-field = Note skipped, as its first field is empty
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
