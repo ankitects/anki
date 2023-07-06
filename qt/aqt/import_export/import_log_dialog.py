@@ -62,8 +62,8 @@ class ImportLogDialog(QDialog):
 
     def _on_bridge_cmd(self, cmd: str) -> Any:
         if cmd.startswith("browse:"):
-            nids = cmd[len("browse:") :].split(",")
-            nodes = [SearchNode(nid=int(nid)) for nid in nids]
-            search = self.mw.col.build_search_string(*nodes, joiner="OR")
-            print(nids, search)
+            nids = [int(nid) for nid in cmd[len("browse:") :].split(",")]
+            search = self.mw.col.build_search_string(
+                SearchNode(nids=SearchNode.IdList(ids=nids))
+            )
             aqt.dialogs.open("Browser", self.mw, search=(search,))
