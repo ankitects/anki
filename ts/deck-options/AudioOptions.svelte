@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
     import type { DeckOptionsState } from "./lib";
-    import SettingTitle from "./SettingTitle.svelte";
+    import SettingTitle from "../components/SettingTitle.svelte";
     import SwitchRow from "./SwitchRow.svelte";
 
     export let state: DeckOptionsState;

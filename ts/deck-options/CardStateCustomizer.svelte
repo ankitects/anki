@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Row from "../components/Row.svelte";
     import ConfigInput from "./ConfigInput.svelte";
     import RevertButton from "./RevertButton.svelte";
-    import SettingTitle from "./SettingTitle.svelte";
+    import SettingTitle from "../components/SettingTitle.svelte";
 
     export let value: string;
     export let title: string;

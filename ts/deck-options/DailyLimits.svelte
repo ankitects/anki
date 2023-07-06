@@ -15,7 +15,7 @@
     import type { HelpItem } from "../components/types";
     import type { DeckOptionsState } from "./lib";
     import { ValueTab } from "./lib";
-    import SettingTitle from "./SettingTitle.svelte";
+    import SettingTitle from "../components/SettingTitle.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import SwitchRow from "./SwitchRow.svelte";
     import TabbedValue from "./TabbedValue.svelte";

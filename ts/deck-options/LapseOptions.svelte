@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { HelpItem } from "../components/types";
     import EnumSelectorRow from "./EnumSelectorRow.svelte";
     import type { DeckOptionsState } from "./lib";
-    import SettingTitle from "./SettingTitle.svelte";
+    import SettingTitle from "../components/SettingTitle.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import StepsInputRow from "./StepsInputRow.svelte";
     import Warning from "./Warning.svelte";
