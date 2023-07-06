@@ -7,23 +7,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { importAnkiPackage } from "@tslib/anki/import_export_service";
     import { importDone } from "@tslib/backend";
     import * as tr from "@tslib/ftl";
+    import { HelpPage } from "@tslib/help-page";
+    import type Carousel from "bootstrap/js/dist/carousel";
+    import type Modal from "bootstrap/js/dist/modal";
     import BackendProgressIndicator from "components/BackendProgressIndicator.svelte";
-    import Switch from "components/Switch.svelte";
 
     import Col from "../components/Col.svelte";
-    import Container from "../components/Container.svelte";
+    import HelpModal from "../components/HelpModal.svelte";
     import Row from "../components/Row.svelte";
-    import Spacer from "../components/Spacer.svelte";
+    import SettingTitle from "../components/SettingTitle.svelte";
     import StickyHeader from "../components/StickyHeader.svelte";
     import Switch from "../components/Switch.svelte";
+    import TitledContainer from "../components/TitledContainer.svelte";
+    import type { HelpItem } from "../components/types";
     import ImportLogPage from "../import-log/ImportLogPage.svelte";
-    import Header from "./Header.svelte";
 
     export let path: string;
     export let mergeNotetypes: boolean = false;
 
     let importResponse: ImportResponse | undefined = undefined;
     let importing = false;
+    const settings = {
+        mergeNotetypes: {
+            title: tr.importingMergeNotetypes(),
+            help: "placeholder",
+            url: HelpPage.Importing.ankiPackage,
+        },
+    };
+    const helpSections = Object.values(settings) as HelpItem[];
+    let modal: Modal;
+    let carousel: Carousel;
 
     async function onImport(): Promise<ImportResponse> {
         const result = await importAnkiPackage({
@@ -34,6 +47,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         importing = false;
         return result;
     }
+
+    function openHelpModal(index: number): void {
+        modal.show();
+        carousel.to(index);
+    }
 </script>
 
 {#if importing}
@@ -43,28 +61,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {:else}
     <StickyHeader {path} onImport={() => (importing = true)} />
 
-    <Container class="csv-page">
+    <TitledContainer title={tr.importingImportOptions()}>
+        <HelpModal
+            title={tr.importingImportOptions()}
+            url={HelpPage.Importing.ankiPackage}
+            {helpSections}
+            on:mount={(e) => {
+                modal = e.detail.modal;
+                carousel = e.detail.carousel;
+            }}
+        />
+
         <Row --cols={2}>
-            <Col --col-size={1} breakpoint="md">
-                <Container>
-                    <Header heading={tr.importingImportOptions()} />
-                    <Spacer --height="1.5rem" />
-                    <Row --cols={2}>
-                        <Col --col-size={1}>
-                            {tr.importingMergeNotetypes()}
-                        </Col>
-                        <Col --col-size={1} --col-justify="flex-end">
-                            <Switch id={undefined} bind:value={mergeNotetypes} />
-                        </Col>
-                    </Row>
-                </Container>
+            <Col --col-size={1}>
+                {tr.importingMergeNotetypes()}
             </Col>
+            <Col --col-size={1} --col-justify="flex-end">
+                <Switch id={undefined} bind:value={mergeNotetypes} />
+            </Col>
+            <SettingTitle
+                on:click={() =>
+                    openHelpModal(Object.keys(settings).indexOf("newLimit"))}
+            >
+                {settings.mergeNotetypes.title}
+            </SettingTitle>
         </Row>
-    </Container>
+    </TitledContainer>
 {/if}
 
 <style lang="scss">
-    :global(.csv-page) {
+    :global(.anki-package-page) {
         --gutter-inline: 0.25rem;
 
         :global(.row) {

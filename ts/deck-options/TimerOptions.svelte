@@ -11,10 +11,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import HelpModal from "../components/HelpModal.svelte";
     import Item from "../components/Item.svelte";
+    import SettingTitle from "../components/SettingTitle.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
     import type { DeckOptionsState } from "./lib";
-    import SettingTitle from "../components/SettingTitle.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import SwitchRow from "./SwitchRow.svelte";
     import Warning from "./Warning.svelte";
