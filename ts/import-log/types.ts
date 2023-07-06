@@ -10,7 +10,7 @@ export type LogQueue = {
 export type SummarizedLogQueues = {
     queues: LogQueue[];
     action: string;
-    summary_template: (args: { val: string | number }) => string;
+    summary_template: (args: { count: string | number }) => string;
     canBrowse: boolean;
     icon: unknown;
 };
