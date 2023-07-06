@@ -108,13 +108,11 @@ export function getSummaries(log: ImportResponse_Log): SummarizedLogQueues[] {
 
 export function getRows(summaries: SummarizedLogQueues[]): NoteRow[] {
     const rows: NoteRow[] = [];
-    let index = 1;
     for (const summary of summaries) {
         for (const queue of summary.queues) {
             if (queue.notes) {
                 for (const note of queue.notes) {
-                    rows.push({ summary, queue, note, index });
-                    index++;
+                    rows.push({ summary, queue, note });
                 }
             }
         }

@@ -16,7 +16,6 @@ export type SummarizedLogQueues = {
 };
 
 export type NoteRow = {
-    index: number;
     summary: SummarizedLogQueues;
     queue: LogQueue;
     note: ImportResponse_Note;
