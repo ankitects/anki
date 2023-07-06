@@ -139,6 +139,17 @@ importing-conflicting-notes-skipped =
 importing-import-log = Import Log
 importing-import-log-for-file = Import Log for { $val }
 importing-no-notes-in-file = No notes found in file.
+importing-num-notes-found-in-file =
+    { $count ->
+        [one] { $count } note was found in the file.
+       *[other] { $count } note were found in the file.
+    }
+importing-notes-part-of-collection =
+    {
+        $count ->
+            [one] { $count } ({ $percent }%) is now part of your collection.
+           *[other] { $count } ({ $percent }%) are now part of your collection.
+    }
 importing-show = show
 importing-details = Details
 importing-status = Status
