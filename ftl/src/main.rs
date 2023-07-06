@@ -15,8 +15,9 @@ use garbage_collection::write_ftl_json;
 use garbage_collection::DeprecateEntriesArgs;
 use garbage_collection::GarbageCollectArgs;
 use garbage_collection::WriteJsonArgs;
-use string::string_operation;
-use string::StringArgs;
+
+use crate::string::string_operation;
+use crate::string::StringCommand;
 
 #[derive(Parser)]
 struct Cli {
@@ -41,10 +42,9 @@ enum Command {
     /// and adding a deprecation warning. An entry is considered unused if
     /// cannot be found in a source or JSON file.
     Deprecate(DeprecateEntriesArgs),
-    /// Copy or move a key from one ftl file to another, including all its
-    /// translations. Source and destination should be e.g.
-    /// ftl/core-repo/core.
-    String(StringArgs),
+    /// Operations on individual messages and their translations.
+    #[clap(subcommand)]
+    String(StringCommand),
 }
 
 fn main() -> Result<()> {
