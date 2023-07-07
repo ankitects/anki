@@ -3,7 +3,7 @@
 
 import "./import-log-base.scss";
 
-import { getLastImportResponse } from "@tslib/anki/import_export_service";
+import { getLastImportResponse } from "@tslib/backend";
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 
