@@ -25,3 +25,4 @@ SELECT id,
   ) - 1 AS new_id
 FROM "{source_table}"
 WHERE id > "{max_valid_id}";
+CREATE INDEX invalid_ids_id_idx ON invalid_ids (id);
