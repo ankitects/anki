@@ -28,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <tr slot="headers">
             <th>#</th>
             <th>{tr.importingStatus()}</th>
-            <th>{tr.importingContents()}</th>
+            <th>{tr.editingFields()}</th>
             <th />
         </tr>
         <svelte:fragment slot="row" let:index>

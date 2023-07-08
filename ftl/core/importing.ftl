@@ -153,7 +153,6 @@ importing-notes-part-of-collection =
 importing-show = show
 importing-details = Details
 importing-status = Status
-importing-contents = Contents
 importing-skipped-because-first-field-matches = Note skipped because first field matches an existing note
 importing-updated-because-first-field-matches = An existing note was updated because first field matches
 importing-duplicate-note-added = Duplicate note added

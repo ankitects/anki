@@ -10,7 +10,7 @@ import { checkNightMode } from "@tslib/nightmode";
 import ImportLogPage from "./ImportLogPage.svelte";
 
 const i18n = setupI18n({
-    modules: [ModuleName.IMPORTING, ModuleName.ADDING],
+    modules: [ModuleName.IMPORTING, ModuleName.ADDING, ModuleName.EDITING],
 });
 
 export async function setupImportLogPage(): Promise<ImportLogPage> {
