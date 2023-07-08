@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconConstrain>
             {@html summary.icon}
         </IconConstrain>
-        {summary.summary_template({ count: notes.length })}
+        {summary.summaryTemplate({ count: notes.length })}
         {#if summary.canBrowse}
             (
             <a href="/#" tabindex="-1" on:click={onShow}>{tr.importingShow()}</a>
