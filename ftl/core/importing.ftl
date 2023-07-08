@@ -150,7 +150,7 @@ importing-notes-part-of-collection =
             [one] { $count } ({ $percent }%) is now part of your collection.
            *[other] { $count } ({ $percent }%) are now part of your collection.
     }
-importing-show = show
+importing-show = Show
 importing-details = Details
 importing-status = Status
 importing-skipped-because-first-field-matches = Note skipped because first field matches an existing note
