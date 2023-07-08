@@ -23,7 +23,7 @@ impl crate::services::ImportExportService for Collection {
             .import_apkg(&input.package_path)
             .map(|out| output_to_import_response(out, Some(input.package_path)));
         if let Ok(ref response) = response {
-            set_last_import_response(&response);
+            set_last_import_response(response);
         }
 
         response
@@ -67,7 +67,7 @@ impl crate::services::ImportExportService for Collection {
             .import_csv(&input.path, input.metadata.unwrap_or_default())
             .map(|out| output_to_import_response(out, Some(input.path)));
         if let Ok(ref response) = response {
-            set_last_import_response(&response);
+            set_last_import_response(response);
         }
 
         response
@@ -97,7 +97,7 @@ impl crate::services::ImportExportService for Collection {
             .import_json_file(&input.val)
             .map(|out| output_to_import_response(out, Some(input.val)));
         if let Ok(ref response) = response {
-            set_last_import_response(&response);
+            set_last_import_response(response);
         }
 
         response
@@ -108,7 +108,7 @@ impl crate::services::ImportExportService for Collection {
             .import_json_string(&input.val)
             .map(|out| output_to_import_response(out, None));
         if let Ok(ref response) = response {
-            set_last_import_response(&response);
+            set_last_import_response(response);
         }
 
         response
