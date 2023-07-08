@@ -118,12 +118,12 @@ importing-cards-added =
 importing-file-empty = The file you selected is empty.
 importing-notes-added =
     { $count ->
-        [one] { $count } new note was successfully imported into your collection.
+        [one] { $count } new note imported.
        *[other] { $count } new notes were successfully imported into your collection.
     }
 importing-notes-updated =
     { $count ->
-        [one] { $count } was updated to the latest version.
+        [one] { $count } note updated to the latest version.
        *[other] { $count } were updated to the latest version.
     }
 importing-existing-notes-skipped =
@@ -133,7 +133,7 @@ importing-existing-notes-skipped =
     }
 importing-conflicting-notes-skipped =
     { $count ->
-        [one] { $count } was not imported because its note type has changed.
+        [one] { $count } note was not imported, because its note type has changed.
        *[other] { $count } were not imported because their note type has changed.
     }
 importing-import-log = Import Log
@@ -142,7 +142,7 @@ importing-no-notes-in-file = No notes found in file.
 importing-num-notes-found-in-file =
     { $count ->
         [one] { $count } note was found in the file.
-       *[other] { $count } note were found in the file.
+       *[other] { $count } notes were found in the file.
     }
 importing-notes-part-of-collection =
     {
