@@ -11,9 +11,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Container from "../components/Container.svelte";
     import DetailsTable from "./DetailsTable.svelte";
-    import QueueSummary from "./QueueSummary.svelte";
-
     import { getSummaries } from "./lib";
+    import QueueSummary from "./QueueSummary.svelte";
 
     export let response: ImportResponse;
     const log = response?.log ?? ({} as ImportResponse_Log);

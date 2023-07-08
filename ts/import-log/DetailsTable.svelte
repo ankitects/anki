@@ -7,9 +7,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import IconButton from "../components/IconButton.svelte";
     import VirtualTable from "../components/VirtualTable.svelte";
-    import TableCellWithTooltip from "./TableCellWithTooltip.svelte";
     import { magnifyIcon } from "./icons";
     import { getRows, showInBrowser } from "./lib";
+    import TableCellWithTooltip from "./TableCellWithTooltip.svelte";
     import type { SummarizedLogQueues } from "./types";
 
     export let summaries: SummarizedLogQueues[];
