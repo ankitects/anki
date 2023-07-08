@@ -116,15 +116,10 @@ class AddCards(QMainWindow):
         qconnect(self.compat_add_shorcut.activated, self.addButton.click)
         self.addButton.setToolTip(shortcut(tr.adding_add_shortcut_ctrlandenter()))
 
-        # add io hide all button
-        self.addButtonHideAll = bb.addButton(tr.notetypes_hide_all_guess_one(), ar)
-        qconnect(self.addButtonHideAll.clicked, self.add_io_hide_all_note)
-        self.addButtonHideAll.setShortcut(QKeySequence("Ctrl+Return+A"))
-        self.addButtonHideAll.setVisible(False)
-        # add io hide one button
-        self.addButtonHideOne = bb.addButton(tr.notetypes_hide_one_guess_one(), ar)
-        qconnect(self.addButtonHideOne.clicked, self.add_io_hide_one_note)
-        self.addButtonHideOne.setShortcut(QKeySequence("Ctrl+Return+O"))
+        # add io button
+        self.ioAddButton = bb.addButton(tr.actions_add(), ar)
+        qconnect(self.ioAddButton.clicked, self.onAddIo)
+        self.ioAddButton.setShortcut(QKeySequence("Ctrl+Shift+I"))
 
         # close
         self.closeButton = QPushButton(tr.actions_close())
@@ -150,12 +145,10 @@ class AddCards(QMainWindow):
     def show_hide_add_buttons(self) -> None:
         if self.editor.current_notetype_is_image_occlusion():
             self.addButton.setVisible(False)
-            self.addButtonHideAll.setVisible(True)
-            self.addButtonHideOne.setVisible(True)
+            self.ioAddButton.setVisible(True)
         else:
             self.addButton.setVisible(True)
-            self.addButtonHideAll.setVisible(False)
-            self.addButtonHideOne.setVisible(False)
+            self.ioAddButton.setVisible(False)
 
     def setAndFocusNote(self, note: Note) -> None:
         self.editor.set_note(note, focusTo=0)
@@ -377,6 +370,14 @@ class AddCards(QMainWindow):
             cb()
 
         self.ifCanClose(doClose)
+
+    def onAddIo(self) -> None:
+        m = QMenu(self)
+        a = m.addAction(tr.notetypes_hide_all_guess_one())
+        qconnect(a.triggered, self.add_io_hide_all_note)
+        a = m.addAction(tr.notetypes_hide_one_guess_one())
+        qconnect(a.triggered, self.add_io_hide_one_note)
+        m.exec(self.ioAddButton.mapToGlobal(QPoint(0, 0)))
 
     def add_io_hide_all_note(self) -> None:
         self.editor.web.eval("setOcclusionField(true)")

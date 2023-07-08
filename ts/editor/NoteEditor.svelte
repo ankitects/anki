@@ -233,12 +233,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    let insertSymbols = false;
-
-    function setInsertSymbolsEnabled() {
-        insertSymbols = true;
-    }
-
     function getNoteId(): number | null {
         return noteId;
     }
@@ -309,6 +303,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function saveNow(): void {
+        updateNoteInBrowseMode();
         closeMathjaxEditor?.();
         $commitTagEdits();
         saveFieldNow();
@@ -400,7 +395,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setupImageOcclusion } from "image-occlusion";
     import type { IOMode } from "image-occlusion/lib";
     import { exportShapesToClozeDeletions } from "image-occlusion/shapes/to-cloze";
-    import StickyFooter from "image-occlusion/StickyFooter.svelte";
 
     import { mathjaxConfig } from "../editable/mathjax-element";
     import CollapseLabel from "./CollapseLabel.svelte";
@@ -442,27 +436,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         await setupImageOcclusion(options.mode, ioMaskEditor);
-        setupIOButtons(ioMaskEditor);
         toggleMaskEditor(true);
         isIOImageLoaded = true;
     }
 
-    // setup buttons to generate cloze deletions and set occlusion fields
-    function setupIOButtons(element: HTMLElement) {
-        function hideAllGuessOne() {
-            setOcclusionField(true);
-        }
-        function hideOneGuessOne() {
-            setOcclusionField(false);
-        }
+    // update cloze deletions and set occlusion fields, it call in saveNow to update cloze deletions
+    function updateNoteInBrowseMode() {
         if (isBrowseMode) {
-            new StickyFooter({
-                target: element,
-                props: {
-                    hideAllGuessOne,
-                    hideOneGuessOne,
-                },
-            });
+            const clozeNote = get(fieldStores[0]);
+            if (clozeNote.includes("oi=1")) {
+                setOcclusionField(true);
+            } else {
+                setOcclusionField(false);
+            }
         }
     }
 
@@ -714,9 +700,9 @@ the AddCards dialog) should be implemented in the user of this component.
                 </EditorField>
             {/each}
 
-        <MathjaxOverlay />
-        <ImageOverlay maxWidth={250} maxHeight={125} />
-    </Fields>
+            <MathjaxOverlay />
+            <ImageOverlay maxWidth={250} maxHeight={125} />
+        </Fields>
 
         <Shortcut
             keyCombination="Control+Shift+T"

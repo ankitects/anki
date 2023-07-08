@@ -39,17 +39,21 @@ class EditCurrent(QDialog):
             bb = self.form.buttonBox
             ar = QDialogButtonBox.ButtonRole.ActionRole
             # add io hide all button
-            self.addButtonHideAll = bb.addButton(tr.notetypes_hide_all_guess_one(), ar)
-            qconnect(self.addButtonHideAll.clicked, self.update_io_hide_all_note)
-            self.addButtonHideAll.setShortcut(QKeySequence("Ctrl+Return+A"))
-            # add io hide one button
-            self.addButtonHideOne = bb.addButton(tr.notetypes_hide_one_guess_one(), ar)
-            qconnect(self.addButtonHideOne.clicked, self.update_io_hide_one_note)
-            self.addButtonHideOne.setShortcut(QKeySequence("Ctrl+Return+O"))
+            self.ioAddButton = bb.addButton(tr.actions_update_note(), ar)
+            qconnect(self.ioAddButton.clicked, self.onAddIo)
+            self.ioAddButton.setShortcut(QKeySequence("Ctrl+Shift+I"))
 
         self.form.buttonBox.button(QDialogButtonBox.StandardButton.Close).setShortcut(
             QKeySequence("Ctrl+Return")
         )
+
+    def onAddIo(self) -> None:
+        m = QMenu(self)
+        a = m.addAction(tr.notetypes_hide_all_guess_one())
+        qconnect(a.triggered, self.update_io_hide_all_note)
+        a = m.addAction(tr.notetypes_hide_one_guess_one())
+        qconnect(a.triggered, self.update_io_hide_one_note)
+        m.exec(self.ioAddButton.mapToGlobal(QPoint(0, 0)))
 
     def update_io_hide_all_note(self) -> None:
         self.editor.web.eval("setOcclusionField(true)")

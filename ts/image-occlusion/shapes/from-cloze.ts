@@ -108,8 +108,8 @@ function extractShapeFromRenderedCloze(cloze: HTMLDivElement): Shape | null {
 type ShapeType = "rect" | "ellipse" | "polygon";
 
 function buildShape(type: ShapeType, props: Record<string, any>): Shape {
-    props.left = parseFloat(props.left);
-    props.top = parseFloat(props.top);
+    props.left = parseFloat(Number.isNaN(Number(props.left)) ? ".0000" : props.left);
+    props.top = parseFloat(Number.isNaN(Number(props.top)) ? ".0000" : props.top);
     switch (type) {
         case "rect": {
             return new Rectangle({ ...props, width: parseFloat(props.width), height: parseFloat(props.height) });

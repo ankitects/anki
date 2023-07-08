@@ -6,6 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroup from "components/ButtonGroup.svelte";
     import DynamicallySlottable from "components/DynamicallySlottable.svelte";
     import IconButton from "components/IconButton.svelte";
+    import { maskEditorButtonPressed } from "image-occlusion/store";
+    import { get } from "svelte/store";
 
     import ButtonGroupItem, {
         createProps,
@@ -16,9 +18,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { mdiRefresh, mdiViewDashboard } from "./icons";
 
     export let api = {};
-
-    // in mask editor so button pressed by default
-    let buttonPressed = true;
 </script>
 
 <ButtonGroup>
@@ -33,20 +32,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <IconButton
                 id="io-mask-btn"
                 on:click={() => {
-                    if (buttonPressed) {
+                    if (get(maskEditorButtonPressed)) {
                         bridgeCommand(`toggleMaskEditor:${false}`);
-                        buttonPressed = false;
                     } else {
                         bridgeCommand(`toggleMaskEditor:${true}`);
-                        buttonPressed = true;
                     }
+                    maskEditorButtonPressed.set(!get(maskEditorButtonPressed));
                 }}
             >
                 {@html mdiViewDashboard}
             </IconButton>
         </ButtonGroupItem>
 
-        {#if buttonPressed}
+        {#if get(maskEditorButtonPressed)}
             <ButtonGroupItem>
                 <IconButton
                     on:click={() => {
