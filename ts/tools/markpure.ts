@@ -26,7 +26,7 @@ function adjustFiles() {
     const root = process.argv[2];
     const typeRe = /(make(Enum|MessageType))\(\n\s+".*",/g;
 
-    let jsFiles = allFilesInDir(root).filter(f => f.endsWith(".js"));
+    const jsFiles = allFilesInDir(root).filter(f => f.endsWith(".js"));
     for (const file of jsFiles) {
         let contents = fs.readFileSync(file, "utf8");
 
