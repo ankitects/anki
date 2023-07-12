@@ -7,12 +7,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let itemsCount: number = 0;
-    export let containerHeight: number;
     export let itemHeight: number;
 
     let container: HTMLElement;
     let scrollTop: number = 0;
 
+    // Fill available viewport height, ensuring no scrollbar is shown
+    $: containerHeight = container
+        ? Math.floor(
+              (document.documentElement.clientHeight - container.offsetTop) /
+                  itemHeight -
+                  1,
+          ) * itemHeight
+        : 0;
     $: innerHeight = Math.max(containerHeight, itemsCount * itemHeight);
     $: sliceLength = Math.ceil(containerHeight / itemHeight);
     $: startIndex = Math.floor(scrollTop / itemHeight);

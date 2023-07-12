@@ -19,12 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <details>
     <summary>{tr.importingDetails()}</summary>
-    <VirtualTable
-        class="details-table"
-        itemHeight={50}
-        itemsCount={rows.length}
-        containerHeight={500}
-    >
+    <VirtualTable class="details-table" itemHeight={50} itemsCount={rows.length}>
         <tr slot="headers">
             <th>#</th>
             <th>{tr.importingStatus()}</th>
