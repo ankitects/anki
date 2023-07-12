@@ -1245,6 +1245,10 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     # Fields
     ###################
     Hook(
+        name="fields_did_add_field",
+        args=["dialog: aqt.fields.FieldDialog", "field: anki.models.FieldDict"],
+    ),
+    Hook(
         name="fields_did_rename_field",
         args=[
             "dialog: aqt.fields.FieldDialog",
