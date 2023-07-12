@@ -3,11 +3,13 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import aqt
 import aqt.deckconf
 import aqt.main
 import aqt.operations
-from anki.collection import ImportCsvRequest
+from anki.collection import SearchNode
 from aqt.qt import *
 from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGeom, tr
 from aqt.webview import AnkiWebView, AnkiWebViewKind
@@ -21,16 +23,13 @@ class ImportCsvDialog(QDialog):
         self,
         mw: aqt.main.AnkiQt,
         path: str,
-        on_accepted: Callable[[ImportCsvRequest], None],
     ) -> None:
-        QDialog.__init__(self, mw)
+        QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
-        self._on_accepted = on_accepted
         self._setup_ui(path)
         self.show()
 
     def _setup_ui(self, path: str) -> None:
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.mw.garbage_collect_on_dialog_finish(self)
         self.setMinimumSize(400, 300)
         disable_help_button(self)
@@ -40,6 +39,7 @@ class ImportCsvDialog(QDialog):
         self.web = AnkiWebView(kind=AnkiWebViewKind.IMPORT_CSV)
         self.web.setVisible(False)
         self.web.load_ts_page("import-csv")
+        self.web.set_bridge_command(self._on_bridge_cmd, self)
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
@@ -57,8 +57,10 @@ class ImportCsvDialog(QDialog):
         saveGeom(self, self.TITLE)
         QDialog.reject(self)
 
-    def do_import(self, data: bytes) -> None:
-        request = ImportCsvRequest()
-        request.ParseFromString(data)
-        self._on_accepted(request)
-        super().reject()
+    def _on_bridge_cmd(self, cmd: str) -> Any:
+        if cmd.startswith("browse:"):
+            nids = [int(nid) for nid in cmd[len("browse:") :].split(",")]
+            search = self.mw.col.build_search_string(
+                SearchNode(nids=SearchNode.IdList(ids=nids))
+            )
+            aqt.dialogs.open("Browser", self.mw, search=(search,))

@@ -10,15 +10,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         CsvMetadata_DupeResolution,
         CsvMetadata_MappedNotetype,
         CsvMetadata_MatchScope,
+        ImportResponse,
     } from "@tslib/anki/import_export_pb";
     import type { NotetypeNameId } from "@tslib/anki/notetypes_pb";
     import { getCsvMetadata, importCsv } from "@tslib/backend";
     import * as tr from "@tslib/ftl";
 
+    import BackendProgressIndicator from "../components/BackendProgressIndicator.svelte";
     import Col from "../components/Col.svelte";
     import Container from "../components/Container.svelte";
     import Row from "../components/Row.svelte";
     import Spacer from "../components/Spacer.svelte";
+    import ImportLogPage from "../import-log/ImportLogPage.svelte";
     import DeckDupeCheckSwitch from "./DeckDupeCheckSwitch.svelte";
     import DeckSelector from "./DeckSelector.svelte";
     import DelimiterSelector from "./DelimiterSelector.svelte";
@@ -59,8 +62,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let deckId: bigint | null;
     export let deckColumn: number | null;
 
+    let importResponse: ImportResponse | undefined = undefined;
     let lastNotetypeId = globalNotetype?.id;
     let lastDelimeter = delimiter;
+    let importing = false;
 
     $: columnOptions = getColumnOptions(
         columnLabels,
@@ -94,8 +99,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    async function onImport(): Promise<void> {
-        await importCsv({
+    async function onImport(): Promise<ImportResponse> {
+        return await importCsv({
             path,
             metadata: {
                 dupeResolution,
@@ -117,48 +122,65 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<StickyHeader {path} {onImport} />
+<div class="outer">
+    {#if importing}
+        <BackendProgressIndicator task={onImport} bind:result={importResponse} />
+    {/if}
+    {#if importResponse}
+        <ImportLogPage response={importResponse} params={{ path }} />
+    {:else if !importing}
+        <StickyHeader {path} onImport={() => (importing = true)} />
 
-<Container class="csv-page">
-    <Row --cols={2}>
-        <Col --col-size={1} breakpoint="md">
-            <Container>
-                <Header heading={tr.importingFile()} />
-                <Spacer --height="1.5rem" />
-                <DelimiterSelector bind:delimiter disabled={forceDelimiter} />
-                <HtmlSwitch bind:isHtml disabled={forceIsHtml} />
-                <Preview {columnOptions} {preview} />
-            </Container>
-        </Col>
-        <Col --col-size={1} breakpoint="md">
-            <Container>
-                <Header heading={tr.importingImportOptions()} />
-                <Spacer --height="1.5rem" />
-                {#if globalNotetype}
-                    <NotetypeSelector
-                        {notetypeNameIds}
-                        bind:notetypeId={globalNotetype.id}
-                    />
-                {/if}
-                {#if deckId}
-                    <DeckSelector {deckNameIds} bind:deckId />
-                {/if}
-                <DupeResolutionSelector bind:dupeResolution />
-                <DeckDupeCheckSwitch bind:matchScope />
-                <Tags bind:globalTags bind:updatedTags />
-            </Container>
-        </Col>
-        <Col --col-size={1} breakpoint="md">
-            <Container>
-                <Header heading={tr.importingFieldMapping()} />
-                <Spacer --height="1.5rem" />
-                <FieldMapper {columnOptions} bind:globalNotetype bind:tagsColumn />
-            </Container>
-        </Col>
-    </Row>
-</Container>
+        <Container class="csv-page">
+            <Row --cols={2}>
+                <Col --col-size={1} breakpoint="md">
+                    <Container>
+                        <Header heading={tr.importingFile()} />
+                        <Spacer --height="1.5rem" />
+                        <DelimiterSelector bind:delimiter disabled={forceDelimiter} />
+                        <HtmlSwitch bind:isHtml disabled={forceIsHtml} />
+                        <Preview {columnOptions} {preview} />
+                    </Container>
+                </Col>
+                <Col --col-size={1} breakpoint="md">
+                    <Container>
+                        <Header heading={tr.importingImportOptions()} />
+                        <Spacer --height="1.5rem" />
+                        {#if globalNotetype}
+                            <NotetypeSelector
+                                {notetypeNameIds}
+                                bind:notetypeId={globalNotetype.id}
+                            />
+                        {/if}
+                        {#if deckId}
+                            <DeckSelector {deckNameIds} bind:deckId />
+                        {/if}
+                        <DupeResolutionSelector bind:dupeResolution />
+                        <DeckDupeCheckSwitch bind:matchScope />
+                        <Tags bind:globalTags bind:updatedTags />
+                    </Container>
+                </Col>
+                <Col --col-size={1} breakpoint="md">
+                    <Container>
+                        <Header heading={tr.importingFieldMapping()} />
+                        <Spacer --height="1.5rem" />
+                        <FieldMapper
+                            {columnOptions}
+                            bind:globalNotetype
+                            bind:tagsColumn
+                        />
+                    </Container>
+                </Col>
+            </Row>
+        </Container>
+    {/if}
+</div>
 
 <style lang="scss">
+    .outer {
+        // width: min(100vw, 70em);
+        margin: 0 auto;
+    }
     :global(.csv-page) {
         --gutter-inline: 0.25rem;
 

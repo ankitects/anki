@@ -750,7 +750,8 @@ html {{ {font} }}
         except ImportError:
             # this will fail when __del__ is called during app shutdown
             return
-
+        if mw.col:
+            mw.col.set_wants_abort()
         gui_hooks.theme_did_change.remove(self.on_theme_did_change)
         gui_hooks.body_classes_need_update.remove(self.on_body_classes_need_update)
         mw.mediaServer.clear_page_html(id(self))

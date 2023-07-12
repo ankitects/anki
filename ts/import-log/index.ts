@@ -3,27 +3,27 @@
 
 import "./import-log-base.scss";
 
-import { getLastImportResponse } from "@tslib/backend";
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 
 import ImportLogPage from "./ImportLogPage.svelte";
+import type { LogParams } from "./types";
 
 const i18n = setupI18n({
     modules: [ModuleName.IMPORTING, ModuleName.ADDING, ModuleName.EDITING],
 });
 
-export async function setupImportLogPage(): Promise<ImportLogPage> {
+export async function setupImportLogPage(
+    params: LogParams,
+): Promise<ImportLogPage> {
     await i18n;
-
-    const response = await getLastImportResponse({});
 
     checkNightMode();
 
     return new ImportLogPage({
         target: document.body,
         props: {
-            response,
+            params,
         },
     });
 }

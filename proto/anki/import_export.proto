@@ -21,7 +21,6 @@ service ImportExportService {
   rpc ExportCardCsv(ExportCardCsvRequest) returns (generic.UInt32);
   rpc ImportJsonFile(generic.String) returns (ImportResponse);
   rpc ImportJsonString(generic.String) returns (ImportResponse);
-  rpc GetLastImportResponse(generic.Empty) returns (ImportResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -71,7 +70,6 @@ message ImportResponse {
   }
   collection.OpChanges changes = 1;
   Log log = 2;
-  string filename = 3;
 }
 
 message ExportAnkiPackageRequest {

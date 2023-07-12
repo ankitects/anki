@@ -3,14 +3,14 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 import aqt
 import aqt.deckconf
 import aqt.main
 import aqt.operations
-from anki.collection import ImportLogWithChanges, SearchNode
-from anki.lang import without_unicode_isolation
+from anki.collection import SearchNode
 from aqt.qt import *
 from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGeom, tr
 from aqt.webview import AnkiWebView, AnkiWebViewKind
@@ -23,14 +23,14 @@ class ImportLogDialog(QDialog):
     def __init__(
         self,
         mw: aqt.main.AnkiQt,
-        log_with_changes: ImportLogWithChanges,
+        **params: Any,
     ) -> None:
         QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
-        self._setup_ui(log_with_changes)
+        self._setup_ui(**params)
         self.show()
 
-    def _setup_ui(self, log_with_changes: ImportLogWithChanges) -> None:
+    def _setup_ui(self, **params: Any) -> None:
         self.mw.garbage_collect_on_dialog_finish(self)
         self.setMinimumSize(400, 300)
         disable_help_button(self)
@@ -46,13 +46,15 @@ class ImportLogDialog(QDialog):
         self.setLayout(layout)
         restoreGeom(self, self.GEOMETRY_KEY, default_size=(800, 800))
 
-        self.web.eval("anki.setupImportLogPage()")
+        self.web.evalWithCallback(
+            "anki.setupImportLogPage(%s);" % json.dumps(params),
+            lambda _: self.web.setFocus(),
+        )
 
-        if log_with_changes.filename:
-            title = tr.importing_import_log_for_file(val=log_with_changes.filename)
-        else:
-            title = tr.importing_import_log()
-        self.setWindowTitle(without_unicode_isolation(title))
+        title = tr.importing_import_log()
+        if path := params.get("path", None):
+            title += f" - {os.path.basename(path)}"
+        self.setWindowTitle(title)
 
     def reject(self) -> None:
         self.web.cleanup()

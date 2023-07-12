@@ -8,15 +8,13 @@
 @import "bootstrap/scss/close";
 @import "bootstrap/scss/grid";
 @import "sass/bootstrap-forms";
+@import "sass/bootstrap-tooltip";
 
 .night-mode {
     @include bootstrap-dark.night-mode;
 }
 
 body {
-    min-height: 100vh;
-    width: min(100vw, 70em);
-    margin: 0 auto;
     padding: 0 1em 1em 1em;
 }
 

@@ -2,8 +2,6 @@
 
 @import "sass/base";
 
-@import "bootstrap/scss/buttons";
-
 @import "sass/bootstrap-tooltip";
 
 .night-mode {
@@ -11,9 +9,7 @@
 }
 
 body {
-    margin: 8px auto;
     padding: 0 1em 1em 1em;
-    font-size: 20px;
 }
 
 html {

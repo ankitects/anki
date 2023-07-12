@@ -1,5 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 import type { ImportResponse_Note } from "@tslib/anki/import_export_pb";
 
 export type LogQueue = {
@@ -20,3 +21,16 @@ export type NoteRow = {
     queue: LogQueue;
     note: ImportResponse_Note;
 };
+
+type PathParams = {
+    type?: "apkg" | "json_file";
+    path: string;
+};
+
+type JsonParams = {
+    type?: "json_string";
+    path: string;
+    json: string;
+};
+
+export type LogParams = PathParams | JsonParams;
