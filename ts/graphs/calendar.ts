@@ -21,6 +21,7 @@ import {
     timeYear,
 } from "d3";
 
+import { firstLanguage } from "../lib/i18n/bundles";
 import type { GraphBounds, SearchDispatch } from "./graph-helpers";
 import { RevlogRange, setDataAvailable } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
@@ -154,6 +155,8 @@ export function renderCalendar(
     const height = bounds.height / 10;
     const emptyColour = nightMode ? "#333" : "#ddd";
 
+    const firstLang = firstLanguage();
+
     svg.select("g.weekdays")
         .selectAll("text")
         .data(sourceData.weekdayLabels)
@@ -166,7 +169,7 @@ export function renderCalendar(
         .attr("fill", nightMode ? "#ddd" : "black")
         .attr("dominant-baseline", "hanging")
         .attr("text-anchor", "end")
-        .attr("font-size", "small")
+        .attr("font-size", firstLang.includes("zh") ? "xx-small" : "small")
         .attr("font-family", "monospace")
         .attr("direction", "ltr")
         .style("user-select", "none")
