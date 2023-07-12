@@ -33,7 +33,6 @@ class ImportCsvDialog(QDialog):
         self.mw.garbage_collect_on_dialog_finish(self)
         self.setMinimumSize(400, 300)
         disable_help_button(self)
-        restoreGeom(self, self.TITLE, default_size=(800, 800))
         addCloseShortcut(self)
 
         self.web = AnkiWebView(kind=AnkiWebViewKind.IMPORT_CSV)
@@ -44,6 +43,7 @@ class ImportCsvDialog(QDialog):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
         self.setLayout(layout)
+        restoreGeom(self, self.TITLE, default_size=(800, 800))
 
         escaped_path = path.replace("'", r"\'")
         self.web.evalWithCallback(
