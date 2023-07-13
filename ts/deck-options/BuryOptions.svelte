@@ -69,8 +69,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <SwitchRow bind:value={$config.buryNew} defaultValue={defaults.buryNew}>
                 <SettingTitle
                     on:click={(e) =>
-                        openHelpModal(Object.keys(settings).indexOf("buryNewSiblings"),
-                        e,
+                        openHelpModal(
+                            Object.keys(settings).indexOf("buryNewSiblings"),
+                            e,
                         )}
                 >
                     {settings.buryNewSiblings.title}
@@ -106,7 +107,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             openHelpModal(
                                 Object.keys(settings).indexOf(
                                     "buryInterdayLearningSiblings",
-                                ),e,
+                                ),
+                                e,
                             )}
                     >
                         {settings.buryInterdayLearningSiblings.title}

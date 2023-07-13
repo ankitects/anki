@@ -7,7 +7,7 @@
 
     let forId: string;
     export { forId as for };
-    
+
     const dispatch = createEventDispatcher();
 
     let spanRef: HTMLSpanElement;
@@ -17,10 +17,7 @@
     });
 </script>
 
-<label
-    bind:this={spanRef}
-    for={forId}
->
+<label bind:this={spanRef} for={forId}>
     <slot />
 </label>
 

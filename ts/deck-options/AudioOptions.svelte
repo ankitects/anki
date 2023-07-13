@@ -64,8 +64,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             >
                 <SettingTitle
                     on:click={(e) =>
-                        openHelpModal(Object.keys(settings).indexOf("disableAutoplay"),
-                        e,
+                        openHelpModal(
+                            Object.keys(settings).indexOf("disableAutoplay"),
+                            e,
                         )}
                 >
                     {settings.disableAutoplay.title}

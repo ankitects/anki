@@ -100,7 +100,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                                     on:click={() => {
                                                         activeIndex = i;
                                                         carousel.to(activeIndex);
-                                                    }} 
+                                                    }}
                                                     class:active={i == activeIndex}
                                                 >
                                                     {section.title}
