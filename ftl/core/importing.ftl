@@ -128,8 +128,8 @@ importing-notes-updated =
     }
 importing-existing-notes-skipped =
     { $count ->
-        [one] { $count } was not imported because it already exists identically in your collection.
-       *[other] { $count } were not imported because they already exist identically in your collection.
+        [one] { $count } note already present in your collection.
+       *[other] { $count } notes already present in your collection.
     }
 importing-conflicting-notes-skipped =
     { $count ->
