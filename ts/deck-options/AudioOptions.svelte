@@ -38,7 +38,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let modal: Modal;
     let carousel: Carousel;
 
-    function openHelpModal(index: number): void {
+    function openHelpModal(index: number, event): void {
+        event.preventDefault();
         modal.show();
         carousel.to(index);
     }
@@ -62,8 +63,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 defaultValue={defaults.disableAutoplay}
             >
                 <SettingTitle
-                    on:click={() =>
-                        openHelpModal(Object.keys(settings).indexOf("disableAutoplay"))}
+                    on:click={(e) =>
+                        openHelpModal(Object.keys(settings).indexOf("disableAutoplay"),e,
+                        )}
                 >
                     {settings.disableAutoplay.title}
                 </SettingTitle>
@@ -76,9 +78,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 defaultValue={defaults.skipQuestionWhenReplayingAnswer}
             >
                 <SettingTitle
-                    on:click={() =>
+                    on:click={(e) =>
                         openHelpModal(
-                            Object.keys(settings).indexOf("skipQuestionWhenReplaying"),
+                            Object.keys(settings).indexOf("skipQuestionWhenReplaying"),e,
                         )}
                 >
                     {settings.skipQuestionWhenReplaying.title}

@@ -46,7 +46,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let modal: Modal;
     let carousel: Carousel;
 
-    function openHelpModal(index: number): void {
+    function openHelpModal(index: number, event): void {
+        event.preventDefault();
         modal.show();
         carousel.to(index);
     }
@@ -67,8 +68,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Item>
             <SwitchRow bind:value={$config.buryNew} defaultValue={defaults.buryNew}>
                 <SettingTitle
-                    on:click={() =>
-                        openHelpModal(Object.keys(settings).indexOf("buryNewSiblings"))}
+                    on:click={(e) =>
+                        openHelpModal(Object.keys(settings).indexOf("buryNewSiblings"),e,
+                        )}
                 >
                     {settings.buryNewSiblings.title}
                 </SettingTitle>
@@ -81,9 +83,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 defaultValue={defaults.buryReviews}
             >
                 <SettingTitle
-                    on:click={() =>
+                    on:click={(e) =>
                         openHelpModal(
-                            Object.keys(settings).indexOf("buryReviewSiblings"),
+                            Object.keys(settings).indexOf("buryReviewSiblings"),e,
                         )}
                 >
                     {settings.buryReviewSiblings.title}
@@ -98,11 +100,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     defaultValue={defaults.buryInterdayLearning}
                 >
                     <SettingTitle
-                        on:click={() =>
+                        on:click={(e) =>
                             openHelpModal(
                                 Object.keys(settings).indexOf(
                                     "buryInterdayLearningSiblings",
-                                ),
+                                ),e,
                             )}
                     >
                         {settings.buryInterdayLearningSiblings.title}

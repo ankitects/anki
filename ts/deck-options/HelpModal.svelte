@@ -94,14 +94,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             <div id="nav">
                                 <ul>
                                     {#each helpSections as section, i}
-                                        <li
-                                            on:click={() => {
-                                                activeIndex = i;
-                                                carousel.to(activeIndex);
-                                            }}
-                                        >
-                                            <span class:active={i == activeIndex}>
-                                                {section.title}
+                                        <li>
+                                            <span>
+                                                <button
+                                                    on:click={() => {
+                                                        activeIndex = i;
+                                                        carousel.to(activeIndex);
+                                                    }} class:active={i == activeIndex}
+                                                >
+                                                    {section.title}
+                                                </button>
                                             </span>
                                         </li>
                                     {/each}
@@ -171,7 +173,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding: 0;
     }
 
-    li span {
+    li span button {
         display: block;
         padding: 0.5rem 0.75rem;
         text-decoration: none;
