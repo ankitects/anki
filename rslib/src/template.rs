@@ -425,24 +425,17 @@ fn render_into(
                 append_str_to_nodes(rendered_nodes, text);
             }
             Replacement { key, .. } if key == "FrontSide" => {
-                if let Some(frontside) = &context.frontside {
-                    if context.partial_for_python {
-                        // defer FrontSide rendering to Python, as extra
-                        // filters may be required
-                        rendered_nodes.push(RenderedNode::Replacement {
-                            field_name: (*key).to_string(),
-                            filters: vec![],
-                            current_text: "".into(),
-                        });
-                    } else {
-                        append_str_to_nodes(rendered_nodes, frontside);
-                    }
-                } else {
-                    // Not valid on the question side
-                    return Err(TemplateError::FieldNotFound {
-                        field: "FrontSide".into(),
-                        filters: "".into(),
+                let frontside = context.frontside.as_ref().copied().unwrap_or_default();
+                if context.partial_for_python {
+                    // defer FrontSide rendering to Python, as extra
+                    // filters may be required
+                    rendered_nodes.push(RenderedNode::Replacement {
+                        field_name: (*key).to_string(),
+                        filters: vec![],
+                        current_text: "".into(),
                     });
+                } else {
+                    append_str_to_nodes(rendered_nodes, frontside);
                 }
             }
             Replacement { key, filters } => {
@@ -589,6 +582,7 @@ where
 // Rendering both sides
 //----------------------------------------
 
+#[derive(Clone)]
 pub struct RenderCardRequest<'a> {
     pub qfmt: &'a str,
     pub afmt: &'a str,
@@ -1219,7 +1213,7 @@ mod test {
 
     #[test]
     fn render_card() {
-        let map: HashMap<_, _> = vec![("E", "")]
+        let map: HashMap<_, _> = vec![("E", ""), ("N", "N")]
             .into_iter()
             .map(|r| (r.0, r.1.into()))
             .collect();
@@ -1227,7 +1221,7 @@ mod test {
         let tr = I18n::template_only();
         use crate::template::RenderedNode as FN;
 
-        let qnodes = super::render_card(RenderCardRequest {
+        let mut req = RenderCardRequest {
             qfmt: "test{{E}}",
             afmt: "",
             field_map: &map,
@@ -1236,9 +1230,8 @@ mod test {
             browser: false,
             tr: &tr,
             partial_render: true,
-        })
-        .unwrap()
-        .0;
+        };
+        let qnodes = super::render_card(req.clone()).unwrap().0;
         assert_eq!(
             qnodes[0],
             FN::Text {
@@ -1250,5 +1243,24 @@ mod test {
         } else {
             unreachable!();
         }
+
+        // a popular card template expects {{FrontSide}} to resolve to an empty
+        // string on the front side :-(
+        req.qfmt = "{{FrontSide}}{{N}}";
+        let qnodes = super::render_card(req.clone()).unwrap().0;
+        assert_eq!(
+            &qnodes,
+            &[
+                FN::Replacement {
+                    field_name: "FrontSide".into(),
+                    current_text: "".into(),
+                    filters: vec![]
+                },
+                FN::Text { text: "N".into() }
+            ]
+        );
+        req.partial_render = false;
+        let qnodes = super::render_card(req.clone()).unwrap().0;
+        assert_eq!(&qnodes, &[FN::Text { text: "N".into() }]);
     }
 }
