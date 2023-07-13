@@ -186,6 +186,8 @@ class FieldDialog(QDialog):
         self.saveField()
         f = self.mm.new_field(name)
         self.mm.add_field(self.model, f)
+        gui_hooks.fields_did_add_field(self, f)
+
         self.fillFields()
         self.form.fieldList.setCurrentRow(len(self.model["flds"]) - 1)
 
