@@ -20,10 +20,10 @@ function getFirstFieldQueue(log: ImportResponse_Log): {
         reason = tr.importingDuplicateNoteAdded();
         action = tr.addingAdded();
     } else if (log.dupeResolution === CsvMetadata_DupeResolution.PRESERVE) {
-        reason = tr.importingSkippedBecauseFirstFieldMatches();
+        reason = tr.importingExistingNoteSkipped();
         action = tr.importingSkipped();
     } else {
-        reason = tr.importingUpdatedBecauseFirstFieldMatches();
+        reason = tr.importingNoteUpdatedAsFileHadNewer();
         action = tr.importingUpdated();
     }
     const queue: LogQueue = {
