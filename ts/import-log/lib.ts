@@ -62,6 +62,18 @@ export function getSummaries(log: ImportResponse_Log): SummarizedLogQueues[] {
         {
             queues: [
                 {
+                    notes: log.updated,
+                    reason: tr.importingNoteUpdatedAsFileHadNewer(),
+                },
+            ],
+            action: tr.importingUpdated(),
+            summaryTemplate: tr.importingNotesUpdated,
+            canBrowse: true,
+            icon: updateIcon,
+        },
+        {
+            queues: [
+                {
                     notes: log.conflicting,
                     reason: tr.importingNoteSkippedUpdateDueToNotetype(),
                 },
@@ -82,18 +94,6 @@ export function getSummaries(log: ImportResponse_Log): SummarizedLogQueues[] {
             summaryTemplate: tr.importingConflictingNotesSkipped,
             canBrowse: false,
             icon: closeBox,
-        },
-        {
-            queues: [
-                {
-                    notes: log.updated,
-                    reason: tr.importingNoteUpdatedAsFileHadNewer(),
-                },
-            ],
-            action: tr.importingUpdated(),
-            summaryTemplate: tr.importingNotesUpdated,
-            canBrowse: true,
-            icon: updateIcon,
         },
     ];
     const firstFieldQueue = getFirstFieldQueue(log);
