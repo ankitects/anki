@@ -5,11 +5,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { Progress } from "@tslib/anki/collection_pb";
     import { runWithBackendProgress } from "@tslib/progress";
+    import { bridgeCommand } from "@tslib/bridgecommand";
 
     import { pageTheme } from "../sveltelib/theme";
 
-    export let task: () => Promise<unknown>;
-    export let result: unknown | undefined = undefined;
+    import {
+        OpChanges,
+        type OpChangesWithCount,
+        type OpChangesWithId,
+        type OpChangesAfterUndo,
+    } from "@tslib/anki/collection_pb";
+    import type { ImportResponse } from "@tslib/anki/import_export_pb";
+
+    type ResultWithChanges =
+        | OpChanges
+        | OpChangesWithCount
+        | OpChangesWithId
+        | OpChangesAfterUndo
+        | ImportResponse
+        | { changes: OpChanges };
+
+    export let task: () => Promise<ResultWithChanges>;
+    export let result: ResultWithChanges | undefined = undefined;
     let label: string = "";
 
     function onUpdate(progress: Progress) {
@@ -20,6 +37,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: (async () => {
         if (!result) {
             result = await runWithBackendProgress(task, onUpdate);
+            let changes: OpChanges | undefined;
+            if (result instanceof OpChanges) {
+                changes = result;
+            } else {
+                changes = result.changes;
+            }
+            if (changes) {
+                bridgeCommand(`op_executed:${JSON.stringify(changes)}`);
+            }
         }
     })();
 </script>
