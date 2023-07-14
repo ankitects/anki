@@ -45,8 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let modal: Modal;
     let carousel: Carousel;
 
-    function openHelpModal(index: number, event): void {
-        event.preventDefault();
+    function openHelpModal(index: number): void {
         modal.show();
         carousel.to(index);
     }
@@ -72,10 +71,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 max={7200}
             >
                 <SettingTitle
-                    on:click={(e) =>
+                    on:click={() =>
                         openHelpModal(
                             Object.keys(settings).indexOf("maximumAnswerSecs"),
-                            e,
                         )}
                 >
                     {settings.maximumAnswerSecs.title}
@@ -95,10 +93,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     defaultValue={defaults.showTimer}
                 >
                     <SettingTitle
-                        on:click={(e) =>
+                        on:click={() =>
                             openHelpModal(
                                 Object.keys(settings).indexOf("showAnswerTimer"),
-                                e,
                             )}
                     >
                         {settings.showAnswerTimer.title}

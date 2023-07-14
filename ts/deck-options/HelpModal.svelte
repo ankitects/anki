@@ -95,17 +95,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 <ul>
                                     {#each helpSections as section, i}
                                         <li>
-                                            <span>
-                                                <button
-                                                    on:click={() => {
-                                                        activeIndex = i;
-                                                        carousel.to(activeIndex);
-                                                    }}
-                                                    class:active={i == activeIndex}
-                                                >
-                                                    {section.title}
-                                                </button>
-                                            </span>
+                                            <button
+                                                on:click={() => {
+                                                    activeIndex = i;
+                                                    carousel.to(activeIndex);
+                                                }}
+                                                class:active={i == activeIndex}
+                                            >
+                                                {section.title}
+                                            </button>
                                         </li>
                                     {/each}
                                 </ul>
@@ -174,10 +172,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding: 0;
     }
 
-    li span button {
+    li button {
         display: block;
         padding: 0.5rem 0.75rem;
         text-decoration: none;
+        text-align: left;
+        min-width: 250px;
+        background-color: var(--canvas);
+        border: none;
         cursor: pointer;
         &:hover {
             background-color: var(--canvas-inset);

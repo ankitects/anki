@@ -7,6 +7,7 @@
 
     let forId: string;
     export { forId as for };
+    export let preventMouseClick = false;
 
     const dispatch = createEventDispatcher();
 
@@ -17,7 +18,15 @@
     });
 </script>
 
-<label bind:this={spanRef} for={forId}>
+<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<label
+    bind:this={spanRef}
+    for={forId}
+    on:click={(e) => {
+        if (preventMouseClick) e.preventDefault();
+    }}
+>
     <slot />
 </label>
 
