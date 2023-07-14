@@ -7,7 +7,7 @@ import type { NoteId } from "@tslib/anki/notes_pb";
 import { bridgeCommand } from "@tslib/bridgecommand";
 import * as tr from "@tslib/ftl";
 
-import { alphaXBox, checkBold, newBox, updateIcon } from "./icons";
+import { checkCircle, closeBox, newBox, updateIcon } from "./icons";
 import type { LogQueue, NoteRow, SummarizedLogQueues } from "./types";
 
 function getFirstFieldQueue(log: ImportResponse_Log): {
@@ -57,7 +57,7 @@ export function getSummaries(log: ImportResponse_Log): SummarizedLogQueues[] {
             action: tr.importingSkipped(),
             summaryTemplate: tr.importingExistingNotesSkipped,
             canBrowse: true,
-            icon: checkBold,
+            icon: checkCircle,
         },
         {
             queues: [
@@ -81,7 +81,7 @@ export function getSummaries(log: ImportResponse_Log): SummarizedLogQueues[] {
             action: tr.importingSkipped(),
             summaryTemplate: tr.importingConflictingNotesSkipped,
             canBrowse: false,
-            icon: alphaXBox,
+            icon: closeBox,
         },
         {
             queues: [
