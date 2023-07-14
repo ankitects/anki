@@ -44,12 +44,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bind:result
     />
     {#if result}
-        <b class="note-count">
+        <p class="note-count">
             {tr.importingNotesAndCardsFoundInFile({
                 notes: log.foundNotes,
                 cards: log.foundCards,
             })}
-        </b>
+        </p>
         <ul class="summary-list">
             {#each summaries as summary}
                 <QueueSummary {summary} />
@@ -68,6 +68,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         margin-bottom: 4px;
     }
     .summary-list {
-        padding: 0px;
+        padding-inline-start: 8px;
     }
 </style>
