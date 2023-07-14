@@ -5,8 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { Progress } from "@tslib/anki/collection_pb";
     import { runWithBackendProgress } from "@tslib/progress";
-
-    import { refreshIcon } from "./icons";
+    import { pageTheme } from "../sveltelib/theme";
 
     export let task: () => Promise<unknown>;
     export let result: unknown | undefined = undefined;
@@ -26,23 +25,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 {#if !result}
     <div class="progress">
-        <div class="spinner">
-            {@html refreshIcon}
+        <div class="spinner" class:nightMode={$pageTheme.isDark}>
+            <div />
+            <div />
+            <div />
+            <div />
         </div>
         <div id="label">{label}</div>
     </div>
 {/if}
 
 <style lang="scss">
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-
     .progress {
         position: absolute;
         top: 50%;
@@ -52,14 +45,44 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .spinner {
         display: block;
+        position: relative;
+        width: 80px;
+        height: 80px;
         margin: 0 auto;
-        width: 128px;
-        animation: spin;
-        animation-duration: 2s;
-        animation-iteration-count: infinite;
-        animation-timing-function: linear;
+
+        div {
+            display: block;
+            position: absolute;
+            width: 64px;
+            height: 64px;
+            margin: 8px;
+            border: 8px solid #000;
+            border-radius: 50%;
+            animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            border-color: #000 transparent transparent transparent;
+        }
+        &.nightMode div {
+            border-top-color: #fff;
+        }
+        div:nth-child(1) {
+            animation-delay: -0.45s;
+        }
+        div:nth-child(2) {
+            animation-delay: -0.3s;
+        }
+        div:nth-child(3) {
+            animation-delay: -0.15s;
+        }
     }
 
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
     #label {
         text-align: center;
     }
