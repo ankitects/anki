@@ -27,14 +27,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: log = result?.log ?? ({} as ImportResponse_Log);
     $: if (!log.foundNotes) log.foundNotes = 0;
     $: summaries = log.foundNotes ? getSummaries(log) : [];
-    $: importedCount = summaries.reduce(
-        (total, summary) =>
-            total +
-            (summary.canBrowse
-                ? summary.queues.reduce((sum, queue) => sum + queue.notes?.length, 0)
-                : 0),
-        0,
-    );
 </script>
 
 <Container class="import-log-page">
@@ -53,10 +45,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     />
     {#if result}
         <b class="note-count">
-            {tr.importingNumNotesFoundInFile({ count: log.foundNotes })}
-            {tr.importingNotesPartOfCollection({
-                count: importedCount,
-                percent: (importedCount / log.foundNotes) * 100,
+            {tr.importingNotesAndCardsFoundInFile({
+                notes: log.foundNotes,
+                cards: log.foundCards,
             })}
         </b>
         <ul class="summary-list">

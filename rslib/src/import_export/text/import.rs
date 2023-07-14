@@ -334,6 +334,7 @@ impl<'a> Context<'a> {
     }
 
     fn import_note(&mut self, ctx: NoteContext, log: &mut NoteLog) -> Result<()> {
+        log.found_cards += ctx.notetype.as_ref().templates.len() as u32;
         match self.dupe_resolution {
             _ if !ctx.is_dupe() => self.add_note(ctx, log)?,
             DupeResolution::Duplicate if ctx.is_guid_dupe() => {

@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { Progress } from "@tslib/anki/collection_pb";
     import { runWithBackendProgress } from "@tslib/progress";
+
     import { pageTheme } from "../sveltelib/theme";
 
     export let task: () => Promise<unknown>;

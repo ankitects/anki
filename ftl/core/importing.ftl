@@ -138,17 +138,15 @@ importing-conflicting-notes-skipped =
     }
 importing-import-log = Import Log
 importing-no-notes-in-file = No notes found in file.
-importing-num-notes-found-in-file =
-    { $count ->
-        [one] { $count } note was found in the file.
-       *[other] { $count } notes were found in the file.
-    }
-importing-notes-part-of-collection =
-    {
-        $count ->
-            [one] { $count } ({ $percent }%) is now part of your collection.
-           *[other] { $count } ({ $percent }%) are now part of your collection.
-    }
+importing-notes-and-cards-found-in-file =
+    { $notes ->
+        [one] { $notes } note
+       *[other] { $notes } notes
+    } ({
+        $cards ->
+          [one] { $cards } card
+          *[other] { $cards } cards
+    }) found in file. Of those:
 importing-show = Show
 importing-details = Details
 importing-status = Status
