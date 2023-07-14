@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         | ImportResponse
         | { changes: OpChanges };
 
-    export let task: () => Promise<ResultWithChanges>;
+    export let task: () => Promise<ResultWithChanges | undefined>;
     export let result: ResultWithChanges | undefined = undefined;
     let label: string = "";
 
@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             if (result instanceof OpChanges) {
                 changes = result;
             } else {
-                changes = result.changes;
+                changes = result?.changes;
             }
             if (changes) {
                 bridgeCommand(`op_executed:${JSON.stringify(changes)}`);
