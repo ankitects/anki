@@ -13,13 +13,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { SummarizedLogQueues } from "./types";
 
     export let summaries: SummarizedLogQueues[];
+    export let bottomOffset: number = 0;
 
     $: rows = getRows(summaries);
 </script>
 
 <details>
     <summary>{tr.importingDetails()}</summary>
-    <VirtualTable class="details-table" itemHeight={50} itemsCount={rows.length}>
+    <VirtualTable
+        class="details-table"
+        itemHeight={50}
+        itemsCount={rows.length}
+        bind:bottomOffset
+    >
         <tr slot="headers">
             <th>#</th>
             <th>{tr.importingStatus()}</th>

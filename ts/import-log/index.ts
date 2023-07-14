@@ -10,7 +10,13 @@ import ImportLogPage from "./ImportLogPage.svelte";
 import type { LogParams } from "./types";
 
 const i18n = setupI18n({
-    modules: [ModuleName.IMPORTING, ModuleName.ADDING, ModuleName.EDITING],
+    modules: [
+        ModuleName.IMPORTING,
+        ModuleName.ADDING,
+        ModuleName.EDITING,
+        ModuleName.ACTIONS,
+        ModuleName.KEYBOARD,
+    ],
 });
 
 export async function setupImportLogPage(

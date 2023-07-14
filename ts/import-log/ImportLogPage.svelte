@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import BackendProgressIndicator from "../components/BackendProgressIndicator.svelte";
     import Container from "../components/Container.svelte";
+    import CloseButton from "./CloseButton.svelte";
     import DetailsTable from "./DetailsTable.svelte";
     import { getSummaries } from "./lib";
     import QueueSummary from "./QueueSummary.svelte";
@@ -27,6 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: log = result?.log ?? ({} as ImportResponse_Log);
     $: if (!log.foundNotes) log.foundNotes = 0;
     $: summaries = log.foundNotes ? getSummaries(log) : [];
+    let closeButton: HTMLElement;
 </script>
 
 <Container class="import-log-page">
@@ -55,7 +57,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <QueueSummary {summary} />
             {/each}
         </ul>
-        <DetailsTable {summaries} />
+        {#if closeButton}
+            <DetailsTable {summaries} bind:bottomOffset={closeButton.clientHeight} />
+        {/if}
+        <CloseButton bind:container={closeButton} />
     {/if}
 </Container>
 

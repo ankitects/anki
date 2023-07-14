@@ -3,6 +3,7 @@
 @import "sass/base";
 
 @import "sass/bootstrap-tooltip";
+@import "bootstrap/scss/buttons";
 
 .night-mode {
     @include bootstrap-dark.night-mode;

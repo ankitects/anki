@@ -4,18 +4,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { Progress } from "@tslib/anki/collection_pb";
-    import { runWithBackendProgress } from "@tslib/progress";
-    import { bridgeCommand } from "@tslib/bridgecommand";
-
-    import { pageTheme } from "../sveltelib/theme";
-
     import {
         OpChanges,
+        type OpChangesAfterUndo,
         type OpChangesWithCount,
         type OpChangesWithId,
-        type OpChangesAfterUndo,
     } from "@tslib/anki/collection_pb";
     import type { ImportResponse } from "@tslib/anki/import_export_pb";
+    import { bridgeCommand } from "@tslib/bridgecommand";
+    import { runWithBackendProgress } from "@tslib/progress";
+
+    import { pageTheme } from "../sveltelib/theme";
 
     type ResultWithChanges =
         | OpChanges

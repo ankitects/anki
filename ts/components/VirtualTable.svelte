@@ -8,16 +8,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let itemsCount: number = 0;
     export let itemHeight: number;
+    export let bottomOffset: number = 0;
 
     let container: HTMLElement;
     let scrollTop: number = 0;
 
-    // Fill available viewport height, ensuring no scrollbar is shown
     $: containerHeight = container
         ? Math.floor(
-              (document.documentElement.clientHeight - container.offsetTop) /
-                  itemHeight -
-                  1,
+              (document.documentElement.clientHeight -
+                  container.offsetTop -
+                  bottomOffset) /
+                  itemHeight,
           ) * itemHeight
         : 0;
     $: innerHeight = Math.max(containerHeight, itemsCount * itemHeight);
@@ -25,6 +26,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: startIndex = Math.floor(scrollTop / itemHeight);
     $: endIndex = Math.min(startIndex + sliceLength, itemsCount);
     $: slice = new Array(endIndex - startIndex).fill(0).map((_, i) => startIndex + i);
+
+    window.addEventListener("resize", () => {
+        containerHeight = containerHeight;
+    });
 </script>
 
 <div
