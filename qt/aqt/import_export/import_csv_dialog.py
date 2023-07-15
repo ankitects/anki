@@ -30,7 +30,6 @@ class ImportCsvDialog(QDialog):
         self.show()
 
     def _setup_ui(self, path: str) -> None:
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.mw.garbage_collect_on_dialog_finish(self)
         self.setMinimumSize(400, 300)
         disable_help_button(self)
