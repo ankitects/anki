@@ -962,6 +962,7 @@ title="{}" {}>{}</button>""".format(
                 requested_by_user=False,
             )
             self.pm.set_last_addon_update_check(int_time())
+            self.pm.set_last_run_version()
         elif on_done:
             on_done()
 
@@ -1150,7 +1151,6 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        self.pm.set_last_run_version()
         if self.state == "profileManager":
             # if profile manager active, this event may fire via OS X menu bar's
             # quit option
