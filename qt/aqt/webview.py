@@ -661,6 +661,7 @@ html {{ {font} }}
         elif cmd == "close":
             self.onEsc()
         elif cmd.startswith("op_executed"):
+            mw.autosave()
             changes = OpChanges()
             Parse(cmd[len("op_executed") + 1 :], changes)
             gui_hooks.operation_did_execute(changes, self.parent())
