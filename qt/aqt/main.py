@@ -954,7 +954,7 @@ title="{}" {}>{}</button>""".format(
             if on_done:
                 on_done()
 
-        if elap > 86_400 or self.pm.last_run_version() != point_version():
+        if elap > 86_400 or self.pm.last_run_version != point_version():
             check_and_prompt_for_updates(
                 self,
                 self.addonManager,
@@ -962,7 +962,6 @@ title="{}" {}>{}</button>""".format(
                 requested_by_user=False,
             )
             self.pm.set_last_addon_update_check(int_time())
-            self.pm.set_last_run_version()
         elif on_done:
             on_done()
 
