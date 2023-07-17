@@ -4,31 +4,45 @@
 import * as fs from "fs";
 import * as path from "path";
 
-const root = process.argv[2];
-const typeRe = /(make(Enum|MessageType))\(\n\s+".*",/g;
+function allFilesInDir(directory): string[] {
+    let results: string[] = [];
+    const list = fs.readdirSync(directory);
 
-fs.readdirSync(root, { withFileTypes: true }).forEach(dirEnt => {
-    const dirPath = path.join(root, dirEnt.name);
+    list.forEach(function(file) {
+        file = path.join(directory, file);
+        const stat = fs.statSync(file);
 
-    if (dirEnt.isDirectory()) {
-        fs.readdirSync(dirPath).forEach(fileName => {
-            if (fileName.endsWith(".js")) {
-                const file = path.join(dirPath, fileName);
-                let contents = fs.readFileSync(file, "utf8");
+        if (stat && stat.isDirectory()) {
+            results = results.concat(allFilesInDir(file));
+        } else {
+            results.push(file);
+        }
+    });
 
-                // allow tree shaking on proto messages
-                contents = contents.replace(
-                    "= proto3.make",
-                    "= /* @__PURE__ */ proto3.make",
-                );
+    return results;
+}
 
-                // strip out typeName info, which appears to only be required for
-                // certain JSON functionality (though this only saves a few hundred
-                // bytes)
-                contents = contents.replace(typeRe, "$1(\"\",");
+function adjustFiles() {
+    const root = process.argv[2];
+    const typeRe = /(make(Enum|MessageType))\(\n\s+".*",/g;
 
-                fs.writeFileSync(file, contents, "utf8");
-            }
-        });
+    const jsFiles = allFilesInDir(root).filter(f => f.endsWith(".js"));
+    for (const file of jsFiles) {
+        let contents = fs.readFileSync(file, "utf8");
+
+        // allow tree shaking on proto messages
+        contents = contents.replace(
+            /= proto3.make/g,
+            "= /* @__PURE__ */ proto3.make",
+        );
+
+        // strip out typeName info, which appears to only be required for
+        // certain JSON functionality (though this only saves a few hundred
+        // bytes)
+        contents = contents.replace(typeRe, "$1(\"\",");
+
+        fs.writeFileSync(file, contents, "utf8");
     }
-});
+}
+
+adjustFiles();

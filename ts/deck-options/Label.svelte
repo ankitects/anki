@@ -18,6 +18,8 @@
     });
 </script>
 
+<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <label
     bind:this={spanRef}
     for={forId}

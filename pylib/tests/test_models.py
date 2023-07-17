@@ -390,9 +390,7 @@ def test_modelChange():
     assert note.cards()[0].id == c1.id
     # delete first card
     map = {0: None, 1: 1}
-    if is_win:
-        # The low precision timer on Windows reveals a race condition
-        time.sleep(0.05)
+    time.sleep(0.25)
     col.models.change(basic, [note.id], basic, noop, map)
     note.load()
     c0.load()

@@ -188,6 +188,20 @@ pub fn read_dir_files(path: impl AsRef<Path>) -> Result<ReadDirFiles> {
         })
 }
 
+/// A shortcut for gathering the utf8 paths in a folder into a vec. Will
+/// abort if any dir entry is unreadable. Does not gather files from subfolders.
+pub fn paths_in_dir(path: impl AsRef<Path>) -> Result<Vec<Utf8PathBuf>> {
+    read_dir_files(path.as_ref())?
+        .map(|entry| {
+            let entry = entry.context(FileIoSnafu {
+                path: path.as_ref(),
+                op: FileOp::Read,
+            })?;
+            entry.path().utf8()
+        })
+        .collect()
+}
+
 /// True if name does not contain any path separators.
 pub fn filename_is_safe(name: &str) -> bool {
     let mut components = Path::new(name).components();
