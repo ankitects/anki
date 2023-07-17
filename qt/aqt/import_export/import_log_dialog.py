@@ -31,6 +31,7 @@ class ImportLogDialog(QDialog):
         self.show()
 
     def _setup_ui(self, **params: Any) -> None:
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.mw.garbage_collect_on_dialog_finish(self)
         self.setMinimumSize(400, 300)
         disable_help_button(self)
@@ -65,6 +66,10 @@ class ImportLogDialog(QDialog):
         QDialog.reject(self)
 
     def _on_bridge_cmd(self, cmd: str) -> Any:
+        if cmd == "import_done":
+            self.hide()
+            self.setWindowModality(Qt.WindowModality.NonModal)
+            self.show()
         if cmd.startswith("browse:"):
             nids = [int(nid) for nid in cmd[len("browse:") :].split(",")]
             search = self.mw.col.build_search_string(

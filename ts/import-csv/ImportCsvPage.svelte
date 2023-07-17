@@ -14,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "@tslib/anki/import_export_pb";
     import type { NotetypeNameId } from "@tslib/anki/notetypes_pb";
     import { getCsvMetadata, importCsv } from "@tslib/backend";
+    import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@tslib/ftl";
 
     import BackendProgressIndicator from "../components/BackendProgressIndicator.svelte";
@@ -100,7 +101,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function onImport(): Promise<ImportResponse> {
-        return await importCsv({
+        const result = await importCsv({
             path,
             metadata: {
                 dupeResolution,
@@ -119,6 +120,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 preview: [],
             },
         });
+        bridgeCommand("import_done");
+        return result;
     }
 </script>
 

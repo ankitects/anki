@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         importJsonFile,
         importJsonString,
     } from "@tslib/backend";
+    import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@tslib/ftl";
 
     import BackendProgressIndicator from "../components/BackendProgressIndicator.svelte";
@@ -34,14 +35,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <Container class="import-log-page">
     <BackendProgressIndicator
         task={async () => {
+            let result;
             switch (params.type) {
                 case "apkg":
-                    return importAnkiPackage({ packagePath: params.path });
+                    result = await importAnkiPackage({
+                        packagePath: params.path,
+                    });
+                    break;
                 case "json_file":
-                    return importJsonFile({ val: params.path });
+                    result = await importJsonFile({ val: params.path });
+                    break;
                 case "json_string":
-                    return importJsonString({ val: params.json });
+                    result = await importJsonString({ val: params.json });
+                    break;
             }
+            bridgeCommand("import_done");
+            return result;
         }}
         bind:result
     />

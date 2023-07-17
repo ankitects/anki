@@ -30,6 +30,7 @@ class ImportCsvDialog(QDialog):
         self.show()
 
     def _setup_ui(self, path: str) -> None:
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.mw.garbage_collect_on_dialog_finish(self)
         self.setMinimumSize(400, 300)
         disable_help_button(self)
@@ -60,7 +61,11 @@ class ImportCsvDialog(QDialog):
         QDialog.reject(self)
 
     def _on_bridge_cmd(self, cmd: str) -> Any:
-        if cmd.startswith("browse:"):
+        if cmd == "import_done":
+            self.hide()
+            self.setWindowModality(Qt.WindowModality.NonModal)
+            self.show()
+        elif cmd.startswith("browse:"):
             nids = [int(nid) for nid in cmd[len("browse:") :].split(",")]
             search = self.mw.col.build_search_string(
                 SearchNode(nids=SearchNode.IdList(ids=nids))
