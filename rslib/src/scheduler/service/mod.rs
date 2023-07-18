@@ -6,8 +6,6 @@ mod states;
 
 use anki_proto::generic;
 use anki_proto::scheduler;
-use anki_proto::scheduler::SchedulingStatesWithContext;
-use anki_proto::scheduler::SetSchedulingStatesRequest;
 
 use crate::prelude::*;
 use crate::scheduler::new::NewCardDueOrder;
@@ -238,13 +236,5 @@ impl crate::services::SchedulerService for Collection {
         input: scheduler::CustomStudyDefaultsRequest,
     ) -> Result<scheduler::CustomStudyDefaultsResponse> {
         self.custom_study_defaults(input.deck_id.into())
-    }
-
-    fn get_scheduling_states_with_context(&mut self) -> Result<SchedulingStatesWithContext> {
-        invalid_input!("the frontend should implement this")
-    }
-
-    fn set_scheduling_states(&mut self, _input: SetSchedulingStatesRequest) -> Result<()> {
-        invalid_input!("the frontend should implement this")
     }
 }

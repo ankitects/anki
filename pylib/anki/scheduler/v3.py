@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from typing import Literal, Optional, Sequence
 
-from anki import scheduler_pb2
+from anki import frontend_pb2, scheduler_pb2
 from anki._legacy import deprecated
 from anki.cards import Card
 from anki.collection import OpChanges
@@ -31,8 +31,8 @@ QueuedCards = scheduler_pb2.QueuedCards
 SchedulingState = scheduler_pb2.SchedulingState
 SchedulingStates = scheduler_pb2.SchedulingStates
 SchedulingContext = scheduler_pb2.SchedulingContext
-SchedulingStatesWithContext = scheduler_pb2.SchedulingStatesWithContext
-SetSchedulingStatesRequest = scheduler_pb2.SetSchedulingStatesRequest
+SchedulingStatesWithContext = frontend_pb2.SchedulingStatesWithContext
+SetSchedulingStatesRequest = frontend_pb2.SetSchedulingStatesRequest
 CardAnswer = scheduler_pb2.CardAnswer
 
 
