@@ -498,6 +498,8 @@ class AnkiQt(QMainWindow):
             self._refresh_after_sync()
             if onsuccess:
                 onsuccess()
+            if not self.safeMode:
+                self.maybe_check_for_addon_updates(self.setupAutoUpdate)
 
         self.maybe_auto_sync_on_open_close(_onsuccess)
 
@@ -952,7 +954,7 @@ title="{}" {}>{}</button>""".format(
             if on_done:
                 on_done()
 
-        if elap > 86_400 or self.pm.last_run_version() != point_version():
+        if elap > 86_400 or self.pm.last_run_version != point_version():
             check_and_prompt_for_updates(
                 self,
                 self.addonManager,
@@ -1033,16 +1035,10 @@ title="{}" {}>{}</button>""".format(
 
     def maybe_auto_sync_on_open_close(self, after_sync: Callable[[], None]) -> None:
         "If disabled, after_sync() is called immediately."
-
-        def after_sync_and_call_addon_update() -> None:
-            after_sync()
-            if not self.safeMode:
-                self.maybe_check_for_addon_updates(self.setupAutoUpdate)
-
         if self.can_auto_sync():
-            self._sync_collection_and_media(after_sync_and_call_addon_update)
+            self._sync_collection_and_media(after_sync)
         else:
-            after_sync_and_call_addon_update()
+            after_sync()
 
     def maybe_auto_sync_media(self) -> None:
         if self.can_auto_sync():
@@ -1154,7 +1150,6 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        self.pm.set_last_run_version()
         if self.state == "profileManager":
             # if profile manager active, this event may fire via OS X menu bar's
             # quit option

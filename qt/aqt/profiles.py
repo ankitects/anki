@@ -117,6 +117,7 @@ class LoadMetaResult:
 
 class ProfileManager:
     default_answer_keys = {ease_num: str(ease_num) for ease_num in range(1, 5)}
+    last_run_version: int = 0
 
     def __init__(self, base: Path) -> None:  #
         "base should be retrieved via ProfileMangager.get_created_base_folder"
@@ -132,6 +133,8 @@ class ProfileManager:
         # load metadata
         res = self._loadMeta()
         self.firstRun = res.firstTime
+        self.last_run_version = self.meta.get("last_run_version", self.last_run_version)
+        self.meta["last_run_version"] = point_version()
         return res
 
     # -p profile provided on command line.
@@ -505,12 +508,6 @@ create table if not exists profiles
 
     # Shared options
     ######################################################################
-
-    def last_run_version(self) -> int:
-        return self.meta.get("last_run_version", 0)
-
-    def set_last_run_version(self) -> None:
-        self.meta["last_run_version"] = point_version()
 
     def uiScale(self) -> float:
         scale = self.meta.get("uiScale", 1.0)
