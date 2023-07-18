@@ -181,6 +181,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         background-color: var(--canvas);
         border: none;
         cursor: pointer;
+        border-radius: 0;
         &:hover {
             background-color: var(--canvas-inset);
         }
