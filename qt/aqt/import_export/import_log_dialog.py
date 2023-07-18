@@ -66,10 +66,6 @@ class ImportLogDialog(QDialog):
         QDialog.reject(self)
 
     def _on_bridge_cmd(self, cmd: str) -> Any:
-        if cmd == "import_done":
-            self.hide()
-            self.setWindowModality(Qt.WindowModality.NonModal)
-            self.show()
         if cmd.startswith("browse:"):
             nids = [int(nid) for nid in cmd[len("browse:") :].split(",")]
             search = self.mw.col.build_search_string(

@@ -13,8 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ImportResponse,
     } from "@tslib/anki/import_export_pb";
     import type { NotetypeNameId } from "@tslib/anki/notetypes_pb";
-    import { getCsvMetadata, importCsv } from "@tslib/backend";
-    import { bridgeCommand } from "@tslib/bridgecommand";
+    import { getCsvMetadata, importCsv, importDone } from "@tslib/backend";
     import * as tr from "@tslib/ftl";
 
     import BackendProgressIndicator from "../components/BackendProgressIndicator.svelte";
@@ -120,7 +119,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 preview: [],
             },
         });
-        bridgeCommand("import_done");
+        await importDone({});
         return result;
     }
 </script>

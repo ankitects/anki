@@ -420,6 +420,23 @@ def set_scheduling_states() -> bytes:
     return b""
 
 
+def import_done() -> bytes:
+    def update_window_modality() -> None:
+        if window := aqt.mw.app.activeWindow():
+            from aqt.import_export.import_csv_dialog import ImportCsvDialog
+            from aqt.import_export.import_log_dialog import ImportLogDialog
+
+            if isinstance(window, ImportCsvDialog) or isinstance(
+                window, ImportLogDialog
+            ):
+                window.hide()
+                window.setWindowModality(Qt.WindowModality.NonModal)
+                window.show()
+
+    aqt.mw.taskman.run_on_main(update_window_modality)
+    return b""
+
+
 def change_notetype() -> bytes:
     data = request.data
 
@@ -439,6 +456,7 @@ post_handler_list = [
     get_scheduling_states_with_context,
     set_scheduling_states,
     change_notetype,
+    import_done,
 ]
 
 

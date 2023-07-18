@@ -16,6 +16,9 @@ service FrontendService {
       returns (SchedulingStatesWithContext);
   // Updates reviewer state
   rpc SetSchedulingStates(SetSchedulingStatesRequest) returns (generic.Empty);
+
+  // Notify Qt layer so window modality can be updated.
+  rpc ImportDone(generic.Empty) returns (generic.Empty);
 }
 
 service BackendFrontendService {}
