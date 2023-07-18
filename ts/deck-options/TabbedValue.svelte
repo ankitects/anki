@@ -74,6 +74,7 @@
         color: var(--fg);
         border-bottom: 4px solid var(--border-focus);
         margin-bottom: -2px;
+        border-radius: 0;
     }
     button:hover {
         color: var(--fg);
