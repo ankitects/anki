@@ -117,7 +117,7 @@ class AddCards(QMainWindow):
         self.addButton.setToolTip(shortcut(tr.adding_add_shortcut_ctrlandenter()))
 
         # add io button
-        self.ioAddButton = bb.addButton(tr.actions_add(), ar)
+        self.ioAddButton = bb.addButton(f"{tr.actions_add()} {downArrow()}", ar)
         qconnect(self.ioAddButton.clicked, self.onAddIo)
         self.ioAddButton.setShortcut(QKeySequence("Ctrl+Shift+I"))
 
