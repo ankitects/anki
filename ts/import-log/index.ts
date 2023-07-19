@@ -33,3 +33,8 @@ export async function setupImportLogPage(
         },
     });
 }
+
+if (window.location.hash.startsWith("#test-")) {
+    const path = window.location.hash.replace("#test-", "");
+    setupImportLogPage({ type: "apkg", path });
+}
