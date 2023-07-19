@@ -11,7 +11,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         type OpChangesWithId,
     } from "@tslib/anki/collection_pb";
     import type { ImportResponse } from "@tslib/anki/import_export_pb";
-    import { bridgeCommand } from "@tslib/bridgecommand";
     import { runWithBackendProgress } from "@tslib/progress";
 
     import { pageTheme } from "../sveltelib/theme";
@@ -36,15 +35,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: (async () => {
         if (!result) {
             result = await runWithBackendProgress(task, onUpdate);
-            let changes: OpChanges | undefined;
-            if (result instanceof OpChanges) {
-                changes = result;
-            } else {
-                changes = result?.changes;
-            }
-            if (changes) {
-                bridgeCommand(`op_executed:${JSON.stringify(changes)}`);
-            }
         }
     })();
 </script>

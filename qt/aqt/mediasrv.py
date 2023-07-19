@@ -25,12 +25,13 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import hooks
-from anki.collection import OpChanges
+from anki.collection import ImportLogWithChanges, OpChanges
 from anki.decks import UpdateDeckConfigs
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
+from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.qt import *
 from aqt.utils import aqt_data_path
@@ -437,6 +438,36 @@ def import_done() -> bytes:
     return b""
 
 
+def import_request(endpoint: str) -> bytes:
+    output = raw_backend_request(endpoint)()
+    response = ImportLogWithChanges()
+    response.ParseFromString(output)
+
+    def handle_on_main() -> None:
+        window = aqt.mw.app.activeWindow()
+        on_op_finished(aqt.mw, response, window)
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+
+    return output
+
+
+def import_csv() -> bytes:
+    return import_request("import_csv")
+
+
+def import_anki_package() -> bytes:
+    return import_request("import_anki_package")
+
+
+def import_json_file() -> bytes:
+    return import_request("import_json_file")
+
+
+def import_json_string() -> bytes:
+    return import_request("import_json_string")
+
+
 def change_notetype() -> bytes:
     data = request.data
 
@@ -457,6 +488,10 @@ post_handler_list = [
     set_scheduling_states,
     change_notetype,
     import_done,
+    import_csv,
+    import_anki_package,
+    import_json_file,
+    import_json_string,
 ]
 
 
@@ -469,10 +504,6 @@ exposed_backend_list = [
     "i18n_resources",
     # ImportExportService
     "get_csv_metadata",
-    "import_csv",
-    "import_anki_package",
-    "import_json_file",
-    "import_json_string",
     # NotesService
     "get_field_names",
     "get_note",

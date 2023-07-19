@@ -10,12 +10,9 @@ import sys
 from enum import Enum
 from typing import Any, Callable, Optional, Sequence, cast
 
-from google.protobuf.json_format import Parse
-
 import anki
 import anki.lang
 from anki._legacy import deprecated
-from anki.collection import OpChanges
 from anki.lang import is_rtl
 from anki.utils import is_lin, is_mac, is_win
 from aqt import colors, gui_hooks
@@ -645,8 +642,6 @@ html {{ {font} }}
         return False
 
     def _onBridgeCmd(self, cmd: str) -> Any:
-        from aqt import mw
-
         if self._shouldIgnoreWebEvent():
             print("ignored late bridge cmd", cmd)
             return
@@ -660,14 +655,6 @@ html {{ {font} }}
             self._maybeRunActions()
         elif cmd == "close":
             self.onEsc()
-        elif cmd.startswith("op_executed"):
-            mw.autosave()
-            changes = OpChanges()
-            Parse(cmd[len("op_executed") + 1 :], changes)
-            gui_hooks.operation_did_execute(changes, self.parent())
-            if mw.col.op_made_changes(changes):
-                gui_hooks.state_did_reset()
-
         else:
             handled, result = gui_hooks.webview_did_receive_js_message(
                 (False, None), cmd, self._bridge_context
@@ -763,6 +750,7 @@ html {{ {font} }}
         except ImportError:
             # this will fail when __del__ is called during app shutdown
             return
+
         gui_hooks.theme_did_change.remove(self.on_theme_did_change)
         gui_hooks.body_classes_need_update.remove(self.on_body_classes_need_update)
         mw.mediaServer.clear_page_html(id(self))
