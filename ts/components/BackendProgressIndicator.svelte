@@ -3,12 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { Progress } from "@tslib/anki/collection_pb";
-    import {
+    import type {
         OpChanges,
-        type OpChangesAfterUndo,
-        type OpChangesWithCount,
-        type OpChangesWithId,
+        OpChangesAfterUndo,
+        OpChangesWithCount,
+        OpChangesWithId,
+        Progress,
     } from "@tslib/anki/collection_pb";
     import type { ImportResponse } from "@tslib/anki/import_export_pb";
     import { runWithBackendProgress } from "@tslib/progress";
