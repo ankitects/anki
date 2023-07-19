@@ -26,9 +26,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let params: LogParams;
     export let response: ImportResponse | undefined = undefined;
     let result = response;
-    $: log = result?.log ?? ({} as ImportResponse_Log);
-    $: if (!log.foundNotes) log.foundNotes = 0;
-    $: summaries = log.foundNotes ? getSummaries(log) : [];
+    $: log = result?.log!!;
+    $: summaries = result ? getSummaries(log) : [];
     let closeButton: HTMLElement;
 
     async function onImport(): Promise<ImportResponse | undefined> {
