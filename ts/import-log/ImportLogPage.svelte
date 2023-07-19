@@ -30,30 +30,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: if (!log.foundNotes) log.foundNotes = 0;
     $: summaries = log.foundNotes ? getSummaries(log) : [];
     let closeButton: HTMLElement;
+
+    async function onImport(): Promise<ImportResponse | undefined> {
+        let result: ImportResponse | undefined;
+        switch (params.type) {
+            case "apkg":
+                result = await importAnkiPackage({
+                    packagePath: params.path,
+                });
+                break;
+            case "json_file":
+                result = await importJsonFile({ val: params.path });
+                break;
+            case "json_string":
+                result = await importJsonString({ val: params.json });
+                break;
+        }
+        await importDone({});
+        return result;
+    }
 </script>
 
 <Container class="import-log-page">
-    <BackendProgressIndicator
-        task={async () => {
-            let result;
-            switch (params.type) {
-                case "apkg":
-                    result = await importAnkiPackage({
-                        packagePath: params.path,
-                    });
-                    break;
-                case "json_file":
-                    result = await importJsonFile({ val: params.path });
-                    break;
-                case "json_string":
-                    result = await importJsonString({ val: params.json });
-                    break;
-            }
-            await importDone({});
-            return result;
-        }}
-        bind:result
-    />
+    <BackendProgressIndicator task={onImport} bind:result />
     {#if result}
         <p class="note-count">
             {tr.importingNotesAndCardsFoundInFile({
