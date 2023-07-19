@@ -74,11 +74,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             border: none !important;
             background: transparent !important;
         }
-        :global(tr) {
+        tr {
             height: 50px;
             text-align: center;
         }
-        :global(.index-cell) {
+        .index-cell {
             width: 6em;
         }
         :global(.status-cell) {
