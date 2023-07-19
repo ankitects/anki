@@ -145,10 +145,6 @@ class CollectionOp(Generic[ResultWithChanges]):
 def on_op_finished(
     mw: aqt.main.AnkiQt, result: ResultWithChanges, initiator: object | None
 ) -> None:
-    from aqt import mw
-
-    assert mw
-
     mw.update_undo_actions()
     mw.autosave()
 
