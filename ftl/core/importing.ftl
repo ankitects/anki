@@ -119,7 +119,7 @@ importing-file-empty = The file you selected is empty.
 importing-notes-added =
     { $count ->
         [one] { $count } new note imported.
-       *[other] { $count } new notes were successfully imported into your collection.
+       *[other] { $count } new notes imported.
     }
 importing-notes-updated =
     { $count ->
