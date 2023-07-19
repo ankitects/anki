@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import Any, Literal
 
 import aqt
 import aqt.deckconf
@@ -14,6 +14,8 @@ from aqt.qt import *
 from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGeom, tr
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
+LogType = Literal["apkg", "json_string", "json_file"]
+
 
 class ImportLogDialog(QDialog):
     GEOMETRY_KEY = "importLog"
@@ -22,14 +24,21 @@ class ImportLogDialog(QDialog):
     def __init__(
         self,
         mw: aqt.main.AnkiQt,
-        **params: Any,
+        type: LogType,
+        path: str,
+        **extra_args: Any,
     ) -> None:
         QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
-        self._setup_ui(**params)
+        self._setup_ui(path, type, **extra_args)
         self.show()
 
-    def _setup_ui(self, **params: Any) -> None:
+    def _setup_ui(
+        self,
+        path: str,
+        type: LogType,
+        **extra_args: Any,
+    ) -> None:
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.mw.garbage_collect_on_dialog_finish(self)
         self.setMinimumSize(400, 300)
@@ -46,13 +55,13 @@ class ImportLogDialog(QDialog):
         restoreGeom(self, self.GEOMETRY_KEY, default_size=(800, 800))
 
         self.web.evalWithCallback(
-            "anki.setupImportLogPage(%s);" % json.dumps(params),
+            "anki.setupImportLogPage(%s);"
+            % (json.dumps({"path": path, "type": type, **extra_args})),
             lambda _: self.web.setFocus(),
         )
 
         title = tr.importing_import_log()
-        if path := params.get("path", None):
-            title += f" - {os.path.basename(path)}"
+        title += f" - {os.path.basename(path)}"
         self.setWindowTitle(title)
 
     def reject(self) -> None:
