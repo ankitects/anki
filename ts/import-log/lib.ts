@@ -4,7 +4,7 @@
 import type { ImportResponse_Log } from "@tslib/anki/import_export_pb";
 import { CsvMetadata_DupeResolution } from "@tslib/anki/import_export_pb";
 import type { NoteId } from "@tslib/anki/notes_pb";
-import { bridgeCommand } from "@tslib/bridgecommand";
+import { searchInBrowser } from "@tslib/backend";
 import * as tr from "@tslib/ftl";
 
 import { checkCircle, closeBox, newBox, updateIcon } from "./icons";
@@ -121,6 +121,7 @@ export function getRows(summaries: SummarizedLogQueues[]): NoteRow[] {
 }
 
 export function showInBrowser(ids: (NoteId | undefined)[]): void {
-    const nids = ids.map((id) => id!.nid);
-    bridgeCommand(`browse:${nids.join(",")}`);
+    searchInBrowser({
+        filter: { value: { ids: ids.map((id) => id!.nid) }, case: "nids" },
+    });
 }

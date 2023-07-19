@@ -9,6 +9,7 @@ package anki.frontend;
 
 import "anki/scheduler.proto";
 import "anki/generic.proto";
+import "anki/search.proto";
 
 service FrontendService {
   // Returns values from the reviewer
@@ -19,6 +20,8 @@ service FrontendService {
 
   // Notify Qt layer so window modality can be updated.
   rpc ImportDone(generic.Empty) returns (generic.Empty);
+
+  rpc SearchInBrowser(search.SearchNode) returns (generic.Empty);
 }
 
 service BackendFrontendService {}

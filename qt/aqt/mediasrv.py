@@ -25,7 +25,7 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import hooks
-from anki.collection import ImportLogWithChanges, OpChanges
+from anki.collection import ImportLogWithChanges, OpChanges, SearchNode
 from anki.decks import UpdateDeckConfigs
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.utils import dev_mode
@@ -468,6 +468,18 @@ def import_json_string() -> bytes:
     return import_request("import_json_string")
 
 
+def search_in_browser() -> bytes:
+    node = SearchNode()
+    node.ParseFromString(request.data)
+
+    def handle_on_main() -> None:
+        aqt.dialogs.open("Browser", aqt.mw, search=(node,))
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+
+    return b""
+
+
 def change_notetype() -> bytes:
     data = request.data
 
@@ -492,6 +504,7 @@ post_handler_list = [
     import_anki_package,
     import_json_file,
     import_json_string,
+    search_in_browser,
 ]
 
 

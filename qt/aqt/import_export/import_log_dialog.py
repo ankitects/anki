@@ -10,7 +10,6 @@ import aqt
 import aqt.deckconf
 import aqt.main
 import aqt.operations
-from anki.collection import SearchNode
 from aqt.qt import *
 from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGeom, tr
 from aqt.webview import AnkiWebView, AnkiWebViewKind
@@ -40,7 +39,6 @@ class ImportLogDialog(QDialog):
         self.web = AnkiWebView(kind=AnkiWebViewKind.IMPORT_LOG)
         self.web.setVisible(False)
         self.web.load_ts_page("import-log")
-        self.web.set_bridge_command(self._on_bridge_cmd, self)
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
@@ -64,11 +62,3 @@ class ImportLogDialog(QDialog):
         self.web = None
         saveGeom(self, self.GEOMETRY_KEY)
         QDialog.reject(self)
-
-    def _on_bridge_cmd(self, cmd: str) -> Any:
-        if cmd.startswith("browse:"):
-            nids = [int(nid) for nid in cmd[len("browse:") :].split(",")]
-            search = self.mw.col.build_search_string(
-                SearchNode(nids=SearchNode.IdList(ids=nids))
-            )
-            aqt.dialogs.open("Browser", self.mw, search=(search,))
