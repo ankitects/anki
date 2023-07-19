@@ -120,6 +120,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             },
         });
         await importDone({});
+        importing = false;
         return result;
     }
 </script>
@@ -127,10 +128,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="outer">
     {#if importing}
         <BackendProgressIndicator task={onImport} bind:result={importResponse} />
-    {/if}
-    {#if importResponse}
+    {:else if importResponse}
         <ImportLogPage response={importResponse} params={{ path }} />
-    {:else if !importing}
+    {:else}
         <StickyHeader {path} onImport={() => (importing = true)} />
 
         <Container class="csv-page">
