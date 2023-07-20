@@ -123,8 +123,8 @@ importing-notes-added =
     }
 importing-notes-updated =
     { $count ->
-        [one] { $count } note updated to the latest version.
-       *[other] { $count } updated to the latest version.
+        [one] { $count } note was used to update existing ones.
+       *[other] { $count } notes were used to update existing ones.
     }
 importing-existing-notes-skipped =
     { $count ->

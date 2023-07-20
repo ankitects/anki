@@ -64,8 +64,6 @@ message ImportResponse {
     repeated Note missing_deck = 7;
     repeated Note empty_first_field = 8;
     CsvMetadata.DupeResolution dupe_resolution = 9;
-    // Usually the sum of all queues, but may be lower if multiple duplicates
-    // have been updated with the same note.
     uint32 found_notes = 10;
   }
   collection.OpChanges changes = 1;
