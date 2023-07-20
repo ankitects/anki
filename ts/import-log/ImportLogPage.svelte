@@ -23,8 +23,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let params: LogParams;
     export let response: ImportResponse | undefined = undefined;
     let result = response;
-    $: log = result?.log!!;
-    $: summaries = result ? getSummaries(log) : [];
+    $: summaries = result ? getSummaries(result.log!) : [];
+    $: foundNotes = result?.log?.foundNotes ?? 0;
     let closeButton: HTMLElement;
 
     async function onImport(): Promise<ImportResponse | undefined> {
@@ -52,7 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {#if result}
         <p class="note-count">
             {tr.importingNotesFoundInFile2({
-                notes: log.foundNotes,
+                notes: foundNotes,
             })}
         </p>
         <ul class="summary-list">
