@@ -377,7 +377,6 @@ impl<'a> Context<'a> {
     ) -> Result<()> {
         self.import_cards(cards, note.id)?;
         let generated_count = self.generate_missing_cards(notetype, deck_id, note)?;
-        log.found_cards += (cards.len() + generated_count) as u32;
 
         Ok(())
     }

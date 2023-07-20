@@ -67,7 +67,6 @@ message ImportResponse {
     // Usually the sum of all queues, but may be lower if multiple duplicates
     // have been updated with the same note.
     uint32 found_notes = 10;
-    uint32 found_cards = 11;
   }
   collection.OpChanges changes = 1;
   Log log = 2;

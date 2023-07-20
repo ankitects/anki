@@ -51,9 +51,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <BackendProgressIndicator task={onImport} bind:result />
     {#if result}
         <p class="note-count">
-            {tr.importingNotesAndCardsFoundInFile({
+            {tr.importingNotesFoundInFile2({
                 notes: log.foundNotes,
-                cards: log.foundCards,
             })}
         </p>
         <ul class="summary-list">

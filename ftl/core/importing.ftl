@@ -138,15 +138,11 @@ importing-conflicting-notes-skipped =
     }
 importing-import-log = Import Log
 importing-no-notes-in-file = No notes found in file.
-importing-notes-and-cards-found-in-file =
+importing-notes-found-in-file2 =
     { $notes ->
         [one] { $notes } note
        *[other] { $notes } notes
-    } ({
-        $cards ->
-          [one] { $cards } card
-          *[other] { $cards } cards
-    }) found in file. Of those:
+    } found in file. Of those:
 importing-show = Show
 importing-details = Details
 importing-status = Status
