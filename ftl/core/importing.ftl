@@ -124,7 +124,7 @@ importing-notes-added =
 importing-notes-updated =
     { $count ->
         [one] { $count } note updated to the latest version.
-       *[other] { $count } were updated to the latest version.
+       *[other] { $count } updated to the latest version.
     }
 importing-existing-notes-skipped =
     { $count ->
@@ -134,7 +134,7 @@ importing-existing-notes-skipped =
 importing-conflicting-notes-skipped =
     { $count ->
         [one] { $count } note was not imported, because its note type has changed.
-       *[other] { $count } were not imported because their note type has changed.
+       *[other] { $count } were not imported, because their note type has changed.
     }
 importing-import-log = Import Log
 importing-no-notes-in-file = No notes found in file.
