@@ -14,7 +14,12 @@ from anki.errors import Interrupted
 from anki.foreign_data import mnemosyne
 from anki.lang import without_unicode_isolation
 from aqt.import_export.import_csv_dialog import ImportCsvDialog
-from aqt.import_export.import_log_dialog import ImportLogDialog
+from aqt.import_export.import_log_dialog import (
+    ApkgArgs,
+    ImportLogDialog,
+    JsonFileArgs,
+    JsonStringArgs,
+)
 from aqt.operations import QueryOp
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
@@ -83,7 +88,7 @@ class ApkgImporter(Importer):
 
     @staticmethod
     def do_import(mw: aqt.main.AnkiQt, path: str) -> None:
-        ImportLogDialog(mw, type="apkg", path=path)
+        ImportLogDialog(mw, ApkgArgs(path=path))
 
 
 class MnemosyneImporter(Importer):
@@ -95,7 +100,7 @@ class MnemosyneImporter(Importer):
             parent=mw,
             op=lambda col: mnemosyne.serialize(path, col.decks.current()["id"]),
             success=lambda json: ImportLogDialog(
-                mw, type="json_string", path=path, json=json
+                mw, JsonStringArgs(path=path, json=json)
             ),
         ).with_progress().run_in_background()
 
@@ -113,7 +118,7 @@ class JsonImporter(Importer):
 
     @staticmethod
     def do_import(mw: aqt.main.AnkiQt, path: str) -> None:
-        ImportLogDialog(mw, type="json_file", path=path)
+        ImportLogDialog(mw, JsonFileArgs(path=path))
 
 
 IMPORTERS: list[Type[Importer]] = [

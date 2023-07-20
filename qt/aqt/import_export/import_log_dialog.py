@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
+import dataclasses
 import json
-from typing import Any, Literal
+from dataclasses import dataclass
 
 import aqt
 import aqt.deckconf
@@ -14,7 +15,30 @@ from aqt.qt import *
 from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGeom, tr
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
-LogType = Literal["apkg", "json_string", "json_file"]
+
+@dataclass
+class _CommonArgs:
+    type: str = dataclasses.field(init=False)
+    path: str
+
+    def to_json(self) -> str:
+        return json.dumps(dataclasses.asdict(self))
+
+
+@dataclass
+class ApkgArgs(_CommonArgs):
+    type = "apkg"
+
+
+@dataclass
+class JsonFileArgs(_CommonArgs):
+    type = "json_file"
+
+
+@dataclass
+class JsonStringArgs(_CommonArgs):
+    type = "json_string"
+    json: str
 
 
 class ImportLogDialog(QDialog):
@@ -24,20 +48,16 @@ class ImportLogDialog(QDialog):
     def __init__(
         self,
         mw: aqt.main.AnkiQt,
-        type: LogType,
-        path: str,
-        **extra_args: Any,
+        args: ApkgArgs | JsonFileArgs | JsonStringArgs,
     ) -> None:
         QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
-        self._setup_ui(path, type, **extra_args)
+        self._setup_ui(args)
         self.show()
 
     def _setup_ui(
         self,
-        path: str,
-        type: LogType,
-        **extra_args: Any,
+        args: ApkgArgs | JsonFileArgs | JsonStringArgs,
     ) -> None:
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.mw.garbage_collect_on_dialog_finish(self)
@@ -55,13 +75,12 @@ class ImportLogDialog(QDialog):
         restoreGeom(self, self.GEOMETRY_KEY, default_size=(800, 800))
 
         self.web.evalWithCallback(
-            "anki.setupImportLogPage(%s);"
-            % (json.dumps({"path": path, "type": type, **extra_args})),
+            "anki.setupImportLogPage(%s);" % (args.to_json()),
             lambda _: self.web.setFocus(),
         )
 
         title = tr.importing_import_log()
-        title += f" - {os.path.basename(path)}"
+        title += f" - {os.path.basename(args.path)}"
         self.setWindowTitle(title)
 
     def reject(self) -> None:
