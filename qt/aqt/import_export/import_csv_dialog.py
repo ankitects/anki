@@ -49,7 +49,7 @@ class ImportCsvDialog(QDialog):
         self.setWindowTitle(tr.decks_import_file())
 
     def reject(self) -> None:
-        if self.mw.col:
+        if self.mw.col and self.windowModality() == Qt.WindowModality.ApplicationModal:
             self.mw.col.set_wants_abort()
         self.web.cleanup()
         self.web = None
