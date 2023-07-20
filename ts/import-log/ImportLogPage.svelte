@@ -69,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     :global(.import-log-page) {
-        font-size: 20px;
+        font-size: 16px;
         margin: 8px auto;
     }
     .note-count {
