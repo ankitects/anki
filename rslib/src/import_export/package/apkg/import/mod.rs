@@ -82,7 +82,7 @@ impl<'a> Context<'a> {
 
     fn import(&mut self) -> Result<NoteLog> {
         let mut media_map = self.prepare_media()?;
-        let mut note_imports = self.import_notes_and_notetypes(&mut media_map)?;
+        let note_imports = self.import_notes_and_notetypes(&mut media_map)?;
         let keep_filtered = self.data.enables_filtered_decks();
         let contains_scheduling = self.data.contains_scheduling();
         let imported_decks = self.import_decks_and_configs(keep_filtered, contains_scheduling)?;

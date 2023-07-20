@@ -356,7 +356,7 @@ impl<'a> Context<'a> {
             .into_native(&mut note, ctx.deck_id, self.today, ctx.global_tags);
         self.prepare_note(&mut note, &ctx.notetype)?;
         self.col.add_note_only_undoable(&mut note)?;
-        self.add_cards(&mut cards, &note, ctx.deck_id, ctx.notetype, log)?;
+        self.add_cards(&mut cards, &note, ctx.deck_id, ctx.notetype)?;
 
         if ctx.dupes.is_empty() {
             log.new.push(note.into_log_note());
@@ -373,12 +373,9 @@ impl<'a> Context<'a> {
         note: &Note,
         deck_id: DeckId,
         notetype: Arc<Notetype>,
-        log: &mut NoteLog,
     ) -> Result<()> {
         self.import_cards(cards, note.id)?;
-        let generated_count = self.generate_missing_cards(notetype, deck_id, note)?;
-
-        Ok(())
+        self.generate_missing_cards(notetype, deck_id, note)
     }
 
     fn update_with_note(&mut self, ctx: NoteContext, log: &mut NoteLog) -> Result<()> {
@@ -400,7 +397,7 @@ impl<'a> Context<'a> {
                 self.prepare_note(&mut note, &ctx.notetype)?;
                 self.col.update_note_undoable(&note, &dupe.note)?;
             }
-            self.add_cards(&mut cards, &note, ctx.deck_id, ctx.notetype.clone(), log)?;
+            self.add_cards(&mut cards, &note, ctx.deck_id, ctx.notetype.clone())?;
 
             if dupe.identical {
                 log.duplicate.push(dupe.note.into_log_note());
@@ -434,7 +431,7 @@ impl<'a> Context<'a> {
         notetype: Arc<Notetype>,
         deck_id: DeckId,
         note: &Note,
-    ) -> Result<usize> {
+    ) -> Result<()> {
         let card_gen_context = self
             .card_gen_ctxs
             .entry((notetype.id, deck_id))
