@@ -25,7 +25,7 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import hooks
-from anki.collection import ImportLogWithChanges, OpChanges, SearchNode
+from anki.collection import OpChanges, OpChangesOnly, SearchNode
 from anki.decks import UpdateDeckConfigs
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.utils import dev_mode
@@ -440,7 +440,7 @@ def import_done() -> bytes:
 
 def import_request(endpoint: str) -> bytes:
     output = raw_backend_request(endpoint)()
-    response = ImportLogWithChanges()
+    response = OpChangesOnly()
     response.ParseFromString(output)
 
     def handle_on_main() -> None:
