@@ -129,7 +129,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         background: transparent;
         cursor: pointer;
         box-shadow: none;
-        padding: 4px;
+        padding: 1px 3px;
+        margin-bottom: 0px;
     }
 
     .search-link:hover {
