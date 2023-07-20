@@ -54,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         active={false}
                         disabled={!rows[index].summary.canBrowse}
                         on:click={() => {
-                            showInBrowser([rows[index].note.id]);
+                            showInBrowser([rows[index].note]);
                         }}
                     >
                         {@html magnifyIcon}

@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: notes = summary.queues.map((queue) => queue.notes).flat();
 
     function onShow(event: MouseEvent) {
-        showInBrowser(notes.map((note) => note?.id));
+        showInBrowser(notes);
         event.preventDefault();
     }
 </script>
