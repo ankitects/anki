@@ -3,25 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type {
-        OpChanges,
-        OpChangesAfterUndo,
-        OpChangesWithCount,
-        OpChangesWithId,
-        Progress,
-    } from "@tslib/anki/collection_pb";
-    import type { ImportResponse } from "@tslib/anki/import_export_pb";
+    import type { OpChanges, Progress } from "@tslib/anki/collection_pb";
     import { runWithBackendProgress } from "@tslib/progress";
 
     import { pageTheme } from "../sveltelib/theme";
 
-    type ResultWithChanges =
-        | OpChanges
-        | OpChangesWithCount
-        | OpChangesWithId
-        | OpChangesAfterUndo
-        | ImportResponse
-        | { changes: OpChanges };
+    type ResultWithChanges = OpChanges | { changes: OpChanges };
 
     export let task: () => Promise<ResultWithChanges | undefined>;
     export let result: ResultWithChanges | undefined = undefined;
