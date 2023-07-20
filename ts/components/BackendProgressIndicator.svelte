@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { pageTheme } from "../sveltelib/theme";
 
-    type ResultWithChanges = OpChanges | { changes: OpChanges };
+    type ResultWithChanges = OpChanges | { changes?: OpChanges };
 
     export let task: () => Promise<ResultWithChanges | undefined>;
     export let result: ResultWithChanges | undefined = undefined;
