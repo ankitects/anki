@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getContext } from "svelte";
 
     import Badge from "../components/Badge.svelte";
-    import ClickableBadge from "components/ClickableBadge.svelte";
+    import ClickableBadge from "../components/ClickableBadge.svelte";
     import { touchDeviceKey } from "../components/context-keys";
     import DropdownItem from "../components/DropdownItem.svelte";
     import Popover from "../components/Popover.svelte";
