@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, getContext, onMount } from "svelte";
 
     import Badge from "../components/Badge.svelte";
+    import ClickableBadge from "../components/ClickableBadge.svelte";
     import Col from "../components/Col.svelte";
     import { modalsKey } from "../components/context-keys";
     import Row from "../components/Row.svelte";
@@ -52,9 +53,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let activeIndex = startIndex;
 </script>
 
-<Badge on:click={() => modal.show()}>
+<ClickableBadge
+    tooltip={tr.helpOpenHelpModal({ name: title })}
+    on:click={() => modal.show()}
+>
     {@html infoCircle}
-</Badge>
+</ClickableBadge>
 
 <div
     bind:this={modalRef}

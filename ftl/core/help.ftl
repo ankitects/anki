@@ -6,6 +6,9 @@
 # Tooltip for links to the manual
 help-open-manual-chapter = Open { $name } in the manual
 
+# Tooltip for info circle badge in deck options
+help-open-help-modal = Open help content for { $name }
+
 ## Body
 
 # Newly introduced settings may not have an explanation yet

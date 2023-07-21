@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getContext } from "svelte";
 
     import Badge from "../components/Badge.svelte";
+    import ClickableBadge from "components/ClickableBadge.svelte";
     import { touchDeviceKey } from "../components/context-keys";
     import DropdownItem from "../components/DropdownItem.svelte";
     import Popover from "../components/Popover.svelte";
@@ -46,13 +47,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <WithFloating
     show={showFloating}
+    keepOnKeyup
     closeOnInsideClick
     inline
     on:close={() => (showFloating = false)}
     let:asReference
 >
     <div class:hide={!modified} use:asReference>
-        <Badge
+        <ClickableBadge
             iconSize={85}
             class="p-1"
             on:click={() => {
@@ -62,12 +64,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }}
         >
             {@html revertIcon}
-        </Badge>
+        </ClickableBadge>
     </div>
 
     <Popover slot="floating">
         <DropdownItem
             class={`spinner ${isTouchDevice ? "spin-always" : ""}`}
+            tabbable
             on:click={() => revert()}
         >
             {tr.deckConfigRevertButtonTooltip()}<Badge>{@html revertIcon}</Badge>
@@ -90,11 +93,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    :global(.badge) {
+    :global(.clickable-badge) {
         cursor: pointer;
     }
 
-    .hide :global(.badge) {
+    .hide :global(.clickable-badge) {
         opacity: 0;
         cursor: initial;
     }
