@@ -64,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <td>
                             <span style="color: {d.colour};">■&nbsp;</span>
                             {#if $prefs.browserLinksSupported}
-                                <span class="search-link" on:click={() => dispatch('search', { query: d.query })}>{d.label}</span>
+                                <button class="search-link" on:click={() => dispatch('search', { query: d.query })}>{d.label}</button>
                             {:else}
                                 <span>{d.label}</span>
                             {/if}
@@ -124,8 +124,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    .search-link:hover {
+    .search-link {
+        border: none;
+        background: transparent;
         cursor: pointer;
+        box-shadow: none;
+        padding: 1px 3px;
+        margin-bottom: 0px;
+    }
+
+    .search-link:hover {
         color: var(--fg-link);
         text-decoration: underline;
     }
