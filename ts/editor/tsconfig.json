@@ -6,8 +6,7 @@
         "mathjax-overlay/*",
         "plain-text-input/*",
         "rich-text-input/*",
-        "editor-toolbar/*",
-        "../image-occlusion/*"
+        "editor-toolbar/*"
     ],
     "references": [
         { "path": "../components" },
@@ -16,6 +15,7 @@
         { "path": "../sveltelib" },
         { "path": "../editable" },
         { "path": "../html-filter" },
-        { "path": "../tag-editor" }
+        { "path": "../tag-editor" },
+        { "path": "../image-occlusion" }
     ]
 }

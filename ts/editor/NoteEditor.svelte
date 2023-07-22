@@ -237,20 +237,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return noteId;
     }
 
-    $: isImageOcclusion = false;
+    let isImageOcclusion = false;
     function setIsImageOcclusion(val: boolean) {
         isImageOcclusion = val;
-
-        if (isImageOcclusion) {
-            toggleMaskEditor(true);
-        } else {
-            toggleMaskEditor(false);
-        }
+        $showMaskEditor = val;
     }
 
-    $: isBrowseMode = false;
-    function setIsBrowseMode(val: boolean) {
-        isBrowseMode = val;
+    let isEditMode = false;
+    function setIsEditMode(val: boolean) {
+        isEditMode = val;
     }
 
     let cols: ("dupe" | "")[] = [];
@@ -303,7 +298,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function saveNow(): void {
-        updateNoteInBrowseMode();
+        updateIONoteInEditMode();
         closeMathjaxEditor?.();
         $commitTagEdits();
         saveFieldNow();
@@ -392,57 +387,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { wrapInternal } from "@tslib/wrap";
     import LabelButton from "components/LabelButton.svelte";
     import Shortcut from "components/Shortcut.svelte";
-    import { setupImageOcclusion } from "image-occlusion";
+    import ImageOcclusionPage from "image-occlusion/ImageOcclusionPage.svelte";
     import type { IOMode } from "image-occlusion/lib";
     import { exportShapesToClozeDeletions } from "image-occlusion/shapes/to-cloze";
+    import { isShowMaskEditor } from "image-occlusion/store";
 
     import { mathjaxConfig } from "../editable/mathjax-element";
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
-    $: isShowMaskEditor = false;
-    $: isIOImageLoaded = false;
-    function toggleMaskEditor(show: boolean) {
-        isShowMaskEditor = show;
-        const element = document.getElementById("io-mask-editor") as HTMLElement;
-        const ioMaskBtn = document.getElementById("io-mask-btn") as HTMLElement;
-        if (isShowMaskEditor) {
-            ioMaskBtn?.classList.add("active-io-btn");
-        } else {
-            ioMaskBtn?.classList.remove("active-io-btn");
-        }
-        if (element) {
-            element.style.display = show ? "block" : "none";
-        }
-    }
-
+    let isIOImageLoaded = false;
+    const showMaskEditor = isShowMaskEditor;
+    let imageOcclusionMode: IOMode;
     async function setupMaskEditor(options: { html: string; mode: IOMode }) {
+        imageOcclusionMode = options.mode;
         if (options.mode.kind === "add") {
             fieldStores[1].set(options.html);
         }
-
-        // remove old page for new image occlusion
-        const page = document.querySelector(".image-occlusion") as HTMLElement;
-        if (page) {
-            page.remove();
-        }
-
-        const ioMaskEditor = document.getElementById("io-mask-editor") as HTMLElement;
-        const ioSelectImageDiv = document.getElementById(
-            "io-select-image-div",
-        ) as HTMLElement;
-        if (ioSelectImageDiv) {
-            ioSelectImageDiv.remove();
-        }
-
-        await setupImageOcclusion(options.mode, ioMaskEditor);
-        toggleMaskEditor(true);
         isIOImageLoaded = true;
     }
 
     // update cloze deletions and set occlusion fields, it call in saveNow to update cloze deletions
-    function updateNoteInBrowseMode() {
-        if (isBrowseMode) {
+    function updateIONoteInEditMode() {
+        if (isEditMode) {
             const clozeNote = get(fieldStores[0]);
             if (clozeNote.includes("oi=1")) {
                 setOcclusionField(true);
@@ -515,8 +482,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setCloseHTMLTags,
             triggerChanges,
             setIsImageOcclusion,
-            setIsBrowseMode,
-            toggleMaskEditor,
+            setIsEditMode,
             setupMaskEditor,
             setOcclusionField,
             ...oldEditorAdapter,
@@ -572,11 +538,14 @@ the AddCards dialog) should be implemented in the user of this component.
         </Absolute>
     {/if}
 
-    <!-- for init maskeditor -->
-    <div id="io-mask-editor" style="display: none;" />
+    {#if imageOcclusionMode && isImageOcclusion}
+        <div style="display: {$showMaskEditor ? 'block' : 'none'}">
+            <ImageOcclusionPage mode={imageOcclusionMode} />
+        </div>
+    {/if}
 
-    {#if isShowMaskEditor && isImageOcclusion && !isIOImageLoaded}
-        <div id="io-select-image-div" style="padding-top: 60px; text-align: center">
+    {#if $showMaskEditor && isImageOcclusion && !isIOImageLoaded}
+        <div id="io-select-image-div" style="padding-top: 60px; text-align: center;">
             <LabelButton
                 --border-left-radius="5px"
                 --border-right-radius="5px"
@@ -588,7 +557,7 @@ the AddCards dialog) should be implemented in the user of this component.
         </div>
     {/if}
 
-    {#if !isShowMaskEditor}
+    {#if !$showMaskEditor}
         <Fields>
             {#each fieldsData as field, index}
                 {@const content = fieldStores[index]}
@@ -747,11 +716,6 @@ the AddCards dialog) should be implemented in the user of this component.
     :global(.image-occlusion .tool-bar-container) {
         top: unset !important;
         margin-top: 2px !important;
-    }
-
-    :global(.active-io-btn) {
-        background: var(--button-primary-bg) !important;
-        color: white !important;
     }
 
     :global(.io-select-image-btn) {

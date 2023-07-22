@@ -7,7 +7,7 @@ from anki.collection import OpChanges
 from anki.errors import NotFoundError
 from aqt import gui_hooks
 from aqt.qt import *
-from aqt.utils import disable_help_button, restoreGeom, saveGeom, tooltip, tr
+from aqt.utils import disable_help_button, restoreGeom, saveGeom, tr
 
 
 class EditCurrent(QDialog):
@@ -30,38 +30,11 @@ class EditCurrent(QDialog):
         self.editor.card = self.mw.reviewer.card
         self.editor.set_note(self.mw.reviewer.card.note(), focusTo=0)
         restoreGeom(self, "editcurrent")
-        self.setupButtons()
-        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
-        self.show()
-
-    def setupButtons(self) -> None:
-        if self.editor.current_notetype_is_image_occlusion():
-            bb = self.form.buttonBox
-            ar = QDialogButtonBox.ButtonRole.ActionRole
-            # add io hide all button
-            self.ioAddButton = bb.addButton(tr.actions_update_note(), ar)
-            qconnect(self.ioAddButton.clicked, self.onAddIo)
-            self.ioAddButton.setShortcut(QKeySequence("Ctrl+Shift+I"))
-
         self.form.buttonBox.button(QDialogButtonBox.StandardButton.Close).setShortcut(
             QKeySequence("Ctrl+Return")
         )
-
-    def onAddIo(self) -> None:
-        m = QMenu(self)
-        a = m.addAction(tr.notetypes_hide_all_guess_one())
-        qconnect(a.triggered, self.update_io_hide_all_note)
-        a = m.addAction(tr.notetypes_hide_one_guess_one())
-        qconnect(a.triggered, self.update_io_hide_one_note)
-        m.exec(self.ioAddButton.mapToGlobal(QPoint(0, 0)))
-
-    def update_io_hide_all_note(self) -> None:
-        self.editor.web.eval("setOcclusionField(true)")
-        tooltip(tr.importing_updated(), period=500)
-
-    def update_io_hide_one_note(self) -> None:
-        self.editor.web.eval("setOcclusionField(false)")
-        tooltip(tr.importing_updated(), period=500)
+        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
+        self.show()
 
     def on_operation_did_execute(
         self, changes: OpChanges, handler: Optional[object]

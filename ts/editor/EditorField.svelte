@@ -86,11 +86,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setupLifecycleHooks(api);
 
     onDestroy(() => api?.destroy());
-
-    $: hideField = field.hidden || false;
 </script>
 
-<div class="field-container {hideField ? 'hide' : ''}" on:mouseenter on:mouseleave>
+<div class="field-container" class:hide={field.hidden} on:mouseenter on:mouseleave>
     <slot name="field-label" />
 
     <Collapsible collapse={collapsed} let:collapsed={hidden}>

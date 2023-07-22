@@ -6,18 +6,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroup from "components/ButtonGroup.svelte";
     import DynamicallySlottable from "components/DynamicallySlottable.svelte";
     import IconButton from "components/IconButton.svelte";
-    import { maskEditorButtonPressed } from "image-occlusion/store";
-    import { get } from "svelte/store";
+    import { isShowMaskEditor } from "image-occlusion/store";
 
     import ButtonGroupItem, {
         createProps,
         setSlotHostContext,
         updatePropsList,
     } from "../../components/ButtonGroupItem.svelte";
-    import { bridgeCommand } from "../../lib/bridgecommand";
-    import { mdiRefresh, mdiViewDashboard } from "./icons";
+    import { mdiViewDashboard } from "./icons";
 
     export let api = {};
+    const showMaskEditor = isShowMaskEditor;
 </script>
 
 <ButtonGroup>
@@ -31,29 +30,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <ButtonGroupItem>
             <IconButton
                 id="io-mask-btn"
+                class={$showMaskEditor ? "active-io-btn" : ""}
                 on:click={() => {
-                    if (get(maskEditorButtonPressed)) {
-                        bridgeCommand(`toggleMaskEditor:${false}`);
-                    } else {
-                        bridgeCommand(`toggleMaskEditor:${true}`);
-                    }
-                    maskEditorButtonPressed.set(!get(maskEditorButtonPressed));
+                    $showMaskEditor = !$showMaskEditor;
+                    isShowMaskEditor.set($showMaskEditor);
                 }}
             >
                 {@html mdiViewDashboard}
             </IconButton>
         </ButtonGroupItem>
-
-        {#if get(maskEditorButtonPressed)}
-            <ButtonGroupItem>
-                <IconButton
-                    on:click={() => {
-                        bridgeCommand("addImageForOcclusion");
-                    }}
-                >
-                    {@html mdiRefresh}
-                </IconButton>
-            </ButtonGroupItem>
-        {/if}
     </DynamicallySlottable>
 </ButtonGroup>
+
+<style>
+    :global(.active-io-btn) {
+        background: var(--button-primary-bg) !important;
+        color: white !important;
+    }
+</style>

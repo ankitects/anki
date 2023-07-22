@@ -9,5 +9,5 @@ export const notesDataStore = writable({ id: "", title: "", divValue: "", textar
 export const zoomResetValue = writable(1);
 // it stores the tags for the note in note editor
 export const tagsWritable = writable([""]);
-// it stores the boolean value of button pressed
-export const maskEditorButtonPressed = writable(true);
+// it stores the visibility of mask editor
+export const isShowMaskEditor = writable(true);

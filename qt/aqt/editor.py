@@ -477,11 +477,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         elif cmd in self._links:
             return self._links[cmd](self)
 
-        elif cmd.startswith("toggleMaskEditor"):
-            (_, show_str) = cmd.split(":", 1)
-            show = show_str == "true"
-            self.onToggleMaskEditor(show)
-
         else:
             print("uncaught cmd", cmd)
 
@@ -556,7 +551,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setCloseHTMLTags({json.dumps(self.mw.col.get_config("closeHTMLTags", True))});
             triggerChanges();
             setIsImageOcclusion({json.dumps(self.current_notetype_is_image_occlusion())});
-            setIsBrowseMode({json.dumps(self.editorMode == EditorMode.BROWSER)})
+            setIsEditMode({json.dumps(self.editorMode != EditorMode.ADD_CARDS)});
             """
 
         if self.addMode:
@@ -1207,10 +1202,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         def accept(file: str) -> None:
             try:
                 html = self._addMedia(file)
-                options = {"kind": "add", "imagePath": file, "notetypeId": 0}
+                mode = {"kind": "add", "imagePath": file, "notetypeId": 0}
                 # pass both html and options
-                options = {"html": html, "mode": options}
-                self.web.eval(f"setupMaskEditor({options})")
+                options = {"html": html, "mode": mode}
+                self.web.eval(f"setupMaskEditor({json.dumps(options)})")
             except Exception as e:
                 showWarning(str(e))
                 return
@@ -1224,12 +1219,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         )
 
         self.parentWindow.activateWindow()
-
-    def onToggleMaskEditor(self, show) -> None:
-        if show:
-            self.web.eval("toggleMaskEditor(true)")
-        else:
-            self.web.eval("toggleMaskEditor(false)")
 
     # Links from HTML
     ######################################################################
@@ -1261,7 +1250,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             toggleShrinkImages=Editor.toggleShrinkImages,
             toggleCloseHTMLTags=Editor.toggleCloseHTMLTags,
             addImageForOcclusion=Editor.onAddImageForOcclusion,
-            toggleMaskEditor=Editor.onToggleMaskEditor,
         )
 
 
