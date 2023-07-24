@@ -56,6 +56,9 @@ def is_chromium_cert_error(error: str) -> bool:
     List derived with:
     qtwebengine-chromium% rg --no-heading --no-filename --no-line-number \
         3380365263193509176  | perl -pe 's/.*>(.*)<.*/"$1",/' | sort | uniq
+        
+    This list has been manually updated to add a different Japanese translation, as
+    the translations may change in different Chromium releases.
 
     Judging by error reports, we can't assume the error falls on a separate line:
     https://forums.ankiweb.net/t/topic/22036/
@@ -135,6 +138,7 @@ def is_chromium_cert_error(error: str) -> bool:
         "မသိရ အမှား",
         "កំហុសឆ្គងមិនស្គាល់",
         "不明なエラー",
+        "未知のエラー",
         "未知的錯誤",
         "未知错误",
     ):
