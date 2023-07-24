@@ -1341,8 +1341,9 @@ class EditorWebView(AnkiWebView):
         for qurl in mime.urls():
             url = qurl.toString()
             # chrome likes to give us the URL twice with a \n
-            url = url.splitlines()[0]
-            buf += self.editor.urlToLink(url)
+            if lines := url.splitlines():
+                url = lines[0]
+                buf += self.editor.urlToLink(url)
 
         return buf
 
