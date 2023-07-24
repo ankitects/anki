@@ -240,7 +240,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let isImageOcclusion = false;
     function setIsImageOcclusion(val: boolean) {
         isImageOcclusion = val;
-        $showMaskEditor = val;
+        $ioMaskEditorVisible = val;
     }
 
     let isEditMode = false;
@@ -390,15 +390,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ImageOcclusionPage from "image-occlusion/ImageOcclusionPage.svelte";
     import type { IOMode } from "image-occlusion/lib";
     import { exportShapesToClozeDeletions } from "image-occlusion/shapes/to-cloze";
-    import { isShowMaskEditor } from "image-occlusion/store";
+    import { ioMaskEditorVisibleStore } from "image-occlusion/store";
 
     import { mathjaxConfig } from "../editable/mathjax-element";
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
     let isIOImageLoaded = false;
-    const showMaskEditor = isShowMaskEditor;
-    let imageOcclusionMode: IOMode;
+    const ioMaskEditorVisible = ioMaskEditorVisibleStore;
+    let imageOcclusionMode: IOMode | undefined;
     async function setupMaskEditor(options: { html: string; mode: IOMode }) {
         imageOcclusionMode = options.mode;
         if (options.mode.kind === "add") {
@@ -538,13 +538,13 @@ the AddCards dialog) should be implemented in the user of this component.
         </Absolute>
     {/if}
 
-    {#if imageOcclusionMode && isImageOcclusion}
-        <div style="display: {$showMaskEditor ? 'block' : 'none'}">
+    {#if imageOcclusionMode}
+        <div style="display: {$ioMaskEditorVisible ? 'block' : 'none'}">
             <ImageOcclusionPage mode={imageOcclusionMode} />
         </div>
     {/if}
 
-    {#if $showMaskEditor && isImageOcclusion && !isIOImageLoaded}
+    {#if $ioMaskEditorVisible && isImageOcclusion && !isIOImageLoaded}
         <div id="io-select-image-div" style="padding-top: 60px; text-align: center;">
             <LabelButton
                 --border-left-radius="5px"
@@ -557,7 +557,7 @@ the AddCards dialog) should be implemented in the user of this component.
         </div>
     {/if}
 
-    {#if !$showMaskEditor}
+    {#if !$ioMaskEditorVisible}
         <Fields>
             {#each fieldsData as field, index}
                 {@const content = fieldStores[index]}
