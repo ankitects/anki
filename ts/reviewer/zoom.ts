@@ -12,7 +12,7 @@ const DEFAULT_SCALE_FACTOR = 1;
 const MAXIMUM_SCALE_FACTOR = 5;  // Chromium defaults
 const MINIMUM_SCALE_FACTOR = 0.25;
 
-let scaleFactor = 1.0;
+let scaleFactor = DEFAULT_SCALE_FACTOR;
 let scaleTimer: null | number = null;
 
 export function triggerScaleStep(sign: number) {
@@ -41,6 +41,10 @@ export function resetScaleFactor() {
     setScaleFactor(DEFAULT_SCALE_FACTOR);
 }
 
+function storeScaleFactor(scale: number) {
+    bridgeCommand(`scale:${scale}`);
+}
+
 export function setupWheelZoom() {
     document.addEventListener(
         "wheel",
@@ -53,8 +57,4 @@ export function setupWheelZoom() {
         },
         { passive: false }
     );
-}
-
-function storeScaleFactor(scale: number) {
-    bridgeCommand(`scale:${scale}`);
 }
