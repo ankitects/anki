@@ -11,10 +11,14 @@ export { default as $, default as jQuery } from "jquery/dist/jquery";
 
 import { setupImageCloze } from "../image-occlusion/review";
 import { mutateNextCardStates } from "./answering";
+import { resetScaleFactor, setScaleFactor, setupWheelZoom, triggerScaleStep } from "./zoom";
 
 globalThis.anki = globalThis.anki || {};
 globalThis.anki.mutateNextCardStates = mutateNextCardStates;
 globalThis.anki.setupImageCloze = setupImageCloze;
+globalThis.anki.setScaleFactor = setScaleFactor
+globalThis.anki.triggerScaleStep = triggerScaleStep
+globalThis.anki.resetScaleFactor = resetScaleFactor
 
 import { bridgeCommand } from "@tslib/bridgecommand";
 import { registerPackage } from "@tslib/runtime-require";
@@ -167,13 +171,13 @@ export function _showQuestion(q: string, a: string, bodyclass: string): void {
         _updateQA(
             q,
             null,
-            function() {
+            function () {
                 // return to top of window
                 window.scrollTo(0, 0);
 
                 document.body.className = bodyclass;
             },
-            function() {
+            function () {
                 // focus typing area if visible
                 typeans = document.getElementById("typeans") as HTMLInputElement;
                 if (typeans) {
@@ -195,7 +199,7 @@ export function _showAnswer(a: string, bodyclass: string): void {
         _updateQA(
             a,
             null,
-            function() {
+            function () {
                 if (bodyclass) {
                     //  when previewing
                     document.body.className = bodyclass;
@@ -204,7 +208,7 @@ export function _showAnswer(a: string, bodyclass: string): void {
                 // avoid scrolling to the answer until images load
                 allImagesLoaded().then(scrollToAnswer);
             },
-            function() {
+            function () {
                 /* noop */
             },
         )
@@ -262,6 +266,8 @@ document.addEventListener("focusout", (event) => {
         document.body.removeChild(dummyButton);
     }
 });
+
+setupWheelZoom()
 
 registerPackage("anki/reviewer", {
     // If you append a function to this each time the question or answer

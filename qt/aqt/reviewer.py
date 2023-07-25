@@ -389,6 +389,7 @@ class Reviewer:
         self._update_mark_icon()
         self._showAnswerButton()
         self.mw.web.setFocus()
+        self.maybe_restore_scale_factor()
         # user hook
         gui_hooks.reviewer_did_show_question(c)
 
@@ -586,6 +587,8 @@ class Reviewer:
             play_clicked_audio(url, self.card)
         elif url.startswith("updateToolbar"):
             self.mw.toolbarWeb.update_background_image()
+        elif url.startswith("scale"):
+            self.store_scale_factor(float(url.split(":")[1]))
         elif url == "statesMutated":
             self._states_mutated = True
         else:
@@ -1076,6 +1079,27 @@ time = %(time)d;
             tooltip(tr.studying_you_havent_recorded_your_voice_yet())
             return
         av_player.play_file(self._recordedAudio)
+
+    # Zoom handling
+
+    def zoom_in(self):
+        self.web.eval(f"anki.triggerScaleStep(1)")
+
+    def zoom_out(self):
+        self.web.eval(f"anki.triggerScaleStep(-1)")
+
+    def reset_zoom(self):
+        self.web.eval(f"anki.setScaleFactor(1)")
+
+    def set_scale_factor(self, scale_factor: float, store: bool = True):
+        self.web.eval(f"anki.setScaleFactor({json.dumps(scale_factor)})")
+
+    def store_scale_factor(self, scale_factor: float):
+        self.mw.pm.profile["lastReviewerScaleFactor"] = scale_factor
+
+    def maybe_restore_scale_factor(self):
+        if scale_factor := self.mw.pm.profile.get("lastReviewerScaleFactor", None):
+            self.set_scale_factor(scale_factor, store=False)
 
     # legacy
 

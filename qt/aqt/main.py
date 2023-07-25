@@ -1342,15 +1342,9 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionPreferences.triggered, self.onPrefs)
 
         # View
-        qconnect(
-            m.actionZoomIn.triggered,
-            lambda: self.web.setZoomFactor(self.web.zoomFactor() + 0.1),
-        )
-        qconnect(
-            m.actionZoomOut.triggered,
-            lambda: self.web.setZoomFactor(self.web.zoomFactor() - 0.1),
-        )
-        qconnect(m.actionResetZoom.triggered, lambda: self.web.setZoomFactor(1))
+        qconnect(m.actionZoomIn.triggered, self.zoom_in)
+        qconnect(m.actionZoomOut.triggered, self.zoom_out)
+        qconnect(m.actionResetZoom.triggered, self.reset_zoom)
         # app-wide shortcut
         qconnect(m.actionFullScreen.triggered, self.on_toggle_full_screen)
         m.actionFullScreen.setShortcut(
@@ -1396,6 +1390,24 @@ title="{}" {}>{}</button>""".format(
     def show_menubar(self) -> None:
         self.form.menubar.setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX)
         self.form.menubar.setMinimumSize(0, 0)
+
+    def zoom_in(self) -> None:
+        if self.state != "review":
+            self.web.setZoomFactor(self.web.zoomFactor() + 0.1)
+        else:
+            self.reviewer.zoom_in()
+
+    def zoom_out(self) -> None:
+        if self.state != "review":
+            self.web.setZoomFactor(self.web.zoomFactor() - 0.1)
+        else:
+            self.reviewer.zoom_out()
+
+    def reset_zoom(self) -> None:
+        if self.state != "review":
+            self.web.setZoomFactor(1)
+        else:
+            self.reviewer.reset_zoom()
 
     # Auto update
     ##########################################################################
