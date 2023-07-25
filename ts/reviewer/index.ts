@@ -11,14 +11,14 @@ export { default as $, default as jQuery } from "jquery/dist/jquery";
 
 import { setupImageCloze } from "../image-occlusion/review";
 import { mutateNextCardStates } from "./answering";
-import { resetScaleFactor, setScaleFactor, setupWheelZoom, triggerScaleStep } from "./zoom";
+import { resetZoom, setupWheelZoom, setZoomStep, triggerZoomStep } from "./zoom";
 
 globalThis.anki = globalThis.anki || {};
 globalThis.anki.mutateNextCardStates = mutateNextCardStates;
 globalThis.anki.setupImageCloze = setupImageCloze;
-globalThis.anki.setScaleFactor = setScaleFactor
-globalThis.anki.triggerScaleStep = triggerScaleStep
-globalThis.anki.resetScaleFactor = resetScaleFactor
+globalThis.anki.setZoomStep = setZoomStep
+globalThis.anki.triggerZoomStep = triggerZoomStep
+globalThis.anki.resetZoom = resetZoom
 
 import { bridgeCommand } from "@tslib/bridgecommand";
 import { registerPackage } from "@tslib/runtime-require";

@@ -587,8 +587,8 @@ class Reviewer:
             play_clicked_audio(url, self.card)
         elif url.startswith("updateToolbar"):
             self.mw.toolbarWeb.update_background_image()
-        elif url.startswith("scale"):
-            self.store_scale_factor(float(url.split(":")[1]))
+        elif url.startswith("zoom"):
+            self.store_zoom_step(int(url.split(":")[1]))
         elif url == "statesMutated":
             self._states_mutated = True
         else:
@@ -1083,23 +1083,29 @@ time = %(time)d;
     # Zoom handling
 
     def zoom_in(self):
-        self.web.eval(f"anki.triggerScaleStep(1)")
+        self.web.eval(f"anki.triggerZoomStep(1)")
 
     def zoom_out(self):
-        self.web.eval(f"anki.triggerScaleStep(-1)")
+        self.web.eval(f"anki.triggerZoomStep(-1)")
 
     def reset_zoom(self):
-        self.web.eval(f"anki.setScaleFactor(1)")
+        self.web.eval(f"anki.resetZoom()")
 
-    def set_scale_factor(self, scale_factor: float, store: bool = True):
-        self.web.eval(f"anki.setScaleFactor({json.dumps(scale_factor)})")
+    def set_zoom_step(self, step: int, interactive: bool = True):
+        """Set predefined reviewer zoom step, cf. zoom.ts for indices
 
-    def store_scale_factor(self, scale_factor: float):
-        self.mw.pm.profile["lastReviewerScaleFactor"] = scale_factor
+        Args:
+            step: zoom step corresponding to predefined zoom factor index
+            interactive: controls zoom info box and zoom step persistence
+        """
+        self.web.eval(f"anki.setZoomStep({json.dumps(step)})")
+
+    def store_zoom_step(self, step: int):
+        self.mw.pm.profile["lastReviewerZoomStep"] = step
 
     def maybe_restore_scale_factor(self):
-        if scale_factor := self.mw.pm.profile.get("lastReviewerScaleFactor", None):
-            self.set_scale_factor(scale_factor, store=False)
+        if scale_factor := self.mw.pm.profile.get("lastReviewerZoomStep", None):
+            self.set_zoom_step(scale_factor, interactive=False)
 
     # legacy
 

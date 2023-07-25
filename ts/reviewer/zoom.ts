@@ -7,61 +7,88 @@
 
 import { bridgeCommand } from "@tslib/bridgecommand";
 
-const ZOOM_STEP = 0.1;
-const DEFAULT_SCALE_FACTOR = 1;
-const MAXIMUM_SCALE_FACTOR = 5;  // Chromium defaults
-const MINIMUM_SCALE_FACTOR = 0.25;
+// Chromium defaults
+const PRESET_ZOOM_FACTORS = [
+    0.25,
+    1 / 3.0,
+    0.5,
+    2 / 3.0,
+    0.75,
+    0.8,
+    0.9,
+    1.0,
+    1.1,
+    1.25,
+    1.5,
+    1.75,
+    2.0,
+    2.5,
+    3.0,
+    4.0,
+    5.0,
+];
+const DEFAULT_ZOOM_STEP = 7;
 
-let scaleFactor = DEFAULT_SCALE_FACTOR;
-let scaleTimer: null | number = null;
+let zoomStep = DEFAULT_ZOOM_STEP;
+let zoomSaveTimer: number | null = null;
 
-export function triggerScaleStep(sign: number) {
-    scaleFactor = Math.min(
-        Math.max(scaleFactor * (1 + sign * ZOOM_STEP), MINIMUM_SCALE_FACTOR),
-        MAXIMUM_SCALE_FACTOR
-    );
-    setScaleFactor(scaleFactor);
+export function triggerZoomStep(sign: number): void {
+    const step = zoomStep + sign
+    if (step < 0 || step > PRESET_ZOOM_FACTORS.length) {
+        return
+    }
+
+    setZoomStep(step);
 }
 
-export function setScaleFactor(newScaleFactor: number, interactive = true) {
-    const scaledContainer = document.body;
-    scaledContainer.style.transform = `scale(${newScaleFactor})`;
-    scaleFactor = newScaleFactor;
-    if (scaleTimer) {
-        clearTimeout(scaleTimer);
+export function setZoomStep(step: number, interactive = true): void {
+    const zoomedContainer = document.body;
+    const zoomFactor = PRESET_ZOOM_FACTORS[step]
+    if (zoomFactor === undefined) {
+        return
+    }
+    zoomedContainer.style.transform = `scale(${zoomFactor})`;
+    zoomStep = step
+    if (zoomSaveTimer) {
+        clearTimeout(zoomSaveTimer);
     }
     if (interactive) {
-        displayScaleInfo(newScaleFactor)
-        scaleTimer = setTimeout(() => {
-            storeScaleFactor(newScaleFactor);
+        displayZoomInfo(zoomFactor);
+        zoomSaveTimer = setTimeout(() => {
+            storeZoomStep(step);
         }, 100);
     }
 }
 
-export function resetScaleFactor() {
-    setScaleFactor(DEFAULT_SCALE_FACTOR);
+export function resetZoom(): void {
+    setZoomStep(DEFAULT_ZOOM_STEP)
 }
 
-function storeScaleFactor(scale: number) {
-    bridgeCommand(`scale:${scale}`);
+function storeZoomStep(step: number) {
+    bridgeCommand(`zoom:${step}`);
 }
 
-const scaleInfoId = "_scaleinfo"
+const zoomInfoId = "_zoominfo";
+let zoomInfoTimer: number | null = null;
 
-function displayScaleInfo(scaleFactor: number) {
-    console.log("displayscaleinfo")
-    let scaleInfoBox = document.getElementById(scaleInfoId)
-    if (!scaleInfoBox) {
-        scaleInfoBox = document.createElement("div")
-        document.documentElement.appendChild(scaleInfoBox)
-        scaleInfoBox.id = scaleInfoId
+function displayZoomInfo(zoomFactor: number) {
+    let zoomInfoBox = document.getElementById(zoomInfoId);
+    if (!zoomInfoBox) {
+        zoomInfoBox = document.createElement("div");
+        document.documentElement.appendChild(zoomInfoBox);
+        zoomInfoBox.id = zoomInfoId;
     }
-    scaleInfoBox.innerHTML = `${Math.round(scaleFactor * 100)}%`
-    scaleInfoBox.style.display = "block";
-    setTimeout(() => { scaleInfoBox!.style.display = "none"; }, 1000)
+    if (zoomInfoTimer) {
+        clearTimeout(zoomInfoTimer)
+    }
+    zoomInfoBox.innerHTML = `${Math.round(zoomFactor * 100)}%`;
+    zoomInfoBox.style.display = "block";
+    zoomInfoTimer = setTimeout(() => {
+        zoomInfoBox!.style.display = "none";
+    }, 1000);
 }
 
-export function setupWheelZoom() {
+export function setupWheelZoom(): void {
     document.addEventListener(
         "wheel",
         (event) => {
@@ -69,7 +96,7 @@ export function setupWheelZoom() {
                 return;
             }
             event.preventDefault();
-            triggerScaleStep(-Math.sign(event.deltaY));
+            triggerZoomStep(-Math.sign(event.deltaY));
         },
         { passive: false }
     );
