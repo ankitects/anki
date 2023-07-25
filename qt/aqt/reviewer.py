@@ -1083,13 +1083,13 @@ time = %(time)d;
     # Zoom handling
 
     def zoom_in(self):
-        self.web.eval(f"anki.triggerZoomStep(1)")
+        self.web.eval("anki.triggerZoomStep(1)")
 
     def zoom_out(self):
-        self.web.eval(f"anki.triggerZoomStep(-1)")
+        self.web.eval("anki.triggerZoomStep(-1)")
 
     def reset_zoom(self):
-        self.web.eval(f"anki.resetZoom()")
+        self.web.eval("anki.resetZoom()")
 
     def set_zoom_step(self, step: int, interactive: bool = True):
         """Set predefined reviewer zoom step, cf. zoom.ts for indices
