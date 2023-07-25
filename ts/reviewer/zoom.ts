@@ -23,14 +23,15 @@ export function triggerScaleStep(sign: number) {
     setScaleFactor(scaleFactor);
 }
 
-export function setScaleFactor(newScaleFactor: number, store = true) {
+export function setScaleFactor(newScaleFactor: number, interactive = true) {
     const scaledContainer = document.body;
     scaledContainer.style.transform = `scale(${newScaleFactor})`;
     scaleFactor = newScaleFactor;
     if (scaleTimer) {
         clearTimeout(scaleTimer);
     }
-    if (store) {
+    if (interactive) {
+        displayScaleInfo(newScaleFactor)
         scaleTimer = setTimeout(() => {
             storeScaleFactor(newScaleFactor);
         }, 100);
@@ -43,6 +44,21 @@ export function resetScaleFactor() {
 
 function storeScaleFactor(scale: number) {
     bridgeCommand(`scale:${scale}`);
+}
+
+const scaleInfoId = "_scaleinfo"
+
+function displayScaleInfo(scaleFactor: number) {
+    console.log("displayscaleinfo")
+    let scaleInfoBox = document.getElementById(scaleInfoId)
+    if (!scaleInfoBox) {
+        scaleInfoBox = document.createElement("div")
+        document.documentElement.appendChild(scaleInfoBox)
+        scaleInfoBox.id = scaleInfoId
+    }
+    scaleInfoBox.innerHTML = `${Math.round(scaleFactor * 100)}%`
+    scaleInfoBox.style.display = "block";
+    setTimeout(() => { scaleInfoBox!.style.display = "none"; }, 1000)
 }
 
 export function setupWheelZoom() {

@@ -74,6 +74,18 @@ pre {
     -webkit-text-stroke-color: black;
 }
 
+#_scaleinfo {
+    position: fixed;
+    display: none;
+
+
+    right: 10px;
+    top: 0;
+    font-size: 20px;
+    color: var(--fg-subtle);
+    background: var(--canvas-overlay);
+}
+
 #typeans {
     width: 100%;
     // https://anki.tenderapp.com/discussions/beta-testing/1854-using-margin-auto-causes-horizontal-scrollbar-on-typesomething
