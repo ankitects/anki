@@ -1098,7 +1098,9 @@ time = %(time)d;
             step: zoom step corresponding to predefined zoom factor index
             interactive: controls zoom info box and zoom step persistence
         """
-        self.web.eval(f"anki.setZoomStep({json.dumps(step)})")
+        self.web.eval(
+            f"anki.setZoomStep({json.dumps(step)}, {json.dumps(interactive)})"
+        )
 
     def store_zoom_step(self, step: int):
         self.mw.pm.profile["lastReviewerZoomStep"] = step
