@@ -34,7 +34,7 @@ let zoomSaveTimer: number | null = null;
 
 export function triggerZoomStep(sign: number): void {
     const step = zoomStep + sign
-    if (step < 0 || step > PRESET_ZOOM_FACTORS.length) {
+    if (step < 0 || step > (PRESET_ZOOM_FACTORS.length - 1)) {
         return
     }
 
@@ -92,7 +92,7 @@ export function setupWheelZoom(): void {
     document.addEventListener(
         "wheel",
         (event) => {
-            if (!event.ctrlKey || !event.shiftKey) {
+            if (!(event.ctrlKey && event.shiftKey)) {
                 return;
             }
             event.preventDefault();
