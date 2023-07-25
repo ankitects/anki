@@ -1391,23 +1391,29 @@ title="{}" {}>{}</button>""".format(
         self.form.menubar.setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX)
         self.form.menubar.setMinimumSize(0, 0)
 
+    # Triggering a zoom action with Shift held down changes the zoom level without
+    # affecting layout sizing, thus allowing users to zoom into images
+
     def zoom_in(self) -> None:
-        if self.state != "review":
-            self.web.setZoomFactor(self.web.zoomFactor() + 0.1)
-        else:
+        if self.state == "review" and bool(
+            self.app.queryKeyboardModifiers() & Qt.KeyboardModifier.ShiftModifier
+        ):
             self.reviewer.zoom_in()
+        else:
+            self.web.setZoomFactor(self.web.zoomFactor() + 0.1)
 
     def zoom_out(self) -> None:
-        if self.state != "review":
-            self.web.setZoomFactor(self.web.zoomFactor() - 0.1)
-        else:
+        if self.state == "review" and bool(
+            self.app.queryKeyboardModifiers() & Qt.KeyboardModifier.ShiftModifier
+        ):
             self.reviewer.zoom_out()
+        else:
+            self.web.setZoomFactor(self.web.zoomFactor() - 0.1)
 
     def reset_zoom(self) -> None:
-        if self.state != "review":
-            self.web.setZoomFactor(1)
-        else:
+        if self.state == "review":
             self.reviewer.reset_zoom()
+        self.web.setZoomFactor(1)
 
     # Auto update
     ##########################################################################

@@ -92,7 +92,7 @@ export function setupWheelZoom(): void {
     document.addEventListener(
         "wheel",
         (event) => {
-            if (!event.ctrlKey) {
+            if (!event.ctrlKey || !event.shiftKey) {
                 return;
             }
             event.preventDefault();
