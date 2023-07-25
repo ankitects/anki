@@ -282,14 +282,16 @@ class DebugConsole(QDialog):
         import traceback
 
         text = self._text.toPlainText()
-        card = self._debugCard
-        bcard = self._debugBrowserCard
-        mw = aqt.mw
-        pp = pprint.pprint
+        vars = {
+            "card": self._debugCard,
+            "bcard": self._debugBrowserCard,
+            "mw": aqt.mw,
+            "pp": pprint.pprint,
+        }
         self._captureOutput(True)
         try:
             # pylint: disable=exec-used
-            exec(text)
+            exec(text, vars)
         except:
             self._output += traceback.format_exc()
         self._captureOutput(False)
