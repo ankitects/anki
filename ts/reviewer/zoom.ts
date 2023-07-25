@@ -33,9 +33,9 @@ let zoomStep = DEFAULT_ZOOM_STEP;
 let zoomSaveTimer: number | null = null;
 
 export function triggerZoomStep(sign: number): void {
-    const step = zoomStep + sign
+    const step = zoomStep + sign;
     if (step < 0 || step > (PRESET_ZOOM_FACTORS.length - 1)) {
-        return
+        return;
     }
 
     setZoomStep(step);
@@ -43,12 +43,12 @@ export function triggerZoomStep(sign: number): void {
 
 export function setZoomStep(step: number, interactive = true): void {
     const zoomedContainer = document.body;
-    const zoomFactor = PRESET_ZOOM_FACTORS[step]
+    const zoomFactor = PRESET_ZOOM_FACTORS[step];
     if (zoomFactor === undefined) {
-        return
+        return;
     }
     zoomedContainer.style.transform = `scale(${zoomFactor})`;
-    zoomStep = step
+    zoomStep = step;
     if (zoomSaveTimer) {
         clearTimeout(zoomSaveTimer);
     }
@@ -61,7 +61,7 @@ export function setZoomStep(step: number, interactive = true): void {
 }
 
 export function resetZoom(): void {
-    setZoomStep(DEFAULT_ZOOM_STEP)
+    setZoomStep(DEFAULT_ZOOM_STEP);
 }
 
 function storeZoomStep(step: number) {
@@ -79,7 +79,7 @@ function displayZoomInfo(zoomFactor: number) {
         zoomInfoBox.id = zoomInfoId;
     }
     if (zoomInfoTimer) {
-        clearTimeout(zoomInfoTimer)
+        clearTimeout(zoomInfoTimer);
     }
     zoomInfoBox.innerHTML = `${Math.round(zoomFactor * 100)}%`;
     zoomInfoBox.style.display = "block";
@@ -98,6 +98,6 @@ export function setupWheelZoom(): void {
             event.preventDefault();
             triggerZoomStep(-Math.sign(event.deltaY));
         },
-        { passive: false }
+        { passive: false },
     );
 }
