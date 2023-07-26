@@ -390,14 +390,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ImageOcclusionPage from "image-occlusion/ImageOcclusionPage.svelte";
     import type { IOMode } from "image-occlusion/lib";
     import { exportShapesToClozeDeletions } from "image-occlusion/shapes/to-cloze";
-    import { ioMaskEditorVisibleStore } from "image-occlusion/store";
+    import { ioMaskEditorVisible } from "image-occlusion/store";
 
     import { mathjaxConfig } from "../editable/mathjax-element";
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
     let isIOImageLoaded = false;
-    const ioMaskEditorVisible = ioMaskEditorVisibleStore;
     let imageOcclusionMode: IOMode | undefined;
     async function setupMaskEditor(options: { html: string; mode: IOMode }) {
         imageOcclusionMode = options.mode;

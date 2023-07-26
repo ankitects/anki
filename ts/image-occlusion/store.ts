@@ -10,4 +10,4 @@ export const zoomResetValue = writable(1);
 // it stores the tags for the note in note editor
 export const tagsWritable = writable([""]);
 // it stores the visibility of mask editor
-export const ioMaskEditorVisibleStore = writable(true);
+export const ioMaskEditorVisible = writable(true);

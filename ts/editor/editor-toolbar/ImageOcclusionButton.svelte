@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroup from "components/ButtonGroup.svelte";
     import DynamicallySlottable from "components/DynamicallySlottable.svelte";
     import IconButton from "components/IconButton.svelte";
-    import { ioMaskEditorVisibleStore } from "image-occlusion/store";
+    import { ioMaskEditorVisible } from "image-occlusion/store";
 
     import ButtonGroupItem, {
         createProps,
@@ -16,7 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { mdiViewDashboard } from "./icons";
 
     export let api = {};
-    const ioMaskEditorVisible = ioMaskEditorVisibleStore;
 </script>
 
 <ButtonGroup>
@@ -32,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 id="io-mask-btn"
                 class={$ioMaskEditorVisible ? "active-io-btn" : ""}
                 on:click={() => {
-                    ioMaskEditorVisibleStore.set(!$ioMaskEditorVisible);
+                    $ioMaskEditorVisible = !$ioMaskEditorVisible;
                 }}
             >
                 {@html mdiViewDashboard}
