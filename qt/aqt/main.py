@@ -1668,7 +1668,9 @@ title="{}" {}>{}</button>""".format(
 
     def hideStatusTips(self) -> None:
         for action in self.findChildren(QAction):
-            cast(QAction, action).setStatusTip("")
+            # On Windows, this next line gives a 'redundant cast' error after moving to
+            # PyQt6.5.2.
+            cast(QAction, action).setStatusTip("")  # type: ignore
 
     def onMacMinimize(self) -> None:
         self.setWindowState(self.windowState() | Qt.WindowState.WindowMinimized)  # type: ignore
