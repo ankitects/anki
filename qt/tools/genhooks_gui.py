@@ -1013,6 +1013,19 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     Hook(
         name="add_cards_did_change_note_type",
         args=["old: anki.models.NoteType", "new: anki.models.NoteType"],
+        doc="""Deprecated. Use addcards_did_change_note_type instead.
+        Executed after the user selects a new note type when adding
+        cards.""",
+    ),
+    Hook(
+        name="addcards_did_change_note_type",
+        args=[
+            "addcards: aqt.addcards.AddCards",
+            "old: anki.models.NoteType",
+            "new: anki.models.NoteType",
+        ],
+        replaces="add_cards_did_change_note_type",
+        replaced_hook_args=["old: anki.models.NoteType", "new: anki.models.NoteType"],
         doc="""Executed after the user selects a new note type when adding
         cards.""",
     ),
