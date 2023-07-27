@@ -549,7 +549,10 @@ the AddCards dialog) should be implemented in the user of this component.
                 --border-left-radius="5px"
                 --border-right-radius="5px"
                 class="io-select-image-btn"
-                on:click={() => bridgeCommand("addImageForOcclusion")}
+                on:click={() => {
+                    imageOcclusionMode = undefined;
+                    bridgeCommand("addImageForOcclusion");
+                }}
             >
                 {tr.notetypesIoSelectImage()}
             </LabelButton>
