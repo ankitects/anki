@@ -15,6 +15,7 @@
         { "path": "../sveltelib" },
         { "path": "../editable" },
         { "path": "../html-filter" },
-        { "path": "../tag-editor" }
+        { "path": "../tag-editor" },
+        { "path": "../image-occlusion" }
     ]
 }

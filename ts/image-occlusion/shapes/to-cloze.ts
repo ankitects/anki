@@ -81,6 +81,9 @@ function fabricObjectToBaseShapeOrShapes(
 function shapeOrShapesToCloze(shapeOrShapes: ShapeOrShapes, index: number): string {
     let text = "";
     function addKeyValue(key: string, value: string) {
+        if (Number.isNaN(Number(value))) {
+            value = ".0000";
+        }
         text += `:${key}=${value}`;
     }
 

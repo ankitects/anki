@@ -54,6 +54,7 @@ export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom):
 
     // get image width and height
     const image = document.getElementById("image") as HTMLImageElement;
+    image.style.visibility = "hidden";
     image.src = getImageData(clozeNote.imageData!);
     image.onload = function() {
         const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
@@ -66,6 +67,9 @@ export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom):
         addShapesToCanvasFromCloze(canvas, clozeNote.occlusions);
         enableSelectable(canvas, true);
         addClozeNotesToTextEditor(clozeNote.header, clozeNote.backExtra, clozeNote.tags);
+        window.requestAnimationFrame(() => {
+            image.style.visibility = "visible";
+        });
     };
 
     return canvas;
