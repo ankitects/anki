@@ -40,6 +40,8 @@ const IGNORED_FOLDERS: &[&str] = &[
     "./tools/workspace-hack",
     "./qt/bundle/PyOxidizer",
     "./target",
+    ".mypy_cache",
+    "./extra",
 ];
 
 fn main() -> Result<()> {

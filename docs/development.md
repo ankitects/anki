@@ -95,6 +95,10 @@ When formatting issues are reported, they can be fixed with
 cargo clippy --fix
 ```
 
+## Excluding your own untracked files from formatting and checks
+
+If you want to add files or folders to the project tree that should be excluded from version tracking and not be matched by formatters and checks, place them in an `extra` folder and they will automatically be ignored.
+
 ## Optimized builds
 
 The `./run` command will create a non-optimized build by default. This is faster

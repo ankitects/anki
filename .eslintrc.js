@@ -50,7 +50,7 @@ module.exports = {
         },
     ],
     env: { browser: true },
-    ignorePatterns: ["backend_proto.d.ts", "*.svelte.d.ts", "vendor"],
+    ignorePatterns: ["backend_proto.d.ts", "*.svelte.d.ts", "vendor", "extra/*"],
     globals: {
         globalThis: false,
         NodeListOf: false,
