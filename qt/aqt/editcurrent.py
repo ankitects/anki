@@ -21,9 +21,6 @@ class EditCurrent(QDialog):
         disable_help_button(self)
         self.setMinimumHeight(400)
         self.setMinimumWidth(250)
-        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Close).setShortcut(
-            QKeySequence("Ctrl+Return")
-        )
         self.editor = aqt.editor.Editor(
             self.mw,
             self.form.fieldsArea,
@@ -33,6 +30,9 @@ class EditCurrent(QDialog):
         self.editor.card = self.mw.reviewer.card
         self.editor.set_note(self.mw.reviewer.card.note(), focusTo=0)
         restoreGeom(self, "editcurrent")
+        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Close).setShortcut(
+            QKeySequence("Ctrl+Return")
+        )
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         self.show()
 

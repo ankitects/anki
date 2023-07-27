@@ -85,7 +85,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .note-toolbar {
-        margin-left: 98px;
+        margin-left: 106px;
         margin-top: 2px;
         display: flex;
         overflow-x: auto;

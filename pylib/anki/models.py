@@ -27,6 +27,7 @@ NotetypeNameIdUseCount = notetypes_pb2.NotetypeNameIdUseCount
 NotetypeNames = notetypes_pb2.NotetypeNames
 ChangeNotetypeInfo = notetypes_pb2.ChangeNotetypeInfo
 ChangeNotetypeRequest = notetypes_pb2.ChangeNotetypeRequest
+StockNotetype = notetypes_pb2.StockNotetype
 
 # legacy types
 NotetypeDict = dict[str, Any]

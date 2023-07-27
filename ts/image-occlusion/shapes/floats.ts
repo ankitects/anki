@@ -6,5 +6,8 @@
  * for up to widths/heights of 10kpx.
  */
 export function floatToDisplay(number: number): string {
+    if (Number.isNaN(number) || number == 0) {
+        return ".0000";
+    }
     return number.toFixed(4).replace(/^0+|0+$/g, "");
 }

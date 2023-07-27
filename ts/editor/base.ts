@@ -38,6 +38,8 @@ export const editorModules = [
     ModuleName.KEYBOARD,
     ModuleName.ACTIONS,
     ModuleName.BROWSING,
+    ModuleName.NOTETYPES,
+    ModuleName.IMPORTING,
 ];
 
 export const components = {
