@@ -41,7 +41,6 @@ const IGNORED_FOLDERS: &[&str] = &[
     "./qt/bundle/PyOxidizer",
     "./target",
     ".mypy_cache",
-    ".pytest_cache",
     "./extra",
 ];
 
