@@ -27,7 +27,10 @@
         "licenses.json",
         ".dmypy.json",
         "qt/bundle/PyOxidizer",
-        "target"
+        "target",
+        ".mypy_cache",
+        ".pytest_cache",
+        "extra"
     ],
     "plugins": [
         "https://plugins.dprint.dev/typescript-0.85.1.wasm",
