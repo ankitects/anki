@@ -426,6 +426,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (page) {
             page.remove();
         }
+        imageOcclusionMode = undefined;
     }
     globalThis.resetIOImageLoaded = resetIOImageLoaded;
 
@@ -550,7 +551,6 @@ the AddCards dialog) should be implemented in the user of this component.
                 --border-right-radius="5px"
                 class="io-select-image-btn"
                 on:click={() => {
-                    imageOcclusionMode = undefined;
                     bridgeCommand("addImageForOcclusion");
                 }}
             >
