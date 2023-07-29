@@ -11,3 +11,5 @@ export const zoomResetValue = writable(1);
 export const tagsWritable = writable([""]);
 // it stores the visibility of mask editor
 export const ioMaskEditorVisible = writable(true);
+// it store hide all or hide one mode
+export const hideAllGuessOne = writable(true);

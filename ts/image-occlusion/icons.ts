@@ -9,6 +9,7 @@ export { default as mdiAlignHorizontalRight } from "@mdi/svg/svg/align-horizonta
 export { default as mdiAlignVerticalBottom } from "@mdi/svg/svg/align-vertical-bottom.svg";
 export { default as mdiAlignVerticalCenter } from "@mdi/svg/svg/align-vertical-center.svg";
 export { default as mdiAlignVerticalTop } from "@mdi/svg/svg/align-vertical-top.svg";
+export { default as mdiChevronDown } from "@mdi/svg/svg/chevron-down.svg";
 export { default as mdiClose } from "@mdi/svg/svg/close.svg";
 export { default as mdiCodeTags } from "@mdi/svg/svg/code-tags.svg";
 export { default as mdiCopy } from "@mdi/svg/svg/content-copy.svg";
@@ -27,7 +28,10 @@ export { default as mdiZoomIn } from "@mdi/svg/svg/magnify-plus-outline.svg";
 export { default as mdiMagnifyScan } from "@mdi/svg/svg/magnify-scan.svg";
 export { default as mdiRectangleOutline } from "@mdi/svg/svg/rectangle-outline.svg";
 export { default as mdiRedo } from "@mdi/svg/svg/redo.svg";
+export { default as mdiRefresh } from "@mdi/svg/svg/refresh.svg";
+export { default as mdiSquare } from "@mdi/svg/svg/square.svg";
 export { default as mdiUndo } from "@mdi/svg/svg/undo.svg";
 export { default as mdiUnfoldMoreHorizontal } from "@mdi/svg/svg/unfold-more-horizontal.svg";
 export { default as mdiUngroup } from "@mdi/svg/svg/ungroup.svg";
 export { default as mdiVectorPolygonVariant } from "@mdi/svg/svg/vector-polygon-variant.svg";
+export { default as mdiViewDashboard } from "@mdi/svg/svg/view-dashboard.svg";

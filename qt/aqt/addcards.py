@@ -115,8 +115,8 @@ class AddCards(QMainWindow):
         self.addButton.setToolTip(shortcut(tr.adding_add_shortcut_ctrlandenter()))
 
         # add io button
-        self.io_add_button = bb.addButton(f"{tr.actions_add()} {downArrow()}", ar)
-        qconnect(self.io_add_button.clicked, self.onAddIo)
+        self.io_add_button = bb.addButton(f"{tr.actions_add()}", ar)
+        qconnect(self.io_add_button.clicked, self.add_io_note)
         self.io_add_button.setShortcut(QKeySequence("Ctrl+Shift+I"))
 
         # close
@@ -372,21 +372,8 @@ class AddCards(QMainWindow):
 
         self.ifCanClose(doClose)
 
-    def onAddIo(self) -> None:
-        m = QMenu(self)
-        a = m.addAction(tr.notetypes_hide_all_guess_one())
-        qconnect(a.triggered, self.add_io_hide_all_note)
-        a = m.addAction(tr.notetypes_hide_one_guess_one())
-        qconnect(a.triggered, self.add_io_hide_one_note)
-        m.popup(QCursor.pos())
-
-    def add_io_hide_all_note(self) -> None:
-        self.editor.web.eval("setOcclusionField(true)")
-        self.add_current_note()
-        self.editor.web.eval("resetIOImageLoaded()")
-
-    def add_io_hide_one_note(self) -> None:
-        self.editor.web.eval("setOcclusionField(false)")
+    def add_io_note(self) -> None:
+        self.editor.web.eval("setOcclusionFieldInner()")
         self.add_current_note()
         self.editor.web.eval("resetIOImageLoaded()")
 

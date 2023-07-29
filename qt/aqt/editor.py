@@ -562,8 +562,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             self.editorMode != EditorMode.ADD_CARDS
             and self.current_notetype_is_image_occlusion()
         ):
-            options = {"kind": "edit", "noteId": self.note.id}
-            options = {"mode": options}
+            mode = {"kind": "edit", "noteId": self.note.id}
+            options = {"mode": mode}
             js += " setupMaskEditor(%s);" % json.dumps(options)
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
@@ -1202,10 +1202,16 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         def accept(file: str) -> None:
             try:
                 html = self._addMedia(file)
-                mode = {"kind": "add", "imagePath": file, "notetypeId": 0}
-                # pass both html and options
-                options = {"html": html, "mode": mode}
-                self.web.eval(f"setupMaskEditor({json.dumps(options)})")
+                if self.editorMode == EditorMode.ADD_CARDS:
+                    mode = {"kind": "add", "imagePath": file, "notetypeId": 0}
+                    options = {"html": html, "mode": mode}
+                    self.web.eval(f"setupMaskEditor({json.dumps(options)})")
+                else:
+                    mode = {"kind": "edit", "notetypeId": self.note.id}
+                    options = {"html": html, "mode": mode}
+                    self.web.eval(f"resetIOImage({json.dumps(file)})")
+                    self.web.eval(f"setImageField({json.dumps(html)})")
+                    self.web.eval(f"setupMaskEditor({json.dumps(options)})")
             except Exception as e:
                 showWarning(str(e))
                 return
