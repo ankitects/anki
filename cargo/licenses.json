@@ -495,6 +495,15 @@
     "description": "Bare bones CSV parsing with no_std support."
   },
   {
+    "name": "data-encoding",
+    "version": "2.4.0",
+    "authors": "Julien Cretin <git@ia0.eu>",
+    "repository": "https://github.com/ia0/data-encoding",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Efficient and customizable data-encoding functions like base64, base32, and hex"
+  },
+  {
     "name": "deadpool",
     "version": "0.9.5",
     "authors": "Michael P. Jung <michael.jung@terreon.de>",

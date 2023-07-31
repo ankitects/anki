@@ -108,6 +108,7 @@ dependencies = [
  "convert_case",
  "criterion",
  "csv",
+ "data-encoding",
  "difflib",
  "dirs",
  "envy",
@@ -933,6 +934,12 @@ source = "git+https://github.com/ankitects/rust-csv.git?rev=1c9d3aab6f79a7d815c6
 dependencies = [
  "memchr",
 ]
+
+[[package]]
+name = "data-encoding"
+version = "2.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2e66c9d817f1720209181c316d28635c050fa304f9c79e47a520882661b7308"
 
 [[package]]
 name = "deadpool"

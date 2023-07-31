@@ -6,16 +6,21 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fs;
 use std::io;
-use std::path::Path;
 
 use anki_i18n::without_unicode_isolation;
+use anki_io::write_file;
+use data_encoding::BASE64;
+use once_cell::sync::Lazy;
+use regex::Regex;
 use tracing::debug;
+use tracing::info;
 
 use crate::error::DbErrorKind;
 use crate::latex::extract_latex_expanding_clozes;
 use crate::media::files::data_for_file;
 use crate::media::files::filename_if_normalized;
 use crate::media::files::normalize_nfc_filename;
+use crate::media::files::sha1_of_data;
 use crate::media::files::trash_folder;
 use crate::media::MediaManager;
 use crate::prelude::*;
@@ -24,6 +29,7 @@ use crate::sync::media::progress::MediaCheckProgress;
 use crate::sync::media::MAX_INDIVIDUAL_MEDIA_FILE_SIZE;
 use crate::text::extract_media_refs;
 use crate::text::normalize_to_nfc;
+use crate::text::CowMapping;
 use crate::text::MediaRef;
 use crate::text::REMOTE_FILENAME;
 
@@ -37,6 +43,7 @@ pub struct MediaCheckOutput {
     pub oversize: Vec<String>,
     pub trash_count: u64,
     pub trash_bytes: u64,
+    pub inlined_image_count: u64,
 }
 
 #[derive(Debug, PartialEq, Eq, Default)]
@@ -57,6 +64,7 @@ pub struct MediaChecker<'a> {
     col: &'a mut Collection,
     media: MediaManager,
     progress: ThrottlingProgressHandler<MediaCheckProgress>,
+    inlined_image_count: u64,
 }
 
 impl MediaChecker<'_> {
@@ -65,6 +73,7 @@ impl MediaChecker<'_> {
             media: col.media()?,
             progress: col.new_progress_handler(),
             col,
+            inlined_image_count: 0,
         })
     }
 
@@ -82,6 +91,7 @@ impl MediaChecker<'_> {
             oversize: folder_check.oversize,
             trash_count,
             trash_bytes,
+            inlined_image_count: self.inlined_image_count,
         })
     }
 
@@ -101,6 +111,11 @@ impl MediaChecker<'_> {
 
         buf += &tr.media_check_unused_count(output.unused.len());
         buf.push('\n');
+
+        if output.inlined_image_count > 0 {
+            buf += &tr.media_check_extracted_count(output.inlined_image_count);
+            buf.push('\n');
+        }
 
         if !output.renamed.is_empty() {
             buf += &tr.media_check_renamed_count(output.renamed.len());
@@ -344,12 +359,7 @@ impl MediaChecker<'_> {
                     .or_insert_with(Vec::new)
                     .push(nid)
             };
-            if fix_and_extract_media_refs(
-                &mut note,
-                &mut tracker,
-                renamed,
-                &self.media.media_folder,
-            )? {
+            if self.fix_and_extract_media_refs(&mut note, &mut tracker, renamed)? {
                 // note was modified, needs saving
                 note.prepare_for_update(nt, false)?;
                 note.set_modified(usn);
@@ -368,80 +378,102 @@ impl MediaChecker<'_> {
 
         Ok(referenced_files)
     }
-}
 
-/// Returns true if note was modified.
-fn fix_and_extract_media_refs(
-    note: &mut Note,
-    mut tracker: impl FnMut(String),
-    renamed: &HashMap<String, String>,
-    media_folder: &Path,
-) -> Result<bool> {
-    let mut updated = false;
+    /// Returns true if note was modified.
+    fn fix_and_extract_media_refs(
+        &mut self,
+        note: &mut Note,
+        mut tracker: impl FnMut(String),
+        renamed: &HashMap<String, String>,
+    ) -> Result<bool> {
+        let mut updated = false;
 
-    for idx in 0..note.fields().len() {
-        let field = normalize_and_maybe_rename_files(
-            &note.fields()[idx],
-            renamed,
-            &mut tracker,
-            media_folder,
-        );
-        if let Cow::Owned(field) = field {
-            // field was modified, need to save
-            note.set_field(idx, field)?;
-            updated = true;
-        }
-    }
-
-    Ok(updated)
-}
-
-/// Convert any filenames that are not in NFC form into NFC,
-/// and update any files that were renamed on disk.
-fn normalize_and_maybe_rename_files<'a>(
-    field: &'a str,
-    renamed: &HashMap<String, String>,
-    mut tracker: impl FnMut(String),
-    media_folder: &Path,
-) -> Cow<'a, str> {
-    let refs = extract_media_refs(field);
-    let mut field: Cow<str> = field.into();
-
-    for media_ref in refs {
-        if REMOTE_FILENAME.is_match(media_ref.fname) {
-            // skip remote references
-            continue;
-        }
-
-        // normalize fname into NFC
-        let mut fname = normalize_to_nfc(&media_ref.fname_decoded);
-        // and look it up to see if it's been renamed
-        if let Some(new_name) = renamed.get(fname.as_ref()) {
-            fname = new_name.to_owned().into();
-        }
-        // if the filename was in NFC and was not renamed as part of the
-        // media check, it may have already been renamed during a previous
-        // sync. If that's the case and the renamed version exists on disk,
-        // we'll need to update the field to match it. It may be possible
-        // to remove this check in the future once we can be sure all media
-        // files stored on AnkiWeb are in normalized form.
-        if matches!(fname, Cow::Borrowed(_)) {
-            if let Cow::Owned(normname) = normalize_nfc_filename(fname.as_ref().into()) {
-                let path = media_folder.join(&normname);
-                if path.exists() {
-                    fname = normname.into();
-                }
+        for idx in 0..note.fields().len() {
+            let field =
+                self.normalize_and_maybe_rename_files(&note.fields()[idx], renamed, &mut tracker)?;
+            if let Cow::Owned(field) = field {
+                // field was modified, need to save
+                note.set_field(idx, field)?;
+                updated = true;
             }
         }
-        // update the field if the filename was modified
-        if let Cow::Owned(ref new_name) = fname {
-            field = rename_media_ref_in_field(field.as_ref(), &media_ref, new_name).into();
-        }
-        // and mark this filename as having been referenced
-        tracker(fname.into_owned());
+
+        Ok(updated)
     }
 
-    field
+    /// Convert any filenames that are not in NFC form into NFC,
+    /// and update any files that were renamed on disk.
+    fn normalize_and_maybe_rename_files<'a>(
+        &mut self,
+        field: &'a str,
+        renamed: &HashMap<String, String>,
+        mut tracker: impl FnMut(String),
+    ) -> Result<Cow<'a, str>> {
+        let refs = extract_media_refs(field);
+        let mut field: Cow<str> = field.into();
+
+        for media_ref in refs {
+            if REMOTE_FILENAME.is_match(media_ref.fname) {
+                // skip remote references
+                continue;
+            }
+
+            let mut fname = self.maybe_extract_inline_image(&media_ref.fname_decoded)?;
+
+            // normalize fname into NFC
+            fname = fname.map_cow(normalize_to_nfc);
+            // and look it up to see if it's been renamed
+            if let Some(new_name) = renamed.get(fname.as_ref()) {
+                fname = new_name.to_owned().into();
+            }
+            // if the filename was in NFC and was not renamed as part of the
+            // media check, it may have already been renamed during a previous
+            // sync. If that's the case and the renamed version exists on disk,
+            // we'll need to update the field to match it. It may be possible
+            // to remove this check in the future once we can be sure all media
+            // files stored on AnkiWeb are in normalized form.
+            if matches!(fname, Cow::Borrowed(_)) {
+                if let Cow::Owned(normname) = normalize_nfc_filename(fname.as_ref().into()) {
+                    let path = self.media.media_folder.join(&normname);
+                    if path.exists() {
+                        fname = normname.into();
+                    }
+                }
+            }
+            // update the field if the filename was modified
+            if let Cow::Owned(ref new_name) = fname {
+                field = rename_media_ref_in_field(field.as_ref(), &media_ref, new_name).into();
+            }
+            // and mark this filename as having been referenced
+            tracker(fname.into_owned());
+        }
+
+        Ok(field)
+    }
+
+    fn maybe_extract_inline_image<'a>(&mut self, fname_decoded: &'a str) -> Result<Cow<'a, str>> {
+        static BASE64_IMG: Lazy<Regex> = Lazy::new(|| {
+            Regex::new("(?i)^data:image/(jpg|jpeg|png|gif|webp);base64,(.+)$").unwrap()
+        });
+
+        let Some(caps) = BASE64_IMG.captures(fname_decoded) else {
+        return Ok(fname_decoded.into());
+    };
+        let (_all, [ext, data]) = caps.extract();
+        let data = data.trim();
+        let data = match BASE64.decode(data.as_bytes()) {
+            Ok(data) => data,
+            Err(err) => {
+                info!("invalid base64: {}", err);
+                return Ok(fname_decoded.into());
+            }
+        };
+        let checksum = hex::encode(sha1_of_data(&data));
+        let external_fname = format!("paste-{checksum}.{ext}");
+        write_file(self.media.media_folder.join(&external_fname), data)?;
+        self.inlined_image_count += 1;
+        Ok(external_fname.into())
+    }
 }
 
 fn rename_media_ref_in_field(field: &str, media_ref: &MediaRef, new_name: &str) -> String {
@@ -502,8 +534,10 @@ pub(crate) mod test {
         include_bytes!("../../tests/support/mediacheck.anki2");
 
     use std::collections::HashMap;
+    use std::path::Path;
 
     use anki_io::create_dir;
+    use anki_io::read_to_string;
     use anki_io::write_file;
     use tempfile::tempdir;
     use tempfile::TempDir;
@@ -558,7 +592,8 @@ pub(crate) mod test {
                 dirs: vec!["folder".to_string()],
                 oversize: vec![],
                 trash_count: 0,
-                trash_bytes: 0
+                trash_bytes: 0,
+                inlined_image_count: 0,
             }
         );
 
@@ -675,7 +710,8 @@ Unused: unused.jpg
                     dirs: vec![],
                     oversize: vec![],
                     trash_count: 0,
-                    trash_bytes: 0
+                    trash_bytes: 0,
+                    inlined_image_count: 0,
                 }
             );
             assert!(fs::metadata(mgr.media_folder.join("ぱぱ.jpg")).is_ok());
@@ -693,7 +729,8 @@ Unused: unused.jpg
                     dirs: vec![],
                     oversize: vec![],
                     trash_count: 0,
-                    trash_bytes: 0
+                    trash_bytes: 0,
+                    inlined_image_count: 0,
                 }
             );
             assert!(fs::metadata(mgr.media_folder.join("ぱぱ.jpg")).is_err());
@@ -703,31 +740,55 @@ Unused: unused.jpg
         Ok(())
     }
 
-    fn normalize_and_maybe_rename_files_helper(field: &str) -> HashSet<String> {
+    fn normalize_and_maybe_rename_files_helper(
+        checker: &mut MediaChecker,
+        field: &str,
+    ) -> HashSet<String> {
         let mut seen = HashSet::new();
-        normalize_and_maybe_rename_files(
-            field,
-            &HashMap::new(),
-            |fname| {
+        checker
+            .normalize_and_maybe_rename_files(field, &HashMap::new(), |fname| {
                 seen.insert(fname);
-            },
-            Path::new("/tmp"),
-        );
+            })
+            .unwrap();
         seen
     }
 
     #[test]
-    fn html_encoding() {
+    fn html_encoding() -> Result<()> {
+        let (_dir, _mgr, mut col) = common_setup()?;
+        let mut checker = col.media_checker()?;
+
         let mut field = "[sound:a &amp; b.mp3]";
-        let seen = normalize_and_maybe_rename_files_helper(field);
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
         assert!(seen.contains("a & b.mp3"));
 
         field = r#"<img src="a&b.jpg">"#;
-        let seen = normalize_and_maybe_rename_files_helper(field);
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
         assert!(seen.contains("a&b.jpg"));
 
         field = r#"<img src="a&amp;b.jpg">"#;
-        let seen = normalize_and_maybe_rename_files_helper(field);
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
         assert!(seen.contains("a&b.jpg"));
+        Ok(())
+    }
+
+    #[test]
+    fn inlined_images() -> Result<()> {
+        let (_dir, mgr, mut col) = common_setup()?;
+        NoteAdder::basic(&mut col)
+            // b'foo'
+            .fields(&["foo", "<img src='data:image/jpg;base64,Zm9v'>"])
+            .add(&mut col);
+        let mut checker = col.media_checker()?;
+        let output = checker.check()?;
+        assert_eq!(output.inlined_image_count, 1);
+        assert_eq!(
+            &read_to_string(
+                mgr.media_folder
+                    .join("paste-0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33.jpg")
+            )?,
+            "foo"
+        );
+        Ok(())
     }
 }

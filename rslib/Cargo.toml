@@ -52,6 +52,7 @@ chrono.workspace = true
 coarsetime.workspace = true
 convert_case.workspace = true
 csv.workspace = true
+data-encoding.workspace = true
 difflib.workspace = true
 dirs.workspace = true
 envy.workspace = true
