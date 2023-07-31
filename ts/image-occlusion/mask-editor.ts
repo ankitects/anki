@@ -16,9 +16,13 @@ import { enableSelectable, moveShapeToCanvasBoundaries } from "./tools/lib";
 import { undoRedoInit } from "./tools/tool-undo-redo";
 import type { Size } from "./types";
 
-export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<fabric.Canvas> => {
+export const setupMaskEditor = async (
+    path: string,
+    instance: PanZoom,
+    onChange: () => void,
+): Promise<fabric.Canvas> => {
     const imageData = await getImageForOcclusion({ path });
-    const canvas = initCanvas();
+    const canvas = initCanvas(onChange);
 
     // get image width and height
     const image = document.getElementById("image") as HTMLImageElement;
@@ -35,7 +39,11 @@ export const setupMaskEditor = async (path: string, instance: PanZoom): Promise<
     return canvas;
 };
 
-export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom): Promise<fabric.Canvas> => {
+export const setupMaskEditorForEdit = async (
+    noteId: number,
+    instance: PanZoom,
+    onChange: () => void,
+): Promise<fabric.Canvas> => {
     const clozeNoteResponse = await getImageOcclusionNote({ noteId: BigInt(noteId) });
     const kind = clozeNoteResponse.value?.case;
     if (!kind || kind === "error") {
@@ -50,7 +58,7 @@ export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom):
     }
 
     const clozeNote = clozeNoteResponse.value.value;
-    const canvas = initCanvas();
+    const canvas = initCanvas(onChange);
 
     // get image width and height
     const image = document.getElementById("image") as HTMLImageElement;
@@ -75,7 +83,7 @@ export const setupMaskEditorForEdit = async (noteId: number, instance: PanZoom):
     return canvas;
 };
 
-const initCanvas = (): fabric.Canvas => {
+function initCanvas(onChange: () => void): fabric.Canvas {
     const canvas = new fabric.Canvas("canvas");
     tagsWritable.set([]);
     globalThis.canvas = canvas;
@@ -84,8 +92,10 @@ const initCanvas = (): fabric.Canvas => {
     canvas.uniScaleKey = "none";
     moveShapeToCanvasBoundaries(canvas);
     undoRedoInit(canvas);
+    canvas.on("object:modified", onChange);
+    canvas.on("object:removed", onChange);
     return canvas;
-};
+}
 
 const getImageData = (imageData): string => {
     const b64encoded = protoBase64.enc(imageData);

@@ -11,15 +11,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import MasksEditor from "./MaskEditor.svelte";
     import Notes from "./Notes.svelte";
     import StickyFooter from "./StickyFooter.svelte";
+    import { hideAllGuessOne } from "./store";
 
     export let mode: IOMode;
 
-    async function hideAllGuessOne(): Promise<void> {
-        addOrUpdateNote(mode, true);
-    }
-
-    async function hideOneGuessOne(): Promise<void> {
-        addOrUpdateNote(mode, false);
+    async function addNote(): Promise<void> {
+        addOrUpdateNote(mode, $hideAllGuessOne);
     }
 
     const items = [
@@ -45,14 +42,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </div>
 
     <div hidden={activeTabValue != 1}>
-        <MasksEditor {mode} />
+        <MasksEditor {mode} on:change />
     </div>
 
     <div hidden={activeTabValue != 2}>
         <Notes />
     </div>
 
-    <StickyFooter {hideAllGuessOne} {hideOneGuessOne} />
+    <StickyFooter {addNote} />
 </Container>
 
 <style lang="scss">
