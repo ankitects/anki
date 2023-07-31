@@ -973,7 +973,7 @@
   },
   {
     "name": "hermit-abi",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "authors": "Stefan Lankes",
     "repository": "https://github.com/hermitcore/rusty-hermit",
     "license": "Apache-2.0 OR MIT",
@@ -1981,8 +1981,8 @@
   },
   {
     "name": "regex",
-    "version": "1.8.4",
-    "authors": "The Rust Project Developers",
+    "version": "1.9.1",
+    "authors": "The Rust Project Developers|Andrew Gallant <jamslam@gmail.com>",
     "repository": "https://github.com/rust-lang/regex",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -1998,6 +1998,15 @@
     "description": "Automata construction and matching using regular expressions."
   },
   {
+    "name": "regex-automata",
+    "version": "0.3.4",
+    "authors": "The Rust Project Developers|Andrew Gallant <jamslam@gmail.com>",
+    "repository": "https://github.com/rust-lang/regex/tree/master/regex-automata",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Automata construction and matching using regular expressions."
+  },
+  {
     "name": "regex-syntax",
     "version": "0.6.29",
     "authors": "The Rust Project Developers",
@@ -2008,9 +2017,9 @@
   },
   {
     "name": "regex-syntax",
-    "version": "0.7.2",
-    "authors": "The Rust Project Developers",
-    "repository": "https://github.com/rust-lang/regex",
+    "version": "0.7.4",
+    "authors": "The Rust Project Developers|Andrew Gallant <jamslam@gmail.com>",
+    "repository": "https://github.com/rust-lang/regex/tree/master/regex-syntax",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A regular expression parser."
