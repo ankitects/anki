@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { PanZoom } from "panzoom";
     import panzoom from "panzoom";
+    import { createEventDispatcher } from "svelte";
 
     import type { IOMode } from "./lib";
     import { setupMaskEditor, setupMaskEditorForEdit } from "./mask-editor";
@@ -17,6 +18,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const startingTool = mode.kind === "add" ? "draw-rectangle" : "cursor";
     $: canvas = null;
 
+    const dispatch = createEventDispatcher();
+
+    function onChange() {
+        dispatch("change", { canvas });
+    }
+
     function init(node) {
         instance = panzoom(node, {
             bounds: true,
@@ -28,11 +35,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         instance.pause();
 
         if (mode.kind == "add") {
-            setupMaskEditor(mode.imagePath, instance).then((canvas1) => {
+            setupMaskEditor(mode.imagePath, instance, onChange).then((canvas1) => {
                 canvas = canvas1;
             });
         } else {
-            setupMaskEditorForEdit(mode.noteId, instance).then((canvas1) => {
+            setupMaskEditorForEdit(mode.noteId, instance, onChange).then((canvas1) => {
                 canvas = canvas1;
             });
         }

@@ -298,10 +298,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function saveNow(): void {
-        updateIONoteInEditMode();
         closeMathjaxEditor?.();
         $commitTagEdits();
         saveFieldNow();
+        imageOcclusionMode = undefined;
     }
 
     export function saveOnPageHide() {
@@ -390,7 +390,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ImageOcclusionPage from "image-occlusion/ImageOcclusionPage.svelte";
     import type { IOMode } from "image-occlusion/lib";
     import { exportShapesToClozeDeletions } from "image-occlusion/shapes/to-cloze";
-    import { ioMaskEditorVisible } from "image-occlusion/store";
+    import { hideAllGuessOne, ioMaskEditorVisible } from "image-occlusion/store";
 
     import { mathjaxConfig } from "../editable/mathjax-element";
     import CollapseLabel from "./CollapseLabel.svelte";
@@ -402,9 +402,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         imageOcclusionMode = options.mode;
         if (options.mode.kind === "add") {
             fieldStores[1].set(options.html);
+        } else {
+            const clozeNote = get(fieldStores[0]);
+            if (clozeNote.includes("oi=1")) {
+                $hideAllGuessOne = true;
+            } else {
+                $hideAllGuessOne = false;
+            }
         }
+
         isIOImageLoaded = true;
     }
+
+    function setImageField(html) {
+        fieldStores[1].set(html);
+    }
+    globalThis.setImageField = setImageField;
 
     // update cloze deletions and set occlusion fields, it call in saveNow to update cloze deletions
     function updateIONoteInEditMode() {
@@ -417,6 +430,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         }
     }
+
+    function setOcclusionFieldInner() {
+        if (isImageOcclusion) {
+            const occlusionsData = exportShapesToClozeDeletions($hideAllGuessOne);
+            fieldStores[0].set(occlusionsData.clozes);
+        }
+    }
+    // global for calling this method in desktop note editor
+    globalThis.setOcclusionFieldInner = setOcclusionFieldInner;
 
     // reset for new occlusion in add mode
     function resetIOImageLoaded() {
@@ -484,6 +506,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setIsEditMode,
             setupMaskEditor,
             setOcclusionField,
+            setOcclusionFieldInner,
             ...oldEditorAdapter,
         });
 
@@ -539,7 +562,10 @@ the AddCards dialog) should be implemented in the user of this component.
 
     {#if imageOcclusionMode}
         <div style="display: {$ioMaskEditorVisible ? 'block' : 'none'}">
-            <ImageOcclusionPage mode={imageOcclusionMode} />
+            <ImageOcclusionPage
+                mode={imageOcclusionMode}
+                on:change={updateIONoteInEditMode}
+            />
         </div>
     {/if}
 

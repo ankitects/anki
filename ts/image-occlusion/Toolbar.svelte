@@ -3,8 +3,23 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script>
-    import IconButton from "../components/IconButton.svelte";
-    import { mdiEye, mdiFormatAlignCenter } from "./icons";
+    import { bridgeCommand } from "@tslib/bridgecommand";
+    import * as tr from "@tslib/ftl";
+    import DropdownItem from "components/DropdownItem.svelte";
+    import IconButton from "components/IconButton.svelte";
+    import Popover from "components/Popover.svelte";
+    import WithFloating from "components/WithFloating.svelte";
+
+    import {
+        mdiChevronDown,
+        mdiEye,
+        mdiFormatAlignCenter,
+        mdiRefresh,
+        mdiSquare,
+        mdiViewDashboard,
+    } from "./icons";
+    import { setupMaskEditor } from "./mask-editor";
+    import { hideAllGuessOne } from "./store";
     import { drawEllipse, drawPolygon, drawRectangle } from "./tools/index";
     import { makeMaskTransparent } from "./tools/lib";
     import { enableSelectable, stopDraw } from "./tools/lib";
@@ -24,6 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let showAlignTools = false;
     let leftPos = 82;
     let maksOpacity = false;
+    let showFloating = false;
 
     document.addEventListener("click", (event) => {
         const upperCanvas = document.querySelector(".upper-canvas");
@@ -61,6 +77,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         stopDraw(canvas);
         canvas.selectionColor = "rgba(100, 100, 255, 0.3)";
     };
+
+    const resetIOImage = (path) => {
+        setupMaskEditor(path, instance);
+    };
+    globalThis.resetIOImage = resetIOImage;
+
+    const setOcclusionFieldForDesktop = () => {
+        const clist = document.body.classList;
+        if (
+            clist.contains("isLin") ||
+            clist.contains("isMac") ||
+            clist.contains("isWin")
+        ) {
+            globalThis.setOcclusionFieldInner();
+        }
+    };
 </script>
 
 <div class="tool-bar-container">
@@ -79,6 +111,65 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <div class="top-tool-bar-container">
+    <div class="undo-redo-button" on:click={() => (showFloating = !showFloating)}>
+        {#if $hideAllGuessOne}
+            <IconButton class="top-tool-icon-button left-border-radius" {iconSize}>
+                {@html mdiViewDashboard}
+            </IconButton>
+        {:else}
+            <IconButton class="top-tool-icon-button left-border-radius" {iconSize}>
+                {@html mdiSquare}
+            </IconButton>
+        {/if}
+
+        <WithFloating
+            show={showFloating}
+            closeOnInsideClick
+            inline
+            style="line-height: unset !important"
+            on:close={() => (showFloating = false)}
+        >
+            <IconButton
+                class="top-tool-icon-button right-border-radius dropdown-tool-mode"
+                slot="reference"
+            >
+                {@html mdiChevronDown}
+            </IconButton>
+
+            <Popover slot="floating" --popover-padding-inline="0">
+                <DropdownItem
+                    on:click={() => {
+                        $hideAllGuessOne = true;
+                        setOcclusionFieldForDesktop();
+                    }}
+                >
+                    <span>{tr.notetypesHideAllGuessOne()}</span>
+                </DropdownItem>
+                <DropdownItem
+                    on:click={() => {
+                        $hideAllGuessOne = false;
+                        setOcclusionFieldForDesktop();
+                    }}
+                >
+                    <span>{tr.notetypesHideOneGuessOne()}</span>
+                </DropdownItem>
+            </Popover>
+        </WithFloating>
+    </div>
+
+    <!-- refresh for changing image -->
+    <div class="undo-redo-button">
+        <IconButton
+            class="top-tool-icon-button icon-border-radius"
+            {iconSize}
+            on:click={() => {
+                bridgeCommand("addImageForOcclusion");
+            }}
+        >
+            {@html mdiRefresh}
+        </IconButton>
+    </div>
+
     <!-- undo & redo tools -->
     <div class="undo-redo-button">
         {#each undoRedoTools as tool}
@@ -265,5 +356,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     :global(.active-tool) {
         color: white !important;
         background: var(--button-primary-bg) !important;
+    }
+
+    :global(.icon-border-radius) {
+        border-radius: 5px !important;
+    }
+
+    :global(.dropdown-tool-mode) {
+        height: 38px !important;
+        display: inline;
     }
 </style>

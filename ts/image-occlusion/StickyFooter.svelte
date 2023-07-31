@@ -8,8 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import LabelButton from "../components/LabelButton.svelte";
 
-    export let hideAllGuessOne: () => void;
-    export let hideOneGuessOne: () => void;
+    export let addNote: () => void;
 </script>
 
 <div style:flex-grow="1" />
@@ -18,18 +17,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <LabelButton
             --border-left-radius="5px"
             --border-right-radius="5px"
-            on:click={hideAllGuessOne}
+            on:click={addNote}
             class=" bottom-btn"
         >
-            {tr.notetypesHideAllGuessOne()}
-        </LabelButton>
-        <LabelButton
-            --border-left-radius="5px"
-            --border-right-radius="5px"
-            on:click={hideOneGuessOne}
-            class=" bottom-btn"
-        >
-            {tr.notetypesHideOneGuessOne()}
+            {tr.actionsAdd()}
         </LabelButton>
     </ButtonGroup>
 </div>
