@@ -20,12 +20,12 @@ const i18n = setupI18n({
     ],
 });
 
-export async function setupImageOcclusion(mode: IOMode): Promise<ImageOcclusionPage> {
+export async function setupImageOcclusion(mode: IOMode, target = document.body): Promise<ImageOcclusionPage> {
     checkNightMode();
     await i18n;
 
     return new ImageOcclusionPage({
-        target: document.body,
+        target: target,
         props: {
             mode,
         },

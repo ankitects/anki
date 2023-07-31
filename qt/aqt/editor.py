@@ -31,6 +31,7 @@ from anki.collection import Config, SearchNode
 from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
+from anki.models import StockNotetype
 from anki.notes import Note, NoteFieldsCheckResult
 from anki.utils import checksum, is_lin, is_win, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
@@ -549,15 +550,31 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setShrinkImages({json.dumps(self.mw.col.get_config("shrinkEditorImages", True))});
             setCloseHTMLTags({json.dumps(self.mw.col.get_config("closeHTMLTags", True))});
             triggerChanges();
+            setIsImageOcclusion({json.dumps(self.current_notetype_is_image_occlusion())});
+            setIsEditMode({json.dumps(self.editorMode != EditorMode.ADD_CARDS)});
             """
 
         if self.addMode:
             sticky = [field["sticky"] for field in self.note.note_type()["flds"]]
             js += " setSticky(%s);" % json.dumps(sticky)
 
+        if (
+            self.editorMode != EditorMode.ADD_CARDS
+            and self.current_notetype_is_image_occlusion()
+        ):
+            mode = {"kind": "edit", "noteId": self.note.id}
+            options = {"mode": mode}
+            js += " setupMaskEditor(%s);" % json.dumps(options)
+
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
             f'require("anki/ui").loaded.then(() => {{ {js} }})', oncallback
+        )
+
+    def current_notetype_is_image_occlusion(self) -> bool:
+        return bool(self.note) and (
+            self.note.note_type().get("originalStockKind", None)
+            == StockNotetype.OriginalStockKind.ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
         )
 
     def _save_current_note(self) -> None:
@@ -1175,6 +1192,40 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def setTagsCollapsed(self, collapsed: bool) -> None:
         aqt.mw.pm.set_tags_collapsed(self.editorMode, collapsed)
 
+    def onAddImageForOcclusion(self) -> None:
+        """Show a file selection screen, then get selected image path."""
+        extension_filter = " ".join(
+            f"*.{extension}" for extension in sorted(itertools.chain(pics))
+        )
+        filter = f"{tr.editing_media()} ({extension_filter})"
+
+        def accept(file: str) -> None:
+            try:
+                html = self._addMedia(file)
+                if self.editorMode == EditorMode.ADD_CARDS:
+                    mode = {"kind": "add", "imagePath": file, "notetypeId": 0}
+                    options = {"html": html, "mode": mode}
+                    self.web.eval(f"setupMaskEditor({json.dumps(options)})")
+                else:
+                    mode = {"kind": "edit", "notetypeId": self.note.id}
+                    options = {"html": html, "mode": mode}
+                    self.web.eval(f"resetIOImage({json.dumps(file)})")
+                    self.web.eval(f"setImageField({json.dumps(html)})")
+                    self.web.eval(f"setupMaskEditor({json.dumps(options)})")
+            except Exception as e:
+                showWarning(str(e))
+                return
+
+        file = getFile(
+            parent=self.widget,
+            title=tr.editing_add_media(),
+            cb=cast(Callable[[Any], None], accept),
+            filter=filter,
+            key="media",
+        )
+
+        self.parentWindow.activateWindow()
+
     # Links from HTML
     ######################################################################
 
@@ -1204,6 +1255,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             toggleMathjax=Editor.toggleMathjax,
             toggleShrinkImages=Editor.toggleShrinkImages,
             toggleCloseHTMLTags=Editor.toggleCloseHTMLTags,
+            addImageForOcclusion=Editor.onAddImageForOcclusion,
         )
 
 
@@ -1341,8 +1393,9 @@ class EditorWebView(AnkiWebView):
         for qurl in mime.urls():
             url = qurl.toString()
             # chrome likes to give us the URL twice with a \n
-            url = url.splitlines()[0]
-            buf += self.editor.urlToLink(url)
+            if lines := url.splitlines():
+                url = lines[0]
+                buf += self.editor.urlToLink(url)
 
         return buf
 
@@ -1451,4 +1504,14 @@ def set_cloze_button(editor: Editor) -> None:
     )
 
 
+def set_image_occlusion_button(editor: Editor) -> None:
+    action = "show" if editor.current_notetype_is_image_occlusion() else "hide"
+    editor.web.eval(
+        'require("anki/ui").loaded.then(() =>'
+        f'require("anki/NoteEditor").instances[0].toolbar.toolbar.{action}("image-occlusion-button")'
+        "); "
+    )
+
+
 gui_hooks.editor_did_load_note.append(set_cloze_button)
+gui_hooks.editor_did_load_note.append(set_image_occlusion_button)

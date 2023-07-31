@@ -5,17 +5,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { PanZoom } from "panzoom";
     import panzoom from "panzoom";
+    import { createEventDispatcher } from "svelte";
 
     import type { IOMode } from "./lib";
     import { setupMaskEditor, setupMaskEditorForEdit } from "./mask-editor";
-    import SideToolbar from "./SideToolbar.svelte";
+    import Toolbar from "./Toolbar.svelte";
 
     export let mode: IOMode;
-
+    const iconSize = 80;
     let instance: PanZoom;
     let innerWidth = 0;
     const startingTool = mode.kind === "add" ? "draw-rectangle" : "cursor";
     $: canvas = null;
+
+    const dispatch = createEventDispatcher();
+
+    function onChange() {
+        dispatch("change", { canvas });
+    }
 
     function init(node) {
         instance = panzoom(node, {
@@ -28,18 +35,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         instance.pause();
 
         if (mode.kind == "add") {
-            setupMaskEditor(mode.imagePath, instance).then((canvas1) => {
+            setupMaskEditor(mode.imagePath, instance, onChange).then((canvas1) => {
                 canvas = canvas1;
             });
         } else {
-            setupMaskEditorForEdit(mode.noteId, instance).then((canvas1) => {
+            setupMaskEditorForEdit(mode.noteId, instance, onChange).then((canvas1) => {
                 canvas = canvas1;
             });
         }
     }
 </script>
 
-<SideToolbar {instance} {canvas} activeTool={startingTool} />
+<Toolbar {canvas} {instance} {iconSize} activeTool={startingTool} />
 <div class="editor-main" bind:clientWidth={innerWidth}>
     <div class="editor-container" use:init>
         <!-- svelte-ignore a11y-missing-attribute -->

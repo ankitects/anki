@@ -15,6 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         plainText: boolean;
         description: string;
         collapsed: boolean;
+        hidden: boolean;
     }
 
     export interface EditorFieldAPI {
@@ -87,7 +88,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => api?.destroy());
 </script>
 
-<div class="field-container" on:mouseenter on:mouseleave>
+<div class="field-container" class:hide={field.hidden} on:mouseenter on:mouseleave>
     <slot name="field-label" />
 
     <Collapsible collapse={collapsed} let:collapsed={hidden}>
@@ -125,6 +126,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         background: var(--canvas);
         border-radius: var(--border-radius);
         overflow: hidden;
+    }
+
+    .field-container.hide {
+        display: none;
     }
 
     .editor-field {

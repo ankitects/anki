@@ -51,3 +51,5 @@ notetypes-error-generating-cloze = An error occurred when generating an image oc
 notetypes-error-getting-imagecloze = An error occurred while fetching an image occlusion note
 notetypes-error-loading-image-occlusion = Error loading image occlusion. Is your Anki version up to date?
 notetype-error-no-image-to-show = No image to show.
+notetypes-no-occlusion-created = You must make at least one occlusion.
+notetypes-io-select-image = Select Image

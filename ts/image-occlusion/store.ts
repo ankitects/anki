@@ -9,3 +9,7 @@ export const notesDataStore = writable({ id: "", title: "", divValue: "", textar
 export const zoomResetValue = writable(1);
 // it stores the tags for the note in note editor
 export const tagsWritable = writable([""]);
+// it stores the visibility of mask editor
+export const ioMaskEditorVisible = writable(true);
+// it store hide all or hide one mode
+export const hideAllGuessOne = writable(true);

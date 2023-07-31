@@ -48,9 +48,10 @@ class AddCards(QMainWindow):
         self.setMinimumWidth(400)
         self.setup_choosers()
         self.setupEditor()
-        self.setupButtons()
         add_close_shortcut(self)
         self._load_new_note()
+        self.setupButtons()
+        self.col.add_image_occlusion_notetype()
         self.history: list[NoteId] = []
         self._last_added_note: Optional[Note] = None
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
@@ -112,6 +113,12 @@ class AddCards(QMainWindow):
         self.compat_add_shorcut = QShortcut(QKeySequence("Ctrl+Enter"), self)
         qconnect(self.compat_add_shorcut.activated, self.addButton.click)
         self.addButton.setToolTip(shortcut(tr.adding_add_shortcut_ctrlandenter()))
+
+        # add io button
+        self.io_add_button = bb.addButton(f"{tr.actions_add()}", ar)
+        qconnect(self.io_add_button.clicked, self.add_io_note)
+        self.io_add_button.setShortcut(QKeySequence("Ctrl+Shift+I"))
+
         # close
         self.closeButton = QPushButton(tr.actions_close())
         self.closeButton.setAutoDefault(False)
@@ -132,6 +139,17 @@ class AddCards(QMainWindow):
         qconnect(b.clicked, self.onHistory)
         b.setEnabled(False)
         self.historyButton = b
+
+        # hide io buttons for note type other than image occlusion
+        self.show_hide_add_buttons()
+
+    def show_hide_add_buttons(self) -> None:
+        if self.editor.current_notetype_is_image_occlusion():
+            self.addButton.setVisible(False)
+            self.io_add_button.setVisible(True)
+        else:
+            self.addButton.setVisible(True)
+            self.io_add_button.setVisible(False)
 
     def setAndFocusNote(self, note: Note) -> None:
         self.editor.set_note(note, focusTo=0)
@@ -188,9 +206,12 @@ class AddCards(QMainWindow):
         self.editor.loadNote(
             focusTo=min(self.editor.last_field_index or 0, len(new_note.fields) - 1)
         )
-        gui_hooks.add_cards_did_change_note_type(
-            old_note.note_type(), new_note.note_type()
+        gui_hooks.addcards_did_change_note_type(
+            self, old_note.note_type(), new_note.note_type()
         )
+
+        # update buttons for image occlusion on note type change
+        self.show_hide_add_buttons()
 
     def _load_new_note(self, sticky_fields_from: Optional[Note] = None) -> None:
         note = self._new_note()
@@ -283,7 +304,10 @@ class AddCards(QMainWindow):
         # no problem, duplicate, and confirmed cloze cases
         problem = None
         if result == NoteFieldsCheckResult.EMPTY:
-            problem = tr.adding_the_first_field_is_empty()
+            if self.editor.current_notetype_is_image_occlusion():
+                problem = tr.notetypes_no_occlusion_created()
+            else:
+                problem = tr.adding_the_first_field_is_empty()
         elif result == NoteFieldsCheckResult.MISSING_CLOZE:
             if not askUser(tr.adding_you_have_a_cloze_deletion_note()):
                 return False
@@ -347,6 +371,11 @@ class AddCards(QMainWindow):
             cb()
 
         self.ifCanClose(doClose)
+
+    def add_io_note(self) -> None:
+        self.editor.web.eval("setOcclusionFieldInner()")
+        self.add_current_note()
+        self.editor.web.eval("resetIOImageLoaded()")
 
     # legacy aliases
 

@@ -13,3 +13,4 @@ node_modules
 .n2_db
 .ninja_log
 .ninja_deps
+/extra
