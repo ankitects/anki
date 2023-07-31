@@ -412,17 +412,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         isIOImageLoaded = true;
-
-        // event for updating canvas on edit mode
-        setTimeout(() => {
-            const canvas = globalThis.canvas;
-            canvas.on("object:modified", () => {
-                updateIONoteInEditMode();
-            });
-            canvas.on("object:removed", () => {
-                updateIONoteInEditMode();
-            });
-        }, 500);
     }
 
     function setImageField(html) {
@@ -573,7 +562,10 @@ the AddCards dialog) should be implemented in the user of this component.
 
     {#if imageOcclusionMode}
         <div style="display: {$ioMaskEditorVisible ? 'block' : 'none'}">
-            <ImageOcclusionPage mode={imageOcclusionMode} />
+            <ImageOcclusionPage
+                mode={imageOcclusionMode}
+                on:change={updateIONoteInEditMode}
+            />
         </div>
     {/if}
 
