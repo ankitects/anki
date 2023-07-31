@@ -61,6 +61,7 @@ clap = { version = "4.3.10", features = ["derive"] }
 coarsetime = "0.1.23"
 convert_case = "0.6.0"
 criterion = { version = "0.5.1" }
+data-encoding = "2.4.0"
 difflib = "0.4.0"
 flate2 = "1.0.26"
 fluent = "0.16.0"
