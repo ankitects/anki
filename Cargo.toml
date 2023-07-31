@@ -96,7 +96,7 @@ prost-types = "0.11.9"
 pulldown-cmark = "0.9.3"
 pyo3 = { version = "0.19.0", features = ["extension-module", "abi3", "abi3-py39"] }
 rand = "0.8.5"
-regex = "1.8.4"
+regex = "1.9.1"
 reqwest = { version = "0.11.18", default-features = false, features = ["json", "socks", "stream", "multipart"] }
 rusqlite = { version = "0.29.0", features = ["trace", "functions", "collation", "bundled"] }
 scopeguard = "1.1.0"
