@@ -31,6 +31,10 @@ xdg-mime default anki.desktop application/x-colpkg
 xdg-mime default anki.desktop application/x-apkg
 xdg-mime default anki.desktop application/x-ankiaddon
 
+if [ $(id -u) -eq 0 ]; then
+  chmod -R o+r /usr/share/mime
+fi
+
 rm install.sh
 
 echo "Install complete. Type 'anki' to run."
