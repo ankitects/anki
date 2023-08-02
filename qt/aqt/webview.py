@@ -248,6 +248,7 @@ class AnkiWebViewKind(Enum):
     EMPTY_CARDS = "empty cards"
     FIND_DUPLICATES = "find duplicates"
     FIELDS = "fields"
+    IMPORT_LOG = "import log"
 
 
 class AnkiWebView(QWebEngineView):

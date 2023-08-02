@@ -20,6 +20,7 @@ const i18n = setupI18n({
         ModuleName.KEYBOARD,
         ModuleName.NOTETYPES,
         ModuleName.STUDYING,
+        ModuleName.ADDING,
     ],
 });
 

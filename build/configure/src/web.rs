@@ -339,6 +339,17 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
             ":sass"
         ],
     )?;
+    build_page(
+        "import-log",
+        true,
+        inputs![
+            //
+            ":ts:lib",
+            ":ts:components",
+            ":ts:sveltelib",
+            ":sass"
+        ],
+    )?;
 
     Ok(())
 }

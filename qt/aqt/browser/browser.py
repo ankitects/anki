@@ -406,6 +406,7 @@ class Browser(QMainWindow):
         self.form.searchEdit.lineEdit().setPlaceholderText(
             tr.browsing_search_bar_hint()
         )
+        self.form.searchEdit.lineEdit().setMaxLength(2000000)
         self.form.searchEdit.addItems(
             [""] + self.mw.pm.profile.get("searchHistory", [])
         )

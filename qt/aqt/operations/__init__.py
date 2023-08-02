@@ -14,6 +14,7 @@ from anki.collection import (
     ImportLogWithChanges,
     OpChanges,
     OpChangesAfterUndo,
+    OpChangesOnly,
     OpChangesWithCount,
     OpChangesWithId,
     Progress,
@@ -34,6 +35,7 @@ ResultWithChanges = TypeVar(
     "ResultWithChanges",
     bound=Union[
         OpChanges,
+        OpChangesOnly,
         OpChangesWithCount,
         OpChangesWithId,
         OpChangesAfterUndo,
@@ -124,7 +126,7 @@ class CollectionOp(Generic[ResultWithChanges]):
                 if self._success:
                     self._success(result)
             finally:
-                self._finish_op(mw, result, initiator)
+                on_op_finished(mw, result, initiator)
 
         self._run(mw, wrapped_op, wrapped_done)
 
@@ -141,32 +143,23 @@ class CollectionOp(Generic[ResultWithChanges]):
         else:
             mw.taskman.with_progress(op, on_done, parent=self._parent)
 
-    def _finish_op(
-        self, mw: aqt.main.AnkiQt, result: ResultWithChanges, initiator: object | None
-    ) -> None:
-        mw.update_undo_actions()
-        mw.autosave()
-        self._fire_change_hooks_after_op_performed(result, initiator)
 
-    def _fire_change_hooks_after_op_performed(
-        self,
-        result: ResultWithChanges,
-        handler: object | None,
-    ) -> None:
-        from aqt import mw
+def on_op_finished(
+    mw: aqt.main.AnkiQt, result: ResultWithChanges, initiator: object | None
+) -> None:
+    mw.update_undo_actions()
+    mw.autosave()
 
-        assert mw
+    if isinstance(result, OpChanges):
+        changes = result
+    else:
+        changes = result.changes  # type: ignore[union-attr]
 
-        if isinstance(result, OpChanges):
-            changes = result
-        else:
-            changes = result.changes  # type: ignore[union-attr]
-
-        # fire new hook
-        aqt.gui_hooks.operation_did_execute(changes, handler)
-        # fire legacy hook so old code notices changes
-        if mw.col.op_made_changes(changes):
-            aqt.gui_hooks.state_did_reset()
+    # fire new hook
+    aqt.gui_hooks.operation_did_execute(changes, initiator)
+    # fire legacy hook so old code notices changes
+    if mw.col.op_made_changes(changes):
+        aqt.gui_hooks.state_did_reset()
 
 
 T = TypeVar("T")
