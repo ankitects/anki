@@ -421,7 +421,7 @@ impl Collection {
             normalize_text,
             update_tags,
         )?;
-        self.generate_cards_for_existing_note(ctx, note).map(|_| ())
+        self.generate_cards_for_existing_note(ctx, note)
     }
 
     // TODO: refactor into struct
