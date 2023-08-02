@@ -29,6 +29,7 @@ CardStats = stats_pb2.CardStatsResponse
 Preferences = config_pb2.Preferences
 UndoStatus = collection_pb2.UndoStatus
 OpChanges = collection_pb2.OpChanges
+OpChangesOnly = collection_pb2.OpChangesOnly
 OpChangesWithCount = collection_pb2.OpChangesWithCount
 OpChangesWithId = collection_pb2.OpChangesWithId
 OpChangesAfterUndo = collection_pb2.OpChangesAfterUndo

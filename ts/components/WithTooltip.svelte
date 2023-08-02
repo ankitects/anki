@@ -25,8 +25,11 @@
     export let showDelay = 0;
     export let hideDelay = 0;
 
+    let tooltipElement: HTMLElement;
+
     let tooltipObject: Tooltip;
     function createTooltip(element: HTMLElement): void {
+        tooltipElement = element;
         element.title = tooltip;
         tooltipObject = new Tooltip(element, {
             placement,
@@ -37,7 +40,12 @@
         });
     }
 
-    onDestroy(() => tooltipObject?.dispose());
+    onDestroy(() => {
+        tooltipElement?.addEventListener("hidden.bs.tooltip", () => {
+            tooltipObject?.dispose();
+        });
+        tooltipObject?.hide();
+    });
 </script>
 
 <slot {createTooltip} {tooltipObject} />

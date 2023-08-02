@@ -38,13 +38,6 @@ service SchedulerService {
   rpc SortCards(SortCardsRequest) returns (collection.OpChangesWithCount);
   rpc SortDeck(SortDeckRequest) returns (collection.OpChangesWithCount);
   rpc GetSchedulingStates(cards.CardId) returns (SchedulingStates);
-  // This should be implemented by the frontend, and should return the values
-  // from the reviewer. The backend method will throw an error.
-  rpc GetSchedulingStatesWithContext(generic.Empty)
-      returns (SchedulingStatesWithContext);
-  // This should be implemented by the frontend, and should update the state
-  // data in the reviewer. The backend method will throw an error.
-  rpc SetSchedulingStates(SetSchedulingStatesRequest) returns (generic.Empty);
   rpc DescribeNextStates(SchedulingStates) returns (generic.StringList);
   rpc StateIsLeech(SchedulingState) returns (generic.Bool);
   rpc UpgradeScheduler(generic.Empty) returns (generic.Empty);
@@ -299,11 +292,6 @@ message SchedulingContext {
   uint64 seed = 2;
 }
 
-message SchedulingStatesWithContext {
-  SchedulingStates states = 1;
-  SchedulingContext context = 2;
-}
-
 message CustomStudyDefaultsRequest {
   int64 deck_id = 1;
 }
@@ -328,9 +316,4 @@ message CustomStudyDefaultsResponse {
 message RepositionDefaultsResponse {
   bool random = 1;
   bool shift = 2;
-}
-
-message SetSchedulingStatesRequest {
-  string key = 1;
-  SchedulingStates states = 2;
 }

@@ -72,14 +72,20 @@ message OpChanges {
   bool study_queues = 10;
 }
 
+// Allows frontend code to extract changes from other messages like
+// ImportResponse without decoding other potentially large fields.
+message OpChangesOnly {
+  collection.OpChanges changes = 1;
+}
+
 message OpChangesWithCount {
-  uint32 count = 1;
-  OpChanges changes = 2;
+  OpChanges changes = 1;
+  uint32 count = 2;
 }
 
 message OpChangesWithId {
-  int64 id = 1;
-  OpChanges changes = 2;
+  OpChanges changes = 1;
+  int64 id = 2;
 }
 
 message UndoStatus {
