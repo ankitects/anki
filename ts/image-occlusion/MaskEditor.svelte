@@ -5,10 +5,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { PanZoom } from "panzoom";
     import panzoom from "panzoom";
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onDestroy, onMount } from "svelte";
 
     import type { IOMode } from "./lib";
-    import { setupMaskEditor, setupMaskEditorForEdit } from "./mask-editor";
+    import {
+        setCanvasZoomRatio,
+        setupMaskEditor,
+        setupMaskEditorForEdit,
+    } from "./mask-editor";
     import Toolbar from "./Toolbar.svelte";
 
     export let mode: IOMode;
@@ -44,6 +48,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             });
         }
     }
+
+    onMount(() => {
+        window.addEventListener("resize", () => {
+            setCanvasZoomRatio(canvas, instance);
+        });
+    });
+
+    onDestroy(() => {
+        window.removeEventListener("resize", () => {
+            setCanvasZoomRatio(canvas, instance);
+        });
+    });
 </script>
 
 <Toolbar {canvas} {instance} {iconSize} activeTool={startingTool} />
