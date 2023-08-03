@@ -22,6 +22,7 @@ use prost::Message;
 use sha1::Digest;
 use sha1::Sha1;
 use zip::read::ZipFile;
+use zip::result::ZipError;
 use zip::ZipArchive;
 use zstd::stream::copy_decode;
 use zstd::stream::raw::Encoder as RawEncoder;
@@ -160,7 +161,14 @@ pub(super) fn safe_normalized_file_name(name: &str) -> Result<Cow<str>> {
 }
 
 fn get_media_list_data(archive: &mut ZipArchive<File>, meta: &Meta) -> Result<Vec<u8>> {
-    let mut file = archive.by_name("media")?;
+    let mut file = match archive.by_name("media") {
+        Ok(file) => file,
+        Err(ZipError::FileNotFound) => {
+            // Older AnkiDroid versions wrote colpkg files without a media map
+            return Ok(b"{}".to_vec());
+        }
+        err => err?,
+    };
     let mut buf = Vec::new();
     if meta.zstd_compressed() {
         copy_decode(file, &mut buf)?;
