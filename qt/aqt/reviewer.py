@@ -149,6 +149,7 @@ class Reviewer:
         self._card_info = ReviewerCardInfo(self.mw)
         self._previous_card_info = PreviousReviewerCardInfo(self.mw)
         self._states_mutated = True
+        self._reps: int = None
         hooks.card_did_leech.append(self.onLeech)
 
     def show(self) -> None:
