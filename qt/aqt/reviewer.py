@@ -149,6 +149,7 @@ class Reviewer:
         self._card_info = ReviewerCardInfo(self.mw)
         self._previous_card_info = PreviousReviewerCardInfo(self.mw)
         self._states_mutated = True
+        self._reps: int = None
         hooks.card_did_leech.append(self.onLeech)
 
     def show(self) -> None:
@@ -160,7 +161,7 @@ class Reviewer:
         self.web.set_bridge_command(self._linkHandler, self)
         self.bottom.web.set_bridge_command(self._linkHandler, ReviewerBottomBar(self))
         self._state_mutation_js = self.mw.col.get_config("cardStateCustomizer")
-        self._reps: int = None
+        self._reps = None
         self._refresh_needed = RefreshNeeded.QUEUES
         self.refresh_if_needed()
 
