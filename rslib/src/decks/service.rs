@@ -135,10 +135,11 @@ impl crate::services::DecksService for Collection {
         &mut self,
         input: anki_proto::decks::GetDeckNamesRequest,
     ) -> error::Result<anki_proto::decks::DeckNames> {
+        let skip_default = input.skip_empty_default && self.default_deck_is_empty()?;
         let names = if input.include_filtered {
-            self.get_all_deck_names(input.skip_empty_default)?
+            self.get_all_deck_names(skip_default)?
         } else {
-            self.get_all_normal_deck_names()?
+            self.get_all_normal_deck_names(skip_default)?
         };
         Ok(deck_names_to_proto(names))
     }

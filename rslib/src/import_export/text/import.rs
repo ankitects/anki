@@ -146,7 +146,7 @@ impl Duplicate {
 impl DeckIdsByNameOrId {
     fn new(col: &mut Collection, default: &NameOrId) -> Result<Self> {
         let names: HashMap<String, DeckId> = col
-            .get_all_normal_deck_names()?
+            .get_all_normal_deck_names(false)?
             .into_iter()
             .map(|(id, name)| (name, id))
             .collect();
