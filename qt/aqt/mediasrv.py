@@ -25,13 +25,13 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import hooks
-from anki.collection import OpChanges
+from anki.collection import OpChanges, OpChangesOnly, SearchNode
 from anki.decks import UpdateDeckConfigs
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
-from aqt.import_export.import_csv_dialog import ImportCsvDialog
+from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.qt import *
 from aqt.utils import aqt_data_path
@@ -421,6 +421,65 @@ def set_scheduling_states() -> bytes:
     return b""
 
 
+def import_done() -> bytes:
+    def update_window_modality() -> None:
+        if window := aqt.mw.app.activeWindow():
+            from aqt.import_export.import_csv_dialog import ImportCsvDialog
+            from aqt.import_export.import_log_dialog import ImportLogDialog
+
+            if isinstance(window, ImportCsvDialog) or isinstance(
+                window, ImportLogDialog
+            ):
+                window.hide()
+                window.setWindowModality(Qt.WindowModality.NonModal)
+                window.show()
+
+    aqt.mw.taskman.run_on_main(update_window_modality)
+    return b""
+
+
+def import_request(endpoint: str) -> bytes:
+    output = raw_backend_request(endpoint)()
+    response = OpChangesOnly()
+    response.ParseFromString(output)
+
+    def handle_on_main() -> None:
+        window = aqt.mw.app.activeWindow()
+        on_op_finished(aqt.mw, response, window)
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+
+    return output
+
+
+def import_csv() -> bytes:
+    return import_request("import_csv")
+
+
+def import_anki_package() -> bytes:
+    return import_request("import_anki_package")
+
+
+def import_json_file() -> bytes:
+    return import_request("import_json_file")
+
+
+def import_json_string() -> bytes:
+    return import_request("import_json_string")
+
+
+def search_in_browser() -> bytes:
+    node = SearchNode()
+    node.ParseFromString(request.data)
+
+    def handle_on_main() -> None:
+        aqt.dialogs.open("Browser", aqt.mw, search=(node,))
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+
+    return b""
+
+
 def change_notetype() -> bytes:
     data = request.data
 
@@ -433,18 +492,6 @@ def change_notetype() -> bytes:
     return b""
 
 
-def import_csv() -> bytes:
-    data = request.data
-
-    def handle_on_main() -> None:
-        window = aqt.mw.app.activeWindow()
-        if isinstance(window, ImportCsvDialog):
-            window.do_import(data)
-
-    aqt.mw.taskman.run_on_main(handle_on_main)
-    return b""
-
-
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -452,11 +499,18 @@ post_handler_list = [
     get_scheduling_states_with_context,
     set_scheduling_states,
     change_notetype,
+    import_done,
     import_csv,
+    import_anki_package,
+    import_json_file,
+    import_json_string,
+    search_in_browser,
 ]
 
 
 exposed_backend_list = [
+    # CollectionService
+    "latest_progress",
     # DeckService
     "get_deck_names",
     # I18nService

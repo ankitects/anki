@@ -2,13 +2,8 @@
 
 @import "sass/base";
 
-@import "bootstrap/scss/alert";
-@import "bootstrap/scss/buttons";
-@import "bootstrap/scss/button-group";
-@import "bootstrap/scss/close";
-@import "bootstrap/scss/grid";
-@import "sass/bootstrap-forms";
 @import "sass/bootstrap-tooltip";
+@import "bootstrap/scss/buttons";
 
 .night-mode {
     @include bootstrap-dark.night-mode;

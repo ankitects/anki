@@ -146,7 +146,7 @@ impl Duplicate {
 impl DeckIdsByNameOrId {
     fn new(col: &mut Collection, default: &NameOrId) -> Result<Self> {
         let names: HashMap<String, DeckId> = col
-            .get_all_normal_deck_names()?
+            .get_all_normal_deck_names(false)?
             .into_iter()
             .map(|(id, name)| (name, id))
             .collect();
@@ -379,9 +379,10 @@ impl<'a> Context<'a> {
     }
 
     fn update_with_note(&mut self, ctx: NoteContext, log: &mut NoteLog) -> Result<()> {
+        let mut update_result = DuplicateUpdateResult::None;
         for dupe in ctx.dupes {
             if dupe.note.notetype_id != ctx.notetype.id {
-                log.conflicting.push(dupe.note.into_log_note());
+                update_result.update(DuplicateUpdateResult::Conflicting(dupe));
                 continue;
             }
 
@@ -393,20 +394,16 @@ impl<'a> Context<'a> {
                 ctx.global_tags.iter().chain(ctx.updated_tags.iter()),
             );
 
-            if !dupe.identical {
+            if dupe.identical {
+                update_result.update(DuplicateUpdateResult::Identical(dupe));
+            } else {
                 self.prepare_note(&mut note, &ctx.notetype)?;
                 self.col.update_note_undoable(&note, &dupe.note)?;
+                update_result.update(DuplicateUpdateResult::Update(dupe));
             }
             self.add_cards(&mut cards, &note, ctx.deck_id, ctx.notetype.clone())?;
-
-            if dupe.identical {
-                log.duplicate.push(dupe.note.into_log_note());
-            } else if dupe.first_field_match {
-                log.first_field_match.push(note.into_log_note());
-            } else {
-                log.updated.push(note.into_log_note());
-            }
         }
+        update_result.log(log);
 
         Ok(())
     }
@@ -438,6 +435,46 @@ impl<'a> Context<'a> {
             .or_insert_with(|| CardGenContext::new(notetype, Some(deck_id), self.usn));
         self.col
             .generate_cards_for_existing_note(card_gen_context, note)
+    }
+}
+
+/// Helper enum to decide which result to log if multiple duplicates were found
+/// for a single incoming note.
+enum DuplicateUpdateResult {
+    None,
+    Conflicting(Duplicate),
+    Identical(Duplicate),
+    Update(Duplicate),
+}
+
+impl DuplicateUpdateResult {
+    fn priority(&self) -> u8 {
+        match self {
+            DuplicateUpdateResult::None => 0,
+            DuplicateUpdateResult::Conflicting(_) => 1,
+            DuplicateUpdateResult::Identical(_) => 2,
+            DuplicateUpdateResult::Update(_) => 3,
+        }
+    }
+
+    fn update(&mut self, new: Self) {
+        if self.priority() < new.priority() {
+            *self = new;
+        }
+    }
+
+    fn log(self, log: &mut NoteLog) {
+        match self {
+            DuplicateUpdateResult::None => (),
+            DuplicateUpdateResult::Conflicting(dupe) => {
+                log.conflicting.push(dupe.note.into_log_note())
+            }
+            DuplicateUpdateResult::Identical(dupe) => log.duplicate.push(dupe.note.into_log_note()),
+            DuplicateUpdateResult::Update(dupe) if dupe.first_field_match => {
+                log.first_field_match.push(dupe.note.into_log_note())
+            }
+            DuplicateUpdateResult::Update(dupe) => log.updated.push(dupe.note.into_log_note()),
+        }
     }
 }
 

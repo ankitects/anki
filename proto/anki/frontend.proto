@@ -1,0 +1,37 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.frontend;
+
+import "anki/scheduler.proto";
+import "anki/generic.proto";
+import "anki/search.proto";
+
+service FrontendService {
+  // Returns values from the reviewer
+  rpc GetSchedulingStatesWithContext(generic.Empty)
+      returns (SchedulingStatesWithContext);
+  // Updates reviewer state
+  rpc SetSchedulingStates(SetSchedulingStatesRequest) returns (generic.Empty);
+
+  // Notify Qt layer so window modality can be updated.
+  rpc ImportDone(generic.Empty) returns (generic.Empty);
+
+  rpc SearchInBrowser(search.SearchNode) returns (generic.Empty);
+}
+
+service BackendFrontendService {}
+
+message SchedulingStatesWithContext {
+  scheduler.SchedulingStates states = 1;
+  scheduler.SchedulingContext context = 2;
+}
+
+message SetSchedulingStatesRequest {
+  string key = 1;
+  scheduler.SchedulingStates states = 2;
+}

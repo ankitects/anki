@@ -2,7 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { JsonValue } from "@bufbuild/protobuf";
-import type { SchedulingContext, SchedulingStatesWithContext } from "@tslib/anki/scheduler_pb";
+import type { SchedulingStatesWithContext } from "@tslib/anki/frontend_pb";
+import type { SchedulingContext } from "@tslib/anki/scheduler_pb";
 import { SchedulingStates } from "@tslib/anki/scheduler_pb";
 import { getSchedulingStatesWithContext, setSchedulingStates } from "@tslib/backend";
 

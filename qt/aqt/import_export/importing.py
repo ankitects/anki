@@ -5,26 +5,25 @@ from __future__ import annotations
 
 import re
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from itertools import chain
-from typing import Any, Tuple, Type
+from typing import Type
 
 import aqt.main
-from anki.collection import (
-    Collection,
-    DupeResolution,
-    ImportCsvRequest,
-    ImportLogWithChanges,
-    Progress,
-)
+from anki.collection import Collection, Progress
 from anki.errors import Interrupted
 from anki.foreign_data import mnemosyne
 from anki.lang import without_unicode_isolation
 from aqt.import_export.import_csv_dialog import ImportCsvDialog
-from aqt.operations import CollectionOp, QueryOp
+from aqt.import_export.import_log_dialog import (
+    ApkgArgs,
+    ImportLogDialog,
+    JsonFileArgs,
+    JsonStringArgs,
+)
+from aqt.operations import QueryOp
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
-from aqt.utils import askUser, getFile, showText, showWarning, tooltip, tr
+from aqt.utils import askUser, getFile, showWarning, tooltip, tr
 
 
 class Importer(ABC):
@@ -89,12 +88,7 @@ class ApkgImporter(Importer):
 
     @staticmethod
     def do_import(mw: aqt.main.AnkiQt, path: str) -> None:
-        CollectionOp(
-            parent=mw,
-            op=lambda col: col.import_anki_package(path),
-        ).with_backend_progress(import_progress_update).success(
-            show_import_log
-        ).run_in_background()
+        ImportLogDialog(mw, ApkgArgs(path=path))
 
 
 class MnemosyneImporter(Importer):
@@ -105,7 +99,9 @@ class MnemosyneImporter(Importer):
         QueryOp(
             parent=mw,
             op=lambda col: mnemosyne.serialize(path, col.decks.current()["id"]),
-            success=lambda json: import_json_string(mw, json),
+            success=lambda json: ImportLogDialog(
+                mw, JsonStringArgs(path=path, json=json)
+            ),
         ).with_progress().run_in_background()
 
 
@@ -114,15 +110,7 @@ class CsvImporter(Importer):
 
     @staticmethod
     def do_import(mw: aqt.main.AnkiQt, path: str) -> None:
-        def on_accepted(request: ImportCsvRequest) -> None:
-            CollectionOp(
-                parent=mw,
-                op=lambda col: col.import_csv(request),
-            ).with_backend_progress(import_progress_update).success(
-                show_import_log
-            ).run_in_background()
-
-        ImportCsvDialog(mw, path, on_accepted)
+        ImportCsvDialog(mw, path)
 
 
 class JsonImporter(Importer):
@@ -130,12 +118,7 @@ class JsonImporter(Importer):
 
     @staticmethod
     def do_import(mw: aqt.main.AnkiQt, path: str) -> None:
-        CollectionOp(
-            parent=mw,
-            op=lambda col: col.import_json_file(path),
-        ).with_backend_progress(import_progress_update).success(
-            show_import_log
-        ).run_in_background()
+        ImportLogDialog(mw, JsonFileArgs(path=path))
 
 
 IMPORTERS: list[Type[Importer]] = [
@@ -222,101 +205,9 @@ def import_collection_package_op(
     )
 
 
-def import_json_string(mw: aqt.main.AnkiQt, json: str) -> None:
-    CollectionOp(
-        parent=mw, op=lambda col: col.import_json_string(json)
-    ).with_backend_progress(import_progress_update).success(
-        show_import_log
-    ).run_in_background()
-
-
-def show_import_log(log_with_changes: ImportLogWithChanges) -> None:
-    showText(stringify_log(log_with_changes.log), plain_text_edit=True)
-
-
-def stringify_log(log: ImportLogWithChanges.Log) -> str:
-    queues = log_queues(log)
-    return "\n".join(
-        chain(
-            (tr.importing_notes_found_in_file(val=log.found_notes),),
-            (
-                queue.summary_template(val=len(queue.notes))
-                for queue in queues
-                if queue.notes
-            ),
-            ("",),
-            *(
-                [
-                    f"[{queue.action_string}] {', '.join(note.fields)}"
-                    for note in queue.notes
-                ]
-                for queue in queues
-            ),
-        )
-    )
-
-
 def import_progress_update(progress: Progress, update: ProgressUpdate) -> None:
     if not progress.HasField("importing"):
         return
     update.label = progress.importing
     if update.user_wants_abort:
         update.abort = True
-
-
-@dataclass
-class LogQueue:
-    notes: Any
-    # Callable[[Union[str, int, float]], str] (if mypy understood kwargs)
-    summary_template: Any
-    action_string: str
-
-
-def first_field_queue(log: ImportLogWithChanges.Log) -> LogQueue:
-    if log.dupe_resolution == DupeResolution.DUPLICATE:
-        summary_template = tr.importing_added_duplicate_with_first_field
-        action_string = tr.adding_added()
-    elif log.dupe_resolution == DupeResolution.PRESERVE:
-        summary_template = tr.importing_first_field_matched
-        action_string = tr.importing_skipped()
-    else:
-        summary_template = tr.importing_first_field_matched
-        action_string = tr.importing_updated()
-    return LogQueue(log.first_field_match, summary_template, action_string)
-
-
-def log_queues(log: ImportLogWithChanges.Log) -> Tuple[LogQueue, ...]:
-    return (
-        LogQueue(
-            log.conflicting,
-            tr.importing_notes_skipped_update_due_to_notetype,
-            tr.importing_skipped(),
-        ),
-        LogQueue(
-            log.updated,
-            tr.importing_notes_updated_as_file_had_newer,
-            tr.importing_updated(),
-        ),
-        LogQueue(log.new, tr.importing_notes_added_from_file, tr.adding_added()),
-        LogQueue(
-            log.duplicate,
-            tr.importing_notes_skipped_as_theyre_already_in,
-            tr.importing_identical(),
-        ),
-        first_field_queue(log),
-        LogQueue(
-            log.missing_notetype,
-            lambda val: f"Notes skipped, as their notetype was missing: {val}",
-            tr.importing_skipped(),
-        ),
-        LogQueue(
-            log.missing_deck,
-            lambda val: f"Notes skipped, as their deck was missing: {val}",
-            tr.importing_skipped(),
-        ),
-        LogQueue(
-            log.empty_first_field,
-            tr.importing_empty_first_field,
-            tr.importing_skipped(),
-        ),
-    )

@@ -102,11 +102,21 @@ impl Deck {
 }
 
 impl Collection {
-    pub fn get_all_normal_deck_names(&mut self) -> Result<Vec<(DeckId, String)>> {
+    pub fn get_all_normal_deck_names(
+        &mut self,
+        skip_default: bool,
+    ) -> Result<Vec<(DeckId, String)>> {
         Ok(self
             .storage
             .get_all_deck_names()?
             .into_iter()
+            .filter(|node| {
+                if skip_default {
+                    node.0 != DeckId(1)
+                } else {
+                    true
+                }
+            })
             .filter(|(id, _name)| match self.get_deck(*id) {
                 Ok(Some(deck)) => !deck.is_filtered(),
                 _ => true,
@@ -154,8 +164,8 @@ impl Collection {
         Ok(())
     }
 
-    pub fn get_all_deck_names(&self, skip_empty_default: bool) -> Result<Vec<(DeckId, String)>> {
-        if skip_empty_default && self.default_deck_is_empty()? {
+    pub fn get_all_deck_names(&self, skip_default: bool) -> Result<Vec<(DeckId, String)>> {
+        if skip_default {
             Ok(self
                 .storage
                 .get_all_deck_names()?

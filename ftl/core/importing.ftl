@@ -116,6 +116,44 @@ importing-cards-added =
        *[other] { $count } cards added.
     }
 importing-file-empty = The file you selected is empty.
+importing-notes-added =
+    { $count ->
+        [one] { $count } new note imported.
+       *[other] { $count } new notes imported.
+    }
+importing-notes-updated =
+    { $count ->
+        [one] { $count } note was used to update existing ones.
+       *[other] { $count } notes were used to update existing ones.
+    }
+importing-existing-notes-skipped =
+    { $count ->
+        [one] { $count } note already present in your collection.
+       *[other] { $count } notes already present in your collection.
+    }
+importing-conflicting-notes-skipped =
+    { $count ->
+        [one] { $count } note was not imported, because its note type has changed.
+       *[other] { $count } were not imported, because their note type has changed.
+    }
+importing-import-log = Import Log
+importing-no-notes-in-file = No notes found in file.
+importing-notes-found-in-file2 =
+    { $notes ->
+        [one] { $notes } note
+       *[other] { $notes } notes
+    } found in file. Of those:
+importing-show = Show
+importing-details = Details
+importing-status = Status
+importing-duplicate-note-added = Duplicate note added
+importing-added-new-note = New note added
+importing-existing-note-skipped = Note skipped, as an up-to-date copy is already in your collection
+importing-note-skipped-update-due-to-notetype = Note not updated, as notetype has been modified since you first imported the note
+importing-note-updated-as-file-had-newer = Note updated, as file had newer version
+importing-note-skipped-due-to-missing-notetype = Note skipped, as its notetype was missing
+importing-note-skipped-due-to-missing-deck = Note skipped, as its deck was missing
+importing-note-skipped-due-to-empty-first-field = Note skipped, as its first field is empty
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
