@@ -8,7 +8,7 @@ mod fields;
 mod notetypechange;
 mod render;
 mod restore;
-mod schema11;
+pub(crate) mod schema11;
 mod schemachange;
 mod service;
 pub(crate) mod stock;

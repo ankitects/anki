@@ -129,6 +129,7 @@ dependencies = [
  "num_enum",
  "once_cell",
  "percent-encoding-iri",
+ "phf 0.11.2",
  "pin-project",
  "prettyplease 0.2.9",
  "prost",
