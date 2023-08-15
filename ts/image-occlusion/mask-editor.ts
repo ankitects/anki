@@ -102,7 +102,7 @@ const getImageData = (imageData): string => {
     return "data:image/png;base64," + b64encoded;
 };
 
-const setCanvasZoomRatio = (
+export const setCanvasZoomRatio = (
     canvas: fabric.Canvas,
     instance: PanZoom,
 ): void => {
@@ -140,3 +140,22 @@ function containerSize(): Size {
         height: container.clientHeight,
     };
 }
+
+export async function resetIOImage(path) {
+    const imageData = await getImageForOcclusion({ path });
+    const image = document.getElementById("image") as HTMLImageElement;
+    image.src = getImageData(imageData.data!);
+    const canvas = globalThis.canvas;
+
+    image.onload = function() {
+        const size = optimumCssSizeForCanvas(
+            { width: image.naturalWidth, height: image.naturalHeight },
+            containerSize(),
+        );
+        canvas.setWidth(size.width);
+        canvas.setHeight(size.height);
+        image.height = size.height;
+        image.width = size.width;
+    };
+}
+globalThis.resetIOImage = resetIOImage;
