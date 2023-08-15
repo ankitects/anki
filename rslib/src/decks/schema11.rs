@@ -4,6 +4,8 @@
 use std::collections::HashMap;
 
 use anki_proto::decks::deck::normal::DayLimit;
+use phf::phf_set;
+use phf::Set;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
@@ -13,6 +15,7 @@ use super::DeckCommon;
 use super::FilteredDeck;
 use super::FilteredSearchTerm;
 use super::NormalDeck;
+use crate::notetype::schema11::parse_other_fields;
 use crate::prelude::*;
 use crate::serde::default_on_invalid;
 use crate::serde::deserialize_bool_from_anything;
@@ -200,13 +203,6 @@ impl DeckSchema11 {
             DeckSchema11::Filtered(d) => &d.common,
         }
     }
-
-    // pub(crate) fn common_mut(&mut self) -> &mut DeckCommon {
-    //     match self {
-    //         Deck::Normal(d) => &mut d.common,
-    //         Deck::Filtered(d) => &mut d.common,
-    //     }
-    // }
 
     pub fn id(&self) -> DeckId {
         self.common().id
@@ -397,10 +393,32 @@ impl From<Deck> for DeckCommonSchema11 {
                 DeckKind::Normal(n) => n.description,
                 DeckKind::Filtered(_) => String::new(),
             },
-            other: serde_json::from_slice(&deck.common.other).unwrap_or_default(),
+            other: parse_other_fields(&deck.common.other, &RESERVED_DECK_KEYS),
         }
     }
 }
+
+static RESERVED_DECK_KEYS: Set<&'static str> = phf_set! {
+    "usn",
+    "revToday",
+    "newLimit",
+    "dyn",
+    "reviewLimit",
+    "newToday",
+    "timeToday",
+    "reviewLimitToday",
+    "extendNew",
+    "mod",
+    "newLimitToday",
+    "desc",
+    "name",
+    "lrnToday",
+    "conf",
+    "browserCollapsed",
+    "extendRev",
+    "id",
+    "collapsed"
+};
 
 impl From<&Deck> for DeckTodaySchema11 {
     fn from(deck: &Deck) -> Self {
@@ -434,5 +452,25 @@ impl From<FilteredSearchTerm> for FilteredSearchTermSchema11 {
             limit: term.limit as i32,
             order: term.order,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use itertools::Itertools;
+
+    use super::*;
+
+    #[test]
+    fn all_reserved_fields_are_removed() -> Result<()> {
+        let key_source = DeckSchema11::default();
+        let mut deck = Deck::new_normal();
+        deck.common.other = serde_json::to_vec(&key_source)?;
+        let DeckSchema11::Normal(s11) = DeckSchema11::from(deck) else { panic!() };
+
+        let empty: &[&String] = &[];
+        assert_eq!(&s11.common.other.keys().collect_vec(), empty);
+
+        Ok(())
     }
 }

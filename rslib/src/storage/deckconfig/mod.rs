@@ -255,7 +255,7 @@ impl SqliteStorage {
             .collect();
         self.db.execute(
             "update col set dconf=?",
-            params![crate::serde::schema11_to_string(confmap)?],
+            params![serde_json::to_string(&confmap)?],
         )?;
         Ok(())
     }
