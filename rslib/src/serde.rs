@@ -7,24 +7,7 @@ pub(crate) use serde_aux::field_attributes::deserialize_bool_from_anything;
 pub(crate) use serde_aux::field_attributes::deserialize_number_from_string;
 use serde_json::Value;
 
-use crate::prelude::*;
-
-/// Serializes the value to JSON, removing any duplicate keys in the process.
-///
-/// This function solves a very specific problem when (de)serializing structs on
-/// up-/downgrade:
-/// Older clients may have received keys from a newer client when
-/// syncing, which get bundled into `other`. If they then upgrade, then
-/// downgrade their collection to schema11, serde will serialize the
-/// new default keys, but then add them again from `other`, leading
-/// to the keys being duplicated in the resulting json - which older
-/// clients then can't read. So we need to strip out any new keys we
-/// add.
-pub(crate) fn schema11_to_string(value: impl serde::Serialize) -> Result<String> {
-    serde_json::to_value(value)
-        .and_then(|val| serde_json::to_string(&val))
-        .map_err(Into::into)
-}
+use crate::timestamp::TimestampSecs;
 
 /// Note: if you wish to cover the case where a field is missing, make sure you
 /// also use the `serde(default)` flag.

@@ -3,6 +3,8 @@
 
 use std::collections::HashMap;
 
+use phf::phf_set;
+use phf::Set;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
@@ -127,14 +129,19 @@ fn other_to_bytes(other: &HashMap<String, Value>) -> Vec<u8> {
     }
 }
 
-fn bytes_to_other(bytes: &[u8]) -> HashMap<String, Value> {
+pub(crate) fn parse_other_fields(
+    bytes: &[u8],
+    reserved: &Set<&'static str>,
+) -> HashMap<String, Value> {
     if bytes.is_empty() {
         Default::default()
     } else {
-        serde_json::from_slice(bytes).unwrap_or_else(|e| {
+        let mut map: HashMap<String, Value> = serde_json::from_slice(bytes).unwrap_or_else(|e| {
             println!("deserialization failed for other: {}", e);
             Default::default()
-        })
+        });
+        map.retain(|k, _v| !reserved.contains(k));
+        map
     }
 }
 
@@ -165,10 +172,28 @@ impl From<Notetype> for NotetypeSchema11 {
             latexsvg: c.latex_svg,
             req: CardRequirementsSchema11(c.reqs.into_iter().map(Into::into).collect()),
             original_stock_kind: c.original_stock_kind,
-            other: bytes_to_other(&c.other),
+            other: parse_other_fields(&c.other, &RESERVED_NOTETYPE_KEYS),
         }
     }
 }
+
+static RESERVED_NOTETYPE_KEYS: Set<&'static str> = phf_set! {
+    "latexPost",
+    "flds",
+    "css",
+    "originalStockKind",
+    "id",
+    "usn",
+    "mod",
+    "req",
+    "latexPre",
+    "name",
+    "did",
+    "tmpls",
+    "type",
+    "sortf",
+    "latexsvg"
+};
 
 impl From<CardRequirementSchema11> for CardRequirement {
     fn from(r: CardRequirementSchema11) -> Self {
@@ -266,8 +291,6 @@ impl From<NoteFieldSchema11> for NoteField {
     }
 }
 
-// fixme: must make sure calling code doesn't break the assumption ord is set
-
 impl From<NoteField> for NoteFieldSchema11 {
     fn from(p: NoteField) -> Self {
         let conf = p.config;
@@ -282,10 +305,23 @@ impl From<NoteField> for NoteFieldSchema11 {
             description: conf.description,
             collapsed: conf.collapsed,
             exclude_from_search: conf.exclude_from_search,
-            other: bytes_to_other(&conf.other),
+            other: parse_other_fields(&conf.other, &RESERVED_FIELD_KEYS),
         }
     }
 }
+
+static RESERVED_FIELD_KEYS: Set<&'static str> = phf_set! {
+    "name",
+    "ord",
+    "sticky",
+    "rtl",
+    "plainText",
+    "font",
+    "size",
+    "collapsed",
+    "description",
+    "excludeFromSearch",
+};
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct CardTemplateSchema11 {
@@ -329,8 +365,6 @@ impl From<CardTemplateSchema11> for CardTemplate {
     }
 }
 
-// fixme: make sure we don't call this when ord not set
-
 impl From<CardTemplate> for CardTemplateSchema11 {
     fn from(p: CardTemplate) -> Self {
         let conf = p.config;
@@ -348,7 +382,46 @@ impl From<CardTemplate> for CardTemplateSchema11 {
             },
             bfont: conf.browser_font_name,
             bsize: conf.browser_font_size as u8,
-            other: bytes_to_other(&conf.other),
+            other: parse_other_fields(&conf.other, &RESERVED_TEMPLATE_KEYS),
         }
+    }
+}
+
+static RESERVED_TEMPLATE_KEYS: Set<&'static str> = phf_set! {
+    "name",
+    "ord",
+    "did",
+    "afmt",
+    "bafmt",
+    "qfmt",
+    "bqfmt",
+    "bfont",
+    "bsize",
+};
+
+#[cfg(test)]
+mod tests {
+    use itertools::Itertools;
+
+    use super::*;
+    use crate::notetype::stock::basic;
+    use crate::prelude::*;
+
+    #[test]
+    fn all_reserved_fields_are_removed() -> Result<()> {
+        let mut nt = basic(&I18n::template_only());
+
+        let key_source = NotetypeSchema11::from(nt.clone());
+        nt.config.other = serde_json::to_vec(&key_source)?;
+        nt.fields[0].config.other = serde_json::to_vec(&key_source.flds[0])?;
+        nt.templates[0].config.other = serde_json::to_vec(&key_source.tmpls[0])?;
+        let s11 = NotetypeSchema11::from(nt);
+
+        let empty: &[&String] = &[];
+        assert_eq!(&s11.other.keys().collect_vec(), empty);
+        assert_eq!(&s11.flds[0].other.keys().collect_vec(), empty);
+        assert_eq!(&s11.tmpls[0].other.keys().collect_vec(), empty);
+
+        Ok(())
     }
 }

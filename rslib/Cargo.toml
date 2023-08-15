@@ -72,6 +72,7 @@ num_cpus.workspace = true
 num_enum.workspace = true
 once_cell.workspace = true
 percent-encoding-iri.workspace = true
+phf.workspace = true
 pin-project.workspace = true
 prost.workspace = true
 pulldown-cmark.workspace = true
