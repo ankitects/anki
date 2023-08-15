@@ -18,7 +18,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         mdiSquare,
         mdiViewDashboard,
     } from "./icons";
-    import { setupMaskEditor } from "./mask-editor";
     import { hideAllGuessOne } from "./store";
     import { drawEllipse, drawPolygon, drawRectangle } from "./tools/index";
     import { makeMaskTransparent } from "./tools/lib";
@@ -77,11 +76,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         stopDraw(canvas);
         canvas.selectionColor = "rgba(100, 100, 255, 0.3)";
     };
-
-    const resetIOImage = (path) => {
-        setupMaskEditor(path, instance);
-    };
-    globalThis.resetIOImage = resetIOImage;
 
     const setOcclusionFieldForDesktop = () => {
         const clist = document.body.classList;

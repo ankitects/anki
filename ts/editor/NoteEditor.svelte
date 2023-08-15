@@ -42,6 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@tslib/ftl";
+    import { resetIOImage } from "image-occlusion/mask-editor";
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
 
@@ -402,6 +403,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         imageOcclusionMode = options.mode;
         if (options.mode.kind === "add") {
             fieldStores[1].set(options.html);
+
+            // new image is being added
+            if (isIOImageLoaded) {
+                resetIOImage(options.mode.imagePath);
+            }
         } else {
             const clozeNote = get(fieldStores[0]);
             if (clozeNote.includes("oi=1")) {
