@@ -4,11 +4,11 @@
 -->
 <script lang="ts">
     import Col from "../components/Col.svelte";
+    import ConfigInput from "../components/ConfigInput.svelte";
+    import RevertButton from "../components/RevertButton.svelte";
     import Row from "../components/Row.svelte";
     import type { Breakpoint } from "../components/types";
-    import ConfigInput from "./ConfigInput.svelte";
     import EnumSelector from "./EnumSelector.svelte";
-    import RevertButton from "./RevertButton.svelte";
 
     export let value: number;
     export let defaultValue: number;

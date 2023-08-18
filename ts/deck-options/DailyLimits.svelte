@@ -12,12 +12,12 @@
     import HelpModal from "../components/HelpModal.svelte";
     import Item from "../components/Item.svelte";
     import SettingTitle from "../components/SettingTitle.svelte";
+    import SwitchRow from "../components/SwitchRow.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
     import type { DeckOptionsState } from "./lib";
     import { ValueTab } from "./lib";
     import SpinBoxRow from "./SpinBoxRow.svelte";
-    import SwitchRow from "./SwitchRow.svelte";
     import TabbedValue from "./TabbedValue.svelte";
     import Warning from "./Warning.svelte";
 

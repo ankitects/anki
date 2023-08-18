@@ -6,6 +6,7 @@ import "./import-anki-package-base.scss";
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 
+import { modalsKey } from "../components/context-keys";
 import ImportAnkiPackagePage from "./ImportAnkiPackagePage.svelte";
 
 const i18n = setupI18n({
@@ -24,6 +25,8 @@ export async function setupImportAnkiPackagePage(
 ): Promise<ImportAnkiPackagePage> {
     await i18n;
 
+    const context = new Map();
+    context.set(modalsKey, new Map());
     checkNightMode();
 
     return new ImportAnkiPackagePage({
@@ -31,6 +34,7 @@ export async function setupImportAnkiPackagePage(
         props: {
             path: path,
         },
+        context,
     });
 }
 

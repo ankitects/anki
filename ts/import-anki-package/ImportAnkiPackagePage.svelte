@@ -12,12 +12,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type Modal from "bootstrap/js/dist/modal";
     import BackendProgressIndicator from "components/BackendProgressIndicator.svelte";
 
-    import Col from "../components/Col.svelte";
     import HelpModal from "../components/HelpModal.svelte";
-    import Row from "../components/Row.svelte";
     import SettingTitle from "../components/SettingTitle.svelte";
     import StickyHeader from "../components/StickyHeader.svelte";
-    import Switch from "../components/Switch.svelte";
+    import SwitchRow from "../components/SwitchRow.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
     import ImportLogPage from "../import-log/ImportLogPage.svelte";
@@ -65,6 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <HelpModal
             title={tr.importingImportOptions()}
             url={HelpPage.Importing.ankiPackage}
+            slot="tooltip"
             {helpSections}
             on:mount={(e) => {
                 modal = e.detail.modal;
@@ -72,20 +71,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }}
         />
 
-        <Row --cols={2}>
-            <Col --col-size={1}>
-                {tr.importingMergeNotetypes()}
-            </Col>
-            <Col --col-size={1} --col-justify="flex-end">
-                <Switch id={undefined} bind:value={mergeNotetypes} />
-            </Col>
+        <SwitchRow bind:value={mergeNotetypes} defaultValue={false}>
             <SettingTitle
                 on:click={() =>
-                    openHelpModal(Object.keys(settings).indexOf("newLimit"))}
+                    openHelpModal(Object.keys(settings).indexOf("mergeNotetypes"))}
             >
                 {settings.mergeNotetypes.title}
             </SettingTitle>
-        </Row>
+        </SwitchRow>
     </TitledContainer>
 {/if}
 

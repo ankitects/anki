@@ -12,4 +12,5 @@ export { default as chevronRight } from "@mdi/svg/svg/chevron-right.svg";
 export { default as chevronUp } from "@mdi/svg/svg/chevron-up.svg";
 export { default as horizontalHandle } from "@mdi/svg/svg/drag-horizontal.svg";
 export { default as verticalHandle } from "@mdi/svg/svg/drag-vertical.svg";
+export { default as revertIcon } from "bootstrap-icons/icons/arrow-counterclockwise.svg";
 export { default as infoCircle } from "bootstrap-icons/icons/info-circle.svg";
