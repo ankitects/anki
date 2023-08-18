@@ -53,7 +53,7 @@ impl crate::services::CardRenderingService for Collection {
         let (text, extracted) = func(&input.text, input.svg);
 
         Ok(anki_proto::card_rendering::ExtractLatexResponse {
-            text,
+            text: text.into_owned(),
             latex: extracted
                 .into_iter()
                 .map(
