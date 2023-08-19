@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { ImportResponse } from "@tslib/anki/import_export_pb";
-    import { importAnkiPackage } from "@tslib/anki/import_export_service";
+    import { importAnkiPackage } from "@tslib/backend";
     import { importDone } from "@tslib/backend";
     import * as tr from "@tslib/ftl";
     import { HelpPage } from "@tslib/help-page";
