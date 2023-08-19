@@ -28,6 +28,8 @@ def getEmptyCol():
     col.upgrade_to_v2_scheduler()
     if is_2021():
         col.set_v3_scheduler(True)
+    else:
+        col.set_v3_scheduler(False)
     return col
 
 
