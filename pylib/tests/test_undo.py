@@ -15,6 +15,7 @@ def getEmptyCol():
 
 def test_op():
     col = getEmptyCol()
+    col.set_v3_scheduler(False)
     # should have no undo by default
     assert not col.undo_status().undo
     # let's adjust a study option
@@ -47,6 +48,7 @@ def test_op():
 
 def test_review():
     col = getEmptyCol()
+    col.set_v3_scheduler(False)
     col.conf["counts"] = COUNT_REMAINING
     note = col.newNote()
     note["Front"] = "one"

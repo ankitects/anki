@@ -9,6 +9,7 @@ from tests.shared import assertException, getEmptyCol
 
 def test_basic():
     col = getEmptyCol()
+    col.set_v3_scheduler(False)
     # we start with a standard col
     assert len(col.decks.all_names_and_ids()) == 1
     # it should have an id of 1
