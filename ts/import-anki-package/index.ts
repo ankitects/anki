@@ -38,8 +38,8 @@ export async function setupImportAnkiPackagePage(
     });
 }
 
-/* // use #testXXXX where XXXX is notetype ID to test
-if (window.location.hash.startsWith("#test")) {
-    const ntid = parseInt(window.location.hash.substr("#test".length), 10);
-    setupImportAnkiPackagePage(ntid, ntid);
-} */
+// eg http://localhost:40000/_anki/pages/import-anki-package.html#test-/home/dae/foo.apkg
+if (window.location.hash.startsWith("#test-")) {
+    const apkgPath = window.location.hash.replace("#test-", "");
+    setupImportAnkiPackagePage(apkgPath);
+}
