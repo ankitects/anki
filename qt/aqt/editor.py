@@ -31,7 +31,6 @@ from anki.collection import Config, SearchNode
 from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
-from anki.models import StockNotetype
 from anki.notes import Note, NoteFieldsCheckResult
 from anki.utils import checksum, is_lin, is_win, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
@@ -572,10 +571,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         )
 
     def current_notetype_is_image_occlusion(self) -> bool:
-        return bool(self.note) and (
-            self.note.note_type().get("originalStockKind", None)
-            == StockNotetype.OriginalStockKind.ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
-        )
+        return False
 
     def _save_current_note(self) -> None:
         "Call after note is updated with data from webview."
