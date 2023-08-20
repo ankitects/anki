@@ -32,6 +32,11 @@ importing-mapped-to = mapped to <b>{ $val }</b>
 importing-mapped-to-tags = mapped to <b>Tags</b>
 # the action of combining two existing notetypes to create a new one
 importing-merge-notetypes = Merge notetypes
+importing-merge-notetypes-help =
+    If checked, and you or the deck author altered a notetype, combines the two versions
+    instead of keeping both.
+    
+    Warning: This will necessitate a full sync and may mark existing notes as modified.
 importing-mnemosyne-20-deck-db = Mnemosyne 2.0 Deck (*.db)
 importing-multicharacter-separators-are-not-supported-please = Multi-character separators are not supported. Please enter one character only.
 importing-notes-added-from-file = Notes added from file: { $val }
