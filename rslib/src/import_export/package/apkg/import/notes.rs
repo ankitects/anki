@@ -370,14 +370,6 @@ impl Collection {
 }
 
 impl Notetype {
-    pub(crate) fn field_names(&self) -> impl Iterator<Item = &String> {
-        self.fields.iter().map(|f| &f.name)
-    }
-
-    pub(crate) fn template_names(&self) -> impl Iterator<Item = &String> {
-        self.templates.iter().map(|t| &t.name)
-    }
-
     pub(crate) fn field_ords(&self) -> impl Iterator<Item = Option<u32>> + '_ {
         self.fields.iter().map(|f| f.ord)
     }
@@ -387,9 +379,18 @@ impl Notetype {
     }
 
     fn equal_schema(&self, other: &Self) -> bool {
-        // TODO: also return true if ids match
-        self.field_names().eq(other.field_names())
-            && self.template_names().eq(other.template_names())
+        self.fields.len() == other.fields.len()
+            && self.templates.len() == other.templates.len()
+            && self
+                .fields
+                .iter()
+                .zip(other.fields.iter())
+                .all(|(f1, f2)| f1.is_match(f2))
+            && self
+                .templates
+                .iter()
+                .zip(other.templates.iter())
+                .all(|(t1, t2)| t1.is_match(t2))
     }
 
     fn copy_ords(&mut self, other: &Self) {
@@ -474,6 +475,16 @@ mod test {
                 .db
                 .query_row("SELECT id FROM notes WHERE guid = ?", [guid], |r| r.get(0))
                 .unwrap()
+        }
+    }
+
+    impl Notetype {
+        pub(crate) fn field_names(&self) -> impl Iterator<Item = &String> {
+            self.fields.iter().map(|f| &f.name)
+        }
+
+        pub(crate) fn template_names(&self) -> impl Iterator<Item = &String> {
+            self.templates.iter().map(|t| &t.name)
         }
     }
 
@@ -597,10 +608,22 @@ mod test {
     }
 
     #[test]
+    fn should_rename_field_with_matching_id_without_schema_change() {
+        let mut col = Collection::new();
+        let mut to_import = col.basic_notetype();
+        to_import.fields[0].name = String::from("renamed");
+        to_import.mtime_secs.0 += 1;
+        import_notetype!(&mut col, to_import);
+        assert_eq!(col.basic_notetype().fields[0].name, "renamed");
+    }
+
+    #[test]
     fn should_add_remapped_notetype_if_schema_has_changed_and_reuse_it_subsequently() {
         let mut col = Collection::new();
         let mut to_import = col.basic_notetype();
         to_import.fields[0].name = String::from("new field");
+        // clear id or schemas would still match
+        to_import.fields[0].config.id.take();
 
         // schema mismatch => notetype should be imported with new id
         let out = import_notetype!(&mut col, to_import.clone());

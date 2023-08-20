@@ -60,7 +60,7 @@ impl Notetype {
 impl NoteField {
     /// True if both ids are identical, but not [None], or at least one id is
     /// [None] and the names are identical.
-    fn is_match(&self, other: &Self) -> bool {
+    pub(crate) fn is_match(&self, other: &Self) -> bool {
         if let (Some(id), Some(other_id)) = (self.config.id, other.config.id) {
             id == other_id
         } else {
@@ -72,7 +72,7 @@ impl NoteField {
 impl CardTemplate {
     /// True if both ids are identical, but not [None], or at least one id is
     /// [None] and the names are identical.
-    fn is_match(&self, other: &Self) -> bool {
+    pub(crate) fn is_match(&self, other: &Self) -> bool {
         if let (Some(id), Some(other_id)) = (self.config.id, other.config.id) {
             id == other_id
         } else {
