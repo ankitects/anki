@@ -45,9 +45,9 @@ export async function setupDeckOptions(did_: number): Promise<DeckOptionsPage> {
 
 import { getDeckConfigsForUpdate } from "@tslib/backend";
 
+import EnumSelectorRow from "../components/EnumSelectorRow.svelte";
 import SwitchRow from "../components/SwitchRow.svelte";
 import TitledContainer from "../components/TitledContainer.svelte";
-import EnumSelectorRow from "./EnumSelectorRow.svelte";
 import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
 import SpinBoxRow from "./SpinBoxRow.svelte";
 

@@ -46,8 +46,14 @@ message ExportCollectionPackageRequest {
 }
 
 message ImportAnkiPackageRequest {
+  enum UpdateCondition {
+    IF_NEWER = 0;
+    ALWAYS = 1;
+    NEVER = 2;
+  }
   string package_path = 1;
   bool merge_notetypes = 2;
+  UpdateCondition update_notes = 3;
 }
 
 message ImportResponse {

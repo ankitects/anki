@@ -10,12 +10,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type Modal from "bootstrap/js/dist/modal";
 
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
+    import EnumSelectorRow from "../components/EnumSelectorRow.svelte";
     import HelpModal from "../components/HelpModal.svelte";
     import Item from "../components/Item.svelte";
     import SettingTitle from "../components/SettingTitle.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
-    import EnumSelectorRow from "./EnumSelectorRow.svelte";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import StepsInputRow from "./StepsInputRow.svelte";

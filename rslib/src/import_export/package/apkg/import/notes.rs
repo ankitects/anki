@@ -11,6 +11,7 @@ use super::media::MediaUseMap;
 use super::Context;
 use super::TemplateMap;
 use crate::import_export::package::media::safe_normalized_file_name;
+use crate::import_export::package::UpdateCondition;
 use crate::import_export::ImportProgress;
 use crate::import_export::NoteLog;
 use crate::prelude::*;
@@ -28,6 +29,7 @@ struct NoteContext<'a> {
     target_notetypes: HashMap<NotetypeId, Vec<Arc<Notetype>>>,
     media_map: &'a mut MediaUseMap,
     merge_notetypes: bool,
+    update_notes: UpdateCondition,
     imports: NoteImports,
 }
 
@@ -85,7 +87,13 @@ impl Context<'_> {
         &mut self,
         media_map: &mut MediaUseMap,
     ) -> Result<NoteImports> {
-        let mut ctx = NoteContext::new(self.usn, self.target_col, media_map, self.merge_notetypes)?;
+        let mut ctx = NoteContext::new(
+            self.usn,
+            self.target_col,
+            media_map,
+            self.merge_notetypes,
+            self.update_notes,
+        )?;
         ctx.import_notetypes(mem::take(&mut self.data.notetypes))?;
         ctx.import_notes(mem::take(&mut self.data.notes), &mut self.progress)?;
         Ok(ctx.imports)
@@ -98,6 +106,7 @@ impl<'n> NoteContext<'n> {
         target_col: &'a mut Collection,
         media_map: &'a mut MediaUseMap,
         merge_notetypes: bool,
+        update_notes: UpdateCondition,
     ) -> Result<Self> {
         let target_guids = target_col.storage.note_guid_map()?;
         let normalize_notes = target_col.get_config_bool(BoolKey::NormalizeNoteText);
@@ -114,6 +123,7 @@ impl<'n> NoteContext<'n> {
             target_notetypes,
             imports: NoteImports::default(),
             merge_notetypes,
+            update_notes,
             media_map,
         })
     }
@@ -263,13 +273,21 @@ impl<'n> NoteContext<'n> {
             // notetype of existing note has changed, or notetype of incoming note has been
             // remapped due to a schema conflict
             self.imports.log_conflicting(incoming);
-        } else if existing.mtime < incoming.mtime {
+        } else if self.should_update(&existing, &incoming) {
             self.update_note(incoming, existing.id)?;
         } else {
             // TODO: might still want to update merged in fields
             self.imports.log_duplicate(incoming, existing.id);
         }
         Ok(())
+    }
+
+    fn should_update(&self, existing: &NoteMeta, incoming: &Note) -> bool {
+        match self.update_notes {
+            UpdateCondition::IfNewer => existing.mtime < incoming.mtime,
+            UpdateCondition::Always => true,
+            UpdateCondition::Never => false,
+        }
     }
 
     fn add_note(&mut self, mut note: Note) -> Result<()> {
@@ -416,14 +434,28 @@ mod test {
         ($col:expr, $note:expr, $old_notetype:expr => $new_notetype:expr) => {{
             let mut media_map = MediaUseMap::default();
             let mut progress = $col.new_progress_handler();
-            let mut ctx = NoteContext::new(Usn(1), &mut $col, &mut media_map, false).unwrap();
+            let mut ctx = NoteContext::new(
+                Usn(1),
+                &mut $col,
+                &mut media_map,
+                false,
+                UpdateCondition::IfNewer,
+            )
+            .unwrap();
             ctx.remapped_notetypes.insert($old_notetype, $new_notetype);
             ctx.import_notes(vec![$note], &mut progress).unwrap();
             ctx.imports.log
         }};
         ($col:expr, $note:expr, $media_map:expr) => {{
             let mut progress = $col.new_progress_handler();
-            let mut ctx = NoteContext::new(Usn(1), &mut $col, &mut $media_map, false).unwrap();
+            let mut ctx = NoteContext::new(
+                Usn(1),
+                &mut $col,
+                &mut $media_map,
+                false,
+                UpdateCondition::IfNewer,
+            )
+            .unwrap();
             ctx.import_notes(vec![$note], &mut progress).unwrap();
             ctx.imports.log
         }};
@@ -459,7 +491,14 @@ mod test {
         }};
         ($col:expr, $notetype:expr, merge = $merge:expr) => {{
             let mut media_map = MediaUseMap::default();
-            let mut ctx = NoteContext::new(Usn(1), $col, &mut media_map, $merge).unwrap();
+            let mut ctx = NoteContext::new(
+                Usn(1),
+                $col,
+                &mut media_map,
+                $merge,
+                UpdateCondition::IfNewer,
+            )
+            .unwrap();
             ctx.import_notetypes(vec![$notetype]).unwrap();
             Remappings {
                 remapped_notetypes: ctx.remapped_notetypes,

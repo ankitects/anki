@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { ImportResponse } from "@tslib/anki/import_export_pb";
+    import { ImportAnkiPackageRequest_UpdateCondition } from "@tslib/anki/import_export_pb";
     import { importAnkiPackage } from "@tslib/backend";
     import { importDone } from "@tslib/backend";
     import * as tr from "@tslib/ftl";
@@ -12,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type Modal from "bootstrap/js/dist/modal";
     import BackendProgressIndicator from "components/BackendProgressIndicator.svelte";
     import Container from "components/Container.svelte";
+    import EnumSelectorRow from "components/EnumSelectorRow.svelte";
     import Row from "components/Row.svelte";
 
     import HelpModal from "../components/HelpModal.svelte";
@@ -24,13 +26,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let path: string;
     export let mergeNotetypes: boolean = false;
+    export let updateNotes = ImportAnkiPackageRequest_UpdateCondition.IF_NEWER;
 
     let importResponse: ImportResponse | undefined = undefined;
     let importing = false;
+
+    const updateChoices = [
+        tr.importingUpdateIfNewer(),
+        tr.importingUpdateAlways(),
+        tr.importingUpdateNever(),
+    ];
+
     const settings = {
         mergeNotetypes: {
             title: tr.importingMergeNotetypes(),
             help: tr.importingMergeNotetypesHelp(),
+            url: HelpPage.Importing.ankiPackage,
+        },
+        updateNotes: {
+            title: tr.importingUpdateNotes(),
+            help: tr.importingUpdateNotesHelp(),
             url: HelpPage.Importing.ankiPackage,
         },
     };
@@ -42,6 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const result = await importAnkiPackage({
             packagePath: path,
             mergeNotetypes,
+            updateNotes,
         });
         await importDone({});
         importing = false;
@@ -90,6 +106,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         {settings.mergeNotetypes.title}
                     </SettingTitle>
                 </SwitchRow>
+
+                <EnumSelectorRow
+                    bind:value={updateNotes}
+                    defaultValue={0}
+                    choices={updateChoices}
+                >
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(Object.keys(settings).indexOf("updateNotes"))}
+                    >
+                        {settings.updateNotes.title}
+                    </SettingTitle>
+                </EnumSelectorRow>
             </TitledContainer>
         </Row>
     </Container>

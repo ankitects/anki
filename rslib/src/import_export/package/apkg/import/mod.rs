@@ -23,6 +23,7 @@ use super::super::meta::MetaExt;
 use crate::collection::CollectionBuilder;
 use crate::import_export::gather::ExchangeData;
 use crate::import_export::package::Meta;
+use crate::import_export::package::UpdateCondition;
 use crate::import_export::ImportProgress;
 use crate::import_export::NoteLog;
 use crate::media::MediaManager;
@@ -36,6 +37,7 @@ type TemplateMap = std::collections::HashMap<u16, u16>;
 struct Context<'a> {
     target_col: &'a mut Collection,
     merge_notetypes: bool,
+    update_notes: UpdateCondition,
     media_manager: MediaManager,
     archive: ZipArchive<File>,
     meta: Meta,
@@ -49,13 +51,14 @@ impl Collection {
         &mut self,
         path: impl AsRef<Path>,
         merge_notetypes: bool,
+        update_notes: UpdateCondition,
     ) -> Result<OpOutput<NoteLog>> {
         let file = open_file(path)?;
         let archive = ZipArchive::new(file)?;
         let progress = self.new_progress_handler();
 
         self.transact(Op::Import, |col| {
-            let mut ctx = Context::new(archive, col, merge_notetypes, progress)?;
+            let mut ctx = Context::new(archive, col, merge_notetypes, update_notes, progress)?;
             ctx.import()
         })
     }
@@ -66,6 +69,7 @@ impl<'a> Context<'a> {
         mut archive: ZipArchive<File>,
         target_col: &'a mut Collection,
         merge_notetypes: bool,
+        update_notes: UpdateCondition,
         mut progress: ThrottlingProgressHandler<ImportProgress>,
     ) -> Result<Self> {
         let media_manager = target_col.media()?;
@@ -81,6 +85,7 @@ impl<'a> Context<'a> {
         Ok(Self {
             target_col,
             merge_notetypes,
+            update_notes,
             media_manager,
             archive,
             meta,

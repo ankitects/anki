@@ -64,6 +64,13 @@ importing-unable-to-import-from-a-readonly = Unable to import from a read-only f
 importing-unknown-file-format = Unknown file format.
 importing-update-existing-notes-when-first-field = Update existing notes when first field matches
 importing-updated = Updated
+importing-update-if-newer = If newer
+importing-update-always = Always
+importing-update-never = Never
+importing-update-notes = Update notes
+importing-update-notes-help =
+    When to update a note with the imported equivalent. By default, this is only done
+    if the imported note was more recently modified.
 importing-note-added =
     { $count ->
         [one] { $count } note added
