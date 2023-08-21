@@ -1203,7 +1203,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                     options = {"html": html, "mode": mode}
                     self.web.eval(f"setupMaskEditor({json.dumps(options)})")
                 else:
-                    mode = {"kind": "edit", "notetypeId": self.note.id}
+                    mode = {"kind": "edit", "noteId": self.note.id}
                     options = {"html": html, "mode": mode}
                     self.web.eval(f"resetIOImage({json.dumps(file)})")
                     self.web.eval(f"setImageField({json.dumps(html)})")
