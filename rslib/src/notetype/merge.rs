@@ -89,11 +89,11 @@ mod test {
     use crate::notetype::stock;
 
     impl Notetype {
-        fn field_ids(&self) -> impl Iterator<Item = Option<i32>> + '_ {
+        fn field_ids(&self) -> impl Iterator<Item = Option<i64>> + '_ {
             self.fields.iter().map(|field| field.config.id)
         }
 
-        fn template_ids(&self) -> impl Iterator<Item = Option<i32>> + '_ {
+        fn template_ids(&self) -> impl Iterator<Item = Option<i64>> + '_ {
             self.templates.iter().map(|template| template.config.id)
         }
     }

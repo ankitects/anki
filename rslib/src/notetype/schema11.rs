@@ -254,7 +254,7 @@ pub struct NoteFieldSchema11 {
     pub(crate) exclude_from_search: bool,
 
     #[serde(default, deserialize_with = "default_on_invalid")]
-    pub(crate) id: Option<i32>,
+    pub(crate) id: Option<i64>,
 
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
@@ -352,7 +352,7 @@ pub struct CardTemplateSchema11 {
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) bsize: u8,
     #[serde(default, deserialize_with = "default_on_invalid")]
-    pub(crate) id: Option<i32>,
+    pub(crate) id: Option<i64>,
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
 }
