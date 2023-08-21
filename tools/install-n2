@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cargo install --git https://github.com/ankitects/n2.git --rev 89ca7dd54f6306f25eb0bfd14c7a458dd4befb7e
+cargo install --git https://github.com/evmar/n2.git --rev 715feedd746d622862601cc7c197fcb18c6b5ae8
