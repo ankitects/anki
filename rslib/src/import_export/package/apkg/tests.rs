@@ -52,7 +52,12 @@ fn roundtrip_inner(legacy: bool) {
         )
         .unwrap();
     target_col
-        .import_apkg(&apkg_path, false, UpdateCondition::IfNewer)
+        .import_apkg(
+            &apkg_path,
+            false,
+            UpdateCondition::IfNewer,
+            UpdateCondition::IfNewer,
+        )
         .unwrap();
 
     target_col.assert_decks();

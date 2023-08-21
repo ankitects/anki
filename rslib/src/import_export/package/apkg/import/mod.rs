@@ -38,6 +38,7 @@ struct Context<'a> {
     target_col: &'a mut Collection,
     merge_notetypes: bool,
     update_notes: UpdateCondition,
+    update_notetypes: UpdateCondition,
     media_manager: MediaManager,
     archive: ZipArchive<File>,
     meta: Meta,
@@ -52,13 +53,21 @@ impl Collection {
         path: impl AsRef<Path>,
         merge_notetypes: bool,
         update_notes: UpdateCondition,
+        update_notetypes: UpdateCondition,
     ) -> Result<OpOutput<NoteLog>> {
         let file = open_file(path)?;
         let archive = ZipArchive::new(file)?;
         let progress = self.new_progress_handler();
 
         self.transact(Op::Import, |col| {
-            let mut ctx = Context::new(archive, col, merge_notetypes, update_notes, progress)?;
+            let mut ctx = Context::new(
+                archive,
+                col,
+                merge_notetypes,
+                update_notes,
+                update_notetypes,
+                progress,
+            )?;
             ctx.import()
         })
     }
@@ -70,6 +79,7 @@ impl<'a> Context<'a> {
         target_col: &'a mut Collection,
         merge_notetypes: bool,
         update_notes: UpdateCondition,
+        update_notetypes: UpdateCondition,
         mut progress: ThrottlingProgressHandler<ImportProgress>,
     ) -> Result<Self> {
         let media_manager = target_col.media()?;
@@ -86,6 +96,7 @@ impl<'a> Context<'a> {
             target_col,
             merge_notetypes,
             update_notes,
+            update_notetypes,
             media_manager,
             archive,
             meta,

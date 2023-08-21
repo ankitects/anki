@@ -3,12 +3,12 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { Breakpoint } from "./types";
     import Col from "./Col.svelte";
     import ConfigInput from "./ConfigInput.svelte";
     import EnumSelector from "./EnumSelector.svelte";
     import RevertButton from "./RevertButton.svelte";
     import Row from "./Row.svelte";
+    import type { Breakpoint } from "./types";
 
     export let value: number;
     export let defaultValue: number;

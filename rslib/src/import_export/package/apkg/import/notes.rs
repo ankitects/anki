@@ -30,6 +30,7 @@ struct NoteContext<'a> {
     media_map: &'a mut MediaUseMap,
     merge_notetypes: bool,
     update_notes: UpdateCondition,
+    update_notetypes: UpdateCondition,
     imports: NoteImports,
 }
 
@@ -93,6 +94,7 @@ impl Context<'_> {
             media_map,
             self.merge_notetypes,
             self.update_notes,
+            self.update_notetypes,
         )?;
         ctx.import_notetypes(mem::take(&mut self.data.notetypes))?;
         ctx.import_notes(mem::take(&mut self.data.notes), &mut self.progress)?;
@@ -107,6 +109,7 @@ impl<'n> NoteContext<'n> {
         media_map: &'a mut MediaUseMap,
         merge_notetypes: bool,
         update_notes: UpdateCondition,
+        update_notetypes: UpdateCondition,
     ) -> Result<Self> {
         let target_guids = target_col.storage.note_guid_map()?;
         let normalize_notes = target_col.get_config_bool(BoolKey::NormalizeNoteText);
@@ -124,6 +127,7 @@ impl<'n> NoteContext<'n> {
             imports: NoteImports::default(),
             merge_notetypes,
             update_notes,
+            update_notetypes,
             media_map,
         })
     }
@@ -165,7 +169,7 @@ impl<'n> NoteContext<'n> {
                 self.remapped_notetypes.insert(incoming.id, existing.id);
                 incoming.id = existing.id;
             }
-            if incoming.mtime_secs > existing.mtime_secs {
+            if self.should_update_notetype(&existing, incoming) {
                 self.update_notetype(incoming, existing, false)?;
             }
         } else if self.merge_notetypes {
@@ -174,6 +178,14 @@ impl<'n> NoteContext<'n> {
             self.add_notetype_with_remapped_id(incoming)?;
         }
         Ok(())
+    }
+
+    fn should_update_notetype(&self, existing: &Notetype, incoming: &Notetype) -> bool {
+        match self.update_notetypes {
+            UpdateCondition::IfNewer => existing.mtime_secs < incoming.mtime_secs,
+            UpdateCondition::Always => true,
+            UpdateCondition::Never => false,
+        }
     }
 
     fn add_notetype(&mut self, notetype: &mut Notetype) -> Result<()> {
@@ -206,7 +218,7 @@ impl<'n> NoteContext<'n> {
         incoming.merge(&existing);
         existing.merge(incoming);
         self.record_remapped_ords(incoming);
-        let new_incoming = if incoming.mtime_secs > existing.mtime_secs {
+        let new_incoming = if self.should_update_notetype(&existing, incoming) {
             // ords must be existing's as they are used to remap note fields and card
             // template indices
             incoming.copy_ords(&existing);
@@ -273,7 +285,7 @@ impl<'n> NoteContext<'n> {
             // notetype of existing note has changed, or notetype of incoming note has been
             // remapped due to a schema conflict
             self.imports.log_conflicting(incoming);
-        } else if self.should_update(&existing, &incoming) {
+        } else if self.should_update_note(&existing, &incoming) {
             self.update_note(incoming, existing.id)?;
         } else {
             // TODO: might still want to update merged in fields
@@ -282,7 +294,7 @@ impl<'n> NoteContext<'n> {
         Ok(())
     }
 
-    fn should_update(&self, existing: &NoteMeta, incoming: &Note) -> bool {
+    fn should_update_note(&self, existing: &NoteMeta, incoming: &Note) -> bool {
         match self.update_notes {
             UpdateCondition::IfNewer => existing.mtime < incoming.mtime,
             UpdateCondition::Always => true,
@@ -440,6 +452,7 @@ mod test {
                 &mut media_map,
                 false,
                 UpdateCondition::IfNewer,
+                UpdateCondition::IfNewer,
             )
             .unwrap();
             ctx.remapped_notetypes.insert($old_notetype, $new_notetype);
@@ -453,6 +466,7 @@ mod test {
                 &mut $col,
                 &mut $media_map,
                 false,
+                UpdateCondition::IfNewer,
                 UpdateCondition::IfNewer,
             )
             .unwrap();
@@ -496,6 +510,7 @@ mod test {
                 $col,
                 &mut media_map,
                 $merge,
+                UpdateCondition::IfNewer,
                 UpdateCondition::IfNewer,
             )
             .unwrap();

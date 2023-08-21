@@ -27,6 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let path: string;
     export let mergeNotetypes: boolean = false;
     export let updateNotes = ImportAnkiPackageRequest_UpdateCondition.IF_NEWER;
+    export let updateNotetypes = ImportAnkiPackageRequest_UpdateCondition.IF_NEWER;
 
     let importResponse: ImportResponse | undefined = undefined;
     let importing = false;
@@ -48,6 +49,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             help: tr.importingUpdateNotesHelp(),
             url: HelpPage.Importing.ankiPackage,
         },
+        updateNotetypes: {
+            title: tr.importingUpdateNotetypes(),
+            help: tr.importingUpdateNotetypesHelp(),
+            url: HelpPage.Importing.ankiPackage,
+        },
     };
     const helpSections = Object.values(settings) as HelpItem[];
     let modal: Modal;
@@ -58,6 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             packagePath: path,
             mergeNotetypes,
             updateNotes,
+            updateNotetypes,
         });
         await importDone({});
         importing = false;
@@ -117,6 +124,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             openHelpModal(Object.keys(settings).indexOf("updateNotes"))}
                     >
                         {settings.updateNotes.title}
+                    </SettingTitle>
+                </EnumSelectorRow>
+
+                <EnumSelectorRow
+                    bind:value={updateNotetypes}
+                    defaultValue={0}
+                    choices={updateChoices}
+                >
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(
+                                Object.keys(settings).indexOf("updateNotetypes"),
+                            )}
+                    >
+                        {settings.updateNotetypes.title}
                     </SettingTitle>
                 </EnumSelectorRow>
             </TitledContainer>

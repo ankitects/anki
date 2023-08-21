@@ -71,6 +71,10 @@ importing-update-notes = Update notes
 importing-update-notes-help =
     When to update a note with the imported equivalent. By default, this is only done
     if the imported note was more recently modified.
+importing-update-notetypes = Update notetypes
+importing-update-notetypes-help =
+    When to update a notetype with the imported equivalent. By default, this is only done
+    if the imported notetype was more recently modified.
 importing-note-added =
     { $count ->
         [one] { $count } note added

@@ -18,6 +18,7 @@ impl crate::services::ImportExportService for Collection {
             &input.package_path,
             input.merge_notetypes,
             input.update_notes(),
+            input.update_notetypes(),
         )
         .map(Into::into)
     }
