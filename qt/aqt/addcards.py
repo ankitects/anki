@@ -51,6 +51,7 @@ class AddCards(QMainWindow):
         add_close_shortcut(self)
         self._load_new_note()
         self.setupButtons()
+        self.col.add_image_occlusion_notetype()
         self.history: list[NoteId] = []
         self._last_added_note: Optional[Note] = None
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
