@@ -3362,6 +3362,7 @@ name = "runner"
 version = "0.0.0"
 dependencies = [
  "anki_io",
+ "anki_process",
  "anyhow",
  "camino",
  "clap",

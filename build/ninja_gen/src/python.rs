@@ -137,6 +137,10 @@ impl BuildAction for PythonTypecheck {
         let hash = simple_hash(self.folders);
         build.add_output_stamp(format!("tests/python_typecheck.{hash}"));
     }
+
+    fn hide_last_line(&self) -> bool {
+        true
+    }
 }
 
 struct PythonFormat<'a> {
@@ -245,5 +249,9 @@ impl BuildAction for PythonTest {
         build.add_env_var("ANKI_TEST_MODE", "1");
         let hash = simple_hash(self.folder);
         build.add_output_stamp(format!("tests/python_pytest.{hash}"));
+    }
+
+    fn hide_last_line(&self) -> bool {
+        true
     }
 }

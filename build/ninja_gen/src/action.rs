@@ -40,6 +40,14 @@ pub trait BuildAction {
         false
     }
 
+    fn hide_success(&self) -> bool {
+        true
+    }
+
+    fn hide_last_line(&self) -> bool {
+        false
+    }
+
     fn name(&self) -> &'static str {
         std::any::type_name::<Self>().split("::").last().unwrap()
     }

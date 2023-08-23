@@ -262,6 +262,14 @@ impl BuildStatement<'_> {
         if let Some(pool) = action.concurrency_pool() {
             stmt.rule_variables.push(("pool".into(), pool.into()));
         }
+        stmt.rule_variables.push((
+            "hide_success".into(),
+            (action.hide_success() as u8).to_string(),
+        ));
+        stmt.rule_variables.push((
+            "hide_last_line".into(),
+            (action.hide_last_line() as u8).to_string(),
+        ));
 
         stmt
     }
