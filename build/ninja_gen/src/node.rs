@@ -239,6 +239,10 @@ impl BuildAction for SvelteCheck {
         let hash = simple_hash(&self.tsconfig);
         build.add_output_stamp(format!("tests/svelte-check.{hash}"));
     }
+
+    fn hide_last_line(&self) -> bool {
+        true
+    }
 }
 
 pub struct TypescriptCheck {
@@ -306,6 +310,10 @@ impl BuildAction for JestTest<'_> {
         build.add_variable("folder", self.folder);
         let hash = simple_hash(self.folder);
         build.add_output_stamp(format!("tests/jest.{hash}"));
+    }
+
+    fn hide_last_line(&self) -> bool {
+        true
     }
 }
 

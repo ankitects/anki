@@ -9,6 +9,7 @@ rust-version.workspace = true
 
 [dependencies]
 anki_io.workspace = true
+anki_process.workspace = true
 anyhow.workspace = true
 camino.workspace = true
 clap.workspace = true

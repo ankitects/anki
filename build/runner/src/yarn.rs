@@ -6,7 +6,7 @@ use std::process::Command;
 
 use clap::Args;
 
-use crate::run::run_silent;
+use crate::run::run_command;
 
 #[derive(Args)]
 pub struct YarnArgs {
@@ -17,7 +17,7 @@ pub struct YarnArgs {
 pub fn setup_yarn(args: YarnArgs) {
     link_node_modules();
 
-    run_silent(Command::new(&args.yarn_bin).arg("install"));
+    run_command(Command::new(&args.yarn_bin).arg("install"));
 
     std::fs::write(args.stamp, b"").unwrap();
 }

@@ -12,7 +12,7 @@ use clap::ValueEnum;
 
 use crate::paths::absolute_msys_path;
 use crate::paths::unix_path;
-use crate::run::run_silent;
+use crate::run::run_command;
 
 #[derive(Clone, Copy, ValueEnum, Debug)]
 enum DistKind {
@@ -58,7 +58,7 @@ fn copy_qt_from_venv(kind: DistKind, folder_root: &Utf8Path) {
     let lib_path = folder_root.join("lib");
     fs::create_dir_all(&lib_path).unwrap();
     let dst_path = with_slash(absolute_msys_path(&lib_path));
-    run_silent(Command::new("rsync").args([
+    run_command(Command::new("rsync").args([
         "-a",
         "--delete",
         "--exclude-from",
@@ -70,7 +70,7 @@ fn copy_qt_from_venv(kind: DistKind, folder_root: &Utf8Path) {
 
 fn copy_linux_extras(kind: DistKind, folder_root: &Utf8Path) {
     // add README, installer, etc
-    run_silent(Command::new("rsync").args(["-a", "qt/bundle/lin/", &with_slash(folder_root)]));
+    run_command(Command::new("rsync").args(["-a", "qt/bundle/lin/", &with_slash(folder_root)]));
 
     // add extra IME plugins from download
     let lib_path = folder_root.join("lib");
@@ -84,11 +84,11 @@ fn copy_linux_extras(kind: DistKind, folder_root: &Utf8Path) {
         DistKind::Standard => "PyQt6/Qt6/plugins",
         DistKind::Alternate => "PyQt5/Qt5/plugins",
     });
-    run_silent(Command::new("rsync").args(["-a", &with_slash(src_path), &with_slash(dst_path)]));
+    run_command(Command::new("rsync").args(["-a", &with_slash(src_path), &with_slash(dst_path)]));
 }
 
 fn copy_windows_extras(folder_root: &Utf8Path) {
-    run_silent(Command::new("rsync").args([
+    run_command(Command::new("rsync").args([
         "-a",
         "out/extracted/win_amd64_audio/",
         &with_slash(folder_root),
@@ -131,7 +131,7 @@ fn copy_binary_and_pylibs(folder_root: &Utf8Path) {
         .join("../build")
         .join(env!("TARGET"))
         .join("release/resources/extra_files");
-    run_silent(Command::new("rsync").args([
+    run_command(Command::new("rsync").args([
         "-a",
         "--exclude",
         "PyQt6",
