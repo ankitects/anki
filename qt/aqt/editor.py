@@ -1036,7 +1036,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             image_field_html=image_field_html,
             notetype_id=notetype_id,
         )
-        self.web.eval(f"setupMaskEditor({json.dumps(io_options)})")
+        self._setup_mask_editor(io_options)
 
     def setup_mask_editor_for_existing_note(
         self, note_id: NoteId, image_path: str | None = None
@@ -1053,12 +1053,19 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             image_field_html = self._addMedia(image_path)
             self.web.eval(f"resetIOImage({json.dumps(image_path)})")
             self.web.eval(f"setImageField({json.dumps(image_field_html)})")
-        self.web.eval(f"setupMaskEditor({json.dumps(io_options)})")
+        self._setup_mask_editor(io_options)
+
+    def _setup_mask_editor(self, io_options: dict):
+        self.web.eval(
+            'require("anki/ui").loaded.then(() =>'
+            f"setupMaskEditor({json.dumps(io_options)})"
+            "); "
+        )
 
     @staticmethod
     def _create_add_io_options(
         image_path: str, image_field_html: str, notetype_id: NotetypeId | int = 0
-    ):
+    ) -> dict:
         return {
             "mode": {"kind": "add", "imagePath": image_path, "notetypeId": notetype_id},
             "html": image_field_html,
