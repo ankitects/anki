@@ -8,7 +8,7 @@ use std::process::Command;
 use camino::Utf8PathBuf;
 use clap::Args;
 
-use crate::run::run_silent;
+use crate::run::run_command;
 
 #[derive(Args, Debug)]
 pub struct BuildArtifactsArgs {
@@ -29,7 +29,7 @@ pub fn build_artifacts(args: BuildArtifactsArgs) {
         fs::remove_dir_all(&build_folder).unwrap();
     }
 
-    run_silent(
+    run_command(
         Command::new(&args.pyoxidizer_bin)
             .args([
                 "--system-rust",

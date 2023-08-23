@@ -6,7 +6,7 @@ use std::process::Command;
 use camino::Utf8Path;
 use clap::Args;
 
-use crate::run::run_silent;
+use crate::run::run_command;
 
 #[derive(Args)]
 pub struct PyenvArgs {
@@ -28,7 +28,7 @@ pub fn setup_pyenv(args: PyenvArgs) {
     let pip_sync = pyenv_bin_folder.join("pip-sync");
 
     if !pyenv_python.exists() {
-        run_silent(
+        run_command(
             Command::new(&args.python_bin)
                 .args(["-m", "venv"])
                 .args(args.venv_args)
@@ -44,7 +44,7 @@ pub fn setup_pyenv(args: PyenvArgs) {
                 .unwrap();
         }
 
-        run_silent(Command::new(pyenv_python).args([
+        run_command(Command::new(pyenv_python).args([
             "-m",
             "pip",
             "install",
@@ -53,5 +53,5 @@ pub fn setup_pyenv(args: PyenvArgs) {
         ]));
     }
 
-    run_silent(Command::new(pip_sync).args(&args.reqs));
+    run_command(Command::new(pip_sync).args(&args.reqs));
 }
