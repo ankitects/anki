@@ -7,7 +7,7 @@ use camino::Utf8Path;
 use clap::Args;
 
 use crate::paths::absolute_msys_path;
-use crate::run::run_silent;
+use crate::run::run_command;
 
 #[derive(Args)]
 pub struct RsyncArgs {
@@ -23,7 +23,7 @@ pub struct RsyncArgs {
 
 pub fn rsync_files(args: RsyncArgs) {
     let output_dir = absolute_msys_path(Utf8Path::new(&args.output_dir));
-    run_silent(
+    run_command(
         Command::new("rsync")
             .current_dir(&args.prefix)
             .arg("--relative")

@@ -6,7 +6,7 @@ use std::process::Command;
 use camino::Utf8Path;
 
 use super::artifacts::macos_deployment_target;
-use crate::run::run_silent;
+use crate::run::run_command;
 
 pub fn build_bundle_binary() {
     let mut features = String::from("build-mode-prebuilt-artifacts");
@@ -37,5 +37,5 @@ pub fn build_bundle_binary() {
         )
         .env("MACOSX_DEPLOYMENT_TARGET", macos_deployment_target())
         .env("CARGO_BUILD_TARGET", env!("TARGET"));
-    run_silent(&mut command);
+    run_command(&mut command);
 }

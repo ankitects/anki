@@ -110,6 +110,10 @@ impl BuildAction for GenPythonProto {
         build.add_inputs("protoc-gen-mypy", inputs![":pyenv:protoc-gen-mypy"]);
         build.add_outputs("", python_outputs);
     }
+
+    fn hide_last_line(&self) -> bool {
+        true
+    }
 }
 
 pub struct BuildWheel {
