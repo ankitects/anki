@@ -4,7 +4,8 @@
 export interface IOAddingMode {
     kind: "add";
     notetypeId: number;
-    imagePath: string;
+    imagePath?: string;
+    imageFieldHtml?: string;
 }
 
 export interface IOEditingMode {

@@ -533,6 +533,15 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         text_color = self.mw.pm.profile.get("lastTextColor", "#0000ff")
         highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#0000ff")
 
+        # Image Occlusion
+        if self.current_notetype_is_image_occlusion():
+            if self.editorMode == EditorMode.ADD_CARDS:
+                io_mode = {"kind": "add"}
+            else:
+                io_mode = {"kind": "edit", "noteId": self.note.id}
+        else:
+            io_mode = None
+
         js = f"""
             saveSession();
             setFields({json.dumps(data)});
@@ -549,21 +558,13 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setMathjaxEnabled({json.dumps(self.mw.col.get_config("renderMathjax", True))});
             setShrinkImages({json.dumps(self.mw.col.get_config("shrinkEditorImages", True))});
             setCloseHTMLTags({json.dumps(self.mw.col.get_config("closeHTMLTags", True))});
+            setImageOcclusionMode({json.dumps(io_mode)});
             triggerChanges();
-            setIsImageOcclusion({json.dumps(self.current_notetype_is_image_occlusion())});
-            setIsEditMode({json.dumps(self.editorMode != EditorMode.ADD_CARDS)});
             """
 
         if self.addMode:
             sticky = [field["sticky"] for field in self.note.note_type()["flds"]]
             js += " setSticky(%s);" % json.dumps(sticky)
-
-        if (
-            self.editorMode != EditorMode.ADD_CARDS
-            and self.current_notetype_is_image_occlusion()
-        ):
-            io_options = self._create_edit_io_options(note_id=self.note.id)
-            js += " setupMaskEditor(%s);" % json.dumps(io_options)
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
@@ -1058,7 +1059,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def _setup_mask_editor(self, io_options: dict):
         self.web.eval(
             'require("anki/ui").loaded.then(() =>'
-            f"setupMaskEditor({json.dumps(io_options)})"
+            f"setImageOcclusionMode({json.dumps(io_options)})"
             "); "
         )
 
@@ -1067,13 +1068,15 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         image_path: str, image_field_html: str, notetype_id: NotetypeId | int = 0
     ) -> dict:
         return {
-            "mode": {"kind": "add", "imagePath": image_path, "notetypeId": notetype_id},
-            "html": image_field_html,
+            "kind": "add",
+            "imagePath": image_path,
+            "notetypeId": notetype_id,
+            "imageFieldHtml": image_field_html,
         }
 
     @staticmethod
     def _create_edit_io_options(note_id: NoteId) -> dict:
-        return {"mode": {"kind": "edit", "noteId": note_id}}
+        return {"kind": "edit", "noteId": note_id}
 
     # Legacy editing routines
     ######################################################################
