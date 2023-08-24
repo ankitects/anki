@@ -23,6 +23,7 @@ pub struct Build {
     pub pools: Vec<(&'static str, usize)>,
     pub trailing_text: String,
     pub host_platform: Platform,
+    pub have_n2: bool,
 
     pub(crate) output_text: String,
     action_names: HashSet<&'static str>,
@@ -48,6 +49,7 @@ impl Build {
             output_text: Default::default(),
             action_names: Default::default(),
             groups: Default::default(),
+            have_n2: which::which("n2").is_ok(),
         };
 
         build.add_action("build:configure", ConfigureBuild {})?;
@@ -101,8 +103,13 @@ impl Build {
             command.replace("&&", "\"&&\"")
         };
 
-        let mut statement =
-            BuildStatement::from_build_action(group, action, &self.groups, self.build_profile);
+        let mut statement = BuildStatement::from_build_action(
+            group,
+            action,
+            &self.groups,
+            self.build_profile,
+            self.have_n2,
+        );
 
         if first_invocation {
             let command = statement.prepare_command(command)?;
@@ -228,6 +235,7 @@ impl BuildStatement<'_> {
         mut action: impl BuildAction,
         existing_outputs: &'a HashMap<String, Vec<String>>,
         build_profile: BuildProfile,
+        have_n2: bool,
     ) -> BuildStatement<'a> {
         let mut stmt = BuildStatement {
             existing_outputs,
@@ -262,14 +270,16 @@ impl BuildStatement<'_> {
         if let Some(pool) = action.concurrency_pool() {
             stmt.rule_variables.push(("pool".into(), pool.into()));
         }
-        stmt.rule_variables.push((
-            "hide_success".into(),
-            (action.hide_success() as u8).to_string(),
-        ));
-        stmt.rule_variables.push((
-            "hide_last_line".into(),
-            (action.hide_last_line() as u8).to_string(),
-        ));
+        if have_n2 {
+            stmt.rule_variables.push((
+                "hide_success".into(),
+                (action.hide_success() as u8).to_string(),
+            ));
+            stmt.rule_variables.push((
+                "hide_last_line".into(),
+                (action.hide_last_line() as u8).to_string(),
+            ));
+        }
 
         stmt
     }
