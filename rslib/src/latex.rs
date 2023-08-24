@@ -13,13 +13,13 @@ use crate::text::strip_html;
 
 lazy_static! {
     pub(crate) static ref LATEX: Regex = Regex::new(
-        r#"(?xsi)
+        r"(?xsi)
             \[latex\](.+?)\[/latex\]     # 1 - standard latex
             |
             \[\$\](.+?)\[/\$\]           # 2 - inline math
             |
             \[\$\$\](.+?)\[/\$\$\]       # 3 - math environment
-            "#
+            "
     )
     .unwrap();
     static ref LATEX_NEWLINES: Regex = Regex::new(

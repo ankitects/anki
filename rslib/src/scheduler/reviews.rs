@@ -67,7 +67,7 @@ pub struct DueDateSpecifier {
 pub fn parse_due_date_str(s: &str) -> Result<DueDateSpecifier> {
     lazy_static! {
         static ref RE: Regex = Regex::new(
-            r#"(?x)^
+            r"(?x)^
             # a number
             (?P<min>\d+)
             # an optional hyphen and another number
@@ -78,7 +78,7 @@ pub fn parse_due_date_str(s: &str) -> Result<DueDateSpecifier> {
             # optional exclamation mark
             (?P<bang>!)?
             $
-        "#
+        "
         )
         .unwrap();
     }

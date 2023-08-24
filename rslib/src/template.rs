@@ -550,13 +550,13 @@ fn append_str_to_nodes(nodes: &mut Vec<RenderedNode>, text: &str) {
 pub(crate) fn field_is_empty(text: &str) -> bool {
     lazy_static! {
         static ref RE: Regex = Regex::new(
-            r#"(?xsi)
+            r"(?xsi)
             ^(?:
             [[:space:]]
             |
             </?(?:br|div)\ ?/?>
             )*$
-        "#
+        "
         )
         .unwrap();
     }
@@ -986,7 +986,7 @@ mod test {
 
     #[test]
     fn requirements() {
-        let field_map: FieldMap = vec!["a", "b", "c"]
+        let field_map: FieldMap = ["a", "b", "c"]
             .iter()
             .enumerate()
             .map(|(a, b)| (*b, a as u16))

@@ -16,7 +16,7 @@ use crate::text::strip_html;
 
 lazy_static! {
     static ref LINEBREAKS: Regex = Regex::new(
-        r#"(?six)
+        r"(?six)
         (
             \n
             |
@@ -24,7 +24,7 @@ lazy_static! {
             |
             </?div>
         )+
-    "#
+    "
     )
     .unwrap();
 }

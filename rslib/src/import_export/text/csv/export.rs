@@ -198,7 +198,7 @@ impl NoteContext {
             .max()
             .unwrap_or_default();
         let deck_ids = col.storage.all_decks_of_search_notes()?;
-        let deck_names = HashMap::from_iter(col.storage.get_all_deck_names()?.into_iter());
+        let deck_names = HashMap::from_iter(col.storage.get_all_deck_names()?);
 
         Ok(Self {
             with_html: request.with_html,
@@ -236,10 +236,10 @@ impl NoteContext {
         self.with_guid
             .then(|| Cow::from(note.guid.as_bytes()))
             .into_iter()
-            .chain(self.notetype_name(note).into_iter())
-            .chain(self.deck_name(note).into_iter())
+            .chain(self.notetype_name(note))
+            .chain(self.deck_name(note))
             .chain(self.note_fields(note))
-            .chain(self.tags(note).into_iter())
+            .chain(self.tags(note))
     }
 
     fn notetype_name(&self, note: &Note) -> Option<Cow<[u8]>> {

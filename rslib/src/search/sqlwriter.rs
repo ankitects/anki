@@ -987,7 +987,7 @@ mod test {
         );
         assert_eq!(s(ctx, "te%st").1, vec![r"%te\%st%".to_string()]);
         // user should be able to escape wildcards
-        assert_eq!(s(ctx, r#"te\*s\_t"#).1, vec!["%te*s\\_t%".to_string()]);
+        assert_eq!(s(ctx, r"te\*s\_t").1, vec!["%te*s\\_t%".to_string()]);
 
         // field search
         assert_eq!(
@@ -1255,6 +1255,7 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
         );
     }
 
+    #[allow(clippy::single_range_in_vec_init)]
     #[test]
     fn ranges() {
         assert_eq!([1, 2, 3].collect_ranges(), [1..4]);

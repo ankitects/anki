@@ -135,12 +135,12 @@ impl Collection {
         &mut self,
         config: &mut DeckConfig,
     ) -> Result<()> {
-        let usn = Some(self.usn()?);
+        let usn = self.usn()?;
 
         if config.id.0 == 0 {
-            self.add_deck_config_inner(config, usn)
+            self.add_deck_config_inner(config, Some(usn))
         } else {
-            config.set_modified(usn.unwrap());
+            config.set_modified(usn);
             self.storage
                 .add_or_update_deck_config_with_existing_id(config)
         }

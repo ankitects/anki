@@ -236,7 +236,7 @@ where
     E: Fn(&Utf8Path, &str) -> bool,
 {
     static MESSAGE_OR_ENUM_RE: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r#"pub (struct|enum) ([[:alnum:]]+?)\s"#).unwrap());
+        Lazy::new(|| Regex::new(r"pub (struct|enum) ([[:alnum:]]+?)\s").unwrap());
     let contents = read_to_string(path)?;
     let contents = MESSAGE_OR_ENUM_RE.replace_all(&contents, |caps: &Captures| {
         let is_enum = caps.get(1).unwrap().as_str() == "enum";

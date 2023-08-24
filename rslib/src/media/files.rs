@@ -29,7 +29,7 @@ use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH;
 
 lazy_static! {
     static ref WINDOWS_DEVICE_NAME: Regex = Regex::new(
-        r#"(?xi)
+        r"(?xi)
             # starting with one of the following names
             ^
             (
@@ -39,17 +39,17 @@ lazy_static! {
             (
                 \. | $
             )
-        "#
+        "
     )
     .unwrap();
     static ref WINDOWS_TRAILING_CHAR: Regex = Regex::new(
-        r#"(?x)
+        r"(?x)
             # filenames can't end with a space or period
             (
                 \x20 | \.
             )    
             $
-            "#
+            "
     )
     .unwrap();
     pub(crate) static ref NONSYNCABLE_FILENAME: Regex = Regex::new(
