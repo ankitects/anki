@@ -558,7 +558,7 @@ impl ForeignNote {
         note.tags.extend(extra_tags.into_iter().cloned());
         note.fields_mut()
             .iter_mut()
-            .zip(self.fields.into_iter())
+            .zip(self.fields)
             .for_each(|(field, new)| {
                 if let Some(s) = new {
                     *field = s;

@@ -22,11 +22,11 @@ use crate::text::strip_html_preserving_entities;
 
 lazy_static! {
     static ref MATHJAX: Regex = Regex::new(
-        r#"(?xsi)
+        r"(?xsi)
             (\\[(\[])       # 1 = mathjax opening tag
             (.*?)           # 2 = inner content
             (\\[])])        # 3 = mathjax closing tag
-           "#
+           "
     )
     .unwrap();
 }

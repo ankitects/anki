@@ -133,16 +133,16 @@ lazy_static! {
 
     // videos are also in sound tags
     static ref AV_TAGS: Regex = Regex::new(
-        r#"(?xs)
+        r"(?xs)
             \[sound:(.+?)\]     # 1 - the filename in a sound tag
             |
             \[anki:tts\]
                 \[(.*?)\]       # 2 - arguments to tts call
                 (.*?)           # 3 - field text
             \[/anki:tts\]
-            "#).unwrap();
+            ").unwrap();
 
-    static ref PERSISTENT_HTML_SPACERS: Regex = Regex::new(r#"(?i)<br\s*/?>|<div>|\n"#).unwrap();
+    static ref PERSISTENT_HTML_SPACERS: Regex = Regex::new(r"(?i)<br\s*/?>|<div>|\n").unwrap();
 
     static ref TYPE_TAG: Regex = Regex::new(r"\[\[type:[^]]+\]\]").unwrap();
     pub(crate) static ref SOUND_TAG: Regex = Regex::new(r"\[sound:([^]]+)\]").unwrap();
@@ -391,11 +391,11 @@ pub(crate) fn is_glob(txt: &str) -> bool {
     // even number of \s followed by a wildcard
     lazy_static! {
         static ref RE: Regex = Regex::new(
-            r#"(?x)
+            r"(?x)
             (?:^|[^\\])     # not a backslash
             (?:\\\\)*       # even number of backslashes
             [*_]            # wildcard
-            "#
+            "
         )
         .unwrap();
     }

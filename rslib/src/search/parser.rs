@@ -824,8 +824,8 @@ mod test {
 
         // parser doesn't unescape unescape \*_
         assert_eq!(
-            parse(r#"\\\*\_"#)?,
-            vec![Search(UnqualifiedText(r#"\\\*\_"#.into())),]
+            parse(r"\\\*\_")?,
+            vec![Search(UnqualifiedText(r"\\\*\_".into())),]
         );
 
         // escaping parentheses is optional (only) inside quotes

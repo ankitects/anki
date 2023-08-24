@@ -218,6 +218,7 @@ mod test {
         );
     }
 
+    #[allow(clippy::needless_raw_string_hashes)]
     #[test]
     fn hint() {
         assert_eq!(

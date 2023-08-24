@@ -141,7 +141,7 @@ impl Collection {
 
     fn is_image_file(&mut self, path: &PathBuf) -> Result<bool> {
         let file_path = Path::new(&path);
-        let supported_extensions = vec![
+        let supported_extensions = [
             "jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp", "ico",
         ];
 
