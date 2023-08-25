@@ -391,8 +391,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         !$ioMaskEditorVisible && imageOcclusionMode?.kind === "addWithoutImage";
     $: showIOPage =
         imageOcclusionMode?.kind === "add" || imageOcclusionMode?.kind === "edit";
-    $: showFields =
-        !imageOcclusionMode || (!$ioMaskEditorVisible && !showAddImageButton);
+    $: showFields = !imageOcclusionMode && !$ioMaskEditorVisible && !showAddImageButton;
 
     async function setImageOcclusionMode(newMode?: IOMode | undefined): Promise<void> {
         if (imageOcclusionMode?.kind === "add" && newMode?.kind === "add") {
