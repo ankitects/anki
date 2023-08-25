@@ -536,7 +536,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         # Image Occlusion
         if self.current_notetype_is_image_occlusion():
             if self.editorMode == EditorMode.ADD_CARDS:
-                io_mode = {"kind": "add"}
+                io_mode = {"kind": "addWithoutImage"}
             else:
                 io_mode = {"kind": "edit", "noteId": self.note.id}
         else:

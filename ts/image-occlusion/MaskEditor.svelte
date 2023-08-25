@@ -42,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setupMaskEditor(mode.imagePath, instance, onChange).then((canvas1) => {
                 canvas = canvas1;
             });
-        } else {
+        } else if (mode.kind == "edit") {
             setupMaskEditorForEdit(mode.noteId, instance, onChange).then((canvas1) => {
                 canvas = canvas1;
             });

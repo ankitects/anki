@@ -388,33 +388,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let imageOcclusionMode: IOMode | undefined;
 
     $: showAddImageButton =
-        !$ioMaskEditorVisible &&
-        imageOcclusionMode?.kind === "add" &&
-        !imageOcclusionMode.imagePath;
+        !$ioMaskEditorVisible && imageOcclusionMode?.kind === "addWithoutImage";
     $: showIOPage =
-        (imageOcclusionMode?.kind === "add" && Boolean(imageOcclusionMode.imagePath)) ||
-        imageOcclusionMode?.kind === "edit";
+        imageOcclusionMode?.kind === "add" || imageOcclusionMode?.kind === "edit";
     $: showFields =
         !imageOcclusionMode || (!$ioMaskEditorVisible && !showAddImageButton);
 
     async function setImageOcclusionMode(newMode?: IOMode | undefined): Promise<void> {
+        if (imageOcclusionMode?.kind === "add" && newMode?.kind === "add") {
+            resetIOImage(newMode.imagePath);
+        }
         if (newMode?.kind === "add") {
-            if (newMode.imageFieldHtml) {
-                fieldStores[1].set(newMode.imageFieldHtml);
-            }
-            if (imageOcclusionMode?.kind === "add" && imageOcclusionMode.imagePath) {
-                resetIOImage(newMode.imagePath);
-            }
-        } else {
+            fieldStores[1].set(newMode.imageFieldHtml);
+
             if (get(fieldStores[0]).includes("oi=1")) {
                 $hideAllGuessOne = true;
             } else {
                 $hideAllGuessOne = false;
             }
         }
-        $ioMaskEditorVisible =
-            (newMode?.kind === "add" && Boolean(newMode.imagePath)) ||
-            newMode?.kind === "edit";
+        $ioMaskEditorVisible = newMode?.kind === "add" || newMode?.kind === "edit";
 
         // The current I/O code appears to assume that fabric.Canvas and panZoom are
         // reset each time the note is loaded or reloaded, so apparently we need to
