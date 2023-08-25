@@ -54,6 +54,7 @@ impl Collection {
         merge_notetypes: bool,
         update_notes: UpdateCondition,
         update_notetypes: UpdateCondition,
+        omit_scheduling: bool,
     ) -> Result<OpOutput<NoteLog>> {
         let file = open_file(path)?;
         let archive = ZipArchive::new(file)?;
@@ -66,6 +67,7 @@ impl Collection {
                 merge_notetypes,
                 update_notes,
                 update_notetypes,
+                omit_scheduling,
                 progress,
             )?;
             ctx.import()
@@ -80,6 +82,7 @@ impl<'a> Context<'a> {
         merge_notetypes: bool,
         update_notes: UpdateCondition,
         update_notetypes: UpdateCondition,
+        omit_scheduling: bool,
         mut progress: ThrottlingProgressHandler<ImportProgress>,
     ) -> Result<Self> {
         let media_manager = target_col.media()?;
@@ -89,7 +92,7 @@ impl<'a> Context<'a> {
             &meta,
             SearchNode::WholeCollection,
             &mut progress,
-            true,
+            !omit_scheduling,
         )?;
         let usn = target_col.usn()?;
         Ok(Self {

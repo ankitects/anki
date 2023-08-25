@@ -19,6 +19,7 @@ impl crate::services::ImportExportService for Collection {
             input.merge_notetypes,
             input.update_notes(),
             input.update_notetypes(),
+            input.omit_scheduling,
         )
         .map(Into::into)
     }

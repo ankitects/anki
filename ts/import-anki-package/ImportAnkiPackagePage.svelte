@@ -28,6 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let mergeNotetypes: boolean = false;
     export let updateNotes = ImportAnkiPackageRequest_UpdateCondition.IF_NEWER;
     export let updateNotetypes = ImportAnkiPackageRequest_UpdateCondition.IF_NEWER;
+    export let omitScheduling = false;
 
     let importResponse: ImportResponse | undefined = undefined;
     let importing = false;
@@ -54,6 +55,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             help: tr.importingUpdateNotetypesHelp(),
             url: HelpPage.Importing.ankiPackage,
         },
+        omitScheduling: {
+            title: tr.importingOmitScheduling(),
+            help: tr.importingOmitSchedulingHelp(),
+            url: HelpPage.Importing.ankiPackage,
+        },
     };
     const helpSections = Object.values(settings) as HelpItem[];
     let modal: Modal;
@@ -65,6 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             mergeNotetypes,
             updateNotes,
             updateNotetypes,
+            omitScheduling,
         });
         await importDone({});
         importing = false;
@@ -141,6 +148,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         {settings.updateNotetypes.title}
                     </SettingTitle>
                 </EnumSelectorRow>
+
+                <SwitchRow bind:value={omitScheduling} defaultValue={false}>
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(
+                                Object.keys(settings).indexOf("omitScheduling"),
+                            )}
+                    >
+                        {settings.omitScheduling.title}
+                    </SettingTitle>
+                </SwitchRow>
             </TitledContainer>
         </Row>
     </Container>

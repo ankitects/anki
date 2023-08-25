@@ -55,6 +55,7 @@ message ImportAnkiPackageRequest {
   bool merge_notetypes = 2;
   UpdateCondition update_notes = 3;
   UpdateCondition update_notetypes = 4;
+  bool omit_scheduling = 5;
 }
 
 message ImportResponse {

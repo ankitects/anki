@@ -57,6 +57,7 @@ fn roundtrip_inner(legacy: bool) {
             false,
             UpdateCondition::IfNewer,
             UpdateCondition::IfNewer,
+            false,
         )
         .unwrap();
 
