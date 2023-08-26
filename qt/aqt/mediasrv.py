@@ -515,6 +515,7 @@ exposed_backend_list = [
     "i18n_resources",
     # ImportExportService
     "get_csv_metadata",
+    "get_import_anki_package_presets",
     # NotesService
     "get_field_names",
     "get_note",

@@ -14,6 +14,8 @@ import "anki/generic.proto";
 
 service ImportExportService {
   rpc ImportAnkiPackage(ImportAnkiPackageRequest) returns (ImportResponse);
+  rpc GetImportAnkiPackagePresets(generic.Empty)
+      returns (ImportAnkiPackageOptions);
   rpc ExportAnkiPackage(ExportAnkiPackageRequest) returns (generic.UInt32);
   rpc GetCsvMetadata(CsvMetadataRequest) returns (CsvMetadata);
   rpc ImportCsv(ImportCsvRequest) returns (ImportResponse);
@@ -45,17 +47,21 @@ message ExportCollectionPackageRequest {
   bool legacy = 3;
 }
 
-message ImportAnkiPackageRequest {
+message ImportAnkiPackageOptions {
   enum UpdateCondition {
     IF_NEWER = 0;
     ALWAYS = 1;
     NEVER = 2;
   }
+  bool merge_notetypes = 1;
+  UpdateCondition update_notes = 2;
+  UpdateCondition update_notetypes = 3;
+  bool omit_scheduling = 4;
+}
+
+message ImportAnkiPackageRequest {
   string package_path = 1;
-  bool merge_notetypes = 2;
-  UpdateCondition update_notes = 3;
-  UpdateCondition update_notetypes = 4;
-  bool omit_scheduling = 5;
+  ImportAnkiPackageOptions options = 2;
 }
 
 message ImportResponse {

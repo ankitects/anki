@@ -3,6 +3,7 @@
 
 import "./import-anki-package-base.scss";
 
+import { getImportAnkiPackagePresets } from "@tslib/backend";
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 
@@ -23,7 +24,10 @@ const i18n = setupI18n({
 export async function setupImportAnkiPackagePage(
     path: string,
 ): Promise<ImportAnkiPackagePage> {
-    await i18n;
+    const [_, options] = await Promise.all([
+        i18n,
+        getImportAnkiPackagePresets({}),
+    ]);
 
     const context = new Map();
     context.set(modalsKey, new Map());
@@ -32,7 +36,8 @@ export async function setupImportAnkiPackagePage(
     return new ImportAnkiPackagePage({
         target: document.body,
         props: {
-            path: path,
+            path,
+            options,
         },
         context,
     });

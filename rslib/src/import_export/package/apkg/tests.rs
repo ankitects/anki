@@ -8,7 +8,7 @@ use std::fs::File;
 use std::io::Write;
 
 use anki_io::read_file;
-use anki_proto::import_export::import_anki_package_request::UpdateCondition;
+use anki_proto::import_export::ImportAnkiPackageOptions;
 
 use crate::media::files::sha1_of_data;
 use crate::media::MediaManager;
@@ -52,13 +52,7 @@ fn roundtrip_inner(legacy: bool) {
         )
         .unwrap();
     target_col
-        .import_apkg(
-            &apkg_path,
-            false,
-            UpdateCondition::IfNewer,
-            UpdateCondition::IfNewer,
-            false,
-        )
+        .import_apkg(&apkg_path, ImportAnkiPackageOptions::default())
         .unwrap();
 
     target_col.assert_decks();

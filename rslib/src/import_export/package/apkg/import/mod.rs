@@ -21,7 +21,9 @@ use zip::ZipArchive;
 
 use super::super::meta::MetaExt;
 use crate::collection::CollectionBuilder;
+use crate::config::ConfigKey;
 use crate::import_export::gather::ExchangeData;
+use crate::import_export::package::ImportAnkiPackageOptions;
 use crate::import_export::package::Meta;
 use crate::import_export::package::UpdateCondition;
 use crate::import_export::ImportProgress;
@@ -51,25 +53,18 @@ impl Collection {
     pub fn import_apkg(
         &mut self,
         path: impl AsRef<Path>,
-        merge_notetypes: bool,
-        update_notes: UpdateCondition,
-        update_notetypes: UpdateCondition,
-        omit_scheduling: bool,
+        options: ImportAnkiPackageOptions,
     ) -> Result<OpOutput<NoteLog>> {
         let file = open_file(path)?;
         let archive = ZipArchive::new(file)?;
         let progress = self.new_progress_handler();
 
         self.transact(Op::Import, |col| {
-            let mut ctx = Context::new(
-                archive,
-                col,
-                merge_notetypes,
-                update_notes,
-                update_notetypes,
-                omit_scheduling,
-                progress,
-            )?;
+            col.set_config(BoolKey::MergeNotetypes, &options.merge_notetypes)?;
+            col.set_config(BoolKey::OmitScheduling, &options.omit_scheduling)?;
+            col.set_config(ConfigKey::UpdateNotes, &options.update_notes())?;
+            col.set_config(ConfigKey::UpdateNotetypes, &options.update_notetypes())?;
+            let mut ctx = Context::new(archive, col, options, progress)?;
             ctx.import()
         })
     }
@@ -79,10 +74,7 @@ impl<'a> Context<'a> {
     fn new(
         mut archive: ZipArchive<File>,
         target_col: &'a mut Collection,
-        merge_notetypes: bool,
-        update_notes: UpdateCondition,
-        update_notetypes: UpdateCondition,
-        omit_scheduling: bool,
+        options: ImportAnkiPackageOptions,
         mut progress: ThrottlingProgressHandler<ImportProgress>,
     ) -> Result<Self> {
         let media_manager = target_col.media()?;
@@ -92,14 +84,14 @@ impl<'a> Context<'a> {
             &meta,
             SearchNode::WholeCollection,
             &mut progress,
-            !omit_scheduling,
+            !options.omit_scheduling,
         )?;
         let usn = target_col.usn()?;
         Ok(Self {
             target_col,
-            merge_notetypes,
-            update_notes,
-            update_notetypes,
+            merge_notetypes: options.merge_notetypes,
+            update_notes: options.update_notes(),
+            update_notetypes: options.update_notetypes(),
             media_manager,
             archive,
             meta,

@@ -3,8 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { ImportResponse } from "@tslib/anki/import_export_pb";
-    import { ImportAnkiPackageRequest_UpdateCondition } from "@tslib/anki/import_export_pb";
+    import type {
+        ImportAnkiPackageOptions,
+        ImportResponse,
+    } from "@tslib/anki/import_export_pb";
     import { importAnkiPackage } from "@tslib/backend";
     import { importDone } from "@tslib/backend";
     import * as tr from "@tslib/ftl";
@@ -25,10 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ImportLogPage from "../import-log/ImportLogPage.svelte";
 
     export let path: string;
-    export let mergeNotetypes: boolean = false;
-    export let updateNotes = ImportAnkiPackageRequest_UpdateCondition.IF_NEWER;
-    export let updateNotetypes = ImportAnkiPackageRequest_UpdateCondition.IF_NEWER;
-    export let omitScheduling = false;
+    export let options: ImportAnkiPackageOptions;
 
     let importResponse: ImportResponse | undefined = undefined;
     let importing = false;
@@ -68,10 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function onImport(): Promise<ImportResponse> {
         const result = await importAnkiPackage({
             packagePath: path,
-            mergeNotetypes,
-            updateNotes,
-            updateNotetypes,
-            omitScheduling,
+            options,
         });
         await importDone({});
         importing = false;
@@ -110,7 +106,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     }}
                 />
 
-                <SwitchRow bind:value={mergeNotetypes} defaultValue={false}>
+                <SwitchRow bind:value={options.mergeNotetypes} defaultValue={false}>
                     <SettingTitle
                         on:click={() =>
                             openHelpModal(
@@ -122,7 +118,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </SwitchRow>
 
                 <EnumSelectorRow
-                    bind:value={updateNotes}
+                    bind:value={options.updateNotes}
                     defaultValue={0}
                     choices={updateChoices}
                 >
@@ -135,7 +131,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </EnumSelectorRow>
 
                 <EnumSelectorRow
-                    bind:value={updateNotetypes}
+                    bind:value={options.updateNotetypes}
                     defaultValue={0}
                     choices={updateChoices}
                 >
@@ -149,7 +145,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </SettingTitle>
                 </EnumSelectorRow>
 
-                <SwitchRow bind:value={omitScheduling} defaultValue={false}>
+                <SwitchRow bind:value={options.omitScheduling} defaultValue={false}>
                     <SettingTitle
                         on:click={() =>
                             openHelpModal(
