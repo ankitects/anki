@@ -33,7 +33,9 @@ export const HelpPage = {
     Studying: {
         siblingsAndBurying: "https://docs.ankiweb.net/studying.html#siblings-and-burying",
     },
-    Importing: {
-        ankiPackage: "https://docs.ankiweb.net/importing.html#packaged-decks",
+    PackageImporting: {
+        root: "https://docs.ankiweb.net/importing/packaged-decks.html",
+        updating: "https://docs.ankiweb.net/importing/packaged-decks.html#updating",
+        scheduling: "https://docs.ankiweb.net/importing/packaged-decks.html#scheduling",
     },
 };

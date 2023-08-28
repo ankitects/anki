@@ -42,22 +42,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         mergeNotetypes: {
             title: tr.importingMergeNotetypes(),
             help: tr.importingMergeNotetypesHelp(),
-            url: HelpPage.Importing.ankiPackage,
+            url: HelpPage.PackageImporting.updating,
         },
         updateNotes: {
             title: tr.importingUpdateNotes(),
             help: tr.importingUpdateNotesHelp(),
-            url: HelpPage.Importing.ankiPackage,
+            url: HelpPage.PackageImporting.updating,
         },
         updateNotetypes: {
             title: tr.importingUpdateNotetypes(),
             help: tr.importingUpdateNotetypesHelp(),
-            url: HelpPage.Importing.ankiPackage,
+            url: HelpPage.PackageImporting.updating,
         },
         omitScheduling: {
             title: tr.importingOmitScheduling(),
             help: tr.importingOmitSchedulingHelp(),
-            url: HelpPage.Importing.ankiPackage,
+            url: HelpPage.PackageImporting.scheduling,
         },
     };
     const helpSections = Object.values(settings) as HelpItem[];
@@ -97,7 +97,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <TitledContainer title={tr.importingImportOptions()}>
                 <HelpModal
                     title={tr.importingImportOptions()}
-                    url={HelpPage.Importing.ankiPackage}
+                    url={HelpPage.PackageImporting.root}
                     slot="tooltip"
                     {helpSections}
                     on:mount={(e) => {
