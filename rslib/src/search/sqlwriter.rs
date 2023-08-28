@@ -357,9 +357,22 @@ impl SqlWriter<'_> {
             }
             PropertyKind::Rated(days, ease) => self.write_rated(op, i64::from(*days), ease)?,
             PropertyKind::CustomDataNumber { key, value } => {
+                let sql_value = match value {
+                    Some(v) => v.to_string(),
+                    None => "null".to_string(),
+                };
+                let sql_op = match value {
+                    Some(_) => op,
+                    None => match op {
+                        "=" => "is",
+                        "!=" => "is not",
+                        // Always false
+                        _ => op,
+                    },
+                };
                 write!(
                     self.sql,
-                    "extract_custom_data_number(c.data, '{key}') {op} {value}"
+                    "extract_custom_data_number(c.data, '{key}') {sql_op} {sql_value}"
                 )
                 .unwrap();
             }
@@ -1180,6 +1193,14 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
         assert_eq!(
             &s(ctx, "prop:cdn:r=1").0,
             "(extract_custom_data_number(c.data, 'r') = 1)"
+        );
+        assert_eq!(
+            &s(ctx, "prop:cdn:r=none").0,
+            "(extract_custom_data_number(c.data, 'r') is null)"
+        );
+        assert_eq!(
+            &s(ctx, "prop:cdn:r!=none").0,
+            "(extract_custom_data_number(c.data, 'r') is not null)"
         );
 
         // note types by name

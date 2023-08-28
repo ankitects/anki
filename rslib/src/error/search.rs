@@ -36,6 +36,7 @@ pub enum SearchErrorKind {
     InvalidPositiveWholeNumber { provided: String, context: String },
     InvalidNegativeWholeNumber { provided: String, context: String },
     InvalidAnswerButton { provided: String, context: String },
+    InvalidCustomDataValue { provided: String, context: String },
     Other { info: Option<String> },
 }
 
@@ -126,6 +127,11 @@ impl SearchErrorKind {
 
             SearchErrorKind::InvalidAnswerButton { provided, context } => tr
                 .search_invalid_answer_button(
+                    context.replace('`', "'"),
+                    provided.replace('`', "'"),
+                ),
+            SearchErrorKind::InvalidCustomDataValue { provided, context } => tr
+                .search_invalid_custom_data_value(
                     context.replace('`', "'"),
                     provided.replace('`', "'"),
                 ),
