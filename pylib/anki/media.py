@@ -116,6 +116,7 @@ class MediaManager(DeprecatedNamesMixin):
                 "image/png": ".png",
                 "image/svg+xml": ".svg",
                 "image/webp": ".webp",
+                "image/avif": ".avif",
             }
             if content_type in type_map:
                 fname += type_map[content_type]

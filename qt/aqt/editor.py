@@ -58,7 +58,7 @@ from aqt.utils import (
 )
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
-pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp", "ico")
+pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp", "ico", "avif")
 audio = (
     "3gp",
     "aac",
