@@ -33,10 +33,10 @@ importing-mapped-to-tags = mapped to <b>Tags</b>
 # the action of combining two existing notetypes to create a new one
 importing-merge-notetypes = Merge notetypes
 importing-merge-notetypes-help =
-    If checked, and you or the deck author altered a notetype, combines the two versions
+    If checked, and you or the deck author altered a notetype, Anki will merge the two versions
     instead of keeping both.
     
-    Warning: This will necessitate a full sync and may mark existing notes as modified.
+    Warning: This will require a one-way sync, and may mark existing notes as modified.
 importing-mnemosyne-20-deck-db = Mnemosyne 2.0 Deck (*.db)
 importing-multicharacter-separators-are-not-supported-please = Multi-character separators are not supported. Please enter one character only.
 importing-notes-added-from-file = Notes added from file: { $val }
@@ -45,7 +45,7 @@ importing-notes-skipped-as-theyre-already-in = Notes skipped, as up-to-date copi
 importing-notes-skipped-update-due-to-notetype = Notes not updated, as notetype has been modified since you first imported the notes: { $val }
 importing-notes-updated-as-file-had-newer = Notes updated, as file had newer version: { $val }
 importing-omit-scheduling = Omit scheduling
-importing-omit-scheduling-help = If checked, no scheduling information the file may contain will be imported.
+importing-omit-scheduling-help = If enabled, Anki will remove any previous reviews that the deck sharer included, and all cards will appear as new cards.
 importing-packaged-anki-deckcollection-apkg-colpkg-zip = Packaged Anki Deck/Collection (*.apkg *.colpkg *.zip)
 importing-pauker-18-lesson-paugz = Pauker 1.8 Lesson (*.pau.gz)
 # the '|' character
@@ -72,11 +72,11 @@ importing-update-never = Never
 importing-update-notes = Update notes
 importing-update-notes-help =
     When to update a note with the imported equivalent. By default, this is only done
-    if the imported note was more recently modified.
+    if the matching imported note was more recently modified.
 importing-update-notetypes = Update notetypes
 importing-update-notetypes-help =
-    When to update a notetype with the imported equivalent. By default, this is only done
-    if the imported notetype was more recently modified.
+    When to update an existing notetype in your collection. By default, this is only done
+    if the matching imported notetype was more recently modified.
 importing-note-added =
     { $count ->
         [one] { $count } note added

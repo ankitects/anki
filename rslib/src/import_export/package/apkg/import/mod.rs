@@ -33,7 +33,7 @@ use crate::prelude::*;
 use crate::progress::ThrottlingProgressHandler;
 use crate::search::SearchNode;
 
-/// New template indices by old template indices for a given notetype.
+/// A map of old to new template indices for a given notetype.
 type TemplateMap = std::collections::HashMap<u16, u16>;
 
 struct Context<'a> {
