@@ -47,15 +47,16 @@ message ExportCollectionPackageRequest {
   bool legacy = 3;
 }
 
+enum ImportAnkiPackageUpdateCondition {
+  IMPORT_ANKI_PACKAGE_UPDATE_CONDITION_IF_NEWER = 0;
+  IMPORT_ANKI_PACKAGE_UPDATE_CONDITION_ALWAYS = 1;
+  IMPORT_ANKI_PACKAGE_UPDATE_CONDITION_NEVER = 2;
+}
+
 message ImportAnkiPackageOptions {
-  enum UpdateCondition {
-    IF_NEWER = 0;
-    ALWAYS = 1;
-    NEVER = 2;
-  }
   bool merge_notetypes = 1;
-  UpdateCondition update_notes = 2;
-  UpdateCondition update_notetypes = 3;
+  ImportAnkiPackageUpdateCondition update_notes = 2;
+  ImportAnkiPackageUpdateCondition update_notetypes = 3;
   bool omit_scheduling = 4;
 }
 

@@ -46,7 +46,7 @@ pub fn write_rust_protos(descriptors_path: PathBuf) -> Result<DescriptorPool> {
             "#[derive(serde::Deserialize, serde::Serialize)]",
         )
         .type_attribute(
-            "ImportAnkiPackageOptions.UpdateCondition",
+            "ImportAnkiPackageUpdateCondition",
             "#[derive(serde::Deserialize, serde::Serialize)]",
         )
         .compile_protos(paths.as_slice(), &[proto_dir])
