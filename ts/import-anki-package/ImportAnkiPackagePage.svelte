@@ -55,8 +55,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             url: HelpPage.PackageImporting.updating,
         },
         omitScheduling: {
-            title: tr.importingOmitScheduling(),
-            help: tr.importingOmitSchedulingHelp(),
+            title: tr.importingAllCardsAsNew(),
+            help: tr.importingAllCardsAsNewHelp(),
             url: HelpPage.PackageImporting.scheduling,
         },
     };
