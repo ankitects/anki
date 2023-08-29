@@ -71,7 +71,7 @@ importing-update-always = Always
 importing-update-never = Never
 importing-update-notes = Update notes
 importing-update-notes-help =
-    When to update a note with the imported equivalent. By default, this is only done
+    When to update an existing note in your collection. By default, this is only done
     if the matching imported note was more recently modified.
 importing-update-notetypes = Update notetypes
 importing-update-notetypes-help =
