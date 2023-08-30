@@ -297,7 +297,7 @@ impl<'n> NoteContext<'n> {
     fn should_update_note(&self, existing: &NoteMeta, incoming: &Note) -> bool {
         match self.update_notes {
             UpdateCondition::IfNewer => existing.mtime < incoming.mtime,
-            UpdateCondition::Always => true,
+            UpdateCondition::Always => existing.mtime != incoming.mtime,
             UpdateCondition::Never => false,
         }
     }
