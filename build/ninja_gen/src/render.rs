@@ -22,12 +22,17 @@ impl Build {
         )
         .unwrap();
 
+        writeln!(&mut buf, "builddir = {}", self.buildroot.as_str()).unwrap();
         writeln!(
             &mut buf,
             "runner = $builddir/rust/release/{}",
             with_exe("runner")
         )
         .unwrap();
+        for (key, value) in &self.variables {
+            writeln!(&mut buf, "{} = {}", key, value).unwrap();
+        }
+        buf.push('\n');
 
         for (key, value) in &self.pools {
             writeln!(&mut buf, "pool {}\n  depth = {}", key, value).unwrap();
@@ -48,14 +53,6 @@ impl Build {
         }
 
         buf.push_str(&self.trailing_text);
-
-        buf = buf.replace("$builddir", self.buildroot.as_str());
-        for (key, value) in &self.variables {
-            buf = buf.replace(
-                &format!("${key}"),
-                &value.replace("$builddir", self.buildroot.as_str()),
-            );
-        }
 
         buf
     }
