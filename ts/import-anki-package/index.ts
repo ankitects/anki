@@ -18,6 +18,7 @@ const i18n = setupI18n({
         ModuleName.DECK_CONFIG,
         ModuleName.ADDING,
         ModuleName.EDITING,
+        ModuleName.KEYBOARD,
     ],
 });
 
