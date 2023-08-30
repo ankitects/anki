@@ -27,7 +27,7 @@ pub fn help_page_link_suffix(page: HelpPage) -> &'static str {
         HelpPage::Index => "",
         HelpPage::Templates => "templates/intro.html",
         HelpPage::FilteredDeck => "filtered-decks.html",
-        HelpPage::Importing => "importing.html",
+        HelpPage::Importing => "importing/intro.html",
         HelpPage::CustomizingFields => "editing.html#customizing-fields",
         HelpPage::DeckOptions => "deck-options.html",
         HelpPage::EditingFeatures => "editing.html#editing-features",
