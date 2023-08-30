@@ -453,7 +453,7 @@ impl MediaChecker<'_> {
 
     fn maybe_extract_inline_image<'a>(&mut self, fname_decoded: &'a str) -> Result<Cow<'a, str>> {
         static BASE64_IMG: Lazy<Regex> = Lazy::new(|| {
-            Regex::new("(?i)^data:image/(jpg|jpeg|png|gif|webp);base64,(.+)$").unwrap()
+            Regex::new("(?i)^data:image/(jpg|jpeg|png|gif|webp|avif);base64,(.+)$").unwrap()
         });
 
         let Some(caps) = BASE64_IMG.captures(fname_decoded) else {
