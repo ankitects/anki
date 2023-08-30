@@ -6,6 +6,8 @@ use std::sync::Arc;
 use std::sync::Mutex;
 
 use anki_i18n::I18n;
+use anki_proto::collection::progress::ComputeRetention;
+use anki_proto::collection::progress::ComputeWeights;
 use futures::future::AbortHandle;
 
 use crate::dbcheck::DatabaseCheckProgress;
@@ -14,6 +16,8 @@ use crate::error::Result;
 use crate::import_export::ExportProgress;
 use crate::import_export::ImportProgress;
 use crate::prelude::Collection;
+use crate::scheduler::fsrs::retention::ComputeRetentionProgress;
+use crate::scheduler::fsrs::weights::ComputeWeightsProgress;
 use crate::sync::collection::normal::NormalSyncProgress;
 use crate::sync::collection::progress::FullSyncProgress;
 use crate::sync::collection::progress::SyncStage;
@@ -131,6 +135,8 @@ pub enum Progress {
     DatabaseCheck(DatabaseCheckProgress),
     Import(ImportProgress),
     Export(ExportProgress),
+    ComputeWeights(ComputeWeightsProgress),
+    ComputeRetention(ComputeRetentionProgress),
 }
 
 pub(crate) fn progress_to_proto(
@@ -216,6 +222,19 @@ pub(crate) fn progress_to_proto(
                 }
                 .into(),
             ),
+            Progress::ComputeWeights(progress) => {
+                anki_proto::collection::progress::Value::ComputeWeights(ComputeWeights {
+                    current: progress.current,
+                    total: progress.total,
+                    revlog_entries: progress.revlog_entries,
+                })
+            }
+            Progress::ComputeRetention(progress) => {
+                anki_proto::collection::progress::Value::ComputeRetention(ComputeRetention {
+                    current: progress.current,
+                    total: progress.total,
+                })
+            }
         }
     } else {
         anki_proto::collection::progress::Value::None(anki_proto::generic::Empty {})
@@ -279,6 +298,18 @@ impl From<ImportProgress> for Progress {
 impl From<ExportProgress> for Progress {
     fn from(p: ExportProgress) -> Self {
         Progress::Export(p)
+    }
+}
+
+impl From<ComputeWeightsProgress> for Progress {
+    fn from(p: ComputeWeightsProgress) -> Self {
+        Progress::ComputeWeights(p)
+    }
+}
+
+impl From<ComputeRetentionProgress> for Progress {
+    fn from(p: ComputeRetentionProgress) -> Self {
+        Progress::ComputeRetention(p)
     }
 }
 

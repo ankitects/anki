@@ -17,6 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SettingTitle from "./SettingTitle.svelte";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
+    import SwitchRow from "./SwitchRow.svelte";
     import type { DeckOption } from "./types";
 
     export let state: DeckOptionsState;
@@ -182,6 +183,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </SettingTitle>
             </SpinBoxFloatRow>
         </Item>
+
+        {#if state.v3Scheduler}
+            <Item>
+                <SwitchRow bind:value={$config.fsrsEnabled} defaultValue={false}>
+                    <SettingTitle>FSRS optimizer</SettingTitle>
+                </SwitchRow>
+            </Item>
+        {/if}
 
         {#if state.v3Scheduler}
             <Item>

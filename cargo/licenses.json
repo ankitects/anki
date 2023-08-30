@@ -270,6 +270,24 @@
     "description": "encodes and decodes base64 as bytes or utf8"
   },
   {
+    "name": "bincode",
+    "version": "2.0.0-rc.3",
+    "authors": "Ty Overby <ty@pre-alpha.com>|Zoey Riordan <zoey@dos.cafe>|Victor Koenders <bincode@trangar.com>",
+    "repository": "https://github.com/bincode-org/bincode",
+    "license": "MIT",
+    "license_file": null,
+    "description": "A binary serialization / deserialization strategy for transforming structs into bytes and vice versa!"
+  },
+  {
+    "name": "bit_field",
+    "version": "0.10.2",
+    "authors": "Philipp Oppermann <dev@phil-opp.com>",
+    "repository": "https://github.com/phil-opp/rust-bit-field",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Simple bit field trait providing get_bit, get_bits, set_bit, and set_bits methods for Rust's integral types."
+  },
+  {
     "name": "bitflags",
     "version": "1.3.2",
     "authors": "The Rust Project Developers",
@@ -322,6 +340,105 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A fast bump allocation arena for Rust."
+  },
+  {
+    "name": "burn",
+    "version": "0.9.0",
+    "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
+    "repository": "https://github.com/burn-rs/burn",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Flexible and Comprehensive Deep Learning Framework in Rust"
+  },
+  {
+    "name": "burn-autodiff",
+    "version": "0.9.0",
+    "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
+    "repository": "https://github.com/burn-rs/burn/tree/main/burn-autodiff",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Automatic differentiation backend for the Burn framework"
+  },
+  {
+    "name": "burn-common",
+    "version": "0.9.0",
+    "authors": "Dilshod Tadjibaev (@antimora)",
+    "repository": "https://github.com/burn-rs/burn/tree/main/burn-common",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Common crate for the Burn framework"
+  },
+  {
+    "name": "burn-core",
+    "version": "0.9.0",
+    "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
+    "repository": "https://github.com/burn-rs/burn/tree/main/burn-core",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Flexible and Comprehensive Deep Learning Framework in Rust"
+  },
+  {
+    "name": "burn-dataset",
+    "version": "0.9.0",
+    "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
+    "repository": "https://github.com/burn-rs/burn/tree/main/burn-dataset",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Library with simple dataset APIs for creating ML data pipelines"
+  },
+  {
+    "name": "burn-derive",
+    "version": "0.9.0",
+    "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
+    "repository": "https://github.com/burn-rs/burn/tree/main/burn-derive",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Derive crate for the Burn framework"
+  },
+  {
+    "name": "burn-ndarray",
+    "version": "0.9.0",
+    "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
+    "repository": "https://github.com/burn-rs/burn/tree/main/burn-ndarray",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Ndarray backend for the Burn framework"
+  },
+  {
+    "name": "burn-tensor",
+    "version": "0.9.0",
+    "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
+    "repository": "https://github.com/burn-rs/burn/tree/main/burn-tensor",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Tensor library with user-friendly APIs and automatic differentiation support"
+  },
+  {
+    "name": "burn-tensor-testgen",
+    "version": "0.9.0",
+    "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
+    "repository": "https://github.com/burn-rs/burn/tree/main/burn-tensor-testgen",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Test generation crate for burn-tensor"
+  },
+  {
+    "name": "burn-train",
+    "version": "0.9.0",
+    "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
+    "repository": "https://github.com/burn-rs/burn/tree/main/burn-train",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Training crate for the Burn framework"
+  },
+  {
+    "name": "bytemuck",
+    "version": "1.13.1",
+    "authors": "Lokathor <zefria@gmail.com>",
+    "repository": "https://github.com/Lokathor/bytemuck",
+    "license": "Apache-2.0 OR MIT OR Zlib",
+    "license_file": null,
+    "description": "A crate for mucking around with piles of bytes."
   },
   {
     "name": "byteorder",
@@ -387,6 +504,15 @@
     "description": "Time and duration crate optimized for speed"
   },
   {
+    "name": "color_quant",
+    "version": "1.1.0",
+    "authors": "nwin <nwin@users.noreply.github.com>",
+    "repository": "https://github.com/image-rs/color_quant.git",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Color quantization library to reduce n colors to 256 colors."
+  },
+  {
     "name": "concurrent-queue",
     "version": "2.2.0",
     "authors": "Stjepan Glavina <stjepang@gmail.com>|Taiki Endo <te316e89@gmail.com>|John Nunley <jtnunley01@gmail.com>",
@@ -394,6 +520,24 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Concurrent multi-producer multi-consumer queue"
+  },
+  {
+    "name": "const-random",
+    "version": "0.1.15",
+    "authors": "Tom Kaitchuck <Tom.Kaitchuck@gmail.com>",
+    "repository": "https://github.com/tkaitchuck/constrandom",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Provides compile time random number generation."
+  },
+  {
+    "name": "const-random-macro",
+    "version": "0.1.15",
+    "authors": "Tom Kaitchuck <Tom.Kaitchuck@gmail.com>",
+    "repository": "https://github.com/tkaitchuck/constrandom",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Provides the procedural macro used by const-random"
   },
   {
     "name": "constant_time_eq",
@@ -459,6 +603,24 @@
     "description": "Multi-producer multi-consumer channels for message passing"
   },
   {
+    "name": "crossbeam-deque",
+    "version": "0.8.3",
+    "authors": null,
+    "repository": "https://github.com/crossbeam-rs/crossbeam",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Concurrent work-stealing deque"
+  },
+  {
+    "name": "crossbeam-epoch",
+    "version": "0.9.15",
+    "authors": null,
+    "repository": "https://github.com/crossbeam-rs/crossbeam",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Epoch-based garbage collection"
+  },
+  {
     "name": "crossbeam-utils",
     "version": "0.8.16",
     "authors": null,
@@ -466,6 +628,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Utilities for concurrent programming"
+  },
+  {
+    "name": "crunchy",
+    "version": "0.2.2",
+    "authors": "Vurich <jackefransham@hotmail.co.uk>",
+    "repository": null,
+    "license": "MIT",
+    "license_file": null,
+    "description": "Crunchy unroller: deterministically unroll constant loops"
   },
   {
     "name": "crypto-common",
@@ -486,6 +657,15 @@
     "description": "Fast CSV parsing with support for serde."
   },
   {
+    "name": "csv",
+    "version": "1.2.2",
+    "authors": "Andrew Gallant <jamslam@gmail.com>",
+    "repository": "https://github.com/BurntSushi/rust-csv",
+    "license": "MIT OR Unlicense",
+    "license_file": null,
+    "description": "Fast CSV parsing with support for serde."
+  },
+  {
     "name": "csv-core",
     "version": "0.1.10",
     "authors": "Andrew Gallant <jamslam@gmail.com>",
@@ -493,6 +673,24 @@
     "license": "MIT OR Unlicense",
     "license_file": null,
     "description": "Bare bones CSV parsing with no_std support."
+  },
+  {
+    "name": "csv-core",
+    "version": "0.1.10",
+    "authors": "Andrew Gallant <jamslam@gmail.com>",
+    "repository": "https://github.com/BurntSushi/rust-csv",
+    "license": "MIT OR Unlicense",
+    "license_file": null,
+    "description": "Bare bones CSV parsing with no_std support."
+  },
+  {
+    "name": "dashmap",
+    "version": "5.5.3",
+    "authors": "Acrimon <joel.wejdenstal@gmail.com>",
+    "repository": "https://github.com/xacrimon/dashmap",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Blazing fast concurrent HashMap for Rust."
   },
   {
     "name": "data-encoding",
@@ -529,6 +727,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Ranged integers"
+  },
+  {
+    "name": "derive-new",
+    "version": "0.5.9",
+    "authors": "Nick Cameron <ncameron@mozilla.com>",
+    "repository": "https://github.com/nrc/derive-new",
+    "license": "MIT",
+    "license_file": null,
+    "description": "`#[derive(new)]` implements simple constructor functions for structs and enums."
   },
   {
     "name": "difflib",
@@ -648,6 +855,15 @@
     "description": "Notify async tasks or threads"
   },
   {
+    "name": "exr",
+    "version": "1.6.4",
+    "authors": "johannesvollmer <johannes596@t-online.de>",
+    "repository": "https://github.com/johannesvollmer/exrs",
+    "license": "BSD-3-Clause",
+    "license_file": null,
+    "description": "Read and write OpenEXR files without any unsafe code"
+  },
+  {
     "name": "fallible-iterator",
     "version": "0.2.0",
     "authors": "Steven Fackler <sfackler@gmail.com>",
@@ -666,6 +882,15 @@
     "description": "Fallible streaming iteration"
   },
   {
+    "name": "faster-hex",
+    "version": "0.8.0",
+    "authors": "zhangsoledad <787953403@qq.com>",
+    "repository": "https://github.com/NervosFoundation/faster-hex",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Fast hex encoding."
+  },
+  {
     "name": "fastrand",
     "version": "1.9.0",
     "authors": "Stjepan Glavina <stjepang@gmail.com>",
@@ -682,6 +907,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A simple and fast random number generator"
+  },
+  {
+    "name": "fdeflate",
+    "version": "0.3.0",
+    "authors": "The image-rs Developers",
+    "repository": "https://github.com/image-rs/fdeflate",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Fast specialized deflate implementation"
   },
   {
     "name": "fixedbitset",
@@ -738,6 +972,15 @@
     "description": "Parser/Serializer tools for Fluent Syntax."
   },
   {
+    "name": "flume",
+    "version": "0.10.14",
+    "authors": "Joshua Barretto <joshua.s.barretto@gmail.com>",
+    "repository": "https://github.com/zesterer/flume",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A blazingly fast multi-producer channel"
+  },
+  {
     "name": "fnv",
     "version": "1.0.7",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
@@ -781,6 +1024,15 @@
     "license": "ISC",
     "license_file": null,
     "description": "Parser for values from the Forwarded header (RFC 7239)"
+  },
+  {
+    "name": "fsrs-optimizer",
+    "version": "0.1.0",
+    "authors": null,
+    "repository": null,
+    "license": "BSD-3-Clause",
+    "license_file": null,
+    "description": null
   },
   {
     "name": "futf",
@@ -927,6 +1179,15 @@
     "description": "A small cross-platform library for retrieving random data from system source"
   },
   {
+    "name": "gif",
+    "version": "0.12.0",
+    "authors": "The image-rs Developers",
+    "repository": "https://github.com/image-rs/image-gif",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "GIF de- and encoder"
+  },
+  {
     "name": "gimli",
     "version": "0.28.0",
     "authors": null,
@@ -936,6 +1197,51 @@
     "description": "A library for reading and writing the DWARF debugging format."
   },
   {
+    "name": "gix-features",
+    "version": "0.33.0",
+    "authors": "Sebastian Thiel <sebastian.thiel@icloud.com>",
+    "repository": "https://github.com/Byron/gitoxide",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A crate to integrate various capabilities using compile-time feature flags"
+  },
+  {
+    "name": "gix-fs",
+    "version": "0.5.0",
+    "authors": "Sebastian Thiel <sebastian.thiel@icloud.com>",
+    "repository": "https://github.com/Byron/gitoxide",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A crate providing file system specific utilities to `gitoxide`"
+  },
+  {
+    "name": "gix-hash",
+    "version": "0.12.0",
+    "authors": "Sebastian Thiel <sebastian.thiel@icloud.com>",
+    "repository": "https://github.com/Byron/gitoxide",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Borrowed and owned git hash digests used to identify git objects"
+  },
+  {
+    "name": "gix-tempfile",
+    "version": "8.0.0",
+    "authors": "Sebastian Thiel <sebastian.thiel@icloud.com>",
+    "repository": "https://github.com/Byron/gitoxide",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A tempfile implementation with a global registry to assure cleanup"
+  },
+  {
+    "name": "gix-trace",
+    "version": "0.1.3",
+    "authors": "Sebastian Thiel <sebastian.thiel@icloud.com>",
+    "repository": "https://github.com/Byron/gitoxide",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A crate to provide minimal `tracing` support that can be turned off to zero cost"
+  },
+  {
     "name": "h2",
     "version": "0.3.21",
     "authors": "Carl Lerche <me@carllerche.com>|Sean McArthur <sean@seanmonstar.com>",
@@ -943,6 +1249,15 @@
     "license": "MIT",
     "license_file": null,
     "description": "An HTTP/2 client and server"
+  },
+  {
+    "name": "half",
+    "version": "2.3.1",
+    "authors": "Kathryn Long <squeeself@gmail.com>",
+    "repository": "https://github.com/starkat99/half-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Half-precision floating point f16 and bf16 types for Rust implementing the IEEE 754-2008 standard binary16 and bfloat16 types."
   },
   {
     "name": "hashbrown",
@@ -1152,6 +1467,15 @@
     "description": "IDNA (Internationalizing Domain Names in Applications) and Punycode."
   },
   {
+    "name": "image",
+    "version": "0.24.7",
+    "authors": "The image-rs Developers",
+    "repository": "https://github.com/image-rs/image",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Imaging library. Provides basic image processing and encoders/decoders for common image formats."
+  },
+  {
     "name": "indexmap",
     "version": "1.9.3",
     "authors": null,
@@ -1260,6 +1584,15 @@
     "description": "An implementation of the GNU make jobserver for Rust"
   },
   {
+    "name": "jpeg-decoder",
+    "version": "0.3.0",
+    "authors": "The image-rs Developers",
+    "repository": "https://github.com/image-rs/jpeg-decoder",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "JPEG decoder"
+  },
+  {
     "name": "js-sys",
     "version": "0.3.64",
     "authors": "The wasm-bindgen Developers",
@@ -1278,6 +1611,15 @@
     "description": "A macro for declaring lazily evaluated statics in Rust."
   },
   {
+    "name": "lebe",
+    "version": "0.5.2",
+    "authors": "johannesvollmer <johannes596@t-online.de>",
+    "repository": "https://github.com/johannesvollmer/lebe",
+    "license": "BSD-3-Clause",
+    "license_file": null,
+    "description": "Tiny, dead simple, high performance endianness conversions with a generic API"
+  },
+  {
     "name": "libc",
     "version": "0.2.147",
     "authors": "The Rust Project Developers",
@@ -1285,6 +1627,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Raw FFI bindings to platform libraries like libc."
+  },
+  {
+    "name": "libm",
+    "version": "0.2.7",
+    "authors": "Jorge Aparicio <jorge@japaric.io>",
+    "repository": "https://github.com/rust-lang/libm",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "libm in pure Rust"
   },
   {
     "name": "libsqlite3-sys",
@@ -1377,6 +1728,15 @@
     "description": "A blazing fast URL router."
   },
   {
+    "name": "matrixmultiply",
+    "version": "0.3.7",
+    "authors": "bluss|R. Janis Goldschmidt",
+    "repository": "https://github.com/bluss/matrixmultiply/",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "General matrix multiplication for f32 and f64 matrices. Operates on matrices with general layout (they can use arbitrary row and column stride). Detects and uses AVX or SSE2 on x86 platforms transparently for higher performance. Uses a microkernel strategy, so that the implementation is easy to parallelize and optimize.  Supports multithreading."
+  },
+  {
     "name": "memchr",
     "version": "2.5.0",
     "authors": "Andrew Gallant <jamslam@gmail.com>|bluss",
@@ -1384,6 +1744,15 @@
     "license": "MIT OR Unlicense",
     "license_file": null,
     "description": "Safe interface to memchr."
+  },
+  {
+    "name": "memoffset",
+    "version": "0.9.0",
+    "authors": "Gilad Naaman <gilad.naaman@gmail.com>",
+    "repository": "https://github.com/Gilnaa/memoffset",
+    "license": "MIT",
+    "license_file": null,
+    "description": "offset_of functionality for Rust structs."
   },
   {
     "name": "mime",
@@ -1449,6 +1818,15 @@
     "description": "A multimap implementation."
   },
   {
+    "name": "nanorand",
+    "version": "0.7.0",
+    "authors": "Lucy <lucy@absolucy.moe>",
+    "repository": "https://github.com/Absolucy/nanorand-rs",
+    "license": "Zlib",
+    "license_file": null,
+    "description": "A tiny, fast, zero-dep library for random number generation."
+  },
+  {
     "name": "native-tls",
     "version": "0.2.11",
     "authors": "Steven Fackler <sfackler@gmail.com>",
@@ -1456,6 +1834,24 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A wrapper over a platform's native TLS implementation"
+  },
+  {
+    "name": "ndarray",
+    "version": "0.15.6",
+    "authors": "Ulrik Sverdrup \"bluss\"|Jim Turner",
+    "repository": "https://github.com/rust-ndarray/ndarray",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "An n-dimensional array for general elements and for numerics. Lightweight array views and slicing; views support chunking and splitting."
+  },
+  {
+    "name": "ndarray-rand",
+    "version": "0.14.0",
+    "authors": "bluss",
+    "repository": "https://github.com/rust-ndarray/ndarray",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Constructors for randomized arrays. `rand` integration for `ndarray`."
   },
   {
     "name": "new_debug_unreachable",
@@ -1494,6 +1890,15 @@
     "description": "Library for ANSI terminal colors and styles (bold, underline)"
   },
   {
+    "name": "num-complex",
+    "version": "0.4.4",
+    "authors": "The Rust Project Developers",
+    "repository": "https://github.com/rust-num/num-complex",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Complex numbers implementation for Rust"
+  },
+  {
     "name": "num-format",
     "version": "0.4.4",
     "authors": "Brian Myers <brian.carl.myers@gmail.com>",
@@ -1501,6 +1906,24 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A Rust crate for producing string-representations of numbers, formatted according to international standards"
+  },
+  {
+    "name": "num-integer",
+    "version": "0.1.45",
+    "authors": "The Rust Project Developers",
+    "repository": "https://github.com/rust-num/num-integer",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Integer traits and functions"
+  },
+  {
+    "name": "num-rational",
+    "version": "0.4.1",
+    "authors": "The Rust Project Developers",
+    "repository": "https://github.com/rust-num/num-rational",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Rational numbers implementation for Rust"
   },
   {
     "name": "num-traits",
@@ -1636,6 +2059,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "An advanced API for creating custom synchronization primitives."
+  },
+  {
+    "name": "paste",
+    "version": "1.0.14",
+    "authors": "David Tolnay <dtolnay@gmail.com>",
+    "repository": "https://github.com/dtolnay/paste",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Macros for all your token pasting needs"
   },
   {
     "name": "percent-encoding",
@@ -1782,6 +2214,15 @@
     "description": "A library to run the pkg-config system tool at build time in order to be used in Cargo build scripts."
   },
   {
+    "name": "png",
+    "version": "0.17.10",
+    "authors": "The image-rs Developers",
+    "repository": "https://github.com/image-rs/image-png.git",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "PNG decoding and encoding library in pure Rust"
+  },
+  {
     "name": "ppv-lite86",
     "version": "0.2.17",
     "authors": "The CryptoCorrosion Contributors",
@@ -1899,6 +2340,15 @@
     "description": "A pull parser for CommonMark"
   },
   {
+    "name": "qoi",
+    "version": "0.4.1",
+    "authors": "Ivan Smirnov <rust@ivan.smirnov.ie>",
+    "repository": "https://github.com/aldanor/qoi-rust",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "VERY fast encoder/decoder for QOI (Quite Okay Image) format"
+  },
+  {
     "name": "quote",
     "version": "1.0.33",
     "authors": "David Tolnay <dtolnay@gmail.com>",
@@ -1962,6 +2412,15 @@
     "description": "Core random number generator traits and tools for implementation."
   },
   {
+    "name": "rand_distr",
+    "version": "0.4.3",
+    "authors": "The Rand Project Developers",
+    "repository": "https://github.com/rust-random/rand",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Sampling from random number distributions"
+  },
+  {
     "name": "rand_hc",
     "version": "0.2.0",
     "authors": "The Rand Project Developers",
@@ -1969,6 +2428,33 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "HC128 random number generator"
+  },
+  {
+    "name": "rawpointer",
+    "version": "0.2.1",
+    "authors": "bluss",
+    "repository": "https://github.com/bluss/rawpointer/",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Extra methods for raw pointers and `NonNull<T>`.  For example `.post_inc()` and `.pre_dec()` (c.f. `ptr++` and `--ptr`), `offset` and `add` for `NonNull<T>`, and the function `ptrdistance`."
+  },
+  {
+    "name": "rayon",
+    "version": "1.7.0",
+    "authors": "Niko Matsakis <niko@alum.mit.edu>|Josh Stone <cuviper@gmail.com>",
+    "repository": "https://github.com/rayon-rs/rayon",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Simple work-stealing parallelism for Rust"
+  },
+  {
+    "name": "rayon-core",
+    "version": "1.11.0",
+    "authors": "Niko Matsakis <niko@alum.mit.edu>|Josh Stone <cuviper@gmail.com>",
+    "repository": "https://github.com/rayon-rs/rayon",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Core APIs for Rayon"
   },
   {
     "name": "redox_syscall",
@@ -2070,6 +2556,24 @@
     "description": "Safe, fast, small crypto using Rust."
   },
   {
+    "name": "rmp",
+    "version": "0.8.12",
+    "authors": "Evgeny Safronov <division494@gmail.com>",
+    "repository": "https://github.com/3Hren/msgpack-rust",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Pure Rust MessagePack serialization implementation"
+  },
+  {
+    "name": "rmp-serde",
+    "version": "1.1.2",
+    "authors": "Evgeny Safronov <division494@gmail.com>",
+    "repository": "https://github.com/3Hren/msgpack-rust",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Serde bindings for RMP"
+  },
+  {
     "name": "rusqlite",
     "version": "0.29.0",
     "authors": "The rusqlite developers",
@@ -2169,6 +2673,15 @@
     "description": "A simple crate for determining whether two file paths point to the same file."
   },
   {
+    "name": "sanitize-filename",
+    "version": "0.5.0",
+    "authors": "Jacob Brown <kardeiz@gmail.com>",
+    "repository": "https://github.com/kardeiz/sanitize-filename",
+    "license": "MIT",
+    "license_file": null,
+    "description": "A simple filename sanitizer, based on Node's sanitize-filename"
+  },
+  {
     "name": "schannel",
     "version": "0.1.22",
     "authors": "Steven Fackler <sfackler@gmail.com>|Steffen Butzer <steffen.butzer@outlook.com>",
@@ -2224,7 +2737,7 @@
   },
   {
     "name": "serde",
-    "version": "1.0.185",
+    "version": "1.0.188",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/serde",
     "license": "Apache-2.0 OR MIT",
@@ -2242,7 +2755,7 @@
   },
   {
     "name": "serde_derive",
-    "version": "1.0.185",
+    "version": "1.0.188",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/serde",
     "license": "Apache-2.0 OR MIT",
@@ -2331,6 +2844,15 @@
     "description": "A lock-free concurrent slab."
   },
   {
+    "name": "signal-hook",
+    "version": "0.3.17",
+    "authors": "Michal 'vorner' Vaner <vorner@vorner.cz>|Thomas Himmelstoss <thimm@posteo.de>",
+    "repository": "https://github.com/vorner/signal-hook",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Unix signal handling"
+  },
+  {
     "name": "signal-hook-registry",
     "version": "1.4.1",
     "authors": "Michal 'vorner' Vaner <vorner@vorner.cz>|Masaki Hara <ackie.h.gmai@gmail.com>",
@@ -2338,6 +2860,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Backend crate for signal-hook"
+  },
+  {
+    "name": "simd-adler32",
+    "version": "0.3.7",
+    "authors": "Marvin Countryman <me@maar.vin>",
+    "repository": "https://github.com/mcountryman/simd-adler32",
+    "license": "MIT",
+    "license_file": null,
+    "description": "A SIMD-accelerated Adler-32 hash algorithm implementation."
   },
   {
     "name": "siphasher",
@@ -2449,7 +2980,25 @@
   },
   {
     "name": "strum",
+    "version": "0.24.1",
+    "authors": "Peter Glotfelty <peter.glotfelty@microsoft.com>",
+    "repository": "https://github.com/Peternator7/strum",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Helpful macros for working with enums and strings"
+  },
+  {
+    "name": "strum",
     "version": "0.25.0",
+    "authors": "Peter Glotfelty <peter.glotfelty@microsoft.com>",
+    "repository": "https://github.com/Peternator7/strum",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Helpful macros for working with enums and strings"
+  },
+  {
+    "name": "strum_macros",
+    "version": "0.24.3",
     "authors": "Peter Glotfelty <peter.glotfelty@microsoft.com>",
     "repository": "https://github.com/Peternator7/strum",
     "license": "MIT",
@@ -2538,6 +3087,15 @@
     "description": "Implementation detail of the `thiserror` crate"
   },
   {
+    "name": "thread-tree",
+    "version": "0.3.3",
+    "authors": "bluss <>",
+    "repository": "https://github.com/bluss/thread-tree",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A tree-structured thread pool for splitting jobs hierarchically on worker threads.  The tree structure means that there is no contention between workers when delivering jobs."
+  },
+  {
     "name": "thread_local",
     "version": "1.1.7",
     "authors": "Amanieu d'Antras <amanieu@gmail.com>",
@@ -2545,6 +3103,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Per-object thread-local storage"
+  },
+  {
+    "name": "tiff",
+    "version": "0.9.0",
+    "authors": "The image-rs Developers",
+    "repository": "https://github.com/image-rs/image-tiff",
+    "license": "MIT",
+    "license_file": null,
+    "description": "TIFF decoding and encoding library in pure Rust"
   },
   {
     "name": "time",
@@ -2572,6 +3139,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Procedural macros for the time crate.     This crate is an implementation detail and should not be relied upon directly."
+  },
+  {
+    "name": "tiny-keccak",
+    "version": "2.0.2",
+    "authors": "debris <marek.kotewicz@gmail.com>",
+    "repository": null,
+    "license": "CC0-1.0",
+    "license_file": null,
+    "description": "An implementation of Keccak derived functions."
   },
   {
     "name": "tinystr",
@@ -2961,6 +3537,15 @@
     "description": "A missing utime function for Rust."
   },
   {
+    "name": "uuid",
+    "version": "1.4.1",
+    "authors": "Ashley Mannix<ashleymannix@live.com.au>|Christopher Armstrong|Dylan DPC<dylan.dpc@gmail.com>|Hunar Roop Kahlon<hunar.roop@gmail.com>",
+    "repository": "https://github.com/uuid-rs/uuid",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A library to generate and parse UUIDs."
+  },
+  {
     "name": "valuable",
     "version": "0.1.0",
     "authors": null,
@@ -3112,6 +3697,15 @@
     "license": "MPL-2.0",
     "license_file": null,
     "description": "Mozilla's CA root certificates for use with webpki"
+  },
+  {
+    "name": "weezl",
+    "version": "0.1.7",
+    "authors": "HeroicKatora <andreas.molzer@gmx.de>",
+    "repository": "https://github.com/image-rs/lzw.git",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Fast LZW compression and decompression."
   },
   {
     "name": "which",
@@ -3310,5 +3904,14 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Low-level bindings for the zstd compression library."
+  },
+  {
+    "name": "zune-inflate",
+    "version": "0.2.54",
+    "authors": null,
+    "repository": null,
+    "license": "Apache-2.0 OR MIT OR Zlib",
+    "license_file": null,
+    "description": "A heavily optimized deflate decompressor in Pure Rust"
   }
 ]

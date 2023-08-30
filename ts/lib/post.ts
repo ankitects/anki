@@ -18,7 +18,7 @@ export async function postProto<T>(
         const outputBytes = await postProtoInner(path, inputBytes);
         return outputType.fromBinary(outputBytes);
     } catch (err) {
-        if (alertOnError) {
+        if (alertOnError && !(err instanceof Error && err.message !== "Error: 500: Interrupted")) {
             alert(err);
         }
         throw err;

@@ -65,6 +65,13 @@ pub struct DeckConfSchema11 {
     #[serde(default)]
     bury_interday_learning: bool,
 
+    #[serde(default)]
+    fsrs_weights: Vec<f32>,
+    #[serde(default)]
+    fsrs_enabled: bool,
+    #[serde(default)]
+    desired_retention: f32,
+
     #[serde(flatten)]
     other: HashMap<String, Value>,
 }
@@ -250,6 +257,9 @@ impl Default for DeckConfSchema11 {
             new_sort_order: 0,
             new_gather_priority: 0,
             bury_interday_learning: false,
+            fsrs_weights: vec![],
+            fsrs_enabled: false,
+            desired_retention: 0.9,
         }
     }
 }
@@ -318,6 +328,9 @@ impl From<DeckConfSchema11> for DeckConfig {
                 bury_new: c.new.bury,
                 bury_reviews: c.rev.bury,
                 bury_interday_learning: c.bury_interday_learning,
+                fsrs_weights: c.fsrs_weights,
+                fsrs_enabled: c.fsrs_enabled,
+                desired_retention: c.desired_retention,
                 other: other_bytes,
             },
         }
@@ -409,6 +422,9 @@ impl From<DeckConfig> for DeckConfSchema11 {
             new_sort_order: i.new_card_sort_order,
             new_gather_priority: i.new_card_gather_priority,
             bury_interday_learning: i.bury_interday_learning,
+            fsrs_weights: i.fsrs_weights,
+            fsrs_enabled: i.fsrs_enabled,
+            desired_retention: i.desired_retention,
         }
     }
 }
@@ -429,7 +445,10 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "timer",
     "name",
     "interdayLearningMix",
-    "newGatherPriority"
+    "newGatherPriority",
+    "fsrsWeights",
+    "desiredRetention",
+    "fsrsEnabled",
 };
 
 static RESERVED_DECKCONF_NEW_KEYS: Set<&'static str> = phf_set! {

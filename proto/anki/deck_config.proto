@@ -92,7 +92,9 @@ message DeckConfig {
     repeated float learn_steps = 1;
     repeated float relearn_steps = 2;
 
-    reserved 3 to 8;
+    repeated float fsrs_weights = 3;
+
+    reserved 4 to 8;
 
     uint32 new_per_day = 9;
     uint32 reviews_per_day = 10;
@@ -132,6 +134,9 @@ message DeckConfig {
     bool bury_new = 27;
     bool bury_reviews = 28;
     bool bury_interday_learning = 29;
+
+    bool fsrs_enabled = 36;
+    float desired_retention = 37;  // for fsrs
 
     bytes other = 255;
   }

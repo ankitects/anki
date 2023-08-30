@@ -10,6 +10,7 @@ pub mod answering;
 pub mod bury_and_suspend;
 pub(crate) mod congrats;
 pub(crate) mod filtered;
+pub mod fsrs;
 mod learning;
 pub mod new;
 pub(crate) mod queue;

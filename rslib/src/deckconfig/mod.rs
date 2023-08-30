@@ -66,6 +66,9 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     bury_new: false,
     bury_reviews: false,
     bury_interday_learning: false,
+    fsrs_enabled: false,
+    fsrs_weights: vec![],
+    desired_retention: 0.9,
     other: Vec::new(),
 };
 

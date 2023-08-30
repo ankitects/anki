@@ -45,6 +45,10 @@ service SchedulerService {
   rpc CustomStudyDefaults(CustomStudyDefaultsRequest)
       returns (CustomStudyDefaultsResponse);
   rpc RepositionDefaults(generic.Empty) returns (RepositionDefaultsResponse);
+  rpc ComputeFsrsWeights(ComputeFsrsWeightsRequest)
+      returns (ComputeFsrsWeightsResponse);
+  rpc ComputeOptimalRetention(ComputeOptimalRetentionRequest)
+      returns (ComputeOptimalRetentionResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -316,4 +320,28 @@ message CustomStudyDefaultsResponse {
 message RepositionDefaultsResponse {
   bool random = 1;
   bool shift = 2;
+}
+
+message ComputeFsrsWeightsRequest {
+  /// The search used to gather cards for training
+  string search = 1;
+}
+
+message ComputeFsrsWeightsResponse {
+  repeated float weights = 1;
+}
+
+message ComputeOptimalRetentionRequest {
+  repeated float weights = 1;
+  uint32 deck_size = 2;
+  uint32 days_to_simulate = 3;
+  uint32 max_seconds_of_study_per_day = 4;
+  uint32 max_interval = 5;
+  uint32 recall_secs = 6;
+  uint32 forget_secs = 7;
+  uint32 learn_secs = 8;
+}
+
+message ComputeOptimalRetentionResponse {
+  float optimal_retention = 1;
 }

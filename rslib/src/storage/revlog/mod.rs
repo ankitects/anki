@@ -132,6 +132,18 @@ impl SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn get_revlog_entries_for_searched_cards_in_order(
+        &self,
+    ) -> Result<Vec<RevlogEntry>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get.sql"),
+                " where cid in (select cid from search_cids) order by cid"
+            ))?
+            .query_and_then([], row_to_revlog_entry)?
+            .collect()
+    }
+
     pub(crate) fn get_all_revlog_entries(&self, after: TimestampSecs) -> Result<Vec<RevlogEntry>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " where id >= ?"))?
