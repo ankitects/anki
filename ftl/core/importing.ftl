@@ -33,8 +33,13 @@ importing-mapped-to-tags = mapped to <b>Tags</b>
 # the action of combining two existing notetypes to create a new one
 importing-merge-notetypes = Merge notetypes
 importing-merge-notetypes-help =
-    If checked, and you or the deck author altered a notetype, Anki will merge the two versions
-    instead of keeping both.
+    If checked, and you or the deck author altered the schema of a notetype, Anki will
+    merge the two versions instead of keeping both.
+    
+    Altering a notetype's schema means adding, removing, or reordering fields or templates,
+    or changing the sort field.
+    As a counterexample, changing the front side of an existing template does *not* constitute
+    a schema change.
     
     Warning: This will require a one-way sync, and may mark existing notes as modified.
 importing-mnemosyne-20-deck-db = Mnemosyne 2.0 Deck (*.db)
