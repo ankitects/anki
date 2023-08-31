@@ -86,6 +86,7 @@ fn write_search_node(node: &SearchNode) -> String {
         Regex(s) => maybe_quote(&format!("re:{}", s)),
         NoCombining(s) => maybe_quote(&format!("nc:{}", s)),
         WordBoundary(s) => maybe_quote(&format!("w:{}", s)),
+        CustomData(k) => maybe_quote(&format!("has-cd:{}", k)),
     }
 }
 
@@ -171,14 +172,7 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
             RatingKind::AnyAnswerButton => format!("prop:rated{}{}", operator, u),
             RatingKind::ManualReschedule => format!("prop:resched{}{}", operator, u),
         },
-        CustomDataNumber { key, value } => {
-            let v = match value {
-                Some(v) => v.to_string(),
-                None => "none".to_string(),
-            };
-
-            format!("prop:cdn:{key}{operator}{v}")
-        }
+        CustomDataNumber { key, value } => format!("prop:cdn:{key}{operator}{value}"),
     }
 }
 

@@ -27,7 +27,6 @@ search-invalid-whole-number = expected a whole number in "`{ $context }`", but f
 search-invalid-positive-whole-number = expected a positive whole number in "`{ $context }`", but found "`{ $provided }`".
 search-invalid-negative-whole-number = expected a whole number less than or equal to 0 in "`{ $context }`", but found "`{ $provided }`".
 search-invalid-answer-button = expected an answer button between 1-4 in "`{ $context }`", but found "`{ $provided }`".
-search-invalid-custom-data-value = expected a number or `none` in "`{ $context }`", but found "`{ $provided }`".
 
 ## Column labels in browse screen
 

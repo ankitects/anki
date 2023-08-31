@@ -92,6 +92,7 @@ pub enum SearchNode {
     Regex(String),
     NoCombining(String),
     WordBoundary(String),
+    CustomData(String),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -103,7 +104,7 @@ pub enum PropertyKind {
     Ease(f32),
     Position(u32),
     Rated(i32, RatingKind),
-    CustomDataNumber { key: String, value: Option<f32> },
+    CustomDataNumber { key: String, value: f32 },
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -348,6 +349,7 @@ fn search_node_for_text_with_argument<'a>(
         "nc" => SearchNode::NoCombining(unescape(val)?),
         "w" => SearchNode::WordBoundary(unescape(val)?),
         "dupe" => parse_dupe(val)?,
+        "has-cd" => SearchNode::CustomData(unescape(val)?),
         // anything else is a field search
         _ => parse_single_field(key, val)?,
     })
@@ -448,7 +450,10 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
         "pos" => PropertyKind::Position(parse_u32(num, prop_clause)?),
         other => {
             let Some(prop) = other.strip_prefix("cdn:") else { unreachable!() };
-            parse_prop_cdn(prop, num, prop_clause)?
+            PropertyKind::CustomDataNumber {
+                key: prop.into(),
+                value: parse_f32(num, prop_clause)?,
+            }
         }
     };
 
@@ -547,26 +552,6 @@ fn parse_prop_rated<'a>(num: &str, context: &'a str) -> ParseResult<'a, Property
     let days = parse_negative_i32(it.next().unwrap(), context)?;
     let button = parse_answer_button(it.next(), context)?;
     Ok(PropertyKind::Rated(days, button))
-}
-
-fn parse_prop_cdn<'a>(key: &str, value: &str, context: &'a str) -> ParseResult<'a, PropertyKind> {
-    let v = match value {
-        "none" => None,
-        _ => Some(value.parse().map_err(|_| {
-            parse_failure(
-                context,
-                FailKind::InvalidCustomDataValue {
-                    context: context.into(),
-                    provided: value.into(),
-                },
-            )
-        })?),
-    };
-
-    Ok(PropertyKind::CustomDataNumber {
-        key: key.into(),
-        value: v,
-    })
 }
 
 /// eg added:1
@@ -936,17 +921,7 @@ mod test {
                 operator: "<=".into(),
                 kind: PropertyKind::CustomDataNumber {
                     key: "abc".into(),
-                    value: Some(1.0)
-                }
-            })]
-        );
-        assert_eq!(
-            parse("prop:cdn:abc=none")?,
-            vec![Search(Property {
-                operator: "=".into(),
-                kind: PropertyKind::CustomDataNumber {
-                    key: "abc".into(),
-                    value: None
+                    value: 1.0
                 }
             })]
         );

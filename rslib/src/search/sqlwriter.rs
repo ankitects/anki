@@ -179,6 +179,7 @@ impl SqlWriter<'_> {
                 write!(self.sql, "c.id in ({})", cids).unwrap();
             }
             SearchNode::Property { operator, kind } => self.write_prop(operator, kind)?,
+            SearchNode::CustomData(key) => self.write_custom_data(key)?,
             SearchNode::WholeCollection => write!(self.sql, "true").unwrap(),
         };
         Ok(())
@@ -357,26 +358,19 @@ impl SqlWriter<'_> {
             }
             PropertyKind::Rated(days, ease) => self.write_rated(op, i64::from(*days), ease)?,
             PropertyKind::CustomDataNumber { key, value } => {
-                let sql_value = match value {
-                    Some(v) => v.to_string(),
-                    None => "null".to_string(),
-                };
-                let sql_op = match value {
-                    Some(_) => op,
-                    None => match op {
-                        "=" => "is",
-                        "!=" => "is not",
-                        // Always false
-                        _ => op,
-                    },
-                };
                 write!(
                     self.sql,
-                    "extract_custom_data_number(c.data, '{key}') {sql_op} {sql_value}"
+                    "extract_custom_data_number(c.data, '{key}') {op} {value}"
                 )
                 .unwrap();
             }
         }
+
+        Ok(())
+    }
+
+    fn write_custom_data(&mut self, key: &str) -> Result<()> {
+        write!(self.sql, "has_custom_data(c.data, '{key}')").unwrap();
 
         Ok(())
     }
@@ -940,6 +934,7 @@ impl SearchNode {
             SearchNode::Flag(_) => RequiredTable::Cards,
             SearchNode::CardIds(_) => RequiredTable::Cards,
             SearchNode::Property { .. } => RequiredTable::Cards,
+            SearchNode::CustomData { .. } => RequiredTable::Cards,
 
             SearchNode::UnqualifiedText(_) => RequiredTable::Notes,
             SearchNode::SingleField { .. } => RequiredTable::Notes,
@@ -1193,14 +1188,6 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
         assert_eq!(
             &s(ctx, "prop:cdn:r=1").0,
             "(extract_custom_data_number(c.data, 'r') = 1)"
-        );
-        assert_eq!(
-            &s(ctx, "prop:cdn:r=none").0,
-            "(extract_custom_data_number(c.data, 'r') is null)"
-        );
-        assert_eq!(
-            &s(ctx, "prop:cdn:r!=none").0,
-            "(extract_custom_data_number(c.data, 'r') is not null)"
         );
 
         // note types by name
