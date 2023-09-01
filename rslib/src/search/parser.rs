@@ -92,6 +92,7 @@ pub enum SearchNode {
     Regex(String),
     NoCombining(String),
     WordBoundary(String),
+    CustomData(String),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -348,6 +349,7 @@ fn search_node_for_text_with_argument<'a>(
         "nc" => SearchNode::NoCombining(unescape(val)?),
         "w" => SearchNode::WordBoundary(unescape(val)?),
         "dupe" => parse_dupe(val)?,
+        "has-cd" => SearchNode::CustomData(unescape(val)?),
         // anything else is a field search
         _ => parse_single_field(key, val)?,
     })
