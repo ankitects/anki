@@ -21,7 +21,7 @@ impl crate::services::ImportExportService for Collection {
     ) -> Result<anki_proto::import_export::ImportAnkiPackageOptions> {
         Ok(anki_proto::import_export::ImportAnkiPackageOptions {
             merge_notetypes: self.get_config_bool(BoolKey::MergeNotetypes),
-            omit_scheduling: self.get_config_bool(BoolKey::OmitScheduling),
+            with_scheduling: self.get_config_bool(BoolKey::WithScheduling),
             update_notes: self.get_update_notes() as i32,
             update_notetypes: self.get_update_notetypes() as i32,
         })

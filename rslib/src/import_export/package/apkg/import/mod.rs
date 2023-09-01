@@ -61,7 +61,7 @@ impl Collection {
 
         self.transact(Op::Import, |col| {
             col.set_config(BoolKey::MergeNotetypes, &options.merge_notetypes)?;
-            col.set_config(BoolKey::OmitScheduling, &options.omit_scheduling)?;
+            col.set_config(BoolKey::WithScheduling, &options.with_scheduling)?;
             col.set_config(ConfigKey::UpdateNotes, &options.update_notes())?;
             col.set_config(ConfigKey::UpdateNotetypes, &options.update_notetypes())?;
             let mut ctx = Context::new(archive, col, options, progress)?;
@@ -84,7 +84,7 @@ impl<'a> Context<'a> {
             &meta,
             SearchNode::WholeCollection,
             &mut progress,
-            !options.omit_scheduling,
+            options.with_scheduling,
         )?;
         let usn = target_col.usn()?;
         Ok(Self {

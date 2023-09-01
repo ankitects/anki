@@ -54,9 +54,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             help: tr.importingUpdateNotetypesHelp(),
             url: HelpPage.PackageImporting.updating,
         },
-        omitScheduling: {
-            title: tr.importingAllCardsAsNew(),
-            help: tr.importingAllCardsAsNewHelp(),
+        withScheduling: {
+            title: tr.importingIncludeReviews(),
+            help: tr.importingIncludeReviewsHelp(),
             url: HelpPage.PackageImporting.scheduling,
         },
     };
@@ -145,14 +145,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </SettingTitle>
                 </EnumSelectorRow>
 
-                <SwitchRow bind:value={options.omitScheduling} defaultValue={false}>
+                <SwitchRow bind:value={options.withScheduling} defaultValue={false}>
                     <SettingTitle
                         on:click={() =>
                             openHelpModal(
-                                Object.keys(settings).indexOf("omitScheduling"),
+                                Object.keys(settings).indexOf("withScheduling"),
                             )}
                     >
-                        {settings.omitScheduling.title}
+                        {settings.withScheduling.title}
                     </SettingTitle>
                 </SwitchRow>
             </TitledContainer>

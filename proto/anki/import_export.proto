@@ -57,7 +57,7 @@ message ImportAnkiPackageOptions {
   bool merge_notetypes = 1;
   ImportAnkiPackageUpdateCondition update_notes = 2;
   ImportAnkiPackageUpdateCondition update_notetypes = 3;
-  bool omit_scheduling = 4;
+  bool with_scheduling = 4;
 }
 
 message ImportAnkiPackageRequest {

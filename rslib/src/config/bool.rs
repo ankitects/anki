@@ -35,7 +35,7 @@ pub enum BoolKey {
     Sched2021,
     ShiftPositionOfExistingCards,
     MergeNotetypes,
-    OmitScheduling,
+    WithScheduling,
 
     #[strum(to_string = "normalize_note_text")]
     NormalizeNoteText,
