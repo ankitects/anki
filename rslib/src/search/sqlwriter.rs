@@ -179,6 +179,7 @@ impl SqlWriter<'_> {
                 write!(self.sql, "c.id in ({})", cids).unwrap();
             }
             SearchNode::Property { operator, kind } => self.write_prop(operator, kind)?,
+            SearchNode::CustomData(key) => self.write_custom_data(key)?,
             SearchNode::WholeCollection => write!(self.sql, "true").unwrap(),
         };
         Ok(())
@@ -364,6 +365,12 @@ impl SqlWriter<'_> {
                 .unwrap();
             }
         }
+
+        Ok(())
+    }
+
+    fn write_custom_data(&mut self, key: &str) -> Result<()> {
+        write!(self.sql, "has_custom_data(c.data, '{key}')").unwrap();
 
         Ok(())
     }
@@ -927,6 +934,7 @@ impl SearchNode {
             SearchNode::Flag(_) => RequiredTable::Cards,
             SearchNode::CardIds(_) => RequiredTable::Cards,
             SearchNode::Property { .. } => RequiredTable::Cards,
+            SearchNode::CustomData { .. } => RequiredTable::Cards,
 
             SearchNode::UnqualifiedText(_) => RequiredTable::Notes,
             SearchNode::SingleField { .. } => RequiredTable::Notes,
