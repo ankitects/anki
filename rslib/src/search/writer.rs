@@ -87,6 +87,7 @@ fn write_search_node(node: &SearchNode) -> String {
         NoCombining(s) => maybe_quote(&format!("nc:{}", s)),
         WordBoundary(s) => maybe_quote(&format!("w:{}", s)),
         CustomData(k) => maybe_quote(&format!("has-cd:{}", k)),
+        Preset(s) => maybe_quote(&format!("preset:{}", s)),
     }
 }
 

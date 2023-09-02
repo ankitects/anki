@@ -93,6 +93,7 @@ pub enum SearchNode {
     NoCombining(String),
     WordBoundary(String),
     CustomData(String),
+    Preset(String),
 }
 
 #[derive(Debug, PartialEq, Clone)]
