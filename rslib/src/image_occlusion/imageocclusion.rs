@@ -57,7 +57,9 @@ pub fn get_image_cloze_data(text: &str) -> String {
                         if !values[1].is_empty() {
                             let mut point_str = String::new();
                             for point_pair in values[1].split(' ') {
-                                let Some((x, y)) = point_pair.split_once(',') else { continue };
+                                let Some((x, y)) = point_pair.split_once(',') else {
+                                    continue;
+                                };
                                 write!(&mut point_str, "{},{} ", x, y).unwrap();
                             }
                             // remove the trailing space

@@ -278,7 +278,9 @@ impl MethodHelpers for Method {
 }
 
 fn rust_type(name: &str) -> String {
-    let Some((head, tail)) = name.rsplit_once( '.') else { panic!() };
+    let Some((head, tail)) = name.rsplit_once('.') else {
+        panic!()
+    };
     format!(
         "{}::{}",
         head.to_snake_case()

@@ -61,7 +61,10 @@ pub fn get_services(pool: &DescriptorPool) -> (Vec<CollectionService>, Vec<Backe
         // locate associated collection service
         let Some(col_service) = col_services
             .iter()
-            .find(|cs| cs.name == service.name.trim_start_matches("Backend")) else { panic!("missing associated service: {}", service.name) };
+            .find(|cs| cs.name == service.name.trim_start_matches("Backend"))
+        else {
+            panic!("missing associated service: {}", service.name)
+        };
 
         // add any methods that don't exist in backend trait methods to the delegating
         // methods

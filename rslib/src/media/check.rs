@@ -457,8 +457,8 @@ impl MediaChecker<'_> {
         });
 
         let Some(caps) = BASE64_IMG.captures(fname_decoded) else {
-        return Ok(fname_decoded.into());
-    };
+            return Ok(fname_decoded.into());
+        };
         let (_all, [ext, data]) = caps.extract();
         let data = data.trim();
         let data = match BASE64.decode(data.as_bytes()) {

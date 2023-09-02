@@ -466,7 +466,9 @@ mod tests {
         let key_source = DeckSchema11::default();
         let mut deck = Deck::new_normal();
         deck.common.other = serde_json::to_vec(&key_source)?;
-        let DeckSchema11::Normal(s11) = DeckSchema11::from(deck) else { panic!() };
+        let DeckSchema11::Normal(s11) = DeckSchema11::from(deck) else {
+            panic!()
+        };
 
         let empty: &[&String] = &[];
         assert_eq!(&s11.common.other.keys().collect_vec(), empty);

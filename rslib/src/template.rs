@@ -647,7 +647,7 @@ pub fn render_card(
     context.frontside = if context.partial_for_python {
         Some("")
     } else {
-        let Some(RenderedNode::Text {text }) = &qnodes.get(0) else {
+        let Some(RenderedNode::Text { text }) = &qnodes.get(0) else {
             invalid_input!("should not happen: first node not text");
         };
         Some(text)
