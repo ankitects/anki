@@ -553,9 +553,11 @@ class Reviewer:
 
     def on_seek_backward(self) -> None:
         av_player.seek_relative(-self.seek_secs)
+        gui_hooks.audio_did_seek_relative(self.web, -self.seek_secs)
 
     def on_seek_forward(self) -> None:
         av_player.seek_relative(self.seek_secs)
+        gui_hooks.audio_did_seek_relative(self.web, self.seek_secs)
 
     def onEnterKey(self) -> None:
         if self.state == "question":
