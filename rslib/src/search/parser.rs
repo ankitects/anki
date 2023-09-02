@@ -449,7 +449,9 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
         "lapses" => PropertyKind::Lapses(parse_u32(num, prop_clause)?),
         "pos" => PropertyKind::Position(parse_u32(num, prop_clause)?),
         other => {
-            let Some(prop) = other.strip_prefix("cdn:") else { unreachable!() };
+            let Some(prop) = other.strip_prefix("cdn:") else {
+                unreachable!()
+            };
             PropertyKind::CustomDataNumber {
                 key: prop.into(),
                 value: parse_f32(num, prop_clause)?,

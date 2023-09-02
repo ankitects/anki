@@ -211,13 +211,19 @@ fn add_extract_custom_data_number_function(db: &Connection) -> rusqlite::Result<
         move |ctx| {
             assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
 
-            let Ok(card_data) = ctx.get_raw(0).as_str() else { return Ok(None) };
+            let Ok(card_data) = ctx.get_raw(0).as_str() else {
+                return Ok(None);
+            };
             if card_data.is_empty() {
                 return Ok(None);
             }
-            let Ok(key) = ctx.get_raw(1).as_str() else { return Ok(None) };
+            let Ok(key) = ctx.get_raw(1).as_str() else {
+                return Ok(None);
+            };
             let custom_data = &CardData::from_str(card_data).custom_data;
-            let Ok(value) = serde_json::from_str::<Value>(custom_data) else { return Ok(None) };
+            let Ok(value) = serde_json::from_str::<Value>(custom_data) else {
+                return Ok(None);
+            };
             let num = value.get(key).and_then(|v| v.as_f64());
             Ok(num)
         },
@@ -233,13 +239,19 @@ fn add_has_custom_data_function(db: &Connection) -> rusqlite::Result<()> {
         move |ctx| {
             assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
 
-            let Ok(card_data) = ctx.get_raw(0).as_str() else { return Ok(None) };
+            let Ok(card_data) = ctx.get_raw(0).as_str() else {
+                return Ok(None);
+            };
             if card_data.is_empty() {
                 return Ok(Some(false));
             }
-            let Ok(key) = ctx.get_raw(1).as_str() else { return Ok(Some(false)) };
+            let Ok(key) = ctx.get_raw(1).as_str() else {
+                return Ok(Some(false));
+            };
             let custom_data = &CardData::from_str(card_data).custom_data;
-            let Ok(value) = serde_json::from_str::<Value>(custom_data) else { return Ok(Some(false)) };
+            let Ok(value) = serde_json::from_str::<Value>(custom_data) else {
+                return Ok(Some(false));
+            };
 
             Ok(value.get(key).map(|_| true))
         },

@@ -245,7 +245,9 @@ impl Collection {
             let mut genctx = None;
             for (_, nid) in group {
                 progress.increment(|p| {
-                    let DatabaseCheckProgress::Notes { current, .. } = p else { unreachable!() };
+                    let DatabaseCheckProgress::Notes { current, .. } = p else {
+                        unreachable!()
+                    };
                     current
                 })?;
 
