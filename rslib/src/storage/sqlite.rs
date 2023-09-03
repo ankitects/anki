@@ -223,7 +223,10 @@ fn add_extract_custom_data_function(db: &Connection) -> rusqlite::Result<()> {
             let Ok(value) = serde_json::from_str::<Value>(custom_data) else {
                 return Ok(None);
             };
-            let v = value.get(key).map(|v| v.to_string());
+            let v = value.get(key).map(|v| match v {
+                Value::String(s) => s.to_owned(),
+                _ => v.to_string(),
+            });
             Ok(v)
         },
     )

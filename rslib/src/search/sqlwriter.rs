@@ -364,6 +364,13 @@ impl SqlWriter<'_> {
                 )
                 .unwrap();
             }
+            PropertyKind::CustomDataString { key, value } => {
+                write!(
+                    self.sql,
+                    "extract_custom_data(c.data, '{key}') {op} '{value}'"
+                )
+                .unwrap();
+            }
         }
 
         Ok(())
@@ -1188,6 +1195,10 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
         assert_eq!(
             &s(ctx, "prop:cdn:r=1").0,
             "(cast(extract_custom_data(c.data, 'r') as float) = 1)"
+        );
+        assert_eq!(
+            &s(ctx, "prop:cds:r=s").0,
+            "(extract_custom_data(c.data, 'r') = 's')"
         );
 
         // note types by name
