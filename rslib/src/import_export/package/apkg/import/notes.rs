@@ -169,7 +169,11 @@ impl<'n> NoteContext<'n> {
                 self.remapped_notetypes.insert(incoming.id, existing.id);
                 incoming.id = existing.id;
             }
-            if self.should_update_notetype(&existing, incoming) {
+            if should_update(
+                self.update_notetypes,
+                existing.mtime_secs,
+                incoming.mtime_secs,
+            ) {
                 self.update_notetype(incoming, existing, false)?;
             }
         } else if self.merge_notetypes {
@@ -285,21 +289,13 @@ impl<'n> NoteContext<'n> {
             // notetype of existing note has changed, or notetype of incoming note has been
             // remapped due to a schema conflict
             self.imports.log_conflicting(incoming);
-        } else if self.should_update_note(&existing, &incoming) {
+        } else if should_update(self.update_notes, existing.mtime, incoming.mtime) {
             self.update_note(incoming, existing.id)?;
         } else {
             // TODO: might still want to update merged in fields
             self.imports.log_duplicate(incoming, existing.id);
         }
         Ok(())
-    }
-
-    fn should_update_note(&self, existing: &NoteMeta, incoming: &Note) -> bool {
-        match self.update_notes {
-            UpdateCondition::IfNewer => existing.mtime < incoming.mtime,
-            UpdateCondition::Always => existing.mtime != incoming.mtime,
-            UpdateCondition::Never => false,
-        }
     }
 
     fn add_note(&mut self, mut note: Note) -> Result<()> {
@@ -376,6 +372,18 @@ impl<'n> NoteContext<'n> {
             }
             None
         })
+    }
+}
+
+fn should_update(
+    cond: UpdateCondition,
+    existing_mtime: TimestampSecs,
+    incoming_mtime: TimestampSecs,
+) -> bool {
+    match cond {
+        UpdateCondition::IfNewer => existing_mtime < incoming_mtime,
+        UpdateCondition::Always => existing_mtime != incoming_mtime,
+        UpdateCondition::Never => false,
     }
 }
 
