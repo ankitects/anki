@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import {
         computeFsrsWeights,
         computeOptimalRetention,
+        evaluateWeights,
         setWantsAbort,
     } from "@tslib/backend";
     import { runWithBackendProgress } from "@tslib/progress";
@@ -72,6 +73,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } finally {
             computing = false;
         }
+    }
+
+    async function checkWeights(): Promise<void> {
+        const search = customSearch ?? `preset:"${state.getCurrentName()}"`;
+        const resp = await evaluateWeights({
+            weights: $config.fsrsWeights,
+            search,
+        });
+        alert(JSON.stringify(resp));
     }
 
     async function computeRetention(): Promise<void> {
@@ -170,6 +180,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 Cancel
             {:else}
                 Compute
+            {/if}
+        </button>
+        <button
+            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+            on:click={() => checkWeights()}
+        >
+            {#if computing}
+                Cancel
+            {:else}
+                Check
             {/if}
         </button>
         <div>{computeWeightsProgressString}</div>

@@ -49,6 +49,7 @@ service SchedulerService {
       returns (ComputeFsrsWeightsResponse);
   rpc ComputeOptimalRetention(ComputeOptimalRetentionRequest)
       returns (ComputeOptimalRetentionResponse);
+  rpc EvaluateWeights(EvaluateWeightsRequest) returns (EvaluateWeightsResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -344,4 +345,15 @@ message ComputeOptimalRetentionRequest {
 
 message ComputeOptimalRetentionResponse {
   float optimal_retention = 1;
+}
+
+message EvaluateWeightsRequest {
+  repeated float weights = 1;
+  string search = 2;
+}
+
+message EvaluateWeightsResponse {
+  // todo: better names
+  float out1 = 1;
+  float out2 = 2;
 }

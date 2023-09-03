@@ -539,6 +539,7 @@ exposed_backend_list = [
     "compute_fsrs_weights",
     "compute_optimal_retention",
     "set_wants_abort",
+    "evaluate_weights",
 ]
 
 

@@ -257,4 +257,15 @@ impl crate::services::SchedulerService for Collection {
             optimal_retention: self.compute_optimal_retention(input)?,
         })
     }
+
+    fn evaluate_weights(
+        &mut self,
+        input: scheduler::EvaluateWeightsRequest,
+    ) -> Result<scheduler::EvaluateWeightsResponse> {
+        let ret = self.evaluate_weights(&input.weights, &input.search)?;
+        Ok(scheduler::EvaluateWeightsResponse {
+            out1: ret.0,
+            out2: ret.1,
+        })
+    }
 }

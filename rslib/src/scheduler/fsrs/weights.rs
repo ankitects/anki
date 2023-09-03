@@ -5,6 +5,7 @@ use std::thread;
 use std::time::Duration;
 
 use fsrs_optimizer::compute_weights;
+use fsrs_optimizer::evaluate;
 use fsrs_optimizer::FSRSItem;
 use fsrs_optimizer::FSRSReview;
 use fsrs_optimizer::ProgressState;
@@ -45,6 +46,25 @@ impl Collection {
             }
         });
         compute_weights(items, Some(progress2)).map_err(Into::into)
+    }
+
+    pub fn evaluate_weights(&mut self, weights: &[f32], search: &str) -> Result<(f32, f32)> {
+        let timing = self.timing_today()?;
+        if weights.len() != 17 {
+            invalid_input!("must have 17 weights");
+        }
+        let mut weights_arr = [0f32; 17];
+        weights_arr.iter_mut().set_from(weights.iter().cloned());
+        let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
+        let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
+        let revlogs = guard
+            .col
+            .storage
+            .get_revlog_entries_for_searched_cards_in_order()?;
+        anki_progress.state.revlog_entries = revlogs.len() as u32;
+        let items = anki_to_fsrs(revlogs, timing.next_day_at);
+
+        Ok(evaluate(weights_arr, items))
     }
 }
 
