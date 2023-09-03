@@ -927,6 +927,7 @@ mod test {
                 }
             })]
         );
+        assert_eq!(parse("has-cd:r")?, vec![Search(CustomData("r".into()))]);
 
         Ok(())
     }

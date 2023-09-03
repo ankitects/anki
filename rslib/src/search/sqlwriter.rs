@@ -1229,6 +1229,12 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
                 vec![r"(?i)\b.*fo.o.*\b".into()]
             )
         );
+
+        // has-cd
+        assert_eq!(
+            &s(ctx, "has-cd:r").0,
+            "(extract_custom_data(c.data, 'r') is not null)"
+        );
     }
 
     #[test]
