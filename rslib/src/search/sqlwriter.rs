@@ -360,7 +360,7 @@ impl SqlWriter<'_> {
             PropertyKind::CustomDataNumber { key, value } => {
                 write!(
                     self.sql,
-                    "extract_custom_data_number(c.data, '{key}') {op} {value}"
+                    "cast(extract_custom_data(c.data, '{key}') as float) {op} {value}"
                 )
                 .unwrap();
             }
@@ -370,7 +370,7 @@ impl SqlWriter<'_> {
     }
 
     fn write_custom_data(&mut self, key: &str) -> Result<()> {
-        write!(self.sql, "has_custom_data(c.data, '{key}')").unwrap();
+        write!(self.sql, "extract_custom_data(c.data, '{key}') is not null").unwrap();
 
         Ok(())
     }
@@ -1187,7 +1187,7 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
         assert_eq!(s(ctx, "prop:rated>-5:3").0, s(ctx, "rated:5:3").0);
         assert_eq!(
             &s(ctx, "prop:cdn:r=1").0,
-            "(extract_custom_data_number(c.data, 'r') = 1)"
+            "(cast(extract_custom_data(c.data, 'r') as float) = 1)"
         );
 
         // note types by name
