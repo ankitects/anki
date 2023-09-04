@@ -353,7 +353,6 @@ message EvaluateWeightsRequest {
 }
 
 message EvaluateWeightsResponse {
-  // todo: better names
-  float out1 = 1;
-  float out2 = 2;
+  float log_loss = 1;
+  float rmse = 2;
 }

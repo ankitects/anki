@@ -81,7 +81,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             weights: $config.fsrsWeights,
             search,
         });
-        alert(JSON.stringify(resp));
+        alert(`Log loss: ${resp.logLoss.toFixed(3)}, RMSE: ${resp.rmse.toFixed(3)}`);
     }
 
     async function computeRetention(): Promise<void> {
