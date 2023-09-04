@@ -40,13 +40,7 @@ impl LearningSteps<'_> {
         self.secs_at_index(idx)
             // if current is invalid, try first step
             .or_else(|| self.steps.first().copied().map(to_secs))
-            .map(|current| {
-                if idx == 0 {
-                    self.hard_delay_secs_for_first_step(current)
-                } else {
-                    current
-                }
-            })
+            .map(|current| current)
     }
 
     /// Special case the hard interval for the first step to avoid equality with
