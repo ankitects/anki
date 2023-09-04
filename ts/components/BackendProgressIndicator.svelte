@@ -15,7 +15,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let label: string = "";
 
     function onUpdate(progress: Progress) {
-        if (progress.value.value && label !== progress.value.value) {
+        if (
+            progress.value.value &&
+            progress.value.case !== "none" &&
+            label !== progress.value.value.toString()
+        ) {
             label = progress.value.value.toString();
         }
     }
