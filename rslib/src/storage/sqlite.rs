@@ -69,8 +69,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     add_regexp_tags_function(&db)?;
     add_without_combining_function(&db)?;
     add_fnvhash_function(&db)?;
-    add_extract_custom_data_number_function(&db)?;
-    add_has_custom_data_function(&db)?;
+    add_extract_custom_data_function(&db)?;
 
     db.create_collation("unicase", unicase_compare)?;
 
@@ -202,10 +201,10 @@ fn add_regexp_tags_function(db: &Connection) -> rusqlite::Result<()> {
     )
 }
 
-/// eg. extract_custom_data_number(card.data, 'r') -> float | null
-fn add_extract_custom_data_number_function(db: &Connection) -> rusqlite::Result<()> {
+/// eg. extract_custom_data(card.data, 'r') -> string | null
+fn add_extract_custom_data_function(db: &Connection) -> rusqlite::Result<()> {
     db.create_scalar_function(
-        "extract_custom_data_number",
+        "extract_custom_data",
         2,
         FunctionFlags::SQLITE_DETERMINISTIC,
         move |ctx| {
@@ -224,36 +223,11 @@ fn add_extract_custom_data_number_function(db: &Connection) -> rusqlite::Result<
             let Ok(value) = serde_json::from_str::<Value>(custom_data) else {
                 return Ok(None);
             };
-            let num = value.get(key).and_then(|v| v.as_f64());
-            Ok(num)
-        },
-    )
-}
-
-/// eg. has_custom_data(card.data, 'r') -> bool
-fn add_has_custom_data_function(db: &Connection) -> rusqlite::Result<()> {
-    db.create_scalar_function(
-        "has_custom_data",
-        2,
-        FunctionFlags::SQLITE_DETERMINISTIC,
-        move |ctx| {
-            assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
-
-            let Ok(card_data) = ctx.get_raw(0).as_str() else {
-                return Ok(None);
-            };
-            if card_data.is_empty() {
-                return Ok(Some(false));
-            }
-            let Ok(key) = ctx.get_raw(1).as_str() else {
-                return Ok(Some(false));
-            };
-            let custom_data = &CardData::from_str(card_data).custom_data;
-            let Ok(value) = serde_json::from_str::<Value>(custom_data) else {
-                return Ok(Some(false));
-            };
-
-            Ok(value.get(key).map(|_| true))
+            let v = value.get(key).map(|v| match v {
+                Value::String(s) => s.to_owned(),
+                _ => v.to_string(),
+            });
+            Ok(v)
         },
     )
 }

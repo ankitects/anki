@@ -360,7 +360,14 @@ impl SqlWriter<'_> {
             PropertyKind::CustomDataNumber { key, value } => {
                 write!(
                     self.sql,
-                    "extract_custom_data_number(c.data, '{key}') {op} {value}"
+                    "cast(extract_custom_data(c.data, '{key}') as float) {op} {value}"
+                )
+                .unwrap();
+            }
+            PropertyKind::CustomDataString { key, value } => {
+                write!(
+                    self.sql,
+                    "extract_custom_data(c.data, '{key}') {op} '{value}'"
                 )
                 .unwrap();
             }
@@ -370,7 +377,7 @@ impl SqlWriter<'_> {
     }
 
     fn write_custom_data(&mut self, key: &str) -> Result<()> {
-        write!(self.sql, "has_custom_data(c.data, '{key}')").unwrap();
+        write!(self.sql, "extract_custom_data(c.data, '{key}') is not null").unwrap();
 
         Ok(())
     }
@@ -1187,7 +1194,11 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
         assert_eq!(s(ctx, "prop:rated>-5:3").0, s(ctx, "rated:5:3").0);
         assert_eq!(
             &s(ctx, "prop:cdn:r=1").0,
-            "(extract_custom_data_number(c.data, 'r') = 1)"
+            "(cast(extract_custom_data(c.data, 'r') as float) = 1)"
+        );
+        assert_eq!(
+            &s(ctx, "prop:cds:r=s").0,
+            "(extract_custom_data(c.data, 'r') = 's')"
         );
 
         // note types by name
@@ -1228,6 +1239,12 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
                 "(n.flds regexp ?1)".into(),
                 vec![r"(?i)\b.*fo.o.*\b".into()]
             )
+        );
+
+        // has-cd
+        assert_eq!(
+            &s(ctx, "has-cd:r").0,
+            "(extract_custom_data(c.data, 'r') is not null)"
         );
     }
 
