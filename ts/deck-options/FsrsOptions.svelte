@@ -76,12 +76,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function checkWeights(): Promise<void> {
-        const search = customSearch ?? `preset:"${state.getCurrentName()}"`;
-        const resp = await evaluateWeights({
-            weights: $config.fsrsWeights,
-            search,
-        });
-        alert(`Log loss: ${resp.logLoss.toFixed(3)}, RMSE: ${resp.rmse.toFixed(3)}`);
+        if (computing) {
+            await setWantsAbort({});
+            return;
+        }
+        computing = true;
+        try {
+            await runWithBackendProgress(
+                async () => {
+                    const search = customSearch ?? `preset:"${state.getCurrentName()}"`;
+                    const resp = await evaluateWeights({
+                        weights: $config.fsrsWeights,
+                        search,
+                    });
+                    if (computeWeightsProgress) {
+                        computeWeightsProgress.current = computeWeightsProgress.total;
+                    }
+                    setTimeout(
+                        () =>
+                            alert(
+                                `Log loss: ${resp.logLoss.toFixed(
+                                    3,
+                                )}, RMSE: ${resp.rmse.toFixed(3)}`,
+                            ),
+                        200,
+                    );
+                },
+                (progress) => {
+                    if (progress.value.case === "computeWeights") {
+                        computeWeightsProgress = progress.value.value;
+                    }
+                },
+            );
+        } finally {
+            computing = false;
+        }
     }
 
     async function computeRetention(): Promise<void> {

@@ -279,15 +279,6 @@
     "description": "A binary serialization / deserialization strategy for transforming structs into bytes and vice versa!"
   },
   {
-    "name": "bit_field",
-    "version": "0.10.2",
-    "authors": "Philipp Oppermann <dev@phil-opp.com>",
-    "repository": "https://github.com/phil-opp/rust-bit-field",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Simple bit field trait providing get_bit, get_bits, set_bit, and set_bits methods for Rust's integral types."
-  },
-  {
     "name": "bitflags",
     "version": "1.3.2",
     "authors": "The Rust Project Developers",
@@ -432,15 +423,6 @@
     "description": "Training crate for the Burn framework"
   },
   {
-    "name": "bytemuck",
-    "version": "1.13.1",
-    "authors": "Lokathor <zefria@gmail.com>",
-    "repository": "https://github.com/Lokathor/bytemuck",
-    "license": "Apache-2.0 OR MIT OR Zlib",
-    "license_file": null,
-    "description": "A crate for mucking around with piles of bytes."
-  },
-  {
     "name": "byteorder",
     "version": "1.4.3",
     "authors": "Andrew Gallant <jamslam@gmail.com>",
@@ -502,15 +484,6 @@
     "license": "ISC",
     "license_file": null,
     "description": "Time and duration crate optimized for speed"
-  },
-  {
-    "name": "color_quant",
-    "version": "1.1.0",
-    "authors": "nwin <nwin@users.noreply.github.com>",
-    "repository": "https://github.com/image-rs/color_quant.git",
-    "license": "MIT",
-    "license_file": null,
-    "description": "Color quantization library to reduce n colors to 256 colors."
   },
   {
     "name": "concurrent-queue",
@@ -855,15 +828,6 @@
     "description": "Notify async tasks or threads"
   },
   {
-    "name": "exr",
-    "version": "1.6.4",
-    "authors": "johannesvollmer <johannes596@t-online.de>",
-    "repository": "https://github.com/johannesvollmer/exrs",
-    "license": "BSD-3-Clause",
-    "license_file": null,
-    "description": "Read and write OpenEXR files without any unsafe code"
-  },
-  {
     "name": "fallible-iterator",
     "version": "0.2.0",
     "authors": "Steven Fackler <sfackler@gmail.com>",
@@ -907,15 +871,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A simple and fast random number generator"
-  },
-  {
-    "name": "fdeflate",
-    "version": "0.3.0",
-    "authors": "The image-rs Developers",
-    "repository": "https://github.com/image-rs/fdeflate",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Fast specialized deflate implementation"
   },
   {
     "name": "fixedbitset",
@@ -970,15 +925,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Parser/Serializer tools for Fluent Syntax."
-  },
-  {
-    "name": "flume",
-    "version": "0.10.14",
-    "authors": "Joshua Barretto <joshua.s.barretto@gmail.com>",
-    "repository": "https://github.com/zesterer/flume",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A blazingly fast multi-producer channel"
   },
   {
     "name": "fnv",
@@ -1177,15 +1123,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A small cross-platform library for retrieving random data from system source"
-  },
-  {
-    "name": "gif",
-    "version": "0.12.0",
-    "authors": "The image-rs Developers",
-    "repository": "https://github.com/image-rs/image-gif",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "GIF de- and encoder"
   },
   {
     "name": "gimli",
@@ -1467,15 +1404,6 @@
     "description": "IDNA (Internationalizing Domain Names in Applications) and Punycode."
   },
   {
-    "name": "image",
-    "version": "0.24.7",
-    "authors": "The image-rs Developers",
-    "repository": "https://github.com/image-rs/image",
-    "license": "MIT",
-    "license_file": null,
-    "description": "Imaging library. Provides basic image processing and encoders/decoders for common image formats."
-  },
-  {
     "name": "indexmap",
     "version": "1.9.3",
     "authors": null,
@@ -1584,15 +1512,6 @@
     "description": "An implementation of the GNU make jobserver for Rust"
   },
   {
-    "name": "jpeg-decoder",
-    "version": "0.3.0",
-    "authors": "The image-rs Developers",
-    "repository": "https://github.com/image-rs/jpeg-decoder",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "JPEG decoder"
-  },
-  {
     "name": "js-sys",
     "version": "0.3.64",
     "authors": "The wasm-bindgen Developers",
@@ -1609,15 +1528,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A macro for declaring lazily evaluated statics in Rust."
-  },
-  {
-    "name": "lebe",
-    "version": "0.5.2",
-    "authors": "johannesvollmer <johannes596@t-online.de>",
-    "repository": "https://github.com/johannesvollmer/lebe",
-    "license": "BSD-3-Clause",
-    "license_file": null,
-    "description": "Tiny, dead simple, high performance endianness conversions with a generic API"
   },
   {
     "name": "libc",
@@ -1818,15 +1728,6 @@
     "description": "A multimap implementation."
   },
   {
-    "name": "nanorand",
-    "version": "0.7.0",
-    "authors": "Lucy <lucy@absolucy.moe>",
-    "repository": "https://github.com/Absolucy/nanorand-rs",
-    "license": "Zlib",
-    "license_file": null,
-    "description": "A tiny, fast, zero-dep library for random number generation."
-  },
-  {
     "name": "native-tls",
     "version": "0.2.11",
     "authors": "Steven Fackler <sfackler@gmail.com>",
@@ -1915,15 +1816,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Integer traits and functions"
-  },
-  {
-    "name": "num-rational",
-    "version": "0.4.1",
-    "authors": "The Rust Project Developers",
-    "repository": "https://github.com/rust-num/num-rational",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Rational numbers implementation for Rust"
   },
   {
     "name": "num-traits",
@@ -2214,15 +2106,6 @@
     "description": "A library to run the pkg-config system tool at build time in order to be used in Cargo build scripts."
   },
   {
-    "name": "png",
-    "version": "0.17.10",
-    "authors": "The image-rs Developers",
-    "repository": "https://github.com/image-rs/image-png.git",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "PNG decoding and encoding library in pure Rust"
-  },
-  {
     "name": "ppv-lite86",
     "version": "0.2.17",
     "authors": "The CryptoCorrosion Contributors",
@@ -2338,15 +2221,6 @@
     "license": "MIT",
     "license_file": null,
     "description": "A pull parser for CommonMark"
-  },
-  {
-    "name": "qoi",
-    "version": "0.4.1",
-    "authors": "Ivan Smirnov <rust@ivan.smirnov.ie>",
-    "repository": "https://github.com/aldanor/qoi-rust",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "VERY fast encoder/decoder for QOI (Quite Okay Image) format"
   },
   {
     "name": "quote",
@@ -2862,15 +2736,6 @@
     "description": "Backend crate for signal-hook"
   },
   {
-    "name": "simd-adler32",
-    "version": "0.3.7",
-    "authors": "Marvin Countryman <me@maar.vin>",
-    "repository": "https://github.com/mcountryman/simd-adler32",
-    "license": "MIT",
-    "license_file": null,
-    "description": "A SIMD-accelerated Adler-32 hash algorithm implementation."
-  },
-  {
     "name": "siphasher",
     "version": "0.3.10",
     "authors": "Frank Denis <github@pureftpd.org>",
@@ -3103,15 +2968,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Per-object thread-local storage"
-  },
-  {
-    "name": "tiff",
-    "version": "0.9.0",
-    "authors": "The image-rs Developers",
-    "repository": "https://github.com/image-rs/image-tiff",
-    "license": "MIT",
-    "license_file": null,
-    "description": "TIFF decoding and encoding library in pure Rust"
   },
   {
     "name": "time",
@@ -3699,15 +3555,6 @@
     "description": "Mozilla's CA root certificates for use with webpki"
   },
   {
-    "name": "weezl",
-    "version": "0.1.7",
-    "authors": "HeroicKatora <andreas.molzer@gmx.de>",
-    "repository": "https://github.com/image-rs/lzw.git",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Fast LZW compression and decompression."
-  },
-  {
     "name": "which",
     "version": "4.4.0",
     "authors": "Harry Fei <tiziyuanfang@gmail.com>",
@@ -3904,14 +3751,5 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Low-level bindings for the zstd compression library."
-  },
-  {
-    "name": "zune-inflate",
-    "version": "0.2.54",
-    "authors": null,
-    "repository": null,
-    "license": "Apache-2.0 OR MIT OR Zlib",
-    "license_file": null,
-    "description": "A heavily optimized deflate decompressor in Pure Rust"
   }
 ]

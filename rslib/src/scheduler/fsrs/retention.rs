@@ -37,11 +37,11 @@ impl Collection {
                 forget_cost: req.forget_secs as f64,
                 learn_cost: req.learn_secs as f64,
             },
-            |epoch| {
+            |ip| {
                 anki_progress
                     .update(false, |p| {
-                        p.total = 10;
-                        p.current = epoch as u32 + 1;
+                        p.total = ip.total as u32;
+                        p.current = ip.current as u32;
                     })
                     .is_ok()
             },

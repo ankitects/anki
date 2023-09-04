@@ -64,7 +64,14 @@ impl Collection {
         anki_progress.state.revlog_entries = revlogs.len() as u32;
         let items = anki_to_fsrs(revlogs, timing.next_day_at);
 
-        Ok(evaluate(weights_arr, items))
+        Ok(evaluate(weights_arr, items, |ip| {
+            anki_progress
+                .update(false, |p| {
+                    p.total = ip.total as u32;
+                    p.current = ip.current as u32;
+                })
+                .is_ok()
+        })?)
     }
 }
 
