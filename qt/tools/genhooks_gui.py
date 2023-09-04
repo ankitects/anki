@@ -218,12 +218,16 @@ hooks = [
     Hook(
         name="audio_did_pause_or_unpause",
         args=["webview: aqt.webview.AnkiWebView"],
-        doc="""Called when the audio is paused or unpaused.""",
+        doc="""Called when the audio is paused or unpaused.
+        This hook is triggered by the action in Anki's More menu or the related key bind.
+        The webview is provided in case you wish to use this hook with web-based audio.""",
     ),
     Hook(
         name="audio_did_seek_relative",
         args=["webview: aqt.webview.AnkiWebView", "seek_seconds: int"],
-        doc="""Called when the audio is sought forward (positive seek) or backwards (negative seek).""",
+        doc="""Called when the audio is sought forward (positive seek) or backwards (negative seek).
+        This hook is triggered by the action in Anki's More menu or the related key bind.
+        The webview is provided in case you wish to use this hook with web-based audio.""",
     ),
     # Debug
     ###################
