@@ -105,6 +105,7 @@ pub enum PropertyKind {
     Position(u32),
     Rated(i32, RatingKind),
     CustomDataNumber { key: String, value: f32 },
+    CustomDataString { key: String, value: String },
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -409,6 +410,7 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
         tag("rated"),
         tag("resched"),
         recognize(preceded(tag("cdn:"), alphanumeric1)),
+        recognize(preceded(tag("cds:"), alphanumeric1)),
     ))(prop_clause)
     .map_err(|_| {
         parse_failure(
@@ -448,15 +450,15 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
         "reps" => PropertyKind::Reps(parse_u32(num, prop_clause)?),
         "lapses" => PropertyKind::Lapses(parse_u32(num, prop_clause)?),
         "pos" => PropertyKind::Position(parse_u32(num, prop_clause)?),
-        other => {
-            let Some(prop) = other.strip_prefix("cdn:") else {
-                unreachable!()
-            };
-            PropertyKind::CustomDataNumber {
-                key: prop.into(),
-                value: parse_f32(num, prop_clause)?,
-            }
-        }
+        prop if prop.starts_with("cdn:") => PropertyKind::CustomDataNumber {
+            key: prop.strip_prefix("cdn:").unwrap().into(),
+            value: parse_f32(num, prop_clause)?,
+        },
+        prop if prop.starts_with("cds:") => PropertyKind::CustomDataString {
+            key: prop.strip_prefix("cds:").unwrap().into(),
+            value: num.into(),
+        },
+        _ => unreachable!(),
     };
 
     Ok(SearchNode::Property {
@@ -927,6 +929,27 @@ mod test {
                 }
             })]
         );
+        assert_eq!(
+            parse("prop:cds:abc=foo")?,
+            vec![Search(Property {
+                operator: "=".into(),
+                kind: PropertyKind::CustomDataString {
+                    key: "abc".into(),
+                    value: "foo".into()
+                }
+            })]
+        );
+        assert_eq!(
+            parse("\"prop:cds:abc=foo bar\"")?,
+            vec![Search(Property {
+                operator: "=".into(),
+                kind: PropertyKind::CustomDataString {
+                    key: "abc".into(),
+                    value: "foo bar".into()
+                }
+            })]
+        );
+        assert_eq!(parse("has-cd:r")?, vec![Search(CustomData("r".into()))]);
 
         Ok(())
     }
@@ -1146,6 +1169,18 @@ mod test {
             "prop:cdn:=5",
             InvalidPropProperty {
                 provided: "cdn:=5".to_string(),
+            },
+        );
+        assert_err_kind(
+            "prop:cds=s",
+            InvalidPropProperty {
+                provided: "cds=s".to_string(),
+            },
+        );
+        assert_err_kind(
+            "prop:cds:=s",
+            InvalidPropProperty {
+                provided: "cds:=s".to_string(),
             },
         );
 
