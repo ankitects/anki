@@ -89,7 +89,7 @@ impl From<&reqwest::Error> for AnkiError {
 
 impl From<reqwest::Error> for AnkiError {
     fn from(err: reqwest::Error) -> Self {
-        err.into()
+        (&err).into()
     }
 }
 
