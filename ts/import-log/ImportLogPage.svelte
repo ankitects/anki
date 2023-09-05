@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         importJsonFile,
         importJsonString,
     } from "@tslib/backend";
+    import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@tslib/ftl";
 
     import BackendProgressIndicator from "../components/BackendProgressIndicator.svelte";
@@ -28,19 +29,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let closeButton: HTMLElement;
 
     async function onImport(): Promise<ImportResponse | undefined> {
+        const postOptions = { alertOnError: false };
         let result: ImportResponse | undefined;
-        switch (params.type) {
-            case "apkg":
-                result = await importAnkiPackage({
-                    packagePath: params.path,
-                });
-                break;
-            case "json_file":
-                result = await importJsonFile({ val: params.path });
-                break;
-            case "json_string":
-                result = await importJsonString({ val: params.json });
-                break;
+        try {
+            switch (params.type) {
+                case "apkg":
+                    result = await importAnkiPackage(
+                        {
+                            packagePath: params.path,
+                        },
+                        postOptions,
+                    );
+                    break;
+                case "json_file":
+                    result = await importJsonFile({ val: params.path }, postOptions);
+                    break;
+                case "json_string":
+                    result = await importJsonString({ val: params.json }, postOptions);
+                    break;
+            }
+        } catch (err) {
+            alert(err);
+            bridgeCommand("close");
+            throw err;
         }
         await importDone({});
         return result;

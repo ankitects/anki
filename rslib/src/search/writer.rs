@@ -174,6 +174,9 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
             RatingKind::ManualReschedule => format!("prop:resched{}{}", operator, u),
         },
         CustomDataNumber { key, value } => format!("prop:cdn:{key}{operator}{value}"),
+        CustomDataString { key, value } => {
+            maybe_quote(&format!("prop:cds:{key}{operator}{value}",))
+        }
     }
 }
 
