@@ -36,7 +36,7 @@ anki_process = { path = "rslib/process" }
 anki_proto_gen = { path = "rslib/proto_gen" }
 ninja_gen = { "path" = "build/ninja_gen" }
 
-fsrs-optimizer = { git = "https://github.com/open-spaced-repetition/fsrs-optimizer-burn", rev = "2df18f381b206a40acd354af0baaf8069d9db725" }
+fsrs-optimizer = { git = "https://github.com/open-spaced-repetition/fsrs-optimizer-burn", rev = "e0b15cce555a94de6fdaa4bf1e096d19704a397d" }
 # fsrs-optimizer.path = "../../../fsrs-optimizer-burn"
 
 # forked

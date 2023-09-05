@@ -1532,7 +1532,7 @@ dependencies = [
 [[package]]
 name = "fsrs-optimizer"
 version = "0.1.0"
-source = "git+https://github.com/open-spaced-repetition/fsrs-optimizer-burn?rev=2df18f381b206a40acd354af0baaf8069d9db725#2df18f381b206a40acd354af0baaf8069d9db725"
+source = "git+https://github.com/open-spaced-repetition/fsrs-optimizer-burn?rev=e0b15cce555a94de6fdaa4bf1e096d19704a397d#e0b15cce555a94de6fdaa4bf1e096d19704a397d"
 dependencies = [
  "burn",
  "itertools 0.11.0",
