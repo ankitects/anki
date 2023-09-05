@@ -12,7 +12,9 @@ export async function runWithBackendProgress<T>(
         const progress = await latestProgress({});
         onUpdate(progress);
     }, 100);
-    const result = await callback();
-    clearInterval(intervalId);
-    return result;
+    try {
+        return await callback();
+    } finally {
+        clearInterval(intervalId);
+    }
 }

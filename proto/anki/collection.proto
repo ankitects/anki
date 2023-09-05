@@ -126,6 +126,17 @@ message Progress {
     uint32 stage_current = 3;
   }
 
+  message ComputeWeights {
+    uint32 current = 1;
+    uint32 total = 2;
+    uint32 revlog_entries = 3;
+  }
+
+  message ComputeRetention {
+    uint32 current = 1;
+    uint32 total = 2;
+  }
+
   oneof value {
     generic.Empty none = 1;
     MediaSync media_sync = 2;
@@ -135,6 +146,8 @@ message Progress {
     DatabaseCheck database_check = 6;
     string importing = 7;
     string exporting = 8;
+    ComputeWeights compute_weights = 9;
+    ComputeRetention compute_retention = 10;
   }
 }
 

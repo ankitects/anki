@@ -6,6 +6,8 @@ mod states;
 
 use anki_proto::generic;
 use anki_proto::scheduler;
+use anki_proto::scheduler::ComputeOptimalRetentionRequest;
+use anki_proto::scheduler::ComputeOptimalRetentionResponse;
 
 use crate::prelude::*;
 use crate::scheduler::new::NewCardDueOrder;
@@ -236,5 +238,34 @@ impl crate::services::SchedulerService for Collection {
         input: scheduler::CustomStudyDefaultsRequest,
     ) -> Result<scheduler::CustomStudyDefaultsResponse> {
         self.custom_study_defaults(input.deck_id.into())
+    }
+
+    fn compute_fsrs_weights(
+        &mut self,
+        input: scheduler::ComputeFsrsWeightsRequest,
+    ) -> Result<scheduler::ComputeFsrsWeightsResponse> {
+        Ok(scheduler::ComputeFsrsWeightsResponse {
+            weights: self.compute_weights(&input.search)?,
+        })
+    }
+
+    fn compute_optimal_retention(
+        &mut self,
+        input: ComputeOptimalRetentionRequest,
+    ) -> Result<ComputeOptimalRetentionResponse> {
+        Ok(ComputeOptimalRetentionResponse {
+            optimal_retention: self.compute_optimal_retention(input)?,
+        })
+    }
+
+    fn evaluate_weights(
+        &mut self,
+        input: scheduler::EvaluateWeightsRequest,
+    ) -> Result<scheduler::EvaluateWeightsResponse> {
+        let ret = self.evaluate_weights(&input.weights, &input.search)?;
+        Ok(scheduler::EvaluateWeightsResponse {
+            log_loss: ret.0,
+            rmse: ret.1,
+        })
     }
 }

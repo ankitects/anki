@@ -60,6 +60,7 @@ flate2.workspace = true
 fluent.workspace = true
 fluent-bundle.workspace = true
 fnv.workspace = true
+fsrs-optimizer.workspace = true
 futures.workspace = true
 hex.workspace = true
 htmlescape.workspace = true
