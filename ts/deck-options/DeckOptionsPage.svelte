@@ -17,6 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ConfigSelector from "./ConfigSelector.svelte";
     import DailyLimits from "./DailyLimits.svelte";
     import DisplayOrder from "./DisplayOrder.svelte";
+    import FsrsOptions from "./FsrsOptions.svelte";
     import HtmlAddon from "./HtmlAddon.svelte";
     import LapseOptions from "./LapseOptions.svelte";
     import type { DeckOptionsState } from "./lib";
@@ -25,6 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let state: DeckOptionsState;
     const addons = state.addonComponents;
+    const config = state.currentConfig;
 
     export function auxData(): Writable<Record<string, unknown>> {
         return state.currentAuxData;
@@ -112,11 +114,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </Row>
             </Item>
 
-            <Item>
-                <Row class="row-columns">
-                    <Addons {state} />
-                </Row>
-            </Item>
+            {#if $addons.length}
+                <Item>
+                    <Row class="row-columns">
+                        <Addons {state} />
+                    </Row>
+                </Item>
+            {/if}
+
+            {#if state.v3Scheduler && $config.fsrsEnabled}
+                <Item>
+                    <Row class="row-columns">
+                        <FsrsOptions {state} />
+                    </Row>
+                </Item>
+            {/if}
 
             <Item>
                 <Row class="row-columns">

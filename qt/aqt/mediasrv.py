@@ -535,6 +535,11 @@ exposed_backend_list = [
     "add_image_occlusion_note",
     "get_image_occlusion_note",
     "update_image_occlusion_note",
+    # SchedulerService
+    "compute_fsrs_weights",
+    "compute_optimal_retention",
+    "set_wants_abort",
+    "evaluate_weights",
 ]
 
 

@@ -181,6 +181,7 @@ impl SqlWriter<'_> {
             SearchNode::Property { operator, kind } => self.write_prop(operator, kind)?,
             SearchNode::CustomData(key) => self.write_custom_data(key)?,
             SearchNode::WholeCollection => write!(self.sql, "true").unwrap(),
+            SearchNode::Preset(name) => self.write_deck_preset(name)?,
         };
         Ok(())
     }
@@ -824,6 +825,25 @@ impl SqlWriter<'_> {
             self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch),
         )
     }
+    fn write_deck_preset(&mut self, name: &str) -> Result<()> {
+        let dcid = self.col.storage.get_deck_config_id_by_name(name)?;
+        let mut str_ids = String::new();
+        let deck_ids = self
+            .col
+            .storage
+            .get_all_decks()?
+            .into_iter()
+            .filter_map(|d| {
+                if d.config_id() == dcid {
+                    Some(d.id)
+                } else {
+                    None
+                }
+            });
+        ids_to_string(&mut str_ids, deck_ids);
+        write!(self.sql, "c.did in {str_ids}").unwrap();
+        Ok(())
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -958,6 +978,7 @@ impl SearchNode {
             SearchNode::WholeCollection => RequiredTable::CardsOrNotes,
 
             SearchNode::CardTemplate(_) => RequiredTable::CardsAndNotes,
+            SearchNode::Preset(_) => RequiredTable::Cards,
         }
     }
 }
