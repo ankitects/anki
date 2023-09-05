@@ -36,8 +36,8 @@ anki_process = { path = "rslib/process" }
 anki_proto_gen = { path = "rslib/proto_gen" }
 ninja_gen = { "path" = "build/ninja_gen" }
 
-fsrs-optimizer = { git = "https://github.com/open-spaced-repetition/fsrs-optimizer-burn", rev = "e0b15cce555a94de6fdaa4bf1e096d19704a397d" }
-# fsrs-optimizer.path = "../../../fsrs-optimizer-burn"
+fsrs-optimizer = { git = "https://github.com/open-spaced-repetition/fsrs-optimizer-rs", rev = "e0b15cce555a94de6fdaa4bf1e096d19704a397d" }
+# fsrs-optimizer.path = "../../../fsrs-optimizer-rs"
 
 # forked
 csv = { git = "https://github.com/ankitects/rust-csv.git", rev = "1c9d3aab6f79a7d815c69f925a46a4590c115f90" }
