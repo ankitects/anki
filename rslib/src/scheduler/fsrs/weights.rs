@@ -38,7 +38,7 @@ impl Collection {
                 if let Err(_err) = anki_progress.update(false, |s| {
                     s.total = guard.total() as u32;
                     s.current = guard.current() as u32;
-                    finished = s.total == s.current;
+                    finished = s.total > 0 && s.total == s.current;
                 }) {
                     guard.want_abort = true;
                     return;
