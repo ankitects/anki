@@ -5,11 +5,12 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::io::BufRead;
 use std::io::BufReader;
+use std::io::Cursor;
 use std::io::Read;
 use std::io::Seek;
 use std::io::SeekFrom;
 
-use anki_io::open_file;
+use anki_io::read_to_string;
 pub use anki_proto::import_export::csv_metadata::Deck as CsvDeck;
 pub use anki_proto::import_export::csv_metadata::Delimiter;
 pub use anki_proto::import_export::csv_metadata::DupeResolution;
@@ -45,7 +46,8 @@ impl Collection {
         deck_id: Option<DeckId>,
         is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
-        let mut reader = open_file(path)?;
+        let text = read_to_string(path)?;
+        let mut reader = Cursor::new(text);
         let meta =
             self.get_reader_metadata(&mut reader, delimiter, notetype_id, deck_id, is_html)?;
         if meta.preview.is_empty() {
