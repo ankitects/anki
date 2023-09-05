@@ -219,7 +219,7 @@ hooks = [
         name="audio_did_pause_or_unpause",
         args=["webview: aqt.webview.AnkiWebView"],
         doc="""Called when the audio is paused or unpaused.
-        This hook is triggered by the action in Anki's More menu or the related key bind.
+        This hook is triggered by the action in Anki's More menu or the related key binding.
         The webview is provided in case you wish to use this hook with web-based audio.""",
     ),
     Hook(
