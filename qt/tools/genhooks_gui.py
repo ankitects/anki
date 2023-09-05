@@ -226,7 +226,7 @@ hooks = [
         name="audio_did_seek_relative",
         args=["webview: aqt.webview.AnkiWebView", "seek_seconds: int"],
         doc="""Called when the audio is sought forward (positive seek) or backwards (negative seek).
-        This hook is triggered by the action in Anki's More menu or the related key bind.
+        This hook is triggered by the action in Anki's More menu or the related key binding.
         The webview is provided in case you wish to use this hook with web-based audio.""",
     ),
     # Debug
