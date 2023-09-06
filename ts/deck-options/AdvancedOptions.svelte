@@ -12,13 +12,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HelpModal from "../components/HelpModal.svelte";
     import Item from "../components/Item.svelte";
     import SettingTitle from "../components/SettingTitle.svelte";
+    import SwitchRow from "../components/SwitchRow.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
     import CardStateCustomizer from "./CardStateCustomizer.svelte";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
-    import SwitchRow from "./SwitchRow.svelte";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
