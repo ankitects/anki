@@ -316,7 +316,6 @@ class Collection(DeprecatedNamesMixin):
                 collection_path=self.path,
                 media_folder_path=media_dir,
                 media_db_path=media_db,
-                force_schema11=False,
             )
         self.db = DBProxy(weakref.proxy(self._backend))
         self.db.begin()
