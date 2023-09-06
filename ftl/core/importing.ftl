@@ -83,7 +83,9 @@ importing-update-notes-help =
 importing-update-notetypes = Update notetypes
 importing-update-notetypes-help =
     When to update an existing notetype in your collection. By default, this is only done
-    if the matching imported notetype was more recently modified.
+    if the matching imported notetype was more recently modified. Changes to template text
+    and styling can always be imported, but for schema changes (e.g. the number or order of
+    fields has changed), the 'merge notetypes' option will also need to be enabled.
 importing-note-added =
     { $count ->
         [one] { $count } note added
