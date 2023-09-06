@@ -487,6 +487,8 @@ impl Notetype {
 
 #[cfg(test)]
 mod test {
+    use itertools::Itertools;
+
     use super::*;
     use crate::import_export::package::media::SafeMediaEntry;
     use crate::notetype::CardTemplate;
@@ -830,5 +832,69 @@ mod test {
             .fields()
             .iter()
             .eq(["front", "back", "new", ""]))
+    }
+
+    #[test]
+    fn reimport_with_merge_enabled_should_handle_duplicates() {
+        let mut col = Collection::new();
+        let mut incoming = col.basic_notetype();
+        incoming.fields.push(NoteField::new("new incoming"));
+        // simulate a notetype duplicated during previous import
+        let mut remapped = col.basic_notetype();
+        remapped.config.original_id.replace(incoming.id.0);
+        // ... which was modified and has notes
+        remapped.fields.push(NoteField::new("new remapped"));
+        remapped.id.0 = 0;
+        col.add_notetype_inner(&mut remapped, Usn(0), true).unwrap();
+        let mut note = Note::new(&remapped);
+        *note.fields_mut() = vec![
+            String::from("front"),
+            String::from("back"),
+            String::from("new"),
+        ];
+        col.add_note(&mut note, DeckId(1)).unwrap();
+
+        let ntid = incoming.id;
+        assert_eq!(col.storage.get_all_notetype_names().unwrap().len(), 6);
+        import_notetype!(&mut col, incoming.clone(), merge = false);
+        assert_eq!(col.storage.get_all_notetype_names().unwrap().len(), 7);
+        import_notetype!(&mut col, incoming, merge = true);
+        assert_eq!(col.storage.get_all_notetype_names().unwrap().len(), 5);
+
+        // both notetypes should have been merged into it. Merge order is unpredictable,
+        // but field name and content should appear in same place.
+        let nt = col.get_notetype(ntid).unwrap().unwrap();
+        let field_names = nt.field_names().collect_vec();
+        let notes = col.get_all_notes();
+        let field_content = notes[0].fields();
+        if field_names[2] == "new remapped" {
+            assert_eq!(
+                field_names,
+                &["Front", "Back", "new remapped", "new incoming",]
+            );
+            assert_eq!(
+                field_content,
+                &[
+                    "front".to_string(),
+                    "back".to_string(),
+                    "new".to_string(),
+                    "".to_string()
+                ]
+            );
+        } else {
+            assert_eq!(
+                field_names,
+                &["Front", "Back", "new incoming", "new remapped",]
+            );
+            assert_eq!(
+                field_content,
+                &[
+                    "front".to_string(),
+                    "back".to_string(),
+                    "".to_string(),
+                    "new".to_string()
+                ]
+            );
+        }
     }
 }
