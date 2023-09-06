@@ -12,6 +12,12 @@ impl Notetype {
         self.merge_templates(other);
     }
 
+    pub(crate) fn merge_all<'a>(&mut self, others: impl IntoIterator<Item = &'a Self>) {
+        for other in others {
+            self.merge(other);
+        }
+    }
+
     /// Inserts not yet existing fields from `other`.
     fn merge_fields(&mut self, other: &Self) {
         for (index, field) in other.fields.iter().enumerate() {

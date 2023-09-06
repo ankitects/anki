@@ -14,6 +14,7 @@ use crate::import_export::package::media::safe_normalized_file_name;
 use crate::import_export::package::UpdateCondition;
 use crate::import_export::ImportProgress;
 use crate::import_export::NoteLog;
+use crate::notetype::ChangeNotetypeInput;
 use crate::prelude::*;
 use crate::progress::ThrottlingProgressHandler;
 use crate::text::replace_media_refs;
@@ -26,7 +27,7 @@ struct NoteContext<'a> {
     remapped_fields: HashMap<NotetypeId, Vec<Option<u32>>>,
     target_guids: HashMap<String, NoteMeta>,
     target_ids: HashSet<NoteId>,
-    target_notetypes: HashMap<NotetypeId, Vec<Arc<Notetype>>>,
+    target_notetypes: HashMap<NotetypeId, Arc<Notetype>>,
     media_map: &'a mut MediaUseMap,
     merge_notetypes: bool,
     update_notes: UpdateCondition,
@@ -114,7 +115,7 @@ impl<'n> NoteContext<'n> {
         let target_guids = target_col.storage.note_guid_map()?;
         let normalize_notes = target_col.get_config_bool(BoolKey::NormalizeNoteText);
         let target_ids = target_col.storage.get_all_note_ids()?;
-        let target_notetypes = target_col.notetype_id_map()?;
+        let target_notetypes = target_col.get_all_notetypes()?;
         Ok(Self {
             target_col,
             usn,
@@ -132,26 +133,16 @@ impl<'n> NoteContext<'n> {
         })
     }
 
-    /// Returns a notetype from the target collection with the same id or
-    /// original id, prioritizing by matching schema, then id over original
-    /// id.
-    fn best_notetype_match(&self, notetype: &Notetype) -> Option<Notetype> {
-        self.target_notetypes
-            .get(&notetype.id)
-            .and_then(|id_matches| {
-                id_matches
-                    .iter()
-                    .find(|id_match| notetype.equal_schema(id_match))
-                    .or(id_matches.first())
-            })
-            .map(|nt| nt.as_ref().clone())
-    }
-
     fn import_notetypes(&mut self, mut notetypes: Vec<Notetype>) -> Result<()> {
         for notetype in &mut notetypes {
             notetype.config.original_id.replace(notetype.id.0);
-            if let Some(existing) = self.best_notetype_match(notetype) {
-                self.import_existing_notetype(notetype, existing)?;
+            if let Some(nt) = self.target_notetypes.get(&notetype.id) {
+                let existing = nt.as_ref().clone();
+                if self.merge_notetypes {
+                    self.update_or_merge_notetype(notetype, existing)?;
+                } else {
+                    self.update_or_duplicate_notetype(notetype, existing)?;
+                }
             } else {
                 self.add_notetype(notetype)?;
             }
@@ -159,29 +150,40 @@ impl<'n> NoteContext<'n> {
         Ok(())
     }
 
-    fn import_existing_notetype(
+    fn update_or_duplicate_notetype(
         &mut self,
         incoming: &mut Notetype,
-        existing: Notetype,
+        mut existing: Notetype,
     ) -> Result<()> {
-        if existing.equal_schema(incoming) {
-            if existing.id != incoming.id {
+        if !existing.equal_schema(incoming) {
+            if let Some(nt) = self.get_previously_duplicated_notetype(incoming) {
+                existing = nt;
                 self.remapped_notetypes.insert(incoming.id, existing.id);
                 incoming.id = existing.id;
+            } else {
+                return self.add_notetype_with_remapped_id(incoming);
             }
-            if should_update(
-                self.update_notetypes,
-                existing.mtime_secs,
-                incoming.mtime_secs,
-            ) {
-                self.update_notetype(incoming, existing, false)?;
-            }
-        } else if self.merge_notetypes {
-            self.merge_notetypes(incoming, existing)?;
-        } else {
-            self.add_notetype_with_remapped_id(incoming)?;
+        }
+        if should_update(
+            self.update_notetypes,
+            existing.mtime_secs,
+            incoming.mtime_secs,
+        ) {
+            self.update_notetype(incoming, existing, false)?;
         }
         Ok(())
+    }
+
+    /// Try to find a notetype with matching original id and schema.
+    fn get_previously_duplicated_notetype(&self, original: &Notetype) -> Option<Notetype> {
+        self.target_notetypes
+            .values()
+            .find(|nt| {
+                nt.id != original.id
+                    && nt.config.original_id == Some(original.id.0)
+                    && nt.equal_schema(original)
+            })
+            .map(|nt| nt.as_ref().clone())
     }
 
     fn should_update_notetype(&self, existing: &Notetype, incoming: &Notetype) -> bool {
@@ -217,8 +219,15 @@ impl<'n> NoteContext<'n> {
             .add_or_update_notetype_with_existing_id_inner(notetype, Some(original), self.usn, true)
     }
 
-    fn merge_notetypes(&mut self, incoming: &mut Notetype, mut existing: Notetype) -> Result<()> {
+    fn update_or_merge_notetype(
+        &mut self,
+        incoming: &mut Notetype,
+        mut existing: Notetype,
+    ) -> Result<()> {
         let original_existing = existing.clone();
+        // get and merge duplicated notetypes from previous no-merge imports
+        let mut siblings = self.get_sibling_notetypes(existing.id);
+        existing.merge_all(&siblings);
         incoming.merge(&existing);
         existing.merge(incoming);
         self.record_remapped_ords(incoming);
@@ -230,7 +239,50 @@ impl<'n> NoteContext<'n> {
         } else {
             &mut existing
         };
-        self.update_notetype(new_incoming, original_existing, true)
+        self.update_notetype(new_incoming, original_existing, true)?;
+        self.drop_sibling_notetypes(new_incoming, &mut siblings)
+    }
+
+    /// Get notetypes with different id, but matching original id.
+    fn get_sibling_notetypes(&mut self, original_id: NotetypeId) -> Vec<Notetype> {
+        self.target_notetypes
+            .values()
+            .filter(|nt| nt.id != original_id && nt.config.original_id == Some(original_id.0))
+            .map(|nt| nt.as_ref().clone())
+            .collect()
+    }
+
+    /// Removes the sibling notetypes, changing their notes' notetype to
+    /// `original`. This assumes `siblings` have already been merged into
+    /// `original`.
+    fn drop_sibling_notetypes(
+        &mut self,
+        original: &Notetype,
+        siblings: &mut [Notetype],
+    ) -> Result<()> {
+        for nt in siblings {
+            nt.merge(original);
+            let note_ids = self.target_col.search_notes_unordered(nt.id)?;
+            self.target_col
+                .change_notetype_of_notes_inner(ChangeNotetypeInput {
+                    current_schema: self.target_col_schema_change()?,
+                    note_ids,
+                    old_notetype_name: nt.name.clone(),
+                    old_notetype_id: nt.id,
+                    new_notetype_id: original.id,
+                    new_fields: nt.field_ords_vec(),
+                    new_templates: Some(nt.template_ords_vec()),
+                })?;
+            self.target_col.remove_notetype(nt.id)?;
+        }
+        Ok(())
+    }
+
+    fn target_col_schema_change(&self) -> Result<TimestampMillis> {
+        self.target_col
+            .storage
+            .get_collection_timestamps()
+            .map(|ts| ts.schema_change)
     }
 
     fn record_remapped_ords(&mut self, incoming: &Notetype) {
@@ -387,26 +439,6 @@ fn should_update(
     }
 }
 
-impl Collection {
-    /// Returns a map of all notetypes by id and original id. If there is a
-    /// notetype with a given id, it is stored before any notetypes with this
-    /// original id.
-    fn notetype_id_map(&mut self) -> Result<HashMap<NotetypeId, Vec<Arc<Notetype>>>> {
-        let mut map = HashMap::new();
-        for (ntid, nt) in self.get_all_notetypes()? {
-            if let Some(original_id) = nt.config.original_id {
-                map.entry(NotetypeId(original_id))
-                    .or_insert_with(Vec::new)
-                    // notetypes with matching original id are appended to the end
-                    .push(Arc::clone(&nt));
-            }
-            // the notetype with the same id must come first
-            map.entry(ntid).or_insert_with(Vec::new).insert(0, nt);
-        }
-        Ok(map)
-    }
-}
-
 impl Notetype {
     pub(crate) fn field_ords(&self) -> impl Iterator<Item = Option<u32>> + '_ {
         self.fields.iter().map(|f| f.ord)
@@ -414,6 +446,18 @@ impl Notetype {
 
     pub(crate) fn template_ords(&self) -> impl Iterator<Item = Option<u32>> + '_ {
         self.templates.iter().map(|t| t.ord)
+    }
+
+    fn field_ords_vec(&self) -> Vec<Option<usize>> {
+        self.field_ords()
+            .map(|opt| opt.map(|u| u as usize))
+            .collect()
+    }
+
+    fn template_ords_vec(&self) -> Vec<Option<usize>> {
+        self.template_ords()
+            .map(|opt| opt.map(|u| u as usize))
+            .collect()
     }
 
     fn equal_schema(&self, other: &Self) -> bool {
@@ -750,5 +794,41 @@ mod test {
         let map = templates.get(&to_import.id).unwrap();
         assert_eq!(map.get(&0), Some(&1));
         assert_eq!(map.get(&1), Some(&2));
+    }
+
+    #[test]
+    fn should_merge_notetype_duplicates_from_previous_imports() {
+        let mut col = Collection::new();
+        let mut incoming = col.basic_notetype();
+        incoming.fields.push(NoteField::new("new incoming"));
+        // simulate a notetype duplicated during previous import
+        let mut remapped = col.basic_notetype();
+        remapped.config.original_id.replace(incoming.id.0);
+        // ... which was modified and has notes
+        remapped.fields.push(NoteField::new("new remapped"));
+        remapped.id.0 = 0;
+        col.add_notetype_inner(&mut remapped, Usn(0), true).unwrap();
+        let mut note = Note::new(&remapped);
+        *note.fields_mut() = vec![
+            String::from("front"),
+            String::from("back"),
+            String::from("new"),
+        ];
+        col.add_note(&mut note, DeckId(1)).unwrap();
+
+        let ntid = incoming.id;
+        import_notetype!(&mut col, incoming, merge = true);
+
+        // both notetypes should have been merged into it
+        assert!(col.get_notetype(ntid).unwrap().unwrap().field_names().eq([
+            "Front",
+            "Back",
+            "new remapped",
+            "new incoming",
+        ]));
+        assert!(col.get_all_notes()[0]
+            .fields()
+            .iter()
+            .eq(["front", "back", "new", ""]))
     }
 }
