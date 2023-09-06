@@ -719,7 +719,7 @@ impl Collection {
         Ok(())
     }
 
-    fn remove_notetype_inner(&mut self, ntid: NotetypeId) -> Result<()> {
+    pub(crate) fn remove_notetype_inner(&mut self, ntid: NotetypeId) -> Result<()> {
         let notetype = if let Some(notetype) = self.storage.get_notetype(ntid)? {
             notetype
         } else {

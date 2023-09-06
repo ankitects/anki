@@ -273,7 +273,7 @@ impl<'n> NoteContext<'n> {
                     new_fields: nt.field_ords_vec(),
                     new_templates: Some(nt.template_ords_vec()),
                 })?;
-            self.target_col.remove_notetype(nt.id)?;
+            self.target_col.remove_notetype_inner(nt.id)?;
         }
         Ok(())
     }
