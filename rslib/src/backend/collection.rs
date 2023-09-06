@@ -19,7 +19,6 @@ impl BackendCollectionService for Backend {
 
         let mut builder = CollectionBuilder::new(input.collection_path);
         builder
-            .set_force_schema11(input.force_schema11)
             .set_media_paths(input.media_folder_path, input.media_db_path)
             .set_server(self.server)
             .set_tr(self.tr.clone())
