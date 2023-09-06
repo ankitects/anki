@@ -6,6 +6,7 @@ from __future__ import annotations
 from typing import Any, Generator, Literal, Sequence, Union, cast
 
 from anki import (
+    ankiweb_pb2,
     card_rendering_pb2,
     collection_pb2,
     config_pb2,
@@ -45,6 +46,7 @@ TtsVoice = card_rendering_pb2.AllTtsVoicesResponse.TtsVoice
 GetImageForOcclusionResponse = image_occlusion_pb2.GetImageForOcclusionResponse
 AddImageOcclusionNoteRequest = image_occlusion_pb2.AddImageOcclusionNoteRequest
 GetImageOcclusionNoteResponse = image_occlusion_pb2.GetImageOcclusionNoteResponse
+AddonInfo = ankiweb_pb2.AddonInfo
 
 import copy
 import os

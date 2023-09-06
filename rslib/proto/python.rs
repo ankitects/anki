@@ -227,6 +227,7 @@ col.decks.all_config()
 from typing import *
 
 import anki
+import anki.ankiweb_pb2
 import anki.backend_pb2
 import anki.card_rendering_pb2
 import anki.cards_pb2
