@@ -37,10 +37,10 @@ from anki.utils import (
     dev_mode,
     ids2str,
     int_time,
+    int_version,
     is_lin,
     is_mac,
     is_win,
-    point_version,
     split_fields,
 )
 from aqt import gui_hooks
@@ -954,7 +954,7 @@ title="{}" {}>{}</button>""".format(
             if on_done:
                 on_done()
 
-        if elap > 86_400 or self.pm.last_run_version != point_version():
+        if elap > 86_400 or self.pm.last_run_version != int_version():
             check_and_prompt_for_updates(
                 self,
                 self.addonManager,

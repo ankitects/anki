@@ -20,7 +20,7 @@ from anki.collection import Collection
 from anki.db import DB
 from anki.lang import without_unicode_isolation
 from anki.sync import SyncAuth
-from anki.utils import int_time, is_mac, is_win, point_version
+from anki.utils import int_time, int_version, is_mac, is_win
 from aqt import appHelpSite, gui_hooks
 from aqt.qt import *
 from aqt.theme import Theme, WidgetStyle, theme_manager
@@ -134,7 +134,7 @@ class ProfileManager:
         res = self._loadMeta()
         self.firstRun = res.firstTime
         self.last_run_version = self.meta.get("last_run_version", self.last_run_version)
-        self.meta["last_run_version"] = point_version()
+        self.meta["last_run_version"] = int_version()
         return res
 
     # -p profile provided on command line.

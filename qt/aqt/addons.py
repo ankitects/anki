@@ -95,7 +95,7 @@ DownloadLogEntry = tuple[int, Union[DownloadError, InstallError, InstallOk]]
 
 ANKIWEB_ID_RE = re.compile(r"^\d+$")
 
-current_point_version = anki.utils.point_version()
+_current_version = anki.utils.int_version()
 
 
 @dataclass
@@ -105,8 +105,8 @@ class AddonMeta:
     enabled: bool
     installed_at: int
     conflicts: list[str]
-    min_point_version: int
-    max_point_version: int
+    min_version: int
+    max_version: int
     branch_index: int
     human_version: str | None
     update_enabled: bool
@@ -123,11 +123,11 @@ class AddonMeta:
             return None
 
     def compatible(self) -> bool:
-        min = self.min_point_version
-        if min is not None and current_point_version < min:
+        min = self.min_version
+        if min is not None and _current_version < min:
             return False
-        max = self.max_point_version
-        if max is not None and max < 0 and current_point_version > abs(max):
+        max = self.max_version
+        if max is not None and max < 0 and _current_version > abs(max):
             return False
         return True
 
@@ -147,8 +147,8 @@ class AddonMeta:
             enabled=not json_meta.get("disabled"),
             installed_at=json_meta.get("mod", 0),
             conflicts=json_meta.get("conflicts", []),
-            min_point_version=json_meta.get("min_point_version", 0) or 0,
-            max_point_version=json_meta.get("max_point_version", 0) or 0,
+            min_version=json_meta.get("min_point_version", 0) or 0,
+            max_version=json_meta.get("max_point_version", 0) or 0,
             branch_index=json_meta.get("branch_index", 0) or 0,
             human_version=json_meta.get("human_version"),
             update_enabled=json_meta.get("update_enabled", True),
@@ -183,9 +183,10 @@ class AddonManager:
             "mod": {"type": "number", "meta": True},
             # a list of other packages that conflict
             "conflicts": {"type": "array", "items": {"type": "string"}, "meta": True},
-            # the minimum 2.1.x version this add-on supports
+            # x for anki 2.1.x; int_version() for more recent releases
             "min_point_version": {"type": "number", "meta": True},
-            # if negative, abs(n) is the maximum 2.1.x version this add-on supports
+            # x for anki 2.1.x; int_version() for more recent releases
+            # if negative, abs(n) is the maximum version this add-on supports
             # if positive, indicates version tested on, and is ignored
             "max_point_version": {"type": "number", "meta": True},
             # AnkiWeb sends this to indicate which branch the user downloaded.
@@ -272,8 +273,8 @@ class AddonManager:
         json_obj["disabled"] = not addon.enabled
         json_obj["mod"] = addon.installed_at
         json_obj["conflicts"] = addon.conflicts
-        json_obj["max_point_version"] = addon.max_point_version
-        json_obj["min_point_version"] = addon.min_point_version
+        json_obj["max_point_version"] = addon.max_version
+        json_obj["min_point_version"] = addon.min_version
         json_obj["branch_index"] = addon.branch_index
         if addon.human_version is not None:
             json_obj["human_version"] = addon.human_version
@@ -558,11 +559,11 @@ class AddonManager:
             addon = self.addon_meta(str(item.id))
             updated = False
 
-            if addon.max_point_version != item.max_version:
-                addon.max_point_version = item.max_version
+            if addon.max_version != item.max_version:
+                addon.max_version = item.max_version
                 updated = True
-            if addon.min_point_version != item.min_version:
-                addon.min_point_version = item.min_version
+            if addon.min_version != item.min_version:
+                addon.min_version = item.min_version
                 updated = True
 
             if updated:
@@ -779,11 +780,11 @@ class AddonsDialog(QDialog):
         return name
 
     def compatible_string(self, addon: AddonMeta) -> str:
-        min = addon.min_point_version
-        if min is not None and min > current_point_version:
+        min = addon.min_version
+        if min is not None and min > _current_version:
             return f"Anki >= 2.1.{min}"
         else:
-            max = abs(addon.max_point_version)
+            max = abs(addon.max_version)
             return f"Anki <= 2.1.{max}"
 
     def should_grey(self, addon: AddonMeta) -> bool:
@@ -991,9 +992,7 @@ class GetAddons(QDialog):
 def download_addon(client: HttpClient, id: int) -> DownloadOk | DownloadError:
     "Fetch a single add-on from AnkiWeb."
     try:
-        resp = client.get(
-            f"{aqt.appShared}download/{id}?v=2.1&p={current_point_version}"
-        )
+        resp = client.get(f"{aqt.appShared}download/{id}?v=2.1&p={_current_version}")
         if resp.status_code != 200:
             return DownloadError(status_code=resp.status_code)
 
@@ -1372,7 +1371,7 @@ def fetch_update_info(ids: list[int]) -> list[AddonInfo]:
 
 def _fetch_update_info_batch(chunk: Iterable[int]) -> Sequence[AddonInfo]:
     return aqt.mw.backend.get_addon_info(
-        client_version=current_point_version, addon_ids=chunk
+        client_version=_current_version, addon_ids=chunk
     )
 
 
