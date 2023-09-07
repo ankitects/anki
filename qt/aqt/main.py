@@ -494,8 +494,9 @@ class AnkiQt(QMainWindow):
             self.pendingImport = None
         gui_hooks.profile_did_open()
 
-        def _onsuccess() -> None:
-            self._refresh_after_sync()
+        def _onsuccess(synced: bool) -> None:
+            if synced:
+                self._refresh_after_sync()
             if onsuccess:
                 onsuccess()
             if not self.safeMode:
@@ -628,7 +629,7 @@ class AnkiQt(QMainWindow):
             self._unloadCollection()
             onsuccess()
 
-        def after_sync() -> None:
+        def after_sync(synced: bool) -> None:
             self.media_syncer.show_diag_until_finished(after_media_sync)
 
         def before_sync() -> None:
@@ -1033,12 +1034,12 @@ title="{}" {}>{}</button>""".format(
         gui_hooks.sync_will_start()
         sync_collection(self, on_done=on_collection_sync_finished)
 
-    def maybe_auto_sync_on_open_close(self, after_sync: Callable[[], None]) -> None:
+    def maybe_auto_sync_on_open_close(self, after_sync: Callable[[bool], None]) -> None:
         "If disabled, after_sync() is called immediately."
         if self.can_auto_sync():
-            self._sync_collection_and_media(after_sync)
+            self._sync_collection_and_media(lambda: after_sync(True))
         else:
-            after_sync()
+            after_sync(False)
 
     def maybe_auto_sync_media(self) -> None:
         if self.can_auto_sync():
