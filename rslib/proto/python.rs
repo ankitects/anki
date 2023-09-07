@@ -124,7 +124,7 @@ fn build_method_arguments(input: &MessageDescriptor) -> String {
         args.push("*".to_string());
     }
     for field in fields {
-        let arg = format!("{}: {}", field.name(), python_type(&field));
+        let arg = format!("{}: {}", field.name(), python_type(&field, false));
         args.push(arg);
     }
     args.join(", ")
@@ -150,14 +150,17 @@ fn maybe_destructured_output(output: &MessageDescriptor) -> (String, String) {
     if output.fields().len() == 1 && !matches!(first_field.as_ref().unwrap().kind(), Kind::Enum(_))
     {
         let field = first_field.unwrap();
-        (format!("output.{}", field.name()), python_type(&field))
+        (
+            format!("output.{}", field.name()),
+            python_type(&field, true),
+        )
     } else {
         ("output".into(), full_name_to_python(output.full_name()))
     }
 }
 
 /// e.g. uint32 -> int; repeated bool -> Sequence[bool]
-fn python_type(field: &FieldDescriptor) -> String {
+fn python_type(field: &FieldDescriptor, output: bool) -> String {
     let kind = match field.kind() {
         Kind::Int32
         | Kind::Int64
@@ -177,11 +180,15 @@ fn python_type(field: &FieldDescriptor) -> String {
         Kind::Enum(en) => format!("{}.V", full_name_to_python(en.full_name())),
     };
     if field.is_list() {
-        format!("Sequence[{}]", kind)
+        if output {
+            format!("Sequence[{}]", kind)
+        } else {
+            format!("Iterable[{}]", kind)
+        }
     } else if field.is_map() {
         let map_kind = field.kind();
         let map_kind = map_kind.as_message().unwrap();
-        let map_kv: Vec<_> = map_kind.fields().map(|f| python_type(&f)).collect();
+        let map_kv: Vec<_> = map_kind.fields().map(|f| python_type(&f, output)).collect();
         format!("Mapping[{}, {}]", map_kv[0], map_kv[1])
     } else {
         kind
@@ -220,6 +227,7 @@ col.decks.all_config()
 from typing import *
 
 import anki
+import anki.ankiweb_pb2
 import anki.backend_pb2
 import anki.card_rendering_pb2
 import anki.cards_pb2

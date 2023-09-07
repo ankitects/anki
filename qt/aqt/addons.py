@@ -14,7 +14,7 @@ from concurrent.futures import Future
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import IO, Any, Callable, Iterable, Union
+from typing import IO, Any, Callable, Iterable, Sequence, Union
 from urllib.parse import parse_qs, urlparse
 from zipfile import ZipFile
 
@@ -28,6 +28,7 @@ import anki.utils
 import aqt
 import aqt.forms
 import aqt.main
+from anki.collection import AddonInfo
 from anki.httpclient import HttpClient
 from anki.lang import without_unicode_isolation
 from aqt import gui_hooks
@@ -92,18 +93,9 @@ class DownloadError:
 DownloadLogEntry = tuple[int, Union[DownloadError, InstallError, InstallOk]]
 
 
-@dataclass
-class UpdateInfo:
-    id: int
-    suitable_branch_last_modified: int
-    current_branch_last_modified: int
-    current_branch_min_point_ver: int
-    current_branch_max_point_ver: int
-
-
 ANKIWEB_ID_RE = re.compile(r"^\d+$")
 
-current_point_version = anki.utils.point_version()
+_current_version = anki.utils.int_version()
 
 
 @dataclass
@@ -113,8 +105,8 @@ class AddonMeta:
     enabled: bool
     installed_at: int
     conflicts: list[str]
-    min_point_version: int
-    max_point_version: int
+    min_version: int
+    max_version: int
     branch_index: int
     human_version: str | None
     update_enabled: bool
@@ -131,11 +123,11 @@ class AddonMeta:
             return None
 
     def compatible(self) -> bool:
-        min = self.min_point_version
-        if min is not None and current_point_version < min:
+        min = self.min_version
+        if min is not None and _current_version < min:
             return False
-        max = self.max_point_version
-        if max is not None and max < 0 and current_point_version > abs(max):
+        max = self.max_version
+        if max is not None and max < 0 and _current_version > abs(max):
             return False
         return True
 
@@ -155,8 +147,8 @@ class AddonMeta:
             enabled=not json_meta.get("disabled"),
             installed_at=json_meta.get("mod", 0),
             conflicts=json_meta.get("conflicts", []),
-            min_point_version=json_meta.get("min_point_version", 0) or 0,
-            max_point_version=json_meta.get("max_point_version", 0) or 0,
+            min_version=json_meta.get("min_point_version", 0) or 0,
+            max_version=json_meta.get("max_point_version", 0) or 0,
             branch_index=json_meta.get("branch_index", 0) or 0,
             human_version=json_meta.get("human_version"),
             update_enabled=json_meta.get("update_enabled", True),
@@ -191,9 +183,10 @@ class AddonManager:
             "mod": {"type": "number", "meta": True},
             # a list of other packages that conflict
             "conflicts": {"type": "array", "items": {"type": "string"}, "meta": True},
-            # the minimum 2.1.x version this add-on supports
+            # x for anki 2.1.x; int_version() for more recent releases
             "min_point_version": {"type": "number", "meta": True},
-            # if negative, abs(n) is the maximum 2.1.x version this add-on supports
+            # x for anki 2.1.x; int_version() for more recent releases
+            # if negative, abs(n) is the maximum version this add-on supports
             # if positive, indicates version tested on, and is ignored
             "max_point_version": {"type": "number", "meta": True},
             # AnkiWeb sends this to indicate which branch the user downloaded.
@@ -280,8 +273,8 @@ class AddonManager:
         json_obj["disabled"] = not addon.enabled
         json_obj["mod"] = addon.installed_at
         json_obj["conflicts"] = addon.conflicts
-        json_obj["max_point_version"] = addon.max_point_version
-        json_obj["min_point_version"] = addon.min_point_version
+        json_obj["max_point_version"] = addon.max_version
+        json_obj["min_point_version"] = addon.min_version
         json_obj["branch_index"] = addon.branch_index
         if addon.human_version is not None:
             json_obj["human_version"] = addon.human_version
@@ -552,60 +545,39 @@ class AddonManager:
     # Updating
     ######################################################################
 
-    def extract_update_info(self, items: list[dict]) -> list[UpdateInfo]:
-        def extract_one(item: dict) -> UpdateInfo:
-            id = item["id"]
-            meta = self.addon_meta(str(id))
-            branch_idx = meta.branch_index
-            return extract_update_info(current_point_version, branch_idx, item)
+    def update_supported_versions(self, items: list[AddonInfo]) -> None:
+        """Adjust the supported version range after an update check.
 
-        return list(map(extract_one, items))
+        AnkiWeb will not have sent us any add-ons that don't support our
+        version, so this cannot disable add-ons that users are using. It
+        does allow the add-on author to mark an add-on as not supporting
+        a future release, causing the add-on to be disabled when the user
+        upgrades.
+        """
 
-    def update_supported_versions(self, items: list[UpdateInfo]) -> None:
         for item in items:
-            self.update_supported_version(item)
+            addon = self.addon_meta(str(item.id))
+            updated = False
 
-    def update_supported_version(self, item: UpdateInfo) -> None:
-        addon = self.addon_meta(str(item.id))
-        updated = False
-        is_latest = addon.is_latest(item.current_branch_last_modified)
-
-        # if max different to the stored value
-        cur_max = item.current_branch_max_point_ver
-        if addon.max_point_version != cur_max:
-            if is_latest:
-                addon.max_point_version = cur_max
+            if addon.max_version != item.max_version:
+                addon.max_version = item.max_version
                 updated = True
-            else:
-                # user is not up to date; only update if new version is stricter
-                if cur_max is not None and cur_max < addon.max_point_version:
-                    addon.max_point_version = cur_max
-                    updated = True
-
-        # if min different to the stored value
-        cur_min = item.current_branch_min_point_ver
-        if addon.min_point_version != cur_min:
-            if is_latest:
-                addon.min_point_version = cur_min
+            if addon.min_version != item.min_version:
+                addon.min_version = item.min_version
                 updated = True
-            else:
-                # user is not up to date; only update if new version is stricter
-                if cur_min is not None and cur_min > addon.min_point_version:
-                    addon.min_point_version = cur_min
-                    updated = True
 
-        if updated:
-            self.write_addon_meta(addon)
+            if updated:
+                self.write_addon_meta(addon)
 
-    def updates_required(self, items: list[UpdateInfo]) -> list[UpdateInfo]:
+    def get_updated_addons(self, items: list[AddonInfo]) -> list[AddonInfo]:
         """Return ids of add-ons requiring an update."""
         need_update = []
         for item in items:
             addon = self.addon_meta(str(item.id))
             # update if server mtime is newer
-            if not addon.is_latest(item.suitable_branch_last_modified):
+            if not addon.is_latest(item.modified):
                 need_update.append(item)
-            elif not addon.compatible() and item.suitable_branch_last_modified > 0:
+            elif not addon.compatible():
                 # Addon is currently disabled, and a suitable branch was found on the
                 # server. Ignore our stored mtime (which may have been set incorrectly
                 # in the past) and require an update.
@@ -808,11 +780,11 @@ class AddonsDialog(QDialog):
         return name
 
     def compatible_string(self, addon: AddonMeta) -> str:
-        min = addon.min_point_version
-        if min is not None and min > current_point_version:
+        min = addon.min_version
+        if min is not None and min > _current_version:
             return f"Anki >= 2.1.{min}"
         else:
-            max = abs(addon.max_point_version)
+            max = abs(addon.max_version)
             return f"Anki <= 2.1.{max}"
 
     def should_grey(self, addon: AddonMeta) -> bool:
@@ -1020,9 +992,7 @@ class GetAddons(QDialog):
 def download_addon(client: HttpClient, id: int) -> DownloadOk | DownloadError:
     "Fetch a single add-on from AnkiWeb."
     try:
-        resp = client.get(
-            f"{aqt.appShared}download/{id}?v=2.1&p={current_point_version}"
-        )
+        resp = client.get(f"{aqt.appShared}download/{id}?v=2.1&p={_current_version}")
         if resp.status_code != 200:
             return DownloadError(status_code=resp.status_code)
 
@@ -1230,13 +1200,11 @@ class ChooseAddonsToUpdateList(QListWidget):
         self,
         parent: QWidget,
         mgr: AddonManager,
-        updated_addons: list[UpdateInfo],
+        updated_addons: list[AddonInfo],
     ) -> None:
         QListWidget.__init__(self, parent)
         self.mgr = mgr
-        self.updated_addons = sorted(
-            updated_addons, key=lambda addon: addon.suitable_branch_last_modified
-        )
+        self.updated_addons = sorted(updated_addons, key=lambda addon: addon.modified)
         self.ignore_check_evt = False
         self.setup()
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -1256,7 +1224,7 @@ class ChooseAddonsToUpdateList(QListWidget):
             addon_meta = self.mgr.addon_meta(str(addon_id))
             update_enabled = addon_meta.update_enabled
             addon_name = addon_meta.human_name()
-            update_timestamp = update_info.suitable_branch_last_modified
+            update_timestamp = update_info.modified
             update_time = datetime.fromtimestamp(update_timestamp)
 
             addon_label = f"{update_time:%Y-%m-%d}   {addon_name}"
@@ -1344,7 +1312,7 @@ class ChooseAddonsToUpdateList(QListWidget):
 
 class ChooseAddonsToUpdateDialog(QDialog):
     def __init__(
-        self, parent: QWidget, mgr: AddonManager, updated_addons: list[UpdateInfo]
+        self, parent: QWidget, mgr: AddonManager, updated_addons: list[AddonInfo]
     ) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(tr.addons_choose_update_window_title())
@@ -1386,32 +1354,25 @@ class ChooseAddonsToUpdateDialog(QDialog):
             return []
 
 
-def fetch_update_info(client: HttpClient, ids: list[int]) -> list[dict]:
+def fetch_update_info(ids: list[int]) -> list[AddonInfo]:
     """Fetch update info from AnkiWeb in one or more batches."""
-    all_info: list[dict] = []
+    all_info: list[AddonInfo] = []
 
     while ids:
         # get another chunk
         chunk = ids[:25]
         del ids[:25]
 
-        batch_results = _fetch_update_info_batch(client, map(str, chunk))
+        batch_results = _fetch_update_info_batch(chunk)
         all_info.extend(batch_results)
 
     return all_info
 
 
-def _fetch_update_info_batch(
-    client: HttpClient, chunk: Iterable[str]
-) -> Iterable[dict]:
-    """Get update info from AnkiWeb.
-
-    Chunk must not contain more than 25 ids."""
-    resp = client.get(f"{aqt.appShared}updates/{','.join(chunk)}?v=3")
-    if resp.status_code == 200:
-        return resp.json()
-    else:
-        raise Exception(f"Unexpected response code from AnkiWeb: {resp.status_code}")
+def _fetch_update_info_batch(chunk: Iterable[int]) -> Sequence[AddonInfo]:
+    return aqt.mw.backend.get_addon_info(
+        client_version=_current_version, addon_ids=chunk
+    )
 
 
 def check_and_prompt_for_updates(
@@ -1420,19 +1381,17 @@ def check_and_prompt_for_updates(
     on_done: Callable[[list[DownloadLogEntry]], None],
     requested_by_user: bool = True,
 ) -> None:
-    def on_updates_received(client: HttpClient, items: list[dict]) -> None:
-        handle_update_info(parent, mgr, client, items, on_done, requested_by_user)
+    def on_updates_received(items: list[AddonInfo]) -> None:
+        handle_update_info(parent, mgr, items, on_done, requested_by_user)
 
     check_for_updates(mgr, on_updates_received)
 
 
 def check_for_updates(
-    mgr: AddonManager, on_done: Callable[[HttpClient, list[dict]], None]
+    mgr: AddonManager, on_done: Callable[[list[AddonInfo]], None]
 ) -> None:
-    client = HttpClient()
-
-    def check() -> list[dict]:
-        return fetch_update_info(client, mgr.ankiweb_addons())
+    def check() -> list[AddonInfo]:
+        return fetch_update_info(mgr.ankiweb_addons())
 
     def update_info_received(future: Future) -> None:
         # if syncing/in profile screen, defer message delivery
@@ -1451,66 +1410,36 @@ def check_for_updates(
         else:
             result = future.result()
 
-        on_done(client, result)
+        on_done(result)
 
     mgr.mw.taskman.run_in_background(check, update_info_received)
-
-
-def extract_update_info(
-    current_point_version: int, current_branch_idx: int, info_json: dict
-) -> UpdateInfo:
-    "Process branches to determine the updated mod time and min/max versions."
-    branches = info_json["branches"]
-    try:
-        current = branches[current_branch_idx]
-    except IndexError:
-        current = branches[0]
-
-    last_mod = 0
-    for branch in branches:
-        if branch["minpt"] > current_point_version:
-            continue
-        if branch["maxpt"] < 0 and abs(branch["maxpt"]) < current_point_version:
-            continue
-        last_mod = branch["fmod"]
-
-    return UpdateInfo(
-        id=info_json["id"],
-        suitable_branch_last_modified=last_mod,
-        current_branch_last_modified=current["fmod"],
-        current_branch_min_point_ver=current["minpt"],
-        current_branch_max_point_ver=current["maxpt"],
-    )
 
 
 def handle_update_info(
     parent: QWidget,
     mgr: AddonManager,
-    client: HttpClient,
-    items: list[dict],
+    items: list[AddonInfo],
     on_done: Callable[[list[DownloadLogEntry]], None],
     requested_by_user: bool = True,
 ) -> None:
-    update_info = mgr.extract_update_info(items)
-    mgr.update_supported_versions(update_info)
-
-    updated_addons = mgr.updates_required(update_info)
+    mgr.update_supported_versions(items)
+    updated_addons = mgr.get_updated_addons(items)
 
     if not updated_addons:
         on_done([])
         return
 
-    prompt_to_update(parent, mgr, client, updated_addons, on_done, requested_by_user)
+    prompt_to_update(parent, mgr, updated_addons, on_done, requested_by_user)
 
 
 def prompt_to_update(
     parent: QWidget,
     mgr: AddonManager,
-    client: HttpClient,
-    updated_addons: list[UpdateInfo],
+    updated_addons: list[AddonInfo],
     on_done: Callable[[list[DownloadLogEntry]], None],
     requested_by_user: bool = True,
 ) -> None:
+    client = HttpClient()
     if not requested_by_user:
         prompt_update = False
         for addon in updated_addons:

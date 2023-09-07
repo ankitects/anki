@@ -3,6 +3,7 @@
 
 mod adding;
 mod ankidroid;
+mod ankiweb;
 mod card_rendering;
 mod collection;
 mod config;
@@ -20,6 +21,7 @@ use std::thread::JoinHandle;
 
 use once_cell::sync::OnceCell;
 use prost::Message;
+use reqwest::Client;
 use tokio::runtime;
 use tokio::runtime::Runtime;
 
@@ -40,6 +42,7 @@ pub struct Backend {
     runtime: OnceCell<Runtime>,
     state: Arc<Mutex<BackendState>>,
     backup_task: Arc<Mutex<Option<JoinHandle<Result<()>>>>>,
+    web_client: OnceCell<Client>,
 }
 
 #[derive(Default)]
@@ -73,6 +76,7 @@ impl Backend {
             runtime: OnceCell::new(),
             state: Arc::new(Mutex::new(BackendState::default())),
             backup_task: Arc::new(Mutex::new(None)),
+            web_client: OnceCell::new(),
         }
     }
 
@@ -116,6 +120,12 @@ impl Backend {
             })
             .handle()
             .clone()
+    }
+
+    fn web_client(&self) -> &Client {
+        // currently limited to http1, as nginx doesn't support http2 proxies
+        self.web_client
+            .get_or_init(|| Client::builder().http1_only().build().unwrap())
     }
 
     fn db_command(&self, input: &[u8]) -> Result<Vec<u8>> {

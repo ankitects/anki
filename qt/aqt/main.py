@@ -37,10 +37,10 @@ from anki.utils import (
     dev_mode,
     ids2str,
     int_time,
+    int_version,
     is_lin,
     is_mac,
     is_win,
-    point_version,
     split_fields,
 )
 from aqt import gui_hooks
@@ -954,7 +954,7 @@ title="{}" {}>{}</button>""".format(
             if on_done:
                 on_done()
 
-        if elap > 86_400 or self.pm.last_run_version != point_version():
+        if elap > 86_400 or self.pm.last_run_version != int_version():
             check_and_prompt_for_updates(
                 self,
                 self.addonManager,
@@ -1401,29 +1401,9 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def setupAutoUpdate(self) -> None:
-        import aqt.update
+        from aqt.update import check_for_update
 
-        self.autoUpdate = aqt.update.LatestVersionFinder(self)
-        qconnect(self.autoUpdate.newVerAvail, self.newVerAvail)
-        qconnect(self.autoUpdate.newMsg, self.newMsg)
-        qconnect(self.autoUpdate.clockIsOff, self.clockIsOff)
-        self.autoUpdate.start()
-
-    def newVerAvail(self, ver: str) -> None:
-        if self.pm.meta.get("suppressUpdate", None) != ver:
-            aqt.update.askAndUpdate(self, ver)
-
-    def newMsg(self, data: dict) -> None:
-        aqt.update.showMessages(self, data)
-
-    def clockIsOff(self, diff: int) -> None:
-        if dev_mode:
-            print("clock is off; ignoring")
-            return
-        diffText = tr.qt_misc_second(count=diff)
-        warn = tr.qt_misc_in_order_to_ensure_your_collection(val="%s") % diffText
-        showWarning(warn)
-        self.app.closeAllWindows()
+        check_for_update()
 
     # Timers
     ##########################################################################

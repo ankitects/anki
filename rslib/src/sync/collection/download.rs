@@ -5,6 +5,7 @@ use anki_io::atomic_rename;
 use anki_io::new_tempfile_in_parent_of;
 use anki_io::read_file;
 use anki_io::write_file;
+use reqwest::Client;
 
 use crate::collection::CollectionBuilder;
 use crate::prelude::*;
@@ -17,8 +18,8 @@ use crate::sync::login::SyncAuth;
 
 impl Collection {
     /// Download collection from AnkiWeb. Caller must re-open afterwards.
-    pub async fn full_download(self, auth: SyncAuth) -> Result<()> {
-        self.full_download_with_server(HttpSyncClient::new(auth))
+    pub async fn full_download(self, auth: SyncAuth, client: Client) -> Result<()> {
+        self.full_download_with_server(HttpSyncClient::new(auth, client))
             .await
     }
 

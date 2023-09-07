@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use reqwest::Client;
+
 use crate::error;
 use crate::sync::collection::protocol::EmptyInput;
 use crate::sync::collection::protocol::SyncProtocol;
@@ -21,8 +23,8 @@ pub struct FullSyncProgress {
     pub total_bytes: usize,
 }
 
-pub async fn sync_abort(auth: SyncAuth) -> error::Result<()> {
-    HttpSyncClient::new(auth)
+pub async fn sync_abort(auth: SyncAuth, client: Client) -> error::Result<()> {
+    HttpSyncClient::new(auth, client)
         .abort(EmptyInput::request())
         .await?
         .json()
