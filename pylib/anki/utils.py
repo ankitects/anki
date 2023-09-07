@@ -304,14 +304,29 @@ def version_with_build() -> str:
     return f"{version} ({buildhash})"
 
 
-def point_version() -> int:
+def int_version() -> int:
+    """Anki's version as an integer in the form YYMMPP, e.g. 230900.
+    (year, month, patch).
+    In 2.1.x releases, this was just the last number."""
     from anki.buildinfo import version
 
-    return int(version.rsplit(".", maxsplit=1)[-1])
+    try:
+        [year, month, patch] = version.split(".")
+    except ValueError:
+        [year, month] = version.split(".")
+        patch = "0"
+
+    year_num = int(year)
+    month_num = int(month)
+    patch_num = int(patch)
+
+    return year_num * 10_000 + month_num * 100 + patch_num
 
 
-# keep the legacy alias around without a deprecation warning for now
-pointVersion = point_version
+# these two legacy aliases are provided without deprecation warnings, as add-ons that want to support
+# old versions could not use the new name without catching cases where it doesn't exist
+point_version = int_version
+pointVersion = int_version
 
 _deprecated_names = DeprecatedNamesMixinForModule(globals())
 _deprecated_names.register_deprecated_aliases(

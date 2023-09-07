@@ -12,6 +12,7 @@ use axum::response::Response;
 use flate2::write::GzEncoder;
 use flate2::Compression;
 use futures::StreamExt;
+use reqwest::Client;
 use tokio_util::io::ReaderStream;
 
 use crate::collection::CollectionBuilder;
@@ -32,8 +33,8 @@ pub const CORRUPT_MESSAGE: &str =
 
 impl Collection {
     /// Upload collection to AnkiWeb. Caller must re-open afterwards.
-    pub async fn full_upload(self, auth: SyncAuth) -> Result<()> {
-        self.full_upload_with_server(HttpSyncClient::new(auth))
+    pub async fn full_upload(self, auth: SyncAuth, client: Client) -> Result<()> {
+        self.full_upload_with_server(HttpSyncClient::new(auth, client))
             .await
     }
 
