@@ -14,6 +14,7 @@ from PyQt6.QtCore import *
 # conflicting Qt and qFuzzyCompare definitions require an ignore
 from PyQt6.QtGui import *  # type: ignore[misc,assignment]
 from PyQt6.QtNetwork import QLocalServer, QLocalSocket, QNetworkProxy
+from PyQt6.QtQuick import *
 from PyQt6.QtWebChannel import QWebChannel
 from PyQt6.QtWebEngineCore import *
 from PyQt6.QtWebEngineWidgets import *

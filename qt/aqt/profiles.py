@@ -42,6 +42,9 @@ class VideoDriver(Enum):
     OpenGL = "auto"
     ANGLE = "angle"
     Software = "software"
+    Metal = "metal"
+    Vulkan = "vulkan"
+    Direct3D = "d3d11"
 
     @staticmethod
     def default_for_platform() -> VideoDriver:
@@ -56,12 +59,12 @@ class VideoDriver(Enum):
         return self
 
     def next(self) -> VideoDriver:
-        if self == VideoDriver.Software:
-            return VideoDriver.OpenGL
-        elif self == VideoDriver.OpenGL and VideoDriver.supports_angle():
-            return VideoDriver.ANGLE
-        else:
-            return VideoDriver.Software
+        all = VideoDriver.all_for_platform()
+        try:
+            idx = (all.index(self) + 1) % len(all)
+        except ValueError:
+            idx = 0
+        return all[idx]
 
     @staticmethod
     def supports_angle() -> bool:
@@ -69,10 +72,18 @@ class VideoDriver(Enum):
 
     @staticmethod
     def all_for_platform() -> list[VideoDriver]:
-        all = [VideoDriver.OpenGL]
+        all = []
+        if qtmajor > 5:
+            if is_win:
+                all.append(VideoDriver.Direct3D)
+            if is_mac:
+                all.append(VideoDriver.Metal)
+            all.append(VideoDriver.Vulkan)
+        all.append(VideoDriver.OpenGL)
         if VideoDriver.supports_angle():
             all.append(VideoDriver.ANGLE)
         all.append(VideoDriver.Software)
+
         return all
 
 
