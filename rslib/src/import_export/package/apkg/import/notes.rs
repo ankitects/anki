@@ -491,9 +491,11 @@ impl Notetype {
 
 #[cfg(test)]
 mod test {
-    use itertools::Itertools;
+    use anki_proto::import_export::ImportAnkiPackageOptions;
+    use tempfile::TempDir;
 
     use super::*;
+    use crate::collection::CollectionBuilder;
     use crate::import_export::package::media::SafeMediaEntry;
     use crate::notetype::CardTemplate;
     use crate::notetype::NoteField;
@@ -839,50 +841,55 @@ mod test {
     }
 
     #[test]
-    fn reimport_with_merge_enabled_should_handle_duplicates() {
-        let mut col = Collection::new();
-        let mut incoming = col.basic_notetype();
-        incoming.fields.push(NoteField::new("new incoming"));
-        // simulate a notetype duplicated during previous import
-        let mut remapped = col.basic_notetype();
-        remapped.config.original_id.replace(incoming.id.0);
-        // ... which was modified and has notes
-        remapped.fields.push(NoteField::new("new remapped"));
-        remapped.id.0 = 0;
-        col.add_notetype_inner(&mut remapped, Usn(0), true).unwrap();
-        let mut note = Note::new(&remapped);
-        *note.fields_mut() = vec![
-            String::from("front"),
-            String::from("back"),
-            String::from("new"),
-        ];
-        col.add_note(&mut note, DeckId(1)).unwrap();
+    fn reimport_with_merge_enabled_should_handle_duplicates() -> Result<()> {
+        // import from src to dst
+        let mut src = Collection::new();
+        NoteAdder::basic(&mut src)
+            .fields(&["foo", "bar"])
+            .add(&mut src);
+        let temp_dir = TempDir::new()?;
+        let path = temp_dir.path().join("foo.apkg");
+        src.export_apkg(&path, "", false, false, false, None)?;
 
-        let ntid = incoming.id;
-        assert_eq!(col.storage.get_all_notetype_names().unwrap().len(), 6);
-        import_notetype!(&mut col, incoming.clone(), merge = false);
-        assert_eq!(col.storage.get_all_notetype_names().unwrap().len(), 7);
-        import_notetype!(&mut col, incoming, merge = true);
-        assert_eq!(col.storage.get_all_notetype_names().unwrap().len(), 5);
+        let mut dst = CollectionBuilder::new(temp_dir.path().join("dst.anki2"))
+            .with_desktop_media_paths()
+            .build()?;
+        dst.import_apkg(&path, ImportAnkiPackageOptions::default())?;
 
-        // both notetypes should have been merged into it. Merge order is unpredictable,
-        // but field name and content should appear in same place.
-        let nt = col.get_notetype(ntid).unwrap().unwrap();
-        let field_names = nt.field_names().collect_vec();
-        let notes = col.get_all_notes();
-        let field_content = notes[0].fields();
+        // add a field to src
+        let mut nt = src.basic_notetype();
+        nt.fields.push(NoteField::new("new incoming"));
+        src.update_notetype(&mut nt, false)?;
+
+        // importing again with merge enabled will fail, and add an empty notetype
+        assert_eq!(dst.storage.get_all_notetype_names().unwrap().len(), 6);
+        src.export_apkg(&path, "", false, false, false, None)?;
         assert_eq!(
-            field_names,
-            &["Front", "Back", "new incoming", "new remapped",]
+            dst.import_apkg(&path, ImportAnkiPackageOptions::default())?
+                .output
+                .conflicting
+                .len(),
+            1
         );
+        assert_eq!(dst.storage.get_all_notetype_names().unwrap().len(), 7);
+
+        // if enabling merge, it should succeed and remove the empty notetype
+        src.export_apkg(&path, "", false, false, false, None)?;
         assert_eq!(
-            field_content,
-            &[
-                "front".to_string(),
-                "back".to_string(),
-                "".to_string(),
-                "new".to_string()
-            ]
+            dst.import_apkg(
+                &path,
+                ImportAnkiPackageOptions {
+                    merge_notetypes: true,
+                    ..Default::default()
+                }
+            )?
+            .output
+            .conflicting
+            .len(),
+            0
         );
+        assert_eq!(dst.storage.get_all_notetype_names().unwrap().len(), 6);
+
+        Ok(())
     }
 }
