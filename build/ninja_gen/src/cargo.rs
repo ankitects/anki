@@ -161,7 +161,7 @@ impl BuildAction for CargoTest {
             "cargo-nextest",
             CargoInstall {
                 binary_name: "cargo-nextest",
-                args: "cargo-nextest --version 0.9.43",
+                args: "cargo-nextest --version 0.9.57 --locked",
             },
         )?;
         setup_flags(build)
