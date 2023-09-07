@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use reqwest::Client;
 use tracing::debug;
 
 use crate::collection::Collection;
@@ -152,8 +153,12 @@ impl From<ClientSyncState> for SyncOutput {
 }
 
 impl Collection {
-    pub async fn normal_sync(&mut self, auth: SyncAuth) -> error::Result<SyncOutput> {
-        NormalSyncer::new(self, HttpSyncClient::new(auth))
+    pub async fn normal_sync(
+        &mut self,
+        auth: SyncAuth,
+        client: Client,
+    ) -> error::Result<SyncOutput> {
+        NormalSyncer::new(self, HttpSyncClient::new(auth, client))
             .sync()
             .await
     }

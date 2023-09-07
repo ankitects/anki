@@ -7,6 +7,7 @@ use std::future::Future;
 
 use axum::http::StatusCode;
 use once_cell::sync::Lazy;
+use reqwest::Client;
 use reqwest::Url;
 use serde_json::json;
 use tempfile::tempdir;
@@ -106,7 +107,7 @@ where
         endpoint: Some(endpoint),
         io_timeout_secs: None,
     };
-    let client = HttpSyncClient::new(auth);
+    let client = HttpSyncClient::new(auth, Client::new());
     op(client).await
 }
 
