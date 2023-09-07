@@ -85,7 +85,7 @@ importing-update-notetypes-help =
     When to update an existing notetype in your collection. By default, this is only done
     if the matching imported notetype was more recently modified. Changes to template text
     and styling can always be imported, but for schema changes (e.g. the number or order of
-    fields has changed), the 'merge notetypes' option will also need to be enabled.
+    fields has changed), the '{ importing-merge-notetypes }' option will also need to be enabled.
 importing-note-added =
     { $count ->
         [one] { $count } note added
@@ -167,8 +167,8 @@ importing-conflicting-notes-skipped =
     }
 importing-conflicting-notes-skipped2 =
     { $count ->
-        [one] { $count } note was not imported, because its notetype has changed, and 'merge notetypes' was not enabled.
-        *[other] { $count } were not imported, because their notetype has changed, and 'merge notetypes' was not enabled.
+        [one] { $count } note was not imported, because its notetype has changed, and '{ importing-merge-notetypes }' was not enabled.
+        *[other] { $count } were not imported, because their notetype has changed, and '{ importing-merge-notetypes }' was not enabled.
     }
 importing-import-log = Import Log
 importing-no-notes-in-file = No notes found in file.
