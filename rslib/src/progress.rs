@@ -8,7 +8,6 @@ use std::sync::Mutex;
 use anki_i18n::I18n;
 use anki_proto::collection::progress::ComputeRetention;
 use anki_proto::collection::progress::ComputeWeights;
-use futures::future::AbortHandle;
 
 use crate::dbcheck::DatabaseCheckProgress;
 use crate::error::AnkiError;
@@ -122,9 +121,6 @@ pub struct ProgressState {
     pub want_abort: bool,
     pub last_progress: Option<Progress>,
 }
-
-// fixme: this should support multiple abort handles.
-pub(crate) type AbortHandleSlot = Arc<Mutex<Option<AbortHandle>>>;
 
 #[derive(Clone, Copy, Debug)]
 pub enum Progress {
