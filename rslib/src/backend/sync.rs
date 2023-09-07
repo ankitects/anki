@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::sync::Arc;
-
 use anki_proto::sync::sync_status_response::Required;
 use anki_proto::sync::SyncStatusResponse;
 use futures::future::AbortHandle;
@@ -13,7 +11,6 @@ use tracing::warn;
 
 use super::Backend;
 use crate::prelude::*;
-use crate::progress::AbortHandleSlot;
 use crate::sync::collection::normal::ClientSyncState;
 use crate::sync::collection::normal::SyncActionRequired;
 use crate::sync::collection::normal::SyncOutput;
@@ -154,7 +151,7 @@ impl Backend {
     fn sync_abort_handle(
         &self,
     ) -> Result<(
-        scopeguard::ScopeGuard<AbortHandleSlot, impl FnOnce(AbortHandleSlot)>,
+        scopeguard::ScopeGuard<Backend, impl FnOnce(Backend)>,
         AbortRegistration,
     )> {
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
@@ -171,8 +168,8 @@ impl Backend {
             );
         }
         // Clear the abort handle after the caller is done and drops the guard.
-        let guard = scopeguard::guard(Arc::clone(&self.sync_abort), |sync_abort| {
-            sync_abort.lock().unwrap().take();
+        let guard = scopeguard::guard(self.clone(), |backend| {
+            backend.sync_abort.lock().unwrap().take();
         });
         Ok((guard, abort_reg))
     }
