@@ -48,14 +48,11 @@ class VideoDriver(Enum):
 
     @staticmethod
     def default_for_platform() -> VideoDriver:
-        if is_mac or qtmajor > 5:
-            return VideoDriver.OpenGL
-        else:
-            return VideoDriver.Software
+        return VideoDriver.all_for_platform()[0]
 
     def constrained_to_platform(self) -> VideoDriver:
-        if self == VideoDriver.ANGLE and not VideoDriver.supports_angle():
-            return VideoDriver.Software
+        if self not in VideoDriver.all_for_platform():
+            return VideoDriver.default_for_platform()
         return self
 
     def next(self) -> VideoDriver:
@@ -67,10 +64,6 @@ class VideoDriver(Enum):
         return all[idx]
 
     @staticmethod
-    def supports_angle() -> bool:
-        return is_win and qtmajor < 6
-
-    @staticmethod
     def all_for_platform() -> list[VideoDriver]:
         all = []
         if qtmajor > 5:
@@ -80,7 +73,7 @@ class VideoDriver(Enum):
                 all.append(VideoDriver.Metal)
             all.append(VideoDriver.Vulkan)
         all.append(VideoDriver.OpenGL)
-        if VideoDriver.supports_angle():
+        if is_win and qtmajor < 6:
             all.append(VideoDriver.ANGLE)
         all.append(VideoDriver.Software)
 
