@@ -27,7 +27,7 @@ struct NoteContext<'a> {
     remapped_fields: HashMap<NotetypeId, Vec<Option<u32>>>,
     target_guids: HashMap<String, NoteMeta>,
     target_ids: HashSet<NoteId>,
-    target_notetypes: HashMap<NotetypeId, Arc<Notetype>>,
+    target_notetypes: Vec<Arc<Notetype>>,
     media_map: &'a mut MediaUseMap,
     merge_notetypes: bool,
     update_notes: UpdateCondition,
@@ -136,7 +136,7 @@ impl<'n> NoteContext<'n> {
     fn import_notetypes(&mut self, mut notetypes: Vec<Notetype>) -> Result<()> {
         for notetype in &mut notetypes {
             notetype.config.original_id.replace(notetype.id.0);
-            if let Some(nt) = self.target_notetypes.get(&notetype.id) {
+            if let Some(nt) = self.get_target_notetype(notetype.id) {
                 let existing = nt.as_ref().clone();
                 if self.merge_notetypes {
                     self.update_or_merge_notetype(notetype, existing)?;
@@ -148,6 +148,10 @@ impl<'n> NoteContext<'n> {
             }
         }
         Ok(())
+    }
+
+    fn get_target_notetype(&self, ntid: NotetypeId) -> Option<&Arc<Notetype>> {
+        self.target_notetypes.iter().find(|nt| nt.id == ntid)
     }
 
     fn update_or_duplicate_notetype(
@@ -177,7 +181,7 @@ impl<'n> NoteContext<'n> {
     /// Try to find a notetype with matching original id and schema.
     fn get_previously_duplicated_notetype(&self, original: &Notetype) -> Option<Notetype> {
         self.target_notetypes
-            .values()
+            .iter()
             .find(|nt| {
                 nt.id != original.id
                     && nt.config.original_id == Some(original.id.0)
@@ -246,7 +250,7 @@ impl<'n> NoteContext<'n> {
     /// Get notetypes with different id, but matching original id.
     fn get_sibling_notetypes(&mut self, original_id: NotetypeId) -> Vec<Notetype> {
         self.target_notetypes
-            .values()
+            .iter()
             .filter(|nt| nt.id != original_id && nt.config.original_id == Some(original_id.0))
             .map(|nt| nt.as_ref().clone())
             .collect()
@@ -867,34 +871,18 @@ mod test {
         let field_names = nt.field_names().collect_vec();
         let notes = col.get_all_notes();
         let field_content = notes[0].fields();
-        if field_names[2] == "new remapped" {
-            assert_eq!(
-                field_names,
-                &["Front", "Back", "new remapped", "new incoming",]
-            );
-            assert_eq!(
-                field_content,
-                &[
-                    "front".to_string(),
-                    "back".to_string(),
-                    "new".to_string(),
-                    "".to_string()
-                ]
-            );
-        } else {
-            assert_eq!(
-                field_names,
-                &["Front", "Back", "new incoming", "new remapped",]
-            );
-            assert_eq!(
-                field_content,
-                &[
-                    "front".to_string(),
-                    "back".to_string(),
-                    "".to_string(),
-                    "new".to_string()
-                ]
-            );
-        }
+        assert_eq!(
+            field_names,
+            &["Front", "Back", "new incoming", "new remapped",]
+        );
+        assert_eq!(
+            field_content,
+            &[
+                "front".to_string(),
+                "back".to_string(),
+                "".to_string(),
+                "new".to_string()
+            ]
+        );
     }
 }

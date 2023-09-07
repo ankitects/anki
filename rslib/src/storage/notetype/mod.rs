@@ -136,6 +136,13 @@ impl SqliteStorage {
             .collect()
     }
 
+    pub fn get_all_notetype_ids(&self) -> Result<Vec<NotetypeId>> {
+        self.db
+            .prepare_cached("SELECT id FROM notetypes")?
+            .query_and_then([], |row| row.get(0).map_err(Into::into))?
+            .collect()
+    }
+
     /// Returns list of (id, name, use_count)
     pub fn get_notetype_use_counts(&self) -> Result<Vec<(NotetypeId, String, u32)>> {
         self.db

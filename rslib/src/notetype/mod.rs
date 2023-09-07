@@ -214,16 +214,11 @@ impl Collection {
         }
     }
 
-    pub fn get_all_notetypes(&mut self) -> Result<HashMap<NotetypeId, Arc<Notetype>>> {
+    pub fn get_all_notetypes(&mut self) -> Result<Vec<Arc<Notetype>>> {
         self.storage
-            .get_all_notetype_names()?
+            .get_all_notetype_ids()?
             .into_iter()
-            .map(|(ntid, _)| {
-                self.get_notetype(ntid)
-                    .transpose()
-                    .unwrap()
-                    .map(|nt| (ntid, nt))
-            })
+            .filter_map(|ntid| self.get_notetype(ntid).transpose())
             .collect()
     }
 
