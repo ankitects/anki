@@ -1401,29 +1401,9 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def setupAutoUpdate(self) -> None:
-        import aqt.update
+        from aqt.update import check_for_update
 
-        self.autoUpdate = aqt.update.LatestVersionFinder(self)
-        qconnect(self.autoUpdate.newVerAvail, self.newVerAvail)
-        qconnect(self.autoUpdate.newMsg, self.newMsg)
-        qconnect(self.autoUpdate.clockIsOff, self.clockIsOff)
-        self.autoUpdate.start()
-
-    def newVerAvail(self, ver: str) -> None:
-        if self.pm.meta.get("suppressUpdate", None) != ver:
-            aqt.update.askAndUpdate(self, ver)
-
-    def newMsg(self, data: dict) -> None:
-        aqt.update.showMessages(self, data)
-
-    def clockIsOff(self, diff: int) -> None:
-        if dev_mode:
-            print("clock is off; ignoring")
-            return
-        diffText = tr.qt_misc_second(count=diff)
-        warn = tr.qt_misc_in_order_to_ensure_your_collection(val="%s") % diffText
-        showWarning(warn)
-        self.app.closeAllWindows()
+        check_for_update()
 
     # Timers
     ##########################################################################

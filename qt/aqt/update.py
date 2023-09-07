@@ -1,77 +1,75 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import time
-from typing import Any
-
-import requests
-
 import aqt
-from anki.utils import plat_desc, version_with_build
-from aqt.main import AnkiQt
+from anki.buildinfo import buildhash
+from anki.collection import CheckForUpdateResponse, Collection
+from anki.utils import dev_mode, int_time, int_version, plat_desc
+from aqt.operations import QueryOp
 from aqt.qt import *
-from aqt.utils import openLink, showText, tr
+from aqt.utils import openLink, show_warning, showText, tr
 
 
-class LatestVersionFinder(QThread):
-    newVerAvail = pyqtSignal(str)
-    newMsg = pyqtSignal(dict)
-    clockIsOff = pyqtSignal(float)
+def check_for_update() -> None:
+    from aqt import mw
 
-    def __init__(self, main: AnkiQt) -> None:
-        QThread.__init__(self)
-        self.main = main
-        self.config = main.pm.meta
+    def do_check(_col: Collection) -> CheckForUpdateResponse:
+        return mw.backend.check_for_update(
+            version=int_version(),
+            buildhash=buildhash,
+            os=plat_desc(),
+            install_id=mw.pm.meta["id"],
+            last_message_id=max(0, mw.pm.meta["lastMsg"]),
+        )
 
-    def _data(self) -> dict[str, Any]:
-        return {
-            "ver": version_with_build(),
-            "os": plat_desc(),
-            "id": self.config["id"],
-            "lm": self.config["lastMsg"],
-            "crt": self.config["created"],
-        }
+    def on_done(resp: CheckForUpdateResponse) -> None:
+        # is clock off?
+        if not dev_mode:
+            diff = abs(resp.current_time - int_time())
+            if diff > 300:
+                diff_text = tr.qt_misc_second(count=diff)
+                warn = (
+                    tr.qt_misc_in_order_to_ensure_your_collection(val="%s") % diff_text
+                )
+                show_warning(warn)
+                mw.app.closeAllWindows()
+                return
+        # should we show a message?
+        if msg := resp.message:
+            showText(msg, parent=mw, type="html")
+            mw.pm.meta["lastMsg"] = resp.last_message_id
+        # has Anki been updated?
+        if ver := resp.new_version:
+            prompt_to_update(mw, ver)
 
-    def run(self) -> None:
-        if not self.config["updates"]:
-            return
-        d = self._data()
-        d["proto"] = 1
+    def on_fail(exc: Exception) -> None:
+        print(f"update check failed: {exc}")
 
-        try:
-            r = requests.post(aqt.appUpdate, data=d, timeout=60)
-            r.raise_for_status()
-            resp = r.json()
-        except:
-            # behind proxy, corrupt message, etc
-            print("update check failed")
-            return
-        if resp["msg"]:
-            self.newMsg.emit(resp)  # type: ignore
-        if resp["ver"]:
-            self.newVerAvail.emit(resp["ver"])  # type: ignore
-        diff = resp["time"] - time.time()
-        if abs(diff) > 300:
-            self.clockIsOff.emit(diff)  # type: ignore
+    QueryOp(parent=mw, op=do_check, success=on_done).failure(
+        on_fail
+    ).run_in_background()
 
 
-def askAndUpdate(mw: aqt.AnkiQt, ver: str) -> None:
-    baseStr = tr.qt_misc_anki_updatedanki_has_been_released(val=ver)
-    msg = QMessageBox(mw)
-    msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)  # type: ignore
-    msg.setIcon(QMessageBox.Icon.Information)
-    msg.setText(baseStr + tr.qt_misc_would_you_like_to_download_it())
+def prompt_to_update(mw: aqt.AnkiQt, ver: str) -> None:
+    msg = (
+        tr.qt_misc_anki_updatedanki_has_been_released(val=ver)
+        + tr.qt_misc_would_you_like_to_download_it()
+    )
+
+    msgbox = QMessageBox(mw)
+    msgbox.setStandardButtons(
+        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+    )
+    msgbox.setIcon(QMessageBox.Icon.Information)
+    msgbox.setText(msg)
+
     button = QPushButton(tr.qt_misc_ignore_this_update())
-    msg.addButton(button, QMessageBox.ButtonRole.RejectRole)
-    msg.setDefaultButton(QMessageBox.StandardButton.Yes)
-    ret = msg.exec()
-    if msg.clickedButton() == button:
+    msgbox.addButton(button, QMessageBox.ButtonRole.RejectRole)
+    msgbox.setDefaultButton(QMessageBox.StandardButton.Yes)
+    ret = msgbox.exec()
+
+    if msgbox.clickedButton() == button:
         # ignore this update
         mw.pm.meta["suppressUpdate"] = ver
     elif ret == QMessageBox.StandardButton.Yes:
         openLink(aqt.appWebsiteDownloadSection)
-
-
-def showMessages(mw: aqt.AnkiQt, data: dict) -> None:
-    showText(data["msg"], parent=mw, type="html")
-    mw.pm.meta["lastMsg"] = data["msgId"]

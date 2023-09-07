@@ -1,6 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::time::Duration;
+
+use anki_proto::ankiweb::CheckForUpdateRequest;
+use anki_proto::ankiweb::CheckForUpdateResponse;
 use anki_proto::ankiweb::GetAddonInfoRequest;
 use anki_proto::ankiweb::GetAddonInfoResponse;
 use prost::Message;
@@ -24,6 +28,7 @@ impl Backend {
                 .web_client()
                 .post(service_url(service))
                 .body(input.encode_to_vec())
+                .timeout(Duration::from_secs(60))
                 .send()
                 .await?
                 .error_for_status()?
@@ -37,7 +42,11 @@ impl Backend {
 
 impl BackendAnkiwebService for Backend {
     fn get_addon_info(&self, input: GetAddonInfoRequest) -> Result<GetAddonInfoResponse> {
-        self.post("shared/addon-info", input)
+        self.post("desktop/addon-info", input)
+    }
+
+    fn check_for_update(&self, input: CheckForUpdateRequest) -> Result<CheckForUpdateResponse> {
+        self.post("desktop/check-for-update", input)
     }
 }
 

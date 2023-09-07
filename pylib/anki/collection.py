@@ -47,6 +47,7 @@ GetImageForOcclusionResponse = image_occlusion_pb2.GetImageForOcclusionResponse
 AddImageOcclusionNoteRequest = image_occlusion_pb2.AddImageOcclusionNoteRequest
 GetImageOcclusionNoteResponse = image_occlusion_pb2.GetImageOcclusionNoteResponse
 AddonInfo = ankiweb_pb2.AddonInfo
+CheckForUpdateResponse = ankiweb_pb2.CheckForUpdateResponse
 
 import copy
 import os
