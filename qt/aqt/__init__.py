@@ -470,7 +470,6 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             # on Windows, this appears to be sufficient on Qt5/Qt6.
             # On Qt6, ANGLE is excluded by the enum.
             os.environ["QT_OPENGL"] = driver.value
-            pass
         elif is_mac:
             QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
         elif is_lin:
