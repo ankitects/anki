@@ -71,8 +71,9 @@ class VideoDriver(Enum):
                 all.append(VideoDriver.Direct3D)
             if is_mac:
                 all.append(VideoDriver.Metal)
-            all.append(VideoDriver.Vulkan)
         all.append(VideoDriver.OpenGL)
+        if qtmajor > 5:
+            all.append(VideoDriver.Vulkan)
         if is_win and qtmajor < 6:
             all.append(VideoDriver.ANGLE)
         all.append(VideoDriver.Software)
