@@ -163,12 +163,12 @@ importing-existing-notes-skipped =
 importing-conflicting-notes-skipped =
     { $count ->
         [one] { $count } note was not imported, because its note type has changed.
-       *[other] { $count } were not imported, because their note type has changed.
+       *[other] { $count } notes were not imported, because their note type has changed.
     }
 importing-conflicting-notes-skipped2 =
     { $count ->
         [one] { $count } note was not imported, because its notetype has changed, and '{ importing-merge-notetypes }' was not enabled.
-        *[other] { $count } were not imported, because their notetype has changed, and '{ importing-merge-notetypes }' was not enabled.
+        *[other] { $count } notes were not imported, because their notetype has changed, and '{ importing-merge-notetypes }' was not enabled.
     }
 importing-import-log = Import Log
 importing-no-notes-in-file = No notes found in file.
