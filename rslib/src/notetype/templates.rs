@@ -86,6 +86,7 @@ impl CardTemplate {
             mtime_secs: TimestampSecs(0),
             usn: Usn(0),
             config: CardTemplateConfig {
+                id: Some(rand::random()),
                 q_format: qfmt.into(),
                 a_format: afmt.into(),
                 q_format_browser: "".into(),

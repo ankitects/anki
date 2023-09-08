@@ -77,7 +77,7 @@ impl Collection {
         let mut buf = String::new();
         for (ntid, notes) in empty {
             if !notes.is_empty() {
-                let nt = nts.get(ntid).unwrap();
+                let nt = nts.iter().find(|nt| nt.id == *ntid).unwrap();
                 write!(
                     buf,
                     "<div><b>{}</b></div><ol>",

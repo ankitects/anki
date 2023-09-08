@@ -7,12 +7,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { cloneDeep, isEqual as isEqualLodash } from "lodash-es";
     import { getContext } from "svelte";
 
-    import Badge from "../components/Badge.svelte";
-    import { touchDeviceKey } from "../components/context-keys";
-    import DropdownItem from "../components/DropdownItem.svelte";
-    import Popover from "../components/Popover.svelte";
-    import WithFloating from "../components/WithFloating.svelte";
+    import Badge from "./Badge.svelte";
+    import { touchDeviceKey } from "./context-keys";
+    import DropdownItem from "./DropdownItem.svelte";
     import { revertIcon } from "./icons";
+    import Popover from "./Popover.svelte";
+    import WithFloating from "./WithFloating.svelte";
 
     type T = unknown;
 

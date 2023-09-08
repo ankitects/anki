@@ -608,11 +608,10 @@ impl SqlWriter<'_> {
         &mut self,
         field_name: &str,
     ) -> Result<Vec<FieldQualifiedSearchContext>> {
-        let notetypes = self.col.get_all_notetypes()?;
         let matches_glob = glob_matcher(field_name);
 
         let mut field_map = vec![];
-        for nt in notetypes.values() {
+        for nt in self.col.get_all_notetypes()? {
             let matched_fields = nt
                 .fields
                 .iter()
@@ -639,11 +638,10 @@ impl SqlWriter<'_> {
         &mut self,
         field_name: &str,
     ) -> Result<Vec<(NotetypeId, Vec<u32>)>> {
-        let notetypes = self.col.get_all_notetypes()?;
         let matches_glob = glob_matcher(field_name);
 
         let mut field_map = vec![];
-        for nt in notetypes.values() {
+        for nt in self.col.get_all_notetypes()? {
             let matched_fields: Vec<u32> = nt
                 .fields
                 .iter()
@@ -663,10 +661,9 @@ impl SqlWriter<'_> {
     }
 
     fn included_fields_by_notetype(&mut self) -> Result<Option<Vec<UnqualifiedSearchContext>>> {
-        let notetypes = self.col.get_all_notetypes()?;
         let mut any_excluded = false;
         let mut field_map = vec![];
-        for nt in notetypes.values() {
+        for nt in self.col.get_all_notetypes()? {
             let mut sortf_excluded = false;
             let matched_fields = nt
                 .fields
@@ -699,10 +696,9 @@ impl SqlWriter<'_> {
     fn included_fields_for_unqualified_regex(
         &mut self,
     ) -> Result<Option<Vec<UnqualifiedRegexSearchContext>>> {
-        let notetypes = self.col.get_all_notetypes()?;
         let mut any_excluded = false;
         let mut field_map = vec![];
-        for nt in notetypes.values() {
+        for nt in self.col.get_all_notetypes()? {
             let matched_fields: Vec<u32> = nt
                 .fields
                 .iter()

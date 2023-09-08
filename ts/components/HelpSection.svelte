@@ -6,22 +6,22 @@
     import * as tr from "@tslib/ftl";
     import { renderMarkdown } from "@tslib/helpers";
 
-    import Row from "../components/Row.svelte";
-    import type { DeckOption } from "./types";
+    import Row from "./Row.svelte";
+    import type { HelpItem } from "./types";
 
-    export let section: DeckOption;
+    export let item: HelpItem;
 </script>
 
 <Row>
     <h2>
-        {#if section.url}
-            {@html section.title}
+        {#if item.url}
+            {@html item.title}
         {:else}
-            {@html section.title}
+            {@html item.title}
         {/if}
     </h2>
-    {#if section.help}
-        {@html renderMarkdown(section.help)}
+    {#if item.help}
+        {@html renderMarkdown(item.help)}
     {:else}
         {@html renderMarkdown(
             tr.helpNoExplanation({
@@ -30,14 +30,14 @@
         )}
     {/if}
 </Row>
-{#if section.url}
+{#if item.url}
     <hr />
     <div class="chapter-redirect">
         {@html renderMarkdown(
             tr.helpForMoreInfo({
-                link: `<a href="${section.url}" title="${tr.helpOpenManualChapter({
-                    name: section.title,
-                })}">${section.title}</a>`,
+                link: `<a href="${item.url}" title="${tr.helpOpenManualChapter({
+                    name: item.title,
+                })}">${item.title}</a>`,
             }),
         )}
     </div>

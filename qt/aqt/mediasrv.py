@@ -424,12 +424,10 @@ def set_scheduling_states() -> bytes:
 def import_done() -> bytes:
     def update_window_modality() -> None:
         if window := aqt.mw.app.activeWindow():
-            from aqt.import_export.import_csv_dialog import ImportCsvDialog
+            from aqt.import_export.import_dialog import ImportDialog
             from aqt.import_export.import_log_dialog import ImportLogDialog
 
-            if isinstance(window, ImportCsvDialog) or isinstance(
-                window, ImportLogDialog
-            ):
+            if isinstance(window, (ImportDialog, ImportLogDialog)):
                 window.hide()
                 window.setWindowModality(Qt.WindowModality.NonModal)
                 window.show()
@@ -517,6 +515,7 @@ exposed_backend_list = [
     "i18n_resources",
     # ImportExportService
     "get_csv_metadata",
+    "get_import_anki_package_presets",
     # NotesService
     "get_field_names",
     "get_note",

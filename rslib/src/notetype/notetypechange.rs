@@ -209,7 +209,10 @@ fn default_field_map(current_notetype: &Notetype, new_notetype: &Notetype) -> Ve
 }
 
 impl Collection {
-    fn change_notetype_of_notes_inner(&mut self, input: ChangeNotetypeInput) -> Result<()> {
+    pub(crate) fn change_notetype_of_notes_inner(
+        &mut self,
+        input: ChangeNotetypeInput,
+    ) -> Result<()> {
         require!(
             input.current_schema == self.storage.get_collection_timestamps()?.schema_change,
             "schema changed"

@@ -350,9 +350,12 @@ impl MediaChecker<'_> {
         for nid in nids {
             self.increment_progress()?;
             let mut note = self.col.storage.get_note(nid)?.unwrap();
-            let nt = notetypes.get(&note.notetype_id).ok_or_else(|| {
-                AnkiError::db_error("missing note type", DbErrorKind::MissingEntity)
-            })?;
+            let nt = notetypes
+                .iter()
+                .find(|nt| nt.id == note.notetype_id)
+                .ok_or_else(|| {
+                    AnkiError::db_error("missing note type", DbErrorKind::MissingEntity)
+                })?;
             let mut tracker = |fname| {
                 referenced_files
                     .entry(fname)

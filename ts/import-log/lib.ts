@@ -90,7 +90,7 @@ export function getSummaries(log: ImportResponse_Log): SummarizedLogQueues[] {
                 },
             ],
             action: tr.importingSkipped(),
-            summaryTemplate: tr.importingConflictingNotesSkipped,
+            summaryTemplate: tr.importingConflictingNotesSkipped2,
             canBrowse: false,
             icon: closeBox,
         },

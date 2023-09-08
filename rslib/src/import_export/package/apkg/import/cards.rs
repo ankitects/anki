@@ -6,6 +6,7 @@ use std::collections::HashSet;
 use std::mem;
 
 use super::Context;
+use super::TemplateMap;
 use crate::card::CardQueue;
 use crate::card::CardType;
 use crate::config::SchedulerVersion;
@@ -19,6 +20,8 @@ struct CardContext<'a> {
     usn: Usn,
 
     imported_notes: &'a HashMap<NoteId, NoteId>,
+    notetype_map: &'a HashMap<NoteId, NotetypeId>,
+    remapped_templates: &'a HashMap<NotetypeId, TemplateMap>,
     remapped_decks: &'a HashMap<DeckId, DeckId>,
 
     /// The number of days the source collection is ahead of the target
@@ -37,6 +40,8 @@ impl<'c> CardContext<'c> {
         days_elapsed: u32,
         target_col: &'a mut Collection,
         imported_notes: &'a HashMap<NoteId, NoteId>,
+        notetype_map: &'a HashMap<NoteId, NotetypeId>,
+        remapped_templates: &'a HashMap<NotetypeId, TemplateMap>,
         imported_decks: &'a HashMap<DeckId, DeckId>,
     ) -> Result<Self> {
         let existing_cards = target_col.storage.all_cards_as_nid_and_ord()?;
@@ -47,6 +52,8 @@ impl<'c> CardContext<'c> {
             target_col,
             usn,
             imported_notes,
+            notetype_map,
+            remapped_templates,
             remapped_decks: imported_decks,
             existing_cards,
             collection_delta,
@@ -68,6 +75,8 @@ impl Context<'_> {
     pub(super) fn import_cards_and_revlog(
         &mut self,
         imported_notes: &HashMap<NoteId, NoteId>,
+        notetype_map: &HashMap<NoteId, NotetypeId>,
+        remapped_templates: &HashMap<NotetypeId, TemplateMap>,
         imported_decks: &HashMap<DeckId, DeckId>,
         keep_filtered: bool,
     ) -> Result<()> {
@@ -76,6 +85,8 @@ impl Context<'_> {
             self.data.days_elapsed,
             self.target_col,
             imported_notes,
+            notetype_map,
+            remapped_templates,
             imported_decks,
         )?;
         ctx.import_cards(mem::take(&mut self.data.cards), keep_filtered)?;
@@ -122,6 +133,7 @@ impl CardContext<'_> {
     fn add_card(&mut self, card: &mut Card, keep_filtered: bool) -> Result<()> {
         card.usn = self.usn;
         self.remap_deck_ids(card);
+        self.remap_template_index(card);
         card.shift_collection_relative_dates(self.collection_delta);
         if !keep_filtered {
             card.maybe_remove_from_filtered_deck(self.scheduler_version);
@@ -150,6 +162,16 @@ impl CardContext<'_> {
         if let Some(did) = self.remapped_decks.get(&card.original_deck_id) {
             card.original_deck_id = *did;
         }
+    }
+
+    fn remap_template_index(&self, card: &mut Card) {
+        card.template_idx = self
+            .notetype_map
+            .get(&card.note_id)
+            .and_then(|ntid| self.remapped_templates.get(ntid))
+            .and_then(|map| map.get(&card.template_idx))
+            .copied()
+            .unwrap_or(card.template_idx);
     }
 }
 

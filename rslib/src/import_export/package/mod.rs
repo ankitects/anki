@@ -7,6 +7,8 @@ mod media;
 mod meta;
 
 use anki_proto::import_export::media_entries::MediaEntry;
+pub use anki_proto::import_export::ImportAnkiPackageOptions;
+pub use anki_proto::import_export::ImportAnkiPackageUpdateCondition as UpdateCondition;
 use anki_proto::import_export::MediaEntries;
 pub(crate) use apkg::NoteMeta;
 pub(crate) use colpkg::export::export_colpkg_from_data;

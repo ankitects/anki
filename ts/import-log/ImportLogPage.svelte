@@ -4,12 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { ImportResponse } from "@tslib/anki/import_export_pb";
-    import {
-        importAnkiPackage,
-        importDone,
-        importJsonFile,
-        importJsonString,
-    } from "@tslib/backend";
+    import { importDone, importJsonFile, importJsonString } from "@tslib/backend";
     import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@tslib/ftl";
 
@@ -33,14 +28,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         let result: ImportResponse | undefined;
         try {
             switch (params.type) {
-                case "apkg":
-                    result = await importAnkiPackage(
-                        {
-                            packagePath: params.path,
-                        },
-                        postOptions,
-                    );
-                    break;
                 case "json_file":
                     result = await importJsonFile({ val: params.path }, postOptions);
                     break;

@@ -6,8 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
     import { getPlatformString } from "@tslib/shortcuts";
 
-    import LabelButton from "../components/LabelButton.svelte";
-    import Shortcut from "../components/Shortcut.svelte";
+    import LabelButton from "./LabelButton.svelte";
+    import Shortcut from "./Shortcut.svelte";
 
     export let path: string;
     export let onImport: () => void;

@@ -3,8 +3,8 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ConfigInput from "./ConfigInput.svelte";
-    import RevertButton from "./RevertButton.svelte";
+    import ConfigInput from "../components/ConfigInput.svelte";
+    import RevertButton from "../components/RevertButton.svelte";
     import WeightsInput from "./WeightsInput.svelte";
 
     export let value: any;

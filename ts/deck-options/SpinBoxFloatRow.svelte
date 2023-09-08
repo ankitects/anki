@@ -4,10 +4,10 @@
 -->
 <script lang="ts">
     import Col from "../components/Col.svelte";
+    import ConfigInput from "../components/ConfigInput.svelte";
+    import RevertButton from "../components/RevertButton.svelte";
     import Row from "../components/Row.svelte";
     import SpinBox from "../components/SpinBox.svelte";
-    import ConfigInput from "./ConfigInput.svelte";
-    import RevertButton from "./RevertButton.svelte";
 
     export let value: number;
     export let defaultValue: number;

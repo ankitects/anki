@@ -5,6 +5,7 @@ mod cardgen;
 mod checks;
 mod emptycards;
 mod fields;
+mod merge;
 mod notetypechange;
 mod render;
 mod restore;
@@ -213,16 +214,11 @@ impl Collection {
         }
     }
 
-    pub fn get_all_notetypes(&mut self) -> Result<HashMap<NotetypeId, Arc<Notetype>>> {
+    pub fn get_all_notetypes(&mut self) -> Result<Vec<Arc<Notetype>>> {
         self.storage
-            .get_all_notetype_names()?
+            .get_all_notetype_ids()?
             .into_iter()
-            .map(|(ntid, _)| {
-                self.get_notetype(ntid)
-                    .transpose()
-                    .unwrap()
-                    .map(|nt| (ntid, nt))
-            })
+            .filter_map(|ntid| self.get_notetype(ntid).transpose())
             .collect()
     }
 
@@ -718,7 +714,7 @@ impl Collection {
         Ok(())
     }
 
-    fn remove_notetype_inner(&mut self, ntid: NotetypeId) -> Result<()> {
+    pub(crate) fn remove_notetype_inner(&mut self, ntid: NotetypeId) -> Result<()> {
         let notetype = if let Some(notetype) = self.storage.get_notetype(ntid)? {
             notetype
         } else {

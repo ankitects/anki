@@ -4,23 +4,33 @@ use anki_proto::generic;
 use anki_proto::import_export::import_response::Log as NoteLog;
 use anki_proto::import_export::ExportLimit;
 
-use crate::collection::Collection;
-use crate::error;
-use crate::ops::OpOutput;
+use crate::prelude::*;
 use crate::search::SearchNode;
 
 impl crate::services::ImportExportService for Collection {
     fn import_anki_package(
         &mut self,
         input: anki_proto::import_export::ImportAnkiPackageRequest,
-    ) -> error::Result<anki_proto::import_export::ImportResponse> {
-        self.import_apkg(&input.package_path).map(Into::into)
+    ) -> Result<anki_proto::import_export::ImportResponse> {
+        self.import_apkg(&input.package_path, input.options.unwrap_or_default())
+            .map(Into::into)
+    }
+
+    fn get_import_anki_package_presets(
+        &mut self,
+    ) -> Result<anki_proto::import_export::ImportAnkiPackageOptions> {
+        Ok(anki_proto::import_export::ImportAnkiPackageOptions {
+            merge_notetypes: self.get_config_bool(BoolKey::MergeNotetypes),
+            with_scheduling: self.get_config_bool(BoolKey::WithScheduling),
+            update_notes: self.get_update_notes() as i32,
+            update_notetypes: self.get_update_notetypes() as i32,
+        })
     }
 
     fn export_anki_package(
         &mut self,
         input: anki_proto::import_export::ExportAnkiPackageRequest,
-    ) -> error::Result<generic::UInt32> {
+    ) -> Result<generic::UInt32> {
         self.export_apkg(
             &input.out_path,
             SearchNode::from(input.limit.unwrap_or_default()),
@@ -35,7 +45,7 @@ impl crate::services::ImportExportService for Collection {
     fn get_csv_metadata(
         &mut self,
         input: anki_proto::import_export::CsvMetadataRequest,
-    ) -> error::Result<anki_proto::import_export::CsvMetadata> {
+    ) -> Result<anki_proto::import_export::CsvMetadata> {
         let delimiter = input.delimiter.is_some().then(|| input.delimiter());
 
         self.get_csv_metadata(
@@ -50,7 +60,7 @@ impl crate::services::ImportExportService for Collection {
     fn import_csv(
         &mut self,
         input: anki_proto::import_export::ImportCsvRequest,
-    ) -> error::Result<anki_proto::import_export::ImportResponse> {
+    ) -> Result<anki_proto::import_export::ImportResponse> {
         self.import_csv(&input.path, input.metadata.unwrap_or_default())
             .map(Into::into)
     }
@@ -58,14 +68,14 @@ impl crate::services::ImportExportService for Collection {
     fn export_note_csv(
         &mut self,
         input: anki_proto::import_export::ExportNoteCsvRequest,
-    ) -> error::Result<generic::UInt32> {
+    ) -> Result<generic::UInt32> {
         self.export_note_csv(input).map(Into::into)
     }
 
     fn export_card_csv(
         &mut self,
         input: anki_proto::import_export::ExportCardCsvRequest,
-    ) -> error::Result<generic::UInt32> {
+    ) -> Result<generic::UInt32> {
         self.export_card_csv(
             &input.out_path,
             SearchNode::from(input.limit.unwrap_or_default()),
@@ -77,14 +87,14 @@ impl crate::services::ImportExportService for Collection {
     fn import_json_file(
         &mut self,
         input: generic::String,
-    ) -> error::Result<anki_proto::import_export::ImportResponse> {
+    ) -> Result<anki_proto::import_export::ImportResponse> {
         self.import_json_file(&input.val).map(Into::into)
     }
 
     fn import_json_string(
         &mut self,
         input: generic::String,
-    ) -> error::Result<anki_proto::import_export::ImportResponse> {
+    ) -> Result<anki_proto::import_export::ImportResponse> {
         self.import_json_string(&input.val).map(Into::into)
     }
 }
