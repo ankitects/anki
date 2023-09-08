@@ -2,35 +2,22 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type fabric from "fabric";
+import { writable } from "svelte/store";
 
 import { mdiRedo, mdiUndo } from "../icons";
+import { emitChangeSignal } from "../MaskEditor.svelte";
 
 /**
  * Undo redo for rectangle and ellipse handled here,
  * view tool-polygon for handling undo redo in case of polygon
  */
 
-let lockHistory = false;
-const undoHistory: string[] = [];
-const redoHistory: string[] = [];
+type UndoState = {
+    undoable: boolean;
+    redoable: boolean;
+};
 
 const shapeType = ["rect", "ellipse"];
-
-export const undoRedoInit = (canvas: fabric.Canvas): void => {
-    undoHistory.push(JSON.stringify(canvas));
-
-    canvas.on("object:modified", function(o) {
-        if (lockHistory) return;
-        if (!validShape(o.target as fabric.Object)) return;
-        saveCanvasState(canvas);
-    });
-
-    canvas.on("object:removed", function(o) {
-        if (lockHistory) return;
-        if (!validShape(o.target as fabric.Object)) return;
-        saveCanvasState(canvas);
-    });
-};
 
 const validShape = (shape: fabric.Object): boolean => {
     if (shape.width <= 5 || shape.height <= 5) return false;
@@ -38,53 +25,114 @@ const validShape = (shape: fabric.Object): boolean => {
     return true;
 };
 
-export const undoAction = (canvas: fabric.Canvas): void => {
-    if (undoHistory.length > 0) {
-        lockHistory = true;
-        if (undoHistory.length > 1) redoHistory.push(undoHistory.pop() as string);
-        const content = undoHistory[undoHistory.length - 1];
-        canvas.loadFromJSON(content, function() {
-            canvas.renderAll();
-            lockHistory = false;
+class UndoStack {
+    private stack: string[] = [];
+    private index = -1;
+    private canvas: fabric.Canvas | undefined;
+    private locked = false;
+    private shapeIds = new Set<string>();
+    /** used to make the toolbar buttons reactive */
+    private state = writable<UndoState>({ undoable: false, redoable: false });
+    subscribe: typeof this.state.subscribe;
+
+    constructor() {
+        // allows an instance of the class to act as a store
+        this.subscribe = this.state.subscribe;
+    }
+
+    setCanvas(canvas: fabric.Canvas): void {
+        this.canvas = canvas;
+        this.canvas.on("object:modified", (opts) => this.maybePush(opts));
+        this.canvas.on("object:removed", (opts) => this.maybePush(opts));
+    }
+
+    reset(): void {
+        this.shapeIds.clear();
+        this.stack.length = 0;
+        this.index = -1;
+        this.push();
+        this.updateState();
+    }
+
+    private canUndo(): boolean {
+        return this.index > 0;
+    }
+
+    private canRedo(): boolean {
+        return this.index < this.stack.length - 1;
+    }
+
+    private updateState(): void {
+        this.state.set({
+            undoable: this.canUndo(),
+            redoable: this.canRedo(),
         });
     }
-};
 
-export const redoAction = (canvas: fabric.Canvas): void => {
-    if (redoHistory.length > 0) {
-        lockHistory = true;
-        const content = redoHistory.pop() as string;
-        undoHistory.push(content);
-        canvas.loadFromJSON(content, function() {
-            canvas.renderAll();
-            lockHistory = false;
+    private updateCanvas(): void {
+        this.locked = true;
+        this.canvas?.loadFromJSON(this.stack[this.index], () => {
+            this.canvas?.renderAll();
+            emitChangeSignal();
+            this.locked = false;
         });
     }
-};
 
-export const objectAdded = (canvas: fabric.Canvas, shapeIdList: string[], shapeId: string): void => {
-    if (shapeIdList.includes(shapeId)) {
-        return;
+    onObjectAdded(id: string): void {
+        if (!this.shapeIds.has(id)) {
+            this.push();
+        }
+        this.shapeIds.add(id);
     }
 
-    shapeIdList.push(shapeId);
-    saveCanvasState(canvas);
-};
+    onObjectModified(): void {
+        this.push();
+    }
 
-export const saveCanvasState = (canvas: fabric.Canvas): void => {
-    undoHistory.push(JSON.stringify(canvas));
-    redoHistory.length = 0;
-};
+    private maybePush(opts): void {
+        if (
+            !this.locked
+            && validShape(opts.target as fabric.Object)
+        ) {
+            this.push();
+        }
+    }
+
+    private push(): void {
+        this.stack.length = this.index + 1;
+        this.stack.push(JSON.stringify(this.canvas));
+        this.index++;
+        this.updateState();
+    }
+
+    undo(): void {
+        if (this.canUndo()) {
+            this.index--;
+            this.updateState();
+            this.updateCanvas();
+        }
+    }
+
+    redo(): void {
+        if (this.canRedo()) {
+            this.index++;
+            this.updateState();
+            this.updateCanvas();
+        }
+    }
+}
+
+export const undoStack = new UndoStack();
 
 export const undoRedoTools = [
     {
         name: "undo",
         icon: mdiUndo,
-        action: undoAction,
+        action: () => undoStack.undo(),
     },
     {
         name: "redo",
         icon: mdiRedo,
-        action: redoAction,
+        action: () => undoStack.redo(),
     },
 ];
