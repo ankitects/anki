@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import json
+
 import aqt
 import aqt.deckconf
 import aqt.main
@@ -48,9 +50,9 @@ class ImportDialog(QDialog):
         self.setLayout(layout)
         restoreGeom(self, self.TITLE, default_size=(800, 800))
 
-        escaped_path = path.replace("'", r"\'")
+        escaped_path = json.dumps(path.replace("'", r"\'"))
         self.web.evalWithCallback(
-            f"anki.{self.SETUP_FUNCTION_NAME}('{escaped_path}');",
+            f"anki.{self.SETUP_FUNCTION_NAME}({escaped_path});",
             lambda _: self.web.setFocus(),
         )
         self.setWindowTitle(tr.decks_import_file())
