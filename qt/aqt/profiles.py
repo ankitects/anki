@@ -72,7 +72,7 @@ class VideoDriver(Enum):
             if is_mac:
                 all.append(VideoDriver.Metal)
         all.append(VideoDriver.OpenGL)
-        if qtmajor > 5:
+        if qtmajor > 5 and not is_mac:
             all.append(VideoDriver.Vulkan)
         if is_win and qtmajor < 6:
             all.append(VideoDriver.ANGLE)
