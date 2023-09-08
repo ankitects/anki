@@ -11,6 +11,7 @@
 @import "bootstrap/scss/modal";
 @import "bootstrap/scss/carousel";
 @import "sass/bootstrap-forms";
+@import "sass/bootstrap-tooltip";
 
 .night-mode {
     @include bootstrap-dark.night-mode;
