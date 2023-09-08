@@ -415,4 +415,8 @@ def video_driver_name_for_platform(driver: VideoDriver) -> str:
             else:
                 return tr.preferences_video_driver_opengl_other()
 
-    return driver.name
+    label = driver.name
+    if driver == VideoDriver.default_for_platform():
+        label += f" ({tr.preferences_video_driver_default()})"
+
+    return label
