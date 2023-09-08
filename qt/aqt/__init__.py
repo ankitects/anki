@@ -399,6 +399,8 @@ def parseArgs(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
 
 def setupGL(pm: aqt.profiles.ProfileManager) -> None:
     driver = pm.video_driver()
+    # RHI errors are emitted multiple times so make sure we only handle them once
+    driver_failed = False
 
     # work around pyqt loading wrong GL library
     if is_lin:
@@ -431,11 +433,16 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             context += f"{ctx.function}"
         if context:
             context = f"'{context}'"
-        if (
+
+        nonlocal driver_failed
+        if not driver_failed and (
             "Failed to create OpenGL context" in msg
             # Based on the message Qt6 shows to the user; have not tested whether
             # we can actually capture this or not.
             or "Failed to initialize graphics backend" in msg
+            # RHI backend
+            or "Failed to create QRhi" in msg
+            or "Failed to get a QRhi" in msg
         ):
             QMessageBox.critical(
                 None,
@@ -446,6 +453,7 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
                 ),
             )
             pm.set_video_driver(driver.next())
+            driver_failed = True
             return
         else:
             print(f"Qt {category}: {msg} {context}")
@@ -455,8 +463,9 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
     if driver == VideoDriver.OpenGL:
         # Leaving QT_OPENGL unset appears to sometimes produce different results
         # to explicitly setting it to 'auto'; the former seems to be more compatible.
-        pass
-    else:
+        if qtmajor > 5:
+            QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.OpenGL)
+    elif driver in (VideoDriver.Software, VideoDriver.ANGLE):
         if is_win:
             # on Windows, this appears to be sufficient on Qt5/Qt6.
             # On Qt6, ANGLE is excluded by the enum.
@@ -469,6 +478,14 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             # Required on Qt6
             if "QTWEBENGINE_CHROMIUM_FLAGS" not in os.environ:
                 os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-gpu"
+        if qtmajor > 5:
+            QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.Software)
+    elif driver == VideoDriver.Metal:
+        QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.Metal)
+    elif driver == VideoDriver.Vulkan:
+        QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.Vulkan)
+    elif driver == VideoDriver.Direct3D:
+        QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.Direct3D11)
 
 
 PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
