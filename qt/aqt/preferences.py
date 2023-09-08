@@ -392,9 +392,6 @@ class Preferences(QDialog):
         self.form.video_driver.setCurrentIndex(
             self.video_drivers.index(self.mw.pm.video_driver())
         )
-        if qtmajor > 5:
-            self.form.video_driver_label.setVisible(False)
-            self.form.video_driver.setVisible(False)
 
     def update_video_driver(self) -> None:
         new_driver = self.video_drivers[self.form.video_driver.currentIndex()]
@@ -404,15 +401,22 @@ class Preferences(QDialog):
 
 
 def video_driver_name_for_platform(driver: VideoDriver) -> str:
-    if driver == VideoDriver.ANGLE:
-        return tr.preferences_video_driver_angle()
-    elif driver == VideoDriver.Software:
-        if is_mac:
-            return tr.preferences_video_driver_software_mac()
-        else:
-            return tr.preferences_video_driver_software_other()
-    else:
-        if is_mac:
-            return tr.preferences_video_driver_opengl_mac()
-        else:
-            return tr.preferences_video_driver_opengl_other()
+    if qtmajor < 6:
+        if driver == VideoDriver.ANGLE:
+            return tr.preferences_video_driver_angle()
+        elif driver == VideoDriver.Software:
+            if is_mac:
+                return tr.preferences_video_driver_software_mac()
+            else:
+                return tr.preferences_video_driver_software_other()
+        elif driver == VideoDriver.OpenGL:
+            if is_mac:
+                return tr.preferences_video_driver_opengl_mac()
+            else:
+                return tr.preferences_video_driver_opengl_other()
+
+    label = driver.name
+    if driver == VideoDriver.default_for_platform():
+        label += f" ({tr.preferences_video_driver_default()})"
+
+    return label
