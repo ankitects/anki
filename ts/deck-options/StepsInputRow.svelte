@@ -4,9 +4,9 @@
 -->
 <script lang="ts">
     import Col from "../components/Col.svelte";
+    import ConfigInput from "../components/ConfigInput.svelte";
+    import RevertButton from "../components/RevertButton.svelte";
     import Row from "../components/Row.svelte";
-    import ConfigInput from "./ConfigInput.svelte";
-    import RevertButton from "./RevertButton.svelte";
     import StepsInput from "./StepsInput.svelte";
 
     export let value: any;

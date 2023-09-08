@@ -99,6 +99,20 @@ impl Collection {
         self.adjust_remaining_steps_in_deck(DeckId(1), Some(&config), Some(&new_config), Usn(0))
             .unwrap();
     }
+
+    pub(crate) fn basic_notetype(&self) -> Notetype {
+        let ntid = self.storage.get_notetype_id("Basic").unwrap().unwrap();
+        self.storage.get_notetype(ntid).unwrap().unwrap()
+    }
+
+    pub(crate) fn basic_rev_notetype(&self) -> Notetype {
+        let ntid = self
+            .storage
+            .get_notetype_id("Basic (and reversed card)")
+            .unwrap()
+            .unwrap();
+        self.storage.get_notetype(ntid).unwrap().unwrap()
+    }
 }
 
 #[derive(Debug, Default, Clone)]

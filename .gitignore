@@ -14,3 +14,4 @@ node_modules
 .ninja_log
 .ninja_deps
 /extra
+yarn-error.log

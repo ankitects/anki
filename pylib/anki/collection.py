@@ -38,6 +38,7 @@ BrowserRow = search_pb2.BrowserRow
 BrowserColumns = search_pb2.BrowserColumns
 StripHtmlMode = card_rendering_pb2.StripHtmlRequest
 ImportLogWithChanges = import_export_pb2.ImportResponse
+ImportAnkiPackageRequest = import_export_pb2.ImportAnkiPackageRequest
 ImportCsvRequest = import_export_pb2.ImportCsvRequest
 CsvMetadata = import_export_pb2.CsvMetadata
 DupeResolution = CsvMetadata.DupeResolution
@@ -395,8 +396,11 @@ class Collection(DeprecatedNamesMixin):
             out_path=out_path, include_media=include_media, legacy=legacy
         )
 
-    def import_anki_package(self, path: str) -> ImportLogWithChanges:
-        return self._backend.import_anki_package(package_path=path)
+    def import_anki_package(
+        self, request: ImportAnkiPackageRequest
+    ) -> ImportLogWithChanges:
+        log = self._backend.import_anki_package_raw(request.SerializeToString())
+        return ImportLogWithChanges.FromString(log)
 
     def export_anki_package(
         self,

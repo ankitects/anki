@@ -249,6 +249,7 @@ class AnkiWebViewKind(Enum):
     FIND_DUPLICATES = "find duplicates"
     FIELDS = "fields"
     IMPORT_LOG = "import log"
+    IMPORT_ANKI_PACKAGE = "anki package import"
 
 
 class AnkiWebView(QWebEngineView):

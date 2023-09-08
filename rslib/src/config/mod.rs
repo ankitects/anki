@@ -21,6 +21,7 @@ pub use self::deck::DeckConfigKey;
 pub use self::notetype::get_aux_notetype_config_key;
 pub use self::number::I32ConfigKey;
 pub use self::string::StringKey;
+use crate::import_export::package::UpdateCondition;
 use crate::prelude::*;
 
 /// Only used when updating/undoing.
@@ -51,6 +52,8 @@ pub(crate) enum ConfigKey {
     LocalOffset,
     Rollover,
     Backups,
+    UpdateNotes,
+    UpdateNotetypes,
 
     #[strum(to_string = "timeLim")]
     AnswerTimeLimitSecs,
@@ -285,6 +288,16 @@ impl Collection {
 
     pub(crate) fn set_backup_limits(&mut self, limits: BackupLimits) -> Result<()> {
         self.set_config(ConfigKey::Backups, &limits).map(|_| ())
+    }
+
+    pub(crate) fn get_update_notes(&self) -> UpdateCondition {
+        self.get_config_optional(ConfigKey::UpdateNotes)
+            .unwrap_or_default()
+    }
+
+    pub(crate) fn get_update_notetypes(&self) -> UpdateCondition {
+        self.get_config_optional(ConfigKey::UpdateNotetypes)
+            .unwrap_or_default()
     }
 }
 

@@ -21,6 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Container from "../components/Container.svelte";
     import Row from "../components/Row.svelte";
     import Spacer from "../components/Spacer.svelte";
+    import StickyHeader from "../components/StickyHeader.svelte";
     import ImportLogPage from "../import-log/ImportLogPage.svelte";
     import DeckDupeCheckSwitch from "./DeckDupeCheckSwitch.svelte";
     import DeckSelector from "./DeckSelector.svelte";
@@ -38,7 +39,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "./lib";
     import NotetypeSelector from "./NotetypeSelector.svelte";
     import Preview from "./Preview.svelte";
-    import StickyHeader from "./StickyHeader.svelte";
     import Tags from "./Tags.svelte";
 
     export let path: string;

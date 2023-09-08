@@ -38,6 +38,7 @@ impl NoteField {
             ord: None,
             name: name.into(),
             config: NoteFieldConfig {
+                id: Some(rand::random()),
                 sticky: false,
                 rtl: false,
                 plain_text: false,

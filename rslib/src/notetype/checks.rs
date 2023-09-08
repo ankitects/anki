@@ -31,7 +31,7 @@ lazy_static! {
 impl Collection {
     pub fn report_media_field_referencing_templates(&mut self, buf: &mut String) -> Result<()> {
         let notetypes = self.get_all_notetypes()?;
-        let templates = media_field_referencing_templates(notetypes.values().map(Deref::deref));
+        let templates = media_field_referencing_templates(notetypes.iter().map(Deref::deref));
         write_template_report(buf, &templates, &self.tr);
         Ok(())
     }

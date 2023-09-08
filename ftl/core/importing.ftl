@@ -30,6 +30,18 @@ importing-map-to = Map to { $val }
 importing-map-to-tags = Map to Tags
 importing-mapped-to = mapped to <b>{ $val }</b>
 importing-mapped-to-tags = mapped to <b>Tags</b>
+# the action of combining two existing notetypes to create a new one
+importing-merge-notetypes = Merge notetypes
+importing-merge-notetypes-help =
+    If checked, and you or the deck author altered the schema of a notetype, Anki will
+    merge the two versions instead of keeping both.
+    
+    Altering a notetype's schema means adding, removing, or reordering fields or templates,
+    or changing the sort field.
+    As a counterexample, changing the front side of an existing template does *not* constitute
+    a schema change.
+    
+    Warning: This will require a one-way sync, and may mark existing notes as modified.
 importing-mnemosyne-20-deck-db = Mnemosyne 2.0 Deck (*.db)
 importing-multicharacter-separators-are-not-supported-please = Multi-character separators are not supported. Please enter one character only.
 importing-notes-added-from-file = Notes added from file: { $val }
@@ -37,6 +49,10 @@ importing-notes-found-in-file = Notes found in file: { $val }
 importing-notes-skipped-as-theyre-already-in = Notes skipped, as up-to-date copies are already in your collection: { $val }
 importing-notes-skipped-update-due-to-notetype = Notes not updated, as notetype has been modified since you first imported the notes: { $val }
 importing-notes-updated-as-file-had-newer = Notes updated, as file had newer version: { $val }
+importing-include-reviews = Include reviews
+importing-include-reviews-help =
+    If enabled, any previous reviews that the deck sharer included will also be imported.
+    Otherwise, all cards will be imported as new cards.
 importing-packaged-anki-deckcollection-apkg-colpkg-zip = Packaged Anki Deck/Collection (*.apkg *.colpkg *.zip)
 importing-pauker-18-lesson-paugz = Pauker 1.8 Lesson (*.pau.gz)
 # the '|' character
@@ -57,6 +73,19 @@ importing-unable-to-import-from-a-readonly = Unable to import from a read-only f
 importing-unknown-file-format = Unknown file format.
 importing-update-existing-notes-when-first-field = Update existing notes when first field matches
 importing-updated = Updated
+importing-update-if-newer = If newer
+importing-update-always = Always
+importing-update-never = Never
+importing-update-notes = Update notes
+importing-update-notes-help =
+    When to update an existing note in your collection. By default, this is only done
+    if the matching imported note was more recently modified.
+importing-update-notetypes = Update notetypes
+importing-update-notetypes-help =
+    When to update an existing notetype in your collection. By default, this is only done
+    if the matching imported notetype was more recently modified. Changes to template text
+    and styling can always be imported, but for schema changes (e.g. the number or order of
+    fields has changed), the '{ importing-merge-notetypes }' option will also need to be enabled.
 importing-note-added =
     { $count ->
         [one] { $count } note added
@@ -135,6 +164,11 @@ importing-conflicting-notes-skipped =
     { $count ->
         [one] { $count } note was not imported, because its note type has changed.
        *[other] { $count } were not imported, because their note type has changed.
+    }
+importing-conflicting-notes-skipped2 =
+    { $count ->
+        [one] { $count } note was not imported, because its notetype has changed, and '{ importing-merge-notetypes }' was not enabled.
+        *[other] { $count } were not imported, because their notetype has changed, and '{ importing-merge-notetypes }' was not enabled.
     }
 importing-import-log = Import Log
 importing-no-notes-in-file = No notes found in file.

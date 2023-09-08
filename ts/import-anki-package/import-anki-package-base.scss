@@ -1,0 +1,28 @@
+@use "sass/bootstrap-dark";
+
+@import "sass/base";
+
+@import "bootstrap/scss/alert";
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/button-group";
+@import "bootstrap/scss/close";
+@import "bootstrap/scss/grid";
+@import "bootstrap/scss/transitions";
+@import "bootstrap/scss/modal";
+@import "bootstrap/scss/carousel";
+@import "sass/bootstrap-forms";
+
+.night-mode {
+    @include bootstrap-dark.night-mode;
+}
+
+body {
+    min-height: 100vh;
+    width: min(100vw, 70em);
+    margin: 0 auto;
+    padding: 0 1em 1em 1em;
+}
+
+html {
+    height: initial;
+}

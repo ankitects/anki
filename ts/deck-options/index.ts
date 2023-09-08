@@ -27,10 +27,7 @@ const i18n = setupI18n({
 
 export async function setupDeckOptions(did_: number): Promise<DeckOptionsPage> {
     const did = BigInt(did_);
-    const [info] = await Promise.all([
-        getDeckConfigsForUpdate({ did }),
-        i18n,
-    ]);
+    const [info] = await Promise.all([getDeckConfigsForUpdate({ did }), i18n]);
 
     checkNightMode();
 
@@ -48,11 +45,11 @@ export async function setupDeckOptions(did_: number): Promise<DeckOptionsPage> {
 
 import { getDeckConfigsForUpdate } from "@tslib/backend";
 
+import EnumSelectorRow from "../components/EnumSelectorRow.svelte";
+import SwitchRow from "../components/SwitchRow.svelte";
 import TitledContainer from "../components/TitledContainer.svelte";
-import EnumSelectorRow from "./EnumSelectorRow.svelte";
 import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
 import SpinBoxRow from "./SpinBoxRow.svelte";
-import SwitchRow from "./SwitchRow.svelte";
 
 export const components = {
     TitledContainer,

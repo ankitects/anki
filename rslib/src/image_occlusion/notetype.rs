@@ -43,7 +43,7 @@ impl Collection {
     }
 
     pub(crate) fn get_first_io_notetype(&mut self) -> Result<Option<Arc<Notetype>>> {
-        for (_, nt) in self.get_all_notetypes()? {
+        for nt in self.get_all_notetypes()? {
             if nt.config.original_stock_kind() == OriginalStockKind::ImageOcclusion {
                 return Some(io_notetype_if_valid(nt)).transpose();
             }

@@ -26,11 +26,6 @@ class _CommonArgs:
 
 
 @dataclass
-class ApkgArgs(_CommonArgs):
-    type = "apkg"
-
-
-@dataclass
 class JsonFileArgs(_CommonArgs):
     type = "json_file"
 
@@ -48,7 +43,7 @@ class ImportLogDialog(QDialog):
     def __init__(
         self,
         mw: aqt.main.AnkiQt,
-        args: ApkgArgs | JsonFileArgs | JsonStringArgs,
+        args: JsonFileArgs | JsonStringArgs,
     ) -> None:
         QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
@@ -57,7 +52,7 @@ class ImportLogDialog(QDialog):
 
     def _setup_ui(
         self,
-        args: ApkgArgs | JsonFileArgs | JsonStringArgs,
+        args: JsonFileArgs | JsonStringArgs,
     ) -> None:
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.mw.garbage_collect_on_dialog_finish(self)

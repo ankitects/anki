@@ -4,10 +4,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import Col from "../components/Col.svelte";
+    import ConfigInput from "../components/ConfigInput.svelte";
+    import RevertButton from "../components/RevertButton.svelte";
     import Row from "../components/Row.svelte";
-    import ConfigInput from "./ConfigInput.svelte";
-    import RevertButton from "./RevertButton.svelte";
-    import SettingTitle from "./SettingTitle.svelte";
+    import SettingTitle from "../components/SettingTitle.svelte";
 
     export let value: string;
     export let title: string;

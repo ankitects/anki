@@ -45,6 +45,10 @@ pub fn write_rust_protos(descriptors_path: PathBuf) -> Result<DescriptorPool> {
             "CsvMetadata.MatchScope",
             "#[derive(serde::Deserialize, serde::Serialize)]",
         )
+        .type_attribute(
+            "ImportAnkiPackageUpdateCondition",
+            "#[derive(serde::Deserialize, serde::Serialize)]",
+        )
         .compile_protos(paths.as_slice(), &[proto_dir])
         .context("prost build")?;
 

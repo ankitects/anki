@@ -17,10 +17,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { runWithBackendProgress } from "@tslib/progress";
     import TitledContainer from "components/TitledContainer.svelte";
 
-    import ConfigInput from "./ConfigInput.svelte";
+    import ConfigInput from "../components/ConfigInput.svelte";
+    import RevertButton from "../components/RevertButton.svelte";
+    import SettingTitle from "../components/SettingTitle.svelte";
     import type { DeckOptionsState } from "./lib";
-    import RevertButton from "./RevertButton.svelte";
-    import SettingTitle from "./SettingTitle.svelte";
     import WeightsInputRow from "./WeightsInputRow.svelte";
 
     export let state: DeckOptionsState;
