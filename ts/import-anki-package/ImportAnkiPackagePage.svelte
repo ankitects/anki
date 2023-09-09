@@ -85,79 +85,83 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {:else if importResponse}
     <ImportLogPage response={importResponse} params={{ path }} />
 {:else}
-    <StickyHeader {path} onImport={() => (importing = true)} />
+    <div class="main">
+        <StickyHeader {path} onImport={() => (importing = true)} />
 
-    <Container
-        breakpoint="sm"
-        --gutter-inline="0.25rem"
-        --gutter-block="0.75rem"
-        class="container-columns"
-    >
-        <Row class="d-block">
-            <TitledContainer title={tr.importingImportOptions()}>
-                <HelpModal
-                    title={tr.importingImportOptions()}
-                    url={HelpPage.PackageImporting.root}
-                    slot="tooltip"
-                    {helpSections}
-                    on:mount={(e) => {
-                        modal = e.detail.modal;
-                        carousel = e.detail.carousel;
-                    }}
-                />
+        <Container
+            breakpoint="sm"
+            --gutter-inline="0.25rem"
+            --gutter-block="0.75rem"
+            class="container-columns"
+        >
+            <Row class="d-block">
+                <TitledContainer title={tr.importingImportOptions()}>
+                    <HelpModal
+                        title={tr.importingImportOptions()}
+                        url={HelpPage.PackageImporting.root}
+                        slot="tooltip"
+                        {helpSections}
+                        on:mount={(e) => {
+                            modal = e.detail.modal;
+                            carousel = e.detail.carousel;
+                        }}
+                    />
 
-                <SwitchRow bind:value={options.mergeNotetypes} defaultValue={false}>
-                    <SettingTitle
-                        on:click={() =>
-                            openHelpModal(
-                                Object.keys(settings).indexOf("mergeNotetypes"),
-                            )}
+                    <SwitchRow bind:value={options.mergeNotetypes} defaultValue={false}>
+                        <SettingTitle
+                            on:click={() =>
+                                openHelpModal(
+                                    Object.keys(settings).indexOf("mergeNotetypes"),
+                                )}
+                        >
+                            {settings.mergeNotetypes.title}
+                        </SettingTitle>
+                    </SwitchRow>
+
+                    <EnumSelectorRow
+                        bind:value={options.updateNotes}
+                        defaultValue={0}
+                        choices={updateChoices}
                     >
-                        {settings.mergeNotetypes.title}
-                    </SettingTitle>
-                </SwitchRow>
+                        <SettingTitle
+                            on:click={() =>
+                                openHelpModal(
+                                    Object.keys(settings).indexOf("updateNotes"),
+                                )}
+                        >
+                            {settings.updateNotes.title}
+                        </SettingTitle>
+                    </EnumSelectorRow>
 
-                <EnumSelectorRow
-                    bind:value={options.updateNotes}
-                    defaultValue={0}
-                    choices={updateChoices}
-                >
-                    <SettingTitle
-                        on:click={() =>
-                            openHelpModal(Object.keys(settings).indexOf("updateNotes"))}
+                    <EnumSelectorRow
+                        bind:value={options.updateNotetypes}
+                        defaultValue={0}
+                        choices={updateChoices}
                     >
-                        {settings.updateNotes.title}
-                    </SettingTitle>
-                </EnumSelectorRow>
+                        <SettingTitle
+                            on:click={() =>
+                                openHelpModal(
+                                    Object.keys(settings).indexOf("updateNotetypes"),
+                                )}
+                        >
+                            {settings.updateNotetypes.title}
+                        </SettingTitle>
+                    </EnumSelectorRow>
 
-                <EnumSelectorRow
-                    bind:value={options.updateNotetypes}
-                    defaultValue={0}
-                    choices={updateChoices}
-                >
-                    <SettingTitle
-                        on:click={() =>
-                            openHelpModal(
-                                Object.keys(settings).indexOf("updateNotetypes"),
-                            )}
-                    >
-                        {settings.updateNotetypes.title}
-                    </SettingTitle>
-                </EnumSelectorRow>
-
-                <SwitchRow bind:value={options.withScheduling} defaultValue={false}>
-                    <SettingTitle
-                        on:click={() =>
-                            openHelpModal(
-                                Object.keys(settings).indexOf("withScheduling"),
-                            )}
-                    >
-                        {settings.withScheduling.title}
-                    </SettingTitle>
-                </SwitchRow>
-            </TitledContainer>
-        </Row>
-    </Container>
+                    <SwitchRow bind:value={options.withScheduling} defaultValue={false}>
+                        <SettingTitle
+                            on:click={() =>
+                                openHelpModal(
+                                    Object.keys(settings).indexOf("withScheduling"),
+                                )}
+                        >
+                            {settings.withScheduling.title}
+                        </SettingTitle>
+                    </SwitchRow>
+                </TitledContainer>
+            </Row>
+        </Container>
+    </div>
 {/if}
 
 <style lang="scss">
@@ -165,5 +169,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         // rows have negative margins by default
         --bs-gutter-x: 0;
         margin-bottom: 0.5rem;
+    }
+
+    .main {
+        min-height: 100vh;
+        width: min(100vw, 70em);
+        margin: 0 auto;
+        padding: 0 1em 1em 1em;
     }
 </style>
