@@ -61,7 +61,6 @@ class MediaSyncer:
 
                 time.sleep(0.25)
 
-        print("start monitoring")
         self.mw.taskman.run_in_background(monitor, self._on_finished)
 
     def _update_progress(self, progress: str) -> None:
