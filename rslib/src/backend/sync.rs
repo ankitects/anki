@@ -2,15 +2,16 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anki_proto::sync::sync_status_response::Required;
+use anki_proto::sync::MediaSyncStatusResponse;
 use anki_proto::sync::SyncStatusResponse;
 use futures::future::AbortHandle;
 use futures::future::AbortRegistration;
 use futures::future::Abortable;
 use reqwest::Url;
-use tracing::warn;
 
 use super::Backend;
 use crate::prelude::*;
+use crate::services::BackendCollectionService;
 use crate::sync::collection::normal::ClientSyncState;
 use crate::sync::collection::normal::SyncActionRequired;
 use crate::sync::collection::normal::SyncOutput;
@@ -67,6 +68,7 @@ impl From<SyncOutput> for anki_proto::sync::SyncCollectionResponse {
                     anki_proto::sync::sync_collection_response::ChangesRequired::NormalSync as i32
                 }
             },
+            server_media_usn: o.server_media_usn.0,
         }
     }
 }
@@ -96,7 +98,12 @@ impl TryFrom<anki_proto::sync::SyncAuth> for SyncAuth {
 
 impl crate::services::BackendSyncService for Backend {
     fn sync_media(&self, input: anki_proto::sync::SyncAuth) -> Result<()> {
-        self.sync_media_inner(input).map(Into::into)
+        let auth = input.try_into()?;
+        self.sync_media_in_background(auth, None).map(Into::into)
+    }
+
+    fn media_sync_status(&self) -> Result<MediaSyncStatusResponse> {
+        self.get_media_sync_status()
     }
 
     fn abort_sync(&self) -> Result<()> {
@@ -131,23 +138,26 @@ impl crate::services::BackendSyncService for Backend {
 
     fn sync_collection(
         &self,
-        input: anki_proto::sync::SyncAuth,
+        input: anki_proto::sync::SyncCollectionRequest,
     ) -> Result<anki_proto::sync::SyncCollectionResponse> {
         self.sync_collection_inner(input)
     }
 
-    fn full_upload(&self, input: anki_proto::sync::SyncAuth) -> Result<()> {
-        self.full_sync_inner(input, true)?;
-        Ok(())
-    }
-
-    fn full_download(&self, input: anki_proto::sync::SyncAuth) -> Result<()> {
-        self.full_sync_inner(input, false)?;
+    fn full_upload_or_download(
+        &self,
+        input: anki_proto::sync::FullUploadOrDownloadRequest,
+    ) -> Result<()> {
+        self.full_sync_inner(
+            input.auth.or_invalid("missing auth")?,
+            input.server_usn.map(Usn),
+            input.upload,
+        )?;
         Ok(())
     }
 }
 
 impl Backend {
+    /// Return a handle for regular (non-media) syncing.
     fn sync_abort_handle(
         &self,
     ) -> Result<(
@@ -155,18 +165,8 @@ impl Backend {
         AbortRegistration,
     )> {
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
-
         // Register the new abort_handle.
-        let old_handle = self.sync_abort.lock().unwrap().replace(abort_handle);
-        if old_handle.is_some() {
-            // NOTE: In the future we would ideally be able to handle multiple
-            //       abort handles by just iterating over them all in
-            //       abort_sync). But for now, just log a warning if there was
-            //       already one present -- but don't abort it either.
-            warn!(
-                "new sync_abort handle registered, but old one was still present (old sync job might not be cancelled on abort)"
-            );
-        }
+        self.sync_abort.lock().unwrap().replace(abort_handle);
         // Clear the abort handle after the caller is done and drops the guard.
         let guard = scopeguard::guard(self.clone(), |backend| {
             backend.sync_abort.lock().unwrap().take();
@@ -174,19 +174,63 @@ impl Backend {
         Ok((guard, abort_reg))
     }
 
-    pub(super) fn sync_media_inner(&self, auth: anki_proto::sync::SyncAuth) -> Result<()> {
-        let auth = auth.try_into()?;
-        // mark media sync as active
-        let (abort_handle, abort_reg) = AbortHandle::new_pair();
-        {
-            let mut guard = self.state.lock().unwrap();
-            if guard.sync.media_sync_abort.is_some() {
-                // media sync is already active
+    pub(super) fn sync_media_in_background(
+        &self,
+        auth: SyncAuth,
+        server_usn: Option<Usn>,
+    ) -> Result<()> {
+        let mut task = self.media_sync_task.lock().unwrap();
+        if let Some(handle) = &*task {
+            if !handle.is_finished() {
+                // already running
                 return Ok(());
             } else {
-                guard.sync.media_sync_abort = Some(abort_handle);
+                // clean up
+                task.take();
             }
         }
+        let backend = self.clone();
+        *task = Some(std::thread::spawn(move || {
+            backend.sync_media_blocking(auth, server_usn)
+        }));
+        Ok(())
+    }
+
+    /// True if active. Will throw if terminated with error.
+    fn get_media_sync_status(&self) -> Result<MediaSyncStatusResponse> {
+        let mut task = self.media_sync_task.lock().unwrap();
+        let active = if let Some(handle) = &*task {
+            if !handle.is_finished() {
+                true
+            } else {
+                match task.take().unwrap().join() {
+                    Ok(inner_result) => inner_result?,
+                    Err(panic) => invalid_input!("{:?}", panic),
+                };
+                false
+            }
+        } else {
+            false
+        };
+        let progress = self.latest_progress()?;
+        let progress = if let Some(anki_proto::collection::progress::Value::MediaSync(progress)) =
+            progress.value
+        {
+            Some(progress)
+        } else {
+            None
+        };
+        Ok(MediaSyncStatusResponse { active, progress })
+    }
+
+    pub(super) fn sync_media_blocking(
+        &self,
+        auth: SyncAuth,
+        server_usn: Option<Usn>,
+    ) -> Result<()> {
+        // abort handle
+        let (abort_handle, abort_reg) = AbortHandle::new_pair();
+        self.state.lock().unwrap().sync.media_sync_abort = Some(abort_handle);
 
         // start the sync
         let (mgr, progress) = {
@@ -195,11 +239,11 @@ impl Backend {
             (col.media()?, col.new_progress_handler())
         };
         let rt = self.runtime_handle();
-        let sync_fut = mgr.sync_media(progress, auth, self.web_client().clone());
+        let sync_fut = mgr.sync_media(progress, auth, self.web_client().clone(), server_usn);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let result = rt.block_on(abortable_sync);
 
-        // mark inactive
+        // clean up the handle
         self.state.lock().unwrap().sync.media_sync_abort.take();
 
         // return result
@@ -222,6 +266,7 @@ impl Backend {
         drop(guard);
 
         // block until it aborts
+
         while self.state.lock().unwrap().sync.media_sync_abort.is_some() {
             std::thread::sleep(std::time::Duration::from_millis(100));
             self.progress_state.lock().unwrap().want_abort = true;
@@ -297,13 +342,14 @@ impl Backend {
 
     pub(super) fn sync_collection_inner(
         &self,
-        input: anki_proto::sync::SyncAuth,
+        input: anki_proto::sync::SyncCollectionRequest,
     ) -> Result<anki_proto::sync::SyncCollectionResponse> {
-        let auth: SyncAuth = input.try_into()?;
+        let auth: SyncAuth = input.auth.or_invalid("missing auth")?.try_into()?;
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
         let rt = self.runtime_handle();
         let client = self.web_client().clone();
+        let auth2 = auth.clone();
 
         let ret = self.with_col(|col| {
             let sync_fut = col.normal_sync(auth.clone(), client.clone());
@@ -325,6 +371,13 @@ impl Backend {
         });
 
         let output: SyncOutput = ret?;
+
+        if input.sync_media
+            && !matches!(output.required, SyncActionRequired::FullSyncRequired { .. })
+        {
+            self.sync_media_in_background(auth2, Some(output.server_media_usn))?;
+        }
+
         self.state
             .lock()
             .unwrap()
@@ -337,9 +390,11 @@ impl Backend {
     pub(super) fn full_sync_inner(
         &self,
         input: anki_proto::sync::SyncAuth,
+        server_usn: Option<Usn>,
         upload: bool,
     ) -> Result<()> {
-        let auth = input.try_into()?;
+        let auth: SyncAuth = input.try_into()?;
+        let auth2 = auth.clone();
         self.abort_media_sync_and_wait();
 
         let rt = self.runtime_handle();
@@ -368,7 +423,7 @@ impl Backend {
         // ensure re-opened regardless of outcome
         col.replace(builder.build()?);
 
-        match result {
+        let result = match result {
             Ok(sync_result) => {
                 if sync_result.is_ok() {
                     self.state
@@ -381,7 +436,13 @@ impl Backend {
                 sync_result
             }
             Err(_) => Err(AnkiError::Interrupted),
+        };
+
+        if result.is_ok() && server_usn.is_some() {
+            self.sync_media_in_background(auth2, server_usn)?;
         }
+
+        result
     }
 }
 

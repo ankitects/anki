@@ -55,6 +55,7 @@ pub struct BackendInner {
     runtime: OnceCell<Runtime>,
     state: Mutex<BackendState>,
     backup_task: Mutex<Option<JoinHandle<Result<()>>>>,
+    media_sync_task: Mutex<Option<JoinHandle<Result<()>>>>,
     web_client: OnceCell<Client>,
 }
 
@@ -89,6 +90,7 @@ impl Backend {
             runtime: OnceCell::new(),
             state: Mutex::new(BackendState::default()),
             backup_task: Mutex::new(None),
+            media_sync_task: Mutex::new(None),
             web_client: OnceCell::new(),
         }))
     }

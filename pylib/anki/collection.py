@@ -16,6 +16,7 @@ from anki import (
     links_pb2,
     search_pb2,
     stats_pb2,
+    sync_pb2,
 )
 from anki._legacy import DeprecatedNamesMixin, deprecated
 from anki.sync_pb2 import SyncLoginRequest
@@ -49,6 +50,7 @@ AddImageOcclusionNoteRequest = image_occlusion_pb2.AddImageOcclusionNoteRequest
 GetImageOcclusionNoteResponse = image_occlusion_pb2.GetImageOcclusionNoteResponse
 AddonInfo = ankiweb_pb2.AddonInfo
 CheckForUpdateResponse = ankiweb_pb2.CheckForUpdateResponse
+MediaSyncStatus = sync_pb2.MediaSyncStatusResponse
 
 import copy
 import os
@@ -1246,11 +1248,14 @@ class Collection(DeprecatedNamesMixin):
     def abort_sync(self) -> None:
         self._backend.abort_sync()
 
-    def full_upload(self, auth: SyncAuth) -> None:
-        self._backend.full_upload(auth)
-
-    def full_download(self, auth: SyncAuth) -> None:
-        self._backend.full_download(auth)
+    def full_upload_or_download(
+        self, *, auth: SyncAuth, server_usn: int | None, upload: bool
+    ) -> None:
+        self._backend.full_upload_or_download(
+            sync_pb2.FullUploadOrDownloadRequest(
+                auth=auth, server_usn=server_usn, upload=upload
+            )
+        )
 
     def sync_login(
         self, username: str, password: str, endpoint: str | None
@@ -1259,14 +1264,18 @@ class Collection(DeprecatedNamesMixin):
             SyncLoginRequest(username=username, password=password, endpoint=endpoint)
         )
 
-    def sync_collection(self, auth: SyncAuth) -> SyncOutput:
-        return self._backend.sync_collection(auth)
+    def sync_collection(self, auth: SyncAuth, sync_media: bool) -> SyncOutput:
+        return self._backend.sync_collection(auth=auth, sync_media=sync_media)
 
     def sync_media(self, auth: SyncAuth) -> None:
         self._backend.sync_media(auth)
 
     def sync_status(self, auth: SyncAuth) -> SyncStatus:
         return self._backend.sync_status(auth)
+
+    def media_sync_status(self) -> MediaSyncStatus:
+        "This will throw if the sync failed with an error."
+        return self._backend.media_sync_status()
 
     def get_preferences(self) -> Preferences:
         return self._backend.get_preferences()

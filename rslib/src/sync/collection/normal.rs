@@ -53,6 +53,7 @@ pub struct ClientSyncState {
     pub(in crate::sync) server_usn: Usn,
     // -1 in client case; used to locate pending entries
     pub(in crate::sync) pending_usn: Usn,
+    pub(in crate::sync) server_media_usn: Usn,
 }
 
 impl NormalSyncer<'_> {
@@ -139,6 +140,8 @@ pub struct SyncOutput {
     pub server_message: String,
     pub host_number: u32,
     pub new_endpoint: Option<String>,
+    #[allow(unused)]
+    pub(crate) server_media_usn: Usn,
 }
 
 impl From<ClientSyncState> for SyncOutput {
@@ -148,6 +151,7 @@ impl From<ClientSyncState> for SyncOutput {
             server_message: s.server_message,
             host_number: s.host_number,
             new_endpoint: s.new_endpoint,
+            server_media_usn: s.server_media_usn,
         }
     }
 }

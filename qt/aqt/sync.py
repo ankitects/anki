@@ -113,14 +113,15 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         if out.server_message:
             showText(out.server_message)
         if out.required == out.NO_CHANGES:
-            # all done
+            # all done; track media progress
+            mw.media_syncer.start_monitoring()
             return on_done()
         else:
             full_sync(mw, out, on_done)
 
     mw.col.save(trx=False)
     mw.taskman.with_progress(
-        lambda: mw.col.sync_collection(auth),
+        lambda: mw.col.sync_collection(auth, mw.pm.media_syncing_enabled()),
         on_future_done,
         label=tr.sync_checking(),
         immediate=True,
@@ -130,10 +131,11 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
 def full_sync(
     mw: aqt.main.AnkiQt, out: SyncOutput, on_done: Callable[[], None]
 ) -> None:
+    server_usn = out.server_media_usn if mw.pm.media_syncing_enabled() else None
     if out.required == out.FULL_DOWNLOAD:
-        confirm_full_download(mw, on_done)
+        confirm_full_download(mw, server_usn, on_done)
     elif out.required == out.FULL_UPLOAD:
-        full_upload(mw, on_done)
+        full_upload(mw, server_usn, on_done)
     else:
         button_labels: list[str] = [
             tr.sync_upload_to_ankiweb(),
@@ -143,9 +145,9 @@ def full_sync(
 
         def callback(choice: int) -> None:
             if choice == 0:
-                full_upload(mw, on_done)
+                full_upload(mw, server_usn, on_done)
             elif choice == 1:
-                full_download(mw, on_done)
+                full_download(mw, server_usn, on_done)
             else:
                 on_done()
 
@@ -157,13 +159,15 @@ def full_sync(
         )
 
 
-def confirm_full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
+def confirm_full_download(
+    mw: aqt.main.AnkiQt, server_usn: int, on_done: Callable[[], None]
+) -> None:
     # confirmation step required, as some users customize their notetypes
     # in an empty collection, then want to upload them
     if not askUser(tr.sync_confirm_empty_download()):
         return on_done()
     else:
-        mw.closeAllWindows(lambda: full_download(mw, on_done))
+        mw.closeAllWindows(lambda: full_download(mw, server_usn, on_done))
 
 
 def on_full_sync_timer(mw: aqt.main.AnkiQt, label: str) -> None:
@@ -185,7 +189,9 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt, label: str) -> None:
         mw.col.abort_sync()
 
 
-def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
+def full_download(
+    mw: aqt.main.AnkiQt, server_usn: int, on_done: Callable[[], None]
+) -> None:
     label = tr.sync_downloading_from_ankiweb()
 
     def on_timer() -> None:
@@ -201,7 +207,9 @@ def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     def download() -> None:
         mw.create_backup_now()
         mw.col.close_for_full_sync()
-        mw.col.full_download(mw.pm.sync_auth())
+        mw.col.full_upload_or_download(
+            auth=mw.pm.sync_auth(), server_usn=server_usn, upload=False
+        )
 
     def on_future_done(fut: Future) -> None:
         timer.stop()
@@ -211,7 +219,7 @@ def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
             fut.result()
         except Exception as err:
             handle_sync_error(mw, err)
-        mw.media_syncer.start()
+        mw.media_syncer.start_monitoring()
         return on_done()
 
     mw.taskman.with_progress(
@@ -220,7 +228,9 @@ def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     )
 
 
-def full_upload(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
+def full_upload(
+    mw: aqt.main.AnkiQt, server_usn: int | None, on_done: Callable[[], None]
+) -> None:
     gui_hooks.collection_will_temporarily_close(mw.col)
     mw.col.close_for_full_sync()
 
@@ -242,11 +252,13 @@ def full_upload(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         except Exception as err:
             handle_sync_error(mw, err)
             return on_done()
-        mw.media_syncer.start()
+        mw.media_syncer.start_monitoring()
         return on_done()
 
     mw.taskman.with_progress(
-        lambda: mw.col.full_upload(mw.pm.sync_auth()),
+        lambda: mw.col.full_upload_or_download(
+            auth=mw.pm.sync_auth(), server_usn=server_usn, upload=True
+        ),
         on_future_done,
     )
 

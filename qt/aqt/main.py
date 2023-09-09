@@ -1019,9 +1019,6 @@ title="{}" {}>{}</button>""".format(
 
     def _sync_collection_and_media(self, after_sync: Callable[[], None]) -> None:
         "Caller should ensure auth available."
-        # start media sync if not already running
-        if not self.media_syncer.is_syncing():
-            self.media_syncer.start()
 
         def on_collection_sync_finished() -> None:
             self.col.clear_python_undo()
