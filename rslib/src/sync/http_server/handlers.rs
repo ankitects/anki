@@ -61,7 +61,9 @@ impl SyncProtocol for Arc<SimpleServer> {
     async fn meta(&self, req: SyncRequest<MetaRequest>) -> HttpResult<SyncResponse<SyncMeta>> {
         self.with_authenticated_user(req, |user, req| {
             let req = req.json()?;
-            user.with_col(|col| server_meta(req, col))
+            let mut meta = user.with_col(|col| server_meta(req, col))?;
+            meta.media_usn = user.media.last_usn()?;
+            Ok(meta)
         })
         .await
         .and_then(SyncResponse::try_from_obj)

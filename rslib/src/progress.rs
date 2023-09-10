@@ -240,11 +240,8 @@ pub(crate) fn progress_to_proto(
     }
 }
 
-fn media_sync_progress(
-    p: MediaSyncProgress,
-    tr: &I18n,
-) -> anki_proto::collection::progress::MediaSync {
-    anki_proto::collection::progress::MediaSync {
+fn media_sync_progress(p: MediaSyncProgress, tr: &I18n) -> anki_proto::sync::MediaSyncProgress {
+    anki_proto::sync::MediaSyncProgress {
         checked: tr.sync_media_checked_count(p.checked).into(),
         added: tr
             .sync_media_added_count(p.uploaded_files, p.downloaded_files)

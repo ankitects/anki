@@ -42,6 +42,9 @@ pub struct SyncMeta {
     pub host_number: u32,
     #[serde(default)]
     pub empty: bool,
+    /// This field is not set by col.sync_meta(), and must be filled in
+    /// separately.
+    pub media_usn: Usn,
     #[serde(skip)]
     pub v2_scheduler_or_later: bool,
     #[serde(skip)]
@@ -77,6 +80,7 @@ impl SyncMeta {
             server_message: remote.server_message,
             host_number: remote.host_number,
             new_endpoint,
+            server_media_usn: remote.media_usn,
         }
     }
 }
@@ -132,6 +136,8 @@ impl Collection {
             empty: !self.storage.have_at_least_one_card()?,
             v2_scheduler_or_later: self.scheduler_version() == SchedulerVersion::V2,
             v2_timezone: self.get_creation_utc_offset().is_some(),
+            // must be filled in by calling code
+            media_usn: Usn(0),
         })
     }
 }

@@ -8,6 +8,7 @@ option java_multiple_files = true;
 package anki.collection;
 
 import "anki/generic.proto";
+import "anki/sync.proto";
 
 service CollectionService {
   rpc CheckDatabase(generic.Empty) returns (CheckDatabaseResponse);
@@ -100,12 +101,6 @@ message OpChangesAfterUndo {
 }
 
 message Progress {
-  message MediaSync {
-    string checked = 1;
-    string added = 2;
-    string removed = 3;
-  }
-
   message FullSync {
     uint32 transferred = 1;
     uint32 total = 2;
@@ -136,7 +131,7 @@ message Progress {
 
   oneof value {
     generic.Empty none = 1;
-    MediaSync media_sync = 2;
+    sync.MediaSyncProgress media_sync = 2;
     string media_check = 3;
     FullSync full_sync = 4;
     NormalSync normal_sync = 5;

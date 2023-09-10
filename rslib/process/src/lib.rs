@@ -17,7 +17,7 @@ pub enum Error {
         cmdline: String,
         source: std::io::Error,
     },
-    #[snafu(display("Fail with code {code:?}: {cmdline}"))]
+    #[snafu(display("Failed with code {code:?}: {cmdline}"))]
     ReturnedError { cmdline: String, code: Option<i32> },
     #[snafu(display("Couldn't decode stdout/stderr as utf8"))]
     InvalidUtf8 {
