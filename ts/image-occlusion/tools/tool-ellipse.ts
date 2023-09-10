@@ -4,9 +4,7 @@
 import { fabric } from "fabric";
 
 import { BORDER_COLOR, disableRotation, SHAPE_MASK_COLOR, stopDraw } from "./lib";
-import { objectAdded } from "./tool-undo-redo";
-
-const addedEllipseIds: string[] = [];
+import { undoStack } from "./tool-undo-redo";
 
 export const drawEllipse = (canvas: fabric.Canvas): void => {
     canvas.selectionColor = "rgba(0, 0, 0, 0)";
@@ -117,6 +115,6 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
         }
 
         ellipse.setCoords();
-        objectAdded(canvas, addedEllipseIds, ellipse.id);
+        undoStack.onObjectAdded(ellipse.id);
     });
 };
