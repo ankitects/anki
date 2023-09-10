@@ -26,32 +26,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const settings = {
         notetype: {
             title: tr.notetypesNotetype(),
-            // help: tr.importingNotetypeHelp(),
+            help: tr.importingNotetypeHelp(),
             url: HelpPage.TextImporting.root,
         },
         deck: {
             title: tr.decksDeck(),
-            // help: tr.importingDeckHelp(),
+            help: tr.importingDeckHelp(),
             url: HelpPage.TextImporting.root,
         },
         dupeResolution: {
             title: tr.importingExistingNotes(),
-            // help: tr.importingExistingNotesHelp(),
-            url: HelpPage.TextImporting.root,
+            help: tr.importingExistingNotesHelp(),
+            url: HelpPage.TextImporting.updating,
         },
         matchScope: {
             title: tr.importingMatchScope(),
-            // help: tr.importingMatchScopeHelp(),
-            url: HelpPage.TextImporting.root,
+            help: tr.importingMatchScopeHelp(),
+            url: HelpPage.TextImporting.updating,
         },
         globalTags: {
             title: tr.importingTagAllNotes(),
-            // help: tr.importingTagAllNotesHelp(),
+            help: tr.importingTagAllNotesHelp(),
             url: HelpPage.TextImporting.root,
         },
         updatedTags: {
             title: tr.importingTagUpdatedNotes(),
-            // help: tr.importingTagUpdatedNotesHelp(),
+            help: tr.importingTagUpdatedNotesHelp(),
             url: HelpPage.TextImporting.root,
         },
     };
@@ -68,7 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.importingImportOptions()}>
     <HelpModal
         title={tr.importingImportOptions()}
-        url={"todo"}
+        url={HelpPage.TextImporting.root}
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {
@@ -87,7 +87,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         >
             <SettingTitle
                 on:click={() =>
-                    openHelpModal(Object.keys(settings).indexOf("delimiter"))}
+                    openHelpModal(Object.keys(settings).indexOf("notetype"))}
             >
                 {settings.notetype.title}
             </SettingTitle>
@@ -103,8 +103,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             })}
         >
             <SettingTitle
-                on:click={() =>
-                    openHelpModal(Object.keys(settings).indexOf("delimiter"))}
+                on:click={() => openHelpModal(Object.keys(settings).indexOf("deck"))}
             >
                 {settings.deck.title}
             </SettingTitle>
@@ -117,7 +116,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         choices={dupeResolutionChoices()}
     >
         <SettingTitle
-            on:click={() => openHelpModal(Object.keys(settings).indexOf("delimiter"))}
+            on:click={() =>
+                openHelpModal(Object.keys(settings).indexOf("dupeResolution"))}
         >
             {settings.dupeResolution.title}
         </SettingTitle>
@@ -129,7 +129,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         choices={matchScopeChoices()}
     >
         <SettingTitle
-            on:click={() => openHelpModal(Object.keys(settings).indexOf("delimiter"))}
+            on:click={() => openHelpModal(Object.keys(settings).indexOf("matchScope"))}
         >
             {settings.matchScope.title}
         </SettingTitle>
@@ -137,7 +137,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <TagsRow bind:tags={$metadata.globalTags} keyCombination={"Control+T"}>
         <SettingTitle
-            on:click={() => openHelpModal(Object.keys(settings).indexOf("delimiter"))}
+            on:click={() => openHelpModal(Object.keys(settings).indexOf("globalTags"))}
         >
             {settings.globalTags.title}
         </SettingTitle>
@@ -145,7 +145,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <TagsRow bind:tags={$metadata.updatedTags} keyCombination={"Control+Shift+T"}>
         <SettingTitle
-            on:click={() => openHelpModal(Object.keys(settings).indexOf("delimiter"))}
+            on:click={() => openHelpModal(Object.keys(settings).indexOf("updatedTags"))}
         >
             {settings.updatedTags.title}
         </SettingTitle>

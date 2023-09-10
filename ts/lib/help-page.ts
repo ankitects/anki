@@ -40,5 +40,7 @@ export const HelpPage = {
     },
     TextImporting: {
         root: "https://docs.ankiweb.net/importing/text-files.html",
+        updating: "https://docs.ankiweb.net/importing/text-files.html#duplicates-and-updating",
+        html: "https://docs.ankiweb.net/importing/text-files.html#html",
     },
 };

@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@tslib/ftl";
+    import { HelpPage } from "@tslib/help-page";
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
 
@@ -22,15 +23,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const metadata = state.metadata;
 
     const settings = {
+        delimiter: {
+            title: tr.importingFieldSeparator(),
+            help: tr.importingFieldSeparatorHelp(),
+            url: HelpPage.TextImporting.root,
+        },
         isHtml: {
             title: tr.importingAllowHtmlInFields(),
-            help: "todo",
-            url: "todo",
-        },
-        delimiter: {
-            title: tr.importingUpdateNotes(),
-            help: "todo",
-            url: "todo",
+            help: tr.importingAllowHtmlInFieldsHelp(),
+            url: HelpPage.TextImporting.html,
         },
     };
     const helpSections = Object.values(settings) as HelpItem[];
@@ -46,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.importingFile()}>
     <HelpModal
         title={tr.importingFile()}
-        url={"todo"}
+        url={HelpPage.TextImporting.root}
         slot="tooltip"
         {helpSections}
         on:mount={(e) => {
