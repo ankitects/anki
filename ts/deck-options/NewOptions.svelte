@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SettingTitle from "../components/SettingTitle.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
+    import { newInsertOrderChoices } from "./choices";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import StepsInputRow from "./StepsInputRow.svelte";
@@ -26,11 +27,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const config = state.currentConfig;
     const defaults = state.defaults;
-
-    const newInsertOrderChoices = [
-        tr.deckConfigNewInsertionOrderSequential(),
-        tr.deckConfigNewInsertionOrderRandom(),
-    ];
 
     let stepsExceedGraduatingInterval: string;
     $: {
@@ -155,7 +151,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <EnumSelectorRow
                 bind:value={$config.newCardInsertOrder}
                 defaultValue={defaults.newCardInsertOrder}
-                choices={newInsertOrderChoices}
+                choices={newInsertOrderChoices()}
                 breakpoint={"md"}
             >
                 <SettingTitle

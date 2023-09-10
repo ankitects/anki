@@ -25,18 +25,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
     import ImportLogPage from "../import-log/ImportLogPage.svelte";
+    import { updateChoices } from "./choices";
 
     export let path: string;
     export let options: ImportAnkiPackageOptions;
 
     let importResponse: ImportResponse | undefined = undefined;
     let importing = false;
-
-    const updateChoices = [
-        tr.importingUpdateIfNewer(),
-        tr.importingUpdateAlways(),
-        tr.importingUpdateNever(),
-    ];
 
     const settings = {
         mergeNotetypes: {
@@ -120,7 +115,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <EnumSelectorRow
                     bind:value={options.updateNotes}
                     defaultValue={0}
-                    choices={updateChoices}
+                    choices={updateChoices()}
                 >
                     <SettingTitle
                         on:click={() =>
@@ -133,7 +128,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <EnumSelectorRow
                     bind:value={options.updateNotetypes}
                     defaultValue={0}
-                    choices={updateChoices}
+                    choices={updateChoices()}
                 >
                     <SettingTitle
                         on:click={() =>

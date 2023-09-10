@@ -15,6 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SettingTitle from "../components/SettingTitle.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
+    import { leechChoices } from "./choices";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import StepsInputRow from "./StepsInputRow.svelte";
@@ -36,8 +37,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 ? tr.deckConfigRelearningStepsAboveMinimumInterval()
                 : "";
     }
-
-    const leechChoices = [tr.actionsSuspendCard(), tr.schedulingTagOnly()];
 
     const settings = {
         relearningSteps: {
@@ -136,7 +135,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <EnumSelectorRow
                 bind:value={$config.leechAction}
                 defaultValue={defaults.leechAction}
-                choices={leechChoices}
+                choices={leechChoices()}
                 breakpoint="md"
             >
                 <SettingTitle
