@@ -16,7 +16,8 @@
     export let defaultValue: T;
     export let breakpoint: Breakpoint = "md";
     export let choices: Choice<T>[];
-    export let disabled: T[] = [];
+    export let disabled: boolean = false;
+    export let disabledChoices: T[] = [];
 </script>
 
 <Row --cols={13}>
@@ -25,7 +26,7 @@
     </Col>
     <Col --col-size={6} {breakpoint}>
         <ConfigInput>
-            <EnumSelector bind:value {choices} {disabled} />
+            <EnumSelector bind:value {choices} {disabled} {disabledChoices} />
             <RevertButton slot="revert" bind:value {defaultValue} />
         </ConfigInput>
     </Col>

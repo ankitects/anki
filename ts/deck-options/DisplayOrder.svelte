@@ -140,7 +140,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 bind:value={$config.newCardSortOrder}
                 defaultValue={defaults.newCardSortOrder}
                 choices={newSortOrderChoices()}
-                disabled={disabledNewSortOrders}
+                disabledChoices={disabledNewSortOrders}
             >
                 <SettingTitle
                     on:click={() =>
