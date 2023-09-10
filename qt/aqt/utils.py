@@ -141,12 +141,13 @@ class MessageBox(QMessageBox):
         buttons: Sequence[str | QMessageBox.StandardButton] | None = None,
         default_button: int = 0,
         textFormat: Qt.TextFormat = Qt.TextFormat.PlainText,
+        modality: Qt.WindowModality = Qt.WindowModality.WindowModal,
     ) -> None:
         parent = parent or aqt.mw.app.activeWindow() or aqt.mw
         super().__init__(parent)
         self.setText(text)
         self.setWindowTitle(title)
-        self.setWindowModality(Qt.WindowModality.WindowModal)
+        self.setWindowModality(modality)
         self.setIcon(icon)
         if icon == QMessageBox.Icon.Question and theme_manager.night_mode:
             img = self.iconPixmap().toImage()

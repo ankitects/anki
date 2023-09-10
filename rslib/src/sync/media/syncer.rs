@@ -50,20 +50,24 @@ impl MediaSyncer {
         })
     }
 
-    pub async fn sync(&mut self) -> Result<()> {
-        self.sync_inner().await.map_err(|e| {
+    pub async fn sync(&mut self, server_usn: Option<Usn>) -> Result<()> {
+        self.sync_inner(server_usn).await.map_err(|e| {
             debug!("sync error: {:?}", e);
             e
         })
     }
 
     #[allow(clippy::useless_let_if_seq)]
-    async fn sync_inner(&mut self) -> Result<()> {
+    async fn sync_inner(&mut self, server_usn: Option<Usn>) -> Result<()> {
         self.register_changes()?;
 
         let meta = self.mgr.db.get_meta()?;
         let client_usn = meta.last_sync_usn;
-        let server_usn = self.begin_sync().await?;
+        let server_usn = if let Some(usn) = server_usn {
+            usn
+        } else {
+            self.begin_sync().await?
+        };
 
         let mut actions_performed = false;
 

@@ -881,7 +881,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     ),
     Hook(
         name="media_sync_did_progress",
-        args=["entry: aqt.mediasync.LogEntryWithTime"],
+        args=["entry: str"],
     ),
     Hook(name="media_sync_did_start_or_stop", args=["running: bool"]),
     Hook(

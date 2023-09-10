@@ -147,10 +147,11 @@ impl MediaManager {
         progress: ThrottlingProgressHandler<MediaSyncProgress>,
         auth: SyncAuth,
         client: Client,
+        server_usn: Option<Usn>,
     ) -> Result<()> {
         let client = HttpSyncClient::new(auth, client);
         let mut syncer = MediaSyncer::new(self, progress, client)?;
-        syncer.sync().await
+        syncer.sync(server_usn).await
     }
 
     pub fn all_checksums_after_checking(
