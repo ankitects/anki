@@ -7,15 +7,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { HelpPage } from "@tslib/help-page";
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
-    import EnumSelectorRow from "components/EnumSelectorRow.svelte";
 
+    import EnumSelectorRow from "../components/EnumSelectorRow.svelte";
     import HelpModal from "../components/HelpModal.svelte";
     import SettingTitle from "../components/SettingTitle.svelte";
     import TagsRow from "../components/TagsRow.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
     import { dupeResolutionChoices, matchScopeChoices } from "./choices";
-    import { getDeckId, getGlobalNotetype, type ImportCsvState } from "./lib";
+    import type { ImportCsvState } from "./lib";
 
     export let state: ImportCsvState;
 
@@ -80,7 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {#if $globalNotetype !== null}
         <EnumSelectorRow
             bind:value={$globalNotetype.id}
-            defaultValue={getGlobalNotetype(state.defaults)?.id || 0}
+            defaultValue={state.defaultNotetypeId}
             choices={state.notetypeNameIds.map(({ id, name }) => {
                 return { label: name, value: id };
             })}
@@ -97,7 +97,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {#if $deckId !== null}
         <EnumSelectorRow
             bind:value={$deckId}
-            defaultValue={getDeckId(state.defaults) || 0}
+            defaultValue={state.defaultDeckId}
             choices={state.deckNameIds.map(({ id, name }) => {
                 return { label: name, value: id };
             })}
@@ -113,7 +113,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <EnumSelectorRow
         bind:value={$metadata.dupeResolution}
-        defaultValue={state.defaults.dupeResolution}
+        defaultValue={0}
         choices={dupeResolutionChoices()}
     >
         <SettingTitle
@@ -125,7 +125,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <EnumSelectorRow
         bind:value={$metadata.matchScope}
-        defaultValue={state.defaults.matchScope}
+        defaultValue={0}
         choices={matchScopeChoices()}
     >
         <SettingTitle

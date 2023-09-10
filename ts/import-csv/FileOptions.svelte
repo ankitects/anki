@@ -6,8 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
-    import EnumSelectorRow from "components/EnumSelectorRow.svelte";
 
+    import EnumSelectorRow from "../components/EnumSelectorRow.svelte";
     import HelpModal from "../components/HelpModal.svelte";
     import SettingTitle from "../components/SettingTitle.svelte";
     import SwitchRow from "../components/SwitchRow.svelte";
@@ -56,7 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     />
     <EnumSelectorRow
         bind:value={$metadata.delimiter}
-        defaultValue={state.defaults.delimiter}
+        defaultValue={state.defaultDelimiter}
         choices={delimiterChoices()}
         disabled={$metadata.forceDelimiter}
     >
@@ -69,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <SwitchRow
         bind:value={$metadata.isHtml}
-        defaultValue={state.defaults.isHtml}
+        defaultValue={state.defaultIsHtml}
         disabled={$metadata.forceIsHtml}
     >
         <SettingTitle

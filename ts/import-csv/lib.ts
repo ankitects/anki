@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { DeckNameId, DeckNames } from "@tslib/anki/decks_pb";
-import type { CsvMetadata, ImportResponse } from "@tslib/anki/import_export_pb";
+import type { CsvMetadata, CsvMetadata_Delimiter, ImportResponse } from "@tslib/anki/import_export_pb";
 import { type CsvMetadata_MappedNotetype } from "@tslib/anki/import_export_pb";
 import type { NotetypeNameId, NotetypeNames } from "@tslib/anki/notetypes_pb";
 import { getCsvMetadata, getFieldNames, importCsv } from "@tslib/backend";
@@ -30,7 +30,12 @@ export class ImportCsvState {
     readonly path: string;
     readonly deckNameIds: DeckNameId[];
     readonly notetypeNameIds: NotetypeNameId[];
-    readonly defaults: CsvMetadata;
+
+    readonly defaultDelimiter: CsvMetadata_Delimiter;
+    readonly defaultIsHtml: boolean;
+    readonly defaultNotetypeId: bigint | null;
+    readonly defaultDeckId: bigint | null;
+
     readonly metadata: Writable<CsvMetadata>;
     readonly globalNotetype: Writable<CsvMetadata_MappedNotetype | null>;
     readonly deckId: Writable<bigint | null>;
@@ -48,8 +53,7 @@ export class ImportCsvState {
         this.deckNameIds = decks.entries;
         this.notetypeNameIds = notetypes.entries;
 
-        this.defaults = cloneDeep(metadata);
-        this.lastMetadata = this.defaults;
+        this.lastMetadata = cloneDeep(metadata);
         this.metadata = writable(metadata);
         this.metadata.subscribe(this.onMetadataChanged.bind(this));
 
@@ -74,6 +78,11 @@ export class ImportCsvState {
         this.columnOptions = readable(getColumnOptions(metadata), (set) => {
             this.columnOptionsSetter = set;
         });
+
+        this.defaultDelimiter = metadata.delimiter;
+        this.defaultIsHtml = metadata.isHtml;
+        this.defaultNotetypeId = this.lastGlobalNotetype?.id || null;
+        this.defaultDeckId = this.lastDeckId;
     }
 
     importCsv(): Promise<ImportResponse> {
