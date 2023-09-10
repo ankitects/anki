@@ -29,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         zoomTools,
     } from "./tools/more-tools";
     import { tools } from "./tools/tool-buttons";
-    import { undoRedoTools } from "./tools/tool-undo-redo";
+    import { undoRedoTools, undoStack } from "./tools/tool-undo-redo";
 
     export let canvas;
     export let instance;
@@ -172,9 +172,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     ? 'left-border-radius'
                     : 'right-border-radius'}"
                 {iconSize}
-                on:click={() => {
-                    tool.action(canvas);
-                }}
+                on:click={tool.action}
+                disabled={tool.name === "undo"
+                    ? !$undoStack.undoable
+                    : !$undoStack.redoable}
             >
                 {@html tool.icon}
             </IconButton>

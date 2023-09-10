@@ -4,9 +4,7 @@
 import { fabric } from "fabric";
 
 import { BORDER_COLOR, disableRotation, SHAPE_MASK_COLOR, stopDraw } from "./lib";
-import { objectAdded } from "./tool-undo-redo";
-
-const addedRectangleIds: string[] = [];
+import { undoStack } from "./tool-undo-redo";
 
 export const drawRectangle = (canvas: fabric.Canvas): void => {
     canvas.selectionColor = "rgba(0, 0, 0, 0)";
@@ -111,6 +109,6 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
         }
 
         rect.setCoords();
-        objectAdded(canvas, addedRectangleIds, rect.id);
+        undoStack.onObjectAdded(rect.id);
     });
 };

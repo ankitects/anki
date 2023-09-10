@@ -5,7 +5,7 @@ import { fabric } from "fabric";
 import type { PanZoom } from "panzoom";
 
 import { BORDER_COLOR, disableRotation, SHAPE_MASK_COLOR } from "./lib";
-import { objectAdded, saveCanvasState } from "./tool-undo-redo";
+import { undoStack } from "./tool-undo-redo";
 
 let activeLine;
 let activeShape;
@@ -13,7 +13,6 @@ let linesList: fabric.Line = [];
 let pointsList: fabric.Circle = [];
 let drawMode = false;
 let zoomValue = 1;
-const addedPolygonIds: string[] = [];
 
 export const drawPolygon = (canvas: fabric.Canvas, panzoom: PanZoom): void => {
     canvas.selectionColor = "rgba(0, 0, 0, 0)";
@@ -190,12 +189,12 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
         disableRotation(polygon);
         canvas.add(polygon);
         // view undo redo tools
-        objectAdded(canvas, addedPolygonIds, polygon.id);
+        undoStack.onObjectAdded(polygon.id);
     }
 
     polygon.on("modified", () => {
         modifiedPolygon(canvas, polygon);
-        saveCanvasState(canvas);
+        undoStack.onObjectModified();
     });
 
     toggleDrawPolygon(canvas);
@@ -223,7 +222,7 @@ const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon): void =
 
     polygon1.on("modified", () => {
         modifiedPolygon(canvas, polygon1);
-        saveCanvasState(canvas);
+        undoStack.onObjectModified();
     });
 
     canvas.remove(polygon);
