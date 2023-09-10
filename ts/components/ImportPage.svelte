@@ -57,8 +57,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .pre-import-page {
-        min-height: 100vh;
-        width: min(100vw, 70em);
         margin: 0 auto;
     }
 </style>
