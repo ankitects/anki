@@ -2,6 +2,12 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<script context="module" lang="ts">
+    export interface Importer {
+        doImport: () => Promise<ImportResponse>;
+    }
+</script>
+
 <script lang="ts">
     import type { ImportResponse } from "@tslib/anki/import_export_pb";
     import { importDone } from "@tslib/backend";
@@ -12,13 +18,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import StickyHeader from "./StickyHeader.svelte";
 
     export let path: string;
-    export let doImport: () => Promise<ImportResponse>;
+    export let importer: Importer;
 
     let importResponse: ImportResponse | undefined = undefined;
     let importing = false;
 
     async function onImport(): Promise<ImportResponse> {
-        const result = doImport();
+        const result = importer.doImport();
         await importDone({});
         importing = false;
         return result;

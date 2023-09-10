@@ -57,11 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ImportPage
     {path}
-    doImport={() =>
-        importAnkiPackage({
-            packagePath: path,
-            options,
-        })}
+    importer={{ doImport: () => importAnkiPackage({ packagePath: path, options }) }}
 >
     <Row class="d-block">
         <TitledContainer title={tr.importingImportOptions()}>

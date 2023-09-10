@@ -45,7 +45,6 @@ export async function setupImportCsvPage(path: string): Promise<ImportCsvPage | 
         return new ImportCsvPage({
             target: document.body,
             props: {
-                path: path,
                 state: new ImportCsvState(path, notetypes, decks, metadata),
             },
             context,

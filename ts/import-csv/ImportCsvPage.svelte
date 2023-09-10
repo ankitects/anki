@@ -11,10 +11,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ImportCsvState } from "./lib";
 
     export let state: ImportCsvState;
-    export let path: string;
 </script>
 
-<ImportPage {path} doImport={state.importCsv}>
+<ImportPage path={state.path} importer={state}>
     <Row><FileOptions {state} /></Row>
     <Row><ImportOptions {state} /></Row>
     <Row><FieldMapper {state} /></Row>

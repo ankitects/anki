@@ -85,7 +85,7 @@ export class ImportCsvState {
         this.defaultDeckId = this.lastDeckId;
     }
 
-    importCsv(): Promise<ImportResponse> {
+    doImport(): Promise<ImportResponse> {
         return importCsv({
             path: this.path,
             metadata: { ...this.lastMetadata, preview: [] },
