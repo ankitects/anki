@@ -25,12 +25,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<div class="outer">
-    {#if importing}
-        <BackendProgressIndicator task={onImport} bind:result={importResponse} />
-    {:else if importResponse}
-        <ImportLogPage response={importResponse} params={{ path }} />
-    {:else}
+{#if importing}
+    <BackendProgressIndicator task={onImport} bind:result={importResponse} />
+{:else if importResponse}
+    <ImportLogPage response={importResponse} params={{ path }} />
+{:else}
+    <div class="pre-import-page">
         <StickyHeader {path} onImport={() => (importing = true)} />
         <Container
             breakpoint="sm"
@@ -40,13 +40,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         >
             <slot />
         </Container>
-    {/if}
-</div>
+    </div>
+{/if}
 
 <style lang="scss">
     :global(.row) {
         // rows have negative margins by default
         --bs-gutter-x: 0;
         margin-bottom: 0.5rem;
+    }
+
+    .pre-import-page {
+        min-height: 100vh;
+        width: min(100vw, 70em);
+        margin: 0 auto;
     }
 </style>

@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import ImportPage from "../components/ImportPage.svelte";
+    import Row from "../components/Row.svelte";
     import FieldMapper from "./FieldMapper.svelte";
     import FileOptions from "./FileOptions.svelte";
     import ImportOptions from "./ImportOptions.svelte";
@@ -14,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ImportPage {path} doImport={state.importCsv}>
-    <FileOptions {state} />
-    <ImportOptions {state} />
-    <FieldMapper {state} />
+    <Row><FileOptions {state} /></Row>
+    <Row><ImportOptions {state} /></Row>
+    <Row><FieldMapper {state} /></Row>
 </ImportPage>
