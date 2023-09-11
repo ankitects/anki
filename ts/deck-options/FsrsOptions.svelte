@@ -16,18 +16,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "@tslib/backend";
     import { runWithBackendProgress } from "@tslib/progress";
     import TitledContainer from "components/TitledContainer.svelte";
-
     import ConfigInput from "../components/ConfigInput.svelte";
     import RevertButton from "../components/RevertButton.svelte";
     import SettingTitle from "../components/SettingTitle.svelte";
     import type { DeckOptionsState } from "./lib";
     import WeightsInputRow from "./WeightsInputRow.svelte";
+    import * as tr from "@tslib/ftl";
+    import Warning from "./Warning.svelte";
 
     export let state: DeckOptionsState;
 
     const config = state.currentConfig;
 
     let computeWeightsProgress: ComputeWeightsProgress | undefined;
+    let computeWeightsWarning = "";
     let customSearch = "";
     let computing = false;
 
@@ -61,6 +63,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     });
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
+                    }
+                    if (resp.fsrsItems < 1000) {
+                        computeWeightsWarning = tr.deckConfigLimitedHistory({
+                            count: resp.fsrsItems,
+                        });
+                    } else {
+                        computeWeightsWarning = "";
                     }
                     $config.fsrsWeights = resp.weights;
                 },
@@ -155,7 +164,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (val instanceof ComputeRetentionProgress) {
             return pct;
         } else {
-            return `${pct} of ${val.revlogEntries} reviews`;
+            return `${pct} of ${val.fsrsItems} reviews`;
         }
     }
 
@@ -188,89 +197,92 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div class="mb-3" />
 
     <div class="bordered">
-        <b>Optimize weights</b>
-        <br />
-        <input
-            bind:value={customSearch}
-            placeholder="Search; leave blank for all cards using this preset"
-            class="w-100 mb-1"
-        />
-        <button
-            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-            on:click={() => computeWeights()}
-        >
-            {#if computing}
-                Cancel
-            {:else}
-                Compute
-            {/if}
-        </button>
-        <button
-            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-            on:click={() => checkWeights()}
-        >
-            {#if computing}
-                Cancel
-            {:else}
-                Check
-            {/if}
-        </button>
-        <div>{computeWeightsProgressString}</div>
+        <details>
+            <summary><b>Compute optimal weights</b></summary>
+            <input
+                bind:value={customSearch}
+                placeholder="Search; leave blank for all cards using this preset"
+                class="w-100 mb-1"
+            />
+            <button
+                class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                on:click={() => computeWeights()}
+            >
+                {#if computing}
+                    Cancel
+                {:else}
+                    Compute
+                {/if}
+            </button>
+            <button
+                class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                on:click={() => checkWeights()}
+            >
+                {#if computing}
+                    Cancel
+                {:else}
+                    Check
+                {/if}
+            </button>
+            {#if computing}<div>{computeWeightsProgressString}</div>{/if}
+            <Warning warning={computeWeightsWarning} />
+        </details>
     </div>
 
     <div class="bordered">
-        <b>Calculate optimal retention</b>
-        <br />
+        <details>
+            <summary><b>Compute optimal retention</b></summary>
 
-        Deck size:
-        <br />
-        <input type="number" bind:value={computeOptimalRequest.deckSize} />
-        <br />
+            Deck size:
+            <br />
+            <input type="number" bind:value={computeOptimalRequest.deckSize} />
+            <br />
 
-        Days to simulate
-        <br />
-        <input type="number" bind:value={computeOptimalRequest.daysToSimulate} />
-        <br />
+            Days to simulate
+            <br />
+            <input type="number" bind:value={computeOptimalRequest.daysToSimulate} />
+            <br />
 
-        Max seconds of study per day:
-        <br />
-        <input
-            type="number"
-            bind:value={computeOptimalRequest.maxSecondsOfStudyPerDay}
-        />
-        <br />
+            Max seconds of study per day:
+            <br />
+            <input
+                type="number"
+                bind:value={computeOptimalRequest.maxSecondsOfStudyPerDay}
+            />
+            <br />
 
-        Maximum interval:
-        <br />
-        <input type="number" bind:value={computeOptimalRequest.maxInterval} />
-        <br />
+            Maximum interval:
+            <br />
+            <input type="number" bind:value={computeOptimalRequest.maxInterval} />
+            <br />
 
-        Seconds to recall a card:
-        <br />
-        <input type="number" bind:value={computeOptimalRequest.recallSecs} />
-        <br />
+            Seconds to recall a card:
+            <br />
+            <input type="number" bind:value={computeOptimalRequest.recallSecs} />
+            <br />
 
-        Seconds to forget a card:
-        <br />
-        <input type="number" bind:value={computeOptimalRequest.forgetSecs} />
-        <br />
+            Seconds to forget a card:
+            <br />
+            <input type="number" bind:value={computeOptimalRequest.forgetSecs} />
+            <br />
 
-        Seconds to learn a card:
-        <br />
-        <input type="number" bind:value={computeOptimalRequest.learnSecs} />
-        <br />
+            Seconds to learn a card:
+            <br />
+            <input type="number" bind:value={computeOptimalRequest.learnSecs} />
+            <br />
 
-        <button
-            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-            on:click={() => computeRetention()}
-        >
-            {#if computing}
-                Cancel
-            {:else}
-                Compute
-            {/if}
-        </button>
-        <div>{computeRetentionProgressString}</div>
+            <button
+                class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                on:click={() => computeRetention()}
+            >
+                {#if computing}
+                    Cancel
+                {:else}
+                    Compute
+                {/if}
+            </button>
+            <div>{computeRetentionProgressString}</div>
+        </details>
     </div>
 </TitledContainer>
 

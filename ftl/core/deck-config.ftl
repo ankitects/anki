@@ -312,7 +312,11 @@ deck-config-which-deck = Which deck would you like to display options for?
 deck-config-updating-cards = Updating cards: { $current_cards_count }/{ $total_cards_count }...
 deck-config-invalid-weights = Weights must be either left blank to use the defaults, or must be 17 comma-separated numbers.
 deck-config-not-enough-history = Insufficient review history to calculate custom weights.
-deck-config-limited-history = You have limited review history, so custom weights may be inaccurate. Sticking to the defaults for now is recommended.
+deck-config-limited-history =
+    { $count ->
+        [one] Only { $count } review was found.
+        *[other] Only { $count } reviews were found.
+    } The custom weights are likely to be inaccurate, and using the defaults instead is recommended.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

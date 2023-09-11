@@ -136,7 +136,7 @@ message Progress {
 message ComputeWeightsProgress {
   uint32 current = 1;
   uint32 total = 2;
-  uint32 revlog_entries = 3;
+  uint32 fsrs_items = 3;
 }
 
 message ComputeRetentionProgress {

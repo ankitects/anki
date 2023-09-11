@@ -213,7 +213,7 @@ pub(crate) fn progress_to_proto(
                 Value::ComputeWeights(anki_proto::collection::ComputeWeightsProgress {
                     current: progress.current,
                     total: progress.total,
-                    revlog_entries: progress.revlog_entries,
+                    fsrs_items: progress.fsrs_items,
                 })
             }
             Progress::ComputeRetention(progress) => {

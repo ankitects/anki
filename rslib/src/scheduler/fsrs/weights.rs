@@ -4,6 +4,7 @@ use std::iter;
 use std::thread;
 use std::time::Duration;
 
+use anki_proto::scheduler::ComputeFsrsWeightsResponse;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
 use fsrs::ModelEvaluation;
@@ -19,13 +20,13 @@ use crate::search::SortMode;
 pub(crate) type Weights = Vec<f32>;
 
 impl Collection {
-    pub fn compute_weights(&mut self, search: &str) -> Result<Vec<f32>> {
+    pub fn compute_weights(&mut self, search: &str) -> Result<ComputeFsrsWeightsResponse> {
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
-        let revlog_count = revlogs.len();
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
+        let fsrs_items = items.len() as u32;
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
-        anki_progress.state.revlog_entries = revlog_count as u32;
+        anki_progress.update(false, |p| p.fsrs_items = fsrs_items)?;
         // adapt the progress handler to our built-in progress handling
         let progress = ProgressState::new_shared();
         let progress2 = progress.clone();
@@ -45,8 +46,11 @@ impl Collection {
             }
         });
         let fsrs = FSRS::new(None)?;
-        fsrs.compute_weights(items, Some(progress2))
-            .map_err(Into::into)
+        let weights = fsrs.compute_weights(items, Some(progress2))?;
+        Ok(ComputeFsrsWeightsResponse {
+            weights,
+            fsrs_items,
+        })
     }
 
     pub(crate) fn revlog_for_srs(
@@ -67,7 +71,7 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_order()?;
-        anki_progress.state.revlog_entries = revlogs.len() as u32;
+        anki_progress.state.fsrs_items = revlogs.len() as u32;
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let fsrs = FSRS::new(Some(weights))?;
         Ok(fsrs.evaluate(items, |ip| {
@@ -85,7 +89,7 @@ impl Collection {
 pub struct ComputeWeightsProgress {
     pub current: u32,
     pub total: u32,
-    pub revlog_entries: u32,
+    pub fsrs_items: u32,
 }
 
 /// Convert a series of revlog entries sorted by card id into FSRS items.
