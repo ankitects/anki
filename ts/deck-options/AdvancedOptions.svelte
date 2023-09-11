@@ -187,7 +187,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {#if state.v3Scheduler}
             <Item>
                 <SwitchRow bind:value={$config.fsrsEnabled} defaultValue={false}>
-                    <SettingTitle>FSRS optimizer</SettingTitle>
+                    <SettingTitle>FSRS</SettingTitle>
                 </SwitchRow>
             </Item>
         {/if}

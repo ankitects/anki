@@ -113,6 +113,8 @@ pub enum AnkiError {
     },
     InvalidMethodIndex,
     InvalidServiceIndex,
+    FsrsWeightsInvalid,
+    FsrsInsufficientData,
 }
 
 // error helpers
@@ -164,6 +166,8 @@ impl AnkiError {
             AnkiError::FileIoError { source } => source.message(),
             AnkiError::InvalidInput { source } => source.message(),
             AnkiError::NotFound { source } => source.message(tr),
+            AnkiError::FsrsInsufficientData => tr.deck_config_not_enough_history().into(),
+            AnkiError::FsrsWeightsInvalid => tr.deck_config_invalid_weights().into(),
             #[cfg(windows)]
             AnkiError::WindowsError { source } => format!("{source:?}"),
         }

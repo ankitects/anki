@@ -354,5 +354,5 @@ message EvaluateWeightsRequest {
 
 message EvaluateWeightsResponse {
   float log_loss = 1;
-  float rmse = 2;
+  float rmse_bins = 2;
 }

@@ -307,6 +307,12 @@ deck-config-maximum-answer-secs-above-recommended = Anki can schedule your revie
 
 deck-config-which-deck = Which deck would you like to display options for?
 
+## Messages related to the FSRS scheduler
+
+deck-config-updating-cards = Updating cards: { $current_cards_count }/{ $total_cards_count }...
+deck-config-invalid-weights = Weights must be either left blank to use the defaults, or must be 17 comma-separated numbers.
+deck-config-not-enough-history = Insufficient review history to calculate custom weights.
+deck-config-limited-history = You have limited review history, so custom weights may be inaccurate. Sticking to the defaults for now is recommended.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

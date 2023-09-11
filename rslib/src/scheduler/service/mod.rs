@@ -264,8 +264,8 @@ impl crate::services::SchedulerService for Collection {
     ) -> Result<scheduler::EvaluateWeightsResponse> {
         let ret = self.evaluate_weights(&input.weights, &input.search)?;
         Ok(scheduler::EvaluateWeightsResponse {
-            log_loss: ret.0,
-            rmse: ret.1,
+            log_loss: ret.log_loss,
+            rmse_bins: ret.rmse_bins,
         })
     }
 }

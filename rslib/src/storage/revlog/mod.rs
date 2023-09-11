@@ -138,7 +138,7 @@ impl SqliteStorage {
         self.db
             .prepare_cached(concat!(
                 include_str!("get.sql"),
-                " where cid in (select cid from search_cids) order by cid"
+                " where cid in (select cid from search_cids) order by cid, id"
             ))?
             .query_and_then([], row_to_revlog_entry)?
             .collect()

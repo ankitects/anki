@@ -8,6 +8,7 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+use fsrs::MemoryState;
 use num_enum::TryFromPrimitive;
 use serde_repr::Deserialize_repr;
 use serde_repr::Serialize_repr;
@@ -439,6 +440,24 @@ impl<'a> RemainingStepsAdjuster<'a> {
                 Entry::Vacant(e) => e.insert(col.deck_config_for_card(card)?),
             },
         )
+    }
+}
+
+impl From<FsrsMemoryState> for MemoryState {
+    fn from(value: FsrsMemoryState) -> Self {
+        MemoryState {
+            stability: value.stability,
+            difficulty: value.difficulty,
+        }
+    }
+}
+
+impl From<MemoryState> for FsrsMemoryState {
+    fn from(value: MemoryState) -> Self {
+        FsrsMemoryState {
+            stability: value.stability,
+            difficulty: value.difficulty,
+        }
     }
 }
 
