@@ -11,7 +11,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     type ResultWithChanges = OpChanges | { changes?: OpChanges };
 
     export let task: () => Promise<ResultWithChanges | undefined>;
-    export let result: ResultWithChanges | undefined = undefined;
+    export let result: ResultWithChanges | undefined;
+    export let error: Error | undefined;
     let label: string = "";
 
     function onUpdate(progress: Progress) {
@@ -24,8 +25,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
     $: (async () => {
-        if (!result) {
-            result = await runWithBackendProgress(task, onUpdate);
+        if (!result && !error) {
+            try {
+                result = await runWithBackendProgress(task, onUpdate);
+            } catch (err) {
+                if (err instanceof Error) {
+                    error = err;
+                } else {
+                    throw err;
+                }
+            }
         }
     })();
 </script>

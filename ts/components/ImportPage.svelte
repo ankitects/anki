@@ -16,11 +16,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import BackendProgressIndicator from "./BackendProgressIndicator.svelte";
     import Container from "./Container.svelte";
     import StickyHeader from "./StickyHeader.svelte";
+    import ErrorPage from "./ErrorPage.svelte";
 
     export let path: string;
     export let importer: Importer;
 
     let importResponse: ImportResponse | undefined = undefined;
+    let error: Error | undefined = undefined;
     let importing = false;
 
     async function onImport(): Promise<ImportResponse> {
@@ -31,10 +33,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-{#if importing}
-    <BackendProgressIndicator task={onImport} bind:result={importResponse} />
+{#if error}
+    <ErrorPage {error} />
 {:else if importResponse}
     <ImportLogPage response={importResponse} params={{ path }} />
+{:else if importing}
+    <BackendProgressIndicator task={onImport} bind:result={importResponse} bind:error />
 {:else}
     <div class="pre-import-page">
         <StickyHeader {path} onImport={() => (importing = true)} />

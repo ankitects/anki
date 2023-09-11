@@ -89,7 +89,7 @@ export class ImportCsvState {
         return importCsv({
             path: this.path,
             metadata: { ...this.lastMetadata, preview: [] },
-        });
+        }, { alertOnError: false });
     }
 
     private async onMetadataChanged(changed: CsvMetadata) {
