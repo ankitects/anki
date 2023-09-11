@@ -268,6 +268,12 @@ pub(crate) fn ensure_deck_config_values_valid(config: &mut DeckConfigInner) {
         1,
         9999,
     );
+    ensure_f32_valid(
+        &mut config.desired_retention,
+        default.desired_retention,
+        0.8,
+        0.97,
+    );
 }
 
 fn ensure_f32_valid(val: &mut f32, default: f32, min: f32, max: f32) {
