@@ -4,8 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import {
-        Progress_ComputeRetention,
-        type Progress_ComputeWeights,
+        ComputeRetentionProgress,
+        type ComputeWeightsProgress,
     } from "@tslib/anki/collection_pb";
     import { ComputeOptimalRetentionRequest } from "@tslib/anki/scheduler_pb";
     import {
@@ -27,13 +27,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const config = state.currentConfig;
 
-    let computeWeightsProgress: Progress_ComputeWeights | undefined;
+    let computeWeightsProgress: ComputeWeightsProgress | undefined;
     let customSearch = "";
     let computing = false;
 
     let computeRetentionProgress:
-        | Progress_ComputeWeights
-        | Progress_ComputeRetention
+        | ComputeWeightsProgress
+        | ComputeRetentionProgress
         | undefined;
 
     const computeOptimalRequest = new ComputeOptimalRetentionRequest({
@@ -97,7 +97,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             alert(
                                 `Log loss: ${resp.logLoss.toFixed(
                                     3,
-                                )}, RMSE: ${resp.rmse.toFixed(3)}`,
+                                )}, RMSE(bins): ${resp.rmseBins.toFixed(3)}`,
                             ),
                         200,
                     );
@@ -146,13 +146,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         computeRetentionProgress,
     );
 
-    function renderWeightProgress(val: Progress_ComputeWeights | undefined): String {
+    function renderWeightProgress(val: ComputeWeightsProgress | undefined): String {
         if (!val || !val.total) {
             return "";
         }
         let pct = ((val.current / val.total) * 100).toFixed(2);
         pct = `${pct}%`;
-        if (val instanceof Progress_ComputeRetention) {
+        if (val instanceof ComputeRetentionProgress) {
             return pct;
         } else {
             return `${pct} of ${val.revlogEntries} reviews`;
@@ -160,7 +160,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function renderRetentionProgress(
-        val: Progress_ComputeRetention | undefined,
+        val: ComputeRetentionProgress | undefined,
     ): String {
         if (!val || !val.total) {
             return "";
@@ -171,13 +171,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={"FSRS"}>
-    <WeightsInputRow
-        bind:value={$config.fsrsWeights}
-        defaultValue={[
-            0.4, 0.6, 2.4, 5.8, 4.93, 0.94, 0.86, 0.01, 1.49, 0.14, 0.94, 2.18, 0.05,
-            0.34, 1.26, 0.29, 2.61,
-        ]}
-    >
+    <WeightsInputRow bind:value={$config.fsrsWeights} defaultValue={[]}>
         <SettingTitle>Weights</SettingTitle>
     </WeightsInputRow>
     <div>Optimal retention</div>

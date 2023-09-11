@@ -9,7 +9,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: stringValue = value.map((v) => v.toFixed(4)).join(", ");
 
     function update(this: HTMLInputElement): void {
-        value = this.value.split(", ").map((v) => Number(v));
+        value = this.value
+            .replace(/ /g, "")
+            .split(",")
+            .filter((e) => e)
+            .map((v) => Number(v));
     }
 </script>
 

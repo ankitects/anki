@@ -4,11 +4,11 @@ use std::iter;
 use std::thread;
 use std::time::Duration;
 
-use fsrs_optimizer::compute_weights;
-use fsrs_optimizer::evaluate;
-use fsrs_optimizer::FSRSItem;
-use fsrs_optimizer::FSRSReview;
-use fsrs_optimizer::ProgressState;
+use fsrs::FSRSItem;
+use fsrs::FSRSReview;
+use fsrs::ModelEvaluation;
+use fsrs::ProgressState;
+use fsrs::FSRS;
 use itertools::Itertools;
 
 use crate::prelude::*;
@@ -16,17 +16,16 @@ use crate::revlog::RevlogEntry;
 use crate::revlog::RevlogReviewKind;
 use crate::search::SortMode;
 
+pub(crate) type Weights = Vec<f32>;
+
 impl Collection {
     pub fn compute_weights(&mut self, search: &str) -> Result<Vec<f32>> {
         let timing = self.timing_today()?;
+        let revlogs = self.revlog_for_srs(search)?;
+        let revlog_count = revlogs.len();
+        let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
-        let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
-        let revlogs = guard
-            .col
-            .storage
-            .get_revlog_entries_for_searched_cards_in_order()?;
-        anki_progress.state.revlog_entries = revlogs.len() as u32;
-        let items = anki_to_fsrs(revlogs, timing.next_day_at);
+        anki_progress.state.revlog_entries = revlog_count as u32;
         // adapt the progress handler to our built-in progress handling
         let progress = ProgressState::new_shared();
         let progress2 = progress.clone();
@@ -45,16 +44,23 @@ impl Collection {
                 }
             }
         });
-        compute_weights(items, Some(progress2)).map_err(Into::into)
+        let fsrs = FSRS::new(None)?;
+        fsrs.compute_weights(items, Some(progress2))
+            .map_err(Into::into)
     }
 
-    pub fn evaluate_weights(&mut self, weights: &[f32], search: &str) -> Result<(f32, f32)> {
+    pub(crate) fn revlog_for_srs(
+        &mut self,
+        search: impl TryIntoSearch,
+    ) -> Result<Vec<RevlogEntry>> {
+        self.search_cards_into_table(search, SortMode::NoOrder)?
+            .col
+            .storage
+            .get_revlog_entries_for_searched_cards_in_order()
+    }
+
+    pub fn evaluate_weights(&mut self, weights: &Weights, search: &str) -> Result<ModelEvaluation> {
         let timing = self.timing_today()?;
-        if weights.len() != 17 {
-            invalid_input!("must have 17 weights");
-        }
-        let mut weights_arr = [0f32; 17];
-        weights_arr.iter_mut().set_from(weights.iter().cloned());
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
         let revlogs = guard
@@ -62,9 +68,9 @@ impl Collection {
             .storage
             .get_revlog_entries_for_searched_cards_in_order()?;
         anki_progress.state.revlog_entries = revlogs.len() as u32;
-        let items = anki_to_fsrs(revlogs, timing.next_day_at);
-
-        Ok(evaluate(weights_arr, items, |ip| {
+        let items = fsrs_items_for_training(revlogs, timing.next_day_at);
+        let fsrs = FSRS::new(Some(weights))?;
+        Ok(fsrs.evaluate(items, |ip| {
             anki_progress
                 .update(false, |p| {
                     p.total = ip.total as u32;
@@ -83,7 +89,7 @@ pub struct ComputeWeightsProgress {
 }
 
 /// Convert a series of revlog entries sorted by card id into FSRS items.
-fn anki_to_fsrs(revlogs: Vec<RevlogEntry>, next_day_at: TimestampSecs) -> Vec<FSRSItem> {
+fn fsrs_items_for_training(revlogs: Vec<RevlogEntry>, next_day_at: TimestampSecs) -> Vec<FSRSItem> {
     let mut revlogs = revlogs
         .into_iter()
         .group_by(|r| r.cid)
@@ -95,6 +101,27 @@ fn anki_to_fsrs(revlogs: Vec<RevlogEntry>, next_day_at: TimestampSecs) -> Vec<FS
     revlogs
 }
 
+/// When updating memory state, FSRS only requires the last FSRSItem that
+/// contains the full history.
+pub(super) fn fsrs_items_for_memory_state(
+    revlogs: Vec<RevlogEntry>,
+    next_day_at: TimestampSecs,
+) -> Vec<(CardId, FSRSItem)> {
+    let mut out = vec![];
+    for (card_id, group) in revlogs.into_iter().group_by(|r| r.cid).into_iter() {
+        let entries = group.into_iter().collect_vec();
+        if let Some(mut items) = single_card_revlog_to_items(entries, next_day_at) {
+            if let Some(item) = items.pop() {
+                out.push((card_id, item));
+            }
+        }
+    }
+    out
+}
+
+/// Transform the revlog history for a card into a list of FSRSItems. FSRS
+/// expects multiple items for a given card when training - for revlog
+/// `[1,2,3]`, we create FSRSItems corresponding to `[1]`, `[1,2]`, `[1,2,3]`.
 fn single_card_revlog_to_items(
     mut entries: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,

@@ -50,8 +50,8 @@ impl CardData {
     pub(crate) fn from_card(card: &Card) -> Self {
         Self {
             original_position: card.original_position,
-            fsrs_stability: None,
-            fsrs_difficulty: None,
+            fsrs_stability: card.fsrs_memory_state.as_ref().map(|m| m.stability),
+            fsrs_difficulty: card.fsrs_memory_state.as_ref().map(|m| m.difficulty),
             custom_data: card.custom_data.clone(),
         }
     }
