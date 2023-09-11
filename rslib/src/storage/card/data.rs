@@ -12,19 +12,33 @@ use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 
+use crate::card::FsrsMemoryState;
 use crate::prelude::*;
 use crate::serde::default_on_invalid;
 
 /// Helper for serdeing the card data column.
-#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub(crate) struct CardData {
     #[serde(
-        skip_serializing_if = "Option::is_none",
         rename = "pos",
+        skip_serializing_if = "Option::is_none",
         deserialize_with = "default_on_invalid"
     )]
     pub(crate) original_position: Option<u32>,
+    #[serde(
+        rename = "s",
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "default_on_invalid"
+    )]
+    pub(crate) fsrs_stability: Option<f32>,
+    #[serde(
+        rename = "d",
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "default_on_invalid"
+    )]
+    pub(crate) fsrs_difficulty: Option<f32>,
+
     /// A string representation of a JSON object storing optional data
     /// associated with the card, so v3 custom scheduling code can persist
     /// state.
@@ -36,12 +50,26 @@ impl CardData {
     pub(crate) fn from_card(card: &Card) -> Self {
         Self {
             original_position: card.original_position,
+            fsrs_stability: None,
+            fsrs_difficulty: None,
             custom_data: card.custom_data.clone(),
         }
     }
 
     pub(crate) fn from_str(s: &str) -> Self {
         serde_json::from_str(s).unwrap_or_default()
+    }
+
+    pub(crate) fn fsrs_memory_state(&self) -> Option<FsrsMemoryState> {
+        if let Some(stability) = self.fsrs_stability {
+            if let Some(difficulty) = self.fsrs_difficulty {
+                return Some(FsrsMemoryState {
+                    stability,
+                    difficulty,
+                });
+            }
+        }
+        None
     }
 }
 
