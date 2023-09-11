@@ -330,6 +330,8 @@ message ComputeFsrsWeightsRequest {
 
 message ComputeFsrsWeightsResponse {
   repeated float weights = 1;
+  // if less than 1000, should warn user
+  uint32 fsrs_items = 2;
 }
 
 message ComputeOptimalRetentionRequest {
