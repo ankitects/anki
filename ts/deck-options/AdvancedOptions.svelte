@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
     import CardStateCustomizer from "./CardStateCustomizer.svelte";
+    import FsrsOptions from "./FsrsOptions.svelte";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
@@ -87,6 +88,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }}
     />
     <DynamicallySlottable slotHost={Item} {api}>
+        {#if state.v3Scheduler}
+            <Item>
+                <SwitchRow bind:value={$config.fsrsEnabled} defaultValue={false}>
+                    <SettingTitle>FSRS</SettingTitle>
+                </SwitchRow>
+            </Item>
+        {/if}
+
         <Item>
             <SpinBoxRow
                 bind:value={$config.maximumReviewInterval}
@@ -103,93 +112,93 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </SpinBoxRow>
         </Item>
 
-        <Item>
-            <SpinBoxFloatRow
-                bind:value={$config.initialEase}
-                defaultValue={defaults.initialEase}
-                min={1.31}
-                max={5}
-            >
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(Object.keys(settings).indexOf("startingEase"))}
-                >
-                    {settings.startingEase.title}
-                </SettingTitle>
-            </SpinBoxFloatRow>
-        </Item>
-
-        <Item>
-            <SpinBoxFloatRow
-                bind:value={$config.easyMultiplier}
-                defaultValue={defaults.easyMultiplier}
-                min={1}
-                max={5}
-            >
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(Object.keys(settings).indexOf("easyBonus"))}
-                >
-                    {settings.easyBonus.title}
-                </SettingTitle>
-            </SpinBoxFloatRow>
-        </Item>
-
-        <Item>
-            <SpinBoxFloatRow
-                bind:value={$config.intervalMultiplier}
-                defaultValue={defaults.intervalMultiplier}
-                min={0.5}
-                max={2}
-            >
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(
-                            Object.keys(settings).indexOf("intervalModifier"),
-                        )}
-                >
-                    {settings.intervalModifier.title}
-                </SettingTitle>
-            </SpinBoxFloatRow>
-        </Item>
-
-        <Item>
-            <SpinBoxFloatRow
-                bind:value={$config.hardMultiplier}
-                defaultValue={defaults.hardMultiplier}
-                min={0.5}
-                max={1.3}
-            >
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(Object.keys(settings).indexOf("hardInterval"))}
-                >
-                    {settings.hardInterval.title}
-                </SettingTitle>
-            </SpinBoxFloatRow>
-        </Item>
-
-        <Item>
-            <SpinBoxFloatRow
-                bind:value={$config.lapseMultiplier}
-                defaultValue={defaults.lapseMultiplier}
-                max={1}
-            >
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(Object.keys(settings).indexOf("newInterval"))}
-                >
-                    {settings.newInterval.title}
-                </SettingTitle>
-            </SpinBoxFloatRow>
-        </Item>
-
-        {#if state.v3Scheduler}
+        {#if !$config.fsrsEnabled || !state.v3Scheduler}
             <Item>
-                <SwitchRow bind:value={$config.fsrsEnabled} defaultValue={false}>
-                    <SettingTitle>FSRS</SettingTitle>
-                </SwitchRow>
+                <SpinBoxFloatRow
+                    bind:value={$config.initialEase}
+                    defaultValue={defaults.initialEase}
+                    min={1.31}
+                    max={5}
+                >
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(
+                                Object.keys(settings).indexOf("startingEase"),
+                            )}
+                    >
+                        {settings.startingEase.title}
+                    </SettingTitle>
+                </SpinBoxFloatRow>
             </Item>
+
+            <Item>
+                <SpinBoxFloatRow
+                    bind:value={$config.easyMultiplier}
+                    defaultValue={defaults.easyMultiplier}
+                    min={1}
+                    max={5}
+                >
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(Object.keys(settings).indexOf("easyBonus"))}
+                    >
+                        {settings.easyBonus.title}
+                    </SettingTitle>
+                </SpinBoxFloatRow>
+            </Item>
+
+            <Item>
+                <SpinBoxFloatRow
+                    bind:value={$config.intervalMultiplier}
+                    defaultValue={defaults.intervalMultiplier}
+                    min={0.5}
+                    max={2}
+                >
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(
+                                Object.keys(settings).indexOf("intervalModifier"),
+                            )}
+                    >
+                        {settings.intervalModifier.title}
+                    </SettingTitle>
+                </SpinBoxFloatRow>
+            </Item>
+
+            <Item>
+                <SpinBoxFloatRow
+                    bind:value={$config.hardMultiplier}
+                    defaultValue={defaults.hardMultiplier}
+                    min={0.5}
+                    max={1.3}
+                >
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(
+                                Object.keys(settings).indexOf("hardInterval"),
+                            )}
+                    >
+                        {settings.hardInterval.title}
+                    </SettingTitle>
+                </SpinBoxFloatRow>
+            </Item>
+
+            <Item>
+                <SpinBoxFloatRow
+                    bind:value={$config.lapseMultiplier}
+                    defaultValue={defaults.lapseMultiplier}
+                    max={1}
+                >
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(Object.keys(settings).indexOf("newInterval"))}
+                    >
+                        {settings.newInterval.title}
+                    </SettingTitle>
+                </SpinBoxFloatRow>
+            </Item>
+        {:else}
+            <FsrsOptions {state} />
         {/if}
 
         {#if state.v3Scheduler}
