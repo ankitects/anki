@@ -14,19 +14,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         evaluateWeights,
         setWantsAbort,
     } from "@tslib/backend";
+    import * as tr from "@tslib/ftl";
     import { runWithBackendProgress } from "@tslib/progress";
-    import TitledContainer from "components/TitledContainer.svelte";
-    import ConfigInput from "../components/ConfigInput.svelte";
-    import RevertButton from "../components/RevertButton.svelte";
+
     import SettingTitle from "../components/SettingTitle.svelte";
     import type { DeckOptionsState } from "./lib";
-    import WeightsInputRow from "./WeightsInputRow.svelte";
-    import * as tr from "@tslib/ftl";
+    import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import Warning from "./Warning.svelte";
+    import WeightsInputRow from "./WeightsInputRow.svelte";
 
     export let state: DeckOptionsState;
 
     const config = state.currentConfig;
+    const defaults = state.defaults;
 
     let computeWeightsProgress: ComputeWeightsProgress | undefined;
     let computeWeightsWarning = "";
@@ -106,7 +106,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             alert(
                                 `Log loss: ${resp.logLoss.toFixed(
                                     3,
-                                )}, RMSE(bins): ${resp.rmseBins.toFixed(3)}`,
+                                )}, RMSE(bins): ${resp.rmseBins.toFixed(
+                                    3,
+                                )}. ${tr.deckConfigSmallerIsBetter()}`,
                             ),
                         200,
                     );
@@ -179,117 +181,111 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<TitledContainer title={"FSRS"}>
+<SpinBoxFloatRow
+    bind:value={$config.desiredRetention}
+    defaultValue={defaults.desiredRetention}
+    min={0.8}
+    max={0.97}
+>
+    <SettingTitle>
+        {tr.deckConfigDesiredRetention()}
+    </SettingTitle>
+</SpinBoxFloatRow>
+
+<div class="ms-1 me-1">
     <WeightsInputRow bind:value={$config.fsrsWeights} defaultValue={[]}>
-        <SettingTitle>Weights</SettingTitle>
+        <SettingTitle>{tr.deckConfigWeights()}</SettingTitle>
     </WeightsInputRow>
-    <div>Optimal retention</div>
+</div>
 
-    <ConfigInput>
-        <input type="number" bind:value={$config.desiredRetention} />
-        <RevertButton
-            slot="revert"
-            bind:value={$config.desiredRetention}
-            defaultValue={0.9}
+<div class="m-2">
+    <details>
+        <summary>{tr.deckConfigComputeOptimalWeights()}</summary>
+        <input
+            bind:value={customSearch}
+            placeholder={tr.deckConfigComputeWeightsSearch()}
+            class="w-100 mb-1"
         />
-    </ConfigInput>
+        <button
+            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+            on:click={() => computeWeights()}
+        >
+            {#if computing}
+                {tr.actionsCancel()}
+            {:else}
+                {tr.deckConfigComputeButton()}
+            {/if}
+        </button>
+        <button
+            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+            on:click={() => checkWeights()}
+        >
+            {#if computing}
+                {tr.actionsCancel()}
+            {:else}
+                {tr.deckConfigAnalyzeButton()}
+            {/if}
+        </button>
+        {#if computing}<div>{computeWeightsProgressString}</div>{/if}
+        <Warning warning={computeWeightsWarning} />
+    </details>
+</div>
 
-    <div class="mb-3" />
+<div class="m-2">
+    <details>
+        <summary>{tr.deckConfigComputeOptimalRetention()}</summary>
 
-    <div class="bordered">
-        <details>
-            <summary><b>Compute optimal weights</b></summary>
-            <input
-                bind:value={customSearch}
-                placeholder="Search; leave blank for all cards using this preset"
-                class="w-100 mb-1"
-            />
-            <button
-                class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                on:click={() => computeWeights()}
-            >
-                {#if computing}
-                    Cancel
-                {:else}
-                    Compute
-                {/if}
-            </button>
-            <button
-                class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                on:click={() => checkWeights()}
-            >
-                {#if computing}
-                    Cancel
-                {:else}
-                    Check
-                {/if}
-            </button>
-            {#if computing}<div>{computeWeightsProgressString}</div>{/if}
-            <Warning warning={computeWeightsWarning} />
-        </details>
-    </div>
+        Deck size:
+        <br />
+        <input type="number" bind:value={computeOptimalRequest.deckSize} />
+        <br />
 
-    <div class="bordered">
-        <details>
-            <summary><b>Compute optimal retention</b></summary>
+        Days to simulate
+        <br />
+        <input type="number" bind:value={computeOptimalRequest.daysToSimulate} />
+        <br />
 
-            Deck size:
-            <br />
-            <input type="number" bind:value={computeOptimalRequest.deckSize} />
-            <br />
+        Max seconds of study per day:
+        <br />
+        <input
+            type="number"
+            bind:value={computeOptimalRequest.maxSecondsOfStudyPerDay}
+        />
+        <br />
 
-            Days to simulate
-            <br />
-            <input type="number" bind:value={computeOptimalRequest.daysToSimulate} />
-            <br />
+        Maximum interval:
+        <br />
+        <input type="number" bind:value={computeOptimalRequest.maxInterval} />
+        <br />
 
-            Max seconds of study per day:
-            <br />
-            <input
-                type="number"
-                bind:value={computeOptimalRequest.maxSecondsOfStudyPerDay}
-            />
-            <br />
+        Seconds to recall a card:
+        <br />
+        <input type="number" bind:value={computeOptimalRequest.recallSecs} />
+        <br />
 
-            Maximum interval:
-            <br />
-            <input type="number" bind:value={computeOptimalRequest.maxInterval} />
-            <br />
+        Seconds to forget a card:
+        <br />
+        <input type="number" bind:value={computeOptimalRequest.forgetSecs} />
+        <br />
 
-            Seconds to recall a card:
-            <br />
-            <input type="number" bind:value={computeOptimalRequest.recallSecs} />
-            <br />
+        Seconds to learn a card:
+        <br />
+        <input type="number" bind:value={computeOptimalRequest.learnSecs} />
+        <br />
 
-            Seconds to forget a card:
-            <br />
-            <input type="number" bind:value={computeOptimalRequest.forgetSecs} />
-            <br />
-
-            Seconds to learn a card:
-            <br />
-            <input type="number" bind:value={computeOptimalRequest.learnSecs} />
-            <br />
-
-            <button
-                class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                on:click={() => computeRetention()}
-            >
-                {#if computing}
-                    Cancel
-                {:else}
-                    Compute
-                {/if}
-            </button>
-            <div>{computeRetentionProgressString}</div>
-        </details>
-    </div>
-</TitledContainer>
+        <button
+            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+            on:click={() => computeRetention()}
+        >
+            {#if computing}
+                {tr.actionsCancel()}
+            {:else}
+                {tr.deckConfigComputeButton()}
+            {/if}
+        </button>
+        <div>{computeRetentionProgressString}</div>
+    </details>
+</div>
 
 <style>
-    .bordered {
-        border: 1px solid #777;
-        padding: 1em;
-        margin-bottom: 2px;
-    }
 </style>

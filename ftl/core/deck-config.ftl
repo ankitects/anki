@@ -317,6 +317,15 @@ deck-config-limited-history =
         [one] Only { $count } review was found.
         *[other] Only { $count } reviews were found.
     } The custom weights are likely to be inaccurate, and using the defaults instead is recommended.
+deck-config-compute-weights-search = Search; leave blank for all cards using this preset
+# Numbers that control how aggressively the FSRS algorithm schedules cards
+deck-config-weights = Model weights
+deck-config-compute-optimal-weights = Compute optimal weights
+deck-config-compute-optimal-retention = Compute optimal retention
+deck-config-compute-button = Compute
+deck-config-analyze-button = Analyze
+deck-config-desired-retention = Desired retention
+deck-config-smaller-is-better = Smaller numbers indicate better memory estimates.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
