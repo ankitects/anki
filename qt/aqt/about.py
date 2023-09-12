@@ -231,6 +231,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Carlos Duarte",
             "Edgar Benavent Català",
             "Kieran Black",
+            "Mateusz Wojewoda",
         )
     )
 
