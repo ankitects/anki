@@ -26,21 +26,16 @@ impl Collection {
 
         let (average_secs, total_secs) = average_and_total_secs_strings(&revlog);
         let (due_date, due_position) = self.due_date_and_position(&card)?;
-        let fsrs_retrievability = if let Some(state) = &card.fsrs_memory_state {
-            if let Some(due_date) = due_date {
-                let days_elapsed = (TimestampSecs(due_date).elapsed_secs() / 86_400) as u32;
-                Some(
-                    FSRS::new(None)
-                        .unwrap()
-                        .current_retrievability(state.clone().into(), days_elapsed),
-                )
-            } else {
-                None
-            }
-        } else {
-            None
-        };
-
+        let timing = self.timing_today()?;
+        let fsrs_retrievability = card
+            .fsrs_memory_state
+            .clone()
+            .zip(card.days_since_last_review(&timing))
+            .map(|(state, days)| {
+                FSRS::new(None)
+                    .unwrap()
+                    .current_retrievability(state.into(), days)
+            });
         Ok(anki_proto::stats::CardStatsResponse {
             card_id: card.id.into(),
             note_id: card.note_id.into(),
