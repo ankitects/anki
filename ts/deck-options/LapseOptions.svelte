@@ -107,20 +107,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Warning warning={stepsTooLargeForFsrs} />
         </Item>
 
-        <Item>
-            <SpinBoxRow
-                bind:value={$config.minimumLapseInterval}
-                defaultValue={defaults.minimumLapseInterval}
-                min={1}
-            >
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(Object.keys(settings).indexOf("minimumInterval"))}
+        {#if !$config.fsrsEnabled}
+            <Item>
+                <SpinBoxRow
+                    bind:value={$config.minimumLapseInterval}
+                    defaultValue={defaults.minimumLapseInterval}
+                    min={1}
                 >
-                    {settings.minimumInterval.title}
-                </SettingTitle>
-            </SpinBoxRow>
-        </Item>
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(
+                                Object.keys(settings).indexOf("minimumInterval"),
+                            )}
+                    >
+                        {settings.minimumInterval.title}
+                    </SettingTitle>
+                </SpinBoxRow>
+            </Item>
+        {/if}
 
         <Item>
             <Warning warning={stepsExceedMinimumInterval} />
