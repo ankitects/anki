@@ -146,9 +146,12 @@ function i18nFuncForUnit(
 If precise is true, show to two decimal places, eg
 eg 70 seconds -> "1.17 minutes"
 If false, seconds and days are shown without decimals. */
-export function timeSpan(seconds: number, short = false): string {
+export function timeSpan(seconds: number, short = false, precise = true): string {
     const unit = naturalUnit(seconds);
-    const amount = unitAmount(unit, seconds);
+    let amount = unitAmount(unit, seconds);
+    if (!precise && unit < TimespanUnit.Months) {
+        amount = Math.round(amount);
+    }
     return i18nFuncForUnit(unit, short)({ amount });
 }
 

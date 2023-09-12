@@ -99,8 +99,8 @@ pub struct Card {
     pub(crate) custom_data: String,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub(crate) struct FsrsMemoryState {
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct FsrsMemoryState {
     pub stability: f32,
     pub difficulty: f32,
 }

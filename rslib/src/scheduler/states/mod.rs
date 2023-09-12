@@ -14,6 +14,7 @@ pub(crate) mod review;
 pub(crate) mod steps;
 
 pub use filtered::FilteredState;
+use fsrs::NextStates;
 pub(crate) use interval_kind::IntervalKind;
 pub use learning::LearnState;
 pub use new::NewState;
@@ -96,6 +97,7 @@ pub(crate) struct StateContext<'a> {
     pub interval_multiplier: f32,
     pub maximum_review_interval: u32,
     pub leech_threshold: u32,
+    pub fsrs_next_states: Option<NextStates>,
 
     // relearning
     pub relearn_steps: LearningSteps<'a>,
@@ -135,6 +137,7 @@ impl<'a> StateContext<'a> {
             minimum_lapse_interval: 1,
             in_filtered_deck: false,
             preview_step: 10,
+            fsrs_next_states: None,
         }
     }
 }

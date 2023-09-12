@@ -35,6 +35,7 @@ impl RelearnState {
     }
 
     fn answer_again(self, ctx: &StateContext) -> CardState {
+        let (scheduled_days, fsrs_memory_state) = self.review.failing_review_interval(ctx);
         if let Some(again_delay) = ctx.relearn_steps.again_delay_secs_relearn() {
             RelearnState {
                 learning: LearnState {
@@ -42,8 +43,9 @@ impl RelearnState {
                     scheduled_secs: again_delay,
                 },
                 review: ReviewState {
-                    scheduled_days: self.review.failing_review_interval(ctx),
+                    scheduled_days,
                     elapsed_days: 0,
+                    fsrs_memory_state,
                     ..self.review
                 },
             }

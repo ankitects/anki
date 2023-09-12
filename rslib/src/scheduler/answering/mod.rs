@@ -8,6 +8,8 @@ mod relearning;
 mod review;
 mod revlog;
 
+use fsrs::NextStates;
+use fsrs::FSRS;
 use rand::prelude::*;
 use rand::rngs::StdRng;
 use revlog::RevlogEntryPartial;
@@ -60,6 +62,7 @@ struct CardStateUpdater {
     timing: SchedTimingToday,
     now: TimestampSecs,
     fuzz_seed: Option<u64>,
+    fsrs_next_states: Option<NextStates>,
 }
 
 impl CardStateUpdater {
@@ -87,6 +90,7 @@ impl CardStateUpdater {
             } else {
                 0
             },
+            fsrs_next_states: self.fsrs_next_states.clone(),
         }
     }
 
@@ -342,6 +346,16 @@ impl Collection {
             .get_deck(card.deck_id)?
             .or_not_found(card.deck_id)?;
         let config = self.home_deck_config(deck.config_id(), card.original_deck_id)?;
+        let fsrs_next_states = if config.inner.fsrs_enabled {
+            Some(FSRS::new(Some(&config.inner.fsrs_weights))?.next_states(
+                card.fsrs_memory_state.map(Into::into),
+                config.inner.desired_retention,
+                card.days_since_last_review(&timing).unwrap_or_default(),
+            ))
+        } else {
+            None
+        };
+
         Ok(CardStateUpdater {
             fuzz_seed: get_fuzz_seed(&card),
             card,
@@ -349,6 +363,7 @@ impl Collection {
             config,
             timing,
             now: TimestampSecs::now(),
+            fsrs_next_states,
         })
     }
 

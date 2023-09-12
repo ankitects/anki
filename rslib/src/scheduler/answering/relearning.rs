@@ -23,6 +23,7 @@ impl CardStateUpdater {
         if let Some(position) = current.new_position() {
             self.card.original_position = Some(position)
         }
+        self.card.fsrs_memory_state = next.review.fsrs_memory_state;
 
         let interval = next
             .interval_kind()
