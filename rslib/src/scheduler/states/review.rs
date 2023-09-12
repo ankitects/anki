@@ -250,12 +250,16 @@ fn leech_threshold_met(lapses: u32, threshold: u32) -> bool {
 }
 
 /// Transform the provided hard/good/easy interval.
-/// - Apply configured interval multiplier.
+/// - Apply configured interval multiplier if not FSRS.
 /// - Apply fuzz.
 /// - Ensure it is at least `minimum`, and at least 1.
 /// - Ensure it is at or below the configured maximum interval.
 fn constrain_passing_interval(ctx: &StateContext, interval: f32, minimum: u32, fuzz: bool) -> u32 {
-    let interval = interval * ctx.interval_multiplier;
+    let interval = if ctx.fsrs_next_states.is_some() {
+        interval
+    } else {
+        interval * ctx.interval_multiplier
+    };
     let (minimum, maximum) = ctx.min_and_max_review_intervals(minimum);
     if fuzz {
         ctx.with_review_fuzz(interval, minimum, maximum)
