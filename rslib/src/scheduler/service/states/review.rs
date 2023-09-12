@@ -11,6 +11,7 @@ impl From<anki_proto::scheduler::scheduling_state::Review> for ReviewState {
             ease_factor: state.ease_factor,
             lapses: state.lapses,
             leeched: state.leeched,
+            fsrs_memory_state: state.fsrs_memory_state.map(Into::into),
         }
     }
 }
@@ -23,6 +24,7 @@ impl From<ReviewState> for anki_proto::scheduler::scheduling_state::Review {
             ease_factor: state.ease_factor,
             lapses: state.lapses,
             leeched: state.leeched,
+            fsrs_memory_state: state.fsrs_memory_state.map(Into::into),
         }
     }
 }

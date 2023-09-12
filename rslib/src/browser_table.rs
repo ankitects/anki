@@ -493,7 +493,7 @@ impl RowContext {
             .map(|(state, days_elapsed)| {
                 let r = FSRS::new(None)
                     .unwrap()
-                    .current_retrievability(state.clone().into(), days_elapsed);
+                    .current_retrievability((*state).into(), days_elapsed);
                 format!("{:.0}%", r * 100.)
             })
             .unwrap_or_default()

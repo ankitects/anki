@@ -70,6 +70,7 @@ message SchedulingState {
     float ease_factor = 3;
     uint32 lapses = 4;
     bool leeched = 5;
+    cards.FsrsMemoryState fsrs_memory_state = 6;
   }
   message Relearning {
     Review review = 1;

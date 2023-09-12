@@ -56,11 +56,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             });
         }
         if (stats.fsrsMemoryState) {
-            const stability = stats.fsrsMemoryState.stability * 86400;
-            const nativeStability = stats.fsrsMemoryState.stability.toFixed(0);
+            let stability = timeSpan(
+                stats.fsrsMemoryState.stability * 86400,
+                false,
+                false,
+            );
+            if (stats.fsrsMemoryState.stability > 31) {
+                const nativeStability = stats.fsrsMemoryState.stability.toFixed(0);
+                stability += ` (${nativeStability})`;
+            }
             statsRows.push({
                 label: tr2.cardStatsFsrsStability(),
-                value: `${timeSpan(stability)} (${nativeStability})`,
+                value: stability,
             });
             const difficulty = (
                 ((stats.fsrsMemoryState.difficulty - 1.0) / 9.0) *

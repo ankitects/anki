@@ -24,6 +24,7 @@ impl CardStateUpdater {
         if let Some(position) = current.new_position() {
             self.card.original_position = Some(position)
         }
+        self.card.fsrs_memory_state = next.fsrs_memory_state;
 
         RevlogEntryPartial::new(
             current,

@@ -29,7 +29,6 @@ impl Collection {
         let timing = self.timing_today()?;
         let fsrs_retrievability = card
             .fsrs_memory_state
-            .clone()
             .zip(card.days_since_last_review(&timing))
             .map(|(state, days)| {
                 FSRS::new(None)
