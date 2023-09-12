@@ -12,12 +12,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import EnumSelectorRow from "../components/EnumSelectorRow.svelte";
     import HelpModal from "../components/HelpModal.svelte";
-    import ImportPage from "../components/ImportPage.svelte";
     import Row from "../components/Row.svelte";
     import SettingTitle from "../components/SettingTitle.svelte";
     import SwitchRow from "../components/SwitchRow.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
+    import ImportPage from "../import-page/ImportPage.svelte";
     import { updateChoices } from "./choices";
 
     export let path: string;

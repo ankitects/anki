@@ -12,18 +12,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ImportResponse } from "@tslib/anki/import_export_pb";
     import { importDone } from "@tslib/backend";
 
-    import ImportLogPage from "../import-log/ImportLogPage.svelte";
-    import BackendProgressIndicator from "./BackendProgressIndicator.svelte";
-    import Container from "./Container.svelte";
-    import StickyHeader from "./StickyHeader.svelte";
-    import ErrorPage from "./ErrorPage.svelte";
+    import BackendProgressIndicator from "../components/BackendProgressIndicator.svelte";
+    import Container from "../components/Container.svelte";
+    import ErrorPage from "../components/ErrorPage.svelte";
+    import StickyHeader from "../components/StickyHeader.svelte";
+    import ImportLogPage from "./ImportLogPage.svelte";
 
     export let path: string;
     export let importer: Importer;
+    export const noOptions: boolean = false;
 
     let importResponse: ImportResponse | undefined = undefined;
     let error: Error | undefined = undefined;
-    let importing = false;
+    let importing = noOptions;
 
     async function onImport(): Promise<ImportResponse> {
         const result = importer.doImport();
@@ -36,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {#if error}
     <ErrorPage {error} />
 {:else if importResponse}
-    <ImportLogPage response={importResponse} params={{ path }} />
+    <ImportLogPage response={importResponse} />
 {:else if importing}
     <BackendProgressIndicator task={onImport} bind:result={importResponse} bind:error />
 {:else}
