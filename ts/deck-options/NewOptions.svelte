@@ -33,6 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ];
 
     let stepsExceedGraduatingInterval: string;
+    let stepsTooLargeForFsrs: string;
     $: {
         const lastLearnStepInDays = $config.learnSteps.length
             ? $config.learnSteps[$config.learnSteps.length - 1] / 60 / 24
@@ -40,6 +41,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         stepsExceedGraduatingInterval =
             lastLearnStepInDays > $config.graduatingIntervalGood
                 ? tr.deckConfigLearningStepAboveGraduatingInterval()
+                : "";
+        stepsTooLargeForFsrs =
+            $config.fsrsEnabled && lastLearnStepInDays >= 1
+                ? tr.deckConfigStepsTooLargeForFsrs()
                 : "";
     }
 
@@ -111,6 +116,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {settings.learningSteps.title}
                 </SettingTitle>
             </StepsInputRow>
+        </Item>
+
+        <Item>
+            <Warning warning={stepsTooLargeForFsrs} />
         </Item>
 
         <Item>

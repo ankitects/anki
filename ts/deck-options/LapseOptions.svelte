@@ -27,6 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const defaults = state.defaults;
 
     let stepsExceedMinimumInterval: string;
+    let stepsTooLargeForFsrs: string;
     $: {
         const lastRelearnStepInDays = $config.relearnSteps.length
             ? $config.relearnSteps[$config.relearnSteps.length - 1] / 60 / 24
@@ -34,6 +35,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         stepsExceedMinimumInterval =
             lastRelearnStepInDays > $config.minimumLapseInterval
                 ? tr.deckConfigRelearningStepsAboveMinimumInterval()
+                : "";
+        stepsTooLargeForFsrs =
+            $config.fsrsEnabled && lastRelearnStepInDays >= 1
+                ? tr.deckConfigStepsTooLargeForFsrs()
                 : "";
     }
 
@@ -96,6 +101,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {settings.relearningSteps.title}
                 </SettingTitle>
             </StepsInputRow>
+        </Item>
+
+        <Item>
+            <Warning warning={stepsTooLargeForFsrs} />
         </Item>
 
         <Item>
