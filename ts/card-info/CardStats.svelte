@@ -66,10 +66,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 ((stats.fsrsMemoryState.difficulty - 1.0) / 9.0) *
                 100.0
             ).toFixed(0);
-            const nativeDifficulty = stats.fsrsMemoryState.difficulty.toFixed(1);
             statsRows.push({
                 label: tr2.cardStatsFsrsDifficulty(),
-                value: `${difficulty}% (${nativeDifficulty})`,
+                value: `${difficulty}%`,
             });
             if (stats.fsrsRetrievability) {
                 const retrievability = (stats.fsrsRetrievability * 100).toFixed(0);
