@@ -5,16 +5,19 @@
 <script lang="ts">
     import Col from "./Col.svelte";
     import ConfigInput from "./ConfigInput.svelte";
-    import EnumSelector from "./EnumSelector.svelte";
+    import EnumSelector, { type Choice } from "./EnumSelector.svelte";
     import RevertButton from "./RevertButton.svelte";
     import Row from "./Row.svelte";
     import type { Breakpoint } from "./types";
 
-    export let value: number;
-    export let defaultValue: number;
+    type T = $$Generic;
+
+    export let value: T;
+    export let defaultValue: T;
     export let breakpoint: Breakpoint = "md";
-    export let choices: string[];
-    export let disabled: number[] = [];
+    export let choices: Choice<T>[];
+    export let disabled: boolean = false;
+    export let disabledChoices: T[] = [];
 </script>
 
 <Row --cols={13}>
@@ -23,7 +26,7 @@
     </Col>
     <Col --col-size={6} {breakpoint}>
         <ConfigInput>
-            <EnumSelector bind:value options={choices} {disabled} />
+            <EnumSelector bind:value {choices} {disabled} {disabledChoices} />
             <RevertButton slot="revert" bind:value {defaultValue} />
         </ConfigInput>
     </Col>

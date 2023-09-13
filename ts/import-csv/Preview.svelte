@@ -3,22 +3,22 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { StringList } from "@tslib/anki/generic_pb";
+    import { type ImportCsvState } from "./lib";
 
-    import type { ColumnOption } from "./lib";
+    export let state: ImportCsvState;
 
-    export let columnOptions: ColumnOption[];
-    export let preview: StringList[];
+    const metadata = state.metadata;
+    const columnOptions = state.columnOptions;
 </script>
 
 <div class="outer">
     <table class="preview">
-        {#each columnOptions.slice(1) as { label, shortLabel }}
+        {#each $columnOptions.slice(1) as { label, shortLabel }}
             <th>
                 {shortLabel || label}
             </th>
         {/each}
-        {#each preview as row}
+        {#each $metadata.preview as row}
             <tr>
                 {#each row.vals as cell}
                     <td>{cell}</td>
@@ -30,8 +30,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .outer {
-        // approximate size based on body max width + margins
-        width: min(90vw, 65em);
         overflow: auto;
     }
 

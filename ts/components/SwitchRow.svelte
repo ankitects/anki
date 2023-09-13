@@ -12,6 +12,7 @@
 
     export let value: boolean;
     export let defaultValue: boolean;
+    export let disabled: boolean = false;
 
     const id = Math.random().toString(36).substring(2);
 </script>
@@ -20,7 +21,7 @@
     <Col --col-size={4}><Label for={id} preventMouseClick><slot /></Label></Col>
     <Col --col-justify="flex-end">
         <ConfigInput grow={false}>
-            <Switch {id} bind:value />
+            <Switch {id} bind:value {disabled} />
             <RevertButton slot="revert" bind:value {defaultValue} />
         </ConfigInput>
     </Col>

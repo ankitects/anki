@@ -48,7 +48,7 @@ impl FileOp {
 impl FileIoError {
     pub fn message(&self) -> String {
         format!(
-            "Failed to {} '{}':<br>{}",
+            "Failed to {} '{}': {}",
             match &self.op {
                 FileOp::Unknown => return format!("{}", self.source),
                 FileOp::Open => "open".into(),

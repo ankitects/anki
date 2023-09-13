@@ -19,8 +19,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SettingTitle from "../components/SettingTitle.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
+    import {
+        newGatherPriorityChoices,
+        newSortOrderChoices,
+        reviewMixChoices,
+        reviewOrderChoices,
+    } from "./choices";
     import type { DeckOptionsState } from "./lib";
-    import { reviewMixChoices } from "./strings";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
@@ -29,32 +34,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const defaults = state.defaults;
 
     const currentDeck = "\n\n" + tr.deckConfigDisplayOrderWillUseCurrentDeck();
-
-    const newGatherPriorityChoices = [
-        tr.deckConfigNewGatherPriorityDeck(),
-        tr.deckConfigNewGatherPriorityPositionLowestFirst(),
-        tr.deckConfigNewGatherPriorityPositionHighestFirst(),
-        tr.deckConfigNewGatherPriorityRandomNotes(),
-        tr.deckConfigNewGatherPriorityRandomCards(),
-    ];
-    const newSortOrderChoices = [
-        tr.deckConfigSortOrderTemplateThenGather(),
-        tr.deckConfigSortOrderGather(),
-        tr.deckConfigSortOrderCardTemplateThenRandom(),
-        tr.deckConfigSortOrderRandomNoteThenTemplate(),
-        tr.deckConfigSortOrderRandom(),
-    ];
-    const reviewOrderChoices = [
-        tr.deckConfigSortOrderDueDateThenRandom(),
-        tr.deckConfigSortOrderDueDateThenDeck(),
-        tr.deckConfigSortOrderDeckThenDueDate(),
-        tr.deckConfigSortOrderAscendingIntervals(),
-        tr.deckConfigSortOrderDescendingIntervals(),
-        tr.deckConfigSortOrderAscendingEase(),
-        tr.deckConfigSortOrderDescendingEase(),
-        tr.deckConfigSortOrderRelativeOverdueness(),
-        tr.deckConfigSortOrderRandom(),
-    ];
 
     let disabledNewSortOrders: number[] = [];
     $: {
@@ -143,7 +122,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <EnumSelectorRow
                 bind:value={$config.newCardGatherPriority}
                 defaultValue={defaults.newCardGatherPriority}
-                choices={newGatherPriorityChoices}
+                choices={newGatherPriorityChoices()}
             >
                 <SettingTitle
                     on:click={() =>
@@ -160,8 +139,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <EnumSelectorRow
                 bind:value={$config.newCardSortOrder}
                 defaultValue={defaults.newCardSortOrder}
-                choices={newSortOrderChoices}
-                disabled={disabledNewSortOrders}
+                choices={newSortOrderChoices()}
+                disabledChoices={disabledNewSortOrders}
             >
                 <SettingTitle
                     on:click={() =>
@@ -212,7 +191,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <EnumSelectorRow
                 bind:value={$config.reviewOrder}
                 defaultValue={defaults.reviewOrder}
-                choices={reviewOrderChoices}
+                choices={reviewOrderChoices()}
             >
                 <SettingTitle
                     on:click={() =>

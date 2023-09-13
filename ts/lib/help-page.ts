@@ -38,4 +38,9 @@ export const HelpPage = {
         updating: "https://docs.ankiweb.net/importing/packaged-decks.html#updating",
         scheduling: "https://docs.ankiweb.net/importing/packaged-decks.html#scheduling",
     },
+    TextImporting: {
+        root: "https://docs.ankiweb.net/importing/text-files.html",
+        updating: "https://docs.ankiweb.net/importing/text-files.html#duplicates-and-updating",
+        html: "https://docs.ankiweb.net/importing/text-files.html#html",
+    },
 };
