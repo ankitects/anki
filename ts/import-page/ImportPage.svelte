@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let importing = noOptions;
 
     async function onImport(): Promise<ImportResponse> {
-        const result = importer.doImport();
+        const result = await importer.doImport();
         await importDone({});
         importing = false;
         return result;
