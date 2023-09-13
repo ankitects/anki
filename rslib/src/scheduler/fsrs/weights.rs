@@ -133,14 +133,19 @@ fn single_card_revlog_to_items(
     next_day_at: TimestampSecs,
     training: bool,
 ) -> Option<Vec<FSRSItem>> {
-    let starting_point = entries
+    let last_learn_entry = entries
         .iter()
         .enumerate()
         .rev()
         .find(|(_idx, e)| e.review_kind == RevlogReviewKind::Learning)
         .map(|(idx, _)| idx);
-    if let Some(idx) = starting_point {
-        // start from the learning step
+    let first_relearn = entries
+        .iter()
+        .enumerate()
+        .find(|(_idx, e)| e.review_kind == RevlogReviewKind::Relearning)
+        .map(|(idx, _)| idx);
+    if let Some(idx) = last_learn_entry.or(first_relearn) {
+        // start from the (re)learning step
         if idx > 0 {
             entries.drain(..idx - 1);
         }
