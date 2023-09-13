@@ -493,11 +493,8 @@ PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
 
 def write_profile_results() -> None:
     profiler.disable()
-    profile = os.path.join(os.environ.get("BUILD_WORKSPACE_DIRECTORY", ""), "anki.prof")
+    profile = "out/anki.prof"
     profiler.dump_stats(profile)
-    profiler.dump_stats("anki.prof")
-    print("profile stats written to anki.prof")
-    print("use 'bazel run qt:profile' to explore")
 
 
 def run() -> None:
