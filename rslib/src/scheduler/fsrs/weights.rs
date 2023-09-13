@@ -139,7 +139,7 @@ fn single_card_revlog_to_items(
     for (index, entry) in entries.iter().enumerate().rev() {
         if entry.review_kind == RevlogReviewKind::Learning {
             last_learn_entry = Some(index);
-        } else if last_learn_entry != None {
+        } else if last_learn_entry.is_some() {
             break;
         }
     }
