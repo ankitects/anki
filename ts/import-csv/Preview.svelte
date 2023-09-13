@@ -30,8 +30,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .outer {
-        // approximate size based on body max width + margins
-        width: min(90vw, 65em);
         overflow: auto;
     }
 
