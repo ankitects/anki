@@ -7,9 +7,10 @@ import { getCsvMetadata, getDeckNames, getNotetypeNames } from "@tslib/backend";
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 
+import { modalsKey } from "../components/context-keys";
 import ErrorPage from "../components/ErrorPage.svelte";
 import ImportCsvPage from "./ImportCsvPage.svelte";
-import { tryGetDeckColumn, tryGetDeckId, tryGetGlobalNotetype, tryGetNotetypeColumn } from "./lib";
+import { ImportCsvState } from "./lib";
 
 const i18n = setupI18n({
     modules: [
@@ -22,11 +23,16 @@ const i18n = setupI18n({
         ModuleName.NOTETYPES,
         ModuleName.STUDYING,
         ModuleName.ADDING,
+        ModuleName.HELP,
+        ModuleName.DECK_CONFIG,
     ],
 });
 
 export async function setupImportCsvPage(path: string): Promise<ImportCsvPage | ErrorPage> {
+    const context = new Map();
+    context.set(modalsKey, new Map());
     checkNightMode();
+
     return Promise.all([
         getNotetypeNames({}),
         getDeckNames({
@@ -35,32 +41,13 @@ export async function setupImportCsvPage(path: string): Promise<ImportCsvPage | 
         }),
         getCsvMetadata({ path }, { alertOnError: false }),
         i18n,
-    ]).then(([notetypes, decks, metadata, _i18n]) => {
+    ]).then(([notetypes, decks, metadata]) => {
         return new ImportCsvPage({
             target: document.body,
             props: {
-                path: path,
-                deckNameIds: decks.entries,
-                notetypeNameIds: notetypes.entries,
-                dupeResolution: metadata.dupeResolution,
-                matchScope: metadata.matchScope,
-                delimiter: metadata.delimiter,
-                forceDelimiter: metadata.forceDelimiter,
-                isHtml: metadata.isHtml,
-                forceIsHtml: metadata.forceIsHtml,
-                globalTags: metadata.globalTags,
-                updatedTags: metadata.updatedTags,
-                columnLabels: metadata.columnLabels,
-                tagsColumn: metadata.tagsColumn,
-                guidColumn: metadata.guidColumn,
-                preview: metadata.preview,
-                globalNotetype: tryGetGlobalNotetype(metadata),
-                // Unset oneof numbers default to 0, which also means n/a here,
-                // but it's vital to differentiate between unset and 0 when reserializing.
-                notetypeColumn: tryGetNotetypeColumn(metadata),
-                deckId: tryGetDeckId(metadata),
-                deckColumn: tryGetDeckColumn(metadata),
+                state: new ImportCsvState(path, notetypes, decks, metadata),
             },
+            context,
         });
     }).catch((error) => {
         return new ErrorPage({ target: document.body, props: { error } });

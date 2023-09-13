@@ -351,7 +351,7 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
         ],
     )?;
     build_page(
-        "import-log",
+        "import-page",
         true,
         inputs![
             //

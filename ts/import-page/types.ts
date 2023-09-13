@@ -23,12 +23,12 @@ export type NoteRow = {
 };
 
 type PathParams = {
-    type?: "apkg" | "json_file";
+    type: "json_file";
     path: string;
 };
 
 type JsonParams = {
-    type?: "json_string";
+    type: "json_string";
     path: string;
     json: string;
 };

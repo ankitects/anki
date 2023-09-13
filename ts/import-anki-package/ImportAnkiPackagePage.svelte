@@ -3,40 +3,25 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type {
-        ImportAnkiPackageOptions,
-        ImportResponse,
-    } from "@tslib/anki/import_export_pb";
+    import type { ImportAnkiPackageOptions } from "@tslib/anki/import_export_pb";
     import { importAnkiPackage } from "@tslib/backend";
-    import { importDone } from "@tslib/backend";
     import * as tr from "@tslib/ftl";
     import { HelpPage } from "@tslib/help-page";
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
-    import BackendProgressIndicator from "components/BackendProgressIndicator.svelte";
-    import Container from "components/Container.svelte";
-    import EnumSelectorRow from "components/EnumSelectorRow.svelte";
-    import Row from "components/Row.svelte";
 
+    import EnumSelectorRow from "../components/EnumSelectorRow.svelte";
     import HelpModal from "../components/HelpModal.svelte";
+    import Row from "../components/Row.svelte";
     import SettingTitle from "../components/SettingTitle.svelte";
-    import StickyHeader from "../components/StickyHeader.svelte";
     import SwitchRow from "../components/SwitchRow.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
-    import ImportLogPage from "../import-log/ImportLogPage.svelte";
+    import ImportPage from "../import-page/ImportPage.svelte";
+    import { updateChoices } from "./choices";
 
     export let path: string;
     export let options: ImportAnkiPackageOptions;
-
-    let importResponse: ImportResponse | undefined = undefined;
-    let importing = false;
-
-    const updateChoices = [
-        tr.importingUpdateIfNewer(),
-        tr.importingUpdateAlways(),
-        tr.importingUpdateNever(),
-    ];
 
     const settings = {
         mergeNotetypes: {
@@ -64,106 +49,75 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let modal: Modal;
     let carousel: Carousel;
 
-    async function onImport(): Promise<ImportResponse> {
-        const result = await importAnkiPackage({
-            packagePath: path,
-            options,
-        });
-        await importDone({});
-        importing = false;
-        return result;
-    }
-
     function openHelpModal(index: number): void {
         modal.show();
         carousel.to(index);
     }
 </script>
 
-{#if importing}
-    <BackendProgressIndicator task={onImport} bind:result={importResponse} />
-{:else if importResponse}
-    <ImportLogPage response={importResponse} params={{ path }} />
-{:else}
-    <StickyHeader {path} onImport={() => (importing = true)} />
+<ImportPage
+    {path}
+    importer={{
+        doImport: () =>
+            importAnkiPackage({ packagePath: path, options }, { alertOnError: false }),
+    }}
+>
+    <Row class="d-block">
+        <TitledContainer title={tr.importingImportOptions()}>
+            <HelpModal
+                title={tr.importingImportOptions()}
+                url={HelpPage.PackageImporting.root}
+                slot="tooltip"
+                {helpSections}
+                on:mount={(e) => {
+                    modal = e.detail.modal;
+                    carousel = e.detail.carousel;
+                }}
+            />
 
-    <Container
-        breakpoint="sm"
-        --gutter-inline="0.25rem"
-        --gutter-block="0.75rem"
-        class="container-columns"
-    >
-        <Row class="d-block">
-            <TitledContainer title={tr.importingImportOptions()}>
-                <HelpModal
-                    title={tr.importingImportOptions()}
-                    url={HelpPage.PackageImporting.root}
-                    slot="tooltip"
-                    {helpSections}
-                    on:mount={(e) => {
-                        modal = e.detail.modal;
-                        carousel = e.detail.carousel;
-                    }}
-                />
-
-                <SwitchRow bind:value={options.mergeNotetypes} defaultValue={false}>
-                    <SettingTitle
-                        on:click={() =>
-                            openHelpModal(
-                                Object.keys(settings).indexOf("mergeNotetypes"),
-                            )}
-                    >
-                        {settings.mergeNotetypes.title}
-                    </SettingTitle>
-                </SwitchRow>
-
-                <EnumSelectorRow
-                    bind:value={options.updateNotes}
-                    defaultValue={0}
-                    choices={updateChoices}
+            <SwitchRow bind:value={options.mergeNotetypes} defaultValue={false}>
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(Object.keys(settings).indexOf("mergeNotetypes"))}
                 >
-                    <SettingTitle
-                        on:click={() =>
-                            openHelpModal(Object.keys(settings).indexOf("updateNotes"))}
-                    >
-                        {settings.updateNotes.title}
-                    </SettingTitle>
-                </EnumSelectorRow>
+                    {settings.mergeNotetypes.title}
+                </SettingTitle>
+            </SwitchRow>
 
-                <EnumSelectorRow
-                    bind:value={options.updateNotetypes}
-                    defaultValue={0}
-                    choices={updateChoices}
+            <EnumSelectorRow
+                bind:value={options.updateNotes}
+                defaultValue={0}
+                choices={updateChoices()}
+            >
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(Object.keys(settings).indexOf("updateNotes"))}
                 >
-                    <SettingTitle
-                        on:click={() =>
-                            openHelpModal(
-                                Object.keys(settings).indexOf("updateNotetypes"),
-                            )}
-                    >
-                        {settings.updateNotetypes.title}
-                    </SettingTitle>
-                </EnumSelectorRow>
+                    {settings.updateNotes.title}
+                </SettingTitle>
+            </EnumSelectorRow>
 
-                <SwitchRow bind:value={options.withScheduling} defaultValue={false}>
-                    <SettingTitle
-                        on:click={() =>
-                            openHelpModal(
-                                Object.keys(settings).indexOf("withScheduling"),
-                            )}
-                    >
-                        {settings.withScheduling.title}
-                    </SettingTitle>
-                </SwitchRow>
-            </TitledContainer>
-        </Row>
-    </Container>
-{/if}
+            <EnumSelectorRow
+                bind:value={options.updateNotetypes}
+                defaultValue={0}
+                choices={updateChoices()}
+            >
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(Object.keys(settings).indexOf("updateNotetypes"))}
+                >
+                    {settings.updateNotetypes.title}
+                </SettingTitle>
+            </EnumSelectorRow>
 
-<style lang="scss">
-    :global(.row) {
-        // rows have negative margins by default
-        --bs-gutter-x: 0;
-        margin-bottom: 0.5rem;
-    }
-</style>
+            <SwitchRow bind:value={options.withScheduling} defaultValue={false}>
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(Object.keys(settings).indexOf("withScheduling"))}
+                >
+                    {settings.withScheduling.title}
+                </SettingTitle>
+            </SwitchRow>
+        </TitledContainer>
+    </Row>
+</ImportPage>
