@@ -61,7 +61,6 @@ class DeckBrowser:
         self.web = mw.web
         self.bottom = BottomBar(mw, mw.bottomWeb)
         self.scrollPos = QPoint(0, 0)
-        self._v1_message_dismissed_at = 0
         self._refresh_needed = False
 
     def show(self) -> None:
@@ -116,7 +115,10 @@ class DeckBrowser:
         elif cmd == "v2upgrade":
             self._confirm_upgrade()
         elif cmd == "v2upgradeinfo":
-            openLink("https://faqs.ankiweb.net/the-anki-2.1-scheduler.html")
+            if self.mw.col.sched_ver() == 1:
+                openLink("https://faqs.ankiweb.net/the-anki-2.1-scheduler.html")
+            else:
+                openLink("https://faqs.ankiweb.net/the-2021-scheduler.html")
         elif cmd == "select":
             set_current_deck(
                 parent=self.mw, deck_id=DeckId(int(arg))
@@ -365,14 +367,16 @@ class DeckBrowser:
     ######################################################################
 
     def _v1_upgrade_message(self) -> str:
-        if self.mw.col.sched_ver() == 2:
+        if self.mw.col.sched_ver() == 2 and self.mw.col.v3_scheduler():
             return ""
+
+        update_required = tr.scheduling_update_required().replace("V2", "v3")
 
         return f"""
 <center>
 <div class=callout>
     <div>
-      {tr.scheduling_update_required()}
+      {update_required}
     </div>
     <div>
       <button onclick='pycmd("v2upgrade")'>
@@ -387,8 +391,10 @@ class DeckBrowser:
 """
 
     def _confirm_upgrade(self) -> None:
-        self.mw.col.mod_schema(check=True)
-        self.mw.col.upgrade_to_v2_scheduler()
+        if self.mw.col.sched_ver() == 1:
+            self.mw.col.mod_schema(check=True)
+            self.mw.col.upgrade_to_v2_scheduler()
+        self.mw.col.set_v3_scheduler(True)
 
         showInfo(tr.scheduling_update_done())
         self.refresh()

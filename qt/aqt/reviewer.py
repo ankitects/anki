@@ -153,9 +153,9 @@ class Reviewer:
         hooks.card_did_leech.append(self.onLeech)
 
     def show(self) -> None:
-        if self.mw.col.sched_ver() == 1:
+        if self.mw.col.sched_ver() == 1 or not self.mw.col.v3_scheduler():
             self.mw.moveToState("deckBrowser")
-            show_warning(tr.scheduling_update_required())
+            show_warning(tr.scheduling_update_required().replace("V2", "v3"))
             return
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
         self.web.set_bridge_command(self._linkHandler, self)
