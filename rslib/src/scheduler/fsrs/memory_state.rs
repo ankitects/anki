@@ -6,7 +6,10 @@ use fsrs::FSRS;
 use crate::prelude::*;
 use crate::scheduler::fsrs::weights::fsrs_items_for_memory_state;
 use crate::scheduler::fsrs::weights::Weights;
+use crate::search::JoinSearches;
+use crate::search::Negated;
 use crate::search::SearchNode;
+use crate::search::StateKind;
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ComputeMemoryProgress {
@@ -25,7 +28,8 @@ impl Collection {
         let timing = self.timing_today()?;
         let usn = self.usn()?;
         for (weights, search) in entries {
-            let search = SearchBuilder::any(search.into_iter());
+            let search = SearchBuilder::any(search.into_iter())
+                .and(SearchNode::State(StateKind::New).negated());
             let revlog = self.revlog_for_srs(search)?;
             let items = fsrs_items_for_memory_state(revlog, timing.next_day_at);
             let fsrs = FSRS::new(Some(&weights))?;
