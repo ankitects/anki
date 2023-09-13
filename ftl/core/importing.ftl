@@ -189,8 +189,8 @@ importing-note-skipped-due-to-missing-notetype = Note skipped, as its notetype w
 importing-note-skipped-due-to-missing-deck = Note skipped, as its deck was missing
 importing-note-skipped-due-to-empty-first-field = Note skipped, as its first field is empty
 importing-field-separator-help =
-    The character delimiting fields in the text file. You can use the preview to check
-    if the file is currently rendered into columns correctly.
+    The character separating fields in the text file. You can use the preview to check
+    if the fields are separated correctly.
     
     Please note that if this character appears in any field itself, the field has to be
     quoted accordingly to the CSV standard. Spreadsheet programs like LibreOffice will
@@ -200,7 +200,7 @@ importing-allow-html-in-fields-help =
     '&lt;br&gt;', it will appear as a line break on your card. On the other hand, with this
     option disabled, the literal characters '&lt;br&gt;' will be rendered.
 importing-notetype-help =
-    Newly imported notes will have this notetype, and only existing notes with this
+    Newly-imported notes will have this notetype, and only existing notes with this
     notetype will be updated.
     
     You can choose which fields in the file correspond to which notetype fields with the
@@ -216,7 +216,7 @@ importing-match-scope-help =
     Only existing notes with the same notetype will be checked for duplicates. This can
     additionally be restricted to notes with cards in the same deck.
 importing-tag-all-notes-help =
-    These tags will be added to both newly imported and updated notes.
+    These tags will be added to both newly-imported and updated notes.
 importing-tag-updated-notes-help = These tags will be added to any updated notes.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
