@@ -358,7 +358,6 @@ mod tests {
         );
     }
 
-
     #[test]
     fn single_learning_step_skipped_when_training() {
         assert_eq!(
