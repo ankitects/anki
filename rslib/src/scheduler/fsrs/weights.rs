@@ -135,12 +135,14 @@ fn single_card_revlog_to_items(
     next_day_at: TimestampSecs,
     training: bool,
 ) -> Option<Vec<FSRSItem>> {
-    let last_learn_entry = entries
-        .iter()
-        .enumerate()
-        .rev()
-        .find(|(_idx, e)| e.review_kind == RevlogReviewKind::Learning)
-        .map(|(idx, _)| idx);
+    let mut last_learn_entry = None;
+    for (index, entry) in entries.iter().enumerate().rev() {
+        if entry.review_kind == RevlogReviewKind::Learning {
+            last_learn_entry = Some(index);
+        } else if last_learn_entry.is_some() {
+            break;
+        }
+    }
     let first_relearn = entries
         .iter()
         .enumerate()
@@ -149,7 +151,7 @@ fn single_card_revlog_to_items(
     if let Some(idx) = last_learn_entry.or(first_relearn) {
         // start from the (re)learning step
         if idx > 0 {
-            entries.drain(..idx - 1);
+            entries.drain(..idx);
         }
     } else {
         // we ignore cards that don't have any learning steps
@@ -161,16 +163,12 @@ fn single_card_revlog_to_items(
     entries.retain(|entry| {
         let manually_rescheduled =
             entry.review_kind == RevlogReviewKind::Manual || entry.button_chosen == 0;
-        let cram = entry.review_kind == RevlogReviewKind::Filtered;
+        let cram = entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0;
         if manually_rescheduled || cram {
             return false;
         }
-        if entry.review_kind == RevlogReviewKind::Review {
-            // Keep only the first review when multiple reviews done on one day
-            unique_dates.insert(entry.days_elapsed(next_day_at))
-        } else {
-            true
-        }
+        // Keep only the first review when multiple reviews done on one day
+        unique_dates.insert(entry.days_elapsed(next_day_at))
     });
 
     // Old versions of Anki did not record Manual entries in the review log when
@@ -357,20 +355,6 @@ mod tests {
                 true,
             ),
             fsrs_items!([review(0), review(4)])
-        );
-    }
-
-    #[test]
-    fn learning_on_same_day_is_retained() {
-        assert_eq!(
-            convert(
-                &[
-                    revlog(RevlogReviewKind::Learning, 1),
-                    revlog(RevlogReviewKind::Learning, 1),
-                ],
-                true,
-            ),
-            fsrs_items!([review(0), review(0)])
         );
     }
 
