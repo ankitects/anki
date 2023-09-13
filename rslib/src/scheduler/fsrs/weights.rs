@@ -155,8 +155,12 @@ fn single_card_revlog_to_items(
         if manually_rescheduled || cram {
             return false;
         }
-        // Keep only the first review when multiple reviews done on one day
-        unique_dates.insert(entry.days_elapsed(next_day_at))
+        if entry.review_kind == RevlogReviewKind::Review {
+            // Keep only the first review when multiple reviews done on one day
+            unique_dates.insert(entry.days_elapsed(next_day_at))
+        } else {
+            true
+        }
     });
 
     // Old versions of Anki did not record Manual entries in the review log when
@@ -325,13 +329,13 @@ mod tests {
     }
 
     #[test]
-    fn just_learn() {
+    fn learning_on_same_day_is_retained() {
         assert_eq!(
             convert(&[
-                revlog(RevlogReviewKind::Learning, 2),
+                revlog(RevlogReviewKind::Learning, 1),
                 revlog(RevlogReviewKind::Learning, 1),
             ],),
-            fsrs_items!([review(0), review(1)])
+            fsrs_items!([review(0), review(0)])
         );
     }
 }
