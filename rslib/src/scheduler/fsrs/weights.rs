@@ -98,7 +98,9 @@ fn fsrs_items_for_training(revlogs: Vec<RevlogEntry>, next_day_at: TimestampSecs
         .into_iter()
         .group_by(|r| r.cid)
         .into_iter()
-        .filter_map(|(_cid, entries)| single_card_revlog_to_items(entries.collect(), next_day_at))
+        .filter_map(|(_cid, entries)| {
+            single_card_revlog_to_items(entries.collect(), next_day_at, true)
+        })
         .flatten()
         .collect_vec();
     revlogs.sort_by_cached_key(|r| r.reviews.len());
@@ -114,7 +116,7 @@ pub(super) fn fsrs_items_for_memory_state(
     let mut out = vec![];
     for (card_id, group) in revlogs.into_iter().group_by(|r| r.cid).into_iter() {
         let entries = group.into_iter().collect_vec();
-        if let Some(mut items) = single_card_revlog_to_items(entries, next_day_at) {
+        if let Some(mut items) = single_card_revlog_to_items(entries, next_day_at, false) {
             if let Some(item) = items.pop() {
                 out.push((card_id, item));
             }
@@ -129,6 +131,7 @@ pub(super) fn fsrs_items_for_memory_state(
 fn single_card_revlog_to_items(
     mut entries: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
+    training: bool,
 ) -> Option<Vec<FSRSItem>> {
     let starting_point = entries
         .iter()
@@ -186,27 +189,31 @@ fn single_card_revlog_to_items(
         }))
         .collect_vec();
 
-    // Skip the first learning step, then convert the remaining entries into
-    // separate FSRSItems, where each item contains all reviews done until then.
-    Some(
-        entries
-            .iter()
-            .enumerate()
-            .skip(1)
-            .map(|(outer_idx, _)| {
-                let reviews = entries
-                    .iter()
-                    .take(outer_idx + 1)
-                    .enumerate()
-                    .map(|(inner_idx, r)| FSRSReview {
-                        rating: r.button_chosen as i32,
-                        delta_t: delta_ts[inner_idx] as i32,
-                    })
-                    .collect();
-                FSRSItem { reviews }
-            })
-            .collect(),
-    )
+    let skip = if training { 1 } else { 0 };
+    // Convert the remaining entries into separate FSRSItems, where each item
+    // contains all reviews done until then.
+    let items = entries
+        .iter()
+        .enumerate()
+        .skip(skip)
+        .map(|(outer_idx, _)| {
+            let reviews = entries
+                .iter()
+                .take(outer_idx + 1)
+                .enumerate()
+                .map(|(inner_idx, r)| FSRSReview {
+                    rating: r.button_chosen as i32,
+                    delta_t: delta_ts[inner_idx] as i32,
+                })
+                .collect();
+            FSRSItem { reviews }
+        })
+        .collect_vec();
+    if items.is_empty() {
+        None
+    } else {
+        Some(items)
+    }
 }
 
 impl RevlogEntry {
@@ -234,8 +241,8 @@ mod tests {
         FSRSReview { rating: 3, delta_t }
     }
 
-    fn convert(revlog: &[RevlogEntry]) -> Option<Vec<FSRSItem>> {
-        single_card_revlog_to_items(revlog.to_vec(), NEXT_DAY_AT)
+    fn convert(revlog: &[RevlogEntry], training: bool) -> Option<Vec<FSRSItem>> {
+        single_card_revlog_to_items(revlog.to_vec(), NEXT_DAY_AT, training)
     }
 
     macro_rules! fsrs_items {
@@ -253,19 +260,25 @@ mod tests {
     #[test]
     fn delta_t_is_correct() -> Result<()> {
         assert_eq!(
-            convert(&[
-                revlog(RevlogReviewKind::Learning, 1),
-                revlog(RevlogReviewKind::Review, 0)
-            ],),
+            convert(
+                &[
+                    revlog(RevlogReviewKind::Learning, 1),
+                    revlog(RevlogReviewKind::Review, 0)
+                ],
+                true,
+            ),
             fsrs_items!([review(0), review(1)])
         );
         assert_eq!(
-            convert(&[
-                revlog(RevlogReviewKind::Learning, 15),
-                revlog(RevlogReviewKind::Learning, 13),
-                revlog(RevlogReviewKind::Review, 10),
-                revlog(RevlogReviewKind::Review, 5)
-            ],),
+            convert(
+                &[
+                    revlog(RevlogReviewKind::Learning, 15),
+                    revlog(RevlogReviewKind::Learning, 13),
+                    revlog(RevlogReviewKind::Review, 10),
+                    revlog(RevlogReviewKind::Review, 5)
+                ],
+                true,
+            ),
             fsrs_items!(
                 [review(0), review(2)],
                 [review(0), review(2), review(3)],
@@ -273,10 +286,13 @@ mod tests {
             )
         );
         assert_eq!(
-            convert(&[
-                revlog(RevlogReviewKind::Learning, 15),
-                revlog(RevlogReviewKind::Learning, 13),
-            ],),
+            convert(
+                &[
+                    revlog(RevlogReviewKind::Learning, 15),
+                    revlog(RevlogReviewKind::Learning, 13),
+                ],
+                true,
+            ),
             fsrs_items!([review(0), review(2),])
         );
         Ok(())
@@ -285,12 +301,15 @@ mod tests {
     #[test]
     fn cram_is_filtered() {
         assert_eq!(
-            convert(&[
-                revlog(RevlogReviewKind::Learning, 10),
-                revlog(RevlogReviewKind::Review, 9),
-                revlog(RevlogReviewKind::Filtered, 7),
-                revlog(RevlogReviewKind::Review, 4),
-            ],),
+            convert(
+                &[
+                    revlog(RevlogReviewKind::Learning, 10),
+                    revlog(RevlogReviewKind::Review, 9),
+                    revlog(RevlogReviewKind::Filtered, 7),
+                    revlog(RevlogReviewKind::Review, 4),
+                ],
+                true,
+            ),
             fsrs_items!([review(0), review(1)], [review(0), review(1), review(5)])
         );
     }
@@ -298,15 +317,18 @@ mod tests {
     #[test]
     fn set_due_date_is_filtered() {
         assert_eq!(
-            convert(&[
-                revlog(RevlogReviewKind::Learning, 10),
-                revlog(RevlogReviewKind::Review, 9),
-                RevlogEntry {
-                    ease_factor: 100,
-                    ..revlog(RevlogReviewKind::Manual, 7)
-                },
-                revlog(RevlogReviewKind::Review, 4),
-            ],),
+            convert(
+                &[
+                    revlog(RevlogReviewKind::Learning, 10),
+                    revlog(RevlogReviewKind::Review, 9),
+                    RevlogEntry {
+                        ease_factor: 100,
+                        ..revlog(RevlogReviewKind::Manual, 7)
+                    },
+                    revlog(RevlogReviewKind::Review, 4),
+                ],
+                true,
+            ),
             fsrs_items!([review(0), review(1)], [review(0), review(1), review(5)])
         );
     }
@@ -314,16 +336,19 @@ mod tests {
     #[test]
     fn card_reset_drops_all_previous_history() {
         assert_eq!(
-            convert(&[
-                revlog(RevlogReviewKind::Learning, 10),
-                revlog(RevlogReviewKind::Review, 9),
-                RevlogEntry {
-                    ease_factor: 0,
-                    ..revlog(RevlogReviewKind::Manual, 7)
-                },
-                revlog(RevlogReviewKind::Learning, 4),
-                revlog(RevlogReviewKind::Review, 0),
-            ],),
+            convert(
+                &[
+                    revlog(RevlogReviewKind::Learning, 10),
+                    revlog(RevlogReviewKind::Review, 9),
+                    RevlogEntry {
+                        ease_factor: 0,
+                        ..revlog(RevlogReviewKind::Manual, 7)
+                    },
+                    revlog(RevlogReviewKind::Learning, 4),
+                    revlog(RevlogReviewKind::Review, 0),
+                ],
+                true,
+            ),
             fsrs_items!([review(0), review(4)])
         );
     }
@@ -331,11 +356,26 @@ mod tests {
     #[test]
     fn learning_on_same_day_is_retained() {
         assert_eq!(
-            convert(&[
-                revlog(RevlogReviewKind::Learning, 1),
-                revlog(RevlogReviewKind::Learning, 1),
-            ],),
+            convert(
+                &[
+                    revlog(RevlogReviewKind::Learning, 1),
+                    revlog(RevlogReviewKind::Learning, 1),
+                ],
+                true,
+            ),
             fsrs_items!([review(0), review(0)])
+        );
+    }
+
+    #[test]
+    fn single_learning_step_skipped_when_training() {
+        assert_eq!(
+            convert(&[revlog(RevlogReviewKind::Learning, 1),], true),
+            None,
+        );
+        assert_eq!(
+            convert(&[revlog(RevlogReviewKind::Learning, 1),], false),
+            fsrs_items!([review(0)])
         );
     }
 }
