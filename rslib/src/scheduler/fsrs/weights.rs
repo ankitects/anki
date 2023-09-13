@@ -165,12 +165,8 @@ fn single_card_revlog_to_items(
         if manually_rescheduled || cram {
             return false;
         }
-        if entry.review_kind == RevlogReviewKind::Review {
-            // Keep only the first review when multiple reviews done on one day
-            unique_dates.insert(entry.days_elapsed(next_day_at))
-        } else {
-            true
-        }
+        // Keep only the first review when multiple reviews done on one day
+        unique_dates.insert(entry.days_elapsed(next_day_at))
     });
 
     // Old versions of Anki did not record Manual entries in the review log when
