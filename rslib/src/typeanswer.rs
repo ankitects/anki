@@ -92,7 +92,7 @@ impl DiffContext {
         format!(
             "<code id=typeans>{}</code>",
             if self.provided.is_empty() {
-                self.expected.iter().collect()
+                htmlescape::encode_minimal(&self.expected.iter().collect::<String>())
             } else if self.provided == self.expected {
                 provided
             } else {
