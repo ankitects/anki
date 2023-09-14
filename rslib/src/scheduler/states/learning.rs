@@ -52,6 +52,7 @@ impl LearnState {
             ReviewState {
                 scheduled_days: ctx.fuzzed_graduating_interval_good(),
                 ease_factor: ctx.initial_ease_factor,
+                fsrs_memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.hard.memory.into()),
                 ..Default::default()
             }
             .into()
@@ -69,6 +70,7 @@ impl LearnState {
             ReviewState {
                 scheduled_days: ctx.fuzzed_graduating_interval_good(),
                 ease_factor: ctx.initial_ease_factor,
+                fsrs_memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.good.memory.into()),
                 ..Default::default()
             }
             .into()
@@ -79,6 +81,7 @@ impl LearnState {
         ReviewState {
             scheduled_days: ctx.fuzzed_graduating_interval_easy(),
             ease_factor: ctx.initial_ease_factor,
+            fsrs_memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.easy.memory.into()),
             ..Default::default()
         }
     }
