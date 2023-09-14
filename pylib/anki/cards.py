@@ -95,7 +95,9 @@ class Card(DeprecatedNamesMixin):
             card.original_position if card.HasField("original_position") else None
         )
         self.custom_data = card.custom_data
-        self.fsrs_memory_state = card.fsrs_memory_state
+        self.fsrs_memory_state = (
+            card.fsrs_memory_state if card.HasField("fsrs_memory_state") else None
+        )
 
     def _to_backend_card(self) -> cards_pb2.Card:
         # mtime & usn are set by backend
