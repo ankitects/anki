@@ -815,11 +815,16 @@ time = %(time)d;
             else:
                 extra = ""
             due = self._buttonTime(i, v3_labels=labels)
+            key = (
+                tr.actions_shortcut_key(val=aqt.mw.pm.get_answer_key(i))
+                if aqt.mw.pm.get_answer_key(i)
+                else ""
+            )
             return """
 <td align=center><button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
 %s%s</button></td>""" % (
                 extra,
-                tr.actions_shortcut_key(val=i),
+                key,
                 i,
                 i,
                 label,
