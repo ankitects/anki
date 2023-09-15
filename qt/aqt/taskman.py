@@ -122,7 +122,9 @@ class TaskManager(QObject):
             self.mw.progress.finish()
             # allow the event loop to close the window before we proceed
             if on_done:
-                self.mw.progress.single_shot(100, lambda: on_done(fut))
+                self.mw.progress.single_shot(
+                    100, lambda: on_done(fut), requires_collection=False
+                )
 
         self.run_in_background(task, wrapped_done, uses_collection=uses_collection)
 
