@@ -1365,7 +1365,7 @@ title="{}" {}>{}</button>""".format(
     def on_toggle_full_screen(self) -> None:
         if disallow_full_screen():
             showWarning(
-                tr.actions_currently_unsupported(),
+                tr.actions_fullscreen_unsupported(),
                 parent=self,
                 help=HelpPage.FULL_SCREEN_ISSUE,
             )
