@@ -575,9 +575,16 @@ class Collection(DeprecatedNamesMixin):
         return Note(self, notetype)
 
     def add_note(self, note: Note, deck_id: DeckId) -> OpChanges:
-        hooks.note_will_be_added(self, note, deck_id)
-        out = self._backend.add_note(note=note._to_backend_note(), deck_id=deck_id)
-        note.id = NoteId(out.note_id)
+        return self.add_notes([note], deck_id)
+
+    def add_notes(self, notes: Sequence[Note], deck_id: DeckId) -> OpChanges:
+        for note in notes:
+            hooks.note_will_be_added(self, note, deck_id)
+        out = self._backend.add_notes(
+            notes=[note._to_backend_note() for note in notes], deck_id=deck_id
+        )
+        for i, note in enumerate(notes):
+            note.id = NoteId(out.nids[i])
         return out.changes
 
     def remove_notes(self, note_ids: Sequence[NoteId]) -> OpChangesWithCount:

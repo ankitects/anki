@@ -7,6 +7,7 @@ pub(crate) mod undo;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::sync::Arc;
 
 use anki_proto::notes::note_fields_check_response::State as NoteFieldsState;
 use itertools::Itertools;
@@ -68,14 +69,17 @@ impl Note {
 
 impl Collection {
     pub fn add_note(&mut self, note: &mut Note, did: DeckId) -> Result<OpOutput<()>> {
+        let mut notes = [note.clone()];
+        self.add_notes(&mut notes, did).map(move |o| {
+            *note = notes[0].clone();
+            o
+        })
+    }
+
+    pub fn add_notes(&mut self, notes: &mut [Note], did: DeckId) -> Result<OpOutput<()>> {
         self.transact(Op::AddNote, |col| {
-            let nt = col
-                .get_notetype(note.notetype_id)?
-                .or_invalid("missing note type")?;
-            let last_deck = col.get_last_deck_added_to_for_notetype(note.notetype_id);
-            let ctx = CardGenContext::new(nt.as_ref(), last_deck, col.usn()?);
             let norm = col.get_config_bool(BoolKey::NormalizeNoteText);
-            col.add_note_inner(&ctx, note, did, norm)
+            col.add_notes_inner(notes, did, norm)
         })
     }
 
@@ -333,21 +337,52 @@ impl Collection {
         Ok(())
     }
 
-    pub(crate) fn add_note_inner(
+    #[allow(clippy::map_entry)]
+    pub(crate) fn add_notes_inner(
         &mut self,
-        ctx: &CardGenContext<&Notetype>,
-        note: &mut Note,
+        notes: &mut [Note],
         did: DeckId,
         normalize_text: bool,
     ) -> Result<()> {
-        self.canonify_note_tags(note, ctx.usn)?;
-        note.prepare_for_update(ctx.notetype, normalize_text)?;
-        note.set_modified(ctx.usn);
-        self.add_note_only_undoable(note)?;
-        self.generate_cards_for_new_note(ctx, note, did)?;
-        self.set_last_deck_for_notetype(note.notetype_id, did)?;
-        self.set_last_notetype_for_deck(did, note.notetype_id)?;
-        self.set_current_notetype_id(note.notetype_id)
+        let mut notetypes: HashMap<NotetypeId, Arc<Notetype>> = HashMap::new();
+        for note in notes.iter() {
+            if !notetypes.contains_key(&note.notetype_id) {
+                let nt = self
+                    .get_notetype(note.notetype_id)?
+                    .or_invalid("missing note type")?;
+                notetypes.insert(note.notetype_id, nt);
+            }
+        }
+        let mut contexts: HashMap<NotetypeId, CardGenContext<&Notetype>> = HashMap::new();
+        for note in notes.iter_mut() {
+            let last_deck = self.get_last_deck_added_to_for_notetype(note.notetype_id);
+            if !contexts.contains_key(&note.notetype_id) {
+                let ctx = CardGenContext::new(
+                    notetypes.get(&note.notetype_id).unwrap().as_ref(),
+                    last_deck,
+                    self.usn()?,
+                );
+                contexts.insert(note.notetype_id, ctx);
+            }
+        }
+        for note in notes.iter_mut() {
+            let ctx = contexts.get(&note.notetype_id).unwrap();
+            self.canonify_note_tags(note, ctx.usn)?;
+            note.prepare_for_update(ctx.notetype, normalize_text)?;
+            note.set_modified(ctx.usn);
+            self.add_note_only_undoable(note)?;
+            let ctx = contexts.get(&note.notetype_id).unwrap();
+            self.generate_cards_for_new_note(ctx, note, did)?;
+        }
+        for notetype_id in notetypes.into_keys() {
+            self.set_last_deck_for_notetype(notetype_id, did)?;
+            self.set_last_notetype_for_deck(did, notetype_id)?;
+        }
+        if let Some(last_note) = notes.last() {
+            self.set_current_notetype_id(last_note.notetype_id)?;
+        }
+
+        Ok(())
     }
 
     pub fn update_note(&mut self, note: &mut Note) -> Result<OpOutput<()>> {

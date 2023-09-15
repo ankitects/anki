@@ -13,7 +13,6 @@ use anki_proto::image_occlusion::GetImageOcclusionNoteResponse;
 use regex::Regex;
 
 use crate::media::MediaManager;
-use crate::notetype::CardGenContext;
 use crate::prelude::*;
 
 impl Collection {
@@ -67,10 +66,8 @@ impl Collection {
             note.set_field(3, back_extra)?;
             note.tags = tags;
 
-            let last_deck = col.get_last_deck_added_to_for_notetype(note.notetype_id);
-            let ctx = CardGenContext::new(nt.as_ref(), last_deck, col.usn()?);
             let norm = col.get_config_bool(BoolKey::NormalizeNoteText);
-            col.add_note_inner(&ctx, &mut note, current_deck.id, norm)?;
+            col.add_notes_inner(&mut [note], current_deck.id, norm)?;
 
             Ok(())
         })
