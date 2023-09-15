@@ -371,7 +371,6 @@ impl Collection {
             note.prepare_for_update(ctx.notetype, normalize_text)?;
             note.set_modified(ctx.usn);
             self.add_note_only_undoable(note)?;
-            let ctx = contexts.get(&note.notetype_id).unwrap();
             self.generate_cards_for_new_note(ctx, note, did)?;
         }
         for notetype_id in notetypes.into_keys() {
