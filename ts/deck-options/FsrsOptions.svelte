@@ -43,9 +43,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         daysToSimulate: 365,
         maxSecondsOfStudyPerDay: 1800,
         maxInterval: 36500,
-        recallSecs: 10,
+        recallSecsHard: 14.0,
+        recallSecsGood: 10.0,
+        recallSecsEasy: 6.0,
         forgetSecs: 50,
         learnSecs: 20,
+        firstRatingProbabilityAgain: 0.15,
+        firstRatingProbabilityHard: 0.2,
+        firstRatingProbabilityGood: 0.6,
+        firstRatingProbabilityEasy: 0.05,
+        reviewRatingProbabilityHard: 0.3,
+        reviewRatingProbabilityGood: 0.6,
+        reviewRatingProbabilityEasy: 0.1,
     });
 
     async function computeWeights(): Promise<void> {
@@ -258,19 +267,85 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <input type="number" bind:value={computeOptimalRequest.maxInterval} />
         <br />
 
-        Seconds to recall a card:
-        <br />
-        <input type="number" bind:value={computeOptimalRequest.recallSecs} />
-        <br />
-
-        Seconds to forget a card:
+        Seconds to forget a card (again):
         <br />
         <input type="number" bind:value={computeOptimalRequest.forgetSecs} />
+        <br />
+
+        Seconds to recall a card (hard):
+        <br />
+        <input type="number" bind:value={computeOptimalRequest.recallSecsHard} />
+        <br />
+
+        Seconds to recall a card (good):
+        <br />
+        <input type="number" bind:value={computeOptimalRequest.recallSecsGood} />
+        <br />
+
+        Seconds to recall a card (easy):
+        <br />
+        <input type="number" bind:value={computeOptimalRequest.recallSecsEasy} />
         <br />
 
         Seconds to learn a card:
         <br />
         <input type="number" bind:value={computeOptimalRequest.learnSecs} />
+        <br />
+
+        First rating probability (again):
+        <br />
+        <input
+            type="number"
+            bind:value={computeOptimalRequest.firstRatingProbabilityAgain}
+        />
+        <br />
+
+        First rating probability (hard):
+        <br />
+        <input
+            type="number"
+            bind:value={computeOptimalRequest.firstRatingProbabilityHard}
+        />
+        <br />
+
+        First rating probability (good):
+        <br />
+        <input
+            type="number"
+            bind:value={computeOptimalRequest.firstRatingProbabilityGood}
+        />
+        <br />
+
+        First rating probability (easy):
+        <br />
+        <input
+            type="number"
+            bind:value={computeOptimalRequest.firstRatingProbabilityEasy}
+        />
+        <br />
+
+        Review rating probability (hard):
+        <br />
+        <input
+            type="number"
+            bind:value={computeOptimalRequest.reviewRatingProbabilityHard}
+        />
+        <br />
+
+        Review rating probability (good):
+        <br />
+        <input
+            type="number"
+            bind:value={computeOptimalRequest.reviewRatingProbabilityGood}
+        />
+        <br />
+
+        Review rating probability (easy):
+        <br />
+        <input
+            type="number"
+            bind:value={computeOptimalRequest.reviewRatingProbabilityEasy}
+        />
         <br />
 
         <button

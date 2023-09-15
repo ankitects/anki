@@ -39,8 +39,8 @@ git = "https://github.com/ankitects/linkcheck.git"
 rev = "184b2ca50ed39ca43da13f0b830a463861adb9ca"
 
 [workspace.dependencies.fsrs]
-git = "https://github.com/open-spaced-repetition/fsrs-rs"
-rev = "531566c49a861d4d57e0a228a2dd3dec5616b93b"
+git = "https://github.com/open-spaced-repetition/fsrs-rs.git"
+rev = "86f3db835882f99fdf068984ce5af4470737da9a"
 # path = "../../../fsrs-rs"
 
 [workspace.dependencies]
