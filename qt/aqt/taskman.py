@@ -28,7 +28,8 @@ class TaskManager(QObject):
     def __init__(self, mw: aqt.AnkiQt) -> None:
         QObject.__init__(self)
         self.mw = mw.weakref()
-        self._executor = ThreadPoolExecutor()
+        self._no_collection_executor = ThreadPoolExecutor()
+        self._collection_executor = ThreadPoolExecutor(max_workers=1)
         self._closures: list[Closure] = []
         self._closures_lock = Lock()
         qconnect(self._closures_pending, self._on_closures_pending)
@@ -44,6 +45,7 @@ class TaskManager(QObject):
         task: Callable,
         on_done: Callable[[Future], None] | None = None,
         args: dict[str, Any] | None = None,
+        uses_collection=True,
     ) -> Future:
         """Use QueryOp()/CollectionOp() in new code.
 
@@ -52,7 +54,11 @@ class TaskManager(QObject):
         If on_done is provided, it will be called on the main thread with
         the completed future.
 
-        Args if provided will be passed on as keyword arguments to the task callable."""
+        Args if provided will be passed on as keyword arguments to the task callable.
+
+        Tasks that access the collection are serialized. If you're doing things that
+        don't require the collection (e.g. network requests), you can pass uses_collection
+        =False to allow multiple tasks to run in parallel."""
         # Before we launch a background task, ensure any pending on_done closure are run on
         # main. Qt's signal/slot system will have posted a notification, but it may
         # not have been processed yet. The on_done() closures may make small queries
@@ -64,7 +70,12 @@ class TaskManager(QObject):
         if args is None:
             args = {}
 
-        fut = self._executor.submit(task, **args)
+        executor = (
+            self._collection_executor
+            if uses_collection
+            else self._no_collection_executor
+        )
+        fut = executor.submit(task, **args)
 
         if on_done is not None:
             fut.add_done_callback(
@@ -80,6 +91,7 @@ class TaskManager(QObject):
         parent: QWidget | None = None,
         label: str | None = None,
         immediate: bool = False,
+        uses_collection=True,
     ) -> None:
         "Use QueryOp()/CollectionOp() in new code."
         self.mw.progress.start(parent=parent, label=label, immediate=immediate)
@@ -89,7 +101,7 @@ class TaskManager(QObject):
             if on_done:
                 on_done(fut)
 
-        self.run_in_background(task, wrapped_done)
+        self.run_in_background(task, wrapped_done, uses_collection=uses_collection)
 
     def with_backend_progress(
         self,
@@ -98,6 +110,7 @@ class TaskManager(QObject):
         on_done: Callable[[Future], None] | None = None,
         parent: QWidget | None = None,
         start_label: str | None = None,
+        uses_collection=True,
     ) -> None:
         self.mw.progress.start_with_backend_updates(
             progress_update,
@@ -110,7 +123,7 @@ class TaskManager(QObject):
             if on_done:
                 on_done(fut)
 
-        self.run_in_background(task, wrapped_done)
+        self.run_in_background(task, wrapped_done, uses_collection=uses_collection)
 
     def _on_closures_pending(self) -> None:
         """Run any pending closures. This runs in the main thread."""
