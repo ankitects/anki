@@ -583,8 +583,8 @@ class Collection(DeprecatedNamesMixin):
         out = self._backend.add_notes(
             notes=[note._to_backend_note() for note in notes], deck_id=deck_id
         )
-        for i, note in enumerate(notes):
-            note.id = NoteId(out.nids[i])
+        for idx, note in enumerate(notes):
+            note.id = NoteId(out.nids[idx])
         return out.changes
 
     def remove_notes(self, note_ids: Sequence[NoteId]) -> OpChangesWithCount:
