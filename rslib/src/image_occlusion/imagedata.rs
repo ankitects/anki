@@ -65,9 +65,7 @@ impl Collection {
             note.set_field(2, header)?;
             note.set_field(3, back_extra)?;
             note.tags = tags;
-
-            let norm = col.get_config_bool(BoolKey::NormalizeNoteText);
-            col.add_notes_inner(&mut [note], current_deck.id, norm)?;
+            col.add_note_inner(&mut note, current_deck.id)?;
 
             Ok(())
         })

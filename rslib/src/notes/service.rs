@@ -6,7 +6,10 @@ use crate::cloze::add_cloze_numbers_in_string;
 use crate::collection::Collection;
 use crate::decks::DeckId;
 use crate::error;
+use crate::error::AnkiError;
+use crate::error::OrInvalid;
 use crate::error::OrNotFound;
+use crate::notes::AddNoteRequest;
 use crate::notes::Note;
 use crate::notes::NoteId;
 use crate::prelude::IntoNewtypeVec;
@@ -26,14 +29,30 @@ impl crate::services::NotesService for Collection {
         Ok(nt.new_note().into())
     }
 
+    fn add_note(
+        &mut self,
+        input: anki_proto::notes::AddNoteRequest,
+    ) -> error::Result<anki_proto::notes::AddNoteResponse> {
+        let mut note: Note = input.note.or_invalid("no note provided")?.into();
+        let changes = self.add_note(&mut note, DeckId(input.deck_id))?;
+        Ok(anki_proto::notes::AddNoteResponse {
+            note_id: note.id.0,
+            changes: Some(changes.into()),
+        })
+    }
+
     fn add_notes(
         &mut self,
         input: anki_proto::notes::AddNotesRequest,
     ) -> error::Result<anki_proto::notes::AddNotesResponse> {
-        let mut notes: Vec<Note> = input.notes.into_iter().map(|n| n.into()).collect();
-        let changes = self.add_notes(&mut notes, DeckId(input.deck_id))?;
+        let mut requests = input
+            .note_and_deck_id
+            .into_iter()
+            .map(TryInto::try_into)
+            .collect::<error::Result<Vec<AddNoteRequest>, AnkiError>>()?;
+        let changes = self.add_notes(&mut requests)?;
         Ok(anki_proto::notes::AddNotesResponse {
-            nids: notes.iter().map(|n| n.id.0).collect(),
+            nids: requests.iter().map(|r| r.note.id.0).collect(),
             changes: Some(changes.into()),
         })
     }
