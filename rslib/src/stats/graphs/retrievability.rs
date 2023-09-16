@@ -19,7 +19,7 @@ impl GraphsContext {
         };
         let fsrs = FSRS::new(None).unwrap();
         for card in &self.cards {
-            if let Some(state) = card.fsrs_memory_state {
+            if let Some(state) = card.memory_state {
                 let r = fsrs.current_retrievability(
                     state.into(),
                     card.days_since_last_review(&timing).unwrap_or_default(),

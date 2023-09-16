@@ -25,7 +25,7 @@ pub struct ReviewState {
     pub ease_factor: f32,
     pub lapses: u32,
     pub leeched: bool,
-    pub fsrs_memory_state: Option<FsrsMemoryState>,
+    pub memory_state: Option<FsrsMemoryState>,
 }
 
 impl Default for ReviewState {
@@ -36,7 +36,7 @@ impl Default for ReviewState {
             ease_factor: INITIAL_EASE_FACTOR,
             lapses: 0,
             leeched: false,
-            fsrs_memory_state: None,
+            memory_state: None,
         }
     }
 }
@@ -89,14 +89,14 @@ impl ReviewState {
     fn answer_again(self, ctx: &StateContext) -> CardState {
         let lapses = self.lapses + 1;
         let leeched = leech_threshold_met(lapses, ctx.leech_threshold);
-        let (scheduled_days, fsrs_memory_state) = self.failing_review_interval(ctx);
+        let (scheduled_days, memory_state) = self.failing_review_interval(ctx);
         let again_review = ReviewState {
             scheduled_days,
             elapsed_days: 0,
             ease_factor: (self.ease_factor + EASE_FACTOR_AGAIN_DELTA).max(MINIMUM_EASE_FACTOR),
             lapses,
             leeched,
-            fsrs_memory_state,
+            memory_state,
         };
 
         if let Some(again_delay) = ctx.relearn_steps.again_delay_secs_relearn() {
@@ -104,7 +104,7 @@ impl ReviewState {
                 learning: LearnState {
                     remaining_steps: ctx.relearn_steps.remaining_for_failed(),
                     scheduled_secs: again_delay,
-                    fsrs_memory_state,
+                    memory_state,
                 },
                 review: again_review,
             }
@@ -119,7 +119,7 @@ impl ReviewState {
             scheduled_days,
             elapsed_days: 0,
             ease_factor: (self.ease_factor + EASE_FACTOR_HARD_DELTA).max(MINIMUM_EASE_FACTOR),
-            fsrs_memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.hard.memory.into()),
+            memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.hard.memory.into()),
             ..self
         }
     }
@@ -128,7 +128,7 @@ impl ReviewState {
         ReviewState {
             scheduled_days,
             elapsed_days: 0,
-            fsrs_memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.good.memory.into()),
+            memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.good.memory.into()),
             ..self
         }
     }
@@ -138,7 +138,7 @@ impl ReviewState {
             scheduled_days,
             elapsed_days: 0,
             ease_factor: self.ease_factor + EASE_FACTOR_EASY_DELTA,
-            fsrs_memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.easy.memory.into()),
+            memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.easy.memory.into()),
             ..self
         }
     }
@@ -313,7 +313,7 @@ mod test {
             ease_factor: 1.3,
             lapses: 0,
             leeched: false,
-            fsrs_memory_state: None,
+            memory_state: None,
         };
         ctx.fuzz_factor = Some(0.0);
         assert_eq!(state.passing_review_intervals(&ctx), (2, 3, 4));
@@ -342,7 +342,7 @@ mod test {
             ease_factor: 1.3,
             lapses: 0,
             leeched: false,
-            fsrs_memory_state: None,
+            memory_state: None,
         };
         ctx.fuzz_factor = Some(0.0);
         assert_eq!(state.passing_review_intervals(&ctx), (1, 3, 4));

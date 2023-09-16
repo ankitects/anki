@@ -63,7 +63,7 @@ message SchedulingState {
   message Learning {
     uint32 remaining_steps = 1;
     uint32 scheduled_secs = 2;
-    optional cards.FsrsMemoryState fsrs_memory_state = 6;
+    optional cards.FsrsMemoryState memory_state = 6;
   }
   message Review {
     uint32 scheduled_days = 1;
@@ -71,7 +71,7 @@ message SchedulingState {
     float ease_factor = 3;
     uint32 lapses = 4;
     bool leeched = 5;
-    optional cards.FsrsMemoryState fsrs_memory_state = 6;
+    optional cards.FsrsMemoryState memory_state = 6;
   }
   message Relearning {
     Review review = 1;

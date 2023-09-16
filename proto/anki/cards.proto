@@ -49,7 +49,7 @@ message Card {
   int64 original_deck_id = 16;
   uint32 flags = 17;
   optional uint32 original_position = 18;
-  optional FsrsMemoryState fsrs_memory_state = 20;
+  optional FsrsMemoryState memory_state = 20;
   string custom_data = 19;
 }
 

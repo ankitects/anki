@@ -80,7 +80,7 @@ fn row_to_card(row: &Row) -> result::Result<Card, rusqlite::Error> {
         original_deck_id: row.get(15)?,
         flags: row.get(16)?,
         original_position: data.original_position,
-        fsrs_memory_state: data.fsrs_memory_state(),
+        memory_state: data.memory_state(),
         custom_data: data.custom_data,
     })
 }

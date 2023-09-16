@@ -13,7 +13,7 @@ use crate::revlog::RevlogReviewKind;
 pub struct LearnState {
     pub remaining_steps: u32,
     pub scheduled_secs: u32,
-    pub fsrs_memory_state: Option<FsrsMemoryState>,
+    pub memory_state: Option<FsrsMemoryState>,
 }
 
 impl LearnState {
@@ -39,7 +39,7 @@ impl LearnState {
         LearnState {
             remaining_steps: ctx.steps.remaining_for_failed(),
             scheduled_secs: ctx.steps.again_delay_secs_learn(),
-            fsrs_memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.again.memory.into()),
+            memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.again.memory.into()),
         }
     }
 
@@ -50,18 +50,18 @@ impl LearnState {
                 .hard_delay_secs(self.remaining_steps)
                 // user has 0 learning steps, which the UI doesn't allow
                 .unwrap_or(60),
-            fsrs_memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.hard.memory.into()),
+            memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.hard.memory.into()),
             ..self
         }
     }
 
     fn answer_good(self, ctx: &StateContext) -> CardState {
-        let fsrs_memory_state = ctx.fsrs_next_states.as_ref().map(|s| s.good.memory.into());
+        let memory_state = ctx.fsrs_next_states.as_ref().map(|s| s.good.memory.into());
         if let Some(good_delay) = ctx.steps.good_delay_secs(self.remaining_steps) {
             LearnState {
                 remaining_steps: ctx.steps.remaining_for_good(self.remaining_steps),
                 scheduled_secs: good_delay,
-                fsrs_memory_state,
+                memory_state,
             }
             .into()
         } else {
@@ -74,7 +74,7 @@ impl LearnState {
             ReviewState {
                 scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
                 ease_factor: ctx.initial_ease_factor,
-                fsrs_memory_state,
+                memory_state,
                 ..Default::default()
             }
             .into()
@@ -92,7 +92,7 @@ impl LearnState {
         ReviewState {
             scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
             ease_factor: ctx.initial_ease_factor,
-            fsrs_memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.easy.memory.into()),
+            memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.easy.memory.into()),
             ..Default::default()
         }
     }

@@ -24,7 +24,7 @@ impl CardStateUpdater {
         self.card.queue = CardQueue::New;
         self.card.due = next.position as i32;
         self.card.original_position = None;
-        self.card.fsrs_memory_state = None;
+        self.card.memory_state = None;
 
         RevlogEntryPartial::new(current, next.into(), 0.0, self.secs_until_rollover())
     }
@@ -39,7 +39,7 @@ impl CardStateUpdater {
         if let Some(position) = current.new_position() {
             self.card.original_position = Some(position)
         }
-        self.card.fsrs_memory_state = next.fsrs_memory_state;
+        self.card.memory_state = next.memory_state;
 
         let interval = next
             .interval_kind()

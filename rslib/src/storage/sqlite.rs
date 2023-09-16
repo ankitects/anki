@@ -296,7 +296,7 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
             let review_day = due - ivl;
             let days_elapsed = days_elapsed.saturating_sub(review_day) as u32;
             let card_data = &CardData::from_str(card_data);
-            Ok(card_data.fsrs_memory_state().map(|state| {
+            Ok(card_data.memory_state().map(|state| {
                 FSRS::new(None)
                     .unwrap()
                     .current_retrievability(state.into(), days_elapsed)

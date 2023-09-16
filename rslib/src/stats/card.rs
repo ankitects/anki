@@ -28,7 +28,7 @@ impl Collection {
         let (due_date, due_position) = self.due_date_and_position(&card)?;
         let timing = self.timing_today()?;
         let fsrs_retrievability = card
-            .fsrs_memory_state
+            .memory_state
             .zip(card.days_since_last_review(&timing))
             .map(|(state, days)| {
                 FSRS::new(None)
@@ -53,7 +53,7 @@ impl Collection {
             card_type: nt.get_template(card.template_idx)?.name.clone(),
             notetype: nt.name.clone(),
             revlog: revlog.iter().rev().map(stats_revlog_entry).collect(),
-            fsrs_memory_state: card.fsrs_memory_state.map(Into::into),
+            memory_state: card.memory_state.map(Into::into),
             fsrs_retrievability,
             custom_data: card.custom_data,
         })
