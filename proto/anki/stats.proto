@@ -144,6 +144,7 @@ message GraphsResponse {
   Hours hours = 3;
   Today today = 4;
   Eases eases = 5;
+  Eases difficulty = 11;
   Intervals intervals = 6;
   FutureDue future_due = 7;
   Added added = 8;

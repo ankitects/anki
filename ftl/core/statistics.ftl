@@ -93,12 +93,19 @@ statistics-range-deck = deck
 statistics-range-collection = collection
 statistics-range-search = Search
 statistics-card-ease-title = Card Ease
+statistics-card-difficulty-title = Card Difficulty
 statistics-card-ease-subtitle = The lower the ease, the more frequently a card will appear.
+statistics-card-difficulty-subtitle = The higher the difficulty, the more frequently a card will appear.
 # eg "3 cards with 150-170% ease"
 statistics-card-ease-tooltip =
     { $cards ->
         [one] { $cards } card with { $percent } ease
        *[other] { $cards } cards with { $percent } ease
+    }
+statistics-card-difficulty-tooltip =
+    { $cards ->
+        [one] { $cards } card with { $percent } difficulty
+       *[other] { $cards } cards with { $percent } difficulty
     }
 statistics-future-due-title = Future Due
 statistics-future-due-subtitle = The number of reviews due in the future.
@@ -200,6 +207,7 @@ statistics-cards-per-day =
        *[other] { $count } cards/day
     }
 statistics-average-ease = Average ease
+statistics-average-difficulty = Average difficulty
 statistics-save-pdf = Save PDF
 statistics-saved = Saved.
 statistics-stats = stats

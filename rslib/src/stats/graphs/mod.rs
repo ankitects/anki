@@ -60,12 +60,14 @@ impl Collection {
             next_day_start: timing.next_day_at,
             local_offset_secs,
         };
+        let (eases, difficulty) = ctx.eases();
         let resp = anki_proto::stats::GraphsResponse {
             added: Some(ctx.added_days()),
             reviews: Some(ctx.review_counts_and_times()),
             future_due: Some(ctx.future_due()),
             intervals: Some(ctx.intervals()),
-            eases: Some(ctx.eases()),
+            eases: Some(eases),
+            difficulty: Some(difficulty),
             today: Some(ctx.today()),
             hours: Some(ctx.hours()),
             buttons: Some(ctx.buttons()),
