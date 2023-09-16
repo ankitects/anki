@@ -591,7 +591,7 @@ class Collection(DeprecatedNamesMixin):
         for request in requests:
             hooks.note_will_be_added(self, request.note, request.deck_id)
         out = self._backend.add_notes(
-            note_and_deck_id=[
+            requests=[
                 notes_pb2.AddNoteRequest(
                     note=request.note._to_backend_note(), deck_id=request.deck_id
                 )

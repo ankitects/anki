@@ -46,7 +46,7 @@ impl crate::services::NotesService for Collection {
         input: anki_proto::notes::AddNotesRequest,
     ) -> error::Result<anki_proto::notes::AddNotesResponse> {
         let mut requests = input
-            .note_and_deck_id
+            .requests
             .into_iter()
             .map(TryInto::try_into)
             .collect::<error::Result<Vec<AddNoteRequest>, AnkiError>>()?;

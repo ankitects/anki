@@ -64,7 +64,7 @@ message AddNoteResponse {
 }
 
 message AddNotesRequest {
-  repeated AddNoteRequest note_and_deck_id = 1;
+  repeated AddNoteRequest requests = 1;
 }
 
 message AddNotesResponse {
