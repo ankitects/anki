@@ -15,9 +15,7 @@ impl GraphsContext {
             if let Some(state) = card.memory_state {
                 *difficulty
                     .eases
-                    .entry(round_to_nearest_five(
-                        (state.difficulty - 1.0) / 9.0 * 100.0,
-                    ))
+                    .entry(round_to_nearest_five(state.difficulty() * 100.0))
                     .or_insert_with(Default::default) += 1;
             } else if matches!(card.ctype, CardType::Review | CardType::Relearn) {
                 *eases

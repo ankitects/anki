@@ -482,7 +482,7 @@ impl RowContext {
         self.cards[0]
             .memory_state
             .as_ref()
-            .map(|s| format!("{:.0}%", (s.difficulty - 1.0) / 9.0 * 100.0))
+            .map(|s| format!("{:.0}%", s.difficulty() * 100.0))
             .unwrap_or_default()
     }
 
