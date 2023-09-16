@@ -4,6 +4,7 @@ use crate::card::Card;
 use crate::card::CardId;
 use crate::card::CardQueue;
 use crate::card::CardType;
+use crate::card::FsrsMemoryState;
 use crate::collection::Collection;
 use crate::decks::DeckId;
 use crate::error;
@@ -99,6 +100,7 @@ impl TryFrom<anki_proto::cards::Card> for Card {
             original_deck_id: DeckId(c.original_deck_id),
             flags: c.flags as u8,
             original_position: c.original_position,
+            fsrs_memory_state: c.fsrs_memory_state.map(Into::into),
             custom_data: c.custom_data,
         })
     }
@@ -125,6 +127,7 @@ impl From<Card> for anki_proto::cards::Card {
             original_deck_id: c.original_deck_id.0,
             flags: c.flags as u32,
             original_position: c.original_position.map(Into::into),
+            fsrs_memory_state: c.fsrs_memory_state.map(Into::into),
             custom_data: c.custom_data,
         }
     }
@@ -137,5 +140,23 @@ fn to_card_ids(v: Vec<i64>) -> Vec<CardId> {
 impl From<anki_proto::cards::CardId> for CardId {
     fn from(cid: anki_proto::cards::CardId) -> Self {
         CardId(cid.cid)
+    }
+}
+
+impl From<anki_proto::cards::FsrsMemoryState> for FsrsMemoryState {
+    fn from(value: anki_proto::cards::FsrsMemoryState) -> Self {
+        FsrsMemoryState {
+            stability: value.stability,
+            difficulty: value.difficulty,
+        }
+    }
+}
+
+impl From<FsrsMemoryState> for anki_proto::cards::FsrsMemoryState {
+    fn from(value: FsrsMemoryState) -> Self {
+        anki_proto::cards::FsrsMemoryState {
+            stability: value.stability,
+            difficulty: value.difficulty,
+        }
     }
 }

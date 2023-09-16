@@ -4,8 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import {
-        Progress_ComputeRetention,
-        type Progress_ComputeWeights,
+        ComputeRetentionProgress,
+        type ComputeWeightsProgress,
     } from "@tslib/anki/collection_pb";
     import { ComputeOptimalRetentionRequest } from "@tslib/anki/scheduler_pb";
     import {
@@ -14,26 +14,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         evaluateWeights,
         setWantsAbort,
     } from "@tslib/backend";
+    import * as tr from "@tslib/ftl";
     import { runWithBackendProgress } from "@tslib/progress";
-    import TitledContainer from "components/TitledContainer.svelte";
 
-    import ConfigInput from "../components/ConfigInput.svelte";
-    import RevertButton from "../components/RevertButton.svelte";
     import SettingTitle from "../components/SettingTitle.svelte";
     import type { DeckOptionsState } from "./lib";
+    import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
+    import Warning from "./Warning.svelte";
     import WeightsInputRow from "./WeightsInputRow.svelte";
 
     export let state: DeckOptionsState;
 
     const config = state.currentConfig;
+    const defaults = state.defaults;
 
-    let computeWeightsProgress: Progress_ComputeWeights | undefined;
+    let computeWeightsProgress: ComputeWeightsProgress | undefined;
+    let computeWeightsWarning = "";
     let customSearch = "";
     let computing = false;
 
     let computeRetentionProgress:
-        | Progress_ComputeWeights
-        | Progress_ComputeRetention
+        | ComputeWeightsProgress
+        | ComputeRetentionProgress
         | undefined;
 
     const computeOptimalRequest = new ComputeOptimalRetentionRequest({
@@ -41,9 +43,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         daysToSimulate: 365,
         maxSecondsOfStudyPerDay: 1800,
         maxInterval: 36500,
-        recallSecs: 10,
+        recallSecsHard: 14.0,
+        recallSecsGood: 10.0,
+        recallSecsEasy: 6.0,
         forgetSecs: 50,
         learnSecs: 20,
+        firstRatingProbabilityAgain: 0.15,
+        firstRatingProbabilityHard: 0.2,
+        firstRatingProbabilityGood: 0.6,
+        firstRatingProbabilityEasy: 0.05,
+        reviewRatingProbabilityHard: 0.3,
+        reviewRatingProbabilityGood: 0.6,
+        reviewRatingProbabilityEasy: 0.1,
     });
 
     async function computeWeights(): Promise<void> {
@@ -61,6 +72,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     });
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
+                    }
+                    if (resp.fsrsItems < 1000) {
+                        computeWeightsWarning = tr.deckConfigLimitedHistory({
+                            count: resp.fsrsItems,
+                        });
+                    } else {
+                        computeWeightsWarning = "";
                     }
                     $config.fsrsWeights = resp.weights;
                 },
@@ -97,7 +115,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             alert(
                                 `Log loss: ${resp.logLoss.toFixed(
                                     3,
-                                )}, RMSE: ${resp.rmse.toFixed(3)}`,
+                                )}, RMSE(bins): ${resp.rmseBins.toFixed(
+                                    3,
+                                )}. ${tr.deckConfigSmallerIsBetter()}`,
                             ),
                         200,
                     );
@@ -146,21 +166,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         computeRetentionProgress,
     );
 
-    function renderWeightProgress(val: Progress_ComputeWeights | undefined): String {
+    function renderWeightProgress(val: ComputeWeightsProgress | undefined): String {
         if (!val || !val.total) {
             return "";
         }
         let pct = ((val.current / val.total) * 100).toFixed(2);
         pct = `${pct}%`;
-        if (val instanceof Progress_ComputeRetention) {
+        if (val instanceof ComputeRetentionProgress) {
             return pct;
         } else {
-            return `${pct} of ${val.revlogEntries} reviews`;
+            return `${pct} of ${val.fsrsItems} reviews`;
         }
     }
 
     function renderRetentionProgress(
-        val: Progress_ComputeRetention | undefined,
+        val: ComputeRetentionProgress | undefined,
     ): String {
         if (!val || !val.total) {
             return "";
@@ -170,35 +190,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<TitledContainer title={"FSRS"}>
-    <WeightsInputRow
-        bind:value={$config.fsrsWeights}
-        defaultValue={[
-            0.4, 0.6, 2.4, 5.8, 4.93, 0.94, 0.86, 0.01, 1.49, 0.14, 0.94, 2.18, 0.05,
-            0.34, 1.26, 0.29, 2.61,
-        ]}
-    >
-        <SettingTitle>Weights</SettingTitle>
+<SpinBoxFloatRow
+    bind:value={$config.desiredRetention}
+    defaultValue={defaults.desiredRetention}
+    min={0.8}
+    max={0.97}
+>
+    <SettingTitle>
+        {tr.deckConfigDesiredRetention()}
+    </SettingTitle>
+</SpinBoxFloatRow>
+
+<div class="ms-1 me-1">
+    <WeightsInputRow bind:value={$config.fsrsWeights} defaultValue={[]}>
+        <SettingTitle>{tr.deckConfigWeights()}</SettingTitle>
     </WeightsInputRow>
-    <div>Optimal retention</div>
+</div>
 
-    <ConfigInput>
-        <input type="number" bind:value={$config.desiredRetention} />
-        <RevertButton
-            slot="revert"
-            bind:value={$config.desiredRetention}
-            defaultValue={0.9}
-        />
-    </ConfigInput>
-
-    <div class="mb-3" />
-
-    <div class="bordered">
-        <b>Optimize weights</b>
-        <br />
+<div class="m-2">
+    <details>
+        <summary>{tr.deckConfigComputeOptimalWeights()}</summary>
         <input
             bind:value={customSearch}
-            placeholder="Search; leave blank for all cards using this preset"
+            placeholder={tr.deckConfigComputeWeightsSearch()}
             class="w-100 mb-1"
         />
         <button
@@ -206,9 +220,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:click={() => computeWeights()}
         >
             {#if computing}
-                Cancel
+                {tr.actionsCancel()}
             {:else}
-                Compute
+                {tr.deckConfigComputeButton()}
             {/if}
         </button>
         <button
@@ -216,17 +230,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:click={() => checkWeights()}
         >
             {#if computing}
-                Cancel
+                {tr.actionsCancel()}
             {:else}
-                Check
+                {tr.deckConfigAnalyzeButton()}
             {/if}
         </button>
-        <div>{computeWeightsProgressString}</div>
-    </div>
+        {#if computing}<div>{computeWeightsProgressString}</div>{/if}
+        <Warning warning={computeWeightsWarning} />
+    </details>
+</div>
 
-    <div class="bordered">
-        <b>Calculate optimal retention</b>
-        <br />
+<div class="m-2">
+    <details>
+        <summary>{tr.deckConfigComputeOptimalRetention()}</summary>
 
         Deck size:
         <br />
@@ -251,14 +267,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <input type="number" bind:value={computeOptimalRequest.maxInterval} />
         <br />
 
-        Seconds to recall a card:
-        <br />
-        <input type="number" bind:value={computeOptimalRequest.recallSecs} />
-        <br />
-
-        Seconds to forget a card:
+        Seconds to forget a card (again):
         <br />
         <input type="number" bind:value={computeOptimalRequest.forgetSecs} />
+        <br />
+
+        Seconds to recall a card (hard):
+        <br />
+        <input type="number" bind:value={computeOptimalRequest.recallSecsHard} />
+        <br />
+
+        Seconds to recall a card (good):
+        <br />
+        <input type="number" bind:value={computeOptimalRequest.recallSecsGood} />
+        <br />
+
+        Seconds to recall a card (easy):
+        <br />
+        <input type="number" bind:value={computeOptimalRequest.recallSecsEasy} />
         <br />
 
         Seconds to learn a card:
@@ -266,24 +292,75 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <input type="number" bind:value={computeOptimalRequest.learnSecs} />
         <br />
 
+        First rating probability (again):
+        <br />
+        <input
+            type="number"
+            bind:value={computeOptimalRequest.firstRatingProbabilityAgain}
+        />
+        <br />
+
+        First rating probability (hard):
+        <br />
+        <input
+            type="number"
+            bind:value={computeOptimalRequest.firstRatingProbabilityHard}
+        />
+        <br />
+
+        First rating probability (good):
+        <br />
+        <input
+            type="number"
+            bind:value={computeOptimalRequest.firstRatingProbabilityGood}
+        />
+        <br />
+
+        First rating probability (easy):
+        <br />
+        <input
+            type="number"
+            bind:value={computeOptimalRequest.firstRatingProbabilityEasy}
+        />
+        <br />
+
+        Review rating probability (hard):
+        <br />
+        <input
+            type="number"
+            bind:value={computeOptimalRequest.reviewRatingProbabilityHard}
+        />
+        <br />
+
+        Review rating probability (good):
+        <br />
+        <input
+            type="number"
+            bind:value={computeOptimalRequest.reviewRatingProbabilityGood}
+        />
+        <br />
+
+        Review rating probability (easy):
+        <br />
+        <input
+            type="number"
+            bind:value={computeOptimalRequest.reviewRatingProbabilityEasy}
+        />
+        <br />
+
         <button
             class="btn {computing ? 'btn-warning' : 'btn-primary'}"
             on:click={() => computeRetention()}
         >
             {#if computing}
-                Cancel
+                {tr.actionsCancel()}
             {:else}
-                Compute
+                {tr.deckConfigComputeButton()}
             {/if}
         </button>
         <div>{computeRetentionProgressString}</div>
-    </div>
-</TitledContainer>
+    </details>
+</div>
 
 <style>
-    .bordered {
-        border: 1px solid #777;
-        padding: 1em;
-        margin-bottom: 2px;
-    }
 </style>

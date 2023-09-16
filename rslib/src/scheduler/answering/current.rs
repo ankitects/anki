@@ -63,6 +63,7 @@ impl CardStateUpdater {
         let lapses = self.card.lapses;
         let ease_factor = self.card.ease_factor();
         let remaining_steps = self.card.remaining_steps();
+        let fsrs_memory_state = self.card.fsrs_memory_state;
 
         match self.card.ctype {
             CardType::New => NormalState::New(NewState {
@@ -72,6 +73,7 @@ impl CardStateUpdater {
                 LearnState {
                     scheduled_secs: self.learn_steps().current_delay_secs(remaining_steps),
                     remaining_steps,
+                    fsrs_memory_state,
                 }
             }
             .into(),
@@ -82,12 +84,14 @@ impl CardStateUpdater {
                 ease_factor,
                 lapses,
                 leeched: false,
+                fsrs_memory_state,
             }
             .into(),
             CardType::Relearn => RelearnState {
                 learning: LearnState {
                     scheduled_secs: self.relearn_steps().current_delay_secs(remaining_steps),
                     remaining_steps,
+                    fsrs_memory_state,
                 },
                 review: ReviewState {
                     scheduled_days: interval,
@@ -95,6 +99,7 @@ impl CardStateUpdater {
                     ease_factor,
                     lapses,
                     leeched: false,
+                    fsrs_memory_state,
                 },
             }
             .into(),

@@ -4,11 +4,12 @@ use std::iter;
 use std::thread;
 use std::time::Duration;
 
-use fsrs_optimizer::compute_weights;
-use fsrs_optimizer::evaluate;
-use fsrs_optimizer::FSRSItem;
-use fsrs_optimizer::FSRSReview;
-use fsrs_optimizer::ProgressState;
+use anki_proto::scheduler::ComputeFsrsWeightsResponse;
+use fsrs::FSRSItem;
+use fsrs::FSRSReview;
+use fsrs::ModelEvaluation;
+use fsrs::ProgressState;
+use fsrs::FSRS;
 use itertools::Itertools;
 
 use crate::prelude::*;
@@ -16,17 +17,16 @@ use crate::revlog::RevlogEntry;
 use crate::revlog::RevlogReviewKind;
 use crate::search::SortMode;
 
+pub(crate) type Weights = Vec<f32>;
+
 impl Collection {
-    pub fn compute_weights(&mut self, search: &str) -> Result<Vec<f32>> {
+    pub fn compute_weights(&mut self, search: &str) -> Result<ComputeFsrsWeightsResponse> {
         let timing = self.timing_today()?;
+        let revlogs = self.revlog_for_srs(search)?;
+        let items = fsrs_items_for_training(revlogs, timing.next_day_at);
+        let fsrs_items = items.len() as u32;
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
-        let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
-        let revlogs = guard
-            .col
-            .storage
-            .get_revlog_entries_for_searched_cards_in_order()?;
-        anki_progress.state.revlog_entries = revlogs.len() as u32;
-        let items = anki_to_fsrs(revlogs, timing.next_day_at);
+        anki_progress.update(false, |p| p.fsrs_items = fsrs_items)?;
         // adapt the progress handler to our built-in progress handling
         let progress = ProgressState::new_shared();
         let progress2 = progress.clone();
@@ -45,26 +45,36 @@ impl Collection {
                 }
             }
         });
-        compute_weights(items, Some(progress2)).map_err(Into::into)
+        let fsrs = FSRS::new(None)?;
+        let weights = fsrs.compute_weights(items, Some(progress2))?;
+        Ok(ComputeFsrsWeightsResponse {
+            weights,
+            fsrs_items,
+        })
     }
 
-    pub fn evaluate_weights(&mut self, weights: &[f32], search: &str) -> Result<(f32, f32)> {
+    pub(crate) fn revlog_for_srs(
+        &mut self,
+        search: impl TryIntoSearch,
+    ) -> Result<Vec<RevlogEntry>> {
+        self.search_cards_into_table(search, SortMode::NoOrder)?
+            .col
+            .storage
+            .get_revlog_entries_for_searched_cards_in_order()
+    }
+
+    pub fn evaluate_weights(&mut self, weights: &Weights, search: &str) -> Result<ModelEvaluation> {
         let timing = self.timing_today()?;
-        if weights.len() != 17 {
-            invalid_input!("must have 17 weights");
-        }
-        let mut weights_arr = [0f32; 17];
-        weights_arr.iter_mut().set_from(weights.iter().cloned());
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
         let revlogs = guard
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_order()?;
-        anki_progress.state.revlog_entries = revlogs.len() as u32;
-        let items = anki_to_fsrs(revlogs, timing.next_day_at);
-
-        Ok(evaluate(weights_arr, items, |ip| {
+        anki_progress.state.fsrs_items = revlogs.len() as u32;
+        let items = fsrs_items_for_training(revlogs, timing.next_day_at);
+        let fsrs = FSRS::new(Some(weights))?;
+        Ok(fsrs.evaluate(items, |ip| {
             anki_progress
                 .update(false, |p| {
                     p.total = ip.total as u32;
@@ -79,56 +89,87 @@ impl Collection {
 pub struct ComputeWeightsProgress {
     pub current: u32,
     pub total: u32,
-    pub revlog_entries: u32,
+    pub fsrs_items: u32,
 }
 
 /// Convert a series of revlog entries sorted by card id into FSRS items.
-fn anki_to_fsrs(revlogs: Vec<RevlogEntry>, next_day_at: TimestampSecs) -> Vec<FSRSItem> {
+fn fsrs_items_for_training(revlogs: Vec<RevlogEntry>, next_day_at: TimestampSecs) -> Vec<FSRSItem> {
     let mut revlogs = revlogs
         .into_iter()
         .group_by(|r| r.cid)
         .into_iter()
-        .filter_map(|(_cid, entries)| single_card_revlog_to_items(entries.collect(), next_day_at))
+        .filter_map(|(_cid, entries)| {
+            single_card_revlog_to_items(entries.collect(), next_day_at, true)
+        })
         .flatten()
         .collect_vec();
     revlogs.sort_by_cached_key(|r| r.reviews.len());
     revlogs
 }
 
+/// When updating memory state, FSRS only requires the last FSRSItem that
+/// contains the full history.
+pub(crate) fn fsrs_items_for_memory_state(
+    revlogs: Vec<RevlogEntry>,
+    next_day_at: TimestampSecs,
+) -> Vec<(CardId, FSRSItem)> {
+    let mut out = vec![];
+    for (card_id, group) in revlogs.into_iter().group_by(|r| r.cid).into_iter() {
+        let entries = group.into_iter().collect_vec();
+        if let Some(mut items) = single_card_revlog_to_items(entries, next_day_at, false) {
+            if let Some(item) = items.pop() {
+                out.push((card_id, item));
+            }
+        }
+    }
+    out
+}
+
+/// Transform the revlog history for a card into a list of FSRSItems. FSRS
+/// expects multiple items for a given card when training - for revlog
+/// `[1,2,3]`, we create FSRSItems corresponding to `[1,2]` and `[1,2,3]`
+/// in training, and `[1]`, [1,2]` and `[1,2,3]` when calculating memory
+/// state.
 fn single_card_revlog_to_items(
     mut entries: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
+    training: bool,
 ) -> Option<Vec<FSRSItem>> {
-    // Find the index of the first learn entry in the last continuous group
-    let mut index_to_keep = 0;
-    let mut i = entries.len();
-
-    while i > 0 {
-        i -= 1;
-        if entries[i].review_kind == RevlogReviewKind::Learning {
-            index_to_keep = i;
-        } else if index_to_keep != 0 {
-            // Found a continuous group
+    let mut last_learn_entry = None;
+    for (index, entry) in entries.iter().enumerate().rev() {
+        if entry.review_kind == RevlogReviewKind::Learning {
+            last_learn_entry = Some(index);
+        } else if last_learn_entry.is_some() {
             break;
         }
     }
-
-    // Remove all entries before this one
-    entries.drain(..index_to_keep);
-
-    // we ignore cards that don't start in the learning state
-    if let Some(entry) = entries.first() {
-        if entry.review_kind != RevlogReviewKind::Learning {
-            return None;
+    let first_relearn = entries
+        .iter()
+        .enumerate()
+        .find(|(_idx, e)| e.review_kind == RevlogReviewKind::Relearning)
+        .map(|(idx, _)| idx);
+    if let Some(idx) = last_learn_entry.or(first_relearn) {
+        // start from the (re)learning step
+        if idx > 0 {
+            entries.drain(..idx);
         }
     } else {
-        // no revlog entries
+        // we ignore cards that don't have any learning steps
         return None;
     }
 
-    // Keep only the first review when multiple reviews done on one day
+    // Filter out unwanted entries
     let mut unique_dates = std::collections::HashSet::new();
-    entries.retain(|entry| unique_dates.insert(entry.days_elapsed(next_day_at)));
+    entries.retain(|entry| {
+        let manually_rescheduled =
+            entry.review_kind == RevlogReviewKind::Manual || entry.button_chosen == 0;
+        let cram = entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0;
+        if manually_rescheduled || cram {
+            return false;
+        }
+        // Keep only the first review when multiple reviews done on one day
+        unique_dates.insert(entry.days_elapsed(next_day_at))
+    });
 
     // Old versions of Anki did not record Manual entries in the review log when
     // cards were manually rescheduled. So we look for times when the card has
@@ -153,27 +194,31 @@ fn single_card_revlog_to_items(
         }))
         .collect_vec();
 
-    // Skip the first learning step, then convert the remaining entries into
-    // separate FSRSItems, where each item contains all reviews done until then.
-    Some(
-        entries
-            .iter()
-            .enumerate()
-            .skip(1)
-            .map(|(outer_idx, _)| {
-                let reviews = entries
-                    .iter()
-                    .take(outer_idx + 1)
-                    .enumerate()
-                    .map(|(inner_idx, r)| FSRSReview {
-                        rating: r.button_chosen as i32,
-                        delta_t: delta_ts[inner_idx] as i32,
-                    })
-                    .collect();
-                FSRSItem { reviews }
-            })
-            .collect(),
-    )
+    let skip = if training { 1 } else { 0 };
+    // Convert the remaining entries into separate FSRSItems, where each item
+    // contains all reviews done until then.
+    let items = entries
+        .iter()
+        .enumerate()
+        .skip(skip)
+        .map(|(outer_idx, _)| {
+            let reviews = entries
+                .iter()
+                .take(outer_idx + 1)
+                .enumerate()
+                .map(|(inner_idx, r)| FSRSReview {
+                    rating: r.button_chosen as i32,
+                    delta_t: delta_ts[inner_idx] as i32,
+                })
+                .collect();
+            FSRSItem { reviews }
+        })
+        .collect_vec();
+    if items.is_empty() {
+        None
+    } else {
+        Some(items)
+    }
 }
 
 impl RevlogEntry {
@@ -192,94 +237,136 @@ mod tests {
         RevlogEntry {
             review_kind,
             id: ((NEXT_DAY_AT.0 - days_ago * 86400) * 1000).into(),
+            button_chosen: 3,
             ..Default::default()
         }
+    }
+
+    fn review(delta_t: i32) -> FSRSReview {
+        FSRSReview { rating: 3, delta_t }
+    }
+
+    fn convert(revlog: &[RevlogEntry], training: bool) -> Option<Vec<FSRSItem>> {
+        single_card_revlog_to_items(revlog.to_vec(), NEXT_DAY_AT, training)
+    }
+
+    macro_rules! fsrs_items {
+        ($($reviews:expr),*) => {
+            Some(vec![
+                $(
+                    FSRSItem {
+                        reviews: $reviews.to_vec()
+                    }
+                ),*
+            ])
+        };
     }
 
     #[test]
     fn delta_t_is_correct() -> Result<()> {
         assert_eq!(
-            single_card_revlog_to_items(
-                vec![
+            convert(
+                &[
                     revlog(RevlogReviewKind::Learning, 1),
                     revlog(RevlogReviewKind::Review, 0)
                 ],
-                NEXT_DAY_AT
+                true,
             ),
-            Some(vec![FSRSItem {
-                reviews: vec![
-                    FSRSReview {
-                        rating: 0,
-                        delta_t: 0
-                    },
-                    FSRSReview {
-                        rating: 0,
-                        delta_t: 1
-                    }
-                ]
-            }])
+            fsrs_items!([review(0), review(1)])
         );
         assert_eq!(
-            single_card_revlog_to_items(
-                vec![
+            convert(
+                &[
                     revlog(RevlogReviewKind::Learning, 15),
                     revlog(RevlogReviewKind::Learning, 13),
                     revlog(RevlogReviewKind::Review, 10),
                     revlog(RevlogReviewKind::Review, 5)
                 ],
-                NEXT_DAY_AT,
+                true,
             ),
-            Some(vec![
-                FSRSItem {
-                    reviews: vec![
-                        FSRSReview {
-                            rating: 0,
-                            delta_t: 0
-                        },
-                        FSRSReview {
-                            rating: 0,
-                            delta_t: 2
-                        }
-                    ]
-                },
-                FSRSItem {
-                    reviews: vec![
-                        FSRSReview {
-                            rating: 0,
-                            delta_t: 0
-                        },
-                        FSRSReview {
-                            rating: 0,
-                            delta_t: 2
-                        },
-                        FSRSReview {
-                            rating: 0,
-                            delta_t: 3
-                        }
-                    ]
-                },
-                FSRSItem {
-                    reviews: vec![
-                        FSRSReview {
-                            rating: 0,
-                            delta_t: 0
-                        },
-                        FSRSReview {
-                            rating: 0,
-                            delta_t: 2
-                        },
-                        FSRSReview {
-                            rating: 0,
-                            delta_t: 3
-                        },
-                        FSRSReview {
-                            rating: 0,
-                            delta_t: 5
-                        }
-                    ]
-                }
-            ])
+            fsrs_items!(
+                [review(0), review(2)],
+                [review(0), review(2), review(3)],
+                [review(0), review(2), review(3), review(5)]
+            )
+        );
+        assert_eq!(
+            convert(
+                &[
+                    revlog(RevlogReviewKind::Learning, 15),
+                    revlog(RevlogReviewKind::Learning, 13),
+                ],
+                true,
+            ),
+            fsrs_items!([review(0), review(2),])
         );
         Ok(())
+    }
+
+    #[test]
+    fn cram_is_filtered() {
+        assert_eq!(
+            convert(
+                &[
+                    revlog(RevlogReviewKind::Learning, 10),
+                    revlog(RevlogReviewKind::Review, 9),
+                    revlog(RevlogReviewKind::Filtered, 7),
+                    revlog(RevlogReviewKind::Review, 4),
+                ],
+                true,
+            ),
+            fsrs_items!([review(0), review(1)], [review(0), review(1), review(5)])
+        );
+    }
+
+    #[test]
+    fn set_due_date_is_filtered() {
+        assert_eq!(
+            convert(
+                &[
+                    revlog(RevlogReviewKind::Learning, 10),
+                    revlog(RevlogReviewKind::Review, 9),
+                    RevlogEntry {
+                        ease_factor: 100,
+                        ..revlog(RevlogReviewKind::Manual, 7)
+                    },
+                    revlog(RevlogReviewKind::Review, 4),
+                ],
+                true,
+            ),
+            fsrs_items!([review(0), review(1)], [review(0), review(1), review(5)])
+        );
+    }
+
+    #[test]
+    fn card_reset_drops_all_previous_history() {
+        assert_eq!(
+            convert(
+                &[
+                    revlog(RevlogReviewKind::Learning, 10),
+                    revlog(RevlogReviewKind::Review, 9),
+                    RevlogEntry {
+                        ease_factor: 0,
+                        ..revlog(RevlogReviewKind::Manual, 7)
+                    },
+                    revlog(RevlogReviewKind::Learning, 4),
+                    revlog(RevlogReviewKind::Review, 0),
+                ],
+                true,
+            ),
+            fsrs_items!([review(0), review(4)])
+        );
+    }
+
+    #[test]
+    fn single_learning_step_skipped_when_training() {
+        assert_eq!(
+            convert(&[revlog(RevlogReviewKind::Learning, 1),], true),
+            None,
+        );
+        assert_eq!(
+            convert(&[revlog(RevlogReviewKind::Learning, 1),], false),
+            fsrs_items!([review(0)])
+        );
     }
 }

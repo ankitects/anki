@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use fsrs::FSRS;
+
 use crate::card::CardQueue;
 use crate::card::CardType;
 use crate::prelude::*;
@@ -24,7 +26,15 @@ impl Collection {
 
         let (average_secs, total_secs) = average_and_total_secs_strings(&revlog);
         let (due_date, due_position) = self.due_date_and_position(&card)?;
-
+        let timing = self.timing_today()?;
+        let fsrs_retrievability = card
+            .fsrs_memory_state
+            .zip(card.days_since_last_review(&timing))
+            .map(|(state, days)| {
+                FSRS::new(None)
+                    .unwrap()
+                    .current_retrievability(state.into(), days)
+            });
         Ok(anki_proto::stats::CardStatsResponse {
             card_id: card.id.into(),
             note_id: card.note_id.into(),
@@ -43,6 +53,8 @@ impl Collection {
             card_type: nt.get_template(card.template_idx)?.name.clone(),
             notetype: nt.name.clone(),
             revlog: revlog.iter().rev().map(stats_revlog_entry).collect(),
+            fsrs_memory_state: card.fsrs_memory_state.map(Into::into),
+            fsrs_retrievability,
             custom_data: card.custom_data,
         })
     }

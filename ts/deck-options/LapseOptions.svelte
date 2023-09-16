@@ -28,6 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const defaults = state.defaults;
 
     let stepsExceedMinimumInterval: string;
+    let stepsTooLargeForFsrs: string;
     $: {
         const lastRelearnStepInDays = $config.relearnSteps.length
             ? $config.relearnSteps[$config.relearnSteps.length - 1] / 60 / 24
@@ -35,6 +36,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         stepsExceedMinimumInterval =
             lastRelearnStepInDays > $config.minimumLapseInterval
                 ? tr.deckConfigRelearningStepsAboveMinimumInterval()
+                : "";
+        stepsTooLargeForFsrs =
+            $config.fsrsEnabled && lastRelearnStepInDays >= 1
+                ? tr.deckConfigStepsTooLargeForFsrs()
                 : "";
     }
 
@@ -98,19 +103,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Item>
 
         <Item>
-            <SpinBoxRow
-                bind:value={$config.minimumLapseInterval}
-                defaultValue={defaults.minimumLapseInterval}
-                min={1}
-            >
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(Object.keys(settings).indexOf("minimumInterval"))}
-                >
-                    {settings.minimumInterval.title}
-                </SettingTitle>
-            </SpinBoxRow>
+            <Warning warning={stepsTooLargeForFsrs} />
         </Item>
+
+        {#if !$config.fsrsEnabled}
+            <Item>
+                <SpinBoxRow
+                    bind:value={$config.minimumLapseInterval}
+                    defaultValue={defaults.minimumLapseInterval}
+                    min={1}
+                >
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(
+                                Object.keys(settings).indexOf("minimumInterval"),
+                            )}
+                    >
+                        {settings.minimumInterval.title}
+                    </SettingTitle>
+                </SpinBoxRow>
+            </Item>
+        {/if}
 
         <Item>
             <Warning warning={stepsExceedMinimumInterval} />

@@ -105,6 +105,9 @@ pub enum PropertyKind {
     Ease(f32),
     Position(u32),
     Rated(i32, RatingKind),
+    Stability(f32),
+    Difficulty(f32),
+    Retrievability(f32),
     CustomDataNumber { key: String, value: f32 },
     CustomDataString { key: String, value: String },
 }
@@ -410,6 +413,9 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
         tag("pos"),
         tag("rated"),
         tag("resched"),
+        tag("s"),
+        tag("d"),
+        tag("r"),
         recognize(preceded(tag("cdn:"), alphanumeric1)),
         recognize(preceded(tag("cds:"), alphanumeric1)),
     ))(prop_clause)
@@ -451,6 +457,9 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
         "reps" => PropertyKind::Reps(parse_u32(num, prop_clause)?),
         "lapses" => PropertyKind::Lapses(parse_u32(num, prop_clause)?),
         "pos" => PropertyKind::Position(parse_u32(num, prop_clause)?),
+        "s" => PropertyKind::Stability(parse_f32(num, prop_clause)?),
+        "d" => PropertyKind::Difficulty(parse_f32(num, prop_clause)?),
+        "r" => PropertyKind::Retrievability(parse_f32(num, prop_clause)?),
         prop if prop.starts_with("cdn:") => PropertyKind::CustomDataNumber {
             key: prop.strip_prefix("cdn:").unwrap().into(),
             value: parse_f32(num, prop_clause)?,

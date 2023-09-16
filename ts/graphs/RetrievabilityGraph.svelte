@@ -7,12 +7,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
     import { createEventDispatcher } from "svelte";
 
-    import { gatherData, prepareData } from "./ease";
     import Graph from "./Graph.svelte";
     import type { GraphPrefs } from "./graph-helpers";
     import type { SearchEventMap, TableDatum } from "./graph-helpers";
     import type { HistogramData } from "./histogram-graph";
     import HistogramGraph from "./HistogramGraph.svelte";
+    import { gatherData, prepareData } from "./retrievability";
     import TableData from "./TableData.svelte";
 
     export let sourceData: GraphsResponse | null = null;
@@ -31,8 +31,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
     }
 
-    const title = tr.statisticsCardEaseTitle();
-    const subtitle = tr.statisticsCardEaseSubtitle();
+    const title = tr.statisticsCardRetrievabilityTitle();
+    const subtitle = tr.statisticsRetrievabilitySubtitle();
 </script>
 
 {#if histogramData}

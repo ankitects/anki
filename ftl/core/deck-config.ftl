@@ -307,6 +307,26 @@ deck-config-maximum-answer-secs-above-recommended = Anki can schedule your revie
 
 deck-config-which-deck = Which deck would you like to display options for?
 
+## Messages related to the FSRS scheduler
+
+deck-config-updating-cards = Updating cards: { $current_cards_count }/{ $total_cards_count }...
+deck-config-invalid-weights = Weights must be either left blank to use the defaults, or must be 17 comma-separated numbers.
+deck-config-not-enough-history = Insufficient review history to perform this operation.
+deck-config-limited-history =
+    { $count ->
+        [one] Only { $count } review was found.
+        *[other] Only { $count } reviews were found.
+    } The custom weights are likely to be inaccurate, and using the defaults instead is recommended.
+deck-config-compute-weights-search = Search; leave blank for all cards using this preset
+# Numbers that control how aggressively the FSRS algorithm schedules cards
+deck-config-weights = Model weights
+deck-config-compute-optimal-weights = Compute optimal weights
+deck-config-compute-optimal-retention = Compute optimal retention
+deck-config-compute-button = Compute
+deck-config-analyze-button = Analyze
+deck-config-desired-retention = Desired retention
+deck-config-smaller-is-better = Smaller numbers indicate better memory estimates.
+deck-config-steps-too-large-for-fsrs = When FSRS is enabled, interday (re)learning steps are not recommended.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

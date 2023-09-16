@@ -41,12 +41,14 @@ import AddedGraph from "./AddedGraph.svelte";
 import ButtonsGraph from "./ButtonsGraph.svelte";
 import CalendarGraph from "./CalendarGraph.svelte";
 import CardCounts from "./CardCounts.svelte";
+import DifficultyGraph from "./DifficultyGraph.svelte";
 import EaseGraph from "./EaseGraph.svelte";
 import FutureDue from "./FutureDue.svelte";
 import { RevlogRange } from "./graph-helpers";
 import HourGraph from "./HourGraph.svelte";
 import IntervalsGraph from "./IntervalsGraph.svelte";
 import RangeBox from "./RangeBox.svelte";
+import RetrievabilityGraph from "./RetrievabilityGraph.svelte";
 import ReviewsGraph from "./ReviewsGraph.svelte";
 import TodayStats from "./TodayStats.svelte";
 
@@ -59,6 +61,8 @@ setupGraphs(
         CardCounts,
         IntervalsGraph,
         EaseGraph,
+        DifficultyGraph,
+        RetrievabilityGraph,
         HourGraph,
         ButtonsGraph,
         AddedGraph,
@@ -76,6 +80,8 @@ export const graphComponents = {
     CardCounts,
     IntervalsGraph,
     EaseGraph,
+    DifficultyGraph,
+    RetrievabilityGraph,
     HourGraph,
     ButtonsGraph,
     AddedGraph,

@@ -28,6 +28,7 @@ pub use writer::replace_search_node;
 use crate::browser_table::Column;
 use crate::card::CardType;
 use crate::prelude::*;
+use crate::scheduler::timing::SchedTimingToday;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ReturnItemType {
@@ -207,7 +208,7 @@ impl Collection {
             SortMode::Builtin { column, reverse } => {
                 prepare_sort(self, column, item_type)?;
                 sql.push_str(" order by ");
-                write_order(sql, item_type, column, reverse)?;
+                write_order(sql, item_type, column, reverse, self.timing_today()?)?;
             }
             SortMode::Custom(order_clause) => {
                 sql.push_str(" order by ");
@@ -332,9 +333,10 @@ fn write_order(
     item_type: ReturnItemType,
     column: Column,
     reverse: bool,
+    timing: SchedTimingToday,
 ) -> Result<()> {
     let order = match item_type {
-        ReturnItemType::Cards => card_order_from_sort_column(column),
+        ReturnItemType::Cards => card_order_from_sort_column(column, timing),
         ReturnItemType::Notes => note_order_from_sort_column(column),
     };
     require!(!order.is_empty(), "Can't sort {item_type:?} by {column:?}.");
@@ -351,7 +353,7 @@ fn write_order(
     Ok(())
 }
 
-fn card_order_from_sort_column(column: Column) -> Cow<'static, str> {
+fn card_order_from_sort_column(column: Column, timing: SchedTimingToday) -> Cow<'static, str> {
     match column {
         Column::CardMod => "c.mod asc".into(),
         Column::Cards => concat!(
@@ -372,6 +374,13 @@ fn card_order_from_sort_column(column: Column) -> Cow<'static, str> {
         Column::SortField => "n.sfld collate nocase asc, c.ord asc".into(),
         Column::Tags => "n.tags asc".into(),
         Column::Answer | Column::Custom | Column::Question => "".into(),
+        Column::Stability => "extract_fsrs_variable(c.data, 's') desc".into(),
+        Column::Difficulty => "extract_fsrs_variable(c.data, 'd') desc".into(),
+        Column::Retrievability => format!(
+            "extract_fsrs_retrievability(c.data, c.due, c.ivl, {})",
+            timing.days_elapsed
+        )
+        .into(),
     }
 }
 
@@ -390,7 +399,12 @@ fn note_order_from_sort_column(column: Column) -> Cow<'static, str> {
         Column::Notetype => "(select pos from sort_order where ntid = n.mid) asc".into(),
         Column::SortField => "n.sfld collate nocase asc".into(),
         Column::Tags => "n.tags asc".into(),
-        Column::Answer | Column::Custom | Column::Question => "".into(),
+        Column::Answer
+        | Column::Custom
+        | Column::Question
+        | Column::Stability
+        | Column::Difficulty
+        | Column::Retrievability => "".into(),
     }
 }
 
