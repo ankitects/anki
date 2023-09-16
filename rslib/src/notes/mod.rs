@@ -15,6 +15,9 @@ use sha1::Sha1;
 
 use crate::cloze::contains_cloze;
 use crate::define_newtype;
+use crate::error;
+use crate::error::AnkiError;
+use crate::error::OrInvalid;
 use crate::notetype::CardGenContext;
 use crate::notetype::NoteField;
 use crate::ops::StateChanges;
@@ -66,16 +69,35 @@ impl Note {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct AddNoteRequest {
+    pub note: Note,
+    pub deck_id: DeckId,
+}
+
+impl TryFrom<anki_proto::notes::AddNoteRequest> for AddNoteRequest {
+    type Error = AnkiError;
+
+    fn try_from(request: anki_proto::notes::AddNoteRequest) -> error::Result<Self, Self::Error> {
+        Ok(Self {
+            note: request.note.or_invalid("no note provided")?.into(),
+            deck_id: DeckId(request.deck_id),
+        })
+    }
+}
+
 impl Collection {
     pub fn add_note(&mut self, note: &mut Note, did: DeckId) -> Result<OpOutput<()>> {
+        self.transact(Op::AddNote, |col| col.add_note_inner(note, did))
+    }
+
+    pub fn add_notes(&mut self, requests: &mut [AddNoteRequest]) -> Result<OpOutput<()>> {
         self.transact(Op::AddNote, |col| {
-            let nt = col
-                .get_notetype(note.notetype_id)?
-                .or_invalid("missing note type")?;
-            let last_deck = col.get_last_deck_added_to_for_notetype(note.notetype_id);
-            let ctx = CardGenContext::new(nt.as_ref(), last_deck, col.usn()?);
-            let norm = col.get_config_bool(BoolKey::NormalizeNoteText);
-            col.add_note_inner(&ctx, note, did, norm)
+            for request in requests {
+                col.add_note_inner(&mut request.note, request.deck_id)?;
+            }
+
+            Ok(())
         })
     }
 
@@ -333,18 +355,18 @@ impl Collection {
         Ok(())
     }
 
-    pub(crate) fn add_note_inner(
-        &mut self,
-        ctx: &CardGenContext<&Notetype>,
-        note: &mut Note,
-        did: DeckId,
-        normalize_text: bool,
-    ) -> Result<()> {
+    pub(crate) fn add_note_inner(&mut self, note: &mut Note, did: DeckId) -> Result<()> {
+        let nt = self
+            .get_notetype(note.notetype_id)?
+            .or_invalid("missing note type")?;
+        let last_deck = self.get_last_deck_added_to_for_notetype(note.notetype_id);
+        let ctx = CardGenContext::new(nt.as_ref(), last_deck, self.usn()?);
+        let normalize_text = self.get_config_bool(BoolKey::NormalizeNoteText);
         self.canonify_note_tags(note, ctx.usn)?;
         note.prepare_for_update(ctx.notetype, normalize_text)?;
         note.set_modified(ctx.usn);
         self.add_note_only_undoable(note)?;
-        self.generate_cards_for_new_note(ctx, note, did)?;
+        self.generate_cards_for_new_note(&ctx, note, did)?;
         self.set_last_deck_for_notetype(note.notetype_id, did)?;
         self.set_last_notetype_for_deck(did, note.notetype_id)?;
         self.set_current_notetype_id(note.notetype_id)

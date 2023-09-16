@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Generator, Literal, Sequence, Union, cast
+from typing import Any, Generator, Iterable, Literal, Sequence, Union, cast
 
 from anki import (
     ankiweb_pb2,
@@ -14,6 +14,7 @@ from anki import (
     image_occlusion_pb2,
     import_export_pb2,
     links_pb2,
+    notes_pb2,
     search_pb2,
     stats_pb2,
     sync_pb2,
@@ -125,6 +126,12 @@ class CardIdsLimit:
 
 
 ExportLimit = Union[DeckIdLimit, NoteIdsLimit, CardIdsLimit, None]
+
+
+@dataclass
+class AddNoteRequest:
+    note: Note
+    deck_id: DeckId
 
 
 class Collection(DeprecatedNamesMixin):
@@ -578,6 +585,22 @@ class Collection(DeprecatedNamesMixin):
         hooks.note_will_be_added(self, note, deck_id)
         out = self._backend.add_note(note=note._to_backend_note(), deck_id=deck_id)
         note.id = NoteId(out.note_id)
+        return out.changes
+
+    def add_notes(self, requests: Iterable[AddNoteRequest]) -> OpChanges:
+        for request in requests:
+            hooks.note_will_be_added(self, request.note, request.deck_id)
+        out = self._backend.add_notes(
+            requests=[
+                notes_pb2.AddNoteRequest(
+                    note=request.note._to_backend_note(), deck_id=request.deck_id
+                )
+                for request in requests
+            ]
+        )
+        for idx, request in enumerate(requests):
+            request.note.id = NoteId(out.nids[idx])
+
         return out.changes
 
     def remove_notes(self, note_ids: Sequence[NoteId]) -> OpChangesWithCount:
