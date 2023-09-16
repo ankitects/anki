@@ -8,6 +8,7 @@ mod eases;
 mod future_due;
 mod hours;
 mod intervals;
+mod retrievability;
 mod reviews;
 mod today;
 
@@ -73,6 +74,7 @@ impl Collection {
             buttons: Some(ctx.buttons()),
             card_counts: Some(ctx.card_counts()),
             rollover_hour: self.rollover_for_current_scheduler()? as u32,
+            retrievability: Some(ctx.retrievability()),
         };
         Ok(resp)
     }

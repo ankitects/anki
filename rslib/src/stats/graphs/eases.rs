@@ -30,7 +30,7 @@ impl GraphsContext {
     }
 }
 
-fn round_to_nearest_five(x: f32) -> u32 {
+pub(super) fn round_to_nearest_five(x: f32) -> u32 {
     let scaled = x * 10.0;
     let rounded = (scaled / 5.0).round() * 5.0;
     (rounded / 10.0) as u32

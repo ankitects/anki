@@ -73,6 +73,9 @@ message GraphsResponse {
   message Eases {
     map<uint32, uint32> eases = 1;
   }
+  message Retrievability {
+    map<uint32, uint32> retrievability = 1;
+  }
   message FutureDue {
     map<int32, uint32> future_due = 1;
     bool have_backlog = 2;
@@ -150,6 +153,7 @@ message GraphsResponse {
   Added added = 8;
   ReviewCountsAndTimes reviews = 9;
   uint32 rollover_hour = 10;
+  Retrievability retrievability = 12;
 }
 
 message GraphPreferences {
