@@ -101,8 +101,24 @@ pub struct Card {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct FsrsMemoryState {
+    /// The expected memory stability, in days.
     pub stability: f32,
+    /// A number in the range 1.0-10.0. Use difficulty() for a normalized
+    /// number.
     pub difficulty: f32,
+}
+
+impl FsrsMemoryState {
+    /// Returns the difficulty normalized to a 0.0-1.0 range.
+    pub(crate) fn difficulty(&self) -> f32 {
+        (self.difficulty - 1.0) / 9.0
+    }
+
+    /// Returns the difficulty normalized to a 0.1-1.1 range,
+    /// which is used in revlog entries.
+    pub(crate) fn difficulty_shifted(&self) -> f32 {
+        self.difficulty() + 0.1
+    }
 }
 
 impl Default for Card {

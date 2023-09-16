@@ -29,7 +29,10 @@ impl CardStateUpdater {
         RevlogEntryPartial::new(
             current,
             next.into(),
-            next.ease_factor,
+            self.card
+                .memory_state
+                .map(|d| d.difficulty_shifted())
+                .unwrap_or(next.ease_factor),
             self.secs_until_rollover(),
         )
     }

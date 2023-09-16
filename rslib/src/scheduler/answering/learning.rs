@@ -26,7 +26,15 @@ impl CardStateUpdater {
         self.card.original_position = None;
         self.card.memory_state = None;
 
-        RevlogEntryPartial::new(current, next.into(), 0.0, self.secs_until_rollover())
+        RevlogEntryPartial::new(
+            current,
+            next.into(),
+            self.card
+                .memory_state
+                .map(|d| d.difficulty_shifted())
+                .unwrap_or_default(),
+            self.secs_until_rollover(),
+        )
     }
 
     pub(super) fn apply_learning_state(
@@ -55,7 +63,15 @@ impl CardStateUpdater {
             }
         }
 
-        RevlogEntryPartial::new(current, next.into(), 0.0, self.secs_until_rollover())
+        RevlogEntryPartial::new(
+            current,
+            next.into(),
+            self.card
+                .memory_state
+                .map(|d| d.difficulty_shifted())
+                .unwrap_or_default(),
+            self.secs_until_rollover(),
+        )
     }
 
     /// Adds secs + fuzz to current time

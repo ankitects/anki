@@ -67,12 +67,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             rating: entry.buttonChosen,
             ratingClass: ratingClass(entry),
             interval: timeSpan(entry.interval),
-            ease: entry.ease ? `${entry.ease / 10}%` : "",
+            ease: formatEaseOrDifficulty(entry.ease),
             takenSecs: timeSpan(entry.takenSecs, true),
         };
     }
 
     $: revlogRows = revlog.map(revlogRowFromEntry);
+
+    function formatEaseOrDifficulty(ease: number): string {
+        if (ease === 0) {
+            return "";
+        }
+        const asPct = ease / 10.0;
+        if (asPct <= 110) {
+            // FSRS
+            const unshifted = asPct - 10;
+            return `D:${unshifted.toFixed(0)}%`;
+        } else {
+            // SM-2
+            return `${asPct.toFixed(0)}%`;
+        }
+    }
 </script>
 
 {#if revlog.length > 0}
