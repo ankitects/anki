@@ -6,8 +6,10 @@ use crate::cloze::add_cloze_numbers_in_string;
 use crate::collection::Collection;
 use crate::decks::DeckId;
 use crate::error;
+use crate::error::AnkiError;
 use crate::error::OrInvalid;
 use crate::error::OrNotFound;
+use crate::notes::AddNoteRequest;
 use crate::notes::Note;
 use crate::notes::NoteId;
 use crate::prelude::IntoNewtypeVec;
@@ -35,6 +37,22 @@ impl crate::services::NotesService for Collection {
         let changes = self.add_note(&mut note, DeckId(input.deck_id))?;
         Ok(anki_proto::notes::AddNoteResponse {
             note_id: note.id.0,
+            changes: Some(changes.into()),
+        })
+    }
+
+    fn add_notes(
+        &mut self,
+        input: anki_proto::notes::AddNotesRequest,
+    ) -> error::Result<anki_proto::notes::AddNotesResponse> {
+        let mut requests = input
+            .requests
+            .into_iter()
+            .map(TryInto::try_into)
+            .collect::<error::Result<Vec<AddNoteRequest>, AnkiError>>()?;
+        let changes = self.add_notes(&mut requests)?;
+        Ok(anki_proto::notes::AddNotesResponse {
+            nids: requests.iter().map(|r| r.note.id.0).collect(),
             changes: Some(changes.into()),
         })
     }
