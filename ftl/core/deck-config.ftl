@@ -311,7 +311,7 @@ deck-config-which-deck = Which deck would you like to display options for?
 
 deck-config-updating-cards = Updating cards: { $current_cards_count }/{ $total_cards_count }...
 deck-config-invalid-weights = Weights must be either left blank to use the defaults, or must be 17 comma-separated numbers.
-deck-config-not-enough-history = Insufficient review history to calculate custom weights.
+deck-config-not-enough-history = Insufficient review history to perform this operation.
 deck-config-limited-history =
     { $count ->
         [one] Only { $count } review was found.

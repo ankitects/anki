@@ -44,6 +44,7 @@ impl NormalState {
                 let next_states = LearnState {
                     remaining_steps: ctx.steps.remaining_for_failed(),
                     scheduled_secs: 0,
+                    fsrs_memory_state: None,
                 }
                 .next_states(ctx);
                 // .. but with current as New, not Learning

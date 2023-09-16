@@ -30,7 +30,7 @@ impl RelearnState {
             again: self.answer_again(ctx),
             hard: self.answer_hard(ctx),
             good: self.answer_good(ctx),
-            easy: self.answer_easy().into(),
+            easy: self.answer_easy(ctx).into(),
         }
     }
 
@@ -41,6 +41,7 @@ impl RelearnState {
                 learning: LearnState {
                     remaining_steps: ctx.relearn_steps.remaining_for_failed(),
                     scheduled_secs: again_delay,
+                    fsrs_memory_state,
                 },
                 review: ReviewState {
                     scheduled_days,
@@ -56,6 +57,7 @@ impl RelearnState {
     }
 
     fn answer_hard(self, ctx: &StateContext) -> CardState {
+        let fsrs_memory_state = ctx.fsrs_next_states.as_ref().map(|s| s.hard.memory.into());
         if let Some(hard_delay) = ctx
             .relearn_steps
             .hard_delay_secs(self.learning.remaining_steps)
@@ -63,10 +65,12 @@ impl RelearnState {
             RelearnState {
                 learning: LearnState {
                     scheduled_secs: hard_delay,
+                    fsrs_memory_state,
                     ..self.learning
                 },
                 review: ReviewState {
                     elapsed_days: 0,
+                    fsrs_memory_state,
                     ..self.review
                 },
             }
@@ -77,6 +81,7 @@ impl RelearnState {
     }
 
     fn answer_good(self, ctx: &StateContext) -> CardState {
+        let fsrs_memory_state = ctx.fsrs_next_states.as_ref().map(|s| s.good.memory.into());
         if let Some(good_delay) = ctx
             .relearn_steps
             .good_delay_secs(self.learning.remaining_steps)
@@ -87,9 +92,11 @@ impl RelearnState {
                     remaining_steps: ctx
                         .relearn_steps
                         .remaining_for_good(self.learning.remaining_steps),
+                    fsrs_memory_state,
                 },
                 review: ReviewState {
                     elapsed_days: 0,
+                    fsrs_memory_state,
                     ..self.review
                 },
             }
@@ -99,10 +106,11 @@ impl RelearnState {
         }
     }
 
-    fn answer_easy(self) -> ReviewState {
+    fn answer_easy(self, ctx: &StateContext) -> ReviewState {
         ReviewState {
             scheduled_days: self.review.scheduled_days + 1,
             elapsed_days: 0,
+            fsrs_memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.easy.memory.into()),
             ..self.review
         }
     }

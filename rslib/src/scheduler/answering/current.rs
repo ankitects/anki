@@ -73,6 +73,7 @@ impl CardStateUpdater {
                 LearnState {
                     scheduled_secs: self.learn_steps().current_delay_secs(remaining_steps),
                     remaining_steps,
+                    fsrs_memory_state,
                 }
             }
             .into(),
@@ -90,6 +91,7 @@ impl CardStateUpdater {
                 learning: LearnState {
                     scheduled_secs: self.relearn_steps().current_delay_secs(remaining_steps),
                     remaining_steps,
+                    fsrs_memory_state,
                 },
                 review: ReviewState {
                     scheduled_days: interval,

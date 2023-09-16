@@ -118,43 +118,47 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Warning warning={stepsTooLargeForFsrs} />
         </Item>
 
-        <Item>
-            <SpinBoxRow
-                bind:value={$config.graduatingIntervalGood}
-                defaultValue={defaults.graduatingIntervalGood}
-            >
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(
-                            Object.keys(settings).indexOf("graduatingInterval"),
-                        )}
+        {#if !$config.fsrsEnabled}
+            <Item>
+                <SpinBoxRow
+                    bind:value={$config.graduatingIntervalGood}
+                    defaultValue={defaults.graduatingIntervalGood}
                 >
-                    {settings.graduatingInterval.title}
-                </SettingTitle>
-            </SpinBoxRow>
-        </Item>
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(
+                                Object.keys(settings).indexOf("graduatingInterval"),
+                            )}
+                    >
+                        {settings.graduatingInterval.title}
+                    </SettingTitle>
+                </SpinBoxRow>
+            </Item>
 
-        <Item>
-            <Warning warning={stepsExceedGraduatingInterval} />
-        </Item>
+            <Item>
+                <Warning warning={stepsExceedGraduatingInterval} />
+            </Item>
 
-        <Item>
-            <SpinBoxRow
-                bind:value={$config.graduatingIntervalEasy}
-                defaultValue={defaults.graduatingIntervalEasy}
-            >
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(Object.keys(settings).indexOf("easyInterval"))}
+            <Item>
+                <SpinBoxRow
+                    bind:value={$config.graduatingIntervalEasy}
+                    defaultValue={defaults.graduatingIntervalEasy}
                 >
-                    {settings.easyInterval.title}
-                </SettingTitle>
-            </SpinBoxRow>
-        </Item>
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(
+                                Object.keys(settings).indexOf("easyInterval"),
+                            )}
+                    >
+                        {settings.easyInterval.title}
+                    </SettingTitle>
+                </SpinBoxRow>
+            </Item>
 
-        <Item>
-            <Warning warning={goodExceedsEasy} />
-        </Item>
+            <Item>
+                <Warning warning={goodExceedsEasy} />
+            </Item>
+        {/if}
 
         <Item>
             <EnumSelectorRow

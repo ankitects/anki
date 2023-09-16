@@ -62,6 +62,7 @@ struct CardStateUpdater {
     timing: SchedTimingToday,
     now: TimestampSecs,
     fuzz_seed: Option<u64>,
+    /// Set if FSRS is enabled.
     fsrs_next_states: Option<NextStates>,
 }
 

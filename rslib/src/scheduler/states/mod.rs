@@ -84,6 +84,7 @@ pub(crate) struct StateContext<'a> {
     /// In range `0.0..1.0`. Used to pick the final interval from the fuzz
     /// range.
     pub fuzz_factor: Option<f32>,
+    pub fsrs_next_states: Option<NextStates>,
 
     // learning
     pub steps: LearningSteps<'a>,
@@ -97,7 +98,6 @@ pub(crate) struct StateContext<'a> {
     pub interval_multiplier: f32,
     pub maximum_review_interval: u32,
     pub leech_threshold: u32,
-    pub fsrs_next_states: Option<NextStates>,
 
     // relearning
     pub relearn_steps: LearningSteps<'a>,

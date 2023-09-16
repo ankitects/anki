@@ -104,6 +104,7 @@ impl ReviewState {
                 learning: LearnState {
                     remaining_steps: ctx.relearn_steps.remaining_for_failed(),
                     scheduled_secs: again_delay,
+                    fsrs_memory_state,
                 },
                 review: again_review,
             }
