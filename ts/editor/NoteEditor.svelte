@@ -238,17 +238,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return noteId;
     }
 
-    let isImageOcclusion = false;
-    function setIsImageOcclusion(val: boolean) {
-        isImageOcclusion = val;
-        $ioMaskEditorVisible = val;
-    }
-
-    let isEditMode = false;
-    function setIsEditMode(val: boolean) {
-        isEditMode = val;
-    }
-
     let cols: ("dupe" | "")[] = [];
     export function setBackgrounds(cls: ("dupe" | "")[]): void {
         cols = cls;
@@ -302,7 +291,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         closeMathjaxEditor?.();
         $commitTagEdits();
         saveFieldNow();
-        imageOcclusionMode = undefined;
     }
 
     export function saveOnPageHide() {
@@ -397,27 +385,35 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
-    let isIOImageLoaded = false;
     let imageOcclusionMode: IOMode | undefined;
-    async function setupMaskEditor(options: { html: string; mode: IOMode }) {
-        imageOcclusionMode = options.mode;
-        if (options.mode.kind === "add") {
-            fieldStores[1].set(options.html);
 
-            // new image is being added
-            if (isIOImageLoaded) {
-                resetIOImage(options.mode.imagePath);
-            }
-        } else {
-            const clozeNote = get(fieldStores[0]);
-            if (clozeNote.includes("oi=1")) {
+    $: showAddImageButton =
+        !$ioMaskEditorVisible && imageOcclusionMode?.kind === "addWithoutImage";
+    $: showIOPage =
+        imageOcclusionMode?.kind === "add" || imageOcclusionMode?.kind === "edit";
+    $: showFields = !imageOcclusionMode && !$ioMaskEditorVisible && !showAddImageButton;
+
+    async function setImageOcclusionMode(newMode?: IOMode | undefined): Promise<void> {
+        if (imageOcclusionMode?.kind === "add" && newMode?.kind === "add") {
+            resetIOImage(newMode.imagePath);
+        }
+        if (newMode?.kind === "add") {
+            fieldStores[1].set(newMode.imageFieldHtml);
+
+            if (get(fieldStores[0]).includes("oi=1")) {
                 $hideAllGuessOne = true;
             } else {
                 $hideAllGuessOne = false;
             }
         }
+        $ioMaskEditorVisible = newMode?.kind === "add" || newMode?.kind === "edit";
 
-        isIOImageLoaded = true;
+        // The current I/O code appears to assume that fabric.Canvas and panZoom are
+        // reset each time the note is loaded or reloaded, so apparently we need to
+        // set this to 'undefined' and then wait for the DOM to be updated with tick().
+        imageOcclusionMode = undefined;
+        await tick();
+        imageOcclusionMode = newMode;
     }
 
     function setImageField(html) {
@@ -427,7 +423,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     // update cloze deletions and set occlusion fields, it call in saveNow to update cloze deletions
     function updateIONoteInEditMode() {
-        if (isEditMode) {
+        if (imageOcclusionMode?.kind === "edit") {
             const clozeNote = get(fieldStores[0]);
             if (clozeNote.includes("oi=1")) {
                 setOcclusionField(true);
@@ -438,7 +434,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function setOcclusionFieldInner() {
-        if (isImageOcclusion) {
+        if (imageOcclusionMode) {
             const occlusionsData = exportShapesToClozeDeletions($hideAllGuessOne);
             fieldStores[0].set(occlusionsData.clozes);
         }
@@ -448,7 +444,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     // reset for new occlusion in add mode
     function resetIOImageLoaded() {
-        isIOImageLoaded = false;
         globalThis.canvas.clear();
         const page = document.querySelector(".image-occlusion");
         if (page) {
@@ -459,7 +454,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function setOcclusionField(occludeInactive: boolean) {
         // set fields data for occlusion and image fields for io notes type
-        if (isImageOcclusion) {
+        if (imageOcclusionMode) {
             const occlusionsData = exportShapesToClozeDeletions(occludeInactive);
             fieldStores[0].set(occlusionsData.clozes);
         }
@@ -467,7 +462,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     // hide first two fields for occlusion type, first contains occlusion data and second contains image
     function hideFieldInOcclusionType(index: number) {
-        if (isImageOcclusion) {
+        if (imageOcclusionMode) {
             if (index == 0 || index == 1) {
                 return true;
             }
@@ -508,9 +503,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setShrinkImages,
             setCloseHTMLTags,
             triggerChanges,
-            setIsImageOcclusion,
-            setIsEditMode,
-            setupMaskEditor,
+            setImageOcclusionMode,
             setOcclusionField,
             setOcclusionFieldInner,
             ...oldEditorAdapter,
@@ -566,7 +559,7 @@ the AddCards dialog) should be implemented in the user of this component.
         </Absolute>
     {/if}
 
-    {#if imageOcclusionMode}
+    {#if imageOcclusionMode && showIOPage}
         <div style="display: {$ioMaskEditorVisible ? 'block' : 'none'}">
             <ImageOcclusionPage
                 mode={imageOcclusionMode}
@@ -575,14 +568,13 @@ the AddCards dialog) should be implemented in the user of this component.
         </div>
     {/if}
 
-    {#if $ioMaskEditorVisible && isImageOcclusion && !isIOImageLoaded}
+    {#if showAddImageButton}
         <div id="io-select-image-div" style="padding-top: 60px; text-align: center;">
             <LabelButton
                 --border-left-radius="5px"
                 --border-right-radius="5px"
                 class="io-select-image-btn"
                 on:click={() => {
-                    imageOcclusionMode = undefined;
                     bridgeCommand("addImageForOcclusion");
                 }}
             >
@@ -591,7 +583,7 @@ the AddCards dialog) should be implemented in the user of this component.
         </div>
     {/if}
 
-    {#if !$ioMaskEditorVisible}
+    {#if showFields}
         <Fields>
             {#each fieldsData as field, index}
                 {@const content = fieldStores[index]}

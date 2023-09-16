@@ -37,7 +37,7 @@ export const addOrUpdateNote = async function(
             tags,
         });
         showResult(mode.noteId, result, noteCount);
-    } else {
+    } else if (mode.kind == "add") {
         const result = await addImageOcclusionNote({
             notetypeId: BigInt(mode.notetypeId),
             imagePath: mode.imagePath,
