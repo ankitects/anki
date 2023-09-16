@@ -8,6 +8,7 @@ mod relearning;
 mod review;
 mod revlog;
 
+use fsrs::MemoryState;
 use fsrs::NextStates;
 use fsrs::FSRS;
 use rand::prelude::*;
@@ -24,10 +25,13 @@ use super::states::StateContext;
 use super::timespan::answer_button_time_collapsible;
 use super::timing::SchedTimingToday;
 use crate::card::CardQueue;
+use crate::card::CardType;
 use crate::deckconfig::DeckConfig;
 use crate::deckconfig::LeechAction;
 use crate::decks::Deck;
 use crate::prelude::*;
+use crate::scheduler::fsrs::weights::fsrs_items_for_memory_state;
+use crate::search::SearchNode;
 
 #[derive(Copy, Clone)]
 pub enum Rating {
@@ -348,8 +352,21 @@ impl Collection {
             .or_not_found(card.deck_id)?;
         let config = self.home_deck_config(deck.config_id(), card.original_deck_id)?;
         let fsrs_next_states = if config.inner.fsrs_enabled {
-            Some(FSRS::new(Some(&config.inner.fsrs_weights))?.next_states(
-                card.fsrs_memory_state.map(Into::into),
+            let fsrs = FSRS::new(Some(&config.inner.fsrs_weights))?;
+            let memory_state = if let Some(state) = card.fsrs_memory_state {
+                Some(MemoryState::from(state))
+            } else if card.ctype == CardType::New {
+                None
+            } else {
+                // Card has been moved or imported into an FSRS deck after weights were set,
+                // and will need its initial memory state to be calculated based on review
+                // history.
+                let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
+                let mut fsrs_items = fsrs_items_for_memory_state(revlog, timing.next_day_at);
+                fsrs_items.pop().map(|(_cid, item)| fsrs.memory_state(item))
+            };
+            Some(fsrs.next_states(
+                memory_state,
                 config.inner.desired_retention,
                 card.days_since_last_review(&timing).unwrap_or_default(),
             ))

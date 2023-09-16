@@ -109,7 +109,7 @@ fn fsrs_items_for_training(revlogs: Vec<RevlogEntry>, next_day_at: TimestampSecs
 
 /// When updating memory state, FSRS only requires the last FSRSItem that
 /// contains the full history.
-pub(super) fn fsrs_items_for_memory_state(
+pub(crate) fn fsrs_items_for_memory_state(
     revlogs: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
 ) -> Vec<(CardId, FSRSItem)> {
