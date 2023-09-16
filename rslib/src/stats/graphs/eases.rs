@@ -12,7 +12,7 @@ impl GraphsContext {
         let mut eases = Eases::default();
         let mut difficulty = Eases::default();
         for card in &self.cards {
-            if let Some(state) = card.fsrs_memory_state {
+            if let Some(state) = card.memory_state {
                 *difficulty
                     .eases
                     .entry(round_to_nearest_five(

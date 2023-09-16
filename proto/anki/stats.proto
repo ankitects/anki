@@ -52,7 +52,7 @@ message CardStatsResponse {
   float total_secs = 15;
   string card_type = 16;
   string notetype = 17;
-  optional cards.FsrsMemoryState fsrs_memory_state = 18;
+  optional cards.FsrsMemoryState memory_state = 18;
   // not set if due date/state not available
   optional float fsrs_retrievability = 19;
   string custom_data = 20;

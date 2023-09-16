@@ -40,7 +40,7 @@ impl Collection {
                 let state = fsrs.memory_state(item);
                 let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
                 let original = card.clone();
-                card.fsrs_memory_state = Some(state.into());
+                card.memory_state = Some(state.into());
                 self.update_card_inner(&mut card, original, usn)?;
             }
         }

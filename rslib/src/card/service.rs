@@ -100,7 +100,7 @@ impl TryFrom<anki_proto::cards::Card> for Card {
             original_deck_id: DeckId(c.original_deck_id),
             flags: c.flags as u8,
             original_position: c.original_position,
-            fsrs_memory_state: c.fsrs_memory_state.map(Into::into),
+            memory_state: c.memory_state.map(Into::into),
             custom_data: c.custom_data,
         })
     }
@@ -127,7 +127,7 @@ impl From<Card> for anki_proto::cards::Card {
             original_deck_id: c.original_deck_id.0,
             flags: c.flags as u32,
             original_position: c.original_position.map(Into::into),
-            fsrs_memory_state: c.fsrs_memory_state.map(Into::into),
+            memory_state: c.memory_state.map(Into::into),
             custom_data: c.custom_data,
         }
     }

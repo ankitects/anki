@@ -472,7 +472,7 @@ impl RowContext {
 
     fn fsrs_stability_str(&self) -> String {
         self.cards[0]
-            .fsrs_memory_state
+            .memory_state
             .as_ref()
             .map(|s| time_span(s.stability * 86400.0, &self.tr, false))
             .unwrap_or_default()
@@ -480,7 +480,7 @@ impl RowContext {
 
     fn fsrs_difficulty_str(&self) -> String {
         self.cards[0]
-            .fsrs_memory_state
+            .memory_state
             .as_ref()
             .map(|s| format!("{:.0}%", (s.difficulty - 1.0) / 9.0 * 100.0))
             .unwrap_or_default()
@@ -488,7 +488,7 @@ impl RowContext {
 
     fn fsrs_retrievability_str(&self) -> String {
         self.cards[0]
-            .fsrs_memory_state
+            .memory_state
             .as_ref()
             .zip(self.cards[0].days_since_last_review(&self.timing))
             .map(|(state, days_elapsed)| {

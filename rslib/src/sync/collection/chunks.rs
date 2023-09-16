@@ -330,7 +330,7 @@ impl From<CardEntry> for Card {
             original_deck_id: e.odid,
             flags: e.flags,
             original_position: data.original_position,
-            fsrs_memory_state: data.fsrs_memory_state(),
+            memory_state: data.memory_state(),
             custom_data: data.custom_data,
         }
     }

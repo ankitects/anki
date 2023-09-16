@@ -45,7 +45,7 @@ class Card(DeprecatedNamesMixin):
     odid: anki.decks.DeckId
     queue: CardQueue
     type: CardType
-    fsrs_memory_state: FSRSMemoryState | None
+    memory_state: FSRSMemoryState | None
 
     def __init__(
         self,
@@ -95,9 +95,7 @@ class Card(DeprecatedNamesMixin):
             card.original_position if card.HasField("original_position") else None
         )
         self.custom_data = card.custom_data
-        self.fsrs_memory_state = (
-            card.fsrs_memory_state if card.HasField("fsrs_memory_state") else None
-        )
+        self.memory_state = card.memory_state if card.HasField("memory_state") else None
 
     def _to_backend_card(self) -> cards_pb2.Card:
         # mtime & usn are set by backend
@@ -119,7 +117,7 @@ class Card(DeprecatedNamesMixin):
             flags=self.flags,
             original_position=self.original_position,
             custom_data=self.custom_data,
-            fsrs_memory_state=self.fsrs_memory_state,
+            memory_state=self.memory_state,
         )
 
     def flush(self) -> None:
