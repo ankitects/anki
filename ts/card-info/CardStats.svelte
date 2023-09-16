@@ -55,11 +55,42 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 value: timeSpan(stats.interval * DAY),
             });
         }
-        if (stats.ease) {
+        if (stats.fsrsMemoryState) {
+            let stability = timeSpan(
+                stats.fsrsMemoryState.stability * 86400,
+                false,
+                false,
+            );
+            if (stats.fsrsMemoryState.stability > 31) {
+                const nativeStability = stats.fsrsMemoryState.stability.toFixed(0);
+                stability += ` (${nativeStability})`;
+            }
             statsRows.push({
-                label: tr2.cardStatsEase(),
-                value: `${stats.ease / 10}%`,
+                label: tr2.cardStatsFsrsStability(),
+                value: stability,
             });
+            const difficulty = (
+                ((stats.fsrsMemoryState.difficulty - 1.0) / 9.0) *
+                100.0
+            ).toFixed(0);
+            statsRows.push({
+                label: tr2.cardStatsFsrsDifficulty(),
+                value: `${difficulty}%`,
+            });
+            if (stats.fsrsRetrievability) {
+                const retrievability = (stats.fsrsRetrievability * 100).toFixed(0);
+                statsRows.push({
+                    label: tr2.cardStatsFsrsRetrievability(),
+                    value: `${retrievability}%`,
+                });
+            }
+        } else {
+            if (stats.ease) {
+                statsRows.push({
+                    label: tr2.cardStatsEase(),
+                    value: `${stats.ease / 10}%`,
+                });
+            }
         }
 
         statsRows.push({ label: tr2.cardStatsReviewCount(), value: stats.reviews });

@@ -52,7 +52,10 @@ message CardStatsResponse {
   float total_secs = 15;
   string card_type = 16;
   string notetype = 17;
-  string custom_data = 18;
+  optional cards.FsrsMemoryState fsrs_memory_state = 18;
+  // not set if due date/state not available
+  optional float fsrs_retrievability = 19;
+  string custom_data = 20;
 }
 
 message GraphsRequest {
@@ -69,6 +72,9 @@ message GraphsResponse {
   }
   message Eases {
     map<uint32, uint32> eases = 1;
+  }
+  message Retrievability {
+    map<uint32, uint32> retrievability = 1;
   }
   message FutureDue {
     map<int32, uint32> future_due = 1;
@@ -141,11 +147,13 @@ message GraphsResponse {
   Hours hours = 3;
   Today today = 4;
   Eases eases = 5;
+  Eases difficulty = 11;
   Intervals intervals = 6;
   FutureDue future_due = 7;
   Added added = 8;
   ReviewCountsAndTimes reviews = 9;
   uint32 rollover_hour = 10;
+  Retrievability retrievability = 12;
 }
 
 message GraphPreferences {

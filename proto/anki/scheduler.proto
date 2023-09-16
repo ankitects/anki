@@ -63,6 +63,7 @@ message SchedulingState {
   message Learning {
     uint32 remaining_steps = 1;
     uint32 scheduled_secs = 2;
+    optional cards.FsrsMemoryState fsrs_memory_state = 6;
   }
   message Review {
     uint32 scheduled_days = 1;
@@ -70,6 +71,7 @@ message SchedulingState {
     float ease_factor = 3;
     uint32 lapses = 4;
     bool leeched = 5;
+    optional cards.FsrsMemoryState fsrs_memory_state = 6;
   }
   message Relearning {
     Review review = 1;
@@ -330,6 +332,8 @@ message ComputeFsrsWeightsRequest {
 
 message ComputeFsrsWeightsResponse {
   repeated float weights = 1;
+  // if less than 1000, should warn user
+  uint32 fsrs_items = 2;
 }
 
 message ComputeOptimalRetentionRequest {
@@ -338,9 +342,18 @@ message ComputeOptimalRetentionRequest {
   uint32 days_to_simulate = 3;
   uint32 max_seconds_of_study_per_day = 4;
   uint32 max_interval = 5;
-  uint32 recall_secs = 6;
-  uint32 forget_secs = 7;
-  uint32 learn_secs = 8;
+  double recall_secs_hard = 6;
+  double recall_secs_good = 7;
+  double recall_secs_easy = 8;
+  uint32 forget_secs = 9;
+  uint32 learn_secs = 10;
+  double first_rating_probability_again = 11;
+  double first_rating_probability_hard = 12;
+  double first_rating_probability_good = 13;
+  double first_rating_probability_easy = 14;
+  double review_rating_probability_hard = 15;
+  double review_rating_probability_good = 16;
+  double review_rating_probability_easy = 17;
 }
 
 message ComputeOptimalRetentionResponse {
@@ -354,5 +367,5 @@ message EvaluateWeightsRequest {
 
 message EvaluateWeightsResponse {
   float log_loss = 1;
-  float rmse = 2;
+  float rmse_bins = 2;
 }

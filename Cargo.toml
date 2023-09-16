@@ -26,6 +26,23 @@ members = [
 exclude = ["qt/bundle"]
 resolver = "2"
 
+[workspace.dependencies.csv]
+git = "https://github.com/ankitects/rust-csv.git"
+rev = "1c9d3aab6f79a7d815c69f925a46a4590c115f90"
+
+[workspace.dependencies.percent-encoding-iri]
+git = "https://github.com/ankitects/rust-url.git"
+rev = "bb930b8d089f4d30d7d19c12e54e66191de47b88"
+
+[workspace.dependencies.linkcheck]
+git = "https://github.com/ankitects/linkcheck.git"
+rev = "184b2ca50ed39ca43da13f0b830a463861adb9ca"
+
+[workspace.dependencies.fsrs]
+git = "https://github.com/open-spaced-repetition/fsrs-rs.git"
+rev = "bae680bfde996f614741b32ac63a27a1a882a45b"
+# path = "../../../fsrs-rs"
+
 [workspace.dependencies]
 # local
 anki = { path = "rslib" }
@@ -35,14 +52,6 @@ anki_proto = { path = "rslib/proto" }
 anki_process = { path = "rslib/process" }
 anki_proto_gen = { path = "rslib/proto_gen" }
 ninja_gen = { "path" = "build/ninja_gen" }
-
-fsrs-optimizer = { git = "https://github.com/open-spaced-repetition/fsrs-optimizer-rs", rev = "e0b15cce555a94de6fdaa4bf1e096d19704a397d" }
-# fsrs-optimizer.path = "../../../fsrs-optimizer-rs"
-
-# forked
-csv = { git = "https://github.com/ankitects/rust-csv.git", rev = "1c9d3aab6f79a7d815c69f925a46a4590c115f90" }
-percent-encoding-iri = { git = "https://github.com/ankitects/rust-url.git", rev = "bb930b8d089f4d30d7d19c12e54e66191de47b88" }
-linkcheck = { git = "https://github.com/ankitects/linkcheck.git", rev = "184b2ca50ed39ca43da13f0b830a463861adb9ca" }
 
 # pinned
 unicase = "=2.6.0" # any changes could invalidate sqlite indexes

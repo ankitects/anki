@@ -8,6 +8,7 @@ impl From<anki_proto::scheduler::scheduling_state::Learning> for LearnState {
         LearnState {
             remaining_steps: state.remaining_steps,
             scheduled_secs: state.scheduled_secs,
+            fsrs_memory_state: state.fsrs_memory_state.map(Into::into),
         }
     }
 }
@@ -17,6 +18,7 @@ impl From<LearnState> for anki_proto::scheduler::scheduling_state::Learning {
         anki_proto::scheduler::scheduling_state::Learning {
             remaining_steps: state.remaining_steps,
             scheduled_secs: state.scheduled_secs,
+            fsrs_memory_state: state.fsrs_memory_state.map(Into::into),
         }
     }
 }

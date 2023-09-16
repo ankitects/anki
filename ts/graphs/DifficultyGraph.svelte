@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
     import { createEventDispatcher } from "svelte";
 
-    import { gatherData, prepareData } from "./ease";
+    import { gatherData, prepareData } from "./difficulty";
     import Graph from "./Graph.svelte";
     import type { GraphPrefs } from "./graph-helpers";
     import type { SearchEventMap, TableDatum } from "./graph-helpers";
@@ -31,8 +31,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
     }
 
-    const title = tr.statisticsCardEaseTitle();
-    const subtitle = tr.statisticsCardEaseSubtitle();
+    const title = tr.statisticsCardDifficultyTitle();
+    const subtitle = tr.statisticsCardDifficultySubtitle();
 </script>
 
 {#if histogramData}

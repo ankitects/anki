@@ -1,9 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 use anki_proto::scheduler::ComputeOptimalRetentionRequest;
-use fsrs_optimizer::find_optimal_retention;
-use fsrs_optimizer::SimulatorConfig;
-use itertools::Itertools;
+use fsrs::SimulatorConfig;
+use fsrs::FSRS;
 
 use crate::prelude::*;
 
@@ -19,24 +19,33 @@ impl Collection {
         req: ComputeOptimalRetentionRequest,
     ) -> Result<f32> {
         let mut anki_progress = self.new_progress_handler::<ComputeRetentionProgress>();
-        if req.weights.len() != 17 {
-            invalid_input!("must have 17 weights");
-        }
-        let mut weights = [0f64; 17];
-        weights
-            .iter_mut()
-            .set_from(req.weights.into_iter().map(|v| v as f64));
-        Ok(find_optimal_retention(
+        let fsrs = FSRS::new(None)?;
+        Ok(fsrs.optimal_retention(
             &SimulatorConfig {
-                w: weights,
                 deck_size: req.deck_size as usize,
                 learn_span: req.days_to_simulate as usize,
                 max_cost_perday: req.max_seconds_of_study_per_day as f64,
                 max_ivl: req.max_interval as f64,
-                recall_cost: req.recall_secs as f64,
+                recall_costs: [
+                    req.recall_secs_hard,
+                    req.recall_secs_good,
+                    req.recall_secs_easy,
+                ],
                 forget_cost: req.forget_secs as f64,
                 learn_cost: req.learn_secs as f64,
+                first_rating_prob: [
+                    req.first_rating_probability_again,
+                    req.first_rating_probability_hard,
+                    req.first_rating_probability_good,
+                    req.first_rating_probability_easy,
+                ],
+                review_rating_prob: [
+                    req.review_rating_probability_hard,
+                    req.review_rating_probability_good,
+                    req.review_rating_probability_easy,
+                ],
             },
+            &req.weights,
             |ip| {
                 anki_progress
                     .update(false, |p| {

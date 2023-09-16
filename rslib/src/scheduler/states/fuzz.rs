@@ -40,16 +40,6 @@ impl<'a> StateContext<'a> {
             (interval.round() as u32).clamp(minimum, maximum)
         }
     }
-
-    pub(crate) fn fuzzed_graduating_interval_good(&self) -> u32 {
-        let (minimum, maximum) = self.min_and_max_review_intervals(1);
-        self.with_review_fuzz(self.graduating_interval_good as f32, minimum, maximum)
-    }
-
-    pub(crate) fn fuzzed_graduating_interval_easy(&self) -> u32 {
-        let (minimum, maximum) = self.min_and_max_review_intervals(1);
-        self.with_review_fuzz(self.graduating_interval_easy as f32, minimum, maximum)
-    }
 }
 
 /// Return the bounds of the fuzz range, respecting `minimum` and `maximum`.

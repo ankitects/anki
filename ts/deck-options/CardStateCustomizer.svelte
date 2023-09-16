@@ -3,33 +3,29 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Col from "../components/Col.svelte";
     import ConfigInput from "../components/ConfigInput.svelte";
     import RevertButton from "../components/RevertButton.svelte";
-    import Row from "../components/Row.svelte";
-    import SettingTitle from "../components/SettingTitle.svelte";
 
     export let value: string;
     export let title: string;
 </script>
 
-<Row>
-    <Col>
-        <div class="text">
-            <ConfigInput>
-                <SettingTitle on:click>{title}</SettingTitle>
-                <RevertButton slot="revert" bind:value defaultValue="" />
-            </ConfigInput>
-        </div>
-    </Col>
-</Row>
-
-<textarea
-    class="card-state-customizer form-control"
-    bind:value
-    spellcheck="false"
-    autocapitalize="none"
-/>
+<div class="m-2">
+    <ConfigInput>
+        <RevertButton slot="revert" bind:value defaultValue="" />
+        <details>
+            <summary>{title}</summary>
+            <div class="text">
+                <textarea
+                    class="card-state-customizer form-control"
+                    bind:value
+                    spellcheck="false"
+                    autocapitalize="none"
+                />
+            </div>
+        </details>
+    </ConfigInput>
+</div>
 
 <style lang="scss">
     .text {

@@ -3,6 +3,7 @@
 
 use std::sync::Arc;
 
+use fsrs::FSRS;
 use itertools::Itertools;
 use strum::Display;
 use strum::EnumIter;
@@ -52,6 +53,9 @@ pub enum Column {
     SortField,
     #[strum(serialize = "noteTags")]
     Tags,
+    Stability,
+    Difficulty,
+    Retrievability,
 }
 
 struct RowContext {
@@ -115,6 +119,15 @@ impl Card {
             None
         }
     }
+
+    pub(crate) fn days_since_last_review(&self, timing: &SchedTimingToday) -> Option<u32> {
+        self.due_time(timing).map(|due| {
+            due.adding_secs(-86_400 * self.interval as i64)
+                .elapsed_secs()
+                .max(0) as u32
+                / 86_400
+        })
+    }
 }
 
 impl Note {
@@ -144,17 +157,18 @@ impl Column {
             Self::Reps => tr.scheduling_reviews(),
             Self::SortField => tr.browsing_sort_field(),
             Self::Tags => tr.editing_tags(),
+            Self::Stability => tr.card_stats_fsrs_stability(),
+            Self::Difficulty => tr.card_stats_fsrs_difficulty(),
+            Self::Retrievability => tr.card_stats_fsrs_retrievability(),
         }
         .into()
     }
 
     pub fn notes_mode_label(self, tr: &I18n) -> String {
         match self {
-            Self::CardMod => tr.search_card_modified(),
             Self::Cards => tr.editing_cards(),
             Self::Ease => tr.browsing_average_ease(),
             Self::Interval => tr.browsing_average_interval(),
-            Self::Reps => tr.scheduling_reviews(),
             _ => return self.cards_mode_label(tr),
         }
         .into()
@@ -196,6 +210,9 @@ impl Column {
             | Column::Interval
             | Column::NoteCreation
             | Column::NoteMod
+            | Column::Stability
+            | Column::Difficulty
+            | Column::Retrievability
             | Column::Reps => Sorting::Descending,
         }
     }
@@ -396,6 +413,9 @@ impl RowContext {
             Column::NoteMod => self.note.mtime.date_and_time_string(),
             Column::Tags => self.note.tags.join(" "),
             Column::Notetype => self.notetype.name.to_owned(),
+            Column::Stability => self.fsrs_stability_str(),
+            Column::Difficulty => self.fsrs_difficulty_str(),
+            Column::Retrievability => self.fsrs_retrievability_str(),
             Column::Custom => "".to_string(),
         })
     }
@@ -448,6 +468,36 @@ impl RowContext {
         } else {
             due.into()
         }
+    }
+
+    fn fsrs_stability_str(&self) -> String {
+        self.cards[0]
+            .fsrs_memory_state
+            .as_ref()
+            .map(|s| time_span(s.stability * 86400.0, &self.tr, false))
+            .unwrap_or_default()
+    }
+
+    fn fsrs_difficulty_str(&self) -> String {
+        self.cards[0]
+            .fsrs_memory_state
+            .as_ref()
+            .map(|s| format!("{:.0}%", (s.difficulty - 1.0) / 9.0 * 100.0))
+            .unwrap_or_default()
+    }
+
+    fn fsrs_retrievability_str(&self) -> String {
+        self.cards[0]
+            .fsrs_memory_state
+            .as_ref()
+            .zip(self.cards[0].days_since_last_review(&self.timing))
+            .map(|(state, days_elapsed)| {
+                let r = FSRS::new(None)
+                    .unwrap()
+                    .current_retrievability((*state).into(), days_elapsed);
+                format!("{:.0}%", r * 100.)
+            })
+            .unwrap_or_default()
     }
 
     /// Returns the due date of the next due card that is not in a filtered

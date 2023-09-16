@@ -14,6 +14,7 @@ pub(crate) mod review;
 pub(crate) mod steps;
 
 pub use filtered::FilteredState;
+use fsrs::NextStates;
 pub(crate) use interval_kind::IntervalKind;
 pub use learning::LearnState;
 pub use new::NewState;
@@ -83,6 +84,7 @@ pub(crate) struct StateContext<'a> {
     /// In range `0.0..1.0`. Used to pick the final interval from the fuzz
     /// range.
     pub fuzz_factor: Option<f32>,
+    pub fsrs_next_states: Option<NextStates>,
 
     // learning
     pub steps: LearningSteps<'a>,
@@ -135,6 +137,7 @@ impl<'a> StateContext<'a> {
             minimum_lapse_interval: 1,
             in_filtered_deck: false,
             preview_step: 10,
+            fsrs_next_states: None,
         }
     }
 }

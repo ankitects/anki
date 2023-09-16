@@ -9,6 +9,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use fnv::FnvHasher;
+use fsrs::FSRS;
 use regex::Regex;
 use rusqlite::functions::FunctionFlags;
 use rusqlite::params;
@@ -70,6 +71,8 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     add_without_combining_function(&db)?;
     add_fnvhash_function(&db)?;
     add_extract_custom_data_function(&db)?;
+    add_extract_fsrs_variable(&db)?;
+    add_extract_fsrs_retrievability(&db)?;
 
     db.create_collation("unicase", unicase_compare)?;
 
@@ -228,6 +231,76 @@ fn add_extract_custom_data_function(db: &Connection) -> rusqlite::Result<()> {
                 _ => v.to_string(),
             });
             Ok(v)
+        },
+    )
+}
+
+/// eg. extract_fsrs_variable(card.data, 's' | 'd') -> float | null
+fn add_extract_fsrs_variable(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "extract_fsrs_variable",
+        2,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
+
+            let Ok(card_data) = ctx.get_raw(0).as_str() else {
+                return Ok(None);
+            };
+            if card_data.is_empty() {
+                return Ok(None);
+            }
+            let Ok(key) = ctx.get_raw(1).as_str() else {
+                return Ok(None);
+            };
+            let card_data = &CardData::from_str(card_data);
+            Ok(match key {
+                "s" => card_data.fsrs_stability,
+                "d" => card_data.fsrs_difficulty,
+                _ => panic!("invalid key: {key}"),
+            })
+        },
+    )
+}
+
+/// eg. extract_fsrs_retrievability(card.data, card.due, card.ivl,
+/// timing.days_elapsed) -> float | null
+fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "extract_fsrs_retrievability",
+        4,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 4, "called with unexpected number of arguments");
+
+            let Ok(card_data) = ctx.get_raw(0).as_str() else {
+                return Ok(None);
+            };
+            if card_data.is_empty() {
+                return Ok(None);
+            }
+            let Ok(due) = ctx.get_raw(1).as_i64() else {
+                return Ok(None);
+            };
+            if due > 365_000 {
+                // learning card
+                return Ok(None);
+            }
+            let Ok(ivl) = ctx.get_raw(2).as_i64() else {
+                return Ok(None);
+            };
+            let Ok(days_elapsed) = ctx.get_raw(3).as_i64() else {
+                return Ok(None);
+            };
+
+            let review_day = due - ivl;
+            let days_elapsed = days_elapsed.saturating_sub(review_day) as u32;
+            let card_data = &CardData::from_str(card_data);
+            Ok(card_data.fsrs_memory_state().map(|state| {
+                FSRS::new(None)
+                    .unwrap()
+                    .current_retrievability(state.into(), days_elapsed)
+            }))
         },
     )
 }
