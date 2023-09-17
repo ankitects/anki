@@ -3,7 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script>
-    import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@tslib/ftl";
     import DropdownItem from "components/DropdownItem.svelte";
     import IconButton from "components/IconButton.svelte";
@@ -14,7 +13,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         mdiChevronDown,
         mdiEye,
         mdiFormatAlignCenter,
-        mdiRefresh,
         mdiSquare,
         mdiViewDashboard,
     } from "./icons";
@@ -149,19 +147,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </DropdownItem>
             </Popover>
         </WithFloating>
-    </div>
-
-    <!-- refresh for changing image -->
-    <div class="undo-redo-button">
-        <IconButton
-            class="top-tool-icon-button icon-border-radius"
-            {iconSize}
-            on:click={() => {
-                bridgeCommand("addImageForOcclusion");
-            }}
-        >
-            {@html mdiRefresh}
-        </IconButton>
     </div>
 
     <!-- undo & redo tools -->
