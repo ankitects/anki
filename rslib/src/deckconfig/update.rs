@@ -204,7 +204,7 @@ impl Collection {
                     .map(|c| c.inner.fsrs_enabled)
                     .unwrap_or_default();
                 let current_weights = current_config.map(|c| &c.inner.fsrs_weights);
-                if current_fsrs_on && (!previous_fsrs_on || previous_weights != current_weights) {
+                if current_fsrs_on != previous_fsrs_on || previous_weights != current_weights {
                     decks_needing_memory_recompute
                         .entry(current_config_id)
                         .or_default()
@@ -216,15 +216,16 @@ impl Collection {
         }
 
         if !decks_needing_memory_recompute.is_empty() {
-            let input: Vec<(Weights, Vec<SearchNode>)> = decks_needing_memory_recompute
+            let input: Vec<(Option<Weights>, Vec<SearchNode>)> = decks_needing_memory_recompute
                 .into_iter()
                 .map(|(conf_id, search)| {
-                    let weights = configs_after_update
-                        .get(&conf_id)
-                        .or_not_found(conf_id)?
-                        .inner
-                        .fsrs_weights
-                        .clone();
+                    let weights = configs_after_update.get(&conf_id).and_then(|c| {
+                        if c.inner.fsrs_enabled {
+                            Some(c.inner.fsrs_weights.clone())
+                        } else {
+                            None
+                        }
+                    });
                     Ok((weights, search))
                 })
                 .collect::<Result<_>>()?;
