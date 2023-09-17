@@ -20,7 +20,6 @@ from . import (
     emptycards,
     exporting,
     fields,
-    fields_web,
     filtered_deck,
     finddupes,
     findreplace,
