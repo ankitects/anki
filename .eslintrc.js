@@ -49,7 +49,7 @@ module.exports = {
             },
         },
     ],
-    env: { browser: true },
+    env: { browser: true, es2020: true },
     ignorePatterns: ["backend_proto.d.ts", "*.svelte.d.ts", "vendor", "extra/*"],
     globals: {
         globalThis: false,
