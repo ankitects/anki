@@ -550,13 +550,22 @@ impl Notetype {
         fields: HashMap<String, Option<String>>,
         parsed: &mut [(Option<ParsedTemplate>, Option<ParsedTemplate>)],
     ) {
+        let first_remaining_field_name = &self.fields.get(0).unwrap().name;
+        let is_cloze = self.is_cloze();
         for (idx, (q_opt, a_opt)) in parsed.iter_mut().enumerate() {
             if let Some(q) = q_opt {
                 q.rename_and_remove_fields(&fields);
+                if q.all_referenced_field_names().is_empty() ||
+                   is_cloze && q.all_referenced_cloze_field_names().is_empty() {
+                    q.add_missing_field_replacement(first_remaining_field_name, is_cloze);
+                }
                 self.templates[idx].config.q_format = q.template_to_string();
             }
             if let Some(a) = a_opt {
                 a.rename_and_remove_fields(&fields);
+                if is_cloze && a.all_referenced_cloze_field_names().is_empty() {
+                    a.add_missing_field_replacement(first_remaining_field_name, is_cloze);
+                }
                 self.templates[idx].config.a_format = a.template_to_string();
             }
         }
