@@ -47,6 +47,8 @@ service SchedulerService {
   rpc RepositionDefaults(generic.Empty) returns (RepositionDefaultsResponse);
   rpc ComputeFsrsWeights(ComputeFsrsWeightsRequest)
       returns (ComputeFsrsWeightsResponse);
+  rpc GetOptimalRetentionParameters(GetOptimalRetentionParametersRequest)
+      returns (GetOptimalRetentionParametersResponse);
   rpc ComputeOptimalRetention(ComputeOptimalRetentionRequest)
       returns (ComputeOptimalRetentionResponse);
   rpc EvaluateWeights(EvaluateWeightsRequest) returns (EvaluateWeightsResponse);
@@ -338,6 +340,14 @@ message ComputeFsrsWeightsResponse {
 
 message ComputeOptimalRetentionRequest {
   repeated float weights = 1;
+  OptimalRetentionParameters params = 2;
+}
+
+message ComputeOptimalRetentionResponse {
+  float optimal_retention = 1;
+}
+
+message OptimalRetentionParameters {
   uint32 deck_size = 2;
   uint32 days_to_simulate = 3;
   uint32 max_seconds_of_study_per_day = 4;
@@ -356,8 +366,12 @@ message ComputeOptimalRetentionRequest {
   double review_rating_probability_easy = 17;
 }
 
-message ComputeOptimalRetentionResponse {
-  float optimal_retention = 1;
+message GetOptimalRetentionParametersRequest {
+  string search = 1;
+}
+
+message GetOptimalRetentionParametersResponse {
+  OptimalRetentionParameters params = 1;
 }
 
 message EvaluateWeightsRequest {

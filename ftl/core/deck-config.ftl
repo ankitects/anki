@@ -327,6 +327,7 @@ deck-config-analyze-button = Analyze
 deck-config-desired-retention = Desired retention
 deck-config-smaller-is-better = Smaller numbers indicate better memory estimates.
 deck-config-steps-too-large-for-fsrs = When FSRS is enabled, interday (re)learning steps are not recommended.
+deck-config-get-params = Get Params
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

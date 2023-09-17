@@ -894,7 +894,10 @@ mod test {
             vec![Search(Deck("default one".into()))]
         );
 
-        assert_eq!(parse("preset:default")?, vec![Search(Preset("default".into()))]);
+        assert_eq!(
+            parse("preset:default")?,
+            vec![Search(Preset("default".into()))]
+        );
 
         assert_eq!(parse("note:basic")?, vec![Search(Notetype("basic".into()))]);
         assert_eq!(

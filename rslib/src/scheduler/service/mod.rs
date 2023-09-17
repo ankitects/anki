@@ -8,6 +8,7 @@ use anki_proto::generic;
 use anki_proto::scheduler;
 use anki_proto::scheduler::ComputeOptimalRetentionRequest;
 use anki_proto::scheduler::ComputeOptimalRetentionResponse;
+use anki_proto::scheduler::GetOptimalRetentionParametersResponse;
 
 use crate::prelude::*;
 use crate::scheduler::new::NewCardDueOrder;
@@ -265,5 +266,15 @@ impl crate::services::SchedulerService for Collection {
             log_loss: ret.log_loss,
             rmse_bins: ret.rmse_bins,
         })
+    }
+
+    fn get_optimal_retention_parameters(
+        &mut self,
+        input: scheduler::GetOptimalRetentionParametersRequest,
+    ) -> Result<scheduler::GetOptimalRetentionParametersResponse> {
+        self.get_optimal_retention_parameters(&input.search)
+            .map(|params| GetOptimalRetentionParametersResponse {
+                params: Some(params),
+            })
     }
 }
