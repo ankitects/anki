@@ -734,10 +734,10 @@ impl ParsedTemplate {
     pub(crate) fn add_missing_field_replacement(&mut self, field_name: &str, is_cloze: bool) {
         let key = String::from(field_name);
         let filters = match is_cloze {
-            true  => vec![String::from("cloze")],
+            true => vec![String::from("cloze")],
             false => Vec::new(),
         };
-        self.0.push(ParsedNode::Replacement {key, filters});
+        self.0.push(ParsedNode::Replacement { key, filters });
     }
 }
 

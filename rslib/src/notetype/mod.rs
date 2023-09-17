@@ -555,8 +555,9 @@ impl Notetype {
         for (idx, (q_opt, a_opt)) in parsed.iter_mut().enumerate() {
             if let Some(q) = q_opt {
                 q.rename_and_remove_fields(&fields);
-                if q.all_referenced_field_names().is_empty() ||
-                   is_cloze && q.all_referenced_cloze_field_names().is_empty() {
+                if q.all_referenced_field_names().is_empty()
+                    || is_cloze && q.all_referenced_cloze_field_names().is_empty()
+                {
                     q.add_missing_field_replacement(first_remaining_field_name, is_cloze);
                 }
                 self.templates[idx].config.q_format = q.template_to_string();
