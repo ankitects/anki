@@ -21,7 +21,7 @@ from aqt.utils import (
     disable_help_button,
     getOnlyText,
     openHelp,
-    showWarning,
+    show_warning,
     tooltip,
     tr,
 )
@@ -128,17 +128,17 @@ class FieldDialog(QDialog):
         if not txt:
             return None
         if txt[0] in "#^/":
-            showWarning(tr.fields_name_first_letter_not_valid())
+            show_warning(tr.fields_name_first_letter_not_valid())
             return None
         for letter in """:{"}""":
             if letter in txt:
-                showWarning(tr.fields_name_invalid_letter())
+                show_warning(tr.fields_name_invalid_letter())
                 return None
         for f in self.model["flds"]:
             if ignoreOrd is not None and f["ord"] == ignoreOrd:
                 continue
             if f["name"] == txt:
-                showWarning(tr.fields_that_field_name_is_already_used())
+                show_warning(tr.fields_that_field_name_is_already_used())
                 return None
         return txt
 
@@ -174,7 +174,11 @@ class FieldDialog(QDialog):
 
     def onDelete(self) -> None:
         if len(self.model["flds"]) < 2:
-            showWarning(tr.fields_notes_require_at_least_one_field())
+            show_warning(tr.fields_notes_require_at_least_one_field())
+            return
+        field = self.model["flds"][self.form.fieldList.currentRow()]
+        if field["preventDeletion"]:
+            show_warning(tr.fields_field_is_required())
             return
         count = self.mm.use_count(self.model)
         c = tr.browsing_note_count(count=count)
@@ -182,9 +186,8 @@ class FieldDialog(QDialog):
             return
         if not self.change_tracker.mark_schema():
             return
-        f = self.model["flds"][self.form.fieldList.currentRow()]
-        self.mm.remove_field(self.model, f)
-        gui_hooks.fields_did_delete_field(self, f)
+        self.mm.remove_field(self.model, field)
+        gui_hooks.fields_did_delete_field(self, field)
 
         self.fillFields()
         self.form.fieldList.setCurrentRow(0)

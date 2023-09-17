@@ -239,7 +239,7 @@ pub struct NoteFieldSchema11 {
     pub(crate) font: String,
     pub(crate) size: u16,
 
-    // This was not in schema 11, but needs to be listed here so that the setting is not lost
+    // These were not in schema 11, but need to be listed here so that the setting is not lost
     // on downgrade/upgrade.
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) description: String,
@@ -255,6 +255,12 @@ pub struct NoteFieldSchema11 {
 
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) id: Option<i64>,
+
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    pub(crate) tag: Option<u32>,
+
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    pub(crate) prevent_deletion: bool,
 
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
@@ -274,6 +280,8 @@ impl Default for NoteFieldSchema11 {
             collapsed: false,
             exclude_from_search: false,
             id: None,
+            tag: None,
+            prevent_deletion: false,
             other: Default::default(),
         }
     }
@@ -294,6 +302,8 @@ impl From<NoteFieldSchema11> for NoteField {
                 collapsed: f.collapsed,
                 exclude_from_search: f.exclude_from_search,
                 id: f.id,
+                tag: f.tag,
+                prevent_deletion: f.prevent_deletion,
                 other: other_to_bytes(&f.other),
             },
         }
@@ -315,6 +325,8 @@ impl From<NoteField> for NoteFieldSchema11 {
             collapsed: conf.collapsed,
             exclude_from_search: conf.exclude_from_search,
             id: conf.id,
+            tag: conf.tag,
+            prevent_deletion: conf.prevent_deletion,
             other: parse_other_fields(&conf.other, &RESERVED_FIELD_KEYS),
         }
     }
@@ -332,6 +344,8 @@ static RESERVED_FIELD_KEYS: Set<&'static str> = phf_set! {
     "description",
     "excludeFromSearch",
     "id",
+    "tag",
+    "preventDeletion",
 };
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]

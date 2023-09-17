@@ -87,6 +87,9 @@ message Notetype {
       bool exclude_from_search = 8;
       // used for merging notetypes on import (Anki 23.10)
       optional int64 id = 9;
+      // Can be used to uniquely identify required fields.
+      optional uint32 tag = 10;
+      bool prevent_deletion = 11;
 
       bytes other = 255;
     }
