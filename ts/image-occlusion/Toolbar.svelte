@@ -9,13 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Popover from "components/Popover.svelte";
     import WithFloating from "components/WithFloating.svelte";
 
-    import {
-        mdiChevronDown,
-        mdiEye,
-        mdiFormatAlignCenter,
-        mdiSquare,
-        mdiViewDashboard,
-    } from "./icons";
+    import { mdiEye, mdiFormatAlignCenter, mdiSquare, mdiViewDashboard } from "./icons";
     import { hideAllGuessOne } from "./store";
     import { drawEllipse, drawPolygon, drawRectangle } from "./tools/index";
     import { makeMaskTransparent } from "./tools/lib";
@@ -104,16 +98,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="top-tool-bar-container">
     <div class="undo-redo-button" on:click={() => (showFloating = !showFloating)}>
-        {#if $hideAllGuessOne}
-            <IconButton class="top-tool-icon-button left-border-radius" {iconSize}>
-                {@html mdiViewDashboard}
-            </IconButton>
-        {:else}
-            <IconButton class="top-tool-icon-button left-border-radius" {iconSize}>
-                {@html mdiSquare}
-            </IconButton>
-        {/if}
-
         <WithFloating
             show={showFloating}
             closeOnInsideClick
@@ -124,8 +108,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <IconButton
                 class="top-tool-icon-button right-border-radius dropdown-tool-mode"
                 slot="reference"
+                {iconSize}
             >
-                {@html mdiChevronDown}
+                {#if $hideAllGuessOne}
+                    {@html mdiViewDashboard}
+                {:else}
+                    {@html mdiSquare}
+                {/if}
             </IconButton>
 
             <Popover slot="floating" --popover-padding-inline="0">
