@@ -2,11 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anki_i18n::I18n;
-use anki_proto::notetypes::ClozeField;
 use anki_proto::notetypes::notetype::config::Kind as NotetypeKind;
 use anki_proto::notetypes::stock_notetype::Kind;
 pub(crate) use anki_proto::notetypes::stock_notetype::Kind as StockKind;
 use anki_proto::notetypes::stock_notetype::OriginalStockKind;
+use anki_proto::notetypes::ClozeField;
 
 use super::NotetypeConfig;
 use crate::config::ConfigEntry;
