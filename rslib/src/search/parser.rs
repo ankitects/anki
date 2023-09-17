@@ -355,6 +355,7 @@ fn search_node_for_text_with_argument<'a>(
         "w" => SearchNode::WordBoundary(unescape(val)?),
         "dupe" => parse_dupe(val)?,
         "has-cd" => SearchNode::CustomData(unescape(val)?),
+        "preset" => SearchNode::Preset(val.into()),
         // anything else is a field search
         _ => parse_single_field(key, val)?,
     })
@@ -892,6 +893,8 @@ mod test {
             parse("deck:\"default one\"")?,
             vec![Search(Deck("default one".into()))]
         );
+
+        assert_eq!(parse("preset:default")?, vec![Search(Preset("default".into()))]);
 
         assert_eq!(parse("note:basic")?, vec![Search(Notetype("basic".into()))]);
         assert_eq!(

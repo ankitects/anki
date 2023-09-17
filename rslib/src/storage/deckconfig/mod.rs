@@ -64,7 +64,7 @@ impl SqliteStorage {
 
     pub(crate) fn get_deck_config_id_by_name(&self, name: &str) -> Result<Option<DeckConfigId>> {
         self.db
-            .prepare_cached("select id from deck_config where WHERE name = ?")?
+            .prepare_cached("select id from deck_config WHERE name = ?")?
             .query_and_then([name], |row| Ok::<_, AnkiError>(DeckConfigId(row.get(0)?)))?
             .next()
             .transpose()
