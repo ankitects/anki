@@ -86,7 +86,7 @@ pub(crate) fn image_occlusion_notetype(tr: &I18n) -> Notetype {
     let comments = tr.notetypes_comments_field();
     config = nt.add_field(comments.as_ref());
     config.tag = Some(ImageOcclusionField::Comments as u32);
-    config.prevent_deletion = true;
+    config.prevent_deletion = false;
 
     let err_loading = tr.notetypes_error_loading_image_occlusion();
     let qfmt = format!(

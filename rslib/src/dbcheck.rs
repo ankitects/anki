@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 use anki_i18n::I18n;
 use anki_proto::notetypes::stock_notetype::OriginalStockKind;
+use anki_proto::notetypes::ImageOcclusionField;
 use itertools::Itertools;
 use tracing::debug;
 
@@ -442,7 +443,7 @@ impl Collection {
                     let conf = &mut nt.fields[i].config;
                     if !conf.prevent_deletion {
                         changed = true;
-                        conf.prevent_deletion = true;
+                        conf.prevent_deletion = i != ImageOcclusionField::Comments as usize;
                         conf.tag = Some(i as u32);
                     }
                 }

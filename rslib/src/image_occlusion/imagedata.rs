@@ -8,8 +8,11 @@ use anki_io::metadata;
 use anki_io::read_file;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageClozeNote;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::Value;
+use anki_proto::image_occlusion::AddImageOcclusionNoteRequest;
 use anki_proto::image_occlusion::GetImageForOcclusionResponse;
 use anki_proto::image_occlusion::GetImageOcclusionNoteResponse;
+use anki_proto::image_occlusion::ImageOcclusionFieldIndexes;
+use anki_proto::notetypes::ImageOcclusionField;
 use regex::Regex;
 
 use crate::media::MediaManager;
@@ -24,19 +27,13 @@ impl Collection {
         Ok(metadata)
     }
 
-    #[allow(clippy::too_many_arguments)]
     pub fn add_image_occlusion_note(
         &mut self,
-        notetype_id: NotetypeId,
-        image_path: &str,
-        occlusions: &str,
-        header: &str,
-        back_extra: &str,
-        tags: Vec<String>,
+        req: AddImageOcclusionNoteRequest,
     ) -> Result<OpOutput<()>> {
         // image file
-        let image_bytes = read_file(image_path)?;
-        let image_filename = Path::new(&image_path)
+        let image_bytes = read_file(&req.image_path)?;
+        let image_filename = Path::new(&req.image_path)
             .file_name()
             .or_not_found("expected filename")?
             .to_str()
@@ -49,6 +46,7 @@ impl Collection {
         let image_tag = format!(r#"<img src="{}">"#, &actual_image_name_after_adding);
 
         let current_deck = self.get_current_deck()?;
+        let notetype_id: NotetypeId = req.notetype_id.into();
         self.transact(Op::ImageOcclusion, |col| {
             let nt = if notetype_id.0 == 0 {
                 // when testing via .html page, use first available notetype
@@ -60,11 +58,12 @@ impl Collection {
             };
 
             let mut note = nt.new_note();
-            note.set_field(0, occlusions)?;
-            note.set_field(1, &image_tag)?;
-            note.set_field(2, header)?;
-            note.set_field(3, back_extra)?;
-            note.tags = tags;
+            let idxs = nt.get_io_field_indexes()?;
+            note.set_field(idxs.occlusions as usize, req.occlusions)?;
+            note.set_field(idxs.image as usize, image_tag)?;
+            note.set_field(idxs.header as usize, req.header)?;
+            note.set_field(idxs.back_extra as usize, req.back_extra)?;
+            note.tags = req.tags;
             col.add_note_inner(&mut note, current_deck.id)?;
 
             Ok(())
@@ -87,17 +86,19 @@ impl Collection {
         let mut cloze_note = ImageClozeNote::default();
 
         let fields = note.fields();
-        if fields.len() < 4 {
-            invalid_input!("Note does not have 4 fields");
-        }
 
-        cloze_note.occlusions = fields[0].clone();
-        cloze_note.header = fields[2].clone();
-        cloze_note.back_extra = fields[3].clone();
+        let nt = self
+            .get_notetype(note.notetype_id)?
+            .or_not_found(note.notetype_id)?;
+        let idxs = nt.get_io_field_indexes()?;
+
+        cloze_note.occlusions = fields[idxs.occlusions as usize].clone();
+        cloze_note.header = fields[idxs.header as usize].clone();
+        cloze_note.back_extra = fields[idxs.back_extra as usize].clone();
         cloze_note.image_data = "".into();
         cloze_note.tags = note.tags.clone();
 
-        let image_file_name = &fields[1];
+        let image_file_name = &fields[idxs.image as usize];
         let src = self
             .extract_img_src(image_file_name)
             .unwrap_or_else(|| "".to_owned());
@@ -120,9 +121,13 @@ impl Collection {
     ) -> Result<OpOutput<()>> {
         let mut note = self.storage.get_note(note_id)?.or_not_found(note_id)?;
         self.transact(Op::ImageOcclusion, |col| {
-            note.set_field(0, occlusions)?;
-            note.set_field(2, header)?;
-            note.set_field(3, back_extra)?;
+            let nt = col
+                .get_notetype(note.notetype_id)?
+                .or_not_found(note.notetype_id)?;
+            let idxs = nt.get_io_field_indexes()?;
+            note.set_field(idxs.occlusions as usize, occlusions)?;
+            note.set_field(idxs.header as usize, header)?;
+            note.set_field(idxs.back_extra as usize, back_extra)?;
             note.tags = tags;
             col.update_note_inner(&mut note)?;
             Ok(())
@@ -155,4 +160,38 @@ impl Collection {
 
         Ok(false)
     }
+}
+
+impl Notetype {
+    pub(crate) fn get_io_field_indexes(&self) -> Result<ImageOcclusionFieldIndexes> {
+        get_field_indexes_by_tag(self).or_else(|_| {
+            if self.fields.len() < 4 {
+                return Err(AnkiError::DatabaseCheckRequired);
+            }
+            Ok(ImageOcclusionFieldIndexes {
+                occlusions: 0,
+                image: 1,
+                header: 2,
+                back_extra: 3,
+            })
+        })
+    }
+}
+
+fn get_field_indexes_by_tag(nt: &Notetype) -> Result<ImageOcclusionFieldIndexes> {
+    Ok(ImageOcclusionFieldIndexes {
+        occlusions: get_field_index(nt, ImageOcclusionField::Occlusions)?,
+        image: get_field_index(nt, ImageOcclusionField::Image)?,
+        header: get_field_index(nt, ImageOcclusionField::Header)?,
+        back_extra: get_field_index(nt, ImageOcclusionField::BackExtra)?,
+    })
+}
+
+fn get_field_index(nt: &Notetype, field: ImageOcclusionField) -> Result<u32> {
+    nt.fields
+        .iter()
+        .enumerate()
+        .find(|(_idx, f)| f.config.tag == Some(field as u32))
+        .map(|(idx, _)| idx as u32)
+        .ok_or(AnkiError::DatabaseCheckRequired)
 }

@@ -305,7 +305,7 @@ class AddCards(QMainWindow):
         problem = None
         if result == NoteFieldsCheckResult.EMPTY:
             if self.editor.current_notetype_is_image_occlusion():
-                problem = tr.notetypes_no_occlusion_created()
+                problem = tr.notetypes_no_occlusion_created2()
             else:
                 problem = tr.adding_the_first_field_is_empty()
         elif result == NoteFieldsCheckResult.MISSING_CLOZE:
