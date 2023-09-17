@@ -549,6 +549,7 @@ exposed_backend_list = [
     "compute_optimal_retention",
     "set_wants_abort",
     "evaluate_weights",
+    "get_optimal_retention_parameters",
 ]
 
 
