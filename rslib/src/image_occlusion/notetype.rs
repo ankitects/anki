@@ -4,6 +4,7 @@
 use std::sync::Arc;
 
 use anki_proto::notetypes::stock_notetype::OriginalStockKind;
+use anki_proto::notetypes::ImageOcclusionField;
 
 use crate::notetype::stock::empty_stock;
 use crate::notetype::Notetype;
@@ -61,16 +62,31 @@ pub(crate) fn image_occlusion_notetype(tr: &I18n) -> Notetype {
         tr.notetypes_image_occlusion_name(),
     );
     nt.config.css = IMAGE_CLOZE_CSS.to_string();
+
     let occlusion = tr.notetypes_occlusion();
-    nt.add_field(occlusion.as_ref());
+    let mut config = nt.add_field(occlusion.as_ref());
+    config.tag = Some(ImageOcclusionField::Occlusions as u32);
+    config.prevent_deletion = true;
+
     let image = tr.notetypes_image();
-    nt.add_field(image.as_ref());
+    config = nt.add_field(image.as_ref());
+    config.tag = Some(ImageOcclusionField::Image as u32);
+    config.prevent_deletion = true;
+
     let header = tr.notetypes_header();
-    nt.add_field(header.as_ref());
+    config = nt.add_field(header.as_ref());
+    config.tag = Some(ImageOcclusionField::Header as u32);
+    config.prevent_deletion = true;
+
     let back_extra = tr.notetypes_back_extra_field();
-    nt.add_field(back_extra.as_ref());
+    config = nt.add_field(back_extra.as_ref());
+    config.tag = Some(ImageOcclusionField::BackExtra as u32);
+    config.prevent_deletion = true;
+
     let comments = tr.notetypes_comments_field();
-    nt.add_field(comments.as_ref());
+    config = nt.add_field(comments.as_ref());
+    config.tag = Some(ImageOcclusionField::Comments as u32);
+    config.prevent_deletion = true;
 
     let err_loading = tr.notetypes_error_loading_image_occlusion();
     let qfmt = format!(
