@@ -302,7 +302,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         closeMathjaxEditor?.();
         $commitTagEdits();
         saveFieldNow();
-        imageOcclusionMode = undefined;
     }
 
     export function saveOnPageHide() {
@@ -400,6 +399,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let isIOImageLoaded = false;
     let imageOcclusionMode: IOMode | undefined;
     async function setupMaskEditor(options: { html: string; mode: IOMode }) {
+        imageOcclusionMode = undefined;
+        await tick();
         imageOcclusionMode = options.mode;
         if (options.mode.kind === "add") {
             fieldStores[1].set(options.html);
