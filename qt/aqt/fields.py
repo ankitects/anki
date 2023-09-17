@@ -3,14 +3,12 @@
 
 from __future__ import annotations
 
-import os
 from typing import Optional
 
 import aqt
 import aqt.forms
 import aqt.operations
 from anki.collection import OpChanges
-from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NotetypeDict
 from aqt import AnkiQt, gui_hooks
@@ -27,7 +25,6 @@ from aqt.utils import (
     tooltip,
     tr,
 )
-from aqt.webview import AnkiWebViewKind
 
 
 class FieldDialog(QDialog):
@@ -51,19 +48,6 @@ class FieldDialog(QDialog):
             without_unicode_isolation(tr.fields_fields_for(val=self.model["name"]))
         )
 
-        if os.getenv("ANKI_EXPERIMENTAL_FIELDS_WEB"):
-            form = aqt.forms.fields_web.Ui_Dialog()
-            form.setupUi(self)
-
-            self.webview = form.webview
-            self.webview.set_kind(AnkiWebViewKind.FIELDS)
-
-            self.show()
-            self.refresh()
-            self.webview.set_bridge_command(self._on_bridge_cmd, self)
-            self.activateWindow()
-            return
-
         self.form = aqt.forms.fields.Ui_Dialog()
         self.form.setupUi(self)
         self.webview = None
@@ -85,9 +69,6 @@ class FieldDialog(QDialog):
         self.form.fieldList.dropEvent = self.onDrop  # type: ignore[assignment]
         self.form.fieldList.setCurrentRow(open_at)
         self.exec()
-
-    def refresh(self) -> None:
-        self.webview.load_ts_page("fields")
 
     def _on_bridge_cmd(self, cmd: str) -> bool:
         return False
