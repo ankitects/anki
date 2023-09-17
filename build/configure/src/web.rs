@@ -374,6 +374,7 @@ fn build_and_check_editor(build: &mut Build) -> Result<()> {
         ":ts:sveltelib",
         ":ts:tag-editor",
         ":ts:html-filter",
+        ":ts:image-occlusion",
         ":sass",
         glob!("ts/{editable,editor}/**")
     ];
