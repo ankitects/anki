@@ -221,3 +221,16 @@ message RestoreNotetypeToStockRequest {
   // to pass in an override to use when missing, or for tests.
   optional StockNotetype.Kind force_kind = 2;
 }
+
+enum ImageOcclusionField {
+  IMAGE_OCCLUSION_FIELD_OCCLUSIONS = 0;
+  IMAGE_OCCLUSION_FIELD_IMAGE = 1;
+  IMAGE_OCCLUSION_FIELD_HEADER = 2;
+  IMAGE_OCCLUSION_FIELD_BACK_EXTRA = 3;
+  IMAGE_OCCLUSION_FIELD_COMMENTS = 4;
+}
+
+enum ClozeField {
+  CLOZE_FIELD_TEXT = 0;
+  CLOZE_FIELD_BACK_EXTRA = 1;
+}
