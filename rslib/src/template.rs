@@ -731,6 +731,21 @@ impl ParsedTemplate {
         self.0 = rename_and_remove_fields(old_nodes, fields);
     }
 
+    pub(crate) fn contains_cloze_replacement(&self) -> bool {
+        self.0.iter().any(|node| {
+            matches!(
+                node,
+                ParsedNode::Replacement {key:_, filters} if filters.iter().any(|f| f=="cloze")
+            )
+        })
+    }
+
+    pub(crate) fn contains_field_replacement(&self) -> bool {
+        self.0
+            .iter()
+            .any(|node| matches!(node, ParsedNode::Replacement { key: _, filters: _ }))
+    }
+
     pub(crate) fn add_missing_field_replacement(&mut self, field_name: &str, is_cloze: bool) {
         let key = String::from(field_name);
         let filters = match is_cloze {
