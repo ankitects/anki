@@ -7,12 +7,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ComputeRetentionProgress,
         type ComputeWeightsProgress,
     } from "@tslib/anki/collection_pb";
-    import { OptimalRetentionParameters } from "@tslib/anki/scheduler_pb";
+    import { ComputeOptimalRetentionRequest } from "@tslib/anki/scheduler_pb";
     import {
         computeFsrsWeights,
         computeOptimalRetention,
         evaluateWeights,
-        getOptimalRetentionParameters,
         setWantsAbort,
     } from "@tslib/backend";
     import * as tr from "@tslib/ftl";
@@ -39,7 +38,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         | ComputeRetentionProgress
         | undefined;
 
-    let optimalParams = new OptimalRetentionParameters({});
+    const optimalRetentionRequest = new ComputeOptimalRetentionRequest({
+        deckSize: 10000,
+        daysToSimulate: 365,
+        maxSecondsOfStudyPerDay: 1800,
+    });
     async function computeWeights(): Promise<void> {
         if (computing) {
             await setWantsAbort({});
@@ -125,10 +128,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         try {
             await runWithBackendProgress(
                 async () => {
-                    const resp = await computeOptimalRetention({
-                        params: optimalParams,
-                        weights: $config.fsrsWeights,
-                    });
+                    optimalRetentionRequest.maxInterval = $config.maximumReviewInterval;
+                    optimalRetentionRequest.weights = $config.fsrsWeights;
+                    optimalRetentionRequest.search = `preset:"${state.getCurrentName()}"`;
+                    const resp = await computeOptimalRetention(optimalRetentionRequest);
                     $config.desiredRetention = resp.optimalRetention;
                     if (computeRetentionProgress) {
                         computeRetentionProgress.current =
@@ -141,23 +144,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     }
                 },
             );
-        } finally {
-            computing = false;
-        }
-    }
-
-    async function getRetentionParams(): Promise<void> {
-        if (computing) {
-            return;
-        }
-        computing = true;
-        try {
-            // await
-            const resp = await getOptimalRetentionParameters({
-                search: `preset:"${state.getCurrentName()}"`,
-            });
-            optimalParams = resp.params!;
-            optimalParams.maxInterval = $config.maximumReviewInterval;
         } finally {
             computing = false;
         }
@@ -248,89 +234,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         Deck size:
         <br />
-        <input type="number" bind:value={optimalParams.deckSize} />
+        <input type="number" bind:value={optimalRetentionRequest.deckSize} />
         <br />
 
         Days to simulate
         <br />
-        <input type="number" bind:value={optimalParams.daysToSimulate} />
+        <input type="number" bind:value={optimalRetentionRequest.daysToSimulate} />
         <br />
 
         Max seconds of study per day:
         <br />
-        <input type="number" bind:value={optimalParams.maxSecondsOfStudyPerDay} />
+        <input
+            type="number"
+            bind:value={optimalRetentionRequest.maxSecondsOfStudyPerDay}
+        />
         <br />
-
-        Seconds to forget a card (again):
-        <br />
-        <input type="number" bind:value={optimalParams.forgetSecs} />
-        <br />
-
-        Seconds to recall a card (hard):
-        <br />
-        <input type="number" bind:value={optimalParams.recallSecsHard} />
-        <br />
-
-        Seconds to recall a card (good):
-        <br />
-        <input type="number" bind:value={optimalParams.recallSecsGood} />
-        <br />
-
-        Seconds to recall a card (easy):
-        <br />
-        <input type="number" bind:value={optimalParams.recallSecsEasy} />
-        <br />
-
-        Seconds to learn a card:
-        <br />
-        <input type="number" bind:value={optimalParams.learnSecs} />
-        <br />
-
-        First rating probability (again):
-        <br />
-        <input type="number" bind:value={optimalParams.firstRatingProbabilityAgain} />
-        <br />
-
-        First rating probability (hard):
-        <br />
-        <input type="number" bind:value={optimalParams.firstRatingProbabilityHard} />
-        <br />
-
-        First rating probability (good):
-        <br />
-        <input type="number" bind:value={optimalParams.firstRatingProbabilityGood} />
-        <br />
-
-        First rating probability (easy):
-        <br />
-        <input type="number" bind:value={optimalParams.firstRatingProbabilityEasy} />
-        <br />
-
-        Review rating probability (hard):
-        <br />
-        <input type="number" bind:value={optimalParams.reviewRatingProbabilityHard} />
-        <br />
-
-        Review rating probability (good):
-        <br />
-        <input type="number" bind:value={optimalParams.reviewRatingProbabilityGood} />
-        <br />
-
-        Review rating probability (easy):
-        <br />
-        <input type="number" bind:value={optimalParams.reviewRatingProbabilityEasy} />
-        <br />
-
-        <button
-            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-            on:click={() => getRetentionParams()}
-        >
-            {#if computing}
-                {tr.actionsCancel()}
-            {:else}
-                {tr.deckConfigGetParams()}
-            {/if}
-        </button>
 
         <button
             class="btn {computing ? 'btn-warning' : 'btn-primary'}"
