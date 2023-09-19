@@ -7,7 +7,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import LabelButton from "../components/LabelButton.svelte";
+    import type { IOMode } from "./lib";
 
+    export let mode: IOMode;
     export let addNote: () => void;
 </script>
 
@@ -20,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:click={addNote}
             class=" bottom-btn"
         >
-            {tr.actionsAdd()}
+            {mode.kind === "add" ? tr.actionsAdd() : tr.importingUpdate()}
         </LabelButton>
     </ButtonGroup>
 </div>
