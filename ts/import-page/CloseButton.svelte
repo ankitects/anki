@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div
-    class="fixed-header d-flex flex-row-reverse justify-content-between"
+    class="fixed-header d-flex flex-row-reverse justify-content-between desktop-only"
     bind:this={container}
 >
     <LabelButton

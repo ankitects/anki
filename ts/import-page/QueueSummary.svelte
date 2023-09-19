@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </IconConstrain>
         {summary.summaryTemplate({ count: notes.length })}
         {#if summary.canBrowse}
-            <button on:click={onShow}>{tr.importingShow()}</button>
+            <button class="desktop-only" on:click={onShow}>{tr.importingShow()}</button>
         {/if}
     </li>
 {/if}
