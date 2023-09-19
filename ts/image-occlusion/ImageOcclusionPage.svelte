@@ -49,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Notes />
     </div>
 
-    <StickyFooter {addNote} />
+    <StickyFooter {mode} {addNote} />
 </Container>
 
 <style lang="scss">
