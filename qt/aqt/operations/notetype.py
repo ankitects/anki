@@ -22,8 +22,11 @@ def update_notetype_legacy(
     *,
     parent: QWidget,
     notetype: NotetypeDict,
+    skip_checks: bool = False,
 ) -> CollectionOp[OpChanges]:
-    return CollectionOp(parent, lambda col: col.models.update_dict(notetype))
+    return CollectionOp(
+        parent, lambda col: col.models.update_dict(notetype, skip_checks)
+    )
 
 
 def remove_notetype(

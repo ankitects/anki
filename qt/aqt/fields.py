@@ -289,9 +289,9 @@ class FieldDialog(QDialog):
             tooltip(tr.card_templates_changes_saved(), parent=self.parentWidget())
             QDialog.accept(self)
 
-        update_notetype_legacy(parent=self.mw, notetype=self.model).success(
-            on_done
-        ).run_in_background()
+        update_notetype_legacy(
+            parent=self.mw, notetype=self.model, skip_checks=True
+        ).success(on_done).run_in_background()
 
     def onHelp(self) -> None:
         openHelp(HelpPage.CUSTOMIZING_FIELDS)
