@@ -79,6 +79,8 @@ class FindDuplicatesDialog(QDialog):
         self.show()
 
     def show_duplicates_report(self, dupes: list[tuple[str, list[NoteId]]]) -> None:
+        if sip.isdeleted(self):
+            return
         self._dupes = dupes
         if not self._dupesButton:
             self._dupesButton = b = self.form.buttonBox.addButton(
