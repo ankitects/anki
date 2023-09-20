@@ -14,7 +14,8 @@ service NotetypesService {
   rpc AddNotetype(Notetype) returns (collection.OpChangesWithId);
   rpc UpdateNotetype(Notetype) returns (collection.OpChanges);
   rpc AddNotetypeLegacy(generic.Json) returns (collection.OpChangesWithId);
-  rpc UpdateNotetypeLegacy(generic.Json) returns (collection.OpChanges);
+  rpc UpdateNotetypeLegacy(UpdateNotetypeLegacyRequest)
+      returns (collection.OpChanges);
   rpc AddOrUpdateNotetype(AddOrUpdateNotetypeRequest) returns (NotetypeId);
   rpc GetStockNotetypeLegacy(StockNotetype) returns (generic.Json);
   rpc GetNotetype(NotetypeId) returns (Notetype);
@@ -132,6 +133,11 @@ message AddOrUpdateNotetypeRequest {
   bytes json = 1;
   bool preserve_usn_and_mtime = 2;
   bool skip_checks = 3;
+}
+
+message UpdateNotetypeLegacyRequest {
+  bytes json = 1;
+  bool skip_checks = 2;
 }
 
 message StockNotetype {
