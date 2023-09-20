@@ -126,6 +126,7 @@ class Browser(QMainWindow):
         self._previewer: Previewer | None = None
         self._card_info = BrowserCardInfo(self.mw)
         self._closeEventHasCleanedUp = False
+        self.auto_layout = True
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
         self.form.splitter.setChildrenCollapsible(False)
