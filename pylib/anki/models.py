@@ -217,11 +217,15 @@ class ModelManager(DeprecatedNamesMixin):
         if existing_id is not None and existing_id != notetype["id"]:
             notetype["name"] += f"-{checksum(str(time.time()))[:5]}"
 
-    def update_dict(self, notetype: NotetypeDict) -> OpChanges:
+    def update_dict(
+        self, notetype: NotetypeDict, skip_checks: bool = False
+    ) -> OpChanges:
         "Update a NotetypeDict. Caller will need to re-load notetype if new fields/cards added."
         self._remove_from_cache(notetype["id"])
         self.ensure_name_unique(notetype)
-        return self.col._backend.update_notetype_legacy(to_json_bytes(notetype))
+        return self.col._backend.update_notetype_legacy(
+            json=to_json_bytes(notetype), skip_checks=skip_checks
+        )
 
     def _mutate_after_write(self, notetype: NotetypeDict) -> None:
         # existing code expects the note type to be mutated to reflect
