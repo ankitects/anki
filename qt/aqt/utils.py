@@ -713,9 +713,8 @@ def _qt_state_key(kind: _QtStateKeyKind, key: str) -> str:
 
 
 def saveGeom(widget: QWidget, key: str) -> None:
-    # restoring a fullscreen window is buggy
-    # (at the time of writing; Qt 6.2.2 and 5.15)
-    if not widget.isFullScreen():
+    # restoring a fullscreen window breaks the tab functionality of 5.15
+    if not widget.isFullScreen() or qtmajor == 6:
         key = _qt_state_key(_QtStateKeyKind.GEOMETRY, key)
         aqt.mw.pm.profile[key] = widget.saveGeometry()
 
