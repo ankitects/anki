@@ -1,6 +1,7 @@
 exporting-all-decks = All Decks
 exporting-anki-20-deck = Anki 2.0 Deck
 exporting-anki-collection-package = Anki Collection Package
+exporting-anki-2150-collection-package = Anki 2.1.50+ Collection Package
 exporting-anki-deck-package = Anki Deck Package
 exporting-cards-in-plain-text = Cards in Plain Text
 exporting-collection = collection
