@@ -53,6 +53,7 @@ message ConfigKey {
     RESET_COUNTS_REVIEWER = 22;
     RANDOM_ORDER_REPOSITION = 23;
     SHIFT_POSITION_OF_EXISTING_CARDS = 24;
+    STOP_TIMER_ON_ANSWER = 25;
   }
   enum String {
     SET_DUE_BROWSER = 0;
@@ -117,6 +118,7 @@ message Preferences {
     bool show_remaining_due_counts = 3;
     bool show_intervals_on_buttons = 4;
     uint32 time_limit_secs = 5;
+    bool stop_timer_on_answer = 6;
   }
   message Editing {
     bool adding_defaults_to_current_deck = 1;
