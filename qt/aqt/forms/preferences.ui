@@ -1164,6 +1164,7 @@
   <tabstop>showProgress</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>spacebar_rates_card</tabstop>
+  <tabstop>stop_timer_on_answer</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>paste_strips_formatting</tabstop>
   <tabstop>useCurrent</tabstop>
