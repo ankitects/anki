@@ -81,7 +81,7 @@ from aqt.qt import (
 from aqt.theme import theme_manager
 
 if TYPE_CHECKING:
-    TextFormat = Literal["plain", "rich"]
+    TextFormat = Literal["plain", "rich", "markdown"]
 
 
 def aqt_data_path() -> Path:
@@ -283,6 +283,8 @@ def showInfo(
         mb.setTextFormat(Qt.TextFormat.PlainText)
     elif textFormat == "rich":
         mb.setTextFormat(Qt.TextFormat.RichText)
+    elif textFormat == "markdown":
+        mb.setTextFormat(Qt.TextFormat.MarkdownText)
     elif textFormat is not None:
         raise Exception("unexpected textFormat type")
     mb.setText(text)
