@@ -20,6 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
+    import Warning from "./Warning.svelte";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
@@ -74,6 +75,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         modal.show();
         carousel.to(index);
     }
+
+    $: fsrsClientWarning = $config.fsrsEnabled ? tr.deckConfigFsrsOnAllClients() : "";
 </script>
 
 <TitledContainer title={tr.deckConfigAdvancedTitle()}>
@@ -94,6 +97,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <SettingTitle>FSRS</SettingTitle>
                 </SwitchRow>
             </Item>
+
+            <Warning warning={fsrsClientWarning} />
         {/if}
 
         <Item>
