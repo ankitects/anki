@@ -1369,6 +1369,7 @@ class EditorWebView(AnkiWebView):
     def _onPaste(self, mode: QClipboard.Mode) -> None:
         extended = self._wantsExtendedPaste()
         if html := self._internal_field_text_for_paste:
+            self._internal_field_text_for_paste = None
             print("reuse internal")
             self.editor.doPaste(html, True, extended)
         else:
