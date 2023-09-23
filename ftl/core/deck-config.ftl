@@ -203,6 +203,8 @@ deck-config-sort-order-ascending-intervals = Ascending intervals
 deck-config-sort-order-descending-intervals = Descending intervals
 deck-config-sort-order-ascending-ease = Ascending ease
 deck-config-sort-order-descending-ease = Descending ease
+deck-config-sort-order-ascending-difficulty = Ascending difficulty
+deck-config-sort-order-descending-difficulty = Descending difficulty
 deck-config-sort-order-relative-overdueness = Relative overdueness
 deck-config-display-order-will-use-current-deck =
     Anki will use the display order from the deck you 

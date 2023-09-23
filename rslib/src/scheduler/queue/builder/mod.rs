@@ -118,6 +118,7 @@ struct Context {
     sort_options: QueueSortOptions,
     seen_note_ids: HashMap<NoteId, BuryMode>,
     deck_map: HashMap<DeckId, Deck>,
+    fsrs: bool,
 }
 
 impl QueueBuilder {
@@ -150,6 +151,7 @@ impl QueueBuilder {
                 sort_options,
                 seen_note_ids: HashMap::new(),
                 deck_map,
+                fsrs: col.get_config_bool(BoolKey::Fsrs),
             },
         })
     }

@@ -40,6 +40,7 @@ impl QueueBuilder {
             self.context.timing.days_elapsed,
             self.context.sort_options.review_order,
             kind,
+            self.context.fsrs,
             |card| {
                 if self.limits.root_limit_reached(LimitKind::Review) {
                     return Ok(false);
