@@ -5,9 +5,7 @@ use std::collections::HashMap;
 
 use rusqlite::types::FromSql;
 use rusqlite::types::FromSqlError;
-use rusqlite::types::ToSqlOutput;
 use rusqlite::types::ValueRef;
-use rusqlite::ToSql;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
@@ -78,6 +76,24 @@ impl CardData {
         }
         None
     }
+
+    pub(crate) fn convert_to_json(&mut self) -> Result<String> {
+        if let Some(v) = &mut self.fsrs_stability {
+            round_to_places(v, 1)
+        }
+        if let Some(v) = &mut self.fsrs_difficulty {
+            round_to_places(v, 3)
+        }
+        if let Some(v) = &mut self.fsrs_desired_retention {
+            round_to_places(v, 2)
+        }
+        serde_json::to_string(&self).map_err(Into::into)
+    }
+}
+
+fn round_to_places(value: &mut f32, decimal_places: u32) {
+    let factor = 10_f32.powi(decimal_places as i32);
+    *value = (*value * factor).round() / factor;
 }
 
 impl FromSql for CardData {
@@ -91,17 +107,9 @@ impl FromSql for CardData {
     }
 }
 
-impl ToSql for CardData {
-    fn to_sql(&self) -> Result<ToSqlOutput<'_>, rusqlite::Error> {
-        Ok(ToSqlOutput::Owned(
-            serde_json::to_string(self).unwrap().into(),
-        ))
-    }
-}
-
 /// Serialize the JSON `data` for a card.
 pub(crate) fn card_data_string(card: &Card) -> String {
-    serde_json::to_string(&CardData::from_card(card)).unwrap()
+    CardData::from_card(card).convert_to_json().unwrap()
 }
 
 fn meta_is_empty(s: &str) -> bool {
@@ -142,5 +150,20 @@ mod test {
         assert!(validate_custom_data(r#"{"日": 5}"#).is_ok());
         assert!(validate_custom_data(r#"{"日本語": 5}"#).is_err());
         assert!(validate_custom_data(&format!(r#"{{"foo": "{}"}}"#, "x".repeat(100))).is_err());
+    }
+
+    #[test]
+    fn compact_floats() {
+        let mut data = CardData {
+            original_position: None,
+            fsrs_stability: Some(123.45678),
+            fsrs_difficulty: Some(1.234567),
+            fsrs_desired_retention: Some(0.987654),
+            custom_data: "".to_string(),
+        };
+        assert_eq!(
+            data.convert_to_json().unwrap(),
+            r#"{"s":123.5,"d":1.235,"dr":0.99}"#
+        );
     }
 }

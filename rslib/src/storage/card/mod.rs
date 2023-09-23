@@ -126,7 +126,7 @@ impl super::SqliteStorage {
             card.original_due,
             card.original_deck_id,
             card.flags,
-            CardData::from_card(card),
+            CardData::from_card(card).convert_to_json()?,
             card.id,
         ])?;
         Ok(())
@@ -153,7 +153,7 @@ impl super::SqliteStorage {
             card.original_due,
             card.original_deck_id,
             card.flags,
-            CardData::from_card(card),
+            CardData::from_card(card).convert_to_json()?,
         ])?;
         card.id = CardId(self.db.last_insert_rowid());
         Ok(())
@@ -181,7 +181,7 @@ impl super::SqliteStorage {
                 card.original_due,
                 card.original_deck_id,
                 card.flags,
-                CardData::from_card(card),
+                CardData::from_card(card).convert_to_json()?,
             ])
             .map(|n_rows| n_rows == 1)
             .map_err(Into::into)
@@ -208,7 +208,7 @@ impl super::SqliteStorage {
             card.original_due,
             card.original_deck_id,
             card.flags,
-            CardData::from_card(card),
+            CardData::from_card(card).convert_to_json()?,
         ])?;
 
         Ok(())
