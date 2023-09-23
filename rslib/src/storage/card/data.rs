@@ -38,6 +38,12 @@ pub(crate) struct CardData {
         deserialize_with = "default_on_invalid"
     )]
     pub(crate) fsrs_difficulty: Option<f32>,
+    #[serde(
+        rename = "dr",
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "default_on_invalid"
+    )]
+    pub(crate) fsrs_desired_retention: Option<f32>,
 
     /// A string representation of a JSON object storing optional data
     /// associated with the card, so v3 custom scheduling code can persist
@@ -52,6 +58,7 @@ impl CardData {
             original_position: card.original_position,
             fsrs_stability: card.memory_state.as_ref().map(|m| m.stability),
             fsrs_difficulty: card.memory_state.as_ref().map(|m| m.difficulty),
+            fsrs_desired_retention: card.desired_retention,
             custom_data: card.custom_data.clone(),
         }
     }

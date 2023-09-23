@@ -46,6 +46,7 @@ class Card(DeprecatedNamesMixin):
     queue: CardQueue
     type: CardType
     memory_state: FSRSMemoryState | None
+    desired_retention: float | None
 
     def __init__(
         self,
@@ -96,6 +97,9 @@ class Card(DeprecatedNamesMixin):
         )
         self.custom_data = card.custom_data
         self.memory_state = card.memory_state if card.HasField("memory_state") else None
+        self.desired_retention = (
+            card.desired_retention if card.HasField("desired_retention") else None
+        )
 
     def _to_backend_card(self) -> cards_pb2.Card:
         # mtime & usn are set by backend
@@ -118,6 +122,7 @@ class Card(DeprecatedNamesMixin):
             original_position=self.original_position,
             custom_data=self.custom_data,
             memory_state=self.memory_state,
+            desired_retention=self.desired_retention,
         )
 
     def flush(self) -> None:
