@@ -253,12 +253,13 @@ impl super::SqliteStorage {
         day_cutoff: u32,
         order: ReviewCardOrder,
         kind: DueCardKind,
+        fsrs: bool,
         mut func: F,
     ) -> Result<()>
     where
         F: FnMut(DueCard) -> Result<bool>,
     {
-        let order_clause = review_order_sql(order, day_cutoff);
+        let order_clause = review_order_sql(order, day_cutoff, fsrs);
         let mut stmt = self.db.prepare_cached(&format!(
             "{} order by {}",
             include_str!("due_cards.sql"),
@@ -693,7 +694,13 @@ enum ReviewOrderSubclause {
     IntervalsDescending,
     EaseAscending,
     EaseDescending,
-    RelativeOverdueness { today: u32 },
+    /// FSRS
+    DifficultyAscending,
+    /// FSRS
+    DifficultyDescending,
+    RelativeOverdueness {
+        today: u32,
+    },
 }
 
 impl fmt::Display for ReviewOrderSubclause {
@@ -707,6 +714,8 @@ impl fmt::Display for ReviewOrderSubclause {
             ReviewOrderSubclause::IntervalsDescending => "ivl desc",
             ReviewOrderSubclause::EaseAscending => "factor asc",
             ReviewOrderSubclause::EaseDescending => "factor desc",
+            ReviewOrderSubclause::DifficultyAscending => "extract_fsrs_variable(data, 'd') asc",
+            ReviewOrderSubclause::DifficultyDescending => "extract_fsrs_variable(data, 'd') desc",
             ReviewOrderSubclause::RelativeOverdueness { today } => {
                 temp_string = format!("ivl / cast({today}-due+0.001 as real)", today = today);
                 &temp_string
@@ -716,15 +725,25 @@ impl fmt::Display for ReviewOrderSubclause {
     }
 }
 
-fn review_order_sql(order: ReviewCardOrder, today: u32) -> String {
+fn review_order_sql(order: ReviewCardOrder, today: u32, fsrs: bool) -> String {
     let mut subclauses = match order {
         ReviewCardOrder::Day => vec![ReviewOrderSubclause::Day],
         ReviewCardOrder::DayThenDeck => vec![ReviewOrderSubclause::Day, ReviewOrderSubclause::Deck],
         ReviewCardOrder::DeckThenDay => vec![ReviewOrderSubclause::Deck, ReviewOrderSubclause::Day],
         ReviewCardOrder::IntervalsAscending => vec![ReviewOrderSubclause::IntervalsAscending],
         ReviewCardOrder::IntervalsDescending => vec![ReviewOrderSubclause::IntervalsDescending],
-        ReviewCardOrder::EaseAscending => vec![ReviewOrderSubclause::EaseAscending],
-        ReviewCardOrder::EaseDescending => vec![ReviewOrderSubclause::EaseDescending],
+        ReviewCardOrder::EaseAscending => {
+            vec![if fsrs {
+                ReviewOrderSubclause::DifficultyDescending
+            } else {
+                ReviewOrderSubclause::EaseAscending
+            }]
+        }
+        ReviewCardOrder::EaseDescending => vec![if fsrs {
+            ReviewOrderSubclause::DifficultyAscending
+        } else {
+            ReviewOrderSubclause::EaseDescending
+        }],
         ReviewCardOrder::RelativeOverdueness => {
             vec![ReviewOrderSubclause::RelativeOverdueness { today }]
         }

@@ -62,7 +62,7 @@ export function newSortOrderChoices(): Choice<DeckConfig_Config_NewCardSortOrder
     ];
 }
 
-export function reviewOrderChoices(): Choice<DeckConfig_Config_ReviewCardOrder>[] {
+export function reviewOrderChoices(fsrs: boolean): Choice<DeckConfig_Config_ReviewCardOrder>[] {
     return [
         {
             label: tr.deckConfigSortOrderDueDateThenRandom(),
@@ -85,11 +85,11 @@ export function reviewOrderChoices(): Choice<DeckConfig_Config_ReviewCardOrder>[
             value: DeckConfig_Config_ReviewCardOrder.INTERVALS_DESCENDING,
         },
         {
-            label: tr.deckConfigSortOrderAscendingEase(),
+            label: fsrs ? tr.deckConfigSortOrderDescendingDifficulty() : tr.deckConfigSortOrderAscendingEase(),
             value: DeckConfig_Config_ReviewCardOrder.EASE_ASCENDING,
         },
         {
-            label: tr.deckConfigSortOrderDescendingEase(),
+            label: fsrs ? tr.deckConfigSortOrderAscendingDifficulty() : tr.deckConfigSortOrderDescendingEase(),
             value: DeckConfig_Config_ReviewCardOrder.EASE_DESCENDING,
         },
         {
