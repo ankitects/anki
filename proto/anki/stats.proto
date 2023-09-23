@@ -154,6 +154,7 @@ message GraphsResponse {
   ReviewCountsAndTimes reviews = 9;
   uint32 rollover_hour = 10;
   Retrievability retrievability = 12;
+  bool fsrs = 13;
 }
 
 message GraphPreferences {

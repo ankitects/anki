@@ -35,7 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const subtitle = tr.statisticsCardEaseSubtitle();
 </script>
 
-{#if histogramData}
+{#if !(sourceData?.fsrs ?? false)}
     <Graph {title} {subtitle}>
         <HistogramGraph data={histogramData} />
 
