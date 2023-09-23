@@ -709,6 +709,7 @@ class Reviewer:
 </center>
 <script>
 time = %(time)d;
+timerStopped = false;
 </script>
 """ % dict(
             edit=tr.studying_edit(),
@@ -742,7 +743,10 @@ time = %(time)d;
             self.mw.progress.single_shot(50, self._showEaseButtons)
             return
         middle = self._answerButtons()
-        self.bottom.web.eval(f"showAnswer({json.dumps(middle)});")
+        stop_timer = self.mw.col.get_config_bool(Config.Bool.STOP_TIMER_ON_ANSWER)
+        self.bottom.web.eval(
+            f"showAnswer({json.dumps(middle)}, {json.dumps(stop_timer)});"
+        )
 
     def _remaining(self) -> str:
         if not self.mw.col.conf["dueCounts"]:
