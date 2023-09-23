@@ -17,6 +17,8 @@ pub struct ComputeMemoryProgress {
     pub total_cards: u32,
 }
 
+pub(crate) type WeightsAndDesiredRetention = (Weights, f32);
+
 impl Collection {
     /// For each provided set of weights, locate cards with the provided search,
     /// and update their memory state.
@@ -25,27 +27,30 @@ impl Collection {
     /// memory state should be removed.
     pub(crate) fn update_memory_state(
         &mut self,
-        entries: Vec<(Option<Weights>, Vec<SearchNode>)>,
+        entries: Vec<(Option<WeightsAndDesiredRetention>, Vec<SearchNode>)>,
     ) -> Result<()> {
         let timing = self.timing_today()?;
         let usn = self.usn()?;
-        for (weights, search) in entries {
+        for (weights_and_desired_retention, search) in entries {
             let search = SearchBuilder::any(search.into_iter())
                 .and(SearchNode::State(StateKind::New).negated());
             let revlog = self.revlog_for_srs(search)?;
             let items = fsrs_items_for_memory_state(revlog, timing.next_day_at);
-            let fsrs = FSRS::new(weights.as_deref())?;
+            let desired_retention = weights_and_desired_retention.as_ref().map(|w| w.1);
+            let fsrs = FSRS::new(weights_and_desired_retention.as_ref().map(|w| &w.0[..]))?;
             let mut progress = self.new_progress_handler::<ComputeMemoryProgress>();
             progress.update(false, |s| s.total_cards = items.len() as u32)?;
             for (idx, (card_id, item)) in items.into_iter().enumerate() {
                 progress.update(true, |state| state.current_cards = idx as u32 + 1)?;
                 let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
                 let original = card.clone();
-                if weights.is_some() {
+                if weights_and_desired_retention.is_some() {
                     let state = fsrs.memory_state(item);
                     card.memory_state = Some(state.into());
+                    card.desired_retention = desired_retention;
                 } else {
                     card.memory_state = None;
+                    card.desired_retention = None;
                 }
                 self.update_card_inner(&mut card, original, usn)?;
             }

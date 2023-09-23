@@ -15,7 +15,7 @@ use anki_proto::decks::deck::normal::DayLimit;
 use crate::config::StringKey;
 use crate::decks::NormalDeck;
 use crate::prelude::*;
-use crate::scheduler::fsrs::weights::Weights;
+use crate::scheduler::fsrs::memory_state::WeightsAndDesiredRetention;
 use crate::search::JoinSearches;
 use crate::search::SearchNode;
 
@@ -216,19 +216,20 @@ impl Collection {
         }
 
         if !decks_needing_memory_recompute.is_empty() {
-            let input: Vec<(Option<Weights>, Vec<SearchNode>)> = decks_needing_memory_recompute
-                .into_iter()
-                .map(|(conf_id, search)| {
-                    let weights = configs_after_update.get(&conf_id).and_then(|c| {
-                        if input.fsrs {
-                            Some(c.inner.fsrs_weights.clone())
-                        } else {
-                            None
-                        }
-                    });
-                    Ok((weights, search))
-                })
-                .collect::<Result<_>>()?;
+            let input: Vec<(Option<WeightsAndDesiredRetention>, Vec<SearchNode>)> =
+                decks_needing_memory_recompute
+                    .into_iter()
+                    .map(|(conf_id, search)| {
+                        let weights = configs_after_update.get(&conf_id).and_then(|c| {
+                            if input.fsrs {
+                                Some((c.inner.fsrs_weights.clone(), c.inner.desired_retention))
+                            } else {
+                                None
+                            }
+                        });
+                        Ok((weights, search))
+                    })
+                    .collect::<Result<_>>()?;
             self.update_memory_state(input)?;
         }
 

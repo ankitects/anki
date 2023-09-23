@@ -94,6 +94,7 @@ pub struct Card {
     /// The position in the new queue before leaving it.
     pub(crate) original_position: Option<u32>,
     pub(crate) memory_state: Option<FsrsMemoryState>,
+    pub(crate) desired_retention: Option<f32>,
     /// JSON object or empty; exposed through the reviewer for persisting custom
     /// state
     pub(crate) custom_data: String,
@@ -143,6 +144,7 @@ impl Default for Card {
             flags: 0,
             original_position: None,
             memory_state: None,
+            desired_retention: None,
             custom_data: String::new(),
         }
     }

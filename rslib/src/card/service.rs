@@ -101,6 +101,7 @@ impl TryFrom<anki_proto::cards::Card> for Card {
             flags: c.flags as u8,
             original_position: c.original_position,
             memory_state: c.memory_state.map(Into::into),
+            desired_retention: c.desired_retention,
             custom_data: c.custom_data,
         })
     }
@@ -128,6 +129,7 @@ impl From<Card> for anki_proto::cards::Card {
             flags: c.flags as u32,
             original_position: c.original_position.map(Into::into),
             memory_state: c.memory_state.map(Into::into),
+            desired_retention: c.desired_retention,
             custom_data: c.custom_data,
         }
     }

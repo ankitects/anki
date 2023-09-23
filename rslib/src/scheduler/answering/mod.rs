@@ -68,6 +68,8 @@ struct CardStateUpdater {
     fuzz_seed: Option<u64>,
     /// Set if FSRS is enabled.
     fsrs_next_states: Option<NextStates>,
+    /// Set if FSRS is enabled.
+    desired_retention: Option<f32>,
 }
 
 impl CardStateUpdater {
@@ -159,6 +161,7 @@ impl CardStateUpdater {
     ) -> RevlogEntryPartial {
         self.card.reps += 1;
         self.card.original_due = 0;
+        self.card.desired_retention = self.desired_retention;
 
         let revlog = match next {
             NormalState::New(next) => self.apply_new_state(current, next),
@@ -351,7 +354,8 @@ impl Collection {
             .get_deck(card.deck_id)?
             .or_not_found(card.deck_id)?;
         let config = self.home_deck_config(deck.config_id(), card.original_deck_id)?;
-        let fsrs_next_states = if self.get_config_bool(BoolKey::Fsrs) {
+        let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
+        let fsrs_next_states = if fsrs_enabled {
             let fsrs = FSRS::new(Some(&config.inner.fsrs_weights))?;
             let memory_state = if let Some(state) = card.memory_state {
                 Some(MemoryState::from(state))
@@ -373,7 +377,7 @@ impl Collection {
         } else {
             None
         };
-
+        let desired_retention = fsrs_enabled.then_some(config.inner.desired_retention);
         Ok(CardStateUpdater {
             fuzz_seed: get_fuzz_seed(&card),
             card,
@@ -382,6 +386,7 @@ impl Collection {
             timing,
             now: TimestampSecs::now(),
             fsrs_next_states,
+            desired_retention,
         })
     }
 
