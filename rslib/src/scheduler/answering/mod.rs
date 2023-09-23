@@ -351,7 +351,7 @@ impl Collection {
             .get_deck(card.deck_id)?
             .or_not_found(card.deck_id)?;
         let config = self.home_deck_config(deck.config_id(), card.original_deck_id)?;
-        let fsrs_next_states = if config.inner.fsrs_enabled {
+        let fsrs_next_states = if self.get_config_bool(BoolKey::Fsrs) {
             let fsrs = FSRS::new(Some(&config.inner.fsrs_weights))?;
             let memory_state = if let Some(state) = card.memory_state {
                 Some(MemoryState::from(state))

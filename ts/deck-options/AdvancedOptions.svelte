@@ -28,6 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const config = state.currentConfig;
     const defaults = state.defaults;
     const cardStateCustomizer = state.cardStateCustomizer;
+    const fsrs = state.fsrs;
 
     const settings = {
         maximumInterval: {
@@ -76,7 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         carousel.to(index);
     }
 
-    $: fsrsClientWarning = $config.fsrsEnabled ? tr.deckConfigFsrsOnAllClients() : "";
+    $: fsrsClientWarning = $fsrs ? tr.deckConfigFsrsOnAllClients() : "";
 </script>
 
 <TitledContainer title={tr.deckConfigAdvancedTitle()}>
@@ -93,7 +94,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <DynamicallySlottable slotHost={Item} {api}>
         {#if state.v3Scheduler}
             <Item>
-                <SwitchRow bind:value={$config.fsrsEnabled} defaultValue={false}>
+                <SwitchRow bind:value={$fsrs} defaultValue={false}>
                     <SettingTitle>FSRS</SettingTitle>
                 </SwitchRow>
             </Item>
@@ -117,7 +118,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </SpinBoxRow>
         </Item>
 
-        {#if !$config.fsrsEnabled || !state.v3Scheduler}
+        {#if !$fsrs || !state.v3Scheduler}
             <Item>
                 <SpinBoxFloatRow
                     bind:value={$config.initialEase}

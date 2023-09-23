@@ -37,6 +37,7 @@ pub enum BoolKey {
     MergeNotetypes,
     WithScheduling,
     StopTimerOnAnswer,
+    Fsrs,
 
     #[strum(to_string = "normalize_note_text")]
     NormalizeNoteText,
