@@ -6,13 +6,16 @@
 */
 
 let time: number; // set in python code
+let timerStopped = false;
 
 let maxTime = 0;
 document.addEventListener("DOMContentLoaded", () => {
     updateTime();
     setInterval(function() {
-        time += 1;
-        updateTime();
+        if (!timerStopped) {
+            time += 1;
+            updateTime();
+        }
     }, 1000);
 });
 
@@ -41,8 +44,9 @@ function showQuestion(txt: string, maxTime_: number): void {
     maxTime = maxTime_;
 }
 
-function showAnswer(txt: string): void {
+function showAnswer(txt: string, stopTimer = false): void {
     document.getElementById("middle").innerHTML = txt;
+    timerStopped = stopTimer;
 }
 
 function selectedAnswerButton(): string {
