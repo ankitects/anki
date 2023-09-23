@@ -29,6 +29,7 @@ pub struct UpdateDeckConfigsRequest {
     pub card_state_customizer: String,
     pub limits: Limits,
     pub new_cards_ignore_review_limit: bool,
+    pub fsrs: bool,
 }
 
 impl Collection {
@@ -48,6 +49,7 @@ impl Collection {
             v3_scheduler: self.get_config_bool(BoolKey::Sched2021),
             card_state_customizer: self.get_config_string(StringKey::CardStateCustomizer),
             new_cards_ignore_review_limit: self.get_config_bool(BoolKey::NewCardsIgnoreReviewLimit),
+            fsrs: self.get_config_bool(BoolKey::Fsrs),
         })
     }
 
@@ -161,6 +163,10 @@ impl Collection {
         let selected_config = input.configs.last().unwrap();
         let mut decks_needing_memory_recompute: HashMap<DeckConfigId, Vec<SearchNode>> =
             Default::default();
+        let fsrs_toggled = self.get_config_bool(BoolKey::Fsrs) != input.fsrs;
+        if fsrs_toggled {
+            self.set_config_bool_inner(BoolKey::Fsrs, input.fsrs)?;
+        }
         for deck in self.storage.get_all_decks()? {
             if let Ok(normal) = deck.normal() {
                 let deck_id = deck.id;
@@ -170,9 +176,6 @@ impl Collection {
                 let previous_config = configs_before_update.get(&previous_config_id);
                 let previous_order = previous_config
                     .map(|c| c.inner.new_card_insert_order())
-                    .unwrap_or_default();
-                let previous_fsrs_on = previous_config
-                    .map(|c| c.inner.fsrs_enabled)
                     .unwrap_or_default();
                 let previous_weights = previous_config.map(|c| &c.inner.fsrs_weights);
 
@@ -200,11 +203,8 @@ impl Collection {
                 }
 
                 // if weights differ, memory state needs to be recomputed
-                let current_fsrs_on = current_config
-                    .map(|c| c.inner.fsrs_enabled)
-                    .unwrap_or_default();
                 let current_weights = current_config.map(|c| &c.inner.fsrs_weights);
-                if current_fsrs_on != previous_fsrs_on || previous_weights != current_weights {
+                if fsrs_toggled || previous_weights != current_weights {
                     decks_needing_memory_recompute
                         .entry(current_config_id)
                         .or_default()
@@ -220,7 +220,7 @@ impl Collection {
                 .into_iter()
                 .map(|(conf_id, search)| {
                     let weights = configs_after_update.get(&conf_id).and_then(|c| {
-                        if c.inner.fsrs_enabled {
+                        if input.fsrs {
                             Some(c.inner.fsrs_weights.clone())
                         } else {
                             None
@@ -365,6 +365,7 @@ mod test {
             card_state_customizer: "".to_string(),
             limits: Limits::default(),
             new_cards_ignore_review_limit: false,
+            fsrs: false,
         };
         assert!(!col.update_deck_configs(input.clone())?.changes.had_change());
 

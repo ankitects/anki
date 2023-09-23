@@ -27,6 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const config = state.currentConfig;
     const defaults = state.defaults;
+    const fsrs = state.fsrs;
 
     let stepsExceedGraduatingInterval: string;
     let stepsTooLargeForFsrs: string;
@@ -39,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 ? tr.deckConfigLearningStepAboveGraduatingInterval()
                 : "";
         stepsTooLargeForFsrs =
-            $config.fsrsEnabled && lastLearnStepInDays >= 1
+            $fsrs && lastLearnStepInDays >= 1
                 ? tr.deckConfigStepsTooLargeForFsrs()
                 : "";
     }
@@ -118,7 +119,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Warning warning={stepsTooLargeForFsrs} />
         </Item>
 
-        {#if !$config.fsrsEnabled}
+        {#if !$fsrs}
             <Item>
                 <SpinBoxRow
                     bind:value={$config.graduatingIntervalGood}

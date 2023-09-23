@@ -26,6 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const config = state.currentConfig;
     const defaults = state.defaults;
+    const fsrs = state.fsrs;
 
     let stepsExceedMinimumInterval: string;
     let stepsTooLargeForFsrs: string;
@@ -38,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 ? tr.deckConfigRelearningStepsAboveMinimumInterval()
                 : "";
         stepsTooLargeForFsrs =
-            $config.fsrsEnabled && lastRelearnStepInDays >= 1
+            $fsrs && lastRelearnStepInDays >= 1
                 ? tr.deckConfigStepsTooLargeForFsrs()
                 : "";
     }
@@ -106,7 +107,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Warning warning={stepsTooLargeForFsrs} />
         </Item>
 
-        {#if !$config.fsrsEnabled}
+        {#if !$fsrs}
             <Item>
                 <SpinBoxRow
                     bind:value={$config.minimumLapseInterval}

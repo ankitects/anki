@@ -135,7 +135,6 @@ message DeckConfig {
     bool bury_reviews = 28;
     bool bury_interday_learning = 29;
 
-    bool fsrs_enabled = 36;
     float desired_retention = 37;  // for fsrs
 
     bytes other = 255;
@@ -179,6 +178,7 @@ message DeckConfigsForUpdate {
   string card_state_customizer = 6;
   // only applies to v3 scheduler
   bool new_cards_ignore_review_limit = 7;
+  bool fsrs = 8;
 }
 
 message UpdateDeckConfigsRequest {
@@ -191,4 +191,5 @@ message UpdateDeckConfigsRequest {
   string card_state_customizer = 5;
   DeckConfigsForUpdate.CurrentDeck.Limits limits = 6;
   bool new_cards_ignore_review_limit = 7;
+  bool fsrs = 8;
 }
