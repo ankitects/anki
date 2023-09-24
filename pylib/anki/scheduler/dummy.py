@@ -17,10 +17,10 @@ class DummyScheduler(SchedulerBaseWithLegacy):
         pass
 
     def getCard(self) -> Card | None:
-        raise Exception("v1 scheduler no longer supported")
+        raise Exception("v1/v2 scheduler no longer supported")
 
     def answerCard(self, card: Card, ease: int) -> None:
-        raise Exception("v1 scheduler no longer supported")
+        raise Exception("v1/v2 scheduler no longer supported")
 
     def _is_finished(self) -> bool:
         return False
