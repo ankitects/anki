@@ -444,8 +444,6 @@ class Reviewer:
             return
         if self.state != "answer":
             return
-        if self.mw.col.sched.answerButtons(self.card) < ease:
-            return
         proceed, ease = gui_hooks.reviewer_will_answer_card(
             (True, ease), self, self.card
         )
@@ -753,18 +751,8 @@ timerStopped = false;
             return ""
 
         counts: list[Union[int, str]]
-        if v3 := self._v3:
-            idx, counts_ = v3.counts()
-            counts = cast(list[Union[int, str]], counts_)
-        else:
-            # v1/v2 scheduler
-            if self.hadCardQueue:
-                # if it's come from the undo queue, don't count it separately
-                counts = list(self.mw.col.sched.counts())
-            else:
-                counts = list(self.mw.col.sched.counts(self.card))
-            idx = self.mw.col.sched.countIdx(self.card)
-
+        idx, counts_ = self._v3.counts()
+        counts = cast(list[Union[int, str]], counts_)
         counts[idx] = f"<u>{counts[idx]}</u>"
 
         return f"""
@@ -774,10 +762,7 @@ timerStopped = false;
 """
 
     def _defaultEase(self) -> Literal[2, 3]:
-        if self.mw.col.sched.answerButtons(self.card) == 4:
-            return 3
-        else:
-            return 2
+        return 3
 
     def _answerButtonList(self) -> tuple[tuple[int, str], ...]:
         button_count = self.mw.col.sched.answerButtons(self.card)
@@ -841,12 +826,9 @@ timerStopped = false;
         buf += "</tr></table>"
         return buf
 
-    def _buttonTime(self, i: int, v3_labels: Sequence[str] | None = None) -> str:
+    def _buttonTime(self, i: int, v3_labels: Sequence[str]) -> str:
         if self.mw.col.conf["estTimes"]:
-            if v3_labels:
-                txt = v3_labels[i - 1]
-            else:
-                txt = self.mw.col.sched.nextIvlStr(self.card, i, True) or ""
+            txt = v3_labels[i - 1]
             return f"""<span class="nobold">{txt}</span>"""
         else:
             return ""

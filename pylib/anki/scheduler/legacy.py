@@ -3,6 +3,8 @@
 
 # pylint: disable=invalid-name
 
+from __future__ import annotations
+
 from typing import Optional
 
 from anki._legacy import deprecated
@@ -126,6 +128,9 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             % self._deck_limit(),
             self.today,
         )
+
+    def answerButtons(self, card: Card) -> int:
+        return 4
 
     # legacy in v3 but used by unit tests; redefined in v2/v1
 

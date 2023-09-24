@@ -75,8 +75,7 @@ from anki.lang import FormatTimeSpan
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager, NotetypeDict, NotetypeId
 from anki.notes import Note, NoteId
-from anki.scheduler.v1 import Scheduler as V1Scheduler
-from anki.scheduler.v2 import Scheduler as V2Scheduler
+from anki.scheduler.dummy import DummyScheduler
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.sync import SyncAuth, SyncOutput, SyncStatus
 from anki.tags import TagManager
@@ -135,7 +134,7 @@ class AddNoteRequest:
 
 
 class Collection(DeprecatedNamesMixin):
-    sched: V1Scheduler | V2Scheduler | V3Scheduler
+    sched: V3Scheduler | DummyScheduler
 
     @staticmethod
     def initialize_backend_logging(path: str | None = None) -> None:
@@ -213,12 +212,17 @@ class Collection(DeprecatedNamesMixin):
     def _load_scheduler(self) -> None:
         ver = self.sched_ver()
         if ver == 1:
-            self.sched = V1Scheduler(self)
+            self.sched = DummyScheduler(self)
         elif ver == 2:
             if self.v3_scheduler():
                 self.sched = V3Scheduler(self)
+                # enable new timezone if not already enabled
+                if self.conf.get("creationOffset") is None:
+                    prefs = self._backend.get_preferences()
+                    prefs.scheduling.new_timezone = True
+                    self._backend.set_preferences(prefs)
             else:
-                self.sched = V2Scheduler(self)
+                self.sched = DummyScheduler(self)
 
     def upgrade_to_v2_scheduler(self) -> None:
         self._backend.upgrade_scheduler()
