@@ -127,7 +127,7 @@
         <string>exporting_support_older_anki_versions</string>
        </property>
        <property name="checked">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
