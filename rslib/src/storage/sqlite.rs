@@ -73,6 +73,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     add_extract_custom_data_function(&db)?;
     add_extract_fsrs_variable(&db)?;
     add_extract_fsrs_retrievability(&db)?;
+    add_extract_fsrs_relative_overdueness(&db)?;
 
     db.create_collation("unicase", unicase_compare)?;
 
@@ -302,6 +303,56 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
                     .unwrap()
                     .current_retrievability(state.into(), days_elapsed)
             }))
+        },
+    )
+}
+
+/// eg. extract_fsrs_retrievability(card.data, card.due, timing.days_elapsed) ->
+/// float | null. The higher the number, the more overdue.
+fn add_extract_fsrs_relative_overdueness(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "extract_fsrs_relative_overdueness",
+        3,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 3, "called with unexpected number of arguments");
+
+            let Ok(card_data) = ctx.get_raw(0).as_str() else {
+                return Ok(None);
+            };
+            if card_data.is_empty() {
+                return Ok(None);
+            }
+            let card_data = &CardData::from_str(card_data);
+            let Ok(due) = ctx.get_raw(1).as_i64() else {
+                return Ok(None);
+            };
+            if due > 365_000 {
+                // learning card
+                return Ok(None);
+            }
+            let Ok(days_elapsed) = ctx.get_raw(2).as_i64() else {
+                return Ok(None);
+            };
+            let Some(state) = card_data.memory_state() else {
+                return Ok(None);
+            };
+            let Some(mut desired_retrievability) = card_data.fsrs_desired_retention else {
+                return Ok(None);
+            };
+            // avoid div by zero
+            desired_retrievability = desired_retrievability.max(0.0001);
+
+            let review_day = due.saturating_sub(state.stability as i64);
+            let days_elapsed = days_elapsed.saturating_sub(review_day) as u32;
+            let current_retrievability = FSRS::new(None)
+                .unwrap()
+                .current_retrievability(state.into(), days_elapsed)
+                .max(0.0001);
+
+            Ok(Some(
+                (1. / current_retrievability - 1.) / (1. / desired_retrievability - 1.),
+            ))
         },
     )
 }

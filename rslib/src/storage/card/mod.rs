@@ -707,6 +707,9 @@ enum ReviewOrderSubclause {
     RelativeOverdueness {
         today: u32,
     },
+    RelativeOverduenessFsrs {
+        today: u32,
+    },
 }
 
 impl fmt::Display for ReviewOrderSubclause {
@@ -724,6 +727,10 @@ impl fmt::Display for ReviewOrderSubclause {
             ReviewOrderSubclause::DifficultyDescending => "extract_fsrs_variable(data, 'd') desc",
             ReviewOrderSubclause::RelativeOverdueness { today } => {
                 temp_string = format!("ivl / cast({today}-due+0.001 as real)", today = today);
+                &temp_string
+            }
+            ReviewOrderSubclause::RelativeOverduenessFsrs { today } => {
+                temp_string = format!("extract_fsrs_relative_overdueness(data, due, {today}) desc");
                 &temp_string
             }
         };
@@ -751,7 +758,11 @@ fn review_order_sql(order: ReviewCardOrder, today: u32, fsrs: bool) -> String {
             ReviewOrderSubclause::EaseDescending
         }],
         ReviewCardOrder::RelativeOverdueness => {
-            vec![ReviewOrderSubclause::RelativeOverdueness { today }]
+            vec![if fsrs {
+                ReviewOrderSubclause::RelativeOverduenessFsrs { today }
+            } else {
+                ReviewOrderSubclause::RelativeOverdueness { today }
+            }]
         }
         ReviewCardOrder::Random => vec![],
     };
