@@ -7,6 +7,7 @@ import anki
 import anki.collection
 from anki import decks_pb2, scheduler_pb2
 from anki._legacy import DeprecatedNamesMixin
+from anki.cards import Card
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.config import Config
 
@@ -25,7 +26,14 @@ from typing import Sequence
 
 from anki import config_pb2
 from anki.cards import CardId
-from anki.consts import CARD_TYPE_NEW, NEW_CARDS_RANDOM, QUEUE_TYPE_NEW
+from anki.consts import (
+    CARD_TYPE_NEW,
+    NEW_CARDS_RANDOM,
+    QUEUE_TYPE_DAY_LEARN_RELEARN,
+    QUEUE_TYPE_LRN,
+    QUEUE_TYPE_NEW,
+    QUEUE_TYPE_PREVIEW,
+)
 from anki.decks import DeckConfigDict, DeckId, DeckTreeNode
 from anki.notes import NoteId
 from anki.utils import ids2str, int_time
@@ -48,6 +56,11 @@ class SchedulerBase(DeprecatedNamesMixin):
     @property
     def day_cutoff(self) -> int:
         return self._timing_today().next_day_at
+
+    def countIdx(self, card: Card) -> int:
+        if card.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
+            return QUEUE_TYPE_LRN
+        return card.queue
 
     # Deck list
     ##########################################################################

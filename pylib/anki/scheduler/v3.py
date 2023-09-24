@@ -17,7 +17,6 @@ from __future__ import annotations
 from typing import Literal, Optional, Sequence
 
 from anki import frontend_pb2, scheduler_pb2
-from anki._legacy import deprecated
 from anki.cards import Card
 from anki.collection import OpChanges
 from anki.consts import *
@@ -140,14 +139,6 @@ class Scheduler(SchedulerBaseWithLegacy):
     def reviewCount(self) -> int:
         return self.counts()[2]
 
-    def countIdx(self, card: Card) -> int:
-        if card.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
-            return QUEUE_TYPE_LRN
-        return card.queue
-
-    def answerButtons(self, card: Card) -> int:
-        return 4
-
     def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> str:
         "Return the next interval for CARD as a string."
         states = self.col._backend.get_scheduling_states(card.id)
@@ -246,10 +237,3 @@ class Scheduler(SchedulerBaseWithLegacy):
             return self.col.db.list("select id from active_decks")
         except DBError:
             return []
-
-    @deprecated(info="no longer used by Anki; will be removed in the future")
-    def totalNewForCurrentDeck(self) -> int:
-        return self.col.db.scalar(
-            f"""
-select count() from cards where queue={QUEUE_TYPE_NEW} and did in (select id from active_decks)"""
-        )

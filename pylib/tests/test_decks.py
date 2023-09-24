@@ -23,21 +23,17 @@ def test_basic():
     # we start with the default col selected
     assert col.decks.selected() == 1
     col.reset()
-    assert col.decks.active() == [1]
     # we can select a different col
     col.decks.select(parentId)
     assert col.decks.selected() == parentId
-    assert col.decks.active() == [parentId]
     # let's create a child
     childId = col.decks.id("new deck::child")
     col.sched.reset()
     # it should have been added to the active list
     assert col.decks.selected() == parentId
-    assert col.decks.active() == [parentId, childId]
     # we can select the child individually too
     col.decks.select(childId)
     assert col.decks.selected() == childId
-    assert col.decks.active() == [childId]
     # parents with a different case should be handled correctly
     col.decks.id("ONE")
     m = col.models.current()

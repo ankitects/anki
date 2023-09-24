@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>604</width>
+    <width>606</width>
     <height>638</height>
    </rect>
   </property>
@@ -253,64 +253,6 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_17">
           <item>
-           <widget class="QCheckBox" name="sched2021">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string notr="true"/>
-            </property>
-            <property name="text">
-             <string>preferences_v3_scheduler</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="dayLearnFirst">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>preferences_show_learning_cards_with_larger_steps</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="legacy_timezone">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>preferences_legacy_timezone_handling</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_8">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>10</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
            <layout class="QGridLayout" name="gridLayout_4">
             <property name="spacing">
              <number>12</number>
@@ -392,9 +334,6 @@
             </item>
            </layout>
           </item>
-          <item>
-           <widget class="QComboBox" name="newSpread"/>
-          </item>
          </layout>
         </widget>
        </item>
@@ -472,17 +411,17 @@
              </widget>
             </item>
             <item>
-              <widget class="QCheckBox" name="stop_timer_on_answer">
-                  <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                    </sizepolicy>
-                  </property>
-                  <property name="text">
-                    <string>preferences_stop_timer_on_answer</string>
-                  </property>
-              </widget>
+             <widget class="QCheckBox" name="stop_timer_on_answer">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>preferences_stop_timer_on_answer</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -1152,13 +1091,9 @@
   <tabstop>bottomBarComboBox</tabstop>
   <tabstop>reduce_motion</tabstop>
   <tabstop>minimalist_mode</tabstop>
-  <tabstop>sched2021</tabstop>
-  <tabstop>dayLearnFirst</tabstop>
-  <tabstop>legacy_timezone</tabstop>
   <tabstop>dayOffset</tabstop>
   <tabstop>lrnCutoff</tabstop>
   <tabstop>timeLimit</tabstop>
-  <tabstop>newSpread</tabstop>
   <tabstop>showPlayButtons</tabstop>
   <tabstop>interrupt_audio</tabstop>
   <tabstop>showProgress</tabstop>

@@ -16,20 +16,8 @@ from anki.utils import int_time
 from tests.shared import getEmptyCol as getEmptyColOrig
 
 
-# This file is used to exercise both the legacy Python 2.1 scheduler,
-# and the experimental new one in Rust. Most tests run on both, but a few
-# tests have been implemented separately where the behaviour differs.
-def is_2021() -> bool:
-    return "2021" in os.getenv("PYTEST_CURRENT_TEST")
-
-
 def getEmptyCol():
     col = getEmptyColOrig()
-    col.upgrade_to_v2_scheduler()
-    if is_2021():
-        col.set_v3_scheduler(True)
-    else:
-        col.set_v3_scheduler(False)
     return col
 
 
@@ -37,13 +25,6 @@ def test_clock():
     col = getEmptyCol()
     if (col.sched.day_cutoff - int_time()) < 10 * 60:
         raise Exception("Unit tests will fail around the day rollover.")
-
-
-def checkRevIvl(col, c, targetIvl):
-    if is_2021():
-        return
-    min, max = col.sched._fuzzIvlRange(targetIvl)
-    assert min <= c.ivl <= max
 
 
 def test_basics():
@@ -205,7 +186,6 @@ def test_learn():
     col.sched.answerCard(c, 4)
     assert c.type == CARD_TYPE_REV
     assert c.queue == QUEUE_TYPE_REV
-    checkRevIvl(col, c, 4)
     # revlog should have been updated each time
     assert col.db.scalar("select count() from revlog where type = 0") == 5
 
@@ -328,10 +308,7 @@ def test_learn_day():
     # if we fail it, it should be back in the correct queue
     col.sched.answerCard(c, 1)
     assert c.queue == QUEUE_TYPE_LRN
-    if is_2021():
-        col.undo()
-    else:
-        col.undo_legacy()
+    col.undo()
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 3)
@@ -386,7 +363,6 @@ def test_reviews():
     col.sched.answerCard(c, 2)
     assert c.queue == QUEUE_TYPE_REV
     # the new interval should be (100) * 1.2 = 120
-    checkRevIvl(col, c, 120)
     assert c.due == col.sched.today + c.ivl
     # factor should have been decremented
     assert c.factor == 2350
@@ -399,7 +375,6 @@ def test_reviews():
     c.flush()
     col.sched.answerCard(c, 3)
     # the new interval should be (100 + 8/2) * 2.5 = 260
-    checkRevIvl(col, c, 260)
     assert c.due == col.sched.today + c.ivl
     # factor should have been left alone
     assert c.factor == STARTING_FACTOR
@@ -409,7 +384,6 @@ def test_reviews():
     c.flush()
     col.sched.answerCard(c, 4)
     # the new interval should be (100 + 8) * 2.5 * 1.3 = 351
-    checkRevIvl(col, c, 351)
     assert c.due == col.sched.today + c.ivl
     # factor should have been increased
     assert c.factor == 2650
@@ -429,8 +403,6 @@ def test_reviews():
 
     hooks.card_did_leech.append(onLeech)
     col.sched.answerCard(c, 1)
-    if not is_2021():
-        assert hooked
     assert c.queue == QUEUE_TYPE_SUSPENDED
     c.load()
     assert c.queue == QUEUE_TYPE_SUSPENDED
@@ -719,12 +691,6 @@ def test_suspend():
 
 
 def test_filt_reviewing_early_normal():
-    def to_int(val: float) -> int:
-        if is_2021():
-            return round(val)
-        else:
-            return int(val)
-
     col = getEmptyCol()
     note = col.newNote()
     note["Front"] = "one"
@@ -753,13 +719,12 @@ def test_filt_reviewing_early_normal():
     c = col.sched.getCard()
     assert col.sched.answerButtons(c) == 4
     assert col.sched.nextIvl(c, 1) == 600
-    assert col.sched.nextIvl(c, 2) == to_int(75 * 1.2) * 86400
-    assert col.sched.nextIvl(c, 3) == to_int(75 * 2.5) * 86400
-    assert col.sched.nextIvl(c, 4) == to_int(75 * 2.5 * 1.15) * 86400
+    assert col.sched.nextIvl(c, 2) == round(75 * 1.2) * 86400
+    assert col.sched.nextIvl(c, 3) == round(75 * 2.5) * 86400
+    assert col.sched.nextIvl(c, 4) == round(75 * 2.5 * 1.15) * 86400
 
     # answer 'good'
     col.sched.answerCard(c, 3)
-    checkRevIvl(col, c, int(75 * 2.5))
     assert c.due == col.sched.today + c.ivl
     assert not c.odue
     # should not be in learning
@@ -777,7 +742,7 @@ def test_filt_reviewing_early_normal():
 
     assert col.sched.nextIvl(c, 2) == 100 * 1.2 / 2 * 86400
     assert col.sched.nextIvl(c, 3) == 100 * 86400
-    assert col.sched.nextIvl(c, 4) == to_int(100 * (1.3 - (1.3 - 1) / 2)) * 86400
+    assert col.sched.nextIvl(c, 4) == round(100 * (1.3 - (1.3 - 1) / 2)) * 86400
 
 
 def test_filt_keep_lrn_state():
@@ -845,11 +810,7 @@ def test_preview():
     # grab the first card
     c = col.sched.getCard()
 
-    if is_2021():
-        passing_grade = 4
-    else:
-        passing_grade = 2
-
+    passing_grade = 4
     assert col.sched.answerButtons(c) == passing_grade
     assert col.sched.nextIvl(c, 1) == 600
     assert col.sched.nextIvl(c, passing_grade) == 0
@@ -914,35 +875,7 @@ def test_ordcycle():
         col.sched.answerCard(c, 4)
 
 
-def test_counts_idx():
-    if is_2021():
-        pytest.skip("old sched only")
-    col = getEmptyCol()
-    note = col.newNote()
-    note["Front"] = "one"
-    note["Back"] = "two"
-    col.addNote(note)
-    col.reset()
-    assert col.sched.counts() == (1, 0, 0)
-    c = col.sched.getCard()
-    # counter's been decremented but idx indicates 1
-    assert col.sched.counts() == (0, 0, 0)
-    assert col.sched.countIdx(c) == 0
-    # answer to move to learn queue
-    col.sched.answerCard(c, 1)
-    assert col.sched.counts() == (0, 1, 0)
-    # fetching again will decrement the count
-    c = col.sched.getCard()
-    assert col.sched.counts() == (0, 0, 0)
-    assert col.sched.countIdx(c) == 1
-    # answering should add it back again
-    col.sched.answerCard(c, 1)
-    assert col.sched.counts() == (0, 1, 0)
-
-
 def test_counts_idx_new():
-    if not is_2021():
-        pytest.skip("new sched only")
     col = getEmptyCol()
     note = col.newNote()
     note["Front"] = "one"
