@@ -52,7 +52,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         try {
             await runWithBackendProgress(
                 async () => {
-                    const search = customSearch ?? `preset:"${state.getCurrentName()}"`;
+                    const search = customSearch
+                        ? customSearch
+                        : `preset:"${state.getCurrentName()}"`;
                     const resp = await computeFsrsWeights({
                         search,
                     });
