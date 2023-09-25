@@ -30,7 +30,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const defaults = state.defaults;
 
     let computeWeightsProgress: ComputeWeightsProgress | undefined;
-    let computing = false;
+    let computingWeights = false;
+    let checkingWeights = false;
+    let computingRetention = false;
+    $: computing = computingWeights || checkingWeights || computingRetention;
     $: customSearch = `preset:"${$presetName}"`;
 
     let computeRetentionProgress:
@@ -47,11 +50,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         optimalRetentionRequest.daysToSimulate = 3650;
     }
     async function computeWeights(): Promise<void> {
-        if (computing) {
+        if (computingWeights) {
             await setWantsAbort({});
             return;
         }
-        computing = true;
+        computingWeights = true;
         try {
             await runWithBackendProgress(
                 async () => {
@@ -76,16 +79,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 },
             );
         } finally {
-            computing = false;
+            computingWeights = false;
         }
     }
 
     async function checkWeights(): Promise<void> {
-        if (computing) {
+        if (checkingWeights) {
             await setWantsAbort({});
             return;
         }
-        computing = true;
+        checkingWeights = true;
         try {
             await runWithBackendProgress(
                 async () => {
@@ -116,16 +119,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 },
             );
         } finally {
-            computing = false;
+            checkingWeights = false;
         }
     }
 
     async function computeRetention(): Promise<void> {
-        if (computing) {
+        if (computingRetention) {
             await setWantsAbort({});
             return;
         }
-        computing = true;
+        computingRetention = true;
         try {
             await runWithBackendProgress(
                 async () => {
@@ -150,7 +153,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 },
             );
         } finally {
-            computing = false;
+            computingRetention = false;
         }
     }
 
@@ -205,26 +208,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <summary>{tr.deckConfigComputeOptimalWeights()}</summary>
         <input bind:value={customSearch} class="w-100 mb-1" />
         <button
-            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+            class="btn {computingWeights ? 'btn-warning' : 'btn-primary'}"
+            disabled={!computingWeights && computing}
             on:click={() => computeWeights()}
         >
-            {#if computing}
+            {#if computingWeights}
                 {tr.actionsCancel()}
             {:else}
                 {tr.deckConfigComputeButton()}
             {/if}
         </button>
         <button
-            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+            class="btn {checkingWeights ? 'btn-warning' : 'btn-primary'}"
+            disabled={!checkingWeights && computing}
             on:click={() => checkWeights()}
         >
-            {#if computing}
+            {#if checkingWeights}
                 {tr.actionsCancel()}
             {:else}
                 {tr.deckConfigAnalyzeButton()}
             {/if}
         </button>
-        {#if computing}<div>{computeWeightsProgressString}</div>{/if}
+        {#if checkingWeights}<div>{computeWeightsProgressString}</div>{/if}
     </details>
 </div>
 
@@ -251,10 +256,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <br />
 
         <button
-            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+            class="btn {computingRetention ? 'btn-warning' : 'btn-primary'}"
+            disabled={!computingRetention && computing}
             on:click={() => computeRetention()}
         >
-            {#if computing}
+            {#if computingRetention}
                 {tr.actionsCancel()}
             {:else}
                 {tr.deckConfigComputeButton()}
