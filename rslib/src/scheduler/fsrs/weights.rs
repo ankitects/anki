@@ -130,7 +130,7 @@ pub(crate) fn fsrs_items_for_memory_state(
 /// `[1,2,3]`, we create FSRSItems corresponding to `[1,2]` and `[1,2,3]`
 /// in training, and `[1]`, [1,2]` and `[1,2,3]` when calculating memory
 /// state.
-fn single_card_revlog_to_items(
+pub(crate) fn single_card_revlog_to_items(
     mut entries: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
     training: bool,

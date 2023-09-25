@@ -4,8 +4,10 @@
 mod answering;
 mod states;
 
+use anki_proto::cards;
 use anki_proto::generic;
 use anki_proto::scheduler;
+use anki_proto::scheduler::ComputeMemoryStateResponse;
 use anki_proto::scheduler::ComputeOptimalRetentionRequest;
 use anki_proto::scheduler::ComputeOptimalRetentionResponse;
 use anki_proto::scheduler::GetOptimalRetentionParametersResponse;
@@ -276,5 +278,9 @@ impl crate::services::SchedulerService for Collection {
             .map(|params| GetOptimalRetentionParametersResponse {
                 params: Some(params),
             })
+    }
+
+    fn compute_memory_state(&mut self, input: cards::CardId) -> Result<ComputeMemoryStateResponse> {
+        self.compute_memory_state(input.into())
     }
 }

@@ -128,6 +128,13 @@ ExportLimit = Union[DeckIdLimit, NoteIdsLimit, CardIdsLimit, None]
 
 
 @dataclass
+class ComputedMemoryState:
+    desired_retention: float
+    stability: float | None = None
+    difficulty: float | None = None
+
+
+@dataclass
 class AddNoteRequest:
     note: Note
     deck_id: DeckId
@@ -1319,6 +1326,17 @@ class Collection(DeprecatedNamesMixin):
 
     def extract_cloze_for_typing(self, text: str, ordinal: int) -> str:
         return self._backend.extract_cloze_for_typing(text=text, ordinal=ordinal)
+
+    def compute_memory_state(self, card_id: CardId) -> ComputedMemoryState:
+        resp = self._backend.compute_memory_state(card_id)
+        if resp.HasField("state"):
+            return ComputedMemoryState(
+                desired_retention=resp.desired_retention,
+                stability=resp.state.stability,
+                difficulty=resp.state.difficulty,
+            )
+        else:
+            return ComputedMemoryState(desired_retention=resp.desired_retention)
 
     # Timeboxing
     ##########################################################################
