@@ -315,11 +315,11 @@ deck-config-which-deck = Which deck would you like to display options for?
 deck-config-updating-cards = Updating cards: { $current_cards_count }/{ $total_cards_count }...
 deck-config-invalid-weights = Weights must be either left blank to use the defaults, or must be 17 comma-separated numbers.
 deck-config-not-enough-history = Insufficient review history to perform this operation.
-deck-config-limited-history =
+deck-config-must-have-1000-reviews =
     { $count ->
         [one] Only { $count } review was found.
         *[other] Only { $count } reviews were found.
-    } The custom weights are likely to be inaccurate, and using the defaults instead is recommended.
+    } You must have at least 1000 reviews to generate custom weights.
 deck-config-compute-weights-search = Search; leave blank for all cards using this preset
 # Numbers that control how aggressively the FSRS algorithm schedules cards
 deck-config-weights = Model weights

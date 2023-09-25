@@ -20,7 +20,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SettingTitle from "../components/SettingTitle.svelte";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
-    import Warning from "./Warning.svelte";
     import WeightsInputRow from "./WeightsInputRow.svelte";
 
     export let state: DeckOptionsState;
@@ -31,7 +30,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const defaults = state.defaults;
 
     let computeWeightsProgress: ComputeWeightsProgress | undefined;
-    let computeWeightsWarning = "";
     let computing = false;
     $: customSearch = `preset:"${$presetName}"`;
 
@@ -64,13 +62,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         computeWeightsProgress.current = computeWeightsProgress.total;
                     }
                     if (resp.fsrsItems < 1000) {
-                        computeWeightsWarning = tr.deckConfigLimitedHistory({
-                            count: resp.fsrsItems,
-                        });
+                        alert(
+                            tr.deckConfigMustHave1000Reviews({ count: resp.fsrsItems }),
+                        );
                     } else {
-                        computeWeightsWarning = "";
+                        $config.fsrsWeights = resp.weights;
                     }
-                    $config.fsrsWeights = resp.weights;
                 },
                 (progress) => {
                     if (progress.value.case === "computeWeights") {
@@ -228,7 +225,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {/if}
         </button>
         {#if computing}<div>{computeWeightsProgressString}</div>{/if}
-        <Warning warning={computeWeightsWarning} />
     </details>
 </div>
 
