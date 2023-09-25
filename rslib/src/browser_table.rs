@@ -121,12 +121,16 @@ impl Card {
     }
 
     pub(crate) fn days_since_last_review(&self, timing: &SchedTimingToday) -> Option<u32> {
-        self.due_time(timing).map(|due| {
-            due.adding_secs(-86_400 * self.interval as i64)
-                .elapsed_secs()
-                .max(0) as u32
-                / 86_400
-        })
+        if !self.is_due_in_days() {
+            Some(0)
+        } else {
+            self.due_time(timing).map(|due| {
+                due.adding_secs(-86_400 * self.interval as i64)
+                    .elapsed_secs()
+                    .max(0) as u32
+                    / 86_400
+            })
+        }
     }
 }
 

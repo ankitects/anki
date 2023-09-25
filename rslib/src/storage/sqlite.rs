@@ -285,18 +285,19 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
             let Ok(due) = ctx.get_raw(1).as_i64() else {
                 return Ok(None);
             };
-            if due > 365_000 {
-                // learning card
-                return Ok(None);
-            }
-            let Ok(ivl) = ctx.get_raw(2).as_i64() else {
-                return Ok(None);
+            let days_elapsed = if due > 365_000 {
+                // (re)learning card, assume 0 days have elapsed
+                0
+            } else {
+                let Ok(ivl) = ctx.get_raw(2).as_i64() else {
+                    return Ok(None);
+                };
+                let Ok(days_elapsed) = ctx.get_raw(3).as_i64() else {
+                    return Ok(None);
+                };
+                let review_day = (due.max(0) as u32).saturating_sub(ivl as u32);
+                (days_elapsed.max(0) as u32).saturating_sub(review_day)
             };
-            let Ok(days_elapsed) = ctx.get_raw(3).as_i64() else {
-                return Ok(None);
-            };
-            let review_day = (due.max(0) as u32).saturating_sub(ivl as u32);
-            let days_elapsed = (days_elapsed.max(0) as u32).saturating_sub(review_day);
             Ok(card_data.memory_state().map(|state| {
                 FSRS::new(None)
                     .unwrap()
