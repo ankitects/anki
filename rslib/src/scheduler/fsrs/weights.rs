@@ -153,7 +153,7 @@ pub(crate) fn single_card_revlog_to_items(
         if idx > 0 {
             entries.drain(..idx);
         }
-    } else {
+    } else if training {
         // we ignore cards that don't have any learning steps
         return None;
     }
@@ -355,6 +355,23 @@ mod tests {
                 true,
             ),
             fsrs_items!([review(0), review(4)])
+        );
+    }
+
+    #[test]
+    fn bypassed_learning_is_handled() {
+        assert_eq!(
+            convert(
+                &[
+                    RevlogEntry {
+                        ease_factor: 2500,
+                        ..revlog(RevlogReviewKind::Manual, 7)
+                    },
+                    revlog(RevlogReviewKind::Review, 6),
+                ],
+                false,
+            ),
+            fsrs_items!([review(0)])
         );
     }
 
