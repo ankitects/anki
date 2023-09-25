@@ -25,13 +25,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let state: DeckOptionsState;
 
+    const presetName = state.currentPresetName;
+
     const config = state.currentConfig;
     const defaults = state.defaults;
 
     let computeWeightsProgress: ComputeWeightsProgress | undefined;
     let computeWeightsWarning = "";
-    let customSearch = "";
     let computing = false;
+    $: customSearch = `preset:"${$presetName}"`;
 
     let computeRetentionProgress:
         | ComputeWeightsProgress
@@ -41,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const optimalRetentionRequest = new ComputeOptimalRetentionRequest({
         deckSize: 10000,
         daysToSimulate: 365,
-        maxSecondsOfStudyPerDay: 1800,
+        maxMinutesOfStudyPerDay: 30,
     });
     $: if (optimalRetentionRequest.daysToSimulate > 3650) {
         optimalRetentionRequest.daysToSimulate = 3650;
@@ -55,11 +57,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         try {
             await runWithBackendProgress(
                 async () => {
-                    const search = customSearch
-                        ? customSearch
-                        : `preset:"${state.getCurrentName()}"`;
                     const resp = await computeFsrsWeights({
-                        search,
+                        search: customSearch,
                     });
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
@@ -137,7 +136,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     optimalRetentionRequest.weights = $config.fsrsWeights;
                     optimalRetentionRequest.search = `preset:"${state.getCurrentName()}"`;
                     const resp = await computeOptimalRetention(optimalRetentionRequest);
-                    $config.desiredRetention = resp.optimalRetention;
+                    alert(
+                        tr.deckConfigYourOptimalRetention({
+                            num: resp.optimalRetention,
+                        }),
+                    );
                     if (computeRetentionProgress) {
                         computeRetentionProgress.current =
                             computeRetentionProgress.total;
@@ -203,11 +206,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="m-2">
     <details>
         <summary>{tr.deckConfigComputeOptimalWeights()}</summary>
-        <input
-            bind:value={customSearch}
-            placeholder={tr.deckConfigComputeWeightsSearch()}
-            class="w-100 mb-1"
-        />
+        <input bind:value={customSearch} class="w-100 mb-1" />
         <button
             class="btn {computing ? 'btn-warning' : 'btn-primary'}"
             on:click={() => computeWeights()}
@@ -247,11 +246,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <input type="number" bind:value={optimalRetentionRequest.daysToSimulate} />
         <br />
 
-        Max seconds of study per day:
+        Target minutes of study per day:
         <br />
         <input
             type="number"
-            bind:value={optimalRetentionRequest.maxSecondsOfStudyPerDay}
+            bind:value={optimalRetentionRequest.maxMinutesOfStudyPerDay}
         />
         <br />
 

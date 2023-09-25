@@ -49,6 +49,7 @@ export class DeckOptionsState {
     readonly v3Scheduler: boolean;
     readonly newCardsIgnoreReviewLimit: Writable<boolean>;
     readonly fsrs: Writable<boolean>;
+    readonly currentPresetName: Writable<string>;
 
     private targetDeckId: DeckOptionsId;
     private configs: ConfigWithCount[];
@@ -87,6 +88,7 @@ export class DeckOptionsState {
         this.configs[this.selectedIdx].useCount -= 1;
         this.currentConfig = writable(this.getCurrentConfig());
         this.currentAuxData = writable(this.getCurrentAuxData());
+        this.currentPresetName = writable(this.configs[this.selectedIdx].config.name);
         this.configList = readable(this.getConfigList(), (set) => {
             this.configListSetter = set;
             return;
@@ -256,6 +258,7 @@ export class DeckOptionsState {
 
     private updateConfigList(): void {
         this.configListSetter?.(this.getConfigList());
+        this.currentPresetName.set(this.configs[this.selectedIdx].config.name);
     }
 
     /** Returns a copy of the currently selected config. */

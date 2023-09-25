@@ -96,7 +96,7 @@ statistics-card-ease-title = Card Ease
 statistics-card-difficulty-title = Card Difficulty
 statistics-card-retrievability-title = Card Retrievability
 statistics-card-ease-subtitle = The lower the ease, the more frequently a card will appear.
-statistics-card-difficulty-subtitle = The higher the difficulty, the more frequently a card will appear.
+statistics-card-difficulty-subtitle = The higher the difficulty, the harder it is to remember.
 statistics-retrievability-subtitle = How likely you are to remember.
 # eg "3 cards with 150-170% ease"
 statistics-card-ease-tooltip =
