@@ -265,15 +265,15 @@ fn add_extract_fsrs_variable(db: &Connection) -> rusqlite::Result<()> {
     )
 }
 
-/// eg. extract_fsrs_retrievability(card.data, card.due, timing.days_elapsed) ->
-/// float | null
+/// eg. extract_fsrs_retrievability(card.data, card.due, card.ivl,
+/// timing.days_elapsed) -> float | null
 fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
     db.create_scalar_function(
         "extract_fsrs_retrievability",
-        3,
+        4,
         FunctionFlags::SQLITE_DETERMINISTIC,
         move |ctx| {
-            assert_eq!(ctx.len(), 3, "called with unexpected number of arguments");
+            assert_eq!(ctx.len(), 4, "called with unexpected number of arguments");
 
             let Ok(card_data) = ctx.get_raw(0).as_str() else {
                 return Ok(None);
@@ -289,15 +289,14 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
                 // learning card
                 return Ok(None);
             }
-            let Ok(days_elapsed) = ctx.get_raw(2).as_i64() else {
+            let Ok(ivl) = ctx.get_raw(2).as_i64() else {
                 return Ok(None);
             };
-            let Some(stability) = card_data.fsrs_stability else {
+            let Ok(days_elapsed) = ctx.get_raw(3).as_i64() else {
                 return Ok(None);
             };
-
-            let review_day = due.saturating_sub(stability as i64);
-            let days_elapsed = days_elapsed.saturating_sub(review_day) as u32;
+            let review_day = (due.max(0) as u32).saturating_sub(ivl as u32);
+            let days_elapsed = (days_elapsed.max(0) as u32).saturating_sub(review_day);
             Ok(card_data.memory_state().map(|state| {
                 FSRS::new(None)
                     .unwrap()
