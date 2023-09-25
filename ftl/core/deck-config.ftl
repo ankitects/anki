@@ -328,12 +328,13 @@ deck-config-compute-optimal-retention = Compute optimal retention
 deck-config-compute-button = Compute
 deck-config-analyze-button = Analyze
 deck-config-desired-retention = Desired retention
-deck-config-smaller-is-better = Smaller numbers indicate better memory estimates.
-deck-config-steps-too-large-for-fsrs = When FSRS is enabled, interday (re)learning steps are not recommended.
+deck-config-smaller-is-better = Smaller numbers indicate a better fit to your review history.
+deck-config-steps-too-large-for-fsrs = When FSRS is enabled, learning steps over 1 day are not recommended.
 deck-config-get-params = Get Params
 deck-config-fsrs-on-all-clients =
     Please ensure all of your Anki clients are Anki(Mobile) 23.10+ or AnkiDroid 2.17+. FSRS will
     not work correctly if one of your clients is older.
+deck-config-your-optimal-retention = Your optimal retention is { $num }.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

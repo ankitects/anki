@@ -33,7 +33,7 @@ impl Collection {
                 &SimulatorConfig {
                     deck_size: req.deck_size as usize,
                     learn_span: req.days_to_simulate as usize,
-                    max_cost_perday: req.max_seconds_of_study_per_day as f64,
+                    max_cost_perday: req.max_minutes_of_study_per_day as f64 * 60.0,
                     max_ivl: req.max_interval as f64,
                     recall_costs: [p.recall_secs_hard, p.recall_secs_good, p.recall_secs_easy],
                     forget_cost: p.forget_secs,

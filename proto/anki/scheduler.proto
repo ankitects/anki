@@ -343,7 +343,7 @@ message ComputeOptimalRetentionRequest {
   repeated float weights = 1;
   uint32 deck_size = 2;
   uint32 days_to_simulate = 3;
-  uint32 max_seconds_of_study_per_day = 4;
+  uint32 max_minutes_of_study_per_day = 4;
   uint32 max_interval = 5;
   string search = 6;
 }
