@@ -43,6 +43,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         daysToSimulate: 365,
         maxSecondsOfStudyPerDay: 1800,
     });
+    $: if (optimalRetentionRequest.daysToSimulate > 3650) {
+        optimalRetentionRequest.daysToSimulate = 3650;
+    }
     async function computeWeights(): Promise<void> {
         if (computing) {
             await setWantsAbort({});
