@@ -166,7 +166,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (!val || !val.total) {
             return "";
         }
-        let pct = ((val.current / val.total) * 100).toFixed(2);
+        let pct = ((val.current / val.total) * 100).toFixed(1);
         pct = `${pct}%`;
         if (val instanceof ComputeRetentionProgress) {
             return pct;
@@ -181,7 +181,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (!val || !val.total) {
             return "";
         }
-        const pct = ((val.current / val.total) * 100).toFixed(2);
+        const pct = ((val.current / val.total) * 100).toFixed(0);
         return `${pct}%`;
     }
 </script>
