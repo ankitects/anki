@@ -149,6 +149,7 @@ deck-config-new-gather-priority-tooltip-2 =
     
     `Random cards`: gathers cards completely randomly.
 deck-config-new-gather-priority-deck = Deck
+deck-config-new-gather-priority-deck-then-random-notes = Deck then random notes
 deck-config-new-gather-priority-position-lowest-first = Ascending position
 deck-config-new-gather-priority-position-highest-first = Descending position
 deck-config-new-gather-priority-random-notes = Random notes
