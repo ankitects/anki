@@ -383,7 +383,7 @@ impl SqlWriter<'_> {
                 let elap = self.col.timing_today()?.days_elapsed;
                 write!(
                     self.sql,
-                    "extract_fsrs_retrievability(c.data, c.due, {elap}) {op} {r}"
+                    "extract_fsrs_retrievability(c.data, c.due, c.ivl, {elap}) {op} {r}"
                 )
                 .unwrap()
             }
