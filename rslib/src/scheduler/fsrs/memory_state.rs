@@ -1,10 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki_proto::scheduler::ComputeMemoryStateResponse;
 use fsrs::FSRS;
 
+use crate::card::FsrsMemoryState;
 use crate::prelude::*;
 use crate::scheduler::fsrs::weights::fsrs_items_for_memory_state;
+use crate::scheduler::fsrs::weights::single_card_revlog_to_items;
 use crate::scheduler::fsrs::weights::Weights;
 use crate::search::JoinSearches;
 use crate::search::Negated;
@@ -56,5 +59,34 @@ impl Collection {
             }
         }
         Ok(())
+    }
+
+    pub fn compute_memory_state(&mut self, card_id: CardId) -> Result<ComputeMemoryStateResponse> {
+        let card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
+        let deck_id = card.original_deck_id.or(card.deck_id);
+        let deck = self.get_deck(deck_id)?.or_not_found(card.deck_id)?;
+        let conf_id = DeckConfigId(deck.normal()?.config_id);
+        let config = self
+            .storage
+            .get_deck_config(conf_id)?
+            .or_not_found(conf_id)?;
+        let desired_retention = config.inner.desired_retention;
+        let fsrs = FSRS::new(Some(&config.inner.fsrs_weights))?;
+        let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
+        let items = single_card_revlog_to_items(revlog, self.timing_today()?.next_day_at, false);
+        if let Some(mut items) = items {
+            if let Some(last) = items.pop() {
+                let state = fsrs.memory_state(last);
+                let state = FsrsMemoryState::from(state);
+                return Ok(ComputeMemoryStateResponse {
+                    state: Some(state.into()),
+                    desired_retention,
+                });
+            }
+        }
+        Ok(ComputeMemoryStateResponse {
+            state: None,
+            desired_retention,
+        })
     }
 }
