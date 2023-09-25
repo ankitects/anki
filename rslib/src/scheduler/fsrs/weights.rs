@@ -21,11 +21,11 @@ pub(crate) type Weights = Vec<f32>;
 
 impl Collection {
     pub fn compute_weights(&mut self, search: &str) -> Result<ComputeFsrsWeightsResponse> {
+        let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let fsrs_items = items.len() as u32;
-        let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         anki_progress.update(false, |p| p.fsrs_items = fsrs_items)?;
         // adapt the progress handler to our built-in progress handling
         let progress = ProgressState::new_shared();
