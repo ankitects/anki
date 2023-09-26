@@ -229,7 +229,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {tr.deckConfigAnalyzeButton()}
             {/if}
         </button>
-        {#if checkingWeights}<div>{computeWeightsProgressString}</div>{/if}
+        {#if computingWeights || checkingWeights}<div>
+                {computeWeightsProgressString}
+            </div>{/if}
     </details>
 </div>
 
