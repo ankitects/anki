@@ -150,7 +150,7 @@ impl Collection {
             if meta.is_file() {
                 if let Some(ext_osstr) = file_path.extension() {
                     if let Some(ext_str) = ext_osstr.to_str() {
-                        if supported_extensions.contains(&ext_str) {
+                        if supported_extensions.contains(&ext_str.to_lowercase().as_str()) {
                             return Ok(true);
                         }
                     }
