@@ -33,7 +33,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let computingWeights = false;
     let checkingWeights = false;
     let computingRetention = false;
-    let optimalRetention: number | undefined; // FIXME: session-global, shared between decks
+    let optimalRetention = 0;
+    $: if ($presetName) {
+        optimalRetention = 0;
+    }
     $: computing = computingWeights || checkingWeights || computingRetention;
     $: customSearch = `preset:"${$presetName}"`;
 
@@ -182,7 +185,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return `${pct}%`;
     }
 
-    // this function could probably be inlined in svelte but escaping the curly braces is a hassle
     function stringForSetOptimalRetention(retention: number): String {
         if (!retention) {
             return "";
@@ -190,7 +192,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return tr.deckConfigSetOptimalRetention({ num: retention.toFixed(2) });
     }
 
-    // also could have been inlined but I needed boilerplate to silence the type checker
     function setDesiredRetentionToOptimal() {
         if (!optimalRetention) {
             return;
@@ -284,7 +285,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <button
                 class="btn {'btn-primary'}"
                 disabled={!optimalRetention ||
-                    computingRetention ||
                     optimalRetention === $config.desiredRetention}
                 on:click={() => setDesiredRetentionToOptimal()}
             >
