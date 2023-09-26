@@ -33,6 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let computingWeights = false;
     let checkingWeights = false;
     let computingRetention = false;
+    let optimalRetention: number | undefined;  // FIXME: session-global, shared between decks
     $: computing = computingWeights || checkingWeights || computingRetention;
     $: customSearch = `preset:"${$presetName}"`;
 
@@ -136,11 +137,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     optimalRetentionRequest.weights = $config.fsrsWeights;
                     optimalRetentionRequest.search = `preset:"${state.getCurrentName()}"`;
                     const resp = await computeOptimalRetention(optimalRetentionRequest);
-                    alert(
-                        tr.deckConfigYourOptimalRetention({
-                            num: resp.optimalRetention,
-                        }),
-                    );
+                    optimalRetention = resp.optimalRetention;
                     if (computeRetentionProgress) {
                         computeRetentionProgress.current =
                             computeRetentionProgress.total;
@@ -183,6 +180,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         const pct = ((val.current / val.total) * 100).toFixed(2);
         return `${pct}%`;
+    }
+
+
+    function stringForSetOptimalRetention(retention: number) : String {
+        if (!retention) {
+            return "";
+        }
+        return tr.deckConfigSetOptimalRetention({num: retention.toFixed(2)});
     }
 </script>
 
@@ -266,6 +271,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {tr.deckConfigComputeButton()}
             {/if}
         </button>
+
+        {#if optimalRetention}
+        <button
+            class="btn {'btn-primary'}"
+            disabled={!optimalRetention || computingRetention || (optimalRetention ===  $config.desiredRetention)}
+            on:click={() => $config.desiredRetention = optimalRetention}
+        >
+            {stringForSetOptimalRetention(optimalRetention)}
+        </button>
+        {/if}
         <div>{computeRetentionProgressString}</div>
     </details>
 </div>
