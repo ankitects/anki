@@ -171,8 +171,11 @@ impl Collection {
 
     // A count of all changed rows since the collection was opened, which can be
     // used to detect if the collection was modified or not.
-    pub fn changes_since_open(&self) -> u64 {
-        self.storage.db.changes()
+    pub fn changes_since_open(&self) -> Result<u64> {
+        self.storage
+            .db
+            .query_row("select total_changes()", [], |row| row.get(0))
+            .map_err(Into::into)
     }
 
     pub fn close(self, desired_version: Option<SchemaVersion>) -> Result<()> {
