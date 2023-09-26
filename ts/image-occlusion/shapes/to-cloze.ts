@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { Canvas, Object as FabricObject } from "fabric";
+import { fabric } from "fabric";
 
 import { makeMaskTransparent } from "../tools/lib";
 import type { Size } from "../types";
@@ -10,7 +11,10 @@ import { Ellipse } from "./ellipse";
 import { Polygon } from "./polygon";
 import { Rectangle } from "./rectangle";
 
-export function exportShapesToClozeDeletions(occludeInactive: boolean): { clozes: string; noteCount: number } {
+export function exportShapesToClozeDeletions(occludeInactive: boolean): {
+    clozes: string;
+    noteCount: number;
+} {
     const shapes = baseShapesFromFabric(occludeInactive);
 
     let clozes = "";
@@ -28,14 +32,15 @@ function baseShapesFromFabric(occludeInactive: boolean): ShapeOrShapes[] {
     const canvas = globalThis.canvas as Canvas;
     makeMaskTransparent(canvas, false);
     const objects = canvas.getObjects() as FabricObject[];
-    return objects.map((object) => {
-        return fabricObjectToBaseShapeOrShapes(canvas, object, occludeInactive);
-    }).filter((o): o is ShapeOrShapes => o !== null);
-}
-
-interface TopAndLeftOffset {
-    top: number;
-    left: number;
+    return objects
+        .map((object) => {
+            return fabricObjectToBaseShapeOrShapes(
+                canvas,
+                object,
+                occludeInactive,
+            );
+        })
+        .filter((o): o is ShapeOrShapes => o !== null);
 }
 
 /** Convert a single Fabric object/group to one or more BaseShapes. */
@@ -43,9 +48,10 @@ function fabricObjectToBaseShapeOrShapes(
     size: Size,
     object: FabricObject,
     occludeInactive: boolean,
-    groupOffset: TopAndLeftOffset = { top: 0, left: 0 },
+    parentObject?: FabricObject,
 ): ShapeOrShapes | null {
     let shape: Shape;
+
     switch (object.type) {
         case "rect":
             shape = new Rectangle(object);
@@ -57,28 +63,37 @@ function fabricObjectToBaseShapeOrShapes(
             shape = new Polygon(object);
             break;
         case "group":
-            // Positions inside a group are relative to the group, so we
-            // need to pass in an offset. We do not support nested groups.
-            groupOffset = {
-                left: object.left + object.width / 2,
-                top: object.top + object.height / 2,
-            };
-            return object._objects.map((obj) => {
-                return fabricObjectToBaseShapeOrShapes(size, obj, occludeInactive, groupOffset);
+            return object._objects.map((child) => {
+                return fabricObjectToBaseShapeOrShapes(
+                    size,
+                    child,
+                    occludeInactive,
+                    object,
+                );
             });
         default:
             return null;
     }
     shape.occludeInactive = occludeInactive;
-    shape.left += groupOffset.left;
-    shape.top += groupOffset.top;
+    if (parentObject) {
+        const newPosition = fabric.util.transformPoint(
+            { x: shape.left, y: shape.top },
+            parentObject.calcTransformMatrix(),
+        );
+        shape.left = newPosition.x;
+        shape.top = newPosition.y;
+    }
+
     shape.makeNormal(size);
     return shape;
 }
 
 /** generate cloze data in form of
  {{c1::image-occlusion:rect:top=.1:left=.23:width=.4:height=.5}} */
-function shapeOrShapesToCloze(shapeOrShapes: ShapeOrShapes, index: number): string {
+function shapeOrShapesToCloze(
+    shapeOrShapes: ShapeOrShapes,
+    index: number,
+): string {
     let text = "";
     function addKeyValue(key: string, value: string) {
         if (Number.isNaN(Number(value))) {
@@ -89,7 +104,9 @@ function shapeOrShapesToCloze(shapeOrShapes: ShapeOrShapes, index: number): stri
 
     let type: string;
     if (Array.isArray(shapeOrShapes)) {
-        return shapeOrShapes.map((shape) => shapeOrShapesToCloze(shape, index)).join("");
+        return shapeOrShapes
+            .map((shape) => shapeOrShapesToCloze(shape, index))
+            .join("");
     } else if (shapeOrShapes instanceof Rectangle) {
         type = "rect";
     } else if (shapeOrShapes instanceof Ellipse) {
