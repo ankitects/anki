@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let computingWeights = false;
     let checkingWeights = false;
     let computingRetention = false;
-    let optimalRetention: number | undefined;  // FIXME: session-global, shared between decks
+    let optimalRetention: number | undefined; // FIXME: session-global, shared between decks
     $: computing = computingWeights || checkingWeights || computingRetention;
     $: customSearch = `preset:"${$presetName}"`;
 
@@ -182,12 +182,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return `${pct}%`;
     }
 
-
-    function stringForSetOptimalRetention(retention: number) : String {
+    // this function could probably be inlined in svelte but escaping the curly braces is a hassle
+    function stringForSetOptimalRetention(retention: number): String {
         if (!retention) {
             return "";
         }
-        return tr.deckConfigSetOptimalRetention({num: retention.toFixed(2)});
+        return tr.deckConfigSetOptimalRetention({ num: retention.toFixed(2) });
+    }
+
+    // also could have been inlined but I needed boilerplate to silence the type checker
+    function setDesiredRetentionToOptimal() {
+        if (!optimalRetention) {
+            return;
+        }
+        $config.desiredRetention = optimalRetention;
     }
 </script>
 
@@ -273,13 +281,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </button>
 
         {#if optimalRetention}
-        <button
-            class="btn {'btn-primary'}"
-            disabled={!optimalRetention || computingRetention || (optimalRetention ===  $config.desiredRetention)}
-            on:click={() => $config.desiredRetention = optimalRetention}
-        >
-            {stringForSetOptimalRetention(optimalRetention)}
-        </button>
+            <button
+                class="btn {'btn-primary'}"
+                disabled={!optimalRetention ||
+                    computingRetention ||
+                    optimalRetention === $config.desiredRetention}
+                on:click={() => setDesiredRetentionToOptimal()}
+            >
+                {stringForSetOptimalRetention(optimalRetention)}
+            </button>
         {/if}
         <div>{computeRetentionProgressString}</div>
     </details>
