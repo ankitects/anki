@@ -189,7 +189,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <SpinBoxFloatRow
     bind:value={$config.desiredRetention}
     defaultValue={defaults.desiredRetention}
-    min={0.8}
+    min={0.7}
     max={0.97}
 >
     <SettingTitle>

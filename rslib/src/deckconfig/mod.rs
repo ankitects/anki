@@ -270,7 +270,7 @@ pub(crate) fn ensure_deck_config_values_valid(config: &mut DeckConfigInner) {
     ensure_f32_valid(
         &mut config.desired_retention,
         default.desired_retention,
-        0.8,
+        0.7,
         0.97,
     );
 }
