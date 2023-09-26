@@ -60,8 +60,8 @@ impl Collection {
                         .is_ok()
                 },
             )?
-            .max(0.8)
-            .min(0.97) as f32)
+            .max(0.75)
+            .min(0.95) as f32)
     }
 
     pub fn get_optimal_retention_parameters(
