@@ -112,14 +112,19 @@ impl Card {
         if self.queue == CardQueue::Learn {
             Some(TimestampSecs(self.due as i64))
         } else if self.is_due_in_days() {
-            Some(TimestampSecs::now().adding_secs(
-                ((self.original_or_current_due() - timing.days_elapsed as i32).saturating_mul(86400)) as i64,
-            ))
+            Some(
+                TimestampSecs::now().adding_secs(
+                    ((self.original_or_current_due() - timing.days_elapsed as i32)
+                        .saturating_mul(86400)) as i64,
+                ),
+            )
         } else {
             None
         }
     }
 
+    /// This uses card.due and card.ivl to infer the elapsed time. If 'set due
+    /// date' or an add-on has changed the due date, this won't be accurate.
     pub(crate) fn days_since_last_review(&self, timing: &SchedTimingToday) -> Option<u32> {
         if !self.is_due_in_days() {
             Some(0)

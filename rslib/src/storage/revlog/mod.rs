@@ -7,6 +7,7 @@ use rusqlite::params;
 use rusqlite::types::FromSql;
 use rusqlite::types::FromSqlError;
 use rusqlite::types::ValueRef;
+use rusqlite::OptionalExtension;
 use rusqlite::Row;
 
 use super::SqliteStorage;
@@ -91,6 +92,15 @@ impl SqliteStorage {
             .query_and_then([id], row_to_revlog_entry)?
             .next()
             .transpose()
+    }
+
+    /// Determine the the last review time based on the revlog.
+    pub(crate) fn time_of_last_review(&self, card_id: CardId) -> Result<Option<TimestampSecs>> {
+        self.db
+            .prepare_cached(include_str!("time_of_last_review.sql"))?
+            .query_row([card_id], |row| row.get(0))
+            .optional()
+            .map_err(Into::into)
     }
 
     /// Only intended to be used by the undo code, as Anki can not sync revlog

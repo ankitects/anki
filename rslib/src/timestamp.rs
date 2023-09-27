@@ -28,6 +28,10 @@ impl TimestampSecs {
         (Self::now().0 - self.0).max(0) as u64
     }
 
+    pub fn elapsed_days_since(self, other: TimestampSecs) -> u64 {
+        (other.0 - self.0).max(0) as u64 / 86_400
+    }
+
     pub fn as_millis(self) -> TimestampMillis {
         TimestampMillis(self.0 * 1000)
     }

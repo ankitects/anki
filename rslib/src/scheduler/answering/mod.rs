@@ -364,10 +364,15 @@ impl Collection {
                 let item = single_card_revlog_to_item(revlog, timing.next_day_at);
                 card.set_memory_state(&fsrs, item);
             }
+            let days_elapsed = self
+                .storage
+                .time_of_last_review(card.id)?
+                .map(|ts| ts.elapsed_days_since(timing.next_day_at))
+                .unwrap_or_default() as u32;
             Some(fsrs.next_states(
                 card.memory_state.map(Into::into),
                 config.inner.desired_retention,
-                card.days_since_last_review(&timing).unwrap_or_default(),
+                days_elapsed,
             ))
         } else {
             None
