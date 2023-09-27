@@ -40,7 +40,7 @@ rev = "184b2ca50ed39ca43da13f0b830a463861adb9ca"
 
 [workspace.dependencies.fsrs]
 git = "https://github.com/open-spaced-repetition/fsrs-rs.git"
-rev = "fefe01fca179f930fc2b837db85fe63cf0cb75f3"
+rev = "9e20a8b32ebae50230cc39e2331e9593660d56ed"
 # path = "../../../fsrs-rs"
 
 [workspace.dependencies]

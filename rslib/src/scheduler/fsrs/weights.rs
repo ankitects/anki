@@ -107,24 +107,6 @@ fn fsrs_items_for_training(revlogs: Vec<RevlogEntry>, next_day_at: TimestampSecs
     revlogs
 }
 
-/// When updating memory state, FSRS only requires the last FSRSItem that
-/// contains the full history.
-pub(crate) fn fsrs_items_for_memory_state(
-    revlogs: Vec<RevlogEntry>,
-    next_day_at: TimestampSecs,
-) -> Vec<(CardId, FSRSItem)> {
-    let mut out = vec![];
-    for (card_id, group) in revlogs.into_iter().group_by(|r| r.cid).into_iter() {
-        let entries = group.into_iter().collect_vec();
-        if let Some(mut items) = single_card_revlog_to_items(entries, next_day_at, false) {
-            if let Some(item) = items.pop() {
-                out.push((card_id, item));
-            }
-        }
-    }
-    out
-}
-
 /// Transform the revlog history for a card into a list of FSRSItems. FSRS
 /// expects multiple items for a given card when training - for revlog
 /// `[1,2,3]`, we create FSRSItems corresponding to `[1,2]` and `[1,2,3]`
@@ -153,7 +135,7 @@ pub(crate) fn single_card_revlog_to_items(
         if idx > 0 {
             entries.drain(..idx);
         }
-    } else if training {
+    } else {
         // we ignore cards that don't have any learning steps
         return None;
     }
@@ -207,8 +189,8 @@ pub(crate) fn single_card_revlog_to_items(
                 .take(outer_idx + 1)
                 .enumerate()
                 .map(|(inner_idx, r)| FSRSReview {
-                    rating: r.button_chosen as i32,
-                    delta_t: delta_ts[inner_idx] as i32,
+                    rating: r.button_chosen as u32,
+                    delta_t: delta_ts[inner_idx],
                 })
                 .collect();
             FSRSItem { reviews }
@@ -242,7 +224,7 @@ mod tests {
         }
     }
 
-    fn review(delta_t: i32) -> FSRSReview {
+    fn review(delta_t: u32) -> FSRSReview {
         FSRSReview { rating: 3, delta_t }
     }
 
@@ -355,23 +337,6 @@ mod tests {
                 true,
             ),
             fsrs_items!([review(0), review(4)])
-        );
-    }
-
-    #[test]
-    fn bypassed_learning_is_handled() {
-        assert_eq!(
-            convert(
-                &[
-                    RevlogEntry {
-                        ease_factor: 2500,
-                        ..revlog(RevlogReviewKind::Manual, 7)
-                    },
-                    revlog(RevlogReviewKind::Review, 6),
-                ],
-                false,
-            ),
-            fsrs_items!([review(0)])
         );
     }
 

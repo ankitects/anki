@@ -8,7 +8,6 @@ mod relearning;
 mod review;
 mod revlog;
 
-use fsrs::MemoryState;
 use fsrs::NextStates;
 use fsrs::FSRS;
 use rand::prelude::*;
@@ -30,7 +29,7 @@ use crate::deckconfig::DeckConfig;
 use crate::deckconfig::LeechAction;
 use crate::decks::Deck;
 use crate::prelude::*;
-use crate::scheduler::fsrs::weights::fsrs_items_for_memory_state;
+use crate::scheduler::fsrs::memory_state::single_card_revlog_to_item;
 use crate::search::SearchNode;
 
 #[derive(Copy, Clone)]
@@ -347,7 +346,7 @@ impl Collection {
         )
     }
 
-    fn card_state_updater(&mut self, card: Card) -> Result<CardStateUpdater> {
+    fn card_state_updater(&mut self, mut card: Card) -> Result<CardStateUpdater> {
         let timing = self.timing_today()?;
         let deck = self
             .storage
@@ -357,20 +356,16 @@ impl Collection {
         let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
         let fsrs_next_states = if fsrs_enabled {
             let fsrs = FSRS::new(Some(&config.inner.fsrs_weights))?;
-            let memory_state = if let Some(state) = card.memory_state {
-                Some(MemoryState::from(state))
-            } else if card.ctype == CardType::New {
-                None
-            } else {
+            if card.memory_state.is_none() && card.ctype != CardType::New {
                 // Card has been moved or imported into an FSRS deck after weights were set,
                 // and will need its initial memory state to be calculated based on review
                 // history.
                 let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
-                let mut fsrs_items = fsrs_items_for_memory_state(revlog, timing.next_day_at);
-                fsrs_items.pop().map(|(_cid, item)| fsrs.memory_state(item))
-            };
+                let item = single_card_revlog_to_item(revlog, timing.next_day_at);
+                card.set_memory_state(&fsrs, item);
+            }
             Some(fsrs.next_states(
-                memory_state,
+                card.memory_state.map(Into::into),
                 config.inner.desired_retention,
                 card.days_since_last_review(&timing).unwrap_or_default(),
             ))

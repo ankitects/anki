@@ -2,11 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anki_proto::scheduler::ComputeMemoryStateResponse;
+use fsrs::FSRSItem;
 use fsrs::FSRS;
+use itertools::Itertools;
 
-use crate::card::FsrsMemoryState;
+use crate::card::CardType;
 use crate::prelude::*;
-use crate::scheduler::fsrs::weights::fsrs_items_for_memory_state;
+use crate::revlog::RevlogEntry;
 use crate::scheduler::fsrs::weights::single_card_revlog_to_items;
 use crate::scheduler::fsrs::weights::Weights;
 use crate::search::JoinSearches;
@@ -48,8 +50,7 @@ impl Collection {
                 let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
                 let original = card.clone();
                 if weights_and_desired_retention.is_some() {
-                    let state = fsrs.memory_state(item);
-                    card.memory_state = Some(state.into());
+                    card.set_memory_state(&fsrs, item);
                     card.desired_retention = desired_retention;
                 } else {
                     card.memory_state = None;
@@ -62,7 +63,7 @@ impl Collection {
     }
 
     pub fn compute_memory_state(&mut self, card_id: CardId) -> Result<ComputeMemoryStateResponse> {
-        let card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
+        let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
         let deck_id = card.original_deck_id.or(card.deck_id);
         let deck = self.get_deck(deck_id)?.or_not_found(card.deck_id)?;
         let conf_id = DeckConfigId(deck.normal()?.config_id);
@@ -73,20 +74,54 @@ impl Collection {
         let desired_retention = config.inner.desired_retention;
         let fsrs = FSRS::new(Some(&config.inner.fsrs_weights))?;
         let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
-        let items = single_card_revlog_to_items(revlog, self.timing_today()?.next_day_at, false);
-        if let Some(mut items) = items {
-            if let Some(last) = items.pop() {
-                let state = fsrs.memory_state(last);
-                let state = FsrsMemoryState::from(state);
-                return Ok(ComputeMemoryStateResponse {
-                    state: Some(state.into()),
-                    desired_retention,
-                });
-            }
-        }
+        let item = single_card_revlog_to_item(revlog, self.timing_today()?.next_day_at);
+        card.set_memory_state(&fsrs, item);
         Ok(ComputeMemoryStateResponse {
-            state: None,
+            state: card.memory_state.map(Into::into),
             desired_retention,
         })
     }
+}
+
+impl Card {
+    pub(crate) fn set_memory_state(&mut self, fsrs: &FSRS, item: Option<FSRSItem>) {
+        self.memory_state = item
+            .map(|i| fsrs.memory_state(i))
+            .or_else(|| {
+                if self.ctype == CardType::New {
+                    None
+                } else {
+                    Some(fsrs.memory_state_from_sm2(self.ease_factor(), self.interval as f32))
+                }
+            })
+            .map(Into::into);
+    }
+}
+
+/// When updating memory state, FSRS only requires the last FSRSItem that
+/// contains the full history.
+pub(crate) fn fsrs_items_for_memory_state(
+    revlogs: Vec<RevlogEntry>,
+    next_day_at: TimestampSecs,
+) -> Vec<(CardId, Option<FSRSItem>)> {
+    revlogs
+        .into_iter()
+        .group_by(|r| r.cid)
+        .into_iter()
+        .map(|(card_id, group)| {
+            (
+                card_id,
+                single_card_revlog_to_item(group.collect(), next_day_at),
+            )
+        })
+        .collect()
+}
+
+/// When calculating memory state, only the last FSRSItem is required.
+pub(crate) fn single_card_revlog_to_item(
+    entries: Vec<RevlogEntry>,
+    next_day_at: TimestampSecs,
+) -> Option<FSRSItem> {
+    let items = single_card_revlog_to_items(entries, next_day_at, false);
+    items.and_then(|mut i| i.pop())
 }
