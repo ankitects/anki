@@ -47,8 +47,6 @@ service SchedulerService {
   rpc RepositionDefaults(generic.Empty) returns (RepositionDefaultsResponse);
   rpc ComputeFsrsWeights(ComputeFsrsWeightsRequest)
       returns (ComputeFsrsWeightsResponse);
-  rpc ComputeFsrsWeightsFromItems(ComputeFsrsWeightsFromItemsRequest)
-      returns (ComputeFsrsWeightsResponse);
   rpc GetOptimalRetentionParameters(GetOptimalRetentionParametersRequest)
       returns (GetOptimalRetentionParametersResponse);
   rpc ComputeOptimalRetention(ComputeOptimalRetentionRequest)
@@ -59,7 +57,10 @@ service SchedulerService {
 
 // Implicitly includes any of the above methods that are not listed in the
 // backend service.
-service BackendSchedulerService {}
+service BackendSchedulerService {
+  rpc ComputeFsrsWeightsFromItems(ComputeFsrsWeightsFromItemsRequest)
+      returns (ComputeFsrsWeightsResponse);
+}
 
 message SchedulingState {
   message New {

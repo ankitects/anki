@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import sys
 import traceback
-from typing import Any, Sequence
+from typing import TYPE_CHECKING, Any, Iterable, Sequence
 from weakref import ref
 
 from markdown import markdown
@@ -17,6 +17,9 @@ from anki._fluent import GeneratedTranslations
 from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
 from anki.utils import from_json_bytes, to_json_bytes
+
+if TYPE_CHECKING:
+    from anki.collection import FsrsItem
 
 from .errors import (
     BackendError,
@@ -139,6 +142,9 @@ class RustBackend(RustBackendGenerated):
             "please use col.format_timespan() instead of col.backend.format_time_span()"
         )
         return self.format_timespan(seconds=seconds, context=context)
+
+    def compute_weights_from_items(self, items: Iterable[FsrsItem]) -> Sequence[float]:
+        return self.compute_fsrs_weights_from_items(items).weights
 
     def _run_command(self, service: int, method: int, input: bytes) -> bytes:
         try:
