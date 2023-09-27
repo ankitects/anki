@@ -27,9 +27,14 @@ impl Collection {
         let (average_secs, total_secs) = average_and_total_secs_strings(&revlog);
         let (due_date, due_position) = self.due_date_and_position(&card)?;
         let timing = self.timing_today()?;
+        let days_elapsed = self
+            .storage
+            .time_of_last_review(card.id)?
+            .map(|ts| ts.elapsed_days_since(timing.next_day_at))
+            .unwrap_or_default() as u32;
         let fsrs_retrievability = card
             .memory_state
-            .zip(card.days_since_last_review(&timing))
+            .zip(Some(days_elapsed))
             .map(|(state, days)| {
                 FSRS::new(None)
                     .unwrap()
