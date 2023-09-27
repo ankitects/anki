@@ -15,7 +15,7 @@ import urllib.request
 import warnings
 from enum import Enum
 from random import randrange
-from typing import Any, Callable, Match, cast
+from typing import Any, Callable, Literal, Match, cast
 
 import bs4
 import requests
@@ -846,11 +846,20 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         return ""
 
+    def _preferred_pasted_image_extension(self) -> Literal["png", "jpg"]:
+        if self.mw.col.get_config_bool(Config.Bool.PASTE_IMAGES_AS_PNG):
+            return "png"
+        else:
+            return "jpg"
+
+    def _pasted_image_filename(self, data: bytes, ext: str) -> str:
+        csum = checksum(data)
+        return f"paste-{csum}.{ext}"
+
     # ext should include dot
     def _addPastedImage(self, data: bytes, ext: str) -> str:
         # hash and write
-        csum = checksum(data)
-        fname = f"paste-{csum}{ext}"
+        fname = self._pasted_image_filename(data, ext)
         return self._addMediaFromData(fname, data)
 
     def _retrieveURL(self, url: str) -> str | None:
@@ -1027,16 +1036,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         image = QImage(mime.imageData())
         buffer = QBuffer()
         buffer.open(QBuffer.OpenModeFlag.ReadWrite)
-        if self.mw.col.get_config_bool(Config.Bool.PASTE_IMAGES_AS_PNG):
-            ext = ".png"
-            image.save(buffer, "PNG", 50)
-        else:
-            ext = ".jpg"
-            image.save(buffer, "JPG", 80)
+        ext = self._preferred_pasted_image_extension()
+        image.save(buffer, ext, 50)
         buffer.reset()
         data = bytes(buffer.readAll())
-        csum = checksum(data)
-        path = namedtmp(f"paste-{csum}{ext}")
+        fname = self._pasted_image_filename(data, ext)
+        path = namedtmp(fname)
         with open(path, "wb") as file:
             file.write(data)
         self.setup_mask_editor_for_file(path)
@@ -1519,15 +1524,14 @@ class EditorWebView(AnkiWebView):
             return None
         im = QImage(mime.imageData())
         uname = namedtmp("paste")
-        if self.editor.mw.col.get_config_bool(Config.Bool.PASTE_IMAGES_AS_PNG):
-            ext = ".png"
-            im.save(uname + ext, None, 50)
+        ext = self.editor._preferred_pasted_image_extension()
+        path = f"{uname}.{ext}"
+        if ext == "png":
+            quality = 50
         else:
-            ext = ".jpg"
-            im.save(uname + ext, None, 80)
-
+            quality = 80
+        im.save(path, None, quality)
         # invalid image?
-        path = uname + ext
         if not os.path.exists(path):
             return None
 
