@@ -47,6 +47,8 @@ service SchedulerService {
   rpc RepositionDefaults(generic.Empty) returns (RepositionDefaultsResponse);
   rpc ComputeFsrsWeights(ComputeFsrsWeightsRequest)
       returns (ComputeFsrsWeightsResponse);
+  rpc ComputeFsrsWeightsFromItems(ComputeFsrsWeightsFromItemsRequest)
+      returns (ComputeFsrsWeightsResponse);
   rpc GetOptimalRetentionParameters(GetOptimalRetentionParametersRequest)
       returns (GetOptimalRetentionParametersResponse);
   rpc ComputeOptimalRetention(ComputeOptimalRetentionRequest)
@@ -337,6 +339,19 @@ message ComputeFsrsWeightsResponse {
   repeated float weights = 1;
   // if less than 1000, should warn user
   uint32 fsrs_items = 2;
+}
+
+message ComputeFsrsWeightsFromItemsRequest {
+  repeated FsrsItem items = 1;
+}
+
+message FsrsItem {
+  repeated FsrsReview reviews = 1;
+}
+
+message FsrsReview {
+  uint32 rating = 1;
+  uint32 delta_t = 2;
 }
 
 message ComputeOptimalRetentionRequest {
