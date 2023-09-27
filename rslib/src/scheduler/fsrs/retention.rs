@@ -76,12 +76,17 @@ impl Collection {
 
         let first_rating_count = revlogs
             .iter()
-            .filter(|r| {
-                r.review_kind == RevlogReviewKind::Learning
-                    && r.last_interval == 0
-                    && r.button_chosen >= 1
+            .group_by(|r| r.cid)
+            .into_iter()
+            .map(|(_cid, group)| {
+                let first = group
+                    .into_iter()
+                    .filter(|r| r.review_kind == RevlogReviewKind::Learning && r.button_chosen >= 1)
+                    .next();
+                first
             })
-            .counts_by(|r| r.button_chosen);
+            .filter(|r| r.is_some())
+            .counts_by(|r| r.unwrap().button_chosen);
         let total_first = first_rating_count.values().sum::<usize>() as f64;
         let first_rating_prob = if total_first > 0.0 {
             let mut arr = [0.0; 4];
@@ -136,11 +141,10 @@ impl Collection {
         let learn_cost = {
             let revlogs_filter = revlogs
                 .iter()
-                .filter(|r| r.review_kind == RevlogReviewKind::Learning && r.last_interval == 0)
+                .filter(|r| r.review_kind == RevlogReviewKind::Learning && r.button_chosen >= 1)
                 .map(|r| r.taken_millis);
-            let count = revlogs_filter.clone().count() as f64;
-            if count > 0.0 {
-                revlogs_filter.sum::<u32>() as f64 / count / 1000.0
+            if total_first > 0.0 {
+                revlogs_filter.sum::<u32>() as f64 / total_first / 1000.0
             } else {
                 return Err(AnkiError::FsrsInsufficientData);
             }
