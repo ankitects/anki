@@ -145,14 +145,16 @@ impl super::SqliteStorage {
     pub(crate) fn fix_invalid_utf8_in_note(&self, nid: NoteId) -> Result<()> {
         self.db
             .query_row(
-                "select cast(flds as blob) from notes where id=?",
+                "select cast(flds as blob), cast(tags as blob) from notes where id=?",
                 [nid],
                 |row| {
                     let fixed_flds: Vec<u8> = row.get(0)?;
                     let fixed_str = String::from_utf8_lossy(&fixed_flds);
+                    let fixed_tags: Vec<u8> = row.get(1)?;
+                    let fixed_tags = String::from_utf8_lossy(&fixed_tags);
                     self.db.execute(
-                        "update notes set flds = ?, sfld = '' where id = ?",
-                        params![fixed_str, nid],
+                        "update notes set flds = ?, sfld = '', tags = ? where id = ?",
+                        params![fixed_str, fixed_tags, nid],
                     )
                 },
             )
