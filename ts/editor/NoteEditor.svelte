@@ -599,7 +599,7 @@ the AddCards dialog) should be implemented in the user of this component.
                 {tr.notetypesIoSelectImage()}
             </LabelButton>
         </div>
-        <div id="io-select-clipboard-image-div" style="padding-top: 60px; text-align: center;">
+        <div id="io-select-clipboard-image-div" style="padding-top: 30px; text-align: center;">
             <LabelButton
                 --border-left-radius="5px"
                 --border-right-radius="5px"
