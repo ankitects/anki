@@ -79,11 +79,9 @@ impl Collection {
             .group_by(|r| r.cid)
             .into_iter()
             .map(|(_cid, group)| {
-                let first = group
-                    .into_iter()
-                    .filter(|r| r.review_kind == RevlogReviewKind::Learning && r.button_chosen >= 1)
-                    .next();
-                first
+                
+                group
+                    .into_iter().find(|r| r.review_kind == RevlogReviewKind::Learning && r.button_chosen >= 1)
             })
             .filter(|r| r.is_some())
             .counts_by(|r| r.unwrap().button_chosen);
