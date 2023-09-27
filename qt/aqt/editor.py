@@ -1037,7 +1037,11 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         buffer = QBuffer()
         buffer.open(QBuffer.OpenModeFlag.ReadWrite)
         ext = self._preferred_pasted_image_extension()
-        image.save(buffer, ext, 50)
+        if ext == "png":
+            quality = 50
+        else:
+            quality = 80
+        image.save(buffer, ext, quality)
         buffer.reset()
         data = bytes(buffer.readAll())
         fname = self._pasted_image_filename(data, ext)
