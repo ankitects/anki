@@ -36,9 +36,7 @@ pub enum BoolKey {
     ShiftPositionOfExistingCards,
     MergeNotetypes,
     WithScheduling,
-    StopTimerOnAnswer,
     Fsrs,
-
     #[strum(to_string = "normalize_note_text")]
     NormalizeNoteText,
     #[strum(to_string = "dayLearnFirst")]
