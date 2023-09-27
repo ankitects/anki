@@ -182,7 +182,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return "";
         }
         const pct = ((val.current / val.total) * 100).toFixed(0);
-        return `${pct}%`;
+        return tr.deckConfigComplete({ num: pct });
     }
 
     function stringForSetOptimalRetention(retention: number): String {
