@@ -204,7 +204,7 @@ impl crate::services::NotetypesService for Collection {
         &mut self,
         input: anki_proto::notetypes::RestoreNotetypeToStockRequest,
     ) -> error::Result<anki_proto::collection::OpChanges> {
-        let force_kind = input.force_kind.and_then(StockKind::from_i32);
+        let force_kind = input.force_kind.and_then(|s| StockKind::try_from(s).ok());
 
         self.restore_notetype_to_stock(
             input.notetype_id.or_invalid("missing notetype id")?.into(),

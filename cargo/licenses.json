@@ -1486,15 +1486,6 @@
   },
   {
     "name": "itertools",
-    "version": "0.10.5",
-    "authors": "bluss",
-    "repository": "https://github.com/rust-itertools/itertools",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Extra iterator adaptors, iterator methods, free functions, and macros."
-  },
-  {
-    "name": "itertools",
     "version": "0.11.0",
     "authors": "bluss",
     "repository": "https://github.com/rust-itertools/itertools",
@@ -1846,7 +1837,7 @@
   },
   {
     "name": "num_enum",
-    "version": "0.6.1",
+    "version": "0.7.0",
     "authors": "Daniel Wagner-Hall <dawagner@gmail.com>|Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>|Vincent Esche <regexident@gmail.com>",
     "repository": "https://github.com/illicitonion/num_enum",
     "license": "Apache-2.0 OR BSD-3-Clause OR MIT",
@@ -1855,7 +1846,7 @@
   },
   {
     "name": "num_enum_derive",
-    "version": "0.6.1",
+    "version": "0.7.0",
     "authors": "Daniel Wagner-Hall <dawagner@gmail.com>|Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>|Vincent Esche <regexident@gmail.com>",
     "repository": "https://github.com/illicitonion/num_enum",
     "license": "Apache-2.0 OR BSD-3-Clause OR MIT",
@@ -2134,15 +2125,6 @@
   },
   {
     "name": "prettyplease",
-    "version": "0.1.25",
-    "authors": "David Tolnay <dtolnay@gmail.com>",
-    "repository": "https://github.com/dtolnay/prettyplease",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A minimal `syn` syntax tree pretty-printer"
-  },
-  {
-    "name": "prettyplease",
     "version": "0.2.15",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/prettyplease",
@@ -2179,7 +2161,7 @@
   },
   {
     "name": "prost",
-    "version": "0.11.9",
+    "version": "0.12.1",
     "authors": "Dan Burkert <dan@danburkert.com>|Lucio Franco <luciofranco14@gmail.com|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/prost",
     "license": "Apache-2.0",
@@ -2188,7 +2170,7 @@
   },
   {
     "name": "prost-build",
-    "version": "0.11.9",
+    "version": "0.12.1",
     "authors": "Dan Burkert <dan@danburkert.com>|Lucio Franco <luciofranco14@gmail.com>|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/prost",
     "license": "Apache-2.0",
@@ -2197,7 +2179,7 @@
   },
   {
     "name": "prost-derive",
-    "version": "0.11.9",
+    "version": "0.12.1",
     "authors": "Dan Burkert <dan@danburkert.com>|Lucio Franco <luciofranco14@gmail.com>|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/prost",
     "license": "Apache-2.0",
@@ -2206,7 +2188,7 @@
   },
   {
     "name": "prost-reflect",
-    "version": "0.11.5",
+    "version": "0.12.0",
     "authors": "Andrew Hickman <andrew.hickman1@sky.com>",
     "repository": "https://github.com/andrewhickman/prost-reflect",
     "license": "Apache-2.0 OR MIT",
@@ -2215,7 +2197,7 @@
   },
   {
     "name": "prost-types",
-    "version": "0.11.9",
+    "version": "0.12.1",
     "authors": "Dan Burkert <dan@danburkert.com>|Lucio Franco <luciofranco14@gmail.com|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/prost",
     "license": "Apache-2.0",
@@ -3611,6 +3593,24 @@
   {
     "name": "windows",
     "version": "0.48.0",
+    "authors": "Microsoft",
+    "repository": "https://github.com/microsoft/windows-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Rust for Windows"
+  },
+  {
+    "name": "windows",
+    "version": "0.51.1",
+    "authors": "Microsoft",
+    "repository": "https://github.com/microsoft/windows-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Rust for Windows"
+  },
+  {
+    "name": "windows-core",
+    "version": "0.51.1",
     "authors": "Microsoft",
     "repository": "https://github.com/microsoft/windows-rs",
     "license": "Apache-2.0 OR MIT",

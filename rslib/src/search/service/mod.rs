@@ -58,7 +58,7 @@ impl crate::services::SearchService for Collection {
         let additional_node: Node = input.additional_node.unwrap_or_default().try_into()?;
 
         Ok(
-            match anki_proto::search::search_node::group::Joiner::from_i32(input.joiner)
+            match anki_proto::search::search_node::group::Joiner::try_from(input.joiner)
                 .unwrap_or_default()
             {
                 anki_proto::search::search_node::group::Joiner::And => {

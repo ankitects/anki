@@ -135,7 +135,7 @@ impl crate::services::SchedulerService for Collection {
             input.reset_counts,
             input
                 .context
-                .and_then(scheduler::schedule_cards_as_new_request::Context::from_i32),
+                .and_then(|s| scheduler::schedule_cards_as_new_request::Context::try_from(s).ok()),
         )
         .map(Into::into)
     }
