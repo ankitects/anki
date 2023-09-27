@@ -39,6 +39,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             title: tr.schedulingShowAnswerTimer(),
             help: tr.deckConfigShowAnswerTimerTooltip(),
         },
+        stopTimerOnAnswer: {
+            title: tr.deckConfigStopTimerOnAnswer(),
+            help: tr.deckConfigStopTimerOnAnswerTooltip(),
+        },
     };
     const helpSections = Object.values(settings) as HelpItem[];
 
@@ -102,6 +106,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </SettingTitle>
                 </SwitchRow>
             </div>
+        </Item>
+
+        <Item>
+            <SwitchRow
+                bind:value={$config.stopTimerOnAnswer}
+                defaultValue={defaults.stopTimerOnAnswer}
+            >
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(
+                            Object.keys(settings).indexOf("stopTimerOnAnswer"),
+                        )}
+                >
+                    {settings.stopTimerOnAnswer.title}
+                </SettingTitle>
+            </SwitchRow>
         </Item>
     </DynamicallySlottable>
 </TitledContainer>

@@ -410,19 +410,6 @@
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="QCheckBox" name="stop_timer_on_answer">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>preferences_stop_timer_on_answer</string>
-              </property>
-             </widget>
-            </item>
            </layout>
           </widget>
          </item>
@@ -1099,7 +1086,6 @@
   <tabstop>showProgress</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>spacebar_rates_card</tabstop>
-  <tabstop>stop_timer_on_answer</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>paste_strips_formatting</tabstop>
   <tabstop>useCurrent</tabstop>

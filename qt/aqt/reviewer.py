@@ -741,9 +741,9 @@ timerStopped = false;
             self.mw.progress.single_shot(50, self._showEaseButtons)
             return
         middle = self._answerButtons()
-        stop_timer = self.mw.col.get_config_bool(Config.Bool.STOP_TIMER_ON_ANSWER)
+        conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
         self.bottom.web.eval(
-            f"showAnswer({json.dumps(middle)}, {json.dumps(stop_timer)});"
+            f"showAnswer({json.dumps(middle)}, {json.dumps(conf['stopTimerOnAnswer'])});"
         )
 
     def _remaining(self) -> str:
