@@ -988,6 +988,17 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             == StockNotetype.OriginalStockKind.ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
         )
 
+    def setup_mask_editor_for_file(self, file: str) -> None:
+        try:
+            if self.editorMode == EditorMode.ADD_CARDS:
+                self.setup_mask_editor_for_new_note(image_path=file, notetype_id=0)
+            else:
+                self.setup_mask_editor_for_existing_note(
+                    note_id=self.note.id, image_path=file
+                )
+        except Exception as e:
+            showWarning(str(e))
+
     def select_image_and_occlude(self) -> None:
         """Show a file selection screen, then get selected image path."""
         extension_filter = " ".join(
@@ -995,26 +1006,40 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         )
         filter = f"{tr.editing_media()} ({extension_filter})"
 
-        def accept(file: str) -> None:
-            try:
-                if self.editorMode == EditorMode.ADD_CARDS:
-                    self.setup_mask_editor_for_new_note(image_path=file, notetype_id=0)
-                else:
-                    self.setup_mask_editor_for_existing_note(
-                        note_id=self.note.id, image_path=file
-                    )
-            except Exception as e:
-                showWarning(str(e))
-                return
-
         file = getFile(
             parent=self.widget,
             title=tr.editing_add_media(),
-            cb=cast(Callable[[Any], None], accept),
+            cb=cast(Callable[[Any], None], self.setup_mask_editor_for_file),
             filter=filter,
             key="media",
         )
 
+        self.parentWindow.activateWindow()
+
+    def select_image_from_clipboard_and_occlude(self) -> None:
+        """Set up the mask editor for the image in the clipboard."""
+
+        clipoard = self.mw.app.clipboard()
+        mime = clipoard.mimeData()
+        if not mime.hasImage():
+            showWarning(tr.editing_no_image_found_on_clipboard())
+            return
+        image = QImage(mime.imageData())
+        buffer = QBuffer()
+        buffer.open(QBuffer.OpenModeFlag.ReadWrite)
+        if self.mw.col.get_config_bool(Config.Bool.PASTE_IMAGES_AS_PNG):
+            ext = ".png"
+            image.save(buffer, "PNG", 50)
+        else:
+            ext = ".jpg"
+            image.save(buffer, "JPG", 80)
+        buffer.reset()
+        data = bytes(buffer.readAll())
+        csum = checksum(data)
+        path = namedtmp(f"paste-{csum}{ext}")
+        with open(path, "wb") as file:
+            file.write(data)
+        self.setup_mask_editor_for_file(path)
         self.parentWindow.activateWindow()
 
     def setup_mask_editor_for_new_note(
@@ -1311,6 +1336,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             toggleShrinkImages=Editor.toggleShrinkImages,
             toggleCloseHTMLTags=Editor.toggleCloseHTMLTags,
             addImageForOcclusion=Editor.select_image_and_occlude,
+            addImageForOcclusionFromClipboard=Editor.select_image_from_clipboard_and_occlude,
         )
 
 

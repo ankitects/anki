@@ -599,6 +599,19 @@ the AddCards dialog) should be implemented in the user of this component.
                 {tr.notetypesIoSelectImage()}
             </LabelButton>
         </div>
+        <div id="io-select-clipboard-image-div" style="padding-top: 60px; text-align: center;">
+            <LabelButton
+                --border-left-radius="5px"
+                --border-right-radius="5px"
+                class="io-select-image-btn"
+                on:click={() => {
+                    imageOcclusionMode = undefined;
+                    bridgeCommand("addImageForOcclusionFromClipboard");
+                }}
+            >
+                {tr.notetypesIoSelectImageFromClipboard()}
+            </LabelButton>
+        </div>
     {/if}
 
     {#if !$ioMaskEditorVisible}
