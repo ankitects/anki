@@ -1043,7 +1043,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             quality = 80
         image.save(buffer, ext, quality)
         buffer.reset()
-        data = bytes(buffer.readAll())
+        data = bytes(buffer.readAll())  # type: ignore
         fname = self._pasted_image_filename(data, ext)
         path = namedtmp(fname)
         with open(path, "wb") as file:
