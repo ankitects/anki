@@ -49,6 +49,6 @@ impl crate::services::LinksService for Collection {
         &mut self,
         input: anki_proto::links::HelpPageLinkRequest,
     ) -> error::Result<anki_proto::generic::String> {
-        Ok(help_page_to_link(HelpPage::from_i32(input.page).unwrap_or(HelpPage::Index)).into())
+        Ok(help_page_to_link(HelpPage::try_from(input.page).unwrap_or(HelpPage::Index)).into())
     }
 }

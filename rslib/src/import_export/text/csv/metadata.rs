@@ -308,7 +308,7 @@ pub(super) trait DupeResolutionExt: Sized {
 
 impl DupeResolutionExt for DupeResolution {
     fn from_config(col: &Collection) -> Self {
-        Self::from_i32(col.get_config_i32(I32ConfigKey::CsvDuplicateResolution)).unwrap_or_default()
+        Self::try_from(col.get_config_i32(I32ConfigKey::CsvDuplicateResolution)).unwrap_or_default()
     }
 
     fn from_text(text: &str) -> Option<Self> {
@@ -328,7 +328,7 @@ pub(super) trait MatchScopeExt: Sized {
 
 impl MatchScopeExt for MatchScope {
     fn from_config(col: &Collection) -> Self {
-        Self::from_i32(col.get_config_i32(I32ConfigKey::MatchScope)).unwrap_or_default()
+        Self::try_from(col.get_config_i32(I32ConfigKey::MatchScope)).unwrap_or_default()
     }
 
     fn from_text(text: &str) -> Option<Self> {

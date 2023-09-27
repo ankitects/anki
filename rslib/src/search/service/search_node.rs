@@ -58,11 +58,11 @@ impl TryFrom<anki_proto::search::SearchNode> for Node {
                 }),
                 Filter::EditedInDays(u) => Node::Search(SearchNode::EditedInDays(u)),
                 Filter::CardState(state) => Node::Search(SearchNode::State(
-                    anki_proto::search::search_node::CardState::from_i32(state)
+                    anki_proto::search::search_node::CardState::try_from(state)
                         .unwrap_or_default()
                         .into(),
                 )),
-                Filter::Flag(flag) => match Flag::from_i32(flag).unwrap_or(Flag::Any) {
+                Filter::Flag(flag) => match Flag::try_from(flag).unwrap_or(Flag::Any) {
                     Flag::None => Node::Search(SearchNode::Flag(0)),
                     Flag::Any => Node::Not(Box::new(Node::Search(SearchNode::Flag(0)))),
                     Flag::Red => Node::Search(SearchNode::Flag(1)),
