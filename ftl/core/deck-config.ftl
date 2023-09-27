@@ -323,11 +323,11 @@ deck-config-must-have-1000-reviews =
         [one] Only { $count } review was found.
         *[other] Only { $count } reviews were found.
     } You must have at least 1000 reviews to generate custom weights.
-deck-config-compute-weights-search = Search; leave blank for all cards using this preset
 # Numbers that control how aggressively the FSRS algorithm schedules cards
 deck-config-weights = Model weights
-deck-config-compute-optimal-weights = Compute optimal weights
+deck-config-compute-optimal-weights = Optimize FSRS weights
 deck-config-compute-optimal-retention = Compute optimal retention
+deck-config-optimize-button = Optimize
 deck-config-compute-button = Compute
 deck-config-analyze-button = Analyze
 deck-config-desired-retention = Desired retention

@@ -229,7 +229,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {#if computingWeights}
                 {tr.actionsCancel()}
             {:else}
-                {tr.deckConfigComputeButton()}
+                {tr.deckConfigOptimizeButton()}
             {/if}
         </button>
         <button
@@ -251,7 +251,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="m-2">
     <details>
-        <summary>{tr.deckConfigComputeOptimalRetention()}</summary>
+        <summary>{tr.deckConfigComputeOptimalRetention()} (experimental)</summary>
 
         Deck size:
         <br />
