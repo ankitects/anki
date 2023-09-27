@@ -109,19 +109,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Item>
 
         <Item>
-            <SwitchRow
-                bind:value={$config.stopTimerOnAnswer}
-                defaultValue={defaults.stopTimerOnAnswer}
-            >
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(
-                            Object.keys(settings).indexOf("stopTimerOnAnswer"),
-                        )}
+            <div class="show-timer-switch" style="display: contents;">
+                <SwitchRow
+                    bind:value={$config.stopTimerOnAnswer}
+                    defaultValue={defaults.stopTimerOnAnswer}
                 >
-                    {settings.stopTimerOnAnswer.title}
-                </SettingTitle>
-            </SwitchRow>
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(
+                                Object.keys(settings).indexOf("stopTimerOnAnswer"),
+                            )}
+                    >
+                        {settings.stopTimerOnAnswer.title}
+                    </SettingTitle>
+                </SwitchRow>
+            </div>
         </Item>
     </DynamicallySlottable>
 </TitledContainer>
