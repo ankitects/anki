@@ -1341,9 +1341,6 @@ class Collection(DeprecatedNamesMixin):
         else:
             return ComputedMemoryState(desired_retention=resp.desired_retention)
 
-    def compute_weights_from_items(self, items: Iterable[FsrsItem]) -> Sequence[float]:
-        return self._backend.compute_fsrs_weights_from_items(items).weights
-
     # Timeboxing
     ##########################################################################
     # fixme: there doesn't seem to be a good reason why this code is in main.py

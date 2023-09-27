@@ -7,11 +7,16 @@ mod states;
 use anki_proto::cards;
 use anki_proto::generic;
 use anki_proto::scheduler;
+use anki_proto::scheduler::ComputeFsrsWeightsResponse;
 use anki_proto::scheduler::ComputeMemoryStateResponse;
 use anki_proto::scheduler::ComputeOptimalRetentionRequest;
 use anki_proto::scheduler::ComputeOptimalRetentionResponse;
 use anki_proto::scheduler::GetOptimalRetentionParametersResponse;
+use fsrs::FSRSItem;
+use fsrs::FSRSReview;
+use fsrs::FSRS;
 
+use crate::backend::Backend;
 use crate::prelude::*;
 use crate::scheduler::new::NewCardDueOrder;
 use crate::scheduler::states::CardState;
@@ -250,13 +255,6 @@ impl crate::services::SchedulerService for Collection {
         self.compute_weights(&input.search)
     }
 
-    fn compute_fsrs_weights_from_items(
-        &mut self,
-        input: scheduler::ComputeFsrsWeightsFromItemsRequest,
-    ) -> Result<scheduler::ComputeFsrsWeightsResponse> {
-        self.compute_weights_from_items(input)
-    }
-
     fn compute_optimal_retention(
         &mut self,
         input: ComputeOptimalRetentionRequest,
@@ -289,5 +287,40 @@ impl crate::services::SchedulerService for Collection {
 
     fn compute_memory_state(&mut self, input: cards::CardId) -> Result<ComputeMemoryStateResponse> {
         self.compute_memory_state(input.into())
+    }
+}
+
+impl crate::services::BackendSchedulerService for Backend {
+    fn compute_fsrs_weights_from_items(
+        &self,
+        req: scheduler::ComputeFsrsWeightsFromItemsRequest,
+    ) -> Result<scheduler::ComputeFsrsWeightsResponse> {
+        let fsrs = FSRS::new(None)?;
+        let fsrs_items = req.items.len() as u32;
+        let weights = fsrs.compute_weights(
+            req.items.into_iter().map(fsrs_item_proto_to_fsrs).collect(),
+            None,
+        )?;
+        Ok(ComputeFsrsWeightsResponse {
+            weights,
+            fsrs_items,
+        })
+    }
+}
+
+fn fsrs_item_proto_to_fsrs(item: anki_proto::scheduler::FsrsItem) -> FSRSItem {
+    FSRSItem {
+        reviews: item
+            .reviews
+            .into_iter()
+            .map(fsrs_review_proto_to_fsrs)
+            .collect(),
+    }
+}
+
+fn fsrs_review_proto_to_fsrs(review: anki_proto::scheduler::FsrsReview) -> FSRSReview {
+    FSRSReview {
+        delta_t: review.delta_t,
+        rating: review.rating,
     }
 }
