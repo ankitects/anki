@@ -4,6 +4,7 @@ use std::iter;
 use std::thread;
 use std::time::Duration;
 
+use anki_proto::scheduler::ComputeFsrsWeightsFromItemsRequest;
 use anki_proto::scheduler::ComputeFsrsWeightsResponse;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
@@ -47,6 +48,22 @@ impl Collection {
         });
         let fsrs = FSRS::new(None)?;
         let weights = fsrs.compute_weights(items, Some(progress2))?;
+        Ok(ComputeFsrsWeightsResponse {
+            weights,
+            fsrs_items,
+        })
+    }
+
+    pub fn compute_weights_from_items(
+        &mut self,
+        req: ComputeFsrsWeightsFromItemsRequest,
+    ) -> Result<ComputeFsrsWeightsResponse> {
+        let fsrs = FSRS::new(None)?;
+        let fsrs_items = req.items.len() as u32;
+        let weights = fsrs.compute_weights(
+            req.items.into_iter().map(fsrs_item_proto_to_fsrs).collect(),
+            None,
+        )?;
         Ok(ComputeFsrsWeightsResponse {
             weights,
             fsrs_items,
@@ -206,6 +223,23 @@ pub(crate) fn single_card_revlog_to_items(
 impl RevlogEntry {
     fn days_elapsed(&self, next_day_at: TimestampSecs) -> u32 {
         (next_day_at.elapsed_secs_since(self.id.as_secs()) / 86_400).max(0) as u32
+    }
+}
+
+fn fsrs_item_proto_to_fsrs(item: anki_proto::scheduler::FsrsItem) -> FSRSItem {
+    FSRSItem {
+        reviews: item
+            .reviews
+            .into_iter()
+            .map(fsrs_review_proto_to_fsrs)
+            .collect(),
+    }
+}
+
+fn fsrs_review_proto_to_fsrs(review: anki_proto::scheduler::FsrsReview) -> FSRSReview {
+    FSRSReview {
+        delta_t: review.delta_t,
+        rating: review.rating,
     }
 }
 
