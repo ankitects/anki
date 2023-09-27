@@ -69,6 +69,8 @@ pub struct DeckConfSchema11 {
     fsrs_weights: Vec<f32>,
     #[serde(default)]
     desired_retention: f32,
+    #[serde(default)]
+    stop_timer_on_answer: bool,
 
     #[serde(flatten)]
     other: HashMap<String, Value>,
@@ -242,6 +244,7 @@ impl Default for DeckConfSchema11 {
             max_taken: 60,
             autoplay: true,
             timer: 0,
+            stop_timer_on_answer: false,
             replayq: true,
             dynamic: false,
             new: Default::default(),
@@ -321,6 +324,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 disable_autoplay: !c.autoplay,
                 cap_answer_time_to_secs: c.max_taken.max(0) as u32,
                 show_timer: c.timer != 0,
+                stop_timer_on_answer: c.stop_timer_on_answer,
                 skip_question_when_replaying_answer: !c.replayq,
                 bury_new: c.new.bury,
                 bury_reviews: c.rev.bury,
@@ -372,6 +376,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             max_taken: i.cap_answer_time_to_secs as i32,
             autoplay: !i.disable_autoplay,
             timer: i.show_timer.into(),
+            stop_timer_on_answer: i.stop_timer_on_answer,
             replayq: !i.skip_question_when_replaying_answer,
             dynamic: false,
             new: NewConfSchema11 {
@@ -443,6 +448,7 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "newGatherPriority",
     "fsrsWeights",
     "desiredRetention",
+    "stopTimerOnAnswer",
 };
 
 static RESERVED_DECKCONF_NEW_KEYS: Set<&'static str> = phf_set! {

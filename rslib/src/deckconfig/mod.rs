@@ -62,6 +62,7 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     disable_autoplay: false,
     cap_answer_time_to_secs: 60,
     show_timer: false,
+    stop_timer_on_answer: false,
     skip_question_when_replaying_answer: false,
     bury_new: false,
     bury_reviews: false,

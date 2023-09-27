@@ -108,7 +108,6 @@ impl Collection {
             show_intervals_on_buttons: self
                 .get_config_bool(BoolKey::ShowIntervalsAboveAnswerButtons),
             time_limit_secs: self.get_answer_time_limit_secs(),
-            stop_timer_on_answer: self.get_config_bool(BoolKey::StopTimerOnAnswer),
         })
     }
 
@@ -128,7 +127,6 @@ impl Collection {
             s.show_intervals_on_buttons,
         )?;
         self.set_answer_time_limit_secs(s.time_limit_secs)?;
-        self.set_config_bool_inner(BoolKey::StopTimerOnAnswer, s.stop_timer_on_answer)?;
         Ok(())
     }
 
