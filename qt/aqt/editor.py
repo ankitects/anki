@@ -835,7 +835,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 data = base64.b64decode(b64data, validate=True)
                 if ext == "jpeg":
                     ext = "jpg"
-                return self._addPastedImage(data, f".{ext}")
+                return self._addPastedImage(data, ext)
 
         return ""
 
@@ -870,7 +870,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         return path
 
-    # ext should include dot
     def _addPastedImage(self, data: bytes, ext: str) -> str:
         # hash and write
         fname = self._pasted_image_filename(data, ext)
