@@ -612,7 +612,7 @@ the AddCards dialog) should be implemented in the user of this component.
                     bridgeCommand("addImageForOcclusionFromClipboard");
                 }}
             >
-                {tr.notetypesIoSelectImageFromClipboard()}
+                {tr.notetypesIoPasteImageFromClipboard()}
             </LabelButton>
         </div>
     {/if}
