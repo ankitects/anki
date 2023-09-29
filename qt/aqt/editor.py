@@ -835,7 +835,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 data = base64.b64decode(b64data, validate=True)
                 if ext == "jpeg":
                     ext = "jpg"
-                return self._addPastedImage(data, f".{ext}")
+                return self._addPastedImage(data, ext)
 
         return ""
 
@@ -846,11 +846,33 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         return ""
 
-    # ext should include dot
+    def _pasted_image_filename(self, data: bytes, ext: str) -> str:
+        csum = checksum(data)
+        return f"paste-{csum}.{ext}"
+
+    def _read_pasted_image(self, mime: QMimeData) -> str:
+        image = QImage(mime.imageData())
+        buffer = QBuffer()
+        buffer.open(QBuffer.OpenModeFlag.ReadWrite)
+        if self.mw.col.get_config_bool(Config.Bool.PASTE_IMAGES_AS_PNG):
+            ext = "png"
+            quality = 50
+        else:
+            ext = "jpg"
+            quality = 80
+        image.save(buffer, ext, quality)
+        buffer.reset()
+        data = bytes(buffer.readAll())  # type: ignore
+        fname = self._pasted_image_filename(data, ext)
+        path = namedtmp(fname)
+        with open(path, "wb") as file:
+            file.write(data)
+
+        return path
+
     def _addPastedImage(self, data: bytes, ext: str) -> str:
         # hash and write
-        csum = checksum(data)
-        fname = f"paste-{csum}{ext}"
+        fname = self._pasted_image_filename(data, ext)
         return self._addMediaFromData(fname, data)
 
     def _retrieveURL(self, url: str) -> str | None:
@@ -988,6 +1010,19 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             == StockNotetype.OriginalStockKind.ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
         )
 
+    def setup_mask_editor(self, image_path: str) -> None:
+        try:
+            if self.editorMode == EditorMode.ADD_CARDS:
+                self.setup_mask_editor_for_new_note(
+                    image_path=image_path, notetype_id=0
+                )
+            else:
+                self.setup_mask_editor_for_existing_note(
+                    note_id=self.note.id, image_path=image_path
+                )
+        except Exception as e:
+            showWarning(str(e))
+
     def select_image_and_occlude(self) -> None:
         """Show a file selection screen, then get selected image path."""
         extension_filter = " ".join(
@@ -995,26 +1030,26 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         )
         filter = f"{tr.editing_media()} ({extension_filter})"
 
-        def accept(file: str) -> None:
-            try:
-                if self.editorMode == EditorMode.ADD_CARDS:
-                    self.setup_mask_editor_for_new_note(image_path=file, notetype_id=0)
-                else:
-                    self.setup_mask_editor_for_existing_note(
-                        note_id=self.note.id, image_path=file
-                    )
-            except Exception as e:
-                showWarning(str(e))
-                return
-
         file = getFile(
             parent=self.widget,
             title=tr.editing_add_media(),
-            cb=cast(Callable[[Any], None], accept),
+            cb=cast(Callable[[Any], None], self.setup_mask_editor),
             filter=filter,
             key="media",
         )
 
+        self.parentWindow.activateWindow()
+
+    def select_image_from_clipboard_and_occlude(self) -> None:
+        """Set up the mask editor for the image in the clipboard."""
+
+        clipoard = self.mw.app.clipboard()
+        mime = clipoard.mimeData()
+        if not mime.hasImage():
+            showWarning(tr.editing_no_image_found_on_clipboard())
+            return
+        path = self._read_pasted_image(mime)
+        self.setup_mask_editor(path)
         self.parentWindow.activateWindow()
 
     def setup_mask_editor_for_new_note(
@@ -1311,6 +1346,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             toggleShrinkImages=Editor.toggleShrinkImages,
             toggleCloseHTMLTags=Editor.toggleCloseHTMLTags,
             addImageForOcclusion=Editor.select_image_and_occlude,
+            addImageForOcclusionFromClipboard=Editor.select_image_from_clipboard_and_occlude,
         )
 
 
@@ -1491,26 +1527,10 @@ class EditorWebView(AnkiWebView):
     def _processImage(self, mime: QMimeData, extended: bool = False) -> str | None:
         if not mime.hasImage():
             return None
-        im = QImage(mime.imageData())
-        uname = namedtmp("paste")
-        if self.editor.mw.col.get_config_bool(Config.Bool.PASTE_IMAGES_AS_PNG):
-            ext = ".png"
-            im.save(uname + ext, None, 50)
-        else:
-            ext = ".jpg"
-            im.save(uname + ext, None, 80)
+        path = self.editor._read_pasted_image(mime)
+        fname = self.editor._addMedia(path)
 
-        # invalid image?
-        path = uname + ext
-        if not os.path.exists(path):
-            return None
-
-        with open(path, "rb") as file:
-            data = file.read()
-        fname = self.editor._addPastedImage(data, ext)
-        if fname:
-            return self.editor.fnameToLink(fname)
-        return None
+        return fname
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)
