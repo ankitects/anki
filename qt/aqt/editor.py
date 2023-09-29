@@ -15,7 +15,7 @@ import urllib.request
 import warnings
 from enum import Enum
 from random import randrange
-from typing import Any, Callable, Literal, Match, cast
+from typing import Any, Callable, Match, cast
 
 import bs4
 import requests
@@ -846,15 +846,29 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         return ""
 
-    def _preferred_pasted_image_extension(self) -> Literal["png", "jpg"]:
-        if self.mw.col.get_config_bool(Config.Bool.PASTE_IMAGES_AS_PNG):
-            return "png"
-        else:
-            return "jpg"
-
     def _pasted_image_filename(self, data: bytes, ext: str) -> str:
         csum = checksum(data)
         return f"paste-{csum}.{ext}"
+
+    def _read_pasted_image(self, mime: QMimeData) -> str:
+        image = QImage(mime.imageData())
+        buffer = QBuffer()
+        buffer.open(QBuffer.OpenModeFlag.ReadWrite)
+        if self.mw.col.get_config_bool(Config.Bool.PASTE_IMAGES_AS_PNG):
+            ext = "png"
+            quality = 50
+        else:
+            ext = "jpg"
+            quality = 80
+        image.save(buffer, ext, quality)
+        buffer.reset()
+        data = bytes(buffer.readAll())  # type: ignore
+        fname = self._pasted_image_filename(data, ext)
+        path = namedtmp(fname)
+        with open(path, "wb") as file:
+            file.write(data)
+
+        return path
 
     # ext should include dot
     def _addPastedImage(self, data: bytes, ext: str) -> str:
@@ -1035,21 +1049,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         if not mime.hasImage():
             showWarning(tr.editing_no_image_found_on_clipboard())
             return
-        image = QImage(mime.imageData())
-        buffer = QBuffer()
-        buffer.open(QBuffer.OpenModeFlag.ReadWrite)
-        ext = self._preferred_pasted_image_extension()
-        if ext == "png":
-            quality = 50
-        else:
-            quality = 80
-        image.save(buffer, ext, quality)
-        buffer.reset()
-        data = bytes(buffer.readAll())  # type: ignore
-        fname = self._pasted_image_filename(data, ext)
-        path = namedtmp(fname)
-        with open(path, "wb") as file:
-            file.write(data)
+        path = self._read_pasted_image(mime)
         self.setup_mask_editor(path)
         self.parentWindow.activateWindow()
 
@@ -1528,25 +1528,10 @@ class EditorWebView(AnkiWebView):
     def _processImage(self, mime: QMimeData, extended: bool = False) -> str | None:
         if not mime.hasImage():
             return None
-        im = QImage(mime.imageData())
-        uname = namedtmp("paste")
-        ext = self.editor._preferred_pasted_image_extension()
-        path = f"{uname}.{ext}"
-        if ext == "png":
-            quality = 50
-        else:
-            quality = 80
-        im.save(path, None, quality)
-        # invalid image?
-        if not os.path.exists(path):
-            return None
+        path = self.editor._read_pasted_image(mime)
+        fname = self.editor._addMedia(path)
 
-        with open(path, "rb") as file:
-            data = file.read()
-        fname = self.editor._addPastedImage(data, ext)
-        if fname:
-            return self.editor.fnameToLink(fname)
-        return None
+        return fname
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)
