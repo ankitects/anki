@@ -997,13 +997,15 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             == StockNotetype.OriginalStockKind.ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
         )
 
-    def setup_mask_editor_for_file(self, file: str) -> None:
+    def setup_mask_editor(self, image_path: str) -> None:
         try:
             if self.editorMode == EditorMode.ADD_CARDS:
-                self.setup_mask_editor_for_new_note(image_path=file, notetype_id=0)
+                self.setup_mask_editor_for_new_note(
+                    image_path=image_path, notetype_id=0
+                )
             else:
                 self.setup_mask_editor_for_existing_note(
-                    note_id=self.note.id, image_path=file
+                    note_id=self.note.id, image_path=image_path
                 )
         except Exception as e:
             showWarning(str(e))
@@ -1018,7 +1020,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         file = getFile(
             parent=self.widget,
             title=tr.editing_add_media(),
-            cb=cast(Callable[[Any], None], self.setup_mask_editor_for_file),
+            cb=cast(Callable[[Any], None], self.setup_mask_editor),
             filter=filter,
             key="media",
         )
@@ -1048,7 +1050,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         path = namedtmp(fname)
         with open(path, "wb") as file:
             file.write(data)
-        self.setup_mask_editor_for_file(path)
+        self.setup_mask_editor(path)
         self.parentWindow.activateWindow()
 
     def setup_mask_editor_for_new_note(
