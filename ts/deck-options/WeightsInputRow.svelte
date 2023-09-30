@@ -7,12 +7,13 @@
     import RevertButton from "../components/RevertButton.svelte";
     import WeightsInput from "./WeightsInput.svelte";
 
-    export let value: any;
-    export let defaultValue: any;
+    export let value: number[];
+    export let defaultValue: number[];
+    export let defaults: number[];
 </script>
 
 <slot />
 <ConfigInput>
-    <WeightsInput bind:value />
+    <WeightsInput bind:value {defaults} />
     <RevertButton slot="revert" bind:value {defaultValue} />
 </ConfigInput>

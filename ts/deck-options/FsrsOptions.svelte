@@ -214,7 +214,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </SpinBoxFloatRow>
 
 <div class="ms-1 me-1">
-    <WeightsInputRow bind:value={$config.fsrsWeights} defaultValue={[]}>
+    <WeightsInputRow
+        bind:value={$config.fsrsWeights}
+        defaultValue={[]}
+        defaults={defaults.fsrsWeights}
+    >
         <SettingTitle>{tr.deckConfigWeights()}</SettingTitle>
     </WeightsInputRow>
 </div>
