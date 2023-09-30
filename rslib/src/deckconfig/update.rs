@@ -11,6 +11,7 @@ use anki_proto::deck_config::deck_configs_for_update::current_deck::Limits;
 use anki_proto::deck_config::deck_configs_for_update::ConfigWithExtra;
 use anki_proto::deck_config::deck_configs_for_update::CurrentDeck;
 use anki_proto::decks::deck::normal::DayLimit;
+use fsrs::DEFAULT_WEIGHTS;
 
 use crate::config::StringKey;
 use crate::decks::NormalDeck;
@@ -38,10 +39,12 @@ impl Collection {
         &mut self,
         deck: DeckId,
     ) -> Result<anki_proto::deck_config::DeckConfigsForUpdate> {
+        let mut defaults = DeckConfig::default();
+        defaults.inner.fsrs_weights = DEFAULT_WEIGHTS.into();
         Ok(anki_proto::deck_config::DeckConfigsForUpdate {
             all_config: self.get_deck_config_with_extra_for_update()?,
             current_deck: Some(self.get_current_deck_for_update(deck)?),
-            defaults: Some(DeckConfig::default().into()),
+            defaults: Some(defaults.into()),
             schema_modified: self
                 .storage
                 .get_collection_timestamps()?
