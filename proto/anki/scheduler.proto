@@ -362,6 +362,7 @@ message ComputeOptimalRetentionRequest {
   uint32 max_minutes_of_study_per_day = 4;
   uint32 max_interval = 5;
   string search = 6;
+  double loss_aversion = 7;
 }
 
 message ComputeOptimalRetentionResponse {
@@ -369,18 +370,18 @@ message ComputeOptimalRetentionResponse {
 }
 
 message OptimalRetentionParameters {
-  double recall_secs_hard = 6;
-  double recall_secs_good = 7;
-  double recall_secs_easy = 8;
-  double forget_secs = 9;
-  double learn_secs = 10;
-  double first_rating_probability_again = 11;
-  double first_rating_probability_hard = 12;
-  double first_rating_probability_good = 13;
-  double first_rating_probability_easy = 14;
-  double review_rating_probability_hard = 15;
-  double review_rating_probability_good = 16;
-  double review_rating_probability_easy = 17;
+  double recall_secs_hard = 1;
+  double recall_secs_good = 2;
+  double recall_secs_easy = 3;
+  double forget_secs = 4;
+  double learn_secs = 5;
+  double first_rating_probability_again = 6;
+  double first_rating_probability_hard = 7;
+  double first_rating_probability_good = 8;
+  double first_rating_probability_easy = 9;
+  double review_rating_probability_hard = 10;
+  double review_rating_probability_good = 11;
+  double review_rating_probability_easy = 12;
 }
 
 message GetOptimalRetentionParametersRequest {

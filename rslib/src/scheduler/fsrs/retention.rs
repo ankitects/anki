@@ -49,6 +49,7 @@ impl Collection {
                         p.review_rating_probability_good,
                         p.review_rating_probability_easy,
                     ],
+                    loss_aversion: req.loss_aversion,
                 },
                 &req.weights,
                 |ip| {

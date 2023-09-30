@@ -20,6 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SettingTitle from "../components/SettingTitle.svelte";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
+    import SpinBoxRow from "./SpinBoxRow.svelte";
     import WeightsInputRow from "./WeightsInputRow.svelte";
 
     export let state: DeckOptionsState;
@@ -49,6 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         deckSize: 10000,
         daysToSimulate: 365,
         maxMinutesOfStudyPerDay: 30,
+        lossAversion: 2.5,
     });
     $: if (optimalRetentionRequest.daysToSimulate > 3650) {
         optimalRetentionRequest.daysToSimulate = 3650;
@@ -253,23 +255,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <details>
         <summary>{tr.deckConfigComputeOptimalRetention()} (experimental)</summary>
 
-        Deck size:
-        <br />
-        <input type="number" bind:value={optimalRetentionRequest.deckSize} />
-        <br />
+        <SpinBoxRow
+            bind:value={optimalRetentionRequest.deckSize}
+            defaultValue={10000}
+            min={100}
+            max={999999}
+        >
+            <SettingTitle>Deck size</SettingTitle>
+        </SpinBoxRow>
 
-        Days to simulate
-        <br />
-        <input type="number" bind:value={optimalRetentionRequest.daysToSimulate} />
-        <br />
+        <SpinBoxRow
+            bind:value={optimalRetentionRequest.daysToSimulate}
+            defaultValue={365}
+            min={1}
+            max={3650}
+        >
+            <SettingTitle>Days to simulate</SettingTitle>
+        </SpinBoxRow>
 
-        Target minutes of study per day:
-        <br />
-        <input
-            type="number"
+        <SpinBoxRow
             bind:value={optimalRetentionRequest.maxMinutesOfStudyPerDay}
-        />
-        <br />
+            defaultValue={30}
+            min={1}
+            max={1800}
+        >
+            <SettingTitle>Minutes study/day</SettingTitle>
+        </SpinBoxRow>
+
+        <SpinBoxFloatRow
+            bind:value={optimalRetentionRequest.lossAversion}
+            defaultValue={2.5}
+            min={1.0}
+            max={3.0}
+        >
+            <SettingTitle>Loss aversion</SettingTitle>
+        </SpinBoxFloatRow>
 
         <button
             class="btn {computingRetention ? 'btn-warning' : 'btn-primary'}"
