@@ -67,9 +67,9 @@ pub enum RevlogReviewKind {
     Learning = 0,
     Review = 1,
     Relearning = 2,
-    /// Old Anki versions called this "Cram" or "Early", and assigned it when
-    /// reviewing cards ahead. It is now only used for filtered decks with
-    /// rescheduling disabled.
+    /// Old Anki versions called this "Cram" or "Early". It's assigned when
+    /// reviewing cards before they're due, or when rescheduling is
+    /// disabled.
     Filtered = 3,
     Manual = 4,
 }

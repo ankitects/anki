@@ -657,15 +657,6 @@
     "description": "Bare bones CSV parsing with no_std support."
   },
   {
-    "name": "dashmap",
-    "version": "5.5.3",
-    "authors": "Acrimon <joel.wejdenstal@gmail.com>",
-    "repository": "https://github.com/xacrimon/dashmap",
-    "license": "MIT",
-    "license_file": null,
-    "description": "Blazing fast concurrent HashMap for Rust."
-  },
-  {
     "name": "data-encoding",
     "version": "2.4.0",
     "authors": "Julien Cretin <git@ia0.eu>",
@@ -844,15 +835,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Fallible streaming iteration"
-  },
-  {
-    "name": "faster-hex",
-    "version": "0.8.1",
-    "authors": "zhangsoledad <787953403@qq.com>",
-    "repository": "https://github.com/NervosFoundation/faster-hex",
-    "license": "MIT",
-    "license_file": null,
-    "description": "Fast hex encoding."
   },
   {
     "name": "fastrand",
@@ -1132,51 +1114,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A library for reading and writing the DWARF debugging format."
-  },
-  {
-    "name": "gix-features",
-    "version": "0.33.0",
-    "authors": "Sebastian Thiel <sebastian.thiel@icloud.com>",
-    "repository": "https://github.com/Byron/gitoxide",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A crate to integrate various capabilities using compile-time feature flags"
-  },
-  {
-    "name": "gix-fs",
-    "version": "0.5.0",
-    "authors": "Sebastian Thiel <sebastian.thiel@icloud.com>",
-    "repository": "https://github.com/Byron/gitoxide",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A crate providing file system specific utilities to `gitoxide`"
-  },
-  {
-    "name": "gix-hash",
-    "version": "0.12.0",
-    "authors": "Sebastian Thiel <sebastian.thiel@icloud.com>",
-    "repository": "https://github.com/Byron/gitoxide",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Borrowed and owned git hash digests used to identify git objects"
-  },
-  {
-    "name": "gix-tempfile",
-    "version": "8.0.0",
-    "authors": "Sebastian Thiel <sebastian.thiel@icloud.com>",
-    "repository": "https://github.com/Byron/gitoxide",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A tempfile implementation with a global registry to assure cleanup"
-  },
-  {
-    "name": "gix-trace",
-    "version": "0.1.3",
-    "authors": "Sebastian Thiel <sebastian.thiel@icloud.com>",
-    "repository": "https://github.com/Byron/gitoxide",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A crate to provide minimal `tracing` support that can be turned off to zero cost"
   },
   {
     "name": "h2",
@@ -2707,15 +2644,6 @@
     "license": "MIT",
     "license_file": null,
     "description": "A lock-free concurrent slab."
-  },
-  {
-    "name": "signal-hook",
-    "version": "0.3.17",
-    "authors": "Michal 'vorner' Vaner <vorner@vorner.cz>|Thomas Himmelstoss <thimm@posteo.de>",
-    "repository": "https://github.com/vorner/signal-hook",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Unix signal handling"
   },
   {
     "name": "signal-hook-registry",
