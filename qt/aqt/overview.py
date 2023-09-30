@@ -12,6 +12,7 @@ from anki.scheduler import UnburyDeck
 from aqt import gui_hooks
 from aqt.deckdescription import DeckDescriptionDialog
 from aqt.deckoptions import display_options_for_deck
+from aqt.operations import QueryOp
 from aqt.operations.scheduling import (
     empty_filtered_deck,
     rebuild_filtered_deck,
@@ -61,12 +62,17 @@ class Overview:
         self.refresh()
 
     def refresh(self) -> None:
-        self._refresh_needed = False
-        self.mw.col.reset()
-        self._renderPage()
-        self._renderBottom()
-        self.mw.web.setFocus()
-        gui_hooks.overview_did_refresh(self)
+        def success(_counts: tuple) -> None:
+            self._refresh_needed = False
+            self.mw.col.reset()
+            self._renderPage()
+            self._renderBottom()
+            self.mw.web.setFocus()
+            gui_hooks.overview_did_refresh(self)
+
+        QueryOp(
+            parent=self.mw, op=lambda col: col.sched.counts(), success=success
+        ).run_in_background()
 
     def refresh_if_needed(self) -> None:
         if self._refresh_needed:

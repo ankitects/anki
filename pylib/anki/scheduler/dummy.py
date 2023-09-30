@@ -29,5 +29,5 @@ class DummyScheduler(SchedulerBaseWithLegacy):
     def active_decks(self) -> list[DeckId]:
         return []
 
-    def counts(self) -> list[int]:
-        return [0, 0, 0]
+    def counts(self) -> tuple[int, int, int]:
+        return (0, 0, 0)

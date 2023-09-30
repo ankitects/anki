@@ -146,12 +146,21 @@ class DeckBrowser:
 
     def _renderPage(self, reuse: bool = False) -> None:
         if not reuse:
-            self._dueTree = self.mw.col.sched.deck_due_tree()
-            self.__renderPage(None)
-            return
-        self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
 
-    def __renderPage(self, offset: int) -> None:
+            def success(tree: DeckTreeNode) -> None:
+                self._dueTree = tree
+                self.__renderPage(None)
+                return
+
+            QueryOp(
+                parent=self.mw,
+                op=lambda col: col.sched.deck_due_tree(),
+                success=success,
+            ).run_in_background()
+        else:
+            self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
+
+    def __renderPage(self, offset: int | None) -> None:
         content = DeckBrowserContent(
             tree=self._renderDeckTree(self._dueTree),
             stats=self._renderStats(),
