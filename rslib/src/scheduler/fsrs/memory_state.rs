@@ -125,3 +125,58 @@ pub(crate) fn single_card_revlog_to_item(
     let items = single_card_revlog_to_items(entries, next_day_at, false);
     items.and_then(|mut i| i.pop())
 }
+
+#[cfg(test)]
+mod tests {
+    use fsrs::MemoryState;
+
+    use super::super::weights::tests::fsrs_items;
+    use super::*;
+    use crate::revlog::RevlogReviewKind;
+    use crate::scheduler::fsrs::weights::tests::convert;
+    use crate::scheduler::fsrs::weights::tests::review;
+    use crate::scheduler::fsrs::weights::tests::revlog;
+
+    #[test]
+    fn bypassed_learning_is_handled() {
+        // cards without any learning steps due to truncated history still have memory
+        // state calculated
+        assert_eq!(
+            convert(
+                &[
+                    RevlogEntry {
+                        ease_factor: 2500,
+                        ..revlog(RevlogReviewKind::Manual, 7)
+                    },
+                    revlog(RevlogReviewKind::Review, 6),
+                ],
+                false,
+            ),
+            fsrs_items!([review(0)])
+        );
+    }
+
+    #[test]
+    fn zero_history_is_handled() {
+        // when the history is empty, no items are produced
+        assert_eq!(convert(&[], false), None);
+        // but memory state should still be inferred, by using the card's current state
+        let mut card = Card {
+            ctype: CardType::Review,
+            interval: 100,
+            ease_factor: 1300,
+            ..Default::default()
+        };
+        card.set_memory_state(&FSRS::new(Some(&[])).unwrap(), None);
+        assert_eq!(
+            card.memory_state,
+            Some(
+                MemoryState {
+                    stability: 100.0,
+                    difficulty: 9.692858
+                }
+                .into()
+            )
+        );
+    }
+}

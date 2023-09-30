@@ -135,8 +135,8 @@ pub(crate) fn single_card_revlog_to_items(
         if idx > 0 {
             entries.drain(..idx);
         }
-    } else {
-        // we ignore cards that don't have any learning steps
+    } else if training {
+        // when training, we ignore cards that don't have any learning steps
         return None;
     }
 
@@ -210,12 +210,12 @@ impl RevlogEntry {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
 
     const NEXT_DAY_AT: TimestampSecs = TimestampSecs(86400 * 100);
 
-    fn revlog(review_kind: RevlogReviewKind, days_ago: i64) -> RevlogEntry {
+    pub(crate) fn revlog(review_kind: RevlogReviewKind, days_ago: i64) -> RevlogEntry {
         RevlogEntry {
             review_kind,
             id: ((NEXT_DAY_AT.0 - days_ago * 86400) * 1000).into(),
@@ -224,14 +224,15 @@ mod tests {
         }
     }
 
-    fn review(delta_t: u32) -> FSRSReview {
+    pub(crate) fn review(delta_t: u32) -> FSRSReview {
         FSRSReview { rating: 3, delta_t }
     }
 
-    fn convert(revlog: &[RevlogEntry], training: bool) -> Option<Vec<FSRSItem>> {
+    pub(crate) fn convert(revlog: &[RevlogEntry], training: bool) -> Option<Vec<FSRSItem>> {
         single_card_revlog_to_items(revlog.to_vec(), NEXT_DAY_AT, training)
     }
 
+    #[macro_export]
     macro_rules! fsrs_items {
         ($($reviews:expr),*) => {
             Some(vec![
@@ -243,6 +244,8 @@ mod tests {
             ])
         };
     }
+
+    pub(crate) use fsrs_items;
 
     #[test]
     fn delta_t_is_correct() -> Result<()> {
