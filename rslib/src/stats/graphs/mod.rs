@@ -67,6 +67,7 @@ impl Collection {
             reviews: Some(ctx.review_counts_and_times()),
             future_due: Some(ctx.future_due()),
             intervals: Some(ctx.intervals()),
+            stability: Some(ctx.stability()),
             eases: Some(eases),
             difficulty: Some(difficulty),
             today: Some(ctx.today()),
