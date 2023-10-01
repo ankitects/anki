@@ -50,6 +50,7 @@ import IntervalsGraph from "./IntervalsGraph.svelte";
 import RangeBox from "./RangeBox.svelte";
 import RetrievabilityGraph from "./RetrievabilityGraph.svelte";
 import ReviewsGraph from "./ReviewsGraph.svelte";
+import StabilityGraph from "./StabilityGraph.svelte";
 import TodayStats from "./TodayStats.svelte";
 
 setupGraphs(
@@ -60,6 +61,7 @@ setupGraphs(
         ReviewsGraph,
         CardCounts,
         IntervalsGraph,
+        StabilityGraph,
         EaseGraph,
         DifficultyGraph,
         RetrievabilityGraph,
@@ -79,6 +81,7 @@ export const graphComponents = {
     ReviewsGraph,
     CardCounts,
     IntervalsGraph,
+    StabilityGraph,
     EaseGraph,
     DifficultyGraph,
     RetrievabilityGraph,

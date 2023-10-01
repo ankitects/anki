@@ -155,6 +155,7 @@ message GraphsResponse {
   uint32 rollover_hour = 10;
   Retrievability retrievability = 12;
   bool fsrs = 13;
+  Intervals stability = 14;
 }
 
 message GraphPreferences {

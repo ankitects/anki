@@ -19,4 +19,19 @@ impl GraphsContext {
         }
         data
     }
+
+    pub(super) fn stability(&self) -> Intervals {
+        let mut data = Intervals::default();
+        for card in &self.cards {
+            if matches!(card.ctype, CardType::Review | CardType::Relearn) {
+                if let Some(state) = &card.memory_state {
+                    *data
+                        .intervals
+                        .entry(state.stability as u32)
+                        .or_insert_with(Default::default) += 1;
+                }
+            }
+        }
+        data
+    }
 }

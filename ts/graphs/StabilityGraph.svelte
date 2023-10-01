@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let range = IntervalRange.Percentile95;
 
     $: if (sourceData) {
-        intervalData = gatherIntervalData(sourceData.intervals!);
+        intervalData = gatherIntervalData(sourceData.stability!);
     }
 
     $: if (intervalData) {
@@ -45,33 +45,43 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
     }
 
-    const title = tr.statisticsIntervalsTitle();
-    const subtitle = tr.statisticsIntervalsSubtitle();
+    const title = tr.statisticsCardStabilityTitle();
+    const subtitle = tr.statisticsCardStabilitySubtitle();
     const month = timeSpan(1 * MONTH);
     const all = tr.statisticsRangeAllTime();
 </script>
 
-<Graph {title} {subtitle}>
-    <InputBox>
-        <label>
-            <input type="radio" bind:group={range} value={IntervalRange.Month} />
-            {month}
-        </label>
-        <label>
-            <input type="radio" bind:group={range} value={IntervalRange.Percentile50} />
-            50%
-        </label>
-        <label>
-            <input type="radio" bind:group={range} value={IntervalRange.Percentile95} />
-            95%
-        </label>
-        <label>
-            <input type="radio" bind:group={range} value={IntervalRange.All} />
-            {all}
-        </label>
-    </InputBox>
+{#if sourceData?.fsrs}
+    <Graph {title} {subtitle}>
+        <InputBox>
+            <label>
+                <input type="radio" bind:group={range} value={IntervalRange.Month} />
+                {month}
+            </label>
+            <label>
+                <input
+                    type="radio"
+                    bind:group={range}
+                    value={IntervalRange.Percentile50}
+                />
+                50%
+            </label>
+            <label>
+                <input
+                    type="radio"
+                    bind:group={range}
+                    value={IntervalRange.Percentile95}
+                />
+                95%
+            </label>
+            <label>
+                <input type="radio" bind:group={range} value={IntervalRange.All} />
+                {all}
+            </label>
+        </InputBox>
 
-    <HistogramGraph data={histogramData} />
+        <HistogramGraph data={histogramData} />
 
-    <TableData {tableData} />
-</Graph>
+        <TableData {tableData} />
+    </Graph>
+{/if}
