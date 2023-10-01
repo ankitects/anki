@@ -71,6 +71,8 @@ pub struct DeckConfSchema11 {
     desired_retention: f32,
     #[serde(default)]
     stop_timer_on_answer: bool,
+    #[serde(default)]
+    reschedule_fsrs_cards: bool,
 
     #[serde(flatten)]
     other: HashMap<String, Value>,
@@ -260,6 +262,7 @@ impl Default for DeckConfSchema11 {
             bury_interday_learning: false,
             fsrs_weights: vec![],
             desired_retention: 0.9,
+            reschedule_fsrs_cards: false,
         }
     }
 }
@@ -331,6 +334,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 bury_interday_learning: c.bury_interday_learning,
                 fsrs_weights: c.fsrs_weights,
                 desired_retention: c.desired_retention,
+                reschedule_fsrs_cards: c.reschedule_fsrs_cards,
                 other: other_bytes,
             },
         }
@@ -425,6 +429,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             bury_interday_learning: i.bury_interday_learning,
             fsrs_weights: i.fsrs_weights,
             desired_retention: i.desired_retention,
+            reschedule_fsrs_cards: i.reschedule_fsrs_cards,
         }
     }
 }
@@ -449,6 +454,7 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "fsrsWeights",
     "desiredRetention",
     "stopTimerOnAnswer",
+    "rescheduleFsrsCards"
 };
 
 static RESERVED_DECKCONF_NEW_KEYS: Set<&'static str> = phf_set! {

@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "@tslib/backend";
     import * as tr from "@tslib/ftl";
     import { runWithBackendProgress } from "@tslib/progress";
+    import SwitchRow from "components/SwitchRow.svelte";
 
     import SettingTitle from "../components/SettingTitle.svelte";
     import type { DeckOptionsState } from "./lib";
@@ -221,6 +222,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
         <SettingTitle>{tr.deckConfigWeights()}</SettingTitle>
     </WeightsInputRow>
+</div>
+
+<div class="m-2">
+    <SwitchRow bind:value={$config.rescheduleFsrsCards} defaultValue={false}>
+        <SettingTitle>
+            {tr.deckConfigRescheduleCardsOnChange()}
+        </SettingTitle>
+    </SwitchRow>
 </div>
 
 <div class="m-2">

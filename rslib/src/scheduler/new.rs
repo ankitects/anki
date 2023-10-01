@@ -168,7 +168,7 @@ impl Collection {
                     position += 1;
                 }
                 if log {
-                    col.log_manually_scheduled_review(&card, &original, usn)?;
+                    col.log_manually_scheduled_review(&card, original.interval, usn)?;
                 }
                 col.update_card_inner(&mut card, original, usn)?;
             }

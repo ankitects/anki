@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashMap;
+
 use anki_proto::scheduler::ComputeMemoryStateResponse;
 use fsrs::FSRSItem;
 use fsrs::FSRS;
@@ -11,6 +13,7 @@ use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 use crate::scheduler::fsrs::weights::single_card_revlog_to_items;
 use crate::scheduler::fsrs::weights::Weights;
+use crate::scheduler::states::fuzz::with_review_fuzz;
 use crate::search::JoinSearches;
 use crate::search::Negated;
 use crate::search::SearchNode;
@@ -22,7 +25,13 @@ pub struct ComputeMemoryProgress {
     pub total_cards: u32,
 }
 
-pub(crate) type WeightsAndDesiredRetention = (Weights, f32);
+#[derive(Debug)]
+pub(crate) struct UpdateMemoryStateRequest {
+    pub weights: Weights,
+    pub desired_retention: f32,
+    pub max_interval: u32,
+    pub reschedule: bool,
+}
 
 impl Collection {
     /// For each provided set of weights, locate cards with the provided search,
@@ -32,26 +41,71 @@ impl Collection {
     /// memory state should be removed.
     pub(crate) fn update_memory_state(
         &mut self,
-        entries: Vec<(Option<WeightsAndDesiredRetention>, Vec<SearchNode>)>,
+        entries: Vec<(Option<UpdateMemoryStateRequest>, Vec<SearchNode>)>,
     ) -> Result<()> {
         let timing = self.timing_today()?;
         let usn = self.usn()?;
-        for (weights_and_desired_retention, search) in entries {
+        for (req, search) in entries {
             let search = SearchBuilder::any(search.into_iter())
                 .and(SearchNode::State(StateKind::New).negated());
             let revlog = self.revlog_for_srs(search)?;
+            let reschedule = req.as_ref().map(|e| e.reschedule).unwrap_or_default();
+            let last_reviews = if reschedule {
+                Some(get_last_reviews(&revlog))
+            } else {
+                None
+            };
             let items = fsrs_items_for_memory_state(revlog, timing.next_day_at);
-            let desired_retention = weights_and_desired_retention.as_ref().map(|w| w.1);
-            let fsrs = FSRS::new(weights_and_desired_retention.as_ref().map(|w| &w.0[..]))?;
+            let desired_retention = req.as_ref().map(|w| w.desired_retention);
+            let fsrs = FSRS::new(req.as_ref().map(|w| &w.weights[..]))?;
             let mut progress = self.new_progress_handler::<ComputeMemoryProgress>();
             progress.update(false, |s| s.total_cards = items.len() as u32)?;
             for (idx, (card_id, item)) in items.into_iter().enumerate() {
                 progress.update(true, |state| state.current_cards = idx as u32 + 1)?;
                 let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
                 let original = card.clone();
-                if weights_and_desired_retention.is_some() {
-                    card.set_memory_state(&fsrs, item);
+                if let Some(req) = &req {
+                    card.set_memory_state(&fsrs, item.clone());
                     card.desired_retention = desired_retention;
+                    // if rescheduling
+                    if let Some(reviews) = &last_reviews {
+                        // and we have a last review time for the card
+                        if let Some(last_review) = reviews.get(&card.id) {
+                            let days_elapsed =
+                                timing.next_day_at.elapsed_days_since(*last_review) as i32;
+                            // and the card's not new
+                            if let Some(state) = &card.memory_state {
+                                // or in (re)learning
+                                if card.ctype == CardType::Review {
+                                    // reschedule it
+                                    let original_interval = card.interval;
+                                    let interval = fsrs.next_interval(
+                                        Some(state.stability),
+                                        card.desired_retention.unwrap(),
+                                        0,
+                                    ) as f32;
+                                    card.interval = with_review_fuzz(
+                                        card.get_fuzz_factor(),
+                                        interval,
+                                        1,
+                                        req.max_interval,
+                                    );
+                                    let due = if card.original_due != 0 {
+                                        &mut card.original_due
+                                    } else {
+                                        &mut card.due
+                                    };
+                                    *due = (timing.days_elapsed as i32) - days_elapsed
+                                        + card.interval as i32;
+                                    self.log_manually_scheduled_review(
+                                        &card,
+                                        original_interval,
+                                        usn,
+                                    )?;
+                                }
+                            }
+                        }
+                    }
                 } else {
                     card.memory_state = None;
                     card.desired_retention = None;
@@ -115,6 +169,25 @@ pub(crate) fn fsrs_items_for_memory_state(
             )
         })
         .collect()
+}
+
+/// Return a map of cards to the last time they were reviewed.
+fn get_last_reviews(revlogs: &[RevlogEntry]) -> HashMap<CardId, TimestampSecs> {
+    let mut out = HashMap::new();
+    revlogs
+        .iter()
+        .group_by(|r| r.cid)
+        .into_iter()
+        .for_each(|(card_id, group)| {
+            let mut last_ts = TimestampSecs::zero();
+            for entry in group.into_iter().filter(|r| r.button_chosen >= 1) {
+                last_ts = entry.id.as_secs();
+            }
+            if last_ts != TimestampSecs::zero() {
+                out.insert(card_id, last_ts);
+            }
+        });
+    out
 }
 
 /// When calculating memory state, only the last FSRSItem is required.

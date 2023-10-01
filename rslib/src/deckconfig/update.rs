@@ -16,7 +16,7 @@ use fsrs::DEFAULT_WEIGHTS;
 use crate::config::StringKey;
 use crate::decks::NormalDeck;
 use crate::prelude::*;
-use crate::scheduler::fsrs::memory_state::WeightsAndDesiredRetention;
+use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
 use crate::search::JoinSearches;
 use crate::search::SearchNode;
 
@@ -123,19 +123,19 @@ impl Collection {
             .collect())
     }
 
-    fn update_deck_configs_inner(&mut self, mut input: UpdateDeckConfigsRequest) -> Result<()> {
-        require!(!input.configs.is_empty(), "config not provided");
+    fn update_deck_configs_inner(&mut self, mut req: UpdateDeckConfigsRequest) -> Result<()> {
+        require!(!req.configs.is_empty(), "config not provided");
         let configs_before_update = self.storage.get_deck_config_map()?;
         let mut configs_after_update = configs_before_update.clone();
 
         // handle removals first
-        for dcid in &input.removed_config_ids {
+        for dcid in &req.removed_config_ids {
             self.remove_deck_config_inner(*dcid)?;
             configs_after_update.remove(dcid);
         }
 
         // add/update provided configs
-        for conf in &mut input.configs {
+        for conf in &mut req.configs {
             let weight_len = conf.inner.fsrs_weights.len();
             if weight_len != 0 && weight_len != 17 {
                 return Err(AnkiError::FsrsWeightsInvalid);
@@ -145,11 +145,11 @@ impl Collection {
         }
 
         // get selected deck and possibly children
-        let selected_deck_ids: HashSet<_> = if input.apply_to_children {
+        let selected_deck_ids: HashSet<_> = if req.apply_to_children {
             let deck = self
                 .storage
-                .get_deck(input.target_deck_id)?
-                .or_not_found(input.target_deck_id)?;
+                .get_deck(req.target_deck_id)?
+                .or_not_found(req.target_deck_id)?;
             self.storage
                 .child_decks(&deck)?
                 .iter()
@@ -157,18 +157,18 @@ impl Collection {
                 .map(|d| d.id)
                 .collect()
         } else {
-            [input.target_deck_id].iter().cloned().collect()
+            [req.target_deck_id].iter().cloned().collect()
         };
 
         // loop through all normal decks
         let usn = self.usn()?;
         let today = self.timing_today()?.days_elapsed;
-        let selected_config = input.configs.last().unwrap();
+        let selected_config = req.configs.last().unwrap();
         let mut decks_needing_memory_recompute: HashMap<DeckConfigId, Vec<SearchNode>> =
             Default::default();
-        let fsrs_toggled = self.get_config_bool(BoolKey::Fsrs) != input.fsrs;
+        let fsrs_toggled = self.get_config_bool(BoolKey::Fsrs) != req.fsrs;
         if fsrs_toggled {
-            self.set_config_bool_inner(BoolKey::Fsrs, input.fsrs)?;
+            self.set_config_bool_inner(BoolKey::Fsrs, req.fsrs)?;
         }
         for deck in self.storage.get_all_decks()? {
             if let Ok(normal) = deck.normal() {
@@ -181,6 +181,7 @@ impl Collection {
                     .map(|c| c.inner.new_card_insert_order())
                     .unwrap_or_default();
                 let previous_weights = previous_config.map(|c| &c.inner.fsrs_weights);
+                let previous_retention = previous_config.map(|c| c.inner.desired_retention);
 
                 // if a selected (sub)deck, or its old config was removed, update deck to point
                 // to new config
@@ -189,7 +190,7 @@ impl Collection {
                 {
                     let mut updated = deck.clone();
                     updated.normal_mut()?.config_id = selected_config.id.0;
-                    update_deck_limits(updated.normal_mut()?, &input.limits, today);
+                    update_deck_limits(updated.normal_mut()?, &req.limits, today);
                     self.update_deck_inner(&mut updated, deck, usn)?;
                     selected_config.id
                 } else {
@@ -207,7 +208,11 @@ impl Collection {
 
                 // if weights differ, memory state needs to be recomputed
                 let current_weights = current_config.map(|c| &c.inner.fsrs_weights);
-                if fsrs_toggled || previous_weights != current_weights {
+                let current_retention = current_config.map(|c| c.inner.desired_retention);
+                if fsrs_toggled
+                    || previous_weights != current_weights
+                    || previous_retention != current_retention
+                {
                     decks_needing_memory_recompute
                         .entry(current_config_id)
                         .or_default()
@@ -219,13 +224,18 @@ impl Collection {
         }
 
         if !decks_needing_memory_recompute.is_empty() {
-            let input: Vec<(Option<WeightsAndDesiredRetention>, Vec<SearchNode>)> =
+            let input: Vec<(Option<UpdateMemoryStateRequest>, Vec<SearchNode>)> =
                 decks_needing_memory_recompute
                     .into_iter()
                     .map(|(conf_id, search)| {
                         let weights = configs_after_update.get(&conf_id).and_then(|c| {
-                            if input.fsrs {
-                                Some((c.inner.fsrs_weights.clone(), c.inner.desired_retention))
+                            if req.fsrs {
+                                Some(UpdateMemoryStateRequest {
+                                    weights: c.inner.fsrs_weights.clone(),
+                                    desired_retention: c.inner.desired_retention,
+                                    max_interval: c.inner.maximum_review_interval,
+                                    reschedule: c.inner.reschedule_fsrs_cards,
+                                })
                             } else {
                                 None
                             }
@@ -236,10 +246,10 @@ impl Collection {
             self.update_memory_state(input)?;
         }
 
-        self.set_config_string_inner(StringKey::CardStateCustomizer, &input.card_state_customizer)?;
+        self.set_config_string_inner(StringKey::CardStateCustomizer, &req.card_state_customizer)?;
         self.set_config_bool_inner(
             BoolKey::NewCardsIgnoreReviewLimit,
-            input.new_cards_ignore_review_limit,
+            req.new_cards_ignore_review_limit,
         )?;
 
         Ok(())

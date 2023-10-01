@@ -33,12 +33,21 @@ impl<'a> StateContext<'a> {
     /// Apply fuzz, respecting the passed bounds.
     /// Caller must ensure reasonable bounds.
     pub(crate) fn with_review_fuzz(&self, interval: f32, minimum: u32, maximum: u32) -> u32 {
-        if let Some(fuzz_factor) = self.fuzz_factor {
-            let (lower, upper) = constrained_fuzz_bounds(interval, minimum, maximum);
-            (lower as f32 + fuzz_factor * ((1 + upper - lower) as f32)).floor() as u32
-        } else {
-            (interval.round() as u32).clamp(minimum, maximum)
-        }
+        with_review_fuzz(self.fuzz_factor, interval, minimum, maximum)
+    }
+}
+
+pub(crate) fn with_review_fuzz(
+    fuzz_factor: Option<f32>,
+    interval: f32,
+    minimum: u32,
+    maximum: u32,
+) -> u32 {
+    if let Some(fuzz_factor) = fuzz_factor {
+        let (lower, upper) = constrained_fuzz_bounds(interval, minimum, maximum);
+        (lower as f32 + fuzz_factor * ((1 + upper - lower) as f32)).floor() as u32
+    } else {
+        (interval.round() as u32).clamp(minimum, maximum)
     }
 }
 
@@ -61,7 +70,7 @@ fn constrained_fuzz_bounds(interval: f32, minimum: u32, maximum: u32) -> (u32, u
     (lower, upper)
 }
 
-fn fuzz_bounds(interval: f32) -> (u32, u32) {
+pub(crate) fn fuzz_bounds(interval: f32) -> (u32, u32) {
     let delta = fuzz_delta(interval);
     (
         (interval - delta).round() as u32,

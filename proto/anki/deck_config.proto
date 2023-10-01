@@ -139,7 +139,9 @@ message DeckConfig {
     bool bury_reviews = 28;
     bool bury_interday_learning = 29;
 
-    float desired_retention = 37;  // for fsrs
+    // for fsrs
+    float desired_retention = 37;
+    bool reschedule_fsrs_cards = 39;
 
     bytes other = 255;
   }

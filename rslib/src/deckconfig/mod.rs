@@ -70,6 +70,7 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     fsrs_weights: vec![],
     desired_retention: 0.9,
     other: Vec::new(),
+    reschedule_fsrs_cards: false,
 };
 
 impl Default for DeckConfig {

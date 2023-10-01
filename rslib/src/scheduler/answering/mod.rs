@@ -367,7 +367,7 @@ impl Collection {
             let days_elapsed = self
                 .storage
                 .time_of_last_review(card.id)?
-                .map(|ts| ts.elapsed_days_since(timing.next_day_at))
+                .map(|ts| timing.next_day_at.elapsed_days_since(ts))
                 .unwrap_or_default() as u32;
             Some(fsrs.next_states(
                 card.memory_state.map(Into::into),
@@ -461,6 +461,12 @@ pub mod test_helpers {
                 new_state,
             })
         }
+    }
+}
+
+impl Card {
+    pub(crate) fn get_fuzz_factor(&self) -> Option<f32> {
+        get_fuzz_factor(get_fuzz_seed(self))
     }
 }
 
