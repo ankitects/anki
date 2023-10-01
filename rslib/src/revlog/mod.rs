@@ -89,17 +89,23 @@ impl Collection {
     pub(crate) fn log_manually_scheduled_review(
         &mut self,
         card: &Card,
-        original: &Card,
+        original_interval: u32,
         usn: Usn,
     ) -> Result<()> {
+        let ease_factor = u32::try_from(
+            card.memory_state
+                .map(|s| ((s.difficulty_shifted() * 1000.) as u16))
+                .unwrap_or(card.ease_factor),
+        )
+        .unwrap_or_default();
         let entry = RevlogEntry {
             id: RevlogId::new(),
             cid: card.id,
             usn,
             button_chosen: 0,
             interval: i32::try_from(card.interval).unwrap_or(i32::MAX),
-            last_interval: i32::try_from(original.interval).unwrap_or(i32::MAX),
-            ease_factor: u32::from(card.ease_factor),
+            last_interval: i32::try_from(original_interval).unwrap_or(i32::MAX),
+            ease_factor,
             taken_millis: 0,
             review_kind: RevlogReviewKind::Manual,
         };

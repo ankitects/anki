@@ -30,7 +30,7 @@ impl Collection {
         let days_elapsed = self
             .storage
             .time_of_last_review(card.id)?
-            .map(|ts| ts.elapsed_days_since(timing.next_day_at))
+            .map(|ts| timing.next_day_at.elapsed_days_since(ts))
             .unwrap_or_default() as u32;
         let fsrs_retrievability = card
             .memory_state

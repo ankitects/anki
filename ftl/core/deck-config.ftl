@@ -339,6 +339,7 @@ deck-config-fsrs-on-all-clients =
     not work correctly if one of your clients is older.
 deck-config-set-optimal-retention = Set desired retention to { $num }
 deck-config-complete = { $num }% complete.
+deck-config-reschedule-cards-on-change = Reschedule cards on change
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
