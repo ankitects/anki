@@ -5,11 +5,17 @@ import type { Size } from "../types";
 
 /** Position normalized to 0-1 range, e.g. 150px in a 600x300px canvas is 0.25 */
 export function xToNormalized(size: Size, x: number): number {
+    if (x >= 0 && x <= 1) {
+        return x;
+    }
     return x / size.width;
 }
 
 /** Position normalized to 0-1 range, e.g. 150px in a 600x300px canvas is 0.5 */
 export function yToNormalized(size: Size, y: number): number {
+    if (y >= 0 && y <= 1) {
+        return y;
+    }
     return y / size.height;
 }
 
