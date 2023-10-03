@@ -140,7 +140,7 @@ impl Collection {
 impl Card {
     pub(crate) fn set_memory_state(&mut self, fsrs: &FSRS, item: Option<FSRSItem>) {
         self.memory_state = item
-            .map(|i| fsrs.memory_state(i))
+            .map(|i| fsrs.memory_state(i, None))
             .or_else(|| {
                 if self.ctype == CardType::New {
                     None
