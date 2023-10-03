@@ -160,9 +160,33 @@ impl ReviewState {
         ctx: &StateContext,
         states: &NextStates,
     ) -> (u32, u32, u32) {
-        let hard = constrain_passing_interval(ctx, states.hard.interval as f32, 1, true);
-        let good = constrain_passing_interval(ctx, states.good.interval as f32, hard + 1, true);
-        let easy = constrain_passing_interval(ctx, states.easy.interval as f32, good + 1, true);
+        // If the interval is larger than last time, don't allow fuzz to go backwards
+        let greater_than_last = |interval: u32| {
+            if interval > self.scheduled_days {
+                self.scheduled_days + 1
+            } else {
+                // User may have changed their retention factor; don't limit
+                0
+            }
+        };
+        let hard = constrain_passing_interval(
+            ctx,
+            states.hard.interval as f32,
+            greater_than_last(states.hard.interval).max(1),
+            true,
+        );
+        let good = constrain_passing_interval(
+            ctx,
+            states.good.interval as f32,
+            greater_than_last(states.good.interval).max(hard + 1),
+            true,
+        );
+        let easy = constrain_passing_interval(
+            ctx,
+            states.easy.interval as f32,
+            greater_than_last(states.easy.interval).max(good + 1),
+            true,
+        );
         (hard, good, easy)
     }
 
