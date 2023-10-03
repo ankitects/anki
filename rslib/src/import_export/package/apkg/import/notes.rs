@@ -500,43 +500,57 @@ mod test {
     use crate::notetype::CardTemplate;
     use crate::notetype::NoteField;
 
-    /// Import [Note] into [Collection], optionally taking a [MediaUseMap],
-    /// or a [Notetype] remapping.
-    macro_rules! import_note {
-        ($col:expr, $note:expr, $old_notetype:expr => $new_notetype:expr) => {{
-            let mut media_map = MediaUseMap::default();
-            let mut progress = $col.new_progress_handler();
+    #[derive(Default)]
+    struct ImportBuilder {
+        notes: Vec<Note>,
+        notetypes: Vec<Notetype>,
+        remapped_notetypes: HashMap<NotetypeId, NotetypeId>,
+        media_map: MediaUseMap,
+        merge_notetypes: bool,
+    }
+
+    impl ImportBuilder {
+        fn new() -> Self {
+            Self::default()
+        }
+
+        fn note(mut self, note: Note) -> Self {
+            self.notes.push(note);
+            self
+        }
+
+        fn notetype(mut self, notetype: Notetype) -> Self {
+            self.notetypes.push(notetype);
+            self
+        }
+
+        fn remap_notetype(mut self, from: NotetypeId, to: NotetypeId) -> Self {
+            self.remapped_notetypes.insert(from, to);
+            self
+        }
+
+        fn merge_notetypes(mut self, yes: bool) -> Self {
+            self.merge_notetypes = yes;
+            self
+        }
+
+        fn import(self, col: &mut Collection) -> NoteContext {
+            let mut progress_handler = col.new_progress_handler();
+            let media_map = Box::leak(Box::new(self.media_map));
             let mut ctx = NoteContext::new(
                 Usn(1),
-                &mut $col,
-                &mut media_map,
-                false,
+                col,
+                media_map,
+                self.merge_notetypes,
                 UpdateCondition::IfNewer,
                 UpdateCondition::IfNewer,
             )
             .unwrap();
-            ctx.remapped_notetypes.insert($old_notetype, $new_notetype);
-            ctx.import_notes(vec![$note], &mut progress).unwrap();
-            ctx.imports.log
-        }};
-        ($col:expr, $note:expr, $media_map:expr) => {{
-            let mut progress = $col.new_progress_handler();
-            let mut ctx = NoteContext::new(
-                Usn(1),
-                &mut $col,
-                &mut $media_map,
-                false,
-                UpdateCondition::IfNewer,
-                UpdateCondition::IfNewer,
-            )
-            .unwrap();
-            ctx.import_notes(vec![$note], &mut progress).unwrap();
-            ctx.imports.log
-        }};
-        ($col:expr, $note:expr) => {{
-            let mut media_map = MediaUseMap::default();
-            import_note!($col, $note, media_map)
-        }};
+            ctx.import_notetypes(self.notetypes).unwrap();
+            ctx.remapped_notetypes.extend(self.remapped_notetypes);
+            ctx.import_notes(self.notes, &mut progress_handler).unwrap();
+            ctx
+        }
     }
 
     /// Assert that exactly one [Note] is logged, and that with the given state
@@ -549,38 +563,6 @@ mod test {
             assert!($log.duplicate.is_empty());
             assert!($log.conflicting.is_empty());
         };
-    }
-
-    struct Remappings {
-        remapped_notetypes: HashMap<NotetypeId, NotetypeId>,
-        remapped_fields: HashMap<NotetypeId, Vec<Option<u32>>>,
-        remapped_templates: HashMap<NotetypeId, TemplateMap>,
-    }
-
-    /// Imports the notetype into the collection, and returns its remapped id if
-    /// any.
-    macro_rules! import_notetype {
-        ($col:expr, $notetype:expr) => {{
-            import_notetype!($col, $notetype, merge = false)
-        }};
-        ($col:expr, $notetype:expr, merge = $merge:expr) => {{
-            let mut media_map = MediaUseMap::default();
-            let mut ctx = NoteContext::new(
-                Usn(1),
-                $col,
-                &mut media_map,
-                $merge,
-                UpdateCondition::IfNewer,
-                UpdateCondition::IfNewer,
-            )
-            .unwrap();
-            ctx.import_notetypes(vec![$notetype]).unwrap();
-            Remappings {
-                remapped_notetypes: ctx.remapped_notetypes,
-                remapped_fields: ctx.remapped_fields,
-                remapped_templates: ctx.imports.remapped_templates,
-            }
-        }};
     }
 
     impl Collection {
@@ -609,9 +591,9 @@ mod test {
         note.guid = "other".to_string();
         let original_id = note.id;
 
-        let mut log = import_note!(col, note);
+        let mut ctx = ImportBuilder::new().note(note).import(&mut col);
+        assert_note_logged!(ctx.imports.log, new, &["", ""]);
         assert_ne!(col.note_id_for_guid("other"), original_id);
-        assert_note_logged!(log, new, &["", ""]);
     }
 
     #[test]
@@ -621,9 +603,9 @@ mod test {
         note.mtime.0 -= 1;
         note.fields_mut()[0] = "outdated".to_string();
 
-        let mut log = import_note!(col, note);
+        let mut ctx = ImportBuilder::new().note(note).import(&mut col);
+        assert_note_logged!(ctx.imports.log, duplicate, &["outdated", ""]);
         assert_eq!(col.get_all_notes()[0].fields()[0], "");
-        assert_note_logged!(log, duplicate, &["outdated", ""]);
     }
 
     #[test]
@@ -634,9 +616,9 @@ mod test {
         note.mtime.0 += 1;
         note.fields_mut()[0] = "updated".to_string();
 
-        let mut log = import_note!(col, note);
+        let mut ctx = ImportBuilder::new().note(note).import(&mut col);
+        assert_note_logged!(ctx.imports.log, updated, &["updated", ""]);
         assert_eq!(col.get_all_notes()[0].fields()[0], "updated");
-        assert_note_logged!(log, updated, &["updated", ""]);
     }
 
     #[test]
@@ -647,9 +629,9 @@ mod test {
         note.mtime.0 += 1;
         note.fields_mut()[0] = "updated".to_string();
 
-        let mut log = import_note!(col, note);
+        let mut ctx = ImportBuilder::new().note(note).import(&mut col);
+        assert_note_logged!(ctx.imports.log, conflicting, &["updated", ""]);
         assert_eq!(col.get_all_notes()[0].fields()[0], "");
-        assert_note_logged!(log, conflicting, &["updated", ""]);
     }
 
     #[test]
@@ -659,9 +641,12 @@ mod test {
         let mut note = NoteAdder::basic(&mut col).note();
         note.notetype_id.0 = 123;
 
-        let mut log = import_note!(col, note, NotetypeId(123) => basic_ntid);
+        let mut ctx = ImportBuilder::new()
+            .note(note)
+            .remap_notetype(NotetypeId(123), basic_ntid)
+            .import(&mut col);
+        assert_note_logged!(ctx.imports.log, new, &["", ""]);
         assert_eq!(col.get_all_notes()[0].notetype_id, basic_ntid);
-        assert_note_logged!(log, new, &["", ""]);
     }
 
     #[test]
@@ -672,9 +657,12 @@ mod test {
         note.mtime.0 += 1;
         note.fields_mut()[0] = "updated".to_string();
 
-        let mut log = import_note!(col, note, basic_ntid => NotetypeId(123));
+        let mut ctx = ImportBuilder::new()
+            .note(note)
+            .remap_notetype(basic_ntid, NotetypeId(123))
+            .import(&mut col);
+        assert_note_logged!(ctx.imports.log, conflicting, &["updated", ""]);
         assert_eq!(col.get_all_notes()[0].fields()[0], "");
-        assert_note_logged!(log, conflicting, &["updated", ""]);
     }
 
     #[test]
@@ -683,13 +671,13 @@ mod test {
         let mut note = NoteAdder::basic(&mut col).note();
         note.fields_mut()[0] = "<img src='foo.jpg'>".to_string();
 
-        let mut media_map = MediaUseMap::default();
+        let mut builder = ImportBuilder::new();
         let entry = SafeMediaEntry::from_legacy(("0", "bar.jpg".to_string())).unwrap();
-        media_map.add_checked("foo.jpg", entry);
+        builder.media_map.add_checked("foo.jpg", entry);
 
-        let mut log = import_note!(col, note, media_map);
+        let mut ctx = builder.note(note).import(&mut col);
+        assert_note_logged!(ctx.imports.log, new, &[" bar.jpg ", ""]);
         assert_eq!(col.get_all_notes()[0].fields()[0], "<img src='bar.jpg'>");
-        assert_note_logged!(log, new, &[" bar.jpg ", ""]);
     }
 
     #[test]
@@ -697,7 +685,7 @@ mod test {
         let mut col = Collection::new();
         let mut new_basic = crate::notetype::stock::basic(&col.tr);
         new_basic.id.0 = 123;
-        import_notetype!(&mut col, new_basic);
+        ImportBuilder::new().notetype(new_basic).import(&mut col);
         assert!(col.storage.get_notetype(NotetypeId(123)).unwrap().is_some());
     }
 
@@ -707,7 +695,7 @@ mod test {
         let mut basic = col.basic_notetype();
         basic.mtime_secs.0 += 1;
         basic.name = String::from("new");
-        import_notetype!(&mut col, basic);
+        ImportBuilder::new().notetype(basic).import(&mut col);
         assert!(col.get_notetype_by_name("new").unwrap().is_some());
     }
 
@@ -717,7 +705,7 @@ mod test {
         let mut basic = col.basic_notetype();
         basic.mtime_secs.0 -= 1;
         basic.name = String::from("new");
-        import_notetype!(&mut col, basic);
+        ImportBuilder::new().notetype(basic).import(&mut col);
         assert!(col.get_notetype_by_name("new").unwrap().is_none());
     }
 
@@ -727,7 +715,7 @@ mod test {
         let mut to_import = col.basic_notetype();
         to_import.fields[0].name = String::from("renamed");
         to_import.mtime_secs.0 += 1;
-        import_notetype!(&mut col, to_import);
+        ImportBuilder::new().notetype(to_import).import(&mut col);
         assert_eq!(col.basic_notetype().fields[0].name, "renamed");
     }
 
@@ -740,8 +728,10 @@ mod test {
         to_import.fields[0].config.id.take();
 
         // schema mismatch => notetype should be imported with new id
-        let out = import_notetype!(&mut col, to_import.clone());
-        let remapped_id = *out.remapped_notetypes.values().next().unwrap();
+        let ctx = ImportBuilder::new()
+            .notetype(to_import.clone())
+            .import(&mut col);
+        let remapped_id = *ctx.remapped_notetypes.values().next().unwrap();
         assert_eq!(col.basic_notetype().fields[0].name, "Front");
         let remapped = col.storage.get_notetype(remapped_id).unwrap().unwrap();
         assert_eq!(remapped.fields[0].name, "new field");
@@ -749,8 +739,8 @@ mod test {
         // notetype with matching schema and original id exists => should be reused
         to_import.name = String::from("new name");
         to_import.mtime_secs.0 = remapped.mtime_secs.0 + 1;
-        let out_2 = import_notetype!(&mut col, to_import);
-        let remapped_id_2 = *out_2.remapped_notetypes.values().next().unwrap();
+        let ctx_2 = ImportBuilder::new().notetype(to_import).import(&mut col);
+        let remapped_id_2 = *ctx_2.remapped_notetypes.values().next().unwrap();
         assert_eq!(remapped_id, remapped_id_2);
         let updated = col.storage.get_notetype(remapped_id).unwrap().unwrap();
         assert_eq!(updated.name, "new name");
@@ -767,7 +757,11 @@ mod test {
         to_import.fields.push(NoteField::new("new"));
         to_import.fields[1].ord.replace(1);
 
-        let fields = import_notetype!(&mut col, to_import.clone(), merge = true).remapped_fields;
+        let fields = ImportBuilder::new()
+            .notetype(to_import.clone())
+            .merge_notetypes(true)
+            .import(&mut col)
+            .remapped_fields;
         // Front field is preserved and new field added
         assert!(col
             .basic_notetype()
@@ -791,8 +785,12 @@ mod test {
         to_import.templates.push(CardTemplate::new("new", "", ""));
         to_import.templates[1].ord.replace(1);
 
-        let templates =
-            import_notetype!(&mut col, to_import.clone(), merge = true).remapped_templates;
+        let templates = ImportBuilder::new()
+            .notetype(to_import.clone())
+            .merge_notetypes(true)
+            .import(&mut col)
+            .imports
+            .remapped_templates;
         // Card 1 is preserved and new template added
         assert!(col
             .basic_rev_notetype()
@@ -825,7 +823,10 @@ mod test {
         col.add_note(&mut note, DeckId(1)).unwrap();
 
         let ntid = incoming.id;
-        import_notetype!(&mut col, incoming, merge = true);
+        ImportBuilder::new()
+            .notetype(incoming)
+            .merge_notetypes(true)
+            .import(&mut col);
 
         // both notetypes should have been merged into it
         assert!(col.get_notetype(ntid).unwrap().unwrap().field_names().eq([
