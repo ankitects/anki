@@ -32,6 +32,7 @@ from aqt.utils import (
     disable_help_button,
     showText,
     showWarning,
+    tooltip,
     tr,
 )
 
@@ -113,6 +114,7 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         if out.server_message:
             showText(out.server_message)
         if out.required == out.NO_CHANGES:
+            tooltip(parent=mw, msg=tr.sync_collection_complete())
             # all done; track media progress
             mw.media_syncer.start_monitoring()
             return on_done()
