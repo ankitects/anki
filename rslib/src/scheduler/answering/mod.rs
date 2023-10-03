@@ -361,7 +361,7 @@ impl Collection {
                 // and will need its initial memory state to be calculated based on review
                 // history.
                 let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
-                let item = single_card_revlog_to_item(revlog, timing.next_day_at);
+                let item = single_card_revlog_to_item(&fsrs, revlog, timing.next_day_at);
                 card.set_memory_state(&fsrs, item);
             }
             let days_elapsed = self
