@@ -129,6 +129,13 @@ impl SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn used_notetypes(&self) -> Result<HashSet<NotetypeId>> {
+        self.db
+            .prepare_cached("SELECT DISTINCT mid FROM notes")?
+            .query_and_then([], |r| Ok(r.get(0)?))?
+            .collect()
+    }
+
     pub fn get_all_notetype_names(&self) -> Result<Vec<(NotetypeId, String)>> {
         self.db
             .prepare_cached(include_str!("get_notetype_names.sql"))?

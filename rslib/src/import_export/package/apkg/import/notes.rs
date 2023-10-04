@@ -33,6 +33,8 @@ struct NoteContext<'a> {
     update_notes: UpdateCondition,
     update_notetypes: UpdateCondition,
     imports: NoteImports,
+    // notetypes that have been merged into others and may now possibly be deleted
+    merged_notetypes: HashSet<NotetypeId>,
 }
 
 #[derive(Debug, Default)]
@@ -128,6 +130,7 @@ impl<'n> NoteContext<'n> {
             update_notes,
             update_notetypes,
             media_map,
+            merged_notetypes: HashSet::new(),
         })
     }
 
@@ -242,7 +245,7 @@ impl<'n> NoteContext<'n> {
             &mut existing
         };
         self.update_notetype(new_incoming, original_existing, true)?;
-        self.drop_sibling_notetypes(new_incoming, &mut siblings)
+        self.merge_sibling_notetypes(new_incoming, &mut siblings)
     }
 
     /// Get notetypes with different id, but matching original id.
@@ -257,7 +260,7 @@ impl<'n> NoteContext<'n> {
     /// Removes the sibling notetypes, changing their notes' notetype to
     /// `original`. This assumes `siblings` have already been merged into
     /// `original`.
-    fn drop_sibling_notetypes(
+    fn merge_sibling_notetypes(
         &mut self,
         original: &Notetype,
         siblings: &mut [Notetype],
@@ -275,7 +278,7 @@ impl<'n> NoteContext<'n> {
                     new_fields: nt.field_ords_vec(),
                     new_templates: Some(nt.template_ords_vec()),
                 })?;
-            self.target_col.remove_notetype_inner(nt.id)?;
+            self.merged_notetypes.insert(nt.id);
         }
         Ok(())
     }
@@ -342,7 +345,7 @@ impl<'n> NoteContext<'n> {
             }
         }
 
-        Ok(())
+        self.delete_merged_unused_notetypes()
     }
 
     fn resolve_notetype_conflicts(
@@ -383,6 +386,8 @@ impl<'n> NoteContext<'n> {
                     new_fields,
                     new_templates,
                 })?;
+
+            self.merged_notetypes.insert(existing_ntid);
         }
         Ok(())
     }
@@ -484,6 +489,16 @@ impl<'n> NoteContext<'n> {
             }
             None
         })
+    }
+
+    fn delete_merged_unused_notetypes(&mut self) -> Result<()> {
+        for &ntid in self
+            .merged_notetypes
+            .difference(&self.target_col.storage.used_notetypes()?)
+        {
+            self.target_col.remove_notetype_inner(ntid)?;
+        }
+        Ok(())
     }
 }
 
@@ -1036,6 +1051,8 @@ mod test {
             "new incoming",
             "new existing"
         ]));
+        // merged, now unused notetype should have been deleted
+        assert!(col.get_notetype(existing_notetype.id).unwrap().is_none());
         assert!(col.get_all_notes()[0]
             .fields()
             .iter()
