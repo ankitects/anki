@@ -21,7 +21,7 @@ use crate::prelude::*;
 use crate::progress::ThrottlingProgressHandler;
 
 /// Map of source media files, that do not already exist in the target.
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub(super) struct MediaUseMap {
     /// original, normalized filename → (refererenced on import material,
     /// entry with possibly remapped filename)

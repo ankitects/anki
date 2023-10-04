@@ -19,13 +19,13 @@ use crate::prelude::*;
 use crate::progress::ThrottlingProgressHandler;
 use crate::text::replace_media_refs;
 
+#[derive(Debug)]
 struct NoteContext<'a> {
     target_col: &'a mut Collection,
     usn: Usn,
     normalize_notes: bool,
     remapped_notetypes: HashMap<NotetypeId, NotetypeId>,
     remapped_fields: HashMap<NotetypeId, Vec<Option<u32>>>,
-    target_guids: HashMap<String, NoteMeta>,
     target_ids: HashSet<NoteId>,
     target_notetypes: Vec<Arc<Notetype>>,
     media_map: &'a mut MediaUseMap,
@@ -112,7 +112,6 @@ impl<'n> NoteContext<'n> {
         update_notes: UpdateCondition,
         update_notetypes: UpdateCondition,
     ) -> Result<Self> {
-        let target_guids = target_col.storage.note_guid_map()?;
         let normalize_notes = target_col.get_config_bool(BoolKey::NormalizeNoteText);
         let target_ids = target_col.storage.get_all_note_ids()?;
         let target_notetypes = target_col.get_all_notetypes()?;
@@ -122,7 +121,6 @@ impl<'n> NoteContext<'n> {
             normalize_notes,
             remapped_notetypes: HashMap::new(),
             remapped_fields: HashMap::new(),
-            target_guids,
             target_ids,
             target_notetypes,
             imports: NoteImports::default(),
@@ -289,17 +287,29 @@ impl<'n> NoteContext<'n> {
             .map(|ts| ts.schema_change)
     }
 
+    /// Maintain map of ord changes in order to remap incoming note fields and
+    /// cards. If called multiple times with the same notetype maps will be
+    /// chained.
     fn record_remapped_ords(&mut self, incoming: &Notetype) {
         self.remapped_fields
-            .insert(incoming.id, incoming.field_ords().collect());
-        self.imports.remapped_templates.insert(
-            incoming.id,
-            incoming
-                .template_ords()
-                .enumerate()
-                .filter_map(|(new, old)| old.map(|ord| (ord as u16, new as u16)))
-                .collect(),
-        );
+            .entry(incoming.id)
+            .and_modify(|old| {
+                *old = combine_field_ords_maps(old, incoming.field_ords());
+            })
+            .or_insert(incoming.field_ords().collect());
+        self.imports
+            .remapped_templates
+            .entry(incoming.id)
+            .and_modify(|old_map| {
+                combine_template_ords_maps(old_map, incoming);
+            })
+            .or_insert(
+                incoming
+                    .template_ords()
+                    .enumerate()
+                    .filter_map(|(new, old)| old.map(|ord| (ord as u16, new as u16)))
+                    .collect(),
+            );
     }
 
     fn add_notetype_with_remapped_id(&mut self, notetype: &mut Notetype) -> Result<()> {
@@ -316,18 +326,64 @@ impl<'n> NoteContext<'n> {
         notes: Vec<Note>,
         progress: &mut ThrottlingProgressHandler<ImportProgress>,
     ) -> Result<()> {
+        let existing_guids = self.target_col.storage.note_guid_map()?;
+        if self.merge_notetypes {
+            self.resolve_notetype_conflicts(&notes, &existing_guids)?;
+        }
         let mut incrementor = progress.incrementor(ImportProgress::Notes);
         self.imports.log.found_notes = notes.len() as u32;
         for mut note in notes {
             incrementor.increment()?;
             self.remap_notetype_and_fields(&mut note);
-            if let Some(existing_note) = self.target_guids.get(&note.guid) {
+            if let Some(existing_note) = existing_guids.get(&note.guid) {
                 self.maybe_update_existing_note(*existing_note, note)?;
             } else {
                 self.add_note(note)?;
             }
         }
 
+        Ok(())
+    }
+
+    fn resolve_notetype_conflicts(
+        &mut self,
+        incoming_notes: &[Note],
+        existing_guids: &HashMap<String, NoteMeta>,
+    ) -> Result<()> {
+        for ((existing_ntid, incoming_ntid), note_ids) in
+            notetype_conflicts(incoming_notes, existing_guids)
+        {
+            let mut existing = self
+                .target_col
+                .storage
+                .get_notetype(existing_ntid)?
+                .or_not_found(existing_ntid)?;
+            let mut incoming = self
+                .target_col
+                .storage
+                .get_notetype(incoming_ntid)?
+                .or_not_found(incoming_ntid)?;
+
+            existing.merge(&incoming);
+            incoming.merge(&existing);
+            self.record_remapped_ords(&incoming);
+
+            let old_notetype_name = existing.name.clone();
+            let new_fields = existing.field_ords_vec();
+            let new_templates = Some(existing.template_ords_vec());
+            self.update_notetype(&mut incoming, existing, true)?;
+
+            self.target_col
+                .change_notetype_of_notes_inner(ChangeNotetypeInput {
+                    current_schema: self.target_col_schema_change()?,
+                    note_ids,
+                    old_notetype_name,
+                    old_notetype_id: existing_ntid,
+                    new_notetype_id: incoming_ntid,
+                    new_fields,
+                    new_templates,
+                })?;
+        }
         Ok(())
     }
 
@@ -341,7 +397,7 @@ impl<'n> NoteContext<'n> {
     }
 
     fn maybe_update_existing_note(&mut self, existing: NoteMeta, incoming: Note) -> Result<()> {
-        if incoming.notetype_id != existing.notetype_id {
+        if !self.merge_notetypes && incoming.notetype_id != existing.notetype_id {
             // notetype of existing note has changed, or notetype of incoming note has been
             // remapped due to a schema conflict
             self.imports.log_conflicting(incoming);
@@ -441,6 +497,46 @@ fn should_update(
         UpdateCondition::Always => existing_mtime != incoming_mtime,
         UpdateCondition::Never => false,
     }
+}
+
+fn combine_field_ords_maps(
+    old: &[Option<u32>],
+    new: impl Iterator<Item = Option<u32>>,
+) -> Vec<Option<u32>> {
+    new.map(|new_field| {
+        new_field.and_then(|old_field| old.get(old_field as usize).copied().flatten())
+    })
+    .collect()
+}
+
+fn combine_template_ords_maps(old_map: &mut HashMap<u16, u16>, new: &Notetype) {
+    for to in old_map.values_mut() {
+        *to = new
+            .template_ords()
+            .enumerate()
+            .find_map(|(new_to, new_from)| (new_from == Some(*to as u32)).then_some(new_to as u16))
+            .unwrap_or(*to);
+    }
+}
+
+/// Target ids of notes with conflicting notetypes, with keys
+/// `(target note's notetype, incoming note's notetypes)`.
+fn notetype_conflicts(
+    incoming_notes: &[Note],
+    existing_guids: &HashMap<String, NoteMeta>,
+) -> HashMap<(NotetypeId, NotetypeId), Vec<NoteId>> {
+    let mut conflicts: HashMap<(NotetypeId, NotetypeId), Vec<NoteId>> = HashMap::default();
+    for note in incoming_notes {
+        if let Some(meta) = existing_guids.get(&note.guid) {
+            if meta.notetype_id != note.notetype_id {
+                conflicts
+                    .entry((meta.notetype_id, note.notetype_id))
+                    .or_insert_with(Vec::new)
+                    .push(note.id);
+            }
+        };
+    }
+    conflicts
 }
 
 impl Notetype {
@@ -861,8 +957,13 @@ mod test {
         let mut nt = src.basic_notetype();
         nt.fields.push(NoteField::new("new incoming"));
         src.update_notetype(&mut nt, false)?;
+        // add a new note using the updated notetype
+        NoteAdder::basic(&mut src)
+            .fields(&["baz", "bar", "foo"])
+            .add(&mut src);
 
-        // importing again with merge enabled will fail, and add an empty notetype
+        // importing again with merge disabled will fail for the exisitng note,
+        // but the new one will be added with an extra notetype
         assert_eq!(dst.storage.get_all_notetype_names().unwrap().len(), 6);
         src.export_apkg(&path, "", false, false, false, None)?;
         assert_eq!(
@@ -874,7 +975,8 @@ mod test {
         );
         assert_eq!(dst.storage.get_all_notetype_names().unwrap().len(), 7);
 
-        // if enabling merge, it should succeed and remove the empty notetype
+        // if enabling merge, it should succeed and remove the empty notetype, remapping
+        // its note
         src.export_apkg(&path, "", false, false, false, None)?;
         assert_eq!(
             dst.import_apkg(
@@ -892,5 +994,62 @@ mod test {
         assert_eq!(dst.storage.get_all_notetype_names().unwrap().len(), 6);
 
         Ok(())
+    }
+
+    #[test]
+    fn should_merge_conflicting_notetype_even_without_original_id() {
+        let mut col = Collection::new();
+        // incoming notetype with a new field
+        let mut incoming_notetype = col.basic_notetype();
+        incoming_notetype.fields.push(NoteField {
+            ord: Some(2),
+            ..NoteField::new("new incoming")
+        });
+        // existing notetype with a different new field and id
+        let mut existing_notetype = col.basic_notetype();
+        existing_notetype
+            .fields
+            .push(NoteField::new("new existing"));
+        existing_notetype.id.0 = 0;
+        col.add_notetype_inner(&mut existing_notetype, Usn(0), true)
+            .unwrap();
+        // incoming conflicts with existing note, e.g. because it was remapped during a
+        // previous import (which wasn't recording the origninal id of the notetype yet)
+        let mut note = NoteAdder::new(&existing_notetype)
+            .fields(&["front", "back", "new existing"])
+            .add(&mut col);
+        note.fields_mut()[2] = String::from("new incoming");
+        note.notetype_id = incoming_notetype.id;
+        note.mtime.0 += 1;
+
+        let ntid = incoming_notetype.id;
+        ImportBuilder::new()
+            .note(note)
+            .notetype(incoming_notetype)
+            .merge_notetypes(true)
+            .import(&mut col);
+
+        // notetypes should have been merged
+        assert!(col.get_notetype(ntid).unwrap().unwrap().field_names().eq([
+            "Front",
+            "Back",
+            "new incoming",
+            "new existing"
+        ]));
+        assert!(col.get_all_notes()[0]
+            .fields()
+            .iter()
+            .eq(["front", "back", "new incoming", "",]))
+    }
+
+    #[test]
+    fn should_combine_field_ords_maps() {
+        // (A, B) -> (C, B, A)
+        let old = [None, Some(1), Some(0)];
+        // (C, B, A)-> (D, A, B, C)
+        let new = [None, Some(2), Some(1), Some(0)].into_iter();
+        // (A, B) -> (D, A, B, C)
+        let expected = [None, Some(0), Some(1), None];
+        assert!(combine_field_ords_maps(&old, new).eq(&expected));
     }
 }
