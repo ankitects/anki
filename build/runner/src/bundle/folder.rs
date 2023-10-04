@@ -143,4 +143,14 @@ fn copy_binary_and_pylibs(folder_root: &Utf8Path) {
         &with_slash(unix_path(&extra_files)),
         &with_slash(unix_path(folder_root)),
     ]));
+    let google_py = if cfg!(windows) {
+        folder_root.join("../pyenv/lib/site-packages/google")
+    } else {
+        folder_root.join("../pyenv/lib/python3.9/site-packages/google")
+    };
+    run_command(Command::new("rsync").args([
+        "-a",
+        &unix_path(&google_py),
+        &with_slash(unix_path(&folder_root.join("lib"))),
+    ]));
 }
