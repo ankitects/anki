@@ -174,13 +174,12 @@ impl Collection {
             }
             let mut arr = [0.0; 5];
             for (review_kind, group) in group_sec_by_review_kind.iter().enumerate() {
-                let average_secs =
-                    if group.is_empty() && review_kind == RevlogReviewKind::Relearning as usize {
-                        30.0
-                    } else {
-                        group.iter().sum::<u32>() as f64 / group.len() as f64 / 1000.0
-                    };
-                arr[review_kind] = average_secs
+                let average_secs = group.iter().sum::<u32>() as f64 / group.len() as f64 / 1000.0;
+                arr[review_kind] = if average_secs.is_nan() {
+                    0.0
+                } else {
+                    average_secs
+                }
             }
             arr
         };
