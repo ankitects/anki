@@ -17,7 +17,7 @@ type UndoState = {
     redoable: boolean;
 };
 
-const shapeType = ["rect", "ellipse"];
+const shapeType = ["rect", "ellipse", "i-text"];
 
 const validShape = (shape: fabric.Object): boolean => {
     if (shape.width <= 5 || shape.height <= 5) return false;
@@ -90,10 +90,7 @@ class UndoStack {
     }
 
     private maybePush(opts): void {
-        if (
-            !this.locked
-            && validShape(opts.target as fabric.Object)
-        ) {
+        if (!this.locked && validShape(opts.target as fabric.Object)) {
             this.push();
         }
     }

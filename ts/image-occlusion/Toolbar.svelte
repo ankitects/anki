@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { mdiEye, mdiFormatAlignCenter, mdiSquare, mdiViewDashboard } from "./icons";
     import { hideAllGuessOne } from "./store";
-    import { drawEllipse, drawPolygon, drawRectangle } from "./tools/index";
+    import { drawEllipse, drawPolygon, drawRectangle, drawText } from "./tools/index";
     import { makeMaskTransparent } from "./tools/lib";
     import { enableSelectable, stopDraw } from "./tools/lib";
     import {
@@ -57,6 +57,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 break;
             case "draw-polygon":
                 drawPolygon(canvas, instance);
+                break;
+            case "draw-text":
+                drawText(canvas);
                 break;
             default:
                 break;

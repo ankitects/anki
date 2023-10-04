@@ -18,7 +18,10 @@ export const stopDraw = (canvas: fabric.Canvas): void => {
     canvas.off("mouse:move");
 };
 
-export const enableSelectable = (canvas: fabric.Canvas, select: boolean): void => {
+export const enableSelectable = (
+    canvas: fabric.Canvas,
+    select: boolean,
+): void => {
     canvas.selection = select;
     canvas.forEachObject(function(o) {
         o.selectable = select;
@@ -135,7 +138,10 @@ const pasteItem = (canvas: fabric.Canvas): void => {
     });
 };
 
-export const makeMaskTransparent = (canvas: fabric.Canvas, opacity = false): void => {
+export const makeMaskTransparent = (
+    canvas: fabric.Canvas,
+    opacity = false,
+): void => {
     const objects = canvas.getObjects();
     objects.forEach((object) => {
         object.set({
@@ -152,7 +158,11 @@ export const moveShapeToCanvasBoundaries = (canvas: fabric.Canvas): void => {
         if (!activeObject) {
             return;
         }
-        if (activeObject.type === "activeSelection" || activeObject.type === "rect") {
+        if (
+            activeObject.type === "activeSelection"
+            || activeObject.type === "rect"
+            || activeObject.type === "i-text"
+        ) {
             modifiedSelection(canvas, activeObject);
         }
         if (activeObject.type === "ellipse") {
@@ -161,7 +171,10 @@ export const moveShapeToCanvasBoundaries = (canvas: fabric.Canvas): void => {
     });
 };
 
-const modifiedSelection = (canvas: fabric.Canvas, object: fabric.Object): void => {
+const modifiedSelection = (
+    canvas: fabric.Canvas,
+    object: fabric.Object,
+): void => {
     const newWidth = object.width * object.scaleX;
     const newHeight = object.height * object.scaleY;
 
@@ -174,7 +187,10 @@ const modifiedSelection = (canvas: fabric.Canvas, object: fabric.Object): void =
     setShapePosition(canvas, object);
 };
 
-const modifiedEllipse = (canvas: fabric.Canvas, object: fabric.Object): void => {
+const modifiedEllipse = (
+    canvas: fabric.Canvas,
+    object: fabric.Object,
+): void => {
     const newRx = object.rx * object.scaleX;
     const newRy = object.ry * object.scaleY;
     const newWidth = object.width * object.scaleX;
@@ -191,7 +207,10 @@ const modifiedEllipse = (canvas: fabric.Canvas, object: fabric.Object): void => 
     setShapePosition(canvas, object);
 };
 
-const setShapePosition = (canvas: fabric.Canvas, object: fabric.Object): void => {
+const setShapePosition = (
+    canvas: fabric.Canvas,
+    object: fabric.Object,
+): void => {
     if (object.left < 0) {
         object.set({ left: 0 });
     }

@@ -9,6 +9,7 @@ import { Ellipse } from "./shapes/ellipse";
 import { extractShapesFromRenderedClozes } from "./shapes/from-cloze";
 import { Polygon } from "./shapes/polygon";
 import { Rectangle } from "./shapes/rectangle";
+import { Text } from "./shapes/text";
 import type { Size } from "./types";
 
 export function setupImageCloze(): void {
@@ -19,14 +20,20 @@ export function setupImageCloze(): void {
 }
 
 function setupImageClozeInner(): void {
-    const canvas = document.querySelector("#image-occlusion-canvas") as HTMLCanvasElement | null;
+    const canvas = document.querySelector(
+        "#image-occlusion-canvas",
+    ) as HTMLCanvasElement | null;
     if (canvas == null) {
         return;
     }
 
     const ctx: CanvasRenderingContext2D = canvas.getContext("2d")!;
-    const container = document.getElementById("image-occlusion-container") as HTMLDivElement;
-    const image = document.querySelector("#image-occlusion-container img") as HTMLImageElement;
+    const container = document.getElementById(
+        "image-occlusion-container",
+    ) as HTMLDivElement;
+    const image = document.querySelector(
+        "#image-occlusion-container img",
+    ) as HTMLImageElement;
     if (image == null) {
         container.innerText = tr.notetypeErrorNoImageToShow();
         return;
@@ -51,7 +58,10 @@ function setupImageClozeInner(): void {
     drawShapes(canvas, ctx);
 }
 
-function drawShapes(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): void {
+function drawShapes(
+    canvas: HTMLCanvasElement,
+    ctx: CanvasRenderingContext2D,
+): void {
     const shapeProperty = getShapeProperty();
     const size = canvas;
     for (const active of extractShapesFromRenderedClozes(".cloze")) {
@@ -84,7 +94,16 @@ function drawShape(
         const adjustedLeft = shape.left + shape.rx;
         const adjustedTop = shape.top + shape.ry;
         ctx.beginPath();
-        ctx.ellipse(adjustedLeft, adjustedTop, shape.rx, shape.ry, 0, 0, Math.PI * 2, false);
+        ctx.ellipse(
+            adjustedLeft,
+            adjustedTop,
+            shape.rx,
+            shape.ry,
+            0,
+            0,
+            Math.PI * 2,
+            false,
+        );
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
@@ -101,6 +120,11 @@ function drawShape(
         ctx.fill();
         ctx.stroke();
         ctx.restore();
+    } else if (shape instanceof Text) {
+        ctx.font = "40px Times New Roman";
+        ctx.fillStyle = "#000";
+        ctx.textBaseline = "top";
+        ctx.fillText(shape.text, shape.left, shape.top);
     }
 }
 
@@ -109,7 +133,10 @@ function getPolygonOffset(polygon: Polygon): { x: number; y: number } {
     return { x: polygon.left - topLeft.x, y: polygon.top - topLeft.y };
 }
 
-function topLeftOfPoints(points: { x: number; y: number }[]): { x: number; y: number } {
+function topLeftOfPoints(points: { x: number; y: number }[]): {
+    x: number;
+    y: number;
+} {
     let top = points[0].y;
     let left = points[0].x;
     for (const point of points) {
@@ -134,29 +161,43 @@ function getShapeProperty(): {
     // it may throw error if the css variable is not defined
     try {
         // shape color
-        const activeShapeColor = computedStyle.getPropertyValue("--active-shape-color");
-        const inActiveShapeColor = computedStyle.getPropertyValue("--inactive-shape-color");
+        const activeShapeColor = computedStyle.getPropertyValue(
+            "--active-shape-color",
+        );
+        const inActiveShapeColor = computedStyle.getPropertyValue(
+            "--inactive-shape-color",
+        );
         // inactive shape border
-        const inActiveShapeBorder = computedStyle.getPropertyValue("--inactive-shape-border");
+        const inActiveShapeBorder = computedStyle.getPropertyValue(
+            "--inactive-shape-border",
+        );
         const inActiveBorder = inActiveShapeBorder.split(" ").filter((x) => x);
         const inActiveShapeBorderWidth = parseFloat(inActiveBorder[0]);
         const inActiveShapeBorderColor = inActiveBorder[1];
         // active shape border
-        const activeShapeBorder = computedStyle.getPropertyValue("--active-shape-border");
+        const activeShapeBorder = computedStyle.getPropertyValue(
+            "--active-shape-border",
+        );
         const activeBorder = activeShapeBorder.split(" ").filter((x) => x);
         const activeShapeBorderWidth = parseFloat(activeBorder[0]);
         const activeShapeBorderColor = activeBorder[1];
 
         return {
             activeShapeColor: activeShapeColor ? activeShapeColor : "#ff8e8e",
-            inActiveShapeColor: inActiveShapeColor ? inActiveShapeColor : "#ffeba2",
+            inActiveShapeColor: inActiveShapeColor
+                ? inActiveShapeColor
+                : "#ffeba2",
             activeBorder: {
                 width: activeShapeBorderWidth ? activeShapeBorderWidth : 1,
-                color: activeShapeBorderColor ? activeShapeBorderColor : "#212121",
+                color: activeShapeBorderColor
+                    ? activeShapeBorderColor
+                    : "#212121",
             },
             inActiveBorder: {
                 width: inActiveShapeBorderWidth ? inActiveShapeBorderWidth : 1,
-                color: inActiveShapeBorderColor ? inActiveShapeBorderColor : "#212121",
+                color: inActiveShapeBorderColor
+                    ? inActiveShapeBorderColor
+                    : "#212121",
             },
         };
     } catch {
@@ -177,7 +218,9 @@ function getShapeProperty(): {
 }
 
 const toggleMasks = (): void => {
-    const canvas = document.getElementById("image-occlusion-canvas") as HTMLCanvasElement;
+    const canvas = document.getElementById(
+        "image-occlusion-canvas",
+    ) as HTMLCanvasElement;
     const display = canvas.style.display;
     if (display === "none") {
         canvas.style.display = "unset";

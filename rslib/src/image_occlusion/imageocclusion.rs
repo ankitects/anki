@@ -3,6 +3,8 @@
 
 use std::fmt::Write;
 
+use htmlescape::encode_attribute;
+
 // convert text like
 // rect:left=.2325:top=.3261:width=.202:height=.0975
 // to something like
@@ -14,7 +16,10 @@ pub fn get_image_cloze_data(text: &str) -> String {
 
     if parts.len() >= 2 {
         if !parts[0].is_empty()
-            && (parts[0] == "rect" || parts[0] == "ellipse" || parts[0] == "polygon")
+            && (parts[0] == "rect"
+                || parts[0] == "ellipse"
+                || parts[0] == "polygon"
+                || parts[0] == "text")
         {
             result.push_str(&format!("data-shape=\"{}\" ", parts[0]));
         }
@@ -72,6 +77,14 @@ pub fn get_image_cloze_data(text: &str) -> String {
                     "oi" => {
                         if !values[1].is_empty() {
                             result.push_str(&format!("data-occludeInactive=\"{}\" ", values[1]));
+                        }
+                    }
+                    "text" => {
+                        if !values[1].is_empty() {
+                            result.push_str(&format!(
+                                "data-text=\"{}\"",
+                                encode_attribute(values[1])
+                            ));
                         }
                     }
                     _ => {}

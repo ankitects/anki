@@ -9,11 +9,14 @@ import type { Shape, ShapeOrShapes } from "./base";
 import { Ellipse } from "./ellipse";
 import { Point, Polygon } from "./polygon";
 import { Rectangle } from "./rectangle";
+import { Text } from "./text";
 
 /** Given a cloze field with text like the following, extract the shapes from it:
  * {{c1::image-occlusion:rect:left=10.0:top=20:width=30:height=10:fill=#ffe34d}}
  */
-export function extractShapesFromClozedField(clozeStr: string): ShapeOrShapes[] {
+export function extractShapesFromClozedField(
+    clozeStr: string,
+): ShapeOrShapes[] {
     const regex = /{{(.*?)}}/g;
     const clozeStrList: string[] = [];
     let match: string[] | null;
@@ -61,10 +64,17 @@ function extractShapeFromClozeText(text: string): Shape | null {
     return buildShape(type, props);
 }
 
-function extractTypeAndPropsFromClozeText(text: string): [ShapeType | null, Record<string, any>] {
+function extractTypeAndPropsFromClozeText(
+    text: string,
+): [ShapeType | null, Record<string, any>] {
     const parts = text.split(":");
     const type = parts[0];
-    if (type !== "rect" && type !== "ellipse" && type !== "polygon") {
+    if (
+        type !== "rect"
+        && type !== "ellipse"
+        && type !== "polygon"
+        && type !== "text"
+    ) {
         return [null, {}];
     }
     const props = {};
@@ -89,7 +99,12 @@ export function extractShapesFromRenderedClozes(selector: string): Shape[] {
 
 function extractShapeFromRenderedCloze(cloze: HTMLDivElement): Shape | null {
     const type = cloze.dataset.shape!;
-    if (type !== "rect" && type !== "ellipse" && type !== "polygon") {
+    if (
+        type !== "rect"
+        && type !== "ellipse"
+        && type !== "polygon"
+        && type !== "text"
+    ) {
         return null;
     }
     const props = {
@@ -101,18 +116,28 @@ function extractShapeFromRenderedCloze(cloze: HTMLDivElement): Shape | null {
         rx: cloze.dataset.rx,
         ry: cloze.dataset.ry,
         points: cloze.dataset.points,
+        text: cloze.dataset.text,
     };
     return buildShape(type, props);
 }
 
-type ShapeType = "rect" | "ellipse" | "polygon";
+type ShapeType = "rect" | "ellipse" | "polygon" | "text";
 
 function buildShape(type: ShapeType, props: Record<string, any>): Shape {
-    props.left = parseFloat(Number.isNaN(Number(props.left)) ? ".0000" : props.left);
-    props.top = parseFloat(Number.isNaN(Number(props.top)) ? ".0000" : props.top);
+    console.log("buildShape", type, props.text);
+    props.left = parseFloat(
+        Number.isNaN(Number(props.left)) ? ".0000" : props.left,
+    );
+    props.top = parseFloat(
+        Number.isNaN(Number(props.top)) ? ".0000" : props.top,
+    );
     switch (type) {
         case "rect": {
-            return new Rectangle({ ...props, width: parseFloat(props.width), height: parseFloat(props.height) });
+            return new Rectangle({
+                ...props,
+                width: parseFloat(props.width),
+                height: parseFloat(props.height),
+            });
         }
         case "ellipse": {
             return new Ellipse({
@@ -131,6 +156,9 @@ function buildShape(type: ShapeType, props: Record<string, any>): Shape {
                 props.points = [new Point({ x: 0, y: 0 })];
             }
             return new Polygon(props);
+        }
+        case "text": {
+            return new Text(props);
         }
     }
 }
