@@ -16,6 +16,7 @@ excluded_source_prefixes = [
     "PyQt6",
     "pip",
     "setuptools",
+    "google"
 ]
 
 excluded_resource_suffixes = [
