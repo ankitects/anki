@@ -26,10 +26,6 @@ members = [
 exclude = ["qt/bundle"]
 resolver = "2"
 
-[workspace.dependencies.csv]
-git = "https://github.com/ankitects/rust-csv.git"
-rev = "1c9d3aab6f79a7d815c69f925a46a4590c115f90"
-
 [workspace.dependencies.percent-encoding-iri]
 git = "https://github.com/ankitects/rust-url.git"
 rev = "bb930b8d089f4d30d7d19c12e54e66191de47b88"
@@ -73,6 +69,7 @@ clap = { version = "4.3.24", features = ["derive"] }
 coarsetime = "0.1.28"
 convert_case = "0.6.0"
 criterion = { version = "0.5.1" }
+csv = "1.3.0"
 data-encoding = "2.4.0"
 difflib = "0.4.0"
 flate2 = "1.0.27"
