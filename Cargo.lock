@@ -561,7 +561,7 @@ checksum = "7f30e7476521f6f8af1a1c4c0b8cc94f0bee37d91763d0ca2665f299b6cd8aec"
 [[package]]
 name = "burn"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=163e48c9699b2cc6d67fd7539cbf6821ecbf953b#163e48c9699b2cc6d67fd7539cbf6821ecbf953b"
+source = "git+https://github.com/burn-rs/burn.git?rev=28e2a99efed69389fcb8bd605a9f25bb48467bed#28e2a99efed69389fcb8bd605a9f25bb48467bed"
 dependencies = [
  "burn-core",
  "burn-train",
@@ -570,7 +570,7 @@ dependencies = [
 [[package]]
 name = "burn-autodiff"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=163e48c9699b2cc6d67fd7539cbf6821ecbf953b#163e48c9699b2cc6d67fd7539cbf6821ecbf953b"
+source = "git+https://github.com/burn-rs/burn.git?rev=28e2a99efed69389fcb8bd605a9f25bb48467bed#28e2a99efed69389fcb8bd605a9f25bb48467bed"
 dependencies = [
  "burn-common",
  "burn-tensor",
@@ -582,7 +582,7 @@ dependencies = [
 [[package]]
 name = "burn-common"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=163e48c9699b2cc6d67fd7539cbf6821ecbf953b#163e48c9699b2cc6d67fd7539cbf6821ecbf953b"
+source = "git+https://github.com/burn-rs/burn.git?rev=28e2a99efed69389fcb8bd605a9f25bb48467bed#28e2a99efed69389fcb8bd605a9f25bb48467bed"
 dependencies = [
  "async-trait",
  "const-random",
@@ -596,7 +596,7 @@ dependencies = [
 [[package]]
 name = "burn-core"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=163e48c9699b2cc6d67fd7539cbf6821ecbf953b#163e48c9699b2cc6d67fd7539cbf6821ecbf953b"
+source = "git+https://github.com/burn-rs/burn.git?rev=28e2a99efed69389fcb8bd605a9f25bb48467bed#28e2a99efed69389fcb8bd605a9f25bb48467bed"
 dependencies = [
  "bincode",
  "burn-autodiff",
@@ -621,7 +621,7 @@ dependencies = [
 [[package]]
 name = "burn-dataset"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=163e48c9699b2cc6d67fd7539cbf6821ecbf953b#163e48c9699b2cc6d67fd7539cbf6821ecbf953b"
+source = "git+https://github.com/burn-rs/burn.git?rev=28e2a99efed69389fcb8bd605a9f25bb48467bed#28e2a99efed69389fcb8bd605a9f25bb48467bed"
 dependencies = [
  "csv",
  "derive-new",
@@ -640,7 +640,7 @@ dependencies = [
 [[package]]
 name = "burn-derive"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=163e48c9699b2cc6d67fd7539cbf6821ecbf953b#163e48c9699b2cc6d67fd7539cbf6821ecbf953b"
+source = "git+https://github.com/burn-rs/burn.git?rev=28e2a99efed69389fcb8bd605a9f25bb48467bed#28e2a99efed69389fcb8bd605a9f25bb48467bed"
 dependencies = [
  "derive-new",
  "proc-macro2",
@@ -651,7 +651,7 @@ dependencies = [
 [[package]]
 name = "burn-ndarray"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=163e48c9699b2cc6d67fd7539cbf6821ecbf953b#163e48c9699b2cc6d67fd7539cbf6821ecbf953b"
+source = "git+https://github.com/burn-rs/burn.git?rev=28e2a99efed69389fcb8bd605a9f25bb48467bed#28e2a99efed69389fcb8bd605a9f25bb48467bed"
 dependencies = [
  "burn-autodiff",
  "burn-common",
@@ -669,7 +669,7 @@ dependencies = [
 [[package]]
 name = "burn-tensor"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=163e48c9699b2cc6d67fd7539cbf6821ecbf953b#163e48c9699b2cc6d67fd7539cbf6821ecbf953b"
+source = "git+https://github.com/burn-rs/burn.git?rev=28e2a99efed69389fcb8bd605a9f25bb48467bed#28e2a99efed69389fcb8bd605a9f25bb48467bed"
 dependencies = [
  "burn-common",
  "burn-tensor-testgen",
@@ -686,7 +686,7 @@ dependencies = [
 [[package]]
 name = "burn-tensor-testgen"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=163e48c9699b2cc6d67fd7539cbf6821ecbf953b#163e48c9699b2cc6d67fd7539cbf6821ecbf953b"
+source = "git+https://github.com/burn-rs/burn.git?rev=28e2a99efed69389fcb8bd605a9f25bb48467bed#28e2a99efed69389fcb8bd605a9f25bb48467bed"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -696,7 +696,7 @@ dependencies = [
 [[package]]
 name = "burn-train"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=163e48c9699b2cc6d67fd7539cbf6821ecbf953b#163e48c9699b2cc6d67fd7539cbf6821ecbf953b"
+source = "git+https://github.com/burn-rs/burn.git?rev=28e2a99efed69389fcb8bd605a9f25bb48467bed#28e2a99efed69389fcb8bd605a9f25bb48467bed"
 dependencies = [
  "burn-core",
  "derive-new",
@@ -1477,7 +1477,7 @@ dependencies = [
 [[package]]
 name = "fsrs"
 version = "0.1.0"
-source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?rev=ec622a0d1b058a8786cf506d170b7be438070394#ec622a0d1b058a8786cf506d170b7be438070394"
+source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?rev=c34ac397635b6d04fdee07ace9401047f37a5f3e#c34ac397635b6d04fdee07ace9401047f37a5f3e"
 dependencies = [
  "burn",
  "itertools 0.11.0",
