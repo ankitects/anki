@@ -113,6 +113,11 @@ impl Collection {
             .unwrap();
         self.storage.get_notetype(ntid).unwrap().unwrap()
     }
+
+    pub(crate) fn cloze_notetype(&self) -> Notetype {
+        let ntid = self.storage.get_notetype_id("Cloze").unwrap().unwrap();
+        self.storage.get_notetype(ntid).unwrap().unwrap()
+    }
 }
 
 #[derive(Debug, Default, Clone)]
@@ -173,23 +178,19 @@ pub(crate) struct NoteAdder {
 }
 
 impl NoteAdder {
-    pub(crate) fn new(col: &mut Collection, notetype: &str) -> Self {
+    pub(crate) fn new(notetype: &Notetype) -> Self {
         Self {
-            note: col
-                .get_notetype_by_name(notetype)
-                .unwrap()
-                .unwrap()
-                .new_note(),
+            note: notetype.new_note(),
             deck: DeckId(1),
         }
     }
 
     pub(crate) fn basic(col: &mut Collection) -> Self {
-        Self::new(col, "basic")
+        Self::new(&col.basic_notetype())
     }
 
     pub(crate) fn cloze(col: &mut Collection) -> Self {
-        Self::new(col, "cloze")
+        Self::new(&col.cloze_notetype())
     }
 
     pub(crate) fn fields(mut self, fields: &[&str]) -> Self {
