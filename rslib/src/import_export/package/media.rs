@@ -39,6 +39,7 @@ use crate::media::files::normalize_filename;
 use crate::prelude::*;
 
 /// Like [MediaEntry], but with a safe filename and set zip filename.
+#[derive(Debug)]
 pub(super) struct SafeMediaEntry {
     pub(super) name: String,
     pub(super) size: u32,
