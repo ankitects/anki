@@ -238,9 +238,16 @@ class DataModel(QAbstractTableModel):
     ######################################################################
 
     def toggle_state(self, context: SearchContext) -> ItemState:
-        self.beginResetModel()
+        self.begin_reset()
         self._state = self._state.toggle_state()
-        self.search(context)
+        try:
+            self._search_inner(context)
+        except:
+            # rollback to prevent inconsistent state
+            self._state = self._state.toggle_state()
+            raise
+        finally:
+            self.end_reset()
         return self._state
 
     # Rows
@@ -248,23 +255,26 @@ class DataModel(QAbstractTableModel):
     def search(self, context: SearchContext) -> None:
         self.begin_reset()
         try:
-            if context.order is True:
-                try:
-                    context.order = self.columns[self._state.sort_column]
-                except KeyError:
-                    # invalid sort column in config
-                    context.order = self.columns["noteCrt"]
-                context.reverse = self._state.sort_backwards
-            gui_hooks.browser_will_search(context)
-            if context.ids is None:
-                context.ids = self._state.find_items(
-                    context.search, context.order, context.reverse
-                )
-            gui_hooks.browser_did_search(context)
-            self._items = context.ids
-            self._rows = {}
+            self._search_inner(context)
         finally:
             self.end_reset()
+
+    def _search_inner(self, context: SearchContext) -> None:
+        if context.order is True:
+            try:
+                context.order = self.columns[self._state.sort_column]
+            except KeyError:
+                # invalid sort column in config
+                context.order = self.columns["noteCrt"]
+            context.reverse = self._state.sort_backwards
+        gui_hooks.browser_will_search(context)
+        if context.ids is None:
+            context.ids = self._state.find_items(
+                context.search, context.order, context.reverse
+            )
+        gui_hooks.browser_did_search(context)
+        self._items = context.ids
+        self._rows = {}
 
     def reverse(self) -> None:
         self.beginResetModel()
