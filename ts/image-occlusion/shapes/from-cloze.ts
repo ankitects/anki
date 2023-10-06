@@ -37,7 +37,14 @@ export function extractShapesFromClozedField(
     const output: ShapeOrShapes[] = [];
 
     for (const index in clozeList) {
-        if (clozeList[index].length > 1) {
+        if (index === "c0") {
+            clozeList[index].forEach((cloze) => {
+                let shape: Shape | null = null;
+                if ((shape = extractShapeFromClozeText(cloze))) {
+                    output.push(shape);
+                }
+            });
+        } else if (clozeList[index].length > 1) {
             const group: Shape[] = [];
             clozeList[index].forEach((cloze) => {
                 let shape: Shape | null = null;
