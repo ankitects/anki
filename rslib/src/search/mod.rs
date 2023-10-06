@@ -434,3 +434,36 @@ fn prepare_sort(col: &mut Collection, column: Column, item_type: ReturnItemType)
 
     Ok(())
 }
+
+#[cfg(test)]
+mod test {
+    use anki_proto::search::browser_columns::Sorting;
+    use strum::IntoEnumIterator;
+
+    use super::*;
+
+    impl SchedTimingToday {
+        pub(crate) fn zero() -> Self {
+            SchedTimingToday {
+                now: TimestampSecs(0),
+                days_elapsed: 0,
+                next_day_at: TimestampSecs(0),
+            }
+        }
+    }
+
+    #[test]
+    fn column_default_sort_order_should_match_order_by_clause() {
+        let timing = SchedTimingToday::zero();
+        for column in Column::iter() {
+            assert_eq!(
+                card_order_from_sort_column(column, timing).is_empty(),
+                matches!(column.default_cards_order(), Sorting::None)
+            );
+            assert_eq!(
+                note_order_from_sort_column(column).is_empty(),
+                matches!(column.default_notes_order(), Sorting::None)
+            );
+        }
+    }
+}
