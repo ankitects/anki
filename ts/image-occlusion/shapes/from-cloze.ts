@@ -131,7 +131,6 @@ function extractShapeFromRenderedCloze(cloze: HTMLDivElement): Shape | null {
 type ShapeType = "rect" | "ellipse" | "polygon" | "text";
 
 function buildShape(type: ShapeType, props: Record<string, any>): Shape {
-    console.log("buildShape", type, props.text);
     props.left = parseFloat(
         Number.isNaN(Number(props.left)) ? ".0000" : props.left,
     );
