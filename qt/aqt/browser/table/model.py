@@ -372,7 +372,8 @@ def addon_column_fillin(key: str) -> Column:
         key=key,
         cards_mode_label=f"{tr.browsing_addon()} ({key})",
         notes_mode_label=f"{tr.browsing_addon()} ({key})",
-        sorting=Columns.SORTING_NONE,
+        sorting_cards=Columns.SORTING_NONE,
+        sorting_notes=Columns.SORTING_NONE,
         uses_cell_font=False,
         alignment=Columns.ALIGNMENT_CENTER,
     )
