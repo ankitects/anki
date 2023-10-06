@@ -374,10 +374,10 @@ fn card_order_from_sort_column(column: Column, timing: SchedTimingToday) -> Cow<
         Column::SortField => "n.sfld collate nocase asc, c.ord asc".into(),
         Column::Tags => "n.tags asc".into(),
         Column::Answer | Column::Custom | Column::Question => "".into(),
-        Column::Stability => "extract_fsrs_variable(c.data, 's') desc".into(),
-        Column::Difficulty => "extract_fsrs_variable(c.data, 'd') desc".into(),
+        Column::Stability => "extract_fsrs_variable(c.data, 's') asc".into(),
+        Column::Difficulty => "extract_fsrs_variable(c.data, 'd') asc".into(),
         Column::Retrievability => format!(
-            "extract_fsrs_retrievability(c.data, c.due, c.ivl, {})",
+            "extract_fsrs_retrievability(c.data, c.due, c.ivl, {}) asc",
             timing.days_elapsed
         )
         .into(),
