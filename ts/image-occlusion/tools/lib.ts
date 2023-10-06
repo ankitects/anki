@@ -161,12 +161,14 @@ export const moveShapeToCanvasBoundaries = (canvas: fabric.Canvas): void => {
         if (
             activeObject.type === "activeSelection"
             || activeObject.type === "rect"
-            || activeObject.type === "i-text"
         ) {
             modifiedSelection(canvas, activeObject);
         }
         if (activeObject.type === "ellipse") {
             modifiedEllipse(canvas, activeObject);
+        }
+        if (activeObject.type === "i-text") {
+            modifiedText(canvas, activeObject);
         }
     });
 };
@@ -204,6 +206,10 @@ const modifiedEllipse = (
         scaleX: 1,
         scaleY: 1,
     });
+    setShapePosition(canvas, object);
+};
+
+const modifiedText = (canvas: fabric.Canvas, object: fabric.Object): void => {
     setShapePosition(canvas, object);
 };
 

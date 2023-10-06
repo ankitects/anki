@@ -87,6 +87,16 @@ pub fn get_image_cloze_data(text: &str) -> String {
                             ));
                         }
                     }
+                    "sx" => {
+                        if !is_empty_or_zero(values[1]) {
+                            result.push_str(&format!("data-sx=\"{}\" ", values[1]));
+                        }
+                    }
+                    "sy" => {
+                        if !is_empty_or_zero(values[1]) {
+                            result.push_str(&format!("data-sy=\"{}\" ", values[1]));
+                        }
+                    }
                     _ => {}
                 }
             }

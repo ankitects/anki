@@ -121,10 +121,17 @@ function drawShape(
         ctx.stroke();
         ctx.restore();
     } else if (shape instanceof Text) {
+        ctx.save();
         ctx.font = "40px Times New Roman";
         ctx.fillStyle = "#000";
         ctx.textBaseline = "top";
-        ctx.fillText(shape.text, shape.left, shape.top);
+        ctx.scale(shape.scaleX, shape.scaleY);
+        ctx.fillText(
+            shape.text,
+            shape.left / shape.scaleX,
+            shape.top / shape.scaleY,
+        );
+        ctx.restore();
     }
 }
 
