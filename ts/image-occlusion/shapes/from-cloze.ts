@@ -76,12 +76,7 @@ function extractTypeAndPropsFromClozeText(
 ): [ShapeType | null, Record<string, any>] {
     const parts = text.split(":");
     const type = parts[0];
-    if (
-        type !== "rect"
-        && type !== "ellipse"
-        && type !== "polygon"
-        && type !== "text"
-    ) {
+    if (!isValidType(type)) {
         return [null, {}];
     }
     const props = {};
@@ -131,6 +126,10 @@ function extractShapeFromRenderedCloze(cloze: HTMLDivElement): Shape | null {
 }
 
 type ShapeType = "rect" | "ellipse" | "polygon" | "text";
+
+function isValidType(type: string): type is ShapeType {
+    return ["rect", "ellipse", "polygon", "text"].includes(type);
+}
 
 function buildShape(type: ShapeType, props: Record<string, any>): Shape {
     props.left = parseFloat(
