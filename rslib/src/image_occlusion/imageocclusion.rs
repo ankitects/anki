@@ -15,12 +15,7 @@ pub fn get_image_cloze_data(text: &str) -> String {
     let parts: Vec<&str> = text.split(':').collect();
 
     if parts.len() >= 2 {
-        if !parts[0].is_empty()
-            && (parts[0] == "rect"
-                || parts[0] == "ellipse"
-                || parts[0] == "polygon"
-                || parts[0] == "text")
-        {
+        if !parts[0].is_empty() && matches!(parts[0], "rect" | "ellipse" | "polygon" | "text") {
             result.push_str(&format!("data-shape=\"{}\" ", parts[0]));
         }
 
