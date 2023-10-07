@@ -488,14 +488,15 @@ class Table:
 
     def _on_sort_column_changed(self, section: int, order: Qt.SortOrder) -> None:
         column = self._model.column_at_section(section)
-        if column.sorting == Columns.SORTING_NONE:
+        sorting = column.sorting_notes if self.is_notes_mode() else column.sorting_cards
+        if sorting is Columns.SORTING_NONE:
             showInfo(tr.browsing_sorting_on_this_column_is_not())
             self._set_sort_indicator()
             return
         if self._state.sort_column != column.key:
             self._state.sort_column = column.key
             # numeric fields default to descending
-            if column.sorting == Columns.SORTING_DESCENDING:
+            if sorting is Columns.SORTING_DESCENDING:
                 order = Qt.SortOrder.DescendingOrder
             self._state.sort_backwards = order == Qt.SortOrder.DescendingOrder
             self.browser.search()

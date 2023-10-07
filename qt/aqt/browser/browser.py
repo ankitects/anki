@@ -25,6 +25,7 @@ from anki.tags import MARKED_TAG
 from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
+from aqt.errors import show_exception
 from aqt.exporting import ExportDialog as LegacyExportDialog
 from aqt.import_export.exporting import ExportDialog
 from aqt.operations.card import set_card_deck, set_card_flag
@@ -514,7 +515,7 @@ class Browser(QMainWindow):
     def setup_table(self) -> None:
         self.table = Table(self)
         self.table.set_view(self.form.tableView)
-        switch = Switch(12, tr.browsing_cards(), tr.browsing_notes())
+        self._switch = switch = Switch(12, tr.browsing_cards(), tr.browsing_notes())
         switch.setChecked(self.table.is_notes_mode())
         switch.setToolTip(tr.browsing_toggle_showing_cards_notes())
         qconnect(self.form.action_toggle_mode.triggered, switch.toggle)
@@ -610,8 +611,16 @@ class Browser(QMainWindow):
     @ensure_editor_saved
     def on_table_state_changed(self, checked: bool) -> None:
         self.mw.progress.start()
-        self.table.toggle_state(checked, self._lastSearchTxt)
-        self.mw.progress.finish()
+        try:
+            self.table.toggle_state(checked, self._lastSearchTxt)
+        except Exception as err:
+            self.mw.progress.finish()
+            self._switch.blockSignals(True)
+            self._switch.toggle()
+            self._switch.blockSignals(False)
+            show_exception(parent=self, exception=err)
+        else:
+            self.mw.progress.finish()
 
     # Sidebar
     ######################################################################
