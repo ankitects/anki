@@ -64,7 +64,7 @@ function fabricObjectToBaseShapeOrShapes(
             shape = new Polygon(object);
             break;
         case "i-text":
-            shape = new Text(object);
+            shape = new Text({ ...object, scale: object.scaleX });
             break;
         case "group":
             return object._objects.map((child) => {

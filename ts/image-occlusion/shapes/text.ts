@@ -10,38 +10,33 @@ import { floatToDisplay } from "./floats";
 
 export class Text extends Shape {
     text: string;
-    scaleX: number;
-    scaleY: number;
+    scale: number;
 
     constructor({
         text = "",
-        scaleX = 1,
-        scaleY = 1,
+        scale = 1,
         ...rest
     }: ConstructorParams<Text> = {}) {
         super(rest);
         this.text = text;
-        this.scaleX = scaleX;
-        this.scaleY = scaleY;
+        this.scale = scale;
     }
 
     toDataForCloze(): TextDataForCloze {
         return {
             ...super.toDataForCloze(),
             text: this.text,
-            sx: floatToDisplay(this.scaleX),
-            sy: floatToDisplay(this.scaleY),
+            scale: floatToDisplay(this.scale),
         };
     }
 
     toFabric(size: Size): fabric.IText {
         this.makeAbsolute(size);
-        return new fabric.IText(this.text, this);
+        return new fabric.IText(this.text, { ...this, scaleX: this.scale, scaleY: this.scale });
     }
 }
 
 interface TextDataForCloze extends ShapeDataForCloze {
     text: string;
-    sx: string;
-    sy: string;
+    scale: string;
 }

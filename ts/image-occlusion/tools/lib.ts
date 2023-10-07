@@ -239,6 +239,20 @@ export function disableRotation(obj: fabric.Object): void {
     });
 }
 
+export function enableUniformScaling(canvas: fabric.Canvas, obj: fabric.Object): void {
+    obj.setControlsVisibility({ mb: false, ml: false, mt: false, mr: false });
+    let timer: number;
+    obj.on("scaling", (e) => {
+        if (["bl", "br", "tr", "tl"].includes(e.transform.corner)) {
+            clearTimeout(timer);
+            canvas.uniformScaling = true;
+            timer = setTimeout(() => {
+                canvas.uniformScaling = false;
+            }, 500);
+        }
+    });
+}
+
 export function addBorder(obj: fabric.Object): void {
     if (obj.type === "i-text") {
         obj.stroke = TEXT_BORDER_COLOR;

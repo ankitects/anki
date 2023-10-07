@@ -5,7 +5,7 @@ import { fabric } from "fabric";
 import { extractShapesFromClozedField } from "image-occlusion/shapes/from-cloze";
 
 import type { Size } from "../types";
-import { addBorder, disableRotation } from "./lib";
+import { addBorder, disableRotation, enableUniformScaling } from "./lib";
 
 export const addShapesToCanvasFromCloze = (canvas: fabric.Canvas, clozeStr: string): void => {
     const size: Size = canvas;
@@ -23,6 +23,9 @@ export const addShapesToCanvasFromCloze = (canvas: fabric.Canvas, clozeStr: stri
             const shape = shapeOrShapes.toFabric(size);
             addBorder(shape);
             disableRotation(shape);
+            if (shape instanceof Text) {
+                enableUniformScaling(canvas, shape);
+            }
             canvas.add(shape);
         }
     }

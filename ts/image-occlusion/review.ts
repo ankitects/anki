@@ -127,16 +127,16 @@ function drawShape(
         ctx.fillStyle = "#000";
         ctx.strokeStyle = TEXT_BORDER_COLOR;
         ctx.textBaseline = "top";
-        ctx.scale(shape.scaleX, shape.scaleY);
+        ctx.scale(shape.scale, shape.scale);
         ctx.fillText(
             shape.text,
-            shape.left / shape.scaleX,
-            shape.top / shape.scaleY,
+            shape.left / shape.scale,
+            shape.top / shape.scale,
         );
         ctx.strokeText(
             shape.text,
-            shape.left / shape.scaleX,
-            shape.top / shape.scaleY,
+            shape.left / shape.scale,
+            shape.top / shape.scale,
         );
         ctx.restore();
     }
