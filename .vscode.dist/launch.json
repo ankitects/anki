@@ -8,10 +8,13 @@
             "name": "Run",
             "type": "python",
             "request": "launch",
-            "python": "${workspaceFolder}/out/pyenv/scripts/python.exe",
             "program": "tools/run.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/out/pyenv/bin/python",
+            "windows": {
+                "python": "${workspaceFolder}/out/pyenv/scripts/python.exe"
+            },
             "env": {
                 "PYTHONWARNINGS": "default",
                 "PYTHONPYCACHEPREFIX": "out/pycache",

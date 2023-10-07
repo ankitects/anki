@@ -3,13 +3,20 @@
     "tasks": [
         {
             "label": "ninja",
-            "command": "bash",
+            "command": "ninja",
             "args": [
-                "ninja",
                 "pylib",
-                "qt",
-                "extract:win_amd64_audio"
-            ]
+                "qt"
+            ],
+            "windows": {
+                "command": "bash",
+                "args": [
+                    "ninja",
+                    "pylib",
+                    "qt",
+                    "extract:win_amd64_audio"
+                ]
+            }
         }
     ]
 }
