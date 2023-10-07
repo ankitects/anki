@@ -204,7 +204,15 @@ impl Column {
         .into()
     }
 
-    pub fn default_order(self) -> anki_proto::search::browser_columns::Sorting {
+    pub fn default_cards_order(self) -> anki_proto::search::browser_columns::Sorting {
+        self.default_order(false)
+    }
+
+    pub fn default_notes_order(self) -> anki_proto::search::browser_columns::Sorting {
+        self.default_order(true)
+    }
+
+    fn default_order(self, notes: bool) -> anki_proto::search::browser_columns::Sorting {
         use anki_proto::search::browser_columns::Sorting;
         match self {
             Column::Question | Column::Answer | Column::Custom => Sorting::None,
@@ -219,10 +227,14 @@ impl Column {
             | Column::Interval
             | Column::NoteCreation
             | Column::NoteMod
-            | Column::Stability
-            | Column::Difficulty
-            | Column::Retrievability
             | Column::Reps => Sorting::Descending,
+            Column::Stability | Column::Difficulty | Column::Retrievability => {
+                if notes {
+                    Sorting::None
+                } else {
+                    Sorting::Descending
+                }
+            }
         }
     }
 
