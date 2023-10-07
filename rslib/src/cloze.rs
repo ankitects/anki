@@ -378,7 +378,7 @@ pub fn expand_clozes_to_reveal_latex(text: &str) -> String {
 pub(crate) fn contains_cloze(text: &str) -> bool {
     parse_text_with_clozes(text)
         .iter()
-        .any(|node| matches!(node, TextOrCloze::Cloze(_)))
+        .any(|node| matches!(node, TextOrCloze::Cloze(e) if e.ordinal != 0))
 }
 
 pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
