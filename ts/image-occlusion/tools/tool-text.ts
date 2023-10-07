@@ -3,7 +3,7 @@
 
 import { fabric } from "fabric";
 
-import { BORDER_COLOR, disableRotation, stopDraw } from "./lib";
+import { disableRotation, stopDraw, TEXT_BORDER_COLOR } from "./lib";
 import { undoStack } from "./tool-undo-redo";
 
 export const drawText = (canvas: fabric.Canvas): void => {
@@ -22,7 +22,7 @@ export const drawText = (canvas: fabric.Canvas): void => {
             originX: "left",
             originY: "top",
             selectable: true,
-            stroke: BORDER_COLOR,
+            stroke: TEXT_BORDER_COLOR,
             strokeWidth: 1,
             noScaleCache: false,
         });

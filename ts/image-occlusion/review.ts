@@ -10,6 +10,7 @@ import { extractShapesFromRenderedClozes } from "./shapes/from-cloze";
 import { Polygon } from "./shapes/polygon";
 import { Rectangle } from "./shapes/rectangle";
 import { Text } from "./shapes/text";
+import { TEXT_BORDER_COLOR } from "./tools/lib";
 import type { Size } from "./types";
 
 export function setupImageCloze(): void {
@@ -124,9 +125,15 @@ function drawShape(
         ctx.save();
         ctx.font = "40px Times New Roman";
         ctx.fillStyle = "#000";
+        ctx.strokeStyle = TEXT_BORDER_COLOR;
         ctx.textBaseline = "top";
         ctx.scale(shape.scaleX, shape.scaleY);
         ctx.fillText(
+            shape.text,
+            shape.left / shape.scaleX,
+            shape.top / shape.scaleY,
+        );
+        ctx.strokeText(
             shape.text,
             shape.left / shape.scaleX,
             shape.top / shape.scaleY,

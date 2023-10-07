@@ -9,6 +9,7 @@ import { zoomResetValue } from "../store";
 
 export const SHAPE_MASK_COLOR = "#ffeba2";
 export const BORDER_COLOR = "#212121";
+export const TEXT_BORDER_COLOR = "#fff";
 
 let _clipboard;
 
@@ -239,5 +240,9 @@ export function disableRotation(obj: fabric.Object): void {
 }
 
 export function addBorder(obj: fabric.Object): void {
-    obj.stroke = BORDER_COLOR;
+    if (obj.type === "i-text") {
+        obj.stroke = TEXT_BORDER_COLOR;
+    } else {
+        obj.stroke = BORDER_COLOR;
+    }
 }
