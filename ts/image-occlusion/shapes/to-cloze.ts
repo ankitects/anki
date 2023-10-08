@@ -96,7 +96,7 @@ function shapeOrShapesToCloze(
 ): string {
     let text = "";
     function addKeyValue(key: string, value: string) {
-        if (Number.isNaN(Number(value))) {
+        if (key !== "points" && Number.isNaN(Number(value))) {
             value = ".0000";
         }
         text += `:${key}=${value}`;
