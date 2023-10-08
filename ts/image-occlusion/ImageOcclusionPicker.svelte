@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
 
     import Container from "../components/Container.svelte";
-    import LabelButton from "components/LabelButton.svelte";
+    import LabelButton from "../components/LabelButton.svelte";
 
     export let onPickImage: () => void;
     export let onPickImageFromClipboard: () => void;
