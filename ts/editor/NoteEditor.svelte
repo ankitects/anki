@@ -69,6 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
     import type { NotetypeIdAndModTime, SessionOptions } from "./types";
+    import { EditorState } from "./types";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -485,6 +486,44 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return false;
     }
 
+    // Signal editor UI state changes to add-ons
+
+    let editorState: EditorState = EditorState.Initial;
+    let lastEditorState: EditorState = editorState;
+
+    function getEditorState(
+        ioMaskEditorVisible: boolean,
+        isImageOcclusion: boolean,
+        isIOImageLoaded: boolean,
+        imageOcclusionMode: IOMode | undefined,
+    ): EditorState {
+        if (isImageOcclusion && ioMaskEditorVisible && !isIOImageLoaded) {
+            return EditorState.ImageOcclusionPicker;
+        } else if (imageOcclusionMode && ioMaskEditorVisible) {
+            return EditorState.ImageOcclusionMasks;
+        } else if (!ioMaskEditorVisible && isImageOcclusion) {
+            return EditorState.ImageOcclusionFields;
+        }
+        return EditorState.Fields;
+    }
+
+    function signalEditorState(newState: EditorState) {
+        tick().then(() => {
+            globalThis.editorState = newState;
+            bridgeCommand(`editorState:${newState}:${lastEditorState}`);
+            lastEditorState = newState;
+        });
+    }
+
+    $: signalEditorState(editorState);
+
+    $: editorState = getEditorState(
+        $ioMaskEditorVisible,
+        isImageOcclusion,
+        isIOImageLoaded,
+        imageOcclusionMode,
+    );
+
     onMount(() => {
         function wrap(before: string, after: string): void {
             if (!$focusedInput || !editingInputIsRichText($focusedInput)) {
@@ -525,6 +564,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setOcclusionFieldInner,
             ...oldEditorAdapter,
         });
+
+        editorState = getEditorState(
+            $ioMaskEditorVisible,
+            isImageOcclusion,
+            isIOImageLoaded,
+            imageOcclusionMode,
+        );
 
         document.addEventListener("visibilitychange", saveOnPageHide);
         return () => document.removeEventListener("visibilitychange", saveOnPageHide);
