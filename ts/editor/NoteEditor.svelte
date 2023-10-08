@@ -764,12 +764,6 @@ the AddCards dialog) should be implemented in the user of this component.
         top: unset !important;
         margin-top: 2px !important;
     }
-
-    :global(.io-select-image-btn) {
-        margin: auto;
-        padding: 0px 8px 0px 8px !important;
-    }
-
     :global(.image-occlusion .sticky-footer) {
         display: none;
     }
