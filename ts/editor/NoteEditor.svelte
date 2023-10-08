@@ -387,7 +387,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { ImageOcclusionFieldIndexes } from "@tslib/anki/image_occlusion_pb";
     import { getImageOcclusionFields } from "@tslib/backend";
     import { wrapInternal } from "@tslib/wrap";
-    import LabelButton from "components/LabelButton.svelte";
     import Shortcut from "components/Shortcut.svelte";
     import ImageOcclusionPage from "image-occlusion/ImageOcclusionPage.svelte";
     import ImageOcclusionPicker from "image-occlusion/ImageOcclusionPicker.svelte";
