@@ -6,7 +6,6 @@ use std::mem;
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use crate::decks::DeckId as DeckIdType;
 use crate::notetype::NotetypeId as NotetypeIdType;
 use crate::prelude::*;
 use crate::search::parser::parse;
@@ -69,7 +68,7 @@ fn write_search_node(node: &SearchNode) -> String {
         IntroducedInDays(u) => format!("introduced:{}", u),
         CardTemplate(t) => write_template(t),
         Deck(s) => maybe_quote(&format!("deck:{}", s)),
-        DeckIdWithoutChildren(DeckIdType(i)) => format!("did:{}", i),
+        DeckIdsWithoutChildren(s) => format!("did:{}", s),
         // not exposed on the GUI end
         DeckIdWithChildren(_) => "".to_string(),
         NotetypeId(NotetypeIdType(i)) => format!("mid:{}", i),

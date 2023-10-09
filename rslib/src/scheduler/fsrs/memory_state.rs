@@ -16,7 +16,6 @@ use crate::revlog::RevlogReviewKind;
 use crate::scheduler::fsrs::weights::single_card_revlog_to_items;
 use crate::scheduler::fsrs::weights::Weights;
 use crate::scheduler::states::fuzz::with_review_fuzz;
-use crate::search::JoinSearches;
 use crate::search::Negated;
 use crate::search::SearchNode;
 use crate::search::StateKind;
@@ -43,13 +42,13 @@ impl Collection {
     /// memory state should be removed.
     pub(crate) fn update_memory_state(
         &mut self,
-        entries: Vec<(Option<UpdateMemoryStateRequest>, Vec<SearchNode>)>,
+        entries: Vec<(Option<UpdateMemoryStateRequest>, SearchNode)>,
     ) -> Result<()> {
         let timing = self.timing_today()?;
         let usn = self.usn()?;
         for (req, search) in entries {
-            let search = SearchBuilder::any(search.into_iter())
-                .and(SearchNode::State(StateKind::New).negated());
+            let search =
+                SearchBuilder::all([search.into(), SearchNode::State(StateKind::New).negated()]);
             let revlog = self.revlog_for_srs(search)?;
             let reschedule = req.as_ref().map(|e| e.reschedule).unwrap_or_default();
             let last_reviews = if reschedule {

@@ -60,8 +60,8 @@ pub enum SearchNode {
     EditedInDays(u32),
     CardTemplate(TemplateKind),
     Deck(String),
-    /// Matches cards in a single deck (original_deck_id is not checked).
-    DeckIdWithoutChildren(DeckId),
+    /// Matches cards in a list of decks (original_deck_id is not checked).
+    DeckIdsWithoutChildren(String),
     /// Matches cards in a deck or its children (original_deck_id is not
     /// checked).
     DeckIdWithChildren(DeckId),
@@ -346,7 +346,7 @@ fn search_node_for_text_with_argument<'a>(
         "introduced" => parse_introduced(val)?,
         "rated" => parse_rated(val)?,
         "is" => parse_state(val)?,
-        "did" => parse_did(val)?,
+        "did" => SearchNode::DeckIdsWithoutChildren(check_id_list(val, key)?.into()),
         "mid" => parse_mid(val)?,
         "nid" => SearchNode::NoteIds(check_id_list(val, key)?.into()),
         "cid" => SearchNode::CardIds(check_id_list(val, key)?.into()),
@@ -612,10 +612,6 @@ fn parse_state(s: &str) -> ParseResult<SearchNode> {
             ))
         }
     }))
-}
-
-fn parse_did(s: &str) -> ParseResult<SearchNode> {
-    parse_i64(s, "did:").map(|n| SearchNode::DeckIdWithoutChildren(n.into()))
 }
 
 fn parse_mid(s: &str) -> ParseResult<SearchNode> {
