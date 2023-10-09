@@ -23,7 +23,7 @@ export const addShapesToCanvasFromCloze = (canvas: fabric.Canvas, clozeStr: stri
             const shape = shapeOrShapes.toFabric(size);
             addBorder(shape);
             disableRotation(shape);
-            if (shape instanceof Text) {
+            if (shape.type === "i-text") {
                 enableUniformScaling(canvas, shape);
             }
             canvas.add(shape);
