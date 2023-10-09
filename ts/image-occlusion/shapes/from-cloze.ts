@@ -166,7 +166,8 @@ function buildShape(type: ShapeType, props: Record<string, any>): Shape {
         case "text": {
             return new Text({
                 ...props,
-                scale: parseFloat(props.scale),
+                scaleX: parseFloat(props.scale),
+                scaleY: parseFloat(props.scale),
             });
         }
     }

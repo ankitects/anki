@@ -7,32 +7,49 @@ import type { ConstructorParams, Size } from "../types";
 import type { ShapeDataForCloze } from "./base";
 import { Shape } from "./base";
 import { floatToDisplay } from "./floats";
+import { xFromNormalized, xToNormalized, yFromNormalized, yToNormalized } from "./position";
 
 export class Text extends Shape {
     text: string;
-    scale: number;
+    scaleX: number;
+    scaleY: number;
 
     constructor({
         text = "",
-        scale = 1,
+        scaleX = 1,
+        scaleY = 1,
         ...rest
     }: ConstructorParams<Text> = {}) {
         super(rest);
         this.text = text;
-        this.scale = scale;
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
     }
 
     toDataForCloze(): TextDataForCloze {
         return {
             ...super.toDataForCloze(),
             text: this.text,
-            scale: floatToDisplay(this.scale),
+            // scaleX and scaleY are guaranteed to be equal since we lock the aspect ratio
+            scale: floatToDisplay(this.scaleX),
         };
     }
 
     toFabric(size: Size): fabric.IText {
         this.makeAbsolute(size);
-        return new fabric.IText(this.text, { ...this, scaleX: this.scale, scaleY: this.scale });
+        return new fabric.IText(this.text, this);
+    }
+
+    makeNormal(size: Size): void {
+        super.makeNormal(size);
+        this.scaleX = xToNormalized(size, this.scaleX);
+        this.scaleY = yToNormalized(size, this.scaleY);
+    }
+
+    makeAbsolute(size: Size): void {
+        super.makeAbsolute(size);
+        this.scaleX = xFromNormalized(size, this.scaleX);
+        this.scaleY = yFromNormalized(size, this.scaleY);
     }
 }
 
