@@ -546,7 +546,7 @@ fn notetype_conflicts(
             if meta.notetype_id != note.notetype_id {
                 conflicts
                     .entry((meta.notetype_id, note.notetype_id))
-                    .or_insert_with(Vec::new)
+                    .or_default()
                     .push(note.id);
             }
         };

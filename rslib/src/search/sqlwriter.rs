@@ -630,9 +630,8 @@ impl SqlWriter<'_> {
             let matched_fields = nt
                 .fields
                 .iter()
-                .filter_map(|field| {
-                    matches_glob(&field.name).then(|| field.ord.unwrap_or_default())
-                })
+                .filter(|&field| matches_glob(&field.name))
+                .map(|field| field.ord.unwrap_or_default())
                 .collect_ranges();
             if !matched_fields.is_empty() {
                 field_map.push(FieldQualifiedSearchContext {
@@ -660,9 +659,8 @@ impl SqlWriter<'_> {
             let matched_fields: Vec<u32> = nt
                 .fields
                 .iter()
-                .filter_map(|field| {
-                    matches_glob(&field.name).then(|| field.ord.unwrap_or_default())
-                })
+                .filter(|&field| matches_glob(&field.name))
+                .map(|field| field.ord.unwrap_or_default())
                 .collect();
             if !matched_fields.is_empty() {
                 field_map.push((nt.id, matched_fields));
