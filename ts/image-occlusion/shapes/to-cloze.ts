@@ -19,8 +19,12 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
     const shapes = baseShapesFromFabric(occludeInactive);
 
     let clozes = "";
-    shapes.forEach((shapeOrShapes, index) => {
+    let index = 0;
+    shapes.forEach((shapeOrShapes) => {
         clozes += shapeOrShapesToCloze(shapeOrShapes, index);
+        if (!(shapeOrShapes instanceof Text)) {
+            index++;
+        }
     });
 
     return { clozes, noteCount: shapes.length };
