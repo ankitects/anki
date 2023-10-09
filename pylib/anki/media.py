@@ -8,7 +8,7 @@ import pprint
 import re
 import sys
 import time
-from typing import Callable
+from typing import Callable, Sequence
 
 from anki import media_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated_keywords
@@ -148,6 +148,9 @@ class MediaManager(DeprecatedNamesMixin):
                 if is_local or include_remote:
                     files.append(fname)
         return files
+
+    def extract_static_media_files(self, mid: NotetypeId) -> Sequence[str]:
+        return self.col._backend.extract_static_media_files(mid)
 
     def transform_names(self, txt: str, func: Callable) -> str:
         for reg in self.regexps:
