@@ -56,7 +56,7 @@ impl Collection {
             } else {
                 None
             };
-            let fsrs = FSRS::new(req.as_ref().map(|w| &w.weights[..]))?;
+            let fsrs = FSRS::new(req.as_ref().map(|w| &w.weights[..]).or(Some([].as_slice())))?;
             let items = fsrs_items_for_memory_state(&fsrs, revlog, timing.next_day_at);
             let desired_retention = req.as_ref().map(|w| w.desired_retention);
             let mut progress = self.new_progress_handler::<ComputeMemoryProgress>();
