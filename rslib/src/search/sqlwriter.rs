@@ -160,8 +160,8 @@ impl SqlWriter<'_> {
             SearchNode::NotetypeId(ntid) => {
                 write!(self.sql, "n.mid = {}", ntid).unwrap();
             }
-            SearchNode::DeckIdWithoutChildren(did) => {
-                write!(self.sql, "c.did = {}", did).unwrap();
+            SearchNode::DeckIdsWithoutChildren(dids) => {
+                write!(self.sql, "c.did in ({})", dids).unwrap();
             }
             SearchNode::DeckIdWithChildren(did) => self.write_deck_id_with_children(*did)?,
             SearchNode::Notetype(notetype) => self.write_notetype(&norm(notetype)),
@@ -965,7 +965,7 @@ impl SearchNode {
             SearchNode::AddedInDays(_) => RequiredTable::Cards,
             SearchNode::IntroducedInDays(_) => RequiredTable::Cards,
             SearchNode::Deck(_) => RequiredTable::Cards,
-            SearchNode::DeckIdWithoutChildren(_) => RequiredTable::Cards,
+            SearchNode::DeckIdsWithoutChildren(_) => RequiredTable::Cards,
             SearchNode::DeckIdWithChildren(_) => RequiredTable::Cards,
             SearchNode::Rated { .. } => RequiredTable::Cards,
             SearchNode::State(_) => RequiredTable::Cards,
@@ -973,6 +973,7 @@ impl SearchNode {
             SearchNode::CardIds(_) => RequiredTable::Cards,
             SearchNode::Property { .. } => RequiredTable::Cards,
             SearchNode::CustomData { .. } => RequiredTable::Cards,
+            SearchNode::Preset(_) => RequiredTable::Cards,
 
             SearchNode::UnqualifiedText(_) => RequiredTable::Notes,
             SearchNode::SingleField { .. } => RequiredTable::Notes,
@@ -989,7 +990,6 @@ impl SearchNode {
             SearchNode::WholeCollection => RequiredTable::CardsOrNotes,
 
             SearchNode::CardTemplate(_) => RequiredTable::CardsAndNotes,
-            SearchNode::Preset(_) => RequiredTable::Cards,
         }
     }
 }
