@@ -5,6 +5,7 @@ use std::borrow::Cow;
 use std::collections::HashSet;
 use std::fmt::Write;
 
+use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusion;
 use htmlescape::encode_attribute;
 use lazy_static::lazy_static;
 use nom::branch::alt;
@@ -16,6 +17,7 @@ use regex::Captures;
 use regex::Regex;
 
 use crate::image_occlusion::imageocclusion::get_image_cloze_data;
+use crate::image_occlusion::imageocclusion::parse_image_cloze;
 use crate::latex::contains_latex;
 use crate::template::RenderContext;
 use crate::text::strip_html_preserving_entities;
@@ -310,6 +312,18 @@ fn render_image_occlusion(text: &str, question_side: bool, active: bool, ordinal
     } else {
         "".into()
     }
+}
+
+pub fn parse_image_occlusions(text: &str) -> Vec<ImageOcclusion> {
+    parse_text_with_clozes(text)
+        .iter()
+        .filter_map(|node| match node {
+            TextOrCloze::Cloze(cloze) if cloze.image_occlusion().is_some() => {
+                parse_image_cloze(cloze.image_occlusion().unwrap())
+            }
+            _ => None,
+        })
+        .collect()
 }
 
 pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str> {

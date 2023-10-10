@@ -5,86 +5,26 @@
 @typescript-eslint/no-explicit-any: "off",
 */
 
+import type { GetImageOcclusionNoteResponse_ImageOcclusion } from "@tslib/anki/image_occlusion_pb";
+
 import type { Shape, ShapeOrShapes } from "./base";
 import { Ellipse } from "./ellipse";
 import { Point, Polygon } from "./polygon";
 import { Rectangle } from "./rectangle";
 import { Text } from "./text";
 
-/** Given a cloze field with text like the following, extract the shapes from it:
- * {{c1::image-occlusion:rect:left=10.0:top=20:width=30:height=10:fill=#ffe34d}}
- */
 export function extractShapesFromClozedField(
-    clozeStr: string,
+    occlusions: GetImageOcclusionNoteResponse_ImageOcclusion[],
 ): ShapeOrShapes[] {
-    const regex = /{{(.*?)}}/g;
-    const clozeStrList: string[] = [];
-    let match: string[] | null;
-
-    while ((match = regex.exec(clozeStr)) !== null) {
-        clozeStrList.push(match[1]);
-    }
-
-    const clozeList = {};
-    for (const str of clozeStrList) {
-        const [prefix, value] = str.split("::image-occlusion:");
-        if (!clozeList[prefix]) {
-            clozeList[prefix] = [];
-        }
-        clozeList[prefix].push(value);
-    }
-
     const output: ShapeOrShapes[] = [];
-
-    for (const index in clozeList) {
-        if (index === "c0") {
-            clozeList[index].forEach((cloze) => {
-                let shape: Shape | null = null;
-                if ((shape = extractShapeFromClozeText(cloze))) {
-                    output.push(shape);
-                }
-            });
-        } else if (clozeList[index].length > 1) {
-            const group: Shape[] = [];
-            clozeList[index].forEach((cloze) => {
-                let shape: Shape | null = null;
-                if ((shape = extractShapeFromClozeText(cloze))) {
-                    group.push(shape);
-                }
-            });
-            output.push(group);
-        } else {
-            let shape: Shape | null = null;
-            if ((shape = extractShapeFromClozeText(clozeList[index][0]))) {
-                output.push(shape);
-            }
+    for (const occlusion of occlusions) {
+        if (isValidType(occlusion.shape)) {
+            const props = Object.fromEntries(occlusion.properties.map(prop => [prop.name, prop.value]));
+            output.push(buildShape(occlusion.shape, props));
         }
     }
+
     return output;
-}
-
-function extractShapeFromClozeText(text: string): Shape | null {
-    const [type, props] = extractTypeAndPropsFromClozeText(text);
-    if (!type) {
-        return null;
-    }
-    return buildShape(type, props);
-}
-
-function extractTypeAndPropsFromClozeText(
-    text: string,
-): [ShapeType | null, Record<string, any>] {
-    const parts = text.split(":");
-    const type = parts[0];
-    if (!isValidType(type)) {
-        return [null, {}];
-    }
-    const props = {};
-    for (let i = 1; i < parts.length; i++) {
-        const [key, value] = parts[i].split("=");
-        props[key] = value;
-    }
-    return [type, props];
 }
 
 /** Locate all cloze divs in the review screen for the given selector, and convert them into BaseShapes.
