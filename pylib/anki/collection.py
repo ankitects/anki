@@ -719,8 +719,9 @@ class Collection(DeprecatedNamesMixin):
 
         If order is a BrowserColumns.Column that supports sorting, sort using that
         column. All available columns are available through col.all_browser_columns()
-        or browser.table._model.columns and support sorting unless column.sorting
-        is set to BrowserColumns.SORTING_NONE.
+        or browser.table._model.columns and support sorting cards unless column.sorting_cards
+        is set to BrowserColumns.SORTING_NONE, .SORTING_NOTES_ASCENDING, or
+        .SORTING_NOTES_DESCENDING.
 
         The reverse argument only applies when a BrowserColumns.Column is provided;
         otherwise the collection config defines whether reverse is set or not.
@@ -762,13 +763,14 @@ class Collection(DeprecatedNamesMixin):
             order = self.get_browser_column(self.get_config(sort_key))
             reverse_key = BrowserConfig.sort_backwards_key(finding_notes)
             reverse = self.get_config(reverse_key)
-        if isinstance(order, BrowserColumns.Column):
-            if order.sorting != BrowserColumns.SORTING_NONE:
-                return search_pb2.SortOrder(
-                    builtin=search_pb2.SortOrder.Builtin(
-                        column=order.key, reverse=reverse
-                    )
-                )
+        if (
+            isinstance(order, BrowserColumns.Column)
+            and (order.sorting_notes if finding_notes else order.sorting_cards)
+            is not BrowserColumns.SORTING_NONE
+        ):
+            return search_pb2.SortOrder(
+                builtin=search_pb2.SortOrder.Builtin(column=order.key, reverse=reverse)
+            )
 
         # eg, user is ordering on an add-on field with the add-on not installed
         print(f"{order} is not a valid sort order.")

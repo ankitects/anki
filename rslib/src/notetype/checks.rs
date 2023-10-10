@@ -43,10 +43,11 @@ fn media_field_referencing_templates<'a>(
     notetypes
         .flat_map(|notetype| {
             notetype.templates.iter().flat_map(|card_type| {
-                card_type.sides().into_iter().filter_map(|(format, front)| {
-                    references_media_field(format)
-                        .then(|| Template::new(&notetype.name, &card_type.name, front))
-                })
+                card_type
+                    .sides()
+                    .into_iter()
+                    .filter(|&(format, _front)| references_media_field(format))
+                    .map(|(_format, front)| Template::new(&notetype.name, &card_type.name, front))
             })
         })
         .collect()

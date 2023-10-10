@@ -3,6 +3,8 @@
 
 use std::collections::HashMap;
 
+use unicase::UniCase;
+
 use super::join_tags;
 use super::matcher::TagMatcher;
 use crate::prelude::*;
@@ -62,8 +64,12 @@ impl Collection {
         // replace tags
         for mut note in matched_notes {
             let original = note.clone();
-            note.tags = matcher
-                .replace_with_fn(&note.tags, |cap| old_to_new_names.get(cap).unwrap().clone());
+            note.tags = matcher.replace_with_fn(&note.tags, |cap| {
+                old_to_new_names
+                    .get(&UniCase::new(cap.to_string()))
+                    .unwrap()
+                    .clone()
+            });
             note.set_modified(usn);
             self.update_note_tags_undoable(&note, original)?;
         }
@@ -80,13 +86,13 @@ impl Collection {
 fn old_to_new_names(
     tags_to_reparent: &[String],
     new_parent: Option<String>,
-) -> HashMap<&str, String> {
+) -> HashMap<UniCase<String>, String> {
     tags_to_reparent
         .iter()
         // generate resulting names and filter out invalid ones
         .flat_map(|source_tag| {
             reparented_name(source_tag, new_parent.as_deref())
-                .map(|output_name| (source_tag.as_str(), output_name))
+                .map(|output_name| (UniCase::new(source_tag.to_owned()), output_name))
         })
         .collect()
 }

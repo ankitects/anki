@@ -19,6 +19,7 @@ use crate::prelude::*;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
 use crate::search::JoinSearches;
 use crate::search::SearchNode;
+use crate::storage::comma_separated_ids;
 
 #[derive(Debug, Clone)]
 pub struct UpdateDeckConfigsRequest {
@@ -164,7 +165,7 @@ impl Collection {
         let usn = self.usn()?;
         let today = self.timing_today()?.days_elapsed;
         let selected_config = req.configs.last().unwrap();
-        let mut decks_needing_memory_recompute: HashMap<DeckConfigId, Vec<SearchNode>> =
+        let mut decks_needing_memory_recompute: HashMap<DeckConfigId, Vec<DeckId>> =
             Default::default();
         let fsrs_toggled = self.get_config_bool(BoolKey::Fsrs) != req.fsrs;
         if fsrs_toggled {
@@ -216,7 +217,7 @@ impl Collection {
                     decks_needing_memory_recompute
                         .entry(current_config_id)
                         .or_default()
-                        .push(SearchNode::DeckIdWithoutChildren(deck_id));
+                        .push(deck_id);
                 }
 
                 self.adjust_remaining_steps_in_deck(deck_id, previous_config, current_config, usn)?;
@@ -224,7 +225,7 @@ impl Collection {
         }
 
         if !decks_needing_memory_recompute.is_empty() {
-            let input: Vec<(Option<UpdateMemoryStateRequest>, Vec<SearchNode>)> =
+            let input: Vec<(Option<UpdateMemoryStateRequest>, SearchNode)> =
                 decks_needing_memory_recompute
                     .into_iter()
                     .map(|(conf_id, search)| {
@@ -240,7 +241,10 @@ impl Collection {
                                 None
                             }
                         });
-                        Ok((weights, search))
+                        Ok((
+                            weights,
+                            SearchNode::DeckIdsWithoutChildren(comma_separated_ids(&search)),
+                        ))
                     })
                     .collect::<Result<_>>()?;
             self.update_memory_state(input)?;
