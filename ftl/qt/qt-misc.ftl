@@ -1,6 +1,6 @@
 qt-misc-addon-will-be-installed-when-a = Add-on will be installed when a profile is opened.
 qt-misc-addons = Add-ons
-qt-misc-all-cards-notes-and-media-for = All cards, notes, and media for this profile will be deleted. Are you sure?
+qt-misc-all-cards-notes-and-media-for = All cards, notes, and media for the profile "{ $name }" will be deleted. Are you sure?
 qt-misc-anki-updatedanki-has-been-released = <h1>Anki Updated</h1>Anki { $val } has been released.<br><br>
 qt-misc-automatic-syncing-and-backups-have-been = Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki.
 qt-misc-back-side-only = Back Side Only

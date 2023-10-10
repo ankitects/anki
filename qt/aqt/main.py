@@ -411,7 +411,7 @@ class AnkiQt(QMainWindow):
             return
         # sure?
         if not askUser(
-            tr.qt_misc_all_cards_notes_and_media_for(),
+            tr.qt_misc_all_cards_notes_and_media_for(name=self.pm.name),
             msgfunc=QMessageBox.warning,
             defaultno=True,
         ):
