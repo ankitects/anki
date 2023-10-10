@@ -3,18 +3,11 @@
 [![Build status](https://badge.buildkite.com/c9edf020a4aec976f9835e54751cc5409d843adbb66d043bd3.svg?branch=main)](https://buildkite.com/ankitects/anki-ci)
 
 This repo contains the source code for the computer version of
-[Anki](https://apps.ankiweb.net) for people who would like to help improve the code.
+[Anki](https://apps.ankiweb.net).
 
 # About
 
-[Anki](https://apps.ankiweb.net) helps you learn faster with user created flashcards that makes learning easier and more efficient compared to traditional study methods.
-
-Card content is endless as they support:
-
-- images :framed_picture:
-- audio :loud_sound:
-- videos :film_strip:
-- scientific markup (Via LaTeX) :dna:
+Anki is a spaced repetition program. Please see the [website](https://apps.ankiweb.net) to learn more.
 
 # Getting Started
 
@@ -31,10 +24,10 @@ For more information on building and developing, please see [Development](./docs
 
 Want to contribute to Anki? Check out the [Contribution Guidelines](./docs/contributing.md).
 
-### Anki Contributors :clap:
+### Anki Contributors
 
 [CONTRIBUTORS](./CONTRIBUTORS)
 
 # License
 
-For Anki's licensing - [LICENSE](./LICENSE).
+Anki's license: [LICENSE](./LICENSE)
