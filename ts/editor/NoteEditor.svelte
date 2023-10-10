@@ -387,9 +387,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { ImageOcclusionFieldIndexes } from "@tslib/anki/image_occlusion_pb";
     import { getImageOcclusionFields } from "@tslib/backend";
     import { wrapInternal } from "@tslib/wrap";
-    import LabelButton from "components/LabelButton.svelte";
     import Shortcut from "components/Shortcut.svelte";
     import ImageOcclusionPage from "image-occlusion/ImageOcclusionPage.svelte";
+    import ImageOcclusionPicker from "image-occlusion/ImageOcclusionPicker.svelte";
     import type { IOMode } from "image-occlusion/lib";
     import { exportShapesToClozeDeletions } from "image-occlusion/shapes/to-cloze";
     import { hideAllGuessOne, ioMaskEditorVisible } from "image-occlusion/store";
@@ -401,6 +401,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let isIOImageLoaded = false;
     let imageOcclusionMode: IOMode | undefined;
     let ioFields = new ImageOcclusionFieldIndexes({});
+
+    function pickIOImage() {
+        imageOcclusionMode = undefined;
+        bridgeCommand("addImageForOcclusion");
+    }
+
+    function pickIOImageFromClipboard() {
+        imageOcclusionMode = undefined;
+        bridgeCommand("addImageForOcclusionFromClipboard");
+    }
+
     async function setupMaskEditor(options: { html: string; mode: IOMode }) {
         imageOcclusionMode = undefined;
         const getIoFields = getImageOcclusionFields({
@@ -586,35 +597,10 @@ the AddCards dialog) should be implemented in the user of this component.
     {/if}
 
     {#if $ioMaskEditorVisible && isImageOcclusion && !isIOImageLoaded}
-        <div id="io-select-image-div" style="padding-top: 60px; text-align: center;">
-            <LabelButton
-                --border-left-radius="5px"
-                --border-right-radius="5px"
-                class="io-select-image-btn"
-                on:click={() => {
-                    imageOcclusionMode = undefined;
-                    bridgeCommand("addImageForOcclusion");
-                }}
-            >
-                {tr.notetypesIoSelectImage()}
-            </LabelButton>
-        </div>
-        <div
-            id="io-select-clipboard-image-div"
-            style="padding-top: 30px; text-align: center;"
-        >
-            <LabelButton
-                --border-left-radius="5px"
-                --border-right-radius="5px"
-                class="io-select-image-btn"
-                on:click={() => {
-                    imageOcclusionMode = undefined;
-                    bridgeCommand("addImageForOcclusionFromClipboard");
-                }}
-            >
-                {tr.notetypesIoPasteImageFromClipboard()}
-            </LabelButton>
-        </div>
+        <ImageOcclusionPicker
+            onPickImage={pickIOImage}
+            onPickImageFromClipboard={pickIOImageFromClipboard}
+        />
     {/if}
 
     {#if !$ioMaskEditorVisible}
@@ -777,12 +763,6 @@ the AddCards dialog) should be implemented in the user of this component.
         top: unset !important;
         margin-top: 2px !important;
     }
-
-    :global(.io-select-image-btn) {
-        margin: auto;
-        padding: 0px 8px 0px 8px !important;
-    }
-
     :global(.image-occlusion .sticky-footer) {
         display: none;
     }

@@ -3,6 +3,7 @@
 
 import type { Canvas, Object as FabricObject } from "fabric";
 import { fabric } from "fabric";
+import { cloneDeep } from "lodash-es";
 
 import { makeMaskTransparent } from "../tools/lib";
 import type { Size } from "../types";
@@ -52,15 +53,19 @@ function fabricObjectToBaseShapeOrShapes(
 ): ShapeOrShapes | null {
     let shape: Shape;
 
+    // Prevents the original fabric object from mutating when a non-primitive
+    // property of a Shape mutates.
+    const cloned = cloneDeep(object);
+
     switch (object.type) {
         case "rect":
-            shape = new Rectangle(object);
+            shape = new Rectangle(cloned);
             break;
         case "ellipse":
-            shape = new Ellipse(object);
+            shape = new Ellipse(cloned);
             break;
         case "polygon":
-            shape = new Polygon(object);
+            shape = new Polygon(cloned);
             break;
         case "group":
             return object._objects.map((child) => {
@@ -96,7 +101,7 @@ function shapeOrShapesToCloze(
 ): string {
     let text = "";
     function addKeyValue(key: string, value: string) {
-        if (Number.isNaN(Number(value))) {
+        if (key !== "points" && Number.isNaN(Number(value))) {
             value = ".0000";
         }
         text += `:${key}=${value}`;
