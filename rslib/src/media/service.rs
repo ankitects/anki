@@ -12,8 +12,6 @@ use crate::error;
 use crate::error::OrNotFound;
 use crate::notes::service::to_i64s;
 use crate::notetype::NotetypeId;
-use crate::text::extract_underscored_css_imports;
-use crate::text::extract_underscored_references;
 
 impl crate::services::MediaService for Collection {
     fn check_media(&mut self) -> error::Result<CheckMediaResponse> {
@@ -61,16 +59,10 @@ impl crate::services::MediaService for Collection {
         let ntid = NotetypeId::from(ntid);
         let notetype = self.storage.get_notetype(ntid)?.or_not_found(ntid)?;
         let mut files: HashSet<String> = HashSet::new();
-        for name in extract_underscored_css_imports(&notetype.config.css) {
-            files.insert(name.to_string());
-        }
-        for template in &notetype.templates {
-            for template_side in [&template.config.q_format, &template.config.a_format] {
-                for name in extract_underscored_references(template_side) {
-                    files.insert(name.to_string());
-                }
-            }
-        }
+        let mut inserter = |name: String| {
+            files.insert(name);
+        };
+        notetype.gather_media_names(&mut inserter);
 
         Ok(files.into_iter().collect::<Vec<_>>().into())
     }
