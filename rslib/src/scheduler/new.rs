@@ -281,7 +281,7 @@ impl Collection {
         usn: Usn,
     ) -> Result<usize> {
         let cids = self.search_cards(
-            SearchNode::DeckIdWithoutChildren(deck).and(StateKind::New),
+            SearchNode::DeckIdsWithoutChildren(deck.to_string()).and(StateKind::New),
             SortMode::NoOrder,
         )?;
         self.sort_cards_inner(&cids, 1, 1, order.into(), false, usn)
