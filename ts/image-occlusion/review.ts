@@ -10,7 +10,7 @@ import { extractShapesFromRenderedClozes } from "./shapes/from-cloze";
 import { Polygon } from "./shapes/polygon";
 import { Rectangle } from "./shapes/rectangle";
 import { Text } from "./shapes/text";
-import { TEXT_BORDER_COLOR } from "./tools/lib";
+import { TEXT_BORDER_COLOR, TEXT_FONT_FAMILY } from "./tools/lib";
 import type { Size } from "./types";
 
 export function setupImageCloze(): void {
@@ -123,7 +123,7 @@ function drawShape(
         ctx.restore();
     } else if (shape instanceof Text) {
         ctx.save();
-        ctx.font = "40px Times New Roman";
+        ctx.font = `40px ${TEXT_FONT_FAMILY}`;
         ctx.fillStyle = "#000";
         ctx.strokeStyle = TEXT_BORDER_COLOR;
         ctx.textBaseline = "top";

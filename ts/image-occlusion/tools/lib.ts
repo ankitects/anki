@@ -10,6 +10,7 @@ import { zoomResetValue } from "../store";
 export const SHAPE_MASK_COLOR = "#ffeba2";
 export const BORDER_COLOR = "#212121";
 export const TEXT_BORDER_COLOR = "#fff";
+export const TEXT_FONT_FAMILY = "Arial";
 
 let _clipboard;
 

@@ -3,6 +3,7 @@
 
 import { fabric } from "fabric";
 
+import { TEXT_FONT_FAMILY } from "../tools/lib";
 import type { ConstructorParams, Size } from "../types";
 import type { ShapeDataForCloze } from "./base";
 import { Shape } from "./base";
@@ -37,7 +38,7 @@ export class Text extends Shape {
 
     toFabric(size: Size): fabric.IText {
         this.makeAbsolute(size);
-        return new fabric.IText(this.text, this);
+        return new fabric.IText(this.text, { ...this, fontFamily: TEXT_FONT_FAMILY });
     }
 
     makeNormal(size: Size): void {
