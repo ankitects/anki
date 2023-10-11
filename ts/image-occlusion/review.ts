@@ -63,16 +63,14 @@ function drawShapes(
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D,
 ): void {
-    const shapeProperty = getShapeProperty();
+    const properties = getShapeProperties();
     const size = canvas;
-    for (const active of extractShapesFromRenderedClozes(".cloze")) {
-        const fill = shapeProperty.activeShapeColor;
-        drawShape(ctx, size, active, fill, shapeProperty.activeBorder);
+    for (const shape of extractShapesFromRenderedClozes(".cloze")) {
+        drawShape(ctx, size, shape, properties, true);
     }
-    for (const inactive of extractShapesFromRenderedClozes(".cloze-inactive")) {
-        const fill = shapeProperty.inActiveShapeColor;
-        if (inactive.occludeInactive) {
-            drawShape(ctx, size, inactive, fill, shapeProperty.inActiveBorder);
+    for (const shape of extractShapesFromRenderedClozes(".cloze-inactive")) {
+        if (shape.occludeInactive) {
+            drawShape(ctx, size, shape, properties, false);
         }
     }
 }
@@ -81,10 +79,21 @@ function drawShape(
     ctx: CanvasRenderingContext2D,
     size: Size,
     shape: Shape,
-    color: string,
-    border: { width: number; color: string },
+    properties: ShapeProperties,
+    active: boolean,
 ): void {
     shape.makeAbsolute(size);
+
+    const { color, border } = active
+        ? {
+            color: properties.activeShapeColor,
+            border: properties.activeBorder,
+        }
+        : {
+            color: properties.inActiveShapeColor,
+            border: properties.inActiveBorder,
+        };
+
     ctx.fillStyle = color;
     ctx.strokeStyle = border.color;
     ctx.lineWidth = border.width;
@@ -127,7 +136,7 @@ function drawShape(
         ctx.textBaseline = "top";
         ctx.scale(shape.scaleX, shape.scaleY);
         const textMetrics = ctx.measureText(shape.text);
-        ctx.fillStyle = "#ffeba2";
+        ctx.fillStyle = properties.inActiveShapeColor;
         ctx.fillRect(
             shape.left / shape.scaleX,
             shape.top / shape.scaleY,
@@ -166,12 +175,13 @@ function topLeftOfPoints(points: { x: number; y: number }[]): {
     return { x: left, y: top };
 }
 
-function getShapeProperty(): {
+type ShapeProperties = {
     activeShapeColor: string;
     inActiveShapeColor: string;
     activeBorder: { width: number; color: string };
     inActiveBorder: { width: number; color: string };
-} {
+};
+function getShapeProperties(): ShapeProperties {
     const canvas = document.getElementById("image-occlusion-canvas");
     const computedStyle = window.getComputedStyle(canvas!);
     // it may throw error if the css variable is not defined
