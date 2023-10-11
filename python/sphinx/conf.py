@@ -12,15 +12,23 @@ project = 'Anki'
 copyright = '2023, Ankitects Pty Ltd and contributors'
 author = 'Ankitects Pty Ltd and contributors'
 
+REPO_ROOT = os.path.abspath('../../')
+
+# Autodoc requires us to add the modules to the Python path, see
 # https://stackoverflow.com/a/44980548/803801
-sys.path.insert(0, os.path.abspath('../../pylib'))
-sys.path.insert(0, os.path.abspath('../../pylib/anki'))
-sys.path.insert(0, os.path.abspath('../../pylib/anki/importing'))
-sys.path.insert(0, os.path.abspath('../../qt/'))
-sys.path.insert(0, os.path.abspath('../../qt/aqt'))
-sys.path.insert(0, os.path.abspath('../../out/pylib'))
-sys.path.insert(0, os.path.abspath('../../out/qt'))
-sys.path.insert(0, os.path.abspath('../../out/qt/_aqt'))
+paths = [
+    'pylib',
+    'pylib/anki',
+    'pylib/anki/importing',
+    'qt',
+    'qt/aqt',
+    'out/pylib',
+    'out/qt',
+    'out/qt/_aqt',
+]
+
+for path in paths:
+    sys.path.insert(0, os.path.join(REPO_ROOT, path))
 
 extensions = ['sphinx.ext.autodoc', 'sphinx_rtd_theme']
 html_theme = 'sphinx_rtd_theme'
