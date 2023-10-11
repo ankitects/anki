@@ -225,11 +225,11 @@ const setShapePosition = (
     if (object.top < 0) {
         object.set({ top: 0 });
     }
-    if (object.left + object.width + object.strokeWidth > canvas.width) {
-        object.set({ left: canvas.width - object.width });
+    if (object.left + object.width * object.scaleX + object.strokeWidth > canvas.width) {
+        object.set({ left: canvas.width - object.width * object.scaleX });
     }
-    if (object.top + object.height + object.strokeWidth > canvas.height) {
-        object.set({ top: canvas.height - object.height });
+    if (object.top + object.height * object.scaleY + object.strokeWidth > canvas.height) {
+        object.set({ top: canvas.height - object.height * object.scaleY });
     }
     object.setCoords();
 };
