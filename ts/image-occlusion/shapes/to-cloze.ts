@@ -73,7 +73,7 @@ function fabricObjectToBaseShapeOrShapes(
             shape = new Polygon(cloned);
             break;
         case "i-text":
-            shape = new Text(object);
+            shape = new Text(cloned);
             break;
         case "group":
             return object._objects.map((child) => {
