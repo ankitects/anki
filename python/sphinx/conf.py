@@ -9,8 +9,8 @@ import os
 import sys
 
 project = 'Anki'
-copyright = '2023, dae'
-author = 'dae'
+copyright = '2023, Ankitects Pty Ltd and contributors'
+author = 'Ankitects Pty Ltd and contributors'
 
 # https://stackoverflow.com/a/44980548/803801
 sys.path.insert(0, os.path.abspath('../../pylib'))
