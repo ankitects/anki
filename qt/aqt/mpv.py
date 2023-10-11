@@ -36,10 +36,8 @@ import sys
 import tempfile
 import threading
 import time
-from distutils.spawn import (  # pylint: disable=import-error,no-name-in-module
-    find_executable,
-)
 from queue import Empty, Full, Queue
+from shutil import which
 from typing import Optional
 
 from anki.utils import is_win
@@ -78,7 +76,7 @@ class MPVBase:
     based JSON IPC.
     """
 
-    executable = find_executable("mpv")
+    executable = which("mpv")
     popenEnv: Optional[dict[str, str]] = None
 
     default_argv = [
