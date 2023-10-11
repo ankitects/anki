@@ -247,8 +247,9 @@ struct Sphinx {
 
 impl BuildAction for Sphinx {
     fn command(&self) -> &str {
-        "$pip install sphinx sphinx_rtd_theme && out/pyenv/bin/sphinx-build \
-         python/sphinx out/python/sphinx"
+        "$pip install sphinx sphinx_rtd_theme \
+         && out/pyenv/bin/sphinx-apidoc -o python/sphinx pylib/anki \
+         && out/pyenv/bin/sphinx-build python/sphinx out/python/sphinx"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
