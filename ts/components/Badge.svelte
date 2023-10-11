@@ -40,13 +40,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style>
     .badge {
         color: var(--badge-color, inherit);
-        border-color: transparent;
+        border: none;
         background: transparent;
+        padding: 0;
     }
 
     .badge:hover,
     .badge:active {
-        border-color: transparent;
+        border: none;
         background: transparent;
         box-shadow: none;
     }
