@@ -240,3 +240,30 @@ fn add_pylint(build: &mut Build) -> Result<()> {
 
     Ok(())
 }
+
+struct Sphinx {
+    deps: BuildInput,
+}
+
+impl BuildAction for Sphinx {
+    fn command(&self) -> &str {
+        "$pip install sphinx sphinx_rtd_theme && out/pyenv/bin/sphinx-build \
+         python/sphinx out/python/sphinx"
+    }
+
+    fn files(&mut self, build: &mut impl FilesHandle) {
+        build.add_inputs("pip", inputs![":pyenv:pip"]);
+        build.add_inputs("", &self.deps);
+        build.add_output_stamp("python/sphinx/stamp");
+    }
+}
+
+pub(crate) fn setup_sphix(build: &mut Build) -> Result<()> {
+    build.add_action(
+        "python:sphinx",
+        Sphinx {
+            deps: inputs![":pylib", ":qt", glob!("python/sphinx/**")],
+        },
+    )?;
+    Ok(())
+}
