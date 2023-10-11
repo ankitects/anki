@@ -10,7 +10,7 @@ import { extractShapesFromRenderedClozes } from "./shapes/from-cloze";
 import { Polygon } from "./shapes/polygon";
 import { Rectangle } from "./shapes/rectangle";
 import { Text } from "./shapes/text";
-import { TEXT_BORDER_COLOR, TEXT_FONT_FAMILY } from "./tools/lib";
+import { TEXT_FONT_FAMILY, TEXT_PADDING } from "./tools/lib";
 import type { Size } from "./types";
 
 export function setupImageCloze(): void {
@@ -124,16 +124,18 @@ function drawShape(
     } else if (shape instanceof Text) {
         ctx.save();
         ctx.font = `40px ${TEXT_FONT_FAMILY}`;
-        ctx.fillStyle = "#000";
-        ctx.strokeStyle = TEXT_BORDER_COLOR;
         ctx.textBaseline = "top";
         ctx.scale(shape.scaleX, shape.scaleY);
-        ctx.fillText(
-            shape.text,
+        const textMetrics = ctx.measureText(shape.text);
+        ctx.fillStyle = "#ffeba2";
+        ctx.fillRect(
             shape.left / shape.scaleX,
             shape.top / shape.scaleY,
+            textMetrics.width + TEXT_PADDING,
+            textMetrics.actualBoundingBoxDescent + TEXT_PADDING,
         );
-        ctx.strokeText(
+        ctx.fillStyle = "#000";
+        ctx.fillText(
             shape.text,
             shape.left / shape.scaleX,
             shape.top / shape.scaleY,

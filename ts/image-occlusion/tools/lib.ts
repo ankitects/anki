@@ -9,8 +9,8 @@ import { zoomResetValue } from "../store";
 
 export const SHAPE_MASK_COLOR = "#ffeba2";
 export const BORDER_COLOR = "#212121";
-export const TEXT_BORDER_COLOR = "#fff";
 export const TEXT_FONT_FAMILY = "Arial";
+export const TEXT_PADDING = 5;
 
 let _clipboard;
 
@@ -255,9 +255,5 @@ export function enableUniformScaling(canvas: fabric.Canvas, obj: fabric.Object):
 }
 
 export function addBorder(obj: fabric.Object): void {
-    if (obj.type === "i-text") {
-        obj.stroke = TEXT_BORDER_COLOR;
-    } else {
-        obj.stroke = BORDER_COLOR;
-    }
+    obj.stroke = BORDER_COLOR;
 }
