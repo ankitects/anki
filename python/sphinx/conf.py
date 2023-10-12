@@ -16,4 +16,4 @@ REPO_ROOT = os.environ["REPO_ROOT"]
 extensions = ['sphinx_rtd_theme', 'autoapi.extension']
 html_theme = 'sphinx_rtd_theme'
 autoapi_python_use_implicit_namespaces = True
-autoapi_dirs = [os.path.join(REPO_ROOT, x) for x in ["pylib/anki", "out/pylib/anki", "qt/aqt", "out/qt/aqt"]]
+autoapi_dirs = [os.path.join(REPO_ROOT, x) for x in ["pylib/anki", "out/pylib/anki", "qt/aqt", "out/qt/_aqt"]]
