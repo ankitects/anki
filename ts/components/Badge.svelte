@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<span
+<button
     bind:this={spanRef}
     title={tooltip}
     class="badge {className}"
@@ -35,11 +35,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <IconConstrain {iconSize} {widthMultiplier} {flipX}>
         <slot />
     </IconConstrain>
-</span>
+</button>
 
 <style>
     .badge {
         color: var(--badge-color, inherit);
+        border: none;
+        background: transparent;
+        padding: 0;
+    }
+
+    .badge:hover,
+    .badge:active {
+        border: none;
+        background: transparent;
+        box-shadow: none;
     }
 
     .dropdown-toggle::after {
