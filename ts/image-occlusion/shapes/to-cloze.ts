@@ -36,6 +36,10 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
  */
 function baseShapesFromFabric(occludeInactive: boolean): ShapeOrShapes[] {
     const canvas = globalThis.canvas as Canvas;
+
+    // Prevents multiple shapes in 'activeSelection' from shifting to the canvas origin
+    canvas.discardActiveObject();
+
     makeMaskTransparent(canvas, false);
     const objects = canvas.getObjects() as FabricObject[];
     return objects
