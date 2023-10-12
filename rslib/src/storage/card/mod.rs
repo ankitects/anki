@@ -581,7 +581,8 @@ impl super::SqliteStorage {
     }
 
     pub(crate) fn congrats_info(&self, current: &Deck, today: u32) -> Result<CongratsInfo> {
-        // NOTE: this line is obsolete in v3 as it's run on queue build, but kept to prevent errors for v1/v2 users before they upgrade
+        // NOTE: this line is obsolete in v3 as it's run on queue build, but kept to
+        // prevent errors for v1/v2 users before they upgrade
         self.update_active_decks(current)?;
         self.db
             .prepare(include_str!("congrats.sql"))?
