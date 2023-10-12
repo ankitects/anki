@@ -33,6 +33,7 @@ from .errors import (
     InvalidInput,
     NetworkError,
     NotFoundError,
+    SchedulerUpgradeRequired,
     SearchError,
     SyncError,
     SyncErrorKind,
@@ -239,6 +240,9 @@ def backend_exception_to_pylib(err: backend_pb2.BackendError) -> Exception:
 
     elif val == kind.CUSTOM_STUDY_ERROR:
         return CustomStudyError(err.message, help_page, context, backtrace)
+
+    elif val == kind.SCHEDULER_UPGRADE_REQUIRED:
+        return SchedulerUpgradeRequired(err.message, help_page, context, backtrace)
 
     else:
         # sadly we can't do exhaustiveness checking on protobuf enums

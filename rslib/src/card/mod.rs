@@ -14,7 +14,6 @@ use serde_repr::Deserialize_repr;
 use serde_repr::Serialize_repr;
 
 use crate::collection::Collection;
-use crate::config::SchedulerVersion;
 use crate::deckconfig::DeckConfig;
 use crate::decks::DeckId;
 use crate::define_newtype;
@@ -184,8 +183,8 @@ impl Card {
     }
 
     /// Caller must ensure provided deck exists and is not filtered.
-    fn set_deck(&mut self, deck: DeckId, sched: SchedulerVersion) {
-        self.remove_from_filtered_deck_restoring_queue(sched);
+    fn set_deck(&mut self, deck: DeckId) {
+        self.remove_from_filtered_deck_restoring_queue();
         self.deck_id = deck;
     }
 
@@ -348,7 +347,6 @@ impl Collection {
         })?;
         let config = self.get_deck_config(config_id, true)?.unwrap();
         let mut steps_adjuster = RemainingStepsAdjuster::new(&config);
-        let sched = self.scheduler_version();
         let usn = self.usn()?;
         self.transact(Op::SetCardDeck, |col| {
             let mut count = 0;
@@ -359,7 +357,7 @@ impl Collection {
                 count += 1;
                 let original = card.clone();
                 steps_adjuster.adjust_remaining_steps(col, &mut card)?;
-                card.set_deck(deck_id, sched);
+                card.set_deck(deck_id);
                 col.update_card_inner(&mut card, original, usn)?;
             }
             Ok(count)
