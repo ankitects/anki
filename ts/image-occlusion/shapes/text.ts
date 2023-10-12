@@ -3,7 +3,7 @@
 
 import { fabric } from "fabric";
 
-import { SHAPE_MASK_COLOR, TEXT_FONT_FAMILY, TEXT_PADDING } from "../tools/lib";
+import { TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_PADDING } from "../tools/lib";
 import type { ConstructorParams, Size } from "../types";
 import type { ShapeDataForCloze } from "./base";
 import { Shape } from "./base";
@@ -41,7 +41,7 @@ export class Text extends Shape {
         return new fabric.IText(this.text, {
             ...this,
             fontFamily: TEXT_FONT_FAMILY,
-            backgroundColor: SHAPE_MASK_COLOR,
+            backgroundColor: TEXT_BACKGROUND_COLOR,
             padding: TEXT_PADDING,
         });
     }
