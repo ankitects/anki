@@ -5,74 +5,26 @@
 @typescript-eslint/no-explicit-any: "off",
 */
 
+import type { GetImageOcclusionNoteResponse_ImageOcclusion } from "@tslib/anki/image_occlusion_pb";
+
 import type { Shape, ShapeOrShapes } from "./base";
 import { Ellipse } from "./ellipse";
 import { Point, Polygon } from "./polygon";
 import { Rectangle } from "./rectangle";
+import { Text } from "./text";
 
-/** Given a cloze field with text like the following, extract the shapes from it:
- * {{c1::image-occlusion:rect:left=10.0:top=20:width=30:height=10:fill=#ffe34d}}
- */
-export function extractShapesFromClozedField(clozeStr: string): ShapeOrShapes[] {
-    const regex = /{{(.*?)}}/g;
-    const clozeStrList: string[] = [];
-    let match: string[] | null;
-
-    while ((match = regex.exec(clozeStr)) !== null) {
-        clozeStrList.push(match[1]);
-    }
-
-    const clozeList = {};
-    for (const str of clozeStrList) {
-        const [prefix, value] = str.split("::image-occlusion:");
-        if (!clozeList[prefix]) {
-            clozeList[prefix] = [];
-        }
-        clozeList[prefix].push(value);
-    }
-
+export function extractShapesFromClozedField(
+    occlusions: GetImageOcclusionNoteResponse_ImageOcclusion[],
+): ShapeOrShapes[] {
     const output: ShapeOrShapes[] = [];
-
-    for (const index in clozeList) {
-        if (clozeList[index].length > 1) {
-            const group: Shape[] = [];
-            clozeList[index].forEach((cloze) => {
-                let shape: Shape | null = null;
-                if ((shape = extractShapeFromClozeText(cloze))) {
-                    group.push(shape);
-                }
-            });
-            output.push(group);
-        } else {
-            let shape: Shape | null = null;
-            if ((shape = extractShapeFromClozeText(clozeList[index][0]))) {
-                output.push(shape);
-            }
+    for (const occlusion of occlusions) {
+        if (isValidType(occlusion.shape)) {
+            const props = Object.fromEntries(occlusion.properties.map(prop => [prop.name, prop.value]));
+            output.push(buildShape(occlusion.shape, props));
         }
     }
+
     return output;
-}
-
-function extractShapeFromClozeText(text: string): Shape | null {
-    const [type, props] = extractTypeAndPropsFromClozeText(text);
-    if (!type) {
-        return null;
-    }
-    return buildShape(type, props);
-}
-
-function extractTypeAndPropsFromClozeText(text: string): [ShapeType | null, Record<string, any>] {
-    const parts = text.split(":");
-    const type = parts[0];
-    if (type !== "rect" && type !== "ellipse" && type !== "polygon") {
-        return [null, {}];
-    }
-    const props = {};
-    for (let i = 1; i < parts.length; i++) {
-        const [key, value] = parts[i].split("=");
-        props[key] = value;
-    }
-    return [type, props];
 }
 
 /** Locate all cloze divs in the review screen for the given selector, and convert them into BaseShapes.
@@ -89,7 +41,12 @@ export function extractShapesFromRenderedClozes(selector: string): Shape[] {
 
 function extractShapeFromRenderedCloze(cloze: HTMLDivElement): Shape | null {
     const type = cloze.dataset.shape!;
-    if (type !== "rect" && type !== "ellipse" && type !== "polygon") {
+    if (
+        type !== "rect"
+        && type !== "ellipse"
+        && type !== "polygon"
+        && type !== "text"
+    ) {
         return null;
     }
     const props = {
@@ -101,18 +58,32 @@ function extractShapeFromRenderedCloze(cloze: HTMLDivElement): Shape | null {
         rx: cloze.dataset.rx,
         ry: cloze.dataset.ry,
         points: cloze.dataset.points,
+        text: cloze.dataset.text,
+        scale: cloze.dataset.scale,
     };
     return buildShape(type, props);
 }
 
-type ShapeType = "rect" | "ellipse" | "polygon";
+type ShapeType = "rect" | "ellipse" | "polygon" | "text";
+
+function isValidType(type: string): type is ShapeType {
+    return ["rect", "ellipse", "polygon", "text"].includes(type);
+}
 
 function buildShape(type: ShapeType, props: Record<string, any>): Shape {
-    props.left = parseFloat(Number.isNaN(Number(props.left)) ? ".0000" : props.left);
-    props.top = parseFloat(Number.isNaN(Number(props.top)) ? ".0000" : props.top);
+    props.left = parseFloat(
+        Number.isNaN(Number(props.left)) ? ".0000" : props.left,
+    );
+    props.top = parseFloat(
+        Number.isNaN(Number(props.top)) ? ".0000" : props.top,
+    );
     switch (type) {
         case "rect": {
-            return new Rectangle({ ...props, width: parseFloat(props.width), height: parseFloat(props.height) });
+            return new Rectangle({
+                ...props,
+                width: parseFloat(props.width),
+                height: parseFloat(props.height),
+            });
         }
         case "ellipse": {
             return new Ellipse({
@@ -131,6 +102,13 @@ function buildShape(type: ShapeType, props: Record<string, any>): Shape {
                 props.points = [new Point({ x: 0, y: 0 })];
             }
             return new Polygon(props);
+        }
+        case "text": {
+            return new Text({
+                ...props,
+                scaleX: parseFloat(props.scale),
+                scaleY: parseFloat(props.scale),
+            });
         }
     }
 }
