@@ -10,7 +10,7 @@ import { extractShapesFromRenderedClozes } from "./shapes/from-cloze";
 import { Polygon } from "./shapes/polygon";
 import { Rectangle } from "./shapes/rectangle";
 import { Text } from "./shapes/text";
-import { TEXT_FONT_FAMILY, TEXT_PADDING } from "./tools/lib";
+import { TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_PADDING } from "./tools/lib";
 import type { Size } from "./types";
 
 export function setupImageCloze(): void {
@@ -136,7 +136,7 @@ function drawShape(
         ctx.textBaseline = "top";
         ctx.scale(shape.scaleX, shape.scaleY);
         const textMetrics = ctx.measureText(shape.text);
-        ctx.fillStyle = properties.inActiveShapeColor;
+        ctx.fillStyle = TEXT_BACKGROUND_COLOR;
         ctx.fillRect(
             shape.left / shape.scaleX,
             shape.top / shape.scaleY,
