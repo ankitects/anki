@@ -64,7 +64,7 @@ class Anki2Importer(Importer):
             # any scheduling included?
             if self.src.db.scalar("select 1 from cards where queue != 0 limit 1"):
                 self.source_needs_upgrade = True
-        elif self._importing_v2:
+        elif self._importing_v2 and self.col.sched_ver() == 1:
             raise V2ImportIntoV1()
 
     def _import(self) -> None:
