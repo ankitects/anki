@@ -6,6 +6,7 @@ import {
     mdiEllipseOutline,
     mdiMagnifyScan,
     mdiRectangleOutline,
+    mdiTextBox,
     mdiVectorPolygonVariant,
 } from "../icons";
 
@@ -29,5 +30,9 @@ export const tools = [
     {
         id: "draw-polygon",
         icon: mdiVectorPolygonVariant,
+    },
+    {
+        id: "draw-text",
+        icon: mdiTextBox,
     },
 ];
