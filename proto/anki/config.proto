@@ -100,9 +100,6 @@ message Preferences {
       NEW_FIRST = 2;
     }
 
-    // read only; 1-3
-    uint32 scheduler_version = 1;
-
     uint32 rollover = 2;
     uint32 learn_ahead_secs = 3;
     NewReviewMix new_review_mix = 4;
