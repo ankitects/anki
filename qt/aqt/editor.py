@@ -136,7 +136,7 @@ class Editor:
         self.last_field_index: int | None = None
         # current card, for card layout
         self.card: Card | None = None
-        self.state: EditorState | None = None
+        self.state: EditorState = EditorState.INITIAL
         self._init_links()
         self.setupOuter()
         self.add_webview()
