@@ -30,6 +30,7 @@ export { default as mdiRectangleOutline } from "@mdi/svg/svg/rectangle-outline.s
 export { default as mdiRedo } from "@mdi/svg/svg/redo.svg";
 export { default as mdiRefresh } from "@mdi/svg/svg/refresh.svg";
 export { default as mdiSquare } from "@mdi/svg/svg/square.svg";
+export { default as mdiTextBox } from "@mdi/svg/svg/text-box.svg";
 export { default as mdiUndo } from "@mdi/svg/svg/undo.svg";
 export { default as mdiUnfoldMoreHorizontal } from "@mdi/svg/svg/unfold-more-horizontal.svg";
 export { default as mdiUngroup } from "@mdi/svg/svg/ungroup.svg";

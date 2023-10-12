@@ -90,7 +90,7 @@ function initCanvas(onChange: () => void): fabric.Canvas {
     tagsWritable.set([]);
     globalThis.canvas = canvas;
     undoStack.setCanvas(canvas);
-    // enables uniform scaling by default without the need for the Shift key
+    // Disable uniform scaling
     canvas.uniformScaling = false;
     canvas.uniScaleKey = "none";
     moveShapeToCanvasBoundaries(canvas);

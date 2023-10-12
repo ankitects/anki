@@ -16,8 +16,6 @@ use crate::revlog::RevlogEntry;
 use crate::search::CardTableGuard;
 use crate::search::NoteTableGuard;
 use crate::text::extract_media_refs;
-use crate::text::extract_underscored_css_imports;
-use crate::text::extract_underscored_references;
 
 #[derive(Debug, Default)]
 pub(super) struct ExchangeData {
@@ -75,7 +73,7 @@ impl ExchangeData {
             gather_media_names_from_note(note, &mut inserter, &svg_getter);
         }
         for notetype in self.notetypes.iter() {
-            gather_media_names_from_notetype(notetype, &mut inserter);
+            notetype.gather_media_names(&mut inserter);
         }
         Ok(())
     }
@@ -154,19 +152,6 @@ fn gather_media_names_from_note(
 
         for latex in extract_latex(field, svg_getter(note.notetype_id)).1 {
             inserter(latex.fname);
-        }
-    }
-}
-
-fn gather_media_names_from_notetype(notetype: &Notetype, inserter: &mut impl FnMut(String)) {
-    for name in extract_underscored_css_imports(&notetype.config.css) {
-        inserter(name.to_string());
-    }
-    for template in &notetype.templates {
-        for template_side in [&template.config.q_format, &template.config.a_format] {
-            for name in extract_underscored_references(template_side) {
-                inserter(name.to_string());
-            }
         }
     }
 }

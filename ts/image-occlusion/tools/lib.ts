@@ -9,6 +9,8 @@ import { zoomResetValue } from "../store";
 
 export const SHAPE_MASK_COLOR = "#ffeba2";
 export const BORDER_COLOR = "#212121";
+export const TEXT_FONT_FAMILY = "Arial";
+export const TEXT_PADDING = 5;
 
 let _clipboard;
 
@@ -18,7 +20,10 @@ export const stopDraw = (canvas: fabric.Canvas): void => {
     canvas.off("mouse:move");
 };
 
-export const enableSelectable = (canvas: fabric.Canvas, select: boolean): void => {
+export const enableSelectable = (
+    canvas: fabric.Canvas,
+    select: boolean,
+): void => {
     canvas.selection = select;
     canvas.forEachObject(function(o) {
         o.selectable = select;
@@ -135,7 +140,10 @@ const pasteItem = (canvas: fabric.Canvas): void => {
     });
 };
 
-export const makeMaskTransparent = (canvas: fabric.Canvas, opacity = false): void => {
+export const makeMaskTransparent = (
+    canvas: fabric.Canvas,
+    opacity = false,
+): void => {
     const objects = canvas.getObjects();
     objects.forEach((object) => {
         object.set({
@@ -152,16 +160,25 @@ export const moveShapeToCanvasBoundaries = (canvas: fabric.Canvas): void => {
         if (!activeObject) {
             return;
         }
-        if (activeObject.type === "activeSelection" || activeObject.type === "rect") {
+        if (
+            activeObject.type === "activeSelection"
+            || activeObject.type === "rect"
+        ) {
             modifiedSelection(canvas, activeObject);
         }
         if (activeObject.type === "ellipse") {
             modifiedEllipse(canvas, activeObject);
         }
+        if (activeObject.type === "i-text") {
+            modifiedText(canvas, activeObject);
+        }
     });
 };
 
-const modifiedSelection = (canvas: fabric.Canvas, object: fabric.Object): void => {
+const modifiedSelection = (
+    canvas: fabric.Canvas,
+    object: fabric.Object,
+): void => {
     const newWidth = object.width * object.scaleX;
     const newHeight = object.height * object.scaleY;
 
@@ -174,7 +191,10 @@ const modifiedSelection = (canvas: fabric.Canvas, object: fabric.Object): void =
     setShapePosition(canvas, object);
 };
 
-const modifiedEllipse = (canvas: fabric.Canvas, object: fabric.Object): void => {
+const modifiedEllipse = (
+    canvas: fabric.Canvas,
+    object: fabric.Object,
+): void => {
     const newRx = object.rx * object.scaleX;
     const newRy = object.ry * object.scaleY;
     const newWidth = object.width * object.scaleX;
@@ -191,18 +211,25 @@ const modifiedEllipse = (canvas: fabric.Canvas, object: fabric.Object): void => 
     setShapePosition(canvas, object);
 };
 
-const setShapePosition = (canvas: fabric.Canvas, object: fabric.Object): void => {
+const modifiedText = (canvas: fabric.Canvas, object: fabric.Object): void => {
+    setShapePosition(canvas, object);
+};
+
+const setShapePosition = (
+    canvas: fabric.Canvas,
+    object: fabric.Object,
+): void => {
     if (object.left < 0) {
         object.set({ left: 0 });
     }
     if (object.top < 0) {
         object.set({ top: 0 });
     }
-    if (object.left + object.width + object.strokeWidth > canvas.width) {
-        object.set({ left: canvas.width - object.width });
+    if (object.left + object.width * object.scaleX + object.strokeWidth > canvas.width) {
+        object.set({ left: canvas.width - object.width * object.scaleX });
     }
-    if (object.top + object.height + object.strokeWidth > canvas.height) {
-        object.set({ top: canvas.height - object.height });
+    if (object.top + object.height * object.scaleY + object.strokeWidth > canvas.height) {
+        object.set({ top: canvas.height - object.height * object.scaleY });
     }
     object.setCoords();
 };
@@ -210,6 +237,20 @@ const setShapePosition = (canvas: fabric.Canvas, object: fabric.Object): void =>
 export function disableRotation(obj: fabric.Object): void {
     obj.setControlsVisibility({
         mtr: false,
+    });
+}
+
+export function enableUniformScaling(canvas: fabric.Canvas, obj: fabric.Object): void {
+    obj.setControlsVisibility({ mb: false, ml: false, mt: false, mr: false });
+    let timer: number;
+    obj.on("scaling", (e) => {
+        if (["bl", "br", "tr", "tl"].includes(e.transform.corner)) {
+            clearTimeout(timer);
+            canvas.uniformScaling = true;
+            timer = setTimeout(() => {
+                canvas.uniformScaling = false;
+            }, 500);
+        }
     });
 }
 

@@ -3,6 +3,7 @@
 
 import type { Canvas, Object as FabricObject } from "fabric";
 import { fabric } from "fabric";
+import { cloneDeep } from "lodash-es";
 
 import { makeMaskTransparent } from "../tools/lib";
 import type { Size } from "../types";
@@ -10,6 +11,7 @@ import type { Shape, ShapeOrShapes } from "./base";
 import { Ellipse } from "./ellipse";
 import { Polygon } from "./polygon";
 import { Rectangle } from "./rectangle";
+import { Text } from "./text";
 
 export function exportShapesToClozeDeletions(occludeInactive: boolean): {
     clozes: string;
@@ -18,8 +20,12 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
     const shapes = baseShapesFromFabric(occludeInactive);
 
     let clozes = "";
-    shapes.forEach((shapeOrShapes, index) => {
+    let index = 0;
+    shapes.forEach((shapeOrShapes) => {
         clozes += shapeOrShapesToCloze(shapeOrShapes, index);
+        if (!(shapeOrShapes instanceof Text)) {
+            index++;
+        }
     });
 
     return { clozes, noteCount: shapes.length };
@@ -52,15 +58,22 @@ function fabricObjectToBaseShapeOrShapes(
 ): ShapeOrShapes | null {
     let shape: Shape;
 
+    // Prevents the original fabric object from mutating when a non-primitive
+    // property of a Shape mutates.
+    const cloned = cloneDeep(object);
+
     switch (object.type) {
         case "rect":
-            shape = new Rectangle(object);
+            shape = new Rectangle(cloned);
             break;
         case "ellipse":
-            shape = new Ellipse(object);
+            shape = new Ellipse(cloned);
             break;
         case "polygon":
-            shape = new Polygon(object);
+            shape = new Polygon(cloned);
+            break;
+        case "i-text":
+            shape = new Text(cloned);
             break;
         case "group":
             return object._objects.map((child) => {
@@ -96,9 +109,7 @@ function shapeOrShapesToCloze(
 ): string {
     let text = "";
     function addKeyValue(key: string, value: string) {
-        if (Number.isNaN(Number(value))) {
-            value = ".0000";
-        }
+        value = value.replace(":", "\\:");
         text += `:${key}=${value}`;
     }
 
@@ -113,6 +124,8 @@ function shapeOrShapesToCloze(
         type = "ellipse";
     } else if (shapeOrShapes instanceof Polygon) {
         type = "polygon";
+    } else if (shapeOrShapes instanceof Text) {
+        type = "text";
     } else {
         throw new Error("Unknown shape type");
     }
@@ -121,6 +134,13 @@ function shapeOrShapesToCloze(
         addKeyValue(key, value);
     }
 
-    text = `{{c${index + 1}::image-occlusion:${type}${text}}}<br>`;
+    let ordinal: number;
+    if (type === "text") {
+        ordinal = 0;
+    } else {
+        ordinal = index + 1;
+    }
+    text = `{{c${ordinal}::image-occlusion:${type}${text}}}<br>`;
+
     return text;
 }

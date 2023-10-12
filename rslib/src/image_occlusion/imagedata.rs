@@ -15,6 +15,7 @@ use anki_proto::image_occlusion::ImageOcclusionFieldIndexes;
 use anki_proto::notetypes::ImageOcclusionField;
 use regex::Regex;
 
+use crate::cloze::parse_image_occlusions;
 use crate::media::MediaManager;
 use crate::prelude::*;
 
@@ -92,7 +93,7 @@ impl Collection {
             .or_not_found(note.notetype_id)?;
         let idxs = nt.get_io_field_indexes()?;
 
-        cloze_note.occlusions = fields[idxs.occlusions as usize].clone();
+        cloze_note.occlusions = parse_image_occlusions(fields[idxs.occlusions as usize].as_str());
         cloze_note.header = fields[idxs.header as usize].clone();
         cloze_note.back_extra = fields[idxs.back_extra as usize].clone();
         cloze_note.image_data = "".into();
