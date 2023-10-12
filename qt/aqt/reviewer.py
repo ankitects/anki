@@ -14,7 +14,6 @@ from typing import Any, Literal, Match, Sequence, cast
 import aqt
 import aqt.browser
 import aqt.operations
-from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.scheduler.base import ScheduleCardsAsNew
@@ -148,7 +147,6 @@ class Reviewer:
         self._previous_card_info = PreviousReviewerCardInfo(self.mw)
         self._states_mutated = True
         self._reps: int = None
-        hooks.card_did_leech.append(self.onLeech)
 
     def show(self) -> None:
         if self.mw.col.sched_ver() == 1 or not self.mw.col.v3_scheduler():

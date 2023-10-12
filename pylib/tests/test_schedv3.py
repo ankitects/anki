@@ -395,13 +395,7 @@ def test_reviews():
     c = copy.copy(cardcopy)
     c.lapses = 7
     c.flush()
-    # setup hook
-    hooked = []
 
-    def onLeech(card):
-        hooked.append(1)
-
-    hooks.card_did_leech.append(onLeech)
     col.sched.answerCard(c, 1)
     assert c.queue == QUEUE_TYPE_SUSPENDED
     c.load()
