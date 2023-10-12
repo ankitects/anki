@@ -38,6 +38,7 @@ export const drawText = (canvas: fabric.Canvas): void => {
         disableRotation(text);
         enableUniformScaling(canvas, text);
         canvas.add(text);
+        canvas.setActiveObject(text);
         undoStack.onObjectAdded(text.id);
     });
 };
