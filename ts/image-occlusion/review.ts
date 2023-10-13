@@ -4,23 +4,41 @@
 import * as tr from "@tslib/ftl";
 
 import { optimumPixelSizeForCanvas } from "./canvas-scale";
-import type { Shape } from "./shapes/base";
-import { Ellipse } from "./shapes/ellipse";
-import { extractShapesFromRenderedClozes } from "./shapes/from-cloze";
-import { Polygon } from "./shapes/polygon";
-import { Rectangle } from "./shapes/rectangle";
-import { Text } from "./shapes/text";
+import type { Shape } from "./shapes";
+import { Ellipse, extractShapesFromRenderedClozes, Polygon, Rectangle, Text } from "./shapes";
 import { TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_PADDING } from "./tools/lib";
 import type { Size } from "./types";
 
-export function setupImageCloze(): void {
-    window.addEventListener("load", () => {
-        window.addEventListener("resize", setupImageCloze);
-    });
-    window.requestAnimationFrame(setupImageClozeInner);
+export type ImageClozeShapes = {
+    active: Shape[];
+    inactive: Shape[];
+};
+
+export type DrawShapesFilter = (
+    shapes: ImageClozeShapes,
+    properties: ShapeProperties,
+    context: CanvasRenderingContext2D,
+) => ImageClozeShapes;
+
+export type DrawShapesCallback = (
+    shapes: ImageClozeShapes,
+    properties: ShapeProperties,
+    context: CanvasRenderingContext2D,
+) => void;
+
+export interface SetupImageClozeOptions {
+    onWillDrawShapes?: DrawShapesFilter;
+    onDidDrawShapes?: DrawShapesCallback;
 }
 
-function setupImageClozeInner(): void {
+export function setupImageCloze(setupOptions?: SetupImageClozeOptions): void {
+    window.addEventListener("load", () => {
+        window.addEventListener("resize", () => setupImageCloze(setupOptions));
+    });
+    window.requestAnimationFrame(() => setupImageClozeInner(setupOptions));
+}
+
+function setupImageClozeInner(setupOptions?: SetupImageClozeOptions): void {
     const canvas = document.querySelector(
         "#image-occlusion-canvas",
     ) as HTMLCanvasElement | null;
@@ -28,7 +46,6 @@ function setupImageClozeInner(): void {
         return;
     }
 
-    const ctx: CanvasRenderingContext2D = canvas.getContext("2d")!;
     const container = document.getElementById(
         "image-occlusion-container",
     ) as HTMLDivElement;
@@ -56,47 +73,64 @@ function setupImageClozeInner(): void {
         button.addEventListener("click", toggleMasks);
     }
 
-    drawShapes(canvas, ctx);
+    drawShapes(canvas, setupOptions?.onWillDrawShapes, setupOptions?.onDidDrawShapes);
 }
 
 function drawShapes(
     canvas: HTMLCanvasElement,
-    ctx: CanvasRenderingContext2D,
+    onWillDrawShapes?: DrawShapesFilter,
+    onDidDrawShapes?: DrawShapesCallback,
 ): void {
+    const context: CanvasRenderingContext2D = canvas.getContext("2d")!;
     const properties = getShapeProperties();
     const size = canvas;
-    for (const shape of extractShapesFromRenderedClozes(".cloze")) {
-        drawShape(ctx, size, shape, properties, true);
+
+    let active = extractShapesFromRenderedClozes(".cloze");
+    let inactive = extractShapesFromRenderedClozes(".cloze-inactive");
+
+    const shapes = onWillDrawShapes?.({ active, inactive }, properties, context);
+    if (shapes) {
+        active = shapes.active;
+        inactive = shapes.inactive;
     }
-    for (const shape of extractShapesFromRenderedClozes(".cloze-inactive")) {
-        if (shape.occludeInactive) {
-            drawShape(ctx, size, shape, properties, false);
-        }
+
+    for (const shape of active) {
+        drawShape(
+            context,
+            size,
+            shape,
+            properties.activeShapeColor,
+            properties.activeBorder.color,
+            properties.activeBorder.width,
+        );
     }
+    for (const shape of inactive.filter((s) => s.occludeInactive)) {
+        drawShape(
+            context,
+            size,
+            shape,
+            properties.inActiveShapeColor,
+            properties.inActiveBorder.color,
+            properties.inActiveBorder.width,
+        );
+    }
+
+    onDidDrawShapes?.({ active, inactive }, properties, context);
 }
 
 function drawShape(
     ctx: CanvasRenderingContext2D,
     size: Size,
     shape: Shape,
-    properties: ShapeProperties,
-    active: boolean,
+    fill: string,
+    stroke: string,
+    strokeWidth: number,
 ): void {
     shape.makeAbsolute(size);
 
-    const { color, border } = active
-        ? {
-            color: properties.activeShapeColor,
-            border: properties.activeBorder,
-        }
-        : {
-            color: properties.inActiveShapeColor,
-            border: properties.inActiveBorder,
-        };
-
-    ctx.fillStyle = color;
-    ctx.strokeStyle = border.color;
-    ctx.lineWidth = border.width;
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = strokeWidth;
     if (shape instanceof Rectangle) {
         ctx.fillRect(shape.left, shape.top, shape.width, shape.height);
         ctx.strokeRect(shape.left, shape.top, shape.width, shape.height);
@@ -175,7 +209,7 @@ function topLeftOfPoints(points: { x: number; y: number }[]): {
     return { x: left, y: top };
 }
 
-type ShapeProperties = {
+export type ShapeProperties = {
     activeShapeColor: string;
     inActiveShapeColor: string;
     activeBorder: { width: number; color: string };
