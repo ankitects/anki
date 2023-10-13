@@ -338,7 +338,7 @@ deck-config-get-params = Get Params
 deck-config-fsrs-on-all-clients =
     Please ensure all of your Anki clients are Anki(Mobile) 23.10+ or AnkiDroid 2.17+. FSRS will
     not work correctly if one of your clients is older.
-deck-config-set-optimal-retention = Set desired retention to { $num }
+deck-config-estimated-retention = Estimated retention: { $num }
 deck-config-complete = { $num }% complete.
 deck-config-reschedule-cards-on-change = Reschedule cards on change
 

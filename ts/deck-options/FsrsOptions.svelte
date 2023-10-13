@@ -188,18 +188,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return tr.deckConfigComplete({ num: pct });
     }
 
-    function stringForSetOptimalRetention(retention: number): String {
+    function estimatedRetention(retention: number): String {
         if (!retention) {
             return "";
         }
-        return tr.deckConfigSetOptimalRetention({ num: retention.toFixed(2) });
-    }
-
-    function setDesiredRetentionToOptimal() {
-        if (!optimalRetention) {
-            return;
-        }
-        $config.desiredRetention = optimalRetention;
+        return tr.deckConfigEstimatedRetention({ num: retention.toFixed(2) });
     }
 </script>
 
@@ -319,14 +312,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </button>
 
         {#if optimalRetention}
-            <button
-                class="btn {'btn-primary'}"
-                disabled={!optimalRetention ||
-                    optimalRetention === $config.desiredRetention}
-                on:click={() => setDesiredRetentionToOptimal()}
-            >
-                {stringForSetOptimalRetention(optimalRetention)}
-            </button>
+            {estimatedRetention(optimalRetention)}
         {/if}
         <div>{computeRetentionProgressString}</div>
     </details>
