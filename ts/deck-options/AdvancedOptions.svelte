@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SettingTitle from "../components/SettingTitle.svelte";
     import SwitchRow from "../components/SwitchRow.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
-    import type { HelpItem } from "../components/types";
+    import { type HelpItem, HelpItemScheduler } from "../components/types";
     import CardStateCustomizer from "./CardStateCustomizer.svelte";
     import FsrsOptions from "./FsrsOptions.svelte";
     import type { DeckOptionsState } from "./lib";
@@ -31,35 +31,75 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const fsrs = state.fsrs;
 
     const settings = {
+        fsrs: {
+            title: "FSRS",
+            help: tr.deckConfigFsrsTooltip(),
+            sched: HelpItemScheduler.FSRS,
+        },
         maximumInterval: {
             title: tr.schedulingMaximumInterval(),
             help: tr.deckConfigMaximumIntervalTooltip(),
             url: HelpPage.DeckOptions.maximumInterval,
         },
+        desiredRetention: {
+            title: tr.deckConfigDesiredRetention(),
+            help: tr.deckConfigDesiredRetentionTooltip(),
+            sched: HelpItemScheduler.FSRS,
+        },
+        sm2Retention: {
+            title: tr.deckConfigSm2Retention(),
+            help: tr.deckConfigSm2RetentionTooltip(),
+            sched: HelpItemScheduler.FSRS,
+        },
+        modelWeights: {
+            title: tr.deckConfigWeights(),
+            help: tr.deckConfigWeightsTooltip(),
+            sched: HelpItemScheduler.FSRS,
+        },
+        rescheduleCardsOnChange: {
+            title: tr.deckConfigRescheduleCardsOnChange(),
+            help: tr.deckConfigRescheduleCardsOnChangeTooltip(),
+            sched: HelpItemScheduler.FSRS,
+        },
+        computeOptimalWeights: {
+            title: tr.deckConfigComputeOptimalWeights(),
+            help: tr.deckConfigComputeOptimalWeightsTooltip(),
+            sched: HelpItemScheduler.FSRS,
+        },
+        computeOptimalRetention: {
+            title: tr.deckConfigComputeOptimalRetention(),
+            help: tr.deckConfigComputeOptimalRetentionTooltip(),
+            sched: HelpItemScheduler.FSRS,
+        },
         startingEase: {
             title: tr.schedulingStartingEase(),
             help: tr.deckConfigStartingEaseTooltip(),
             url: HelpPage.DeckOptions.startingEase,
+            sched: HelpItemScheduler.SM2,
         },
         easyBonus: {
             title: tr.schedulingEasyBonus(),
             help: tr.deckConfigEasyBonusTooltip(),
             url: HelpPage.DeckOptions.easyBonus,
+            sched: HelpItemScheduler.SM2,
         },
         intervalModifier: {
             title: tr.schedulingIntervalModifier(),
             help: tr.deckConfigIntervalModifierTooltip(),
             url: HelpPage.DeckOptions.intervalModifier,
+            sched: HelpItemScheduler.SM2,
         },
         hardInterval: {
             title: tr.schedulingHardInterval(),
             help: tr.deckConfigHardIntervalTooltip(),
             url: HelpPage.DeckOptions.hardInterval,
+            sched: HelpItemScheduler.SM2,
         },
         newInterval: {
             title: tr.schedulingNewInterval(),
             help: tr.deckConfigNewIntervalTooltip(),
             url: HelpPage.DeckOptions.newInterval,
+            sched: HelpItemScheduler.SM2,
         },
         customScheduling: {
             title: tr.deckConfigCustomScheduling(),
@@ -85,6 +125,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         title={tr.deckConfigAdvancedTitle()}
         url={HelpPage.DeckOptions.advanced}
         slot="tooltip"
+        fsrs={$fsrs}
         {helpSections}
         on:mount={(e) => {
             modal = e.detail.modal;
@@ -94,7 +135,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <DynamicallySlottable slotHost={Item} {api}>
         <Item>
             <SwitchRow bind:value={$fsrs} defaultValue={false}>
-                <SettingTitle>FSRS</SettingTitle>
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(Object.keys(settings).indexOf("fsrs"))}
+                >
+                    FSRS
+                </SettingTitle>
             </SwitchRow>
         </Item>
 
@@ -202,7 +248,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </SpinBoxFloatRow>
             </Item>
         {:else}
-            <FsrsOptions {state} />
+            <FsrsOptions
+                {state}
+                openHelpModal={(key) =>
+                    openHelpModal(Object.keys(settings).indexOf(key))}
+            />
         {/if}
 
         <Item>

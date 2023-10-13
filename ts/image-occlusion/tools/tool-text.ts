@@ -6,8 +6,8 @@ import { fabric } from "fabric";
 import {
     disableRotation,
     enableUniformScaling,
-    SHAPE_MASK_COLOR,
     stopDraw,
+    TEXT_BACKGROUND_COLOR,
     TEXT_FONT_FAMILY,
     TEXT_PADDING,
 } from "./lib";
@@ -32,12 +32,13 @@ export const drawText = (canvas: fabric.Canvas): void => {
             strokeWidth: 1,
             noScaleCache: false,
             fontFamily: TEXT_FONT_FAMILY,
-            backgroundColor: SHAPE_MASK_COLOR,
+            backgroundColor: TEXT_BACKGROUND_COLOR,
             padding: TEXT_PADDING,
         });
         disableRotation(text);
         enableUniformScaling(canvas, text);
         canvas.add(text);
+        canvas.setActiveObject(text);
         undoStack.onObjectAdded(text.id);
     });
 };

@@ -8,4 +8,10 @@ export type HelpItem = {
     title: string;
     help?: string;
     url?: string;
+    sched?: HelpItemScheduler;
 };
+
+export enum HelpItemScheduler {
+    SM2 = 0,
+    FSRS = 1,
+}

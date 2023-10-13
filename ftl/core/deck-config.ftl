@@ -331,15 +331,58 @@ deck-config-optimize-button = Optimize
 deck-config-compute-button = Compute
 deck-config-analyze-button = Analyze
 deck-config-desired-retention = Desired retention
+deck-config-sm2-retention = SM2 retention
 deck-config-smaller-is-better = Smaller numbers indicate a better fit to your review history.
 deck-config-steps-too-large-for-fsrs = When FSRS is enabled, learning steps over 1 day are not recommended.
 deck-config-get-params = Get Params
 deck-config-fsrs-on-all-clients =
     Please ensure all of your Anki clients are Anki(Mobile) 23.10+ or AnkiDroid 2.17+. FSRS will
     not work correctly if one of your clients is older.
-deck-config-set-optimal-retention = Set desired retention to { $num }
+deck-config-estimated-retention = Estimated retention: { $num }
 deck-config-complete = { $num }% complete.
 deck-config-reschedule-cards-on-change = Reschedule cards on change
+
+deck-config-fsrs-tooltip =
+    The Free Spaced Repetition Scheduler (FSRS) is an alternative to Anki's legacy SuperMemo 2 (SM2) scheduler.
+    By more accurately determining when you are likely to forget, it can help you remember
+    more material in the same amount of time. This setting is shared by all deck presets.
+deck-config-desired-retention-tooltip =
+    The default value of 0.9 will schedule cards so you have a 90% chance of remembering them when
+    they come up for review again. If you increase this value, Anki will show cards more frequently
+    to increase the chances of you remembering them. If you decrease the value, Anki will show cards
+    less frequently, and you will forget more of them. Be conservative when adjusting this - higher
+    values will greatly increase your workload, and lower values can be demoralizing when you forget
+    a lot of material.
+deck-config-sm2-retention-tooltip =
+    If your actual retention before switching to FSRS was significantly different from 0.9, adjusting
+    this value will allow Anki to better estimate your memory state when it encounters cards that are
+    missing review logs. Since review logs typically won't be missing unless you explicitly deleted them
+    to free up space, most users will not need to adjust this.
+deck-config-weights-tooltip =
+    Model weights affect how cards are scheduled. Once you've accumulated 1000+ reviews, you can optimize
+    the weights below.
+deck-config-reschedule-cards-on-change-tooltip =
+    This option controls whether the due dates of cards will be changed when you enable FSRS, or change
+    the weights. The default is not to reschedule cards: future reviews will use the new scheduling, but
+    there will be no immediate change to your workload. If rescheduling is enabled, the due dates of cards
+    will be changed. Depending on your desired retention, this can result in a large number of cards becoming
+    due, so is not recommended when first switching from SM2.
+deck-config-compute-optimal-weights-tooltip =
+    Once you've done 1000+ reviews in Anki, you can use the Optimize button to analyze your review history,
+    and automatically generate weights that are optimal for your memory and the content you're studying.
+    If you have decks that vary wildly in difficulty, it is recommended to assign them separate presets, as
+    the weights for easy decks and hard decks will be different. There is no need to optimize your weights
+    frequently - once every few months is sufficient.
+
+    By default, weights will be calculated from the review history of all decks using the current preset. You can
+    optionally adjust the search before calculating the weights, if you'd like to alter which cards are used for
+    optimizing the weights.
+deck-config-compute-optimal-retention-tooltip =
+    This tool assumes you're starting with 0 cards, and will attempt to calculate the amount of material you'll
+    be able to retain in the given time frame. The estimated retention will greatly depend on your inputs, and
+    if it significantly differs from 0.9, it's a sign that the time you've allocated each day is either too low
+    or too high for the amount of cards you're trying to learn. This number can be useful as a reference, but it
+    is not recommended to copy it into the desired retention field.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

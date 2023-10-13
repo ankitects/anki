@@ -189,6 +189,7 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
     if (polygon.width > 5 && polygon.height > 5) {
         disableRotation(polygon);
         canvas.add(polygon);
+        canvas.setActiveObject(polygon);
         // view undo redo tools
         undoStack.onObjectAdded(polygon.id);
         emitChangeSignal();

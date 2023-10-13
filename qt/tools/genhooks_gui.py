@@ -1151,6 +1151,16 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         or by a right-click paste.
         """,
     ),
+    Hook(
+        name="editor_state_did_change",
+        args=[
+            "editor: aqt.editor.Editor",
+            "new_state: aqt.editor.EditorState",
+            "old_state: aqt.editor.EditorState",
+        ],
+        doc="""Called when the input state of the editor changes, e.g. when
+        switching to an image occlusion note type.""",
+    ),
     # Tag
     ###################
     Hook(name="tag_editor_did_process_key", args=["tag_edit: TagEdit", "evt: QEvent"]),

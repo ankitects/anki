@@ -28,6 +28,8 @@ use rust::check_rust;
 use web::build_and_check_web;
 use web::check_sql;
 
+use crate::python::setup_sphix;
+
 fn anki_version() -> String {
     std::fs::read_to_string(".version")
         .unwrap()
@@ -50,6 +52,8 @@ fn main() -> Result<()> {
     build_and_check_web(build)?;
     build_and_check_aqt(build)?;
     build_bundle(build)?;
+
+    setup_sphix(build)?;
 
     check_rust(build)?;
     check_pylib(build)?;
