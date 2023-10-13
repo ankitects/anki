@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Item from "../components/Item.svelte";
     import SettingTitle from "../components/SettingTitle.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
-    import type { HelpItem } from "../components/types";
+    import { type HelpItem, HelpItemScheduler } from "../components/types";
     import { leechChoices } from "./choices";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxRow from "./SpinBoxRow.svelte";
@@ -54,6 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             title: tr.schedulingMinimumInterval(),
             help: tr.deckConfigMinimumIntervalTooltip(),
             url: HelpPage.DeckOptions.minimumInterval,
+            sched: HelpItemScheduler.SM2,
         },
         leechThreshold: {
             title: tr.schedulingLeechThreshold(),
@@ -82,6 +83,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         title={tr.schedulingLapses()}
         url={HelpPage.DeckOptions.lapses}
         slot="tooltip"
+        fsrs={$fsrs}
         {helpSections}
         on:mount={(e) => {
             modal = e.detail.modal;

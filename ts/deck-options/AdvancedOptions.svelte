@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SettingTitle from "../components/SettingTitle.svelte";
     import SwitchRow from "../components/SwitchRow.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
-    import type { HelpItem } from "../components/types";
+    import { type HelpItem, HelpItemScheduler } from "../components/types";
     import CardStateCustomizer from "./CardStateCustomizer.svelte";
     import FsrsOptions from "./FsrsOptions.svelte";
     import type { DeckOptionsState } from "./lib";
@@ -40,26 +40,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             title: tr.schedulingStartingEase(),
             help: tr.deckConfigStartingEaseTooltip(),
             url: HelpPage.DeckOptions.startingEase,
+            sched: HelpItemScheduler.SM2,
         },
         easyBonus: {
             title: tr.schedulingEasyBonus(),
             help: tr.deckConfigEasyBonusTooltip(),
             url: HelpPage.DeckOptions.easyBonus,
+            sched: HelpItemScheduler.SM2,
         },
         intervalModifier: {
             title: tr.schedulingIntervalModifier(),
             help: tr.deckConfigIntervalModifierTooltip(),
             url: HelpPage.DeckOptions.intervalModifier,
+            sched: HelpItemScheduler.SM2,
         },
         hardInterval: {
             title: tr.schedulingHardInterval(),
             help: tr.deckConfigHardIntervalTooltip(),
             url: HelpPage.DeckOptions.hardInterval,
+            sched: HelpItemScheduler.SM2,
         },
         newInterval: {
             title: tr.schedulingNewInterval(),
             help: tr.deckConfigNewIntervalTooltip(),
             url: HelpPage.DeckOptions.newInterval,
+            sched: HelpItemScheduler.SM2,
         },
         customScheduling: {
             title: tr.deckConfigCustomScheduling(),
@@ -85,6 +90,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         title={tr.deckConfigAdvancedTitle()}
         url={HelpPage.DeckOptions.advanced}
         slot="tooltip"
+        fsrs={$fsrs}
         {helpSections}
         on:mount={(e) => {
             modal = e.detail.modal;
