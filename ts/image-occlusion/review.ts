@@ -136,7 +136,7 @@ function drawShape(
     stroke: string,
     strokeWidth: number,
 ): void {
-    shape.makeAbsolute(size);
+    shape = shape.toAbsolute(size);
 
     ctx.fillStyle = fill;
     ctx.strokeStyle = stroke;

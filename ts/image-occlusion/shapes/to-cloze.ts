@@ -108,7 +108,7 @@ function fabricObjectToBaseShapeOrShapes(
         shape.top = newPosition.y;
     }
 
-    shape.makeNormal(size);
+    shape = shape.toNormal(size);
     return shape;
 }
 

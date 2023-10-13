@@ -50,18 +50,24 @@ export class Shape {
     }
 
     toFabric(size: Size): fabric.ForCloze {
-        this.makeAbsolute(size);
-        return new fabric.Object(this);
+        const absolute = this.toAbsolute(size);
+        return new fabric.Object(absolute);
     }
 
-    makeNormal(size: Size): void {
-        this.left = xToNormalized(size, this.left);
-        this.top = yToNormalized(size, this.top);
+    toNormal(size: Size): Shape {
+        return new Shape({
+            ...this,
+            left: xToNormalized(size, this.left),
+            top: yToNormalized(size, this.top),
+        });
     }
 
-    makeAbsolute(size: Size): void {
-        this.left = xFromNormalized(size, this.left);
-        this.top = yFromNormalized(size, this.top);
+    toAbsolute(size: Size): Shape {
+        return new Shape({
+            ...this,
+            left: xFromNormalized(size, this.left),
+            top: yFromNormalized(size, this.top),
+        });
     }
 }
 

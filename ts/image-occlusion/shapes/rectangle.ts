@@ -28,20 +28,28 @@ export class Rectangle extends Shape {
     }
 
     toFabric(size: Size): fabric.Rect {
-        this.makeAbsolute(size);
-        return new fabric.Rect(this);
+        const absolute = this.toAbsolute(size);
+        return new fabric.Rect(absolute);
     }
 
-    makeNormal(size: Size): void {
-        super.makeNormal(size);
-        this.width = xToNormalized(size, this.width);
-        this.height = yToNormalized(size, this.height);
+    toNormal(size: Size): Rectangle {
+        return new Rectangle({
+            ...this,
+            width: xToNormalized(size, this.width),
+            height: yToNormalized(size, this.height),
+            left: xToNormalized(size, this.left),
+            top: yToNormalized(size, this.top),
+        });
     }
 
-    makeAbsolute(size: Size): void {
-        super.makeAbsolute(size);
-        this.width = xFromNormalized(size, this.width);
-        this.height = yFromNormalized(size, this.height);
+    toAbsolute(size: Size): Rectangle {
+        return new Rectangle({
+            ...this,
+            width: xFromNormalized(size, this.width),
+            height: yFromNormalized(size, this.height),
+            left: xFromNormalized(size, this.left),
+            top: yFromNormalized(size, this.top),
+        });
     }
 }
 

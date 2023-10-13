@@ -28,20 +28,28 @@ export class Ellipse extends Shape {
     }
 
     toFabric(size: Size): fabric.Ellipse {
-        this.makeAbsolute(size);
-        return new fabric.Ellipse(this);
+        const absolute = this.toAbsolute(size);
+        return new fabric.Ellipse(absolute);
     }
 
-    makeNormal(size: Size): void {
-        super.makeNormal(size);
-        this.rx = xToNormalized(size, this.rx);
-        this.ry = yToNormalized(size, this.ry);
+    toNormal(size: Size): Ellipse {
+        return new Ellipse({
+            ...this,
+            rx: xToNormalized(size, this.rx),
+            ry: yToNormalized(size, this.ry),
+            left: xToNormalized(size, this.left),
+            top: yToNormalized(size, this.top),
+        });
     }
 
-    makeAbsolute(size: Size): void {
-        super.makeAbsolute(size);
-        this.rx = xFromNormalized(size, this.rx);
-        this.ry = yFromNormalized(size, this.ry);
+    toAbsolute(size: Size): Ellipse {
+        return new Ellipse({
+            ...this,
+            rx: xFromNormalized(size, this.rx),
+            ry: yFromNormalized(size, this.ry),
+            left: xFromNormalized(size, this.left),
+            top: yFromNormalized(size, this.top),
+        });
     }
 }
 
