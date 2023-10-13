@@ -30,6 +30,7 @@ pub struct ComputeMemoryProgress {
 pub(crate) struct UpdateMemoryStateRequest {
     pub weights: Weights,
     pub desired_retention: f32,
+    pub sm2_retention: f32,
     pub max_interval: u32,
     pub reschedule: bool,
 }
@@ -57,7 +58,13 @@ impl Collection {
                 None
             };
             let fsrs = FSRS::new(req.as_ref().map(|w| &w.weights[..]).or(Some([].as_slice())))?;
-            let items = fsrs_items_for_memory_state(&fsrs, revlog, timing.next_day_at);
+            let sm2_retention = req.as_ref().map(|w| w.sm2_retention);
+            let items = fsrs_items_for_memory_state(
+                &fsrs,
+                revlog,
+                timing.next_day_at,
+                sm2_retention.unwrap_or(0.9),
+            );
             let desired_retention = req.as_ref().map(|w| w.desired_retention);
             let mut progress = self.new_progress_handler::<ComputeMemoryProgress>();
             progress.update(false, |s| s.total_cards = items.len() as u32)?;
@@ -66,7 +73,7 @@ impl Collection {
                 let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
                 let original = card.clone();
                 if let Some(req) = &req {
-                    card.set_memory_state(&fsrs, item);
+                    card.set_memory_state(&fsrs, item, sm2_retention.unwrap());
                     card.desired_retention = desired_retention;
                     // if rescheduling
                     if let Some(reviews) = &last_reviews {
@@ -127,10 +134,16 @@ impl Collection {
             .get_deck_config(conf_id)?
             .or_not_found(conf_id)?;
         let desired_retention = config.inner.desired_retention;
+        let sm2_retention = config.inner.sm2_retention;
         let fsrs = FSRS::new(Some(&config.inner.fsrs_weights))?;
         let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
-        let item = single_card_revlog_to_item(&fsrs, revlog, self.timing_today()?.next_day_at);
-        card.set_memory_state(&fsrs, item);
+        let item = single_card_revlog_to_item(
+            &fsrs,
+            revlog,
+            self.timing_today()?.next_day_at,
+            sm2_retention,
+        );
+        card.set_memory_state(&fsrs, item, sm2_retention);
         Ok(ComputeMemoryStateResponse {
             state: card.memory_state.map(Into::into),
             desired_retention,
@@ -143,6 +156,7 @@ impl Card {
         &mut self,
         fsrs: &FSRS,
         item: Option<FsrsItemWithStartingState>,
+        sm2_retention: f32,
     ) {
         self.memory_state = item
             .map(|i| fsrs.memory_state(i.item, i.starting_state))
@@ -151,7 +165,11 @@ impl Card {
                     None
                 } else {
                     // no valid revlog entries; infer state from current card state
-                    Some(fsrs.memory_state_from_sm2(self.ease_factor(), self.interval as f32))
+                    Some(fsrs.memory_state_from_sm2(
+                        self.ease_factor(),
+                        self.interval as f32,
+                        sm2_retention,
+                    ))
                 }
             })
             .map(Into::into);
@@ -172,6 +190,7 @@ pub(crate) fn fsrs_items_for_memory_state(
     fsrs: &FSRS,
     revlogs: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
+    sm2_retention: f32,
 ) -> Vec<(CardId, Option<FsrsItemWithStartingState>)> {
     revlogs
         .into_iter()
@@ -180,7 +199,7 @@ pub(crate) fn fsrs_items_for_memory_state(
         .map(|(card_id, group)| {
             (
                 card_id,
-                single_card_revlog_to_item(fsrs, group.collect(), next_day_at),
+                single_card_revlog_to_item(fsrs, group.collect(), next_day_at, sm2_retention),
             )
         })
         .collect()
@@ -214,6 +233,7 @@ pub(crate) fn single_card_revlog_to_item(
     fsrs: &FSRS,
     entries: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
+    sm2_retention: f32,
 ) -> Option<FsrsItemWithStartingState> {
     let have_learning = entries
         .iter()
@@ -232,7 +252,7 @@ pub(crate) fn single_card_revlog_to_item(
         };
         let interval = first_review.interval.max(1);
         let starting_state =
-            fsrs.memory_state_from_sm2(ease_factor as f32 / 1000.0, interval as f32);
+            fsrs.memory_state_from_sm2(ease_factor as f32 / 1000.0, interval as f32, sm2_retention);
         let items = single_card_revlog_to_items(entries, next_day_at, false);
         items.and_then(|mut items| {
             let mut item = items.pop().unwrap();
@@ -277,6 +297,7 @@ mod tests {
                 revlog(RevlogReviewKind::Review, 1),
             ],
             TimestampSecs::now(),
+            0.9,
         )
         .unwrap();
         assert_eq!(
@@ -287,7 +308,7 @@ mod tests {
             })
         );
         let mut card = Card::default();
-        card.set_memory_state(&fsrs, Some(item));
+        card.set_memory_state(&fsrs, Some(item), 0.9);
         assert_eq!(
             card.memory_state,
             Some(FsrsMemoryState {
@@ -305,12 +326,13 @@ mod tests {
                 ..revlog(RevlogReviewKind::Review, 100)
             }],
             TimestampSecs::now(),
+            0.9,
         );
         assert!(item.is_none());
         card.interval = 123;
         card.ease_factor = 2000;
         card.ctype = CardType::Review;
-        card.set_memory_state(&fsrs, item);
+        card.set_memory_state(&fsrs, item, 0.9);
         assert_eq!(
             card.memory_state,
             Some(FsrsMemoryState {
@@ -331,7 +353,7 @@ mod tests {
             ease_factor: 1300,
             ..Default::default()
         };
-        card.set_memory_state(&FSRS::new(Some(&[])).unwrap(), None);
+        card.set_memory_state(&FSRS::new(Some(&[])).unwrap(), None, 0.9);
         assert_eq!(
             card.memory_state,
             Some(

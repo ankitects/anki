@@ -73,6 +73,8 @@ pub struct DeckConfSchema11 {
     stop_timer_on_answer: bool,
     #[serde(default)]
     reschedule_fsrs_cards: bool,
+    #[serde(default)]
+    sm2_retention: f32,
 
     #[serde(flatten)]
     other: HashMap<String, Value>,
@@ -263,6 +265,7 @@ impl Default for DeckConfSchema11 {
             fsrs_weights: vec![],
             desired_retention: 0.9,
             reschedule_fsrs_cards: false,
+            sm2_retention: 0.9,
         }
     }
 }
@@ -335,6 +338,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 fsrs_weights: c.fsrs_weights,
                 desired_retention: c.desired_retention,
                 reschedule_fsrs_cards: c.reschedule_fsrs_cards,
+                sm2_retention: c.sm2_retention,
                 other: other_bytes,
             },
         }
@@ -430,6 +434,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             fsrs_weights: i.fsrs_weights,
             desired_retention: i.desired_retention,
             reschedule_fsrs_cards: i.reschedule_fsrs_cards,
+            sm2_retention: 0.9,
         }
     }
 }
@@ -454,7 +459,8 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "fsrsWeights",
     "desiredRetention",
     "stopTimerOnAnswer",
-    "rescheduleFsrsCards"
+    "rescheduleFsrsCards",
+    "sm2Retention",
 };
 
 static RESERVED_DECKCONF_NEW_KEYS: Set<&'static str> = phf_set! {

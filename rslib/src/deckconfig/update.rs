@@ -236,6 +236,7 @@ impl Collection {
                                     desired_retention: c.inner.desired_retention,
                                     max_interval: c.inner.maximum_review_interval,
                                     reschedule: c.inner.reschedule_fsrs_cards,
+                                    sm2_retention: c.inner.sm2_retention,
                                 })
                             } else {
                                 None

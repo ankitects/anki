@@ -214,6 +214,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </SettingTitle>
 </SpinBoxFloatRow>
 
+<SpinBoxFloatRow
+    bind:value={$config.sm2Retention}
+    defaultValue={defaults.sm2Retention}
+    min={0.7}
+    max={0.97}
+>
+    <SettingTitle>
+        {tr.deckConfigSm2Retention()}
+    </SettingTitle>
+</SpinBoxFloatRow>
+
 <div class="ms-1 me-1">
     <WeightsInputRow
         bind:value={$config.fsrsWeights}

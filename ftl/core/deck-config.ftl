@@ -331,6 +331,7 @@ deck-config-optimize-button = Optimize
 deck-config-compute-button = Compute
 deck-config-analyze-button = Analyze
 deck-config-desired-retention = Desired retention
+deck-config-sm2-retention = SM2 retention
 deck-config-smaller-is-better = Smaller numbers indicate a better fit to your review history.
 deck-config-steps-too-large-for-fsrs = When FSRS is enabled, learning steps over 1 day are not recommended.
 deck-config-get-params = Get Params
