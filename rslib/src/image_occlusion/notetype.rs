@@ -99,7 +99,7 @@ pub(crate) fn image_occlusion_notetype(tr: &I18n) -> Notetype {
 </div>
 <script>
 try {{
-    anki.setupImageCloze();
+    anki.imageOcclusion.setup();
 }} catch (exc) {{
     document.getElementById("err").innerHTML = `{err_loading}<br><br>${{exc}}`;
 }}

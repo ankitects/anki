@@ -4,41 +4,51 @@
 import * as tr from "@tslib/ftl";
 
 import { optimumPixelSizeForCanvas } from "./canvas-scale";
-import type { Shape } from "./shapes";
+import { Shape } from "./shapes";
 import { Ellipse, extractShapesFromRenderedClozes, Polygon, Rectangle, Text } from "./shapes";
 import { TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_PADDING } from "./tools/lib";
 import type { Size } from "./types";
 
-export type ImageClozeShapes = {
+export type ImageOcclusionShapes = {
     active: Shape[];
     inactive: Shape[];
 };
 
 export type DrawShapesFilter = (
-    shapes: ImageClozeShapes,
+    shapes: ImageOcclusionShapes,
     properties: ShapeProperties,
     context: CanvasRenderingContext2D,
-) => ImageClozeShapes;
+) => ImageOcclusionShapes;
 
 export type DrawShapesCallback = (
-    shapes: ImageClozeShapes,
+    shapes: ImageOcclusionShapes,
     properties: ShapeProperties,
     context: CanvasRenderingContext2D,
 ) => void;
 
-export interface SetupImageClozeOptions {
+export interface SetupImageOcclusionOptions {
     onWillDrawShapes?: DrawShapesFilter;
     onDidDrawShapes?: DrawShapesCallback;
 }
 
-export function setupImageCloze(setupOptions?: SetupImageClozeOptions): void {
+export const imageOcclusionAPI = {
+    setup: setupImageOcclusion,
+    drawShape,
+    Ellipse,
+    Polygon,
+    Rectangle,
+    Shape,
+    Text,
+};
+
+function setupImageOcclusion(setupOptions?: SetupImageOcclusionOptions): void {
     window.addEventListener("load", () => {
-        window.addEventListener("resize", () => setupImageCloze(setupOptions));
+        window.addEventListener("resize", () => setupImageOcclusion(setupOptions));
     });
-    window.requestAnimationFrame(() => setupImageClozeInner(setupOptions));
+    window.requestAnimationFrame(() => setupImageOcclusionInner(setupOptions));
 }
 
-function setupImageClozeInner(setupOptions?: SetupImageClozeOptions): void {
+function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOptions): void {
     const canvas = document.querySelector(
         "#image-occlusion-canvas",
     ) as HTMLCanvasElement | null;
