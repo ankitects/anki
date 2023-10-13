@@ -25,6 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WeightsInputRow from "./WeightsInputRow.svelte";
 
     export let state: DeckOptionsState;
+    export let openHelpModal: (String) => void;
 
     const presetName = state.currentPresetName;
 
@@ -202,7 +203,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     min={0.7}
     max={0.97}
 >
-    <SettingTitle>
+    <SettingTitle on:click={() => openHelpModal("desiredRetention")}>
         {tr.deckConfigDesiredRetention()}
     </SettingTitle>
 </SpinBoxFloatRow>
@@ -213,7 +214,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     min={0.7}
     max={0.97}
 >
-    <SettingTitle>
+    <SettingTitle on:click={() => openHelpModal("sm2Retention")}>
         {tr.deckConfigSm2Retention()}
     </SettingTitle>
 </SpinBoxFloatRow>
@@ -224,13 +225,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         defaultValue={[]}
         defaults={defaults.fsrsWeights}
     >
-        <SettingTitle>{tr.deckConfigWeights()}</SettingTitle>
+        <SettingTitle on:click={() => openHelpModal("modelWeights")}>
+            {tr.deckConfigWeights()}
+        </SettingTitle>
     </WeightsInputRow>
 </div>
 
 <div class="m-2">
     <SwitchRow bind:value={$config.rescheduleFsrsCards} defaultValue={false}>
-        <SettingTitle>
+        <SettingTitle on:click={() => openHelpModal("rescheduleCardsOnChange")}>
             {tr.deckConfigRescheduleCardsOnChange()}
         </SettingTitle>
     </SwitchRow>
