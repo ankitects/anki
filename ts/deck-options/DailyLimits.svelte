@@ -44,24 +44,15 @@
     const config = state.currentConfig;
     const limits = state.deckLimits;
     const defaults = state.defaults;
-    const parentLimits = state.parentLimits;
     const newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
 
-    const v3Extra = state.v3Scheduler
-        ? "\n\n" + tr.deckConfigLimitDeckV3() + "\n\n" + tr.deckConfigTabDescription()
-        : "";
-    const reviewV3Extra = state.v3Scheduler
-        ? "\n\n" + tr.deckConfigLimitInterdayBoundByReviews() + v3Extra
-        : "";
+    const v3Extra =
+        "\n\n" + tr.deckConfigLimitDeckV3() + "\n\n" + tr.deckConfigTabDescription();
+    const reviewV3Extra = "\n\n" + tr.deckConfigLimitInterdayBoundByReviews() + v3Extra;
     const newCardsIgnoreReviewLimitHelp =
         tr.deckConfigAffectsEntireCollection() +
         "\n\n" +
         tr.deckConfigNewCardsIgnoreReviewLimitTooltip();
-
-    $: newCardsGreaterThanParent =
-        !state.v3Scheduler && newValue > $parentLimits.newCards
-            ? tr.deckConfigDailyLimitWillBeCapped({ cards: $parentLimits.newCards })
-            : "";
 
     $: reviewsTooLow =
         Math.min(9999, newValue * 10) > reviewsValue
@@ -79,26 +70,21 @@
             $config.newPerDay,
             null,
         ),
-    ].concat(
-        state.v3Scheduler
-            ? [
-                  new ValueTab(
-                      tr.deckConfigDeckOnly(),
-                      $limits.new ?? null,
-                      (value) => ($limits.new = value ?? undefined),
-                      null,
-                      null,
-                  ),
-                  new ValueTab(
-                      tr.deckConfigTodayOnly(),
-                      $limits.newTodayActive ? $limits.newToday ?? null : null,
-                      (value) => ($limits.newToday = value ?? undefined),
-                      null,
-                      $limits.newToday ?? null,
-                  ),
-              ]
-            : [],
-    );
+        new ValueTab(
+            tr.deckConfigDeckOnly(),
+            $limits.new ?? null,
+            (value) => ($limits.new = value ?? undefined),
+            null,
+            null,
+        ),
+        new ValueTab(
+            tr.deckConfigTodayOnly(),
+            $limits.newTodayActive ? $limits.newToday ?? null : null,
+            (value) => ($limits.newToday = value ?? undefined),
+            null,
+            $limits.newToday ?? null,
+        ),
+    ];
 
     const reviewTabs: ValueTab[] = [
         new ValueTab(
@@ -108,26 +94,21 @@
             $config.reviewsPerDay,
             null,
         ),
-    ].concat(
-        state.v3Scheduler
-            ? [
-                  new ValueTab(
-                      tr.deckConfigDeckOnly(),
-                      $limits.review ?? null,
-                      (value) => ($limits.review = value ?? undefined),
-                      null,
-                      null,
-                  ),
-                  new ValueTab(
-                      tr.deckConfigTodayOnly(),
-                      $limits.reviewTodayActive ? $limits.reviewToday ?? null : null,
-                      (value) => ($limits.reviewToday = value ?? undefined),
-                      null,
-                      $limits.reviewToday ?? null,
-                  ),
-              ]
-            : [],
-    );
+        new ValueTab(
+            tr.deckConfigDeckOnly(),
+            $limits.review ?? null,
+            (value) => ($limits.review = value ?? undefined),
+            null,
+            null,
+        ),
+        new ValueTab(
+            tr.deckConfigTodayOnly(),
+            $limits.reviewTodayActive ? $limits.reviewToday ?? null : null,
+            (value) => ($limits.reviewToday = value ?? undefined),
+            null,
+            $limits.reviewToday ?? null,
+        ),
+    ];
 
     let newValue = 0;
     let reviewsValue = 0;
@@ -185,9 +166,6 @@
         </Item>
 
         <Item>
-            <Warning warning={newCardsGreaterThanParent} />
-        </Item>
-        <Item>
             <SpinBoxRow bind:value={reviewsValue} defaultValue={defaults.reviewsPerDay}>
                 <TabbedValue slot="tabs" tabs={reviewTabs} bind:value={reviewsValue} />
                 <SettingTitle
@@ -203,21 +181,17 @@
             <Warning warning={reviewsTooLow} />
         </Item>
 
-        {#if state.v3Scheduler}
-            <Item>
-                <SwitchRow bind:value={$newCardsIgnoreReviewLimit} defaultValue={false}>
-                    <SettingTitle
-                        on:click={() =>
-                            openHelpModal(
-                                Object.keys(settings).indexOf(
-                                    "newCardsIgnoreReviewLimit",
-                                ),
-                            )}
-                    >
-                        {settings.newCardsIgnoreReviewLimit.title}
-                    </SettingTitle>
-                </SwitchRow>
-            </Item>
-        {/if}
+        <Item>
+            <SwitchRow bind:value={$newCardsIgnoreReviewLimit} defaultValue={false}>
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(
+                            Object.keys(settings).indexOf("newCardsIgnoreReviewLimit"),
+                        )}
+                >
+                    {settings.newCardsIgnoreReviewLimit.title}
+                </SettingTitle>
+            </SwitchRow>
+        </Item>
     </DynamicallySlottable>
 </TitledContainer>

@@ -92,15 +92,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }}
     />
     <DynamicallySlottable slotHost={Item} {api}>
-        {#if state.v3Scheduler}
-            <Item>
-                <SwitchRow bind:value={$fsrs} defaultValue={false}>
-                    <SettingTitle>FSRS</SettingTitle>
-                </SwitchRow>
-            </Item>
+        <Item>
+            <SwitchRow bind:value={$fsrs} defaultValue={false}>
+                <SettingTitle>FSRS</SettingTitle>
+            </SwitchRow>
+        </Item>
 
-            <Warning warning={fsrsClientWarning} />
-        {/if}
+        <Warning warning={fsrsClientWarning} />
 
         <Item>
             <SpinBoxRow
@@ -118,7 +116,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </SpinBoxRow>
         </Item>
 
-        {#if !$fsrs || !state.v3Scheduler}
+        {#if !$fsrs}
             <Item>
                 <SpinBoxFloatRow
                     bind:value={$config.initialEase}
@@ -207,17 +205,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <FsrsOptions {state} />
         {/if}
 
-        {#if state.v3Scheduler}
-            <Item>
-                <CardStateCustomizer
-                    title={settings.customScheduling.title}
-                    on:click={() =>
-                        openHelpModal(
-                            Object.keys(settings).indexOf("customScheduling"),
-                        )}
-                    bind:value={$cardStateCustomizer}
-                />
-            </Item>
-        {/if}
+        <Item>
+            <CardStateCustomizer
+                title={settings.customScheduling.title}
+                on:click={() =>
+                    openHelpModal(Object.keys(settings).indexOf("customScheduling"))}
+                bind:value={$cardStateCustomizer}
+            />
+        </Item>
     </DynamicallySlottable>
 </TitledContainer>

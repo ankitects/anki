@@ -86,13 +86,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </Row>
             </Item>
 
-            {#if state.v3Scheduler}
-                <Item>
-                    <Row class="row-columns">
-                        <DisplayOrder {state} api={displayOrder} />
-                    </Row>
-                </Item>
-            {/if}
+            <Item>
+                <Row class="row-columns">
+                    <DisplayOrder {state} api={displayOrder} />
+                </Row>
+            </Item>
 
             <Item>
                 <Row class="row-columns">
