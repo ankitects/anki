@@ -9,6 +9,7 @@ use super::Context;
 use super::TemplateMap;
 use crate::card::CardQueue;
 use crate::card::CardType;
+use crate::config::SchedulerVersion;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 
@@ -26,6 +27,7 @@ struct CardContext<'a> {
     /// The number of days the source collection is ahead of the target
     /// collection
     collection_delta: i32,
+    scheduler_version: SchedulerVersion,
     existing_cards: HashSet<CardAsNidAndOrd>,
     existing_card_ids: HashSet<CardId>,
 
@@ -44,6 +46,7 @@ impl<'c> CardContext<'c> {
     ) -> Result<Self> {
         let existing_cards = target_col.storage.all_cards_as_nid_and_ord()?;
         let collection_delta = target_col.collection_delta(days_elapsed)?;
+        let scheduler_version = target_col.scheduler_info()?.version;
         let existing_card_ids = target_col.storage.get_all_card_ids()?;
         Ok(Self {
             target_col,
@@ -54,6 +57,7 @@ impl<'c> CardContext<'c> {
             remapped_decks: imported_decks,
             existing_cards,
             collection_delta,
+            scheduler_version,
             existing_card_ids,
             imported_cards: HashMap::new(),
         })
@@ -85,6 +89,9 @@ impl Context<'_> {
             remapped_templates,
             imported_decks,
         )?;
+        if ctx.scheduler_version == SchedulerVersion::V1 {
+            return Err(AnkiError::SchedulerUpgradeRequired);
+        }
         ctx.import_cards(mem::take(&mut self.data.cards), keep_filtered)?;
         ctx.import_revlog(mem::take(&mut self.data.revlog))
     }

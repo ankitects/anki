@@ -14,6 +14,7 @@ use serde_repr::Deserialize_repr;
 use serde_repr::Serialize_repr;
 
 use crate::collection::Collection;
+use crate::config::SchedulerVersion;
 use crate::deckconfig::DeckConfig;
 use crate::decks::DeckId;
 use crate::define_newtype;
@@ -341,6 +342,10 @@ impl Collection {
     }
 
     pub fn set_deck(&mut self, cards: &[CardId], deck_id: DeckId) -> Result<OpOutput<usize>> {
+        let sched = self.scheduler_version();
+        if sched == SchedulerVersion::V1 {
+            return Err(AnkiError::SchedulerUpgradeRequired);
+        }
         let deck = self.get_deck(deck_id)?.or_not_found(deck_id)?;
         let config_id = deck.config_id().ok_or(AnkiError::FilteredDeckError {
             source: FilteredDeckError::CanNotMoveCardsInto,
