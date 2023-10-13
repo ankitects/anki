@@ -306,15 +306,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <SettingTitle>Minutes study/day</SettingTitle>
         </SpinBoxRow>
 
-        <SpinBoxFloatRow
-            bind:value={optimalRetentionRequest.lossAversion}
-            defaultValue={2.5}
-            min={1.0}
-            max={3.0}
-        >
-            <SettingTitle>Loss aversion</SettingTitle>
-        </SpinBoxFloatRow>
-
         <button
             class="btn {computingRetention ? 'btn-warning' : 'btn-primary'}"
             disabled={!computingRetention && computing}
