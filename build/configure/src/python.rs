@@ -6,6 +6,7 @@ use ninja_gen::action::BuildAction;
 use ninja_gen::archives::Platform;
 use ninja_gen::build::FilesHandle;
 use ninja_gen::command::RunCommand;
+use ninja_gen::copy::CopyFiles;
 use ninja_gen::glob;
 use ninja_gen::hashmap;
 use ninja_gen::input::BuildInput;
@@ -238,5 +239,44 @@ fn add_pylint(build: &mut Build) -> Result<()> {
         },
     )?;
 
+    Ok(())
+}
+
+struct Sphinx {
+    deps: BuildInput,
+}
+
+impl BuildAction for Sphinx {
+    fn command(&self) -> &str {
+        "$pip install sphinx sphinx_rtd_theme sphinx-autoapi \
+         && $python python/sphinx/build.py"
+    }
+
+    fn files(&mut self, build: &mut impl FilesHandle) {
+        build.add_inputs("python", inputs![":pyenv:bin"]);
+        build.add_inputs("pip", inputs![":pyenv:pip"]);
+        build.add_inputs("", &self.deps);
+        build.add_output_stamp("python/sphinx/stamp");
+    }
+
+    fn hide_success(&self) -> bool {
+        false
+    }
+}
+
+pub(crate) fn setup_sphix(build: &mut Build) -> Result<()> {
+    build.add_action(
+        "python:sphinx:copy_conf",
+        CopyFiles {
+            inputs: inputs![glob!("python/sphinx/{conf.py,index.rst}")],
+            output_folder: "python/sphinx",
+        },
+    )?;
+    build.add_action(
+        "python:sphinx",
+        Sphinx {
+            deps: inputs![":pylib", ":qt", ":python:sphinx:copy_conf"],
+        },
+    )?;
     Ok(())
 }
