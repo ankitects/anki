@@ -23,14 +23,18 @@ export class Shape {
      * question side.
      */
     occludeInactive = false;
+    /* Cloze ordinal */
+    ordinal = 0;
 
     constructor(
-        { left = 0, top = 0, fill = SHAPE_MASK_COLOR, occludeInactive = false }: ConstructorParams<Shape> = {},
+        { left = 0, top = 0, fill = SHAPE_MASK_COLOR, occludeInactive = false, ordinal = 0 }: ConstructorParams<Shape> =
+            {},
     ) {
         this.left = left;
         this.top = top;
         this.fill = fill;
         this.occludeInactive = occludeInactive;
+        this.ordinal = ordinal;
     }
 
     /** Format numbers and remove default values, for easier serialization to
