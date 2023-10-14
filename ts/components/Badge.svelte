@@ -31,6 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:click
     on:mouseenter
     on:mouseleave
+    tabindex="-1"
 >
     <IconConstrain {iconSize} {widthMultiplier} {flipX}>
         <slot />
