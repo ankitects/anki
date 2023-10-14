@@ -135,7 +135,10 @@ fn make_app(kind: DistKind, mut plist: plist::Dictionary, stamp: &Utf8Path) -> R
         let path_str = relative_path.to_str().unwrap();
         if path_str.contains("libankihelper") {
             builder.add_file_macos("libankihelper.dylib", entry)?;
-        } else if path_str.contains("aqt/data") || path_str.contains("certifi") {
+        } else if path_str.contains("aqt/data")
+            || path_str.contains("certifi")
+            || path_str.contains("google/protobuf")
+        {
             builder.add_file_resources(relative_path.strip_prefix("lib").unwrap(), entry)?;
         } else {
             if path_str.contains("__pycache__") {
