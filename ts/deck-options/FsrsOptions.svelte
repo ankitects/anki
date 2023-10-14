@@ -279,7 +279,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:value={optimalRetentionRequest.deckSize}
             defaultValue={10000}
             min={100}
-            max={999999}
+            max={99999}
         >
             <SettingTitle>Deck size</SettingTitle>
         </SpinBoxRow>
