@@ -5,10 +5,10 @@ use std::thread;
 use std::time::Duration;
 
 use anki_proto::scheduler::ComputeFsrsWeightsResponse;
+use fsrs::CombinedProgressState;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
 use fsrs::ModelEvaluation;
-use fsrs::ProgressState;
 use fsrs::FSRS;
 use itertools::Itertools;
 
@@ -28,7 +28,7 @@ impl Collection {
         let fsrs_items = items.len() as u32;
         anki_progress.update(false, |p| p.fsrs_items = fsrs_items)?;
         // adapt the progress handler to our built-in progress handling
-        let progress = ProgressState::new_shared();
+        let progress = CombinedProgressState::new_shared();
         let progress2 = progress.clone();
         thread::spawn(move || {
             let mut finished = false;
