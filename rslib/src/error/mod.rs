@@ -115,6 +115,7 @@ pub enum AnkiError {
     InvalidServiceIndex,
     FsrsWeightsInvalid,
     FsrsInsufficientData,
+    SchedulerUpgradeRequired,
 }
 
 // error helpers
@@ -168,6 +169,9 @@ impl AnkiError {
             AnkiError::NotFound { source } => source.message(tr),
             AnkiError::FsrsInsufficientData => tr.deck_config_not_enough_history().into(),
             AnkiError::FsrsWeightsInvalid => tr.deck_config_invalid_weights().into(),
+            AnkiError::SchedulerUpgradeRequired => {
+                tr.scheduling_update_required().replace("V2", "v3")
+            }
             #[cfg(windows)]
             AnkiError::WindowsError { source } => format!("{source:?}"),
         }

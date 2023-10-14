@@ -48,16 +48,6 @@ impl Collection {
 
     pub fn get_scheduling_preferences(&self) -> Result<Scheduling> {
         Ok(Scheduling {
-            scheduler_version: match self.scheduler_version() {
-                crate::config::SchedulerVersion::V1 => 1,
-                crate::config::SchedulerVersion::V2 => {
-                    if self.get_config_bool(BoolKey::Sched2021) {
-                        3
-                    } else {
-                        2
-                    }
-                }
-            },
             rollover: self.rollover_for_current_scheduler()? as u32,
             learn_ahead_secs: self.learn_ahead_secs(),
             new_review_mix: match self.get_new_review_mix() {

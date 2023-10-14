@@ -23,9 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const config = state.currentConfig;
     const defaults = state.defaults;
 
-    const priorityTooltip = state.v3Scheduler
-        ? "\n\n" + tr.deckConfigBuryPriorityTooltip()
-        : "";
+    const priorityTooltip = "\n\n" + tr.deckConfigBuryPriorityTooltip();
 
     const settings = {
         buryNewSiblings: {
@@ -91,24 +89,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </SwitchRow>
         </Item>
 
-        {#if state.v3Scheduler}
-            <Item>
-                <SwitchRow
-                    bind:value={$config.buryInterdayLearning}
-                    defaultValue={defaults.buryInterdayLearning}
+        <Item>
+            <SwitchRow
+                bind:value={$config.buryInterdayLearning}
+                defaultValue={defaults.buryInterdayLearning}
+            >
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(
+                            Object.keys(settings).indexOf(
+                                "buryInterdayLearningSiblings",
+                            ),
+                        )}
                 >
-                    <SettingTitle
-                        on:click={() =>
-                            openHelpModal(
-                                Object.keys(settings).indexOf(
-                                    "buryInterdayLearningSiblings",
-                                ),
-                            )}
-                    >
-                        {settings.buryInterdayLearningSiblings.title}
-                    </SettingTitle>
-                </SwitchRow>
-            </Item>
-        {/if}
+                    {settings.buryInterdayLearningSiblings.title}
+                </SettingTitle>
+            </SwitchRow>
+        </Item>
     </DynamicallySlottable>
 </TitledContainer>

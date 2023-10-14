@@ -4,7 +4,6 @@
 use super::CardStateUpdater;
 use super::RevlogEntryPartial;
 use crate::card::CardQueue;
-use crate::config::SchedulerVersion;
 use crate::scheduler::states::CardState;
 use crate::scheduler::states::IntervalKind;
 use crate::scheduler::states::PreviewState;
@@ -17,8 +16,7 @@ impl CardStateUpdater {
     ) -> RevlogEntryPartial {
         let revlog = RevlogEntryPartial::new(current, next.into(), 0.0, self.secs_until_rollover());
         if next.finished {
-            self.card
-                .remove_from_filtered_deck_restoring_queue(SchedulerVersion::V2);
+            self.card.remove_from_filtered_deck_restoring_queue();
             return revlog;
         }
 

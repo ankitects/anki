@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Generator, Iterable, Literal, Sequence, Union, cast
+from typing import Any, Generator, Iterable, Literal, Optional, Sequence, Union, cast
 
 from anki import (
     ankiweb_pb2,
@@ -56,13 +56,12 @@ MediaSyncStatus = sync_pb2.MediaSyncStatusResponse
 FsrsItem = scheduler_pb2.FsrsItem
 FsrsReview = scheduler_pb2.FsrsReview
 
-import copy
 import os
 import sys
 import time
 import traceback
 import weakref
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import anki.latex
 from anki import hooks
@@ -99,17 +98,11 @@ SearchJoiner = Literal["AND", "OR"]
 
 
 @dataclass
-class LegacyReviewUndo:
-    card: Card
-    was_leech: bool
-
-
-@dataclass
 class LegacyCheckpoint:
     name: str
 
 
-LegacyUndoResult = Union[None, LegacyCheckpoint, LegacyReviewUndo]
+LegacyUndoResult = Optional[LegacyCheckpoint]
 
 
 @dataclass
@@ -1075,9 +1068,7 @@ class Collection(DeprecatedNamesMixin):
         if not self._undo:
             return UndoStatus()
 
-        if isinstance(self._undo, _ReviewsUndo):
-            return UndoStatus(undo=self.tr.scheduling_review())
-        elif isinstance(self._undo, LegacyCheckpoint):
+        if isinstance(self._undo, LegacyCheckpoint):
             return UndoStatus(undo=self._undo.name)
         else:
             assert_exhaustive(self._undo)
@@ -1131,9 +1122,7 @@ class Collection(DeprecatedNamesMixin):
 
     def undo_legacy(self) -> LegacyUndoResult:
         "Returns None if the legacy undo queue is empty."
-        if isinstance(self._undo, _ReviewsUndo):
-            return self._undo_review()
-        elif isinstance(self._undo, LegacyCheckpoint):
+        if isinstance(self._undo, LegacyCheckpoint):
             return self._undo_checkpoint()
         elif self._undo is None:
             return None
@@ -1158,15 +1147,6 @@ class Collection(DeprecatedNamesMixin):
         else:
             return None
 
-    def save_card_review_undo_info(self, card: Card) -> None:
-        "Used by V1 and V2 schedulers to record state prior to review."
-        if not isinstance(self._undo, _ReviewsUndo):
-            self._undo = _ReviewsUndo()
-
-        was_leech = card.note().has_tag("leech")
-        entry = LegacyReviewUndo(card=copy.copy(card), was_leech=was_leech)
-        self._undo.entries.append(entry)
-
     def _have_outstanding_checkpoint(self) -> bool:
         self._check_backend_undo_status()
         return isinstance(self._undo, LegacyCheckpoint)
@@ -1184,58 +1164,7 @@ class Collection(DeprecatedNamesMixin):
         if name:
             self._undo = LegacyCheckpoint(name=name)
         else:
-            # saving disables old checkpoint, but not review undo
-            if not isinstance(self._undo, _ReviewsUndo):
-                self.clear_python_undo()
-
-    def _undo_review(self) -> LegacyReviewUndo:
-        "Undo a v1/v2 review."
-        assert isinstance(self._undo, _ReviewsUndo)
-        entry = self._undo.entries.pop()
-        if not self._undo.entries:
             self.clear_python_undo()
-
-        card = entry.card
-
-        # remove leech tag if it didn't have it before
-        if not entry.was_leech and card.note().has_tag("leech"):
-            card.note().remove_tag("leech")
-            card.note().flush()
-
-        # write old data
-        card.flush()
-
-        # and delete revlog entry if not previewing
-        conf = self.sched._cardConf(card)
-        previewing = conf["dyn"] and not conf["resched"]
-        if not previewing:
-            last = self.db.scalar(
-                "select id from revlog where cid = ? order by id desc limit 1",
-                card.id,
-            )
-            self.db.execute("delete from revlog where id = ?", last)
-
-        # restore any siblings
-        self.db.execute(
-            "update cards set queue=type,mod=?,usn=? where queue=-2 and nid=?",
-            int_time(),
-            self.usn(),
-            card.nid,
-        )
-
-        # update daily counts
-        idx = card.queue
-        if card.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
-            idx = QUEUE_TYPE_LRN
-        type = ("new", "lrn", "rev")[idx]
-        self.sched._updateStats(card, type, -1)
-        self.sched.reps -= 1
-        self._startReps -= 1
-
-        # and refresh the queues
-        self.sched.reset()
-
-        return entry
 
     # DB maintenance
     ##########################################################################
@@ -1444,7 +1373,6 @@ class Collection(DeprecatedNamesMixin):
 
 Collection.register_deprecated_aliases(
     clearUndo=Collection.clear_python_undo,
-    markReview=Collection.save_card_review_undo_info,
     findReplace=Collection.find_and_replace,
     remCards=Collection.remove_cards_and_orphaned_notes,
 )
@@ -1453,13 +1381,7 @@ Collection.register_deprecated_aliases(
 # legacy name
 _Collection = Collection
 
-
-@dataclass
-class _ReviewsUndo:
-    entries: list[LegacyReviewUndo] = field(default_factory=list)
-
-
-_UndoInfo = Union[_ReviewsUndo, LegacyCheckpoint, None]
+_UndoInfo = Union[LegacyCheckpoint, None]
 
 
 def pb_export_limit(limit: ExportLimit) -> import_export_pb2.ExportLimit:
