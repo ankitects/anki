@@ -62,7 +62,6 @@ impl RemainingLimits {
         deck: &Deck,
         config: Option<&DeckConfig>,
         today: u32,
-        v3: bool,
         new_cards_ignore_review_limit: bool,
     ) -> Self {
         if let Ok(normal) = deck.normal() {
@@ -70,7 +69,6 @@ impl RemainingLimits {
                 return Self::new_for_normal_deck(
                     deck,
                     today,
-                    v3,
                     new_cards_ignore_review_limit,
                     normal,
                     config,
@@ -83,28 +81,11 @@ impl RemainingLimits {
     fn new_for_normal_deck(
         deck: &Deck,
         today: u32,
-        v3: bool,
         new_cards_ignore_review_limit: bool,
         normal: &NormalDeck,
         config: &DeckConfig,
     ) -> RemainingLimits {
-        if v3 {
-            Self::new_for_normal_deck_v3(deck, today, new_cards_ignore_review_limit, normal, config)
-        } else {
-            Self::new_for_normal_deck_v2(deck, today, config)
-        }
-    }
-
-    fn new_for_normal_deck_v2(deck: &Deck, today: u32, config: &DeckConfig) -> RemainingLimits {
-        let review_limit = config.inner.reviews_per_day;
-        let new_limit = config.inner.new_per_day;
-        let (new_today_count, review_today_count) = deck.new_rev_counts(today);
-
-        Self {
-            review: (review_limit as i32 - review_today_count).max(0) as u32,
-            new: (new_limit as i32 - new_today_count).max(0) as u32,
-            cap_new_to_review: false,
-        }
+        Self::new_for_normal_deck_v3(deck, today, new_cards_ignore_review_limit, normal, config)
     }
 
     fn new_for_normal_deck_v3(
@@ -189,7 +170,6 @@ pub(crate) fn remaining_limits_map<'a>(
     decks: impl Iterator<Item = &'a Deck>,
     config: &'a HashMap<DeckConfigId, DeckConfig>,
     today: u32,
-    v3: bool,
     new_cards_ignore_review_limit: bool,
 ) -> HashMap<DeckId, RemainingLimits> {
     decks
@@ -200,7 +180,6 @@ pub(crate) fn remaining_limits_map<'a>(
                     deck,
                     deck.config_id().and_then(|id| config.get(&id)),
                     today,
-                    v3,
                     new_cards_ignore_review_limit,
                 ),
             )
@@ -231,7 +210,6 @@ impl NodeLimits {
                 deck,
                 deck.config_id().and_then(|id| config.get(&id)),
                 today,
-                true,
                 new_cards_ignore_review_limit,
             ),
         }

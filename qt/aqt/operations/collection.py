@@ -3,13 +3,7 @@
 
 from __future__ import annotations
 
-from anki.collection import (
-    LegacyCheckpoint,
-    LegacyReviewUndo,
-    OpChanges,
-    OpChangesAfterUndo,
-    Preferences,
-)
+from anki.collection import LegacyCheckpoint, OpChanges, OpChangesAfterUndo, Preferences
 from anki.errors import UndoEmpty
 from anki.types import assert_exhaustive
 from aqt import gui_hooks
@@ -27,8 +21,7 @@ def undo(*, parent: QWidget) -> None:
 
     def on_failure(exc: Exception) -> None:
         if isinstance(exc, UndoEmpty):
-            # backend has no undo, but there may be a checkpoint
-            # or v1/v2 review waiting
+            # backend has no undo, but there may be a checkpoint waiting
             _legacy_undo(parent=parent)
         else:
             showWarning(str(exc), parent=parent)
@@ -53,9 +46,6 @@ def _legacy_undo(*, parent: QWidget) -> None:
     assert mw
     assert mw.col
 
-    reviewing = mw.state == "review"
-    just_refresh_reviewer = False
-
     result = mw.col.undo_legacy()
 
     if result is None:
@@ -64,19 +54,6 @@ def _legacy_undo(*, parent: QWidget) -> None:
         mw.update_undo_actions()
         return
 
-    elif isinstance(result, LegacyReviewUndo):
-        name = tr.scheduling_review()
-
-        if reviewing:
-            # push the undone card to the top of the queue
-            cid = result.card.id
-            card = mw.col.get_card(cid)
-            mw.reviewer.cardQueue.append(card)
-
-            gui_hooks.review_did_undo(cid)
-
-            just_refresh_reviewer = True
-
     elif isinstance(result, LegacyCheckpoint):
         name = result.name
 
@@ -84,11 +61,8 @@ def _legacy_undo(*, parent: QWidget) -> None:
         assert_exhaustive(result)
         assert False
 
-    if just_refresh_reviewer:
-        mw.reviewer.nextCard()
-    else:
-        # full queue+gui reset required
-        mw.reset()
+    # full queue+gui reset required
+    mw.reset()
 
     tooltip(tr.undo_action_undone(action=name), parent=parent)
     gui_hooks.state_did_revert(name)

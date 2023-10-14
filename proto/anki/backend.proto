@@ -44,6 +44,7 @@ message BackendError {
     ANKIDROID_PANIC_ERROR = 19;
     // Originated from and usually specific to the OS.
     OS_ERROR = 20;
+    SCHEDULER_UPGRADE_REQUIRED = 21;
   }
 
   // error description, usually localized, suitable for displaying to the user

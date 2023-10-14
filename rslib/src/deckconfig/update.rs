@@ -50,7 +50,6 @@ impl Collection {
                 .storage
                 .get_collection_timestamps()?
                 .schema_changed_since_sync(),
-            v3_scheduler: self.get_config_bool(BoolKey::Sched2021),
             card_state_customizer: self.get_config_string(StringKey::CardStateCustomizer),
             new_cards_ignore_review_limit: self.get_config_bool(BoolKey::NewCardsIgnoreReviewLimit),
             fsrs: self.get_config_bool(BoolKey::Fsrs),

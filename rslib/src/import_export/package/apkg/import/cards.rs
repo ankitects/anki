@@ -89,6 +89,9 @@ impl Context<'_> {
             remapped_templates,
             imported_decks,
         )?;
+        if ctx.scheduler_version == SchedulerVersion::V1 {
+            return Err(AnkiError::SchedulerUpgradeRequired);
+        }
         ctx.import_cards(mem::take(&mut self.data.cards), keep_filtered)?;
         ctx.import_revlog(mem::take(&mut self.data.revlog))
     }
@@ -136,7 +139,7 @@ impl CardContext<'_> {
         self.remap_template_index(card);
         card.shift_collection_relative_dates(self.collection_delta);
         if !keep_filtered {
-            card.maybe_remove_from_filtered_deck(self.scheduler_version);
+            card.maybe_remove_from_filtered_deck();
         }
         let old_id = self.uniquify_card_id(card);
 
@@ -196,11 +199,11 @@ impl Card {
         self.ctype == CardType::Review
     }
 
-    fn maybe_remove_from_filtered_deck(&mut self, version: SchedulerVersion) {
+    fn maybe_remove_from_filtered_deck(&mut self) {
         if self.is_filtered() {
             // instead of moving between decks, the deck is converted to a regular one
             self.original_deck_id = self.deck_id;
-            self.remove_from_filtered_deck_restoring_queue(version);
+            self.remove_from_filtered_deck_restoring_queue();
         }
     }
 }

@@ -51,7 +51,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             : "";
 
     $: insertionOrderRandom =
-        state.v3Scheduler &&
         $config.newCardInsertOrder == DeckConfig_Config_NewCardInsertOrder.RANDOM
             ? tr.deckConfigNewInsertionOrderRandomWithV3()
             : "";

@@ -823,7 +823,6 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         legacy_hook="colLoading",
     ),
     Hook(name="undo_state_did_change", args=["info: UndoActionsInfo"]),
-    Hook(name="review_did_undo", args=["card_id: int"], legacy_hook="revertedCard"),
     Hook(
         name="style_did_init",
         args=["style: str"],

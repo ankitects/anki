@@ -94,13 +94,6 @@ pub fn local_minutes_west_for_stamp(stamp: TimestampSecs) -> Result<i32> {
     Ok(stamp.local_datetime()?.offset().utc_minus_local() / 60)
 }
 
-// Legacy code
-// ----------------------------------
-
-pub(crate) fn v1_rollover_from_creation_stamp(crt: TimestampSecs) -> Result<u8> {
-    crt.local_datetime().map(|dt| dt.hour() as u8)
-}
-
 pub(crate) fn v1_creation_date() -> i64 {
     let now = TimestampSecs::now();
     v1_creation_date_inner(now, local_minutes_west_for_stamp(now).unwrap())
@@ -117,19 +110,6 @@ fn v1_creation_date_inner(now: TimestampSecs, mins_west: i32) -> i64 {
     } else {
         four_am_stamp
     }
-}
-
-pub(crate) fn v1_creation_date_adjusted_to_hour(crt: TimestampSecs, hour: u8) -> Result<i64> {
-    let offset = fixed_offset_from_minutes(local_minutes_west_for_stamp(crt)?);
-    v1_creation_date_adjusted_to_hour_inner(crt, hour, offset)
-}
-
-fn v1_creation_date_adjusted_to_hour_inner(
-    crt: TimestampSecs,
-    hour: u8,
-    offset: FixedOffset,
-) -> Result<i64> {
-    Ok(rollover_datetime(crt.datetime(offset)?, hour).timestamp())
 }
 
 fn sched_timing_today_v1(crt: TimestampSecs, now: TimestampSecs) -> SchedTimingToday {
@@ -493,20 +473,6 @@ mod test {
                 .latest()
                 .unwrap()
                 .timestamp()
-        );
-
-        let crt = TimestampSecs(v1_creation_date_inner(now, AEST_MINS_WEST));
-        assert_eq!(
-            Ok(crt.0),
-            v1_creation_date_adjusted_to_hour_inner(crt, 4, offset)
-        );
-        assert_eq!(
-            Ok(crt.0 + 3600),
-            v1_creation_date_adjusted_to_hour_inner(crt, 5, offset)
-        );
-        assert_eq!(
-            Ok(crt.0 - 3600 * 4),
-            v1_creation_date_adjusted_to_hour_inner(crt, 0, offset)
         );
     }
 }

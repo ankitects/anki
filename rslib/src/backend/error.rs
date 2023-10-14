@@ -46,6 +46,7 @@ impl AnkiError {
             | AnkiError::FsrsInsufficientData => Kind::InvalidInput,
             #[cfg(windows)]
             AnkiError::WindowsError { .. } => Kind::OsError,
+            AnkiError::SchedulerUpgradeRequired => Kind::SchedulerUpgradeRequired,
         };
 
         anki_proto::backend::BackendError {
