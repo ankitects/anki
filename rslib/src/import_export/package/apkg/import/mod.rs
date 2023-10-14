@@ -47,6 +47,7 @@ struct Context<'a> {
     data: ExchangeData,
     usn: Usn,
     progress: ThrottlingProgressHandler<ImportProgress>,
+    with_scheduling: bool,
 }
 
 impl Collection {
@@ -92,6 +93,7 @@ impl<'a> Context<'a> {
             merge_notetypes: options.merge_notetypes,
             update_notes: options.update_notes(),
             update_notetypes: options.update_notetypes(),
+            with_scheduling: options.with_scheduling,
             media_manager,
             archive,
             meta,
@@ -111,7 +113,7 @@ impl<'a> Context<'a> {
         let mut media_map = self.prepare_media()?;
         let note_imports = self.import_notes_and_notetypes(&mut media_map)?;
         let keep_filtered = self.data.enables_filtered_decks();
-        let contains_scheduling = self.data.contains_scheduling();
+        let contains_scheduling = self.with_scheduling;
         let imported_decks = self.import_decks_and_configs(keep_filtered, contains_scheduling)?;
         self.import_cards_and_revlog(
             &note_imports.id_map,
