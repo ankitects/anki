@@ -11,7 +11,14 @@ from anki.decks import DeckDict, DeckId
 from anki.lang import without_unicode_isolation
 from aqt import gui_hooks
 from aqt.qt import *
-from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGeom, tr
+from aqt.utils import (
+    KeyboardModifiersPressed,
+    addCloseShortcut,
+    disable_help_button,
+    restoreGeom,
+    saveGeom,
+    tr,
+)
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 
@@ -99,7 +106,7 @@ def display_options_for_deck_id(deck_id: DeckId) -> None:
 
 def display_options_for_deck(deck: DeckDict) -> None:
     if not deck["dyn"]:
-        if not aqt.mw.col.v3_scheduler():
+        if KeyboardModifiersPressed().shift or not aqt.mw.col.v3_scheduler():
             deck_legacy = aqt.mw.col.decks.get(DeckId(deck["id"]))
             aqt.deckconf.DeckConf(aqt.mw, deck_legacy)
         else:
