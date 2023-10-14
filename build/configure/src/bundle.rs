@@ -93,13 +93,13 @@ const MAC_AMD_AUDIO: OnlineArchive = OnlineArchive {
 };
 
 const MAC_ARM_QT6: OnlineArchive = OnlineArchive {
-    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2023-09-24/pyqt6.5-mac-arm64.tar.zst",
-    sha256: "3f4ad1861228dd0b9cfbdaf9583155f2e57ef89a06b143929a0ef2d5fc26283e",
+    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2023-10-15/pyqt6.5-mac-arm64.tar.zst",
+    sha256: "1e7f22b146ceeeaf436f9e2137a133d58ff0a4d3c5a0922cde24ca91de59335a",
 };
 
 const MAC_AMD_QT6: OnlineArchive = OnlineArchive {
-    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2023-09-24/pyqt6.5-mac-amd64.tar.zst",
-    sha256: "cb77b7836fc87f9c2b167da8274f2cacd0d80031f1d085f3e284016f3ab6ddc3",
+    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2023-10-15/pyqt6.5-mac-amd64.tar.zst",
+    sha256: "545253985975dba47ac0479adb83247ce53ed7a8f9d51836bef62e224a9dcaf3",
 };
 
 const MAC_AMD_QT5: OnlineArchive = OnlineArchive {
@@ -184,7 +184,7 @@ fn setup_primary_venv(build: &mut Build) -> Result<()> {
         "python/requirements.bundle.txt",
         if cfg!(windows) {
             "python/requirements.qt6_win.txt"
-        } else if cfg!(target_os = "darwin") {
+        } else if cfg!(target_os = "macos") {
             "python/requirements.qt6_mac.txt"
         } else {
             "python/requirements.qt6_lin.txt"
