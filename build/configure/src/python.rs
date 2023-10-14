@@ -24,7 +24,7 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
             "python/requirements.qt6_win.txt",
             "python/requirements.win.txt",
         ]
-    } else if cfg!(target_os = "darwin") {
+    } else if cfg!(target_os = "macos") {
         inputs!["python/requirements.qt6_mac.txt",]
     } else if cfg!(all(target_os = "linux", target_arch = "aarch64")) {
         // system-provided Qt on ARM64
