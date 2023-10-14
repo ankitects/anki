@@ -65,6 +65,7 @@ class EditCurrent(QMainWindow):
 
     def _saveAndClose(self) -> None:
         self.cleanup()
+        self.mw.deferred_delete_and_garbage_collect(self)
         self.close()
 
     def closeWithCallback(self, onsuccess: Callable[[], None]) -> None:
