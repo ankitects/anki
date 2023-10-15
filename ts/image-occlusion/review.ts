@@ -9,27 +9,21 @@ import { Ellipse, extractShapesFromRenderedClozes, Polygon, Rectangle, Text } fr
 import { TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_PADDING } from "./tools/lib";
 import type { Size } from "./types";
 
-export type ImageOcclusionShapes = {
-    active: Shape[];
-    inactive: Shape[];
+export type DrawShapesData = {
+    activeShapes: Shape[];
+    inactiveShapes: Shape[];
+    properties: ShapeProperties;
 };
 
 export type DrawShapesFilter = (
-    shapes: ImageOcclusionShapes,
-    properties: ShapeProperties,
+    data: DrawShapesData,
     context: CanvasRenderingContext2D,
-) => ImageOcclusionShapes;
+) => DrawShapesData | void;
 
 export type DrawShapesCallback = (
-    shapes: ImageOcclusionShapes,
-    properties: ShapeProperties,
+    data: DrawShapesData,
     context: CanvasRenderingContext2D,
 ) => void;
-
-export interface SetupImageOcclusionOptions {
-    onWillDrawShapes?: DrawShapesFilter;
-    onDidDrawShapes?: DrawShapesCallback;
-}
 
 export const imageOcclusionAPI = {
     setup: setupImageOcclusion,
@@ -40,6 +34,11 @@ export const imageOcclusionAPI = {
     Shape,
     Text,
 };
+
+interface SetupImageOcclusionOptions {
+    onWillDrawShapes?: DrawShapesFilter;
+    onDidDrawShapes?: DrawShapesCallback;
+}
 
 function setupImageOcclusion(setupOptions?: SetupImageOcclusionOptions): void {
     window.addEventListener("load", () => {
@@ -92,19 +91,20 @@ function drawShapes(
     onDidDrawShapes?: DrawShapesCallback,
 ): void {
     const context: CanvasRenderingContext2D = canvas.getContext("2d")!;
-    const properties = getShapeProperties();
     const size = canvas;
 
-    let active = extractShapesFromRenderedClozes(".cloze");
-    let inactive = extractShapesFromRenderedClozes(".cloze-inactive");
+    let activeShapes = extractShapesFromRenderedClozes(".cloze");
+    let inactiveShapes = extractShapesFromRenderedClozes(".cloze-inactive");
+    let properties = getShapeProperties();
 
-    const shapes = onWillDrawShapes?.({ active, inactive }, properties, context);
-    if (shapes) {
-        active = shapes.active;
-        inactive = shapes.inactive;
+    const processed = onWillDrawShapes?.({ activeShapes, inactiveShapes, properties }, context);
+    if (processed) {
+        activeShapes = processed.activeShapes;
+        inactiveShapes = processed.inactiveShapes;
+        properties = processed.properties;
     }
 
-    for (const shape of active) {
+    for (const shape of activeShapes) {
         drawShape(
             context,
             size,
@@ -114,7 +114,7 @@ function drawShapes(
             properties.activeBorder.width,
         );
     }
-    for (const shape of inactive.filter((s) => s.occludeInactive)) {
+    for (const shape of inactiveShapes.filter((s) => s.occludeInactive)) {
         drawShape(
             context,
             size,
@@ -125,7 +125,7 @@ function drawShapes(
         );
     }
 
-    onDidDrawShapes?.({ active, inactive }, properties, context);
+    onDidDrawShapes?.({ activeShapes, inactiveShapes, properties }, context);
 }
 
 function drawShape(
