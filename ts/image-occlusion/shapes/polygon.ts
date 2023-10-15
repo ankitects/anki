@@ -39,9 +39,8 @@ export class Polygon extends Shape {
         });
         return new Polygon({
             ...this,
+            ...super.normalPosition(size),
             points,
-            left: xToNormalized(size, this.left),
-            top: yToNormalized(size, this.top),
         });
     }
 
@@ -55,9 +54,8 @@ export class Polygon extends Shape {
         });
         return new Polygon({
             ...this,
+            ...super.absolutePosition(size),
             points,
-            left: xFromNormalized(size, this.left),
-            top: yFromNormalized(size, this.top),
         });
     }
 }

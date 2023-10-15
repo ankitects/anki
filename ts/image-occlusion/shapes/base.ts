@@ -54,19 +54,31 @@ export class Shape {
         return new fabric.Object(absolute);
     }
 
+    normalPosition(size: Size) {
+        return {
+            left: xToNormalized(size, this.left),
+            top: yToNormalized(size, this.top),
+        };
+    }
+
     toNormal(size: Size): Shape {
         return new Shape({
             ...this,
-            left: xToNormalized(size, this.left),
-            top: yToNormalized(size, this.top),
+            ...this.normalPosition(size),
         });
+    }
+
+    absolutePosition(size: Size) {
+        return {
+            left: xFromNormalized(size, this.left),
+            top: yFromNormalized(size, this.top),
+        };
     }
 
     toAbsolute(size: Size): Shape {
         return new Shape({
             ...this,
-            left: xFromNormalized(size, this.left),
-            top: yFromNormalized(size, this.top),
+            ...this.absolutePosition(size),
         });
     }
 }

@@ -35,20 +35,18 @@ export class Ellipse extends Shape {
     toNormal(size: Size): Ellipse {
         return new Ellipse({
             ...this,
+            ...super.normalPosition(size),
             rx: xToNormalized(size, this.rx),
             ry: yToNormalized(size, this.ry),
-            left: xToNormalized(size, this.left),
-            top: yToNormalized(size, this.top),
         });
     }
 
     toAbsolute(size: Size): Ellipse {
         return new Ellipse({
             ...this,
+            ...super.absolutePosition(size),
             rx: xFromNormalized(size, this.rx),
             ry: yFromNormalized(size, this.ry),
-            left: xFromNormalized(size, this.left),
-            top: yFromNormalized(size, this.top),
         });
     }
 }

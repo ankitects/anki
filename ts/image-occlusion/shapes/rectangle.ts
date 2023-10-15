@@ -35,20 +35,18 @@ export class Rectangle extends Shape {
     toNormal(size: Size): Rectangle {
         return new Rectangle({
             ...this,
+            ...super.normalPosition(size),
             width: xToNormalized(size, this.width),
             height: yToNormalized(size, this.height),
-            left: xToNormalized(size, this.left),
-            top: yToNormalized(size, this.top),
         });
     }
 
     toAbsolute(size: Size): Rectangle {
         return new Rectangle({
             ...this,
+            ...super.absolutePosition(size),
             width: xFromNormalized(size, this.width),
             height: yFromNormalized(size, this.height),
-            left: xFromNormalized(size, this.left),
-            top: yFromNormalized(size, this.top),
         });
     }
 }

@@ -49,20 +49,18 @@ export class Text extends Shape {
     toNormal(size: Size): Text {
         return new Text({
             ...this,
+            ...super.normalPosition(size),
             scaleX: xToNormalized(size, this.scaleX),
             scaleY: yToNormalized(size, this.scaleY),
-            left: xToNormalized(size, this.left),
-            top: yToNormalized(size, this.top),
         });
     }
 
     toAbsolute(size: Size): Text {
         return new Text({
             ...this,
+            ...super.absolutePosition(size),
             scaleX: xFromNormalized(size, this.scaleX),
             scaleY: yFromNormalized(size, this.scaleY),
-            left: xFromNormalized(size, this.left),
-            top: yFromNormalized(size, this.top),
         });
     }
 }
