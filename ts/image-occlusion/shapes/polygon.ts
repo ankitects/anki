@@ -29,22 +29,6 @@ export class Polygon extends Shape {
         return new fabric.Polygon(absolute.points, absolute);
     }
 
-    toAbsolute(size: Size): Polygon {
-        const points: Point[] = [];
-        this.points.forEach((p) => {
-            points.push({
-                x: xFromNormalized(size, p.x),
-                y: yFromNormalized(size, p.y),
-            });
-        });
-        return new Polygon({
-            ...this,
-            points,
-            left: xFromNormalized(size, this.left),
-            top: yFromNormalized(size, this.top),
-        });
-    }
-
     toNormal(size: Size): Polygon {
         const points: Point[] = [];
         this.points.forEach((p) => {
@@ -58,6 +42,22 @@ export class Polygon extends Shape {
             points,
             left: xToNormalized(size, this.left),
             top: yToNormalized(size, this.top),
+        });
+    }
+
+    toAbsolute(size: Size): Polygon {
+        const points: Point[] = [];
+        this.points.forEach((p) => {
+            points.push({
+                x: xFromNormalized(size, p.x),
+                y: yFromNormalized(size, p.y),
+            });
+        });
+        return new Polygon({
+            ...this,
+            points,
+            left: xFromNormalized(size, this.left),
+            top: yFromNormalized(size, this.top),
         });
     }
 }
