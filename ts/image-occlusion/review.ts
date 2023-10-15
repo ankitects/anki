@@ -105,37 +105,46 @@ function drawShapes(
     }
 
     for (const shape of activeShapes) {
-        drawShape(
+        drawShape({
             context,
             size,
             shape,
-            properties.activeShapeColor,
-            properties.activeBorder.color,
-            properties.activeBorder.width,
-        );
+            fill: properties.activeShapeColor,
+            stroke: properties.activeBorder.color,
+            strokeWidth: properties.activeBorder.width,
+        });
     }
     for (const shape of inactiveShapes.filter((s) => s.occludeInactive)) {
-        drawShape(
+        drawShape({
             context,
             size,
             shape,
-            properties.inActiveShapeColor,
-            properties.inActiveBorder.color,
-            properties.inActiveBorder.width,
-        );
+            fill: properties.inActiveShapeColor,
+            stroke: properties.inActiveBorder.color,
+            strokeWidth: properties.inActiveBorder.width,
+        });
     }
 
     onDidDrawShapes?.({ activeShapes, inactiveShapes, properties }, context);
 }
 
-function drawShape(
-    ctx: CanvasRenderingContext2D,
-    size: Size,
-    shape: Shape,
-    fill: string,
-    stroke: string,
-    strokeWidth: number,
-): void {
+interface DrawShapeParameters {
+    context: CanvasRenderingContext2D;
+    size: Size;
+    shape: Shape;
+    fill: string;
+    stroke: string;
+    strokeWidth: number;
+}
+
+function drawShape({
+    context: ctx,
+    size,
+    shape,
+    fill,
+    stroke,
+    strokeWidth,
+}: DrawShapeParameters): void {
     shape = shape.toAbsolute(size);
 
     ctx.fillStyle = fill;
