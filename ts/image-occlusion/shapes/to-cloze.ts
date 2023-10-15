@@ -36,18 +36,25 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
  */
 function baseShapesFromFabric(occludeInactive: boolean): ShapeOrShapes[] {
     const canvas = globalThis.canvas as Canvas;
-
-    // Prevents multiple shapes in 'activeSelection' from shifting to the canvas origin
-    canvas.discardActiveObject();
-
     makeMaskTransparent(canvas, false);
+    const activeObject = canvas.getActiveObject();
+    const selectionContainingMultipleObjects = activeObject instanceof fabric.ActiveSelection
+            && (activeObject.size() > 1)
+        ? activeObject
+        : null;
     const objects = canvas.getObjects() as FabricObject[];
     return objects
         .map((object) => {
+            // If the object is in the active selection containing multiple objects,
+            // we need to calculate its x and y coordinates relative to the canvas.
+            const parent = selectionContainingMultipleObjects?.contains(object)
+                ? selectionContainingMultipleObjects
+                : undefined;
             return fabricObjectToBaseShapeOrShapes(
                 canvas,
                 object,
                 occludeInactive,
+                parent,
             );
         })
         .filter((o): o is ShapeOrShapes => o !== null);
