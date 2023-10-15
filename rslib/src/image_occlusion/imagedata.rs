@@ -82,7 +82,10 @@ impl Collection {
         Ok(GetImageOcclusionNoteResponse { value: Some(value) })
     }
 
-    pub fn get_image_occlusion_note_inner(&mut self, note_id: NoteId) -> Result<ImageOcclusionNote> {
+    pub fn get_image_occlusion_note_inner(
+        &mut self,
+        note_id: NoteId,
+    ) -> Result<ImageOcclusionNote> {
         let note = self.storage.get_note(note_id)?.or_not_found(note_id)?;
         let mut cloze_note = ImageOcclusionNote::default();
 
