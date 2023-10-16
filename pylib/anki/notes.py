@@ -79,8 +79,7 @@ class Note(DeprecatedNamesMixin):
         )
 
     def flush(self) -> None:
-        """This preserves any current checkpoint.
-        For an undo entry, use col.update_note() instead."""
+        """For an undo entry, use col.update_note() instead."""
         if self.id == 0:
             raise Exception("can't flush a new note")
         self.col._backend.update_notes(

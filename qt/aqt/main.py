@@ -28,6 +28,7 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
+from anki._legacy import deprecated
 from anki.collection import Collection, Config, OpChanges, UndoStatus
 from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
@@ -1021,7 +1022,6 @@ title="{}" {}>{}</button>""".format(
         "Caller should ensure auth available."
 
         def on_collection_sync_finished() -> None:
-            self.col.clear_python_undo()
             self.col.models._clear_cache()
             gui_hooks.sync_did_finish()
             self.reset()
@@ -1189,15 +1189,14 @@ title="{}" {}>{}</button>""".format(
         self.form.actionRedo.setVisible(info.show_redo)
         gui_hooks.undo_state_did_change(info)
 
+    @deprecated(info="checkpoints are no longer supported")
     def checkpoint(self, name: str) -> None:
-        self.col.save(name)
-        self.update_undo_actions()
+        self.col.save()
 
     def autosave(self) -> None:
-        self.col.autosave()
+        self.col.save()
         self.update_undo_actions()
 
-    maybeEnableUndo = update_undo_actions
     onUndo = undo
 
     # Other menu operations
@@ -1461,10 +1460,6 @@ title="{}" {}>{}</button>""".format(
         )
 
     def _create_backup_with_progress(self, user_initiated: bool) -> None:
-        # if there's a legacy undo op, try again later
-        if not user_initiated and self.col.legacy_checkpoint_pending():
-            return
-
         # The initial copy will display a progress window if it takes too long
         def backup(col: Collection) -> bool:
             return col.create_backup(
@@ -1483,7 +1478,6 @@ title="{}" {}>{}</button>""".format(
             )
 
         def after_backup_started(created: bool) -> None:
-            # Legacy checkpoint may have expired.
             self.update_undo_actions()
 
             if user_initiated and not created:

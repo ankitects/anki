@@ -193,7 +193,7 @@ class ImportDialog(QDialog):
         )
         self.mw.col.models.save(self.importer.model, updateReqs=False)
         self.mw.progress.start()
-        self.mw.checkpoint(tr.actions_import())
+        self.mw.col.save()
 
         def on_done(future: Future) -> None:
             self.mw.progress.finish()
