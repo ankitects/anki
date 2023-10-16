@@ -262,7 +262,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {#if checkingWeights}
                 {tr.actionsCancel()}
             {:else}
-                {tr.deckConfigAnalyzeButton()}
+                {tr.deckConfigEvaluateButton()}
             {/if}
         </button>
         {#if computingWeights || checkingWeights}<div>
