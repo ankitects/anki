@@ -919,9 +919,7 @@ title="{}" {}>{}</button>""".format(
         signal.signal(signal.SIGTERM, self.onUnixSignal)
 
     def onUnixSignal(self, signum: Any, frame: Any) -> None:
-        # schedule a rollback & quit
         def quit() -> None:
-            self.col.db.rollback()
             self.close()
 
         self.progress.single_shot(100, quit)
@@ -1191,11 +1189,11 @@ title="{}" {}>{}</button>""".format(
 
     @deprecated(info="checkpoints are no longer supported")
     def checkpoint(self, name: str) -> None:
-        self.col.save()
+        pass
 
+    @deprecated(info="saving is automatic")
     def autosave(self) -> None:
-        self.col.save()
-        self.update_undo_actions()
+        pass
 
     onUndo = undo
 
@@ -1212,7 +1210,6 @@ title="{}" {}>{}</button>""".format(
         aqt.dialogs.open("EditCurrent", self)
 
     def onOverview(self) -> None:
-        self.col.reset()
         self.moveToState("overview")
 
     def onStats(self) -> None:

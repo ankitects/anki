@@ -120,7 +120,6 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         else:
             full_sync(mw, out, on_done)
 
-    mw.col.save(trx=False)
     mw.taskman.with_progress(
         lambda: mw.col.sync_collection(auth, mw.pm.media_syncing_enabled()),
         on_future_done,

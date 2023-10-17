@@ -179,9 +179,6 @@ class MediaManager(DeprecatedNamesMixin):
 
     def check(self) -> CheckMediaResponse:
         output = self.col._backend.check_media()
-        # files may have been renamed on disk, so an undo at this point could
-        # break file references
-        self.col.save()
         return output
 
     def render_all_latex(

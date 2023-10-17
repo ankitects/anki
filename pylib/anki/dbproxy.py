@@ -25,13 +25,9 @@ class DBProxy:
 
     def __init__(self, backend: anki._backend.RustBackend) -> None:
         self._backend = backend
-        self.modified_in_python = False
 
     # Transactions
     ###############
-
-    def rollback(self) -> None:
-        self._backend.db_rollback()
 
     # Querying
     ################
@@ -43,11 +39,6 @@ class DBProxy:
         first_row_only: bool = False,
         **kwargs: ValueForDB,
     ) -> list[Row]:
-        # mark modified?
-        cananoized = sql.strip().lower()
-        for stmt in "insert", "update", "delete":
-            if cananoized.startswith(stmt):
-                self.modified_in_python = True
         sql, args2 = emulate_named_args(sql, args, kwargs)
         # fetch rows
         return self._backend.db_query(sql, args2, first_row_only)
@@ -85,7 +76,6 @@ class DBProxy:
     ################
 
     def executemany(self, sql: str, args: Iterable[Sequence[ValueForDB]]) -> None:
-        self.modified_in_python = True
         if isinstance(args, list):
             list_args = args
         else:

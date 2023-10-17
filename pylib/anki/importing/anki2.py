@@ -52,7 +52,7 @@ class Anki2Importer(Importer):
         try:
             self._import()
         finally:
-            self.src.close(save=False, downgrade=False)
+            self.src.close(downgrade=False)
 
     def _prepareFiles(self) -> None:
         self.source_needs_upgrade = False

@@ -64,7 +64,6 @@ class Overview:
     def refresh(self) -> None:
         def success(_counts: tuple) -> None:
             self._refresh_needed = False
-            self.mw.col.reset()
             self._renderPage()
             self._renderBottom()
             self.mw.web.setFocus()

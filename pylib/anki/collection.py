@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Generator, Iterable, Literal, Optional, Sequence, Union, cast
+from typing import Any, Generator, Iterable, Literal, Sequence, Union, cast
 
 from anki import (
     ankiweb_pb2,
@@ -249,33 +249,20 @@ class Collection(DeprecatedNamesMixin):
     def mod(self) -> int:
         return self.db.scalar("select mod from col")
 
-    def save(self, name: str | None = None, trx: bool = True) -> None:
-        "Flush and commit DB, or roll back if trx=False"
-        # commit needed?
-        if self.db.modified_in_python:
-            self.db.modified_in_python = False
-            self._backend.db_commit()
-        elif not trx:
-            # if no changes were pending but calling code expects to be
-            # outside of a transaction, we need to roll back
-            self.db.rollback()
+    @deprecated(info="saving is automatic")
+    def save(self, **args: Any) -> None:
+        pass
 
-    @deprecated(replaced_by=save)
+    @deprecated(info="saving is automatic")
     def autosave(self) -> None:
-        """Save any pending changes."""
-        self.save()
+        pass
 
     def close(
         self,
-        save: bool = True,
         downgrade: bool = False,
     ) -> None:
         "Disconnect from DB."
         if self.db:
-            if save:
-                self.save(trx=False)
-            else:
-                self.db.rollback()
             self._clear_caches()
             self._backend.close_collection(
                 downgrade_to_schema11=downgrade,
@@ -285,13 +272,8 @@ class Collection(DeprecatedNamesMixin):
     def close_for_full_sync(self) -> None:
         # save and cleanup, but backend will take care of collection close
         if self.db:
-            self.save(trx=False)
             self._clear_caches()
             self.db = None
-
-    def rollback(self) -> None:
-        self._clear_caches()
-        self.db.rollback()
 
     def _clear_caches(self) -> None:
         self.models._clear_cache()
@@ -315,7 +297,6 @@ class Collection(DeprecatedNamesMixin):
 
     def set_schema_modified(self) -> None:
         self.db.execute("update col set scm=?", int_time(1000))
-        self.save()
 
     def mod_schema(self, check: bool) -> None:
         "Mark schema modified. GUI catches this and will ask user if required."
@@ -354,7 +335,6 @@ class Collection(DeprecatedNamesMixin):
         awaited.
         """
         # ensure any pending transaction from legacy code/add-ons has been committed
-        self.save(trx=False)
         created = self._backend.create_backup(
             backup_folder=backup_folder,
             force=force,
@@ -535,10 +515,9 @@ class Collection(DeprecatedNamesMixin):
             self.conf[type] = id + 1
         return id
 
+    @deprecated(info="no longer required")
     def reset(self) -> None:
-        "Rebuild the queue and reload data after DB modified."
-        self.save()
-        self.sched.reset()
+        pass
 
     # Notes
     ##########################################################################
@@ -1082,7 +1061,6 @@ class Collection(DeprecatedNamesMixin):
         Returns tuple of (error: str, ok: bool). 'ok' will be true if no
         problems were found.
         """
-        self.save(trx=False)
         try:
             problems = list(self._backend.check_database())
             ok = not problems
@@ -1093,7 +1071,6 @@ class Collection(DeprecatedNamesMixin):
         return ("\n".join(problems), ok)
 
     def optimize(self) -> None:
-        self.save(trx=False)
         self.db.execute("vacuum")
         self.db.execute("analyze")
 
