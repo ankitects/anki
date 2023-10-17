@@ -5,10 +5,11 @@ from __future__ import annotations
 
 import re
 from re import Match
-from typing import TYPE_CHECKING, Any, Iterable, Sequence, Union
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Sequence, Union
 
 if TYPE_CHECKING:
     import anki._backend
+    from anki.collection import Collection
 
 # DBValue is actually Union[str, int, float, None], but if defined
 # that way, every call site needs to do a type check prior to using
@@ -28,6 +29,26 @@ class DBProxy:
 
     # Transactions
     ###############
+
+    def transact(self, op: Callable[[], None]) -> None:
+        """Run the provided operation inside a transaction.
+
+        Please note that all backend methods automatically wrap changes in a transaction,
+        so there is no need to use this when calling methods like update_cards(), unless
+        you are making other changes at the same time and want to ensure they are applied
+        completely or not at all.
+
+        If the operation throws an exception, the changes will be automatically rolled
+        back.
+        """
+
+        try:
+            self._backend.db_begin()
+            op()
+            self._backend.db_commit()
+        except BaseException as e:
+            self._backend.db_rollback()
+            raise e
 
     # Querying
     ################
