@@ -22,11 +22,13 @@ export class ChangeNotetypeInfoWrapper {
     fields: (number | null)[];
     templates?: (number | null)[];
     oldNotetypeName: string;
+    isCloze: boolean;
     readonly info: ChangeNotetypeInfo;
 
     constructor(info: ChangeNotetypeInfo) {
         this.info = info;
         const templates = info.input?.newTemplates ?? [];
+        this.isCloze = info.input?.isCloze ?? false;
         if (templates.length > 0) {
             this.templates = negativeOneToNull(templates);
         }

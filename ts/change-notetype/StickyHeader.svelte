@@ -25,7 +25,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ? tr.changeNotetypeFields()
             : tr.changeNotetypeTemplates();
 
-    $: unused = $info.unusedItems(ctx);
+    $: unused =
+        $info.isCloze && ctx === MapContext.Template ? [] : $info.unusedItems(ctx);
 </script>
 
 <StickyContainer

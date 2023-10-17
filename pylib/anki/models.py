@@ -422,11 +422,8 @@ and notes.mid = ? and cards.ord = ?""",
         self.col.mod_schema(check=True)
         assert fmap
         field_map = self._convert_legacy_map(fmap, len(newModel["flds"]))
-        if (
-            not cmap
-            or newModel["type"] == MODEL_CLOZE
-            or notetype["type"] == MODEL_CLOZE
-        ):
+        is_cloze = newModel["type"] == MODEL_CLOZE or notetype["type"] == MODEL_CLOZE
+        if not cmap or is_cloze:
             template_map = []
         else:
             template_map = self._convert_legacy_map(cmap, len(newModel["tmpls"]))
@@ -439,6 +436,7 @@ and notes.mid = ? and cards.ord = ?""",
             old_notetype_id=notetype["id"],
             new_notetype_id=newModel["id"],
             current_schema=self.col.db.scalar("select scm from col"),
+            is_cloze=is_cloze,
         )
 
     def _convert_legacy_map(
