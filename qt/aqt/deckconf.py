@@ -38,7 +38,6 @@ class DeckConf(QDialog):
         self.form = aqt.forms.dconf.Ui_Dialog()
         self.form.setupUi(self)
         gui_hooks.deck_conf_did_setup_ui_form(self)
-        self.mw.checkpoint(tr.actions_options())
         self.setupCombos()
         self.setupConfs()
         qconnect(

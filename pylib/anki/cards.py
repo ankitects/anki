@@ -125,6 +125,7 @@ class Card(DeprecatedNamesMixin):
             desired_retention=self.desired_retention,
         )
 
+    @deprecated(info="please use col.update_card()")
     def flush(self) -> None:
         hooks.card_will_flush(self)
         if self.id != 0:

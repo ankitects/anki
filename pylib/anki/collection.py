@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Generator, Iterable, Literal, Optional, Sequence, Union, cast
+from typing import Any, Generator, Iterable, Literal, Sequence, Union, cast
 
 from anki import (
     ankiweb_pb2,
@@ -81,7 +81,6 @@ from anki.scheduler.dummy import DummyScheduler
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.sync import SyncAuth, SyncOutput, SyncStatus
 from anki.tags import TagManager
-from anki.types import assert_exhaustive
 from anki.utils import (
     from_json_bytes,
     ids2str,
@@ -95,14 +94,6 @@ anki.latex.setup_hook()
 
 
 SearchJoiner = Literal["AND", "OR"]
-
-
-@dataclass
-class LegacyCheckpoint:
-    name: str
-
-
-LegacyUndoResult = Optional[LegacyCheckpoint]
 
 
 @dataclass
@@ -229,7 +220,6 @@ class Collection(DeprecatedNamesMixin):
 
     def upgrade_to_v2_scheduler(self) -> None:
         self._backend.upgrade_scheduler()
-        self.clear_python_undo()
         self._load_scheduler()
 
     def v3_scheduler(self) -> bool:
@@ -259,47 +249,20 @@ class Collection(DeprecatedNamesMixin):
     def mod(self) -> int:
         return self.db.scalar("select mod from col")
 
-    def modified_by_backend(self) -> bool:
-        # Until we can move away from long-running transactions, the Python
-        # code needs to know if the transaction should be committed, so we need
-        # to check if the backend updated the modification time.
-        return self.db.last_begin_at != self.mod
+    @deprecated(info="saving is automatic")
+    def save(self, **args: Any) -> None:
+        pass
 
-    def save(self, name: str | None = None, trx: bool = True) -> None:
-        "Flush, commit DB, and take out another write lock if trx=True."
-        # commit needed?
-        if self.db.modified_in_python or self.modified_by_backend():
-            self.db.modified_in_python = False
-            self.db.commit()
-            if trx:
-                self.db.begin()
-        elif not trx:
-            # if no changes were pending but calling code expects to be
-            # outside of a transaction, we need to roll back
-            self.db.rollback()
-
-        self._save_checkpoint(name)
-
+    @deprecated(info="saving is automatic")
     def autosave(self) -> None:
-        """Save any pending changes.
-        If a checkpoint was taken in the last 5 minutes, don't save."""
-        if not self._have_outstanding_checkpoint():
-            # if there's no active checkpoint, we can save immediately
-            self.save()
-        elif time.time() - self._last_checkpoint_at > 300:
-            self.save()
+        pass
 
     def close(
         self,
-        save: bool = True,
         downgrade: bool = False,
     ) -> None:
         "Disconnect from DB."
         if self.db:
-            if save:
-                self.save(trx=False)
-            else:
-                self.db.rollback()
             self._clear_caches()
             self._backend.close_collection(
                 downgrade_to_schema11=downgrade,
@@ -309,14 +272,8 @@ class Collection(DeprecatedNamesMixin):
     def close_for_full_sync(self) -> None:
         # save and cleanup, but backend will take care of collection close
         if self.db:
-            self.save(trx=False)
             self._clear_caches()
             self.db = None
-
-    def rollback(self) -> None:
-        self._clear_caches()
-        self.db.rollback()
-        self.db.begin()
 
     def _clear_caches(self) -> None:
         self.models._clear_cache()
@@ -324,9 +281,6 @@ class Collection(DeprecatedNamesMixin):
     def reopen(self, after_full_sync: bool = False) -> None:
         if self.db:
             raise Exception("reopen() called with open db")
-
-        self._last_checkpoint_at = time.time()
-        self._undo: _UndoInfo = None
 
         (media_dir, media_db) = media_paths_from_col_path(self.path)
 
@@ -338,13 +292,11 @@ class Collection(DeprecatedNamesMixin):
                 media_db_path=media_db,
             )
         self.db = DBProxy(weakref.proxy(self._backend))
-        self.db.begin()
         if after_full_sync:
             self._load_scheduler()
 
     def set_schema_modified(self) -> None:
         self.db.execute("update col set scm=?", int_time(1000))
-        self.save()
 
     def mod_schema(self, check: bool) -> None:
         "Mark schema modified. GUI catches this and will ask user if required."
@@ -363,12 +315,6 @@ class Collection(DeprecatedNamesMixin):
         else:
             return -1
 
-    def legacy_checkpoint_pending(self) -> bool:
-        return (
-            self._have_outstanding_checkpoint()
-            and time.time() - self._last_checkpoint_at < 300
-        )
-
     # Import/export
     ##########################################################################
 
@@ -385,19 +331,15 @@ class Collection(DeprecatedNamesMixin):
         Returns true if backup created. This may be false in the force=True case,
         if no changes have been made to the collection.
 
-        Commits any outstanding changes, which clears any active legacy checkpoint.
-
         Throws on failure of current backup, or the previous backup if it was not
         awaited.
         """
         # ensure any pending transaction from legacy code/add-ons has been committed
-        self.save(trx=False)
         created = self._backend.create_backup(
             backup_folder=backup_folder,
             force=force,
             wait_for_completion=wait_for_completion,
         )
-        self.db.begin()
         return created
 
     def await_backup_completion(self) -> None:
@@ -539,30 +481,26 @@ class Collection(DeprecatedNamesMixin):
         return Card(self, id)
 
     def update_cards(self, cards: Sequence[Card]) -> OpChanges:
-        """Save card changes to database, and add an undo entry.
-        Unlike card.flush(), this will invalidate any current checkpoint."""
+        """Save card changes to database, and add an undo entry."""
         return self._backend.update_cards(
             cards=[c._to_backend_card() for c in cards], skip_undo_entry=False
         )
 
     def update_card(self, card: Card) -> OpChanges:
-        """Save card changes to database, and add an undo entry.
-        Unlike card.flush(), this will invalidate any current checkpoint."""
+        """Save card changes to database, and add an undo entry."""
         return self.update_cards([card])
 
     def get_note(self, id: NoteId) -> Note:
         return Note(self, id=id)
 
     def update_notes(self, notes: Sequence[Note]) -> OpChanges:
-        """Save note changes to database, and add an undo entry.
-        Unlike note.flush(), this will invalidate any current checkpoint."""
+        """Save note changes to database, and add an undo entry."""
         return self._backend.update_notes(
             notes=[n._to_backend_note() for n in notes], skip_undo_entry=False
         )
 
     def update_note(self, note: Note) -> OpChanges:
-        """Save note changes to database, and add an undo entry.
-        Unlike note.flush(), this will invalidate any current checkpoint."""
+        """Save note changes to database, and add an undo entry."""
         return self.update_notes([note])
 
     # Utils
@@ -577,10 +515,9 @@ class Collection(DeprecatedNamesMixin):
             self.conf[type] = id + 1
         return id
 
+    @deprecated(info="no longer required")
     def reset(self) -> None:
-        "Rebuild the queue and reload data after DB modified."
-        self.autosave()
-        self.sched.reset()
+        pass
 
     # Notes
     ##########################################################################
@@ -1061,18 +998,7 @@ class Collection(DeprecatedNamesMixin):
 
     def undo_status(self) -> UndoStatus:
         "Return the undo status."
-        # check backend first
-        if status := self._check_backend_undo_status():
-            return status
-
-        if not self._undo:
-            return UndoStatus()
-
-        if isinstance(self._undo, LegacyCheckpoint):
-            return UndoStatus(undo=self._undo.name)
-        else:
-            assert_exhaustive(self._undo)
-            assert False
+        return self._check_backend_undo_status() or UndoStatus()
 
     def add_custom_undo_entry(self, name: str) -> int:
         """Add an empty undo entry with the given name.
@@ -1096,18 +1022,9 @@ class Collection(DeprecatedNamesMixin):
         """
         return self._backend.merge_undo_entries(target)
 
-    def clear_python_undo(self) -> None:
-        """Clear the Python undo state.
-        The backend will automatically clear backend undo state when
-        any SQL DML is executed, or an operation that doesn't support undo
-        is run."""
-        self._undo = None
-
     def undo(self) -> OpChangesAfterUndo:
-        """Returns result of backend undo operation, or throws UndoEmpty.
-        If UndoEmpty is received, caller should try undo_legacy()."""
+        """Returns result of backend undo operation, or throws UndoEmpty."""
         out = self._backend.undo()
-        self.clear_python_undo()
         if out.changes.notetype:
             self.models._clear_cache()
         return out
@@ -1115,20 +1032,9 @@ class Collection(DeprecatedNamesMixin):
     def redo(self) -> OpChangesAfterUndo:
         """Returns result of backend redo operation, or throws UndoEmpty."""
         out = self._backend.redo()
-        self.clear_python_undo()
         if out.changes.notetype:
             self.models._clear_cache()
         return out
-
-    def undo_legacy(self) -> LegacyUndoResult:
-        "Returns None if the legacy undo queue is empty."
-        if isinstance(self._undo, LegacyCheckpoint):
-            return self._undo_checkpoint()
-        elif self._undo is None:
-            return None
-        else:
-            assert_exhaustive(self._undo)
-            assert False
 
     def op_made_changes(self, changes: OpChanges) -> bool:
         for field in changes.DESCRIPTOR.fields:
@@ -1142,29 +1048,9 @@ class Collection(DeprecatedNamesMixin):
         If backend has undo available, clear the Python undo state."""
         status = self._backend.get_undo_status()
         if status.undo or status.redo:
-            self.clear_python_undo()
             return status
         else:
             return None
-
-    def _have_outstanding_checkpoint(self) -> bool:
-        self._check_backend_undo_status()
-        return isinstance(self._undo, LegacyCheckpoint)
-
-    def _undo_checkpoint(self) -> LegacyCheckpoint:
-        assert isinstance(self._undo, LegacyCheckpoint)
-        self.rollback()
-        undo = self._undo
-        self.clear_python_undo()
-        return undo
-
-    def _save_checkpoint(self, name: str | None) -> None:
-        "Call via .save(). If name not provided, clear any existing checkpoint."
-        self._last_checkpoint_at = time.time()
-        if name:
-            self._undo = LegacyCheckpoint(name=name)
-        else:
-            self.clear_python_undo()
 
     # DB maintenance
     ##########################################################################
@@ -1175,7 +1061,6 @@ class Collection(DeprecatedNamesMixin):
         Returns tuple of (error: str, ok: bool). 'ok' will be true if no
         problems were found.
         """
-        self.save(trx=False)
         try:
             problems = list(self._backend.check_database())
             ok = not problems
@@ -1183,19 +1068,11 @@ class Collection(DeprecatedNamesMixin):
         except DBError as err:
             problems = [str(err)]
             ok = False
-        finally:
-            try:
-                self.db.begin()
-            except:
-                # may fail if the DB is very corrupt
-                pass
         return ("\n".join(problems), ok)
 
     def optimize(self) -> None:
-        self.save(trx=False)
         self.db.execute("vacuum")
         self.db.execute("analyze")
-        self.db.begin()
 
     ##########################################################################
 
@@ -1372,7 +1249,6 @@ class Collection(DeprecatedNamesMixin):
 
 
 Collection.register_deprecated_aliases(
-    clearUndo=Collection.clear_python_undo,
     findReplace=Collection.find_and_replace,
     remCards=Collection.remove_cards_and_orphaned_notes,
 )
@@ -1380,8 +1256,6 @@ Collection.register_deprecated_aliases(
 
 # legacy name
 _Collection = Collection
-
-_UndoInfo = Union[LegacyCheckpoint, None]
 
 
 def pb_export_limit(limit: ExportLimit) -> import_export_pb2.ExportLimit:
