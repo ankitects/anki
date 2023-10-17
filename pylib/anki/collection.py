@@ -249,20 +249,12 @@ class Collection(DeprecatedNamesMixin):
     def mod(self) -> int:
         return self.db.scalar("select mod from col")
 
-    def modified_by_backend(self) -> bool:
-        # Until we can move away from long-running transactions, the Python
-        # code needs to know if the transaction should be committed, so we need
-        # to check if the backend updated the modification time.
-        return self.db.last_begin_at != self.mod
-
     def save(self, name: str | None = None, trx: bool = True) -> None:
-        "Flush, commit DB, and take out another write lock if trx=True."
+        "Flush and commit DB, or roll back if trx=False"
         # commit needed?
-        if self.db.modified_in_python or self.modified_by_backend():
+        if self.db.modified_in_python:
             self.db.modified_in_python = False
-            self.db.commit()
-            if trx:
-                self.db.begin()
+            self._backend.db_commit()
         elif not trx:
             # if no changes were pending but calling code expects to be
             # outside of a transaction, we need to roll back
@@ -300,7 +292,6 @@ class Collection(DeprecatedNamesMixin):
     def rollback(self) -> None:
         self._clear_caches()
         self.db.rollback()
-        self.db.begin()
 
     def _clear_caches(self) -> None:
         self.models._clear_cache()
@@ -319,7 +310,6 @@ class Collection(DeprecatedNamesMixin):
                 media_db_path=media_db,
             )
         self.db = DBProxy(weakref.proxy(self._backend))
-        self.db.begin()
         if after_full_sync:
             self._load_scheduler()
 
@@ -370,7 +360,6 @@ class Collection(DeprecatedNamesMixin):
             force=force,
             wait_for_completion=wait_for_completion,
         )
-        self.db.begin()
         return created
 
     def await_backup_completion(self) -> None:
@@ -1101,19 +1090,12 @@ class Collection(DeprecatedNamesMixin):
         except DBError as err:
             problems = [str(err)]
             ok = False
-        finally:
-            try:
-                self.db.begin()
-            except:
-                # may fail if the DB is very corrupt
-                pass
         return ("\n".join(problems), ok)
 
     def optimize(self) -> None:
         self.save(trx=False)
         self.db.execute("vacuum")
         self.db.execute("analyze")
-        self.db.begin()
 
     ##########################################################################
 

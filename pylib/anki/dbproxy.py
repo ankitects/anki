@@ -26,17 +26,9 @@ class DBProxy:
     def __init__(self, backend: anki._backend.RustBackend) -> None:
         self._backend = backend
         self.modified_in_python = False
-        self.last_begin_at = 0
 
     # Transactions
     ###############
-
-    def begin(self) -> None:
-        self.last_begin_at = self.scalar("select mod from col")
-        self._backend.db_begin()
-
-    def commit(self) -> None:
-        self._backend.db_commit()
 
     def rollback(self) -> None:
         self._backend.db_rollback()
