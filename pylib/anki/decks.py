@@ -424,7 +424,6 @@ class DeckManager(DeprecatedNamesMixin):
         # make sure arg is an int; legacy callers may be passing in a string
         did = DeckId(did)
         self.set_current(did)
-        self.col.reset()
 
     selected = get_current_id
 

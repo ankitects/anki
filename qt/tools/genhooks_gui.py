@@ -603,12 +603,6 @@ hooks = [
     # UI state/refreshing
     ###################
     Hook(
-        name="state_did_revert",
-        args=["action: str"],
-        legacy_hook="revertedState",
-        doc="Legacy hook, called after undoing.",
-    ),
-    Hook(
         name="state_did_undo",
         args=["changes: OpChangesAfterUndo"],
         doc="Called after backend undoes a change.",

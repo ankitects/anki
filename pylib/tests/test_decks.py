@@ -22,13 +22,11 @@ def test_basic():
     assert col.decks.id("new deck") == parentId
     # we start with the default col selected
     assert col.decks.selected() == 1
-    col.reset()
     # we can select a different col
     col.decks.select(parentId)
     assert col.decks.selected() == parentId
     # let's create a child
     childId = col.decks.id("new deck::child")
-    col.sched.reset()
     # it should have been added to the active list
     assert col.decks.selected() == parentId
     # we can select the child individually too

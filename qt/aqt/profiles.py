@@ -325,7 +325,7 @@ class ProfileManager:
                     continue
             try:
                 c = Collection(path)
-                c.close(save=False, downgrade=True)
+                c.close(downgrade=True)
             except Exception as e:
                 print(e)
                 problem_profiles.append(name)

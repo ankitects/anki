@@ -17,7 +17,6 @@ def test_stats():
     # card stats
     card_stats = col.card_stats_data(c.id)
     assert card_stats.note_id == note.id
-    col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 3)
     col.sched.answerCard(c, 2)

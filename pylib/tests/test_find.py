@@ -46,7 +46,6 @@ def test_find_cards():
     note["Front"] = "test"
     note["Back"] = "foo bar"
     col.addNote(note)
-    col.save()
     latestCardIds = [c.id for c in note.cards()]
     # tag searches
     assert len(col.find_cards("tag:*")) == 5
@@ -164,7 +163,6 @@ def test_find_cards():
     col.db.execute(
         "update cards set did = ? where id = ?", col.decks.id("Default::Child"), id
     )
-    col.save()
     assert len(col.find_cards("deck:default")) == 7
     assert len(col.find_cards("deck:default::child")) == 1
     assert len(col.find_cards("deck:default -deck:default::*")) == 6

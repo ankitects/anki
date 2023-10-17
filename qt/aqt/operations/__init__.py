@@ -148,7 +148,6 @@ def on_op_finished(
     mw: aqt.main.AnkiQt, result: ResultWithChanges, initiator: object | None
 ) -> None:
     mw.update_undo_actions()
-    mw.autosave()
 
     if isinstance(result, OpChanges):
         changes = result

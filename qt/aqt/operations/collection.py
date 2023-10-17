@@ -3,13 +3,12 @@
 
 from __future__ import annotations
 
-from anki.collection import LegacyCheckpoint, OpChanges, OpChangesAfterUndo, Preferences
+from anki.collection import OpChanges, OpChangesAfterUndo, Preferences
 from anki.errors import UndoEmpty
-from anki.types import assert_exhaustive
 from aqt import gui_hooks
 from aqt.operations import CollectionOp
 from aqt.qt import QWidget
-from aqt.utils import showInfo, showWarning, tooltip, tr
+from aqt.utils import showWarning, tooltip, tr
 
 
 def undo(*, parent: QWidget) -> None:
@@ -20,10 +19,7 @@ def undo(*, parent: QWidget) -> None:
         tooltip(tr.undo_action_undone(action=out.operation), parent=parent)
 
     def on_failure(exc: Exception) -> None:
-        if isinstance(exc, UndoEmpty):
-            # backend has no undo, but there may be a checkpoint waiting
-            _legacy_undo(parent=parent)
-        else:
+        if not isinstance(exc, UndoEmpty):
             showWarning(str(exc), parent=parent)
 
     CollectionOp(parent, lambda col: col.undo()).success(on_success).failure(
@@ -38,35 +34,6 @@ def redo(*, parent: QWidget) -> None:
         tooltip(tr.undo_action_redone(action=out.operation), parent=parent)
 
     CollectionOp(parent, lambda col: col.redo()).success(on_success).run_in_background()
-
-
-def _legacy_undo(*, parent: QWidget) -> None:
-    from aqt import mw
-
-    assert mw
-    assert mw.col
-
-    result = mw.col.undo_legacy()
-
-    if result is None:
-        # should not happen
-        showInfo(tr.actions_nothing_to_undo(), parent=parent)
-        mw.update_undo_actions()
-        return
-
-    elif isinstance(result, LegacyCheckpoint):
-        name = result.name
-
-    else:
-        assert_exhaustive(result)
-        assert False
-
-    # full queue+gui reset required
-    mw.reset()
-
-    tooltip(tr.undo_action_undone(action=name), parent=parent)
-    gui_hooks.state_did_revert(name)
-    mw.update_undo_actions()
 
 
 def set_preferences(

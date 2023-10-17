@@ -12,7 +12,7 @@ import anki.collection
 import anki.decks
 import anki.template
 from anki import hooks, notes_pb2
-from anki._legacy import DeprecatedNamesMixin
+from anki._legacy import DeprecatedNamesMixin, deprecated
 from anki.consts import MODEL_STD
 from anki.models import NotetypeDict, NotetypeId, TemplateDict
 from anki.utils import join_fields
@@ -78,9 +78,9 @@ class Note(DeprecatedNamesMixin):
             fields=self.fields,
         )
 
+    @deprecated(info="please use col.update_note()")
     def flush(self) -> None:
-        """This preserves any current checkpoint.
-        For an undo entry, use col.update_note() instead."""
+        """For an undo entry, use col.update_note() instead."""
         if self.id == 0:
             raise Exception("can't flush a new note")
         self.col._backend.update_notes(

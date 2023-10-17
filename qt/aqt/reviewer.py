@@ -178,7 +178,6 @@ class Reviewer:
 
     def refresh_if_needed(self) -> None:
         if self._refresh_needed is RefreshNeeded.QUEUES:
-            self.mw.col.reset()
             self.nextCard()
             self.mw.fade_in_webview()
             self._refresh_needed = None
@@ -444,7 +443,6 @@ class Reviewer:
     def _after_answering(self, ease: Literal[1, 2, 3, 4]) -> None:
         gui_hooks.reviewer_did_answer_card(self, self.card, ease)
         self._answeredIds.append(self.card.id)
-        self.mw.autosave()
         if not self.check_timebox():
             self.nextCard()
 
