@@ -1336,15 +1336,9 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionPreferences.triggered, self.onPrefs)
 
         # View
-        qconnect(
-            m.actionZoomIn.triggered,
-            lambda: self.web.setZoomFactor(self.web.zoomFactor() + 0.1),
-        )
-        qconnect(
-            m.actionZoomOut.triggered,
-            lambda: self.web.setZoomFactor(self.web.zoomFactor() - 0.1),
-        )
-        qconnect(m.actionResetZoom.triggered, lambda: self.web.setZoomFactor(1))
+        qconnect(m.actionZoomIn.triggered, self.zoom_in)
+        qconnect(m.actionZoomOut.triggered, self.zoom_out)
+        qconnect(m.actionResetZoom.triggered, self.reset_zoom)
         # app-wide shortcut
         qconnect(m.actionFullScreen.triggered, self.on_toggle_full_screen)
         m.actionFullScreen.setShortcut(
@@ -1390,6 +1384,30 @@ title="{}" {}>{}</button>""".format(
     def show_menubar(self) -> None:
         self.form.menubar.setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX)
         self.form.menubar.setMinimumSize(0, 0)
+
+    # Triggering a zoom action with Shift held down changes the zoom level without
+    # affecting layout sizing, thus allowing users to zoom into images
+
+    def zoom_in(self) -> None:
+        if self.state == "review" and bool(
+            self.app.queryKeyboardModifiers() & Qt.KeyboardModifier.ShiftModifier
+        ):
+            self.reviewer.zoom_in()
+        else:
+            self.web.setZoomFactor(self.web.zoomFactor() + 0.1)
+
+    def zoom_out(self) -> None:
+        if self.state == "review" and bool(
+            self.app.queryKeyboardModifiers() & Qt.KeyboardModifier.ShiftModifier
+        ):
+            self.reviewer.zoom_out()
+        else:
+            self.web.setZoomFactor(self.web.zoomFactor() - 0.1)
+
+    def reset_zoom(self) -> None:
+        if self.state == "review":
+            self.reviewer.reset_zoom()
+        self.web.setZoomFactor(1)
 
     # Auto update
     ##########################################################################

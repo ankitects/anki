@@ -11,10 +11,14 @@ export { default as $, default as jQuery } from "jquery/dist/jquery";
 
 import { setupImageCloze } from "../image-occlusion/review";
 import { mutateNextCardStates } from "./answering";
+import { resetZoom, setupWheelZoom, setZoomStep, triggerZoomStep } from "./zoom";
 
 globalThis.anki = globalThis.anki || {};
 globalThis.anki.mutateNextCardStates = mutateNextCardStates;
 globalThis.anki.setupImageCloze = setupImageCloze;
+globalThis.anki.setZoomStep = setZoomStep;
+globalThis.anki.triggerZoomStep = triggerZoomStep;
+globalThis.anki.resetZoom = resetZoom;
 
 import { bridgeCommand } from "@tslib/bridgecommand";
 import { registerPackage } from "@tslib/runtime-require";
@@ -262,6 +266,8 @@ document.addEventListener("focusout", (event) => {
         document.body.removeChild(dummyButton);
     }
 });
+
+setupWheelZoom();
 
 registerPackage("anki/reviewer", {
     // If you append a function to this each time the question or answer

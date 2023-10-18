@@ -361,6 +361,7 @@ class Reviewer:
         self._update_mark_icon()
         self._showAnswerButton()
         self.mw.web.setFocus()
+        self.maybe_restore_scale_factor()
         # user hook
         gui_hooks.reviewer_did_show_question(c)
 
@@ -554,6 +555,8 @@ class Reviewer:
             play_clicked_audio(url, self.card)
         elif url.startswith("updateToolbar"):
             self.mw.toolbarWeb.update_background_image()
+        elif url.startswith("zoom"):
+            self.store_zoom_step(int(url.split(":")[1]))
         elif url == "statesMutated":
             self._states_mutated = True
         else:
@@ -1038,6 +1041,35 @@ timerStopped = false;
             tooltip(tr.studying_you_havent_recorded_your_voice_yet())
             return
         av_player.play_file(self._recordedAudio)
+
+    # Zoom handling
+
+    def zoom_in(self):
+        self.web.eval("anki.triggerZoomStep(1)")
+
+    def zoom_out(self):
+        self.web.eval("anki.triggerZoomStep(-1)")
+
+    def reset_zoom(self):
+        self.web.eval("anki.resetZoom()")
+
+    def set_zoom_step(self, step: int, interactive: bool = True):
+        """Set predefined reviewer zoom step, cf. zoom.ts for indices
+
+        Args:
+            step: zoom step corresponding to predefined zoom factor index
+            interactive: controls zoom info box and zoom step persistence
+        """
+        self.web.eval(
+            f"anki.setZoomStep({json.dumps(step)}, {json.dumps(interactive)})"
+        )
+
+    def store_zoom_step(self, step: int):
+        self.mw.pm.profile["lastReviewerZoomStep"] = step
+
+    def maybe_restore_scale_factor(self):
+        if scale_factor := self.mw.pm.profile.get("lastReviewerZoomStep", None):
+            self.set_zoom_step(scale_factor, interactive=False)
 
     # legacy
 

@@ -11,6 +11,7 @@ hr {
 body {
     margin: 20px;
     overflow-wrap: break-word;
+    transform-origin: top;
     // default background setting to fit with toolbar
     background-size: cover;
     background-repeat: no-repeat;
@@ -40,12 +41,15 @@ pre {
 
 #_flag {
     position: fixed;
+
     [dir="ltr"] & {
         right: 10px;
     }
+
     [dir="rtl"] & {
         left: 10px;
     }
+
     top: 0;
     font-size: 30px;
     -webkit-text-stroke-width: 1px;
@@ -54,17 +58,31 @@ pre {
 
 #_mark {
     position: fixed;
+
     [dir="ltr"] & {
         left: 10px;
     }
+
     [dir="rtl"] & {
         right: 10px;
     }
+
     top: 0;
     font-size: 30px;
     color: yellow;
     -webkit-text-stroke-width: 1px;
     -webkit-text-stroke-color: black;
+}
+
+#_zoominfo {
+    position: fixed;
+    display: none;
+
+    right: 10px;
+    top: 0;
+    font-size: 20px;
+    color: var(--fg-subtle);
+    background: var(--canvas-overlay);
 }
 
 #typeans {
@@ -126,6 +144,7 @@ button {
 .drawing {
     zoom: 50%;
 }
+
 .nightMode img.drawing {
     filter: unquote("invert(1) hue-rotate(180deg)");
 }
