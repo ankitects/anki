@@ -196,7 +196,7 @@ fn normalized_deck_name_component(comp: &str) -> Cow<str> {
     if out.contains(invalid_char_for_deck_component) {
         out = out.replace(invalid_char_for_deck_component, "").into();
     }
-    let trimmed = out.trim();
+    let trimmed = out.trim_matches(|c: char| c.is_whitespace() || c == ':');
     if trimmed.is_empty() {
         "blank".to_string().into()
     } else if trimmed.len() != out.len() {
@@ -236,6 +236,8 @@ mod test {
         // implicitly normalize
         assert_eq!(native_name("fo\x1fo::ba\nr"), "foo\x1fbar");
         assert_eq!(native_name("fo\u{a}o\x1fbar"), "foobar");
+        assert_eq!(native_name("foo:::bar"), "foo\x1fbar");
+        assert_eq!(native_name("foo:::bar:baz: "), "foo\x1fbar:baz");
     }
 
     #[test]
