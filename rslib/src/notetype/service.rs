@@ -283,6 +283,7 @@ impl From<ChangeNotetypeInput> for anki_proto::notetypes::ChangeNotetypeRequest 
                 .into_iter()
                 .map(|idx| idx.map(|v| v as i32).unwrap_or(-1))
                 .collect(),
+            is_cloze: i.new_templates.is_none(),
             new_templates: i
                 .new_templates
                 .unwrap_or_default()
