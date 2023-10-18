@@ -1468,7 +1468,7 @@
   },
   {
     "name": "linux-raw-sys",
-    "version": "0.4.7",
+    "version": "0.4.10",
     "authors": "Dan Gohman <dev@sunfishcode.online>",
     "repository": "https://github.com/sunfishcode/linux-raw-sys",
     "license": "Apache-2.0 OR Apache-2.0 WITH LLVM-exception OR MIT",
@@ -2377,7 +2377,7 @@
   },
   {
     "name": "rustix",
-    "version": "0.38.14",
+    "version": "0.38.19",
     "authors": "Dan Gohman <dev@sunfishcode.online>|Jakub Konka <kubkon@jakubkonka.com>",
     "repository": "https://github.com/bytecodealliance/rustix",
     "license": "Apache-2.0 OR Apache-2.0 WITH LLVM-exception OR MIT",
