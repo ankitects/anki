@@ -37,25 +37,31 @@ export class Text extends Shape {
     }
 
     toFabric(size: Size): fabric.IText {
-        this.makeAbsolute(size);
-        return new fabric.IText(this.text, {
-            ...this,
+        const absolute = this.toAbsolute(size);
+        return new fabric.IText(absolute.text, {
+            ...absolute,
             fontFamily: TEXT_FONT_FAMILY,
             backgroundColor: TEXT_BACKGROUND_COLOR,
             padding: TEXT_PADDING,
         });
     }
 
-    makeNormal(size: Size): void {
-        super.makeNormal(size);
-        this.scaleX = xToNormalized(size, this.scaleX);
-        this.scaleY = yToNormalized(size, this.scaleY);
+    toNormal(size: Size): Text {
+        return new Text({
+            ...this,
+            ...super.normalPosition(size),
+            scaleX: xToNormalized(size, this.scaleX),
+            scaleY: yToNormalized(size, this.scaleY),
+        });
     }
 
-    makeAbsolute(size: Size): void {
-        super.makeAbsolute(size);
-        this.scaleX = xFromNormalized(size, this.scaleX);
-        this.scaleY = yFromNormalized(size, this.scaleY);
+    toAbsolute(size: Size): Text {
+        return new Text({
+            ...this,
+            ...super.absolutePosition(size),
+            scaleX: xFromNormalized(size, this.scaleX),
+            scaleY: yFromNormalized(size, this.scaleY),
+        });
     }
 }
 

@@ -64,7 +64,7 @@ message GetImageOcclusionNoteResponse {
     repeated ImageOcclusionProperty properties = 2;
   }
 
-  message ImageClozeNote {
+  message ImageOcclusionNote {
     bytes image_data = 1;
     repeated ImageOcclusion occlusions = 2;
     string header = 3;
@@ -73,7 +73,7 @@ message GetImageOcclusionNoteResponse {
   }
 
   oneof value {
-    ImageClozeNote note = 1;
+    ImageOcclusionNote note = 1;
     string error = 2;
   }
 }
