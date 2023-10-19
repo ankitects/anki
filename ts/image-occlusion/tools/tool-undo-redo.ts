@@ -83,6 +83,7 @@ class UndoStack {
             this.push();
         }
         this.shapeIds.add(id);
+        emitChangeSignal();
     }
 
     onObjectModified(): void {
