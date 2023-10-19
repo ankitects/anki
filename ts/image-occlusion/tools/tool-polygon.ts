@@ -4,7 +4,6 @@
 import { fabric } from "fabric";
 import type { PanZoom } from "panzoom";
 
-import { emitChangeSignal } from "../MaskEditor.svelte";
 import { BORDER_COLOR, disableRotation, SHAPE_MASK_COLOR } from "./lib";
 import { undoStack } from "./tool-undo-redo";
 
@@ -192,7 +191,6 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
         canvas.setActiveObject(polygon);
         // view undo redo tools
         undoStack.onObjectAdded(polygon.id);
-        emitChangeSignal();
     }
 
     polygon.on("modified", () => {
