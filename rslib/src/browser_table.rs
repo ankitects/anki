@@ -152,7 +152,7 @@ impl Column {
         match self {
             Self::Answer => tr.browsing_answer(),
             Self::CardMod => tr.search_card_modified(),
-            Self::Cards => tr.browsing_card(),
+            Self::Cards => tr.browsing_card_type(),
             Self::Deck => tr.decks_deck(),
             Self::Due => tr.statistics_due_date(),
             Self::Custom => tr.browsing_addon(),
@@ -161,7 +161,7 @@ impl Column {
             Self::Lapses => tr.scheduling_lapses(),
             Self::NoteCreation => tr.browsing_created(),
             Self::NoteMod => tr.search_note_modified(),
-            Self::Notetype => tr.browsing_note(),
+            Self::Notetype => tr.browsing_note_type(),
             Self::Question => tr.browsing_question(),
             Self::Reps => tr.scheduling_reviews(),
             Self::SortField => tr.browsing_sort_field(),

@@ -14,6 +14,7 @@ browsing-buried = Buried
 browsing-card = Card
 browsing-cards = Cards
 browsing-card-list = Card List
+browsing-card-type = Card Type
 browsing-cards-cant-be-manually-moved-into = Cards can't be manually moved into a filtered deck.
 browsing-cards-deleted =
     { $count ->
@@ -59,6 +60,7 @@ browsing-no-flag = No Flag
 browsing-no-selection = No cards or notes selected.
 browsing-note = Note
 browsing-notes = Notes
+browsing-note-type = Note Type
 browsing-optional-filter = Optional filter:
 browsing-override-back-template = Override back template:
 browsing-override-font = Override font:
