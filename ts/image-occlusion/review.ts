@@ -4,23 +4,50 @@
 import * as tr from "@tslib/ftl";
 
 import { optimumPixelSizeForCanvas } from "./canvas-scale";
-import type { Shape } from "./shapes/base";
-import { Ellipse } from "./shapes/ellipse";
-import { extractShapesFromRenderedClozes } from "./shapes/from-cloze";
-import { Polygon } from "./shapes/polygon";
-import { Rectangle } from "./shapes/rectangle";
-import { Text } from "./shapes/text";
+import { Shape } from "./shapes";
+import { Ellipse, extractShapesFromRenderedClozes, Polygon, Rectangle, Text } from "./shapes";
 import { TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_PADDING } from "./tools/lib";
 import type { Size } from "./types";
 
-export function setupImageCloze(): void {
-    window.addEventListener("load", () => {
-        window.addEventListener("resize", setupImageCloze);
-    });
-    window.requestAnimationFrame(setupImageClozeInner);
+export type DrawShapesData = {
+    activeShapes: Shape[];
+    inactiveShapes: Shape[];
+    properties: ShapeProperties;
+};
+
+export type DrawShapesFilter = (
+    data: DrawShapesData,
+    context: CanvasRenderingContext2D,
+) => DrawShapesData | void;
+
+export type DrawShapesCallback = (
+    data: DrawShapesData,
+    context: CanvasRenderingContext2D,
+) => void;
+
+export const imageOcclusionAPI = {
+    setup: setupImageOcclusion,
+    drawShape,
+    Ellipse,
+    Polygon,
+    Rectangle,
+    Shape,
+    Text,
+};
+
+interface SetupImageOcclusionOptions {
+    onWillDrawShapes?: DrawShapesFilter;
+    onDidDrawShapes?: DrawShapesCallback;
 }
 
-function setupImageClozeInner(): void {
+function setupImageOcclusion(setupOptions?: SetupImageOcclusionOptions): void {
+    window.addEventListener("load", () => {
+        window.addEventListener("resize", () => setupImageOcclusion(setupOptions));
+    });
+    window.requestAnimationFrame(() => setupImageOcclusionInner(setupOptions));
+}
+
+function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOptions): void {
     const canvas = document.querySelector(
         "#image-occlusion-canvas",
     ) as HTMLCanvasElement | null;
@@ -28,7 +55,6 @@ function setupImageClozeInner(): void {
         return;
     }
 
-    const ctx: CanvasRenderingContext2D = canvas.getContext("2d")!;
     const container = document.getElementById(
         "image-occlusion-container",
     ) as HTMLDivElement;
@@ -56,47 +82,74 @@ function setupImageClozeInner(): void {
         button.addEventListener("click", toggleMasks);
     }
 
-    drawShapes(canvas, ctx);
+    drawShapes(canvas, setupOptions?.onWillDrawShapes, setupOptions?.onDidDrawShapes);
 }
 
 function drawShapes(
     canvas: HTMLCanvasElement,
-    ctx: CanvasRenderingContext2D,
+    onWillDrawShapes?: DrawShapesFilter,
+    onDidDrawShapes?: DrawShapesCallback,
 ): void {
-    const properties = getShapeProperties();
+    const context: CanvasRenderingContext2D = canvas.getContext("2d")!;
     const size = canvas;
-    for (const shape of extractShapesFromRenderedClozes(".cloze")) {
-        drawShape(ctx, size, shape, properties, true);
+
+    let activeShapes = extractShapesFromRenderedClozes(".cloze");
+    let inactiveShapes = extractShapesFromRenderedClozes(".cloze-inactive");
+    let properties = getShapeProperties();
+
+    const processed = onWillDrawShapes?.({ activeShapes, inactiveShapes, properties }, context);
+    if (processed) {
+        activeShapes = processed.activeShapes;
+        inactiveShapes = processed.inactiveShapes;
+        properties = processed.properties;
     }
-    for (const shape of extractShapesFromRenderedClozes(".cloze-inactive")) {
-        if (shape.occludeInactive) {
-            drawShape(ctx, size, shape, properties, false);
-        }
+
+    for (const shape of activeShapes) {
+        drawShape({
+            context,
+            size,
+            shape,
+            fill: properties.activeShapeColor,
+            stroke: properties.activeBorder.color,
+            strokeWidth: properties.activeBorder.width,
+        });
     }
+    for (const shape of inactiveShapes.filter((s) => s.occludeInactive)) {
+        drawShape({
+            context,
+            size,
+            shape,
+            fill: properties.inActiveShapeColor,
+            stroke: properties.inActiveBorder.color,
+            strokeWidth: properties.inActiveBorder.width,
+        });
+    }
+
+    onDidDrawShapes?.({ activeShapes, inactiveShapes, properties }, context);
 }
 
-function drawShape(
-    ctx: CanvasRenderingContext2D,
-    size: Size,
-    shape: Shape,
-    properties: ShapeProperties,
-    active: boolean,
-): void {
-    shape.makeAbsolute(size);
+interface DrawShapeParameters {
+    context: CanvasRenderingContext2D;
+    size: Size;
+    shape: Shape;
+    fill: string;
+    stroke: string;
+    strokeWidth: number;
+}
 
-    const { color, border } = active
-        ? {
-            color: properties.activeShapeColor,
-            border: properties.activeBorder,
-        }
-        : {
-            color: properties.inActiveShapeColor,
-            border: properties.inActiveBorder,
-        };
+function drawShape({
+    context: ctx,
+    size,
+    shape,
+    fill,
+    stroke,
+    strokeWidth,
+}: DrawShapeParameters): void {
+    shape = shape.toAbsolute(size);
 
-    ctx.fillStyle = color;
-    ctx.strokeStyle = border.color;
-    ctx.lineWidth = border.width;
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = strokeWidth;
     if (shape instanceof Rectangle) {
         ctx.fillRect(shape.left, shape.top, shape.width, shape.height);
         ctx.strokeRect(shape.left, shape.top, shape.width, shape.height);
@@ -175,7 +228,7 @@ function topLeftOfPoints(points: { x: number; y: number }[]): {
     return { x: left, y: top };
 }
 
-type ShapeProperties = {
+export type ShapeProperties = {
     activeShapeColor: string;
     inActiveShapeColor: string;
     activeBorder: { width: number; color: string };

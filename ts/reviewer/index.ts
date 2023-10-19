@@ -9,12 +9,13 @@ import "css-browser-selector/css_browser_selector.min";
 
 export { default as $, default as jQuery } from "jquery/dist/jquery";
 
-import { setupImageCloze } from "../image-occlusion/review";
+import { imageOcclusionAPI } from "../image-occlusion/review";
 import { mutateNextCardStates } from "./answering";
 
 globalThis.anki = globalThis.anki || {};
 globalThis.anki.mutateNextCardStates = mutateNextCardStates;
-globalThis.anki.setupImageCloze = setupImageCloze;
+globalThis.anki.imageOcclusion = imageOcclusionAPI;
+globalThis.anki.setupImageCloze = imageOcclusionAPI.setup; // deprecated
 
 import { bridgeCommand } from "@tslib/bridgecommand";
 import { registerPackage } from "@tslib/runtime-require";

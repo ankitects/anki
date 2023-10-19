@@ -23,14 +23,18 @@ export class Shape {
      * question side.
      */
     occludeInactive = false;
+    /* Cloze ordinal */
+    ordinal = 0;
 
     constructor(
-        { left = 0, top = 0, fill = SHAPE_MASK_COLOR, occludeInactive = false }: ConstructorParams<Shape> = {},
+        { left = 0, top = 0, fill = SHAPE_MASK_COLOR, occludeInactive = false, ordinal = 0 }: ConstructorParams<Shape> =
+            {},
     ) {
         this.left = left;
         this.top = top;
         this.fill = fill;
         this.occludeInactive = occludeInactive;
+        this.ordinal = ordinal;
     }
 
     /** Format numbers and remove default values, for easier serialization to
@@ -46,18 +50,36 @@ export class Shape {
     }
 
     toFabric(size: Size): fabric.ForCloze {
-        this.makeAbsolute(size);
-        return new fabric.Object(this);
+        const absolute = this.toAbsolute(size);
+        return new fabric.Object(absolute);
     }
 
-    makeNormal(size: Size): void {
-        this.left = xToNormalized(size, this.left);
-        this.top = yToNormalized(size, this.top);
+    normalPosition(size: Size) {
+        return {
+            left: xToNormalized(size, this.left),
+            top: yToNormalized(size, this.top),
+        };
     }
 
-    makeAbsolute(size: Size): void {
-        this.left = xFromNormalized(size, this.left);
-        this.top = yFromNormalized(size, this.top);
+    toNormal(size: Size): Shape {
+        return new Shape({
+            ...this,
+            ...this.normalPosition(size),
+        });
+    }
+
+    absolutePosition(size: Size) {
+        return {
+            left: xFromNormalized(size, this.left),
+            top: yFromNormalized(size, this.top),
+        };
+    }
+
+    toAbsolute(size: Size): Shape {
+        return new Shape({
+            ...this,
+            ...this.absolutePosition(size),
+        });
     }
 }
 
