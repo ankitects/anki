@@ -229,6 +229,7 @@ class AddonManager:
         return os.path.join(root, module)
 
     def loadAddons(self) -> None:
+        broken: list[str] = []
         for addon in self.all_addon_meta():
             if not addon.enabled:
                 continue
@@ -240,18 +241,27 @@ class AddonManager:
             except AbortAddonImport:
                 pass
             except:
-                error = html.escape(
-                    tr.addons_failed_to_load(
-                        name=addon.human_name(),
-                        traceback=traceback.format_exc(),
-                    )
-                )
-                txt = f"<h1>{tr.qt_misc_error()}</h1><div style='white-space: pre-wrap'>{error}</div>"
-                showText(
-                    txt,
-                    type="html",
-                    copyBtn=True,
-                )
+                self.toggleEnabled(addon.dir_name, enable=False)
+                name = html.escape(addon.human_name())
+                page = addon.page()
+                if page:
+                    broken.append(f"<a href={page}>{name}</a>")
+                else:
+                    broken.append(name)
+                print(traceback.format_exc())
+
+        if broken:
+            addons = "\n\n- " + "\n- ".join(broken)
+            addons = f"<div style='white-space: pre-wrap'>{addons}</div>"
+            error = tr.addons_failed_to_load2(
+                addons=addons,
+            )
+            txt = f"<h1>{tr.qt_misc_error()}</h1>{error}"
+            showText(
+                txt,
+                type="html",
+                copyBtn=True,
+            )
 
     def onAddonsDialog(self) -> None:
         aqt.dialogs.open("AddonsDialog", self)
