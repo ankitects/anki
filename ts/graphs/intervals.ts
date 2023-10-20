@@ -156,7 +156,10 @@ export function prepareIntervalData(
     function onClick(bin: Bin<number, number>): void {
         const start = bin.x0!;
         const end = bin.x1! - 1;
-        const query = makeQuery(start, end);
+        let query = makeQuery(start, end);
+        if (fsrs) {
+            query = query.replace(/ivl/g, "s");
+        }
         dispatch("search", { query });
     }
 
