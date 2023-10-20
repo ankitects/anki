@@ -108,7 +108,7 @@ function fabricObjectToBaseShapeOrShapes(
         shape.top = newPosition.y;
     }
 
-    shape.makeNormal(size);
+    shape = shape.toNormal(size);
     return shape;
 }
 
@@ -151,6 +151,7 @@ function shapeOrShapesToCloze(
     } else {
         ordinal = index + 1;
     }
+    shapeOrShapes.ordinal = ordinal;
     text = `{{c${ordinal}::image-occlusion:${type}${text}}}<br>`;
 
     return text;
