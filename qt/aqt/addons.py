@@ -241,7 +241,6 @@ class AddonManager:
             except AbortAddonImport:
                 pass
             except:
-                self.toggleEnabled(addon.dir_name, enable=False)
                 name = html.escape(addon.human_name())
                 page = addon.page()
                 if page:
@@ -252,16 +251,22 @@ class AddonManager:
 
         if broken:
             addons = "\n\n- " + "\n- ".join(broken)
-            addons = f"<div style='white-space: pre-wrap'>{addons}</div>"
             error = tr.addons_failed_to_load2(
                 addons=addons,
             )
-            txt = f"<h1>{tr.qt_misc_error()}</h1>{error}"
-            showText(
-                txt,
+            txt = f"# {tr.addons_startup_failed()}\n{error}"
+            html2 = markdown.markdown(txt)
+            print(html2)
+            (diag, _) = showText(
+                html2,
                 type="html",
                 copyBtn=True,
+                run=False,
             )
+            from aqt import mw
+
+            # calling show immediately appears to crash
+            mw.progress.single_shot(1000, diag.show)
 
     def onAddonsDialog(self) -> None:
         aqt.dialogs.open("AddonsDialog", self)
