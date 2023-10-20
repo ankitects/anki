@@ -505,6 +505,24 @@ class AnkiQt(QMainWindow):
 
         self.maybe_auto_sync_on_open_close(_onsuccess)
 
+        last_day_cutoff = self.col.sched.day_cutoff
+
+        def refresh_reviewer_on_day_rollover_change():
+            from aqt.reviewer import RefreshNeeded
+
+            nonlocal last_day_cutoff
+            if self.state == "review" and last_day_cutoff != self.col.sched.day_cutoff:
+                last_day_cutoff = self.col.sched.day_cutoff
+                self.reviewer._refresh_needed = RefreshNeeded.QUEUES
+                self.reviewer.refresh_if_needed()
+
+        self._reviewer_refresh_timer = self.progress.timer(
+            1000,
+            refresh_reviewer_on_day_rollover_change,
+            repeat=True,
+            parent=self,
+        )
+
     def unloadProfile(self, onsuccess: Callable) -> None:
         def callback() -> None:
             self._unloadProfile()
@@ -524,6 +542,7 @@ class AnkiQt(QMainWindow):
 
         # at this point there should be no windows left
         self._checkForUnclosedWidgets()
+        self._reviewer_refresh_timer.deleteLater()
 
     def _checkForUnclosedWidgets(self) -> None:
         for w in self.app.topLevelWidgets():
