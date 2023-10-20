@@ -161,7 +161,7 @@ impl Column {
             Self::Lapses => tr.scheduling_lapses(),
             Self::NoteCreation => tr.browsing_created(),
             Self::NoteMod => tr.search_note_modified(),
-            Self::Notetype => tr.notetypes_notetype(),
+            Self::Notetype => tr.card_stats_note_type(),
             Self::Question => tr.browsing_question(),
             Self::Reps => tr.scheduling_reviews(),
             Self::SortField => tr.browsing_sort_field(),
