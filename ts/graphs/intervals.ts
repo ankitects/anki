@@ -47,16 +47,19 @@ export function intervalLabel(
     daysStart: number,
     daysEnd: number,
     cards: number,
+    fsrs: boolean,
 ): string {
     if (daysEnd - daysStart <= 1) {
         // singular
-        return tr.statisticsIntervalsDaySingle({
+        const fn = fsrs ? tr.statisticsStabilityDaySingle : tr.statisticsIntervalsDaySingle;
+        return fn({
             day: daysStart,
             cards,
         });
     } else {
         // range
-        return tr.statisticsIntervalsDayRange({
+        const fn = fsrs ? tr.statisticsStabilityDayRange : tr.statisticsIntervalsDayRange;
+        return fn({
             daysStart,
             daysEnd: daysEnd - 1,
             cards,
@@ -80,6 +83,7 @@ export function prepareIntervalData(
     range: IntervalRange,
     dispatch: SearchDispatch,
     browserLinksSupported: boolean,
+    fsrs: boolean,
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
     const allIntervals = data.intervals;
@@ -144,7 +148,7 @@ export function prepareIntervalData(
         percent: number,
     ): string {
         // const day = dayLabel(bin.x0!, bin.x1!);
-        const interval = intervalLabel(bin.x0!, bin.x1!, bin.length);
+        const interval = intervalLabel(bin.x0!, bin.x1!, bin.length, fsrs);
         const total = tr.statisticsRunningTotal();
         return `${interval}<br>${total}: \u200e${localizedNumber(percent, 1)}%`;
     }
@@ -160,7 +164,7 @@ export function prepareIntervalData(
     const meanIntervalString = timeSpan(meanInterval * 86400, false);
     const tableData = [
         {
-            label: tr.statisticsAverageInterval(),
+            label: fsrs ? tr.statisticsAverageStability() : tr.statisticsAverageInterval(),
             value: meanIntervalString,
         },
     ];
