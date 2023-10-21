@@ -115,11 +115,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {/if}
             </IconButton>
 
-            <Popover slot="floating" --popover-padding-inline="0">
-                <DropdownItem on:click={() => changeOcclusionType("all")}>
+            <Popover slot="floating">
+                <DropdownItem
+                    active={$hideAllGuessOne}
+                    on:click={() => changeOcclusionType("all")}
+                >
                     <span>{tr.notetypesHideAllGuessOne()}</span>
                 </DropdownItem>
-                <DropdownItem on:click={() => changeOcclusionType("one")}>
+                <DropdownItem
+                    active={!$hideAllGuessOne}
+                    on:click={() => changeOcclusionType("one")}
+                >
                     <span>{tr.notetypesHideOneGuessOne()}</span>
                 </DropdownItem>
             </Popover>
