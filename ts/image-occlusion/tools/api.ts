@@ -4,7 +4,8 @@
 import type { fabric } from "fabric";
 import { baseShapesFromFabric, exportShapesToClozeDeletions } from "image-occlusion/shapes/to-cloze";
 
-import type { Shape, ShapeOrShapes } from "../shapes";
+import type { ShapeOrShapes } from "../shapes";
+import { Ellipse, Polygon, Rectangle, Shape, Text } from "../shapes";
 import { addShape, addShapeGroup } from "./from-shapes";
 import { clear, redraw } from "./lib";
 
@@ -14,7 +15,13 @@ interface ClozeExportResult {
 }
 
 export class MaskEditorAPI {
-    canvas: fabric.Canvas;
+    readonly Shape = Shape;
+    readonly Rectangle = Rectangle;
+    readonly Ellipse = Ellipse;
+    readonly Polygon = Polygon;
+    readonly Text = Text;
+
+    readonly canvas: fabric.Canvas;
 
     constructor(canvas) {
         this.canvas = canvas;
