@@ -95,42 +95,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <div class="top-tool-bar-container">
-    <div class="undo-redo-button" on:click={() => (showFloating = !showFloating)}>
-        <WithFloating
-            show={showFloating}
-            closeOnInsideClick
-            inline
-            style="line-height: unset !important"
-            on:close={() => (showFloating = false)}
+    <WithFloating
+        show={showFloating}
+        closeOnInsideClick
+        inline
+        on:close={() => (showFloating = false)}
+    >
+        <IconButton
+            class="top-tool-icon-button right-border-radius dropdown-tool-mode"
+            slot="reference"
+            {iconSize}
+            on:click={() => (showFloating = !showFloating)}
         >
-            <IconButton
-                class="top-tool-icon-button right-border-radius dropdown-tool-mode"
-                slot="reference"
-                {iconSize}
-            >
-                {#if $hideAllGuessOne}
-                    {@html mdiViewDashboard}
-                {:else}
-                    {@html mdiSquare}
-                {/if}
-            </IconButton>
+            {@html $hideAllGuessOne ? mdiViewDashboard : mdiSquare}
+        </IconButton>
 
-            <Popover slot="floating">
-                <DropdownItem
-                    active={$hideAllGuessOne}
-                    on:click={() => changeOcclusionType("all")}
-                >
-                    <span>{tr.notetypesHideAllGuessOne()}</span>
-                </DropdownItem>
-                <DropdownItem
-                    active={!$hideAllGuessOne}
-                    on:click={() => changeOcclusionType("one")}
-                >
-                    <span>{tr.notetypesHideOneGuessOne()}</span>
-                </DropdownItem>
-            </Popover>
-        </WithFloating>
-    </div>
+        <Popover slot="floating">
+            <DropdownItem
+                active={$hideAllGuessOne}
+                on:click={() => changeOcclusionType("all")}
+            >
+                <span>{tr.notetypesHideAllGuessOne()}</span>
+            </DropdownItem>
+            <DropdownItem
+                active={!$hideAllGuessOne}
+                on:click={() => changeOcclusionType("one")}
+            >
+                <span>{tr.notetypesHideOneGuessOne()}</span>
+            </DropdownItem>
+        </Popover>
+    </WithFloating>
 
     <!-- undo & redo tools -->
     <div class="undo-redo-button">
