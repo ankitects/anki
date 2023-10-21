@@ -23,6 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setupMaskEditor,
         setupMaskEditorForEdit,
     } from "./mask-editor";
+    import { MaskEditorAPI } from "./tools/api";
     import Toolbar from "./Toolbar.svelte";
 
     export let mode: IOMode;
@@ -31,6 +32,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let innerWidth = 0;
     const startingTool = mode.kind === "add" ? "draw-rectangle" : "cursor";
     $: canvas = null;
+
+    $: {
+        globalThis.maskEditor = canvas ? new MaskEditorAPI(canvas) : null;
+    }
 
     const dispatch = createEventDispatcher();
 
