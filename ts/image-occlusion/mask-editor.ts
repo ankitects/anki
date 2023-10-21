@@ -3,6 +3,7 @@
 
 import { protoBase64 } from "@bufbuild/protobuf";
 import { getImageForOcclusion, getImageOcclusionNote } from "@tslib/backend";
+import { bridgeCommand } from "@tslib/bridgecommand";
 import * as tr from "@tslib/ftl";
 import { fabric } from "fabric";
 import type { PanZoom } from "panzoom";
@@ -20,6 +21,7 @@ export const setupMaskEditor = async (
     path: string,
     instance: PanZoom,
     onChange: () => void,
+    onImageLoaded: () => void,
 ): Promise<fabric.Canvas> => {
     const imageData = await getImageForOcclusion({ path });
     const canvas = initCanvas(onChange);
@@ -35,6 +37,7 @@ export const setupMaskEditor = async (
         image.width = size.width;
         setCanvasZoomRatio(canvas, instance);
         undoStack.reset();
+        onImageLoaded();
     };
 
     return canvas;
@@ -44,6 +47,7 @@ export const setupMaskEditorForEdit = async (
     noteId: number,
     instance: PanZoom,
     onChange: () => void,
+    onImageLoaded: () => void,
 ): Promise<fabric.Canvas> => {
     const clozeNoteResponse = await getImageOcclusionNote({ noteId: BigInt(noteId) });
     const kind = clozeNoteResponse.value?.case;
@@ -79,6 +83,7 @@ export const setupMaskEditorForEdit = async (
         undoStack.reset();
         window.requestAnimationFrame(() => {
             image.style.visibility = "visible";
+            onImageLoaded();
         });
     };
 
@@ -158,6 +163,7 @@ export async function resetIOImage(path) {
         canvas.setHeight(size.height);
         image.height = size.height;
         image.width = size.width;
+        bridgeCommand(`ioImageLoaded:${JSON.stringify(path)}`);
     };
 }
 globalThis.resetIOImage = resetIOImage;

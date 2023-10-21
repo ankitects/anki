@@ -1155,6 +1155,18 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         doc="""Called when the input state of the editor changes, e.g. when
         switching to an image occlusion note type.""",
     ),
+    Hook(
+        name="editor_mask_editor_did_load_image",
+        args=[
+            "editor: aqt.editor.Editor",
+            "path_or_nid: Union[str, anki.notes.NoteId]"
+        ],
+        doc="""Called when the image occlusion mask editor has completed
+        loading an image.
+        
+        When adding new notes `path_or_nid` will be the path to the image file.
+        When editing existing notes `path_or_nid` will be the note id.""",
+    ),
     # Tag
     ###################
     Hook(name="tag_editor_did_process_key", args=["tag_edit: TagEdit", "evt: QEvent"]),

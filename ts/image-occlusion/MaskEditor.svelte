@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { bridgeCommand } from "@tslib/bridgecommand";
     import type { PanZoom } from "panzoom";
     import panzoom from "panzoom";
     import { createEventDispatcher, onDestroy, onMount } from "svelte";
@@ -39,6 +40,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
+    function onImageLoaded() {
+        const data = mode.kind === "add" ? mode.imagePath : mode.noteId;
+        bridgeCommand(`ioImageLoaded:${JSON.stringify(data)}`);
+    }
+
     function onChange() {
         dispatch("change", { canvas });
     }
@@ -56,13 +62,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         instance.pause();
 
         if (mode.kind == "add") {
-            setupMaskEditor(mode.imagePath, instance, onChange).then((canvas1) => {
-                canvas = canvas1;
-            });
+            setupMaskEditor(mode.imagePath, instance, onChange, onImageLoaded).then(
+                (canvas1) => {
+                    canvas = canvas1;
+                },
+            );
         } else {
-            setupMaskEditorForEdit(mode.noteId, instance, onChange).then((canvas1) => {
-                canvas = canvas1;
-            });
+            setupMaskEditorForEdit(mode.noteId, instance, onChange, onImageLoaded).then(
+                (canvas1) => {
+                    canvas = canvas1;
+                },
+            );
         }
     }
 
