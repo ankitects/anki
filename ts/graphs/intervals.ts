@@ -67,15 +67,20 @@ export function intervalLabel(
     }
 }
 
-function makeQuery(start: number, end: number): string {
+function makeSm2Query(start: number, end: number): string {
     if (start === end) {
         return `"prop:ivl=${start}"`;
     }
 
     const fromQuery = `"prop:ivl>=${start}"`;
     const tillQuery = `"prop:ivl<=${end}"`;
+    return `${fromQuery} ${tillQuery}`;
+}
 
-    return `${fromQuery} AND ${tillQuery}`;
+function makeFsrsQuery(start: number, end: number): string {
+    const fromQuery = `"prop:s>=${start - 0.5}"`;
+    const tillQuery = `"prop:s<${end + 0.5}"`;
+    return `${fromQuery} ${tillQuery}`;
 }
 
 export function prepareIntervalData(
@@ -156,10 +161,7 @@ export function prepareIntervalData(
     function onClick(bin: Bin<number, number>): void {
         const start = bin.x0!;
         const end = bin.x1! - 1;
-        let query = makeQuery(start, end);
-        if (fsrs) {
-            query = query.replace(/ivl/g, "s");
-        }
+        const query = (fsrs ? makeFsrsQuery : makeSm2Query)(start, end);
         dispatch("search", { query });
     }
 
