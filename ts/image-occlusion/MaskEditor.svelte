@@ -24,8 +24,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setupMaskEditor,
         setupMaskEditorForEdit,
     } from "./mask-editor";
-    import { MaskEditorAPI } from "./tools/api";
     import Toolbar from "./Toolbar.svelte";
+    import { MaskEditorAPI } from "./tools/api";
 
     export let mode: IOMode;
     const iconSize = 80;

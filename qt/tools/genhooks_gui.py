@@ -1157,10 +1157,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     ),
     Hook(
         name="editor_mask_editor_did_load_image",
-        args=[
-            "editor: aqt.editor.Editor",
-            "path_or_nid: Union[str, anki.notes.NoteId]"
-        ],
+        args=["editor: aqt.editor.Editor", "path_or_nid: str | anki.notes.NoteId"],
         doc="""Called when the image occlusion mask editor has completed
         loading an image.
         

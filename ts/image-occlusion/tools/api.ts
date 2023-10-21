@@ -2,10 +2,16 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { fabric } from "fabric";
+import { baseShapesFromFabric, exportShapesToClozeDeletions } from "image-occlusion/shapes/to-cloze";
 
-import type { Shape } from "../shapes";
+import type { Shape, ShapeOrShapes } from "../shapes";
 import { addShape, addShapeGroup } from "./from-shapes";
 import { clear, redraw } from "./lib";
+
+interface ClozeExportResult {
+    clozes: string;
+    cardCount: number;
+}
 
 export class MaskEditorAPI {
     canvas: fabric.Canvas;
@@ -20,6 +26,15 @@ export class MaskEditorAPI {
 
     addShapeGroup(shapes: Shape[]): void {
         addShapeGroup(this.canvas, shapes);
+    }
+
+    getClozes(occludeInactive: boolean): ClozeExportResult {
+        const { clozes, noteCount: cardCount } = exportShapesToClozeDeletions(occludeInactive);
+        return { clozes, cardCount };
+    }
+
+    getShapes(occludeInactive: boolean): ShapeOrShapes[] {
+        return baseShapesFromFabric(occludeInactive);
     }
 
     redraw(): void {
