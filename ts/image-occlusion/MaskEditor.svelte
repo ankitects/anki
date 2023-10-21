@@ -13,13 +13,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { bridgeCommand } from "@tslib/bridgecommand";
     import type { PanZoom } from "panzoom";
     import panzoom from "panzoom";
     import { createEventDispatcher, onDestroy, onMount } from "svelte";
 
     import type { IOMode } from "./lib";
     import {
+        type ImageLoadedEvent,
         setCanvasZoomRatio,
         setupMaskEditor,
         setupMaskEditorForEdit,
@@ -40,13 +40,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
-    function onImageLoaded() {
-        const data = mode.kind === "add" ? mode.imagePath : mode.noteId;
-        bridgeCommand(`ioImageLoaded:${JSON.stringify(data)}`);
-    }
-
     function onChange() {
         dispatch("change", { canvas });
+    }
+
+    function onImageLoaded({ path, noteId }: ImageLoadedEvent) {
+        dispatch("image-loaded", { path, noteId });
     }
 
     $: $changeSignal, onChange();

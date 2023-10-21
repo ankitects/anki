@@ -3,7 +3,6 @@
 
 import { protoBase64 } from "@bufbuild/protobuf";
 import { getImageForOcclusion, getImageOcclusionNote } from "@tslib/backend";
-import { bridgeCommand } from "@tslib/bridgecommand";
 import * as tr from "@tslib/ftl";
 import { fabric } from "fabric";
 import type { PanZoom } from "panzoom";
@@ -17,11 +16,16 @@ import { enableSelectable, moveShapeToCanvasBoundaries } from "./tools/lib";
 import { undoStack } from "./tools/tool-undo-redo";
 import type { Size } from "./types";
 
+export interface ImageLoadedEvent {
+    path?: string;
+    noteId?: bigint;
+}
+
 export const setupMaskEditor = async (
     path: string,
     instance: PanZoom,
     onChange: () => void,
-    onImageLoaded: () => void,
+    onImageLoaded: (event: ImageLoadedEvent) => void,
 ): Promise<fabric.Canvas> => {
     const imageData = await getImageForOcclusion({ path });
     const canvas = initCanvas(onChange);
@@ -37,7 +41,7 @@ export const setupMaskEditor = async (
         image.width = size.width;
         setCanvasZoomRatio(canvas, instance);
         undoStack.reset();
-        onImageLoaded();
+        onImageLoaded({ path });
     };
 
     return canvas;
@@ -47,7 +51,7 @@ export const setupMaskEditorForEdit = async (
     noteId: number,
     instance: PanZoom,
     onChange: () => void,
-    onImageLoaded: () => void,
+    onImageLoaded: (event: ImageLoadedEvent) => void,
 ): Promise<fabric.Canvas> => {
     const clozeNoteResponse = await getImageOcclusionNote({ noteId: BigInt(noteId) });
     const kind = clozeNoteResponse.value?.case;
@@ -83,7 +87,7 @@ export const setupMaskEditorForEdit = async (
         undoStack.reset();
         window.requestAnimationFrame(() => {
             image.style.visibility = "visible";
-            onImageLoaded();
+            onImageLoaded({ noteId: BigInt(noteId) });
         });
     };
 
@@ -148,7 +152,7 @@ function containerSize(): Size {
     };
 }
 
-export async function resetIOImage(path) {
+export async function resetIOImage(path: string, onImageLoaded: (event: ImageLoadedEvent) => void) {
     const imageData = await getImageForOcclusion({ path });
     const image = document.getElementById("image") as HTMLImageElement;
     image.src = getImageData(imageData.data!);
@@ -163,7 +167,7 @@ export async function resetIOImage(path) {
         canvas.setHeight(size.height);
         image.height = size.height;
         image.width = size.width;
-        bridgeCommand(`ioImageLoaded:${JSON.stringify(path)}`);
+        onImageLoaded({ path });
     };
 }
 globalThis.resetIOImage = resetIOImage;
