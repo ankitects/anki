@@ -13,6 +13,7 @@ import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
 import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
 import { enableSelectable, moveShapeToCanvasBoundaries } from "./tools/lib";
+import { modifiedPolygon } from "./tools/tool-polygon";
 import { undoStack } from "./tools/tool-undo-redo";
 import type { Size } from "./types";
 
@@ -94,7 +95,13 @@ function initCanvas(onChange: () => void): fabric.Canvas {
     canvas.uniformScaling = false;
     canvas.uniScaleKey = "none";
     moveShapeToCanvasBoundaries(canvas);
-    canvas.on("object:modified", onChange);
+    canvas.on("object:modified", (evt) => {
+        if (evt.target instanceof fabric.Polygon) {
+            modifiedPolygon(canvas, evt.target);
+            undoStack.onObjectModified();
+        }
+        onChange();
+    });
     canvas.on("object:removed", onChange);
     return canvas;
 }
