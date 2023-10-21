@@ -222,6 +222,10 @@ deck-config-maximum-answer-secs-tooltip =
 deck-config-show-answer-timer-tooltip =
     In the review screen, show a timer that counts the number of seconds you're
     taking to review each card.
+deck-config-stop-timer-on-answer = Stop timer on answer
+deck-config-stop-timer-on-answer-tooltip =
+    Whether to stop the timer when the answer is revealed.
+    This doesn't affect statistics.
 
 ## Audio section
 
@@ -234,11 +238,6 @@ deck-config-skip-question-when-replaying = Skip question when replaying answer
 deck-config-always-include-question-audio-tooltip =
     Whether the question audio should be included when the Replay action is
     used while looking at the answer side of a card.
-deck-config-stop-timer-on-answer = Stop timer on answer
-deck-config-stop-timer-on-answer-tooltip =
-    Whether to stop the timer when the answer is revealed.
-    This doesn't affect statistics.
-
 ## Advanced section
 
 deck-config-advanced-title = Advanced
