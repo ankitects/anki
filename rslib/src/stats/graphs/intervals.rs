@@ -27,7 +27,7 @@ impl GraphsContext {
                 if let Some(state) = &card.memory_state {
                     *data
                         .intervals
-                        .entry(state.stability as u32)
+                        .entry(state.stability.round() as u32)
                         .or_insert_with(Default::default) += 1;
                 }
             }
