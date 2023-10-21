@@ -245,11 +245,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $ioMaskEditorVisible = val;
     }
 
-    let isEditMode = false;
-    function setIsEditMode(val: boolean) {
-        isEditMode = val;
-    }
-
     let cols: ("dupe" | "")[] = [];
     export function setBackgrounds(cls: ("dupe" | "")[]): void {
         cols = cls;
@@ -444,26 +439,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     globalThis.setImageField = setImageField;
 
-    // update cloze deletions and set occlusion fields, it call in saveNow to update cloze deletions
-    function updateIONoteInEditMode() {
-        if (isEditMode) {
-            const clozeNote = get(fieldStores[ioFields.occlusions]);
-            if (clozeNote.includes("oi=1")) {
-                setOcclusionField(true);
-            } else {
-                setOcclusionField(false);
-            }
-        }
-    }
-
-    function setOcclusionFieldInner() {
+    function updateOcclusionsField(): void {
         if (isImageOcclusion) {
             const occlusionsData = exportShapesToClozeDeletions($hideAllGuessOne);
             fieldStores[ioFields.occlusions].set(occlusionsData.clozes);
         }
     }
-    // global for calling this method in desktop note editor
-    globalThis.setOcclusionFieldInner = setOcclusionFieldInner;
 
     // reset for new occlusion in add mode
     function resetIOImageLoaded() {
@@ -475,14 +456,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
     globalThis.resetIOImageLoaded = resetIOImageLoaded;
-
-    function setOcclusionField(occludeInactive: boolean) {
-        // set fields data for occlusion and image fields for io notes type
-        if (isImageOcclusion) {
-            const occlusionsData = exportShapesToClozeDeletions(occludeInactive);
-            fieldStores[ioFields.occlusions].set(occlusionsData.clozes);
-        }
-    }
 
     /** hide occlusions and image */
     function hideFieldInOcclusionType(
@@ -569,10 +542,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setCloseHTMLTags,
             triggerChanges,
             setIsImageOcclusion,
-            setIsEditMode,
             setupMaskEditor,
-            setOcclusionField,
-            setOcclusionFieldInner,
+            updateOcclusionsField,
             ...oldEditorAdapter,
         });
 
@@ -637,7 +608,7 @@ the AddCards dialog) should be implemented in the user of this component.
         <div style="display: {$ioMaskEditorVisible ? 'block' : 'none'}">
             <ImageOcclusionPage
                 mode={imageOcclusionMode}
-                on:change={updateIONoteInEditMode}
+                on:change={updateOcclusionsField}
             />
         </div>
     {/if}

@@ -2,7 +2,7 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script>
+<script lang="ts">
     import * as tr from "@tslib/ftl";
     import DropdownItem from "components/DropdownItem.svelte";
     import IconButton from "components/IconButton.svelte";
@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithFloating from "components/WithFloating.svelte";
 
     import { mdiEye, mdiFormatAlignCenter, mdiSquare, mdiViewDashboard } from "./icons";
+    import { emitChangeSignal } from "./MaskEditor.svelte";
     import { hideAllGuessOne } from "./store";
     import { drawEllipse, drawPolygon, drawRectangle, drawText } from "./tools/index";
     import { makeMaskTransparent } from "./tools/lib";
@@ -72,16 +73,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         canvas.selectionColor = "rgba(100, 100, 255, 0.3)";
     };
 
-    const setOcclusionFieldForDesktop = () => {
-        const clist = document.body.classList;
-        if (
-            clist.contains("isLin") ||
-            clist.contains("isMac") ||
-            clist.contains("isWin")
-        ) {
-            globalThis.setOcclusionFieldInner();
-        }
-    };
+    function changeOcclusionType(occlusionType: "all" | "one"): void {
+        $hideAllGuessOne = occlusionType === "all";
+        emitChangeSignal();
+    }
 </script>
 
 <div class="tool-bar-container">
@@ -121,20 +116,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </IconButton>
 
             <Popover slot="floating" --popover-padding-inline="0">
-                <DropdownItem
-                    on:click={() => {
-                        $hideAllGuessOne = true;
-                        setOcclusionFieldForDesktop();
-                    }}
-                >
+                <DropdownItem on:click={() => changeOcclusionType("all")}>
                     <span>{tr.notetypesHideAllGuessOne()}</span>
                 </DropdownItem>
-                <DropdownItem
-                    on:click={() => {
-                        $hideAllGuessOne = false;
-                        setOcclusionFieldForDesktop();
-                    }}
-                >
+                <DropdownItem on:click={() => changeOcclusionType("one")}>
                     <span>{tr.notetypesHideOneGuessOne()}</span>
                 </DropdownItem>
             </Popover>
