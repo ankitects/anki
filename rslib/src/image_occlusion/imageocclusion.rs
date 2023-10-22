@@ -3,8 +3,8 @@
 
 use std::fmt::Write;
 
-use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusion;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionProperty;
+use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionShape;
 use htmlescape::encode_attribute;
 use nom::bytes::complete::escaped;
 use nom::bytes::complete::is_not;
@@ -18,7 +18,7 @@ fn unescape(text: &str) -> String {
     text.replace("\\:", ":")
 }
 
-pub fn parse_image_cloze(text: &str) -> Option<ImageOcclusion> {
+pub fn parse_image_cloze(text: &str) -> Option<ImageOcclusionShape> {
     if let Some((shape, _)) = text.split_once(':') {
         let mut properties = vec![];
         let mut remaining = &text[shape.len()..];
@@ -36,7 +36,7 @@ pub fn parse_image_cloze(text: &str) -> Option<ImageOcclusion> {
             })
         }
 
-        return Some(ImageOcclusion {
+        return Some(ImageOcclusionShape {
             shape: shape.to_string(),
             properties,
         });
