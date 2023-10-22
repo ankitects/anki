@@ -480,28 +480,32 @@ class Collection(DeprecatedNamesMixin):
     def get_card(self, id: CardId) -> Card:
         return Card(self, id)
 
-    def update_cards(self, cards: Sequence[Card]) -> OpChanges:
-        """Save card changes to database, and add an undo entry."""
+    def update_cards(
+        self, cards: Sequence[Card], skip_undo_entry: bool = False
+    ) -> OpChanges:
+        """Save card changes to database."""
         return self._backend.update_cards(
-            cards=[c._to_backend_card() for c in cards], skip_undo_entry=False
+            cards=[c._to_backend_card() for c in cards], skip_undo_entry=skip_undo_entry
         )
 
-    def update_card(self, card: Card) -> OpChanges:
-        """Save card changes to database, and add an undo entry."""
-        return self.update_cards([card])
+    def update_card(self, card: Card, skip_undo_entry: bool = False) -> OpChanges:
+        """Save card changes to database."""
+        return self.update_cards([card], skip_undo_entry=skip_undo_entry)
 
     def get_note(self, id: NoteId) -> Note:
         return Note(self, id=id)
 
-    def update_notes(self, notes: Sequence[Note]) -> OpChanges:
-        """Save note changes to database, and add an undo entry."""
+    def update_notes(
+        self, notes: Sequence[Note], skip_undo_entry: bool = False
+    ) -> OpChanges:
+        """Save note changes to database."""
         return self._backend.update_notes(
-            notes=[n._to_backend_note() for n in notes], skip_undo_entry=False
+            notes=[n._to_backend_note() for n in notes], skip_undo_entry=skip_undo_entry
         )
 
-    def update_note(self, note: Note) -> OpChanges:
-        """Save note changes to database, and add an undo entry."""
-        return self.update_notes([note])
+    def update_note(self, note: Note, skip_undo_entry: bool = False) -> OpChanges:
+        """Save note changes to database."""
+        return self.update_notes([note], skip_undo_entry=skip_undo_entry)
 
     # Utils
     ##########################################################################
