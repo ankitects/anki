@@ -38,6 +38,7 @@ def get_stock_notetypes(
         StockNotetypeKind.KIND_BASIC_OPTIONAL_REVERSED,
         StockNotetypeKind.KIND_BASIC_TYPING,
         StockNotetypeKind.KIND_CLOZE,
+        StockNotetypeKind.KIND_IMAGE_OCCLUSION,
     ]:
         note_type = from_json_bytes(col._backend.get_stock_notetype_legacy(kind))
 
