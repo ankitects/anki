@@ -60,7 +60,7 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
     }
 
     canvas.getActiveObject().toGroup();
-    canvas.requestRenderAll();
+    redraw(canvas);
 };
 
 export const unGroupShapes = (canvas: fabric.Canvas): void => {
@@ -80,7 +80,7 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
         canvas.add(item);
     });
 
-    canvas.requestRenderAll();
+    redraw(canvas);
 };
 
 export const zoomIn = (instance: PanZoom): void => {
@@ -137,7 +137,7 @@ const pasteItem = (canvas: fabric.Canvas): void => {
         _clipboard.top += 10;
         _clipboard.left += 10;
         canvas.setActiveObject(clonedObj);
-        canvas.requestRenderAll();
+        redraw(canvas);
     });
 };
 
@@ -258,3 +258,11 @@ export function enableUniformScaling(canvas: fabric.Canvas, obj: fabric.Object):
 export function addBorder(obj: fabric.Object): void {
     obj.stroke = BORDER_COLOR;
 }
+
+export const redraw = (canvas: fabric.Canvas): void => {
+    canvas.requestRenderAll();
+};
+
+export const clear = (canvas: fabric.Canvas): void => {
+    canvas.clear();
+};

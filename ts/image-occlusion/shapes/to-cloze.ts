@@ -34,7 +34,7 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
 /** Gather all Fabric shapes, and convert them into BaseShapes or
  * BaseShape[]s.
  */
-function baseShapesFromFabric(): ShapeOrShapes[] {
+export function baseShapesFromFabric(): ShapeOrShapes[] {
     const canvas = globalThis.canvas as Canvas;
     makeMaskTransparent(canvas, false);
     const activeObject = canvas.getActiveObject();

@@ -42,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@tslib/ftl";
-    import { resetIOImage } from "image-occlusion/mask-editor";
+    import { type ImageLoadedEvent, resetIOImage } from "image-occlusion/mask-editor";
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
 
@@ -420,7 +420,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             // new image is being added
             if (isIOImageLoaded) {
-                resetIOImage(options.mode.imagePath);
+                resetIOImage(options.mode.imagePath, (event: ImageLoadedEvent) =>
+                    onImageLoaded(
+                        new CustomEvent("image-loaded", {
+                            detail: event,
+                        }),
+                    ),
+                );
             }
         } else {
             const clozeNote = get(fieldStores[ioFields.occlusions]);
@@ -468,6 +474,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         }
         return false;
+    }
+
+    // Signal image occlusion image loading to Python
+    function onImageLoaded(event: CustomEvent<ImageLoadedEvent>) {
+        const detail = event.detail;
+        bridgeCommand(
+            `ioImageLoaded:${JSON.stringify(detail.path || detail.noteId?.toString())}`,
+        );
     }
 
     // Signal editor UI state changes to add-ons
@@ -609,6 +623,7 @@ the AddCards dialog) should be implemented in the user of this component.
             <ImageOcclusionPage
                 mode={imageOcclusionMode}
                 on:change={updateOcclusionsField}
+                on:image-loaded={onImageLoaded}
             />
         </div>
     {/if}
