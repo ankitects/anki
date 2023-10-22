@@ -493,6 +493,16 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 EditorState(int(new_state_id)), EditorState(int(old_state_id))
             )
 
+        elif cmd.startswith("ioImageLoaded"):
+            (_, path_or_nid_data) = cmd.split(":", 1)
+            path_or_nid = json.loads(path_or_nid_data)
+            if self.addMode:
+                gui_hooks.editor_mask_editor_did_load_image(self, path_or_nid)
+            else:
+                gui_hooks.editor_mask_editor_did_load_image(
+                    self, NoteId(int(path_or_nid))
+                )
+
         elif cmd in self._links:
             return self._links[cmd](self)
 
