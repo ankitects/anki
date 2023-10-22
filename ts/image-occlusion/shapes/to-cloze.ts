@@ -17,12 +17,12 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
     clozes: string;
     noteCount: number;
 } {
-    const shapes = baseShapesFromFabric(occludeInactive);
+    const shapes = baseShapesFromFabric();
 
     let clozes = "";
     let index = 0;
     shapes.forEach((shapeOrShapes) => {
-        clozes += shapeOrShapesToCloze(shapeOrShapes, index);
+        clozes += shapeOrShapesToCloze(shapeOrShapes, index, occludeInactive);
         if (!(shapeOrShapes instanceof Text)) {
             index++;
         }
@@ -34,7 +34,7 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
 /** Gather all Fabric shapes, and convert them into BaseShapes or
  * BaseShape[]s.
  */
-export function baseShapesFromFabric(occludeInactive: boolean): ShapeOrShapes[] {
+export function baseShapesFromFabric(): ShapeOrShapes[] {
     const canvas = globalThis.canvas as Canvas;
     makeMaskTransparent(canvas, false);
     const activeObject = canvas.getActiveObject();
@@ -53,7 +53,6 @@ export function baseShapesFromFabric(occludeInactive: boolean): ShapeOrShapes[] 
             return fabricObjectToBaseShapeOrShapes(
                 canvas,
                 object,
-                occludeInactive,
                 parent,
             );
         })
@@ -64,7 +63,6 @@ export function baseShapesFromFabric(occludeInactive: boolean): ShapeOrShapes[] 
 function fabricObjectToBaseShapeOrShapes(
     size: Size,
     object: FabricObject,
-    occludeInactive: boolean,
     parentObject?: FabricObject,
 ): ShapeOrShapes | null {
     let shape: Shape;
@@ -91,14 +89,12 @@ function fabricObjectToBaseShapeOrShapes(
                 return fabricObjectToBaseShapeOrShapes(
                     size,
                     child,
-                    occludeInactive,
                     object,
                 );
             });
         default:
             return null;
     }
-    shape.occludeInactive = occludeInactive;
     if (parentObject) {
         const newPosition = fabric.util.transformPoint(
             { x: shape.left, y: shape.top },
@@ -117,6 +113,7 @@ function fabricObjectToBaseShapeOrShapes(
 function shapeOrShapesToCloze(
     shapeOrShapes: ShapeOrShapes,
     index: number,
+    occludeInactive: boolean,
 ): string {
     let text = "";
     function addKeyValue(key: string, value: string) {
@@ -127,7 +124,7 @@ function shapeOrShapesToCloze(
     let type: string;
     if (Array.isArray(shapeOrShapes)) {
         return shapeOrShapes
-            .map((shape) => shapeOrShapesToCloze(shape, index))
+            .map((shape) => shapeOrShapesToCloze(shape, index, occludeInactive))
             .join("");
     } else if (shapeOrShapes instanceof Rectangle) {
         type = "rect";
@@ -143,6 +140,9 @@ function shapeOrShapesToCloze(
 
     for (const [key, value] of Object.entries(shapeOrShapes.toDataForCloze())) {
         addKeyValue(key, value);
+    }
+    if (occludeInactive) {
+        addKeyValue("oi", "1");
     }
 
     let ordinal: number;
