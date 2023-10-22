@@ -44,7 +44,9 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
     });
 
     canvas.on("mouse:move", function(o) {
-        if (!isDown) return;
+        if (!isDown) {
+            return;
+        }
         const pointer = canvas.getPointer(o.e);
         let x = pointer.x;
         let y = pointer.y;

@@ -35,7 +35,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function decimalPlaces(value: number) {
-        if (Math.floor(value) === value) return 0;
+        if (Math.floor(value) === value) {
+            return 0;
+        }
         return value.toString().split(".")[1].length || 0;
     }
 
