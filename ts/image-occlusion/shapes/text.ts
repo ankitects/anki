@@ -8,7 +8,7 @@ import type { ConstructorParams, Size } from "../types";
 import type { ShapeDataForCloze } from "./base";
 import { Shape } from "./base";
 import { floatToDisplay } from "./floats";
-import { xFromNormalized, xToNormalized, yFromNormalized, yToNormalized } from "./position";
+import { xToNormalized, yToNormalized } from "./position";
 
 export class Text extends Shape {
     text: string;
@@ -59,8 +59,8 @@ export class Text extends Shape {
         return new Text({
             ...this,
             ...super.absolutePosition(size),
-            scaleX: xFromNormalized(size, this.scaleX),
-            scaleY: yFromNormalized(size, this.scaleY),
+            scaleX: size.width * this.scaleX,
+            scaleY: size.height * this.scaleY,
         });
     }
 }
