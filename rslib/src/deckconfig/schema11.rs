@@ -75,6 +75,8 @@ pub struct DeckConfSchema11 {
     seconds_to_show_question: f32,
     #[serde(default)]
     seconds_to_show_answer: f32,
+    #[serde(deserialize_with = "default_on_invalid")]
+    answer_action: AnswerAction,
     #[serde(default)]
     reschedule_fsrs_cards: bool,
     #[serde(default)]
@@ -82,6 +84,16 @@ pub struct DeckConfSchema11 {
 
     #[serde(flatten)]
     other: HashMap<String, Value>,
+}
+
+#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, Clone)]
+#[repr(u8)]
+#[derive(Default)]
+pub enum AnswerAction {
+    #[default]
+    BuryCard = 0,
+    AnswerAgain = 1,
+    AnswerGood = 2,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -255,6 +267,7 @@ impl Default for DeckConfSchema11 {
             stop_timer_on_answer: false,
             seconds_to_show_question: 0.0,
             seconds_to_show_answer: 0.0,
+            answer_action: AnswerAction::BuryCard,
             replayq: true,
             dynamic: false,
             new: Default::default(),
@@ -339,6 +352,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 stop_timer_on_answer: c.stop_timer_on_answer,
                 seconds_to_show_question: c.seconds_to_show_question,
                 seconds_to_show_answer: c.seconds_to_show_answer,
+                answer_action: c.answer_action as i32,
                 skip_question_when_replaying_answer: !c.replayq,
                 bury_new: c.new.bury,
                 bury_reviews: c.rev.bury,
@@ -395,6 +409,11 @@ impl From<DeckConfig> for DeckConfSchema11 {
             stop_timer_on_answer: i.stop_timer_on_answer,
             seconds_to_show_question: i.seconds_to_show_question,
             seconds_to_show_answer: i.seconds_to_show_answer,
+            answer_action: match i.answer_action {
+                0 => AnswerAction::BuryCard,
+                1 => AnswerAction::AnswerAgain,
+                _ => AnswerAction::AnswerGood,
+            },
             replayq: !i.skip_question_when_replaying_answer,
             dynamic: false,
             new: NewConfSchema11 {

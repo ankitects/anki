@@ -230,6 +230,9 @@ deck-config-seconds-to-show-question = Seconds to show question
 deck-config-seconds-to-show-question-tooltip = The number of seconds to wait before automatically advancing to the next question. Set to 0 to disable.
 deck-config-seconds-to-show-answer = Seconds to show answer
 deck-config-seconds-to-show-answer-tooltip = The number of seconds to wait before automatically revealing the answer. Set to 0 to disable.
+deck-config-answer-action = Answer action
+deck-config-answer-action-tooltip = The action to perform on the current card before automatically advancing to the next one.
+
 
 ## Audio section
 

@@ -6,6 +6,7 @@ mod service;
 pub(crate) mod undo;
 mod update;
 
+pub use anki_proto::deck_config::deck_config::config::AnswerAction;
 pub use anki_proto::deck_config::deck_config::config::LeechAction;
 pub use anki_proto::deck_config::deck_config::config::NewCardGatherPriority;
 pub use anki_proto::deck_config::deck_config::config::NewCardInsertOrder;
@@ -65,6 +66,7 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     stop_timer_on_answer: false,
     seconds_to_show_question: 0.0,
     seconds_to_show_answer: 0.0,
+    answer_action: AnswerAction::BuryCard as i32,
     skip_question_when_replaying_answer: false,
     bury_new: false,
     bury_reviews: false,

@@ -91,6 +91,11 @@ message DeckConfig {
       LEECH_ACTION_SUSPEND = 0;
       LEECH_ACTION_TAG_ONLY = 1;
     }
+    enum AnswerAction {
+      ANSWER_ACTION_BURY_CARD = 0;
+      ANSWER_ACTION_ANSWER_AGAIN = 1;
+      ANSWER_ACTION_ANSWER_GOOD = 2;
+    }
 
     repeated float learn_steps = 1;
     repeated float relearn_steps = 2;
@@ -135,6 +140,7 @@ message DeckConfig {
     bool stop_timer_on_answer = 38;
     float seconds_to_show_question = 41;
     float seconds_to_show_answer = 42;
+    AnswerAction answer_action = 43;
     bool skip_question_when_replaying_answer = 26;
 
     bool bury_new = 27;

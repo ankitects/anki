@@ -129,6 +129,12 @@ class V3CardInfo:
             return CardAnswer.EASY
 
 
+class AnswerAction(Enum):
+    BURY_CARD = 0
+    ANSWER_AGAIN = 1
+    ANSWER_GOOD = 2
+
+
 class Reviewer:
     def __init__(self, mw: AnkiQt) -> None:
         self.mw = mw
@@ -429,8 +435,16 @@ class Reviewer:
 
         def on_show_question_timeout() -> None:
             if self._show_question_timer == this_timer:
-                # TODO: customizable action
-                self._answerCard(3)
+                try:
+                    answer_action = list(AnswerAction)[conf["answerAction"]]
+                except IndexError:
+                    answer_action = AnswerAction.ANSWER_GOOD
+                if answer_action == AnswerAction.BURY_CARD:
+                    self.bury_current_card()
+                elif answer_action == AnswerAction.ANSWER_AGAIN:
+                    self._answerCard(1)
+                else:
+                    self._answerCard(3)
 
         if self._show_question_timer is not None:
             self._show_question_timer.deleteLater()
