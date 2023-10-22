@@ -59,9 +59,13 @@ message GetImageOcclusionNoteResponse {
     string value = 2;
   }
 
-  message ImageOcclusion {
+  message ImageOcclusionShape {
     string shape = 1;
     repeated ImageOcclusionProperty properties = 2;
+  }
+
+  message ImageOcclusion {
+    repeated ImageOcclusionShape shapes = 1;
   }
 
   message ImageOcclusionNote {

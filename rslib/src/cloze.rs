@@ -2,10 +2,12 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt::Write;
 
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusion;
+use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionShape;
 use htmlescape::encode_attribute;
 use lazy_static::lazy_static;
 use nom::branch::alt;
@@ -317,14 +319,20 @@ fn render_image_occlusion(text: &str, question_side: bool, active: bool, ordinal
 }
 
 pub fn parse_image_occlusions(text: &str) -> Vec<ImageOcclusion> {
-    parse_text_with_clozes(text)
-        .iter()
-        .filter_map(|node| match node {
-            TextOrCloze::Cloze(cloze) if cloze.image_occlusion().is_some() => {
-                parse_image_cloze(cloze.image_occlusion().unwrap())
+    let mut occlusions: HashMap<u16, Vec<ImageOcclusionShape>> = HashMap::new();
+    for node in parse_text_with_clozes(text) {
+        if let TextOrCloze::Cloze(cloze) = node {
+            if cloze.image_occlusion().is_some() {
+                if let Some(shape) = parse_image_cloze(cloze.image_occlusion().unwrap()) {
+                    occlusions.entry(cloze.ordinal).or_default().push(shape);
+                }
             }
-            _ => None,
-        })
+        }
+    }
+
+    occlusions
+        .values()
+        .map(|v| ImageOcclusion { shapes: v.to_vec() })
         .collect()
 }
 
