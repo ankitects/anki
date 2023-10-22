@@ -20,15 +20,14 @@ export class Shape {
     top: number;
     fill: string = SHAPE_MASK_COLOR;
     /** Whether occlusions from other cloze numbers should be shown on the
-     * question side.
+     * question side. Used only in reviewer code.
      */
-    occludeInactive = false;
+    occludeInactive?: boolean;
     /* Cloze ordinal */
     ordinal = 0;
 
     constructor(
-        { left = 0, top = 0, fill = SHAPE_MASK_COLOR, occludeInactive = false, ordinal = 0 }: ConstructorParams<Shape> =
-            {},
+        { left = 0, top = 0, fill = SHAPE_MASK_COLOR, occludeInactive, ordinal = 0 }: ConstructorParams<Shape> = {},
     ) {
         this.left = left;
         this.top = top;
@@ -45,7 +44,6 @@ export class Shape {
             left: floatToDisplay(this.left),
             top: floatToDisplay(this.top),
             ...(this.fill === SHAPE_MASK_COLOR ? {} : { fill: this.fill }),
-            ...(this.occludeInactive ? { oi: "1" } : {}),
         };
     }
 
