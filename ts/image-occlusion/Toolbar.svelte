@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithFloating from "components/WithFloating.svelte";
 
     import { mdiEye, mdiFormatAlignCenter, mdiSquare, mdiViewDashboard } from "./icons";
+    import { emitChangeSignal } from "./MaskEditor.svelte";
     import { hideAllGuessOne } from "./store";
     import { drawEllipse, drawPolygon, drawRectangle, drawText } from "./tools/index";
     import { makeMaskTransparent } from "./tools/lib";
@@ -215,6 +216,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {iconSize}
                 on:click={() => {
                     tool.action(canvas);
+                    emitChangeSignal();
                 }}
             >
                 {@html tool.icon}
