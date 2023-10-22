@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
     import type { DeckOptionsState } from "./lib";
+    import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import Warning from "./Warning.svelte";
 
@@ -42,6 +43,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         stopTimerOnAnswer: {
             title: tr.deckConfigStopTimerOnAnswer(),
             help: tr.deckConfigStopTimerOnAnswerTooltip(),
+        },
+        secondsToShowQuestion: {
+            title: tr.deckConfigSecondsToShowQuestion(),
+            help: tr.deckConfigSecondsToShowQuestionTooltip(),
+        },
+        secondsToShowAnswer: {
+            title: tr.deckConfigSecondsToShowAnswer(),
+            help: tr.deckConfigSecondsToShowAnswerTooltip(),
         },
     };
     const helpSections = Object.values(settings) as HelpItem[];
@@ -124,6 +133,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </SettingTitle>
                 </SwitchRow>
             </div>
+        </Item>
+
+        <Item>
+            <SpinBoxFloatRow
+                bind:value={$config.secondsToShowQuestion}
+                defaultValue={defaults.secondsToShowQuestion}
+                step={1}
+            >
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(
+                            Object.keys(settings).indexOf("secondsToShowQuestion"),
+                        )}
+                >
+                    {settings.secondsToShowQuestion.title}
+                </SettingTitle>
+            </SpinBoxFloatRow>
+        </Item>
+
+        <Item>
+            <SpinBoxFloatRow
+                bind:value={$config.secondsToShowAnswer}
+                defaultValue={defaults.secondsToShowAnswer}
+                step={1}
+            >
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(
+                            Object.keys(settings).indexOf("secondsToShowAnswer"),
+                        )}
+                >
+                    {settings.secondsToShowAnswer.title}
+                </SettingTitle>
+            </SpinBoxFloatRow>
         </Item>
     </DynamicallySlottable>
 </TitledContainer>

@@ -147,6 +147,8 @@ class Reviewer:
         self._previous_card_info = PreviousReviewerCardInfo(self.mw)
         self._states_mutated = True
         self._reps: int = None
+        self._show_question_timer: QTimer | None = None
+        self._show_answer_timer: QTimer | None = None
 
     def show(self) -> None:
         if self.mw.col.sched_ver() == 1 or not self.mw.col.v3_scheduler():
@@ -364,6 +366,23 @@ class Reviewer:
         # user hook
         gui_hooks.reviewer_did_show_question(c)
 
+        conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
+        this_timer = None
+
+        def on_show_answer_timeout() -> None:
+            if self._show_answer_timer == this_timer:
+                self._showAnswer()
+
+        if self._show_answer_timer is not None:
+            self._show_answer_timer.deleteLater()
+        if conf["secondsToShowAnswer"]:
+            this_timer = self._show_answer_timer = self.mw.progress.timer(
+                conf["secondsToShowAnswer"] * 1000,
+                on_show_answer_timeout,
+                repeat=False,
+                parent=self.mw,
+            )
+
     def autoplay(self, card: Card) -> bool:
         print("use card.autoplay() instead of reviewer.autoplay(card)")
         return card.autoplay()
@@ -404,6 +423,24 @@ class Reviewer:
         self.mw.web.setFocus()
         # user hook
         gui_hooks.reviewer_did_show_answer(c)
+
+        conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
+        this_timer = None
+
+        def on_show_question_timeout() -> None:
+            if self._show_question_timer == this_timer:
+                # TODO: customizable action
+                self._answerCard(3)
+
+        if self._show_question_timer is not None:
+            self._show_question_timer.deleteLater()
+        if conf["secondsToShowQuestion"]:
+            this_timer = self._show_question_timer = self.mw.progress.timer(
+                conf["secondsToShowQuestion"] * 1000,
+                on_show_question_timeout,
+                repeat=False,
+                parent=self.mw,
+            )
 
     # Answering a card
     ############################################################

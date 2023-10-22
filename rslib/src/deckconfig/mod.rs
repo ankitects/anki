@@ -63,6 +63,8 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     cap_answer_time_to_secs: 60,
     show_timer: false,
     stop_timer_on_answer: false,
+    seconds_to_show_question: 0.0,
+    seconds_to_show_answer: 0.0,
     skip_question_when_replaying_answer: false,
     bury_new: false,
     bury_reviews: false,

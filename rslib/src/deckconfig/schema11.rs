@@ -72,6 +72,10 @@ pub struct DeckConfSchema11 {
     #[serde(default)]
     stop_timer_on_answer: bool,
     #[serde(default)]
+    seconds_to_show_question: f32,
+    #[serde(default)]
+    seconds_to_show_answer: f32,
+    #[serde(default)]
     reschedule_fsrs_cards: bool,
     #[serde(default)]
     sm2_retention: f32,
@@ -249,6 +253,8 @@ impl Default for DeckConfSchema11 {
             autoplay: true,
             timer: 0,
             stop_timer_on_answer: false,
+            seconds_to_show_question: 0.0,
+            seconds_to_show_answer: 0.0,
             replayq: true,
             dynamic: false,
             new: Default::default(),
@@ -331,6 +337,8 @@ impl From<DeckConfSchema11> for DeckConfig {
                 cap_answer_time_to_secs: c.max_taken.max(0) as u32,
                 show_timer: c.timer != 0,
                 stop_timer_on_answer: c.stop_timer_on_answer,
+                seconds_to_show_question: c.seconds_to_show_question,
+                seconds_to_show_answer: c.seconds_to_show_answer,
                 skip_question_when_replaying_answer: !c.replayq,
                 bury_new: c.new.bury,
                 bury_reviews: c.rev.bury,
@@ -385,6 +393,8 @@ impl From<DeckConfig> for DeckConfSchema11 {
             autoplay: !i.disable_autoplay,
             timer: i.show_timer.into(),
             stop_timer_on_answer: i.stop_timer_on_answer,
+            seconds_to_show_question: i.seconds_to_show_question,
+            seconds_to_show_answer: i.seconds_to_show_answer,
             replayq: !i.skip_question_when_replaying_answer,
             dynamic: false,
             new: NewConfSchema11 {
@@ -459,6 +469,8 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "fsrsWeights",
     "desiredRetention",
     "stopTimerOnAnswer",
+    "secondsToShowQuestion",
+    "secondsToShowAnswer",
     "rescheduleFsrsCards",
     "sm2Retention",
 };
