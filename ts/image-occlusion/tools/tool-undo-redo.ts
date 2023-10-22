@@ -20,8 +20,12 @@ type UndoState = {
 const shapeType = ["rect", "ellipse", "i-text"];
 
 const validShape = (shape: fabric.Object): boolean => {
-    if (shape.width <= 5 || shape.height <= 5) return false;
-    if (shapeType.indexOf(shape.type) === -1) return false;
+    if (shape.width <= 5 || shape.height <= 5) {
+        return false;
+    }
+    if (shapeType.indexOf(shape.type) === -1) {
+        return false;
+    }
     return true;
 };
 

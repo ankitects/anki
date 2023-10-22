@@ -43,8 +43,9 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
     });
 
     canvas.on("mouse:move", function(o) {
-        if (!isDown) return;
-
+        if (!isDown) {
+            return;
+        }
         const pointer = canvas.getPointer(o.e);
         let rx = Math.abs(origX - pointer.x) / 2;
         let ry = Math.abs(origY - pointer.y) / 2;
