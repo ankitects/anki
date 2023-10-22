@@ -75,7 +75,7 @@ pub struct DeckConfSchema11 {
     seconds_to_show_question: f32,
     #[serde(default)]
     seconds_to_show_answer: f32,
-    #[serde(deserialize_with = "default_on_invalid")]
+    #[serde(default)]
     answer_action: AnswerAction,
     #[serde(default)]
     reschedule_fsrs_cards: bool,
