@@ -490,6 +490,7 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "stopTimerOnAnswer",
     "secondsToShowQuestion",
     "secondsToShowAnswer",
+    "answerAction",
     "rescheduleFsrsCards",
     "sm2Retention",
 };
