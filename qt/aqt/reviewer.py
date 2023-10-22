@@ -434,6 +434,8 @@ class Reviewer:
         this_timer = None
 
         def on_show_question_timeout() -> None:
+            if self.card is None:
+                return
             if self._show_question_timer == this_timer:
                 try:
                     answer_action = list(AnswerAction)[conf["answerAction"]]
