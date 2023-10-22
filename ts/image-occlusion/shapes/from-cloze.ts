@@ -18,9 +18,17 @@ export function extractShapesFromClozedField(
 ): ShapeOrShapes[] {
     const output: ShapeOrShapes[] = [];
     for (const occlusion of occlusions) {
-        if (isValidType(occlusion.shape)) {
-            const props = Object.fromEntries(occlusion.properties.map(prop => [prop.name, prop.value]));
-            output.push(buildShape(occlusion.shape, props));
+        const group: Shape[] = [];
+        for (const shape of occlusion.shapes) {
+            if (isValidType(shape.shape)) {
+                const props = Object.fromEntries(shape.properties.map(prop => [prop.name, prop.value]));
+                group.push(buildShape(shape.shape, props));
+            }
+        }
+        if (group.length > 1) {
+            output.push(group);
+        } else {
+            output.push(group[0]);
         }
     }
 
