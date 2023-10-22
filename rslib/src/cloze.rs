@@ -301,12 +301,14 @@ fn reveal_cloze(
 fn render_image_occlusion(text: &str, question_side: bool, active: bool, ordinal: u16) -> String {
     if (question_side && active) || ordinal == 0 {
         format!(
-            r#"<div class="cloze" {}></div>"#,
+            r#"<div class="cloze" data-ordinal="{}" {}></div>"#,
+            ordinal,
             &get_image_cloze_data(text)
         )
     } else if !active {
         format!(
-            r#"<div class="cloze-inactive" {}></div>"#,
+            r#"<div class="cloze-inactive" data-ordinal="{}" {}></div>"#,
+            ordinal,
             &get_image_cloze_data(text)
         )
     } else {
@@ -593,7 +595,7 @@ mod test {
                 true
             ),
             format!(
-                r#"<div class="cloze" data-shape="rect" data-left="10.0" data-top="20" data-width="30" data-height="10" ></div>"#,
+                r#"<div class="cloze" data-ordinal="1" data-shape="rect" data-left="10.0" data-top="20" data-width="30" data-height="10" ></div>"#,
             )
         );
     }
