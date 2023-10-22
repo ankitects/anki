@@ -193,15 +193,11 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
         undoStack.onObjectAdded(polygon.id);
     }
 
-    polygon.on("modified", () => {
-        modifiedPolygon(canvas, polygon);
-        undoStack.onObjectModified();
-    });
-
     toggleDrawPolygon(canvas);
 };
 
-const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon): void => {
+// https://github.com/fabricjs/fabric.js/issues/6522
+export const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon): void => {
     const matrix = polygon.calcTransformMatrix();
     const transformedPoints = polygon.get("points")
         .map(function(p) {
@@ -219,11 +215,6 @@ const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon): void =
         strokeWidth: 1,
         strokeUniform: true,
         noScaleCache: false,
-    });
-
-    polygon1.on("modified", () => {
-        modifiedPolygon(canvas, polygon1);
-        undoStack.onObjectModified();
     });
 
     canvas.remove(polygon);
