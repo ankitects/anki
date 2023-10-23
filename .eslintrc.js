@@ -24,6 +24,7 @@ module.exports = {
         "simple-import-sort/exports": "warn",
         "prefer-const": "warn",
         "no-nested-ternary": "warn",
+        "curly": "error",
         "@typescript-eslint/consistent-type-imports": "error",
     },
     overrides: [

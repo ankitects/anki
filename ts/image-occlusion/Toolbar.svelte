@@ -2,7 +2,7 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script>
+<script lang="ts">
     import * as tr from "@tslib/ftl";
     import DropdownItem from "components/DropdownItem.svelte";
     import IconButton from "components/IconButton.svelte";
@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithFloating from "components/WithFloating.svelte";
 
     import { mdiEye, mdiFormatAlignCenter, mdiSquare, mdiViewDashboard } from "./icons";
+    import { emitChangeSignal } from "./MaskEditor.svelte";
     import { hideAllGuessOne } from "./store";
     import { drawEllipse, drawPolygon, drawRectangle, drawText } from "./tools/index";
     import { makeMaskTransparent } from "./tools/lib";
@@ -72,16 +73,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         canvas.selectionColor = "rgba(100, 100, 255, 0.3)";
     };
 
-    const setOcclusionFieldForDesktop = () => {
-        const clist = document.body.classList;
-        if (
-            clist.contains("isLin") ||
-            clist.contains("isMac") ||
-            clist.contains("isWin")
-        ) {
-            globalThis.setOcclusionFieldInner();
-        }
-    };
+    function changeOcclusionType(occlusionType: "all" | "one"): void {
+        $hideAllGuessOne = occlusionType === "all";
+        emitChangeSignal();
+    }
 </script>
 
 <div class="tool-bar-container">
@@ -89,6 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             class="tool-icon-button {activeTool == tool.id ? 'active-tool' : ''}"
             {iconSize}
+            tooltip={tool.tooltip()}
             active={activeTool === tool.id}
             on:click={() => {
                 activeTool = tool.id;
@@ -100,46 +96,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <div class="top-tool-bar-container">
-    <div class="undo-redo-button" on:click={() => (showFloating = !showFloating)}>
-        <WithFloating
-            show={showFloating}
-            closeOnInsideClick
-            inline
-            style="line-height: unset !important"
-            on:close={() => (showFloating = false)}
+    <WithFloating
+        show={showFloating}
+        closeOnInsideClick
+        inline
+        on:close={() => (showFloating = false)}
+    >
+        <IconButton
+            class="top-tool-icon-button right-border-radius dropdown-tool-mode"
+            slot="reference"
+            tooltip={tr.editingImageOcclusionMode()}
+            {iconSize}
+            on:click={() => (showFloating = !showFloating)}
         >
-            <IconButton
-                class="top-tool-icon-button right-border-radius dropdown-tool-mode"
-                slot="reference"
-                {iconSize}
-            >
-                {#if $hideAllGuessOne}
-                    {@html mdiViewDashboard}
-                {:else}
-                    {@html mdiSquare}
-                {/if}
-            </IconButton>
+            {@html $hideAllGuessOne ? mdiViewDashboard : mdiSquare}
+        </IconButton>
 
-            <Popover slot="floating" --popover-padding-inline="0">
-                <DropdownItem
-                    on:click={() => {
-                        $hideAllGuessOne = true;
-                        setOcclusionFieldForDesktop();
-                    }}
-                >
-                    <span>{tr.notetypesHideAllGuessOne()}</span>
-                </DropdownItem>
-                <DropdownItem
-                    on:click={() => {
-                        $hideAllGuessOne = false;
-                        setOcclusionFieldForDesktop();
-                    }}
-                >
-                    <span>{tr.notetypesHideOneGuessOne()}</span>
-                </DropdownItem>
-            </Popover>
-        </WithFloating>
-    </div>
+        <Popover slot="floating">
+            <DropdownItem
+                active={$hideAllGuessOne}
+                on:click={() => changeOcclusionType("all")}
+            >
+                <span>{tr.notetypesHideAllGuessOne()}</span>
+            </DropdownItem>
+            <DropdownItem
+                active={!$hideAllGuessOne}
+                on:click={() => changeOcclusionType("one")}
+            >
+                <span>{tr.notetypesHideOneGuessOne()}</span>
+            </DropdownItem>
+        </Popover>
+    </WithFloating>
 
     <!-- undo & redo tools -->
     <div class="undo-redo-button">
@@ -150,6 +137,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     : 'right-border-radius'}"
                 {iconSize}
                 on:click={tool.action}
+                tooltip={tool.tooltip()}
                 disabled={tool.name === "undo"
                     ? !$undoStack.undoable
                     : !$undoStack.redoable}
@@ -167,6 +155,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     ? 'left-border-radius'
                     : ''} {tool.name === 'zoomReset' ? 'right-border-radius' : ''}"
                 {iconSize}
+                tooltip={tool.tooltip()}
                 on:click={() => {
                     tool.action(instance);
                 }}
@@ -181,6 +170,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             class="top-tool-icon-button left-border-radius"
             {iconSize}
+            tooltip={tr.editingImageOcclusionToggleTranslucent()}
             on:click={() => {
                 maksOpacity = !maksOpacity;
                 makeMaskTransparent(canvas, maksOpacity);
@@ -196,6 +186,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     ? 'right-border-radius'
                     : ''}"
                 {iconSize}
+                tooltip={tool.tooltip()}
                 on:click={() => {
                     tool.action(canvas);
                 }}
@@ -213,8 +204,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     ? 'left-border-radius'
                     : ''}"
                 {iconSize}
+                tooltip={tool.tooltip()}
                 on:click={() => {
                     tool.action(canvas);
+                    emitChangeSignal();
                 }}
             >
                 {@html tool.icon}
@@ -224,6 +217,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             class="top-tool-icon-button dropdown-tool right-border-radius"
             {iconSize}
+            tooltip={tr.editingImageOcclusionAlignment()}
             on:click={(e) => {
                 showAlignTools = !showAlignTools;
                 leftPos = e.pageX - 100;
@@ -239,6 +233,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             class="top-tool-icon-button"
             {iconSize}
+            tooltip={alignTool.tooltip()}
             on:click={() => {
                 alignTool.action(canvas);
             }}

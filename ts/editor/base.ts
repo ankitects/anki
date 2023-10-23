@@ -40,6 +40,7 @@ export const editorModules = [
     ModuleName.BROWSING,
     ModuleName.NOTETYPES,
     ModuleName.IMPORTING,
+    ModuleName.UNDO,
 ];
 
 export const components = {

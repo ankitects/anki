@@ -586,7 +586,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setCloseHTMLTags({json.dumps(self.mw.col.get_config("closeHTMLTags", True))});
             triggerChanges();
             setIsImageOcclusion({json.dumps(self.current_notetype_is_image_occlusion())});
-            setIsEditMode({json.dumps(self.editorMode != EditorMode.ADD_CARDS)});
             """
 
         if self.addMode:

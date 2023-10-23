@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import * as tr from "@tslib/ftl";
 import type fabric from "fabric";
 import { writable } from "svelte/store";
 
@@ -20,8 +21,12 @@ type UndoState = {
 const shapeType = ["rect", "ellipse", "i-text"];
 
 const validShape = (shape: fabric.Object): boolean => {
-    if (shape.width <= 5 || shape.height <= 5) return false;
-    if (shapeType.indexOf(shape.type) === -1) return false;
+    if (shape.width <= 5 || shape.height <= 5) {
+        return false;
+    }
+    if (shapeType.indexOf(shape.type) === -1) {
+        return false;
+    }
     return true;
 };
 
@@ -127,10 +132,12 @@ export const undoRedoTools = [
         name: "undo",
         icon: mdiUndo,
         action: () => undoStack.undo(),
+        tooltip: tr.undoUndo,
     },
     {
         name: "redo",
         icon: mdiRedo,
         action: () => undoStack.redo(),
+        tooltip: tr.undoRedo,
     },
 ];

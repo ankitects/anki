@@ -40,8 +40,8 @@ export class MaskEditorAPI {
         return { clozes, cardCount };
     }
 
-    getShapes(occludeInactive: boolean): ShapeOrShapes[] {
-        return baseShapesFromFabric(occludeInactive);
+    getShapes(): ShapeOrShapes[] {
+        return baseShapesFromFabric();
     }
 
     redraw(): void {
