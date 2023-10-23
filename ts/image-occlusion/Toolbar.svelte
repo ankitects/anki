@@ -84,6 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             class="tool-icon-button {activeTool == tool.id ? 'active-tool' : ''}"
             {iconSize}
+            tooltip={tool.tooltip()}
             active={activeTool === tool.id}
             on:click={() => {
                 activeTool = tool.id;
@@ -104,6 +105,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             class="top-tool-icon-button right-border-radius dropdown-tool-mode"
             slot="reference"
+            tooltip={tr.editingImageOcclusionMode()}
             {iconSize}
             on:click={() => (showFloating = !showFloating)}
         >
@@ -135,6 +137,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     : 'right-border-radius'}"
                 {iconSize}
                 on:click={tool.action}
+                tooltip={tool.tooltip()}
                 disabled={tool.name === "undo"
                     ? !$undoStack.undoable
                     : !$undoStack.redoable}
@@ -152,6 +155,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     ? 'left-border-radius'
                     : ''} {tool.name === 'zoomReset' ? 'right-border-radius' : ''}"
                 {iconSize}
+                tooltip={tool.tooltip()}
                 on:click={() => {
                     tool.action(instance);
                 }}
@@ -166,6 +170,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             class="top-tool-icon-button left-border-radius"
             {iconSize}
+            tooltip={tr.editingImageOcclusionToggleTranslucent()}
             on:click={() => {
                 maksOpacity = !maksOpacity;
                 makeMaskTransparent(canvas, maksOpacity);
@@ -181,6 +186,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     ? 'right-border-radius'
                     : ''}"
                 {iconSize}
+                tooltip={tool.tooltip()}
                 on:click={() => {
                     tool.action(canvas);
                 }}
@@ -198,6 +204,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     ? 'left-border-radius'
                     : ''}"
                 {iconSize}
+                tooltip={tool.tooltip()}
                 on:click={() => {
                     tool.action(canvas);
                     emitChangeSignal();
@@ -210,6 +217,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             class="top-tool-icon-button dropdown-tool right-border-radius"
             {iconSize}
+            tooltip={tr.editingImageOcclusionAlignment()}
             on:click={(e) => {
                 showAlignTools = !showAlignTools;
                 leftPos = e.pageX - 100;
@@ -225,6 +233,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             class="top-tool-icon-button"
             {iconSize}
+            tooltip={alignTool.tooltip()}
             on:click={() => {
                 alignTool.action(canvas);
             }}
