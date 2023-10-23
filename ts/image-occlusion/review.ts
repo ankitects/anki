@@ -153,7 +153,9 @@ function drawShape({
     if (shape instanceof Rectangle) {
         ctx.fillRect(shape.left, shape.top, shape.width, shape.height);
         // ctx stroke methods will draw a visible stroke, even if the width is 0
-        if (strokeWidth) ctx.strokeRect(shape.left, shape.top, shape.width, shape.height);
+        if (strokeWidth) {
+            ctx.strokeRect(shape.left, shape.top, shape.width, shape.height);
+        }
     } else if (shape instanceof Ellipse) {
         const adjustedLeft = shape.left + shape.rx;
         const adjustedTop = shape.top + shape.ry;
@@ -170,7 +172,9 @@ function drawShape({
         );
         ctx.closePath();
         ctx.fill();
-        if (strokeWidth) ctx.stroke();
+        if (strokeWidth) {
+            ctx.stroke();
+        }
     } else if (shape instanceof Polygon) {
         const offset = getPolygonOffset(shape);
         ctx.save();
@@ -182,7 +186,9 @@ function drawShape({
         }
         ctx.closePath();
         ctx.fill();
-        if (strokeWidth) ctx.stroke();
+        if (strokeWidth) {
+            ctx.stroke();
+        }
         ctx.restore();
     } else if (shape instanceof Text) {
         ctx.save();
