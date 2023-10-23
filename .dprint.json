@@ -1,6 +1,7 @@
 {
     "typescript": {
-        "indentWidth": 4
+        "indentWidth": 4,
+        "useBraces": "always"
     },
     "json": {
         "indentWidth": 4
