@@ -141,6 +141,7 @@ message DeckConfig {
     float seconds_to_show_question = 41;
     float seconds_to_show_answer = 42;
     AnswerAction answer_action = 43;
+    bool wait_for_audio = 44;
     bool skip_question_when_replaying_answer = 26;
 
     bool bury_new = 27;

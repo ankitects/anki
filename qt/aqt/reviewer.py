@@ -155,6 +155,7 @@ class Reviewer:
         self._reps: int = None
         self._show_question_timer: QTimer | None = None
         self._show_answer_timer: QTimer | None = None
+        gui_hooks.av_player_did_end_playing.append(self._on_av_player_did_end_playing)
 
     def show(self) -> None:
         if self.mw.col.sched_ver() == 1 or not self.mw.col.v3_scheduler():
@@ -290,6 +291,21 @@ class Reviewer:
             replay_audio(self.card, False)
         gui_hooks.audio_will_replay(self.web, self.card, self.state == "question")
 
+    def _on_av_player_did_end_playing(self, *args) -> None:
+        def task() -> None:
+            if av_player.queue_is_empty():
+                if self._show_question_timer and not sip.isdeleted(
+                    self._show_question_timer
+                ):
+                    self._on_show_question_timeout()
+                elif self._show_answer_timer and not sip.isdeleted(
+                    self._show_answer_timer
+                ):
+                    self._on_show_answer_timeout()
+
+        # Allow time for audio queue to update
+        self.mw.taskman.run_on_main(lambda: self.mw.progress.single_shot(100, task))
+
     # Initializing the webview
     ##########################################################################
 
@@ -373,21 +389,26 @@ class Reviewer:
         gui_hooks.reviewer_did_show_question(c)
 
         conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
-        this_timer = None
+        timer = None
 
-        def on_show_answer_timeout() -> None:
-            if self._show_answer_timer == this_timer:
-                self._showAnswer()
-
-        if self._show_answer_timer is not None:
-            self._show_answer_timer.deleteLater()
         if conf["secondsToShowAnswer"]:
-            this_timer = self._show_answer_timer = self.mw.progress.timer(
-                conf["secondsToShowAnswer"] * 1000,
-                on_show_answer_timeout,
+            timer = self._show_answer_timer = self.mw.progress.timer(
+                int(conf["secondsToShowAnswer"] * 1000),
+                lambda: self._on_show_answer_timeout(timer),
                 repeat=False,
                 parent=self.mw,
             )
+
+    def _on_show_answer_timeout(self, timer: QTimer | None = None) -> None:
+        if self.card is None:
+            return
+        conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
+        if not timer or (
+            self._show_answer_timer == timer
+            and not (conf["waitForAudio"] and av_player.current_player)
+        ):
+            self._showAnswer()
+            self._show_answer_timer.deleteLater()
 
     def autoplay(self, card: Card) -> bool:
         print("use card.autoplay() instead of reviewer.autoplay(card)")
@@ -431,32 +452,36 @@ class Reviewer:
         gui_hooks.reviewer_did_show_answer(c)
 
         conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
-        this_timer = None
+        timer = None
 
-        def on_show_question_timeout() -> None:
-            if self.card is None:
-                return
-            if self._show_question_timer == this_timer:
-                try:
-                    answer_action = list(AnswerAction)[conf["answerAction"]]
-                except IndexError:
-                    answer_action = AnswerAction.ANSWER_GOOD
-                if answer_action == AnswerAction.BURY_CARD:
-                    self.bury_current_card()
-                elif answer_action == AnswerAction.ANSWER_AGAIN:
-                    self._answerCard(1)
-                else:
-                    self._answerCard(3)
-
-        if self._show_question_timer is not None:
-            self._show_question_timer.deleteLater()
         if conf["secondsToShowQuestion"]:
-            this_timer = self._show_question_timer = self.mw.progress.timer(
-                conf["secondsToShowQuestion"] * 1000,
-                on_show_question_timeout,
+            timer = self._show_question_timer = self.mw.progress.timer(
+                int(conf["secondsToShowQuestion"] * 1000),
+                lambda: self._on_show_question_timeout(timer),
                 repeat=False,
                 parent=self.mw,
             )
+
+    def _on_show_question_timeout(self, timer: QTimer | None = None) -> None:
+        if self.card is None:
+            return
+        conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
+        if (conf["waitForAudio"] and av_player.current_player) or (
+            timer and self._show_question_timer != timer
+        ):
+            return
+        if self._show_question_timer is not None:
+            self._show_question_timer.deleteLater()
+        try:
+            answer_action = list(AnswerAction)[conf["answerAction"]]
+        except IndexError:
+            answer_action = AnswerAction.ANSWER_GOOD
+        if answer_action == AnswerAction.BURY_CARD:
+            self.bury_current_card()
+        elif answer_action == AnswerAction.ANSWER_AGAIN:
+            self._answerCard(1)
+        else:
+            self._answerCard(3)
 
     # Answering a card
     ############################################################

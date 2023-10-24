@@ -24,6 +24,10 @@ use crate::serde::default_on_invalid;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 
+fn wait_for_audio_default() -> bool {
+    true
+}
+
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct DeckConfSchema11 {
@@ -77,6 +81,8 @@ pub struct DeckConfSchema11 {
     seconds_to_show_answer: f32,
     #[serde(default)]
     answer_action: AnswerAction,
+    #[serde(default = "wait_for_audio_default")]
+    wait_for_audio: bool,
     #[serde(default)]
     reschedule_fsrs_cards: bool,
     #[serde(default)]
@@ -268,6 +274,7 @@ impl Default for DeckConfSchema11 {
             seconds_to_show_question: 0.0,
             seconds_to_show_answer: 0.0,
             answer_action: AnswerAction::BuryCard,
+            wait_for_audio: true,
             replayq: true,
             dynamic: false,
             new: Default::default(),
@@ -353,6 +360,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 seconds_to_show_question: c.seconds_to_show_question,
                 seconds_to_show_answer: c.seconds_to_show_answer,
                 answer_action: c.answer_action as i32,
+                wait_for_audio: c.wait_for_audio,
                 skip_question_when_replaying_answer: !c.replayq,
                 bury_new: c.new.bury,
                 bury_reviews: c.rev.bury,
@@ -414,6 +422,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
                 1 => AnswerAction::AnswerAgain,
                 _ => AnswerAction::AnswerGood,
             },
+            wait_for_audio: i.wait_for_audio,
             replayq: !i.skip_question_when_replaying_answer,
             dynamic: false,
             new: NewConfSchema11 {
@@ -491,6 +500,7 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "secondsToShowQuestion",
     "secondsToShowAnswer",
     "answerAction",
+    "waitForAudio",
     "rescheduleFsrsCards",
     "sm2Retention",
 };

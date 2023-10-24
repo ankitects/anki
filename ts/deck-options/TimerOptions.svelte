@@ -54,6 +54,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             title: tr.deckConfigSecondsToShowAnswer(),
             help: tr.deckConfigSecondsToShowAnswerTooltip(),
         },
+        waitForAudio: {
+            title: tr.deckConfigWaitForAudio(),
+            help: tr.deckConfigWaitForAudioTooltip(),
+        },
         answerAction: {
             title: tr.deckConfigAnswerAction(),
             help: tr.deckConfigAnswerActionTooltip(),
@@ -173,6 +177,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {settings.secondsToShowAnswer.title}
                 </SettingTitle>
             </SpinBoxFloatRow>
+        </Item>
+
+        <Item>
+            <SwitchRow
+                bind:value={$config.waitForAudio}
+                defaultValue={defaults.waitForAudio}
+            >
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(Object.keys(settings).indexOf("waitForAudio"))}
+                >
+                    {settings.waitForAudio.title}
+                </SettingTitle>
+            </SwitchRow>
         </Item>
 
         <Item>

@@ -232,7 +232,8 @@ deck-config-seconds-to-show-answer = Seconds to show answer
 deck-config-seconds-to-show-answer-tooltip = The number of seconds to wait before automatically revealing the answer. Set to 0 to disable.
 deck-config-answer-action = Answer action
 deck-config-answer-action-tooltip = The action to perform on the current card before automatically advancing to the next one.
-
+deck-config-wait-for-audio = Wait for audio to finish
+deck-config-wait-for-audio-tooltip = Wait for audio to finish before automatically revealing answer or next question
 
 ## Audio section
 
