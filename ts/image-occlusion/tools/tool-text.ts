@@ -3,14 +3,7 @@
 
 import { fabric } from "fabric";
 
-import {
-    disableRotation,
-    enableUniformScaling,
-    stopDraw,
-    TEXT_BACKGROUND_COLOR,
-    TEXT_FONT_FAMILY,
-    TEXT_PADDING,
-} from "./lib";
+import { enableUniformScaling, stopDraw, TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_PADDING } from "./lib";
 import { undoStack } from "./tool-undo-redo";
 
 export const drawText = (canvas: fabric.Canvas): void => {
@@ -35,7 +28,6 @@ export const drawText = (canvas: fabric.Canvas): void => {
             backgroundColor: TEXT_BACKGROUND_COLOR,
             padding: TEXT_PADDING,
         });
-        disableRotation(text);
         enableUniformScaling(canvas, text);
         canvas.add(text);
         canvas.setActiveObject(text);

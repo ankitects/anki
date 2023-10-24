@@ -3,7 +3,7 @@
 
 import { fabric } from "fabric";
 
-import { BORDER_COLOR, disableRotation, SHAPE_MASK_COLOR, stopDraw } from "./lib";
+import { BORDER_COLOR, SHAPE_MASK_COLOR, stopDraw } from "./lib";
 import { undoStack } from "./tool-undo-redo";
 
 export const drawEllipse = (canvas: fabric.Canvas): void => {
@@ -38,7 +38,6 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
             strokeUniform: true,
             noScaleCache: false,
         });
-        disableRotation(ellipse);
         canvas.add(ellipse);
     });
 
