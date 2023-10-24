@@ -60,6 +60,7 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
     }
 
     canvas.getActiveObject().toGroup();
+
     redraw(canvas);
 };
 
@@ -120,7 +121,6 @@ const pasteItem = (canvas: fabric.Canvas): void => {
             top: clonedObj.top + 10,
             evented: true,
         });
-        disableRotation(clonedObj);
 
         if (clonedObj.type === "activeSelection") {
             // active selection needs a reference to the canvas.
@@ -235,12 +235,6 @@ const setShapePosition = (
     }
     object.setCoords();
 };
-
-export function disableRotation(obj: fabric.Object): void {
-    obj.setControlsVisibility({
-        mtr: false,
-    });
-}
 
 export function enableUniformScaling(canvas: fabric.Canvas, obj: fabric.Object): void {
     obj.setControlsVisibility({ mb: false, ml: false, mt: false, mr: false });

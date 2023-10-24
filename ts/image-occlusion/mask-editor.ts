@@ -103,6 +103,8 @@ function initCanvas(onChange: () => void): fabric.Canvas {
     // Disable uniform scaling
     canvas.uniformScaling = false;
     canvas.uniScaleKey = "none";
+    // disable rotation globally
+    delete fabric.Object.prototype.controls.mtr;
     moveShapeToCanvasBoundaries(canvas);
     canvas.on("object:modified", (evt) => {
         if (evt.target instanceof fabric.Polygon) {

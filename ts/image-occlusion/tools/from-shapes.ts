@@ -4,7 +4,7 @@
 import { fabric } from "fabric";
 import type { Shape } from "image-occlusion/shapes";
 
-import { addBorder, disableRotation, enableUniformScaling } from "./lib";
+import { addBorder, enableUniformScaling } from "./lib";
 
 export const addShape = (
     canvas: fabric.Canvas,
@@ -12,7 +12,6 @@ export const addShape = (
 ): void => {
     const fabricShape = shape.toFabric(canvas);
     addBorder(fabricShape);
-    disableRotation(fabricShape);
     if (fabricShape.type === "i-text") {
         enableUniformScaling(canvas, fabricShape);
     }
@@ -28,7 +27,6 @@ export const addShapeGroup = (
         const fabricShape = shape.toFabric(canvas);
         addBorder(fabricShape);
         group.addWithUpdate(fabricShape);
-        disableRotation(group);
     });
     canvas.add(group);
 };
