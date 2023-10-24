@@ -120,6 +120,7 @@ const pasteItem = (canvas: fabric.Canvas): void => {
             top: clonedObj.top + 10,
             evented: true,
         });
+        disableRotation(clonedObj);
 
         if (clonedObj.type === "activeSelection") {
             // active selection needs a reference to the canvas.
