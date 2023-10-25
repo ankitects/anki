@@ -8,8 +8,10 @@ addons-failed-to-load2 =
     The following add-ons failed to load:
     { $addons }
 
-    Use Tools>Add-ons to check for updates. For add-ons that don't have
-    an update available, you can disable or delete the add-on to prevent this
+    They may need to be updated to support this version of Anki. Click the { addons-check-for-updates } button
+    to see if any updates are available.
+
+    For add-ons that don't have an update available, you can disable or delete the add-on to prevent this
     message from appearing.
 addons-startup-failed = Add-on Startup Failed
 # Shown in the add-on configuration screen (Tools>Add-ons>Config), in the title bar

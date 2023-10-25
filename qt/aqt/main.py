@@ -501,7 +501,7 @@ class AnkiQt(QMainWindow):
             if onsuccess:
                 onsuccess()
             if not self.safeMode:
-                self.maybe_check_for_addon_updates(self.setupAutoUpdate)
+                self.maybe_check_for_addon_updates(self.setup_auto_update)
 
         self.maybe_auto_sync_on_open_close(_onsuccess)
 
@@ -963,26 +963,33 @@ title="{}" {}>{}</button>""".format(
             self.addonManager.loadAddons()
 
     def maybe_check_for_addon_updates(
-        self, on_done: Callable[[], None] | None = None
+        self, on_done: Callable[[list[DownloadLogEntry]], None] | None = None
     ) -> None:
         last_check = self.pm.last_addon_update_check()
         elap = int_time() - last_check
 
+        if elap > 86_400 or self.pm.last_run_version != int_version():
+            self.check_for_addon_updates(by_user=False, on_done=on_done)
+        elif on_done:
+            on_done([])
+
+    def check_for_addon_updates(
+        self,
+        by_user: bool,
+        on_done: Callable[[list[DownloadLogEntry]], None] | None = None,
+    ) -> None:
         def wrap_on_updates_installed(log: list[DownloadLogEntry]) -> None:
             self.on_updates_installed(log)
-            if on_done:
-                on_done()
-
-        if elap > 86_400 or self.pm.last_run_version != int_version():
-            check_and_prompt_for_updates(
-                self,
-                self.addonManager,
-                wrap_on_updates_installed,
-                requested_by_user=False,
-            )
             self.pm.set_last_addon_update_check(int_time())
-        elif on_done:
-            on_done()
+            if on_done:
+                on_done(log)
+
+        check_and_prompt_for_updates(
+            self,
+            self.addonManager,
+            wrap_on_updates_installed,
+            requested_by_user=by_user,
+        )
 
     def on_updates_installed(self, log: list[DownloadLogEntry]) -> None:
         if log:
@@ -1413,7 +1420,7 @@ title="{}" {}>{}</button>""".format(
     # Auto update
     ##########################################################################
 
-    def setupAutoUpdate(self) -> None:
+    def setup_auto_update(self, _log: list[DownloadLogEntry]) -> None:
         from aqt.update import check_for_update
 
         check_for_update()

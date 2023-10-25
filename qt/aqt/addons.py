@@ -256,17 +256,32 @@ class AddonManager:
             )
             txt = f"# {tr.addons_startup_failed()}\n{error}"
             html2 = markdown.markdown(txt)
-            print(html2)
-            (diag, _) = showText(
+            box: QDialogButtonBox
+            (diag, box) = showText(
                 html2,
                 type="html",
                 copyBtn=True,
                 run=False,
             )
+            but = box.addButton(
+                tr.addons_check_for_updates(), QDialogButtonBox.ButtonRole.ActionRole
+            )
+            but.clicked.connect(self.check_for_updates_after_load_failure)
             from aqt import mw
 
             # calling show immediately appears to crash
             mw.progress.single_shot(1000, diag.show)
+
+    def check_for_updates_after_load_failure(self) -> None:
+        from aqt import mw
+
+        tooltip(tr.addons_checking())
+
+        def on_done(log: list[DownloadLogEntry]) -> None:
+            if not log:
+                tooltip(tr.addons_no_updates_available())
+
+        mw.check_for_addon_updates(by_user=True, on_done=on_done)
 
     def onAddonsDialog(self) -> None:
         aqt.dialogs.open("AddonsDialog", self)
@@ -1326,12 +1341,14 @@ class ChooseAddonsToUpdateList(QListWidget):
 
 
 class ChooseAddonsToUpdateDialog(QDialog):
+    _on_done: Callable[[list[int]], None]
+
     def __init__(
         self, parent: QWidget, mgr: AddonManager, updated_addons: list[AddonInfo]
     ) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(tr.addons_choose_update_window_title())
-        self.setWindowModality(Qt.WindowModality.WindowModal)
+        self.setWindowModality(Qt.WindowModality.NonModal)
         self.mgr = mgr
         self.updated_addons = updated_addons
         self.setup()
@@ -1358,15 +1375,15 @@ class ChooseAddonsToUpdateDialog(QDialog):
         layout.addWidget(button_box)
         self.setLayout(layout)
 
-    def ask(self) -> list[int]:
-        "Returns a list of selected addons' ids"
-        ret = self.exec()
+    def ask(self, on_done: Callable[[list[int]], None]) -> None:
+        self._on_done = on_done
+        self.show()
+
+    def accept(self) -> None:
         saveGeom(self, "addonsChooseUpdate")
         self.addons_list_widget.save_check_state()
-        if ret == QDialog.DialogCode.Accepted:
-            return self.addons_list_widget.get_selected_addon_ids()
-        else:
-            return []
+        self._on_done(self.addons_list_widget.get_selected_addon_ids())
+        QDialog.accept(self)
 
 
 def fetch_update_info(ids: list[int]) -> list[AddonInfo]:
@@ -1463,10 +1480,11 @@ def prompt_to_update(
         if not prompt_update:
             return
 
-    ids = ChooseAddonsToUpdateDialog(parent, mgr, updated_addons).ask()
-    if not ids:
-        return
-    download_addons(parent, mgr, ids, on_done, client)
+    def after_choosing(ids: list[int]) -> None:
+        if ids:
+            download_addons(parent, mgr, ids, on_done, client)
+
+    ChooseAddonsToUpdateDialog(parent, mgr, updated_addons).ask(after_choosing)
 
 
 # Editing config
