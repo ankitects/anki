@@ -155,6 +155,7 @@ class Reviewer:
         self._reps: int = None
         self._show_question_timer: QTimer | None = None
         self._show_answer_timer: QTimer | None = None
+        self.auto_advance_enabled = False
         gui_hooks.av_player_did_end_playing.append(self._on_av_player_did_end_playing)
 
     def show(self) -> None:
@@ -388,16 +389,18 @@ class Reviewer:
         # user hook
         gui_hooks.reviewer_did_show_question(c)
 
-        conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
-        timer = None
-
-        if conf["secondsToShowAnswer"]:
-            timer = self._show_answer_timer = self.mw.progress.timer(
-                int(conf["secondsToShowAnswer"] * 1000),
-                lambda: self._on_show_answer_timeout(timer),
-                repeat=False,
-                parent=self.mw,
+        if self.auto_advance_enabled:
+            conf = self.mw.col.decks.config_dict_for_deck_id(
+                self.card.current_deck_id()
             )
+            timer = None
+            if conf["secondsToShowAnswer"]:
+                timer = self._show_answer_timer = self.mw.progress.timer(
+                    int(conf["secondsToShowAnswer"] * 1000),
+                    lambda: self._on_show_answer_timeout(timer),
+                    repeat=False,
+                    parent=self.mw,
+                )
 
     def _on_show_answer_timeout(self, timer: QTimer | None = None) -> None:
         if self.card is None:
@@ -451,16 +454,18 @@ class Reviewer:
         # user hook
         gui_hooks.reviewer_did_show_answer(c)
 
-        conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
-        timer = None
-
-        if conf["secondsToShowQuestion"]:
-            timer = self._show_question_timer = self.mw.progress.timer(
-                int(conf["secondsToShowQuestion"] * 1000),
-                lambda: self._on_show_question_timeout(timer),
-                repeat=False,
-                parent=self.mw,
+        if self.auto_advance_enabled:
+            conf = self.mw.col.decks.config_dict_for_deck_id(
+                self.card.current_deck_id()
             )
+            timer = None
+            if conf["secondsToShowQuestion"]:
+                timer = self._show_question_timer = self.mw.progress.timer(
+                    int(conf["secondsToShowQuestion"] * 1000),
+                    lambda: self._on_show_question_timeout(timer),
+                    repeat=False,
+                    parent=self.mw,
+                )
 
     def _on_show_question_timeout(self, timer: QTimer | None = None) -> None:
         if self.card is None:
@@ -961,6 +966,12 @@ timerStopped = false;
             [tr.studying_audio_and5s(), "7", self.on_seek_forward],
             [tr.studying_record_own_voice(), "Shift+V", self.onRecordVoice],
             [tr.studying_replay_own_voice(), "V", self.onReplayRecorded],
+            [
+                tr.actions_auto_advance(),
+                "",
+                self.toggle_auto_advance,
+                dict(checked=self.auto_advance_enabled),
+            ],
         ]
         return opts
 
@@ -1116,6 +1127,9 @@ timerStopped = false;
             tooltip(tr.studying_you_havent_recorded_your_voice_yet())
             return
         av_player.play_file(self._recordedAudio)
+
+    def toggle_auto_advance(self) -> None:
+        self.auto_advance_enabled = not self.auto_advance_enabled
 
     # legacy
 
