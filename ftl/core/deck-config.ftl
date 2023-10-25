@@ -365,7 +365,9 @@ deck-config-reschedule-cards-on-change-tooltip =
     This option controls whether the due dates of cards will be changed when you enable FSRS, or change
     the weights. The default is not to reschedule cards: future reviews will use the new scheduling, but
     there will be no immediate change to your workload. If rescheduling is enabled, the due dates of cards
-    will be changed. Depending on your desired retention, this can result in a large number of cards becoming
+    will be changed.
+deck-config-reschedule-cards-warning =
+    Depending on your desired retention, this can result in a large number of cards becoming
     due, so is not recommended when first switching from SM2.
 deck-config-compute-optimal-weights-tooltip =
     Once you've done 1000+ reviews in Anki, you can use the Optimize button to analyze your review history,
