@@ -211,8 +211,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <SpinBoxFloatRow
     bind:value={$config.sm2Retention}
     defaultValue={defaults.sm2Retention}
-    min={0.7}
-    max={0.97}
+    min={0.5}
+    max={1.0}
 >
     <SettingTitle on:click={() => openHelpModal("sm2Retention")}>
         {tr.deckConfigSm2Retention()}
