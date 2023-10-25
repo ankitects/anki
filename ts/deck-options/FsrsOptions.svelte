@@ -22,6 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
+    import Warning from "./Warning.svelte";
     import WeightsInputRow from "./WeightsInputRow.svelte";
 
     export let state: DeckOptionsState;
@@ -237,6 +238,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {tr.deckConfigRescheduleCardsOnChange()}
         </SettingTitle>
     </SwitchRow>
+
+    {#if $config.rescheduleFsrsCards}
+        <Warning warning={tr.deckConfigRescheduleCardsWarning()} />
+    {/if}
 </div>
 
 <div class="m-2">
