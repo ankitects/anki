@@ -214,6 +214,10 @@ impl Collection {
             .unwrap_or(SchedulerVersion::V1)
     }
 
+    pub fn v2_enabled(&self) -> bool {
+        self.scheduler_version() == SchedulerVersion::V2
+    }
+
     pub fn v3_enabled(&self) -> bool {
         self.scheduler_version() == SchedulerVersion::V2 && self.get_config_bool(BoolKey::Sched2021)
     }
