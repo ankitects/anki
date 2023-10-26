@@ -433,6 +433,15 @@ fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
             extra_exts: &[],
         },
     )?;
+    build.add_action(
+        "ts:reviewer:reviewer_extras.css",
+        CompileSass {
+            input: inputs!["ts/reviewer/reviewer_extras.scss"],
+            output: "ts/reviewer/reviewer_extras.css",
+            deps: inputs!["ts/image-occlusion/review.scss"],
+            load_paths: vec!["."],
+        },
+    )?;
 
     build.add_action(
         "check:typescript:reviewer",
