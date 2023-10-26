@@ -7,7 +7,6 @@ use anki_proto::generic;
 use crate::card::CardId;
 use crate::card_rendering::extract_av_tags;
 use crate::card_rendering::strip_av_tags;
-use crate::card_rendering::tts;
 use crate::cloze::extract_cloze_for_typing;
 use crate::collection::Collection;
 use crate::error::OrInvalid;
@@ -166,27 +165,6 @@ impl crate::services::CardRenderingService for Collection {
         Ok(extract_cloze_for_typing(&input.text, input.ordinal as u16)
             .to_string()
             .into())
-    }
-
-    fn all_tts_voices(
-        &mut self,
-        input: anki_proto::card_rendering::AllTtsVoicesRequest,
-    ) -> Result<anki_proto::card_rendering::AllTtsVoicesResponse> {
-        tts::all_voices(input.validate)
-            .map(|voices| anki_proto::card_rendering::AllTtsVoicesResponse { voices })
-    }
-
-    fn write_tts_stream(
-        &mut self,
-        request: anki_proto::card_rendering::WriteTtsStreamRequest,
-    ) -> Result<()> {
-        tts::write_stream(
-            &request.path,
-            &request.voice_id,
-            request.speed,
-            &request.text,
-        )
-        .map(Into::into)
     }
 }
 
