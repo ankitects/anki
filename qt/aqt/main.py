@@ -161,6 +161,11 @@ class MainWebView(AnkiWebView):
             self.mw.bottomWeb.hide_timer.start()
             return True
 
+        if evt.type() == QEvent.Type.FocusOut:
+            self.mw._auto_advance_was_enabled = self.mw.reviewer.auto_advance_enabled
+            self.mw.reviewer.auto_advance_enabled = False
+            return True
+
         return False
 
 
@@ -189,6 +194,7 @@ class AnkiQt(QMainWindow):
         self.app = app
         self.pm = profileManager
         self.fullscreen = False
+        self._auto_advance_was_enabled = False
         # init rest of app
         self.safeMode = (
             bool(self.app.queryKeyboardModifiers() & Qt.KeyboardModifier.ShiftModifier)
@@ -822,6 +828,8 @@ class AnkiQt(QMainWindow):
         if new_focus and new_focus.window() == self:
             if self.state == "review":
                 self.reviewer.refresh_if_needed()
+                self.reviewer.auto_advance_enabled = self._auto_advance_was_enabled
+                self.reviewer.auto_advance_if_enabled()
             elif self.state == "overview":
                 self.overview.refresh_if_needed()
             elif self.state == "deckBrowser":
@@ -1021,6 +1029,7 @@ title="{}" {}>{}</button>""".format(
         from aqt.reviewer import Reviewer
 
         self.reviewer = Reviewer(self)
+        self._auto_advance_was_enabled = self.reviewer.auto_advance_enabled
 
     # Syncing
     ##########################################################################

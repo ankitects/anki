@@ -1141,6 +1141,9 @@ timerStopped = false;
 
     def toggle_auto_advance(self) -> None:
         self.auto_advance_enabled = not self.auto_advance_enabled
+        self.auto_advance_if_enabled()
+
+    def auto_advance_if_enabled(self) -> None:
         if self.state == "question":
             self._auto_advance_to_answer_if_enabled()
         elif self.state == "answer":
