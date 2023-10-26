@@ -389,7 +389,9 @@ class Reviewer:
         self.mw.web.setFocus()
         # user hook
         gui_hooks.reviewer_did_show_question(c)
+        self._auto_advance_to_answer_if_enabled()
 
+    def _auto_advance_to_answer_if_enabled(self) -> None:
         if self.auto_advance_enabled:
             conf = self.mw.col.decks.config_dict_for_deck_id(
                 self.card.current_deck_id()
@@ -407,12 +409,15 @@ class Reviewer:
         if self.card is None:
             return
         conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
-        if not timer or (
-            self._show_answer_timer == timer
-            and not (conf["waitForAudio"] and av_player.current_player)
+        if (conf["waitForAudio"] and av_player.current_player) or (
+            timer and self._show_answer_timer != timer
         ):
-            self._showAnswer()
+            return
+        if self._show_answer_timer is not None:
             self._show_answer_timer.deleteLater()
+        if not self.auto_advance_enabled:
+            return
+        self._showAnswer()
 
     def autoplay(self, card: Card) -> bool:
         print("use card.autoplay() instead of reviewer.autoplay(card)")
@@ -454,7 +459,9 @@ class Reviewer:
         self.mw.web.setFocus()
         # user hook
         gui_hooks.reviewer_did_show_answer(c)
+        self._auto_advance_to_question_if_enabled()
 
+    def _auto_advance_to_question_if_enabled(self) -> None:
         if self.auto_advance_enabled:
             conf = self.mw.col.decks.config_dict_for_deck_id(
                 self.card.current_deck_id()
@@ -478,6 +485,8 @@ class Reviewer:
             return
         if self._show_question_timer is not None:
             self._show_question_timer.deleteLater()
+        if not self.auto_advance_enabled:
+            return
         try:
             answer_action = list(AnswerAction)[conf["answerAction"]]
         except IndexError:
@@ -1132,6 +1141,10 @@ timerStopped = false;
 
     def toggle_auto_advance(self) -> None:
         self.auto_advance_enabled = not self.auto_advance_enabled
+        if self.state == "question":
+            self._auto_advance_to_answer_if_enabled()
+        elif self.state == "answer":
+            self._auto_advance_to_question_if_enabled()
 
     # legacy
 
