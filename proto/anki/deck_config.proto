@@ -142,6 +142,7 @@ message DeckConfig {
     // for fsrs
     float desired_retention = 37;
     bool reschedule_fsrs_cards = 39;
+    float sm2_retention = 40;
 
     bytes other = 255;
   }
@@ -179,7 +180,6 @@ message DeckConfigsForUpdate {
   CurrentDeck current_deck = 2;
   DeckConfig defaults = 3;
   bool schema_modified = 4;
-  bool v3_scheduler = 5;
   // only applies to v3 scheduler
   string card_state_customizer = 6;
   // only applies to v3 scheduler

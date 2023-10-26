@@ -105,7 +105,9 @@ export async function preloadResources(html: string): Promise<void> {
         timeout = 500;
     } else if (images.length) {
         timeout = 200;
-    } else return;
+    } else {
+        return;
+    }
 
     await Promise.race([
         Promise.all([...styleSheets, ...images, ...fonts]),

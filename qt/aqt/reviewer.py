@@ -14,7 +14,6 @@ from typing import Any, Literal, Match, Sequence, cast
 import aqt
 import aqt.browser
 import aqt.operations
-from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.scheduler.base import ScheduleCardsAsNew
@@ -135,9 +134,7 @@ class Reviewer:
         self.mw = mw
         self.web = mw.web
         self.card: Card | None = None
-        self.cardQueue: list[Card] = []
         self.previous_card: Card | None = None
-        self.hadCardQueue = False
         self._answeredIds: list[CardId] = []
         self._recordedAudio: str | None = None
         self.typeCorrect: str = None  # web init happens before this is set
@@ -150,7 +147,6 @@ class Reviewer:
         self._previous_card_info = PreviousReviewerCardInfo(self.mw)
         self._states_mutated = True
         self._reps: int = None
-        hooks.card_did_leech.append(self.onLeech)
 
     def show(self) -> None:
         if self.mw.col.sched_ver() == 1 or not self.mw.col.v3_scheduler():
@@ -182,7 +178,6 @@ class Reviewer:
 
     def refresh_if_needed(self) -> None:
         if self._refresh_needed is RefreshNeeded.QUEUES:
-            self.mw.col.reset()
             self.nextCard()
             self.mw.fade_in_webview()
             self._refresh_needed = None
@@ -229,11 +224,7 @@ class Reviewer:
         self.previous_card = self.card
         self.card = None
         self._v3 = None
-
-        if self.mw.col.sched.version < 3:
-            self._get_next_v1_v2_card()
-        else:
-            self._get_next_v3_card()
+        self._get_next_v3_card()
 
         self._previous_card_info.set_card(self.previous_card)
         self._card_info.set_card(self.card)
@@ -247,21 +238,6 @@ class Reviewer:
 
         self._showQuestion()
 
-    def _get_next_v1_v2_card(self) -> None:
-        if self.cardQueue:
-            # undone/edited cards to show
-            card = self.cardQueue.pop()
-            card.start_timer()
-            self.hadCardQueue = True
-        else:
-            if self.hadCardQueue:
-                # the undone/edited cards may be sitting in the regular queue;
-                # need to reset
-                self.mw.col.reset()
-                self.hadCardQueue = False
-            card = self.mw.col.sched.getCard()
-        self.card = card
-
     def _get_next_v3_card(self) -> None:
         assert isinstance(self.mw.col.sched, V3Scheduler)
         output = self.mw.col.sched.get_queued_cards()
@@ -271,22 +247,17 @@ class Reviewer:
         self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)
         self.card.start_timer()
 
-    def get_scheduling_states(self) -> SchedulingStates | None:
-        if v3 := self._v3:
-            return v3.states
-        return None
+    def get_scheduling_states(self) -> SchedulingStates:
+        return self._v3.states
 
-    def get_scheduling_context(self) -> SchedulingContext | None:
-        if v3 := self._v3:
-            return v3.context
-        return None
+    def get_scheduling_context(self) -> SchedulingContext:
+        return self._v3.context
 
     def set_scheduling_states(self, request: SetSchedulingStatesRequest) -> None:
         if request.key != self._state_mutation_key:
             return
 
-        if v3 := self._v3:
-            v3.states = request.states
+        self._v3.states = request.states
 
     def _run_state_mutation_hook(self) -> None:
         def on_eval(result: Any) -> None:
@@ -294,7 +265,7 @@ class Reviewer:
                 # eval failed, usually a syntax error
                 self._states_mutated = True
 
-        if self._v3 and (js := self._state_mutation_js):
+        if js := self._state_mutation_js:
             self._states_mutated = False
             self.web.evalWithCallback(
                 RUN_STATE_MUTATION.format(key=self._state_mutation_key, js=js),
@@ -450,32 +421,28 @@ class Reviewer:
         if not proceed:
             return
 
-        if (v3 := self._v3) and (sched := cast(V3Scheduler, self.mw.col.sched)):
-            answer = sched.build_answer(
-                card=self.card,
-                states=v3.states,
-                rating=v3.rating_from_ease(ease),
-            )
+        sched = cast(V3Scheduler, self.mw.col.sched)
+        answer = sched.build_answer(
+            card=self.card,
+            states=self._v3.states,
+            rating=self._v3.rating_from_ease(ease),
+        )
 
-            def after_answer(changes: OpChanges) -> None:
-                if gui_hooks.reviewer_did_answer_card.count() > 0:
-                    self.card.load()
-                self._after_answering(ease)
-                if sched.state_is_leech(answer.new_state):
-                    self.onLeech()
-
-            self.state = "transition"
-            answer_card(parent=self.mw, answer=answer).success(
-                after_answer
-            ).run_in_background(initiator=self)
-        else:
-            self.mw.col.sched.answerCard(self.card, ease)
+        def after_answer(changes: OpChanges) -> None:
+            if gui_hooks.reviewer_did_answer_card.count() > 0:
+                self.card.load()
             self._after_answering(ease)
+            if sched.state_is_leech(answer.new_state):
+                self.onLeech()
+
+        self.state = "transition"
+        answer_card(parent=self.mw, answer=answer).success(
+            after_answer
+        ).run_in_background(initiator=self)
 
     def _after_answering(self, ease: Literal[1, 2, 3, 4]) -> None:
         gui_hooks.reviewer_did_answer_card(self, self.card, ease)
         self._answeredIds.append(self.card.id)
-        self.mw.autosave()
         if not self.check_timebox():
             self.nextCard()
 
@@ -792,11 +759,8 @@ timerStopped = false;
     def _answerButtons(self) -> str:
         default = self._defaultEase()
 
-        if v3 := self._v3:
-            assert isinstance(self.mw.col.sched, V3Scheduler)
-            labels = self.mw.col.sched.describe_next_states(v3.states)
-        else:
-            labels = None
+        assert isinstance(self.mw.col.sched, V3Scheduler)
+        labels = self.mw.col.sched.describe_next_states(self._v3.states)
 
         def but(i: int, label: str) -> str:
             if i == default:

@@ -45,6 +45,7 @@ pub fn all_stock_notetypes(tr: &I18n) -> Vec<Notetype> {
         basic_optional_reverse(tr),
         basic_typing(tr),
         cloze(tr),
+        image_occlusion_notetype(tr),
     ]
 }
 
@@ -81,6 +82,7 @@ pub(crate) fn get_stock_notetype(kind: StockKind, tr: &I18n) -> Notetype {
         Kind::BasicOptionalReversed => basic_optional_reverse(tr),
         Kind::BasicTyping => basic_typing(tr),
         Kind::Cloze => cloze(tr),
+        Kind::ImageOcclusion => image_occlusion_notetype(tr),
     }
 }
 

@@ -729,7 +729,7 @@ class Browser(QMainWindow):
 
     def createFilteredDeck(self) -> None:
         search = self.current_search()
-        if self.mw.col.sched_ver() != 1 and KeyboardModifiersPressed().alt:
+        if KeyboardModifiersPressed().alt:
             aqt.dialogs.open("FilteredDeckConfigDialog", self.mw, search_2=search)
         else:
             aqt.dialogs.open("FilteredDeckConfigDialog", self.mw, search=search)
@@ -916,10 +916,10 @@ class Browser(QMainWindow):
     def _on_export_notes(self) -> None:
         if not self.mw.pm.legacy_import_export():
             nids = self.selected_notes()
-            ExportDialog(self.mw, nids=nids)
+            ExportDialog(self.mw, nids=nids, parent=self)
         else:
             cids = self.selectedNotesAsCards()
-            LegacyExportDialog(self.mw, cids=list(cids))
+            LegacyExportDialog(self.mw, cids=list(cids), parent=self)
 
     # Flags & Marking
     ######################################################################

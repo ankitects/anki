@@ -68,6 +68,10 @@ def _patch_certifi() -> None:
     certifi.where = where
 
 
+def _fix_protobuf_path() -> None:
+    sys.path.append(str(Path(sys.prefix) / "../Resources"))
+
+
 def packaged_build_setup() -> None:
     if not getattr(sys, "frozen", False):
         return
@@ -76,6 +80,8 @@ def packaged_build_setup() -> None:
 
     if sys.platform == "win32":
         _fix_pywin32()
+    elif sys.platform == "darwin":
+        _fix_protobuf_path()
 
     _patch_pkgutil()
     _patch_certifi()

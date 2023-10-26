@@ -14,9 +14,8 @@ try:
 except:
     from .qt5 import *  # type: ignore
 else:
-    if not os.getenv("DISABLE_QT5_COMPAT"):
+    if os.getenv("ENABLE_QT5_COMPAT"):
         print("Running with temporary Qt5 compatibility shims.")
-        print("Run with DISABLE_QT5_COMPAT=1 to confirm compatibility with Qt6.")
         from . import qt5_compat  # needs to be imported first
     from .qt6 import *
 

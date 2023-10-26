@@ -52,7 +52,7 @@ class Anki2Importer(Importer):
         try:
             self._import()
         finally:
-            self.src.close(save=False, downgrade=False)
+            self.src.close(downgrade=False)
 
     def _prepareFiles(self) -> None:
         self.source_needs_upgrade = False
@@ -60,7 +60,7 @@ class Anki2Importer(Importer):
         self.dst = self.col
         self.src = Collection(self.file)
 
-        if not self._importing_v2 and self.col.sched_ver() != 1:
+        if not self._importing_v2:
             # any scheduling included?
             if self.src.db.scalar("select 1 from cards where queue != 0 limit 1"):
                 self.source_needs_upgrade = True

@@ -25,23 +25,37 @@ export class Polygon extends Shape {
     }
 
     toFabric(size: Size): fabric.Polygon {
-        this.makeAbsolute(size);
-        return new fabric.Polygon(this.points, this);
+        const absolute = this.toAbsolute(size);
+        return new fabric.Polygon(absolute.points, absolute);
     }
 
-    makeNormal(size: Size): void {
-        super.makeNormal(size);
+    toNormal(size: Size): Polygon {
+        const points: Point[] = [];
         this.points.forEach((p) => {
-            p.x = xToNormalized(size, p.x);
-            p.y = yToNormalized(size, p.y);
+            points.push({
+                x: xToNormalized(size, p.x),
+                y: yToNormalized(size, p.y),
+            });
+        });
+        return new Polygon({
+            ...this,
+            ...super.normalPosition(size),
+            points,
         });
     }
 
-    makeAbsolute(size: Size): void {
-        super.makeAbsolute(size);
+    toAbsolute(size: Size): Polygon {
+        const points: Point[] = [];
         this.points.forEach((p) => {
-            p.x = xFromNormalized(size, p.x);
-            p.y = yFromNormalized(size, p.y);
+            points.push({
+                x: xFromNormalized(size, p.x),
+                y: yFromNormalized(size, p.y),
+            });
+        });
+        return new Polygon({
+            ...this,
+            ...super.absolutePosition(size),
+            points,
         });
     }
 }

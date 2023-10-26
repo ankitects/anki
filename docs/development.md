@@ -173,6 +173,20 @@ Please see [this separate page](./editing.md) for setting up an editor/IDE.
 
 See [this page](./build.md)
 
+## Generating documentation
+
+For Rust:
+
+```
+cargo doc --open
+```
+
+For Python:
+
+```
+./ninja python:sphinx && open out/python/sphinx/html/py-modindex.html
+```
+
 ## Environmental Variables
 
 If ANKIDEV is set before starting Anki, some extra log messages will be printed on stdout,

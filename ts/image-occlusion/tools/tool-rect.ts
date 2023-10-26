@@ -3,7 +3,7 @@
 
 import { fabric } from "fabric";
 
-import { BORDER_COLOR, disableRotation, SHAPE_MASK_COLOR, stopDraw } from "./lib";
+import { BORDER_COLOR, SHAPE_MASK_COLOR, stopDraw } from "./lib";
 import { undoStack } from "./tool-undo-redo";
 
 export const drawRectangle = (canvas: fabric.Canvas): void => {
@@ -39,12 +39,13 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
             strokeUniform: true,
             noScaleCache: false,
         });
-        disableRotation(rect);
         canvas.add(rect);
     });
 
     canvas.on("mouse:move", function(o) {
-        if (!isDown) return;
+        if (!isDown) {
+            return;
+        }
         const pointer = canvas.getPointer(o.e);
         let x = pointer.x;
         let y = pointer.y;
@@ -91,6 +92,7 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
         }
         if (rect.width < 5 || rect.height < 5) {
             canvas.remove(rect);
+            rect = undefined;
             return;
         }
 
@@ -109,6 +111,8 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
         }
 
         rect.setCoords();
+        canvas.setActiveObject(rect);
         undoStack.onObjectAdded(rect.id);
+        rect = undefined;
     });
 };

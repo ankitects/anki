@@ -22,9 +22,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
+    import Warning from "./Warning.svelte";
     import WeightsInputRow from "./WeightsInputRow.svelte";
 
     export let state: DeckOptionsState;
+    export let openHelpModal: (String) => void;
 
     const presetName = state.currentPresetName;
 
@@ -188,18 +190,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return tr.deckConfigComplete({ num: pct });
     }
 
-    function stringForSetOptimalRetention(retention: number): String {
+    function estimatedRetention(retention: number): String {
         if (!retention) {
             return "";
         }
-        return tr.deckConfigSetOptimalRetention({ num: retention.toFixed(2) });
-    }
-
-    function setDesiredRetentionToOptimal() {
-        if (!optimalRetention) {
-            return;
-        }
-        $config.desiredRetention = optimalRetention;
+        return tr.deckConfigEstimatedRetention({ num: retention.toFixed(2) });
     }
 </script>
 
@@ -209,8 +204,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     min={0.7}
     max={0.97}
 >
-    <SettingTitle>
+    <SettingTitle on:click={() => openHelpModal("desiredRetention")}>
         {tr.deckConfigDesiredRetention()}
+    </SettingTitle>
+</SpinBoxFloatRow>
+
+<SpinBoxFloatRow
+    bind:value={$config.sm2Retention}
+    defaultValue={defaults.sm2Retention}
+    min={0.5}
+    max={1.0}
+>
+    <SettingTitle on:click={() => openHelpModal("sm2Retention")}>
+        {tr.deckConfigSm2Retention()}
     </SettingTitle>
 </SpinBoxFloatRow>
 
@@ -220,16 +226,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         defaultValue={[]}
         defaults={defaults.fsrsWeights}
     >
-        <SettingTitle>{tr.deckConfigWeights()}</SettingTitle>
+        <SettingTitle on:click={() => openHelpModal("modelWeights")}>
+            {tr.deckConfigWeights()}
+        </SettingTitle>
     </WeightsInputRow>
 </div>
 
 <div class="m-2">
     <SwitchRow bind:value={$config.rescheduleFsrsCards} defaultValue={false}>
-        <SettingTitle>
+        <SettingTitle on:click={() => openHelpModal("rescheduleCardsOnChange")}>
             {tr.deckConfigRescheduleCardsOnChange()}
         </SettingTitle>
     </SwitchRow>
+
+    {#if $config.rescheduleFsrsCards}
+        <Warning warning={tr.deckConfigRescheduleCardsWarning()} />
+    {/if}
 </div>
 
 <div class="m-2">
@@ -255,7 +267,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {#if checkingWeights}
                 {tr.actionsCancel()}
             {:else}
-                {tr.deckConfigAnalyzeButton()}
+                {tr.deckConfigEvaluateButton()}
             {/if}
         </button>
         {#if computingWeights || checkingWeights}<div>
@@ -272,7 +284,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:value={optimalRetentionRequest.deckSize}
             defaultValue={10000}
             min={100}
-            max={999999}
+            max={99999}
         >
             <SettingTitle>Deck size</SettingTitle>
         </SpinBoxRow>
@@ -295,15 +307,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <SettingTitle>Minutes study/day</SettingTitle>
         </SpinBoxRow>
 
-        <SpinBoxFloatRow
-            bind:value={optimalRetentionRequest.lossAversion}
-            defaultValue={2.5}
-            min={1.0}
-            max={3.0}
-        >
-            <SettingTitle>Loss aversion</SettingTitle>
-        </SpinBoxFloatRow>
-
         <button
             class="btn {computingRetention ? 'btn-warning' : 'btn-primary'}"
             disabled={!computingRetention && computing}
@@ -317,14 +320,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </button>
 
         {#if optimalRetention}
-            <button
-                class="btn {'btn-primary'}"
-                disabled={!optimalRetention ||
-                    optimalRetention === $config.desiredRetention}
-                on:click={() => setDesiredRetentionToOptimal()}
-            >
-                {stringForSetOptimalRetention(optimalRetention)}
-            </button>
+            {estimatedRetention(optimalRetention)}
         {/if}
         <div>{computeRetentionProgressString}</div>
     </details>

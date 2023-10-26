@@ -3,7 +3,7 @@
 
 import { fabric } from "fabric";
 
-import { BORDER_COLOR, disableRotation, SHAPE_MASK_COLOR, stopDraw } from "./lib";
+import { BORDER_COLOR, SHAPE_MASK_COLOR, stopDraw } from "./lib";
 import { undoStack } from "./tool-undo-redo";
 
 export const drawEllipse = (canvas: fabric.Canvas): void => {
@@ -38,13 +38,13 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
             strokeUniform: true,
             noScaleCache: false,
         });
-        disableRotation(ellipse);
         canvas.add(ellipse);
     });
 
     canvas.on("mouse:move", function(o) {
-        if (!isDown) return;
-
+        if (!isDown) {
+            return;
+        }
         const pointer = canvas.getPointer(o.e);
         let rx = Math.abs(origX - pointer.x) / 2;
         let ry = Math.abs(origY - pointer.y) / 2;
@@ -97,6 +97,7 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
         }
         if (ellipse.width < 5 || ellipse.height < 5) {
             canvas.remove(ellipse);
+            ellipse = undefined;
             return;
         }
 
@@ -115,6 +116,8 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
         }
 
         ellipse.setCoords();
+        canvas.setActiveObject(ellipse);
         undoStack.onObjectAdded(ellipse.id);
+        ellipse = undefined;
     });
 };

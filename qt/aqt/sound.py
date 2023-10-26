@@ -294,7 +294,9 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         self._terminate_flag = False
         self._taskman.run_in_background(
-            lambda: self._play(tag), lambda res: self._on_done(res, on_done)
+            lambda: self._play(tag),
+            lambda res: self._on_done(res, on_done),
+            uses_collection=False,
         )
 
     def stop(self) -> None:
@@ -529,7 +531,9 @@ def encode_mp3(mw: aqt.AnkiQt, src_wav: str, on_done: Callable[[str], None]) -> 
 
         on_done(dst_mp3)
 
-    mw.taskman.run_in_background(lambda: _encode_mp3(src_wav, dst_mp3), _on_done)
+    mw.taskman.run_in_background(
+        lambda: _encode_mp3(src_wav, dst_mp3), _on_done, uses_collection=False
+    )
 
 
 # Recording interface
@@ -623,7 +627,9 @@ class QtAudioInputRecorder(Recorder):
                 fut.result()
                 Recorder.stop(self, on_done)
 
-            self.mw.taskman.run_in_background(write_file, and_then)
+            self.mw.taskman.run_in_background(
+                write_file, and_then, uses_collection=False
+            )
 
         # schedule the stop for half a second in the future,
         # to avoid truncating the end of the recording

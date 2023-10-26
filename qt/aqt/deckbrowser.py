@@ -198,7 +198,7 @@ class DeckBrowser:
 <th class=optscol></th></tr>""".format(
             tr.decks_deck(),
             tr.actions_new(),
-            tr.card_stats_review_log_type_learn(),
+            tr.decks_learn_header(),
             tr.statistics_due_count(),
         )
         buf += self._topLevelDragRow()

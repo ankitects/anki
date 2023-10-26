@@ -38,7 +38,6 @@ class DeckConf(QDialog):
         self.form = aqt.forms.dconf.Ui_Dialog()
         self.form.setupUi(self)
         gui_hooks.deck_conf_did_setup_ui_form(self)
-        self.mw.checkpoint(tr.actions_options())
         self.setupCombos()
         self.setupConfs()
         qconnect(
@@ -219,9 +218,6 @@ class DeckConf(QDialog):
         f.revplim.setText(self.parentLimText("rev"))
         f.buryRev.setChecked(c.get("bury", True))
         f.hardFactor.setValue(int(c.get("hardFactor", 1.2) * 100))
-        if self.mw.col.sched_ver() == 1:
-            f.hardFactor.setVisible(False)
-            f.hardFactorLabel.setVisible(False)
         # lapse
         c = self.conf["lapse"]
         f.lapSteps.setText(self.listToUser(c["delays"]))

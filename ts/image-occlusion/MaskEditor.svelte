@@ -19,11 +19,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type { IOMode } from "./lib";
     import {
+        type ImageLoadedEvent,
         setCanvasZoomRatio,
         setupMaskEditor,
         setupMaskEditorForEdit,
     } from "./mask-editor";
     import Toolbar from "./Toolbar.svelte";
+    import { MaskEditorAPI } from "./tools/api";
 
     export let mode: IOMode;
     const iconSize = 80;
@@ -32,10 +34,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const startingTool = mode.kind === "add" ? "draw-rectangle" : "cursor";
     $: canvas = null;
 
+    $: {
+        globalThis.maskEditor = canvas ? new MaskEditorAPI(canvas) : null;
+    }
+
     const dispatch = createEventDispatcher();
 
     function onChange() {
         dispatch("change", { canvas });
+    }
+
+    function onImageLoaded({ path, noteId }: ImageLoadedEvent) {
+        dispatch("image-loaded", { path, noteId });
     }
 
     $: $changeSignal, onChange();
@@ -51,13 +61,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         instance.pause();
 
         if (mode.kind == "add") {
-            setupMaskEditor(mode.imagePath, instance, onChange).then((canvas1) => {
-                canvas = canvas1;
-            });
+            setupMaskEditor(mode.imagePath, instance, onChange, onImageLoaded).then(
+                (canvas1) => {
+                    canvas = canvas1;
+                },
+            );
         } else {
-            setupMaskEditorForEdit(mode.noteId, instance, onChange).then((canvas1) => {
-                canvas = canvas1;
-            });
+            setupMaskEditorForEdit(mode.noteId, instance, onChange, onImageLoaded).then(
+                (canvas1) => {
+                    canvas = canvas1;
+                },
+            );
         }
     }
 

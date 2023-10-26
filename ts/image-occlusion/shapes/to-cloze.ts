@@ -3,6 +3,7 @@
 
 import type { Canvas, Object as FabricObject } from "fabric";
 import { fabric } from "fabric";
+import { cloneDeep } from "lodash-es";
 
 import { makeMaskTransparent } from "../tools/lib";
 import type { Size } from "../types";
@@ -10,16 +11,21 @@ import type { Shape, ShapeOrShapes } from "./base";
 import { Ellipse } from "./ellipse";
 import { Polygon } from "./polygon";
 import { Rectangle } from "./rectangle";
+import { Text } from "./text";
 
 export function exportShapesToClozeDeletions(occludeInactive: boolean): {
     clozes: string;
     noteCount: number;
 } {
-    const shapes = baseShapesFromFabric(occludeInactive);
+    const shapes = baseShapesFromFabric();
 
     let clozes = "";
-    shapes.forEach((shapeOrShapes, index) => {
-        clozes += shapeOrShapesToCloze(shapeOrShapes, index);
+    let index = 0;
+    shapes.forEach((shapeOrShapes) => {
+        clozes += shapeOrShapesToCloze(shapeOrShapes, index, occludeInactive);
+        if (!(shapeOrShapes instanceof Text)) {
+            index++;
+        }
     });
 
     return { clozes, noteCount: shapes.length };
@@ -28,16 +34,26 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
 /** Gather all Fabric shapes, and convert them into BaseShapes or
  * BaseShape[]s.
  */
-function baseShapesFromFabric(occludeInactive: boolean): ShapeOrShapes[] {
+export function baseShapesFromFabric(): ShapeOrShapes[] {
     const canvas = globalThis.canvas as Canvas;
     makeMaskTransparent(canvas, false);
+    const activeObject = canvas.getActiveObject();
+    const selectionContainingMultipleObjects = activeObject instanceof fabric.ActiveSelection
+            && (activeObject.size() > 1)
+        ? activeObject
+        : null;
     const objects = canvas.getObjects() as FabricObject[];
     return objects
         .map((object) => {
+            // If the object is in the active selection containing multiple objects,
+            // we need to calculate its x and y coordinates relative to the canvas.
+            const parent = selectionContainingMultipleObjects?.contains(object)
+                ? selectionContainingMultipleObjects
+                : undefined;
             return fabricObjectToBaseShapeOrShapes(
                 canvas,
                 object,
-                occludeInactive,
+                parent,
             );
         })
         .filter((o): o is ShapeOrShapes => o !== null);
@@ -47,34 +63,38 @@ function baseShapesFromFabric(occludeInactive: boolean): ShapeOrShapes[] {
 function fabricObjectToBaseShapeOrShapes(
     size: Size,
     object: FabricObject,
-    occludeInactive: boolean,
     parentObject?: FabricObject,
 ): ShapeOrShapes | null {
     let shape: Shape;
 
+    // Prevents the original fabric object from mutating when a non-primitive
+    // property of a Shape mutates.
+    const cloned = cloneDeep(object);
+
     switch (object.type) {
         case "rect":
-            shape = new Rectangle(object);
+            shape = new Rectangle(cloned);
             break;
         case "ellipse":
-            shape = new Ellipse(object);
+            shape = new Ellipse(cloned);
             break;
         case "polygon":
-            shape = new Polygon(object);
+            shape = new Polygon(cloned);
+            break;
+        case "i-text":
+            shape = new Text(cloned);
             break;
         case "group":
             return object._objects.map((child) => {
                 return fabricObjectToBaseShapeOrShapes(
                     size,
                     child,
-                    occludeInactive,
                     object,
                 );
             });
         default:
             return null;
     }
-    shape.occludeInactive = occludeInactive;
     if (parentObject) {
         const newPosition = fabric.util.transformPoint(
             { x: shape.left, y: shape.top },
@@ -84,7 +104,7 @@ function fabricObjectToBaseShapeOrShapes(
         shape.top = newPosition.y;
     }
 
-    shape.makeNormal(size);
+    shape = shape.toNormal(size);
     return shape;
 }
 
@@ -93,19 +113,18 @@ function fabricObjectToBaseShapeOrShapes(
 function shapeOrShapesToCloze(
     shapeOrShapes: ShapeOrShapes,
     index: number,
+    occludeInactive: boolean,
 ): string {
     let text = "";
     function addKeyValue(key: string, value: string) {
-        if (Number.isNaN(Number(value))) {
-            value = ".0000";
-        }
+        value = value.replace(":", "\\:");
         text += `:${key}=${value}`;
     }
 
     let type: string;
     if (Array.isArray(shapeOrShapes)) {
         return shapeOrShapes
-            .map((shape) => shapeOrShapesToCloze(shape, index))
+            .map((shape) => shapeOrShapesToCloze(shape, index, occludeInactive))
             .join("");
     } else if (shapeOrShapes instanceof Rectangle) {
         type = "rect";
@@ -113,6 +132,8 @@ function shapeOrShapesToCloze(
         type = "ellipse";
     } else if (shapeOrShapes instanceof Polygon) {
         type = "polygon";
+    } else if (shapeOrShapes instanceof Text) {
+        type = "text";
     } else {
         throw new Error("Unknown shape type");
     }
@@ -120,7 +141,18 @@ function shapeOrShapesToCloze(
     for (const [key, value] of Object.entries(shapeOrShapes.toDataForCloze())) {
         addKeyValue(key, value);
     }
+    if (occludeInactive) {
+        addKeyValue("oi", "1");
+    }
 
-    text = `{{c${index + 1}::image-occlusion:${type}${text}}}<br>`;
+    let ordinal: number;
+    if (type === "text") {
+        ordinal = 0;
+    } else {
+        ordinal = index + 1;
+    }
+    shapeOrShapes.ordinal = ordinal;
+    text = `{{c${ordinal}::image-occlusion:${type}${text}}}<br>`;
+
     return text;
 }

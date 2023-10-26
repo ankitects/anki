@@ -28,6 +28,7 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
+from anki._legacy import deprecated
 from anki.collection import Collection, Config, OpChanges, UndoStatus
 from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
@@ -411,7 +412,7 @@ class AnkiQt(QMainWindow):
             return
         # sure?
         if not askUser(
-            tr.qt_misc_all_cards_notes_and_media_for(),
+            tr.qt_misc_all_cards_notes_and_media_for2(name=self.pm.name),
             msgfunc=QMessageBox.warning,
             defaultno=True,
         ):
@@ -500,9 +501,27 @@ class AnkiQt(QMainWindow):
             if onsuccess:
                 onsuccess()
             if not self.safeMode:
-                self.maybe_check_for_addon_updates(self.setupAutoUpdate)
+                self.maybe_check_for_addon_updates(self.setup_auto_update)
 
         self.maybe_auto_sync_on_open_close(_onsuccess)
+
+        last_day_cutoff = self.col.sched.day_cutoff
+
+        def refresh_reviewer_on_day_rollover_change():
+            from aqt.reviewer import RefreshNeeded
+
+            nonlocal last_day_cutoff
+            if self.state == "review" and last_day_cutoff != self.col.sched.day_cutoff:
+                last_day_cutoff = self.col.sched.day_cutoff
+                self.reviewer._refresh_needed = RefreshNeeded.QUEUES
+                self.reviewer.refresh_if_needed()
+
+        self._reviewer_refresh_timer = self.progress.timer(
+            1000,
+            refresh_reviewer_on_day_rollover_change,
+            repeat=True,
+            parent=self,
+        )
 
     def unloadProfile(self, onsuccess: Callable) -> None:
         def callback() -> None:
@@ -523,6 +542,7 @@ class AnkiQt(QMainWindow):
 
         # at this point there should be no windows left
         self._checkForUnclosedWidgets()
+        self._reviewer_refresh_timer.deleteLater()
 
     def _checkForUnclosedWidgets(self) -> None:
         for w in self.app.topLevelWidgets():
@@ -918,9 +938,7 @@ title="{}" {}>{}</button>""".format(
         signal.signal(signal.SIGTERM, self.onUnixSignal)
 
     def onUnixSignal(self, signum: Any, frame: Any) -> None:
-        # schedule a rollback & quit
         def quit() -> None:
-            self.col.db.rollback()
             self.close()
 
         self.progress.single_shot(100, quit)
@@ -945,26 +963,33 @@ title="{}" {}>{}</button>""".format(
             self.addonManager.loadAddons()
 
     def maybe_check_for_addon_updates(
-        self, on_done: Callable[[], None] | None = None
+        self, on_done: Callable[[list[DownloadLogEntry]], None] | None = None
     ) -> None:
         last_check = self.pm.last_addon_update_check()
         elap = int_time() - last_check
 
+        if elap > 86_400 or self.pm.last_run_version != int_version():
+            self.check_for_addon_updates(by_user=False, on_done=on_done)
+        elif on_done:
+            on_done([])
+
+    def check_for_addon_updates(
+        self,
+        by_user: bool,
+        on_done: Callable[[list[DownloadLogEntry]], None] | None = None,
+    ) -> None:
         def wrap_on_updates_installed(log: list[DownloadLogEntry]) -> None:
             self.on_updates_installed(log)
-            if on_done:
-                on_done()
-
-        if elap > 86_400 or self.pm.last_run_version != int_version():
-            check_and_prompt_for_updates(
-                self,
-                self.addonManager,
-                wrap_on_updates_installed,
-                requested_by_user=False,
-            )
             self.pm.set_last_addon_update_check(int_time())
-        elif on_done:
-            on_done()
+            if on_done:
+                on_done(log)
+
+        check_and_prompt_for_updates(
+            self,
+            self.addonManager,
+            wrap_on_updates_installed,
+            requested_by_user=by_user,
+        )
 
     def on_updates_installed(self, log: list[DownloadLogEntry]) -> None:
         if log:
@@ -1021,7 +1046,6 @@ title="{}" {}>{}</button>""".format(
         "Caller should ensure auth available."
 
         def on_collection_sync_finished() -> None:
-            self.col.clear_python_undo()
             self.col.models._clear_cache()
             gui_hooks.sync_did_finish()
             self.reset()
@@ -1189,15 +1213,14 @@ title="{}" {}>{}</button>""".format(
         self.form.actionRedo.setVisible(info.show_redo)
         gui_hooks.undo_state_did_change(info)
 
+    @deprecated(info="checkpoints are no longer supported")
     def checkpoint(self, name: str) -> None:
-        self.col.save(name)
-        self.update_undo_actions()
+        pass
 
+    @deprecated(info="saving is automatic")
     def autosave(self) -> None:
-        self.col.autosave()
-        self.update_undo_actions()
+        pass
 
-    maybeEnableUndo = update_undo_actions
     onUndo = undo
 
     # Other menu operations
@@ -1213,7 +1236,6 @@ title="{}" {}>{}</button>""".format(
         aqt.dialogs.open("EditCurrent", self)
 
     def onOverview(self) -> None:
-        self.col.reset()
         self.moveToState("overview")
 
     def onStats(self) -> None:
@@ -1398,7 +1420,7 @@ title="{}" {}>{}</button>""".format(
     # Auto update
     ##########################################################################
 
-    def setupAutoUpdate(self) -> None:
+    def setup_auto_update(self, _log: list[DownloadLogEntry]) -> None:
         from aqt.update import check_for_update
 
         check_for_update()
@@ -1461,10 +1483,6 @@ title="{}" {}>{}</button>""".format(
         )
 
     def _create_backup_with_progress(self, user_initiated: bool) -> None:
-        # if there's a legacy undo op, try again later
-        if not user_initiated and self.col.legacy_checkpoint_pending():
-            return
-
         # The initial copy will display a progress window if it takes too long
         def backup(col: Collection) -> bool:
             return col.create_backup(
@@ -1483,7 +1501,6 @@ title="{}" {}>{}</button>""".format(
             )
 
         def after_backup_started(created: bool) -> None:
-            # Legacy checkpoint may have expired.
             self.update_undo_actions()
 
             if user_initiated and not created:

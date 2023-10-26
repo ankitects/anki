@@ -4,6 +4,16 @@ addons-failed-to-load =
     
     When loading '{ $name }':
     { $traceback }
+addons-failed-to-load2 =
+    The following add-ons failed to load:
+    { $addons }
+
+    They may need to be updated to support this version of Anki. Click the { addons-check-for-updates } button
+    to see if any updates are available.
+
+    For add-ons that don't have an update available, you can disable or delete the add-on to prevent this
+    message from appearing.
+addons-startup-failed = Add-on Startup Failed
 # Shown in the add-on configuration screen (Tools>Add-ons>Config), in the title bar
 addons-config-window-title = Configure '{ $name }'
 addons-config-validation-error = There was a problem with the provided configuration: { $problem }, at path { $path }, against schema { $schema }.

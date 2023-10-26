@@ -47,16 +47,19 @@ export function intervalLabel(
     daysStart: number,
     daysEnd: number,
     cards: number,
+    fsrs: boolean,
 ): string {
     if (daysEnd - daysStart <= 1) {
         // singular
-        return tr.statisticsIntervalsDaySingle({
+        const fn = fsrs ? tr.statisticsStabilityDaySingle : tr.statisticsIntervalsDaySingle;
+        return fn({
             day: daysStart,
             cards,
         });
     } else {
         // range
-        return tr.statisticsIntervalsDayRange({
+        const fn = fsrs ? tr.statisticsStabilityDayRange : tr.statisticsIntervalsDayRange;
+        return fn({
             daysStart,
             daysEnd: daysEnd - 1,
             cards,
@@ -64,15 +67,20 @@ export function intervalLabel(
     }
 }
 
-function makeQuery(start: number, end: number): string {
+function makeSm2Query(start: number, end: number): string {
     if (start === end) {
         return `"prop:ivl=${start}"`;
     }
 
     const fromQuery = `"prop:ivl>=${start}"`;
     const tillQuery = `"prop:ivl<=${end}"`;
+    return `${fromQuery} ${tillQuery}`;
+}
 
-    return `${fromQuery} AND ${tillQuery}`;
+function makeFsrsQuery(start: number, end: number): string {
+    const fromQuery = `"prop:s>=${start - 0.5}"`;
+    const tillQuery = `"prop:s<${end + 0.5}"`;
+    return `${fromQuery} ${tillQuery}`;
 }
 
 export function prepareIntervalData(
@@ -80,6 +88,7 @@ export function prepareIntervalData(
     range: IntervalRange,
     dispatch: SearchDispatch,
     browserLinksSupported: boolean,
+    fsrs: boolean,
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
     const allIntervals = data.intervals;
@@ -144,7 +153,7 @@ export function prepareIntervalData(
         percent: number,
     ): string {
         // const day = dayLabel(bin.x0!, bin.x1!);
-        const interval = intervalLabel(bin.x0!, bin.x1!, bin.length);
+        const interval = intervalLabel(bin.x0!, bin.x1!, bin.length, fsrs);
         const total = tr.statisticsRunningTotal();
         return `${interval}<br>${total}: \u200e${localizedNumber(percent, 1)}%`;
     }
@@ -152,7 +161,7 @@ export function prepareIntervalData(
     function onClick(bin: Bin<number, number>): void {
         const start = bin.x0!;
         const end = bin.x1! - 1;
-        const query = makeQuery(start, end);
+        const query = (fsrs ? makeFsrsQuery : makeSm2Query)(start, end);
         dispatch("search", { query });
     }
 
@@ -160,7 +169,7 @@ export function prepareIntervalData(
     const meanIntervalString = timeSpan(meanInterval * 86400, false);
     const tableData = [
         {
-            label: tr.statisticsAverageInterval(),
+            label: fsrs ? tr.statisticsAverageStability() : tr.statisticsAverageInterval(),
             value: meanIntervalString,
         },
     ];

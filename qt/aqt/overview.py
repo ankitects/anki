@@ -64,7 +64,6 @@ class Overview:
     def refresh(self) -> None:
         def success(_counts: tuple) -> None:
             self._refresh_needed = False
-            self.mw.col.reset()
             self._renderPage()
             self._renderBottom()
             self.mw.web.setFocus()
@@ -150,25 +149,24 @@ class Overview:
 
     def on_unbury(self) -> None:
         mode = UnburyDeck.Mode.ALL
-        if self.mw.col.sched_ver() != 1:
-            info = self.mw.col.sched.congratulations_info()
-            if info.have_sched_buried and info.have_user_buried:
-                opts = [
-                    tr.studying_manually_buried_cards(),
-                    tr.studying_buried_siblings(),
-                    tr.studying_all_buried_cards(),
-                    tr.actions_cancel(),
-                ]
+        info = self.mw.col.sched.congratulations_info()
+        if info.have_sched_buried and info.have_user_buried:
+            opts = [
+                tr.studying_manually_buried_cards(),
+                tr.studying_buried_siblings(),
+                tr.studying_all_buried_cards(),
+                tr.actions_cancel(),
+            ]
 
-                diag = askUserDialog(tr.studying_what_would_you_like_to_unbury(), opts)
-                diag.setDefault(0)
-                ret = diag.run()
-                if ret == opts[0]:
-                    mode = UnburyDeck.Mode.USER_ONLY
-                elif ret == opts[1]:
-                    mode = UnburyDeck.Mode.SCHED_ONLY
-                elif ret == opts[3]:
-                    return
+            diag = askUserDialog(tr.studying_what_would_you_like_to_unbury(), opts)
+            diag.setDefault(0)
+            ret = diag.run()
+            if ret == opts[0]:
+                mode = UnburyDeck.Mode.USER_ONLY
+            elif ret == opts[1]:
+                mode = UnburyDeck.Mode.SCHED_ONLY
+            elif ret == opts[3]:
+                return
 
         unbury_deck(
             parent=self.mw, deck_id=self.mw.col.decks.get_current_id(), mode=mode

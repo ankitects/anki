@@ -26,7 +26,6 @@ pub struct FilteredDeckForUpdate {
 pub(crate) struct DeckFilterContext<'a> {
     pub target_deck: DeckId,
     pub config: &'a FilteredDeck,
-    pub scheduler: SchedulerVersion,
     pub usn: Usn,
     pub today: u32,
 }
@@ -84,12 +83,11 @@ impl Collection {
 
     // Unlike the old Python code, this also marks the cards as modified.
     fn return_cards_to_home_deck(&mut self, cids: &[CardId]) -> Result<()> {
-        let sched = self.scheduler_version();
         let usn = self.usn()?;
         for cid in cids {
             if let Some(mut card) = self.storage.get_card(*cid)? {
                 let original = card.clone();
-                card.remove_from_filtered_deck_restoring_queue(sched);
+                card.remove_from_filtered_deck_restoring_queue();
                 self.update_card_inner(&mut card, original, usn)?;
             }
         }
@@ -99,12 +97,7 @@ impl Collection {
     fn build_filtered_deck(&mut self, ctx: DeckFilterContext) -> Result<usize> {
         let start = -100_000;
         let mut position = start;
-        let limit = if ctx.scheduler == SchedulerVersion::V1 {
-            1
-        } else {
-            2
-        };
-        for term in ctx.config.search_terms.iter().take(limit) {
+        for term in ctx.config.search_terms.iter().take(2) {
             position = self.move_cards_matching_term(&ctx, term, position)?;
         }
 
@@ -120,16 +113,11 @@ impl Collection {
         mut position: i32,
     ) -> Result<i32> {
         let search = format!(
-            "{} -is:suspended -is:buried -deck:filtered {}",
+            "{} -is:suspended -is:buried -deck:filtered",
             if term.search.trim().is_empty() {
                 "".to_string()
             } else {
                 format!("({})", term.search)
-            },
-            if ctx.scheduler == SchedulerVersion::V1 {
-                "-is:learn"
-            } else {
-                ""
             }
         );
         let order = order_and_limit_for_search(term, ctx.today);
@@ -189,11 +177,14 @@ impl Collection {
     }
 
     fn rebuild_filtered_deck_inner(&mut self, deck: &Deck, usn: Usn) -> Result<usize> {
+        if self.scheduler_version() == SchedulerVersion::V1 {
+            return Err(AnkiError::SchedulerUpgradeRequired);
+        }
+
         let config = deck.filtered()?;
         let ctx = DeckFilterContext {
             target_deck: deck.id,
             config,
-            scheduler: self.scheduler_version(),
             usn,
             today: self.timing_today()?.days_elapsed,
         };

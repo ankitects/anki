@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Item from "../components/Item.svelte";
     import SettingTitle from "../components/SettingTitle.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
-    import type { HelpItem } from "../components/types";
+    import { type HelpItem, HelpItemScheduler } from "../components/types";
     import { newInsertOrderChoices } from "./choices";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxRow from "./SpinBoxRow.svelte";
@@ -51,7 +51,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             : "";
 
     $: insertionOrderRandom =
-        state.v3Scheduler &&
         $config.newCardInsertOrder == DeckConfig_Config_NewCardInsertOrder.RANDOM
             ? tr.deckConfigNewInsertionOrderRandomWithV3()
             : "";
@@ -66,11 +65,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             title: tr.schedulingGraduatingInterval(),
             help: tr.deckConfigGraduatingIntervalTooltip(),
             url: HelpPage.DeckOptions.graduatingInterval,
+            sched: HelpItemScheduler.SM2,
         },
         easyInterval: {
             title: tr.schedulingEasyInterval(),
             help: tr.deckConfigEasyIntervalTooltip(),
             url: HelpPage.DeckOptions.easyInterval,
+            sched: HelpItemScheduler.SM2,
         },
         insertionOrder: {
             title: tr.deckConfigNewInsertionOrder(),
@@ -95,6 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         url={HelpPage.DeckOptions.newCards}
         slot="tooltip"
         {helpSections}
+        fsrs={$fsrs}
         on:mount={(e) => {
             modal = e.detail.modal;
             carousel = e.detail.carousel;

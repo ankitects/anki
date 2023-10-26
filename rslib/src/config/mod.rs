@@ -214,6 +214,14 @@ impl Collection {
             .unwrap_or(SchedulerVersion::V1)
     }
 
+    pub fn v2_enabled(&self) -> bool {
+        self.scheduler_version() == SchedulerVersion::V2
+    }
+
+    pub fn v3_enabled(&self) -> bool {
+        self.scheduler_version() == SchedulerVersion::V2 && self.get_config_bool(BoolKey::Sched2021)
+    }
+
     /// Caution: this only updates the config setting.
     pub(crate) fn set_scheduler_version_config_key(&mut self, ver: SchedulerVersion) -> Result<()> {
         self.state.scheduler_info = None;

@@ -603,12 +603,6 @@ hooks = [
     # UI state/refreshing
     ###################
     Hook(
-        name="state_did_revert",
-        args=["action: str"],
-        legacy_hook="revertedState",
-        doc="Legacy hook, called after undoing.",
-    ),
-    Hook(
         name="state_did_undo",
         args=["changes: OpChangesAfterUndo"],
         doc="Called after backend undoes a change.",
@@ -823,7 +817,6 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         legacy_hook="colLoading",
     ),
     Hook(name="undo_state_did_change", args=["info: UndoActionsInfo"]),
-    Hook(name="review_did_undo", args=["card_id: int"], legacy_hook="revertedCard"),
     Hook(
         name="style_did_init",
         args=["style: str"],
@@ -1151,6 +1144,25 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         "drop_event" indicates whether the event was triggered by a drag-and-drop
         or by a right-click paste.
         """,
+    ),
+    Hook(
+        name="editor_state_did_change",
+        args=[
+            "editor: aqt.editor.Editor",
+            "new_state: aqt.editor.EditorState",
+            "old_state: aqt.editor.EditorState",
+        ],
+        doc="""Called when the input state of the editor changes, e.g. when
+        switching to an image occlusion note type.""",
+    ),
+    Hook(
+        name="editor_mask_editor_did_load_image",
+        args=["editor: aqt.editor.Editor", "path_or_nid: str | anki.notes.NoteId"],
+        doc="""Called when the image occlusion mask editor has completed
+        loading an image.
+        
+        When adding new notes `path_or_nid` will be the path to the image file.
+        When editing existing notes `path_or_nid` will be the note id.""",
     ),
     # Tag
     ###################

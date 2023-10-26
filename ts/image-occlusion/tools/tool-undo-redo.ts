@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import * as tr from "@tslib/ftl";
 import type fabric from "fabric";
 import { writable } from "svelte/store";
 
@@ -17,11 +18,15 @@ type UndoState = {
     redoable: boolean;
 };
 
-const shapeType = ["rect", "ellipse"];
+const shapeType = ["rect", "ellipse", "i-text"];
 
 const validShape = (shape: fabric.Object): boolean => {
-    if (shape.width <= 5 || shape.height <= 5) return false;
-    if (shapeType.indexOf(shape.type) === -1) return false;
+    if (shape.width <= 5 || shape.height <= 5) {
+        return false;
+    }
+    if (shapeType.indexOf(shape.type) === -1) {
+        return false;
+    }
     return true;
 };
 
@@ -83,6 +88,7 @@ class UndoStack {
             this.push();
         }
         this.shapeIds.add(id);
+        emitChangeSignal();
     }
 
     onObjectModified(): void {
@@ -90,10 +96,7 @@ class UndoStack {
     }
 
     private maybePush(opts): void {
-        if (
-            !this.locked
-            && validShape(opts.target as fabric.Object)
-        ) {
+        if (!this.locked && validShape(opts.target as fabric.Object)) {
             this.push();
         }
     }
@@ -129,10 +132,12 @@ export const undoRedoTools = [
         name: "undo",
         icon: mdiUndo,
         action: () => undoStack.undo(),
+        tooltip: tr.undoUndo,
     },
     {
         name: "redo",
         icon: mdiRedo,
         action: () => undoStack.redo(),
+        tooltip: tr.undoRedo,
     },
 ];

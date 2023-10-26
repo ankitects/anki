@@ -8,7 +8,7 @@ import pprint
 import re
 import sys
 import time
-from typing import Callable
+from typing import Callable, Sequence
 
 from anki import media_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated_keywords
@@ -149,6 +149,9 @@ class MediaManager(DeprecatedNamesMixin):
                     files.append(fname)
         return files
 
+    def extract_static_media_files(self, mid: NotetypeId) -> Sequence[str]:
+        return self.col._backend.extract_static_media_files(mid)
+
     def transform_names(self, txt: str, func: Callable) -> str:
         for reg in self.regexps:
             txt = re.sub(reg, func, txt)
@@ -176,9 +179,6 @@ class MediaManager(DeprecatedNamesMixin):
 
     def check(self) -> CheckMediaResponse:
         output = self.col._backend.check_media()
-        # files may have been renamed on disk, so an undo at this point could
-        # break file references
-        self.col.save()
         return output
 
     def render_all_latex(

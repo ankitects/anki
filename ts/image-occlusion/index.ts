@@ -17,6 +17,7 @@ const i18n = setupI18n({
         ModuleName.NOTETYPES,
         ModuleName.ACTIONS,
         ModuleName.BROWSING,
+        ModuleName.UNDO,
     ],
 });
 

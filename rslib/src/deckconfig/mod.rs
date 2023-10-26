@@ -71,6 +71,7 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     desired_retention: 0.9,
     other: Vec::new(),
     reschedule_fsrs_cards: false,
+    sm2_retention: 0.9,
 };
 
 impl Default for DeckConfig {
@@ -275,6 +276,7 @@ pub(crate) fn ensure_deck_config_values_valid(config: &mut DeckConfigInner) {
         0.7,
         0.97,
     );
+    ensure_f32_valid(&mut config.sm2_retention, default.sm2_retention, 0.7, 0.97)
 }
 
 fn ensure_f32_valid(val: &mut f32, default: f32, min: f32, max: f32) {

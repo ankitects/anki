@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-import datetime
 import json
 import random
 import time
@@ -691,8 +690,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
             [13, 3],
             [14, 4],
         ]
-        if self.col.sched_ver() != 1:
-            ticks.insert(3, [4, 4])
+        ticks.insert(3, [4, 4])
         txt = self._title(
             "Answer Buttons", "The number of times you have pressed each button."
         )
@@ -751,10 +749,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
             lim = "where " + " and ".join(lims)
         else:
             lim = ""
-        if self.col.sched_ver() == 1:
-            ease4repl = "3"
-        else:
-            ease4repl = "ease"
+        ease4repl = "ease"
         return self.col.db.all(
             f"""
 select (case
@@ -841,11 +836,7 @@ order by thetype, ease"""
         lim = self._revlogLimit()
         if lim:
             lim = " and " + lim
-        if self.col.sched_ver() == 1:
-            sd = datetime.datetime.fromtimestamp(self.col.crt)
-            rolloverHour = sd.hour
-        else:
-            rolloverHour = self.col.conf.get("rollover", 4)
+        rolloverHour = self.col.conf.get("rollover", 4)
         pd = self._periodDays()
         if pd:
             lim += " and id > %d" % ((self.col.sched.day_cutoff - (86400 * pd)) * 1000)

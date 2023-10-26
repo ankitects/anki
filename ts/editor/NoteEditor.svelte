@@ -42,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@tslib/ftl";
-    import { resetIOImage } from "image-occlusion/mask-editor";
+    import { type ImageLoadedEvent, resetIOImage } from "image-occlusion/mask-editor";
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
 
@@ -69,6 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
     import type { NotetypeIdAndModTime, SessionOptions } from "./types";
+    import { EditorState } from "./types";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -244,11 +245,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $ioMaskEditorVisible = val;
     }
 
-    let isEditMode = false;
-    function setIsEditMode(val: boolean) {
-        isEditMode = val;
-    }
-
     let cols: ("dupe" | "")[] = [];
     export function setBackgrounds(cls: ("dupe" | "")[]): void {
         cols = cls;
@@ -387,9 +383,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { ImageOcclusionFieldIndexes } from "@tslib/anki/image_occlusion_pb";
     import { getImageOcclusionFields } from "@tslib/backend";
     import { wrapInternal } from "@tslib/wrap";
-    import LabelButton from "components/LabelButton.svelte";
     import Shortcut from "components/Shortcut.svelte";
     import ImageOcclusionPage from "image-occlusion/ImageOcclusionPage.svelte";
+    import ImageOcclusionPicker from "image-occlusion/ImageOcclusionPicker.svelte";
     import type { IOMode } from "image-occlusion/lib";
     import { exportShapesToClozeDeletions } from "image-occlusion/shapes/to-cloze";
     import { hideAllGuessOne, ioMaskEditorVisible } from "image-occlusion/store";
@@ -401,6 +397,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let isIOImageLoaded = false;
     let imageOcclusionMode: IOMode | undefined;
     let ioFields = new ImageOcclusionFieldIndexes({});
+
+    function pickIOImage() {
+        imageOcclusionMode = undefined;
+        bridgeCommand("addImageForOcclusion");
+    }
+
+    function pickIOImageFromClipboard() {
+        imageOcclusionMode = undefined;
+        bridgeCommand("addImageForOcclusionFromClipboard");
+    }
+
     async function setupMaskEditor(options: { html: string; mode: IOMode }) {
         imageOcclusionMode = undefined;
         const getIoFields = getImageOcclusionFields({
@@ -413,7 +420,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             // new image is being added
             if (isIOImageLoaded) {
-                resetIOImage(options.mode.imagePath);
+                resetIOImage(options.mode.imagePath, (event: ImageLoadedEvent) =>
+                    onImageLoaded(
+                        new CustomEvent("image-loaded", {
+                            detail: event,
+                        }),
+                    ),
+                );
             }
         } else {
             const clozeNote = get(fieldStores[ioFields.occlusions]);
@@ -432,26 +445,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     globalThis.setImageField = setImageField;
 
-    // update cloze deletions and set occlusion fields, it call in saveNow to update cloze deletions
-    function updateIONoteInEditMode() {
-        if (isEditMode) {
-            const clozeNote = get(fieldStores[ioFields.occlusions]);
-            if (clozeNote.includes("oi=1")) {
-                setOcclusionField(true);
-            } else {
-                setOcclusionField(false);
-            }
-        }
-    }
-
-    function setOcclusionFieldInner() {
+    function updateOcclusionsField(): void {
         if (isImageOcclusion) {
             const occlusionsData = exportShapesToClozeDeletions($hideAllGuessOne);
             fieldStores[ioFields.occlusions].set(occlusionsData.clozes);
         }
     }
-    // global for calling this method in desktop note editor
-    globalThis.setOcclusionFieldInner = setOcclusionFieldInner;
 
     // reset for new occlusion in add mode
     function resetIOImageLoaded() {
@@ -463,14 +462,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
     globalThis.resetIOImageLoaded = resetIOImageLoaded;
-
-    function setOcclusionField(occludeInactive: boolean) {
-        // set fields data for occlusion and image fields for io notes type
-        if (isImageOcclusion) {
-            const occlusionsData = exportShapesToClozeDeletions(occludeInactive);
-            fieldStores[ioFields.occlusions].set(occlusionsData.clozes);
-        }
-    }
 
     /** hide occlusions and image */
     function hideFieldInOcclusionType(
@@ -484,6 +475,52 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         return false;
     }
+
+    // Signal image occlusion image loading to Python
+    function onImageLoaded(event: CustomEvent<ImageLoadedEvent>) {
+        const detail = event.detail;
+        bridgeCommand(
+            `ioImageLoaded:${JSON.stringify(detail.path || detail.noteId?.toString())}`,
+        );
+    }
+
+    // Signal editor UI state changes to add-ons
+
+    let editorState: EditorState = EditorState.Initial;
+    let lastEditorState: EditorState = editorState;
+
+    function getEditorState(
+        ioMaskEditorVisible: boolean,
+        isImageOcclusion: boolean,
+        isIOImageLoaded: boolean,
+        imageOcclusionMode: IOMode | undefined,
+    ): EditorState {
+        if (isImageOcclusion && ioMaskEditorVisible && !isIOImageLoaded) {
+            return EditorState.ImageOcclusionPicker;
+        } else if (imageOcclusionMode && ioMaskEditorVisible) {
+            return EditorState.ImageOcclusionMasks;
+        } else if (!ioMaskEditorVisible && isImageOcclusion) {
+            return EditorState.ImageOcclusionFields;
+        }
+        return EditorState.Fields;
+    }
+
+    function signalEditorState(newState: EditorState) {
+        tick().then(() => {
+            globalThis.editorState = newState;
+            bridgeCommand(`editorState:${newState}:${lastEditorState}`);
+            lastEditorState = newState;
+        });
+    }
+
+    $: signalEditorState(editorState);
+
+    $: editorState = getEditorState(
+        $ioMaskEditorVisible,
+        isImageOcclusion,
+        isIOImageLoaded,
+        imageOcclusionMode,
+    );
 
     onMount(() => {
         function wrap(before: string, after: string): void {
@@ -519,12 +556,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setCloseHTMLTags,
             triggerChanges,
             setIsImageOcclusion,
-            setIsEditMode,
             setupMaskEditor,
-            setOcclusionField,
-            setOcclusionFieldInner,
+            updateOcclusionsField,
             ...oldEditorAdapter,
         });
+
+        editorState = getEditorState(
+            $ioMaskEditorVisible,
+            isImageOcclusion,
+            isIOImageLoaded,
+            imageOcclusionMode,
+        );
 
         document.addEventListener("visibilitychange", saveOnPageHide);
         return () => document.removeEventListener("visibilitychange", saveOnPageHide);
@@ -580,41 +622,17 @@ the AddCards dialog) should be implemented in the user of this component.
         <div style="display: {$ioMaskEditorVisible ? 'block' : 'none'}">
             <ImageOcclusionPage
                 mode={imageOcclusionMode}
-                on:change={updateIONoteInEditMode}
+                on:change={updateOcclusionsField}
+                on:image-loaded={onImageLoaded}
             />
         </div>
     {/if}
 
     {#if $ioMaskEditorVisible && isImageOcclusion && !isIOImageLoaded}
-        <div id="io-select-image-div" style="padding-top: 60px; text-align: center;">
-            <LabelButton
-                --border-left-radius="5px"
-                --border-right-radius="5px"
-                class="io-select-image-btn"
-                on:click={() => {
-                    imageOcclusionMode = undefined;
-                    bridgeCommand("addImageForOcclusion");
-                }}
-            >
-                {tr.notetypesIoSelectImage()}
-            </LabelButton>
-        </div>
-        <div
-            id="io-select-clipboard-image-div"
-            style="padding-top: 30px; text-align: center;"
-        >
-            <LabelButton
-                --border-left-radius="5px"
-                --border-right-radius="5px"
-                class="io-select-image-btn"
-                on:click={() => {
-                    imageOcclusionMode = undefined;
-                    bridgeCommand("addImageForOcclusionFromClipboard");
-                }}
-            >
-                {tr.notetypesIoPasteImageFromClipboard()}
-            </LabelButton>
-        </div>
+        <ImageOcclusionPicker
+            onPickImage={pickIOImage}
+            onPickImageFromClipboard={pickIOImageFromClipboard}
+        />
     {/if}
 
     {#if !$ioMaskEditorVisible}
@@ -777,12 +795,6 @@ the AddCards dialog) should be implemented in the user of this component.
         top: unset !important;
         margin-top: 2px !important;
     }
-
-    :global(.io-select-image-btn) {
-        margin: auto;
-        padding: 0px 8px 0px 8px !important;
-    }
-
     :global(.image-occlusion .sticky-footer) {
         display: none;
     }

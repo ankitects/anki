@@ -15,12 +15,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HelpSection from "./HelpSection.svelte";
     import { infoCircle, manualIcon } from "./icons";
     import Row from "./Row.svelte";
-    import type { HelpItem } from "./types";
+    import { type HelpItem, HelpItemScheduler } from "./types";
 
     export let title: string;
     export let url: string;
     export let startIndex = 0;
     export let helpSections: HelpItem[];
+    export let fsrs = false;
 
     export const modalKey: string = Math.random().toString(36).substring(2);
 
@@ -93,7 +94,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <nav>
                             <div id="nav">
                                 <ul>
-                                    {#each helpSections as section, i}
+                                    {#each helpSections as item, i}
                                         <li>
                                             <button
                                                 on:click={() => {
@@ -101,8 +102,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                                     carousel.to(activeIndex);
                                                 }}
                                                 class:active={i == activeIndex}
+                                                class:d-none={fsrs
+                                                    ? item.sched ===
+                                                      HelpItemScheduler.SM2
+                                                    : item.sched ==
+                                                      HelpItemScheduler.FSRS}
                                             >
-                                                {section.title}
+                                                {item.title}
                                             </button>
                                         </li>
                                     {/each}
@@ -121,6 +127,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                     <div
                                         class="carousel-item"
                                         class:active={i == startIndex}
+                                        class:d-none={fsrs
+                                            ? item.sched === HelpItemScheduler.SM2
+                                            : item.sched == HelpItemScheduler.FSRS}
                                     >
                                         <HelpSection {item} />
                                     </div>

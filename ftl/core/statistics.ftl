@@ -95,11 +95,12 @@ statistics-range-search = Search
 statistics-card-ease-title = Card Ease
 statistics-card-difficulty-title = Card Difficulty
 statistics-card-stability-title = Card Stability
-statistics-card-stability-subtitle = Predicted delay that you have a 90% chance of remembering.
+statistics-card-stability-subtitle = The delay at which you're 90% likely to remember.
+statistics-average-stability = Average stability
 statistics-card-retrievability-title = Card Retrievability
 statistics-card-ease-subtitle = The lower the ease, the more frequently a card will appear.
 statistics-card-difficulty-subtitle = The higher the difficulty, the harder it is to remember.
-statistics-retrievability-subtitle = How likely you are to remember.
+statistics-retrievability-subtitle = The probability of recalling a card today.
 # eg "3 cards with 150-170% ease"
 statistics-card-ease-tooltip =
     { $cards ->
@@ -161,6 +162,16 @@ statistics-intervals-day-single =
     { $cards ->
         [one] { $cards } card with a { $day } day interval
        *[other] { $cards } cards with a { $day } day interval
+    }
+statistics-stability-day-range =
+    { $cards ->
+        [one] { $cards } card with a { $daysStart }~{ $daysEnd } day stability
+       *[other] { $cards } cards with a { $daysStart }~{ $daysEnd } day stability
+    }
+statistics-stability-day-single =
+    { $cards ->
+        [one] { $cards } card with a { $day } day stability
+       *[other] { $cards } cards with a { $day } day stability
     }
 # hour range, eg "From 14:00-15:00"
 statistics-hours-range = From { $hourStart }:00~{ $hourEnd }:00

@@ -197,9 +197,6 @@ class AnkiExporter(Exporter):
             return []
 
     def exportInto(self, path: str) -> None:
-        # sched info+v2 scheduler not compatible w/ older clients
-        self._v2sched = self.col.sched_ver() != 1 and self.includeSched
-
         # create a new collection at the target
         try:
             os.unlink(path)
@@ -352,13 +349,10 @@ class AnkiPackageExporter(AnkiExporter):
         # export into the anki2 file
         colfile = path.replace(".apkg", ".anki2")
         AnkiExporter.exportInto(self, colfile)
-        if not self._v2sched:
-            z.write(colfile, "collection.anki2")
-        else:
-            # prevent older clients from accessing
-            # pylint: disable=unreachable
-            self._addDummyCollection(z)
-            z.write(colfile, "collection.anki21")
+        # prevent older clients from accessing
+        # pylint: disable=unreachable
+        self._addDummyCollection(z)
+        z.write(colfile, "collection.anki21")
 
         # and media
         self.prepareMedia()
@@ -402,7 +396,6 @@ class AnkiPackageExporter(AnkiExporter):
         n = c.newNote()
         n.fields[0] = "This file requires a newer version of Anki."
         c.addNote(n)
-        c.save()
         c.close(downgrade=True)
 
         zip.write(path, "collection.anki2")

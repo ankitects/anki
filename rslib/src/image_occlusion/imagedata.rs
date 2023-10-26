@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 use anki_io::metadata;
 use anki_io::read_file;
-use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageClozeNote;
+use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionNote;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::Value;
 use anki_proto::image_occlusion::AddImageOcclusionNoteRequest;
 use anki_proto::image_occlusion::GetImageForOcclusionResponse;
@@ -15,6 +15,7 @@ use anki_proto::image_occlusion::ImageOcclusionFieldIndexes;
 use anki_proto::notetypes::ImageOcclusionField;
 use regex::Regex;
 
+use crate::cloze::parse_image_occlusions;
 use crate::media::MediaManager;
 use crate::prelude::*;
 
@@ -81,9 +82,12 @@ impl Collection {
         Ok(GetImageOcclusionNoteResponse { value: Some(value) })
     }
 
-    pub fn get_image_occlusion_note_inner(&mut self, note_id: NoteId) -> Result<ImageClozeNote> {
+    pub fn get_image_occlusion_note_inner(
+        &mut self,
+        note_id: NoteId,
+    ) -> Result<ImageOcclusionNote> {
         let note = self.storage.get_note(note_id)?.or_not_found(note_id)?;
-        let mut cloze_note = ImageClozeNote::default();
+        let mut cloze_note = ImageOcclusionNote::default();
 
         let fields = note.fields();
 
@@ -92,7 +96,7 @@ impl Collection {
             .or_not_found(note.notetype_id)?;
         let idxs = nt.get_io_field_indexes()?;
 
-        cloze_note.occlusions = fields[idxs.occlusions as usize].clone();
+        cloze_note.occlusions = parse_image_occlusions(fields[idxs.occlusions as usize].as_str());
         cloze_note.header = fields[idxs.header as usize].clone();
         cloze_note.back_extra = fields[idxs.back_extra as usize].clone();
         cloze_note.image_data = "".into();

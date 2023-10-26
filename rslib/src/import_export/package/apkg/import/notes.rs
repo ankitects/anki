@@ -979,7 +979,7 @@ mod test {
 
         // importing again with merge disabled will fail for the exisitng note,
         // but the new one will be added with an extra notetype
-        assert_eq!(dst.storage.get_all_notetype_names().unwrap().len(), 6);
+        assert_eq!(dst.storage.get_all_notetype_names().unwrap().len(), 7);
         src.export_apkg(&path, "", false, false, false, None)?;
         assert_eq!(
             dst.import_apkg(&path, ImportAnkiPackageOptions::default())?
@@ -988,7 +988,7 @@ mod test {
                 .len(),
             1
         );
-        assert_eq!(dst.storage.get_all_notetype_names().unwrap().len(), 7);
+        assert_eq!(dst.storage.get_all_notetype_names().unwrap().len(), 8);
 
         // if enabling merge, it should succeed and remove the empty notetype, remapping
         // its note
@@ -1006,7 +1006,7 @@ mod test {
             .len(),
             0
         );
-        assert_eq!(dst.storage.get_all_notetype_names().unwrap().len(), 6);
+        assert_eq!(dst.storage.get_all_notetype_names().unwrap().len(), 7);
 
         Ok(())
     }

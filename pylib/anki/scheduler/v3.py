@@ -17,6 +17,7 @@ from __future__ import annotations
 from typing import Literal, Optional, Sequence
 
 from anki import frontend_pb2, scheduler_pb2
+from anki._legacy import deprecated
 from anki.cards import Card
 from anki.collection import OpChanges
 from anki.consts import *
@@ -103,6 +104,7 @@ class Scheduler(SchedulerBaseWithLegacy):
     # Fetching the next card (legacy API)
     ##########################################################################
 
+    @deprecated(info="no longer required")
     def reset(self) -> None:
         # backend automatically resets queues as operations are performed
         pass

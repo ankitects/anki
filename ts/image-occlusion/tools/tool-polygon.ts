@@ -4,7 +4,7 @@
 import { fabric } from "fabric";
 import type { PanZoom } from "panzoom";
 
-import { BORDER_COLOR, disableRotation, SHAPE_MASK_COLOR } from "./lib";
+import { BORDER_COLOR, SHAPE_MASK_COLOR } from "./lib";
 import { undoStack } from "./tool-undo-redo";
 
 let activeLine;
@@ -186,21 +186,17 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
         noScaleCache: false,
     });
     if (polygon.width > 5 && polygon.height > 5) {
-        disableRotation(polygon);
         canvas.add(polygon);
+        canvas.setActiveObject(polygon);
         // view undo redo tools
         undoStack.onObjectAdded(polygon.id);
     }
 
-    polygon.on("modified", () => {
-        modifiedPolygon(canvas, polygon);
-        undoStack.onObjectModified();
-    });
-
     toggleDrawPolygon(canvas);
 };
 
-const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon): void => {
+// https://github.com/fabricjs/fabric.js/issues/6522
+export const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon): void => {
     const matrix = polygon.calcTransformMatrix();
     const transformedPoints = polygon.get("points")
         .map(function(p) {
@@ -218,11 +214,6 @@ const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon): void =
         strokeWidth: 1,
         strokeUniform: true,
         noScaleCache: false,
-    });
-
-    polygon1.on("modified", () => {
-        modifiedPolygon(canvas, polygon1);
-        undoStack.onObjectModified();
     });
 
     canvas.remove(polygon);

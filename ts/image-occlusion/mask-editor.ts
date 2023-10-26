@@ -13,13 +13,20 @@ import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
 import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
 import { enableSelectable, moveShapeToCanvasBoundaries } from "./tools/lib";
+import { modifiedPolygon } from "./tools/tool-polygon";
 import { undoStack } from "./tools/tool-undo-redo";
 import type { Size } from "./types";
+
+export interface ImageLoadedEvent {
+    path?: string;
+    noteId?: bigint;
+}
 
 export const setupMaskEditor = async (
     path: string,
     instance: PanZoom,
     onChange: () => void,
+    onImageLoaded: (event: ImageLoadedEvent) => void,
 ): Promise<fabric.Canvas> => {
     const imageData = await getImageForOcclusion({ path });
     const canvas = initCanvas(onChange);
@@ -35,6 +42,7 @@ export const setupMaskEditor = async (
         image.width = size.width;
         setCanvasZoomRatio(canvas, instance);
         undoStack.reset();
+        onImageLoaded({ path });
     };
 
     return canvas;
@@ -44,6 +52,7 @@ export const setupMaskEditorForEdit = async (
     noteId: number,
     instance: PanZoom,
     onChange: () => void,
+    onImageLoaded: (event: ImageLoadedEvent) => void,
 ): Promise<fabric.Canvas> => {
     const clozeNoteResponse = await getImageOcclusionNote({ noteId: BigInt(noteId) });
     const kind = clozeNoteResponse.value?.case;
@@ -79,6 +88,7 @@ export const setupMaskEditorForEdit = async (
         undoStack.reset();
         window.requestAnimationFrame(() => {
             image.style.visibility = "visible";
+            onImageLoaded({ noteId: BigInt(noteId) });
         });
     };
 
@@ -90,11 +100,19 @@ function initCanvas(onChange: () => void): fabric.Canvas {
     tagsWritable.set([]);
     globalThis.canvas = canvas;
     undoStack.setCanvas(canvas);
-    // enables uniform scaling by default without the need for the Shift key
+    // Disable uniform scaling
     canvas.uniformScaling = false;
     canvas.uniScaleKey = "none";
+    // disable rotation globally
+    delete fabric.Object.prototype.controls.mtr;
     moveShapeToCanvasBoundaries(canvas);
-    canvas.on("object:modified", onChange);
+    canvas.on("object:modified", (evt) => {
+        if (evt.target instanceof fabric.Polygon) {
+            modifiedPolygon(canvas, evt.target);
+            undoStack.onObjectModified();
+        }
+        onChange();
+    });
     canvas.on("object:removed", onChange);
     return canvas;
 }
@@ -143,7 +161,7 @@ function containerSize(): Size {
     };
 }
 
-export async function resetIOImage(path) {
+export async function resetIOImage(path: string, onImageLoaded: (event: ImageLoadedEvent) => void) {
     const imageData = await getImageForOcclusion({ path });
     const image = document.getElementById("image") as HTMLImageElement;
     image.src = getImageData(imageData.data!);
@@ -158,6 +176,7 @@ export async function resetIOImage(path) {
         canvas.setHeight(size.height);
         image.height = size.height;
         image.width = size.width;
+        onImageLoaded({ path });
     };
 }
 globalThis.resetIOImage = resetIOImage;

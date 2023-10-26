@@ -72,7 +72,6 @@ const exampleData = {
     currentDeck: {
         name: "Default::child",
         configId: 1618570764780n,
-        parentConfigIds: [1n],
     },
     defaults: {
         config: {
@@ -218,27 +217,6 @@ test("duplicate name", () => {
     // should handle renames too
     state.setCurrentName("Default");
     expect(get(state.configList).find((e) => e.current)?.name).toMatch(/Default\d+$/);
-});
-
-test("parent counts", () => {
-    const state = startingState();
-
-    expect(get(state.parentLimits)).toStrictEqual({ newCards: 10, reviews: 200 });
-
-    // adjusting the current deck config won't alter parent
-    state.currentConfig.update((c) => {
-        c.newPerDay = 123;
-        return c;
-    });
-    expect(get(state.parentLimits)).toStrictEqual({ newCards: 10, reviews: 200 });
-
-    // but adjusting the default config will, since the parent deck uses it
-    state.setCurrentIndex(1);
-    state.currentConfig.update((c) => {
-        c.newPerDay = 123;
-        return c;
-    });
-    expect(get(state.parentLimits)).toStrictEqual({ newCards: 123, reviews: 200 });
 });
 
 test("saving", () => {

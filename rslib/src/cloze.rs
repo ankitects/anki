@@ -2,9 +2,12 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt::Write;
 
+use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusion;
+use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionShape;
 use htmlescape::encode_attribute;
 use lazy_static::lazy_static;
 use nom::branch::alt;
@@ -16,6 +19,7 @@ use regex::Captures;
 use regex::Regex;
 
 use crate::image_occlusion::imageocclusion::get_image_cloze_data;
+use crate::image_occlusion::imageocclusion::parse_image_cloze;
 use crate::latex::contains_latex;
 use crate::template::RenderContext;
 use crate::text::strip_html_preserving_entities;
@@ -229,6 +233,7 @@ fn reveal_cloze(
             image_occlusion_text,
             question,
             active,
+            cloze.ordinal,
         ));
         return;
     }
@@ -295,20 +300,40 @@ fn reveal_cloze(
     }
 }
 
-fn render_image_occlusion(text: &str, question_side: bool, active: bool) -> String {
-    if question_side && active {
+fn render_image_occlusion(text: &str, question_side: bool, active: bool, ordinal: u16) -> String {
+    if (question_side && active) || ordinal == 0 {
         format!(
-            r#"<div class="cloze" {}></div>"#,
+            r#"<div class="cloze" data-ordinal="{}" {}></div>"#,
+            ordinal,
             &get_image_cloze_data(text)
         )
     } else if !active {
         format!(
-            r#"<div class="cloze-inactive" {}></div>"#,
+            r#"<div class="cloze-inactive" data-ordinal="{}" {}></div>"#,
+            ordinal,
             &get_image_cloze_data(text)
         )
     } else {
         "".into()
     }
+}
+
+pub fn parse_image_occlusions(text: &str) -> Vec<ImageOcclusion> {
+    let mut occlusions: HashMap<u16, Vec<ImageOcclusionShape>> = HashMap::new();
+    for node in parse_text_with_clozes(text) {
+        if let TextOrCloze::Cloze(cloze) = node {
+            if cloze.image_occlusion().is_some() {
+                if let Some(shape) = parse_image_cloze(cloze.image_occlusion().unwrap()) {
+                    occlusions.entry(cloze.ordinal).or_default().push(shape);
+                }
+            }
+        }
+    }
+
+    occlusions
+        .values()
+        .map(|v| ImageOcclusion { shapes: v.to_vec() })
+        .collect()
 }
 
 pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str> {
@@ -377,7 +402,7 @@ pub fn expand_clozes_to_reveal_latex(text: &str) -> String {
 pub(crate) fn contains_cloze(text: &str) -> bool {
     parse_text_with_clozes(text)
         .iter()
-        .any(|node| matches!(node, TextOrCloze::Cloze(_)))
+        .any(|node| matches!(node, TextOrCloze::Cloze(e) if e.ordinal != 0))
 }
 
 pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
@@ -389,8 +414,10 @@ pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
 fn add_cloze_numbers_in_text_with_clozes(nodes: &[TextOrCloze], set: &mut HashSet<u16>) {
     for node in nodes {
         if let TextOrCloze::Cloze(cloze) = node {
-            set.insert(cloze.ordinal);
-            add_cloze_numbers_in_text_with_clozes(&cloze.nodes, set);
+            if !(cloze.image_occlusion().is_some() && cloze.ordinal == 0) {
+                set.insert(cloze.ordinal);
+                add_cloze_numbers_in_text_with_clozes(&cloze.nodes, set);
+            }
         }
     }
 }
@@ -576,7 +603,7 @@ mod test {
                 true
             ),
             format!(
-                r#"<div class="cloze" data-shape="rect" data-left="10.0" data-top="20" data-width="30" data-height="10" ></div>"#,
+                r#"<div class="cloze" data-ordinal="1" data-shape="rect" data-left="10.0" data-top="20" data-width="30" data-height="10" ></div>"#,
             )
         );
     }

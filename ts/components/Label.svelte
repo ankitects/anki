@@ -24,7 +24,9 @@
     bind:this={spanRef}
     for={forId}
     on:click={(e) => {
-        if (preventMouseClick) e.preventDefault();
+        if (preventMouseClick) {
+            e.preventDefault();
+        }
     }}
 >
     <slot />
