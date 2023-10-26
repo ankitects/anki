@@ -590,6 +590,7 @@ class Reviewer:
             ("5", self.on_pause_audio),
             ("6", self.on_seek_backward),
             ("7", self.on_seek_forward),
+            ("Shift+A", self.toggle_auto_advance),
             *self.korean_shortcuts(),
         ]
 
@@ -968,7 +969,7 @@ timerStopped = false;
             [tr.studying_replay_own_voice(), "V", self.onReplayRecorded],
             [
                 tr.actions_auto_advance(),
-                "",
+                "Shift+A",
                 self.toggle_auto_advance,
                 dict(checked=self.auto_advance_enabled),
             ],
