@@ -185,6 +185,7 @@ class Reviewer:
     def cleanup(self) -> None:
         gui_hooks.reviewer_will_end()
         self.card = None
+        self.auto_advance_enabled = False
 
     def refresh_if_needed(self) -> None:
         if self._refresh_needed is RefreshNeeded.QUEUES:
