@@ -109,7 +109,7 @@ class AddCards(QMainWindow):
         self.addButton = bb.addButton(tr.actions_add(), ar)
         qconnect(self.addButton.clicked, self.add_current_note)
         self.addButton.setShortcut(QKeySequence("Ctrl+Return"))
-        # qt5.14 doesn't handle numpad enter on Windows
+        # qt5.14+ doesn't handle numpad enter on Windows
         self.compat_add_shorcut = QShortcut(QKeySequence("Ctrl+Enter"), self)
         qconnect(self.compat_add_shorcut.activated, self.addButton.click)
         self.addButton.setToolTip(shortcut(tr.adding_add_shortcut_ctrlandenter()))
