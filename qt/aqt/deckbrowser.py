@@ -196,7 +196,7 @@ class DeckBrowser:
 <th class=count>{}</th>
 <th class=count>{}</th>
 <th class=optscol></th></tr>""".format(
-            tr.decks_deck(),
+            tr.decks_learn_header(),
             tr.actions_new(),
             tr.card_stats_review_log_type_learn(),
             tr.statistics_due_count(),
