@@ -486,24 +486,6 @@
     "description": "Concurrent multi-producer multi-consumer queue"
   },
   {
-    "name": "const-random",
-    "version": "0.1.16",
-    "authors": "Tom Kaitchuck <Tom.Kaitchuck@gmail.com>",
-    "repository": "https://github.com/tkaitchuck/constrandom",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Provides compile time random number generation."
-  },
-  {
-    "name": "const-random-macro",
-    "version": "0.1.16",
-    "authors": "Tom Kaitchuck <Tom.Kaitchuck@gmail.com>",
-    "repository": "https://github.com/tkaitchuck/constrandom",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Provides the procedural macro used by const-random"
-  },
-  {
     "name": "constant_time_eq",
     "version": "0.3.0",
     "authors": "Cesar Eduardo Barros <cesarb@cesarb.eti.br>",
@@ -2896,15 +2878,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Procedural macros for the time crate.     This crate is an implementation detail and should not be relied upon directly."
-  },
-  {
-    "name": "tiny-keccak",
-    "version": "2.0.2",
-    "authors": "debris <marek.kotewicz@gmail.com>",
-    "repository": null,
-    "license": "CC0-1.0",
-    "license_file": null,
-    "description": "An implementation of Keccak derived functions."
   },
   {
     "name": "tinystr",

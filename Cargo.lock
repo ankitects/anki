@@ -562,7 +562,8 @@ checksum = "7f30e7476521f6f8af1a1c4c0b8cc94f0bee37d91763d0ca2665f299b6cd8aec"
 [[package]]
 name = "burn"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=d2639682367f39d0d0ed049d0cf3a2077259e05d#d2639682367f39d0d0ed049d0cf3a2077259e05d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e06bb3dfa90408228c879224e26a8bbf072aa2a68194c9b512f715624525c7cc"
 dependencies = [
  "burn-core",
  "burn-train",
@@ -571,7 +572,8 @@ dependencies = [
 [[package]]
 name = "burn-autodiff"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=d2639682367f39d0d0ed049d0cf3a2077259e05d#d2639682367f39d0d0ed049d0cf3a2077259e05d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b20c3ba4141da32bbcc48a4ce33a0fbf09742dfb6f17d6e781f27e076bf06d82"
 dependencies = [
  "burn-common",
  "burn-tensor",
@@ -583,10 +585,10 @@ dependencies = [
 [[package]]
 name = "burn-common"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=d2639682367f39d0d0ed049d0cf3a2077259e05d#d2639682367f39d0d0ed049d0cf3a2077259e05d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2ce227728da80c4c7f932e66900d285ff6e04b815d77d769fd2ade463acb0d52"
 dependencies = [
  "async-trait",
- "const-random",
  "derive-new",
  "getrandom 0.2.10",
  "rand 0.8.5",
@@ -597,7 +599,8 @@ dependencies = [
 [[package]]
 name = "burn-core"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=d2639682367f39d0d0ed049d0cf3a2077259e05d#d2639682367f39d0d0ed049d0cf3a2077259e05d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fbbeb7c07436e89d3b7e2445198f5d4142255bf74564eb4dc6cb9898f00d2da5"
 dependencies = [
  "bincode",
  "burn-autodiff",
@@ -622,7 +625,8 @@ dependencies = [
 [[package]]
 name = "burn-dataset"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=d2639682367f39d0d0ed049d0cf3a2077259e05d#d2639682367f39d0d0ed049d0cf3a2077259e05d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1c7f12f9a55e82d327384e20c394c79e5a414b245fe59c37346e7a98234d1707"
 dependencies = [
  "csv",
  "derive-new",
@@ -641,7 +645,8 @@ dependencies = [
 [[package]]
 name = "burn-derive"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=d2639682367f39d0d0ed049d0cf3a2077259e05d#d2639682367f39d0d0ed049d0cf3a2077259e05d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0726d6006ab4f1c65b37b079a8663ad168110976fb57234764495ed8c49a94b6"
 dependencies = [
  "derive-new",
  "proc-macro2",
@@ -652,7 +657,8 @@ dependencies = [
 [[package]]
 name = "burn-ndarray"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=d2639682367f39d0d0ed049d0cf3a2077259e05d#d2639682367f39d0d0ed049d0cf3a2077259e05d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0cbba6e5180a91a48e2e5da7e74107d82dae9cc94a772a73783eb1381dd71fa2"
 dependencies = [
  "burn-autodiff",
  "burn-common",
@@ -670,7 +676,8 @@ dependencies = [
 [[package]]
 name = "burn-tensor"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=d2639682367f39d0d0ed049d0cf3a2077259e05d#d2639682367f39d0d0ed049d0cf3a2077259e05d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c4ddf687c9e2ddf235bb1528530b5e6c04601d4240aca78de6484fd01cc81e9f"
 dependencies = [
  "burn-common",
  "burn-tensor-testgen",
@@ -687,7 +694,8 @@ dependencies = [
 [[package]]
 name = "burn-tensor-testgen"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=d2639682367f39d0d0ed049d0cf3a2077259e05d#d2639682367f39d0d0ed049d0cf3a2077259e05d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f92da000e738bcf20ec873d63c3b46ed4e0afa10fb14ea3133874886c0fb591f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -697,7 +705,8 @@ dependencies = [
 [[package]]
 name = "burn-train"
 version = "0.10.0"
-source = "git+https://github.com/burn-rs/burn.git?rev=d2639682367f39d0d0ed049d0cf3a2077259e05d#d2639682367f39d0d0ed049d0cf3a2077259e05d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f7b6ae54075e0f4ea7da7d1e6b94fb84854aed912885a2a957e9ce1e18aae12a"
 dependencies = [
  "burn-core",
  "derive-new",
@@ -911,26 +920,6 @@ dependencies = [
  "anyhow",
  "itertools 0.11.0",
  "ninja_gen",
-]
-
-[[package]]
-name = "const-random"
-version = "0.1.16"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "11df32a13d7892ec42d51d3d175faba5211ffe13ed25d4fb348ac9e9ce835593"
-dependencies = [
- "const-random-macro",
-]
-
-[[package]]
-name = "const-random-macro"
-version = "0.1.16"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9d839f2a20b0aee515dc581a6172f2321f96cab76c1a38a4c584a194955390e"
-dependencies = [
- "getrandom 0.2.10",
- "once_cell",
- "tiny-keccak",
 ]
 
 [[package]]
@@ -1468,7 +1457,7 @@ dependencies = [
 [[package]]
 name = "fsrs"
 version = "0.1.0"
-source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?rev=ce6a9112a567ff60fb862d393618a3b0a1b20017#ce6a9112a567ff60fb862d393618a3b0a1b20017"
+source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?rev=725417fe310b74a719e18c2127f64223be1cb669#725417fe310b74a719e18c2127f64223be1cb669"
 dependencies = [
  "burn",
  "itertools 0.11.0",
@@ -4378,15 +4367,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ad70d68dba9e1f8aceda7aa6711965dfec1cac869f311a51bd08b3a2ccbce20"
 dependencies = [
  "time-core",
-]
-
-[[package]]
-name = "tiny-keccak"
-version = "2.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c9d3793400a45f954c52e73d068316d76b6f4e36977e3fcebb13a2721e80237"
-dependencies = [
- "crunchy",
 ]
 
 [[package]]
