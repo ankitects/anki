@@ -40,11 +40,38 @@ interface SetupImageOcclusionOptions {
     onDidDrawShapes?: DrawShapesCallback;
 }
 
-function setupImageOcclusion(setupOptions?: SetupImageOcclusionOptions): void {
+async function setupImageOcclusion(setupOptions?: SetupImageOcclusionOptions): Promise<void> {
+    await waitForImage();
     window.addEventListener("load", () => {
         window.addEventListener("resize", () => setupImageOcclusion(setupOptions));
     });
     window.requestAnimationFrame(() => setupImageOcclusionInner(setupOptions));
+}
+
+/** We must make sure the image has loaded before we can access its dimensions.
+ * This can happen if not preloading, or if preloading takes too long. */
+async function waitForImage(): Promise<void> {
+    const image = document.querySelector(
+        "#image-occlusion-container img",
+    ) as HTMLImageElement | null;
+    if (!image) {
+        // error will be handled later
+        return;
+    }
+
+    if (image.complete) {
+        return;
+    }
+
+    // Wait for the image to load
+    await new Promise<void>(resolve => {
+        image.addEventListener("load", () => {
+            resolve();
+        });
+        image.addEventListener("error", () => {
+            resolve();
+        });
+    });
 }
 
 function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOptions): void {
