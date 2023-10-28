@@ -56,9 +56,6 @@ actions-previous-card-info = Previous Card Info
 # input is required before it can be performed. E.g. "Export..." vs. "Delete".
 actions-with-ellipsis = { $action }...
 actions-fullscreen-unsupported = Full screen mode is not supported for your video driver. Try switching to a different one from the preferences screen.
-actions-answer-again = Answer Again
-actions-answer-good = Answer Good
-actions-auto-advance = Auto Advance
 
 ## Flags
 

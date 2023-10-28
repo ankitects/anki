@@ -158,11 +158,11 @@ export function answerChoices(): Choice<DeckConfig_Config_AnswerAction>[] {
             value: DeckConfig_Config_AnswerAction.BURY_CARD,
         },
         {
-            label: tr.actionsAnswerAgain(),
+            label: tr.deckConfigAnswerAgain(),
             value: DeckConfig_Config_AnswerAction.ANSWER_AGAIN,
         },
         {
-            label: tr.actionsAnswerGood(),
+            label: tr.deckConfigAnswerGood(),
             value: DeckConfig_Config_AnswerAction.ANSWER_GOOD,
         },
     ];
