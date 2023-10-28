@@ -118,7 +118,7 @@ deck-config-bury-priority-tooltip =
     When Anki gathers cards, it first gathers intraday learning cards, then
     interday learning cards, then reviews, and finally new cards. This affects
     how burying works:
-
+    
     - If you have all burying options enabled, the sibling that comes earliest in
     that list will be shown. For example, a review card will be shown in preference
     to a new card.
@@ -238,6 +238,7 @@ deck-config-stop-timer-on-answer = Stop timer on answer
 deck-config-stop-timer-on-answer-tooltip =
     Whether to stop the timer when the answer is revealed.
     This doesn't affect statistics.
+
 ## Advanced section
 
 deck-config-advanced-title = Advanced
@@ -321,7 +322,7 @@ deck-config-not-enough-history = Insufficient review history to perform this ope
 deck-config-must-have-1000-reviews =
     { $count ->
         [one] Only { $count } review was found.
-        *[other] Only { $count } reviews were found.
+       *[other] Only { $count } reviews were found.
     } You must have at least 1000 reviews to generate custom weights.
 # Numbers that control how aggressively the FSRS algorithm schedules cards
 deck-config-weights = Model weights
@@ -341,7 +342,6 @@ deck-config-fsrs-on-all-clients =
 deck-config-estimated-retention = Estimated retention: { $num }
 deck-config-complete = { $num }% complete.
 deck-config-reschedule-cards-on-change = Reschedule cards on change
-
 deck-config-fsrs-tooltip =
     The Free Spaced Repetition Scheduler (FSRS) is an alternative to Anki's legacy SuperMemo 2 (SM2) scheduler.
     By more accurately determining when you are likely to forget, it can help you remember
@@ -375,7 +375,7 @@ deck-config-compute-optimal-weights-tooltip =
     If you have decks that vary wildly in difficulty, it is recommended to assign them separate presets, as
     the weights for easy decks and hard decks will be different. There is no need to optimize your weights
     frequently - once every few months is sufficient.
-
+    
     By default, weights will be calculated from the review history of all decks using the current preset. You can
     optionally adjust the search before calculating the weights, if you'd like to alter which cards are used for
     optimizing the weights.
@@ -385,6 +385,12 @@ deck-config-compute-optimal-retention-tooltip =
     if it significantly differs from 0.9, it's a sign that the time you've allocated each day is either too low
     or too high for the amount of cards you're trying to learn. This number can be useful as a reference, but it
     is not recommended to copy it into the desired retention field.
+
+deck-config-wait-for-audio = Wait for audio
+deck-config-show-reminder = Show Reminder
+deck-config-answer-again = Answer Again
+deck-config-answer-hard = Answer Hard
+deck-config-answer-good = Answer Good
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
