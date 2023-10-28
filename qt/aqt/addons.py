@@ -49,6 +49,7 @@ from aqt.utils import (
     showInfo,
     showText,
     showWarning,
+    supportText,
     tooltip,
     tr,
 )
@@ -229,7 +230,10 @@ class AddonManager:
         return os.path.join(root, module)
 
     def loadAddons(self) -> None:
+        from aqt import mw
+
         broken: list[str] = []
+        error_text = ""
         for addon in self.all_addon_meta():
             if not addon.enabled:
                 continue
@@ -247,7 +251,9 @@ class AddonManager:
                     broken.append(f"<a href={page}>{name}</a>")
                 else:
                     broken.append(name)
-                print(traceback.format_exc())
+                tb = traceback.format_exc()
+                print(tb)
+                error_text += f"When loading {name}:\n{tb}\n"
 
         if broken:
             addons = "\n\n- " + "\n- ".join(broken)
@@ -260,28 +266,35 @@ class AddonManager:
             (diag, box) = showText(
                 html2,
                 type="html",
-                copyBtn=True,
                 run=False,
             )
-            but = box.addButton(
+
+            def on_check() -> None:
+                tooltip(tr.addons_checking())
+
+                def on_done(log: list[DownloadLogEntry]) -> None:
+                    if not log:
+                        tooltip(tr.addons_no_updates_available())
+
+                mw.check_for_addon_updates(by_user=True, on_done=on_done)
+
+            def on_copy() -> None:
+                txt = supportText() + "\n" + error_text
+                QApplication.clipboard().setText(txt)
+                tooltip(tr.about_copied_to_clipboard(), parent=diag)
+
+            check = box.addButton(
                 tr.addons_check_for_updates(), QDialogButtonBox.ButtonRole.ActionRole
             )
-            but.clicked.connect(self.check_for_updates_after_load_failure)
-            from aqt import mw
+            check.clicked.connect(on_check)
+
+            copy = box.addButton(
+                tr.about_copy_debug_info(), QDialogButtonBox.ButtonRole.ActionRole
+            )
+            copy.clicked.connect(on_copy)
 
             # calling show immediately appears to crash
             mw.progress.single_shot(1000, diag.show)
-
-    def check_for_updates_after_load_failure(self) -> None:
-        from aqt import mw
-
-        tooltip(tr.addons_checking())
-
-        def on_done(log: list[DownloadLogEntry]) -> None:
-            if not log:
-                tooltip(tr.addons_no_updates_available())
-
-        mw.check_for_addon_updates(by_user=True, on_done=on_done)
 
     def onAddonsDialog(self) -> None:
         aqt.dialogs.open("AddonsDialog", self)
