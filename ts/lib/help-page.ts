@@ -25,6 +25,7 @@ export const HelpPage = {
         newCardsday: "https://docs.ankiweb.net/deck-options.html#new-cardsday",
         dailyLimits: "https://docs.ankiweb.net/deck-options.html#daily-limits",
         audio: "https://docs.ankiweb.net/deck-options.html#audio",
+        fsrs: "http://docs.ankiweb.net/deck-options.html#fsrs",
     },
     Leeches: {
         leeches: "https://docs.ankiweb.net/leeches.html#leeches",
