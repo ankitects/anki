@@ -373,9 +373,9 @@ class AddCards(QMainWindow):
         self.ifCanClose(doClose)
 
     def add_io_note(self) -> None:
-        self.editor.web.eval("updateOcclusionsField();")
+        self.editor.update_occlusions_field()
         self.add_current_note()
-        self.editor.web.eval("resetIOImageLoaded()")
+        self.editor.reset_image_occlusion()
 
     # legacy aliases
 
