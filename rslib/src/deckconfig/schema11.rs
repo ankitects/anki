@@ -434,7 +434,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             fsrs_weights: i.fsrs_weights,
             desired_retention: i.desired_retention,
             reschedule_fsrs_cards: i.reschedule_fsrs_cards,
-            sm2_retention: 0.9,
+            sm2_retention: i.sm2_retention,
         }
     }
 }
