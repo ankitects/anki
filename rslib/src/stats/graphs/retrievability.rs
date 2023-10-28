@@ -5,7 +5,7 @@ use anki_proto::stats::graphs_response::Retrievability;
 use fsrs::FSRS;
 
 use crate::scheduler::timing::SchedTimingToday;
-use crate::stats::graphs::eases::round_to_nearest_five;
+use crate::stats::graphs::eases::percent_to_bin;
 use crate::stats::graphs::GraphsContext;
 
 impl GraphsContext {
@@ -26,7 +26,7 @@ impl GraphsContext {
                 );
                 *retrievability
                     .retrievability
-                    .entry(round_to_nearest_five(r * 100.0))
+                    .entry(percent_to_bin(r * 100.0))
                     .or_insert_with(Default::default) += 1;
             }
         }
