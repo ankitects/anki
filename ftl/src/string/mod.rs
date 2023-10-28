@@ -74,6 +74,22 @@ fn all_langs(lang_folder: &Utf8Path) -> Result<Vec<Utf8PathBuf>> {
 }
 
 fn ftl_file_from_key(old_key: &str) -> String {
+    for prefix in [
+        "card-stats",
+        "card-template-rendering",
+        "card-templates",
+        "change-notetype",
+        "custom-study",
+        "database-check",
+        "deck-config",
+        "empty-cards",
+        "media-check",
+    ] {
+        if old_key.starts_with(&format!("{prefix}-")) {
+            return format!("{prefix}.ftl");
+        }
+    }
+
     format!("{}.ftl", old_key.split('-').next().unwrap())
 }
 
