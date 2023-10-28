@@ -233,6 +233,7 @@ class AnkiWebViewKind(Enum):
     When introducing a new web view, please add it to the registry below.
     """
 
+    DEFAULT = "default"
     MAIN = "main webview"
     TOP_TOOLBAR = "top toolbar"
     BOTTOM_TOOLBAR = "bottom toolbar"
@@ -254,18 +255,17 @@ class AnkiWebViewKind(Enum):
 
 class AnkiWebView(QWebEngineView):
     allow_drops = False
-    _kind: AnkiWebViewKind | None
+    _kind: AnkiWebViewKind
 
     def __init__(
         self,
         parent: QWidget | None = None,
-        title: str = "default",
-        kind: AnkiWebViewKind | None = None,
+        title: str = "",  # used by add-ons; in Anki code use kind instead to set title
+        kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT,
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
-        if kind:
-            self.set_kind(kind)
-        else:
+        self.set_kind(kind)
+        if title:
             self.set_title(title)
         self._page = AnkiWebPage(self._onBridgeCmd)
         # reduce flicker
@@ -303,7 +303,7 @@ class AnkiWebView(QWebEngineView):
         self.set_title(kind.value)
 
     @property
-    def kind(self) -> AnkiWebViewKind | None:
+    def kind(self) -> AnkiWebViewKind:
         """Used by add-ons to identify the webview kind"""
         return self._kind
 
