@@ -11,6 +11,9 @@ addons-failed-to-load2 =
     They may need to be updated to support this version of Anki. Click the { addons-check-for-updates } button
     to see if any updates are available.
 
+    You can use the { about-copy-debug-info } button to get information that you can paste in a report to
+    the add-on author.
+
     For add-ons that don't have an update available, you can disable or delete the add-on to prevent this
     message from appearing.
 addons-startup-failed = Add-on Startup Failed
