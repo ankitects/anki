@@ -51,7 +51,7 @@ importing-notes-skipped-update-due-to-notetype = Notes not updated, as notetype 
 importing-notes-updated-as-file-had-newer = Notes updated, as file had newer version: { $val }
 importing-include-reviews = Include reviews
 importing-also-import-progress = Also import any learning progress
-importing-conflict-handling = Conflict handling
+importing-updates = Updates
 importing-include-reviews-help =
     If enabled, any previous reviews that the deck sharer included will also be imported.
     Otherwise, all cards will be imported as new cards.
