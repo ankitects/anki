@@ -34,6 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fsrs: {
             title: "FSRS",
             help: tr.deckConfigFsrsTooltip(),
+            url: HelpPage.DeckOptions.fsrs,
         },
         maximumInterval: {
             title: tr.schedulingMaximumInterval(),
