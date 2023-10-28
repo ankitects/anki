@@ -85,7 +85,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </SwitchRow>
 
             <details>
-                <summary>{tr.importingConflictHandling()}</summary>
+                <summary>{tr.importingUpdates()}</summary>
                 <SwitchRow bind:value={options.mergeNotetypes} defaultValue={false}>
                     <SettingTitle
                         on:click={() =>
