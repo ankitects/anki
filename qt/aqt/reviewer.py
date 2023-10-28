@@ -133,6 +133,8 @@ class AnswerAction(Enum):
     BURY_CARD = 0
     ANSWER_AGAIN = 1
     ANSWER_GOOD = 2
+    ANSWER_HARD = 3
+    SHOW_REMINDER = 4
 
 
 class Reviewer:
@@ -495,6 +497,10 @@ class Reviewer:
             self.bury_current_card()
         elif answer_action == AnswerAction.ANSWER_AGAIN:
             self._answerCard(1)
+        elif answer_action == AnswerAction.ANSWER_HARD:
+            self._answerCard(2)
+        elif answer_action == AnswerAction.SHOW_REMINDER:
+            tooltip(tr.studying_answer_time_elapsed())
         else:
             self._answerCard(3)
 

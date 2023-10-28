@@ -95,6 +95,8 @@ message DeckConfig {
       ANSWER_ACTION_BURY_CARD = 0;
       ANSWER_ACTION_ANSWER_AGAIN = 1;
       ANSWER_ACTION_ANSWER_GOOD = 2;
+      ANSWER_ACTION_ANSWER_HARD = 3;
+      ANSWER_ACTION_SHOW_REMINDER = 4;
     }
 
     repeated float learn_steps = 1;

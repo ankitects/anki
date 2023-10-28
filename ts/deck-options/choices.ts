@@ -165,5 +165,13 @@ export function answerChoices(): Choice<DeckConfig_Config_AnswerAction>[] {
             label: tr.deckConfigAnswerGood(),
             value: DeckConfig_Config_AnswerAction.ANSWER_GOOD,
         },
+        {
+            label: tr.deckConfigAnswerHard(),
+            value: DeckConfig_Config_AnswerAction.ANSWER_HARD,
+        },
+        {
+            label: tr.deckConfigShowReminder(),
+            value: DeckConfig_Config_AnswerAction.SHOW_REMINDER,
+        },
     ];
 }

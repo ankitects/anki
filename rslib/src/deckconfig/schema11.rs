@@ -100,6 +100,8 @@ pub enum AnswerAction {
     BuryCard = 0,
     AnswerAgain = 1,
     AnswerGood = 2,
+    AnswerHard = 3,
+    ShowReminder = 4,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -420,6 +422,8 @@ impl From<DeckConfig> for DeckConfSchema11 {
             answer_action: match i.answer_action {
                 0 => AnswerAction::BuryCard,
                 1 => AnswerAction::AnswerAgain,
+                3 => AnswerAction::AnswerHard,
+                4 => AnswerAction::ShowReminder,
                 _ => AnswerAction::AnswerGood,
             },
             wait_for_audio: i.wait_for_audio,
