@@ -32,5 +32,7 @@ export const drawText = (canvas: fabric.Canvas): void => {
         canvas.add(text);
         canvas.setActiveObject(text);
         undoStack.onObjectAdded(text.id);
+        text.enterEditing();
+        text.selectAll();
     });
 };
