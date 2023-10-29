@@ -21,6 +21,7 @@ pub struct FilteredDeckForUpdate {
     pub id: DeckId,
     pub human_name: String,
     pub config: FilteredDeck,
+    pub allow_empty: bool,
 }
 
 pub(crate) struct DeckFilterContext<'a> {
@@ -144,6 +145,7 @@ impl Collection {
         mut update: FilteredDeckForUpdate,
     ) -> Result<DeckId> {
         let usn = self.usn()?;
+        let allow_empty = update.allow_empty;
 
         // check the searches are valid, and normalize them
         for term in &mut update.config.search_terms {
@@ -167,7 +169,7 @@ impl Collection {
         let count = self.rebuild_filtered_deck_inner(&deck, usn)?;
 
         // if it failed to match any cards, we revert the changes
-        if count == 0 {
+        if count == 0 && !allow_empty {
             Err(FilteredDeckError::SearchReturnedNoCards.into())
         } else {
             // update current deck and return id
@@ -233,6 +235,7 @@ impl TryFrom<Deck> for FilteredDeckForUpdate {
                 id: value.id,
                 human_name,
                 config: filtered,
+                allow_empty: false,
             }),
             _ => invalid_input!("not filtered"),
         }
