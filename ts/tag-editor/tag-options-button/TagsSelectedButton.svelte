@@ -38,8 +38,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     shift={0}
     let:asReference
 >
-    <div 
-        class="tags-selected-button" 
+    <div
+        class="tags-selected-button"
         use:asReference
         role="button"
         tabindex="0"
