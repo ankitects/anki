@@ -42,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class="tags-selected-button" 
         use:asReference
         role="button"
-        tabindex=0
+        tabindex="0"
         on:click={() => (show = !show)}
         on:keydown={onKeyDown}
     >
