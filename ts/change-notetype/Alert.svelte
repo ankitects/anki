@@ -25,11 +25,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ? tr.changeNotetypeExpand()
         : tr.changeNotetypeCollapse();
     $: icon = collapsed ? plusIcon : minusIcon;
+
+    function onKeyDown(event: KeyboardEvent) {
+        switch (event.code) {
+            case "Enter":
+            case "Space":
+                collapsed = !collapsed;
+                break;
+        }
+    }
 </script>
 
 <div class="alert alert-warning" in:slide out:slide>
     {#if unused.length > maxItems}
-        <div class="clickable" on:click={() => (collapsed = !collapsed)}>
+        <div
+            class="clickable"
+            on:click={() => {collapsed = !collapsed; console.log(collapsed);}}
+            on:keydown={onKeyDown}
+            role="button"
+            tabindex="0"
+            aria-expanded={!collapsed}
+        >
             <Badge iconSize={80}>
                 {@html icon}
             </Badge>
@@ -38,14 +54,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/if}
     {unusedMsg}
     {#if collapsed}
-        <div>
+        <div id="unused-list-collapsed">
             {unused.slice(0, maxItems).join(", ")}
             {#if unused.length > maxItems}
                 ... (+{unused.length - maxItems})
             {/if}
         </div>
     {:else}
-        <ul>
+        <ul id="unused-list-uncollapsed">
             {#each unused as entry}
                 <li>{entry}</li>
             {/each}
