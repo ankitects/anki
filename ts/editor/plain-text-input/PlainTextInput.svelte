@@ -43,6 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { storedToUndecorated, undecoratedToStored } from "./transform";
 
     export let hidden = false;
+    export let fieldCollapsed = false;
     export const focusFlag = new Flag();
 
     $: configuration = {
@@ -116,7 +117,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: {
-        pushUpdate(!hidden);
+        pushUpdate(!(hidden || fieldCollapsed));
         tick().then(() => {
             refresh();
             if (focusFlag.checkAndReset()) {
