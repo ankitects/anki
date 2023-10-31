@@ -8,6 +8,7 @@ from typing import Callable
 
 import aqt
 from anki.cards import Card, CardId
+from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
 from aqt.qt import *
 from aqt.utils import (
@@ -67,6 +68,10 @@ class CardInfoDialog(QDialog):
         self.update_card(card_id)
 
     def update_card(self, card_id: CardId | None) -> None:
+        try:
+            self.mw.col.get_card(card_id)
+        except NotFoundError:
+            card_id = None
         self.web.eval(
             f"anki.cardInfoPromise.then((c) => c.updateStats({json.dumps(card_id)}));"
         )
