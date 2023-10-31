@@ -736,6 +736,7 @@ the AddCards dialog) should be implemented in the user of this component.
                         >
                             <PlainTextInput
                                 {hidden}
+                                fieldCollapsed={fieldsCollapsed[index]}
                                 on:focusout={() => {
                                     saveFieldNow();
                                     $focusedInput = null;
