@@ -1,0 +1,10 @@
+version: '3.3'
+services:
+    crab-hole:
+        build: . 
+        environment:
+            - SYNC_USER1=user:pass
+        volumes:
+            - './data:/data'
+        ports:
+            - "8080:8080/tcp"
