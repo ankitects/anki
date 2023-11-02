@@ -130,9 +130,6 @@ def make_exe():
     # detected libs do not need this, but we add extra afterwards
     python_config.module_search_paths = ["$ORIGIN/lib"]
     python_config.optimization_level = 2
-    if BUILD_TARGET_TRIPLE == "x86_64-apple-darwin":
-        # jemalloc currently fails to build when run under Rosetta
-        python_config.allocator_backend = "default"
 
     python_config.run_command = "import aqt; aqt.run()"
 
