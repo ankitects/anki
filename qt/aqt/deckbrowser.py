@@ -199,7 +199,7 @@ class DeckBrowser:
             tr.decks_deck(),
             tr.actions_new(),
             tr.decks_learn_header(),
-            tr.statistics_due_count(),
+            tr.decks_review_header(),
         )
         buf += self._topLevelDragRow()
 

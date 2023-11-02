@@ -31,3 +31,5 @@ decks-study-deck = Study Deck
 decks-filtered-deck-search-empty = No cards matched the provided search. Some cards may have been excluded because they are in a different filtered deck, or suspended.
 decks-unmovable-cards = Show any excluded cards
 decks-learn-header = Learn
+# The count of cards waiting to be reviewed
+decks-review-header = Due
