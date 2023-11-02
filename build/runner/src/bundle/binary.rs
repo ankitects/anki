@@ -12,7 +12,7 @@ use crate::run::run_command;
 
 pub fn build_bundle_binary() {
     let mut features = String::from("build-mode-prebuilt-artifacts");
-    if cfg!(target_os = "linux") || (cfg!(target_os = "macos") && cfg!(target_arch = "aarch64")) {
+    if cfg!(target_os = "linux") || cfg!(target_os = "macos") {
         features.push_str(",global-allocator-jemalloc,allocator-jemalloc");
     }
 
