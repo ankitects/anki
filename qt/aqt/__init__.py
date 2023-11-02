@@ -19,6 +19,12 @@ except UnicodeEncodeError as exc:
 # if sync server enabled, bypass the rest of the startup
 if "--syncserver" in sys.argv:
     from anki.syncserver import run_sync_server
+    from anki.utils import is_mac
+
+    from .package import _fix_protobuf_path
+
+    if is_mac and getattr(sys, "frozen", False):
+        _fix_protobuf_path()
 
     # does not return
     run_sync_server()
