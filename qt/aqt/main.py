@@ -1514,7 +1514,7 @@ title="{}" {}>{}</button>""".format(
                 parent=self,
                 op=lambda col: col.await_backup_completion(),
                 success=on_success,
-            ).failure(on_failure).run_in_background()
+            ).failure(on_failure).without_collection().run_in_background()
 
         QueryOp(parent=self, op=backup, success=after_backup_started).failure(
             on_failure
