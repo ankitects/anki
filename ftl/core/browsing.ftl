@@ -164,10 +164,10 @@ browsing-reparented-decks =
        *[other] Renamed { $count } decks.
     }
 
-
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
 # Exactly one character representing 'Cards'; should differ from browsing-note-initial.
 browsing-card-initial = C
 # Exactly one character representing 'Notes'; should differ from browsing-card-initial.
 browsing-note-initial = N
+browsing-sidebar-card-state-review = Review

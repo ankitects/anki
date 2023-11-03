@@ -670,7 +670,7 @@ class SidebarTreeView(QTreeView):
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_LEARN),
         )
         root.add_simple(
-            name=tr.scheduling_review(),
+            name=tr.browsing_sidebar_card_state_review(),
             icon=colored_icon.with_color(colors.STATE_REVIEW),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_REVIEW),
