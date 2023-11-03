@@ -12,7 +12,6 @@ use itertools::Itertools;
 use crate::card::CardType;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
-use crate::revlog::RevlogReviewKind;
 use crate::scheduler::fsrs::weights::single_card_revlog_to_items;
 use crate::scheduler::fsrs::weights::Weights;
 use crate::scheduler::states::fuzz::with_review_fuzz;
@@ -235,27 +234,39 @@ pub(crate) fn single_card_revlog_to_item(
     next_day_at: TimestampSecs,
     sm2_retention: f32,
 ) -> Option<FsrsItemWithStartingState> {
-    let have_learning = entries
+    struct FirstReview {
+        interval: f32,
+        ease_factor: f32,
+    }
+    let first_review = entries
         .iter()
-        .any(|e| e.review_kind == RevlogReviewKind::Learning);
-    if have_learning {
-        let items = single_card_revlog_to_items(entries, next_day_at, false);
-        Some(FsrsItemWithStartingState {
-            item: items.unwrap().pop().unwrap(),
-            starting_state: None,
-        })
-    } else if let Some(first_review) = entries.iter().find(|e| e.button_chosen > 0) {
-        let ease_factor = if first_review.ease_factor == 0 {
-            2500
-        } else {
-            first_review.ease_factor
-        };
-        let interval = first_review.interval.max(1);
-        let starting_state =
-            fsrs.memory_state_from_sm2(ease_factor as f32 / 1000.0, interval as f32, sm2_retention);
-        let items = single_card_revlog_to_items(entries, next_day_at, false);
-        items.and_then(|mut items| {
-            let mut item = items.pop().unwrap();
+        .find(|e| e.button_chosen > 0)
+        .map(|e| FirstReview {
+            interval: e.interval.max(1) as f32,
+            ease_factor: if e.ease_factor == 0 {
+                2500
+            } else {
+                e.ease_factor
+            } as f32
+                / 1000.0,
+        });
+    if let Some((mut items, found_learning)) =
+        single_card_revlog_to_items(entries, next_day_at, false)
+    {
+        let mut item = items.pop().unwrap();
+        if found_learning {
+            // we assume the revlog is complete
+            Some(FsrsItemWithStartingState {
+                item,
+                starting_state: None,
+            })
+        } else if let Some(first_review) = first_review {
+            // the revlog has been truncated, but not fully
+            let starting_state = fsrs.memory_state_from_sm2(
+                first_review.ease_factor,
+                first_review.interval,
+                sm2_retention,
+            );
             item.reviews.remove(0);
             if item.reviews.is_empty() {
                 None
@@ -265,7 +276,10 @@ pub(crate) fn single_card_revlog_to_item(
                     starting_state: Some(starting_state),
                 })
             }
-        })
+        } else {
+            // only manual rescheduling; treat like empty
+            None
+        }
     } else {
         None
     }

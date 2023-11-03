@@ -101,7 +101,7 @@ fn fsrs_items_for_training(revlogs: Vec<RevlogEntry>, next_day_at: TimestampSecs
         .filter_map(|(_cid, entries)| {
             single_card_revlog_to_items(entries.collect(), next_day_at, true)
         })
-        .flatten()
+        .flat_map(|i| i.0)
         .collect_vec();
     revlogs.sort_by_cached_key(|r| r.reviews.len());
     revlogs
@@ -111,16 +111,22 @@ fn fsrs_items_for_training(revlogs: Vec<RevlogEntry>, next_day_at: TimestampSecs
 /// expects multiple items for a given card when training - for revlog
 /// `[1,2,3]`, we create FSRSItems corresponding to `[1,2]` and `[1,2,3]`
 /// in training, and `[1]`, [1,2]` and `[1,2,3]` when calculating memory
-/// state.
+/// state. Returns (items, found_learn_entry), the latter of which is used
+/// to determine whether the revlogs have been truncated when not training.
 pub(crate) fn single_card_revlog_to_items(
     mut entries: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
     training: bool,
-) -> Option<Vec<FSRSItem>> {
+) -> Option<(Vec<FSRSItem>, bool)> {
     let mut last_learn_entry = None;
+    let mut found_learn_entry = false;
     for (index, entry) in entries.iter().enumerate().rev() {
-        if entry.review_kind == RevlogReviewKind::Learning {
+        if matches!(
+            (entry.review_kind, entry.button_chosen),
+            (RevlogReviewKind::Learning, 1..=4)
+        ) {
             last_learn_entry = Some(index);
+            found_learn_entry = true;
         } else if last_learn_entry.is_some() {
             break;
         }
@@ -199,7 +205,7 @@ pub(crate) fn single_card_revlog_to_items(
     if items.is_empty() {
         None
     } else {
-        Some(items)
+        Some((items, found_learn_entry))
     }
 }
 
@@ -229,7 +235,7 @@ pub(crate) mod tests {
     }
 
     pub(crate) fn convert(revlog: &[RevlogEntry], training: bool) -> Option<Vec<FSRSItem>> {
-        single_card_revlog_to_items(revlog.to_vec(), NEXT_DAY_AT, training)
+        single_card_revlog_to_items(revlog.to_vec(), NEXT_DAY_AT, training).map(|i| i.0)
     }
 
     #[macro_export]
