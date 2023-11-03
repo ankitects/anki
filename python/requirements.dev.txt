@@ -432,12 +432,10 @@ pathspec==0.11.1 \
     --hash=sha256:2798de800fa92780e33acca925945e9a19a133b715067cf165b8866c15a31687 \
     --hash=sha256:d8af70af76652554bd134c22b3e8a1cc46ed7d91edcdd721ef1a0c51a84a5293
     # via black
-pip-tools==6.13.0 \
-    --hash=sha256:50943f151d87e752abddec8158622c34ad7f292e193836e90e30d87da60b19d9 \
-    --hash=sha256:61d46bd2eb8016ed4a924e196e6e5b0a268cd3babd79e593048720db23522bb1
-    # via
-    #   -r requirements.bundle.txt
-    #   -r requirements.dev.in
+pip-tools==7.3.0 \
+    --hash=sha256:8717693288720a8c6ebd07149c93ab0be1fced0b5191df9e9decd3263e20d85e \
+    --hash=sha256:8e9c99127fe024c025b46a0b2d15c7bd47f18f33226cf7330d35493663fc1d1d
+    # via -r requirements.bundle.txt
 platformdirs==3.8.0 \
     --hash=sha256:b0cabcb11063d21a0b261d557acb0a9d2126350e63b70cdf7db6347baea456dc \
     --hash=sha256:ca9ed98ce73076ba72e092b23d3c93ea6c4e186b3f1c3dad6edd98ff6ffcca2e
@@ -550,6 +548,7 @@ tomli==2.0.1 \
     #   black
     #   build
     #   mypy
+    #   pip-tools
     #   pylint
     #   pyproject-hooks
     #   pytest
