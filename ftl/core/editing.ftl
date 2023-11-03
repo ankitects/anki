@@ -92,8 +92,8 @@ editing-image-occlusion-rectangle-tool = Rectangle
 editing-image-occlusion-ellipse-tool = Ellipse
 editing-image-occlusion-polygon-tool = Polygon
 editing-image-occlusion-text-tool = Text
+editing-image-occlusion-toggle-mask-editor = Toggle Mask Editor
  
-
 ## You don't need to translate these strings, as they will be replaced with different ones soon.
 
 editing-html-editor = HTML Editor
