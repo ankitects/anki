@@ -41,6 +41,7 @@ struct Context<'a> {
     merge_notetypes: bool,
     update_notes: UpdateCondition,
     update_notetypes: UpdateCondition,
+    with_deck_configs: bool,
     media_manager: MediaManager,
     archive: ZipArchive<File>,
     meta: Meta,
@@ -62,6 +63,7 @@ impl Collection {
         self.transact(Op::Import, |col| {
             col.set_config(BoolKey::MergeNotetypes, &options.merge_notetypes)?;
             col.set_config(BoolKey::WithScheduling, &options.with_scheduling)?;
+            col.set_config(BoolKey::WithDeckConfigs, &options.with_deck_configs)?;
             col.set_config(ConfigKey::UpdateNotes, &options.update_notes())?;
             col.set_config(ConfigKey::UpdateNotetypes, &options.update_notetypes())?;
             let mut ctx = Context::new(archive, col, options, progress)?;
@@ -85,6 +87,7 @@ impl<'a> Context<'a> {
             SearchNode::WholeCollection,
             &mut progress,
             options.with_scheduling,
+            options.with_deck_configs,
         )?;
         let usn = target_col.usn()?;
         Ok(Self {
@@ -92,6 +95,7 @@ impl<'a> Context<'a> {
             merge_notetypes: options.merge_notetypes,
             update_notes: options.update_notes(),
             update_notetypes: options.update_notetypes(),
+            with_deck_configs: options.with_deck_configs,
             media_manager,
             archive,
             meta,
@@ -111,8 +115,7 @@ impl<'a> Context<'a> {
         let mut media_map = self.prepare_media()?;
         let note_imports = self.import_notes_and_notetypes(&mut media_map)?;
         let keep_filtered = self.data.enables_filtered_decks();
-        let contains_scheduling = self.data.contains_scheduling();
-        let imported_decks = self.import_decks_and_configs(keep_filtered, contains_scheduling)?;
+        let imported_decks = self.import_decks_and_configs(keep_filtered)?;
         self.import_cards_and_revlog(
             &note_imports.id_map,
             &notetypes,
@@ -132,6 +135,7 @@ impl ExchangeData {
         search: impl TryIntoSearch,
         progress: &mut ThrottlingProgressHandler<ImportProgress>,
         with_scheduling: bool,
+        with_deck_configs: bool,
     ) -> Result<Self> {
         let tempfile = collection_to_tempfile(meta, archive)?;
         let mut col = CollectionBuilder::new(tempfile.path()).build()?;
@@ -140,7 +144,7 @@ impl ExchangeData {
 
         progress.set(ImportProgress::Gathering)?;
         let mut data = ExchangeData::default();
-        data.gather_data(&mut col, search, with_scheduling)?;
+        data.gather_data(&mut col, search, with_scheduling, with_deck_configs)?;
 
         Ok(data)
     }

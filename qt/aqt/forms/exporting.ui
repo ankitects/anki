@@ -68,6 +68,16 @@
       </widget>
      </item>
      <item alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="include_deck_configs">
+       <property name="text">
+        <string>exporting_include_deck_configs</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignLeft">
       <widget class="QCheckBox" name="includeMedia">
        <property name="text">
         <string>exporting_include_media</string>

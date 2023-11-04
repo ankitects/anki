@@ -36,6 +36,7 @@ impl ExchangeData {
         col: &mut Collection,
         search: impl TryIntoSearch,
         with_scheduling: bool,
+        with_deck_configs: bool,
     ) -> Result<()> {
         self.days_elapsed = col.timing_today()?.days_elapsed;
         self.creation_utc_offset = col.get_creation_utc_offset();
@@ -43,16 +44,22 @@ impl ExchangeData {
         self.notes = notes;
         let (cards, guard) = guard.col.gather_cards()?;
         self.cards = cards;
-        self.decks = guard.col.gather_decks(with_scheduling)?;
+        self.decks = guard
+            .col
+            .gather_decks(with_deck_configs, !with_deck_configs)?;
         self.notetypes = guard.col.gather_notetypes()?;
         self.check_ids()?;
 
         if with_scheduling {
             self.revlog = guard.col.gather_revlog()?;
-            self.deck_configs = guard.col.gather_deck_configs(&self.decks)?;
         } else {
             self.remove_scheduling_information(guard.col);
         };
+        if with_deck_configs {
+            self.deck_configs = guard.col.gather_deck_configs(&self.decks)?;
+        } else {
+            self.reset_deck_config_ids_and_limits();
+        }
 
         Ok(())
     }
@@ -80,7 +87,6 @@ impl ExchangeData {
 
     fn remove_scheduling_information(&mut self, col: &Collection) {
         self.remove_system_tags();
-        self.reset_deck_config_ids_and_limits();
         self.reset_cards(col);
     }
 
@@ -183,12 +189,12 @@ impl Collection {
             .map(|cards| (cards, guard))
     }
 
-    /// If with_scheduling, also gather all original decks of cards in filtered
+    /// If with_original, also gather all original decks of cards in filtered
     /// decks, so they don't have to be converted to regular decks on import.
-    /// If not with_scheduling, skip exporting the default deck to avoid
+    /// If skip_default, skip exporting the default deck to avoid
     /// changing the importing client's defaults.
-    fn gather_decks(&mut self, with_scheduling: bool) -> Result<Vec<Deck>> {
-        let decks = if with_scheduling {
+    fn gather_decks(&mut self, with_original: bool, skip_default: bool) -> Result<Vec<Deck>> {
+        let decks = if with_original {
             self.storage.get_decks_and_original_for_search_cards()
         } else {
             self.storage.get_decks_for_search_cards()
@@ -197,7 +203,7 @@ impl Collection {
         Ok(decks
             .into_iter()
             .chain(parents)
-            .filter(|deck| with_scheduling || deck.id != DeckId(1))
+            .filter(|deck| !(skip_default && deck.id.0 == 1))
             .collect())
     }
 
@@ -263,7 +269,7 @@ mod test {
         let mut col = Collection::new();
 
         let note = NoteAdder::basic(&mut col).add(&mut col);
-        data.gather_data(&mut col, SearchNode::WholeCollection, true)
+        data.gather_data(&mut col, SearchNode::WholeCollection, true, true)
             .unwrap();
 
         assert_eq!(data.notes, [note]);
@@ -280,7 +286,7 @@ mod test {
         col.add_note_only_with_id_undoable(&mut note).unwrap();
 
         assert!(data
-            .gather_data(&mut col, SearchNode::WholeCollection, true)
+            .gather_data(&mut col, SearchNode::WholeCollection, true, true)
             .is_err());
     }
 }

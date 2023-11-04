@@ -42,6 +42,7 @@ BrowserColumns = search_pb2.BrowserColumns
 StripHtmlMode = card_rendering_pb2.StripHtmlRequest
 ImportLogWithChanges = import_export_pb2.ImportResponse
 ImportAnkiPackageRequest = import_export_pb2.ImportAnkiPackageRequest
+ExportAnkiPackageOptions = import_export_pb2.ExportAnkiPackageOptions
 ImportCsvRequest = import_export_pb2.ImportCsvRequest
 CsvMetadata = import_export_pb2.CsvMetadata
 DupeResolution = CsvMetadata.DupeResolution
@@ -361,19 +362,11 @@ class Collection(DeprecatedNamesMixin):
         return ImportLogWithChanges.FromString(log)
 
     def export_anki_package(
-        self,
-        *,
-        out_path: str,
-        limit: ExportLimit,
-        with_scheduling: bool,
-        with_media: bool,
-        legacy_support: bool,
+        self, *, out_path: str, options: ExportAnkiPackageOptions, limit: ExportLimit
     ) -> int:
         return self._backend.export_anki_package(
             out_path=out_path,
-            with_scheduling=with_scheduling,
-            with_media=with_media,
-            legacy=legacy_support,
+            options=options,
             limit=pb_export_limit(limit),
         )
 

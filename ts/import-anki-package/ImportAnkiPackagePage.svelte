@@ -29,6 +29,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             help: tr.importingIncludeReviewsHelp(),
             url: HelpPage.PackageImporting.scheduling,
         },
+        withDeckConfigs: {
+            title: tr.importingWithDeckConfigs(),
+            help: tr.importingWithDeckConfigsHelp(),
+            url: HelpPage.PackageImporting.scheduling,
+        },
         mergeNotetypes: {
             title: tr.importingMergeNotetypes(),
             help: tr.importingMergeNotetypesHelp(),
@@ -81,6 +86,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         openHelpModal(Object.keys(settings).indexOf("withScheduling"))}
                 >
                     {settings.withScheduling.title}
+                </SettingTitle>
+            </SwitchRow>
+
+            <SwitchRow bind:value={options.withDeckConfigs} defaultValue={false}>
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(Object.keys(settings).indexOf("withDeckConfigs"))}
+                >
+                    {settings.withDeckConfigs.title}
                 </SettingTitle>
             </SwitchRow>
 
