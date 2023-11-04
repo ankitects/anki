@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { floatingKey } from "./context-keys";
 
     export let scrollable = false;
-    let element: HTMLDivElement;
+    export let element: HTMLDivElement;
     let wrapper: HTMLDivElement;
     let hidden = true;
     let minHeight = 0;
