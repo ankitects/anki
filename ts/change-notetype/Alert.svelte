@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {#if unused.length > maxItems}
         <div
             class="clickable"
-            on:click={() => {collapsed = !collapsed; console.log(collapsed);}}
+            on:click={() => (collapsed = !collapsed)}
             on:keydown={onKeyDown}
             role="button"
             tabindex="0"
@@ -54,14 +54,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/if}
     {unusedMsg}
     {#if collapsed}
-        <div id="unused-list-collapsed">
+        <div>
             {unused.slice(0, maxItems).join(", ")}
             {#if unused.length > maxItems}
                 ... (+{unused.length - maxItems})
             {/if}
         </div>
     {:else}
-        <ul id="unused-list-uncollapsed">
+        <ul>
             {#each unused as entry}
                 <li>{entry}</li>
             {/each}
