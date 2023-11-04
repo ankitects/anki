@@ -388,7 +388,7 @@ deck-config-compute-optimal-retention-tooltip =
     if it significantly differs from 0.9, it's a sign that the time you've allocated each day is either too low
     or too high for the amount of cards you're trying to learn. This number can be useful as a reference, but it
     is not recommended to copy it into the desired retention field.
-
+deck-config-please-save-your-changes-first = Please save your changes first.
 deck-config-wait-for-audio = Wait for audio
 deck-config-show-reminder = Show Reminder
 deck-config-answer-again = Answer Again
