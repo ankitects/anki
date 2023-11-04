@@ -63,10 +63,7 @@ class FilteredDeckConfigDialog(QDialog):
         QueryOp(
             parent=self.mw,
             op=lambda col: col.sched.get_or_create_filtered_deck(deck_id=deck_id),
-            success=lambda deck: (
-                self.load_deck_and_show(deck),  # type: ignore
-                self._after_load_deck_setup(deck_id),  # type: ignore
-            ),
+            success=self.load_deck_and_show,
         ).failure(self.on_fetch_error).run_in_background()
 
     def on_fetch_error(self, exc: Exception) -> None:
@@ -107,17 +104,6 @@ class FilteredDeckConfigDialog(QDialog):
         )
 
         restoreGeom(self, self.GEOMETRY_KEY)
-
-    def _after_load_deck_setup(self, deck_id) -> None:
-        form = self.form
-        re_enable = self._re_enable_allow_empty_toggle
-        if deck_id != 0:
-            qconnect(form.search.textChanged, re_enable)
-            qconnect(form.order.currentTextChanged, re_enable)
-            qconnect(form.limit.valueChanged, re_enable)
-            qconnect(form.search_2.textChanged, re_enable)
-            qconnect(form.order_2.currentTextChanged, re_enable)
-            qconnect(form.limit_2.valueChanged, re_enable)
 
     def load_deck_and_show(self, deck: FilteredDeckForUpdate) -> None:
         self.deck = deck
@@ -251,9 +237,6 @@ class FilteredDeckConfigDialog(QDialog):
 
     def _onReschedToggled(self, _state: int) -> None:
         self.form.previewDelayWidget.setVisible(not self.form.resched.isChecked())
-
-    def _re_enable_allow_empty_toggle(self) -> None:
-        self.form.allow_empty.setVisible(True)
 
     def _on_allow_empty_toggled(self) -> None:
         self.deck.allow_empty = self.form.allow_empty.isChecked()
