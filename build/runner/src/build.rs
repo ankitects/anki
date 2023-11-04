@@ -165,7 +165,8 @@ fn get_buildhash() -> String {
         .args(["rev-parse", "--short=8", "HEAD"])
         .output()
         .expect("git");
-    assert!(output.status.success(), "git failed");
+    assert!(output.status.success(),
+            "Invoking 'git' failed. Make sure you're building from a clone of the git repo, and that 'git' is installed.");
     String::from_utf8(output.stdout).unwrap().trim().into()
 }
 
