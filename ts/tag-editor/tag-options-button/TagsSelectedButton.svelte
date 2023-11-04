@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
     import { getPlatformString } from "@tslib/shortcuts";
     import { dotsIcon } from "./icons";
+    import { onEnterOrSpace } from "@tslib/keys";
 
     const dispatch = createEventDispatcher();
 
@@ -20,15 +21,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { selectAllShortcut, copyShortcut, removeShortcut } =
         getContext<Record<string, string>>(tagActionsShortcutsKey);
-
-    function onKeyDown(event: KeyboardEvent) {
-        switch (event.code) {
-            case "Enter":
-            case "Space":
-                show = !show;
-                break;
-        }
-    }
 </script>
 
 <WithFloating
@@ -44,7 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         role="button"
         tabindex="0"
         on:click={() => (show = !show)}
-        on:keydown={onKeyDown}
+        on:keydown={onEnterOrSpace(() => (show = !show))}
     >
         <IconConstrain>{@html dotsIcon}</IconConstrain>
     </div>
