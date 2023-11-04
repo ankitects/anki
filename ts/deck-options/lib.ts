@@ -51,6 +51,7 @@ export class DeckOptionsState {
     private modifiedConfigs: Set<DeckOptionsId> = new Set();
     private removedConfigs: DeckOptionsId[] = [];
     private schemaModified: boolean;
+    private _presetAssignmentsChanged = false;
 
     constructor(targetDeckId: DeckOptionsId, data: DeckConfigsForUpdate) {
         this.targetDeckId = targetDeckId;
@@ -98,6 +99,7 @@ export class DeckOptionsState {
 
     setCurrentIndex(index: number): void {
         this.selectedIdx = index;
+        this._presetAssignmentsChanged = true;
         this.updateCurrentConfig();
         // use counts have changed
         this.updateConfigList();
@@ -142,6 +144,7 @@ export class DeckOptionsState {
         const configWithCount = { config, useCount: 0 };
         this.configs.push(configWithCount);
         this.selectedIdx = this.configs.length - 1;
+        this._presetAssignmentsChanged = true;
         this.sortConfigs();
         this.updateCurrentConfig();
         this.updateConfigList();
@@ -167,6 +170,7 @@ export class DeckOptionsState {
         }
         this.configs.splice(this.selectedIdx, 1);
         this.selectedIdx = Math.max(0, this.selectedIdx - 1);
+        this._presetAssignmentsChanged = true;
         this.updateCurrentConfig();
         this.updateConfigList();
     }
@@ -197,6 +201,10 @@ export class DeckOptionsState {
             newCardsIgnoreReviewLimit: get(this.newCardsIgnoreReviewLimit),
             fsrs: get(this.fsrs),
         };
+    }
+
+    presetAssignmentsChanged(): boolean {
+        return this._presetAssignmentsChanged;
     }
 
     async save(applyToChildren: boolean): Promise<void> {

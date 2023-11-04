@@ -63,6 +63,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             await setWantsAbort({});
             return;
         }
+        if (state.presetAssignmentsChanged()) {
+            alert(tr.deckConfigPleaseSaveYourChangesFirst());
+            return;
+        }
         computingWeights = true;
         try {
             await runWithBackendProgress(
@@ -95,6 +99,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function checkWeights(): Promise<void> {
         if (checkingWeights) {
             await setWantsAbort({});
+            return;
+        }
+        if (state.presetAssignmentsChanged()) {
+            alert(tr.deckConfigPleaseSaveYourChangesFirst());
             return;
         }
         checkingWeights = true;
@@ -135,6 +143,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function computeRetention(): Promise<void> {
         if (computingRetention) {
             await setWantsAbort({});
+            return;
+        }
+        if (state.presetAssignmentsChanged()) {
+            alert(tr.deckConfigPleaseSaveYourChangesFirst());
             return;
         }
         computingRetention = true;
