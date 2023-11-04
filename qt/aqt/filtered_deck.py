@@ -55,7 +55,7 @@ class FilteredDeckConfigDialog(QDialog):
         self._desired_search_1 = search
         self._desired_search_2 = search_2
 
-        self._initial_dialog_setup(deck_id)
+        self._initial_dialog_setup()
 
         # set on successful query
         self.deck: FilteredDeckForUpdate
@@ -70,7 +70,7 @@ class FilteredDeckConfigDialog(QDialog):
         showWarning(str(exc))
         self.close()
 
-    def _initial_dialog_setup(self, deck_id: int) -> None:
+    def _initial_dialog_setup(self) -> None:
         self.form = aqt.forms.filtered_deck.Ui_Dialog()
         self.form.setupUi(self)
 
@@ -78,9 +78,6 @@ class FilteredDeckConfigDialog(QDialog):
 
         self.form.order.addItems(order_labels)
         self.form.order_2.addItems(order_labels)
-
-        if deck_id != 0:
-            self.form.allow_empty.setVisible(False)
 
         qconnect(self.form.allow_empty.stateChanged, self._on_allow_empty_toggled)
 
