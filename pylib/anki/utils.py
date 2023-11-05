@@ -323,6 +323,19 @@ def int_version() -> int:
     return year_num * 10_000 + month_num * 100 + patch_num
 
 
+def int_version_to_str(ver: int) -> str:
+    if ver <= 99:
+        return f"2.1.{ver}"
+    else:
+        year = ver // 10_000
+        month = (ver // 100) % 100
+        patch = ver % 100
+        out = f"{year:02}.{month:02}"
+        if patch:
+            out += f".{patch}"
+        return out
+
+
 # these two legacy aliases are provided without deprecation warnings, as add-ons that want to support
 # old versions could not use the new name without catching cases where it doesn't exist
 point_version = int_version
