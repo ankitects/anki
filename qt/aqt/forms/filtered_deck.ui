@@ -255,6 +255,13 @@
         </property>
        </widget>
       </item>
+      <item row="5" column="0" alignment="Qt::AlignLeft">
+       <widget class="QCheckBox" name="allow_empty">
+        <property name="text">
+         <string>decks_create_even_if_empty</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
