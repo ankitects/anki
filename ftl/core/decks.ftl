@@ -2,6 +2,7 @@ decks-add-new-deck-ctrlandn = Add New Deck (Ctrl+N)
 decks-build = Build
 decks-cards-selected-by = cards selected by
 decks-create-deck = Create Deck
+decks_create_even_if_empty = Create/update this deck even if empty
 decks-custom-steps-in-minutes = Custom steps (in minutes)
 decks-deck = Deck
 decks-decreasing-intervals = Decreasing intervals

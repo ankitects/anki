@@ -79,6 +79,8 @@ class FilteredDeckConfigDialog(QDialog):
         self.form.order.addItems(order_labels)
         self.form.order_2.addItems(order_labels)
 
+        qconnect(self.form.allow_empty.stateChanged, self._on_allow_empty_toggled)
+
         qconnect(self.form.resched.stateChanged, self._onReschedToggled)
 
         qconnect(self.form.search_button.clicked, self.on_search_button)
@@ -232,6 +234,9 @@ class FilteredDeckConfigDialog(QDialog):
 
     def _onReschedToggled(self, _state: int) -> None:
         self.form.previewDelayWidget.setVisible(not self.form.resched.isChecked())
+
+    def _on_allow_empty_toggled(self) -> None:
+        self.deck.allow_empty = self.form.allow_empty.isChecked()
 
     def _update_deck(self) -> bool:
         """Update our stored deck with the details from the GUI.

@@ -184,6 +184,7 @@ impl Collection {
             id,
             human_name,
             config,
+            allow_empty: false,
         };
 
         self.add_or_update_filtered_deck_inner(deck)
