@@ -317,16 +317,16 @@ deck-config-which-deck = Which deck would you like to display options for?
 ## Messages related to the FSRS scheduler
 
 deck-config-updating-cards = Updating cards: { $current_cards_count }/{ $total_cards_count }...
-deck-config-invalid-weights = Weights must be either left blank to use the defaults, or must be 17 comma-separated numbers.
+deck-config-invalid-weights = Parameters must be either left blank to use the defaults, or must be 17 comma-separated numbers.
 deck-config-not-enough-history = Insufficient review history to perform this operation.
 deck-config-must-have-1000-reviews =
     { $count ->
         [one] Only { $count } review was found.
        *[other] Only { $count } reviews were found.
-    } You must have at least 1000 reviews to generate custom weights.
+    } You must have at least 1000 reviews to generate custom parameters.
 # Numbers that control how aggressively the FSRS algorithm schedules cards
-deck-config-weights = Model weights
-deck-config-compute-optimal-weights = Optimize FSRS weights
+deck-config-weights = FSRS parameters
+deck-config-compute-optimal-weights = Optimize FSRS parameters
 deck-config-compute-optimal-retention = Compute optimal retention
 deck-config-optimize-button = Optimize
 deck-config-compute-button = Compute
@@ -362,11 +362,12 @@ deck-config-sm2-retention-tooltip =
     missing review logs. Since review logs typically won't be missing unless you explicitly deleted them
     to free up space, most users will not need to adjust this.
 deck-config-weights-tooltip =
-    Model weights affect how cards are scheduled. Once you've accumulated 1000+ reviews, you can optimize
-    the weights below.
+    FSRS parameters affect how cards are scheduled. Anki will start with default parameters. Once
+    you've accumulated 1000+ reviews, you can use the option below to optimize the parameters to best
+    match your performance in decks using this preset.
 deck-config-reschedule-cards-on-change-tooltip =
-    This option controls whether the due dates of cards will be changed when you enable FSRS, or change
-    the weights. The default is not to reschedule cards: future reviews will use the new scheduling, but
+    This option controls whether the due dates of cards will be changed when you enable FSRS, or optimize
+    the parameters. The default is not to reschedule cards: future reviews will use the new scheduling, but
     there will be no immediate change to your workload. If rescheduling is enabled, the due dates of cards
     will be changed.
 deck-config-reschedule-cards-warning =
@@ -374,14 +375,14 @@ deck-config-reschedule-cards-warning =
     due, so is not recommended when first switching from SM2.
 deck-config-compute-optimal-weights-tooltip =
     Once you've done 1000+ reviews in Anki, you can use the Optimize button to analyze your review history,
-    and automatically generate weights that are optimal for your memory and the content you're studying.
+    and automatically generate parameters that are optimal for your memory and the content you're studying.
     If you have decks that vary wildly in difficulty, it is recommended to assign them separate presets, as
-    the weights for easy decks and hard decks will be different. There is no need to optimize your weights
+    the parameters for easy decks and hard decks will be different. There is no need to optimize your parameters
     frequently - once every few months is sufficient.
     
-    By default, weights will be calculated from the review history of all decks using the current preset. You can
-    optionally adjust the search before calculating the weights, if you'd like to alter which cards are used for
-    optimizing the weights.
+    By default, parameters will be calculated from the review history of all decks using the current preset. You can
+    optionally adjust the search before calculating the parameters, if you'd like to alter which cards are used for
+    optimizing the parameters.
 deck-config-compute-optimal-retention-tooltip =
     This tool assumes you're starting with 0 cards, and will attempt to calculate the amount of material you'll
     be able to retain in the given time frame. The estimated retention will greatly depend on your inputs, and
