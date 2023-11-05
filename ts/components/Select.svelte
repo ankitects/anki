@@ -3,6 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { selectFocus } from "./helpers";
+
     import { altPressed, isArrowDown, isArrowUp } from "@tslib/keys";
     import { createEventDispatcher, setContext } from "svelte";
     import { writable } from "svelte/store";
@@ -92,10 +94,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const el = event.detail as HTMLElement;
         switch (toFocus) {
             case FocusChoice.First:
-                focus(el.firstElementChild);
+                focusWrapper(el.firstElementChild);
                 break;
             case FocusChoice.Last:
-                focus(el.lastElementChild);
+                focusWrapper(el.lastElementChild);
                 break;
             case FocusChoice.None:
                 break;
@@ -103,9 +105,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         toFocus = FocusChoice.None;
     }
 
-    async function focus(e: Element | null) {
-        // Should match SelectOption focus(Element)
-        await setTimeout(() => (e as HTMLElement).focus(), 0);
+    function focusWrapper(e: Element | null) {
+        setTimeout(selectFocus, 0, e);
     }
 </script>
 
