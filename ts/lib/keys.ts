@@ -152,5 +152,5 @@ export function onSomeKey(callback: () => void, ...keys: string[]): (event: Keyb
 }
 
 export function onEnterOrSpace(callback: () => void): (event: KeyboardEvent) => void {
-    return onSomeKey(callback, "Enter", "Space")
+    return onSomeKey(callback, "Enter", "Space");
 }

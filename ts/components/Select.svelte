@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { altPressed, isArrowDown, isArrowUp } from "@tslib/keys";
     import { createEventDispatcher, setContext } from "svelte";
     import { writable } from "svelte/store";
 
@@ -11,7 +12,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { chevronDown } from "./icons";
     import Popover from "./Popover.svelte";
     import WithFloating from "./WithFloating.svelte";
-    import { altPressed, isArrowDown, isArrowUp, onSomeKey } from "@tslib/keys";
 
     // eslint-disable
     type T = $$Generic;
@@ -34,13 +34,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function setShow(b: boolean) {
         showFloating = b;
+        if (!showFloating) {
+            element?.focus();
+        }
     }
 
     export let element: HTMLElement | undefined = undefined;
 
     export let tooltip: string | undefined = undefined;
-
-    let children: HTMLDivElement;
 
     const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
     let hover = false;
@@ -56,26 +57,55 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: $selectShowStore.showFloating = showFloating;
     setContext(selectShowKey, selectShowStore);
 
+    enum FocusChoice {
+        First,
+        Last,
+        None,
+    }
+    let toFocus: FocusChoice = FocusChoice.None;
+
     function onKeyDown(event: KeyboardEvent) {
         // In accordance with ARIA APG combobox (https://www.w3.org/WAI/ARIA/apg/patterns/combobox/)
-        let arrowDown = isArrowDown(event);
-        let arrowUp = isArrowDown(event);
-        let alt = altPressed(event);
-        if (arrowDown && alt
-            || event.code === "Enter"
-            || event.code === "Space") {
+        const arrowDown = isArrowDown(event);
+        const arrowUp = isArrowUp(event);
+        const alt = altPressed(event);
+        if ((arrowDown && alt) || event.code === "Enter" || event.code === "Space") {
             showFloating = true;
         } else if (arrowUp && alt) {
             showFloating = false;
         } else if (arrowDown || event.code === "Home") {
             showFloating = true;
-            (children?.firstElementChild as HTMLElement).focus();
+            toFocus = FocusChoice.First;
         } else if (arrowUp || event.code === "End") {
             showFloating = true;
-            (children?.lastElementChild as HTMLElement).focus();
+            toFocus = FocusChoice.Last;
         } else if (event.code === "Escape") {
+            // TODO This doesn't work as the window typically catches the Escape as well
+            // and closes the window; related to the problem in SelectOption.svelte
+            // - qt/aqt/browser/browser.py:377
             showFloating = false;
         }
+    }
+
+    function revealed(event: CustomEvent<HTMLElement>) {
+        console.log("Revealed");
+        const el = event.detail as HTMLElement;
+        switch (toFocus) {
+            case FocusChoice.First:
+                focus(el.firstElementChild);
+                break;
+            case FocusChoice.Last:
+                focus(el.lastElementChild);
+                break;
+            case FocusChoice.None:
+                break;
+        }
+        toFocus = FocusChoice.None;
+    }
+
+    async function focus(e: Element | null) {
+        // Should match SelectOption focus(Element)
+        await setTimeout(() => (e as HTMLElement).focus(), 0);
     }
 </script>
 
@@ -116,7 +146,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </IconConstrain>
         </div>
     </div>
-    <Popover bind:element={children} slot="floating" scrollable --popover-width="{clientWidth}px">
+    <Popover
+        slot="floating"
+        on:revealed={revealed}
+        scrollable
+        --popover-width="{clientWidth}px"
+    >
         <slot />
     </Popover>
 </WithFloating>

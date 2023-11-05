@@ -3,8 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-  import { isArrowUp, isArrowDown, altPressed } from "@tslib/keys";
-
+    import { altPressed, isArrowDown, isArrowUp } from "@tslib/keys";
     import { getContext } from "svelte";
     import type { Writable } from "svelte/store";
 
@@ -25,14 +24,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onKeyDown(event: KeyboardEvent) {
-        let arrowUp = isArrowUp(event);
-        let arrowDown = isArrowDown(event);
+        const arrowUp = isArrowUp(event);
+        const arrowDown = isArrowDown(event);
 
-        if (event.code === "Enter" 
-            || event.code === "Space" 
-            || event.code === "Tab" 
-            || arrowUp && altPressed(event))
-        {
+        if (
+            event.code === "Enter" ||
+            event.code === "Space" ||
+            event.code === "Tab" ||
+            (arrowUp && altPressed(event))
+        ) {
             setShow(false);
             setValue(value);
         } else if (arrowUp) {
@@ -42,6 +42,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             const nextSibling = element?.nextElementSibling as HTMLElement;
             focus(nextSibling);
         } else if (event.code === "Escape") {
+            // TODO This doesn't work as the window typically catches the Escape as well
+            // and closes the window; related to the problem in Select.svelte
+            // - qt/aqt/browser/browser.py:377
             setShow(false);
         } else if (event.code === "Home") {
             focus(element.parentElement?.firstElementChild as HTMLElement);
