@@ -122,7 +122,7 @@ export function isArrowDown(event: KeyboardEvent): boolean {
 }
 
 export function onEnterOrSpace(callback: () => void): (event: KeyboardEvent) => void {
-    return function _onEnterOrSpace(event: KeyboardEvent): void {
+    return (event: KeyboardEvent) => {
         switch (event.code) {
             case "Enter":
             case "Space":

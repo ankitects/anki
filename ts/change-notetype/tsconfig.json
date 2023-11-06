@@ -3,7 +3,6 @@
     "include": ["*"],
     "references": [
         { "path": "../lib" },
-        { "path": "../lib/keys" },
         { "path": "../sveltelib" },
         { "path": "../components" }
     ],
