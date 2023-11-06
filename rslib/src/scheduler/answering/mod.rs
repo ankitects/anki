@@ -395,7 +395,7 @@ impl Collection {
         })
     }
 
-    fn home_deck_config(
+    pub(crate) fn home_deck_config(
         &self,
         config_id: Option<DeckConfigId>,
         home_deck_id: DeckId,
