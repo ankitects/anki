@@ -100,6 +100,9 @@ function initCanvas(onChange: () => void): fabric.Canvas {
     tagsWritable.set([]);
     globalThis.canvas = canvas;
     undoStack.setCanvas(canvas);
+    // find object per-pixel basis rather than according to bounding box,
+    // allow click through transparent area
+    canvas.perPixelTargetFind = true;
     // Disable uniform scaling
     canvas.uniformScaling = false;
     canvas.uniScaleKey = "none";
