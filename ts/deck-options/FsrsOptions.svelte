@@ -43,6 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     $: computing = computingWeights || checkingWeights || computingRetention;
     $: customSearch = `preset:"${$presetName}"`;
+    $: desiredRetentionWarning = getRetentionWarning($config.desiredRetention);
 
     let computeRetentionProgress:
         | ComputeWeightsProgress
@@ -57,6 +58,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
     $: if (optimalRetentionRequest.daysToSimulate > 3650) {
         optimalRetentionRequest.daysToSimulate = 3650;
+    }
+
+    function getRetentionWarning(retention: number): string {
+        const days = Math.round(9 * 100 * (1.0 / retention - 1.0));
+        if (days === 100) {
+            return "";
+        }
+        return tr.deckConfigA100DayInterval({ days });
     }
     async function computeWeights(): Promise<void> {
         if (computingWeights) {
@@ -218,6 +227,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {tr.deckConfigDesiredRetention()}
     </SettingTitle>
 </SpinBoxFloatRow>
+
+<Warning warning={desiredRetentionWarning} className="alert-info" />
 
 <SpinBoxFloatRow
     bind:value={$config.sm2Retention}
