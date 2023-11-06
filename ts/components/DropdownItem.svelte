@@ -69,9 +69,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         &.focus {
-            // TODO should extend :hover (or :hover extends .focus)
-            background: var(--highlight-bg);
-            color: var(--highlight-fg);
+            // TODO this is subtly different from hovering with the mouse for some reason
+            @extend :hover
         }
 
         &[disabled] {

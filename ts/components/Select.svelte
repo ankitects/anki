@@ -17,7 +17,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     // eslint-disable
     type T = $$Generic;
     
-    // * Moving in SelectOption
     // E may need to derive content, but we default to them being the same for convenience of usage
     type E = $$Generic;
     type C = $$Generic;
@@ -27,9 +26,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             content: item as unknown as C,
         };
     };
-    const parsed = list.map(parser);
+    const parsed = list.map(parser).map(({content, value, disabled=false}, i) => ({
+        content,
+        value: value === undefined ? i as T : value,
+        disabled,
+    }));
     let options: HTMLButtonElement[] = Array(list.length);
-    const values = Array.from({ length: list.length }, (_, i) => parsed[i].value === undefined ? i : parsed[i].value);
     let selected: number;
     const last = list.length - 1;
     const ids = {
@@ -86,7 +88,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 selected = last;
             } else if (event.code === "Escape") {
                 // TODO This doesn't work as the window typically catches the Escape as well
-                // and closes the window; related to the problem in SelectOption.svelte
+                // and closes the window
                 // - qt/aqt/browser/browser.py:377
                 showFloating = false;
             }
@@ -97,7 +99,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 event.code === "Tab" ||
                 (arrowUp && altPressed(event))
             ) {
-                setValue(values[selected] as T);
+                setValue(parsed[selected].value);
                 showFloating = false;
             } else if (arrowUp) {
                 selectFocus(selected - 1);
@@ -105,7 +107,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 selectFocus(selected + 1);
             } else if (event.code === "Escape") {
                 // TODO This doesn't work as the window typically catches the Escape as well
-                // and closes the window; related to the problem in Select.svelte
+                // and closes the window
                 // - qt/aqt/browser/browser.py:377
                 showFloating = false
             } else if (event.code === "Home") {
@@ -132,27 +134,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     /**
      * Focus on an option.
-     * Negative values will clip to 0 and Infinity selects the last option
+     * Values outside the range clip to either end
      * @param num index number to focus on
-     * 
-     * TODO Should only be changing visual focus, not DOM focus
-     * https://www.w3.org/WAI/ARIA/apg/patterns/combobox/#keyboardinteraction
      */
     function selectFocus(num: number) {
         if (num < 0) {
             num = 0;
-        } else if (num === Infinity) {
+        } else if (num > last) {
             num = last;
         }
 
-        console.log("Selecting ", num, " of ", last);
-        console.log("Old focus classes: ", options[selected].classList);
         options[selected].classList.remove("focus");
-        console.log("Old focus classes adjusted: ", options[selected].classList);
-
-        console.log("New focus classes: ", options[num].classList);
         options[num].classList.add("focus");
-        console.log("New focus classes adjusted: ", options[num].classList);
         selected = num;
     }
 </script>
@@ -205,9 +198,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         id={ids.popover}
         on:revealed={revealed}
     >
-        {#each parsed as {content, value, disabled=false}, idx (idx)}
+        {#each parsed as {content, value, disabled}, idx (idx)}
             <SelectOption
-                value={values[idx]}
+                value={value}
                 bind:element={options[idx]}
                 {disabled}
                 selected={idx === selected}
