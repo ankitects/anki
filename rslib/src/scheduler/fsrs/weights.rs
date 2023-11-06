@@ -159,22 +159,6 @@ pub(crate) fn single_card_revlog_to_items(
         unique_dates.insert(entry.days_elapsed(next_day_at))
     });
 
-    // Old versions of Anki did not record Manual entries in the review log when
-    // cards were manually rescheduled. So we look for times when the card has
-    // gone from Review to Learning, indicating it has been reset, and remove
-    // entries after.
-    for (i, (a, b)) in entries.iter().tuple_windows().enumerate() {
-        if let (
-            RevlogReviewKind::Review | RevlogReviewKind::Relearning,
-            RevlogReviewKind::Learning,
-        ) = (a.review_kind, b.review_kind)
-        {
-            // Remove entry and all following
-            entries.truncate(i + 1);
-            break;
-        }
-    }
-
     // Compute delta_t for each entry
     let delta_ts = iter::once(0)
         .chain(entries.iter().tuple_windows().map(|(previous, current)| {

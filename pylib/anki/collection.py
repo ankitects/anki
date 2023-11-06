@@ -1153,6 +1153,10 @@ class Collection(DeprecatedNamesMixin):
         else:
             return ComputedMemoryState(desired_retention=resp.desired_retention)
 
+    def fuzz_delta(self, card_id: CardId, interval: int) -> int:
+        "The delta days of fuzz applied if reviewing the card in v3."
+        return self._backend.fuzz_delta(card_id=card_id, interval=interval)
+
     # Timeboxing
     ##########################################################################
     # fixme: there doesn't seem to be a good reason why this code is in main.py

@@ -212,4 +212,5 @@ message FilteredDeckForUpdate {
   int64 id = 1;
   string name = 2;
   Deck.Filtered config = 3;
+  bool allow_empty = 4;
 }

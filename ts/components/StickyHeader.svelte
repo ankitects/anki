@@ -53,4 +53,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             margin-inline: 0.75rem;
         }
     }
+
+    .filename {
+        word-break: break-word;
+    }
 </style>
