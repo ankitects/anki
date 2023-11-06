@@ -68,6 +68,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             color: var(--highlight-fg);
         }
 
+        &.focus {
+            // TODO should extend :hover (or :hover extends .focus)
+            background: var(--highlight-bg);
+            color: var(--highlight-fg);
+        }
+
         &[disabled] {
             cursor: default;
             color: var(--fg-disabled);

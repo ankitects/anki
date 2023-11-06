@@ -27,8 +27,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             content: item as unknown as C,
         };
     };
+    const parsed = list.map(parser);
     let options: HTMLButtonElement[] = Array(list.length);
-    let selected: number = -1;
+    const values = Array.from({ length: list.length }, (_, i) => parsed[i].value === undefined ? i : parsed[i].value);
+    let selected: number;
     const last = list.length - 1;
     const ids = {
         popover: "popover",
@@ -51,13 +53,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         dispatch("change", { value });
     }
 
-    function setShow(b: boolean) {
-        showFloating = b;
-        if (!showFloating) {
-            element?.focus();
-        }
-    }
-
     export let element: HTMLElement | undefined = undefined;
 
     export let tooltip: string | undefined = undefined;
@@ -77,22 +72,58 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const arrowDown = isArrowDown(event);
         const arrowUp = isArrowUp(event);
         const alt = altPressed(event);
-        if ((arrowDown && alt) || event.code === "Enter" || event.code === "Space") {
-            showFloating = true;
-        } else if (arrowUp && alt) {
-            showFloating = false;
-        } else if (arrowDown || event.code === "Home") {
-            showFloating = true;
-            selected = 0;
-        } else if (arrowUp || event.code === "End") {
-            showFloating = true;
-            selected = last;
-        } else if (event.code === "Escape") {
-            // TODO This doesn't work as the window typically catches the Escape as well
-            // and closes the window; related to the problem in SelectOption.svelte
-            // - qt/aqt/browser/browser.py:377
-            showFloating = false;
+
+        if (selected === undefined || selected < 0) {
+            if ((arrowDown && alt) || event.code === "Enter" || event.code === "Space") {
+                showFloating = true;
+            } else if (arrowUp && alt) {
+                showFloating = false;
+            } else if (arrowDown || event.code === "Home") {
+                showFloating = true;
+                selected = 0;
+            } else if (arrowUp || event.code === "End") {
+                showFloating = true;
+                selected = last;
+            } else if (event.code === "Escape") {
+                // TODO This doesn't work as the window typically catches the Escape as well
+                // and closes the window; related to the problem in SelectOption.svelte
+                // - qt/aqt/browser/browser.py:377
+                showFloating = false;
+            }
+        } else {
+            if (
+                event.code === "Enter" ||
+                event.code === "Space" ||
+                event.code === "Tab" ||
+                (arrowUp && altPressed(event))
+            ) {
+                setValue(values[selected] as T);
+                showFloating = false;
+            } else if (arrowUp) {
+                selectFocus(selected - 1);
+            } else if (arrowDown) {
+                selectFocus(selected + 1);
+            } else if (event.code === "Escape") {
+                // TODO This doesn't work as the window typically catches the Escape as well
+                // and closes the window; related to the problem in Select.svelte
+                // - qt/aqt/browser/browser.py:377
+                showFloating = false
+            } else if (event.code === "Home") {
+                selectFocus(0);
+            } else if (event.code === "End") {
+                selectFocus(Infinity);
+            }
+            if (event.code === "Tab") {
+                // Tab actually should move DOM focus
+                const nextFocus = options[selected].parentElement?.nextElementSibling;
+                // selected = -1;
+                (nextFocus as HTMLElement).focus();
+            }
         }
+    }
+
+    $: if (showFloating === false) {
+        selected = -1;
     }
 
     function revealed() {
@@ -113,8 +144,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } else if (num === Infinity) {
             num = last;
         }
-        
-        options[num].focus();
+
+        console.log("Selecting ", num, " of ", last);
+        console.log("Old focus classes: ", options[selected].classList);
+        options[selected].classList.remove("focus");
+        console.log("Old focus classes adjusted: ", options[selected].classList);
+
+        console.log("New focus classes: ", options[num].classList);
+        options[num].classList.add("focus");
+        console.log("New focus classes adjusted: ", options[num].classList);
         selected = num;
     }
 </script>
@@ -167,16 +205,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         id={ids.popover}
         on:revealed={revealed}
     >
-        {#each list.map(parser) as {content, value: optionValue, disabled}, idx (idx)}
+        {#each parsed as {content, value, disabled=false}, idx (idx)}
             <SelectOption
-                value={optionValue === undefined ? idx : optionValue}
-                {idx}
+                value={values[idx]}
+                bind:element={options[idx]}
                 {disabled}
-                {selectFocus}
-                {setShow}
                 selected={idx === selected}
                 id={ids.focused}
-                bind:element={options[idx]}
             >
                 {content}
             </SelectOption>
