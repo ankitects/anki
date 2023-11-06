@@ -28,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         };
     };
     let options: HTMLButtonElement[] = Array(list.length);
-    let selected: number | undefined = undefined;
+    let selected: number = -1;
     const last = list.length - 1;
     const ids = {
         popover: "popover",
@@ -113,9 +113,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } else if (num === Infinity) {
             num = last;
         }
-
-        console.log("Selecting ", num, " from ", options.length);
+        
         options[num].focus();
+        selected = num;
     }
 </script>
 
@@ -130,6 +130,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:close={() => (showFloating = false)}
     let:asReference
 >
+    <!-- TODO implement aria-label with semantic label -->
     <div
         {id}
         class="{className} select-container"
@@ -166,13 +167,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         id={ids.popover}
         on:revealed={revealed}
     >
-        {#each list.map(parser) as {content, value: optionValue, disabled}, idx}
+        {#each list.map(parser) as {content, value: optionValue, disabled}, idx (idx)}
             <SelectOption
                 value={optionValue === undefined ? idx : optionValue}
                 {idx}
                 {disabled}
                 {selectFocus}
                 {setShow}
+                selected={idx === selected}
+                id={ids.focused}
                 bind:element={options[idx]}
             >
                 {content}

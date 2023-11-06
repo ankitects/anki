@@ -36,7 +36,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Select
         class="flex-grow-1"
         list={options}
-        bind:value {label}
+        bind:value
+        {label}
     />
 
     <SaveButton {state} />

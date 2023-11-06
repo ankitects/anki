@@ -15,6 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let selected = false;
     export let disabled = false;
     export let idx: number;
+    export let id: string;
     export let value: T;
     export let selectFocus: (f: number) => void;
     export let setShow: (b: boolean) => void;
@@ -64,13 +65,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <DropdownItem
     {disabled}
-    role="option"
     {selected}
+    id={selected ? id : undefined}
     active={value == $selectContext.value}
+    role="option"
     on:click={() => setValue(value)}
     on:keydown={onKeyDown}
     bind:buttonRef={element}
-    tabbable
 >
     <slot />
 </DropdownItem>
