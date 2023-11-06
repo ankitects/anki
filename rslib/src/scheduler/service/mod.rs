@@ -11,6 +11,8 @@ use anki_proto::scheduler::ComputeFsrsWeightsResponse;
 use anki_proto::scheduler::ComputeMemoryStateResponse;
 use anki_proto::scheduler::ComputeOptimalRetentionRequest;
 use anki_proto::scheduler::ComputeOptimalRetentionResponse;
+use anki_proto::scheduler::FuzzDeltaRequest;
+use anki_proto::scheduler::FuzzDeltaResponse;
 use anki_proto::scheduler::GetOptimalRetentionParametersResponse;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
@@ -287,6 +289,12 @@ impl crate::services::SchedulerService for Collection {
 
     fn compute_memory_state(&mut self, input: cards::CardId) -> Result<ComputeMemoryStateResponse> {
         self.compute_memory_state(input.into())
+    }
+
+    fn fuzz_delta(&mut self, input: FuzzDeltaRequest) -> Result<FuzzDeltaResponse> {
+        Ok(FuzzDeltaResponse {
+            delta_days: self.get_fuzz_delta(input.card_id.into(), input.interval)?,
+        })
     }
 }
 

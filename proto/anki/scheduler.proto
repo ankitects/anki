@@ -53,6 +53,9 @@ service SchedulerService {
       returns (ComputeOptimalRetentionResponse);
   rpc EvaluateWeights(EvaluateWeightsRequest) returns (EvaluateWeightsResponse);
   rpc ComputeMemoryState(cards.CardId) returns (ComputeMemoryStateResponse);
+  // The number of days the calculated interval will be fuzzed by. Utilized by
+  // the FSRS add-on.
+  rpc FuzzDelta(FuzzDeltaRequest) returns (FuzzDeltaResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -405,4 +408,13 @@ message EvaluateWeightsResponse {
 message ComputeMemoryStateResponse {
   optional cards.FsrsMemoryState state = 1;
   float desired_retention = 2;
+}
+
+message FuzzDeltaRequest {
+  int64 card_id = 1;
+  uint32 interval = 2;
+}
+
+message FuzzDeltaResponse {
+  sint32 delta_days = 1;
 }
