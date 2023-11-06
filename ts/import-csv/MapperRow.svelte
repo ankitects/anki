@@ -6,7 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
     import Select from "../components/Select.svelte";
-    import SelectOption from "../components/SelectOption.svelte";
     import type { ColumnOption } from "./lib";
 
     let rowLabel: string;
@@ -23,10 +22,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {rowLabel}
     </Col>
     <Col --col-size={1}>
-        <Select bind:value {label}>
-            {#each columnOptions as { label, value, disabled }}
-                <SelectOption {value} {disabled}>{label}</SelectOption>
-            {/each}
-        </Select>
+        <Select
+            bind:value
+            {label}
+            list={columnOptions}
+            parser={(item) => {
+                return {
+                    content: item.label,
+                    value: item.value,
+                    disabled: item.disabled,
+                }
+            }}
+        />
     </Col>
 </Row>

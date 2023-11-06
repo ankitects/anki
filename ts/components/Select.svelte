@@ -3,20 +3,37 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { selectFocus } from "./helpers";
-
     import { altPressed, isArrowDown, isArrowUp } from "@tslib/keys";
     import { createEventDispatcher, setContext } from "svelte";
     import { writable } from "svelte/store";
 
-    import { selectKey, selectShowKey } from "./context-keys";
+    import { selectKey } from "./context-keys";
     import IconConstrain from "./IconConstrain.svelte";
     import { chevronDown } from "./icons";
     import Popover from "./Popover.svelte";
     import WithFloating from "./WithFloating.svelte";
+    import SelectOption from "./SelectOption.svelte";
 
     // eslint-disable
     type T = $$Generic;
+    
+    // * Moving in SelectOption
+    // E may need to derive content, but we default to them being the same for convenience of usage
+    type E = $$Generic;
+    type C = $$Generic;
+    export let list: E[];
+    export let parser: (item: E) => {content: C, value?: T, disabled?: boolean} = (item) => {
+        return {
+            content: item as unknown as C,
+        };
+    };
+    let options: HTMLButtonElement[] = Array(list.length);
+    let selected: number | undefined = undefined;
+    const last = list.length - 1;
+    const ids = {
+        popover: "popover",
+        focused: "focused",
+    }
 
     export let id: string | undefined = undefined;
 
@@ -55,17 +72,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: $selectStore.value = value;
     setContext(selectKey, selectStore);
 
-    const selectShowStore = writable({ showFloating, setShow });
-    $: $selectShowStore.showFloating = showFloating;
-    setContext(selectShowKey, selectShowStore);
-
-    enum FocusChoice {
-        First,
-        Last,
-        None,
-    }
-    let toFocus: FocusChoice = FocusChoice.None;
-
     function onKeyDown(event: KeyboardEvent) {
         // In accordance with ARIA APG combobox (https://www.w3.org/WAI/ARIA/apg/patterns/combobox/)
         const arrowDown = isArrowDown(event);
@@ -77,10 +83,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             showFloating = false;
         } else if (arrowDown || event.code === "Home") {
             showFloating = true;
-            toFocus = FocusChoice.First;
+            selected = 0;
         } else if (arrowUp || event.code === "End") {
             showFloating = true;
-            toFocus = FocusChoice.Last;
+            selected = last;
         } else if (event.code === "Escape") {
             // TODO This doesn't work as the window typically catches the Escape as well
             // and closes the window; related to the problem in SelectOption.svelte
@@ -89,24 +95,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function revealed(event: CustomEvent<HTMLElement>) {
-        console.log("Revealed");
-        const el = event.detail as HTMLElement;
-        switch (toFocus) {
-            case FocusChoice.First:
-                focusWrapper(el.firstElementChild);
-                break;
-            case FocusChoice.Last:
-                focusWrapper(el.lastElementChild);
-                break;
-            case FocusChoice.None:
-                break;
-        }
-        toFocus = FocusChoice.None;
+    function revealed() {
+        setTimeout(selectFocus, 0, selected);
     }
 
-    function focusWrapper(e: Element | null) {
-        setTimeout(selectFocus, 0, e);
+    /**
+     * Focus on an option.
+     * Negative values will clip to 0 and Infinity selects the last option
+     * @param num index number to focus on
+     * 
+     * TODO Should only be changing visual focus, not DOM focus
+     * https://www.w3.org/WAI/ARIA/apg/patterns/combobox/#keyboardinteraction
+     */
+    function selectFocus(num: number) {
+        if (num < 0) {
+            num = 0;
+        } else if (num === Infinity) {
+            num = last;
+        }
+
+        console.log("Selecting ", num, " from ", options.length);
+        options[num].focus();
     }
 </script>
 
@@ -129,7 +138,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class:disabled
         title={tooltip}
         tabindex="0"
-        role="button"
+        role="combobox"
+        aria-controls={ids.popover}
+        aria-expanded={showFloating}
+        aria-activedescendant={ids.focused}
         on:keydown={onKeyDown}
         on:mouseenter={() => (hover = true)}
         on:mouseleave={() => (hover = false)}
@@ -149,11 +161,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </div>
     <Popover
         slot="floating"
-        on:revealed={revealed}
         scrollable
         --popover-width="{clientWidth}px"
+        id={ids.popover}
+        on:revealed={revealed}
     >
-        <slot />
+        {#each list.map(parser) as {content, value: optionValue, disabled}, idx}
+            <SelectOption
+                value={optionValue === undefined ? idx : optionValue}
+                {idx}
+                {disabled}
+                {selectFocus}
+                {setShow}
+                bind:element={options[idx]}
+            >
+                {content}
+            </SelectOption>
+        {/each}
     </Popover>
 </WithFloating>
 

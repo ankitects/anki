@@ -4,6 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     export let id: string | undefined = undefined;
+    export let role: string | undefined = undefined;
+    export let selected = false;
     let className = "";
     export { className as class };
 
@@ -29,6 +31,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <button
     bind:this={buttonRef}
     {id}
+    {role}
+    aria-selected={selected}
     tabindex={tabbable ? 0 : -1}
     class="dropdown-item {className}"
     class:active

@@ -22,10 +22,3 @@ export const withButton = (f: (button: HTMLButtonElement) => void) => ({ detail 
 export const withSpan = (f: (span: HTMLSpanElement) => void) => ({ detail }: CustomEvent): void => {
     f(detail.span);
 };
-
-export function selectFocus(newFocus: Element | null | undefined) {
-    // Should match SelectOption focus(Element)
-    // TODO Should only be changing visual focus, not DOM focus
-    // https://www.w3.org/WAI/ARIA/apg/patterns/combobox/#keyboardinteraction
-    (newFocus as HTMLElement).focus();
-}

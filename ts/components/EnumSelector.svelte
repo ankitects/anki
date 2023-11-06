@@ -11,7 +11,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import Select from "./Select.svelte";
-    import SelectOption from "./SelectOption.svelte";
 
     type T = $$Generic;
 
@@ -23,13 +22,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: label = choices.find((c) => c.value === value)?.label;
 </script>
 
-<Select bind:value {label} {disabled}>
-    {#each choices as { label: optionLabel, value: optionValue }}
-        <SelectOption
-            value={optionValue}
-            disabled={disabledChoices.includes(optionValue)}
-        >
-            {optionLabel}
-        </SelectOption>
-    {/each}
-</Select>
+<Select 
+    bind:value
+    {label}
+    {disabled}
+    list={choices}
+    parser={(item) => {
+        return {
+            content: item.label,
+            value: item.value,
+            disabled: disabledChoices.includes(item.value),
+        };
+    }}
+/>

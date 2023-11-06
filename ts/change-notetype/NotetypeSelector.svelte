@@ -7,7 +7,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import LabelButton from "../components/LabelButton.svelte";
     import Select from "../components/Select.svelte";
-    import SelectOption from "../components/SelectOption.svelte";
     import { arrowLeftIcon, arrowRightIcon } from "./icons";
     import type { ChangeNotetypeState } from "./lib";
     import SaveButton from "./SaveButton.svelte";
@@ -34,11 +33,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {@html arrowRightIcon}
         {/if}
     </Badge>
-    <Select class="flex-grow-1" bind:value {label}>
-        {#each options as option, idx}
-            <SelectOption value={idx}>{option}</SelectOption>
-        {/each}
-    </Select>
+    <Select
+        class="flex-grow-1"
+        list={options}
+        bind:value {label}
+    />
 
     <SaveButton {state} />
 </ButtonToolbar>

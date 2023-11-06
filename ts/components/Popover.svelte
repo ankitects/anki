@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { floatingKey } from "./context-keys";
 
+    export let id = "";
     export let scrollable = false;
     let wrapper: HTMLDivElement;
     let hidden = true;
@@ -54,6 +55,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class:bottom={placement === "bottom"}
         class:left={placement === "left"}
         use:revealed
+        id={id}
+        role="listbox"
     >
         <slot />
     </div>

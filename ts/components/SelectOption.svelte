@@ -3,21 +3,23 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-  import { selectFocus } from "./helpers";
-
     import { altPressed, isArrowDown, isArrowUp } from "@tslib/keys";
     import { getContext } from "svelte";
     import type { Writable } from "svelte/store";
 
-    import { selectKey, selectShowKey } from "./context-keys";
+    import { selectKey } from "./context-keys";
     import DropdownItem from "./DropdownItem.svelte";
 
     type T = $$Generic;
 
+    export let selected = false;
     export let disabled = false;
+    export let idx: number;
     export let value: T;
+    export let selectFocus: (f: number) => void;
+    export let setShow: (b: boolean) => void;
 
-    let element: HTMLButtonElement;
+    export let element: HTMLButtonElement;
 
     function onKeyDown(event: KeyboardEvent) {
         const arrowUp = isArrowUp(event);
@@ -32,18 +34,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setShow(false);
             setValue(value);
         } else if (arrowUp) {
-            selectFocus(element?.previousElementSibling);
+            focus(idx - 1);
         } else if (arrowDown) {
-            selectFocus(element?.nextElementSibling);
+            focus(idx + 1);
         } else if (event.code === "Escape") {
             // TODO This doesn't work as the window typically catches the Escape as well
             // and closes the window; related to the problem in Select.svelte
             // - qt/aqt/browser/browser.py:377
             setShow(false);
         } else if (event.code === "Home") {
-            selectFocus(element.parentElement?.firstElementChild);
+            focus(0);
         } else if (event.code === "End") {
-            selectFocus(element.parentElement?.lastElementChild);
+            focus(Infinity);
         }
         if (event.code === "Tab") {
             // Tab actually should move DOM focus
@@ -51,16 +53,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    function focus(idn: number) {
+        selectFocus(idn);
+    }
+
     const selectContext: Writable<{ value: T; setValue: Function }> =
         getContext(selectKey);
     const setValue = $selectContext.setValue;
-    const selectShowContext: Writable<{ showFloating: boolean; setShow: Function }> =
-        getContext(selectShowKey);
-    const setShow = $selectShowContext.setShow;
 </script>
 
 <DropdownItem
     {disabled}
+    role="option"
+    {selected}
     active={value == $selectContext.value}
     on:click={() => setValue(value)}
     on:keydown={onKeyDown}
