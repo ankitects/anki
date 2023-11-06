@@ -60,6 +60,7 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
     }
 
     canvas.getActiveObject().toGroup();
+    makeObjectRemainInCanvas(canvas);
 
     redraw(canvas);
 };
@@ -260,4 +261,38 @@ export const redraw = (canvas: fabric.Canvas): void => {
 
 export const clear = (canvas: fabric.Canvas): void => {
     canvas.clear();
+};
+
+export const makeObjectRemainInCanvas = (canvas: fabric.Canvas) => {
+    canvas.on("object:moving", function(e) {
+        const obj = e.target;
+        if (obj.type === "rect" || obj.type === "ellipse") {
+            return;
+        }
+
+        if (obj.getScaledHeight() > obj.canvas.height || obj.getScaledWidth() > obj.canvas.width) {
+            return;
+        }
+
+        obj.setCoords();
+
+        if (obj.getBoundingRect().top < 0 || obj.getBoundingRect().left < 0) {
+            obj.top = Math.max(obj.top, obj.top - obj.getBoundingRect().top);
+            obj.left = Math.max(obj.left, obj.left - obj.getBoundingRect().left);
+        }
+
+        if (
+            obj.getBoundingRect().top + obj.getBoundingRect().height > obj.canvas.height
+            || obj.getBoundingRect().left + obj.getBoundingRect().width > obj.canvas.width
+        ) {
+            obj.top = Math.min(
+                obj.top,
+                obj.canvas.height - obj.getBoundingRect().height + obj.top - obj.getBoundingRect().top,
+            );
+            obj.left = Math.min(
+                obj.left,
+                obj.canvas.width - obj.getBoundingRect().width + obj.left - obj.getBoundingRect().left,
+            );
+        }
+    });
 };
