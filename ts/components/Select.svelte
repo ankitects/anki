@@ -11,33 +11,35 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconConstrain from "./IconConstrain.svelte";
     import { chevronDown } from "./icons";
     import Popover from "./Popover.svelte";
-    import WithFloating from "./WithFloating.svelte";
     import SelectOption from "./SelectOption.svelte";
+    import WithFloating from "./WithFloating.svelte";
 
     // eslint-disable
     type T = $$Generic;
-    
+
     // E may need to derive content, but we default to them being the same for convenience of usage
     type E = $$Generic;
     type C = $$Generic;
     export let list: E[];
-    export let parser: (item: E) => {content: C, value?: T, disabled?: boolean} = (item) => {
+    export let parser: (item: E) => { content: C; value?: T; disabled?: boolean } = (
+        item,
+    ) => {
         return {
             content: item as unknown as C,
         };
     };
-    const parsed = list.map(parser).map(({content, value, disabled=false}, i) => ({
+    const parsed = list.map(parser).map(({ content, value, disabled = false }, i) => ({
         content,
-        value: value === undefined ? i as T : value,
+        value: value === undefined ? (i as T) : value,
         disabled,
     }));
-    let options: HTMLButtonElement[] = Array(list.length);
+    const buttons: HTMLButtonElement[] = Array(list.length);
     let selected: number;
     const last = list.length - 1;
     const ids = {
         popover: "popover",
         focused: "focused",
-    }
+    };
 
     export let id: string | undefined = undefined;
 
@@ -76,7 +78,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const alt = altPressed(event);
 
         if (selected === undefined || selected < 0) {
-            if ((arrowDown && alt) || event.code === "Enter" || event.code === "Space") {
+            if (
+                (arrowDown && alt) ||
+                event.code === "Enter" ||
+                event.code === "Space"
+            ) {
                 showFloating = true;
             } else if (arrowUp && alt) {
                 showFloating = false;
@@ -109,7 +115,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 // TODO This doesn't work as the window typically catches the Escape as well
                 // and closes the window
                 // - qt/aqt/browser/browser.py:377
-                showFloating = false
+                showFloating = false;
             } else if (event.code === "Home") {
                 selectFocus(0);
             } else if (event.code === "End") {
@@ -117,7 +123,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
             if (event.code === "Tab") {
                 // Tab actually should move DOM focus
-                const nextFocus = options[selected].parentElement?.nextElementSibling;
+                const nextFocus = buttons[selected].parentElement?.nextElementSibling;
                 // selected = -1;
                 (nextFocus as HTMLElement).focus();
             }
@@ -144,8 +150,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             num = last;
         }
 
-        options[selected].classList.remove("focus");
-        options[num].classList.add("focus");
+        buttons[selected].classList.remove("focus");
+        buttons[num].classList.add("focus");
         selected = num;
     }
 </script>
@@ -198,10 +204,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         id={ids.popover}
         on:revealed={revealed}
     >
-        {#each parsed as {content, value, disabled}, idx (idx)}
+        {#each parsed as { content, value, disabled }, idx (idx)}
             <SelectOption
-                value={value}
-                bind:element={options[idx]}
+                {value}
+                bind:element={buttons[idx]}
                 {disabled}
                 selected={idx === selected}
                 id={ids.focused}

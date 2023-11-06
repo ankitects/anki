@@ -55,7 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class:bottom={placement === "bottom"}
         class:left={placement === "left"}
         use:revealed
-        id={id}
+        {id}
         role="listbox"
     >
         <slot />

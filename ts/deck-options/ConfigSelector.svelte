@@ -98,12 +98,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:value
             {label}
             list={$configList}
-            parser={(entry) => {
-                return {
-                    content: configLabel(entry),
-                    value: entry.idx,
-                };
-            }}
+            parser={(entry) => ({
+                content: configLabel(entry),
+                value: entry.idx,
+            })}
             on:change={blur}
         />
 

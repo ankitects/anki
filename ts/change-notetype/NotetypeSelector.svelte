@@ -33,12 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {@html arrowRightIcon}
         {/if}
     </Badge>
-    <Select
-        class="flex-grow-1"
-        list={options}
-        bind:value
-        {label}
-    />
+    <Select class="flex-grow-1" list={options} bind:value {label} />
 
     <SaveButton {state} />
 </ButtonToolbar>

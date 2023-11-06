@@ -70,7 +70,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         &.focus {
             // TODO this is subtly different from hovering with the mouse for some reason
-            @extend :hover
+            @extend button, :hover;
         }
 
         &[disabled] {

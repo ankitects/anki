@@ -22,16 +22,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: label = choices.find((c) => c.value === value)?.label;
 </script>
 
-<Select 
+<Select
     bind:value
     {label}
     {disabled}
     list={choices}
-    parser={(item) => {
-        return {
-            content: item.label,
-            value: item.value,
-            disabled: disabledChoices.includes(item.value),
-        };
-    }}
+    parser={(item) => ({
+        content: item.label,
+        value: item.value,
+        disabled: disabledChoices.includes(item.value),
+    })}
 />

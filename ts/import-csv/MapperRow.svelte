@@ -26,13 +26,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:value
             {label}
             list={columnOptions}
-            parser={(item) => {
-                return {
-                    content: item.label,
-                    value: item.value,
-                    disabled: item.disabled,
-                }
-            }}
+            parser={(item) => ({
+                content: item.label,
+                value: item.value,
+                disabled: item.disabled,
+            })}
         />
     </Col>
 </Row>
