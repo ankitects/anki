@@ -21,7 +21,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                   itemHeight,
           ) * itemHeight
         : 0;
-    $: innerHeight = Math.max(containerHeight, itemsCount * itemHeight);
     $: sliceLength = Math.ceil(containerHeight / itemHeight);
     $: startIndex = Math.floor(scrollTop / itemHeight);
     $: endIndex = Math.min(startIndex + sliceLength, itemsCount);
@@ -38,18 +37,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:this={container}
     on:scroll={() => (scrollTop = container.scrollTop)}
 >
-    <div class="inner" style="height: {innerHeight}px;">
-        <table
-            class="table {className}"
-            tabindex="-1"
-            style="margin-top: {scrollTop}px"
-        >
+    <table class="table {className}" tabindex="-1">
+        <thead>
             <slot name="headers" />
+        </thead>
+        <tbody>
+            {#if itemHeight * startIndex > 0}
+                <tr><td style="height: {itemHeight * startIndex}px;" /></tr>
+            {/if}
+
             {#each slice as index (index)}
                 <slot name="row" {index} />
             {/each}
-        </table>
-    </div>
+
+            {#if itemHeight * itemsCount - itemHeight * endIndex > 0}
+                <tr>
+                    <td
+                        style="height: {itemHeight * itemsCount -
+                            itemHeight * endIndex}px;"
+                    />
+                </tr>
+            {/if}
+        </tbody>
+    </table>
 </div>
 
 <style lang="scss">
@@ -61,17 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         margin: 0 auto;
     }
 
-    .inner {
-        position: relative;
-        overflow-y: visible;
-
-        width: 100%;
-    }
-
     .table {
-        // Prevent infinite scrolling
-        position: absolute;
-
         border-collapse: collapse;
         white-space: nowrap;
 
@@ -87,6 +87,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         :global(th) {
             background: var(--border);
             text-align: center;
+        }
+
+        :global(thead) {
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 1;
+        }
+
+        :global(tbody) {
+            overflow-y: scroll;
+            overflow-x: hidden;
         }
     }
 </style>
