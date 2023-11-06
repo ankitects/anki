@@ -31,6 +31,7 @@ import aqt.main
 from anki.collection import AddonInfo
 from anki.httpclient import HttpClient
 from anki.lang import without_unicode_isolation
+from anki.utils import int_version_to_str
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
@@ -825,10 +826,12 @@ class AddonsDialog(QDialog):
     def compatible_string(self, addon: AddonMeta) -> str:
         min = addon.min_version
         if min is not None and min > _current_version:
-            return f"Anki >= 2.1.{min}"
+            ver = int_version_to_str(min)
+            return f"Anki >= {ver}"
         else:
             max = abs(addon.max_version)
-            return f"Anki <= 2.1.{max}"
+            ver = int_version_to_str(max)
+            return f"Anki <= {ver}"
 
     def should_grey(self, addon: AddonMeta) -> bool:
         return not addon.enabled or not addon.compatible()
