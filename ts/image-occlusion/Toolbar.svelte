@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DropdownItem from "components/DropdownItem.svelte";
     import IconButton from "components/IconButton.svelte";
     import Popover from "components/Popover.svelte";
+    import Shortcut from "components/Shortcut.svelte";
     import WithFloating from "components/WithFloating.svelte";
 
     import { mdiEye, mdiFormatAlignCenter, mdiSquare, mdiViewDashboard } from "./icons";
@@ -80,6 +81,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $hideAllGuessOne = occlusionType === "all";
         emitChangeSignal();
     }
+    const enableMagnify = () => {
+        disableFunctions();
+        enableSelectable(canvas, false);
+        instance.resume();
+        activeTool = "magnify";
+    };
 </script>
 
 <div class="tool-bar-container">
@@ -245,6 +252,121 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </IconButton>
     {/each}
 </div>
+
+<Shortcut
+    keyCombination="S"
+    on:action={() => {
+        disableFunctions();
+        enableSelectable(canvas, true);
+        activeTool = "cursor";
+    }}
+/>
+<Shortcut
+    keyCombination="R"
+    on:action={() => {
+        drawRectangle(canvas);
+        activeTool = "draw-rectangle";
+    }}
+/>
+<Shortcut
+    keyCombination="E"
+    on:action={() => {
+        drawEllipse(canvas);
+        activeTool = "draw-ellipse";
+    }}
+/>
+<Shortcut
+    keyCombination="P"
+    on:action={() => {
+        drawPolygon(canvas, instance);
+        activeTool = "draw-polygon";
+    }}
+/>
+<Shortcut
+    keyCombination="T"
+    on:action={() => {
+        drawText(canvas);
+        activeTool = "draw-text";
+    }}
+/>
+<Shortcut
+    keyCombination="M"
+    on:action={() => {
+        enableSelectable(canvas, false);
+        instance.resume();
+        activeTool = "magnify";
+    }}
+/>
+<Shortcut
+    keyCombination="Ctrl+Z"
+    on:action={() => {
+        undoStack.undo();
+        emitChangeSignal();
+    }}
+/>
+<Shortcut
+    keyCombination="Ctrl+Y"
+    on:action={() => {
+        undoStack.redo();
+        emitChangeSignal();
+    }}
+/>
+<Shortcut
+    keyCombination="Ctrl+-"
+    on:action={() => {
+        enableMagnify();
+        zoomTools[0].action(instance);
+    }}
+/>
+<Shortcut
+    keyCombination="Ctrl++"
+    on:action={() => {
+        enableMagnify();
+        zoomTools[1].action(instance);
+    }}
+/>
+<Shortcut
+    keyCombination="Ctrl+F"
+    on:action={() => {
+        enableMagnify();
+        zoomTools[2].action(instance);
+    }}
+/>
+<Shortcut
+    keyCombination="L"
+    on:action={() => {
+        maksOpacity = !maksOpacity;
+        makeMaskTransparent(canvas, maksOpacity);
+    }}
+/>
+<Shortcut
+    keyCombination="Delete"
+    on:action={() => {
+        deleteDuplicateTools[0].action(canvas);
+        emitChangeSignal();
+    }}
+/>
+<Shortcut
+    keyCombination="D"
+    on:action={() => {
+        deleteDuplicateTools[1].action(canvas);
+        emitChangeSignal();
+    }}
+/>
+<Shortcut
+    keyCombination="G"
+    on:action={() => {
+        groupUngroupTools[0].action(canvas);
+        emitChangeSignal();
+    }}
+/>
+<Shortcut
+    keyCombination="U"
+    on:action={() => {
+        groupUngroupTools[1].action(canvas);
+        emitChangeSignal();
+    }}
+/>
 
 <style>
     .top-tool-bar-container {
