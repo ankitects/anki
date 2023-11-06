@@ -15,6 +15,12 @@ let drawMode = false;
 let zoomValue = 1;
 
 export const drawPolygon = (canvas: fabric.Canvas, panzoom: PanZoom): void => {
+    // remove selectable for shapes
+    canvas.discardActiveObject();
+    canvas.forEachObject(function(o) {
+        o.selectable = false;
+    });
+
     canvas.selectionColor = "rgba(0, 0, 0, 0)";
     canvas.on("mouse:down", function(options) {
         try {
@@ -218,4 +224,20 @@ export const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon):
 
     canvas.remove(polygon);
     canvas.add(polygon1);
+};
+
+export const removeUnfinishedPolygon = (canvas: fabric.Canvas): void => {
+    canvas.remove(activeShape).remove(activeLine);
+    pointsList.forEach((point) => {
+        canvas.remove(point);
+    });
+    linesList.forEach((line) => {
+        canvas.remove(line);
+    });
+    activeLine = null;
+    activeShape = null;
+    linesList = [];
+    pointsList = [];
+    drawMode = false;
+    canvas.selection = true;
 };

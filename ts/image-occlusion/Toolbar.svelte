@@ -22,6 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         zoomTools,
     } from "./tools/more-tools";
     import { tools } from "./tools/tool-buttons";
+    import { removeUnfinishedPolygon } from "./tools/tool-polygon";
     import { undoRedoTools, undoStack } from "./tools/tool-undo-redo";
 
     export let canvas;
@@ -44,6 +45,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: if (instance && canvas) {
         disableFunctions();
         enableSelectable(canvas, true);
+        // remove unfinished polygon when switching to other tools
+        removeUnfinishedPolygon(canvas);
 
         switch (activeTool) {
             case "magnify":
