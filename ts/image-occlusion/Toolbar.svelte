@@ -113,7 +113,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:close={() => (showFloating = false)}
     >
         <IconButton
-            class="top-tool-icon-button right-border-radius dropdown-tool-mode"
+            class="top-tool-icon-button border-radius dropdown-tool-mode"
             slot="reference"
             tooltip={tr.editingImageOcclusionMode()}
             {iconSize}
@@ -394,6 +394,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     :global(.right-border-radius) {
         border-radius: 0 5px 5px 0 !important;
+    }
+
+    :global(.border-radius) {
+        border-radius: 5px !important;
     }
 
     :global(.top-tool-icon-button) {
