@@ -18,7 +18,7 @@ from typing import Callable
 import flask
 import flask_cors
 import stringcase
-from flask import Response, request
+from flask import Response, abort, request
 from waitress.server import create_server
 
 import aqt
@@ -38,7 +38,7 @@ from aqt.qt import *
 from aqt.utils import aqt_data_path
 
 app = flask.Flask(__name__, root_path="/fake")
-flask_cors.CORS(app)
+flask_cors.CORS(app, resources={r"/*": {"origins": "127.0.0.1"}})
 
 
 @dataclass
@@ -256,6 +256,14 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
 
 @app.route("/<path:pathin>", methods=["GET", "POST"])
 def handle_request(pathin: str) -> Response:
+    host = request.headers.get("Host", "").lower()
+    allowed_prefixes = ("127.0.0.1:", "localhost:", "[::1]:")
+    if not any(host.startswith(prefix) for prefix in allowed_prefixes):
+        # while we only bind to localhost, this request may have come from a local browser
+        # via a DNS rebinding attack
+        print("deny non-local host", host)
+        abort(403)
+
     req = _extract_request(pathin)
     if dev_mode:
         print(f"{time.time():.3f} {flask.request.method} /{pathin}")
