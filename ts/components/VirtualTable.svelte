@@ -91,7 +91,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         :global(thead) {
             position: sticky;
-            top: 0;
+            top: -1px;
             overflow-y: auto;
             overflow-x: hidden;
             z-index: 1;
