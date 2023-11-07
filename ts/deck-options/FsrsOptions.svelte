@@ -44,6 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: computing = computingWeights || checkingWeights || computingRetention;
     $: customSearch = `preset:"${$presetName}"`;
     $: desiredRetentionWarning = getRetentionWarning($config.desiredRetention);
+    $: retentionWarningClass = getRetentionWarningClass($config.desiredRetention);
 
     let computeRetentionProgress:
         | ComputeWeightsProgress
@@ -67,6 +68,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         return tr.deckConfigA100DayInterval({ days });
     }
+
+    function getRetentionWarningClass(retention: number): string {
+        if (retention < 0.7 || retention > 0.97) {
+            return "alert-danger";
+        } else if (retention < 0.85 || retention > 0.95) {
+            return "alert-warning";
+        } else {
+            return "alert-info";
+        }
+    }
+
     async function computeWeights(): Promise<void> {
         if (computingWeights) {
             await setWantsAbort({});
@@ -221,14 +233,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:value={$config.desiredRetention}
     defaultValue={defaults.desiredRetention}
     min={0.7}
-    max={0.97}
+    max={0.99}
 >
     <SettingTitle on:click={() => openHelpModal("desiredRetention")}>
         {tr.deckConfigDesiredRetention()}
     </SettingTitle>
 </SpinBoxFloatRow>
 
-<Warning warning={desiredRetentionWarning} className="alert-info" />
+<Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
 
 <SpinBoxFloatRow
     bind:value={$config.sm2Retention}
