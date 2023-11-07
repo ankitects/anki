@@ -256,22 +256,22 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
 
 @app.route("/<path:pathin>", methods=["GET", "POST"])
 def handle_request(pathin: str) -> Response:
-    request = _extract_request(pathin)
+    req = _extract_request(pathin)
     if dev_mode:
         print(f"{time.time():.3f} {flask.request.method} /{pathin}")
 
-    if isinstance(request, NotFound):
-        print(request.message)
+    if isinstance(req, NotFound):
+        print(req.message)
         return flask.make_response(
             f"Invalid path: {pathin}",
             HTTPStatus.NOT_FOUND,
         )
-    elif callable(request):
-        return _handle_dynamic_request(request)
-    elif isinstance(request, BundledFileRequest):
-        return _handle_builtin_file_request(request)
-    elif isinstance(request, LocalFileRequest):
-        return _handle_local_file_request(request)
+    elif callable(req):
+        return _handle_dynamic_request(req)
+    elif isinstance(req, BundledFileRequest):
+        return _handle_builtin_file_request(req)
+    elif isinstance(req, LocalFileRequest):
+        return _handle_local_file_request(req)
     else:
         return flask.make_response(
             f"unexpected request: {pathin}",
