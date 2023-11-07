@@ -135,7 +135,7 @@ def full_sync(
     if out.required == out.FULL_DOWNLOAD:
         confirm_full_download(mw, server_usn, on_done)
     elif out.required == out.FULL_UPLOAD:
-        full_upload(mw, server_usn, on_done)
+        confirm_full_upload(mw, server_usn, on_done)
     else:
         button_labels: list[str] = [
             tr.sync_upload_to_ankiweb(),
@@ -168,6 +168,18 @@ def confirm_full_download(
         return on_done()
     else:
         mw.closeAllWindows(lambda: full_download(mw, server_usn, on_done))
+
+
+def confirm_full_upload(
+    mw: aqt.main.AnkiQt, server_usn: int, on_done: Callable[[], None]
+) -> None:
+    # confirmation step required, as some users have reported an upload
+    # happening despite having their AnkiWeb collection not being empty
+    # (not reproducible - maybe a compiler bug?)
+    if not askUser(tr.sync_confirm_empty_upload()):
+        return on_done()
+    else:
+        mw.closeAllWindows(lambda: full_upload(mw, server_usn, on_done))
 
 
 def on_full_sync_timer(mw: aqt.main.AnkiQt, label: str) -> None:
