@@ -7,7 +7,6 @@ import json as _json
 import os
 import platform
 import random
-import re
 import shutil
 import string
 import subprocess
@@ -69,15 +68,11 @@ def strip_html_media(txt: str) -> str:
 
 
 def html_to_text_line(txt: str) -> str:
-    txt = txt.replace("<br>", " ")
-    txt = txt.replace("<br />", " ")
-    txt = txt.replace("<div>", " ")
-    txt = txt.replace("\n", " ")
-    txt = re.sub(r"\[sound:[^]]+\]", "", txt)
-    txt = re.sub(r"\[\[type:[^]]+\]\]", "", txt)
-    txt = strip_html_media(txt)
-    txt = txt.strip()
-    return txt
+    import anki.lang
+
+    return anki.lang.current_i18n.html_to_text_line(
+        text=txt, preserve_media_filenames=True
+    )
 
 
 # IDs
