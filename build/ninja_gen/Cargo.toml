@@ -11,6 +11,7 @@ rust-version.workspace = true
 anki_io.workspace = true
 anyhow.workspace = true
 camino.workspace = true
+dunce.workspace = true
 globset.workspace = true
 itertools.workspace = true
 lazy_static.workspace = true
