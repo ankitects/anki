@@ -2599,6 +2599,7 @@ dependencies = [
  "anki_io",
  "anyhow",
  "camino",
+ "dunce",
  "globset",
  "itertools 0.11.0",
  "lazy_static",

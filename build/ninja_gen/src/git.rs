@@ -46,7 +46,10 @@ fn locate_git_head() -> Option<BuildInput> {
         return Some(inputs![standard_path.to_string()]);
     }
 
-    let mut folder = Utf8Path::new(".").canonicalize_utf8().unwrap();
+    let mut folder = Utf8PathBuf::from_path_buf(
+        dunce::canonicalize(Utf8Path::new(".").canonicalize().unwrap()).unwrap(),
+    )
+    .unwrap();
     loop {
         let path = folder.join(".git").join("modules");
         if path.exists() {
