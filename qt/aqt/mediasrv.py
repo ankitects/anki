@@ -36,7 +36,7 @@ from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
-from aqt.utils import aqt_data_path
+from aqt.utils import aqt_data_path, show_warning
 
 app = flask.Flask(__name__, root_path="/fake")
 flask_cors.CORS(app, resources={r"/*": {"origins": "127.0.0.1"}})
@@ -628,6 +628,18 @@ def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
 
 
 def _handle_dynamic_request(request: DynamicRequest) -> Response:
+    if legacy_context := _extract_legacy_page_context():
+        # legacy pages, apart from the editor, may contain third-party JS, so we do not
+        # allow them to access our API
+        if legacy_context != LegacyPageContext.EDITOR:
+
+            def warn() -> None:
+                show_warning(
+                    "Unexpected API access. Please report this message on the Anki forums."
+                )
+
+            aqt.mw.taskman.run_on_main(warn)
+            abort(403)
     try:
         return request()
     except Exception as e:
@@ -640,6 +652,20 @@ def legacy_page_data() -> Response:
         return Response(html, mimetype="text/html")
     else:
         return flask.make_response("page not found", HTTPStatus.NOT_FOUND)
+
+
+def _extract_legacy_page_context() -> LegacyPageContext | None:
+    "Get context based on referer header."
+    from urllib.parse import parse_qs, urlparse
+
+    referer = request.headers.get("Referer", "")
+    if "legacyPageData" in referer:
+        parsed_url = urlparse(referer)
+        query_params = parse_qs(parsed_url.query)
+        id = int(query_params.get("id", [None])[0])
+        return aqt.mw.mediaServer.get_page_context(id)
+    else:
+        return None
 
 
 # this currently only handles a single method; in the future, idempotent
