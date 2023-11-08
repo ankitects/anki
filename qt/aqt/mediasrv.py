@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import enum
 import logging
 import mimetypes
 import os
@@ -63,6 +64,17 @@ class NotFound:
 DynamicRequest = Callable[[], Response]
 
 
+class LegacyPageContext(enum.Enum):
+    OTHER = 0
+    EDITOR = 1
+
+
+@dataclass
+class LegacyPage:
+    html: str
+    context: LegacyPageContext
+
+
 class MediaServer(threading.Thread):
     _ready = threading.Event()
     daemon = True
@@ -71,7 +83,7 @@ class MediaServer(threading.Thread):
         super().__init__()
         self.is_shutdown = False
         # map of webview ids to pages
-        self._page_html: dict[int, str] = {}
+        self._legacy_pages: dict[int, LegacyPage] = {}
 
     def run(self) -> None:
         try:
@@ -113,15 +125,26 @@ class MediaServer(threading.Thread):
         self._ready.wait()
         return int(self.server.effective_port)  # type: ignore
 
-    def set_page_html(self, id: int, html: str) -> None:
-        self._page_html[id] = html
+    def set_page_html(
+        self, id: int, html: str, context: LegacyPageContext = LegacyPageContext.OTHER
+    ) -> None:
+        self._legacy_pages[id] = LegacyPage(html, context)
 
     def get_page_html(self, id: int) -> str | None:
-        return self._page_html.get(id)
+        if page := self._legacy_pages.get(id):
+            return page.html
+        else:
+            return None
+
+    def get_page_context(self, id: int) -> LegacyPageContext | None:
+        if page := self._legacy_pages.get(id):
+            return page.context
+        else:
+            return None
 
     def clear_page_html(self, id: int) -> None:
         try:
-            del self._page_html[id]
+            del self._legacy_pages[id]
         except KeyError:
             pass
 
