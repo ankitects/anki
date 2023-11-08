@@ -8,7 +8,7 @@ import json
 import re
 import sys
 from enum import Enum
-from typing import Any, Callable, Optional, Sequence, cast
+from typing import TYPE_CHECKING, Any, Callable, Optional, Sequence, cast
 
 import anki
 import anki.lang
@@ -21,6 +21,10 @@ from aqt.theme import theme_manager
 from aqt.utils import askUser, is_gesture_or_zoom_event, openLink, showInfo, tr
 
 serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
+
+if TYPE_CHECKING:
+    from aqt.mediasrv import LegacyPageContext
+
 
 # Page for debug messages
 ##########################################################################
@@ -378,16 +382,22 @@ class AnkiWebView(QWebEngineView):
         if self.allow_drops:
             super().dropEvent(evt)
 
-    def setHtml(self, html: str) -> None:  #  type: ignore
+    def setHtml(  #  type: ignore[override]
+        self, html: str, context: LegacyPageContext | None = None
+    ) -> None:
+        from aqt.mediasrv import LegacyPageContext
+
         # discard any previous pending actions
         self._pendingActions = []
         self._domDone = True
-        self._queueAction("setHtml", html)
+        if context is None:
+            context = LegacyPageContext.OTHER
+        self._queueAction("setHtml", html, context)
         self.set_open_links_externally(True)
         self.allow_drops = False
         self.show()
 
-    def _setHtml(self, html: str) -> None:
+    def _setHtml(self, html: str, context: LegacyPageContext) -> None:
         """Send page data to media server, then surf to it.
 
         This function used to be implemented by QWebEngine's
@@ -400,7 +410,7 @@ class AnkiWebView(QWebEngineView):
         self._domDone = False
 
         webview_id = id(self)
-        mw.mediaServer.set_page_html(webview_id, html)
+        mw.mediaServer.set_page_html(webview_id, html, context)
         self.load_url(QUrl(f"{mw.serverURL()}_anki/legacyPageData?id={webview_id}"))
 
         # work around webengine stealing focus on setHtml()
@@ -571,7 +581,14 @@ html {{ {font} }}
 {web_content.body}</body>
 </html>"""
         # print(html)
-        self.setHtml(html)
+        import aqt.editor
+        from aqt.mediasrv import LegacyPageContext
+
+        if isinstance(context, aqt.editor.Editor):
+            page_context = LegacyPageContext.EDITOR
+        else:
+            page_context = LegacyPageContext.OTHER
+        self.setHtml(html, page_context)
 
     @classmethod
     def webBundlePath(cls, path: str) -> str:
