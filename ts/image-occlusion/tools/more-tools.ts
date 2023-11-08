@@ -90,7 +90,7 @@ export const alignTools = [
         id: 2,
         icon: mdiAlignHorizontalCenter,
         action: alignHorizontalCenter,
-        tooltip: tr.editingImageOcclusionAlignVCenter,
+        tooltip: tr.editingImageOcclusionAlignHCenter,
     },
     {
         id: 3,
@@ -108,7 +108,7 @@ export const alignTools = [
         id: 5,
         icon: mdiAlignVerticalCenter,
         action: alignVerticalCenter,
-        tooltip: tr.editingImageOcclusionAlignHCenter,
+        tooltip: tr.editingImageOcclusionAlignVCenter,
     },
     {
         id: 6,
