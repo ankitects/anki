@@ -106,7 +106,11 @@ function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOptions): vo
     // setup button for toggle image occlusion
     const button = document.getElementById("toggle");
     if (button) {
-        button.addEventListener("click", toggleMasks);
+        if (document.querySelector("[data-occludeinactive=\"1\"]")) {
+            button.addEventListener("click", toggleMasks);
+        } else {
+            button.style.display = "none";
+        }
     }
 
     drawShapes(canvas, setupOptions?.onWillDrawShapes, setupOptions?.onDidDrawShapes);
