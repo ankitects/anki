@@ -104,7 +104,7 @@ lazy_static! {
     pub static ref HTML_MEDIA_TAGS: Regex = Regex::new(
         r#"(?xsi)
             # the start of the image, audio, or object tag
-            <\b(?:img|audio|object)\b[^>]+\b(?:src|data)\b=
+            <\b(?:img|audio|video|object)\b[^>]+\b(?:src|data)\b=
             (?:
                     # 1: double-quoted filename
                     "
