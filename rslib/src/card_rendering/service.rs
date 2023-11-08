@@ -20,6 +20,7 @@ use crate::notetype::RenderCardOutput;
 use crate::template::RenderedNode;
 use crate::text::decode_iri_paths;
 use crate::text::encode_iri_paths;
+use crate::text::html_to_text_line;
 use crate::text::sanitize_html_no_images;
 use crate::text::strip_html;
 use crate::text::strip_html_preserving_media_filenames;
@@ -149,6 +150,17 @@ impl crate::services::CardRenderingService for Collection {
         input: anki_proto::card_rendering::StripHtmlRequest,
     ) -> Result<generic::String> {
         strip_html_proto(input)
+    }
+
+    fn html_to_text_line(
+        &mut self,
+        input: anki_proto::card_rendering::HtmlToTextLineRequest,
+    ) -> Result<generic::String> {
+        Ok(
+            html_to_text_line(&input.text, input.preserve_media_filenames)
+                .to_string()
+                .into(),
+        )
     }
 
     fn compare_answer(
