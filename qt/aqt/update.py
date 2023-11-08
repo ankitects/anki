@@ -31,8 +31,12 @@ def check_for_update() -> None:
                 warn = (
                     tr.qt_misc_in_order_to_ensure_your_collection(val="%s") % diff_text
                 )
-                show_warning(warn)
-                mw.app.closeAllWindows()
+                show_warning(
+                    warn,
+                    parent=mw,
+                    textFormat=Qt.TextFormat.RichText,
+                    callback=mw.app.closeAllWindows,
+                )
                 return
         # should we show a message?
         if msg := resp.message:
