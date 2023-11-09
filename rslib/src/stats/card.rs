@@ -70,23 +70,34 @@ impl Collection {
         } else {
             card.due
         };
-        Ok(match card.queue {
-            CardQueue::New => (None, Some(due)),
-            CardQueue::Learn => (
+        Ok(match (card.queue, card.ctype) {
+            (CardQueue::New, _)
+            | (
+                CardQueue::Suspended | CardQueue::SchedBuried | CardQueue::UserBuried,
+                CardType::New,
+            ) => (None, Some(due)),
+            (CardQueue::Learn, _)
+            | (
+                CardQueue::Suspended | CardQueue::SchedBuried | CardQueue::UserBuried,
+                CardType::Learn,
+            ) => (
                 Some(TimestampSecs::now().0),
                 card.original_position.map(|u| u as i32),
             ),
-            CardQueue::Review | CardQueue::DayLearn => (
+            (CardQueue::Review | CardQueue::DayLearn, CardType::New) => {
+                // new preview card not answered yet
+                (None, card.original_position.map(|u| u as i32))
+            }
+            (CardQueue::Review | CardQueue::DayLearn, _)
+            | (
+                CardQueue::Suspended | CardQueue::SchedBuried | CardQueue::UserBuried,
+                CardType::Review,
+            ) => (
                 {
-                    if card.ctype == CardType::New {
-                        // new preview card not answered yet
-                        None
-                    } else {
-                        let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
-                        let mut due = TimestampSecs::now();
-                        due.0 += (days_remaining as i64) * 86_400;
-                        Some(due.0)
-                    }
+                    let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
+                    let mut due = TimestampSecs::now();
+                    due.0 += (days_remaining as i64) * 86_400;
+                    Some(due.0)
                 },
                 card.original_position.map(|u| u as i32),
             ),
