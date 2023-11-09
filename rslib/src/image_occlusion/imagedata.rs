@@ -110,6 +110,12 @@ impl Collection {
 
         if self.is_image_file(&final_path)? {
             cloze_note.image_data = read_file(&final_path)?;
+            cloze_note.image_file_name = final_path
+                .file_name()
+                .or_not_found("expected filename")?
+                .to_str()
+                .unwrap()
+                .to_string();
         }
 
         Ok(cloze_note)

@@ -33,7 +33,7 @@ export const setupMaskEditor = async (
 
     // get image width and height
     const image = document.getElementById("image") as HTMLImageElement;
-    image.src = getImageData(imageData.data!);
+    image.src = getImageData(imageData.data!, path);
     image.onload = function() {
         const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
         canvas.setWidth(size.width);
@@ -73,7 +73,7 @@ export const setupMaskEditorForEdit = async (
     // get image width and height
     const image = document.getElementById("image") as HTMLImageElement;
     image.style.visibility = "hidden";
-    image.src = getImageData(clozeNote.imageData!);
+    image.src = getImageData(clozeNote.imageData!, clozeNote.imageFileName!);
     image.onload = function() {
         const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
         canvas.setWidth(size.width);
@@ -120,8 +120,12 @@ function initCanvas(onChange: () => void): fabric.Canvas {
     return canvas;
 }
 
-const getImageData = (imageData): string => {
+const getImageData = (imageData, path): string => {
     const b64encoded = protoBase64.enc(imageData);
+    const extension = path.split(".").pop();
+    if (extension === "svg") {
+        return "data:image/svg+xml;base64," + b64encoded;
+    }
     return "data:image/png;base64," + b64encoded;
 };
 
@@ -167,7 +171,7 @@ function containerSize(): Size {
 export async function resetIOImage(path: string, onImageLoaded: (event: ImageLoadedEvent) => void) {
     const imageData = await getImageForOcclusion({ path });
     const image = document.getElementById("image") as HTMLImageElement;
-    image.src = getImageData(imageData.data!);
+    image.src = getImageData(imageData.data!, path);
     const canvas = globalThis.canvas;
 
     image.onload = function() {
