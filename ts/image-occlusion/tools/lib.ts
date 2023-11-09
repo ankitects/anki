@@ -86,16 +86,28 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
 };
 
 export const zoomIn = (instance: PanZoom): void => {
-    instance.smoothZoom(0, 0, 1.25);
+    const offset = getTransformOriginOffset();
+    instance.smoothZoom(offset.x, offset.y, 1.25);
 };
 
 export const zoomOut = (instance: PanZoom): void => {
-    instance.smoothZoom(0, 0, 0.5);
+    const offset = getTransformOriginOffset();
+    instance.smoothZoom(offset.x, offset.y, 0.8);
 };
 
 export const zoomReset = (instance: PanZoom): void => {
-    instance.moveTo(0, 0);
-    instance.smoothZoomAbs(0, 0, get(zoomResetValue));
+    const offset = getTransformOriginOffset();
+    instance.moveTo(offset.x / 2, 10);
+    instance.smoothZoomAbs(offset.x / 2, 10, get(zoomResetValue));
+};
+
+export const getTransformOriginOffset = () => {
+    const container = document.querySelector(".editor-main")!;
+    const containerRect = container.getBoundingClientRect();
+    return {
+        x: containerRect.left + containerRect.width / 2,
+        y: containerRect.top + containerRect.height / 2,
+    };
 };
 
 const copyItem = (canvas: fabric.Canvas): void => {

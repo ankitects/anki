@@ -12,7 +12,7 @@ import { optimumCssSizeForCanvas } from "./canvas-scale";
 import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
 import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
-import { enableSelectable, moveShapeToCanvasBoundaries } from "./tools/lib";
+import { enableSelectable, moveShapeToCanvasBoundaries, zoomReset } from "./tools/lib";
 import { modifiedPolygon } from "./tools/tool-polygon";
 import { undoStack } from "./tools/tool-undo-redo";
 import type { Size } from "./types";
@@ -137,7 +137,7 @@ export const setCanvasZoomRatio = (
     const zoomRatioH = (innerHeight - 100) / canvas.height!;
     const zoomRatio = zoomRatioW < zoomRatioH ? zoomRatioW : zoomRatioH;
     zoomResetValue.set(zoomRatio);
-    instance.zoomAbs(0, 0, zoomRatio);
+    zoomReset(instance);
 };
 
 const addClozeNotesToTextEditor = (header: string, backExtra: string, tags: string[]) => {

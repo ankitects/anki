@@ -57,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             minZoom: 0.1,
             zoomDoubleClickSpeed: 1,
             smoothScroll: false,
-            autocenter: true,
+            transformOrigin: { x: 0.5, y: 0.5 },
         });
         instance.pause();
 

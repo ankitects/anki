@@ -3,13 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "@tslib/ftl";
     import { directionKey } from "@tslib/context-keys";
+    import * as tr from "@tslib/ftl";
     import DropdownItem from "components/DropdownItem.svelte";
     import IconButton from "components/IconButton.svelte";
     import Popover from "components/Popover.svelte";
     import Shortcut from "components/Shortcut.svelte";
     import WithFloating from "components/WithFloating.svelte";
+    import { getContext } from "svelte";
+    import type { Readable } from "svelte/store";
 
     import { mdiEye, mdiFormatAlignCenter, mdiSquare, mdiViewDashboard } from "./icons";
     import { emitChangeSignal } from "./MaskEditor.svelte";
@@ -26,8 +28,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { tools } from "./tools/tool-buttons";
     import { removeUnfinishedPolygon } from "./tools/tool-polygon";
     import { undoRedoTools, undoStack } from "./tools/tool-undo-redo";
-    import { getContext } from "svelte";
-    import type { Readable } from "svelte/store";
 
     export let canvas;
     export let instance;
