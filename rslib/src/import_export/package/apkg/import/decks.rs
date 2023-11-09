@@ -29,17 +29,10 @@ impl<'d> DeckContext<'d> {
 }
 
 impl Context<'_> {
-    pub(super) fn import_decks_and_configs(
-        &mut self,
-        keep_filtered: bool,
-    ) -> Result<HashMap<DeckId, DeckId>> {
+    pub(super) fn import_decks_and_configs(&mut self) -> Result<HashMap<DeckId, DeckId>> {
         let mut ctx = DeckContext::new(self.target_col, self.usn);
         ctx.import_deck_configs(mem::take(&mut self.data.deck_configs))?;
-        ctx.import_decks(
-            mem::take(&mut self.data.decks),
-            keep_filtered,
-            self.with_deck_configs,
-        )?;
+        ctx.import_decks(mem::take(&mut self.data.decks))?;
         Ok(ctx.imported_decks)
     }
 }
@@ -53,40 +46,14 @@ impl DeckContext<'_> {
         Ok(())
     }
 
-    fn import_decks(
-        &mut self,
-        mut decks: Vec<Deck>,
-        keep_filtered: bool,
-        keep_configs: bool,
-    ) -> Result<()> {
+    fn import_decks(&mut self, mut decks: Vec<Deck>) -> Result<()> {
         // ensure parents are seen before children
         decks.sort_unstable_by_key(|deck| deck.level());
         for deck in &mut decks {
-            self.prepare_deck(deck, keep_filtered, keep_configs);
+            self.maybe_reparent(deck);
             self.import_deck(deck)?;
         }
         Ok(())
-    }
-
-    fn prepare_deck(&self, deck: &mut Deck, keep_filtered: bool, keep_config: bool) {
-        self.maybe_reparent(deck);
-        match &deck.kind {
-            DeckKind::Filtered(_) if !keep_filtered => {
-                deck.kind = DeckKind::Normal(NormalDeck {
-                    config_id: 1,
-                    ..Default::default()
-                })
-            }
-            DeckKind::Normal(normal) if !keep_config => {
-                deck.kind = DeckKind::Normal(NormalDeck {
-                    config_id: 1,
-                    description: normal.description.clone(),
-                    markdown_description: normal.markdown_description,
-                    ..Default::default()
-                })
-            }
-            _ => (),
-        }
     }
 
     fn import_deck(&mut self, deck: &mut Deck) -> Result<()> {
@@ -224,7 +191,7 @@ mod test {
             DeckAdder::new("NEW PARENT::child").deck(),
             DeckAdder::new("new parent").deck(),
         ];
-        ctx.import_decks(imports, false, false).unwrap();
+        ctx.import_decks(imports).unwrap();
         let existing_decks: HashSet<_> = ctx
             .target_col
             .get_all_deck_names(true)

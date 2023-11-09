@@ -6,7 +6,6 @@ mod decks;
 mod media;
 mod notes;
 
-use std::collections::HashSet;
 use std::fs::File;
 use std::path::Path;
 
@@ -41,7 +40,6 @@ struct Context<'a> {
     merge_notetypes: bool,
     update_notes: UpdateCondition,
     update_notetypes: UpdateCondition,
-    with_deck_configs: bool,
     media_manager: MediaManager,
     archive: ZipArchive<File>,
     meta: Meta,
@@ -95,7 +93,6 @@ impl<'a> Context<'a> {
             merge_notetypes: options.merge_notetypes,
             update_notes: options.update_notes(),
             update_notetypes: options.update_notetypes(),
-            with_deck_configs: options.with_deck_configs,
             media_manager,
             archive,
             meta,
@@ -114,14 +111,12 @@ impl<'a> Context<'a> {
             .collect();
         let mut media_map = self.prepare_media()?;
         let note_imports = self.import_notes_and_notetypes(&mut media_map)?;
-        let keep_filtered = self.data.enables_filtered_decks();
-        let imported_decks = self.import_decks_and_configs(keep_filtered)?;
+        let imported_decks = self.import_decks_and_configs()?;
         self.import_cards_and_revlog(
             &note_imports.id_map,
             &notetypes,
             &note_imports.remapped_templates,
             &imported_decks,
-            keep_filtered,
         )?;
         self.copy_media(&mut media_map)?;
         Ok(note_imports.log)
@@ -147,27 +142,6 @@ impl ExchangeData {
         data.gather_data(&mut col, search, with_scheduling, with_deck_configs)?;
 
         Ok(data)
-    }
-
-    fn enables_filtered_decks(&self) -> bool {
-        // Earlier versions relied on the importer handling filtered decks by converting
-        // them into regular ones, so there is no guarantee that all original decks
-        // are included. And the legacy exporter included the default deck config, so we
-        // can't use it to determine if scheduling is included.
-        self.contains_scheduling()
-            && self.contains_all_original_decks()
-            && !self.deck_configs.is_empty()
-    }
-
-    fn contains_scheduling(&self) -> bool {
-        !self.revlog.is_empty()
-    }
-
-    fn contains_all_original_decks(&self) -> bool {
-        let deck_ids: HashSet<_> = self.decks.iter().map(|d| d.id).collect();
-        self.cards
-            .iter()
-            .all(|c| c.original_deck_id.0 == 0 || deck_ids.contains(&c.original_deck_id))
     }
 }
 
