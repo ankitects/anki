@@ -23,7 +23,7 @@ from aqt.utils import askUser, is_gesture_or_zoom_event, openLink, showInfo, tr
 serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
 
 if TYPE_CHECKING:
-    from aqt.mediasrv import LegacyPageContext
+    from aqt.mediasrv import PageContext
 
 
 # Page for debug messages
@@ -383,21 +383,21 @@ class AnkiWebView(QWebEngineView):
             super().dropEvent(evt)
 
     def setHtml(  #  type: ignore[override]
-        self, html: str, context: LegacyPageContext | None = None
+        self, html: str, context: PageContext | None = None
     ) -> None:
-        from aqt.mediasrv import LegacyPageContext
+        from aqt.mediasrv import PageContext
 
         # discard any previous pending actions
         self._pendingActions = []
         self._domDone = True
         if context is None:
-            context = LegacyPageContext.OTHER
+            context = PageContext.UNKNOWN
         self._queueAction("setHtml", html, context)
         self.set_open_links_externally(True)
         self.allow_drops = False
         self.show()
 
-    def _setHtml(self, html: str, context: LegacyPageContext) -> None:
+    def _setHtml(self, html: str, context: PageContext) -> None:
         """Send page data to media server, then surf to it.
 
         This function used to be implemented by QWebEngine's
@@ -582,12 +582,15 @@ html {{ {font} }}
 </html>"""
         # print(html)
         import aqt.editor
-        from aqt.mediasrv import LegacyPageContext
+        import aqt.reviewer
+        from aqt.mediasrv import PageContext
 
         if isinstance(context, aqt.editor.Editor):
-            page_context = LegacyPageContext.EDITOR
+            page_context = PageContext.EDITOR
+        elif isinstance(context, aqt.reviewer.Reviewer):
+            page_context = PageContext.REVIEWER
         else:
-            page_context = LegacyPageContext.OTHER
+            page_context = PageContext.UNKNOWN
         self.setHtml(html, page_context)
 
     @classmethod

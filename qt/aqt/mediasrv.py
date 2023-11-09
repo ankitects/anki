@@ -64,15 +64,18 @@ class NotFound:
 DynamicRequest = Callable[[], Response]
 
 
-class LegacyPageContext(enum.Enum):
-    OTHER = 0
+class PageContext(enum.Enum):
+    UNKNOWN = 0
     EDITOR = 1
+    REVIEWER = 2
+    # something in /_anki/pages/
+    NON_LEGACY_PAGE = 3
 
 
 @dataclass
 class LegacyPage:
     html: str
-    context: LegacyPageContext
+    context: PageContext
 
 
 class MediaServer(threading.Thread):
@@ -126,7 +129,7 @@ class MediaServer(threading.Thread):
         return int(self.server.effective_port)  # type: ignore
 
     def set_page_html(
-        self, id: int, html: str, context: LegacyPageContext = LegacyPageContext.OTHER
+        self, id: int, html: str, context: PageContext = PageContext.UNKNOWN
     ) -> None:
         self._legacy_pages[id] = LegacyPage(html, context)
 
@@ -136,7 +139,7 @@ class MediaServer(threading.Thread):
         else:
             return None
 
-    def get_page_context(self, id: int) -> LegacyPageContext | None:
+    def get_page_context(self, id: int) -> PageContext | None:
         if page := self._legacy_pages.get(id):
             return page.context
         else:
@@ -627,21 +630,40 @@ def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
         return NotFound(message=f"{path} not found")
 
 
-def _handle_dynamic_request(request: DynamicRequest) -> Response:
-    if legacy_context := _extract_legacy_page_context():
-        # legacy pages, apart from the editor, may contain third-party JS, so we do not
+def _check_dynamic_request_permissions():
+    if request.method == "GET":
+        return
+    context = _extract_page_context()
+
+    def warn() -> None:
+        show_warning(
+            "Unexpected API access. Please report this message on the Anki forums."
+        )
+
+    # check content type header to ensure this isn't an opaque request from another origin
+    if request.headers["Content-type"] != "application/binary":
+        aqt.mw.taskman.run_on_main(warn)
+        abort(403)
+
+    if context == PageContext.NON_LEGACY_PAGE or context == PageContext.EDITOR:
+        pass
+    elif context == PageContext.REVIEWER and request.path in (
+        "/_anki/getSchedulingStatesWithContext",
+        "/_anki/setSchedulingStates",
+    ):
+        # reviewer is only allowed to access custom study methods
+        pass
+    else:
+        # other legacy pages may contain third-party JS, so we do not
         # allow them to access our API
-        if legacy_context != LegacyPageContext.EDITOR:
+        aqt.mw.taskman.run_on_main(warn)
+        abort(403)
 
-            def warn() -> None:
-                show_warning(
-                    "Unexpected API access. Please report this message on the Anki forums."
-                )
 
-            aqt.mw.taskman.run_on_main(warn)
-            abort(403)
+def _handle_dynamic_request(req: DynamicRequest) -> Response:
+    _check_dynamic_request_permissions()
     try:
-        return request()
+        return req()
     except Exception as e:
         return flask.make_response(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
 
@@ -654,18 +676,19 @@ def legacy_page_data() -> Response:
         return flask.make_response("page not found", HTTPStatus.NOT_FOUND)
 
 
-def _extract_legacy_page_context() -> LegacyPageContext | None:
+def _extract_page_context() -> PageContext:
     "Get context based on referer header."
     from urllib.parse import parse_qs, urlparse
 
-    referer = request.headers.get("Referer", "")
-    if "legacyPageData" in referer:
-        parsed_url = urlparse(referer)
-        query_params = parse_qs(parsed_url.query)
+    referer = urlparse(request.headers.get("Referer", ""))
+    if referer.path.startswith("/_anki/pages/"):
+        return PageContext.NON_LEGACY_PAGE
+    elif referer.path == "/_anki/legacyPageData":
+        query_params = parse_qs(referer.query)
         id = int(query_params.get("id", [None])[0])
         return aqt.mw.mediaServer.get_page_context(id)
     else:
-        return None
+        return PageContext.UNKNOWN
 
 
 # this currently only handles a single method; in the future, idempotent
