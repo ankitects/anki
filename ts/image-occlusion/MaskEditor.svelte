@@ -57,6 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             minZoom: 0.1,
             zoomDoubleClickSpeed: 1,
             smoothScroll: false,
+            autocenter: true,
         });
         instance.pause();
 
@@ -109,10 +110,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding-bottom: 100px;
     }
 
+    :global([dir="rtl"]) .editor-main {
+        left: 2px;
+        right: 36px;
+    }
+
     .editor-container {
         width: 100%;
         height: 100%;
         position: relative;
+        direction: ltr;
     }
 
     #image {
