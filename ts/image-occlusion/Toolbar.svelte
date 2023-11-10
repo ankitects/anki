@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Popover from "components/Popover.svelte";
     import Shortcut from "components/Shortcut.svelte";
     import WithFloating from "components/WithFloating.svelte";
-    import { getContext } from "svelte";
+    import { getContext, onMount } from "svelte";
     import type { Readable } from "svelte/store";
 
     import { mdiEye, mdiFormatAlignCenter, mdiSquare, mdiViewDashboard } from "./icons";
@@ -44,6 +44,71 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (event.target == upperCanvas) {
             showAlignTools = false;
         }
+    });
+
+    // handle zoom event when mouse scroll and ctrl key are hold for panzoom
+    let clicked = false;
+    let dbclicked = false;
+    let move = false;
+    let wheel = false;
+
+    onMount(() => {
+        window.addEventListener("mousedown", (event) => {
+            if (event.ctrlKey) {
+                clicked = true;
+            }
+        });
+        window.addEventListener("mouseup", (event) => {
+            if (event.ctrlKey) {
+                clicked = false;
+            }
+        });
+        window.addEventListener("mousemove", (event) => {
+            if (event.ctrlKey) {
+                move = true;
+            }
+        });
+        window.addEventListener("wheel", (event) => {
+            if (event.ctrlKey) {
+                wheel = true;
+            }
+        });
+        window.addEventListener("dblclick", (event) => {
+            if (event.ctrlKey) {
+                dbclicked = true;
+            }
+        });
+        window.addEventListener("keyup", (event) => {
+            if (event.key == "Control") {
+                clicked = false;
+                move = false;
+                wheel = false;
+                dbclicked = false;
+            }
+        });
+        window.addEventListener("keydown", (event) => {
+            if (event.key == "Control") {
+                clicked = false;
+                move = false;
+                wheel = false;
+                dbclicked = false;
+            }
+        });
+        window.addEventListener("keydown", (event) => {
+            if (event.key == "Control" && activeTool != "magnify") {
+                instance.resume();
+            }
+        });
+        window.addEventListener("keyup", (event) => {
+            if (event.key == "Control" && activeTool != "magnify") {
+                instance.pause();
+            }
+        });
+        window.addEventListener("wheel", () => {
+            if (clicked && move && wheel && !dbclicked) {
+                enableMagnify();
+            }
+        });
     });
 
     // handle tool changes after initialization
