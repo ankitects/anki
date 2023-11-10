@@ -70,38 +70,31 @@ impl Collection {
         } else {
             card.due
         };
-        Ok(match (card.queue, card.ctype) {
-            (CardQueue::New, _)
-            | (
-                CardQueue::Suspended | CardQueue::SchedBuried | CardQueue::UserBuried,
-                CardType::New,
-            ) => (None, Some(due)),
-            (CardQueue::Learn, _)
-            | (
-                CardQueue::Suspended | CardQueue::SchedBuried | CardQueue::UserBuried,
-                CardType::Learn,
-            ) => (
-                Some(TimestampSecs::now().0),
-                card.original_position.map(|u| u as i32),
-            ),
-            (CardQueue::Review | CardQueue::DayLearn, CardType::New) => {
-                // new preview card not answered yet
-                (None, card.original_position.map(|u| u as i32))
+        Ok(match card.ctype {
+            CardType::New => {
+                if matches!(card.queue, CardQueue::Review | CardQueue::DayLearn) {
+                    // new preview card not answered yet
+                    (None, card.original_position.map(|u| u as i32))
+                } else {
+                    (None, Some(due))
+                }
             }
-            (CardQueue::Review | CardQueue::DayLearn, _)
-            | (
-                CardQueue::Suspended | CardQueue::SchedBuried | CardQueue::UserBuried,
-                CardType::Review,
-            ) => (
+            CardType::Review | CardType::Learn | CardType::Relearn => (
                 {
-                    let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
-                    let mut due = TimestampSecs::now();
-                    due.0 += (days_remaining as i64) * 86_400;
-                    Some(due.0)
+                    if card.ctype == CardType::Review
+                        || (matches!(card.ctype, CardType::Learn | CardType::Relearn)
+                            && card.due <= 1_000_000_000)
+                    {
+                        let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
+                        let mut due = TimestampSecs::now();
+                        due.0 += (days_remaining as i64) * 86_400;
+                        Some(due.0)
+                    } else {
+                        Some(TimestampSecs::now().0)
+                    }
                 },
                 card.original_position.map(|u| u as i32),
             ),
-            _ => (None, None),
         })
     }
 }
