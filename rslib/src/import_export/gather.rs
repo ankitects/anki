@@ -48,10 +48,7 @@ impl ExchangeData {
         self.decks = guard.col.gather_decks(with_scheduling, !with_scheduling)?;
         self.notetypes = guard.col.gather_notetypes()?;
 
-        // Earlier versions relied on the importer handling filtered decks by converting
-        // them into regular ones, so there is no guarantee that all original decks
-        // are included.
-        let allow_filtered = self.contains_all_original_decks();
+        let allow_filtered = self.enables_filtered_decks();
 
         if with_scheduling {
             self.revlog = guard.col.gather_revlog()?;
@@ -141,10 +138,31 @@ impl ExchangeData {
         }
     }
 
-    fn contains_all_original_decks(&self) -> bool {
-        self.cards.iter().all(|c| {
-            c.original_deck_id.0 == 0 || self.decks.iter().any(|d| d.id == c.original_deck_id)
-        })
+    /// Because the legacy exporter relied on the importer handling filtered
+    /// decks by converting them into regular ones, there are two scenarios to
+    /// watch out for:
+    /// 1. If exported without scheduling, cards have been reset, but their deck
+    ///    ids may point to filtered decks.
+    /// 2. If exported with scheduling, cards have not been reset, but their
+    ///    original deck ids may point to missing decks.
+    fn enables_filtered_decks(&self) -> bool {
+        self.cards
+            .iter()
+            .all(|c| self.card_and_its_deck_are_normal(c) || self.original_deck_exists(c))
+    }
+
+    fn card_and_its_deck_are_normal(&self, card: &Card) -> bool {
+        card.original_deck_id.0 == 0
+            && self
+                .decks
+                .iter()
+                .find(|d| d.id == card.deck_id)
+                .map(|d| !d.is_filtered())
+                .unwrap_or_default()
+    }
+
+    fn original_deck_exists(&self, card: &Card) -> bool {
+        card.original_deck_id.0 == 1 || self.decks.iter().any(|d| d.id == card.original_deck_id)
     }
 
     fn reset_cards(&mut self, col: &Collection) {
