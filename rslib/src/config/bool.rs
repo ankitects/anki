@@ -10,6 +10,7 @@ use crate::prelude::*;
 #[derive(Debug, Clone, Copy, IntoStaticStr)]
 #[strum(serialize_all = "camelCase")]
 pub enum BoolKey {
+    ApplyAllParentLimits,
     BrowserTableShowNotesMode,
     CardCountsSeparateInactive,
     CollapseCardState,

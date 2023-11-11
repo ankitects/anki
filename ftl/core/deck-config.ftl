@@ -44,6 +44,10 @@ deck-config-new-cards-ignore-review-limit-tooltip =
     By default, the review limit also applies to new cards, and no new cards will be
     shown when the review limit has been reached. If this option is enabled, new cards
     will be shown regardless of the review limit.
+deck-config-apply-all-parent-limits = Apply all parent limits
+deck-config-apply-all-parent-limits-tooltip =
+    By default, only the limits of the selected deck and its descendants are applied.
+    If this option is enabled, the limits of the selected deck's ancestors are applied as well.
 deck-config-affects-entire-collection = Affects the entire collection.
 
 ## Daily limit tabs: please try to keep these as short as the English version,

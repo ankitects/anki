@@ -229,25 +229,24 @@ pub(crate) struct LimitTreeMap {
 }
 
 impl LimitTreeMap {
-    /// Child [Deck]s must be sorted by name.
+    /// [Deck]s must be sorted by name.
     pub(crate) fn build(
-        root_deck: &Deck,
-        child_decks: Vec<Deck>,
+        decks: &[Deck],
         config: &HashMap<DeckConfigId, DeckConfig>,
         today: u32,
         new_cards_ignore_review_limit: bool,
     ) -> Self {
-        let root_limits = NodeLimits::new(root_deck, config, today, new_cards_ignore_review_limit);
+        let root_limits = NodeLimits::new(&decks[0], config, today, new_cards_ignore_review_limit);
         let mut tree = Tree::new();
         let root_id = tree
             .insert(Node::new(root_limits), InsertBehavior::AsRoot)
             .unwrap();
 
         let mut map = HashMap::new();
-        map.insert(root_deck.id, root_id.clone());
+        map.insert(decks[0].id, root_id.clone());
 
         let mut limits = Self { tree, map };
-        let mut remaining_decks = child_decks.into_iter().peekable();
+        let mut remaining_decks = decks[1..].iter().peekable();
         limits.add_child_nodes(
             root_id,
             &mut remaining_decks,
@@ -264,10 +263,10 @@ impl LimitTreeMap {
     /// Given [Deck]s are assumed to arrive in depth-first order.
     /// The tree-from-deck-list logic is taken from
     /// [crate::decks::tree::add_child_nodes].
-    fn add_child_nodes(
+    fn add_child_nodes<'d>(
         &mut self,
         parent_node_id: NodeId,
-        remaining_decks: &mut Peekable<impl Iterator<Item = Deck>>,
+        remaining_decks: &mut Peekable<impl Iterator<Item = &'d Deck>>,
         config: &HashMap<DeckConfigId, DeckConfig>,
         today: u32,
         new_cards_ignore_review_limit: bool,

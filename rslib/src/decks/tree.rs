@@ -142,11 +142,16 @@ impl AddAssign for NodeCountsV3 {
 fn sum_counts_and_apply_limits_v3(
     node: &mut DeckTreeNode,
     limits: &HashMap<DeckId, RemainingLimits>,
+    mut parent_limits: Option<RemainingLimits>,
 ) -> NodeCountsV3 {
-    let remaining = limits
+    let mut remaining = limits
         .get(&DeckId(node.deck_id))
         .copied()
         .unwrap_or_default();
+    if let Some(parent_remaining) = parent_limits {
+        remaining.cap_to(parent_remaining);
+        parent_limits.replace(remaining);
+    }
 
     // initialize with this node's values
     let mut this_node_uncapped = NodeCountsV3 {
@@ -160,7 +165,7 @@ fn sum_counts_and_apply_limits_v3(
 
     // add capped child counts / uncapped total
     for child in &mut node.children {
-        this_node_uncapped += sum_counts_and_apply_limits_v3(child, limits);
+        this_node_uncapped += sum_counts_and_apply_limits_v3(child, limits, parent_limits);
         total_including_children += child.total_including_children;
     }
 
@@ -266,6 +271,9 @@ impl Collection {
             let learn_cutoff = (timestamp.0 as u32) + self.learn_ahead_secs();
             let new_cards_ignore_review_limit =
                 self.get_config_bool(BoolKey::NewCardsIgnoreReviewLimit);
+            let parent_limits = self
+                .get_config_bool(BoolKey::ApplyAllParentLimits)
+                .then(Default::default);
             let counts = self.due_counts(days_elapsed, learn_cutoff)?;
             let dconf = self.storage.get_deck_config_map()?;
             add_counts(&mut tree, &counts);
@@ -275,7 +283,7 @@ impl Collection {
                 days_elapsed,
                 new_cards_ignore_review_limit,
             );
-            sum_counts_and_apply_limits_v3(&mut tree, &limits);
+            sum_counts_and_apply_limits_v3(&mut tree, &limits, parent_limits);
         }
 
         Ok(tree)

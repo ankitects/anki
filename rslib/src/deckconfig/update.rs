@@ -31,6 +31,7 @@ pub struct UpdateDeckConfigsRequest {
     pub card_state_customizer: String,
     pub limits: Limits,
     pub new_cards_ignore_review_limit: bool,
+    pub apply_all_parent_limits: bool,
     pub fsrs: bool,
 }
 
@@ -52,6 +53,7 @@ impl Collection {
                 .schema_changed_since_sync(),
             card_state_customizer: self.get_config_string(StringKey::CardStateCustomizer),
             new_cards_ignore_review_limit: self.get_config_bool(BoolKey::NewCardsIgnoreReviewLimit),
+            apply_all_parent_limits: self.get_config_bool(BoolKey::ApplyAllParentLimits),
             fsrs: self.get_config_bool(BoolKey::Fsrs),
         })
     }
@@ -255,6 +257,7 @@ impl Collection {
             BoolKey::NewCardsIgnoreReviewLimit,
             req.new_cards_ignore_review_limit,
         )?;
+        self.set_config_bool_inner(BoolKey::ApplyAllParentLimits, req.apply_all_parent_limits)?;
 
         Ok(())
     }
@@ -350,6 +353,7 @@ mod test {
         // add the keys so it doesn't trigger a change below
         col.set_config_string_inner(StringKey::CardStateCustomizer, "")?;
         col.set_config_bool_inner(BoolKey::NewCardsIgnoreReviewLimit, false)?;
+        col.set_config_bool_inner(BoolKey::ApplyAllParentLimits, false)?;
 
         // pretend we're in sync
         let stamps = col.storage.get_collection_timestamps()?;
@@ -383,6 +387,7 @@ mod test {
             card_state_customizer: "".to_string(),
             limits: Limits::default(),
             new_cards_ignore_review_limit: false,
+            apply_all_parent_limits: false,
             fsrs: false,
         };
         assert!(!col.update_deck_configs(input.clone())?.changes.had_change());
