@@ -213,7 +213,7 @@ mod test {
         let text = "テスト 漢字[かんじ] ひらがな";
         assert_eq!(
             furigana_filter(text).as_ref(),
-            "テスト <ruby><rb>漢字</rb><rt>かんじ</rt></ruby> ひらがな"
+            "テスト<ruby><rb>漢字</rb><rt>かんじ</rt></ruby> ひらがな"
         );
 
         let text_mixed = "学校[がっこう]で勉強[べんきょう]する";
