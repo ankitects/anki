@@ -210,12 +210,28 @@ mod test {
 
     #[test]
     fn furigana() {
-        let text = "test first[second] third[fourth]";
-        assert_eq!(kana_filter(text).as_ref(), "testsecondfourth");
-        assert_eq!(kanji_filter(text).as_ref(), "testfirstthird");
+        let text = "テスト 漢字[かんじ] ひらがな";
         assert_eq!(
-            furigana_filter("first[second]").as_ref(),
-            "<ruby><rb>first</rb><rt>second</rt></ruby>"
+            furigana_filter(text).as_ref(),
+            "テスト <ruby><rb>漢字</rb><rt>かんじ</rt></ruby> ひらがな"
+        );
+
+        let text_mixed = "学校[がっこう]で勉強[べんきょう]する";
+        assert_eq!(
+            furigana_filter(text_mixed).as_ref(),
+            "<ruby><rb>学校</rb><rt>がっこう</rt></ruby>で<ruby><rb>勉強</rb><rt>べんきょう</rt></ruby>する"
+        );
+
+        let text_hiragana = "これはひらがなです";
+        assert_eq!(
+            furigana_filter(text_hiragana).as_ref(),
+            "これはひらがなです"
+        );
+
+        let text_only_kanji = "漢[かん]字[じ]";
+        assert_eq!(
+            furigana_filter(text_only_kanji).as_ref(),
+            "<ruby><rb>漢</rb><rt>かん</rt></ruby><ruby><rb>字</rb><rt>じ</rt></ruby>"
         );
     }
 
