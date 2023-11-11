@@ -108,7 +108,8 @@ fn apply_filter(
 //----------------------------------------
 
 lazy_static! {
-    static ref FURIGANA: Regex = Regex::new(r" ?([^ >]+?)\[(.+?)\]").unwrap();
+    static ref FURIGANA: Regex =
+        Regex::new(r" ?([\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]+)\[(.+?)\]").unwrap();
 }
 
 /// Did furigana regex match a sound tag?
