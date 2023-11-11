@@ -137,11 +137,11 @@ def test_furigana():
     mm.save(m)
     n = col.newNote()
     # Using a kanji character in the test data
-    n["Front"] = "漢[かん]字[じ]"
+    n["Front"] = "テスト漢[かん]字[じ]"
     col.addNote(n)
     c = n.cards()[0]
     # Updated assertion to check for furigana around kanji
-    assert c.question().endswith("てすとかんじ")
+    assert c.question().endswith("テストかんじ")
     # and should avoid sound
     n["Front"] = "foo[sound:abc.mp3]"
     n.flush()
