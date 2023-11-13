@@ -22,6 +22,7 @@ const i18n = setupI18n({
         ModuleName.ACTIONS,
         ModuleName.DECK_CONFIG,
         ModuleName.KEYBOARD,
+        ModuleName.STUDYING,
     ],
 });
 

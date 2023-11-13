@@ -44,6 +44,11 @@ deck-config-new-cards-ignore-review-limit-tooltip =
     By default, the review limit also applies to new cards, and no new cards will be
     shown when the review limit has been reached. If this option is enabled, new cards
     will be shown regardless of the review limit.
+deck-config-apply-all-parent-limits = Limits start from top
+deck-config-apply-all-parent-limits-tooltip =
+    By default, limits start from the deck you select. If this option is enabled, the limits will
+    start from the top-level deck instead, which can be useful if you wish to study individual
+    sub-decks, while enforcing a total limit on cards/day.
 deck-config-affects-entire-collection = Affects the entire collection.
 
 ## Daily limit tabs: please try to keep these as short as the English version,
@@ -222,6 +227,17 @@ deck-config-maximum-answer-secs-tooltip =
 deck-config-show-answer-timer-tooltip =
     In the review screen, show a timer that counts the number of seconds you're
     taking to review each card.
+deck-config-stop-timer-on-answer = Stop timer on answer
+deck-config-stop-timer-on-answer-tooltip =
+    Whether to stop the timer when the answer is revealed.
+    This doesn't affect statistics.
+deck-config-seconds-to-show-question = Seconds to show question
+deck-config-seconds-to-show-question-tooltip = The number of seconds to wait before automatically advancing to the next question. Set to 0 to disable.
+deck-config-seconds-to-show-answer = Seconds to show answer
+deck-config-seconds-to-show-answer-tooltip = The number of seconds to wait before automatically revealing the answer. Set to 0 to disable.
+deck-config-answer-action = Answer action
+deck-config-answer-action-tooltip = The action to perform on the current card before automatically advancing to the next one.
+deck-config-wait-for-audio-tooltip = Wait for audio to finish before automatically revealing answer or next question
 
 ## Audio section
 
@@ -234,11 +250,6 @@ deck-config-skip-question-when-replaying = Skip question when replaying answer
 deck-config-always-include-question-audio-tooltip =
     Whether the question audio should be included when the Replay action is
     used while looking at the answer side of a card.
-deck-config-stop-timer-on-answer = Stop timer on answer
-deck-config-stop-timer-on-answer-tooltip =
-    Whether to stop the timer when the answer is revealed.
-    This doesn't affect statistics.
-
 ## Advanced section
 
 deck-config-advanced-title = Advanced

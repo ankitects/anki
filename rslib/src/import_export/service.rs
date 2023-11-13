@@ -22,6 +22,7 @@ impl crate::services::ImportExportService for Collection {
         Ok(anki_proto::import_export::ImportAnkiPackageOptions {
             merge_notetypes: self.get_config_bool(BoolKey::MergeNotetypes),
             with_scheduling: self.get_config_bool(BoolKey::WithScheduling),
+            with_deck_configs: self.get_config_bool(BoolKey::WithDeckConfigs),
             update_notes: self.get_update_notes() as i32,
             update_notetypes: self.get_update_notetypes() as i32,
         })
@@ -33,10 +34,8 @@ impl crate::services::ImportExportService for Collection {
     ) -> Result<generic::UInt32> {
         self.export_apkg(
             &input.out_path,
-            SearchNode::from(input.limit.unwrap_or_default()),
-            input.with_scheduling,
-            input.with_media,
-            input.legacy,
+            input.options.unwrap_or_default(),
+            input.limit.unwrap_or_default(),
             None,
         )
         .map(Into::into)

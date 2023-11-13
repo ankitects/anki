@@ -50,11 +50,15 @@ importing-notes-skipped-as-theyre-already-in = Notes skipped, as up-to-date copi
 importing-notes-skipped-update-due-to-notetype = Notes not updated, as notetype has been modified since you first imported the notes: { $val }
 importing-notes-updated-as-file-had-newer = Notes updated, as file had newer version: { $val }
 importing-include-reviews = Include reviews
-importing-also-import-progress = Also import any learning progress
+importing-also-import-progress = Import any learning progress
+importing-with-deck-configs = Import any deck presets
 importing-updates = Updates
 importing-include-reviews-help =
     If enabled, any previous reviews that the deck sharer included will also be imported.
     Otherwise, all cards will be imported as new cards.
+importing-with-deck-configs-help =
+    If enabled, any deck options that the deck sharer included will also be imported.
+    Otherwise, all decks will be assigned the default preset.
 importing-packaged-anki-deckcollection-apkg-colpkg-zip = Packaged Anki Deck/Collection (*.apkg *.colpkg *.zip)
 importing-pauker-18-lesson-paugz = Pauker 1.8 Lesson (*.pau.gz)
 # the '|' character

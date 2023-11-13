@@ -36,7 +36,7 @@ rev = "184b2ca50ed39ca43da13f0b830a463861adb9ca"
 
 [workspace.dependencies.fsrs]
 git = "https://github.com/open-spaced-repetition/fsrs-rs.git"
-rev = "725417fe310b74a719e18c2127f64223be1cb669"
+rev = "67163045ba9916e8a41f384fdb5ea414773139bd"
 # path = "../../../fsrs-rs"
 
 [workspace.dependencies]
@@ -143,6 +143,7 @@ zip = { version = "0.6.6", default-features = false, features = ["deflate", "tim
 zstd = { version = "0.13.0", features = ["zstdmt"] }
 envy = "0.4.2"
 dirs = "5.0.1"
+dunce = "1.0.4"
 
 # Apply mild optimizations to our dependencies in dev mode, which among other things
 # improves sha2 performance by about 21x. Opt 1 chosen due to
