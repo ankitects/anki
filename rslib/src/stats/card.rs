@@ -81,7 +81,7 @@ impl Collection {
             }
             CardType::Review | CardType::Learn | CardType::Relearn => (
                 {
-                    if card.due <= 1_000_000_000 {
+                    if due <= 1_000_000_000 {
                         let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
                         let mut due = TimestampSecs::now();
                         due.0 += (days_remaining as i64) * 86_400;
