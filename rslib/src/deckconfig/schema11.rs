@@ -24,6 +24,10 @@ use crate::serde::default_on_invalid;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 
+fn wait_for_audio_default() -> bool {
+    true
+}
+
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct DeckConfSchema11 {
@@ -72,12 +76,32 @@ pub struct DeckConfSchema11 {
     #[serde(default)]
     stop_timer_on_answer: bool,
     #[serde(default)]
+    seconds_to_show_question: f32,
+    #[serde(default)]
+    seconds_to_show_answer: f32,
+    #[serde(default)]
+    answer_action: AnswerAction,
+    #[serde(default = "wait_for_audio_default")]
+    wait_for_audio: bool,
+    #[serde(default)]
     reschedule_fsrs_cards: bool,
     #[serde(default)]
     sm2_retention: f32,
 
     #[serde(flatten)]
     other: HashMap<String, Value>,
+}
+
+#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, Clone)]
+#[repr(u8)]
+#[derive(Default)]
+pub enum AnswerAction {
+    #[default]
+    BuryCard = 0,
+    AnswerAgain = 1,
+    AnswerGood = 2,
+    AnswerHard = 3,
+    ShowReminder = 4,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -249,6 +273,10 @@ impl Default for DeckConfSchema11 {
             autoplay: true,
             timer: 0,
             stop_timer_on_answer: false,
+            seconds_to_show_question: 0.0,
+            seconds_to_show_answer: 0.0,
+            answer_action: AnswerAction::BuryCard,
+            wait_for_audio: true,
             replayq: true,
             dynamic: false,
             new: Default::default(),
@@ -331,6 +359,10 @@ impl From<DeckConfSchema11> for DeckConfig {
                 cap_answer_time_to_secs: c.max_taken.max(0) as u32,
                 show_timer: c.timer != 0,
                 stop_timer_on_answer: c.stop_timer_on_answer,
+                seconds_to_show_question: c.seconds_to_show_question,
+                seconds_to_show_answer: c.seconds_to_show_answer,
+                answer_action: c.answer_action as i32,
+                wait_for_audio: c.wait_for_audio,
                 skip_question_when_replaying_answer: !c.replayq,
                 bury_new: c.new.bury,
                 bury_reviews: c.rev.bury,
@@ -385,6 +417,16 @@ impl From<DeckConfig> for DeckConfSchema11 {
             autoplay: !i.disable_autoplay,
             timer: i.show_timer.into(),
             stop_timer_on_answer: i.stop_timer_on_answer,
+            seconds_to_show_question: i.seconds_to_show_question,
+            seconds_to_show_answer: i.seconds_to_show_answer,
+            answer_action: match i.answer_action {
+                0 => AnswerAction::BuryCard,
+                1 => AnswerAction::AnswerAgain,
+                3 => AnswerAction::AnswerHard,
+                4 => AnswerAction::ShowReminder,
+                _ => AnswerAction::AnswerGood,
+            },
+            wait_for_audio: i.wait_for_audio,
             replayq: !i.skip_question_when_replaying_answer,
             dynamic: false,
             new: NewConfSchema11 {
@@ -459,6 +501,10 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "fsrsWeights",
     "desiredRetention",
     "stopTimerOnAnswer",
+    "secondsToShowQuestion",
+    "secondsToShowAnswer",
+    "answerAction",
+    "waitForAudio",
     "rescheduleFsrsCards",
     "sm2Retention",
 };

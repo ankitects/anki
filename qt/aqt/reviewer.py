@@ -129,6 +129,14 @@ class V3CardInfo:
             return CardAnswer.EASY
 
 
+class AnswerAction(Enum):
+    BURY_CARD = 0
+    ANSWER_AGAIN = 1
+    ANSWER_GOOD = 2
+    ANSWER_HARD = 3
+    SHOW_REMINDER = 4
+
+
 class Reviewer:
     def __init__(self, mw: AnkiQt) -> None:
         self.mw = mw
@@ -147,6 +155,10 @@ class Reviewer:
         self._previous_card_info = PreviousReviewerCardInfo(self.mw)
         self._states_mutated = True
         self._reps: int = None
+        self._show_question_timer: QTimer | None = None
+        self._show_answer_timer: QTimer | None = None
+        self.auto_advance_enabled = False
+        gui_hooks.av_player_did_end_playing.append(self._on_av_player_did_end_playing)
 
     def show(self) -> None:
         if self.mw.col.sched_ver() == 1 or not self.mw.col.v3_scheduler():
@@ -175,6 +187,7 @@ class Reviewer:
     def cleanup(self) -> None:
         gui_hooks.reviewer_will_end()
         self.card = None
+        self.auto_advance_enabled = False
 
     def refresh_if_needed(self) -> None:
         if self._refresh_needed is RefreshNeeded.QUEUES:
@@ -282,6 +295,21 @@ class Reviewer:
             replay_audio(self.card, False)
         gui_hooks.audio_will_replay(self.web, self.card, self.state == "question")
 
+    def _on_av_player_did_end_playing(self, *args) -> None:
+        def task() -> None:
+            if av_player.queue_is_empty():
+                if self._show_question_timer and not sip.isdeleted(
+                    self._show_question_timer
+                ):
+                    self._on_show_question_timeout()
+                elif self._show_answer_timer and not sip.isdeleted(
+                    self._show_answer_timer
+                ):
+                    self._on_show_answer_timeout()
+
+        # Allow time for audio queue to update
+        self.mw.taskman.run_on_main(lambda: self.mw.progress.single_shot(100, task))
+
     # Initializing the webview
     ##########################################################################
 
@@ -363,6 +391,35 @@ class Reviewer:
         self.mw.web.setFocus()
         # user hook
         gui_hooks.reviewer_did_show_question(c)
+        self._auto_advance_to_answer_if_enabled()
+
+    def _auto_advance_to_answer_if_enabled(self) -> None:
+        if self.auto_advance_enabled:
+            conf = self.mw.col.decks.config_dict_for_deck_id(
+                self.card.current_deck_id()
+            )
+            timer = None
+            if conf["secondsToShowAnswer"]:
+                timer = self._show_answer_timer = self.mw.progress.timer(
+                    int(conf["secondsToShowAnswer"] * 1000),
+                    lambda: self._on_show_answer_timeout(timer),
+                    repeat=False,
+                    parent=self.mw,
+                )
+
+    def _on_show_answer_timeout(self, timer: QTimer | None = None) -> None:
+        if self.card is None:
+            return
+        conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
+        if (conf["waitForAudio"] and av_player.current_player) or (
+            timer and self._show_answer_timer != timer
+        ):
+            return
+        if self._show_answer_timer is not None:
+            self._show_answer_timer.deleteLater()
+        if not self.auto_advance_enabled:
+            return
+        self._showAnswer()
 
     def autoplay(self, card: Card) -> bool:
         print("use card.autoplay() instead of reviewer.autoplay(card)")
@@ -404,6 +461,48 @@ class Reviewer:
         self.mw.web.setFocus()
         # user hook
         gui_hooks.reviewer_did_show_answer(c)
+        self._auto_advance_to_question_if_enabled()
+
+    def _auto_advance_to_question_if_enabled(self) -> None:
+        if self.auto_advance_enabled:
+            conf = self.mw.col.decks.config_dict_for_deck_id(
+                self.card.current_deck_id()
+            )
+            timer = None
+            if conf["secondsToShowQuestion"]:
+                timer = self._show_question_timer = self.mw.progress.timer(
+                    int(conf["secondsToShowQuestion"] * 1000),
+                    lambda: self._on_show_question_timeout(timer),
+                    repeat=False,
+                    parent=self.mw,
+                )
+
+    def _on_show_question_timeout(self, timer: QTimer | None = None) -> None:
+        if self.card is None:
+            return
+        conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
+        if (conf["waitForAudio"] and av_player.current_player) or (
+            timer and self._show_question_timer != timer
+        ):
+            return
+        if self._show_question_timer is not None:
+            self._show_question_timer.deleteLater()
+        if not self.auto_advance_enabled:
+            return
+        try:
+            answer_action = list(AnswerAction)[conf["answerAction"]]
+        except IndexError:
+            answer_action = AnswerAction.ANSWER_GOOD
+        if answer_action == AnswerAction.BURY_CARD:
+            self.bury_current_card()
+        elif answer_action == AnswerAction.ANSWER_AGAIN:
+            self._answerCard(1)
+        elif answer_action == AnswerAction.ANSWER_HARD:
+            self._answerCard(2)
+        elif answer_action == AnswerAction.SHOW_REMINDER:
+            tooltip(tr.studying_answer_time_elapsed())
+        else:
+            self._answerCard(3)
 
     # Answering a card
     ############################################################
@@ -507,6 +606,7 @@ class Reviewer:
             ("5", self.on_pause_audio),
             ("6", self.on_seek_backward),
             ("7", self.on_seek_forward),
+            ("Shift+A", self.toggle_auto_advance),
             *self.korean_shortcuts(),
         ]
 
@@ -883,6 +983,12 @@ timerStopped = false;
             [tr.studying_audio_and5s(), "7", self.on_seek_forward],
             [tr.studying_record_own_voice(), "Shift+V", self.onRecordVoice],
             [tr.studying_replay_own_voice(), "V", self.onReplayRecorded],
+            [
+                tr.actions_auto_advance(),
+                "Shift+A",
+                self.toggle_auto_advance,
+                dict(checked=self.auto_advance_enabled),
+            ],
         ]
         return opts
 
@@ -1038,6 +1144,16 @@ timerStopped = false;
             tooltip(tr.studying_you_havent_recorded_your_voice_yet())
             return
         av_player.play_file(self._recordedAudio)
+
+    def toggle_auto_advance(self) -> None:
+        self.auto_advance_enabled = not self.auto_advance_enabled
+        self.auto_advance_if_enabled()
+
+    def auto_advance_if_enabled(self) -> None:
+        if self.state == "question":
+            self._auto_advance_to_answer_if_enabled()
+        elif self.state == "answer":
+            self._auto_advance_to_question_if_enabled()
 
     # legacy
 

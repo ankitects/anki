@@ -1,12 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::io::BufWriter;
+use std::io::Cursor;
 use std::io::Write;
 use std::path::Path;
 
 use anki_io::create_dir_all;
-use anki_io::create_file;
+use anki_io::write_file_if_changed;
 use anki_proto_gen::BackendService;
 use anki_proto_gen::Method;
 use anyhow::Result;
@@ -18,7 +18,7 @@ use prost_reflect::MessageDescriptor;
 pub(crate) fn write_python_interface(services: &[BackendService]) -> Result<()> {
     let output_path = Path::new("../../out/pylib/anki/_backend_generated.py");
     create_dir_all(output_path.parent().unwrap())?;
-    let mut out = BufWriter::new(create_file(output_path)?);
+    let mut out = Cursor::new(Vec::new());
     write_header(&mut out)?;
 
     for service in services {
@@ -29,6 +29,7 @@ pub(crate) fn write_python_interface(services: &[BackendService]) -> Result<()> 
             render_method(service, method, &mut out);
         }
     }
+    write_file_if_changed(output_path, out.into_inner())?;
 
     Ok(())
 }
