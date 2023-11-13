@@ -26,6 +26,7 @@ sync-wrong-pass = AnkiWeb ID or password was incorrect; please try again.
 sync-resync-required = Please sync again. If this message keeps appearing, please post on the support site.
 sync-must-wait-for-end = Anki is currently syncing. Please wait for the sync to complete, then try again.
 sync-confirm-empty-download = Local collection has no cards. Download from AnkiWeb?
+sync-confirm-empty-upload = AnkiWeb collection has no cards. Replace it with local collection?
 sync-conflict-explanation =
     Your decks here and on AnkiWeb differ in such a way that they can't be merged together, so it's necessary to overwrite the decks on one side with the decks from the other.
     

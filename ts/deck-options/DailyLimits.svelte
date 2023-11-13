@@ -45,6 +45,7 @@
     const limits = state.deckLimits;
     const defaults = state.defaults;
     const newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
+    const applyAllParentLimits = state.applyAllParentLimits;
 
     const v3Extra =
         "\n\n" + tr.deckConfigLimitDeckV3() + "\n\n" + tr.deckConfigTabDescription();
@@ -53,6 +54,10 @@
         tr.deckConfigAffectsEntireCollection() +
         "\n\n" +
         tr.deckConfigNewCardsIgnoreReviewLimitTooltip();
+    const applyAllParentLimitsHelp =
+        tr.deckConfigAffectsEntireCollection() +
+        "\n\n" +
+        tr.deckConfigApplyAllParentLimitsTooltip();
 
     $: reviewsTooLow =
         Math.min(9999, newValue * 10) > reviewsValue
@@ -129,6 +134,11 @@
             help: newCardsIgnoreReviewLimitHelp,
             url: HelpPage.DeckOptions.newCardsday,
         },
+        applyAllParentLimits: {
+            title: tr.deckConfigApplyAllParentLimits(),
+            help: applyAllParentLimitsHelp,
+            url: HelpPage.DeckOptions.newCardsday,
+        },
     };
     const helpSections = Object.values(settings) as HelpItem[];
 
@@ -190,6 +200,19 @@
                         )}
                 >
                     {settings.newCardsIgnoreReviewLimit.title}
+                </SettingTitle>
+            </SwitchRow>
+        </Item>
+
+        <Item>
+            <SwitchRow bind:value={$applyAllParentLimits} defaultValue={false}>
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(
+                            Object.keys(settings).indexOf("applyAllParentLimits"),
+                        )}
+                >
+                    {settings.applyAllParentLimits.title}
                 </SettingTitle>
             </SwitchRow>
         </Item>

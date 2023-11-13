@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import enum
 import logging
 import mimetypes
 import os
@@ -18,7 +19,7 @@ from typing import Callable
 import flask
 import flask_cors
 import stringcase
-from flask import Response, request
+from flask import Response, abort, request
 from waitress.server import create_server
 
 import aqt
@@ -35,10 +36,10 @@ from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
-from aqt.utils import aqt_data_path
+from aqt.utils import aqt_data_path, show_warning
 
 app = flask.Flask(__name__, root_path="/fake")
-flask_cors.CORS(app)
+flask_cors.CORS(app, resources={r"/*": {"origins": "127.0.0.1"}})
 
 
 @dataclass
@@ -63,6 +64,20 @@ class NotFound:
 DynamicRequest = Callable[[], Response]
 
 
+class PageContext(enum.Enum):
+    UNKNOWN = 0
+    EDITOR = 1
+    REVIEWER = 2
+    # something in /_anki/pages/
+    NON_LEGACY_PAGE = 3
+
+
+@dataclass
+class LegacyPage:
+    html: str
+    context: PageContext
+
+
 class MediaServer(threading.Thread):
     _ready = threading.Event()
     daemon = True
@@ -71,7 +86,7 @@ class MediaServer(threading.Thread):
         super().__init__()
         self.is_shutdown = False
         # map of webview ids to pages
-        self._page_html: dict[int, str] = {}
+        self._legacy_pages: dict[int, LegacyPage] = {}
 
     def run(self) -> None:
         try:
@@ -113,15 +128,26 @@ class MediaServer(threading.Thread):
         self._ready.wait()
         return int(self.server.effective_port)  # type: ignore
 
-    def set_page_html(self, id: int, html: str) -> None:
-        self._page_html[id] = html
+    def set_page_html(
+        self, id: int, html: str, context: PageContext = PageContext.UNKNOWN
+    ) -> None:
+        self._legacy_pages[id] = LegacyPage(html, context)
 
     def get_page_html(self, id: int) -> str | None:
-        return self._page_html.get(id)
+        if page := self._legacy_pages.get(id):
+            return page.html
+        else:
+            return None
+
+    def get_page_context(self, id: int) -> PageContext | None:
+        if page := self._legacy_pages.get(id):
+            return page.context
+        else:
+            return None
 
     def clear_page_html(self, id: int) -> None:
         try:
-            del self._page_html[id]
+            del self._legacy_pages[id]
         except KeyError:
             pass
 
@@ -256,22 +282,30 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
 
 @app.route("/<path:pathin>", methods=["GET", "POST"])
 def handle_request(pathin: str) -> Response:
-    request = _extract_request(pathin)
+    host = request.headers.get("Host", "").lower()
+    allowed_prefixes = ("127.0.0.1:", "localhost:", "[::1]:")
+    if not any(host.startswith(prefix) for prefix in allowed_prefixes):
+        # while we only bind to localhost, this request may have come from a local browser
+        # via a DNS rebinding attack
+        print("deny non-local host", host)
+        abort(403)
+
+    req = _extract_request(pathin)
     if dev_mode:
         print(f"{time.time():.3f} {flask.request.method} /{pathin}")
 
-    if isinstance(request, NotFound):
-        print(request.message)
+    if isinstance(req, NotFound):
+        print(req.message)
         return flask.make_response(
             f"Invalid path: {pathin}",
             HTTPStatus.NOT_FOUND,
         )
-    elif callable(request):
-        return _handle_dynamic_request(request)
-    elif isinstance(request, BundledFileRequest):
-        return _handle_builtin_file_request(request)
-    elif isinstance(request, LocalFileRequest):
-        return _handle_local_file_request(request)
+    elif callable(req):
+        return _handle_dynamic_request(req)
+    elif isinstance(req, BundledFileRequest):
+        return _handle_builtin_file_request(req)
+    elif isinstance(req, LocalFileRequest):
+        return _handle_local_file_request(req)
     else:
         return flask.make_response(
             f"unexpected request: {pathin}",
@@ -596,9 +630,40 @@ def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
         return NotFound(message=f"{path} not found")
 
 
-def _handle_dynamic_request(request: DynamicRequest) -> Response:
+def _check_dynamic_request_permissions():
+    if request.method == "GET":
+        return
+    context = _extract_page_context()
+
+    def warn() -> None:
+        show_warning(
+            "Unexpected API access. Please report this message on the Anki forums."
+        )
+
+    # check content type header to ensure this isn't an opaque request from another origin
+    if request.headers["Content-type"] != "application/binary":
+        aqt.mw.taskman.run_on_main(warn)
+        abort(403)
+
+    if context == PageContext.NON_LEGACY_PAGE or context == PageContext.EDITOR:
+        pass
+    elif context == PageContext.REVIEWER and request.path in (
+        "/_anki/getSchedulingStatesWithContext",
+        "/_anki/setSchedulingStates",
+    ):
+        # reviewer is only allowed to access custom study methods
+        pass
+    else:
+        # other legacy pages may contain third-party JS, so we do not
+        # allow them to access our API
+        aqt.mw.taskman.run_on_main(warn)
+        abort(403)
+
+
+def _handle_dynamic_request(req: DynamicRequest) -> Response:
+    _check_dynamic_request_permissions()
     try:
-        return request()
+        return req()
     except Exception as e:
         return flask.make_response(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
 
@@ -609,6 +674,21 @@ def legacy_page_data() -> Response:
         return Response(html, mimetype="text/html")
     else:
         return flask.make_response("page not found", HTTPStatus.NOT_FOUND)
+
+
+def _extract_page_context() -> PageContext:
+    "Get context based on referer header."
+    from urllib.parse import parse_qs, urlparse
+
+    referer = urlparse(request.headers.get("Referer", ""))
+    if referer.path.startswith("/_anki/pages/"):
+        return PageContext.NON_LEGACY_PAGE
+    elif referer.path == "/_anki/legacyPageData":
+        query_params = parse_qs(referer.query)
+        id = int(query_params.get("id", [None])[0])
+        return aqt.mw.mediaServer.get_page_context(id)
+    else:
+        return PageContext.UNKNOWN
 
 
 # this currently only handles a single method; in the future, idempotent

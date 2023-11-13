@@ -10,6 +10,7 @@ use crate::prelude::*;
 #[derive(Debug, Clone, Copy, IntoStaticStr)]
 #[strum(serialize_all = "camelCase")]
 pub enum BoolKey {
+    ApplyAllParentLimits,
     BrowserTableShowNotesMode,
     CardCountsSeparateInactive,
     CollapseCardState,
@@ -36,6 +37,7 @@ pub enum BoolKey {
     ShiftPositionOfExistingCards,
     MergeNotetypes,
     WithScheduling,
+    WithDeckConfigs,
     Fsrs,
     #[strum(to_string = "normalize_note_text")]
     NormalizeNoteText,

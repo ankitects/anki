@@ -29,7 +29,7 @@ async function postProtoInner(url: string, body: Uint8Array): Promise<Uint8Array
     const result = await fetch(url, {
         method: "POST",
         headers: {
-            "Content-Type": "application/octet-stream",
+            "Content-Type": "application/binary",
         },
         body,
     });
