@@ -1372,7 +1372,7 @@ dependencies = [
  "intl-memoizer",
  "intl_pluralrules",
  "rustc-hash",
- "self_cell",
+ "self_cell 0.10.3",
  "smallvec",
  "unic-langid",
 ]
@@ -1457,7 +1457,7 @@ dependencies = [
 [[package]]
 name = "fsrs"
 version = "0.1.0"
-source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?rev=725417fe310b74a719e18c2127f64223be1cb669#725417fe310b74a719e18c2127f64223be1cb669"
+source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?rev=67163045ba9916e8a41f384fdb5ea414773139bd#67163045ba9916e8a41f384fdb5ea414773139bd"
 dependencies = [
  "burn",
  "itertools 0.11.0",
@@ -3869,9 +3869,18 @@ dependencies = [
 
 [[package]]
 name = "self_cell"
-version = "0.10.2"
+version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ef965a420fe14fdac7dd018862966a4c14094f900e1650bbc71ddd7d580c8af"
+checksum = "e14e4d63b804dc0c7ec4a1e52bcb63f02c7ac94476755aa579edac21e01f915d"
+dependencies = [
+ "self_cell 1.0.2",
+]
+
+[[package]]
+name = "self_cell"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e388332cd64eb80cd595a00941baf513caffae8dce9cfd0467fc9c66397dade6"
 
 [[package]]
 name = "semver"

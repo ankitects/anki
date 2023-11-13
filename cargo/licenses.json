@@ -2503,7 +2503,16 @@
   },
   {
     "name": "self_cell",
-    "version": "0.10.2",
+    "version": "0.10.3",
+    "authors": "Lukas Bergdoll <lukas.bergdoll@gmail.com>",
+    "repository": "https://github.com/Voultapher/self_cell",
+    "license": "Apache-2.0",
+    "license_file": null,
+    "description": "Safe-to-use proc-macro-free self-referential structs in stable Rust."
+  },
+  {
+    "name": "self_cell",
+    "version": "1.0.2",
     "authors": "Lukas Bergdoll <lukas.bergdoll@gmail.com>",
     "repository": "https://github.com/Voultapher/self_cell",
     "license": "Apache-2.0",

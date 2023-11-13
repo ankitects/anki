@@ -70,27 +70,28 @@ impl Collection {
         } else {
             card.due
         };
-        Ok(match card.queue {
-            CardQueue::New => (None, Some(due)),
-            CardQueue::Learn => (
-                Some(TimestampSecs::now().0),
-                card.original_position.map(|u| u as i32),
-            ),
-            CardQueue::Review | CardQueue::DayLearn => (
+        Ok(match card.ctype {
+            CardType::New => {
+                if matches!(card.queue, CardQueue::Review | CardQueue::DayLearn) {
+                    // new preview card not answered yet
+                    (None, card.original_position.map(|u| u as i32))
+                } else {
+                    (None, Some(due))
+                }
+            }
+            CardType::Review | CardType::Learn | CardType::Relearn => (
                 {
-                    if card.ctype == CardType::New {
-                        // new preview card not answered yet
-                        None
-                    } else {
+                    if due <= 1_000_000_000 {
                         let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
                         let mut due = TimestampSecs::now();
                         due.0 += (days_remaining as i64) * 86_400;
                         Some(due.0)
+                    } else {
+                        Some(TimestampSecs::now().0)
                     }
                 },
                 card.original_position.map(|u| u as i32),
             ),
-            _ => (None, None),
         })
     }
 }
