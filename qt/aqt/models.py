@@ -147,6 +147,7 @@ class Models(QDialog):
         def on_success(notetype: NotetypeDict) -> None:
             # if legacy add-ons already added the notetype, skip adding
             if notetype["id"]:
+                self.refresh_list()
                 return
 
             # prompt for name
