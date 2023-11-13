@@ -28,10 +28,10 @@ function adjustFiles() {
 
     const jsFiles = allFilesInDir(root).filter(f => f.endsWith(".js"));
     for (const file of jsFiles) {
-        let contents = fs.readFileSync(file, "utf8");
+        const contents = fs.readFileSync(file, "utf8");
 
         // allow tree shaking on proto messages
-        contents = contents.replace(
+        let newContents = contents.replace(
             /= proto3.make/g,
             "= /* @__PURE__ */ proto3.make",
         );
@@ -39,9 +39,11 @@ function adjustFiles() {
         // strip out typeName info, which appears to only be required for
         // certain JSON functionality (though this only saves a few hundred
         // bytes)
-        contents = contents.replace(typeRe, "$1(\"\",");
+        newContents = contents.replace(typeRe, "$1(\"\",");
 
-        fs.writeFileSync(file, contents, "utf8");
+        if (contents != newContents) {
+            fs.writeFileSync(file, newContents, "utf8");
+        }
     }
 }
 

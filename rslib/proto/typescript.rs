@@ -11,6 +11,7 @@ use anki_proto_gen::BackendService;
 use anki_proto_gen::Method;
 use anyhow::Result;
 use inflections::Inflect;
+use itertools::Itertools;
 
 pub(crate) fn write_ts_interface(services: &[BackendService]) -> Result<()> {
     let root = Path::new("../../out/ts/lib");
@@ -59,7 +60,7 @@ import type { PostProtoOptions } from "./post";
 
 fn imports(referenced_packages: HashSet<String>) -> String {
     let mut out = String::new();
-    for package in referenced_packages {
+    for package in referenced_packages.iter().sorted() {
         writeln!(
             &mut out,
             "import * as {} from \"./anki/{}_pb\";",
