@@ -41,6 +41,7 @@ export class DeckOptionsState {
     readonly defaults: DeckConfig_Config;
     readonly addonComponents: Writable<DynamicSvelteComponent[]>;
     readonly newCardsIgnoreReviewLimit: Writable<boolean>;
+    readonly applyAllParentLimits: Writable<boolean>;
     readonly fsrs: Writable<boolean>;
     readonly currentPresetName: Writable<string>;
 
@@ -73,6 +74,7 @@ export class DeckOptionsState {
         this.cardStateCustomizer = writable(data.cardStateCustomizer);
         this.deckLimits = writable(data.currentDeck?.limits ?? createLimits());
         this.newCardsIgnoreReviewLimit = writable(data.newCardsIgnoreReviewLimit);
+        this.applyAllParentLimits = writable(data.applyAllParentLimits);
         this.fsrs = writable(data.fsrs);
 
         // decrement the use count of the starting item, as we'll apply +1 to currently
@@ -199,6 +201,7 @@ export class DeckOptionsState {
             cardStateCustomizer: get(this.cardStateCustomizer),
             limits: get(this.deckLimits),
             newCardsIgnoreReviewLimit: get(this.newCardsIgnoreReviewLimit),
+            applyAllParentLimits: get(this.applyAllParentLimits),
             fsrs: get(this.fsrs),
         };
     }
