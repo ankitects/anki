@@ -155,7 +155,7 @@ class AVPlayer:
         self._play_next_if_idle()
 
     def queue_is_empty(self) -> bool:
-        return bool(self._enqueued)
+        return not bool(self._enqueued)
 
     def stop_and_clear_queue(self) -> None:
         self._enqueued = []
