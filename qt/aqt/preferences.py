@@ -70,11 +70,6 @@ class Preferences(QDialog):
                 line_edit.textChanged,
                 functools.partial(self.mw.pm.set_answer_key, ease),
             )
-            line_edit.setValidator(
-                QRegularExpressionValidator(
-                    QRegularExpression(r"^[a-z0-9\]\[=,./;\'\\-]$")
-                )
-            )
             line_edit.setPlaceholderText(tr.preferences_shortcut_placeholder())
 
     def accept(self) -> None:
