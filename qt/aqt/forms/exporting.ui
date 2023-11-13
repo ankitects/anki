@@ -73,7 +73,7 @@
         <string>exporting_include_deck_configs</string>
        </property>
        <property name="checked">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -172,9 +172,14 @@
   <tabstop>format</tabstop>
   <tabstop>deck</tabstop>
   <tabstop>includeSched</tabstop>
+  <tabstop>include_deck_configs</tabstop>
   <tabstop>includeMedia</tabstop>
+  <tabstop>includeHTML</tabstop>
   <tabstop>includeTags</tabstop>
-  <tabstop>buttonBox</tabstop>
+  <tabstop>includeDeck</tabstop>
+  <tabstop>includeNotetype</tabstop>
+  <tabstop>includeGuid</tabstop>
+  <tabstop>legacy_support</tabstop>
  </tabstops>
  <resources/>
  <connections>
