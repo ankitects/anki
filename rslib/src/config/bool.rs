@@ -36,6 +36,7 @@ pub enum BoolKey {
     ShiftPositionOfExistingCards,
     MergeNotetypes,
     WithScheduling,
+    WithDeckConfigs,
     Fsrs,
     #[strum(to_string = "normalize_note_text")]
     NormalizeNoteText,

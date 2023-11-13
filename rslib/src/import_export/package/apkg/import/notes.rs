@@ -602,6 +602,7 @@ impl Notetype {
 
 #[cfg(test)]
 mod test {
+    use anki_proto::import_export::ExportAnkiPackageOptions;
     use anki_proto::import_export::ImportAnkiPackageOptions;
     use tempfile::TempDir;
 
@@ -961,7 +962,7 @@ mod test {
             .add(&mut src);
         let temp_dir = TempDir::new()?;
         let path = temp_dir.path().join("foo.apkg");
-        src.export_apkg(&path, "", false, false, false, None)?;
+        src.export_apkg(&path, ExportAnkiPackageOptions::default(), "", None)?;
 
         let mut dst = CollectionBuilder::new(temp_dir.path().join("dst.anki2"))
             .with_desktop_media_paths()
@@ -980,7 +981,7 @@ mod test {
         // importing again with merge disabled will fail for the exisitng note,
         // but the new one will be added with an extra notetype
         assert_eq!(dst.storage.get_all_notetype_names().unwrap().len(), 7);
-        src.export_apkg(&path, "", false, false, false, None)?;
+        src.export_apkg(&path, ExportAnkiPackageOptions::default(), "", None)?;
         assert_eq!(
             dst.import_apkg(&path, ImportAnkiPackageOptions::default())?
                 .output
@@ -992,7 +993,7 @@ mod test {
 
         // if enabling merge, it should succeed and remove the empty notetype, remapping
         // its note
-        src.export_apkg(&path, "", false, false, false, None)?;
+        src.export_apkg(&path, ExportAnkiPackageOptions::default(), "", None)?;
         assert_eq!(
             dst.import_apkg(
                 &path,

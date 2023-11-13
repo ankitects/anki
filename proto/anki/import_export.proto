@@ -58,6 +58,7 @@ message ImportAnkiPackageOptions {
   ImportAnkiPackageUpdateCondition update_notes = 2;
   ImportAnkiPackageUpdateCondition update_notetypes = 3;
   bool with_scheduling = 4;
+  bool with_deck_configs = 5;
 }
 
 message ImportAnkiPackageRequest {
@@ -88,10 +89,15 @@ message ImportResponse {
 
 message ExportAnkiPackageRequest {
   string out_path = 1;
-  bool with_scheduling = 2;
+  ExportAnkiPackageOptions options = 2;
+  ExportLimit limit = 3;
+}
+
+message ExportAnkiPackageOptions {
+  bool with_scheduling = 1;
+  bool with_deck_configs = 2;
   bool with_media = 3;
   bool legacy = 4;
-  ExportLimit limit = 5;
 }
 
 message PackageMetadata {
