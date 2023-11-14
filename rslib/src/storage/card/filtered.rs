@@ -5,7 +5,11 @@ use crate::card::CardQueue;
 use crate::decks::FilteredSearchOrder;
 use crate::decks::FilteredSearchTerm;
 
-pub(crate) fn order_and_limit_for_search(term: &FilteredSearchTerm, today: u32) -> String {
+pub(crate) fn order_and_limit_for_search(
+    term: &FilteredSearchTerm,
+    today: u32,
+    current_timestamp: i64,
+) -> String {
     let temp_string;
     let order = match term.order() {
         FilteredSearchOrder::OldestReviewedFirst => "(select max(id) from revlog where cid=c.id)",
@@ -15,7 +19,11 @@ pub(crate) fn order_and_limit_for_search(term: &FilteredSearchTerm, today: u32) 
         FilteredSearchOrder::Lapses => "lapses desc",
         FilteredSearchOrder::Added => "n.id, c.ord",
         FilteredSearchOrder::ReverseAdded => "n.id desc",
-        FilteredSearchOrder::Due => "c.due, c.ord",
+        FilteredSearchOrder::Due => {
+            temp_string = format!(
+                "(case when c.due > 1000000000 then due else (due - {today}) * 86400 + {current_timestamp} end), c.ord");
+            &temp_string
+        }
         FilteredSearchOrder::DuePriority => {
             temp_string = format!(
                 "
