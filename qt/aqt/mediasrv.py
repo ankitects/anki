@@ -70,6 +70,9 @@ class PageContext(enum.Enum):
     REVIEWER = 2
     # something in /_anki/pages/
     NON_LEGACY_PAGE = 3
+    # Do not use this if you present user content (e.g. content from cards), as it's a
+    # security issue.
+    ADDON_PAGE = 4
 
 
 @dataclass
@@ -645,7 +648,11 @@ def _check_dynamic_request_permissions():
         aqt.mw.taskman.run_on_main(warn)
         abort(403)
 
-    if context == PageContext.NON_LEGACY_PAGE or context == PageContext.EDITOR:
+    if (
+        context == PageContext.NON_LEGACY_PAGE
+        or context == PageContext.EDITOR
+        or context == PageContext.ADDON_PAGE
+    ):
         pass
     elif context == PageContext.REVIEWER and request.path in (
         "/_anki/getSchedulingStatesWithContext",
