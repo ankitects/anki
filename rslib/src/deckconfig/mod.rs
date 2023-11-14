@@ -77,6 +77,7 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     other: Vec::new(),
     reschedule_fsrs_cards: false,
     sm2_retention: 0.9,
+    weight_search: String::new(),
 };
 
 impl Default for DeckConfig {

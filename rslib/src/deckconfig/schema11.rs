@@ -87,6 +87,8 @@ pub struct DeckConfSchema11 {
     reschedule_fsrs_cards: bool,
     #[serde(default)]
     sm2_retention: f32,
+    #[serde(default)]
+    weight_search: String,
 
     #[serde(flatten)]
     other: HashMap<String, Value>,
@@ -294,6 +296,7 @@ impl Default for DeckConfSchema11 {
             desired_retention: 0.9,
             reschedule_fsrs_cards: false,
             sm2_retention: 0.9,
+            weight_search: "".to_string(),
         }
     }
 }
@@ -371,6 +374,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 desired_retention: c.desired_retention,
                 reschedule_fsrs_cards: c.reschedule_fsrs_cards,
                 sm2_retention: c.sm2_retention,
+                weight_search: c.weight_search,
                 other: other_bytes,
             },
         }
@@ -477,6 +481,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             desired_retention: i.desired_retention,
             reschedule_fsrs_cards: i.reschedule_fsrs_cards,
             sm2_retention: i.sm2_retention,
+            weight_search: i.weight_search,
         }
     }
 }
@@ -507,6 +512,7 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "waitForAudio",
     "rescheduleFsrsCards",
     "sm2Retention",
+    "weightSearch",
 };
 
 static RESERVED_DECKCONF_NEW_KEYS: Set<&'static str> = phf_set! {

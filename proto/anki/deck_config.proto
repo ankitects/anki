@@ -154,6 +154,7 @@ message DeckConfig {
     float desired_retention = 37;
     bool reschedule_fsrs_cards = 39;
     float sm2_retention = 40;
+    string weight_search = 45;
 
     bytes other = 255;
   }
