@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let keyCombination: string;
 </script>
 
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
     class="tag-options-button gap"
     bind:offsetHeight={badgeHeight}

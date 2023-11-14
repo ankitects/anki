@@ -2,7 +2,9 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<div class="tag-spacer" on:click>
+<!-- on:click allows clicking focus to the tag editor -->
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<div class="tag-spacer" on:click role="textbox" tabindex="-1">
     <br />
 </div>
 

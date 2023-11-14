@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
     import { getPlatformString } from "@tslib/shortcuts";
     import { dotsIcon } from "./icons";
+    import { onEnterOrSpace } from "@tslib/keys";
 
     const dispatch = createEventDispatcher();
 
@@ -29,7 +30,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     shift={0}
     let:asReference
 >
-    <div class="tags-selected-button" use:asReference on:click={() => (show = !show)}>
+    <div
+        class="tags-selected-button"
+        use:asReference
+        role="button"
+        tabindex="0"
+        on:click={() => (show = !show)}
+        on:keydown={onEnterOrSpace(() => (show = !show))}
+    >
         <IconConstrain>{@html dotsIcon}</IconConstrain>
     </div>
 
@@ -50,8 +58,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .tags-selected-button {
+        line-height: 1;
         :global(svg) {
-            padding-bottom: 2px;
             cursor: pointer;
             fill: currentColor;
             opacity: 0.6;
