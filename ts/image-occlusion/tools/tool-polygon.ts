@@ -4,7 +4,7 @@
 import { fabric } from "fabric";
 import type { PanZoom } from "panzoom";
 
-import { BORDER_COLOR, makeObjectRemainInCanvas, SHAPE_MASK_COLOR } from "./lib";
+import { BORDER_COLOR, SHAPE_MASK_COLOR } from "./lib";
 import { undoStack } from "./tool-undo-redo";
 
 let activeLine;
@@ -33,8 +33,6 @@ export const drawPolygon = (canvas: fabric.Canvas, panzoom: PanZoom): void => {
             // Cannot read properties of undefined (reading 'id')
         }
     });
-
-    makeObjectRemainInCanvas(canvas);
 
     canvas.on("mouse:move", function(options) {
         if (activeLine && activeLine.class === "line") {

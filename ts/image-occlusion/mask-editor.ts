@@ -12,7 +12,7 @@ import { optimumCssSizeForCanvas } from "./canvas-scale";
 import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
 import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
-import { enableSelectable, moveShapeToCanvasBoundaries, zoomReset } from "./tools/lib";
+import { enableSelectable, makeShapeRemainInCanvas, moveShapeToCanvasBoundaries, zoomReset } from "./tools/lib";
 import { modifiedPolygon } from "./tools/tool-polygon";
 import { undoStack } from "./tools/tool-undo-redo";
 import type { Size } from "./types";
@@ -109,6 +109,7 @@ function initCanvas(onChange: () => void): fabric.Canvas {
     // disable rotation globally
     delete fabric.Object.prototype.controls.mtr;
     moveShapeToCanvasBoundaries(canvas);
+    makeShapeRemainInCanvas(canvas);
     canvas.on("object:modified", (evt) => {
         if (evt.target instanceof fabric.Polygon) {
             modifiedPolygon(canvas, evt.target);

@@ -70,20 +70,6 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
             ellipse.set({ originY: "top" });
         }
 
-        // do not draw outside of canvas
-        if (x < ellipse.strokeWidth) {
-            rx = (origX + ellipse.strokeWidth + 0.5) / 2;
-        }
-        if (y < ellipse.strokeWidth) {
-            ry = (origY + ellipse.strokeWidth + 0.5) / 2;
-        }
-        if (x >= canvas.width - ellipse.strokeWidth) {
-            rx = (canvas.width - origX) / 2 - ellipse.strokeWidth + 0.5;
-        }
-        if (y > canvas.height - ellipse.strokeWidth) {
-            ry = (canvas.height - origY) / 2 - ellipse.strokeWidth + 0.5;
-        }
-
         ellipse.set({ rx: rx, ry: ry });
 
         canvas.renderAll();

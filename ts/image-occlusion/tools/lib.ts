@@ -60,8 +60,6 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
     }
 
     canvas.getActiveObject().toGroup();
-    makeObjectRemainInCanvas(canvas);
-
     redraw(canvas);
 };
 
@@ -275,13 +273,9 @@ export const clear = (canvas: fabric.Canvas): void => {
     canvas.clear();
 };
 
-export const makeObjectRemainInCanvas = (canvas: fabric.Canvas) => {
+export const makeShapeRemainInCanvas = (canvas: fabric.Canvas) => {
     canvas.on("object:moving", function(e) {
         const obj = e.target;
-        if (obj.type === "rect" || obj.type === "ellipse") {
-            return;
-        }
-
         if (obj.getScaledHeight() > obj.canvas.height || obj.getScaledWidth() > obj.canvas.width) {
             return;
         }
