@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@tslib/ftl";
+    import { onEnterOrSpace } from "@tslib/keys";
     import { slide } from "svelte/transition";
 
     import Badge from "../components/Badge.svelte";
@@ -29,7 +30,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="alert alert-warning" in:slide out:slide>
     {#if unused.length > maxItems}
-        <div class="clickable" on:click={() => (collapsed = !collapsed)}>
+        <div
+            class="clickable"
+            on:click={() => (collapsed = !collapsed)}
+            on:keydown={onEnterOrSpace(() => (collapsed = !collapsed))}
+            role="button"
+            tabindex="0"
+            aria-expanded={!collapsed}
+        >
             <Badge iconSize={80}>
                 {@html icon}
             </Badge>

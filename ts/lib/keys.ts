@@ -120,3 +120,14 @@ export function isArrowDown(event: KeyboardEvent): boolean {
 
     return isApplePlatform() && metaPressed(event) && event.code === "KeyN";
 }
+
+export function onEnterOrSpace(callback: () => void): (event: KeyboardEvent) => void {
+    return (event: KeyboardEvent) => {
+        switch (event.code) {
+            case "Enter":
+            case "Space":
+                callback();
+                break;
+        }
+    };
+}

@@ -21,10 +21,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<!-- toggle tabindex to allow Shift+Tab to move focus to the last field -->
+<!-- toggle tabindex to allow Tab to move focus to the tag editor from the last field -->
+<!-- and allow Shift+Tab to move focus to the last field while inputting tag -->
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
     class="tag-add-button"
     title="{tr.editingTagsAdd()} ({getPlatformString(keyCombination)})"
+    role="button"
     tabindex={$currentTagInput ? -1 : 0}
     on:click={appendTag}
     on:focus={appendTag}
