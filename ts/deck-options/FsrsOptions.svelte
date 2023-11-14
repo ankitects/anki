@@ -42,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         optimalRetention = 0;
     }
     $: computing = computingWeights || checkingWeights || computingRetention;
-    $: customSearch = `preset:"${$presetName}"`;
+    $: defaultWeightSearch = `preset:"${state.getCurrentName()}"`;
     $: desiredRetentionWarning = getRetentionWarning($config.desiredRetention);
     $: retentionWarningClass = getRetentionWarningClass($config.desiredRetention);
 
@@ -93,7 +93,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             await runWithBackendProgress(
                 async () => {
                     const resp = await computeFsrsWeights({
-                        search: customSearch,
+                        search: $config.weightSearch
+                            ? $config.weightSearch
+                            : defaultWeightSearch,
                     });
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
@@ -130,7 +132,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         try {
             await runWithBackendProgress(
                 async () => {
-                    const search = customSearch ?? `preset:"${state.getCurrentName()}"`;
+                    const search =
+                        $config.weightSearch ?? `preset:"${state.getCurrentName()}"`;
                     const resp = await evaluateWeights({
                         weights: $config.fsrsWeights,
                         search,
@@ -280,7 +283,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="m-2">
     <details>
         <summary>{tr.deckConfigComputeOptimalWeights()}</summary>
-        <input bind:value={customSearch} class="w-100 mb-1" />
+        <input
+            bind:value={$config.weightSearch}
+            placeholder={defaultWeightSearch}
+            class="w-100 mb-1"
+        />
         <button
             class="btn {computingWeights ? 'btn-warning' : 'btn-primary'}"
             disabled={!computingWeights && computing}
