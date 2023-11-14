@@ -8,7 +8,7 @@ use crate::decks::FilteredSearchTerm;
 pub(crate) fn order_and_limit_for_search(
     term: &FilteredSearchTerm,
     today: u32,
-    creation_timestamp: i64,
+    current_timestamp: i64,
 ) -> String {
     let temp_string;
     let order = match term.order() {
@@ -21,9 +21,7 @@ pub(crate) fn order_and_limit_for_search(
         FilteredSearchOrder::ReverseAdded => "n.id desc",
         FilteredSearchOrder::Due => {
             temp_string = format!(
-                "(case when c.due > 1000000000 then due else {} + c.due * 86400 end), c.ord",
-                creation_timestamp
-            );
+                "(case when c.due > 1000000000 then due else (due - {today}) * 86400 + {current_timestamp} end), c.ord");
             &temp_string
         }
         FilteredSearchOrder::DuePriority => {
