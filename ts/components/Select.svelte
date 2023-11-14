@@ -34,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         disabled,
     }));
     const buttons: HTMLButtonElement[] = Array(list.length);
-    let selected: number;
+    let selected: number | null = null;
     const last = list.length - 1;
     const ids = {
         popover: "popover",
@@ -76,8 +76,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const arrowDown = isArrowDown(event);
         const arrowUp = isArrowUp(event);
         const alt = altPressed(event);
+        if (arrowDown || arrowUp || event.code === "Space") {
+            event.preventDefault();
+        }
 
-        if (selected === undefined || selected < 0) {
+        if (selected === null || selected < 0) {
             if (
                 (arrowDown && alt) ||
                 event.code === "Enter" ||
@@ -121,21 +124,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             } else if (event.code === "End") {
                 selectFocus(Infinity);
             }
-            if (event.code === "Tab") {
-                // Tab actually should move DOM focus
-                const nextFocus = buttons[selected].parentElement?.nextElementSibling;
-                // selected = -1;
-                (nextFocus as HTMLElement).focus();
-            }
         }
     }
 
     $: if (showFloating === false) {
-        selected = -1;
+        selected = null;
     }
 
     function revealed() {
-        setTimeout(selectFocus, 0, selected);
+        if (selected !== null) {
+            setTimeout(selectFocus, 0, selected);
+        }
     }
 
     /**
@@ -150,7 +149,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             num = last;
         }
 
-        buttons[selected].classList.remove("focus");
+        if (selected !== null) {
+            buttons[selected].classList.remove("focus");
+        }
         buttons[num].classList.add("focus");
         selected = num;
     }

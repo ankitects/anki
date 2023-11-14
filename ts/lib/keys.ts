@@ -121,36 +121,13 @@ export function isArrowDown(event: KeyboardEvent): boolean {
     return isApplePlatform() && metaPressed(event) && event.code === "KeyN";
 }
 
-/**
- * Builds function for `on:keydown` event to call `callback` if a key from `keys` was pressed
- */
-export function onSomeKey(callback: () => void, ...keys: string[]): (event: KeyboardEvent) => void {
-    // I really want to generalize this as some structure of ([list of key combinations], function) pairs
-    /* For example:
-     [
-        {
-            keys: ["Space", "Enter"],
-            function: () => {console.log("space or enter");},
-        },
-        {
-            keys: "Control+C",
-            function: () => {console.log("copying...");},
-        },
-        {
-            keys: "Space",
-            function: () => {console.log("definitely a space")}
-        }
-     ]
-     */
-    // Note that all of a given key's functions should by called (both the first and third prints here)
-    // And overload to allow (() => {console.log("simple");}, "Enter", "Space")
-    return (event: KeyboardEvent): void => {
-        if (event.code in keys) {
-            callback();
+export function onEnterOrSpace(callback: () => void): (event: KeyboardEvent) => void {
+    return (event: KeyboardEvent) => {
+        switch (event.code) {
+            case "Enter":
+            case "Space":
+                callback();
+                break;
         }
     };
-}
-
-export function onEnterOrSpace(callback: () => void): (event: KeyboardEvent) => void {
-    return onSomeKey(callback, "Enter", "Space");
 }
