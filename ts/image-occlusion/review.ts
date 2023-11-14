@@ -156,7 +156,7 @@ function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOptions): vo
         }
 
         window.addEventListener("keydown", (event) => {
-            if (event.key === "h") {
+            if (event.key === "M") {
                 toggleMasks();
             }
         });
