@@ -121,7 +121,7 @@ impl Collection {
                 format!("({})", term.search)
             }
         );
-        let order = order_and_limit_for_search(term, ctx.today);
+        let order = order_and_limit_for_search(term, ctx.today, self.storage.creation_stamp()?.0);
 
         for mut card in self.all_cards_for_search_in_order(&search, SortMode::Custom(order))? {
             let original = card.clone();
