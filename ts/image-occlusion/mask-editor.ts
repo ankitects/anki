@@ -123,10 +123,18 @@ function initCanvas(onChange: () => void): fabric.Canvas {
 const getImageData = (imageData, path): string => {
     const b64encoded = protoBase64.enc(imageData);
     const extension = path.split(".").pop();
-    if (extension === "svg") {
-        return "data:image/svg+xml;base64," + b64encoded;
-    }
-    return "data:image/png;base64," + b64encoded;
+    const mimeTypes = {
+        "jpg": "jpeg",
+        "jpeg": "jpeg",
+        "gif": "gif",
+        "svg": "svg+xml",
+        "webp": "webp",
+        "avif": "avif",
+        "png": "png",
+    };
+
+    const type = mimeTypes[extension] || "png";
+    return `data:image/${type};base64,${b64encoded}`;
 };
 
 export const setCanvasZoomRatio = (
