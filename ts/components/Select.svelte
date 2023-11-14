@@ -80,13 +80,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             event.preventDefault();
         }
 
-        if (selected === null || selected < 0) {
+        if (selected === null) {
             if (
                 (arrowDown && alt) ||
                 event.code === "Enter" ||
                 event.code === "Space"
             ) {
                 showFloating = true;
+                selected = -2;
             } else if (arrowUp && alt) {
                 showFloating = false;
             } else if (arrowDown || event.code === "Home") {
@@ -108,8 +109,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 event.code === "Tab" ||
                 (arrowUp && altPressed(event))
             ) {
-                setValue(parsed[selected].value);
                 showFloating = false;
+                setValue(parsed[selected].value);
             } else if (arrowUp) {
                 selectFocus(selected - 1);
             } else if (arrowDown) {
@@ -143,18 +144,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
      * @param num index number to focus on
      */
     function selectFocus(num: number) {
+        if (selected === -2) {
+            selected = -1;
+            return;
+        }
         if (num < 0) {
             num = 0;
         } else if (num > last) {
             num = last;
         }
 
-        if (selected !== null) {
+        if (selected !== null && selected >= 0) {
             buttons[selected].classList.remove("focus");
         }
-        buttons[num].classList.add("focus");
-        buttons[num].scrollIntoView(false);
+        if (num >= 0) {
+            const el = buttons[num];
+            el.classList.add("focus");
+            if (!isScrolledIntoView(el)) {
+                el.scrollIntoView();
+            }
+        }
         selected = num;
+    }
+
+    function isScrolledIntoView(el: HTMLElement) {
+        // This could probably be a helper function of some sort, I don't know where to put it
+        const rect = el.getBoundingClientRect();
+        return rect.top >= 0 && rect.bottom <= window.innerHeight;
     }
 </script>
 
