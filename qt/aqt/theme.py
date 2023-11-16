@@ -177,10 +177,8 @@ class ThemeManager:
             classes.append("reduce-motion")
         if not aqt.mw.pm.minimalist_mode():
             classes.append("fancy")
-        if qtmajor == 5:
-            classes.append("qt5")
-            if qtminor < 15:
-                classes.append("no-blur")
+        if qtmajor == 5 and qtminor < 15:
+            classes.append("no-blur")
         return " ".join(classes)
 
     def body_classes_for_card_ord(
