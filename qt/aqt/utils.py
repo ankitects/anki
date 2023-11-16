@@ -327,6 +327,7 @@ def showText(
     layout = QVBoxLayout(diag)
     diag.setLayout(layout)
     text: QPlainTextEdit | QTextBrowser
+    txt = str(txt)
     if plain_text_edit:
         # used by the importer
         text = QPlainTextEdit()
