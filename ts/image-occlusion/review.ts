@@ -74,6 +74,43 @@ async function waitForImage(): Promise<void> {
     });
 }
 
+/**
+ * Calculate the size of the container that will fit in the viewport while having
+ * the same aspect ratio as the image. This is a workaround for Qt5 WebEngine not
+ * supporting the `aspect-ratio` CSS property.
+ */
+function calculateContainerSize(
+    container: HTMLDivElement,
+    img: HTMLImageElement,
+): { width: number; height: number } {
+    const compStyle = getComputedStyle(container);
+
+    const compMaxWidth = parseFloat(compStyle.getPropertyValue("max-width"));
+    const vw = container.parentElement!.clientWidth;
+    // respect 'max-width' if it is set narrower than the viewport
+    const maxWidth = Number.isNaN(compMaxWidth) || compMaxWidth > vw ? vw : compMaxWidth;
+
+    // see ./review.scss
+    const defaultMaxHeight = document.documentElement.clientHeight * 0.95 - 40;
+    const compMaxHeight = parseFloat(compStyle.getPropertyValue("max-height"));
+    let maxHeight: number;
+    // If 'max-height' is set to 'unset' or 'initial' and the image is taller than
+    // the default max height, the container height is up to the image height.
+    if (Number.isNaN(compMaxHeight)) {
+        maxHeight = Math.max(img.naturalHeight, defaultMaxHeight);
+    } else if (compMaxHeight < defaultMaxHeight) {
+        maxHeight = compMaxHeight;
+    } else {
+        maxHeight = Math.max(defaultMaxHeight, Math.min(img.naturalHeight, compMaxHeight));
+    }
+
+    const ratio = Math.min(
+        maxWidth / img.naturalWidth,
+        maxHeight / img.naturalHeight,
+    );
+    return { width: img.naturalWidth * ratio, height: img.naturalHeight * ratio };
+}
+
 function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOptions): void {
     const canvas = document.querySelector(
         "#image-occlusion-canvas",
@@ -94,7 +131,13 @@ function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOptions): vo
     }
 
     // Enforce aspect ratio of image
-    container.style.aspectRatio = `${image.naturalWidth / image.naturalHeight}`;
+    if (CSS.supports("aspect-ratio: 1")) {
+        container.style.aspectRatio = `${image.naturalWidth / image.naturalHeight}`;
+    } else {
+        const containerSize = calculateContainerSize(container, image);
+        container.style.width = `${containerSize.width}px`;
+        container.style.height = `${containerSize.height}px`;
+    }
 
     const size = optimumPixelSizeForCanvas(
         { width: image.naturalWidth, height: image.naturalHeight },
