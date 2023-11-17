@@ -17,6 +17,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     // eslint-disable
     type T = $$Generic;
 
+    let className = "";
+    export { className as class };
+
+    export let disabled = false;
+    export let label = "<br>";
+    export let value: T;
+
     // E may need to derive content, but we default to them being the same for convenience of usage
     type E = $$Generic;
     type C = $$Generic;
@@ -28,13 +35,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             content: item as unknown as C,
         };
     };
-    const parsed = list.map(parser).map(({ content, value, disabled = false }, i) => ({
-        content,
-        value: value === undefined ? (i as T) : value,
-        disabled,
-    }));
+    const parsed = list
+        .map(parser)
+        .map(({ content, value: initialValue, disabled = false }, i) => {
+            return {
+                content,
+                parsedValue: initialValue === undefined ? (i as T) : initialValue,
+                disabled,
+            };
+        });
     const buttons: HTMLButtonElement[] = Array(list.length);
     let selected: number | null = null;
+    let initialSelected: number;
     const last = list.length - 1;
     const ids = {
         popover: "popover",
@@ -42,13 +54,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 
     export let id: string | undefined = undefined;
-
-    let className = "";
-    export { className as class };
-
-    export let disabled = false;
-    export let label = "<br>";
-    export let value: T;
 
     const dispatch = createEventDispatcher();
 
@@ -90,12 +95,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 selected = -2;
             } else if (arrowUp && alt) {
                 showFloating = false;
-            } else if (arrowDown || event.code === "Home") {
+            } else if (
+                arrowDown ||
+                event.code === "Home" ||
+                arrowUp ||
+                event.code === "End"
+            ) {
                 showFloating = true;
-                selected = 0;
-            } else if (arrowUp || event.code === "End") {
-                showFloating = true;
-                selected = last;
+                selected = initialSelected;
             } else if (event.code === "Escape") {
                 // TODO This doesn't work as the window typically catches the Escape as well
                 // and closes the window
@@ -110,8 +117,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 (arrowUp && altPressed(event))
             ) {
                 showFloating = false;
-                setValue(parsed[selected].value);
+                setValue(parsed[selected].parsedValue);
             } else if (arrowUp) {
+                if (selected < 0) {
+                    selected = last + 1;
+                }
                 selectFocus(selected - 1);
             } else if (arrowDown) {
                 selectFocus(selected + 1);
@@ -134,6 +144,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function revealed() {
         if (selected !== null) {
+            if (selected != -2) {
+                selected = initialSelected;
+            }
             setTimeout(selectFocus, 0, selected);
         }
     }
@@ -154,7 +167,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             num = last;
         }
 
-        if (selected !== null && selected >= 0) {
+        if (selected !== null && 0 <= selected && selected <= last) {
             buttons[selected].classList.remove("focus");
         }
         if (num >= 0) {
@@ -201,7 +214,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:keydown={onKeyDown}
         on:mouseenter={() => (hover = true)}
         on:mouseleave={() => (hover = false)}
-        on:click={() => (showFloating = !showFloating)}
+        on:click={() => {
+            selected = -2;
+            showFloating = !showFloating;
+        }}
         bind:this={element}
         use:asReference
         bind:clientWidth
@@ -222,9 +238,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         id={ids.popover}
         on:revealed={revealed}
     >
-        {#each parsed as { content, value, disabled }, idx (idx)}
+        {#each parsed as { content, parsedValue, disabled }, idx (idx)}
             <SelectOption
-                {value}
+                value={(() => {
+                    if (parsedValue === value) {
+                        initialSelected = idx;
+                    }
+
+                    return parsedValue;
+                })()}
                 bind:element={buttons[idx]}
                 {disabled}
                 selected={idx === selected}
