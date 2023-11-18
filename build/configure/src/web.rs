@@ -583,6 +583,7 @@ pub const MATHJAX_FILES: &[&str] = &[
     "mathjax/es5/output/chtml/fonts/woff-v2/MathJax_Vector-Regular.woff",
     "mathjax/es5/output/chtml/fonts/woff-v2/MathJax_Zero.woff",
     "mathjax/es5/tex-chtml.js",
+    "mathjax/es5/tex-chtml-full.js",
     "mathjax/es5/sre/mathmaps/de.json",
     "mathjax/es5/sre/mathmaps/en.json",
     "mathjax/es5/sre/mathmaps/es.json",
