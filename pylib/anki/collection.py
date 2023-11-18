@@ -42,6 +42,7 @@ BrowserColumns = search_pb2.BrowserColumns
 StripHtmlMode = card_rendering_pb2.StripHtmlRequest
 ImportLogWithChanges = import_export_pb2.ImportResponse
 ImportAnkiPackageRequest = import_export_pb2.ImportAnkiPackageRequest
+ImportAnkiPackageOptions = import_export_pb2.ImportAnkiPackageOptions
 ExportAnkiPackageOptions = import_export_pb2.ExportAnkiPackageOptions
 ImportCsvRequest = import_export_pb2.ImportCsvRequest
 CsvMetadata = import_export_pb2.CsvMetadata
