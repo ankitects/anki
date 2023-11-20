@@ -6,14 +6,16 @@
 
 You must be running 64 bit Windows 10, version 1703 or newer.
 
-The build system previously required [Developer Mode](https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development) to be enabled. This may no longer
-be the case.
+**Rustup**:
+
+As mentioned in development.md, rustup must be installed. If you're on
+ARM Windows, you must set the default target to x86_64-pc-windows-msvc.
 
 **Visual Studio**:
 
-Install Visual Studio from Microsoft. Once you've downloaded the installer, open
-it, and select "Desktop Development with C++" on the left, leaving the options
-shown on the right as is.
+Install Visual Studio Community Edition from Microsoft. Once you've downloaded
+the installer, open it, and select "Desktop Development with C++" on the left,
+leaving the options shown on the right as is.
 
 **MSYS**:
 
@@ -24,6 +26,9 @@ After installation completes, run msys2, and run the following command:
 ```
 $ pacman -S git rsync
 ```
+
+Edit your PATH environmental variable and add c:\msys64\usr\bin to it, and
+reboot.
 
 If you have native Windows apps relying on Git, e.g. the PowerShell extension
 [posh-git](https://github.com/dahlbyk/posh-git), you may want to install

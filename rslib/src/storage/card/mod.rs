@@ -730,7 +730,8 @@ impl fmt::Display for ReviewOrderSubclause {
                 &temp_string
             }
             ReviewOrderSubclause::RelativeOverduenessFsrs { today } => {
-                temp_string = format!("extract_fsrs_relative_overdueness(data, due, {today}) desc");
+                temp_string =
+                    format!("extract_fsrs_relative_overdueness(data, due, {today}, ivl) desc");
                 &temp_string
             }
         };

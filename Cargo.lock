@@ -2338,7 +2338,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "makeinstall"
+name = "makeexe"
 version = "0.0.0"
 dependencies = [
  "anyhow",

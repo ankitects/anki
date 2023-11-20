@@ -205,7 +205,8 @@ If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
 Anki's official binary packages are created with `./ninja bundle`. The bundling
 process was created specifically for the official builds, and is provided as-is;
 we are unfortunately not able to provide assistance with any issues you may run
-into when using it.
+into when using it. You'll need to run
+`git submodule update --checkout qt/bundle/PyOxidizer` first.
 
 ## Mixing development and study
 
