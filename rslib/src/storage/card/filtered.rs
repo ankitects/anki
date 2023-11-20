@@ -9,6 +9,7 @@ pub(crate) fn order_and_limit_for_search(
     term: &FilteredSearchTerm,
     today: u32,
     current_timestamp: i64,
+    fsrs: bool,
 ) -> String {
     let temp_string;
     let order = match term.order() {
@@ -25,13 +26,17 @@ pub(crate) fn order_and_limit_for_search(
             &temp_string
         }
         FilteredSearchOrder::DuePriority => {
-            temp_string = format!(
-                "
+            temp_string = if fsrs {
+                format!("extract_fsrs_relative_overdueness(data, due, {today}, ivl) desc")
+            } else {
+                format!(
+                    "
 (case when queue={rev_queue} and due <= {today}
 then (ivl / cast({today}-due+0.001 as real)) else 100000+due end)",
-                rev_queue = CardQueue::Review as i8,
-                today = today
-            );
+                    rev_queue = CardQueue::Review as i8,
+                    today = today
+                )
+            };
             &temp_string
         }
     };
