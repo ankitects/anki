@@ -178,6 +178,11 @@ pub(crate) fn sched_timing_today(
     }
 }
 
+/// True if provided due number looks like a seconds-based timestamp.
+pub fn is_unix_epoch_timestamp(due: i32) -> bool {
+    due > 1_000_000_000
+}
+
 #[cfg(test)]
 mod test {
     use chrono::FixedOffset;

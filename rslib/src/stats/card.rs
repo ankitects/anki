@@ -7,6 +7,7 @@ use crate::card::CardQueue;
 use crate::card::CardType;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
+use crate::scheduler::timing::is_unix_epoch_timestamp;
 
 impl Collection {
     pub fn card_stats(&mut self, cid: CardId) -> Result<anki_proto::stats::CardStatsResponse> {
@@ -81,7 +82,7 @@ impl Collection {
             }
             CardType::Review | CardType::Learn | CardType::Relearn => (
                 {
-                    if due <= 1_000_000_000 {
+                    if !is_unix_epoch_timestamp(due) {
                         let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
                         let mut due = TimestampSecs::now();
                         due.0 += (days_remaining as i64) * 86_400;

@@ -213,6 +213,9 @@ impl Card {
         (self.ease_factor as f32) / 1000.0
     }
 
+    /// Don't use this in situations where you may be using original_due, since
+    /// it only applies to the current due date. You may want to use
+    /// is_unix_epoch_timestap() instead.
     pub fn is_intraday_learning(&self) -> bool {
         matches!(self.queue, CardQueue::Learn | CardQueue::PreviewRepeat)
     }
