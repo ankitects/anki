@@ -424,7 +424,7 @@ struct BuildWindowsInstallers {}
 
 impl BuildAction for BuildWindowsInstallers {
     fn command(&self) -> &str {
-        "cargo run -p makeinstall --target-dir=out/rust -- $version $src_root $bundle_root $out"
+        "cargo run -p makeexe --target-dir=out/rust -- $version $src_root $bundle_root $out"
     }
 
     fn files(&mut self, build: &mut impl ninja_gen::build::FilesHandle) {
