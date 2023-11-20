@@ -27,6 +27,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     // E may need to derive content, but we default to them being the same for convenience of usage
     type E = $$Generic;
     type C = $$Generic;
+    let selected: number | undefined = undefined;
+    let initialSelected: number;
     export let list: E[];
     export let parser: (item: E) => { content: C; value?: T; disabled?: boolean } = (
         item,
@@ -38,6 +40,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const parsed = list
         .map(parser)
         .map(({ content, value: initialValue, disabled = false }, i) => {
+            if ((initialValue === undefined && i === value) || initialValue === value) {
+                initialSelected = i;
+            }
+
             return {
                 content,
                 parsedValue: initialValue === undefined ? (i as T) : initialValue,
@@ -45,8 +51,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             };
         });
     const buttons: HTMLButtonElement[] = Array(list.length);
-    let selected: number | null = null;
-    let initialSelected: number;
     const last = list.length - 1;
     const ids = {
         popover: "popover",
@@ -85,70 +89,58 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             event.preventDefault();
         }
 
-        if (selected === null) {
-            if (
-                (arrowDown && alt) ||
+        if (
+            !showFloating &&
+            ((arrowDown && alt) ||
                 event.code === "Enter" ||
-                event.code === "Space"
-            ) {
-                showFloating = true;
-                selected = -2;
-            } else if (arrowUp && alt) {
-                showFloating = false;
-            } else if (
+                event.code === "Space" ||
                 arrowDown ||
                 event.code === "Home" ||
                 arrowUp ||
-                event.code === "End"
-            ) {
-                showFloating = true;
+                event.code === "End")
+        ) {
+            showFloating = true;
+            if (selected === undefined) {
                 selected = initialSelected;
-            } else if (event.code === "Escape") {
-                // TODO This doesn't work as the window typically catches the Escape as well
-                // and closes the window
-                // - qt/aqt/browser/browser.py:377
-                showFloating = false;
             }
-        } else {
-            if (
-                event.code === "Enter" ||
-                event.code === "Space" ||
-                event.code === "Tab" ||
-                (arrowUp && altPressed(event))
-            ) {
-                showFloating = false;
-                setValue(parsed[selected].parsedValue);
-            } else if (arrowUp) {
-                if (selected < 0) {
-                    selected = last + 1;
-                }
-                selectFocus(selected - 1);
-            } else if (arrowDown) {
-                selectFocus(selected + 1);
-            } else if (event.code === "Escape") {
-                // TODO This doesn't work as the window typically catches the Escape as well
-                // and closes the window
-                // - qt/aqt/browser/browser.py:377
-                showFloating = false;
-            } else if (event.code === "Home") {
-                selectFocus(0);
-            } else if (event.code === "End") {
-                selectFocus(Infinity);
-            }
+            return;
         }
-    }
+        if (selected === undefined) {
+            return;
+        }
 
-    $: if (showFloating === false) {
-        selected = null;
+        if (
+            event.code === "Enter" ||
+            event.code === "Space" ||
+            event.code === "Tab" ||
+            (arrowUp && alt)
+        ) {
+            showFloating = false;
+            setValue(parsed[selected].parsedValue);
+        } else if (arrowUp) {
+            if (selected < 0) {
+                selected = last + 1;
+            }
+            selectFocus(selected - 1);
+        } else if (arrowDown) {
+            selectFocus(selected + 1);
+        } else if (event.code === "Escape") {
+            // TODO This doesn't work as the window typically catches the Escape as well
+            // and closes the window
+            // - qt/aqt/browser/browser.py:377
+            showFloating = false;
+        } else if (event.code === "Home") {
+            selectFocus(0);
+        } else if (event.code === "End") {
+            selectFocus(last);
+        }
     }
 
     function revealed() {
-        if (selected !== null) {
-            if (selected != -2) {
-                selected = initialSelected;
-            }
-            setTimeout(selectFocus, 0, selected);
+        if (selected === undefined) {
+            return;
         }
+        setTimeout(selectFocus, 0, selected);
     }
 
     /**
@@ -167,9 +159,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             num = last;
         }
 
-        if (selected !== null && 0 <= selected && selected <= last) {
+        if (selected !== undefined && 0 <= selected && selected <= last) {
             buttons[selected].classList.remove("focus");
         }
+
         if (num >= 0) {
             const el = buttons[num];
             el.classList.add("focus");
@@ -215,7 +208,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:mouseenter={() => (hover = true)}
         on:mouseleave={() => (hover = false)}
         on:click={() => {
-            selected = -2;
+            if (selected === undefined) {
+                selected = initialSelected;
+            }
             showFloating = !showFloating;
         }}
         bind:this={element}
@@ -240,13 +235,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
         {#each parsed as { content, parsedValue, disabled }, idx (idx)}
             <SelectOption
-                value={(() => {
-                    if (parsedValue === value) {
-                        initialSelected = idx;
-                    }
-
-                    return parsedValue;
-                })()}
+                value={parsedValue}
                 bind:element={buttons[idx]}
                 {disabled}
                 selected={idx === selected}
