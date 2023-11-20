@@ -98,8 +98,9 @@ impl Collection {
     fn build_filtered_deck(&mut self, ctx: DeckFilterContext) -> Result<usize> {
         let start = -100_000;
         let mut position = start;
+        let fsrs = self.get_config_bool(BoolKey::Fsrs);
         for term in ctx.config.search_terms.iter().take(2) {
-            position = self.move_cards_matching_term(&ctx, term, position)?;
+            position = self.move_cards_matching_term(&ctx, term, position, fsrs)?;
         }
 
         Ok((position - start) as usize)
@@ -112,6 +113,7 @@ impl Collection {
         ctx: &DeckFilterContext,
         term: &FilteredSearchTerm,
         mut position: i32,
+        fsrs: bool,
     ) -> Result<i32> {
         let search = format!(
             "{} -is:suspended -is:buried -deck:filtered",
@@ -121,7 +123,7 @@ impl Collection {
                 format!("({})", term.search)
             }
         );
-        let order = order_and_limit_for_search(term, ctx.today, TimestampSecs::now().0);
+        let order = order_and_limit_for_search(term, ctx.today, TimestampSecs::now().0, fsrs);
 
         for mut card in self.all_cards_for_search_in_order(&search, SortMode::Custom(order))? {
             let original = card.clone();

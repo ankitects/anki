@@ -307,15 +307,15 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
     )
 }
 
-/// eg. extract_fsrs_retrievability(card.data, card.due, timing.days_elapsed) ->
-/// float | null. The higher the number, the more overdue.
+/// eg. extract_fsrs_retrievability(card.data, card.due, timing.days_elapsed,
+/// card.ivl) -> float | null. The higher the number, the more overdue.
 fn add_extract_fsrs_relative_overdueness(db: &Connection) -> rusqlite::Result<()> {
     db.create_scalar_function(
         "extract_fsrs_relative_overdueness",
-        3,
+        4,
         FunctionFlags::SQLITE_DETERMINISTIC,
         move |ctx| {
-            assert_eq!(ctx.len(), 3, "called with unexpected number of arguments");
+            assert_eq!(ctx.len(), 4, "called with unexpected number of arguments");
 
             let Ok(card_data) = ctx.get_raw(0).as_str() else {
                 return Ok(None);
@@ -334,6 +334,9 @@ fn add_extract_fsrs_relative_overdueness(db: &Connection) -> rusqlite::Result<()
             let Ok(days_elapsed) = ctx.get_raw(2).as_i64() else {
                 return Ok(None);
             };
+            let Ok(interval) = ctx.get_raw(3).as_i64() else {
+                return Ok(None);
+            };
             let Some(state) = card_data.memory_state() else {
                 return Ok(None);
             };
@@ -343,7 +346,7 @@ fn add_extract_fsrs_relative_overdueness(db: &Connection) -> rusqlite::Result<()
             // avoid div by zero
             desired_retrievability = desired_retrievability.max(0.0001);
 
-            let review_day = due.saturating_sub(state.stability as i64);
+            let review_day = due.saturating_sub(interval);
             let days_elapsed = days_elapsed.saturating_sub(review_day) as u32;
             let current_retrievability = FSRS::new(None)
                 .unwrap()
