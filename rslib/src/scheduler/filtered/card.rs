@@ -5,12 +5,13 @@ use super::DeckFilterContext;
 use crate::card::CardQueue;
 use crate::card::CardType;
 use crate::prelude::*;
+use crate::scheduler::timing::is_unix_epoch_timestamp;
 
 impl Card {
     pub(crate) fn restore_queue_from_type(&mut self) {
         self.queue = match self.ctype {
             CardType::Learn | CardType::Relearn => {
-                if self.due > 1_000_000_000 {
+                if is_unix_epoch_timestamp(self.due) {
                     // unix timestamp
                     CardQueue::Learn
                 } else {
