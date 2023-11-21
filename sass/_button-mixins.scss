@@ -84,6 +84,7 @@
         @if ($active-class != "") {
             &.#{$active-class} {
                 @include impressed-shadow(0.35);
+                background: var(--button-primary-bg);
                 border-color: var(--border);
             }
         }
