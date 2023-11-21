@@ -4,18 +4,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { Placement } from "@floating-ui/dom";
-    import { getContext, onMount } from "svelte";
+    import { createEventDispatcher, getContext, onMount } from "svelte";
     import type { Writable } from "svelte/store";
 
     import { floatingKey } from "./context-keys";
 
+    export let id = "";
     export let scrollable = false;
-    let element: HTMLDivElement;
     let wrapper: HTMLDivElement;
     let hidden = true;
     let minHeight = 0;
 
     let placement: Placement;
+
+    const dispatch = createEventDispatcher();
 
     const placementStore = getContext<Writable<Promise<Placement>>>(floatingKey);
 
@@ -34,6 +36,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
            popover placement at animation start */
         minHeight = wrapper.offsetHeight;
     });
+    function revealed(el: HTMLElement) {
+        dispatch("revealed", el);
+    }
 </script>
 
 <div
@@ -49,7 +54,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class:right={placement === "right"}
         class:bottom={placement === "bottom"}
         class:left={placement === "left"}
-        bind:this={element}
+        use:revealed
+        {id}
+        role="listbox"
     >
         <slot />
     </div>
