@@ -11,36 +11,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     type T = $$Generic;
 
+    export let selected = false;
     export let disabled = false;
+    export let id: string;
     export let value: T;
 
-    let element: HTMLButtonElement;
-
-    function handleKey(e: KeyboardEvent) {
-        /* Arrow key navigation */
-        switch (e.code) {
-            case "ArrowUp": {
-                const prevSibling = element?.previousElementSibling as HTMLElement;
-                if (prevSibling) {
-                    prevSibling.focus();
-                } else {
-                    // close popover
-                    document.body.click();
-                }
-                break;
-            }
-            case "ArrowDown": {
-                const nextSibling = element?.nextElementSibling as HTMLElement;
-                if (nextSibling) {
-                    nextSibling.focus();
-                } else {
-                    // close popover
-                    document.body.click();
-                }
-                break;
-            }
-        }
-    }
+    export let element: HTMLButtonElement;
 
     const selectContext: Writable<{ value: T; setValue: Function }> =
         getContext(selectKey);
@@ -49,11 +25,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <DropdownItem
     {disabled}
+    {selected}
+    id={selected ? id : undefined}
     active={value == $selectContext.value}
+    role="option"
     on:click={() => setValue(value)}
-    on:keydown={handleKey}
     bind:buttonRef={element}
-    tabbable
 >
     <slot />
 </DropdownItem>

@@ -6,7 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
     import Select from "../components/Select.svelte";
-    import SelectOption from "../components/SelectOption.svelte";
     import type { ChangeNotetypeState, MapContext } from "./lib";
 
     export let state: ChangeNotetypeState;
@@ -26,11 +25,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <Row>
     <Col>
-        <Select value={oldIndex} {label} on:change={onChange}>
-            {#each $info.getOldNamesIncludingNothing(ctx) as name, idx}
-                <SelectOption value={idx}>{name}</SelectOption>
-            {/each}
-        </Select>
+        <Select
+            value={oldIndex}
+            {label}
+            list={$info.getOldNamesIncludingNothing(ctx)}
+            on:change={onChange}
+        />
     </Col>
     <Col>
         {$info.getNewName(ctx, newIndex)}
