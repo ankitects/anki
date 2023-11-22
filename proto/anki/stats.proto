@@ -176,7 +176,6 @@ message RevlogEntry {
     LEARNING = 0;
     REVIEW = 1;
     RELEARNING = 2;
-    // Recent Anki versions only use this when rescheduling disabled
     FILTERED = 3;
     MANUAL = 4;
   }
@@ -189,4 +188,8 @@ message RevlogEntry {
   uint32 ease_factor = 7;
   uint32 taken_millis = 8;
   ReviewKind review_kind = 9;
+}
+
+message RevlogEntries {
+  repeated RevlogEntry entries = 1;
 }

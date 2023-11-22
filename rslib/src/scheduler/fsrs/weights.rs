@@ -1,16 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 use std::iter;
+use std::path::Path;
 use std::thread;
 use std::time::Duration;
 
+use anki_io::write_file;
 use anki_proto::scheduler::ComputeFsrsWeightsResponse;
+use anki_proto::stats::revlog_entry;
+use anki_proto::stats::RevlogEntries;
 use fsrs::CombinedProgressState;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
 use fsrs::ModelEvaluation;
 use fsrs::FSRS;
 use itertools::Itertools;
+use prost::Message;
 
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
@@ -70,6 +75,23 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()
+    }
+
+    /// Used for exporting revlogs for algorithm research.
+    pub fn export_revlog_entries_to_protobuf(
+        &mut self,
+        min_entries: usize,
+        target_path: &Path,
+    ) -> Result<()> {
+        let entries = self.storage.get_all_revlog_entries_in_card_order()?;
+        if entries.len() < min_entries {
+            return Err(AnkiError::FsrsInsufficientData);
+        }
+        let entries = entries.into_iter().map(revlog_entry_to_proto).collect_vec();
+        let entries = RevlogEntries { entries };
+        let data = entries.encode_to_vec();
+        write_file(target_path, data)?;
+        Ok(())
     }
 
     pub fn evaluate_weights(&mut self, weights: &Weights, search: &str) -> Result<ModelEvaluation> {
@@ -205,6 +227,26 @@ pub(crate) fn single_card_revlog_to_items(
 impl RevlogEntry {
     fn days_elapsed(&self, next_day_at: TimestampSecs) -> u32 {
         (next_day_at.elapsed_secs_since(self.id.as_secs()) / 86_400).max(0) as u32
+    }
+}
+
+fn revlog_entry_to_proto(e: RevlogEntry) -> anki_proto::stats::RevlogEntry {
+    anki_proto::stats::RevlogEntry {
+        id: e.id.0,
+        cid: e.cid.0,
+        usn: 0,
+        button_chosen: e.button_chosen as u32,
+        interval: e.interval,
+        last_interval: e.last_interval,
+        ease_factor: e.ease_factor,
+        taken_millis: e.taken_millis,
+        review_kind: match e.review_kind {
+            RevlogReviewKind::Learning => revlog_entry::ReviewKind::Learning,
+            RevlogReviewKind::Review => revlog_entry::ReviewKind::Review,
+            RevlogReviewKind::Relearning => revlog_entry::ReviewKind::Relearning,
+            RevlogReviewKind::Filtered => revlog_entry::ReviewKind::Filtered,
+            RevlogReviewKind::Manual => revlog_entry::ReviewKind::Manual,
+        } as i32,
     }
 }
 
