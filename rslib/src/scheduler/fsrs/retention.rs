@@ -73,7 +73,7 @@ impl Collection {
             .search_cards_into_table(search, SortMode::NoOrder)?
             .col
             .storage
-            .get_revlog_entries_for_searched_cards_in_order()?;
+            .get_revlog_entries_for_searched_cards_in_card_order()?;
 
         let first_rating_count = revlogs
             .iter()
