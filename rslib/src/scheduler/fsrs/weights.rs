@@ -15,6 +15,8 @@ use itertools::Itertools;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 use crate::revlog::RevlogReviewKind;
+use crate::search::Node;
+use crate::search::SearchNode;
 use crate::search::SortMode;
 
 pub(crate) type Weights = Vec<f32>;
@@ -57,10 +59,17 @@ impl Collection {
         &mut self,
         search: impl TryIntoSearch,
     ) -> Result<Vec<RevlogEntry>> {
+        let search = search.try_into_search()?;
+        // a whole-collection search can match revlog entries of deleted cards, too
+        if let Node::Group(nodes) = &search {
+            if let &[Node::Search(SearchNode::WholeCollection)] = &nodes[..] {
+                return self.storage.get_all_revlog_entries_in_card_order();
+            }
+        }
         self.search_cards_into_table(search, SortMode::NoOrder)?
             .col
             .storage
-            .get_revlog_entries_for_searched_cards_in_order()
+            .get_revlog_entries_for_searched_cards_in_card_order()
     }
 
     pub fn evaluate_weights(&mut self, weights: &Weights, search: &str) -> Result<ModelEvaluation> {
@@ -70,7 +79,7 @@ impl Collection {
         let revlogs = guard
             .col
             .storage
-            .get_revlog_entries_for_searched_cards_in_order()?;
+            .get_revlog_entries_for_searched_cards_in_card_order()?;
         anki_progress.state.fsrs_items = revlogs.len() as u32;
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let fsrs = FSRS::new(Some(weights))?;
