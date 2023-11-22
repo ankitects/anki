@@ -5,7 +5,7 @@ import type fabric from "fabric";
 import type { PanZoom } from "panzoom";
 import { get } from "svelte/store";
 
-import { zoomResetValue } from "../store";
+import { zoomResetValue, zoomResetX } from "../store";
 
 export const SHAPE_MASK_COLOR = "#ffeba2";
 export const BORDER_COLOR = "#212121";
@@ -84,28 +84,35 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
 };
 
 export const zoomIn = (instance: PanZoom): void => {
-    const offset = getTransformOriginOffset();
-    instance.smoothZoom(offset.x, offset.y, 1.25);
+    const center = getCanvasCenter();
+    instance.smoothZoom(center.x, center.y, 1.25);
 };
 
 export const zoomOut = (instance: PanZoom): void => {
-    const offset = getTransformOriginOffset();
-    instance.smoothZoom(offset.x, offset.y, 0.8);
+    const center = getCanvasCenter();
+    instance.smoothZoom(center.x, center.y, 0.8);
 };
 
 export const zoomReset = (instance: PanZoom): void => {
-    const offset = getTransformOriginOffset();
-    instance.moveTo(offset.x / 2, 10);
-    instance.smoothZoomAbs(offset.x / 2, 10, get(zoomResetValue));
+    setCenterXForZoom(globalThis.canvas);
+    instance.moveTo(get(zoomResetX), 0);
+    instance.smoothZoomAbs(get(zoomResetX), 0, get(zoomResetValue));
 };
 
-export const getTransformOriginOffset = () => {
-    const container = document.querySelector(".editor-main")!;
-    const containerRect = container.getBoundingClientRect();
-    return {
-        x: containerRect.left + containerRect.width / 2,
-        y: containerRect.top + containerRect.height / 2,
-    };
+export const getCanvasCenter = () => {
+    const canvas = globalThis.canvas.getElement();
+    const rect = canvas.getBoundingClientRect();
+    const centerX = rect.x + rect.width / 2;
+    const centerY = rect.y + rect.height / 2;
+    return { x: centerX, y: centerY };
+};
+
+export const setCenterXForZoom = (canvas: fabric.Canvas) => {
+    const editor = document.querySelector(".editor-main")!;
+    const editorWidth = editor.clientWidth;
+    const canvasWidth = canvas.getElement().offsetWidth;
+    const centerX = editorWidth / 2 - canvasWidth / 2;
+    zoomResetX.set(centerX);
 };
 
 const copyItem = (canvas: fabric.Canvas): void => {

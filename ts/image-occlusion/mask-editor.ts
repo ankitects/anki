@@ -12,7 +12,13 @@ import { optimumCssSizeForCanvas } from "./canvas-scale";
 import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
 import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
-import { enableSelectable, makeShapeRemainInCanvas, moveShapeToCanvasBoundaries, zoomReset } from "./tools/lib";
+import {
+    enableSelectable,
+    makeShapeRemainInCanvas,
+    moveShapeToCanvasBoundaries,
+    setCenterXForZoom,
+    zoomReset,
+} from "./tools/lib";
 import { modifiedPolygon } from "./tools/tool-polygon";
 import { undoStack } from "./tools/tool-undo-redo";
 import type { Size } from "./types";
@@ -118,6 +124,7 @@ function initCanvas(onChange: () => void): fabric.Canvas {
         onChange();
     });
     canvas.on("object:removed", onChange);
+    setCenterXForZoom(canvas);
     return canvas;
 }
 

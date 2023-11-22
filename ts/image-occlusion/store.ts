@@ -13,3 +13,5 @@ export const tagsWritable = writable([""]);
 export const ioMaskEditorVisible = writable(true);
 // it store hide all or hide one mode
 export const hideAllGuessOne = writable(true);
+// store initial value of x for zoom reset
+export const zoomResetX = writable(0);
