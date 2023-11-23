@@ -409,6 +409,7 @@ fn note_order_from_sort_column(column: Column) -> Cow<'static, str> {
 }
 
 fn prepare_sort(col: &mut Collection, column: Column, item_type: ReturnItemType) -> Result<()> {
+    let temp_string;
     let sql = match item_type {
         ReturnItemType::Cards => match column {
             Column::Cards => include_str!("template_order.sql"),
@@ -420,7 +421,10 @@ fn prepare_sort(col: &mut Collection, column: Column, item_type: ReturnItemType)
             Column::Cards => include_str!("note_cards_order.sql"),
             Column::CardMod => include_str!("card_mod_order.sql"),
             Column::Deck => include_str!("note_decks_order.sql"),
-            Column::Due => include_str!("note_due_order.sql"),
+            Column::Due => {
+                temp_string = format!("{}, MIN({});", include_str!("note_due_order.sql"), format_args!("CASE WHEN due > 1000000000 THEN due ELSE (due - {today}) * 86400 + {current_timestamp} END", today = col.timing_today()?.days_elapsed, current_timestamp = TimestampSecs::now().0));
+                &temp_string
+            }
             Column::Ease => include_str!("note_ease_order.sql"),
             Column::Interval => include_str!("note_interval_order.sql"),
             Column::Lapses => include_str!("note_lapses_order.sql"),
