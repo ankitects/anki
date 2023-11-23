@@ -5,7 +5,7 @@ import type fabric from "fabric";
 import type { PanZoom } from "panzoom";
 import { get } from "svelte/store";
 
-import { zoomResetValue, zoomResetX } from "../store";
+import { opacityStateStore, zoomResetValue, zoomResetX } from "../store";
 
 export const SHAPE_MASK_COLOR = "#ffeba2";
 export const BORDER_COLOR = "#212121";
@@ -59,7 +59,14 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
         return;
     }
 
-    canvas.getActiveObject().toGroup();
+    const activeObject = canvas.getActiveObject();
+    const items = activeObject.getObjects();
+    items.forEach((item) => {
+        item.set({ opacity: 1 });
+    });
+    activeObject.toGroup().set({
+        opacity: get(opacityStateStore) ? 0.4 : 1,
+    });
     redraw(canvas);
 };
 
@@ -77,6 +84,7 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
     canvas.remove(group);
 
     items.forEach((item) => {
+        item.set({ opacity: get(opacityStateStore) ? 0.4 : 1 });
         canvas.add(item);
     });
 
@@ -164,6 +172,7 @@ export const makeMaskTransparent = (
     canvas: fabric.Canvas,
     opacity = false,
 ): void => {
+    opacityStateStore.set(opacity);
     const objects = canvas.getObjects();
     objects.forEach((object) => {
         object.set({
