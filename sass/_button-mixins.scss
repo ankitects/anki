@@ -85,6 +85,7 @@
             &.#{$active-class} {
                 @include impressed-shadow(0.35);
                 background: var(--button-primary-bg);
+                color: white;
                 border-color: var(--border);
             }
         }
