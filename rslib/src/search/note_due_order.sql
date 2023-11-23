@@ -12,4 +12,3 @@ WHERE (
     AND queue > 0
   )
 GROUP BY nid
-ORDER BY MIN(type)

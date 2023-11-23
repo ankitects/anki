@@ -363,7 +363,7 @@ fn card_order_from_sort_column(column: Column, timing: SchedTimingToday) -> Cow<
         )
         .into(),
         Column::Deck => "(select pos from sort_order where did = c.did) asc".into(),
-        Column::Due => format!("c.type asc, (case when c.due > 1000000000 then due else (due - {}) * 86400 + {} end) asc", timing.days_elapsed, TimestampSecs::now().0).into(),
+        Column::Due => format!("(case when c.due > 1000000000 then due else (due - {}) * 86400 + {} end) asc", timing.days_elapsed, TimestampSecs::now().0).into(),
         Column::Ease => format!("c.type = {} asc, c.factor asc", CardType::New as i8).into(),
         Column::Interval => "c.ivl asc".into(),
         Column::Lapses => "c.lapses asc".into(),
@@ -422,7 +422,7 @@ fn prepare_sort(col: &mut Collection, column: Column, item_type: ReturnItemType)
             Column::CardMod => include_str!("card_mod_order.sql"),
             Column::Deck => include_str!("note_decks_order.sql"),
             Column::Due => {
-                temp_string = format!("{}, MIN({});", include_str!("note_due_order.sql"), format_args!("CASE WHEN due > 1000000000 THEN due ELSE (due - {today}) * 86400 + {current_timestamp} END", today = col.timing_today()?.days_elapsed, current_timestamp = TimestampSecs::now().0));
+                temp_string = format!("{} ORDER BY MIN({});", include_str!("note_due_order.sql"), format_args!("CASE WHEN due > 1000000000 THEN due ELSE (due - {today}) * 86400 + {current_timestamp} END", today = col.timing_today()?.days_elapsed, current_timestamp = TimestampSecs::now().0));
                 &temp_string
             }
             Column::Ease => include_str!("note_ease_order.sql"),
