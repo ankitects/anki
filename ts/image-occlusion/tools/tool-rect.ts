@@ -2,6 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { fabric } from "fabric";
+import { opacityStateStore } from "image-occlusion/store";
+import { get } from "svelte/store";
 
 import { BORDER_COLOR, SHAPE_MASK_COLOR, stopDraw } from "./lib";
 import { undoStack } from "./tool-undo-redo";
@@ -38,6 +40,7 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
             strokeWidth: 1,
             strokeUniform: true,
             noScaleCache: false,
+            opacity: get(opacityStateStore) ? 0.4 : 1,
         });
         canvas.add(rect);
     });

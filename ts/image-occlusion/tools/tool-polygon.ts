@@ -2,7 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { fabric } from "fabric";
+import { opacityStateStore } from "image-occlusion/store";
 import type { PanZoom } from "panzoom";
+import { get } from "svelte/store";
 
 import { BORDER_COLOR, SHAPE_MASK_COLOR } from "./lib";
 import { undoStack } from "./tool-undo-redo";
@@ -190,6 +192,7 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
         strokeWidth: 1,
         strokeUniform: true,
         noScaleCache: false,
+        opacity: get(opacityStateStore) ? 0.4 : 1,
     });
     if (polygon.width > 5 && polygon.height > 5) {
         canvas.add(polygon);
@@ -220,6 +223,7 @@ export const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon):
         strokeWidth: 1,
         strokeUniform: true,
         noScaleCache: false,
+        opacity: get(opacityStateStore) ? 0.4 : 1,
     });
 
     canvas.remove(polygon);

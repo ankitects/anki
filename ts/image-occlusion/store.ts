@@ -17,3 +17,5 @@ export const hideAllGuessOne = writable(true);
 export const zoomResetX = writable(0);
 // ioImageLoadedStore is used to store the image loaded event
 export const ioImageLoadedStore = writable(false);
+// store opacity state of objects in canvas
+export const opacityStateStore = writable(false);

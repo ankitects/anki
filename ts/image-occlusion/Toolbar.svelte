@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { mdiEye, mdiFormatAlignCenter, mdiSquare, mdiViewDashboard } from "./icons";
     import { emitChangeSignal } from "./MaskEditor.svelte";
-    import { hideAllGuessOne, ioMaskEditorVisible } from "./store";
+    import { hideAllGuessOne, ioMaskEditorVisible, opacityStateStore } from "./store";
     import { drawEllipse, drawPolygon, drawRectangle, drawText } from "./tools/index";
     import { makeMaskTransparent } from "./tools/lib";
     import { enableSelectable, stopDraw } from "./tools/lib";
@@ -408,6 +408,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         keyCombination="L"
         on:action={() => {
             maksOpacity = !maksOpacity;
+            opacityStateStore.set(maksOpacity);
             makeMaskTransparent(canvas, maksOpacity);
         }}
     />
