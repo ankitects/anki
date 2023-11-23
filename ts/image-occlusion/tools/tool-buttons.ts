@@ -11,36 +11,50 @@ import {
     mdiTextBox,
     mdiVectorPolygonVariant,
 } from "../icons";
+import {
+    cursorKeyCombination,
+    ellipseKeyCombination,
+    magnifyKeyCombination,
+    polygonKeyCombination,
+    rectangleKeyCombination,
+    textKeyCombination,
+} from "./shortcuts";
 
 export const tools = [
     {
         id: "cursor",
         icon: mdiCursorDefaultOutline,
         tooltip: tr.editingImageOcclusionSelectTool,
+        shortcut: cursorKeyCombination,
     },
     {
         id: "magnify",
         icon: mdiMagnifyScan,
         tooltip: tr.editingImageOcclusionZoomTool,
+        shortcut: magnifyKeyCombination,
     },
     {
         id: "draw-rectangle",
         icon: mdiRectangleOutline,
         tooltip: tr.editingImageOcclusionRectangleTool,
+        shortcut: rectangleKeyCombination,
     },
     {
         id: "draw-ellipse",
         icon: mdiEllipseOutline,
         tooltip: tr.editingImageOcclusionEllipseTool,
+        shortcut: ellipseKeyCombination,
     },
     {
         id: "draw-polygon",
         icon: mdiVectorPolygonVariant,
         tooltip: tr.editingImageOcclusionPolygonTool,
+        shortcut: polygonKeyCombination,
     },
     {
         id: "draw-text",
         icon: mdiTextBox,
         tooltip: tr.editingImageOcclusionTextTool,
+        shortcut: textKeyCombination,
     },
 ];

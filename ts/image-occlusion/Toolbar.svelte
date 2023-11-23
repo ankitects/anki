@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { directionKey } from "@tslib/context-keys";
     import * as tr from "@tslib/ftl";
+    import { getPlatformString } from "@tslib/shortcuts";
     import DropdownItem from "components/DropdownItem.svelte";
     import IconButton from "components/IconButton.svelte";
     import Popover from "components/Popover.svelte";
@@ -25,6 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         groupUngroupTools,
         zoomTools,
     } from "./tools/more-tools";
+    import { toggleTranslucentKeyCombination } from "./tools/shortcuts";
     import { tools } from "./tools/tool-buttons";
     import { removeUnfinishedPolygon } from "./tools/tool-polygon";
     import { undoRedoTools, undoStack } from "./tools/tool-undo-redo";
@@ -163,7 +165,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             class="tool-icon-button {activeTool == tool.id ? 'active-tool' : ''}"
             {iconSize}
-            tooltip={tool.tooltip()}
+            tooltip="{tool.tooltip()} ({getPlatformString(tool.shortcut)})"
             active={activeTool === tool.id}
             on:click={() => {
                 activeTool = tool.id;
@@ -171,6 +173,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         >
             {@html tool.icon}
         </IconButton>
+        {#if $ioMaskEditorVisible}
+            <Shortcut
+                keyCombination={tool.shortcut}
+                on:action={() => {
+                    activeTool = tool.id;
+                }}
+            />
+        {/if}
     {/each}
 </div>
 
@@ -217,13 +227,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         : 'right-border-radius'}"
                     {iconSize}
                     on:click={tool.action}
-                    tooltip={tool.tooltip()}
+                    tooltip="{tool.tooltip()} ({getPlatformString(tool.shortcut)})"
                     disabled={tool.name === "undo"
                         ? !$undoStack.undoable
                         : !$undoStack.redoable}
                 >
                     {@html tool.icon}
                 </IconButton>
+                {#if $ioMaskEditorVisible}
+                    <Shortcut keyCombination={tool.shortcut} on:action={tool.action} />
+                {/if}
             {/each}
         </div>
 
@@ -235,13 +248,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ? 'left-border-radius'
                         : ''} {tool.name === 'zoomReset' ? 'right-border-radius' : ''}"
                     {iconSize}
-                    tooltip={tool.tooltip()}
+                    tooltip="{tool.tooltip()} ({getPlatformString(tool.shortcut)})"
                     on:click={() => {
                         tool.action(instance);
                     }}
                 >
                     {@html tool.icon}
                 </IconButton>
+                {#if $ioMaskEditorVisible}
+                    <Shortcut
+                        keyCombination={tool.shortcut}
+                        on:action={() => {
+                            tool.action(instance);
+                        }}
+                    />
+                {/if}
             {/each}
         </div>
 
@@ -258,6 +279,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             >
                 {@html mdiEye}
             </IconButton>
+            {#if $ioMaskEditorVisible}
+                <Shortcut
+                    keyCombination={toggleTranslucentKeyCombination}
+                    on:action={() => {
+                        maksOpacity = !maksOpacity;
+                        makeMaskTransparent(canvas, maksOpacity);
+                    }}
+                />
+            {/if}
 
             <!-- cursor tools -->
             {#each deleteDuplicateTools as tool}
@@ -266,13 +296,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ? 'right-border-radius'
                         : ''}"
                     {iconSize}
-                    tooltip={tool.tooltip()}
+                    tooltip="{tool.tooltip()} ({getPlatformString(tool.shortcut)})"
                     on:click={() => {
                         tool.action(canvas);
                     }}
                 >
                     {@html tool.icon}
                 </IconButton>
+                {#if $ioMaskEditorVisible}
+                    <Shortcut
+                        keyCombination={tool.shortcut}
+                        on:action={() => {
+                            tool.action(canvas);
+                            emitChangeSignal();
+                        }}
+                    />
+                {/if}
             {/each}
         </div>
 
@@ -284,7 +323,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ? 'left-border-radius'
                         : ''}"
                     {iconSize}
-                    tooltip={tool.tooltip()}
+                    tooltip="{tool.tooltip()} ({getPlatformString(tool.shortcut)})"
                     on:click={() => {
                         tool.action(canvas);
                         emitChangeSignal();
@@ -292,6 +331,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     {@html tool.icon}
                 </IconButton>
+                {#if $ioMaskEditorVisible}
+                    <Shortcut
+                        keyCombination={tool.shortcut}
+                        on:action={() => {
+                            tool.action(canvas);
+                            emitChangeSignal();
+                        }}
+                    />
+                {/if}
             {/each}
 
             <IconButton
@@ -313,175 +361,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <IconButton
                 class="top-tool-icon-button"
                 {iconSize}
-                tooltip={alignTool.tooltip()}
+                tooltip="{alignTool.tooltip()} ({getPlatformString(
+                    alignTool.shortcut,
+                )})"
                 on:click={() => {
                     alignTool.action(canvas);
                 }}
             >
                 {@html alignTool.icon}
             </IconButton>
+            {#if $ioMaskEditorVisible}
+                <Shortcut
+                    keyCombination={alignTool.shortcut}
+                    on:action={() => {
+                        alignTool.action(canvas);
+                    }}
+                />
+            {/if}
         {/each}
     </div>
 </div>
-
-{#if $ioMaskEditorVisible}
-    <Shortcut
-        keyCombination="S"
-        on:action={() => {
-            disableFunctions();
-            enableSelectable(canvas, true);
-            activeTool = "cursor";
-        }}
-    />
-    <Shortcut
-        keyCombination="R"
-        on:action={() => {
-            drawRectangle(canvas);
-            activeTool = "draw-rectangle";
-        }}
-    />
-    <Shortcut
-        keyCombination="E"
-        on:action={() => {
-            drawEllipse(canvas);
-            activeTool = "draw-ellipse";
-        }}
-    />
-    <Shortcut
-        keyCombination="P"
-        on:action={() => {
-            drawPolygon(canvas, instance);
-            activeTool = "draw-polygon";
-        }}
-    />
-    <Shortcut
-        keyCombination="T"
-        on:action={() => {
-            drawText(canvas);
-            activeTool = "draw-text";
-        }}
-    />
-    <Shortcut
-        keyCombination="M"
-        on:action={() => {
-            enableSelectable(canvas, false);
-            instance.resume();
-            activeTool = "magnify";
-        }}
-    />
-    <Shortcut
-        keyCombination="Z"
-        on:action={() => {
-            undoStack.undo();
-            emitChangeSignal();
-        }}
-    />
-    <Shortcut
-        keyCombination="Y"
-        on:action={() => {
-            undoStack.redo();
-            emitChangeSignal();
-        }}
-    />
-    <Shortcut
-        keyCombination="Ctrl+-"
-        on:action={() => {
-            enableMagnify();
-            zoomTools[0].action(instance);
-        }}
-    />
-    <Shortcut
-        keyCombination="Ctrl++"
-        on:action={() => {
-            enableMagnify();
-            zoomTools[1].action(instance);
-        }}
-    />
-    <Shortcut
-        keyCombination="F"
-        on:action={() => {
-            enableMagnify();
-            zoomTools[2].action(instance);
-        }}
-    />
-    <Shortcut
-        keyCombination="L"
-        on:action={() => {
-            maksOpacity = !maksOpacity;
-            makeMaskTransparent(canvas, maksOpacity);
-        }}
-    />
-    <Shortcut
-        keyCombination="Delete"
-        on:action={() => {
-            deleteDuplicateTools[0].action(canvas);
-            emitChangeSignal();
-        }}
-    />
-    <Shortcut
-        keyCombination="D"
-        on:action={() => {
-            deleteDuplicateTools[1].action(canvas);
-            emitChangeSignal();
-        }}
-    />
-    <Shortcut
-        keyCombination="G"
-        on:action={() => {
-            groupUngroupTools[0].action(canvas);
-            emitChangeSignal();
-        }}
-    />
-    <Shortcut
-        keyCombination="U"
-        on:action={() => {
-            groupUngroupTools[1].action(canvas);
-            emitChangeSignal();
-        }}
-    />
-    <Shortcut
-        keyCombination="Shift+L"
-        on:action={() => {
-            alignTools[0].action(canvas);
-            emitChangeSignal();
-        }}
-    />
-    <Shortcut
-        keyCombination="Shift+H"
-        on:action={() => {
-            alignTools[1].action(canvas);
-            emitChangeSignal();
-        }}
-    />
-    <Shortcut
-        keyCombination="Shift+R"
-        on:action={() => {
-            alignTools[2].action(canvas);
-            emitChangeSignal();
-        }}
-    />
-    <Shortcut
-        keyCombination="Shift+T"
-        on:action={() => {
-            alignTools[3].action(canvas);
-            emitChangeSignal();
-        }}
-    />
-    <Shortcut
-        keyCombination="Shift+V"
-        on:action={() => {
-            alignTools[4].action(canvas);
-            emitChangeSignal();
-        }}
-    />
-    <Shortcut
-        keyCombination="Shift+B"
-        on:action={() => {
-            alignTools[5].action(canvas);
-            emitChangeSignal();
-        }}
-    />
-{/if}
 
 <style>
     .top-tool-bar-container {
@@ -547,7 +446,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .show {
-        display: block;
+        display: flex;
     }
 
     ::-webkit-scrollbar {
