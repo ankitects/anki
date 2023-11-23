@@ -192,4 +192,5 @@ message RevlogEntry {
 
 message RevlogEntries {
   repeated RevlogEntry entries = 1;
+  int64 next_day_at = 2;
 }

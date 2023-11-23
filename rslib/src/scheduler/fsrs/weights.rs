@@ -88,7 +88,11 @@ impl Collection {
             return Err(AnkiError::FsrsInsufficientData);
         }
         let entries = entries.into_iter().map(revlog_entry_to_proto).collect_vec();
-        let entries = RevlogEntries { entries };
+        let next_day_at = self.timing_today()?.next_day_at.0;
+        let entries = RevlogEntries {
+            entries,
+            next_day_at,
+        };
         let data = entries.encode_to_vec();
         write_file(target_path, data)?;
         Ok(())
