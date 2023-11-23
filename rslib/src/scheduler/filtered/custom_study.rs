@@ -247,12 +247,7 @@ fn preview_config(deck_name: String, days: u32) -> FilteredDeck {
         .and_flat(SearchNode::AddedInDays(days))
         .and_flat(SearchNode::from_deck_name(&deck_name))
         .write();
-    custom_study_config(
-        false,
-        search,
-        FilteredSearchOrder::OldestReviewedFirst,
-        None,
-    )
+    custom_study_config(false, search, FilteredSearchOrder::Added, None)
 }
 
 fn cram_config(deck_name: String, cram: &Cram) -> Result<FilteredDeck> {
