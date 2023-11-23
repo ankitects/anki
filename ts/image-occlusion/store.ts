@@ -15,3 +15,5 @@ export const ioMaskEditorVisible = writable(true);
 export const hideAllGuessOne = writable(true);
 // store initial value of x for zoom reset
 export const zoomResetX = writable(0);
+// ioImageLoadedStore is used to store the image loaded event
+export const ioImageLoadedStore = writable(false);

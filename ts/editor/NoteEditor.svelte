@@ -388,13 +388,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ImageOcclusionPicker from "image-occlusion/ImageOcclusionPicker.svelte";
     import type { IOMode } from "image-occlusion/lib";
     import { exportShapesToClozeDeletions } from "image-occlusion/shapes/to-cloze";
-    import { hideAllGuessOne, ioMaskEditorVisible } from "image-occlusion/store";
+    import {
+        hideAllGuessOne,
+        ioImageLoadedStore,
+        ioMaskEditorVisible,
+    } from "image-occlusion/store";
 
     import { mathjaxConfig } from "../editable/mathjax-element";
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
-    let isIOImageLoaded = false;
+    $: isIOImageLoaded = false;
+    $: ioImageLoadedStore.set(isIOImageLoaded);
     let imageOcclusionMode: IOMode | undefined;
     let ioFields = new ImageOcclusionFieldIndexes({});
 
@@ -456,6 +461,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function resetIOImageLoaded() {
         isIOImageLoaded = false;
         globalThis.canvas.clear();
+        globalThis.canvas = undefined;
         const page = document.querySelector(".image-occlusion");
         if (page) {
             page.remove();
