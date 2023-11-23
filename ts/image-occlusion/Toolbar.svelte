@@ -370,14 +370,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }}
     />
     <Shortcut
-        keyCombination="Ctrl+Z"
+        keyCombination="Z"
         on:action={() => {
             undoStack.undo();
             emitChangeSignal();
         }}
     />
     <Shortcut
-        keyCombination="Ctrl+Y"
+        keyCombination="Y"
         on:action={() => {
             undoStack.redo();
             emitChangeSignal();
@@ -398,7 +398,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }}
     />
     <Shortcut
-        keyCombination="Ctrl+F"
+        keyCombination="F"
         on:action={() => {
             enableMagnify();
             zoomTools[2].action(instance);
@@ -436,6 +436,48 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         keyCombination="U"
         on:action={() => {
             groupUngroupTools[1].action(canvas);
+            emitChangeSignal();
+        }}
+    />
+    <Shortcut
+        keyCombination="Shift+L"
+        on:action={() => {
+            alignTools[0].action(canvas);
+            emitChangeSignal();
+        }}
+    />
+    <Shortcut
+        keyCombination="Shift+H"
+        on:action={() => {
+            alignTools[1].action(canvas);
+            emitChangeSignal();
+        }}
+    />
+    <Shortcut
+        keyCombination="Shift+R"
+        on:action={() => {
+            alignTools[2].action(canvas);
+            emitChangeSignal();
+        }}
+    />
+    <Shortcut
+        keyCombination="Shift+T"
+        on:action={() => {
+            alignTools[3].action(canvas);
+            emitChangeSignal();
+        }}
+    />
+    <Shortcut
+        keyCombination="Shift+V"
+        on:action={() => {
+            alignTools[4].action(canvas);
+            emitChangeSignal();
+        }}
+    />
+    <Shortcut
+        keyCombination="Shift+B"
+        on:action={() => {
+            alignTools[5].action(canvas);
             emitChangeSignal();
         }}
     />
