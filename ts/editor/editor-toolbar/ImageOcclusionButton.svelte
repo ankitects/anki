@@ -7,14 +7,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroup from "components/ButtonGroup.svelte";
     import DynamicallySlottable from "components/DynamicallySlottable.svelte";
     import IconButton from "components/IconButton.svelte";
-    import { ioMaskEditorVisible } from "image-occlusion/store";
+    import { ioImageLoadedStore, ioMaskEditorVisible } from "image-occlusion/store";
 
     import ButtonGroupItem, {
         createProps,
         setSlotHostContext,
         updatePropsList,
     } from "../../components/ButtonGroupItem.svelte";
-    import { mdiViewDashboard } from "./icons";
+    import { mdiTableRefresh, mdiViewDashboard } from "./icons";
 
     export let api = {};
 </script>
@@ -37,6 +37,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 tooltip={tr.editingImageOcclusionToggleMaskEditor()}
             >
                 {@html mdiViewDashboard}
+            </IconButton>
+        </ButtonGroupItem>
+        <ButtonGroupItem>
+            <IconButton
+                id="io-reset-btn"
+                disabled={!$ioImageLoadedStore}
+                on:click={() => {
+                    if (confirm(tr.editingImageOcclusionConfirmReset())) {
+                        globalThis.resetIOImageLoaded();
+                    } else {
+                        return;
+                    }
+                }}
+                tooltip={tr.editingImageOcclusionReset()}
+            >
+                {@html mdiTableRefresh}
             </IconButton>
         </ButtonGroupItem>
     </DynamicallySlottable>

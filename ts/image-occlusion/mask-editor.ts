@@ -12,7 +12,13 @@ import { optimumCssSizeForCanvas } from "./canvas-scale";
 import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
 import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
-import { enableSelectable, moveShapeToCanvasBoundaries } from "./tools/lib";
+import {
+    enableSelectable,
+    makeShapeRemainInCanvas,
+    moveShapeToCanvasBoundaries,
+    setCenterXForZoom,
+    zoomReset,
+} from "./tools/lib";
 import { modifiedPolygon } from "./tools/tool-polygon";
 import { undoStack } from "./tools/tool-undo-redo";
 import type { Size } from "./types";
@@ -33,7 +39,7 @@ export const setupMaskEditor = async (
 
     // get image width and height
     const image = document.getElementById("image") as HTMLImageElement;
-    image.src = getImageData(imageData.data!);
+    image.src = getImageData(imageData.data!, path);
     image.onload = function() {
         const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
         canvas.setWidth(size.width);
@@ -73,7 +79,7 @@ export const setupMaskEditorForEdit = async (
     // get image width and height
     const image = document.getElementById("image") as HTMLImageElement;
     image.style.visibility = "hidden";
-    image.src = getImageData(clozeNote.imageData!);
+    image.src = getImageData(clozeNote.imageData!, clozeNote.imageFileName!);
     image.onload = function() {
         const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
         canvas.setWidth(size.width);
@@ -100,12 +106,19 @@ function initCanvas(onChange: () => void): fabric.Canvas {
     tagsWritable.set([]);
     globalThis.canvas = canvas;
     undoStack.setCanvas(canvas);
+    // find object per-pixel basis rather than according to bounding box,
+    // allow click through transparent area
+    canvas.perPixelTargetFind = true;
     // Disable uniform scaling
     canvas.uniformScaling = false;
     canvas.uniScaleKey = "none";
     // disable rotation globally
     delete fabric.Object.prototype.controls.mtr;
+    // add a border to corner to handle blend of control
+    fabric.Object.prototype.cornerStyle = "circle";
+    fabric.Object.prototype.cornerStrokeColor = "#000000";
     moveShapeToCanvasBoundaries(canvas);
+    makeShapeRemainInCanvas(canvas);
     canvas.on("object:modified", (evt) => {
         if (evt.target instanceof fabric.Polygon) {
             modifiedPolygon(canvas, evt.target);
@@ -114,12 +127,25 @@ function initCanvas(onChange: () => void): fabric.Canvas {
         onChange();
     });
     canvas.on("object:removed", onChange);
+    setCenterXForZoom(canvas);
     return canvas;
 }
 
-const getImageData = (imageData): string => {
+const getImageData = (imageData, path): string => {
     const b64encoded = protoBase64.enc(imageData);
-    return "data:image/png;base64," + b64encoded;
+    const extension = path.split(".").pop();
+    const mimeTypes = {
+        "jpg": "jpeg",
+        "jpeg": "jpeg",
+        "gif": "gif",
+        "svg": "svg+xml",
+        "webp": "webp",
+        "avif": "avif",
+        "png": "png",
+    };
+
+    const type = mimeTypes[extension] || "png";
+    return `data:image/${type};base64,${b64encoded}`;
 };
 
 export const setCanvasZoomRatio = (
@@ -130,7 +156,7 @@ export const setCanvasZoomRatio = (
     const zoomRatioH = (innerHeight - 100) / canvas.height!;
     const zoomRatio = zoomRatioW < zoomRatioH ? zoomRatioW : zoomRatioH;
     zoomResetValue.set(zoomRatio);
-    instance.zoomAbs(0, 0, zoomRatio);
+    zoomReset(instance);
 };
 
 const addClozeNotesToTextEditor = (header: string, backExtra: string, tags: string[]) => {
@@ -164,7 +190,7 @@ function containerSize(): Size {
 export async function resetIOImage(path: string, onImageLoaded: (event: ImageLoadedEvent) => void) {
     const imageData = await getImageForOcclusion({ path });
     const image = document.getElementById("image") as HTMLImageElement;
-    image.src = getImageData(imageData.data!);
+    image.src = getImageData(imageData.data!, path);
     const canvas = globalThis.canvas;
 
     image.onload = function() {

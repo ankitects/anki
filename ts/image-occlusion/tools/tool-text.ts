@@ -2,6 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { fabric } from "fabric";
+import { opacityStateStore } from "image-occlusion/store";
+import { get } from "svelte/store";
 
 import { enableUniformScaling, stopDraw, TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_PADDING } from "./lib";
 import { undoStack } from "./tool-undo-redo";
@@ -27,6 +29,7 @@ export const drawText = (canvas: fabric.Canvas): void => {
             fontFamily: TEXT_FONT_FAMILY,
             backgroundColor: TEXT_BACKGROUND_COLOR,
             padding: TEXT_PADDING,
+            opacity: get(opacityStateStore) ? 0.4 : 1,
         });
         enableUniformScaling(canvas, text);
         canvas.add(text);

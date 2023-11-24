@@ -7,6 +7,7 @@ import { writable } from "svelte/store";
 
 import { mdiRedo, mdiUndo } from "../icons";
 import { emitChangeSignal } from "../MaskEditor.svelte";
+import { redoKeyCombination, undoKeyCombination } from "./shortcuts";
 
 /**
  * Undo redo for rectangle and ellipse handled here,
@@ -133,11 +134,13 @@ export const undoRedoTools = [
         icon: mdiUndo,
         action: () => undoStack.undo(),
         tooltip: tr.undoUndo,
+        shortcut: undoKeyCombination,
     },
     {
         name: "redo",
         icon: mdiRedo,
         action: () => undoStack.redo(),
         tooltip: tr.undoRedo,
+        shortcut: redoKeyCombination,
     },
 ];

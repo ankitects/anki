@@ -2,6 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { fabric } from "fabric";
+import { opacityStateStore } from "image-occlusion/store";
+import { get } from "svelte/store";
 
 import { BORDER_COLOR, SHAPE_MASK_COLOR, stopDraw } from "./lib";
 import { undoStack } from "./tool-undo-redo";
@@ -38,6 +40,7 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
             strokeWidth: 1,
             strokeUniform: true,
             noScaleCache: false,
+            opacity: get(opacityStateStore) ? 0.4 : 1,
         });
         canvas.add(rect);
     });
@@ -47,8 +50,8 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
             return;
         }
         const pointer = canvas.getPointer(o.e);
-        let x = pointer.x;
-        let y = pointer.y;
+        const x = pointer.x;
+        const y = pointer.y;
 
         if (x < origX) {
             rect.set({ originX: "right" });
@@ -60,20 +63,6 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
             rect.set({ originY: "bottom" });
         } else {
             rect.set({ originY: "top" });
-        }
-
-        // do not draw outside of canvas
-        if (x < rect.strokeWidth) {
-            x = -rect.strokeWidth + 0.5;
-        }
-        if (y < rect.strokeWidth) {
-            y = -rect.strokeWidth + 0.5;
-        }
-        if (x >= canvas.width - rect.strokeWidth) {
-            x = canvas.width - rect.strokeWidth + 0.5;
-        }
-        if (y >= canvas.height - rect.strokeWidth) {
-            y = canvas.height - rect.strokeWidth + 0.5;
         }
 
         rect.set({

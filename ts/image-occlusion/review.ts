@@ -154,6 +154,12 @@ function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOptions): vo
         } else {
             button.style.display = "none";
         }
+
+        window.addEventListener("keydown", (event) => {
+            if (event.key === "M") {
+                toggleMasks();
+            }
+        });
     }
 
     drawShapes(canvas, setupOptions?.onWillDrawShapes, setupOptions?.onDidDrawShapes);

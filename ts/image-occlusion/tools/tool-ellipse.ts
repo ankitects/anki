@@ -2,6 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { fabric } from "fabric";
+import { opacityStateStore } from "image-occlusion/store";
+import { get } from "svelte/store";
 
 import { BORDER_COLOR, SHAPE_MASK_COLOR, stopDraw } from "./lib";
 import { undoStack } from "./tool-undo-redo";
@@ -37,6 +39,7 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
             strokeWidth: 1,
             strokeUniform: true,
             noScaleCache: false,
+            opacity: get(opacityStateStore) ? 0.4 : 1,
         });
         canvas.add(ellipse);
     });
@@ -68,20 +71,6 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
             ellipse.set({ originY: "bottom" });
         } else {
             ellipse.set({ originY: "top" });
-        }
-
-        // do not draw outside of canvas
-        if (x < ellipse.strokeWidth) {
-            rx = (origX + ellipse.strokeWidth + 0.5) / 2;
-        }
-        if (y < ellipse.strokeWidth) {
-            ry = (origY + ellipse.strokeWidth + 0.5) / 2;
-        }
-        if (x >= canvas.width - ellipse.strokeWidth) {
-            rx = (canvas.width - origX) / 2 - ellipse.strokeWidth + 0.5;
-        }
-        if (y > canvas.height - ellipse.strokeWidth) {
-            ry = (canvas.height - origY) / 2 - ellipse.strokeWidth + 0.5;
         }
 
         ellipse.set({ rx: rx, ry: ry });
