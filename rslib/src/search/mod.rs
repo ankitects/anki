@@ -363,7 +363,7 @@ fn card_order_from_sort_column(column: Column, timing: SchedTimingToday) -> Cow<
         )
         .into(),
         Column::Deck => "(select pos from sort_order where did = c.did) asc".into(),
-        Column::Due => "c.type asc, c.due asc".into(),
+        Column::Due => format!("(case when c.due > 1000000000 or c.type = {} then due else (due - {}) * 86400 + {} end) asc", CardType::New as i8, timing.days_elapsed, TimestampSecs::now().0).into(),
         Column::Ease => format!("c.type = {} asc, c.factor asc", CardType::New as i8).into(),
         Column::Interval => "c.ivl asc".into(),
         Column::Lapses => "c.lapses asc".into(),
@@ -409,6 +409,7 @@ fn note_order_from_sort_column(column: Column) -> Cow<'static, str> {
 }
 
 fn prepare_sort(col: &mut Collection, column: Column, item_type: ReturnItemType) -> Result<()> {
+    let temp_string;
     let sql = match item_type {
         ReturnItemType::Cards => match column {
             Column::Cards => include_str!("template_order.sql"),
@@ -420,7 +421,10 @@ fn prepare_sort(col: &mut Collection, column: Column, item_type: ReturnItemType)
             Column::Cards => include_str!("note_cards_order.sql"),
             Column::CardMod => include_str!("card_mod_order.sql"),
             Column::Deck => include_str!("note_decks_order.sql"),
-            Column::Due => include_str!("note_due_order.sql"),
+            Column::Due => {
+                temp_string = format!("{} ORDER BY MIN({});", include_str!("note_due_order.sql"), format_args!("CASE WHEN due > 1000000000 OR c.type = {ctype} THEN due ELSE (due - {today}) * 86400 + {current_timestamp} END", ctype = CardType::New as i8, today = col.timing_today()?.days_elapsed, current_timestamp = TimestampSecs::now().0));
+                &temp_string
+            }
             Column::Ease => include_str!("note_ease_order.sql"),
             Column::Interval => include_str!("note_interval_order.sql"),
             Column::Lapses => include_str!("note_lapses_order.sql"),
