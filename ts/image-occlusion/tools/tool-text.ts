@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { fabric } from "fabric";
-import { opacityStateStore } from "image-occlusion/store";
+import { opacityStateStore, textEditingState } from "image-occlusion/store";
 import { get } from "svelte/store";
 
 import { enableUniformScaling, stopDraw, TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_PADDING } from "./lib";
@@ -37,5 +37,13 @@ export const drawText = (canvas: fabric.Canvas): void => {
         undoStack.onObjectAdded(text.id);
         text.enterEditing();
         text.selectAll();
+    });
+
+    canvas.on("text:editing:entered", function() {
+        textEditingState.set(true);
+    });
+
+    canvas.on("text:editing:exited", function() {
+        textEditingState.set(false);
     });
 };
