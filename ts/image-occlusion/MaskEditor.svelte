@@ -26,6 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "./mask-editor";
     import Toolbar from "./Toolbar.svelte";
     import { MaskEditorAPI } from "./tools/api";
+    import { setCenterXForZoom } from "./tools/lib";
 
     export let mode: IOMode;
     const iconSize = 80;
@@ -57,8 +58,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             minZoom: 0.1,
             zoomDoubleClickSpeed: 1,
             smoothScroll: false,
+            transformOrigin: { x: 0.5, y: 0.5 },
         });
         instance.pause();
+        globalThis.panzoom = instance;
 
         if (mode.kind == "add") {
             setupMaskEditor(mode.imagePath, instance, onChange, onImageLoaded).then(
@@ -78,12 +81,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => {
         window.addEventListener("resize", () => {
             setCanvasZoomRatio(canvas, instance);
+            setCenterXForZoom(canvas);
         });
     });
 
     onDestroy(() => {
         window.removeEventListener("resize", () => {
             setCanvasZoomRatio(canvas, instance);
+            setCenterXForZoom(canvas);
         });
     });
 </script>
@@ -109,10 +114,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding-bottom: 100px;
     }
 
+    :global([dir="rtl"]) .editor-main {
+        left: 2px;
+        right: 36px;
+    }
+
     .editor-container {
         width: 100%;
         height: 100%;
         position: relative;
+        direction: ltr;
     }
 
     #image {

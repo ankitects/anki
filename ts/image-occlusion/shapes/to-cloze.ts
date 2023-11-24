@@ -5,7 +5,6 @@ import type { Canvas, Object as FabricObject } from "fabric";
 import { fabric } from "fabric";
 import { cloneDeep } from "lodash-es";
 
-import { makeMaskTransparent } from "../tools/lib";
 import type { Size } from "../types";
 import type { Shape, ShapeOrShapes } from "./base";
 import { Ellipse } from "./ellipse";
@@ -36,7 +35,6 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
  */
 export function baseShapesFromFabric(): ShapeOrShapes[] {
     const canvas = globalThis.canvas as Canvas;
-    makeMaskTransparent(canvas, false);
     const activeObject = canvas.getActiveObject();
     const selectionContainingMultipleObjects = activeObject instanceof fabric.ActiveSelection
             && (activeObject.size() > 1)

@@ -5,7 +5,7 @@ import type fabric from "fabric";
 import type { PanZoom } from "panzoom";
 import { get } from "svelte/store";
 
-import { zoomResetValue } from "../store";
+import { opacityStateStore, zoomResetValue, zoomResetX } from "../store";
 
 export const SHAPE_MASK_COLOR = "#ffeba2";
 export const BORDER_COLOR = "#212121";
@@ -59,8 +59,14 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
         return;
     }
 
-    canvas.getActiveObject().toGroup();
-
+    const activeObject = canvas.getActiveObject();
+    const items = activeObject.getObjects();
+    items.forEach((item) => {
+        item.set({ opacity: 1 });
+    });
+    activeObject.toGroup().set({
+        opacity: get(opacityStateStore) ? 0.4 : 1,
+    });
     redraw(canvas);
 };
 
@@ -78,6 +84,7 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
     canvas.remove(group);
 
     items.forEach((item) => {
+        item.set({ opacity: get(opacityStateStore) ? 0.4 : 1 });
         canvas.add(item);
     });
 
@@ -85,16 +92,35 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
 };
 
 export const zoomIn = (instance: PanZoom): void => {
-    instance.smoothZoom(0, 0, 1.25);
+    const center = getCanvasCenter();
+    instance.smoothZoom(center.x, center.y, 1.25);
 };
 
 export const zoomOut = (instance: PanZoom): void => {
-    instance.smoothZoom(0, 0, 0.5);
+    const center = getCanvasCenter();
+    instance.smoothZoom(center.x, center.y, 0.8);
 };
 
 export const zoomReset = (instance: PanZoom): void => {
-    instance.moveTo(0, 0);
-    instance.smoothZoomAbs(0, 0, get(zoomResetValue));
+    setCenterXForZoom(globalThis.canvas);
+    instance.moveTo(get(zoomResetX), 0);
+    instance.smoothZoomAbs(get(zoomResetX), 0, get(zoomResetValue));
+};
+
+export const getCanvasCenter = () => {
+    const canvas = globalThis.canvas.getElement();
+    const rect = canvas.getBoundingClientRect();
+    const centerX = rect.x + rect.width / 2;
+    const centerY = rect.y + rect.height / 2;
+    return { x: centerX, y: centerY };
+};
+
+export const setCenterXForZoom = (canvas: fabric.Canvas) => {
+    const editor = document.querySelector(".editor-main")!;
+    const editorWidth = editor.clientWidth;
+    const canvasWidth = canvas.getElement().offsetWidth;
+    const centerX = editorWidth / 2 - canvasWidth / 2;
+    zoomResetX.set(centerX);
 };
 
 const copyItem = (canvas: fabric.Canvas): void => {
@@ -146,6 +172,7 @@ export const makeMaskTransparent = (
     canvas: fabric.Canvas,
     opacity = false,
 ): void => {
+    opacityStateStore.set(opacity);
     const objects = canvas.getObjects();
     objects.forEach((object) => {
         object.set({
@@ -260,4 +287,34 @@ export const redraw = (canvas: fabric.Canvas): void => {
 
 export const clear = (canvas: fabric.Canvas): void => {
     canvas.clear();
+};
+
+export const makeShapeRemainInCanvas = (canvas: fabric.Canvas) => {
+    canvas.on("object:moving", function(e) {
+        const obj = e.target;
+        if (obj.getScaledHeight() > obj.canvas.height || obj.getScaledWidth() > obj.canvas.width) {
+            return;
+        }
+
+        obj.setCoords();
+
+        if (obj.getBoundingRect().top < 0 || obj.getBoundingRect().left < 0) {
+            obj.top = Math.max(obj.top, obj.top - obj.getBoundingRect().top);
+            obj.left = Math.max(obj.left, obj.left - obj.getBoundingRect().left);
+        }
+
+        if (
+            obj.getBoundingRect().top + obj.getBoundingRect().height > obj.canvas.height
+            || obj.getBoundingRect().left + obj.getBoundingRect().width > obj.canvas.width
+        ) {
+            obj.top = Math.min(
+                obj.top,
+                obj.canvas.height - obj.getBoundingRect().height + obj.top - obj.getBoundingRect().top,
+            );
+            obj.left = Math.min(
+                obj.left,
+                obj.canvas.width - obj.getBoundingRect().width + obj.left - obj.getBoundingRect().left,
+            );
+        }
+    });
 };

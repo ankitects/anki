@@ -74,6 +74,7 @@ message GetImageOcclusionNoteResponse {
     string header = 3;
     string back_extra = 4;
     repeated string tags = 5;
+    string image_file_name = 6;
   }
 
   oneof value {

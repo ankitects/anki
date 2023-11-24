@@ -20,6 +20,21 @@ import {
 } from "../icons";
 import { deleteItem, duplicateItem, groupShapes, unGroupShapes, zoomIn, zoomOut, zoomReset } from "./lib";
 import {
+    alignBottomKeyCombination,
+    alignHorizontalCenterKeyCombination,
+    alignLeftKeyCombination,
+    alignRightKeyCombination,
+    alignTopKeyCombination,
+    alignVerticalCenterKeyCombination,
+    deleteKeyCombination,
+    duplicateKeyCombination,
+    groupKeyCombination,
+    ungroupKeyCombination,
+    zoomInKeyCombination,
+    zoomOutKeyCombination,
+    zoomResetKeyCombination,
+} from "./shortcuts";
+import {
     alignBottom,
     alignHorizontalCenter,
     alignLeft,
@@ -34,12 +49,14 @@ export const groupUngroupTools = [
         icon: mdiGroup,
         action: groupShapes,
         tooltip: tr.editingImageOcclusionGroup,
+        shortcut: groupKeyCombination,
     },
     {
         name: "ungroup",
         icon: mdiUngroup,
         action: unGroupShapes,
         tooltip: tr.editingImageOcclusionUngroup,
+        shortcut: ungroupKeyCombination,
     },
 ];
 
@@ -49,12 +66,14 @@ export const deleteDuplicateTools = [
         icon: mdiDeleteOutline,
         action: deleteItem,
         tooltip: tr.editingImageOcclusionDelete,
+        shortcut: deleteKeyCombination,
     },
     {
         name: "duplicate",
         icon: mdiCopy,
         action: duplicateItem,
         tooltip: tr.editingImageOcclusionDuplicate,
+        shortcut: duplicateKeyCombination,
     },
 ];
 
@@ -64,18 +83,21 @@ export const zoomTools = [
         icon: mdiZoomOut,
         action: zoomOut,
         tooltip: tr.editingImageOcclusionZoomOut,
+        shortcut: zoomOutKeyCombination,
     },
     {
         name: "zoomIn",
         icon: mdiZoomIn,
         action: zoomIn,
         tooltip: tr.editingImageOcclusionZoomIn,
+        shortcut: zoomInKeyCombination,
     },
     {
         name: "zoomReset",
         icon: mdiZoomReset,
         action: zoomReset,
         tooltip: tr.editingImageOcclusionZoomReset,
+        shortcut: zoomResetKeyCombination,
     },
 ];
 
@@ -85,35 +107,41 @@ export const alignTools = [
         icon: mdiAlignHorizontalLeft,
         action: alignLeft,
         tooltip: tr.editingImageOcclusionAlignLeft,
+        shortcut: alignLeftKeyCombination,
     },
     {
         id: 2,
         icon: mdiAlignHorizontalCenter,
         action: alignHorizontalCenter,
         tooltip: tr.editingImageOcclusionAlignHCenter,
+        shortcut: alignHorizontalCenterKeyCombination,
     },
     {
         id: 3,
         icon: mdiAlignHorizontalRight,
         action: alignRight,
         tooltip: tr.editingImageOcclusionAlignRight,
+        shortcut: alignRightKeyCombination,
     },
     {
         id: 4,
         icon: mdiAlignVerticalTop,
         action: alignTop,
         tooltip: tr.editingImageOcclusionAlignTop,
+        shortcut: alignTopKeyCombination,
     },
     {
         id: 5,
         icon: mdiAlignVerticalCenter,
         action: alignVerticalCenter,
         tooltip: tr.editingImageOcclusionAlignVCenter,
+        shortcut: alignVerticalCenterKeyCombination,
     },
     {
         id: 6,
         icon: mdiAlignVerticalBottom,
         action: alignBottom,
         tooltip: tr.editingImageOcclusionAlignBottom,
+        shortcut: alignBottomKeyCombination,
     },
 ];
