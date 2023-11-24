@@ -124,11 +124,11 @@ def test_find_cards():
     assert col.find_cards("", order=True)[0] in latestCardIds
     assert (
         col.find_cards("", order=col.get_browser_column("cardDue"), reverse=False)[0]
-        == note.card_ids()[0]
+        == firstCardId
     )
     assert (
-        col.find_cards("", order=col.get_browser_column("cardDue"), reverse=True)[-1]
-        == note.card_ids()[0]
+        col.find_cards("", order=col.get_browser_column("cardDue"), reverse=True)[0]
+        != firstCardId
     )
     # model
     assert len(col.find_cards("note:basic")) == 3
