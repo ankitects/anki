@@ -3,10 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { UpdateDeckConfigsMode } from "@tslib/anki/deck_config_pb";
     import * as tr from "@tslib/ftl";
     import { withCollapsedWhitespace } from "@tslib/i18n";
     import { getPlatformString } from "@tslib/shortcuts";
     import { createEventDispatcher, tick } from "svelte";
+    import { get } from "svelte/store";
 
     import DropdownDivider from "../components/DropdownDivider.svelte";
     import DropdownItem from "../components/DropdownItem.svelte";
@@ -57,9 +59,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    async function save(applyToChildDecks: boolean): Promise<void> {
+    async function save(mode: UpdateDeckConfigsMode): Promise<void> {
         await commitEditing();
-        state.save(applyToChildDecks);
+        if (!get(state.fsrs)) {
+            alert(tr.deckConfigFsrsMustBeEnabled());
+            return;
+        }
+        state.save(mode);
     }
 
     const saveKeyCombination = "Control+Enter";
@@ -69,14 +75,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <LabelButton
     primary
-    on:click={() => save(false)}
+    on:click={() => save(UpdateDeckConfigsMode.NORMAL)}
     tooltip={getPlatformString(saveKeyCombination)}
     --border-left-radius={!rtl ? "var(--border-radius)" : "0"}
     --border-right-radius={rtl ? "var(--border-radius)" : "0"}
 >
     <div class="save">{tr.deckConfigSaveButton()}</div>
 </LabelButton>
-<Shortcut keyCombination={saveKeyCombination} on:action={() => save(false)} />
+<Shortcut
+    keyCombination={saveKeyCombination}
+    on:action={() => save(UpdateDeckConfigsMode.NORMAL)}
+/>
 
 <WithFloating
     show={showFloating}
@@ -108,8 +117,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {tr.deckConfigRemoveGroup()}
         </DropdownItem>
         <DropdownDivider />
-        <DropdownItem on:click={() => save(true)}>
+        <DropdownItem on:click={() => save(UpdateDeckConfigsMode.APPLY_TO_CHILDREN)}>
             {tr.deckConfigSaveToAllSubdecks()}
+        </DropdownItem>
+        <DropdownItem on:click={() => save(UpdateDeckConfigsMode.COMPUTE_ALL_WEIGHTS)}>
+            {tr.deckConfigSaveAndOptimize()}
         </DropdownItem>
     </Popover>
 </WithFloating>
