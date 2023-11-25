@@ -105,6 +105,7 @@ impl From<anki_proto::deck_config::UpdateDeckConfigsRequest> for UpdateDeckConfi
             new_cards_ignore_review_limit: c.new_cards_ignore_review_limit,
             apply_all_parent_limits: c.apply_all_parent_limits,
             fsrs: c.fsrs,
+            fsrs_reschedule: c.fsrs_reschedule,
         }
     }
 }

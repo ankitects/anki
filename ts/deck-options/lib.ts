@@ -44,6 +44,7 @@ export class DeckOptionsState {
     readonly newCardsIgnoreReviewLimit: Writable<boolean>;
     readonly applyAllParentLimits: Writable<boolean>;
     readonly fsrs: Writable<boolean>;
+    readonly fsrsReschedule: Writable<boolean> = writable(false);
     readonly currentPresetName: Writable<string>;
 
     private targetDeckId: DeckOptionsId;
@@ -204,6 +205,7 @@ export class DeckOptionsState {
             newCardsIgnoreReviewLimit: get(this.newCardsIgnoreReviewLimit),
             applyAllParentLimits: get(this.applyAllParentLimits),
             fsrs: get(this.fsrs),
+            fsrsReschedule: get(this.fsrsReschedule),
         };
     }
 

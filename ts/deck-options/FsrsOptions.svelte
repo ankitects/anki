@@ -32,6 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const config = state.currentConfig;
     const defaults = state.defaults;
+    const fsrsReschedule = state.fsrsReschedule;
 
     let computeWeightsProgress: ComputeWeightsProgress | undefined;
     let computingWeights = false;
@@ -264,13 +265,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <div class="m-2">
-    <SwitchRow bind:value={$config.rescheduleFsrsCards} defaultValue={false}>
+    <SwitchRow bind:value={$fsrsReschedule} defaultValue={false}>
         <SettingTitle on:click={() => openHelpModal("rescheduleCardsOnChange")}>
             {tr.deckConfigRescheduleCardsOnChange()}
         </SettingTitle>
     </SwitchRow>
 
-    {#if $config.rescheduleFsrsCards}
+    {#if $fsrsReschedule}
         <Warning warning={tr.deckConfigRescheduleCardsWarning()} />
     {/if}
 </div>
