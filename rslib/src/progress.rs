@@ -211,9 +211,11 @@ pub(crate) fn progress_to_proto(
             ),
             Progress::ComputeWeights(progress) => {
                 Value::ComputeWeights(anki_proto::collection::ComputeWeightsProgress {
-                    current: progress.current,
-                    total: progress.total,
+                    current: progress.current_iteration,
+                    total: progress.total_iterations,
                     fsrs_items: progress.fsrs_items,
+                    current_preset: progress.current_preset,
+                    total_presets: progress.total_presets,
                 })
             }
             Progress::ComputeRetention(progress) => {

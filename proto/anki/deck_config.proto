@@ -200,13 +200,19 @@ message DeckConfigsForUpdate {
   bool apply_all_parent_limits = 9;
 }
 
+enum UpdateDeckConfigsMode {
+  UPDATE_DECK_CONFIGS_MODE_NORMAL = 0;
+  UPDATE_DECK_CONFIGS_MODE_APPLY_TO_CHILDREN = 1;
+  UPDATE_DECK_CONFIGS_MODE_COMPUTE_ALL_WEIGHTS = 2;
+}
+
 message UpdateDeckConfigsRequest {
   int64 target_deck_id = 1;
   /// Unchanged, non-selected configs can be omitted. Deck will
   /// be set to whichever entry comes last.
   repeated DeckConfig configs = 2;
   repeated int64 removed_config_ids = 3;
-  bool apply_to_children = 4;
+  UpdateDeckConfigsMode mode = 4;
   string card_state_customizer = 5;
   DeckConfigsForUpdate.CurrentDeck.Limits limits = 6;
   bool new_cards_ignore_review_limit = 7;

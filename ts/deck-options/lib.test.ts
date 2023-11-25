@@ -6,7 +6,7 @@
  */
 
 import { protoBase64 } from "@bufbuild/protobuf";
-import { DeckConfig_Config_LeechAction, DeckConfigsForUpdate } from "@tslib/anki/deck_config_pb";
+import { DeckConfig_Config_LeechAction, DeckConfigsForUpdate, UpdateDeckConfigsMode } from "@tslib/anki/deck_config_pb";
 import { get } from "svelte/store";
 
 import { DeckOptionsState } from "./lib";
@@ -203,7 +203,7 @@ test("deck list", () => {
     expect(get(state.currentConfig).newPerDay).toBe(10);
 
     // only the pre-existing deck should be listed for removal
-    const out = state.dataForSaving(false);
+    const out = state.dataForSaving(UpdateDeckConfigsMode.NORMAL);
     expect(out.removedConfigIds).toStrictEqual([1618570764780n]);
 });
 
@@ -221,24 +221,24 @@ test("duplicate name", () => {
 
 test("saving", () => {
     let state = startingState();
-    let out = state.dataForSaving(false);
+    let out = state.dataForSaving(UpdateDeckConfigsMode.NORMAL);
     expect(out.removedConfigIds).toStrictEqual([]);
     expect(out.targetDeckId).toBe(123n);
     // in no-changes case, currently selected config should
     // be returned
     expect(out.configs!.length).toBe(1);
     expect(out.configs![0].name).toBe("another one");
-    expect(out.applyToChildren).toBe(false);
+    expect(out.mode).toBe(UpdateDeckConfigsMode.NORMAL);
 
     // rename, then change current deck
     state.setCurrentName("zzz");
-    out = state.dataForSaving(true);
+    out = state.dataForSaving(UpdateDeckConfigsMode.APPLY_TO_CHILDREN);
     state.setCurrentIndex(0);
 
     // renamed deck should be in changes, with current deck as last element
-    out = state.dataForSaving(true);
+    out = state.dataForSaving(UpdateDeckConfigsMode.APPLY_TO_CHILDREN);
     expect(out.configs!.map((c) => c.name)).toStrictEqual(["zzz", "Default"]);
-    expect(out.applyToChildren).toBe(true);
+    expect(out.mode).toBe(UpdateDeckConfigsMode.APPLY_TO_CHILDREN);
 
     // start again, adding new deck
     state = startingState();
@@ -246,7 +246,7 @@ test("saving", () => {
 
     // deleting it should not change removedConfigs
     state.removeCurrentConfig();
-    out = state.dataForSaving(true);
+    out = state.dataForSaving(UpdateDeckConfigsMode.APPLY_TO_CHILDREN);
     expect(out.removedConfigIds).toStrictEqual([]);
 
     // select the other non-default deck & remove
@@ -255,7 +255,7 @@ test("saving", () => {
 
     // should be listed in removedConfigs, and modified should
     // only contain Default, which is the new current deck
-    out = state.dataForSaving(true);
+    out = state.dataForSaving(UpdateDeckConfigsMode.APPLY_TO_CHILDREN);
     expect(out.removedConfigIds).toStrictEqual([1618570764780n]);
     expect(out.configs!.map((c) => c.name)).toStrictEqual(["Default"]);
 });
@@ -283,7 +283,7 @@ test("aux data", () => {
     });
 
     // ensure changes serialize
-    const out = state.dataForSaving(true);
+    const out = state.dataForSaving(UpdateDeckConfigsMode.APPLY_TO_CHILDREN);
     expect(out.configs!.length).toBe(2);
     const json = out.configs!.map((c) => JSON.parse(new TextDecoder().decode(c.config!.other)));
     expect(json).toStrictEqual([

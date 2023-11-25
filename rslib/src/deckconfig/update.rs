@@ -10,6 +10,7 @@ use std::iter;
 use anki_proto::deck_config::deck_configs_for_update::current_deck::Limits;
 use anki_proto::deck_config::deck_configs_for_update::ConfigWithExtra;
 use anki_proto::deck_config::deck_configs_for_update::CurrentDeck;
+use anki_proto::deck_config::UpdateDeckConfigsMode;
 use anki_proto::decks::deck::normal::DayLimit;
 use fsrs::DEFAULT_WEIGHTS;
 
@@ -27,7 +28,7 @@ pub struct UpdateDeckConfigsRequest {
     /// Deck will be set to last provided deck config.
     pub configs: Vec<DeckConfig>,
     pub removed_config_ids: Vec<DeckConfigId>,
-    pub apply_to_children: bool,
+    pub mode: UpdateDeckConfigsMode,
     pub card_state_customizer: String,
     pub limits: Limits,
     pub new_cards_ignore_review_limit: bool,
@@ -136,6 +137,10 @@ impl Collection {
             configs_after_update.remove(dcid);
         }
 
+        if req.mode == UpdateDeckConfigsMode::ComputeAllWeights {
+            self.compute_all_weights(&mut req)?;
+        }
+
         // add/update provided configs
         for conf in &mut req.configs {
             let weight_len = conf.inner.fsrs_weights.len();
@@ -147,7 +152,7 @@ impl Collection {
         }
 
         // get selected deck and possibly children
-        let selected_deck_ids: HashSet<_> = if req.apply_to_children {
+        let selected_deck_ids: HashSet<_> = if req.mode == UpdateDeckConfigsMode::ApplyToChildren {
             let deck = self
                 .storage
                 .get_deck(req.target_deck_id)?
@@ -295,6 +300,46 @@ impl Collection {
         }
         Ok(())
     }
+    fn compute_all_weights(&mut self, req: &mut UpdateDeckConfigsRequest) -> Result<()> {
+        require!(req.fsrs, "FSRS must be enabled");
+
+        // frontend didn't include any unmodified deck configs, so we need to fill them
+        // in
+        let changed_configs: HashSet<_> = req.configs.iter().map(|c| c.id).collect();
+        let previous_last = req.configs.pop().or_invalid("no configs provided")?;
+        for config in self.storage.all_deck_config()? {
+            if !changed_configs.contains(&config.id) {
+                req.configs.push(config);
+            }
+        }
+        // other parts of the code expect the currently-selected preset to come last
+        req.configs.push(previous_last);
+
+        // calculate and apply weights to each preset
+        let config_len = req.configs.len() as u32;
+        for (idx, config) in req.configs.iter_mut().enumerate() {
+            let search = if config.inner.weight_search.trim().is_empty() {
+                SearchNode::Preset(config.name.clone())
+                    .try_into_search()?
+                    .to_string()
+            } else {
+                config.inner.weight_search.clone()
+            };
+            match self.compute_weights(&search, idx as u32 + 1, config_len) {
+                Ok(weights) => {
+                    if weights.fsrs_items >= 1000 {
+                        println!("{}: {:?}", config.name, weights.weights);
+                        config.inner.fsrs_weights = weights.weights;
+                    }
+                }
+                Err(AnkiError::Interrupted) => return Err(AnkiError::Interrupted),
+                Err(err) => {
+                    println!("{}: {}", config.name, err)
+                }
+            }
+        }
+        Ok(())
+    }
 }
 
 fn normal_deck_to_limits(deck: &NormalDeck, today: u32) -> Limits {
@@ -383,7 +428,7 @@ mod test {
                 .map(|c| c.config.unwrap().into())
                 .collect(),
             removed_config_ids: vec![],
-            apply_to_children: false,
+            mode: UpdateDeckConfigsMode::Normal,
             card_state_customizer: "".to_string(),
             limits: Limits::default(),
             new_cards_ignore_review_limit: false,

@@ -202,12 +202,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (!val || !val.total) {
             return "";
         }
-        let pct = ((val.current / val.total) * 100).toFixed(1);
-        pct = `${pct}%`;
+        const pct = ((val.current / val.total) * 100).toFixed(1);
         if (val instanceof ComputeRetentionProgress) {
-            return pct;
+            return `${pct}%`;
         } else {
-            return `${pct} of ${val.fsrsItems} reviews`;
+            return tr.deckConfigPercentOfReviews({ pct, reviews: val.fsrsItems });
         }
     }
 

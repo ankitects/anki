@@ -27,13 +27,25 @@ use crate::search::SortMode;
 pub(crate) type Weights = Vec<f32>;
 
 impl Collection {
-    pub fn compute_weights(&mut self, search: &str) -> Result<ComputeFsrsWeightsResponse> {
+    /// Note this does not return an error if there are less than 1000 items -
+    /// the caller should instead check the fsrs_items count in the return
+    /// value.
+    pub fn compute_weights(
+        &mut self,
+        search: &str,
+        current_preset: u32,
+        total_presets: u32,
+    ) -> Result<ComputeFsrsWeightsResponse> {
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let fsrs_items = items.len() as u32;
-        anki_progress.update(false, |p| p.fsrs_items = fsrs_items)?;
+        anki_progress.update(false, |p| {
+            p.fsrs_items = fsrs_items;
+            p.current_preset = current_preset;
+            p.total_presets = total_presets;
+        })?;
         // adapt the progress handler to our built-in progress handling
         let progress = CombinedProgressState::new_shared();
         let progress2 = progress.clone();
@@ -43,9 +55,9 @@ impl Collection {
                 thread::sleep(Duration::from_millis(100));
                 let mut guard = progress.lock().unwrap();
                 if let Err(_err) = anki_progress.update(false, |s| {
-                    s.total = guard.total() as u32;
-                    s.current = guard.current() as u32;
-                    finished = s.total > 0 && s.total == s.current;
+                    s.total_iterations = guard.total() as u32;
+                    s.current_iteration = guard.current() as u32;
+                    finished = guard.finished();
                 }) {
                     guard.want_abort = true;
                     return;
@@ -112,8 +124,8 @@ impl Collection {
         Ok(fsrs.evaluate(items, |ip| {
             anki_progress
                 .update(false, |p| {
-                    p.total = ip.total as u32;
-                    p.current = ip.current as u32;
+                    p.total_iterations = ip.total as u32;
+                    p.current_iteration = ip.current as u32;
                 })
                 .is_ok()
         })?)
@@ -122,9 +134,13 @@ impl Collection {
 
 #[derive(Default, Clone, Copy, Debug)]
 pub struct ComputeWeightsProgress {
-    pub current: u32,
-    pub total: u32,
+    pub current_iteration: u32,
+    pub total_iterations: u32,
     pub fsrs_items: u32,
+    /// Only used in 'compute all weights' case
+    pub current_preset: u32,
+    /// Only used in 'compute all weights' case
+    pub total_presets: u32,
 }
 
 /// Convert a series of revlog entries sorted by card id into FSRS items.

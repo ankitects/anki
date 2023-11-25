@@ -36,7 +36,7 @@ from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
-from aqt.utils import aqt_data_path, show_warning
+from aqt.utils import aqt_data_path, show_warning, tr
 
 app = flask.Flask(__name__, root_path="/fake")
 flask_cors.CORS(app, resources={r"/*": {"origins": "127.0.0.1"}})
@@ -433,12 +433,26 @@ def update_deck_configs() -> bytes:
     input.ParseFromString(request.data)
 
     def on_progress(progress: Progress, update: ProgressUpdate) -> None:
-        if not progress.HasField("compute_memory"):
+        if progress.HasField("compute_memory"):
+            val = progress.compute_memory
+            update.max = val.total_cards
+            update.value = val.current_cards
+            update.label = val.label
+        elif progress.HasField("compute_weights"):
+            val2 = progress.compute_weights
+            update.max = val2.total
+            update.value = val2.current
+            pct = str(int(val2.current / val2.total * 100) if val2.total > 0 else 0)
+            label = tr.deck_config_optimizing_preset(
+                current_count=val2.current_preset, total_count=val2.total_presets
+            )
+            update.label = (
+                label
+                + "\n"
+                + tr.deck_config_percent_of_reviews(pct=pct, reviews=val2.fsrs_items)
+            )
+        else:
             return
-        val = progress.compute_memory
-        update.max = val.total_cards
-        update.value = val.current_cards
-        update.label = val.label
         if update.user_wants_abort:
             update.abort = True
 
