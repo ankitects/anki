@@ -19,3 +19,5 @@ export const zoomResetX = writable(0);
 export const ioImageLoadedStore = writable(false);
 // store opacity state of objects in canvas
 export const opacityStateStore = writable(false);
+// store state of text editing
+export const textEditingState = writable(false);

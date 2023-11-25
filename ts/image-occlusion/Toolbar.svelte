@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { mdiEye, mdiFormatAlignCenter, mdiSquare, mdiViewDashboard } from "./icons";
     import { emitChangeSignal } from "./MaskEditor.svelte";
-    import { hideAllGuessOne, ioMaskEditorVisible } from "./store";
+    import { hideAllGuessOne, ioMaskEditorVisible, textEditingState } from "./store";
     import { drawEllipse, drawPolygon, drawRectangle, drawText } from "./tools/index";
     import { makeMaskTransparent } from "./tools/lib";
     import { enableSelectable, stopDraw } from "./tools/lib";
@@ -173,7 +173,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         >
             {@html tool.icon}
         </IconButton>
-        {#if $ioMaskEditorVisible}
+        {#if $ioMaskEditorVisible && !$textEditingState}
             <Shortcut
                 keyCombination={tool.shortcut}
                 on:action={() => {
@@ -234,7 +234,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     {@html tool.icon}
                 </IconButton>
-                {#if $ioMaskEditorVisible}
+                {#if $ioMaskEditorVisible && !$textEditingState}
                     <Shortcut keyCombination={tool.shortcut} on:action={tool.action} />
                 {/if}
             {/each}
@@ -255,7 +255,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     {@html tool.icon}
                 </IconButton>
-                {#if $ioMaskEditorVisible}
+                {#if $ioMaskEditorVisible && !$textEditingState}
                     <Shortcut
                         keyCombination={tool.shortcut}
                         on:action={() => {
@@ -271,7 +271,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <IconButton
                 class="top-tool-icon-button left-border-radius"
                 {iconSize}
-                tooltip={tr.editingImageOcclusionToggleTranslucent()}
+                tooltip="{tr.editingImageOcclusionToggleTranslucent()} ({getPlatformString(
+                    toggleTranslucentKeyCombination,
+                )})"
                 on:click={() => {
                     maksOpacity = !maksOpacity;
                     makeMaskTransparent(canvas, maksOpacity);
@@ -279,7 +281,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             >
                 {@html mdiEye}
             </IconButton>
-            {#if $ioMaskEditorVisible}
+            {#if $ioMaskEditorVisible && !$textEditingState}
                 <Shortcut
                     keyCombination={toggleTranslucentKeyCombination}
                     on:action={() => {
@@ -303,7 +305,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     {@html tool.icon}
                 </IconButton>
-                {#if $ioMaskEditorVisible}
+                {#if $ioMaskEditorVisible && !$textEditingState}
                     <Shortcut
                         keyCombination={tool.shortcut}
                         on:action={() => {
@@ -331,7 +333,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     {@html tool.icon}
                 </IconButton>
-                {#if $ioMaskEditorVisible}
+                {#if $ioMaskEditorVisible && !$textEditingState}
                     <Shortcut
                         keyCombination={tool.shortcut}
                         on:action={() => {
@@ -370,7 +372,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             >
                 {@html alignTool.icon}
             </IconButton>
-            {#if $ioMaskEditorVisible}
+            {#if $ioMaskEditorVisible && !$textEditingState}
                 <Shortcut
                     keyCombination={alignTool.shortcut}
                     on:action={() => {
