@@ -112,6 +112,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border: 1px solid var(--border);
         overflow: auto;
         padding-bottom: 100px;
+        outline: none !important;
     }
 
     :global([dir="rtl"]) .editor-main {

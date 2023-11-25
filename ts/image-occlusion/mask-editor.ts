@@ -115,6 +115,7 @@ function initCanvas(onChange: () => void): fabric.Canvas {
     // disable rotation globally
     delete fabric.Object.prototype.controls.mtr;
     // add a border to corner to handle blend of control
+    fabric.Object.prototype.transparentCorners = false;
     fabric.Object.prototype.cornerStyle = "circle";
     fabric.Object.prototype.cornerStrokeColor = "#000000";
     moveShapeToCanvasBoundaries(canvas);
