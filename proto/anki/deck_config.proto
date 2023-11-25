@@ -152,7 +152,8 @@ message DeckConfig {
 
     // for fsrs
     float desired_retention = 37;
-    bool reschedule_fsrs_cards = 39;
+    // used for fsrs_reschedule in the past
+    reserved 39;
     float sm2_retention = 40;
     string weight_search = 45;
 
@@ -218,4 +219,5 @@ message UpdateDeckConfigsRequest {
   bool new_cards_ignore_review_limit = 7;
   bool fsrs = 8;
   bool apply_all_parent_limits = 9;
+  bool fsrs_reschedule = 10;
 }

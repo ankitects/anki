@@ -34,6 +34,7 @@ pub struct UpdateDeckConfigsRequest {
     pub new_cards_ignore_review_limit: bool,
     pub apply_all_parent_limits: bool,
     pub fsrs: bool,
+    pub fsrs_reschedule: bool,
 }
 
 impl Collection {
@@ -241,7 +242,7 @@ impl Collection {
                                     weights: c.inner.fsrs_weights.clone(),
                                     desired_retention: c.inner.desired_retention,
                                     max_interval: c.inner.maximum_review_interval,
-                                    reschedule: c.inner.reschedule_fsrs_cards,
+                                    reschedule: req.fsrs_reschedule,
                                     sm2_retention: c.inner.sm2_retention,
                                 })
                             } else {
@@ -434,6 +435,7 @@ mod test {
             new_cards_ignore_review_limit: false,
             apply_all_parent_limits: false,
             fsrs: false,
+            fsrs_reschedule: false,
         };
         assert!(!col.update_deck_configs(input.clone())?.changes.had_change());
 
