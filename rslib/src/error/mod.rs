@@ -115,6 +115,7 @@ pub enum AnkiError {
     InvalidServiceIndex,
     FsrsWeightsInvalid,
     FsrsInsufficientData,
+    FsrsUnableToDetermineDesiredRetention,
     SchedulerUpgradeRequired,
 }
 
@@ -174,6 +175,9 @@ impl AnkiError {
             }
             #[cfg(windows)]
             AnkiError::WindowsError { source } => format!("{source:?}"),
+            AnkiError::FsrsUnableToDetermineDesiredRetention => tr
+                .deck_config_unable_to_determine_desired_retention()
+                .into(),
         }
     }
 

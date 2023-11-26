@@ -330,6 +330,8 @@ deck-config-which-deck = Which deck would you like to display options for?
 deck-config-updating-cards = Updating cards: { $current_cards_count }/{ $total_cards_count }...
 deck-config-invalid-weights = Parameters must be either left blank to use the defaults, or must be 17 comma-separated numbers.
 deck-config-not-enough-history = Insufficient review history to perform this operation.
+deck-config-unable-to-determine-desired-retention =
+    Unable to determine an optimal retention.
 deck-config-must-have-1000-reviews =
     { $count ->
         [one] Only { $count } review was found.
@@ -352,6 +354,7 @@ deck-config-fsrs-on-all-clients =
     not work correctly if one of your clients is older.
 deck-config-estimated-retention = Estimated retention: { $num }
 deck-config-complete = { $num }% complete.
+deck-config-iterations = Iteration: { $count }...
 deck-config-reschedule-cards-on-change = Reschedule cards on change
 deck-config-fsrs-tooltip =
     The Free Spaced Repetition Scheduler (FSRS) is an alternative to Anki's legacy SuperMemo 2 (SM2) scheduler.
