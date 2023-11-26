@@ -180,10 +180,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     optimalRetentionRequest.search = `preset:"${state.getCurrentName()}"`;
                     const resp = await computeOptimalRetention(optimalRetentionRequest);
                     optimalRetention = resp.optimalRetention;
-                    if (computeRetentionProgress) {
-                        computeRetentionProgress.current =
-                            computeRetentionProgress.total;
-                    }
+                    computeRetentionProgress = undefined;
                 },
                 (progress) => {
                     if (progress.value.case === "computeRetention") {
@@ -217,11 +214,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function renderRetentionProgress(
         val: ComputeRetentionProgress | undefined,
     ): String {
-        if (!val || !val.total) {
+        if (!val) {
             return "";
         }
-        const pct = ((val.current / val.total) * 100).toFixed(0);
-        return tr.deckConfigComplete({ num: pct });
+        return tr.deckConfigIterations({ count: val.current });
     }
 
     function estimatedRetention(retention: number): String {

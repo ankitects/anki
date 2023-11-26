@@ -9,6 +9,7 @@ impl From<FSRSError> for AnkiError {
     fn from(err: FSRSError) -> Self {
         match err {
             FSRSError::NotEnoughData => AnkiError::FsrsInsufficientData,
+            FSRSError::OptimalNotFound => AnkiError::FsrsUnableToDetermineDesiredRetention,
             FSRSError::Interrupted => AnkiError::Interrupted,
             FSRSError::InvalidWeights => AnkiError::FsrsWeightsInvalid,
         }
