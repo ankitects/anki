@@ -160,7 +160,7 @@ impl Card {
         self.memory_state = item
             .map(|i| fsrs.memory_state(i.item, i.starting_state))
             .or_else(|| {
-                if self.ctype == CardType::New {
+                if self.ctype == CardType::New || self.interval == 0 {
                     None
                 } else {
                     // no valid revlog entries; infer state from current card state
