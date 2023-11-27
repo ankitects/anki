@@ -61,7 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function save(mode: UpdateDeckConfigsMode): Promise<void> {
         await commitEditing();
-        if (!get(state.fsrs)) {
+        if (mode === UpdateDeckConfigsMode.COMPUTE_ALL_WEIGHTS && !get(state.fsrs)) {
             alert(tr.deckConfigFsrsMustBeEnabled());
             return;
         }
