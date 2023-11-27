@@ -111,7 +111,7 @@ impl crate::services::NotetypesService for Collection {
 
         let schema11: NotetypeSchema11 =
             self.storage.get_notetype(ntid)?.or_not_found(ntid)?.into();
-        Ok(serde_json::to_vec(&schema11)?).map(Into::into)
+        Ok(serde_json::to_vec(&schema11)?.into())
     }
 
     fn get_notetype_names(&mut self) -> error::Result<anki_proto::notetypes::NotetypeNames> {

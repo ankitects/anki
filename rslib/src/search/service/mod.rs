@@ -122,7 +122,7 @@ impl crate::services::SearchService for Collection {
 
     fn set_active_browser_columns(&mut self, input: generic::StringList) -> Result<()> {
         self.state.active_browser_columns = Some(Arc::new(string_list_to_browser_columns(input)));
-        Ok(()).map(Into::into)
+        Ok(())
     }
 
     fn browser_row_for_id(
