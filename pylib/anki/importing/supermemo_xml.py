@@ -22,6 +22,7 @@ class SmartDict(dict):
     """
     See http://www.peterbe.com/plog/SmartDict
     Copyright 2005, Peter Bengtsson, peter@fry-it.com
+    0BSD
 
     A smart dict can be instantiated either from a pythonic dict
     or an instance object (eg. SQL recordsets) but it ensures that you can
