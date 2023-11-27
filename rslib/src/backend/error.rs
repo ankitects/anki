@@ -43,6 +43,7 @@ impl AnkiError {
             AnkiError::InvalidMethodIndex
             | AnkiError::InvalidServiceIndex
             | AnkiError::FsrsWeightsInvalid
+            | AnkiError::FsrsUnableToDetermineDesiredRetention
             | AnkiError::FsrsInsufficientData => Kind::InvalidInput,
             #[cfg(windows)]
             AnkiError::WindowsError { .. } => Kind::OsError,

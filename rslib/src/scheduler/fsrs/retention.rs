@@ -55,7 +55,6 @@ impl Collection {
                 |ip| {
                     anki_progress
                         .update(false, |p| {
-                            p.total = ip.total as u32;
                             p.current = ip.current as u32;
                         })
                         .is_ok()

@@ -293,6 +293,7 @@ deck-config-confirm-remove-name = Remove { $name }?
 
 deck-config-save-button = Save
 deck-config-save-to-all-subdecks = Save to All Subdecks
+deck-config-save-and-optimize = Optimize All Presets
 deck-config-revert-button-tooltip = Restore this setting to its default value.
 
 ## These strings are shown via the Description button at the bottom of the
@@ -330,6 +331,8 @@ deck-config-which-deck = Which deck would you like to display options for?
 deck-config-updating-cards = Updating cards: { $current_cards_count }/{ $total_cards_count }...
 deck-config-invalid-weights = Parameters must be either left blank to use the defaults, or must be 17 comma-separated numbers.
 deck-config-not-enough-history = Insufficient review history to perform this operation.
+deck-config-unable-to-determine-desired-retention =
+    Unable to determine an optimal retention.
 deck-config-must-have-1000-reviews =
     { $count ->
         [one] Only { $count } review was found.
@@ -352,6 +355,7 @@ deck-config-fsrs-on-all-clients =
     not work correctly if one of your clients is older.
 deck-config-estimated-retention = Estimated retention: { $num }
 deck-config-complete = { $num }% complete.
+deck-config-iterations = Iteration: { $count }...
 deck-config-reschedule-cards-on-change = Reschedule cards on change
 deck-config-fsrs-tooltip =
     The Free Spaced Repetition Scheduler (FSRS) is an alternative to Anki's legacy SuperMemo 2 (SM2) scheduler.
@@ -380,10 +384,13 @@ deck-config-reschedule-cards-on-change-tooltip =
     This option controls whether the due dates of cards will be changed when you enable FSRS, or optimize
     the parameters. The default is not to reschedule cards: future reviews will use the new scheduling, but
     there will be no immediate change to your workload. If rescheduling is enabled, the due dates of cards
-    will be changed.
+    will be changed. This option is shared by all deck presets, and not saved.
 deck-config-reschedule-cards-warning =
     Depending on your desired retention, this can result in a large number of cards becoming
     due, so is not recommended when first switching from SM2.
+
+    Use this option sparingly, as it will add a review entry to each of your cards, and
+    increase the size of your collection.
 deck-config-compute-optimal-weights-tooltip =
     Once you've done 1000+ reviews in Anki, you can use the Optimize button to analyze your review history,
     and automatically generate parameters that are optimal for your memory and the content you're studying.
@@ -406,6 +413,13 @@ deck-config-a-100-day-interval =
         [one] A 100 day interval will become { $days } day.
        *[other] A 100 day interval will become { $days } days.
     }
+deck-config-percent-of-reviews =  
+    { $reviews ->
+        [one] { $pct }% of { $reviews } review
+       *[other] { $pct }% of { $reviews } reviews
+    }
+deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
+deck-config-fsrs-must-be-enabled = FSRS must be enabled first.
 
 deck-config-wait-for-audio = Wait for audio
 deck-config-show-reminder = Show Reminder

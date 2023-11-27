@@ -47,6 +47,12 @@ pub(super) fn write_nodes(nodes: &[Node]) -> String {
     nodes.iter().map(write_node).collect()
 }
 
+impl ToString for Node {
+    fn to_string(&self) -> String {
+        write_node(self)
+    }
+}
+
 fn write_node(node: &Node) -> String {
     use Node::*;
     match node {

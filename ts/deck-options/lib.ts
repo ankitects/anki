@@ -5,6 +5,7 @@ import type { PlainMessage } from "@bufbuild/protobuf";
 import type {
     DeckConfigsForUpdate,
     DeckConfigsForUpdate_CurrentDeck,
+    UpdateDeckConfigsMode,
     UpdateDeckConfigsRequest,
 } from "@tslib/anki/deck_config_pb";
 import { DeckConfig, DeckConfig_Config, DeckConfigsForUpdate_CurrentDeck_Limits } from "@tslib/anki/deck_config_pb";
@@ -43,6 +44,7 @@ export class DeckOptionsState {
     readonly newCardsIgnoreReviewLimit: Writable<boolean>;
     readonly applyAllParentLimits: Writable<boolean>;
     readonly fsrs: Writable<boolean>;
+    readonly fsrsReschedule: Writable<boolean> = writable(false);
     readonly currentPresetName: Writable<string>;
 
     private targetDeckId: DeckOptionsId;
@@ -178,7 +180,7 @@ export class DeckOptionsState {
     }
 
     dataForSaving(
-        applyToChildren: boolean,
+        mode: UpdateDeckConfigsMode,
     ): PlainMessage<UpdateDeckConfigsRequest> {
         const modifiedConfigsExcludingCurrent = this.configs
             .map((c) => c.config)
@@ -197,12 +199,13 @@ export class DeckOptionsState {
             targetDeckId: this.targetDeckId,
             removedConfigIds: this.removedConfigs,
             configs,
-            applyToChildren,
+            mode,
             cardStateCustomizer: get(this.cardStateCustomizer),
             limits: get(this.deckLimits),
             newCardsIgnoreReviewLimit: get(this.newCardsIgnoreReviewLimit),
             applyAllParentLimits: get(this.applyAllParentLimits),
             fsrs: get(this.fsrs),
+            fsrsReschedule: get(this.fsrsReschedule),
         };
     }
 
@@ -210,9 +213,9 @@ export class DeckOptionsState {
         return this._presetAssignmentsChanged;
     }
 
-    async save(applyToChildren: boolean): Promise<void> {
+    async save(mode: UpdateDeckConfigsMode): Promise<void> {
         await updateDeckConfigs(
-            this.dataForSaving(applyToChildren),
+            this.dataForSaving(mode),
         );
     }
 
