@@ -51,7 +51,7 @@ impl crate::services::DeckConfigService for Collection {
     ) -> Result<generic::Json> {
         let conf = Collection::get_deck_config(self, input.into(), true)?.unwrap();
         let conf: DeckConfSchema11 = conf.into();
-        Ok(serde_json::to_vec(&conf)?).map(Into::into)
+        Ok(serde_json::to_vec(&conf)?.into())
     }
 
     fn new_deck_config_legacy(&mut self) -> Result<generic::Json> {

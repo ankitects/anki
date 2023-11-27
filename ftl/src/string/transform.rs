@@ -50,7 +50,7 @@ pub fn transform(args: TransformArgs) -> Result<()> {
     }
     if let Some(template_dir) = super::additional_template_folder(&args.lang_folder) {
         // Our templates are also stored in the source tree, and need to be updated too.
-        for ftl in paths_in_dir(&template_dir)? {
+        for ftl in paths_in_dir(template_dir)? {
             transform_ftl(&ftl, &regex, &args)?;
         }
     }
