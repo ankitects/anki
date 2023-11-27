@@ -19,7 +19,7 @@
     "compilerOptions": {
         "declaration": true,
         "isolatedModules": true,
-        "composite": true,
+        "composite": false,
         "target": "es2020",
         "module": "es2020",
         "lib": [
