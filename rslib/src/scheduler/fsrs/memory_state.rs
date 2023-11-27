@@ -12,6 +12,7 @@ use itertools::Itertools;
 use crate::card::CardType;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
+use crate::revlog::RevlogReviewKind;
 use crate::scheduler::fsrs::weights::single_card_revlog_to_items;
 use crate::scheduler::fsrs::weights::Weights;
 use crate::scheduler::states::fuzz::with_review_fuzz;
@@ -51,8 +52,8 @@ impl Collection {
                 SearchBuilder::all([search.into(), SearchNode::State(StateKind::New).negated()]);
             let revlog = self.revlog_for_srs(search)?;
             let reschedule = req.as_ref().map(|e| e.reschedule).unwrap_or_default();
-            let last_reviews = if reschedule {
-                Some(get_last_reviews(&revlog))
+            let last_revlog_info = if reschedule {
+                Some(get_last_revlog_info(&revlog))
             } else {
                 None
             };
@@ -75,40 +76,46 @@ impl Collection {
                     card.set_memory_state(&fsrs, item, sm2_retention.unwrap());
                     card.desired_retention = desired_retention;
                     // if rescheduling
-                    if let Some(reviews) = &last_reviews {
+                    if let Some(reviews) = &last_revlog_info {
                         // and we have a last review time for the card
-                        if let Some(last_review) = reviews.get(&card.id) {
-                            let days_elapsed =
-                                timing.next_day_at.elapsed_days_since(*last_review) as i32;
-                            // and the card's not new
-                            if let Some(state) = &card.memory_state {
-                                // or in (re)learning
-                                if card.ctype == CardType::Review {
-                                    // reschedule it
-                                    let original_interval = card.interval;
-                                    let interval = fsrs.next_interval(
-                                        Some(state.stability),
-                                        card.desired_retention.unwrap(),
-                                        0,
-                                    ) as f32;
-                                    card.interval = with_review_fuzz(
-                                        card.get_fuzz_factor(),
-                                        interval,
-                                        1,
-                                        req.max_interval,
-                                    );
-                                    let due = if card.original_due != 0 {
-                                        &mut card.original_due
-                                    } else {
-                                        &mut card.due
-                                    };
-                                    *due = (timing.days_elapsed as i32) - days_elapsed
-                                        + card.interval as i32;
-                                    self.log_manually_scheduled_review(
-                                        &card,
-                                        original_interval,
-                                        usn,
-                                    )?;
+                        if let Some(last_info) = reviews.get(&card.id) {
+                            if let Some(last_review) = &last_info.last_reviewed_at {
+                                let days_elapsed =
+                                    timing.next_day_at.elapsed_days_since(*last_review) as i32;
+                                // and the card's not new
+                                if let Some(state) = &card.memory_state {
+                                    // or in (re)learning
+                                    if card.ctype == CardType::Review {
+                                        // reschedule it
+                                        let original_interval = card.interval;
+                                        let interval = fsrs.next_interval(
+                                            Some(state.stability),
+                                            card.desired_retention.unwrap(),
+                                            0,
+                                        )
+                                            as f32;
+                                        card.interval = with_review_fuzz(
+                                            card.get_fuzz_factor(),
+                                            interval,
+                                            1,
+                                            req.max_interval,
+                                        );
+                                        let due = if card.original_due != 0 {
+                                            &mut card.original_due
+                                        } else {
+                                            &mut card.due
+                                        };
+                                        *due = (timing.days_elapsed as i32) - days_elapsed
+                                            + card.interval as i32;
+                                        // Add a manual revlog entry if the last entry wasn't manual
+                                        if !last_info.last_revlog_is_manual {
+                                            self.log_manually_scheduled_review(
+                                                &card,
+                                                original_interval,
+                                                usn,
+                                            )?;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -204,21 +211,39 @@ pub(crate) fn fsrs_items_for_memory_state(
         .collect()
 }
 
-/// Return a map of cards to the last time they were reviewed.
-fn get_last_reviews(revlogs: &[RevlogEntry]) -> HashMap<CardId, TimestampSecs> {
+struct LastRevlogInfo {
+    /// Used to determine the actual elapsed time between the last time the user
+    /// reviewed the card and now, so that we can determine an accurate period
+    /// when the card has subsequently been rescheduled to a different day.
+    last_reviewed_at: Option<TimestampSecs>,
+    /// If true, the last action on this card was a reschedule, so we
+    /// can avoid writing an extra revlog entry on another reschedule.
+    last_revlog_is_manual: bool,
+}
+
+/// Return a map of cards to info about last review/reschedule.
+fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, LastRevlogInfo> {
     let mut out = HashMap::new();
     revlogs
         .iter()
         .group_by(|r| r.cid)
         .into_iter()
         .for_each(|(card_id, group)| {
-            let mut last_ts = TimestampSecs::zero();
-            for entry in group.into_iter().filter(|r| r.button_chosen >= 1) {
-                last_ts = entry.id.as_secs();
+            let mut last_reviewed_at = None;
+            let mut last_revlog_is_manual = false;
+            for e in group.into_iter() {
+                if e.button_chosen >= 1 {
+                    last_reviewed_at = Some(e.id.as_secs());
+                }
+                last_revlog_is_manual = e.review_kind == RevlogReviewKind::Manual;
             }
-            if last_ts != TimestampSecs::zero() {
-                out.insert(card_id, last_ts);
-            }
+            out.insert(
+                card_id,
+                LastRevlogInfo {
+                    last_reviewed_at,
+                    last_revlog_is_manual,
+                },
+            );
         });
     out
 }
