@@ -4,10 +4,13 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 
+use fsrs::FSRS;
+
 use super::CardTemplate;
 use super::Notetype;
 use super::NotetypeKind;
 use crate::prelude::*;
+use crate::scheduler::timespan::time_span;
 use crate::template::field_is_empty;
 use crate::template::render_card;
 use crate::template::ParsedTemplate;
@@ -181,6 +184,26 @@ impl Collection {
             .or_insert_with(|| flag_name(card.flags).into());
         map.entry("Card")
             .or_insert_with(|| template.name.clone().into());
+        map.entry("Difficulty").or_insert_with(|| {
+            format!("{:.0}%", card.memory_state.unwrap().difficulty() * 100.0).into()
+        });
+        map.entry("Stability").or_insert_with(|| {
+            time_span(
+                card.memory_state.unwrap().stability * 86400.0,
+                &self.tr,
+                false,
+            )
+            .into()
+        });
+        map.entry("Retrievability").or_insert_with(|| {
+            let fsrs = FSRS::new(None).unwrap();
+            let r = fsrs.current_retrievability(
+                card.memory_state.unwrap().into(),
+                card.days_since_last_review(&self.timing_today().unwrap())
+                    .unwrap_or_default(),
+            );
+            format!("{:.0}%", r * 100.).into()
+        });
 
         Ok(())
     }

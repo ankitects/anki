@@ -77,6 +77,9 @@ lazy_static! {
         "Subdeck",
         "Tags",
         "Type",
+        "Difficulty",
+        "Stability",
+        "Retrievability"
     ]);
 }
 
