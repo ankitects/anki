@@ -440,7 +440,6 @@ mod test {
         }
 
         let mut col = Collection::new();
-        col.set_config_bool(BoolKey::Sched2021, true, false)?;
 
         let parent_deck = create_deck_with_new_limit(&mut col, "Default", 8);
         let child_deck = create_deck_with_new_limit(&mut col, "Default::child", 4);

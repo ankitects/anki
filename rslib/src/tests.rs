@@ -48,13 +48,6 @@ impl Collection {
         CollectionBuilder::default().build().unwrap()
     }
 
-    pub(crate) fn new_v3() -> Collection {
-        let mut col = Collection::new();
-        col.set_config_bool(BoolKey::Sched2021, true, false)
-            .unwrap();
-        col
-    }
-
     pub(crate) fn add_media(&self, media: &[(&str, &[u8])]) {
         let mgr = MediaManager::new(&self.media_folder, &self.media_db).unwrap();
         for (name, data) in media {
