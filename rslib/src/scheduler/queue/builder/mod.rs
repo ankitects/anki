@@ -340,7 +340,7 @@ mod test {
 
     #[test]
     fn should_build_empty_queue_if_limit_is_reached() {
-        let mut col = Collection::new_v3();
+        let mut col = Collection::new();
         CardAdder::new().due_dates(["0"]).add(&mut col);
         col.set_deck_review_limit(DeckId(1), 0);
         assert_eq!(col.queue_as_deck_and_template(DeckId(1)), vec![]);
@@ -348,7 +348,7 @@ mod test {
 
     #[test]
     fn new_queue_building() -> Result<()> {
-        let mut col = Collection::new_v3();
+        let mut col = Collection::new();
 
         // parent
         // ┣━━child━━grandchild
@@ -411,7 +411,6 @@ mod test {
     #[test]
     fn review_queue_building() -> Result<()> {
         let mut col = Collection::new();
-        col.set_config_bool(BoolKey::Sched2021, true, false)?;
 
         let mut deck = col.get_or_create_normal_deck("Default").unwrap();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
@@ -464,7 +463,7 @@ mod test {
 
     #[test]
     fn new_card_potentially_burying_review_card() {
-        let mut col = Collection::new_v3();
+        let mut col = Collection::new();
         // add one new and one review card
         CardAdder::new().siblings(2).due_dates(["0"]).add(&mut col);
         // Potentially problematic config: New cards are shown first and would bury
@@ -487,7 +486,7 @@ mod test {
 
     #[test]
     fn new_cards_may_ignore_review_limit() {
-        let mut col = Collection::new_v3();
+        let mut col = Collection::new();
         col.set_config_bool(BoolKey::NewCardsIgnoreReviewLimit, true, false)
             .unwrap();
         col.update_default_deck_config(|config| {
@@ -501,7 +500,7 @@ mod test {
 
     #[test]
     fn reviews_dont_affect_new_limit_before_review_limit_is_reached() {
-        let mut col = Collection::new_v3();
+        let mut col = Collection::new();
         col.update_default_deck_config(|config| {
             config.new_per_day = 1;
         });
@@ -511,7 +510,7 @@ mod test {
 
     #[test]
     fn may_apply_parent_limits() {
-        let mut col = Collection::new_v3();
+        let mut col = Collection::new();
         col.set_config_bool(BoolKey::ApplyAllParentLimits, true, false)
             .unwrap();
         col.update_default_deck_config(|config| {

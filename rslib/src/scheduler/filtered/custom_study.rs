@@ -44,7 +44,6 @@ impl Collection {
 
         let subtree = get_deck_in_tree(self.deck_tree(Some(TimestampSecs::now()))?, deck_id)
             .or_not_found(deck_id)?;
-        let v3 = self.get_config_bool(BoolKey::Sched2021);
         let available_new_including_children =
             sum_deck_tree_node(&subtree, |node| node.new_uncapped);
         let available_review_including_children =
@@ -54,21 +53,12 @@ impl Collection {
             available_new_in_children,
             available_review,
             available_review_in_children,
-        ) = if v3 {
-            (
-                subtree.new_uncapped,
-                available_new_including_children - subtree.new_uncapped,
-                subtree.review_uncapped,
-                available_review_including_children - subtree.review_uncapped,
-            )
-        } else {
-            (
-                available_new_including_children,
-                0,
-                available_review_including_children,
-                0,
-            )
-        };
+        ) = (
+            subtree.new_uncapped,
+            available_new_including_children - subtree.new_uncapped,
+            subtree.review_uncapped,
+            available_review_including_children - subtree.review_uncapped,
+        );
         // tags
         let include_tags: HashSet<String> = self.get_config_default(
             DeckConfigKey::CustomStudyIncludeTags

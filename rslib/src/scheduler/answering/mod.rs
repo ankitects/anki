@@ -627,7 +627,6 @@ mod test {
             let mut note = Note::new(&nt);
             col.add_note(&mut note, DeckId(1))?;
         }
-        col.set_config_bool(BoolKey::Sched2021, true, false)?;
         let cids = col.search_cards("", SortMode::NoOrder)?;
         Ok((col, cids))
     }
