@@ -9,7 +9,7 @@ export { default as $, default as jQuery } from "jquery/dist/jquery";
 
 import { imageOcclusionAPI } from "../image-occlusion/review";
 import { mutateNextCardStates } from "./answering";
-import { getBrowserClasses } from "./browser_selector";
+import { addBrowserClasses } from "./browser_selector";
 
 globalThis.anki = globalThis.anki || {};
 globalThis.anki.mutateNextCardStates = mutateNextCardStates;
@@ -171,7 +171,7 @@ export function _showQuestion(q: string, a: string, bodyclass: string): void {
                 // return to top of window
                 window.scrollTo(0, 0);
 
-                document.body.className = `${bodyclass} ${getBrowserClasses()}`;
+                document.body.className = bodyclass;
             },
             function() {
                 // focus typing area if visible
@@ -198,7 +198,7 @@ export function _showAnswer(a: string, bodyclass: string): void {
             function() {
                 if (bodyclass) {
                     //  when previewing
-                    document.body.className = `${bodyclass} ${getBrowserClasses()}`;
+                    document.body.className = bodyclass;
                 }
 
                 // avoid scrolling to the answer until images load
@@ -262,6 +262,8 @@ document.addEventListener("focusout", (event) => {
         document.body.removeChild(dummyButton);
     }
 });
+
+addBrowserClasses();
 
 registerPackage("anki/reviewer", {
     // If you append a function to this each time the question or answer

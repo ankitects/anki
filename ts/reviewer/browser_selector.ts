@@ -1,12 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-export function getBrowserClasses(): string {
+export function addBrowserClasses() {
     const ua = navigator.userAgent.toLowerCase();
-    const classes: string[] = [];
 
-    function addBodyClass(className: string) {
-        classes.push(className);
+    function addClass(className: string) {
+        document.documentElement.classList.add(className);
     }
 
     function test(regex: RegExp): boolean {
@@ -14,36 +13,34 @@ export function getBrowserClasses(): string {
     }
 
     if (test(/ipad/)) {
-        addBodyClass("ipad");
+        addClass("ipad");
     } else if (test(/iphone/)) {
-        addBodyClass("iphone");
+        addClass("iphone");
     } else if (test(/android/)) {
-        addBodyClass("android");
+        addClass("android");
     }
 
     if (test(/ipad|iphone|ipod/)) {
-        addBodyClass("ios");
+        addClass("ios");
     }
 
     if (test(/ipad|iphone|ipod|android/)) {
-        addBodyClass("mobile");
+        addClass("mobile");
     }
 
     if (test(/linux/)) {
-        addBodyClass("linux");
+        addClass("linux");
     } else if (test(/windows/)) {
-        addBodyClass("win");
+        addClass("win");
     } else if (test(/mac/)) {
-        addBodyClass("mac");
+        addClass("mac");
     }
 
     if (test(/firefox\//)) {
-        addBodyClass("firefox");
+        addClass("firefox");
     } else if (test(/chrome\//)) {
-        addBodyClass("chrome");
+        addClass("chrome");
     } else if (test(/safari\//)) {
-        addBodyClass("safari");
+        addClass("safari");
     }
-
-    return classes.join(" ");
 }
