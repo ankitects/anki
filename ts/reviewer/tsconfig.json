@@ -3,8 +3,7 @@
     "include": ["*"],
     // "references": [{ "path": "../lib" }],
     "compilerOptions": {
-        // css-browser-selector fails if our output bundle is strict
-        "alwaysStrict": false,
+        "alwaysStrict": true,
         "composite": false,
         "types": ["jest"]
     }

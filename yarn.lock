@@ -1900,11 +1900,6 @@ cross-spawn@^7.0.0, cross-spawn@^7.0.1, cross-spawn@^7.0.2, cross-spawn@^7.0.3:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-css-browser-selector@^0.6.5:
-  version "0.6.5"
-  resolved "https://registry.yarnpkg.com/css-browser-selector/-/css-browser-selector-0.6.5.tgz#d2b06c01ff7d7cb455e2006b6b6558d39372ca60"
-  integrity sha512-Cfn76BCNJb7GAd57nKT0abzW1yZCpk2+5TgjZrOt01RErG1lAxDs5rQ6tnh3PD4Zfg4pIcsQ/ED/QK+MeNVgYw==
-
 css-tree@^2.3.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/css-tree/-/css-tree-2.3.1.tgz#10264ce1e5442e8572fc82fbe490644ff54b5c20"
