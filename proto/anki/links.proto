@@ -42,6 +42,7 @@ message HelpPageLinkRequest {
     CARD_TYPE_MISSING_CLOZE = 20;
     CARD_TYPE_EXTRANEOUS_CLOZE = 21;
     CARD_TYPE_TEMPLATE_ERROR = 22;
+    TROUBLESHOOTING = 23;
   }
   HelpPage page = 1;
 }

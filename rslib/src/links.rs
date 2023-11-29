@@ -41,6 +41,7 @@ pub fn help_page_link_suffix(page: HelpPage) -> &'static str {
         HelpPage::CardTypeExtraneousCloze => {
             "templates/errors.html#cloze-filter-outside-cloze-notetype"
         }
+        HelpPage::Troubleshooting => "troubleshooting.html",
     }
 }
 

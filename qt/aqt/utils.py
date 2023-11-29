@@ -1098,39 +1098,23 @@ def add_ellipsis_to_action_label(*actions: QAction) -> None:
 
 def supportText() -> str:
     import platform
-    import time
 
     from aqt import mw
 
     platname = platform.platform()
 
-    def schedVer() -> str:
-        try:
-            if mw.col.v3_scheduler():
-                return "3"
-            else:
-                return str(mw.col.sched_ver())
-        except:
-            return "?"
-
-    lc = mw.pm.last_addon_update_check()
-    lcfmt = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(lc))
-
     return """\
-Anki {} Python {} Qt {} PyQt {}
+Anki {} {} {}
+Python {} Qt {} PyQt {}
 Platform: {}
-Flags: frz={} ao={} sv={}
-Add-ons, last update check: {}
 """.format(
         version_with_build(),
+        "(src)" if not getattr(sys, "frozen", False) else "",
+        "(ao)" if mw.addonManager.dirty else "",
         platform.python_version(),
         qVersion(),
         PYQT_VERSION_STR,
         platname,
-        getattr(sys, "frozen", False),
-        mw.addonManager.dirty,
-        schedVer(),
-        lcfmt,
     )
 
 
