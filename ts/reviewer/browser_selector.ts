@@ -26,9 +26,7 @@ export function addBrowserClasses() {
 
     if (test(/ipad|iphone|ipod|android/)) {
         addClass("mobile");
-    }
-
-    if (test(/linux/)) {
+    } else if (test(/linux/)) {
         addClass("linux");
     } else if (test(/windows/)) {
         addClass("win");
