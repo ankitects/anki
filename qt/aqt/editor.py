@@ -1490,16 +1490,9 @@ class EditorWebView(AnkiWebView):
         # print("urls", mime.urls())
         # print("text", mime.text())
 
-        internal = False
-
         mime = gui_hooks.editor_will_process_mime(
-            mime, self, internal, extended, drop_event
+            mime, self, False, extended, drop_event
         )
-
-        # try various content types in turn
-        if mime.hasHtml():
-            html_content = mime.html()[11:] if internal else mime.html()
-            return html_content, internal
 
         # favour url if it's a local link
         if (
@@ -1507,9 +1500,19 @@ class EditorWebView(AnkiWebView):
             and (urls := mime.urls())
             and urls[0].toString().startswith("file://")
         ):
-            types = (self._processUrls, self._processImage, self._processText)
+            types = (
+                self._processUrls,
+                self._processImage,
+                self._processHtml,
+                self._processText,
+            )
         else:
-            types = (self._processImage, self._processUrls, self._processText)
+            types = (
+                self._processImage,
+                self._processHtml,
+                self._processUrls,
+                self._processText,
+            )
 
         for fn in types:
             html = fn(mime, extended)
@@ -1530,6 +1533,11 @@ class EditorWebView(AnkiWebView):
                 buf += self.editor.urlToLink(url)
 
         return buf
+
+    def _processHtml(self, mime: QMimeData, extended: bool = False) -> str | None:
+        if mime.hasHtml():
+            return mime.html()
+        return None
 
     def _processText(self, mime: QMimeData, extended: bool = False) -> str | None:
         if not mime.hasText():
