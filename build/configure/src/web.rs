@@ -56,9 +56,6 @@ fn setup_node(build: &mut Build) -> Result<()> {
             "jquery-ui" => vec![
                 "jquery-ui-dist/jquery-ui.min.js".into()
             ],
-            "css-browser-selector" => vec![
-                "css-browser-selector/css_browser_selector.min.js".into(),
-            ],
             "bootstrap-dist" => vec![
                 "bootstrap/dist/js/bootstrap.bundle.min.js".into(),
             ],

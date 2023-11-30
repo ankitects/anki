@@ -339,7 +339,7 @@ def _extract_internal_request(
         if ext == ".css":
             additional_prefix = "css/"
         elif ext == ".js":
-            if base in ("browsersel", "jquery-ui", "jquery", "plot"):
+            if base in ("jquery-ui", "jquery", "plot"):
                 additional_prefix = "js/vendor/"
             else:
                 additional_prefix = "js/"
@@ -353,10 +353,6 @@ def _extract_internal_request(
 
         elif base == "jquery-ui":
             base = "jquery-ui.min"
-            additional_prefix = "js/vendor/"
-
-        elif base == "browsersel":
-            base = "css_browser_selector.min"
             additional_prefix = "js/vendor/"
 
     if additional_prefix:

@@ -166,13 +166,6 @@
         "path": "node_modules/commander",
         "licenseFile": "node_modules/commander/LICENSE"
     },
-    "css-browser-selector@0.6.5": {
-        "licenses": "CC-BY-SA-2.5",
-        "repository": "https://github.com/verbatim/css_browser_selector",
-        "publisher": "Rafael Lima",
-        "path": "node_modules/css-browser-selector",
-        "licenseFile": "node_modules/css-browser-selector/README.mkdn"
-    },
     "cssom@0.3.8": {
         "licenses": "MIT",
         "repository": "https://github.com/NV/CSSOM",
@@ -840,4 +833,3 @@
         "licenseFile": "node_modules/xmlchars/LICENSE"
     }
 }
-
