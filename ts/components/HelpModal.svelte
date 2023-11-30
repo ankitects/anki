@@ -195,7 +195,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             background-color: var(--canvas-inset);
         }
         &.active {
-            border-left: 4px solid var(--border-focus);
+            border-inline-start: 4px solid var(--border-focus);
         }
     }
 </style>
