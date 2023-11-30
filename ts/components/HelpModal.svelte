@@ -185,7 +185,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: block;
         padding: 0.5rem 0.75rem;
         text-decoration: none;
-        text-align: left;
+        text-align: start;
         min-width: 250px;
         background-color: var(--canvas);
         border: none;
