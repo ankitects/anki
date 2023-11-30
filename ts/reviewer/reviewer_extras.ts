@@ -11,8 +11,10 @@
 
 import { imageOcclusionAPI } from "../image-occlusion/review";
 import { mutateNextCardStates } from "./answering";
+import { addBrowserClasses } from "./browser_selector";
 
 globalThis.anki = globalThis.anki || {};
 globalThis.anki.mutateNextCardStates = mutateNextCardStates;
 globalThis.anki.imageOcclusion = imageOcclusionAPI;
 globalThis.anki.setupImageCloze = imageOcclusionAPI.setup; // deprecated
+globalThis.anki.addBrowserClasses = addBrowserClasses;
