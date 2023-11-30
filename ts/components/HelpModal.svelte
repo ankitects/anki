@@ -141,7 +141,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" on:click={onOkClicked}>
-                    OK
+                    {tr.helpOk()}
                 </button>
             </div>
         </div>
