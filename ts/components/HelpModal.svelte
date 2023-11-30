@@ -154,7 +154,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .modal-title {
-        margin-right: 0.75rem;
+        margin-inline-end: 0.75rem;
     }
 
     .manual-badge {
