@@ -5,12 +5,11 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import "css-browser-selector/css_browser_selector.min";
-
 export { default as $, default as jQuery } from "jquery/dist/jquery";
 
 import { imageOcclusionAPI } from "../image-occlusion/review";
 import { mutateNextCardStates } from "./answering";
+import { addBrowserClasses } from "./browser_selector";
 
 globalThis.anki = globalThis.anki || {};
 globalThis.anki.mutateNextCardStates = mutateNextCardStates;
@@ -263,6 +262,8 @@ document.addEventListener("focusout", (event) => {
         document.body.removeChild(dummyButton);
     }
 });
+
+addBrowserClasses();
 
 registerPackage("anki/reviewer", {
     // If you append a function to this each time the question or answer
