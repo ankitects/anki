@@ -141,7 +141,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" on:click={onOkClicked}>
-                    OK
+                    {tr.helpOk()}
                 </button>
             </div>
         </div>
@@ -154,7 +154,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .modal-title {
-        margin-right: 0.75rem;
+        margin-inline-end: 0.75rem;
     }
 
     .manual-badge {
@@ -185,7 +185,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: block;
         padding: 0.5rem 0.75rem;
         text-decoration: none;
-        text-align: left;
+        text-align: start;
         min-width: 250px;
         background-color: var(--canvas);
         border: none;
@@ -195,7 +195,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             background-color: var(--canvas-inset);
         }
         &.active {
-            border-left: 4px solid var(--border-focus);
+            border-inline-start: 4px solid var(--border-focus);
         }
     }
 </style>

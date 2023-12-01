@@ -18,3 +18,5 @@ help-no-explanation =
 
 # Link to more detailed information in the manual
 help-for-more-info = For more information, see { $link } in the manual.
+
+help-ok = OK
