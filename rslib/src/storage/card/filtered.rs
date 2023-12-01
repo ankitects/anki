@@ -27,7 +27,7 @@ pub(crate) fn order_and_limit_for_search(
         }
         FilteredSearchOrder::DuePriority => {
             temp_string = if fsrs {
-                format!("extract_fsrs_relative_overdueness(data, due, {today}, ivl) desc")
+                format!("extract_fsrs_relative_overdueness(c.data, due, {today}, ivl) desc")
             } else {
                 format!(
                     "
