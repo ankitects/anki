@@ -41,6 +41,7 @@ impl RelearnState {
                 learning: LearnState {
                     remaining_steps: ctx.relearn_steps.remaining_for_failed(),
                     scheduled_secs: again_delay,
+                    elapsed_time: 0,
                     memory_state,
                 },
                 review: ReviewState {
@@ -92,6 +93,7 @@ impl RelearnState {
                     remaining_steps: ctx
                         .relearn_steps
                         .remaining_for_good(self.learning.remaining_steps),
+                    elapsed_time: 0,
                     memory_state,
                 },
                 review: ReviewState {

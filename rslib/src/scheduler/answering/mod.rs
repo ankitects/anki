@@ -269,12 +269,17 @@ impl Collection {
 
         let mut updater = self.card_state_updater(card)?;
         answer.cap_answer_secs(updater.config.inner.cap_answer_time_to_secs);
-        let current_state = updater.current_card_state();
-        require!(
-            current_state == answer.current_state,
-            "card was modified: {current_state:#?} {:#?}",
-            answer.current_state,
-        );
+        let mut current_state = updater.current_card_state();
+        // If the states aren't equal, it's probably because some time has passed.
+        // Try to fix this by setting elapsed_time equal.
+        if answer.current_state != current_state {
+            self.set_elapsed_time_equal(answer, &mut current_state);
+            require!(
+                current_state == answer.current_state,
+                "card was modified {current_state:#?} {:#?}",
+                answer.current_state,
+            );
+        }
 
         let revlog_partial = updater.apply_study_state(current_state, answer.new_state)?;
         self.add_partial_revlog(revlog_partial, usn, answer)?;
@@ -416,6 +421,33 @@ impl Collection {
     fn add_leech_tag(&mut self, nid: NoteId) -> Result<()> {
         self.add_tags_to_notes_inner(&[nid], "leech")?;
         Ok(())
+    }
+
+    fn set_elapsed_time_equal(&self, answer: &mut CardAnswer, current_state: &mut CardState) {
+        if let (Some(answer_state), Some(current_state)) = (
+            get_card_state(&mut answer.current_state),
+            get_card_state(current_state),
+        ) {
+            match (answer_state, current_state) {
+                (NormalState::Learning(answer), NormalState::Learning(current)) => {
+                    current.elapsed_time = answer.elapsed_time;
+                }
+                (NormalState::Relearning(answer), NormalState::Relearning(current)) => {
+                    current.learning.elapsed_time = answer.learning.elapsed_time;
+                }
+                _ => {} // Other states don't use elapsed_time.
+            }
+        }
+
+        fn get_card_state(state: &mut CardState) -> Option<&mut NormalState> {
+            match state {
+                CardState::Normal(normal_state) => Some(normal_state),
+                CardState::Filtered(FilteredState::Rescheduling(resched_filter_state)) => {
+                    Some(&mut resched_filter_state.original_state)
+                }
+                _ => None,
+            }
+        }
     }
 }
 
@@ -667,6 +699,87 @@ mod test {
         // after the final 10 minute step, the queues should be empty
         col.answer_good();
         assert_counts!(col, 0, 0, 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn elapsed_time() -> Result<()> {
+        let mut col = Collection::new();
+        let mut conf = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        // Need to set col age for interday learning test, arbitrary
+        col.storage
+            .db
+            .execute_batch("update col set crt=1686045847")?;
+        // Fails when near cutoff since it assumes inter- and intraday learning
+        if col.timing_today()?.near_cutoff() {
+            return Ok(());
+        }
+        col.add_note(&mut note, DeckId(1))?;
+        // 5942.7 minutes for just over four days
+        conf.inner.learn_steps = vec![1.0, 10.5, 15.0, 20.0, 5942.7];
+        col.storage.update_deck_conf(&conf)?;
+
+        // Intraday learning, review same day
+        let expected_elapsed_time = 662;
+        let post_answer = col.answer_good();
+        let card = col.storage.get_card(post_answer.card_id)?.unwrap();
+        let shift_due_time = card.due - expected_elapsed_time;
+        elapsed_time_helper(&mut col, shift_due_time, post_answer, expected_elapsed_time)?;
+
+        // Intraday learning, learn ahead
+        let expected_elapsed_time = 212;
+        let post_answer = col.answer_good();
+        let card = col.storage.get_card(post_answer.card_id)?.unwrap();
+        let shift_due_time = card.due - expected_elapsed_time;
+        elapsed_time_helper(&mut col, shift_due_time, post_answer, expected_elapsed_time)?;
+
+        // Intraday learning, review two (and some) days later
+        let expected_elapsed_time = 184092;
+        let post_answer = col.answer_good();
+        let card = col.storage.get_card(post_answer.card_id)?.unwrap();
+        let shift_due_time = card.due - expected_elapsed_time;
+        elapsed_time_helper(&mut col, shift_due_time, post_answer, expected_elapsed_time)?;
+
+        // Interday learning four (and some) days, review three days late
+        let expected_elapsed_time = -7;
+        let post_answer = col.answer_good();
+        let now = TimestampSecs::now();
+        let timing = col.timing_for_timestamp(now)?;
+        let col_age = timing.days_elapsed as i32;
+        let shift_due_time = col_age - 3; // Three days late
+        elapsed_time_helper(&mut col, shift_due_time, post_answer, expected_elapsed_time)?;
+
+        Ok(())
+    }
+
+    fn elapsed_time_helper(
+        col: &mut Collection,
+        shift_due_time: i32,
+        post_answer: test_helpers::PostAnswerState,
+        expected_elapsed_time: i32,
+    ) -> Result<()> {
+        // Change due time to fake card answer_time,
+        // works since answer_time is calculated as due - last_ivl
+        let update_due_string = format!("update cards set due={}", shift_due_time);
+        col.storage.db.execute_batch(&update_due_string)?;
+        col.clear_study_queues();
+        let current_card_state = current_state(col, post_answer.card_id);
+        let state = match current_card_state {
+            CardState::Normal(NormalState::Learning(state)) => state,
+            _ => panic!("State is not Normal: {:?}", current_card_state),
+        };
+        let elapsed_time = state.elapsed_time;
+        // Give a 1 second leeway when the test runs on the off chance
+        // that the test runs as a second rolls over.
+        assert!(
+            (elapsed_time - expected_elapsed_time).abs() <= 1,
+            "elapsed_time: {} != expected_elapsed_time: {}",
+            elapsed_time,
+            expected_elapsed_time
+        );
 
         Ok(())
     }

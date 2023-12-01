@@ -44,6 +44,7 @@ impl NormalState {
                 let next_states = LearnState {
                     remaining_steps: ctx.steps.remaining_for_failed(),
                     scheduled_secs: 0,
+                    elapsed_time: 0,
                     memory_state: None,
                 }
                 .next_states(ctx);
