@@ -27,3 +27,8 @@ input {
 html {
     height: initial;
 }
+
+[dir="rtl"] .modal-header .btn-close {
+    padding: 1rem 1rem !important;
+    margin: -1rem auto -1rem -1rem !important;
+}
