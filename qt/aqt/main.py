@@ -161,11 +161,6 @@ class MainWebView(AnkiWebView):
             self.mw.bottomWeb.hide_timer.start()
             return True
 
-        if evt.type() == QEvent.Type.FocusOut:
-            self.mw._auto_advance_was_enabled = self.mw.reviewer.auto_advance_enabled
-            self.mw.reviewer.auto_advance_enabled = False
-            return True
-
         return False
 
 
@@ -834,6 +829,9 @@ class AnkiQt(QMainWindow):
                 self.overview.refresh_if_needed()
             elif self.state == "deckBrowser":
                 self.deckBrowser.refresh_if_needed()
+        elif (not new_focus or new_focus.window() != self) and self.state == "review":
+            self._auto_advance_was_enabled = self.reviewer.auto_advance_enabled
+            self.reviewer.auto_advance_enabled = False
 
     def fade_out_webview(self) -> None:
         self.web.eval("document.body.style.opacity = 0.3")
