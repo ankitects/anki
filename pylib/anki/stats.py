@@ -146,7 +146,8 @@ body { direction: ltr !important; }
             lim = " and " + lim
         cards, thetime, failed, lrn, rev, relrn, filt = self.col.db.first(
             f"""
-select count(), sum(time)/1000,
+select count() - sum(case when type = {REVLOG_RESCHED} then 1 else 0 end), /* total count - rescheduled */
+sum(time)/1000,
 sum(case when ease = 1 then 1 else 0 end), /* failed */
 sum(case when type = {REVLOG_LRN} then 1 else 0 end), /* learning */
 sum(case when type = {REVLOG_REV} then 1 else 0 end), /* review */
