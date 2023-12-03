@@ -756,7 +756,7 @@ select (case
 when type in ({REVLOG_LRN},{REVLOG_RELRN}) then 0
 when lastIvl < 21 then 1
 else 2 end) as thetype,
-(case when type in ({REVLOG_LRN},{REVLOG_RELRN}) and ease = 4 then %s else ease end), count() from revlog %s
+(case when type in ({REVLOG_LRN},{REVLOG_RELRN}) and ease = 4 then %s else ease end), count() from revlog %s where type != {REVLOG_RESCHED}
 group by thetype, ease
 order by thetype, ease"""
             % (ease4repl, lim)
