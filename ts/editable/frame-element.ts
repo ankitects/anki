@@ -17,7 +17,7 @@ function restoreFrameHandles(mutations: MutationRecord[]): void {
         const frameElement = mutation.target as FrameElement;
         const framed = frameElement.querySelector(frameElement.frames!) as HTMLElement;
 
-        if(!framed) {
+        if (!framed) {
             frameElement.remove();
             continue;
         }
