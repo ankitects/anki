@@ -255,7 +255,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     if (reason === "outsideClick") {
                         // If the click is still in the overlay, we do not want
                         // to reset the handle either
-                        if (!originalEvent.path.includes(imageOverlay)) {
+                        if (!originalEvent?.composedPath().includes(imageOverlay)) {
                             await resetHandle();
                         }
                     } else {
