@@ -145,7 +145,13 @@ impl Collection {
         // add/update provided configs
         for conf in &mut req.configs {
             let weight_len = conf.inner.fsrs_weights.len();
-            if weight_len != 0 && weight_len != 17 {
+            if weight_len == 17 {
+                for i in 0..17 {
+                    if !conf.inner.fsrs_weights[i].is_normal() {
+                        return Err(AnkiError::FsrsWeightsInvalid);
+                    }
+                }
+            } else if weight_len != 0 {
                 return Err(AnkiError::FsrsWeightsInvalid);
             }
             self.add_or_update_deck_config(conf)?;
