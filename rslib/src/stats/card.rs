@@ -88,7 +88,7 @@ impl Collection {
                         due.0 += (days_remaining as i64) * 86_400;
                         Some(due.0)
                     } else {
-                        Some(TimestampSecs::now().0)
+                        Some(due as i64)
                     }
                 },
                 card.original_position.map(|u| u as i32),

@@ -283,7 +283,7 @@ impl Backend {
         let sync_fut = sync_login(
             input.username,
             input.password,
-            input.endpoint,
+            input.endpoint.clone(),
             self.web_client().clone(),
         );
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
@@ -293,7 +293,7 @@ impl Backend {
         };
         ret.map(|a| anki_proto::sync::SyncAuth {
             hkey: a.hkey,
-            endpoint: None,
+            endpoint: input.endpoint,
             io_timeout_secs: None,
         })
     }
