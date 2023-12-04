@@ -746,9 +746,9 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
                 "id > %d" % ((self.col.sched.day_cutoff - (days * 86400)) * 1000)
             )
         if lims:
-            lim = "where type != {REVLOG_RESCHED} and " + " and ".join(lims)
+            lim = "and " + " and ".join(lims)
         else:
-            lim = "where type != {REVLOG_RESCHED}"
+            lim = ""
         ease4repl = "ease"
         return self.col.db.all(
             f"""
@@ -756,7 +756,7 @@ select (case
 when type in ({REVLOG_LRN},{REVLOG_RELRN}) then 0
 when lastIvl < 21 then 1
 else 2 end) as thetype,
-(case when type in ({REVLOG_LRN},{REVLOG_RELRN}) and ease = 4 then %s else ease end), count() from revlog %s
+(case when type in ({REVLOG_LRN},{REVLOG_RELRN}) and ease = 4 then %s else ease end), count() from revlog where type != {REVLOG_RESCHED} %s
 group by thetype, ease
 order by thetype, ease"""
             % (ease4repl, lim)
