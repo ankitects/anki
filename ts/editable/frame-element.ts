@@ -17,6 +17,11 @@ function restoreFrameHandles(mutations: MutationRecord[]): void {
         const frameElement = mutation.target as FrameElement;
         const framed = frameElement.querySelector(frameElement.frames!) as HTMLElement;
 
+        if(!framed) {
+            frameElement.remove();
+            continue;
+        }
+
         for (const node of mutation.addedNodes) {
             if (node === framed || isFrameHandle(node)) {
                 continue;
