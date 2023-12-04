@@ -152,7 +152,7 @@ sum(case when type = {REVLOG_LRN} then 1 else 0 end), /* learning */
 sum(case when type = {REVLOG_REV} then 1 else 0 end), /* review */
 sum(case when type = {REVLOG_RELRN} then 1 else 0 end), /* relearn */
 sum(case when type = {REVLOG_CRAM} then 1 else 0 end) /* filter */
-from revlog where id > ? """
+from revlog where type != {REVLOG_RESCHED} and id > ? """
             + lim,
             (self.col.sched.day_cutoff - 86400) * 1000,
         )
@@ -746,7 +746,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
                 "id > %d" % ((self.col.sched.day_cutoff - (days * 86400)) * 1000)
             )
         if lims:
-            lim = "where " + " and ".join(lims)
+            lim = "and " + " and ".join(lims)
         else:
             lim = ""
         ease4repl = "ease"
@@ -756,7 +756,7 @@ select (case
 when type in ({REVLOG_LRN},{REVLOG_RELRN}) then 0
 when lastIvl < 21 then 1
 else 2 end) as thetype,
-(case when type in ({REVLOG_LRN},{REVLOG_RELRN}) and ease = 4 then %s else ease end), count() from revlog %s
+(case when type in ({REVLOG_LRN},{REVLOG_RELRN}) and ease = 4 then %s else ease end), count() from revlog where type != {REVLOG_RESCHED} %s
 group by thetype, ease
 order by thetype, ease"""
             % (ease4repl, lim)
