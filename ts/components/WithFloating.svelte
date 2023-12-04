@@ -46,7 +46,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /** This may be passed in for more fine-grained control */
     export let show = true;
 
-    const dispatch = createEventDispatcher();
+    type CloseEventMap = {
+        close: Pick<EventPredicateResult, "reason"> & Partial<EventPredicateResult>;
+    };
+
+    const dispatch = createEventDispatcher<CloseEventMap>();
 
     let arrow: HTMLElement;
 
