@@ -740,15 +740,10 @@ impl ParsedTemplate {
         })
     }
 
-    pub(crate) fn contains_field_replacement_or_conditional(&self) -> bool {
-        self.0.iter().any(|node| {
-            matches!(
-                node,
-                ParsedNode::Replacement { .. }
-                    | ParsedNode::Conditional { .. }
-                    | ParsedNode::NegatedConditional { .. }
-            )
-        })
+    pub(crate) fn contains_field_replacement(&self) -> bool {
+        let mut set = HashSet::new();
+        find_field_references(&self.0, &mut set, false, false);
+        !set.is_empty()
     }
 
     pub(crate) fn add_missing_field_replacement(&mut self, field_name: &str, is_cloze: bool) {
