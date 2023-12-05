@@ -163,7 +163,7 @@ mod test {
         };
         assert_eq!(
             data.convert_to_json().unwrap(),
-            r#"{"s":123.5,"d":1.235,"dr":0.99}"#
+            r#"{"s":123.46,"d":1.235,"dr":0.99}"#
         );
     }
 }
