@@ -149,8 +149,9 @@ impl Collection {
                         && r.taken_millis > 0
                 })
                 .map(|r| r.taken_millis);
-            if let Ok(length) = revlogs_filter.try_len() {
-                revlogs_filter.sum::<u32>() as f64 / length as f64 / 1000.0
+            let length = revlogs_filter.clone().count() as f64;
+            if length > 0.0 {
+                revlogs_filter.sum::<u32>() as f64 / length / 1000.0
             } else {
                 return Err(AnkiError::FsrsInsufficientData);
             }
