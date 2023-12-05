@@ -121,7 +121,11 @@ impl Collection {
             let mut arr = default;
             revlogs
                 .iter()
-                .filter(|r| r.review_kind == RevlogReviewKind::Review && r.button_chosen > 0)
+                .filter(|r| {
+                    r.review_kind == RevlogReviewKind::Review
+                        && r.button_chosen > 0
+                        && r.taken_millis > 0
+                })
                 .sorted_by(|a, b| a.button_chosen.cmp(&b.button_chosen))
                 .group_by(|r| r.button_chosen)
                 .into_iter()
@@ -139,10 +143,15 @@ impl Collection {
         let learn_cost = {
             let revlogs_filter = revlogs
                 .iter()
-                .filter(|r| r.review_kind == RevlogReviewKind::Learning && r.button_chosen >= 1)
+                .filter(|r| {
+                    r.review_kind == RevlogReviewKind::Learning
+                        && r.button_chosen >= 1
+                        && r.taken_millis > 0
+                })
                 .map(|r| r.taken_millis);
-            if total_first > 0.0 {
-                revlogs_filter.sum::<u32>() as f64 / total_first / 1000.0
+            let length = revlogs_filter.clone().count() as f64;
+            if length > 0.0 {
+                revlogs_filter.sum::<u32>() as f64 / length / 1000.0
             } else {
                 return Err(AnkiError::FsrsInsufficientData);
             }
