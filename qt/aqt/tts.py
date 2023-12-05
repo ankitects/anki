@@ -257,10 +257,8 @@ class MacTTSFilePlayer(MacTTSPlayer):
         # inject file into the top of the audio queue
         from aqt.sound import av_player
 
+        av_player.current_player = None
         av_player.insert_file(self.tmppath)
-
-        # then tell player to advance, which will cause the file to be played
-        cb()
 
 
 # Windows support
@@ -606,13 +604,10 @@ if is_win:
             if exception := ret.exception():
                 print(str(exception))
                 tooltip(tr.errors_windows_tts_runtime_error())
-                cb()
                 return
 
             # inject file into the top of the audio queue
             from aqt.sound import av_player
 
+            av_player.current_player = None
             av_player.insert_file(self.tmppath)
-
-            # then tell player to advance, which will cause the file to be played
-            cb()
