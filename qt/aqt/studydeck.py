@@ -91,6 +91,7 @@ class StudyDeck(QDialog):
         qconnect(self.form.filter.textEdited, self.redraw)
         qconnect(self.form.list.itemDoubleClicked, self.accept)
         qconnect(self.finished, self.on_finished)
+        self.form.filter.setFocus()
         self.show()
         # redraw after show so position at center correct
         self.redraw("", current)
