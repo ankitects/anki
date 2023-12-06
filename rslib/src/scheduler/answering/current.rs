@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use super::get_fuzz_seed_for_id_and_reps;
 use super::CardStateUpdater;
 use crate::card::CardQueue;
 use crate::card::CardType;
 use crate::decks::DeckKind;
-use crate::scheduler::answering::get_fuzz_seed;
 use crate::scheduler::states::CardState;
 use crate::scheduler::states::LearnState;
 use crate::scheduler::states::NewState;
@@ -66,24 +66,25 @@ impl CardStateUpdater {
         let ease_factor = self.card.ease_factor();
         let remaining_steps = self.card.remaining_steps();
         let memory_state = self.card.memory_state;
-        let elapsed_time = |last_ivl: u32| {
+        let elapsed_secs = |last_ivl: u32| {
             match self.card.queue {
                 CardQueue::Learn => {
                     // Decrease reps by 1 to get correct seed for fuzz.
                     // If the fuzz calculation changes, this will break.
-                    let mut card_copy = self.card.clone();
-                    card_copy.reps -= 1;
-                    let last_ivl_with_fuzz =
-                        self.learning_ivl_with_fuzz(get_fuzz_seed(&card_copy), last_ivl);
+                    let last_ivl_with_fuzz = self.learning_ivl_with_fuzz(
+                        get_fuzz_seed_for_id_and_reps(self.card.id, self.card.reps - 1),
+                        last_ivl,
+                    );
                     let last_answered_time = due as i64 - last_ivl_with_fuzz as i64;
-                    (self.now.0 - last_answered_time) as i32
+                    (self.now.0 - last_answered_time) as u32
                 }
                 CardQueue::DayLearn => {
                     let days_since_col_creation = self.timing.days_elapsed as i32;
                     // Need .max(1) for same day learning cards pushed to the next day.
-                    let last_ivl_as_days = (last_ivl / 86400).max(1) as i32;
+                    // 86_400 is the number of seconds in a day.
+                    let last_ivl_as_days = (last_ivl / 86_400).max(1) as i32;
                     let elapsed_days = days_since_col_creation - due + last_ivl_as_days;
-                    -elapsed_days
+                    (elapsed_days * 86_400) as u32
                 }
                 _ => 0, // Not used for other card queues.
             }
@@ -98,7 +99,7 @@ impl CardStateUpdater {
                 LearnState {
                     scheduled_secs: last_ivl,
                     remaining_steps,
-                    elapsed_time: elapsed_time(last_ivl),
+                    elapsed_secs: elapsed_secs(last_ivl),
                     memory_state,
                 }
             }
@@ -118,7 +119,7 @@ impl CardStateUpdater {
                 RelearnState {
                     learning: LearnState {
                         scheduled_secs: last_ivl,
-                        elapsed_time: elapsed_time(last_ivl),
+                        elapsed_secs: elapsed_secs(last_ivl),
                         remaining_steps,
                         memory_state,
                     },

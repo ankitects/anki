@@ -15,7 +15,7 @@ pub struct LearnState {
     pub scheduled_secs: u32,
     // Positive: Same day learning, elapsed time in seconds
     // Negative: Interday learning, elapsed time in days
-    pub elapsed_time: i32,
+    pub elapsed_secs: u32,
     pub memory_state: Option<FsrsMemoryState>,
 }
 
@@ -42,7 +42,7 @@ impl LearnState {
         LearnState {
             remaining_steps: ctx.steps.remaining_for_failed(),
             scheduled_secs: ctx.steps.again_delay_secs_learn(),
-            elapsed_time: 0,
+            elapsed_secs: 0,
             memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.again.memory.into()),
         }
     }
@@ -54,7 +54,7 @@ impl LearnState {
                 .hard_delay_secs(self.remaining_steps)
                 // user has 0 learning steps, which the UI doesn't allow
                 .unwrap_or(60),
-            elapsed_time: 0,
+            elapsed_secs: 0,
             memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.hard.memory.into()),
             ..self
         }
@@ -66,7 +66,7 @@ impl LearnState {
             LearnState {
                 remaining_steps: ctx.steps.remaining_for_good(self.remaining_steps),
                 scheduled_secs: good_delay,
-                elapsed_time: 0,
+                elapsed_secs: 0,
                 memory_state,
             }
             .into()

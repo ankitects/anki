@@ -269,17 +269,15 @@ impl Collection {
 
         let mut updater = self.card_state_updater(card)?;
         answer.cap_answer_secs(updater.config.inner.cap_answer_time_to_secs);
-        let mut current_state = updater.current_card_state();
+        let current_state = updater.current_card_state();
         // If the states aren't equal, it's probably because some time has passed.
-        // Try to fix this by setting elapsed_time equal.
-        if answer.current_state != current_state {
-            self.set_elapsed_time_equal(answer, &mut current_state);
-            require!(
-                current_state == answer.current_state,
-                "card was modified {current_state:#?} {:#?}",
-                answer.current_state,
-            );
-        }
+        // Try to fix this by setting elapsed_secs equal.
+        self.set_elapsed_secs_equal(&current_state, &mut answer.current_state);
+        require!(
+            current_state == answer.current_state,
+            "card was modified: {current_state:#?} {:#?}",
+            answer.current_state,
+        );
 
         let revlog_partial = updater.apply_study_state(current_state, answer.new_state)?;
         self.add_partial_revlog(revlog_partial, usn, answer)?;
@@ -423,29 +421,37 @@ impl Collection {
         Ok(())
     }
 
-    fn set_elapsed_time_equal(&self, answer: &mut CardAnswer, current_state: &mut CardState) {
-        if let (Some(answer_state), Some(current_state)) = (
-            get_card_state(&mut answer.current_state),
-            get_card_state(current_state),
-        ) {
-            match (answer_state, current_state) {
-                (NormalState::Learning(answer), NormalState::Learning(current)) => {
-                    current.elapsed_time = answer.elapsed_time;
+    /// Update the elapsed time of the answer state to match the current state.
+    ///
+    /// Since the state calculation takes the current time into account, the
+    /// elapsed_secs will probably be different for the two states. This is fine
+    /// for elapsed_secs, but we set the two values equal to easily compare
+    /// the other values of the two states.
+    fn set_elapsed_secs_equal(&self, current_state: &CardState, answer_state: &mut CardState) {
+        if let (Some(current_state), Some(answer_state)) = (
+            match current_state {
+                CardState::Normal(normal_state) => Some(normal_state),
+                CardState::Filtered(FilteredState::Rescheduling(resched_filter_state)) => {
+                    Some(&resched_filter_state.original_state)
                 }
-                (NormalState::Relearning(answer), NormalState::Relearning(current)) => {
-                    current.learning.elapsed_time = answer.learning.elapsed_time;
-                }
-                _ => {} // Other states don't use elapsed_time.
-            }
-        }
-
-        fn get_card_state(state: &mut CardState) -> Option<&mut NormalState> {
-            match state {
+                _ => None,
+            },
+            match answer_state {
                 CardState::Normal(normal_state) => Some(normal_state),
                 CardState::Filtered(FilteredState::Rescheduling(resched_filter_state)) => {
                     Some(&mut resched_filter_state.original_state)
                 }
                 _ => None,
+            },
+        ) {
+            match (current_state, answer_state) {
+                (NormalState::Learning(answer), NormalState::Learning(current)) => {
+                    current.elapsed_secs = answer.elapsed_secs;
+                }
+                (NormalState::Relearning(answer), NormalState::Relearning(current)) => {
+                    current.learning.elapsed_secs = answer.learning.elapsed_secs;
+                }
+                _ => {} // Other states don't use elapsed_secs.
             }
         }
     }
@@ -508,12 +514,16 @@ impl Card {
 }
 
 /// Return a consistent seed for a given card at a given number of reps.
-/// If in test environment, disable fuzzing.
 fn get_fuzz_seed(card: &Card) -> Option<u64> {
+    get_fuzz_seed_for_id_and_reps(card.id, card.reps)
+}
+
+/// If in test environment, disable fuzzing.
+fn get_fuzz_seed_for_id_and_reps(card_id: CardId, card_reps: u32) -> Option<u64> {
     if *crate::PYTHON_UNIT_TESTS || cfg!(test) {
         None
     } else {
-        Some((card.id.0 as u64).wrapping_add(card.reps as u64))
+        Some((card_id.0 as u64).wrapping_add(card_reps as u64))
     }
 }
 
@@ -704,7 +714,7 @@ mod test {
     }
 
     #[test]
-    fn elapsed_time() -> Result<()> {
+    fn elapsed_secs() -> Result<()> {
         let mut col = Collection::new();
         let mut conf = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
@@ -723,43 +733,63 @@ mod test {
         col.storage.update_deck_conf(&conf)?;
 
         // Intraday learning, review same day
-        let expected_elapsed_time = 662;
+        let expected_elapsed_secs = 662;
         let post_answer = col.answer_good();
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
-        let shift_due_time = card.due - expected_elapsed_time;
-        elapsed_time_helper(&mut col, shift_due_time, post_answer, expected_elapsed_time)?;
+        let shift_due_time = card.due - expected_elapsed_secs;
+        assert_elapsed_secs_approx_equal(
+            &mut col,
+            shift_due_time,
+            post_answer,
+            expected_elapsed_secs,
+        )?;
 
         // Intraday learning, learn ahead
-        let expected_elapsed_time = 212;
+        let expected_elapsed_secs = 212;
         let post_answer = col.answer_good();
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
-        let shift_due_time = card.due - expected_elapsed_time;
-        elapsed_time_helper(&mut col, shift_due_time, post_answer, expected_elapsed_time)?;
+        let shift_due_time = card.due - expected_elapsed_secs;
+        assert_elapsed_secs_approx_equal(
+            &mut col,
+            shift_due_time,
+            post_answer,
+            expected_elapsed_secs,
+        )?;
 
         // Intraday learning, review two (and some) days later
-        let expected_elapsed_time = 184092;
+        let expected_elapsed_secs = 184092;
         let post_answer = col.answer_good();
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
-        let shift_due_time = card.due - expected_elapsed_time;
-        elapsed_time_helper(&mut col, shift_due_time, post_answer, expected_elapsed_time)?;
+        let shift_due_time = card.due - expected_elapsed_secs;
+        assert_elapsed_secs_approx_equal(
+            &mut col,
+            shift_due_time,
+            post_answer,
+            expected_elapsed_secs,
+        )?;
 
         // Interday learning four (and some) days, review three days late
-        let expected_elapsed_time = -7;
+        let expected_elapsed_secs = 7 * 86_400;
         let post_answer = col.answer_good();
         let now = TimestampSecs::now();
         let timing = col.timing_for_timestamp(now)?;
         let col_age = timing.days_elapsed as i32;
         let shift_due_time = col_age - 3; // Three days late
-        elapsed_time_helper(&mut col, shift_due_time, post_answer, expected_elapsed_time)?;
+        assert_elapsed_secs_approx_equal(
+            &mut col,
+            shift_due_time,
+            post_answer,
+            expected_elapsed_secs,
+        )?;
 
         Ok(())
     }
 
-    fn elapsed_time_helper(
+    fn assert_elapsed_secs_approx_equal(
         col: &mut Collection,
         shift_due_time: i32,
         post_answer: test_helpers::PostAnswerState,
-        expected_elapsed_time: i32,
+        expected_elapsed_secs: i32,
     ) -> Result<()> {
         // Change due time to fake card answer_time,
         // works since answer_time is calculated as due - last_ivl
@@ -771,14 +801,14 @@ mod test {
             CardState::Normal(NormalState::Learning(state)) => state,
             _ => panic!("State is not Normal: {:?}", current_card_state),
         };
-        let elapsed_time = state.elapsed_time;
+        let elapsed_secs = state.elapsed_secs as i32;
         // Give a 1 second leeway when the test runs on the off chance
         // that the test runs as a second rolls over.
         assert!(
-            (elapsed_time - expected_elapsed_time).abs() <= 1,
-            "elapsed_time: {} != expected_elapsed_time: {}",
-            elapsed_time,
-            expected_elapsed_time
+            (elapsed_secs - expected_elapsed_secs).abs() <= 1,
+            "elapsed_secs: {} != expected_elapsed_secs: {}",
+            elapsed_secs,
+            expected_elapsed_secs
         );
 
         Ok(())
