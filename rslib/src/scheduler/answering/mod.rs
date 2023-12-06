@@ -369,8 +369,8 @@ impl Collection {
                     revlog,
                     timing.next_day_at,
                     config.inner.sm2_retention,
-                );
-                card.set_memory_state(&fsrs, item, config.inner.sm2_retention);
+                )?;
+                card.set_memory_state(&fsrs, item, config.inner.sm2_retention)?;
             }
             let days_elapsed = self
                 .storage
@@ -381,7 +381,7 @@ impl Collection {
                 card.memory_state.map(Into::into),
                 config.inner.desired_retention,
                 days_elapsed,
-            ))
+            )?)
         } else {
             None
         };
