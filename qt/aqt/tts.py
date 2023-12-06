@@ -604,6 +604,7 @@ if is_win:
             if exception := ret.exception():
                 print(str(exception))
                 tooltip(tr.errors_windows_tts_runtime_error())
+                cb()
                 return
 
             # inject file into the top of the audio queue
