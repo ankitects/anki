@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from concurrent.futures import Future
 from concurrent.futures.thread import ThreadPoolExecutor
-from threading import Lock
+from threading import Lock, current_thread, main_thread
 from typing import Any, Callable
 
 import aqt
@@ -65,7 +65,11 @@ class TaskManager(QObject):
         # to the database that we want to run first - if we delay them until after the
         # background task starts, and it takes out a long-running lock on the database,
         # the UI thread will hang until the end of the op.
-        self._on_closures_pending()
+        if current_thread() is main_thread():
+            self._on_closures_pending()
+        else:
+            print("bug: run_in_background not called from main thread")
+            traceback.print_stack()
 
         if args is None:
             args = {}

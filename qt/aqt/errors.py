@@ -292,10 +292,14 @@ class ErrorHandler(QObject):
 
 
 def addon_fmt(addmgr: AddonManager, addon: AddonMeta) -> str:
+    installed = "0"
     if addon.installed_at:
-        installed = time.strftime("%Y-%m-%dT%H:%M", time.localtime(addon.installed_at))
-    else:
-        installed = "0"
+        try:
+            installed = time.strftime(
+                "%Y-%m-%dT%H:%M", time.localtime(addon.installed_at)
+            )
+        except OverflowError:
+            print("invalid timestamp for", addon.provided_name)
     if addon.provided_name:
         name = addon.provided_name
     else:
