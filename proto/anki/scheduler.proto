@@ -72,6 +72,7 @@ message SchedulingState {
   message Learning {
     uint32 remaining_steps = 1;
     uint32 scheduled_secs = 2;
+    uint32 elapsed_secs = 3;
     optional cards.FsrsMemoryState memory_state = 6;
   }
   message Review {
