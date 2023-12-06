@@ -4,6 +4,7 @@
 use fsrs::FSRSError;
 
 use crate::error::AnkiError;
+use crate::error::InvalidInputError;
 
 impl From<FSRSError> for AnkiError {
     fn from(err: FSRSError) -> Self {
@@ -12,6 +13,13 @@ impl From<FSRSError> for AnkiError {
             FSRSError::OptimalNotFound => AnkiError::FsrsUnableToDetermineDesiredRetention,
             FSRSError::Interrupted => AnkiError::Interrupted,
             FSRSError::InvalidWeights => AnkiError::FsrsWeightsInvalid,
+            FSRSError::InvalidInput => AnkiError::InvalidInput {
+                source: InvalidInputError {
+                    message: "invalid weights provided".to_string(),
+                    source: None,
+                    backtrace: None,
+                },
+            },
         }
     }
 }

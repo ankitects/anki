@@ -54,7 +54,7 @@ unknown-git = "warn"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 
 [sources.allow-org]
-github = ["ankitects"]
+github = ["ankitects", "open-spaced-repetition"]
 
 [bans]
 multiple-versions = "warn"
