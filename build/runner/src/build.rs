@@ -27,7 +27,7 @@ pub fn run_build(args: BuildArgs) {
 
     let path = if cfg!(windows) {
         format!(
-            "out\\bin;out\\extracted\\node;node_modules\\.bin;out\\extracted\\win_amd64_audio;{};\\msys64\\usr\\bin",
+            "out\\bin;out\\extracted\\node;node_modules\\.bin;{};\\msys64\\usr\\bin",
             env::var("PATH").unwrap()
         )
     } else {
