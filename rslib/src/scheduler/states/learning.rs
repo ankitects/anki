@@ -13,8 +13,6 @@ use crate::revlog::RevlogReviewKind;
 pub struct LearnState {
     pub remaining_steps: u32,
     pub scheduled_secs: u32,
-    // Positive: Same day learning, elapsed time in seconds
-    // Negative: Interday learning, elapsed time in days
     pub elapsed_secs: u32,
     pub memory_state: Option<FsrsMemoryState>,
 }
