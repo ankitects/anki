@@ -166,7 +166,7 @@ impl Card {
     ) -> Result<()> {
         let memory_state = if let Some(i) = item {
             Some(fsrs.memory_state(i.item, i.starting_state)?)
-        } else if self.ctype == CardType::New || self.interval == 0 {
+        } else if self.ctype == CardType::New || self.interval == 0 || self.reps == 0 {
             None
         } else {
             // no valid revlog entries; infer state from current card state
@@ -345,7 +345,10 @@ mod tests {
                 difficulty: 4.46429
             })
         );
-        let mut card = Card::default();
+        let mut card = Card {
+            reps: 1,
+            ..Default::default()
+        };
         card.set_memory_state(&fsrs, Some(item), 0.9)?;
         assert_eq!(
             card.memory_state,
@@ -390,6 +393,7 @@ mod tests {
             ctype: CardType::Review,
             interval: 100,
             ease_factor: 1300,
+            reps: 1,
             ..Default::default()
         };
         card.set_memory_state(&FSRS::new(Some(&[])).unwrap(), None, 0.9)?;
