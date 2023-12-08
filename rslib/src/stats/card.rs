@@ -91,7 +91,7 @@ impl Collection {
                         Some(due as i64)
                     }
                 },
-                card.original_position.map(|u| u as i32),
+                None,
             ),
         })
     }
