@@ -342,7 +342,7 @@ mod tests {
             item.starting_state,
             Some(MemoryState {
                 stability: 99.999954,
-                difficulty: 4.46429
+                difficulty: 5.287041,
             })
         );
         let mut card = Card {
@@ -353,8 +353,8 @@ mod tests {
         assert_eq!(
             card.memory_state,
             Some(FsrsMemoryState {
-                stability: 248.58453,
-                difficulty: 4.4689474
+                stability: 248.5813,
+                difficulty: 5.2646275,
             })
         );
         // but if there's only a single revlog entry, we'll fall back on current card
@@ -378,7 +378,7 @@ mod tests {
             card.memory_state,
             Some(FsrsMemoryState {
                 stability: 122.99994,
-                difficulty: 6.5147333
+                difficulty: 7.0797696
             })
         );
         Ok(())
@@ -402,7 +402,7 @@ mod tests {
             Some(
                 MemoryState {
                     stability: 99.999954,
-                    difficulty: 9.692858
+                    difficulty: 9.857409
                 }
                 .into()
             )
