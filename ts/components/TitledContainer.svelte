@@ -41,31 +41,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: var(--border-radius-medium, 10px);
 
         &.light {
-            @include elevation(2, $opacity-boost: -0.08);
-            &:hover,
-            &:focus-within {
-                @include elevation(3);
-            }
+            @include elevation(3);
         }
         &.dark {
-            @include elevation(3, $opacity-boost: -0.08);
-            &:hover,
-            &:focus-within {
-                @include elevation(4);
-            }
+            @include elevation(4);
         }
 
         padding: 1rem 1.75rem 0.75rem 1.25rem;
         &.rtl {
             padding: 1rem 1.25rem 0.75rem 1.75rem;
         }
-        &:hover,
-        &:focus-within {
-            .help-badge {
-                color: var(--fg-subtle);
-            }
-        }
-        transition: box-shadow var(--transition) ease-in-out;
         page-break-inside: avoid;
     }
     h1 {
@@ -73,16 +58,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     .help-badge {
         right: 0;
-        bottom: 4px;
-        color: var(--fg-faint);
-        transition: color var(--transition) linear;
-        &:hover {
-            transition: none;
-            color: var(--fg);
-        }
+        bottom: 12px;
+        color: #555;
         &.rtl {
             right: unset;
             left: 0;
         }
+    }
+
+    :global(.night-mode) .help-badge {
+        color: var(--fg);
     }
 </style>

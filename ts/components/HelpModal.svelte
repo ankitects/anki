@@ -53,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let activeIndex = startIndex;
 </script>
 
-<Badge on:click={() => modal.show()}>
+<Badge on:click={() => modal.show()} iconSize={125}>
     {@html infoCircle}
 </Badge>
 
