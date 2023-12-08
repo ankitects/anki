@@ -110,7 +110,11 @@ message Deck {
     // v1 scheduler only
     repeated float delays = 3;
     // v2 scheduler only
-    uint32 preview_delay = 4;
+    uint32 preview_again_mins = 4;
+    // recent v3 scheduler only; 0 means card will be returned
+    uint32 preview_hard_mins = 5;
+    // recent v3 scheduler only; 0 means card will be returned
+    uint32 preview_good_mins = 6;
   }
   // a container to store the deck specifics in the DB
   // as a tagged enum

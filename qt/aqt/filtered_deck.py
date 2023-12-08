@@ -100,6 +100,16 @@ class FilteredDeckConfigDialog(QDialog):
             self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.FILTERED_DECK)
         )
 
+        self.form.again_delay_label.setText(
+            tr.decks_delay_for_button(button=tr.studying_again())
+        )
+        self.form.hard_delay_label.setText(
+            tr.decks_delay_for_button(button=tr.studying_hard())
+        )
+        self.form.good_delay_label.setText(
+            tr.decks_delay_for_button(button=tr.studying_good())
+        )
+
         restoreGeom(self, self.GEOMETRY_KEY)
 
     def load_deck_and_show(self, deck: FilteredDeckForUpdate) -> None:
@@ -132,10 +142,9 @@ class FilteredDeckConfigDialog(QDialog):
         form.order.setCurrentIndex(term1.order)
         form.limit.setValue(term1.limit)
 
-        form.steps.setVisible(False)
-        form.stepsOn.setVisible(False)
-
-        form.previewDelay.setValue(config.preview_delay)
+        form.preview_again.setValue(config.preview_again_mins)
+        form.preview_hard.setValue(config.preview_hard_mins)
+        form.preview_good.setValue(config.preview_good_mins)
 
         if len(config.search_terms) > 1:
             term2: FilteredDeckConfig.SearchTerm = config.search_terms[1]
@@ -268,7 +277,9 @@ class FilteredDeckConfigDialog(QDialog):
 
         del config.search_terms[:]
         config.search_terms.extend(terms)
-        config.preview_delay = form.previewDelay.value()
+        config.preview_again_mins = form.preview_again.value()
+        config.preview_hard_mins = form.preview_hard.value()
+        config.preview_good_mins = form.preview_good.value()
 
         return True
 
@@ -293,32 +304,3 @@ class FilteredDeckConfigDialog(QDialog):
         add_or_update_filtered_deck(parent=self, deck=self.deck).success(
             success
         ).run_in_background()
-
-    # Step load/save
-    ########################################################
-    # fixme: remove once we drop support for v1
-
-    def listToUser(self, values: list[Union[float, int]]) -> str:
-        return " ".join(
-            [str(int(val)) if int(val) == val else str(val) for val in values]
-        )
-
-    def userToList(self, line: QLineEdit, minSize: int = 1) -> list[float] | None:
-        items = str(line.text()).split(" ")
-        ret = []
-        for item in items:
-            if not item:
-                continue
-            try:
-                i = float(item)
-                if i <= 0:
-                    raise Exception("0 invalid")
-                ret.append(i)
-            except:
-                # invalid, don't update
-                showWarning(tr.scheduling_steps_must_be_numbers())
-                return None
-        if len(ret) < minSize:
-            showWarning(tr.scheduling_at_least_one_step_is_required())
-            return None
-        return ret

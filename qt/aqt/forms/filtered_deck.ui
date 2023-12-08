@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>757</width>
-    <height>589</height>
+    <width>526</width>
+    <height>567</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -198,13 +198,67 @@
       <string>actions_options</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0" colspan="2" alignment="Qt::AlignLeft">
-       <widget class="QCheckBox" name="resched">
+      <item row="1" column="0">
+       <widget class="QWidget" name="previewDelayWidget" native="true">
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="3" column="0">
+          <widget class="QLabel" name="good_delay_label">
+           <property name="text">
+            <string notr="true">good delay</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QSpinBox" name="preview_again"/>
+         </item>
+         <item row="2" column="2">
+          <widget class="QSpinBox" name="preview_hard"/>
+         </item>
+         <item row="0" column="0" colspan="2">
+          <widget class="QLabel" name="again_delay_label">
+           <property name="text">
+            <string notr="true">again delay</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QSpinBox" name="preview_good"/>
+         </item>
+         <item row="0" column="3">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>decks_minutes</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="3" colspan="2">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>decks_minutes</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="hard_delay_label">
+           <property name="text">
+            <string notr="true">hard delay</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>decks_minutes</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="3" column="0" alignment="Qt::AlignLeft">
+       <widget class="QCheckBox" name="allow_empty">
         <property name="text">
-         <string>decks_reschedule_cards_based_on_my_answers</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
+         <string>decks_create_even_if_empty</string>
         </property>
        </widget>
       </item>
@@ -215,50 +269,13 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QWidget" name="previewDelayWidget" native="true">
-        <layout class="QHBoxLayout" name="previewDelayBox">
-         <item>
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>decks_repeat_failed_cards_after</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="previewDelay"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string>decks_minutes</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLineEdit" name="steps">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
+      <item row="0" column="0" colspan="2" alignment="Qt::AlignLeft">
+       <widget class="QCheckBox" name="resched">
         <property name="text">
-         <string notr="true">1 10</string>
+         <string>decks_reschedule_cards_based_on_my_answers</string>
         </property>
-       </widget>
-      </item>
-      <item row="3" column="0" alignment="Qt::AlignLeft">
-       <widget class="QCheckBox" name="stepsOn">
-        <property name="text">
-         <string>decks_custom_steps_in_minutes</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0" alignment="Qt::AlignLeft">
-       <widget class="QCheckBox" name="allow_empty">
-        <property name="text">
-         <string>decks_create_even_if_empty</string>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -331,19 +348,18 @@
  </widget>
  <tabstops>
   <tabstop>name</tabstop>
-  <tabstop>search_button</tabstop>
   <tabstop>search</tabstop>
   <tabstop>limit</tabstop>
   <tabstop>order</tabstop>
-  <tabstop>search_button_2</tabstop>
   <tabstop>search_2</tabstop>
   <tabstop>limit_2</tabstop>
   <tabstop>order_2</tabstop>
   <tabstop>resched</tabstop>
-  <tabstop>previewDelay</tabstop>
+  <tabstop>preview_again</tabstop>
+  <tabstop>preview_hard</tabstop>
+  <tabstop>preview_good</tabstop>
   <tabstop>secondFilter</tabstop>
-  <tabstop>stepsOn</tabstop>
-  <tabstop>steps</tabstop>
+  <tabstop>allow_empty</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -392,22 +408,6 @@
     <hint type="destinationlabel">
      <x>222</x>
      <y>155</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>stepsOn</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>steps</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>194</x>
-     <y>351</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>190</x>
-     <y>378</y>
     </hint>
    </hints>
   </connection>
