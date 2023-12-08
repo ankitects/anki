@@ -767,6 +767,7 @@ class AnkiQt(QMainWindow):
 
     def _reviewCleanup(self, newState: MainWindowState) -> None:
         if newState != "resetRequired" and newState != "review":
+            self.reviewer.auto_advance_enabled = False
             self.reviewer.cleanup()
             self.toolbarWeb.elevate()
             self.toolbarWeb.show()
