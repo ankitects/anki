@@ -6,15 +6,13 @@
     const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
 
     export let grow = true;
-    let width = 0;
 </script>
 
 <div
     class="config-input position-relative justify-content-end"
     class:flex-grow-1={grow}
-    style:--offset="-{width}px"
 >
-    <div class="revert" class:rtl bind:clientWidth={width}>
+    <div class="revert" class:rtl>
         <slot name="revert" />
     </div>
     <slot />
@@ -23,7 +21,8 @@
 <style lang="scss">
     .revert {
         position: absolute;
-        right: var(--offset);
+        right: -1.7em;
+        bottom: -1px;
         color: var(--fg-faint);
         &.rtl {
             right: unset;

@@ -63,6 +63,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: 0;
         color: var(--fg);
 
+        &:hover {
+            border: none;
+        }
+
         &:hover:not([disabled]) {
             background: var(--highlight-bg);
             color: var(--highlight-fg);
