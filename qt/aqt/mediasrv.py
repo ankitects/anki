@@ -289,9 +289,10 @@ def handle_request(pathin: str) -> Response:
     allowed_prefixes = ("127.0.0.1:", "localhost:", "[::1]:")
     if not any(host.startswith(prefix) for prefix in allowed_prefixes):
         # while we only bind to localhost, this request may have come from a local browser
-        # via a DNS rebinding attack
-        print("deny non-local host", host)
-        abort(403)
+        # via a DNS rebinding attack; deny it unless we're doing non-local testing
+        if os.environ.get("ANKI_API_HOST") != "0.0.0.0":
+            print("deny non-local host", host)
+            abort(403)
 
     req = _extract_request(pathin)
     if dev_mode:
