@@ -25,7 +25,9 @@ decks-order-due = Order due
 decks-please-select-something = Please select something.
 decks-random = Random
 decks-relative-overdueness = Relative overdueness
-decks-repeat-failed-cards-after = Repeat failed cards after
+decks-repeat-failed-cards-after = Delay Repeat failed cards after
+# e.g. "Delay for Again", "Delay for Hard", "Delay for Good"
+decks-delay-for-button = Delay for { $button }
 decks-reschedule-cards-based-on-my-answers = Reschedule cards based on my answers in this deck
 decks-study = Study
 decks-study-deck = Study Deck

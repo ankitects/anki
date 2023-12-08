@@ -156,8 +156,12 @@ pub struct FilteredDeckSchema11 {
     delays: Option<Vec<f32>>,
 
     // new scheduler
+    #[serde(default, rename = "previewDelay")]
+    preview_again_mins: u32,
     #[serde(default)]
-    preview_delay: u32,
+    preview_hard_mins: u32,
+    #[serde(default)]
+    preview_good_mins: u32,
 }
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Default, Clone)]
 pub struct DeckTodaySchema11 {
@@ -328,7 +332,9 @@ impl From<FilteredDeckSchema11> for FilteredDeck {
             reschedule: deck.resched,
             search_terms: deck.terms.into_iter().map(Into::into).collect(),
             delays: deck.delays.unwrap_or_default(),
-            preview_delay: deck.preview_delay,
+            preview_again_mins: deck.preview_again_mins,
+            preview_hard_mins: deck.preview_hard_mins,
+            preview_good_mins: deck.preview_good_mins,
         }
     }
 }
@@ -367,7 +373,9 @@ impl From<Deck> for DeckSchema11 {
                 } else {
                     Some(filt.delays.clone())
                 },
-                preview_delay: filt.preview_delay,
+                preview_again_mins: filt.preview_again_mins,
+                preview_hard_mins: filt.preview_hard_mins,
+                preview_good_mins: filt.preview_good_mins,
                 common: deck.into(),
             }),
         }

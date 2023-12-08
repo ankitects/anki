@@ -740,7 +740,7 @@ def test_preview():
 
     passing_grade = 4
     assert col.sched.answerButtons(c) == passing_grade
-    assert col.sched.nextIvl(c, 1) == 600
+    assert col.sched.nextIvl(c, 1) == 60
     assert col.sched.nextIvl(c, passing_grade) == 0
 
     # failing it will push its due time back

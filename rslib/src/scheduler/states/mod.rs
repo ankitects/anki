@@ -26,6 +26,7 @@ pub use review::ReviewState;
 
 use self::steps::LearningSteps;
 use crate::revlog::RevlogReviewKind;
+use crate::scheduler::answering::PreviewDelays;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum CardState {
@@ -106,7 +107,7 @@ pub(crate) struct StateContext<'a> {
 
     // filtered
     pub in_filtered_deck: bool,
-    pub preview_step: u32,
+    pub preview_delays: PreviewDelays,
 }
 
 impl<'a> StateContext<'a> {
@@ -136,7 +137,11 @@ impl<'a> StateContext<'a> {
             lapse_multiplier: 0.0,
             minimum_lapse_interval: 1,
             in_filtered_deck: false,
-            preview_step: 10,
+            preview_delays: PreviewDelays {
+                again: 1,
+                hard: 10,
+                good: 0,
+            },
             fsrs_next_states: None,
         }
     }

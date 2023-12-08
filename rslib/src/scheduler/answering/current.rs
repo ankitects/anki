@@ -51,7 +51,7 @@ impl CardStateUpdater {
                     .into()
                 } else {
                     PreviewState {
-                        scheduled_secs: filtered.preview_delay * 60,
+                        scheduled_secs: filtered.preview_again_mins * 60,
                         finished: false,
                     }
                     .into()

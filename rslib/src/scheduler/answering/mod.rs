@@ -91,10 +91,14 @@ impl CardStateUpdater {
             lapse_multiplier: self.config.inner.lapse_multiplier,
             minimum_lapse_interval: self.config.inner.minimum_lapse_interval,
             in_filtered_deck: self.deck.is_filtered(),
-            preview_step: if let DeckKind::Filtered(deck) = &self.deck.kind {
-                deck.preview_delay
+            preview_delays: if let DeckKind::Filtered(deck) = &self.deck.kind {
+                PreviewDelays {
+                    again: deck.preview_again_mins,
+                    hard: deck.preview_hard_mins,
+                    good: deck.preview_good_mins,
+                }
             } else {
-                0
+                Default::default()
             },
             fsrs_next_states: self.fsrs_next_states.clone(),
         }
@@ -183,6 +187,13 @@ impl CardStateUpdater {
         );
         Ok(())
     }
+}
+
+#[derive(Debug, Default)]
+pub(crate) struct PreviewDelays {
+    pub again: u32,
+    pub hard: u32,
+    pub good: u32,
 }
 
 impl Rating {
