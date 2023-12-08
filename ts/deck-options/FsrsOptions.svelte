@@ -267,7 +267,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="m-2">
     <SwitchRow bind:value={$fsrsReschedule} defaultValue={false}>
         <SettingTitle on:click={() => openHelpModal("rescheduleCardsOnChange")}>
-            {tr.deckConfigRescheduleCardsOnChange()}
+            {tr.deckConfigAllDecks({ option: tr.deckConfigRescheduleCardsOnChange() })}
         </SettingTitle>
     </SwitchRow>
 
