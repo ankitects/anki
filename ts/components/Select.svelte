@@ -137,6 +137,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function revealed() {
+        clientWidth = element?.clientWidth ?? 150;
         if (selected === undefined) {
             return;
         }
@@ -215,7 +216,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }}
         bind:this={element}
         use:asReference
-        bind:clientWidth
     >
         <div class="inner">
             <div class="label">{@html label}</div>
