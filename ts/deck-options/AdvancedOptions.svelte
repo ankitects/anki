@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const settings = {
         fsrs: {
-            title: "FSRS",
+            title: tr.deckConfigAllDecks({ option: "FSRS" }),
             help: tr.deckConfigFsrsTooltip(),
             url: HelpPage.DeckOptions.fsrs,
         },
@@ -102,7 +102,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             sched: HelpItemScheduler.SM2,
         },
         customScheduling: {
-            title: tr.deckConfigCustomScheduling(),
+            title: tr.deckConfigAllDecks({ option: tr.deckConfigCustomScheduling() }),
             help: tr.deckConfigCustomSchedulingTooltip(),
             url: "https://faqs.ankiweb.net/the-2021-scheduler.html#add-ons-and-custom-scheduling",
         },
@@ -139,7 +139,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("fsrs"))}
                 >
-                    FSRS
+                    {settings.fsrs.title}
                 </SettingTitle>
             </SwitchRow>
         </Item>

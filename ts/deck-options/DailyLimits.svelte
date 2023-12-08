@@ -130,12 +130,16 @@
             url: HelpPage.DeckOptions.maximumReviewsday,
         },
         newCardsIgnoreReviewLimit: {
-            title: tr.deckConfigNewCardsIgnoreReviewLimit(),
+            title: tr.deckConfigAllDecks({
+                option: tr.deckConfigNewCardsIgnoreReviewLimit(),
+            }),
             help: newCardsIgnoreReviewLimitHelp,
             url: HelpPage.DeckOptions.newCardsday,
         },
         applyAllParentLimits: {
-            title: tr.deckConfigApplyAllParentLimits(),
+            title: tr.deckConfigAllDecks({
+                option: tr.deckConfigApplyAllParentLimits(),
+            }),
             help: applyAllParentLimitsHelp,
             url: HelpPage.DeckOptions.newCardsday,
         },
