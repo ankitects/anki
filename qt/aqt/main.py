@@ -11,7 +11,7 @@ import signal
 import weakref
 from argparse import Namespace
 from concurrent.futures import Future
-from typing import Any, Literal, Sequence, TypeVar, cast
+from typing import Any, Literal, Optional, Sequence, TypeVar, cast
 
 import anki
 import anki.cards
@@ -189,7 +189,7 @@ class AnkiQt(QMainWindow):
         self.app = app
         self.pm = profileManager
         self.fullscreen = False
-        self._auto_advance_was_enabled = False
+        self._auto_advance_was_enabled: Optional[bool] = False
         # init rest of app
         self.safeMode = (
             bool(self.app.queryKeyboardModifiers() & Qt.KeyboardModifier.ShiftModifier)
@@ -824,8 +824,10 @@ class AnkiQt(QMainWindow):
         if new_focus and new_focus.window() == self:
             if self.state == "review":
                 self.reviewer.refresh_if_needed()
-                self.reviewer.auto_advance_enabled = self._auto_advance_was_enabled
-                self.reviewer.auto_advance_if_enabled()
+                if self._auto_advance_was_enabled is not None:
+                    self.reviewer.auto_advance_enabled = self._auto_advance_was_enabled
+                    self.reviewer.auto_advance_if_enabled()
+                self._auto_advance_was_enabled = None
             elif self.state == "overview":
                 self.overview.refresh_if_needed()
             elif self.state == "deckBrowser":
