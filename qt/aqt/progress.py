@@ -323,6 +323,7 @@ class ProgressDialog(QDialog):
     def cancel(self) -> None:
         self._closingDown = True
         self.hide()
+        self.deleteLater()
 
     def closeEvent(self, evt: QCloseEvent) -> None:
         if self._closingDown:
