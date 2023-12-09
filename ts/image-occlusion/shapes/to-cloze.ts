@@ -27,7 +27,7 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
         }
     });
 
-    return { clozes, noteCount: shapes.length };
+    return { clozes, noteCount: index };
 }
 
 /** Gather all Fabric shapes, and convert them into BaseShapes or
