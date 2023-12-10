@@ -504,25 +504,31 @@ class AnkiQt(QMainWindow):
             if not self.safeMode:
                 self.maybe_check_for_addon_updates(self.setup_auto_update)
 
-        self.maybe_auto_sync_on_open_close(_onsuccess)
-
         last_day_cutoff = self.col.sched.day_cutoff
 
         def refresh_reviewer_on_day_rollover_change():
             from aqt.reviewer import RefreshNeeded
 
+            # need to refresh?
             nonlocal last_day_cutoff
-            if self.state == "review" and last_day_cutoff != self.col.sched.day_cutoff:
+            current_cutoff = self.col.sched.day_cutoff
+            if self.state == "review" and last_day_cutoff != current_cutoff:
                 last_day_cutoff = self.col.sched.day_cutoff
                 self.reviewer._refresh_needed = RefreshNeeded.QUEUES
                 self.reviewer.refresh_if_needed()
 
-        self._reviewer_refresh_timer = self.progress.timer(
-            1000,
-            refresh_reviewer_on_day_rollover_change,
-            repeat=True,
-            parent=self,
-        )
+            # schedule another check
+            secs_until_cutoff = current_cutoff - int_time()
+            self._reviewer_refresh_timer = self.progress.timer(
+                secs_until_cutoff * 1000,
+                refresh_reviewer_on_day_rollover_change,
+                repeat=False,
+                parent=self,
+            )
+
+        refresh_reviewer_on_day_rollover_change()
+
+        self.maybe_auto_sync_on_open_close(_onsuccess)
 
     def unloadProfile(self, onsuccess: Callable) -> None:
         def callback() -> None:
