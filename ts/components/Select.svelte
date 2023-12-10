@@ -37,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             content: item as unknown as C,
         };
     };
-    const parsed = list
+    $: parsed = list
         .map(parser)
         .map(({ content, value: initialValue, disabled = false }, i) => {
             if ((initialValue === undefined && i === value) || initialValue === value) {
