@@ -218,7 +218,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         use:asReference
     >
         <div class="inner">
-            <div class="label">{@html label}</div>
+            <div class="label">{label}</div>
         </div>
         <div class="chevron">
             <IconConstrain iconSize={80}>
