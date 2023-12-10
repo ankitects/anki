@@ -56,7 +56,12 @@ def get_sync_status(
             mw.pm.set_current_sync_url(out.new_endpoint)
         callback(out)
 
-    mw.taskman.run_in_background(lambda: mw.col.sync_status(auth), on_future_done)
+    mw.taskman.run_in_background(
+        lambda: mw.col.sync_status(auth),
+        on_future_done,
+        # The check quickly releases the collection, and we don't need to block other callers
+        uses_collection=False,
+    )
 
 
 def handle_sync_error(mw: aqt.main.AnkiQt, err: Exception) -> None:
