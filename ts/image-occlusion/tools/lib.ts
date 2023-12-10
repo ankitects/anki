@@ -189,11 +189,8 @@ export const moveShapeToCanvasBoundaries = (canvas: fabric.Canvas): void => {
         if (!activeObject) {
             return;
         }
-        if (
-            activeObject.type === "activeSelection"
-            || activeObject.type === "rect"
-        ) {
-            modifiedSelection(canvas, activeObject);
+        if (activeObject.type === "rect") {
+            modifiedRectangle(canvas, activeObject);
         }
         if (activeObject.type === "ellipse") {
             modifiedEllipse(canvas, activeObject);
@@ -204,7 +201,7 @@ export const moveShapeToCanvasBoundaries = (canvas: fabric.Canvas): void => {
     });
 };
 
-const modifiedSelection = (
+const modifiedRectangle = (
     canvas: fabric.Canvas,
     object: fabric.Object,
 ): void => {
