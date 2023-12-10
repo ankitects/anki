@@ -26,7 +26,7 @@
         color: var(--fg-faint);
         &.rtl {
             right: unset;
-            left: var(--offset);
+            left: -1.7em;
         }
     }
     .config-input {
