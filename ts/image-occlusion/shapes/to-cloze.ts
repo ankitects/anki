@@ -68,6 +68,11 @@ function fabricObjectToBaseShapeOrShapes(
     // Prevents the original fabric object from mutating when a non-primitive
     // property of a Shape mutates.
     const cloned = cloneDeep(object);
+    if (parentObject) {
+        const scaling = parentObject.getObjectScaling();
+        cloned.width = cloned.width * scaling.scaleX;
+        cloned.height = cloned.height * scaling.scaleY;
+    }
 
     switch (object.type) {
         case "rect":
