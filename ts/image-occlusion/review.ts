@@ -111,6 +111,8 @@ function calculateContainerSize(
     return { width: img.naturalWidth * ratio, height: img.naturalHeight * ratio };
 }
 
+let oneTimeSetupDone = false;
+
 function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOptions): void {
     const canvas = document.querySelector(
         "#image-occlusion-canvas",
@@ -146,6 +148,16 @@ function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOptions): vo
     canvas.width = size.width;
     canvas.height = size.height;
 
+    if (!oneTimeSetupDone) {
+        window.addEventListener("keydown", (event) => {
+            const button = document.getElementById("toggle");
+            if (button && button.style.display !== "none" && event.key === "M") {
+                toggleMasks();
+            }
+        });
+        oneTimeSetupDone = true;
+    }
+
     // setup button for toggle image occlusion
     const button = document.getElementById("toggle");
     if (button) {
@@ -154,12 +166,6 @@ function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOptions): vo
         } else {
             button.style.display = "none";
         }
-
-        window.addEventListener("keydown", (event) => {
-            if (event.key === "M") {
-                toggleMasks();
-            }
-        });
     }
 
     drawShapes(canvas, setupOptions?.onWillDrawShapes, setupOptions?.onDidDrawShapes);
