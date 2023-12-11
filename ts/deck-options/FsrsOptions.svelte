@@ -133,8 +133,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         try {
             await runWithBackendProgress(
                 async () => {
-                    const search =
-                        $config.weightSearch ?? `preset:"${state.getCurrentName()}"`;
+                    const search = $config.weightSearch
+                        ? $config.weightSearch
+                        : defaultWeightSearch;
                     const resp = await evaluateWeights({
                         weights: $config.fsrsWeights,
                         search,
@@ -309,6 +310,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {#if computingWeights || checkingWeights}<div>
                 {computeWeightsProgressString}
             </div>{/if}
+
+        <div>{tr.deckConfigOptimizeAllTip()}</div>
     </details>
 </div>
 

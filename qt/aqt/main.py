@@ -504,25 +504,31 @@ class AnkiQt(QMainWindow):
             if not self.safeMode:
                 self.maybe_check_for_addon_updates(self.setup_auto_update)
 
-        self.maybe_auto_sync_on_open_close(_onsuccess)
-
         last_day_cutoff = self.col.sched.day_cutoff
 
         def refresh_reviewer_on_day_rollover_change():
             from aqt.reviewer import RefreshNeeded
 
+            # need to refresh?
             nonlocal last_day_cutoff
-            if self.state == "review" and last_day_cutoff != self.col.sched.day_cutoff:
+            current_cutoff = self.col.sched.day_cutoff
+            if self.state == "review" and last_day_cutoff != current_cutoff:
                 last_day_cutoff = self.col.sched.day_cutoff
                 self.reviewer._refresh_needed = RefreshNeeded.QUEUES
                 self.reviewer.refresh_if_needed()
 
-        self._reviewer_refresh_timer = self.progress.timer(
-            1000,
-            refresh_reviewer_on_day_rollover_change,
-            repeat=True,
-            parent=self,
-        )
+            # schedule another check
+            secs_until_cutoff = current_cutoff - int_time()
+            self._reviewer_refresh_timer = self.progress.timer(
+                secs_until_cutoff * 1000,
+                refresh_reviewer_on_day_rollover_change,
+                repeat=False,
+                parent=self,
+            )
+
+        refresh_reviewer_on_day_rollover_change()
+
+        self.maybe_auto_sync_on_open_close(_onsuccess)
 
     def unloadProfile(self, onsuccess: Callable) -> None:
         def callback() -> None:
@@ -828,6 +834,9 @@ class AnkiQt(QMainWindow):
                     self.reviewer.auto_advance_enabled = self._auto_advance_was_enabled
                     self.reviewer.auto_advance_if_enabled()
                 self._auto_advance_was_enabled = None
+                if self.reviewer.auto_advance_enabled:
+                    tooltip(tr.actions_auto_advance_activated())
+                self.reviewer.auto_advance_if_enabled()
             elif self.state == "overview":
                 self.overview.refresh_if_needed()
             elif self.state == "deckBrowser":
@@ -835,6 +844,7 @@ class AnkiQt(QMainWindow):
         elif (not new_focus or new_focus.window() != self) and self.state == "review":
             self._auto_advance_was_enabled = self.reviewer.auto_advance_enabled
             self.reviewer.auto_advance_enabled = False
+            tooltip(tr.actions_auto_advance_deactivated())
 
     def fade_out_webview(self) -> None:
         self.web.eval("document.body.style.opacity = 0.3")

@@ -494,6 +494,7 @@ class GetTextDialog(QDialog):
                 b.button(QDialogButtonBox.StandardButton.Help).clicked,
                 self.helpRequested,
             )
+        self.l.setFocus()
 
     def accept(self) -> None:
         return QDialog.accept(self)

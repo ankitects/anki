@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import sys
+import time
 import traceback
+from threading import current_thread, main_thread
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 from weakref import ref
 
@@ -148,10 +150,16 @@ class RustBackend(RustBackendGenerated):
         return self.compute_fsrs_weights_from_items(items).weights
 
     def _run_command(self, service: int, method: int, input: bytes) -> bytes:
+        start = time.time()
         try:
             return self._backend.command(service, method, input)
         except Exception as error:
             error_bytes = bytes(error.args[0])
+        finally:
+            elapsed = time.time() - start
+            if current_thread() is main_thread() and elapsed > 0.2:
+                print(f"blocked main thread for {int(elapsed*1000)}ms:")
+                print("".join(traceback.format_stack()))
 
         err = backend_pb2.BackendError()
         err.ParseFromString(error_bytes)

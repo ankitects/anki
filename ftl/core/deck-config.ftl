@@ -234,10 +234,13 @@ deck-config-stop-timer-on-answer = Stop timer on answer
 deck-config-stop-timer-on-answer-tooltip =
     Whether to stop the timer when the answer is revealed.
     This doesn't affect statistics.
-deck-config-seconds-to-show-question = Seconds to show question
-deck-config-seconds-to-show-question-tooltip = The number of seconds to wait before automatically advancing to the next question. Set to 0 to disable.
-deck-config-seconds-to-show-answer = Seconds to show answer
-deck-config-seconds-to-show-answer-tooltip = The number of seconds to wait before automatically revealing the answer. Set to 0 to disable.
+
+## Auto Advance section
+
+deck-config-seconds-to-show-question = Seconds to show question for
+deck-config-seconds-to-show-question-tooltip-2 = When auto advance is activated, the number of seconds to wait before revealing the answer. Set to 0 to disable.
+deck-config-seconds-to-show-answer = Seconds to show answer for
+deck-config-seconds-to-show-answer-tooltip-2 = When auto advance is activated, the number of seconds to wait before applying the answer action. Set to 0 to disable.
 deck-config-answer-action = Answer action
 deck-config-answer-action-tooltip = The action to perform on the current card before automatically advancing to the next one.
 deck-config-wait-for-audio-tooltip = Wait for audio to finish before automatically revealing answer or next question
@@ -347,6 +350,7 @@ deck-config-compute-optimal-weights = Optimize FSRS parameters
 deck-config-compute-optimal-retention = Compute optimal retention
 deck-config-optimize-button = Optimize
 deck-config-compute-button = Compute
+deck-config-optimize-all-tip = You can optimize all presets at once by using the button at the top.
 deck-config-evaluate-button = Evaluate
 deck-config-desired-retention = Desired retention
 deck-config-sm2-retention = SM2 retention

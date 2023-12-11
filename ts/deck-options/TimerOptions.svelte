@@ -9,16 +9,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type Modal from "bootstrap/js/dist/modal";
 
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
-    import EnumSelectorRow from "../components/EnumSelectorRow.svelte";
     import HelpModal from "../components/HelpModal.svelte";
     import Item from "../components/Item.svelte";
     import SettingTitle from "../components/SettingTitle.svelte";
     import SwitchRow from "../components/SwitchRow.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
-    import { answerChoices } from "./choices";
     import type { DeckOptionsState } from "./lib";
-    import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import Warning from "./Warning.svelte";
 
@@ -45,22 +42,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         stopTimerOnAnswer: {
             title: tr.deckConfigStopTimerOnAnswer(),
             help: tr.deckConfigStopTimerOnAnswerTooltip(),
-        },
-        secondsToShowQuestion: {
-            title: tr.deckConfigSecondsToShowQuestion(),
-            help: tr.deckConfigSecondsToShowQuestionTooltip(),
-        },
-        secondsToShowAnswer: {
-            title: tr.deckConfigSecondsToShowAnswer(),
-            help: tr.deckConfigSecondsToShowAnswerTooltip(),
-        },
-        waitForAudio: {
-            title: tr.deckConfigWaitForAudio(),
-            help: tr.deckConfigWaitForAudioTooltip(),
-        },
-        answerAction: {
-            title: tr.deckConfigAnswerAction(),
-            help: tr.deckConfigAnswerActionTooltip(),
         },
     };
     const helpSections = Object.values(settings) as HelpItem[];
@@ -143,69 +124,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </SettingTitle>
                 </SwitchRow>
             </div>
-        </Item>
-
-        <Item>
-            <SpinBoxFloatRow
-                bind:value={$config.secondsToShowQuestion}
-                defaultValue={defaults.secondsToShowQuestion}
-                step={1}
-            >
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(
-                            Object.keys(settings).indexOf("secondsToShowQuestion"),
-                        )}
-                >
-                    {settings.secondsToShowQuestion.title}
-                </SettingTitle>
-            </SpinBoxFloatRow>
-        </Item>
-
-        <Item>
-            <SpinBoxFloatRow
-                bind:value={$config.secondsToShowAnswer}
-                defaultValue={defaults.secondsToShowAnswer}
-                step={1}
-            >
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(
-                            Object.keys(settings).indexOf("secondsToShowAnswer"),
-                        )}
-                >
-                    {settings.secondsToShowAnswer.title}
-                </SettingTitle>
-            </SpinBoxFloatRow>
-        </Item>
-
-        <Item>
-            <SwitchRow
-                bind:value={$config.waitForAudio}
-                defaultValue={defaults.waitForAudio}
-            >
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(Object.keys(settings).indexOf("waitForAudio"))}
-                >
-                    {settings.waitForAudio.title}
-                </SettingTitle>
-            </SwitchRow>
-        </Item>
-
-        <Item>
-            <EnumSelectorRow
-                bind:value={$config.answerAction}
-                defaultValue={defaults.answerAction}
-                choices={answerChoices()}
-            >
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(Object.keys(settings).indexOf("answerAction"))}
-                >
-                    {settings.answerAction.title}
-                </SettingTitle>
-            </EnumSelectorRow>
         </Item>
     </DynamicallySlottable>
 </TitledContainer>

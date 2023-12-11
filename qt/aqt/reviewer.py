@@ -399,9 +399,9 @@ class Reviewer:
                 self.card.current_deck_id()
             )
             timer = None
-            if conf["secondsToShowAnswer"]:
+            if conf["secondsToShowQuestion"]:
                 timer = self._show_answer_timer = self.mw.progress.timer(
-                    int(conf["secondsToShowAnswer"] * 1000),
+                    int(conf["secondsToShowQuestion"] * 1000),
                     lambda: self._on_show_answer_timeout(timer),
                     repeat=False,
                     parent=self.mw,
@@ -469,9 +469,9 @@ class Reviewer:
                 self.card.current_deck_id()
             )
             timer = None
-            if conf["secondsToShowQuestion"]:
+            if conf["secondsToShowAnswer"]:
                 timer = self._show_question_timer = self.mw.progress.timer(
-                    int(conf["secondsToShowQuestion"] * 1000),
+                    int(conf["secondsToShowAnswer"] * 1000),
                     lambda: self._on_show_question_timeout(timer),
                     repeat=False,
                     parent=self.mw,
@@ -1147,6 +1147,10 @@ timerStopped = false;
 
     def toggle_auto_advance(self) -> None:
         self.auto_advance_enabled = not self.auto_advance_enabled
+        if self.auto_advance_enabled:
+            tooltip(tr.actions_auto_advance_activated())
+        else:
+            tooltip(tr.actions_auto_advance_deactivated())
         self.auto_advance_if_enabled()
 
     def auto_advance_if_enabled(self) -> None:

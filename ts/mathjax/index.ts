@@ -17,6 +17,7 @@ window.MathJax = {
         processRefs: false,
         packages: {
             "[+]": packages,
+            "[-]": ["textmacros"],
         },
     },
     loader: {
