@@ -830,6 +830,8 @@ class AnkiQt(QMainWindow):
             if self.state == "review":
                 self.reviewer.refresh_if_needed()
                 self.reviewer.auto_advance_enabled = self._auto_advance_was_enabled
+                if self.reviewer.auto_advance_enabled:
+                    tooltip(tr.actions_auto_advance_activated())
                 self.reviewer.auto_advance_if_enabled()
             elif self.state == "overview":
                 self.overview.refresh_if_needed()
@@ -838,6 +840,7 @@ class AnkiQt(QMainWindow):
         elif (not new_focus or new_focus.window() != self) and self.state == "review":
             self._auto_advance_was_enabled = self.reviewer.auto_advance_enabled
             self.reviewer.auto_advance_enabled = False
+            tooltip(tr.actions_auto_advance_deactivated())
 
     def fade_out_webview(self) -> None:
         self.web.eval("document.body.style.opacity = 0.3")
