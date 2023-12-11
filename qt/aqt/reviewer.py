@@ -399,9 +399,9 @@ class Reviewer:
                 self.card.current_deck_id()
             )
             timer = None
-            if conf["secondsToShowAnswer"]:
+            if conf["secondsToShowQuestion"]:
                 timer = self._show_answer_timer = self.mw.progress.timer(
-                    int(conf["secondsToShowAnswer"] * 1000),
+                    int(conf["secondsToShowQuestion"] * 1000),
                     lambda: self._on_show_answer_timeout(timer),
                     repeat=False,
                     parent=self.mw,
@@ -469,9 +469,9 @@ class Reviewer:
                 self.card.current_deck_id()
             )
             timer = None
-            if conf["secondsToShowQuestion"]:
+            if conf["secondsToShowAnswer"]:
                 timer = self._show_question_timer = self.mw.progress.timer(
-                    int(conf["secondsToShowQuestion"] * 1000),
+                    int(conf["secondsToShowAnswer"] * 1000),
                     lambda: self._on_show_question_timeout(timer),
                     repeat=False,
                     parent=self.mw,
