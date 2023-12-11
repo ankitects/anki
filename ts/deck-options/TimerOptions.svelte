@@ -48,11 +48,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         },
         secondsToShowQuestion: {
             title: tr.deckConfigSecondsToShowQuestion(),
-            help: tr.deckConfigSecondsToShowQuestionTooltip(),
+            help: tr.deckConfigSecondsToShowQuestionTooltip2(),
         },
         secondsToShowAnswer: {
             title: tr.deckConfigSecondsToShowAnswer(),
-            help: tr.deckConfigSecondsToShowAnswerTooltip(),
+            help: tr.deckConfigSecondsToShowAnswerTooltip2(),
         },
         waitForAudio: {
             title: tr.deckConfigWaitForAudio(),
