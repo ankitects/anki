@@ -310,6 +310,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {#if computingWeights || checkingWeights}<div>
                 {computeWeightsProgressString}
             </div>{/if}
+
+        <div>{tr.deckConfigOptimizeAllTip()}</div>
     </details>
 </div>
 
