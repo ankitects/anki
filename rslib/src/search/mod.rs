@@ -359,7 +359,7 @@ fn card_order_from_sort_column(column: Column, timing: SchedTimingToday) -> Cow<
         Column::Cards => concat!(
             "coalesce((select pos from sort_order where ntid = n.mid and ord = c.ord),",
             // need to fall back on ord 0 for cloze cards
-            "(select pos from sort_order where ntid = n.mid and ord = 0)) asc"
+            "(select pos from sort_order where ntid = n.mid and ord = 0)) asc, ord asc"
         )
         .into(),
         Column::Deck => "(select pos from sort_order where did = c.did) asc".into(),
