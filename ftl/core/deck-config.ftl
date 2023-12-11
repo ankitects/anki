@@ -234,6 +234,9 @@ deck-config-stop-timer-on-answer = Stop timer on answer
 deck-config-stop-timer-on-answer-tooltip =
     Whether to stop the timer when the answer is revealed.
     This doesn't affect statistics.
+
+## Auto Advance section
+
 deck-config-seconds-to-show-question = Seconds to show question for
 deck-config-seconds-to-show-question-tooltip-2 = When auto advance is activated, the number of seconds to wait before revealing the answer. Set to 0 to disable.
 deck-config-seconds-to-show-answer = Seconds to show answer for
