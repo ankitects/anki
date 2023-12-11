@@ -1147,6 +1147,10 @@ timerStopped = false;
 
     def toggle_auto_advance(self) -> None:
         self.auto_advance_enabled = not self.auto_advance_enabled
+        if self.auto_advance_enabled:
+            tooltip(tr.actions_auto_advance_activated())
+        else:
+            tooltip(tr.actions_auto_advance_deactivated())
         self.auto_advance_if_enabled()
 
     def auto_advance_if_enabled(self) -> None:
