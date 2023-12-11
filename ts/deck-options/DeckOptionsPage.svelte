@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Addons from "./Addons.svelte";
     import AdvancedOptions from "./AdvancedOptions.svelte";
     import AudioOptions from "./AudioOptions.svelte";
+    import AutoAdvance from "./AutoAdvance.svelte";
     import BuryOptions from "./BuryOptions.svelte";
     import ConfigSelector from "./ConfigSelector.svelte";
     import DailyLimits from "./DailyLimits.svelte";
@@ -89,11 +90,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <div>
             <Row class="row-columns">
+                <AudioOptions {state} api={audioOptions} />
+            </Row>
+
+            <Row class="row-columns">
                 <TimerOptions {state} api={timerOptions} />
             </Row>
 
             <Row class="row-columns">
-                <AudioOptions {state} api={audioOptions} />
+                <AutoAdvance {state} api={timerOptions} />
             </Row>
 
             {#if $addons.length}
