@@ -162,25 +162,38 @@ fn fsrs_items_for_training(revlogs: Vec<RevlogEntry>, next_day_at: TimestampSecs
 /// expects multiple items for a given card when training - for revlog
 /// `[1,2,3]`, we create FSRSItems corresponding to `[1,2]` and `[1,2,3]`
 /// in training, and `[1]`, [1,2]` and `[1,2,3]` when calculating memory
-/// state. Returns (items, found_learn_entry), the latter of which is used
-/// to determine whether the revlogs have been truncated when not training.
+/// state.
+///
+/// Returns (items, revlog_complete), the latter of which is assumed
+/// when the revlogs have a learning step, or start with manual scheduling. When
+/// revlogs are incomplete, the starting difficulty is later inferred from the
+/// SM2 data, instead of using the standard FSRS initial difficulty.
 pub(crate) fn single_card_revlog_to_items(
     mut entries: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
     training: bool,
 ) -> Option<(Vec<FSRSItem>, bool)> {
     let mut last_learn_entry = None;
-    let mut found_learn_entry = false;
+    let mut revlogs_complete = false;
     for (index, entry) in entries.iter().enumerate().rev() {
         if matches!(
             (entry.review_kind, entry.button_chosen),
             (RevlogReviewKind::Learning, 1..=4)
         ) {
             last_learn_entry = Some(index);
-            found_learn_entry = true;
+            revlogs_complete = true;
         } else if last_learn_entry.is_some() {
             break;
         }
+    }
+    if !revlogs_complete {
+        revlogs_complete = matches!(
+            entries.first(),
+            Some(RevlogEntry {
+                review_kind: RevlogReviewKind::Manual,
+                ..
+            })
+        );
     }
     let first_relearn = entries
         .iter()
@@ -240,7 +253,7 @@ pub(crate) fn single_card_revlog_to_items(
     if items.is_empty() {
         None
     } else {
-        Some((items, found_learn_entry))
+        Some((items, revlogs_complete))
     }
 }
 
