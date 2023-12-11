@@ -149,7 +149,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <SpinBoxFloatRow
                 bind:value={$config.secondsToShowQuestion}
                 defaultValue={defaults.secondsToShowQuestion}
-                step={1}
+                step={0.1}
             >
                 <SettingTitle
                     on:click={() =>
@@ -166,7 +166,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <SpinBoxFloatRow
                 bind:value={$config.secondsToShowAnswer}
                 defaultValue={defaults.secondsToShowAnswer}
-                step={1}
+                step={0.1}
             >
                 <SettingTitle
                     on:click={() =>
