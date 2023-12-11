@@ -298,7 +298,7 @@ def addon_fmt(addmgr: AddonManager, addon: AddonMeta) -> str:
             installed = time.strftime(
                 "%Y-%m-%dT%H:%M", time.localtime(addon.installed_at)
             )
-        except OverflowError:
+        except (OverflowError, OSError):
             print("invalid timestamp for", addon.provided_name)
     if addon.provided_name:
         name = addon.provided_name
