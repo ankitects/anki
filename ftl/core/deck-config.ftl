@@ -350,6 +350,7 @@ deck-config-compute-optimal-weights = Optimize FSRS parameters
 deck-config-compute-optimal-retention = Compute optimal retention
 deck-config-optimize-button = Optimize
 deck-config-compute-button = Compute
+deck-config-optimize-all-tip = You can optimize all presets at once by using the button at the top.
 deck-config-evaluate-button = Evaluate
 deck-config-desired-retention = Desired retention
 deck-config-sm2-retention = SM2 retention
