@@ -298,12 +298,14 @@ class Reviewer:
     def _on_av_player_did_end_playing(self, *args) -> None:
         def task() -> None:
             if av_player.queue_is_empty():
-                if self._show_question_timer and not sip.isdeleted(
+                if (
                     self._show_question_timer
+                    and self._show_question_timer.remainingTime() == 0
                 ):
                     self._on_show_question_timeout()
-                elif self._show_answer_timer and not sip.isdeleted(
+                elif (
                     self._show_answer_timer
+                    and self._show_answer_timer.remainingTime() == 0
                 ):
                     self._on_show_answer_timeout()
 
