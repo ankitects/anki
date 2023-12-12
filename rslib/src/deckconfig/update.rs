@@ -147,7 +147,7 @@ impl Collection {
             let weight_len = conf.inner.fsrs_weights.len();
             if weight_len == 17 {
                 for i in 0..17 {
-                    if !conf.inner.fsrs_weights[i].is_normal() {
+                    if !conf.inner.fsrs_weights[i].is_finite() {
                         return Err(AnkiError::FsrsWeightsInvalid);
                     }
                 }
