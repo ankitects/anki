@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@tslib/ftl";
+    import { renderMarkdown } from "@tslib/helpers";
     import Carousel from "bootstrap/js/dist/carousel";
     import Modal from "bootstrap/js/dist/modal";
     import { createEventDispatcher, getContext, onMount } from "svelte";
@@ -13,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Col from "./Col.svelte";
     import { modalsKey } from "./context-keys";
     import HelpSection from "./HelpSection.svelte";
-    import { infoCircle, manualIcon } from "./icons";
+    import { infoCircle } from "./icons";
     import Row from "./Row.svelte";
     import { type HelpItem, HelpItemScheduler } from "./types";
 
@@ -67,26 +68,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title" id="modalLabel">
-                    {title}
-                </h1>
+                <div style="display: flex;">
+                    <h1 class="modal-title" id="modalLabel">
+                        {title}
+                    </h1>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        class:invert={$pageTheme.isDark}
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    />
+                </div>
                 {#if url}
-                    <a class="manual-badge" href={url}>
-                        <Badge
-                            iconSize={120}
-                            tooltip={tr.helpOpenManualChapter({ name: title })}
-                        >
-                            {@html manualIcon}
-                        </Badge>
-                    </a>
+                    <div class="chapter-redirect">
+                        {@html renderMarkdown(
+                            tr.helpForMoreInfo({
+                                link: `<a href="${url}" title="${tr.helpOpenManualChapter(
+                                    {
+                                        name: title,
+                                    },
+                                )}">${title}</a>`,
+                            }),
+                        )}
+                    </div>
                 {/if}
-                <button
-                    type="button"
-                    class="btn-close"
-                    class:invert={$pageTheme.isDark}
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                />
             </div>
             <div class="modal-body">
                 <Row --cols={4}>
@@ -157,14 +163,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         margin-inline-end: 0.75rem;
     }
 
-    .manual-badge {
-        text-decoration: none;
-        color: var(--fg-subtle);
-        &:hover {
-            color: var(--fg);
-        }
-    }
-
     .modal-content {
         background-color: var(--canvas);
         color: var(--fg);
@@ -197,5 +195,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &.active {
             border-inline-start: 4px solid var(--border-focus);
         }
+    }
+
+    .modal-header {
+        flex-direction: column;
+        align-items: normal;
+        padding-bottom: 0;
+    }
+
+    .chapter-redirect {
+        width: 100%;
+        color: var(--fg-subtle);
+        font-size: small;
     }
 </style>

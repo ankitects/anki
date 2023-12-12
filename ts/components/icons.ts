@@ -5,7 +5,6 @@
 
 export { default as hsplitIcon } from "@mdi/svg/svg/arrow-split-horizontal.svg";
 export { default as vsplitIcon } from "@mdi/svg/svg/arrow-split-vertical.svg";
-export { default as manualIcon } from "@mdi/svg/svg/book-open-variant.svg";
 export { default as chevronDown } from "@mdi/svg/svg/chevron-down.svg";
 export { default as chevronLeft } from "@mdi/svg/svg/chevron-left.svg";
 export { default as chevronRight } from "@mdi/svg/svg/chevron-right.svg";
