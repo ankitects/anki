@@ -420,6 +420,7 @@ class Reviewer:
             or not self.mw.app.focusWidget()
             or self.mw.app.focusWidget().window() != self.mw
         ):
+            self.auto_advance_enabled = False
             return
         self._showAnswer()
 
@@ -490,6 +491,7 @@ class Reviewer:
             or not self.mw.app.focusWidget()
             or self.mw.app.focusWidget().window() != self.mw
         ):
+            self.auto_advance_enabled = False
             return
         try:
             answer_action = list(AnswerAction)[conf["answerAction"]]
