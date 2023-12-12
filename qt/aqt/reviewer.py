@@ -417,7 +417,11 @@ class Reviewer:
             return
         if self._show_answer_timer is not None:
             self._show_answer_timer.deleteLater()
-        if not self.auto_advance_enabled:
+        if (
+            not self.auto_advance_enabled
+            or not self.mw.app.focusWidget()
+            or self.mw.app.focusWidget().window() != self.mw
+        ):
             return
         self._showAnswer()
 
@@ -487,7 +491,11 @@ class Reviewer:
             return
         if self._show_question_timer is not None:
             self._show_question_timer.deleteLater()
-        if not self.auto_advance_enabled:
+        if (
+            not self.auto_advance_enabled
+            or not self.mw.app.focusWidget()
+            or self.mw.app.focusWidget().window() != self.mw
+        ):
             return
         try:
             answer_action = list(AnswerAction)[conf["answerAction"]]

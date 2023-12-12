@@ -189,7 +189,6 @@ class AnkiQt(QMainWindow):
         self.app = app
         self.pm = profileManager
         self.fullscreen = False
-        self._auto_advance_was_enabled: Optional[bool] = False
         # init rest of app
         self.safeMode = (
             bool(self.app.queryKeyboardModifiers() & Qt.KeyboardModifier.ShiftModifier)
@@ -830,21 +829,10 @@ class AnkiQt(QMainWindow):
         if new_focus and new_focus.window() == self:
             if self.state == "review":
                 self.reviewer.refresh_if_needed()
-                if self._auto_advance_was_enabled is not None:
-                    self.reviewer.auto_advance_enabled = self._auto_advance_was_enabled
-                    self.reviewer.auto_advance_if_enabled()
-                self._auto_advance_was_enabled = None
-                if self.reviewer.auto_advance_enabled:
-                    tooltip(tr.actions_auto_advance_activated())
-                self.reviewer.auto_advance_if_enabled()
             elif self.state == "overview":
                 self.overview.refresh_if_needed()
             elif self.state == "deckBrowser":
                 self.deckBrowser.refresh_if_needed()
-        elif (not new_focus or new_focus.window() != self) and self.state == "review":
-            self._auto_advance_was_enabled = self.reviewer.auto_advance_enabled
-            self.reviewer.auto_advance_enabled = False
-            tooltip(tr.actions_auto_advance_deactivated())
 
     def fade_out_webview(self) -> None:
         self.web.eval("document.body.style.opacity = 0.3")
@@ -1040,7 +1028,6 @@ title="{}" {}>{}</button>""".format(
         from aqt.reviewer import Reviewer
 
         self.reviewer = Reviewer(self)
-        self._auto_advance_was_enabled = self.reviewer.auto_advance_enabled
 
     # Syncing
     ##########################################################################
