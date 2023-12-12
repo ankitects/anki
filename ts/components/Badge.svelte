@@ -44,6 +44,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border: none;
         background: transparent;
         padding: 0;
+        /* remove default macOS styling */
+        box-shadow: none;
     }
 
     .badge:hover,

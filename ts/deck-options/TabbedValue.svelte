@@ -68,6 +68,8 @@
         color: var(--fg-subtle);
         border: none;
         background-color: transparent;
+        /* remove default macOS styling */
+        box-shadow: none;
     }
 
     li.active > button {
