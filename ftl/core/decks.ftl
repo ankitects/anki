@@ -36,3 +36,4 @@ decks-unmovable-cards = Show any excluded cards
 decks-learn-header = Learn
 # The count of cards waiting to be reviewed
 decks-review-header = Due
+decks-zero-minutes-hint = (0 = return card to original deck)
