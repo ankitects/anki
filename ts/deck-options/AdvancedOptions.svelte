@@ -17,6 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { type HelpItem, HelpItemScheduler } from "../components/types";
     import CardStateCustomizer from "./CardStateCustomizer.svelte";
     import FsrsOptions from "./FsrsOptions.svelte";
+    import GlobalLabel from "./GlobalLabel.svelte";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
@@ -32,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const settings = {
         fsrs: {
-            title: tr.deckConfigAllDecks({ option: "FSRS" }),
+            title: "FSRS",
             help: tr.deckConfigFsrsTooltip(),
             url: HelpPage.DeckOptions.fsrs,
         },
@@ -102,7 +103,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             sched: HelpItemScheduler.SM2,
         },
         customScheduling: {
-            title: tr.deckConfigAllDecks({ option: tr.deckConfigCustomScheduling() }),
+            title: tr.deckConfigCustomScheduling(),
             help: tr.deckConfigCustomSchedulingTooltip(),
             url: "https://faqs.ankiweb.net/the-2021-scheduler.html#add-ons-and-custom-scheduling",
         },
@@ -139,7 +140,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("fsrs"))}
                 >
-                    {settings.fsrs.title}
+                    <GlobalLabel title={settings.fsrs.title} />
                 </SettingTitle>
             </SwitchRow>
         </Item>

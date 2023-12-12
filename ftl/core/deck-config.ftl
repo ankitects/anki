@@ -1,9 +1,5 @@
 ### Text shown on the "Deck Options" screen
 
-# Text added to an option name when it affects all decks at once, e.g.
-# "FSRS 🌐"
-deck-config-all-decks = { $option } 🌐
-
 ## Top section
 
 # Used in the deck configuration screen to show how many decks are used
