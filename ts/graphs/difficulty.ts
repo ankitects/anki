@@ -101,7 +101,7 @@ export function prepareData(
     const tableData = [
         {
             label: tr.statisticsAverageDifficulty(),
-            value: xTickFormat(sum(Array.from(allEases.entries()).map(([k, v]) => k * v)) / total),
+            value: xTickFormat(sum(Array.from(allEases.entries()).map(([k, v]) => (k + 2.5) * v)) / total),
         },
     ];
 
