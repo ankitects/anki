@@ -11,7 +11,7 @@ import signal
 import weakref
 from argparse import Namespace
 from concurrent.futures import Future
-from typing import Any, Literal, Optional, Sequence, TypeVar, cast
+from typing import Any, Literal, Sequence, TypeVar, cast
 
 import anki
 import anki.cards
