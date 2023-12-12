@@ -19,6 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SwitchRow from "components/SwitchRow.svelte";
 
     import SettingTitle from "../components/SettingTitle.svelte";
+    import GlobalLabel from "./GlobalLabel.svelte";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
@@ -268,7 +269,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="m-2">
     <SwitchRow bind:value={$fsrsReschedule} defaultValue={false}>
         <SettingTitle on:click={() => openHelpModal("rescheduleCardsOnChange")}>
-            {tr.deckConfigAllDecks({ option: tr.deckConfigRescheduleCardsOnChange() })}
+            <GlobalLabel title={tr.deckConfigRescheduleCardsOnChange()} />
         </SettingTitle>
     </SwitchRow>
 

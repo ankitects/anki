@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import ConfigInput from "../components/ConfigInput.svelte";
     import RevertButton from "../components/RevertButton.svelte";
+    import GlobalLabel from "./GlobalLabel.svelte";
 
     export let value: string;
     export let title: string;
@@ -14,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ConfigInput>
         <RevertButton slot="revert" bind:value defaultValue="" />
         <details>
-            <summary>{title}</summary>
+            <summary><GlobalLabel {title} /></summary>
             <div class="text">
                 <textarea
                     class="card-state-customizer form-control"

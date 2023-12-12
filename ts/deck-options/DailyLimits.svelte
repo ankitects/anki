@@ -15,6 +15,7 @@
     import SwitchRow from "../components/SwitchRow.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
     import type { HelpItem } from "../components/types";
+    import GlobalLabel from "./GlobalLabel.svelte";
     import type { DeckOptionsState } from "./lib";
     import { ValueTab } from "./lib";
     import SpinBoxRow from "./SpinBoxRow.svelte";
@@ -130,16 +131,13 @@
             url: HelpPage.DeckOptions.maximumReviewsday,
         },
         newCardsIgnoreReviewLimit: {
-            title: tr.deckConfigAllDecks({
-                option: tr.deckConfigNewCardsIgnoreReviewLimit(),
-            }),
+            title: tr.deckConfigNewCardsIgnoreReviewLimit(),
+
             help: newCardsIgnoreReviewLimitHelp,
             url: HelpPage.DeckOptions.newCardsday,
         },
         applyAllParentLimits: {
-            title: tr.deckConfigAllDecks({
-                option: tr.deckConfigApplyAllParentLimits(),
-            }),
+            title: tr.deckConfigApplyAllParentLimits(),
             help: applyAllParentLimitsHelp,
             url: HelpPage.DeckOptions.newCardsday,
         },
@@ -203,7 +201,7 @@
                             Object.keys(settings).indexOf("newCardsIgnoreReviewLimit"),
                         )}
                 >
-                    {settings.newCardsIgnoreReviewLimit.title}
+                    <GlobalLabel title={settings.newCardsIgnoreReviewLimit.title} />
                 </SettingTitle>
             </SwitchRow>
         </Item>
@@ -216,7 +214,7 @@
                             Object.keys(settings).indexOf("applyAllParentLimits"),
                         )}
                 >
-                    {settings.applyAllParentLimits.title}
+                    <GlobalLabel title={settings.applyAllParentLimits.title} />
                 </SettingTitle>
             </SwitchRow>
         </Item>
