@@ -298,12 +298,14 @@ class Reviewer:
     def _on_av_player_did_end_playing(self, *args) -> None:
         def task() -> None:
             if av_player.queue_is_empty():
-                if self._show_question_timer and not sip.isdeleted(
+                if (
                     self._show_question_timer
+                    and self._show_question_timer.remainingTime() <= 0
                 ):
                     self._on_show_question_timeout()
-                elif self._show_answer_timer and not sip.isdeleted(
+                elif (
                     self._show_answer_timer
+                    and self._show_answer_timer.remainingTime() <= 0
                 ):
                     self._on_show_answer_timeout()
 
@@ -394,30 +396,31 @@ class Reviewer:
         self._auto_advance_to_answer_if_enabled()
 
     def _auto_advance_to_answer_if_enabled(self) -> None:
+        self._clear_auto_advance_timers()
         if self.auto_advance_enabled:
             conf = self.mw.col.decks.config_dict_for_deck_id(
                 self.card.current_deck_id()
             )
-            timer = None
             if conf["secondsToShowQuestion"]:
-                timer = self._show_answer_timer = self.mw.progress.timer(
+                self._show_answer_timer = self.mw.progress.timer(
                     int(conf["secondsToShowQuestion"] * 1000),
-                    lambda: self._on_show_answer_timeout(timer),
+                    self._on_show_answer_timeout,
                     repeat=False,
                     parent=self.mw,
                 )
 
-    def _on_show_answer_timeout(self, timer: QTimer | None = None) -> None:
+    def _on_show_answer_timeout(self) -> None:
         if self.card is None:
             return
         conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
-        if (conf["waitForAudio"] and av_player.current_player) or (
-            timer and self._show_answer_timer != timer
-        ):
+        if conf["waitForAudio"] and av_player.current_player:
             return
-        if self._show_answer_timer is not None:
-            self._show_answer_timer.deleteLater()
-        if not self.auto_advance_enabled:
+        if (
+            not self.auto_advance_enabled
+            or not self.mw.app.focusWidget()
+            or self.mw.app.focusWidget().window() != self.mw
+        ):
+            self.auto_advance_enabled = False
             return
         self._showAnswer()
 
@@ -464,30 +467,31 @@ class Reviewer:
         self._auto_advance_to_question_if_enabled()
 
     def _auto_advance_to_question_if_enabled(self) -> None:
+        self._clear_auto_advance_timers()
         if self.auto_advance_enabled:
             conf = self.mw.col.decks.config_dict_for_deck_id(
                 self.card.current_deck_id()
             )
-            timer = None
             if conf["secondsToShowAnswer"]:
-                timer = self._show_question_timer = self.mw.progress.timer(
+                self._show_question_timer = self.mw.progress.timer(
                     int(conf["secondsToShowAnswer"] * 1000),
-                    lambda: self._on_show_question_timeout(timer),
+                    self._on_show_question_timeout,
                     repeat=False,
                     parent=self.mw,
                 )
 
-    def _on_show_question_timeout(self, timer: QTimer | None = None) -> None:
+    def _on_show_question_timeout(self) -> None:
         if self.card is None:
             return
         conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
-        if (conf["waitForAudio"] and av_player.current_player) or (
-            timer and self._show_question_timer != timer
-        ):
+        if conf["waitForAudio"] and av_player.current_player:
             return
-        if self._show_question_timer is not None:
-            self._show_question_timer.deleteLater()
-        if not self.auto_advance_enabled:
+        if (
+            not self.auto_advance_enabled
+            or not self.mw.app.focusWidget()
+            or self.mw.app.focusWidget().window() != self.mw
+        ):
+            self.auto_advance_enabled = False
             return
         try:
             answer_action = list(AnswerAction)[conf["answerAction"]]
@@ -1144,6 +1148,14 @@ timerStopped = false;
             tooltip(tr.studying_you_havent_recorded_your_voice_yet())
             return
         av_player.play_file(self._recordedAudio)
+
+    def _clear_auto_advance_timers(self) -> None:
+        if self._show_answer_timer:
+            self._show_answer_timer.deleteLater()
+            self._show_answer_timer = None
+        if self._show_question_timer:
+            self._show_question_timer.deleteLater()
+            self._show_question_timer = None
 
     def toggle_auto_advance(self) -> None:
         self.auto_advance_enabled = not self.auto_advance_enabled
