@@ -300,12 +300,12 @@ class Reviewer:
             if av_player.queue_is_empty():
                 if (
                     self._show_question_timer
-                    and self._show_question_timer.remainingTime() == 0
+                    and self._show_question_timer.remainingTime() <= 0
                 ):
                     self._on_show_question_timeout()
                 elif (
                     self._show_answer_timer
-                    and self._show_answer_timer.remainingTime() == 0
+                    and self._show_answer_timer.remainingTime() <= 0
                 ):
                     self._on_show_answer_timeout()
 
