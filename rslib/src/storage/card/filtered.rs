@@ -4,14 +4,15 @@
 use crate::card::CardQueue;
 use crate::decks::FilteredSearchOrder;
 use crate::decks::FilteredSearchTerm;
+use crate::scheduler::timing::SchedTimingToday;
 
 pub(crate) fn order_and_limit_for_search(
     term: &FilteredSearchTerm,
-    today: u32,
-    current_timestamp: i64,
+    timing: SchedTimingToday,
     fsrs: bool,
 ) -> String {
     let temp_string;
+    let today = timing.days_elapsed;
     let order = match term.order() {
         FilteredSearchOrder::OldestReviewedFirst => "(select max(id) from revlog where cid=c.id)",
         FilteredSearchOrder::Random => "random()",
@@ -21,13 +22,17 @@ pub(crate) fn order_and_limit_for_search(
         FilteredSearchOrder::Added => "n.id, c.ord",
         FilteredSearchOrder::ReverseAdded => "n.id desc",
         FilteredSearchOrder::Due => {
+            let current_timestamp = timing.now.0;
             temp_string = format!(
                 "(case when c.due > 1000000000 then due else (due - {today}) * 86400 + {current_timestamp} end), c.ord");
             &temp_string
         }
         FilteredSearchOrder::DuePriority => {
+            let next_day_at = timing.next_day_at.0;
             temp_string = if fsrs {
-                format!("extract_fsrs_relative_overdueness(c.data, due, {today}, ivl) desc")
+                format!(
+                    "extract_fsrs_relative_overdueness(c.data, due, {today}, ivl, {next_day_at}) desc"
+                )
             } else {
                 format!(
                     "

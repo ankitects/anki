@@ -10,6 +10,7 @@ use crate::decks::FilteredDeck;
 use crate::decks::FilteredSearchTerm;
 use crate::error::FilteredDeckError;
 use crate::prelude::*;
+use crate::scheduler::timing::SchedTimingToday;
 use crate::search::writer::deck_search;
 use crate::search::writer::normalize_search;
 use crate::search::SortMode;
@@ -28,7 +29,7 @@ pub(crate) struct DeckFilterContext<'a> {
     pub target_deck: DeckId,
     pub config: &'a FilteredDeck,
     pub usn: Usn,
-    pub today: u32,
+    pub timing: SchedTimingToday,
 }
 
 impl Collection {
@@ -123,7 +124,7 @@ impl Collection {
                 format!("({})", term.search)
             }
         );
-        let order = order_and_limit_for_search(term, ctx.today, TimestampSecs::now().0, fsrs);
+        let order = order_and_limit_for_search(term, ctx.timing, fsrs);
 
         for mut card in self.all_cards_for_search_in_order(&search, SortMode::Custom(order))? {
             let original = card.clone();
@@ -186,11 +187,12 @@ impl Collection {
         }
 
         let config = deck.filtered()?;
+        let timing = self.timing_today()?;
         let ctx = DeckFilterContext {
             target_deck: deck.id,
             config,
             usn,
-            today: self.timing_today()?.days_elapsed,
+            timing,
         };
 
         self.return_all_cards_in_filtered_deck(deck.id)?;
