@@ -35,6 +35,7 @@ use crate::scheduler::queue::BuryMode;
 use crate::scheduler::queue::DueCard;
 use crate::scheduler::queue::DueCardKind;
 use crate::scheduler::queue::NewCard;
+use crate::scheduler::timing::SchedTimingToday;
 use crate::timestamp::TimestampMillis;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
@@ -250,7 +251,7 @@ impl super::SqliteStorage {
     /// when it returns false or no more cards found.
     pub(crate) fn for_each_due_card_in_active_decks<F>(
         &self,
-        day_cutoff: u32,
+        timing: SchedTimingToday,
         order: ReviewCardOrder,
         kind: DueCardKind,
         fsrs: bool,
@@ -259,7 +260,7 @@ impl super::SqliteStorage {
     where
         F: FnMut(DueCard) -> Result<bool>,
     {
-        let order_clause = review_order_sql(order, day_cutoff, fsrs);
+        let order_clause = review_order_sql(order, timing, fsrs);
         let mut stmt = self.db.prepare_cached(&format!(
             "{} order by {}",
             include_str!("due_cards.sql"),
@@ -269,7 +270,7 @@ impl super::SqliteStorage {
             DueCardKind::Review => CardQueue::Review,
             DueCardKind::Learning => CardQueue::DayLearn,
         };
-        let mut rows = stmt.query(params![queue as i8, day_cutoff])?;
+        let mut rows = stmt.query(params![queue as i8, timing.days_elapsed])?;
         while let Some(row) = rows.next()? {
             if !func(DueCard {
                 id: row.get(0)?,
@@ -708,7 +709,7 @@ enum ReviewOrderSubclause {
         today: u32,
     },
     RelativeOverduenessFsrs {
-        today: u32,
+        timing: SchedTimingToday,
     },
 }
 
@@ -729,9 +730,11 @@ impl fmt::Display for ReviewOrderSubclause {
                 temp_string = format!("ivl / cast({today}-due+0.001 as real)", today = today);
                 &temp_string
             }
-            ReviewOrderSubclause::RelativeOverduenessFsrs { today } => {
+            ReviewOrderSubclause::RelativeOverduenessFsrs { timing } => {
+                let today = timing.days_elapsed;
+                let next_day_at = timing.next_day_at.0;
                 temp_string =
-                    format!("extract_fsrs_relative_overdueness(data, due, {today}, ivl) desc");
+                    format!("extract_fsrs_relative_overdueness(data, due, {today}, ivl, {next_day_at}) desc");
                 &temp_string
             }
         };
@@ -739,7 +742,7 @@ impl fmt::Display for ReviewOrderSubclause {
     }
 }
 
-fn review_order_sql(order: ReviewCardOrder, today: u32, fsrs: bool) -> String {
+fn review_order_sql(order: ReviewCardOrder, timing: SchedTimingToday, fsrs: bool) -> String {
     let mut subclauses = match order {
         ReviewCardOrder::Day => vec![ReviewOrderSubclause::Day],
         ReviewCardOrder::DayThenDeck => vec![ReviewOrderSubclause::Day, ReviewOrderSubclause::Deck],
@@ -760,9 +763,11 @@ fn review_order_sql(order: ReviewCardOrder, today: u32, fsrs: bool) -> String {
         }],
         ReviewCardOrder::RelativeOverdueness => {
             vec![if fsrs {
-                ReviewOrderSubclause::RelativeOverduenessFsrs { today }
+                ReviewOrderSubclause::RelativeOverduenessFsrs { timing }
             } else {
-                ReviewOrderSubclause::RelativeOverdueness { today }
+                ReviewOrderSubclause::RelativeOverdueness {
+                    today: timing.days_elapsed,
+                }
             }]
         }
         ReviewCardOrder::Random => vec![],

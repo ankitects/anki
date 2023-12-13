@@ -127,7 +127,7 @@ impl Card {
     /// date' or an add-on has changed the due date, this won't be accurate.
     pub(crate) fn days_since_last_review(&self, timing: &SchedTimingToday) -> Option<u32> {
         if !self.is_due_in_days() {
-            Some(0)
+            Some((timing.next_day_at.0 as u32).saturating_sub(self.due.max(0) as u32) / 86_400)
         } else {
             self.due_time(timing).map(|due| {
                 due.adding_secs(-86_400 * self.interval as i64)

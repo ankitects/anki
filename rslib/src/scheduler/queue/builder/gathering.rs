@@ -37,7 +37,7 @@ impl QueueBuilder {
             return Ok(());
         }
         col.storage.for_each_due_card_in_active_decks(
-            self.context.timing.days_elapsed,
+            self.context.timing,
             self.context.sort_options.review_order,
             kind,
             self.context.fsrs,
