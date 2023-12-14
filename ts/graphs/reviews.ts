@@ -327,6 +327,7 @@ export function renderReviews(
 
     const periodDays = -xMin + 1;
     const studiedDays = sum(bins, (bin) => bin.length);
+    const studiedPercent = (studiedDays / periodDays) * 100;
     const total = yCumMax;
     const periodAvg = total / periodDays;
     const studiedAvg = total / studiedDays;
@@ -377,7 +378,7 @@ export function renderReviews(
             value: tr.statisticsAmountOfTotalWithPercentage({
                 amount: studiedDays,
                 total: periodDays,
-                percent: Math.round((studiedDays / periodDays) * 100),
+                percent: if (studiedPercent < 99.5) { Math.round(studiedPercent) } else if (studiedPercent < 99.95) { Math.round(studiedPercent * 10) / 10 } else if (studiedPercent < 100) { Math.round(studiedPercent * 100) / 100 } else {100},
             }),
         },
 
