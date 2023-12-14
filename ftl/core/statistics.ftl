@@ -99,7 +99,7 @@ statistics-card-stability-subtitle = The delay at which you're 90% likely to rem
 statistics-average-stability = Average stability
 statistics-card-retrievability-title = Card Retrievability
 statistics-card-ease-subtitle = The lower the ease, the more frequently a card will appear.
-statistics-card-difficulty-subtitle = The higher the difficulty, the harder it is to remember.
+statistics-card-difficulty-subtitle2 = The higher the difficulty, the slower stability will increase.
 statistics-retrievability-subtitle = The probability of recalling a card today.
 # eg "3 cards with 150-170% ease"
 statistics-card-ease-tooltip =

@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const title = tr.statisticsCardDifficultyTitle();
-    const subtitle = tr.statisticsCardDifficultySubtitle();
+    const subtitle = tr.statisticsCardDifficultySubtitle2();
 </script>
 
 {#if sourceData?.fsrs}
