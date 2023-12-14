@@ -181,7 +181,7 @@ class DeckBrowser:
         data = self._render_data
         content = DeckBrowserContent(
             tree=self._renderDeckTree(data.tree),
-            stats=self._renderStats(data.studied_today),
+            stats=self._renderStats(),
         )
         gui_hooks.deck_browser_will_render_content(self, content)
         self.web.stdHtml(
@@ -203,8 +203,10 @@ class DeckBrowser:
     def _scrollToOffset(self, offset: int) -> None:
         self.web.eval("window.scrollTo(0, %d, 'instant');" % offset)
 
-    def _renderStats(self, today: str) -> str:
-        return '<div id="studiedToday"><span>{}</span></div>'.format(today)
+    def _renderStats(self) -> str:
+        return '<div id="studiedToday"><span>{}</span></div>'.format(
+            self._render_data.studied_today
+        )
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
         buf = """
