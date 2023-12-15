@@ -774,7 +774,9 @@ html {{ {font} }}
 
         gui_hooks.theme_did_change.remove(self.on_theme_did_change)
         gui_hooks.body_classes_need_update.remove(self.on_body_classes_need_update)
-        mw.mediaServer.clear_page_html(id(self))
+        # defer page cleanup so that in-flight requests have a chance to complete first
+        # https://forums.ankiweb.net/t/error-when-exiting-browsing-when-the-software-is-installed-in-the-path-c-program-files-anki/38363
+        mw.progress.single_shot(5000, lambda: mw.mediaServer.clear_page_html(id(self)))
         self._page.deleteLater()
 
     def on_theme_did_change(self) -> None:
