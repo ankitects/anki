@@ -4771,7 +4771,7 @@
   },
   {
     "name": "zerocopy",
-    "version": "0.7.29",
+    "version": "0.7.31",
     "authors": "Joshua Liebow-Feeser <joshlf@google.com>",
     "repository": "https://github.com/google/zerocopy",
     "license": "Apache-2.0 OR BSD-2-Clause OR MIT",
@@ -4780,7 +4780,7 @@
   },
   {
     "name": "zerocopy-derive",
-    "version": "0.7.29",
+    "version": "0.7.31",
     "authors": "Joshua Liebow-Feeser <joshlf@google.com>",
     "repository": "https://github.com/google/zerocopy",
     "license": "Apache-2.0 OR BSD-2-Clause OR MIT",
