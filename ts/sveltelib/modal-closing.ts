@@ -10,9 +10,9 @@ interface ModalClosingHandler {
 
 /**
  * Register a keydown handler on the document that can optionally stop propagation to other handlers if Escape is pressed and the associated flag is set.
- * Intended to disable the general handler in webview.py when a modal is open.
+ * Intended to override the general handler in webview.py when a modal is open.
  */
-function registerModalClosingHandler(): ModalClosingHandler {
+function registerModalClosingHandler(callback?: () => void): ModalClosingHandler {
     let modalIsOpen = false;
 
     function set(value: boolean) {
@@ -22,6 +22,9 @@ function registerModalClosingHandler(): ModalClosingHandler {
     const remove = on(document, "keydown", (event) => {
         if (event.key === "Escape" && modalIsOpen) {
             event.stopImmediatePropagation();
+            if (callback) {
+                callback();
+            }
         }
     }, { capture: true });
 

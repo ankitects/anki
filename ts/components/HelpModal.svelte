@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { renderMarkdown } from "@tslib/helpers";
     import Carousel from "bootstrap/js/dist/carousel";
     import Modal from "bootstrap/js/dist/modal";
-    import { createEventDispatcher, getContext, onMount } from "svelte";
+    import { createEventDispatcher, getContext, onDestroy, onMount } from "svelte";
 
     import { pageTheme } from "../sveltelib/theme";
     import Badge from "./Badge.svelte";
@@ -17,6 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { infoCircle } from "./icons";
     import Row from "./Row.svelte";
     import { type HelpItem, HelpItemScheduler } from "./types";
+    import { registerModalClosingHandler } from "../sveltelib/modal-closing";
 
     export let title: string;
     export let url: string;
@@ -40,8 +41,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
+    const { set: setModalOpen, remove: removeModalClosingHandler } =
+        registerModalClosingHandler(onOkClicked);
+
+    function onShown() {
+        setModalOpen(true);
+    }
+
+    function onHidden() {
+        setModalOpen(false);
+    }
+
     onMount(() => {
-        modal = new Modal(modalRef);
+        modalRef.addEventListener("shown.bs.modal", onShown);
+        modalRef.addEventListener("hidden.bs.modal", onHidden);
+        modal = new Modal(modalRef, { keyboard: false });
         carousel = new Carousel(carouselRef, { interval: false, ride: false });
         /* Bootstrap's Carousel.Event interface doesn't seem to work as a type here */
         carouselRef.addEventListener("slide.bs.carousel", (e: any) => {
@@ -49,6 +63,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
         dispatch("mount", { modal: modal, carousel: carousel });
         modals.set(modalKey, modal);
+    });
+
+    onDestroy(() => {
+        removeModalClosingHandler();
+        modalRef.removeEventListener("shown.bs.modal", onShown);
+        modalRef.removeEventListener("hidden.bs.modal", onHidden);
     });
 
     let activeIndex = startIndex;
