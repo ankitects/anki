@@ -156,18 +156,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ),
         ];
 
-        if (!keepOnKeyup) {
-            const closingKeyup = isClosingKeyup(documentKeyup, {
-                reference,
-                floating,
-            });
+        const closingKeyup = isClosingKeyup(documentKeyup, {
+            reference,
+            floating,
+        });
 
-            subscribers.push(
-                subscribeToUpdates(closingKeyup, (event: EventPredicateResult) =>
-                    dispatch("close", event),
-                ),
-            );
-        }
+        subscribers.push(
+            subscribeToUpdates(closingKeyup, (event: EventPredicateResult) => {
+                if (
+                    !keepOnKeyup ||
+                    (event.originalEvent as KeyboardEvent).key === "Escape"
+                ) {
+                    dispatch("close", event);
+                }
+            }),
+        );
 
         cleanup = singleCallback(
             ...subscribers,
