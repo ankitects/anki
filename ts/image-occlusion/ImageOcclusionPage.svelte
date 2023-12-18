@@ -70,6 +70,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         padding: 0px 6px 0px 6px;
         height: 38px;
+        max-width: 60px;
+        font-size: small;
+        white-space: normal;
+        word-break: break-all;
+        hyphens: auto;
     }
 
     :global(.image-occlusion) {
