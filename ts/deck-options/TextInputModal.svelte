@@ -12,8 +12,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let title: string;
     export let prompt: string;
-    export let value = "";
+    export let initialValue = "";
     export let onOk: (text: string) => void;
+    $: value = initialValue;
 
     export const modalKey: string = Math.random().toString(36).substring(2);
 
@@ -27,12 +28,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function onOkClicked(): void {
         onOk(inputRef.value);
         modal.hide();
-        value = "";
+        value = initialValue;
     }
 
     function onCancelClicked(): void {
         modal.hide();
-        value = "";
+        value = initialValue;
     }
 
     function onShown(): void {
