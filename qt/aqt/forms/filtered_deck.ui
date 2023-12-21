@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>526</width>
-    <height>567</height>
+    <height>587</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -209,10 +209,18 @@
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QSpinBox" name="preview_again"/>
+          <widget class="QSpinBox" name="preview_again">
+           <property name="maximum">
+            <number>99999</number>
+           </property>
+          </widget>
          </item>
          <item row="2" column="2">
-          <widget class="QSpinBox" name="preview_hard"/>
+          <widget class="QSpinBox" name="preview_hard">
+           <property name="maximum">
+            <number>99999</number>
+           </property>
+          </widget>
          </item>
          <item row="0" column="0" colspan="2">
           <widget class="QLabel" name="again_delay_label">
@@ -222,19 +230,23 @@
           </widget>
          </item>
          <item row="3" column="2">
-          <widget class="QSpinBox" name="preview_good"/>
+          <widget class="QSpinBox" name="preview_good">
+           <property name="maximum">
+            <number>99999</number>
+           </property>
+          </widget>
          </item>
          <item row="0" column="3">
           <widget class="QLabel" name="label_13">
            <property name="text">
-            <string>decks_minutes</string>
+            <string>scheduling_seconds</string>
            </property>
           </widget>
          </item>
          <item row="3" column="3" colspan="2">
           <widget class="QLabel" name="label_9">
            <property name="text">
-            <string>decks_minutes</string>
+            <string>scheduling_seconds</string>
            </property>
           </widget>
          </item>
@@ -248,11 +260,11 @@
          <item row="2" column="3">
           <widget class="QLabel" name="label_8">
            <property name="text">
-            <string>decks_minutes</string>
+            <string>scheduling_seconds</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0" colspan = "2">
+         <item row="4" column="0" colspan="2">
           <widget class="QLabel" name="label_12">
            <property name="text">
             <string>decks_zero_minutes_hint</string>

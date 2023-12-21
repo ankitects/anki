@@ -109,12 +109,14 @@ message Deck {
     repeated SearchTerm search_terms = 2;
     // v1 scheduler only
     repeated float delays = 3;
-    // v2 scheduler only
-    uint32 preview_again_mins = 4;
+    // v2 and old v3 scheduler only
+    uint32 preview_delay = 4;
     // recent v3 scheduler only; 0 means card will be returned
-    uint32 preview_hard_mins = 5;
+    uint32 preview_again_secs = 7;
     // recent v3 scheduler only; 0 means card will be returned
-    uint32 preview_good_mins = 6;
+    uint32 preview_hard_secs = 5;
+    // recent v3 scheduler only; 0 means card will be returned
+    uint32 preview_good_secs = 6;
   }
   // a container to store the deck specifics in the DB
   // as a tagged enum

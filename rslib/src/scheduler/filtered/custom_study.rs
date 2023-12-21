@@ -208,9 +208,10 @@ fn custom_study_config(
             order: order as i32,
         }],
         delays: vec![],
-        preview_again_mins: 1,
-        preview_hard_mins: 10,
-        preview_good_mins: 0,
+        preview_delay: 10,
+        preview_again_secs: 60,
+        preview_hard_secs: 600,
+        preview_good_secs: 0,
     }
 }
 
