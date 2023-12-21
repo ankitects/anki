@@ -93,9 +93,9 @@ impl CardStateUpdater {
             in_filtered_deck: self.deck.is_filtered(),
             preview_delays: if let DeckKind::Filtered(deck) = &self.deck.kind {
                 PreviewDelays {
-                    again: deck.preview_again_mins,
-                    hard: deck.preview_hard_mins,
-                    good: deck.preview_good_mins,
+                    again: deck.preview_again_secs,
+                    hard: deck.preview_hard_secs,
+                    good: deck.preview_good_secs,
                 }
             } else {
                 Default::default()
