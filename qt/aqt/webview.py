@@ -295,7 +295,7 @@ class AnkiWebView(QWebEngineView):
         self.eval(
             """
         document.addEventListener("keydown", function(evt) {
-            if (evt.keyCode === 27) {
+            if (evt.key === "Escape") {
                 pycmd("close");
             }
         });
