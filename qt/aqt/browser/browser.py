@@ -687,7 +687,7 @@ class Browser(QMainWindow):
     ######################################################################
 
     def showCardInfo(self) -> None:
-        self._card_info.toggle()
+        self._card_info.show()
 
     def _update_card_info(self) -> None:
         self._card_info.set_card(self.current_card)
