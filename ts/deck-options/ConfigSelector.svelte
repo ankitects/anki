@@ -86,7 +86,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TextInputModal
     title={modalTitle}
     prompt={tr.deckConfigNamePrompt()}
-    value={modalStartingValue}
+    initialValue={modalStartingValue}
     onOk={modalSuccess}
     bind:modalKey
 />
