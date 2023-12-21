@@ -95,9 +95,10 @@ class CardInfoManager:
         self._card: Card | None = None
         self._dialog: CardInfoDialog | None = None
 
-    def toggle(self) -> None:
+    def show(self) -> None:
         if self._dialog:
-            self._dialog.reject()
+            self._dialog.activateWindow()
+            self._dialog.raise_()
         else:
             self._dialog = CardInfoDialog(
                 None,
@@ -115,7 +116,7 @@ class CardInfoManager:
 
     def close(self) -> None:
         if self._dialog:
-            self.toggle()
+            self._dialog.reject()
 
     def _on_close(self) -> None:
         self._dialog = None

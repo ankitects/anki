@@ -1032,10 +1032,10 @@ timerStopped = false;
         confirm_deck_then_display_options(self.card)
 
     def on_previous_card_info(self) -> None:
-        self._previous_card_info.toggle()
+        self._previous_card_info.show()
 
     def on_card_info(self) -> None:
-        self._card_info.toggle()
+        self._card_info.show()
 
     def set_flag_on_current_card(self, desired_flag: int) -> None:
         # need to toggle off?
