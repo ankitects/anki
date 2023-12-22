@@ -1403,8 +1403,9 @@ class EditorWebView(AnkiWebView):
         # when we detect the user copying from a field, we store the content
         # here, and use it when they paste, so we avoid filtering field content
         self._internal_field_text_for_paste: str | None = None
+        self._last_known_clipboard_mime: QMimeData | None = None
         clip = self.editor.mw.app.clipboard()
-        qconnect(clip.dataChanged, self._on_clipboard_change)
+        clip.dataChanged.connect(self._on_clipboard_change)
         gui_hooks.editor_web_view_did_init(self)
 
     def user_cut_or_copied(self) -> None:
@@ -1412,6 +1413,7 @@ class EditorWebView(AnkiWebView):
         self._internal_field_text_for_paste = None
 
     def _on_clipboard_change(self) -> None:
+        self._last_known_clipboard_mime = self.editor.mw.app.clipboard().mimeData()
         if self._store_field_content_on_next_clipboard_change:
             # if the flag was set, save the field data
             self._internal_field_text_for_paste = self._get_clipboard_html_for_field()
@@ -1444,6 +1446,9 @@ class EditorWebView(AnkiWebView):
         return not strip_html
 
     def _onPaste(self, mode: QClipboard.Mode) -> None:
+        # Since _on_clipboard_change doesn't always trigger properly on macOS, we do a double check if any changes were made before pasting
+        if self._last_known_clipboard_mime != self.editor.mw.app.clipboard().mimeData():
+            self._on_clipboard_change()
         extended = self._wantsExtendedPaste()
         if html := self._internal_field_text_for_paste:
             print("reuse internal")
