@@ -1446,6 +1446,7 @@ class EditorWebView(AnkiWebView):
         return not strip_html
 
     def _onPaste(self, mode: QClipboard.Mode) -> None:
+        # Since _on_clipboard_change doesn't always trigger properly on macOS, we do a double check if any changes were made before pasting
         if self._last_known_clipboard_mime != self.editor.mw.app.clipboard().mimeData():
             self._on_clipboard_change()
         extended = self._wantsExtendedPaste()
