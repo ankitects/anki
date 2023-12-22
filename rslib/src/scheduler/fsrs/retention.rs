@@ -50,6 +50,8 @@ impl Collection {
                         p.review_rating_probability_easy,
                     ],
                     loss_aversion: req.loss_aversion,
+                    learn_limit: usize::MAX,
+                    review_limit: usize::MAX,
                 },
                 &req.weights,
                 |ip| {
