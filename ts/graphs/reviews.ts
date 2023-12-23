@@ -378,7 +378,13 @@ export function renderReviews(
             value: tr.statisticsAmountOfTotalWithPercentage({
                 amount: studiedDays,
                 total: periodDays,
-                percent: if (studiedPercent < 99.5) { Math.round(studiedPercent) } else if (studiedPercent < 99.95) { Math.round(studiedPercent * 10) / 10 } else if (studiedPercent < 100) { Math.round(studiedPercent * 100) / 100 } else {100},
+                percent: if (studiedPercent < 99.5) {
+                    localizedNumber(studiedPercent)
+                } else if (studiedPercent < 99.95) {
+                    localizedNumber(studiedPercent, 1)
+                } else if (studiedPercent < 100) {
+                    localizedNumber(studiedPercent, 2)
+                } else {100},
             }),
         },
 
