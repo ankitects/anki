@@ -911,7 +911,7 @@ class CardLayout(QDialog):
                     QMessageBox.StandardButton.Discard,
                     QMessageBox.StandardButton.Cancel,
                 ],
-                default_button=0,
+                default_button=2,
                 parent=self,
             )
         else:
