@@ -44,7 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         optimalRetention = 0;
     }
     $: computing = computingWeights || checkingWeights || computingRetention;
-    $: defaultWeightSearch = `preset:"${state.getCurrentName()}"`;
+    $: defaultWeightSearch = `preset:"${state.getCurrentName()}" -is:suspended`;
     $: desiredRetentionWarning = getRetentionWarning($config.desiredRetention);
     $: retentionWarningClass = getRetentionWarningClass($config.desiredRetention);
 
@@ -180,7 +180,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 async () => {
                     optimalRetentionRequest.maxInterval = $config.maximumReviewInterval;
                     optimalRetentionRequest.weights = $config.fsrsWeights;
-                    optimalRetentionRequest.search = `preset:"${state.getCurrentName()}"`;
+                    optimalRetentionRequest.search = `preset:"${state.getCurrentName()}" -is:suspended`;
                     const resp = await computeOptimalRetention(optimalRetentionRequest);
                     optimalRetention = resp.optimalRetention;
                     computeRetentionProgress = undefined;
