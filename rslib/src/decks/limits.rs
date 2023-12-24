@@ -190,7 +190,6 @@ pub(crate) fn remaining_limits_map<'a>(
 /// Wrapper of [RemainingLimits] with some additional meta data.
 #[derive(Debug, Clone, Copy)]
 struct NodeLimits {
-    deck_id: DeckId,
     /// absolute level in the deck hierarchy
     level: usize,
     limits: RemainingLimits,
@@ -204,7 +203,6 @@ impl NodeLimits {
         new_cards_ignore_review_limit: bool,
     ) -> Self {
         Self {
-            deck_id: deck.id,
             level: deck.name.components().count(),
             limits: RemainingLimits::new(
                 deck,
@@ -363,14 +361,6 @@ impl LimitTreeMap {
 
     pub(crate) fn limit_reached(&self, deck_id: DeckId, kind: LimitKind) -> Result<bool> {
         Ok(self.get_deck_limits(deck_id)?.get(kind) == 0)
-    }
-
-    pub(crate) fn active_decks(&self) -> Vec<DeckId> {
-        self.tree
-            .traverse_pre_order(self.tree.root_node_id().unwrap())
-            .unwrap()
-            .map(|node| node.data().deck_id)
-            .collect()
     }
 
     pub(crate) fn decrement_deck_and_parent_limits(
