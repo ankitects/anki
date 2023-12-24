@@ -359,6 +359,13 @@ impl SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn get_active_deck_ids_sorted(&self) -> Result<Vec<DeckId>> {
+        self.db
+            .prepare_cached(include_str!("active_deck_ids_sorted.sql"))?
+            .query_and_then([], |row| row.get(0).map_err(Into::into))?
+            .collect()
+    }
+
     // Upgrading/downgrading/legacy
 
     pub(super) fn add_default_deck(&self, tr: &I18n) -> Result<()> {
