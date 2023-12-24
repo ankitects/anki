@@ -22,6 +22,7 @@ from aqt.sound import av_player
 from aqt.utils import (
     HelpPage,
     add_close_shortcut,
+    ask_user_dialog,
     askUser,
     downArrow,
     openHelp,
@@ -342,12 +343,22 @@ class AddCards(QMainWindow):
         self.close()
 
     def ifCanClose(self, onOk: Callable) -> None:
-        def afterSave() -> None:
-            ok = self.editor.fieldsAreBlank(self._last_added_note) or askUser(
-                tr.adding_close_and_lose_current_input(), defaultno=True
-            )
-            if ok:
+        def callback(choice: int) -> None:
+            if choice == 0:
                 onOk()
+
+        def afterSave() -> None:
+            if self.editor.fieldsAreBlank(self._last_added_note):
+                return onOk()
+
+            ask_user_dialog(
+                tr.adding_discard_current_input(),
+                callback=callback,
+                buttons=[
+                    QMessageBox.StandardButton.Discard,
+                    (tr.adding_keep_editing(), QMessageBox.ButtonRole.RejectRole),
+                ],
+            )
 
         self.editor.call_after_note_saved(afterSave)
 
