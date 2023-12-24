@@ -386,9 +386,9 @@ export function renderReviews(
                     } else if (studiedPercent < 100) {
                         return localizedNumber(studiedPercent, 2);
                     } else {
-                        return '100';
+                        return "100";
                     }
-                })()
+                })(),
             }),
         },
 
