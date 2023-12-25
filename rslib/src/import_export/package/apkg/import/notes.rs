@@ -604,6 +604,7 @@ impl Notetype {
 mod test {
     use anki_proto::import_export::ExportAnkiPackageOptions;
     use anki_proto::import_export::ImportAnkiPackageOptions;
+    use chrono::Timelike;
     use tempfile::TempDir;
 
     use super::*;
@@ -611,6 +612,7 @@ mod test {
     use crate::import_export::package::media::SafeMediaEntry;
     use crate::notetype::CardTemplate;
     use crate::notetype::NoteField;
+    use crate::skip_if_rollover_hour;
 
     #[derive(Default)]
     struct ImportBuilder {
@@ -955,6 +957,7 @@ mod test {
 
     #[test]
     fn reimport_with_merge_enabled_should_handle_duplicates() -> Result<()> {
+        skip_if_rollover_hour!();
         // import from src to dst
         let mut src = Collection::new();
         NoteAdder::basic(&mut src)

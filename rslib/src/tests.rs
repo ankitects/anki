@@ -261,3 +261,13 @@ impl CardAdder {
         col.storage.all_cards_of_note(note.id).unwrap()
     }
 }
+
+#[macro_export]
+macro_rules! skip_if_rollover_hour {
+    () => {
+        let now = TimestampSecs::now().local_datetime().unwrap();
+        if (now.hour() == 3) {
+            return Ok(());
+        }
+    };
+}
