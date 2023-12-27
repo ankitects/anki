@@ -64,7 +64,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function getRetentionWarning(retention: number): string {
-        const days = Math.round(9 * 100 * (1.0 / retention - 1.0));
+        const decay = -0.5;
+        const factor = 0.9 ** (1 / decay) - 1;
+        const stability = 100;
+        const days = Math.round(
+            (stability / factor) * (Math.pow(retention, 1 / decay) - 1),
+        );
         if (days === 100) {
             return "";
         }
