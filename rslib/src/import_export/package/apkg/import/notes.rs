@@ -12,6 +12,7 @@ use super::Context;
 use super::TemplateMap;
 use crate::import_export::package::media::safe_normalized_file_name;
 use crate::import_export::package::UpdateCondition;
+use crate::import_export::ImportError;
 use crate::import_export::ImportProgress;
 use crate::import_export::NoteLog;
 use crate::notetype::ChangeNotetypeInput;
@@ -229,6 +230,10 @@ impl<'n> NoteContext<'n> {
         incoming: &mut Notetype,
         mut existing: Notetype,
     ) -> Result<()> {
+        if existing.is_cloze() != incoming.is_cloze() {
+            return Err(ImportError::NotetypeKindMergeConflict.into());
+        }
+
         let original_existing = existing.clone();
         // get and merge duplicated notetypes from previous no-merge imports
         let mut siblings = self.get_sibling_notetypes(existing.id);
@@ -366,6 +371,10 @@ impl<'n> NoteContext<'n> {
                 .storage
                 .get_notetype(incoming_ntid)?
                 .or_not_found(incoming_ntid)?;
+
+            if existing.is_cloze() != incoming.is_cloze() {
+                return Err(ImportError::NotetypeKindMergeConflict.into());
+            }
 
             existing.merge(&incoming);
             incoming.merge(&existing);

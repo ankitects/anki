@@ -65,6 +65,7 @@ pub enum ImportError {
     MediaImportFailed { info: String },
     NoFieldColumn,
     EmptyFile,
+    NotetypeKindMergeConflict,
 }
 
 impl ImportError {
@@ -77,6 +78,9 @@ impl ImportError {
             }
             ImportError::NoFieldColumn => tr.importing_file_must_contain_field_column(),
             ImportError::EmptyFile => tr.importing_file_empty(),
+            ImportError::NotetypeKindMergeConflict => {
+                tr.importing_cannot_merge_notetypes_of_different_kinds()
+            }
         }
         .into()
     }
