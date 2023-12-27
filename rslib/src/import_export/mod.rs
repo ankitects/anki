@@ -62,9 +62,13 @@ impl Note {
 pub enum ImportError {
     Corrupt,
     TooNew,
-    MediaImportFailed { info: String },
+    MediaImportFailed {
+        info: String,
+    },
     NoFieldColumn,
     EmptyFile,
+    /// Two notetypes could not be merged because one was a regular one and the
+    /// other one a cloze notetype.
     NotetypeKindMergeConflict,
 }
 
