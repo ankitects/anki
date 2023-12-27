@@ -153,6 +153,7 @@ impl BuildAction for CargoTest {
     fn files(&mut self, build: &mut impl FilesHandle) {
         build.add_inputs("", &self.inputs);
         build.add_inputs("", inputs![":cargo-nextest"]);
+        build.add_env_var("ANKI_TEST_MODE", "1");
         build.add_output_stamp("tests/cargo_test");
     }
 

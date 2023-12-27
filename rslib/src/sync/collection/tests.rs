@@ -6,7 +6,6 @@
 use std::future::Future;
 
 use axum::http::StatusCode;
-use chrono::Timelike;
 use once_cell::sync::Lazy;
 use reqwest::Client;
 use reqwest::Url;
@@ -34,7 +33,6 @@ use crate::notetype::all_stock_notetypes;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 use crate::search::SortMode;
-use crate::skip_if_rollover_hour;
 use crate::sync::collection::graves::ApplyGravesRequest;
 use crate::sync::collection::meta::MetaRequest;
 use crate::sync::collection::normal::NormalSyncer;
@@ -278,7 +276,6 @@ async fn new_syncs_cancel_old_ones() -> Result<()> {
 
 #[tokio::test]
 async fn sync_roundtrip() -> Result<()> {
-    skip_if_rollover_hour!();
     with_active_server(|client| async move {
         let ctx = SyncTestContext::new(client);
         upload_download(&ctx).await?;
@@ -290,7 +287,6 @@ async fn sync_roundtrip() -> Result<()> {
 
 #[tokio::test]
 async fn sanity_check_should_roll_back_and_force_full_sync() -> Result<()> {
-    skip_if_rollover_hour!();
     with_active_server(|client| async move {
         let ctx = SyncTestContext::new(client);
         upload_download(&ctx).await?;
@@ -342,7 +338,6 @@ async fn sanity_check_should_roll_back_and_force_full_sync() -> Result<()> {
 
 #[tokio::test]
 async fn sync_errors_should_prompt_db_check() -> Result<()> {
-    skip_if_rollover_hour!();
     with_active_server(|client| async move {
         let ctx = SyncTestContext::new(client);
         upload_download(&ctx).await?;
@@ -454,7 +449,6 @@ async fn invalid_uploads_should_be_handled() -> Result<()> {
 
 #[tokio::test]
 async fn meta_redirect_is_handled() -> Result<()> {
-    skip_if_rollover_hour!();
     with_active_server(|client| async move {
         let mock_server = MockServer::start().await;
         Mock::given(method("POST"))

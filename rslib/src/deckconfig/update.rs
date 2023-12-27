@@ -385,17 +385,13 @@ fn update_day_limit(day_limit: &mut Option<DayLimit>, new_limit: Option<u32>, to
 
 #[cfg(test)]
 mod test {
-    use chrono::Timelike;
-
     use super::*;
     use crate::deckconfig::NewCardInsertOrder;
-    use crate::skip_if_rollover_hour;
     use crate::tests::open_test_collection_with_learning_card;
     use crate::tests::open_test_collection_with_relearning_card;
 
     #[test]
     fn updating() -> Result<()> {
-        skip_if_rollover_hour!();
         let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note1 = nt.new_note();
@@ -502,35 +498,26 @@ mod test {
     }
 
     #[test]
-    fn should_keep_remaining_learning_steps_if_unpassed_relearning_step_added() -> Result<()> {
-        skip_if_rollover_hour!();
+    fn should_keep_remaining_learning_steps_if_unpassed_relearning_step_added() {
         let mut col = open_test_collection_with_learning_card();
         col.set_default_relearn_steps(vec![1., 10., 100.]);
         assert_eq!(col.get_first_card().remaining_steps, 2);
-
-        Ok(())
     }
 
     #[test]
-    fn should_keep_remaining_learning_steps_if_passed_learning_step_added() -> Result<()> {
-        skip_if_rollover_hour!();
+    fn should_keep_remaining_learning_steps_if_passed_learning_step_added() {
         let mut col = open_test_collection_with_learning_card();
         col.answer_good();
         col.set_default_learn_steps(vec![1., 1., 10.]);
         assert_eq!(col.get_first_card().remaining_steps, 1);
-
-        Ok(())
     }
 
     #[test]
-    fn should_keep_at_least_one_remaining_learning_step() -> Result<()> {
-        skip_if_rollover_hour!();
+    fn should_keep_at_least_one_remaining_learning_step() {
         let mut col = open_test_collection_with_learning_card();
         col.answer_good();
         col.set_default_learn_steps(vec![1.]);
         assert_eq!(col.get_first_card().remaining_steps, 1);
-
-        Ok(())
     }
 
     #[test]
@@ -548,26 +535,20 @@ mod test {
     }
 
     #[test]
-    fn should_keep_remaining_relearning_steps_if_passed_relearning_step_added() -> Result<()> {
-        skip_if_rollover_hour!();
+    fn should_keep_remaining_relearning_steps_if_passed_relearning_step_added() {
         let mut col = open_test_collection_with_relearning_card();
         col.set_default_relearn_steps(vec![10., 100.]);
         col.answer_good();
         col.set_default_relearn_steps(vec![1., 10., 100.]);
         assert_eq!(col.get_first_card().remaining_steps, 1);
-
-        Ok(())
     }
 
     #[test]
-    fn should_keep_at_least_one_remaining_relearning_step() -> Result<()> {
-        skip_if_rollover_hour!();
+    fn should_keep_at_least_one_remaining_relearning_step() {
         let mut col = open_test_collection_with_relearning_card();
         col.set_default_relearn_steps(vec![10., 100.]);
         col.answer_good();
         col.set_default_relearn_steps(vec![1.]);
         assert_eq!(col.get_first_card().remaining_steps, 1);
-
-        Ok(())
     }
 }

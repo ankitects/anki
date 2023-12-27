@@ -546,13 +546,10 @@ fn get_fuzz_factor(seed: Option<u64>) -> Option<f32> {
 
 #[cfg(test)]
 mod test {
-    use chrono::Timelike;
-
     use super::*;
     use crate::card::CardType;
     use crate::deckconfig::ReviewMix;
     use crate::search::SortMode;
-    use crate::skip_if_rollover_hour;
 
     fn current_state(col: &mut Collection, card_id: CardId) -> CardState {
         col.get_scheduling_states(card_id).unwrap().current
@@ -703,7 +700,6 @@ mod test {
     // FIXME: This fails between 3:50-4:00 GMT
     #[test]
     fn new_limited_by_reviews() -> Result<()> {
-        skip_if_rollover_hour!();
         let (mut col, cids) = v3_test_collection(4)?;
         col.set_due_date(&cids[0..2], "0", None)?;
         // set a limit of 3 reviews, which should give us 2 reviews and 1 new card
