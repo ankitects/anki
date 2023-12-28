@@ -7,6 +7,9 @@ importing-anki-files-are-from-a-very = .anki files are from a very old version o
 importing-anki2-files-are-not-directly-importable = .anki2 files are not directly importable - please import the .apkg or .zip file you have received instead.
 importing-appeared-twice-in-file = Appeared twice in file: { $val }
 importing-by-default-anki-will-detect-the = By default, Anki will detect the character between fields, such as a tab, comma, and so on. If Anki is detecting the character incorrectly, you can enter it here. Use \t to represent tab.
+importing-cannot-merge-notetypes-of-different-kinds =
+    Cloze notetypes cannot be merged with regular notetypes.
+    You may still import the file with '{ importing-merge-notetypes }' disabled.
 importing-change = Change
 importing-colon = Colon
 importing-comma = Comma

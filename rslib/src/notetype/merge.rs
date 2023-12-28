@@ -9,7 +9,9 @@ impl Notetype {
     /// Inserts not yet existing fields ands templates from `other`.
     pub(crate) fn merge(&mut self, other: &Self) {
         self.merge_fields(other);
-        self.merge_templates(other);
+        if !self.is_cloze() {
+            self.merge_templates(other);
+        }
     }
 
     pub(crate) fn merge_all<'a>(&mut self, others: impl IntoIterator<Item = &'a Self>) {
