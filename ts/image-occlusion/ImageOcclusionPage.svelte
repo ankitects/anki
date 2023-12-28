@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import MasksEditor from "./MaskEditor.svelte";
     import Notes from "./Notes.svelte";
     import StickyFooter from "./StickyFooter.svelte";
-    import { hideAllGuessOne } from "./store";
+    import { hideAllGuessOne, textEditingState } from "./store";
 
     export let mode: IOMode;
 
@@ -25,7 +25,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ];
 
     let activeTabValue = 1;
-    const tabChange = (tabValue) => () => (activeTabValue = tabValue);
+    const tabChange = (tabValue) => {
+        textEditingState.set(tabValue === 2);
+        activeTabValue = tabValue;
+    };
 </script>
 
 <Container class="image-occlusion">
@@ -34,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <button
                 class="tab-item {activeTabValue === item.value ? 'active' : ''} 
                     {item.value === 1 ? 'left-border-radius' : 'right-border-radius'}"
-                on:click={tabChange(item.value)}
+                on:click={() => tabChange(item.value)}
             >
                 {item.label}
             </button>
