@@ -19,7 +19,7 @@ Users on ARM64, see the notes at the bottom of this file before proceeding.
 **Ensure some basic tools are installed**:
 
 ```
-$ sudo apt install bash grep findutils curl gcc g++ git rsync ninja-build
+$ sudo apt install bash grep findutils curl gcc g++ make git rsync ninja-build
 ```
 
 - The 'find' utility is 'findutils' on Debian.
@@ -56,15 +56,17 @@ To play and record audio during development, install mpv and lame.
 ## ARM64 support
 
 Other platforms download PyQt binary wheels from PyPI. There are no PyQt wheels available
-for ARM Linux, so you will need to rely on your system-provided libraries instead. As Anki
-requires Python 3.9, this means you will need a fairly up-to-date distro such as Debian 11.
+for ARM Linux, so you will need to rely on your system-provided libraries instead. Your distro
+will need to have Python 3.9 or later.
 
-After installing the system libraries (eg 'sudo apt install python3-pyqt5.qtwebengine'),
-find the place they are installed (eg '/usr/lib/python3/dist-packages'). Then before
-running any commands like './run', tell Anki where they can be found:
+After installing the system libraries (eg 'sudo apt install python3-pyqt5.qtwebengine python3-venv'),
+find the place they are installed (eg '/usr/lib/python3/dist-packages'). On modern Ubuntu, you'll
+need 'sudo apt remove python3-protobuf'. Then before running any commands like './run', tell Anki where
+the packages can be found:
 
 ```
 export PYTHONPATH=/usr/lib/python3/dist-packages
+export PYTHON_BINARY=/usr/bin/python3
 ```
 
 There are a few things to be aware of:
