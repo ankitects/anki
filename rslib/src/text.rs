@@ -110,9 +110,9 @@ lazy_static! {
             (?:
                 [^>]
             |
-                "(?:[^"]+?)"
+                "[^"]+?"
             |
-                '(?:[^']+?)'
+                '[^']+?'
             )+
 
             # capture `src` or `data` attribute

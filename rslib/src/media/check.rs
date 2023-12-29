@@ -794,6 +794,7 @@ Unused: unused.jpg
         );
         Ok(())
     }
+
     #[test]
     fn html_chevron_in_non_source_attribute() -> Result<()> {
         let (_dir, _mgr, mut col) = common_setup()?;
