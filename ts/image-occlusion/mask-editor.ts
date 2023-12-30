@@ -118,6 +118,7 @@ function initCanvas(onChange: () => void): fabric.Canvas {
     fabric.Object.prototype.transparentCorners = false;
     fabric.Object.prototype.cornerStyle = "circle";
     fabric.Object.prototype.cornerStrokeColor = "#000000";
+    fabric.Object.prototype.padding = 8;
     moveShapeToCanvasBoundaries(canvas);
     makeShapeRemainInCanvas(canvas);
     canvas.on("object:modified", (evt) => {
