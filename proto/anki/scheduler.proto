@@ -338,6 +338,7 @@ message RepositionDefaultsResponse {
 message ComputeFsrsWeightsRequest {
   /// The search used to gather cards for training
   string search = 1;
+  int64 ignoreBefore = 2;
 }
 
 message ComputeFsrsWeightsResponse {

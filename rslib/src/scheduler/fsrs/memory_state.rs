@@ -50,7 +50,7 @@ impl Collection {
         for (req, search) in entries {
             let search =
                 SearchBuilder::all([search.into(), SearchNode::State(StateKind::New).negated()]);
-            let revlog = self.revlog_for_srs(search)?;
+            let revlog = self.revlog_for_srs(search, None)?;
             let reschedule = req.as_ref().map(|e| e.reschedule).unwrap_or_default();
             let last_revlog_info = if reschedule {
                 Some(get_last_revlog_info(&revlog))
@@ -142,7 +142,7 @@ impl Collection {
         let desired_retention = config.inner.desired_retention;
         let sm2_retention = config.inner.sm2_retention;
         let fsrs = FSRS::new(Some(&config.inner.fsrs_weights))?;
-        let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
+        let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()), None)?;
         let item = single_card_revlog_to_item(
             &fsrs,
             revlog,

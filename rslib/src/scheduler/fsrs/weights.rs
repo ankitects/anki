@@ -18,6 +18,7 @@ use itertools::Itertools;
 use prost::Message;
 
 use crate::prelude::*;
+use crate::revlog;
 use crate::revlog::RevlogEntry;
 use crate::revlog::RevlogReviewKind;
 use crate::search::Node;
@@ -33,12 +34,13 @@ impl Collection {
     pub fn compute_weights(
         &mut self,
         search: &str,
+        ignore_before: Option<RevlogId>,
         current_preset: u32,
         total_presets: u32,
     ) -> Result<ComputeFsrsWeightsResponse> {
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
-        let revlogs = self.revlog_for_srs(search)?;
+        let revlogs = self.revlog_for_srs(search, ignore_before)?;
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let fsrs_items = items.len() as u32;
         anki_progress.update(false, |p| {
@@ -75,12 +77,18 @@ impl Collection {
     pub(crate) fn revlog_for_srs(
         &mut self,
         search: impl TryIntoSearch,
+        ignore_before: Option<RevlogId>
     ) -> Result<Vec<RevlogEntry>> {
         let search = search.try_into_search()?;
         // a whole-collection search can match revlog entries of deleted cards, too
         if let Node::Group(nodes) = &search {
             if let &[Node::Search(SearchNode::WholeCollection)] = &nodes[..] {
-                return self.storage.get_all_revlog_entries_in_card_order();
+                return Ok(self.storage.get_all_revlog_entries_in_card_order()
+                    ?.into_iter()
+                    .filter(|revlog| revlog.id > ignore_before.unwrap_or(revlog::RevlogId(0)))
+                    .collect()
+                    )
+                ;
             }
         }
         self.search_cards_into_table(search, SortMode::NoOrder)?
