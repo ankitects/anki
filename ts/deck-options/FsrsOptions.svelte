@@ -41,7 +41,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let checkingWeights = false;
     let computingRetention = false;
     let optimalRetention = 0;
-    let ignoreBeforeDate = "";
     $: if ($presetName) {
         optimalRetention = 0;
     }
@@ -315,7 +314,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {tr.deckConfigEvaluateButton()}
             {/if}
         </button>
-        <DateInput bind:date={ignoreBeforeDate}>
+        <DateInput bind:date={$config.ignoreDate}>
             <SettingTitle>
                 <GlobalLabel title={"Ignore include reviews before"}></GlobalLabel> <!-- TODO: Replace this with tr call -->
             </SettingTitle>

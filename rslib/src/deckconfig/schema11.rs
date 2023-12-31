@@ -74,6 +74,8 @@ pub struct DeckConfSchema11 {
     #[serde(default)]
     desired_retention: f32,
     #[serde(default)]
+    ignore_date: String,
+    #[serde(default)]
     stop_timer_on_answer: bool,
     #[serde(default)]
     seconds_to_show_question: f32,
@@ -87,6 +89,7 @@ pub struct DeckConfSchema11 {
     sm2_retention: f32,
     #[serde(default)]
     weight_search: String,
+
 
     #[serde(flatten)]
     other: HashMap<String, Value>,
@@ -294,6 +297,7 @@ impl Default for DeckConfSchema11 {
             desired_retention: 0.9,
             sm2_retention: 0.9,
             weight_search: "".to_string(),
+            ignore_date: "".to_string(),
         }
     }
 }
@@ -368,6 +372,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 bury_reviews: c.rev.bury,
                 bury_interday_learning: c.bury_interday_learning,
                 fsrs_weights: c.fsrs_weights,
+                ignore_date: c.ignore_date,
                 desired_retention: c.desired_retention,
                 sm2_retention: c.sm2_retention,
                 weight_search: c.weight_search,
@@ -477,6 +482,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             desired_retention: i.desired_retention,
             sm2_retention: i.sm2_retention,
             weight_search: i.weight_search,
+            ignore_date: i.ignore_date,
         }
     }
 }
