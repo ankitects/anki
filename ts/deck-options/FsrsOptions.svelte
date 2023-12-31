@@ -321,7 +321,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </button>
         <DateInput bind:date={$config.ignoreDate}>
             <SettingTitle>
-                <GlobalLabel title={"Ignore include reviews before"}></GlobalLabel> <!-- TODO: Replace this with tr call -->
+                <GlobalLabel title={"Ignore reviews before"}></GlobalLabel> <!-- TODO: Replace this with tr call -->
             </SettingTitle>
         </DateInput>
         {#if computingWeights || checkingWeights}<div>
