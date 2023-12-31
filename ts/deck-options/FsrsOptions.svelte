@@ -104,6 +104,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         search: $config.weightSearch
                             ? $config.weightSearch
                             : defaultWeightSearch,
+                        ignoreBefore: BigInt(
+                            $config.ignoreDate 
+                            ? new Date($config.ignoreDate).getTime()
+                            : 0
+                        )
                     });
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
