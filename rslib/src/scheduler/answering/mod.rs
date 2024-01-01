@@ -374,7 +374,7 @@ impl Collection {
                 // Card has been moved or imported into an FSRS deck after weights were set,
                 // and will need its initial memory state to be calculated based on review
                 // history.
-                let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()), None)?;
+                let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
                 let item = single_card_revlog_to_item(
                     &fsrs,
                     revlog,
