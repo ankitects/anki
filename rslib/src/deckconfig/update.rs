@@ -12,6 +12,8 @@ use anki_proto::deck_config::deck_configs_for_update::ConfigWithExtra;
 use anki_proto::deck_config::deck_configs_for_update::CurrentDeck;
 use anki_proto::deck_config::UpdateDeckConfigsMode;
 use anki_proto::decks::deck::normal::DayLimit;
+use chrono::NaiveDate;
+use chrono::NaiveTime;
 use fsrs::DEFAULT_WEIGHTS;
 
 use crate::config::StringKey;
@@ -332,7 +334,22 @@ impl Collection {
             } else {
                 config.inner.weight_search.clone()
             };
-            match self.compute_weights(&search, 0 /* TODO */, idx as u32 + 1, config_len) {
+
+            let ignore_before = match &config.inner.ignore_before_date {
+                s if s.is_empty() => 0,
+                s => {
+                    NaiveDate::parse_from_str(s.as_str(), "%Y-%m-%d")
+                        .map_err(|err| {
+                            eprintln!("{}", err);
+                            AnkiError::ParseNumError
+                        })?
+                        .and_time(NaiveTime::from_hms_milli_opt(0, 0, 0, 0).unwrap()) // Todo: Make this the review rollover time
+                        .timestamp()
+                        * 1000
+                }
+            };
+
+            match self.compute_weights(&search, ignore_before, idx as u32 + 1, config_len) {
                 Ok(weights) => {
                     if weights.fsrs_items >= 1000 {
                         println!("{}: {:?}", config.name, weights.weights);
