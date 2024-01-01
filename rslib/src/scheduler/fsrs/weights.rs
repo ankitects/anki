@@ -18,7 +18,6 @@ use itertools::Itertools;
 use prost::Message;
 
 use crate::prelude::*;
-use crate::revlog;
 use crate::revlog::RevlogEntry;
 use crate::revlog::RevlogReviewKind;
 use crate::search::Node;
@@ -116,7 +115,12 @@ impl Collection {
         Ok(())
     }
 
-    pub fn evaluate_weights(&mut self, weights: &Weights, search: &str, ignore_before: i64) -> Result<ModelEvaluation> {
+    pub fn evaluate_weights(
+        &mut self,
+        weights: &Weights,
+        search: &str,
+        ignore_before: i64,
+    ) -> Result<ModelEvaluation> {
         let timing = self.timing_today()?;
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;

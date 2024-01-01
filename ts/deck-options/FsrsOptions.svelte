@@ -89,10 +89,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function getIgnoreBefore() {
         return BigInt(
-            $config.ignoreBeforeDate
-            ? new Date($config.ignoreBeforeDate).getTime()
-            : 0,
-        )
+            $config.ignoreBeforeDate ? new Date($config.ignoreBeforeDate).getTime() : 0,
+        );
     }
 
     async function computeWeights(): Promise<void> {
@@ -112,7 +110,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         search: $config.weightSearch
                             ? $config.weightSearch
                             : defaultWeightSearch,
-                        ignoreBefore: getIgnoreBefore()
+                        ignoreBefore: getIgnoreBefore(),
                     });
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;

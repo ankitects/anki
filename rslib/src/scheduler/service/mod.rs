@@ -20,7 +20,6 @@ use fsrs::FSRS;
 
 use crate::backend::Backend;
 use crate::prelude::*;
-use crate::revlog;
 use crate::scheduler::new::NewCardDueOrder;
 use crate::scheduler::states::CardState;
 use crate::scheduler::states::SchedulingStates;
