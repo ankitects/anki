@@ -105,8 +105,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             ? $config.weightSearch
                             : defaultWeightSearch,
                         ignoreBefore: BigInt(
-                            $config.ignoreDate
-                                ? new Date($config.ignoreDate).getTime()
+                            $config.ignoreBeforeDate
+                                ? new Date($config.ignoreBeforeDate).getTime()
                                 : 0,
                         ),
                     });
@@ -319,7 +319,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {tr.deckConfigEvaluateButton()}
             {/if}
         </button>
-        <DateInput bind:date={$config.ignoreDate}>
+        <DateInput bind:date={$config.ignoreBeforeDate}>
             <SettingTitle>
                 <GlobalLabel title={"Ignore reviews before"} />
                 <!-- TODO: Replace this with tr call -->
