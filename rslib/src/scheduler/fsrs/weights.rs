@@ -18,6 +18,7 @@ use itertools::Itertools;
 use prost::Message;
 
 use crate::prelude::*;
+use crate::revlog::RemoveBefore;
 use crate::revlog::RevlogEntry;
 use crate::revlog::RevlogReviewKind;
 use crate::search::Node;
@@ -39,11 +40,8 @@ impl Collection {
     ) -> Result<ComputeFsrsWeightsResponse> {
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
-        let revlogs = self
-            .revlog_for_srs(search)?
-            .into_iter()
-            .filter(|revlog| revlog.id.0 > ignore_before)
-            .collect();
+        let revlogs = self.revlog_for_srs(search)?.remove_before(ignore_before);
+
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let fsrs_items = items.len() as u32;
         anki_progress.update(false, |p| {
