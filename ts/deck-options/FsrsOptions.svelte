@@ -323,7 +323,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {/if}
         </button>
         <DateInput bind:date={$config.ignoreBeforeDate}>
-            <SettingTitle>
+            <SettingTitle on:click={() => openHelpModal("ignoreBefore")}>
                 {tr.deckConfigIgnoreBefore()}
             </SettingTitle>
         </DateInput>

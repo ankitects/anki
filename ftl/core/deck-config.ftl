@@ -399,6 +399,10 @@ deck-config-reschedule-cards-warning =
 
     Use this option sparingly, as it will add a review entry to each of your cards, and
     increase the size of your collection.
+deck-config-ignore-before-tooltip = 
+    This setting makes the optimizer ignore reviews that were made before 00:00 on a given date.
+
+    This can be used if old reviews no long reflect the difficulty of the deck, for example if significant changes were made to the cards.
 deck-config-compute-optimal-weights-tooltip =
     Once you've done 1000+ reviews in Anki, you can use the Optimize button to analyze your review history,
     and automatically generate parameters that are optimal for your memory and the content you're studying.

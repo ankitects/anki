@@ -62,6 +62,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             help: tr.deckConfigRescheduleCardsOnChangeTooltip(),
             sched: HelpItemScheduler.FSRS,
         },
+        ignoreBefore: {
+            title: tr.deckConfigIgnoreBefore(),
+            help: tr.deckConfigIgnoreBeforeTooltip(),
+            sched: HelpItemScheduler.FSRS,
+        },
         computeOptimalWeights: {
             title: tr.deckConfigComputeOptimalWeights(),
             help: tr.deckConfigComputeOptimalWeightsTooltip(),
