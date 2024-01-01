@@ -19,13 +19,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SwitchRow from "components/SwitchRow.svelte";
 
     import SettingTitle from "../components/SettingTitle.svelte";
+    import DateInput from "./DateInput.svelte";
     import GlobalLabel from "./GlobalLabel.svelte";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import Warning from "./Warning.svelte";
     import WeightsInputRow from "./WeightsInputRow.svelte";
-    import DateInput from "./DateInput.svelte";
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
@@ -105,10 +105,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             ? $config.weightSearch
                             : defaultWeightSearch,
                         ignoreBefore: BigInt(
-                            $config.ignoreDate 
-                            ? new Date($config.ignoreDate).getTime()
-                            : 0
-                        )
+                            $config.ignoreDate
+                                ? new Date($config.ignoreDate).getTime()
+                                : 0,
+                        ),
                     });
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
@@ -321,7 +321,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </button>
         <DateInput bind:date={$config.ignoreDate}>
             <SettingTitle>
-                <GlobalLabel title={"Ignore reviews before"}></GlobalLabel> <!-- TODO: Replace this with tr call -->
+                <GlobalLabel title={"Ignore reviews before"} />
+                <!-- TODO: Replace this with tr call -->
             </SettingTitle>
         </DateInput>
         {#if computingWeights || checkingWeights}<div>

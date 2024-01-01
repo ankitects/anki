@@ -3,9 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script>
-    import ConfigInput from "components/ConfigInput.svelte";
-    import Row from "components/Row.svelte";
-    import Col from "components/Col.svelte";
+    import Col from "../components/Col.svelte";
+    import ConfigInput from "../components/ConfigInput.svelte";
+    import Row from "../components/Row.svelte";
 
     export let date;
 </script>
@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <slot />
             </Col>
             <Col>
-                <input bind:value={date} type="date">
+                <input bind:value={date} type="date" />
             </Col>
         </Row>
     </ConfigInput>
