@@ -271,7 +271,7 @@ impl crate::services::SchedulerService for Collection {
         &mut self,
         input: scheduler::EvaluateWeightsRequest,
     ) -> Result<scheduler::EvaluateWeightsResponse> {
-        let ret = self.evaluate_weights(&input.weights, &input.search)?;
+        let ret = self.evaluate_weights(&input.weights, &input.search, input.ignore_before)?;
         Ok(scheduler::EvaluateWeightsResponse {
             log_loss: ret.log_loss,
             rmse_bins: ret.rmse_bins,

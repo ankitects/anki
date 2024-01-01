@@ -116,14 +116,17 @@ impl Collection {
         Ok(())
     }
 
-    pub fn evaluate_weights(&mut self, weights: &Weights, search: &str) -> Result<ModelEvaluation> {
+    pub fn evaluate_weights(&mut self, weights: &Weights, search: &str, ignore_before: i64) -> Result<ModelEvaluation> {
         let timing = self.timing_today()?;
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
-        let revlogs = guard
+        let revlogs: Vec<RevlogEntry> = guard
             .col
             .storage
-            .get_revlog_entries_for_searched_cards_in_card_order()?;
+            .get_revlog_entries_for_searched_cards_in_card_order()?
+            .into_iter()
+            .filter(|revlog| revlog.id.0 > ignore_before)
+            .collect();
         anki_progress.state.fsrs_items = revlogs.len() as u32;
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let fsrs = FSRS::new(Some(weights))?;

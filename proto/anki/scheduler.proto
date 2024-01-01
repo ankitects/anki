@@ -400,6 +400,7 @@ message GetOptimalRetentionParametersResponse {
 message EvaluateWeightsRequest {
   repeated float weights = 1;
   string search = 2;
+  int64 ignore_before = 3;
 }
 
 message EvaluateWeightsResponse {
