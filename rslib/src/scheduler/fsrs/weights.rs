@@ -34,7 +34,7 @@ impl Collection {
     pub fn compute_weights(
         &mut self,
         search: &str,
-        ignore_before: Option<RevlogId>,
+        ignore_before: i64,
         current_preset: u32,
         total_presets: u32,
     ) -> Result<ComputeFsrsWeightsResponse> {
@@ -43,7 +43,7 @@ impl Collection {
         let revlogs = self
             .revlog_for_srs(search)?
             .into_iter()
-            .filter(|revlog| revlog.id > ignore_before.unwrap_or(revlog::RevlogId(0)))
+            .filter(|revlog| revlog.id.0 > ignore_before)
             .collect();
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let fsrs_items = items.len() as u32;
