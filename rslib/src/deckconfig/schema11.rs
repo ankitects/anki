@@ -512,6 +512,7 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "waitForAudio",
     "sm2Retention",
     "weightSearch",
+    "ignoreDate",
 };
 
 static RESERVED_DECKCONF_NEW_KEYS: Set<&'static str> = phf_set! {
