@@ -794,4 +794,28 @@ Unused: unused.jpg
         );
         Ok(())
     }
+
+    #[test]
+    fn html_chevron_in_non_source_attribute() -> Result<()> {
+        let (_dir, _mgr, mut col) = common_setup()?;
+        let mut checker = col.media_checker()?;
+
+        let field = "<img alt=\"alt>\" src=\"foo.jpg\">";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("foo.jpg"));
+
+        let field = "<img alt='>a>l>t>' src='bar.jpg'>";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("bar.jpg"));
+
+        let field = "<img alt='\"alt>\"' src='double-in-single.jpg'>";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("double-in-single.jpg"));
+
+        let field = "<img alt='alt'> src='illegal.jpg'>";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(!seen.contains("illegal.jpg"));
+
+        Ok(())
+    }
 }
