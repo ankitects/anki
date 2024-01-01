@@ -90,7 +90,6 @@ pub struct DeckConfSchema11 {
     #[serde(default)]
     weight_search: String,
 
-
     #[serde(flatten)]
     other: HashMap<String, Value>,
 }

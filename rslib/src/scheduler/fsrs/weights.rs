@@ -40,7 +40,8 @@ impl Collection {
     ) -> Result<ComputeFsrsWeightsResponse> {
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
-        let revlogs = self.revlog_for_srs(search)?
+        let revlogs = self
+            .revlog_for_srs(search)?
             .into_iter()
             .filter(|revlog| revlog.id > ignore_before.unwrap_or(revlog::RevlogId(0)))
             .collect();

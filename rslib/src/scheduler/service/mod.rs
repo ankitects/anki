@@ -255,7 +255,12 @@ impl crate::services::SchedulerService for Collection {
         &mut self,
         input: scheduler::ComputeFsrsWeightsRequest,
     ) -> Result<scheduler::ComputeFsrsWeightsResponse> {
-        self.compute_weights(&input.search, Some(revlog::RevlogId(input.ignore_before)) , 1, 1)
+        self.compute_weights(
+            &input.search,
+            Some(revlog::RevlogId(input.ignore_before)),
+            1,
+            1,
+        )
     }
 
     fn compute_optimal_retention(
