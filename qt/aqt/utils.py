@@ -164,6 +164,9 @@ class MessageBox(QMessageBox):
                 b = self.addButton(button, QMessageBox.ButtonRole.ActionRole)
             elif isinstance(button, QMessageBox.StandardButton):
                 b = self.addButton(button)
+                # a translator has complained the default Qt translation is inappropriate, so we override it
+                if button == QMessageBox.StandardButton.Discard:
+                    b.setText(tr.actions_discard())
             elif isinstance(button, tuple):
                 b = self.addButton(button[0], button[1])
             else:
