@@ -126,9 +126,7 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?
-            .into_iter()
-            .filter(|revlog| revlog.id.0 > ignore_before)
-            .collect();
+            .remove_before(ignore_before);
         anki_progress.state.fsrs_items = revlogs.len() as u32;
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let fsrs = FSRS::new(Some(weights))?;
