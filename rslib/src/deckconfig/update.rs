@@ -338,7 +338,7 @@ impl Collection {
             let ignore_before = match &config.inner.ignore_before_date {
                 s if s.is_empty() => 0,
                 s => {
-                    NaiveDate::parse_from_str(s.as_str(), "%Y-%m--%d")
+                    NaiveDate::parse_from_str(s.as_str(), "%Y-%m-%d")
                         .or_else(|err| invalid_input!(err, "Error parsing date: {s}"))?
                         .and_time(NaiveTime::from_hms_milli_opt(0, 0, 0, 0).unwrap())
                         .timestamp()
