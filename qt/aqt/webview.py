@@ -484,7 +484,7 @@ button {
     background: var(--canvas);
     border-radius: var(--border-radius);
     padding: 3px 12px;
-    border: 0.5px solid var(--border);
+    border: 1px solid var(--border);
     box-shadow: 0px 1px 3px var(--border-subtle);
     font-family: Helvetica
 }
