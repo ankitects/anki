@@ -59,18 +59,6 @@ pub struct RevlogEntry {
     pub review_kind: RevlogReviewKind,
 }
 
-pub trait RemoveBefore {
-    fn remove_before(self, ms: TimestampMillis) -> Self;
-}
-
-impl RemoveBefore for Vec<RevlogEntry> {
-    fn remove_before(self, ms: TimestampMillis) -> Self {
-        self.into_iter()
-            .filter(|revlog| revlog.id.0 > ms.into())
-            .collect()
-    }
-}
-
 #[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, TryFromPrimitive, Clone, Copy)]
 #[repr(u8)]
 #[derive(Default)]

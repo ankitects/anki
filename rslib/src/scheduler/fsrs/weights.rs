@@ -18,7 +18,6 @@ use itertools::Itertools;
 use prost::Message;
 
 use crate::prelude::*;
-use crate::revlog::RemoveBefore;
 use crate::revlog::RevlogEntry;
 use crate::revlog::RevlogReviewKind;
 use crate::search::Node;
@@ -26,6 +25,12 @@ use crate::search::SearchNode;
 use crate::search::SortMode;
 
 pub(crate) type Weights = Vec<f32>;
+
+fn remove_revlogs_before(revlogs: Vec<RevlogEntry>, ms: TimestampMillis) -> Vec<RevlogEntry> {
+    revlogs.into_iter()
+        .filter(|revlog| revlog.id.0 > ms.into())
+        .collect()
+}
 
 impl Collection {
     /// Note this does not return an error if there are less than 1000 items -
@@ -40,9 +45,7 @@ impl Collection {
     ) -> Result<ComputeFsrsWeightsResponse> {
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
-        let revlogs = self
-            .revlog_for_srs(search)?
-            .remove_before(ignore_revlogs_before_ms);
+        let revlogs = remove_revlogs_before(self.revlog_for_srs(search)?, ignore_revlogs_before_ms);
 
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let fsrs_items = items.len() as u32;
@@ -127,10 +130,11 @@ impl Collection {
         let revlogs: Vec<RevlogEntry> = guard
             .col
             .storage
-            .get_revlog_entries_for_searched_cards_in_card_order()?
-            .remove_before(ignore_revlogs_before_ms);
-        anki_progress.state.fsrs_items = revlogs.len() as u32;
-        let items = fsrs_items_for_training(revlogs, timing.next_day_at);
+            .get_revlog_entries_for_searched_cards_in_card_order()?;
+        let filtered_revlogs = remove_revlogs_before(revlogs, ignore_revlogs_before_ms);
+
+        anki_progress.state.fsrs_items = filtered_revlogs.len() as u32;
+        let items = fsrs_items_for_training(filtered_revlogs, timing.next_day_at);
         let fsrs = FSRS::new(Some(weights))?;
         Ok(fsrs.evaluate(items, |ip| {
             anki_progress
