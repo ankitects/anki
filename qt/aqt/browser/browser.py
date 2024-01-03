@@ -128,6 +128,7 @@ class Browser(QMainWindow):
         self._card_info = BrowserCardInfo(self.mw)
         self._closeEventHasCleanedUp = False
         self.auto_layout = True
+        self.aspect_ratio = 0.0
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
         self.form.splitter.setChildrenCollapsible(False)
@@ -155,7 +156,8 @@ class Browser(QMainWindow):
         restoreState(self, self._editor_state_key)
 
         # responsive layout
-        self.aspect_ratio = self.width() / self.height() if self.height() != 0 else 0
+        if self.height() != 0:
+            self.aspect_ratio = self.width() / self.height()
         self.set_layout(self.mw.pm.browser_layout(), True)
         # disable undo/redo
         self.on_undo_state_change(mw.undo_actions_info())
