@@ -34,7 +34,7 @@ impl Collection {
     pub fn compute_weights(
         &mut self,
         search: &str,
-        ignore_revlogs_before_ms: i64,
+        ignore_revlogs_before_ms: TimestampMillis,
         current_preset: u32,
         total_presets: u32,
     ) -> Result<ComputeFsrsWeightsResponse> {
@@ -119,7 +119,7 @@ impl Collection {
         &mut self,
         weights: &Weights,
         search: &str,
-        ignore_revlogs_before_ms: i64,
+        ignore_revlogs_before_ms: TimestampMillis,
     ) -> Result<ModelEvaluation> {
         let timing = self.timing_today()?;
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();

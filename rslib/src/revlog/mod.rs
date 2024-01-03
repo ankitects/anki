@@ -60,12 +60,14 @@ pub struct RevlogEntry {
 }
 
 pub trait RemoveBefore {
-    fn remove_before(self, ms: i64) -> Self;
+    fn remove_before(self, ms: TimestampMillis) -> Self;
 }
 
 impl RemoveBefore for Vec<RevlogEntry> {
-    fn remove_before(self, ms: i64) -> Self {
-        self.into_iter().filter(|revlog| revlog.id.0 > ms).collect()
+    fn remove_before(self, ms: TimestampMillis) -> Self {
+        self.into_iter()
+            .filter(|revlog| revlog.id.0 > ms.into())
+            .collect()
     }
 }
 
