@@ -87,9 +87,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function getIgnoreBefore() {
+    function getignoreRevlogsBeforeMs() {
         return BigInt(
-            $config.ignoreBeforeDate ? new Date($config.ignoreBeforeDate).getTime() : 0,
+            $config.ignoreRevlogsBeforeDate
+                ? new Date($config.ignoreRevlogsBeforeDate).getTime()
+                : 0,
         );
     }
 
@@ -110,7 +112,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         search: $config.weightSearch
                             ? $config.weightSearch
                             : defaultWeightSearch,
-                        ignoreBefore: getIgnoreBefore(),
+                        ignoreRevlogsBeforeMs: getignoreRevlogsBeforeMs(),
                     });
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
@@ -153,7 +155,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     const resp = await evaluateWeights({
                         weights: $config.fsrsWeights,
                         search,
-                        ignoreBefore: getIgnoreBefore(),
+                        ignoreRevlogsBeforeMs: getignoreRevlogsBeforeMs(),
                     });
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
@@ -322,7 +324,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {tr.deckConfigEvaluateButton()}
             {/if}
         </button>
-        <DateInput bind:date={$config.ignoreBeforeDate}>
+        <DateInput bind:date={$config.ignoreRevlogsBeforeDate}>
             <SettingTitle on:click={() => openHelpModal("ignoreBefore")}>
                 {tr.deckConfigIgnoreBefore()}
             </SettingTitle>

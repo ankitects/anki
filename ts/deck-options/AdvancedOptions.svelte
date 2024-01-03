@@ -62,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             help: tr.deckConfigRescheduleCardsOnChangeTooltip(),
             sched: HelpItemScheduler.FSRS,
         },
-        ignoreBefore: {
+        ignoreRevlogsBeforeMs: {
             title: tr.deckConfigIgnoreBefore(),
             help: tr.deckConfigIgnoreBeforeTooltip(),
             sched: HelpItemScheduler.FSRS,

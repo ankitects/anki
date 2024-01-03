@@ -152,7 +152,7 @@ message DeckConfig {
 
     // for fsrs
     float desired_retention = 37;
-    string ignore_before_date = 46;
+    string ignore_revlogs_before_date = 46;
     // used for fsrs_reschedule in the past
     reserved 39;
     float sm2_retention = 40;

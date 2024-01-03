@@ -338,7 +338,7 @@ message RepositionDefaultsResponse {
 message ComputeFsrsWeightsRequest {
   /// The search used to gather cards for training
   string search = 1;
-  int64 ignore_before = 2;
+  int64 ignore_revlogs_before_ms = 2;
 }
 
 message ComputeFsrsWeightsResponse {
@@ -400,7 +400,7 @@ message GetOptimalRetentionParametersResponse {
 message EvaluateWeightsRequest {
   repeated float weights = 1;
   string search = 2;
-  int64 ignore_before = 3;
+  int64 ignore_revlogs_before_ms = 3;
 }
 
 message EvaluateWeightsResponse {

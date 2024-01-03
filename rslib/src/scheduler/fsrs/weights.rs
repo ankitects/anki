@@ -34,13 +34,15 @@ impl Collection {
     pub fn compute_weights(
         &mut self,
         search: &str,
-        ignore_before: i64,
+        ignore_revlogs_before_ms: i64,
         current_preset: u32,
         total_presets: u32,
     ) -> Result<ComputeFsrsWeightsResponse> {
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
-        let revlogs = self.revlog_for_srs(search)?.remove_before(ignore_before);
+        let revlogs = self
+            .revlog_for_srs(search)?
+            .remove_before(ignore_revlogs_before_ms);
 
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let fsrs_items = items.len() as u32;
@@ -117,7 +119,7 @@ impl Collection {
         &mut self,
         weights: &Weights,
         search: &str,
-        ignore_before: i64,
+        ignore_revlogs_before_ms: i64,
     ) -> Result<ModelEvaluation> {
         let timing = self.timing_today()?;
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
@@ -126,7 +128,7 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?
-            .remove_before(ignore_before);
+            .remove_before(ignore_revlogs_before_ms);
         anki_progress.state.fsrs_items = revlogs.len() as u32;
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let fsrs = FSRS::new(Some(weights))?;

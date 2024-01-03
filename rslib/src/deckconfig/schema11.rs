@@ -74,7 +74,7 @@ pub struct DeckConfSchema11 {
     #[serde(default)]
     desired_retention: f32,
     #[serde(default)]
-    ignore_before_date: String,
+    ignore_revlogs_before_date: String,
     #[serde(default)]
     stop_timer_on_answer: bool,
     #[serde(default)]
@@ -296,7 +296,7 @@ impl Default for DeckConfSchema11 {
             desired_retention: 0.9,
             sm2_retention: 0.9,
             weight_search: "".to_string(),
-            ignore_before_date: "".to_string(),
+            ignore_revlogs_before_date: "".to_string(),
         }
     }
 }
@@ -371,7 +371,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 bury_reviews: c.rev.bury,
                 bury_interday_learning: c.bury_interday_learning,
                 fsrs_weights: c.fsrs_weights,
-                ignore_before_date: c.ignore_before_date,
+                ignore_revlogs_before_date: c.ignore_revlogs_before_date,
                 desired_retention: c.desired_retention,
                 sm2_retention: c.sm2_retention,
                 weight_search: c.weight_search,
@@ -481,7 +481,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             desired_retention: i.desired_retention,
             sm2_retention: i.sm2_retention,
             weight_search: i.weight_search,
-            ignore_before_date: i.ignore_before_date,
+            ignore_revlogs_before_date: i.ignore_revlogs_before_date,
         }
     }
 }
@@ -512,7 +512,7 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "waitForAudio",
     "sm2Retention",
     "weightSearch",
-    "ignoreBeforeDate",
+    "ignoreRevlogsBeforeDate",
 };
 
 static RESERVED_DECKCONF_NEW_KEYS: Set<&'static str> = phf_set! {
