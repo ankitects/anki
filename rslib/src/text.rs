@@ -380,22 +380,61 @@ pub(crate) fn ensure_string_in_nfc(s: &mut String) {
     }
 }
 
+static EXTRA_NO_COMBINING_REPLACEMENTS: phf::Map<char, &str> = phf::phf_map! {
+'€'  =>  "E",
+'Æ'  =>  "AE",
+'Ð'  =>  "D",
+'Ø'  =>  "O",
+'Þ'  =>  "TH",
+'ß'  =>  "s",
+'æ'  =>  "ae",
+'ð'  =>  "d",
+'ø'  =>  "o",
+'þ'  =>  "th",
+'Đ'  =>  "D",
+'đ'  =>  "d",
+'Ħ'  =>  "H",
+'ħ'  =>  "h",
+'ı'  =>  "i",
+'ĸ'  =>  "k",
+'Ł'  =>  "L",
+'ł'  =>  "l",
+'Ŋ'  =>  "N",
+'ŋ'  =>  "n",
+'Œ'  =>  "OE",
+'œ'  =>  "oe",
+'Ŧ'  =>  "T",
+'ŧ'  =>  "t",
+'Ə'  =>  "E",
+'ǝ'  =>  "e",
+'ɑ'  =>  "a",
+};
+
 /// Convert provided string to NFKD form and strip combining characters.
 pub(crate) fn without_combining(s: &str) -> Cow<str> {
     // if the string is already normalized
     if matches!(is_nfkd_quick(s.chars()), IsNormalized::Yes) {
         // and no combining characters found, return unchanged
-        if !s.chars().any(is_combining_mark) {
+        if !s
+            .chars()
+            .any(|c| is_combining_mark(c) || EXTRA_NO_COMBINING_REPLACEMENTS.contains_key(&c))
+        {
             return s.into();
         }
     }
 
     // we need to create a new string without the combining marks
-    s.chars()
+    let mut s = s
+        .chars()
         .nfkd()
         .filter(|c| !is_combining_mark(*c))
-        .collect::<String>()
-        .into()
+        .collect::<String>();
+
+    for (k, v) in EXTRA_NO_COMBINING_REPLACEMENTS.entries() {
+        s = s.replace(|c| c == *k, v);
+    }
+
+    s.into()
 }
 
 /// Check if string contains an unescaped wildcard.
