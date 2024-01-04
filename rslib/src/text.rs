@@ -424,17 +424,16 @@ pub(crate) fn without_combining(s: &str) -> Cow<str> {
     }
 
     // we need to create a new string without the combining marks
-    let mut s = s
-        .chars()
-        .nfkd()
-        .filter(|c| !is_combining_mark(*c))
-        .collect::<String>();
-
-    for (k, v) in EXTRA_NO_COMBINING_REPLACEMENTS.entries() {
-        s = s.replace(|c| c == *k, v);
+    let mut out = String::new();
+    for chr in s.chars().nfkd().filter(|c| !is_combining_mark(*c)) {
+        if let Some(repl) = EXTRA_NO_COMBINING_REPLACEMENTS.get(&chr) {
+            out.push_str(repl);
+        } else {
+            out.push(chr);
+        }
     }
 
-    s.into()
+    out.into()
 }
 
 /// Check if string contains an unescaped wildcard.
