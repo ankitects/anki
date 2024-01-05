@@ -80,7 +80,7 @@ pub(crate) struct BuryMode {
 impl Collection {
     pub fn get_next_card(&mut self) -> Result<Option<QueuedCard>> {
         self.get_queued_cards(1, false)
-            .map(|queued| queued.cards.get(0).cloned())
+            .map(|queued| queued.cards.first().cloned())
     }
 
     pub fn get_queued_cards(

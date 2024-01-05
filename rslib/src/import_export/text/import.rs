@@ -483,7 +483,7 @@ impl DuplicateUpdateResult {
 impl NoteContext<'_> {
     fn is_guid_dupe(&self) -> bool {
         self.dupes
-            .get(0)
+            .first()
             .map_or(false, |d| d.note.guid == self.note.guid)
     }
 
@@ -570,11 +570,11 @@ impl ForeignNote {
     }
 
     fn first_field_is_the_empty_string(&self) -> bool {
-        matches!(self.fields.get(0), Some(Some(s)) if s.is_empty())
+        matches!(self.fields.first(), Some(Some(s)) if s.is_empty())
     }
 
     fn first_field_is_unempty(&self) -> bool {
-        matches!(self.fields.get(0), Some(Some(s)) if !s.is_empty())
+        matches!(self.fields.first(), Some(Some(s)) if !s.is_empty())
     }
 
     fn normalize_fields(&mut self, normalize_text: bool) {
@@ -595,7 +595,7 @@ impl ForeignNote {
 
     fn first_field_stripped(&self) -> Option<Cow<str>> {
         self.fields
-            .get(0)
+            .first()
             .and_then(|s| s.as_ref())
             .map(|field| strip_html_preserving_media_filenames(field.as_str()))
     }
