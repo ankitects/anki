@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     export let selected = false;
     export let active = false;
+    export let suggestion: string; // used by add-ons to target individual suggestions
 
     let buttonRef: HTMLElement;
 
@@ -21,6 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={buttonRef}
     tabindex="-1"
+    data-suggestion={suggestion}
     class="autocomplete-item"
     class:selected
     class:active
