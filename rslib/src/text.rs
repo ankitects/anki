@@ -424,7 +424,7 @@ pub(crate) fn without_combining(s: &str) -> Cow<str> {
     }
 
     // we need to create a new string without the combining marks
-    let mut out = String::new();
+    let mut out = String::with_capacity(s.len());
     for chr in s.chars().nfkd().filter(|c| !is_combining_mark(*c)) {
         if let Some(repl) = EXTRA_NO_COMBINING_REPLACEMENTS.get(&chr) {
             out.push_str(repl);
