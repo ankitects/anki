@@ -58,7 +58,7 @@ impl Collection {
             .or_invalid("no such notetype")?;
         let template = match nt.config.kind() {
             NotetypeKind::Normal => nt.templates.get(card.template_idx as usize),
-            NotetypeKind::Cloze => nt.templates.get(0),
+            NotetypeKind::Cloze => nt.templates.first(),
         }
         .or_invalid("missing template")?;
 

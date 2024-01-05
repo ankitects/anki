@@ -92,12 +92,11 @@ impl Collection {
         original_interval: u32,
         usn: Usn,
     ) -> Result<()> {
-        let ease_factor = u32::try_from(
+        let ease_factor = u32::from(
             card.memory_state
                 .map(|s| ((s.difficulty_shifted() * 1000.) as u16))
                 .unwrap_or(card.ease_factor),
-        )
-        .unwrap_or_default();
+        );
         let entry = RevlogEntry {
             id: RevlogId::new(),
             cid: card.id,
