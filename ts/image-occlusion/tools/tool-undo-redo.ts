@@ -49,7 +49,11 @@ class UndoStack {
     setCanvas(canvas: fabric.Canvas): void {
         this.canvas = canvas;
         this.canvas.on("object:modified", (opts) => this.maybePush(opts));
-        this.canvas.on("object:removed", (opts) => this.maybePush(opts));
+        this.canvas.on("object:removed", (opts) => {
+            if (!opts.target.group) {
+                this.maybePush(opts);
+            }
+        });
     }
 
     reset(): void {
