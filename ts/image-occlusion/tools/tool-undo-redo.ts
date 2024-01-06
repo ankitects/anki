@@ -108,8 +108,12 @@ class UndoStack {
     }
 
     private push(): void {
+        const entry = JSON.stringify(this.canvas);
+        if (entry === this.stack[this.stack.length - 1]) {
+            return;
+        }
         this.stack.length = this.index + 1;
-        this.stack.push(JSON.stringify(this.canvas));
+        this.stack.push(entry);
         this.index++;
         this.updateState();
     }
