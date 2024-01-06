@@ -302,7 +302,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:click={() => {
                         tool.action(canvas);
                         undoStack.onObjectModified();
-                        emitChangeSignal();
                     }}
                 >
                     {@html tool.icon}
@@ -331,7 +330,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:click={() => {
                         tool.action(canvas);
                         undoStack.onObjectModified();
-                        emitChangeSignal();
                     }}
                 >
                     {@html tool.icon}

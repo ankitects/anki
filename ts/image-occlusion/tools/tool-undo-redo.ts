@@ -98,6 +98,7 @@ class UndoStack {
 
     onObjectModified(): void {
         this.push();
+        emitChangeSignal();
     }
 
     private maybePush(opts): void {
