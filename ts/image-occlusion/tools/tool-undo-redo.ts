@@ -50,7 +50,8 @@ class UndoStack {
         this.canvas = canvas;
         this.canvas.on("object:modified", (opts) => this.maybePush(opts));
         this.canvas.on("object:removed", (opts) => {
-            if (!opts.target.group) {
+            // `destroyed` is a custom property set on groups in the ungrouping routine to avoid adding a spurious undo entry
+            if (!opts.target.group && !opts.target.destroyed) {
                 this.maybePush(opts);
             }
         });
