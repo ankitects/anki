@@ -19,7 +19,7 @@ type UndoState = {
     redoable: boolean;
 };
 
-const shapeType = ["rect", "ellipse", "i-text"];
+const shapeType = ["rect", "ellipse", "i-text", "group"];
 
 const validShape = (shape: fabric.Object): boolean => {
     if (shape.width <= 5 || shape.height <= 5) {
