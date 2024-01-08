@@ -96,6 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
         computingWeights = true;
+        computeWeightsProgress = undefined;
         try {
             await runWithBackendProgress(
                 async () => {
@@ -136,6 +137,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
         checkingWeights = true;
+        computeWeightsProgress = undefined;
         try {
             await runWithBackendProgress(
                 async () => {
@@ -180,6 +182,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
         computingRetention = true;
+        computeRetentionProgress = undefined;
         try {
             await runWithBackendProgress(
                 async () => {
