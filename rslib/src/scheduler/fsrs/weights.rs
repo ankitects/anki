@@ -39,6 +39,11 @@ impl Collection {
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
+        if revlogs.len() < 1000 {
+            return Err(AnkiError::FsrsInsufficientReviews {
+                count: revlogs.len(),
+            });
+        }
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let fsrs_items = items.len() as u32;
         anki_progress.update(false, |p| {
@@ -118,6 +123,11 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?;
+        if revlogs.len() < 1000 {
+            return Err(AnkiError::FsrsInsufficientReviews {
+                count: revlogs.len(),
+            });
+        }
         anki_progress.state.fsrs_items = revlogs.len() as u32;
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let fsrs = FSRS::new(Some(weights))?;
