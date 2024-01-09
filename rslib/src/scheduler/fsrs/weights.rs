@@ -9,6 +9,8 @@ use anki_io::write_file;
 use anki_proto::scheduler::ComputeFsrsWeightsResponse;
 use anki_proto::stats::revlog_entry;
 use anki_proto::stats::RevlogEntries;
+use chrono::NaiveDate;
+use chrono::NaiveTime;
 use fsrs::CombinedProgressState;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
@@ -37,6 +39,23 @@ fn remove_revlogs_before(revlogs: Vec<RevlogEntry>, ms: TimestampMillis) -> Vec<
     }
 }
 
+fn ignore_revlogs_before_date_to_ms(
+    ignore_revlogs_before_date: &String,
+) -> Result<TimestampMillis> {
+    Ok(match ignore_revlogs_before_date {
+        s if s.is_empty() => 0,
+        s => NaiveDate::parse_from_str(s.as_str(), "%Y-%m-%d")
+            .or_else(|err| invalid_input!(err, "Error parsing date: {s}"))?
+            .and_time(NaiveTime::from_hms_milli_opt(0, 0, 0, 0).unwrap())
+            .timestamp_millis(),
+    }
+    .into())
+}
+
+pub(crate) fn ignore_revlogs_before_ms_from_config(config: &DeckConfig) -> Result<TimestampMillis> {
+    ignore_revlogs_before_date_to_ms(&config.inner.ignore_revlogs_before_date)
+}
+
 impl Collection {
     /// Note this does not return an error if there are less than 1000 items -
     /// the caller should instead check the fsrs_items count in the return
@@ -50,7 +69,7 @@ impl Collection {
     ) -> Result<ComputeFsrsWeightsResponse> {
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
-        let revlogs = remove_revlogs_before(self.revlog_for_srs(search)?, ignore_revlogs_before_ms);
+        let revlogs = self.revlog_for_srs(search, ignore_revlogs_before_ms)?;
 
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
         let fsrs_items = items.len() as u32;
@@ -88,18 +107,22 @@ impl Collection {
     pub(crate) fn revlog_for_srs(
         &mut self,
         search: impl TryIntoSearch,
+        remove_revlogs_before_ms: TimestampMillis,
     ) -> Result<Vec<RevlogEntry>> {
-        let search = search.try_into_search()?;
-        // a whole-collection search can match revlog entries of deleted cards, too
-        if let Node::Group(nodes) = &search {
-            if let &[Node::Search(SearchNode::WholeCollection)] = &nodes[..] {
-                return self.storage.get_all_revlog_entries_in_card_order();
+        let revlogs = {
+            let search = search.try_into_search()?;
+            // a whole-collection search can match revlog entries of deleted cards, too
+            if let Node::Group(nodes) = &search {
+                if let &[Node::Search(SearchNode::WholeCollection)] = &nodes[..] {
+                    return self.storage.get_all_revlog_entries_in_card_order();
+                }
             }
-        }
-        self.search_cards_into_table(search, SortMode::NoOrder)?
-            .col
-            .storage
-            .get_revlog_entries_for_searched_cards_in_card_order()
+            self.search_cards_into_table(search, SortMode::NoOrder)?
+                .col
+                .storage
+                .get_revlog_entries_for_searched_cards_in_card_order()
+        }?;
+        Ok(remove_revlogs_before(revlogs, remove_revlogs_before_ms))
     }
 
     /// Used for exporting revlogs for algorithm research.

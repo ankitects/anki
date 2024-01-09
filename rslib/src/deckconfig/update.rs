@@ -12,14 +12,13 @@ use anki_proto::deck_config::deck_configs_for_update::ConfigWithExtra;
 use anki_proto::deck_config::deck_configs_for_update::CurrentDeck;
 use anki_proto::deck_config::UpdateDeckConfigsMode;
 use anki_proto::decks::deck::normal::DayLimit;
-use chrono::NaiveDate;
-use chrono::NaiveTime;
 use fsrs::DEFAULT_WEIGHTS;
 
 use crate::config::StringKey;
 use crate::decks::NormalDeck;
 use crate::prelude::*;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
+use crate::scheduler::fsrs::weights::ignore_revlogs_before_ms_from_config;
 use crate::search::JoinSearches;
 use crate::search::SearchNode;
 use crate::storage::comma_separated_ids;
@@ -240,29 +239,36 @@ impl Collection {
         }
 
         if !decks_needing_memory_recompute.is_empty() {
-            let input: Vec<(Option<UpdateMemoryStateRequest>, SearchNode)> =
-                decks_needing_memory_recompute
-                    .into_iter()
-                    .map(|(conf_id, search)| {
-                        let weights = configs_after_update.get(&conf_id).and_then(|c| {
-                            if req.fsrs {
-                                Some(UpdateMemoryStateRequest {
-                                    weights: c.inner.fsrs_weights.clone(),
-                                    desired_retention: c.inner.desired_retention,
-                                    max_interval: c.inner.maximum_review_interval,
-                                    reschedule: req.fsrs_reschedule,
-                                    sm2_retention: c.inner.sm2_retention,
-                                })
-                            } else {
-                                None
-                            }
-                        });
-                        Ok((
-                            weights,
-                            SearchNode::DeckIdsWithoutChildren(comma_separated_ids(&search)),
-                        ))
-                    })
-                    .collect::<Result<_>>()?;
+            let input: Vec<(
+                Option<UpdateMemoryStateRequest>,
+                SearchNode,
+                TimestampMillis,
+            )> = decks_needing_memory_recompute
+                .into_iter()
+                .map(|(conf_id, search)| {
+                    let config = configs_after_update.get(&conf_id);
+                    let weights = config.and_then(|c| {
+                        if req.fsrs {
+                            Some(UpdateMemoryStateRequest {
+                                weights: c.inner.fsrs_weights.clone(),
+                                desired_retention: c.inner.desired_retention,
+                                max_interval: c.inner.maximum_review_interval,
+                                reschedule: req.fsrs_reschedule,
+                                sm2_retention: c.inner.sm2_retention,
+                            })
+                        } else {
+                            None
+                        }
+                    });
+                    Ok((
+                        weights,
+                        SearchNode::DeckIdsWithoutChildren(comma_separated_ids(&search)),
+                        config
+                            .map(ignore_revlogs_before_ms_from_config)
+                            .unwrap_or(Ok(0.into()))?,
+                    ))
+                })
+                .collect::<Result<_>>()?;
             self.update_memory_state(input)?;
         }
 
@@ -335,15 +341,7 @@ impl Collection {
                 config.inner.weight_search.clone()
             };
 
-            let ignore_revlogs_before_ms: TimestampMillis =
-                match &config.inner.ignore_revlogs_before_date {
-                    s if s.is_empty() => 0,
-                    s => NaiveDate::parse_from_str(s.as_str(), "%Y-%m-%d")
-                        .or_else(|err| invalid_input!(err, "Error parsing date: {s}"))?
-                        .and_time(NaiveTime::from_hms_milli_opt(0, 0, 0, 0).unwrap())
-                        .timestamp_millis(),
-                }
-                .into();
+            let ignore_revlogs_before_ms = ignore_revlogs_before_ms_from_config(config)?;
 
             match self.compute_weights(
                 &search,

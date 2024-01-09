@@ -14,6 +14,7 @@ use rand::prelude::*;
 use rand::rngs::StdRng;
 use revlog::RevlogEntryPartial;
 
+use super::fsrs::weights::ignore_revlogs_before_ms_from_config;
 use super::queue::BuryMode;
 use super::states::steps::LearningSteps;
 use super::states::CardState;
@@ -374,7 +375,10 @@ impl Collection {
                 // Card has been moved or imported into an FSRS deck after weights were set,
                 // and will need its initial memory state to be calculated based on review
                 // history.
-                let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
+                let revlog = self.revlog_for_srs(
+                    SearchNode::CardIds(card.id.to_string()),
+                    ignore_revlogs_before_ms_from_config(&config)?,
+                )?;
                 let item = single_card_revlog_to_item(
                     &fsrs,
                     revlog,
