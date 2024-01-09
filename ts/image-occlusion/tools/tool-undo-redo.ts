@@ -19,7 +19,7 @@ type UndoState = {
     redoable: boolean;
 };
 
-const shapeType = ["rect", "ellipse", "i-text"];
+const shapeType = ["rect", "ellipse", "i-text", "group"];
 
 const validShape = (shape: fabric.Object): boolean => {
     if (shape.width <= 5 || shape.height <= 5) {
@@ -49,7 +49,12 @@ class UndoStack {
     setCanvas(canvas: fabric.Canvas): void {
         this.canvas = canvas;
         this.canvas.on("object:modified", (opts) => this.maybePush(opts));
-        this.canvas.on("object:removed", (opts) => this.maybePush(opts));
+        this.canvas.on("object:removed", (opts) => {
+            // `destroyed` is a custom property set on groups in the ungrouping routine to avoid adding a spurious undo entry
+            if (!opts.target.group && !opts.target.destroyed) {
+                this.maybePush(opts);
+            }
+        });
     }
 
     reset(): void {
@@ -94,6 +99,7 @@ class UndoStack {
 
     onObjectModified(): void {
         this.push();
+        emitChangeSignal();
     }
 
     private maybePush(opts): void {
@@ -103,8 +109,12 @@ class UndoStack {
     }
 
     private push(): void {
+        const entry = JSON.stringify(this.canvas);
+        if (entry === this.stack[this.stack.length - 1]) {
+            return;
+        }
         this.stack.length = this.index + 1;
-        this.stack.push(JSON.stringify(this.canvas));
+        this.stack.push(entry);
         this.index++;
         this.updateState();
     }

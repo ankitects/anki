@@ -301,6 +301,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     tooltip="{tool.tooltip()} ({getPlatformString(tool.shortcut)})"
                     on:click={() => {
                         tool.action(canvas);
+                        undoStack.onObjectModified();
                     }}
                 >
                     {@html tool.icon}
@@ -328,7 +329,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     tooltip="{tool.tooltip()} ({getPlatformString(tool.shortcut)})"
                     on:click={() => {
                         tool.action(canvas);
-                        emitChangeSignal();
+                        undoStack.onObjectModified();
                     }}
                 >
                     {@html tool.icon}
@@ -368,6 +369,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 )})"
                 on:click={() => {
                     alignTool.action(canvas);
+                    undoStack.onObjectModified();
                 }}
             >
                 {@html alignTool.icon}
