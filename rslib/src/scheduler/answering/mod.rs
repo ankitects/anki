@@ -398,7 +398,7 @@ impl Collection {
         };
         let desired_retention = fsrs_enabled.then_some(config.inner.desired_retention);
         Ok(CardStateUpdater {
-            fuzz_seed: get_fuzz_seed(&card),
+            fuzz_seed: get_fuzz_seed(&card, false),
             card,
             deck,
             config,
@@ -519,14 +519,23 @@ pub mod test_helpers {
 }
 
 impl Card {
-    pub(crate) fn get_fuzz_factor(&self) -> Option<f32> {
-        get_fuzz_factor(get_fuzz_seed(self))
+    /// If for_reschedule is true, we use card.reps - 1 to match the previous
+    /// review.
+    pub(crate) fn get_fuzz_factor(&self, for_reschedule: bool) -> Option<f32> {
+        get_fuzz_factor(get_fuzz_seed(self, for_reschedule))
     }
 }
 
 /// Return a consistent seed for a given card at a given number of reps.
-fn get_fuzz_seed(card: &Card) -> Option<u64> {
-    get_fuzz_seed_for_id_and_reps(card.id, card.reps)
+/// If for_reschedule is true, we use card.reps - 1 to match the previous
+/// review.
+fn get_fuzz_seed(card: &Card, for_reschedule: bool) -> Option<u64> {
+    let reps = if for_reschedule {
+        card.reps.saturating_sub(1)
+    } else {
+        card.reps
+    };
+    get_fuzz_seed_for_id_and_reps(card.id, reps)
 }
 
 /// If in test environment, disable fuzzing.
