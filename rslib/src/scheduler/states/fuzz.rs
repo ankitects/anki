@@ -49,7 +49,7 @@ impl Collection {
             .or_not_found(card.deck_id)?;
         let config = self.home_deck_config(deck.config_id(), card.original_deck_id)?;
         let fuzzed = with_review_fuzz(
-            card.get_fuzz_factor(),
+            card.get_fuzz_factor(true),
             interval as f32,
             1,
             config.inner.maximum_review_interval,

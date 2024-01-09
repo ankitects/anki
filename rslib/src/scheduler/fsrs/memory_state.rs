@@ -95,7 +95,7 @@ impl Collection {
                                         )
                                             as f32;
                                         card.interval = with_review_fuzz(
-                                            card.get_fuzz_factor(),
+                                            card.get_fuzz_factor(true),
                                             interval,
                                             1,
                                             req.max_interval,
