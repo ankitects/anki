@@ -28,17 +28,6 @@ use crate::search::SortMode;
 
 pub(crate) type Weights = Vec<f32>;
 
-fn remove_revlogs_before(revlogs: Vec<RevlogEntry>, ms: TimestampMillis) -> Vec<RevlogEntry> {
-    if ms.0 == 0 {
-        revlogs
-    } else {
-        revlogs
-            .into_iter()
-            .filter(|revlog| revlog.id.0 > ms.0)
-            .collect()
-    }
-}
-
 fn ignore_revlogs_before_date_to_ms(
     ignore_revlogs_before_date: &String,
 ) -> Result<TimestampMillis> {
