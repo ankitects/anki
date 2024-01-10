@@ -17,6 +17,7 @@ use fsrs::DEFAULT_WEIGHTS;
 use crate::config::StringKey;
 use crate::decks::NormalDeck;
 use crate::prelude::*;
+use crate::scheduler::fsrs::memory_state::UpdateMemoryStateEntry;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
 use crate::scheduler::fsrs::weights::ignore_revlogs_before_ms_from_config;
 use crate::search::JoinSearches;
@@ -239,11 +240,7 @@ impl Collection {
         }
 
         if !decks_needing_memory_recompute.is_empty() {
-            let input: Vec<(
-                Option<UpdateMemoryStateRequest>,
-                SearchNode,
-                TimestampMillis,
-            )> = decks_needing_memory_recompute
+            let input: Vec<UpdateMemoryStateEntry> = decks_needing_memory_recompute
                 .into_iter()
                 .map(|(conf_id, search)| {
                     let config = configs_after_update.get(&conf_id);
@@ -260,13 +257,13 @@ impl Collection {
                             None
                         }
                     });
-                    Ok((
-                        weights,
-                        SearchNode::DeckIdsWithoutChildren(comma_separated_ids(&search)),
-                        config
+                    Ok(UpdateMemoryStateEntry {
+                        req: weights,
+                        search: SearchNode::DeckIdsWithoutChildren(comma_separated_ids(&search)),
+                        ignore_before_ms: config
                             .map(ignore_revlogs_before_ms_from_config)
                             .unwrap_or(Ok(0.into()))?,
-                    ))
+                    })
                 })
                 .collect::<Result<_>>()?;
             self.update_memory_state(input)?;

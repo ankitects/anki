@@ -36,6 +36,12 @@ pub(crate) struct UpdateMemoryStateRequest {
     pub reschedule: bool,
 }
 
+pub(crate) struct UpdateMemoryStateEntry {
+    pub req: Option<UpdateMemoryStateRequest>,
+    pub search: SearchNode,
+    pub ignore_before_ms: TimestampMillis,
+}
+
 impl Collection {
     /// For each provided set of weights, locate cards with the provided search,
     /// and update their memory state.
@@ -44,15 +50,16 @@ impl Collection {
     /// memory state should be removed.
     pub(crate) fn update_memory_state(
         &mut self,
-        entries: Vec<(
-            Option<UpdateMemoryStateRequest>,
-            SearchNode,
-            TimestampMillis,
-        )>,
+        entries: Vec<UpdateMemoryStateEntry>,
     ) -> Result<()> {
         let timing = self.timing_today()?;
         let usn = self.usn()?;
-        for (req, search, ignore_before_ms) in entries {
+        for UpdateMemoryStateEntry {
+            req,
+            search,
+            ignore_before_ms,
+        } in entries
+        {
             let search =
                 SearchBuilder::all([search.into(), SearchNode::State(StateKind::New).negated()]);
             let revlog = self.revlog_for_srs(search)?;
