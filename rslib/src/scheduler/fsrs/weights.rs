@@ -69,9 +69,9 @@ impl Collection {
     ) -> Result<ComputeFsrsWeightsResponse> {
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
-        let revlogs = self.revlog_for_srs(search, ignore_revlogs_before_ms)?;
+        let revlogs = self.revlog_for_srs(search, 0.into())?;
 
-        let items = fsrs_items_for_training(revlogs, timing.next_day_at);
+        let items = fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before_ms);
         let fsrs_items = items.len() as u32;
         anki_progress.update(false, |p| {
             p.fsrs_items = fsrs_items;
@@ -159,10 +159,9 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?;
-        let filtered_revlogs = remove_revlogs_before(revlogs, ignore_revlogs_before_ms);
 
-        anki_progress.state.fsrs_items = filtered_revlogs.len() as u32;
-        let items = fsrs_items_for_training(filtered_revlogs, timing.next_day_at);
+        anki_progress.state.fsrs_items = revlogs.len() as u32;
+        let items = fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before_ms);
         let fsrs = FSRS::new(Some(weights))?;
         Ok(fsrs.evaluate(items, |ip| {
             anki_progress
@@ -187,13 +186,17 @@ pub struct ComputeWeightsProgress {
 }
 
 /// Convert a series of revlog entries sorted by card id into FSRS items.
-fn fsrs_items_for_training(revlogs: Vec<RevlogEntry>, next_day_at: TimestampSecs) -> Vec<FSRSItem> {
+fn fsrs_items_for_training(
+    revlogs: Vec<RevlogEntry>,
+    next_day_at: TimestampSecs,
+    review_revlogs_before: TimestampMillis,
+) -> Vec<FSRSItem> {
     let mut revlogs = revlogs
         .into_iter()
         .group_by(|r| r.cid)
         .into_iter()
         .filter_map(|(_cid, entries)| {
-            single_card_revlog_to_items(entries.collect(), next_day_at, true)
+            single_card_revlog_to_items(entries.collect(), next_day_at, true, review_revlogs_before)
         })
         .flat_map(|i| i.0)
         .collect_vec();
@@ -215,6 +218,7 @@ pub(crate) fn single_card_revlog_to_items(
     mut entries: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
     training: bool,
+    review_revlogs_before: TimestampMillis,
 ) -> Option<(Vec<FSRSItem>, bool)> {
     let mut last_learn_entry = None;
     let mut revlogs_complete = false;
@@ -259,7 +263,8 @@ pub(crate) fn single_card_revlog_to_items(
         let manually_rescheduled =
             entry.review_kind == RevlogReviewKind::Manual || entry.button_chosen == 0;
         let cram = entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0;
-        if manually_rescheduled || cram {
+        let before_date = entry.cid.0 < review_revlogs_before.into();
+        if manually_rescheduled || cram || before_date {
             return false;
         }
         // Keep only the first review when multiple reviews done on one day
@@ -346,7 +351,7 @@ pub(crate) mod tests {
     }
 
     pub(crate) fn convert(revlog: &[RevlogEntry], training: bool) -> Option<Vec<FSRSItem>> {
-        single_card_revlog_to_items(revlog.to_vec(), NEXT_DAY_AT, training).map(|i| i.0)
+        single_card_revlog_to_items(revlog.to_vec(), NEXT_DAY_AT, training, 0.into()).map(|i| i.0)
     }
 
     #[macro_export]

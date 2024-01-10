@@ -375,15 +375,14 @@ impl Collection {
                 // Card has been moved or imported into an FSRS deck after weights were set,
                 // and will need its initial memory state to be calculated based on review
                 // history.
-                let revlog = self.revlog_for_srs(
-                    SearchNode::CardIds(card.id.to_string()),
-                    ignore_revlogs_before_ms_from_config(&config)?,
-                )?;
+                let revlog =
+                    self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()), 0.into())?;
                 let item = single_card_revlog_to_item(
                     &fsrs,
                     revlog,
                     timing.next_day_at,
                     config.inner.sm2_retention,
+                    ignore_revlogs_before_ms_from_config(&config)?,
                 )?;
                 card.set_memory_state(&fsrs, item, config.inner.sm2_retention)?;
             }
