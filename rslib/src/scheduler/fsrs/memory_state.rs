@@ -39,7 +39,7 @@ pub(crate) struct UpdateMemoryStateRequest {
 pub(crate) struct UpdateMemoryStateEntry {
     pub req: Option<UpdateMemoryStateRequest>,
     pub search: SearchNode,
-    pub ignore_before_ms: TimestampMillis,
+    pub ignore_before: TimestampMillis,
 }
 
 impl Collection {
@@ -57,7 +57,7 @@ impl Collection {
         for UpdateMemoryStateEntry {
             req,
             search,
-            ignore_before_ms,
+            ignore_before,
         } in entries
         {
             let search =
@@ -76,7 +76,7 @@ impl Collection {
                 revlog,
                 timing.next_day_at,
                 sm2_retention.unwrap_or(0.9),
-                ignore_before_ms,
+                ignore_before,
             )?;
             let desired_retention = req.as_ref().map(|w| w.desired_retention);
             let mut progress = self.new_progress_handler::<ComputeMemoryProgress>();
@@ -210,7 +210,7 @@ pub(crate) fn fsrs_items_for_memory_state(
     revlogs: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
     sm2_retention: f32,
-    ignore_revlogs_before_ms: TimestampMillis,
+    ignore_revlogs_before: TimestampMillis,
 ) -> Result<Vec<(CardId, Option<FsrsItemWithStartingState>)>> {
     revlogs
         .into_iter()
@@ -224,7 +224,7 @@ pub(crate) fn fsrs_items_for_memory_state(
                     group.collect(),
                     next_day_at,
                     sm2_retention,
-                    ignore_revlogs_before_ms,
+                    ignore_revlogs_before,
                 )?,
             ))
         })
@@ -278,7 +278,7 @@ pub(crate) fn single_card_revlog_to_item(
     entries: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
     sm2_retention: f32,
-    ignore_revlogs_before_ms: TimestampMillis,
+    ignore_revlogs_before: TimestampMillis,
 ) -> Result<Option<FsrsItemWithStartingState>> {
     struct FirstReview {
         interval: f32,
@@ -297,7 +297,7 @@ pub(crate) fn single_card_revlog_to_item(
                 / 1000.0,
         });
     if let Some((mut items, revlogs_complete)) =
-        single_card_revlog_to_items(entries, next_day_at, false, ignore_revlogs_before_ms)
+        single_card_revlog_to_items(entries, next_day_at, false, ignore_revlogs_before)
     {
         let mut item = items.pop().unwrap();
         if revlogs_complete {

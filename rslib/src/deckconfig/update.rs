@@ -260,7 +260,7 @@ impl Collection {
                     Ok(UpdateMemoryStateEntry {
                         req: weights,
                         search: SearchNode::DeckIdsWithoutChildren(comma_separated_ids(&search)),
-                        ignore_before_ms: config
+                        ignore_before: config
                             .map(ignore_revlogs_before_ms_from_config)
                             .unwrap_or(Ok(0.into()))?,
                     })

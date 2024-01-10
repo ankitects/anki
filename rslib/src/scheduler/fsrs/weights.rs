@@ -52,7 +52,7 @@ impl Collection {
     pub fn compute_weights(
         &mut self,
         search: &str,
-        ignore_revlogs_before_ms: TimestampMillis,
+        ignore_revlogs_before: TimestampMillis,
         current_preset: u32,
         total_presets: u32,
     ) -> Result<ComputeFsrsWeightsResponse> {
@@ -60,7 +60,7 @@ impl Collection {
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
 
-        let items = fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before_ms);
+        let items = fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
         let fsrs_items = items.len() as u32;
         anki_progress.update(false, |p| {
             p.fsrs_items = fsrs_items;
@@ -135,7 +135,7 @@ impl Collection {
         &mut self,
         weights: &Weights,
         search: &str,
-        ignore_revlogs_before_ms: TimestampMillis,
+        ignore_revlogs_before: TimestampMillis,
     ) -> Result<ModelEvaluation> {
         let timing = self.timing_today()?;
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
@@ -146,7 +146,7 @@ impl Collection {
             .get_revlog_entries_for_searched_cards_in_card_order()?;
 
         anki_progress.state.fsrs_items = revlogs.len() as u32;
-        let items = fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before_ms);
+        let items = fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
         let fsrs = FSRS::new(Some(weights))?;
         Ok(fsrs.evaluate(items, |ip| {
             anki_progress
