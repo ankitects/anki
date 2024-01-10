@@ -69,7 +69,7 @@ impl Collection {
     ) -> Result<ComputeFsrsWeightsResponse> {
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
-        let revlogs = self.revlog_for_srs(search, 0.into())?;
+        let revlogs = self.revlog_for_srs(search)?;
 
         let items = fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before_ms);
         let fsrs_items = items.len() as u32;
@@ -107,22 +107,18 @@ impl Collection {
     pub(crate) fn revlog_for_srs(
         &mut self,
         search: impl TryIntoSearch,
-        remove_revlogs_before_ms: TimestampMillis,
     ) -> Result<Vec<RevlogEntry>> {
-        let revlogs = {
-            let search = search.try_into_search()?;
-            // a whole-collection search can match revlog entries of deleted cards, too
-            if let Node::Group(nodes) = &search {
-                if let &[Node::Search(SearchNode::WholeCollection)] = &nodes[..] {
-                    return self.storage.get_all_revlog_entries_in_card_order();
-                }
+        let search = search.try_into_search()?;
+        // a whole-collection search can match revlog entries of deleted cards, too
+        if let Node::Group(nodes) = &search {
+            if let &[Node::Search(SearchNode::WholeCollection)] = &nodes[..] {
+                return self.storage.get_all_revlog_entries_in_card_order();
             }
-            self.search_cards_into_table(search, SortMode::NoOrder)?
-                .col
-                .storage
-                .get_revlog_entries_for_searched_cards_in_card_order()
-        }?;
-        Ok(remove_revlogs_before(revlogs, remove_revlogs_before_ms))
+        }
+        self.search_cards_into_table(search, SortMode::NoOrder)?
+            .col
+            .storage
+            .get_revlog_entries_for_searched_cards_in_card_order()
     }
 
     /// Used for exporting revlogs for algorithm research.
