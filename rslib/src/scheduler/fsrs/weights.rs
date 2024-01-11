@@ -248,7 +248,7 @@ pub(crate) fn single_card_revlog_to_items(
         let manually_rescheduled =
             entry.review_kind == RevlogReviewKind::Manual || entry.button_chosen == 0;
         let cram = entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0;
-        let before_date = entry.cid.0 < review_revlogs_before.into();
+        let before_date = entry.id.0 < review_revlogs_before.into();
         if manually_rescheduled || cram || before_date {
             return false;
         }
