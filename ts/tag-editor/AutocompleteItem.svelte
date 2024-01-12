@@ -22,10 +22,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={buttonRef}
     tabindex="-1"
-    data-suggestion={suggestion}
     class="autocomplete-item"
     class:selected
     class:active
+    data-addon-suggestion={suggestion}
     on:mousedown|preventDefault
     on:mouseup
     on:mouseenter

@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:flashing
     tabindex="-1"
     title={tooltip}
-    data-tag-name={tagName}
+    data-addon-tag={tagName}
     on:mousemove
     on:click
 >
