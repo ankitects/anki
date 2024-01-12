@@ -345,7 +345,7 @@ impl SqliteStorage {
         let nts = self
             .get_schema11_notetypes()
             .map_err(|e| AnkiError::JsonError {
-                info: format!("decoding models: {}", e),
+                info: format!("decoding models: {:?}", e),
             })?;
         let mut names = HashSet::new();
         for (mut ntid, nt) in nts {
@@ -383,7 +383,7 @@ impl SqliteStorage {
         let notetypes = stmt
             .query_and_then([], |row| -> Result<HashMap<NotetypeId, NotetypeSchema11>> {
                 let v: HashMap<NotetypeId, NotetypeSchema11> =
-                    serde_json::from_str(row.get_ref_unwrap(0).as_str()?)?;
+                    serde_json::from_value(serde_json::from_str(row.get_ref_unwrap(0).as_str()?)?)?;
                 Ok(v)
             })?
             .next()
