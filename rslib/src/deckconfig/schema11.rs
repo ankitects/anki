@@ -420,11 +420,11 @@ impl From<DeckConfig> for DeckConfSchema11 {
             seconds_to_show_question: i.seconds_to_show_question,
             seconds_to_show_answer: i.seconds_to_show_answer,
             answer_action: match i.answer_action {
-                0 => AnswerAction::BuryCard,
                 1 => AnswerAction::AnswerAgain,
+                2 => AnswerAction::AnswerGood,
                 3 => AnswerAction::AnswerHard,
                 4 => AnswerAction::ShowReminder,
-                _ => AnswerAction::AnswerGood,
+                _ => AnswerAction::BuryCard,
             },
             wait_for_audio: i.wait_for_audio,
             replayq: !i.skip_question_when_replaying_answer,
