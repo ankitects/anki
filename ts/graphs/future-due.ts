@@ -85,7 +85,7 @@ export function buildHistogram(
             return m[0];
         })
         .domain(x.domain() as any)
-        .thresholds(x.ticks(desiredBars))(data.entries() as any);
+        .thresholds(desiredBars)(data.entries() as any);
 
     // empty graph?
     if (!sum(bins, (bin) => bin.length)) {
