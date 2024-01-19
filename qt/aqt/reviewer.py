@@ -154,6 +154,7 @@ class Reviewer:
         self._card_info = ReviewerCardInfo(self.mw)
         self._previous_card_info = PreviousReviewerCardInfo(self.mw)
         self._states_mutated = True
+        self._state_mutation_js = None
         self._reps: int = None
         self._show_question_timer: QTimer | None = None
         self._show_answer_timer: QTimer | None = None
