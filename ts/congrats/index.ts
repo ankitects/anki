@@ -26,8 +26,12 @@ export async function setupCongrats(): Promise<CongratsPage> {
     // refresh automatically if a custom area not provided
     if (!customMountPoint) {
         setInterval(async () => {
-            const info = await congratsInfo({});
-            page.$set({ info });
+            try {
+                const info = await congratsInfo({});
+                page.$set({ info });
+            } catch {
+                console.log("congrats fetch failed");
+            }
         }, 60000);
     }
 
