@@ -143,6 +143,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <AutocompleteItem
                         selected
                         {active}
+                        {suggestion}
                         on:mousedown={() => setSelectedAndActive(index)}
                         on:mouseup={() => {
                             selectIndex(index);
@@ -155,6 +156,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </AutocompleteItem>
                 {:else}
                     <AutocompleteItem
+                        {suggestion}
                         on:mousedown={() => setSelectedAndActive(index)}
                         on:mouseup={() => {
                             selectIndex(index);

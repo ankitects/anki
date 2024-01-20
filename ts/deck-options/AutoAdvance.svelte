@@ -57,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <TitledContainer title={tr.actionsAutoAdvance()}>
     <HelpModal
-        title={tr.deckConfigTimerTitle()}
+        title={tr.actionsAutoAdvance()}
         url={HelpPage.DeckOptions.autoAdvance}
         slot="tooltip"
         {helpSections}

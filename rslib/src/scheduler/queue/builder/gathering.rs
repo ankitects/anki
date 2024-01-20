@@ -91,7 +91,7 @@ impl QueueBuilder {
         col: &mut Collection,
         sort: NewCardSorting,
     ) -> Result<()> {
-        for deck_id in self.limits.active_decks() {
+        for deck_id in col.storage.get_active_deck_ids_sorted()? {
             if self.limits.root_limit_reached(LimitKind::New) {
                 break;
             }

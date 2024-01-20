@@ -48,6 +48,7 @@ impl AnkiError {
             #[cfg(windows)]
             AnkiError::WindowsError { .. } => Kind::OsError,
             AnkiError::SchedulerUpgradeRequired => Kind::SchedulerUpgradeRequired,
+            AnkiError::FsrsInsufficientReviews { .. } => Kind::InvalidInput,
         };
 
         anki_proto::backend::BackendError {

@@ -33,15 +33,15 @@ impl PreviewState {
     }
 }
 
-fn delay_or_return(minutes: u32) -> CardState {
-    if minutes == 0 {
+fn delay_or_return(seconds: u32) -> CardState {
+    if seconds == 0 {
         PreviewState {
             scheduled_secs: 0,
             finished: true,
         }
     } else {
         PreviewState {
-            scheduled_secs: minutes * 60,
+            scheduled_secs: seconds,
             finished: false,
         }
     }

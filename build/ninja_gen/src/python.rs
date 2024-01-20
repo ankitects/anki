@@ -16,36 +16,38 @@ use crate::input::BuildInput;
 use crate::inputs;
 use crate::Build;
 
+/// When updating this, pyoxidizer.bzl needs updating too, but it uses different
+/// files.
 pub fn python_archive(platform: Platform) -> OnlineArchive {
     match platform {
         Platform::LinuxX64 => {
             OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20221106/cpython-3.9.15+20221106-x86_64_v2-unknown-linux-gnu-install_only.tar.gz",
-                sha256: "436c35bd809abdd028f386cc623ae020c77e6b544eaaca405098387c4daa444c",
+                url: "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-x86_64_v2-unknown-linux-gnu-install_only.tar.gz",
+                sha256: "9426bca501ae0a257392b10719e2e20ff5fa5e22a3ce4599d6ad0b3139f86417",
             }
         }
         Platform::LinuxArm => {
             OnlineArchive {
-                url: "https://github.com/ankitects/python-build-standalone/releases/download/anki-2022-02-18/cpython-3.9.10-aarch64-unknown-linux-gnu-install_only-20220218T1329.tar.gz",
-                sha256: "39070f9b9492dce3085c8c98916940434bb65663e6665b2c87bef86025532c1a",
+                url: "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-aarch64-unknown-linux-gnu-install_only.tar.gz",
+                sha256: "7d19e1ecd6e582423f7c74a0c67491eaa982ce9d5c5f35f0e4289f83127abcb8",
             }
         }
         Platform::MacX64 => {
             OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20211012/cpython-3.9.7-x86_64-apple-darwin-install_only-20211011T1926.tar.gz",
-                sha256: "43cb1a83919f49b1ce95e42f9c461d8a9fb00ff3957bebef9cffe61a5f362377",
+                url: "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-x86_64-apple-darwin-install_only.tar.gz",
+                sha256: "5a0bf895a5cb08d6d008140abb41bb2c8cd638a665273f7d8eb258bc89de439b",
             }
         }
         Platform::MacArm => {
             OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20221106/cpython-3.9.15+20221106-aarch64-apple-darwin-install_only.tar.gz",
-                sha256: "64dc7e1013481c9864152c3dd806c41144c79d5e9cd3140e185c6a5060bdc9ab",
+                url: "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-aarch64-apple-darwin-install_only.tar.gz",
+                sha256: "bf0cd90204a2cc6da48cae1e4b32f48c9f7031fbe1238c5972104ccb0155d368",
             }
         }
         Platform::WindowsX64 => {
             OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20211012/cpython-3.9.7-x86_64-pc-windows-msvc-shared-install_only-20211011T1926.tar.gz",
-                sha256: "80370f232fd63d5cb3ff9418121acb87276228b0dafbeee3c57af143aca11f89",
+                url: "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-x86_64-pc-windows-msvc-shared-install_only.tar.gz",
+                sha256: "8f0544cd593984f7ecb90c685931249c579302124b9821064873f3a14ed07005",
             }
         }
     }

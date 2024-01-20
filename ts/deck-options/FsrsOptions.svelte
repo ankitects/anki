@@ -44,7 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         optimalRetention = 0;
     }
     $: computing = computingWeights || checkingWeights || computingRetention;
-    $: defaultWeightSearch = `preset:"${state.getCurrentName()}"`;
+    $: defaultWeightSearch = `preset:"${state.getCurrentName()}" -is:suspended`;
     $: desiredRetentionWarning = getRetentionWarning($config.desiredRetention);
     $: retentionWarningClass = getRetentionWarningClass($config.desiredRetention);
 
@@ -64,7 +64,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function getRetentionWarning(retention: number): string {
-        const days = Math.round(9 * 100 * (1.0 / retention - 1.0));
+        const decay = -0.5;
+        const factor = 0.9 ** (1 / decay) - 1;
+        const stability = 100;
+        const days = Math.round(
+            (stability / factor) * (Math.pow(retention, 1 / decay) - 1),
+        );
         if (days === 100) {
             return "";
         }
@@ -91,6 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
         computingWeights = true;
+        computeWeightsProgress = undefined;
         try {
             await runWithBackendProgress(
                 async () => {
@@ -131,6 +137,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
         checkingWeights = true;
+        computeWeightsProgress = undefined;
         try {
             await runWithBackendProgress(
                 async () => {
@@ -175,12 +182,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
         computingRetention = true;
+        computeRetentionProgress = undefined;
         try {
             await runWithBackendProgress(
                 async () => {
                     optimalRetentionRequest.maxInterval = $config.maximumReviewInterval;
                     optimalRetentionRequest.weights = $config.fsrsWeights;
-                    optimalRetentionRequest.search = `preset:"${state.getCurrentName()}"`;
+                    optimalRetentionRequest.search = `preset:"${state.getCurrentName()}" -is:suspended`;
                     const resp = await computeOptimalRetention(optimalRetentionRequest);
                     optimalRetention = resp.optimalRetention;
                     computeRetentionProgress = undefined;

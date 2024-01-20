@@ -75,6 +75,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: if (disabled) {
         showFloating = false;
     }
+
+    const rtl = window.getComputedStyle(document.body).direction === "rtl";
 </script>
 
 <ButtonGroup>
@@ -163,6 +165,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                     outdentKeyCombination,
                                 )})"
                                 {disabled}
+                                flipX={rtl}
                                 on:click={outdentListItem}
                                 --border-left-radius="5px"
                                 --border-right-radius="0px"
@@ -175,6 +178,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                     indentKeyCombination,
                                 )})"
                                 {disabled}
+                                flipX={rtl}
                                 on:click={indentListItem}
                                 --border-right-radius="5px"
                             >

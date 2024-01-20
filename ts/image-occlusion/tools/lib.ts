@@ -81,6 +81,7 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
     const group = canvas.getActiveObject();
     const items = group.getObjects();
     group._restoreObjectsState();
+    group.destroyed = true;
     canvas.remove(group);
 
     items.forEach((item) => {

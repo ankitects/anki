@@ -142,9 +142,9 @@ class FilteredDeckConfigDialog(QDialog):
         form.order.setCurrentIndex(term1.order)
         form.limit.setValue(term1.limit)
 
-        form.preview_again.setValue(config.preview_again_mins)
-        form.preview_hard.setValue(config.preview_hard_mins)
-        form.preview_good.setValue(config.preview_good_mins)
+        form.preview_again.setValue(config.preview_again_secs)
+        form.preview_hard.setValue(config.preview_hard_secs)
+        form.preview_good.setValue(config.preview_good_secs)
 
         if len(config.search_terms) > 1:
             term2: FilteredDeckConfig.SearchTerm = config.search_terms[1]
@@ -277,9 +277,9 @@ class FilteredDeckConfigDialog(QDialog):
 
         del config.search_terms[:]
         config.search_terms.extend(terms)
-        config.preview_again_mins = form.preview_again.value()
-        config.preview_hard_mins = form.preview_hard.value()
-        config.preview_good_mins = form.preview_good.value()
+        config.preview_again_secs = form.preview_again.value()
+        config.preview_hard_secs = form.preview_hard.value()
+        config.preview_good_secs = form.preview_good.value()
 
         return True
 

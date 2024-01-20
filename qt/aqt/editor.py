@@ -911,21 +911,18 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
     def _retrieveURL(self, url: str) -> str | None:
         "Download file into media folder and return local filename or None."
-        # urllib doesn't understand percent-escaped utf8, but requires things like
-        # '#' to be escaped.
-        url = urllib.parse.unquote(url)
-        if url.lower().startswith("file://"):
-            url = url.replace("%", "%25")
-            url = url.replace("#", "%23")
-            local = True
-        else:
-            local = False
+        local = url.lower().startswith("file://")
         # fetch it into a temporary folder
         self.mw.progress.start(immediate=not local, parent=self.parentWindow)
         content_type = None
         error_msg: str | None = None
         try:
             if local:
+                # urllib doesn't understand percent-escaped utf8, but requires things like
+                # '#' to be escaped.
+                url = urllib.parse.unquote(url)
+                url = url.replace("%", "%25")
+                url = url.replace("#", "%23")
                 req = urllib.request.Request(
                     url, None, {"User-Agent": "Mozilla/5.0 (compatible; Anki)"}
                 )
@@ -1403,8 +1400,9 @@ class EditorWebView(AnkiWebView):
         # when we detect the user copying from a field, we store the content
         # here, and use it when they paste, so we avoid filtering field content
         self._internal_field_text_for_paste: str | None = None
+        self._last_known_clipboard_mime: QMimeData | None = None
         clip = self.editor.mw.app.clipboard()
-        qconnect(clip.dataChanged, self._on_clipboard_change)
+        clip.dataChanged.connect(self._on_clipboard_change)
         gui_hooks.editor_web_view_did_init(self)
 
     def user_cut_or_copied(self) -> None:
@@ -1412,6 +1410,7 @@ class EditorWebView(AnkiWebView):
         self._internal_field_text_for_paste = None
 
     def _on_clipboard_change(self) -> None:
+        self._last_known_clipboard_mime = self.editor.mw.app.clipboard().mimeData()
         if self._store_field_content_on_next_clipboard_change:
             # if the flag was set, save the field data
             self._internal_field_text_for_paste = self._get_clipboard_html_for_field()
@@ -1444,6 +1443,9 @@ class EditorWebView(AnkiWebView):
         return not strip_html
 
     def _onPaste(self, mode: QClipboard.Mode) -> None:
+        # Since _on_clipboard_change doesn't always trigger properly on macOS, we do a double check if any changes were made before pasting
+        if self._last_known_clipboard_mime != self.editor.mw.app.clipboard().mimeData():
+            self._on_clipboard_change()
         extended = self._wantsExtendedPaste()
         if html := self._internal_field_text_for_paste:
             print("reuse internal")

@@ -95,7 +95,7 @@ impl Collection {
                                         )
                                             as f32;
                                         card.interval = with_review_fuzz(
-                                            card.get_fuzz_factor(),
+                                            card.get_fuzz_factor(true),
                                             interval,
                                             1,
                                             req.max_interval,
@@ -318,6 +318,16 @@ mod tests {
     use crate::scheduler::fsrs::weights::tests::convert;
     use crate::scheduler::fsrs::weights::tests::revlog;
 
+    /// Floating point precision can vary between platforms, and each FSRS
+    /// update tends to result in small changes to these numbers, so we
+    /// round them.
+    fn assert_int_eq(actual: Option<FsrsMemoryState>, expected: Option<FsrsMemoryState>) {
+        let actual = actual.unwrap();
+        let expected = expected.unwrap();
+        assert_eq!(actual.stability.round(), expected.stability.round());
+        assert_eq!(actual.difficulty.round(), expected.difficulty.round());
+    }
+
     #[test]
     fn bypassed_learning_is_handled() -> Result<()> {
         // cards without any learning steps due to truncated history still have memory
@@ -337,24 +347,24 @@ mod tests {
             0.9,
         )?
         .unwrap();
-        assert_eq!(
-            item.starting_state,
-            Some(MemoryState {
+        assert_int_eq(
+            item.starting_state.map(Into::into),
+            Some(FsrsMemoryState {
                 stability: 99.999954,
-                difficulty: 5.287041,
-            })
+                difficulty: 5.8158145,
+            }),
         );
         let mut card = Card {
             reps: 1,
             ..Default::default()
         };
         card.set_memory_state(&fsrs, Some(item), 0.9)?;
-        assert_eq!(
+        assert_int_eq(
             card.memory_state,
             Some(FsrsMemoryState {
-                stability: 248.5813,
-                difficulty: 5.2646275,
-            })
+                stability: 248.65057,
+                difficulty: 5.782729,
+            }),
         );
         // but if there's only a single revlog entry, we'll fall back on current card
         // state
@@ -373,12 +383,12 @@ mod tests {
         card.ease_factor = 2000;
         card.ctype = CardType::Review;
         card.set_memory_state(&fsrs, item, 0.9)?;
-        assert_eq!(
+        assert_int_eq(
             card.memory_state,
             Some(FsrsMemoryState {
                 stability: 122.99994,
-                difficulty: 7.0797696
-            })
+                difficulty: 7.4459267,
+            }),
         );
         Ok(())
     }
@@ -396,15 +406,15 @@ mod tests {
             ..Default::default()
         };
         card.set_memory_state(&FSRS::new(Some(&[])).unwrap(), None, 0.9)?;
-        assert_eq!(
+        assert_int_eq(
             card.memory_state,
             Some(
                 MemoryState {
                     stability: 99.999954,
-                    difficulty: 9.857409
+                    difficulty: 9.963163,
                 }
-                .into()
-            )
+                .into(),
+            ),
         );
         Ok(())
     }

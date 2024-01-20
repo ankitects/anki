@@ -132,7 +132,7 @@ impl Notetype {
     /// always return the first and only template.
     pub fn get_template(&self, card_ord: u16) -> Result<&CardTemplate> {
         let template = if self.config.kind() == NotetypeKind::Cloze {
-            self.templates.get(0)
+            self.templates.first()
         } else {
             self.templates.get(card_ord as usize)
         };
@@ -553,7 +553,7 @@ impl Notetype {
         fields: HashMap<String, Option<String>>,
         parsed: &mut [(Option<ParsedTemplate>, Option<ParsedTemplate>)],
     ) {
-        let first_remaining_field_name = &self.fields.get(0).unwrap().name;
+        let first_remaining_field_name = &self.fields.first().unwrap().name;
         let is_cloze = self.is_cloze();
         for (idx, (q_opt, a_opt)) in parsed.iter_mut().enumerate() {
             if let Some(q) = q_opt {
@@ -616,7 +616,7 @@ impl Notetype {
     pub(crate) fn cloze_fields(&self) -> HashSet<usize> {
         if !self.is_cloze() {
             HashSet::new()
-        } else if let Some((Some(front), _)) = self.parsed_templates().get(0) {
+        } else if let Some((Some(front), _)) = self.parsed_templates().first() {
             front
                 .all_referenced_cloze_field_names()
                 .iter()
@@ -647,7 +647,7 @@ fn missing_cloze_filter(
     parsed_templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
 ) -> bool {
     parsed_templates
-        .get(0)
+        .first()
         .map_or(true, |t| !has_cloze(&t.0) || !has_cloze(&t.1))
 }
 

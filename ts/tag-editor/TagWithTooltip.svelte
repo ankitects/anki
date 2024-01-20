@@ -69,7 +69,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:empty={name === ""}
 >
     {#if active}
-        <Tag class={className} on:mousemove={setControlShift} on:click={onClick}>
+        <Tag
+            class={className}
+            tagName={name}
+            on:mousemove={setControlShift}
+            on:click={onClick}
+        >
             {name}
             <slot {selectMode} {hoverClass} />
         </Tag>
@@ -77,6 +82,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <WithTooltip {tooltip} trigger="hover" placement="top" let:createTooltip>
             <Tag
                 class={className}
+                tagName={name}
                 bind:flash
                 bind:selected
                 on:mousemove={setControlShift}
@@ -90,6 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {:else}
         <Tag
             class={className}
+            tagName={name}
             bind:flash
             bind:selected
             on:mousemove={setControlShift}

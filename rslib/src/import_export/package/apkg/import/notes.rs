@@ -12,6 +12,7 @@ use super::Context;
 use super::TemplateMap;
 use crate::import_export::package::media::safe_normalized_file_name;
 use crate::import_export::package::UpdateCondition;
+use crate::import_export::ImportError;
 use crate::import_export::ImportProgress;
 use crate::import_export::NoteLog;
 use crate::notetype::ChangeNotetypeInput;
@@ -229,6 +230,10 @@ impl<'n> NoteContext<'n> {
         incoming: &mut Notetype,
         mut existing: Notetype,
     ) -> Result<()> {
+        if existing.is_cloze() != incoming.is_cloze() {
+            return Err(ImportError::NotetypeKindMergeConflict.into());
+        }
+
         let original_existing = existing.clone();
         // get and merge duplicated notetypes from previous no-merge imports
         let mut siblings = self.get_sibling_notetypes(existing.id);
@@ -366,6 +371,10 @@ impl<'n> NoteContext<'n> {
                 .storage
                 .get_notetype(incoming_ntid)?
                 .or_not_found(incoming_ntid)?;
+
+            if existing.is_cloze() != incoming.is_cloze() {
+                return Err(ImportError::NotetypeKindMergeConflict.into());
+            }
 
             existing.merge(&incoming);
             incoming.merge(&existing);
@@ -535,7 +544,7 @@ fn combine_template_ords_maps(old_map: &mut HashMap<u16, u16>, new: &Notetype) {
 }
 
 /// Target ids of notes with conflicting notetypes, with keys
-/// `(target note's notetype, incoming note's notetypes)`.
+/// `(target note's notetype, incoming note's notetype)`.
 fn notetype_conflicts(
     incoming_notes: &[Note],
     existing_guids: &HashMap<String, NoteMeta>,
@@ -547,7 +556,7 @@ fn notetype_conflicts(
                 conflicts
                     .entry((meta.notetype_id, note.notetype_id))
                     .or_default()
-                    .push(note.id);
+                    .push(meta.id);
             }
         };
     }

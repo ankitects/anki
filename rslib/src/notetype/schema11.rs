@@ -186,6 +186,7 @@ static RESERVED_NOTETYPE_KEYS: Set<&'static str> = phf_set! {
     "flds",
     "css",
     "originalStockKind",
+    "originalId",
     "id",
     "usn",
     "mod",

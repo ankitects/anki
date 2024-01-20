@@ -186,6 +186,7 @@ impl Card {
     /// Caller must ensure provided deck exists and is not filtered.
     fn set_deck(&mut self, deck: DeckId) {
         self.remove_from_filtered_deck_restoring_queue();
+        self.memory_state = None;
         self.deck_id = deck;
     }
 

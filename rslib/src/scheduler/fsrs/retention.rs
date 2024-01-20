@@ -50,6 +50,8 @@ impl Collection {
                         p.review_rating_probability_easy,
                     ],
                     loss_aversion: req.loss_aversion,
+                    learn_limit: usize::MAX,
+                    review_limit: usize::MAX,
                 },
                 &req.weights,
                 |ip| {
@@ -73,6 +75,11 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?;
+        if revlogs.len() < 1000 {
+            return Err(AnkiError::FsrsInsufficientReviews {
+                count: revlogs.len(),
+            });
+        }
 
         let first_rating_count = revlogs
             .iter()

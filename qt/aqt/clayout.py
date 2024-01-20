@@ -26,6 +26,7 @@ from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.utils import (
     HelpPage,
+    ask_user_dialog,
     askUser,
     disable_help_button,
     downArrow,
@@ -891,11 +892,30 @@ class CardLayout(QDialog):
         ).run_in_background()
 
     def reject(self) -> None:
+        def _reject() -> None:
+            self.cleanup()
+            QDialog.reject(self)
+
+        def callback(choice: int) -> None:
+            if choice == 0:
+                self.accept()
+            elif choice == 1:
+                _reject()
+
         if self.change_tracker.changed():
-            if not askUser(tr.card_templates_discard_changes()):
-                return
-        self.cleanup()
-        return QDialog.reject(self)
+            ask_user_dialog(
+                text=tr.card_templates_discard_changes(),
+                callback=callback,
+                buttons=[
+                    QMessageBox.StandardButton.Save,
+                    QMessageBox.StandardButton.Discard,
+                    QMessageBox.StandardButton.Cancel,
+                ],
+                default_button=2,
+                parent=self,
+            )
+        else:
+            _reject()
 
     def cleanup(self) -> None:
         self.cancelPreviewTimer()
