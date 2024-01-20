@@ -345,8 +345,13 @@ pub(crate) mod tests {
         FSRSReview { rating: 3, delta_t }
     }
 
-    pub(crate) fn convert_ignore_before(revlog: &[RevlogEntry], training: bool, ignore_before: TimestampMillis) -> Option<Vec<FSRSItem>> {
-        single_card_revlog_to_items(revlog.to_vec(), NEXT_DAY_AT, training, ignore_before).map(|i| i.0)
+    pub(crate) fn convert_ignore_before(
+        revlog: &[RevlogEntry],
+        training: bool,
+        ignore_before: TimestampMillis,
+    ) -> Option<Vec<FSRSItem>> {
+        single_card_revlog_to_items(revlog.to_vec(), NEXT_DAY_AT, training, ignore_before)
+            .map(|i| i.0)
     }
 
     pub(crate) fn convert(revlog: &[RevlogEntry], training: bool) -> Option<Vec<FSRSItem>> {
@@ -483,7 +488,13 @@ pub(crate) mod tests {
             revlog(RevlogReviewKind::Learning, 8),
         ];
         assert_eq!(convert_ignore_before(revlogs, true, days_ago_ms(8)), None);
-        assert_eq!(convert_ignore_before(revlogs, true, days_ago_ms(9)), convert(revlogs, true));
-        assert_eq!(convert_ignore_before(revlogs, true, days_ago_ms(10)), convert(revlogs, true));
+        assert_eq!(
+            convert_ignore_before(revlogs, true, days_ago_ms(9)),
+            convert(revlogs, true)
+        );
+        assert_eq!(
+            convert_ignore_before(revlogs, true, days_ago_ms(10)),
+            convert(revlogs, true)
+        );
     }
 }
