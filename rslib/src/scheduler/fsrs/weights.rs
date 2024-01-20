@@ -203,7 +203,7 @@ pub(crate) fn single_card_revlog_to_items(
     mut entries: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
     training: bool,
-    review_revlogs_before: TimestampMillis,
+    ignore_revlogs_before: TimestampMillis,
 ) -> Option<(Vec<FSRSItem>, bool)> {
     let mut last_learn_entry = None;
     let mut revlogs_complete = false;
@@ -232,6 +232,13 @@ pub(crate) fn single_card_revlog_to_items(
         .enumerate()
         .find(|(_idx, e)| e.review_kind == RevlogReviewKind::Relearning)
         .map(|(idx, _)| idx);
+    // Ignore the entire card if the first learning step of the last group of
+    // learning steps is before the ignore_revlogs_before date
+    if let Some(idx) = last_learn_entry {
+        if entries[idx].cid.0 < ignore_revlogs_before.0 {
+            return None;
+        }
+    }
     if let Some(idx) = last_learn_entry.or(first_relearn) {
         // start from the (re)learning step
         if idx > 0 {
@@ -248,8 +255,7 @@ pub(crate) fn single_card_revlog_to_items(
         let manually_rescheduled =
             entry.review_kind == RevlogReviewKind::Manual || entry.button_chosen == 0;
         let cram = entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0;
-        let before_date = entry.id.0 < review_revlogs_before.into();
-        if manually_rescheduled || cram || before_date {
+        if manually_rescheduled || cram {
             return false;
         }
         // Keep only the first review when multiple reviews done on one day
