@@ -328,10 +328,14 @@ pub(crate) mod tests {
 
     const NEXT_DAY_AT: TimestampSecs = TimestampSecs(86400 * 100);
 
+    pub(crate) fn days_ago_ms(days_ago: i64) -> TimestampMillis {
+        ((NEXT_DAY_AT.0 - days_ago * 86400) * 1000).into()
+    }
+
     pub(crate) fn revlog(review_kind: RevlogReviewKind, days_ago: i64) -> RevlogEntry {
         RevlogEntry {
             review_kind,
-            id: ((NEXT_DAY_AT.0 - days_ago * 86400) * 1000).into(),
+            id: days_ago_ms(days_ago).into(),
             button_chosen: 3,
             ..Default::default()
         }
@@ -341,8 +345,12 @@ pub(crate) mod tests {
         FSRSReview { rating: 3, delta_t }
     }
 
+    pub(crate) fn convert_ignore_before(revlog: &[RevlogEntry], training: bool, ignore_before: TimestampMillis) -> Option<Vec<FSRSItem>> {
+        single_card_revlog_to_items(revlog.to_vec(), NEXT_DAY_AT, training, ignore_before).map(|i| i.0)
+    }
+
     pub(crate) fn convert(revlog: &[RevlogEntry], training: bool) -> Option<Vec<FSRSItem>> {
-        single_card_revlog_to_items(revlog.to_vec(), NEXT_DAY_AT, training, 0.into()).map(|i| i.0)
+        convert_ignore_before(revlog, training, 0.into())
     }
 
     #[macro_export]
@@ -466,5 +474,15 @@ pub(crate) mod tests {
             convert(&[revlog(RevlogReviewKind::Learning, 1),], false),
             fsrs_items!([review(0)])
         );
+    }
+
+    #[test]
+    fn ignores_cards_before_ignore_before_date() {
+        let revlogs = &[
+            revlog(RevlogReviewKind::Learning, 9),
+            revlog(RevlogReviewKind::Learning, 8),
+        ];
+        assert_eq!(convert_ignore_before(revlogs, true, days_ago_ms(8)), None);
+        assert_eq!(convert_ignore_before(revlogs, true, days_ago_ms(10)), convert(revlogs, true));
     }
 }
