@@ -460,7 +460,7 @@ fn ensure_first_field_is_mapped(
 fn maybe_set_fallback_columns(metadata: &mut CsvMetadata) -> Result<()> {
     if metadata.column_labels.is_empty() {
         metadata.column_labels =
-            vec![String::new(); metadata.preview.get(0).map_or(0, |row| row.vals.len())];
+            vec![String::new(); metadata.preview.first().map_or(0, |row| row.vals.len())];
     }
     Ok(())
 }

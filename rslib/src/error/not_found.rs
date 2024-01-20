@@ -23,7 +23,12 @@ pub struct NotFoundError {
 
 impl NotFoundError {
     pub fn message(&self, tr: &I18n) -> String {
-        tr.errors_inconsistent_db_state().into()
+        format!(
+            "{} No such {}: '{}'",
+            tr.errors_inconsistent_db_state(),
+            self.type_name,
+            self.identifier
+        )
     }
 
     pub fn context(&self) -> String {

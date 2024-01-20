@@ -544,7 +544,7 @@ fn combine_template_ords_maps(old_map: &mut HashMap<u16, u16>, new: &Notetype) {
 }
 
 /// Target ids of notes with conflicting notetypes, with keys
-/// `(target note's notetype, incoming note's notetypes)`.
+/// `(target note's notetype, incoming note's notetype)`.
 fn notetype_conflicts(
     incoming_notes: &[Note],
     existing_guids: &HashMap<String, NoteMeta>,
@@ -556,7 +556,7 @@ fn notetype_conflicts(
                 conflicts
                     .entry((meta.notetype_id, note.notetype_id))
                     .or_default()
-                    .push(note.id);
+                    .push(meta.id);
             }
         };
     }

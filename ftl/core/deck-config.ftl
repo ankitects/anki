@@ -339,7 +339,7 @@ deck-config-must-have-1000-reviews =
     { $count ->
         [one] Only { $count } review was found.
        *[other] Only { $count } reviews were found.
-    } You must have at least 1000 reviews to generate custom parameters.
+    } You must have at least 1000 reviews for this operation.
 # Numbers that control how aggressively the FSRS algorithm schedules cards
 deck-config-weights = FSRS parameters
 deck-config-compute-optimal-weights = Optimize FSRS parameters

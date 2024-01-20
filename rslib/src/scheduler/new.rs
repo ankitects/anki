@@ -299,6 +299,15 @@ impl Collection {
     }
 }
 
+impl From<NewCardInsertOrder> for NewCardDueOrder {
+    fn from(o: NewCardInsertOrder) -> Self {
+        match o {
+            NewCardInsertOrder::Due => NewCardDueOrder::NoteId,
+            NewCardInsertOrder::Random => NewCardDueOrder::Random,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -372,14 +381,5 @@ mod test {
         // complete reset
         card.schedule_as_new(1, true, false);
         assert_eq!((card.due, card.reps, card.lapses), (1, 0, 0));
-    }
-}
-
-impl From<NewCardInsertOrder> for NewCardDueOrder {
-    fn from(o: NewCardInsertOrder) -> Self {
-        match o {
-            NewCardInsertOrder::Due => NewCardDueOrder::NoteId,
-            NewCardInsertOrder::Random => NewCardDueOrder::Random,
-        }
     }
 }

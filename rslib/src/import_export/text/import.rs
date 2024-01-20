@@ -26,6 +26,7 @@ use crate::notetype::CardTemplate;
 use crate::notetype::NoteField;
 use crate::prelude::*;
 use crate::progress::ThrottlingProgressHandler;
+use crate::scheduler::timing::SchedTimingToday;
 use crate::text::strip_html_preserving_media_filenames;
 
 impl ForeignData {
@@ -73,7 +74,7 @@ struct Context<'a> {
     deck_ids: DeckIdsByNameOrId,
     usn: Usn,
     normalize_notes: bool,
-    today: u32,
+    timing: SchedTimingToday,
     dupe_resolution: DupeResolution,
     card_gen_ctxs: HashMap<(NotetypeId, DeckId), CardGenContext<Arc<Notetype>>>,
     existing_checksums: ExistingChecksums,
@@ -179,7 +180,7 @@ impl<'a> Context<'a> {
     fn new(data: &ForeignData, col: &'a mut Collection) -> Result<Self> {
         let usn = col.usn()?;
         let normalize_notes = col.get_config_bool(BoolKey::NormalizeNoteText);
-        let today = col.timing_today()?.days_elapsed;
+        let timing = col.timing_today()?;
         let mut notetypes = HashMap::new();
         notetypes.insert(
             NameOrId::default(),
@@ -193,7 +194,7 @@ impl<'a> Context<'a> {
             col,
             usn,
             normalize_notes,
-            today,
+            timing,
             dupe_resolution: data.dupe_resolution,
             notetypes,
             deck_ids,
@@ -355,7 +356,7 @@ impl<'a> Context<'a> {
         let mut note = Note::new(&ctx.notetype);
         let mut cards = ctx
             .note
-            .into_native(&mut note, ctx.deck_id, self.today, ctx.global_tags);
+            .into_native(&mut note, ctx.deck_id, &self.timing, ctx.global_tags);
         self.prepare_note(&mut note, &ctx.notetype)?;
         self.col.add_note_only_undoable(&mut note)?;
         self.add_cards(&mut cards, &note, ctx.deck_id, ctx.notetype)?;
@@ -392,7 +393,7 @@ impl<'a> Context<'a> {
             let mut cards = ctx.note.clone().into_native(
                 &mut note,
                 ctx.deck_id,
-                self.today,
+                &self.timing,
                 ctx.global_tags.iter().chain(ctx.updated_tags.iter()),
             );
 
@@ -483,7 +484,7 @@ impl DuplicateUpdateResult {
 impl NoteContext<'_> {
     fn is_guid_dupe(&self) -> bool {
         self.dupes
-            .get(0)
+            .first()
             .map_or(false, |d| d.note.guid == self.note.guid)
     }
 
@@ -543,7 +544,7 @@ impl ForeignNote {
         self,
         note: &mut Note,
         deck_id: DeckId,
-        today: u32,
+        timing: &SchedTimingToday,
         extra_tags: impl IntoIterator<Item = &'tags String>,
     ) -> Vec<Card> {
         // TODO: Handle new and learning cards
@@ -565,16 +566,16 @@ impl ForeignNote {
         self.cards
             .into_iter()
             .enumerate()
-            .map(|(idx, c)| c.into_native(NoteId(0), idx as u16, deck_id, today))
+            .map(|(idx, c)| c.into_native(NoteId(0), idx as u16, deck_id, timing))
             .collect()
     }
 
     fn first_field_is_the_empty_string(&self) -> bool {
-        matches!(self.fields.get(0), Some(Some(s)) if s.is_empty())
+        matches!(self.fields.first(), Some(Some(s)) if s.is_empty())
     }
 
     fn first_field_is_unempty(&self) -> bool {
-        matches!(self.fields.get(0), Some(Some(s)) if !s.is_empty())
+        matches!(self.fields.first(), Some(Some(s)) if !s.is_empty())
     }
 
     fn normalize_fields(&mut self, normalize_text: bool) {
@@ -595,7 +596,7 @@ impl ForeignNote {
 
     fn first_field_stripped(&self) -> Option<Cow<str>> {
         self.fields
-            .get(0)
+            .first()
             .and_then(|s| s.as_ref())
             .map(|field| strip_html_preserving_media_filenames(field.as_str()))
     }
@@ -609,12 +610,18 @@ impl ForeignNote {
 }
 
 impl ForeignCard {
-    fn into_native(self, note_id: NoteId, template_idx: u16, deck_id: DeckId, today: u32) -> Card {
+    fn into_native(
+        self,
+        note_id: NoteId,
+        template_idx: u16,
+        deck_id: DeckId,
+        timing: &SchedTimingToday,
+    ) -> Card {
         Card {
             note_id,
             template_idx,
             deck_id,
-            due: self.native_due(today),
+            due: self.native_due(timing),
             interval: self.interval,
             ease_factor: (self.ease_factor * 1000.).round() as u16,
             reps: self.reps,
@@ -625,10 +632,10 @@ impl ForeignCard {
         }
     }
 
-    fn native_due(self, today: u32) -> i32 {
-        let remaining_secs = self.interval as i64 - TimestampSecs::now().0;
-        let remaining_days = remaining_secs / (60 * 60 * 24);
-        0.max(remaining_days as i32 + today as i32)
+    fn native_due(self, timing: &SchedTimingToday) -> i32 {
+        let day_start = timing.next_day_at.0 as i32 - 86_400;
+        let due_delta = (self.due - day_start) / 86_400;
+        due_delta + timing.days_elapsed as i32
     }
 }
 

@@ -154,6 +154,7 @@ class Reviewer:
         self._card_info = ReviewerCardInfo(self.mw)
         self._previous_card_info = PreviousReviewerCardInfo(self.mw)
         self._states_mutated = True
+        self._state_mutation_js = None
         self._reps: int = None
         self._show_question_timer: QTimer | None = None
         self._show_answer_timer: QTimer | None = None
@@ -496,17 +497,17 @@ class Reviewer:
         try:
             answer_action = list(AnswerAction)[conf["answerAction"]]
         except IndexError:
-            answer_action = AnswerAction.ANSWER_GOOD
-        if answer_action == AnswerAction.BURY_CARD:
-            self.bury_current_card()
-        elif answer_action == AnswerAction.ANSWER_AGAIN:
+            answer_action = AnswerAction.BURY_CARD
+        if answer_action == AnswerAction.ANSWER_AGAIN:
             self._answerCard(1)
         elif answer_action == AnswerAction.ANSWER_HARD:
             self._answerCard(2)
+        elif answer_action == AnswerAction.ANSWER_GOOD:
+            self._answerCard(3)
         elif answer_action == AnswerAction.SHOW_REMINDER:
             tooltip(tr.studying_answer_time_elapsed())
         else:
-            self._answerCard(3)
+            self.bury_current_card()
 
     # Answering a card
     ############################################################

@@ -146,7 +146,7 @@ impl ExtractedCloze<'_> {
 
     /// If cloze starts with image-occlusion:, return the text following that.
     fn image_occlusion(&self) -> Option<&str> {
-        let Some(first_node) = self.nodes.get(0) else {
+        let Some(first_node) = self.nodes.first() else {
             return None;
         };
         let TextOrCloze::Text(text) = first_node else {

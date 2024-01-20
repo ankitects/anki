@@ -53,8 +53,8 @@ service SchedulerService {
       returns (ComputeOptimalRetentionResponse);
   rpc EvaluateWeights(EvaluateWeightsRequest) returns (EvaluateWeightsResponse);
   rpc ComputeMemoryState(cards.CardId) returns (ComputeMemoryStateResponse);
-  // The number of days the calculated interval will be fuzzed by. Utilized by
-  // the FSRS add-on.
+  // The number of days the calculated interval was fuzzed by on the previous
+  // review (if any). Utilized by the FSRS add-on.
   rpc FuzzDelta(FuzzDeltaRequest) returns (FuzzDeltaResponse);
 }
 

@@ -703,4 +703,4 @@ create table if not exists profiles
         self.profile["networkTimeout"] = timeout_secs
 
     def network_timeout(self) -> int:
-        return self.profile.get("networkTimeout") or 30
+        return self.profile.get("networkTimeout") or 60
