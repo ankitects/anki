@@ -235,7 +235,7 @@ pub(crate) fn single_card_revlog_to_items(
     // Ignore the entire card if the first learning step of the last group of
     // learning steps is before the ignore_revlogs_before date
     if let Some(idx) = last_learn_entry {
-        if entries[idx].cid.0 < ignore_revlogs_before.0 {
+        if entries[idx].id.0 < ignore_revlogs_before.0 {
             return None;
         }
     }
