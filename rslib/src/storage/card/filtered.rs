@@ -20,7 +20,7 @@ pub(crate) fn order_and_limit_for_search(
         FilteredSearchOrder::IntervalsDescending => "ivl desc",
         FilteredSearchOrder::Lapses => "lapses desc",
         FilteredSearchOrder::Added => "n.id, c.ord",
-        FilteredSearchOrder::ReverseAdded => "n.id desc",
+        FilteredSearchOrder::ReverseAdded => "n.id desc, c.ord asc",
         FilteredSearchOrder::Due => {
             let current_timestamp = timing.now.0;
             temp_string = format!(
