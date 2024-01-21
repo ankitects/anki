@@ -711,6 +711,8 @@ enum ReviewOrderSubclause {
     RelativeOverduenessFsrs {
         timing: SchedTimingToday,
     },
+    Added,
+    ReverseAdded,
 }
 
 impl fmt::Display for ReviewOrderSubclause {
@@ -737,6 +739,8 @@ impl fmt::Display for ReviewOrderSubclause {
                     format!("extract_fsrs_relative_overdueness(data, due, {today}, ivl, {next_day_at}) desc");
                 &temp_string
             }
+            ReviewOrderSubclause::Added => "nid asc, ord asc",
+            ReviewOrderSubclause::ReverseAdded => "nid desc, ord asc",
         };
         write!(f, "{}", clause)
     }
@@ -771,6 +775,8 @@ fn review_order_sql(order: ReviewCardOrder, timing: SchedTimingToday, fsrs: bool
             }]
         }
         ReviewCardOrder::Random => vec![],
+        ReviewCardOrder::Added => vec![ReviewOrderSubclause::Added],
+        ReviewCardOrder::ReverseAdded => vec![ReviewOrderSubclause::ReverseAdded],
     };
     subclauses.push(ReviewOrderSubclause::Random);
 
