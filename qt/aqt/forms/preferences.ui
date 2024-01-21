@@ -627,7 +627,7 @@
        <item>
         <widget class="QGroupBox" name="groupBox_5">
          <property name="title">
-          <string>preferences_tab_synchronization</string>
+          <string>preferences_tab_synchronisation</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_12">
           <item>
