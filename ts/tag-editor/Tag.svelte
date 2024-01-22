@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
+    export let tagName: string; // used by add-ons to target individual tag elements
     export let tooltip: string | undefined = undefined;
     export let selected = false;
 
@@ -32,6 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:flashing
     tabindex="-1"
     title={tooltip}
+    data-addon-tag={tagName}
     on:mousemove
     on:click
 >

@@ -13,12 +13,14 @@ import threading
 import time
 import traceback
 from dataclasses import dataclass
+from errno import EPROTOTYPE
 from http import HTTPStatus
 from typing import Callable
 
 import flask
 import flask_cors
 import stringcase
+import waitress.wasyncore
 from flask import Response, abort, request
 from waitress.server import create_server
 
@@ -37,6 +39,9 @@ from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
 from aqt.utils import aqt_data_path, show_warning, tr
+
+# https://forums.ankiweb.net/t/anki-crash-when-using-a-specific-deck/22266
+waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROTOTYPE})  # type: ignore
 
 app = flask.Flask(__name__, root_path="/fake")
 flask_cors.CORS(app, resources={r"/*": {"origins": "127.0.0.1"}})

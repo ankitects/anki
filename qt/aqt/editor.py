@@ -911,21 +911,18 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
     def _retrieveURL(self, url: str) -> str | None:
         "Download file into media folder and return local filename or None."
-        # urllib doesn't understand percent-escaped utf8, but requires things like
-        # '#' to be escaped.
-        url = urllib.parse.unquote(url)
-        if url.lower().startswith("file://"):
-            url = url.replace("%", "%25")
-            url = url.replace("#", "%23")
-            local = True
-        else:
-            local = False
+        local = url.lower().startswith("file://")
         # fetch it into a temporary folder
         self.mw.progress.start(immediate=not local, parent=self.parentWindow)
         content_type = None
         error_msg: str | None = None
         try:
             if local:
+                # urllib doesn't understand percent-escaped utf8, but requires things like
+                # '#' to be escaped.
+                url = urllib.parse.unquote(url)
+                url = url.replace("%", "%25")
+                url = url.replace("#", "%23")
                 req = urllib.request.Request(
                     url, None, {"User-Agent": "Mozilla/5.0 (compatible; Anki)"}
                 )

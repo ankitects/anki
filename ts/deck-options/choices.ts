@@ -105,6 +105,14 @@ export function reviewOrderChoices(fsrs: boolean): Choice<DeckConfig_Config_Revi
             label: tr.deckConfigSortOrderRandom(),
             value: DeckConfig_Config_ReviewCardOrder.RANDOM,
         },
+        {
+            label: tr.decksOrderAdded(),
+            value: DeckConfig_Config_ReviewCardOrder.ADDED,
+        },
+        {
+            label: tr.decksLatestAddedFirst(),
+            value: DeckConfig_Config_ReviewCardOrder.REVERSE_ADDED,
+        },
     ];
 }
 

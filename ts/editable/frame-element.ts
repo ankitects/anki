@@ -59,7 +59,7 @@ function restoreFrameHandles(mutations: MutationRecord[]): void {
                 continue;
             }
 
-            if (frameElement.isConnected && !frameElement.block) {
+            if (frameElement.isConnected) {
                 frameElement.refreshHandles();
                 continue;
             }
@@ -114,13 +114,7 @@ export class FrameElement extends HTMLElement {
 
             case "block":
                 this.block = newValue !== "false";
-
-                if (!this.block) {
-                    this.refreshHandles();
-                } else {
-                    this.removeHandles();
-                }
-
+                this.refreshHandles();
                 break;
         }
     }
@@ -150,14 +144,6 @@ export class FrameElement extends HTMLElement {
         if (!this.handleEnd.isConnected) {
             this.append(this.handleEnd);
         }
-    }
-
-    removeHandles(): void {
-        this.handleStart?.remove();
-        this.handleStart = undefined;
-
-        this.handleEnd?.remove();
-        this.handleEnd = undefined;
     }
 
     removeStart?: () => void;
