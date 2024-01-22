@@ -19,24 +19,24 @@ use crate::input::BuildInput;
 pub fn node_archive(platform: Platform) -> OnlineArchive {
     match platform {
         Platform::LinuxX64 => OnlineArchive {
-            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-linux-x64.tar.xz",
-            sha256: "4481a34bf32ddb9a9ff9540338539401320e8c3628af39929b4211ea3552a19e",
+            url: "https://nodejs.org/dist/v20.11.0/node-v20.11.0-linux-x64.tar.xz",
+            sha256: "822780369d0ea309e7d218e41debbd1a03f8cdf354ebf8a4420e89f39cc2e612",
         },
         Platform::LinuxArm => OnlineArchive {
-            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-linux-arm64.tar.xz",
-            sha256: "3904869935b7ecc51130b4b86486d2356539a174d11c9181180cab649f32cd2a",
+            url: "https://nodejs.org/dist/v20.11.0/node-v20.11.0-linux-arm64.tar.xz",
+            sha256: "f943abd348d2b8ff8754ca912c118a20301eb6a0014cc4cdea86cff021fde8e6",
         },
         Platform::MacX64 => OnlineArchive {
-            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-darwin-x64.tar.xz",
-            sha256: "6c88d462550a024661e74e9377371d7e023321a652eafb3d14d58a866e6ac002",
+            url: "https://nodejs.org/dist/v20.11.0/node-v20.11.0-darwin-x64.tar.xz",
+            sha256: "d4b4ab81ebf1f7aab09714f834992f27270ad0079600da00c8110f8950ca6c5a",
         },
         Platform::MacArm => OnlineArchive {
-            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-darwin-arm64.tar.xz",
-            sha256: "17f2e25d207d36d6b0964845062160d9ed16207c08d09af33b9a2fd046c5896f",
+            url: "https://nodejs.org/dist/v20.11.0/node-v20.11.0-darwin-arm64.tar.xz",
+            sha256: "f18a7438723d48417f5e9be211a2f3c0520ffbf8e02703469e5153137ca0f328",
         },
         Platform::WindowsX64 => OnlineArchive {
-            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-win-x64.zip",
-            sha256: "5478a5a2dce2803ae22327a9f8ae8494c1dec4a4beca5bbf897027380aecf4c7",
+            url: "https://nodejs.org/dist/v20.11.0/node-v20.11.0-win-x64.zip",
+            sha256: "893115cd92ad27bf178802f15247115e93c0ef0c753b93dca96439240d64feb5",
         },
     }
 }
