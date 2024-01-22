@@ -75,8 +75,8 @@
     "acorn-walk@7.2.0": {
         "licenses": "MIT",
         "repository": "https://github.com/acornjs/acorn",
-        "path": "node_modules/acorn-walk",
-        "licenseFile": "node_modules/acorn-walk/LICENSE"
+        "path": "node_modules/acorn-globals/node_modules/acorn-walk",
+        "licenseFile": "node_modules/acorn-globals/node_modules/acorn-walk/LICENSE"
     },
     "acorn@7.4.1": {
         "licenses": "MIT",
@@ -84,11 +84,11 @@
         "path": "node_modules/acorn-globals/node_modules/acorn",
         "licenseFile": "node_modules/acorn-globals/node_modules/acorn/LICENSE"
     },
-    "acorn@8.11.3": {
+    "acorn@8.11.2": {
         "licenses": "MIT",
         "repository": "https://github.com/acornjs/acorn",
-        "path": "node_modules/acorn",
-        "licenseFile": "node_modules/acorn/LICENSE"
+        "path": "node_modules/jsdom/node_modules/acorn",
+        "licenseFile": "node_modules/jsdom/node_modules/acorn/LICENSE"
     },
     "agent-base@6.0.2": {
         "licenses": "MIT",
