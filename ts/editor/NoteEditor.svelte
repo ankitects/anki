@@ -233,6 +233,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (sessionOptions[id]?.modTimeOfNotetype !== modTime) {
             delete sessionOptions[id];
         }
+        if (isImageOcclusion) {
+            getImageOcclusionFields({
+                notetypeId: BigInt(notetypeMeta.id),
+            }).then((r) => (ioFields = r.fields!));
+        }
     }
 
     function getNoteId(): number | null {
@@ -415,10 +420,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function setupMaskEditor(options: { html: string; mode: IOMode }) {
         imageOcclusionMode = undefined;
-        const getIoFields = getImageOcclusionFields({
-            notetypeId: BigInt(notetypeMeta.id),
-        }).then((r) => (ioFields = r.fields!));
-        await Promise.all([tick(), getIoFields]);
+        await tick();
         imageOcclusionMode = options.mode;
         if (options.mode.kind === "add") {
             fieldStores[ioFields.image].set(options.html);
