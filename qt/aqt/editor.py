@@ -571,6 +571,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         js = f"""
             saveSession();
             setFields({json.dumps(data)});
+            setIsImageOcclusion({json.dumps(self.current_notetype_is_image_occlusion())});
             setNotetypeMeta({json.dumps(notetype_meta)});
             setCollapsed({json.dumps(collapsed)});
             setPlainTexts({json.dumps(plain_texts)});
@@ -585,7 +586,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setShrinkImages({json.dumps(self.mw.col.get_config("shrinkEditorImages", True))});
             setCloseHTMLTags({json.dumps(self.mw.col.get_config("closeHTMLTags", True))});
             triggerChanges();
-            setIsImageOcclusion({json.dumps(self.current_notetype_is_image_occlusion())});
             """
 
         if self.addMode:
