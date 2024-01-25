@@ -119,7 +119,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    @use "sass/elevation" as *;
+    @use "../sass/elevation" as *;
 
     /* Make sure labels are readable on custom Qt backgrounds */
     .field-container {

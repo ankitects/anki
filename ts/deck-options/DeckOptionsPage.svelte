@@ -120,7 +120,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    @use "sass/breakpoints" as bp;
+    @use "../sass/breakpoints" as bp;
 
     .deck-options-page {
         overflow-x: hidden;

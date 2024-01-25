@@ -1,8 +1,8 @@
-@use "sass/bootstrap-dark";
+@use "../sass/bootstrap-dark";
 
-@import "sass/base";
+@import "../sass/base";
 
-@import "sass/bootstrap-tooltip";
+@import "../sass/bootstrap-tooltip";
 @import "bootstrap/scss/buttons";
 
 .night-mode {

@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </TitledContainer>
 
 <style lang="scss">
-    @use "sass/elevation" as *;
+    @use "../sass/elevation" as *;
     .graph {
         /* See graph-styles.ts for constants referencing global styles */
         :global(.graph-element-clickable) {

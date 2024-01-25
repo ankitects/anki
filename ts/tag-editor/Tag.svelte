@@ -41,7 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </button>
 
 <style lang="scss">
-    @use "sass/button-mixins" as button;
+    @use "../sass/button-mixins" as button;
 
     @keyframes flash {
         0% {

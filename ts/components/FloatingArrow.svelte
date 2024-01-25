@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="arrow" />
 
 <style lang="scss">
-    @use "sass/elevation" as elevation;
+    @use "../sass/elevation" as elevation;
 
     .arrow {
         background-color: var(--canvas-elevated);

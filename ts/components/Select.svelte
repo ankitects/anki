@@ -248,7 +248,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </WithFloating>
 
 <style lang="scss">
-    @use "sass/button-mixins" as button;
+    @use "../sass/button-mixins" as button;
 
     $padding-inline: 0.5rem;
 

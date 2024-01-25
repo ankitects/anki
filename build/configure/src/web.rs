@@ -565,14 +565,14 @@ pub fn copy_mathjax() -> impl BuildAction {
 }
 
 fn build_sass(build: &mut Build) -> Result<()> {
-    build.add_dependency("sass", inputs![glob!("sass/**")]);
+    build.add_dependency("sass", inputs![glob!("ts/sass/**")]);
 
     build.add_action(
         "css:_root-vars",
         CompileSass {
-            input: inputs!["sass/_root-vars.scss"],
-            output: "sass/_root-vars.css",
-            deps: inputs![glob!["sass/*"]],
+            input: inputs!["ts/sass/_root-vars.scss"],
+            output: "ts/sass/_root-vars.css",
+            deps: inputs![glob!["ts/sass/*"]],
             load_paths: vec![],
         },
     )?;

@@ -115,7 +115,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    @use "sass/night-mode" as nightmode;
+    @use "../sass/night-mode" as nightmode;
 
     .nightMode {
         @include nightmode.input;

@@ -1,10 +1,10 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use "sass/root-vars";
-@use "sass/vars" as *;
-@use "sass/elevation" as *;
-@use "sass/button-mixins" as button;
+@use "../../../../../ts/sass/root-vars";
+@use "../../../../../ts/sass/vars" as *;
+@use "../../../../../ts/sass/elevation" as *;
+@use "../../../../../ts/sass/button-mixins" as button;
 
 .header {
     display: grid;

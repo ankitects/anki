@@ -2,7 +2,7 @@
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 @use "vars";
 @use "sass:color";
-@use "sass/elevation" as *;
+@use "../sass/elevation" as *;
 
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";

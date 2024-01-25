@@ -1,4 +1,4 @@
-@import "sass/base";
+@import "../sass/base";
 
 // override Bootstrap transition duration
 $carousel-transition: var(--transition);
@@ -11,8 +11,8 @@ $carousel-transition: var(--transition);
 @import "bootstrap/scss/close";
 @import "bootstrap/scss/alert";
 @import "bootstrap/scss/badge";
-@import "sass/bootstrap-forms";
-@import "sass/bootstrap-tooltip";
+@import "../sass/bootstrap-forms";
+@import "../sass/bootstrap-tooltip";
 
 input[type="text"] {
     padding-inline: 0.5rem;

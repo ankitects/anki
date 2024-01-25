@@ -52,7 +52,7 @@ build({
     preserveSymlinks: true,
     sourcemap: sourcemap ? "inline" : false,
     plugins: [
-        sassPlugin({ loadPaths: [".", "node_modules"] }),
+        sassPlugin({ loadPaths: ["node_modules"] }),
         sveltePlugin({
             compilerOptions: { css: inlineCss ? "injected" : "external" },
             preprocess: sveltePlugins,

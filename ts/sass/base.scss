@@ -1,7 +1,7 @@
 @use "vars" as *;
 @use "root-vars";
 @use "button-mixins" as button;
-@use "sass/scrollbar";
+@use "../sass/scrollbar";
 
 $body-color: palette(darkgray, 9);
 $body-color-dark: palette(lightgray, 0);
