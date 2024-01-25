@@ -40,8 +40,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import * as tr from "@generated/ftl";
     import { bridgeCommand } from "@tslib/bridgecommand";
-    import * as tr from "@tslib/ftl";
     import { type ImageLoadedEvent, resetIOImage } from "image-occlusion/mask-editor";
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
@@ -385,8 +385,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    import { ImageOcclusionFieldIndexes } from "@tslib/anki/image_occlusion_pb";
-    import { getImageOcclusionFields } from "@tslib/backend";
+    import { ImageOcclusionFieldIndexes } from "@generated/anki/image_occlusion_pb";
+    import { getImageOcclusionFields } from "@generated/backend";
     import { wrapClozeInternal, wrapInternal } from "@tslib/wrap";
     import Shortcut from "components/Shortcut.svelte";
     import ImageOcclusionPage from "image-occlusion/ImageOcclusionPage.svelte";

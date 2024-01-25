@@ -3,7 +3,7 @@
 
 import "./import-page-base.scss";
 
-import { importJsonFile, importJsonString } from "@tslib/backend";
+import { importJsonFile, importJsonString } from "@generated/backend";
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 

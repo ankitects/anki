@@ -9,8 +9,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import type { ImportResponse } from "@tslib/anki/import_export_pb";
-    import { importDone } from "@tslib/backend";
+    import type { ImportResponse } from "@generated/anki/import_export_pb";
+    import { importDone } from "@generated/backend";
 
     import BackendProgressIndicator from "../components/BackendProgressIndicator.svelte";
     import Container from "../components/Container.svelte";

@@ -1,9 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { GraphsResponse } from "@tslib/anki/stats_pb";
-import { GraphPreferences_Weekday as Weekday } from "@tslib/anki/stats_pb";
-import * as tr from "@tslib/ftl";
+import type { GraphsResponse } from "@generated/anki/stats_pb";
+import { GraphPreferences_Weekday as Weekday } from "@generated/anki/stats_pb";
+import * as tr from "@generated/ftl";
+import { firstLanguage } from "@generated/ftl";
 import { localizedDate, weekdayLabel } from "@tslib/i18n";
 import type { CountableTimeInterval } from "d3";
 import { timeHour } from "d3";
@@ -21,7 +22,6 @@ import {
     timeYear,
 } from "d3";
 
-import { firstLanguage } from "../lib/i18n/bundles";
 import type { GraphBounds, SearchDispatch } from "./graph-helpers";
 import { RevlogRange, setDataAvailable } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";

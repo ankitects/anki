@@ -8,8 +8,10 @@ module.exports = {
     },
     moduleNameMapper: {
         "^@tslib(.*)$": [
-            "<rootDir>/../out/ts/lib$1",
             "<rootDir>/lib$1",
+        ],
+        "^@generated(.*)$": [
+            "<rootDir>/../out/ts/generated$1",
         ],
     },
     transformIgnorePatterns: ["/node_modules/(?!(lodash-es|svelte)/)"],

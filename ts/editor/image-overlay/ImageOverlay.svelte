@@ -9,8 +9,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import * as tr from "@generated/ftl";
     import { on } from "@tslib/events";
-    import * as tr from "@tslib/ftl";
     import { removeStyleProperties } from "@tslib/styling";
     import type { Callback } from "@tslib/typing";
     import { tick } from "svelte";

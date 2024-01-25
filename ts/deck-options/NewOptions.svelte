@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { DeckConfig_Config_NewCardInsertOrder } from "@tslib/anki/deck_config_pb";
-    import * as tr from "@tslib/ftl";
+    import { DeckConfig_Config_NewCardInsertOrder } from "@generated/anki/deck_config_pb";
+    import * as tr from "@generated/ftl";
     import { HelpPage } from "@tslib/help-page";
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";

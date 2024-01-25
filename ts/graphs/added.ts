@@ -5,8 +5,8 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type { GraphsResponse } from "@tslib/anki/stats_pb";
-import * as tr from "@tslib/ftl";
+import type { GraphsResponse } from "@generated/anki/stats_pb";
+import * as tr from "@generated/ftl";
 import { dayLabel } from "@tslib/time";
 import type { Bin } from "d3";
 import { bin, interpolateBlues, min, scaleLinear, scaleSequential, sum } from "d3";

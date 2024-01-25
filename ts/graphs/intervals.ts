@@ -5,8 +5,8 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type { GraphsResponse_Intervals } from "@tslib/anki/stats_pb";
-import * as tr from "@tslib/ftl";
+import type { GraphsResponse_Intervals } from "@generated/anki/stats_pb";
+import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import { timeSpan } from "@tslib/time";
 import type { Bin } from "d3";

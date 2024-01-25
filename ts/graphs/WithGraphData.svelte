@@ -3,8 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { GraphsResponse } from "@tslib/anki/stats_pb";
-    import { getGraphPreferences, graphs, setGraphPreferences } from "@tslib/backend";
+    import type { GraphsResponse } from "@generated/anki/stats_pb";
+    import {
+        getGraphPreferences,
+        graphs,
+        setGraphPreferences,
+    } from "@generated/backend";
     import type { Writable } from "svelte/store";
 
     import { autoSavingPrefs } from "../sveltelib/preferences";

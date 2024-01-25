@@ -7,9 +7,9 @@ import type {
     DeckConfigsForUpdate_CurrentDeck,
     UpdateDeckConfigsMode,
     UpdateDeckConfigsRequest,
-} from "@tslib/anki/deck_config_pb";
-import { DeckConfig, DeckConfig_Config, DeckConfigsForUpdate_CurrentDeck_Limits } from "@tslib/anki/deck_config_pb";
-import { updateDeckConfigs } from "@tslib/backend";
+} from "@generated/anki/deck_config_pb";
+import { DeckConfig, DeckConfig_Config, DeckConfigsForUpdate_CurrentDeck_Limits } from "@generated/anki/deck_config_pb";
+import { updateDeckConfigs } from "@generated/backend";
 import { localeCompare } from "@tslib/i18n";
 import { cloneDeep, isEqual } from "lodash-es";
 import type { Readable, Writable } from "svelte/store";

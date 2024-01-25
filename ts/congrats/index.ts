@@ -3,7 +3,7 @@
 
 import "./congrats-base.scss";
 
-import { congratsInfo } from "@tslib/backend";
+import { congratsInfo } from "@generated/backend";
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 

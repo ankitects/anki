@@ -3,7 +3,7 @@
 
 import "./import-anki-package-base.scss";
 
-import { getImportAnkiPackagePresets } from "@tslib/backend";
+import { getImportAnkiPackagePresets } from "@generated/backend";
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 

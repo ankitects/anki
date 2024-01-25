@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import * as tr from "@tslib/ftl";
+    import * as tr from "@generated/ftl";
     import { noop } from "@tslib/functional";
     import { isArrowLeft, isArrowRight } from "@tslib/keys";
     import { getPlatformString } from "@tslib/shortcuts";

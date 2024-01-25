@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import * as tr from "@tslib/ftl";
+import * as tr from "@generated/ftl";
 
 export const SECOND = 1.0;
 export const MINUTE = 60.0 * SECOND;

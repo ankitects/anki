@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { GraphsResponse } from "@tslib/anki/stats_pb";
+    import type { GraphsResponse } from "@generated/anki/stats_pb";
 
     import Graph from "./Graph.svelte";
     import type { TodayData } from "./today";

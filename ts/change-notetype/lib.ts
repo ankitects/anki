@@ -1,9 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { ChangeNotetypeInfo, ChangeNotetypeRequest, NotetypeNames } from "@tslib/anki/notetypes_pb";
-import { changeNotetype, getChangeNotetypeInfo } from "@tslib/backend";
-import * as tr from "@tslib/ftl";
+import type { ChangeNotetypeInfo, ChangeNotetypeRequest, NotetypeNames } from "@generated/anki/notetypes_pb";
+import { changeNotetype, getChangeNotetypeInfo } from "@generated/backend";
+import * as tr from "@generated/ftl";
 import { isEqual } from "lodash-es";
 import type { Readable } from "svelte/store";
 import { readable } from "svelte/store";

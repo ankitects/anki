@@ -5,8 +5,8 @@ import {
     CsvMetadata_Delimiter,
     CsvMetadata_DupeResolution,
     CsvMetadata_MatchScope,
-} from "@tslib/anki/import_export_pb";
-import * as tr from "@tslib/ftl";
+} from "@generated/anki/import_export_pb";
+import * as tr from "@generated/ftl";
 import type { Choice } from "components/EnumSelector.svelte";
 
 export function delimiterChoices(): Choice<CsvMetadata_Delimiter>[] {

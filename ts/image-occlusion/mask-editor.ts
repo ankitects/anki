@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { protoBase64 } from "@bufbuild/protobuf";
-import { getImageForOcclusion, getImageOcclusionNote } from "@tslib/backend";
-import * as tr from "@tslib/ftl";
+import { getImageForOcclusion, getImageOcclusionNote } from "@generated/backend";
+import * as tr from "@generated/ftl";
 import { fabric } from "fabric";
 import { get } from "svelte/store";
 

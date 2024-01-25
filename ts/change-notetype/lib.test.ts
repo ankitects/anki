@@ -7,8 +7,8 @@
 
 import "@tslib/i18n";
 
-import { ChangeNotetypeInfo, NotetypeNames } from "@tslib/anki/notetypes_pb";
-import * as tr from "@tslib/ftl";
+import { ChangeNotetypeInfo, NotetypeNames } from "@generated/anki/notetypes_pb";
+import * as tr from "@generated/ftl";
 import { get } from "svelte/store";
 
 import { ChangeNotetypeState, MapContext, negativeOneToNull } from "./lib";

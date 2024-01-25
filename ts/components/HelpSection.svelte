@@ -3,7 +3,7 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "@tslib/ftl";
+    import * as tr from "@generated/ftl";
     import { renderMarkdown } from "@tslib/helpers";
 
     import Row from "./Row.svelte";

@@ -45,7 +45,7 @@ export async function setupDeckOptions(did_: number): Promise<DeckOptionsPage> {
     });
 }
 
-import { getDeckConfigsForUpdate } from "@tslib/backend";
+import { getDeckConfigsForUpdate } from "@generated/backend";
 
 import EnumSelectorRow from "../components/EnumSelectorRow.svelte";
 import SwitchRow from "../components/SwitchRow.svelte";

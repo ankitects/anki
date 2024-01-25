@@ -3,11 +3,10 @@
 
 import "intl-pluralrules";
 
-import { FluentBundle, FluentResource } from "@fluent/bundle";
-import { i18nResources } from "@tslib/backend";
-import type { ModuleName } from "@tslib/ftl";
-
-import { firstLanguage, setBundles } from "./bundles";
+import { i18nResources } from "@generated/backend";
+import type { ModuleName } from "@generated/ftl";
+import { FluentBundle, FluentResource } from "@generated/ftl";
+import { firstLanguage, setBundles } from "@generated/ftl";
 
 export function supportsVerticalText(): boolean {
     const firstLang = firstLanguage();

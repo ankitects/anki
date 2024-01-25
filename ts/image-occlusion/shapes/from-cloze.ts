@@ -5,7 +5,7 @@
 @typescript-eslint/no-explicit-any: "off",
 */
 
-import type { GetImageOcclusionNoteResponse_ImageOcclusion } from "@tslib/anki/image_occlusion_pb";
+import type { GetImageOcclusionNoteResponse_ImageOcclusion } from "@generated/anki/image_occlusion_pb";
 
 import type { Shape, ShapeOrShapes } from "./base";
 import { Ellipse } from "./ellipse";

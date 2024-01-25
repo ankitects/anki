@@ -9,8 +9,8 @@ import {
     DeckConfig_Config_NewCardSortOrder,
     DeckConfig_Config_ReviewCardOrder,
     DeckConfig_Config_ReviewMix,
-} from "@tslib/anki/deck_config_pb";
-import * as tr from "@tslib/ftl";
+} from "@generated/anki/deck_config_pb";
+import * as tr from "@generated/ftl";
 import type { Choice } from "components/EnumSelector.svelte";
 
 export function newGatherPriorityChoices(): Choice<DeckConfig_Config_NewCardGatherPriority>[] {

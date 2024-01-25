@@ -5,7 +5,7 @@
 @typescript-eslint/no-explicit-any: "off",
 @typescript-eslint/ban-ts-comment: "off" */
 
-import type { GraphPreferences } from "@tslib/anki/stats_pb";
+import type { GraphPreferences } from "@generated/anki/stats_pb";
 import type { Bin, Selection } from "d3";
 import { sum } from "d3";
 import type { PreferenceStore } from "sveltelib/preferences";

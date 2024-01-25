@@ -6,7 +6,11 @@
  */
 
 import { protoBase64 } from "@bufbuild/protobuf";
-import { DeckConfig_Config_LeechAction, DeckConfigsForUpdate, UpdateDeckConfigsMode } from "@tslib/anki/deck_config_pb";
+import {
+    DeckConfig_Config_LeechAction,
+    DeckConfigsForUpdate,
+    UpdateDeckConfigsMode,
+} from "@generated/anki/deck_config_pb";
 import { get } from "svelte/store";
 
 import { DeckOptionsState } from "./lib";

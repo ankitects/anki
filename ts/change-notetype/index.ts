@@ -3,7 +3,7 @@
 
 import "./change-notetype-base.scss";
 
-import { getChangeNotetypeInfo, getNotetypeNames } from "@tslib/backend";
+import { getChangeNotetypeInfo, getNotetypeNames } from "@generated/backend";
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 

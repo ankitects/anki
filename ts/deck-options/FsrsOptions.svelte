@@ -6,15 +6,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import {
         ComputeRetentionProgress,
         type ComputeWeightsProgress,
-    } from "@tslib/anki/collection_pb";
-    import { ComputeOptimalRetentionRequest } from "@tslib/anki/scheduler_pb";
+    } from "@generated/anki/collection_pb";
+    import { ComputeOptimalRetentionRequest } from "@generated/anki/scheduler_pb";
     import {
         computeFsrsWeights,
         computeOptimalRetention,
         evaluateWeights,
         setWantsAbort,
-    } from "@tslib/backend";
-    import * as tr from "@tslib/ftl";
+    } from "@generated/backend";
+    import * as tr from "@generated/ftl";
     import { runWithBackendProgress } from "@tslib/progress";
     import SwitchRow from "components/SwitchRow.svelte";
 

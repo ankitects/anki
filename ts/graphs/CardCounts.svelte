@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { GraphsResponse } from "@tslib/anki/stats_pb";
-    import * as tr2 from "@tslib/ftl";
+    import type { GraphsResponse } from "@generated/anki/stats_pb";
+    import * as tr2 from "@generated/ftl";
     import { createEventDispatcher } from "svelte";
 
     import type { GraphData, TableDatum } from "./card-counts";

@@ -5,8 +5,8 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type { GraphsResponse } from "@tslib/anki/stats_pb";
-import * as tr from "@tslib/ftl";
+import type { GraphsResponse } from "@generated/anki/stats_pb";
+import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import type { Bin, ScaleLinear } from "d3";
 import { bin, extent, interpolateRdYlGn, scaleLinear, scaleSequential, sum } from "d3";

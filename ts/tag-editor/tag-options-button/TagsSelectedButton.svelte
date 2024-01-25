@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
     import { tagActionsShortcutsKey } from "@tslib/context-keys";
-    import * as tr from "@tslib/ftl";
+    import * as tr from "@generated/ftl";
     import { getPlatformString } from "@tslib/shortcuts";
     import { dotsIcon } from "./icons";
     import { onEnterOrSpace } from "@tslib/keys";

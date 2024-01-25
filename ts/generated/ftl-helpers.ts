@@ -14,6 +14,10 @@ export function firstLanguage(): string {
     return bundles[0].locales[0];
 }
 
+export function translate(key: string, args: Record<string, FluentVariable> = {}) {
+    return getMessage(key, args) ?? `missing key: ${key}`;
+}
+
 function toFluentNumber(num: number): FluentNumber {
     return new FluentNumber(num, {
         maximumFractionDigits: 2,
@@ -24,10 +28,12 @@ function formatArgs(
     args: Record<string, FluentVariable>,
 ): Record<string, FluentVariable> {
     const entries: [string, FluentVariable][] = Object.entries(args).map(
-        ([key, value]) => [
-            key,
-            typeof value === "number" ? toFluentNumber(value) : value,
-        ],
+        ([key, value]) => {
+            return [
+                key,
+                typeof value === "number" ? toFluentNumber(value) : value,
+            ];
+        },
     );
     const out: Record<string, FluentVariable> = {};
     for (const [key, value] of entries) {
@@ -36,7 +42,7 @@ function formatArgs(
     return out;
 }
 
-export function getMessage(
+function getMessage(
     key: string,
     args: Record<string, FluentVariable> = {},
 ): string | null {

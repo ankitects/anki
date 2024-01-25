@@ -6,8 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type {
         CardStatsResponse,
         CardStatsResponse_StatsRevlogEntry,
-    } from "@tslib/anki/stats_pb";
-    import { cardStats } from "@tslib/backend";
+    } from "@generated/anki/stats_pb";
+    import { cardStats } from "@generated/backend";
 
     import Container from "../components/Container.svelte";
     import Row from "../components/Row.svelte";
