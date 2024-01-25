@@ -10,11 +10,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let onPickImage: () => void;
     export let onPickImageFromClipboard: () => void;
+    let buttonsTabbable = true;
 </script>
 
 <Container class="image-occlusion-picker">
     <div id="io-pick-image-file" style="padding-top: 60px; text-align: center;">
         <LabelButton
+            bind:tabbable={buttonsTabbable}
             --border-left-radius="5px"
             --border-right-radius="5px"
             class="io-image-picker-button"
@@ -25,6 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </div>
     <div id="io-pick-image-clipboard" style="padding-top: 30px; text-align: center;">
         <LabelButton
+            bind:tabbable={buttonsTabbable}
             --border-left-radius="5px"
             --border-right-radius="5px"
             class="io-image-picker-button"
