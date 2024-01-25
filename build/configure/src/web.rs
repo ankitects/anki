@@ -154,7 +154,7 @@ fn jest_test(folder: &str, deps: BuildInput, jsdom: bool) -> impl BuildAction + 
     JestTest {
         folder,
         deps,
-        jest_rc: "ts/jest.config.js".into(),
+        jest_rc: "ts/jest.config.cjs".into(),
         jsdom,
     }
 }
@@ -188,7 +188,7 @@ fn declare_and_check_other_libraries(build: &mut Build) -> Result<()> {
 }
 
 pub fn eslint(build: &mut Build, name: &str, folder: &str, deps: BuildInput) -> Result<()> {
-    let eslint_rc = inputs![".eslintrc.js"];
+    let eslint_rc = inputs![".eslintrc.cjs"];
     build.add_action(
         format!("check:eslint:{name}"),
         Eslint {

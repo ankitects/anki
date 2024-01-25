@@ -79,5 +79,6 @@
         "not < 1%",
         "Chrome 77",
         "iOS 14.5"
-    ]
+    ],
+    "type": "module"
 }
