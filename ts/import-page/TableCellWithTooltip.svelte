@@ -3,7 +3,7 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import WithTooltip from "components/WithTooltip.svelte";
+    import WithTooltip from "$lib/components/WithTooltip.svelte";
 
     import TableCell from "./TableCell.svelte";
 

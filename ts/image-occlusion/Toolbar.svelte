@@ -6,13 +6,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import { directionKey } from "@tslib/context-keys";
     import { getPlatformString } from "@tslib/shortcuts";
-    import DropdownItem from "components/DropdownItem.svelte";
-    import IconButton from "components/IconButton.svelte";
-    import Popover from "components/Popover.svelte";
-    import Shortcut from "components/Shortcut.svelte";
-    import WithFloating from "components/WithFloating.svelte";
     import { getContext, onMount } from "svelte";
     import type { Readable } from "svelte/store";
+
+    import DropdownItem from "$lib/components/DropdownItem.svelte";
+    import IconButton from "$lib/components/IconButton.svelte";
+    import Popover from "$lib/components/Popover.svelte";
+    import Shortcut from "$lib/components/Shortcut.svelte";
+    import WithFloating from "$lib/components/WithFloating.svelte";
 
     import { mdiEye, mdiFormatAlignCenter, mdiSquare, mdiViewDashboard } from "./icons";
     import { emitChangeSignal } from "./MaskEditor.svelte";

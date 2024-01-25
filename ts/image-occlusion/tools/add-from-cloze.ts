@@ -3,7 +3,8 @@
 
 import type { GetImageOcclusionNoteResponse_ImageOcclusion } from "@generated/anki/image_occlusion_pb";
 import type { fabric } from "fabric";
-import { extractShapesFromClozedField } from "image-occlusion/shapes/from-cloze";
+
+import { extractShapesFromClozedField } from "$lib/image-occlusion/shapes/from-cloze";
 
 import { addShape, addShapeGroup } from "./from-shapes";
 import { redraw } from "./lib";

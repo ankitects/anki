@@ -2,8 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { fabric } from "fabric";
-import { opacityStateStore } from "image-occlusion/store";
 import { get } from "svelte/store";
+
+import { opacityStateStore } from "$lib/image-occlusion/store";
 
 import { BORDER_COLOR, isPointerInBoundingBox, SHAPE_MASK_COLOR, stopDraw } from "./lib";
 import { undoStack } from "./tool-undo-redo";

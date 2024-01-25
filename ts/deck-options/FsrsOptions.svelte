@@ -16,7 +16,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "@generated/backend";
     import * as tr from "@generated/ftl";
     import { runWithBackendProgress } from "@tslib/progress";
-    import SwitchRow from "components/SwitchRow.svelte";
+
+    import SwitchRow from "$lib/components/SwitchRow.svelte";
 
     import SettingTitle from "../components/SettingTitle.svelte";
     import DateInput from "./DateInput.svelte";

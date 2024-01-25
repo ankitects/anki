@@ -2,8 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { fabric } from "fabric";
-import { opacityStateStore, textEditingState } from "image-occlusion/store";
 import { get } from "svelte/store";
+
+import { opacityStateStore, textEditingState } from "$lib/image-occlusion/store";
 
 import {
     enableUniformScaling,

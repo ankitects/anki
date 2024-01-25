@@ -2,7 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { fabric } from "fabric";
-import type { Shape } from "image-occlusion/shapes";
+
+import type { Shape } from "$lib/image-occlusion/shapes";
 
 import { addBorder, enableUniformScaling } from "./lib";
 

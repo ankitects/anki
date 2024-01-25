@@ -42,9 +42,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@generated/ftl";
     import { bridgeCommand } from "@tslib/bridgecommand";
-    import { type ImageLoadedEvent, resetIOImage } from "image-occlusion/mask-editor";
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
+
+    import {
+        type ImageLoadedEvent,
+        resetIOImage,
+    } from "$lib/image-occlusion/mask-editor";
 
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
@@ -388,16 +392,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { ImageOcclusionFieldIndexes } from "@generated/anki/image_occlusion_pb";
     import { getImageOcclusionFields } from "@generated/backend";
     import { wrapClozeInternal, wrapInternal } from "@tslib/wrap";
-    import Shortcut from "components/Shortcut.svelte";
-    import ImageOcclusionPage from "image-occlusion/ImageOcclusionPage.svelte";
-    import ImageOcclusionPicker from "image-occlusion/ImageOcclusionPicker.svelte";
-    import type { IOMode } from "image-occlusion/lib";
-    import { exportShapesToClozeDeletions } from "image-occlusion/shapes/to-cloze";
+
+    import Shortcut from "$lib/components/Shortcut.svelte";
+    import ImageOcclusionPage from "$lib/image-occlusion/ImageOcclusionPage.svelte";
+    import ImageOcclusionPicker from "$lib/image-occlusion/ImageOcclusionPicker.svelte";
+    import type { IOMode } from "$lib/image-occlusion/lib";
+    import { exportShapesToClozeDeletions } from "$lib/image-occlusion/shapes/to-cloze";
     import {
         hideAllGuessOne,
         ioImageLoadedStore,
         ioMaskEditorVisible,
-    } from "image-occlusion/store";
+    } from "$lib/image-occlusion/store";
 
     import { mathjaxConfig } from "../editable/mathjax-element";
     import CollapseLabel from "./CollapseLabel.svelte";

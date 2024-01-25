@@ -3,7 +3,8 @@
 
 import { ImportAnkiPackageUpdateCondition } from "@generated/anki/import_export_pb";
 import * as tr from "@generated/ftl";
-import type { Choice } from "components/EnumSelector.svelte";
+
+import type { Choice } from "$lib/components/EnumSelector.svelte";
 
 export function updateChoices(): Choice<ImportAnkiPackageUpdateCondition>[] {
     return [

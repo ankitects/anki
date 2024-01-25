@@ -2,7 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { fabric } from "fabric";
-import { baseShapesFromFabric, exportShapesToClozeDeletions } from "image-occlusion/shapes/to-cloze";
+
+import { baseShapesFromFabric, exportShapesToClozeDeletions } from "$lib/image-occlusion/shapes/to-cloze";
 
 import type { ShapeOrShapes } from "../shapes";
 import { Ellipse, Polygon, Rectangle, Shape, Text } from "../shapes";

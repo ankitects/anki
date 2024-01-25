@@ -4,10 +4,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@generated/ftl";
-    import ButtonGroup from "components/ButtonGroup.svelte";
-    import DynamicallySlottable from "components/DynamicallySlottable.svelte";
-    import IconButton from "components/IconButton.svelte";
-    import { ioImageLoadedStore, ioMaskEditorVisible } from "image-occlusion/store";
+
+    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
+    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
+    import IconButton from "$lib/components/IconButton.svelte";
+    import {
+        ioImageLoadedStore,
+        ioMaskEditorVisible,
+    } from "$lib/image-occlusion/store";
 
     import ButtonGroupItem, {
         createProps,
