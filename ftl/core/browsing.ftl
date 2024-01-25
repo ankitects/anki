@@ -81,6 +81,7 @@ browsing-selected-notes-only = Selected notes only
 browsing-shift-position-of-existing-cards = Shift position of existing cards
 browsing-sidebar = Sidebar
 browsing-sidebar-filter = Sidebar filter
+# The field that is used for sorting (sort is an adjective here, not a verb)
 browsing-sort-field = Sort Field
 browsing-sorting-on-this-column-is-not = Sorting on this column is not supported. Please choose another.
 browsing-start-position = Start position:
