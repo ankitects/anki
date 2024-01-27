@@ -384,6 +384,7 @@ impl<'n> NoteContext<'n> {
             let old_notetype_name = existing.name.clone();
             let new_fields = existing.field_ords_vec();
             let new_templates = Some(existing.template_ords_vec());
+            incoming.copy_ords(&existing);
             self.update_notetype(&mut incoming, original_existing, true)?;
 
             self.target_col
