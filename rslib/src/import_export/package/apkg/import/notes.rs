@@ -361,7 +361,7 @@ impl<'n> NoteContext<'n> {
         for ((existing_ntid, incoming_ntid), note_ids) in
             notetype_conflicts(incoming_notes, existing_guids)
         {
-            let mut existing = self
+            let original_existing = self
                 .target_col
                 .storage
                 .get_notetype(existing_ntid)?
@@ -372,10 +372,11 @@ impl<'n> NoteContext<'n> {
                 .get_notetype(incoming_ntid)?
                 .or_not_found(incoming_ntid)?;
 
-            if existing.is_cloze() != incoming.is_cloze() {
+            if original_existing.is_cloze() != incoming.is_cloze() {
                 return Err(ImportError::NotetypeKindMergeConflict.into());
             }
 
+            let mut existing = original_existing.clone();
             existing.merge(&incoming);
             incoming.merge(&existing);
             self.record_remapped_ords(&incoming);
@@ -383,7 +384,7 @@ impl<'n> NoteContext<'n> {
             let old_notetype_name = existing.name.clone();
             let new_fields = existing.field_ords_vec();
             let new_templates = Some(existing.template_ords_vec());
-            self.update_notetype(&mut incoming, existing, true)?;
+            self.update_notetype(&mut incoming, original_existing, true)?;
 
             self.target_col
                 .change_notetype_of_notes_inner(ChangeNotetypeInput {
