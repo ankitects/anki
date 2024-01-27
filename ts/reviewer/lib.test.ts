@@ -3,6 +3,7 @@
 
 import { SchedulingStatesWithContext } from "@generated/anki/frontend_pb";
 import { SchedulingContext, SchedulingStates } from "@generated/anki/scheduler_pb";
+import { expect, test } from "vitest";
 
 import { applyStateTransform } from "./answering";
 

@@ -12,6 +12,7 @@ import {
     UpdateDeckConfigsMode,
 } from "@generated/anki/deck_config_pb";
 import { get } from "svelte/store";
+import { expect, test } from "vitest";
 
 import { DeckOptionsState } from "./lib";
 

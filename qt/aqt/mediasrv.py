@@ -662,6 +662,7 @@ def _check_dynamic_request_permissions():
         context == PageContext.NON_LEGACY_PAGE
         or context == PageContext.EDITOR
         or context == PageContext.ADDON_PAGE
+        or os.environ.get("ANKI_API_PORT")
     ):
         pass
     elif context == PageContext.REVIEWER and request.path in (

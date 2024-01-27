@@ -92,7 +92,7 @@ function hasPackages(...names: string[]): boolean {
 }
 
 // Export require() as a global.
-Object.assign(window, { require });
+Object.assign(globalThis, { require });
 
 registerPackage("anki/packages", {
     // We also register require here, so add-ons can have a type-save variant of require (TODO, see AnkiPackages above)

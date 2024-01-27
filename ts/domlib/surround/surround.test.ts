@@ -1,5 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+// @vitest-environment jsdom
+
+import { beforeEach, describe, expect, test } from "vitest";
 
 import { surround } from "./surround";
 import { easyBold, easyUnderline, p } from "./test-utils";

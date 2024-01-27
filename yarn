@@ -1,0 +1,6 @@
+#!/bin/bash
+# Execute subcommand (eg 'yarn <cmd> ...')
+
+set -e
+
+./out/extracted/node/bin/yarn $*

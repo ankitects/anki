@@ -31,7 +31,7 @@ if (!sourcemap) {
             define: {
                 "process.browser": "true",
             },
-            tsconfig: "ts/tsconfig.json",
+            tsconfig: "ts/tsconfig_legacy.json",
         }),
         sveltePreprocess({ typescript: false }),
     ];

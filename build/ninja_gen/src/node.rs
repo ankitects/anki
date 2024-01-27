@@ -290,30 +290,19 @@ impl BuildAction for Eslint<'_> {
     }
 }
 
-pub struct JestTest<'a> {
-    pub folder: &'a str,
+pub struct ViteTest {
     pub deps: BuildInput,
-    pub jest_rc: BuildInput,
-    pub jsdom: bool,
 }
 
-impl BuildAction for JestTest<'_> {
+impl BuildAction for ViteTest {
     fn command(&self) -> &str {
-        "$jest --config $config $env $folder"
+        "./yarn test:once"
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
-        build.add_inputs("jest", inputs![":node_modules:jest"]);
+        build.add_inputs("vitest", inputs![":node_modules:vitest"]);
         build.add_inputs("", &self.deps);
-        build.add_inputs("config", &self.jest_rc);
-        build.add_variable("env", if self.jsdom { "--env=jsdom" } else { "" });
-        build.add_variable("folder", self.folder);
-        let hash = simple_hash(self.folder);
-        build.add_output_stamp(format!("tests/jest.{hash}"));
-    }
-
-    fn hide_last_line(&self) -> bool {
-        true
+        build.add_output_stamp("tests/vitest");
     }
 }
 

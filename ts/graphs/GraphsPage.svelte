@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
 
     import { pageTheme } from "../sveltelib/theme";
+    import RangeBox from "./RangeBox.svelte";
     import WithGraphData from "./WithGraphData.svelte";
 
     export let initialSearch: string;
@@ -18,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let graphs: typeof SvelteComponent<any>[];
     /** See RangeBox */
-    export let controller: typeof SvelteComponent<any> | null;
+    export let controller: typeof SvelteComponent<any> | null = RangeBox;
 
     function browserSearch(event: CustomEvent) {
         bridgeCommand(`browserSearch: ${$search} ${event.detail.query}`);
