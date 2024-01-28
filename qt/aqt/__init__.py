@@ -577,7 +577,10 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         base_folder = ProfileManager.get_created_base_folder(opts.base)
 
         # python logging config
-        log.config(base_folder / "logs" / "addons", level=logging.INFO)
+        log.config(
+            base_folder / "logs" / "addons",
+            level=logging.DEBUG if "ANKIDEV" in os.environ else logging.INFO,
+        )
 
         Collection.initialize_backend_logging(str(base_folder / "anki.log"))
 
