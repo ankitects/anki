@@ -576,12 +576,6 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     try:
         base_folder = ProfileManager.get_created_base_folder(opts.base)
 
-        # python logging config
-        log.config(
-            base_folder / "logs" / "addons",
-            level=logging.DEBUG if "ANKIDEV" in os.environ else logging.INFO,
-        )
-
         Collection.initialize_backend_logging(str(base_folder / "anki.log"))
 
         # default to specified/system language before getting user's preference so that we can localize some more strings
@@ -632,6 +626,13 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     if app.secondInstance():
         # we've signaled the primary instance, so we should close
         return None
+
+    # python logging config
+    log.config(
+        pm.addonFolder(),
+        level=logging.DEBUG if "ANKIDEV" in os.environ else logging.INFO,
+        force=True
+    )
 
     if not pm:
         if i18n_setup:

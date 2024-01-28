@@ -22,7 +22,6 @@ class RotatingFileHandler(logging.handlers.RotatingFileHandler):
         super().__init__(filename, "a", encoding="utf-8", maxBytes=self.MAXSIZE, backupCount=self.BACKUPCOUNT)
 
     def _on_close(self, _: Any, m: str, *args: Any, **kwargs: Any) -> None:
-        breakpoint()
         self.close()
 
 
@@ -47,8 +46,10 @@ class LoggerManager(logging.Manager):
     def getLogger(self, name: str) -> logging.Logger:
         logger = super().getLogger(name)
         if name.startswith(self.TAG) and RotatingFileHandler not in [handler.__class__ for handler in logger.handlers]:
-            path = self.path / f"{name.partition('.')[2]}.log"
+            module = name[len(self.TAG):].partition(".")[0]
+            path = self.path / module / "user_files" / "logs", f"{module}.log"
             path.parent.mkdir(parents=True, exist_ok=True)
+
             handler = RotatingFileHandler(path)
             logger.addHandler(handler)
             try:
@@ -67,7 +68,7 @@ def config(path: Path|str, **kwargs) -> None:
         Example:
             import aqt.log
             aqt.log.config(
-                ProfileManager.get_created_base_folder(opts.base),
+                pm.addonFolder(),
                 level=logging.DEBUG
             )
     """
