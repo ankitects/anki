@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import sys
+import logging
 
 if sys.version_info[0] < 3 or sys.version_info[1] < 9:
     raise Exception("Anki requires Python 3.9+")
@@ -44,6 +45,8 @@ import traceback
 from typing import TYPE_CHECKING, Any, Callable, Optional, cast
 
 import anki.lang
+import aqt.log
+
 from anki._backend import RustBackend
 from anki.buildinfo import version as _version
 from anki.collection import Collection
@@ -572,6 +575,10 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     pm = None
     try:
         base_folder = ProfileManager.get_created_base_folder(opts.base)
+
+        # python logging config
+        log.config(base_folder / "logs" / "addons", level=logging.INFO)
+
         Collection.initialize_backend_logging(str(base_folder / "anki.log"))
 
         # default to specified/system language before getting user's preference so that we can localize some more strings
