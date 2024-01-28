@@ -9,10 +9,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { Writable } from "svelte/store";
 
-    import { updateAllState } from "../components/WithState.svelte";
-    import actionList from "../sveltelib/action-list";
-    import type { MirrorAction } from "../sveltelib/dom-mirror";
-    import type { SetupInputHandlerAction } from "../sveltelib/input-handler";
+    import { updateAllState } from "$lib/components/WithState.svelte";
+    import actionList from "$lib/sveltelib/action-list";
+    import type { MirrorAction } from "$lib/sveltelib/dom-mirror";
+    import type { SetupInputHandlerAction } from "$lib/sveltelib/input-handler";
     import type { ContentEditableAPI } from "./content-editable";
     import {
         fixRTLKeyboardNav,

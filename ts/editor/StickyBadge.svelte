@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString, registerShortcut } from "@tslib/shortcuts";
     import { onMount } from "svelte";
 
-    import Badge from "../components/Badge.svelte";
+    import Badge from "$lib/components/Badge.svelte";
     import { context as editorFieldContext } from "./EditorField.svelte";
     import { stickyIcon } from "./icons";
 

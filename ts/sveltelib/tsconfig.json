@@ -1,9 +1,0 @@
-{
-    "extends": "../tsconfig_legacy.json",
-    "include": ["*", "position/*"],
-    "references": [
-        {
-            "path": "../lib"
-        }
-    ]
-}

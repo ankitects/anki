@@ -1,7 +1,0 @@
-{
-    "extends": "../tsconfig_legacy.json",
-    "include": ["**/*"],
-    "compilerOptions": {
-        "types": ["jest"]
-    }
-}

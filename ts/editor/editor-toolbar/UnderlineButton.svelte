@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@generated/ftl";
 
-    import type { MatchType } from "../../domlib/surround";
+    import type { MatchType } from "$lib/domlib/surround";
     import { underlineIcon } from "./icons";
     import TextAttributeButton from "./TextAttributeButton.svelte";
 

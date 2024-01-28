@@ -15,10 +15,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Callback } from "@tslib/typing";
     import { tick } from "svelte";
 
-    import ButtonToolbar from "../../components/ButtonToolbar.svelte";
-    import Popover from "../../components/Popover.svelte";
-    import WithFloating from "../../components/WithFloating.svelte";
-    import WithOverlay from "../../components/WithOverlay.svelte";
+    import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
+    import Popover from "$lib/components/Popover.svelte";
+    import WithFloating from "$lib/components/WithFloating.svelte";
+    import WithOverlay from "$lib/components/WithOverlay.svelte";
     import type { EditingInputAPI } from "../EditingArea.svelte";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";

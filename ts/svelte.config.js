@@ -1,7 +1,11 @@
 import adapter from "@sveltejs/adapter-static";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
-import { realpathSync } from "fs";
-import { resolve } from "path";
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
+
+// This prevents errors being shown when opening VSCode on the root of the
+// project, instead of the ts folder.
+const tsFolder = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -9,23 +13,23 @@ const config = {
 
     kit: {
         adapter: adapter(
-            { pages: realpathSync("../out/ts-out"), fallback: "index.html", precompress: true },
+            { pages: "ts-out", fallback: "index.html", precompress: false },
         ),
         alias: {
-            "@tslib": resolve("./lib"),
-            "@generated": realpathSync("../out/ts/generated"),
+            "@tslib": join(tsFolder, "lib/tslib"),
+            "@generated": join(tsFolder, "../out/ts/lib/generated"),
         },
         files: {
-            lib: "./",
-            routes: "./routes",
+            lib: join(tsFolder, "lib"),
+            routes: join(tsFolder, "routes"),
         },
-        outDir: realpathSync("../out/svelte-kit"),
+        // currently outside of out/; as things break when out/ is a symlink
+        outDir: join(tsFolder, "../svelte-kit"),
         output: { preloadStrategy: "preload-mjs" },
         prerender: {
             crawl: false,
             entries: [],
         },
-        version: { pollInterval: 1000 * 60 * 15 },
         paths: {},
     },
 };

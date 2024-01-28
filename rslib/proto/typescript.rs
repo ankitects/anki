@@ -14,7 +14,7 @@ use inflections::Inflect;
 use itertools::Itertools;
 
 pub(crate) fn write_ts_interface(services: &[BackendService]) -> Result<()> {
-    let root = Path::new("../../out/ts/generated");
+    let root = Path::new("../../out/ts/lib/generated");
     create_dir_all(root)?;
 
     let mut ts_out = String::new();

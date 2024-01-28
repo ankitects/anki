@@ -20,6 +20,10 @@ export default defineConfig({
     plugins: [sveltekit()],
     test: {
         include: ["**/*.{test,spec}.{js,ts}"],
+        cache: {
+            // prevent vitest from creating ts/node_modules/.vitest
+            dir: "../node_modules/.vitest",
+        },
     },
     build: {
         reportCompressedSize: false,
@@ -28,8 +32,10 @@ export default defineConfig({
         fs: {
             // Allow serving files project root and out dir
             allow: [
-                realpathSync(".."),
+                // realpathSync(".."),
+                // "/home/dae/Local/build/anki/node_modules",
                 realpathSync("../out"),
+                // realpathSync("../out/node_modules"),
             ],
         },
         proxy: {

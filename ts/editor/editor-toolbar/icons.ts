@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-/// <reference types="../../lib/image-import" />
+/// <reference types="@tslib/image-import" />
 
 export { default as cogIcon } from "@mdi/svg/svg/cog.svg";
 export { default as colorHelperIcon } from "@mdi/svg/svg/color-helper.svg";

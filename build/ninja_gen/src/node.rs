@@ -214,7 +214,7 @@ pub struct SvelteCheck {
 
 impl BuildAction for SvelteCheck {
     fn command(&self) -> &str {
-        "$svelte-check --tsconfig $tsconfig $
+        "./yarn svelte-check --tsconfig $tsconfig $
         --fail-on-warnings --threshold warning $
         --compiler-warnings $compiler_warnings"
     }
@@ -296,7 +296,7 @@ pub struct ViteTest {
 
 impl BuildAction for ViteTest {
     fn command(&self) -> &str {
-        "./yarn test:once"
+        "./yarn vitest:once"
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {

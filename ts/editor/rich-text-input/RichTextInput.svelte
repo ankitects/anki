@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
 
     import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
-    import type { InputHandlerAPI } from "../../sveltelib/input-handler";
+    import type { InputHandlerAPI } from "$lib/sveltelib/input-handler";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
     import type { SurroundedAPI } from "../surround";
     import type CustomStyles from "./CustomStyles.svelte";
@@ -32,8 +32,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { registerPackage } from "@tslib/runtime-require";
 
-    import contextProperty from "../../sveltelib/context-property";
-    import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
+    import contextProperty from "$lib/sveltelib/context-property";
+    import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
     import { Surrounder } from "../surround";
 
     const key = Symbol("richText");
@@ -67,11 +67,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getAllContexts, getContext, onMount, tick } from "svelte";
     import type { Readable } from "svelte/store";
 
-    import { placeCaretAfterContent } from "../../domlib/place-caret";
+    import { placeCaretAfterContent } from "$lib/domlib/place-caret";
     import ContentEditable from "../../editable/ContentEditable.svelte";
-    import useDOMMirror from "../../sveltelib/dom-mirror";
-    import useInputHandler from "../../sveltelib/input-handler";
-    import { pageTheme } from "../../sveltelib/theme";
+    import useDOMMirror from "$lib/sveltelib/dom-mirror";
+    import useInputHandler from "$lib/sveltelib/input-handler";
+    import { pageTheme } from "$lib/sveltelib/theme";
     import { context as editingAreaContext } from "../EditingArea.svelte";
     import { Flag } from "../helpers";
     import { context as noteEditorContext } from "../NoteEditor.svelte";

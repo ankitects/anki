@@ -8,10 +8,11 @@
     "scripts": {
         "dev": "cd ts && vite dev",
         "build": "cd ts && vite build",
-        "tscheck": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-        "check:watch": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-        "test:once": "cd ts && vitest run",
-        "test": "cd ts && vitest"
+        "preview": "cd ts && vite preview",
+        "svelte-check:once": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings --threshold warning --compiler-warnings a11y-click-events-have-key-events:ignore,a11y-no-noninteractive-tabindex:ignore,a11y-no-static-element-interactions:ignore",
+        "svelte-check": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+        "vitest:once": "cd ts && vitest run",
+        "vitest": "cd ts && vitest"
     },
     "devDependencies": {
         "@bufbuild/protoc-gen-es": "^1.2.1",

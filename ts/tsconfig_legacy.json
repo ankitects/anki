@@ -38,9 +38,9 @@
         ],
         "baseUrl": ".",
         "paths": {
-            "@generated/*": ["../out/ts/generated/*"],
-            "@tslib/*": ["lib/*"],
-            "$lib/*": ["./*"]
+            "@generated/*": ["../out/ts/lib/generated/*"],
+            "@tslib/*": ["lib/tslib/*"],
+            "$lib/*": ["lib/*"]
         },
         "types": [],
         "verbatimModuleSyntax": true,

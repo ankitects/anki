@@ -1,8 +1,0 @@
-{
-    "extends": "../tsconfig_legacy.json",
-    "include": ["*"],
-    "references": [{ "path": "../lib" }],
-    "compilerOptions": {
-        "types": ["node"]
-    }
-}

@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
 
-    import Collapsible from "../components/Collapsible.svelte";
+    import Collapsible from "$lib/components/Collapsible.svelte";
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import type { EditorToolbarAPI } from "./editor-toolbar";
     import type { EditorFieldAPI } from "./EditorField.svelte";
@@ -23,8 +23,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { registerPackage } from "@tslib/runtime-require";
 
-    import contextProperty from "../sveltelib/context-property";
-    import lifecycleHooks from "../sveltelib/lifecycle-hooks";
+    import contextProperty from "$lib/sveltelib/context-property";
+    import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
 
     const key = Symbol("noteEditor");
     const [context, setContextProperty] = contextProperty<NoteEditorAPI>(key);
@@ -48,12 +48,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import {
         type ImageLoadedEvent,
         resetIOImage,
-    } from "$lib/image-occlusion/mask-editor";
+    } from "../routes/image-occlusion/mask-editor";
 
-    import Absolute from "../components/Absolute.svelte";
-    import Badge from "../components/Badge.svelte";
-    import { TagEditor } from "../tag-editor";
-    import { commitTagEdits } from "../tag-editor/TagInput.svelte";
+    import Absolute from "$lib/components/Absolute.svelte";
+    import Badge from "$lib/components/Badge.svelte";
+    import { TagEditor } from "$lib/tag-editor";
+    import { commitTagEdits } from "$lib/tag-editor/TagInput.svelte";
     import { ChangeTimer } from "./change-timer";
     import { clearableArray } from "./destroyable";
     import DuplicateLink from "./DuplicateLink.svelte";
@@ -394,15 +394,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { wrapClozeInternal, wrapInternal } from "@tslib/wrap";
 
     import Shortcut from "$lib/components/Shortcut.svelte";
-    import ImageOcclusionPage from "$lib/image-occlusion/ImageOcclusionPage.svelte";
-    import ImageOcclusionPicker from "$lib/image-occlusion/ImageOcclusionPicker.svelte";
-    import type { IOMode } from "$lib/image-occlusion/lib";
-    import { exportShapesToClozeDeletions } from "$lib/image-occlusion/shapes/to-cloze";
+    import ImageOcclusionPage from "../routes/image-occlusion/ImageOcclusionPage.svelte";
+    import ImageOcclusionPicker from "../routes/image-occlusion/ImageOcclusionPicker.svelte";
+    import type { IOMode } from "../routes/image-occlusion/lib";
+    import { exportShapesToClozeDeletions } from "../routes/image-occlusion/shapes/to-cloze";
     import {
         hideAllGuessOne,
         ioImageLoadedStore,
         ioMaskEditorVisible,
-    } from "$lib/image-occlusion/store";
+    } from "../routes/image-occlusion/store";
 
     import { mathjaxConfig } from "../editable/mathjax-element";
     import CollapseLabel from "./CollapseLabel.svelte";

@@ -56,7 +56,7 @@ fn prepare_translations(build: &mut Build) -> Result<()> {
             ],
             outputs: &[
                 RustOutput::Data("py", "pylib/anki/_fluent.py"),
-                RustOutput::Data("ts", "ts/generated/ftl.ts"),
+                RustOutput::Data("ts", "ts/lib/generated/ftl.ts"),
             ],
             target: None,
             extra_args: "-p anki_i18n",
@@ -118,7 +118,7 @@ fn build_proto_descriptors_and_interfaces(build: &mut Build) -> Result<()> {
     let outputs = vec![
         RustOutput::Data("descriptors.bin", "rslib/proto/descriptors.bin"),
         RustOutput::Data("py", "pylib/anki/_backend_generated.py"),
-        RustOutput::Data("ts", "ts/generated/backend.ts"),
+        RustOutput::Data("ts", "ts/lib/generated/backend.ts"),
     ];
     build.add_action(
         "rslib:proto",

@@ -11,13 +11,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import {
         ioImageLoadedStore,
         ioMaskEditorVisible,
-    } from "$lib/image-occlusion/store";
+    } from "../../routes/image-occlusion/store";
 
     import ButtonGroupItem, {
         createProps,
         setSlotHostContext,
         updatePropsList,
-    } from "../../components/ButtonGroupItem.svelte";
+    } from "$lib/components/ButtonGroupItem.svelte";
     import { mdiTableRefresh, mdiViewDashboard } from "./icons";
 
     export let api = {};

@@ -6,8 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import { removeStyleProperties } from "@tslib/styling";
 
-    import type { MatchType } from "../../domlib/surround";
-    import { boldIcon } from "./icons";
+    import type { MatchType } from "$lib/domlib/surround";
     import TextAttributeButton from "./TextAttributeButton.svelte";
 
     function matcher(element: HTMLElement | SVGElement, match: MatchType): void {

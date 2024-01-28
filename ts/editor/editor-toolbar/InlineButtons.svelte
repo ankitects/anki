@@ -3,9 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ButtonGroup from "../../components/ButtonGroup.svelte";
-    import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
-    import Item from "../../components/Item.svelte";
+    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
+    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
+    import Item from "$lib/components/Item.svelte";
     import BoldButton from "./BoldButton.svelte";
     import HighlightColorButton from "./HighlightColorButton.svelte";
     import ItalicButton from "./ItalicButton.svelte";
