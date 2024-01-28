@@ -47,7 +47,7 @@ class LoggerManager(logging.Manager):
         logger = super().getLogger(name)
         if name.startswith(self.TAG) and RotatingFileHandler not in [handler.__class__ for handler in logger.handlers]:
             module = name[len(self.TAG):].partition(".")[0]
-            path = self.path / module / "user_files" / "logs", f"{module}.log"
+            path = self.path / module / "user_files" / "logs" / f"{module}.log"
             path.parent.mkdir(parents=True, exist_ok=True)
 
             handler = RotatingFileHandler(path)
