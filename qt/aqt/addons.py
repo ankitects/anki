@@ -665,7 +665,7 @@ class AddonManager:
     def addonFromModule(self, module: str) -> str:
         return module.split(".")[0]
 
-    def getLogger(self, name):
+    def getLogger(self, module: str) -> logging.Logger:
         from logging import getLogger
         return getLogger(f"{aqt.log.LoggerManager.TAG}{self.addonFromModule(module)}")
 
