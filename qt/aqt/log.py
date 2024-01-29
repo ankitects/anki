@@ -9,16 +9,37 @@
 
 from __future__ import annotations
 import sys
+import functools
 from pathlib import Path
 import logging
 import logging.handlers
+from typing import Any
+
+
+def record_factory(old_factory: Any, *args, **kwargs) -> logging.LogRecord:
+    """adds a shortname to crop the levelname to three digits"""
+    record = old_factory(*args, **kwargs)
+    record.shortname = {
+        "CRITICAL": "CRT",
+        "FATAL": "FAT",
+        "ERROR": "ERR",
+        "WARNING": "WRN",
+        "WARN": "WRN",
+        "INFO": "INF",
+        "DEBUG": "DBG",
+    }.get(record.levelname, record.levelname)
+    return record
+
+
+# this formatter instance is the same for all the handlers
+FORMATTER = logging.Formatter("%(asctime)s:%(shortname)s:%(name)s: %(message)s")
 
 
 class RotatingFileHandler(logging.handlers.RotatingFileHandler):
     MAXSIZE = 3 * 1024 * 1024
     BACKUPCOUNT = 5
 
-    def __init__(self, filename, *args, **kwargs):
+    def __init__(self, filename: Path, *args: Any, **kwargs: Any):
         super().__init__(
             filename,
             "a",
@@ -46,6 +67,7 @@ class LoggerManager(logging.Manager):
 
             handler = RotatingFileHandler(path)
             logger.addHandler(handler)
+            handler.setFormatter(FORMATTER)
         return logger
 
 
@@ -64,16 +86,15 @@ def config(path: Path | str, **kwargs) -> None:
     handlers = [
         logging.StreamHandler(stream=sys.stdout),
     ]
+    handlers[0].setFormatter(FORMATTER)
     logging.basicConfig(handlers=handlers, **kwargs)
+    logging.setLogRecordFactory(
+        functools.partial(record_factory, logging.getLogRecordFactory())
+    )
     logging.Logger.manager = LoggerManager(path, logging.root)
 
 
-def set_level(level: int) -> None:
-    """set at runtime the global log level"""
-    logging.root.setLevel(level)
-
-
-def close_module(module: str, reopen: bool=False) -> None:
+def close_module(module: str, reopen: bool = False) -> None:
     """close the RotatingFileHandler handler"""
     logger = logging.getLogger(f"{LoggerManager.TAG}{module}")
     logger.debug("closing handler on %s", module)
@@ -93,8 +114,8 @@ def close_module(module: str, reopen: bool=False) -> None:
 
 
 if __name__ == "__main__":
-    # this will write to xxx
-    config("xxx", level=logging.DEBUG)
+    # this will write to deleteme
+    config("deleteme", format=logging.BASIC_FORMAT, level=logging.DEBUG)
 
     logging.root.setLevel(logging.INFO)
 
