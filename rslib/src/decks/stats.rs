@@ -42,6 +42,8 @@ impl Collection {
 
     /// Modify the deck's limits by adjusting the 'done today' count.
     /// Positive values increase the limit, negative value decrease it.
+    /// If global parent limits are enabled, the deck's parents are adjusted as
+    /// well.
     /// Caller should ensure a transaction.
     pub(crate) fn extend_limits(
         &mut self,
@@ -57,6 +59,11 @@ impl Collection {
         };
         if let Some(mut deck) = self.storage.get_deck(did)? {
             self.update_deck_stats_single(today, usn, &mut deck, mutator)?;
+            if self.get_config_bool(BoolKey::ApplyAllParentLimits) {
+                for mut parent in self.storage.parent_decks(&deck)? {
+                    self.update_deck_stats_single(today, usn, &mut parent, mutator)?;
+                }
+            }
         }
 
         Ok(())
