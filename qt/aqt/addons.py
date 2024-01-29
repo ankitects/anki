@@ -6,6 +6,7 @@ from __future__ import annotations
 import html
 import io
 import json
+import logging
 import os
 import re
 import zipfile
@@ -671,8 +672,7 @@ class AddonManager:
         return module.split(".")[0]
 
     def getLogger(self, module: str) -> logging.Logger:
-        from logging import getLogger
-        return getLogger(f"{aqt.log.LoggerManager.TAG}{self.addonFromModule(module)}")
+        return logging.getLogger(f"{aqt.log.LoggerManager.TAG}{self.addonFromModule(module)}")
 
     def configAction(self, module: str) -> Callable[[], bool | None]:
         return self._configButtonActions.get(module)
@@ -736,8 +736,8 @@ class AddonManager:
     def _userFilesBackupPath(self) -> str:
         return os.path.join(self.addonsFolder(), "files_backup")
 
-    def backupUserFiles(self, sid: str) -> None:
-        p = self._userFilesPath(sid)
+    def backupUserFiles(self, module: str) -> None:
+        p = self._userFilesPath(module)
 
         # close the aqt.log.RotatingFileHandler handler (and re-open)
         aqt.log.close_module(module, reopen=True)
