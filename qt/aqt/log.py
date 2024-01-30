@@ -5,7 +5,10 @@
 # To use inside an addon:
 #     from aqt import mw
 #     log = mw.addonManager.getLogger(__name__)
-
+#     log.info("Hello world")
+#
+# The "Hello world" message will be written under:
+#       pm.addonFolder() / <ADDON-ID> / "user_files" / "logs" / "<ADDON-ID>.log"
 
 from __future__ import annotations
 import sys
@@ -16,8 +19,14 @@ import logging.handlers
 from typing import Any
 
 
+# this formatter instance is the same for all the handlers
+# (shortname is not a standard field, will get injected by record_factory)
+FORMATTER = logging.Formatter("%(asctime)s:%(shortname)s:%(name)s: %(message)s")
+
+
+
 def record_factory(old_factory: Any, *args, **kwargs) -> logging.LogRecord:
-    """adds a shortname to crop the levelname to three digits"""
+    """adds a three letter shortname forlevelname"""
     record = old_factory(*args, **kwargs)
     record.shortname = {
         "CRITICAL": "CRT",
@@ -31,11 +40,8 @@ def record_factory(old_factory: Any, *args, **kwargs) -> logging.LogRecord:
     return record
 
 
-# this formatter instance is the same for all the handlers
-FORMATTER = logging.Formatter("%(asctime)s:%(shortname)s:%(name)s: %(message)s")
-
-
 class RotatingFileHandler(logging.handlers.RotatingFileHandler):
+    # The addon logs will be rotated once they reach MAXSIZE, to a total of BACKUPCOUNT
     MAXSIZE = 3 * 1024 * 1024
     BACKUPCOUNT = 5
 
