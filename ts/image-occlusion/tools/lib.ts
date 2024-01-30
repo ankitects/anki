@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type fabric from "fabric";
+import { fabric } from "fabric";
 import type { PanZoom } from "panzoom";
 import { get } from "svelte/store";
 
@@ -315,4 +315,13 @@ export const makeShapeRemainInCanvas = (canvas: fabric.Canvas) => {
             );
         }
     });
+};
+
+export const selectAllShapes = (canvas: fabric.Canvas) => {
+    canvas.discardActiveObject();
+    const sel = new fabric.ActiveSelection(canvas.getObjects(), {
+        canvas: canvas,
+    });
+    canvas.setActiveObject(sel);
+    redraw(canvas);
 };
