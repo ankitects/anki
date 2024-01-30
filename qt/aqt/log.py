@@ -89,6 +89,10 @@ def config(path: Path | str, **kwargs) -> None:
             level=logging.DEBUG
         )
     """
+    
+    # we save the logs already defined
+    old = logging.root.manager.loggerDict
+
     handlers = [
         logging.StreamHandler(stream=sys.stdout),
     ]
@@ -98,6 +102,17 @@ def config(path: Path | str, **kwargs) -> None:
         functools.partial(record_factory, logging.getLogRecordFactory())
     )
     logging.Logger.manager = LoggerManager(path, logging.root)
+    logging.root.manager.loggerDict.update(old)
+
+    logging.captureWarnings(True)
+
+    # silence these loggers:
+    loggers = [
+        "waitress.queue",
+    ]
+    for logger in loggers:
+        logging.getLogger(logger).setLevel(logging.CRITICAL)
+        logging.getLogger(logger).propagate = False
 
 
 def close_module(module: str, reopen: bool = False) -> None:

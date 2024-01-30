@@ -296,8 +296,7 @@ def handle_request(pathin: str) -> Response:
             abort(403)
 
     req = _extract_request(pathin)
-    if dev_mode:
-        print(f"{time.time():.3f} {flask.request.method} /{pathin}")
+    logger.debug(f"{flask.request.method} /{pathin}")
 
     if isinstance(req, NotFound):
         print(req.message)
