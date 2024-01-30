@@ -79,6 +79,7 @@ editing-image-occlusion-delete = Delete
 editing-image-occlusion-duplicate = Duplicate
 editing-image-occlusion-group = Group Selection
 editing-image-occlusion-ungroup = Ungroup Selection
+editing-image-occlusion-select-all = Select All
 editing-image-occlusion-alignment = Alignment
 editing-image-occlusion-align-left = Align Left
 editing-image-occlusion-align-h-center = Align Horizontal Centers

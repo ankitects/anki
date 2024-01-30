@@ -108,9 +108,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
                     }
-                    if (resp.fsrsItems < 1000) {
+                    if (resp.fsrsItems < 400) {
                         alert(
-                            tr.deckConfigMustHave1000Reviews({ count: resp.fsrsItems }),
+                            tr.deckConfigMustHave400Reviews({ count: resp.fsrsItems }),
                         );
                     } else {
                         $config.fsrsWeights = resp.weights;
