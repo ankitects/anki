@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::env;
+
 use anyhow::Result;
 use ninja_gen::action::BuildAction;
 use ninja_gen::build::BuildProfile;
@@ -26,17 +28,21 @@ pub fn build_rust(build: &mut Build) -> Result<()> {
 }
 
 fn prepare_translations(build: &mut Build) -> Result<()> {
+    let offline_build = env::var("OFFLINE_BUILD").is_ok();
+
     // ensure repos are checked out
     build.add_action(
         "ftl:repo:core",
         SyncSubmodule {
             path: "ftl/core-repo",
+            offline_build,
         },
     )?;
     build.add_action(
         "ftl:repo:qt",
         SyncSubmodule {
             path: "ftl/qt-repo",
+            offline_build,
         },
     )?;
     // build anki_i18n and spit out strings.json

@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::env;
+
 use anyhow::Result;
 use ninja_gen::action::BuildAction;
 use ninja_gen::archives::download_and_extract;
@@ -250,10 +252,13 @@ fn install_anki_wheels(build: &mut Build) -> Result<()> {
 }
 
 fn build_pyoxidizer(build: &mut Build) -> Result<()> {
+    let offline_build = env::var("OFFLINE_BUILD").is_ok();
+
     build.add_action(
         "bundle:pyoxidizer:repo",
         SyncSubmodule {
             path: "qt/bundle/PyOxidizer",
+            offline_build,
         },
     )?;
     build.add_action(

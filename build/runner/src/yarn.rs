@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::env;
 use std::path::Path;
 use std::process::Command;
 
@@ -17,7 +18,18 @@ pub struct YarnArgs {
 pub fn setup_yarn(args: YarnArgs) {
     link_node_modules();
 
-    run_command(Command::new(&args.yarn_bin).arg("install"));
+    if env::var("OFFLINE_BUILD").is_ok() {
+        println!("OFFLINE_BUILD is set");
+        println!("Running yarn with '--offline' and '--ignore-scripts'.");
+        run_command(
+            Command::new(&args.yarn_bin)
+                .arg("install")
+                .arg("--offline")
+                .arg("--ignore-scripts"),
+        );
+    } else {
+        run_command(Command::new(&args.yarn_bin).arg("install"));
+    }
 
     std::fs::write(args.stamp, b"").unwrap();
 }
