@@ -1216,12 +1216,12 @@
   },
   {
     "name": "fsrs",
-    "version": "0.1.0",
-    "authors": null,
-    "repository": null,
+    "version": "0.2.0",
+    "authors": "Open Spaced Repetition",
+    "repository": "https://github.com/open-spaced-repetition/fsrs-rs",
     "license": "BSD-3-Clause",
     "license_file": null,
-    "description": null
+    "description": "FSRS for Rust, including Optimizer and Scheduler"
   },
   {
     "name": "futf",
