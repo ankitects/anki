@@ -13,12 +13,22 @@ import {
     mdiCopy,
     mdiDeleteOutline,
     mdiGroup,
+    mdiSelectAll,
     mdiUngroup,
     mdiZoomIn,
     mdiZoomOut,
     mdiZoomReset,
 } from "../icons";
-import { deleteItem, duplicateItem, groupShapes, unGroupShapes, zoomIn, zoomOut, zoomReset } from "./lib";
+import {
+    deleteItem,
+    duplicateItem,
+    groupShapes,
+    selectAllShapes,
+    unGroupShapes,
+    zoomIn,
+    zoomOut,
+    zoomReset,
+} from "./lib";
 import {
     alignBottomKeyCombination,
     alignHorizontalCenterKeyCombination,
@@ -29,6 +39,7 @@ import {
     deleteKeyCombination,
     duplicateKeyCombination,
     groupKeyCombination,
+    selectAllKeyCombination,
     ungroupKeyCombination,
     zoomInKeyCombination,
     zoomOutKeyCombination,
@@ -57,6 +68,13 @@ export const groupUngroupTools = [
         action: unGroupShapes,
         tooltip: tr.editingImageOcclusionUngroup,
         shortcut: ungroupKeyCombination,
+    },
+    {
+        name: "select-all",
+        icon: mdiSelectAll,
+        action: selectAllShapes,
+        tooltip: tr.editingImageOcclusionSelectAll,
+        shortcut: selectAllKeyCombination,
     },
 ];
 

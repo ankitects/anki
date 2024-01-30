@@ -17,6 +17,7 @@ export const deleteKeyCombination = "Delete";
 export const duplicateKeyCombination = "D";
 export const groupKeyCombination = "G";
 export const ungroupKeyCombination = "U";
+export const selectAllKeyCombination = "A";
 export const alignLeftKeyCombination = "Shift+L";
 export const alignHorizontalCenterKeyCombination = "Shift+H";
 export const alignRightKeyCombination = "Shift+R";
