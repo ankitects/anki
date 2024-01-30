@@ -175,7 +175,7 @@ impl AnkiError {
             AnkiError::NotFound { source } => source.message(tr),
             AnkiError::FsrsInsufficientData => tr.deck_config_not_enough_history().into(),
             AnkiError::FsrsInsufficientReviews { count } => {
-                tr.deck_config_must_have_1000_reviews(*count).into()
+                tr.deck_config_must_have_400_reviews(*count).into()
             }
             AnkiError::FsrsWeightsInvalid => tr.deck_config_invalid_weights().into(),
             AnkiError::SchedulerUpgradeRequired => {
