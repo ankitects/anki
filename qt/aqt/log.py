@@ -23,18 +23,17 @@ from typing import Any
 FORMATTER = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
 
 
-class RotatingFileHandler(logging.handlers.RotatingFileHandler):
-    # The addon logs will be rotated once they reach MAXSIZE, to a total of BACKUPCOUNT
-    MAXSIZE = 3 * 1024 * 1024
-    BACKUPCOUNT = 5
+class RotatingFileHandler(logging.handlers.TimedRotatingFileHandler):
+    # The addon logs will be rotated daily with a total of BACKUPCOUNT
+    BACKUPCOUNT = 10
 
     def __init__(self, filename: Path, *args: Any, **kwargs: Any):
         super().__init__(
-            filename,
-            "a",
-            encoding="utf-8",
-            maxBytes=self.MAXSIZE,
+            filename=filename,
+            when="D",
+            interval=1,
             backupCount=self.BACKUPCOUNT,
+            encoding="utf-8",
         )
 
 
@@ -61,7 +60,7 @@ class LoggerManager(logging.Manager):
 
 
 def config(path: Path | str, **kwargs) -> None:
-    """configure the mail logging
+    """configure the main logging
 
     path: rootdir to store the addon logs
 
