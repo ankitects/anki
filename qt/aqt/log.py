@@ -20,24 +20,7 @@ from typing import Any
 
 
 # this formatter instance is the same for all the handlers
-# (shortname is not a standard field, will get injected by record_factory)
-FORMATTER = logging.Formatter("%(asctime)s:%(shortname)s:%(name)s: %(message)s")
-
-
-
-def record_factory(old_factory: Any, *args, **kwargs) -> logging.LogRecord:
-    """adds a three letter shortname forlevelname"""
-    record = old_factory(*args, **kwargs)
-    record.shortname = {
-        "CRITICAL": "CRT",
-        "FATAL": "FAT",
-        "ERROR": "ERR",
-        "WARNING": "WRN",
-        "WARN": "WRN",
-        "INFO": "INF",
-        "DEBUG": "DBG",
-    }.get(record.levelname, record.levelname)
-    return record
+FORMATTER = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
 
 
 class RotatingFileHandler(logging.handlers.RotatingFileHandler):
@@ -98,9 +81,6 @@ def config(path: Path | str, **kwargs) -> None:
     ]
     handlers[0].setFormatter(FORMATTER)
     logging.basicConfig(handlers=handlers, **kwargs)
-    logging.setLogRecordFactory(
-        functools.partial(record_factory, logging.getLogRecordFactory())
-    )
     logging.Logger.manager = LoggerManager(path, logging.root)
     logging.root.manager.loggerDict.update(old)
 
