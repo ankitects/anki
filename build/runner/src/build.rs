@@ -155,7 +155,7 @@ fn bootstrap_build() {
 fn maybe_update_buildhash(build_root: &Utf8Path) {
     // only updated on release builds
     let path = build_root.join("buildhash");
-    if env::var("RELEASE").is_ok() || !path.exists() {
+    if (env::var("RELEASE").is_ok() && env::var("OFFLINE_BUILD").is_err()) || !path.exists() {
         write_if_changed(&path, &get_buildhash())
     }
 }
