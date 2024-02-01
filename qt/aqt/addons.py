@@ -29,6 +29,7 @@ import anki.utils
 import aqt
 import aqt.forms
 import aqt.main
+import aqt.log
 from anki.collection import AddonInfo
 from anki.httpclient import HttpClient
 from anki.lang import without_unicode_isolation
@@ -367,6 +368,24 @@ class AddonManager:
         addon.enabled = should_enable
         self.write_addon_meta(addon)
 
+    def addon_get_logger(self, module: str) -> None | logging.Logger:
+        if not isinstance(logging.root.manager, aqt.log.LoggerManager):
+            return None  # this will mean there's no aqt.log logging
+        return logging.root.manager.find_logger_module(module)
+
+    def addon_toggle_log_level(self, module: str) -> None:
+        logger = self.addon_get_logger(module)
+        if not logger:
+            return
+
+        self.saved_log_levels = getattr(self, "saved_log_levels", {})
+        if logger.name in self.saved_log_levels:
+            logger.setLevel(self.saved_log_levels[logger.name])
+            del self.saved_log_levels[logger.name]
+        else:
+            self.saved_log_levels[logger.name] = logger.level
+            logger.setLevel(logging.DEBUG)
+
     def ankiweb_addons(self) -> list[int]:
         ids = []
         for meta in self.all_addon_meta():
@@ -511,8 +530,6 @@ class AddonManager:
             zfile.extract(n, base)
 
     def deleteAddon(self, module: str) -> None:
-        # cleanup/flush the logger for the module
-
         # close the aqt.log.RotatingFileHandler handler
         aqt.log.close_module(module)
 
@@ -672,7 +689,9 @@ class AddonManager:
         return module.split(".")[0]
 
     def getLogger(self, module: str) -> logging.Logger:
-        return logging.getLogger(f"{aqt.log.LoggerManager.TAG}{self.addonFromModule(module)}")
+        return logging.getLogger(
+            f"{aqt.log.LoggerManager.TAG}{self.addonFromModule(module)}"
+        )
 
     def get_logger(self, module: str) -> logging.Logger:
         return self.getLogger(module)

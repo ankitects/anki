@@ -58,6 +58,10 @@ class LoggerManager(logging.Manager):
             handler.setFormatter(FORMATTER)
         return logger
 
+    # non standard LoggerManager method
+    def find_logger_module(self, module: str) -> logging.Logger | None:
+        return self.loggerDict.get(f"{self.TAG}{module}")
+
 
 def config(path: Path | str, **kwargs) -> None:
     """configure the main logging
@@ -71,7 +75,7 @@ def config(path: Path | str, **kwargs) -> None:
             level=logging.DEBUG
         )
     """
-    
+
     # we save the logs already defined
     old = logging.root.manager.loggerDict
 

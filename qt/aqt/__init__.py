@@ -630,8 +630,8 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     # python logging config
     log.config(
         pm.addonFolder(),
-        level=logging.DEBUG if "ANKIDEV" in os.environ else logging.INFO,
-        force=True
+        level=logging.DEBUG if int(os.getenv("ANKIDEV", "0")) else logging.INFO,
+        force=True,
     )
 
     if not pm:
