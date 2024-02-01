@@ -50,7 +50,7 @@ class LoggerManager(logging.Manager):
             handler.__class__ for handler in logger.handlers
         ]:
             module = name[len(self.TAG) :].partition(".")[0]
-            path = self.path / "addon" / f"{module}.log"
+            path = self.path / "addon" / module / f"{module}.log"
             path.parent.mkdir(parents=True, exist_ok=True)
 
             handler = RotatingFileHandler(path)
