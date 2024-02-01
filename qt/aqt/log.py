@@ -62,6 +62,19 @@ class LoggerManager(logging.Manager):
     def find_logger_module(self, module: str) -> logging.Logger | None:
         return self.loggerDict.get(f"{self.TAG}{module}")
 
+    def find_logger_output(self, module: str) -> Path | None:
+        logger = self.find_logger_module(module)
+        if not logger:
+            return
+        handlers = [
+            handler
+            for handler in logger.handlers
+            if isinstance(handler, RotatingFileHandler)
+        ]
+        if not handlers:
+            return
+        return Path(handlers[0].stream.name)
+
 
 def config(path: Path | str, **kwargs) -> None:
     """configure the main logging

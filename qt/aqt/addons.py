@@ -386,6 +386,12 @@ class AddonManager:
             self.saved_log_levels[logger.name] = logger.level
             logger.setLevel(logging.DEBUG)
 
+    def addon_get_logpath(self, module: str) -> None | Path:
+        logger = self.addon_get_logger(module)
+        if not logger:
+            return
+        return logging.root.manager.find_logger_output(module)
+
     def ankiweb_addons(self) -> list[int]:
         ids = []
         for meta in self.all_addon_meta():
