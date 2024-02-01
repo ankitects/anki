@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-import sys
 import logging
+import sys
 
 if sys.version_info[0] < 3 or sys.version_info[1] < 9:
     raise Exception("Anki requires Python 3.9+")
@@ -45,14 +45,13 @@ import traceback
 from typing import TYPE_CHECKING, Any, Callable, Optional, cast
 
 import anki.lang
-import aqt.log
-
 from anki._backend import RustBackend
 from anki.buildinfo import version as _version
 from anki.collection import Collection
 from anki.consts import HELP_SITE
 from anki.utils import checksum, is_lin, is_mac
 from aqt import gui_hooks
+from aqt.log import setup_logging
 from aqt.qt import *
 from aqt.utils import TR, tr
 
@@ -627,8 +626,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         # we've signaled the primary instance, so we should close
         return None
 
-    # python logging config
-    log.config(
+    setup_logging(
         pm.logFolder(),
         level=logging.DEBUG if int(os.getenv("ANKIDEV", "0")) else logging.INFO,
         force=True,

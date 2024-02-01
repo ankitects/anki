@@ -75,37 +75,35 @@ class LoggerManager(logging.Manager):
         return Path(handlers[0].stream.name)
 
 
-def config(path: Path | str, **kwargs) -> None:
-    """configure the main logging
+def setup_logging(path: Path, **kwargs) -> None:
+    """
+    Set up logging for the application.
 
-    path: rootdir to store the addon logs
+    Configures the root logger to output logs to stdout by default, with custom
+    handling for add-on logs. The add-on logs are saved to a separate folder and file
+    for each add-on, under the path provided.
 
-    Example:
-        import aqt.log
-        aqt.log.config(
-            pm.addonFolder(),
-            level=logging.DEBUG
-        )
+    Args:
+        path (Path): The path where the log files should be stored.
+        **kwargs: Arbitrary keyword arguments for logging.basicConfig
     """
 
-    # we save the logs already defined
-    old = logging.root.manager.loggerDict
+    # Preserve existing loggers
+    old_logger_dict = logging.root.manager.loggerDict
 
-    handlers = [
-        logging.StreamHandler(stream=sys.stdout),
-    ]
-    handlers[0].setFormatter(FORMATTER)
-    logging.basicConfig(handlers=handlers, **kwargs)
+    stdout_handler = logging.StreamHandler(stream=sys.stdout)
+    stdout_handler.setFormatter(FORMATTER)
+    logging.basicConfig(handlers=[stdout_handler], **kwargs)
     logging.Logger.manager = LoggerManager(path, logging.root)
-    logging.root.manager.loggerDict.update(old)
+    logging.root.manager.loggerDict.update(old_logger_dict)
 
     logging.captureWarnings(True)
 
-    # silence these loggers:
-    loggers = [
+    # Silence some loggers of external libraries:
+    silenced_loggers = [
         "waitress.queue",
     ]
-    for logger in loggers:
+    for logger in silenced_loggers:
         logging.getLogger(logger).setLevel(logging.CRITICAL)
         logging.getLogger(logger).propagate = False
 
@@ -131,7 +129,7 @@ def close_module(module: str, reopen: bool = False) -> None:
 
 if __name__ == "__main__":
     # this will write to deleteme
-    config("deleteme", format=logging.BASIC_FORMAT, level=logging.DEBUG)
+    setup_logging("deleteme", format=logging.BASIC_FORMAT, level=logging.DEBUG)
 
     logging.root.setLevel(logging.INFO)
 
