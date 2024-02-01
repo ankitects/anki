@@ -694,13 +694,10 @@ class AddonManager:
     def addonFromModule(self, module: str) -> str:
         return module.split(".")[0]
 
-    def getLogger(self, module: str) -> logging.Logger:
+    def get_logger(self, module: str) -> logging.Logger:
         return logging.getLogger(
             f"{aqt.log.LoggerManager.TAG}{self.addonFromModule(module)}"
         )
-
-    def get_logger(self, module: str) -> logging.Logger:
-        return self.getLogger(module)
 
     def configAction(self, module: str) -> Callable[[], bool | None]:
         return self._configButtonActions.get(module)
