@@ -28,8 +28,8 @@ import anki
 import anki.utils
 import aqt
 import aqt.forms
-import aqt.main
 import aqt.log
+import aqt.main
 from anki.collection import AddonInfo
 from anki.httpclient import HttpClient
 from anki.lang import without_unicode_isolation

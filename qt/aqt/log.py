@@ -11,13 +11,12 @@
 #       pm.addonFolder() / <ADDON-ID> / "user_files" / "logs" / "<ADDON-ID>.log"
 
 from __future__ import annotations
-import sys
-import functools
-from pathlib import Path
+
 import logging
 import logging.handlers
+import sys
+from pathlib import Path
 from typing import Any
-
 
 # this formatter instance is the same for all the handlers
 FORMATTER = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
