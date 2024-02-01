@@ -60,7 +60,6 @@ pub fn run_build(args: BuildArgs) {
         .arg("-f")
         .arg(&build_file)
         .args(ninja_args)
-        .env("NINJA_STATUS", "[%f/%t; %r active; %es] ")
         .env("PATH", &path)
         .env(
             "MYPY_CACHE_DIR",
@@ -74,6 +73,10 @@ pub fn run_build(args: BuildArgs) {
         // Prevents 'Warn: You must provide the URL of lib/mappings.wasm'.
         // Updating svelte-check or its deps will likely remove the need for it.
         .env("NODE_OPTIONS", "--no-experimental-fetch");
+
+    if env::var("NINJA_STATUS").is_err() {
+        command.env("NINJA_STATUS", "[%f/%t; %r active; %es] ");
+    }
 
     // run build
     let mut status = command.status().expect("ninja not installed");
