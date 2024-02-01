@@ -303,6 +303,9 @@ class ProfileManager:
     def addonFolder(self) -> str:
         return self._ensureExists(os.path.join(self.base, "addons21"))
 
+    def logFolder(self) -> str:
+        return self._ensureExists(os.path.join(self.base, "logs"))
+
     def backupFolder(self) -> str:
         return self._ensureExists(os.path.join(self.profileFolder(), "backups"))
 
