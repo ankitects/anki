@@ -10,6 +10,12 @@ from pathlib import Path
 from typing import Optional, cast
 
 # All loggers with the following prefix will be treated as add-on loggers
+#
+# To instatiate a logger with this prefix, use aqt.AddonManager.get_logger()
+#
+# NOTE: Add-ons might also directly instantiate a logger with this prefix, e.g. in
+#       order to avoid depending on the Anki codebase, so this prefix should not
+#       be changed.
 ADDON_LOGGER_PREFIX = "addon."
 
 # Formatter used for all loggers
