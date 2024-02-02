@@ -66,6 +66,7 @@ message GetImageOcclusionNoteResponse {
 
   message ImageOcclusion {
     repeated ImageOcclusionShape shapes = 1;
+    uint32 ord = 2;
   }
 
   message ImageOcclusionNote {
