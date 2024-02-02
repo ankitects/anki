@@ -64,7 +64,7 @@ def get_addon_logs_folder(logs_path: Path | str, module: str) -> Path:
 def find_addon_logger(module: str) -> logging.Logger | None:
     return cast(
         Optional[logging.Logger],
-        logging.root.manager.loggerDict.get(f"{ADDON_LOGGER_PREFIX}{module}"),
+        logging.Logger.manager.loggerDict.get(f"{ADDON_LOGGER_PREFIX}{module}"),
     )
 
 
@@ -83,7 +83,7 @@ def setup_logging(path: Path | str, **kwargs) -> None:
 
     # Patch root logger manager to handle add-on loggers
     logger_manager = AnkiLoggerManager(
-        path, existing_loggers=logging.root.manager.loggerDict, rootnode=logging.root
+        path, existing_loggers=logging.Logger.manager.loggerDict, rootnode=logging.root
     )
     logging.Logger.manager = logger_manager
 
