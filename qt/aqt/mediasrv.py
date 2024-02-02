@@ -110,7 +110,7 @@ class MediaServer(threading.Thread):
             logger.info(
                 "Serving on http://%s:%s",
                 self.server.effective_host,
-                self.server.effective_port
+                self.server.effective_port,
             )
 
             self._ready.set()

@@ -7,6 +7,7 @@ import logging
 import sys
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
+from typing import Optional, cast
 
 # All loggers with the following prefix will be treated as add-on loggers
 ADDON_LOGGER_PREFIX = "addon."
@@ -21,8 +22,8 @@ class AnkiLoggerManager(logging.Manager):
     def __init__(
         self,
         logs_path: Path | str,
-        existing_loggers: dict[str, logging.Logger],
-        rootnode: logging.Logger,
+        existing_loggers: dict[str, logging.Logger | logging.PlaceHolder],
+        rootnode: logging.RootLogger,
     ):
         super().__init__(rootnode)
         self.loggerDict = existing_loggers
@@ -50,15 +51,18 @@ class AnkiLoggerManager(logging.Manager):
         return logger
 
 
-def get_addon_logs_folder(logs_path: Path, module: str) -> Path:
-    return logs_path / "addons" / module
+def get_addon_logs_folder(logs_path: Path | str, module: str) -> Path:
+    return Path(logs_path) / "addons" / module
 
 
 def find_addon_logger(module: str) -> logging.Logger | None:
-    return logging.root.manager.loggerDict.get(f"{ADDON_LOGGER_PREFIX}{module}")
+    return cast(
+        Optional[logging.Logger],
+        logging.root.manager.loggerDict.get(f"{ADDON_LOGGER_PREFIX}{module}"),
+    )
 
 
-def setup_logging(path: Path, **kwargs) -> None:
+def setup_logging(path: Path | str, **kwargs) -> None:
     """
     Set up logging for the application.
 
