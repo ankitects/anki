@@ -296,7 +296,7 @@ def handle_request(pathin: str) -> Response:
             abort(403)
 
     req = _extract_request(pathin)
-    logger.debug(f"{flask.request.method} /{pathin}")
+    logger.debug("%s /%s", flask.request.method, pathin)
 
     if isinstance(req, NotFound):
         print(req.message)
