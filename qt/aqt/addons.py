@@ -28,13 +28,13 @@ import anki
 import anki.utils
 import aqt
 import aqt.forms
-import aqt.log
 import aqt.main
 from anki.collection import AddonInfo
 from anki.httpclient import HttpClient
 from anki.lang import without_unicode_isolation
 from anki.utils import int_version_to_str
 from aqt import gui_hooks
+from aqt.log import ADDON_LOGGER_PREFIX, find_addon_logger, get_addon_logs_folder
 from aqt.qt import *
 from aqt.utils import (
     askUser,
@@ -368,30 +368,6 @@ class AddonManager:
         addon.enabled = should_enable
         self.write_addon_meta(addon)
 
-    def addon_get_logger(self, module: str) -> None | logging.Logger:
-        if not isinstance(logging.root.manager, aqt.log.LoggerManager):
-            return None  # this will mean there's no aqt.log logging
-        return logging.root.manager.find_logger_module(module)
-
-    def addon_toggle_log_level(self, module: str) -> None:
-        logger = self.addon_get_logger(module)
-        if not logger:
-            return
-
-        self.saved_log_levels = getattr(self, "saved_log_levels", {})
-        if logger.name in self.saved_log_levels:
-            logger.setLevel(self.saved_log_levels[logger.name])
-            del self.saved_log_levels[logger.name]
-        else:
-            self.saved_log_levels[logger.name] = logger.level
-            logger.setLevel(logging.DEBUG)
-
-    def addon_get_logpath(self, module: str) -> None | Path:
-        logger = self.addon_get_logger(module)
-        if not logger:
-            return
-        return logging.root.manager.find_logger_output(module)
-
     def ankiweb_addons(self) -> list[int]:
         ids = []
         for meta in self.all_addon_meta():
@@ -691,11 +667,6 @@ class AddonManager:
     def addonFromModule(self, module: str) -> str:
         return module.split(".")[0]
 
-    def get_logger(self, module: str) -> logging.Logger:
-        return logging.getLogger(
-            f"{aqt.log.LoggerManager.TAG}{self.addonFromModule(module)}"
-        )
-
     def configAction(self, module: str) -> Callable[[], bool | None]:
         return self._configButtonActions.get(module)
 
@@ -783,6 +754,30 @@ class AddonManager:
 
     def getWebExports(self, module: str) -> str:
         return self._webExports.get(module)
+
+    # Logging
+    ######################################################################
+
+    def get_logger(self, module: str) -> logging.Logger:
+        return logging.getLogger(f"{ADDON_LOGGER_PREFIX}{self.addonFromModule(module)}")
+
+    def has_logger(self, module: str) -> bool:
+        return find_addon_logger(self.addonFromModule(module)) is not None
+
+    def is_debug_logging_enabled(self, module: str) -> bool:
+        if not (logger := find_addon_logger(self.addonFromModule(module))):
+            return False
+        return logger.isEnabledFor(logging.DEBUG)
+
+    def toggle_debug_logging(self, module: str, enable: bool) -> None:
+        if not (logger := find_addon_logger(self.addonFromModule(module))):
+            return
+        logger.setLevel(logging.DEBUG if enable else logging.INFO)
+
+    def logs_folder(self, module: str) -> Path:
+        return get_addon_logs_folder(
+            self.mw.pm.profileFolder(), self.addonFromModule(module)
+        )
 
 
 # Add-ons Dialog

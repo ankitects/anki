@@ -44,7 +44,7 @@ class AnkiLoggerManager(logging.Manager):
         logger = super().getLogger(name)
 
         module = name.split(ADDON_LOGGER_PREFIX)[1].partition(".")[0]
-        path = self.logs_path / "addons" / module / f"{module}.log"
+        path = get_addon_logs_folder(self.logs_path) / f"{module}.log"
         path.parent.mkdir(parents=True, exist_ok=True)
 
         # Keep the last 10 days of logs
@@ -56,6 +56,10 @@ class AnkiLoggerManager(logging.Manager):
         logger.addHandler(handler)
 
         return logger
+
+
+def get_addon_logs_folder(logs_path: Path, module: str) -> Path:
+    return logs_path / "addons" / module
 
 
 def find_addon_logger(module: str) -> logging.Logger | None:
