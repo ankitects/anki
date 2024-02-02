@@ -93,21 +93,3 @@ def setup_logging(path: Path, **kwargs) -> None:
     for logger in silenced_loggers:
         logging.getLogger(logger).setLevel(logging.CRITICAL)
         logging.getLogger(logger).propagate = False
-
-
-if __name__ == "__main__":
-    # this will write to deleteme
-    setup_logging("deleteme", format=logging.BASIC_FORMAT, level=logging.DEBUG)
-
-    logging.root.setLevel(logging.INFO)
-
-    log = logging.getLogger("a")
-    log.debug("a debug message")
-    log.info("an info message")
-    log.warning("a warning message")
-
-    log2 = logging.getLogger("addon.X")
-    log2.debug("a debug message")
-    log2.info("an info message")
-    log2.warning("a warning message")
-    log2 = logging.getLogger("addon.X")
