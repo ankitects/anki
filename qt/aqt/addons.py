@@ -536,9 +536,6 @@ class AddonManager:
             zfile.extract(n, base)
 
     def deleteAddon(self, module: str) -> None:
-        # close the aqt.log.RotatingFileHandler handler
-        aqt.log.close_module(module)
-
         send_to_trash(Path(self.addonsFolder(module)))
 
     # Processing local add-on files
@@ -763,9 +760,6 @@ class AddonManager:
 
     def backupUserFiles(self, module: str) -> None:
         p = self._userFilesPath(module)
-
-        # close the aqt.log.RotatingFileHandler handler (and re-open)
-        aqt.log.close_module(module, reopen=True)
 
         if os.path.exists(p):
             os.rename(p, self._userFilesBackupPath())
