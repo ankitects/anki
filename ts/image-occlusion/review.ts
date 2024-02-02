@@ -294,6 +294,7 @@ function drawShape({
             shape.text,
             shape.left / shape.scaleX,
             shape.top / shape.scaleY,
+            textMetrics.width + TEXT_PADDING,
         );
         ctx.restore();
     }
