@@ -664,7 +664,7 @@ class AddonManager:
 
         return markdown.markdown(contents, extensions=[md_in_html.makeExtension()])
 
-    def addonFromModule(self, module: str) -> str:
+    def addonFromModule(self, module: str) -> str:  # softly deprecated
         return module.split(".")[0]
 
     @staticmethod
@@ -774,21 +774,21 @@ class AddonManager:
         )
 
     def has_logger(self, module: str) -> bool:
-        return find_addon_logger(self.addonFromModule(module)) is not None
+        return find_addon_logger(self.addon_from_module(module)) is not None
 
     def is_debug_logging_enabled(self, module: str) -> bool:
-        if not (logger := find_addon_logger(self.addonFromModule(module))):
+        if not (logger := find_addon_logger(self.addon_from_module(module))):
             return False
         return logger.isEnabledFor(logging.DEBUG)
 
     def toggle_debug_logging(self, module: str, enable: bool) -> None:
-        if not (logger := find_addon_logger(self.addonFromModule(module))):
+        if not (logger := find_addon_logger(self.addon_from_module(module))):
             return
         logger.setLevel(logging.DEBUG if enable else logging.INFO)
 
     def logs_folder(self, module: str) -> Path:
         return get_addon_logs_folder(
-            self.mw.pm.profileFolder(), self.addonFromModule(module)
+            self.mw.pm.profileFolder(), self.addon_from_module(module)
         )
 
 
