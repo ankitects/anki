@@ -267,7 +267,10 @@ class CardLayout(QDialog):
 
         self.current_editor_index = 0
         editor.setAcceptRichText(False)
-        editor.setFont(QFont("Courier"))
+        font = QFont("Consolas")
+        if not font.exactMatch():
+            font = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
+        editor.setFont(font)
         tab_width = self.fontMetrics().horizontalAdvance(" " * 4)
         editor.setTabStopDistance(tab_width)
 
