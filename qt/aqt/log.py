@@ -1,148 +1,101 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# original from: https://github.com/abdnh/ankiutils/blob/master/src/ankiutils/log.py
-# To use inside an addon:
-#     from aqt import mw
-#     log = mw.addonManager.getLogger(__name__)
-#     log.info("Hello world")
-#
-# The "Hello world" message will be written under:
-#       pm.addonFolder() / <ADDON-ID> / "user_files" / "logs" / "<ADDON-ID>.log"
-
 from __future__ import annotations
-import sys
-import functools
-from pathlib import Path
+
 import logging
-import logging.handlers
-from typing import Any
+import sys
+from logging.handlers import TimedRotatingFileHandler
+from pathlib import Path
+from typing import Optional, cast
 
+# All loggers with the following prefix will be treated as add-on loggers
+#
+# To instatiate a logger with this prefix, use aqt.AddonManager.get_logger()
+#
+# NOTE: Add-ons might also directly instantiate a logger with this prefix, e.g. in
+#       order to avoid depending on the Anki codebase, so this prefix should not
+#       be changed.
+ADDON_LOGGER_PREFIX = "addon."
 
-# this formatter instance is the same for all the handlers
+# Formatter used for all loggers
 FORMATTER = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
 
 
-class RotatingFileHandler(logging.handlers.TimedRotatingFileHandler):
-    # The addon logs will be rotated daily with a total of BACKUPCOUNT
-    BACKUPCOUNT = 10
+class AnkiLoggerManager(logging.Manager):
+    # inspired by: https://github.com/abdnh/ankiutils/blob/master/src/ankiutils/log.py
 
-    def __init__(self, filename: Path, *args: Any, **kwargs: Any):
-        super().__init__(
-            filename=filename,
-            when="D",
-            interval=1,
-            backupCount=self.BACKUPCOUNT,
-            encoding="utf-8",
-        )
-
-
-class LoggerManager(logging.Manager):
-    TAG = "addon."  # all logs with name addons. will have their content saved to a separate file log
-
-    def __init__(self, path: Path | str, rootnode: logging.Logger):
+    def __init__(
+        self,
+        logs_path: Path | str,
+        existing_loggers: dict[str, logging.Logger | logging.PlaceHolder],
+        rootnode: logging.RootLogger,
+    ):
         super().__init__(rootnode)
-        self.path = Path(path)
+        self.loggerDict = existing_loggers
+        self.logs_path = Path(logs_path)
 
     def getLogger(self, name: str) -> logging.Logger:
-        logger = super().getLogger(name)
-        if name.startswith(self.TAG) and RotatingFileHandler not in [
-            handler.__class__ for handler in logger.handlers
-        ]:
-            module = name[len(self.TAG) :].partition(".")[0]
-            path = self.path / "addon" / module / f"{module}.log"
-            path.parent.mkdir(parents=True, exist_ok=True)
+        if not name.startswith(ADDON_LOGGER_PREFIX) or name in self.loggerDict:
+            return super().getLogger(name)
 
-            handler = RotatingFileHandler(path)
-            logger.addHandler(handler)
-            handler.setFormatter(FORMATTER)
+        # Create a new add-on logger
+        logger = super().getLogger(name)
+
+        module = name.split(ADDON_LOGGER_PREFIX)[1].partition(".")[0]
+        path = get_addon_logs_folder(self.logs_path, module=module) / f"{module}.log"
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Keep the last 10 days of logs
+        handler = TimedRotatingFileHandler(
+            filename=path, when="D", interval=1, backupCount=10, encoding="utf-8"
+        )
+        handler.setFormatter(FORMATTER)
+
+        logger.addHandler(handler)
+
         return logger
 
-    # non standard LoggerManager method
-    def find_logger_module(self, module: str) -> logging.Logger | None:
-        return self.loggerDict.get(f"{self.TAG}{module}")
 
-    def find_logger_output(self, module: str) -> Path | None:
-        logger = self.find_logger_module(module)
-        if not logger:
-            return
-        handlers = [
-            handler
-            for handler in logger.handlers
-            if isinstance(handler, RotatingFileHandler)
-        ]
-        if not handlers:
-            return
-        return Path(handlers[0].stream.name)
+def get_addon_logs_folder(logs_path: Path | str, module: str) -> Path:
+    return Path(logs_path) / "addons" / module
 
 
-def config(path: Path | str, **kwargs) -> None:
-    """configure the main logging
+def find_addon_logger(module: str) -> logging.Logger | None:
+    return cast(
+        Optional[logging.Logger],
+        logging.root.manager.loggerDict.get(f"{ADDON_LOGGER_PREFIX}{module}"),
+    )
 
-    path: rootdir to store the addon logs
 
-    Example:
-        import aqt.log
-        aqt.log.config(
-            pm.addonFolder(),
-            level=logging.DEBUG
-        )
+def setup_logging(path: Path | str, **kwargs) -> None:
+    """
+    Set up logging for the application.
+
+    Configures the root logger to output logs to stdout by default, with custom
+    handling for add-on logs. The add-on logs are saved to a separate folder and file
+    for each add-on, under the path provided.
+
+    Args:
+        path (Path): The path where the log files should be stored.
+        **kwargs: Arbitrary keyword arguments for logging.basicConfig
     """
 
-    # we save the logs already defined
-    old = logging.root.manager.loggerDict
+    # Patch root logger manager to handle add-on loggers
+    logger_manager = AnkiLoggerManager(
+        path, existing_loggers=logging.root.manager.loggerDict, rootnode=logging.root
+    )
+    logging.Logger.manager = logger_manager
 
-    handlers = [
-        logging.StreamHandler(stream=sys.stdout),
-    ]
-    handlers[0].setFormatter(FORMATTER)
-    logging.basicConfig(handlers=handlers, **kwargs)
-    logging.Logger.manager = LoggerManager(path, logging.root)
-    logging.root.manager.loggerDict.update(old)
-
+    stdout_handler = logging.StreamHandler(stream=sys.stdout)
+    stdout_handler.setFormatter(FORMATTER)
+    logging.basicConfig(handlers=[stdout_handler], force=True, **kwargs)
     logging.captureWarnings(True)
 
-    # silence these loggers:
-    loggers = [
+    # Silence some loggers of external libraries:
+    silenced_loggers = [
         "waitress.queue",
     ]
-    for logger in loggers:
+    for logger in silenced_loggers:
         logging.getLogger(logger).setLevel(logging.CRITICAL)
         logging.getLogger(logger).propagate = False
-
-
-def close_module(module: str, reopen: bool = False) -> None:
-    """close the RotatingFileHandler handler"""
-    logger = logging.getLogger(f"{LoggerManager.TAG}{module}")
-    logger.debug("closing handler on %s", module)
-
-    found = None
-    for index, handler in enumerate(logger.handlers):
-        if isinstance(handler, RotatingFileHandler):
-            found = (index, handler)
-            break
-
-    if found:
-        index, handler = found
-        handler.close()
-        if reopen:
-            del logger.handlers[index]
-            logging.Logger.manager.getLogger(f"{LoggerManager.TAG}{module}")
-
-
-if __name__ == "__main__":
-    # this will write to deleteme
-    config("deleteme", format=logging.BASIC_FORMAT, level=logging.DEBUG)
-
-    logging.root.setLevel(logging.INFO)
-
-    log = logging.getLogger("a")
-    log.debug("a debug message")
-    log.info("an info message")
-    log.warning("a warning message")
-
-    log2 = logging.getLogger("addon.X")
-    log2.debug("a debug message")
-    log2.info("an info message")
-    log2.warning("a warning message")
-    log2 = logging.getLogger("addon.X")

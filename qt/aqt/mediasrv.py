@@ -109,8 +109,8 @@ class MediaServer(threading.Thread):
             )
             logger.info(
                 "Serving on http://%s:%s",
-                self.server.effective_host,
-                self.server.effective_port
+                self.server.effective_host,  # type: ignore[union-attr]
+                self.server.effective_port,  # type: ignore[union-attr]
             )
 
             self._ready.set()
