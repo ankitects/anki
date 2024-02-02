@@ -1582,7 +1582,9 @@ class ConfigEditor(QDialog):
         tooltip(tr.addons_restored_defaults(), parent=self)
 
     def setupFonts(self) -> None:
-        font_mono = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
+        font_mono = QFont("Consolas")
+        if not font_mono.exactMatch():
+            font_mono = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
         font_mono.setPointSize(font_mono.pointSize() + 1)
         self.form.editor.setFont(font_mono)
 
