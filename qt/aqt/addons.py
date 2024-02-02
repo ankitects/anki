@@ -667,6 +667,10 @@ class AddonManager:
     def addonFromModule(self, module: str) -> str:
         return module.split(".")[0]
 
+    @staticmethod
+    def addon_from_module(module: str) -> str:
+        return module.split(".")[0]
+
     def configAction(self, module: str) -> Callable[[], bool | None]:
         return self._configButtonActions.get(module)
 
@@ -758,8 +762,16 @@ class AddonManager:
     # Logging
     ######################################################################
 
-    def get_logger(self, module: str) -> logging.Logger:
-        return logging.getLogger(f"{ADDON_LOGGER_PREFIX}{self.addonFromModule(module)}")
+    @classmethod
+    def get_logger(cls, module: str) -> logging.Logger:
+        """Return a logger for the given add-on module.
+
+        NOTE: This method is static to allow it to be called outside of a
+        running Anki instance, e.g. in add-on unit tests.
+        """
+        return logging.getLogger(
+            f"{ADDON_LOGGER_PREFIX}{cls.addon_from_module(module)}"
+        )
 
     def has_logger(self, module: str) -> bool:
         return find_addon_logger(self.addonFromModule(module)) is not None
