@@ -627,7 +627,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         return None
 
     setup_logging(
-        pm.logFolder(),
+        pm.log_folder(),
         level=logging.DEBUG if int(os.getenv("ANKIDEV", "0")) else logging.INFO,
     )
 
