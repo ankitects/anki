@@ -788,7 +788,7 @@ class AddonManager:
 
     def logs_folder(self, module: str) -> Path:
         return get_addon_logs_folder(
-            self.mw.pm.profileFolder(), self.addon_from_module(module)
+            self.mw.pm.logFolder(), self.addon_from_module(module)
         )
 
 
