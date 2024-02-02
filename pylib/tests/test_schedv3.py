@@ -657,7 +657,6 @@ def test_filt_reviewing_early_normal():
     # answer 'good'
     col.sched.answerCard(c, 3)
     assert c.due == col.sched.today + c.ivl
-    assert not c.odue
     # should not be in learning
     assert c.queue == QUEUE_TYPE_REV
     # should be logged as a cram rep

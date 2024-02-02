@@ -148,7 +148,10 @@ impl CardStateUpdater {
                 match filtered {
                     FilteredState::Preview(next) => self.apply_preview_state(current, next),
                     FilteredState::Rescheduling(next) => {
-                        self.apply_normal_study_state(current, next.original_state)
+                        let revlog = self.apply_normal_study_state(current, next.original_state);
+                        self.card.original_due = self.card.due;
+
+                        revlog
                     }
                 }
             }
@@ -163,7 +166,6 @@ impl CardStateUpdater {
         next: NormalState,
     ) -> RevlogEntryPartial {
         self.card.reps += 1;
-        self.card.original_due = 0;
         self.card.desired_retention = self.desired_retention;
 
         let revlog = match next {
