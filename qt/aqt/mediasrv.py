@@ -10,7 +10,6 @@ import os
 import re
 import sys
 import threading
-import time
 import traceback
 from dataclasses import dataclass
 from errno import EPROTOTYPE
