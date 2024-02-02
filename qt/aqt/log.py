@@ -79,7 +79,7 @@ def setup_logging(path: Path, **kwargs) -> None:
 
     stdout_handler = logging.StreamHandler(stream=sys.stdout)
     stdout_handler.setFormatter(FORMATTER)
-    logging.basicConfig(handlers=[stdout_handler], **kwargs)
+    logging.basicConfig(handlers=[stdout_handler], force=True, **kwargs)
     logging.captureWarnings(True)
 
     # Silence some loggers of external libraries:

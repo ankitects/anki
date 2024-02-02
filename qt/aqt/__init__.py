@@ -629,7 +629,6 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     setup_logging(
         pm.logFolder(),
         level=logging.DEBUG if int(os.getenv("ANKIDEV", "0")) else logging.INFO,
-        force=True,
     )
 
     if not pm:
