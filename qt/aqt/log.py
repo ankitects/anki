@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import logging
 import sys
-from logging import Logger
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
@@ -22,7 +21,7 @@ class AnkiLoggerManager(logging.Manager):
     def __init__(
         self,
         logs_path: Path | str,
-        existing_loggers: dict[str, Logger],
+        existing_loggers: dict[str, logging.Logger],
         rootnode: logging.Logger,
     ):
         super().__init__(rootnode)
