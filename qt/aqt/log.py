@@ -1,15 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# original from: https://github.com/abdnh/ankiutils/blob/master/src/ankiutils/log.py
-# To use inside an addon:
-#     from aqt import mw
-#     log = mw.addonManager.getLogger(__name__)
-#     log.info("Hello world")
-#
-# The "Hello world" message will be written under:
-#       pm.addonFolder() / <ADDON-ID> / "user_files" / "logs" / "<ADDON-ID>.log"
-
 from __future__ import annotations
 
 import logging
@@ -26,6 +17,8 @@ FORMATTER = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
 
 
 class AnkiLoggerManager(logging.Manager):
+    # inspired by: https://github.com/abdnh/ankiutils/blob/master/src/ankiutils/log.py
+
     def __init__(
         self,
         logs_path: Path | str,
@@ -44,7 +37,7 @@ class AnkiLoggerManager(logging.Manager):
         logger = super().getLogger(name)
 
         module = name.split(ADDON_LOGGER_PREFIX)[1].partition(".")[0]
-        path = get_addon_logs_folder(self.logs_path) / f"{module}.log"
+        path = get_addon_logs_folder(self.logs_path, module=module) / f"{module}.log"
         path.parent.mkdir(parents=True, exist_ok=True)
 
         # Keep the last 10 days of logs
