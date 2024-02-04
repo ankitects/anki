@@ -127,7 +127,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <Popover slot="floating" --popover-padding-inline="0">
                     <ButtonToolbar wrap={false}>
                         <ButtonGroup>
-
                             <ButtonGroupItem>
                                 <CommandIconButton
                                     key="justifyLeft"
