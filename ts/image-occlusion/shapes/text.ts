@@ -13,17 +13,20 @@ export class Text extends Shape {
     text: string;
     scaleX: number;
     scaleY: number;
+    fontSize: number;
 
     constructor({
         text = "",
         scaleX = 1,
         scaleY = 1,
+        fontSize = 40,
         ...rest
     }: ConstructorParams<Text> = {}) {
         super(rest);
         this.text = text;
         this.scaleX = scaleX;
         this.scaleY = scaleY;
+        this.fontSize = fontSize;
     }
 
     toDataForCloze(): TextDataForCloze {
@@ -32,6 +35,7 @@ export class Text extends Shape {
             text: this.text,
             // scaleX and scaleY are guaranteed to be equal since we lock the aspect ratio
             scale: floatToDisplay(this.scaleX),
+            fs: floatToDisplay(this.fontSize),
         };
     }
 
@@ -48,6 +52,7 @@ export class Text extends Shape {
     toNormal(size: Size): Text {
         return new Text({
             ...this,
+            fontSize: this.fontSize / size.height,
             ...super.normalPosition(size),
         });
     }
@@ -55,6 +60,7 @@ export class Text extends Shape {
     toAbsolute(size: Size): Text {
         return new Text({
             ...this,
+            fontSize: this.fontSize * size.height,
             ...super.absolutePosition(size),
         });
     }
@@ -63,4 +69,5 @@ export class Text extends Shape {
 interface TextDataForCloze extends ShapeDataForCloze {
     text: string;
     scale: string;
+    fs: string;
 }
