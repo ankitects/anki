@@ -127,41 +127,49 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <Popover slot="floating" --popover-padding-inline="0">
                     <ButtonToolbar wrap={false}>
                         <ButtonGroup>
-                            <ButtonGroupItem>
-                                <CommandIconButton
-                                    key="justifyLeft"
-                                    tooltip={tr.editingAlignLeft()}
-                                >
-                                    {@html justifyLeftIcon}
-                                </CommandIconButton>
-                            </ButtonGroupItem>
+                            <DynamicallySlottable
+                                slotHost={ButtonGroupItem}
+                                {createProps}
+                                {updatePropsList}
+                                {setSlotHostContext}
+                                {api}
+                            >
+                                <ButtonGroupItem>
+                                    <CommandIconButton
+                                        key="justifyLeft"
+                                        tooltip={tr.editingAlignLeft()}
+                                    >
+                                        {@html justifyLeftIcon}
+                                    </CommandIconButton>
+                                </ButtonGroupItem>
 
-                            <ButtonGroupItem>
-                                <CommandIconButton
-                                    key="justifyCenter"
-                                    tooltip={tr.editingCenter()}
-                                >
-                                    {@html justifyCenterIcon}
-                                </CommandIconButton>
-                            </ButtonGroupItem>
+                                <ButtonGroupItem>
+                                    <CommandIconButton
+                                        key="justifyCenter"
+                                        tooltip={tr.editingCenter()}
+                                    >
+                                        {@html justifyCenterIcon}
+                                    </CommandIconButton>
+                                </ButtonGroupItem>
 
-                            <ButtonGroupItem>
-                                <CommandIconButton
-                                    key="justifyRight"
-                                    tooltip={tr.editingAlignRight()}
-                                >
-                                    {@html justifyRightIcon}
-                                </CommandIconButton>
-                            </ButtonGroupItem>
+                                <ButtonGroupItem>
+                                    <CommandIconButton
+                                        key="justifyRight"
+                                        tooltip={tr.editingAlignRight()}
+                                    >
+                                        {@html justifyRightIcon}
+                                    </CommandIconButton>
+                                </ButtonGroupItem>
 
-                            <ButtonGroupItem>
-                                <CommandIconButton
-                                    key="justifyFull"
-                                    tooltip={tr.editingJustify()}
-                                >
-                                    {@html justifyFullIcon}
-                                </CommandIconButton>
-                            </ButtonGroupItem>
+                                <ButtonGroupItem>
+                                    <CommandIconButton
+                                        key="justifyFull"
+                                        tooltip={tr.editingJustify()}
+                                    >
+                                        {@html justifyFullIcon}
+                                    </CommandIconButton>
+                                </ButtonGroupItem>
+                            </DynamicallySlottable>
                         </ButtonGroup>
 
                         <ButtonGroup>
