@@ -24,7 +24,7 @@ export function extractShapesFromClozedField(
                 const props: Record<string, any> = Object.fromEntries(
                     shape.properties.map(prop => [prop.name, prop.value]),
                 );
-                props.ord = occlusion.ord;
+                props.ordinal = occlusion.ordinal;
                 group.push(buildShape(shape.shape, props));
             }
         }

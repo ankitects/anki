@@ -333,7 +333,7 @@ pub fn parse_image_occlusions(text: &str) -> Vec<ImageOcclusion> {
     occlusions
         .iter()
         .map(|(k, v)| ImageOcclusion {
-            ord: *k as u32,
+            ordinal: *k as u32,
             shapes: v.to_vec(),
         })
         .collect()
