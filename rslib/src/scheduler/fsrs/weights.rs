@@ -238,7 +238,9 @@ pub(crate) fn single_card_revlog_to_items(
     let first_relearn = entries
         .iter()
         .enumerate()
-        .find(|(_idx, e)| e.review_kind == RevlogReviewKind::Relearning)
+        .find(|(_idx, e)| {
+            e.id.0 > ignore_revlogs_before.0 && e.review_kind == RevlogReviewKind::Relearning
+        })
         .map(|(idx, _)| idx);
     // Ignore the entire card if the first learning step of the last group of
     // learning steps is before the ignore_revlogs_before date
