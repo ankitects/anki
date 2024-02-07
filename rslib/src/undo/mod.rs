@@ -546,4 +546,19 @@ mod test {
 
         Ok(())
     }
+
+    #[test]
+    fn coalesce_note_undo_entries() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+        note.set_field(0, "foo")?;
+        col.update_note(&mut note)?;
+        note.set_field(0, "bar")?;
+        col.update_note(&mut note)?;
+        assert_eq!(col.state.undo.undo_steps.len(), 2);
+
+        Ok(())
+    }
 }

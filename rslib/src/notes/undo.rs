@@ -1,7 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use itertools::Itertools;
+
 use super::NoteTags;
+use crate::collection::undo::UndoableCollectionChange;
 use crate::prelude::*;
 use crate::undo::UndoableChange;
 
@@ -64,20 +67,47 @@ impl Collection {
         if changes.op != Op::UpdateNote {
             return;
         }
-
-        if let Some(previous_op) = self.previous_undo_op() {
-            if previous_op.kind != Op::UpdateNote {
-                return;
+        let Some(previous_op) = self.previous_undo_op() else {
+            return;
+        };
+        if previous_op.kind != Op::UpdateNote {
+            return;
+        }
+        let Some(current_op) = self.current_undo_op() else {
+            return;
+        };
+        let is_col_modified_change = |change: &&UndoableChange| match change {
+            UndoableChange::Collection(col_change) => {
+                matches!(col_change, UndoableCollectionChange::Modified(_))
             }
+            _ => false,
+        };
 
-            if let (
-                Some(UndoableChange::Note(UndoableNoteChange::Updated(previous))),
-                Some(UndoableChange::Note(UndoableNoteChange::Updated(current))),
-            ) = (
-                previous_op.changes.last(),
-                self.current_undo_op().and_then(|op| op.changes.last()),
-            ) {
-                if previous.id == current.id && previous_op.timestamp.elapsed_secs() < 60 {
+        let changes_to_pop = current_op
+            .changes
+            .iter()
+            .rev()
+            .take_while(is_col_modified_change)
+            .collect_vec()
+            .len()
+            + 1;
+        let current_op_change = current_op
+            .changes
+            .iter()
+            .rev()
+            .find(|c| !is_col_modified_change(c));
+        let previous_op_change = previous_op
+            .changes
+            .iter()
+            .rev()
+            .find(|c| !is_col_modified_change(c));
+        if let (
+            Some(UndoableChange::Note(UndoableNoteChange::Updated(previous))),
+            Some(UndoableChange::Note(UndoableNoteChange::Updated(current))),
+        ) = (previous_op_change, current_op_change)
+        {
+            if previous.id == current.id && previous_op.timestamp.elapsed_secs() < 60 {
+                for _ in 0..changes_to_pop {
                     self.pop_last_change();
                 }
             }
