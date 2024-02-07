@@ -21,7 +21,10 @@ export function extractShapesFromClozedField(
         const group: Shape[] = [];
         for (const shape of occlusion.shapes) {
             if (isValidType(shape.shape)) {
-                const props = Object.fromEntries(shape.properties.map(prop => [prop.name, prop.value]));
+                const props: Record<string, any> = Object.fromEntries(
+                    shape.properties.map(prop => [prop.name, prop.value]),
+                );
+                props.ordinal = occlusion.ordinal;
                 group.push(buildShape(shape.shape, props));
             }
         }
