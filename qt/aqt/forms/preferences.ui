@@ -783,7 +783,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="syncDeauth">
+           <widget class="QPushButton" name="syncLogout">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -792,6 +792,22 @@
             </property>
             <property name="text">
              <string notr="true">LOGOUT</string>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="syncLogin">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string notr="true">LOGIN</string>
             </property>
             <property name="autoDefault">
              <bool>false</bool>
@@ -1098,7 +1114,8 @@
   <tabstop>fullSync</tabstop>
   <tabstop>network_timeout</tabstop>
   <tabstop>media_log</tabstop>
-  <tabstop>syncDeauth</tabstop>
+  <tabstop>syncLogout</tabstop>
+  <tabstop>syncLogin</tabstop>
   <tabstop>custom_sync_url</tabstop>
   <tabstop>minutes_between_backups</tabstop>
   <tabstop>daily_backups</tabstop>

@@ -23,6 +23,7 @@ from aqt.utils import (
     showWarning,
     tr,
 )
+from aqt.sync import sync_login
 
 
 class Preferences(QDialog):
@@ -181,24 +182,38 @@ class Preferences(QDialog):
         self.form.syncOnProgramOpen.setChecked(self.mw.pm.auto_syncing_enabled())
         self.form.syncMedia.setChecked(self.mw.pm.media_syncing_enabled())
         self.form.autoSyncMedia.setChecked(self.mw.pm.auto_sync_media_minutes() != 0)
-        if not self.prof.get("syncKey"):
-            self._hide_sync_auth_settings()
-        else:
-            self.form.syncUser.setText(self.prof.get("syncUser", ""))
-            qconnect(self.form.syncDeauth.clicked, self.sync_logout)
-        self.form.syncDeauth.setText(tr.sync_log_out_button())
+
+        self.setup_login_logout()
+
         self.form.custom_sync_url.setText(self.mw.pm.custom_sync_url())
         self.form.network_timeout.setValue(self.mw.pm.network_timeout())
+
+        self.form.syncLogin.setText("Log In") # TODO translation
+        self.form.syncLogout.setText(tr.sync_log_out_button())
+        qconnect(self.form.syncLogout.clicked, self.sync_logout)
+        qconnect(self.form.syncLogin.clicked, self.sync_login)
+
+    def setup_login_logout(self) -> None:
+        if not self.prof.get("syncKey"):
+            self._hide_sync_auth_settings()
+            self.form.syncUser.setText("Not currently logged in to AnkiWeb.") # TODO translation
+            self.form.syncLogin.setVisible(True)
+            self.form.syncLogout.setVisible(False)
+        else:
+            self.form.syncUser.setText(self.prof.get("syncUser", ""))
+            self.form.syncLogin.setVisible(False)
+            self.form.syncLogout.setVisible(True)
 
     def on_media_log(self) -> None:
         self.mw.media_syncer.show_sync_log()
 
     def _hide_sync_auth_settings(self) -> None:
-        self.form.syncDeauth.setVisible(False)
-        self.form.syncUser.setText("")
         self.form.syncLabel.setText(
             tr.preferences_synchronizationnot_currently_enabled_click_the_sync()
         )
+
+    def sync_login(self) -> None:
+        sync_login(self.mw, self.setup_login_logout)
 
     def sync_logout(self) -> None:
         if self.mw.media_syncer.is_syncing():
@@ -207,6 +222,7 @@ class Preferences(QDialog):
         self.prof["syncKey"] = None
         self.mw.col.media.force_resync()
         self._hide_sync_auth_settings()
+        self.setup_login_logout()
 
     def update_network(self) -> None:
         self.prof["autoSync"] = self.form.syncOnProgramOpen.isChecked()
