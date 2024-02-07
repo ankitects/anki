@@ -87,7 +87,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function getignoreRevlogsBeforeMs() {
+    function getIgnoreRevlogsBeforeMs() {
         return BigInt(
             $config.ignoreRevlogsBeforeDate
                 ? new Date($config.ignoreRevlogsBeforeDate).getTime()
@@ -113,7 +113,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         search: $config.weightSearch
                             ? $config.weightSearch
                             : defaultWeightSearch,
-                        ignoreRevlogsBeforeMs: getignoreRevlogsBeforeMs(),
+                        ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
                     });
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
@@ -157,7 +157,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     const resp = await evaluateWeights({
                         weights: $config.fsrsWeights,
                         search,
-                        ignoreRevlogsBeforeMs: getignoreRevlogsBeforeMs(),
+                        ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
                     });
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
