@@ -148,13 +148,16 @@ function shapeOrShapesToCloze(
         addKeyValue("oi", "1");
     }
 
-    let ordinal: number;
-    if (type === "text") {
-        ordinal = 0;
-    } else {
-        ordinal = index + 1;
+    // Maintain existing ordinal in editing mode
+    let ordinal = shapeOrShapes.ordinal;
+    if (ordinal === undefined) {
+        if (type === "text") {
+            ordinal = 0;
+        } else {
+            ordinal = index + 1;
+        }
+        shapeOrShapes.ordinal = ordinal;
     }
-    shapeOrShapes.ordinal = ordinal;
     text = `{{c${ordinal}::image-occlusion:${type}${text}}}<br>`;
 
     return text;

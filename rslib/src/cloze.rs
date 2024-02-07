@@ -331,8 +331,11 @@ pub fn parse_image_occlusions(text: &str) -> Vec<ImageOcclusion> {
     }
 
     occlusions
-        .values()
-        .map(|v| ImageOcclusion { shapes: v.to_vec() })
+        .iter()
+        .map(|(k, v)| ImageOcclusion {
+            ordinal: *k as u32,
+            shapes: v.to_vec(),
+        })
         .collect()
 }
 
