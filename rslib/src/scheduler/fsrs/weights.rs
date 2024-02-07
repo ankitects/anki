@@ -494,16 +494,23 @@ pub(crate) mod tests {
     #[test]
     fn ignores_cards_before_ignore_before_date() {
         let revlogs = &[
-            revlog(RevlogReviewKind::Learning, 9),
+            revlog(RevlogReviewKind::Learning, 10),
             revlog(RevlogReviewKind::Learning, 8),
         ];
-        assert_eq!(convert_ignore_before(revlogs, true, days_ago_ms(8)), None);
-        assert_eq!(
-            convert_ignore_before(revlogs, true, days_ago_ms(9)),
-            convert(revlogs, true)
-        );
+        // | = Ignore before
+        // L = learning step
+        // L L |
+        assert_eq!(convert_ignore_before(revlogs, true, days_ago_ms(7)), None);
+        // L | L
+        assert_eq!(convert_ignore_before(revlogs, true, days_ago_ms(9)), None);
+        // L (|L) (exact same millisecond)
         assert_eq!(
             convert_ignore_before(revlogs, true, days_ago_ms(10)),
+            convert(revlogs, true)
+        );
+        // L L |
+        assert_eq!(
+            convert_ignore_before(revlogs, true, days_ago_ms(11)),
             convert(revlogs, true)
         );
     }
