@@ -31,7 +31,6 @@ impl CardStateUpdater {
                 if self.card.original_due != 0 {
                     self.card.original_due
                 } else {
-                    // v2 scheduler resets original_due on first answer
                     self.card.due
                 }
             }
