@@ -338,7 +338,7 @@ pub(crate) mod tests {
 
     const NEXT_DAY_AT: TimestampSecs = TimestampSecs(86400 * 100);
 
-    pub(crate) fn days_ago_ms(days_ago: i64) -> TimestampMillis {
+    fn days_ago_ms(days_ago: i64) -> TimestampMillis {
         ((NEXT_DAY_AT.0 - days_ago * 86400) * 1000).into()
     }
 
