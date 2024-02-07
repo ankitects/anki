@@ -88,8 +88,7 @@ impl Collection {
             .iter()
             .rev()
             .take_while(is_col_modified_change)
-            .collect_vec()
-            .len()
+            .count()
             + 1;
         let current_op_change = current_op
             .changes
