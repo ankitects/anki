@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use itertools::Itertools;
-
 use super::NoteTags;
 use crate::collection::undo::UndoableCollectionChange;
 use crate::prelude::*;
@@ -90,16 +88,8 @@ impl Collection {
             .take_while(is_col_modified_change)
             .count()
             + 1;
-        let current_op_change = current_op
-            .changes
-            .iter()
-            .rev()
-            .find(|c| !is_col_modified_change(c));
-        let previous_op_change = previous_op
-            .changes
-            .iter()
-            .rev()
-            .find(|c| !is_col_modified_change(c));
+        let current_op_change = current_op.changes.first();
+        let previous_op_change = previous_op.changes.first();
         if let (
             Some(UndoableChange::Note(UndoableNoteChange::Updated(previous))),
             Some(UndoableChange::Note(UndoableNoteChange::Updated(current))),
