@@ -24,10 +24,11 @@ export class Shape {
      */
     occludeInactive?: boolean;
     /* Cloze ordinal */
-    ordinal = 0;
+    ordinal: number | undefined;
 
     constructor(
-        { left = 0, top = 0, fill = SHAPE_MASK_COLOR, occludeInactive, ordinal = 0 }: ConstructorParams<Shape> = {},
+        { left = 0, top = 0, fill = SHAPE_MASK_COLOR, occludeInactive, ordinal = undefined }: ConstructorParams<Shape> =
+            {},
     ) {
         this.left = left;
         this.top = top;

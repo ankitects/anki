@@ -46,7 +46,7 @@ pub(crate) fn ignore_revlogs_before_ms_from_config(config: &DeckConfig) -> Resul
 }
 
 impl Collection {
-    /// Note this does not return an error if there are less than 1000 items -
+    /// Note this does not return an error if there are less than 400 items -
     /// the caller should instead check the fsrs_items count in the return
     /// value.
     pub fn compute_weights(
@@ -59,12 +59,13 @@ impl Collection {
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
-        if revlogs.len() < 1000 {
+        if revlogs.len() < 400 {
             return Err(AnkiError::FsrsInsufficientReviews {
                 count: revlogs.len(),
             });
         }
-        let items = fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
+        let items =
+            fsrs_items_for_training(revlogs.clone(), timing.next_day_at, ignore_revlogs_before);
         let fsrs_items = items.len() as u32;
         anki_progress.update(false, |p| {
             p.fsrs_items = fsrs_items;
@@ -90,7 +91,7 @@ impl Collection {
             }
         });
         let fsrs = FSRS::new(None)?;
-        let weights = fsrs.compute_weights(items, Some(progress2))?;
+        let weights = fsrs.compute_weights(items, revlogs.len() < 1000, Some(progress2))?;
         Ok(ComputeFsrsWeightsResponse {
             weights,
             fsrs_items,
@@ -148,7 +149,7 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?;
-        if revlogs.len() < 1000 {
+        if revlogs.len() < 400 {
             return Err(AnkiError::FsrsInsufficientReviews {
                 count: revlogs.len(),
             });

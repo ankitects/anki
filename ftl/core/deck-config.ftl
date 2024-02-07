@@ -335,11 +335,11 @@ deck-config-invalid-weights = Parameters must be either left blank to use the de
 deck-config-not-enough-history = Insufficient review history to perform this operation.
 deck-config-unable-to-determine-desired-retention =
     Unable to determine an optimal retention.
-deck-config-must-have-1000-reviews =
+deck-config-must-have-400-reviews =
     { $count ->
         [one] Only { $count } review was found.
        *[other] Only { $count } reviews were found.
-    } You must have at least 1000 reviews for this operation.
+    } You must have at least 400 reviews for this operation.
 # Numbers that control how aggressively the FSRS algorithm schedules cards
 deck-config-weights = FSRS parameters
 deck-config-compute-optimal-weights = Optimize FSRS parameters
@@ -347,7 +347,7 @@ deck-config-compute-optimal-retention = Compute optimal retention
 deck-config-optimize-button = Optimize
 deck-config-compute-button = Compute
 deck-config-ignore-before = Ignore reviews before
-deck-config-optimize-all-tip = You can optimize all presets at once by using the button at the top.
+deck-config-optimize-all-tip = You can optimize all presets at once by using the dropdown button next to "Save".
 deck-config-evaluate-button = Evaluate
 deck-config-desired-retention = Desired retention
 deck-config-sm2-retention = SM2 retention

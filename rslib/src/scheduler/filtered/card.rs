@@ -70,7 +70,6 @@ impl Card {
         self.deck_id = self.original_deck_id;
         self.original_deck_id.0 = 0;
 
-        // original_due is cleared if card answered in filtered deck
         if self.original_due != 0 {
             self.due = self.original_due;
         }

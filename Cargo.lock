@@ -1794,8 +1794,9 @@ dependencies = [
 
 [[package]]
 name = "fsrs"
-version = "0.1.0"
-source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?rev=58ca25ed2bc4bb1dc376208bbcaed7f5a501b941#58ca25ed2bc4bb1dc376208bbcaed7f5a501b941"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4938928321ed55a54cd8b90f0aa9dad79ee223aed6462cc37e83eb80b8bddb5a"
 dependencies = [
  "burn",
  "itertools 0.12.0",
@@ -4995,9 +4996,9 @@ dependencies = [
 
 [[package]]
 name = "shlex"
-version = "1.2.0"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a7cee0529a6d40f580e7a5e6c495c8fbfe21b7b52795ed4bb5e62cdf92bc6380"
+checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
 name = "signal-hook"
