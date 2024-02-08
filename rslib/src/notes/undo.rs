@@ -74,31 +74,13 @@ impl Collection {
         let Some(current_op) = self.current_undo_op() else {
             return;
         };
-        let is_col_modified_change = |change: &&UndoableChange| match change {
-            UndoableChange::Collection(col_change) => {
-                matches!(col_change, UndoableCollectionChange::Modified(_))
-            }
-            _ => false,
-        };
-
-        let changes_to_pop = current_op
-            .changes
-            .iter()
-            .rev()
-            .take_while(is_col_modified_change)
-            .count()
-            + 1;
-        let current_op_change = current_op.changes.first();
-        let previous_op_change = previous_op.changes.first();
         if let (
-            Some(UndoableChange::Note(UndoableNoteChange::Updated(previous))),
-            Some(UndoableChange::Note(UndoableNoteChange::Updated(current))),
-        ) = (previous_op_change, current_op_change)
+            [UndoableChange::Note(UndoableNoteChange::Updated(previous)), UndoableChange::Collection(UndoableCollectionChange::Modified(_))],
+            [UndoableChange::Note(UndoableNoteChange::Updated(current)), UndoableChange::Collection(UndoableCollectionChange::Modified(_))],
+        ) = (&previous_op.changes[..], &current_op.changes[..])
         {
             if previous.id == current.id && previous_op.timestamp.elapsed_secs() < 60 {
-                for _ in 0..changes_to_pop {
-                    self.pop_last_change();
-                }
+                self.clear_last_op();
             }
         }
     }

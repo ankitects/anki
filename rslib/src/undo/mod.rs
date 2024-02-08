@@ -266,14 +266,14 @@ impl Collection {
     }
 
     /// Used for coalescing successive note updates.
-    pub(crate) fn pop_last_change(&mut self) -> Option<UndoableChange> {
+    pub(crate) fn clear_last_op(&mut self) {
         self.state
             .undo
             .current_step
             .as_mut()
             .expect("no operation active")
             .changes
-            .pop()
+            .clear()
     }
 
     /// Return changes made by the current op. Must only be called in a
