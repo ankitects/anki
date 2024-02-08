@@ -182,18 +182,16 @@ class Preferences(QDialog):
         self.form.syncOnProgramOpen.setChecked(self.mw.pm.auto_syncing_enabled())
         self.form.syncMedia.setChecked(self.mw.pm.media_syncing_enabled())
         self.form.autoSyncMedia.setChecked(self.mw.pm.auto_sync_media_minutes() != 0)
-
-        self.setup_login_logout()
-
         self.form.custom_sync_url.setText(self.mw.pm.custom_sync_url())
         self.form.network_timeout.setValue(self.mw.pm.network_timeout())
 
+        self.update_login_status()
         self.form.syncLogin.setText(tr.sync_log_in_button())
         self.form.syncLogout.setText(tr.sync_log_out_button())
         qconnect(self.form.syncLogout.clicked, self.sync_logout)
         qconnect(self.form.syncLogin.clicked, self.sync_login)
 
-    def setup_login_logout(self) -> None:
+    def update_login_status(self) -> None:
         if not self.prof.get("syncKey"):
             self._hide_sync_auth_settings()
             self.form.syncUser.setText(tr.preferences_not_logged_in())
@@ -213,7 +211,7 @@ class Preferences(QDialog):
         )
 
     def sync_login(self) -> None:
-        sync_login(self.mw, self.setup_login_logout)
+        sync_login(self.mw, self.update_login_status)
 
     def sync_logout(self) -> None:
         if self.mw.media_syncer.is_syncing():
@@ -222,7 +220,7 @@ class Preferences(QDialog):
         self.prof["syncKey"] = None
         self.mw.col.media.force_resync()
         self._hide_sync_auth_settings()
-        self.setup_login_logout()
+        self.update_login_status()
 
     def update_network(self) -> None:
         self.prof["autoSync"] = self.form.syncOnProgramOpen.isChecked()
