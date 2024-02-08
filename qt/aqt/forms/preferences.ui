@@ -791,7 +791,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string notr="true">LOGOUT</string>
+             <string>sync_log_out_button</string>
             </property>
             <property name="autoDefault">
              <bool>false</bool>
@@ -807,7 +807,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string notr="true">LOGIN</string>
+             <string>sync_log_in_button</string>
             </property>
             <property name="autoDefault">
              <bool>false</bool>

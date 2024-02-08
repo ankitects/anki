@@ -186,8 +186,6 @@ class Preferences(QDialog):
         self.form.network_timeout.setValue(self.mw.pm.network_timeout())
 
         self.update_login_status()
-        self.form.syncLogin.setText(tr.sync_log_in_button())
-        self.form.syncLogout.setText(tr.sync_log_out_button())
         qconnect(self.form.syncLogout.clicked, self.sync_logout)
         qconnect(self.form.syncLogin.clicked, self.sync_login)
 
