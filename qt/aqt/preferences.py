@@ -188,7 +188,7 @@ class Preferences(QDialog):
         self.form.custom_sync_url.setText(self.mw.pm.custom_sync_url())
         self.form.network_timeout.setValue(self.mw.pm.network_timeout())
 
-        self.form.syncLogin.setText("Log In")  # TODO translation
+        self.form.syncLogin.setText(tr.sync_log_in_button())
         self.form.syncLogout.setText(tr.sync_log_out_button())
         qconnect(self.form.syncLogout.clicked, self.sync_logout)
         qconnect(self.form.syncLogin.clicked, self.sync_login)
@@ -196,9 +196,7 @@ class Preferences(QDialog):
     def setup_login_logout(self) -> None:
         if not self.prof.get("syncKey"):
             self._hide_sync_auth_settings()
-            self.form.syncUser.setText(
-                "Not currently logged in to AnkiWeb."
-            )  # TODO translation
+            self.form.syncUser.setText(tr.preferences_not_logged_in())
             self.form.syncLogin.setVisible(True)
             self.form.syncLogout.setVisible(False)
         else:
