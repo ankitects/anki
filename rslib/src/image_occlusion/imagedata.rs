@@ -61,10 +61,34 @@ impl Collection {
             let mut note = nt.new_note();
             let idxs = nt.get_io_field_indexes()?;
             note.set_field(idxs.occlusions as usize, req.occlusions)?;
-            note.set_field(idxs.image as usize, image_tag)?;
+            note.set_field(idxs.image as usize, &image_tag)?;
             note.set_field(idxs.header as usize, req.header)?;
             note.set_field(idxs.back_extra as usize, req.back_extra)?;
             note.tags = req.tags;
+
+            // save free drawing svg image data to file _freedraw.svg path appended
+            if !req.freedraw_svg.is_empty() {
+                let svg_file_name = format!(
+                    "{}_freedraw.svg",
+                    Path::new(&req.image_path)
+                        .file_stem()
+                        .or_not_found("expected filename")?
+                        .to_str()
+                        .unwrap()
+                );
+
+                let svg_data = req.freedraw_svg.as_bytes();
+                let actual_svg_image_name_after_adding = mgr.add_file(&svg_file_name, &svg_data)?;
+
+                note.set_field(
+                    idxs.image as usize,
+                    format!(
+                        r#"<img src="{}">\n<img src="{}">"#,
+                        &actual_image_name_after_adding, &actual_svg_image_name_after_adding,
+                    ),
+                )?;
+            }
+
             col.add_note_inner(&mut note, current_deck.id)?;
 
             Ok(())
@@ -118,6 +142,14 @@ impl Collection {
                 .to_string();
         }
 
+        // get freedraw svg image file path
+        let pattern = r#"<img src="([^"]+.svg)">"#;
+        let re = Regex::new(pattern).unwrap();
+
+        if let Some(caps) = re.captures(&fields[idxs.image as usize]) {
+            cloze_note.freedraw_svg_path = caps[1].to_string();
+        }
+
         Ok(cloze_note)
     }
 
@@ -128,8 +160,10 @@ impl Collection {
         header: &str,
         back_extra: &str,
         tags: Vec<String>,
+        freedraw_svg: &str,
     ) -> Result<OpOutput<()>> {
         let mut note = self.storage.get_note(note_id)?.or_not_found(note_id)?;
+        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
         self.transact(Op::ImageOcclusion, |col| {
             let nt = col
                 .get_notetype(note.notetype_id)?
@@ -139,6 +173,36 @@ impl Collection {
             note.set_field(idxs.header as usize, header)?;
             note.set_field(idxs.back_extra as usize, back_extra)?;
             note.tags = tags;
+
+            // update free drawing svg to image field with svg data written to file appended
+            // to original occlusion image file name
+            if !freedraw_svg.is_empty() {
+                let image_tag = note.fields()[idxs.image as usize].clone();
+                let image_path = col
+                    .extract_img_src(&image_tag)
+                    .unwrap_or_else(|| "".to_owned());
+
+                let svg_data = freedraw_svg.as_bytes();
+                let svg_file_name = format!(
+                    "{}_freedraw.svg",
+                    Path::new(&image_path)
+                        .file_stem()
+                        .or_not_found("expected filename")?
+                        .to_str()
+                        .unwrap()
+                );
+
+                let actual_svg_image_name_after_adding = mgr.add_file(&svg_file_name, &svg_data)?;
+
+                note.set_field(
+                    idxs.image as usize,
+                    format!(
+                        r#"<img src="{}">\n<img src="{}">"#,
+                        &image_path, &actual_svg_image_name_after_adding,
+                    ),
+                )?;
+            }
+
             col.update_note_inner(&mut note)?;
             Ok(())
         })

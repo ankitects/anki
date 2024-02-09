@@ -47,6 +47,7 @@ message AddImageOcclusionNoteRequest {
   string back_extra = 4;
   repeated string tags = 5;
   int64 notetype_id = 6;
+  string freedraw_svg = 7;
 }
 
 message GetImageOcclusionNoteRequest {
@@ -76,6 +77,7 @@ message GetImageOcclusionNoteResponse {
     string back_extra = 4;
     repeated string tags = 5;
     string image_file_name = 6;
+    string freedraw_svg_path = 7;
   }
 
   oneof value {
@@ -90,6 +92,7 @@ message UpdateImageOcclusionNoteRequest {
   string header = 3;
   string back_extra = 4;
   repeated string tags = 5;
+  string freedraw_svg = 6;
 }
 
 message GetImageOcclusionFieldsRequest {

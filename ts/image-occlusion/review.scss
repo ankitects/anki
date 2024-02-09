@@ -26,3 +26,14 @@
     width: 100%;
     height: 100%;
 }
+
+#image-occlusion-container svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    // remove the default image limits, as we rely on container
+    max-width: unset;
+    max-height: unset;
+}

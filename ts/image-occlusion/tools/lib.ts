@@ -325,3 +325,13 @@ export const selectAllShapes = (canvas: fabric.Canvas) => {
     canvas.setActiveObject(sel);
     redraw(canvas);
 };
+
+export const getAnnotationConfig = (tool) => {
+    const color = localStorage.getItem(`${tool}-color`) || "black";
+    const size = localStorage.getItem(`${tool}-size`) || "0.4";
+
+    return {
+        color,
+        size: parseFloat(size) * 20,
+    };
+};

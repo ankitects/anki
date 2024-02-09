@@ -14,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getContext, onMount } from "svelte";
     import type { Readable } from "svelte/store";
 
+    import ColorPicker from "./ColorPicker.svelte";
     import { mdiEye, mdiFormatAlignCenter, mdiSquare, mdiViewDashboard } from "./icons";
     import { emitChangeSignal } from "./MaskEditor.svelte";
     import { hideAllGuessOne, ioMaskEditorVisible, textEditingState } from "./store";
@@ -27,7 +28,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         zoomTools,
     } from "./tools/more-tools";
     import { toggleTranslucentKeyCombination } from "./tools/shortcuts";
-    import { tools } from "./tools/tool-buttons";
+    import { toolsAnnotation, toolsCursor, toolsShape } from "./tools/tool-buttons";
+    import { drawLine } from "./tools/tool-line";
+    import { drawPath } from "./tools/tool-path";
     import { removeUnfinishedPolygon } from "./tools/tool-polygon";
     import { undoRedoTools, undoStack } from "./tools/tool-undo-redo";
 
@@ -40,11 +43,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let maksOpacity = false;
     let showFloating = false;
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
+    let colorPickerTop = 0;
+    let showColorPicker = false;
+    let activeAnnotationTool = "";
 
     document.addEventListener("click", (event) => {
         const upperCanvas = document.querySelector(".upper-canvas");
         if (event.target == upperCanvas) {
             showAlignTools = false;
+            showColorPicker = false;
         }
     });
 
@@ -137,6 +144,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             case "draw-text":
                 drawText(canvas);
                 break;
+            case "draw-line":
+                drawLine(canvas);
+                break;
+            case "draw-path":
+                drawPath(canvas);
+                break;
             default:
                 break;
         }
@@ -146,6 +159,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         instance.pause();
         stopDraw(canvas);
         canvas.selectionColor = "rgba(100, 100, 255, 0.3)";
+        canvas.isDrawingMode = false;
     };
 
     function changeOcclusionType(occlusionType: "all" | "one"): void {
@@ -161,27 +175,92 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="tool-bar-container">
-    {#each tools as tool}
-        <IconButton
-            class="tool-icon-button {activeTool == tool.id ? 'active-tool' : ''}"
-            {iconSize}
-            tooltip="{tool.tooltip()} ({getPlatformString(tool.shortcut)})"
-            active={activeTool === tool.id}
-            on:click={() => {
-                activeTool = tool.id;
-            }}
-        >
-            {@html tool.icon}
-        </IconButton>
-        {#if $ioMaskEditorVisible && !$textEditingState}
-            <Shortcut
-                keyCombination={tool.shortcut}
-                on:action={() => {
+    <!-- sidebar tools cursor and magnify -->
+    <div class="side-tool-button-container">
+        {#each toolsCursor as tool}
+            <IconButton
+                class="tool-icon-button {activeTool == tool.id ? 'active-tool' : ''}
+                {tool.id === 'cursor' ? 'top-border-radius' : ''}
+                {tool.id === 'magnify' ? 'bottom-border-radius' : ''}"
+                {iconSize}
+                tooltip="{tool.tooltip()} ({getPlatformString(tool.shortcut)})"
+                active={activeTool === tool.id}
+                on:click={() => {
                     activeTool = tool.id;
                 }}
-            />
-        {/if}
-    {/each}
+            >
+                {@html tool.icon}
+            </IconButton>
+            {#if $ioMaskEditorVisible && !$textEditingState}
+                <Shortcut
+                    keyCombination={tool.shortcut}
+                    on:action={() => {
+                        activeTool = tool.id;
+                    }}
+                />
+            {/if}
+        {/each}
+    </div>
+    <!-- sidebar tools rect, ellipse and polygon -->
+    <div class="side-tool-button-container">
+        {#each toolsShape as tool}
+            <IconButton
+                class="tool-icon-button {activeTool == tool.id ? 'active-tool' : ''}
+                {tool.id === 'draw-rectangle' ? 'top-border-radius' : ''}
+                {tool.id === 'draw-polygon' ? 'bottom-border-radius' : ''}"
+                {iconSize}
+                tooltip="{tool.tooltip()} ({getPlatformString(tool.shortcut)})"
+                active={activeTool === tool.id}
+                on:click={() => {
+                    activeTool = tool.id;
+                }}
+            >
+                {@html tool.icon}
+            </IconButton>
+            {#if $ioMaskEditorVisible && !$textEditingState}
+                <Shortcut
+                    keyCombination={tool.shortcut}
+                    on:action={() => {
+                        activeTool = tool.id;
+                    }}
+                />
+            {/if}
+        {/each}
+    </div>
+    <!-- sidebar tools text, draw path and annotation -->
+    <div class="side-tool-button-container">
+        {#each toolsAnnotation as tool}
+            <IconButton
+                class="tool-icon-button {activeTool == tool.id ? 'active-tool' : ''}
+                {tool.id === 'draw-text' ? 'top-border-radius' : ''}
+                {tool.id === 'draw-path' ? 'bottom-border-radius' : ''}"
+                {iconSize}
+                tooltip="{tool.tooltip()} ({getPlatformString(tool.shortcut)})"
+                active={activeTool === tool.id}
+                on:click={(e) => {
+                    activeTool = tool.id;
+
+                    if (tool.id == "draw-text") {
+                        return;
+                    }
+
+                    colorPickerTop = e.pageY - 50;
+                    activeAnnotationTool = tool.id;
+                    showColorPicker = true;
+                }}
+            >
+                {@html tool.icon}
+            </IconButton>
+            {#if $ioMaskEditorVisible && !$textEditingState}
+                <Shortcut
+                    keyCombination={tool.shortcut}
+                    on:action={() => {
+                        activeTool = tool.id;
+                    }}
+                />
+            {/if}
+        {/each}
+    </div>
 </div>
 
 <div dir={$direction}>
@@ -386,6 +465,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </div>
 </div>
 
+<ColorPicker
+    {iconSize}
+    show={showColorPicker}
+    top={colorPickerTop}
+    {activeAnnotationTool}
+/>
+
 <style>
     .top-tool-bar-container {
         display: flex;
@@ -401,14 +487,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .undo-redo-button {
+        margin-left: 4px;
         margin-right: 2px;
         display: flex;
+    }
+
+    .side-tool-button-container {
+        margin-bottom: 5px;
     }
 
     .tool-button-container {
         margin-left: 2px;
         margin-right: 2px;
         display: flex;
+    }
+
+    :global(.top-border-radius) {
+        border-radius: 5px 5px 0 0 !important;
+    }
+
+    :global(.bottom-border-radius) {
+        border-radius: 0 0 5px 5px !important;
     }
 
     :global(.left-border-radius) {
@@ -463,11 +562,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         top: 42px;
         left: 2px;
         height: 100%;
-        border-right: 1px solid var(--border);
         overflow-y: auto;
-        width: 32px;
+        width: 38px;
         z-index: 99;
-        background: var(--canvas-elevated);
         padding-bottom: 100px;
     }
 
@@ -479,8 +576,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     :global(.tool-icon-button) {
         border: unset;
         display: block;
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px !important;
         margin: unset;
         padding: 6px !important;
     }

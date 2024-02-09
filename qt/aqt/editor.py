@@ -503,6 +503,13 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                     self, NoteId(int(path_or_nid))
                 )
 
+        elif cmd.startswith("ioSaveSvgImage"):
+            (_, image_tag, svg_path, svg_str) = cmd.split(":", 3)
+            svg_data = svg_str.encode("utf-8")
+            added_svg_path = self._addMediaFromData(svg_path, svg_data)
+            html = image_tag + "\n" + '<img src="' + added_svg_path + '">'
+            self.web.eval(f"setImageField({json.dumps(html)})")
+
         elif cmd in self._links:
             return self._links[cmd](self)
 

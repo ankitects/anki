@@ -45,6 +45,7 @@ impl crate::services::ImageOcclusionService for Collection {
             &input.header,
             &input.back_extra,
             input.tags,
+            &input.freedraw_svg,
         )
         .map(Into::into)
     }

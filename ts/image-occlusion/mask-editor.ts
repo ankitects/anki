@@ -11,7 +11,7 @@ import { get } from "svelte/store";
 import { optimumCssSizeForCanvas } from "./canvas-scale";
 import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
 import Toast from "./Toast.svelte";
-import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
+import { addFreedrawToCanvasFromSvgPath, addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
 import {
     enableSelectable,
     makeShapeRemainInCanvas,
@@ -89,6 +89,7 @@ export const setupMaskEditorForEdit = async (
 
         setCanvasZoomRatio(canvas, instance);
         addShapesToCanvasFromCloze(canvas, clozeNote.occlusions);
+        addFreedrawToCanvasFromSvgPath(canvas, clozeNote.freedrawSvgPath);
         enableSelectable(canvas, true);
         addClozeNotesToTextEditor(clozeNote.header, clozeNote.backExtra, clozeNote.tags);
         undoStack.reset();
@@ -119,6 +120,7 @@ function initCanvas(onChange: () => void): fabric.Canvas {
     fabric.Object.prototype.cornerStyle = "circle";
     fabric.Object.prototype.cornerStrokeColor = "#000000";
     fabric.Object.prototype.padding = 8;
+    fabric.Object.NUM_FRACTION_DIGITS = 2;
     moveShapeToCanvasBoundaries(canvas);
     makeShapeRemainInCanvas(canvas);
     canvas.on("object:modified", (evt) => {
