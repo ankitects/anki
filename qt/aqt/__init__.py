@@ -42,6 +42,7 @@ import locale
 import os
 import tempfile
 import traceback
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Optional, cast
 
 import anki.lang
@@ -575,8 +576,6 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     try:
         base_folder = ProfileManager.get_created_base_folder(opts.base)
 
-        Collection.initialize_backend_logging(str(base_folder / "anki.log"))
-
         # default to specified/system language before getting user's preference so that we can localize some more strings
         lang = anki.lang.get_def_lang(opts.lang)
         anki.lang.set_lang(lang[1])
@@ -584,6 +583,8 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
         pm = ProfileManager(base_folder)
         pmLoadResult = pm.setupMeta()
+
+        Collection.initialize_backend_logging(str(Path(pm.addon_logs()) / "anki.log"))
     except:
         # will handle below
         traceback.print_exc()
@@ -627,7 +628,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         return None
 
     setup_logging(
-        pm.log_folder(),
+        pm.addon_logs(),
         level=logging.DEBUG if int(os.getenv("ANKIDEV", "0")) else logging.INFO,
     )
 

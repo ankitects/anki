@@ -309,7 +309,7 @@ class ProfileManager:
     def collectionPath(self) -> str:
         return os.path.join(self.profileFolder(), "collection.anki2")
 
-    def log_folder(self) -> str:
+    def addon_logs(self) -> str:
         return self._ensureExists(os.path.join(self.base, "logs"))
 
     # Downgrade
