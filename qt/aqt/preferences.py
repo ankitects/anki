@@ -17,6 +17,7 @@ from aqt.sync import sync_login
 from aqt.theme import Theme
 from aqt.utils import (
     HelpPage,
+    askUser,
     disable_help_button,
     is_win,
     openHelp,
@@ -203,7 +204,12 @@ class Preferences(QDialog):
         self.mw.media_syncer.show_sync_log()
 
     def sync_login(self) -> None:
-        sync_login(self.mw, self.update_login_status)
+        def on_success():
+            if self.prof.get("syncKey"):
+                self.update_login_status()
+                self.confirm_sync_after_login()
+
+        sync_login(self.mw, on_success)
 
     def sync_logout(self) -> None:
         if self.mw.media_syncer.is_syncing():
@@ -212,6 +218,10 @@ class Preferences(QDialog):
         self.prof["syncKey"] = None
         self.mw.col.media.force_resync()
         self.update_login_status()
+
+    def confirm_sync_after_login(self) -> None:
+        if askUser(tr.preferences_login_successful_sync_now()):
+            self.mw.on_sync_button_clicked()
 
     def update_network(self) -> None:
         self.prof["autoSync"] = self.form.syncOnProgramOpen.isChecked()

@@ -26,6 +26,7 @@ preferences-some-settings-will-take-effect-after = Some settings will take effec
 preferences-tab-synchronisation = Synchronization
 preferences-synchronize-audio-and-images-too = Synchronize audio and images too
 preferences-not-logged-in = Not currently logged in to AnkiWeb.
+preferences-login-successful-sync-now = Log-in successful. Sync now?
 preferences-timebox-time-limit = Timebox time limit
 preferences-user-interface-size = User interface size
 preferences-when-adding-default-to-current-deck = When adding, default to current deck
