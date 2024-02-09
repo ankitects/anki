@@ -194,6 +194,14 @@ pub(crate) fn single_card_revlog_to_items(
             revlogs_complete = true;
         } else if last_learn_entry.is_some() {
             break;
+        // if we find the `Forget` entry before the `Learn` entry, we should ignore all the entries
+        } else if matches!(
+            (entry.review_kind, entry.ease_factor),
+            (RevlogReviewKind::Manual, 0)
+        ) && last_learn_entry.is_none()
+        {
+            revlogs_complete = false;
+            break;
         }
     }
     if !revlogs_complete {
