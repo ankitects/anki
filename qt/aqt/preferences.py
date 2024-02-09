@@ -191,7 +191,6 @@ class Preferences(QDialog):
 
     def update_login_status(self) -> None:
         if not self.prof.get("syncKey"):
-            self._hide_sync_auth_settings()
             self.form.syncUser.setText(tr.preferences_not_logged_in())
             self.form.syncLogin.setVisible(True)
             self.form.syncLogout.setVisible(False)
@@ -203,11 +202,6 @@ class Preferences(QDialog):
     def on_media_log(self) -> None:
         self.mw.media_syncer.show_sync_log()
 
-    def _hide_sync_auth_settings(self) -> None:
-        self.form.syncLabel.setText(
-            tr.preferences_synchronizationnot_currently_enabled_click_the_sync()
-        )
-
     def sync_login(self) -> None:
         sync_login(self.mw, self.update_login_status)
 
@@ -217,7 +211,6 @@ class Preferences(QDialog):
             return
         self.prof["syncKey"] = None
         self.mw.col.media.force_resync()
-        self._hide_sync_auth_settings()
         self.update_login_status()
 
     def update_network(self) -> None:

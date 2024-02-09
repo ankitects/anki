@@ -726,13 +726,6 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
-             <widget class="QLabel" name="syncLabel">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item>
              <spacer name="horizontalSpacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
