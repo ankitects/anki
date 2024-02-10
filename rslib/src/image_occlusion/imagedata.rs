@@ -78,7 +78,7 @@ impl Collection {
                 );
 
                 let svg_data = req.freedraw_svg.as_bytes();
-                let actual_svg_image_name_after_adding = mgr.add_file(&svg_file_name, &svg_data)?;
+                let actual_svg_image_name_after_adding = mgr.add_file(&svg_file_name, svg_data)?;
 
                 note.set_field(
                     idxs.image as usize,
@@ -192,7 +192,7 @@ impl Collection {
                         .unwrap()
                 );
 
-                let actual_svg_image_name_after_adding = mgr.add_file(&svg_file_name, &svg_data)?;
+                let actual_svg_image_name_after_adding = mgr.add_file(&svg_file_name, svg_data)?;
 
                 note.set_field(
                     idxs.image as usize,

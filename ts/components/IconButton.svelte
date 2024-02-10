@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <button
     {id}
-    style={style}
+    {style}
     class="icon-button {className}"
     class:active
     class:primary
