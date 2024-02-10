@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ColorPicker from "./ColorPicker.svelte";
     import { mdiEye, mdiFormatAlignCenter, mdiSquare, mdiViewDashboard } from "./icons";
     import { emitChangeSignal } from "./MaskEditor.svelte";
-    import { hideAllGuessOne, ioMaskEditorVisible, textEditingState } from "./store";
+    import { hideAllGuessOne, ioMaskEditorVisible, lineToolConfig, pathToolConfig, textEditingState } from "./store";
     import { drawEllipse, drawPolygon, drawRectangle, drawText } from "./tools/index";
     import { makeMaskTransparent } from "./tools/lib";
     import { enableSelectable, stopDraw } from "./tools/lib";
@@ -160,6 +160,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         stopDraw(canvas);
         canvas.selectionColor = "rgba(100, 100, 255, 0.3)";
         canvas.isDrawingMode = false;
+
+        if (activeTool !== "draw-path" && activeTool !== "draw-line") {
+            showColorPicker = false;
+        }
     };
 
     function changeOcclusionType(occlusionType: "all" | "one"): void {
@@ -233,7 +237,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <IconButton
                 class="tool-icon-button {activeTool == tool.id ? 'active-tool' : ''}
                 {tool.id === 'draw-text' ? 'top-border-radius' : ''}
-                {tool.id === 'draw-path' ? 'bottom-border-radius' : ''}"
+                {tool.id === 'draw-path' ? `bottom-border-radius border-hint-${$pathToolConfig.color.replace("#", "")}` : ''}
+                {tool.id === 'draw-line' ? `border-hint-${$lineToolConfig.color.replace("#", "")}` : ''}"
                 {iconSize}
                 tooltip="{tool.tooltip()} ({getPlatformString(tool.shortcut)})"
                 active={activeTool === tool.id}

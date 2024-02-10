@@ -2,9 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { fabric } from "fabric";
+import { lineToolConfig } from "image-occlusion/store";
+import { get } from "svelte/store";
 
 import { stopDraw } from "./lib";
-import { getAnnotationConfig } from "./lib";
 import { undoStack } from "./tool-undo-redo";
 
 export const drawLine = (canvas: fabric.Canvas): void => {
@@ -19,7 +20,6 @@ export const drawLine = (canvas: fabric.Canvas): void => {
             return;
         }
         isDown = true;
-        const config = getAnnotationConfig("draw-line");
 
         const pointer = canvas.getPointer(o.e);
         origX = pointer.x;
@@ -34,8 +34,8 @@ export const drawLine = (canvas: fabric.Canvas): void => {
             originY: "top",
             transparentCorners: false,
             selectable: true,
-            stroke: config.color,
-            strokeWidth: config.size,
+            stroke: get(lineToolConfig).color,
+            strokeWidth: get(lineToolConfig).size,
             strokeUniform: true,
             noScaleCache: false,
         });

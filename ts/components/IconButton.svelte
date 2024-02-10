@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string | undefined = undefined;
     let className = "";
     export { className as class };
+    export let style = "";
 
     export let tooltip: string | undefined = undefined;
     export let primary = false;
@@ -22,6 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <button
     {id}
+    style={style}
     class="icon-button {className}"
     class:active
     class:primary
