@@ -584,7 +584,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         pm = ProfileManager(base_folder)
         pmLoadResult = pm.setupMeta()
 
-        Collection.initialize_backend_logging(str(Path(pm.addon_logs()) / "anki.log"))
+        Collection.initialize_backend_logging()
     except:
         # will handle below
         traceback.print_exc()
