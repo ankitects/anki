@@ -853,7 +853,7 @@ impl SqlWriter<'_> {
                 }
             });
         ids_to_string(&mut str_ids, deck_ids);
-        write!(self.sql, "c.did in {str_ids}").unwrap();
+        write!(self.sql, "c.did in {str_ids} or c.odid in {str_ids}").unwrap();
         Ok(())
     }
 }
