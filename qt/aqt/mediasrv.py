@@ -10,7 +10,6 @@ import os
 import re
 import sys
 import threading
-import time
 import traceback
 from dataclasses import dataclass
 from errno import EPROTOTYPE
@@ -43,6 +42,7 @@ from aqt.utils import aqt_data_path, show_warning, tr
 # https://forums.ankiweb.net/t/anki-crash-when-using-a-specific-deck/22266
 waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROTOTYPE})  # type: ignore
 
+logger = logging.getLogger(__name__)
 app = flask.Flask(__name__, root_path="/fake")
 flask_cors.CORS(app, resources={r"/*": {"origins": "127.0.0.1"}})
 
@@ -98,11 +98,6 @@ class MediaServer(threading.Thread):
 
     def run(self) -> None:
         try:
-            if dev_mode:
-                # idempotent if logging has already been set up
-                logging.basicConfig()
-            logging.getLogger("waitress").setLevel(logging.ERROR)
-
             desired_host = os.getenv("ANKI_API_HOST", "127.0.0.1")
             desired_port = int(os.getenv("ANKI_API_PORT") or 0)
             self.server = create_server(
@@ -111,11 +106,11 @@ class MediaServer(threading.Thread):
                 port=desired_port,
                 clear_untrusted_proxy_headers=True,
             )
-            if dev_mode:
-                print(
-                    "Serving on http://%s:%s"
-                    % (self.server.effective_host, self.server.effective_port)  # type: ignore
-                )
+            logger.info(
+                "Serving on http://%s:%s",
+                self.server.effective_host,  # type: ignore[union-attr]
+                self.server.effective_port,  # type: ignore[union-attr]
+            )
 
             self._ready.set()
             self.server.run()
@@ -300,8 +295,7 @@ def handle_request(pathin: str) -> Response:
             abort(403)
 
     req = _extract_request(pathin)
-    if dev_mode:
-        print(f"{time.time():.3f} {flask.request.method} /{pathin}")
+    logger.debug("%s /%s", flask.request.method, pathin)
 
     if isinstance(req, NotFound):
         print(req.message)
