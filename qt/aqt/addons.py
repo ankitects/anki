@@ -6,6 +6,7 @@ from __future__ import annotations
 import html
 import io
 import json
+import logging
 import os
 import re
 import zipfile
@@ -33,6 +34,7 @@ from anki.httpclient import HttpClient
 from anki.lang import without_unicode_isolation
 from anki.utils import int_version_to_str
 from aqt import gui_hooks
+from aqt.log import ADDON_LOGGER_PREFIX, find_addon_logger, get_addon_logs_folder
 from aqt.qt import *
 from aqt.utils import (
     askUser,
@@ -662,7 +664,11 @@ class AddonManager:
 
         return markdown.markdown(contents, extensions=[md_in_html.makeExtension()])
 
-    def addonFromModule(self, module: str) -> str:
+    def addonFromModule(self, module: str) -> str:  # softly deprecated
+        return module.split(".")[0]
+
+    @staticmethod
+    def addon_from_module(module: str) -> str:
         return module.split(".")[0]
 
     def configAction(self, module: str) -> Callable[[], bool | None]:
@@ -727,8 +733,9 @@ class AddonManager:
     def _userFilesBackupPath(self) -> str:
         return os.path.join(self.addonsFolder(), "files_backup")
 
-    def backupUserFiles(self, sid: str) -> None:
-        p = self._userFilesPath(sid)
+    def backupUserFiles(self, module: str) -> None:
+        p = self._userFilesPath(module)
+
         if os.path.exists(p):
             os.rename(p, self._userFilesBackupPath())
 
@@ -751,6 +758,38 @@ class AddonManager:
 
     def getWebExports(self, module: str) -> str:
         return self._webExports.get(module)
+
+    # Logging
+    ######################################################################
+
+    @classmethod
+    def get_logger(cls, module: str) -> logging.Logger:
+        """Return a logger for the given add-on module.
+
+        NOTE: This method is static to allow it to be called outside of a
+        running Anki instance, e.g. in add-on unit tests.
+        """
+        return logging.getLogger(
+            f"{ADDON_LOGGER_PREFIX}{cls.addon_from_module(module)}"
+        )
+
+    def has_logger(self, module: str) -> bool:
+        return find_addon_logger(self.addon_from_module(module)) is not None
+
+    def is_debug_logging_enabled(self, module: str) -> bool:
+        if not (logger := find_addon_logger(self.addon_from_module(module))):
+            return False
+        return logger.isEnabledFor(logging.DEBUG)
+
+    def toggle_debug_logging(self, module: str, enable: bool) -> None:
+        if not (logger := find_addon_logger(self.addon_from_module(module))):
+            return
+        logger.setLevel(logging.DEBUG if enable else logging.INFO)
+
+    def logs_folder(self, module: str) -> Path:
+        return get_addon_logs_folder(
+            self.mw.pm.addon_logs(), self.addon_from_module(module)
+        )
 
 
 # Add-ons Dialog
