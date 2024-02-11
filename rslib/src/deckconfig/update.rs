@@ -332,7 +332,12 @@ impl Collection {
             } else {
                 config.inner.weight_search.clone()
             };
-            match self.compute_weights(&search, idx as u32 + 1, config_len) {
+            match self.compute_weights(
+                &search,
+                idx as u32 + 1,
+                config_len,
+                &config.inner.fsrs_weights,
+            ) {
                 Ok(weights) => {
                     if weights.fsrs_items >= 1000 {
                         println!("{}: {:?}", config.name, weights.weights);

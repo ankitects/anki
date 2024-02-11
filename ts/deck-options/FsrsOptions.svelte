@@ -104,6 +104,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         search: $config.weightSearch
                             ? $config.weightSearch
                             : defaultWeightSearch,
+                        currentWeights: $config.fsrsWeights,
                     });
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
