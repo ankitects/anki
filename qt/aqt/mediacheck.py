@@ -115,7 +115,7 @@ class MediaChecker:
         text.setPlainText(report)
         text.setWordWrapMode(QTextOption.WrapMode.NoWrap)
         layout.addWidget(text)
-        box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        box = QDialogButtonBox()
         layout.addWidget(box)
 
         if output.unused:
