@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import functools
 import re
 
@@ -75,6 +77,9 @@ class Preferences(QDialog):
             line_edit.setPlaceholderText(tr.preferences_shortcut_placeholder())
 
     def accept(self) -> None:
+        self.accept_with_callback()
+
+    def accept_with_callback(self, callback: Callable[[], None] | None = None) -> None:
         # avoid exception if main window is already closed
         if not self.mw.col:
             return
@@ -85,6 +90,9 @@ class Preferences(QDialog):
             self.mw.pm.save()
             self.done(0)
             aqt.dialogs.markClosed("Preferences")
+
+            if callback:
+                callback()
 
         self.update_collection(after_collection_update)
 
@@ -221,7 +229,7 @@ class Preferences(QDialog):
 
     def confirm_sync_after_login(self) -> None:
         if askUser(tr.preferences_login_successful_sync_now()):
-            self.mw.on_sync_button_clicked()
+            self.accept_with_callback(self.mw.on_sync_button_clicked)
 
     def update_network(self) -> None:
         self.prof["autoSync"] = self.form.syncOnProgramOpen.isChecked()
