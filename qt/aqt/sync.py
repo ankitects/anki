@@ -357,6 +357,7 @@ def get_id_and_pass_from_user(
     vbox.addWidget(bb)
     diag.setLayout(vbox)
     diag.show()
+    user.setFocus()
 
     accepted = diag.exec()
     if not accepted:
