@@ -21,6 +21,7 @@ from aqt.qt import *
 from aqt.utils import (
     askUser,
     disable_help_button,
+    openFolder,
     restoreGeom,
     saveGeom,
     showText,
@@ -149,6 +150,11 @@ class MediaChecker:
             box.addButton(b, QDialogButtonBox.ButtonRole.RejectRole)
             qconnect(b.clicked, lambda c: self._on_restore_trash())
 
+        b = QPushButton(tr.addons_view_files())
+        b.setAutoDefault(False)
+        box.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
+        qconnect(b.clicked, lambda c: self._on_view_files())
+
         qconnect(box.rejected, diag.reject)
         diag.setMinimumHeight(400)
         diag.setMinimumWidth(500)
@@ -244,6 +250,9 @@ class MediaChecker:
             tooltip(tr.media_check_trash_restored())
 
         self.mw.taskman.run_in_background(restore_trash, on_done)
+
+    def _on_view_files(self) -> None:
+        openFolder(self.mw.col.media.dir())
 
 
 def add_missing_media_tag(parent: QWidget, missing_media_notes: Sequence[int]) -> None:
