@@ -22,7 +22,7 @@ ScheduleCardsAsNewDefaults = scheduler_pb2.ScheduleCardsAsNewDefaultsResponse
 FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
 RepositionDefaults = scheduler_pb2.RepositionDefaultsResponse
 
-from typing import Sequence
+from typing import Sequence, overload
 
 from anki import config_pb2
 from anki.cards import CardId
@@ -64,6 +64,14 @@ class SchedulerBase(DeprecatedNamesMixin):
 
     # Deck list
     ##########################################################################
+
+    @overload
+    def deck_due_tree(self, top_deck_id: None = None) -> DeckTreeNode:
+        ...
+
+    @overload
+    def deck_due_tree(self, top_deck_id: DeckId) -> DeckTreeNode | None:
+        ...
 
     def deck_due_tree(self, top_deck_id: DeckId | None = None) -> DeckTreeNode | None:
         """Returns a tree of decks with counts.
