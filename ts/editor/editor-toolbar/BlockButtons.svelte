@@ -77,6 +77,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const rtl = window.getComputedStyle(document.body).direction === "rtl";
+
+    const justificationKeys = [
+        "justifyLeft",
+        "justifyCenter",
+        "justifyRight",
+        "justifyFull",
+    ];
 </script>
 
 <ButtonGroup>
@@ -138,6 +145,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                     <CommandIconButton
                                         key="justifyLeft"
                                         tooltip={tr.editingAlignLeft()}
+                                        modeVariantKeys={justificationKeys}
                                     >
                                         {@html justifyLeftIcon}
                                     </CommandIconButton>
@@ -147,6 +155,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                     <CommandIconButton
                                         key="justifyCenter"
                                         tooltip={tr.editingCenter()}
+                                        modeVariantKeys={justificationKeys}
                                     >
                                         {@html justifyCenterIcon}
                                     </CommandIconButton>
@@ -156,6 +165,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                     <CommandIconButton
                                         key="justifyRight"
                                         tooltip={tr.editingAlignRight()}
+                                        modeVariantKeys={justificationKeys}
                                     >
                                         {@html justifyRightIcon}
                                     </CommandIconButton>
@@ -165,6 +175,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                     <CommandIconButton
                                         key="justifyFull"
                                         tooltip={tr.editingJustify()}
+                                        modeVariantKeys={justificationKeys}
                                     >
                                         {@html justifyFullIcon}
                                     </CommandIconButton>
