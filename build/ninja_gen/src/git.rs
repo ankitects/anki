@@ -18,7 +18,7 @@ impl BuildAction for SyncSubmodule {
         if self.offline_build {
             "echo OFFLINE_BUILD is set, skipping git repository update for $path"
         } else {
-            "git -c protocol.file.allow=always submodule update --init $path"
+            "git -c protocol.file.allow=always submodule update --checkout --init $path"
         }
     }
 
