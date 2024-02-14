@@ -721,6 +721,7 @@ class Reviewer:
     def typeAnsAnswerFilter(self, buf: str) -> str:
         if not self.typeCorrect:
             return re.sub(self.typeAnsPat, "", buf)
+        orig = buf
         origSize = len(buf)
         buf = buf.replace("<hr id=answer>", "")
         hadHR = len(buf) != origSize
@@ -743,6 +744,9 @@ class Reviewer:
                 # comparison when user is using {{FrontSide}}
                 s = f"<hr id=answer>{s}"
             return s
+
+        if hadHR and not re.search(self.typeAnsPat, buf):
+            return orig
 
         return re.sub(self.typeAnsPat, repl, buf)
 
