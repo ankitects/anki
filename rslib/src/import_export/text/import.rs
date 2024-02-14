@@ -6,6 +6,8 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::sync::Arc;
 
+use unicase::UniCase;
+
 use super::NameOrId;
 use crate::card::CardQueue;
 use crate::card::CardType;
@@ -83,7 +85,7 @@ struct Context<'a> {
 
 struct DeckIdsByNameOrId {
     ids: HashSet<DeckId>,
-    names: HashMap<String, DeckId>,
+    names: HashMap<UniCase<String>, DeckId>,
     default: Option<DeckId>,
 }
 
@@ -146,10 +148,10 @@ impl Duplicate {
 
 impl DeckIdsByNameOrId {
     fn new(col: &mut Collection, default: &NameOrId) -> Result<Self> {
-        let names: HashMap<String, DeckId> = col
+        let names: HashMap<UniCase<String>, DeckId> = col
             .get_all_normal_deck_names(false)?
             .into_iter()
-            .map(|(id, name)| (name, id))
+            .map(|(id, name)| (UniCase::new(name), id))
             .collect();
         let ids = names.values().copied().collect();
         let mut new = Self {
@@ -166,13 +168,13 @@ impl DeckIdsByNameOrId {
         match name_or_id {
             _ if *name_or_id == NameOrId::default() => self.default,
             NameOrId::Id(id) => self.ids.get(&DeckId(*id)).copied(),
-            NameOrId::Name(name) => self.names.get(name).copied(),
+            NameOrId::Name(name) => self.names.get(&UniCase::new(name.to_string())).copied(),
         }
     }
 
     fn insert(&mut self, deck_id: DeckId, name: String) {
         self.ids.insert(deck_id);
-        self.names.insert(name, deck_id);
+        self.names.insert(UniCase::new(name), deck_id);
     }
 }
 
