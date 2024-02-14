@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithState from "../../components/WithState.svelte";
+    import { updateStateByKey } from "../../components/WithState.svelte";
     import { execCommand, queryCommandState } from "../../domlib";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
@@ -15,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let key: string;
     export let tooltip: string;
     export let shortcut: string | null = null;
+    export let modeVariantKeys: string[] = [key];
 
     $: theTooltip = shortcut ? `${tooltip} (${getPlatformString(shortcut)})` : tooltip;
 
@@ -38,19 +40,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Shortcut keyCombination={shortcut} on:action={action} />
     {/if}
 {:else}
-    <WithState
-        {key}
-        update={async () => queryCommandState(key)}
-        let:state={active}
-        let:updateState
-    >
+    <WithState {key} update={async () => queryCommandState(key)} let:state={active}>
         <IconButton
             tooltip={theTooltip}
             {active}
             {disabled}
             on:click={(event) => {
                 action();
-                updateState(event);
+                modeVariantKeys.map((key) => updateStateByKey(key, event));
             }}
         >
             <slot />
@@ -61,7 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 keyCombination={shortcut}
                 on:action={(event) => {
                     action();
-                    updateState(event);
+                    modeVariantKeys.map((key) => updateStateByKey(key, event));
                 }}
             />
         {/if}
