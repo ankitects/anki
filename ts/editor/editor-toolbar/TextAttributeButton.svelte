@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
-    import WithState from "../../components/WithState.svelte";
+    import WithState, { updateStateByKey } from "../../components/WithState.svelte";
     import type { MatchType } from "../../domlib/surround";
     import { surrounder } from "../rich-text-input";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
@@ -64,6 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:click={(event) => {
             applyAttribute();
             updateState(event);
+            exclusiveNames.map((name) => updateStateByKey(name, event));
         }}
     >
         <slot />
