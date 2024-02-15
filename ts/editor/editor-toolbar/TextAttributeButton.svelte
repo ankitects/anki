@@ -75,6 +75,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:action={(event) => {
             applyAttribute();
             updateState(event);
+            exclusiveNames.map((name) => updateStateByKey(name, event));
         }}
     />
 </WithState>
