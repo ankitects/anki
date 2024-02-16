@@ -69,8 +69,8 @@ class AddCards(QMainWindow):
             self.deck_chooser.selected_deck_id = deck_id
 
         new_note = self._new_note()
-        new_note.fields = note.fields
-        new_note.tags = note.tags
+        new_note.fields = note.fields[:]
+        new_note.tags = note.tags[:]
 
         self.setAndFocusNote(new_note)
 
