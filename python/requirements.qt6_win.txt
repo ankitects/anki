@@ -6,11 +6,11 @@ pyqt6==6.6.1 \
     # via
     #   -r requirements.qt6_win.in
     #   pyqt6-webengine
-pyqt6-qt6==6.6.1 \
-    --hash=sha256:0409aa09b8dae90d5f00ba2d9761e671dfbc54ab169cff8f4cdfecd7f664fd0f \
-    --hash=sha256:41f1ed3eadc00540c205a0e897ae0e0fffc21b896e575214f7c5b9c86d2037d1 \
-    --hash=sha256:8dcac0bd9df13d63deafb6a61969b832c34467da4a28d2b7abf78066bfce22e6 \
-    --hash=sha256:e7df8851c93886412d890d0ecc62b39f42521861ee7a80982136d65903e1f2c5
+pyqt6-qt6==6.6.2 \
+    --hash=sha256:5a41fe9d53b9e29e9ec5c23f3c5949dba160f90ca313ee8b96b8ffe6a5059387 \
+    --hash=sha256:7ef446d3ffc678a8586ff6dc9f0d27caf4dff05dea02c353540d2f614386faf9 \
+    --hash=sha256:8d7f674a4ec43ca00191e14945ca4129acbe37a2172ed9d08214ad58b170bc11 \
+    --hash=sha256:b8363d88623342a72ac17da9127dc12f259bb3148796ea029762aa2d499778d9
     # via
     #   -r requirements.qt6_win.in
     #   pyqt6
@@ -46,11 +46,11 @@ pyqt6-webengine==6.6.0 \
     --hash=sha256:d50b984c3f85e409e692b156132721522d4e8cf9b6c25e0cf927eea2dfb39487 \
     --hash=sha256:fded35fba636c4916fec84aa7c6840ad2e75d211462feb3e966f9545a59d56e6
     # via -r requirements.qt6_win.in
-pyqt6-webengine-qt6==6.6.1 \
-    --hash=sha256:185bd984a094d827d0a1abaf6a17247f87152c335dedbf2ecc4f838e6e2d7656 \
-    --hash=sha256:43c75191822823e86164aa5f4299d3a4092af061c27d29b28e75134cfd7b2673 \
-    --hash=sha256:4981e36adb15ea6c1508562128caf7d21c7e5c48039b60eabfb44adc00fd25d0 \
-    --hash=sha256:605e0f2168f95f9d0903239b28e42a6ba96a48427bda4dad44b192f5e64d63a9
+pyqt6-webengine-qt6==6.6.2 \
+    --hash=sha256:27b1b6a6f4ea115b3dd300d2df906d542009d9eb0e62b05e6b7cb85dfe68e9c3 \
+    --hash=sha256:3da4db9ddd984b647d0b79fa10fc6cf65364dfe283cd702b12cb7164be2307cd \
+    --hash=sha256:5d6f3ae521115cee77fea22b0248e7b219995390b951b51e4d519aef9c304ca8 \
+    --hash=sha256:f2364dfa3a6e751ead71b7ba759081be677fcf1c6bbd8a2a2a250eb5f06432e8
     # via
     #   -r requirements.qt6_win.in
     #   pyqt6-webengine
