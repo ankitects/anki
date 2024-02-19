@@ -135,8 +135,8 @@ impl Collection {
                 count: revlogs.len(),
             });
         }
-        anki_progress.state.fsrs_items = revlogs.len() as u32;
         let items = fsrs_items_for_training(revlogs, timing.next_day_at);
+        anki_progress.state.fsrs_items = items.len() as u32;
         let fsrs = FSRS::new(Some(weights))?;
         Ok(fsrs.evaluate(items, |ip| {
             anki_progress
