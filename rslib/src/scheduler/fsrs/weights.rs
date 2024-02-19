@@ -214,16 +214,16 @@ pub(crate) fn single_card_revlog_to_items(
     training: bool,
     ignore_revlogs_before: TimestampMillis,
 ) -> Option<(Vec<FSRSItem>, bool)> {
-    let mut last_learn_entry = None;
+    let mut first_of_last_learn_entries = None;
     let mut revlogs_complete = false;
     for (index, entry) in entries.iter().enumerate().rev() {
         if matches!(
             (entry.review_kind, entry.button_chosen),
             (RevlogReviewKind::Learning, 1..=4)
         ) {
-            last_learn_entry = Some(index);
+            first_of_last_learn_entries = Some(index);
             revlogs_complete = true;
-        } else if last_learn_entry.is_some() {
+        } else if first_of_last_learn_entries.is_some() {
             break;
         }
     }
@@ -245,12 +245,12 @@ pub(crate) fn single_card_revlog_to_items(
         .map(|(idx, _)| idx);
     // Ignore the entire card if the first learning step of the last group of
     // learning steps is before the ignore_revlogs_before date
-    if let Some(idx) = last_learn_entry {
+    if let Some(idx) = first_of_last_learn_entries {
         if entries[idx].id.0 < ignore_revlogs_before.0 {
             return None;
         }
     }
-    if let Some(idx) = last_learn_entry.or(first_relearn) {
+    if let Some(idx) = first_of_last_learn_entries.or(first_relearn) {
         // start from the (re)learning step
         if idx > 0 {
             entries.drain(..idx);
