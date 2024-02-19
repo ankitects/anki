@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Row from "../components/Row.svelte";
 
     export let date;
-    $: date = date ? date : "1970-01-01"
+    $: date = date ? date : "1970-01-01";
 </script>
 
 <div>
@@ -30,6 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         width: 100%;
         -webkit-appearance: none;
+        appearance: none;
         height: 1.5em;
     }
 </style>
