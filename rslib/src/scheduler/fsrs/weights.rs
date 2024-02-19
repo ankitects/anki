@@ -236,6 +236,32 @@ pub(crate) fn single_card_revlog_to_items(
             })
         );
     }
+    if training {
+        // While training ignore the entire card if the first learning step of the last
+        // group of learning steps is before the ignore_revlogs_before date
+        if let Some(idx) = first_of_last_learn_entries {
+            if entries[idx].id.0 < ignore_revlogs_before.0 {
+                return None;
+            }
+        }
+    } else {
+        // While reviewing if the first learning step is before the ignore date,
+        // ignore every review before and including the last learning step
+        if let Some(idx) = first_of_last_learn_entries {
+            if entries[idx].id.0 < ignore_revlogs_before.0 && idx < entries.len() - 1 {
+                let last_learn_entry = entries
+                    .iter()
+                    .enumerate()
+                    .rev()
+                    .find(|(_idx, e)| e.review_kind == RevlogReviewKind::Learning)
+                    .map(|(idx, _)| idx);
+
+                entries.drain(..(last_learn_entry? + 1));
+                revlogs_complete = false;
+                first_of_last_learn_entries = None;
+            }
+        }
+    }
     let first_relearn = entries
         .iter()
         .enumerate()
@@ -243,13 +269,6 @@ pub(crate) fn single_card_revlog_to_items(
             e.id.0 > ignore_revlogs_before.0 && e.review_kind == RevlogReviewKind::Relearning
         })
         .map(|(idx, _)| idx);
-    // Ignore the entire card if the first learning step of the last group of
-    // learning steps is before the ignore_revlogs_before date
-    if let Some(idx) = first_of_last_learn_entries {
-        if entries[idx].id.0 < ignore_revlogs_before.0 {
-            return None;
-        }
-    }
     if let Some(idx) = first_of_last_learn_entries.or(first_relearn) {
         // start from the (re)learning step
         if idx > 0 {
@@ -493,7 +512,7 @@ pub(crate) mod tests {
     }
 
     #[test]
-    fn ignores_cards_before_ignore_before_date() {
+    fn ignores_cards_before_ignore_before_date_when_training() {
         let revlogs = &[
             revlog(RevlogReviewKind::Learning, 10),
             revlog(RevlogReviewKind::Learning, 8),
@@ -509,10 +528,35 @@ pub(crate) mod tests {
             convert_ignore_before(revlogs, true, days_ago_ms(10)),
             convert(revlogs, true)
         );
-        // L L |
+        // | L L
         assert_eq!(
             convert_ignore_before(revlogs, true, days_ago_ms(11)),
             convert(revlogs, true)
+        );
+    }
+
+    #[test]
+    fn ignore_before_date_between_learning_steps_when_reviewing() {
+        let revlogs = &[
+            revlog(RevlogReviewKind::Learning, 10),
+            revlog(RevlogReviewKind::Learning, 8),
+            revlog(RevlogReviewKind::Review, 2),
+        ];
+        // L | L R
+        assert_ne!(
+            convert_ignore_before(revlogs, false, days_ago_ms(9)),
+            convert(revlogs, false)
+        );
+        assert_eq!(
+            convert_ignore_before(revlogs, false, days_ago_ms(9))
+                .unwrap()
+                .len(),
+            1
+        );
+        // | L L R
+        assert_eq!(
+            convert_ignore_before(revlogs, false, days_ago_ms(11)),
+            convert(revlogs, false)
         );
     }
 }
