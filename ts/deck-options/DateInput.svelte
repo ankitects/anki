@@ -27,8 +27,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style>
     input {
         width: 100%;
-
-        width: 100%;
         -webkit-appearance: none;
         appearance: none;
         height: 1.5em;
