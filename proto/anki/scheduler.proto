@@ -343,8 +343,9 @@ message ComputeFsrsWeightsRequest {
 
 message ComputeFsrsWeightsResponse {
   repeated float weights = 1;
-  // if less than 1000, should warn user
   uint32 fsrs_items = 2;
+  // total number of reviews used for training
+  uint64 review_count = 3;
 }
 
 message ComputeFsrsWeightsFromItemsRequest {

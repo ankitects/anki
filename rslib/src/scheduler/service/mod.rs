@@ -313,6 +313,7 @@ impl crate::services::BackendSchedulerService for Backend {
         Ok(ComputeFsrsWeightsResponse {
             weights,
             fsrs_items,
+            review_count: fsrs_items as u64,
         })
     }
 }
