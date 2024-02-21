@@ -75,12 +75,6 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?;
-        if revlogs.len() < 400 {
-            return Err(AnkiError::FsrsInsufficientReviews {
-                count: revlogs.len(),
-            });
-        }
-
         let first_rating_count = revlogs
             .iter()
             .group_by(|r| r.cid)
@@ -109,14 +103,19 @@ impl Collection {
             .iter()
             .filter(|r| r.review_kind == RevlogReviewKind::Review && r.button_chosen != 1)
             .counts_by(|r| r.button_chosen);
-        let total_reviews = review_rating_count.values().sum::<usize>() as f64;
-        let review_rating_prob = if total_reviews > 0.0 {
+        let total_reviews = review_rating_count.values().sum::<usize>();
+        if total_reviews < 400 {
+            return Err(AnkiError::FsrsInsufficientReviews {
+                count: total_reviews,
+            });
+        }
+        let review_rating_prob = if total_reviews as f64 > 0.0 {
             let mut arr = [0.0; 3];
             review_rating_count
                 .iter()
                 .filter(|(&button_chosen, ..)| button_chosen >= 2)
                 .for_each(|(button_chosen, count)| {
-                    arr[*button_chosen as usize - 2] = *count as f64 / total_reviews;
+                    arr[*button_chosen as usize - 2] = *count as f64 / total_reviews as f64;
                 });
             arr
         } else {
