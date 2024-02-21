@@ -81,7 +81,6 @@ impl Collection {
         Ok(ComputeFsrsWeightsResponse {
             weights,
             fsrs_items,
-            review_count: review_count as u64,
         })
     }
 

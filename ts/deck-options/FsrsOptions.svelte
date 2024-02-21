@@ -109,15 +109,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
                     }
-                    if (resp.reviewCount < 400) {
-                        alert(
-                            tr.deckConfigMustHave400Reviews({
-                                count: Number(resp.reviewCount),
-                            }),
-                        );
-                    } else {
-                        $config.fsrsWeights = resp.weights;
-                    }
+                    $config.fsrsWeights = resp.weights;
                 },
                 (progress) => {
                     if (progress.value.case === "computeWeights") {
