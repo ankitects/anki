@@ -63,8 +63,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         optimalRetentionRequest.daysToSimulate = 3650;
     }
 
-    $: paramsChanged = true;
-
     function getRetentionWarning(retention: number): string {
         const decay = -0.5;
         const factor = 0.9 ** (1 / decay) - 1;
@@ -108,9 +106,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             : defaultWeightSearch,
                         currentWeights: $config.fsrsWeights,
                     });
-                    paramsChanged =
-                        !$config.fsrsWeights.length ||
-                        !$config.fsrsWeights.every((n, i) => n === resp.weights[i]);
+                    if (
+                        $config.fsrsWeights.length &&
+                        $config.fsrsWeights.every((n, i) => n === resp.weights[i])
+                    ) {
+                        alert(tr.deckConfigFsrsParamsOptimal());
+                    }
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
                     }
@@ -278,9 +279,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {tr.deckConfigWeights()}
         </SettingTitle>
     </WeightsInputRow>
-    {#if !paramsChanged}
-        <Warning warning={tr.deckConfigFsrsParamsOptimal()} />
-    {/if}
 </div>
 
 <div class="m-2">
