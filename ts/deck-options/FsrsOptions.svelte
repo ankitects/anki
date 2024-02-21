@@ -108,9 +108,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             : defaultWeightSearch,
                         currentWeights: $config.fsrsWeights,
                     });
-                    paramsChanged = !$config.fsrsWeights.every(
-                        (n, i) => n === resp.weights[i],
-                    );
+                    paramsChanged =
+                        !$config.fsrsWeights.length ||
+                        !$config.fsrsWeights.every((n, i) => n === resp.weights[i]);
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
                     }
