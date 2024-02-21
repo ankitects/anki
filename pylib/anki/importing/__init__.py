@@ -3,7 +3,7 @@
 
 from typing import Any, Callable, Sequence, Type, Union
 
-from anki import hooks
+import anki
 from anki.collection import Collection
 from anki.importing.anki2 import Anki2Importer
 from anki.importing.apkg import AnkiPackageImporter
@@ -26,5 +26,5 @@ def importers(col: Collection) -> Sequence[tuple[str, type[Importer]]]:
         (col.tr.importing_supermemo_xml_export_xml(), SupermemoXmlImporter),
         (col.tr.importing_pauker_18_lesson_paugz(), PaukerImporter),
     ]
-    hooks.importing_importers(importers)
+    anki.hooks.importing_importers(importers)
     return importers

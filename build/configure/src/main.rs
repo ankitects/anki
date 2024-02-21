@@ -63,7 +63,6 @@ fn main() -> Result<()> {
     build_bundle(build)?;
 
     if env::var("OFFLINE_BUILD").is_err() {
-        println!("OFFLINE_BUILD is set, skipping build of offline documentation.");
         setup_sphix(build)?;
     }
 

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import base64
+import functools
 import html
 import itertools
 import json
@@ -238,12 +239,18 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     ) -> str:
         """Assign func to bridge cmd, register shortcut, return button"""
         if func:
-            self._links[cmd] = func
+
+            def wrapped_func(editor: Editor) -> None:
+                self.call_after_note_saved(
+                    functools.partial(func, editor), keepFocus=True
+                )
+
+            self._links[cmd] = wrapped_func
 
             if keys:
 
                 def on_activated() -> None:
-                    func(self)
+                    wrapped_func(self)
 
                 if toggleable:
                     # generate a random id for triggering toggle

@@ -337,14 +337,13 @@ impl Collection {
             } else {
                 config.inner.weight_search.clone()
             };
-
             let ignore_revlogs_before_ms = ignore_revlogs_before_ms_from_config(config)?;
-
             match self.compute_weights(
                 &search,
                 ignore_revlogs_before_ms,
                 idx as u32 + 1,
                 config_len,
+                &config.inner.fsrs_weights,
             ) {
                 Ok(weights) => {
                     if weights.fsrs_items >= 1000 {

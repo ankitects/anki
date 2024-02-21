@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import functools
 import re
 
@@ -13,9 +15,11 @@ from aqt import AnkiQt
 from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
 from aqt.qt import *
+from aqt.sync import sync_login
 from aqt.theme import Theme
 from aqt.utils import (
     HelpPage,
+    askUser,
     disable_help_button,
     is_win,
     openHelp,
@@ -73,6 +77,9 @@ class Preferences(QDialog):
             line_edit.setPlaceholderText(tr.preferences_shortcut_placeholder())
 
     def accept(self) -> None:
+        self.accept_with_callback()
+
+    def accept_with_callback(self, callback: Callable[[], None] | None = None) -> None:
         # avoid exception if main window is already closed
         if not self.mw.col:
             return
@@ -83,6 +90,9 @@ class Preferences(QDialog):
             self.mw.pm.save()
             self.done(0)
             aqt.dialogs.markClosed("Preferences")
+
+            if callback:
+                callback()
 
         self.update_collection(after_collection_update)
 
@@ -181,24 +191,33 @@ class Preferences(QDialog):
         self.form.syncOnProgramOpen.setChecked(self.mw.pm.auto_syncing_enabled())
         self.form.syncMedia.setChecked(self.mw.pm.media_syncing_enabled())
         self.form.autoSyncMedia.setChecked(self.mw.pm.auto_sync_media_minutes() != 0)
-        if not self.prof.get("syncKey"):
-            self._hide_sync_auth_settings()
-        else:
-            self.form.syncUser.setText(self.prof.get("syncUser", ""))
-            qconnect(self.form.syncDeauth.clicked, self.sync_logout)
-        self.form.syncDeauth.setText(tr.sync_log_out_button())
         self.form.custom_sync_url.setText(self.mw.pm.custom_sync_url())
         self.form.network_timeout.setValue(self.mw.pm.network_timeout())
+
+        self.update_login_status()
+        qconnect(self.form.syncLogout.clicked, self.sync_logout)
+        qconnect(self.form.syncLogin.clicked, self.sync_login)
+
+    def update_login_status(self) -> None:
+        if not self.prof.get("syncKey"):
+            self.form.syncUser.setText(tr.preferences_not_logged_in())
+            self.form.syncLogin.setVisible(True)
+            self.form.syncLogout.setVisible(False)
+        else:
+            self.form.syncUser.setText(self.prof.get("syncUser", ""))
+            self.form.syncLogin.setVisible(False)
+            self.form.syncLogout.setVisible(True)
 
     def on_media_log(self) -> None:
         self.mw.media_syncer.show_sync_log()
 
-    def _hide_sync_auth_settings(self) -> None:
-        self.form.syncDeauth.setVisible(False)
-        self.form.syncUser.setText("")
-        self.form.syncLabel.setText(
-            tr.preferences_synchronizationnot_currently_enabled_click_the_sync()
-        )
+    def sync_login(self) -> None:
+        def on_success():
+            if self.prof.get("syncKey"):
+                self.update_login_status()
+                self.confirm_sync_after_login()
+
+        sync_login(self.mw, on_success)
 
     def sync_logout(self) -> None:
         if self.mw.media_syncer.is_syncing():
@@ -206,7 +225,11 @@ class Preferences(QDialog):
             return
         self.prof["syncKey"] = None
         self.mw.col.media.force_resync()
-        self._hide_sync_auth_settings()
+        self.update_login_status()
+
+    def confirm_sync_after_login(self) -> None:
+        if askUser(tr.preferences_login_successful_sync_now()):
+            self.accept_with_callback(self.mw.on_sync_button_clicked)
 
     def update_network(self) -> None:
         self.prof["autoSync"] = self.form.syncOnProgramOpen.isChecked()

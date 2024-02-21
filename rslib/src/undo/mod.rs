@@ -266,14 +266,14 @@ impl Collection {
     }
 
     /// Used for coalescing successive note updates.
-    pub(crate) fn pop_last_change(&mut self) -> Option<UndoableChange> {
+    pub(crate) fn clear_last_op(&mut self) {
         self.state
             .undo
             .current_step
             .as_mut()
             .expect("no operation active")
             .changes
-            .pop()
+            .clear()
     }
 
     /// Return changes made by the current op. Must only be called in a
@@ -543,6 +543,21 @@ mod test {
             0
         );
         assert!(out.changes.had_change());
+
+        Ok(())
+    }
+
+    #[test]
+    fn coalesce_note_undo_entries() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+        note.set_field(0, "foo")?;
+        col.update_note(&mut note)?;
+        note.set_field(0, "bar")?;
+        col.update_note(&mut note)?;
+        assert_eq!(col.state.undo.undo_steps.len(), 2);
 
         Ok(())
     }

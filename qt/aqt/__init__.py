@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import logging
 import sys
 
 if sys.version_info[0] < 3 or sys.version_info[1] < 9:
@@ -41,6 +42,7 @@ import locale
 import os
 import tempfile
 import traceback
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Optional, cast
 
 import anki.lang
@@ -50,6 +52,7 @@ from anki.collection import Collection
 from anki.consts import HELP_SITE
 from anki.utils import checksum, is_lin, is_mac
 from aqt import gui_hooks
+from aqt.log import setup_logging
 from aqt.qt import *
 from aqt.utils import TR, tr
 
@@ -572,7 +575,6 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     pm = None
     try:
         base_folder = ProfileManager.get_created_base_folder(opts.base)
-        Collection.initialize_backend_logging(str(base_folder / "anki.log"))
 
         # default to specified/system language before getting user's preference so that we can localize some more strings
         lang = anki.lang.get_def_lang(opts.lang)
@@ -581,6 +583,8 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
         pm = ProfileManager(base_folder)
         pmLoadResult = pm.setupMeta()
+
+        Collection.initialize_backend_logging()
     except:
         # will handle below
         traceback.print_exc()
@@ -622,6 +626,11 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     if app.secondInstance():
         # we've signaled the primary instance, so we should close
         return None
+
+    setup_logging(
+        pm.addon_logs(),
+        level=logging.DEBUG if int(os.getenv("ANKIDEV", "0")) else logging.INFO,
+    )
 
     if not pm:
         if i18n_setup:

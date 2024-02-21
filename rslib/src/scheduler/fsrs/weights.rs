@@ -55,6 +55,7 @@ impl Collection {
         ignore_revlogs_before: TimestampMillis,
         current_preset: u32,
         total_presets: u32,
+        current_weights: &Weights,
     ) -> Result<ComputeFsrsWeightsResponse> {
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
@@ -90,8 +91,14 @@ impl Collection {
                 }
             }
         });
-        let fsrs = FSRS::new(None)?;
-        let weights = fsrs.compute_weights(items, revlogs.len() < 1000, Some(progress2))?;
+        let fsrs = FSRS::new(Some(current_weights))?;
+        let mut weights =
+            fsrs.compute_weights(items.clone(), revlogs.len() < 1000, Some(progress2))?;
+        let metrics = fsrs.universal_metrics(items, &weights, |_| true)?;
+        if metrics.0 < metrics.1 {
+            weights = current_weights.to_vec();
+        }
+
         Ok(ComputeFsrsWeightsResponse {
             weights,
             fsrs_items,
@@ -224,6 +231,15 @@ pub(crate) fn single_card_revlog_to_items(
             first_of_last_learn_entries = Some(index);
             revlogs_complete = true;
         } else if first_of_last_learn_entries.is_some() {
+            break;
+        // if we find the `Forget` entry before the `Learn` entry, we should
+        // ignore all the entries
+        } else if matches!(
+            (entry.review_kind, entry.ease_factor),
+            (RevlogReviewKind::Manual, 0)
+        ) && first_of_last_learn_entries.is_none()
+        {
+            revlogs_complete = false;
             break;
         }
     }

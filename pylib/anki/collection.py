@@ -133,9 +133,9 @@ class Collection(DeprecatedNamesMixin):
     sched: V3Scheduler | DummyScheduler
 
     @staticmethod
-    def initialize_backend_logging(path: str | None = None) -> None:
-        """Enable terminal and optional file-based logging. Must be called only once."""
-        RustBackend.initialize_logging(path)
+    def initialize_backend_logging() -> None:
+        """Enable terminal logging. Must be called only once."""
+        RustBackend.initialize_logging(None)
 
     def __init__(
         self,
