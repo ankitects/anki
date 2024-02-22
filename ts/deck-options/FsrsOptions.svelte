@@ -116,6 +116,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
                         currentWeights: $config.fsrsWeights,
                     });
+                    if (
+                        $config.fsrsWeights.length &&
+                        $config.fsrsWeights.every((n, i) => n === resp.weights[i])
+                    ) {
+                        alert(tr.deckConfigFsrsParamsOptimal());
+                    }
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
                     }
