@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import * as tr from "@generated/ftl";
-import type fabric from "fabric";
+import { type fabric } from "fabric";
 import { writable } from "svelte/store";
 
 import { mdiRedo, mdiUndo } from "../icons";
@@ -22,10 +22,10 @@ type UndoState = {
 const shapeType = ["rect", "ellipse", "i-text", "group"];
 
 const validShape = (shape: fabric.Object): boolean => {
-    if (shape.width <= 5 || shape.height <= 5) {
+    if (shape.width! <= 5 || shape.height! <= 5) {
         return false;
     }
-    if (shapeType.indexOf(shape.type) === -1) {
+    if (shapeType.indexOf(shape.type!) === -1) {
         return false;
     }
     return true;
@@ -50,8 +50,8 @@ class UndoStack {
         this.canvas = canvas;
         this.canvas.on("object:modified", (opts) => this.maybePush(opts));
         this.canvas.on("object:removed", (opts) => {
-            // `destroyed` is a custom property set on groups in the ungrouping routine to avoid adding a spurious undo entry
-            if (!opts.target.group && !opts.target.destroyed) {
+            // @ts-expect-error `destroyed` is a custom property set on groups in the ungrouping routine to avoid adding a spurious undo entry
+            if (!opts.target!.group && !opts.target!.destroyed) {
                 this.maybePush(opts);
             }
         });
@@ -102,8 +102,8 @@ class UndoStack {
         emitChangeSignal();
     }
 
-    private maybePush(opts): void {
-        if (!this.locked && validShape(opts.target as fabric.Object)) {
+    private maybePush(obj: fabric.IEvent<MouseEvent>): void {
+        if (!this.locked && validShape(obj.target!)) {
             this.push();
         }
     }

@@ -47,6 +47,8 @@ export const drawText = (canvas: fabric.Canvas): void => {
             padding: TEXT_PADDING,
             opacity: get(opacityStateStore) ? 0.4 : 1,
         });
+        text["id"] = "text-" + new Date().getTime();
+
         enableUniformScaling(canvas, text);
         canvas.add(text);
         canvas.setActiveObject(text);

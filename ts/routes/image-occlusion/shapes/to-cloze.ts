@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { Canvas, Object as FabricObject } from "fabric";
 import { fabric } from "fabric";
 import { getBoundingBox } from "image-occlusion/tools/lib";
 import { cloneDeep } from "lodash-es";
@@ -43,7 +42,7 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
  * BaseShape[]s.
  */
 export function baseShapesFromFabric(): ShapeOrShapes[] {
-    const canvas = globalThis.canvas as Canvas;
+    const canvas = globalThis.canvas as fabric.Canvas;
     const activeObject = canvas.getActiveObject();
     const selectionContainingMultipleObjects = activeObject instanceof fabric.ActiveSelection
             && (activeObject.size() > 1)
@@ -72,9 +71,9 @@ export function baseShapesFromFabric(): ShapeOrShapes[] {
 
 /** Convert a single Fabric object/group to one or more BaseShapes. */
 function fabricObjectToBaseShapeOrShapes(
-    size: Size,
-    object: FabricObject,
-    parentObject?: FabricObject,
+    size: fabric.Canvas,
+    object: fabric.Object,
+    parentObject?: fabric.Object,
 ): ShapeOrShapes | null {
     let shape: Shape;
 
@@ -83,37 +82,37 @@ function fabricObjectToBaseShapeOrShapes(
     const cloned = cloneDeep(object);
     if (parentObject) {
         const scaling = parentObject.getObjectScaling();
-        cloned.width = cloned.width * scaling.scaleX;
-        cloned.height = cloned.height * scaling.scaleY;
+        cloned.width = cloned.width! * scaling.scaleX;
+        cloned.height = cloned.height! * scaling.scaleY;
     }
 
     switch (object.type) {
         case "rect":
-            shape = new Rectangle(cloned);
+            shape = new Rectangle(cloned as any);
             break;
         case "ellipse":
-            shape = new Ellipse(cloned);
+            shape = new Ellipse(cloned as any);
             break;
         case "polygon":
-            shape = new Polygon(cloned);
+            shape = new Polygon(cloned as any);
             break;
         case "i-text":
-            shape = new Text(cloned);
+            shape = new Text(cloned as any);
             break;
         case "group":
-            return object._objects.map((child) => {
+            return (object as fabric.Group).getObjects().flatMap((child) => {
                 return fabricObjectToBaseShapeOrShapes(
                     size,
                     child,
                     object,
-                );
+                )!;
             });
         default:
             return null;
     }
     if (parentObject) {
         const newPosition = fabric.util.transformPoint(
-            { x: shape.left, y: shape.top },
+            new fabric.Point(shape.left, shape.top),
             parentObject.calcTransformMatrix(),
         );
         shape.left = newPosition.x;

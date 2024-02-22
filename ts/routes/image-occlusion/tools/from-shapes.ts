@@ -5,6 +5,7 @@ import { fabric } from "fabric";
 
 import type { Shape } from "../shapes";
 
+import type { Size } from "../types";
 import { addBorder, enableUniformScaling } from "./lib";
 
 export const addShape = (

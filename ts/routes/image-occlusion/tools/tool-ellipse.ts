@@ -32,7 +32,6 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
         }
 
         ellipse = new fabric.Ellipse({
-            id: "ellipse-" + new Date().getTime(),
             left: origX,
             top: origY,
             originX: "left",
@@ -48,6 +47,8 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
             noScaleCache: false,
             opacity: get(opacityStateStore) ? 0.4 : 1,
         });
+        ellipse["id"] = "ellipse-" + new Date().getTime();
+
         canvas.add(ellipse);
     });
 

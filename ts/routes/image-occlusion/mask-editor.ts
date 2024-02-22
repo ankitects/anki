@@ -59,7 +59,7 @@ export const setupMaskEditorForEdit = async (
                 type: "error",
             },
         }).$set({ showToast: true });
-        return;
+        throw "error getting cloze";
     }
 
     const clozeNote = clozeNoteResponse.value.value;

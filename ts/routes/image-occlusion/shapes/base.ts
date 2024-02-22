@@ -48,7 +48,7 @@ export class Shape {
         };
     }
 
-    toFabric(size: Size): fabric.ForCloze {
+    toFabric(size: Size): fabric.Object {
         const absolute = this.toAbsolute(size);
         return new fabric.Object(absolute);
     }

@@ -39,7 +39,7 @@ export const deleteItem = (canvas: fabric.Canvas): void => {
     if (active) {
         canvas.remove(active);
         if (active.type == "activeSelection") {
-            active.getObjects().forEach((x) => canvas.remove(x));
+            (active as fabric.ActiveSelection).getObjects().forEach((x) => canvas.remove(x));
             canvas.discardActiveObject().renderAll();
         }
     }
@@ -56,13 +56,12 @@ export const duplicateItem = (canvas: fabric.Canvas): void => {
 
 export const groupShapes = (canvas: fabric.Canvas): void => {
     if (
-        !canvas.getActiveObject()
-        || canvas.getActiveObject().type !== "activeSelection"
+        canvas.getActiveObject()?.type !== "activeSelection"
     ) {
         return;
     }
 
-    const activeObject = canvas.getActiveObject();
+    const activeObject = canvas.getActiveObject() as fabric.ActiveSelection;
     const items = activeObject.getObjects();
     items.forEach((item) => {
         item.set({ opacity: 1 });
@@ -75,15 +74,15 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
 
 export const unGroupShapes = (canvas: fabric.Canvas): void => {
     if (
-        !canvas.getActiveObject()
-        || canvas.getActiveObject().type !== "group"
+        canvas.getActiveObject()?.type !== "group"
     ) {
         return;
     }
 
-    const group = canvas.getActiveObject();
+    const group = canvas.getActiveObject() as fabric.Group;
     const items = group.getObjects();
     group._restoreObjectsState();
+    // @ts-expect-error not defined
     group.destroyed = true;
     canvas.remove(group);
 
@@ -96,7 +95,8 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
 };
 
 const copyItem = (canvas: fabric.Canvas): void => {
-    if (!canvas.getActiveObject()) {
+    const activeObject = canvas.getActiveObject();
+    if (!activeObject) {
         return;
     }
 
@@ -104,7 +104,7 @@ const copyItem = (canvas: fabric.Canvas): void => {
     // may want copy and paste on different moment.
     // and you do not want the changes happened
     // later to reflect on the copy.
-    canvas.getActiveObject().clone(function(cloned) {
+    activeObject.clone(function(cloned) {
         _clipboard = cloned;
     });
 };
@@ -177,8 +177,8 @@ const modifiedRectangle = (
     boundingBox: fabric.Rect,
     object: fabric.Object,
 ): void => {
-    const newWidth = object.width * object.scaleX;
-    const newHeight = object.height * object.scaleY;
+    const newWidth = object.width! * object.scaleX!;
+    const newHeight = object.height! * object.scaleY!;
 
     object.set({
         width: newWidth,
@@ -190,13 +190,13 @@ const modifiedRectangle = (
 };
 
 const modifiedEllipse = (
-    boundingBox: fabric.Rect,
-    object: fabric.Object,
+    canvas: fabric.Canvas,
+    object: fabric.Ellipse,
 ): void => {
-    const newRx = object.rx * object.scaleX;
-    const newRy = object.ry * object.scaleY;
-    const newWidth = object.width * object.scaleX;
-    const newHeight = object.height * object.scaleY;
+    const newRx = object.rx! * object.scaleX!;
+    const newRy = object.ry! * object.scaleY!;
+    const newWidth = object.width! * object.scaleX!;
+    const newHeight = object.height! * object.scaleY!;
 
     object.set({
         rx: newRx,
@@ -217,17 +217,17 @@ const setShapePosition = (
     boundingBox: fabric.Rect,
     object: fabric.Object,
 ): void => {
-    if (object.left < 0) {
+    if (object.left! < 0) {
         object.set({ left: 0 });
     }
-    if (object.top < 0) {
+    if (object.top! < 0) {
         object.set({ top: 0 });
     }
-    if (object.left + object.width * object.scaleX + object.strokeWidth > boundingBox.width) {
-        object.set({ left: boundingBox.width - object.width * object.scaleX });
+    if (object.left! + object.width! * object.scaleX! + object.strokeWidth! > canvas.width!) {
+        object.set({ left: canvas.width! - object.width! * object.scaleX! });
     }
-    if (object.top + object.height * object.scaleY + object.strokeWidth > boundingBox.height) {
-        object.set({ top: boundingBox.height - object.height * object.scaleY });
+    if (object.top! + object.height! * object.scaleY! + object.strokeWidth! > canvas.height!) {
+        object.set({ top: canvas.height! - object.height! * object.scaleY! });
     }
     object.setCoords();
 };
@@ -236,7 +236,7 @@ export function enableUniformScaling(canvas: fabric.Canvas, obj: fabric.Object):
     obj.setControlsVisibility({ mb: false, ml: false, mt: false, mr: false });
     let timer: number;
     obj.on("scaling", (e) => {
-        if (["bl", "br", "tr", "tl"].includes(e.transform.corner)) {
+        if (["bl", "br", "tr", "tl"].includes(e.transform!.corner)) {
             clearTimeout(timer);
             canvas.uniformScaling = true;
             // https://github.com/sveltejs/kit/issues/9348

@@ -29,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const iconSize = 80;
     let innerWidth = 0;
     const startingTool = mode.kind === "add" ? "draw-rectangle" : "cursor";
-    $: canvas = null;
+    let canvas: fabric.Canvas | null = null;
 
     $: {
         globalThis.maskEditor = canvas ? new MaskEditorAPI(canvas) : null;

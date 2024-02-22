@@ -32,7 +32,6 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
         }
 
         rect = new fabric.Rect({
-            id: "rect-" + new Date().getTime(),
             left: origX,
             top: origY,
             originX: "left",
@@ -49,6 +48,8 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
             noScaleCache: false,
             opacity: get(opacityStateStore) ? 0.4 : 1,
         });
+        rect["id"] = "rect-" + new Date().getTime();
+
         canvas.add(rect);
     });
 

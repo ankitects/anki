@@ -12,8 +12,8 @@ import { onPinchZoom } from "./tool-zoom";
 
 let activeLine;
 let activeShape;
-let linesList: fabric.Line = [];
-let pointsList: fabric.Circle = [];
+let linesList: fabric.Line[] = [];
+let pointsList: fabric.Circle[] = [];
 let drawMode = false;
 
 export const drawPolygon = (canvas: fabric.Canvas): void => {
@@ -26,7 +26,7 @@ export const drawPolygon = (canvas: fabric.Canvas): void => {
     canvas.selectionColor = "rgba(0, 0, 0, 0)";
     canvas.on("mouse:down", function(options) {
         try {
-            if (options.target && options.target.id === pointsList[0].id) {
+            if (options.target && options.target["id"] === pointsList[0]["id"]) {
                 generatePolygon(canvas, pointsList);
             } else {
                 addPoint(canvas, options);
@@ -121,7 +121,7 @@ const addPoint = (canvas: fabric.Canvas, options): void => {
         evented: false,
         objectCaching: false,
     });
-    line.class = "line";
+    line["class"] = "line";
 
     if (activeShape) {
         const pointer = canvas.getPointer(options.e);
@@ -191,7 +191,6 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
     canvas.remove(activeShape).remove(activeLine);
 
     const polygon = new fabric.Polygon(points, {
-        id: "polygon-" + new Date().getTime(),
         fill: SHAPE_MASK_COLOR,
         objectCaching: false,
         stroke: BORDER_COLOR,
@@ -200,11 +199,12 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
         noScaleCache: false,
         opacity: get(opacityStateStore) ? 0.4 : 1,
     });
-    if (polygon.width > 5 && polygon.height > 5) {
+    polygon["id"] = "polygon-" + new Date().getTime();
+    if (polygon.width! > 5 && polygon.height! > 5) {
         canvas.add(polygon);
         canvas.setActiveObject(polygon);
         // view undo redo tools
-        undoStack.onObjectAdded(polygon.id);
+        undoStack.onObjectAdded(polygon["id"]);
     }
 
     toggleDrawPolygon(canvas);
@@ -213,7 +213,7 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
 // https://github.com/fabricjs/fabric.js/issues/6522
 export const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon): void => {
     const matrix = polygon.calcTransformMatrix();
-    const transformedPoints = polygon.get("points")
+    const transformedPoints = polygon.get("points")!
         .map(function(p) {
             return new fabric.Point(p.x - polygon.pathOffset.x, p.y - polygon.pathOffset.y);
         })
@@ -222,7 +222,6 @@ export const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon):
         });
 
     const polygon1 = new fabric.Polygon(transformedPoints, {
-        id: polygon.id,
         fill: SHAPE_MASK_COLOR,
         objectCaching: false,
         stroke: BORDER_COLOR,
@@ -231,6 +230,7 @@ export const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon):
         noScaleCache: false,
         opacity: get(opacityStateStore) ? 0.4 : 1,
     });
+    polygon1["id"] = polygon["id"];
 
     canvas.remove(polygon);
     canvas.add(polygon1);

@@ -26,6 +26,7 @@ export class Polygon extends Shape {
 
     toFabric(size: Size): fabric.Polygon {
         const absolute = this.toAbsolute(size);
+        // @ts-expect-error absolute is our own object not a fabric.Polygon
         return new fabric.Polygon(absolute.points, absolute);
     }
 
