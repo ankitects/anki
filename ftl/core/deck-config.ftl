@@ -346,6 +346,7 @@ deck-config-compute-optimal-weights = Optimize FSRS parameters
 deck-config-compute-optimal-retention = Compute optimal retention
 deck-config-optimize-button = Optimize
 deck-config-compute-button = Compute
+deck-config-ignore-before = Ignore reviews before
 deck-config-optimize-all-tip = You can optimize all presets at once by using the dropdown button next to "Save".
 deck-config-evaluate-button = Evaluate
 deck-config-desired-retention = Desired retention
@@ -398,6 +399,9 @@ deck-config-reschedule-cards-warning =
 
     Use this option sparingly, as it will add a review entry to each of your cards, and
     increase the size of your collection.
+deck-config-ignore-before-tooltip = 
+    If set, reviews before the provided date will be ignored when optimizing & evaluating FSRS parameters.
+    This can be useful if you imported someone else's scheduling data, or have changed the way you use the answer buttons.
 deck-config-compute-optimal-weights-tooltip =
     Once you've done 1000+ reviews in Anki, you can use the Optimize button to analyze your review history,
     and automatically generate parameters that are optimal for your memory and the content you're studying.
@@ -427,6 +431,7 @@ deck-config-percent-of-reviews =
     }
 deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
 deck-config-fsrs-must-be-enabled = FSRS must be enabled first.
+deck-config-fsrs-params-optimal = The FSRS parameters currently appear to be optimal.
 
 deck-config-wait-for-audio = Wait for audio
 deck-config-show-reminder = Show Reminder

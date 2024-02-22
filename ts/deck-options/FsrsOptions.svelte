@@ -19,6 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SwitchRow from "components/SwitchRow.svelte";
 
     import SettingTitle from "../components/SettingTitle.svelte";
+    import DateInput from "./DateInput.svelte";
     import GlobalLabel from "./GlobalLabel.svelte";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
@@ -86,6 +87,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    function getIgnoreRevlogsBeforeMs() {
+        return BigInt(
+            $config.ignoreRevlogsBeforeDate
+                ? new Date($config.ignoreRevlogsBeforeDate).getTime()
+                : 0,
+        );
+    }
+
     async function computeWeights(): Promise<void> {
         if (computingWeights) {
             await setWantsAbort({});
@@ -104,8 +113,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         search: $config.weightSearch
                             ? $config.weightSearch
                             : defaultWeightSearch,
+                        ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
                         currentWeights: $config.fsrsWeights,
                     });
+                    if (
+                        $config.fsrsWeights.length &&
+                        $config.fsrsWeights.every((n, i) => n === resp.weights[i])
+                    ) {
+                        alert(tr.deckConfigFsrsParamsOptimal());
+                    }
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
                     }
@@ -142,6 +158,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     const resp = await evaluateWeights({
                         weights: $config.fsrsWeights,
                         search,
+                        ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
                     });
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
@@ -311,6 +328,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {tr.deckConfigEvaluateButton()}
             {/if}
         </button>
+        <DateInput bind:date={$config.ignoreRevlogsBeforeDate}>
+            <SettingTitle on:click={() => openHelpModal("ignoreBefore")}>
+                {tr.deckConfigIgnoreBefore()}
+            </SettingTitle>
+        </DateInput>
         {#if computingWeights || checkingWeights}<div>
                 {computeWeightsProgressString}
             </div>{/if}
