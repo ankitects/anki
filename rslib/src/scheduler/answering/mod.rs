@@ -14,6 +14,7 @@ use rand::prelude::*;
 use rand::rngs::StdRng;
 use revlog::RevlogEntryPartial;
 
+use super::fsrs::weights::ignore_revlogs_before_ms_from_config;
 use super::queue::BuryMode;
 use super::states::steps::LearningSteps;
 use super::states::CardState;
@@ -382,6 +383,7 @@ impl Collection {
                     revlog,
                     timing.next_day_at,
                     config.inner.sm2_retention,
+                    ignore_revlogs_before_ms_from_config(&config)?,
                 )?;
                 card.set_memory_state(&fsrs, item, config.inner.sm2_retention)?;
             }
