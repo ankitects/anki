@@ -1,8 +1,7 @@
 #image-occlusion-container {
     position: relative;
     // if height-constrained, ensure container is centered
-    left: 50%;
-    transform: translate(-50%, 0);
+    margin: 0 auto;
     // allow for 20px margin on html element, or short windows can truncate
     // image
     max-height: calc(95vh - 40px);
