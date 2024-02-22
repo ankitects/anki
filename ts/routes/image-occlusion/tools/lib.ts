@@ -239,9 +239,10 @@ export function enableUniformScaling(canvas: fabric.Canvas, obj: fabric.Object):
         if (["bl", "br", "tr", "tl"].includes(e.transform.corner)) {
             clearTimeout(timer);
             canvas.uniformScaling = true;
+            // https://github.com/sveltejs/kit/issues/9348
             timer = setTimeout(() => {
                 canvas.uniformScaling = false;
-            }, 500);
+            }, 500) as unknown as number;
         }
     });
 }

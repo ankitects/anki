@@ -7,9 +7,7 @@
 
 import { registerPackageRaw } from "@tslib/runtime-require";
 import * as svelteRuntime from "svelte";
-// @ts-expect-error hidden from typings
 import * as svelteInternal from "svelte/internal";
-// @ts-expect-error hidden from typings
 import * as svelteDiscloseVersion from "svelte/internal/disclose-version";
 import * as svelteStore from "svelte/store";
 

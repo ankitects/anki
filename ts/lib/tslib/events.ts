@@ -5,7 +5,6 @@ export type EventTargetToMap<A extends EventTarget> = A extends HTMLElement ? HT
     : A extends Document ? DocumentEventMap
     : A extends Window ? WindowEventMap
     : A extends FileReader ? FileReaderEventMap
-    : A extends Element ? ElementEventMap
     : A extends Animation ? AnimationEventMap
     : A extends EventSource ? EventSourceEventMap
     : A extends AbortSignal ? AbortSignalEventMap
