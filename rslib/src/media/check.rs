@@ -818,4 +818,26 @@ Unused: unused.jpg
 
         Ok(())
     }
+    #[test]
+    fn multiple_images() -> Result<()> {
+        let (_dir, _mgr, mut col) = common_setup()?;
+        let mut checker = col.media_checker()?;
+
+        let field = "<img alt='foo' src='foo-ss.jpg'><img alt='bar' src='bar-ss.jpg'>";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("foo-ss.jpg"));
+        assert!(seen.contains("bar-ss.jpg"));
+
+        let field = "<img alt=\"foo\" src=\"foo-dd.jpg\"><img alt=\"bar\" src=\"bar-dd.jpg\">";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("foo-dd.jpg"));
+        assert!(seen.contains("bar-dd.jpg"));
+
+        let field = "<img alt='foo' src='foo-sd.jpg'><img alt=\"bar\" src=\"bar-sd.jpg\">";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("foo-sd.jpg"));
+        assert!(seen.contains("bar-sd.jpg"));
+
+        Ok(())
+    }
 }
