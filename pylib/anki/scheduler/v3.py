@@ -56,6 +56,10 @@ class Scheduler(SchedulerBaseWithLegacy):
             fetch_limit=fetch_limit, intraday_learning_only=intraday_learning_only
         )
 
+    def get_scheduling_states(self, card_id: int) -> SchedulingStates:
+        "Return the next states that will be applied for each answer button."
+        return self.col._backend.get_scheduling_states(card_id)
+
     def describe_next_states(self, next_states: SchedulingStates) -> Sequence[str]:
         "Labels for each of the answer buttons."
         return self.col._backend.describe_next_states(next_states)
