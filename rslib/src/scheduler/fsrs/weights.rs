@@ -60,13 +60,14 @@ impl Collection {
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
-        if revlogs.len() < 400 {
+        let (items, review_count) =
+            fsrs_items_for_training(revlogs.clone(), timing.next_day_at, ignore_revlogs_before);
+
+        if review_count < 400 {
             return Err(AnkiError::FsrsInsufficientReviews {
-                count: revlogs.len(),
+                count: review_count,
             });
         }
-        let items =
-            fsrs_items_for_training(revlogs.clone(), timing.next_day_at, ignore_revlogs_before);
         let fsrs_items = items.len() as u32;
         anki_progress.update(false, |p| {
             p.fsrs_items = fsrs_items;
@@ -156,13 +157,14 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?;
-        if revlogs.len() < 400 {
+        anki_progress.state.fsrs_items = revlogs.len() as u32;
+        let (items, review_count) =
+            fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
+        if review_count < 400 {
             return Err(AnkiError::FsrsInsufficientReviews {
-                count: revlogs.len(),
+                count: review_count,
             });
         }
-        anki_progress.state.fsrs_items = revlogs.len() as u32;
-        let items = fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
         let fsrs = FSRS::new(Some(weights))?;
         Ok(fsrs.evaluate(items, |ip| {
             anki_progress
@@ -191,7 +193,8 @@ fn fsrs_items_for_training(
     revlogs: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
     review_revlogs_before: TimestampMillis,
-) -> Vec<FSRSItem> {
+) -> (Vec<FSRSItem>, usize) {
+    let mut review_count: usize = 0;
     let mut revlogs = revlogs
         .into_iter()
         .group_by(|r| r.cid)
@@ -199,10 +202,14 @@ fn fsrs_items_for_training(
         .filter_map(|(_cid, entries)| {
             single_card_revlog_to_items(entries.collect(), next_day_at, true, review_revlogs_before)
         })
-        .flat_map(|i| i.0)
+        .flat_map(|i| {
+            review_count += i.2;
+
+            i.0
+        })
         .collect_vec();
     revlogs.sort_by_cached_key(|r| r.reviews.len());
-    revlogs
+    (revlogs, review_count)
 }
 
 /// Transform the revlog history for a card into a list of FSRSItems. FSRS
@@ -211,16 +218,18 @@ fn fsrs_items_for_training(
 /// in training, and `[1]`, [1,2]` and `[1,2,3]` when calculating memory
 /// state.
 ///
-/// Returns (items, revlog_complete), the latter of which is assumed
-/// when the revlogs have a learning step, or start with manual scheduling. When
-/// revlogs are incomplete, the starting difficulty is later inferred from the
-/// SM2 data, instead of using the standard FSRS initial difficulty.
+/// Returns (items, revlog_complete, review_count).
+/// revlog_complete is assumed when the revlogs have a learning step, or start
+/// with manual scheduling. When revlogs are incomplete, the starting difficulty
+/// is later inferred from the SM2 data, instead of using the standard FSRS
+/// initial difficulty. review_count is the number of reviews used after
+/// filtering out unwanted ones.
 pub(crate) fn single_card_revlog_to_items(
     mut entries: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
     training: bool,
     ignore_revlogs_before: TimestampMillis,
-) -> Option<(Vec<FSRSItem>, bool)> {
+) -> Option<(Vec<FSRSItem>, bool, usize)> {
     let mut first_of_last_learn_entries = None;
     let mut revlogs_complete = false;
     for (index, entry) in entries.iter().enumerate().rev() {
@@ -318,7 +327,7 @@ pub(crate) fn single_card_revlog_to_items(
     let skip = if training { 1 } else { 0 };
     // Convert the remaining entries into separate FSRSItems, where each item
     // contains all reviews done until then.
-    let items = entries
+    let items: Vec<FSRSItem> = entries
         .iter()
         .enumerate()
         .skip(skip)
@@ -338,7 +347,7 @@ pub(crate) fn single_card_revlog_to_items(
     if items.is_empty() {
         None
     } else {
-        Some((items, revlogs_complete))
+        Some((items, revlogs_complete, entries.len()))
     }
 }
 
