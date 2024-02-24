@@ -229,7 +229,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (val instanceof ComputeRetentionProgress) {
             return `${pct}%`;
         } else {
-            return tr.deckConfigPercentOfReviews({ pct, reviews: val.fsrsItems });
+            return `${tr.deckConfigPercentOfItems({
+                pct,
+                count: val.fsrsItems,
+            })} (${tr.deckConfigReviews({ reviews: val.reviews })})`;
         }
     }
 

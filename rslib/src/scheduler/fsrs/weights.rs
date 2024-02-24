@@ -85,6 +85,7 @@ impl Collection {
                 if let Err(_err) = anki_progress.update(false, |s| {
                     s.total_iterations = guard.total() as u32;
                     s.current_iteration = guard.current() as u32;
+                    s.reviews = review_count as u32;
                     finished = guard.finished();
                 }) {
                     guard.want_abort = true;
@@ -182,6 +183,7 @@ pub struct ComputeWeightsProgress {
     pub current_iteration: u32,
     pub total_iterations: u32,
     pub fsrs_items: u32,
+    pub reviews: u32,
     /// Only used in 'compute all weights' case
     pub current_preset: u32,
     /// Only used in 'compute all weights' case

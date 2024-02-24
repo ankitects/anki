@@ -143,6 +143,8 @@ message ComputeWeightsProgress {
   uint32 current_preset = 4;
   // Only used in 'compute all weights' case
   uint32 total_presets = 5;
+  // Total reviews
+  uint32 reviews = 6;
 }
 
 message ComputeRetentionProgress {

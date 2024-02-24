@@ -442,11 +442,7 @@ def update_deck_configs() -> bytes:
             label = tr.deck_config_optimizing_preset(
                 current_count=val2.current_preset, total_count=val2.total_presets
             )
-            update.label = (
-                label
-                + "\n"
-                + tr.deck_config_percent_of_reviews(pct=pct, reviews=val2.fsrs_items)
-            )
+            update.label = f"{label}\n{tr.deck_config_percent_of_items(pct=pct, count=val2.fsrs_items)} ({tr.deck_config_reviews(reviews=val2.reviews)})"
         else:
             return
         if update.user_wants_abort:

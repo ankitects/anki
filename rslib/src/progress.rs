@@ -216,6 +216,7 @@ pub(crate) fn progress_to_proto(
                     fsrs_items: progress.fsrs_items,
                     current_preset: progress.current_preset,
                     total_presets: progress.total_presets,
+                    reviews: progress.reviews,
                 })
             }
             Progress::ComputeRetention(progress) => {
