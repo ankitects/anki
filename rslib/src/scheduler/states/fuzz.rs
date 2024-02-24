@@ -165,8 +165,8 @@ mod test {
         assert_lower_middle_upper!(20.1, 3, 1000, 17, 20, 23);
 
         // respect limits and preserve uniform distribution of valid intervals
-        assert_lower_middle_upper!(100.0, 101, 1000, 101, 104, 107);
-        assert_lower_middle_upper!(100.0, 1, 99, 93, 96, 99);
+        assert_lower_middle_upper!(100.0, 101, 1000, 101, 105, 108);
+        assert_lower_middle_upper!(100.0, 1, 99, 92, 96, 99);
         assert_lower_middle_upper!(100.0, 97, 103, 97, 100, 103);
     }
 
