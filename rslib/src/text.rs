@@ -113,7 +113,7 @@ lazy_static! {
                 "[^"]+?"
             |
                 '[^']+?'
-            )+
+            )+?
 
             # capture `src` or `data` attribute
             \b(?:src|data)\b=
