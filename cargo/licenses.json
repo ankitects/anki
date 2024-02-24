@@ -1801,7 +1801,7 @@
   },
   {
     "name": "iana-time-zone",
-    "version": "0.1.59",
+    "version": "0.1.60",
     "authors": "Andrew Straw <strawman@astraw.com>|René Kijewski <rene.kijewski@fu-berlin.de>|Ryan Lopopolo <rjl@hyperbo.la>",
     "repository": "https://github.com/strawlab/iana-time-zone",
     "license": "Apache-2.0 OR MIT",
