@@ -203,8 +203,8 @@ impl LintContext {
 }
 
 fn check_cargo_deny() -> Result<()> {
-    Command::run("cargo install cargo-deny@0.13.5")?;
-    Command::run("cargo deny check -A duplicate")?;
+    Command::run("cargo install cargo-deny@0.14.12")?;
+    Command::run("cargo deny check")?;
     Ok(())
 }
 

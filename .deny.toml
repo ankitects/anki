@@ -1,24 +1,15 @@
 # all-features = true
 # features = []
-no-default-features = false
-feature-depth = 1
 
 [advisories]
 db-path = "~/.cargo/advisory-db"
 db-urls = ["https://github.com/rustsec/advisory-db"]
-vulnerability = "deny"
-unmaintained = "warn"
-yanked = "warn"
-notice = "warn"
 ignore = [
-
+  # safemem only used by makeapp
+  "RUSTSEC-2023-0081",
 ]
 
 [licenses]
-unlicensed = "deny"
-copyleft = "deny"
-allow-osi-fsf-free = "neither"
-default = "deny"
 allow = [
   "MIT",
   "Apache-2.0",
@@ -54,10 +45,10 @@ unknown-git = "warn"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 
 [sources.allow-org]
-github = ["ankitects", "open-spaced-repetition"]
+github = ["ankitects"]
 
 [bans]
-multiple-versions = "warn"
+multiple-versions = "allow"
 wildcards = "allow"
 highlight = "all"
 workspace-default-features = "allow"
