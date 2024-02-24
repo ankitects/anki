@@ -54,6 +54,7 @@ impl Card {
             // if it's already set
             self.ease_factor = ease_factor;
         }
+        self.memory_state = None;
     }
 }
 
