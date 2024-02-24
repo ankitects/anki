@@ -296,7 +296,7 @@ pub(crate) fn single_card_revlog_to_item(
             } as f32
                 / 1000.0,
         });
-    if let Some((mut items, revlogs_complete)) =
+    if let Some((mut items, revlogs_complete, _)) =
         single_card_revlog_to_items(entries, next_day_at, false, ignore_revlogs_before)
     {
         let mut item = items.pop().unwrap();
