@@ -223,9 +223,11 @@ class ProgressManager:
             self._win.form.progressBar.setValue(self._counter)
 
     def finish(self) -> None:
-        self._levels -= 1
-        self._levels = max(0, self._levels)
-        if self._levels == 0:
+        # we must latch the levels update and perform it after cleanup has occured or we expose ourselves to a race
+        # condition where a second progress could see levels == 0 and wrongly assume everything is in a clean state
+        next_levels = self._levels - 1
+        next_levels = max(0, next_levels)
+        if next_levels == 0:
             if self._win:
                 self._closeWin()
             if self._busy_cursor_timer:
@@ -239,6 +241,7 @@ class ProgressManager:
             self._backend_timer.stop()
             self._backend_timer.deleteLater()
             self._backend_timer = None
+        self._levels = next_levels
 
     def clear(self) -> None:
         "Restore the interface after an error."
