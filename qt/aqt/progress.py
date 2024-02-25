@@ -163,7 +163,7 @@ class ProgressManager:
         self._counter = min
         self._min = min
         self._max = max
-        self._firstTime = time.time()
+        self._firstTime = time.monotonic()
         self._show_timer = QTimer(self.mw)
         self._show_timer.setSingleShot(True)
         self._show_timer.start(immediate and 100 or 600)
@@ -206,7 +206,7 @@ class ProgressManager:
         maybeShow: bool = True,
         max: int | None = None,
     ) -> None:
-        # print self._min, self._counter, self._max, label, time.time() - self._lastTime
+        # print self._min, self._counter, self._max, label, time.monotonic() - self._lastTime
         if not self.mw.inMainThread():
             print("progress.update() called on wrong thread")
             return
@@ -256,7 +256,7 @@ class ProgressManager:
         # to expose ourselves to the possibility of something showing the window in the
         # meantime
         if self._shown:
-            elapsed_time = time.time() - self._shown
+            elapsed_time = time.monotonic() - self._shown
             if (time_to_wait := 0.5 - elapsed_time) > 0:
                 self.mw.taskman.run_in_background(
                     lambda time_to_wait=time_to_wait: time.sleep(time_to_wait),
@@ -279,12 +279,12 @@ class ProgressManager:
             return
         if self._shown:
             return
-        delta = time.time() - self._firstTime
+        delta = time.monotonic() - self._firstTime
         if delta > 0.5:
             self._showWin()
 
     def _showWin(self) -> None:
-        self._shown = time.time()
+        self._shown = time.monotonic()
         self._win.show()
 
     def _closeWin(self) -> None:
