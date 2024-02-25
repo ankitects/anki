@@ -61,4 +61,7 @@ card-templates-restore-to-default = Restore to Default
 card-templates-restore-to-default-confirmation = This will reset all fields and templates in this notetype to their default
     values, removing any extra fields/templates and their content, and any custom styling. Do you wish to proceed?
 card-templates-restored-to-default = Notetype has been restored to its original state.
-
+# Sample text to be used as the answer provided by the user in a "type in the answer" card preview
+card-templates-type-in-provided = example
+# Sample text to be used as the expected answer in a "type in the answer" card preview
+card-templates-type-in-expected = sample

@@ -584,7 +584,10 @@ class CardLayout(QDialog):
         hadHR = origLen != len(txt)
 
         def answerRepl(match: Match) -> str:
-            res = self.mw.col.compare_answer("example", "sample")
+            res = self.mw.col.compare_answer(
+                tr.card_templates_type_in_expected(),
+                tr.card_templates_type_in_provided(),
+            )
             if hadHR:
                 res = f"<hr id=answer>{res}"
             return res
@@ -593,7 +596,7 @@ class CardLayout(QDialog):
         repl: Union[str, Callable]
 
         if type == "q":
-            repl = "<input id='typeans' type=text value='example' readonly='readonly'>"
+            repl = f"<input id='typeans' type=text value='{tr.card_templates_type_in_provided()}' readonly='readonly'>"
             repl = f"<center>{repl}</center>"
         else:
             repl = answerRepl
