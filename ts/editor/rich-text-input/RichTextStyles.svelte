@@ -29,6 +29,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function setStyling(property: string, value: unknown): Promise<void> {
         const rule = await userBaseRule;
         rule.style[property] = value;
+
+        // if we don't set the textContent of the underlying HTMLStyleElement, addons
+        // which extend the custom style and set textContent of their registered tags
+        // will cause the userBase style tag here to be ignored
+        const baseStyle = await userBaseStyle;
+        baseStyle.element.textContent = rule.cssText;
     }
 
     $: setStyling("color", color);
