@@ -55,7 +55,7 @@ class AnkiPackageArgs(ImportArgs):
 
 
 class ImportDialog(QDialog):
-    DEFAULT_SIZE = (800, 800)
+    DEFAULT_SIZE = (800, 600)
     MIN_SIZE = (400, 300)
     silentlyClose = True
 
