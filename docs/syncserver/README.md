@@ -18,7 +18,7 @@ By default docker buildx use the following version `ANKI_VERSION=23.2.1` by just
 # Ensure you are running this command inside /docs/server
 docker build --no-cache -t anki-sync-server .
 # Alternatively, you can specify version of your choice
-docker build --no-cache --build-arg ANKI_VERSION=<tag> -t anki-sync-server . 
+docker build --no-cache --build-arg ANKI_VERSION=<tag> -t anki-sync-server .
 ```
 
 # Run container
@@ -30,12 +30,11 @@ Once done with build, we can proceed with running this image with the following 
 # SYNC_USER1:admin:admin and you can bind host port of your choice
 docker run -d -p 8080:8080 --name anki-sync-server anki-sync-server
 ```
+
 However if you want to have multiple users, you must pass environment variable `SYNC_USERS` as follows `SYNC_USERS=user:user user2:user2 user3:user3 usern:usern` separated by space.
 
 ```bash
 docker run -d -e "SYNC_USERS=user:user user2:user2 user3:user3" -p 8080:8080 --name anki-sync-server anki-sync-server
 ```
+
 Moreover, you can pass additional env vars mentioned [here](https://docs.ankiweb.net/sync-server.html)
-
-
-
