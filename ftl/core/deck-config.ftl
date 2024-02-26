@@ -424,14 +424,10 @@ deck-config-a-100-day-interval =
         [one] A 100 day interval will become { $days } day.
        *[other] A 100 day interval will become { $days } days.
     }
-deck-config-percent-of-items =  
-    { $count ->
-        [one] { $pct }% of { $count } item
-       *[other] { $pct }% of { $count } items
-    }
-deck-config-reviews = { $reviews ->
-        [one] { $reviews } review
-       *[other] { $reviews } reviews
+deck-config-percent-of-reviews =  
+    { $reviews ->
+        [one] { $pct }% of { $reviews } review
+       *[other] { $pct }% of { $reviews } reviews
     }
 deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
 deck-config-fsrs-must-be-enabled = FSRS must be enabled first.

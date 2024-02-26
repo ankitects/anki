@@ -70,7 +70,6 @@ impl Collection {
         }
         let fsrs_items = items.len() as u32;
         anki_progress.update(false, |p| {
-            p.fsrs_items = fsrs_items;
             p.current_preset = current_preset;
             p.total_presets = total_presets;
         })?;
@@ -158,7 +157,6 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?;
-        anki_progress.state.fsrs_items = revlogs.len() as u32;
         let (items, review_count) =
             fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
         if review_count < 400 {
@@ -166,6 +164,7 @@ impl Collection {
                 count: review_count,
             });
         }
+        anki_progress.state.reviews = review_count as u32;
         let fsrs = FSRS::new(Some(weights))?;
         Ok(fsrs.evaluate(items, |ip| {
             anki_progress
@@ -182,7 +181,6 @@ impl Collection {
 pub struct ComputeWeightsProgress {
     pub current_iteration: u32,
     pub total_iterations: u32,
-    pub fsrs_items: u32,
     pub reviews: u32,
     /// Only used in 'compute all weights' case
     pub current_preset: u32,

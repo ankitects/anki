@@ -138,13 +138,11 @@ message ComputeWeightsProgress {
   uint32 current = 1;
   // Total iterations
   uint32 total = 2;
-  uint32 fsrs_items = 3;
+  uint32 reviews = 3;
   // Only used in 'compute all weights' case
   uint32 current_preset = 4;
   // Only used in 'compute all weights' case
   uint32 total_presets = 5;
-  // Total reviews
-  uint32 reviews = 6;
 }
 
 message ComputeRetentionProgress {
