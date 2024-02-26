@@ -445,7 +445,7 @@ def update_deck_configs() -> bytes:
             update.label = (
                 label
                 + "\n"
-                + tr.deck_config_percent_of_reviews(pct=pct, reviews=val2.fsrs_items)
+                + tr.deck_config_percent_of_reviews(pct=pct, reviews=val2.reviews)
             )
         else:
             return
