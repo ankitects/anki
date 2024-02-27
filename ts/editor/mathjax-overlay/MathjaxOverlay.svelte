@@ -260,12 +260,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                     clear();
                                 }
                             }}
-                            on:surround={async ({ detail }) => {
+                            on:cloze={async ({ detail }) => {
                                 const editor = await mathjaxEditor.editor;
-                                const { prefix, suffix } = detail;
-
+                                const { n } = detail;
                                 editor.replaceSelection(
-                                    prefix + editor.getSelection() + suffix,
+                                    `{{c${n}::` + editor.getSelection() + "}}",
                                 );
                             }}
                         />

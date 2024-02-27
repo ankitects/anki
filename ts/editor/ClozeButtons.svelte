@@ -54,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function onIncrementCloze(): Promise<void> {
         const highestCloze = getCurrentHighestCloze(true);
 
-        dispatch("surround", {
+        dispatch("cloze", {
             n: highestCloze,
         });
     }
@@ -62,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function onSameCloze(): Promise<void> {
         const highestCloze = getCurrentHighestCloze(false);
 
-        dispatch("surround", {
+        dispatch("cloze", {
             n: highestCloze,
         });
     }
