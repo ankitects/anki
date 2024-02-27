@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { wrapInternal } from "@tslib/wrap";
+    import { wrapInternal, wrapClozeInternal } from "@tslib/wrap";
 
     import ClozeButtons from "../ClozeButtons.svelte";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
@@ -15,9 +15,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function onSurround({ detail }): Promise<void> {
         const richText = await richTextAPI.element;
-        const { prefix, suffix } = detail;
-
-        wrapInternal(richText, prefix, suffix, false);
+        const { n } = detail;
+        wrapClozeInternal(richText, n);
     }
 </script>
 

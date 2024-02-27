@@ -387,7 +387,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { ImageOcclusionFieldIndexes } from "@tslib/anki/image_occlusion_pb";
     import { getImageOcclusionFields } from "@tslib/backend";
-    import { wrapInternal } from "@tslib/wrap";
+    import { wrapInternal, wrapClozeInternal } from "@tslib/wrap";
     import Shortcut from "components/Shortcut.svelte";
     import ImageOcclusionPage from "image-occlusion/ImageOcclusionPage.svelte";
     import ImageOcclusionPicker from "image-occlusion/ImageOcclusionPicker.svelte";
@@ -402,6 +402,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { mathjaxConfig } from "../editable/mathjax-element";
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
+    import { getRange, getSelection } from "@tslib/cross-browser";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -541,6 +542,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             });
         }
 
+        function wrapCloze(n: number): void {
+            if (!$focusedInput || !editingInputIsRichText($focusedInput)) {
+                return;
+            }
+
+            $focusedInput.element.then((element) => {
+                wrapClozeInternal(element, n);
+            });
+        }
+
         Object.assign(globalThis, {
             saveSession,
             setFields,
@@ -559,6 +570,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setNoteId,
             setNotetypeMeta,
             wrap,
+            wrapCloze,
             setMathjaxEnabled,
             setShrinkImages,
             setCloseHTMLTags,

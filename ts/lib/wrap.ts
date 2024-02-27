@@ -53,3 +53,15 @@ export function wrapInternal(
         moveCursorInside(selection, back);
     }
 }
+
+export function wrapClozeInternal(base: Element, n: number): void {
+    const selection = getSelection(base)!;
+    const range = getRange(selection);
+    if (!range) {
+        return;
+    }
+    const fragment = range.extractContents()!;
+    fragment.prepend(`{{c${n}::`);
+    fragment.append("}}");
+    range.insertNode(fragment);
+}
