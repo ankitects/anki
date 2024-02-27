@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { placeCaretAfter } from "../domlib/place-caret";
 import { getRange, getSelection } from "./cross-browser";
 
 function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
@@ -61,7 +62,17 @@ export function wrapClozeInternal(base: Element, n: number): void {
         return;
     }
     const fragment = range.extractContents()!;
-    fragment.prepend(`{{c${n}::`);
-    fragment.append("}}");
+    const isEmpty = fragment.childNodes.length === 0;
+    const startNode = document.createTextNode(`{{c${n}::`);
+    const endNode = document.createTextNode("}}");
+    range.insertNode(endNode);
     range.insertNode(fragment);
+    range.insertNode(startNode);
+    let referenceNode: Node;
+    if (isEmpty) {
+        referenceNode = startNode;
+    } else {
+        referenceNode = endNode;
+    }
+    placeCaretAfter(referenceNode);
 }
