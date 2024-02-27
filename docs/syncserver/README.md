@@ -24,14 +24,14 @@ docker build --no-cache --build-arg ANKI_VERSION=<tag> -t anki-sync-server .
 Once done with build, we can proceed with running this image with the following command:
 
 ```bash
-# this will create anki server with default variables
-# SYNC_USER1:admin:admin and you can bind host port of your choice
-docker run -d -p 8080:8080 --name anki-sync-server anki-sync-server
+# this will create anki server
+docker run -d  -e "SYNC_USER1=admin:admin" -p 8080:8080 --name anki-sync-server anki-sync-server
 ```
 
 However if you want to have multiple users, you must pass respective environment variable as follows `SYNC_USER1=test:test SYNC_USER2=test2:test2`
 
 ```bash
+# this will create anki server with multiple users
 docker run -d -e "SYNC_USER1=test:test" -e "SYNC_USER2=test2:test2" -p 8080:8080 --name anki-sync-server anki-sync-server
 ```
 
