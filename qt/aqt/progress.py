@@ -252,21 +252,21 @@ class ProgressManager:
         # currently shown then we need to give the window system a half-second to
         # present the window before we close it again - fixes progress window getting
         # stuck, especially on ubuntu 16.10+
+        elapsed_time = time.monotonic() - self._shown
+        time_to_wait = 0.5 - elapsed_time
         # NOTE: we must not yield control if the window is not shown since we don't want
         # to expose ourselves to the possibility of something showing the window in the
         # meantime
-        if self._shown:
-            elapsed_time = time.monotonic() - self._shown
-            if (time_to_wait := 0.5 - elapsed_time) > 0:
-                self.mw.taskman.run_in_background(
-                    lambda time_to_wait=time_to_wait: time.sleep(time_to_wait),
-                    do_window_cleanup,
-                    uses_collection=False,
-                )
-            else:
-                do_window_cleanup()
-        else:
+        if (not self._shown) or (time_to_wait <= 0):
             do_window_cleanup()
+        else:
+            # NOTE: we can't use self.single_shot here since it won't call the callback
+            # until _levels = 0, but if we are in this branch then _levels > 0
+            self.mw.taskman.run_in_background(
+                lambda time_to_wait=time_to_wait: time.sleep(time_to_wait),
+                do_window_cleanup,
+                uses_collection=False,
+            )
 
     def clear(self) -> None:
         "Restore the interface after an error."
