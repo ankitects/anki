@@ -47,6 +47,7 @@ pub fn build_artifacts(args: BuildArtifactsArgs) {
             .env("PROFILE", "release")
             .env("OUT_DIR", &artifacts)
             .env("TARGET", env!("TARGET"))
+            .env("SDKROOT", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk")
             .env("MACOSX_DEPLOYMENT_TARGET", macos_deployment_target())
             .env("CARGO_BUILD_TARGET", env!("TARGET")),
     );
