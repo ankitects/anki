@@ -1,7 +1,7 @@
 # Building and running Anki sync server in Docker
 
 This is an example Dockerfile contributed by an Anki user, which shows how you can run a self-hosted sync server,
-similar to what AnkiWeb.net offers
+similar to what AnkiWeb.net offers.
 
 Building and running the sync server within a container has the advantage of fully isolating
 the build products and runtime dependencies from the rest of your system.
@@ -12,11 +12,11 @@ the build products and runtime dependencies from the rest of your system.
 
 # Building image
 
-To proceed with build, you must specify `<tag>` in `ANKI_VERSION` by just running the below:
+To proceed with building, you must specify the Anki version you want, by replacing `<version>` with something like `23.12.1`.
 
 ```bash
 # Ensure you are running this command inside /docs/syncserver
-docker build --no-cache --build-arg ANKI_VERSION=<tag> -t anki-sync-server .
+docker build --no-cache --build-arg ANKI_VERSION=<version> -t anki-sync-server .
 ```
 
 # Run container

@@ -1,6 +1,6 @@
 FROM rust:1.76-alpine3.19 AS builder
 
-ARG ANKI_VERSION="23.12.1"
+ARG ANKI_VERSION
 
 RUN apk update && apk add --no-cache build-base protobuf && rm -rf /var/cache/apk/*
 RUN cargo install --git https://github.com/ankitects/anki.git \
