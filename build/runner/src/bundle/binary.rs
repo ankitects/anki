@@ -38,6 +38,7 @@ pub fn build_bundle_binary() {
                 .unwrap(),
         )
         .env("MACOSX_DEPLOYMENT_TARGET", macos_deployment_target())
+        .env("SDKROOT", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk")
         .env("CARGO_BUILD_TARGET", env!("TARGET"));
     if env!("TARGET") == "x86_64-apple-darwin" {
         let xcode_path = Command::run_with_output(["xcode-select", "-p"]).unwrap();
