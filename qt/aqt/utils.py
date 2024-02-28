@@ -138,10 +138,12 @@ class MessageBox(QMessageBox):
         icon: QMessageBox.Icon = QMessageBox.Icon.NoIcon,
         help: HelpPageArgument | None = None,
         title: str = "Anki",
-        buttons: Sequence[
-            str | QMessageBox.StandardButton | tuple[str, QMessageBox.ButtonRole]
-        ]
-        | None = None,
+        buttons: (
+            Sequence[
+                str | QMessageBox.StandardButton | tuple[str, QMessageBox.ButtonRole]
+            ]
+            | None
+        ) = None,
         default_button: int = 0,
         textFormat: Qt.TextFormat = Qt.TextFormat.PlainText,
         modality: Qt.WindowModality = Qt.WindowModality.WindowModal,
@@ -201,10 +203,10 @@ def ask_user(
 def ask_user_dialog(
     text: str,
     callback: Callable[[int], None],
-    buttons: Sequence[
-        str | QMessageBox.StandardButton | tuple[str, QMessageBox.ButtonRole]
-    ]
-    | None = None,
+    buttons: (
+        Sequence[str | QMessageBox.StandardButton | tuple[str, QMessageBox.ButtonRole]]
+        | None
+    ) = None,
     default_button: int = 1,
     **kwargs: Any,
 ) -> MessageBox:
