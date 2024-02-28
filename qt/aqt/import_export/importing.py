@@ -37,8 +37,7 @@ class Importer(ABC):
 
     @classmethod
     @abstractmethod
-    def do_import(cls, mw: aqt.main.AnkiQt, path: str) -> None:
-        ...
+    def do_import(cls, mw: aqt.main.AnkiQt, path: str) -> None: ...
 
 
 class ColpkgImporter(Importer):
