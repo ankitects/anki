@@ -150,8 +150,8 @@ dependencies = [
  "serde_repr",
  "serde_tuple",
  "sha1",
- "snafu",
- "strum",
+ "snafu 0.8.1",
+ "strum 0.26.1",
  "syn 2.0.51",
  "tempfile",
  "tokio",
@@ -164,7 +164,7 @@ dependencies = [
  "unicase",
  "unicode-normalization",
  "utime",
- "windows 0.52.0",
+ "windows 0.54.0",
  "wiremock",
  "zip",
  "zstd 0.13.0",
@@ -201,7 +201,7 @@ name = "anki_io"
 version = "0.0.0"
 dependencies = [
  "camino",
- "snafu",
+ "snafu 0.8.1",
  "tempfile",
 ]
 
@@ -210,7 +210,7 @@ name = "anki_process"
 version = "0.0.0"
 dependencies = [
  "itertools 0.12.1",
- "snafu",
+ "snafu 0.8.1",
 ]
 
 [[package]]
@@ -227,8 +227,8 @@ dependencies = [
  "prost-reflect",
  "prost-types",
  "serde",
- "snafu",
- "strum",
+ "snafu 0.8.1",
+ "strum 0.26.1",
 ]
 
 [[package]]
@@ -724,8 +724,8 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_rusqlite",
- "strum",
- "strum_macros",
+ "strum 0.25.0",
+ "strum_macros 0.25.3",
  "tempfile",
  "thiserror",
 ]
@@ -1813,8 +1813,8 @@ dependencies = [
  "rand 0.8.5",
  "rayon",
  "serde",
- "snafu",
- "strum",
+ "snafu 0.7.5",
+ "strum 0.25.0",
 ]
 
 [[package]]
@@ -1831,7 +1831,7 @@ dependencies = [
  "lazy_static",
  "regex",
  "serde_json",
- "snafu",
+ "snafu 0.8.1",
  "walkdir",
 ]
 
@@ -2982,7 +2982,7 @@ dependencies = [
  "linkcheck",
  "regex",
  "reqwest",
- "strum",
+ "strum 0.26.1",
  "tokio",
 ]
 
@@ -5134,9 +5134,17 @@ version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4de37ad025c587a29e8f3f5605c00f70b98715ef90b9061a815b9e59e9042d6"
 dependencies = [
- "backtrace",
  "doc-comment",
- "snafu-derive",
+ "snafu-derive 0.7.5",
+]
+
+[[package]]
+name = "snafu"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5ed22871b3fe6eff9f1b48f6cbd54149ff8e9acd740dea9146092435f9c43bd3"
+dependencies = [
+ "snafu-derive 0.8.1",
 ]
 
 [[package]]
@@ -5149,6 +5157,18 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "snafu-derive"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4651148226ec36010993fcba6c3381552e8463e9f3e337b75af202b0688b5274"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -5242,7 +5262,16 @@ version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "290d54ea6f91c969195bdbcd7442c8c2a2ba87da8bf60a7ee86a235d4bc1e125"
 dependencies = [
- "strum_macros",
+ "strum_macros 0.25.3",
+]
+
+[[package]]
+name = "strum"
+version = "0.26.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "723b93e8addf9aa965ebe2d11da6d7540fa2283fcea14b3371ff055f7ba13f5f"
+dependencies = [
+ "strum_macros 0.26.1",
 ]
 
 [[package]]
@@ -5250,6 +5279,19 @@ name = "strum_macros"
 version = "0.25.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "23dc1fa9ac9c169a78ba62f0b841814b7abae11bdd047b9c58f893439e309ea0"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "rustversion",
+ "syn 2.0.51",
+]
+
+[[package]]
+name = "strum_macros"
+version = "0.26.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a3417fc93d76740d974a01654a09777cb500428cc874ca9f45edfe0c4d4cd18"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -6498,11 +6540,11 @@ dependencies = [
 
 [[package]]
 name = "windows"
-version = "0.52.0"
+version = "0.54.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e48a53791691ab099e5e2ad123536d0fff50652600abaf43bbf952894110d0be"
+checksum = "9252e5725dbed82865af151df558e754e4a3c2c30818359eb17465f1346a1b49"
 dependencies = [
- "windows-core 0.52.0",
+ "windows-core 0.54.0",
  "windows-targets 0.52.3",
 ]
 
@@ -6520,6 +6562,25 @@ name = "windows-core"
 version = "0.52.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "33ab640c8d7e35bf8ba19b884ba838ceb4fba93a4e8c65a9059d08afcfc683d9"
+dependencies = [
+ "windows-targets 0.52.3",
+]
+
+[[package]]
+name = "windows-core"
+version = "0.54.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "12661b9c89351d684a50a8a643ce5f608e20243b9fb84687800163429f161d65"
+dependencies = [
+ "windows-result",
+ "windows-targets 0.52.3",
+]
+
+[[package]]
+name = "windows-result"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cd19df78e5168dfb0aedc343d1d1b8d422ab2db6756d2dc3fef75035402a3f64"
 dependencies = [
  "windows-targets 0.52.3",
 ]

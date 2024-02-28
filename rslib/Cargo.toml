@@ -106,5 +106,5 @@ zip.workspace = true
 zstd.workspace = true
 
 [target.'cfg(windows)'.dependencies.windows]
-version = "0.52.0"
+version = "0.54.0"
 features = ["Media_SpeechSynthesis", "Foundation_Collections", "Storage_Streams"]
