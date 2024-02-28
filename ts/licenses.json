@@ -1,25 +1,25 @@
 {
-    "@bufbuild/protobuf@1.4.2": {
+    "@bufbuild/protobuf@1.7.2": {
         "licenses": "(Apache-2.0 AND BSD-3-Clause)",
         "repository": "https://github.com/bufbuild/protobuf-es",
         "path": "node_modules/@bufbuild/protobuf",
         "licenseFile": "node_modules/@bufbuild/protobuf/README.md"
     },
-    "@floating-ui/core@1.5.0": {
+    "@floating-ui/core@1.6.0": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
         "path": "node_modules/@floating-ui/core",
         "licenseFile": "node_modules/@floating-ui/core/LICENSE"
     },
-    "@floating-ui/dom@1.5.3": {
+    "@floating-ui/dom@1.6.3": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
         "path": "node_modules/@floating-ui/dom",
         "licenseFile": "node_modules/@floating-ui/dom/LICENSE"
     },
-    "@floating-ui/utils@0.1.6": {
+    "@floating-ui/utils@0.2.1": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
@@ -34,7 +34,7 @@
         "path": "node_modules/@fluent/bundle",
         "licenseFile": "node_modules/@fluent/bundle/README.md"
     },
-    "@mdi/svg@7.3.67": {
+    "@mdi/svg@7.4.47": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/Templarian/MaterialDesign-SVG",
         "publisher": "Austin Andrews",
@@ -84,7 +84,7 @@
         "path": "node_modules/acorn-globals/node_modules/acorn",
         "licenseFile": "node_modules/acorn-globals/node_modules/acorn/LICENSE"
     },
-    "acorn@8.11.2": {
+    "acorn@8.11.3": {
         "licenses": "MIT",
         "repository": "https://github.com/acornjs/acorn",
         "path": "node_modules/acorn",
@@ -121,14 +121,14 @@
         "path": "node_modules/bezier-easing",
         "licenseFile": "node_modules/bezier-easing/LICENSE"
     },
-    "bootstrap-icons@1.11.2": {
+    "bootstrap-icons@1.11.3": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/icons",
         "publisher": "mdo",
         "path": "node_modules/bootstrap-icons",
         "licenseFile": "node_modules/bootstrap-icons/LICENSE"
     },
-    "bootstrap@5.3.2": {
+    "bootstrap@5.3.3": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/bootstrap",
         "publisher": "The Bootstrap Authors",
@@ -429,7 +429,7 @@
         "path": "node_modules/decimal.js",
         "licenseFile": "node_modules/decimal.js/LICENCE.md"
     },
-    "delaunator@5.0.0": {
+    "delaunator@5.0.1": {
         "licenses": "ISC",
         "repository": "https://github.com/mapbox/delaunator",
         "publisher": "Vladimir Agafonkin",
@@ -808,7 +808,7 @@
         "path": "node_modules/wheel",
         "licenseFile": "node_modules/wheel/LICENSE"
     },
-    "ws@8.14.2": {
+    "ws@8.16.0": {
         "licenses": "MIT",
         "repository": "https://github.com/websockets/ws",
         "publisher": "Einar Otto Stangvik",
@@ -833,3 +833,4 @@
         "licenseFile": "node_modules/xmlchars/LICENSE"
     }
 }
+

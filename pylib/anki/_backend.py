@@ -125,9 +125,11 @@ class RustBackend(RustBackendGenerated):
         self, module_index: int, message_index: int, **kwargs: str | int | float
     ) -> str:
         args = {
-            k: i18n_pb2.TranslateArgValue(str=v)
-            if isinstance(v, str)
-            else i18n_pb2.TranslateArgValue(number=v)
+            k: (
+                i18n_pb2.TranslateArgValue(str=v)
+                if isinstance(v, str)
+                else i18n_pb2.TranslateArgValue(number=v)
+            )
             for k, v in kwargs.items()
         }
 
