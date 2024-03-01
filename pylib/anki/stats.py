@@ -581,7 +581,7 @@ group by day order by day"""
         ret = self.col.db.first(
             """
 select count(), abs(min(day)) from (select
-(cast((id/1000 - ?) / 86400.0 as int)+1) as day
+(cast((id/1000.0 - ?) / 86400.0 as int)+1) as day
 from revlog %s
 group by day order by day)"""
             % lim,
