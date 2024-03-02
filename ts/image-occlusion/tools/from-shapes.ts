@@ -8,9 +8,10 @@ import { addBorder, enableUniformScaling } from "./lib";
 
 export const addShape = (
     canvas: fabric.Canvas,
+    boundingBox,
     shape: Shape,
 ): void => {
-    const fabricShape = shape.toFabric(canvas);
+    const fabricShape = shape.toFabric(boundingBox);
     addBorder(fabricShape);
     if (fabricShape.type === "i-text") {
         enableUniformScaling(canvas, fabricShape);
@@ -20,11 +21,12 @@ export const addShape = (
 
 export const addShapeGroup = (
     canvas: fabric.Canvas,
+    boundingBox,
     shapes: Shape[],
 ): void => {
     const group = new fabric.Group();
     shapes.map((shape) => {
-        const fabricShape = shape.toFabric(canvas);
+        const fabricShape = shape.toFabric(boundingBox);
         addBorder(fabricShape);
         group.addWithUpdate(fabricShape);
     });

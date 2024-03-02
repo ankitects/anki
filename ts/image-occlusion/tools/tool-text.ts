@@ -5,7 +5,14 @@ import { fabric } from "fabric";
 import { opacityStateStore, textEditingState } from "image-occlusion/store";
 import { get } from "svelte/store";
 
-import { enableUniformScaling, stopDraw, TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_PADDING } from "./lib";
+import {
+    enableUniformScaling,
+    isPointerInBoundingBox,
+    stopDraw,
+    TEXT_BACKGROUND_COLOR,
+    TEXT_FONT_FAMILY,
+    TEXT_PADDING,
+} from "./lib";
 import { undoStack } from "./tool-undo-redo";
 
 export const drawText = (canvas: fabric.Canvas): void => {
@@ -17,6 +24,11 @@ export const drawText = (canvas: fabric.Canvas): void => {
             return;
         }
         const pointer = canvas.getPointer(o.e);
+
+        if (!isPointerInBoundingBox(pointer)) {
+            return;
+        }
+
         const text = new fabric.IText("text", {
             id: "text-" + new Date().getTime(),
             left: pointer.x,

@@ -10,13 +10,14 @@ import { redraw } from "./lib";
 
 export const addShapesToCanvasFromCloze = (
     canvas: fabric.Canvas,
+    boundingBox,
     occlusions: GetImageOcclusionNoteResponse_ImageOcclusion[],
 ): void => {
     for (const shapeOrShapes of extractShapesFromClozedField(occlusions)) {
         if (Array.isArray(shapeOrShapes)) {
-            addShapeGroup(canvas, shapeOrShapes);
+            addShapeGroup(canvas, boundingBox, shapeOrShapes);
         } else {
-            addShape(canvas, shapeOrShapes);
+            addShape(canvas, boundingBox, shapeOrShapes);
         }
     }
     redraw(canvas);

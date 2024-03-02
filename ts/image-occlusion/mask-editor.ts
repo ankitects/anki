@@ -5,22 +5,16 @@ import { protoBase64 } from "@bufbuild/protobuf";
 import { getImageForOcclusion, getImageOcclusionNote } from "@tslib/backend";
 import * as tr from "@tslib/ftl";
 import { fabric } from "fabric";
-import type { PanZoom } from "panzoom";
 import { get } from "svelte/store";
 
 import { optimumCssSizeForCanvas } from "./canvas-scale";
-import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
+import { notesDataStore, tagsWritable } from "./store";
 import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
-import {
-    enableSelectable,
-    makeShapeRemainInCanvas,
-    moveShapeToCanvasBoundaries,
-    setCenterXForZoom,
-    zoomReset,
-} from "./tools/lib";
+import { enableSelectable, makeShapeRemainInCanvas, moveShapeToCanvasBoundaries } from "./tools/lib";
 import { modifiedPolygon } from "./tools/tool-polygon";
 import { undoStack } from "./tools/tool-undo-redo";
+import { onResize, setCanvasSize } from "./tools/tool-zoom";
 import type { Size } from "./types";
 
 export interface ImageLoadedEvent {
@@ -30,7 +24,6 @@ export interface ImageLoadedEvent {
 
 export const setupMaskEditor = async (
     path: string,
-    instance: PanZoom,
     onChange: () => void,
     onImageLoaded: (event: ImageLoadedEvent) => void,
 ): Promise<fabric.Canvas> => {
@@ -40,15 +33,15 @@ export const setupMaskEditor = async (
     // get image width and height
     const image = document.getElementById("image") as HTMLImageElement;
     image.src = getImageData(imageData.data!, path);
-    image.onload = function() {
+    image.onload = async function() {
         const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
-        canvas.setWidth(size.width);
-        canvas.setHeight(size.height);
-        image.height = size.height;
         image.width = size.width;
-        setCanvasZoomRatio(canvas, instance);
-        undoStack.reset();
+        image.height = size.height;
+        setCanvasSize(canvas);
         onImageLoaded({ path });
+        await setupBoundingBox(canvas, size, image);
+        image.remove();
+        undoStack.reset();
     };
 
     return canvas;
@@ -56,7 +49,6 @@ export const setupMaskEditor = async (
 
 export const setupMaskEditorForEdit = async (
     noteId: number,
-    instance: PanZoom,
     onChange: () => void,
     onImageLoaded: (event: ImageLoadedEvent) => void,
 ): Promise<fabric.Canvas> => {
@@ -80,21 +72,20 @@ export const setupMaskEditorForEdit = async (
     const image = document.getElementById("image") as HTMLImageElement;
     image.style.visibility = "hidden";
     image.src = getImageData(clozeNote.imageData!, clozeNote.imageFileName!);
-    image.onload = function() {
-        const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
-        canvas.setWidth(size.width);
-        canvas.setHeight(size.height);
-        image.height = size.height;
-        image.width = size.width;
 
-        setCanvasZoomRatio(canvas, instance);
-        addShapesToCanvasFromCloze(canvas, clozeNote.occlusions);
+    image.onload = async function() {
+        const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
+        image.width = size.width;
+        image.height = size.height;
+        setCanvasSize(canvas);
+        const boundingBox = await setupBoundingBox(canvas, size, image);
+        addShapesToCanvasFromCloze(canvas, boundingBox, clozeNote.occlusions);
         enableSelectable(canvas, true);
         addClozeNotesToTextEditor(clozeNote.header, clozeNote.backExtra, clozeNote.tags);
         undoStack.reset();
         window.requestAnimationFrame(() => {
-            image.style.visibility = "visible";
             onImageLoaded({ noteId: BigInt(noteId) });
+            image.remove();
         });
     };
 
@@ -119,8 +110,6 @@ function initCanvas(onChange: () => void): fabric.Canvas {
     fabric.Object.prototype.cornerStyle = "circle";
     fabric.Object.prototype.cornerStrokeColor = "#000000";
     fabric.Object.prototype.padding = 8;
-    moveShapeToCanvasBoundaries(canvas);
-    makeShapeRemainInCanvas(canvas);
     canvas.on("object:modified", (evt) => {
         if (evt.target instanceof fabric.Polygon) {
             modifiedPolygon(canvas, evt.target);
@@ -129,9 +118,48 @@ function initCanvas(onChange: () => void): fabric.Canvas {
         onChange();
     });
     canvas.on("object:removed", onChange);
-    setCenterXForZoom(canvas);
     return canvas;
 }
+
+const setupBoundingBox = (canvas: fabric.Canvas, size: Size, image: HTMLImageElement): Promise<fabric.Rect> => {
+    return new Promise((resolve) => {
+        const boundingBox = new fabric.Rect({
+            fill: "transparent",
+            width: size.width,
+            height: size.height,
+            hasBorders: false,
+            hasControls: false,
+            lockMovementX: true,
+            lockMovementY: true,
+            evented: false,
+            stroke: "red",
+        });
+        globalThis.boundingBox = boundingBox;
+        canvas.add(boundingBox);
+        canvas.renderAll();
+
+        fabric.Image.fromURL(image.src, function(img) {
+            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+                scaleX: size.width / img.width,
+                scaleY: size.height / img.height,
+            });
+            onResize(canvas);
+            makeShapeRemainInCanvas(canvas, boundingBox);
+            moveShapeToCanvasBoundaries(canvas, boundingBox);
+
+            const newWidth = canvas.backgroundImage.width * canvas.backgroundImage.scaleX;
+            const newHeight = canvas.backgroundImage.height * canvas.backgroundImage.scaleY;
+            boundingBox.scaleX = 1;
+            boundingBox.scaleY = 1;
+            boundingBox.width = newWidth;
+            boundingBox.height = newHeight;
+            boundingBox.left = 0;
+            boundingBox.top = 0;
+            undoStack.reset();
+            resolve(boundingBox);
+        });
+    });
+};
 
 const getImageData = (imageData, path): string => {
     const b64encoded = protoBase64.enc(imageData);
@@ -148,17 +176,6 @@ const getImageData = (imageData, path): string => {
 
     const type = mimeTypes[extension] || "png";
     return `data:image/${type};base64,${b64encoded}`;
-};
-
-export const setCanvasZoomRatio = (
-    canvas: fabric.Canvas,
-    instance: PanZoom,
-): void => {
-    const zoomRatioW = (innerWidth - 40) / canvas.width!;
-    const zoomRatioH = (innerHeight - 100) / canvas.height!;
-    const zoomRatio = zoomRatioW < zoomRatioH ? zoomRatioW : zoomRatioH;
-    zoomResetValue.set(zoomRatio);
-    zoomReset(instance);
 };
 
 const addClozeNotesToTextEditor = (header: string, backExtra: string, tags: string[]) => {
@@ -195,16 +212,17 @@ export async function resetIOImage(path: string, onImageLoaded: (event: ImageLoa
     image.src = getImageData(imageData.data!, path);
     const canvas = globalThis.canvas;
 
-    image.onload = function() {
+    image.onload = async function() {
         const size = optimumCssSizeForCanvas(
             { width: image.naturalWidth, height: image.naturalHeight },
             containerSize(),
         );
-        canvas.setWidth(size.width);
-        canvas.setHeight(size.height);
-        image.height = size.height;
         image.width = size.width;
+        image.height = size.height;
+        setCanvasSize(canvas);
         onImageLoaded({ path });
+        await setupBoundingBox(canvas, size, image);
+        image.remove();
     };
 }
 globalThis.resetIOImage = resetIOImage;

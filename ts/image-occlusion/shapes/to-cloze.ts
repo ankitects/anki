@@ -3,6 +3,7 @@
 
 import type { Canvas, Object as FabricObject } from "fabric";
 import { fabric } from "fabric";
+import { getBoundingBox } from "image-occlusion/tools/lib";
 import { cloneDeep } from "lodash-es";
 
 import type { Size } from "../types";
@@ -21,6 +22,10 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
     let clozes = "";
     let index = 0;
     shapes.forEach((shapeOrShapes) => {
+        // if shape is Rect and fill is transparent, skip it
+        if (shapeOrShapes instanceof Rectangle && shapeOrShapes.fill === "transparent") {
+            return;
+        }
         clozes += shapeOrShapesToCloze(shapeOrShapes, index, occludeInactive);
         if (!(shapeOrShapes instanceof Text)) {
             index++;
@@ -41,6 +46,7 @@ export function baseShapesFromFabric(): ShapeOrShapes[] {
         ? activeObject
         : null;
     const objects = canvas.getObjects() as FabricObject[];
+    const boundingBox = getBoundingBox();
     return objects
         .map((object) => {
             // If the object is in the active selection containing multiple objects,
@@ -49,7 +55,7 @@ export function baseShapesFromFabric(): ShapeOrShapes[] {
                 ? selectionContainingMultipleObjects
                 : undefined;
             return fabricObjectToBaseShapeOrShapes(
-                canvas,
+                boundingBox,
                 object,
                 parent,
             );

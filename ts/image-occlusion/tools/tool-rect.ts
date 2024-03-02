@@ -5,7 +5,7 @@ import { fabric } from "fabric";
 import { opacityStateStore } from "image-occlusion/store";
 import { get } from "svelte/store";
 
-import { BORDER_COLOR, SHAPE_MASK_COLOR, stopDraw } from "./lib";
+import { BORDER_COLOR, isPointerInBoundingBox, SHAPE_MASK_COLOR, stopDraw } from "./lib";
 import { undoStack } from "./tool-undo-redo";
 
 export const drawRectangle = (canvas: fabric.Canvas): void => {
@@ -23,6 +23,11 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
         const pointer = canvas.getPointer(o.e);
         origX = pointer.x;
         origY = pointer.y;
+
+        if (!isPointerInBoundingBox(pointer)) {
+            isDown = false;
+            return;
+        }
 
         rect = new fabric.Rect({
             id: "rect-" + new Date().getTime(),

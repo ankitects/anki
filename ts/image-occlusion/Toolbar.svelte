@@ -30,9 +30,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { tools } from "./tools/tool-buttons";
     import { removeUnfinishedPolygon } from "./tools/tool-polygon";
     import { undoRedoTools, undoStack } from "./tools/tool-undo-redo";
+    import { disableZoom, enableZoom } from "./tools/tool-zoom";
 
     export let canvas;
-    export let instance;
     export let iconSize;
     export let activeTool = "cursor";
     let showAlignTools = false;
@@ -98,23 +98,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
         window.addEventListener("keydown", (event) => {
             if (event.key == "Control" && activeTool != "magnify") {
-                instance.resume();
+                stopDraw(canvas);
+                enableZoom(canvas);
             }
         });
         window.addEventListener("keyup", (event) => {
             if (event.key == "Control" && activeTool != "magnify") {
-                instance.pause();
+                disableFunctions();
             }
         });
         window.addEventListener("wheel", () => {
             if (clicked && move && wheel && !dbclicked) {
-                enableMagnify();
+                stopDraw(canvas);
+                enableZoom(canvas);
             }
         });
     });
 
     // handle tool changes after initialization
-    $: if (instance && canvas) {
+    $: if (canvas) {
         disableFunctions();
         enableSelectable(canvas, true);
         // remove unfinished polygon when switching to other tools
@@ -122,8 +124,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         switch (activeTool) {
             case "magnify":
+                enableZoom(canvas);
                 enableSelectable(canvas, false);
-                instance.resume();
                 break;
             case "draw-rectangle":
                 drawRectangle(canvas);
@@ -132,7 +134,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 drawEllipse(canvas);
                 break;
             case "draw-polygon":
-                drawPolygon(canvas, instance);
+                drawPolygon(canvas);
                 break;
             case "draw-text":
                 drawText(canvas);
@@ -143,21 +145,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const disableFunctions = () => {
-        instance.pause();
         stopDraw(canvas);
         canvas.selectionColor = "rgba(100, 100, 255, 0.3)";
+        disableZoom(canvas);
     };
 
     function changeOcclusionType(occlusionType: "all" | "one"): void {
         $hideAllGuessOne = occlusionType === "all";
         emitChangeSignal();
     }
-    const enableMagnify = () => {
-        disableFunctions();
-        enableSelectable(canvas, false);
-        instance.resume();
-        activeTool = "magnify";
-    };
 </script>
 
 <div class="tool-bar-container">
@@ -250,7 +246,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {iconSize}
                     tooltip="{tool.tooltip()} ({getPlatformString(tool.shortcut)})"
                     on:click={() => {
-                        tool.action(instance);
+                        tool.action(canvas);
                     }}
                 >
                     {@html tool.icon}
@@ -259,7 +255,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <Shortcut
                         keyCombination={tool.shortcut}
                         on:action={() => {
-                            tool.action(instance);
+                            tool.action(canvas);
                         }}
                     />
                 {/if}
