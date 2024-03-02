@@ -315,7 +315,7 @@ impl crate::services::BackendSchedulerService for Backend {
     ) -> Result<scheduler::ComputeFsrsWeightsResponse> {
         let fsrs = FSRS::new(None)?;
         let fsrs_items = req.items.len() as u32;
-        let weights = fsrs.compute_weights(
+        let weights = fsrs.compute_parameters(
             req.items.into_iter().map(fsrs_item_proto_to_fsrs).collect(),
             false,
             None,
