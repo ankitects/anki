@@ -150,7 +150,7 @@ dependencies = [
  "serde_repr",
  "serde_tuple",
  "sha1",
- "snafu 0.8.1",
+ "snafu",
  "strum 0.26.1",
  "syn 2.0.51",
  "tempfile",
@@ -201,7 +201,7 @@ name = "anki_io"
 version = "0.0.0"
 dependencies = [
  "camino",
- "snafu 0.8.1",
+ "snafu",
  "tempfile",
 ]
 
@@ -210,7 +210,7 @@ name = "anki_process"
 version = "0.0.0"
 dependencies = [
  "itertools 0.12.1",
- "snafu 0.8.1",
+ "snafu",
 ]
 
 [[package]]
@@ -227,7 +227,7 @@ dependencies = [
  "prost-reflect",
  "prost-types",
  "serde",
- "snafu 0.8.1",
+ "snafu",
  "strum 0.26.1",
 ]
 
@@ -614,9 +614,9 @@ checksum = "8ea184aa71bb362a1157c896979544cc23974e08fd265f29ea96b59f0b4a555b"
 
 [[package]]
 name = "burn"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5008368c07b8ffc5c8bde2ebf31b59bdd263fdd825152bd0a9d333a220ba44f"
+checksum = "b6b703e5dae87b2146649b64af54688ff86e16cf69fd19d28c43c8f9656d7d7c"
 dependencies = [
  "burn-core",
  "burn-train",
@@ -624,22 +624,21 @@ dependencies = [
 
 [[package]]
 name = "burn-autodiff"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "176a12ffd413ba2bfafa2b4ed1e2a21d7880b67a1ac3a9bb4919c9c0f102cdd7"
+checksum = "f306e1b2e480fa0960c3130a68ca5e0fa54b3e33ed2fda7cf2121434703dd771"
 dependencies = [
  "burn-common",
  "burn-tensor",
- "burn-tensor-testgen",
  "derive-new",
  "spin 0.9.8",
 ]
 
 [[package]]
 name = "burn-candle"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce2556eb085f2ef1cd8d0d6d932f8a64f529c5d0487ea7e4a868fe6a65e3d892"
+checksum = "fc87b644a2d83cc1b7c05d1176e9e24fb6394272256ab9ab8324ff7c4fe0e6a0"
 dependencies = [
  "burn-tensor",
  "candle-core",
@@ -649,36 +648,43 @@ dependencies = [
 
 [[package]]
 name = "burn-common"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7dcb7947986d5420a9126959a5f16675f2d7b822bacc60a966fcfcf5a7dbd247"
+checksum = "1267068969f094323b62693df0c3b45d3b08a0568f3c3467e6a5c3207e6807c8"
 dependencies = [
  "async-trait",
  "derive-new",
  "getrandom 0.2.12",
  "rand 0.8.5",
+ "serde",
  "spin 0.9.8",
  "uuid",
+ "web-time",
 ]
 
 [[package]]
 name = "burn-compute"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08dfd31ce4d27c64358991c23a26d8aaa2d9cb0f8517c7e79d01f2fe8d6c1eb0"
+checksum = "a1b51588cf7c84976f6241a9ac5f77857712b8bf443dab77296c260785033fe8"
 dependencies = [
  "burn-common",
  "derive-new",
+ "dirs",
  "hashbrown 0.14.3",
  "log",
+ "md5",
+ "serde",
+ "serde_json",
  "spin 0.9.8",
+ "web-time",
 ]
 
 [[package]]
 name = "burn-core"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2067024ff50b21e29e6835a7cc8189046024fc7c174f1d2d635a4955c5151fe5"
+checksum = "6b11d8fd1e8c656eee1a0bb503b798c4583904dcaf7a369cbb8fdfd3acc3d0ab"
 dependencies = [
  "bincode",
  "burn-autodiff",
@@ -706,9 +712,9 @@ dependencies = [
 
 [[package]]
 name = "burn-dataset"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9f3481ac13ad69279d4922cf17866aa99841b76db49d9a7915a7521d772a345"
+checksum = "c6050891281ae38ee9dc24d1d5badd084247717b15e3dcdae562a81456a41c6e"
 dependencies = [
  "csv",
  "derive-new",
@@ -732,9 +738,9 @@ dependencies = [
 
 [[package]]
 name = "burn-derive"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d44415ff69a525b49272a5ed893655441834f9ee6cac3ffe2b2387326042d8fc"
+checksum = "70f149de5f32baa3f2191c374edab71e5a323bade05eb6092c702aed76cdcb7b"
 dependencies = [
  "derive-new",
  "proc-macro2",
@@ -744,22 +750,24 @@ dependencies = [
 
 [[package]]
 name = "burn-fusion"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "821663ff1f79865d6b0e998230683f72ff4351608770c07f91e39953e89fbec6"
+checksum = "f512f780beaefca46088c4e4a80595511fbc3b35545118281fbf49f1fca767b4"
 dependencies = [
  "burn-common",
  "burn-tensor",
  "derive-new",
  "hashbrown 0.14.3",
+ "log",
+ "serde",
  "spin 0.9.8",
 ]
 
 [[package]]
 name = "burn-ndarray"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0448005c7ed6f1636ca0e12a148613fdd4d5739e1db8b241c7940140098f4fe3"
+checksum = "1aef9fb0b72a1c0a112ed51e35284fb663d3ba3fd98f3a3bfa32db39fd24ae4d"
 dependencies = [
  "burn-autodiff",
  "burn-common",
@@ -776,9 +784,9 @@ dependencies = [
 
 [[package]]
 name = "burn-tch"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "197d7276dd95abe3872fdbdfedd091730700aef7d83542ecc9d20a015791d968"
+checksum = "e3d7aec36d836c5a11714480089738120899e2c91f6fe2e23abd09ec4a68a803"
 dependencies = [
  "burn-tensor",
  "half",
@@ -789,12 +797,11 @@ dependencies = [
 
 [[package]]
 name = "burn-tensor"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "60f8cf3d9588047b7d221c718b7208b829fdd1050150a69d069b66e1bb6e6cbb"
+checksum = "ad09aeb0f2428a4ee91f9876a7d71cef6feb1fcacdab6389362dd878ec5f9b27"
 dependencies = [
  "burn-common",
- "burn-tensor-testgen",
  "derive-new",
  "half",
  "hashbrown 0.14.3",
@@ -806,20 +813,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "burn-tensor-testgen"
-version = "0.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a555a79ab0ab974e61aee15e62e87576ca47e7df768f68145754527d31633f87"
-dependencies = [
- "proc-macro2",
- "quote",
-]
-
-[[package]]
 name = "burn-train"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb7defef4e44f0780d25c0aaf4d55efc96fb726b3f5d60902da682a59692359d"
+checksum = "dd5536e98b23dd5047728f288e61e8a4d9fbffef6f55086d3483c2464758508d"
 dependencies = [
  "burn-core",
  "derive-new",
@@ -832,9 +829,9 @@ dependencies = [
 
 [[package]]
 name = "burn-wgpu"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8676fa583cfa91db6f2ed26d8e42197fd378c15ed1e8a62c07286cb88f1971ec"
+checksum = "231d2deb14a02838c29dd5e90d1a87a9578d76bda7b02d5c7a77e5440ef6ae95"
 dependencies = [
  "burn-common",
  "burn-compute",
@@ -1363,13 +1360,13 @@ dependencies = [
 
 [[package]]
 name = "derive-new"
-version = "0.5.9"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3418329ca0ad70234b9735dc4ceed10af4df60eff9c8e7b06cb5e520d92c3535"
+checksum = "d150dea618e920167e5973d70ae6ece4385b7164e0d799fe7c122dd0a5d912ad"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -1429,12 +1426,6 @@ dependencies = [
  "quote",
  "syn 2.0.51",
 ]
-
-[[package]]
-name = "doc-comment"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 
 [[package]]
 name = "duct"
@@ -1587,9 +1578,9 @@ checksum = "7360491ce676a36bf9bb3c56c1aa791658183a54d2744120f27285738d90465a"
 
 [[package]]
 name = "faster-hex"
-version = "0.8.1"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "239f7bfb930f820ab16a9cd95afc26f88264cf6905c960b340a615384aa3338a"
+checksum = "a2a2b11eda1d40935b26cf18f6833c526845ae8c41e58d09af6adeb6f0269183"
 dependencies = [
  "serde",
 ]
@@ -1801,9 +1792,9 @@ dependencies = [
 
 [[package]]
 name = "fsrs"
-version = "0.3.0"
+version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eece5d2325704da8667c3a796e64a3c0b046100ff758ba88f91d0dee80d6deb9"
+checksum = "5e5210280b424b4b47187c7af3935fcd13aca73afec897675b860b0c6e133bab"
 dependencies = [
  "burn",
  "itertools 0.12.1",
@@ -1813,8 +1804,8 @@ dependencies = [
  "rand 0.8.5",
  "rayon",
  "serde",
- "snafu 0.7.5",
- "strum 0.25.0",
+ "snafu",
+ "strum 0.26.1",
 ]
 
 [[package]]
@@ -1831,7 +1822,7 @@ dependencies = [
  "lazy_static",
  "regex",
  "serde_json",
- "snafu 0.8.1",
+ "snafu",
  "walkdir",
 ]
 
@@ -2145,9 +2136,9 @@ checksum = "4271d37baee1b8c7e4b708028c57d816cf9d2434acb33a549475f78c181f6253"
 
 [[package]]
 name = "gix-features"
-version = "0.33.0"
+version = "0.36.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f77decb545f63a52852578ef5f66ecd71017ffc1983d551d5fa2328d6d9817f"
+checksum = "4d46a4a5c6bb5bebec9c0d18b65ada20e6517dbd7cf855b87dd4bbdce3a771b2"
 dependencies = [
  "gix-hash",
  "gix-trace",
@@ -2156,18 +2147,18 @@ dependencies = [
 
 [[package]]
 name = "gix-fs"
-version = "0.5.0"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "53d5089f3338647776733a75a800a664ab046f56f21c515fa4722e395f877ef8"
+checksum = "20e86eb040f5776a5ade092282e51cdcad398adb77d948b88d17583c2ae4e107"
 dependencies = [
  "gix-features",
 ]
 
 [[package]]
 name = "gix-hash"
-version = "0.12.0"
+version = "0.13.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d4796bac3aaf0c2f8bea152ca924ae3bdc5f135caefe6431116bcd67e98eab9"
+checksum = "1f8cf8c2266f63e582b7eb206799b63aa5fa68ee510ad349f637dfe2d0653de0"
 dependencies = [
  "faster-hex",
  "thiserror",
@@ -2175,9 +2166,9 @@ dependencies = [
 
 [[package]]
 name = "gix-tempfile"
-version = "8.0.0"
+version = "11.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cea558d3daf3b1d0001052b12218c66c8f84788852791333b633d7eeb6999db1"
+checksum = "388dd29114a86ec69b28d1e26d6d63a662300ecf61ab3f4cc578f7d7dc9e7e23"
 dependencies = [
  "dashmap",
  "gix-fs",
@@ -3135,6 +3126,12 @@ dependencies = [
  "rawpointer",
  "thread-tree",
 ]
+
+[[package]]
+name = "md5"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "490cc448043f947bae3cbee9c203358d62dbee0db12107a74be5c30ccfd09771"
 
 [[package]]
 name = "mdbook"
@@ -5130,33 +5127,11 @@ checksum = "e6ecd384b10a64542d77071bd64bd7b231f4ed5940fba55e98c3de13824cf3d7"
 
 [[package]]
 name = "snafu"
-version = "0.7.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e4de37ad025c587a29e8f3f5605c00f70b98715ef90b9061a815b9e59e9042d6"
-dependencies = [
- "doc-comment",
- "snafu-derive 0.7.5",
-]
-
-[[package]]
-name = "snafu"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5ed22871b3fe6eff9f1b48f6cbd54149ff8e9acd740dea9146092435f9c43bd3"
 dependencies = [
- "snafu-derive 0.8.1",
-]
-
-[[package]]
-name = "snafu-derive"
-version = "0.7.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "990079665f075b699031e9c08fd3ab99be5029b96f3b78dc0709e8f77e4efebf"
-dependencies = [
- "heck",
- "proc-macro2",
- "quote",
- "syn 1.0.109",
+ "snafu-derive",
 ]
 
 [[package]]
@@ -5261,9 +5236,6 @@ name = "strum"
 version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "290d54ea6f91c969195bdbcd7442c8c2a2ba87da8bf60a7ee86a235d4bc1e125"
-dependencies = [
- "strum_macros 0.25.3",
-]
 
 [[package]]
 name = "strum"
@@ -5399,9 +5371,9 @@ checksum = "e1fc403891a21bcfb7c37834ba66a547a8f402146eba7265b5a6d88059c9ff2f"
 
 [[package]]
 name = "tch"
-version = "0.14.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ed5dddab3812892bf5fb567136e372ea49f31672931e21cec967ca68aec03da"
+checksum = "7c7cb00bc2770454b515388d45be7097a3ded2eca172f3dcdb7ca4cc06c40bf1"
 dependencies = [
  "half",
  "lazy_static",
@@ -5714,9 +5686,9 @@ checksum = "ea68304e134ecd095ac6c3574494fc62b909f416c4fca77e440530221e549d3d"
 
 [[package]]
 name = "torch-sys"
-version = "0.14.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "803446f89fb877a117503dbfb8375b6a29fa8b0e0f44810fac3863c798ecef22"
+checksum = "29e0244e5b148a31dd7fe961165037d1927754d024095c1013937532d7e73a22"
 dependencies = [
  "anyhow",
  "cc",
@@ -6338,6 +6310,16 @@ name = "web-sys"
 version = "0.3.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b85cbef8c220a6abc02aefd892dfc0fc23afb1c6a426316ec33253a3877249b"
+dependencies = [
+ "js-sys",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "web-time"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a6580f308b1fad9207618087a65c04e7a10bc77e02c8e84e9b00dd4b12fa0bb"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
