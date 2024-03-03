@@ -397,7 +397,7 @@
   },
   {
     "name": "burn",
-    "version": "0.11.1",
+    "version": "0.12.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn",
     "license": "Apache-2.0 OR MIT",
@@ -406,7 +406,7 @@
   },
   {
     "name": "burn-autodiff",
-    "version": "0.11.1",
+    "version": "0.12.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/burn-autodiff",
     "license": "Apache-2.0 OR MIT",
@@ -415,7 +415,7 @@
   },
   {
     "name": "burn-candle",
-    "version": "0.11.1",
+    "version": "0.12.1",
     "authors": "louisfd <louisfd94@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/burn-candle",
     "license": "Apache-2.0 OR MIT",
@@ -424,7 +424,7 @@
   },
   {
     "name": "burn-common",
-    "version": "0.11.1",
+    "version": "0.12.1",
     "authors": "Dilshod Tadjibaev (@antimora)",
     "repository": "https://github.com/tracel-ai/burn/tree/main/burn-common",
     "license": "Apache-2.0 OR MIT",
@@ -433,7 +433,7 @@
   },
   {
     "name": "burn-compute",
-    "version": "0.11.1",
+    "version": "0.12.1",
     "authors": "louisfd <louisfd94@gmail.com>|Nathaniel Simard",
     "repository": "https://github.com/tracel-ai/burn/tree/main/burn-compute",
     "license": "Apache-2.0 OR MIT",
@@ -442,7 +442,7 @@
   },
   {
     "name": "burn-core",
-    "version": "0.11.1",
+    "version": "0.12.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/burn-core",
     "license": "Apache-2.0 OR MIT",
@@ -451,7 +451,7 @@
   },
   {
     "name": "burn-dataset",
-    "version": "0.11.1",
+    "version": "0.12.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/burn-dataset",
     "license": "Apache-2.0 OR MIT",
@@ -460,7 +460,7 @@
   },
   {
     "name": "burn-derive",
-    "version": "0.11.1",
+    "version": "0.12.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/burn-derive",
     "license": "Apache-2.0 OR MIT",
@@ -469,7 +469,7 @@
   },
   {
     "name": "burn-fusion",
-    "version": "0.11.1",
+    "version": "0.12.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/burn-fusion",
     "license": "Apache-2.0 OR MIT",
@@ -478,7 +478,7 @@
   },
   {
     "name": "burn-ndarray",
-    "version": "0.11.1",
+    "version": "0.12.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/burn-ndarray",
     "license": "Apache-2.0 OR MIT",
@@ -487,16 +487,16 @@
   },
   {
     "name": "burn-tch",
-    "version": "0.11.1",
+    "version": "0.12.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/burn-tch",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
-    "description": "Tch backend for the Burn framework"
+    "description": "LibTorch backend for the Burn framework using the tch bindings."
   },
   {
     "name": "burn-tensor",
-    "version": "0.11.1",
+    "version": "0.12.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/burn-tensor",
     "license": "Apache-2.0 OR MIT",
@@ -504,17 +504,8 @@
     "description": "Tensor library with user-friendly APIs and automatic differentiation support"
   },
   {
-    "name": "burn-tensor-testgen",
-    "version": "0.11.1",
-    "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
-    "repository": "https://github.com/tracel-ai/burn/tree/main/burn-tensor-testgen",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Test generation crate for burn-tensor"
-  },
-  {
     "name": "burn-train",
-    "version": "0.11.1",
+    "version": "0.12.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/burn-train",
     "license": "Apache-2.0 OR MIT",
@@ -523,7 +514,7 @@
   },
   {
     "name": "burn-wgpu",
-    "version": "0.11.1",
+    "version": "0.12.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/burn-wgpu",
     "license": "Apache-2.0 OR MIT",
@@ -883,8 +874,8 @@
   },
   {
     "name": "derive-new",
-    "version": "0.5.9",
-    "authors": "Nick Cameron <ncameron@mozilla.com>",
+    "version": "0.6.0",
+    "authors": "Nick Cameron <nrc@ncameron.org>",
     "repository": "https://github.com/nrc/derive-new",
     "license": "MIT",
     "license_file": null,
@@ -934,15 +925,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A derive macro for implementing the display Trait via a doc comment and string interpolation"
-  },
-  {
-    "name": "doc-comment",
-    "version": "0.3.3",
-    "authors": "Guillaume Gomez <guillaume1.gomez@gmail.com>",
-    "repository": "https://github.com/GuillaumeGomez/doc-comment",
-    "license": "MIT",
-    "license_file": null,
-    "description": "Macro to generate doc comments"
   },
   {
     "name": "dyn-stack",
@@ -1045,7 +1027,7 @@
   },
   {
     "name": "faster-hex",
-    "version": "0.8.1",
+    "version": "0.9.0",
     "authors": "zhangsoledad <787953403@qq.com>",
     "repository": "https://github.com/NervosFoundation/faster-hex",
     "license": "MIT",
@@ -1216,7 +1198,7 @@
   },
   {
     "name": "fsrs",
-    "version": "0.3.0",
+    "version": "0.4.4",
     "authors": "Open Spaced Repetition",
     "repository": "https://github.com/open-spaced-repetition/fsrs-rs",
     "license": "BSD-3-Clause",
@@ -1459,7 +1441,7 @@
   },
   {
     "name": "gix-features",
-    "version": "0.33.0",
+    "version": "0.36.1",
     "authors": "Sebastian Thiel <sebastian.thiel@icloud.com>",
     "repository": "https://github.com/Byron/gitoxide",
     "license": "Apache-2.0 OR MIT",
@@ -1468,7 +1450,7 @@
   },
   {
     "name": "gix-fs",
-    "version": "0.5.0",
+    "version": "0.8.1",
     "authors": "Sebastian Thiel <sebastian.thiel@icloud.com>",
     "repository": "https://github.com/Byron/gitoxide",
     "license": "Apache-2.0 OR MIT",
@@ -1477,7 +1459,7 @@
   },
   {
     "name": "gix-hash",
-    "version": "0.12.0",
+    "version": "0.13.3",
     "authors": "Sebastian Thiel <sebastian.thiel@icloud.com>",
     "repository": "https://github.com/Byron/gitoxide",
     "license": "Apache-2.0 OR MIT",
@@ -1486,7 +1468,7 @@
   },
   {
     "name": "gix-tempfile",
-    "version": "8.0.0",
+    "version": "11.0.1",
     "authors": "Sebastian Thiel <sebastian.thiel@icloud.com>",
     "repository": "https://github.com/Byron/gitoxide",
     "license": "Apache-2.0 OR MIT",
@@ -2149,6 +2131,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "General matrix multiplication for f32 and f64 matrices. Operates on matrices with general layout (they can use arbitrary row and column stride). Detects and uses AVX or SSE2 on x86 platforms transparently for higher performance. Uses a microkernel strategy, so that the implementation is easy to parallelize and optimize.  Supports multithreading."
+  },
+  {
+    "name": "md5",
+    "version": "0.7.0",
+    "authors": "Ivan Ukhov <ivan.ukhov@gmail.com>|Kamal Ahmad <shibe@openmailbox.org>|Konstantin Stepanov <milezv@gmail.com>|Lukas Kalbertodt <lukas.kalbertodt@gmail.com>|Nathan Musoke <nathan.musoke@gmail.com>|Scott Mabin <scott@mabez.dev>|Tony Arcieri <bascule@gmail.com>|Wim de With <register@dewith.io>|Yosef Dinerstein <yosefdi@gmail.com>",
+    "repository": "https://github.com/stainless-steel/md5",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "The package provides the MD5 hash function."
   },
   {
     "name": "memchr",
@@ -3556,25 +3547,7 @@
   },
   {
     "name": "snafu",
-    "version": "0.7.5",
-    "authors": "Jake Goulding <jake.goulding@gmail.com>",
-    "repository": "https://github.com/shepmaster/snafu",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "An ergonomic error handling library"
-  },
-  {
-    "name": "snafu",
     "version": "0.8.1",
-    "authors": "Jake Goulding <jake.goulding@gmail.com>",
-    "repository": "https://github.com/shepmaster/snafu",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "An ergonomic error handling library"
-  },
-  {
-    "name": "snafu-derive",
-    "version": "0.7.5",
     "authors": "Jake Goulding <jake.goulding@gmail.com>",
     "repository": "https://github.com/shepmaster/snafu",
     "license": "Apache-2.0 OR MIT",
@@ -3772,7 +3745,7 @@
   },
   {
     "name": "tch",
-    "version": "0.14.0",
+    "version": "0.15.0",
     "authors": "Laurent Mazare <lmazare@gmail.com>",
     "repository": "https://github.com/LaurentMazare/tch-rs",
     "license": "Apache-2.0 OR MIT",
@@ -3988,7 +3961,7 @@
   },
   {
     "name": "torch-sys",
-    "version": "0.14.0",
+    "version": "0.15.0",
     "authors": "Laurent Mazare <lmazare@gmail.com>",
     "repository": "https://github.com/LaurentMazare/tch-rs",
     "license": "Apache-2.0 OR MIT",
@@ -4462,6 +4435,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Bindings for all Web APIs, a procedurally generated crate from WebIDL"
+  },
+  {
+    "name": "web-time",
+    "version": "1.1.0",
+    "authors": null,
+    "repository": "https://github.com/daxpedda/web-time",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Drop-in replacement for std::time for Wasm in browsers"
   },
   {
     "name": "webpki-roots",
