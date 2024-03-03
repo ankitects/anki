@@ -412,7 +412,7 @@ def _extract_request(
 
 def congrats_info() -> bytes:
     if not aqt.mw.col.sched._is_finished():
-        aqt.mw.taskman.run_on_main(lambda: aqt.mw.moveToState("review"))
+        aqt.mw.taskman.run_on_main(lambda: aqt.mw.moveToState("overview"))
     return raw_backend_request("congrats_info")()
 
 
