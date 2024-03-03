@@ -351,7 +351,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             min={100}
             max={99999}
         >
-            <SettingTitle>Deck size</SettingTitle>
+            <SettingTitle>{tr.deckConfigComputeDeckSize()}</SettingTitle>
         </SpinBoxRow>
 
         <SpinBoxRow
@@ -360,7 +360,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             min={1}
             max={3650}
         >
-            <SettingTitle>Days to simulate</SettingTitle>
+            <SettingTitle>{tr.deckConfigComputeSimulateDays()}</SettingTitle>
         </SpinBoxRow>
 
         <SpinBoxRow
@@ -369,7 +369,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             min={1}
             max={1800}
         >
-            <SettingTitle>Minutes study/day</SettingTitle>
+            <SettingTitle>{tr.deckConfigComputeStudyDayMinutes()}</SettingTitle>
         </SpinBoxRow>
 
         <button
