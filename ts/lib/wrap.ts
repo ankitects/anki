@@ -106,6 +106,13 @@ export function wrapClozeInternal(base: Element, n: number): void {
         } else if (!expand) {
             expand = false;
         }
+
+        if (range.endOffset === 0) {
+            range.setEndBefore(range.endContainer);
+            expand = true;
+        } else if (!expand) {
+            expand = false;
+        }
     } while (expand);
 
     const fragment = range.cloneContents()!;
