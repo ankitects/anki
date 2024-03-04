@@ -12,7 +12,7 @@ export class ChangeTimer {
     schedule(action: () => void, delay: number): void {
         this.clear();
         this.action = action;
-        this.value = setTimeout(this.fireImmediately, delay);
+        this.value = setTimeout(this.fireImmediately, delay) as any;
     }
 
     clear(): void {

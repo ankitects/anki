@@ -10,7 +10,7 @@
         "build": "cd ts && vite build",
         "preview": "cd ts && vite preview",
         "svelte-check:once": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings --threshold warning --compiler-warnings a11y-click-events-have-key-events:ignore,a11y-no-noninteractive-tabindex:ignore,a11y-no-static-element-interactions:ignore",
-        "svelte-check": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+        "svelte-check": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch  --compiler-warnings a11y-click-events-have-key-events:ignore,a11y-no-noninteractive-tabindex:ignore,a11y-no-static-element-interactions:ignore",
         "vitest:once": "cd ts && vitest run",
         "vitest": "cd ts && vitest"
     },
