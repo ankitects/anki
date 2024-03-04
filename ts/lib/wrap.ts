@@ -83,8 +83,9 @@ export function wrapClozeInternal(base: Element, n: number): void {
     ) {
         range.setEndAfter(endParent);
     }
-    let expand = false;
+    let expand: boolean;
     do {
+        expand = false;
         if (
             startParent
             && startParent.parentNode !== base && startParent.parentNode?.firstChild === startParent
@@ -93,8 +94,6 @@ export function wrapClozeInternal(base: Element, n: number): void {
             startParent = startParent.parentNode;
             range.setStartBefore(startParent);
             expand = true;
-        } else {
-            expand = false;
         }
         if (
             endParent && endParent.parentNode !== base && endParent.parentNode?.lastChild === endParent
@@ -103,15 +102,10 @@ export function wrapClozeInternal(base: Element, n: number): void {
             endParent = endParent.parentNode;
             range.setEndAfter(endParent);
             expand = true;
-        } else if (!expand) {
-            expand = false;
         }
-
         if (range.endOffset === 0) {
             range.setEndBefore(range.endContainer);
             expand = true;
-        } else if (!expand) {
-            expand = false;
         }
     } while (expand);
 
