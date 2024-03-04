@@ -39,7 +39,7 @@ def handle_resource(policy, resource):
     if type(resource) == "PythonModuleSource":
         resource.add_include = True
         for prefix in excluded_source_prefixes:
-            if resource.name.startswith(prefix):
+            if resource.name.startswith(prefix) and not resource.name.startswith("pip_system_certs"):
                 resource.add_include = False
 
         # if resource.add_include:
