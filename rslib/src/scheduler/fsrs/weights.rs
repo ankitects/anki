@@ -60,15 +60,15 @@ impl Collection {
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
-        let (items, _) =
+        let (items, review_count) =
             fsrs_items_for_training(revlogs.clone(), timing.next_day_at, ignore_revlogs_before);
 
-        let fsrs_items = items.len() as u32;
-        if fsrs_items < 400 {
+        if review_count < 400 {
             return Err(AnkiError::FsrsInsufficientReviews {
-                count: fsrs_items as usize,
+                count: review_count as usize,
             });
         }
+        let fsrs_items = items.len() as u32;
         anki_progress.update(false, |p| {
             p.current_preset = current_preset;
             p.total_presets = total_presets;
