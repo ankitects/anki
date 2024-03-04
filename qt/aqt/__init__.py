@@ -6,6 +6,8 @@ from __future__ import annotations
 import logging
 import sys
 
+import pip_system_certs.wrapt_requests
+
 if sys.version_info[0] < 3 or sys.version_info[1] < 9:
     raise Exception("Anki requires Python 3.9+")
 
