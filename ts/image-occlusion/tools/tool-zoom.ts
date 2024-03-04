@@ -4,13 +4,29 @@
 // https://codepen.io/amsunny/pen/XWGLxye
 // canvas.viewportTransform = [ scaleX, skewX, skewY, scaleY, translateX, translateY ]
 
+import Hammer from "hammerjs";
+
 let isDragging = false;
+
+const minScale = 0.2;
+const maxScale = 5;
+let zoomScale = 1;
+let currentScale = 1;
 
 export const enableZoom = (canvas) => {
     canvas.on("mouse:wheel", onMouseWheel);
     canvas.on("mouse:down", onMouseDown);
     canvas.on("mouse:move", onMouseMove);
     canvas.on("mouse:up", onMouseUp);
+
+    const hammer = new Hammer(canvas.upperCanvasEl);
+    hammer.get("pinch").set({ enable: true });
+    hammer.on("pinch pinchmove", ev => {
+        currentScale = Math.min(Math.max(minScale, ev.scale * zoomScale), maxScale);
+    });
+    hammer.on("pinchend pinchcancel", () => {
+        zoomScale = currentScale;
+    });
 };
 
 export const disableZoom = (canvas) => {
@@ -18,15 +34,21 @@ export const disableZoom = (canvas) => {
     canvas.off("mouse:down", onMouseDown);
     canvas.off("mouse:move", onMouseMove);
     canvas.off("mouse:up", onMouseUp);
+
+    const hammer = new Hammer(canvas.upperCanvasEl);
+    hammer.get("pinch").set({ enable: false });
+    hammer.off("pinch pinchmove pinchend pinchcancel");
 };
 
 export const zoomIn = (canvas): void => {
-    const zoom = canvas.getZoom();
-    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, zoom * 1.1);
+    let zoom = canvas.getZoom();
+    zoom = Math.min(maxScale, zoom * 1.1);
+    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, zoom);
 };
 
 export const zoomOut = (canvas): void => {
-    const zoom = canvas.getZoom();
+    let zoom = canvas.getZoom();
+    zoom = Math.max(minScale, zoom / 1.1);
     canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, zoom / 1.1);
 };
 
@@ -54,20 +76,10 @@ const onMouseWheel = (opt) => {
     const delta = opt.e.deltaY;
     let zoom = canvas.getZoom();
     zoom *= 0.999 ** delta;
-
-    if (zoom > 5) {
-        zoom = 5;
-    }
-
-    if (zoom < 0.2) {
-        zoom = 0.2;
-    }
-
+    zoom = Math.max(minScale, Math.min(zoom, maxScale));
     canvas.zoomToPoint({ x: opt.pointer.x, y: opt.pointer.y }, zoom);
     opt.e.preventDefault();
     opt.e.stopPropagation();
-
-    constrainBoundsAroundBgImage(canvas);
 };
 
 const onMouseDown = (opt) => {
@@ -75,8 +87,10 @@ const onMouseDown = (opt) => {
     const canvas = globalThis.canvas;
     canvas.discardActiveObject();
     const { e } = opt;
-    canvas.lastPosX = e.clientX;
-    canvas.lastPosY = e.clientY;
+    const clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
+    canvas.lastPosX = clientX;
+    canvas.lastPosY = clientY;
     canvas.requestRenderAll();
 };
 
@@ -89,11 +103,19 @@ const onMouseMove = (opt) => {
         if (!canvas.viewportTransform) {
             return;
         }
+
+        if ((e.type === "touchmove") && (e.touches.length > 1)) {
+            canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, currentScale);
+            return;
+        }
+
+        const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
         const vpt = canvas.viewportTransform;
-        vpt[4] += e.clientX - canvas.lastPosX;
-        vpt[5] += e.clientY - canvas.lastPosY;
-        canvas.lastPosX = e.clientX;
-        canvas.lastPosY = e.clientY;
+        vpt[4] += clientX - canvas.lastPosX;
+        vpt[5] += clientY - canvas.lastPosY;
+        canvas.lastPosX = clientX;
+        canvas.lastPosY = clientY;
         canvas.requestRenderAll();
     }
 };
