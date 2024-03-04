@@ -60,15 +60,15 @@ impl Collection {
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
-        let (items, review_count) =
+        let (items, _) =
             fsrs_items_for_training(revlogs.clone(), timing.next_day_at, ignore_revlogs_before);
 
-        if review_count < 400 {
+        let fsrs_items = items.len() as u32;
+        if fsrs_items < 400 {
             return Err(AnkiError::FsrsInsufficientReviews {
-                count: review_count,
+                count: fsrs_items as usize,
             });
         }
-        let fsrs_items = items.len() as u32;
         anki_progress.update(false, |p| {
             p.current_preset = current_preset;
             p.total_presets = total_presets;
@@ -84,7 +84,7 @@ impl Collection {
                 if let Err(_err) = anki_progress.update(false, |s| {
                     s.total_iterations = guard.total() as u32;
                     s.current_iteration = guard.current() as u32;
-                    s.reviews = review_count as u32;
+                    s.reviews = fsrs_items;
                     finished = guard.finished();
                 }) {
                     guard.want_abort = true;
@@ -94,7 +94,7 @@ impl Collection {
         });
         let fsrs = FSRS::new(Some(current_weights))?;
         let mut weights =
-            fsrs.compute_parameters(items.clone(), revlogs.len() < 1000, Some(progress2))?;
+            fsrs.compute_parameters(items.clone(), fsrs_items < 1000, Some(progress2))?;
         let metrics = fsrs.universal_metrics(items, &weights, |_| true)?;
         if metrics.0 < metrics.1 {
             weights = current_weights.to_vec();
