@@ -65,7 +65,7 @@ impl Collection {
 
         if review_count < 400 {
             return Err(AnkiError::FsrsInsufficientReviews {
-                count: review_count as usize,
+                count: review_count,
             });
         }
         let fsrs_items = items.len() as u32;
