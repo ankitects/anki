@@ -84,7 +84,7 @@ impl Collection {
                 if let Err(_err) = anki_progress.update(false, |s| {
                     s.total_iterations = guard.total() as u32;
                     s.current_iteration = guard.current() as u32;
-                    s.reviews = fsrs_items;
+                    s.reviews = review_count as u32;
                     finished = guard.finished();
                 }) {
                     guard.want_abort = true;
