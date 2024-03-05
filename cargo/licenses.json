@@ -2206,7 +2206,7 @@
   },
   {
     "name": "mio",
-    "version": "0.8.10",
+    "version": "0.8.11",
     "authors": "Carl Lerche <me@carllerche.com>|Thomas de Zeeuw <thomasdezeeuw@gmail.com>|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/mio",
     "license": "MIT",
