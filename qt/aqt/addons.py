@@ -1585,7 +1585,7 @@ class ConfigEditor(QDialog):
         font_mono = QFont("Consolas")
         if not font_mono.exactMatch():
             font_mono = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
-        font_mono.setPointSize(font_mono.pointSize() + 1)
+        font_mono.setPointSize(font_mono.pointSize())
         self.form.editor.setFont(font_mono)
 
     def updateHelp(self) -> None:
