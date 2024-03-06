@@ -8,6 +8,7 @@ use anki_proto::cards;
 use anki_proto::generic;
 use anki_proto::scheduler;
 use anki_proto::scheduler::ComputeFsrsWeightsResponse;
+use anki_proto::scheduler::FsrsBenchmarkResponse;
 use anki_proto::scheduler::ComputeMemoryStateResponse;
 use anki_proto::scheduler::ComputeOptimalRetentionRequest;
 use anki_proto::scheduler::ComputeOptimalRetentionResponse;
@@ -323,6 +324,19 @@ impl crate::services::BackendSchedulerService for Backend {
         Ok(ComputeFsrsWeightsResponse {
             weights,
             fsrs_items,
+        })
+    }
+
+    fn fsrs_benchmark(
+        &self,
+        req: scheduler::FsrsBenchmarkRequest,
+    ) -> Result<scheduler::FsrsBenchmarkResponse> {
+        let fsrs = FSRS::new(None)?;
+        let train_set = req.train_set.into_iter().map(fsrs_item_proto_to_fsrs).collect();
+        let test_set = req.test_set.into_iter().map(fsrs_item_proto_to_fsrs).collect();
+        let weights = fsrs.benchmark(train_set, test_set);
+        Ok(FsrsBenchmarkResponse {
+            weights,
         })
     }
 }

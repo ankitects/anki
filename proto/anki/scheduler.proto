@@ -63,6 +63,7 @@ service SchedulerService {
 service BackendSchedulerService {
   rpc ComputeFsrsWeightsFromItems(ComputeFsrsWeightsFromItemsRequest)
       returns (ComputeFsrsWeightsResponse);
+  rpc FsrsBenchmark(FsrsBenchmarkRequest) returns (FsrsBenchmarkResponse);
 }
 
 message SchedulingState {
@@ -349,6 +350,15 @@ message ComputeFsrsWeightsResponse {
 
 message ComputeFsrsWeightsFromItemsRequest {
   repeated FsrsItem items = 1;
+}
+
+message FsrsBenchmarkRequest {
+  repeated FsrsItem train_set = 1;
+  repeated FsrsItem test_set = 2;
+}
+
+message FsrsBenchmarkResponse {
+  repeated float weights = 1;
 }
 
 message FsrsItem {
