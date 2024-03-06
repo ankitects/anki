@@ -57,7 +57,7 @@ message CardStatsResponse {
   optional float fsrs_retrievability = 19;
   string custom_data = 20;
   string preset = 21;
-  string original_deck = 22;
+  optional string original_deck = 22;
 }
 
 message GraphsRequest {

@@ -75,7 +75,11 @@ impl Collection {
             fsrs_retrievability,
             custom_data: card.custom_data,
             preset: preset.name,
-            original_deck: original_deck.human_name(),
+            original_deck: if original_deck != deck {
+                Some(original_deck.human_name())
+            } else {
+                None
+            },
         })
     }
 
