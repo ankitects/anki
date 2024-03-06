@@ -105,7 +105,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         statsRows.push({ label: tr2.cardStatsCardTemplate(), value: stats.cardType });
         statsRows.push({ label: tr2.cardStatsNoteType(), value: stats.notetype });
-        statsRows.push({ label: tr2.cardStatsDeckName(), value: stats.deck });
+        let deck: string;
+        if (stats.deck !== stats.originalDeck) {
+            deck = `${stats.deck} (${stats.originalDeck})`;
+        } else {
+            deck = stats.deck;
+        }
+        statsRows.push({ label: tr2.cardStatsDeckName(), value: deck });
+        statsRows.push({ label: tr2.cardStatsPreset(), value: stats.preset });
 
         statsRows.push({ label: tr2.cardStatsCardId(), value: stats.cardId });
         statsRows.push({ label: tr2.cardStatsNoteId(), value: stats.noteId });
