@@ -23,15 +23,8 @@ def remove_decks(
     parent: QWidget,
     deck_ids: Sequence[DeckId],
 ) -> CollectionOp[DecksRemoved]:
-    print("ATTEMPTING TO DELETE DECKS {} {}".format(parent, deck_ids))
     return CollectionOp(parent, lambda col: col.decks.remove(deck_ids)).success(
-        lambda out: (
-            print([out.count, out.deck_names]),
-            tooltip(
-                tr.browsing_cards_deleted(count=out.count, deck_names=out.deck_names),
-                parent=parent,
-            ),
-        )[1]
+        lambda out: tooltip(tr.browsing_cards_deleted(count=out.count, deck_names=out.deck_names), parent=parent),    
     )
 
 
