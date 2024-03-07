@@ -233,3 +233,4 @@ importing-tag-updated-notes-help = These tags will be added to any updated notes
 importing-importing-collection = Importing collection...
 importing-unable-to-import-filename = Unable to import { $filename }: file type not supported
 importing-notes-that-could-not-be-imported = Notes that could not be imported as note type has changed: { $val }
+importing-added = Added
