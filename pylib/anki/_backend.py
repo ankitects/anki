@@ -150,8 +150,10 @@ class RustBackend(RustBackendGenerated):
 
     def compute_weights_from_items(self, items: Iterable[FsrsItem]) -> Sequence[float]:
         return self.compute_fsrs_weights_from_items(items).weights
-    
-    def benchmark(self, train_set: Iterable[FsrsItem], test_set: Iterable[FsrsItem]) -> Sequence[float]:
+
+    def benchmark(
+        self, train_set: Iterable[FsrsItem], test_set: Iterable[FsrsItem]
+    ) -> Sequence[float]:
         return self.fsrs_benchmark(train_set=train_set, test_set=test_set)
 
     def _run_command(self, service: int, method: int, input: bytes) -> bytes:
