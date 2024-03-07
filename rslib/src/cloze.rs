@@ -417,7 +417,7 @@ pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
 fn add_cloze_numbers_in_text_with_clozes(nodes: &[TextOrCloze], set: &mut HashSet<u16>) {
     for node in nodes {
         if let TextOrCloze::Cloze(cloze) = node {
-            if !(cloze.image_occlusion().is_some() && cloze.ordinal == 0) {
+            if !(cloze.image_occlusion().is_some() || cloze.ordinal == 0) {
                 set.insert(cloze.ordinal);
                 add_cloze_numbers_in_text_with_clozes(&cloze.nodes, set);
             }
@@ -470,6 +470,10 @@ mod test {
         assert_eq!(
             cloze_numbers_in_string("{{c2::te}}{{c1::s}}t{{"),
             vec![1, 2].into_iter().collect::<HashSet<u16>>()
+        );
+        assert_eq!(
+            cloze_numbers_in_string("{{c0::te}}s{{c2::t}}s"),
+            vec![2].into_iter().collect::<HashSet<u16>>()
         );
 
         assert_eq!(
