@@ -32,8 +32,6 @@ impl Collection {
     }
 
     pub(crate) fn remove_single_deck(&mut self, deck: &Deck, usn: Usn) -> Result<(String, usize)> {
-        println!("print from remove_single_deck");
-        dbg!(deck);
         let deck_name = deck.name.human_name();
         let card_count = match deck.kind {
             DeckKind::Normal(_) => self.delete_all_cards_in_normal_deck(deck.id)?,

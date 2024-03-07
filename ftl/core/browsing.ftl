@@ -17,8 +17,8 @@ browsing-card-list = Card List
 browsing-cards-cant-be-manually-moved-into = Cards can't be manually moved into a filtered deck.
 browsing-cards-deleted =
     { $count ->
-        [one] { $count } card deleted.
-       *[other] { $count } cards deleted.
+        [one] { $count } card deleted from {$deck_names}.
+       *[other] { $count } cards deleted from {$deck_names}.
     }
 browsing-change-deck = Change Deck
 browsing-change-deck2 = Change Deck...
@@ -63,6 +63,7 @@ browsing-optional-filter = Optional filter:
 browsing-override-back-template = Override back template:
 browsing-override-font = Override font:
 browsing-override-front-template = Override front template:
+
 browsing-please-give-your-filter-a-name = Please give your filter a name:
 browsing-preview-selected-card = Preview Selected Card ({ $val })
 browsing-question = Question
