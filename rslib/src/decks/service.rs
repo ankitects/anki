@@ -166,7 +166,7 @@ impl crate::services::DecksService for Collection {
     fn remove_decks(
         &mut self,
         input: anki_proto::decks::DeckIds,
-    ) -> error::Result<anki_proto::collection::OpChangesWithCount> {
+    ) -> error::Result<anki_proto::decks::DecksRemoved> {
         self.remove_decks_and_child_decks(&input.dids.into_iter().map(DeckId).collect::<Vec<_>>())
             .map(Into::into)
     }

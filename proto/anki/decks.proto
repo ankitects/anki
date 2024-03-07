@@ -27,7 +27,7 @@ service DecksService {
   rpc GetDeckNames(GetDeckNamesRequest) returns (DeckNames);
   rpc GetDeckAndChildNames(DeckId) returns (DeckNames);
   rpc NewDeckLegacy(generic.Bool) returns (generic.Json);
-  rpc RemoveDecks(DeckIds) returns (collection.OpChangesWithCount);
+  rpc RemoveDecks(DeckIds) returns (DecksRemoved);
   rpc ReparentDecks(ReparentDecksRequest)
       returns (collection.OpChangesWithCount);
   rpc RenameDeck(RenameDeckRequest) returns (collection.OpChanges);
@@ -143,6 +143,12 @@ message Deck {
 message AddOrUpdateDeckLegacyRequest {
   bytes deck = 1;
   bool preserve_usn_and_mtime = 2;
+}
+
+message DecksRemoved {
+  collection.OpChanges changes = 1;
+  repeated string deck_names = 2;
+  uint32 count = 3;
 }
 
 message DeckTreeRequest {
