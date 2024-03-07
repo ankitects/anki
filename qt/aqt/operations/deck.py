@@ -25,7 +25,9 @@ def remove_decks(
 ) -> CollectionOp[DecksRemoved]:
     return CollectionOp(parent, lambda col: col.decks.remove(deck_ids)).success(
         lambda out: tooltip(
-            tr.browsing_cards_deleted_with_decknames(count=out.count, deck_names=out.deck_names),
+            tr.browsing_cards_deleted_with_decknames(
+                count=out.count, deck_names=out.deck_names
+            ),
             parent=parent,
         )
     )
