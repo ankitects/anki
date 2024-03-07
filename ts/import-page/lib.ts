@@ -17,7 +17,7 @@ function getFirstFieldQueue(log: ImportResponse_Log): {
     let action: string;
     if (log.dupeResolution === CsvMetadata_DupeResolution.DUPLICATE) {
         reason = tr.importingDuplicateNoteAdded();
-        action = tr.addingAdded();
+        action = tr.importingAdded();
     } else if (log.dupeResolution === CsvMetadata_DupeResolution.PRESERVE) {
         reason = tr.importingExistingNoteSkipped();
         action = tr.importingSkipped();

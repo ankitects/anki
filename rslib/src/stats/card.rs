@@ -41,6 +41,18 @@ impl Collection {
                     .unwrap()
                     .current_retrievability(state.into(), days)
             });
+
+        let original_deck = if card.original_deck_id == DeckId(0) {
+            deck.clone()
+        } else {
+            self.storage
+                .get_deck(card.original_deck_id)?
+                .or_not_found(card.original_deck_id)?
+        };
+        let config_id = original_deck.config_id().unwrap();
+        let preset = self
+            .get_deck_config(config_id, true)?
+            .or_not_found(config_id.to_string())?;
         Ok(anki_proto::stats::CardStatsResponse {
             card_id: card.id.into(),
             note_id: card.note_id.into(),
@@ -62,6 +74,12 @@ impl Collection {
             memory_state: card.memory_state.map(Into::into),
             fsrs_retrievability,
             custom_data: card.custom_data,
+            preset: preset.name,
+            original_deck: if original_deck != deck {
+                Some(original_deck.human_name())
+            } else {
+                None
+            },
         })
     }
 
