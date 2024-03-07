@@ -124,16 +124,14 @@ class RustBackend(RustBackendGenerated):
     def translate(
         self, module_index: int, message_index: int, **kwargs: str | int | float
     ) -> str:
-        args = {}
-        for k, v in kwargs.items():
-            if isinstance(v, str):
-                args[k] = i18n_pb2.TranslateArgValue(str=v)
-            elif isinstance(v, (int, float)):
-                args[k] = i18n_pb2.TranslateArgValue(number=v)
-            else:
-                args[k] = i18n_pb2.TranslateArgValue(
-                    str=", ".join(str(item) for item in v)
-                )
+        args = {
+            k: (
+                i18n_pb2.TranslateArgValue(str=v)
+                if isinstance(v, str)
+                else i18n_pb2.TranslateArgValue(number=v)
+            )
+            for k, v in kwargs.items()
+        }
         return self.translate_string(
             module_index=module_index, message_index=message_index, args=args
         )
