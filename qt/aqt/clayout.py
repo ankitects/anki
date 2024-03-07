@@ -293,7 +293,7 @@ class CardLayout(QDialog):
         qconnect(widg.returnPressed, self.on_search_next)
 
     def setup_cloze_number_box(self) -> None:
-        names = (tr.card_templates_cloze(val=n) for n in self.cloze_numbers)
+        names = (tr.card_templates_card(val=n) for n in self.cloze_numbers)
         self.pform.cloze_number_combo.addItems(names)
         try:
             idx = self.cloze_numbers.index(self.ord + 1)

@@ -14,7 +14,6 @@ from . import (
     customstudy,
     dconf,
     debug,
-    editaddon,
     editcurrent,
     edithtml,
     emptycards,
