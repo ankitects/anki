@@ -3,8 +3,12 @@
 use crate::prelude::*;
 
 impl Collection {
-    pub fn remove_decks_and_child_decks(&mut self, dids: &[DeckId]) -> Result<OpOutput<usize>> {
+    pub fn remove_decks_and_child_decks(
+        &mut self,
+        dids: &[DeckId],
+    ) -> Result<OpOutput<(Vec<String>, usize)>> {
         self.transact(Op::RemoveDeck, |col| {
+            let mut deck_names: Vec<String> = Vec::new();
             let mut card_count = 0;
             let usn = col.usn()?;
             for did in dids {
@@ -12,19 +16,25 @@ impl Collection {
                     let child_decks = col.storage.child_decks(&deck)?;
 
                     // top level
-                    card_count += col.remove_single_deck(&deck, usn)?;
-
+                    let (deck_name, child_card_count) = col.remove_single_deck(&deck, usn)?;
+                    deck_names.push(deck_name);
+                    card_count += child_card_count;
                     // remove children
                     for deck in child_decks {
-                        card_count += col.remove_single_deck(&deck, usn)?;
+                        let (deck_name, child_card_count) = col.remove_single_deck(&deck, usn)?;
+                        deck_names.push(deck_name);
+                        card_count += child_card_count;
                     }
                 }
             }
-            Ok(card_count)
+            Ok((deck_names, card_count))
         })
     }
 
-    pub(crate) fn remove_single_deck(&mut self, deck: &Deck, usn: Usn) -> Result<usize> {
+    pub(crate) fn remove_single_deck(&mut self, deck: &Deck, usn: Usn) -> Result<(String, usize)> {
+        println!("print from remove_single_deck");
+        dbg!(deck);
+        let deck_name = deck.name.human_name();
         let card_count = match deck.kind {
             DeckKind::Normal(_) => self.delete_all_cards_in_normal_deck(deck.id)?,
             DeckKind::Filtered(_) => {
@@ -45,7 +55,7 @@ impl Collection {
         } else {
             self.remove_deck_and_add_grave_undoable(deck.clone(), usn)?;
         }
-        Ok(card_count)
+        Ok((deck_name, card_count))
     }
 }
 

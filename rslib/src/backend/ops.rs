@@ -70,3 +70,13 @@ impl OpOutput<UndoOutput> {
         }
     }
 }
+
+impl From<OpOutput<(Vec<String>, usize)>> for anki_proto::decks::DecksRemoved {
+    fn from(out: OpOutput<(Vec<String>, usize)>) -> Self {
+        anki_proto::decks::DecksRemoved {
+            changes: Some(out.changes.into()),
+            deck_names: out.output.0,
+            count: out.output.1 as u32,
+        }
+    }
+}
