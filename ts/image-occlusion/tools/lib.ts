@@ -26,6 +26,9 @@ export const enableSelectable = (
 ): void => {
     canvas.selection = select;
     canvas.forEachObject(function(o) {
+        if (o.fill === "transparent") {
+            return;
+        }
         o.selectable = select;
     });
     canvas.renderAll();
@@ -40,6 +43,7 @@ export const deleteItem = (canvas: fabric.Canvas): void => {
             canvas.discardActiveObject().renderAll();
         }
     }
+    redraw(canvas);
 };
 
 export const duplicateItem = (canvas: fabric.Canvas): void => {
@@ -89,14 +93,6 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
     });
 
     redraw(canvas);
-};
-
-export const getCanvasCenter = () => {
-    const canvas = globalThis.canvas.getElement();
-    const rect = canvas.getBoundingClientRect();
-    const centerX = rect.x + rect.width / 2;
-    const centerY = rect.y + rect.height / 2;
-    return { x: centerX, y: centerY };
 };
 
 const copyItem = (canvas: fabric.Canvas): void => {
@@ -159,7 +155,7 @@ export const makeMaskTransparent = (
     canvas.renderAll();
 };
 
-export const moveShapeToCanvasBoundaries = (canvas: fabric.Canvas, boundingBox): void => {
+export const moveShapeToCanvasBoundaries = (canvas: fabric.Canvas, boundingBox: fabric.Rect): void => {
     canvas.on("object:modified", function(o) {
         const activeObject = o.target;
         if (!activeObject) {
@@ -178,7 +174,7 @@ export const moveShapeToCanvasBoundaries = (canvas: fabric.Canvas, boundingBox):
 };
 
 const modifiedRectangle = (
-    boundingBox,
+    boundingBox: fabric.Rect,
     object: fabric.Object,
 ): void => {
     const newWidth = object.width * object.scaleX;
@@ -194,7 +190,7 @@ const modifiedRectangle = (
 };
 
 const modifiedEllipse = (
-    boundingBox,
+    boundingBox: fabric.Rect,
     object: fabric.Object,
 ): void => {
     const newRx = object.rx * object.scaleX;
@@ -213,12 +209,12 @@ const modifiedEllipse = (
     setShapePosition(boundingBox, object);
 };
 
-const modifiedText = (boundingBox, object: fabric.Object): void => {
+const modifiedText = (boundingBox: fabric.Rect, object: fabric.Object): void => {
     setShapePosition(boundingBox, object);
 };
 
 const setShapePosition = (
-    boundingBox,
+    boundingBox: fabric.Rect,
     object: fabric.Object,
 ): void => {
     if (object.left < 0) {
@@ -262,7 +258,7 @@ export const clear = (canvas: fabric.Canvas): void => {
     canvas.clear();
 };
 
-export const makeShapeRemainInCanvas = (canvas: fabric.Canvas, boundingBox) => {
+export const makeShapeRemainInCanvas = (canvas: fabric.Canvas, boundingBox: fabric.Rect) => {
     canvas.on("object:moving", function(e) {
         const obj = e.target;
         if (obj.getScaledHeight() > boundingBox.height || obj.getScaledWidth() > boundingBox.width) {
@@ -307,5 +303,6 @@ export const isPointerInBoundingBox = (pointer): boolean => {
 };
 
 export const getBoundingBox = () => {
-    return globalThis.boundingBox;
+    const canvas = globalThis.canvas;
+    return canvas.getObjects().find((obj) => obj.fill === "transparent");
 };

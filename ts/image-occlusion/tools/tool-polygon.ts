@@ -7,6 +7,7 @@ import { get } from "svelte/store";
 
 import { BORDER_COLOR, isPointerInBoundingBox, SHAPE_MASK_COLOR } from "./lib";
 import { undoStack } from "./tool-undo-redo";
+import { onPinchZoom } from "./tool-zoom";
 
 let activeLine;
 let activeShape;
@@ -35,6 +36,10 @@ export const drawPolygon = (canvas: fabric.Canvas): void => {
     });
 
     canvas.on("mouse:move", function(options) {
+        if (onPinchZoom(options)) {
+            return;
+        }
+
         if (activeLine && activeLine.class === "line") {
             const pointer = canvas.getPointer(options.e);
             activeLine.set({
@@ -163,6 +168,7 @@ const addPoint = (canvas: fabric.Canvas, options): void => {
 
     canvas.add(line);
     canvas.add(point);
+    canvas.renderAll();
 };
 
 const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {

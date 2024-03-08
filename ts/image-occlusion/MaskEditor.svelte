@@ -62,16 +62,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(() => {
-        window.addEventListener("resize", () => {
-            onResize(canvas);
-        });
+        window.addEventListener("resize", resizeEvent);
     });
 
     onDestroy(() => {
-        window.removeEventListener("resize", () => {
-            onResize(canvas);
-        });
+        window.removeEventListener("resize", resizeEvent);
     });
+
+    const resizeEvent = () => {
+        onResize(canvas);
+    };
 </script>
 
 <Toolbar {canvas} {iconSize} activeTool={startingTool} />
@@ -92,7 +92,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         right: 2px;
         border: 1px solid var(--border);
         overflow: auto;
-        padding-bottom: 100px;
         outline: none !important;
     }
 
@@ -106,6 +105,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height: 100%;
         position: relative;
         direction: ltr;
+        overflow: hidden;
     }
 
     #image {

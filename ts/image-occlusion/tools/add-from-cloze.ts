@@ -10,7 +10,7 @@ import { redraw } from "./lib";
 
 export const addShapesToCanvasFromCloze = (
     canvas: fabric.Canvas,
-    boundingBox,
+    boundingBox: fabric.Rect,
     occlusions: GetImageOcclusionNoteResponse_ImageOcclusion[],
 ): void => {
     for (const shapeOrShapes of extractShapesFromClozedField(occlusions)) {

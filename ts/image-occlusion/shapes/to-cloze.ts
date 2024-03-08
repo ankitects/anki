@@ -22,6 +22,10 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
     let clozes = "";
     let index = 0;
     shapes.forEach((shapeOrShapes) => {
+        // shapes with width or height less than 5 are not valid
+        if (shapeOrShapes === null) {
+            return;
+        }
         // if shape is Rect and fill is transparent, skip it
         if (shapeOrShapes instanceof Rectangle && shapeOrShapes.fill === "transparent") {
             return;
@@ -54,6 +58,9 @@ export function baseShapesFromFabric(): ShapeOrShapes[] {
             const parent = selectionContainingMultipleObjects?.contains(object)
                 ? selectionContainingMultipleObjects
                 : undefined;
+            if (object.width < 5 || object.height < 5) {
+                return null;
+            }
             return fabricObjectToBaseShapeOrShapes(
                 boundingBox,
                 object,
@@ -111,6 +118,10 @@ function fabricObjectToBaseShapeOrShapes(
         );
         shape.left = newPosition.x;
         shape.top = newPosition.y;
+    }
+
+    if (size == undefined) {
+        size = { width: 0, height: 0 };
     }
 
     shape = shape.toNormal(size);

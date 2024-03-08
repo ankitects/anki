@@ -4,21 +4,55 @@
 // https://codepen.io/amsunny/pen/XWGLxye
 // canvas.viewportTransform = [ scaleX, skewX, skewY, scaleY, translateX, translateY ]
 
+import type { fabric } from "fabric";
 import Hammer from "hammerjs";
+
+import { getBoundingBox, redraw } from "./lib";
 
 let isDragging = false;
 
-const minScale = 0.2;
+const minScale = 0.5;
 const maxScale = 5;
 let zoomScale = 1;
-let currentScale = 1;
+export let currentScale = 1;
 
-export const enableZoom = (canvas) => {
+export const enableZoom = (canvas: fabric.Canvas) => {
     canvas.on("mouse:wheel", onMouseWheel);
     canvas.on("mouse:down", onMouseDown);
     canvas.on("mouse:move", onMouseMove);
     canvas.on("mouse:up", onMouseUp);
+};
 
+export const disableZoom = (canvas: fabric.Canvas) => {
+    canvas.off("mouse:wheel", onMouseWheel);
+    canvas.off("mouse:down", onMouseDown);
+    canvas.off("mouse:move", onMouseMove);
+    canvas.off("mouse:up", onMouseUp);
+};
+
+export const zoomIn = (canvas: fabric.Canvas): void => {
+    let zoom = canvas.getZoom();
+    zoom = Math.min(maxScale, zoom * 1.1);
+    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, zoom);
+    constrainBoundsAroundBgImage(canvas);
+    redraw(canvas);
+};
+
+export const zoomOut = (canvas): void => {
+    let zoom = canvas.getZoom();
+    zoom = Math.max(minScale, zoom / 1.1);
+    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, zoom / 1.1);
+    constrainBoundsAroundBgImage(canvas);
+    redraw(canvas);
+};
+
+export const zoomReset = (canvas: fabric.Canvas): void => {
+    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, 1);
+    fitCanvasVptScale(canvas);
+    constrainBoundsAroundBgImage(canvas);
+};
+
+export const enablePinchZoom = (canvas: fabric.Canvas) => {
     const hammer = new Hammer(canvas.upperCanvasEl);
     hammer.get("pinch").set({ enable: true });
     hammer.on("pinch pinchmove", ev => {
@@ -29,44 +63,14 @@ export const enableZoom = (canvas) => {
     });
 };
 
-export const disableZoom = (canvas) => {
-    canvas.off("mouse:wheel", onMouseWheel);
-    canvas.off("mouse:down", onMouseDown);
-    canvas.off("mouse:move", onMouseMove);
-    canvas.off("mouse:up", onMouseUp);
-
+export const disablePinchZoom = (canvas: fabric.Canvas) => {
     const hammer = new Hammer(canvas.upperCanvasEl);
     hammer.get("pinch").set({ enable: false });
     hammer.off("pinch pinchmove pinchend pinchcancel");
 };
 
-export const zoomIn = (canvas): void => {
-    let zoom = canvas.getZoom();
-    zoom = Math.min(maxScale, zoom * 1.1);
-    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, zoom);
-};
-
-export const zoomOut = (canvas): void => {
-    let zoom = canvas.getZoom();
-    zoom = Math.max(minScale, zoom / 1.1);
-    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, zoom / 1.1);
-};
-
-export const zoomReset = (canvas): void => {
-    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, 1);
-    fitCanvasVptScale(canvas);
-    constrainBoundsAroundBgImage(canvas);
-};
-
-export const onResize = (canvas) => {
+export const onResize = (canvas: fabric.Canvas) => {
     setCanvasSize(canvas);
-    scaleCanvasBgImage(canvas);
-
-    const canvasBgImage = canvas.backgroundImage;
-    if (canvasBgImage) {
-        updateCanvasFocusPoint(canvas, canvasBgImage);
-    }
-
     constrainBoundsAroundBgImage(canvas);
     fitCanvasVptScale(canvas);
 };
@@ -80,6 +84,8 @@ const onMouseWheel = (opt) => {
     canvas.zoomToPoint({ x: opt.pointer.x, y: opt.pointer.y }, zoom);
     opt.e.preventDefault();
     opt.e.stopPropagation();
+    constrainBoundsAroundBgImage(canvas);
+    redraw(canvas);
 };
 
 const onMouseDown = (opt) => {
@@ -91,140 +97,102 @@ const onMouseDown = (opt) => {
     const clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
     canvas.lastPosX = clientX;
     canvas.lastPosY = clientY;
-    canvas.requestRenderAll();
+    redraw(canvas);
 };
 
 const onMouseMove = (opt) => {
     const canvas = globalThis.canvas;
     if (isDragging) {
         canvas.discardActiveObject();
-        canvas.defaultCursor = "grabbing";
         const { e } = opt;
         if (!canvas.viewportTransform) {
             return;
         }
 
-        if ((e.type === "touchmove") && (e.touches.length > 1)) {
-            canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, currentScale);
+        if (onPinchZoom(opt)) {
             return;
         }
 
         const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
         const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
         const vpt = canvas.viewportTransform;
+
         vpt[4] += clientX - canvas.lastPosX;
         vpt[5] += clientY - canvas.lastPosY;
         canvas.lastPosX = clientX;
         canvas.lastPosY = clientY;
-        canvas.requestRenderAll();
+        constrainBoundsAroundBgImage(canvas);
+        redraw(canvas);
     }
+};
+
+export const onPinchZoom = (opt): boolean => {
+    const { e } = opt;
+    const canvas = globalThis.canvas;
+    if ((e.type === "touchmove") && (e.touches.length > 1)) {
+        canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, currentScale);
+        constrainBoundsAroundBgImage(canvas);
+        redraw(canvas);
+        return true;
+    }
+    return false;
 };
 
 const onMouseUp = () => {
     isDragging = false;
     const canvas = globalThis.canvas;
     canvas.setViewportTransform(canvas.viewportTransform);
-    canvas.defaultCursor = "default";
-    canvas.requestRenderAll();
+    constrainBoundsAroundBgImage(canvas);
+    redraw(canvas);
 };
 
-const constrainBoundsAroundBgImage = (canvas) => {
-    const canvasWidth = canvas.getWidth();
-    const canvasHeight = canvas.getHeight();
-    const vpt = canvas.viewportTransform;
-    const canvasBgImage = canvas.backgroundImage;
+export const constrainBoundsAroundBgImage = (canvas: fabric.Canvas) => {
+    const boundingBox = getBoundingBox();
+    const ioImage = document.getElementById("image") as HTMLImageElement;
 
-    if (!canvasBgImage) {
-        return;
-    }
+    const width = boundingBox.width * canvas.getZoom();
+    const height = boundingBox.height * canvas.getZoom();
 
-    const {
-        bgImageWidth,
-        bgImageHeight,
-    } = getCanvasBgImageCalculatedSize(canvas, canvasBgImage);
+    const left = canvas.viewportTransform[4];
+    const top = canvas.viewportTransform[5];
 
-    const minX = Math.min(0, canvasWidth - bgImageWidth);
-    const minY = Math.min(0, canvasHeight - bgImageHeight);
-
-    vpt[4] = Math.max(minX, Math.min(0, vpt[4]));
-    vpt[5] = Math.max(minY, Math.min(0, vpt[5]));
-
-    updateCanvasFocusPoint(canvas, canvasBgImage);
+    ioImage.width = width;
+    ioImage.height = height;
+    ioImage.style.left = `${left}px`;
+    ioImage.style.top = `${top}px`;
 };
 
-export const setCanvasSize = (canvas) => {
+export const setCanvasSize = (canvas: fabric.Canvas) => {
     canvas.setHeight(window.innerHeight - 76);
     canvas.setWidth(window.innerWidth - 39);
+    redraw(canvas);
 };
 
-const scaleCanvasBgImage = (canvas) => {
-    const canvasBgImage = canvas.backgroundImage;
-    const boundingBox = globalThis.boundingBox;
-    if (!canvasBgImage) {
-        return;
-    }
-
-    canvasBgImage.scaleToWidth(canvas.width * canvas.getZoom());
-    canvasBgImage.scaleToHeight(canvas.height * canvas.getZoom());
-
-    const ratioW = boundingBox.width / canvasBgImage.width;
-    const ratioH = boundingBox.height / canvasBgImage.height;
-
-    if (ratioW > ratioH) {
-        canvasBgImage.scaleX = ratioW;
-        canvasBgImage.scaleY = ratioW;
-    } else {
-        canvasBgImage.scaleX = ratioH;
-        canvasBgImage.scaleY = ratioH;
-    }
-    canvas.requestRenderAll();
-};
-
-const updateCanvasFocusPoint = (canvas, canvasBgImage) => {
+const fitCanvasVptScale = (canvas: fabric.Canvas) => {
+    const boundingBox = getBoundingBox();
+    const ratio = getScaleRatio(boundingBox);
     const vpt = canvas.viewportTransform;
 
-    vpt[4] = getCanvasFocusOffset(canvas, canvasBgImage).offsetX;
-    vpt[5] = getCanvasFocusOffset(canvas, canvasBgImage).offsetY;
-};
+    const boundingBoxWidth = boundingBox.width * canvas.getZoom();
+    const boundingBoxHeight = boundingBox.height * canvas.getZoom();
+    const center = canvas.getCenter();
+    const translateX = center.left - (boundingBoxWidth / 2);
+    const translateY = center.top - (boundingBoxHeight / 2);
 
-const getCanvasFocusOffset = (canvas, canvasBgImage) => {
-    const {
-        bgImageWidth,
-        bgImageHeight,
-    } = getCanvasBgImageCalculatedSize(canvas, canvasBgImage);
-
-    const canvasWidth = canvas.getWidth();
-    const canvasHeight = canvas.getHeight();
-
-    const offsetX = Math.max(0, (canvasWidth - bgImageWidth) / 2);
-    const offsetY = Math.max(0, (canvasHeight - bgImageHeight) / 2);
-
-    return {
-        offsetX,
-        offsetY,
-    };
-};
-
-const getCanvasBgImageCalculatedSize = (canvas, canvasBgImage) => {
-    return {
-        bgImageWidth: canvasBgImage.width * canvasBgImage.scaleX * canvas.getZoom(),
-        bgImageHeight: canvasBgImage.height * canvasBgImage.scaleY * canvas.getZoom(),
-    };
-};
-
-const fitCanvasVptScale = (canvas) => {
-    const ratio = getScaleRatio();
-    const vpt = canvas.viewportTransform;
     vpt[0] = ratio;
     vpt[3] = ratio;
-    canvas.requestRenderAll();
+    vpt[4] = Math.max(1, translateX);
+    vpt[5] = Math.max(1, translateY);
+
+    canvas.setViewportTransform(canvas.viewportTransform);
+    constrainBoundsAroundBgImage(canvas);
+    redraw(canvas);
 };
 
-const getScaleRatio = () => {
-    const boundingBox = globalThis.boundingBox;
+const getScaleRatio = (boundingBox: fabric.Rect) => {
     const h1 = boundingBox.height;
     const w1 = boundingBox.width;
-    const h2 = innerHeight - 78;
+    const h2 = innerHeight - 79;
     const w2 = innerWidth - 42;
 
     return Math.min(w2 / w1, h2 / h1);

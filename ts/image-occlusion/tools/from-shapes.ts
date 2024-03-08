@@ -8,7 +8,7 @@ import { addBorder, enableUniformScaling } from "./lib";
 
 export const addShape = (
     canvas: fabric.Canvas,
-    boundingBox,
+    boundingBox: fabric.Rect,
     shape: Shape,
 ): void => {
     const fabricShape = shape.toFabric(boundingBox);
@@ -21,7 +21,7 @@ export const addShape = (
 
 export const addShapeGroup = (
     canvas: fabric.Canvas,
-    boundingBox,
+    boundingBox: fabric.Rect,
     shapes: Shape[],
 ): void => {
     const group = new fabric.Group();

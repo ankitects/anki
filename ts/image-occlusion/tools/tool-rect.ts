@@ -7,6 +7,7 @@ import { get } from "svelte/store";
 
 import { BORDER_COLOR, isPointerInBoundingBox, SHAPE_MASK_COLOR, stopDraw } from "./lib";
 import { undoStack } from "./tool-undo-redo";
+import { onPinchZoom } from "./tool-zoom";
 
 export const drawRectangle = (canvas: fabric.Canvas): void => {
     canvas.selectionColor = "rgba(0, 0, 0, 0)";
@@ -51,6 +52,10 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
     });
 
     canvas.on("mouse:move", function(o) {
+        if (onPinchZoom(o)) {
+            return;
+        }
+
         if (!isDown) {
             return;
         }

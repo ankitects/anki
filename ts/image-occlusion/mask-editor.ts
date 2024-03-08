@@ -14,7 +14,7 @@ import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
 import { enableSelectable, makeShapeRemainInCanvas, moveShapeToCanvasBoundaries } from "./tools/lib";
 import { modifiedPolygon } from "./tools/tool-polygon";
 import { undoStack } from "./tools/tool-undo-redo";
-import { onResize, setCanvasSize } from "./tools/tool-zoom";
+import { enablePinchZoom, onResize, setCanvasSize } from "./tools/tool-zoom";
 import type { Size } from "./types";
 
 export interface ImageLoadedEvent {
@@ -35,12 +35,9 @@ export const setupMaskEditor = async (
     image.src = getImageData(imageData.data!, path);
     image.onload = async function() {
         const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
-        image.width = size.width;
-        image.height = size.height;
         setCanvasSize(canvas);
         onImageLoaded({ path });
-        await setupBoundingBox(canvas, size, image);
-        image.remove();
+        await setupBoundingBox(canvas, size);
         undoStack.reset();
     };
 
@@ -70,22 +67,18 @@ export const setupMaskEditorForEdit = async (
 
     // get image width and height
     const image = document.getElementById("image") as HTMLImageElement;
-    image.style.visibility = "hidden";
     image.src = getImageData(clozeNote.imageData!, clozeNote.imageFileName!);
 
     image.onload = async function() {
         const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
-        image.width = size.width;
-        image.height = size.height;
         setCanvasSize(canvas);
-        const boundingBox = await setupBoundingBox(canvas, size, image);
+        const boundingBox = setupBoundingBox(canvas, size);
         addShapesToCanvasFromCloze(canvas, boundingBox, clozeNote.occlusions);
         enableSelectable(canvas, true);
         addClozeNotesToTextEditor(clozeNote.header, clozeNote.backExtra, clozeNote.tags);
         undoStack.reset();
         window.requestAnimationFrame(() => {
             onImageLoaded({ noteId: BigInt(noteId) });
-            image.remove();
         });
     };
 
@@ -105,6 +98,8 @@ function initCanvas(onChange: () => void): fabric.Canvas {
     canvas.uniScaleKey = "none";
     // disable rotation globally
     delete fabric.Object.prototype.controls.mtr;
+    // disable object caching
+    fabric.Object.prototype.objectCaching = false;
     // add a border to corner to handle blend of control
     fabric.Object.prototype.transparentCorners = false;
     fabric.Object.prototype.cornerStyle = "circle";
@@ -121,44 +116,28 @@ function initCanvas(onChange: () => void): fabric.Canvas {
     return canvas;
 }
 
-const setupBoundingBox = (canvas: fabric.Canvas, size: Size, image: HTMLImageElement): Promise<fabric.Rect> => {
-    return new Promise((resolve) => {
-        const boundingBox = new fabric.Rect({
-            fill: "transparent",
-            width: size.width,
-            height: size.height,
-            hasBorders: false,
-            hasControls: false,
-            lockMovementX: true,
-            lockMovementY: true,
-            evented: false,
-            stroke: "red",
-        });
-        globalThis.boundingBox = boundingBox;
-        canvas.add(boundingBox);
-        canvas.renderAll();
-
-        fabric.Image.fromURL(image.src, function(img) {
-            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-                scaleX: size.width / img.width,
-                scaleY: size.height / img.height,
-            });
-            onResize(canvas);
-            makeShapeRemainInCanvas(canvas, boundingBox);
-            moveShapeToCanvasBoundaries(canvas, boundingBox);
-
-            const newWidth = canvas.backgroundImage.width * canvas.backgroundImage.scaleX;
-            const newHeight = canvas.backgroundImage.height * canvas.backgroundImage.scaleY;
-            boundingBox.scaleX = 1;
-            boundingBox.scaleY = 1;
-            boundingBox.width = newWidth;
-            boundingBox.height = newHeight;
-            boundingBox.left = 0;
-            boundingBox.top = 0;
-            undoStack.reset();
-            resolve(boundingBox);
-        });
+const setupBoundingBox = (canvas: fabric.Canvas, size: Size): fabric.Rect => {
+    const boundingBox = new fabric.Rect({
+        id: "boundingBox",
+        fill: "transparent",
+        width: size.width,
+        height: size.height,
+        hasBorders: false,
+        hasControls: false,
+        lockMovementX: true,
+        lockMovementY: true,
+        selectable: false,
+        evented: false,
+        stroke: "red",
     });
+
+    canvas.add(boundingBox);
+    onResize(canvas);
+    makeShapeRemainInCanvas(canvas, boundingBox);
+    moveShapeToCanvasBoundaries(canvas, boundingBox);
+    // enable pinch zoom for mobile devices
+    enablePinchZoom(canvas);
+    return boundingBox;
 };
 
 const getImageData = (imageData, path): string => {
@@ -221,8 +200,7 @@ export async function resetIOImage(path: string, onImageLoaded: (event: ImageLoa
         image.height = size.height;
         setCanvasSize(canvas);
         onImageLoaded({ path });
-        await setupBoundingBox(canvas, size, image);
-        image.remove();
+        await setupBoundingBox(canvas, size);
     };
 }
 globalThis.resetIOImage = resetIOImage;

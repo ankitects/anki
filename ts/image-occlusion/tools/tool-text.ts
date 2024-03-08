@@ -14,6 +14,7 @@ import {
     TEXT_PADDING,
 } from "./lib";
 import { undoStack } from "./tool-undo-redo";
+import { onPinchZoom } from "./tool-zoom";
 
 export const drawText = (canvas: fabric.Canvas): void => {
     canvas.selectionColor = "rgba(0, 0, 0, 0)";
@@ -49,6 +50,12 @@ export const drawText = (canvas: fabric.Canvas): void => {
         undoStack.onObjectAdded(text.id);
         text.enterEditing();
         text.selectAll();
+    });
+
+    canvas.on("mouse:move", function(o) {
+        if (onPinchZoom(o)) {
+            return;
+        }
     });
 
     canvas.on("text:editing:entered", function() {
