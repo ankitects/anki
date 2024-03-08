@@ -63,6 +63,7 @@ service SchedulerService {
 service BackendSchedulerService {
   rpc ComputeFsrsWeightsFromItems(ComputeFsrsWeightsFromItemsRequest)
       returns (ComputeFsrsWeightsResponse);
+  // Generates parameters used for FSRS's scheduler benchmarks.
   rpc FsrsBenchmark(FsrsBenchmarkRequest) returns (FsrsBenchmarkResponse);
 }
 
