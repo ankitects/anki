@@ -21,3 +21,7 @@ export const ioImageLoadedStore = writable(false);
 export const opacityStateStore = writable(false);
 // store state of text editing
 export const textEditingState = writable(false);
+// store color and size of line tool
+export const lineToolConfig = writable({ color: "#000000", size: 5 });
+// store color and size of path tool
+export const pathToolConfig = writable({ color: "#000000", size: 5 });

@@ -15,8 +15,10 @@ import { Text } from "./text";
 export function exportShapesToClozeDeletions(occludeInactive: boolean): {
     clozes: string;
     noteCount: number;
+    freedrawSvg: string;
 } {
     const shapes = baseShapesFromFabric();
+    const freedrawSvg = canvasFreeDrawingPathToSvg();
 
     let clozes = "";
     let index = 0;
@@ -27,7 +29,7 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
         }
     });
 
-    return { clozes, noteCount: index };
+    return { clozes, noteCount: index, freedrawSvg };
 }
 
 /** Gather all Fabric shapes, and convert them into BaseShapes or
@@ -161,4 +163,27 @@ function shapeOrShapesToCloze(
     text = `{{c${ordinal}::image-occlusion:${type}${text}}}<br>`;
 
     return text;
+}
+
+/** Return the path of the free drawing tool as svg */
+export function canvasFreeDrawingPathToSvg(): string {
+    const canvas = globalThis.canvas as Canvas;
+
+    const svgElements: string[] = [];
+
+    canvas.forEachObject(function(object) {
+        if (object instanceof fabric.Path || object instanceof fabric.Line) {
+            const svg = object.toSVG();
+            svgElements.push(svg);
+        }
+    });
+
+    if (svgElements.length === 0) {
+        return "";
+    }
+
+    let combinedSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${canvas.width} ${canvas.height}">`;
+    combinedSVG += svgElements.join("");
+    combinedSVG += "</svg>";
+    return combinedSVG;
 }

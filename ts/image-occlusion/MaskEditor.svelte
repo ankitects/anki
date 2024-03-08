@@ -106,7 +106,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .editor-main {
         position: absolute;
         top: 42px;
-        left: 36px;
+        left: 42px;
         bottom: 2px;
         right: 2px;
         border: 1px solid var(--border);
@@ -117,7 +117,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     :global([dir="rtl"]) .editor-main {
         left: 2px;
-        right: 36px;
+        right: 38px;
     }
 
     .editor-container {

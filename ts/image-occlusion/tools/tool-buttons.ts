@@ -4,8 +4,10 @@
 import * as tr from "@tslib/ftl";
 
 import {
+    mdiArrowTopRightThin,
     mdiCursorDefaultOutline,
     mdiEllipseOutline,
+    mdiGesture,
     mdiMagnifyScan,
     mdiRectangleOutline,
     mdiTextBox,
@@ -14,13 +16,15 @@ import {
 import {
     cursorKeyCombination,
     ellipseKeyCombination,
+    lineKeyCombination,
     magnifyKeyCombination,
+    pathKeyCombination,
     polygonKeyCombination,
     rectangleKeyCombination,
     textKeyCombination,
 } from "./shortcuts";
 
-export const tools = [
+export const toolsCursor = [
     {
         id: "cursor",
         icon: mdiCursorDefaultOutline,
@@ -33,6 +37,9 @@ export const tools = [
         tooltip: tr.editingImageOcclusionZoomTool,
         shortcut: magnifyKeyCombination,
     },
+];
+
+export const toolsShape = [
     {
         id: "draw-rectangle",
         icon: mdiRectangleOutline,
@@ -51,10 +58,25 @@ export const tools = [
         tooltip: tr.editingImageOcclusionPolygonTool,
         shortcut: polygonKeyCombination,
     },
+];
+
+export const toolsAnnotation = [
     {
         id: "draw-text",
         icon: mdiTextBox,
         tooltip: tr.editingImageOcclusionTextTool,
         shortcut: textKeyCombination,
+    },
+    {
+        id: "draw-line",
+        icon: mdiArrowTopRightThin,
+        tooltip: tr.editingImageOcclusionLineTool,
+        shortcut: lineKeyCombination,
+    },
+    {
+        id: "draw-path",
+        icon: mdiGesture,
+        tooltip: tr.editingImageOcclusionPathTool,
+        shortcut: pathKeyCombination,
     },
 ];
