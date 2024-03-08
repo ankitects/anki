@@ -346,10 +346,8 @@ impl Collection {
                 &config.inner.fsrs_weights,
             ) {
                 Ok(weights) => {
-                    if weights.fsrs_items >= 1000 {
-                        println!("{}: {:?}", config.name, weights.weights);
-                        config.inner.fsrs_weights = weights.weights;
-                    }
+                    println!("{}: {:?}", config.name, weights.weights);
+                    config.inner.fsrs_weights = weights.weights;
                 }
                 Err(AnkiError::Interrupted) => return Err(AnkiError::Interrupted),
                 Err(err) => {

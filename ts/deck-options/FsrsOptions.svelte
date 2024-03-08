@@ -121,6 +121,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         $config.fsrsWeights.every(
                             (n, i) => n.toFixed(4) === resp.weights[i].toFixed(4),
                         )
+                        || resp.weights.length === 0
                     ) {
                         alert(tr.deckConfigFsrsParamsOptimal());
                     }
