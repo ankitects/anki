@@ -103,7 +103,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         :global(.CodeMirror) {
             height: auto;
-            font-family: Consolas monospace;
+            font-family: Consolas, monospace;
         }
 
         :global(.CodeMirror-wrap pre) {
