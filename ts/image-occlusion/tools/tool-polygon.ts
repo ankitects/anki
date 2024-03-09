@@ -3,20 +3,19 @@
 
 import { fabric } from "fabric";
 import { opacityStateStore } from "image-occlusion/store";
-import type { PanZoom } from "panzoom";
 import { get } from "svelte/store";
 
-import { BORDER_COLOR, SHAPE_MASK_COLOR } from "./lib";
+import { BORDER_COLOR, isPointerInBoundingBox, SHAPE_MASK_COLOR } from "./lib";
 import { undoStack } from "./tool-undo-redo";
+import { onPinchZoom } from "./tool-zoom";
 
 let activeLine;
 let activeShape;
 let linesList: fabric.Line = [];
 let pointsList: fabric.Circle = [];
 let drawMode = false;
-let zoomValue = 1;
 
-export const drawPolygon = (canvas: fabric.Canvas, panzoom: PanZoom): void => {
+export const drawPolygon = (canvas: fabric.Canvas): void => {
     // remove selectable for shapes
     canvas.discardActiveObject();
     canvas.forEachObject(function(o) {
@@ -29,7 +28,7 @@ export const drawPolygon = (canvas: fabric.Canvas, panzoom: PanZoom): void => {
             if (options.target && options.target.id === pointsList[0].id) {
                 generatePolygon(canvas, pointsList);
             } else {
-                addPoint(canvas, options, panzoom);
+                addPoint(canvas, options);
             }
         } catch (e) {
             // Cannot read properties of undefined (reading 'id')
@@ -37,6 +36,12 @@ export const drawPolygon = (canvas: fabric.Canvas, panzoom: PanZoom): void => {
     });
 
     canvas.on("mouse:move", function(options) {
+        // if pinch zoom is active, remove all points and lines
+        if (onPinchZoom(options)) {
+            removeUnfinishedPolygon(canvas);
+            return;
+        }
+
         if (activeLine && activeLine.class === "line") {
             const pointer = canvas.getPointer(options.e);
             activeLine.set({
@@ -71,15 +76,14 @@ const toggleDrawPolygon = (canvas: fabric.Canvas): void => {
     }
 };
 
-const addPoint = (canvas: fabric.Canvas, options, panzoom): void => {
-    zoomValue = panzoom.getTransform().scale;
+const addPoint = (canvas: fabric.Canvas, options): void => {
+    const pointer = canvas.getPointer(options.e);
+    const origX = pointer.x;
+    const origY = pointer.y;
 
-    const canvasContainer = document.querySelector(".canvas-container")!.getBoundingClientRect()!;
-    let clientX = options.e.touches ? options.e.touches[0].clientX : options.e.clientX;
-    let clientY = options.e.touches ? options.e.touches[0].clientY : options.e.clientY;
-
-    clientX = (clientX - canvasContainer.left) / zoomValue;
-    clientY = (clientY - canvasContainer.top) / zoomValue;
+    if (!isPointerInBoundingBox(pointer)) {
+        return;
+    }
 
     const point = new fabric.Circle({
         radius: 5,
@@ -88,8 +92,8 @@ const addPoint = (canvas: fabric.Canvas, options, panzoom): void => {
         strokeWidth: 0.5,
         originX: "left",
         originY: "top",
-        left: clientX,
-        top: clientY,
+        left: origX,
+        top: origY,
         selectable: false,
         hasBorders: false,
         hasControls: false,
@@ -102,7 +106,7 @@ const addPoint = (canvas: fabric.Canvas, options, panzoom): void => {
         });
     }
 
-    const linePoints = [clientX, clientY, clientX, clientY];
+    const linePoints = [origX, origY, origX, origY];
 
     const line = new fabric.Line(linePoints, {
         strokeWidth: 2,
@@ -143,7 +147,7 @@ const addPoint = (canvas: fabric.Canvas, options, panzoom): void => {
         activeShape = polygon;
         canvas.renderAll();
     } else {
-        const polyPoint = [{ x: clientX, y: clientY }];
+        const polyPoint = [{ x: origX, y: origY }];
         const polygon = new fabric.Polygon(polyPoint, {
             stroke: "#333333",
             strokeWidth: 1,
@@ -166,6 +170,7 @@ const addPoint = (canvas: fabric.Canvas, options, panzoom): void => {
 
     canvas.add(line);
     canvas.add(point);
+    canvas.renderAll();
 };
 
 const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
