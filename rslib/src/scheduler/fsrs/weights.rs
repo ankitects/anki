@@ -96,7 +96,7 @@ impl Collection {
         let mut weights =
             fsrs.compute_parameters(items.clone(), fsrs_items < 1000, Some(progress2))?;
         let metrics = fsrs.universal_metrics(items, &weights, |_| true)?;
-        if metrics.0 < metrics.1 {
+        if metrics.0 <= metrics.1 {
             weights = current_weights.to_vec();
         }
 
