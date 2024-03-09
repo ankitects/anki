@@ -53,6 +53,8 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
 
     canvas.on("mouse:move", function(o) {
         if (onPinchZoom(o)) {
+            canvas.remove(rect);
+            canvas.renderAll();
             return;
         }
 

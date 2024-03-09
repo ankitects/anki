@@ -52,6 +52,8 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
 
     canvas.on("mouse:move", function(o) {
         if (onPinchZoom(o)) {
+            canvas.remove(ellipse);
+            canvas.renderAll();
             return;
         }
 

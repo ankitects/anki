@@ -20,6 +20,8 @@ export const drawText = (canvas: fabric.Canvas): void => {
     canvas.selectionColor = "rgba(0, 0, 0, 0)";
     stopDraw(canvas);
 
+    let text;
+
     canvas.on("mouse:down", function(o) {
         if (o.target) {
             return;
@@ -30,7 +32,7 @@ export const drawText = (canvas: fabric.Canvas): void => {
             return;
         }
 
-        const text = new fabric.IText("text", {
+        text = new fabric.IText("text", {
             id: "text-" + new Date().getTime(),
             left: pointer.x,
             top: pointer.y,
@@ -48,12 +50,13 @@ export const drawText = (canvas: fabric.Canvas): void => {
         canvas.add(text);
         canvas.setActiveObject(text);
         undoStack.onObjectAdded(text.id);
-        text.enterEditing();
         text.selectAll();
     });
 
     canvas.on("mouse:move", function(o) {
         if (onPinchZoom(o)) {
+            canvas.remove(text);
+            canvas.renderAll();
             return;
         }
     });

@@ -28,6 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "./tools/more-tools";
     import { toggleTranslucentKeyCombination } from "./tools/shortcuts";
     import { tools } from "./tools/tool-buttons";
+    import { drawCursor } from "./tools/tool-cursor";
     import { removeUnfinishedPolygon } from "./tools/tool-polygon";
     import { undoRedoTools, undoStack } from "./tools/tool-undo-redo";
     import { disableZoom, enableZoom } from "./tools/tool-zoom";
@@ -123,6 +124,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         removeUnfinishedPolygon(canvas);
 
         switch (activeTool) {
+            case "cursor":
+                drawCursor(canvas);
+                break;
             case "magnify":
                 enableZoom(canvas);
                 enableSelectable(canvas, false);
@@ -146,7 +150,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const disableFunctions = () => {
         stopDraw(canvas);
-        canvas.selectionColor = "rgba(100, 100, 255, 0.3)";
         disableZoom(canvas);
     };
 

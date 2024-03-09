@@ -33,11 +33,11 @@ export const setupMaskEditor = async (
     // get image width and height
     const image = document.getElementById("image") as HTMLImageElement;
     image.src = getImageData(imageData.data!, path);
-    image.onload = async function() {
+    image.onload = function() {
         const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
         setCanvasSize(canvas);
         onImageLoaded({ path });
-        await setupBoundingBox(canvas, size);
+        setupBoundingBox(canvas, size);
         undoStack.reset();
     };
 
@@ -200,7 +200,7 @@ export async function resetIOImage(path: string, onImageLoaded: (event: ImageLoa
         image.height = size.height;
         setCanvasSize(canvas);
         onImageLoaded({ path });
-        await setupBoundingBox(canvas, size);
+        setupBoundingBox(canvas, size);
     };
 }
 globalThis.resetIOImage = resetIOImage;

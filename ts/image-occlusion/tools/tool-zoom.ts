@@ -55,8 +55,11 @@ export const zoomReset = (canvas: fabric.Canvas): void => {
 export const enablePinchZoom = (canvas: fabric.Canvas) => {
     const hammer = new Hammer(canvas.upperCanvasEl);
     hammer.get("pinch").set({ enable: true });
-    hammer.on("pinch pinchmove", ev => {
+    hammer.on("pinchin pinchout", ev => {
         currentScale = Math.min(Math.max(minScale, ev.scale * zoomScale), maxScale);
+        canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, currentScale);
+        constrainBoundsAroundBgImage(canvas);
+        redraw(canvas);
     });
     hammer.on("pinchend pinchcancel", () => {
         zoomScale = currentScale;
@@ -100,42 +103,52 @@ const onMouseDown = (opt) => {
     redraw(canvas);
 };
 
-const onMouseMove = (opt) => {
+export const onMouseMove = (opt) => {
     const canvas = globalThis.canvas;
     if (isDragging) {
         canvas.discardActiveObject();
-        const { e } = opt;
         if (!canvas.viewportTransform) {
             return;
         }
 
+        // handle pinch zoom and pan for mobile devices
         if (onPinchZoom(opt)) {
             return;
         }
 
-        const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
-        const vpt = canvas.viewportTransform;
-
-        vpt[4] += clientX - canvas.lastPosX;
-        vpt[5] += clientY - canvas.lastPosY;
-        canvas.lastPosX = clientX;
-        canvas.lastPosY = clientY;
-        constrainBoundsAroundBgImage(canvas);
-        redraw(canvas);
+        onDrag(canvas, opt);
     }
 };
+
+// initializes lastPosX and lastPosY because it is undefined in touchmove event
+document.addEventListener("touchstart", (e) => {
+    const canvas = globalThis.canvas;
+    canvas.lastPosX = e.touches[0].clientX;
+    canvas.lastPosY = e.touches[0].clientY;
+});
 
 export const onPinchZoom = (opt): boolean => {
     const { e } = opt;
     const canvas = globalThis.canvas;
     if ((e.type === "touchmove") && (e.touches.length > 1)) {
-        canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, currentScale);
-        constrainBoundsAroundBgImage(canvas);
-        redraw(canvas);
+        onDrag(canvas, opt);
         return true;
     }
     return false;
+};
+
+const onDrag = (canvas, opt) => {
+    const { e } = opt;
+    const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
+    const vpt = canvas.viewportTransform;
+
+    vpt[4] += clientX - canvas.lastPosX;
+    vpt[5] += clientY - canvas.lastPosY;
+    canvas.lastPosX = clientX;
+    canvas.lastPosY = clientY;
+    constrainBoundsAroundBgImage(canvas);
+    redraw(canvas);
 };
 
 const onMouseUp = () => {

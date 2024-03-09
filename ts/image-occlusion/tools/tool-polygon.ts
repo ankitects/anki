@@ -36,7 +36,9 @@ export const drawPolygon = (canvas: fabric.Canvas): void => {
     });
 
     canvas.on("mouse:move", function(options) {
+        // if pinch zoom is active, remove all points and lines
         if (onPinchZoom(options)) {
+            removeUnfinishedPolygon(canvas);
             return;
         }
 
