@@ -106,6 +106,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         window.addEventListener("keyup", (event) => {
             if (event.key == "Control" && activeTool != "magnify") {
                 disableFunctions();
+                handleToolChanges(activeTool);
             }
         });
         window.addEventListener("wheel", () => {
@@ -116,8 +117,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     });
 
-    // handle tool changes after initialization
-    $: if (canvas) {
+    const handleToolChanges = (activeTool: string) => {
         disableFunctions();
         enableSelectable(canvas, true);
         // remove unfinished polygon when switching to other tools
@@ -146,6 +146,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             default:
                 break;
         }
+    };
+
+    // handle tool changes after initialization
+    $: if (canvas) {
+        handleToolChanges(activeTool);
     }
 
     const disableFunctions = () => {
