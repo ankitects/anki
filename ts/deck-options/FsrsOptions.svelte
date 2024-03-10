@@ -55,9 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         | undefined;
 
     const optimalRetentionRequest = new ComputeOptimalRetentionRequest({
-        deckSize: 10000,
         daysToSimulate: 365,
-        maxMinutesOfStudyPerDay: 30,
         lossAversion: 2.5,
     });
     $: if (optimalRetentionRequest.daysToSimulate > 3650) {
@@ -349,30 +347,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <summary>{tr.deckConfigComputeOptimalRetention()} (experimental)</summary>
 
         <SpinBoxRow
-            bind:value={optimalRetentionRequest.deckSize}
-            defaultValue={10000}
-            min={100}
-            max={99999}
-        >
-            <SettingTitle>Deck size</SettingTitle>
-        </SpinBoxRow>
-
-        <SpinBoxRow
             bind:value={optimalRetentionRequest.daysToSimulate}
             defaultValue={365}
             min={1}
             max={3650}
         >
             <SettingTitle>Days to simulate</SettingTitle>
-        </SpinBoxRow>
-
-        <SpinBoxRow
-            bind:value={optimalRetentionRequest.maxMinutesOfStudyPerDay}
-            defaultValue={30}
-            min={1}
-            max={1800}
-        >
-            <SettingTitle>Minutes study/day</SettingTitle>
         </SpinBoxRow>
 
         <button

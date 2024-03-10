@@ -28,12 +28,15 @@ impl Collection {
             invalid_input!("no days to simulate")
         }
         let p = self.get_optimal_retention_parameters(&req.search)?;
+        let learn_span = req.days_to_simulate as usize;
+        let learn_limit = 10;
+        let deck_size = learn_span * learn_limit;
         Ok(fsrs
             .optimal_retention(
                 &SimulatorConfig {
-                    deck_size: req.deck_size as usize,
+                    deck_size,
                     learn_span: req.days_to_simulate as usize,
-                    max_cost_perday: req.max_minutes_of_study_per_day as f64 * 60.0,
+                    max_cost_perday: f64::MAX,
                     max_ivl: req.max_interval as f64,
                     recall_costs: [p.recall_secs_hard, p.recall_secs_good, p.recall_secs_easy],
                     forget_cost: p.forget_secs,
@@ -50,7 +53,7 @@ impl Collection {
                         p.review_rating_probability_easy,
                     ],
                     loss_aversion: req.loss_aversion,
-                    learn_limit: usize::MAX,
+                    learn_limit,
                     review_limit: usize::MAX,
                 },
                 &req.weights,
