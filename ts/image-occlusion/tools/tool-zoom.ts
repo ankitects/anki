@@ -47,9 +47,15 @@ export const zoomOut = (canvas): void => {
 };
 
 export const zoomReset = (canvas: fabric.Canvas): void => {
-    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, 1);
+    zoomResetInner(canvas);
+    // reset again to update the viewportTransform
+    zoomResetInner(canvas);
+};
+
+const zoomResetInner = (canvas: fabric.Canvas): void => {
     fitCanvasVptScale(canvas);
-    constrainBoundsAroundBgImage(canvas);
+    const vpt = canvas.viewportTransform;
+    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, vpt[0]);
 };
 
 export const enablePinchZoom = (canvas: fabric.Canvas) => {
@@ -74,8 +80,7 @@ export const disablePinchZoom = (canvas: fabric.Canvas) => {
 
 export const onResize = (canvas: fabric.Canvas) => {
     setCanvasSize(canvas);
-    constrainBoundsAroundBgImage(canvas);
-    fitCanvasVptScale(canvas);
+    zoomReset(canvas);
 };
 
 const onMouseWheel = (opt) => {
@@ -147,6 +152,30 @@ const onDrag = (canvas, opt) => {
     vpt[5] += clientY - canvas.lastPosY;
     canvas.lastPosX = clientX;
     canvas.lastPosY = clientY;
+    constrainBoundsAroundBgImage(canvas);
+    redraw(canvas);
+};
+
+export const onDragX = (canvas: fabric.Canvas, opt: WheelEvent) => {
+    const delta = opt.deltaX;
+    const vpt = canvas.viewportTransform;
+    canvas.lastPosX = opt.clientX;
+
+    vpt[4] -= delta;
+    canvas.lastPosX -= delta;
+    canvas.setViewportTransform(vpt);
+    constrainBoundsAroundBgImage(canvas);
+    redraw(canvas);
+};
+
+export const onDragY = (canvas: fabric.Canvas, opt: WheelEvent) => {
+    const delta = opt.deltaY;
+    const vpt = canvas.viewportTransform;
+    canvas.lastPosY = opt.clientY;
+
+    vpt[5] -= delta;
+    canvas.lastPosY -= delta;
+    canvas.setViewportTransform(vpt);
     constrainBoundsAroundBgImage(canvas);
     redraw(canvas);
 };

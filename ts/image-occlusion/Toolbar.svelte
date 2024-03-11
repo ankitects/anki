@@ -31,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { drawCursor } from "./tools/tool-cursor";
     import { removeUnfinishedPolygon } from "./tools/tool-polygon";
     import { undoRedoTools, undoStack } from "./tools/tool-undo-redo";
-    import { disableZoom, enableZoom } from "./tools/tool-zoom";
+    import { disableZoom, enableZoom, onDragX, onDragY } from "./tools/tool-zoom";
 
     export let canvas;
     export let iconSize;
@@ -50,7 +50,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     // handle zoom event when mouse scroll and ctrl key are hold for panzoom
-    let clicked = false;
+    let ctrlClicked = false;
+    let altClicked = false;
+    let shiftClicked = false;
     let dbclicked = false;
     let move = false;
     let wheel = false;
@@ -58,12 +60,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => {
         window.addEventListener("mousedown", (event) => {
             if (event.ctrlKey) {
-                clicked = true;
+                ctrlClicked = true;
             }
         });
         window.addEventListener("mouseup", (event) => {
             if (event.ctrlKey) {
-                clicked = false;
+                ctrlClicked = false;
             }
         });
         window.addEventListener("mousemove", (event) => {
@@ -75,32 +77,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             if (event.ctrlKey) {
                 wheel = true;
             }
+            if (event.altKey) {
+                wheel = true;
+            }
+            if (event.shiftKey) {
+                wheel = true;
+            }
         });
         window.addEventListener("dblclick", (event) => {
             if (event.ctrlKey) {
                 dbclicked = true;
             }
         });
-        window.addEventListener("keyup", (event) => {
-            if (event.key == "Control") {
-                clicked = false;
-                move = false;
-                wheel = false;
-                dbclicked = false;
-            }
-        });
-        window.addEventListener("keydown", (event) => {
-            if (event.key == "Control") {
-                clicked = false;
-                move = false;
-                wheel = false;
-                dbclicked = false;
-            }
+        window.addEventListener("keyup", () => {
+            ctrlClicked = false;
+            altClicked = false;
+            shiftClicked = false;
+            move = false;
+            wheel = false;
+            dbclicked = false;
         });
         window.addEventListener("keydown", (event) => {
             if (event.key == "Control" && activeTool != "magnify") {
                 stopDraw(canvas);
                 enableZoom(canvas);
+            }
+            if (event.key == "Alt") {
+                altClicked = true;
+            }
+            if (event.key == "Shift") {
+                shiftClicked = true;
             }
         });
         window.addEventListener("keyup", (event) => {
@@ -108,11 +114,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 disableFunctions();
                 handleToolChanges(activeTool);
             }
+            if (event.key == "Alt") {
+                altClicked = false;
+            }
+            if (event.key == "Shift") {
+                shiftClicked = false;
+            }
         });
-        window.addEventListener("wheel", () => {
-            if (clicked && move && wheel && !dbclicked) {
+        window.addEventListener("wheel", (event) => {
+            if (ctrlClicked && move && wheel && !dbclicked) {
                 stopDraw(canvas);
                 enableZoom(canvas);
+            }
+            if (altClicked && wheel) {
+                onDragX(canvas, event);
+            }
+            if (shiftClicked && wheel) {
+                onDragY(canvas, event);
             }
         });
     });
