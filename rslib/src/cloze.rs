@@ -417,7 +417,7 @@ pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
 fn add_cloze_numbers_in_text_with_clozes(nodes: &[TextOrCloze], set: &mut HashSet<u16>) {
     for node in nodes {
         if let TextOrCloze::Cloze(cloze) = node {
-            if !(cloze.image_occlusion().is_some() || cloze.ordinal == 0) {
+            if cloze.ordinal != 0 {
                 set.insert(cloze.ordinal);
                 add_cloze_numbers_in_text_with_clozes(&cloze.nodes, set);
             }
