@@ -6,13 +6,7 @@ from __future__ import annotations
 from typing import Sequence
 
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
-from anki.decks import (
-    DeckCollapseScope,
-    DeckDict,
-    DeckId,
-    DecksRemoved,
-    UpdateDeckConfigs,
-)
+from anki.decks import DeckCollapseScope, DeckDict, DeckId, DeckName, UpdateDeckConfigs
 from aqt.operations import CollectionOp
 from aqt.qt import QWidget
 from aqt.utils import getOnlyText, tooltip, tr
@@ -21,13 +15,14 @@ from aqt.utils import getOnlyText, tooltip, tr
 def remove_decks(
     *,
     parent: QWidget,
-    deck_ids: Sequence[DeckId],
-) -> CollectionOp[DecksRemoved]:
+        deck_ids: Sequence[DeckId],
+        deck_name: DeckName,
+) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(parent, lambda col: col.decks.remove(deck_ids)).success(
         lambda out: tooltip(
-            tr.browsing_cards_deleted_with_decknames(
+            tr.browsing_cards_deleted_with_deckname(
                 count=out.count,
-                deck_names=", ".join(str(item) for item in out.deck_names),
+                deck_name=deck_name,
             ),
             parent=parent,
         )

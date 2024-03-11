@@ -25,7 +25,6 @@ FilteredDeckConfig = decks_pb2.Deck.Filtered
 DeckCollapseScope = decks_pb2.SetDeckCollapsedRequest.Scope
 DeckConfigsForUpdate = deck_config_pb2.DeckConfigsForUpdate
 UpdateDeckConfigs = deck_config_pb2.UpdateDeckConfigsRequest
-DecksRemoved = decks_pb2.DecksRemoved
 Deck = decks_pb2.Deck
 
 # type aliases until we can move away from dicts
@@ -34,7 +33,7 @@ DeckConfigDict = dict[str, Any]
 
 DeckId = NewType("DeckId", int)
 DeckConfigId = NewType("DeckConfigId", int)
-
+DeckName = NewType("DeckName", str)
 DEFAULT_DECK_ID = DeckId(1)
 DEFAULT_DECK_CONF_ID = DeckConfigId(1)
 
@@ -134,7 +133,7 @@ class DeckManager(DeprecatedNamesMixin):
         out = self.add_deck_legacy(deck)
         return DeckId(out.id)
 
-    def remove(self, dids: Sequence[DeckId]) -> DecksRemoved:
+    def remove(self, dids: Sequence[DeckId]) -> OpChangesWithCount:
         return self.col._backend.remove_decks(dids)
 
     def all_names_and_ids(

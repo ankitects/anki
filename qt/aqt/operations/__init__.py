@@ -19,7 +19,6 @@ from anki.collection import (
     OpChangesWithId,
     Progress,
 )
-from anki.decks import DecksRemoved
 from aqt.errors import show_exception
 from aqt.progress import ProgressUpdate
 from aqt.qt import QWidget
@@ -42,7 +41,6 @@ ResultWithChanges = TypeVar(
         OpChangesAfterUndo,
         ImportLogWithChanges,
         HasChangesProperty,
-        DecksRemoved,
     ],
 )
 

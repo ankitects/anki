@@ -10,7 +10,6 @@ from anki import (
     card_rendering_pb2,
     collection_pb2,
     config_pb2,
-    decks_pb2,
     generic_pb2,
     image_occlusion_pb2,
     import_export_pb2,
@@ -25,7 +24,6 @@ from anki._legacy import DeprecatedNamesMixin, deprecated
 from anki.sync_pb2 import SyncLoginRequest
 
 # protobuf we publicly export - listed first to avoid circular imports
-DecksRemoved = decks_pb2.DecksRemoved
 HelpPage = links_pb2.HelpPageLinkRequest.HelpPage
 SearchNode = search_pb2.SearchNode
 Progress = collection_pb2.Progress

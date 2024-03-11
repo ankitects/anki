@@ -356,7 +356,8 @@ class DeckBrowser:
         ).run_in_background()
 
     def _delete(self, did: DeckId) -> None:
-        remove_decks(parent=self.mw, deck_ids=[did]).run_in_background()
+        deck_name = self.mw.col.decks.find_deck_in_tree(self._render_data.tree, did).name
+        remove_decks(parent=self.mw, deck_ids=[did], deck_name=deck_name).run_in_background()
 
     # Top buttons
     ######################################################################
