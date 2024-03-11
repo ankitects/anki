@@ -11,7 +11,7 @@ from typing import Any
 import aqt
 import aqt.operations
 from anki.collection import Collection, OpChanges
-from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
+from anki.decks import DeckCollapseScope, DeckId, DeckName, DeckTreeNode
 from aqt import AnkiQt, gui_hooks
 from aqt.deckoptions import display_options_for_deck_id
 from aqt.operations import QueryOp
@@ -356,8 +356,12 @@ class DeckBrowser:
         ).run_in_background()
 
     def _delete(self, did: DeckId) -> None:
-        deck_name = self.mw.col.decks.find_deck_in_tree(self._render_data.tree, did).name
-        remove_decks(parent=self.mw, deck_ids=[did], deck_name=deck_name).run_in_background()
+        deck_name = self.mw.col.decks.find_deck_in_tree(
+            self._render_data.tree, did
+        ).name
+        remove_decks(
+            parent=self.mw, deck_ids=[did], deck_name=DeckName(deck_name)
+        ).run_in_background()
 
     # Top buttons
     ######################################################################

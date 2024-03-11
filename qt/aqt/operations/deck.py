@@ -15,8 +15,8 @@ from aqt.utils import getOnlyText, tooltip, tr
 def remove_decks(
     *,
     parent: QWidget,
-        deck_ids: Sequence[DeckId],
-        deck_name: DeckName,
+    deck_ids: Sequence[DeckId],
+    deck_name: DeckName,
 ) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(parent, lambda col: col.decks.remove(deck_ids)).success(
         lambda out: tooltip(

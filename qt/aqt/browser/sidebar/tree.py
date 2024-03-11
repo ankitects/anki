@@ -15,7 +15,7 @@ from anki.collection import (
     SearchJoiner,
     SearchNode,
 )
-from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
+from anki.decks import DeckCollapseScope, DeckId, DeckName, DeckTreeNode
 from anki.models import NotetypeId
 from anki.notes import Note
 from anki.tags import TagTreeNode
@@ -1084,9 +1084,8 @@ class SidebarTreeView(QTreeView):
 
     def delete_decks(self, _item: SidebarItem) -> None:
         remove_decks(
-            parent=self,
-            deck_name=_item.name,
-            deck_ids=self._selected_decks()).run_in_background()
+            parent=self, deck_name=DeckName(_item.name), deck_ids=self._selected_decks()
+        ).run_in_background()
 
     # Tags
     ###########################
