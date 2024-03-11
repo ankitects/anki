@@ -373,12 +373,10 @@ message FsrsReview {
 
 message ComputeOptimalRetentionRequest {
   repeated float weights = 1;
-  uint32 deck_size = 2;
-  uint32 days_to_simulate = 3;
-  uint32 max_minutes_of_study_per_day = 4;
-  uint32 max_interval = 5;
-  string search = 6;
-  double loss_aversion = 7;
+  uint32 days_to_simulate = 2;
+  uint32 max_interval = 3;
+  string search = 4;
+  double loss_aversion = 5;
 }
 
 message ComputeOptimalRetentionResponse {
